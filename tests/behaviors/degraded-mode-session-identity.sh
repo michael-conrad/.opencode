@@ -23,13 +23,16 @@ echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
 OVERALL_RESULT=0
 
-# Resolve tool paths (worktree has flat structure, main has .opencode nesting)
+# Resolve tool paths — .opencode/ is always a submodule, so paths are
+# .opencode/tools/..., .opencode/scripts/..., etc.
+# In a submodule worktree, the worktree root IS the submodule content,
+# so we check both WORKTREE_ROOT/.opencode/... and WORKTREE_ROOT/...
 resolve_tool() {
     local rel_path="$1"
-    if [ -f "$WORKTREE_ROOT/$rel_path" ]; then
-        echo "$WORKTREE_ROOT/$rel_path"
-    elif [ -f "$WORKTREE_ROOT/.opencode/$rel_path" ]; then
+    if [ -f "$WORKTREE_ROOT/.opencode/$rel_path" ]; then
         echo "$WORKTREE_ROOT/.opencode/$rel_path"
+    elif [ -f "$WORKTREE_ROOT/$rel_path" ]; then
+        echo "$WORKTREE_ROOT/$rel_path"
     else
         echo ""
     fi
