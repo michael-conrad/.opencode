@@ -743,22 +743,81 @@ def resolve_identity(remote_url: str) -> tuple[str, str, str] | tuple[None, None
     return None, None, None
 
 
+def get_submodule_remotes() -> list[tuple[str, str, str]]:
+    """Find remotes from submodules when the root repo has no remote.
+
+    Returns list of (submodule_path, remote_url, platform) tuples.
+    """
+    submod_dirs = get_submodule_dirs()
+    remotes: list[tuple[str, str, str]] = []
+    for submod_path in submod_dirs:
+        submod_remote = run_git_command(
+            ["-C", submod_path, "remote", "get-url", "origin"]
+        )
+        if submod_remote:
+            platform, owner, repo = resolve_identity(submod_remote)
+            if platform and owner and repo:
+                remotes.append((submod_path, submod_remote, platform))
+    return remotes
+
+
 def main() -> int:
     remote_url = get_remote_url()
-    if not remote_url:
+    identity_source = "root"
+    platform: str | None = None
+    owner: str | None = None
+    repo: str | None = None
+
+    if remote_url:
+        platform, owner, repo = resolve_identity(remote_url)
+        if not platform or not owner or not repo:
+            print(
+                "Could not determine repository identity from remote URL.",
+                file=sys.stderr,
+            )
+            print(f"Remote URL: {remote_url}", file=sys.stderr)
+            return 1
+    else:
         print(
-            "No git remote configured. Run: git remote add origin <url>",
+            "No root repo remote configured — checking submodules for degraded mode",
             file=sys.stderr,
         )
-        return 1
+        submodule_remotes = get_submodule_remotes()
+        if submodule_remotes:
+            submod_path, submod_url, submod_platform = submodule_remotes[0]
+            submod_owner, submod_repo = (
+                parse_git_remote_url(submod_url)
+                if submod_platform == "github"
+                else (None, None)
+            )
+            if submod_platform != "github":
+                _, submod_owner, submod_repo = parse_gitbucket_url(submod_url)
+            if submod_owner and submod_repo:
+                owner = submod_owner
+                repo = submod_repo
+                platform = submod_platform
+                identity_source = "submodule"
+                remote_url = submod_url
+                print(
+                    f"Using submodule remote for degraded mode: {submod_path} -> {submod_url}",
+                    file=sys.stderr,
+                )
+            else:
+                print(
+                    "Could not parse owner/repo from submodule remote.", file=sys.stderr
+                )
+                print(f"Submodule remote: {submod_url}", file=sys.stderr)
 
-    platform, owner, repo = resolve_identity(remote_url)
-    if not platform or not owner or not repo:
-        print(
-            "Could not determine repository identity from remote URL.", file=sys.stderr
-        )
-        print(f"Remote URL: {remote_url}", file=sys.stderr)
-        return 1
+        if not platform:
+            owner = "(none)"
+            repo = "(none)"
+            platform = "local"
+            identity_source = "none"
+            remote_url = "(none)"
+            print(
+                "No git remote available — operating in local-only mode",
+                file=sys.stderr,
+            )
 
     user_name = get_user_name()
     user_email = get_user_email()
@@ -786,6 +845,7 @@ def main() -> int:
     print(f"github.owner: {owner}")
     print(f"github.repo: {repo}")
     print(f"github.platform: {platform}")
+    print(f"github.identity_source: {identity_source}")
     print("AgentName: ")
     print("ModelId: ")
     print(f"dev.name: {user_name}")
@@ -796,7 +856,7 @@ def main() -> int:
     if platform == "github":
         print("github.html_url: https://github.com/")
 
-    if platform == "gitbucket":
+    if platform == "gitbucket" and remote_url != "(none)":
         base_url, _, _ = parse_gitbucket_url(remote_url)
         if base_url:
             print(f"gitbucket.html_url: {base_url}")

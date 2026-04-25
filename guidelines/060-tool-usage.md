@@ -82,6 +82,20 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 
 **For `bash` tool:** Continue using `workdir` parameter (already documented in `using-git-worktrees` skill and `000-critical-rules.md`).
 
+### `.issues/` Worktree Exemption (CRITICAL)
+
+`.issues/` files are non-behavioral metadata (issue specs, comments, frontmatter). They are **exempt from the worktree requirement** — agents MAY create, read, edit, and update `.issues/` files without setting up a worktree first.
+
+**However**, the **branching requirement still applies**: `.issues/` files MUST NOT be committed directly to `dev` or `main`. All `.issues/` changes require a feature branch (or pair-mode branch).
+
+| Rule | `.issues/` files | Source code files |
+|------|-------------------|-------------------|
+| Worktree required? | NO (exempt) | YES (Tier 1 mandate) |
+| Feature branch required? | YES | YES |
+| Can commit to `dev`/`main`? | NO | NO |
+
+**Rationale:** `.issues/` files are local workspace metadata, not executable code. Edits to `.issues/` cannot break builds, tests, or deployments. However, they are tracked in git (so devs can resume work on another machine), so branch hygiene still matters.
+
 ## 3. Temp Files & Cleanliness
 
 ### ✅ ALWAYS DO

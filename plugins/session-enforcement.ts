@@ -1143,6 +1143,12 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           const knownPlatform = extractValue(cachedIdentityOutput, "github.platform");
           const knownOwner = extractValue(cachedIdentityOutput, "github.owner");
           const knownRepo = extractValue(cachedIdentityOutput, "github.repo");
+          const knownIdentitySource = extractValue(cachedIdentityOutput, "github.identity_source");
+
+          // Degraded mode: when identity_source is "none", we have no remote at all.
+          // Platform is "local", owner/repo are "(none)". This is a valid operational state,
+          // not an error. Skip the FATAL identity validation for local-only mode.
+          const isLocalMode = knownPlatform === "local" || knownIdentitySource === "none";
 
           // Detect agent binary for identity echo
           const agentBinary = detectAgentBinary();
@@ -1175,7 +1181,17 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           }
 
           // --- First-turn-only: Identity echo validation ---
-          if (!knownPlatform || !knownOwner || !knownRepo) {
+          if (isLocalMode) {
+            // Local mode: identity values are "(none)" by design. Skip FATAL validation.
+            // Emit a warning instead so the agent knows it's in local-only mode.
+            const lastUser = userMessages[userMessages.length - 1];
+            if (lastUser?.parts?.length) {
+              lastUser.parts.push({
+                type: "text",
+                text: `<LOCAL_MODE>\n⚠️ Operating in local-only mode — no git remote configured.\n\n- github.platform: local\n- github.owner: (none)\n- github.repo: (none)\n- github.identity_source: none\n\nGitHub/GitBucket API calls are unavailable. Local issue tracking (.issues/) is available.\nDo NOT attempt to use GitHub MCP or GitBucket API tools — all issue operations route to local .issues/.\n</LOCAL_MODE>`
+              });
+            }
+          } else if (!knownPlatform || !knownOwner || !knownRepo) {
             const missing = [
               !knownPlatform ? "github.platform" : null,
               !knownOwner ? "github.owner" : null,

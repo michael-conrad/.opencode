@@ -41,6 +41,8 @@ issue-operations/                     # Dispatcher — workflow logic, platform 
       tools/                          # Existing Python client + tests
       tasks/                          # Existing issue/label/repo/error-recovery tasks
       reference/                      # OpenAPI spec
+    local/
+      SKILL.md                        # Capability manifest (local .issues/ directory)
 ```
 
 ## Tasks
@@ -111,7 +113,8 @@ The dispatcher detects `github.platform` from session init output:
 |----------------|-------------------|
 | `github` | `platforms/github-mcp/` |
 | `gitbucket` | `platforms/gitbucket-api/` |
-| (unset) | `platforms/github-mcp/` (default) |
+| `local` | `platforms/local/` |
+| (unset) | `platforms/local/` (default when no remote) |
 
 ### Target Parameter
 
@@ -393,7 +396,7 @@ For the provenance issue body format and tier-specific details, see `git-workflo
 | Task table entry `verify-merge` | File exists at `.opencode/skills/issue-operations/tasks/verify-merge.md` | MISSING-TRACEABILITY if missing |
 | Task table entry `link-sub-issue` | File exists at `.opencode/skills/issue-operations/tasks/link-sub-issue.md` | MISSING-TRACEABILITY if missing |
 | Task table entry `comment` | File exists at `.opencode/skills/issue-operations/tasks/comment.md` | MISSING-TRACEABILITY if missing |
-| Platform sub-skills | Files exist at `platforms/github-mcp/SKILL.md` and `platforms/gitbucket-api/SKILL.md` | MISSING-TRACEABILITY if missing |
+| Platform sub-skills | Files exist at `platforms/github-mcp/SKILL.md`, `platforms/gitbucket-api/SKILL.md`, and `platforms/local/SKILL.md` | MISSING-TRACEABILITY if missing |
 | `git-workflow` provenance task | Task exists at `.opencode/skills/git-workflow/tasks/provenance.md` | MISSING-TRACEABILITY if missing |
 
 **Verification Procedure:**
@@ -419,4 +422,4 @@ Before invoking any cross-referenced skill:
 - Related skills: `spec-auditor`, `approval-gate`, `writing-plans`, `git-workflow`, `spec-auditor` (ground-truth adversarial verification)
 - Related guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md` (metadata verification extension)
 - Authorization classification: See `010-approval-gate.md` Action Authorization Classification
-- Platform sub-skills: `platforms/github-mcp/SKILL.md`, `platforms/gitbucket-api/SKILL.md`
+- Platform sub-skills: `platforms/github-mcp/SKILL.md`, `platforms/gitbucket-api/SKILL.md`, `platforms/local/SKILL.md`

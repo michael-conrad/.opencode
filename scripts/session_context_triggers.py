@@ -418,15 +418,21 @@ def has_stale_submodules() -> list[dict[str, str]]:
             continue
         committed_sha = run_git(["ls-tree", "HEAD", sub_path])
         if committed_sha:
-            committed_sha = committed_sha.split()[2] if len(committed_sha.split()) >= 3 else None
+            committed_sha = (
+                committed_sha.split()[2] if len(committed_sha.split()) >= 3 else None
+            )
         remote_dev = run_git(["ls-remote", url, "refs/heads/dev"])
-        remote_sha = remote_dev.split()[0] if remote_dev and remote_dev.strip() else None
+        remote_sha = (
+            remote_dev.split()[0] if remote_dev and remote_dev.strip() else None
+        )
         if committed_sha and remote_sha and committed_sha != remote_sha:
-            stale.append({
-                "path": sub_path,
-                "committed_sha": committed_sha[:12],
-                "remote_sha": remote_sha[:12],
-            })
+            stale.append(
+                {
+                    "path": sub_path,
+                    "committed_sha": committed_sha[:12],
+                    "remote_sha": remote_sha[:12],
+                }
+            )
     return stale
 
 
@@ -475,14 +481,6 @@ def build_dev_branch_with_changes_warning(changed_files: list[str]) -> str:
 
 
 def main() -> int:
-    remote_url = get_remote_url()
-    if not remote_url:
-        print(
-            "No git remote configured. Cannot determine repository identity.",
-            file=sys.stderr,
-        )
-        return 1
-
     root_dir = get_root_dir()
     if not root_dir:
         print("Not in a git repository.", file=sys.stderr)
