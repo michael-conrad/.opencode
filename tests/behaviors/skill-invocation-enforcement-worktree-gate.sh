@@ -1,10 +1,10 @@
 #!/bin/bash
-# Behavioral Enforcement Test: Skill Invocation Enforcement — Worktree Gate
+# Behavioral Enforcement Test: Skill Invocation Enforcement — Pre-Work Gate
 #
-# Verifies that when an agent is asked to create a worktree, it does NOT
-# call `git worktree add` directly. Instead, it must invoke the
-# `git-workflow --task pre-work` skill as mandated by the critical violations
-# in 000-critical-rules.md (Worktree Bypass) and 060-tool-usage.md.
+# Verifies that when an agent is asked to create a feature branch, it does NOT
+# call `git worktree add` or `git checkout -b` directly. Instead, it must invoke
+# the `git-workflow --task pre-work` skill as mandated by the critical violations
+# in 000-critical-rules.md (Direct-Branch Default / Worktree Bypass) and git-workflow SKILL.md.
 #
 # Co-authored with AI: <AgentName> (<ModelId>)
 
@@ -23,6 +23,8 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 OVERALL_RESULT=0
 
 assert_forbidden_pattern_absent "git worktree add" "direct git worktree add call" || OVERALL_RESULT=1
+
+assert_forbidden_pattern_absent "git checkout -b" "direct git checkout -b call without skill" || OVERALL_RESULT=1
 
 assert_required_pattern_present "git-workflow\|pre-work\|skill.*invocation\|MUST invoke" "skill dispatch reference" || OVERALL_RESULT=1
 
