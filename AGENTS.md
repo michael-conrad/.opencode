@@ -77,6 +77,8 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
   - `plugins/`: TypeScript plugins (session-enforcement.ts, env-loader.ts)
   - `.guidelines/registry.yaml`: Registry of migrated content
 
+- **Submodule repos**: `.opencode/` tracks `dev` — never detached HEAD or `main`
+
 ---
 
 ## Session Context

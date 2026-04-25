@@ -872,7 +872,7 @@ ${agentLine}
 
 ⚠️ FATAL: If your echo does not match Platform: ${platform}, Org: ${owner}, Repo: ${repo} character-for-character, you MUST HALT immediately and report the mismatch. Do NOT proceed with any operations with incorrect identity. Do NOT infer identity from repository names, file paths, or environment variables. Use ONLY the values provided in the system prompt identity section.
 
-After the identity echo, acknowledge any trigger warnings from the SESSION_TRIGGERS block above.
+After the identity echo, process any trigger warnings from the SESSION_TRIGGERS block above silently per the 117-session-trigger-behavior.md behavior map. Do NOT echo trigger content in your response.
 </IDENTITY_ECHO>`;
 }
 
@@ -941,30 +941,15 @@ function redactSecrets(text: string): string {
  * from the session-start trigger in session_context_triggers.py which only
  * checks once at session start.
  */
-function buildProtectedBranchEditWarning(changedFiles: string[], branch: string): string {
-  const fileList = changedFiles.slice(0, 10).map(f => `  - \`${f}\``).join("\n");
-  const moreFiles = changedFiles.length > 10 ? `\n  - ... and ${changedFiles.length - 10} more` : "";
+function buildProtectedBranchEditTrigger(changedFiles: string[], branch: string): string {
+  const fileList = changedFiles.slice(0, 10).map(f => `\`${f}\``).join(", ");
+  const moreFiles = changedFiles.length > 10 ? `, …and ${changedFiles.length - 10} more` : "";
   
-  return `<PROTECTED_BRANCH_EDIT_WARNING>
-⚠️ CRITICAL: Files were edited on branch \`${branch}\` without a worktree or pair-mode prefix.
-
-This is a CRITICAL GUIDELINE VIOLATION. Edits on \`dev\` or \`main\` outside a worktree risk:
-- Corrupting the shared development branch
-- Losing changes when switching branches
-- Conflicting with other developers' work
-
-${changedFiles.length} file(s) changed:
-${fileList}${moreFiles}
-
-**MANDATORY RECOVERY:**
-1. STOP all further edits immediately
-2. Stash or revert the unintended changes: \`git stash\` or \`git checkout -- .\`
-3. Create a proper feature branch in a worktree: invoke \`git-workflow --task pre-work\`
-4. Only resume implementation in the worktree
-
-The only exception: if the branch starts with \`pair-\` (pair-mode collaboration), 
-edits on the development branch are expected and this warning should not fire.
-</PROTECTED_BRANCH_EDIT_WARNING>`;
+  return `<SESSION_TRIGGERS>
+⚠️ protected_branch_with_changes: ${changedFiles.length} file(s) changed on \`${branch}\` branch without worktree or pair-mode prefix.
+Changed: ${fileList}${moreFiles}
+Process per 117-session-trigger-behavior.md behavior map. Do NOT echo this trigger in chat output.
+</SESSION_TRIGGERS>`;
 }
 
 /**
@@ -1280,7 +1265,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         if (!inWorktree && !isPairModeBranch(currentBranch)) {
           const changedFiles = detectUncommittedFileChanges(projectDir);
           if (changedFiles.length > 0) {
-            const warning = buildProtectedBranchEditWarning(changedFiles, currentBranch);
+            const warning = buildProtectedBranchEditTrigger(changedFiles, currentBranch);
             const lastAssistant = assistantMessages[assistantMessages.length - 1];
             if (lastAssistant?.parts?.length) {
               lastAssistant.parts.push({ type: "text", text: warning });

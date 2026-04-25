@@ -228,6 +228,37 @@ Use `fragment-manager` skill for CRUD operations:
 /skill fragment-manager --task check-drift
 ```
 
+## Submodule Tracking
+
+When this repository is consumed as a submodule (e.g., `.opencode/`), it **must track the `dev` branch** — never detached HEAD and never `main`.
+
+### Why
+
+- `dev` is the active development branch with the latest guidelines, skills, and tools
+- `main` is reserved for stable releases and will lag behind ongoing work
+- Detached HEAD prevents `git pull` from receiving updates and makes local changes fragile
+
+### Verification
+
+```bash
+git submodule status          # Should show branch name, not a bare SHA
+cat .gitmodules               # branch = dev
+cd .opencode && git branch --show-current  # Must print "dev"
+```
+
+### Recovery
+
+If a submodule is detached or tracking `main`:
+
+```bash
+cd .opencode
+git checkout dev
+git pull
+cd ..
+git add .opencode
+git commit -m "chore: fix submodule tracking to dev"
+```
+
 ## License
 
 MIT

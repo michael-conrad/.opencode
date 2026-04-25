@@ -32,6 +32,7 @@ Each trigger type maps to a required agent behavior:
 | `merge_conflict` | Process internally: note conflict files, plan resolution approach, do not echo the file list |
 | `unpushed_commits` | Process internally: note count, do not echo. Push when explicitly asked or when review-prep requires it |
 | `orphaned_worktrees` | Process internally: note paths, suggest cleanup when appropriate, do not echo the path list |
+| `stale_submodule` | If active work (feature branch, approved spec): advance submodule to dev tip, read commit log between old and new SHA, commit the bump into the current feature branch with a generated commit message summarizing the delta. If read-only (no active work): suppress trigger per suppression rule. |
 
 ## Diff Analysis Requirement
 
@@ -66,7 +67,7 @@ This applies regardless of whether the current branch has a `pair-` prefix. The 
 
 Triggers that cannot drive meaningful action in the current context should be processed internally and suppressed from the agent's response entirely. The `<SESSION_TRIGGERS>` block remains in the user message for internal reasoning, but if a trigger provides no actionable insight (e.g., `unpushed_commits` when no push is pending), the agent should not mention it.
 
-**The only triggers that produce visible agent behavior** are `protected_branch_with_changes`, `on_main_branch`, and `stale_stash` — all others are processed silently.
+**The only triggers that produce visible agent behavior** are `protected_branch_with_changes`, `on_main_branch`, `stale_stash`, and `stale_submodule` (when active work exists) — all others are processed silently.
 
 ## Cross-References
 

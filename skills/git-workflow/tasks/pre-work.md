@@ -187,6 +187,22 @@ test -f .gitmodules
 
 4. **Report status to chat:** Report each submodule's path, checked-out SHA, committed SHA, and dev tip SHA.
 
+5. **If any submodule SHA changed from the parent's committed ref**, auto-commit the submodule bump:
+
+   For each submodule whose checked-out SHA differs from the parent's committed SHA:
+   1. Read the commit log between old and new SHA:
+      ```bash
+      cd <submodule-path>
+      git log --oneline <old_sha>..<new_sha>
+      cd -
+      ```
+   2. Generate a summary commit message with the count and first-line summaries:
+      ```bash
+      git add <submodule-path>
+      git commit -m "chore(submodule): pin <path> to latest dev (N commits: summary)"
+      ```
+   3. Continue with normal pre-work flow.
+
 **If on `main` worktree:** Use `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to dev tip.
 
 **If `.gitmodules` does NOT exist:** Skip all submodule steps and proceed to Step 4.
