@@ -69,7 +69,7 @@ assert_forbidden_pattern_absent() {
     local description="${2:-forbidden pattern}"
     local log_file="${BEHAVIOR_STDOUT:-/dev/null}"
     local count
-    count=$(grep -c "$pattern" "$log_file" 2>/dev/null || echo "0")
+    count=$(grep -c "$pattern" "$log_file" 2>/dev/null | head -1 || echo "0")
     if [ "$count" -gt 0 ]; then
         echo "FAIL: assert_forbidden_pattern_absent — found $count occurrence(s) of $description in agent output"
         return 1
@@ -83,7 +83,7 @@ assert_required_pattern_present() {
     local description="${2:-required pattern}"
     local log_file="${BEHAVIOR_STDOUT:-/dev/null}"
     local count
-    count=$(grep -c "$pattern" "$log_file" 2>/dev/null || echo "0")
+    count=$(grep -c "$pattern" "$log_file" 2>/dev/null | head -1 || echo "0")
     if [ "$count" -eq 0 ]; then
         echo "FAIL: assert_required_pattern_present — $description not found in agent output"
         return 1

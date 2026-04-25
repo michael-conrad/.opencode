@@ -74,6 +74,33 @@ issue-operations/                     # Dispatcher — workflow logic, platform 
 
 **COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps (labels, auditors, sub-issues, status report) are never skipped. It is idempotent and safe to invoke multiple times.
 
+## Hard Gates (MANDATORY — no bypass)
+
+### Gate 1: Skill Dispatch Before Direct API Calls
+
+```
+IF creating a GitHub Issue or posting a comment:
+  1. DO NOT call github_issue_write or github_add_issue_comment directly
+  2. Invoke /skill issue-operations --task creation (for new issues)
+  3. Invoke /skill issue-operations --task comment (for comments)
+  4. These tasks handle: byline verification, label enforcement, pre-creation validation
+ENDIF
+```
+
+Violation: Direct `github_issue_write` calls skip byline verification, label enforcement, and pre-creation validation (superseded specs, duplicate detection).
+
+### Gate 2: Byline Verification Before Posting
+
+```
+IF calling github_issue_write, github_add_issue_comment, or github_create_pull_request with AI-authored content:
+  1. VERIFY body contains "Co-authored with AI" or the emoji byline
+  2. If missing → APPEND byline before API call
+  3. DO NOT post AI-authored content without byline
+ENDIF
+```
+
+Violation: AI-authored content without byline attribution is a CRITICAL violation per `000-critical-rules.md`.
+
 ## Platform Routing
 
 ### Detection
