@@ -25,6 +25,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+GIT_TIMEOUT = 10
+NETWORK_TIMEOUT = 5
+
 
 def run_git(args: list[str]) -> str | None:
     try:
@@ -33,9 +36,13 @@ def run_git(args: list[str]) -> str | None:
             capture_output=True,
             text=True,
             check=False,
+            stdin=subprocess.DEVNULL,
+            timeout=GIT_TIMEOUT,
         )
         if result.returncode == 0:
             return result.stdout.strip()
+    except subprocess.TimeoutExpired:
+        print(f"git {' '.join(args)} timed out after {GIT_TIMEOUT}s", file=sys.stderr)
     except (subprocess.SubprocessError, OSError):
         pass
     return None
@@ -53,7 +60,8 @@ def detect_platform(remote_url: str) -> str:
     if "github.com" in remote_url:
         return "github"
     if "gitbucket" in remote_url.lower() or (
-        not remote_url.startswith("git@github.com") and not remote_url.startswith("https://github.com")
+        not remote_url.startswith("git@github.com")
+        and not remote_url.startswith("https://github.com")
     ):
         try:
             result = subprocess.run(
@@ -61,11 +69,12 @@ def detect_platform(remote_url: str) -> str:
                 capture_output=True,
                 text=True,
                 check=False,
-                timeout=3,
+                stdin=subprocess.DEVNULL,
+                timeout=NETWORK_TIMEOUT,
             )
             if result.returncode == 0:
                 return "gitbucket"
-        except (subprocess.SubprocessError, OSError):
+        except (subprocess.TimeoutExpired, subprocess.SubprocessError, OSError):
             pass
     return "unknown"
 
@@ -105,7 +114,11 @@ def probe_credentials_tier1(platform: str, root_dir: str) -> str:
         ("secrets.toml", secrets_path, _parse_secrets_toml_token),
         ("environment", None, _parse_env_var_token),
     ]:
-        token_value = parser(source_path, token_keys) if source_path else _parse_env_var_token(None, token_keys)
+        token_value = (
+            parser(source_path, token_keys)
+            if source_path
+            else _parse_env_var_token(None, token_keys)
+        )
         if token_value:
             return "present"
 
@@ -138,7 +151,9 @@ def _parse_secrets_toml_token(secrets_path: Path, keys: list[str]) -> str | None
         for line in content.splitlines():
             stripped = line.strip()
             for _key, toml_key in zip(keys, toml_keys, strict=False):
-                if stripped.startswith(f"{toml_key} =") or stripped.startswith(f"{toml_key}="):
+                if stripped.startswith(f"{toml_key} =") or stripped.startswith(
+                    f"{toml_key}="
+                ):
                     value = stripped.split("=", 1)[1].strip().strip("'\"")
                     if value:
                         return value
@@ -170,29 +185,42 @@ def probe_credentials_tier3(platform: str, root_dir: str, tier1_status: str) -> 
                 capture_output=True,
                 text=True,
                 check=False,
-                timeout=10,
+                stdin=subprocess.DEVNULL,
+                timeout=NETWORK_TIMEOUT,
             )
             if result.returncode == 0:
                 return "verified"
-            if result.returncode != 0 and "not logged in" in (result.stdout + result.stderr).lower():
+            if (
+                result.returncode != 0
+                and "not logged in" in (result.stdout + result.stderr).lower()
+            ):
                 return "stale"
             return "stale"
-        except (subprocess.SubprocessError, OSError):
+        except (subprocess.TimeoutExpired, subprocess.SubprocessError, OSError):
             return tier1_status
 
     if platform == "gitbucket":
         try:
             result = subprocess.run(
-                ["curl", "-sf", "-o", "/dev/null", "--max-time", "5", "http://localhost:8080/api/v3/"],
+                [
+                    "curl",
+                    "-sf",
+                    "-o",
+                    "/dev/null",
+                    "--max-time",
+                    "5",
+                    "http://localhost:8080/api/v3/",
+                ],
                 capture_output=True,
                 text=True,
                 check=False,
-                timeout=10,
+                stdin=subprocess.DEVNULL,
+                timeout=NETWORK_TIMEOUT,
             )
             if result.returncode == 0:
                 return "verified"
             return "stale"
-        except (subprocess.SubprocessError, OSError):
+        except (subprocess.TimeoutExpired, subprocess.SubprocessError, OSError):
             return tier1_status
 
     return tier1_status
@@ -224,24 +252,32 @@ def detect_agent_binary() -> tuple[str, str]:
     return "unknown (version detection failed)", ""
 
 
-def build_identity_section(owner: str, repo: str, platform: str, credential_status: str) -> str:
+def build_identity_section(
+    owner: str, repo: str, platform: str, credential_status: str
+) -> str:
     lines = [
         "## Repository Hosting Identity",
         f"- github.owner={owner}",
         f"- github.repo={repo}",
         f"- github.platform={platform}",
     ]
-    cred_key = f"{platform.upper()}_CREDENTIALS" if platform != "unknown" else "CREDENTIALS"
+    cred_key = (
+        f"{platform.upper()}_CREDENTIALS" if platform != "unknown" else "CREDENTIALS"
+    )
     lines.append(f"- {cred_key}={credential_status}")
     lines.append("- Use these exact values for ALL GitHub MCP and GitBucket API calls")
 
     lines.append("")
     lines.append("## Target API Credentials")
-    lines.append("- These are credentials for TARGET APIs the plugin operates on, NOT the repository hosting platform")
+    lines.append(
+        "- These are credentials for TARGET APIs the plugin operates on, NOT the repository hosting platform"
+    )
     lines.append("- Do NOT infer the hosting platform from these values")
 
     if credential_status == "missing":
-        lines.append(f"- WARNING: No {platform} credentials found in .env, secrets.toml, or environment variables")
+        lines.append(
+            f"- WARNING: No {platform} credentials found in .env, secrets.toml, or environment variables"
+        )
     elif credential_status == "stale":
         lines.append(
             f"- WARNING: {platform} token was rejected — "
@@ -254,7 +290,10 @@ def build_identity_section(owner: str, repo: str, platform: str, credential_stat
 def main() -> int:
     remote_url = get_remote_url()
     if not remote_url:
-        print("No git remote configured. Cannot determine repository identity.", file=sys.stderr)
+        print(
+            "No git remote configured. Cannot determine repository identity.",
+            file=sys.stderr,
+        )
         return 1
 
     root_dir = get_root_dir()
@@ -272,7 +311,9 @@ def main() -> int:
     if platform == "unknown":
         owner, repo = parse_owner_repo(remote_url, "gitbucket")
         if not owner or not repo:
-            print(f"Could not parse owner/repo from remote: {remote_url}", file=sys.stderr)
+            print(
+                f"Could not parse owner/repo from remote: {remote_url}", file=sys.stderr
+            )
             return 1
         platform = "gitbucket"
 
