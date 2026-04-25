@@ -126,7 +126,7 @@ def _parse_frontmatter(content: str) -> tuple[dict[str, object], str]:
     if end == -1:
         return {}, content
     fm_text = content[3:end].strip()
-    body = content[end + 3:].strip()
+    body = content[end + 3 :].strip()
     meta: dict[str, object] = {}
     for line in fm_text.splitlines():
         line = line.strip()
@@ -211,9 +211,12 @@ def _get_author() -> str:
     """Get author from git config or USER env var."""
     try:
         import subprocess
+
         result = subprocess.run(
             ["git", "config", "user.name"],
-            capture_output=True, text=True, check=False,
+            capture_output=True,
+            text=True,
+            check=False,
         )
         if result.returncode == 0 and result.stdout.strip():
             return result.stdout.strip()
@@ -349,7 +352,9 @@ def cmd_link(number: int, github_num: int) -> int:
     return cmd_update(number, github_issue=github_num)
 
 
-def cmd_search(status: str | None = None, labels: list[str] | None = None, query: str | None = None) -> int:
+def cmd_search(
+    status: str | None = None, labels: list[str] | None = None, query: str | None = None
+) -> int:
     """Search local issues."""
     root = _find_issues_root()
     if not root:
@@ -370,12 +375,15 @@ def cmd_search(status: str | None = None, labels: list[str] | None = None, query
                 content = f.read()
             meta, body = _parse_frontmatter(content)
             if labels:
-                issue_labels = set(str(l) for l in meta.get("labels", []))
+                issue_labels = set(str(label) for label in meta.get("labels", []))
                 if not issue_labels.issuperset(set(labels)):
                     continue
             if query:
                 q = query.lower()
-                if q not in str(meta.get("title", "")).lower() and q not in body.lower():
+                if (
+                    q not in str(meta.get("title", "")).lower()
+                    and q not in body.lower()
+                ):
                     continue
             num = meta.get("number", 0)
             title = meta.get("title", "")
@@ -387,7 +395,7 @@ def cmd_search(status: str | None = None, labels: list[str] | None = None, query
 
     for num, s, meta in matches:
         title = meta.get("title", "")
-        lbl = ", ".join(str(l) for l in meta.get("labels", []))
+        lbl = ", ".join(str(label) for label in meta.get("labels", []))
         gh = meta.get("github_issue")
         gh_str = f" → GH#{gh}" if gh else ""
         print(f"#{num:03d} [{s}] {title} [{lbl}]{gh_str}")
@@ -403,7 +411,10 @@ def main() -> int:
     args = sys.argv[1:]
     if not args:
         print("Usage: local-issues <command> [options]", file=sys.stderr)
-        print("Commands: create, read, update, comment, close, link, search, list", file=sys.stderr)
+        print(
+            "Commands: create, read, update, comment, close, link, search, list",
+            file=sys.stderr,
+        )
         return 1
 
     command = args[0]
@@ -417,7 +428,9 @@ def main() -> int:
                 title = args[i + 1]
                 i += 2
             elif args[i] == "--labels" and i + 1 < len(args):
-                labels = [l.strip() for l in args[i + 1].split(",") if l.strip()]
+                labels = [
+                    label.strip() for label in args[i + 1].split(",") if label.strip()
+                ]
                 i += 2
             else:
                 i += 1
@@ -456,7 +469,9 @@ def main() -> int:
                 kwargs["status"] = args[i + 1]
                 i += 2
             elif args[i] == "--labels" and i + 1 < len(args):
-                kwargs["labels"] = [l.strip() for l in args[i + 1].split(",") if l.strip()]
+                kwargs["labels"] = [
+                    label.strip() for label in args[i + 1].split(",") if label.strip()
+                ]
                 i += 2
             elif "=" in args[i]:
                 k, v = args[i].split("=", 1)
@@ -535,7 +550,9 @@ def main() -> int:
                 status = args[i + 1]
                 i += 2
             elif args[i] == "--labels" and i + 1 < len(args):
-                labels = [l.strip() for l in args[i + 1].split(",") if l.strip()]
+                labels = [
+                    label.strip() for label in args[i + 1].split(",") if label.strip()
+                ]
                 i += 2
             elif args[i] == "--query" and i + 1 < len(args):
                 query = args[i + 1]

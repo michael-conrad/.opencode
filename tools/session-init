@@ -772,7 +772,8 @@ def main() -> int:
         platform, owner, repo = resolve_identity(remote_url)
         if not platform or not owner or not repo:
             print(
-                "Could not determine repository identity from remote URL.", file=sys.stderr
+                "Could not determine repository identity from remote URL.",
+                file=sys.stderr,
             )
             print(f"Remote URL: {remote_url}", file=sys.stderr)
             return 1
@@ -784,7 +785,11 @@ def main() -> int:
         submodule_remotes = get_submodule_remotes()
         if submodule_remotes:
             submod_path, submod_url, submod_platform = submodule_remotes[0]
-            submod_owner, submod_repo = parse_git_remote_url(submod_url) if submod_platform == "github" else (None, None)
+            submod_owner, submod_repo = (
+                parse_git_remote_url(submod_url)
+                if submod_platform == "github"
+                else (None, None)
+            )
             if submod_platform != "github":
                 _, submod_owner, submod_repo = parse_gitbucket_url(submod_url)
             if submod_owner and submod_repo:

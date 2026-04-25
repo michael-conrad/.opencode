@@ -253,7 +253,11 @@ def detect_agent_binary() -> tuple[str, str]:
 
 
 def build_identity_section(
-    owner: str, repo: str, platform: str, credential_status: str, identity_source: str = "root"
+    owner: str,
+    repo: str,
+    platform: str,
+    credential_status: str,
+    identity_source: str = "root",
 ) -> str:
     lines = [
         "## Repository Hosting Identity",
@@ -296,9 +300,7 @@ def get_submodule_remotes() -> list[tuple[str, str, str]]:
     submod_dirs = get_submodule_dirs()
     remotes: list[tuple[str, str, str]] = []
     for submod_path in submod_dirs:
-        submod_remote = run_git(
-            ["-C", submod_path, "remote", "get-url", "origin"]
-        )
+        submod_remote = run_git(["-C", submod_path, "remote", "get-url", "origin"])
         if submod_remote:
             platform = detect_platform(submod_remote)
             if platform != "unknown":
@@ -337,7 +339,9 @@ def main() -> int:
                     platform = "gitbucket"
 
         if not owner or not repo:
-            print(f"Could not parse owner/repo from remote: {remote_url}", file=sys.stderr)
+            print(
+                f"Could not parse owner/repo from remote: {remote_url}", file=sys.stderr
+            )
             return 1
     else:
         print(
@@ -383,7 +387,11 @@ def main() -> int:
         tier1 = probe_credentials_tier1(platform, root_dir)
         credential_status = probe_credentials_tier3(platform, root_dir, tier1)
 
-    print(build_identity_section(owner, repo, platform, credential_status, identity_source))
+    print(
+        build_identity_section(
+            owner, repo, platform, credential_status, identity_source
+        )
+    )
 
     agent_name, agent_version = detect_agent_binary()
     agent_line = f"AgentName: {agent_name}"
