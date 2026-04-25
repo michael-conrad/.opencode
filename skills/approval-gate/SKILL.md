@@ -378,6 +378,99 @@ Rules are classified into two tiers per `000-critical-rules.md` → "Mandate Tie
 
 **For simple work** (docs, runbooks, minor config): developer authorization IS the process — no spec/plan required. **For complex work**: developer authorization means "begin the process"; spec/plan creation is part of the authorized work.
 
+<!-- Issue #5: Submodule Detection & Routing — Success Criteria: Add submodule detection rules, .gitmodules parsing logic, submodule routing rules (Issue Filing, Approval Flow, Worktree Mechanics), submodule PR target rules, Success Criteria verification for submodule context -->
+
+## Submodule Detection & Routing
+
+When operating within a repository that contains submodules, the agent MUST detect and route operations to the correct submodule context. Submodule detection is based on `.gitmodules` parsing and session context.
+
+### .gitmodules Parsing (Session Context Detection)
+
+1. Detect submodule presence: `cat .gitmodules` or `git submodule status` in the parent repo
+2. Parse submodule paths and URLs from `.gitmodules`
+3. Cross-reference the current `worktree.path` against submodule path entries
+4. If `worktree.path` resolves inside a submodule directory, the agent is in **submodule context**
+
+| Field | Source | Action |
+| -- | -- | -- |
+| `submodule.path` | `.gitmodules` `[submodule "name"]` path = ... | Match against `worktree.path` prefix |
+| `submodule.url` | `.gitmodules` `[submodule "name"]` url = ... | Resolve `<github.owner>/<github.repo>` for API calls |
+| `submodule.name` | `.gitmodules` section header | Reference key for provenance tracking |
+
+### Submodule Routing Rules
+
+#### Issue Filing
+
+- Issues affecting submodule behavior MUST be filed in the **submodule repository**, not the parent repo
+- Parent repo issues may reference submodule issues via body text links
+- Provenance tracking creates cross-links between parent PR/issue and submodule PR/issue
+
+#### Approval Flow
+
+- Authorization for submodule changes follows the same approval-gate dispatch chain
+- The `github.owner` and `github.repo` for API calls MUST resolve to the **submodule repository**, not the parent repo
+- Sub-issue verification runs against the submodule repo's issue tracker
+
+#### Worktree Mechanics
+
+- Submodule worktrees are created inside the parent repo's `.worktrees/` structure: `.opencode/.worktrees/<branch-name>/`
+- `git rev-parse --show-toplevel` in a submodule worktree returns the submodule root, NOT the parent repo root
+- Path resolution: ALL file operations MUST use `worktree.path` prefix; relative paths resolve to the parent repo's main working directory, causing silent errors
+
+### Submodule PR Target Rules
+
+| Scenario | PR Target Branch | Base URL |
+| -- | -- | -- |
+| Feature branch in submodule | `dev` | `compare/dev...<branch-name>` |
+| Release promotion (submodule) | `main` | `compare/main...dev` |
+| Parent repo references submodule SHA | N/A | Direct push to submodule `dev` |
+
+### Success Criteria Verification for Submodule Context
+
+When verifying success criteria for submodule issues:
+
+- [ ] Submodule files modified (not parent repo files)
+- [ ] `.gitmodules` references updated if submodule path changed
+- [ ] Provenance issue/PR created in submodule repo (if applicable)
+- [ ] Submodule `dev` branch has the new commits
+- [ ] Parent repo submodule SHA updated to match promoted submodule `dev` SHA (if release promotion)
+
+<!-- Issue #4: Dispatch Chain Enforcement Fix — Success Criteria: Add "Dispatch Enforcement" section, explicit HALT rule for inline implementation without skill dispatch, mandatory invocation callouts -->
+
+## Dispatch Enforcement
+
+### Skill Bypass = Critical Violation
+
+Bypassing any mandatory skill invocation in the dispatch chain is a CRITICAL GUIDELINE VIOLATION. The dispatch chain is not advisory — it is enforceable.
+
+- 🚫 FORBIDDEN: Implementing files directly without invoking `divide-and-conquer --task assemble-work`
+- 🚫 FORBIDDEN: Creating a worktree manually instead of `git-workflow --task pre-work`
+- 🚫 FORBIDDEN: Skipping `verification-before-completion` and claiming task completion
+- 🚫 FORBIDDEN: Generating compare URL without `git-workflow --task review-prep`
+- 🚫 FORBIDDEN: Pushing changes without `finishing-a-development-branch --task checklist`
+- ✅ REQUIRED: Invoke each skill in sequence; verify prior step artifacts before proceeding
+- ✅ REQUIRED: On missing artifact: HALT, invoke the skipped skill, produce evidence, then continue
+
+### Inline Implementation Without Skill Dispatch
+
+**⚠️ Implementing files inline without dispatching through the approval-gate chain is a CRITICAL GUIDELINE VIOLATION.**
+
+- 🚫 FORBIDDEN: Editing files directly in chat without a worktree
+- 🚫 FORBIDDEN: Bypassing `pre-work` to "save time"
+- 🚫 FORBIDDEN: Treating the dispatch chain as optional for "small" changes
+- ✅ REQUIRED: Every file modification follows the chain: `pre-work → assemble-work → implementation → checklist → review-prep`
+
+### Mandatory Invocation Callouts
+
+Every skill file MUST include a mandatory invocation callout in its `## Overview` or `## Operating Protocol` section:
+
+```
+MANDATORY: The agent MUST invoke `<skill> --task <task>` at the appropriate pipeline stage.
+Skipping this invocation is a CRITICAL GUIDELINE VIOLATION.
+```
+
+Skills without this callout MUST be updated to include it. The callout is a behavioral enforcement trigger, not documentation.
+
 ```yaml+symbolic
 schema_version: "1.0"
   last_updated: "2026-04-14T12:00:00Z"

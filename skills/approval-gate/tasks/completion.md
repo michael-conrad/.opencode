@@ -91,6 +91,46 @@ URL is ALWAYS last per `000-critical-rules.md`.
 
 **Auto-fix on failure:** If any element is missing or misordered, fix the output before sending. Missing elements are MISSING-ELEMENT (auto-fix). Wrong ordering is STRUCTURE-VIOLATION (auto-fix). Elements are auto-fixed before output is sent — NOT reported after the fact.
 
+<!-- Issue #25: Authorization Solicitation Regression — Success Criteria: Update completion.md with non-instructional blocker report format, add behavioral enforcement test reference -->
+
+## Blocker Report Format
+
+When the workflow halts due to a blocker (authorization denied, missing spec, validation failure), the completion report MUST use non-instructional, factual language.
+
+### 🚫 PROHIBITED Patterns
+
+| Pattern | Why Forbidden |
+| -- | -- |
+| "To resolve this, please do X" | Instructional — solicits user action |
+| "You can say 'approved' to continue" | Self-authorization bypass |
+| "Once you've reviewed, let me know" | Awaiting-response framing |
+| "Please provide authorization before I continue" | Direct solicitation |
+| "We're blocked — can you approve #N?" | Implied authorization framing |
+
+### ✅ REQUIRED Format
+
+```
+**Summary:**
+
+<Blocker detected: one sentence factual statement>
+
+**Outcome:** <What is blocked and why>
+
+🤖 <AgentName> (<ModelId>) ⛔ blocked
+```
+
+- No instructions or suggestions in the report
+- No forward-looking references to next steps
+- No questions or prompts for user action
+- URL omitted when no relevant URL exists
+- Status icon is `⛔` for blockers, not `✅`
+
+### Behavioral Enforcement Test Reference
+
+This format is verified by behavioral enforcement tests in `.opencode/tests/behaviors/test-blocker-report-format.sh`. Any change to this section requires updating the corresponding behavioral test.
+
+**See `.opencode/tests/behaviors/README.md` for test infrastructure details.**
+
 ## Adversarial Verification: Completion Claims
 
 **Before claiming completion, verify that all completion claims are backed by evidence — not asserted without verification.**
