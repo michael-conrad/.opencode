@@ -403,6 +403,47 @@ def build_orphaned_worktrees_warning(wt_list: list[str]) -> str:
     return "\n".join(lines)
 
 
+def has_stale_submodules() -> list[dict[str, str]]:
+    gitmodules = run_git(["config", "--file", ".gitmodules", "--get-regexp", "path"])
+    if not gitmodules:
+        return []
+    stale: list[dict[str, str]] = []
+    for line in gitmodules.splitlines():
+        parts = line.strip().split()
+        if len(parts) < 2:
+            continue
+        sub_path = parts[1]
+        url = run_git(["config", "--file", ".gitmodules", f"submodule.{sub_path}.url"])
+        if not url:
+            continue
+        committed_sha = run_git(["ls-tree", "HEAD", sub_path])
+        if committed_sha:
+            committed_sha = committed_sha.split()[2] if len(committed_sha.split()) >= 3 else None
+        remote_dev = run_git(["ls-remote", url, "refs/heads/dev"])
+        remote_sha = remote_dev.split()[0] if remote_dev and remote_dev.strip() else None
+        if committed_sha and remote_sha and committed_sha != remote_sha:
+            stale.append({
+                "path": sub_path,
+                "committed_sha": committed_sha[:12],
+                "remote_sha": remote_sha[:12],
+            })
+    return stale
+
+
+def build_stale_submodule_warning(stale: list[dict[str, str]]) -> str:
+    lines = [
+        "## Stale Submodule — Auto-Bump Required",
+    ]
+    for entry in stale:
+        lines.append(
+            f"- `{entry['path']}`: committed {entry['committed_sha']} → dev {entry['remote_sha']}"
+        )
+    lines.append(
+        "- Action: advance submodule(s) to dev tip and commit the bump into the current branch"
+    )
+    return "\n".join(lines)
+
+
 def build_dev_branch_with_changes_warning(changed_files: list[str]) -> str:
     lines = [
         "## Dev Branch with Changes",
@@ -484,6 +525,10 @@ def main() -> int:
     orphaned = has_orphaned_worktrees()
     if orphaned:
         sections.append(build_orphaned_worktrees_warning(orphaned))
+
+    stale_subs = has_stale_submodules()
+    if stale_subs:
+        sections.append(build_stale_submodule_warning(stale_subs))
 
     if len(sections) > 0:
         print("\n\n".join(sections))

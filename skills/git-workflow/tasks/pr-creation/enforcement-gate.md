@@ -27,7 +27,13 @@ For each submodule entry:
 2. Get remote dev HEAD SHA: `git ls-remote <url> refs/heads/dev | awk '{print $1}'`
 3. Compare SHA:
    - Match → pass
-   - Mismatch → **BLOCK PR creation** — hard gate, no override
+   - Mismatch → **Auto-remediation path:**
+     1. Advance the submodule: `cd <path> && git fetch origin && git checkout origin/dev`
+     2. Read commit log between old and new SHA: `git log --oneline <old_sha>..<new_sha>`
+     3. Commit the bump into the current branch: `git add <path> && git commit -m "chore(submodule): pin <path> to latest dev"`
+     4. Re-check SHA comparison. If pass → PR creation proceeds.
+     5. If still fails (e.g., remote changed again): retry once more from step 1.
+     6. After retry failure → **BLOCK PR creation** with specific failure reason (which submodule, which SHAs).
 4. For `main`-branch PRs: verify SHA is a tagged release
 
 **There is NO `--force` override for submodule dependency gates.**
