@@ -501,8 +501,8 @@ Skipping this invocation is a CRITICAL GUIDELINE VIOLATION.
 Skills without this callout MUST be updated to include it. The callout is a behavioral enforcement trigger, not documentation.
 
 ```yaml+symbolic
-schema_version: "1.0"
-  last_updated: "2026-04-14T12:00:00Z"
+schema_version: "2.0"
+last_updated: "2026-04-25T12:00:00Z"
 rules:
   - id: approval-gate-skill-001
     title: "Pre-implementation authorization verification"
@@ -587,4 +587,292 @@ rules:
     requires: [approval-gate-002]
     triggers: [writing-plans]
     source: "approval-gate/SKILL.md §Spec-to-plan Approval Cascade"
+
+tasks:
+  - id: verify-authorization
+    skill: approval-gate
+    preconditions: ["authorization_phrase_received == true"]
+    postconditions: ["authorization_verified == true || halted == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skill Bypass"
+    source: "approval-gate/SKILL.md"
+
+  - id: scope-auto-resolve
+    skill: approval-gate
+    preconditions: ["authorization_phrase_received == true"]
+    postconditions: ["scope_resolved == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Soliciting Authorization for Already-Authorized Phrases"
+    source: "approval-gate/SKILL.md"
+
+  - id: item-decomposition-check
+    skill: approval-gate
+    preconditions: ["plan_body_parsed == true"]
+    postconditions: ["item_decomposition_exists == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Monolithic Implementation"
+    source: "approval-gate/SKILL.md"
+
+  - id: sc-traceability-check
+    skill: approval-gate
+    preconditions: ["spec_exists == true"]
+    postconditions: ["success_criteria_traceable == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification Skills"
+    source: "approval-gate/SKILL.md"
+
+  - id: sub-issue-verification
+    skill: approval-gate
+    preconditions: ["plan_has_sub_issues == true"]
+    postconditions: ["sub_issue_count_matches == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Sub-issue Structure Bypass"
+    source: "approval-gate/SKILL.md"
+
+  - id: spec-to-plan-cascade
+    skill: approval-gate
+    preconditions: ["spec_approved == true AND existing_plan_faithful == true"]
+    postconditions: ["plan_auto_approved == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Ignoring Spec-to-Plan Approval Cascade"
+    source: "approval-gate/SKILL.md"
+
+  - id: gap-fill-cascade
+    skill: approval-gate
+    preconditions: ["authorization_scope != 'standard'"]
+    postconditions: ["missing_artifacts_created == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Pipeline-Scoped Authorization"
+    source: "approval-gate/SKILL.md"
+
+  - id: screen-issue
+    skill: approval-gate
+    preconditions: ["single_issue == true"]
+    postconditions: ["screening_result == pass || screening_result == fail"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Inline Screening of Authorization Sets"
+    source: "approval-gate/SKILL.md"
+
+  - id: pre-implementation-analysis
+    skill: approval-gate
+    preconditions: ["authorization_verified == true"]
+    postconditions: ["work_state_written == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Interdependency Analysis"
+    source: "approval-gate/SKILL.md"
+
+  - id: reconcile-issue-graph
+    skill: approval-gate
+    preconditions: ["issue_graph_built == true"]
+    postconditions: ["verified_closed_and_reopened == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Assuming Closed Issues Are Verified"
+    source: "approval-gate/SKILL.md"
+
+  - id: verify-already-implemented
+    skill: approval-gate
+    preconditions: ["closed_issue_found == true"]
+    postconditions: ["implementation_verified == true || implementation_not_found == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Assuming Closed Issues Are Verified"
+    source: "approval-gate/SKILL.md"
+
+  - id: verify-fix-spec
+    skill: approval-gate
+    preconditions: ["bug_report_found == true"]
+    postconditions: ["fix_spec_exists == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Bug Reports Without Fix Spec"
+    source: "approval-gate/SKILL.md"
+
+  - id: verify-closed-issue
+    skill: approval-gate
+    preconditions: ["closed_issue_found == true"]
+    postconditions: ["closure_verified == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Assuming Closed Issues Are Verified"
+    source: "approval-gate/SKILL.md"
+
+  - id: post-implementation
+    skill: approval-gate
+    preconditions: ["implementation_complete == true"]
+    postconditions: ["post_implementation_report_produced == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Wrong Chat Output at Halt Points"
+    source: "approval-gate/SKILL.md"
+
+  - id: completion
+    skill: approval-gate
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "approval-gate/SKILL.md"
+
+decomposition:
+  - type: sub-agent
+    skill: approval-gate
+    task: screen-issue
+    mandatory: true
+    bypass_violation: "CRITICAL: Inline Screening of Authorization Sets"
+
+  - type: skill-task
+    skill: git-workflow
+    task: pre-work
+    mandatory: true
+    bypass_violation: "CRITICAL: Skill Bypass"
+
+  - type: skill-task
+    skill: divide-and-conquer
+    task: assemble-work
+    mandatory: true
+    bypass_violation: "CRITICAL: Unified Dispatch Path"
+
+  - type: skill-task
+    skill: verification-before-completion
+    task: verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Post-Implementation Verification Skills"
+
+  - type: skill-task
+    skill: finishing-a-development-branch
+    task: checklist
+    mandatory: true
+    bypass_violation: "CRITICAL: Uncommitted/Unpushed Changes After Implementation"
+
+  - type: skill-task
+    skill: git-workflow
+    task: review-prep
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping review-prep After Implementation"
+
+gates:
+  - id: authorization-required
+    condition: "has_approved_plan == true || has_explicit_authorization == true"
+    on_fail: "HALT"
+    critical_violation: true
+
+  - id: spec-exists
+    condition: "spec_or_plan_exists == true"
+    on_fail: "INVOKE(brainstorming) or HALT"
+    critical_violation: true
+
+  - id: sub-issue-structure
+    condition: "plan_sub_issues_count >= plan_phase_count"
+    on_fail: "INVOKE(issue-operations/link-sub-issue)"
+    critical_violation: true
+
+  - id: worktree-before-implementation
+    condition: "worktree_path_is_set == true || direct_branch_mode == true"
+    on_fail: "INVOKE(git-workflow/pre-work)"
+    critical_violation: true
+
+evidence_artifacts:
+  - name: authorization_result
+    type: tool_call
+    verification: "github_issue_read(method=get) confirms authorization"
+
+  - name: scope_resolution
+    type: tool_call
+    verification: "scope_auto_resolve output confirms parsed scope"
+
+  - name: sub_issue_count
+    type: tool_call
+    verification: "github_issue_read(method=get_sub_issues) count matches plan"
+
+  - name: work_state_file
+    type: file_exists
+    verification: ".opencode/tmp/work-*.md exists"
+
+  - name: screening_result_contract
+    type: sub_agent_result
+    verification: "screen-issue sub-agent returns structured YAML"
+
+state_machines:
+  - id: approval-lifecycle
+    states: [draft, spec_approved, plan_created, plan_approved, implementing, code_review_ready, pr_created, merged, closed]
+    start_state: draft
+    transitions:
+      - from: draft
+        to: spec_approved
+        guard: "user_authorizes_spec == true"
+        action: INVOKE(writing-plans)
+        decomposition_guard: "spec_exists == true"
+
+      - from: spec_approved
+        to: plan_created
+        guard: "plan_exists == true"
+        action: PROCEED
+        decomposition_guard: "plan_body_parsed == true"
+
+      - from: draft
+        to: plan_approved
+        guard: "user_authorizes_spec == true AND existing_plan_is_faithful == true"
+        action: AUTO_APPROVE_PLAN_THEN_IMPLEMENT
+        decomposition_guard: "spec_approved == true AND existing_plan_faithful == true"
+
+      - from: plan_created
+        to: plan_approved
+        guard: "user_authorizes_plan == true"
+        action: INVOKE(executing-plans)
+        decomposition_guard: "item_decomposition_exists == true AND success_criteria_traceable == true"
+
+      - from: plan_approved
+        to: implementing
+        guard: "plan_approved == true"
+        action: INVOKE(divide-and-conquer)
+        decomposition_guard: "sub_issue_count_matches == true AND worktree_path_is_set == true"
+
+      - from: implementing
+        to: code_review_ready
+        guard: "implementation_complete == true"
+        action: INVOKE(verification-before-completion)
+        decomposition_guard: "verification_before_completion_artifact_exists == true"
+
+      - from: code_review_ready
+        to: pr_created
+        guard: "halt_at >= pr_created OR pr_strategy != none"
+        action: INVOKE(git-workflow_pr-creation)
+        decomposition_guard: "finishing_checklist_artifact_exists == true"
+
+      - from: pr_created
+        to: merged
+        guard: "pr_approved == true"
+        action: PROCEED
+        decomposition_guard: "pr_created == true"
+
+      - from: merged
+        to: closed
+        guard: "all_plan_sub_issues_closed == true"
+        action: PROCEED
+        decomposition_guard: "all_sub_issues_verified_closed == true"
+
+    scope_transitions:
+      - scope: for_spec
+        halt_at: spec_created
+        action: HALT_AFTER_SPEC_CREATED
+
+      - scope: for_plan
+        halt_at: plan_created
+        action: HALT_AFTER_PLAN_CREATED
+
+      - scope: for_implementation
+        halt_at: implementation_complete
+        action: HALT_AFTER_IMPLEMENTATION
+
+      - scope: for_code_review
+        halt_at: code_review_ready
+        action: HALT_AFTER_CODE_REVIEW
+
+      - scope: for_pr
+        halt_at: pr_created
+        action: CONTINUE_THROUGH_PR
+
+      - scope: pr_only
+        halt_at: pr_created
+        action: CONTINUE_THROUGH_PR
+
+      - scope: standard
+        halt_at: review_prep
+        action: HALT_AFTER_REVIEW_PREP
 ```

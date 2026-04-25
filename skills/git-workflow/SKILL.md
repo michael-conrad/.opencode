@@ -546,8 +546,8 @@ When `git rev-parse --show-toplevel` returns a path that is a descendant of a pa
 - Related skill tasks: `git-workflow --task pre-work` (branch creation), `git-workflow --task cleanup` (post-merge), `git-workflow --task pr-creation` (PR workflow), `git-workflow --task provenance` (submodule provenance tracking)
 
 ```yaml+symbolic
-schema_version: "1.0"
-last_updated: "2026-04-15T00:00:00Z"
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
 rules:
   - id: git-workflow-provenance-001
     title: "Submodule provenance tracking after push or promotion"
@@ -560,4 +560,132 @@ rules:
     requires: []
     triggers: [release-promotion, review-prep]
     source: "git-workflow/SKILL.md Tasks table"
+tasks:
+  - id: pre-work
+    skill: git-workflow
+    preconditions: ["authorization_verified == true"]
+    postconditions: ["worktree_path_is_set == true && feature_branch_exists == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Worktree Bypass"
+    source: "git-workflow/SKILL.md"
+  - id: implementation
+    skill: git-workflow
+    preconditions: ["worktree_path_is_set == true"]
+    postconditions: ["implementation_changes_committed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Uncommitted Changes After Implementation"
+    source: "git-workflow/SKILL.md"
+  - id: review-prep
+    skill: git-workflow
+    preconditions: ["implementation_complete == true"]
+    postconditions: ["branch_pushed == true && compare_url_generated == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping review-prep After Implementation"
+    source: "git-workflow/SKILL.md"
+  - id: pr-creation
+    skill: git-workflow
+    preconditions: ["compare_url_exists == true && halt_at >= pr_created"]
+    postconditions: ["pr_url_extracted_from_api == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Fabricating URLs"
+    source: "git-workflow/SKILL.md"
+  - id: cleanup
+    skill: git-workflow
+    preconditions: ["pr_merged == true"]
+    postconditions: ["branch_deleted == true && issues_closed == true && dev_synced == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Post-Merge Cleanup"
+    source: "git-workflow/SKILL.md"
+  - id: release-promotion
+    skill: git-workflow
+    preconditions: ["release_authorized == true"]
+    postconditions: ["release_pr_created == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Branch Protection"
+    source: "git-workflow/SKILL.md"
+  - id: check-pr
+    skill: git-workflow
+    preconditions: ["pr_url_exists == true"]
+    postconditions: ["pr_status_checked == true"]
+    mandatory: false
+    bypass_violation: ""
+    source: "git-workflow/SKILL.md"
+  - id: provenance
+    skill: git-workflow
+    preconditions: ["commit_sha_provided == true"]
+    postconditions: ["provenance_report_produced == true"]
+    mandatory: false
+    bypass_violation: ""
+    source: "git-workflow/SKILL.md"
+  - id: completion
+    skill: git-workflow
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "git-workflow/SKILL.md"
+decomposition:
+  - type: skill-task
+    skill: approval-gate
+    task: verify-authorization
+    mandatory: true
+    bypass_violation: "CRITICAL: Skill Bypass"
+  - type: skill-task
+    skill: verification-before-completion
+    task: verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification"
+  - type: skill-task
+    skill: finishing-a-development-branch
+    task: checklist
+    mandatory: true
+    bypass_violation: "CRITICAL: Uncommitted/Unpushed Changes After Implementation"
+  - type: command
+    skill: git
+    task: push
+    mandatory: true
+    bypass_violation: "CRITICAL: Fabricating URLs"
+  - type: command
+    skill: git
+    task: rev-parse --show-toplevel
+    mandatory: true
+    bypass_violation: "CRITICAL: Worktree Bypass"
+  - type: command
+    skill: git
+    task: branch --show-current
+    mandatory: true
+    bypass_violation: "CRITICAL: Branch First"
+gates:
+  - id: not-on-protected-branch
+    condition: "current_branch != 'main' && current_branch != 'dev'"
+    on_fail: "HALT"
+    critical_violation: true
+  - id: feature-branch-exists
+    condition: "feature_branch_exists == true"
+    on_fail: "INVOKE(git-workflow/pre-work)"
+    critical_violation: true
+  - id: push-before-url
+    condition: "branch_pushed == true"
+    on_fail: "HALT and push first"
+    critical_violation: true
+  - id: merge-confirmed-before-cleanup
+    condition: "pr_merged == true"
+    on_fail: "HALT"
+    critical_violation: true
+evidence_artifacts:
+  - name: branch_state
+    type: tool_call
+    verification: "git branch --show-current confirms expected branch"
+  - name: push_confirmation
+    type: tool_call
+    verification: "git push output confirms branch pushed"
+  - name: compare_url
+    type: constructed_url
+    verification: "URL format matches dev...branch pattern"
+  - name: pr_merge_status
+    type: api_call
+    verification: "github_pull_request_read(method=get) merged_at != null"
+  - name: worktree_location
+    type: tool_call
+    verification: "git rev-parse --show-toplevel matches worktree.path"
 ```
