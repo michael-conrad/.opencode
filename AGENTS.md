@@ -100,6 +100,25 @@ Credential status values: `verified` (token exists + API ping succeeds), `presen
 
 ---
 
+## Direct-Branch Primary Workflow
+
+**Direct-branch is the PRIMARY and DEFAULT workflow.** Agent creates feature branch directly in main repo using `git checkout -b` or `git switch -c`. Worktrees are **opt-in**, created only when `WORKTREE_REQUIRED` flag is set or developer explicitly requests them.
+
+| Mode | When | Path Behavior |
+|------|------|---------------|
+| **Direct-branch (default)** | `WORKTREE_REQUIRED` NOT set | Relative paths work directly; `worktree.path` NOT set |
+| **Worktree (opt-in)** | `WORKTREE_REQUIRED` set or developer request | All paths prefixed with `worktree.path` |
+
+**Branch and submodule state model:** See `git-workflow` skill → Branch and Submodule State Model for the complete workflow including proactive repo state verification, mid-feature submodule currency, rebase-always hygiene, and post-merge integration.
+
+**Submodule discipline:**
+- Dev parking: `git checkout dev && git pull && git submodule init && git submodule foreach "git checkout dev && git pull"`
+- Mid-feature: Sync submodules to upstream `dev` periodically
+- Release: Lock submodule SHAs to current checkout state (NOT a fresh pull)
+- Hotfix: No submodule state changes; use pinned SHAs from `main`
+
+---
+
 ## Pair Mode
 
 When the current branch starts with `pair-`, the agent operates in **dev-pair mode**: working directly in the main project directory alongside the developer, using WIP-commit switching instead of worktrees.
@@ -108,8 +127,8 @@ When the current branch starts with `pair-`, the agent operates in **dev-pair mo
 |---|---|---|
 | `pair-feature/123-xyz` | Dev-pair | Main project dir |
 | `pair-spec/456-abc` | Dev-pair | Main project dir |
-| `feature/789-xyz` | Autonomous | `.worktrees/` |
-| `spec/789-abc` | Autonomous | `.worktrees/` |
+| `feature/789-xyz` | Autonomous | Main project dir (direct-branch) or `.worktrees/` (opt-in) |
+| `spec/789-abc` | Autonomous | Main project dir (direct-branch) or `.worktrees/` (opt-in) |
 
 Pair mode tasks: `pair-pre-work`, `pair-commit`, `pair-pr-creation`, `pair-cleanup`, `pair-mode-resume`. See `git-workflow` skill for full task documentation.
 
