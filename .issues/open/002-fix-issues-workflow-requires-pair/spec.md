@@ -4,8 +4,8 @@ title: "Fix: .issues/ workflow requires pair branch without pair-mode semantics"
 status: "open"
 labels: [SPEC, needs-approval]
 created: "2026-04-25T17:15:17Z"
-updated: "2026-04-25T17:30:00Z"
-github_issue: null
+updated: "2026-04-25T17:51:14Z"
+github_issue: 60
 author: "Michael Conrad"
 ---
 
