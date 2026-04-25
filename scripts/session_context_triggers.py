@@ -475,14 +475,6 @@ def build_dev_branch_with_changes_warning(changed_files: list[str]) -> str:
 
 
 def main() -> int:
-    remote_url = get_remote_url()
-    if not remote_url:
-        print(
-            "No git remote configured. Cannot determine repository identity.",
-            file=sys.stderr,
-        )
-        return 1
-
     root_dir = get_root_dir()
     if not root_dir:
         print("Not in a git repository.", file=sys.stderr)

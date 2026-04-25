@@ -253,13 +253,14 @@ def detect_agent_binary() -> tuple[str, str]:
 
 
 def build_identity_section(
-    owner: str, repo: str, platform: str, credential_status: str
+    owner: str, repo: str, platform: str, credential_status: str, identity_source: str = "root"
 ) -> str:
     lines = [
         "## Repository Hosting Identity",
         f"- github.owner={owner}",
         f"- github.repo={repo}",
         f"- github.platform={platform}",
+        f"- github.identity_source={identity_source}",
     ]
     cred_key = (
         f"{platform.upper()}_CREDENTIALS" if platform != "unknown" else "CREDENTIALS"
@@ -287,40 +288,102 @@ def build_identity_section(
     return "\n".join(lines)
 
 
+def get_submodule_remotes() -> list[tuple[str, str, str]]:
+    """Find remotes from submodules when the root repo has no remote.
+
+    Returns list of (submodule_path, remote_url, platform) tuples.
+    """
+    submod_dirs = get_submodule_dirs()
+    remotes: list[tuple[str, str, str]] = []
+    for submod_path in submod_dirs:
+        submod_remote = run_git(
+            ["-C", submod_path, "remote", "get-url", "origin"]
+        )
+        if submod_remote:
+            platform = detect_platform(submod_remote)
+            if platform != "unknown":
+                remotes.append((submod_path, submod_remote, platform))
+    return remotes
+
+
+def get_submodule_dirs() -> list[str]:
+    """Get list of submodule directory paths."""
+    result = run_git(["config", "--file", ".gitmodules", "--get-regexp", "path"])
+    if not result:
+        return []
+    paths: list[str] = []
+    for line in result.splitlines():
+        parts = line.strip().split()
+        if len(parts) >= 2:
+            paths.append(parts[-1])
+    return paths
+
+
 def main() -> int:
     remote_url = get_remote_url()
-    if not remote_url:
+    identity_source = "root"
+    owner: str | None = None
+    repo: str | None = None
+    platform: str = "local"
+
+    if remote_url:
+        platform = detect_platform(remote_url)
+        owner, repo = parse_owner_repo(remote_url, platform)
+
+        if not owner or not repo:
+            if platform == "unknown":
+                owner, repo = parse_owner_repo(remote_url, "gitbucket")
+                if owner and repo:
+                    platform = "gitbucket"
+
+        if not owner or not repo:
+            print(f"Could not parse owner/repo from remote: {remote_url}", file=sys.stderr)
+            return 1
+    else:
         print(
-            "No git remote configured. Cannot determine repository identity.",
+            "No root repo remote configured — checking submodules for degraded mode",
             file=sys.stderr,
         )
-        return 1
+        submodule_remotes = get_submodule_remotes()
+        if submodule_remotes:
+            submod_path, submod_url, submod_platform = submodule_remotes[0]
+            submod_owner, submod_repo = parse_owner_repo(submod_url, submod_platform)
+            if submod_owner and submod_repo:
+                owner = submod_owner
+                repo = submod_repo
+                platform = submod_platform
+                identity_source = "submodule"
+                remote_url = submod_url
+                print(
+                    f"Using submodule remote for degraded mode: {submod_path} -> {submod_url}",
+                    file=sys.stderr,
+                )
+            else:
+                print(
+                    "Could not parse owner/repo from submodule remote.", file=sys.stderr
+                )
+
+        if not owner or not repo:
+            owner = "(none)"
+            repo = "(none)"
+            platform = "local"
+            identity_source = "none"
+            print(
+                "No git remote available — operating in local-only mode",
+                file=sys.stderr,
+            )
 
     root_dir = get_root_dir()
     if not root_dir:
         print("Not in a git repository.", file=sys.stderr)
         return 1
 
-    platform = detect_platform(remote_url)
-    owner, repo = parse_owner_repo(remote_url, platform)
+    credential_status = "unavailable"
+    if platform not in ("local",) and remote_url and remote_url != "(none)":
+        tier1 = probe_credentials_tier1(platform, root_dir)
+        credential_status = probe_credentials_tier3(platform, root_dir, tier1)
 
-    if not owner or not repo:
-        print(f"Could not parse owner/repo from remote: {remote_url}", file=sys.stderr)
-        return 1
-
-    if platform == "unknown":
-        owner, repo = parse_owner_repo(remote_url, "gitbucket")
-        if not owner or not repo:
-            print(
-                f"Could not parse owner/repo from remote: {remote_url}", file=sys.stderr
-            )
-            return 1
-        platform = "gitbucket"
-
-    tier1 = probe_credentials_tier1(platform, root_dir)
-    credential_status = probe_credentials_tier3(platform, root_dir, tier1)
-
-    print(build_identity_section(owner, repo, platform, credential_status))
+    print(build_identity_section(owner, repo, platform, credential_status, identity_source))
 
     agent_name, agent_version = detect_agent_binary()
     agent_line = f"AgentName: {agent_name}"
