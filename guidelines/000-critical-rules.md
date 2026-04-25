@@ -15,12 +15,11 @@ These mandates protect the integrity of the codebase and repository. They **NEVE
 
 | Mandate | Why Non-Yielding |
 | -- | -- |
-| Worktree required before file edits | Prevents corruption of main/dev working directory |
 | No commits to `main` or `dev` | Branch protection is a repository integrity concern |
 | Human-only merge | Agents must never merge PRs |
 | No `/tmp/` usage — `./tmp/` only | Prevents system-level temp file leakage |
-| Path rules in worktree context | Prevents silent file operation errors across worktrees |
-| Sub-agents must receive `worktree.path` | Prevents sub-agents from mutating main repo |
+| Path rules in worktree context | Prevents silent file operation errors across worktrees (only when `WORKTREE_REQUIRED` is set) |
+| Sub-agents must receive `worktree.path` | Prevents sub-agents from mutating main repo (only when main agent is in worktree mode) |
 | Human-only branch deletion | Unmerged branches must never be force-deleted by agents |
 | Agents must never self-authorize | Authorization comes from developers, never from agent reasoning |
 
@@ -46,26 +45,40 @@ When developer authorization conflicts with a mandate:
 | Scenario | Resolution |
 | -- | -- |
 | Developer authorization + Tier 2 process mandate | Developer authorization wins — the work is authorized |
-| Developer authorization + Tier 1 safety mandate | Safety mandate wins — must use worktree, must not commit to main/dev |
+| Developer authorization + Tier 1 safety mandate | Safety mandate wins — must use worktree (when `WORKTREE_REQUIRED`), must not commit to main/dev |
 | No developer authorization + any mandate | Mandate holds — HALT and wait |
 
 **See `010-approval-gate.md` → "Mandate Tiering Interaction" for the complete interaction semantics and examples.**
 
-## Critical Violation: Worktree Bypass — Using stash+checkout Instead of Worktrees
+## Critical Violation: Direct-Branch Default — Feature Branch Without Worktree Is the Norm
 
-**⚠️ Using `stash + checkout -b` instead of worktrees for ANY feature branch creation is a CRITICAL GUIDELINE VIOLATION.**
+**Direct-branch is the PRIMARY and DEFAULT workflow.** The agent creates feature branches directly in the main repo using `git checkout -b` or `git switch -c`. Worktrees are **opt-in**, created only when `WORKTREE_REQUIRED` flag is set or the developer explicitly requests them. **See `060-tool-usage.md` §2 for path resolution rules in both modes.**
 
-Worktrees are ALWAYS mandatory for feature branch creation. **See `using-git-worktrees` skill for the complete worktree creation procedure. See `060-tool-usage.md` §1-2 for tool priority hierarchy and path resolution rules.** **AUTHORITY: `060-tool-usage.md` §1-2** (this line is a reference only)
+- ✅ DEFAULT: `git checkout -b feature/X` or `git switch -c feature/X` in main repo directory
+- ✅ OPT-IN: Worktree creation when `WORKTREE_REQUIRED` is set or developer requests isolation
+- 🚫 FORBIDDEN: Operating directly on `main` or `dev` without a feature branch (regardless of mode)
 
-- 🚫 FORBIDDEN: `git checkout -b`, `stash + checkout`, operating in main working directory, ignoring `worktree.fatal=1`
-- ✅ REQUIRED: `using-git-worktrees` skill for every feature branch; HALT if `worktree.fatal=1` or `worktree.path` empty
+## Critical Violation: Worktree Bypass (Conditional — Only When WORKTREE_REQUIRED)
+
+**⚠️ When `WORKTREE_REQUIRED` is set, using `stash + checkout -b` instead of worktrees for feature branch creation is a CRITICAL GUIDELINE VIOLATION.** This violation ONLY applies in worktree mode. In direct-branch mode, `git checkout -b` is the correct procedure.
+
+**See `using-git-worktrees` skill for the complete worktree creation procedure. See `060-tool-usage.md` §1-2 for tool priority hierarchy and path resolution rules.** **AUTHORITY: `060-tool-usage.md` §1-2** (this line is a reference only)
+
+When `WORKTREE_REQUIRED` is set:
+- 🚫 FORBIDDEN: `git checkout -b`, `stash + checkout`, operating in main working directory
+- ✅ REQUIRED: `using-git-worktrees` skill; HALT if `worktree.fatal=1` or `worktree.path` empty
+
+When `WORKTREE_REQUIRED` is NOT set (direct-branch mode):
+- ✅ CORRECT: `git checkout -b feature/X` or `git switch -c feature/X` in main repo
+- ✅ RELATIVE PATHS work directly — no `worktree.path` prefixing needed
+- 🚫 FORBIDDEN: Committing to `main` or `dev` (branch protection still applies)
 
 ## Critical Violation: Skipping Git Pre-Check Before ANY Work
 
 **⚠️ Working on files without checking git state is a CRITICAL GUIDELINE VIOLATION.**
 
-- 🚫 FORBIDDEN: Starting work without creating a worktree first; operating in main working directory; creating/editing files on `main` or `dev`
-- ✅ REQUIRED: See `git-workflow` skill `--task pre-work` for mandatory worktree creation and environment verification
+- 🚫 FORBIDDEN: Starting work without creating a feature branch first; operating in main working directory on `main` or `dev`; creating/editing files on `main` or `dev`
+- ✅ REQUIRED: See `git-workflow` skill `--task pre-work` for mandatory feature branch creation and environment verification
 
 ## Critical Violation: Relative File Paths in Worktree Context
 
@@ -78,9 +91,11 @@ Worktrees are ALWAYS mandatory for feature branch creation. **See `using-git-wor
 
 ## Critical Violation: Sub-Agents Ignoring Worktree Context
 
-**⚠️ Sub-agents that modify the main repo instead of the worktree are a CRITICAL GUIDELINE VIOLATION.**
+**⚠️ Sub-agents that modify the main repo instead of the worktree are a CRITICAL GUIDELINE VIOLATION — but ONLY when the main agent is operating in worktree mode.**
 
 When a main agent is operating in a worktree and dispatches a sub-agent, the sub-agent MUST receive `worktree.path` in its dispatch context and use it as the base directory for ALL file operations and git commands.
+
+When the main agent is in direct-branch mode (no worktree), `worktree.path` is NOT set and sub-agents operate in the main repo directory normally.
 
 - 🚫 FORBIDDEN: Spawning sub-agents without `worktree.path` when operating in a worktree; sub-agents that stage/commit to the main repo's working directory; skills that perform git or file operations without a "Worktree Mode" section
 - ✅ REQUIRED: Pass `worktree.path` in ALL sub-agent dispatch prompts when set; sub-agents verify `git rev-parse --show-toplevel` matches `worktree.path` before mutating state; all new skills MUST include worktree awareness per `skill-creator` skill requirements

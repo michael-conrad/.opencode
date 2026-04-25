@@ -10,9 +10,15 @@ Prepare a feature branch for PR creation by ensuring all changes are committed, 
 2. When to use: When implementation is complete and branch needs final preparation
 3. Exit criteria: Working tree clean, all quality checks pass, branch pushed, compare URL generated
 
-## Worktree Mode (MANDATORY — NO EXCEPTIONS)
+## Branch Mode (Conditional — Based on WORKTREE_REQUIRED)
 
-All feature branches operate in worktrees. There is no alternative.
+**Direct-branch mode (default — when `WORKTREE_REQUIRED` is NOT set):**
+
+- Operate normally from the main repo directory
+- Relative paths work directly
+- No worktree path prefixing needed
+
+**Worktree mode (opt-in — when `WORKTREE_REQUIRED` is set):**
 
 If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT.** Do not proceed without a valid worktree path.
 
@@ -20,7 +26,7 @@ If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT.** D
 2. All `read`/`edit`/`write`/`glob`/`grep` tool calls MUST prefix `filePath`/`path` with `{{worktree.path}}/`
 3. Before any push/squash/rebase: `git branch --show-current` MUST match branch
 4. `git rev-parse --show-toplevel` MUST return the worktree path
-5. NEVER operate in the main working directory during implementation
+5. NEVER operate in the main working directory when in worktree mode
 
 ## Step 0: Sync Dev Branch (Fast-Forward Only)
 
@@ -46,7 +52,7 @@ echo "Or manual resolution required"
 
 **If dev is already up to date:** The ff-only pull is a no-op and proceeds instantly.
 
-**Worktree context:** If running from a worktree, `git pull` must target the main working tree's dev, not the worktree. Use `git -C /path/to/main/repo pull origin dev --ff-only` to ensure operations target the main tree.
+**Worktree context:** If running from a worktree (`WORKTREE_REQUIRED` is set), `git pull` must target the main working tree's dev, not the worktree. Use `git -C /path/to/main/repo pull origin dev --ff-only` to ensure operations target the main tree. In direct-branch mode, `git pull origin dev --ff-only` works directly.
 
 ## Prepare Branch Workflow
 

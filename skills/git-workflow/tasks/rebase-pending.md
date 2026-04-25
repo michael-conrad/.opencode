@@ -8,8 +8,9 @@ After a PR merge is verified, automatically rebase all other pending PRs from th
 
 1. **After merge verification:** Run immediately after Step 2 (verify PR merge) in cleanup
 2. **Before dev sync:** Must complete before Step 3 (switch to dev and sync)
-3. **Sequential processing:** Rebase one PR at a time to avoid worktree collisions
+3. **Sequential processing:** Rebase one PR at a time to avoid collisions
 4. **Force-push after rebase:** Rebased branches must be force-pushed to update remote PRs
+5. **Submodule re-sync after rebase:** Every rebase against `dev` MUST be followed by submodule sync — this is always-on hygiene
 
 ## Entry Criteria
 
@@ -66,6 +67,21 @@ Process one PR at a time to avoid worktree collisions.
 
 For each pending PR:
 
+**Direct-branch mode (default):**
+
+```
+a. Fetch latest remote: git fetch origin
+b. Checkout the PR branch: git checkout <branch-name>
+c. Rebase onto updated dev: git rebase origin/dev
+d. Submodule re-sync (MANDATORY): git submodule foreach "git checkout dev && git pull"
+   - Do NOT skip this step — rebase may change submodule references
+e. Handle outcome:
+   - Clean rebase + submodule sync → proceed to Step 5 (force-push)
+   - Conflicts → proceed to Step 3 (conflict classification)
+```
+
+**Worktree mode (when WORKTREE_REQUIRED is set):**
+
 ```
 a. Fetch latest remote: git fetch origin
 b. Create temporary worktree for the PR branch:
@@ -73,15 +89,16 @@ b. Create temporary worktree for the PR branch:
    (If branch already has a worktree, use existing)
 c. In worktree, rebase onto updated dev:
    git rebase origin/dev
-d. Handle outcome:
-   - Clean rebase → proceed to Step 5 (force-push)
+d. Submodule re-sync (MANDATORY): git submodule foreach "git checkout dev && git pull"
+e. Handle outcome:
+   - Clean rebase + submodule sync → proceed to Step 5 (force-push)
    - Conflicts → proceed to Step 3 (conflict classification)
 ```
 
-**Worktree management:**
+**Worktree management (worktree mode only):**
 
 ```bash
-# Create temporary worktree for rebase
+# Create temporary worktree for rebase (only when WORKTREE_REQUIRED is set)
 WORKTREE_PATH=".worktrees/rebase-<sanitized-branch-name>"
 git worktree add "$WORKTREE_PATH" -b <branch-name> origin/<branch-name>
 
@@ -90,6 +107,8 @@ git worktree remove "$WORKTREE_PATH"
 ```
 
 **Important:** Always clean up temporary worktrees between PRs. Never leave rebase worktrees dangling.
+
+**Submodule re-sync is MANDATORY after every rebase:** After `git rebase origin/dev`, run `git submodule foreach "git checkout dev && git pull"` to realign submodules with the updated dev state. Skipping this causes drift that breaks builds and tests.
 
 ### Step 3: Conflict Classification
 
@@ -241,7 +260,7 @@ Continuing with cleanup for the merged PR...
 | Check | Tool Call | Expected Result | On Failure |
 | -- | -- | -- | -- |
 | On correct branch | `git branch --show-current` | PR branch name (not `main`/`dev`) | STRUCTURE-VIOLATION → HALT |
-| Worktree location | `git rev-parse --show-toplevel` | Worktree path (not main repo) | STRUCTURE-VIOLATION → HALT |
+| Worktree location (worktree mode only) | `git rev-parse --show-toplevel` | Worktree path (not main repo) | STRUCTURE-VIOLATION → HALT |
 | Working tree clean | `git status --porcelain` | Empty output | VERIFICATION-GAP → stash or commit first |
 | Dev is up to date | `git fetch origin && git log --oneline origin/dev -1` | Recent SHA, post-merge | MISSING-ELEMENT → re-fetch |
 
@@ -262,7 +281,7 @@ Continuing with cleanup for the merged PR...
 | Failure | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
 | On wrong branch | CONFLICTING | flag-for-review | Switch to correct branch before rebase |
-| Not in worktree | STRUCTURE-VIOLATION | auto-fix | Create worktree or use existing one |
+| Not in worktree (worktree mode only) | STRUCTURE-VIOLATION | auto-fix | Create worktree or use existing one |
 | Dirty working tree | VERIFICATION-GAP | conditional | Stash changes before rebase (`git stash`) |
 | Dev SHA is stale | MISSING-ELEMENT | auto-fix | `git fetch origin` to update |
 | Rebase conflicts (Tier 1-2) | VERIFICATION-GAP | auto-fix | Auto-resolve, note in chat |

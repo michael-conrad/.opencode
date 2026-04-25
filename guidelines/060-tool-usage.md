@@ -90,7 +90,7 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 
 | Rule | `.issues/` files | Source code files |
 |------|-------------------|-------------------|
-| Worktree required? | NO (exempt) | YES (Tier 1 mandate) |
+| Worktree required? | NO (exempt) | Only when `WORKTREE_REQUIRED` set (default: NO) |
 | Feature branch required? | YES | YES |
 | Can commit to `dev`/`main`? | NO | NO |
 
