@@ -1,12 +1,12 @@
 ---
 number: 1
 title: "Submodule-Aware Session Identity + Local Issue Tracking"
-status: open
+status: "closed"
 labels: [SPEC, needs-approval]
 created: "2026-04-25T00:00:00Z"
-updated: "2026-04-25T00:00:00Z"
+updated: "2026-04-25T17:15:42Z"
 github_issue: 57
-author: michael-conrad
+author: "michael-conrad"
 ---
 
 ## Objective
