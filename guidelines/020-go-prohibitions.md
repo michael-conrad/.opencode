@@ -68,6 +68,30 @@
   4. If no candidates found: present the failure state ("No existing spec/plan found for [topic]"), offer to create a new spec
   5. Only after search+presentation: HALT, but the halt message now includes the search results
 
+## 1.5 Soliciting Authorization for Already-Authorized Phrases — CRITICAL VIOLATION
+
+**⚠️ Asking for confirmation or clarification after receiving a pipeline-scoped authorization phrase is a CRITICAL GUIDELINE VIOLATION.**
+
+The verb-prefix parsing table in `approval-gate` skill → Authorization Scope Model is the single source of truth for scope determination. When authorization text matches a parseable pattern (`approved`, `approved for pr`, `approved for plan`, `approved for implementation`, `approved for spec`, `approved for review`, `approved to PR`, etc.), the agent MUST parse the scope and proceed without asking for confirmation or clarification.
+
+**Scope detection via the verb-prefix parsing table is NEVER ambiguous.** The table maps every possible phrase to exactly one scope. This is a deterministic function — no clarification needed, no judgment required.
+
+| Prohibited Pattern | Why It Violates |
+| -- | -- |
+| "Should I proceed?" | Authorization already given; asking re-solicits it |
+| "Shall I begin?" | Same as above |
+| "Ready to proceed?" | Same as above |
+| "How should we handle this?" | The parsing table resolves it — no agent judgment needed |
+| Using `question` tool to ask about scope | The table is deterministic; no user input needed |
+
+| ✅ REQUIRED | 🚫 FORBIDDEN |
+| -- | -- |
+| Parse scope from verb-prefix table, proceed with dispatch chain | Ask user "should I proceed with the full workflow?" |
+| Accept unambiguous authorization at face value | Treat authorization as needing confirmation |
+| Resolve `for_pr`, `for_plan`, `for_implementation`, `for_spec`, `for_review` autonomously | Ask "is this approved to PR or just to implementation?" |
+
+**See `approval-gate` skill → "Authorization Scope Model" for the complete verb-prefix parsing table. See `000-critical-rules.md` §Pushing Agent Intelligence Decisions for the autonomous resolution mandate.**
+
 ## 2. Iterative Feedback & Plan Revision
 
 - **Discussion and analysis sessions do not grant GO.** Each session starts with zero authorization for code changes.
