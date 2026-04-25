@@ -258,6 +258,7 @@ def build_identity_section(
     platform: str,
     credential_status: str,
     identity_source: str = "root",
+    parent_remotes: int = 0,
 ) -> str:
     lines = [
         "## Repository Hosting Identity",
@@ -265,6 +266,7 @@ def build_identity_section(
         f"- github.repo={repo}",
         f"- github.platform={platform}",
         f"- github.identity_source={identity_source}",
+        f"- github.parent_remotes={parent_remotes}",
     ]
     cred_key = (
         f"{platform.upper()}_CREDENTIALS" if platform != "unknown" else "CREDENTIALS"
@@ -323,6 +325,7 @@ def get_submodule_dirs() -> list[str]:
 
 def main() -> int:
     remote_url = get_remote_url()
+    parent_remote_url = remote_url
     identity_source = "root"
     owner: str | None = None
     repo: str | None = None
@@ -382,6 +385,10 @@ def main() -> int:
         print("Not in a git repository.", file=sys.stderr)
         return 1
 
+    parent_remote_count = 0
+    if parent_remote_url:
+        parent_remote_count = 1
+
     credential_status = "unavailable"
     if platform not in ("local",) and remote_url and remote_url != "(none)":
         tier1 = probe_credentials_tier1(platform, root_dir)
@@ -389,7 +396,12 @@ def main() -> int:
 
     print(
         build_identity_section(
-            owner, repo, platform, credential_status, identity_source
+            owner,
+            repo,
+            platform,
+            credential_status,
+            identity_source,
+            parent_remote_count,
         )
     )
 

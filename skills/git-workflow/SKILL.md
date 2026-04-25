@@ -20,7 +20,7 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 
 | Task | Purpose | Words |
 | -- | -- | -- |
-| `pre-work` | Verify authorization, create worktree | ≈420 |
+| `pre-work` | Verify authorization, verify remote dev branch, create worktree | ≈480 |
 | `implementation` | Handle WIP commits during implementation | ≈400 |
 | `review-prep` | Push branch, generate compare URL for review (2 subtasks) | ≈390 |
 | `pr-creation` | Squash, push, create PR via GitHub MCP (3 subtasks) | ≈385 |
@@ -188,7 +188,7 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | → `provenance/platform-detection` | ≈415 |
 | → `provenance/dev-push-provenance` | ≈540 |
 | → `provenance/promotion-provenance` | ≈610 |
-| `pre-work` | 1,898 |
+| `pre-work` | 2,100 |
 | `release-promotion` | 1,811 |
 | `rebase-pending` | 1,666 |
 | `implementation` | ≈400 |
@@ -212,6 +212,7 @@ branch_name: <str>
 branch_created: bool
 setup_complete: bool
 tests_passing: bool
+dev_branch_created: bool
 ```
 
 #### review-prep
@@ -369,6 +370,7 @@ This skill is a **heavy skill** — its task files contain significant detail th
 | Verification Point | Tool Call | Expected Evidence | Applies To |
 | -- | -- | -- | -- |
 | **Branch state** | `git branch --show-current` | Current branch name matches expected | pre-work, implementation, rebase-pending |
+| **Remote dev branch** | `git ls-remote origin dev` | Non-empty output (when remote exists) | pre-work |
 | **Working tree cleanliness** | `git status --porcelain` | Empty output (no uncommitted changes) | review-prep, pr-creation |
 | **Worktree location** | `git rev-parse --show-toplevel` | Returns worktree path (not main repo) | pre-work, implementation |
 | **Commit/push state** | `git log dev..HEAD --oneline` | At least one commit ahead of dev | review-prep, pr-creation |

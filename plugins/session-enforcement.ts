@@ -28,9 +28,157 @@
 import type { Hooks, PluginInput } from "@opencode-ai/plugin";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { execSync } from "child_process";
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
+
+interface GitConfigBaseline {
+  configHash: string;
+  localConfigHash: string;
+  remotes: string[];
+  remoteCount: number;
+  capturedAt: number;
+}
+
+const SECURITY_RELEVANT_KEY_PATTERNS: RegExp[] = [
+  /^remote\./,
+  /^url\./,
+  /^http\.proxy$/,
+  /^core\.sshCommand$/,
+  /^http\.sslVerify$/,
+  /^http\.sslCAInfo$/,
+  /^credential\.helper$/,
+  /^credential\.username$/,
+  /^protocol\..*\.allow$/,
+  /^core\.hooksPath$/,
+  /^init\.templateDir$/,
+];
+
+const EXEMPT_KEY_PATTERNS: RegExp[] = [
+  /^user\.name$/,
+  /^user\.email$/,
+  /^core\.autocrlf$/,
+  /^core\.filemode$/,
+  /^push\.default$/,
+  /^submodule\./,
+  /^branch\./,
+];
+
+function isSecurityRelevantKey(key: string): boolean {
+  return SECURITY_RELEVANT_KEY_PATTERNS.some(p => p.test(key));
+}
+
+function isExemptKey(key: string): boolean {
+  return EXEMPT_KEY_PATTERNS.some(p => p.test(key));
+}
+
+function sha256(data: string): string {
+  return crypto.createHash("sha256").update(data, "utf8").digest("hex");
+}
+
+function captureGitConfigBaseline(projectDir: string): GitConfigBaseline | null {
+  try {
+    const gitDir = resolveGitDir(projectDir);
+    const configContent = gitDir
+      ? fs.readFileSync(path.join(gitDir, "config"), "utf8")
+      : "";
+    const configHash = sha256(configContent);
+
+    let localConfigOutput = "";
+    try {
+      localConfigOutput = execSync("git config --local --list", {
+        cwd: projectDir,
+        encoding: "utf8",
+        input: "",
+        timeout: 5000,
+        stdio: ["pipe", "pipe", "pipe"],
+      }).trim();
+    } catch {
+      // No local config or git unavailable
+    }
+    const localConfigHash = sha256(localConfigOutput);
+
+    let remoteOutput = "";
+    try {
+      remoteOutput = execSync("git remote -v", {
+        cwd: projectDir,
+        encoding: "utf8",
+        input: "",
+        timeout: 5000,
+        stdio: ["pipe", "pipe", "pipe"],
+      }).trim();
+    } catch {
+      // No remotes or git unavailable
+    }
+
+    const remotes = remoteOutput
+      ? [...new Set(remoteOutput.split("\n").map(l => l.split(/\s+/)[0]).filter(Boolean))]
+      : [];
+
+    return {
+      configHash,
+      localConfigHash,
+      remotes,
+      remoteCount: remotes.length,
+      capturedAt: Date.now(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function extractChangedSecurityKeys(oldLocalConfig: string, newLocalConfig: string): string[] {
+  const oldKeys = new Set(
+    oldLocalConfig.split("\n").filter(Boolean).map(l => l.split("=")[0].trim())
+  );
+  const newKeys = new Set(
+    newLocalConfig.split("\n").filter(Boolean).map(l => l.split("=")[0].trim())
+  );
+
+  const changed: string[] = [];
+  for (const key of newKeys) {
+    if (!oldKeys.has(key) && isSecurityRelevantKey(key) && !isExemptKey(key)) {
+      changed.push(key);
+    }
+  }
+  for (const key of oldKeys) {
+    if (!newKeys.has(key) && isSecurityRelevantKey(key) && !isExemptKey(key)) {
+      changed.push(key);
+    }
+  }
+
+  return changed;
+}
+
+let gitConfigBaseline: GitConfigBaseline | null = null;
+let baselineLocalConfig: string = "";
+
+function buildGitConfigMutationBlock(changedKeys: string[]): string {
+  const keyList = changedKeys.map(k => `- \`${k}\``).join("\n");
+  return `<GIT_CONFIG_MUTATION>
+⚠️ CRITICAL: Security-relevant git configuration was mutated during this session!
+
+Changed keys:
+${keyList}
+
+This is a Tier 1 mandate violation unless explicitly authorized by the developer.
+HALT and verify the mutation was authorized before proceeding.
+See 000-critical-rules.md → "Git Configuration and Destructive Command Authorization".
+</GIT_CONFIG_MUTATION>`;
+}
+
+function buildNoVerifyBlockedBlock(): string {
+  return `<NO_VERIFY_BLOCKED>
+⚠️ CRITICAL: \`--no-verify\` is FORBIDDEN in repos with remotes.
+
+\`git commit --no-verify\` and \`git push --no-verify\` bypass git hooks that
+enforce repository safety. This is a Tier 1 mandate.
+
+Only permitted in local-only repos (zero remotes). Check \`git remote -v\` first.
+See 000-critical-rules.md → "Git Configuration and Destructive Command Authorization".
+</NO_VERIFY_BLOCKED>`;
+}
 
 interface PluginDiagnostic {
   source: string;
@@ -1017,6 +1165,22 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
   // Ensure git hooks from .opencode/hooks/ are installed into .git/hooks/
   ensureHooksInstalled(projectDir);
 
+  // Capture git config baseline for mutation watchdog
+  gitConfigBaseline = captureGitConfigBaseline(projectDir);
+  if (gitConfigBaseline) {
+    try {
+      baselineLocalConfig = execSync("git config --local --list", {
+        cwd: projectDir,
+        encoding: "utf8",
+        input: "",
+        timeout: 5000,
+        stdio: ["pipe", "pipe", "pipe"],
+      }).trim();
+    } catch {
+      baselineLocalConfig = "";
+    }
+  }
+
   return {
     // Inject session context into system prompt (from session-init + PluginInput augmentations)
     "experimental.chat.system.transform": async (sysInput, output) => {
@@ -1150,6 +1314,10 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           // not an error. Skip the FATAL identity validation for local-only mode.
           const isLocalMode = knownPlatform === "local" || knownIdentitySource === "none";
 
+          // Submodule mode: parent repo has zero remotes, owner/repo come from submodule.
+          // Agent must NOT add remotes to the parent repo or push from the parent repo.
+          const isSubmoduleMode = knownIdentitySource === "submodule";
+
           // Detect agent binary for identity echo
           const agentBinary = detectAgentBinary();
 
@@ -1189,6 +1357,17 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
               lastUser.parts.push({
                 type: "text",
                 text: `<LOCAL_MODE>\n⚠️ Operating in local-only mode — no git remote configured.\n\n- github.platform: local\n- github.owner: (none)\n- github.repo: (none)\n- github.identity_source: none\n\nGitHub/GitBucket API calls are unavailable. Local issue tracking (.issues/) is available.\nDo NOT attempt to use GitHub MCP or GitBucket API tools — all issue operations route to local .issues/.\n</LOCAL_MODE>`
+              });
+            }
+          } else if (isSubmoduleMode) {
+            // Submodule mode: parent repo has zero remotes, owner/repo from submodule for API routing only.
+            // Emit a LOCAL_MODE block telling agent the parent is local-only.
+            const parentRemotes = extractValue(cachedIdentityOutput, "github.parent_remotes") || "0";
+            const lastUser = userMessages[userMessages.length - 1];
+            if (lastUser?.parts?.length) {
+              lastUser.parts.push({
+                type: "text",
+                text: `<LOCAL_MODE>\n⚠️ Operating in submodule-local mode — parent repo has ${parentRemotes} remote(s).\n\n- github.identity_source: submodule\n- github.parent_remotes: ${parentRemotes}\n- Parent repo has ZERO remotes by design\n- github.owner and github.repo are from the submodule remote for API routing ONLY\n\n**MANDATORY RESTRICTIONS:**\n- Do NOT add remotes to the parent repo (git remote add is FORBIDDEN)\n- Do NOT push from the parent repo (git push without specifying remote is FORBIDDEN)\n- Do NOT assume the parent repo has any remote relationship with the submodule's GitHub repo\n- GitHub MCP and GitBucket API calls route to the submodule's repository\n- Local git operations (branch, commit, stash) on the parent repo are permitted\n\nSee 000-critical-rules.md → "Git Configuration and Destructive Command Authorization".\n</LOCAL_MODE>`
               });
             }
           } else if (!knownPlatform || !knownOwner || !knownRepo) {
@@ -1265,6 +1444,59 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
             const redacted = redactSecrets(part.text);
             if (redacted !== part.text) {
               msg.parts[i] = { ...part, type: "text", text: redacted };
+            }
+          }
+        }
+      }
+
+      // --- Per-turn: Git config mutation watchdog ---
+      if (gitConfigBaseline) {
+        try {
+          const currentLocalConfig = execSync("git config --local --list", {
+            cwd: projectDir,
+            encoding: "utf8",
+            input: "",
+            timeout: 5000,
+            stdio: ["pipe", "pipe", "pipe"],
+          }).trim();
+
+          const currentBaseline = captureGitConfigBaseline(projectDir);
+          if (currentBaseline) {
+            const configChanged = currentBaseline.configHash !== gitConfigBaseline.configHash;
+            const localConfigChanged = currentBaseline.localConfigHash !== gitConfigBaseline.localConfigHash;
+
+            if (configChanged || localConfigChanged) {
+              const changedKeys = extractChangedSecurityKeys(baselineLocalConfig, currentLocalConfig);
+              if (changedKeys.length > 0) {
+                const mutationBlock = buildGitConfigMutationBlock(changedKeys);
+                const nextUser = userMessages[userMessages.length - 1];
+                if (nextUser?.parts?.length) {
+                  nextUser.parts.push({ type: "text", text: mutationBlock });
+                }
+                gitConfigBaseline = currentBaseline;
+                baselineLocalConfig = currentLocalConfig;
+              }
+            }
+          }
+        } catch {
+          // Git unavailable or config unreadable — skip watchdog
+        }
+      }
+
+      // --- Per-turn: --no-verify detection ---
+      const hasRemotes = gitConfigBaseline ? gitConfigBaseline.remoteCount > 0 : true;
+      for (const msg of assistantMessages) {
+        if (!msg.parts?.length) continue;
+        for (const part of msg.parts) {
+          if (part.type === "text" && part.text) {
+            const noVerifyMatch = part.text.match(/(?:git\s+commit|git\s+push)\s+.*--no-verify/);
+            if (noVerifyMatch && hasRemotes) {
+              const blockedBlock = buildNoVerifyBlockedBlock();
+              const nextUser = userMessages[userMessages.length - 1];
+              if (nextUser?.parts?.length) {
+                nextUser.parts.push({ type: "text", text: blockedBlock });
+              }
+              break;
             }
           }
         }
