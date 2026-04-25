@@ -33,11 +33,11 @@ Clean up pair-mode branches and stashes after PR merge.
    ```
    For each matching stash, ask developer: "Resume or drop?"
 
-6. **Clean up orphaned worktrees:**
+6. **Clean up orphaned worktrees (only if worktree mode was used):**
    ```bash
    git worktree list --porcelain
    ```
-   Remove any worktrees for the merged pair branch.
+   Remove any worktrees for the merged pair branch. This step typically does not apply in pair mode (direct-branch), but covers the rare case where a worktree was created during the pair session.
 
 ## Branch Deletion Discipline
 

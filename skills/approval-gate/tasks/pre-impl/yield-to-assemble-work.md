@@ -58,9 +58,9 @@ Format:
 **Phase 2 (Parallel-safe):**
 
 Each parallel issue includes dispatch context:
-- #662 (`.opencode/skills/`) → `worktree_path: .worktrees/spec-662`
-- #614 (`src/`) → `worktree_path: .worktrees/spec-614`
-- #671 (`.opencode/skills/` — phases 2, 3 only) → `worktree_path: .worktrees/spec-671`
+- #662 (`.opencode/skills/`) → `worktree_path: .worktrees/spec-662` (only when `WORKTREE_REQUIRED` is set)
+- #614 (`src/`) → `worktree_path: .worktrees/spec-614` (only when `WORKTREE_REQUIRED` is set)
+- #671 (`.opencode/skills/` — phases 2, 3 only) → `worktree_path: .worktrees/spec-671` (only when `WORKTREE_REQUIRED` is set)
 
 **Phase 3 (After #630):**
 - #621 (`.opencode/guidelines/`)
@@ -92,7 +92,7 @@ Yield control to `divide-and-conquer --task assemble-work`:
 
 **assemble-work** reads the work state file and handles:
 
-- Creating worktrees for the work set
+- Creating branches (worktrees when `WORKTREE_REQUIRED` is set) for the work set
 - Dispatching sub-agents for each issue
 - Collecting results and updating work state
 - Running review-prep after all issues complete

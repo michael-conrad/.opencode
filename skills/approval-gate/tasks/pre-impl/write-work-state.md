@@ -14,7 +14,7 @@ Determine execution strategy, capture the dev base hash, build dispatch context 
 
 - Execution strategy determined (sequential, parallel, hybrid, exclude, or reduce-scope)
 - Dev base hash captured via `git rev-parse origin/dev`
-- Dispatch context built for each issue (including worktree paths, partially-implemented context, revised status)
+- Dispatch context built for each issue (including worktree paths when `WORKTREE_REQUIRED` is set, partially-implemented context, revised status)
 - Work state file written to `.opencode/tmp/work-<timestamp>.md`
 - File contains: authorization context, scope fields, pre-analysis results, gate evidence audit table, execution order, merge-time ordering, completed tracking, and results placeholder
 
@@ -32,7 +32,7 @@ Determine execution strategy, capture the dev base hash, build dispatch context 
 
 ### Step 7: Capture Dev Base Hash (Before Dispatch)
 
-Before dispatching any parallel worktrees, the orchestrating agent MUST capture the current dev branch hash:
+Before dispatching any parallel work (worktrees when `WORKTREE_REQUIRED` is set, or branches in direct-branch mode), the orchestrating agent MUST capture the current dev branch hash:
 
 ```bash
 git rev-parse origin/dev
@@ -42,15 +42,15 @@ This `dev_base_hash` MUST be included in the dispatch context for each parallel 
 
 ### Step 8: Dispatch Context for Parallel Issues
 
-For each issue in a parallel-safe group, the dispatch context MUST include worktree information:
+For each issue in a parallel-safe group, the dispatch context includes branch and optional worktree information:
 
 ```yaml
 issue: <number>
 branch: "spec/<short-name>"
-worktree_path: ".worktrees/spec-<short-name>"
+worktree_path: ".worktrees/spec-<short-name>"  # Only when WORKTREE_REQUIRED is set
 dev_base_hash: "<7-char-sha>"
 env_vars:
-  worktree.path: ".worktrees/spec-<short-name>"
+  worktree.path: ".worktrees/spec-<short-name>"  # Only when WORKTREE_REQUIRED is set
   branch: "spec/<short-name>"
   github.owner: "<from-session>"
   github.repo: "<from-session>"
@@ -58,12 +58,12 @@ env_vars:
   dev.email: "<from-session>"
 ```
 
-The `worktree_path` is derived from the branch name by replacing `/` with `-`:
+The `worktree_path` is derived from the branch name by replacing `/` with `-` (only when `WORKTREE_REQUIRED` is set):
 
 - Branch `spec/foo` → Worktree path `.worktrees/spec-foo`
 - Branch `feature/bar` → Worktree path `.worktrees/feature-bar`
 
-The `dev_base_hash` ensures all parallel worktrees start from the same base commit on `dev`.
+The `dev_base_hash` ensures all parallel branches start from the same base commit on `dev`.
 
 **For partially-implemented issues**, include additional context:
 

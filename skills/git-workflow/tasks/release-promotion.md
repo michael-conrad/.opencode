@@ -116,6 +116,81 @@ git submodule update --init
 
 **CRITICAL:** Do NOT use `--remote` flag. During release promotion, submodules must be at their committed SHAs, not advanced to the tip of their dev branches. Using `--remote` would silently advance submodules beyond the tested state, violating release integrity.
 
+**SHA Locking Discipline:** Lock the current checkout state, NOT a fresh pull. The release captures exactly what was tested on dev — any upstream changes after the developer's last pull are intentionally excluded unless explicitly integration-tested.
+
+**To capture current submodule SHAs before promotion:**
+
+```bash
+git submodule foreach "git rev-parse HEAD"
+```
+
+This records the exact SHA each submodule is at, providing a snapshot of the tested state. If the promotion needs to be reproduced or audited, these SHAs are the reference point.
+
+**Upstream changes after developer's last pull are intentionally excluded from the release.** This is by design — the release contains only what was integration-tested on dev. To include newer upstream changes, a developer must:
+
+1. Pull the latest upstream changes into each submodule on dev
+2. Run the full test suite to verify integration
+3. Commit the submodule bumps to dev
+4. Then proceed with release promotion
+
+See **Post-Merge Integration Step** below for handling upstream changes after release.
+
+### Step 1.5: Post-Merge Integration Discipline
+
+After a release PR is merged to `main`, upstream submodule changes may have accumulated. The post-merge integration step handles this:
+
+1. **Check for upstream submodule changes:**
+
+   ```bash
+   git submodule foreach "git fetch origin && git log HEAD..origin/dev --oneline"
+   ```
+
+2. **If upstream changes exist, pull and test:**
+
+   ```bash
+   git checkout dev
+   git submodule foreach "git checkout dev && git pull"
+   git submodule update --init --remote
+   # Run full test suite
+   uv run pytest test/
+   ```
+
+3. **If tests pass, commit submodule bumps to dev:**
+
+   ```bash
+   git add <submodule-paths>
+   git commit -m "chore(submodule): sync to latest upstream dev post-release"
+   git push origin dev
+   ```
+
+4. **If tests fail, HALT and report — do NOT push failing submodule bumps.**
+
+This integration step is optional but recommended after every release promotion to keep dev current with upstream.
+
+### Step 1.6: Hotfix Submodule Discipline
+
+During a hotfix (urgent fix on `main`), submodules MUST NOT be changed:
+
+- **Lock submodules to their current committed SHAs:** `git submodule update --init` (no `--remote`)
+- **Do NOT advance submodules:** No `git submodule update --remote`
+- **Do NOT pull upstream changes:** The hotfix must be minimal and reproducible
+- **Do NOT commit submodule bumps:** Only source code changes belong in a hotfix
+
+Rationale: Hotfixes must be minimal, scoped, and reproducible. Advancing submodules introduces untested changes into an urgent fix, violating release integrity and expanding the blast radius of the hotfix.
+
+### Step 1.7: Feature Branch Submodule Discipline
+
+On feature branches, keep submodules current with upstream dev:
+
+```bash
+git submodule foreach "git checkout dev && git pull"
+```
+
+- Sync submodules at branch creation (handled by `pre-work` Step 3.5)
+- Sync periodically during long-lived feature branches to reduce merge conflicts
+- Before creating PR, ensure submodules are on dev tip
+- If a feature branch intentionally pins a submodule to a specific SHA, document the reason in the commit message
+
 ### Step 2: Promote Each Submodule
 
 For each submodule listed in `.gitmodules`:
@@ -443,7 +518,10 @@ Developers can target individual submodules without promoting all:
 | T22 | Parent submodule refs are updated to tagged SHAs after human merge |
 | T23 | `validate-release-tags.sh --semver` passes after automated promotion |
 | T24 | Developer can explicitly instruct push or promotion of individual submodules |
-| T25 | Submodule SHAs are locked (no `--remote` flag) during release promotion |
+| T25 | Submodule SHAs are locked (no `--remote` flag) during release promotion; current checkout state captured, NOT a fresh pull |
+| T25a | Upstream changes after developer's last pull are excluded from release unless integration-tested |
+| T25b | Hotfix branches: submodule SHAs locked, no submodule changes allowed during hotfix |
+| T25c | Feature branches: submodules kept current with upstream dev, periodic sync documented |
 | T26 | Non-submodule repos: agent creates release PR; human merges |
 | T27 | Non-submodule repos: semver tag is created post-merge and pushed |
 | T28 | Non-submodule repos: platform release is created post-merge |

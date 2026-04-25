@@ -88,7 +88,7 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 - [ ] `git-workflow --task cleanup` invoked after PR merge confirmation (CRITICAL — skipping is a guideline violation)
 - [ ] Local dev branch synced with origin/dev (dev HEAD matches origin/dev HEAD)
 - [ ] Merged feature branch deleted (local and remote)
-- [ ] No stale worktrees remaining from the merged branch
+- [ ] No stale worktrees remaining from the merged branch (worktree mode only — skip when `WORKTREE_REQUIRED` is not set)
 
 ### Sub-Issue Linkage Verification
 - [ ] If the plan has multiple phases, verify that `get_sub_issues` count on the plan issue matches the number of phases in the plan body. If counts don't match, run `issue-operations --task link-sub-issue` to create missing linkages before proceeding to review-prep

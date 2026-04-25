@@ -4,17 +4,18 @@
 
 After all verification gates (Steps 1-5) pass, determine the approval context and auto-dispatch to the next skill in the chain. This step runs ONLY when ALL prior verification gates pass. If ANY gate fails, HALT — do NOT dispatch.
 
-## 6.1 Pre-Implementation Worktree Setup (MANDATORY)
+## 6.1 Pre-Implementation Branch Setup (MANDATORY)
 
 **Before any sub-agent dispatch or file modification, the agent MUST invoke `git-workflow --task pre-work` to:**
 
-1. Create the feature branch in a worktree (`.worktrees/`)
-2. Set the `worktree.path` environment variable
-3. Verify branch state and working tree cleanliness
+1. Create the feature branch
+2. If `WORKTREE_REQUIRED` is set: create a worktree (`.worktrees/`) and set the `worktree.path` environment variable
+3. If `WORKTREE_REQUIRED` is NOT set: create the branch directly in the main repo (direct-branch mode)
+4. Verify branch state and working tree cleanliness
 
-**This step is MANDATORY and CANNOT be skipped.** If the worktree already exists from a previous session, verify it and proceed. If worktree creation fails, HALT — do not proceed without a valid worktree.
+**This step is MANDATORY and CANNOT be skipped.** If the branch already exists from a previous session, verify it and proceed. If branch creation fails, HALT — do not proceed without a valid feature branch.
 
-**Evidence requirement:** `git worktree list` must show the feature branch worktree, and `worktree.path` must be set before any `divide-and-conquer` dispatch.
+**Evidence requirement in worktree mode:** `git worktree list` must show the feature branch worktree, and `worktree.path` must be set before any `divide-and-conquer` dispatch. In direct-branch mode, `git branch --show-current` must show the feature branch.
 
 ## Auto-Dispatch Context Differentiation
 
@@ -44,12 +45,12 @@ The dispatch target is modified by `authorization_scope` from Step 2.0. See `enf
 4. **If spec approval:** Invoke `writing-plans --task create` with context:
    - `spec_issue=#N` (the approved spec issue number)
    - `authorization_scope=<scope>` and `halt_at=<stage>`
-   - `<github.owner>`, `<github.repo>`, `<worktree.path>` from session
+    - `<github.owner>`, `<github.repo>`, `<worktree.path>` (when set) from session
 5. **If plan approval:** Invoke `executing-plans --task start` with context:
    - `plan_issue=#N` (the approved plan issue number)
    - `spec_issue=#M` (extracted from plan body — the spec reference)
-   - `authorization_scope=<scope>`, `halt_at=<stage>`, `pr_strategy=<strategy>`
-   - `<github.owner>`, `<github.repo>`, `<worktree.path>` from session
+    - `authorization_scope=<scope>`, `halt_at=<stage>`, `pr_strategy=<strategy>`
+    - `<github.owner>`, `<github.repo>`, `<worktree.path>` (when set) from session
 6. **Chat output:** Clearly indicate the transition and scope:
    - Spec approval: "Verification passed → Creating implementation plan (scope: <scope>)"
    - Plan approval: "Verification passed → Starting implementation (scope: <scope>, halt_at: <stage>)"

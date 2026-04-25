@@ -44,12 +44,18 @@ Branch completion workflow that ensures a feature branch is fully ready for PR c
 1. **Mandatory invocation (no decision point):** The agent MUST invoke this skill when implementation completes on a feature branch, when the user says "done" or "finished" or "ready for PR", or before review-prep task in git-workflow.
 2. **Verification-first approach:** All changes must be committed. All tests must pass. All lint/typecheck must pass. Branch must be pushed to remote.
 3. **Exit conditions:** Branch is READY when all checklist items pass, compare URL is generated, and agent HALTs to report readiness.
-4. **Worktree mandatory:** All feature branches operate in worktrees. If `worktree.path` is not set: FATAL ERROR → FLAG DEV → HALT.
+4. **Worktree conditional:** Feature branches operate in worktrees ONLY when `WORKTREE_REQUIRED` is set. In direct-branch mode (default), `worktree.path` is NOT set and operations run from the main repo directory.
 
-## Worktree Mode (MANDATORY)
+## Worktree Mode (Conditional — Only When WORKTREE_REQUIRED Is Set)
 
-If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT.** Do not proceed without a valid worktree path.
+If `WORKTREE_REQUIRED` is set AND `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT.** Do not proceed without a valid worktree path.
 
+If `WORKTREE_REQUIRED` is NOT set, operate in direct-branch mode:
+- All `bash` tool calls use project root as working directory
+- All `read`/`edit`/`write`/`glob`/`grep` tool calls use relative paths directly
+- `worktree.path` is NOT set
+
+When `worktree.path` IS set (worktree mode):
 - All `bash` tool calls use `workdir="{{worktree.path}}"`
 - All `read`/`edit`/`write`/`glob`/`grep` tool calls prefix paths with `{{worktree.path}}/`
 - NEVER operate in the main working directory during implementation
@@ -94,7 +100,7 @@ Implementation tracks against **plan sub-issues**, not spec sub-issues. The hier
 | "Tests pass" | Verify by running tests | `bash` to run `uv run pytest test/` → confirm exit code 0 | VERIFICATION-GAP |
 | "Lint passes" | Verify by running linter | `bash` to run `uvx ruff check src/ test/` → confirm no errors | VERIFICATION-GAP |
 | "Branch pushed to remote" | Verify remote branch exists | `bash` to run `git log origin/<branch>..HEAD` → confirm empty | MISSING-ELEMENT |
-| "All files in worktree" | Verify all changed files are under worktree.path | `bash` to run `git diff --name-only HEAD≈1` → check paths | STRUCTURE-VIOLATION |
+| "All files in worktree" (worktree mode only) | Verify all changed files are under worktree.path | `bash` to run `git diff --name-only HEAD≈1` → check paths | STRUCTURE-VIOLATION |
 
 **Evidence format:**
 
@@ -114,7 +120,7 @@ Action: [auto-fix|conditional|flag-for-review]
 | Tests failing | VERIFICATION-GAP | flag-for-review | HALT — fix test failures before proceeding |
 | Lint errors found | VERIFICATION-GAP | auto-fix | Run `ruff check --fix` and re-verify |
 | Branch not pushed | MISSING-ELEMENT | auto-fix | Push branch and re-verify |
-| Changes outside worktree | STRUCTURE-VIOLATION | flag-for-review | HALT — investigate, may need worktree re-creation |
+| Changes outside worktree (worktree mode) | STRUCTURE-VIOLATION | flag-for-review | HALT — investigate, may need worktree re-creation |
 
 ## Cross-Reference Verification (MANDATORY)
 

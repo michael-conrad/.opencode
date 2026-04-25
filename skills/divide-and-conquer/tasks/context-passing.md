@@ -122,7 +122,7 @@ Co-authored with AI: <AgentName> (<ModelId>)
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "worktree.path correct" | Verify path exists | `ls -d <path>` | STRUCTURE-VIOLATION |
+| "worktree.path correct" | Verify path exists (worktree mode only) | `ls -d <path>` (skip in direct-branch mode) | STRUCTURE-VIOLATION |
 | "Session vars current" | Verify vars match session init | Check against session values | VERIFICATION-GAP |
 | "Prior results accurate" | Verify result contracts from prior sub-agents | Read work state file | VERIFICATION-GAP |
 

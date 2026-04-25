@@ -76,7 +76,7 @@ IF implementation is authorized:
   1. DO NOT implement directly — even for single issues
   2. Invoke /skill divide-and-conquer --task assemble-work
   3. Single issue = work set of one sub-agent (work-of-1)
-  4. The sub-agent receives worktree.path, github.owner, github.repo in dispatch context
+  4. The sub-agent receives worktree.path (when set), github.owner, github.repo in dispatch context
 ENDIF
 ```
 
@@ -91,7 +91,7 @@ Violation: Skipping sub-agent dispatch for "simple" or "single-issue" work is a 
 5. **Depth limit** — maximum decomposition depth configurable via `DIVIDE_AND_CONQUER_MAX_DEPTH` (default: 3). At max depth, HALT and report to user. Depth is tracked in the Dispatch Context Contract.
 6. **Orchestrator controls all spawning** — sub-agents never self-spawn. Only the orchestrator dispatches via `--task dispatch`. Sub-agents that need further decomposition return OVERFLOW; the orchestrator handles it.
 7. **Main agent is pure orchestrator** — never edits implementation files directly. Implementation happens only inside sub-agents. Violating this is a CRITICAL violation.
-8. **Branch per issue** — each issue gets its own feature branch and worktree. No shared branches across issues.
+8. **Branch per issue** — each issue gets its own feature branch. Worktree per branch only when `WORKTREE_REQUIRED` is set; in direct-branch mode (default), branches are created directly in the main repo.
 9. **Frozen branches** — once a prior branch is merged into a dependent, it is frozen (no rebase, amend, or force-push).
 10. **Verification gate remains mandatory** — sub-agents MUST run `verification-before-completion --task verify` and `finishing-a-development-branch --task checklist` before returning results. Orchestrator enforces this in dispatch context.
 11. **Stacking is a prerequisite, not a preference** — feature branches MUST be stacked sequentially (merge-based dependency resolution) as the prerequisite approach. Parallel sub-agent dispatch is OPPORTUNISTIC — it depends on circumstances genuinely allowing it (truly independent codepaths, no shared files, no hidden dependencies). When in doubt, stack.
@@ -101,14 +101,14 @@ Violation: Skipping sub-agent dispatch for "simple" or "single-issue" work is a 
 
 **Before dispatching any sub-agent, the main agent MUST verify:**
 
-1. **Worktree exists:** `git worktree list` shows the feature branch worktree
-2. **worktree.path is set:** `echo $WORKTREE_PATH` returns a non-empty path inside the repository (`.worktrees/`)
-3. **git-workflow --task pre-work was invoked:** The worktree was created by the mandatory skill, not manually
-4. **Feature branch is checked out:** The worktree shows the correct branch name
+1. **Feature branch exists:** `git branch --show-current` shows the correct feature branch
+2. **Branch is checked out:** The working directory is on the correct branch
+3. **git-workflow --task pre-work was invoked:** The branch was created by the mandatory skill, not manually
+4. **(Worktree mode only)** Worktree exists: `git worktree list` shows the feature branch worktree AND `worktree.path` is set
 
 **If ANY check fails:** HALT and invoke `git-workflow --task pre-work` before proceeding.
 
-**Evidence requirement:** Record `git worktree list` output and `worktree.path` value before dispatching any sub-agent.
+**Evidence requirement in worktree mode:** Record `git worktree list` output and `worktree.path` value before dispatching any sub-agent. In direct-branch mode, record `git branch --show-current` output instead.
 
 ## Overflow Signal Contract
 
@@ -118,7 +118,7 @@ When a sub-agent cannot fit the assigned work, it MUST return `status: OVERFLOW`
 
 When the orchestrator dispatches a sub-agent, it MUST pass: `issue`, `branch`, `spec`, `plan_issue`, `authorization`, `authorization_scope`, `halt_at`, `pr_strategy`, `depth`, `max_depth`, `prior_context`, `decision_log_reference`, `phase_progress` (prose-driven: completed phases by concern, boundaries crossed, verification evidence), `sub_task` (description, scope, boundaries), `model_context`, `env_vars` (worktree.path, branch, github.owner, github.repo), `tdd_phase`, `current_item`, `top_down_items`, `dev.name`, `dev.email`. See `context-passing` task for the full schema.
 
-**Invariants:** `worktree.path` is MANDATORY — no exceptions. If empty: FATAL ERROR → HALT. `plan_issue` is set when dispatched from plan approval flow. `phase_progress` accumulates across the work set from prior sub-agent results.
+**Invariants:** `worktree.path` is MANDATORY when `WORKTREE_REQUIRED` is set — if empty in worktree mode: FATAL ERROR → HALT. In direct-branch mode (default), `worktree.path` is NOT set and operations use the main repo directory. `plan_issue` is set when dispatched from plan approval flow. `phase_progress` accumulates across the work set from prior sub-agent results.
 
 ## Sub-Agent Completion Checkpoint
 
@@ -202,14 +202,20 @@ UI sub-agents MUST NOT run concurrently when:
 - Non-UI tasks depend on UI artifacts not yet produced
 - The ui-design and ui-engineer sub-agents have a sequential dependency (ui-engineer consumes ui-design output)
 
-## Worktree Mode
+## Worktree Mode (Conditional — Only When WORKTREE_REQUIRED Is Set)
 
-When `worktree.path` is set:
+When `WORKTREE_REQUIRED` is set and `worktree.path` is set:
 - ALL `bash` tool calls MUST use `workdir` parameter set to `worktree.path`
 - ALL `read`/`write`/`edit`/`glob`/`grep` tool calls MUST prefix `filePath`/`path` with `worktree.path/`
 - `git` commands run from the worktree directory, NOT the main repo
 
-If `worktree.path` is NOT set, operate normally from the project root.
+In direct-branch mode (default, `WORKTREE_REQUIRED` not set, `worktree.path` NOT set):
+- Operate normally from the project root
+- No path prefixing needed
+
+### Concurrent Agent Scenario (Worktree Opt-In)
+
+When multiple agents must work on the same repository concurrently, `WORKTREE_REQUIRED` SHOULD be set to isolate each agent's file operations into separate worktrees. Without worktree isolation, concurrent agents modifying the same working directory will conflict. Set `WORKTREE_REQUIRED` before dispatching parallel sub-agents that touch overlapping file paths.
 
 ## Sub-Agent Tasks
 
@@ -250,7 +256,7 @@ See individual task files for full schemas. Key result contract:
 5. Returns structured result per Result Contract
 6. Main agent receives result — no orchestration detail in main context
 
-Pass `<worktree.path>`, `branch`, `<github.owner>`, `<github.repo>`, `<dev.name>`, `<dev.email>` from session init.
+Pass `<worktree.path>` (when set), `branch`, `<github.owner>`, `<github.repo>`, `<dev.name>`, `<dev.email>` from session init. In direct-branch mode, `worktree.path` is not passed.
 
 ## Live Verification: Work State (MANDATORY)
 

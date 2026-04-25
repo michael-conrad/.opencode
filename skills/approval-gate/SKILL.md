@@ -139,7 +139,7 @@ Spec approved (existing plan found)
 
 Plan approved
   → verify-authorization (all gates pass)
-  → git-workflow --task pre-work (MANDATORY: worktree creation and environment setup)
+  → git-workflow --task pre-work (MANDATORY: feature branch creation; worktree ONLY when WORKTREE_REQUIRED is set)
   → sub-issue verification (Step 5 of verify-authorization, if multi-phase)
   → pre-implementation-analysis (expand sub-issues, classify, build flat item list)
   → divide-and-conquer/assemble-work (dispatch sub-agents, squash-merge into work branch)
@@ -148,8 +148,8 @@ Plan approved
    → git-workflow --task review-prep (VERIFY: compare URL generated)
 
 Clearly simple work (Tier 2 waiver)
-  → git-workflow --task pre-work (MANDATORY: worktree creation)
-  → Direct implementation in worktree (no sub-agent dispatch for single-file changes)
+  → git-workflow --task pre-work (MANDATORY: feature branch creation; worktree ONLY when WORKTREE_REQUIRED is set)
+  → Direct implementation (no sub-agent dispatch for single-file changes)
   → verification-before-completion (simplified for docs/config)
   → finishing-a-development-branch --task checklist
   → git-workflow --task review-prep
@@ -169,7 +169,7 @@ Before proceeding to the next step in the dispatch chain, the agent MUST confirm
 
 | Step | Output Artifacts to Confirm | On Missing |
 | -- | -- | -- |
-| `git-workflow --task pre-work` | `worktree.path` set, feature branch exists | HALT and invoke pre-work |
+| `git-workflow --task pre-work` | Feature branch exists; `worktree.path` set if `WORKTREE_REQUIRED` | HALT and invoke pre-work |
 | `divide-and-conquer/assemble-work` | Work state file (`.opencode/tmp/work-*.md`), all sub-agents returned | HALT and invoke assemble-work |
 | `verification-before-completion` | Success criteria verification results exist in chat output | HALT and invoke VbC |
 | `finishing-a-development-branch --task checklist` | All checklist items verified via tool-call artifacts | HALT and invoke checklist |
@@ -186,7 +186,7 @@ Before proceeding to the next step in the dispatch chain, the agent MUST confirm
 - Plan approval: Issue has `plan` label or `[PLAN]` prefix in title
 - See `verify-authorization.md` Step 5 for full procedure
 
-**⚠️ MANDATORY WORKTREE STEP:** `git-workflow --task pre-work` MUST be invoked between plan approval and any implementation. This step creates the feature branch worktree, sets `worktree.path`, and verifies branch state. Skipping this step is a CRITICAL GUIDELINE VIOLATION (see `000-critical-rules.md`).
+**⚠️ MANDATORY BRANCH STEP:** `git-workflow --task pre-work` MUST be invoked between plan approval and any implementation. This step creates the feature branch and sets `worktree.path` when `WORKTREE_REQUIRED` is set. In direct-branch mode (default), it creates the branch directly in the main repo without a worktree. Skipping this step is a CRITICAL GUIDELINE VIOLATION (see `000-critical-rules.md`).
 
 **Circular dispatch prevention:** Spec approval dispatches to `writing-plans`, which creates a plan. Plan approval dispatches to `executing-plans`. The plan requires its own approval before `executing-plans` can run.
 
@@ -400,10 +400,10 @@ Rules are classified into two tiers per `000-critical-rules.md` → "Mandate Tie
 
 | Tier | Behavior | Examples |
 |------|----------|----------|
-| **Tier 1 (Non-Yielding)** | Enforced REGARDLESS of developer authorization | Worktree requirement, branch protection, human-only merge, no `/tmp/`, path rules |
+| **Tier 1 (Non-Yielding)** | Enforced REGARDLESS of developer authorization | Branch protection, human-only merge, no `/tmp/`, path rules; worktree requirement ONLY when `WORKTREE_REQUIRED` is set |
 | **Tier 2 (Authorization-Waivable)** | Yields to explicit developer authorization | Spec-before-code, plan-before-implementation, `needs-approval` label |
 
-**Enforcement rule:** When `verify-authorization` confirms developer authorization exists, Tier 2 mandates are satisfied by that authorization. Tier 1 mandates are NEVER satisfied by authorization — they are independently enforced. An agent with developer authorization MUST still create a worktree, MUST still not commit to main/dev, MUST still not merge PRs.
+**Enforcement rule:** When `verify-authorization` confirms developer authorization exists, Tier 2 mandates are satisfied by that authorization. Tier 1 mandates are NEVER satisfied by authorization — they are independently enforced. An agent with developer authorization MUST still not commit to main/dev, MUST still not merge PRs. Worktree requirement applies only when `WORKTREE_REQUIRED` is set.
 
 **For simple work** (docs, runbooks, minor config): developer authorization IS the process — no spec/plan required. **For complex work**: developer authorization means "begin the process"; spec/plan creation is part of the authorized work.
 
@@ -473,7 +473,7 @@ When verifying success criteria for submodule issues:
 Bypassing any mandatory skill invocation in the dispatch chain is a CRITICAL GUIDELINE VIOLATION. The dispatch chain is not advisory — it is enforceable.
 
 - 🚫 FORBIDDEN: Implementing files directly without invoking `divide-and-conquer --task assemble-work`
-- 🚫 FORBIDDEN: Creating a worktree manually instead of `git-workflow --task pre-work`
+- 🚫 FORBIDDEN: Creating a worktree manually instead of `git-workflow --task pre-work` (when `WORKTREE_REQUIRED` is set)
 - 🚫 FORBIDDEN: Skipping `verification-before-completion` and claiming task completion
 - 🚫 FORBIDDEN: Generating compare URL without `git-workflow --task review-prep`
 - 🚫 FORBIDDEN: Pushing changes without `finishing-a-development-branch --task checklist`
@@ -484,7 +484,7 @@ Bypassing any mandatory skill invocation in the dispatch chain is a CRITICAL GUI
 
 **⚠️ Implementing files inline without dispatching through the approval-gate chain is a CRITICAL GUIDELINE VIOLATION.**
 
-- 🚫 FORBIDDEN: Editing files directly in chat without a worktree
+- 🚫 FORBIDDEN: Editing files directly in chat without a feature branch (worktree required only when `WORKTREE_REQUIRED` is set)
 - 🚫 FORBIDDEN: Bypassing `pre-work` to "save time"
 - 🚫 FORBIDDEN: Treating the dispatch chain as optional for "small" changes
 - ✅ REQUIRED: Every file modification follows the chain: `pre-work → assemble-work → implementation → checklist → review-prep`

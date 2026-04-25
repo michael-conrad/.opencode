@@ -64,7 +64,28 @@ When a platform has a dedicated API client (e.g., `gitbucket-api` CLI tool at `.
 - Never issue a `cd` command. Run all commands from project root using relative paths.
 - **NEVER prefix commands with `cd /home/<user>/git/<repo> &&` or any variant.**
 
-### ⚠️ Worktree Path Resolution for File Operation Tools (CRITICAL)
+### Mode Detection
+
+Path rules have TWO modes based on whether `worktree.path` is set:
+
+| Condition | Mode | Path Behavior |
+| -- | -- | -- |
+| `worktree.path` is NOT set | **Direct-branch mode** (default) | Relative paths work directly — no prefixing needed |
+| `worktree.path` IS set | **Worktree mode** (opt-in) | ALL paths MUST be prefixed with `worktree.path` |
+
+### Direct-Branch Mode (Default)
+
+When `worktree.path` is NOT set, the agent operates in the main repo directory. Relative paths resolve correctly for all file operation tools.
+
+| Tool | Correct Usage |
+| -- | -- |
+| `read` | `read(filePath="src/main.py")` |
+| `edit` | `edit(filePath="src/main.py", ...)` |
+| `write` | `write(filePath="src/new.py", ...)` |
+| `glob` | `glob(pattern="src/**/*.py")` |
+| `grep` | `grep(pattern="TODO", path="src/")` |
+
+### Worktree Mode (When `worktree.path` Is Set)
 
 When working in a git worktree (`worktree.path` is set), TIER 1 file operation tools (`read`, `edit`, `write`, `glob`, `grep`) do **NOT** have a `workdir` parameter. Relative paths like `src/main.py` resolve to the **main repo**, not the worktree. This causes silent file operation errors — edits go to the wrong file.
 
@@ -78,8 +99,6 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 | `glob` | `glob(pattern="src/**/*.py")` | `glob(pattern="src/**/*.py", path=worktree.path)` |
 | `grep` | `grep(pattern="TODO", path="src/")` | `grep(pattern="TODO", path=f"{worktree.path}/src/")` |
 
-**When NOT in a worktree** (working in main repo): Relative paths are correct and function as expected.
-
 **For `bash` tool:** Continue using `workdir` parameter (already documented in `using-git-worktrees` skill and `000-critical-rules.md`).
 
 ### `.issues/` Worktree Exemption (CRITICAL)
@@ -90,7 +109,7 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 
 | Rule | `.issues/` files | Source code files |
 |------|-------------------|-------------------|
-| Worktree required? | NO (exempt) | YES (Tier 1 mandate) |
+| Worktree required? | NO (exempt) | Only when `WORKTREE_REQUIRED` is set |
 | Feature branch required? | YES | YES |
 | Can commit to `dev`/`main`? | NO | NO |
 

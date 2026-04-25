@@ -10,12 +10,18 @@ Prepare a feature branch for PR creation by ensuring all changes are committed, 
 2. When to use: When implementation is complete and branch needs final preparation
 3. Exit criteria: Working tree clean, all quality checks pass, branch pushed, compare URL generated
 
-## Worktree Mode (MANDATORY — NO EXCEPTIONS)
+## Worktree Mode (Conditional — Only When WORKTREE_REQUIRED Is Set)
 
-All feature branches operate in worktrees. There is no alternative.
+Feature branches operate in worktrees ONLY when `WORKTREE_REQUIRED` is set. In direct-branch mode (default), there is no worktree.
 
-If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT.** Do not proceed without a valid worktree path.
+If `WORKTREE_REQUIRED` is NOT set, operate in direct-branch mode:
+1. All `bash` tool calls use project root as working directory
+2. All `read`/`edit`/`write`/`glob`/`grep` tool calls use relative paths directly
+3. `worktree.path` is NOT set
 
+If `WORKTREE_REQUIRED` is set AND `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT.** Do not proceed without a valid worktree path.
+
+When `worktree.path` IS set (worktree mode):
 1. All `bash` tool calls MUST use `workdir="{{worktree.path}}"`
 2. All `read`/`edit`/`write`/`glob`/`grep` tool calls MUST prefix `filePath`/`path` with `{{worktree.path}}/`
 3. Before any push/squash/rebase: `git branch --show-current` MUST match branch

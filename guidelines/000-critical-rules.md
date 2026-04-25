@@ -15,12 +15,14 @@ These mandates protect the integrity of the codebase and repository. They **NEVE
 
 | Mandate | Why Non-Yielding |
 | -- | -- |
-| Worktree required before file edits | Prevents corruption of main/dev working directory |
+| Direct-branch default — feature branch in main repo | Direct-branch is the primary workflow; worktrees are opt-in |
+| Branch verification gate | Must confirm correct branch before any file operations |
 | No commits to `main` or `dev` | Branch protection is a repository integrity concern |
 | Human-only merge | Agents must never merge PRs |
 | No `/tmp/` usage — `./tmp/` only | Prevents system-level temp file leakage |
-| Path rules in worktree context | Prevents silent file operation errors across worktrees |
-| Sub-agents must receive `worktree.path` | Prevents sub-agents from mutating main repo |
+| Worktree required when `WORKTREE_REQUIRED` set | Worktree mode is opt-in, enforced only when flag is active |
+| Path rules in worktree context (when `worktree.path` set) | Prevents silent file operation errors across worktrees |
+| Sub-agents must receive `worktree.path` (when in worktree mode) | Prevents sub-agents from mutating main repo |
 | Human-only branch deletion | Unmerged branches must never be force-deleted by agents |
 | Agents must never self-authorize | Authorization comes from developers, never from agent reasoning |
 
@@ -51,27 +53,52 @@ When developer authorization conflicts with a mandate:
 
 **See `010-approval-gate.md` → "Mandate Tiering Interaction" for the complete interaction semantics and examples.**
 
-## Critical Violation: Worktree Bypass — Using stash+checkout Instead of Worktrees
+## Critical Violation: Direct Branch Default — Primary Workflow
 
-**⚠️ Using `stash + checkout -b` instead of worktrees for ANY feature branch creation is a CRITICAL GUIDELINE VIOLATION.**
+**⚠️ Failing to use direct-branch as the primary workflow is a CRITICAL GUIDELINE VIOLATION.**
 
-Worktrees are ALWAYS mandatory for feature branch creation. **See `using-git-worktrees` skill for the complete worktree creation procedure. See `060-tool-usage.md` §1-2 for tool priority hierarchy and path resolution rules.** **AUTHORITY: `060-tool-usage.md` §1-2** (this line is a reference only)
+Direct-branch is the PRIMARY and DEFAULT workflow. Creating a feature branch directly in the main repo using `git checkout -b` or `git switch -c` is the standard approach. Worktrees are opt-in, not mandatory.
 
-- 🚫 FORBIDDEN: `git checkout -b`, `stash + checkout`, operating in main working directory, ignoring `worktree.fatal=1`
-- ✅ REQUIRED: `using-git-worktrees` skill for every feature branch; HALT if `worktree.fatal=1` or `worktree.path` empty
+- ✅ DEFAULT: Agent creates feature branch directly in main repo using `git checkout -b` or `git switch -c`
+- ✅ DEFAULT: When in direct-branch mode, `worktree.path` is NOT set
+- ✅ DEFAULT: When in direct-branch mode, relative paths work directly for all file operations
+- ✅ REQUIRED: Branch verification gate still applies — confirm on correct branch before file operations
+- ✅ REQUIRED: Pair mode already implies direct-branch (no worktree needed)
+- 🚫 FORBIDDEN: Requiring worktrees when `WORKTREE_REQUIRED` is not set
+- 🚫 FORBIDDEN: Setting `worktree.path` when operating in direct-branch mode
+
+**Worktrees are appropriate when ANY of these conditions are met:**
+- `WORKTREE_REQUIRED` flag is explicitly set
+- Developer explicitly requests worktree isolation
+- Concurrent agent work requires isolated checkouts
+
+**See `060-tool-usage.md` §2 for the two-mode path resolution rules. See `git-workflow` skill `--task pre-work` for branch creation procedure.**
+
+## Critical Violation: Worktree Required When WORKTREE_REQUIRED Is Set
+
+**⚠️ Operating without a worktree when `WORKTREE_REQUIRED` is set is a CRITICAL GUIDELINE VIOLATION.**
+
+When the `WORKTREE_REQUIRED` flag is set, the agent MUST create a worktree before any file operations. This flag activates worktree mode, converting the opt-in worktree workflow into a mandatory requirement for that session.
+
+**See `using-git-worktrees` skill for the complete worktree creation procedure. See `060-tool-usage.md` §1-2 for tool priority hierarchy and path resolution rules.** **AUTHORITY: `060-tool-usage.md` §1-2** (this line is a reference only)
+
+- 🚫 FORBIDDEN: Operating in main working directory when `WORKTREE_REQUIRED` is set; ignoring `worktree.fatal=1` when worktree mode is active
+- ✅ REQUIRED: `using-git-worktrees` skill when worktree mode is active; HALT if `worktree.fatal=1` or `worktree.path` empty in worktree mode
 
 ## Critical Violation: Skipping Git Pre-Check Before ANY Work
 
 **⚠️ Working on files without checking git state is a CRITICAL GUIDELINE VIOLATION.**
 
-- 🚫 FORBIDDEN: Starting work without creating a worktree first; operating in main working directory; creating/editing files on `main` or `dev`
-- ✅ REQUIRED: See `git-workflow` skill `--task pre-work` for mandatory worktree creation and environment verification
+- 🚫 FORBIDDEN: Starting work without creating a feature branch first; operating in main working directory on `main` or `dev`; creating/editing files on `main` or `dev`
+- ✅ REQUIRED: See `git-workflow` skill `--task pre-work` for mandatory branch creation and environment verification
 
 ## Critical Violation: Relative File Paths in Worktree Context
 
 **⚠️ Using relative paths with `read`/`edit`/`write`/`glob`/`grep` tools when `worktree.path` is set is a CRITICAL GUIDELINE VIOLATION.**
 
 **See `060-tool-usage.md` §2 "Path Rules (ZERO TOLERANCE)" for the complete tool-by-tool table showing wrong vs correct path resolution, and the `using-git-worktrees` skill → "Tool Usage Compliance" section for worktree-specific guidance.** **AUTHORITY: `060-tool-usage.md` §2** (this line is a reference only)
+
+This violation applies ONLY when `worktree.path` is set (worktree mode). In direct-branch mode (default), relative paths work correctly without prefixing.
 
 - 🚫 FORBIDDEN: Relative paths with file operation tools when `worktree.path` is set; assuming tools respect `workdir`
 - ✅ REQUIRED: Prefix ALL paths with `worktree.path` when in worktree context
@@ -82,8 +109,10 @@ Worktrees are ALWAYS mandatory for feature branch creation. **See `using-git-wor
 
 When a main agent is operating in a worktree and dispatches a sub-agent, the sub-agent MUST receive `worktree.path` in its dispatch context and use it as the base directory for ALL file operations and git commands.
 
-- 🚫 FORBIDDEN: Spawning sub-agents without `worktree.path` when operating in a worktree; sub-agents that stage/commit to the main repo's working directory; skills that perform git or file operations without a "Worktree Mode" section
-- ✅ REQUIRED: Pass `worktree.path` in ALL sub-agent dispatch prompts when set; sub-agents verify `git rev-parse --show-toplevel` matches `worktree.path` before mutating state; all new skills MUST include worktree awareness per `skill-creator` skill requirements
+This violation applies ONLY when the main agent is in worktree mode (`worktree.path` is set). In direct-branch mode, sub-agents operate in the main repo directory and no `worktree.path` is needed.
+
+- 🚫 FORBIDDEN: Spawning sub-agents without `worktree.path` when operating in a worktree; sub-agents that stage/commit to the main repo's working directory when worktree mode is active; skills that perform git or file operations without a "Worktree Mode" section when `WORKTREE_REQUIRED` is set
+- ✅ REQUIRED: Pass `worktree.path` in ALL sub-agent dispatch prompts when set; sub-agents verify `git rev-parse --show-toplevel` matches `worktree.path` before mutating state in worktree mode; all new skills MUST include worktree awareness per `skill-creator` skill requirements
 
 ## Critical Violation: Implementing Without Verifying Against Live Documentation
 
@@ -573,7 +602,7 @@ If you think something ELSE should be changed: 1) STOP, 2) Comment on the issue,
 
 The approval-gate dispatch chain defines a mandatory sequence after plan approval:
 
-1. `git-workflow --task pre-work` — Create worktree, set `worktree.path`, verify branch state
+1. `git-workflow --task pre-work` — Create feature branch (worktree when `WORKTREE_REQUIRED` set), verify branch state
 2. `divide-and-conquer --task assemble-work` — Dispatch sub-agents for implementation
 3. `verification-before-completion` — Verify success criteria before marking complete
 4. `finishing-a-development-branch --task checklist` — Final branch readiness check
@@ -588,14 +617,14 @@ The approval-gate dispatch chain defines a mandatory sequence after plan approva
 - 🚫 FORBIDDEN: Generating compare URL without invoking `git-workflow --task review-prep`
 - ✅ REQUIRED: Follow the approval-gate dispatch chain in order after plan approval
 - ✅ REQUIRED: Invoke each mandatory skill in sequence
-- ✅ REQUIRED: Verify `worktree.path` is set before any file modification
+- ✅ REQUIRED: Verify `worktree.path` is set before any file modification (when in worktree mode)
 - ✅ REQUIRED: Use `divide-and-conquer` to dispatch sub-agents for all file modifications on multi-task plans
 
 **Artifact verification (MANDATORY):** Each step in the dispatch chain must produce evidence of completion before the next step proceeds. The agent MUST NOT proceed past a verification gate without producing a tool-call artifact confirming the prior step's output:
 
 | Dispatch Chain Step | Required Evidence Artifact |
 | -- | -- |
-| `git-workflow --task pre-work` | `worktree.path` set, feature branch exists (verified via `git rev-parse --show-toplevel` and `git branch --show-current`) |
+| `git-workflow --task pre-work` | Feature branch exists, `worktree.path` set if `WORKTREE_REQUIRED` (verified via `git rev-parse --show-toplevel` and `git branch --show-current`) |
 | `divide-and-conquer --task assemble-work` | Work state file exists (`.opencode/tmp/work-*.md`), all sub-agents returned success |
 | `verification-before-completion` | Per-SC evidence table produced, all rows show PASS |
 | `finishing-a-development-branch --task checklist` | All checklist items verified via tool-call artifacts (lint, test, format commands) |
@@ -622,7 +651,7 @@ The dispatch chain is enforceable, not advisory. Every step produces required ar
 | Push without review-prep | `git-workflow --task review-prep` skipped |
 
 - 🚫 FORBIDDEN: Treating the dispatch chain as optional for "small" or "simple" work
-- 🚫 FORBIDDEN: Inline file edits without worktree and sub-agent dispatch
+- 🚫 FORBIDDEN: Inline file edits without branch and appropriate sub-agent dispatch
 - 🚫 FORBIDDEN: Generating halt-point output without confirming prior step artifacts
 - ✅ REQUIRED: Each step produces a tool-call artifact before the next step proceeds
 - ✅ REQUIRED: On missing artifact, HALT and invoke the skipped skill
@@ -876,12 +905,12 @@ When ALL of the following conditions are met:
 - Developer has given explicit authorization (approved/go)
 - Work is "clearly simple" (see classification table below)
 - No spec or plan is required (Tier 2 waiver applies)
-- File modifications ARE needed (Tier 1 worktree mandate applies)
+- File modifications ARE needed (branch verification gate applies; worktree only when `WORKTREE_REQUIRED` set)
 
 The agent follows this REDUCED dispatch path:
 
-1. `git-workflow --task pre-work` — Create worktree (Tier 1, MANDATORY)
-2. Direct implementation in worktree — No sub-agent dispatch needed for single-file changes
+1. `git-workflow --task pre-work` — Create feature branch (worktree when `WORKTREE_REQUIRED` set)
+2. Direct implementation — No sub-agent dispatch needed for single-file changes
 3. `verification-before-completion` — Verify success criteria exist and pass
 4. `finishing-a-development-branch --task checklist` — Branch readiness check
 5. `git-workflow --task review-prep` — Push, generate compare URL, HALT

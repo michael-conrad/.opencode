@@ -9,7 +9,7 @@ Dispatch `screen-issue` sub-agents for every approved issue, collect their resul
 - One or more issues approved (e.g., `Approved: #660`, `Approved: #660, #662, #621`)
 - Each issue has been verified by `verify-authorization`
 - User has explicitly authorized implementation
-- Session vars available: `github.owner`, `github.repo`, `dev.name`, `dev.email`, `worktree.path`
+- Session vars available: `github.owner`, `github.repo`, `dev.name`, `dev.email`, `worktree.path` (when set)
 
 ## Exit Criteria
 
@@ -62,7 +62,7 @@ session_vars:
   github.repo: <from-session>
   dev.name: <from-session>
   dev.email: <from-session>
-  worktree.path: <from-session>
+  worktree.path: <from-session>  # Only set when WORKTREE_REQUIRED is active
 ```
 
 **After all sub-agents return**, assemble screening results.

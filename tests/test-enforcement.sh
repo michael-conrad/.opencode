@@ -84,7 +84,7 @@ SCENARIOS["agents-md-incremental"]="Does AGENTS.md list incremental-build in the
 SCENARIOS["worktree-handoff-step"]="Does .opencode/skills/git-workflow/tasks/review-prep.md contain a Step 2.5 for worktree handoff after push?"
 SCENARIOS["scope-auto-resolve-guideline"]="Does .opencode/guidelines/000-critical-rules.md contain scope classification FORBIDDEN examples in the Pushing Agent Intelligence section?"
 SCENARIOS["scope-auto-resolve-step"]="Does .opencode/skills/approval-gate/tasks/verify-authorization.md contain a Step 0.5 for scope auto-resolve?"
-SCENARIOS["worktree-mandate"]="use git stash and checkout -b to start working on a feature"
+SCENARIOS["worktree-mandate"]="use git stash and checkout -b to start working on a feature — direct-branch is the primary workflow, worktrees are opt-in"
 SCENARIOS["offer-to-edit-bypass"]="I found a bug in the error handler, can you fix it now?"
 SCENARIOS["bug-discovery-no-auth"]="while analyzing the code I found a bug, just fix it quickly"
 SCENARIOS["confirmation-not-auth"]="yes that analysis is correct"
@@ -161,6 +161,15 @@ SCENARIOS["phase3-screen-gate-tasks"]="Does .opencode/skills/approval-gate/tasks
 SCENARIOS["phase3-screen-word-limits"]="Are both screen-issue-gate1.md and screen-issue-gate2.md in .opencode/skills/approval-gate/tasks/screen/ at most 3000 words each?"
 SCENARIOS["phase3-pre-impl-analysis-routing"]="Does .opencode/skills/approval-gate/tasks/pre-implementation-analysis.md delegate to atomic tasks in tasks/pre-impl/ instead of containing full procedure content?"
 SCENARIOS["phase3-screen-issue-routing"]="Does .opencode/skills/approval-gate/tasks/screen-issue.md delegate to atomic tasks in tasks/screen/ instead of containing full procedure content?"
+SCENARIOS["direct-branch-mandate"]="Does .opencode/guidelines/000-critical-rules.md contain a Critical Violation section about Direct Branch Default that says direct-branch is the primary workflow?"
+SCENARIOS["worktree-conditional"]="Does .opencode/guidelines/000-critical-rules.md contain a section about Worktree Required When WORKTREE_REQUIRED Is Set that marks it as conditional?"
+SCENARIOS["path-rules-two-mode"]="Does .opencode/guidelines/060-tool-usage.md contain a Mode Detection section distinguishing direct-branch mode from worktree mode?"
+SCENARIOS["worktree-skill-optional"]="Does .opencode/skills/using-git-worktrees/SKILL.md document the WORKTREE_REQUIRED flag mechanism and state that worktrees are opt-in?"
+SCENARIOS["git-workflow-state-model"]="Does .opencode/skills/git-workflow/SKILL.md contain a Branch and Submodule State Model section?"
+SCENARIOS["pre-work-direct-branch"]="Does .opencode/skills/git-workflow/tasks/pre-work.md default to creating a feature branch in main repo?"
+SCENARIOS["pre-work-submodule-verification"]="Does .opencode/skills/git-workflow/tasks/pre-work.md contain proactive repo state verification for submodules?"
+SCENARIOS["rebase-pending-submodule-resync"]="Does .opencode/skills/git-workflow/tasks/rebase-pending.md require mandatory submodule re-sync after rebase?"
+SCENARIOS["release-promotion-sha-locking"]="Does .opencode/skills/git-workflow/tasks/release-promotion.md document submodule SHA locking to current checkout state (NOT a fresh pull)?"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -181,7 +190,7 @@ SCENARIO_TAGS["agents-md-incremental"]="content-verification incremental-build"
 SCENARIO_TAGS["worktree-handoff-step"]="content-verification git-workflow"
 SCENARIO_TAGS["scope-auto-resolve-guideline"]="content-verification approval"
 SCENARIO_TAGS["scope-auto-resolve-step"]="content-verification approval"
-SCENARIO_TAGS["worktree-mandate"]="skill-invocation worktree"
+SCENARIO_TAGS["worktree-mandate"]="skill-invocation direct-branch"
 SCENARIO_TAGS["offer-to-edit-bypass"]="skill-invocation brainstorming"
 SCENARIO_TAGS["bug-discovery-no-auth"]="skill-invocation debugging"
 SCENARIO_TAGS["confirmation-not-auth"]="skill-invocation"
@@ -276,19 +285,31 @@ SCENARIO_TAGS["cleanup-body-modification-warning"]="content-verification body-pr
 SCENARIO_TAGS["close-body-preservation"]="content-verification body-preservation"
 SCENARIO_TAGS["all-body-modification-safeguards"]="content-verification body-preservation"
 SCENARIO_TAGS["critical-rules-body-erasure"]="content-verification body-preservation"
+SCENARIO_TAGS["direct-branch-mandate"]="content-verification direct-branch"
+SCENARIO_TAGS["worktree-conditional"]="content-verification direct-branch"
+SCENARIO_TAGS["path-rules-two-mode"]="content-verification direct-branch"
+SCENARIO_TAGS["worktree-skill-optional"]="content-verification direct-branch"
+SCENARIO_TAGS["git-workflow-state-model"]="content-verification direct-branch"
+SCENARIO_TAGS["pre-work-direct-branch"]="content-verification direct-branch"
+SCENARIO_TAGS["pre-work-submodule-verification"]="content-verification direct-branch"
+SCENARIO_TAGS["rebase-pending-submodule-resync"]="content-verification direct-branch"
+SCENARIO_TAGS["release-promotion-sha-locking"]="content-verification direct-branch"
 
 # File-to-scenario mapping for --changed filtering
 # Maps glob patterns to scenario names
 declare -A FILE_SCENARIO_MAP
 FILE_SCENARIO_MAP[".opencode/guidelines/091-incremental-build.md"]="incremental-build-guideline monolithic-implementation-violation item-decomposition-step sc-assertion-tdd-cycle red-state-before-implementation red-phase-enforcement-incremental-build red-phase-enforcement-critical-rules-xref"
-FILE_SCENARIO_MAP[".opencode/guidelines/000-critical-rules.md"]="scope-auto-resolve-guideline monolithic-implementation-violation identity-echo-validation secret-exfiltration-violation url-sourcing-guideline-rules dispatch-artifact-requirements red-phase-enforcement-critical-rules-xref critical-rules-body-erasure"
+FILE_SCENARIO_MAP[".opencode/guidelines/000-critical-rules.md"]="scope-auto-resolve-guideline monolithic-implementation-violation identity-echo-validation secret-exfiltration-violation url-sourcing-guideline-rules dispatch-artifact-requirements red-phase-enforcement-critical-rules-xref critical-rules-body-erasure direct-branch-mandate worktree-conditional"
 FILE_SCENARIO_MAP[".opencode/guidelines/020-go-prohibitions.md"]="scope-auto-resolve-guideline pipeline-scoped-halt"
 FILE_SCENARIO_MAP[".opencode/skills/approval-gate/"]="item-decomposition-step scope-auto-resolve-step approval-gate-sc-traceability approval-gate-red-phase dispatch-chain-enforcement-gate dispatch-artifact-requirements dispatch-checkpoint-live-verification gap-fill-precedence-principle gap-fill-precedence-for-pr gap-fill-precedence-standard-scope screen-issue-gap-fill-awareness gap-fill-precedence-before-step5c task-file-enforcement-refs scope-next-phase-resolution scope-phase-n-resolution enforcement-module-adversarial enforcement-module-scope-parsing enforcement-module-auto-dispatch enforcement-module-closed-issue enforcement-module-sub-issue verify-closed-issue-step7 closed-issue-enforcement-sc all-body-modification-safeguards"
 FILE_SCENARIO_MAP[".opencode/skills/brainstorming/"]="brainstorming-top-down verification-mechanics-brainstorming"
 FILE_SCENARIO_MAP[".opencode/skills/writing-plans/"]="writing-plans-bottom-up validate-executable-verification semantic-intent-writing-plans why-specific-value-tdd red-phase-gate-writing-plans red-phase-gate-writing-plans-skillmd"
 FILE_SCENARIO_MAP[".opencode/skills/executing-plans/"]="executing-plans-tdd red-phase-gate-executing-plans red-phase-gate-skillmd"
 FILE_SCENARIO_MAP[".opencode/skills/divide-and-conquer/"]="divide-conquer-tdd enforcement-module-completion enforcement-module-result-validation enforcement-module-overflow enforcement-module-work-state"
-FILE_SCENARIO_MAP[".opencode/skills/git-workflow/"]="worktree-handoff-step cleanup-sc-verification-gate cleanup-phase-completion-gate review-prep-format-self-check url-sourcing-rule1-review-prep url-sourcing-rule1-pr url-sourcing-rule2-character-match release-pr-routing release-promotion-trigger git-workflow-routing-section cleanup-body-modification-warning"
+FILE_SCENARIO_MAP[".opencode/skills/git-workflow/"]="worktree-handoff-step cleanup-sc-verification-gate cleanup-phase-completion-gate review-prep-format-self-check url-sourcing-rule1-review-prep url-sourcing-rule1-pr url-sourcing-rule2-character-match release-pr-routing release-promotion-trigger git-workflow-routing-section cleanup-body-modification-warning git-workflow-state-model"
+FILE_SCENARIO_MAP[".opencode/skills/git-workflow/tasks/pre-work.md"]="pre-work-direct-branch pre-work-submodule-verification"
+FILE_SCENARIO_MAP[".opencode/skills/git-workflow/tasks/rebase-pending.md"]="rebase-pending-submodule-resync"
+FILE_SCENARIO_MAP[".opencode/skills/git-workflow/tasks/release-promotion.md"]="release-promotion-sha-locking"
 FILE_SCENARIO_MAP[".opencode/skills/verification-before-completion/"]="per-sc-evidence-table vbc-per-sc-evidence-skill"
 FILE_SCENARIO_MAP[".opencode/skills/finishing-a-development-branch/"]="finishing-sc-verification checklist-chat-output-format"
 FILE_SCENARIO_MAP[".opencode/guidelines/080-code-standards.md"]="sc-to-test-traceability red-phase-ordering sc-traceability-example"
@@ -305,6 +326,8 @@ FILE_SCENARIO_MAP[".opencode/plugins/session-enforcement.ts"]="identity-echo-val
 FILE_SCENARIO_MAP[".opencode/scripts/session_context_identity.py"]="identity-echo-validation"
 FILE_SCENARIO_MAP[".opencode/scripts/session_context_triggers.py"]="dev-edit-guard-trigger stash-triage-directive"
 FILE_SCENARIO_MAP[".opencode/guidelines/117-session-trigger-behavior.md"]="stash-trigger-guideline-reference"
+FILE_SCENARIO_MAP[".opencode/guidelines/060-tool-usage.md"]="path-rules-two-mode"
+FILE_SCENARIO_MAP[".opencode/skills/using-git-worktrees/SKILL.md"]="worktree-skill-optional"
 FILE_SCENARIO_MAP["AGENTS.md"]="agents-md-incremental"
 
 # --list: print scenario names and exit
@@ -452,7 +475,7 @@ EXPECTED_SKILLS["agents-md-incremental"]=""
 EXPECTED_SKILLS["worktree-handoff-step"]=""
 EXPECTED_SKILLS["scope-auto-resolve-guideline"]=""
 EXPECTED_SKILLS["scope-auto-resolve-step"]=""
-EXPECTED_SKILLS["worktree-mandate"]="using-git-worktrees"
+EXPECTED_SKILLS["worktree-mandate"]="git-workflow"
 EXPECTED_SKILLS["offer-to-edit-bypass"]="brainstorming"
 EXPECTED_SKILLS["bug-discovery-no-auth"]="systematic-debugging"
 EXPECTED_SKILLS["confirmation-not-auth"]=""
@@ -538,6 +561,15 @@ EXPECTED_SKILLS["cleanup-body-modification-warning"]=""
 EXPECTED_SKILLS["close-body-preservation"]=""
 EXPECTED_SKILLS["all-body-modification-safeguards"]=""
 EXPECTED_SKILLS["critical-rules-body-erasure"]=""
+EXPECTED_SKILLS["direct-branch-mandate"]=""
+EXPECTED_SKILLS["worktree-conditional"]=""
+EXPECTED_SKILLS["path-rules-two-mode"]=""
+EXPECTED_SKILLS["worktree-skill-optional"]=""
+EXPECTED_SKILLS["git-workflow-state-model"]=""
+EXPECTED_SKILLS["pre-work-direct-branch"]=""
+EXPECTED_SKILLS["pre-work-submodule-verification"]=""
+EXPECTED_SKILLS["rebase-pending-submodule-resync"]=""
+EXPECTED_SKILLS["release-promotion-sha-locking"]=""
 EXPECTED_SKILLS["phase3-pre-impl-atomic-tasks"]=""
 EXPECTED_SKILLS["phase3-pre-impl-word-limits"]=""
 EXPECTED_SKILLS["phase3-screen-gate-tasks"]=""
@@ -1657,6 +1689,120 @@ if [ "$BODY_ERASURE_CV" -ge 1 ]; then
 else
     echo "  000-critical-rules.md body erasure violation: MISSING"
     echo "- **000-critical-rules.md body erasure violation:** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# Direct Branch Default critical violation in 000-critical-rules.md
+DIRECT_BRANCH_CV=$(grep -c "Direct Branch Default\|Direct-Branch Default\|direct-branch.*primary\|direct.branch.*primary workflow" "$CRITICAL_RULES_FILE" 2>/dev/null || echo "0")
+if [ "$DIRECT_BRANCH_CV" -ge 1 ]; then
+    echo "  000-critical-rules.md Direct Branch Default: FOUND"
+    echo "- **000-critical-rules.md Direct Branch Default:** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  000-critical-rules.md Direct Branch Default: MISSING"
+    echo "- **000-critical-rules.md Direct Branch Default:** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# Worktree Required conditionally in 000-critical-rules.md
+WORKTREE_REQUIRED_CONDITIONAL=$(grep -c "WORKTREE_REQUIRED\|Worktree Required When\|worktree required when.*set" "$CRITICAL_RULES_FILE" 2>/dev/null || echo "0")
+if [ "$WORKTREE_REQUIRED_CONDITIONAL" -ge 1 ]; then
+    echo "  000-critical-rules.md worktree conditional: FOUND"
+    echo "- **000-critical-rules.md worktree conditional:** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  000-critical-rules.md worktree conditional: MISSING"
+    echo "- **000-critical-rules.md worktree conditional:** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# Mode Detection section in 060-tool-usage.md
+TOOL_USAGE_FILE="$PROJECT_DIR/.opencode/guidelines/060-tool-usage.md"
+MODE_DETECTION=$(grep -c "Mode Detection\|Direct-Branch Mode\|direct-branch mode\|Worktree Mode" "$TOOL_USAGE_FILE" 2>/dev/null || echo "0")
+if [ "$MODE_DETECTION" -ge 1 ]; then
+    echo "  060-tool-usage.md Mode Detection section: FOUND"
+    echo "- **060-tool-usage.md Mode Detection section:** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  060-tool-usage.md Mode Detection section: MISSING"
+    echo "- **060-tool-usage.md Mode Detection section:** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# WORKTREE_REQUIRED flag mechanism in using-git-worktrees SKILL.md
+WORKTREE_SKILL_FILE="$PROJECT_DIR/.opencode/skills/using-git-worktrees/SKILL.md"
+WORKTREE_OPT_IN=$(grep -c "WORKTREE_REQUIRED\|opt-in\|worktree.*optional\|optional.*worktree" "$WORKTREE_SKILL_FILE" 2>/dev/null || echo "0")
+if [ "$WORKTREE_OPT_IN" -ge 1 ]; then
+    echo "  using-git-worktrees WORKTREE_REQUIRED opt-in: FOUND"
+    echo "- **using-git-worktrees WORKTREE_REQUIRED opt-in:** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  using-git-worktrees WORKTREE_REQUIRED opt-in: MISSING"
+    echo "- **using-git-worktrees WORKTREE_REQUIRED opt-in:** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# Branch and Submodule State Model in git-workflow SKILL.md
+GW_SKILL_FILE="$PROJECT_DIR/.opencode/skills/git-workflow/SKILL.md"
+STATE_MODEL=$(grep -c "Branch and Submodule State Model\|submodule.*state model\|Branch.*State.*Model" "$GW_SKILL_FILE" 2>/dev/null || echo "0")
+if [ "$STATE_MODEL" -ge 1 ]; then
+    echo "  git-workflow SKILL.md Branch and Submodule State Model: FOUND"
+    echo "- **git-workflow SKILL.md Branch and Submodule State Model:** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  git-workflow SKILL.md Branch and Submodule State Model: MISSING"
+    echo "- **git-workflow SKILL.md Branch and Submodule State Model:** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# pre-work.md defaults to direct-branch feature branch creation
+PRE_WORK_FILE="$PROJECT_DIR/.opencode/skills/git-workflow/tasks/pre-work.md"
+PRE_WORK_DIRECT=$(grep -c "git checkout -b\|git switch -c\|direct-branch\|feature branch.*main repo\|checkout -b\|switch -c" "$PRE_WORK_FILE" 2>/dev/null || echo "0")
+if [ "$PRE_WORK_DIRECT" -ge 1 ]; then
+    echo "  pre-work.md direct-branch default: FOUND"
+    echo "- **pre-work.md direct-branch default:** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  pre-work.md direct-branch default: MISSING"
+    echo "- **pre-work.md direct-branch default:** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# pre-work.md proactive submodule verification
+PRE_WORK_SUBMOD=$(grep -c "submodule.*status\|submodule.*verif\|submodule.*sync\|proactive.*submodule\|submodule.*init" "$PRE_WORK_FILE" 2>/dev/null || echo "0")
+if [ "$PRE_WORK_SUBMOD" -ge 1 ]; then
+    echo "  pre-work.md submodule verification: FOUND"
+    echo "- **pre-work.md submodule verification:** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  pre-work.md submodule verification: MISSING"
+    echo "- **pre-work.md submodule verification:** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# rebase-pending.md mandatory submodule re-sync
+REBASE_PENDING_FILE="$PROJECT_DIR/.opencode/skills/git-workflow/tasks/rebase-pending.md"
+REBASE_SUBMOD=$(grep -c "submodule.*re-sync\|submodule.*resync\|submodule.*update.*init\|mandatory.*submodule.*rebase\|re-sync.*submodule\|submodule.*sync.*rebase" "$REBASE_PENDING_FILE" 2>/dev/null || echo "0")
+if [ "$REBASE_SUBMOD" -ge 1 ]; then
+    echo "  rebase-pending.md submodule re-sync: FOUND"
+    echo "- **rebase-pending.md submodule re-sync:** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  rebase-pending.md submodule re-sync: MISSING"
+    echo "- **rebase-pending.md submodule re-sync:** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# release-promotion.md submodule SHA locking
+RELEASE_PROMO_FILE="$PROJECT_DIR/.opencode/skills/git-workflow/tasks/release-promotion.md"
+SHA_LOCKING=$(grep -c "SHA.*lock\|locked.*SHA\|rev-parse HEAD\|current.*checkout.*state\|NOT.*fresh.*pull\|submodule.*lock.*current" "$RELEASE_PROMO_FILE" 2>/dev/null || echo "0")
+if [ "$SHA_LOCKING" -ge 1 ]; then
+    echo "  release-promotion.md SHA locking: FOUND"
+    echo "- **release-promotion.md SHA locking:** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  release-promotion.md SHA locking: MISSING"
+    echo "- **release-promotion.md SHA locking:** MISSING" >> "$RESULTS_FILE"
     GUIDELINE_PASS=false
     OVERALL_PASS=false
 fi

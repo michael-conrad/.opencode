@@ -10,7 +10,7 @@ Orchestrate work execution by dispatching sub-agents for each approved issue, us
 
 - Approval-gate has verified authorization for one or more issues
 - `pre-implementation-analysis` has expanded sub-issues and produced the flat item list
-- Worktree is created and ready
+- Worktree is created and ready (when `WORKTREE_REQUIRED` is set), or feature branch exists in main repo (direct-branch mode)
 
 ## Exit Criteria
 
@@ -39,14 +39,15 @@ Orchestrate work execution by dispatching sub-agents for each approved issue, us
 
 **Work-of-1.** There is no separate code path. The `assemble-work` task handles single-issue dispatch as the default. This eliminates forked execution paths.
 
-### Step 2: Create Feature Branches and Worktrees
+### Step 2: Create Feature Branches (and Worktrees When WORKTREE_REQUIRED Is Set)
 
 For each issue in the work set:
 
-1. Create a worktree with feature branch using `using-git-worktrees --task create-worktree`
-2. `BASE_BRANCH` defaults to `dev` for the first/only issue in the work set
-3. For dependent issues: `BASE_BRANCH` is set to the prior issue's feature branch (the merged branch, not the work branch)
-4. Record each issue's branch name and worktree path
+1. If `WORKTREE_REQUIRED` is set: create a worktree with feature branch using `using-git-worktrees --task create-worktree`
+2. If `WORKTREE_REQUIRED` is NOT set: create a feature branch directly in the main repo using `git checkout -b <branch>` or `git switch -c <branch>`
+3. `BASE_BRANCH` defaults to `dev` for the first/only issue in the work set
+4. For dependent issues: `BASE_BRANCH` is set to the prior issue's feature branch (the merged branch, not the work branch)
+5. Record each issue's branch name and worktree path (if applicable)
 
 ### Step 3: Execute Issues in Dependency Order
 

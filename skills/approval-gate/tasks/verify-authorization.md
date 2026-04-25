@@ -13,7 +13,7 @@ Check for explicit authorization and needs-approval label status before implemen
 
 - Authorization verified as explicit and for correct issue
 - needs-approval label status checked
-- Git state verified (worktree environment ready)
+- Git state verified (feature branch ready; worktree environment ready when `WORKTREE_REQUIRED` is set)
 - Authorization recorded for scope tracking
 
 ## Sub-Task Dispatch Order

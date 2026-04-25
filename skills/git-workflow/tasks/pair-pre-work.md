@@ -44,9 +44,9 @@ When pair mode is active (branch name starts with `pair-`):
 | Aspect | Autonomous Mode | Pair Mode |
 |--------|----------------|-----------|
 | Branch prefix | `feature/`, `spec/` | `pair-` |
-| Working directory | `.worktrees/` | Main project dir |
-| Branch switching | Worktree per branch | WIP commit + checkout |
-| Worktree safety | Tier 1 mandate | Tier 2 — developer present |
+| Working directory | Main project dir (direct-branch) or `.worktrees/` (opt-in) | Main project dir |
+| Branch switching | Direct checkout or worktree (opt-in) | WIP commit + checkout |
+| Worktree safety | Conditional (only when `WORKTREE_REQUIRED`) | Not needed — developer present |
 | Commit trailers | Standard co-author | `[pair-mode]` tag |
 
 ## Result Contract

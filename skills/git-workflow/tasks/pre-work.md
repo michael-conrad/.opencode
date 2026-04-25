@@ -2,19 +2,19 @@
 
 ## Purpose
 
-Create feature branch in a worktree BEFORE any implementation work begins. Verify authorization, sync dev, and create isolated workspace via worktree.
+Create feature branch BEFORE any implementation work begins. Verify authorization, sync dev, and set up workspace. Direct-branch (creating feature branch in main repo) is the PRIMARY and DEFAULT workflow. Worktrees are opt-in, used only when `WORKTREE_REQUIRED` is set.
 
 ## 🚫 ZERO TOLERANCE: Branch Before Edit
 
-**The agent MUST create a feature worktree BEFORE ANY filesystem change.**
+**The agent MUST create a feature branch BEFORE ANY filesystem change.**
 
-**This is a Tier 1 (Non-Yielding) mandate** per `000-critical-rules.md` → "Mandate Tiering." Even with explicit developer authorization ("approved"/"go"), the agent MUST create a worktree before editing files. Developer authorization can waive Tier 2 process mandates (spec-before-code, plan-before-implementation) but CANNOT waive this Tier 1 safety mandate. No exceptions, no fallbacks.
+**This is a Tier 1 (Non-Yielding) mandate** per `000-critical-rules.md` → "Mandate Tiering." Even with explicit developer authorization ("approved"/"go"), the agent MUST create a feature branch before editing files. Developer authorization can waive Tier 2 process mandates (spec-before-code, plan-before-implementation) but CANNOT waive this Tier 1 safety mandate. No exceptions, no fallbacks.
 
 This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any file, creating any file, or making ANY change to the project:
 
-1. **Invoke `using-git-worktrees` skill** — creates isolated worktree (MANDATORY, no exceptions)
-2. **All work happens in the worktree** — never in the main working directory
-3. **ONLY THEN**: Proceed with file changes inside the worktree
+1. **Create feature branch** — in main repo by default, in worktree only when `WORKTREE_REQUIRED` is set
+2. **All work happens on the feature branch** — never on `main` or `dev`
+3. **ONLY THEN**: Proceed with file changes
 
 **What Counts as a "Change"?**
 
@@ -29,38 +29,45 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 
 **⚠️ MCP Tools Are NOT an Exception**
 
-- `pycharm_replace_text_in_file` → edits files → MUST be in worktree
-- `pycharm_create_new_file` → creates files → MUST be in worktree
+- `pycharm_replace_text_in_file` → edits files → MUST be on feature branch
+- `pycharm_create_new_file` → creates files → MUST be on feature branch
 - `github_issue_write` → GitHub Issues, NOT local files → NOT a filesystem change
 - `github_add_issue_comment` → GitHub comments → NOT a filesystem change
 
 **Violation = Hard Stop**
 
-- If you catch yourself about to edit files while on `main`, STOP immediately
-- Report "I need to create a worktree first" and wait for worktree creation
-- Never proceed past this checkpoint without an active worktree
+- If you catch yourself about to edit files while on `main` or `dev`, STOP immediately
+- Create a feature branch before proceeding
+- Never proceed past this checkpoint without an active feature branch
 
 ### ✅ ALWAYS DO
 
 ```
-# Using using-git-worktrees skill:
+# Direct-branch mode (DEFAULT):
 # 1. Sync dev: git checkout dev && git pull origin dev
-# 2. Create worktree: git worktree add .worktrees/spec-my-change -b spec/my-change dev
-# 3. Work in .worktrees/spec-my-change/ (using workdir parameter)
+# 2. Create feature branch: git checkout -b spec/my-change dev
+# 3. Work directly in main working directory on the feature branch
+```
+
+### Worktree Mode (ONLY when `WORKTREE_REQUIRED` is set)
+
+```
+# Worktree mode (opt-in, when WORKTREE_REQUIRED is set):
+# 1. Sync dev: git checkout dev && git pull origin dev
+# 2. Invoke using-git-worktrees skill to create worktree
+# 3. Work in .worktrees/spec-my-change/ (using worktree.path prefix)
 ```
 
 ### 🚫 NEVER DO
 
 ```
-# WRONG — VIOLATION (stash+checkout):
-git stash -u
-git checkout -b spec/my-change
-# Work in main working directory
+# WRONG — VIOLATION (editing on dev or main):
+git checkout dev
+# Edit files directly on dev
 
-# WRONG — VIOLATION (checkout without worktree):
-git checkout dev && git pull origin dev
-git checkout -b spec/my-change dev
-# Work in main working directory
+# WRONG — VIOLATION (creating worktree when WORKTREE_REQUIRED not set):
+git worktree add .worktrees/spec-my-change -b spec/my-change dev
+# Unnecessary isolation — direct-branch is the default
 ```
 
 ## Operating Protocol
@@ -95,9 +102,77 @@ git checkout -b spec/my-change dev
 
 **This task receives authorization context from orchestration layer. DO NOT re-check authorization.**
 
-### Step 2: Sync Dev Branch
+### Step 2: Repo State Verification Gates
 
-The main working tree must be on `dev` and up-to-date so worktree creation has the correct base:
+Before creating any branch, proactively verify the repository is in a good state.
+
+#### Step 2a: Current Branch Check
+
+Verify the working directory is on `dev` or an expected feature branch:
+
+```bash
+CURRENT_BRANCH=$(git branch --show-current)
+```
+
+- If on `dev`: proceed to Step 2b
+- If on an existing feature branch: verify it is the intended branch or switch to `dev` first
+- If on `main` or `master`: switch to `dev` before proceeding
+
+#### Step 2b: Submodule Initialization Check
+
+If `.gitmodules` exists, verify submodules are initialized and on `dev`:
+
+```bash
+test -f .gitmodules && git submodule status
+```
+
+**If any submodule shows `-` prefix (not initialized):**
+
+Run the dev parking protocol to initialize all submodules:
+
+```bash
+git checkout dev && git pull && git submodule init && git submodule foreach "git checkout dev && git pull"
+```
+
+**If any submodule is NOT on its `dev` branch:**
+
+Sync it to dev:
+
+```bash
+git submodule foreach "git checkout dev && git pull"
+```
+
+#### Step 2c: Fresh Clone Handling
+
+After a fresh clone, submodules are unregistered and branches may not exist. Run the full dev parking protocol:
+
+```bash
+git checkout dev && git pull && git submodule init && git submodule foreach "git checkout dev && git pull"
+```
+
+If `dev` branch does not exist yet:
+
+```bash
+git fetch origin
+if git rev-parse --verify origin/dev >/dev/null 2>&1; then
+    git checkout dev
+    git pull origin dev
+else
+    git checkout -b dev origin/main
+    if [ $? -ne 0 ]; then
+        echo "FATAL: Failed to create dev branch from origin/main. HALT."
+        exit 1
+    fi
+    git push -u origin dev
+fi
+git submodule init && git submodule foreach "git checkout dev && git pull"
+```
+
+**If dev branch creation fails entirely (neither origin/dev nor origin/main exists), the agent MUST HALT immediately and report the fatal error. Proceeding on `main` is a CRITICAL GUIDELINE VIOLATION.**
+
+#### Step 2d: Sync Dev Branch
+
+Ensure `dev` is up-to-date before branching:
 
 ```bash
 git fetch origin
@@ -115,13 +190,31 @@ else
 fi
 ```
 
-**If dev branch creation fails entirely (neither origin/dev nor origin/main exists), the agent MUST HALT immediately and report the fatal error. Proceeding on `main` is a CRITICAL GUIDELINE VIOLATION.**
+### Step 3: Create Feature Branch
 
-### Step 3: Create Feature Worktree (MANDATORY — NO EXCEPTIONS)
+**Default: Direct-branch in main repo.** Only create a worktree when `WORKTREE_REQUIRED` is set.
 
-**Feature branch creation MUST use worktrees — no exceptions, no conditions, no fallback.**
+#### Step 3a: Direct-Branch Mode (DEFAULT)
 
-Invoke `using-git-worktrees` skill (ALWAYS, for ANY feature branch):
+Create feature branch directly in the main repo:
+
+```bash
+git checkout -b <branch-name> dev
+```
+
+Or using `git switch`:
+
+```bash
+git switch -c <branch-name> dev
+```
+
+- `worktree.path` is NOT set
+- Relative paths work directly for all file operations
+- Work in the main project directory on the feature branch
+
+#### Step 3b: Worktree Mode (ONLY when `WORKTREE_REQUIRED` is set)
+
+When the `WORKTREE_REQUIRED` flag is set, invoke `using-git-worktrees` skill:
 
 1. Invoke `using-git-worktrees` skill
 2. The skill creates the worktree: `git worktree add .worktrees/spec-<name> -b spec/<name> dev`
@@ -133,14 +226,12 @@ Invoke `using-git-worktrees` skill (ALWAYS, for ANY feature branch):
 - HALT immediately
 - Report the fatal error to the developer
 - Do NOT attempt any implementation until the worktree infrastructure is fixed
-- There is NO fallback to stash+checkout
 
 ### Step 3.5: Submodule Initialization and Sync
 
-**If `.gitmodules` exists in the worktree**, initialize and sync submodules before proceeding:
+**If `.gitmodules` exists**, initialize and sync submodules before proceeding:
 
 ```bash
-# Check if submodules are configured
 test -f .gitmodules
 ```
 
@@ -203,21 +294,38 @@ test -f .gitmodules
       ```
    3. Continue with normal pre-work flow.
 
-**If on `main` worktree:** Use `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to dev tip.
+**Mid-feature submodule sync discipline:** When working on a feature branch over an extended period, periodically sync submodules to stay current with upstream dev:
+
+```bash
+git submodule foreach "git checkout dev && git pull"
+```
+
+**If on `main` worktree or direct-branch targeting `main`:** Use `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to dev tip.
 
 **If `.gitmodules` does NOT exist:** Skip all submodule steps and proceed to Step 4.
 
-### Step 4: Verify Worktree Environment
+### Step 4: Verify Branch Environment
 
 **Before yielding back to orchestration layer, verify:**
 
+#### Direct-Branch Mode:
+
 ```bash
-# Inside the worktree (using workdir parameter):
+git branch --show-current
+# MUST show the feature branch name (not main, not dev)
+
+git status --porcelain
+# MUST be empty or only pre-existing changes
+```
+
+#### Worktree Mode (when `WORKTREE_REQUIRED` is set):
+
+```bash
 git branch --show-current
 # MUST show the feature branch name
 
 git rev-parse --show-toplevel
-# MUST show the worktree path
+# MUST show the worktree path (not main repo path)
 
 echo $WORKTREE_PATH
 # MUST NOT be empty — FATAL ERROR if empty
@@ -227,9 +335,22 @@ echo $WORKTREE_PATH
 
 ### Step 5: Report Ready
 
-Report: "Ready for implementation in worktree: <worktree-path> on branch: <branch-name>"
+**Direct-branch mode:**
 
-**Yield back to orchestration layer:**
+Report: "Ready for implementation on branch: <branch-name> (direct-branch mode)"
+
+```yaml
+status: success
+branch: <branch-name>
+worktree_path: ""
+dev_base_hash: <7-char-sha>
+working_tree_clean: true
+ready_for: implementation
+```
+
+**Worktree mode:**
+
+Report: "Ready for implementation in worktree: <worktree-path> on branch: <branch-name>"
 
 ```yaml
 status: success
@@ -258,11 +379,13 @@ This task does NOT re-check authorization. Authorization was verified by `approv
 ```yaml
 status: success | failure
 branch: "spec/<feature-name>" | "feature/<feature-name>"
-worktree_path: ".worktrees/<sanitized-branch-name>"
+worktree_path: "" | ".worktrees/<sanitized-branch-name>"
 dev_base_hash: "<7-char-sha>"
 working_tree_clean: true
 ready_for: "implementation"
 ```
+
+**`worktree_path` is empty string in direct-branch mode (default). Only populated when `WORKTREE_REQUIRED` is set.**
 
 The orchestration layer (`divide-and-conquer`) receives this yield and passes relevant context to the implementation subagent.
 
@@ -276,9 +399,9 @@ The orchestration layer (`divide-and-conquer`) receives this yield and passes re
    - Confirm no modifications needed
    - Document verification in issue comment
 
-2. **Skip worktree creation entirely:**
+2. **Skip branch creation entirely:**
 
-   - Do NOT create feature worktree
+   - Do NOT create feature branch (direct or worktree)
    - Do NOT push anything
    - Do NOT create PR
 
@@ -307,11 +430,11 @@ Verified all proposed changes were already implemented. No modifications needed.
 
 4. **HALT after closing:**
    - No further steps needed
-   - No worktree cleanup (no worktree was created)
+   - No worktree or branch cleanup needed (none was created)
 
 ## Branch Name to Worktree Name Mapping
 
-Branch names containing `/` are sanitized for the worktree directory name:
+When worktree mode is active, branch names containing `/` are sanitized for the worktree directory name:
 
 | Branch Name | Worktree Directory |
 | -- | -- |
@@ -320,7 +443,7 @@ Branch names containing `/` are sanitized for the worktree directory name:
 
 **Rule:** Replace `/` with `-` in the worktree directory name.
 
-### Worktree Already Exists Check
+### Worktree Already Exists Check (Worktree Mode Only)
 
 ```bash
 # Check if worktree for this branch already exists
@@ -333,14 +456,14 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 
 | Layer | Mechanism | Scope | Bypassable? |
 | -- | -- | -- | -- |
-| **Local** | `.opencode/hooks/pre-commit` | Blocks commit to main | No |
-| **Local** | `.opencode/hooks/post-commit` | Warns after commit to main | N/A (post) |
+| **Local** | `.opencode/hooks/pre-commit` | Blocks commit to main/dev | No |
+| **Local** | `.opencode/hooks/post-commit` | Warns after commit to main/dev | N/A (post) |
 | **GitHub** | Branch protection rules | Requires PR | No |
 
 **There is NO emergency bypass.** If you need to make an urgent fix:
 
-1. Create a worktree: `git worktree add .worktrees/hotfix-urgent-fix -b hotfix/urgent-fix dev`
-2. Make your changes and commit in the worktree
+1. Create a feature branch: `git checkout -b hotfix/urgent-fix dev`
+2. Make your changes and commit on the branch
 3. Push and create PR with `hotfix` label
 4. Request expedited review
 
@@ -354,36 +477,63 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 | -- | -- | -- | -- |
 | Current branch | `git branch --show-current` | Feature branch name (not `main`, `dev`) | STRUCTURE-VIOLATION → HALT |
 | Working tree clean | `git status --porcelain` | Empty output | VERIFICATION-GAP → stash or commit first |
+| Dev base hash | `git rev-parse --short dev` | Valid 7-char SHA | MISSING-ELEMENT → sync dev first |
+
+### Worktree Mode Verification (ONLY when `WORKTREE_REQUIRED` is set)
+
+| Check | Tool Call | Expected Result | On Failure |
+| -- | -- | -- | -- |
 | Worktree location | `git rev-parse --show-toplevel` | Worktree path (not main repo path) | STRUCTURE-VIOLATION → HALT |
 | worktree.path set | `echo $WORKTREE_PATH` (or equivalent) | Non-empty, matches worktree dir | STRUCTURE-VIOLATION → HALT (fatal) |
-| Dev base hash | `git rev-parse --short dev` | Valid 7-char SHA | MISSING-ELEMENT → sync dev first |
+
+### Submodule State Verification
+
+| Check | Tool Call | Expected Result | On Failure |
+| -- | -- | -- | -- |
+| Submodules initialized | `git submodule status` | No `-` prefix entries | MISSING-ELEMENT → run `git submodule init` |
+| Submodules on dev | `git submodule foreach "git branch --show-current"` | `dev` for each submodule | MISSING-ELEMENT → sync submodules |
 
 ### Verification Procedure
 
-**After Step 4 (Verify Worktree Environment), run these verifications and record evidence:**
+**After Step 4 (Verify Branch Environment), run these verifications and record evidence:**
 
 ```
 1. git branch --show-current → EVIDENCE: <branch-name>
 2. git status --porcelain → EVIDENCE: <output or "(empty)">
-3. git rev-parse --show-toplevel → EVIDENCE: <path>
-4. worktree.path → EVIDENCE: <path or "(empty)">
+3. git rev-parse --short dev → EVIDENCE: <7-char-sha>
+```
+
+**Worktree mode additional checks (ONLY when `WORKTREE_REQUIRED` is set):**
+
+```
+4. git rev-parse --show-toplevel → EVIDENCE: <path>
+5. worktree.path → EVIDENCE: <path or "(empty)">
+```
+
+**Submodule checks (ONLY when `.gitmodules` exists):**
+
+```
+6. git submodule status → EVIDENCE: <status output>
+7. git submodule foreach "git branch --show-current" → EVIDENCE: <branch names>
 ```
 
 **Classification on failure:**
 
 | Failure | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
-| On `main` or `dev` branch | CONFLICTING | flag-for-review | HALT — must create worktree first |
-| Dirty working tree in worktree | VERIFICATION-GAP | conditional | Stash or commit before implementation |
-| `rev-parse` returns main repo path | STRUCTURE-VIOLATION | auto-fix | Not in worktree — re-invoke using-git-worktrees |
-| worktree.path empty | STRUCTURE-VIOLATION | auto-fix | FATAL — cannot safely do file operations |
+| On `main` or `dev` branch | CONFLICTING | flag-for-review | HALT — must create feature branch first |
+| Dirty working tree | VERIFICATION-GAP | conditional | Stash or commit before implementation |
+| `rev-parse` returns main repo path (worktree mode) | STRUCTURE-VIOLATION | auto-fix | Not in worktree — re-invoke using-git-worktrees |
+| worktree.path empty (worktree mode) | STRUCTURE-VIOLATION | auto-fix | FATAL — cannot safely do file operations |
 | dev hash stale | MISSING-ELEMENT | conditional | Re-run `git pull origin dev` |
+| Submodule not initialized | MISSING-ELEMENT | auto-fix | Run `git submodule init` |
+| Submodule not on dev | MISSING-ELEMENT | auto-fix | Run `git submodule foreach "git checkout dev && git pull"` |
 
 **These verifications are MANDATORY. Skipping them is a CRITICAL GUIDELINE VIOLATION.**
 
 ## Context Required
 
-- Related skills: `approval-gate` (authorization check), `using-git-worktrees` (worktree creation)
+- Related skills: `approval-gate` (authorization check), `using-git-worktrees` (worktree creation, only when `WORKTREE_REQUIRED` is set)
 - Related tasks: `cleanup` (branch cleanup after PR merge)
 
 ## Enforcement Checklist
@@ -391,9 +541,15 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 **Before starting any work, verify:**
 
 - ✅ Authorization received (explicit `approved`, `go`, or `"#N approved"`)
-- ✅ Worktree created (not on `main` or `dev`)
+- ✅ On `dev` branch before creating feature branch
+- ✅ Submodules initialized and on `dev` (if `.gitmodules` exists)
+- ✅ Feature branch created from `dev` (NOT on `main` or `dev`)
+- ✅ `git branch --show-current` shows feature branch name
+
+**Worktree mode additional checks (ONLY when `WORKTREE_REQUIRED` is set):**
+
+- ✅ Worktree created (not operating directly on `dev` or `main`)
 - ✅ `worktree.path` environment variable is set and non-empty (FATAL ERROR if empty)
-- ✅ `git branch --show-current` in worktree shows feature branch
-- ✅ Feature branch created from `dev`
+- ✅ `git rev-parse --show-toplevel` in worktree shows worktree path
 
 **These checks are MANDATORY. If ANY check fails → STOP and report.**

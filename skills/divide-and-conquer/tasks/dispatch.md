@@ -43,7 +43,8 @@ env_vars:
 ```
 
 **MANDATORY verification items before dispatch:**
-- `worktree.path` is non-empty — FATAL if missing
+- `worktree.path` is non-empty when `WORKTREE_REQUIRED` is set — FATAL if missing in worktree mode
+- In direct-branch mode (default), `worktree.path` is NOT set — this is correct, not an error
 - `branch` matches the feature branch for this sub-task
 - `depth` is less than `max_depth`
 
@@ -57,7 +58,7 @@ task(
     prompt="""
 Use divide-and-conquer skill with context:
 
-worktree.path: <value>
+worktree.path: <value or empty if not in worktree mode>
 If worktree.path is set, all file operations and git commands MUST use it as the base directory.
 
 Model context: <value from model_context field, or "default" if empty>
@@ -165,7 +166,7 @@ Sub-agent reports bug as finding (read-only), HALTs implementation for its sub-t
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
 | "Sub-agent completed" | Verify result contract returned | Check for result contract in context | VERIFICATION-GAP |
-| "worktree.path passed" | Verify worktree path in dispatch context | Check dispatch prompt for worktree.path | STRUCTURE-VIOLATION |
+| "worktree.path passed" (worktree mode) | Verify worktree path in dispatch context when WORKTREE_REQUIRED is set | Check dispatch prompt for worktree.path | STRUCTURE-VIOLATION |
 | "Sub-agent stayed in worktree" | Verify sub-agent didn't modify main repo | `git -C <main-repo> status --porcelain` | CONFLICTING |
 
 **Evidence artifacts:** See enforcement/work-state-verification.md §Evidence Artifacts
