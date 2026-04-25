@@ -1,0 +1,4 @@
+[submodule ".opencode"]
+	path = .opencode
+	url = git@github.com:michael-conrad/opencode-config.git
+	branch = dev
