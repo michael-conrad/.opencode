@@ -24,6 +24,8 @@ import subprocess
 import sys
 from datetime import datetime
 
+GIT_TIMEOUT = 10
+
 
 def run_git(args: list[str]) -> str | None:
     try:
@@ -32,9 +34,13 @@ def run_git(args: list[str]) -> str | None:
             capture_output=True,
             text=True,
             check=False,
+            stdin=subprocess.DEVNULL,
+            timeout=GIT_TIMEOUT,
         )
         if result.returncode == 0:
             return result.stdout.strip()
+    except subprocess.TimeoutExpired:
+        print(f"git {' '.join(args)} timed out after {GIT_TIMEOUT}s", file=sys.stderr)
     except (subprocess.SubprocessError, OSError):
         pass
     return None
@@ -77,7 +83,8 @@ def get_diff_summary() -> dict[str, int | list[str]] | None:
         if parts:
             filepath = parts[0].strip()
             if filepath and not any(
-                pat in filepath for pat in ("package-lock.json", "pnpm-lock.yaml", "yarn.lock", ".lock")
+                pat in filepath
+                for pat in ("package-lock.json", "pnpm-lock.yaml", "yarn.lock", ".lock")
             ):
                 key_files.append(filepath)
     key_files = key_files[:5]
@@ -241,18 +248,26 @@ def build_main_branch_warning(has_changes: bool, changed_files: list[str]) -> st
     ]
     branch = get_current_branch() or "main"
     if has_changes:
-        lines.append(f"- Branch: `{branch}` (production) with {len(changed_files)} uncommitted changes")
-        lines.append("- WARNING: All work must happen on feature branches, not on `main`")
+        lines.append(
+            f"- Branch: `{branch}` (production) with {len(changed_files)} uncommitted changes"
+        )
+        lines.append(
+            "- WARNING: All work must happen on feature branches, not on `main`"
+        )
         for cf in changed_files[:10]:
             _status = cf[:2].strip() if len(cf) >= 2 else "?"
             filepath = cf[3:].strip() if len(cf) >= 3 else cf
             lines.append(f"  - `{filepath}`: modified")
         if len(changed_files) > 10:
             lines.append(f"  - ... and {len(changed_files) - 10} more")
-        lines.append("- Action: WIP commit + switch to `dev`, then create a feature branch")
+        lines.append(
+            "- Action: WIP commit + switch to `dev`, then create a feature branch"
+        )
     else:
         lines.append(f"- Branch: `{branch}` (production)")
-        lines.append("- WARNING: All work must happen on feature branches, not on `main`")
+        lines.append(
+            "- WARNING: All work must happen on feature branches, not on `main`"
+        )
         lines.append("- Action: switch to `dev` first, then create a feature branch")
     return "\n".join(lines)
 
@@ -266,7 +281,9 @@ def build_protected_branch_warning(changed_files: list[str]) -> str:
     diff_summary = get_diff_summary()
     if diff_summary:
         lines.append(f"- Files changed: {diff_summary['file_count']}")
-        lines.append(f"- Lines: +{diff_summary['insertions']} / -{diff_summary['deletions']}")
+        lines.append(
+            f"- Lines: +{diff_summary['insertions']} / -{diff_summary['deletions']}"
+        )
         if diff_summary["key_files"]:
             lines.append("- Key files:")
             for kf in diff_summary["key_files"]:
@@ -317,7 +334,9 @@ def build_stale_stash_warning(stashes: list[str]) -> str:
     ]
     stash_analyses = get_stash_analysis()
     for analysis in stash_analyses[:3]:
-        lines.append(f"- `{analysis['stash_ref']}`: branch={analysis['branch'] or 'unknown'}")
+        lines.append(
+            f"- `{analysis['stash_ref']}`: branch={analysis['branch'] or 'unknown'}"
+        )
         if analysis["issue_ref"]:
             lines.append(f"  Related issue: #{analysis['issue_ref']}")
         if analysis["message"]:
@@ -391,25 +410,36 @@ def build_dev_branch_with_changes_warning(changed_files: list[str]) -> str:
     diff_summary = get_diff_summary()
     if diff_summary:
         file_count = diff_summary["file_count"]
-        lines.append(f"- {file_count} file(s) changed on `dev` branch without worktree or pair-mode prefix")
-        lines.append(f"- Lines: +{diff_summary['insertions']} / -{diff_summary['deletions']}")
+        lines.append(
+            f"- {file_count} file(s) changed on `dev` branch without worktree or pair-mode prefix"
+        )
+        lines.append(
+            f"- Lines: +{diff_summary['insertions']} / -{diff_summary['deletions']}"
+        )
         if diff_summary["key_files"]:
             lines.append("- Key files:")
             for kf in diff_summary["key_files"][:5]:
                 lines.append(f"  - `{kf}`")
     else:
-        lines.append(f"- {len(changed_files)} file(s) changed on `dev` branch without worktree or pair-mode prefix")
+        lines.append(
+            f"- {len(changed_files)} file(s) changed on `dev` branch without worktree or pair-mode prefix"
+        )
     lines.append(
         "- Action: use a worktree (`git-workflow --task pre-work`) or switch to pair-mode branch (`pair-` prefix)"
     )
-    lines.append("- CRITICAL: Edits on `dev` without worktree or pair-mode are a guideline violation")
+    lines.append(
+        "- CRITICAL: Edits on `dev` without worktree or pair-mode are a guideline violation"
+    )
     return "\n".join(lines)
 
 
 def main() -> int:
     remote_url = get_remote_url()
     if not remote_url:
-        print("No git remote configured. Cannot determine repository identity.", file=sys.stderr)
+        print(
+            "No git remote configured. Cannot determine repository identity.",
+            file=sys.stderr,
+        )
         return 1
 
     root_dir = get_root_dir()

@@ -258,20 +258,33 @@ export async function EnvLoaderPlugin(input: PluginInput): Promise<Hooks> {
         output.env["WORKTREE_PATH"] = worktreeDir;
       }
 
-      // input.$ runs git commands in the session working directory (worktree when active)
+      const GIT_CMD_TIMEOUT_MS = 5000;
+
+      async function gitCmd(cmd: string): Promise<{ exitCode: number; text: () => string } | null> {
+        try {
+          const result = await Promise.race([
+            input.$.nothrow()(cmd),
+            new Promise<null>((_, reject) =>
+              setTimeout(() => reject(new Error(`git command timed out: ${cmd}`)), GIT_CMD_TIMEOUT_MS)
+            ),
+          ]);
+          return result as { exitCode: number; text: () => string };
+        } catch {
+          return null;
+        }
+      }
+
       try {
-        // Branch name
-        const branchResult = await input.$.nothrow()`git branch --show-current`;
-        if (branchResult.exitCode === 0) {
+        const branchResult = await gitCmd("git branch --show-current");
+        if (branchResult && branchResult.exitCode === 0) {
           const branch = branchResult.text().trim();
           if (branch) {
             output.env["BRANCH_NAME"] = branch;
           }
         }
 
-        // Remote URL
-        const remoteResult = await input.$.nothrow()`git remote get-url origin`;
-        if (remoteResult.exitCode === 0) {
+        const remoteResult = await gitCmd("git remote get-url origin");
+        if (remoteResult && remoteResult.exitCode === 0) {
           const remoteUrl = remoteResult.text().trim();
 
           if (remoteUrl.includes("github.com")) {
@@ -294,7 +307,6 @@ export async function EnvLoaderPlugin(input: PluginInput): Promise<Hooks> {
               if (parsed.sshUrl) {
                 output.env["GITBUCKET_SSH_URL"] = parsed.sshUrl;
               }
-              // Check credentials from .env
               const hasToken = output.env["GITBUCKET_TOKEN"] && output.env["GITBUCKET_TOKEN"].length > 0;
               const hasUrl = output.env["GITBUCKET_HTML_URL"] || output.env["GITBUCKET_URL"];
               output.env["GITBUCKET_HAS_CREDENTIALS"] = (hasToken && hasUrl) ? "true" : "false";
@@ -302,17 +314,16 @@ export async function EnvLoaderPlugin(input: PluginInput): Promise<Hooks> {
           }
         }
 
-        // Git user config
-        const nameResult = await input.$.nothrow()`git config user.name`;
-        if (nameResult.exitCode === 0) {
+        const nameResult = await gitCmd("git config user.name");
+        if (nameResult && nameResult.exitCode === 0) {
           const name = nameResult.text().trim();
           if (name) {
             output.env["DEV_NAME"] = name;
           }
         }
 
-        const emailResult = await input.$.nothrow()`git config user.email`;
-        if (emailResult.exitCode === 0) {
+        const emailResult = await gitCmd("git config user.email");
+        if (emailResult && emailResult.exitCode === 0) {
           const email = emailResult.text().trim();
           if (email) {
             output.env["DEV_EMAIL"] = email;

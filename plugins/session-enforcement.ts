@@ -137,6 +137,8 @@ function resolveGitDir(projectDir: string): string | null {
     const result = execSync("git rev-parse --git-dir", {
       cwd: projectDir,
       encoding: "utf8",
+      input: "",
+      timeout: 5000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim();
     if (path.isAbsolute(result)) return result;
@@ -207,6 +209,8 @@ async function runSessionInit(projectDir: string): Promise<string> {
     const stdout = execSync("./.opencode/tools/session-init", {
       cwd: projectDir,
       encoding: "utf8",
+      input: "",
+      timeout: 30000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim();
 
@@ -219,20 +223,20 @@ async function runSessionInit(projectDir: string): Promise<string> {
     const stderr = err?.stderr?.toString().trim() ?? "";
     const exitCode = err?.status ?? 1;
 
-    const bunNotFound = /bun: command not found/i.test(stderr);
+    const isTimeout = err?.killed || err?.signal === "SIGTERM";
 
     if (!stdout || stdout.length === 0) {
-      const errorMsg = bunNotFound
-        ? "bun runtime not found — session context unavailable. Install bun or check .opencode/tools/ensure-node for a private Node.js runtime."
+      const errorMsg = isTimeout
+        ? `session-init timed out after 30s — likely git credential prompt, lock contention, or submodule hang`
         : (stderr || "Script returned empty output");
       console.error(`[session-enforcement] session-init: ${errorMsg}`);
       writeDiagnostic(projectDir, {
         source: "session-init",
         level: "error",
         message: errorMsg,
-        exitCode,
+        exitCode: isTimeout ? undefined : exitCode,
       });
-      if (stderr && !bunNotFound) {
+      if (stderr && !isTimeout) {
         writeDiagnostic(projectDir, {
           source: "session-init",
           level: "error",
@@ -271,6 +275,8 @@ async function runSessionContextIdentity(projectDir: string): Promise<string> {
     const stdout = execSync("./.opencode/scripts/session_context_identity.py", {
       cwd: projectDir,
       encoding: "utf8",
+      input: "",
+      timeout: 30000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim();
 
@@ -283,18 +289,18 @@ async function runSessionContextIdentity(projectDir: string): Promise<string> {
     const stderr = err?.stderr?.toString().trim() ?? "";
     const exitCode = err?.status ?? 1;
 
-    const bunNotFound = /bun: command not found/i.test(stderr);
+    const isTimeout = err?.killed || err?.signal === "SIGTERM";
 
     if (!stdout || stdout.length === 0) {
-      const errorMsg = bunNotFound
-        ? "bun runtime not found — session context unavailable. Install bun or check .opencode/tools/ensure-node for a private Node.js runtime."
+      const errorMsg = isTimeout
+        ? `session_context_identity.py timed out after 30s`
         : (stderr || "Script returned empty output");
       console.error(`[session-enforcement] session_context_identity.py: ${errorMsg}`);
       writeDiagnostic(projectDir, {
         source: "session_context_identity.py",
         level: "error",
         message: errorMsg,
-        exitCode,
+        exitCode: isTimeout ? undefined : exitCode,
       });
       return "";
     }
@@ -327,6 +333,8 @@ async function runSessionContextTriggers(projectDir: string): Promise<string> {
     const stdout = execSync("./.opencode/scripts/session_context_triggers.py", {
       cwd: projectDir,
       encoding: "utf8",
+      input: "",
+      timeout: 30000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim();
 
@@ -339,18 +347,18 @@ async function runSessionContextTriggers(projectDir: string): Promise<string> {
     const stderr = err?.stderr?.toString().trim() ?? "";
     const exitCode = err?.status ?? 1;
 
-    const bunNotFound = /bun: command not found/i.test(stderr);
+    const isTimeout = err?.killed || err?.signal === "SIGTERM";
 
     if (exitCode !== 0) {
-      const errorMsg = bunNotFound
-        ? "bun runtime not found — session context unavailable. Install bun or check .opencode/tools/ensure-node for a private Node.js runtime."
+      const errorMsg = isTimeout
+        ? `session_context_triggers.py timed out after 30s`
         : (stderr || "Script exited with non-zero code");
       console.error(`[session-enforcement] session_context_triggers.py exited with code ${exitCode}: ${errorMsg}`);
       writeDiagnostic(projectDir, {
         source: "session_context_triggers.py",
         level: "error",
         message: errorMsg,
-        exitCode,
+        exitCode: isTimeout ? undefined : exitCode,
       });
       return "";
     }
@@ -968,6 +976,8 @@ function detectUncommittedFileChanges(projectDir: string): string[] {
     const result = execSync("git diff --name-only", {
       cwd: projectDir,
       encoding: "utf8",
+      input: "",
+      timeout: 5000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim();
     if (!result) return [];
@@ -986,6 +996,8 @@ function getCurrentBranch(projectDir: string): string | null {
     return execSync("git branch --show-current", {
       cwd: projectDir,
       encoding: "utf8",
+      input: "",
+      timeout: 5000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim() || null;
   } catch {
