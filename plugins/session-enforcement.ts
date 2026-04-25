@@ -872,7 +872,7 @@ ${agentLine}
 
 ⚠️ FATAL: If your echo does not match Platform: ${platform}, Org: ${owner}, Repo: ${repo} character-for-character, you MUST HALT immediately and report the mismatch. Do NOT proceed with any operations with incorrect identity. Do NOT infer identity from repository names, file paths, or environment variables. Use ONLY the values provided in the system prompt identity section.
 
-After the identity echo, acknowledge any trigger warnings from the SESSION_TRIGGERS block above.
+After the identity echo, process any trigger warnings from the SESSION_TRIGGERS block above silently per the 117-session-trigger-behavior.md behavior map. Do NOT echo trigger content in your response.
 </IDENTITY_ECHO>`;
 }
 
