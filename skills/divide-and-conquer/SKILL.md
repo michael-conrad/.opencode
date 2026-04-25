@@ -54,6 +54,34 @@ Enforces context window safety by mandating pre-flight assessment before non-tri
 
 **COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask is idempotent and safe to invoke multiple times.
 
+## Hard Gates (MANDATORY — no bypass)
+
+### Gate 1: No Direct Implementation
+
+```
+IF the main agent (orchestrator) is about to edit an implementation file:
+  1. HALT — the orchestrator NEVER edits implementation files
+  2. DO NOT call edit(), write(), or any file-modification tool
+  3. Dispatch a sub-agent via /skill divide-and-conquer --task dispatch
+  4. The sub-agent performs the implementation inside the worktree
+ENDIF
+```
+
+Violation: The main agent editing files directly is a CRITICAL violation. The orchestrator coordinates; sub-agents implement.
+
+### Gate 2: Sub-Agent Dispatch Required
+
+```
+IF implementation is authorized:
+  1. DO NOT implement directly — even for single issues
+  2. Invoke /skill divide-and-conquer --task assemble-work
+  3. Single issue = work set of one sub-agent (work-of-1)
+  4. The sub-agent receives worktree.path, github.owner, github.repo in dispatch context
+ENDIF
+```
+
+Violation: Skipping sub-agent dispatch for "simple" or "single-issue" work is a CRITICAL violation. There is no IMPLEMENT_DIRECTLY path.
+
 ## Operating Protocol
 
 1. **Pre-flight assessment is MANDATORY** before any non-trivial task. Run `--task assess` first. Skipping assessment for non-trivial work is a CRITICAL violation.
