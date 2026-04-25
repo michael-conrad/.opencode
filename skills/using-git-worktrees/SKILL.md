@@ -13,6 +13,8 @@ Git worktrees create isolated workspaces sharing the same repository, allowing w
 
 **Core principle:** Systematic directory selection + safety verification = reliable isolation for parallel agent work.
 
+**⚠️ Worktrees are OPT-IN, not mandatory.** The default workflow is direct-branch (feature branch in main repo). Worktrees are only created when `WORKTREE_REQUIRED` is set or the developer explicitly requests isolation. See `000-critical-rules.md` → "Direct-Branch Default" for the primary workflow.
+
 **Announce at start:** "Using the using-git-worktrees skill to set up an isolated workspace."
 
 **Source attribution:** Adapted from [obra/superpowers `using-git-worktrees`](https://github.com/obra/superpowers/tree/main/skills/using-git-worktrees). Original concepts and structure used with attribution.
@@ -42,7 +44,8 @@ You are a Worktree Setup Specialist. Your focus is creating safe, isolated git w
 
 1. **Announce intent** at start: "Using the using-git-worktrees skill to set up an isolated workspace."
 1. **Default base branch is `dev`** — never from `main`. For work execution workflows, `BASE_BRANCH` may be a prior feature branch or work branch. Feature branches target `dev`.
-1. **Always use `.worktrees/` directory** — stash+checkout is FORBIDDEN.
+1. **This skill is invoked ONLY when `WORKTREE_REQUIRED` is set or developer requests isolation** — direct-branch is the default per `000-critical-rules.md` → "Direct-Branch Default"
+1. **Always use `.worktrees/` directory** — when worktree mode is active, stash+checkout in main repo is FORBIDDEN
 1. **Verify `.worktrees/` is gitignored** before creating worktree. If not, add it and commit.
 1. **Check for name collisions** before creating — reuse existing worktree for same branch, HALT on mismatch.
 1. **Export `worktree.path`, `branch`, `DEV_BASE_HASH`** after creation — downstream skills require these.
@@ -66,25 +69,32 @@ Branch naming: `spec/<short-name>` for spec-driven work, `feature/<description>`
 
 ## Simple Work Worktree
 
-When the authorization qualifies as "clearly simple work" (per `000-critical-rules.md` → "Simple Work Dispatch Path (Tier 2 Waiver)"), a worktree is STILL MANDATORY for any file modification. The Tier 1 mandate for worktrees applies regardless of task simplicity.
+When the authorization qualifies as "clearly simple work" (per `000-critical-rules.md` → "Simple Work Dispatch Path (Tier 2 Waiver)"), a worktree is ONLY required when `WORKTREE_REQUIRED` is set. In direct-branch mode (default), simple work uses a feature branch in the main repo directly.
 
-### Simple Work Procedure
+### Simple Work Procedure (Direct-Branch Mode — Default)
 
 1. **Branch naming:** Use `docs/`, `runbook/`, or `config/` as the branch prefix for clearly simple work
-2. **Worktree creation:** Invoke `git-workflow --task pre-work` as normal — the worktree creation process is identical for simple and complex work
-3. **Direct implementation:** After worktree creation, implement directly in the worktree without sub-agent dispatch (no `divide-and-conquer` needed for single-file or two-file changes)
+2. **Feature branch creation:** `git checkout -b <branch-name> dev` directly in main repo
+3. **Direct implementation:** Implement directly without worktree or sub-agent dispatch
+4. **Completion steps:** Follow the simple work dispatch path: `verification-before-completion` → `finishing-a-development-branch --task checklist` → `git-workflow --task review-prep`
+
+### Simple Work Procedure (Worktree Mode — When WORKTREE_REQUIRED Set)
+
+1. **Branch naming:** Use `docs/`, `runbook/`, or `config/` as the branch prefix
+2. **Worktree creation:** Invoke `git-workflow --task pre-work` — worktree creation applies
+3. **Direct implementation:** After worktree creation, implement directly in the worktree without sub-agent dispatch
 4. **Completion steps:** Follow the simple work dispatch path: `verification-before-completion` → `finishing-a-development-branch --task checklist` → `git-workflow --task review-prep`
 
 ### What Does NOT Change for Simple Work
 
-| Step | Simple Work | Complex Work |
-|------|-------------|--------------|
-| Worktree required? | YES (Tier 1) | YES (Tier 1) |
-| No commits to main/dev? | YES (Tier 1) | YES (Tier 1) |
-| Path rules apply? | YES (Tier 1) | YES (Tier 1) |
-| Spec/plan needed? | NO (Tier 2 waiver) | YES (Tier 2) |
-| Sub-agent dispatch? | NO (single concern) | YES (divide-and-conquer) |
-| Pre-implementation analysis? | NO (no plan) | YES (expand sub-issues) |
+| Step | Simple Work (Direct-Branch) | Simple Work (Worktree) | Complex Work |
+|------|----------------------------|------------------------|--------------|
+| Worktree required? | NO (default mode) | YES (opt-in) | Only if `WORKTREE_REQUIRED` |
+| No commits to main/dev? | YES (Tier 1) | YES (Tier 1) | YES (Tier 1) |
+| Path rules apply? | NO (relative paths) | YES (prefix with worktree.path) | Depends on mode |
+| Spec/plan needed? | NO (Tier 2 waiver) | NO (Tier 2 waiver) | YES (Tier 2) |
+| Sub-agent dispatch? | NO (single concern) | NO (single concern) | YES (divide-and-conquer) |
+| Pre-implementation analysis? | NO (no plan) | NO (no plan) | YES (expand sub-issues) |
 
 ## Cross-References
 

@@ -101,14 +101,14 @@ Violation: Skipping sub-agent dispatch for "simple" or "single-issue" work is a 
 
 **Before dispatching any sub-agent, the main agent MUST verify:**
 
-1. **Worktree exists:** `git worktree list` shows the feature branch worktree
-2. **worktree.path is set:** `echo $WORKTREE_PATH` returns a non-empty path inside the repository (`.worktrees/`)
-3. **git-workflow --task pre-work was invoked:** The worktree was created by the mandatory skill, not manually
-4. **Feature branch is checked out:** The worktree shows the correct branch name
+1. **Feature branch exists:** `git branch --show-current` shows a feature branch (not `main`/`dev`)
+2. **In worktree mode:** `worktree.path` is set and `git worktree list` shows the feature branch worktree
+3. **git-workflow --task pre-work was invoked:** The branch was created by the mandatory skill, not manually
+4. **Feature branch is correct:** The branch name matches the expected issue/feature
 
 **If ANY check fails:** HALT and invoke `git-workflow --task pre-work` before proceeding.
 
-**Evidence requirement:** Record `git worktree list` output and `worktree.path` value before dispatching any sub-agent.
+**Evidence requirement:** Record `git branch --show-current` output (and `worktree.path` value if in worktree mode) before dispatching any sub-agent.
 
 ## Overflow Signal Contract
 
@@ -118,7 +118,7 @@ When a sub-agent cannot fit the assigned work, it MUST return `status: OVERFLOW`
 
 When the orchestrator dispatches a sub-agent, it MUST pass: `issue`, `branch`, `spec`, `plan_issue`, `authorization`, `authorization_scope`, `halt_at`, `pr_strategy`, `depth`, `max_depth`, `prior_context`, `decision_log_reference`, `phase_progress` (prose-driven: completed phases by concern, boundaries crossed, verification evidence), `sub_task` (description, scope, boundaries), `model_context`, `env_vars` (worktree.path, branch, github.owner, github.repo), `tdd_phase`, `current_item`, `top_down_items`, `dev.name`, `dev.email`. See `context-passing` task for the full schema.
 
-**Invariants:** `worktree.path` is MANDATORY — no exceptions. If empty: FATAL ERROR → HALT. `plan_issue` is set when dispatched from plan approval flow. `phase_progress` accumulates across the work set from prior sub-agent results.
+**Invariants:** `worktree.path` is MANDATORY in worktree mode — no exceptions. If empty when `WORKTREE_REQUIRED` is set: FATAL ERROR → HALT. In direct-branch mode, `worktree.path` is NOT set and sub-agents operate in the main repo directory. `plan_issue` is set when dispatched from plan approval flow. `phase_progress` accumulates across the work set from prior sub-agent results.
 
 ## Sub-Agent Completion Checkpoint
 
@@ -202,14 +202,17 @@ UI sub-agents MUST NOT run concurrently when:
 - Non-UI tasks depend on UI artifacts not yet produced
 - The ui-design and ui-engineer sub-agents have a sequential dependency (ui-engineer consumes ui-design output)
 
-## Worktree Mode
+## Worktree Mode (Conditional)
 
-When `worktree.path` is set:
+When `worktree.path` is set (worktree mode — `WORKTREE_REQUIRED`):
 - ALL `bash` tool calls MUST use `workdir` parameter set to `worktree.path`
 - ALL `read`/`write`/`edit`/`glob`/`grep` tool calls MUST prefix `filePath`/`path` with `worktree.path/`
 - `git` commands run from the worktree directory, NOT the main repo
 
-If `worktree.path` is NOT set, operate normally from the project root.
+When `worktree.path` is NOT set (direct-branch mode — DEFAULT):
+- Operate normally from the project root
+- Relative paths work directly
+- No worktree cleanup needed after implementation
 
 ## Sub-Agent Tasks
 
@@ -281,7 +284,7 @@ Use when spec has complex success criteria benefiting from independent verificat
 ## Cross-References
 
 - `git-workflow` (git ops), `approval-gate` (authorization), `verification-before-completion` (evidence), `finishing-a-development-branch` (branch readiness), `using-git-worktrees` (worktree creation), `spec-auditor` (ground-truth adversarial verification)
-- `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md` (metadata verification extension)
+- `000-critical-rules.md` (direct-branch default, conditional worktree), `065-verification-honesty.md` (metadata verification extension)
 - Authorization classification: See `010-approval-gate.md` §Action Authorization Classification
 - Adapted from: `implementation-workflow`
 

@@ -44,15 +44,19 @@ Branch completion workflow that ensures a feature branch is fully ready for PR c
 1. **Mandatory invocation (no decision point):** The agent MUST invoke this skill when implementation completes on a feature branch, when the user says "done" or "finished" or "ready for PR", or before review-prep task in git-workflow.
 2. **Verification-first approach:** All changes must be committed. All tests must pass. All lint/typecheck must pass. Branch must be pushed to remote.
 3. **Exit conditions:** Branch is READY when all checklist items pass, compare URL is generated, and agent HALTs to report readiness.
-4. **Worktree mandatory:** All feature branches operate in worktrees. If `worktree.path` is not set: FATAL ERROR → FLAG DEV → HALT.
+4. **Branch mode (conditional):** Feature branches operate either directly in main repo (default) or in worktrees (when `WORKTREE_REQUIRED` set). In worktree mode, if `worktree.path` is not set: FATAL ERROR → FLAG DEV → HALT.
 
-## Worktree Mode (MANDATORY)
+## Worktree Mode (Conditional — Only When WORKTREE_REQUIRED)
 
-If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT.** Do not proceed without a valid worktree path.
+When `WORKTREE_REQUIRED` is set and `worktree.path` is set: all file operations prefix paths with `worktree.path`.
 
-- All `bash` tool calls use `workdir="{{worktree.path}}"`
-- All `read`/`edit`/`write`/`glob`/`grep` tool calls prefix paths with `{{worktree.path}}/`
-- NEVER operate in the main working directory during implementation
+When `WORKTREE_REQUIRED` is NOT set (direct-branch mode): operate normally from the main repo directory. No worktree cleanup needed.
+
+**If in worktree mode and `worktree.path` is empty:** **FATAL ERROR → FLAG DEV → HALT.** Do not proceed without a valid worktree path.
+
+- All `bash` tool calls use `workdir="{{worktree.path}}"` (worktree mode only)
+- All `read`/`edit`/`write`/`glob`/`grep` tool calls prefix paths with `{{worktree.path}}/` (worktree mode only)
+- NEVER operate on `main` or `dev` branch during implementation (regardless of mode)
 
 ## Lazy-Loaded Guidelines
 
@@ -94,7 +98,7 @@ Implementation tracks against **plan sub-issues**, not spec sub-issues. The hier
 | "Tests pass" | Verify by running tests | `bash` to run `uv run pytest test/` → confirm exit code 0 | VERIFICATION-GAP |
 | "Lint passes" | Verify by running linter | `bash` to run `uvx ruff check src/ test/` → confirm no errors | VERIFICATION-GAP |
 | "Branch pushed to remote" | Verify remote branch exists | `bash` to run `git log origin/<branch>..HEAD` → confirm empty | MISSING-ELEMENT |
-| "All files in worktree" | Verify all changed files are under worktree.path | `bash` to run `git diff --name-only HEAD≈1` → check paths | STRUCTURE-VIOLATION |
+| "All files in worktree" | Verify all changed files are under worktree.path (worktree mode only) | `bash` to run `git diff --name-only HEAD≈1` → check paths | STRUCTURE-VIOLATION |
 
 **Evidence format:**
 
@@ -114,7 +118,7 @@ Action: [auto-fix|conditional|flag-for-review]
 | Tests failing | VERIFICATION-GAP | flag-for-review | HALT — fix test failures before proceeding |
 | Lint errors found | VERIFICATION-GAP | auto-fix | Run `ruff check --fix` and re-verify |
 | Branch not pushed | MISSING-ELEMENT | auto-fix | Push branch and re-verify |
-| Changes outside worktree | STRUCTURE-VIOLATION | flag-for-review | HALT — investigate, may need worktree re-creation |
+| Changes outside worktree (worktree mode only) | STRUCTURE-VIOLATION | flag-for-review | HALT — investigate, may need worktree re-creation |
 
 ## Cross-Reference Verification (MANDATORY)
 
