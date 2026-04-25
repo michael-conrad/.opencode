@@ -605,6 +605,31 @@ The approval-gate dispatch chain defines a mandatory sequence after plan approva
 
 **See `approval-gate/SKILL.md` → "Dispatch Order" for the complete mandatory sequence. See `using-git-worktrees` skill → `create-worktree` task for worktree creation procedure.**
 
+<!-- Issue #4: Dispatch Chain Enforcement Fix — Success Criteria: Update guidelines/000-critical-rules.md with "Skill Bypass = Critical Violation" -->
+
+## Critical Violation: Skill Bypass = Critical Violation
+
+**⚠️ Bypassing any mandatory skill invocation is a CRITICAL GUIDELINE VIOLATION.**
+
+The dispatch chain is enforceable, not advisory. Every step produces required artifacts. Skipping a step and proceeding to the next is equivalent to unverified implementation.
+
+| Bypass | Violation |
+| -- | -- |
+| Manual worktree creation | `git-workflow --task pre-work` skipped |
+| Direct file editing in chat | `divide-and-conquer --task assemble-work` skipped |
+| Claiming done without SC verification | `verification-before-completion` skipped |
+| Compare URL without checklist | `finishing-a-development-branch --task checklist` skipped |
+| Push without review-prep | `git-workflow --task review-prep` skipped |
+
+- 🚫 FORBIDDEN: Treating the dispatch chain as optional for "small" or "simple" work
+- 🚫 FORBIDDEN: Inline file edits without worktree and sub-agent dispatch
+- 🚫 FORBIDDEN: Generating halt-point output without confirming prior step artifacts
+- ✅ REQUIRED: Each step produces a tool-call artifact before the next step proceeds
+- ✅ REQUIRED: On missing artifact, HALT and invoke the skipped skill
+- ✅ REQUIRED: Report the bypass as a STRUCTURE-VIOLATION finding
+
+**See `approval-gate/SKILL.md` → "Dispatch Enforcement" for the complete enforcement table and mandatory invocation callouts.**
+
 ## Auditor Skills Enforcement
 
 **⚠️ MANDATORY: Run `spec-auditor` when auditing specs. NO SKIPPING.**

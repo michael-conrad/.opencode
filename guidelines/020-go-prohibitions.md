@@ -37,6 +37,15 @@
 - **Never self-answer a solicitation.** Pose no questions that you then answer yourself to bypass authorization.
 - **NEVER suggest parallel execution as a valid default approach.** Stacking is prerequisite; parallel is opportunistic. Agents must not present parallelism as an equally valid option.
 - **No silent halt without search+prompt.** When no spec/plan exists for an implementation request, the agent MUST NOT simply halt. It must search GitHub Issues for existing candidates, present them with URLs, and offer create-or-select before halting. A silent halt with no search and no candidate presentation is a critical violation — see `000-critical-rules.md` §Silent Halt Without Prompt.
+<!-- Issue #25: Authorization Solicitation Regression — Success Criteria: Update guidelines/020-go-prohibitions.md with additional prohibited output patterns -->
+- **No instructional language in blocker reports.** When the workflow is blocked, the report must state the blocker factually — it must never embed instructions, suggestions, or forward-looking guidance that could be read as an authorization prompt. Examples of prohibited patterns:
+  - "To resolve this, please approve the spec first."
+  - "You can say 'approved' to continue."
+  - "Once you've reviewed, let me know and I'll proceed."
+  - "Waiting for you to give the go-ahead."
+  - "Please provide authorization before I continue."
+- **No implied authorization framing.** The agent must not frame status reports as requests or frame blockers as needing user action in a way that solicits a response. Correct format: "Blocked: no approved spec found for #N." Incorrect format: "We're blocked — can you approve #N so I can continue?"
+- **No forward-looking references in completion reports.** Completion reports must describe what was done, never what should happen next. This prevents the report from reading as an implicit request for the next authorization step.
 
 ### ⚠️ ASK FIRST
 

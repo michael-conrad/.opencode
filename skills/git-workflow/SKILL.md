@@ -452,6 +452,36 @@ pair-pr-creation: Squash → Push → Create PR
 pair-cleanup: Delete branch, clean stashes
 ```
 
+<!-- Issue #5: Submodule Detection & Routing — Success Criteria: Update git-workflow SKILL.md with Submodule Worktree Mechanics section -->
+
+## Submodule Worktree Mechanics
+
+### Detection
+
+When `git rev-parse --show-toplevel` returns a path that is a descendant of a parent repo's `.git/modules/` path, OR when `.gitmodules` contains a path matching `worktree.path` prefix, the agent is in a **submodule worktree**.
+
+### Path Rules
+
+| Rule | Submodule Worktree | Parent Repo |
+| -- | -- | -- |
+| `worktree.path` prefix | REQUIRED for ALL file ops | Same |
+| `git rev-parse --show-toplevel` | Returns submodule root | Returns parent root |
+| Relative `read/edit/write` | Resolves to parent repo root — FORBIDDEN | Allowed only when not in worktree |
+| `.gitmodules` edits | Only in parent repo context | Allowed |
+
+### Provenance & Submodule PRs
+
+- Submodule feature branches target `dev` (same as non-submodule)
+- Release promotion: lock submodule SHA, promote submodule `dev → main`, update parent repo reference
+- Provenance tracking uses the three-tier model (see `## Submodule Provenance`)
+- Cross-repo provenance: parent repo PR body references submodule PR/issue numbers
+
+### Safety Gates
+
+- [ ] Verify `worktree.path` matches submodule root before ANY file modification
+- [ ] Verify `.gitmodules` is NOT accidentally overwritten with submodule content
+- [ ] Verify GitHub API calls target the correct `<github.owner>/<github.repo>` (submodule, not parent)
+
 ## Cross-References
 
 - Related skills: `approval-gate` (authorization), `pr-creation-workflow` (PR timing), `changelog-generator` (changelog generation), `conflict-resolution` (conflict classification during rebase/merge)
