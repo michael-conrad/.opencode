@@ -20,7 +20,7 @@ Agents read dotted names from session-init; bash scripts read UPPER_CASE
 names from env-loader. Never couple these pipelines.
 
 Canonical session-init variable names (dotted, LLM context):
-github.owner, github.repo, github.platform, github.html_url,
+github.owner, github.repo, github.platform, github.identity_source, github.parent_remotes, github.html_url,
 gitbucket.owner, gitbucket.repo, gitbucket.html_url, gitbucket.ssh_url,
 gitbucket.has_credentials, srclight.project, dev.name, dev.email,
 branch, worktree.path, worktree.fatal, AgentName, ModelId
@@ -842,16 +842,32 @@ def main() -> int:
     print("# Convention: dotted prefix = tool scope, suffix = MCP/API parameter name")
     print("# Use scope.param directly as the tool parameter value.")
     print("# Example: github_issue_read(owner=github.owner, repo=github.repo)")
+    parent_remote_count = 0
+    parent_remotes_raw = run_git_command(["remote", "-v"])
+    if parent_remotes_raw:
+        parent_remote_count = len(
+            set(
+                line.split()[0]
+                for line in parent_remotes_raw.splitlines()
+                if line.strip()
+            )
+        )
+
     print(f"github.owner: {owner}")
     print(f"github.repo: {repo}")
     print(f"github.platform: {platform}")
     print(f"github.identity_source: {identity_source}")
+    print(f"github.parent_remotes: {parent_remote_count}")
     print("AgentName: ")
     print("ModelId: ")
     print(f"dev.name: {user_name}")
     print(f"dev.email: {user_email}")
     print(f"branch: {current_branch}")
-    print(f"Remote: {remote_url}")
+
+    if identity_source == "submodule":
+        print(f"Remote: (none) [submodule: {remote_url}]")
+    else:
+        print(f"Remote: {remote_url}")
 
     if platform == "github":
         print("github.html_url: https://github.com/")

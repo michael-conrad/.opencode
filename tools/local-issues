@@ -32,7 +32,8 @@ YAML frontmatter schema (spec.md):
 
 Commands:
     create  --title TITLE [--labels L1,L2]  Create a new issue
-    read   NNN                               Read issue spec
+    read   NNN                               Read issue spec (raw frontmatter + body)
+    review NNN                                Pretty-print spec for developer review
     update NNN [--title T] [--status S] ...  Update issue frontmatter
     comment NNN --body TEXT                  Append comment
     close  NNN                               Close issue (move to closed/)
@@ -402,6 +403,59 @@ def cmd_search(
     return 0
 
 
+def cmd_review(number: int) -> int:
+    """Pretty-print issue spec to stdout for developer review."""
+    root = _find_issues_root()
+    if not root:
+        print("No .issues/ directory found", file=sys.stderr)
+        return 1
+    result = _find_issue(root, number)
+    if not result:
+        print(f"Issue #{number} not found", file=sys.stderr)
+        return 1
+    issue_dir, meta, body = result
+
+    title = meta.get("title", "Untitled")
+    status = meta.get("status", "unknown")
+    labels = meta.get("labels", [])
+    created = meta.get("created", "unknown")
+    updated = meta.get("updated", "unknown")
+    gh = meta.get("github_issue")
+    author = meta.get("author", "unknown")
+
+    print(f"# {title}")
+    print()
+    print(f"| Field | Value |")
+    print(f"|-------|-------|")
+    print(f"| Number | #{number:03d} |")
+    print(f"| Status | {status} |")
+    print(f"| Labels | {', '.join(str(l) for l in labels) if labels else 'none'} |")
+    print(f"| Author | {author} |")
+    print(f"| Created | {created} |")
+    print(f"| Updated | {updated} |")
+    if gh:
+        print(f"| GitHub | #{gh} |")
+    print()
+    if body.strip():
+        print(body.strip())
+    else:
+        print("(No spec body yet)")
+
+    comments_path = os.path.join(issue_dir, "comments.md")
+    if os.path.isfile(comments_path):
+        with open(comments_path) as f:
+            comments = f.read().strip()
+        if comments:
+            print()
+            print("---")
+            print()
+            print("## Comments")
+            print()
+            print(comments)
+
+    return 0
+
+
 def cmd_list(status: str | None = None) -> int:
     """List local issues."""
     return cmd_search(status=status)
@@ -412,7 +466,7 @@ def main() -> int:
     if not args:
         print("Usage: local-issues <command> [options]", file=sys.stderr)
         print(
-            "Commands: create, read, update, comment, close, link, search, list",
+            "Commands: create, read, review, update, comment, close, link, search, list",
             file=sys.stderr,
         )
         return 1
@@ -571,6 +625,17 @@ def main() -> int:
             else:
                 i += 1
         return cmd_list(status)
+
+    elif command == "review":
+        if len(args) < 2:
+            print("Error: issue number required", file=sys.stderr)
+            return 1
+        try:
+            num = int(args[1])
+        except ValueError:
+            print("Error: invalid issue number", file=sys.stderr)
+            return 1
+        return cmd_review(num)
 
     else:
         print(f"Unknown command: {command}", file=sys.stderr)

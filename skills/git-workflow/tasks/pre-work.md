@@ -79,6 +79,47 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 
 **This task receives authorization context from orchestration layer. DO NOT re-check authorization.**
 
+### Step 1.5: Pre-flight — Verify `dev` branch exists on remote
+
+Before syncing or creating a local `dev` branch, verify the remote has a `dev` branch. If it doesn't, create it from the default branch. If no remote exists, skip gracefully.
+
+```bash
+if ! git remote 2>/dev/null | grep -q '^origin$'; then
+    echo "No remote 'origin' found. Skipping remote dev branch check (local-only repo)."
+else
+    git fetch origin
+
+    if ! git ls-remote origin dev 2>/dev/null | grep -q 'refs/heads/dev'; then
+        echo "Remote branch 'dev' not found on origin. Creating from default branch..."
+
+        DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+
+        if [ -z "$DEFAULT_BRANCH" ]; then
+            echo "FATAL: Cannot determine default branch on origin. HALT."
+            exit 1
+        fi
+
+        git push origin "refs/heads/${DEFAULT_BRANCH}:refs/heads/dev"
+
+        if ! git ls-remote origin dev 2>/dev/null | grep -q 'refs/heads/dev'; then
+            echo "FATAL: Failed to create dev branch on origin. HALT."
+            exit 1
+        fi
+
+        echo "Remote branch 'dev' created from '${DEFAULT_BRANCH}'."
+    else
+        echo "Remote branch 'dev' exists on origin."
+    fi
+fi
+```
+
+**Key behaviors:**
+
+- **No remote at all:** Skip this check entirely — local-only repos require no remote branch setup
+- **Remote exists but `dev` missing:** Create `dev` on origin from the default branch determined via `git remote show origin`
+- **Verification failure after push:** HALT and report — do not proceed without a remote `dev` branch when a remote exists
+- **DO NOT add any remotes** — this check only works with pre-existing remotes
+
 ### Step 2: Sync Dev Branch
 
 The main working tree must be on `dev` and up-to-date so branch creation has the correct base:
@@ -365,6 +406,7 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 
 | Check | Tool Call | Expected Result | On Failure |
 | -- | -- | -- | -- |
+| Remote dev branch (when remote exists) | `git ls-remote origin dev` | Non-empty output | MISSING-ELEMENT → run Step 1.5 to create |
 | Current branch | `git branch --show-current` | Feature branch name (not `main`, `dev`) | STRUCTURE-VIOLATION → HALT |
 | Working tree clean | `git status --porcelain` | Empty output | VERIFICATION-GAP → stash or commit first |
 | Worktree location (worktree mode only) | `git rev-parse --show-toplevel` | Worktree path (not main repo path) | STRUCTURE-VIOLATION → HALT |
@@ -386,6 +428,7 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 
 | Failure | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
+| Remote dev branch missing | MISSING-ELEMENT | auto-fix | Run Step 1.5 to create dev on origin |
 | On `main` or `dev` branch | CONFLICTING | flag-for-review | HALT — must create feature branch first |
 | Dirty working tree | VERIFICATION-GAP | conditional | Stash or commit before implementation |
 | `rev-parse` returns main repo path (worktree mode) | STRUCTURE-VIOLATION | auto-fix | Not in worktree — re-invoke using-git-worktrees |
@@ -404,6 +447,7 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 **Before starting any work, verify:**
 
 - ✅ Authorization received (explicit `approved`, `go`, or `"#N approved"`)
+- ✅ Remote dev branch exists on origin (or no remote — local-only repo skip)
 - ✅ Feature branch created (not on `main` or `dev`)
 - ✅ (Worktree mode only) `worktree.path` environment variable is set and non-empty
 - ✅ (Worktree mode only) `git rev-parse --show-toplevel` in worktree shows worktree path

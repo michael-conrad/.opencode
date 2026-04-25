@@ -22,6 +22,7 @@ These mandates protect the integrity of the codebase and repository. They **NEVE
 | Sub-agents must receive `worktree.path` | Prevents sub-agents from mutating main repo (only when main agent is in worktree mode) |
 | Human-only branch deletion | Unmerged branches must never be force-deleted by agents |
 | Agents must never self-authorize | Authorization comes from developers, never from agent reasoning |
+| Git configuration and destructive commands require explicit authorization | Git remote/config mutations can silently redirect pushes, disable security checks, or destroy unrecoverable state |
 
 **"Zero tolerance" language in this file applies ABSOLUTELY to Tier 1 mandates.** There is no waiver, no override, no emergency bypass.
 
@@ -773,6 +774,66 @@ The spec-to-plan approval cascade means: when a spec is approved and a plan alre
 
 - 🚫 FORBIDDEN: `git branch -D` on unmerged without request; `git stash drop` without request; keeping merged branches
 - Merged PR → DELETE IMMEDIATELY | Unmerged → PRESERVE | Stashes → PRESERVE | `main` → NEVER DELETE
+
+## Critical Violation: Git Configuration and Destructive Command Authorization
+
+**⚠️ Git configuration mutations and destructive git commands require explicit developer authorization — this is a CRITICAL GUIDELINE VIOLATION.**
+
+Git remote and configuration mutations can silently redirect pushes, disable security checks, or destroy unrecoverable state. These operations are Tier 1 mandates — they NEVER yield to developer authorization for the operation itself, but the operation ALWAYS requires explicit authorization before execution.
+
+### Operations Requiring Explicit Authorization (FORBIDDEN without "approved" or "go")
+
+| Category | Commands |
+| -- | -- |
+| Remote mutations | `git remote add`, `git remote rm`, `git remote set-url` |
+| Security-relevant config | `git config --local/--global/--system` for keys in Categories 1-4 below |
+| Force push | `git push --force`, `git push --no-verify` |
+| Bypass hooks | `git commit --no-verify` (in repos with remotes) |
+| Destructive resets | `git reset --hard`, `git clean -fd`, `git checkout -- .` |
+| Ref manipulation | `git update-ref`, `git symbolic-ref` |
+| History rewrite | `git filter-branch`, `git filter-repo` |
+| Reflog expiry | `git reflog expire` |
+| Submodule mutations | `git submodule add`, `git submodule deinit` |
+| Env var overrides | Setting `GIT_SSH_COMMAND`, `GIT_CONFIG_GLOBAL`, `GIT_CONFIG_SYSTEM`, `GIT_EXEC_PATH` |
+
+### Security-Relevant Config Key Categories
+
+| Category | Key Patterns |
+| -- | -- |
+| 1. Remote/URL routing | `remote.*`, `url.*` |
+| 2. Auth/transport security | `http.proxy`, `core.sshCommand`, `http.sslVerify`, `http.sslCAInfo`, `credential.helper`, `credential.username`, `protocol.*.allow` |
+| 3. Hook/path injection | `core.hooksPath`, `init.templateDir` |
+| 4. Environment overrides | `GIT_SSH_COMMAND`, `GIT_CONFIG_GLOBAL`, `GIT_CONFIG_SYSTEM`, `GIT_EXEC_PATH` (set as env vars, not config keys) |
+
+### Required Behaviors
+
+- Before any git operation implying remote interaction, verify existing remote state via `git remote -v`
+- If zero remotes exist, treat as intentional local-only — HALT before any remote modification
+- Any `git config` mutation must be explicitly authorized by the developer
+- Agent MUST NOT infer remote configuration from session-init metadata
+
+### `--no-verify` Exception for Local-Only Repos
+
+`git commit --no-verify` and `git push --no-verify` are FORBIDDEN in repos with remotes, but PERMITTED in local-only repos (zero remotes). The agent MUST check `git remote -v` before using `--no-verify` and HALT if remotes exist.
+
+### Allowlist (No Authorization Needed)
+
+- `git config` read operations (e.g., `git config --get`, `git config --list`)
+- `git remote -v` (read-only)
+- Standard workflow: `git add`, `git commit` (without `--no-verify` in remote repos), `git push` (without `--force`/`--no-verify` in remote repos), `git pull`, `git fetch`, `git checkout -b`, `git switch -c`, `git merge`, `git rebase` (feature only), `git stash/pop/apply`
+- `git commit --no-verify` / `git push --no-verify` in local-only repos (zero remotes)
+
+### Exempt Config Keys (Safe to Mutate Without Authorization)
+
+`user.name`, `user.email`, `core.autocrlf`, `core.filemode`, `push.default`, `submodule.*`, `branch.*`
+
+### Enforcement Mechanisms (session-enforcement.ts)
+
+1. **Config Mutation Watchdog**: Captures baseline of `.git/config` and `git config --local --list` at session start; diffs after each assistant turn; injects `<GIT_CONFIG_MUTATION>` block if security-relevant keys changed.
+2. **`--no-verify` Detection**: Scans assistant message content for `--no-verify` in bash commands; injects `<NO_VERIFY_BLOCKED>` block if repo has remotes. Post-hoc commit audit checks git log for commits lacking session-enforcement signature.
+3. **Baseline Snapshot**: `GitConfigBaseline` interface with `{ configHash, localConfigHash, remotes[], remoteCount, capturedAt }`; SHA-256 hash comparison with full diff on mismatch.
+
+**AUTHORITY: Issue #72**
 
 ## Critical Violation: Blind Conflict Resolution
 

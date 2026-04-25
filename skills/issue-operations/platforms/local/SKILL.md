@@ -31,6 +31,7 @@ Local issue tracking platform using `.issues/` directories at the repo root. Thi
 |-----------|-----------|--------|
 | Create issue | Yes | `local-issues create` |
 | Read issue | Yes | `local-issues read` |
+| Review issue | Yes | `local-issues review` |
 | Update issue | Yes | `local-issues update` |
 | Comment on issue | Yes | `local-issues comment` |
 | Close issue | Yes | `local-issues close` |
@@ -50,6 +51,7 @@ All operations go through `.opencode/tools/local-issues` CLI:
 ```bash
 local-issues create --title "TITLE" --labels L1,L2
 local-issues read NNN
+local-issues review NNN
 local-issues update NNN [--title T] [--status S] [FIELD=VALUE]
 local-issues comment NNN --body "TEXT"
 local-issues close NNN
@@ -57,6 +59,40 @@ local-issues link NNN --github NUM
 local-issues search [--status S] [--labels L1,L2] [--query TEXT]
 local-issues list [--status S]
 ```
+
+## Task: review
+
+Pretty-print a local issue spec to stdout for developer review. Renders the spec body as markdown with a metadata table (number, status, labels, author, timestamps, GitHub link) and any existing comments.
+
+**Invocation:**
+
+```bash
+local-issues review NNN
+```
+
+**Use case:** When a developer needs to review a local spec before approving it, run `review` to get a clean, markdown-renderable output of the full spec including frontmatter metadata and comment history.
+
+## Task: comment
+
+Append a comment to a local issue's `comments.md` with an ISO timestamp separator.
+
+**Invocation:**
+
+```bash
+local-issues comment NNN --body "TEXT"
+```
+
+**Comment format:**
+
+```markdown
+---
+
+## 2026-04-25T12:00:00Z
+
+TEXT
+```
+
+**Use case:** When a developer or agent needs to add a comment to a local issue (approval, status update, feedback), use `comment` to append to the comments file.
 
 ## Promotion Workflow
 

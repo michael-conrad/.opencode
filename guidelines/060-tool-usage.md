@@ -174,3 +174,22 @@ Invoke skills when their trigger keywords match the current task. Each skill def
 | **No speculative loading** | Do not load skills "just in case" — load when triggers match |
 | **Skill self-describes boundary** | Each SKILL.md defines what it covers; when in doubt, check `Triggers on:` line |
 | **Sub-agent dispatch priority** | When a SKILL.md Sub-Agent Tasks section marks a task as `sub-agent`, the main agent dispatches via `task()` instead of loading the task file inline. This keeps heavy task files out of the main agent context. Result contracts (≈100-500 words) are read instead of the full task file (>1,000 words) |
+
+## 9. Identity Source Semantics
+
+The `github.identity_source` value (emitted by session-init) determines the agent's relationship to git remotes and GitHub API routing.
+
+| `github.identity_source` | Parent repo remotes | Agent behavior |
+|---|---|---|
+| `root` | 1+ | Standard workflow; owner/repo from parent remote |
+| `submodule` | 0 | Local-only parent; owner/repo from submodule for API routing only; do NOT add remotes to parent |
+| `none` | 0 | Full local-only; no GitHub API calls possible |
+
+**When `identity_source == "submodule"`:**
+
+- The parent repo has ZERO remotes by design — do NOT add remotes
+- `github.owner` and `github.repo` come from the submodule's remote for API routing only
+- GitHub MCP calls route to the submodule's repository, not the parent
+- Local git operations (branch, commit, stash) on the parent repo are permitted
+- `git push` from the parent repo is FORBIDDEN — there is no remote to push to
+- `git remote add` on the parent repo is FORBIDDEN — the absence of remotes is intentional |
