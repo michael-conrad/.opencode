@@ -433,4 +433,58 @@ decomposition:
     task: verify-acceptance
     mandatory: true
     bypass_violation: "CRITICAL: Acceptance Criteria Not Verified"
+state_machines:
+  - id: verify-lifecycle
+    states: [started, structural_checked, evidence_collected, verified, failed]
+    start_state: started
+    decomposition_guard:
+      field: "decomposition.verification_commands"
+      message: "CRITICAL: Cannot verify without verification commands defined"
+    transitions:
+      - from: started
+        to: structural_checked
+        guard: "structural_completeness_verified == true"
+        action: PROCEED_TO_SC_VERIFICATION
+      - from: started
+        to: failed
+        guard: "structural_completeness_verified == false"
+        action: HALT_AND_REPORT_MISSING
+      - from: structural_checked
+        to: evidence_collected
+        guard: "all_sc_have_evidence == true"
+        action: BUILD_EVIDENCE_TABLE
+      - from: evidence_collected
+        to: verified
+        guard: "all_sc_evidence_PASS == true"
+        action: MARK_COMPLETE
+      - from: evidence_collected
+        to: failed
+        guard: "any_sc_evidence_FAIL == true"
+        action: HALT_AND_REPORT_FAILING_SC
+gates:
+  - id: no-completion-without-evidence
+    condition: "all_sc_have_evidence == true"
+    on_fail: "HALT and collect evidence"
+    critical_violation: true
+  - id: structural-completeness-first
+    condition: "structural_completeness_verified == true"
+    on_fail: "HALT and run structural-verify"
+    critical_violation: true
+  - id: live-source-evidence-only
+    condition: "evidence_from_memory == false"
+    on_fail: "HALT and re-verify with tool call"
+    critical_violation: true
+evidence_artifacts:
+  - name: per_sc_evidence_table
+    type: structured_output
+    verification: "all rows show PASS with live tool-call artifacts"
+  - name: structural_completeness_result
+    type: tool_call
+    verification: "structural-verify task output confirms completeness"
+  - name: test_results
+    type: tool_call
+    verification: "pytest output confirms tests pass"
+  - name: lint_results
+    type: tool_call
+    verification: "ruff check output confirms zero errors"
 ```
