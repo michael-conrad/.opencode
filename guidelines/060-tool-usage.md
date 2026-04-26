@@ -130,7 +130,7 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 - **NEVER use `sed` for file edits — it is unreliable for structured formats.** The Edit tool handles escaping and encoding correctly; sed does not.
 - **NEVER use `--recursive` with any git submodule command** (e.g., `git submodule update --init --recursive`, `git clone --recursive`). The `--recursive` flag can pull in unintended nested submodules, cause unexpected network traffic, break reproducibility by implicitly resolving submodule chains, and conflict with explicit submodule management. Always use `git submodule update --init` (without `--recursive`) or explicit per-submodule operations.
 
-## 5. Verification & Audit
+## 5. Verification & Audit. Verification & Audit
 
 ### ✅ ALWAYS DO
 
@@ -193,3 +193,107 @@ The `github.identity_source` value (emitted by session-init) determines the agen
 - Local git operations (branch, commit, stash) on the parent repo are permitted
 - `git push` from the parent repo is FORBIDDEN — there is no remote to push to
 - `git remote add` on the parent repo is FORBIDDEN — the absence of remotes is intentional |
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: tool-usage-001
+    title: "Notebook files require the-notebook-mcp exclusively"
+    conditions:
+      all:
+        - "file_extension == '.ipynb'"
+        - "using_notebook_mcp == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [notebook-operations]
+    source: "060-tool-usage.md §1 Tool Priority Hierarchy"
+
+  - id: tool-usage-002
+    title: "Absolute paths forbidden in agent terminal commands"
+    conditions:
+      all:
+        - "terminal_command_matches == '/^[a-zA-Z0-9_-]+:.*|^/'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "060-tool-usage.md §2 Path Rules NEVER DO"
+
+  - id: tool-usage-003
+    title: "Worktree path prefixing required for file operations when worktree.path set"
+    conditions:
+      all:
+        - "worktree_path_is_set == true"
+        - "using_relative_paths_for_file_ops == true"
+    actions:
+      - HALT
+    conflicts_with: [critical-rules-007]
+    requires: []
+    triggers: [using-git-worktrees]
+    source: "060-tool-usage.md §2 Worktree Path Resolution"
+
+  - id: tool-usage-004
+    title: "Only ./tmp/ permitted for temp files"
+    conditions:
+      all:
+        - "temp_file_path matches '^/tmp/'"
+    actions:
+      - HALT
+    conflicts_with: [critical-rules-004]
+    requires: []
+    triggers: []
+    source: "060-tool-usage.md §3 Temp Files & Cleanliness"
+
+  - id: tool-usage-005
+    title: "Must use uv run for Python invocation"
+    conditions:
+      all:
+        - "python_invocation_method == 'bare_python'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "060-tool-usage.md §4 Command Restrictions ALWAYS DO"
+
+  - id: tool-usage-006
+    title: "sed -i, printf, echo redirection, and heredocs forbidden"
+    conditions:
+      all:
+        - "command_matches == 'sed -i|printf >|echo >|<<'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "060-tool-usage.md §4 Command Restrictions NEVER DO"
+
+  - id: tool-usage-007
+    title: "API client mandatory — no inline mutation scripts"
+    conditions:
+      all:
+        - "platform_has_api_client == true"
+        - "using_inline_requests_post == true"
+    actions:
+      - HALT
+    conflicts_with: [critical-rules-029]
+    requires: []
+    triggers: [issue-operations]
+    source: "060-tool-usage.md §1 API Client Mandatory"
+
+  - id: tool-usage-008
+    title: "git --recursive forbidden with submodule commands"
+    conditions:
+      all:
+        - "command_matches == 'git submodule.*--recursive'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "060-tool-usage.md §4 Command Restrictions NEVER DO"
+```
