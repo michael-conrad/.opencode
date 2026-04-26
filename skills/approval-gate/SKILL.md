@@ -131,6 +131,18 @@ Before any dispatch chain step begins, the orchestrator MUST verify that it has 
 - 🚫 FORBIDDEN: Orchestrator loading task files or guideline text into its own context for inline execution
 - ✅ REQUIRED: The orchestrator dispatches sub-agents for ALL work; it only routes result contracts
 
+**Step 0.5: Post-Dispatch Output Gate (MANDATORY)**
+
+After every sub-agent dispatch completes, the main agent MUST produce visible chat output before proceeding to the next step or halting.
+
+| Dispatch Result | Next Step | Output Required? |
+|---|---|---|
+| Sub-agent DONE | Next phase | Yes — summarize completion |
+| Sub-agent BLOCKED | Halt | Yes — summarize blocker and required action |
+| Sub-agent ERROR | Inline fallback | Yes — summarize error, fallback attempt |
+| Tool call success | Continue | Yes — state what changed |
+| Tool call failure | Halt | Yes — state what failed and why |
+
 After `verify-authorization` completes successfully (all gates pass), the skill auto-dispatches based on approval context:
 
 ```

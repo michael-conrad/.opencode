@@ -278,7 +278,39 @@ The format applies to ALL halt points where implementation is reported complete:
 - **Completion task** reports (approval-gate completion)
 - **Any completion message** where the agent reports work done and halts
 
-**Mandatory format (with URL):**
+**Blockers section (REQUIRED when workflow is incomplete/blocked — omit when complete):**
+
+When the agent halts with incomplete work (blocked state), the output MUST include a Blockers section explaining:
+
+1. **What remains blocked** (missing authorization, missing plan, missing spec, context budget exhausted, etc.)
+2. **Why the agent stopped** (constraint violated, scope boundary reached, pipeline gate failed, etc.)
+3. **What explicit developer action is needed** to unblock (specific phrase or step)
+
+Examples:
+- "Blocked: Spec updated but lacks explicit authorization. Say 'approved #N' to proceed."
+- "Blocked: No approved plan exists for this spec. Create and approve a plan first."
+- "Blocked: Context budget insufficient for implementation. Provide authorization with scope."
+- "Blocked: Scope boundary reached — halt_at == plan_created. Provide re-authorization for implementation."
+
+Vague phrasing like "needs approval" without specifying WHICH issue and WHAT phrase is a STRUCTURE-VIOLATION (auto-fix: add specific issue number and required phrase).
+
+**Mandatory format (with URL and blockers):**
+
+```
+**Summary:**
+
+<1-2 sentences describing impact and stakeholder value.>
+
+**Outcome:** <What changed for stakeholders>
+
+**Blockers:** <Why stopped + required developer action>
+
+<Compare URL or Issue URL>
+
+🤖 <AgentName> (<ModelId>) <status-icon> <status>
+```
+
+**Mandatory format (with URL, no blockers — workflow complete):**
 
 ```
 **Summary:**
@@ -292,7 +324,21 @@ The format applies to ALL halt points where implementation is reported complete:
 🤖 <AgentName> (<ModelId>) <status-icon> <status>
 ```
 
-**Mandatory format (without URL — when no relevant URL exists):**
+**Mandatory format (without URL, with blockers):**
+
+```
+**Summary:**
+
+<1-2 sentences describing impact and stakeholder value.>
+
+**Outcome:** <What changed for stakeholders>
+
+**Blockers:** <Why stopped + required developer action>
+
+🤖 <AgentName> (<ModelId>) <status-icon> <status>
+```
+
+**Mandatory format (without URL, no blockers — workflow complete):**
 
 ```
 **Summary:**
@@ -304,8 +350,8 @@ The format applies to ALL halt points where implementation is reported complete:
 🤖 <AgentName> (<ModelId>) <status-icon> <status>
 ```
 
-- 🚫 FORBIDDEN: Producing casual one-liner summaries at halt points; omitting any required element (summary, outcome, byline); wrong ordering (URL before summary, byline before URL); reporting missing elements after the fact instead of auto-fixing before output is sent; including a URL when no relevant URL exists; label-format mismatch (e.g., "Compare URL" with `pull/N` URL or "PR URL" with `compare/dev...` URL)
-- ✅ REQUIRED: Verify chat output format before sending at every halt point; auto-fix missing or misordered elements before output is sent; summary first, outcome after summary, URL if relevant (omit if not), byline last; label and URL format MUST match context (pre-PR → "Compare URL" + `compare/dev...`; post-PR → "PR URL" + `pull/N`); each verification checkpoint MUST produce a tool-call artifact as evidence
+- 🚫 FORBIDDEN: Producing casual one-liner summaries at halt points; omitting any required element (summary, outcome, byline); wrong ordering (URL before summary, byline before URL); reporting missing elements after the fact instead of auto-fixing before output is sent; including a URL when no relevant URL exists; label-format mismatch (e.g., "Compare URL" with `pull/N` URL or "PR URL" with `compare/dev...` URL); producing halt messages without a Blockers section when workflow state is incomplete/blocked; vague blocker phrasing ("needs approval") without specifying the exact issue and required action
+- ✅ REQUIRED: Verify chat output format before sending at every halt point; auto-fix missing or misordered elements before output is sent; summary first, outcome after summary, blockers after outcome (when workflow incomplete), URL if relevant (omit if not) after blockers or outcome, byline last; Blockers section present when `workflow_state != complete`; blocker text specifies the constraint, why it fired, and the exact developer action; Blockers section omitted when workflow is fully complete (no incomplete state); label and URL format MUST match context (pre-PR → "Compare URL" + `compare/dev...`; post-PR → "PR URL" + `pull/N`); each verification checkpoint MUST produce a tool-call artifact as evidence
 
 **See `git-workflow` skill → "Chat Output Format (CRITICAL)" for complete format requirements and examples. See `approval-gate/tasks/post-implementation.md` Step 4.5, `approval-gate/tasks/completion.md`, `divide-and-conquer/tasks/assemble-work.md` Step 6, `finishing-a-development-branch/tasks/checklist.md` §Chat Output Format, and `git-workflow/tasks/review-prep.md` §Live Verification for the verification checkpoints.**
 
@@ -956,6 +1002,32 @@ After EVERY `task(subagent_type="general")` dispatch, the agent MUST produce out
 **This guarantee supplements the existing Silent Agent Termination rule by specifying the post-dispatch scenario explicitly.** The existing rule covers general halts; this adds the specific case where the agent dispatches a sub-agent, gets an empty result, and has no code path to recovery or reporting.
 
 **See `020-go-prohibitions.md` for the complete halt requirements and `finishing-a-development-branch` skill for completion guarantees.** **AUTHORITY: `020-go-prohibitions.md`** (this line is a reference only)
+
+### Post-Tool Execution Output Checkpoint
+
+After EVERY batch of tool calls (including ALL types: bash, read, write, edit, github_*, srclight_*, task, etc.), the agent MUST produce visible chat output before halting.
+
+This checkpoint applies regardless of whether:
+- Tool calls succeeded or failed
+- Sub-agents returned valid, empty, or error results
+- The agent has reached a natural workflow end-state
+- The agent believes "no further action is needed"
+
+The output MUST include at minimum:
+1. What operation/tool was invoked
+2. What the result was (success/failure/error)
+3. What state this leaves the workflow in
+4. What developer action (if any) is required to proceed
+5. AI byline (if halting)
+
+**This output must be generated BEFORE `--task completion` runs, not delegated TO it.**
+
+- 🚫 FORBIDDEN: Transitioning from tool execution directly to halt without chat output
+- 🚫 FORBIDDEN: Delegating output to `--task completion` as a substitute for normal visible output
+- 🚫 FORBIDDEN: Producing zero chat messages in a user-turn even when tool calls succeeded
+- ✅ REQUIRED: After every tool call batch, produce at minimum a one-line status of what happened
+- ✅ REQUIRED: After every sub-agent dispatch, produce Summary/Outcome output before any halt
+- ✅ REQUIRED: Context budget exhaustion produces explicit "budget exhausted" message before halt
 
 ## Critical Violation: Skipping Interdependency Analysis for Batch Approvals
 
