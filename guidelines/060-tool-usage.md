@@ -130,7 +130,7 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 - **NEVER use `sed` for file edits — it is unreliable for structured formats.** The Edit tool handles escaping and encoding correctly; sed does not.
 - **NEVER use `--recursive` with any git submodule command** (e.g., `git submodule update --init --recursive`, `git clone --recursive`). The `--recursive` flag can pull in unintended nested submodules, cause unexpected network traffic, break reproducibility by implicitly resolving submodule chains, and conflict with explicit submodule management. Always use `git submodule update --init` (without `--recursive`) or explicit per-submodule operations.
 
-## 5. Verification & Audit. Verification & Audit
+## 5. Verification & Audit
 
 ### ✅ ALWAYS DO
 
