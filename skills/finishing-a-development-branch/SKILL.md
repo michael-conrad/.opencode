@@ -169,7 +169,7 @@ Before invoking any cross-referenced skill:
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+last_updated: "2026-04-26T00:00:00Z"
 rules:
   - id: finishing-a-development-branch-001
     title: "All changes must be committed before branch completion"
@@ -268,6 +268,12 @@ decomposition:
     task: push
     mandatory: true
     bypass_violation: "CRITICAL: Unpushed Changes"
+  - type: sub-agent-dispatch
+    isolation: clean-room
+    must_receive: [checklist items, verification targets]
+    must_not_receive: [implementation context, agent memory from prior phases, cached verification results]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Clean-Room Dispatch for Sub-Agents"
 state_machines:
   - id: branch-completion-lifecycle
     states: [prepared, linted, tested, pushed, completed, failed]

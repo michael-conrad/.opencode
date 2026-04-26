@@ -173,7 +173,7 @@ Before invoking any cross-referenced skill:
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+last_updated: "2026-04-26T00:00:00Z"
 rules:
   - id: pr-workflow-001
     title: "PR requires explicit instruction — approved/go does NOT authorize PR"
@@ -349,6 +349,13 @@ decomposition:
     mandatory: true
     bypass_violation: "Changelog generation required before PR creation"
     source: "pr-creation-workflow/SKILL.md §Pre-PR Creation Checklist"
+
+  - type: sub-agent-dispatch
+    isolation: clean-room
+    must_receive: [branch compare data, spec summary]
+    must_not_receive: [implementation context, agent memory from prior phases, cached verification results]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Clean-Room Dispatch for Sub-Agents"
 
 gates:
   - id: explicit-pr-instruction

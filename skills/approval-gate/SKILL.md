@@ -503,7 +503,7 @@ Skills without this callout MUST be updated to include it. The callout is a beha
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-04-25T12:00:00Z"
+last_updated: "2026-04-26T00:00:00Z"
 rules:
   - id: approval-gate-skill-001
     title: "Pre-implementation authorization verification"
@@ -716,6 +716,9 @@ decomposition:
     task: screen-issue
     mandatory: true
     bypass_violation: "CRITICAL: Inline Screening of Authorization Sets"
+    isolation: clean-room
+    must_receive: [issue number, issue body, authorization context, github.owner, github.repo]
+    must_not_receive: [implementation context, agent memory, cached verification results, other sub-agents' prior results]
 
   - type: skill-task
     skill: git-workflow
@@ -734,6 +737,14 @@ decomposition:
     task: verify
     mandatory: true
     bypass_violation: "CRITICAL: Skipping Post-Implementation Verification Skills"
+
+  - type: sub-agent-dispatch
+    isolation: clean-room
+    task: pre-implementation-analysis
+    must_receive: [authorization context, issue numbers, github.owner, github.repo]
+    must_not_receive: [implementation context, agent memory from prior phases, cached verification results, other sub-agents' prior results]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Clean-Room Dispatch for Sub-Agents"
 
   - type: skill-task
     skill: finishing-a-development-branch

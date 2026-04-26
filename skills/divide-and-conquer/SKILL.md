@@ -291,7 +291,7 @@ Use when spec has complex success criteria benefiting from independent verificat
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+last_updated: "2026-04-26T00:00:00Z"
 rules:
   - id: divide-and-conquer-001
     title: "No direct implementation by orchestrator"
@@ -497,6 +497,12 @@ decomposition:
     task: review-prep
     mandatory: true
     bypass_violation: "CRITICAL: Skipping review-prep"
+  - type: sub-agent-dispatch
+    isolation: clean-room
+    must_receive: [spec, plan, file paths, worktree.path, github.owner, github.repo]
+    must_not_receive: [implementation context, agent memory from prior phases, cached verification results, other sub-agents' prior results unless declared dependency]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Clean-Room Dispatch for Sub-Agents"
 state_machines:
   - id: assemble-work-lifecycle
     states: [assessed, decomposed, dispatched, completed, failed, overflow]
