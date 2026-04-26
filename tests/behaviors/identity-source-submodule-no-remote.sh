@@ -30,20 +30,18 @@ resolve_tool() {
     fi
 }
 
-# Test 1: session-init emits github.parent_remotes when identity_source is submodule
-echo "--- Test 1: session-init emits github.parent_remotes ---"
+# Test 1: session-init does NOT emit github.parent_remotes (prose-first architecture)
+echo "--- Test 1: session-init does NOT emit github.parent_remotes (prose-first) ---"
 SESSION_INIT=$(resolve_tool "tools/session-init")
 if [ -z "$SESSION_INIT" ] || [ ! -f "$SESSION_INIT" ]; then
     echo "SKIP: session-init not found"
 else
-    # This repo is a submodule context, so session-init should emit parent_remotes
     OUTPUT=$("$SESSION_INIT" 2>/dev/null) || true
     if echo "$OUTPUT" | grep -q "github.parent_remotes:"; then
-        PARENT_REMOTES=$(echo "$OUTPUT" | grep "github.parent_remotes:" | head -1 | awk '{print $2}')
-        echo "PASS: github.parent_remotes: $PARENT_REMOTES found in session-init output"
-    else
-        echo "FAIL: github.parent_remotes NOT found in session-init output"
+        echo "FAIL: github.parent_remotes found in session-init output (should be replaced with prose)"
         OVERALL_RESULT=1
+    else
+        echo "PASS: github.parent_remotes NOT found in session-init output (prose-first architecture)"
     fi
 fi
 

@@ -20,7 +20,7 @@ Agents read dotted names from session-init; bash scripts read UPPER_CASE
 names from env-loader. Never couple these pipelines.
 
 Canonical session-init variable names (dotted, LLM context):
-github.owner, github.repo, github.platform, github.identity_source, github.parent_remotes, github.html_url,
+github.owner, github.repo, github.platform, github.identity_source, github.html_url,
 gitbucket.owner, gitbucket.repo, gitbucket.html_url, gitbucket.ssh_url,
 gitbucket.has_credentials, srclight.project, dev.name, dev.email,
 branch, worktree.path, worktree.fatal, AgentName, ModelId
@@ -767,6 +767,7 @@ def main() -> int:
     platform: str | None = None
     owner: str | None = None
     repo: str | None = None
+    active_submod_path: str | None = None
 
     if remote_url:
         platform, owner, repo = resolve_identity(remote_url)
@@ -798,6 +799,7 @@ def main() -> int:
                 platform = submod_platform
                 identity_source = "submodule"
                 remote_url = submod_url
+                active_submod_path = submod_path
                 print(
                     f"Using submodule remote for degraded mode: {submod_path} -> {submod_url}",
                     file=sys.stderr,
@@ -842,22 +844,11 @@ def main() -> int:
     print("# Convention: dotted prefix = tool scope, suffix = MCP/API parameter name")
     print("# Use scope.param directly as the tool parameter value.")
     print("# Example: github_issue_read(owner=github.owner, repo=github.repo)")
-    parent_remote_count = 0
-    parent_remotes_raw = run_git_command(["remote", "-v"])
-    if parent_remotes_raw:
-        parent_remote_count = len(
-            set(
-                line.split()[0]
-                for line in parent_remotes_raw.splitlines()
-                if line.strip()
-            )
-        )
 
     print(f"github.owner: {owner}")
     print(f"github.repo: {repo}")
     print(f"github.platform: {platform}")
     print(f"github.identity_source: {identity_source}")
-    print(f"github.parent_remotes: {parent_remote_count}")
     print("AgentName: ")
     print("ModelId: ")
     print(f"dev.name: {user_name}")
@@ -865,7 +856,10 @@ def main() -> int:
     print(f"branch: {current_branch}")
 
     if identity_source == "submodule":
+        submod_display = submod_path if submod_path else "(unknown)"
         print(f"Remote: (none) [submodule: {remote_url}]")
+    elif identity_source == "none":
+        print("Remote: (none)")
     else:
         print(f"Remote: {remote_url}")
 
