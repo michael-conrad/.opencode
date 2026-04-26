@@ -275,6 +275,15 @@ The spec itself is the stable reference. Whether the plan is combined or separat
 | `retroactive` | ≈600 |
 | `clean-room` | ≈500 |
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `create` | When creating a plan from an approved spec | Spec issue number, github.owner, github.repo, authorization_scope | Implementation context, agent memory, cached verification | NO |
+| `validate` | When validating plan structure and fidelity | Plan issue number, spec issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `retroactive` | When creating a retroactive plan for already-implemented work | Spec issue number, implementation evidence, github.owner, github.repo | Implementation context, agent memory | NO |
+| `clean-room` | When generating a clean-room plan without implementation context | Spec issue number, github.owner, github.repo | Implementation context, implementation intent, agent memory | NO |
+
 ### Result Contract (create)
 
 ```yaml

@@ -47,6 +47,22 @@ Fragment Manager handles duplicate text blocks (fragments) that appear in multip
 | `resolve-conflict` | Handle merge conflicts | When drift is detected |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `create-fragment` | When creating new fragment master from existing content | Source content, destination paths, github.owner, github.repo | Implementation context, agent memory | NO |
+| `read-fragment` | When inspecting fragment details | Fragment name, registry path | Implementation context, agent memory | NO |
+| `update-fragment` | When master content needs changes | Fragment name, new content, registry path | Implementation context, agent memory | NO |
+| `delete-fragment` | When fragment is obsolete | Fragment name, registry path | Implementation context, agent memory | NO |
+| `sync-fragment` | When copying master to all destinations | Fragment name, destination paths, registry path | Implementation context, agent memory | NO |
+| `check-drift` | When detecting drift between masters and copies | Fragment names, registry path | Implementation context, agent memory | NO |
+| `status-report` | When overview of fragment health is needed | Registry path | Implementation context, agent memory | NO |
+| `resolve-conflict` | When merge conflicts in fragments are detected | Fragment name, conflict details, registry path | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill fragment-manager --task create-fragment` - Create new fragment

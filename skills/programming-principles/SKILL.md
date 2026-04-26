@@ -30,6 +30,15 @@ compatibility: opencode
 | `principles` | Complete reference for all 20 principles with enforcement levels, apply/relax context, and tradeoff notes | ≈2,200 |
 | `application-guide` | How to apply principles during design, implementation, and review; context prioritization table and red flags | ≈400 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `principles` | When full reference for all 20 principles is needed | Design decision context, file paths | Implementation context, agent memory | NO |
+| `application-guide` | When application guidance is needed during review or implementation | Review context, code paths, principle scope | Implementation context, agent memory | NO |
+
 ## Invocation
 
 This skill is **reference-driven**, not dispatch-triggered. Load via `/skill programming-principles` when the agent needs design judgment.

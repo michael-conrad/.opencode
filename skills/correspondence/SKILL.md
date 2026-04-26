@@ -34,6 +34,15 @@ Three distinct failures occur when drafting email correspondence without this sk
 - `/skill correspondence --task completion` — Invoke when workflow halts at any point
 - `/skill correspondence` — Overview only
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `draft` | When drafting email correspondence | Audience tier, topic, verification data, github.owner, github.repo | Implementation context, agent memory, internal artifacts | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ## Operating Protocol
 
 1. **Verification gate BEFORE drafting.** The agent MUST invoke `verification-enforcement --task verify` before drafting any email correspondence. All claims about external state (domain status, DNS records, service availability, system state) must be verified against live data before inclusion.

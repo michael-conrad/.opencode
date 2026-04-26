@@ -67,6 +67,7 @@
   3. If candidates found: present all candidates with URLs, offer user a choice to select one or create a new spec
   4. If no candidates found: present the failure state ("No existing spec/plan found for [topic]"), offer to create a new spec
   5. Only after search+presentation: HALT, but the halt message now includes the search results
+- **The orchestrator NEVER performs inline work.** ALL file reads, file edits, file writes, analysis, verification, and decision-making MUST be delegated to clean-room sub-agents. The orchestrator ONLY dispatches sub-agents, receives result contracts, and routes to the next pipeline step. Zero inline file operations are permitted in the main agent context.
 
 ## 1.5 Soliciting Authorization for Already-Authorized Phrases — CRITICAL VIOLATION
 

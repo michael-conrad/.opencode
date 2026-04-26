@@ -79,6 +79,14 @@ Each claim verification produces a `ClaimResult`:
 | `verify-single` | Yes | `ClaimResult` with status, evidence, and model |
 | `completion` | Yes | Status report with verification state |
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `verify` | When verifying claims against evidence | Claim list, evidence sources, github.owner, github.repo | Implementation context, agent memory, cached verification | NO |
+| `verify-single` | When verifying a single claim | Single claim, evidence, verification model | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, verification results | Implementation context, agent memory | NO |
+
 ## Cross-References
 
 - `multimodal-dispatch` — Routes claims to appropriate models based on modality

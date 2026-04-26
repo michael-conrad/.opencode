@@ -22,6 +22,17 @@ Ensures ALL notebook operations use `the-notebook-mcp` tools exclusively. This i
 | `swap-reorder` | Composed workflows for swap and reorder operations | ≈300 |
 | `production-data` | Execution restrictions and production data prohibition | ≈350 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `permitted-operations` | When tool reference is needed for notebook operations | Notebook path, operation type | Implementation context, agent memory | NO |
+| `cell-labels` | When cell labeling convention guidance is needed | Notebook path, cell index | Implementation context, agent memory | NO |
+| `swap-reorder` | When swap or reorder composed workflows are needed | Notebook path, cell indices | Implementation context, agent memory | NO |
+| `production-data` | When execution restrictions are needed | Notebook path, data context | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill notebook-operations --task permitted-operations` - Complete tool reference

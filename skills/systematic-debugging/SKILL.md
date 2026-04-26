@@ -23,6 +23,16 @@ Systematic debugging process that enforces root cause analysis, hypothesis testi
 | `fix` | Minimal targeted fix after diagnosis | ≈350 |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `diagnose` | When systematic bug diagnosis is needed | Bug description, file paths, github.owner, github.repo | Implementation context, agent memory, fix decisions | NO |
+| `fix` | When minimal targeted fix after diagnosis is needed | Bug description, diagnosis results, file paths | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill systematic-debugging` — Overview only

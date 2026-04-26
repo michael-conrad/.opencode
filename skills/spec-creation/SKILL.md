@@ -202,6 +202,17 @@ Findings from evidence verification follow the three-tier model:
 | `risk` | ≈400 |
 | `change-control` | ≈300 |
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `write` | When structuring spec content into GitHub Issue | Exploration results, spec content, github.owner, github.repo | Implementation context, agent memory | NO |
+| `requirements` | When extracting and clarifying requirements | Exploration results, topic | Implementation context, agent memory | NO |
+| `decompose` | When decomposing multi-phase requirements | Spec content, phase boundaries | Implementation context, agent memory | NO |
+| `traceability` | When checking spec traceability | Spec content, SC list, github.owner, github.repo | Implementation context, agent memory | NO |
+| `risk` | When identifying risk factors | Spec content, file paths | Implementation context, agent memory | NO |
+| `change-control` | When checking change control procedures | Spec content, github.owner, github.repo | Implementation context, agent memory | NO |
+
 ### Result Contract (write)
 
 ```yaml

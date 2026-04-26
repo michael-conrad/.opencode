@@ -27,6 +27,16 @@ You are an SRE-oriented operator writing runbooks for sysops under pressure. You
 | `track` | Track an incident or change via GitHub Issue with structured labels | ≈450 |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `generate` | When generating an operational runbook | Runbook type, domain context, environment info, github.owner, github.repo | Implementation context, agent memory | NO |
+| `track` | When tracking an incident or change via GitHub Issue | Incident details, labels, github.owner, github.repo | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill sre-runbook` — Overview only

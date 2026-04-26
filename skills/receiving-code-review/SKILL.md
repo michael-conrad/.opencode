@@ -23,6 +23,16 @@ Workflow for responding to code review feedback on pull requests. Ensures all re
 | `respond` | Reply to review comments | ≈250 |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `address` | When addressing all review comments on a PR | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `respond` | When replying to review comments on a PR | PR number, comment IDs, github.owner, github.repo | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill receiving-code-review` — Overview only

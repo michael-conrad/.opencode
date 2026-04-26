@@ -26,6 +26,15 @@ Ensures code artifacts stay within size limits for maintainability and readabili
 - `/skill code-size-enforcement --task decompose` - Get decomposition guidance
 - `/skill code-size-enforcement` - Overview only
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `check-limits` | When verifying size limits before commit | File paths, size limit configuration | Implementation context, agent memory | NO |
+| `decompose` | When decomposition guidance is needed for oversized artifacts | File paths, artifact type, size metrics | Implementation context, agent memory | NO |
+
 ## Size Limits
 
 | Artifact | Limit | Measurement |

@@ -19,6 +19,14 @@ Tool Priority Enforcer ensuring all operations use the correct tool according to
 |------|---------|-------|
 | `selection-guide` | Decision trees for Python code, file ops, notebooks | ≈500 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `selection-guide` | When tool selection guidance is needed for file operations, notebooks, or code search | Operation type, file extension, project context | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill mcp-tool-usage --task selection-guide` - Tool selection decision trees

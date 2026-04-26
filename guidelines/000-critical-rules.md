@@ -1345,6 +1345,41 @@ All skill task dispatches follow a sub-agent-first paradigm. The main agent is a
 
 **See each skill's SKILL.md → "Sub-Agent Tasks" section for word-count context and result contract schemas.**
 
+## Critical Violation: Inline Work — Performing File Modifications, Analysis, or Verification Without Clean-Room Sub-Agent Dispatch
+
+**⚠️ The main orchestrator reading, editing, writing, or analyzing files in its own context — or sub-agents combining multiple pipeline steps in a single dispatch — is a CRITICAL GUIDELINE VIOLATION.**
+
+The orchestrator is a pure router. It dispatches sub-agents and collects result contracts. It NEVER performs file operations, analysis, verification, or decision-making inline. Sub-agents are decomposed into discrete single-step units — each dispatch does exactly one thing. The producer of a deliverable NEVER also verifies that deliverable.
+
+### 🚫 FORBIDDEN
+
+- The main orchestrator reading, editing, writing, or analyzing files in its own context
+- Sub-agents combining multiple steps (analyze + write + verify) in a single dispatch
+- The producer of a deliverable also verifying that deliverable (self-verification)
+- Sub-agents receiving orchestrator reasoning, expected outcomes, or cached results
+- Dispatching a sub-agent without a `dispatch_context` object specifying `must_receive` and `must_not_receive`
+- Any SKILL.md performing inline work (reading files, running analysis, making decisions) instead of delegating to sub-agents
+
+### ✅ REQUIRED
+
+- ALL task execution uses clean-room sub-agents decomposed into discrete single-step units
+- The orchestrator is a pure router — it dispatches sub-agents and collects result contracts, never performing work inline
+- Every pipeline stage is a logged sub-agent dispatch in the work state file
+- Every SKILL.md contains a dispatch audit table documenting sub-agent tasks, scope, exclusions, and inline-work status
+- Verification is ALWAYS performed by a different sub-agent from the producer, with ONLY the deliverable + spec received
+- Sub-agents receive minimal context (issue number + scoped instruction) — no orchestrator preload
+
+### Violation Patterns
+
+| Violation Pattern | Correct Action |
+| -- | -- |
+| Orchestrator reads file inline to "understand context" | Dispatch routing sub-agent instead |
+| Orchestrator edits guideline text inline | Dispatch guideline-update sub-agent |
+| Sub-agent performs analysis + writing + verification in one dispatch | Decompose into 3 dispatches (analyze, write, verify) |
+| Verifier receives producer's reasoning or drafts | Verifier gets only deliverable + SC list |
+
+**AUTHORITY:** Spec #106 (universal clean-room dispatch)
+
 ______________________________________________________________________
 
 **Search guidelines:** Use `srclight_search_symbols` or `grep` to find relevant guidelines.
@@ -1783,4 +1818,17 @@ rules:
     requires: []
     triggers: [divide-and-conquer, verification-before-completion]
     source: "000-critical-rules.md §Claiming Verification Without Tool-Call Evidence in Sub-Agent Results"
+
+  - id: critical-rules-034
+    title: "Inline work — orchestrator performing file modifications, analysis, or verification without sub-agent dispatch"
+    conditions:
+      all:
+        - "is_orchestrator == true"
+        - "performing_inline_work == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [divide-and-conquer, verification-before-completion, git-workflow]
+    source: "000-critical-rules.md §Inline Work"
 ```

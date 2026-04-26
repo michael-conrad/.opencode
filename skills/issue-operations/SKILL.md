@@ -351,6 +351,21 @@ For the provenance issue body format and tier-specific details, see `git-workflo
 | `capabilities` | ≈150 |
 | `completion` | ≈200 |
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `pre-creation` | Before creating an issue, check for existing | Issue title, labels, github.owner, github.repo | Implementation context, agent memory | NO |
+| `single-task-check` | When checking if an issue needs sub-issue structure | Issue number, issue body, github.owner, github.repo | Implementation context, agent memory | NO |
+| `creation` | When creating a new issue | Issue title, body, labels, github.owner, github.repo | Implementation context, agent memory | NO |
+| `post-creation` | After issue creation, add provenance and labels | Issue number, byline, github.owner, github.repo | Implementation context, agent memory | NO |
+| `comment` | When adding a comment to an issue | Issue number, comment body, github.owner, github.repo | Implementation context, agent memory | NO |
+| `close` | When closing an issue after PR merge confirmation | Issue number, merge evidence, github.owner, github.repo | Implementation context, agent memory | NO |
+| `link-sub-issue` | When linking a sub-issue to a parent | Parent issue number, sub-issue ID, github.owner, github.repo | Implementation context, agent memory | NO |
+| `verify-merge` | When verifying PR merge before closure | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `capabilities` | When checking platform capabilities | Platform detection context | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ## Live Verification: Issue Operations Evidence (MANDATORY)
 
 **Each factual claim about platform state, issue state, and issue relationships MUST be verified via tool call before acting. Assertions without tool-call artifacts are VERIFICATION-GAP findings per `065-verification-honesty.md`.**

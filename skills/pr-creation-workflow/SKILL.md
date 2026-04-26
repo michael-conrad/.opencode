@@ -30,6 +30,16 @@ Do NOT invoke this skill for release promotion requests.
 | `sub-issue-collection` | Fetch and include sub-issues in PR body for autoclose | ≈300 |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `pre-pr-checklist` | When mandatory checks before PR creation are needed | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `sub-issue-collection` | When fetching and including sub-issues in PR body | Issue numbers, github.owner, github.repo | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill pr-creation-workflow --task pre-pr-checklist` - Run mandatory pre-PR checks

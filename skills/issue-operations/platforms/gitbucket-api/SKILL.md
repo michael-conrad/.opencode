@@ -58,6 +58,19 @@ GitBucket platform implementation using Python client. Implements a GitHub-compa
 | `repository-operations` | Repository CRUD, branch operations | ≈300 |
 | `session-integration` | Session init integration, env var detection | ≈200 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `issue-operations` | When GitBucket issue CRUD patterns are needed | Operation type, issue data, github.owner, github.repo | Implementation context, agent memory | NO |
+| `label-operations` | When GitBucket label CRUD is needed | Label name, color, github.owner, github.repo | Implementation context, agent memory | NO |
+| `error-recovery` | When GitBucket error handling/retry is needed | Error details, retry context | Implementation context, agent memory | NO |
+| `mcp-operations` | When GitBucket MCP tool mapping is needed | Operation type, MCP context | Implementation context, agent memory | NO |
+| `repository-operations` | When GitBucket repository CRUD is needed | Repository data, github.owner, github.repo | Implementation context, agent memory | NO |
+| `session-integration` | When GitBucket session init integration is needed | Session context, environment variables | Implementation context, agent memory | NO |
+
 ## Authentication
 
 Token authentication ONLY. Basic auth is broken in GitBucket (returns "Bad credentials" for all requests).

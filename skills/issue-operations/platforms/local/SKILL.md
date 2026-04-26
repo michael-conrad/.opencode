@@ -107,3 +107,19 @@ When `github.platform` is NOT `local` (i.e., a remote is available), local issue
 ## Worktree Exemption
 
 `.issues/` files are non-behavioral metadata. They are exempt from the worktree requirement per `060-tool-usage.md` §Worktree Exemption, but NOT exempt from the branching requirement (no direct commits to `dev`/`main`).
+
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `create` | When creating a local issue | Title, body, labels, .issues/ path | Implementation context, agent memory | NO |
+| `read` | When reading a local issue | Issue number, .issues/ path | Implementation context, agent memory | NO |
+| `review` | When reviewing a local issue | Issue number, .issues/ path | Implementation context, agent memory | NO |
+| `update` | When updating a local issue | Issue number, fields, .issues/ path | Implementation context, agent memory | NO |
+| `comment` | When commenting on a local issue | Issue number, comment body, .issues/ path | Implementation context, agent memory | NO |
+| `close` | When closing a local issue | Issue number, .issues/ path | Implementation context, agent memory | NO |
+| `link` | When linking local issue to GitHub | Local issue number, GitHub issue number, .issues/ path | Implementation context, agent memory | NO |
+| `search` | When searching local issues | Search query, .issues/ path | Implementation context, agent memory | NO |
+| `list` | When listing local issues | Status filter, labels, .issues/ path | Implementation context, agent memory | NO |

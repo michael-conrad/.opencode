@@ -31,6 +31,16 @@ All implementation output is framework-specific (currently Streamlit). The skill
 | `framework-config` | ≈500 | Configure target framework, component library, and project conventions |
 | `completion` | ≈200 | Idempotent cleanup and final summary |
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `implement` | When full UI implementation pass is needed | Spec requirements, design artifacts, worktree.path, github.owner, github.repo | Implementation context, agent memory, other agents' results | NO |
+| `validate-impl` | When validating implementation against interaction-spec | Implementation files, interaction spec, github.owner, github.repo | Implementation context, agent memory | NO |
+| `test-ui` | When generating UI test specifications | Interaction spec, implementation files | Implementation context, agent memory | NO |
+| `framework-config` | When configuring target framework | Framework name, component library, project conventions | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 Result contracts (returned by each sub-agent):
 
 ```yaml

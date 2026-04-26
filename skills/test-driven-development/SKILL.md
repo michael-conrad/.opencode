@@ -23,6 +23,16 @@ Test-driven development (TDD) workflow that enforces writing tests before implem
 | `green` | Write minimal implementation to pass test | ≈150 |
 | `refactor` | Clean up while keeping tests green | ≈200 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `red` | When writing failing test for new behavior | Spec SC list, test file paths | Implementation context, implementation intent | NO |
+| `green` | When writing minimal implementation to pass test | Spec SC list, test file paths, implementation file paths | Prior RED test output, implementation intent | NO |
+| `refactor` | When cleaning up code while keeping tests green | Implementation file paths, test file paths | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill test-driven-development` — Overview only

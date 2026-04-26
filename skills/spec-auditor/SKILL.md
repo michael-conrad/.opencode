@@ -518,6 +518,30 @@ Bug #1215 documented a case where post-merge cleanup replaced an entire issue bo
 
 **Note:** Individual subtasks are lightweight. Sub-agent dispatch is recommended for the full audit (all subtasks per document type) when running 3+ subtasks together, not for individual subtasks.
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `structure` | When auditing spec structure | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `content-quality` | When auditing spec content quality | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `traceability` | When auditing spec traceability | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `operational` | When auditing spec operational aspects | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `fidelity` | When auditing plan fidelity to spec | Issue number, plan issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `concerns` | When auditing concern separation | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `operational-flow` | When auditing operational flow | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `determinism` | When auditing spec determinism | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `error-recovery` | When auditing spec error recovery | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `principles` | When auditing spec principles | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `ground-truth` | When adversarial metadata verification is needed | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `sub-issue-fidelity` | When verifying sub-issue alignment with Plan phases | Issue number, sub-issue list, github.owner, github.repo | Implementation context, agent memory | NO |
+| `concern-coverage` | When verifying sub-issue bodies reflect Plan concerns | Issue number, sub-issue list, github.owner, github.repo | Implementation context, agent memory | NO |
+| `prose-structure` | When auditing prose structure | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `decomposition` | When auditing item decomposition | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `cross-spec-overlap` | When checking cross-spec overlap | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `sc-precision` | When auditing success criteria precision | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `fresh-start` | When fresh-start context preservation is needed | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ### Dispatch Context Schema (Full Audit as Sub-Agent)
 
 ```yaml

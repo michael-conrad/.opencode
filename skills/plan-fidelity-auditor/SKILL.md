@@ -28,6 +28,17 @@ Plan Fidelity Auditor generates a clean-room plan from the spec's problem statem
 | `report` | Report findings (renamed from auto-fix) | ≈300 |
 | `sub-issue-fidelity` | Verify sub-issue alignment with Plan phases | ≈350 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `audit` | When full plan fidelity audit is invoked | Issue number, plan body, github.owner, github.repo | Implementation context, agent memory | NO |
+| `compare` | When comparing clean-room plan against existing plan | Issue number, spec issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `report` | When reporting findings (report-only model) | Audit findings, github.owner, github.repo | Implementation context, agent memory | NO |
+| `sub-issue-fidelity` | When verifying sub-issue alignment with Plan phases | Issue number, sub-issue list, github.owner, github.repo | Implementation context, agent memory | NO |
+
 ## Invocation
 
 **This skill is NOT invoked directly.** It is called by the spec-auditor orchestrator via `/skill spec-auditor --issue N --task fidelity`.

@@ -27,6 +27,15 @@ You are a Conflict Resolution Specialist. Your focus is ensuring no committed wo
 | `classify-and-resolve` | Detect, classify, and resolve conflicts by tier | ≈550 |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `classify-and-resolve` | When a git conflict is detected and needs resolution | Branch name, conflict file paths, worktree.path | Implementation context, agent memory, conflict resolution decisions from prior sessions | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ## Conflict Classification Tiers
 
 Before resolving ANY conflict, classify it:

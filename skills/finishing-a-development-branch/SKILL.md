@@ -31,6 +31,14 @@ Branch completion workflow that ensures a feature branch is fully ready for PR c
 | `checklist` | ≈350 |
 | `completion` | ≈200 |
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `prepare` | When branch readiness preparation is needed | Branch name, worktree.path, github.owner, github.repo | Implementation context, agent memory, cached verification | NO |
+| `checklist` | When completion checklist verification is needed | Branch name, SC list, worktree.path, github.owner, github.repo | Implementation context, agent memory, cached verification | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill finishing-a-development-branch` — Overview only

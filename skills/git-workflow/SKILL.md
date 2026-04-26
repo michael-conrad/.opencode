@@ -201,6 +201,37 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `completion` | ≈200 |
 | `check-pr` | ≈50 |
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `cleanup` (routing) | PR merge confirmed, cleanup workflow started | PR number, branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `cleanup/verify-merge` | Cleanup sub-task: verify PR is merged | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `cleanup/issue-closure` | Cleanup sub-task: close issues | Issue numbers, github.owner, github.repo | Implementation context, agent memory | NO |
+| `cleanup/branch-cleanup` | Cleanup sub-task: delete merged branches | Branch names, worktree.path | Implementation context, agent memory | NO |
+| `pr-creation` (routing) | PR creation authorized | Branch name, compare URL, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pr-creation/enforcement-gate` | PR creation enforcement checks | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pr-creation/squash-push` | Squash and push before PR | Branch name, worktree.path | Implementation context, agent memory | NO |
+| `pr-creation/create-pr` | Create the pull request | Branch name, PR body, github.owner, github.repo | Implementation context, agent memory | NO |
+| `review-prep` (routing) | Implementation complete, review prep needed | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `review-prep/push-and-cleanup` | Push branch and cleanup | Branch name, worktree.path | Implementation context, agent memory | NO |
+| `review-prep/report-url` | Generate compare/PR URL | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `provenance` (routing) | Provenance tracking needed | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `provenance/platform-detection` | Detect platform for provenance | Platform detection context | Implementation context, agent memory | NO |
+| `provenance/dev-push-provenance` | Dev push provenance | Branch name, commit info, github.owner, github.repo | Implementation context, agent memory | NO |
+| `provenance/promotion-provenance` | Release promotion provenance | Branch name, commit info, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pre-work` | Implementation dispatch chain starts | Spec issue number, worktree.path, github.owner, github.repo | Implementation context, agent memory | NO |
+| `release-promotion` | Release PR creation (dev → main) | Branch info, github.owner, github.repo | Implementation context, agent memory | NO |
+| `rebase-pending` | Rebase pending changes | Branch name, worktree.path | Implementation context, agent memory | NO |
+| `implementation` | Implementation dispatch | Branch name, spec file paths | Implementation context, agent memory | NO |
+| `pair-pre-work` | Pair mode pre-work | Branch name, worktree.path | Implementation context, agent memory | NO |
+| `pair-commit` | Pair mode commit | Branch name, file paths | Implementation context, agent memory | NO |
+| `pair-pr-creation` | Pair mode PR creation | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pair-cleanup` | Pair mode cleanup | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pair-mode-resume` | Pair mode resume | Branch name, worktree.path | Implementation context, agent memory | NO |
+| `completion` | Workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+| `check-pr` | Check PR state for merged/closed | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
+
 ### Result Contracts (Sub-Agent Tasks)
 
 #### pre-work
