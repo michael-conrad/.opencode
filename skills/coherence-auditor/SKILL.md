@@ -155,3 +155,139 @@ GitHub Issue #316: Guidelines Audit: Extract Complex Workflows to Skills
 | After guideline update | maintenance |
 | After skill creation | maintenance |
 | Before major release | maintenance |
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-26T00:00:00Z"
+rules:
+  - id: coherence-auditor-001
+    title: "Extraction scan requires valid guidelines directory"
+    conditions:
+      all:
+        - "guidelines_available == true"
+    actions:
+      - PROCEED
+    conflicts_with: []
+    requires: []
+    triggers: [skill-creator]
+    source: "coherence-auditor/SKILL.md"
+
+  - id: coherence-auditor-002
+    title: "Maintenance drift detection requires baseline"
+    conditions:
+      all:
+        - "guidelines_changed == true"
+        - "baseline_available == true"
+    actions:
+      - INVOKE(maintenance-detect)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "coherence-auditor/SKILL.md"
+
+tasks:
+  - id: extract-scan
+    skill: coherence-auditor
+    preconditions: ["guidelines_available == true"]
+    postconditions: ["extraction_complete == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping extraction scan"
+    source: "coherence-auditor/SKILL.md"
+
+  - id: extract-analyze
+    skill: coherence-auditor
+    preconditions: ["extraction_complete == true"]
+    postconditions: ["analysis_complete == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping extraction analysis"
+    source: "coherence-auditor/SKILL.md"
+
+  - id: maintenance-detect
+    skill: coherence-auditor
+    preconditions: ["guidelines_changed == true"]
+    postconditions: ["drift_detected == true OR no_drift == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping drift detection"
+    source: "coherence-auditor/SKILL.md"
+
+  - id: maintenance-verify
+    skill: coherence-auditor
+    preconditions: ["drift_detected == true"]
+    postconditions: ["drift_verified == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping drift verification"
+    source: "coherence-auditor/SKILL.md"
+
+  - id: create-report
+    skill: coherence-auditor
+    preconditions: ["any_state"]
+    postconditions: ["report_produced == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping report generation"
+    source: "coherence-auditor/SKILL.md"
+
+decomposition:
+  - type: skill-task
+    skill: spec-auditor
+    task: ground-truth
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Ground-Truth Verification"
+    purpose: "Adversarial verification of drift findings against actual skill content"
+
+  - type: skill-task
+    skill: skill-creator
+    task: validate-skill
+    mandatory: true
+    bypass_violation: "WARNING: Skipping skill card validation"
+    purpose: "Validate candidate skills meet structural requirements"
+
+gates:
+  - id: guidelines-available
+    condition: "guidelines_available == true"
+    on_fail: "HALT"
+    critical_violation: true
+
+  - id: drift-genuine
+    condition: "drift_verified == true"
+    on_fail: "RECLASSIFY_AS_FALSE_POSITIVE"
+    critical_violation: false
+
+evidence_artifacts:
+  - name: drift_findings_table
+    type: structured_table
+    verification: "Each drift finding has pattern, location, severity, recommendation"
+
+  - name: cross_reference_verification
+    type: tool_call_artifact
+    verification: "Each cross-reference verified against actual skill content"
+
+state_machines:
+  - id: coherence-audit-session
+    states: [idle, scanning, analyzing, detecting, verifying, reporting, complete]
+    start_state: idle
+    transitions:
+      - from: idle
+        to: scanning
+        guard: "mode_selected == true"
+        action: INVOKE(extract-scan OR maintenance-detect)
+      - from: scanning
+        to: analyzing
+        guard: "scan_complete == true"
+        action: INVOKE(extract-analyze)
+      - from: analyzing
+        to: detecting
+        guard: "analysis_complete == true AND mode == 'maintenance'"
+        action: INVOKE(maintenance-detect)
+      - from: detecting
+        to: verifying
+        guard: "drift_detected == true"
+        action: INVOKE(maintenance-verify)
+      - from: verifying
+        to: reporting
+        guard: "verification_complete == true"
+        action: INVOKE(create-report)
+      - from: reporting
+        to: complete
+        guard: "report_produced == true"
+        action: PROCEED
+```

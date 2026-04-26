@@ -194,3 +194,138 @@ Action: [auto-fix|conditional|flag-for-review]
 - Related guidelines: `065-verification-honesty.md` (metadata verification extension)
 
 Co-authored with AI: <AgentName> (<ModelId>)
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-26T00:00:00Z"
+rules:
+  - id: plan-fidelity-001
+    title: "Clean-room input must not contain existing plan details"
+    conditions:
+      all:
+        - "clean_room_input_leaks_plan == true"
+    actions:
+      - REGENERATE_INPUT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "plan-fidelity-auditor/SKILL.md §Clean-Room Input Isolation"
+
+  - id: plan-fidelity-002
+    title: "Significant gaps must recommend brainstorming"
+    conditions:
+      all:
+        - "gap_severity == 'HIGH'"
+        - "gap_type == 'fundamental_misunderstanding'"
+    actions:
+      - RECOMMEND_BRAINSTORMING
+    conflicts_with: []
+    requires: []
+    triggers: [brainstorming]
+    source: "plan-fidelity-auditor/SKILL.md"
+
+tasks:
+  - id: audit
+    skill: plan-fidelity-auditor
+    preconditions: ["spec_and_plan_available == true"]
+    postconditions: ["fidelity_audit_complete == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Plan Fidelity Audit"
+    source: "plan-fidelity-auditor/SKILL.md"
+
+  - id: compare
+    skill: plan-fidelity-auditor
+    preconditions: ["clean_room_generated == true"]
+    postconditions: ["comparison_complete == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Clean-Room Comparison"
+    source: "plan-fidelity-auditor/SKILL.md"
+
+  - id: report
+    skill: plan-fidelity-auditor
+    preconditions: ["comparison_complete == true"]
+    postconditions: ["report_produced == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Fidelity Report"
+    source: "plan-fidelity-auditor/SKILL.md"
+
+  - id: sub-issue-fidelity
+    skill: plan-fidelity-auditor
+    preconditions: ["plan_has_sub_issues == true"]
+    postconditions: ["sub_issue_fidelity_checked == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Sub-Issue Fidelity Check"
+    source: "plan-fidelity-auditor/SKILL.md"
+
+decomposition:
+  - type: skill-task
+    skill: spec-auditor
+    task: ground-truth
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Ground-Truth Verification"
+    purpose: "Adversarial verification of code references and metadata claims"
+
+  - type: skill-task
+    skill: writing-plans
+    task: clean-room
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Clean-Room Generation"
+    purpose: "Generate clean-room plan from spec for comparison"
+
+  - type: skill-task
+    skill: brainstorming
+    task: explore
+    mandatory: false
+    bypass_violation: "WARNING: Skipping brainstorming recommendation for significant gaps"
+    purpose: "Deeper exploration recommended for fundamental gaps"
+
+gates:
+  - id: clean-room-isolation
+    condition: "clean_room_input_excludes_plan == true"
+    on_fail: "REGENERATE"
+    critical_violation: true
+
+  - id: semantic-matching-before-report
+    condition: "semantic_matching_performed == true"
+    on_fail: "PERFORM_MATCHING"
+    critical_violation: false
+
+evidence_artifacts:
+  - name: clean_room_input
+    type: file
+    verification: "./tmp/clean-room-input-N.md exists and excludes plan details"
+
+  - name: comparison_findings
+    type: structured_table
+    verification: "Each finding has level (phase/step/content), description, recommendation"
+
+  - name: sub_issue_alignment
+    type: structured_table
+    verification: "Each sub-issue checked against plan phase content"
+
+state_machines:
+  - id: fidelity-audit
+    states: [idle, extracting, generating, comparing, reporting, complete]
+    start_state: idle
+    transitions:
+      - from: idle
+        to: extracting
+        guard: "spec_available == true"
+        action: EXTRACT_PROBLEM_STATEMENT
+      - from: extracting
+        to: generating
+        guard: "input_isolated == true"
+        action: INVOKE(writing-plans/clean-room)
+      - from: generating
+        to: comparing
+        guard: "clean_room_generated == true"
+        action: INVOKE(compare)
+      - from: comparing
+        to: reporting
+        guard: "comparison_complete == true"
+        action: INVOKE(report)
+      - from: reporting
+        to: complete
+        guard: "report_produced == true"
+        action: PROCEED
+```
