@@ -379,6 +379,18 @@ For URLs to resources that **haven't been created yet** (Compare URL before push
 
 **Programmatic enforcement**: The `session-enforcement.ts` plugin validates the agent's identity echo against injected expected values. If the agent's first response does not contain a matching identity echo, an `IDENTITY_VALIDATION_FAILURE` block is injected into the next user message, forcing the agent to HALT. This gate prevents operations with incorrect owner/repo values.
 
+## Critical Violation: Wrong API Routing for Submodule/Sub-folder Repos
+
+**⚠️ Filing issues, PRs, or API calls against the parent repo when the target files belong to a submodule or sub-folder repo is a CRITICAL GUIDELINE VIOLATION.**
+
+**See `060-tool-usage.md` §9 "Identity Source Semantics" for the session context routing rules. See `approval-gate` skill → "Submodule Detection & Routing" for the complete submodule routing table.** **AUTHORITY: `060-tool-usage.md` §9** (this line is a reference only)
+
+- 🚫 FORBIDDEN: Using parent repo `owner/repo` for issues targeting files in a submodule or sub-folder repo
+- 🚫 FORBIDDEN: Asking the developer which repo to file against — the agent resolves this autonomously
+- 🚫 FORBIDDEN: Routing `github_issue_write` calls to the parent repo when target files are in a submodule
+- ✅ REQUIRED: Detect sub-folder repos by checking for `.git` directories; resolve the correct remote via `git remote -v`; use the sub-folder's `owner/repo` for API calls
+- ✅ REQUIRED: State the classification as part of the design (e.g., "Filing against opencode-config because .opencode/ is a separate repo")
+
 ## Critical Violation: Missing AI Co-Authored Attribution
 
 **⚠️ Failing to include AI co-authored attribution is a CRITICAL GUIDELINE VIOLATION.** Applies to original AI-authored content, NOT copy-pasted content.
@@ -857,6 +869,17 @@ Git remote and configuration mutations can silently redirect pushes, disable sec
 ### `--no-verify` Exception for Local-Only Repos
 
 `git commit --no-verify` and `git push --no-verify` are FORBIDDEN in repos with remotes, but PERMITTED in local-only repos (zero remotes). The agent MUST check `git remote -v` before using `--no-verify` and HALT if remotes exist.
+
+### Hook Output Is Advisory, Not Absolute
+
+**Hook output is advisory, not absolute.** When a git hook blocks an operation, the agent MUST evaluate whether a documented exception applies before treating the block as final. The `--no-verify` local-only exception is a documented override that takes precedence over branch protection hooks in zero-remote repos. When `git remote -v` returns zero remotes, the agent MUST use `--no-verify` and MUST NOT report the hook block as an unresolvable problem.
+
+- 🚫 FORBIDDEN: Treating hook output as an absolute block without evaluating documented exceptions
+- 🚫 FORBIDDEN: Reporting hook blocks as unresolvable problems when a documented exception applies
+- 🚫 FORBIDDEN: Suggesting unnecessary feature branches in local-only repos when --no-verify is permitted
+- ✅ REQUIRED: Evaluate documented exceptions before treating hook blocks as final
+- ✅ REQUIRED: Use `git commit --no-verify` in zero-remote repos when branch protection hooks fire
+- ✅ REQUIRED: State the local-only exception classification as part of the decision, not as a question to the developer
 
 ### Allowlist (No Authorization Needed)
 
@@ -1378,7 +1401,24 @@ The orchestrator is a pure router. It dispatches sub-agents and collects result 
 | Sub-agent performs analysis + writing + verification in one dispatch | Decompose into 3 dispatches (analyze, write, verify) |
 | Verifier receives producer's reasoning or drafts | Verifier gets only deliverable + SC list |
 
-**AUTHORITY:** Spec #106 (universal clean-room dispatch)
+### DISPATCH_GATE Checkpoint
+
+Every routing decision in the approval-gate dispatch chain MUST be followed by an explicit DISPATCH_GATE that forces handoff to a sub-agent. The checkpoint consists of:
+
+1. **Confirm next action is dispatch** — verify the routing decision has been made
+2. **Dispatch sub-agent** — invoke `task(subagent_type="general")` with scoped context
+3. **Receive result contract** — collect the structured result (never read the full task file)
+4. **Log dispatch in work state file** — record which sub-agent was dispatched and when
+5. **Proceed based on result contract** — route to next pipeline step based on sub-agent output
+
+The DISPATCH_GATE is a MANDATORY checkpoint after every routing-table read. Loading a SKILL.md routing section and then proceeding to perform the task inline (without dispatching a sub-agent) is equivalent to skipping the gate entirely.
+
+- 🚫 FORBIDDEN: Loading a SKILL.md routing section and then performing the described task inline
+- 🚫 FORBIDDEN: Reading full SKILL.md content (beyond the routing section) in the orchestrator context
+- ✅ REQUIRED: After reading routing metadata, immediately dispatch a sub-agent for execution
+- ✅ REQUIRED: The orchestrator NEVER loads task file content — it only receives result contracts
+
+**AUTHORITY:** Spec #106 (universal clean-room dispatch), Issue #114 (DISPATCH_GATE enforcement)
 
 ## Critical Violation: for_pr Gap-Fill Halt — Asking Developer for Structural Decisions That the Scope Model Resolves
 
@@ -1398,6 +1438,28 @@ The `for_pr` scope explicitly defines: `halt_at = pr_created` with gap-fill acti
 - ✅ REQUIRED: Proceed through the full pipeline to `pr_created` without halting for structural decisions
 
 **AUTHORITY:** Issue #111, `000-critical-rules.md` §Pushing Agent Intelligence Decisions to the User, `010-approval-gate.md` §Authorization Scope Model`
+
+## Critical Violation: Structural Decision Solicitation Under for_pr Scope — Using Question Tool for Classification
+
+**⚠️ Using the `question` tool or any solicitation mechanism to ask the developer about execution order, branch stacking, issue grouping, plan creation, or any structural decision when `for_pr` scope is active is a CRITICAL GUIDELINE VIOLATION.**
+
+The `for_pr` authorization scope explicitly defines gap-fill actions for structural decisions. Using the `question` tool or any similar mechanism to solicit developer input for these decisions is equivalent to requesting re-authorization for decisions the scope model already resolves.
+
+| Prohibited Pattern | Why It Violates |
+| -- | -- |
+| Using `question` tool to ask "Should I proceed with recommended order?" under for_pr scope | Scope resolves execution order autonomously |
+| Using `question` tool to present execution order options under for_pr scope | Scope resolves grouping and stacking |
+| Any solicitation mechanism for structural classification when `halt_at >= pr_created` | for_pr scope auto-fills all structural decisions |
+| Halting at any pipeline stage before `pr_created` for structural decisions | for_pr halt_at explicitly includes PR creation |
+
+- 🚫 FORBIDDEN: Asking "Should I proceed with recommended order?" under for_pr scope
+- 🚫 FORBIDDEN: Using `question` tool for structural classification when `halt_at >= pr_created`
+- 🚫 FORBIDDEN: Presenting execution order options to the developer under for_pr scope
+- 🚫 FORBIDDEN: Halting at any pipeline stage before `pr_created` for structural decisions
+- ✅ REQUIRED: Classify execution order autonomously and state it as part of the design
+- ✅ REQUIRED: Proceed through gap-fill cascade without soliciting structural input
+
+**See `020-go-prohibitions.md` §1.5 for the complete solicitation prohibition including `question` tool. See `010-approval-gate.md` §Authorization Scope Model for the for_pr gap-fill cascade.** **AUTHORITY: `000-critical-rules.md` §for_pr Gap-Fill Halt, Issue #115**
 
 ______________________________________________________________________
 
@@ -1747,6 +1809,21 @@ rules:
     triggers: [git-workflow]
     source: "000-critical-rules.md §Git Configuration and Destructive Command Authorization"
 
+  - id: critical-rules-026a
+    title: "Hook output is advisory — documented exceptions take precedence"
+    conditions:
+      all:
+        - "git_hook_blocked_operation == true"
+        - "documented_exception_applies == true"
+        - "agent_treated_block_as_final == true"
+    actions:
+      - APPLY_EXCEPTION
+      - PROCEED
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §Hook Output Is Advisory, Not Absolute"
+
   - id: critical-rules-027
     title: "Confirmation ≠ authorization"
     conditions:
@@ -1850,4 +1927,46 @@ rules:
     requires: []
     triggers: [divide-and-conquer, verification-before-completion, git-workflow]
     source: "000-critical-rules.md §Inline Work"
+
+  - id: critical-rules-035
+    title: "DISPATCH_GATE checkpoint skipped — loading SKILL.md routing and performing task inline"
+    conditions:
+      all:
+        - "routing_decision_made == true"
+        - "sub_agent_dispatched == false"
+        - "task_performed_inline == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: [critical-rules-034]
+    triggers: [approval-gate, divide-and-conquer]
+    source: "000-critical-rules.md §DISPATCH_GATE Checkpoint"
+
+  - id: critical-rules-036
+    title: "Wrong API routing for submodule/sub-folder repos"
+    conditions:
+      all:
+        - "issue_target_path matches submodule/sub-folder"
+        - "api_repo == parent_repo"
+    actions:
+      - RESOLVE_SUBMODULE_REMOTE
+      - USE_SUBMODULE_OWNER_REPO
+    conflicts_with: []
+    requires: []
+    triggers: [issue-operations]
+    source: "000-critical-rules.md §Wrong API Routing"
+
+  - id: critical-rules-037
+    title: "Structural decision solicitation under for_pr scope"
+    conditions:
+      all:
+        - "authorization_scope == 'for_pr'"
+        - "agent_uses_question_tool_for_structural_decision == true"
+    actions:
+      - HALT
+      - AUTONOMOUS_CLASSIFY
+    conflicts_with: []
+    requires: [approval-gate-010]
+    triggers: [approval-gate]
+    source: "000-critical-rules.md §for_pr Gap-Fill Halt"
 ```

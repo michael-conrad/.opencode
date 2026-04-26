@@ -91,7 +91,7 @@ The verb-prefix parsing table in `approval-gate` skill → Authorization Scope M
 | Accept unambiguous authorization at face value | Treat authorization as needing confirmation |
 | Resolve `for_pr`, `for_plan`, `for_implementation`, `for_spec`, `for_review` autonomously | Ask "is this approved to PR or just to implementation?" |
 
-**See `approval-gate` skill → "Authorization Scope Model" for the complete verb-prefix parsing table. See `000-critical-rules.md` §Pushing Agent Intelligence Decisions for the autonomous resolution mandate.**
+**See `approval-gate` skill → "Authorization Scope Model" for the complete verb-prefix parsing table. See `000-critical-rules.md` §Pushing Agent Intelligence Decisions for the autonomous resolution mandate. See `000-critical-rules.md` → "Structural Decision Solicitation Under for_pr Scope" for the complete enforcement, including the `question` tool prohibition under `for_pr` scope.** **AUTHORITY: `000-critical-rules.md` §Structural Decision Solicitation Under for_pr Scope** (this line is a reference only)
 
 ## 2. Iterative Feedback & Plan Revision
 

@@ -259,6 +259,7 @@ def build_identity_section(
     credential_status: str,
     identity_source: str = "root",
     submod_path: str | None = None,
+    root_dir: str | None = None,
 ) -> str:
     lines = [
         "## Repository Hosting Identity",
@@ -325,7 +326,31 @@ def build_identity_section(
         lines.append(
             "- Do NOT push from the parent repo — there is no remote to push to"
         )
-    elif identity_source == "none":
+
+    root_dir_path = Path(root_dir) if root_dir else Path(".")
+    gitmodules_path = root_dir_path / ".gitmodules"
+    if gitmodules_path.exists():
+        submodule_dirs = get_submodule_dirs()
+        subfolder_mappings: list[str] = []
+        for sm_path in submodule_dirs:
+            sm_remote = run_git(["-C", sm_path, "remote", "get-url", "origin"])
+            if sm_remote:
+                sm_platform = detect_platform(sm_remote)
+                sm_owner, sm_repo = parse_owner_repo(sm_remote, sm_platform)
+                if sm_owner and sm_repo:
+                    subfolder_mappings.append(
+                        f"{sm_path}: {sm_owner}/{sm_repo} ({sm_platform})"
+                    )
+        if subfolder_mappings:
+            lines.append("")
+            lines.append("## Sub-folder Repo Mappings")
+            lines.append(
+                "- Files under these paths belong to separate repos — use these owner/repo values for API calls targeting those paths"
+            )
+            for mapping in subfolder_mappings:
+                lines.append(f"- {mapping}")
+
+    if identity_source == "none":
         lines.append("")
         lines.append("## Local-Only Mode")
         lines.append("- Operating in local-only mode — no git remote configured")
@@ -450,6 +475,7 @@ def main() -> int:
             credential_status,
             identity_source,
             active_submod_path,
+            root_dir,
         )
     )
 

@@ -480,6 +480,22 @@ def build_dev_branch_with_changes_warning(changed_files: list[str]) -> str:
     return "\n".join(lines)
 
 
+def is_local_only_repo() -> bool:
+    remote_output = run_git(["remote", "-v"])
+    if not remote_output or not remote_output.strip():
+        return True
+    return False
+
+
+def build_local_only_repo_directive() -> str:
+    return (
+        "<LOCAL_ONLY_REPO>\n"
+        "Parent repo has zero remotes. The --no-verify exception for local-only repos applies.\n"
+        "git commit --no-verify and git push --no-verify are PERMITTED in this repo.\n"
+        "</LOCAL_ONLY_REPO>"
+    )
+
+
 def main() -> int:
     root_dir = get_root_dir()
     if not root_dir:
@@ -527,6 +543,9 @@ def main() -> int:
     stale_subs = has_stale_submodules()
     if stale_subs:
         sections.append(build_stale_submodule_warning(stale_subs))
+
+    if is_local_only_repo():
+        sections.append(build_local_only_repo_directive())
 
     if len(sections) > 0:
         print("\n\n".join(sections))

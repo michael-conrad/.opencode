@@ -135,40 +135,40 @@ After `verify-authorization` completes successfully (all gates pass), the skill 
 
 ```
 Spec approved (no existing plan)
-  → verify-authorization (all gates pass)
-  → writing-plans --task create (auto-dispatched to create plan issue)
+  → verify-authorization (all gates pass) [DISPATCH_GATE]
+  → writing-plans --task create (auto-dispatched to create plan issue) [DISPATCH_GATE]
   → Plan retains needs-approval label (requires separate plan approval)
 
 Spec approved (existing plan found)
-  → verify-authorization (all gates pass)
-  → Step 5b: cascade approval to existing plan (remove needs-approval, add comment)
-  → Plan is now approved → skip to plan-approved dispatch path
-  → sub-issue verification (Step 5 of verify-authorization, if multi-phase)
-  → pre-implementation-analysis → divide-and-conquer/assemble-work → ...
+  → verify-authorization (all gates pass) [DISPATCH_GATE]
+  → Step 5b: cascade approval to existing plan (remove needs-approval, add comment) [DISPATCH_GATE]
+  → Plan is now approved → skip to plan-approved dispatch path [DISPATCH_GATE]
+  → sub-issue verification (Step 5 of verify-authorization, if multi-phase) [DISPATCH_GATE]
+  → pre-implementation-analysis [DISPATCH_GATE] → divide-and-conquer/assemble-work [DISPATCH_GATE] → ...
 
 Plan approved
-  → verify-authorization (all gates pass)
-  → git-workflow --task pre-work (MANDATORY: worktree creation and environment setup)
-  → sub-issue verification (Step 5 of verify-authorization, if multi-phase)
-  → pre-implementation-analysis (expand sub-issues, classify, build flat item list)
-  → divide-and-conquer/assemble-work (dispatch sub-agents, squash-merge into work branch)
-   → verification-before-completion (VERIFY: SC results exist)
-   → finishing-a-development-branch --task checklist (VERIFY: all items checked)
-   → git-workflow --task review-prep (VERIFY: compare URL generated)
+  → verify-authorization (all gates pass) [DISPATCH_GATE]
+  → git-workflow --task pre-work (MANDATORY: worktree creation and environment setup) [DISPATCH_GATE]
+  → sub-issue verification (Step 5 of verify-authorization, if multi-phase) [DISPATCH_GATE]
+  → pre-implementation-analysis (expand sub-issues, classify, build flat item list) [DISPATCH_GATE]
+  → divide-and-conquer/assemble-work (dispatch sub-agents, squash-merge into work branch) [DISPATCH_GATE]
+   → verification-before-completion (VERIFY: SC results exist) [DISPATCH_GATE]
+   → finishing-a-development-branch --task checklist (VERIFY: all items checked) [DISPATCH_GATE]
+   → git-workflow --task review-prep (VERIFY: compare URL generated) [DISPATCH_GATE]
 
 Clearly simple work (Tier 2 waiver)
-  → git-workflow --task pre-work (MANDATORY: worktree creation)
+  → git-workflow --task pre-work (MANDATORY: worktree creation) [DISPATCH_GATE]
   → Direct implementation in worktree (no sub-agent dispatch for single-file changes)
-  → verification-before-completion (simplified for docs/config)
-  → finishing-a-development-branch --task checklist
-  → git-workflow --task review-prep
+  → verification-before-completion (simplified for docs/config) [DISPATCH_GATE]
+  → finishing-a-development-branch --task checklist [DISPATCH_GATE]
+  → git-workflow --task review-prep [DISPATCH_GATE]
   → HALT (compare URL output)
 
   **Classification check:** Before using this dispatch path, verify work meets ALL "clearly simple" criteria per `000-critical-rules.md` → "Simple Work Dispatch Path (Tier 2 Waiver)" → "Classification: Clearly Simple Work" table. If ANY criterion fails, use the full dispatch chain instead.
 
 Already implemented
-  → verify-authorization (all gates pass)
-  → verify-already-implemented (detects implementation)
+  → verify-authorization (all gates pass) [DISPATCH_GATE]
+  → verify-already-implemented (detects implementation) [DISPATCH_GATE]
   → Auto-close (no dispatch)
 ```
 
