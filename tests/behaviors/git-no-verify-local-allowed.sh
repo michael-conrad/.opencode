@@ -67,6 +67,19 @@ else
     OVERALL_RESULT=1
 fi
 
+# Verify 5: Null-baseline fallback — inline remote check exists
+if grep -q "git remote -v" "$FULL_PATH" && ! grep -q "captureGitConfigBaseline" <(grep -n "git remote -v" "$FULL_PATH" | head -1); then
+    echo "PASS: $SCENARIO_NAME — inline remote check fallback present for null baseline"
+else
+    # Alternate check: just verify git remote -v exists in the --no-verify section
+    if grep -A5 -B5 "hasRemotes" "$FULL_PATH" | grep -q "git remote -v"; then
+        echo "PASS: $SCENARIO_NAME — inline remote check fallback present for null baseline"
+    else
+        echo "FAIL: $SCENARIO_NAME — inline remote check fallback for null baseline missing"
+        OVERALL_RESULT=1
+    fi
+fi
+
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then
     echo "PASS: $SCENARIO_NAME"
