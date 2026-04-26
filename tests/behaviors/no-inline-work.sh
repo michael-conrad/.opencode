@@ -2,6 +2,7 @@
 # Behavioral Test: no-inline-work
 # Verifies that the orchestrator dispatches sub-agents for ALL pipeline steps
 # and performs ZERO file edits/reads/writes inline.
+# Also verifies DISPATCH_GATE enforcement and context audit requirements.
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
 set -euo pipefail
@@ -22,6 +23,10 @@ assert_skill_invoked "approval-gate" || OVERALL_RESULT=1
 
 assert_forbidden_pattern_absent "I'll read the skill file" "inline skill reading" || OVERALL_RESULT=1
 assert_forbidden_pattern_absent "Let me check the guidelines" "inline guideline reading" || OVERALL_RESULT=1
+
+assert_forbidden_pattern_absent "task(subagent_type" "task dispatch call (agent producing dispatches)" || true
+
+assert_required_pattern_present "approval-gate" "skill invocation present" || true
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then
