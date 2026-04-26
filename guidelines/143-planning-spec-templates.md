@@ -145,3 +145,59 @@ See `144-planning-spec-examples.md` for a standard guideline update example with
 ______________________________________________________________________
 
 *Source: Migrated from rigid templates to intent-driven prose per spec #821*
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: spec-templates-001
+    title: "Specs must be self-contained — no external references"
+    conditions:
+      any:
+        - "spec_contains == 'as discussed above'"
+        - "spec_contains == 'see previous comment'"
+        - "spec_contains == 'as mentioned in chat'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [spec-creation]
+    source: "143-planning-spec-templates.md §Self-Containment Rules"
+
+  - id: spec-templates-002
+    title: "File paths must use stable anchors not line numbers"
+    conditions:
+      all:
+        - "spec_contains_line_number_reference == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [spec-creation]
+    source: "143-planning-spec-templates.md §Self-Containment Rules"
+
+  - id: spec-templates-003
+    title: "Related issues must include summaries not bare links"
+    conditions:
+      all:
+        - "spec_contains_bare_link == true"
+        - "link_has_context_summary == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [spec-creation]
+    source: "143-planning-spec-templates.md §Self-Containment Rules"
+
+  - id: spec-templates-004
+    title: "Single-task specs exempt from sub-issue requirement"
+    conditions:
+      all:
+        - "spec_task_count == 1"
+    actions:
+      - PROCEED
+    conflicts_with: []
+    requires: []
+    triggers: [issue-operations]
+    source: "143-planning-spec-templates.md §Sub-issue Structure"
+```
