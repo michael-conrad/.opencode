@@ -276,7 +276,9 @@ def build_identity_section(
     if identity_source == "submodule":
         remote_display = "(none)"
         if submod_path:
-            remote_display = f"(none) [submodule: {submod_path} -> {platform}:{owner}/{repo}]"
+            remote_display = (
+                f"(none) [submodule: {submod_path} -> {platform}:{owner}/{repo}]"
+            )
         else:
             remote_display = f"(none) [submodule: {platform}:{owner}/{repo}]"
         lines.append(f"- Remote: {remote_display}")
@@ -306,13 +308,23 @@ def build_identity_section(
         lines.append("")
         lines.append("## Submodule Routing")
         submod_display = submod_path if submod_path else "(unknown submodule path)"
-        lines.append(f"- Operating in submodule-local mode — parent repo has 0 remote(s)")
-        lines.append(f"- github.identity_source: submodule")
-        lines.append(f"- All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory — not the project root")
-        lines.append(f"- The submodule at \"{submod_display}\" is the only path to the remote repository")
-        lines.append(f"- Local git operations (branch, commit, stash, checkout) work on the parent repo normally")
-        lines.append(f"- Do NOT add remotes to the parent repo")
-        lines.append(f"- Do NOT push from the parent repo — there is no remote to push to")
+        lines.append(
+            "- Operating in submodule-local mode — parent repo has 0 remote(s)"
+        )
+        lines.append("- github.identity_source: submodule")
+        lines.append(
+            "- All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory — not the project root"
+        )
+        lines.append(
+            f'- The submodule at "{submod_display}" is the only path to the remote repository'
+        )
+        lines.append(
+            "- Local git operations (branch, commit, stash, checkout) work on the parent repo normally"
+        )
+        lines.append("- Do NOT add remotes to the parent repo")
+        lines.append(
+            "- Do NOT push from the parent repo — there is no remote to push to"
+        )
     elif identity_source == "none":
         lines.append("")
         lines.append("## Local-Only Mode")
@@ -322,8 +334,12 @@ def build_identity_section(
         lines.append("- github.repo: (none)")
         lines.append("- github.identity_source: none")
         lines.append("- No remote exists anywhere in this repository or its submodules")
-        lines.append("- All remote git operations (fetch, pull, push) will fail. No GitHub or GitBucket API calls are possible")
-        lines.append("- Local git operations (branch, commit, stash, checkout) work normally")
+        lines.append(
+            "- All remote git operations (fetch, pull, push) will fail. No GitHub or GitBucket API calls are possible"
+        )
+        lines.append(
+            "- Local git operations (branch, commit, stash, checkout) work normally"
+        )
         lines.append("- Do NOT add remotes")
 
     return "\n".join(lines)
