@@ -14,7 +14,7 @@ Example: ./.opencode/tools/skildeck exhaustive --json
 Example: ./.opencode/tools/skildeck enforcement --verbose
 Example: ./.opencode/tools/skildeck verify-structure --spec .opencode/guidelines/000-critical-rules.md --files .opencode/skills/approval-gate/SKILL.md
 Example: ./.opencode/tools/skildeck verify-acceptance --spec .opencode/tmp/spec.md
-Example: ./.opencode/tools/skildeck verify-issue --issue 91
+Example: ./.opencode/tools/skildeck verify-issue --issue 91 --body "issue body from github_issue_read"
 """
 
 from __future__ import annotations

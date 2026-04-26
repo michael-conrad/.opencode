@@ -4,9 +4,9 @@
 # dependencies = ["pyyaml>=6.0"]
 # ///
 """
-DESCRIPTION: Combined extraction: fetch issue body via GitHub API, extract structural requirements + acceptance criteria. Outputs PR merge status (context only) + structural + acceptance classification tables. Agent verifies substance with live tool calls.
-Usage: ./.opencode/tools/skildeck verify-issue --issue N [--json]
-       ./.opencode/tools/skildeck verify-issue --issues 41,42,43,45 [--json]
+DESCRIPTION: Extract structural requirements + acceptance criteria from GitHub issue body. Agent fetches body via GitHub MCP (github_issue_read) and passes it via --body or --body-file. Tool extracts and classifies; agent verifies substance with live reads.
+Usage: ./.opencode/tools/skildeck verify-issue --issue N --body "issue body text" [--pr-status "MERGED: 2026-01-01"] [--title "Issue title"] [--json]
+       ./.opencode/tools/skildeck verify-issue --issues 41,42,43,45 --body-file ./tmp/issue-41.md [--json]
 """
 
 from __future__ import annotations
@@ -24,8 +24,6 @@ CDUP = subprocess.check_output(
     ["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True
 ).strip()
 BASE_DIR = (IMPL_DIR / CDUP).resolve()
-
-FENCE_PATTERN = re.compile(r"```yaml\+symbolic\n(.*?)```", re.DOTALL)
 
 SC_PREFIX_PATTERN = re.compile(r"^- \*\*SC-\d+:\*\*\s+(.+)$", re.MULTILINE)
 SC_PREFIX_PATTERN_ALT = re.compile(r"^- SC-\d+:\s+(.+)$", re.MULTILINE)
@@ -56,66 +54,6 @@ class IssueVerificationReport:
 
     def to_dict(self) -> dict:
         return asdict(self)
-
-
-def _fetch_issue(issue_number: int) -> dict | None:
-    try:
-        result = subprocess.run(
-            [
-                "gh",
-                "issue",
-                "view",
-                str(issue_number),
-                "--json",
-                "number,title,body,state",
-            ],
-            capture_output=True,
-            text=True,
-            timeout=30,
-            env={**_os.environ, "GH_PROMPT_DISABLED": "1"},
-        )
-        if result.returncode == 0 and result.stdout:
-            return json.loads(result.stdout)
-    except Exception:
-        pass
-    return None
-
-
-def _search_prs_for_issue(issue_number: int) -> tuple[str, str]:
-    try:
-        result = subprocess.run(
-            [
-                "gh",
-                "pr",
-                "list",
-                "--search",
-                f"#{issue_number}",
-                "--state",
-                "merged",
-                "--json",
-                "number,title,url,mergedAt",
-                "--limit",
-                "1",
-            ],
-            capture_output=True,
-            text=True,
-            timeout=30,
-            env={**_os.environ, "GH_PROMPT_DISABLED": "1"},
-        )
-        if result.returncode == 0 and result.stdout:
-            data = json.loads(result.stdout)
-            if data:
-                pr = data[0]
-                merged_at = pr.get("mergedAt", "")
-                return (
-                    f"MERGED: {merged_at}"
-                    if merged_at
-                    else "MERGED (timestamp unknown)",
-                    pr.get("url", ""),
-                )
-    except Exception:
-        pass
-    return "NO_MERGED_PR_FOUND", ""
 
 
 def _classify_criterion(
@@ -228,22 +166,13 @@ def _extract_criteria(text: str) -> list[tuple[str, str, str]]:
     return criteria
 
 
-def verify_issue(issue_number: int) -> IssueVerificationReport:
-    issue_data = _fetch_issue(issue_number)
-    if not issue_data:
-        return IssueVerificationReport(
-            issue_number=issue_number,
-            issue_title="UNKNOWN",
-            pr_status="FETCH_FAILED",
-            pr_url="",
-            warnings=["Could not fetch issue data from GitHub API"],
-        )
-
-    title = issue_data.get("title", "UNKNOWN")
-    body = issue_data.get("body", "")
-
-    pr_status, pr_url = _search_prs_for_issue(issue_number)
-
+def verify_issue(
+    issue_number: int,
+    body: str,
+    title: str = "UNKNOWN",
+    pr_status: str = "NOT_PROVIDED",
+    pr_url: str = "",
+) -> IssueVerificationReport:
     report = IssueVerificationReport(
         issue_number=issue_number,
         issue_title=title,
@@ -266,8 +195,55 @@ def verify_issue(issue_number: int) -> IssueVerificationReport:
                     detail=detail,
                 )
             )
+    else:
+        report.warnings.append("No issue body provided - cannot extract criteria")
 
     return report
+
+
+def _print_report(report: IssueVerificationReport, use_json: bool = False) -> None:
+    if use_json:
+        print(json.dumps(report.to_dict(), indent=2))
+    else:
+        print(f"=== Issue #{report.issue_number}: {report.issue_title} ===")
+        print(f"PR Status (context only): {report.pr_status}")
+        if report.pr_url:
+            print(f"PR URL: {report.pr_url}")
+        print()
+
+        if report.acceptance_criteria:
+            print("--- Acceptance Criteria Classification ---")
+            print(
+                f"{'ID':<10} {'Classification':<22} {'Suggested Verification':<22} {'Criterion'}"
+            )
+            print("-" * 140)
+            for c in report.acceptance_criteria:
+                text_preview = c.text[:60] + "..." if len(c.text) > 60 else c.text
+                print(
+                    f"{c.criterion_id:<10} {c.classification:<22} {c.suggested_verification:<22} {text_preview}"
+                )
+            print()
+            print(f"Total: {len(report.acceptance_criteria)}")
+            for cls in ("verifiable", "semantic-content", "narrative"):
+                count = len(
+                    [
+                        c
+                        for c in report.acceptance_criteria
+                        if c.classification == cls
+                    ]
+                )
+                print(f"  {cls}: {count}")
+        else:
+            print("--- No acceptance criteria extracted ---")
+
+        print()
+        print("PR status is CONTEXT ONLY, NOT evidence.")
+        print("Agent MUST verify each acceptance criterion with live tool calls.")
+
+    if report.warnings:
+        print(f"\nWarnings ({len(report.warnings)}):")
+        for w in report.warnings:
+            print(f"  {w}")
 
 
 def main() -> None:
@@ -281,16 +257,35 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Combined extraction: issue -> acceptance criteria + PR metadata."
+        description="Extract acceptance criteria from issue body. Agent provides body via --body or --body-file (fetched via GitHub MCP github_issue_read)."
     )
     parser.add_argument("--issue", type=int, default=0, help="Single issue number")
     parser.add_argument(
         "--issues", type=str, default="", help="Comma-separated issue numbers"
     )
+    body_group = parser.add_mutually_exclusive_group(required=True)
+    body_group.add_argument(
+        "--body", type=str, default="", help="Issue body text (from github_issue_read)"
+    )
+    body_group.add_argument(
+        "--body-file", type=str, default="", help="Path to file containing issue body"
+    )
+    parser.add_argument(
+        "--title", type=str, default="UNKNOWN", help="Issue title (from github_issue_read)"
+    )
+    parser.add_argument(
+        "--pr-status",
+        type=str,
+        default="NOT_PROVIDED",
+        help="PR merge status context (from github_search_pull_requests)",
+    )
+    parser.add_argument(
+        "--pr-url", type=str, default="", help="PR URL (from github_search_pull_requests)"
+    )
     parser.add_argument("--json", action="store_true", help="Output as JSON")
     args = parser.parse_args()
 
-    issue_numbers = []
+    issue_numbers: list[int] = []
     if args.issue > 0:
         issue_numbers.append(args.issue)
     if args.issues:
@@ -309,56 +304,27 @@ def main() -> None:
         print("Error: --issue or --issues required", file=sys.stderr)
         sys.exit(1)
 
-    all_reports = []
+    body_text = args.body
+    if args.body_file:
+        body_path = Path(args.body_file)
+        if not body_path.exists():
+            print(f"Error: body file not found: {body_path}", file=sys.stderr)
+            sys.exit(1)
+        body_text = body_path.read_text()
+
+    all_reports: list[IssueVerificationReport] = []
     for inum in issue_numbers:
-        report = verify_issue(inum)
+        report = verify_issue(
+            issue_number=inum,
+            body=body_text,
+            title=args.title,
+            pr_status=args.pr_status,
+            pr_url=args.pr_url,
+        )
         all_reports.append(report)
+        _print_report(report, use_json=args.json)
 
-        if args.json:
-            print(json.dumps(report.to_dict(), indent=2))
-        else:
-            print(f"=== Issue #{report.issue_number}: {report.issue_title} ===")
-            print(f"PR Status (context only): {report.pr_status}")
-            if report.pr_url:
-                print(f"PR URL: {report.pr_url}")
-            print()
-
-            if report.acceptance_criteria:
-                print("--- Acceptance Criteria Classification ---")
-                print(
-                    f"{'ID':<10} {'Classification':<22} {'Suggested Verification':<22} {'Criterion'}"
-                )
-                print("-" * 140)
-                for c in report.acceptance_criteria:
-                    text_preview = c.text[:60] + "..." if len(c.text) > 60 else c.text
-                    print(
-                        f"{c.criterion_id:<10} {c.classification:<22} {c.suggested_verification:<22} {text_preview}"
-                    )
-                print()
-                print(f"Total: {len(report.acceptance_criteria)}")
-                for cls in ("verifiable", "semantic-content", "narrative"):
-                    count = len(
-                        [
-                            c
-                            for c in report.acceptance_criteria
-                            if c.classification == cls
-                        ]
-                    )
-                    print(f"  {cls}: {count}")
-            else:
-                print("--- No acceptance criteria extracted ---")
-
-            print("\n⚠️  PR status is CONTEXT ONLY, NOT evidence.")
-            print("Agent MUST verify each acceptance criterion with live tool calls.")
-
-        if report.warnings:
-            print(f"\nWarnings ({len(report.warnings)}):")
-            for w in report.warnings:
-                print(f"  ⚠ {w}")
-
-    fetch_failed = sum(1 for r in all_reports if r.pr_status == "FETCH_FAILED")
-
-    if fetch_failed > 0:
+    if any(r.warnings for r in all_reports):
         sys.exit(1)
 
 
