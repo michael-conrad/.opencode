@@ -104,3 +104,106 @@ When the authorization qualifies as "clearly simple work" (per `000-critical-rul
 - **Related guidelines:** `000-critical-rules.md` (worktree bypass violation), `060-tool-usage.md` (path rules)
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: worktree-001
+    title: "Worktree MUST be created before file modification when WORKTREE_REQUIRED is set"
+    conditions:
+      all:
+        - "WORKTREE_REQUIRED == true"
+        - "worktree_created == false"
+        - "file_modification_attempted == true"
+    actions:
+      - HALT
+      - INVOKE(create-worktree)
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow, divide-and-conquer]
+    source: "using-git-worktrees/SKILL.md §Operating Protocol"
+
+  - id: worktree-002
+    title: "If worktree.fatal=1 appears, HALT immediately and report"
+    conditions:
+      all:
+        - "worktree_fatal == 1"
+    actions:
+      - HALT
+      - REPORT("worktree fatal error — flag developer")
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "using-git-worktrees/SKILL.md §Operating Protocol"
+
+  - id: worktree-003
+    title: "If worktree.path is empty after creation, HALT — fatal error"
+    conditions:
+      all:
+        - "WORKTREE_REQUIRED == true"
+        - "worktree_path_empty == true"
+    actions:
+      - HALT
+      - REPORT("worktree.path empty after creation — fatal")
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "using-git-worktrees/SKILL.md §Operating Protocol"
+
+  - id: worktree-004
+    title: "Stash+checkout in main repo is FORBIDDEN when worktree mode active"
+    conditions:
+      all:
+        - "WORKTREE_REQUIRED == true"
+        - "stash_checkout_attempted == true"
+    actions:
+      - HALT
+      - REPORT("worktree bypass — use .worktrees/ directory")
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "using-git-worktrees/SKILL.md §Operating Protocol"
+
+tasks:
+  - id: create-worktree
+    skill: using-git-worktrees
+    preconditions:
+      - "WORKTREE_REQUIRED == true"
+      - "feature_branch_named == true"
+    postconditions:
+      - "worktree_path_exported == true"
+      - "branch_created == true"
+      - "clean_baseline_verified == true"
+    mandatory: true
+    bypass_violation: "file modification without worktree when WORKTREE_REQUIRED"
+    source: "using-git-worktrees/SKILL.md §Tasks"
+
+  - id: tool-usage
+    skill: using-git-worktrees
+    preconditions:
+      - "worktree.path_is_set == true"
+    postconditions:
+      - "all_paths_prefixed_with_worktree_path == true"
+      - "bash_uses_workdir_parameter == true"
+    mandatory: true
+    bypass_violation: "file operations target main repo instead of worktree"
+    source: "using-git-worktrees/SKILL.md §Tasks"
+
+decomposition: []
+gates:
+  - id: worktree-path-gate
+    type: precondition
+    check: "worktree.path is set and non-empty when WORKTREE_REQUIRED"
+    on_fail: HALT
+    source: "using-git-worktrees/SKILL.md §Operating Protocol"
+  - id: toplevel-verification-gate
+    type: postcondition
+    check: "git rev-parse --show-toplevel matches worktree.path"
+    on_fail: HALT
+    source: "using-git-worktrees/SKILL.md §Operating Protocol"
+evidence_artifacts:
+  - "git rev-parse --show-toplevel output"
+  - "git branch --show-current output"
+  - "worktree.path value in dispatch context"
+```
