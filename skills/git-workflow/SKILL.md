@@ -560,6 +560,43 @@ rules:
     requires: []
     triggers: [release-promotion, review-prep]
     source: "git-workflow/SKILL.md Tasks table"
+  - id: git-workflow-url-001
+    title: "Post-creation URLs must be extracted from API response (NEVER constructed)"
+    conditions:
+      all:
+        - "resource_created_by_api == true"
+        - "url_source == template_construction"
+    actions:
+      - HALT
+      - EXTRACT_FROM_API_RESPONSE
+    conflicts_with: []
+    requires: []
+    triggers: [pr-creation, review-prep]
+    source: "git-workflow/SKILL.md §Fabricating URLs"
+  - id: git-workflow-url-002
+    title: "Pre-creation URLs must be constructed from verified session-init values with character-match"
+    conditions:
+      all:
+        - "resource_not_yet_created == true"
+        - "url_construction_needed == true"
+    actions:
+      - CONSTRUCT_FROM_SESSION_INIT
+      - CHARACTER_MATCH_VERIFY
+    conflicts_with: []
+    requires: []
+    triggers: [review-prep]
+    source: "git-workflow/SKILL.md §Fabricating URLs"
+  - id: git-workflow-chat-001
+    title: "Chat output format requires all 4 elements in order"
+    conditions:
+      all:
+        - "halt_point_reached == true"
+    actions:
+      - VERIFY(summary_exists && outcome_exists && url_if_applicable && byline_last)
+    conflicts_with: []
+    requires: []
+    triggers: [review-prep, pr-creation]
+    source: "git-workflow/SKILL.md §Chat Output Format"
 tasks:
   - id: pre-work
     skill: git-workflow
@@ -577,11 +614,21 @@ tasks:
     source: "git-workflow/SKILL.md"
   - id: review-prep
     skill: git-workflow
-    preconditions: ["implementation_complete == true"]
-    postconditions: ["branch_pushed == true && compare_url_generated == true"]
+    preconditions: ["implementation_complete == true", "verification_passed == true", "checklist_passed == true"]
+    postconditions: ["branch_pushed == true", "compare_url_generated == true", "chat_output_format_correct == true"]
     mandatory: true
     bypass_violation: "CRITICAL: Skipping review-prep After Implementation"
     source: "git-workflow/SKILL.md"
+    evidence_artifacts:
+      - gate: url_sourcing_rule_1
+        verification: "pr_url == html_url_from_github_create_pull_request_response"
+        expected: "exact API response match"
+      - gate: url_sourcing_rule_2
+        verification: "compare_url contains github.owner AND github.repo from session-init"
+        expected: "character-for-character match"
+      - gate: chat_output_format
+        verification: "output contains summary, outcome, URL (if applicable), byline in order"
+        expected: "all 4 elements present and correctly ordered"
   - id: pr-creation
     skill: git-workflow
     preconditions: ["compare_url_exists == true && halt_at >= pr_created"]

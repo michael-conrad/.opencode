@@ -218,3 +218,110 @@ Key adaptations for <AgentName>:
 - GitBucket platform support via MCP tools
 - Dispatch table integration for mandatory invocation
 - Structured evidence collection and verification gates
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: verification-before-completion-001
+    title: "No completion claim without evidence"
+    conditions:
+      all:
+        - "agent_claims_complete == true"
+        - "all_sc_have_evidence == false"
+    actions:
+      - HALT
+      - REQUIRE_EVIDENCE
+    conflicts_with: []
+    requires: []
+    triggers: [finishing-a-development-branch]
+    source: "verification-before-completion/SKILL.md §Enforcement Mechanism"
+
+  - id: verification-before-completion-002
+    title: "Per-SC evidence table all PASS required"
+    conditions:
+      all:
+        - "verify_task_executed == true"
+        - "per_sc_evidence_table_all_PASS == false"
+    actions:
+      - HALT
+      - REPORT_FAILING_SC
+    conflicts_with: []
+    requires: []
+    triggers: [finishing-a-development-branch]
+    source: "verification-before-completion/SKILL.md §verify task"
+
+  - id: verification-before-completion-003
+    title: "Evidence must be live-source verified"
+    conditions:
+      all:
+        - "verification_attempted == true"
+        - "evidence_from_memory == true"
+    actions:
+      - HALT
+      - RE_VERIFY_WITH_TOOL_CALL
+    conflicts_with: []
+    requires: []
+    triggers: [spec-auditor]
+    source: "verification-before-completion/SKILL.md §Live Verification"
+
+  - id: verification-before-completion-004
+    title: "Exact comparison mode for external verifications"
+    conditions:
+      all:
+        - "external_verification == true"
+        - "comparison_mode != exact"
+    actions:
+      - SET(comparison_mode=exact)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "verification-before-completion/SKILL.md §Comparison Modes"
+
+tasks:
+  - id: verify
+    skill: verification-before-completion
+    preconditions: ["implementation_complete == true"]
+    postconditions: ["per_sc_evidence_table_all_PASS == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification"
+    source: "verification-before-completion/SKILL.md"
+
+  - id: collect
+    skill: verification-before-completion
+    preconditions: ["some_sc_missing_evidence == true"]
+    postconditions: ["all_sc_have_evidence == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Incomplete Evidence"
+    source: "verification-before-completion/SKILL.md"
+
+  - id: completion
+    skill: verification-before-completion
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "verification-before-completion/SKILL.md"
+
+decomposition:
+  - type: skill-task
+    skill: spec-auditor
+    task: ground-truth
+    mandatory: false
+    bypass_violation: ""
+  - type: command
+    skill: pytest
+    task: test-run
+    mandatory: true
+    bypass_violation: "CRITICAL: Tests Not Run"
+  - type: command
+    skill: ruff
+    task: lint-check
+    mandatory: true
+    bypass_violation: "CRITICAL: Lint Not Run"
+  - type: command
+    skill: pyright
+    task: type-check
+    mandatory: true
+    bypass_violation: "CRITICAL: Type Check Not Run"
+```
