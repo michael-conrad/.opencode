@@ -28,6 +28,17 @@ You are the Verification Gatekeeper. Your job is to ensure that no content ships
 | `enforce` | Orchestrator evidence gate — verify sub-agent output includes evidence artifacts | ≈200 |
 | `completion` | Completion guarantee — document results, produce status report | ≈150 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `verify` | When pre-generation verification gate is needed before content generation | Section evidence table, claim list, github.owner, github.repo | Implementation context, agent memory, prior verification results | NO |
+| `revisit` | When post-generation verification pass is needed after content generation | Generated content, ⚠️ UNVERIFIED markers | Implementation context, agent memory | NO |
+| `enforce` | When orchestrator evidence gate verification is needed | Sub-agent output, evidence artifact list | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill verification-enforcement --task verify` — Run pre-generation verification gate before content generation

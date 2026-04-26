@@ -123,6 +123,14 @@ Violation: Writing code without a spec bypasses the review trail and edge case d
 
 ## Dispatch Order
 
+**Step 0: Orchestrator Purity Gate (MANDATORY)**
+
+Before any dispatch chain step begins, the orchestrator MUST verify that it has NOT performed any inline work. The orchestrator checks its own session log for file operations (`read`, `edit`, `write`, `srclight_*`). If ANY inline file operation exists before a sub-agent dispatch, the orchestrator MUST HALT and report a CRITICAL violation.
+
+- 🚫 FORBIDDEN: Orchestrator performing file reads/edits/writes before dispatching sub-agents
+- 🚫 FORBIDDEN: Orchestrator loading task files or guideline text into its own context for inline execution
+- ✅ REQUIRED: The orchestrator dispatches sub-agents for ALL work; it only routes result contracts
+
 After `verify-authorization` completes successfully (all gates pass), the skill auto-dispatches based on approval context:
 
 ```
@@ -179,6 +187,17 @@ Before proceeding to the next step in the dispatch chain, the agent MUST confirm
 **Skipping any verification gate is a CRITICAL GUIDELINE VIOLATION.** The dispatch order is mandatory, not informational. An agent that proceeds past a gate without confirming the prior step's completion is violating the approval-gate enforcement protocol.
 
 **Evidence requirement (MANDATORY):** Each verification gate in the dispatch chain MUST produce a tool-call artifact confirming the prior step completed. Reading chat history is NOT sufficient — the agent MUST explicitly invoke a verification tool or command and record the output as evidence. The enforcement checkpoint table above specifies what artifacts confirm each step. Proceeding past a gate without producing the corresponding evidence is a CRITICAL GUIDELINE VIOLATION.
+
+**Step 5.4: Universal Clean-Room Dispatch Gate (MANDATORY)**
+
+For every pipeline stage in the dispatch chain:
+1. The orchestrator dispatches a sub-agent with scoped context (issue number + task description)
+2. The sub-agent receives ONLY `must_receive` items, NOTHING from `must_not_receive`
+3. The sub-agent performs ONE discrete step (analysis, writing, or verification — never combined)
+4. The sub-agent returns a compact result contract (≈100-500 words)
+5. The orchestrator logs the dispatch in the work state file
+6. The orchestrator routes the result contract to the next stage's sub-agent dispatch
+7. The orchestrator NEVER loads the result contract into its own context for reasoning — it only routes
 
 **Spec approval dispatches to plan creation, NOT implementation.** The plan then requires its own approval before implementation begins — **unless the cascade applies** (spec approved + existing plan = plan inherits approval). See `verify-authorization.md` Step 5b for cascade conditions.
 
@@ -341,6 +360,42 @@ When `halt_at < pr_created`, no PR is created — the agent halts before reachin
 | `completion` | 769 |
 | `search-prompt-fail` | ≈300 |
 | `verify-schema-api-knowledge` | ≈350 |
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `verify-authorization` | Authorization check before implementation | Issue number, authorization phrase, github.owner, github.repo | Implementation context, agent memory, cached verification results | NO |
+| `verify-authorization/scope-auto-resolve` | Scope resolution from authorization phrase | Authorization phrase, scope parsing table | Implementation context, agent memory | NO |
+| `verify-authorization/item-decomposition-check` | Verify item decomposition in plan | Plan issue number, plan body | Implementation context, other agents' results | NO |
+| `verify-authorization/sc-traceability-check` | Verify SC-to-test traceability | Spec issue number, SC list | Implementation context, other agents' results | NO |
+| `verify-authorization/sub-issue-verification` | Verify sub-issue structure under plan | Plan issue number, plan body, github.owner, github.repo | Implementation context, agent memory, cached verification | NO |
+| `verify-authorization/spec-to-plan-cascade` | Cascade approval from spec to plan | Spec issue number, plan issue number | Implementation context, agent memory | NO |
+| `verify-authorization/gap-fill-cascade` | Gap-fill missing artifacts per scope | Authorization scope, halt_at, gap-fill actions | Implementation context, agent memory | NO |
+| `verify-authorization/auto-dispatch` | Scope-aware auto-dispatch after verification | Authorization scope, halt_at, pr_strategy | Implementation context, agent memory | NO |
+| `verify-qa-mode` | Detect spec-less implementation requests | User request text, github.owner, github.repo | Implementation context, agent memory | NO |
+| `verify-already-implemented` | Check if spec is already implemented | Spec issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `verify-closed-issue` | Verify closed issue has merged PR | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `verify-sub-issues` | Verify sub-issue structure | Parent issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `post-implementation` | Push branch, generate compare URL | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `screen-issue` | Per-issue screening for pre-impl analysis | Issue number, issue body, authorization context, github.owner, github.repo | Implementation context, agent memory, other sub-agents' results | NO |
+| `screen-issue/gate1` | Read issue, screening categories, sub-issue enumeration | Issue number, issue body, authorization context | Implementation context, agent memory, other sub-agents' results | NO |
+| `screen-issue/gate2` | Success criteria verification, cross-reference | Issue number, SC list, github.owner, github.repo | Implementation context, agent memory, other sub-agents' results | NO |
+| `pre-implementation-analysis` | Cross-issue merge, dependency graph, execution plan | Authorization context, issue numbers, github.owner, github.repo | Implementation context, agent memory from prior phases, cached verification | NO |
+| `pre-impl/collect-screening-results` | Collect screening results, gate evidence audit | Screening result contracts, authorization context | Implementation context, agent memory, cached verification | NO |
+| `pre-impl/reconcile-status` | Reconcile issue status inconsistencies | Issue numbers, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pre-impl/build-dependency-graph` | Build dependency graph from cross-issue analysis | Issue numbers, screening results, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pre-impl/check-cross-spec-overlap` | Check overlap with open specs outside batch | Issue numbers, spec titles, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pre-impl/write-work-state` | Write execution strategy and work state file | Dependency graph, execution strategy, dev base hash | Implementation context, agent memory | NO |
+| `pre-impl/yield-to-assemble-work` | Present execution plan, yield to assemble-work | Work state file path, execution plan | Implementation context, agent memory | NO |
+| `verify-fix-spec` | Verify fix spec exists for bug reports | Bug report issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `verify-blockers` | Check for blocking issues/dependencies | Spec issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `verify-codebase` | Re-evaluate codebase state, detect staleness | Spec issue number, file paths, github.owner | Implementation context, agent memory | NO |
+| `verify-open-questions` | Check for unresolved questions in spec | Spec issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `reconcile-issue-graph` | Act on graph traversal findings | Root issue number, traversal findings, github.owner, github.repo | Implementation context, agent memory | NO |
+| `completion` | Ensure mandatory completion steps run | Workflow state, status | Implementation context, agent memory | NO |
+| `search-prompt-fail` | Search for spec/plan candidates before Q/A halt | Search query, github.owner, github.repo | Implementation context, agent memory | NO |
+| `verify-schema-api-knowledge` | Verify live knowledge before structural claims | Claim domain, api/schema/code target | Implementation context, agent memory, cached results | NO |
 
 ### Result Contracts (Sub-Agent Tasks)
 

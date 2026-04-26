@@ -37,6 +37,18 @@ LLM Coherence Auditor ensuring guidelines, skills, and AI agent behavior work to
 - `/skill coherence-auditor --task create-report` — Load specific task
 - `/skill coherence-auditor` — Overview only
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `extract-scan` | When scanning guidelines for skill candidates | Guideline file paths, scan configuration | Implementation context, agent memory | NO |
+| `extract-analyze` | When calculating metrics and ranking candidates | Scan results, metric configuration | Implementation context, agent memory | NO |
+| `maintenance-detect` | When detecting drift from baseline | Guideline file paths, baseline hashes | Implementation context, agent memory | NO |
+| `maintenance-verify` | When verifying guideline-skill references | Guideline file paths, skill file paths | Implementation context, agent memory | NO |
+| `create-report` | When generating and attaching audit report | Audit findings, github.owner, github.repo | Implementation context, agent memory | NO |
+
 ## Operating Protocol
 
 1. **Mandatory invocation (no decision point):** The agent MUST invoke this skill when auditing guideline/skill coherence or when user requests extraction/maintenance audit.

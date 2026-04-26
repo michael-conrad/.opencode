@@ -22,6 +22,15 @@ Workflow for preparing and requesting code reviews. Ensures PR descriptions have
 | `prepare` | Prepare PR for review | ≈400 |
 | `request` | Submit review request | ≈250 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `prepare` | When preparing a PR for review | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `request` | When submitting a review request | PR number, reviewers, github.owner, github.repo | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill requesting-code-review` — Overview only

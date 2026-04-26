@@ -23,6 +23,16 @@ Creating skills IS Test-Driven Development applied to process documentation. Wri
 | `package` | Package skill into distributable zip | ≈150 |
 | `validate` | Agent-driven semantic review of all skill cards (script sensor + intelligent corrections, conflict/ambiguity detection) | ≈100 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `init` | When creating new skill from template | Skill name, output directory, github.owner, github.repo | Implementation context, agent memory | NO |
+| `package` | When packaging skill into distributable zip | Skill folder path, output directory | Implementation context, agent memory | NO |
+| `validate` | When agent-driven semantic review of skill cards is needed | Skill folder paths, validation scope | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill skill-creator` - Overview and skill creation process

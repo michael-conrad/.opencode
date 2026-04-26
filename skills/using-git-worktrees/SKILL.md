@@ -33,6 +33,17 @@ You are a Worktree Setup Specialist. Your focus is creating safe, isolated git w
 | `reference` | Quick reference, common mistakes, fatal errors, integration | ≈450 |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `create-worktree` | When worktree creation is needed before implementation | Branch name, worktree.path, github.owner, github.repo | Implementation context, agent memory, cached verification | NO |
+| `tool-usage` | When file operation compliance rules are needed | Worktree.path, file operation context | Implementation context, agent memory | NO |
+| `reference` | When quick reference for worktree operations is needed | Worktree.path, branch name | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill using-git-worktrees` — Overview only (this document)

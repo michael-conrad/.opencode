@@ -94,6 +94,14 @@ Every finding requires source attribution with the following fields:
 | `research-multi` | Yes | `ResearchResult` with per-modality findings and gap list |
 | `completion` | Yes | Status report with research state |
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `research` | When discovering information with source attribution | Research query, github.owner, github.repo | Implementation context, agent memory, pre-concluded answers | NO |
+| `research-multi` | When routing multimodal research queries | Research query, modality list, github.owner, github.repo | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, research results | Implementation context, agent memory | NO |
+
 ## Cross-References
 
 - `multimodal-dispatch` — Routes research queries to appropriate models based on modality

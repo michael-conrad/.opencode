@@ -98,6 +98,20 @@ Violation: Skipping sub-agent dispatch for "simple" or "single-issue" work is a 
 11. **Stacking is a prerequisite, not a preference** — feature branches MUST be stacked sequentially (merge-based dependency resolution) as the prerequisite approach. Parallel sub-agent dispatch is OPPORTUNISTIC — it depends on circumstances genuinely allowing it (truly independent codepaths, no shared files, no hidden dependencies). When in doubt, stack.
 12. **Completion guarantee** — idempotent completion on any halt. Invoke `--task completion` before halting regardless of outcome.
 
+## Decomposition Rule
+
+**Each sub-agent dispatch handles ONE discrete step.**
+
+| Allowed Single Step | Forbidden Combined Step |
+|---|---|
+| Analyze spec → return design contract | Analyze + write implementation in one dispatch |
+| Write code → return file paths changed | Write code + run tests + verify in one dispatch |
+| Run tests → return pass/fail table | Run tests + fix failures in one dispatch |
+| Verify SCs → return per-SC evidence table | Verify + produce summary in one dispatch |
+| Audit spec → return findings table | Audit + apply fixes in one dispatch |
+
+If a task requires multiple steps, the orchestrator dispatches multiple sub-agents sequentially, each receiving only the prior sub-agent's result contract (if explicitly dependent) or only the task identifier (if independent).
+
 ## Pre-Dispatch Verification Checkpoint (MANDATORY)
 
 **Before dispatching any sub-agent, the main agent MUST verify:**
@@ -237,6 +251,26 @@ When `worktree.path` is NOT set (direct-branch mode — DEFAULT):
 | `spec-reviewer-prompt` | ≈200 |
 | `code-quality-reviewer-prompt` | ≈200 |
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `assemble-work` | When implementation dispatch is authorized | Work state file, spec issue number, plan issue number, worktree.path, github.owner, github.repo | Implementation context, agent memory, cached verification | NO |
+| `orchestrate` | When multi-issue orchestration is needed | Authorization scope, halt_at, pr_strategy, issue numbers | Implementation context, agent memory | NO |
+| `assess` | When context budget assessment is needed | Work state, issue count, available context | Implementation context, agent memory | NO |
+| `decompose` | When work decomposition is needed | Plan issue number, phase structure | Implementation context, agent memory | NO |
+| `dispatch` | When sub-agent dispatch is needed | Sub-agent task description, scoped context | Orchestrator reasoning, other sub-agents' results | NO |
+| `completion-checkpoint` | When phase completion verification is needed | Phase number, files changed, SC list | Implementation context, agent memory | NO |
+| `result-validation` | When sub-agent result validation is needed | Result contract, expected scope | Implementation context, agent memory | NO |
+| `overflow-signal` | When context overflow is detected | Context budget status, remaining work | Implementation context, agent memory | NO |
+| `merge` | When sub-agent results need merging | Result contracts, work state | Implementation context, agent memory | NO |
+| `context-passing` | When context is passed between sub-agents | Scoped context per dispatch schema | Orchestrator reasoning, cached verification | NO |
+| `purification-and-enforcement` | When result purity is verified | Result contract, enforcement rules | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+| `implementer-prompt` | When implementation sub-agent prompt is built | Spec SC list, test file paths, implementation file paths | Prior test output, implementation intent | NO |
+| `spec-reviewer-prompt` | When spec review sub-agent is dispatched | Spec SC list, implementation diff | Implementation intent, agent memory | NO |
+| `code-quality-reviewer-prompt` | When code quality review sub-agent is dispatched | Implementation diff, codebase context | Implementation intent, agent memory | NO |
+
 ### Result Contracts (Sub-Agent Tasks)
 
 See individual task files for full schemas. Key result contract:
@@ -255,6 +289,28 @@ See individual task files for full schemas. Key result contract:
 6. Main agent receives result — no orchestration detail in main context
 
 Pass `<worktree.path>`, `branch`, `<github.owner>`, `<github.repo>`, `<dev.name>`, `<dev.email>` from session init.
+
+## Dispatch Logging in Work State File (MANDATORY)
+
+The work state file MUST log every sub-agent dispatch with:
+
+| Log Field | Description |
+|---|---|
+| `timestamp` | ISO 8601 timestamp of dispatch |
+| `task_name` | Name of the dispatched sub-agent task |
+| `result_contract_summary` | Summary of the returned result contract (status, files_changed, key findings) |
+
+**Log format:** Each dispatch entry is a YAML block appended to the work state file after sub-agent return. Example:
+
+```yaml
+dispatch_log:
+  - timestamp: "2026-04-26T10:30:00Z"
+    task_name: "screen-issue #106"
+    result_contract_summary: "status: DONE, classification: implementation, flat_items: 3"
+  - timestamp: "2026-04-26T10:35:00Z"
+    task_name: "implementer-phase2 #106"
+    result_contract_summary: "status: DONE, files_changed: [SKILL.md, ...], sc_covered: [SC-4, SC-5]"
+```
 
 ## Live Verification: Work State (MANDATORY)
 

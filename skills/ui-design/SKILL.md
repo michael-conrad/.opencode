@@ -33,6 +33,18 @@ All design output is framework-neutral. The skill does NOT embed Streamlit, web,
 | `review` | ≈400 | Review design artifact against spec requirements |
 | `completion` | ≈200 | Idempotent cleanup and final summary |
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `design` | When full UI design pass is needed | Spec requirements, design context, github.owner, github.repo | Implementation context, agent memory | NO |
+| `wireframe` | When low-fidelity wireframe is needed | Design context, template reference | Implementation context, agent memory | NO |
+| `mockup` | When high-fidelity mockup is needed | Design context, template reference, wireframe output | Implementation context, agent memory | NO |
+| `interaction-spec` | When YAML interaction specification is needed | Design context, interaction requirements | Implementation context, agent memory | NO |
+| `screenshot` | When screenshot capture of rendered artifact is needed | Artifact path, capture context | Implementation context, agent memory | NO |
+| `review` | When design review against spec is needed | Design artifact, spec requirements, github.owner, github.repo | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 Result contracts (returned by each sub-agent):
 
 ```yaml

@@ -34,6 +34,17 @@ This skill transforms technical git commits into polished, user-friendly changel
 - `/skill changelog-generator --task completion` - Invoke when workflow halts at any point
 - `/skill changelog-generator` - Overview only
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `since-last-release` | When generating changelog since last release | Repository path, branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `date-range` | When generating changelog for date range | Repository path, date range, github.owner, github.repo | Implementation context, agent memory | NO |
+| `backfill` | When performing historical backfill | Repository path, github.owner, github.repo | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ## When to Use This Skill
 
 - Preparing release notes for a new version

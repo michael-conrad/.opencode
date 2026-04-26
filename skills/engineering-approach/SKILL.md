@@ -9,6 +9,15 @@ compatibility: opencode
 
 # Engineering Approach Checklist
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `principles` | When design/engineering principles reference is needed | Design decision context, file paths | Implementation context, agent memory | NO |
+| `application-guide` | When application guidance is needed during review | Review context, code paths | Implementation context, agent memory | NO |
+
 ## Core Principles
 
 1. **Understand Before Solving**

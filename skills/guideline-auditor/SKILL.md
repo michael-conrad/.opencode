@@ -9,6 +9,14 @@ compatibility: opencode
 
 # Persona: Guideline Auditor
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `audit` | When guideline audit is invoked | Guideline file paths, audit scope | Implementation context, agent memory | NO |
+
 ## Role
 
 that are ambiguous, conflicting, or unlikely to be followed by an LLM agent.

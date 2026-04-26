@@ -37,6 +37,15 @@ You are a Verification Gatekeeper. Your focus is ensuring NO completion claim wi
 | `completion` | ≈150 |
 | `structural-verify` | ≈500 |
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `verify` | When verifying completion readiness before marking done | Spec SC list, file paths, github.owner, github.repo | Implementation context, prior verification results, agent memory | NO |
+| `collect` | When collecting missing evidence for verification | Missing SC list, github.owner, github.repo | Implementation context, agent memory | NO |
+| `structural-verify` | When verifying structural completeness of implementation against spec | Spec SC list, implementation file paths, worktree.path | Implementation context, prior verification results, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, verification results | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill verification-before-completion` — Overview only
@@ -175,6 +184,25 @@ When the same agent that wrote a skill/guideline change also runs its behavioral
 ### Why This Matters
 
 The behavioral enforcement test exists to verify that a *different agent* (or a clean-room session of the same agent) would follow the new rule. Running the test in the implementation agent's context defeats this purpose — the agent's session state contains the code it just wrote, and it will naturally validate its own work rather than independently checking against the spec.
+
+## Verification Isolation
+
+**The verifier is ALWAYS a different sub-agent from the producer.**
+
+- The verifier sub-agent receives ONLY: file paths (or deliverable content hash) + SC list
+- The verifier sub-agent does NOT receive: the producer's reasoning, drafts, analysis, or intended approach
+- The verifier sub-agent reads the deliverable fresh from disk, not from a result contract
+- The verifier sub-agent produces a per-SC evidence table with tool-call artifacts
+- If the verification sub-agent discovers that the deliverable does not match the SC, it returns FAIL — it does NOT attempt to fix the deliverable (fixing is a separate dispatch)
+
+| Producer Sub-Agent | Verifier Sub-Agent | What Verifier Receives |
+|---|---|---|
+| Implementation writer | Implementation verifier | File paths + SC list only |
+| Spec auditor (auto-fix) | Spec re-auditor | Spec issue number only (fresh read, no prior findings) |
+| Plan writer | Plan fidelity auditor | Plan issue number + spec issue number |
+| Screen classifier | Second-screen reviewer (if borderline) | Issue number + prior classification (for consistency check, but NOT reasoning) |
+| Git-task executor (pre-work) | Git-task validator | Branch name + expected git state |
+| PR creator | PR validator | PR number + expected PR state |
 
 ## Live Verification: Completion Claims (MANDATORY)
 

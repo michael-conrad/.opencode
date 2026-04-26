@@ -28,6 +28,19 @@ You are an Issue Review Orchestrator. Your focus is gathering all issue context,
 | `analyze-and-spec` | Root cause analysis → fix spec auto-creation for bug reports | ≈600 |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `gather` | When collecting all issue data for review | Issue number, github.owner, github.repo | Implementation context, agent memory, cached verification | NO |
+| `triage` | When classifying an issue by type and priority | Issue number, gathered data, github.owner, github.repo | Implementation context, agent memory | NO |
+| `audit` | When delegating to spec-auditor with triage hints | Issue number, triage results, github.owner, github.repo | Implementation context, agent memory | NO |
+| `qa` | When asking clarifying questions for non-bug, non-spec issues | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `analyze-and-spec` | When root cause analysis and fix spec creation for bug reports | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill issue-review --issue N` — Full review (gather → triage → dispatch)

@@ -30,6 +30,16 @@ Concern Separation Auditor analyzes spec phase structures to identify deployment
 If invoked directly (deprecated, but still works):
 - `/skill concern-separation-auditor --issue N` — Audit (report-only mode)
 
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `audit-phases` | When analyzing phase structure for concern quality | Issue number, plan body, github.owner, github.repo | Implementation context, agent memory | NO |
+| `check-independence` | When validating deployment independence between phases | Issue number, phase boundaries, github.owner, github.repo | Implementation context, agent memory | NO |
+| `concern-coverage` | When verifying sub-issue bodies reflect Plan concern boundaries | Issue number, sub-issue list, github.owner, github.repo | Implementation context, agent memory | NO |
+
 ## Report-Only Model
 
 **All findings are reported, NOT auto-applied.**

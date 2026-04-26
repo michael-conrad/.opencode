@@ -53,3 +53,11 @@ None required. GitHub MCP provides complete API coverage.
 
 - Dispatcher: `../SKILL.md` (issue-operations)
 - Related platform: `../gitbucket-api/SKILL.md`
+
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| Platform operations | When GitHub MCP platform operations are dispatched | Operation type, issue/PR number, github.owner, github.repo | Implementation context, agent memory | NO |
