@@ -218,16 +218,6 @@ def _validate_sub_agent_dispatch(
         bypass_violation=entry.get("bypass_violation", ""),
         source=source,
     )
-        )
-        return None
-    return DecompositionEntry(
-        type=str(raw["type"]),
-        skill=str(raw["skill"]),
-        task=str(raw["task"]),
-        mandatory=bool(raw.get("mandatory", True)),
-        bypass_violation=str(raw.get("bypass_violation", "")),
-        source=source,
-    )
 
 
 def _validate_gate(
