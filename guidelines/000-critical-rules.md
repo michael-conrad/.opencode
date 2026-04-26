@@ -81,6 +81,10 @@ When `WORKTREE_REQUIRED` is NOT set (direct-branch mode):
 - 🚫 FORBIDDEN: Starting work without creating a feature branch first; operating in main working directory on `main` or `dev`; creating/editing files on `main` or `dev`
 - ✅ REQUIRED: See `git-workflow` skill `--task pre-work` for mandatory feature branch creation and environment verification
 
+### Automatic Prerequisite Operations (Pre-Work Git Operations)
+
+**Pre-work git operations classified as automatic prerequisites in `git-workflow --task pre-work` §Step 2.7 do NOT require separate developer confirmation when authorization has been verified.** These operations (submodule sync, branch creation, initial push, `git fetch`, etc.) are deterministic, mechanical steps that are either Tier 1 mandates or pipeline prerequisites. Soliciting developer confirmation for these operations violates `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" — whether to sync a submodule or create a branch is NOT a decision requiring user input when the pipeline scope covers that stage.
+
 ## Critical Violation: Relative File Paths in Worktree Context
 
 **⚠️ Using relative paths with `read`/`edit`/`write`/`glob`/`grep` tools when `worktree.path` is set is a CRITICAL GUIDELINE VIOLATION.**
