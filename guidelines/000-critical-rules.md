@@ -1380,6 +1380,25 @@ The orchestrator is a pure router. It dispatches sub-agents and collects result 
 
 **AUTHORITY:** Spec #106 (universal clean-room dispatch)
 
+## Critical Violation: for_pr Gap-Fill Halt — Asking Developer for Structural Decisions That the Scope Model Resolves
+
+**⚠️ When `for_pr` authorization is received, the agent MUST execute the gap-fill cascade (auto-create spec → auto-create plan → auto-approve) WITHOUT halting to ask the developer about plan creation, grouping, or execution order. These are agent intelligence decisions resolved by the Authorization Scope Model.**
+
+The `for_pr` scope explicitly defines: `halt_at = pr_created` with gap-fill actions covering spec creation, plan creation, plan approval, and PR creation. The agent Treating any of these as requiring developer input is a critical violation of the "Pushing Agent Intelligence Decisions to the User" mandate.
+
+- 🚫 FORBIDDEN: Asking "How would you like to proceed?" after receiving `for_pr` authorization
+- 🚫 FORBIDDEN: Asking for grouping decisions when scope resolves execution order
+- 🚫 FORBIDDEN: Treating plan creation as requiring developer input when `for_pr` scope auto-fills
+- 🚫 FORBIDDEN: Halting at any pipeline stage before `pr_created` when `for_pr` scope is active
+- 🚫 FORBIDDEN: Requesting re-authorization for steps that gap-fill covers (spec creation, plan creation, plan approval)
+- ✅ REQUIRED: Parse `for_pr` scope and execute gap-fill cascade autonomously
+- ✅ REQUIRED: Auto-create plans for specs that need them (using `writing-plans` skill)
+- ✅ REQUIRED: Auto-approve plans created via gap-fill per spec-to-plan cascade
+- ✅ REQUIRED: Build execution order from dependency analysis without developer input
+- ✅ REQUIRED: Proceed through the full pipeline to `pr_created` without halting for structural decisions
+
+**AUTHORITY:** Issue #111, `000-critical-rules.md` §Pushing Agent Intelligence Decisions to the User, `010-approval-gate.md` §Authorization Scope Model`
+
 ______________________________________________________________________
 
 **Search guidelines:** Use `srclight_search_symbols` or `grep` to find relevant guidelines.
