@@ -3,6 +3,7 @@ name: spec-creation
 description: Use when creating a spec or writing a specification. Triggers on: create spec, write spec, spec creation, spec writing, structure spec, specification.
 type: technique
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

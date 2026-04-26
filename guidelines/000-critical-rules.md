@@ -830,7 +830,7 @@ Git remote and configuration mutations can silently redirect pushes, disable sec
 ### Enforcement Mechanisms (session-enforcement.ts)
 
 1. **Config Mutation Watchdog**: Captures baseline of `.git/config` and `git config --local --list` at session start; diffs after each assistant turn; injects `<GIT_CONFIG_MUTATION>` block if security-relevant keys changed.
-2. **`--no-verify` Detection**: Scans assistant message content for `--no-verify` in bash commands; injects `<NO_VERIFY_BLOCKED>` block if repo has remotes. Post-hoc commit audit checks git log for commits lacking session-enforcement signature.
+2. **`--no-verify` Detection**: Scans assistant message content for `--no-verify` in bash commands; injects `<NO_VERIFY_BLOCKED>` block if repo has remotes. **Null-baseline fallback**: When `gitConfigBaseline` is null (baseline capture failed at session start), performs an inline `git remote -v` check at detection time. If the inline check also fails, treats the repo as local-only (no remotes) and permits `--no-verify`. This ensures the local-only exemption works even when the baseline is unavailable. Post-hoc commit audit checks git log for commits lacking session-enforcement signature.
 3. **Baseline Snapshot**: `GitConfigBaseline` interface with `{ configHash, localConfigHash, remotes[], remoteCount, capturedAt }`; SHA-256 hash comparison with full diff on mismatch.
 
 **AUTHORITY: Issue #72**

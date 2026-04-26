@@ -10,6 +10,7 @@ Validates SKILL.md files per spec #1124:
   REQ-1: Frontmatter validation (name, description, type, license, compatibility)
   REQ-2: Placeholder enforcement (no hardcoded identity values)
   REQ-3: Worktree Mode section requirement for skills with bash/git/file ops
+  REQ-4: Provenance field validation
 
 Usage:
     uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py           # validate
@@ -25,6 +26,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 VALID_TYPES = {"discipline-enforcing", "technique", "pattern", "reference", "orchestrator"}
+VALID_PROVENANCE = {"AI-generated", "AI-assisted", "Human-written", "Derived"}
 HARDCODED_AGENT_NAMES = re.compile(r"\bOpenCode\b|\bClaude\b|\bCopilot\b|\bGemini\b|\bGPT-4\b")
 HARDCODED_MODEL_IDS = re.compile(
     r"\bollama-cloud/[a-z0-9._-]+\b"
@@ -180,6 +182,24 @@ def validate_req3(name: str, body: str, file_path: str) -> list[Violation]:
     return violations
 
 
+def validate_req4(name: str, fields: dict[str, str], file_path: str) -> list[Violation]:
+    violations: list[Violation] = []
+    if "provenance" not in fields:
+        violations.append(Violation("REQ-4", name, "provenance", "Missing 'provenance' field", file_path=file_path))
+    elif fields["provenance"] not in VALID_PROVENANCE:
+        violations.append(
+            Violation(
+                "REQ-4",
+                name,
+                "provenance",
+                f"provenance must be one of: {', '.join(sorted(VALID_PROVENANCE))}",
+                fields["provenance"],
+                file_path=file_path,
+            )
+        )
+    return violations
+
+
 def validate_card(card_path: Path, root: Path) -> list[Violation]:
     name = skill_name_from_path(card_path.relative_to(root))
     rel_path = str(card_path.relative_to(root))
@@ -195,6 +215,7 @@ def validate_card(card_path: Path, root: Path) -> list[Violation]:
     violations.extend(validate_req1(name, fields, fm_text, rel_path))
     violations.extend(validate_req2(name, content, rel_path))
     violations.extend(validate_req3(name, body, rel_path))
+    violations.extend(validate_req4(name, fields, rel_path))
     return violations
 
 

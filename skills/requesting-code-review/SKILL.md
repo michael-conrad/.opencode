@@ -3,6 +3,7 @@ name: requesting-code-review
 description: Use when preparing a PR for code review, or when reviewer context and documentation are needed. Triggers on: request review, code review, review request, ready for review, review preparation.
 type: technique
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

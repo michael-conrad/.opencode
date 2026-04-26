@@ -1484,7 +1484,24 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
       }
 
       // --- Per-turn: --no-verify detection ---
-      const hasRemotes = gitConfigBaseline ? gitConfigBaseline.remoteCount > 0 : true;
+      let hasRemotes: boolean;
+      if (gitConfigBaseline) {
+        hasRemotes = gitConfigBaseline.remoteCount > 0;
+      } else {
+        // Baseline capture failed — check remotes inline
+        try {
+          const remoteCheck = execSync("git remote -v", {
+            cwd: projectDir,
+            encoding: "utf8",
+            input: "",
+            timeout: 5000,
+            stdio: ["pipe", "pipe", "pipe"],
+          }).trim();
+          hasRemotes = remoteCheck.length > 0;
+        } catch {
+          hasRemotes = false; // No remotes = local-only → permit --no-verify
+        }
+      }
       for (const msg of assistantMessages) {
         if (!msg.parts?.length) continue;
         for (const part of msg.parts) {

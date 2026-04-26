@@ -3,6 +3,7 @@ name: programming-principles
 description: Use when designing functions, classes, or modules; writing or reviewing implementation code; making architecture decisions; or evaluating tradeoffs between competing approaches. Triggers on: design, implement, refactor, architecture, tradeoff, principle, KISS, DRY, SRP, coupling, cohesion, YAGNI.
 type: pattern
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

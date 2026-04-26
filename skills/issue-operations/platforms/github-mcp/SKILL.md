@@ -3,6 +3,7 @@ name: github-mcp
 description: GitHub MCP platform sub-skill for issue-operations. Provides capability manifest and thin wrappers around github_* MCP tools.
 type: reference
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

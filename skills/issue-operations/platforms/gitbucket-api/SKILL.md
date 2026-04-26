@@ -3,6 +3,7 @@ name: gitbucket-api
 description: GitBucket platform sub-skill for issue-operations. Provides capability manifest and Python client for GitBucket API operations.
 type: reference
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
