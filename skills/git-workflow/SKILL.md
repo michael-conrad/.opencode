@@ -548,7 +548,7 @@ When `git rev-parse --show-toplevel` returns a path that is a descendant of a pa
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+last_updated: "2026-04-26T00:00:00Z"
 rules:
   - id: git-workflow-provenance-001
     title: "Submodule provenance tracking after push or promotion"
@@ -703,6 +703,12 @@ decomposition:
     task: branch --show-current
     mandatory: true
     bypass_violation: "CRITICAL: Branch First"
+  - type: sub-agent-dispatch
+    isolation: clean-room
+    must_receive: [task description, required git state, branch name, worktree.path, compare URL data]
+    must_not_receive: [implementation context, agent memory from prior phases, cached verification results]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Clean-Room Dispatch for Sub-Agents"
 state_machines:
   - id: branch-lifecycle
     states: [pre_work, implementing, review_ready, pr_created, merged, cleaned_up]

@@ -84,10 +84,10 @@ def _parse_yaml_blocks(filepath: Path) -> list[dict]:
 def _get_structural_component_names(data: dict) -> dict[str, bool]:
     """Extract structural component names from a yaml+symbolic block.
     Returns dict of component_name -> exists flag.
-    Structural components: state_machines, gates, evidence_artifacts, decomposition.
+    Structural components: state_machines, gates, evidence_artifacts, decomposition, sub_agent_dispatch.
     """
     components = {}
-    for key in ("state_machines", "gates", "evidence_artifacts", "decomposition"):
+    for key in ("state_machines", "gates", "evidence_artifacts", "decomposition", "sub_agent_dispatch"):
         entries = data.get(key, [])
         if isinstance(entries, list) and len(entries) > 0:
             for entry in entries:

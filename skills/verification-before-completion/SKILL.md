@@ -133,13 +133,26 @@ If `worktree.path` is NOT set, operate normally from the project root.
 5. If ALL structural components present:
    - Proceed to per-SC evidence verification (Step 1 of `verify` task)
 
-### Clean-Room Dispatch
+### Clean-Room Dispatch Protocol (MANDATORY)
 
-When the verification context is the same agent that performed implementation, invoke `structural-verify` as a sub-agent to ensure clean-room isolation. The sub-agent receives ONLY:
-- The spec's success criteria list
-- File paths to verify
+**⚠️ Clean-room dispatch is MANDATORY for ALL pipeline stages, not just `structural-verify`. Per `000-critical-rules.md` §"Skipping Clean-Room Dispatch for Sub-Agents", dispatching verification or implementation sub-agents without clean-room isolation is a CRITICAL GUIDELINE VIOLATION.**
 
-The sub-agent does NOT receive implementation context, prior verification results, or agent memory from the implementation session. This prevents confirmation bias — the structural verifier must be able to independently discover missing components.
+When a sub-agent is dispatched for ANY pipeline stage, clean-room dispatch isolation applies. The sub-agent receives ONLY the scoped context it needs and is EXCLUDED from receiving implementation context, other sub-agents' prior results (unless explicitly required by declared dependency), cached verification results, or agent memory from prior phases.
+
+**Dispatch Context Isolation Table:**
+
+| Pipeline Stage | MUST Receive | MUST NOT Receive |
+|---|---|---|
+| RED test execution | Spec SC list, test file paths | Implementation context, prior test output |
+| GREEN test execution | Spec SC list, test file paths, implementation file paths | Prior RED test output, implementation intent |
+| Implementation (divide-and-conquer) | Spec, plan, file paths | Other sub-agents' prior results (unless declared dependency), agent memory, cached verification |
+| Git tasks (pre-work, review-prep, cleanup) | Task description, required git state | Implementation context, agent memory |
+| Code review setup | Diff, PR metadata | Implementation intent, agent memory |
+| PR creation | Branch compare data, spec summary | Implementation context, agent memory |
+| Finishing-a-branch checklist | Checklist items, verification targets | Implementation context, agent memory |
+| Verification-before-completion | Spec SC list, file paths | Implementation context, prior verification results, agent memory |
+
+**Reference implementation:** The `structural-verify` task within this skill already enforces clean-room dispatch. This protocol extends that mandate to ALL dispatch points across ALL skills.
 
 ### Failure Mode
 
