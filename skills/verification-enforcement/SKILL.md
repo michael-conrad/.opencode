@@ -149,4 +149,186 @@ When `worktree.path` is set:
 - ALL `read`/`write`/`edit`/`glob`/`grep` tool calls MUST prefix `filePath`/`path` with `worktree.path/`
 - Sub-agent dispatch prompts MUST include `worktree.path: <value>`
 
-Co-authored with AI: <AgentName> (<ModelId>)
+ Co-authored with AI: <AgentName> (<ModelId>)
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-26T00:00:00Z"
+rules:
+  - id: verification-enforcement-001
+    title: "Content generation requires verification gate"
+    conditions:
+      all:
+        - "content_generation_requested == true"
+        - "verification_invoked == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "verification-enforcement/SKILL.md §Operating Protocol"
+
+  - id: verification-enforcement-002
+    title: "Reporting unverified information as verified is a critical violation"
+    conditions:
+      all:
+        - "claim_made == true"
+        - "verification_tool_call_made == false"
+    actions:
+      - HALT
+      - MARK_UNVERIFIED
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "065-verification-honesty.md"
+
+  - id: verification-enforcement-003
+    title: "Revisit pass required after generation"
+    conditions:
+      all:
+        - "content_generated == true"
+        - "revisit_invoked == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: [verification-enforcement-001]
+    triggers: []
+    source: "verification-enforcement/SKILL.md §Operating Protocol"
+
+  - id: verification-enforcement-004
+    title: "Sub-agent output without evidence artifacts is rejected"
+    conditions:
+      all:
+        - "sub_agent_returned == true"
+        - "evidence_artifacts_present == false"
+    actions:
+      - REJECT
+      - RE_DISPATCH
+    conflicts_with: []
+    requires: [verification-enforcement-001]
+    triggers: [divide-and-conquer]
+    source: "verification-enforcement/SKILL.md §Enforcement Rules"
+
+tasks:
+  - id: verify
+    skill: verification-enforcement
+    preconditions: ["content_generation_requested == true"]
+    postconditions: ["all_claims_verified == true || unverified_markers_present == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification-Enforcement During Content Generation"
+    source: "verification-enforcement/SKILL.md §verify task"
+
+  - id: revisit
+    skill: verification-enforcement
+    preconditions: ["content_generated == true"]
+    postconditions: ["revisit_complete == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping verification-enforcement revisit"
+    source: "verification-enforcement/SKILL.md §revisit task"
+
+  - id: enforce
+    skill: verification-enforcement
+    preconditions: ["orchestration_context == true"]
+    postconditions: ["enforcement_gate_passed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Sub-agent output lacks evidence artifacts"
+    source: "verification-enforcement/SKILL.md §enforce task"
+
+  - id: completion
+    skill: verification-enforcement
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "verification-enforcement/SKILL.md §completion task"
+
+decomposition:
+  - type: skill-task
+    skill: spec-creation
+    task: write
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification-Enforcement During Content Generation"
+
+  - type: skill-task
+    skill: writing-plans
+    task: create
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification-Enforcement During Content Generation"
+
+  - type: skill-task
+    skill: sre-runbook
+    task: generate
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification-Enforcement During Content Generation"
+
+  - type: skill-task
+    skill: skill-creator
+    task: create-skill
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification-Enforcement During Content Generation"
+
+  - type: skill-task
+    skill: correspondence
+    task: draft
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification-Enforcement During Content Generation"
+
+gates:
+  - id: content-generation-verification
+    condition: "verification_invoked == true"
+    on_fail: "HALT"
+    critical_violation: true
+
+  - id: audience-separation
+    condition: "content_audience == 'stakeholder' AND internal_artifacts_absent == true"
+    on_fail: "REPHRASE OR REMOVE"
+    critical_violation: false
+
+  - id: evidence-artifacts-present
+    condition: "sub_agent_evidence_artifacts_present == true"
+    on_fail: "REJECT AND RE-DISPATCH"
+    critical_violation: true
+
+evidence_artifacts:
+  - name: section_evidence_table
+    type: structured_table
+    verification: "Each content section has evidence entries with Claim, Domain, Source, Verified fields"
+
+  - name: unverified_markers_resolved
+    type: scan_result
+    verification: "No ⚠️ UNVERIFIED markers remain after revisit pass"
+
+  - name: audience_classification
+    type: metadata
+    verification: "Content audience tier (stakeholder/operator) is recorded before generation"
+
+state_machines:
+  - id: verification-lifecycle
+    states: [idle, verifying, generating, revisiting, complete, escalated]
+    start_state: idle
+    transitions:
+      - from: idle
+        to: verifying
+        guard: "content_generation_requested == true"
+        action: INVOKE(verify)
+      - from: verifying
+        to: generating
+        guard: "verification_complete == true"
+        action: PROCEED
+      - from: generating
+        to: revisiting
+        guard: "content_generated == true"
+        action: INVOKE(revisit)
+      - from: revisiting
+        to: complete
+        guard: "all_unverified_resolved == true"
+        action: PROCEED
+      - from: revisiting
+        to: escalated
+        guard: "unverifiable_claims_remain == true"
+        action: ESCALATE_TO_DEVELOPER
+      - from: escalated
+        to: complete
+        guard: "developer_accepted == true"
+        action: PROCEED
+```
