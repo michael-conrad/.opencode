@@ -266,3 +266,95 @@ ls ./tmp/
   fenced blocks.
 - **Forbidden operation (Step-0205 hard rule)**: Do **not** execute any notebook that touches production data. This includes `the-notebook-mcp_notebook_execute_cell`, `pycharm_runNotebookCell`, or any execution method.
 - **Global forbidden execution on production-touching workflows**: Never run full notebook/script execution commands for any notebook or script that touches production data. If verification is required, use non-executing inspection/read-only checks via `the-notebook-mcp` tools and production-safe alternatives only.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: environment-001
+    title: "Never run code against production data — absolute prohibition"
+    conditions:
+      all:
+        - "code_targets_production_data == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "070-environment.md §Production System Protection"
+
+  - id: environment-002
+    title: "Must use uv run for Python — never bare python"
+    conditions:
+      all:
+        - "python_invocation_method == 'bare_python'"
+    actions:
+      - HALT
+    conflicts_with: [tool-usage-005]
+    requires: []
+    triggers: []
+    source: "070-environment.md §Python Environment"
+
+  - id: environment-003
+    title: "Node.js prohibited in Python/Java-only projects"
+    conditions:
+      all:
+        - "project_language in ['Python', 'Java']"
+        - "nodejs_install_attempted == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "070-environment.md §Node.js Prohibition"
+
+  - id: environment-004
+    title: "Temp files must use ./tmp/ only"
+    conditions:
+      all:
+        - "temp_file_path matches '^/tmp/'"
+    actions:
+      - HALT
+    conflicts_with: [critical-rules-004, tool-usage-004]
+    requires: []
+    triggers: []
+    source: "070-environment.md §Temporary Files"
+
+  - id: environment-005
+    title: "Tests must never run against production data"
+    conditions:
+      all:
+        - "test_targets_production_data == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "070-environment.md §Testing"
+
+  - id: environment-006
+    title: "Temp files must be cleaned up after task completion"
+    conditions:
+      all:
+        - "task_completed == true"
+        - "temp_files_remaining_in_tmp == true"
+    actions:
+      - CLEANUP
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "070-environment.md §Temp Files Cleanup After Task Completion"
+
+  - id: environment-007
+    title: "PEP 723 self-contained scripts mandatory for .opencode/tools/"
+    conditions:
+      all:
+        - "new_tool_in_opencode_tools == true"
+        - "script_has_pep723_metadata == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "070-environment.md §PEP 723 Self-Contained Scripts"
+```
