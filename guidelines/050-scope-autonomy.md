@@ -72,3 +72,87 @@ If you catch yourself about to edit code to fix a bug discovered during other wo
 ## 5. Command Rejection Protocol
 
 - A "rejected by the user" terminal result signals a directive violation. Immediately halt, re-read guidelines, and assess whether guidelines need reinforcement.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: scope-autonomy-001
+    title: "No scope expansion or autonomous programming"
+    conditions:
+      all:
+        - "change_outside_approved_scope == true"
+        - "implementation_attempted == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "050-scope-autonomy.md §2 Scope Restrictions NEVER DO"
+
+  - id: scope-autonomy-002
+    title: "No refactors, cleanups, or optimizations without explicit approval"
+    conditions:
+      all:
+        - "refactor_or_cleanup_attempted == true"
+        - "explicit_approval_in_plan == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "050-scope-autonomy.md §2 Scope Restrictions NEVER DO"
+
+  - id: scope-autonomy-003
+    title: "Bug discovery does not authorize fixing"
+    conditions:
+      all:
+        - "bug_discovered == true"
+        - "code_edit_attempted == true"
+        - "has_approved_spec == false"
+    actions:
+      - HALT
+    conflicts_with: [critical-rules-011]
+    requires: []
+    triggers: [approval-gate, issue-review]
+    source: "050-scope-autonomy.md §3 Proactive Suppression NEVER DO"
+
+  - id: scope-autonomy-004
+    title: "Analysis requests are read-only — no implementation"
+    conditions:
+      all:
+        - "request_type == 'analysis'"
+        - "implementation_attempted == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "050-scope-autonomy.md §3 Analysis vs Implementation Table"
+
+  - id: scope-autonomy-005
+    title: "No code formatting changes outside approved scope"
+    conditions:
+      all:
+        - "formatting_change_attempted == true"
+        - "formatting_in_approved_scope == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "050-scope-autonomy.md §2 Scope Restrictions NEVER DO"
+
+  - id: scope-autonomy-006
+    title: "Questions are not authorization to make changes"
+    conditions:
+      all:
+        - "user_input_format == 'question'"
+        - "code_change_attempted == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "050-scope-autonomy.md §4 Q&A and Feedback"
+```
