@@ -1235,6 +1235,105 @@ The byline enforcement is positional — it lives inside `issue-operations` task
 
 **Authority:** Bug #1259; `issue-operations` skill → `creation` task Step 3 / `comment` task Step 3.5; `git-workflow` skill → `pr-creation/create-pr` task; `verification-before-completion` skill → `completion` task; `080-code-standards.md` → "Posted Content Requiring Attribution"
 
+## Critical Violation: Skipping Clean-Room Dispatch for Sub-Agents
+
+**⚠️ Dispatching verification or implementation sub-agents with implementation context is a CRITICAL GUIDELINE VIOLATION.**
+
+Clean-room dispatch means sub-agents receive ONLY the scoped context they need (spec, plan, file paths, task description) and are EXCLUDED from receiving implementation context, other sub-agents' prior results (unless explicitly required by declared dependency), cached verification results, or agent memory from prior phases. The verification-before-completion skill already mandates clean-room dispatch for `structural-verify` — this rule extends the mandate to ALL pipeline stages where sub-agents are dispatched.
+
+**See `verification-before-completion` skill → Clean-Room Dispatch Protocol for the complete dispatch context isolation table. See `divide-and-conquer` skill → Dispatch Context Schema for implementation sub-agent isolation requirements.**
+
+| Pipeline Stage | MUST Receive | MUST NOT Receive |
+|---|---|---|
+| RED test execution | Spec SC list, test file paths | Implementation context, prior test output |
+| GREEN test execution | Spec SC list, test file paths, implementation file paths | Prior RED test output, implementation intent |
+| Implementation (divide-and-conquer) | Spec, plan, file paths, worktree.path | Other sub-agents' prior results (unless declared dependency), agent memory, cached verification |
+| Git tasks (pre-work, review-prep, cleanup) | Task description, required git state | Implementation context, agent memory |
+| Code review setup | Diff, PR metadata | Implementation intent, agent memory |
+| PR creation | Branch compare data, spec summary | Implementation context, agent memory |
+| Finishing-a-branch checklist | Checklist items, verification targets | Implementation context, agent memory |
+| Verification-before-completion | Spec SC list, file paths | Implementation context, prior verification results, agent memory |
+
+- 🚫 FORBIDDEN: Dispatching verification sub-agents with implementation context
+- 🚫 FORBIDDEN: Dispatching implementation sub-agents with other sub-agents' prior results (unless declared dependency)
+- 🚫 FORBIDDEN: Dispatching git task sub-agents with implementation context or agent memory
+- 🚫 FORBIDDEN: Including cached verification results in sub-agent dispatch context
+- ✅ REQUIRED: Each skill SKILL.md that dispatches sub-agents MUST include clean-room dispatch protocol in its yaml+symbolic decomposition
+- ✅ REQUIRED: Dispatch context schema MUST specify MUST-receive and MUST-NOT-receive items
+
+**Authority:** `verification-before-completion` skill (reference implementation), Spec #98 (clean-room sub-agent mandate), Bug #87 and Bug #91 (proxy-evidence regression)
+
+## Critical Violation: Skipping Pre-Flight Checks for Sub-Agents
+
+**⚠️ Dispatching sub-agents without validating their starting state is a CRITICAL GUIDELINE VIOLATION.**
+
+Every sub-agent MUST validate its starting state before beginning work. Pre-flight checks prevent work from proceeding with invalid or inconsistent state. If ANY pre-flight check fails, the sub-agent MUST return `status: BLOCKED` with a descriptive error — it MUST NOT proceed with work on an invalid state.
+
+**Mandatory pre-flight checks:**
+
+| Check | Purpose | Required Evidence |
+|---|---|---|
+| Branch exists and is correct | Sub-agent is on the expected branch | `git branch --show-current` output matches expected branch |
+| Worktree path is valid (if set) | Sub-agent is in the correct worktree | `git rev-parse --show-toplevel` matches `worktree.path` |
+| Spec issue exists and is readable | Sub-agent can access the spec | `github_issue_read(method=get)` returns non-empty body |
+| Plan issue exists (if applicable) | Sub-agent can access the plan | `github_issue_read(method=get)` returns non-empty body or sub-agent marks plan-independent |
+| Target files exist (for modification tasks) | Sub-agent won't create phantom files | `glob` or `read` confirms target files are present |
+| No uncommitted changes from prior sub-agent | Sub-agent starts from clean state | `git status --short` returns empty or expected-only changes |
+| Session context variables are set | `github.owner`, `github.repo`, `github.platform` are present | Values confirmed in dispatch context |
+
+- 🚫 FORBIDDEN: Dispatching sub-agents without pre-flight check requirements in dispatch context
+- 🚫 FORBIDDEN: Proceeding with work when any pre-flight check fails
+- 🚫 FORBIDDEN: Returning `status: DONE` instead of `status: BLOCKED` when a pre-flight check fails
+- ✅ REQUIRED: Every sub-agent dispatch MUST include pre-flight check requirements in dispatch context
+- ✅ REQUIRED: Sub-agents MUST validate ALL pre-flight checks before beginning work
+- ✅ REQUIRED: Sub-agents MUST return `status: BLOCKED` with descriptive error when any check fails
+
+**Authority:** Spec #98 (pre-flight check protocol)
+
+## Critical Violation: Skipping Post-Flight Checks for Sub-Agents
+
+**⚠️ Accepting sub-agent results without validating deliverable substance is a CRITICAL GUIDELINE VIOLATION.**
+
+Every sub-agent MUST validate its deliverables before returning results to the orchestrator. Post-flight checks prevent the orchestrator from accepting invalid or incomplete deliverables. This is the pipeline-level extension of the proxy-evidence rule from #91: accepting `status: DONE` without tool-call evidence of deliverable correctness is the same pattern at a different scale.
+
+**Mandatory post-flight checks:**
+
+| Check | Purpose | Required Evidence |
+|---|---|---|
+| Files changed match spec scope | Sub-agent didn't modify files outside the spec | `git diff --stat` against base branch shows only spec-related files |
+| No uncommitted changes remain | All work is committed or explicitly stashed | `git status --short` returns empty (or only expected unstaged files) |
+| Success criteria traceability | Each SC maps to at least one file change | Result contract includes per-SC file mapping |
+| Deliverable substance verification | Claimed deliverables actually exist and contain expected content | `read` or `grep` confirms content matches spec requirements |
+| Result contract completeness | Result contract has all required fields | `status`, `files_changed`, `summary`, `phase_progress`, `compare_url` (if applicable) are all present |
+| No cached/memory claims | All verification claims have tool-call evidence | Result contract references tool-call artifacts, not "I recall" or "as noted earlier" |
+
+- 🚫 FORBIDDEN: Returning `status: DONE` when any post-flight check fails
+- 🚫 FORBIDDEN: Accepting sub-agent results without verifying post-flight checks
+- 🚫 FORBIDDEN: Claiming "files changed" without `git diff --stat` evidence
+- 🚫 FORBIDDEN: Claiming "all SCs met" without per-SC-to-file traceability evidence
+- ✅ REQUIRED: Sub-agents MUST perform ALL post-flight checks before returning results
+- ✅ REQUIRED: Sub-agents MUST return `status: DONE_WITH_CONCERNS` with specific concerns listed when any check fails
+- ✅ REQUIRED: Result contracts MUST include `status`, `files_changed`, `summary`, `phase_progress` fields
+- ✅ REQUIRED: Every verification claim in a result contract MUST reference a tool-call artifact
+
+**Authority:** Spec #98 (post-flight check protocol), Bug #91 (proxy-evidence regression)
+
+## Critical Violation: Claiming Verification Without Tool-Call Evidence in Sub-Agent Results
+
+**⚠️ Sub-agents returning `DONE` with memory-cached claims (not tool-call-evidenced) is a CRITICAL GUIDELINE VIOLATION.** This extends #91's proxy-evidence rule to sub-agent result contracts.
+
+Every verification claim in a sub-agent result contract MUST reference a tool-call artifact produced in the current sub-agent session. Claims based on "I recall", "as noted earlier", "from the previous session", or training data are proxy evidence and are FORBIDDEN in result contracts.
+
+- 🚫 FORBIDDEN: Sub-agent result contracts containing "I recall" or "as noted earlier" claims
+- 🚫 FORBIDDEN: Sub-agent result contracts referencing tool calls from prior sessions without re-verification
+- 🚫 FORBIDDEN: Sub-agent result contracts referencing training data or general knowledge as evidence
+- 🚫 FORBIDDEN: Orchestrators accepting result contracts with non-tool-call verification claims
+- ✅ REQUIRED: Every verification claim in a result contract MUST include a tool-call artifact reference (tool name, parameters, output excerpt)
+- ✅ REQUIRED: Orchestrators MUST verify that sub-agent result contracts contain only tool-call-evidenced claims before accepting `status: DONE`
+- ✅ REQUIRED: When a sub-agent cannot verify a claim with a tool call, the claim MUST be marked as `UNVERIFIED` in the result contract, and the orchestrator treats it as a `DONE_WITH_CONCERNS` concern
+
+**Authority:** Bug #91 (proxy-evidence regression), `065-verification-honesty.md` (stale evidence axiom), Spec #98 (sub-agent result contract integrity)
+
 ## Sub-Agent Extraction Pattern
 
 All skill task dispatches follow a sub-agent-first paradigm. The main agent is a pure orchestrator that never loads task files directly — it dispatches every task via `task(subagent_type="general")` and receives compact result contracts. Each SKILL.md contains a "Sub-Agent Tasks" section with word-count context, result contract schemas, and dispatch context schemas. The main agent loads only SKILL.md files and reads compact result contracts (≈100-500 words), never loading task files directly.
@@ -1252,7 +1351,7 @@ ______________________________________________________________________
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+last_updated: "2026-04-26T00:00:00Z"
 rules:
   - id: critical-rules-001
     title: "Tier 1 mandates never yield to developer authorization"
@@ -1632,4 +1731,56 @@ rules:
     requires: []
     triggers: [issue-operations]
     source: "000-critical-rules.md §Non-Idempotent API Mutations"
+
+  - id: critical-rules-030
+    title: "Skipping clean-room dispatch for sub-agents"
+    conditions:
+      all:
+        - "sub_agent_dispatch_pending == true"
+        - "dispatch_includes_excluded_context == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [divide-and-conquer, verification-before-completion, git-workflow]
+    source: "000-critical-rules.md §Skipping Clean-Room Dispatch for Sub-Agents"
+
+  - id: critical-rules-031
+    title: "Skipping pre-flight checks for sub-agents"
+    conditions:
+      all:
+        - "sub_agent_dispatched == true"
+        - "pre_flight_checks_performed == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [divide-and-conquer, verification-before-completion, git-workflow]
+    source: "000-critical-rules.md §Skipping Pre-Flight Checks for Sub-Agents"
+
+  - id: critical-rules-032
+    title: "Skipping post-flight checks for sub-agents"
+    conditions:
+      all:
+        - "sub_agent_result_accepted == true"
+        - "post_flight_checks_performed == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [divide-and-conquer, verification-before-completion]
+    source: "000-critical-rules.md §Skipping Post-Flight Checks for Sub-Agents"
+
+  - id: critical-rules-033
+    title: "Claiming verification without tool-call evidence in sub-agent results"
+    conditions:
+      all:
+        - "sub_agent_result_claimed_done == true"
+        - "verification_claims_have_tool_call_evidence == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [divide-and-conquer, verification-before-completion]
+    source: "000-critical-rules.md §Claiming Verification Without Tool-Call Evidence in Sub-Agent Results"
 ```
