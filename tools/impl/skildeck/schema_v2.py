@@ -4,7 +4,7 @@
 # dependencies = ["pyyaml>=6.0"]
 # ///
 """
-DESCRIPTION: Schema v2.0 validation for yaml+symbolic blocks. Supports tasks, decomposition, gates, and evidence_artifacts sections.
+DESCRIPTION: Schema v2.0 validation for yaml+symbolic blocks. Supports tasks, decomposition, gates, evidence_artifacts, and sub_agent_dispatch sections.
 Usage: python .opencode/tools/impl/skildeck/schema_v2.py [ Options ]
 """
 
@@ -25,6 +25,7 @@ REQUIRED_TASK_FIELDS = {"id", "skill", "preconditions", "postconditions"}
 REQUIRED_DECOMP_FIELDS = {"type", "skill", "task"}
 REQUIRED_GATE_FIELDS = {"id", "condition"}
 REQUIRED_EVIDENCE_FIELDS = {"name", "type", "verification"}
+REQUIRED_SUB_AGENT_DISPATCH_FIELDS = {"type", "isolation", "bypass_violation"}
 
 
 @dataclass
@@ -46,6 +47,20 @@ class DecompositionEntry:
     type: str
     skill: str
     task: str
+    mandatory: bool = True
+    bypass_violation: str = ""
+    source: str = ""
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+@dataclass
+class SubAgentDispatchEntry:
+    type: str
+    isolation: str = "clean-room"
+    must_receive: list[str] = field(default_factory=list)
+    must_not_receive: list[str] = field(default_factory=list)
     mandatory: bool = True
     bypass_violation: str = ""
     source: str = ""
@@ -97,6 +112,7 @@ class SchemaValidationResult:
     state_machines_count: int = 0
     tasks_count: int = 0
     decomposition_count: int = 0
+    sub_agent_dispatch_count: int = 0
     gates_count: int = 0
     evidence_artifacts_count: int = 0
 
@@ -158,15 +174,50 @@ def _validate_task(
 
 
 def _validate_decomposition(
-    raw: dict, errors: list[ValidationError], source: str
+    entry: dict, errors: list[ValidationError], source: str
 ) -> DecompositionEntry | None:
-    missing = REQUIRED_DECOMP_FIELDS - set(raw.keys())
+    missing = REQUIRED_DECOMP_FIELDS - set(entry.keys())
     if missing:
         errors.append(
             ValidationError(
                 path=f"{source}/decomposition",
                 message=f"decomposition entry missing required fields: {missing}",
+                severity="error",
             )
+        )
+        return None
+    return DecompositionEntry(
+        type=entry.get("type", ""),
+        skill=entry.get("skill", ""),
+        task=entry.get("task", ""),
+        mandatory=entry.get("mandatory", True),
+        bypass_violation=entry.get("bypass_violation", ""),
+        source=source,
+    )
+
+
+def _validate_sub_agent_dispatch(
+    entry: dict, errors: list[ValidationError], source: str
+) -> SubAgentDispatchEntry | None:
+    missing = REQUIRED_SUB_AGENT_DISPATCH_FIELDS - set(entry.keys())
+    if missing:
+        errors.append(
+            ValidationError(
+                path=f"{source}/sub_agent_dispatch",
+                message=f"sub_agent_dispatch entry missing required fields: {missing}",
+                severity="error",
+            )
+        )
+        return None
+    return SubAgentDispatchEntry(
+        type=entry.get("type", ""),
+        isolation=entry.get("isolation", "clean-room"),
+        must_receive=entry.get("must_receive", []),
+        must_not_receive=entry.get("must_not_receive", []),
+        mandatory=entry.get("mandatory", True),
+        bypass_violation=entry.get("bypass_violation", ""),
+        source=source,
+    )
         )
         return None
     return DecompositionEntry(
@@ -251,6 +302,7 @@ def validate_schema(data: dict, source: str = "") -> SchemaValidationResult:
 
     tasks: list[Task] = []
     decomposition: list[DecompositionEntry] = []
+    sub_agent_dispatch: list[SubAgentDispatchEntry] = []
     gates: list[Gate] = []
     evidence_artifacts: list[EvidenceArtifact] = []
 
@@ -277,6 +329,13 @@ def validate_schema(data: dict, source: str = "") -> SchemaValidationResult:
             if d:
                 decomposition.append(d)
             result.decomposition_count += 1
+
+    for sad_raw in data.get("sub_agent_dispatch", []):
+        if isinstance(sad_raw, dict):
+            sad = _validate_sub_agent_dispatch(sad_raw, result.errors, source)
+            if sad:
+                sub_agent_dispatch.append(sad)
+            result.sub_agent_dispatch_count += 1
 
     for gate_raw in data.get("gates", []):
         if isinstance(gate_raw, dict):
