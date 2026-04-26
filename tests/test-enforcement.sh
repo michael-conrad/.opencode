@@ -195,6 +195,9 @@ SCENARIOS["inline-work-dispatch-gate"]="Does .opencode/guidelines/000-critical-r
 SCENARIOS["structural-decision-solicitation-vacv"]="Does .opencode/guidelines/000-critical-rules.md contain a section titled 'Critical Violation: Structural Decision Solicitation Under for_pr Scope' that prohibits using the question tool for structural classification under for_pr scope?"
 SCENARIOS["structural-decision-solicitation-yaml"]="Does .opencode/guidelines/000-critical-rules.md yaml+symbolic block contain rule critical-rules-037 titled 'Structural decision solicitation under for_pr scope'?"
 SCENARIOS["for-pr-solicitation-crossref"]="Does .opencode/guidelines/020-go-prohibitions.md section 1.5 reference 'Structural Decision Solicitation Under for_pr Scope' from 000-critical-rules.md?"
+SCENARIOS["post-tool-output-checkpoint"]="Does .opencode/guidelines/000-critical-rules.md contain a subsection titled 'Post-Tool Execution Output Checkpoint' that requires visible chat output after every tool call batch before halting?"
+SCENARIOS["completion-scope-clarification"]="Does .opencode/skills/approval-gate/tasks/completion.md contain a 'Completion Task Scope Clarification' section stating that --task completion is NOT for generating the agent's primary visible output?"
+SCENARIOS["post-dispatch-output-gate"]="Does .opencode/skills/approval-gate/SKILL.md contain a 'Step 0.5: Post-Dispatch Output Gate' that requires visible chat output after every sub-agent dispatch?"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -323,6 +326,8 @@ SCENARIO_TAGS["inline-work-dispatch-gate"]="content-verification clean-room-disp
 SCENARIO_TAGS["structural-decision-solicitation-vacv"]="content-verification approval"
 SCENARIO_TAGS["structural-decision-solicitation-yaml"]="content-verification approval"
 SCENARIO_TAGS["for-pr-solicitation-crossref"]="content-verification approval"
+SCENARIOS["halt-blockers-format"]="Does .opencode/guidelines/000-critical-rules.md chat output format contain a Blockers section that is REQUIRED when workflow is incomplete or blocked?"
+SCENARIOS["halt-blockers-completion-fields"]="Does .opencode/skills/approval-gate/tasks/completion.md Completion Guarantee section contain Blocker state and Developer action required fields?"
 SCENARIO_TAGS["divide-conquer-decomposition-rule"]="content-verification clean-room-dispatch"
 SCENARIO_TAGS["verification-isolation-section"]="content-verification clean-room-dispatch"
 SCENARIO_TAGS["dispatch-audit-tables"]="content-verification clean-room-dispatch"
@@ -344,16 +349,21 @@ SCENARIO_TAGS["cleanup-body-modification-warning"]="content-verification body-pr
 SCENARIO_TAGS["close-body-preservation"]="content-verification body-preservation"
 SCENARIO_TAGS["all-body-modification-safeguards"]="content-verification body-preservation"
 SCENARIO_TAGS["critical-rules-body-erasure"]="content-verification body-preservation"
+SCENARIO_TAGS["halt-blockers-format"]="content-verification halt-output"
+SCENARIO_TAGS["halt-blockers-completion-fields"]="content-verification halt-output"
+SCENARIO_TAGS["post-tool-output-checkpoint"]="content-verification silent-termination"
+SCENARIO_TAGS["completion-scope-clarification"]="content-verification silent-termination"
+SCENARIO_TAGS["post-dispatch-output-gate"]="content-verification silent-termination"
 
 # File-to-scenario mapping for --changed filtering
 # Maps glob patterns to scenario names
 declare -A FILE_SCENARIO_MAP
 FILE_SCENARIO_MAP[".opencode/guidelines/091-incremental-build.md"]="incremental-build-guideline monolithic-implementation-violation item-decomposition-step sc-assertion-tdd-cycle red-state-before-implementation red-phase-enforcement-incremental-build red-phase-enforcement-critical-rules-xref"
-FILE_SCENARIO_MAP[".opencode/guidelines/000-critical-rules.md"]="scope-auto-resolve-guideline monolithic-implementation-violation identity-echo-validation secret-exfiltration-violation url-sourcing-guideline-rules dispatch-artifact-requirements red-phase-enforcement-critical-rules-xref critical-rules-body-erasure direct-branch-default worktree-bypass-conditional for-pr-gap-fill-critical-violation for-pr-gap-fill-forbidden-entries for-pr-gap-fill-required-entries hook-output-advisory-subsection hook-output-advisory-yaml-rule wrong-api-routing-violation wrong-api-routing-yaml-rule dispatch-gate-checkpoint inline-work-dispatch-gate structural-decision-solicitation-vacv structural-decision-solicitation-yaml"
+FILE_SCENARIO_MAP[".opencode/guidelines/000-critical-rules.md"]="scope-auto-resolve-guideline monolithic-implementation-violation identity-echo-validation secret-exfiltration-violation url-sourcing-guideline-rules dispatch-artifact-requirements red-phase-enforcement-critical-rules-xref critical-rules-body-erasure direct-branch-default worktree-bypass-conditional for-pr-gap-fill-critical-violation for-pr-gap-fill-forbidden-entries for-pr-gap-fill-required-entries hook-output-advisory-subsection hook-output-advisory-yaml-rule wrong-api-routing-violation wrong-api-routing-yaml-rule dispatch-gate-checkpoint inline-work-dispatch-gate structural-decision-solicitation-vacv structural-decision-solicitation-yaml halt-blockers-format post-tool-output-checkpoint"
 FILE_SCENARIO_MAP[".opencode/scripts/session_context_triggers.py"]="local-only-trigger-function local-only-trigger-directive dev-edit-guard-trigger stash-triage-directive"
 FILE_SCENARIO_MAP[".opencode/guidelines/010-approval-gate.md"]="for-pr-gap-fill-yaml-rule for-pr-gap-fill-scope-model"
 FILE_SCENARIO_MAP[".opencode/guidelines/020-go-prohibitions.md"]="scope-auto-resolve-guideline pipeline-scoped-halt for-pr-solicitation-crossref"
-FILE_SCENARIO_MAP[".opencode/skills/approval-gate/"]="item-decomposition-step scope-auto-resolve-step approval-gate-sc-traceability approval-gate-red-phase dispatch-chain-enforcement-gate dispatch-artifact-requirements dispatch-checkpoint-live-verification gap-fill-precedence-principle gap-fill-precedence-for-pr gap-fill-precedence-standard-scope screen-issue-gap-fill-awareness gap-fill-precedence-before-step5c task-file-enforcement-refs scope-next-phase-resolution scope-phase-n-resolution enforcement-module-adversarial enforcement-module-scope-parsing enforcement-module-auto-dispatch enforcement-module-closed-issue enforcement-module-sub-issue verify-closed-issue-step7 closed-issue-enforcement-sc all-body-modification-safeguards orchestrator-context-audit"
+FILE_SCENARIO_MAP[".opencode/skills/approval-gate/"]="item-decomposition-step scope-auto-resolve-step approval-gate-sc-traceability approval-gate-red-phase dispatch-chain-enforcement-gate dispatch-artifact-requirements dispatch-checkpoint-live-verification gap-fill-precedence-principle gap-fill-precedence-for-pr gap-fill-precedence-standard-scope screen-issue-gap-fill-awareness gap-fill-precedence-before-step5c task-file-enforcement-refs scope-next-phase-resolution scope-phase-n-resolution enforcement-module-adversarial enforcement-module-scope-parsing enforcement-module-auto-dispatch enforcement-module-closed-issue enforcement-module-sub-issue verify-closed-issue-step7 closed-issue-enforcement-sc all-body-modification-safeguards orchestrator-context-audit halt-blockers-completion-fields completion-scope-clarification post-dispatch-output-gate"
 FILE_SCENARIO_MAP[".opencode/skills/brainstorming/"]="brainstorming-top-down verification-mechanics-brainstorming"
 FILE_SCENARIO_MAP[".opencode/skills/writing-plans/"]="writing-plans-bottom-up validate-executable-verification semantic-intent-writing-plans why-specific-value-tdd red-phase-gate-writing-plans red-phase-gate-writing-plans-skillmd"
 FILE_SCENARIO_MAP[".opencode/skills/executing-plans/"]="executing-plans-tdd red-phase-gate-executing-plans red-phase-gate-skillmd"
@@ -647,6 +657,11 @@ EXPECTED_SKILLS["inline-work-dispatch-gate"]=""
 EXPECTED_SKILLS["structural-decision-solicitation-vacv"]=""
 EXPECTED_SKILLS["structural-decision-solicitation-yaml"]=""
 EXPECTED_SKILLS["for-pr-solicitation-crossref"]=""
+EXPECTED_SKILLS["halt-blockers-format"]=""
+EXPECTED_SKILLS["halt-blockers-completion-fields"]=""
+EXPECTED_SKILLS["post-tool-output-checkpoint"]=""
+EXPECTED_SKILLS["completion-scope-clarification"]=""
+EXPECTED_SKILLS["post-dispatch-output-gate"]=""
 
 RESULTS_FILE="$LOGDIR/results.md"
 

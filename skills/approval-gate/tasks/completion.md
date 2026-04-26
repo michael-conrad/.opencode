@@ -30,6 +30,10 @@ Before adding or removing labels in completion, consult `141-planning-status-tra
 1. Authorization decision (approved/rejected/blocked)
 2. Issue number and branch (if applicable)
 3. What happens next (workflow forward, HALT, or error)
+4. **Blocker state** — what constraint caused the halt (authorization/spec/plan/budget/error/none)
+5. **Developer action required** — exact phrase or step the developer must provide to continue (empty string when no blocker)
+
+When `status == blocked`, fields 4 and 5 MUST be non-empty and specific. Vague phrasing like "needs approval" is STRUCTURE-VIOLATION — the blocker state must name the specific constraint and the developer action must specify the exact phrase or step.
 
 This is the completion guarantee: NO authorization check ends without a status message.
 
@@ -43,6 +47,8 @@ Generate executive summary in chat:
 <Authorization verification result and scope>
 
 **Outcome:** <What the result means for stakeholders>
+
+**Blockers:** <Why stopped + required developer action> (omit when workflow complete)
 
 Issue URL: <html_url from github_issue_write or github_issue_read API response — NEVER construct from template>
 
@@ -68,8 +74,10 @@ URL is ALWAYS last per `000-critical-rules.md`.
 
 - [ ] Executive summary present as **first** element (before any URL)
 - [ ] Outcome line present after summary
-- [ ] URL present IF relevant (after outcome, before byline) — required when branch pushed or issue URL exists, **omitted** when no URL exists
-- [ ] AI byline present as **LAST** element (after URL, or after outcome when no URL)
+- [ ] Blockers section present when `workflow_state != complete` (between outcome and URL, or between outcome and byline when no URL)
+- [ ] Blockers section omitted when workflow is fully complete
+- [ ] URL present IF relevant (after outcome/blockers, before byline) — required when branch pushed or issue URL exists, **omitted** when no URL exists
+- [ ] AI byline present as **LAST** element (after URL, or after outcome/blockers when no URL)
 - [ ] No URL before executive summary
 - [ ] No byline before URL/outcome
 
@@ -116,6 +124,8 @@ When the workflow halts due to a blocker (authorization denied, missing spec, va
 
 **Outcome:** <What is blocked and why>
 
+**Blockers:** <Constraint name + required developer action>
+
 🤖 <AgentName> (<ModelId>) ⛔ blocked
 ```
 
@@ -140,6 +150,17 @@ This format is verified by behavioral enforcement tests in `.opencode/tests/beha
 - **Authorization result comment posted:** Search issue comments via `github_issue_read(method=get_comments)` for the authorization result (byline pattern). If missing → MISSING-ELEMENT (auto-fix: post now).
 - **Label state matches authorization:** Check labels via `github_issue_read(method=get_labels)`. If `needs-approval` present AND authorization granted → STRUCTURE-VIOLATION (auto-fix: remove label). If `needs-approval` absent AND no authorization found → VERIFICATION-GAP (flag-for-review).
 - **Status report matches workflow outcome:** If completion claims "approved" but no authorization comment found → CONFLICTING (flag-for-review). If claims "blocked" but blocker issue is closed → VERIFICATION-GAP (flag-for-review).
+
+### Completion Task Scope Clarification
+
+The `--task completion` subtask is for cleanup-state reporting (labels, comments, verification), NOT for generating the agent's primary visible output.
+
+The agent's visible output is generated:
+1. AFTER tool execution
+2. BEFORE invoking `--task completion`
+3. By the main agent reasoning context, not delegated to completion subtask
+
+**Rule:** If the agent has produced zero chat messages in the current user-turn, invoking `--task completion` does NOT satisfy the output guarantee. Completion runs AFTER output is produced, not INSTEAD of output.
 
 ## Enforcement References
 
