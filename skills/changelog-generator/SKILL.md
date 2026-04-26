@@ -243,3 +243,83 @@ Before invoking any cross-referenced skill:
 - Creating social media announcement posts
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: changelog-gen-001
+    title: "Changelog entries MUST reference actual commit/PR sources"
+    conditions:
+      all:
+        - "changelog_entry_created == true"
+        - "entry_has_source_reference == false"
+    actions:
+      - HALT
+      - REPORT("changelog entry lacks commit/PR source reference")
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "changelog-generator/SKILL.md §Branch-Header-Based Workflow"
+
+  - id: changelog-gen-002
+    title: "Branch-header-based categorization is primary; conventional commits are fallback"
+    conditions:
+      all:
+        - "merge_commit_available == true"
+    actions:
+      - USE_BRANCH_HEADER_CATEGORIZATION
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "changelog-generator/SKILL.md §Fallback Behavior"
+
+tasks:
+  - id: since-last-release
+    skill: changelog-generator
+    preconditions:
+      - "git_repo_available == true"
+      - "CHANGELOG.md_exists == true"
+    postconditions:
+      - "changelog_entries_appended == true"
+      - "all_entries_have_source_references == true"
+    mandatory: true
+    bypass_violation: "changelog entries lack source references"
+    source: "changelog-generator/SKILL.md §Tasks"
+
+  - id: date-range
+    skill: changelog-generator
+    preconditions:
+      - "git_repo_available == true"
+      - "from_date_specified == true"
+      - "to_date_specified == true"
+    postconditions:
+      - "changelog_generated_for_range == true"
+      - "all_entries_have_source_references == true"
+    mandatory: false
+    bypass_violation: "changelog entries lack source references"
+    source: "changelog-generator/SKILL.md §Tasks"
+
+  - id: backfill
+    skill: changelog-generator
+    preconditions:
+      - "git_repo_available == true"
+      - "missing_changelog_entries_detected == true"
+    postconditions:
+      - "historical_entries_backfilled == true"
+      - "all_entries_have_source_references == true"
+    mandatory: false
+    bypass_violation: "backfill entries lack source references"
+    source: "changelog-generator/SKILL.md §Tasks"
+
+decomposition: []
+gates:
+  - id: changelog-source-gate
+    type: postcondition
+    check: "every changelog entry references a commit SHA, PR number, or branch name"
+    on_fail: HALT
+    source: "changelog-generator/SKILL.md §Cross-Reference Verification"
+evidence_artifacts:
+  - "CHANGELOG.md with source-referenced entries"
+  - "git log output used for entry generation"
+```

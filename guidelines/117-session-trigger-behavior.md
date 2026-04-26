@@ -75,3 +75,83 @@ Triggers that cannot drive meaningful action in the current context should be pr
 - `000-critical-rules.md` — Tier 1 mandate for trigger echo prohibition
 - `session_context_triggers.py` — Trigger detection and data generation
 - `session-enforcement.ts` — Plugin that injects `<SESSION_TRIGGERS>` into first user message
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: session-trigger-001
+    title: "Agent must not echo SESSION_TRIGGERS content verbatim"
+    conditions:
+      any:
+        - "agent_output_contains == 'trigger_section_heading'"
+        - "agent_output_contains == 'trigger_dataverbatim'"
+        - "agent_output_contains == 'Suggest:_line'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "117-session-trigger-behavior.md §No-Echo Rule"
+
+  - id: session-trigger-002
+    title: "protected_branch_with_changes requires diff analysis and pair mode suggestion"
+    conditions:
+      all:
+        - "trigger_type == 'protected_branch_with_changes'"
+    actions:
+      - INVOKE(git-workflow)
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow, 116-pair-mode]
+    source: "117-session-trigger-behavior.md §Trigger Behavior Map"
+
+  - id: session-trigger-003
+    title: "on_main_branch requires diff analysis plus production warning"
+    conditions:
+      all:
+        - "trigger_type == 'on_main_branch'"
+    actions:
+      - INVOKE(git-workflow)
+    conflicts_with: []
+    requires: [session-trigger-002]
+    triggers: [git-workflow, 116-pair-mode]
+    source: "117-session-trigger-behavior.md §Trigger Behavior Map"
+
+  - id: session-trigger-004
+    title: "stale_stash requires stash analysis and triage"
+    conditions:
+      all:
+        - "trigger_type == 'stale_stash'"
+    actions:
+      - INVOKE(git-workflow)
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "117-session-trigger-behavior.md §Stash Analysis Protocol"
+
+  - id: session-trigger-005
+    title: "Suppression rule — non-actionable triggers processed silently"
+    conditions:
+      all:
+        - "trigger_type not in ['protected_branch_with_changes', 'on_main_branch', 'stale_stash', 'stale_submodule']"
+    actions:
+      - SKIP
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "117-session-trigger-behavior.md §Suppression Rule"
+
+  - id: session-trigger-006
+    title: "stale_submodule with active work requires bump and commit"
+    conditions:
+      all:
+        - "trigger_type == 'stale_submodule'"
+        - "active_work == true"
+    actions:
+      - INVOKE(git-workflow)
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "117-session-trigger-behavior.md §Trigger Behavior Map"
+```

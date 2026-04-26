@@ -91,3 +91,110 @@
 ______________________________________________________________________
 
 This guideline works with the error handling series (200-203). When in doubt: **raise, don't return.**
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: data-integrity-001
+    title: "No synthetic/imaginary/fabricated data — absolute prohibition"
+    conditions:
+      all:
+        - "data_type in ['synthetic', 'imaginary', 'fabricated', 'placeholder']"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "090-data-integrity.md §Global Absolute Prohibition"
+
+  - id: data-integrity-002
+    title: "Hard fail on missing required data"
+    conditions:
+      all:
+        - "required_data_missing == true"
+        - "skip_or_suppress_attempted == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "090-data-integrity.md §Fail-Fast"
+
+  - id: data-integrity-003
+    title: "No default data to fill missing DB fields"
+    conditions:
+      all:
+        - "db_field_missing == true"
+        - "default_value_assigned == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "090-data-integrity.md §Fail-Fast"
+
+  - id: data-integrity-004
+    title: "No unauthorized semantic changes"
+    conditions:
+      all:
+        - "semantic_change_pending == true"
+        - "explicit_user_permission == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "090-data-integrity.md §No Unauthorized Semantic Changes"
+
+  - id: data-integrity-005
+    title: "No equivalence claims without proof"
+    conditions:
+      all:
+        - "equivalence_claimed == true"
+        - "formal_proof_provided == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "090-data-integrity.md §No Unauthorized Semantic Changes"
+
+  - id: data-integrity-006
+    title: "Mandatory source traceability for validation data"
+    conditions:
+      all:
+        - "validation_data_used == true"
+        - "source_of_record_declared == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "090-data-integrity.md §Verify Before Recommend"
+
+  - id: data-integrity-007
+    title: "No hardcoded domain entity IDs in source code"
+    conditions:
+      all:
+        - "hardcoded_entity_id_found == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "090-data-integrity.md §No Hardcoded Entity IDs"
+
+  - id: data-integrity-008
+    title: "Correctness over performance in batch operations"
+    conditions:
+      all:
+        - "batch_operation_pending == true"
+        - "performance_optimized_over_correctness == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "090-data-integrity.md §Batch Operations"
+```

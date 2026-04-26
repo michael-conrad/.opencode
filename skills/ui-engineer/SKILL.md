@@ -122,3 +122,79 @@ When the context involves writing UI code, building pages, creating views, or tr
 - **`divide-and-conquer`**: Dispatches `ui-engineer` as a sub-agent via `assemble-work` when the plan includes UI implementation phases.
 - **`issue-operations`**: Used for posting progress comments and linking implementation artifacts to issues.
 - **`verification-before-completion`**: Validates implementation against spec success criteria before marking the phase complete.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: ui-engineer-001
+    title: "Implementation MUST match design artifacts from ui-design"
+    conditions:
+      all:
+        - "implementation_produced == true"
+        - "interaction_spec_requirements_satisfied == false"
+    actions:
+      - HALT
+      - INVOKE(validate-impl)
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion]
+    source: "ui-engineer/SKILL.md §Operating Protocol"
+
+  - id: ui-engineer-002
+    title: "Interaction spec is REQUIRED input — cannot implement without it"
+    conditions:
+      all:
+        - "implementation_requested == true"
+        - "interaction_spec_available == false"
+    actions:
+      - HALT
+      - REPORT("interaction-spec.yaml required from ui-design")
+    conflicts_with: []
+    requires: [ui-design]
+    triggers: []
+    source: "ui-engineer/SKILL.md §Design Artifact Consumption"
+
+tasks:
+  - id: implement
+    skill: ui-engineer
+    preconditions:
+      - "interaction_spec_available == true"
+      - "framework_configured == true"
+    postconditions:
+      - "framework_specific_code_generated == true"
+      - "interaction_spec_requirements_satisfied == true"
+      - "accessibility_requirements_implemented == true"
+    mandatory: true
+    bypass_violation: "implementation does not satisfy interaction spec"
+    source: "ui-engineer/SKILL.md §Sub-Agent Tasks"
+
+  - id: validate-impl
+    skill: ui-engineer
+    preconditions:
+      - "implementation_produced == true"
+    postconditions:
+      - "all_routes_present == true"
+      - "all_component_states_present == true"
+      - "all_accessibility_reqs_present == true"
+    mandatory: true
+    bypass_violation: "implementation fails validation against interaction spec"
+    source: "ui-engineer/SKILL.md §Sub-Agent Tasks"
+
+decomposition: []
+gates:
+  - id: interaction-spec-gate
+    type: precondition
+    check: "interaction-spec.yaml available and loaded"
+    on_fail: HALT
+    source: "ui-engineer/SKILL.md §Design Artifact Consumption"
+  - id: impl-verification-gate
+    type: postcondition
+    check: "implementation satisfies all interaction spec requirements"
+    on_fail: INVOKE(validate-impl)
+    source: "ui-engineer/SKILL.md §Operating Protocol"
+evidence_artifacts:
+  - "interaction-spec.yaml path"
+  - "validate-impl findings report"
+  - "generated UI code file paths"
+```

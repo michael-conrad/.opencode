@@ -196,3 +196,98 @@ This section was added per `#1197` Phase 7 to mandate word-count complexity metr
 - `skill-creator/SKILL.md` → Word count convention (lines 100-103; authoritative source for word-count metric)
 
 **Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)**
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: incremental-build-001
+    title: "All implementation must follow incremental build discipline"
+    conditions:
+      all:
+        - "implementation_in_progress == true"
+        - "top_down_decomposition_completed == false"
+    actions:
+      - HALT
+    conflicts_with: [critical-rules-017]
+    requires: []
+    triggers: [approval-gate, divide-and-conquer]
+    source: "091-incremental-build.md §Mandate"
+
+  - id: incremental-build-002
+    title: "Item enumeration and dependency ordering required before implementation"
+    conditions:
+      all:
+        - "implementation_in_progress == true"
+        - "item_enumeration_exists == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [writing-plans, approval-gate]
+    source: "091-incremental-build.md §Top-Down Decomposition Rules"
+
+  - id: incremental-build-003
+    title: "Enforcement test must be RED before GREEN for each item"
+    conditions:
+      all:
+        - "item_implementation_started == true"
+        - "red_test_artifact_exists == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [executing-plans, divide-and-conquer]
+    source: "091-incremental-build.md §Per-Item TDD Cycle"
+
+  - id: incremental-build-004
+    title: "Behavioral RED required for rule/guideline items"
+    conditions:
+      all:
+        - "item_type == 'rule_guideline'"
+        - "behavioral_test_RED_verified == false"
+    actions:
+      - HALT
+    conflicts_with: [code-standards-005]
+    requires: []
+    triggers: []
+    source: "091-incremental-build.md §Behavioral Variant"
+
+  - id: incremental-build-005
+    title: "Phase-scoped test assertions — no cross-phase over-verification"
+    conditions:
+      all:
+        - "phase_n_test_asserts_phase_m_sc == true"
+        - "phase_m != phase_n"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion]
+    source: "091-incremental-build.md §Phase-Scoped Test Assertions"
+
+  - id: incremental-build-006
+    title: "Task files must not exceed 3000 words"
+    conditions:
+      all:
+        - "task_file_word_count > 3000"
+    actions:
+      - SPLIT_FILE
+    conflicts_with: []
+    requires: []
+    triggers: [skill-creator]
+    source: "091-incremental-build.md §Complexity Metric: Word Count"
+
+  - id: incremental-build-007
+    title: "SC-specific TDD — test assertions must reference SC IDs"
+    conditions:
+      all:
+        - "spec_has_success_criteria == true"
+        - "enforcement_test_references_SC == false"
+    actions:
+      - HALT
+    conflicts_with: [code-standards-008]
+    requires: []
+    triggers: [spec-creation, verification-before-completion]
+    source: "091-incremental-build.md §SC-Specific TDD Mandate"
+```

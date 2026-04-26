@@ -424,3 +424,244 @@ Before invoking any cross-referenced skill:
 - Related guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md` (metadata verification extension)
 - Authorization classification: See `010-approval-gate.md` Action Authorization Classification
 - Platform sub-skills: `platforms/github-mcp/SKILL.md`, `platforms/gitbucket-api/SKILL.md`, `platforms/local/SKILL.md`
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: issue-ops-001
+    title: "Mandatory skill dispatch before direct API calls"
+    conditions:
+      all:
+        - "about_to_call == 'github_issue_write' OR 'github_add_issue_comment' OR 'github_sub_issue_write'"
+        - "routed_through_skill == false"
+    actions:
+      - HALT
+      - INVOKE(issue-operations --task creation OR comment)
+    conflicts_with: []
+    requires: []
+    triggers: [creation, comment, close, link-sub-issue]
+    source: "issue-operations/SKILL.md §Hard Gates Gate 1"
+
+  - id: issue-ops-002
+    title: "Byline verification before posting AI-authored content"
+    conditions:
+      all:
+        - "content_authored_by == 'AI'"
+        - "body_contains_byline == false"
+    actions:
+      - APPEND(byline)
+    conflicts_with: []
+    requires: []
+    triggers: [creation, comment]
+    source: "issue-operations/SKILL.md §Hard Gates Gate 2"
+
+  - id: issue-ops-003
+    title: "Close issues only after PR merge confirmed"
+    conditions:
+      all:
+        - "action == 'close_issue'"
+        - "pr_merge_confirmed == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [close, verify-merge]
+    source: "issue-operations/SKILL.md §Critical Rules NEVER DO"
+
+  - id: issue-ops-004
+    title: "Never replace issue body with shorter content"
+    conditions:
+      all:
+        - "action == 'github_issue_write method=update'"
+        - "len(new_body) < 0.8 * len(original_body)"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [close, creation]
+    source: "000-critical-rules.md §Issue Body Erasure"
+
+  - id: issue-ops-005
+    title: "Sub-issues go under plan, not spec"
+    conditions:
+      all:
+        - "creating_sub_issue == true"
+        - "parent_type == 'spec'"
+    actions:
+      - REJECT
+      - USE(parent_type='plan')
+    conflicts_with: []
+    requires: []
+    triggers: [link-sub-issue]
+    source: "issue-operations/SKILL.md §Critical Rules NEVER DO"
+
+  - id: issue-ops-006
+    title: "Title dedup gate before issue creation"
+    conditions:
+      all:
+        - "creating_issue == true"
+        - "dedup_check_performed == false"
+    actions:
+      - HALT
+      - INVOKE(pre-creation Step 0.5)
+    conflicts_with: []
+    requires: []
+    triggers: [creation]
+    source: "issue-operations/SKILL.md §Critical Rules ALWAYS DO"
+
+  - id: issue-ops-007
+    title: "Platform routing before all operations"
+    conditions:
+      all:
+        - "performing_issue_operation == true"
+        - "platform_detected == false"
+    actions:
+      - DETECT(github.platform)
+      - ROUTE(platform_sub_skill)
+    conflicts_with: []
+    requires: []
+    triggers: [creation, comment, close, link-sub-issue, verify-merge]
+    source: "issue-operations/SKILL.md §Platform Routing"
+
+tasks:
+  - id: pre-creation
+    skill: issue-operations
+    preconditions: ["spec_content_available"]
+    postconditions: ["conflicts_checked", "superseded_checked", "dedup_evidence_produced"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Creating issues without validation bypasses duplicate detection and conflict checking"
+    source: "issue-operations/SKILL.md §Tasks"
+
+  - id: creation
+    skill: issue-operations
+    preconditions: ["pre-creation_completed", "single_task_check_completed", "byline_present"]
+    postconditions: ["issue_created", "labels_applied", "needs_approval_label_present"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Direct github_issue_write calls skip byline verification, label enforcement, and pre-creation validation"
+    source: "issue-operations/SKILL.md §Tasks"
+
+  - id: comment
+    skill: issue-operations
+    preconditions: ["comment_substantive == true", "byline_present"]
+    postconditions: ["comment_posted_via_platform"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Direct github_add_issue_comment calls bypass substantiveness gate and byline enforcement"
+    source: "issue-operations/SKILL.md §Tasks"
+
+  - id: close
+    skill: issue-operations
+    preconditions: ["pr_merge_confirmed == true"]
+    postconditions: ["issue_closed", "parent_child_closure_verified"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Closing issues before PR merge confirmed is a critical violation"
+    source: "issue-operations/SKILL.md §Tasks"
+
+  - id: link-sub-issue
+    skill: issue-operations
+    preconditions: ["parent_issue_exists", "sub_issue_exists"]
+    postconditions: ["sub_issue_linked"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Multi-task plans without sub-issues are a critical violation"
+    source: "issue-operations/SKILL.md §Tasks"
+
+  - id: completion
+    skill: issue-operations
+    preconditions: ["workflow_halted_or_completed"]
+    postconditions: ["mandatory_steps_verified", "status_reported"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping completion task may leave mandatory steps (labels, auditors, sub-issues) unverified"
+    source: "issue-operations/SKILL.md §Tasks"
+
+decomposition:
+  - type: skill-task
+    skill: approval-gate
+    task: verify-authorization
+    mandatory: true
+    bypass_violation: "Closing issues requires authorization verification to prevent premature closure"
+    source: "issue-operations/SKILL.md §Interdependencies"
+
+  - type: skill-task
+    skill: git-workflow
+    task: cleanup
+    mandatory: true
+    bypass_violation: "Post-merge cleanup is the sole mechanism for deleting merged branches, closing issues, and syncing dev"
+    source: "issue-operations/SKILL.md §Interdependencies"
+
+  - type: skill-task
+    skill: spec-auditor
+    task: audit
+    mandatory: true
+    bypass_violation: "Multi-task specs require auditor invocation before approval"
+    source: "issue-operations/SKILL.md §Interdependencies"
+
+  - type: skill-task
+    skill: writing-plans
+    task: create
+    mandatory: false
+    bypass_violation: "Plan creation required for multi-task specs but not single-task"
+    source: "issue-operations/SKILL.md §Interdependencies"
+
+gates:
+  - id: byline-present
+    condition: "body_contains_byline == true"
+    on_fail: HALT
+    critical_violation: true
+    source: "issue-operations/SKILL.md §Hard Gates Gate 2"
+
+  - id: merge-confirmed-before-close
+    condition: "pr_merge_confirmed == true"
+    on_fail: HALT
+    critical_violation: true
+    source: "issue-operations/SKILL.md §Critical Rules NEVER DO"
+
+  - id: body-not-erased
+    condition: "len(new_body) >= 0.8 * len(original_body)"
+    on_fail: HALT
+    critical_violation: true
+    source: "000-critical-rules.md §Issue Body Erasure"
+
+  - id: skill-dispatch-before-api
+    condition: "routed_through_skill == true"
+    on_fail: HALT
+    critical_violation: true
+    source: "issue-operations/SKILL.md §Hard Gates Gate 1"
+
+  - id: dedup-check-performed
+    condition: "dedup_evidence_exists == true"
+    on_fail: HALT
+    critical_violation: false
+    source: "issue-operations/SKILL.md §Critical Rules ALWAYS DO"
+
+  - id: substantive-comment
+    condition: "comment_is_substantive == true"
+    on_fail: SKIP
+    critical_violation: false
+    source: "issue-operations/SKILL.md §Substantive Comment Gate"
+
+evidence_artifacts:
+  - name: byline_verification
+    type: tool_call
+    verification: "Check body string for 'Co-authored with AI' or emoji byline before github_issue_write/github_add_issue_comment call"
+    source: "issue-operations/SKILL.md §Hard Gates Gate 2"
+
+  - name: merge_status
+    type: api_call
+    verification: "github_pull_request_read(method=get, pullNumber=N) → check merged field == true"
+    source: "issue-operations/SKILL.md §verify-merge task"
+
+  - name: body_length_check
+    type: tool_call
+    verification: "Read current body via github_issue_read(method=get), compare len(new_body) >= 0.8 * len(original_body)"
+    source: "000-critical-rules.md §Issue Body Erasure"
+
+  - name: dedup_evidence
+    type: api_call
+    verification: "github_search_issues(query) → confirm no overlapping title exists"
+    source: "issue-operations/SKILL.md §pre-creation Step 0.5"
+
+  - name: sub_issue_link
+    type: api_call
+    verification: "github_issue_read(method=get_sub_issues, issue_number=N) → confirm link exists"
+    source: "issue-operations/SKILL.md §link-sub-issue task"
+```

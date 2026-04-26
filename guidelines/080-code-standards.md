@@ -502,3 +502,111 @@ Session-init and env-loader are two independent pipelines with separate naming c
 `GIT_OWNER`, `GIT_REPO`, `GIT_PLATFORM`, `GITHUB_HTML_URL`, `GITBUCKET_HTML_URL`, `GITBUCKET_SSH_URL`, `GITBUCKET_HAS_CREDENTIALS`, `DEV_NAME`, `DEV_EMAIL`, `BRANCH_NAME`, `WORKTREE_PATH`, `WORKTREE_FATAL`
 
 These pipelines are independent. Changing session-init output names does NOT require changes to env-loader, and vice versa.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: code-standards-001
+    title: "Mandatory explicit type hints project-wide"
+    conditions:
+      all:
+        - "python_file_created_or_modified == true"
+        - "type_hints_present == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Typing"
+
+  - id: code-standards-002
+    title: "AI co-authored attribution mandatory for AI-generated content"
+    conditions:
+      all:
+        - "ai_generated_content_created == true"
+        - "attribution_present == false"
+    actions:
+      - ADD_ATTRIBUTION
+    conflicts_with: [critical-rules-023]
+    requires: []
+    triggers: [issue-operations]
+    source: "080-code-standards.md §AI Co-Authored Attribution"
+
+  - id: code-standards-003
+    title: "No re-exports in __init__.py"
+    conditions:
+      all:
+        - "init_py_modified == true"
+        - "imports_or_all_added == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Design Principles — No Re-exports"
+
+  - id: code-standards-004
+    title: "Behavioral enforcement test required for guideline/skill changes"
+    conditions:
+      all:
+        - "guideline_or_skill_file_changed == true"
+        - "behavioral_test_exists == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Enforcement Test Mandate"
+
+  - id: code-standards-005
+    title: "Behavioral RED before GREEN for rule changes"
+    conditions:
+      all:
+        - "rule_change_being_implemented == true"
+        - "behavioral_test_was_RED_first == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: [code-standards-004]
+    triggers: []
+    source: "080-code-standards.md §Behavioral RED/GREEN as Primary Enforcement Gate"
+
+  - id: code-standards-006
+    title: "Natural counting for numbered lists — no zero-indexing"
+    conditions:
+      all:
+        - "new_documentation_created == true"
+        - "uses_zero_indexed_numbering == true"
+    actions:
+      - FIX_NUMBERING
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Numbering — ENFORCED"
+
+  - id: code-standards-007
+    title: "Python tools must not be run on non-Python files"
+    conditions:
+      all:
+        - "ruff_or_pyright_on_markdown == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Tool Selection by File Type"
+
+  - id: code-standards-008
+    title: "SC-to-test traceability mandatory"
+    conditions:
+      all:
+        - "spec_has_success_criteria == true"
+        - "behavioral_test_references_SC == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [spec-creation]
+    source: "080-code-standards.md §SC-to-Test Traceability"
+```

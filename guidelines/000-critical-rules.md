@@ -1207,3 +1207,387 @@ All skill task dispatches follow a sub-agent-first paradigm. The main agent is a
 ______________________________________________________________________
 
 **Search guidelines:** Use `srclight_search_symbols` or `grep` to find relevant guidelines.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: critical-rules-001
+    title: "Tier 1 mandates never yield to developer authorization"
+    conditions:
+      all:
+        - "developer_authorization == true"
+        - "mandate_tier == 1"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "000-critical-rules.md §Mandate Tiering Tier 1"
+
+  - id: critical-rules-002
+    title: "No commits to main or dev branches"
+    conditions:
+      any:
+        - "current_branch == 'main'"
+        - "current_branch == 'dev'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §Tier 1 Non-Yielding Mandates"
+
+  - id: critical-rules-003
+    title: "Human-only merge — agents must never merge PRs"
+    conditions:
+      all:
+        - "is_agent == true"
+        - "action == 'merge_pr'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §Tier 1 Non-Yielding Mandates"
+
+  - id: critical-rules-004
+    title: "No /tmp/ usage — ./tmp/ only"
+    conditions:
+      all:
+        - "file_path matches '^/tmp/'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "000-critical-rules.md §Tier 1 Non-Yielding Mandates"
+
+  - id: critical-rules-005
+    title: "Feature branch required before any file modification"
+    conditions:
+      all:
+        - "has_feature_branch == false"
+        - "file_modification_pending == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §Skipping Git Pre-Check"
+
+  - id: critical-rules-006
+    title: "Agents must never self-authorize"
+    conditions:
+      all:
+        - "authorization_source == 'agent_reasoning'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate]
+    source: "000-critical-rules.md §Tier 1 Non-Yielding Mandates"
+
+  - id: critical-rules-007
+    title: "Worktree path prefixing required when WORKTREE_REQUIRED set"
+    conditions:
+      all:
+        - "WORKTREE_REQUIRED == true"
+        - "uses_relative_paths == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [using-git-worktrees]
+    source: "000-critical-rules.md §Relative File Paths in Worktree Context"
+
+  - id: critical-rules-008
+    title: "Implementing without verifying against live documentation"
+    conditions:
+      all:
+        - "code_modification_pending == true"
+        - "api_verified_against_docs == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "000-critical-rules.md §Implementing Without Verifying"
+
+  - id: critical-rules-009
+    title: "Reporting unverified information as verified"
+    conditions:
+      all:
+        - "claim_presented_as_verified == true"
+        - "tool_call_evidence_exists == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "000-critical-rules.md §Verification Dishonesty"
+
+  - id: critical-rules-010
+    title: "Spec before code — no implementation without approved spec"
+    conditions:
+      all:
+        - "has_approved_spec == false"
+        - "implementation_requested == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate]
+    source: "000-critical-rules.md §Implementation Without Spec"
+
+  - id: critical-rules-011
+    title: "Bug discovery does NOT authorize bug fixing"
+    conditions:
+      all:
+        - "bug_discovered == true"
+        - "code_edit_attempted == true"
+        - "has_approved_spec == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate, issue-review]
+    source: "000-critical-rules.md §Bug Discovery Does NOT Authorize Bug Fixing"
+
+  - id: critical-rules-012
+    title: "Acting on GitHub resource without reading all comments"
+    conditions:
+      all:
+        - "resource_action_pending == true"
+        - "all_comments_read == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [issue-operations]
+    source: "000-critical-rules.md §Acting on Resources Without Reading All Comments"
+
+  - id: critical-rules-013
+    title: "Closing issues before PR merge confirmed"
+    conditions:
+      all:
+        - "issue_closure_attempted == true"
+        - "pr_merge_confirmed == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §Closing Issues Before PR Merge"
+
+  - id: critical-rules-014
+    title: "Scope creep — implementing changes outside the spec"
+    conditions:
+      all:
+        - "change_not_in_spec == true"
+        - "implementation_attempted == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "000-critical-rules.md §Scope Creep"
+
+  - id: critical-rules-015
+    title: "Plan ≠ execution — documentation is not evidence of completion"
+    conditions:
+      all:
+        - "completion_claimed == true"
+        - "live_verification_tool_call == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion]
+    source: "000-critical-rules.md §Plan ≠ Execution"
+
+  - id: critical-rules-016
+    title: "Skip mandatory skill invocation during dispatch chain"
+    conditions:
+      all:
+        - "dispatch_chain_step_skipped == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate, divide-and-conquer]
+    source: "000-critical-rules.md §Bypassing Mandatory Skill Invocations"
+
+  - id: critical-rules-017
+    title: "Monolithic implementation without item decomposition"
+    conditions:
+      all:
+        - "multiple_items_in_single_commit == true"
+        - "item_decomposition_exists == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "000-critical-rules.md §Monolithic Implementation"
+
+  - id: critical-rules-018
+    title: "Halt after single phase in multi-task plan"
+    conditions:
+      all:
+        - "plan_has_multiple_phases == true"
+        - "phases_completed < total_phases"
+        - "authorization_cascades_to_all == true"
+    actions:
+      - PROCEED
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate]
+    source: "000-critical-rules.md §Stopping After Single Phase"
+
+  - id: critical-rules-019
+    title: "No PR creation without explicit instruction"
+    conditions:
+      all:
+        - "pr_creation_attempted == true"
+        - "explicit_pr_instruction == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [pr-creation-workflow]
+    source: "000-critical-rules.md §Creating PRs Without Explicit Instruction"
+
+  - id: critical-rules-020
+    title: "Soft-passing verification mismatches"
+    conditions:
+      all:
+        - "verification_mismatch_detected == true"
+        - "reported_as == 'PASS'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion]
+    source: "000-critical-rules.md §Soft-Passing Verification Mismatches"
+
+  - id: critical-rules-021
+    title: "Secret exfiltration in agent output"
+    conditions:
+      all:
+        - "output_contains_secret_value == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "000-critical-rules.md §Secret Exfiltration in Agent Output"
+
+  - id: critical-rules-022
+    title: "Issue body erasure — replacing with shorter content"
+    conditions:
+      all:
+        - "body_update_pending == true"
+        - "len(new_body) < 0.8 * len(original_body)"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [issue-operations]
+    source: "000-critical-rules.md §Issue Body Erasure"
+
+  - id: critical-rules-023
+    title: "AI-authored content without byline verification"
+    conditions:
+      all:
+        - "ai_authored_content == true"
+        - "byline_present == false"
+        - "api_call_pending == true"
+    actions:
+      - APPEND_BYLINE
+    conflicts_with: []
+    requires: []
+    triggers: [issue-operations]
+    source: "000-critical-rules.md §Posting AI-Authored Content Without Byline"
+
+  - id: critical-rules-024
+    title: "Uncommitted changes when marking implementation complete"
+    conditions:
+      all:
+        - "completion_claimed == true"
+        - "uncommitted_changes_exist == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [finishing-a-development-branch]
+    source: "000-critical-rules.md §Uncommitted/Unpushed Changes After Implementation"
+
+  - id: critical-rules-025
+    title: "Main agent implements directly instead of dispatching sub-agents"
+    conditions:
+      all:
+        - "is_main_agent == true"
+        - "editing_implementation_files == true"
+        - "work_orchestration_active == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [divide-and-conquer]
+    source: "000-critical-rules.md §Main Agent Implements Directly"
+
+  - id: critical-rules-026
+    title: "Git config/destructive commands require explicit authorization"
+    conditions:
+      any:
+        - "command matches 'git remote add|rm|set-url'"
+        - "command matches 'git push --force'"
+        - "command matches 'git reset --hard'"
+        - "command matches 'git commit --no-verify' AND repo_has_remotes == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §Git Configuration and Destructive Command Authorization"
+
+  - id: critical-rules-027
+    title: "Confirmation ≠ authorization"
+    conditions:
+      all:
+        - "user_response_type == 'confirmation'"
+        - "treated_as_authorization == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate]
+    source: "000-critical-rules.md §Confirmation ≠ Authorization"
+
+  - id: critical-rules-028
+    title: "Offer-to-edit bypass — offering to modify without spec"
+    conditions:
+      all:
+        - "agent_output matches 'Want me to|Shall I fix|I can change'"
+        - "has_approved_spec == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "000-critical-rules.md §Offer-to-Edit Bypass"
+
+  - id: critical-rules-029
+    title: "Non-idempotent API mutations creating duplicates"
+    conditions:
+      all:
+        - "mutation_call_pending == true"
+        - "existing_resource_checked == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [issue-operations]
+    source: "000-critical-rules.md §Non-Idempotent API Mutations"
+```

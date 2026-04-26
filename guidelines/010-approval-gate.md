@@ -331,8 +331,8 @@ Key rules:
 | `executing-plans` skill | Plan execution after plan approval |
 
 ```yaml+symbolic
-schema_version: "1.0"
-last_updated: "2026-04-13T12:00:00Z"
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
 rules:
   - id: approval-gate-001
     title: "No implementation without authorization"

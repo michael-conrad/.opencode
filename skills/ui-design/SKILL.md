@@ -128,3 +128,83 @@ When the context involves designing screens, layouts, navigation structures, com
 - **`divide-and-conquer`**: Dispatches `ui-design` as a sub-agent via `assemble-work` when the plan includes UI design phases.
 - **`issue-operations`**: Used for posting progress comments and linking design artifacts to issues.
 - **`verification-before-completion`**: Validates design artifacts against spec success criteria before marking the phase complete.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: ui-design-001
+    title: "Design artifacts MUST be verified against spec requirements"
+    conditions:
+      all:
+        - "design_artifact_produced == true"
+        - "spec_requirements_verified == false"
+    actions:
+      - INVOKE(review)
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion]
+    source: "ui-design/SKILL.md §Operating Protocol"
+
+  - id: ui-design-002
+    title: "Design artifacts MUST be toolkit-agnostic — no framework-specific markup"
+    conditions:
+      all:
+        - "design_artifact_produced == true"
+        - "contains_framework_specific_markup == true"
+    actions:
+      - REMOVE_FRAMEWORK_MARKUP
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "ui-design/SKILL.md §Operating Protocol"
+
+tasks:
+  - id: wireframe
+    skill: ui-design
+    preconditions:
+      - "spec_or_context_loaded == true"
+    postconditions:
+      - "svg_wireframe_produced == true"
+      - "framework_agnostic == true"
+    mandatory: false
+    bypass_violation: "wireframe contains framework-specific markup"
+    source: "ui-design/SKILL.md §Sub-Agent Tasks"
+
+  - id: mockup
+    skill: ui-design
+    preconditions:
+      - "spec_or_context_loaded == true"
+    postconditions:
+      - "html_css_mockup_produced == true"
+      - "framework_agnostic == true"
+    mandatory: false
+    bypass_violation: "mockup contains framework-specific markup"
+    source: "ui-design/SKILL.md §Sub-Agent Tasks"
+
+  - id: interaction-spec
+    skill: ui-design
+    preconditions:
+      - "spec_or_context_loaded == true"
+    postconditions:
+      - "yaml_interaction_spec_produced == true"
+      - "navigation_routes_defined == true"
+      - "component_states_defined == true"
+      - "accessibility_requirements_defined == true"
+    mandatory: false
+    bypass_violation: "interaction spec missing required sections"
+    source: "ui-design/SKILL.md §Sub-Agent Tasks"
+
+decomposition: []
+gates:
+  - id: spec-verification-gate
+    type: postcondition
+    check: "design artifacts verified against spec success criteria"
+    on_fail: INVOKE(review)
+    source: "ui-design/SKILL.md §Operating Protocol"
+evidence_artifacts:
+  - "wireframe.svg file path"
+  - "mockup.html file path"
+  - "interaction-spec.yaml file path"
+  - "review task findings"
+```

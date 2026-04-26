@@ -285,3 +285,188 @@ Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 - No orphaned state is left behind
 
 The completion task is idempotent and safe to invoke multiple times.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: correspondence-001
+    title: "Verification gate before drafting correspondence"
+    conditions:
+      all:
+        - "verification_enforcement_verify_invoked == false"
+    actions:
+      - INVOKE(verification-enforcement --task verify)
+    conflicts_with: []
+    requires: []
+    triggers: [verification-enforcement]
+    source: "correspondence/SKILL.md §Operating Protocol #1"
+
+  - id: correspondence-002
+    title: "Multipart/alternative format mandatory for email"
+    conditions:
+      all:
+        - "output_format == email"
+        - "multipart_alternative_parts_present == false"
+    actions:
+      - REJECT(draft)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "correspondence/SKILL.md §Operating Protocol #2"
+
+  - id: correspondence-003
+    title: "Audience separation — no internal artifacts in stakeholder tier"
+    conditions:
+      all:
+        - "audience_tier == stakeholder"
+        - "content_contains_internal_artifacts == true"
+    actions:
+      - REJECT(draft)
+      - FILTER(internal_artifacts)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "correspondence/SKILL.md §Audience Separation Principle"
+
+  - id: correspondence-004
+    title: "Audience classification before drafting"
+    conditions:
+      all:
+        - "audience_tier_classified == false"
+    actions:
+      - HALT
+      - CLASSIFY_AUDIENCE
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "correspondence/SKILL.md §Operating Protocol #4"
+
+  - id: correspondence-005
+    title: "Verification gate after drafting and self-review"
+    conditions:
+      all:
+        - "verification_enforcement_revisit_invoked == false"
+    actions:
+      - INVOKE(verification-enforcement --task revisit)
+    conflicts_with: []
+    requires: [correspondence-001]
+    triggers: [verification-enforcement]
+    source: "correspondence/SKILL.md §Operating Protocol #5"
+
+  - id: correspondence-006
+    title: "AI byline mandatory in all correspondence"
+    conditions:
+      all:
+        - "ai_byline_present == false"
+    actions:
+      - APPEND(byline)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "correspondence/SKILL.md §AI Byline Rule"
+
+  - id: correspondence-007
+    title: "Content-type propagation — match source format"
+    conditions:
+      all:
+        - "source_content_type_inspected == false"
+    actions:
+      - HALT
+      - INSPECT(source Content-Type header)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "correspondence/SKILL.md §Content-Type Propagation"
+
+  - id: correspondence-008
+    title: "Attribution verification — no role-proximity inference"
+    conditions:
+      all:
+        - "person_action_attributed == true"
+        - "attribution_evidence_exists == false"
+    actions:
+      - REMOVE(attribution)
+      - REPHRASE("completed per [reference]")
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "correspondence/SKILL.md §Attribution Verification"
+
+tasks:
+  - id: draft
+    skill: correspondence
+    preconditions:
+      - "verification_enforcement_verify_invoked == true"
+      - "audience_tier_classified == true"
+    postconditions:
+      - "multipart_alternative_parts_present == true (if email)"
+      - "stakeholder_content_filtered == true (if stakeholder tier)"
+      - "ai_byline_present == true"
+      - "verification_enforcement_revisit_invoked == true"
+      - "all_unverified_markers_resolved == true OR escalated == true"
+    mandatory: true
+    bypass_violation: "Correspondence without verification — drafting without verification gate is a critical violation"
+    source: "correspondence/SKILL.md §Tasks draft"
+
+  - id: completion
+    skill: correspondence
+    preconditions: []
+    postconditions:
+      - "terminal_state_dispatch_occurred == true"
+      - "status_report_produced == true"
+    mandatory: true
+    bypass_violation: "Silent Agent Termination — halting without completion task is a critical violation"
+    source: "correspondence/SKILL.md §Tasks completion"
+
+decomposition:
+  - type: skill-task
+    skill: verification-enforcement
+    task: verify
+    mandatory: true
+    bypass_violation: "Skipping verification-enforcement — correspondence generation without verification gate is a critical violation"
+
+  - type: skill-task
+    skill: verification-enforcement
+    task: revisit
+    mandatory: true
+    bypass_violation: "Skipping revisit — unverified claims in correspondence must be resolved or escalated"
+
+gates:
+  - id: audience-separation
+    condition: "content_contains_internal_artifacts == false OR audience_tier == operator"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: verification-enforcement-gate
+    condition: "verification_enforcement_verify_invoked == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: content-type-match
+    condition: "source_content_type_inspected == true AND reply_format_matches_source == true"
+    on_fail: HALT
+    critical_violation: false
+
+  - id: byline-present
+    condition: "ai_byline_present == true"
+    on_fail: WARN
+    critical_violation: true
+
+evidence_artifacts:
+  - name: audience_classification
+    type: tool_call
+    verification: "Agent self-documentation of audience tier determination"
+
+  - name: stakeholder_content_filter
+    type: tool_call
+    verification: "Grep draft for internal artifact patterns (runbook paths, internal IPs, step numbers, CLI commands)"
+
+  - name: verification_revisit_result
+    type: tool_call
+    verification: "verification-enforcement --task revisit output confirming all markers resolved or escalated"
+
+  - name: content_type_inspection
+    type: tool_call
+    verification: "read source .eml file → grep Content-Type header"
+```

@@ -92,8 +92,8 @@ All six items MUST be addressed. If an item is genuinely not applicable, state "
 | Existing alternatives | `srclight_hybrid_search` | `grep` for similar names/patterns |
 
 ```yaml+symbolic
-schema_version: "1.0"
-last_updated: "2026-04-13T12:00:00Z"
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
 rules:
   - id: pre-spec-inspection-001
     title: "Code inspection checklist must be completed before spec approach"

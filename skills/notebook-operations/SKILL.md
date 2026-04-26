@@ -85,3 +85,120 @@ ALL code standards in `080-code-standards.md` apply to notebook cells: KISS/DRY,
 | `notebook-operations` skill (this file) | Essential directive for notebook operations |
 | `060-tool-usage.md` | Tool usage and terminal rules |
 | `000-critical-rules.md` | Violation enforcement |
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: notebook-ops-001
+    title: "ALL .ipynb access MUST use the-notebook-mcp exclusively — ZERO TOLERANCE"
+    conditions:
+      all:
+        - "notebook_operation_requested == true"
+        - "notebook_mcp_available == true"
+        - "using_notebook_mcp == false"
+    actions:
+      - HALT
+      - REPORT("zero tolerance violation: direct .ipynb access forbidden")
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "notebook-operations/SKILL.md §Zero Tolerance Rule"
+
+  - id: notebook-ops-002
+    title: "If the-notebook-mcp is unavailable, ALL notebook operations are FORBIDDEN — no fallback"
+    conditions:
+      all:
+        - "notebook_operation_requested == true"
+        - "notebook_mcp_available == false"
+    actions:
+      - HALT
+      - REPORT("the-notebook-mcp unavailable — no notebook operations possible")
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "notebook-operations/SKILL.md §When MCP Unavailable"
+
+  - id: notebook-ops-003
+    title: "Notebook execution requires explicit per-session user authorization"
+    conditions:
+      all:
+        - "notebook_execution_requested == true"
+        - "user_authorization_given == false"
+    actions:
+      - HALT
+      - REQUEST_AUTHORIZATION
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "notebook-operations/SKILL.md §Core Tool Mappings"
+
+  - id: notebook-ops-004
+    title: "Production data execution is ABSOLUTELY FORBIDDEN"
+    conditions:
+      all:
+        - "notebook_execution_requested == true"
+        - "data_classification == 'production'"
+    actions:
+      - HALT
+      - REPORT("production data execution forbidden")
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "notebook-operations/SKILL.md §Core Tool Mappings"
+
+tasks:
+  - id: permitted-operations
+    skill: notebook-operations
+    preconditions:
+      - "notebook_mcp_available == true"
+    postconditions:
+      - "correct_tool_selected == true"
+      - "no_direct_file_access == true"
+    mandatory: true
+    bypass_violation: "zero tolerance: direct .ipynb access"
+    source: "notebook-operations/SKILL.md §Tasks"
+
+  - id: cell-labels
+    skill: notebook-operations
+    preconditions:
+      - "notebook_mcp_available == true"
+    postconditions:
+      - "cell_labels_follow_convention == true"
+    mandatory: false
+    bypass_violation: "cell labels non-compliant"
+    source: "notebook-operations/SKILL.md §Tasks"
+
+  - id: swap-reorder
+    skill: notebook-operations
+    preconditions:
+      - "notebook_mcp_available == true"
+      - "cell_indices_valid == true"
+    postconditions:
+      - "cells_reordered_correctly == true"
+    mandatory: false
+    bypass_violation: "cell reorder failed"
+    source: "notebook-operations/SKILL.md §Tasks"
+
+  - id: production-data
+    skill: notebook-operations
+    preconditions:
+      - "notebook_execution_requested == true"
+    postconditions:
+      - "production_data_not_executed == true"
+      - "user_authorization_verified == true"
+    mandatory: true
+    bypass_violation: "production data execution attempted"
+    source: "notebook-operations/SKILL.md §Tasks"
+
+decomposition: []
+gates:
+  - id: mcp-only-gate
+    type: precondition
+    check: "the-notebook-mcp is available AND selected for all .ipynb operations"
+    on_fail: HALT
+    source: "notebook-operations/SKILL.md §Zero Tolerance Rule"
+evidence_artifacts:
+  - "the-notebook-mcp tool call output (not raw file read)"
+  - "notebook_validate output confirming valid .ipynb"
+```
