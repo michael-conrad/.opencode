@@ -99,6 +99,17 @@ This guideline retains governance of reactive honesty during conversation and ad
 
 Both this guideline and the verification-enforcement skill share the same core principle: no claim should be presented as verified without a tool call or live source as evidence. The skill extends this principle with a structured dispatch-and-collect workflow appropriate for multi-section content generation, while this guideline covers the same principle in its simpler, conversational form.
 
+## Evidence Hierarchy
+
+| Tier | Source | Classification | When Permitted |
+|------|--------|----------------|----------------|
+| **Direct evidence** | Live tool call in current session (file read, signature lookup, test execution, API query) | Evidence | As sole basis for PASS judgment |
+| **Process metadata** | PR merge status, issue state, labels, comments | Context only | May inform where to look, NEVER basis for PASS |
+| **Session memory** | Tool call from earlier in same exchange | Evidence (single-exchange window) | ONLY if from immediately preceding exchange |
+| **Session memory (stale)** | Tool call from earlier in same session (not last exchange) | Context only | Treat as unverified; re-read if state may have changed |
+| **Cross-session memory** | Recollection from previous session | PROXY — always stale | NEVER evidence; must re-verify |
+| **Training data** | Model weights / parametric knowledge | PROXY — always stale | NEVER evidence; suggest-only with staleness disclaimer |
+
 ## Research-First Mandate
 
 **🚫 CRITICAL VIOLATION: Presenting unverified claims as facts without first attempting exhaustive research using available tools.**
