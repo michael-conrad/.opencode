@@ -375,3 +375,189 @@ Action: [auto-fix|conditional|flag-for-review]
 - Source: adapted from [obra/superpowers `writing-plans`](https://github.com/obra/superpowers/blob/main/skills/writing-plans/SKILL.md)
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: writing-plans-001
+    title: "Plan must derive from approved spec only"
+    conditions:
+      all:
+        - "spec_approved == false"
+        - "authorization_scope != for_plan"
+        - "authorization_scope != for_implementation"
+    actions:
+      - HALT
+      - REPORT("spec not approved, cannot create plan")
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate]
+    source: "writing-plans/SKILL.md §Auto-Dispatch Entry"
+
+  - id: writing-plans-002
+    title: "No placeholders in plan"
+    conditions:
+      all:
+        - "plan_contains_placeholders == true"
+    actions:
+      - REJECT(plan)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "writing-plans/SKILL.md §No-Placeholders Rule"
+
+  - id: writing-plans-003
+    title: "Sub-issues under plan, not spec"
+    conditions:
+      all:
+        - "plan_is_multi_task == true"
+        - "sub_issues_parent == spec"
+    actions:
+      - RESTRUCTURE(move sub-issues to plan)
+    conflicts_with: []
+    requires: []
+    triggers: [issue-operations]
+    source: "writing-plans/SKILL.md §Plan Issue Model"
+
+  - id: writing-plans-004
+    title: "Spec revision revokes plan approval"
+    conditions:
+      all:
+        - "spec_revised == true"
+        - "plan_linked_to_spec == true"
+    actions:
+      - REAPPLY(needs-approval label to plan)
+      - ADD_COMMENT("Spec revised — plan requires re-approval")
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "writing-plans/SKILL.md §Spec Revision Revocation"
+
+  - id: writing-plans-005
+    title: "RED verification checkpoint mandatory per TDD step"
+    conditions:
+      all:
+        - "tdd_step_block_missing_red_checkpoint == true"
+    actions:
+      - REJECT(plan)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "writing-plans/SKILL.md §RED Verification Checkpoint"
+
+  - id: writing-plans-006
+    title: "Verification-enforcement gate before plan generation"
+    conditions:
+      all:
+        - "verification_enforcement_verify_invoked == false"
+    actions:
+      - INVOKE(verification-enforcement --task verify)
+    conflicts_with: []
+    requires: []
+    triggers: [verification-enforcement]
+    source: "writing-plans/SKILL.md §Live Verification: Spec State"
+
+  - id: writing-plans-007
+    title: "Scope-aware plan approval cascade"
+    conditions:
+      any:
+        - "authorization_scope == for_plan"
+        - "authorization_scope == for_implementation"
+        - "authorization_scope == for_code_review"
+        - "authorization_scope == for_pr"
+    actions:
+      - AUTO_APPROVE(plan_if_newly_created)
+      - REMOVE(needs-approval label)
+    conflicts_with: [writing-plans-001]
+    requires: []
+    triggers: [approval-gate]
+    source: "writing-plans/SKILL.md §Approval Cascade"
+
+  - id: writing-plans-008
+    title: "Duplicate plan check before creation"
+    conditions:
+      all:
+        - "existing_plan_for_spec_found == true"
+        - "developer_acknowledgment_received == false"
+    actions:
+      - HALT
+      - PRESENT(overlap)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "writing-plans/SKILL.md §Operating Protocol Step 1.5"
+
+tasks:
+  - id: create
+    skill: writing-plans
+    preconditions:
+      - "spec_approved == true OR authorization_scope >= for_plan"
+      - "spec_issue_number known"
+    postconditions:
+      - "plan_issue_created == true OR combined_plan_appended == true"
+      - "sub_issues_created == true (if multi-task)"
+      - "self_review_passed == true"
+    mandatory: true
+    bypass_violation: "Implementation without plan — plan creation is mandatory before implementation"
+    source: "writing-plans/SKILL.md §Tasks create"
+
+  - id: completion
+    skill: writing-plans
+    preconditions: []
+    postconditions:
+      - "terminal_state_dispatch_occurred == true"
+      - "status_report_produced == true"
+    mandatory: true
+    bypass_violation: "Silent Agent Termination — halting without completion task is a critical violation"
+    source: "writing-plans/SKILL.md §Tasks completion"
+
+decomposition:
+  - type: skill-task
+    skill: verification-enforcement
+    task: verify
+    mandatory: true
+    bypass_violation: "Skipping verification-enforcement — plan generation without verification gate is a critical violation"
+
+  - type: sub-agent
+    skill: brainstorming
+    task: explore
+    mandatory: false
+    bypass_violation: "Skipping analysis — only permitted when spec already contains sufficient detail"
+
+  - type: sub-agent
+    skill: issue-operations
+    task: link-sub-issue
+    mandatory: true
+    bypass_violation: "Multi-task plan requires sub-issue linkage under plan — skipping is a critical violation"
+
+gates:
+  - id: plan-fidelity
+    condition: "plan_covers_all_spec_requirements == true AND plan_no_placeholders == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: sub-issue-count-matches-phases
+    condition: "plan_sub_issues_count == plan_body_phase_count"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: red-checkpoint-present
+    condition: "all_tdd_step_blocks_have_red_checkpoint == true"
+    on_fail: HALT
+    critical_violation: true
+
+evidence_artifacts:
+  - name: spec_approved_verification
+    type: tool_call
+    verification: "github_issue_read(method=get_labels) + github_issue_read(method=get_comments) → confirm approval"
+
+  - name: plan_issue_created
+    type: api_call
+    verification: "github_issue_read(method=get) → check title prefix [PLAN] or combined plan section"
+
+  - name: sub_issue_linkage
+    type: api_call
+    verification: "github_issue_read(method=get_sub_issues, issue_number=plan_N) → count matches phase count"
+```
