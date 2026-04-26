@@ -157,6 +157,8 @@ When `authorization_scope >= for_plan`, missing intermediate artifacts are gap-f
 - Plan needs approval → auto-approved via pipeline scope
 - `for_pr` scope → PR creation is part of gap-fill
 
+**`for_pr` gap-fill is autonomous — NO developer input for structural decisions.** The agent MUST NOT halt to ask about plan creation, issue grouping, execution order, or any structural decision that the scope model resolves. These are agent intelligence concerns, not developer decisions. See `000-critical-rules.md` → "for_pr Gap-Fill Halt" for the complete critical violation.
+
 ### Multi-Task Plan Authorization (CRITICAL)
 
 **When a plan has sub-issues:** plan approval cascades authorization to ALL sub-issues under the plan.
@@ -542,6 +544,19 @@ rules:
     requires: [approval-gate-010]
     triggers: [git-workflow, pr-creation-workflow]
     source: "010-approval-gate.md §Scope-Dependent PR Strategy"
+
+  - id: approval-gate-014
+    title: "for_pr scope auto gap-fill — no halt for structural decisions"
+    conditions:
+      all:
+        - "authorization_scope == 'for_pr'"
+        - "agent_halted_for_structural_decision == true"
+    actions:
+      - PROCEED_WITH_GAP_FILL
+    conflicts_with: []
+    requires: [approval-gate-010]
+    triggers: [approval-gate, divide-and-conquer]
+    source: "010-approval-gate.md §Authorization Scope Model"
 
 state_machines:
   - id: approval-lifecycle

@@ -177,6 +177,11 @@ SCENARIOS["divide-conquer-decomposition-rule"]="Does .opencode/skills/divide-and
 SCENARIOS["verification-isolation-section"]="Does .opencode/skills/verification-before-completion/SKILL.md contain a Verification Isolation section requiring verification by a DIFFERENT sub-agent from the producer?"
 SCENARIOS["dispatch-audit-tables"]="Does every SKILL.md file in .opencode/skills/ contain a Sub-Agent Tasks section or dispatch audit table with columns for Task, Trigger Condition, Scope of Context, Exclusions, and Inline Work?"
 SCENARIOS["no-inline-work-yes"]="Is Inline Work? = NO in every dispatch audit table across all SKILL.md files in .opencode/skills/?"
+SCENARIOS["for-pr-gap-fill-critical-violation"]="Does .opencode/guidelines/000-critical-rules.md contain a section titled 'Critical Violation: for_pr Gap-Fill Halt' that prohibits halting to ask the developer about plan creation, grouping, or execution order when for_pr authorization is received?"
+SCENARIOS["for-pr-gap-fill-forbidden-entries"]="Does .opencode/guidelines/000-critical-rules.md for_pr Gap-Fill section FORBIDDEN list include: asking how to proceed, asking for grouping decisions, treating plan creation as requiring developer input, halting before pr_created, requesting re-authorization for gap-fill steps?"
+SCENARIOS["for-pr-gap-fill-required-entries"]="Does .opencode/guidelines/000-critical-rules.md for_pr Gap-Fill section REQUIRED list include: parse for_pr scope and execute gap-fill cascade autonomously, auto-create plans, auto-approve plans via spec-to-plan cascade, build execution order from dependency analysis without developer input, proceed through full pipeline to pr_created?"
+SCENARIOS["for-pr-gap-fill-yaml-rule"]="Does .opencode/guidelines/010-approval-gate.md yaml+symbolic block contain rule approval-gate-014 titled 'for_pr scope auto gap-fill — no halt for structural decisions'?"
+SCENARIOS["for-pr-gap-fill-scope-model"]="Does .opencode/guidelines/010-approval-gate.md Authorization Scope Model Gap-Fill Cascade section explicitly state that for_pr gap-fill is autonomous and requires NO developer input for structural decisions?"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -303,6 +308,11 @@ SCENARIO_TAGS["divide-conquer-decomposition-rule"]="content-verification clean-r
 SCENARIO_TAGS["verification-isolation-section"]="content-verification clean-room-dispatch"
 SCENARIO_TAGS["dispatch-audit-tables"]="content-verification clean-room-dispatch"
 SCENARIO_TAGS["no-inline-work-yes"]="content-verification clean-room-dispatch"
+SCENARIO_TAGS["for-pr-gap-fill-critical-violation"]="content-verification approval"
+SCENARIO_TAGS["for-pr-gap-fill-forbidden-entries"]="content-verification approval"
+SCENARIO_TAGS["for-pr-gap-fill-required-entries"]="content-verification approval"
+SCENARIO_TAGS["for-pr-gap-fill-yaml-rule"]="content-verification approval"
+SCENARIO_TAGS["for-pr-gap-fill-scope-model"]="content-verification approval"
 SCENARIO_TAGS["spec-auditor-body-preservation"]="content-verification body-preservation"
 SCENARIO_TAGS["cleanup-body-modification-warning"]="content-verification body-preservation"
 SCENARIO_TAGS["close-body-preservation"]="content-verification body-preservation"
@@ -313,7 +323,8 @@ SCENARIO_TAGS["critical-rules-body-erasure"]="content-verification body-preserva
 # Maps glob patterns to scenario names
 declare -A FILE_SCENARIO_MAP
 FILE_SCENARIO_MAP[".opencode/guidelines/091-incremental-build.md"]="incremental-build-guideline monolithic-implementation-violation item-decomposition-step sc-assertion-tdd-cycle red-state-before-implementation red-phase-enforcement-incremental-build red-phase-enforcement-critical-rules-xref"
-FILE_SCENARIO_MAP[".opencode/guidelines/000-critical-rules.md"]="scope-auto-resolve-guideline monolithic-implementation-violation identity-echo-validation secret-exfiltration-violation url-sourcing-guideline-rules dispatch-artifact-requirements red-phase-enforcement-critical-rules-xref critical-rules-body-erasure direct-branch-default worktree-bypass-conditional"
+FILE_SCENARIO_MAP[".opencode/guidelines/000-critical-rules.md"]="scope-auto-resolve-guideline monolithic-implementation-violation identity-echo-validation secret-exfiltration-violation url-sourcing-guideline-rules dispatch-artifact-requirements red-phase-enforcement-critical-rules-xref critical-rules-body-erasure direct-branch-default worktree-bypass-conditional for-pr-gap-fill-critical-violation for-pr-gap-fill-forbidden-entries for-pr-gap-fill-required-entries"
+FILE_SCENARIO_MAP[".opencode/guidelines/010-approval-gate.md"]="for-pr-gap-fill-yaml-rule for-pr-gap-fill-scope-model"
 FILE_SCENARIO_MAP[".opencode/guidelines/020-go-prohibitions.md"]="scope-auto-resolve-guideline pipeline-scoped-halt"
 FILE_SCENARIO_MAP[".opencode/skills/approval-gate/"]="item-decomposition-step scope-auto-resolve-step approval-gate-sc-traceability approval-gate-red-phase dispatch-chain-enforcement-gate dispatch-artifact-requirements dispatch-checkpoint-live-verification gap-fill-precedence-principle gap-fill-precedence-for-pr gap-fill-precedence-standard-scope screen-issue-gap-fill-awareness gap-fill-precedence-before-step5c task-file-enforcement-refs scope-next-phase-resolution scope-phase-n-resolution enforcement-module-adversarial enforcement-module-scope-parsing enforcement-module-auto-dispatch enforcement-module-closed-issue enforcement-module-sub-issue verify-closed-issue-step7 closed-issue-enforcement-sc all-body-modification-safeguards"
 FILE_SCENARIO_MAP[".opencode/skills/brainstorming/"]="brainstorming-top-down verification-mechanics-brainstorming"
@@ -592,6 +603,11 @@ EXPECTED_SKILLS["divide-conquer-decomposition-rule"]=""
 EXPECTED_SKILLS["verification-isolation-section"]=""
 EXPECTED_SKILLS["dispatch-audit-tables"]=""
 EXPECTED_SKILLS["no-inline-work-yes"]=""
+EXPECTED_SKILLS["for-pr-gap-fill-critical-violation"]=""
+EXPECTED_SKILLS["for-pr-gap-fill-forbidden-entries"]=""
+EXPECTED_SKILLS["for-pr-gap-fill-required-entries"]=""
+EXPECTED_SKILLS["for-pr-gap-fill-yaml-rule"]=""
+EXPECTED_SKILLS["for-pr-gap-fill-scope-model"]=""
 
 RESULTS_FILE="$LOGDIR/results.md"
 
