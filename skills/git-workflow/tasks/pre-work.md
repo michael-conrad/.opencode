@@ -150,6 +150,42 @@ fi
 2. **Submodule currency check:** If any submodule is not on `dev` branch, sync it: `git submodule foreach "git checkout dev && git pull"`
 3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be run: `git checkout dev && git pull && git submodule init && git submodule foreach "git checkout dev && git pull"`
 
+### Step 2.7: Automatic Prerequisite Operations
+
+**⚠️ When authorization has been verified (approval-gate `verify-authorization` passed), the following git operations are AUTOMATIC prerequisites that MUST be performed WITHOUT soliciting developer confirmation.**
+
+These operations are deterministic, mechanical steps that are either Tier 1 mandates (required by guidelines) or pipeline prerequisites (necessary for the authorized scope). They require NO judgment from the agent or the developer.
+
+| Operation | Step | Classification | Condition |
+|-----------|------|----------------|-----------|
+| `git fetch origin` | Step 1.5/2 | Pipeline prerequisite | Remote exists |
+| `git checkout dev && git pull origin dev` | Step 2 | Tier 1 mandate prerequisite | Always when remote exists |
+| `git submodule init` + `git submodule foreach "git checkout dev && git pull"` | Step 2.5 | Tier 1 mandate prerequisite | `.gitmodules` exists |
+| `git add .opencode` (submodule bump) | Step 3.5 | Tier 1 mandate prerequisite | Submodule SHA changed |
+| `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 3 | Tier 1 mandate — required by `000-critical-rules.md` §Skipping Git Pre-Check | Always |
+| `git push -u origin feature/N-xyz` | Post-Step 5 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
+
+**Automatic classification conditions (ALL must be true):**
+
+1. Authorization has been verified — `approval-gate --task verify-authorization` passed
+2. The operation is a Tier 1 mandate or a deterministic prerequisite for authorized work
+3. The operation requires no judgment — it is a deterministic, mechanical step
+4. The scope covers the pipeline stage containing the operation (`for_pr`, `for_implementation`, `for_code_review`)
+
+**🚫 FORBIDDEN: Soliciting developer confirmation for automatic prerequisites:**
+
+- "Should I sync the submodule?" → FORBIDDEN — submodule sync is automatic
+- "May I create the feature branch?" → FORBIDDEN — branch creation is a Tier 1 mandate
+- "Ready to proceed with git push?" → FORBIDDEN — initial push is a pipeline prerequisite
+- "Proceed with pre-work?" → FORBIDDEN — pre-work is mandatory after authorization
+- Any confirmation request for operations in the table above → FORBIDDEN
+
+**✅ REQUIRED: Proceed autonomously through all pre-work steps once authorization is verified.**
+
+The agent MUST NOT ask for confirmation, permission, or readiness before performing any operation listed in the table above. These are mechanical prerequisites that the agent MUST execute as part of the approved workflow.
+
+**See also:** `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" — whether to sync a submodule, create a branch, or push is NOT a decision requiring user input when authorization covers the pipeline stage.
+
 ### Step 3: Create Feature Branch (Mode-Dependent)
 
 #### Direct-Branch Mode (DEFAULT — when WORKTREE_REQUIRED is NOT set)
