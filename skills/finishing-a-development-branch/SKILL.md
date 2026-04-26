@@ -165,3 +165,106 @@ Before invoking any cross-referenced skill:
 - **GitHub:** Not applicable (this repository uses GitBucket)
 - **GitBucket:** Fully supported — uses GitBucket compare URL format
 - **Platform Detection:** Uses `github.platform` environment variable
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: finishing-a-development-branch-001
+    title: "All changes must be committed before branch completion"
+    conditions:
+      all:
+        - "working_tree_not_clean == true"
+    actions:
+      - COMMIT_REMAINING
+      - RE_VERIFY
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "finishing-a-development-branch/SKILL.md §checklist task"
+
+  - id: finishing-a-development-branch-002
+    title: "All tests must pass before branch completion"
+    conditions:
+      all:
+        - "tests_pass == false"
+    actions:
+      - HALT
+      - FIX_TESTS
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "finishing-a-development-branch/SKILL.md §checklist task"
+
+  - id: finishing-a-development-branch-003
+    title: "All lint must pass before branch completion"
+    conditions:
+      all:
+        - "lint_pass == false"
+    actions:
+      - AUTOFIX_THEN_REVERIFY
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "finishing-a-development-branch/SKILL.md §checklist task"
+
+  - id: finishing-a-development-branch-004
+    title: "Branch must be pushed before claiming completion"
+    conditions:
+      all:
+        - "branch_pushed == false"
+    actions:
+      - PUSH
+      - RE_VERIFY
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "finishing-a-development-branch/SKILL.md §checklist task"
+
+tasks:
+  - id: prepare
+    skill: finishing-a-development-branch
+    preconditions: ["implementation_complete == true"]
+    postconditions: ["branch_prepared_for_pr == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Branch Preparation"
+    source: "finishing-a-development-branch/SKILL.md"
+
+  - id: checklist
+    skill: finishing-a-development-branch
+    preconditions: ["branch_prepared_for_pr == true"]
+    postconditions: ["lint_pass == true && tests_pass == true && branch_pushed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Uncommitted/Unpushed Changes After Implementation"
+    source: "finishing-a-development-branch/SKILL.md"
+    evidence_artifacts:
+      - gate: lint
+        verification: "uvx ruff check src/ test/"
+        expected: "zero errors"
+      - gate: test
+        verification: "uv run pytest test/"
+        expected: "all tests pass"
+      - gate: push
+        verification: "git log origin/<branch>..HEAD"
+        expected: "empty (all commits pushed)"
+
+  - id: completion
+    skill: finishing-a-development-branch
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "finishing-a-development-branch/SKILL.md"
+
+decomposition:
+  - type: skill-task
+    skill: verification-before-completion
+    task: verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification"
+  - type: command
+    skill: git
+    task: push
+    mandatory: true
+    bypass_violation: "CRITICAL: Unpushed Changes"
+```

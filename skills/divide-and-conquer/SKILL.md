@@ -288,4 +288,214 @@ Use when spec has complex success criteria benefiting from independent verificat
 - Authorization classification: See `010-approval-gate.md` §Action Authorization Classification
 - Adapted from: `implementation-workflow`
 
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: divide-and-conquer-001
+    title: "No direct implementation by orchestrator"
+    conditions:
+      all:
+        - "is_orchestrator == true"
+        - "about_to_edit_implementation_file == true"
+    actions:
+      - HALT
+      - DISPATCH(sub-agent)
+    conflicts_with: []
+    requires: []
+    triggers: [assemble-work]
+    source: "divide-and-conquer/SKILL.md §Gate 1"
+
+  - id: divide-and-conquer-002
+    title: "Sub-agent dispatch required for all implementation"
+    conditions:
+      all:
+        - "implementation_authorized == true"
+    actions:
+      - INVOKE(assemble-work)
+    conflicts_with: []
+    requires: [approval-gate-skill-001]
+    triggers: [assemble-work]
+    source: "divide-and-conquer/SKILL.md §Gate 2"
+
+  - id: divide-and-conquer-003
+    title: "Stacking is prerequisite, parallelism is opportunistic"
+    conditions:
+      all:
+        - "multiple_issues_approved == true"
+        - "dependencies_exist == true"
+    actions:
+      - STACK_SEQUENTIALLY
+    conflicts_with: []
+    requires: []
+    triggers: [assemble-work]
+    source: "divide-and-conquer/SKILL.md §Operating Protocol"
+
+  - id: divide-and-conquer-004
+    title: "Pre-dispatch verification checkpoint mandatory"
+    conditions:
+      all:
+        - "about_to_dispatch_sub_agent == true"
+        - "feature_branch_exists == false"
+    actions:
+      - HALT
+      - INVOKE(git-workflow --task pre-work)
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "divide-and-conquer/SKILL.md §Pre-Dispatch Verification Checkpoint"
+
+  - id: divide-and-conquer-005
+    title: "Implementation-first gate: post(assemble-work) requires deliverable"
+    conditions:
+      all:
+        - "assemble_work_completed == true"
+        - "files_modified_count == 0"
+        - "authorization_scope >= for_implementation"
+    actions:
+      - HALT
+      - REPORT(zero_deliverables)
+    conflicts_with: []
+    requires: [approval-gate-skill-001]
+    triggers: [assemble-work]
+    source: "divide-and-conquer/SKILL.md §Implementation-first gate"
+
+  - id: divide-and-conquer-006
+    title: "Overflow signal requires output (prevents silent halt)"
+    conditions:
+      all:
+        - "sub_agent_status == OVERFLOW"
+    actions:
+      - RE_DISPATCH(reduced_scope)
+      - REPORT(overflow_signal_received)
+    conflicts_with: []
+    requires: []
+    triggers: [assemble-work]
+    source: "divide-and-conquer/SKILL.md §Overflow Signal Contract"
+
+tasks:
+  - id: assess
+    skill: divide-and-conquer
+    preconditions: ["implementation_requested == true"]
+    postconditions: ["workload_sized == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Pre-flight Assessment"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: decompose
+    skill: divide-and-conquer
+    preconditions: ["workload_sized == true"]
+    postconditions: ["sub_tasks_defined == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Decomposition"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: dispatch
+    skill: divide-and-conquer
+    preconditions: ["sub_tasks_defined == true"]
+    postconditions: ["sub_agent_spawned == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Sub-Agent Dispatch"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: completion-checkpoint
+    skill: divide-and-conquer
+    preconditions: ["sub_agent_returned == true"]
+    postconditions: ["result_validated == true || abnormal_termination_detected == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Checkpoint"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: result-validation
+    skill: divide-and-conquer
+    preconditions: ["sub_agent_result_available == true"]
+    postconditions: ["result_valid == true || fallback_attempted == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Result Validation"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: overflow-signal
+    skill: divide-and-conquer
+    preconditions: ["sub_agent_overflow == true"]
+    postconditions: ["overflow_reported == true && re_dispatch_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Silent Agent Termination"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: merge
+    skill: divide-and-conquer
+    preconditions: ["all_sub_agents_completed == true"]
+    postconditions: ["results_aggregated == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Merge"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: context-passing
+    skill: divide-and-conquer
+    preconditions: ["dispatch_context_needed == true"]
+    postconditions: ["dispatch_context_provided == true"]
+    mandatory: false
+    bypass_violation: ""
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: purification-and-enforcement
+    skill: divide-and-conquer
+    preconditions: ["any_state"]
+    postconditions: ["scope_boundaries_enforced == true"]
+    mandatory: false
+    bypass_violation: ""
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: completion
+    skill: divide-and-conquer
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: orchestrate
+    skill: divide-and-conquer
+    preconditions: ["authorization_verified == true"]
+    postconditions: ["full_workflow_completed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skill Bypass"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: assemble-work
+    skill: divide-and-conquer
+    preconditions: ["authorization_verified == true && work_state_file_exists == true"]
+    postconditions: ["all_issues_dispatched == true && work_branch_created == true && at_least_one_file_modified == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Implementation-first gate"
+    source: "divide-and-conquer/SKILL.md"
+
+decomposition:
+  - type: skill-task
+    skill: approval-gate
+    task: verify-authorization
+    mandatory: true
+    bypass_violation: "CRITICAL: Skill Bypass"
+  - type: skill-task
+    skill: git-workflow
+    task: pre-work
+    mandatory: true
+    bypass_violation: "CRITICAL: Worktree Bypass"
+  - type: skill-task
+    skill: verification-before-completion
+    task: verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification"
+  - type: skill-task
+    skill: finishing-a-development-branch
+    task: checklist
+    mandatory: true
+    bypass_violation: "CRITICAL: Uncommitted/Unpushed Changes"
+  - type: skill-task
+    skill: git-workflow
+    task: review-prep
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping review-prep"
+```
+
 Co-authored with AI: <AgentName> (<ModelId>)
