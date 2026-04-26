@@ -26,6 +26,7 @@ You are a Verification Gatekeeper. Your focus is ensuring NO completion claim wi
 | `verify` | Verify all success criteria have evidence | ≈700 |
 | `collect` | Collect evidence for incomplete criteria | ≈500 |
 | `completion` | Ensure mandatory completion steps run regardless of workflow outcome | ≈150 |
+| `structural-verify` | Verify structural components against spec | ≈500 |
 
 ## Sub-Agent Tasks
 
@@ -34,6 +35,7 @@ You are a Verification Gatekeeper. Your focus is ensuring NO completion claim wi
 | `verify` | ≈700 |
 | `collect` | ≈500 |
 | `completion` | ≈150 |
+| `structural-verify` | ≈500 |
 
 ## Invocation
 
@@ -41,6 +43,7 @@ You are a Verification Gatekeeper. Your focus is ensuring NO completion claim wi
 - `/skill verification-before-completion --task verify` — Verify completion readiness
 - `/skill verification-before-completion --task collect` — Collect missing evidence
 - `/skill verification-before-completion --task completion` — Invoke when workflow halts at any point
+- `/skill verification-before-completion --task structural-verify` — Verify structural completeness of implementation against spec
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps (verification result comment, status report) are never skipped. It is idempotent and safe to invoke multiple times.
 
@@ -100,6 +103,65 @@ git -C $WORKTREE_PATH rev-parse --show-toplevel
 If the result does NOT match `worktree.path`, HALT and report: "Worktree mismatch — skill is executing in the wrong directory."
 
 If `worktree.path` is NOT set, operate normally from the project root.
+
+## Structural Completeness Gate (MANDATORY — Before Per-SC Verification)
+
+**Before checking individual success criteria evidence, verify that the implementation includes ALL structural components the spec requires.** Structural components are the architectural elements defined in a spec's `yaml+symbolic` block — state machines, evidence artifacts, gates, decomposition, and mandatory task entries. If any structural component is missing from the implementation, the entire verification FAILS without checking individual SCs.
+
+### What to Verify
+
+| Structural Component | Where Defined | What to Check |
+| -- | -- | -- |
+| `state_machines` with `decomposition_guard` fields | Spec `yaml+symbolic` block | Each state machine exists in the target skill/guideline with the specified guard fields |
+| `evidence_artifacts` sections | Spec `yaml+symbolic` block | Each artifact collection point exists in the target file |
+| `gates` sections | Spec `yaml+symbolic` block | Each gate (approval, verification, pipeline) exists in the target file |
+| `decomposition` sections | Spec `yaml+symbolic` block | Each decomposition entry exists in the target file's `yaml+symbolic` block |
+| `tasks` entries with `mandatory` + `bypass_violation` fields | Spec `yaml+symbolic` block | Each task entry exists with the specified fields in the target file |
+
+### Verification Procedure
+
+1. Identify the spec that authorized the implementation
+2. Parse the spec's `yaml+symbolic` block for required structural components
+3. For each target skill/guideline file:
+   - Read the file's `yaml+symbolic` block
+   - Verify each structural component from the spec exists in the implementation
+   - Report PASS/FAIL per component
+4. If ANY structural component is missing:
+   - HALT verification immediately
+   - Report missing components as FAIL
+   - Do NOT proceed to per-SC evidence check
+5. If ALL structural components present:
+   - Proceed to per-SC evidence verification (Step 1 of `verify` task)
+
+### Clean-Room Dispatch
+
+When the verification context is the same agent that performed implementation, invoke `structural-verify` as a sub-agent to ensure clean-room isolation. The sub-agent receives ONLY:
+- The spec's success criteria list
+- File paths to verify
+
+The sub-agent does NOT receive implementation context, prior verification results, or agent memory from the implementation session. This prevents confirmation bias — the structural verifier must be able to independently discover missing components.
+
+### Failure Mode
+
+If structural completeness fails, the entire verification outcome is FAIL regardless of per-SC evidence. No amount of individual SC evidence can compensate for a missing structural component — the architecture itself is incomplete.
+
+## RED Test Isolation
+
+**When a skill or guideline is changed, the behavioral RED test for that change MUST run in an isolated sub-agent session (via `with-test-home`), NOT in the same context as the implementation agent.**
+
+### The Contamination Problem
+
+When the same agent that wrote a skill/guideline change also runs its behavioral enforcement test, the agent unconsciously aligns test expectations with its own implementation. This "I know what I just wrote" contamination produces tests that pass against the agent's intent rather than against the spec's requirements — the exact failure mode documented in Bug #87.
+
+### Isolation Requirements
+
+- Behavioral RED tests for skill/guideline changes MUST execute via `bash .opencode/tests/with-test-home opencode-cli run '<message>'`
+- The `verify` task MUST check that enforcement tests were run with `with-test-home` isolation, not in the implementation agent's own session
+- If enforcement tests were run in the same context as implementation, the `verify` task MUST flag this as a VERIFICATION-GAP and re-run in isolation
+
+### Why This Matters
+
+The behavioral enforcement test exists to verify that a *different agent* (or a clean-room session of the same agent) would follow the new rule. Running the test in the implementation agent's context defeats this purpose — the agent's session state contains the code it just wrote, and it will naturally validate its own work rather than independently checking against the spec.
 
 ## Live Verification: Completion Claims (MANDATORY)
 
@@ -279,6 +341,34 @@ rules:
     triggers: []
     source: "verification-before-completion/SKILL.md §Comparison Modes"
 
+  - id: verification-before-completion-005
+    title: "Structural completeness required before per-SC verification"
+    conditions:
+      all:
+        - "verify_task_executed == true"
+        - "structural_completeness_checked == false"
+    actions:
+      - HALT
+      - INVOKE(structural-verify)
+    conflicts_with: []
+    requires: []
+    triggers: [finishing-a-development-branch]
+    source: "verification-before-completion/SKILL.md §Structural Completeness Gate"
+
+  - id: verification-before-completion-006
+    title: "RED behavioral tests must execute in isolated sub-agent sessions"
+    conditions:
+      all:
+        - "behavioral_red_test_needed == true"
+        - "test_executed_in_implementation_context == true"
+    actions:
+      - HALT
+      - RE_RUN_IN_ISOLATED_SESSION
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "verification-before-completion/SKILL.md §RED Test Isolation"
+
 tasks:
   - id: verify
     skill: verification-before-completion
@@ -302,6 +392,14 @@ tasks:
     postconditions: ["completion_tasks_executed == true"]
     mandatory: true
     bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "verification-before-completion/SKILL.md"
+
+  - id: structural-verify
+    skill: verification-before-completion
+    preconditions: ["implementation_complete == true", "spec_sc_list_available == true"]
+    postconditions: ["structural_completeness_verified == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Structural Completeness Not Verified"
     source: "verification-before-completion/SKILL.md"
 
 decomposition:
