@@ -423,4 +423,14 @@ decomposition:
     task: type-check
     mandatory: true
     bypass_violation: "CRITICAL: Type Check Not Run"
+  - type: command
+    skill: skildeck
+    task: verify-structure
+    mandatory: true
+    bypass_violation: "CRITICAL: Structural Completeness Not Verified"
+  - type: command
+    skill: skildeck
+    task: verify-acceptance
+    mandatory: true
+    bypass_violation: "CRITICAL: Acceptance Criteria Not Verified"
 ```
