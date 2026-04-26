@@ -703,6 +703,38 @@ decomposition:
     task: branch --show-current
     mandatory: true
     bypass_violation: "CRITICAL: Branch First"
+state_machines:
+  - id: branch-lifecycle
+    states: [pre_work, implementing, review_ready, pr_created, merged, cleaned_up]
+    start_state: pre_work
+    decomposition_guard:
+      field: "decomposition.feature_branch_exists"
+      message: "CRITICAL: Cannot proceed without feature branch"
+    transitions:
+      - from: pre_work
+        to: implementing
+        guard: "feature_branch_exists == true && worktree_path_is_set == true"
+        action: BEGIN_IMPLEMENTATION
+      - from: implementing
+        to: review_ready
+        guard: "verification_passed == true && checklist_passed == true"
+        action: PUSH_AND_GENERATE_URL
+      - from: review_ready
+        to: pr_created
+        guard: "halt_at >= pr_created && explicit_pr_instruction == true"
+        action: CREATE_PR
+      - from: review_ready
+        to: merged
+        guard: "pr_merged_by_human == true"
+        action: INVOKE(cleanup)
+      - from: pr_created
+        to: merged
+        guard: "pr_merged_by_human == true"
+        action: INVOKE(cleanup)
+      - from: merged
+        to: cleaned_up
+        guard: "branch_deleted == true && issues_closed == true"
+        action: COMPLETE
 gates:
   - id: not-on-protected-branch
     condition: "current_branch != 'main' && current_branch != 'dev'"

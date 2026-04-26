@@ -199,6 +199,18 @@ When verifying live values against specifications, use this row-by-row compariso
 - Agent MUST re-run the verification command for any FAIL row
 - Agent MUST provide a verification command for any MISSING EVIDENCE row
 
+## Programmatic Enforcement Tools (AVAILABLE)
+
+The following `skildeck` commands are available for automated verification:
+
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `skildeck verify-structure --spec-file <path> --files <paths>` | Verify structural components (state_machines, evidence_artifacts, gates, decomposition, tasks) in implementation match spec | During Structural Completeness Gate (Step 0) |
+| `skildeck verify-acceptance --spec-file <path>` | Verify acceptance criteria from spec against implementation | During per-SC verification (Step 1) |
+| `skildeck verify-issue --spec-file <path> --files <paths>` | Combined structural + acceptance verification in single report | When `verify fully implemented` is requested |
+
+These tools produce PASS/FAIL/MANUAL-REVIEW tables and exit code 1 on any failure. They are the programmatic enforcement layer complementing manual verification.
+
 ## Post-Verification Chain
 
 After verification passes, the following skills MUST be invoked in sequence:

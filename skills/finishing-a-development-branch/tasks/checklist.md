@@ -37,6 +37,10 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 - [ ] All per-SC evidence rows show PASS (no FAIL or MISSING EVIDENCE)
 - [ ] No FORBIDDEN outcomes ("functionally equivalent", "close enough") used in evidence table
 
+### Structural & Acceptance Verification
+- [ ] Structural completeness verified (`skildeck verify-structure` output available)
+- [ ] Acceptance criteria verified (`skildeck verify-acceptance` output available)
+
 ### Branch
 - [ ] Branch pushed to remote
 - [ ] Upstream tracking set

@@ -53,7 +53,9 @@ assert_tool_calls_made() {
     local total=0
     for pattern in $tool_patterns; do
         local count
-        count=$(grep -c "$pattern" "$log_file" 2>/dev/null || echo "0")
+        count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+        count=${count:-0}
+        count=$(echo "$count" | head -1 | tr -d '[:space:]')
         total=$((total + count))
     done
     if [ "$total" -lt "$min_count" ]; then
@@ -69,7 +71,9 @@ assert_forbidden_pattern_absent() {
     local description="${2:-forbidden pattern}"
     local log_file="${BEHAVIOR_STDOUT:-/dev/null}"
     local count
-    count=$(grep -c "$pattern" "$log_file" 2>/dev/null | head -1 || echo "0")
+    count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+    count=${count:-0}
+    count=$(echo "$count" | head -1 | tr -d '[:space:]')
     if [ "$count" -gt 0 ]; then
         echo "FAIL: assert_forbidden_pattern_absent — found $count occurrence(s) of $description in agent output"
         return 1
@@ -83,7 +87,9 @@ assert_required_pattern_present() {
     local description="${2:-required pattern}"
     local log_file="${BEHAVIOR_STDOUT:-/dev/null}"
     local count
-    count=$(grep -c "$pattern" "$log_file" 2>/dev/null | head -1 || echo "0")
+    count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+    count=${count:-0}
+    count=$(echo "$count" | head -1 | tr -d '[:space:]')
     if [ "$count" -eq 0 ]; then
         echo "FAIL: assert_required_pattern_present — $description not found in agent output"
         return 1
@@ -96,7 +102,9 @@ assert_skill_invoked() {
     local expected_skill="$1"
     local log_file="${BEHAVIOR_STDERR:-/dev/null}"
     local found
-    found=$(grep -c "Skill \"$expected_skill\"" "$log_file" 2>/dev/null || echo "0")
+    found=$(grep -c "Skill \"$expected_skill\"" "$log_file" 2>/dev/null || true)
+    found=${found:-0}
+    found=$(echo "$found" | head -1 | tr -d '[:space:]')
     if [ "$found" -eq 0 ]; then
         found=$(grep -oi "$expected_skill" "$BEHAVIOR_STDOUT" 2>/dev/null | head -1 | wc -l || echo "0")
     fi
@@ -112,12 +120,16 @@ assert_no_skill_invoked() {
     local forbidden_skill="$1"
     local log_file="${BEHAVIOR_STDERR:-/dev/null}"
     local found
-    found=$(grep -c "Skill \"$forbidden_skill\"" "$log_file" 2>/dev/null || echo "0")
+    found=$(grep -c "Skill \"$forbidden_skill\"" "$log_file" 2>/dev/null || true)
+    found=${found:-0}
+    found=$(echo "$found" | head -1 | tr -d '[:space:]')
     if [ "$found" -gt 0 ]; then
         echo "FAIL: assert_no_skill_invoked — forbidden skill '$forbidden_skill' was invoked ($found time(s))"
         return 1
     fi
-    found=$(grep -ci "$forbidden_skill" "$BEHAVIOR_STDOUT" 2>/dev/null || echo "0")
+    found=$(grep -ci "$forbidden_skill" "$BEHAVIOR_STDOUT" 2>/dev/null || true)
+    found=${found:-0}
+    found=$(echo "$found" | head -1 | tr -d '[:space:]')
     if [ "$found" -gt 0 ]; then
         echo "FAIL: assert_no_skill_invoked — forbidden skill '$forbidden_skill' found in output ($found time(s))"
         return 1

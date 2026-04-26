@@ -268,4 +268,66 @@ decomposition:
     task: push
     mandatory: true
     bypass_violation: "CRITICAL: Unpushed Changes"
+state_machines:
+  - id: branch-completion-lifecycle
+    states: [prepared, linted, tested, pushed, completed, failed]
+    start_state: prepared
+    decomposition_guard:
+      field: "decomposition.verification_commands"
+      message: "CRITICAL: Cannot complete branch without verification steps"
+    transitions:
+      - from: prepared
+        to: linted
+        guard: "lint_pass == true"
+        action: RUN_TESTS
+      - from: prepared
+        to: failed
+        guard: "lint_pass == false && autofix_failed == true"
+        action: HALT_AND_FIX_LINT
+      - from: linted
+        to: tested
+        guard: "tests_pass == true"
+        action: PUSH_BRANCH
+      - from: linted
+        to: failed
+        guard: "tests_pass == false"
+        action: HALT_AND_FIX_TESTS
+      - from: tested
+        to: pushed
+        guard: "branch_pushed == true"
+        action: GENERATE_URL
+      - from: pushed
+        to: completed
+        guard: "compare_url_generated == true"
+        action: REPORT_COMPLETE
+gates:
+  - id: working-tree-clean
+    condition: "working_tree_not_clean == false"
+    on_fail: "COMMIT_REMAINING and re-verify"
+    critical_violation: true
+  - id: lint-pass
+    condition: "lint_pass == true"
+    on_fail: "AUTOFIX_THEN_REVERIFY"
+    critical_violation: false
+  - id: tests-pass
+    condition: "tests_pass == true"
+    on_fail: "HALT and fix tests"
+    critical_violation: true
+  - id: branch-pushed
+    condition: "branch_pushed == true"
+    on_fail: "PUSH and re-verify"
+    critical_violation: true
+evidence_artifacts:
+  - name: lint_output
+    type: tool_call
+    verification: "uvx ruff check src/ test/ returns zero errors"
+  - name: test_output
+    type: tool_call
+    verification: "uv run pytest test/ passes"
+  - name: push_confirmation
+    type: tool_call
+    verification: "git push output confirms branch pushed"
+  - name: compare_url
+    type: constructed_url
+    verification: "URL format matches dev...branch pattern"
 ```

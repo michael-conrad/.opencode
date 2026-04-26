@@ -136,6 +136,38 @@ When the main agent is in direct-branch mode (no worktree), `worktree.path` is N
 - 🚫 FORBIDDEN: Reporting from memory without re-verification; claiming "I checked earlier" without current tool call; training knowledge as fact; omitting tool call evidence
 - ✅ REQUIRED: Use a tool/command for every verification; show evidence; attempt exhaustive research using available tools; if research fails, follow suggest-after-research fallback (general knowledge: offer as suggestion contingent on user acceptance; code/API claims: decline to state)
 
+## Critical Violation: Metadata-as-Evidence — Workflow Metadata Is Not Evidence of Implementation
+
+**⚠️ Reporting workflow metadata (issue state, PR merge status, comments, labels) as evidence of implementation completeness — without verifying acceptance criteria against actual implementation — is a CRITICAL GUIDELINE VIOLATION.**
+
+Workflow metadata confirms process state, not implementation correctness. A closed issue with a merged PR means the process completed; it does NOT mean the acceptance criteria were met. These are fundamentally different questions, and conflating them is the root cause of verification regressions.
+
+- 🚫 FORBIDDEN: "Issue #N is fully implemented — verified by PR merge" (metadata as evidence)
+- 🚫 FORBIDDEN: "All issues closed, implementation verified" without per-SC tool calls
+- 🚫 FORBIDDEN: Trusting `state_reason: completed` as proof of implementation
+- 🚫 FORBIDDEN: Declaring PASS based on PR body ("Fixes #N") without checking deliverables
+- ✅ REQUIRED: For each acceptance criterion, produce a tool-call artifact confirming the deliverable exists or behaves as specified
+- ✅ REQUIRED: `skildeck verify-issue` or equivalent programmatic verification as evidence
+
+**AUTHORITY:** `010-approval-gate.md` §verify-closed-issue, `verification-before-completion` skill §Structural Completeness Gate, `065-verification-honesty.md` §Metadata Verification Extension
+
+## Critical Violation: Memory/Training-Data-as-Evidence — Memory and Training Data Are Always Stale
+
+**⚠️ Reporting memory recall or training data as verified evidence — without live tool-call confirmation in the current session — is a CRITICAL GUIDELINE VIOLATION.**
+
+Memory and training data are ALWAYS STALE. This is an axiom, not a heuristic. There is no "probably still accurate" exemption.
+
+- 🚫 FORBIDDEN: "Function X takes arguments (a, b, c)" from memory — verify via `srclight_get_signature` or source read
+- 🚫 FORBIDDEN: "The API works like Y" from training data — verify against live documentation
+- 🚫 FORBIDDEN: "This config uses format Z" from pattern recall — read the actual config
+- 🚫 FORBIDDEN: "I checked this earlier" from previous session — re-verify in current session
+- 🚫 FORBIDDEN: "Framework convention is..." from training data — verify against actual codebase usage
+- ✅ REQUIRED: Every factual claim about code, APIs, configs, or system state must be backed by a live tool-call artifact in the current session
+- ✅ REQUIRED: Training-data claims must be offered as suggestions contingent on user acceptance, never as verified facts
+- ✅ REQUIRED: Code/API claims from training data that cannot be verified must be DECLINED, not suggested
+
+**AUTHORITY:** `065-verification-honesty.md` §Research-First Mandate, §Suggest-After-Research Fallback, §Proactive Verification
+
 ## Critical Violation: Skipping verification-enforcement During Content Generation
 
 **⚠️ Generating content without invoking verification-enforcement is a CRITICAL GUIDELINE VIOLATION.**
@@ -540,10 +572,16 @@ When authorization scope includes implementation (`for_implementation`, `for_cod
 - 🚫 FORBIDDEN: Classifying issues as "already implemented" based on closed state alone
 - 🚫 FORBIDDEN: Autoclosing parent issues when sub-issues are closed without merged PR evidence
 - 🚫 FORBIDDEN: Bypassing bug fix spec verification because the bug report is closed
+- 🚫 FORBIDDEN: Verifying closed issues requires checking EACH acceptance criterion against implementation, not just confirming PR merge
+- 🚫 FORBIDDEN: Reading issue state, PR status, or comments is NOT verification — it is metadata inspection
+- 🚫 FORBIDDEN: Training-data assumptions about what "should" be implemented do NOT count as verification
 - ✅ REQUIRED: Verify closed issues have merged PR evidence via `github_pull_request_read` before treating them as resolved
 - ✅ REQUIRED: Check `state_reason` — `"not_planned"` means intentionally skipped, `"duplicate"` requires verifying the target, `"completed"` requires merged PR evidence
 - ✅ REQUIRED: Use `approval-gate --task verify-closed-issue` to verify legitimate closure before skipping, autoclosing, or excluding from implementation
 - ✅ REQUIRED: Use `approval-gate --task reconcile-issue-graph` to act on findings — auto-close verified-complete tickets, reopen verified-incomplete tickets
+- ✅ REQUIRED: PR merge is necessary but insufficient for "fully implemented" — acceptance criteria verification is also required
+- ✅ REQUIRED: `skildeck verify-issue` is the programmatic enforcement tool for closed-issue verification
+- ✅ REQUIRED: When verifying closed issues, each acceptance criterion must produce a live tool-call artifact, not a metadata-only check
 
 **See `approval-gate --task reconcile-issue-graph` for reconciliation after graph traversal. See `approval-gate --task verify-closed-issue` for the complete verification procedure. See `git-workflow` skill `--task cleanup` for pre-closure sub-issue verification gate.**
 
