@@ -6,12 +6,15 @@
 """
 DESCRIPTION: Skill deck formal analysis CLI. Lint, analyze, and export symbolic models from guidelines and skills.
 Usage: ./.opencode/tools/skildeck <action> [options]
-Actions: lint, analyze, gates, export, watch, extract, exhaustive, entailment, guards, enforcement, triggers, decomposition, help
+Actions: lint, analyze, gates, export, watch, extract, verify-structure, verify-acceptance, verify-issue, exhaustive, entailment, guards, enforcement, triggers, decomposition, help
 Example: ./.opencode/tools/skildeck lint
 Example: ./.opencode/tools/skildeck gates --scope approval-gate
 Example: ./.opencode/tools/skildeck export --format mermaid
 Example: ./.opencode/tools/skildeck exhaustive --json
 Example: ./.opencode/tools/skildeck enforcement --verbose
+Example: ./.opencode/tools/skildeck verify-structure --spec .opencode/guidelines/000-critical-rules.md --files .opencode/skills/approval-gate/SKILL.md
+Example: ./.opencode/tools/skildeck verify-acceptance --spec .opencode/tmp/spec.md
+Example: ./.opencode/tools/skildeck verify-issue --issue 91
 """
 
 from __future__ import annotations
@@ -36,6 +39,9 @@ ACTIONS = {
     "export": "skildeck-export",
     "watch": "skildeck-watch",
     "extract": "skildeck-extract",
+    "verify-structure": "skildeck-verify-structure",
+    "verify-acceptance": "skildeck-verify-acceptance",
+    "verify-issue": "skildeck-verify-issue",
 }
 
 ANALYSIS = {

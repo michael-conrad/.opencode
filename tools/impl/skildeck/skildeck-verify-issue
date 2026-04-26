@@ -1,0 +1,366 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = "~=3.12"
+# dependencies = ["pyyaml>=6.0"]
+# ///
+"""
+DESCRIPTION: Combined extraction: fetch issue body via GitHub API, extract structural requirements + acceptance criteria. Outputs PR merge status (context only) + structural + acceptance classification tables. Agent verifies substance with live tool calls.
+Usage: ./.opencode/tools/skildeck verify-issue --issue N [--json]
+       ./.opencode/tools/skildeck verify-issue --issues 41,42,43,45 [--json]
+"""
+
+from __future__ import annotations
+
+import json
+import os as _os
+import re
+import subprocess
+import sys
+from dataclasses import dataclass, field, asdict
+from pathlib import Path
+
+IMPL_DIR = Path(__file__).resolve().parent
+CDUP = subprocess.check_output(
+    ["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True
+).strip()
+BASE_DIR = (IMPL_DIR / CDUP).resolve()
+
+FENCE_PATTERN = re.compile(r"```yaml\+symbolic\n(.*?)```", re.DOTALL)
+
+SC_PREFIX_PATTERN = re.compile(r"^- \*\*SC-\d+:\*\*\s+(.+)$", re.MULTILINE)
+SC_PREFIX_PATTERN_ALT = re.compile(r"^- SC-\d+:\s+(.+)$", re.MULTILINE)
+CHECKBOX_PATTERN = re.compile(r"^- \[[ x]?\]\s+(.+)$", re.MULTILINE)
+HEADING_PATTERN = re.compile(
+    r"^##+\s+(Success Criteria|Acceptance Criteria|Acceptance)\s*$", re.MULTILINE
+)
+NUMBERED_LIST_PATTERN = re.compile(r"^\d+\.\s+(.+)$", re.MULTILINE)
+
+
+@dataclass
+class CriterionResult:
+    criterion_id: str
+    text: str
+    classification: str
+    suggested_verification: str
+    detail: str = ""
+
+
+@dataclass
+class IssueVerificationReport:
+    issue_number: int
+    issue_title: str
+    pr_status: str
+    pr_url: str
+    acceptance_criteria: list[CriterionResult] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+def _fetch_issue(issue_number: int) -> dict | None:
+    try:
+        result = subprocess.run(
+            [
+                "gh",
+                "issue",
+                "view",
+                str(issue_number),
+                "--json",
+                "number,title,body,state",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            env={**_os.environ, "GH_PROMPT_DISABLED": "1"},
+        )
+        if result.returncode == 0 and result.stdout:
+            return json.loads(result.stdout)
+    except Exception:
+        pass
+    return None
+
+
+def _search_prs_for_issue(issue_number: int) -> tuple[str, str]:
+    try:
+        result = subprocess.run(
+            [
+                "gh",
+                "pr",
+                "list",
+                "--search",
+                f"#{issue_number}",
+                "--state",
+                "merged",
+                "--json",
+                "number,title,url,mergedAt",
+                "--limit",
+                "1",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            env={**_os.environ, "GH_PROMPT_DISABLED": "1"},
+        )
+        if result.returncode == 0 and result.stdout:
+            data = json.loads(result.stdout)
+            if data:
+                pr = data[0]
+                merged_at = pr.get("mergedAt", "")
+                return (
+                    f"MERGED: {merged_at}"
+                    if merged_at
+                    else "MERGED (timestamp unknown)",
+                    pr.get("url", ""),
+                )
+    except Exception:
+        pass
+    return "NO_MERGED_PR_FOUND", ""
+
+
+def _classify_criterion(
+    text: str, index: int, section_context: str = ""
+) -> tuple[str, str, str]:
+    tidied = text.strip()
+    lower = tidied.lower()
+
+    narrative_keywords = [
+        "should be considered",
+        "may need to",
+        "optionally",
+        "could potentially",
+        "it would be nice",
+    ]
+    for kw in narrative_keywords:
+        if kw in lower:
+            return (
+                "narrative",
+                "MANUAL-REVIEW",
+                "Contains hedge language requiring human judgment",
+            )
+
+    semantic_keywords = [
+        "add critical violation",
+        "add forbidden",
+        "add required",
+        "add section",
+        "ensure that",
+        "verify that",
+        "make sure that",
+        "section includes",
+        "section contains",
+        "must include",
+        "must have",
+        "must contain",
+        "must require",
+        "must enforce",
+        "behavioral",
+        "enforcement",
+        "must not",
+        "shall not",
+    ]
+    for kw in semantic_keywords:
+        if kw in lower:
+            return (
+                "semantic-content",
+                "content-grep",
+                "Requires reading target section and confirming FORBIDDEN/REQUIRED items",
+            )
+
+    verifiable_keywords = [
+        "command exists",
+        "produces",
+        "outputs",
+        "exit code",
+        "registered",
+        "dispatcher",
+        "`",
+    ]
+    for kw in verifiable_keywords:
+        if kw in tidied:
+            return (
+                "verifiable",
+                "file-read",
+                "Specific deliverable with content match possible",
+            )
+
+    return (
+        "narrative",
+        "MANUAL-REVIEW",
+        "Could not auto-classify - human judgment required",
+    )
+
+
+def _extract_criteria(text: str) -> list[tuple[str, str, str]]:
+    criteria = []
+    section_context = ""
+
+    for match in SC_PREFIX_PATTERN.finditer(text):
+        criteria.append(
+            (f"SC-{len(criteria) + 1}", match.group(1).strip(), section_context)
+        )
+    for match in SC_PREFIX_PATTERN_ALT.finditer(text):
+        tidied = match.group(1).strip()
+        if not any(c[1] == tidied for c in criteria):
+            criteria.append((f"SC-{len(criteria) + 1}", tidied, section_context))
+
+    heading_matches = list(HEADING_PATTERN.finditer(text))
+    for hm in heading_matches:
+        remaining = text[hm.end() :]
+        next_heading = re.search(r"^##+\s+\S+", remaining, re.MULTILINE)
+        section_text = remaining[: next_heading.start()] if next_heading else remaining
+        section_context = hm.group(1)
+
+        for match in CHECKBOX_PATTERN.finditer(section_text):
+            tidied = match.group(1).strip()
+            if not any(c[1] == tidied for c in criteria):
+                criteria.append((f"SC-{len(criteria) + 1}", tidied, section_context))
+        for match in NUMBERED_LIST_PATTERN.finditer(section_text):
+            tidied = match.group(1).strip()
+            if not any(c[1] == tidied for c in criteria):
+                criteria.append((f"SC-{len(criteria) + 1}", tidied, section_context))
+
+    if not criteria:
+        for match in CHECKBOX_PATTERN.finditer(text):
+            tidied = match.group(1).strip()
+            criteria.append((f"SC-{len(criteria) + 1}", tidied, section_context))
+
+    return criteria
+
+
+def verify_issue(issue_number: int) -> IssueVerificationReport:
+    issue_data = _fetch_issue(issue_number)
+    if not issue_data:
+        return IssueVerificationReport(
+            issue_number=issue_number,
+            issue_title="UNKNOWN",
+            pr_status="FETCH_FAILED",
+            pr_url="",
+            warnings=["Could not fetch issue data from GitHub API"],
+        )
+
+    title = issue_data.get("title", "UNKNOWN")
+    body = issue_data.get("body", "")
+
+    pr_status, pr_url = _search_prs_for_issue(issue_number)
+
+    report = IssueVerificationReport(
+        issue_number=issue_number,
+        issue_title=title,
+        pr_status=pr_status,
+        pr_url=pr_url,
+    )
+
+    if body:
+        criteria = _extract_criteria(body)
+        for cid, ctext, ctx in criteria:
+            classification, suggested, detail = _classify_criterion(
+                ctext, len(report.acceptance_criteria), ctx
+            )
+            report.acceptance_criteria.append(
+                CriterionResult(
+                    criterion_id=cid,
+                    text=ctext,
+                    classification=classification,
+                    suggested_verification=suggested,
+                    detail=detail,
+                )
+            )
+
+    return report
+
+
+def main() -> None:
+    if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
+        print(
+            "ERROR: This script must be run via its dispatcher (.opencode/tools/skildeck).",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Combined extraction: issue -> acceptance criteria + PR metadata."
+    )
+    parser.add_argument("--issue", type=int, default=0, help="Single issue number")
+    parser.add_argument(
+        "--issues", type=str, default="", help="Comma-separated issue numbers"
+    )
+    parser.add_argument("--json", action="store_true", help="Output as JSON")
+    args = parser.parse_args()
+
+    issue_numbers = []
+    if args.issue > 0:
+        issue_numbers.append(args.issue)
+    if args.issues:
+        for part in args.issues.split(","):
+            part = part.strip()
+            if part:
+                try:
+                    issue_numbers.append(int(part))
+                except ValueError:
+                    print(
+                        f"Warning: invalid issue number {part!r}, skipping",
+                        file=sys.stderr,
+                    )
+
+    if not issue_numbers:
+        print("Error: --issue or --issues required", file=sys.stderr)
+        sys.exit(1)
+
+    all_reports = []
+    for inum in issue_numbers:
+        report = verify_issue(inum)
+        all_reports.append(report)
+
+        if args.json:
+            print(json.dumps(report.to_dict(), indent=2))
+        else:
+            print(f"=== Issue #{report.issue_number}: {report.issue_title} ===")
+            print(f"PR Status (context only): {report.pr_status}")
+            if report.pr_url:
+                print(f"PR URL: {report.pr_url}")
+            print()
+
+            if report.acceptance_criteria:
+                print("--- Acceptance Criteria Classification ---")
+                print(
+                    f"{'ID':<10} {'Classification':<22} {'Suggested Verification':<22} {'Criterion'}"
+                )
+                print("-" * 140)
+                for c in report.acceptance_criteria:
+                    text_preview = c.text[:60] + "..." if len(c.text) > 60 else c.text
+                    print(
+                        f"{c.criterion_id:<10} {c.classification:<22} {c.suggested_verification:<22} {text_preview}"
+                    )
+                print()
+                print(f"Total: {len(report.acceptance_criteria)}")
+                for cls in ("verifiable", "semantic-content", "narrative"):
+                    count = len(
+                        [
+                            c
+                            for c in report.acceptance_criteria
+                            if c.classification == cls
+                        ]
+                    )
+                    print(f"  {cls}: {count}")
+            else:
+                print("--- No acceptance criteria extracted ---")
+
+            print("\n⚠️  PR status is CONTEXT ONLY, NOT evidence.")
+            print("Agent MUST verify each acceptance criterion with live tool calls.")
+
+        if report.warnings:
+            print(f"\nWarnings ({len(report.warnings)}):")
+            for w in report.warnings:
+                print(f"  ⚠ {w}")
+
+    fetch_failed = sum(1 for r in all_reports if r.pr_status == "FETCH_FAILED")
+
+    if fetch_failed > 0:
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
