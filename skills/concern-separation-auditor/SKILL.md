@@ -3,6 +3,7 @@ name: concern-separation-auditor
 description: Use when auditing a spec for phase structure quality or concern separation. Triggers on: concern separation, phase structure, spec audit, mixed concerns.
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

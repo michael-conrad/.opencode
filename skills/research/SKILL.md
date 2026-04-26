@@ -3,6 +3,7 @@ name: research
 description: Use when discovering information using appropriate modalities, producing findings with source attribution and explicit gap reporting. Triggers on: research, discover, investigate, find information, multimodal research, information discovery.
 type: research
 license: Apache-2.0
+provenance: AI-generated
 compatibility: opencode
 ---
 

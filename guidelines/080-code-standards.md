@@ -261,6 +261,64 @@ AI co-authored attribution:
 4. Helps identify AI-generated content for review
 5. **Respects copyright** - only claims co-authorship on genuinely original AI work
 
+## Provenance Headers
+
+### Provenance Distinct from Byline
+
+- **Byline** = *who* created it (identity attribution) — specified in §AI Co-Authored Attribution
+- **Provenance** = *how* it was created (origin category) — new concept
+
+### Provenance Categories
+
+| Category | Meaning | Header Value |
+|----------|---------|--------------|
+| AI-generated | Entirely written by AI agent | `Provenance: AI-generated` |
+| AI-assisted | Human wrote, AI assisted | `Provenance: AI-assisted` |
+| Human-written | Entirely human-authored | `Provenance: Human-written` |
+| Derived | Adapted from another source | `Provenance: Derived from <source>` |
+
+### Header Format by File Type
+
+#### Python Files (.py)
+
+```python
+# SPDX-FileCopyrightText: <year> <dev.name>
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+"""
+Module description.
+
+Co-authored with AI: <AgentName> (<ModelId>)
+"""
+```
+
+#### SKILL.md Files (YAML frontmatter)
+
+```yaml
+---
+name: skill-name
+license: MIT
+provenance: AI-generated
+---
+```
+
+#### Markdown Files (guidelines, docs)
+
+```markdown
+<!-- SPDX-FileCopyrightText: <year> <dev.name> -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-generated -->
+```
+
+### Provenance + Byline Rules
+
+| Provenance | AI Byline Required? |
+|------------|-------------------|
+| AI-generated | MUST include |
+| AI-assisted | SHOULD include if AI contributions substantive |
+| Human-written | MUST NOT include |
+| Derived | MUST NOT include AI byline; MUST attribute source |
+
 ## Enforcement Test Mandate for Guideline and Skill Changes
 
 Guideline files (`.opencode/guidelines/*.md`) and skill files (`.opencode/skills/*/SKILL.md`, `.opencode/skills/*/tasks/*.md`) are enforcement-critical documents that control AI agent behavior. Changes to these files MUST be accompanied by corresponding enforcement test updates.

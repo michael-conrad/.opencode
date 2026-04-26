@@ -3,6 +3,7 @@ name: engineering-approach
 description: Use when implementing a spec, or when design, verification, and scope discipline are needed. Triggers on: implement, build, develop, engineering checklist, design before code, verify before complete.
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

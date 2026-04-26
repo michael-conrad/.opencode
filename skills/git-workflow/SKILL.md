@@ -3,6 +3,7 @@ name: git-workflow
 description: Use when creating a branch, committing changes, pushing work, or creating a PR. Also use when git rebase/merge produces conflicts — invoke conflict-resolution skill for classification. Also use when user says "check pr" or "check prs" to trigger PR state verification and cleanup if merged. Also use when user says "release PR", "promote to main", or "dev to main" — invokes release-promotion task for dev → main promotion. Triggers on: branch, commit, push, PR, pull request, pre-work, review-prep, feature branch, dev branch, squash, conflict, merge conflict, rebase conflict, check pr, check prs, check pull request, check pull requests, release PR, release pr, promote to main, dev to main, release promotion.
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

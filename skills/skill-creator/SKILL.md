@@ -2,6 +2,7 @@
 name: skill-creator
 description: Use when creating a new skill, updating an existing skill, or validating skill cards. Triggers on: new skill, update skill, create skill, skill template, skill structure, SKILL.md, validate skill cards, review skills, skill card review.
 license: Apache-2.0
+provenance: AI-generated
 compatibility: opencode
 type: technique
 ---

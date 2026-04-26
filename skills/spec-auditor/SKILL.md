@@ -3,6 +3,7 @@ name: spec-auditor
 description: Use when auditing a spec for quality, structure, or completeness. Triggers on: audit spec, review spec, spec quality, validate spec, check spec, audit issue, revisit spec, audit plan, audit runbook, audit SOP, audit checklist, audit document, content-aware audit.
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

@@ -3,6 +3,7 @@ name: pr-creation-workflow
 description: Use when asking about when to create a PR or whether PR creation is authorized. Triggers on: create PR, make PR, pull request, PR timing, when to PR, PR authorized. This skill covers feature branch PRs targeting dev only. Release PRs (dev → main promotion) are handled by git-workflow --task release-promotion. Do NOT invoke this skill for release promotion requests.
 type: technique
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

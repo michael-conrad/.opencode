@@ -3,6 +3,7 @@ name: plan-fidelity-auditor
 description: Use when auditing a plan for fidelity against a spec. Triggers on: plan fidelity, plan audit, spec vs plan, discrepancy, clean-room plan.
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

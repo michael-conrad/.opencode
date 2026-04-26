@@ -3,6 +3,7 @@ name: multimodal-dispatch
 description: Use when routing AI agent tasks to appropriate models based on content modality, probing Ollama model capabilities, or dispatching sub-agents with modality-aware model selection. Triggers on: multimodal dispatch, modality routing, capability probe, model selection, sub-agent dispatch, content modality, vision task, audio task.
 type: routing
 license: Apache-2.0
+provenance: AI-generated
 compatibility: opencode
 ---
 

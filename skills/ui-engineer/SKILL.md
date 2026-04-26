@@ -3,6 +3,7 @@ name: ui-engineer
 description: Use when implementing UI from design artifacts, producing framework-specific code. Triggers on: implement UI, UI implementation, UI code, frontend code, Streamlit component, framework implementation, build page, create view.
 type: technique
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
