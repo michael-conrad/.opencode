@@ -497,6 +497,64 @@ decomposition:
     task: review-prep
     mandatory: true
     bypass_violation: "CRITICAL: Skipping review-prep"
+state_machines:
+  - id: assemble-work-lifecycle
+    states: [assessed, decomposed, dispatched, completed, failed, overflow]
+    start_state: assessed
+    decomposition_guard:
+      field: "decomposition.sub_tasks_defined"
+      message: "CRITICAL: Cannot dispatch without decomposition"
+    transitions:
+      - from: assessed
+        to: decomposed
+        guard: "sub_tasks_defined == true"
+        action: INVOKE(dispatch)
+      - from: decomposed
+        to: dispatched
+        guard: "sub_agents_spawned == true"
+        action: WAIT_FOR_RESULTS
+      - from: dispatched
+        to: completed
+        guard: "all_results_valid == true"
+        action: INVOKE(merge)
+      - from: dispatched
+        to: overflow
+        guard: "sub_agent_status == OVERFLOW"
+        action: RE_DISPATCH(reduced_scope)
+      - from: dispatched
+        to: failed
+        guard: "sub_agent_status == ERROR"
+        action: FALLBACK_INLINE
+      - from: overflow
+        to: decomposed
+        guard: "reduced_scope_available == true"
+        action: INVOKE(decompose)
+gates:
+  - id: orchestrator-no-direct-edit
+    condition: "is_orchestrator == true && about_to_edit_implementation_file == true"
+    on_fail: "HALT and dispatch sub-agent"
+    critical_violation: true
+  - id: feature-branch-before-dispatch
+    condition: "feature_branch_exists == true"
+    on_fail: "INVOKE(git-workflow/pre-work)"
+    critical_violation: true
+  - id: implementation-first-gate
+    condition: "files_modified_count > 0 || authorization_scope < for_implementation"
+    on_fail: "HALT and REPORT zero deliverables"
+    critical_violation: true
+evidence_artifacts:
+  - name: assess_result
+    type: tool_call
+    verification: "assess task output confirms workload sizing"
+  - name: dispatch_context
+    type: file
+    verification: "work state file .opencode/tmp/work-*.md exists"
+  - name: sub_agent_results
+    type: tool_call
+    verification: "sub-agent returned structured result contract"
+  - name: file_modifications
+    type: tool_call
+    verification: "git diff --stat shows at least one file modified"
 ```
 
 Co-authored with AI: <AgentName> (<ModelId>)
