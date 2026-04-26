@@ -1360,14 +1360,12 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
               });
             }
           } else if (isSubmoduleMode) {
-            // Submodule mode: parent repo has zero remotes, owner/repo from submodule for API routing only.
-            // Emit a LOCAL_MODE block telling agent the parent is local-only.
-            const parentRemotes = extractValue(cachedIdentityOutput, "github.parent_remotes") || "0";
+            const parentRemoteCount = gitConfigBaseline?.remoteCount ?? 0;
             const lastUser = userMessages[userMessages.length - 1];
             if (lastUser?.parts?.length) {
               lastUser.parts.push({
                 type: "text",
-                text: `<LOCAL_MODE>\n⚠️ Operating in submodule-local mode — parent repo has ${parentRemotes} remote(s).\n\n- github.identity_source: submodule\n- github.parent_remotes: ${parentRemotes}\n- Parent repo has ZERO remotes by design\n- github.owner and github.repo are from the submodule remote for API routing ONLY\n\n**MANDATORY RESTRICTIONS:**\n- Do NOT add remotes to the parent repo (git remote add is FORBIDDEN)\n- Do NOT push from the parent repo (git push without specifying remote is FORBIDDEN)\n- Do NOT assume the parent repo has any remote relationship with the submodule's GitHub repo\n- GitHub MCP and GitBucket API calls route to the submodule's repository\n- Local git operations (branch, commit, stash) on the parent repo are permitted\n\nSee 000-critical-rules.md → "Git Configuration and Destructive Command Authorization".\n</LOCAL_MODE>`
+                text: `<LOCAL_MODE>\n⚠️ Operating in submodule-local mode — parent repo has ${parentRemoteCount} remote(s).\n\n- github.identity_source: submodule\n- All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory — not the project root.\n- The parent repo has ZERO remotes by design.\n- github.owner and github.repo are from the submodule remote for API routing ONLY\n- GitHub MCP calls route to the submodule's repository\n- Local git operations (branch, commit, stash) on the parent repo are permitted\n- Do NOT push from the parent repo — there is no remote to push to.\n- Do NOT add remotes to the parent repo.\n</LOCAL_MODE>`
               });
             }
           } else if (!knownPlatform || !knownOwner || !knownRepo) {

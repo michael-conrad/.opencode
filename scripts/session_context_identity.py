@@ -258,7 +258,7 @@ def build_identity_section(
     platform: str,
     credential_status: str,
     identity_source: str = "root",
-    parent_remotes: int = 0,
+    submod_path: str | None = None,
 ) -> str:
     lines = [
         "## Repository Hosting Identity",
@@ -266,13 +266,26 @@ def build_identity_section(
         f"- github.repo={repo}",
         f"- github.platform={platform}",
         f"- github.identity_source={identity_source}",
-        f"- github.parent_remotes={parent_remotes}",
     ]
     cred_key = (
         f"{platform.upper()}_CREDENTIALS" if platform != "unknown" else "CREDENTIALS"
     )
     lines.append(f"- {cred_key}={credential_status}")
     lines.append("- Use these exact values for ALL GitHub MCP and GitBucket API calls")
+
+    if identity_source == "submodule":
+        remote_display = "(none)"
+        if submod_path:
+            remote_display = (
+                f"(none) [submodule: {submod_path} -> {platform}:{owner}/{repo}]"
+            )
+        else:
+            remote_display = f"(none) [submodule: {platform}:{owner}/{repo}]"
+        lines.append(f"- Remote: {remote_display}")
+    elif identity_source == "none":
+        lines.append("- Remote: (none)")
+    else:
+        lines.append(f"- Remote: {platform} remote configured")
 
     lines.append("")
     lines.append("## Target API Credentials")
@@ -290,6 +303,44 @@ def build_identity_section(
             f"- WARNING: {platform} token was rejected — "
             "check credentials in .env, secrets.toml, or environment variables"
         )
+
+    if identity_source == "submodule":
+        lines.append("")
+        lines.append("## Submodule Routing")
+        submod_display = submod_path if submod_path else "(unknown submodule path)"
+        lines.append(
+            "- Operating in submodule-local mode — parent repo has 0 remote(s)"
+        )
+        lines.append("- github.identity_source: submodule")
+        lines.append(
+            "- All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory — not the project root"
+        )
+        lines.append(
+            f'- The submodule at "{submod_display}" is the only path to the remote repository'
+        )
+        lines.append(
+            "- Local git operations (branch, commit, stash, checkout) work on the parent repo normally"
+        )
+        lines.append("- Do NOT add remotes to the parent repo")
+        lines.append(
+            "- Do NOT push from the parent repo — there is no remote to push to"
+        )
+    elif identity_source == "none":
+        lines.append("")
+        lines.append("## Local-Only Mode")
+        lines.append("- Operating in local-only mode — no git remote configured")
+        lines.append("- github.platform: local")
+        lines.append("- github.owner: (none)")
+        lines.append("- github.repo: (none)")
+        lines.append("- github.identity_source: none")
+        lines.append("- No remote exists anywhere in this repository or its submodules")
+        lines.append(
+            "- All remote git operations (fetch, pull, push) will fail. No GitHub or GitBucket API calls are possible"
+        )
+        lines.append(
+            "- Local git operations (branch, commit, stash, checkout) work normally"
+        )
+        lines.append("- Do NOT add remotes")
 
     return "\n".join(lines)
 
@@ -325,11 +376,11 @@ def get_submodule_dirs() -> list[str]:
 
 def main() -> int:
     remote_url = get_remote_url()
-    parent_remote_url = remote_url
     identity_source = "root"
     owner: str | None = None
     repo: str | None = None
     platform: str = "local"
+    active_submod_path: str | None = None
 
     if remote_url:
         platform = detect_platform(remote_url)
@@ -360,6 +411,7 @@ def main() -> int:
                 repo = submod_repo
                 platform = submod_platform
                 identity_source = "submodule"
+                active_submod_path = submod_path
                 remote_url = submod_url
                 print(
                     f"Using submodule remote for degraded mode: {submod_path} -> {submod_url}",
@@ -385,10 +437,6 @@ def main() -> int:
         print("Not in a git repository.", file=sys.stderr)
         return 1
 
-    parent_remote_count = 0
-    if parent_remote_url:
-        parent_remote_count = 1
-
     credential_status = "unavailable"
     if platform not in ("local",) and remote_url and remote_url != "(none)":
         tier1 = probe_credentials_tier1(platform, root_dir)
@@ -401,7 +449,7 @@ def main() -> int:
             platform,
             credential_status,
             identity_source,
-            parent_remote_count,
+            active_submod_path,
         )
     )
 

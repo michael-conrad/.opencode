@@ -179,11 +179,11 @@ Invoke skills when their trigger keywords match the current task. Each skill def
 
 The `github.identity_source` value (emitted by session-init) determines the agent's relationship to git remotes and GitHub API routing.
 
-| `github.identity_source` | Parent repo remotes | Agent behavior |
-|---|---|---|
-| `root` | 1+ | Standard workflow; owner/repo from parent remote |
-| `submodule` | 0 | Local-only parent; owner/repo from submodule for API routing only; do NOT add remotes to parent |
-| `none` | 0 | Full local-only; no GitHub API calls possible |
+| `identity_source` | Routing Description |
+|---|---|
+| `root` | Standard workflow — parent repo has a remote, owner/repo from parent remote. All git operations work normally through the parent repo. |
+| `submodule` | Submodule-local mode — parent repo has ZERO remotes by design. All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory, not the project root. The submodule path is the only path to the remote repository. Do NOT add remotes to the parent repo. Do NOT push from the parent repo. |
+| `none` | Full local-only mode — no remote exists anywhere. All remote git operations (fetch, pull, push) will fail. No GitHub or GitBucket API calls are possible. Do NOT add remotes. |
 
 **When `identity_source == "submodule"`:**
 
