@@ -122,3 +122,74 @@ def get_user_by_id(user_id: int) -> User:
 ______________________________________________________________________
 
 *Source: Content migrated from `095-never-hide-problems.md`*
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: missing-data-001
+    title: "No silent defaults for required data"
+    conditions:
+      all:
+        - "data_field_required == true"
+        - "default_applied == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "201-errors-missing-data.md §Missing Data Rules"
+
+  - id: missing-data-002
+    title: "No placeholder or synthetic data for missing fields"
+    conditions:
+      any:
+        - "code_pattern == 'or_date_today'"
+        - "code_pattern == 'or_unknown_string'"
+        - "code_pattern == 'fabricated_default'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "201-errors-missing-data.md §Missing Data Rules"
+
+  - id: missing-data-003
+    title: "No None returns for required data"
+    conditions:
+      all:
+        - "function_return_type == 'Optional'"
+        - "data_is_required == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "201-errors-missing-data.md §Missing Data Rules"
+
+  - id: missing-data-004
+    title: "Required data must raise on missing"
+    conditions:
+      all:
+        - "required_field_missing == true"
+        - "exception_raised == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "201-errors-missing-data.md §Required Patterns"
+
+  - id: missing-data-005
+    title: "Optional data must use Optional type hints explicitly"
+    conditions:
+      all:
+        - "data_may_be_none == true"
+        - "type_hint != 'Optional'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "201-errors-missing-data.md §Required Patterns"
+```
