@@ -10,6 +10,30 @@ Verify all success criteria have evidence before allowing completion claims.
 
 ## Verification Workflow
 
+### 0. Structural Completeness Gate (MANDATORY — Before Per-SC Verification)
+
+**Before checking individual success criteria evidence, verify that the implementation includes ALL structural components the spec requires.**
+
+1. Identify the spec that authorized the implementation
+2. Parse the spec for required structural components:
+   - `state_machines` with `decomposition_guard` fields
+   - `evidence_artifacts` sections
+   - `gates` sections
+   - `decomposition` sections
+   - `tasks` entries with `mandatory` + `bypass_violation` fields
+3. For each target skill/guideline file:
+   - Read the file's `yaml+symbolic` block
+   - Verify each structural component from the spec exists in the implementation
+   - Report PASS/FAIL per component
+4. If ANY structural component is missing:
+   - HALT verification immediately
+   - Report missing components as FAIL
+   - Do NOT proceed to per-SC evidence check
+5. If ALL structural components present:
+   - Proceed to Step 1 (Query Success Criteria)
+
+**Dispatch as sub-agent:** When the verification context is the same agent that performed implementation, invoke `structural-verify` as a sub-agent to ensure clean-room isolation. The sub-agent receives ONLY the spec SC list and file paths — NOT implementation context.
+
 ### 1. Query Success Criteria
 
 - Read plan issue for defined success criteria
