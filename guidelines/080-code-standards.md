@@ -302,6 +302,22 @@ provenance: AI-generated
 ---
 ```
 
+#### Scala Files (.scala)
+
+```scala
+// SPDX-FileCopyrightText: <year> <dev.name>
+// SPDX-License-Identifier: Apache-2.0
+// Provenance: AI-generated
+
+/** Module description.
+  *
+  * Co-authored with AI: <AgentName> (<ModelId>)
+  */
+package com.example...
+```
+
+Note: Scala projects may use Apache-2.0 (not MIT) — use the correct SPDX identifier for the project's license.
+
 #### Markdown Files (guidelines, docs)
 
 ```markdown
@@ -309,6 +325,19 @@ provenance: AI-generated
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 ```
+
+#### Other Languages (Fallback Rule)
+
+For languages not explicitly listed (Java, C++, Go, Rust, etc.), use the language's block comment syntax to include the same three SPDX/Provenance lines, then a doc comment with the AI byline:
+
+| Language | Block Comment | Doc Comment |
+|----------|--------------|-------------|
+| Java | `// SPDX-...` | `/** Co-authored with AI: ... */` |
+| C/C++ | `// SPDX-...` | `/** Co-authored with AI: ... */` |
+| Go | `// SPDX-...` | `// Co-authored with AI: ...` |
+| Rust | `// SPDX-...` | `//! Co-authored with AI: ...` |
+
+Pattern: `// SPDX-FileCopyrightText:` + `// SPDX-License-Identifier:` + `// Provenance:` + doc comment with `Co-authored with AI:`.
 
 ### Provenance + Byline Rules
 
