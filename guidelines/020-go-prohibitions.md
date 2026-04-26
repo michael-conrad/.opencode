@@ -163,8 +163,8 @@ Key points:
 - After auto-creating sub-issues, the agent proceeds with implementation immediately (no re-authorization needed).
 
 ```yaml+symbolic
-schema_version: "1.0"
-last_updated: "2026-04-13T12:00:00Z"
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
 rules:
   - id: go-prohibitions-001
     title: "Agent must never write GO as standalone token"
