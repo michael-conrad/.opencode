@@ -96,3 +96,110 @@ Existing files that predate this skill are EXEMPT. New files and modified code i
 | `notebook-operations` skill | Code Standards for Notebooks | Notebook-specific standards |
 | `000-critical-rules.md` | General violation enforcement | Violation handling |
 | `programming-principles` skill | SRP, KISS, "No Monoliths" | Decomposition principle guidance — authoritative source for principle definitions |
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: code-size-001
+    title: "Python functions MUST NOT exceed ≈100 words"
+    conditions:
+      all:
+        - "function_word_count > 100"
+        - "is_grandfathered == false"
+    actions:
+      - HALT
+      - INVOKE(decompose)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "code-size-enforcement/SKILL.md §Size Limits"
+
+  - id: code-size-002
+    title: "Notebook cells MUST NOT exceed ≈120 words"
+    conditions:
+      all:
+        - "cell_word_count > 120"
+        - "is_grandfathered == false"
+    actions:
+      - HALT
+      - INVOKE(decompose)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "code-size-enforcement/SKILL.md §Size Limits"
+
+  - id: code-size-003
+    title: "Source files MUST NOT exceed ≈750 words"
+    conditions:
+      all:
+        - "file_word_count > 750"
+        - "is_grandfathered == false"
+    actions:
+      - HALT
+      - INVOKE(decompose)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "code-size-enforcement/SKILL.md §Size Limits"
+
+  - id: code-size-004
+    title: "Nesting depth MUST NOT exceed 3 levels"
+    conditions:
+      all:
+        - "nesting_depth > 3"
+        - "is_grandfathered == false"
+    actions:
+      - HALT
+      - INVOKE(decompose)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "code-size-enforcement/SKILL.md §Forbidden Patterns"
+
+tasks:
+  - id: check-limits
+    skill: code-size-enforcement
+    preconditions:
+      - "code_written_or_modified == true"
+    postconditions:
+      - "all_functions_within_word_limit == true"
+      - "all_files_within_word_limit == true"
+      - "all_cells_within_word_limit == true"
+      - "nesting_depth_within_limit == true"
+    mandatory: true
+    bypass_violation: "code size limits exceeded on new/modified code"
+    source: "code-size-enforcement/SKILL.md §Tasks"
+
+  - id: decompose
+    skill: code-size-enforcement
+    preconditions:
+      - "size_violation_detected == true"
+    postconditions:
+      - "violation_resolved == true"
+      - "all_limits_met == true"
+    mandatory: false
+    bypass_violation: "decomposition not completed"
+    source: "code-size-enforcement/SKILL.md §Tasks"
+
+decomposition: []
+gates:
+  - id: function-size-gate
+    type: precondition
+    check: "function body word count <= 100 (new/modified code)"
+    on_fail: INVOKE(decompose)
+    source: "code-size-enforcement/SKILL.md §Size Limits"
+  - id: file-size-gate
+    type: precondition
+    check: "file word count <= 750 (new/modified code)"
+    on_fail: INVOKE(decompose)
+    source: "code-size-enforcement/SKILL.md §Size Limits"
+  - id: cell-size-gate
+    type: precondition
+    check: "cell word count <= 120 (new/modified code)"
+    on_fail: INVOKE(decompose)
+    source: "code-size-enforcement/SKILL.md §Size Limits"
+evidence_artifacts:
+  - "wc -w output for checked files/functions"
+  - "srclight_symbols_in_file output showing structure"
+```
