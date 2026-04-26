@@ -225,6 +225,19 @@ else:
 
 Evidence requirements and downgrade rules: see `enforcement/closed-issue-verification.md` §Success Criteria Verification and §Downgrade Path
 
+**Programmatic enforcement:** `skildeck verify-acceptance --spec-file <path>` can be used as the programmatic tool for acceptance criteria verification in this step, producing PASS/FAIL/MANUAL-REVIEW tables with exit code 1 on any failure.
+
+### Step 7.5: Memory/Training Data Rejection (MANDATORY)
+
+**🚫 CRITICAL: The verification agent MUST NOT assume implementation details from memory or training data.** Per `000-critical-rules.md` §Memory/Training-Data-as-Evidence:
+
+- Do NOT recall what "should" be in a file — read the actual file
+- Do NOT assume function signatures from memory — verify via `srclight_get_signature` or source read
+- Do NOT trust "I checked this earlier" from previous sessions — re-verify in current session
+- Do NOT use training-data knowledge of frameworks/libraries as evidence — verify against live code
+
+Every SC verification MUST produce a live tool-call artifact. Memory recall is NOT an artifact.
+
 ### Step 8: Transitive Graph Traversal (MANDATORY)
 
 **Verification of a single issue is insufficient.** The verified issue may be part of a graph — sub-issues, cross-references, and linked issues must also be verified for consistency. This step traverses the reachable graph from the root issue and verifies every node.
