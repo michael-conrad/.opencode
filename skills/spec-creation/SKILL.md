@@ -242,3 +242,170 @@ session_vars:
 Co-authored with AI: <AgentName> (<ModelId>)
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: spec-creation-001
+    title: "Pre-spec investigation mandatory before requirements"
+    conditions:
+      all:
+        - "code_inspection_checklist_completed == false"
+        - "spec_touches_existing_code == true"
+    actions:
+      - HALT
+      - INVOKE(015-pre-spec-inspection.md checklist)
+    conflicts_with: []
+    requires: []
+    triggers: [brainstorming]
+    source: "spec-creation/SKILL.md §Operating Protocol #1"
+
+  - id: spec-creation-002
+    title: "Select-existing pathway before new spec creation"
+    conditions:
+      all:
+        - "existing_spec_search_performed == false"
+    actions:
+      - SEARCH(github_issues labels=[SPEC,PLAN,SPEC-FIX])
+      - PRESENT(candidates)
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate verify-qa-mode]
+    source: "spec-creation/SKILL.md §Operating Protocol #3"
+
+  - id: spec-creation-003
+    title: "Verification-enforcement gate before spec generation"
+    conditions:
+      all:
+        - "verification_enforcement_verify_invoked == false"
+    actions:
+      - INVOKE(verification-enforcement --task verify)
+    conflicts_with: []
+    requires: []
+    triggers: [verification-enforcement]
+    source: "spec-creation/SKILL.md §Evidence Artifact Requirements"
+
+  - id: spec-creation-004
+    title: "Requirements task mandatory before write"
+    conditions:
+      all:
+        - "requirements_task_completed == false"
+        - "spec_is_trivial != true"
+    actions:
+      - HALT
+      - INVOKE(spec-creation --task requirements)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "spec-creation/SKILL.md §Enforcement Mechanism #2"
+
+  - id: spec-creation-005
+    title: "Spec must be persisted as GitHub Issue"
+    conditions:
+      all:
+        - "spec_written_to_github_issue == false"
+    actions:
+      - INVOKE(issue-operations --task creation)
+    conflicts_with: []
+    requires: [spec-creation-004]
+    triggers: [issue-operations]
+    source: "spec-creation/SKILL.md §Enforcement Mechanism #4"
+
+  - id: spec-creation-006
+    title: "SC scope alignment validation after write"
+    conditions:
+      all:
+        - "write_task_completed == true"
+        - "sc_phase_mapping_verified == false"
+    actions:
+      - VALIDATE(sc_to_phase_mapping)
+    conflicts_with: []
+    requires: [spec-creation-005]
+    triggers: []
+    source: "spec-creation/SKILL.md §Enforcement Mechanism #3"
+
+tasks:
+  - id: explore
+    skill: spec-creation
+    preconditions:
+      - "brainstorming exploration completed OR investigation results provided"
+      - "code_inspection_checklist_completed == true OR greenfield_exempt == true"
+    postconditions:
+      - "requirements_extracted == true"
+      - "constraints_ledger_built == true"
+    mandatory: true
+    bypass_violation: "Spec Without Investigation — creating spec without completed investigation is a critical violation"
+    source: "spec-creation/SKILL.md §Tasks requirements"
+
+  - id: create
+    skill: spec-creation
+    preconditions:
+      - "requirements_task_completed == true"
+      - "acceptance_criteria_defined == true"
+    postconditions:
+      - "github_issue_created == true"
+      - "needs_approval_label_added == true"
+      - "self_review_completed == true"
+    mandatory: true
+    bypass_violation: "Spec not persisted — spec must be GitHub Issue, not chat output"
+    source: "spec-creation/SKILL.md §Tasks write"
+
+  - id: completion
+    skill: spec-creation
+    preconditions: []
+    postconditions:
+      - "terminal_state_dispatch_occurred == true"
+      - "status_report_produced == true"
+    mandatory: true
+    bypass_violation: "Silent Agent Termination — halting without completion task is a critical violation"
+    source: "spec-creation/SKILL.md §Tasks completion"
+
+decomposition:
+  - type: skill-task
+    skill: verification-enforcement
+    task: verify
+    mandatory: true
+    bypass_violation: "Skipping verification-enforcement — content generation without verification gate is a critical violation"
+
+  - type: sub-agent
+    skill: brainstorming
+    task: explore
+    mandatory: false
+    bypass_violation: "Skipping investigation — only permitted when investigation results already provided"
+
+  - type: sub-agent
+    skill: issue-operations
+    task: creation
+    mandatory: true
+    bypass_violation: "Spec not persisted as GitHub Issue — chat-only spec delivery is prohibited"
+
+gates:
+  - id: spec-completeness
+    condition: "requirements_extracted == true AND acceptance_criteria_defined == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: verification-enforcement-gate
+    condition: "verification_enforcement_verify_invoked == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: select-existing-check
+    condition: "existing_spec_search_performed == true"
+    on_fail: HALT
+    critical_violation: false
+
+evidence_artifacts:
+  - name: self_review_placeholder_scan
+    type: tool_call
+    verification: "github_issue_read(method=get) → search body for TBD/TODO/placeholder patterns"
+
+  - name: spec_issue_created
+    type: api_call
+    verification: "github_issue_read(method=get) → check title prefix [SPEC] and needs-approval label"
+
+  - name: sc_phase_mapping
+    type: tool_call
+    verification: "github_issue_read(method=get) → verify SC-to-phase trace references exist"
+```
