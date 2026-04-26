@@ -85,3 +85,110 @@ history are secondary and potentially transient or outdated.
 8. **Plan Audit Requires Code Deep Dive**: When auditing or updating any plan, strictly follow the mandatory code deep
    dive and verification requirements defined in `docs/specs/how-to-write-good-spec-ai-agents.md`. Ground every plan
    audit finding in the actual filesystem and source code, not in remembered or stored state.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: authority-source-001
+    title: "Code wins over documentation when discrepancy found"
+    conditions:
+      all:
+        - "discrepancy_between_code_and_docs == true"
+    actions:
+      - PROCEED
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "130-authority-source.md §Rules 1"
+
+  - id: authority-source-002
+    title: "Check for superseding issues before implementing spec"
+    conditions:
+      all:
+        - "action == 'implement_spec'"
+        - "superseding_issues_checked == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate, issue-operations]
+    source: "130-authority-source.md §Rules 2"
+
+  - id: authority-source-003
+    title: "HALT when full supersession detected"
+    conditions:
+      all:
+        - "overlap_classification == 'FULL-SUPERSESSION'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: [authority-source-002]
+    triggers: []
+    source: "130-authority-source.md §Rules 2"
+
+  - id: authority-source-004
+    title: "Never implement stale spec as-is"
+    conditions:
+      all:
+        - "staleness_detected == true"
+        - "spec_revised == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate]
+    source: "130-authority-source.md §Rules 2"
+
+  - id: authority-source-005
+    title: "Never fix code to match documentation drift"
+    conditions:
+      all:
+        - "documentation_drift_detected == true"
+        - "proposed_action == 'fix_code'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "130-authority-source.md §Rules 3,5"
+
+  - id: authority-source-006
+    title: "Documentation drift sync exemption applies only to GitHub Issues"
+    conditions:
+      all:
+        - "documentation_drift_detected == true"
+        - "target == '.opencode/guidelines/'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate]
+    source: "130-authority-source.md §Rules 3,4"
+
+  - id: authority-source-007
+    title: "Verify file/symbol existence before using in tool call"
+    conditions:
+      all:
+        - "about_to_use_filename_from_plan == true"
+        - "existence_verified == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "130-authority-source.md §Rules 6"
+
+  - id: authority-source-008
+    title: "Deep dive before declaring component missing"
+    conditions:
+      all:
+        - "component_appears_missing == true"
+        - "exhaustive_search_performed == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "130-authority-source.md §Rules 7"
+```
