@@ -34,6 +34,26 @@ Verify all success criteria have evidence before allowing completion claims.
 
 **Dispatch as sub-agent:** When the verification context is the same agent that performed implementation, invoke `structural-verify` as a sub-agent to ensure clean-room isolation. The sub-agent receives ONLY the spec SC list and file paths — NOT implementation context.
 
+### 0.5. Header Verification Checkpoint (MANDATORY — For New Files)
+
+**For each new file added by the agent during implementation, verify it contains the required headers per its file type as defined in `080-code-standards.md` §"Header Format by File Type".**
+
+1. Identify all files added (not modified) during this implementation: `git diff --diff-filter=A --name-only dev`
+2. For each new file, determine its file type and check for required headers:
+   - Python (`.py`): SPDX copyright, SPDX license (MIT), Provenance header, AI byline in docstring
+   - SKILL.md: `license` and `provenance` fields in YAML frontmatter
+   - Markdown (`.md`): SPDX copyright, SPDX license, Provenance as HTML comments
+   - Scala (`.scala`): SPDX copyright, SPDX license (project-appropriate), Provenance header, AI byline in ScalaDoc
+   - Other languages: Fallback rule per `080-code-standards.md` §"Other Languages (Fallback Rule)"
+3. If ANY new file is missing required headers:
+   - Report as FAIL with specific file and missing header(s)
+   - Do NOT proceed to Step 1 until headers are added
+4. If ALL new files have required headers:
+   - Report as PASS
+   - Proceed to Step 1
+
+**Grandfather clause:** Pre-existing files modified by the agent are exempt from header verification — only newly created files require headers.
+
 ### 1. Query Success Criteria
 
 - Read plan issue for defined success criteria
