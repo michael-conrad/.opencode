@@ -10,8 +10,10 @@ Usage: python .opencode/tools/impl/skildeck/schema_v2.py [ Options ]
 
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import dataclass, field, asdict
+from pathlib import Path
 
 SCHEMA_V1 = "1.0"
 SCHEMA_V2 = "2.0"
@@ -26,6 +28,74 @@ REQUIRED_DECOMP_FIELDS = {"type", "skill", "task"}
 REQUIRED_GATE_FIELDS = {"id", "condition"}
 REQUIRED_EVIDENCE_FIELDS = {"name", "type", "verification"}
 REQUIRED_SUB_AGENT_DISPATCH_FIELDS = {"type", "isolation", "bypass_violation"}
+
+
+def find_skills_dir(tool_path: Path) -> Path:
+    """
+    Find skills directory by walking up tree from tool location.
+    
+    Works for: standalone dirs, submodules, copied folders, any deployment.
+    No git required. No hardcoded paths.
+    """
+    # 1. Discovery: walk up until finding skills/
+    for parent in [tool_path.parent] + list(tool_path.parents):
+        candidate = parent / "skills"
+        if candidate.exists() and candidate.is_dir():
+            return candidate
+    
+    # 2. Environment override (explicit user control for edge cases)
+    if os.environ.get("SKILDECK_SKILLS_DIR"):
+        env_path = Path(os.environ["SKILDECK_SKILLS_DIR"])
+        if env_path.exists():
+            return env_path
+    
+    raise RuntimeError(
+        f"Cannot find skills/ directory. Searched up from {tool_path}. "
+        f"Set SKILDECK_SKILLS_DIR env var to override."
+    )
+
+
+def scan_skills(skills_dir: Path) -> list:
+    """
+    Scan skills directory and extract yaml+symbolic rules from SKILL.md files.
+    
+    Returns fresh data on every call. No cache. No registry. No regeneration.
+    """
+    import yaml
+    
+    all_rules = []
+    
+    for skill_subdir in sorted(skills_dir.iterdir()):
+        if not skill_subdir.is_dir():
+            continue
+        
+        skill_file = skill_subdir / "SKILL.md"
+        if not skill_file.exists():
+            continue
+        
+        content = skill_file.read_text()
+        rules = extract_rules_from_markdown(content, skill_subdir.name)
+        all_rules.extend(rules)
+    
+    return all_rules
+
+
+def extract_rules_from_markdown(content: str, skill_name: str) -> list:
+    """Extract yaml+symbolic blocks from markdown content."""
+    import yaml
+    
+    rules = []
+    matches = FENCE_PATTERN.findall(content)
+    for match in matches:
+        try:
+            data = yaml.safe_load(match)
+            if data and "rules" in data:
+                for rule in data["rules"]:
+                    rule["_skill_name"] = skill_name
+                    rules.append(rule)
+        except Exception:
+            pass
+    return rules
 
 
 @dataclass

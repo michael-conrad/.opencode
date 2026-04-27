@@ -13,16 +13,11 @@ from __future__ import annotations
 import json
 import os as _os
 import re
-import subprocess
 import sys
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
-IMPL_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(
-    ["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True
-).strip()
-BASE_DIR = (IMPL_DIR / CDUP).resolve()
+# No hardcoded base dir - filesystem-first, no git assumptions
 
 # Acceptance criteria patterns
 SC_PREFIX_PATTERN = re.compile(r"^- \*\*SC-\d+:\*\*\s+(.+)$", re.MULTILINE)
