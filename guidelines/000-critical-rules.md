@@ -746,6 +746,17 @@ The dispatch chain is enforceable, not advisory. Every step produces required ar
 
 **See `approval-gate/SKILL.md` → "Dispatch Enforcement" for the complete enforcement table and mandatory invocation callouts.**
 
+## Critical Violation: Listing Merged PRs Without Invoking Cleanup — "check prs" Is a Cleanup Trigger
+
+**⚠️ When the user says "check prs", "check merged prs", "check pr", "check pull request(s)", or equivalent, the agent MUST invoke `git-workflow --task check-pr` which routes to `--task cleanup` if merged PRs with local branches exist. Listing PRs as a static report without cleanup routing is a CRITICAL GUIDELINE VIOLATION.**
+
+The "check prs" intent is a cleanup trigger, not a report request. The agent recognized the request semantically and listed PRs without routing through the mandatory skill pipeline.
+
+- 🚫 FORBIDDEN: Calling `github_list_pull_requests` directly without invoking `git-workflow --task check-pr`; producing a PR listing table/report without routing through check-pr Step 3; responding to "check prs" with observations instead of cleanup actions
+- ✅ REQUIRED: Invoke `git-workflow --task check-pr` when user says any "check prs" variant; follow check-pr Step 3 decision (cleanup if merged PRs have local branches); ensure branch deletion, issue closure, and dev sync occur for all merged PRs
+
+**See `git-workflow` skill → `check-pr` task for the complete procedure. See `session_context_triggers.py` → `CHECK_PRS_PATTERNS` for session-level trigger detection.** **AUTHORITY: `git-workflow/tasks/check-pr.md` Enforcement Gate**
+
 ## Auditor Skills Enforcement
 
 **⚠️ MANDATORY: Run `spec-auditor` when auditing specs. NO SKIPPING.**
@@ -2168,4 +2179,18 @@ The commit-per-issue invariant requires that single-issue branches produce exact
     requires: []
     triggers: [git-workflow, pr-creation-workflow]
     source: "000-critical-rules.md §Un-Squashed PR"
+
+  - id: critical-rules-041
+    title: "Listing merged PRs without invoking cleanup — check prs is a cleanup trigger"
+    conditions:
+      all:
+        - "user_input matches 'check prs|check merged prs|check pr|check pull request'"
+        - "skill_check_pr_invoked == false"
+    actions:
+      - HALT
+      - INVOKE(git-workflow --task check-pr)
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §Listing Merged PRs Without Invoking Cleanup"
 ```
