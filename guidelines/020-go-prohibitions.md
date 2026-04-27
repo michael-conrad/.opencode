@@ -47,6 +47,21 @@
 - **No implied authorization framing.** The agent must not frame status reports as requests or frame blockers as needing user action in a way that solicits a response. Correct format: "Blocked: no approved spec found for #N." Incorrect format: "We're blocked — can you approve #N so I can continue?"
 - **No forward-looking references in completion reports.** Completion reports must describe what was done, never what should happen next. This prevents the report from reading as an implicit request for the next authorization step.
 
+### Authorization-Free Actions — No Deliberation Required
+
+<!-- Issue #99: Authorization-Free Actions — Signal asymmetry fix -->
+
+The following actions do NOT require `"approved"` or `"go"` and the agent MUST NOT deliberate over them:
+
+- Creating GitHub Issues (specs, plans, bug reports) — see `010-approval-gate.md` §Issue Creation Is Reporting, Not Implementation
+- Creating sub-issues under an approved plan — covered by plan authorization
+- Posting progress comments to GitHub — always permitted
+- Moving issue labels — metadata operation
+- Running lint/typecheck/format commands — read-only verification
+- Creating feature branches — see `git-workflow` skill pre-work
+
+If the action is in this list, proceed immediately without requesting or deliberating over authorization.
+
 ### ⚠️ ASK FIRST
 
 - **"GO" requires unambiguous scope; clarify only when ambiguous.** If the user types "GO" (or equivalent), treat it as valid authorization ONLY when the immediate session context identifies exactly one plan/scope target.

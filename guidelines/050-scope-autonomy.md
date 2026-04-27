@@ -64,6 +64,21 @@ If you catch yourself about to edit code to fix a bug discovered during other wo
 
 **This applies even when the fix seems trivial or obvious. No exceptions.**
 
+### Authorization-Free Actions
+
+<!-- Issue #99: Authorization-Free Actions — Signal asymmetry fix -->
+
+The discovery protocol authorizes creating issues without implementation authorization:
+
+| Action | Authorized? | Why |
+|--------|-------------|-----|
+| Create bug report issue | ✅ Yes — reporting action | Bug discovery authorizes reporting, not fixing |
+| Create spec/plan issue | ✅ Yes — tracking action | Issue creation is not implementation |
+| Create sub-issue under plan | ✅ Yes — covered by plan auth | Sub-issue creation is a setup step |
+| Post comment to existing issue | ✅ Yes — communication | Comments are not implementation |
+
+**These actions are always permitted.** The agent must not deliberate over whether authorization is needed.
+
 ## 4. Q&A and Feedback
 
 - **Questions are NOT authorization to make changes.** A question like "should I do X?" or "would you like me to X?" is seeking permission, not receiving it. Answer questions directly without making code changes. Wait for explicit approval before acting.

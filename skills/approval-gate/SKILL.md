@@ -594,6 +594,19 @@ Skipping this invocation is a CRITICAL GUIDELINE VIOLATION.
 
 Skills without this callout MUST be updated to include it. The callout is a behavioral enforcement trigger, not documentation.
 
+### Issue Creation Authorization Exemption
+
+<!-- Issue #99: Authorization-Free Actions — Signal asymmetry fix -->
+
+Skills MUST check authorization for **implementation**, NOT for **issue creation**. The following actions are explicitly exempt from the authorization gate:
+
+- Creating GitHub Issues (specs, plans, bug reports, feature requests)
+- Creating sub-issues under an approved plan
+- Posting progress comments to GitHub
+- Moving issue labels
+
+The `verify-authorization` gate applies only to code/config/file modifications that alter system behavior. Issue creation is a tracking action — the agent MUST proceed without deliberating over authorization. See `010-approval-gate.md` §Issue Creation Is Reporting, Not Implementation for the complete exemption table.
+
 ```yaml+symbolic
 schema_version: "2.0"
 last_updated: "2026-04-26T00:00:00Z"

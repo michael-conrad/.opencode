@@ -1,5 +1,9 @@
 # Task: check-pr
 
+## ⚠️ Enforcement Gate
+
+**This task is MANDATORY when the user says "check pr", "check prs", "check merged prs", "check merged pr", or "check pull request(s)". The agent MUST NOT respond with a raw PR listing without routing through this task's Step 3 decision point. Bypassing this gate to list PRs directly via `github_list_pull_requests` is a CRITICAL GUIDELINE VIOLATION — see `000-critical-rules.md` §"Listing Merged PRs Without Invoking Cleanup".**
+
 ## Purpose
 
 List all PRs (open and merged) for the repository. If merged PRs with uncleaned branches are detected, activate the `cleanup` task. If only open PRs exist, report and HALT.
@@ -10,6 +14,8 @@ List all PRs (open and merged) for the repository. If merged PRs with uncleaned 
 - "check prs"
 - "check pull request"
 - "check pull requests"
+- "check merged prs"
+- "check merged pr"
 
 ## Procedure
 

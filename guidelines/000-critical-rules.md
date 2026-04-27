@@ -746,6 +746,17 @@ The dispatch chain is enforceable, not advisory. Every step produces required ar
 
 **See `approval-gate/SKILL.md` → "Dispatch Enforcement" for the complete enforcement table and mandatory invocation callouts.**
 
+## Critical Violation: Listing Merged PRs Without Invoking Cleanup — "check prs" Is a Cleanup Trigger
+
+**⚠️ When the user says "check prs", "check merged prs", "check pr", "check pull request(s)", or equivalent, the agent MUST invoke `git-workflow --task check-pr` which routes to `--task cleanup` if merged PRs with local branches exist. Listing PRs as a static report without cleanup routing is a CRITICAL GUIDELINE VIOLATION.**
+
+The "check prs" intent is a cleanup trigger, not a report request. The agent recognized the request semantically and listed PRs without routing through the mandatory skill pipeline.
+
+- 🚫 FORBIDDEN: Calling `github_list_pull_requests` directly without invoking `git-workflow --task check-pr`; producing a PR listing table/report without routing through check-pr Step 3; responding to "check prs" with observations instead of cleanup actions
+- ✅ REQUIRED: Invoke `git-workflow --task check-pr` when user says any "check prs" variant; follow check-pr Step 3 decision (cleanup if merged PRs have local branches); ensure branch deletion, issue closure, and dev sync occur for all merged PRs
+
+**See `git-workflow` skill → `check-pr` task for the complete procedure. See `session_context_triggers.py` → `CHECK_PRS_PATTERNS` for session-level trigger detection.** **AUTHORITY: `git-workflow/tasks/check-pr.md` Enforcement Gate**
+
 ## Auditor Skills Enforcement
 
 **⚠️ MANDATORY: Run `spec-auditor` when auditing specs. NO SKIPPING.**
@@ -793,6 +804,22 @@ Trigger words: "audit this spec", "review this issue", "revisit this task", "che
 
 - 🚫 FORBIDDEN: Editing source code after discovering a bug; creating branches without approved spec; treating discovery as authorization
 - ✅ REQUIRED: Create bug report issue (permitted without auth); invoke `issue-review --task analyze-and-spec` for root cause analysis; perform read-only analysis; HALT and wait for authorization
+
+## Critical Violation: Authorization-Free Actions — No Deliberation Required
+
+<!-- Issue #99: Authorization-Free Actions — Signal asymmetry fix -->
+
+**⚠️ The following actions are explicitly authorized WITHOUT needing `"approved"` or `"go"`.** The agent MUST NOT deliberate over authorization for these actions. The authorization mandate applies only to code/config/file modifications that alter system behavior.
+
+- ✅ Creating GitHub Issues (specs, plans, bug reports, feature requests) — permitted without authorization per `issue-operations` skill
+- ✅ Creating sub-issues under an approved plan — covered by plan authorization per `approval-gate --task verify-sub-issues`
+- ✅ Updating existing issue text (revision, drift sync) — administrative, not implementation
+- ✅ Posting progress comments to GitHub — permitted without authorization
+- ✅ Moving issue labels — metadata operation, not implementation
+- ✅ Running lint/typecheck/format commands — read-only verification
+- ✅ Creating feature branches — no auth required, but mandatory worktree per `git-workflow` skill
+
+**Deliberating over authorization for issue creation is a context waste.** The answer is always: proceed with the mandatory skill steps (dedup, title format, byline, etc.), no authorization needed.
 
 ## Critical Violation: Symptom-Only Fix-Specs — Patches Without Root Cause Analysis
 
@@ -2119,6 +2146,42 @@ When a plan's spec declares dependencies on other specs/plans via a `pr_boundari
     source: "000-critical-rules.md §Parent Issue Left Open After All Children Closed"
 ```
 
+<!-- Issue #105: Content Verification Before Branch Deletion -->
+
+## Critical Violation: Content Verification Before Branch Deletion
+
+**⚠️ Declaring a remote or local branch "stale," "safe to delete," or "can be deleted" based on metadata (branch name, PR merge status, issue closure state, commit count) without verifying that all branch content is present on the target branch (dev) is a CRITICAL GUIDELINE VIOLATION.**
+
+This is the exact violation described in #105: the agent declared a branch "stale predecessor, can safely be deleted" based entirely on metadata — branch name patterns, PR merge status, issue closure — without ever comparing file content. This is a direct instance of the #91 verification regression (metadata-as-evidence) applied to branch deletion decisions.
+
+- 🚫 FORBIDDEN: Declaring a branch deletable based on PR merge status alone
+- 🚫 FORBIDDEN: Declaring a branch deletable based on branch name pattern matching
+- 🚫 FORBIDDEN: Declaring a branch deletable based on issue closure state
+- 🚫 FORBIDDEN: Declaring a branch deletable based on commit count ahead/behind
+- 🚫 FORBIDDEN: Deleting a branch without producing the content comparison table
+- ✅ REQUIRED: Perform `git diff --stat origin/dev...` to identify all changed files
+- ✅ REQUIRED: For each changed file, verify content exists (identical or superseded) on dev
+- ✅ REQUIRED: For any file unique to the branch (not on dev), flag as `UNIQUE` — do NOT auto-delete
+- ✅ REQUIRED: Produce a content comparison table with `IDENTICAL`/`SUPERSEDED`/`UNIQUE` status per file before declaring deletion safe
+
+**AUTHORITY:** `git-workflow/tasks/cleanup/branch-cleanup.md` Step 3, Spec #105
+
+```yaml+symbolic
+  - id: git-workflow-branch-deletion-001
+    title: "Branch deletion requires content verification against target branch"
+    conditions:
+      all:
+        - "branch_deletion_recommended == true"
+        - "content_diff_verified == false"
+    actions:
+      - HALT
+      - VERIFY_CONTENT_DIFF
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §Content Verification Before Branch Deletion"
+```
+
 <!-- Issue #109: Un-Squashed PR — commit-per-issue invariant across all bypass paths -->
 
 ## Critical Violation: Un-Squashed PR — Creating a Single-Issue PR with Multiple Commits
@@ -2152,4 +2215,18 @@ The commit-per-issue invariant requires that single-issue branches produce exact
     requires: []
     triggers: [git-workflow, pr-creation-workflow]
     source: "000-critical-rules.md §Un-Squashed PR"
+
+  - id: critical-rules-041
+    title: "Listing merged PRs without invoking cleanup — check prs is a cleanup trigger"
+    conditions:
+      all:
+        - "user_input matches 'check prs|check merged prs|check pr|check pull request'"
+        - "skill_check_pr_invoked == false"
+    actions:
+      - HALT
+      - INVOKE(git-workflow --task check-pr)
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §Listing Merged PRs Without Invoking Cleanup"
 ```

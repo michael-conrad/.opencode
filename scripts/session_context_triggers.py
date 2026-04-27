@@ -391,6 +391,41 @@ def build_unpushed_commits_warning(count: int) -> str:
     return "\n".join(lines)
 
 
+CHECK_PRS_PATTERNS: list[str] = [
+    "check pr",
+    "check prs",
+    "check pull request",
+    "check pull requests",
+    "check merged prs",
+    "check merged pr",
+    "checkprs",
+]
+
+
+def detect_check_prs_intent() -> str | None:
+    import os
+
+    user_message = os.environ.get("OPENCODE_USER_MESSAGE", "")
+    if not user_message:
+        return None
+    lower = user_message.lower().strip()
+    for pattern in CHECK_PRS_PATTERNS:
+        if pattern in lower:
+            return "check-prs-cleanup"
+    return None
+
+
+def build_check_prs_directive() -> str:
+    return (
+        "\n"
+        "User intent detected: \"check prs\" / \"check merged prs\".\n"
+        "This is a CLEANUP TRIGGER, not a report request.\n"
+        "You MUST invoke: git-workflow --task check-pr\n"
+        "check-pr Step 3 routes to --task cleanup if merged PRs have local branches.\n"
+        "Listing PRs as a static report without cleanup routing is a CRITICAL VIOLATION.\n"
+    )
+
+
 def build_orphaned_worktrees_warning(wt_list: list[str]) -> str:
     lines = [
         "## Orphaned Worktrees",
@@ -546,6 +581,10 @@ def main() -> int:
 
     if is_local_only_repo():
         sections.append(build_local_only_repo_directive())
+
+    check_prs_intent = detect_check_prs_intent()
+    if check_prs_intent:
+        sections.append(build_check_prs_directive())
 
     if len(sections) > 0:
         print("\n\n".join(sections))
