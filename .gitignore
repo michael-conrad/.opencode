@@ -5,4 +5,15 @@ bun.lock
 tmp/
 .node/
 .worktrees/
-.gitignore
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.idea/
+.DS_Store
+Thumbs.db
+.coverage
+htmlcov/

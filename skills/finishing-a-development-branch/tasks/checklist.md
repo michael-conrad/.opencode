@@ -41,6 +41,10 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 - [ ] Structural completeness verified (`skildeck verify-structure` output available)
 - [ ] Acceptance criteria verified (`skildeck verify-acceptance` output available)
 
+### Structural & Acceptance Verification
+- [ ] Structural completeness verified (`skildeck verify-structure` output available)
+- [ ] Acceptance criteria verified (`skildeck verify-acceptance` output available)
+
 ### Branch
 - [ ] Branch pushed to remote
 - [ ] Upstream tracking set

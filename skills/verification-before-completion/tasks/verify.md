@@ -231,6 +231,8 @@ The following `skildeck` commands are available for automated verification:
 
 These tools produce PASS/FAIL/MANUAL-REVIEW tables and exit code 1 on any failure. They are the programmatic enforcement layer complementing manual verification.
 
+**🚫 MANDATORY: `skildeck verify-structure` and `skildeck verify-acceptance` MUST be used as the programmatic enforcement layer for structural and acceptance verification respectively.** Manual verification alone is insufficient — the skildeck commands provide repeatable, deterministic verification that manual inspection cannot guarantee. When these commands are available, verification MUST include their output as evidence artifacts in the per-SC evidence table.
+
 ## Post-Verification Chain
 
 After verification passes, the following skills MUST be invoked in sequence:
