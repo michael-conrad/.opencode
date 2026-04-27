@@ -794,6 +794,22 @@ Trigger words: "audit this spec", "review this issue", "revisit this task", "che
 - 🚫 FORBIDDEN: Editing source code after discovering a bug; creating branches without approved spec; treating discovery as authorization
 - ✅ REQUIRED: Create bug report issue (permitted without auth); invoke `issue-review --task analyze-and-spec` for root cause analysis; perform read-only analysis; HALT and wait for authorization
 
+## Critical Violation: Authorization-Free Actions — No Deliberation Required
+
+<!-- Issue #99: Authorization-Free Actions — Signal asymmetry fix -->
+
+**⚠️ The following actions are explicitly authorized WITHOUT needing `"approved"` or `"go"`.** The agent MUST NOT deliberate over authorization for these actions. The authorization mandate applies only to code/config/file modifications that alter system behavior.
+
+- ✅ Creating GitHub Issues (specs, plans, bug reports, feature requests) — permitted without authorization per `issue-operations` skill
+- ✅ Creating sub-issues under an approved plan — covered by plan authorization per `approval-gate --task verify-sub-issues`
+- ✅ Updating existing issue text (revision, drift sync) — administrative, not implementation
+- ✅ Posting progress comments to GitHub — permitted without authorization
+- ✅ Moving issue labels — metadata operation, not implementation
+- ✅ Running lint/typecheck/format commands — read-only verification
+- ✅ Creating feature branches — no auth required, but mandatory worktree per `git-workflow` skill
+
+**Deliberating over authorization for issue creation is a context waste.** The answer is always: proceed with the mandatory skill steps (dedup, title format, byline, etc.), no authorization needed.
+
 ## Critical Violation: Symptom-Only Fix-Specs — Patches Without Root Cause Analysis
 
 **⚠️ Creating fix-specs that address only the observed symptom without identifying and targeting the root cause is a CRITICAL GUIDELINE VIOLATION.**

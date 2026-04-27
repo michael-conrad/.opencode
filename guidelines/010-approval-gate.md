@@ -34,6 +34,27 @@
 | **Hard HALT at scope boundary** | Agent MUST NOT proceed past `halt_at` pipeline stage without re-authorization |
 | **Item decomposition** | Approval gate Step 4.5 verifies item decomposition exists before implementation proceeds — see `091-incremental-build.md` for the discipline |
 
+### Issue Creation Is Reporting, Not Implementation (CRITICAL)
+
+<!-- Issue #99: Authorization-Free Actions — Signal asymmetry fix -->
+
+**⚠️ Creating GitHub Issues (specs, plans, bug reports, feature requests) does NOT require authorization.** Issue creation is a reporting and tracking action, not an implementation action. The authorization mandate applies only to code/config/file modifications that alter system behavior.
+
+The following actions are explicitly authorized WITHOUT needing `"approved"` or `"go"`:
+
+| Action | Classification | Authority |
+|--------|---------------|-----------|
+| Creating new GitHub Issue (spec/plan) | No auth → mandatory `issue-operations` skill | This section |
+| Creating sub-issues under an approved plan | No auth → covered by plan authorization | `approval-gate --task verify-sub-issues` |
+| Updating existing issue spec text (revision) | No auth → revision ≠ implementation | `010-approval-gate.md` §Revision ≠ Implementation |
+| Updating issue text to match code reality (drift sync) | No auth → administrative sync | `130-authority-source.md` §Documentation Drift |
+| Posting progress comments to GitHub | No auth → `issue-operations` skill | `issue-operations` skill |
+| Moving issue labels | No auth → metadata operation | This section |
+| Creating bug report issues | No auth → reporting action | `000-critical-rules.md` §Bug Discovery |
+| Running lint/typecheck/format commands | No auth → read-only verification | Existing practice |
+
+**The agent MUST NOT deliberate over authorization for these actions.** Deliberation over whether issue creation requires authorization is itself a waste of context — the answer is always "no authorization needed, proceed with mandatory skill steps."
+
 ### Spec-to-Plan Approval Cascade (Critical)
 
 **When a spec is approved and a plan already exists, the plan is automatically approved.** This eliminates redundant manual approval when the implementation plan was already created and is faithful to the approved spec.

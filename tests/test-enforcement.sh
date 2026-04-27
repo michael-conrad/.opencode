@@ -341,6 +341,11 @@ SCENARIOS["unsquashed-pr-yaml-rule"]="Does .opencode/guidelines/000-critical-rul
 SCENARIOS["enforcement-gate-commit-count"]="Does .opencode/skills/git-workflow/tasks/pr-creation/enforcement-gate.md contain a Step 1.2 with title 'Commit Count Verification'?"
 SCENARIOS["review-prep-squash-verification"]="Does .opencode/skills/git-workflow/tasks/review-prep.md contain a Step 2.5 with title 'Squash Verification'?"
 SCENARIOS["pre-pr-checklist-commit-count"]="Does .opencode/skills/pr-creation-workflow/tasks/pre-pr-checklist.md Step 1 include a git log origin/dev..HEAD command for commit count verification with the text 'SQUASH NOW' or 'VERIFY NOW'?"
+SCENARIOS["auth-free-approval-gate"]="Does .opencode/guidelines/010-approval-gate.md contain a section titled 'Issue Creation Is Reporting, Not Implementation' that lists authorization-free actions?"
+SCENARIOS["auth-free-critical-rules"]="Does .opencode/guidelines/000-critical-rules.md contain a section titled 'Authorization-Free Actions' that states the agent MUST NOT deliberate over authorization for issue creation?"
+SCENARIOS["auth-free-go-prohibitions"]="Does .opencode/guidelines/020-go-prohibitions.md contain an 'Authorization-Free Actions' section stating the agent MUST NOT deliberate over authorization for listed actions?"
+SCENARIOS["auth-free-scope-autonomy"]="Does .opencode/guidelines/050-scope-autonomy.md contain an 'Authorization-Free Actions' table listing issue creation and label changes as not requiring authorization?"
+SCENARIOS["auth-free-approval-gate-skill"]="Does .opencode/skills/approval-gate/SKILL.md contain an 'Issue Creation Authorization Exemption' section stating skills must check auth for implementation, NOT issue creation?"
 SCENARIO_TAGS["divide-conquer-decomposition-rule"]="content-verification clean-room-dispatch"
 SCENARIO_TAGS["verification-isolation-section"]="content-verification clean-room-dispatch"
 SCENARIO_TAGS["dispatch-audit-tables"]="content-verification clean-room-dispatch"
@@ -380,6 +385,11 @@ SCENARIO_TAGS["unsquashed-pr-yaml-rule"]="content-verification git-workflow pr-c
 SCENARIO_TAGS["enforcement-gate-commit-count"]="content-verification git-workflow pr-creation"
 SCENARIO_TAGS["review-prep-squash-verification"]="content-verification git-workflow pr-creation"
 SCENARIO_TAGS["pre-pr-checklist-commit-count"]="content-verification pr-creation-workflow"
+SCENARIO_TAGS["auth-free-approval-gate"]="content-verification approval"
+SCENARIO_TAGS["auth-free-critical-rules"]="content-verification approval"
+SCENARIO_TAGS["auth-free-go-prohibitions"]="content-verification approval"
+SCENARIO_TAGS["auth-free-scope-autonomy"]="content-verification approval"
+SCENARIO_TAGS["auth-free-approval-gate-skill"]="content-verification approval"
 
 # File-to-scenario mapping for --changed filtering
 # Maps glob patterns to scenario names
@@ -701,6 +711,11 @@ EXPECTED_SKILLS["parent-issue-left-open-violation"]=""
 EXPECTED_SKILLS["parent-issue-left-open-yaml"]=""
 EXPECTED_SKILLS["parent-issue-closure-vai-step6"]=""
 EXPECTED_SKILLS["parent-issue-closure-cleanup-step28"]=""
+EXPECTED_SKILLS["auth-free-approval-gate"]=""
+EXPECTED_SKILLS["auth-free-critical-rules"]=""
+EXPECTED_SKILLS["auth-free-go-prohibitions"]=""
+EXPECTED_SKILLS["auth-free-scope-autonomy"]=""
+EXPECTED_SKILLS["auth-free-approval-gate-skill"]=""
 
 RESULTS_FILE="$LOGDIR/results.md"
 
