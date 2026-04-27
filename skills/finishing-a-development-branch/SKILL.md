@@ -177,7 +177,7 @@ Before invoking any cross-referenced skill:
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-04-26T00:00:00Z"
+last_updated: "2026-04-27T00:00:00Z"
 rules:
   - id: finishing-a-development-branch-001
     title: "All changes must be committed before branch completion"
@@ -246,16 +246,6 @@ tasks:
     mandatory: true
     bypass_violation: "CRITICAL: Uncommitted/Unpushed Changes After Implementation"
     source: "finishing-a-development-branch/SKILL.md"
-    evidence_artifacts:
-      - gate: lint
-        verification: "uvx ruff check src/ test/"
-        expected: "zero errors"
-      - gate: test
-        verification: "uv run pytest test/"
-        expected: "all tests pass"
-      - gate: push
-        verification: "git log origin/<branch>..HEAD"
-        expected: "empty (all commits pushed)"
 
   - id: completion
     skill: finishing-a-development-branch
@@ -334,14 +324,22 @@ gates:
 evidence_artifacts:
   - name: lint_output
     type: tool_call
+    dispatch_stage: checklist
     verification: "uvx ruff check src/ test/ returns zero errors"
   - name: test_output
     type: tool_call
+    dispatch_stage: checklist
     verification: "uv run pytest test/ passes"
   - name: push_confirmation
     type: tool_call
+    dispatch_stage: prepare
     verification: "git push output confirms branch pushed"
   - name: compare_url
     type: constructed_url
+    dispatch_stage: checklist
     verification: "URL format matches dev...branch pattern"
+  - name: completion_tasks_executed
+    type: tool_call
+    dispatch_stage: completion
+    verification: "completion task output confirms mandatory steps executed"
 ```
