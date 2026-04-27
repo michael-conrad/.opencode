@@ -83,6 +83,20 @@ ENDIF
 
 Violation: Skipping sub-agent dispatch for "simple" or "single-issue" work is a CRITICAL violation. There is no IMPLEMENT_DIRECTLY path.
 
+### Gate 3: PR Merge Boundary Check (assemble-work)
+
+```
+IF the plan has pr_boundaries in yaml+symbolic block:
+  1. BEFORE dispatching any sub-agent, check each required PR boundary
+  2. For each boundary where must_be_merged_before_starting == true:
+     - Verify PR is merged via github_pull_request_read(method=get, pullNumber=N)
+     - If NOT merged: HALT and report which PR must merge first
+  3. If ALL required boundaries are merged: proceed with sub-agent dispatch
+ENDIF
+```
+
+Violation: Dispatching sub-agents when a required upstream PR is not merged is a CRITICAL violation. The agent MUST halt at `assemble-work` and report which PR boundary is blocking.
+
 ## Operating Protocol
 
 1. **Pre-flight assessment is MANDATORY** before any non-trivial task. Run `--task assess` first. Skipping assessment for non-trivial work is a CRITICAL violation.
@@ -430,6 +444,20 @@ rules:
     triggers: [assemble-work]
     source: "divide-and-conquer/SKILL.md §Overflow Signal Contract"
 
+  - id: divide-and-conquer-007
+    title: "PR merge boundary check before sub-agent dispatch"
+    conditions:
+      all:
+        - "plan_has_pr_boundaries == true"
+        - "required_pr_not_merged == true"
+    actions:
+      - HALT
+      - REPORT("CRITICAL: Bypassing PR Merge Boundary")
+    conflicts_with: []
+    requires: [divide-and-conquer-002]
+    triggers: [assemble-work]
+    source: "divide-and-conquer/SKILL.md §PR Merge Boundary Gate"
+
 tasks:
   - id: assess
     skill: divide-and-conquer
@@ -604,6 +632,10 @@ gates:
     condition: "files_modified_count > 0 || authorization_scope < for_implementation"
     on_fail: "HALT and REPORT zero deliverables"
     critical_violation: true
+  - id: pr-merge-boundary-before-dispatch
+    condition: "plan_has_pr_boundaries == false || required_pr_boundaries_merged == true"
+    on_fail: "HALT and REPORT required PR not merged"
+    critical_violation: true
 evidence_artifacts:
   - name: assess_result
     type: tool_call
@@ -617,6 +649,9 @@ evidence_artifacts:
   - name: file_modifications
     type: tool_call
     verification: "git diff --stat shows at least one file modified"
+  - name: pr_merge_boundary_verification
+    type: api_call
+    verification: "github_pull_request_read(method=get, pullNumber=N) → check merged field == true for each required PR boundary"
 ```
 
 Co-authored with AI: <AgentName> (<ModelId>)

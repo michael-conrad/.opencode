@@ -238,6 +238,47 @@ session_vars:
   worktree.path: <from-session>
 ```
 
+## PR Merge Boundaries (MANDATORY When Dependencies Exist)
+
+When a spec depends on other specs, plans, or PRs being merged first, the `write` task MUST include a `## PR Merge Boundaries` section in the spec deliverable. This section provides formal merge boundary information that agents implementing downstream plans can read directly from the spec body — no comment-scanning required.
+
+### When to Include
+
+| Condition | Include PR Merge Boundaries? |
+|-----------|------------------------------|
+| Spec depends on other specs/plans (e.g., "Depends on: #37") | YES — mandatory |
+| Spec has no dependencies on other specs/plans | NO — omit the section entirely |
+
+### Section Format
+
+```markdown
+## PR Merge Boundaries
+
+| Boundary | Issues | Must Merge Before | Self-Enforcing | Halt Reason |
+|----------|--------|--------------------|----------------|-------------|
+| PR1 | #38, #39 | #40-#46 | Yes — `skildeck lint` fails | Schema must exist before contract definitions |
+| PR2 | #40, #41 | #42-#46 | Yes — contract alignment | post(verify-authorization) ⊨ pre(pre-work) |
+```
+
+### Field Definitions
+
+| Field | Description |
+|-------|-------------|
+| Boundary | PR identifier (PR1, PR2, etc.) |
+| Issues | Issue numbers included in this PR |
+| Must Merge Before | Issue numbers that CANNOT start until this PR merges |
+| Self-Enforcing | Whether tooling (skildeck lint, contract checks) will fail if boundary is violated |
+| Halt Reason | Human-readable explanation of why this boundary exists |
+
+### Self-Enforcement Classification
+
+- **Self-enforcing**: `skildeck lint` or contract verification will produce a CRITICAL finding if the boundary is violated — the agent cannot bypass silently
+- **Manual enforcement**: The agent MUST halt at the boundary and wait for developer confirmation that the prior PR is merged
+
+### Enforcement
+
+The `write` task MUST verify that each dependency listed in the spec's "Depends on:" line has a corresponding row in the PR Merge Boundaries table. Missing rows are a STRUCTURE-VIOLATION finding.
+
 ## Cross-References
 
 - **Calls:** `issue-operations` (spec persistence — `write` task invokes pre-creation → single-task-check → creation)
@@ -336,6 +377,19 @@ rules:
     triggers: []
     source: "spec-creation/SKILL.md §Enforcement Mechanism #3"
 
+  - id: spec-creation-007
+    title: "PR merge boundaries section required when dependencies exist"
+    conditions:
+      all:
+        - "spec_has_dependencies == true"
+        - "pr_boundaries_section_present == false"
+    actions:
+      - ADD(pr_boundaries section)
+    conflicts_with: []
+    requires: [spec-creation-005]
+    triggers: [writing-plans, approval-gate]
+    source: "spec-creation/SKILL.md §PR Merge Boundaries"
+
 tasks:
   - id: explore
     skill: spec-creation
@@ -407,6 +461,11 @@ gates:
     on_fail: HALT
     critical_violation: false
 
+  - id: pr-boundaries-when-deps-exist
+    condition: "spec_has_dependencies == false OR pr_boundaries_section_present == true"
+    on_fail: HALT
+    critical_violation: true
+
 evidence_artifacts:
   - name: self_review_placeholder_scan
     type: tool_call
@@ -419,4 +478,8 @@ evidence_artifacts:
   - name: sc_phase_mapping
     type: tool_call
     verification: "github_issue_read(method=get) → verify SC-to-phase trace references exist"
+
+  - name: pr_boundaries_section
+    type: tool_call
+    verification: "github_issue_read(method=get) → verify '## PR Merge Boundaries' section present when spec has dependencies"
 ```

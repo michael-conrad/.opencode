@@ -772,7 +772,9 @@ Trigger words: "audit this spec", "review this issue", "revisit this task", "che
 
 **⚠️ Creating a PR without EXPLICIT developer instruction is a CRITICAL GUIDELINE VIOLATION.** PRs require "create a PR", "make a PR", "push and create PR", "let's get a PR up", "PR" (bare), or "PR #NNN".
 
-**See `pr-creation-workflow` skill for the full PR timing workflow including authorization boundary.**
+**Scope Exception:** When `authorization_scope == 'for_pr'` or `authorization_scope == 'pr_only'`, PR creation IS authorized by the scope model and does NOT require a separate "create a PR" instruction. The `for_pr`/`pr_only` authorization phrase is the explicit instruction — the scope model resolves it to `halt_at = pr_created` with `auto-PR` gap-fill.
+
+**See `pr-creation-workflow` skill for the full PR timing workflow including authorization boundary. See `010-approval-gate.md` §Authorization Scope Model for `for_pr`/`pr_only` scope exception.**
 
 ## Critical Violation: Bug Reports Without Fix Spec
 
@@ -1502,14 +1504,15 @@ The `for_pr` scope explicitly defines: `halt_at = pr_created` with gap-fill acti
 - 🚫 FORBIDDEN: Asking for grouping decisions when scope resolves execution order
 - 🚫 FORBIDDEN: Treating plan creation as requiring developer input when `for_pr` scope auto-fills
 - 🚫 FORBIDDEN: Halting at any pipeline stage before `pr_created` when `for_pr` scope is active
-- 🚫 FORBIDDEN: Requesting re-authorization for steps that gap-fill covers (spec creation, plan creation, plan approval)
+- 🚫 FORBIDDEN: Requesting re-authorization for steps that gap-fill covers (spec creation, plan creation, plan approval, **PR creation**)
 - ✅ REQUIRED: Parse `for_pr` scope and execute gap-fill cascade autonomously
 - ✅ REQUIRED: Auto-create plans for specs that need them (using `writing-plans` skill)
 - ✅ REQUIRED: Auto-approve plans created via gap-fill per spec-to-plan cascade
+- ✅ REQUIRED: Auto-create PR via `git-workflow --task pr-creation` as part of the gap-fill cascade for `for_pr`/`pr_only` scope
 - ✅ REQUIRED: Build execution order from dependency analysis without developer input
 - ✅ REQUIRED: Proceed through the full pipeline to `pr_created` without halting for structural decisions
 
-**AUTHORITY:** Issue #111, `000-critical-rules.md` §Pushing Agent Intelligence Decisions to the User, `010-approval-gate.md` §Authorization Scope Model`
+**AUTHORITY:** Issue #111, `000-critical-rules.md` §Pushing Agent Intelligence Decisions to the User, `010-approval-gate.md` §Authorization Scope Model. See §Creating PRs Without Explicit Instruction for the scope exception that `for_pr`/`pr_only` authorization provides.`
 
 ## Critical Violation: Structural Decision Solicitation Under for_pr Scope — Using Question Tool for Classification
 
@@ -1780,12 +1783,26 @@ rules:
       all:
         - "pr_creation_attempted == true"
         - "explicit_pr_instruction == false"
+        - "authorization_scope NOT IN ['for_pr', 'pr_only']"
     actions:
       - HALT
     conflicts_with: []
     requires: []
     triggers: [pr-creation-workflow]
     source: "000-critical-rules.md §Creating PRs Without Explicit Instruction"
+
+  - id: critical-rules-019a
+    title: "for_pr/pr_only scope authorizes PR creation — no separate instruction needed"
+    conditions:
+      all:
+        - "pr_creation_attempted == true"
+        - "authorization_scope IN ['for_pr', 'pr_only']"
+    actions:
+      - PROCEED
+    conflicts_with: [critical-rules-019]
+    requires: [approval-gate-010]
+    triggers: [pr-creation-workflow, approval-gate]
+    source: "000-critical-rules.md §Creating PRs Without Explicit Instruction Scope Exception"
 
   - id: critical-rules-020
     title: "Soft-passing verification mismatches"
@@ -2041,4 +2058,35 @@ rules:
     requires: [approval-gate-010]
     triggers: [approval-gate]
     source: "000-critical-rules.md §for_pr Gap-Fill Halt"
+```
+
+<!-- Issue #55: PR Merge Boundary Requirements — adds critical violation for implementing before PR merge boundary -->
+
+## Critical Violation: Implementing Before PR Merge Boundary
+
+**⚠️ Proceeding with implementation when a required upstream PR is not merged is a CRITICAL GUIDELINE VIOLATION.**
+
+When a plan's spec declares dependencies on other specs/plans via a `pr_boundaries` section, each boundary where `must_be_merged_before_starting: true` MUST be verified before implementation begins. The agent MUST NOT proceed past `verify-authorization` or `assemble-work` if any required PR boundary is not merged.
+
+- 🚫 FORBIDDEN: Implementing when a required PR boundary is not merged; dispatching sub-agents without checking merge boundaries; bypassing the boundary gate because "the code is already written"; treating self-enforcing boundaries as optional
+- ✅ REQUIRED: Check each PR boundary in `verify-authorization` (approval-gate) and `assemble-work` (divide-and-conquer); halt and report which PR must merge first; verify via `github_pull_request_read(method=get, pullNumber=N)` that the `merged` field is `true`
+
+**Self-enforcing boundaries** (where `skildeck lint` would produce a CRITICAL finding on violation) are defense-in-depth — they do NOT substitute for the formal gate check. The agent MUST still verify merge status even for self-enforcing boundaries.
+
+**AUTHORITY:** `approval-gate/SKILL.md` §PR Merge Boundary Gate, `divide-and-conquer/SKILL.md` §Gate 3
+
+```yaml+symbolic
+  - id: critical-rules-038
+    title: "Implementing before PR merge boundary"
+    conditions:
+      all:
+        - "plan_has_pr_boundaries == true"
+        - "required_pr_boundaries_merged == false"
+        - "implementation_attempted == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: [approval-gate-skill-006, divide-and-conquer-007]
+    triggers: [approval-gate, divide-and-conquer]
+    source: "000-critical-rules.md §Implementing Before PR Merge Boundary"
 ```
