@@ -224,6 +224,32 @@ For every pipeline stage in the dispatch chain:
 
 **⚠️ AUTO-DISPATCH ENFORCEMENT:** After `pre-implementation-analysis` completes with `requires_developer: false`, the agent MUST proceed to the next step in the dispatch chain without halting. "Yield" means "produce output and continue," NOT "present output and wait." The only valid halt after analysis is when a screening sub-agent returned `requires_developer: true` per the exhaustive conditions in `screen-issue.md`.
 
+## PR Merge Boundary Gate (verify-authorization)
+
+When a plan's spec declares dependencies on other specs/plans (via "Depends on:" or `pr_boundaries` in the yaml+symbolic block), `verify-authorization` MUST check whether required upstream PRs are merged before authorizing implementation.
+
+### Gate Procedure
+
+1. Read the plan's `pr_boundaries` section from the yaml+symbolic block
+2. For each boundary where `must_be_merged_before_starting: true`:
+   - Check the corresponding PR's merge status via `github_pull_request_read(method=get, pullNumber=N)`
+   - If NOT merged: HALT and report which PR must merge first
+   - If merged: proceed to next boundary
+3. If all required boundaries are merged: pass the gate, continue with verify-authorization
+
+### Gate Placement
+
+This gate runs as part of `verify-authorization`, BEFORE the dispatch chain proceeds to `git-workflow pre-work`. It is a precondition for implementation — agents cannot proceed past verify-authorization if any required PR boundary is not merged.
+
+### Self-Enforcing vs Manual Boundaries
+
+| Boundary Type | What Happens If Violated | Agent Response |
+|---------------|--------------------------|----------------|
+| Self-enforcing (`skildeck lint` will fail) | `skildeck lint` produces CRITICAL finding | Agent may warn but HALT is still mandatory |
+| Manual enforcement | No tooling will catch the violation | Agent MUST halt and wait for developer confirmation |
+
+**Both types require the gate to pass.** Self-enforcement is defense-in-depth, not a substitute for the formal gate check.
+
 ## Chain-of-Responsibility Paths
 
 | Path | Criteria | Chain |
@@ -656,6 +682,20 @@ rules:
     triggers: [writing-plans]
     source: "approval-gate/SKILL.md §Spec-to-plan Approval Cascade"
 
+  - id: approval-gate-skill-006
+    title: "PR merge boundary check before implementation"
+    conditions:
+      all:
+        - "plan_has_pr_boundaries == true"
+        - "required_pr_not_merged == true"
+    actions:
+      - HALT
+      - REPORT("CRITICAL: Implementing Before PR Merge Boundary — required PR not merged")
+    conflicts_with: []
+    requires: [approval-gate-skill-001]
+    triggers: [divide-and-conquer, git-workflow]
+    source: "approval-gate/SKILL.md §PR Merge Boundary Gate"
+
 tasks:
   - id: verify-authorization
     skill: approval-gate
@@ -712,6 +752,14 @@ tasks:
     mandatory: true
     bypass_violation: "CRITICAL: Pipeline-Scoped Authorization"
     source: "approval-gate/SKILL.md"
+
+  - id: pr-merge-boundary-check
+    skill: approval-gate
+    preconditions: ["plan_has_pr_boundaries == true"]
+    postconditions: ["required_pr_boundaries_merged == true || halted_at_boundary == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Implementing Before PR Merge Boundary"
+    source: "approval-gate/SKILL.md §PR Merge Boundary Gate"
 
   - id: screen-issue
     skill: approval-gate
@@ -846,6 +894,11 @@ gates:
     on_fail: "INVOKE(git-workflow/pre-work)"
     critical_violation: true
 
+  - id: pr-merge-boundary
+    condition: "plan_has_pr_boundaries == false OR required_pr_boundaries_merged == true"
+    on_fail: "HALT"
+    critical_violation: true
+
 evidence_artifacts:
   - name: authorization_result
     type: tool_call
@@ -866,6 +919,10 @@ evidence_artifacts:
   - name: screening_result_contract
     type: sub_agent_result
     verification: "screen-issue sub-agent returns structured YAML"
+
+  - name: pr_merge_boundary_verification
+    type: api_call
+    verification: "github_pull_request_read(method=get, pullNumber=N) → check merged field == true for each required PR boundary"
 
 state_machines:
   - id: approval-lifecycle

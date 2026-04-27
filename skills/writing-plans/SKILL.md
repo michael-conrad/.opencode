@@ -159,6 +159,50 @@ This bottom-up design per item is part of the TDD cycle: RED (write test) → GR
 
 Every step must contain actual content. These are **plan failures**: `TBD`, `TODO`, `[to be determined]`, `[needs investigation]`, `[placeholder]`, `[requires research]`, `implement later`, `fill in details`, `Add appropriate error handling`, `Add validation`, `Write tests for the above`, `Similar to Task N`, or steps describing what to do without showing how.
 
+## PR Merge Boundaries in Plan Deliverables (MANDATORY When Dependencies Exist)
+
+When a plan's spec declares dependencies on other specs/plans (e.g., "Depends on: #37"), the plan deliverable MUST include `pr_boundaries` in the `yaml+symbolic` block and a prose `## PR Merge Boundaries` section.
+
+### yaml+symbolic Format
+
+```yaml
+pr_boundaries:
+  - phase: 1
+    pr: "PR1"
+    must_be_merged_before_starting: true
+    contract_dependencies:
+      - "yaml+symbolic schema v2.0 in codebase"
+      - "skildeck lint --skill <skill> passes"
+    self_enforcing: true
+  - phase: 2
+    pr: "PR2"
+    must_be_merged_before_starting: true
+    contract_dependencies:
+      - "approval-gate verify-authorization task contract exists"
+    self_enforcing: true
+```
+
+### Prose Section Format
+
+Each phase in the plan body includes a merge boundary annotation:
+
+```markdown
+### Phase 1: [Concern Name]
+**PR Boundary:** PR1 (#38, #39) must be merged before this phase starts.
+**Self-Enforcement:** `skildeck lint` will fail with "contract unresolvable" if boundary is violated.
+```
+
+### When to Include
+
+| Condition | Include pr_boundaries? |
+|-----------|-----------------------|
+| Plan's spec has "Depends on:" references | YES — mandatory |
+| Plan's spec has no dependencies | NO — omit entirely |
+
+### Enforcement
+
+Missing `pr_boundaries` in the `yaml+symbolic` block when dependencies exist is a STRUCTURE-VIOLATION finding from `skildeck lint`.
+
 ## Self-Review Checklist
 
 After writing the complete plan, check:
@@ -498,6 +542,20 @@ rules:
     triggers: []
     source: "writing-plans/SKILL.md §Operating Protocol Step 1.5"
 
+  - id: writing-plans-009
+    title: "PR merge boundaries mandatory when spec has dependencies"
+    conditions:
+      all:
+        - "spec_has_dependencies == true"
+        - "pr_boundaries_in_yaml_symbolic == false"
+    actions:
+      - ADD(pr_boundaries section to yaml+symbolic block)
+      - ADD(pr_boundary annotations to each phase)
+    conflicts_with: []
+    requires: [writing-plans-001]
+    triggers: [approval-gate, divide-and-conquer]
+    source: "writing-plans/SKILL.md §PR Merge Boundaries in Plan Deliverables"
+
 tasks:
   - id: create
     skill: writing-plans
@@ -557,6 +615,11 @@ gates:
     on_fail: HALT
     critical_violation: true
 
+  - id: pr-boundaries-when-deps-exist
+    condition: "spec_has_dependencies == false OR pr_boundaries_in_yaml_symbolic == true"
+    on_fail: HALT
+    critical_violation: true
+
 evidence_artifacts:
   - name: spec_approved_verification
     type: tool_call
@@ -569,4 +632,8 @@ evidence_artifacts:
   - name: sub_issue_linkage
     type: api_call
     verification: "github_issue_read(method=get_sub_issues, issue_number=plan_N) → count matches phase count"
+
+  - name: pr_boundaries_section
+    type: tool_call
+    verification: "github_issue_read(method=get) → verify pr_boundaries in yaml+symbolic block when spec has dependencies"
 ```

@@ -2042,3 +2042,34 @@ rules:
     triggers: [approval-gate]
     source: "000-critical-rules.md §for_pr Gap-Fill Halt"
 ```
+
+<!-- Issue #55: PR Merge Boundary Requirements — adds critical violation for implementing before PR merge boundary -->
+
+## Critical Violation: Implementing Before PR Merge Boundary
+
+**⚠️ Proceeding with implementation when a required upstream PR is not merged is a CRITICAL GUIDELINE VIOLATION.**
+
+When a plan's spec declares dependencies on other specs/plans via a `pr_boundaries` section, each boundary where `must_be_merged_before_starting: true` MUST be verified before implementation begins. The agent MUST NOT proceed past `verify-authorization` or `assemble-work` if any required PR boundary is not merged.
+
+- 🚫 FORBIDDEN: Implementing when a required PR boundary is not merged; dispatching sub-agents without checking merge boundaries; bypassing the boundary gate because "the code is already written"; treating self-enforcing boundaries as optional
+- ✅ REQUIRED: Check each PR boundary in `verify-authorization` (approval-gate) and `assemble-work` (divide-and-conquer); halt and report which PR must merge first; verify via `github_pull_request_read(method=get, pullNumber=N)` that the `merged` field is `true`
+
+**Self-enforcing boundaries** (where `skildeck lint` would produce a CRITICAL finding on violation) are defense-in-depth — they do NOT substitute for the formal gate check. The agent MUST still verify merge status even for self-enforcing boundaries.
+
+**AUTHORITY:** `approval-gate/SKILL.md` §PR Merge Boundary Gate, `divide-and-conquer/SKILL.md` §Gate 3
+
+```yaml+symbolic
+  - id: critical-rules-038
+    title: "Implementing before PR merge boundary"
+    conditions:
+      all:
+        - "plan_has_pr_boundaries == true"
+        - "required_pr_boundaries_merged == false"
+        - "implementation_attempted == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: [approval-gate-skill-006, divide-and-conquer-007]
+    triggers: [approval-gate, divide-and-conquer]
+    source: "000-critical-rules.md §Implementing Before PR Merge Boundary"
+```

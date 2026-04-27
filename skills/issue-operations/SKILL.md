@@ -254,6 +254,37 @@ When platform PATCH endpoint is broken (returns 404):
 | Verifying PR merge | `verify-merge` |
 | Agent about to call `github_issue_write` directly | STOP → invoke this skill instead |
 
+## PR Merge Boundary in Sub-Issue Bodies (MANDATORY When Plan Has Boundaries)
+
+When creating sub-issues from a plan that has `pr_boundaries` in its `yaml+symbolic` block, each sub-issue body MUST include a `## PR Merge Boundary` section when the sub-issue's phase has a merge boundary.
+
+### Section Format
+
+```markdown
+## PR Merge Boundary (CRITICAL — HALT Until Merged)
+
+This issue is part of **PR2** (approval-gate + git-workflow). It MUST NOT begin
+implementation until PR1 (#38 + #39) is merged to dev.
+
+**Self-Enforcement**: `skildeck lint --skill <skill>` will fail with CRITICAL
+"contract unresolvable" if PR1 is not merged. The boundary is impossible to
+bypass silently.
+
+**Manual Enforcement**: If `skildeck lint` is not run, the agent MUST halt at
+this boundary and wait for the developer to confirm the prior PR is merged.
+```
+
+### When to Include
+
+| Condition | Include PR Merge Boundary in Sub-Issue? |
+|-----------|----------------------------------------|
+| Sub-issue's phase has a `pr_boundaries` entry with `must_be_merged_before_starting: true` | YES — mandatory |
+| Sub-issue's phase has no merge boundary | NO — omit entirely |
+
+### Enforcement
+
+The `link-sub-issue` task MUST read the parent plan's `pr_boundaries` section and inject the appropriate boundary information into each sub-issue body. Missing boundary information in a sub-issue whose phase has a merge boundary is a STRUCTURE-VIOLATION.
+
 ## Critical Rules
 
 ### NEVER DO
@@ -539,6 +570,21 @@ rules:
     triggers: [creation, comment, close, link-sub-issue, verify-merge]
     source: "issue-operations/SKILL.md §Platform Routing"
 
+  - id: issue-ops-008
+    title: "PR merge boundary in sub-issue body when plan has boundaries"
+    conditions:
+      all:
+        - "creating_sub_issue == true"
+        - "plan_has_pr_boundaries == true"
+        - "phase_has_merge_boundary == true"
+        - "sub_issue_body_has_merge_boundary_section == false"
+    actions:
+      - ADD(pr_merge_boundary section to sub-issue body)
+    conflicts_with: []
+    requires: [issue-ops-005]
+    triggers: [link-sub-issue, writing-plans]
+    source: "issue-operations/SKILL.md §PR Merge Boundary in Sub-Issue Bodies"
+
 tasks:
   - id: pre-creation
     skill: issue-operations
@@ -654,6 +700,12 @@ gates:
     critical_violation: false
     source: "issue-operations/SKILL.md §Substantive Comment Gate"
 
+  - id: pr-merge-boundary-in-sub-issue
+    condition: "plan_has_pr_boundaries == false OR sub_issue_body_has_merge_boundary_section == true"
+    on_fail: HALT
+    critical_violation: true
+    source: "issue-operations/SKILL.md §PR Merge Boundary in Sub-Issue Bodies"
+
 evidence_artifacts:
   - name: byline_verification
     type: tool_call
@@ -679,4 +731,9 @@ evidence_artifacts:
     type: api_call
     verification: "github_issue_read(method=get_sub_issues, issue_number=N) → confirm link exists"
     source: "issue-operations/SKILL.md §link-sub-issue task"
+
+  - name: pr_merge_boundary_in_sub_issue
+    type: tool_call
+    verification: "github_issue_read(method=get, issue_number=N) → verify '## PR Merge Boundary' section present when parent plan has pr_boundaries"
+    source: "issue-operations/SKILL.md §PR Merge Boundary in Sub-Issue Bodies"
 ```
