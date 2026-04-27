@@ -60,13 +60,21 @@ You are a Spec Architect. Your focus is structuring investigation results into a
     - DO NOT skip to write without completing applicable prerequisite tasks
 
  2b. **Diagram generation gate (MANDATORY when dependencies exist):**
-    - After `decompose` task completes, check if dependencies exist (N > 1 items, or cross-issue dependencies)
-    - If dependencies exist: invoke `diagram` task to generate mermaid diagram
-    - Diagram MUST show approved structure only — NO workflow state markers (✅, 🔄, ❌, "implemented", "pending")
-    - If diagram contains workflow markers: auto-fix by removing markers, note in evidence
-    - Diagram is inserted in spec body after "Dependencies" section (if present) or before "Implementation Plan"
+     - After `decompose` task completes, check if dependencies exist (N > 1 items, or cross-issue dependencies)
+     - If dependencies exist: invoke `diagram` task to generate mermaid diagram
+     - Diagram MUST show approved structure only — NO workflow state markers (✅, 🔄, ❌, "implemented", "pending")
+     - If diagram contains workflow markers: auto-fix by removing markers, note in evidence
+     - Diagram is inserted in spec body after "Dependencies" section (if present) or before "Implementation Plan"
 
-3. **Select-existing pathway (MANDATORY before writing new spec):** Before creating a new spec, the agent MUST check whether an existing spec/plan already covers the request. This pathway is especially relevant when arriving from the `search-prompt-fail` workflow (see `approval-gate` skill → `verify-qa-mode` task → Step 2.5).
+ 2c. **Concern enumeration guard (MANDATORY before `write`):**
+     - Before the `write` task, enumerate the concerns the spec addresses
+     - For each concern, assess: does it have its own root cause, affected scope, and verification criteria?
+     - If more than one concern with different root causes is detected, flag as `conditional` in spec-auditor and recommend splitting into separate specs
+     - This check enforces the Single Concern Principle (SCP) from `000-critical-rules.md` §Single Concern Principle
+     - The "discovered together" fallacy is explicitly prohibited: discovering problems in the same session, workflow, or bug report does NOT make them related
+     - Concern enumeration result MUST be recorded in the evidence artifact table
+
+ 3. **Select-existing pathway (MANDATORY before writing new spec):** Before creating a new spec, the agent MUST check whether an existing spec/plan already covers the request. This pathway is especially relevant when arriving from the `search-prompt-fail` workflow (see `approval-gate` skill → `verify-qa-mode` task → Step 2.5).
    - Search GitHub Issues using labels `[SPEC]`, `[PLAN]`, `[SPEC-FIX]` and keywords from the request
    - If candidates found: present them to the user with URLs and relevance assessment
    - If user selects an existing candidate: transition to that issue's workflow (e.g., `approval-gate` if already approved, `brainstorming` Path B if approved, `brainstorming` Path A if not yet a spec)
@@ -139,13 +147,19 @@ You are a Spec Architect. Your focus is structuring investigation results into a
    - Record SC-to-phase mapping in the spec body for traceability
    - This validation step prevents over-verification at implementation time — per the "Phase-Scoped Test Assertions" mandate in `091-incremental-build.md`
 
-4. **After `write` task (issue creation):**
-   - GitHub Issue created with `[SPEC]` prefix and `needs-approval` label?
-   - Chat output is exec summary + URL + byline ONLY? (no full spec dump)
-   - Spec self-review completed? (placeholder scan, consistency check, ambiguity check)
-   - User directed to review on the GitHub Issue (not in chat)?
+ 4. **After `write` task (issue creation):**
+    - GitHub Issue created with `[SPEC]` prefix and `needs-approval` label?
+    - Chat output is exec summary + URL + byline ONLY? (no full spec dump)
+    - Spec self-review completed? (placeholder scan, consistency check, ambiguity check)
+    - User directed to review on the GitHub Issue (not in chat)?
 
-5. **What does NOT bypass spec-creation:**
+ 5. **Concern enumeration guard (MANDATORY before `write`):**
+    - Before writing the spec, enumerate the concerns it addresses
+    - If more than one concern with different root causes: flag as `conditional` in spec-auditor, recommend splitting
+    - Record concern enumeration result in evidence artifacts
+    - This enforces the Single Concern Principle (SCP) — see `000-critical-rules.md` §Single Concern Principle
+
+ 6. **What does NOT bypass spec-creation:**
    - "skip spec-creation" → NOT allowed (even simple specs need `requirements` + `write`)
    - "brainstorming already wrote the spec" → Brainstorming no longer writes specs; this skill does
    - "just show me the spec in chat" → NOT allowed; spec MUST be persisted as GitHub Issue
@@ -480,6 +494,21 @@ rules:
     requires: [spec-creation-002]
     triggers: [writing-plans]
     source: "spec-creation/SKILL.md §Interdependency Diagram Discipline"
+
+  - id: spec-creation-009
+    title: "Concern enumeration guard before write — Single Concern Principle"
+    conditions:
+      all:
+        - "concern_enumeration_performed == false"
+        - "write_task_pending == true"
+    actions:
+      - HALT
+      - ENUMERATE_CONCERNS
+      - FLAG_MULTI_CONCERN
+    conflicts_with: []
+    requires: []
+    triggers: [spec-creation]
+    source: "spec-creation/SKILL.md §Concern Enumeration Guard"
 
 tasks:
   - id: explore

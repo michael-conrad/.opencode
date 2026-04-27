@@ -588,9 +588,55 @@ When authorization scope includes implementation (`for_implementation`, `for_cod
 
 **AUTHORITY: Bug #1231, #1232, #1233 — root cause is the same: agent spends all context on process steps and halts before producing deliverables. The implementation-first gate ensures the agent produces at least one tangible modification before it is allowed to report completion.**
 
+## Critical Violation: Single Concern Principle — Every Artifact Addresses Exactly One Concern
+
+**⚠️ Every artifact the agent produces — commits, PRs, issues, specs, plans, code changes, comments, sub-agents — must address exactly one concern. Violating this is a CRITICAL GUIDELINE VIOLATION.**
+
+A "concern" is a distinct problem area with its own root cause, affected scope, and verification criteria. Two things are separate concerns if you could implement, verify, and close one without the other.
+
+**The "discovered together" fallacy is explicitly prohibited.** Discovering problems in the same session, same workflow, same bug report, or same investigation does NOT make them related. Each concern gets its own artifact regardless of how it was found.
+
+**Applies to ALL artifacts:**
+
+| Artifact | Violation | Correct |
+| -- | -- | -- |
+| Issue | Combining auth error handling + issue routing in one spec | Separate issues for each |
+| Commit | Bundling correspondence template + submodule migration | Separate commits |
+| PR | Including unrelated file changes because "they're all part of the migration" | Separate PRs for separate concerns |
+| Plan | Mixing implementation phases for different subsystems | One phase per concern |
+| Comment | Combining status update + new bug discovery + authorization request | Separate comments for each purpose |
+| Spec | Multiple "Fix Approach" sections for different root causes | One spec per root cause |
+| Sub-agent | Dispatching an agent to handle two unrelated tasks | One sub-agent per concern |
+
+**Test for "unrelated":** Remove concern B from the artifact. If concern A remains complete and verifiable, they are unrelated and must be in separate artifacts.
+
+**Test for "related":** Two concerns share the same root cause, affect the same files/subsystem, and cannot be verified independently — they MAY be combined in one artifact.
+
+- 🚫 FORBIDDEN: Combining multiple unrelated concerns in a single artifact; treating "discovered together" as "related"; bundling fixes for different root causes in one PR/commit/issue; mixing purposes in a single comment (status + bug discovery + authorization request)
+- ✅ REQUIRED: One concern per artifact; separate artifacts for separate concerns; verify each concern can stand alone before combining; apply SCP universally across all artifact types, not just code
+
+```yaml+symbolic
+  - id: critical-rules-042
+    title: "Single Concern Principle — every artifact addresses exactly one concern"
+    conditions:
+      all:
+        - "artifact_addresses_multiple_unrelated_concerns == true"
+    actions:
+      - HALT
+      - SPLIT_INTO_SEPARATE_ARTIFACTS
+    conflicts_with: []
+    requires: []
+    triggers: [spec-creation, writing-plans, issue-operations, git-workflow, approval-gate]
+    source: "000-critical-rules.md §Single Concern Principle"
+```
+
+**AUTHORITY: Spec #152, NewsRx/.opencode#3 — Regression evidence: agent combined unrelated concerns four times in a single session because fragmented domain-specific rules failed when the agent switched between producing different artifact types.**
+
 ## Critical Violation: Monolithic Implementation — Skipping Item Decomposition
 
 **⚠️ Implementing multiple items in a single branch/commit without decomposition, or skipping the top-down → bottom-up → per-item TDD cycle, is a CRITICAL GUIDELINE VIOLATION.**
+
+**UNIVERSAL RULE: See `000-critical-rules.md` §Single Concern Principle for the universal composition rule. Monolithic Implementation is an implementation-specific instance of SCP — it addresses code commits and plans specifically. The universal rule covers all artifact types (issues, specs, PRs, comments, sub-agents).**
 
 **See `091-incremental-build.md` for the complete discipline rules, scope classification, and per-item TDD cycle. See `091-incremental-build.md` → "Enforcement Mechanism" section for RED phase verification requirements, execution checkpoint references, and plan template checkpoint references.** **AUTHORITY: `091-incremental-build.md`**
 
@@ -646,6 +692,8 @@ When authorization scope includes implementation (`for_implementation`, `for_cod
 ## Critical Violation: Scope Creep — NEVER Do Things Outside the Spec
 
 **⚠️ Implementing changes not explicitly called for in the spec is a CRITICAL GUIDELINE VIOLATION.** The spec defines EXACTLY what to implement.
+
+**UNIVERSAL RULE: See `000-critical-rules.md` §Single Concern Principle for the universal composition rule. Scope Creep is an implementation-specific instance of SCP — it addresses code changes that go beyond the spec's defined scope. The universal rule covers all artifact types (issues, specs, PRs, comments, sub-agents).**
 
 🚫 FORBIDDEN: Helper functions, improving nearby code, refactoring adjacent things, fixing similar issues, any change not in the spec
 
@@ -1798,6 +1846,7 @@ rules:
     conflicts_with: []
     requires: []
     triggers: []
+    superseded_by: critical-rules-042
     source: "000-critical-rules.md §Scope Creep"
 
   - id: critical-rules-015
@@ -1836,6 +1885,7 @@ rules:
     conflicts_with: []
     requires: []
     triggers: []
+    superseded_by: critical-rules-042
     source: "000-critical-rules.md §Monolithic Implementation"
 
   - id: critical-rules-018

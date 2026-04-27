@@ -15,6 +15,8 @@ Concern Separation Auditor analyzes spec phase structures to identify deployment
 
 **Core v2 shift:** Report-only. Findings are presented to the agent, who decides whether to apply them given the context. No longer invoked directly — called by spec-auditor orchestrator when relevant.
 
+**Single Concern Principle (SCP):** The authoritative universal rule for concern separation is defined in `000-critical-rules.md` §Single Concern Principle. SCP applies to ALL artifacts the agent produces (issues, commits, PRs, plans, specs, comments, sub-agents). This skill enforces SCP as it applies to spec/plan phase structure — it is a domain-specific instance of the universal rule, not a substitute for it.
+
 ## Tasks
 
 | Task | Purpose | Words |
@@ -163,9 +165,10 @@ Action: [auto-fix|conditional|flag-for-review]
 
 ## Cross-References
 
+- **Authoritative rule:** `000-critical-rules.md` §Single Concern Principle — the universal SCP rule that this skill enforces for phase structure
 - Orchestrated by: `spec-auditor` (via `concerns` subtask, including `ground-truth` adversarial verification)
 - Related skills: `spec-auditor` (orchestrator), `writing-plans` (clean-room for fidelity), `programming-principles` (principle definitions for SoC and Blast Radius — this subtask checks structural separation, that skill defines the underlying principles)
-- Related guidelines: `000-critical-rules.md` (auditor enforcement), `065-verification-honesty.md` (metadata verification extension), `142-planning-archive-workflow.md`
+- Related guidelines: `000-critical-rules.md` (SCP universal rule and auditor enforcement), `065-verification-honesty.md` (metadata verification extension), `142-planning-archive-workflow.md`
 
 Co-authored with AI: <AgentName> (<ModelId>)
 
@@ -200,6 +203,19 @@ rules:
     requires: []
     triggers: []
     source: "concern-separation-auditor/SKILL.md §Live Verification"
+
+  - id: concern-separation-002
+    title: "SCP is the authoritative universal concern-separation rule"
+    conditions:
+      all:
+        - "scp_violation_detected == true"
+    actions:
+      - FLAG
+      - REPORT(single_concern_principle_violation)
+    conflicts_with: []
+    requires: [critical-rules-042]
+    triggers: [spec-auditor, concern-separation-auditor]
+    source: "concern-separation-auditor/SKILL.md §Single Concern Principle"
 
 tasks:
   - id: audit-phases
