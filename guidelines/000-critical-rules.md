@@ -868,6 +868,41 @@ The spec-to-plan approval cascade means: when a spec is approved and a plan alre
 
 **See `010-approval-gate.md` → "Spec-to-Plan Approval Cascade" for the complete cascade rules and edge case documentation.** **AUTHORITY: `010-approval-gate.md` Spec-to-Plan Approval Cascade** (this line is a reference only)
 
+## Critical Violation: Question-as-Authorization — Treating Rhetorical or Complaint Questions as Implementation Authorization
+
+**⚠️ Questions — including rhetorical questions, complaints, frustration expressions, and problem descriptions — are NEVER authorization for action.** This is the same class as the offer-to-edit bypass and confirmation-as-authorization patterns.
+
+- 🚫 FORBIDDEN: Interpreting "how can we work if X never happens?" as authorization to do X
+- 🚫 FORBIDDEN: Interpreting "why hasn't X been done?" as authorization to do X
+- 🚫 FORBIDDEN: Interpreting "we need X" or "X should be Y" as authorization to implement X
+- 🚫 FORBIDDEN: Proceeding to action after any question, complaint, or frustration expression
+- ✅ REQUIRED: Treat ALL questions as observation-only — acknowledge and HALT
+- ✅ REQUIRED: If a question identifies a real problem, create a bug report or fix spec, then HALT and wait for explicit authorization
+
+**This extends the existing "Confirmation ≠ Authorization" and "Offer-to-Edit Bypass" rules.** Questions, complaints, and frustration expressions are not authorization any more than confirmations or offers are. The ONLY authorization tokens are "approved", "go", "#NNN approved", or equivalent explicit phrases from `010-approval-gate.md`.
+
+**See `020-go-prohibitions.md` §1 "NEVER DO" list for the rhetorical/complaint question prohibition. See `approval-gate` skill for the complete authorization verification procedure.** **AUTHORITY: `000-critical-rules.md` §Question-as-Authorization** (this line is a reference only)
+
+```yaml+symbolic
+  - id: critical-rules-question-auth-001
+    title: "Question-as-authorization — treating rhetorical/complaint questions as implementation authorization"
+    conditions:
+      any:
+        - "user_input_type == 'rhetorical_question'"
+        - "user_input_type == 'complaint'"
+        - "user_input_type == 'frustration_expression'"
+        - "user_input_matches == 'how can we.*if.*'"
+        - "user_input_matches == 'why hasn\\'t.*'"
+        - "user_input_matches == 'we need.*'"
+        - "user_input_matches == 'should be.*'"
+    actions:
+      - CREATE_FIX_SPEC
+      - HALT
+    conflicts_with: []
+    triggers: [approval-gate]
+    source: "000-critical-rules.md §Question-as-Authorization"
+```
+
 ## Critical Violation: Confirmation ≠ Authorization
 
 **⚠️ User confirmation of an observation does NOT constitute implementation authorization.**
