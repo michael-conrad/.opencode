@@ -521,8 +521,8 @@ The following are ALL implementation actions that require an approved spec:
 | Editing configuration (pyproject.toml, .pre-commit-config.yaml) | ✅ Yes | Alters build/test behavior |
 | Editing TypeScript plugins (session-enforcement.ts) | ✅ Yes | Alters runtime enforcement |
 | Editing test files | ✅ Yes | Alters test suite behavior |
-| Creating new files of any type | ✅ Yes | Adds new behavior or content |
-| Fixing a typo in documentation | ❌ No | No behavioral change |
+| Creating new files of any type | ✅ Yes | Adds new behavior or content. **Exempt:** GitHub Issue body updates, `.issues/` spec/plan files, local issue tracking metadata |
+| Fixing a typo in documentation | ❌ No | No behavioral change. **Clarification:** "Documentation" means deliverable docs (README, user-facing docs, runbooks), NOT GitHub Issue bodies or `.issues/` tracking files |
 | Formatting code (ruff format) | ❌ No | No behavioral change |
 | Spec-auditor auto-fix on GitHub Issue | ❌ No* | Non-substantive; see audit auto-fix exemption below |
 

@@ -291,6 +291,7 @@ Key rules:
 | Creating feature branch | No auth, but mandatory worktree | `git-workflow` skill pre-work |
 | Merging PR | Forbidden — human-only | Tier 0: Human-only merge |
 | Closing issues | Only after PR merge confirmed | `git-workflow` skill cleanup |
+| Creating/updating `.issues/` local spec or plan files | No auth — same as GitHub Issue spec revision | `010-approval-gate.md` §Revision ≠ Implementation |
 | Spec-auditor auto-fixes on GitHub Issue bodies | Exempt (per conditions) | `010-approval-gate.md` §Audit Auto-Fix Exemption |
 
 **Key invariant**: This table does NOT weaken any existing authorization gate. It only makes existing practice explicit and resolves ambiguous boundary cases.
