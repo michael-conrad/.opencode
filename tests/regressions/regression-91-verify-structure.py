@@ -26,10 +26,10 @@ ISSUE_SPEC_FILES = {
 }
 
 MISSING_COMPONENTS = {
-    41: ["state_machines", "evidence_artifacts", "gates"],
-    42: ["state_machines", "evidence_artifacts", "gates"],
-    43: ["state_machines", "evidence_artifacts", "gates"],
-    45: ["state_machines", "gates"],
+    41: ["state_machines", "evidence_artifacts", "gates", "dispatch_context"],
+    42: ["state_machines", "evidence_artifacts", "gates", "dispatch_context"],
+    43: ["state_machines", "evidence_artifacts", "gates", "dispatch_context"],
+    45: ["state_machines", "gates", "dispatch_context"],
 }
 
 
@@ -41,6 +41,7 @@ def _extract_yaml_components(filepath: Path) -> dict:
         "gates": False,
         "evidence_artifacts": False,
         "decomposition": False,
+        "dispatch_context": False,
     }
     try:
         text = filepath.read_text()
@@ -58,6 +59,18 @@ def _extract_yaml_components(filepath: Path) -> dict:
             continue
         if isinstance(data, dict):
             for key in components:
+                if key == "dispatch_context":
+                    decomp = data.get("decomposition", [])
+                    if isinstance(decomp, list):
+                        for entry in decomp:
+                            if (
+                                isinstance(entry, dict)
+                                and entry.get("type") == "sub-agent-dispatch"
+                                and "isolation" in entry
+                            ):
+                                components["dispatch_context"] = True
+                                break
+                    continue
                 entries = data.get(key, [])
                 if isinstance(entries, list) and len(entries) > 0:
                     components[key] = True
