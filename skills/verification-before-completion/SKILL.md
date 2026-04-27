@@ -325,7 +325,7 @@ Key adaptations for <AgentName>:
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+last_updated: "2026-04-26T00:00:00Z"
 rules:
   - id: verification-before-completion-001
     title: "No completion claim without evidence"
@@ -518,14 +518,26 @@ gates:
 evidence_artifacts:
   - name: per_sc_evidence_table
     type: structured_output
+    dispatch_stage: verify
     verification: "all rows show PASS with live tool-call artifacts"
   - name: structural_completeness_result
     type: tool_call
+    dispatch_stage: structural-verify
     verification: "structural-verify task output confirms completeness"
   - name: test_results
     type: tool_call
+    dispatch_stage: verify
     verification: "pytest output confirms tests pass"
   - name: lint_results
     type: tool_call
+    dispatch_stage: verify
     verification: "ruff check output confirms zero errors"
+  - name: missing_evidence_collection
+    type: tool_call
+    dispatch_stage: collect
+    verification: "collect task output confirms all missing evidence gathered"
+  - name: completion_tasks_executed
+    type: tool_call
+    dispatch_stage: completion
+    verification: "completion task output confirms mandatory steps executed"
 ```
