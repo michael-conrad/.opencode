@@ -85,7 +85,44 @@ fi
 
 In parallel sub-agent mode, other agents may still be working in their worktrees. Only prune when ALL parallel work is confirmed complete.
 
-### Step 3: Delete Current Merged Branch
+### Step 3: Content Verification Gate (MANDATORY — ZERO TOLERANCE)
+
+**⚠️ CRITICAL: Declaring a branch deletable without content verification is a CRITICAL GUIDELINE VIOLATION (see `000-critical-rules.md` §Content Verification Before Branch Deletion).**
+
+Before deleting ANY merged branch, verify that all branch content is present on the target branch (dev):
+
+1. **List changed files:** `git diff --stat origin/dev...HEAD` — identify all files changed on the branch vs dev
+2. **For each file in the diff:**
+   a. If file exists on dev AND content matches: status = `IDENTICAL` — safe to delete
+   b. If file exists on dev BUT has newer/different content: `git diff origin/dev...HEAD -- <file>` to compare; if dev version supersedes branch version, status = `SUPERSEDED` — safe to delete with note
+   c. If file does NOT exist on dev: status = `UNIQUE` — MUST NOT delete branch, flag for developer review
+3. **For tool/script files:** check version indicators (interface signatures, flag patterns, function presence) to determine supersession
+4. **Produce content comparison table (MANDATORY evidence artifact):**
+
+| File | Branch Version | Dev Version | Status |
+|------|---------------|-------------|--------|
+| path/to/file | v4 (old interface) | v5 (new interface) | SUPERSEDED |
+| path/to/unique | present | absent | UNIQUE — needs review |
+| path/to/identical | match | match | IDENTICAL |
+
+5. **Decision:**
+   - If ANY file has `UNIQUE` status: HALT deletion, report unique files to developer, do NOT auto-delete
+   - If ALL files have `SUPERSEDED` or `IDENTICAL` status: proceed with deletion
+
+**🚫 FORBIDDEN:**
+- Declaring a branch deletable based on PR merge status alone
+- Declaring a branch deletable based on branch name pattern matching
+- Declaring a branch deletable based on issue closure state
+- Declaring a branch deletable based on commit count ahead/behind
+- Deleting a branch without producing the content comparison table
+
+**✅ REQUIRED:**
+- `git diff --stat` to identify changed files
+- Per-file content comparison (IDENTICAL/SUPERSEDED/UNIQUE)
+- Content comparison table as evidence artifact before any deletion
+- HALT and flag for developer review when UNIQUE content is found
+
+### Step 3.5: Delete Current Merged Branch
 
 ```bash
 git branch -d <merged-branch-name>
@@ -96,7 +133,7 @@ git remote prune origin
 
 **Why `git remote prune origin` is mandatory:** Stale remote-tracking references cause confusion and can interfere with new branch creation.
 
-### Step 3.5: Work Branch Cleanup
+### Step 3.6: Work Branch Cleanup
 
 When the merged branch was a work branch (created by `assemble-work`):
 

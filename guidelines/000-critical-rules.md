@@ -2146,6 +2146,42 @@ When a plan's spec declares dependencies on other specs/plans via a `pr_boundari
     source: "000-critical-rules.md §Parent Issue Left Open After All Children Closed"
 ```
 
+<!-- Issue #105: Content Verification Before Branch Deletion -->
+
+## Critical Violation: Content Verification Before Branch Deletion
+
+**⚠️ Declaring a remote or local branch "stale," "safe to delete," or "can be deleted" based on metadata (branch name, PR merge status, issue closure state, commit count) without verifying that all branch content is present on the target branch (dev) is a CRITICAL GUIDELINE VIOLATION.**
+
+This is the exact violation described in #105: the agent declared a branch "stale predecessor, can safely be deleted" based entirely on metadata — branch name patterns, PR merge status, issue closure — without ever comparing file content. This is a direct instance of the #91 verification regression (metadata-as-evidence) applied to branch deletion decisions.
+
+- 🚫 FORBIDDEN: Declaring a branch deletable based on PR merge status alone
+- 🚫 FORBIDDEN: Declaring a branch deletable based on branch name pattern matching
+- 🚫 FORBIDDEN: Declaring a branch deletable based on issue closure state
+- 🚫 FORBIDDEN: Declaring a branch deletable based on commit count ahead/behind
+- 🚫 FORBIDDEN: Deleting a branch without producing the content comparison table
+- ✅ REQUIRED: Perform `git diff --stat origin/dev...` to identify all changed files
+- ✅ REQUIRED: For each changed file, verify content exists (identical or superseded) on dev
+- ✅ REQUIRED: For any file unique to the branch (not on dev), flag as `UNIQUE` — do NOT auto-delete
+- ✅ REQUIRED: Produce a content comparison table with `IDENTICAL`/`SUPERSEDED`/`UNIQUE` status per file before declaring deletion safe
+
+**AUTHORITY:** `git-workflow/tasks/cleanup/branch-cleanup.md` Step 3, Spec #105
+
+```yaml+symbolic
+  - id: git-workflow-branch-deletion-001
+    title: "Branch deletion requires content verification against target branch"
+    conditions:
+      all:
+        - "branch_deletion_recommended == true"
+        - "content_diff_verified == false"
+    actions:
+      - HALT
+      - VERIFY_CONTENT_DIFF
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §Content Verification Before Branch Deletion"
+```
+
 <!-- Issue #109: Un-Squashed PR — commit-per-issue invariant across all bypass paths -->
 
 ## Critical Violation: Un-Squashed PR — Creating a Single-Issue PR with Multiple Commits

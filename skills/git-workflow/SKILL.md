@@ -179,7 +179,7 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `cleanup` (routing) | ≈950 |
 | → `cleanup/verify-merge` | ≈760 |
 | → `cleanup/issue-closure` | ≈710 |
-| → `cleanup/branch-cleanup` | ≈680 |
+| → `cleanup/branch-cleanup` | ≈980 |
 | `pr-creation` (routing) | ≈385 |
 | → `pr-creation/enforcement-gate` | ≈475 |
 | → `pr-creation/squash-push` | ≈490 |
@@ -211,7 +211,7 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `cleanup` (routing) | PR merge confirmed, cleanup workflow started | PR number, branch name, github.owner, github.repo | Implementation context, agent memory | NO |
 | `cleanup/verify-merge` | Cleanup sub-task: verify PR is merged | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
 | `cleanup/issue-closure` | Cleanup sub-task: close issues | Issue numbers, github.owner, github.repo | Implementation context, agent memory | NO |
-| `cleanup/branch-cleanup` | Cleanup sub-task: delete merged branches | Branch names, worktree.path | Implementation context, agent memory | NO |
+| `cleanup/branch-cleanup` | Cleanup sub-task: verify content then delete merged branches | Branch names, worktree.path | Implementation context, agent memory | NO |
 | `pr-creation` (routing) | PR creation authorized | Branch name, compare URL, github.owner, github.repo | Implementation context, agent memory | NO |
 | `pr-creation/enforcement-gate` | PR creation enforcement checks | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
 | `pr-creation/squash-push` | Squash and push before PR | Branch name, worktree.path | Implementation context, agent memory | NO |
