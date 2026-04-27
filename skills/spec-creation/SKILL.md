@@ -29,6 +29,7 @@ You are a Spec Architect. Your focus is structuring investigation results into a
 | `decompose` | Break into discrete units; define interfaces first (APIs, data contracts, schemas) | #2, #5 | Only for trivial bug fixes with one obvious fix |
 | `traceability` | Map requirements to sections, tests, implementation steps | #3 | Only for single-requirement specs |
 | `risk` | Analyze risk, blast radius, failure propagation, operational needs | #8, #9 | Only for simple bug fixes with no deployment impact |
+| `diagram` | Generate mermaid dependency diagram showing approved structure (no workflow state) | #2, #4 | Only for single-item specs with no dependencies |
 | `write` | Assemble spec, create GitHub Issue, output exec summary + URL + byline | #4, #6, #10 | No — mandatory assembly step |
 | `change-control` | Version spec, document rationale and impact analysis for changes | #12 | Only for initial spec creation (not revisions) |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | — | No — mandatory completion |
@@ -52,11 +53,18 @@ You are a Spec Architect. Your focus is structuring investigation results into a
    - Exempt: New greenfield features with no existing code interaction; trivial typos with no code interaction.
    - Incomplete inspection = HALT and complete the checklist first.
 
-2. **Mandatory invocation (no decision point):** The agent MUST invoke this skill when:
-   - Brainstorming exploration completes (terminal state transitions here)
-   - User says "write spec", "create spec", "spec creation"
-   - User provides investigation results and asks for a structured spec
-   - DO NOT skip to write without completing applicable prerequisite tasks
+ 2. **Mandatory invocation (no decision point):** The agent MUST invoke this skill when:
+    - Brainstorming exploration completes (terminal state transitions here)
+    - User says "write spec", "create spec", "spec creation"
+    - User provides investigation results and asks for a structured spec
+    - DO NOT skip to write without completing applicable prerequisite tasks
+
+ 2b. **Diagram generation gate (MANDATORY when dependencies exist):**
+    - After `decompose` task completes, check if dependencies exist (N > 1 items, or cross-issue dependencies)
+    - If dependencies exist: invoke `diagram` task to generate mermaid diagram
+    - Diagram MUST show approved structure only — NO workflow state markers (✅, 🔄, ❌, "implemented", "pending")
+    - If diagram contains workflow markers: auto-fix by removing markers, note in evidence
+    - Diagram is inserted in spec body after "Dependencies" section (if present) or before "Implementation Plan"
 
 3. **Select-existing pathway (MANDATORY before writing new spec):** Before creating a new spec, the agent MUST check whether an existing spec/plan already covers the request. This pathway is especially relevant when arriving from the `search-prompt-fail` workflow (see `approval-gate` skill → `verify-qa-mode` task → Step 2.5).
    - Search GitHub Issues using labels `[SPEC]`, `[PLAN]`, `[SPEC-FIX]` and keywords from the request
@@ -200,6 +208,7 @@ Findings from evidence verification follow the three-tier model:
 | `decompose` | ≈400 |
 | `traceability` | ≈300 |
 | `risk` | ≈400 |
+| `diagram` | ≈350 |
 | `change-control` | ≈300 |
 
 ### Dispatch Audit Table
@@ -211,9 +220,12 @@ Findings from evidence verification follow the three-tier model:
 | `decompose` | When decomposing multi-phase requirements | Spec content, phase boundaries | Implementation context, agent memory | NO |
 | `traceability` | When checking spec traceability | Spec content, SC list, github.owner, github.repo | Implementation context, agent memory | NO |
 | `risk` | When identifying risk factors | Spec content, file paths | Implementation context, agent memory | NO |
+| `diagram` | When dependencies exist, generate mermaid diagram | Dependency structure, phase list, github.owner, github.repo | Implementation context, agent memory, workflow state | NO |
 | `change-control` | When checking change control procedures | Spec content, github.owner, github.repo | Implementation context, agent memory | NO |
 
-### Result Contract (write)
+### Result Contracts
+
+#### write
 
 ```yaml
 status: DONE | OVERFLOW
@@ -223,6 +235,17 @@ issue_url: <url>
 spec_created: bool
 self_review_passed: bool
 needs_approval_label_added: bool
+```
+
+#### diagram
+
+```yaml
+status: DONE | SKIP
+task: diagram
+diagram_generated: bool
+diagram_type: mermaid
+dependencies_exist: bool
+workflow_markers_absent: bool
 ```
 
 ### Dispatch Context Schema
@@ -237,6 +260,61 @@ session_vars:
   dev.email: <from-session>
   worktree.path: <from-session>
 ```
+
+## Interdependency Diagram Discipline (MANDATORY When Dependencies Exist)
+
+When a spec or plan has dependencies (multiple phases, cross-issue dependencies, or sequential deliverables), the `diagram` task MUST generate a mermaid diagram showing the **approved dependency structure only**.
+
+### When to Include
+
+| Condition | Include Diagram? |
+|-----------|------------------|
+| Spec/plan has multiple phases or items | YES — mandatory |
+| Spec/plan has cross-issue dependencies | YES — mandatory |
+| Single-item spec with no dependencies | NO — omit |
+
+### Diagram Format Rules
+
+**CORRECT (structure-only, no workflow state):**
+
+```mermaid
+graph TD
+    P1[Phase 1: Tooling] --> P2[Phase 2: Guidelines]
+    P1 --> P3[Phase 3: Skills]
+    P2 --> P3
+    P3 --> P4[Phase 4: Tests]
+```
+
+**FORBIDDEN (workflow state markers):**
+
+```mermaid
+graph TD
+    P1[Phase 1: Tooling ✅] --> P2[Phase 2: Guidelines 🔄]
+    P3[Phase 3: Skills] --> P4[Phase 4: Tests ❌]
+```
+
+### Update Protocol
+
+| Change Type | Action |
+|-------------|--------|
+| Dependency structure correction | Update diagram + document in Revision Notes + STATUS: REVISED |
+| Implementation progress | Do NOT update diagram — use issue status markers instead |
+| New dependency discovered mid-implementation | Halt, update diagram, revise spec, wait for re-approval |
+
+### Rationale
+
+1. **Historical audit trail:** Diagrams show what was approved, not what was implemented. This preserves the decision context for future reviewers.
+2. **Separation of concerns:** Workflow tracking (what's implemented) belongs in issue status markers, not in the approved spec diagram.
+3. **Correctness maintained:** If dependencies are discovered to be wrong during implementation, the diagram is corrected — but the correction is documented as a revision, not silently updated.
+
+### Enforcement
+
+The `diagram` task MUST verify:
+1. Diagram exists when `dependencies_exist == true`
+2. Diagram contains NO workflow state markers (✅, 🔄, ❌, "implemented", "pending", etc.)
+3. Diagram matches the dependency structure in the spec/plan body
+
+Violations are STRUCTURE-VIOLATION findings requiring auto-fix before spec approval.
 
 ## PR Merge Boundaries (MANDATORY When Dependencies Exist)
 
@@ -390,6 +468,19 @@ rules:
     triggers: [writing-plans, approval-gate]
     source: "spec-creation/SKILL.md §PR Merge Boundaries"
 
+  - id: spec-creation-008
+    title: "Interdependency diagram required when dependencies exist"
+    conditions:
+      all:
+        - "dependencies_exist == true"
+        - "mermaid_diagram_generated == false"
+    actions:
+      - GENERATE(mermaid diagram showing approved structure only)
+    conflicts_with: []
+    requires: [spec-creation-002]
+    triggers: [writing-plans]
+    source: "spec-creation/SKILL.md §Interdependency Diagram Discipline"
+
 tasks:
   - id: explore
     skill: spec-creation
@@ -415,6 +506,18 @@ tasks:
     mandatory: true
     bypass_violation: "Spec not persisted — spec must be GitHub Issue, not chat output"
     source: "spec-creation/SKILL.md §Tasks write"
+
+  - id: diagram
+    skill: spec-creation
+    preconditions:
+      - "dependencies_exist == true"
+    postconditions:
+      - "mermaid_diagram_generated == true"
+      - "diagram_shows_structure_only == true"
+      - "diagram_has_no_workflow_markers == true"
+    mandatory: true
+    bypass_violation: "Missing interdependency diagram — multi-phase specs require mermaid diagram"
+    source: "spec-creation/SKILL.md §Interdependency Diagram Discipline"
 
   - id: completion
     skill: spec-creation
@@ -445,6 +548,13 @@ decomposition:
     mandatory: true
     bypass_violation: "Spec not persisted as GitHub Issue — chat-only spec delivery is prohibited"
 
+  - type: skill-task
+    skill: spec-creation
+    task: diagram
+    mandatory: false
+    condition: "dependencies_exist == true"
+    bypass_violation: "Missing interdependency diagram — multi-phase specs require mermaid diagram showing approved structure"
+
 gates:
   - id: spec-completeness
     condition: "requirements_extracted == true AND acceptance_criteria_defined == true"
@@ -463,6 +573,16 @@ gates:
 
   - id: pr-boundaries-when-deps-exist
     condition: "spec_has_dependencies == false OR pr_boundaries_section_present == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: diagram-when-deps-exist
+    condition: "dependencies_exist == false OR mermaid_diagram_present == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: diagram-no-workflow-state
+    condition: "diagram_shows_workflow_state == false"
     on_fail: HALT
     critical_violation: true
 

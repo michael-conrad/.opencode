@@ -108,6 +108,7 @@ The spec-to-plan approval cascade applies differently based on authorization sco
 | `validate` | Check for placeholders and completeness | ≈500 |
 | `retroactive` | Create plan for existing spec | ≈600 |
 | `clean-room` | Generate independent plan from problem statement only | ≈500 |
+| `diagram` | Generate mermaid dependency diagram showing approved structure (no workflow state) | ≈350 |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
 
 ## Invocation
@@ -202,6 +203,67 @@ Each phase in the plan body includes a merge boundary annotation:
 ### Enforcement
 
 Missing `pr_boundaries` in the `yaml+symbolic` block when dependencies exist is a STRUCTURE-VIOLATION finding from `skildeck lint`.
+
+## Interdependency Diagram Discipline (MANDATORY When Dependencies Exist)
+
+When a plan has dependencies (multiple phases, cross-issue dependencies, or sequential deliverables), the plan MUST include a mermaid diagram showing the **approved dependency structure only**.
+
+### When to Include
+
+| Condition | Include Diagram? |
+|-----------|------------------|
+| Plan has multiple phases | YES — mandatory |
+| Plan has cross-issue dependencies | YES — mandatory |
+| Single-task plan with no dependencies | NO — omit |
+
+### Diagram Format Rules
+
+**CORRECT (structure-only, no workflow state):**
+
+```mermaid
+graph TD
+    P1[Phase 1: Tooling] --> P2[Phase 2: Guidelines]
+    P1 --> P3[Phase 3: Skills]
+    P2 --> P3
+    P3 --> P4[Phase 4: Tests]
+```
+
+**FORBIDDEN (workflow state markers):**
+
+```mermaid
+graph TD
+    P1[Phase 1: Tooling ✅] --> P2[Phase 2: Guidelines 🔄]
+    P3[Phase 3: Skills] --> P4[Phase 4: Tests ❌]
+```
+
+### Update Protocol
+
+| Change Type | Action |
+|-------------|--------|
+| Dependency structure correction | Update diagram + document in Revision Notes + STATUS: REVISED |
+| Implementation progress | Do NOT update diagram — use issue status markers instead |
+| New dependency discovered mid-implementation | Halt, update diagram, revise plan, wait for re-approval |
+
+### Placement
+
+The diagram is placed in the plan body:
+- **Separate plans:** After the plan header (Goal, Architecture, Tech Stack), before "Phase 1"
+- **Combined plans:** In the `## Implementation Plan` section, after the header, before phases
+
+### Rationale
+
+1. **Historical audit trail:** Diagrams show what was approved, not what was implemented. This preserves the decision context for future reviewers.
+2. **Separation of concerns:** Workflow tracking (what's implemented) belongs in issue status markers, not in the approved plan diagram.
+3. **Correctness maintained:** If dependencies are discovered to be wrong during implementation, the diagram is corrected — but the correction is documented as a revision, not silently updated.
+
+### Enforcement
+
+The `validate` task MUST verify:
+1. Diagram exists when `dependencies_exist == true`
+2. Diagram contains NO workflow state markers (✅, 🔄, ❌, "implemented", "pending", etc.)
+3. Diagram matches the dependency structure in the plan body
+
+Violations are STRUCTURE-VIOLATION findings requiring auto-fix before plan approval.
 
 ## Self-Review Checklist
 
@@ -536,6 +598,31 @@ rules:
         - "developer_acknowledgment_received == false"
     actions:
       - HALT
+
+  - id: writing-plans-009
+    title: "Interdependency diagram required when dependencies exist"
+    conditions:
+      all:
+        - "plan_has_dependencies == true"
+        - "mermaid_diagram_generated == false"
+    actions:
+      - GENERATE(mermaid diagram showing approved structure only)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "writing-plans/SKILL.md §Interdependency Diagram Discipline"
+
+  - id: writing-plans-010
+    title: "Diagram must not show workflow state"
+    conditions:
+      all:
+        - "diagram_shows_workflow_state == true"
+    actions:
+      - REMOVE(workflow markers from diagram)
+    conflicts_with: []
+    requires: [writing-plans-009]
+    triggers: []
+    source: "writing-plans/SKILL.md §Interdependency Diagram Discipline"
       - PRESENT(overlap)
     conflicts_with: []
     requires: []
