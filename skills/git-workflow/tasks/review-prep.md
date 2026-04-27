@@ -35,6 +35,38 @@ Sequence: Implementation complete → commit → push → **review-prep MUST be 
 
 Handles submodule push automation, temp file cleanup, rebase on current dev, worktree handoff, and branch push verification.
 
+### Step 2.5: Squash Verification (MANDATORY GATE)
+
+**Before generating the compare URL, verify the commit-per-issue invariant.** This gate catches unsquashed branches before the compare URL is exposed to the developer.
+
+```bash
+# Count commits ahead of dev
+git log origin/dev..HEAD --oneline
+
+# Detect branch type
+ls .opencode/tmp/work-*.md 2>/dev/null
+```
+
+| Branch Type | Expected Commits | On Mismatch |
+| -- | -- | -- |
+| **Single-issue** | Exactly 1 | HALT — squash via `pr-creation/squash-push.md` Step 3 before URL generation |
+| **Work branch** | N (N = work items) | HALT — verify commit count matches work state before URL generation |
+
+**If single-issue branch has >1 commit:**
+
+1. DO NOT generate compare URL
+2. Squash per `pr-creation/squash-push.md` Step 3
+3. Re-push with `--force-with-lease`
+4. Re-verify commit count — then proceed to URL generation
+
+**If work branch commit count does not match work state items:**
+
+1. DO NOT generate compare URL
+2. Verify all implementation items were committed
+3. Re-verify — then proceed to URL generation
+
+**AUTHORITY:** `000-critical-rules.md` §Un-Squashed PR, `pr-creation/squash-push.md` Step 3
+
 ### Steps 3-5: Generate URL, Report, HALT
 
 **Route to:** `review-prep/report-url`

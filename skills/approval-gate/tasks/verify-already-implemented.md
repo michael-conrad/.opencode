@@ -98,6 +98,39 @@ When ALL success criteria are verified as already met:
 
 5. **HALT** — no branch, no PR, no implementation needed
 
+### Step 6: Parent Plan Closure Check
+
+After autoclosing the current issue (Step 5), check if the parent plan issue should also be closed:
+
+1. **Determine parent issue context:**
+   - If this issue is a sub-issue of a plan, retrieve the parent plan issue via `github_issue_read(method="get_sub_issues")` on the plan
+   - If this issue references a plan via body text (`Plan: #N`), use that reference
+   - If no parent plan exists, Skip Step 6 — this is a standalone issue
+
+2. **Check if ALL sub-issues of the plan are closed:**
+   - Use `github_issue_read(method="get_sub_issues", issue_number=<plan_number>)` to list all sub-issues
+   - Verify each sub-issue has `state == "closed"` with `state_reason == "completed"` (not `"not_planned"` or `"duplicate"` without merged PR evidence)
+   - If ANY sub-issue is still open or closed without legitimate completion evidence → do NOT close the parent plan
+
+3. **If ALL sub-issues are legitimately closed:**
+   - Close the parent plan issue with `github_issue_write(method="update", state="closed", state_reason="completed")`
+   - Post a verification comment on the plan issue documenting per-SC evidence:
+     ```
+     All sub-issues verified complete. Closing parent plan.
+
+     Sub-issue closure evidence:
+     - #<N1>: Verified via [merged PR / already-implemented autoclose] — <brief evidence>
+     - #<N2>: Verified via [merged PR / already-implemented autoclose] — <brief evidence>
+     - ...
+
+     Parent plan closure is legitimate because all child issues are verified complete.
+     ```
+   - Report in chat output: "Parent plan #<plan_number> closed — all sub-issues verified complete"
+
+4. **If ANY sub-issue is NOT closed or NOT legitimately completed:**
+   - Do NOT close the parent plan
+   - Report in chat output: "Parent plan #<plan_number> remains open — sub-issue #<open_num> is not yet complete"
+
 ## Evidence Requirements
 
 Each criterion verification MUST include:

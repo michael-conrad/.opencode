@@ -337,6 +337,32 @@ When creating a new issue:
 4. Invoke `/skill issue-operations --task creation`
 5. Invoke `/skill issue-operations --task post-creation`
 
+## Submodule Routing for Issue Operations
+
+When targeting files under a submodule or sub-folder repo path, issues MUST be filed against the submodule's repository, NOT the parent repository. The session-init output includes `## Sub-folder Repo Mappings` that list path-to-repo mappings derived from `.gitmodules`.
+
+### Submodule Routing Table
+
+The routing table below determines which repository to target for issue operations based on file paths. When a target file falls under a submodule path, the issue must be created in the submodule's repository using the mapped `owner/repo`.
+
+| Target Path | Routes to | Platform |
+|---|---|---|
+| `.opencode/guidelines/*` | `<github.owner>/<github.repo>` | Per session init |
+| `.opencode/skills/*` | `<github.owner>/<github.repo>` | Per session init |
+| `.opencode/AGENTS.md` | `<github.owner>/<github.repo>` | Per session init |
+| `.opencode/` (any file under) | `<github.owner>/<github.repo>` | Per session init |
+
+**Concrete example**: When `identity_source == "submodule"` and `.gitmodules` maps `.opencode` to `git@github.com:michael-conrad/opencode-config.git`, files under `.opencode/` must route to `michael-conrad/opencode-config` on GitHub — never to the parent repo.
+
+### Routing Procedure
+
+1. Check session-init output for `## Sub-folder Repo Mappings`
+2. If the target file path starts with a mapped submodule path, use the mapped `owner/repo` for ALL GitHub MCP API calls
+3. If no mapping exists and `identity_source == "submodule"`, ALL files route to `<github.owner>/<github.repo>` (the submodule repo)
+4. NEVER ask the developer which repo to file against — the agent resolves this autonomously
+
+**AUTHORITY:** `000-critical-rules.md` §Wrong API Routing for Submodule/Sub-folder Repos, `060-tool-usage.md` §9 Identity Source Semantics
+
 ## Submodule Provenance Issues
 
 Submodule provenance issues are created as part of the `git-workflow` provenance task, not through this skill's standard flow. See `git-workflow/tasks/provenance.md` for the complete implementation.
@@ -569,6 +595,20 @@ rules:
     requires: []
     triggers: [creation, comment, close, link-sub-issue, verify-merge]
     source: "issue-operations/SKILL.md §Platform Routing"
+
+  - id: issue-ops-009
+    title: "Submodule file targets must route to submodule repo"
+    conditions:
+      all:
+        - "target_file_path matches submodule_path"
+        - "api_repo == parent_repo"
+    actions:
+      - RESOLVE_SUBMODULE_REMOTE
+      - USE_SUBMODULE_OWNER_REPO
+    conflicts_with: []
+    requires: []
+    triggers: [creation, comment, close, link-sub-issue, verify-merge]
+    source: "issue-operations/SKILL.md §Submodule Routing for Issue Operations"
 
   - id: issue-ops-008
     title: "PR merge boundary in sub-issue body when plan has boundaries"
