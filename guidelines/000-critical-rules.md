@@ -870,6 +870,19 @@ The spec-to-plan approval cascade means: when a spec is approved and a plan alre
 
 **See `git-workflow` skill `--task cleanup` for the complete parent/child closure workflow.**
 
+## Critical Violation: Parent Issue Left Open After All Children Closed
+
+**⚠️ Leaving a parent issue open after all child issues are closed and verified is a CRITICAL GUIDELINE VIOLATION.** When all sub-issues of a plan are legitimately closed (with merged PR evidence or verified-already-implemented autoclose), the parent plan issue MUST be closed with a verification comment documenting per-sub-issue evidence. Failure to close the parent is a process gap that must be treated as a bug requiring a fix.
+
+The inverse of "do not close parents while children are open" is equally enforced: "do not leave parents open after children are all verified closed." A plan with all sub-issues completed and verified represents completed work — keeping it open creates stale tracking, confusion about remaining work, and violates the principle that process gaps are bugs.
+
+- 🚫 FORBIDDEN: Leaving a parent plan issue open when all sub-issues are closed with legitimate completion evidence; skipping parent closure after all children are verified; treating parent closure as optional after sub-issue closure
+- ✅ REQUIRED: After all sub-issues of a plan are closed and verified, close the parent plan issue with `github_issue_write(method="update", state="closed", state_reason="completed")`; post a verification comment documenting per-sub-issue evidence on the parent plan; report parent closure in chat output
+- ✅ REQUIRED: `verify-already-implemented` Step 6 performs parent plan closure check after autoclosing sub-issues
+- ✅ REQUIRED: `git-workflow --task cleanup` Step 2.8 performs parent plan closure check after sub-issue closure
+
+**See `approval-gate/SKILL.md` → `verify-already-implemented` Step 6 and `git-workflow` skill → `cleanup` task → Step 2.8 for the complete parent closure procedures.**
+
 ## Critical Violation: Deleting Branches/Stashes Improperly
 
 **⚠️ Improper branch deletion is a CRITICAL GUIDELINE VIOLATION.** Merged branches: DELETE IMMEDIATELY. Unmerged branches with work: PRESERVE. Stashes: PRESERVE until asked.
@@ -2089,4 +2102,54 @@ When a plan's spec declares dependencies on other specs/plans via a `pr_boundari
     requires: [approval-gate-skill-006, divide-and-conquer-007]
     triggers: [approval-gate, divide-and-conquer]
     source: "000-critical-rules.md §Implementing Before PR Merge Boundary"
+
+  - id: critical-rules-039
+    title: "Parent issue left open after all children closed"
+    conditions:
+      all:
+        - "parent_issue_state == open"
+        - "all_sub_issues_closed == true"
+        - "all_sub_issues_verified_complete == true"
+        - "parent_closure_attempted == false"
+    actions:
+      - CLOSE_PARENT_WITH_VERIFICATION_COMMENT
+    conflicts_with: []
+    requires: [git-workflow-cleanup-step2.8, approval-gate-verify-already-implemented-step6]
+    triggers: [git-workflow, approval-gate]
+    source: "000-critical-rules.md §Parent Issue Left Open After All Children Closed"
+```
+
+<!-- Issue #109: Un-Squashed PR — commit-per-issue invariant across all bypass paths -->
+
+## Critical Violation: Un-Squashed PR — Creating a Single-Issue PR with Multiple Commits
+
+**⚠️ Creating a PR with more than one commit for a single-issue branch is a CRITICAL GUIDELINE VIOLATION.**
+
+The commit-per-issue invariant requires that single-issue branches produce exactly one commit in the PR. Work branches (containing multiple implementation items) correctly have N commits where N equals the number of work items. This invariant must be enforced at ALL gate points: enforcement gate, review-prep, and pre-pr-checklist.
+
+| Branch Type | Expected Commits | Violation |
+| -- | -- | -- |
+| **Single-issue** (no work state file) | Exactly 1 | >1 commit = CRITICAL VIOLATION |
+| **Work branch** (work state file exists) | N (N = work items) | Count mismatch = CRITICAL VIOLATION |
+
+- 🚫 FORBIDDEN: Creating a PR with >1 commit on a single-issue branch; proceeding past any enforcement gate without verifying commit count; generating a compare URL for an unsquashed single-issue branch; skipping the commit count check at any gate point because "the branch looks clean"
+- ✅ REQUIRED: Verify commit count at `pr-creation/enforcement-gate.md` Step 1.2 before PR creation; verify commit count at `review-prep.md` Step 2.5 before URL generation; verify commit count at `pre-pr-checklist.md` Step 1 before PR submission; squash single-issue branches via `pr-creation/squash-push.md` Step 3 when count >1; verify work branch commit count matches work state item count
+
+**AUTHORITY:** `pr-creation/enforcement-gate.md` Step 1.2, `pr-creation/squash-push.md` Step 3, `review-prep.md` Step 2.5, `pr-creation-workflow/tasks/pre-pr-checklist.md` Step 1
+
+```yaml+symbolic
+  - id: critical-rules-040
+    title: "Un-squashed single-issue PR — creating a PR with multiple commits"
+    conditions:
+      all:
+        - "commit_count > 1"
+        - "branch_type == single_issue"
+        - "pr_creation_attempted == true"
+    actions:
+      - HALT
+      - INVOKE(pr-creation/squash-push Step 3)
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow, pr-creation-workflow]
+    source: "000-critical-rules.md §Un-Squashed PR"
 ```

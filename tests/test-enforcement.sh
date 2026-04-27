@@ -202,6 +202,10 @@ SCENARIOS["for-pr-solicitation-crossref"]="Does .opencode/guidelines/020-go-proh
 SCENARIOS["post-tool-output-checkpoint"]="Does .opencode/guidelines/000-critical-rules.md contain a subsection titled 'Post-Tool Execution Output Checkpoint' that requires visible chat output after every tool call batch before halting?"
 SCENARIOS["completion-scope-clarification"]="Does .opencode/skills/approval-gate/tasks/completion.md contain a 'Completion Task Scope Clarification' section stating that --task completion is NOT for generating the agent's primary visible output?"
 SCENARIOS["post-dispatch-output-gate"]="Does .opencode/skills/approval-gate/SKILL.md contain a 'Step 0.5: Post-Dispatch Output Gate' that requires visible chat output after every sub-agent dispatch?"
+SCENARIOS["parent-issue-left-open-violation"]="Does .opencode/guidelines/000-critical-rules.md contain a critical violation section titled 'Parent Issue Left Open After All Children Closed'?"
+SCENARIOS["parent-issue-left-open-yaml"]="Does .opencode/guidelines/000-critical-rules.md yaml+symbolic block contain rule critical-rules-039 titled 'Parent issue left open after all children closed'?"
+SCENARIOS["parent-issue-closure-vai-step6"]="Does .opencode/skills/approval-gate/tasks/verify-already-implemented.md contain a Step 6 titled 'Parent Plan Closure Check'?"
+SCENARIOS["parent-issue-closure-cleanup-step28"]="Does .opencode/skills/git-workflow/tasks/cleanup.md contain a Step 2.8 titled 'Parent Plan Closure'?"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -362,6 +366,10 @@ SCENARIO_TAGS["halt-blockers-completion-fields"]="content-verification halt-outp
 SCENARIO_TAGS["post-tool-output-checkpoint"]="content-verification silent-termination"
 SCENARIO_TAGS["completion-scope-clarification"]="content-verification silent-termination"
 SCENARIO_TAGS["post-dispatch-output-gate"]="content-verification silent-termination"
+SCENARIO_TAGS["parent-issue-left-open-violation"]="content-verification git-workflow issue-closure"
+SCENARIO_TAGS["parent-issue-left-open-yaml"]="content-verification git-workflow issue-closure"
+SCENARIO_TAGS["parent-issue-closure-vai-step6"]="content-verification approval issue-closure"
+SCENARIO_TAGS["parent-issue-closure-cleanup-step28"]="content-verification git-workflow issue-closure"
 
 # File-to-scenario mapping for --changed filtering
 # Maps glob patterns to scenario names

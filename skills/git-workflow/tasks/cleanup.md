@@ -119,6 +119,47 @@ SPEC #100 (parent)
 └── Task #103: Phase 3 → PR merges → Close #103 AND #100
 ```
 
+**Parent issues MUST be closed after ALL child issues are verified complete.** Leaving a parent plan issue open after all sub-issues are closed and verified is a process gap that must be treated as a bug requiring a fix.
+
+Example:
+```
+Plan #50 (parent)
+├── Task #51: Phase 1 → closed, verified complete → OK
+├── Task #52: Phase 2 → closed, verified complete → OK
+└── ALL children closed → Close #50 with verification comment
+```
+
+### Step 2.8: Parent Plan Closure After Sub-Issues
+
+After closing sub-issues (Step 2), check whether the parent plan issue should be closed:
+
+1. **Identify the parent plan issue:**
+   - Use `github_issue_read(method="get_sub_issues")` on the plan to list all sub-issues
+   - If the current closure context came from a PR body referencing a plan, use that plan issue number
+
+2. **Verify ALL sub-issues are closed with legitimate completion evidence:**
+   - Each sub-issue must have `state == "closed"` and `state_reason == "completed"` (not `"not_planned"` or `"duplicate"` without merged PR evidence)
+   - Closed sub-issues with `state_reason == "completed"` must have merged PR evidence (verified via `github_pull_request_read` or `github_search_pull_requests`)
+   - If any sub-issue has `state_reason == "not_planned"` without explicit developer justification → flag for review, do NOT auto-close parent
+
+3. **If ALL sub-issues are legitimately closed:**
+   - Close the parent plan issue with `github_issue_write(method="update", state="closed", state_reason="completed")`
+   - Post a verification comment documenting per-sub-issue evidence:
+     ```
+     All sub-issues verified complete. Closing parent plan.
+
+     Sub-issue closure evidence:
+     - #<N1>: Merged PR #<P1> — <brief description>
+     - #<N2>: Verified already implemented via autoclose — <brief description>
+     - ...
+
+     Parent plan closure is legitimate because all child issues are verified complete.
+     ```
+
+4. **If ANY sub-issue is NOT closed or NOT legitimately completed:**
+   - Do NOT close the parent plan
+   - Report in cleanup output: "Parent plan #<plan_number> remains open — sub-issue #<open_num> is not yet complete"
+
 ## Closing Summary (Conditional)
 
 Post a closing comment ONLY if it conveys substantive information stakeholders need. Skip for routine closures.
