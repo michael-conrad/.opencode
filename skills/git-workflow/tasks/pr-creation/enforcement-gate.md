@@ -57,6 +57,48 @@ For each submodule entry:
 | Implementation complete | Does NOT authorize PR |
 | "continue" | Ambiguous — could mean next phase |
 
+### Step 1.2: Commit Count Verification (MANDATORY GATE)
+
+**This gate enforces the commit-per-issue invariant.** Creating a PR with an incorrect commit count is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Un-Squashed PR.
+
+```bash
+# Count commits ahead of dev
+git log origin/dev..HEAD --oneline
+
+# Detect branch type via work state file
+ls .opencode/tmp/work-*.md 2>/dev/null
+```
+
+**Branch type detection and enforcement:**
+
+| Branch Type | Detection | Expected Commits | On Mismatch |
+| -- | -- | -- | -- |
+| **Single-issue** | No `work-*.md` file found | **Exactly 1** | HALT — squash required via `pr-creation/squash-push.md` Step 3 |
+| **Work branch** | `work-*.md` file exists | **N** (N = work items in state) | HALT — verify commit count matches work state items |
+
+**Single-issue branch with >1 commit:**
+
+1. HALT — DO NOT proceed to PR creation
+2. Squash per `pr-creation/squash-push.md` Step 3:
+   ```bash
+   git reset --soft origin/dev
+   git commit -m "<descriptive message>" \
+       --trailer "Co-authored-by: <AgentName> (<ModelId>) <ai-email>" \
+       --trailer "Co-authored-by: <dev.name> <dev.email>"
+   git push --force-with-lease origin <branch>
+   ```
+3. Re-verify commit count after squash
+4. Only then proceed to Step 1.5
+
+**Work branch with mismatched commit count:**
+
+1. HALT — verify work state file item count matches actual commits
+2. If under-committed: check for missing implementation items
+3. If over-committed: squash extraneous commits per item boundaries
+4. Re-verify before proceeding
+
+**AUTHORITY:** `000-critical-rules.md` §Un-Squashed PR, `pr-creation/squash-push.md` Step 3
+
 ### Step 1.5: Check Existing PR State
 
 Query GitHub API for existing PRs on this branch:
