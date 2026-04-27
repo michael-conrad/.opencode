@@ -772,7 +772,9 @@ Trigger words: "audit this spec", "review this issue", "revisit this task", "che
 
 **⚠️ Creating a PR without EXPLICIT developer instruction is a CRITICAL GUIDELINE VIOLATION.** PRs require "create a PR", "make a PR", "push and create PR", "let's get a PR up", "PR" (bare), or "PR #NNN".
 
-**See `pr-creation-workflow` skill for the full PR timing workflow including authorization boundary.**
+**Scope Exception:** When `authorization_scope == 'for_pr'` or `authorization_scope == 'pr_only'`, PR creation IS authorized by the scope model and does NOT require a separate "create a PR" instruction. The `for_pr`/`pr_only` authorization phrase is the explicit instruction — the scope model resolves it to `halt_at = pr_created` with `auto-PR` gap-fill.
+
+**See `pr-creation-workflow` skill for the full PR timing workflow including authorization boundary. See `010-approval-gate.md` §Authorization Scope Model for `for_pr`/`pr_only` scope exception.**
 
 ## Critical Violation: Bug Reports Without Fix Spec
 
@@ -1502,14 +1504,15 @@ The `for_pr` scope explicitly defines: `halt_at = pr_created` with gap-fill acti
 - 🚫 FORBIDDEN: Asking for grouping decisions when scope resolves execution order
 - 🚫 FORBIDDEN: Treating plan creation as requiring developer input when `for_pr` scope auto-fills
 - 🚫 FORBIDDEN: Halting at any pipeline stage before `pr_created` when `for_pr` scope is active
-- 🚫 FORBIDDEN: Requesting re-authorization for steps that gap-fill covers (spec creation, plan creation, plan approval)
+- 🚫 FORBIDDEN: Requesting re-authorization for steps that gap-fill covers (spec creation, plan creation, plan approval, **PR creation**)
 - ✅ REQUIRED: Parse `for_pr` scope and execute gap-fill cascade autonomously
 - ✅ REQUIRED: Auto-create plans for specs that need them (using `writing-plans` skill)
 - ✅ REQUIRED: Auto-approve plans created via gap-fill per spec-to-plan cascade
+- ✅ REQUIRED: Auto-create PR via `git-workflow --task pr-creation` as part of the gap-fill cascade for `for_pr`/`pr_only` scope
 - ✅ REQUIRED: Build execution order from dependency analysis without developer input
 - ✅ REQUIRED: Proceed through the full pipeline to `pr_created` without halting for structural decisions
 
-**AUTHORITY:** Issue #111, `000-critical-rules.md` §Pushing Agent Intelligence Decisions to the User, `010-approval-gate.md` §Authorization Scope Model`
+**AUTHORITY:** Issue #111, `000-critical-rules.md` §Pushing Agent Intelligence Decisions to the User, `010-approval-gate.md` §Authorization Scope Model. See §Creating PRs Without Explicit Instruction for the scope exception that `for_pr`/`pr_only` authorization provides.`
 
 ## Critical Violation: Structural Decision Solicitation Under for_pr Scope — Using Question Tool for Classification
 
@@ -1780,12 +1783,26 @@ rules:
       all:
         - "pr_creation_attempted == true"
         - "explicit_pr_instruction == false"
+        - "authorization_scope NOT IN ['for_pr', 'pr_only']"
     actions:
       - HALT
     conflicts_with: []
     requires: []
     triggers: [pr-creation-workflow]
     source: "000-critical-rules.md §Creating PRs Without Explicit Instruction"
+
+  - id: critical-rules-019a
+    title: "for_pr/pr_only scope authorizes PR creation — no separate instruction needed"
+    conditions:
+      all:
+        - "pr_creation_attempted == true"
+        - "authorization_scope IN ['for_pr', 'pr_only']"
+    actions:
+      - PROCEED
+    conflicts_with: [critical-rules-019]
+    requires: [approval-gate-010]
+    triggers: [pr-creation-workflow, approval-gate]
+    source: "000-critical-rules.md §Creating PRs Without Explicit Instruction Scope Exception"
 
   - id: critical-rules-020
     title: "Soft-passing verification mismatches"

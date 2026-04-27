@@ -27,7 +27,7 @@
 | **MCP tools** | Use appropriate tools per five-tier hierarchy (see `mcp-tool-usage` skill) |
 | **Silent halt** | HALT after completion, after PR creation — no prompts |
 | **Search before halt** | When no spec/plan exists for an implementation request, search GitHub Issues for existing candidates (label filters: `[SPEC]`, `[PLAN]`, `[SPEC-FIX]`; keyword matching against request target), present candidates with URLs, offer create-or-select before halting — see `000-critical-rules.md` §Silent Halt Without Prompt |
-| **PR timing** | PRs require explicit `"create a PR"` instruction |
+| **PR timing** | PRs require explicit `"create a PR"` instruction — **except** when `authorization_scope == 'for_pr'` or `'pr_only'` (scope model authorizes PR creation) |
 | **Issue closure** | Close issues ONLY after PR merge confirmed |
 | **Spec-to-Plan cascade** | When a spec is approved and a plan already exists, the plan is automatically approved. Manual plan approval is only required when no plan exists at the time of spec approval |
 | **Pipeline-scoped authorization** | Authorization phrases ("approved #N to PR", "approved #N for plan") specify a scope horizon — pipeline stages where authorization extends. See Authorization Scope Model below |
