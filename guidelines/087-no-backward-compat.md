@@ -80,3 +80,47 @@ def render_tsquery(expr: QueryExpr) -> str:
 
 - 080-code-standards.md - General code quality
 - 090-data-integrity.md - Schema migration policies (different concern)
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: no-backward-compat-001
+    title: "No backward compatibility aliases for internal code"
+    conditions:
+      all:
+        - "internal_code_refactored == true"
+        - "backward_compat_alias_created == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "087-no-backward-compat.md §Rule"
+
+  - id: no-backward-compat-002
+    title: "Fix all callers immediately when refactoring internal code"
+    conditions:
+      all:
+        - "internal_code_refactored == true"
+        - "callers_not_fixed == true"
+    actions:
+      - FIX_CALLERS
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "087-no-backward-compat.md §Rule"
+
+  - id: no-backward-compat-003
+    title: "No deprecation warnings for internal code"
+    conditions:
+      all:
+        - "internal_code_refactored == true"
+        - "deprecation_warning_added == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "087-no-backward-compat.md §Rule"
+```

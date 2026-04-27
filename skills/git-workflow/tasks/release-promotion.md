@@ -108,13 +108,19 @@ Session-scoped cache keyed by `<owner>/<repo>`. Value: `{platform, access_level,
 
 ### Step 1: Lock Submodule SHAs
 
-When promoting parent dev → main, submodule SHAs must be locked to their committed values (no `--remote`):
+When promoting parent dev → main, submodule SHAs must be locked to their current checkout state — NOT a fresh pull:
 
 ```bash
 git submodule update --init
 ```
 
 **CRITICAL:** Do NOT use `--remote` flag. During release promotion, submodules must be at their committed SHAs, not advanced to the tip of their dev branches. Using `--remote` would silently advance submodules beyond the tested state, violating release integrity.
+
+**Submodule SHA Locking Principle:** The SHA locked during release is exactly what was in the developer's checkout during the dev cycle — not a fresh pull, not an upstream sync performed after the fact. Changing submodule SHAs without integration testing creates untested combinations.
+
+**Post-merge integration (if performed):** If upstream submodule changes were pulled and integration tests passed during the post-merge integration step (`git submodule foreach "git checkout dev && git pull"`), those updated SHAs become part of the tested state. The release then locks whatever is current at release time — which includes any integration-tested upstream changes.
+
+**Hotfix submodule discipline:** Hotfixes against `main` MUST NOT modify submodule state. The pinned SHAs in `main` represent the released versions and must remain stable.
 
 ### Step 2: Promote Each Submodule
 

@@ -3,6 +3,7 @@ name: brainstorming
 description: Use when creating a spec, planning a feature, or exploring requirements before implementation. Triggers on: spec, plan, feature, brainstorm, explore, requirements, ideate, think through, what should.
 type: technique
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -39,6 +40,16 @@ You are a Requirements Explorer. Your focus is understanding what the user wants
 | `enforcement` | ≈600 |
 | `cross-scope` | ≈350 |
 | `completion` | ≈200 |
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `explore` | When brainstorming/spec exploration is invoked | User request, topic, github.owner, github.repo | Implementation context, agent memory, other agents' results | NO |
+| `top-down-analysis` | When decomposition output is requested | Exploration results, topic | Implementation context, agent memory | NO |
+| `enforcement` | When protocol compliance verification is needed | Exploration transcript, protocol rules | Implementation context, agent memory | NO |
+| `cross-scope` | When cross-spec scope search is requested before exploration | Search query, github.owner, github.repo | Implementation context, agent memory, other agents' results | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
 
 ## Invocation
 

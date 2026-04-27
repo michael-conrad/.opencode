@@ -72,3 +72,76 @@ This guideline is foundational. When in doubt: **raise, don't return.**
 ______________________________________________________________________
 
 *Source: Content migrated from `095-never-hide-problems.md`*
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: logging-vs-raising-001
+    title: "Log AND raise — never log only or raise only"
+    conditions:
+      any:
+        - "pattern == 'log_without_reraise'"
+        - "pattern == 'raise_without_log'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "203-errors-logging-vs-raising.md §3. Logging vs Raising"
+
+  - id: logging-vs-raising-002
+    title: "Agents must never write code that swallows exceptions"
+    conditions:
+      any:
+        - "code_pattern == 'except: pass'"
+        - "code_pattern == 'except Exception: continue'"
+        - "code_pattern == 'silent_return'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "203-errors-logging-vs-raising.md §4. Agent Behavior"
+
+  - id: logging-vs-raising-003
+    title: "Agents must never hide missing data"
+    conditions:
+      any:
+        - "code_pattern == 'default_for_required_field'"
+        - "code_pattern == 'placeholder_data'"
+        - "code_pattern == 'synthetic_data'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "203-errors-logging-vs-raising.md §4. Agent Behavior"
+
+  - id: logging-vs-raising-004
+    title: "Always add context when wrapping exceptions"
+    conditions:
+      all:
+        - "catching_exception == true"
+        - "context_added == false"
+        - "re_raising == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "203-errors-logging-vs-raising.md §4. Agent Behavior"
+
+  - id: logging-vs-raising-005
+    title: "When in doubt raise, don't return"
+    conditions:
+      all:
+        - "error_occurred == true"
+        - "action == 'return_value'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "203-errors-logging-vs-raising.md §6. Cross-References"
+```

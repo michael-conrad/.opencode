@@ -3,6 +3,7 @@ name: executing-plans
 description: Use when executing an approved plan step-by-step or moving through implementation gates sequentially. Triggers on: execute plan, next step, continue implementation, plan approved, start implementation.
 type: technique
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -70,6 +71,18 @@ The `divide-and-conquer` dispatch context includes `tdd_phase` to track which ph
 | `progress` | Legacy — redirects to divide-and-conquer/orchestrate | ≈100 |
 | `verify` | Redirects to verification-before-completion | ≈100 |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
+
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `start` | When plan execution begins | Plan issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `step` | Legacy — redirects to divide-and-conquer/orchestrate | Plan issue number | Implementation context, agent memory | NO |
+| `progress` | Legacy — redirects to divide-and-conquer/orchestrate | Plan issue number | Implementation context, agent memory | NO |
+| `verify` | Redirects to verification-before-completion | Spec issue number, file paths | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
 
 ## Invocation
 

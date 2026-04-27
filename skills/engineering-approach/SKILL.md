@@ -3,10 +3,20 @@ name: engineering-approach
 description: Use when implementing a spec, or when design, verification, and scope discipline are needed. Triggers on: implement, build, develop, engineering checklist, design before code, verify before complete.
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
 # Engineering Approach Checklist
+
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `principles` | When design/engineering principles reference is needed | Design decision context, file paths | Implementation context, agent memory | NO |
+| `application-guide` | When application guidance is needed during review | Review context, code paths | Implementation context, agent memory | NO |
 
 ## Core Principles
 
@@ -258,3 +268,109 @@ Use this skill when:
 - After completing work to verify completeness
 
 Example: `/skill engineering-approach`
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: eng-approach-001
+    title: "Must understand before solving — read all relevant code before proposing changes"
+    conditions:
+      all:
+        - "implementation_requested == true"
+        - "relevant_code_read == false"
+    actions:
+      - HALT
+      - READ_RELEVANT_CODE
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "engineering-approach/SKILL.md §Core Principles"
+
+  - id: eng-approach-002
+    title: "Must design before implementing — document approach and obtain approval"
+    conditions:
+      all:
+        - "implementation_requested == true"
+        - "design_documented == false"
+    actions:
+      - HALT
+      - DOCUMENT_DESIGN
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate]
+    source: "engineering-approach/SKILL.md §Core Principles"
+
+  - id: eng-approach-003
+    title: "Must verify before declaring complete — run tests, check edge cases, validate success criteria"
+    conditions:
+      all:
+        - "implementation_complete_claimed == true"
+        - "tests_run_manually == false"
+    actions:
+      - HALT
+      - RUN_TESTS
+      - VERIFY_SUCCESS_CRITERIA
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion]
+    source: "engineering-approach/SKILL.md §Core Principles"
+
+  - id: eng-approach-004
+    title: "No scope creep — implement ONLY what is in the approved spec"
+    conditions:
+      all:
+        - "change_not_in_spec == true"
+    actions:
+      - STOP
+      - FILE_SEPARATE_ISSUE
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate]
+    source: "engineering-approach/SKILL.md §Scope Discipline"
+
+tasks:
+  - id: design-before-code
+    skill: engineering-approach
+    preconditions:
+      - "approved_spec_exists == true"
+    postconditions:
+      - "codebase_explored == true"
+      - "design_decisions_documented == true"
+      - "alternatives_considered == true"
+      - "approval_obtained == true"
+    mandatory: true
+    bypass_violation: "implementation started without design"
+    source: "engineering-approach/SKILL.md §Design Phase Checklist"
+
+  - id: verify-before-complete
+    skill: engineering-approach
+    preconditions:
+      - "implementation_complete == true"
+    postconditions:
+      - "all_tests_pass == true"
+      - "edge_cases_verified == true"
+      - "success_criteria_validated == true"
+      - "no_scope_creep == true"
+      - "temp_files_cleaned == true"
+    mandatory: true
+    bypass_violation: "implementation declared complete without verification"
+    source: "engineering-approach/SKILL.md §Verification Phase Checklist"
+
+decomposition: []
+gates:
+  - id: pre-implementation-verification-gate
+    type: precondition
+    check: "API signatures, env vars, config formats verified against live docs"
+    on_fail: HALT
+    source: "engineering-approach/SKILL.md §Pre-Implementation Verification Checklist"
+  - id: scope-creep-gate
+    type: postcondition
+    check: "no changes outside approved spec"
+    on_fail: STOP
+    source: "engineering-approach/SKILL.md §Scope Discipline"
+evidence_artifacts:
+  - "srclight_get_signature output for verified APIs"
+  - "uv run pytest output"
+  - "ls ./tmp/ showing clean temp directory"
+```

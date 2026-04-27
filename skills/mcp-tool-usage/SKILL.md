@@ -3,6 +3,7 @@ name: mcp-tool-usage
 description: Use when selecting tools for file operations, code search, or any task that could use multiple tool options. Triggers on: which tool, tool priority, MCP, PyCharm, JetBrains, read file, write file, search code, tool selection.
 type: reference
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -17,6 +18,14 @@ Tool Priority Enforcer ensuring all operations use the correct tool according to
 | Task | Purpose | Words |
 |------|---------|-------|
 | `selection-guide` | Decision trees for Python code, file ops, notebooks | ≈500 |
+
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `selection-guide` | When tool selection guidance is needed for file operations, notebooks, or code search | Operation type, file extension, project context | Implementation context, agent memory | NO |
 
 ## Invocation
 

@@ -124,3 +124,61 @@ ______________________________________________________________________
 ______________________________________________________________________
 
 *Source: Content migrated from `095-never-hide-problems.md`*
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: domain-exceptions-001
+    title: "Use domain-specific exception classes for API/module boundaries"
+    conditions:
+      all:
+        - "has_distinct_api_module == true"
+        - "different_failure_modes == true"
+        - "using_generic_Exception == true"
+    actions:
+      - PROCEED
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "202-errors-domain-exceptions.md §When to create"
+
+  - id: domain-exceptions-002
+    title: "Preserve exception chain with from e"
+    conditions:
+      all:
+        - "wrapping_exception == true"
+        - "from_e_used == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "202-errors-domain-exceptions.md §Pattern: Wrap"
+
+  - id: domain-exceptions-003
+    title: "Don't create domain exceptions for local-only errors"
+    conditions:
+      all:
+        - "error_local_to_one_function == true"
+        - "caught_immediately == true"
+        - "ValueError_sufficient == true"
+    actions:
+      - PROCEED
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "202-errors-domain-exceptions.md §When DON'T create"
+
+  - id: domain-exceptions-004
+    title: "Never use bare Exception for domain errors"
+    conditions:
+      all:
+        - "raise_statement == 'Exception'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "202-errors-domain-exceptions.md §Domain-specific vs generic"
+```

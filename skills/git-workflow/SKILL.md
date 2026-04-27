@@ -1,8 +1,9 @@
 ---
 name: git-workflow
-description: Use when creating a branch, committing changes, pushing work, or creating a PR. Also use when git rebase/merge produces conflicts — invoke conflict-resolution skill for classification. Also use when user says "check pr" or "check prs" to trigger PR state verification and cleanup if merged. Also use when user says "release PR", "promote to main", or "dev to main" — invokes release-promotion task for dev → main promotion. Triggers on: branch, commit, push, PR, pull request, pre-work, review-prep, feature branch, dev branch, squash, conflict, merge conflict, rebase conflict, check pr, check prs, check pull request, check pull requests, release PR, release pr, promote to main, dev to main, release promotion.
+description: Use when creating a branch, committing changes, pushing work, or creating a PR. Also use when git rebase/merge produces conflicts — invoke conflict-resolution skill for classification. Also use when user says "check pr", "check prs", "check merged prs", or "check merged pr" to trigger PR state verification and cleanup if merged. Also use when user says "release PR", "promote to main", or "dev to main" — invokes release-promotion task for dev → main promotion. Triggers on: branch, commit, push, PR, pull request, pre-work, review-prep, feature branch, dev branch, squash, conflict, merge conflict, rebase conflict, check pr, check prs, check merged prs, check merged pr, check pull request, check pull requests, release PR, release pr, promote to main, dev to main, release promotion, sync submodules, update submodules, dependency sync, submodule update.
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -20,7 +21,7 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 
 | Task | Purpose | Words |
 | -- | -- | -- |
-| `pre-work` | Verify authorization, create worktree | ≈420 |
+| `pre-work` | Verify authorization, verify remote dev branch, create worktree | ≈480 |
 | `implementation` | Handle WIP commits during implementation | ≈400 |
 | `review-prep` | Push branch, generate compare URL for review (2 subtasks) | ≈390 |
 | `pr-creation` | Squash, push, create PR via GitHub MCP (3 subtasks) | ≈385 |
@@ -35,6 +36,7 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 | `pair-pr-creation` | Squash + PR with [pair-mode] trailers targeting dev | ≈300 |
 | `pair-cleanup` | Branch deletion after merge, stash cleanup | ≈350 |
 | `pair-mode-resume` | Detect and report on pair-* branch at session start | ≈300 |
+| `dependency-sync` | Automate submodule update lifecycle: detect, update, analyze, track, commit, push | ≈450 |
 
 ## Routing: Feature PR vs Release PR
 
@@ -60,9 +62,64 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 - `/skill git-workflow --task pair-pr-creation` - Squash + create PR with [pair-mode] trailers
 - `/skill git-workflow --task pair-cleanup` - Cleanup after pair-mode PR merge
 - `/skill git-workflow --task pair-mode-resume` - Resume pair mode session on existing pair-* branch
+- `/skill git-workflow --task dependency-sync` - Automate submodule update lifecycle (detect, update, analyze, track, commit, push)
 - `/skill git-workflow` - Overview only
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps (status report, URL, verification gates) are never skipped. It is idempotent and safe to invoke multiple times.
+
+## Hard Gates (MANDATORY — no bypass)
+
+These gates are procedural enforcement. The agent MUST evaluate each gate before proceeding. If a gate fails, the agent HALTS and invokes the corrective skill. These gates exist here — not in task files — because the agent must see them at the same time as the rules.
+
+### Gate 1: Worktree Before File Operations
+
+```
+IF worktree.path is NOT set:
+  1. HALT all file operations immediately (read, edit, write, glob, grep)
+  2. Invoke /skill git-workflow --task pre-work
+  3. DO NOT proceed until worktree.path is confirmed
+  4. DO NOT call git worktree add directly — pre-work handles authorization, dev sync, and worktree creation
+ENDIF
+```
+
+Violation: Editing files on `dev` or `main` without a worktree corrupts the shared development branch. This is a Tier 1 (Non-Yielding) mandate — developer authorization does NOT override this gate.
+
+### Gate 2: Skill Dispatch Before PR Creation
+
+```
+IF user requests PR creation (or authorization_scope >= for_pr):
+  1. DO NOT call github_create_pull_request directly
+  2. Invoke /skill git-workflow --task pr-creation
+  3. pr-creation handles: squash, push, base branch validation (MUST be dev), PR API call
+  4. IF base branch is not dev → HALT and report
+ENDIF
+```
+
+Violation: Direct `github_create_pull_request` calls skip base branch validation, squash, and push verification. This caused PR #9 merging to `master` instead of `dev`.
+
+### Gate 3: Skill Dispatch Before Worktree/Branch Creation
+
+```
+IF user requests branch or worktree creation:
+  1. DO NOT call git worktree add or git checkout -b directly
+  2. Invoke /skill git-workflow --task pre-work
+  3. pre-work handles: authorization check, dev sync, worktree creation
+ENDIF
+```
+
+Violation: Direct `git worktree add` bypasses authorization verification and dev branch sync. The worktree may be created from a stale branch.
+
+### Gate 4: Skill Dispatch Before Push
+
+```
+IF user requests push OR implementation is complete:
+  1. DO NOT call git push directly
+  2. Invoke /skill git-workflow --task review-prep (MANDATORY after implementation)
+  3. review-prep handles: push verification, compare URL generation
+ENDIF
+```
+
+Violation: Direct `git push` skips verification that the branch has committed changes and is up to date.
 
 ## Operating Protocol
 
@@ -122,7 +179,7 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `cleanup` (routing) | ≈950 |
 | → `cleanup/verify-merge` | ≈760 |
 | → `cleanup/issue-closure` | ≈710 |
-| → `cleanup/branch-cleanup` | ≈680 |
+| → `cleanup/branch-cleanup` | ≈980 |
 | `pr-creation` (routing) | ≈385 |
 | → `pr-creation/enforcement-gate` | ≈475 |
 | → `pr-creation/squash-push` | ≈490 |
@@ -134,7 +191,7 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | → `provenance/platform-detection` | ≈415 |
 | → `provenance/dev-push-provenance` | ≈540 |
 | → `provenance/promotion-provenance` | ≈610 |
-| `pre-work` | 1,898 |
+| `pre-work` | 2,100 |
 | `release-promotion` | 1,811 |
 | `rebase-pending` | 1,666 |
 | `implementation` | ≈400 |
@@ -145,6 +202,39 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `pair-mode-resume` | ≈300 |
 | `completion` | ≈200 |
 | `check-pr` | ≈50 |
+| `dependency-sync` | ≈450 |
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `cleanup` (routing) | PR merge confirmed, cleanup workflow started | PR number, branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `cleanup/verify-merge` | Cleanup sub-task: verify PR is merged | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `cleanup/issue-closure` | Cleanup sub-task: close issues | Issue numbers, github.owner, github.repo | Implementation context, agent memory | NO |
+| `cleanup/branch-cleanup` | Cleanup sub-task: verify content then delete merged branches | Branch names, worktree.path | Implementation context, agent memory | NO |
+| `pr-creation` (routing) | PR creation authorized | Branch name, compare URL, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pr-creation/enforcement-gate` | PR creation enforcement checks | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pr-creation/squash-push` | Squash and push before PR | Branch name, worktree.path | Implementation context, agent memory | NO |
+| `pr-creation/create-pr` | Create the pull request | Branch name, PR body, github.owner, github.repo | Implementation context, agent memory | NO |
+| `review-prep` (routing) | Implementation complete, review prep needed | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `review-prep/push-and-cleanup` | Push branch and cleanup | Branch name, worktree.path | Implementation context, agent memory | NO |
+| `review-prep/report-url` | Generate compare/PR URL | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `provenance` (routing) | Provenance tracking needed | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `provenance/platform-detection` | Detect platform for provenance | Platform detection context | Implementation context, agent memory | NO |
+| `provenance/dev-push-provenance` | Dev push provenance | Branch name, commit info, github.owner, github.repo | Implementation context, agent memory | NO |
+| `provenance/promotion-provenance` | Release promotion provenance | Branch name, commit info, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pre-work` | Implementation dispatch chain starts | Spec issue number, worktree.path, github.owner, github.repo | Implementation context, agent memory | NO |
+| `release-promotion` | Release PR creation (dev → main) | Branch info, github.owner, github.repo | Implementation context, agent memory | NO |
+| `rebase-pending` | Rebase pending changes | Branch name, worktree.path | Implementation context, agent memory | NO |
+| `implementation` | Implementation dispatch | Branch name, spec file paths | Implementation context, agent memory | NO |
+| `pair-pre-work` | Pair mode pre-work | Branch name, worktree.path | Implementation context, agent memory | NO |
+| `pair-commit` | Pair mode commit | Branch name, file paths | Implementation context, agent memory | NO |
+| `pair-pr-creation` | Pair mode PR creation | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pair-cleanup` | Pair mode cleanup | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pair-mode-resume` | Pair mode resume | Branch name, worktree.path | Implementation context, agent memory | NO |
+| `dependency-sync` | Automate submodule update lifecycle | Branch name, github.owner, github.repo, dev.name, dev.email | Implementation context, agent memory | NO |
+| `completion` | Workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+| `check-pr` | Check PR state for merged/closed | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
 
 ### Result Contracts (Sub-Agent Tasks)
 
@@ -158,6 +248,7 @@ branch_name: <str>
 branch_created: bool
 setup_complete: bool
 tests_passing: bool
+dev_branch_created: bool
 ```
 
 #### review-prep
@@ -278,6 +369,22 @@ uncommitted_count: <int>
 unpushed_count: <int>
 ```
 
+#### dependency-sync
+
+```yaml
+status: DONE | BLOCKED | SKIP
+task: dependency-sync
+issue_number: <N>
+issue_url: <url>
+compare_url: <url>
+submodules_updated:
+  - path: <submodule-path>
+    old_sha: <sha>
+    new_sha: <sha>
+    commits_count: <N>
+commits_count: <N>
+```
+
 ### Dispatch Context Schema
 
 ```yaml
@@ -315,6 +422,7 @@ This skill is a **heavy skill** — its task files contain significant detail th
 | Verification Point | Tool Call | Expected Evidence | Applies To |
 | -- | -- | -- | -- |
 | **Branch state** | `git branch --show-current` | Current branch name matches expected | pre-work, implementation, rebase-pending |
+| **Remote dev branch** | `git ls-remote origin dev` | Non-empty output (when remote exists) | pre-work |
 | **Working tree cleanliness** | `git status --porcelain` | Empty output (no uncommitted changes) | review-prep, pr-creation |
 | **Worktree location** | `git rev-parse --show-toplevel` | Returns worktree path (not main repo) | pre-work, implementation |
 | **Commit/push state** | `git log dev..HEAD --oneline` | At least one commit ahead of dev | review-prep, pr-creation |
@@ -452,6 +560,36 @@ pair-pr-creation: Squash → Push → Create PR
 pair-cleanup: Delete branch, clean stashes
 ```
 
+<!-- Issue #5: Submodule Detection & Routing — Success Criteria: Update git-workflow SKILL.md with Submodule Worktree Mechanics section -->
+
+## Submodule Worktree Mechanics
+
+### Detection
+
+When `git rev-parse --show-toplevel` returns a path that is a descendant of a parent repo's `.git/modules/` path, OR when `.gitmodules` contains a path matching `worktree.path` prefix, the agent is in a **submodule worktree**.
+
+### Path Rules
+
+| Rule | Submodule Worktree | Parent Repo |
+| -- | -- | -- |
+| `worktree.path` prefix | REQUIRED for ALL file ops | Same |
+| `git rev-parse --show-toplevel` | Returns submodule root | Returns parent root |
+| Relative `read/edit/write` | Resolves to parent repo root — FORBIDDEN | Allowed only when not in worktree |
+| `.gitmodules` edits | Only in parent repo context | Allowed |
+
+### Provenance & Submodule PRs
+
+- Submodule feature branches target `dev` (same as non-submodule)
+- Release promotion: lock submodule SHA, promote submodule `dev → main`, update parent repo reference
+- Provenance tracking uses the three-tier model (see `## Submodule Provenance`)
+- Cross-repo provenance: parent repo PR body references submodule PR/issue numbers
+
+### Safety Gates
+
+- [ ] Verify `worktree.path` matches submodule root before ANY file modification
+- [ ] Verify `.gitmodules` is NOT accidentally overwritten with submodule content
+- [ ] Verify GitHub API calls target the correct `<github.owner>/<github.repo>` (submodule, not parent)
+
 ## Cross-References
 
 - Related skills: `approval-gate` (authorization), `pr-creation-workflow` (PR timing), `changelog-generator` (changelog generation), `conflict-resolution` (conflict classification during rebase/merge)
@@ -460,8 +598,8 @@ pair-cleanup: Delete branch, clean stashes
 - Related skill tasks: `git-workflow --task pre-work` (branch creation), `git-workflow --task cleanup` (post-merge), `git-workflow --task pr-creation` (PR workflow), `git-workflow --task provenance` (submodule provenance tracking)
 
 ```yaml+symbolic
-schema_version: "1.0"
-last_updated: "2026-04-15T00:00:00Z"
+schema_version: "2.0"
+last_updated: "2026-04-26T00:00:00Z"
 rules:
   - id: git-workflow-provenance-001
     title: "Submodule provenance tracking after push or promotion"
@@ -474,4 +612,224 @@ rules:
     requires: []
     triggers: [release-promotion, review-prep]
     source: "git-workflow/SKILL.md Tasks table"
+  - id: git-workflow-url-001
+    title: "Post-creation URLs must be extracted from API response (NEVER constructed)"
+    conditions:
+      all:
+        - "resource_created_by_api == true"
+        - "url_source == template_construction"
+    actions:
+      - HALT
+      - EXTRACT_FROM_API_RESPONSE
+    conflicts_with: []
+    requires: []
+    triggers: [pr-creation, review-prep]
+    source: "git-workflow/SKILL.md §Fabricating URLs"
+  - id: git-workflow-url-002
+    title: "Pre-creation URLs must be constructed from verified session-init values with character-match"
+    conditions:
+      all:
+        - "resource_not_yet_created == true"
+        - "url_construction_needed == true"
+    actions:
+      - CONSTRUCT_FROM_SESSION_INIT
+      - CHARACTER_MATCH_VERIFY
+    conflicts_with: []
+    requires: []
+    triggers: [review-prep]
+    source: "git-workflow/SKILL.md §Fabricating URLs"
+  - id: git-workflow-chat-001
+    title: "Chat output format requires all 4 elements in order"
+    conditions:
+      all:
+        - "halt_point_reached == true"
+    actions:
+      - VERIFY(summary_exists && outcome_exists && url_if_applicable && byline_last)
+    conflicts_with: []
+    requires: []
+    triggers: [review-prep, pr-creation]
+    source: "git-workflow/SKILL.md §Chat Output Format"
+tasks:
+  - id: pre-work
+    skill: git-workflow
+    preconditions: ["authorization_verified == true"]
+    postconditions: ["worktree_path_is_set == true && feature_branch_exists == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Worktree Bypass"
+    source: "git-workflow/SKILL.md"
+  - id: implementation
+    skill: git-workflow
+    preconditions: ["worktree_path_is_set == true"]
+    postconditions: ["implementation_changes_committed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Uncommitted Changes After Implementation"
+    source: "git-workflow/SKILL.md"
+  - id: review-prep
+    skill: git-workflow
+    preconditions: ["implementation_complete == true", "verification_passed == true", "checklist_passed == true"]
+    postconditions: ["branch_pushed == true", "compare_url_generated == true", "chat_output_format_correct == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping review-prep After Implementation"
+    source: "git-workflow/SKILL.md"
+    evidence_artifacts:
+      - gate: url_sourcing_rule_1
+        verification: "pr_url == html_url_from_github_create_pull_request_response"
+        expected: "exact API response match"
+      - gate: url_sourcing_rule_2
+        verification: "compare_url contains github.owner AND github.repo from session-init"
+        expected: "character-for-character match"
+      - gate: chat_output_format
+        verification: "output contains summary, outcome, URL (if applicable), byline in order"
+        expected: "all 4 elements present and correctly ordered"
+  - id: pr-creation
+    skill: git-workflow
+    preconditions: ["compare_url_exists == true && halt_at >= pr_created"]
+    postconditions: ["pr_url_extracted_from_api == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Fabricating URLs"
+    source: "git-workflow/SKILL.md"
+  - id: cleanup
+    skill: git-workflow
+    preconditions: ["pr_merged == true"]
+    postconditions: ["branch_deleted == true && issues_closed == true && dev_synced == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Post-Merge Cleanup"
+    source: "git-workflow/SKILL.md"
+  - id: release-promotion
+    skill: git-workflow
+    preconditions: ["release_authorized == true"]
+    postconditions: ["release_pr_created == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Branch Protection"
+    source: "git-workflow/SKILL.md"
+  - id: check-pr
+    skill: git-workflow
+    preconditions: ["pr_url_exists == true"]
+    postconditions: ["pr_status_checked == true"]
+    mandatory: false
+    bypass_violation: ""
+    source: "git-workflow/SKILL.md"
+  - id: provenance
+    skill: git-workflow
+    preconditions: ["commit_sha_provided == true"]
+    postconditions: ["provenance_report_produced == true"]
+    mandatory: false
+    bypass_violation: ""
+    source: "git-workflow/SKILL.md"
+  - id: dependency-sync
+    skill: git-workflow
+    preconditions: ["gitmodules_exists == true", "working_tree_clean == true", "submodules_have_updates == true"]
+    postconditions: ["tracking_issue_created == true", "branch_pushed == true", "compare_url_generated == true"]
+    mandatory: false
+    bypass_violation: ""
+    source: "git-workflow/SKILL.md"
+  - id: completion
+    skill: git-workflow
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "git-workflow/SKILL.md"
+decomposition:
+  - type: skill-task
+    skill: approval-gate
+    task: verify-authorization
+    mandatory: true
+    bypass_violation: "CRITICAL: Skill Bypass"
+  - type: skill-task
+    skill: verification-before-completion
+    task: verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification"
+  - type: skill-task
+    skill: finishing-a-development-branch
+    task: checklist
+    mandatory: true
+    bypass_violation: "CRITICAL: Uncommitted/Unpushed Changes After Implementation"
+  - type: command
+    skill: git
+    task: push
+    mandatory: true
+    bypass_violation: "CRITICAL: Fabricating URLs"
+  - type: command
+    skill: git
+    task: rev-parse --show-toplevel
+    mandatory: true
+    bypass_violation: "CRITICAL: Worktree Bypass"
+  - type: command
+    skill: git
+    task: branch --show-current
+    mandatory: true
+    bypass_violation: "CRITICAL: Branch First"
+  - type: sub-agent-dispatch
+    isolation: clean-room
+    must_receive: [task description, required git state, branch name, worktree.path, compare URL data]
+    must_not_receive: [implementation context, agent memory from prior phases, cached verification results]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Clean-Room Dispatch for Sub-Agents"
+state_machines:
+  - id: branch-lifecycle
+    states: [pre_work, implementing, review_ready, pr_created, merged, cleaned_up]
+    start_state: pre_work
+    decomposition_guard:
+      field: "decomposition.feature_branch_exists"
+      message: "CRITICAL: Cannot proceed without feature branch"
+    transitions:
+      - from: pre_work
+        to: implementing
+        guard: "feature_branch_exists == true && worktree_path_is_set == true"
+        action: BEGIN_IMPLEMENTATION
+      - from: implementing
+        to: review_ready
+        guard: "verification_passed == true && checklist_passed == true"
+        action: PUSH_AND_GENERATE_URL
+      - from: review_ready
+        to: pr_created
+        guard: "halt_at >= pr_created && explicit_pr_instruction == true"
+        action: CREATE_PR
+      - from: review_ready
+        to: merged
+        guard: "pr_merged_by_human == true"
+        action: INVOKE(cleanup)
+      - from: pr_created
+        to: merged
+        guard: "pr_merged_by_human == true"
+        action: INVOKE(cleanup)
+      - from: merged
+        to: cleaned_up
+        guard: "branch_deleted == true && issues_closed == true"
+        action: COMPLETE
+gates:
+  - id: not-on-protected-branch
+    condition: "current_branch != 'main' && current_branch != 'dev'"
+    on_fail: "HALT"
+    critical_violation: true
+  - id: feature-branch-exists
+    condition: "feature_branch_exists == true"
+    on_fail: "INVOKE(git-workflow/pre-work)"
+    critical_violation: true
+  - id: push-before-url
+    condition: "branch_pushed == true"
+    on_fail: "HALT and push first"
+    critical_violation: true
+  - id: merge-confirmed-before-cleanup
+    condition: "pr_merged == true"
+    on_fail: "HALT"
+    critical_violation: true
+evidence_artifacts:
+  - name: branch_state
+    type: tool_call
+    verification: "git branch --show-current confirms expected branch"
+  - name: push_confirmation
+    type: tool_call
+    verification: "git push output confirms branch pushed"
+  - name: compare_url
+    type: constructed_url
+    verification: "URL format matches dev...branch pattern"
+  - name: pr_merge_status
+    type: api_call
+    verification: "github_pull_request_read(method=get) merged_at != null"
+  - name: worktree_location
+    type: tool_call
+    verification: "git rev-parse --show-toplevel matches worktree.path"
 ```

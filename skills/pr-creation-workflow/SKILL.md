@@ -3,6 +3,7 @@ name: pr-creation-workflow
 description: Use when asking about when to create a PR or whether PR creation is authorized. Triggers on: create PR, make PR, pull request, PR timing, when to PR, PR authorized. This skill covers feature branch PRs targeting dev only. Release PRs (dev → main promotion) are handled by git-workflow --task release-promotion. Do NOT invoke this skill for release promotion requests.
 type: technique
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -28,6 +29,16 @@ Do NOT invoke this skill for release promotion requests.
 | `pre-pr-checklist` | Mandatory checks before PR creation (squash, changelog, branch state) | ≈500 |
 | `sub-issue-collection` | Fetch and include sub-issues in PR body for autoclose | ≈300 |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
+
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `pre-pr-checklist` | When mandatory checks before PR creation are needed | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `sub-issue-collection` | When fetching and including sub-issues in PR body | Issue numbers, github.owner, github.repo | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
 
 ## Invocation
 
@@ -169,3 +180,258 @@ Before invoking any cross-referenced skill:
 | `065-verification-honesty.md` | Metadata verification extension for PR readiness claims |
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-26T00:00:00Z"
+rules:
+  - id: pr-workflow-001
+    title: "PR requires explicit instruction — approved/go does NOT authorize PR"
+    conditions:
+      all:
+        - "pr_creation_attempted == true"
+        - "explicit_pr_instruction_received == false"
+        - "authorization_scope < for_pr"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [pre-pr-checklist]
+    source: "pr-creation-workflow/SKILL.md §Authorization Boundary"
+
+  - id: pr-workflow-002
+    title: "Base branch must be dev for feature PRs"
+    conditions:
+      all:
+        - "pr_type == 'feature'"
+        - "base_branch != 'dev'"
+    actions:
+      - HALT
+      - SET(base_branch='dev')
+    conflicts_with: []
+    requires: []
+    triggers: [pre-pr-checklist]
+    source: "000-critical-rules.md §Wrong Compare URL Base Branch"
+
+  - id: pr-workflow-003
+    title: "PR body must use Summary/Outcome/Fixes format"
+    conditions:
+      all:
+        - "pr_creation_attempted == true"
+        - "pr_body_format != 'summary_outcome_fixes'"
+    actions:
+      - REFORMAT(pr_body)
+    conflicts_with: []
+    requires: []
+    triggers: [pre-pr-checklist]
+    source: "000-critical-rules.md §Wrong PR Body Format"
+
+  - id: pr-workflow-004
+    title: "No PR for dev-to-main (use release-promotion)"
+    conditions:
+      all:
+        - "head_branch == 'dev'"
+        - "base_branch == 'main'"
+    actions:
+      - HALT
+      - INVOKE(git-workflow --task release-promotion)
+    conflicts_with: []
+    requires: []
+    triggers: [pre-pr-checklist]
+    source: "pr-creation-workflow/SKILL.md §Exclusions"
+
+  - id: pr-workflow-005
+    title: "Squash verification before PR"
+    conditions:
+      all:
+        - "pr_creation_attempted == true"
+        - "squash_verified == false"
+    actions:
+      - HALT
+      - SQUASH
+    conflicts_with: []
+    requires: []
+    triggers: [pre-pr-checklist]
+    source: "pr-creation-workflow/SKILL.md §Pre-PR Creation Checklist"
+
+  - id: pr-workflow-006
+    title: "Never merge PRs — human-only operation"
+    conditions:
+      all:
+        - "merge_attempted_by_agent == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [pre-pr-checklist, sub-issue-collection]
+    source: "pr-creation-workflow/SKILL.md §Operating Protocol point 3"
+
+  - id: pr-workflow-007
+    title: "Work branch guard — no individual PRs during work execution"
+    conditions:
+      all:
+        - "work_state_file_exists == true"
+        - "individual_pr_attempted == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [pre-pr-checklist]
+    source: "pr-creation-workflow/SKILL.md §Pre-PR Creation Checklist"
+
+  - id: pr-workflow-008
+    title: "Changelog required before PR"
+    conditions:
+      all:
+        - "pr_creation_attempted == true"
+        - "changelog_generated == false"
+    actions:
+      - HALT
+      - GENERATE(changelog)
+    conflicts_with: []
+    requires: []
+    triggers: [pre-pr-checklist]
+    source: "pr-creation-workflow/SKILL.md §Pre-PR Creation Checklist"
+
+  - id: pr-workflow-009
+    title: "Pipeline scope >= for_pr authorizes PR creation"
+    conditions:
+      any:
+        - "authorization_scope == 'for_pr'"
+        - "authorization_scope == 'pr_only'"
+    actions:
+      - PROCEED(pr_creation_authorized)
+    conflicts_with: [pr-workflow-001]
+    requires: []
+    triggers: [pre-pr-checklist]
+    source: "pr-creation-workflow/SKILL.md §Authorization Boundary"
+
+tasks:
+  - id: pre-pr-checklist
+    skill: pr-creation-workflow
+    preconditions: ["explicit_pr_instruction_received OR authorization_scope >= for_pr"]
+    postconditions: ["squash_verified", "changelog_generated", "branch_clean", "push_verified", "co_author_trailers_present", "issue_references_in_body"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping pre-PR checklist risks un-squashed commits, missing changelog, and stale branch state"
+    source: "pr-creation-workflow/SKILL.md §Tasks"
+
+  - id: sub-issue-collection
+    skill: pr-creation-workflow
+    preconditions: ["parent_issue_has_sub_issues"]
+    postconditions: ["sub_issues_included_in_pr_body"]
+    mandatory: false
+    bypass_violation: "Sub-issue collection needed for work PRs but not required for single-issue branches"
+    source: "pr-creation-workflow/SKILL.md §Tasks"
+
+  - id: completion
+    skill: pr-creation-workflow
+    preconditions: ["workflow_halted_or_completed"]
+    postconditions: ["mandatory_steps_verified", "status_reported"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping completion task may leave PR state unverified"
+    source: "pr-creation-workflow/SKILL.md §Tasks"
+
+decomposition:
+  - type: skill-task
+    skill: git-workflow
+    task: pr-creation
+    mandatory: true
+    bypass_violation: "git-workflow pr-creation handles actual PR API call with URL extraction"
+    source: "pr-creation-workflow/SKILL.md §Cross-References"
+
+  - type: skill-task
+    skill: git-workflow
+    task: review-prep
+    mandatory: true
+    bypass_violation: "review-prep produces compare URL and verifies branch push state"
+    source: "pr-creation-workflow/SKILL.md §Cross-References"
+
+  - type: skill-task
+    skill: git-workflow
+    task: cleanup
+    mandatory: true
+    bypass_violation: "Post-merge cleanup handles branch deletion and issue closure"
+    source: "pr-creation-workflow/SKILL.md §After PR Creation"
+
+  - type: skill-task
+    skill: changelog-generator
+    task: generate
+    mandatory: true
+    bypass_violation: "Changelog generation required before PR creation"
+    source: "pr-creation-workflow/SKILL.md §Pre-PR Creation Checklist"
+
+  - type: sub-agent-dispatch
+    isolation: clean-room
+    must_receive: [branch compare data, spec summary]
+    must_not_receive: [implementation context, agent memory from prior phases, cached verification results]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Clean-Room Dispatch for Sub-Agents"
+
+gates:
+  - id: explicit-pr-instruction
+    condition: "explicit_pr_instruction_received == true OR authorization_scope >= for_pr"
+    on_fail: HALT
+    critical_violation: true
+    source: "pr-creation-workflow/SKILL.md §Authorization Boundary"
+
+  - id: base-branch-is-dev
+    condition: "base_branch == 'dev' ( for feature PRs )"
+    on_fail: HALT
+    critical_violation: true
+    source: "000-critical-rules.md §Wrong Compare URL Base Branch"
+
+  - id: squash-verified
+    condition: "squash_verified == true"
+    on_fail: HALT
+    critical_violation: true
+    source: "pr-creation-workflow/SKILL.md §Pre-PR Creation Checklist"
+
+  - id: changelog-present
+    condition: "changelog_generated == true"
+    on_fail: HALT
+    critical_violation: false
+    source: "pr-creation-workflow/SKILL.md §Pre-PR Creation Checklist"
+
+  - id: no-agent-merge
+    condition: "merge_attempted_by_agent == false"
+    on_fail: HALT
+    critical_violation: true
+    source: "pr-creation-workflow/SKILL.md §Operating Protocol point 3"
+
+  - id: work-branch-guard
+    condition: "work_state_file_exists == false OR pr_is_work_branch == true"
+    on_fail: HALT
+    critical_violation: true
+    source: "pr-creation-workflow/SKILL.md §Pre-PR Creation Checklist"
+
+evidence_artifacts:
+  - name: working_tree_clean
+    type: tool_call
+    verification: "bash: git status → confirm 'nothing to commit'"
+    source: "pr-creation-workflow/SKILL.md §Live Verification"
+
+  - name: branch_pushed
+    type: tool_call
+    verification: "bash: git log origin/<branch>..HEAD → confirm empty"
+    source: "pr-creation-workflow/SKILL.md §Live Verification"
+
+  - name: squash_commit_count
+    type: tool_call
+    verification: "bash: git log --oneline dev..HEAD | wc -l → single commit for single-issue, N for work"
+    source: "pr-creation-workflow/SKILL.md §Live Verification"
+
+  - name: changelog_file_exists
+    type: file_exists
+    verification: "glob(pattern='**/CHANGELOG*') → file exists"
+    source: "pr-creation-workflow/SKILL.md §Live Verification"
+
+  - name: co_author_trailers
+    type: tool_call
+    verification: "bash: git log -1 --format='%B' → check for AI and human trailers"
+    source: "pr-creation-workflow/SKILL.md §Live Verification"
+
+  - name: pr_url_extraction
+    type: api_call
+    verification: "github_create_pull_request response → html_url field (NEVER constructed from template)"
+    source: "000-critical-rules.md §URL Sourcing Rule 1"
+```

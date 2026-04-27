@@ -10,6 +10,50 @@ Verify all success criteria have evidence before allowing completion claims.
 
 ## Verification Workflow
 
+### 0. Structural Completeness Gate (MANDATORY — Before Per-SC Verification)
+
+**Before checking individual success criteria evidence, verify that the implementation includes ALL structural components the spec requires.**
+
+1. Identify the spec that authorized the implementation
+2. Parse the spec for required structural components:
+   - `state_machines` with `decomposition_guard` fields
+   - `evidence_artifacts` sections
+   - `gates` sections
+   - `decomposition` sections
+   - `tasks` entries with `mandatory` + `bypass_violation` fields
+3. For each target skill/guideline file:
+   - Read the file's `yaml+symbolic` block
+   - Verify each structural component from the spec exists in the implementation
+   - Report PASS/FAIL per component
+4. If ANY structural component is missing:
+   - HALT verification immediately
+   - Report missing components as FAIL
+   - Do NOT proceed to per-SC evidence check
+5. If ALL structural components present:
+   - Proceed to Step 1 (Query Success Criteria)
+
+**Dispatch as sub-agent:** When the verification context is the same agent that performed implementation, invoke `structural-verify` as a sub-agent to ensure clean-room isolation. The sub-agent receives ONLY the spec SC list and file paths — NOT implementation context.
+
+### 0.5. Header Verification Checkpoint (MANDATORY — For New Files)
+
+**For each new file added by the agent during implementation, verify it contains the required headers per its file type as defined in `080-code-standards.md` §"Header Format by File Type".**
+
+1. Identify all files added (not modified) during this implementation: `git diff --diff-filter=A --name-only dev`
+2. For each new file, determine its file type and check for required headers:
+   - Python (`.py`): SPDX copyright, SPDX license (MIT), Provenance header, AI byline in docstring
+   - SKILL.md: `license` and `provenance` fields in YAML frontmatter
+   - Markdown (`.md`): SPDX copyright, SPDX license, Provenance as HTML comments
+   - Scala (`.scala`): SPDX copyright, SPDX license (project-appropriate), Provenance header, AI byline in ScalaDoc
+   - Other languages: Fallback rule per `080-code-standards.md` §"Other Languages (Fallback Rule)"
+3. If ANY new file is missing required headers:
+   - Report as FAIL with specific file and missing header(s)
+   - Do NOT proceed to Step 1 until headers are added
+4. If ALL new files have required headers:
+   - Report as PASS
+   - Proceed to Step 1
+
+**Grandfather clause:** Pre-existing files modified by the agent are exempt from header verification — only newly created files require headers.
+
 ### 1. Query Success Criteria
 
 - Read plan issue for defined success criteria
@@ -174,6 +218,20 @@ When verifying live values against specifications, use this row-by-row compariso
 - Any FAIL or MISSING EVIDENCE row blocks completion
 - Agent MUST re-run the verification command for any FAIL row
 - Agent MUST provide a verification command for any MISSING EVIDENCE row
+
+## Programmatic Enforcement Tools (AVAILABLE)
+
+The following `skildeck` commands are available for automated verification:
+
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `skildeck verify-structure --spec-file <path> --files <paths>` | Verify structural components (state_machines, evidence_artifacts, gates, decomposition, tasks) in implementation match spec | During Structural Completeness Gate (Step 0) |
+| `skildeck verify-acceptance --spec-file <path>` | Verify acceptance criteria from spec against implementation | During per-SC verification (Step 1) |
+| `skildeck verify-issue --spec-file <path> --files <paths>` | Combined structural + acceptance verification in single report | When `verify fully implemented` is requested |
+
+These tools produce PASS/FAIL/MANUAL-REVIEW tables and exit code 1 on any failure. They are the programmatic enforcement layer complementing manual verification.
+
+**🚫 MANDATORY: `skildeck verify-structure` and `skildeck verify-acceptance` MUST be used as the programmatic enforcement layer for structural and acceptance verification respectively.** Manual verification alone is insufficient — the skildeck commands provide repeatable, deterministic verification that manual inspection cannot guarantee. When these commands are available, verification MUST include their output as evidence artifacts in the per-SC evidence table.
 
 ## Post-Verification Chain
 

@@ -27,12 +27,33 @@
 | **MCP tools** | Use appropriate tools per five-tier hierarchy (see `mcp-tool-usage` skill) |
 | **Silent halt** | HALT after completion, after PR creation — no prompts |
 | **Search before halt** | When no spec/plan exists for an implementation request, search GitHub Issues for existing candidates (label filters: `[SPEC]`, `[PLAN]`, `[SPEC-FIX]`; keyword matching against request target), present candidates with URLs, offer create-or-select before halting — see `000-critical-rules.md` §Silent Halt Without Prompt |
-| **PR timing** | PRs require explicit `"create a PR"` instruction |
+| **PR timing** | PRs require explicit `"create a PR"` instruction — **except** when `authorization_scope == 'for_pr'` or `'pr_only'` (scope model authorizes PR creation) |
 | **Issue closure** | Close issues ONLY after PR merge confirmed |
 | **Spec-to-Plan cascade** | When a spec is approved and a plan already exists, the plan is automatically approved. Manual plan approval is only required when no plan exists at the time of spec approval |
 | **Pipeline-scoped authorization** | Authorization phrases ("approved #N to PR", "approved #N for plan") specify a scope horizon — pipeline stages where authorization extends. See Authorization Scope Model below |
 | **Hard HALT at scope boundary** | Agent MUST NOT proceed past `halt_at` pipeline stage without re-authorization |
 | **Item decomposition** | Approval gate Step 4.5 verifies item decomposition exists before implementation proceeds — see `091-incremental-build.md` for the discipline |
+
+### Issue Creation Is Reporting, Not Implementation (CRITICAL)
+
+<!-- Issue #99: Authorization-Free Actions — Signal asymmetry fix -->
+
+**⚠️ Creating GitHub Issues (specs, plans, bug reports, feature requests) does NOT require authorization.** Issue creation is a reporting and tracking action, not an implementation action. The authorization mandate applies only to code/config/file modifications that alter system behavior.
+
+The following actions are explicitly authorized WITHOUT needing `"approved"` or `"go"`:
+
+| Action | Classification | Authority |
+|--------|---------------|-----------|
+| Creating new GitHub Issue (spec/plan) | No auth → mandatory `issue-operations` skill | This section |
+| Creating sub-issues under an approved plan | No auth → covered by plan authorization | `approval-gate --task verify-sub-issues` |
+| Updating existing issue spec text (revision) | No auth → revision ≠ implementation | `010-approval-gate.md` §Revision ≠ Implementation |
+| Updating issue text to match code reality (drift sync) | No auth → administrative sync | `130-authority-source.md` §Documentation Drift |
+| Posting progress comments to GitHub | No auth → `issue-operations` skill | `issue-operations` skill |
+| Moving issue labels | No auth → metadata operation | This section |
+| Creating bug report issues | No auth → reporting action | `000-critical-rules.md` §Bug Discovery |
+| Running lint/typecheck/format commands | No auth → read-only verification | Existing practice |
+
+**The agent MUST NOT deliberate over authorization for these actions.** Deliberation over whether issue creation requires authorization is itself a waste of context — the answer is always "no authorization needed, proceed with mandatory skill steps."
 
 ### Spec-to-Plan Approval Cascade (Critical)
 
@@ -156,6 +177,8 @@ When `authorization_scope >= for_plan`, missing intermediate artifacts are gap-f
 - Plan missing → `writing-plans --task create` creates it
 - Plan needs approval → auto-approved via pipeline scope
 - `for_pr` scope → PR creation is part of gap-fill
+
+**`for_pr` gap-fill is autonomous — NO developer input for structural decisions.** The agent MUST NOT halt to ask about plan creation, issue grouping, execution order, or any structural decision that the scope model resolves. These are agent intelligence concerns, not developer decisions. See `000-critical-rules.md` → "for_pr Gap-Fill Halt" for the complete critical violation.
 
 ### Multi-Task Plan Authorization (CRITICAL)
 
@@ -289,6 +312,7 @@ Key rules:
 | Creating feature branch | No auth, but mandatory worktree | `git-workflow` skill pre-work |
 | Merging PR | Forbidden — human-only | Tier 0: Human-only merge |
 | Closing issues | Only after PR merge confirmed | `git-workflow` skill cleanup |
+| Creating/updating `.issues/` local spec or plan files | No auth — same as GitHub Issue spec revision | `010-approval-gate.md` §Revision ≠ Implementation |
 | Spec-auditor auto-fixes on GitHub Issue bodies | Exempt (per conditions) | `010-approval-gate.md` §Audit Auto-Fix Exemption |
 
 **Key invariant**: This table does NOT weaken any existing authorization gate. It only makes existing practice explicit and resolves ambiguous boundary cases.
@@ -331,8 +355,8 @@ Key rules:
 | `executing-plans` skill | Plan execution after plan approval |
 
 ```yaml+symbolic
-schema_version: "1.0"
-last_updated: "2026-04-13T12:00:00Z"
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
 rules:
   - id: approval-gate-001
     title: "No implementation without authorization"
@@ -542,6 +566,19 @@ rules:
     requires: [approval-gate-010]
     triggers: [git-workflow, pr-creation-workflow]
     source: "010-approval-gate.md §Scope-Dependent PR Strategy"
+
+  - id: approval-gate-014
+    title: "for_pr scope auto gap-fill — no halt for structural decisions"
+    conditions:
+      all:
+        - "authorization_scope == 'for_pr'"
+        - "agent_halted_for_structural_decision == true"
+    actions:
+      - PROCEED_WITH_GAP_FILL
+    conflicts_with: []
+    requires: [approval-gate-010]
+    triggers: [approval-gate, divide-and-conquer]
+    source: "010-approval-gate.md §Authorization Scope Model"
 
 state_machines:
   - id: approval-lifecycle

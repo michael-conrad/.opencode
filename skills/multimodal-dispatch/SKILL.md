@@ -3,6 +3,7 @@ name: multimodal-dispatch
 description: Use when routing AI agent tasks to appropriate models based on content modality, probing Ollama model capabilities, or dispatching sub-agents with modality-aware model selection. Triggers on: multimodal dispatch, modality routing, capability probe, model selection, sub-agent dispatch, content modality, vision task, audio task.
 type: routing
 license: Apache-2.0
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -119,6 +120,16 @@ The tasks in this skill use the sub-agent extraction pattern. The main agent loa
 | `dispatch` | Yes | `DispatchResult` JSON with status, findings, and evidence artifacts |
 | `dispatch-multi` | Yes | `list[DispatchResult]` JSON array |
 | `completion` | Yes | Status report with verification state |
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `probe` | When model capability detection is needed | Ollama endpoint URL | Implementation context, agent memory | NO |
+| `resolve` | When resolving model for a specific task | Task description, capability requirements | Implementation context, agent memory | NO |
+| `dispatch` | When routing an AI task to appropriate model | Task description, claim, evidence, verification requirements | Implementation context, agent memory, other agents' results | NO |
+| `dispatch-multi` | When routing multiple AI tasks to models | Task list, capabilities, verification requirements | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
 
 ## Cross-References
 

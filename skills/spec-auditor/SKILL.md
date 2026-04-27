@@ -3,6 +3,7 @@ name: spec-auditor
 description: Use when auditing a spec for quality, structure, or completeness. Triggers on: audit spec, review spec, spec quality, validate spec, check spec, audit issue, revisit spec, audit plan, audit runbook, audit SOP, audit checklist, audit document, content-aware audit.
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -517,6 +518,30 @@ Bug #1215 documented a case where post-merge cleanup replaced an entire issue bo
 
 **Note:** Individual subtasks are lightweight. Sub-agent dispatch is recommended for the full audit (all subtasks per document type) when running 3+ subtasks together, not for individual subtasks.
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `structure` | When auditing spec structure | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `content-quality` | When auditing spec content quality | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `traceability` | When auditing spec traceability | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `operational` | When auditing spec operational aspects | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `fidelity` | When auditing plan fidelity to spec | Issue number, plan issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `concerns` | When auditing concern separation | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `operational-flow` | When auditing operational flow | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `determinism` | When auditing spec determinism | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `error-recovery` | When auditing spec error recovery | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `principles` | When auditing spec principles | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `ground-truth` | When adversarial metadata verification is needed | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `sub-issue-fidelity` | When verifying sub-issue alignment with Plan phases | Issue number, sub-issue list, github.owner, github.repo | Implementation context, agent memory | NO |
+| `concern-coverage` | When verifying sub-issue bodies reflect Plan concerns | Issue number, sub-issue list, github.owner, github.repo | Implementation context, agent memory | NO |
+| `prose-structure` | When auditing prose structure | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `decomposition` | When auditing item decomposition | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `cross-spec-overlap` | When checking cross-spec overlap | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `sc-precision` | When auditing success criteria precision | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `fresh-start` | When fresh-start context preservation is needed | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ### Dispatch Context Schema (Full Audit as Sub-Agent)
 
 ```yaml
@@ -687,4 +712,302 @@ mod.__file__ = str(impl_dir / "sym-states")
 sys.modules["symstates"] = mod
 exec(compile(source, str(impl_dir / "sym-states"), "exec"), mod.__dict__)
 anomalies = mod.validate_state_machines(state_machines, rules)
+```
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-26T00:00:00Z"
+rules:
+  - id: spec-auditor-001
+    title: "Spec audit is mandatory for all new specs"
+    conditions:
+      all:
+        - "spec_created == true"
+        - "audit_invoked == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [spec-creation, issue-operations]
+    source: "spec-auditor/SKILL.md §Mandatory Invocation"
+
+  - id: spec-auditor-002
+    title: "Auto-fix findings applied directly without authorization"
+    conditions:
+      all:
+        - "finding_classification == 'auto-fix'"
+        - "fix_targets_github_issue_body == true"
+        - "fix_is_non_substantive == true"
+    actions:
+      - APPLY_FIX
+      - REPORT_IN_EXECUTIVE_SUMMARY
+    conflicts_with: [approval-gate-001]
+    requires: []
+    triggers: []
+    source: "spec-auditor/SKILL.md §Auto-Fix Model"
+
+  - id: spec-auditor-003
+    title: "Conditional findings require authorization before application"
+    conditions:
+      all:
+        - "finding_classification == 'conditional'"
+    actions:
+      - SAFETY_CHECK
+      - APPLY_IF_SAFE
+      - ESCALATE_IF_UNSAFE
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "spec-auditor/SKILL.md §Auto-Fix Model"
+
+  - id: spec-auditor-004
+    title: "Flag-for-review findings are never applied"
+    conditions:
+      all:
+        - "finding_classification == 'flag-for-review'"
+    actions:
+      - REPORT_IN_EXECUTIVE_SUMMARY_ONLY
+      - DO_NOT_APPLY
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "spec-auditor/SKILL.md §Auto-Fix Model"
+
+  - id: spec-auditor-005
+    title: "Body preservation gate prevents issue body erasure"
+    conditions:
+      all:
+        - "new_body_length < 0.8 * original_body_length"
+    actions:
+      - HALT
+      - REPORT_ERASURE_RISK
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "spec-auditor/SKILL.md §Body-Preservation Safeguard"
+
+  - id: spec-auditor-006
+    title: "Ground-truth verification is mandatory for all audits"
+    conditions:
+      all:
+        - "audit_requested == true"
+    actions:
+      - INVOKE(ground-truth)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "spec-auditor/SKILL.md §ground-truth task"
+
+  - id: spec-auditor-007
+    title: "Executive summary posted to chat after every audit"
+    conditions:
+      all:
+        - "audit_session_complete == true"
+    actions:
+      - POST_EXECUTIVE_SUMMARY_TO_CHAT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "spec-auditor/SKILL.md §Chat Executive Summary"
+
+tasks:
+  - id: fresh-start
+    skill: spec-auditor
+    preconditions: ["spec_issue_exists == true"]
+    postconditions: ["self_containment_checked == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping fresh-start checks"
+    source: "spec-auditor/SKILL.md"
+
+  - id: structure
+    skill: spec-auditor
+    preconditions: ["fresh_start_complete == true"]
+    postconditions: ["structural_audit_complete == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping structure audit"
+    source: "spec-auditor/SKILL.md"
+
+  - id: content-quality
+    skill: spec-auditor
+    preconditions: ["structural_audit_complete == true"]
+    postconditions: ["content_audit_complete == true"]
+    mandatory: false
+    bypass_violation: "WARNING: Skipping content quality audit"
+    source: "spec-auditor/SKILL.md"
+
+  - id: traceability
+    skill: spec-auditor
+    preconditions: ["structural_audit_complete == true"]
+    postconditions: ["trace_audit_complete == true"]
+    mandatory: false
+    bypass_violation: "WARNING: Skipping traceability audit"
+    source: "spec-auditor/SKILL.md"
+
+  - id: operational
+    skill: spec-auditor
+    preconditions: ["structural_audit_complete == true"]
+    postconditions: ["operational_audit_complete == true"]
+    mandatory: false
+    bypass_violation: "WARNING: Skipping operational audit"
+    source: "spec-auditor/SKILL.md"
+
+  - id: fidelity
+    skill: spec-auditor
+    preconditions: ["document_type == 'spec'"]
+    postconditions: ["fidelity_audit_complete == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping fidelity audit for spec documents"
+    source: "spec-auditor/SKILL.md"
+
+  - id: concerns
+    skill: spec-auditor
+    preconditions: ["structural_audit_complete == true"]
+    postconditions: ["concern_audit_complete == true"]
+    mandatory: false
+    bypass_violation: "WARNING: Skipping concern separation audit"
+    source: "spec-auditor/SKILL.md"
+
+  - id: ground-truth
+    skill: spec-auditor
+    preconditions: ["spec_content_available == true"]
+    postconditions: ["ground_truth_established == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Ground-Truth Verification"
+    source: "spec-auditor/SKILL.md"
+
+  - id: sc-precision
+    skill: spec-auditor
+    preconditions: ["document_type == 'spec'"]
+    postconditions: ["sc_precision_audit_complete == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping SC precision audit for spec documents"
+    source: "spec-auditor/SKILL.md"
+
+  - id: completion
+    skill: spec-auditor
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "spec-auditor/SKILL.md"
+
+decomposition:
+  - type: skill-task
+    skill: spec-auditor
+    task: ground-truth
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Ground-Truth Verification"
+    purpose: "Adversarial verification of metadata claims against direct evidence"
+
+  - type: skill-task
+    skill: plan-fidelity-auditor
+    task: compare
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Plan Fidelity Comparison"
+    purpose: "Clean-room plan comparison for fidelity subtask"
+
+  - type: skill-task
+    skill: concern-separation-auditor
+    task: audit-phases
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Concern Separation Audit"
+    purpose: "Phase independence and concern boundary verification"
+
+  - type: skill-task
+    skill: verification-enforcement
+    task: verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification-Enforcement During Content Generation"
+    purpose: "Verify all claims in audit findings before generating reports"
+
+  - type: skill-task
+    skill: programming-principles
+    task: audit
+    mandatory: true
+    bypass_violation: "WARNING: Skipping Engineering Principle Audit"
+    purpose: "Check for principle violations without documented tradeoffs"
+
+gates:
+  - id: auto-fix-eligible
+    condition: "finding_classification == 'auto-fix' AND fix_targets_issue_body == true AND fix_is_non_substantive == true"
+    on_fail: "RECLASSIFY"
+    critical_violation: false
+
+  - id: conditional-safety-check
+    condition: "finding_classification == 'conditional' AND safety_check_passed == true"
+    on_fail: "ESCALATE_TO_FLAG_FOR_REVIEW"
+    critical_violation: false
+
+  - id: body-preservation
+    condition: "new_body_length >= 0.8 * original_body_length"
+    on_fail: "HALT"
+    critical_violation: true
+
+  - id: ground-truth-mandatory
+    condition: "ground_truth_invoked == true"
+    on_fail: "HALT"
+    critical_violation: true
+
+evidence_artifacts:
+  - name: audit_findings_table
+    type: structured_table
+    verification: "Each finding has Subtask, Problem Class, Location, Classification, Fix Action, Severity"
+
+  - name: auto_fix_verification
+    type: re-read_confirmation
+    verification: "Re-read of issue body confirms all auto-fixes applied"
+
+  - name: body_length_check
+    type: comparison
+    verification: "len(new_body) >= 0.8 * len(original_body)"
+
+  - name: ground_truth_evidence
+    type: tool_call_artifact
+    verification: "Each metadata claim verified via tool call against actual state"
+
+  - name: executive_summary_posted
+    type: chat_output
+    verification: "Executive summary present in chat with all required fields"
+
+state_machines:
+  - id: audit-session
+    states: [idle, type_detected, baseline_running, conditional_running, findings_classified, auto_fixes_applied, conditional_applied, report_generated, complete]
+    start_state: idle
+    transitions:
+      - from: idle
+        to: type_detected
+        guard: "source_input_valid == true"
+        action: DETECT_DOCUMENT_TYPE
+      - from: type_detected
+        to: baseline_running
+        guard: "document_type_determined == true"
+        action: RUN_BASELINE_SUBTASKS
+      - from: baseline_running
+        to: conditional_running
+        guard: "baseline_complete == true"
+        action: RUN_CONDITIONAL_SUBTASKS
+      - from: conditional_running
+        to: findings_classified
+        guard: "all_subtasks_complete == true"
+        action: CLASSIFY_FINDINGS
+      - from: findings_classified
+        to: auto_fixes_applied
+        guard: "auto_fix_findings_exist == true"
+        action: APPLY_AUTO_FIXES
+      - from: findings_classified
+        to: conditional_applied
+        guard: "conditional_findings_exist == true AND auto_fixes_applied == true"
+        action: APPLY_CONDITIONAL_FIXES
+      - from: auto_fixes_applied
+        to: report_generated
+        guard: "all_fixes_verified == true"
+        action: GENERATE_EXECUTIVE_SUMMARY
+      - from: conditional_applied
+        to: report_generated
+        guard: "all_fixes_verified == true"
+        action: GENERATE_EXECUTIVE_SUMMARY
+      - from: report_generated
+        to: complete
+        guard: "executive_summary_posted == true"
+        action: PROCEED
 ```

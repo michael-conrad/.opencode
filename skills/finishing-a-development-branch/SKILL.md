@@ -3,6 +3,7 @@ name: finishing-a-development-branch
 description: Use when implementation is complete and branch needs final checks before PR. Triggers on: done, finished, ready for PR, implementation complete, branch ready, push changes, final check.
 type: technique
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -30,6 +31,14 @@ Branch completion workflow that ensures a feature branch is fully ready for PR c
 | `checklist` | ≈350 |
 | `completion` | ≈200 |
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `prepare` | When branch readiness preparation is needed | Branch name, worktree.path, github.owner, github.repo | Implementation context, agent memory, cached verification | NO |
+| `checklist` | When completion checklist verification is needed | Branch name, SC list, worktree.path, github.owner, github.repo | Implementation context, agent memory, cached verification | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+
 ## Invocation
 
 - `/skill finishing-a-development-branch` — Overview only
@@ -44,15 +53,19 @@ Branch completion workflow that ensures a feature branch is fully ready for PR c
 1. **Mandatory invocation (no decision point):** The agent MUST invoke this skill when implementation completes on a feature branch, when the user says "done" or "finished" or "ready for PR", or before review-prep task in git-workflow.
 2. **Verification-first approach:** All changes must be committed. All tests must pass. All lint/typecheck must pass. Branch must be pushed to remote.
 3. **Exit conditions:** Branch is READY when all checklist items pass, compare URL is generated, and agent HALTs to report readiness.
-4. **Worktree mandatory:** All feature branches operate in worktrees. If `worktree.path` is not set: FATAL ERROR → FLAG DEV → HALT.
+4. **Branch mode (conditional):** Feature branches operate either directly in main repo (default) or in worktrees (when `WORKTREE_REQUIRED` set). In worktree mode, if `worktree.path` is not set: FATAL ERROR → FLAG DEV → HALT.
 
-## Worktree Mode (MANDATORY)
+## Worktree Mode (Conditional — Only When WORKTREE_REQUIRED)
 
-If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT.** Do not proceed without a valid worktree path.
+When `WORKTREE_REQUIRED` is set and `worktree.path` is set: all file operations prefix paths with `worktree.path`.
 
-- All `bash` tool calls use `workdir="{{worktree.path}}"`
-- All `read`/`edit`/`write`/`glob`/`grep` tool calls prefix paths with `{{worktree.path}}/`
-- NEVER operate in the main working directory during implementation
+When `WORKTREE_REQUIRED` is NOT set (direct-branch mode): operate normally from the main repo directory. No worktree cleanup needed.
+
+**If in worktree mode and `worktree.path` is empty:** **FATAL ERROR → FLAG DEV → HALT.** Do not proceed without a valid worktree path.
+
+- All `bash` tool calls use `workdir="{{worktree.path}}"` (worktree mode only)
+- All `read`/`edit`/`write`/`glob`/`grep` tool calls prefix paths with `{{worktree.path}}/` (worktree mode only)
+- NEVER operate on `main` or `dev` branch during implementation (regardless of mode)
 
 ## Lazy-Loaded Guidelines
 
@@ -94,7 +107,7 @@ Implementation tracks against **plan sub-issues**, not spec sub-issues. The hier
 | "Tests pass" | Verify by running tests | `bash` to run `uv run pytest test/` → confirm exit code 0 | VERIFICATION-GAP |
 | "Lint passes" | Verify by running linter | `bash` to run `uvx ruff check src/ test/` → confirm no errors | VERIFICATION-GAP |
 | "Branch pushed to remote" | Verify remote branch exists | `bash` to run `git log origin/<branch>..HEAD` → confirm empty | MISSING-ELEMENT |
-| "All files in worktree" | Verify all changed files are under worktree.path | `bash` to run `git diff --name-only HEAD≈1` → check paths | STRUCTURE-VIOLATION |
+| "All files in worktree" | Verify all changed files are under worktree.path (worktree mode only) | `bash` to run `git diff --name-only HEAD≈1` → check paths | STRUCTURE-VIOLATION |
 
 **Evidence format:**
 
@@ -114,7 +127,7 @@ Action: [auto-fix|conditional|flag-for-review]
 | Tests failing | VERIFICATION-GAP | flag-for-review | HALT — fix test failures before proceeding |
 | Lint errors found | VERIFICATION-GAP | auto-fix | Run `ruff check --fix` and re-verify |
 | Branch not pushed | MISSING-ELEMENT | auto-fix | Push branch and re-verify |
-| Changes outside worktree | STRUCTURE-VIOLATION | flag-for-review | HALT — investigate, may need worktree re-creation |
+| Changes outside worktree (worktree mode only) | STRUCTURE-VIOLATION | flag-for-review | HALT — investigate, may need worktree re-creation |
 
 ## Cross-Reference Verification (MANDATORY)
 
@@ -161,3 +174,172 @@ Before invoking any cross-referenced skill:
 - **GitHub:** Not applicable (this repository uses GitBucket)
 - **GitBucket:** Fully supported — uses GitBucket compare URL format
 - **Platform Detection:** Uses `github.platform` environment variable
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-27T00:00:00Z"
+rules:
+  - id: finishing-a-development-branch-001
+    title: "All changes must be committed before branch completion"
+    conditions:
+      all:
+        - "working_tree_not_clean == true"
+    actions:
+      - COMMIT_REMAINING
+      - RE_VERIFY
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "finishing-a-development-branch/SKILL.md §checklist task"
+
+  - id: finishing-a-development-branch-002
+    title: "All tests must pass before branch completion"
+    conditions:
+      all:
+        - "tests_pass == false"
+    actions:
+      - HALT
+      - FIX_TESTS
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "finishing-a-development-branch/SKILL.md §checklist task"
+
+  - id: finishing-a-development-branch-003
+    title: "All lint must pass before branch completion"
+    conditions:
+      all:
+        - "lint_pass == false"
+    actions:
+      - AUTOFIX_THEN_REVERIFY
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "finishing-a-development-branch/SKILL.md §checklist task"
+
+  - id: finishing-a-development-branch-004
+    title: "Branch must be pushed before claiming completion"
+    conditions:
+      all:
+        - "branch_pushed == false"
+    actions:
+      - PUSH
+      - RE_VERIFY
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "finishing-a-development-branch/SKILL.md §checklist task"
+
+tasks:
+  - id: prepare
+    skill: finishing-a-development-branch
+    preconditions: ["implementation_complete == true"]
+    postconditions: ["branch_prepared_for_pr == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Branch Preparation"
+    source: "finishing-a-development-branch/SKILL.md"
+
+  - id: checklist
+    skill: finishing-a-development-branch
+    preconditions: ["branch_prepared_for_pr == true"]
+    postconditions: ["lint_pass == true && tests_pass == true && branch_pushed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Uncommitted/Unpushed Changes After Implementation"
+    source: "finishing-a-development-branch/SKILL.md"
+
+  - id: completion
+    skill: finishing-a-development-branch
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "finishing-a-development-branch/SKILL.md"
+
+decomposition:
+  - type: skill-task
+    skill: verification-before-completion
+    task: verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification"
+  - type: command
+    skill: git
+    task: push
+    mandatory: true
+    bypass_violation: "CRITICAL: Unpushed Changes"
+  - type: sub-agent-dispatch
+    isolation: clean-room
+    must_receive: [checklist items, verification targets]
+    must_not_receive: [implementation context, agent memory from prior phases, cached verification results]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Clean-Room Dispatch for Sub-Agents"
+state_machines:
+  - id: branch-completion-lifecycle
+    states: [prepared, linted, tested, pushed, completed, failed]
+    start_state: prepared
+    decomposition_guard:
+      field: "decomposition.verification_commands"
+      message: "CRITICAL: Cannot complete branch without verification steps"
+    transitions:
+      - from: prepared
+        to: linted
+        guard: "lint_pass == true"
+        action: RUN_TESTS
+      - from: prepared
+        to: failed
+        guard: "lint_pass == false && autofix_failed == true"
+        action: HALT_AND_FIX_LINT
+      - from: linted
+        to: tested
+        guard: "tests_pass == true"
+        action: PUSH_BRANCH
+      - from: linted
+        to: failed
+        guard: "tests_pass == false"
+        action: HALT_AND_FIX_TESTS
+      - from: tested
+        to: pushed
+        guard: "branch_pushed == true"
+        action: GENERATE_URL
+      - from: pushed
+        to: completed
+        guard: "compare_url_generated == true"
+        action: REPORT_COMPLETE
+gates:
+  - id: working-tree-clean
+    condition: "working_tree_not_clean == false"
+    on_fail: "COMMIT_REMAINING and re-verify"
+    critical_violation: true
+  - id: lint-pass
+    condition: "lint_pass == true"
+    on_fail: "AUTOFIX_THEN_REVERIFY"
+    critical_violation: false
+  - id: tests-pass
+    condition: "tests_pass == true"
+    on_fail: "HALT and fix tests"
+    critical_violation: true
+  - id: branch-pushed
+    condition: "branch_pushed == true"
+    on_fail: "PUSH and re-verify"
+    critical_violation: true
+evidence_artifacts:
+  - name: lint_output
+    type: tool_call
+    dispatch_stage: checklist
+    verification: "uvx ruff check src/ test/ returns zero errors"
+  - name: test_output
+    type: tool_call
+    dispatch_stage: checklist
+    verification: "uv run pytest test/ passes"
+  - name: push_confirmation
+    type: tool_call
+    dispatch_stage: prepare
+    verification: "git push output confirms branch pushed"
+  - name: compare_url
+    type: constructed_url
+    dispatch_stage: checklist
+    verification: "URL format matches dev...branch pattern"
+  - name: completion_tasks_executed
+    type: tool_call
+    dispatch_stage: completion
+    verification: "completion task output confirms mandatory steps executed"
+```

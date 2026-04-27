@@ -3,6 +3,7 @@ name: issue-operations
 description: Use when creating, commenting on, or closing GitHub Issues. Routes to GitHub MCP or GitBucket API based on github.platform. Triggers on: create issue, new issue, spec creation, submit issue, issue, bug report, comment, progress update, issue comment, PR comment, post to GitHub, byline, status indicator, sub-issue, phase issue, multi-task, create sub issue, link issue, task breakdown, subtask, parent issue, close issue, verify merge.
 type: technique
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -41,6 +42,8 @@ issue-operations/                     # Dispatcher — workflow logic, platform 
       tools/                          # Existing Python client + tests
       tasks/                          # Existing issue/label/repo/error-recovery tasks
       reference/                      # OpenAPI spec
+    local/
+      SKILL.md                        # Capability manifest (local .issues/ directory)
 ```
 
 ## Tasks
@@ -74,6 +77,33 @@ issue-operations/                     # Dispatcher — workflow logic, platform 
 
 **COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps (labels, auditors, sub-issues, status report) are never skipped. It is idempotent and safe to invoke multiple times.
 
+## Hard Gates (MANDATORY — no bypass)
+
+### Gate 1: Skill Dispatch Before Direct API Calls
+
+```
+IF creating a GitHub Issue or posting a comment:
+  1. DO NOT call github_issue_write or github_add_issue_comment directly
+  2. Invoke /skill issue-operations --task creation (for new issues)
+  3. Invoke /skill issue-operations --task comment (for comments)
+  4. These tasks handle: byline verification, label enforcement, pre-creation validation
+ENDIF
+```
+
+Violation: Direct `github_issue_write` calls skip byline verification, label enforcement, and pre-creation validation (superseded specs, duplicate detection).
+
+### Gate 2: Byline Verification Before Posting
+
+```
+IF calling github_issue_write, github_add_issue_comment, or github_create_pull_request with AI-authored content:
+  1. VERIFY body contains "Co-authored with AI" or the emoji byline
+  2. If missing → APPEND byline before API call
+  3. DO NOT post AI-authored content without byline
+ENDIF
+```
+
+Violation: AI-authored content without byline attribution is a CRITICAL violation per `000-critical-rules.md`.
+
 ## Platform Routing
 
 ### Detection
@@ -84,7 +114,8 @@ The dispatcher detects `github.platform` from session init output:
 |----------------|-------------------|
 | `github` | `platforms/github-mcp/` |
 | `gitbucket` | `platforms/gitbucket-api/` |
-| (unset) | `platforms/github-mcp/` (default) |
+| `local` | `platforms/local/` |
+| (unset) | `platforms/local/` (default when no remote) |
 
 ### Target Parameter
 
@@ -223,6 +254,37 @@ When platform PATCH endpoint is broken (returns 404):
 | Verifying PR merge | `verify-merge` |
 | Agent about to call `github_issue_write` directly | STOP → invoke this skill instead |
 
+## PR Merge Boundary in Sub-Issue Bodies (MANDATORY When Plan Has Boundaries)
+
+When creating sub-issues from a plan that has `pr_boundaries` in its `yaml+symbolic` block, each sub-issue body MUST include a `## PR Merge Boundary` section when the sub-issue's phase has a merge boundary.
+
+### Section Format
+
+```markdown
+## PR Merge Boundary (CRITICAL — HALT Until Merged)
+
+This issue is part of **PR2** (approval-gate + git-workflow). It MUST NOT begin
+implementation until PR1 (#38 + #39) is merged to dev.
+
+**Self-Enforcement**: `skildeck lint --skill <skill>` will fail with CRITICAL
+"contract unresolvable" if PR1 is not merged. The boundary is impossible to
+bypass silently.
+
+**Manual Enforcement**: If `skildeck lint` is not run, the agent MUST halt at
+this boundary and wait for the developer to confirm the prior PR is merged.
+```
+
+### When to Include
+
+| Condition | Include PR Merge Boundary in Sub-Issue? |
+|-----------|----------------------------------------|
+| Sub-issue's phase has a `pr_boundaries` entry with `must_be_merged_before_starting: true` | YES — mandatory |
+| Sub-issue's phase has no merge boundary | NO — omit entirely |
+
+### Enforcement
+
+The `link-sub-issue` task MUST read the parent plan's `pr_boundaries` section and inject the appropriate boundary information into each sub-issue body. Missing boundary information in a sub-issue whose phase has a merge boundary is a STRUCTURE-VIOLATION.
+
 ## Critical Rules
 
 ### NEVER DO
@@ -275,6 +337,32 @@ When creating a new issue:
 4. Invoke `/skill issue-operations --task creation`
 5. Invoke `/skill issue-operations --task post-creation`
 
+## Submodule Routing for Issue Operations
+
+When targeting files under a submodule or sub-folder repo path, issues MUST be filed against the submodule's repository, NOT the parent repository. The session-init output includes `## Sub-folder Repo Mappings` that list path-to-repo mappings derived from `.gitmodules`.
+
+### Submodule Routing Table
+
+The routing table below determines which repository to target for issue operations based on file paths. When a target file falls under a submodule path, the issue must be created in the submodule's repository using the mapped `owner/repo`.
+
+| Target Path | Routes to | Platform |
+|---|---|---|
+| `.opencode/guidelines/*` | `<github.owner>/<github.repo>` | Per session init |
+| `.opencode/skills/*` | `<github.owner>/<github.repo>` | Per session init |
+| `.opencode/AGENTS.md` | `<github.owner>/<github.repo>` | Per session init |
+| `.opencode/` (any file under) | `<github.owner>/<github.repo>` | Per session init |
+
+**Concrete example**: When `identity_source == "submodule"` and `.gitmodules` maps `.opencode` to `git@github.com:michael-conrad/opencode-config.git`, files under `.opencode/` must route to `michael-conrad/opencode-config` on GitHub — never to the parent repo.
+
+### Routing Procedure
+
+1. Check session-init output for `## Sub-folder Repo Mappings`
+2. If the target file path starts with a mapped submodule path, use the mapped `owner/repo` for ALL GitHub MCP API calls
+3. If no mapping exists and `identity_source == "submodule"`, ALL files route to `<github.owner>/<github.repo>` (the submodule repo)
+4. NEVER ask the developer which repo to file against — the agent resolves this autonomously
+
+**AUTHORITY:** `000-critical-rules.md` §Wrong API Routing for Submodule/Sub-folder Repos, `060-tool-usage.md` §9 Identity Source Semantics
+
 ## Submodule Provenance Issues
 
 Submodule provenance issues are created as part of the `git-workflow` provenance task, not through this skill's standard flow. See `git-workflow/tasks/provenance.md` for the complete implementation.
@@ -319,6 +407,21 @@ For the provenance issue body format and tier-specific details, see `git-workflo
 | `verify-merge` | ≈200 |
 | `capabilities` | ≈150 |
 | `completion` | ≈200 |
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `pre-creation` | Before creating an issue, check for existing | Issue title, labels, github.owner, github.repo | Implementation context, agent memory | NO |
+| `single-task-check` | When checking if an issue needs sub-issue structure | Issue number, issue body, github.owner, github.repo | Implementation context, agent memory | NO |
+| `creation` | When creating a new issue | Issue title, body, labels, github.owner, github.repo | Implementation context, agent memory | NO |
+| `post-creation` | After issue creation, add provenance and labels | Issue number, byline, github.owner, github.repo | Implementation context, agent memory | NO |
+| `comment` | When adding a comment to an issue | Issue number, comment body, github.owner, github.repo | Implementation context, agent memory | NO |
+| `close` | When closing an issue after PR merge confirmation | Issue number, merge evidence, github.owner, github.repo | Implementation context, agent memory | NO |
+| `link-sub-issue` | When linking a sub-issue to a parent | Parent issue number, sub-issue ID, github.owner, github.repo | Implementation context, agent memory | NO |
+| `verify-merge` | When verifying PR merge before closure | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `capabilities` | When checking platform capabilities | Platform detection context | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
 
 ## Live Verification: Issue Operations Evidence (MANDATORY)
 
@@ -366,7 +469,7 @@ For the provenance issue body format and tier-specific details, see `git-workflo
 | Task table entry `verify-merge` | File exists at `.opencode/skills/issue-operations/tasks/verify-merge.md` | MISSING-TRACEABILITY if missing |
 | Task table entry `link-sub-issue` | File exists at `.opencode/skills/issue-operations/tasks/link-sub-issue.md` | MISSING-TRACEABILITY if missing |
 | Task table entry `comment` | File exists at `.opencode/skills/issue-operations/tasks/comment.md` | MISSING-TRACEABILITY if missing |
-| Platform sub-skills | Files exist at `platforms/github-mcp/SKILL.md` and `platforms/gitbucket-api/SKILL.md` | MISSING-TRACEABILITY if missing |
+| Platform sub-skills | Files exist at `platforms/github-mcp/SKILL.md`, `platforms/gitbucket-api/SKILL.md`, and `platforms/local/SKILL.md` | MISSING-TRACEABILITY if missing |
 | `git-workflow` provenance task | Task exists at `.opencode/skills/git-workflow/tasks/provenance.md` | MISSING-TRACEABILITY if missing |
 
 **Verification Procedure:**
@@ -392,4 +495,285 @@ Before invoking any cross-referenced skill:
 - Related skills: `spec-auditor`, `approval-gate`, `writing-plans`, `git-workflow`, `spec-auditor` (ground-truth adversarial verification)
 - Related guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md` (metadata verification extension)
 - Authorization classification: See `010-approval-gate.md` Action Authorization Classification
-- Platform sub-skills: `platforms/github-mcp/SKILL.md`, `platforms/gitbucket-api/SKILL.md`
+- Platform sub-skills: `platforms/github-mcp/SKILL.md`, `platforms/gitbucket-api/SKILL.md`, `platforms/local/SKILL.md`
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: issue-ops-001
+    title: "Mandatory skill dispatch before direct API calls"
+    conditions:
+      all:
+        - "about_to_call == 'github_issue_write' OR 'github_add_issue_comment' OR 'github_sub_issue_write'"
+        - "routed_through_skill == false"
+    actions:
+      - HALT
+      - INVOKE(issue-operations --task creation OR comment)
+    conflicts_with: []
+    requires: []
+    triggers: [creation, comment, close, link-sub-issue]
+    source: "issue-operations/SKILL.md §Hard Gates Gate 1"
+
+  - id: issue-ops-002
+    title: "Byline verification before posting AI-authored content"
+    conditions:
+      all:
+        - "content_authored_by == 'AI'"
+        - "body_contains_byline == false"
+    actions:
+      - APPEND(byline)
+    conflicts_with: []
+    requires: []
+    triggers: [creation, comment]
+    source: "issue-operations/SKILL.md §Hard Gates Gate 2"
+
+  - id: issue-ops-003
+    title: "Close issues only after PR merge confirmed"
+    conditions:
+      all:
+        - "action == 'close_issue'"
+        - "pr_merge_confirmed == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [close, verify-merge]
+    source: "issue-operations/SKILL.md §Critical Rules NEVER DO"
+
+  - id: issue-ops-004
+    title: "Never replace issue body with shorter content"
+    conditions:
+      all:
+        - "action == 'github_issue_write method=update'"
+        - "len(new_body) < 0.8 * len(original_body)"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [close, creation]
+    source: "000-critical-rules.md §Issue Body Erasure"
+
+  - id: issue-ops-005
+    title: "Sub-issues go under plan, not spec"
+    conditions:
+      all:
+        - "creating_sub_issue == true"
+        - "parent_type == 'spec'"
+    actions:
+      - REJECT
+      - USE(parent_type='plan')
+    conflicts_with: []
+    requires: []
+    triggers: [link-sub-issue]
+    source: "issue-operations/SKILL.md §Critical Rules NEVER DO"
+
+  - id: issue-ops-006
+    title: "Title dedup gate before issue creation"
+    conditions:
+      all:
+        - "creating_issue == true"
+        - "dedup_check_performed == false"
+    actions:
+      - HALT
+      - INVOKE(pre-creation Step 0.5)
+    conflicts_with: []
+    requires: []
+    triggers: [creation]
+    source: "issue-operations/SKILL.md §Critical Rules ALWAYS DO"
+
+  - id: issue-ops-007
+    title: "Platform routing before all operations"
+    conditions:
+      all:
+        - "performing_issue_operation == true"
+        - "platform_detected == false"
+    actions:
+      - DETECT(github.platform)
+      - ROUTE(platform_sub_skill)
+    conflicts_with: []
+    requires: []
+    triggers: [creation, comment, close, link-sub-issue, verify-merge]
+    source: "issue-operations/SKILL.md §Platform Routing"
+
+  - id: issue-ops-009
+    title: "Submodule file targets must route to submodule repo"
+    conditions:
+      all:
+        - "target_file_path matches submodule_path"
+        - "api_repo == parent_repo"
+    actions:
+      - RESOLVE_SUBMODULE_REMOTE
+      - USE_SUBMODULE_OWNER_REPO
+    conflicts_with: []
+    requires: []
+    triggers: [creation, comment, close, link-sub-issue, verify-merge]
+    source: "issue-operations/SKILL.md §Submodule Routing for Issue Operations"
+
+  - id: issue-ops-008
+    title: "PR merge boundary in sub-issue body when plan has boundaries"
+    conditions:
+      all:
+        - "creating_sub_issue == true"
+        - "plan_has_pr_boundaries == true"
+        - "phase_has_merge_boundary == true"
+        - "sub_issue_body_has_merge_boundary_section == false"
+    actions:
+      - ADD(pr_merge_boundary section to sub-issue body)
+    conflicts_with: []
+    requires: [issue-ops-005]
+    triggers: [link-sub-issue, writing-plans]
+    source: "issue-operations/SKILL.md §PR Merge Boundary in Sub-Issue Bodies"
+
+tasks:
+  - id: pre-creation
+    skill: issue-operations
+    preconditions: ["spec_content_available"]
+    postconditions: ["conflicts_checked", "superseded_checked", "dedup_evidence_produced"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Creating issues without validation bypasses duplicate detection and conflict checking"
+    source: "issue-operations/SKILL.md §Tasks"
+
+  - id: creation
+    skill: issue-operations
+    preconditions: ["pre-creation_completed", "single_task_check_completed", "byline_present"]
+    postconditions: ["issue_created", "labels_applied", "needs_approval_label_present"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Direct github_issue_write calls skip byline verification, label enforcement, and pre-creation validation"
+    source: "issue-operations/SKILL.md §Tasks"
+
+  - id: comment
+    skill: issue-operations
+    preconditions: ["comment_substantive == true", "byline_present"]
+    postconditions: ["comment_posted_via_platform"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Direct github_add_issue_comment calls bypass substantiveness gate and byline enforcement"
+    source: "issue-operations/SKILL.md §Tasks"
+
+  - id: close
+    skill: issue-operations
+    preconditions: ["pr_merge_confirmed == true"]
+    postconditions: ["issue_closed", "parent_child_closure_verified"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Closing issues before PR merge confirmed is a critical violation"
+    source: "issue-operations/SKILL.md §Tasks"
+
+  - id: link-sub-issue
+    skill: issue-operations
+    preconditions: ["parent_issue_exists", "sub_issue_exists"]
+    postconditions: ["sub_issue_linked"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Multi-task plans without sub-issues are a critical violation"
+    source: "issue-operations/SKILL.md §Tasks"
+
+  - id: completion
+    skill: issue-operations
+    preconditions: ["workflow_halted_or_completed"]
+    postconditions: ["mandatory_steps_verified", "status_reported"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping completion task may leave mandatory steps (labels, auditors, sub-issues) unverified"
+    source: "issue-operations/SKILL.md §Tasks"
+
+decomposition:
+  - type: skill-task
+    skill: approval-gate
+    task: verify-authorization
+    mandatory: true
+    bypass_violation: "Closing issues requires authorization verification to prevent premature closure"
+    source: "issue-operations/SKILL.md §Interdependencies"
+
+  - type: skill-task
+    skill: git-workflow
+    task: cleanup
+    mandatory: true
+    bypass_violation: "Post-merge cleanup is the sole mechanism for deleting merged branches, closing issues, and syncing dev"
+    source: "issue-operations/SKILL.md §Interdependencies"
+
+  - type: skill-task
+    skill: spec-auditor
+    task: audit
+    mandatory: true
+    bypass_violation: "Multi-task specs require auditor invocation before approval"
+    source: "issue-operations/SKILL.md §Interdependencies"
+
+  - type: skill-task
+    skill: writing-plans
+    task: create
+    mandatory: false
+    bypass_violation: "Plan creation required for multi-task specs but not single-task"
+    source: "issue-operations/SKILL.md §Interdependencies"
+
+gates:
+  - id: byline-present
+    condition: "body_contains_byline == true"
+    on_fail: HALT
+    critical_violation: true
+    source: "issue-operations/SKILL.md §Hard Gates Gate 2"
+
+  - id: merge-confirmed-before-close
+    condition: "pr_merge_confirmed == true"
+    on_fail: HALT
+    critical_violation: true
+    source: "issue-operations/SKILL.md §Critical Rules NEVER DO"
+
+  - id: body-not-erased
+    condition: "len(new_body) >= 0.8 * len(original_body)"
+    on_fail: HALT
+    critical_violation: true
+    source: "000-critical-rules.md §Issue Body Erasure"
+
+  - id: skill-dispatch-before-api
+    condition: "routed_through_skill == true"
+    on_fail: HALT
+    critical_violation: true
+    source: "issue-operations/SKILL.md §Hard Gates Gate 1"
+
+  - id: dedup-check-performed
+    condition: "dedup_evidence_exists == true"
+    on_fail: HALT
+    critical_violation: false
+    source: "issue-operations/SKILL.md §Critical Rules ALWAYS DO"
+
+  - id: substantive-comment
+    condition: "comment_is_substantive == true"
+    on_fail: SKIP
+    critical_violation: false
+    source: "issue-operations/SKILL.md §Substantive Comment Gate"
+
+  - id: pr-merge-boundary-in-sub-issue
+    condition: "plan_has_pr_boundaries == false OR sub_issue_body_has_merge_boundary_section == true"
+    on_fail: HALT
+    critical_violation: true
+    source: "issue-operations/SKILL.md §PR Merge Boundary in Sub-Issue Bodies"
+
+evidence_artifacts:
+  - name: byline_verification
+    type: tool_call
+    verification: "Check body string for 'Co-authored with AI' or emoji byline before github_issue_write/github_add_issue_comment call"
+    source: "issue-operations/SKILL.md §Hard Gates Gate 2"
+
+  - name: merge_status
+    type: api_call
+    verification: "github_pull_request_read(method=get, pullNumber=N) → check merged field == true"
+    source: "issue-operations/SKILL.md §verify-merge task"
+
+  - name: body_length_check
+    type: tool_call
+    verification: "Read current body via github_issue_read(method=get), compare len(new_body) >= 0.8 * len(original_body)"
+    source: "000-critical-rules.md §Issue Body Erasure"
+
+  - name: dedup_evidence
+    type: api_call
+    verification: "github_search_issues(query) → confirm no overlapping title exists"
+    source: "issue-operations/SKILL.md §pre-creation Step 0.5"
+
+  - name: sub_issue_link
+    type: api_call
+    verification: "github_issue_read(method=get_sub_issues, issue_number=N) → confirm link exists"
+    source: "issue-operations/SKILL.md §link-sub-issue task"
+
+  - name: pr_merge_boundary_in_sub_issue
+    type: tool_call
+    verification: "github_issue_read(method=get, issue_number=N) → verify '## PR Merge Boundary' section present when parent plan has pr_boundaries"
+    source: "issue-operations/SKILL.md §PR Merge Boundary in Sub-Issue Bodies"
+```

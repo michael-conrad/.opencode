@@ -3,6 +3,7 @@ name: issue-review
 description: Use when reviewing a GitHub issue for comments, audits, or Q/A. Triggers on: review issue, review spec, check issue, issue review, audit issue.
 type: orchestrator
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -26,6 +27,19 @@ You are an Issue Review Orchestrator. Your focus is gathering all issue context,
 | `qa` | Ask clarifying questions one at a time for non-bug, non-spec issues | ≈500 |
 | `analyze-and-spec` | Root cause analysis → fix spec auto-creation for bug reports | ≈600 |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
+
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `gather` | When collecting all issue data for review | Issue number, github.owner, github.repo | Implementation context, agent memory, cached verification | NO |
+| `triage` | When classifying an issue by type and priority | Issue number, gathered data, github.owner, github.repo | Implementation context, agent memory | NO |
+| `audit` | When delegating to spec-auditor with triage hints | Issue number, triage results, github.owner, github.repo | Implementation context, agent memory | NO |
+| `qa` | When asking clarifying questions for non-bug, non-spec issues | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `analyze-and-spec` | When root cause analysis and fix spec creation for bug reports | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
 
 ## Invocation
 
@@ -244,3 +258,249 @@ Action: [auto-fix|conditional|flag-for-review]
 Base directory for this skill: `.opencode/skills/issue-review/`
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: issue-review-001
+    title: "Bug discovery does NOT authorize fixing"
+    conditions:
+      all:
+        - "bug_discovered_during_analysis == true"
+        - "fix_authorization_received == false"
+    actions:
+      - HALT
+      - CREATE(bug_report_issue)
+      - INVOKE(analyze-and-spec)
+    conflicts_with: []
+    requires: []
+    triggers: [analyze-and-spec, qa]
+    source: "000-critical-rules.md §Bug Discovery Does Not Authorize Bug Fixing"
+
+  - id: issue-review-002
+    title: "Fix spec must target root cause, not symptom"
+    conditions:
+      all:
+        - "fix_spec_created == true"
+        - "spec_contains_root_cause_section == false OR fix_approach_targets_symptom == true"
+    actions:
+      - REJECT
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [analyze-and-spec]
+    source: "issue-review/SKILL.md §Analyze-and-Spec Path"
+
+  - id: issue-review-003
+    title: "No code edits during analysis phase"
+    conditions:
+      all:
+        - "current_task == 'analyze-and-spec' OR 'gather' OR 'triage' OR 'qa'"
+        - "code_modification_attempted == true"
+    actions:
+      - HALT
+      - REVERT
+    conflicts_with: []
+    requires: []
+    triggers: [analyze-and-spec, gather, triage, qa]
+    source: "000-critical-rules.md §Bug Discovery Does Not Authorize Bug Fixing"
+
+  - id: issue-review-004
+    title: "Comments read before triage decision"
+    conditions:
+      all:
+        - "triage_decision_made == true"
+        - "all_comments_read == false"
+    actions:
+      - HALT
+      - INVOKE(gather)
+    conflicts_with: []
+    requires: []
+    triggers: [triage]
+    source: "issue-review/SKILL.md §Operating Protocol point 3"
+
+  - id: issue-review-005
+    title: "Symptom-only fix-specs are forbidden"
+    conditions:
+      all:
+        - "fix_spec_created == true"
+        - "fix_approach_type == 'symptom_only'"
+    actions:
+      - REJECT
+      - HALT
+    conflicts_with: []
+    requires: [issue-review-002]
+    triggers: [analyze-and-spec]
+    source: "000-critical-rules.md §Symptom-Only Fix-Specs"
+
+  - id: issue-review-006
+    title: "Fix spec still requires explicit authorization before code changes"
+    conditions:
+      all:
+        - "fix_spec_sub_issue_created == true"
+        - "code_change_authorization_received == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [analyze-and-spec]
+    source: "issue-review/SKILL.md §Analyze-and-Spec Path"
+
+  - id: issue-review-007
+    title: "Audit findings are internal — not posted to GitHub"
+    conditions:
+      all:
+        - "audit_completed == true"
+        - "posting_audit_findings_to_github == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [audit]
+    source: "issue-review/SKILL.md §Audit Path"
+
+tasks:
+  - id: gather
+    skill: issue-review
+    preconditions: ["issue_number_provided"]
+    postconditions: ["issue_body_read", "all_comments_read", "labels_read", "sub_issues_read", "auth_status_determined"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Gathering incomplete context leads to incorrect triage decisions"
+    source: "issue-review/SKILL.md §Tasks"
+
+  - id: triage
+    skill: issue-review
+    preconditions: ["gather_completed"]
+    postconditions: ["path_classified", "dispatch_target_determined"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Triage drives all downstream dispatch; skipping causes wrong skill invocation"
+    source: "issue-review/SKILL.md §Tasks"
+
+  - id: analyze-and-spec
+    skill: issue-review
+    preconditions: ["issue_classified_as_bug == true"]
+    postconditions: ["root_cause_identified", "fix_spec_sub_issue_created", "fix_spec_linked_to_bug_report"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Bug reports without fix spec sub-issues cannot be legitimately closed"
+    source: "issue-review/SKILL.md §Tasks"
+
+  - id: audit
+    skill: issue-review
+    preconditions: ["issue_classified_as_spec == true"]
+    postconditions: ["spec_auditor_invoked", "exec_summary_to_chat"]
+    mandatory: false
+    bypass_violation: "Specs should be audited but path is determined by triage, not mandatory for all issues"
+    source: "issue-review/SKILL.md §Tasks"
+
+  - id: qa
+    skill: issue-review
+    preconditions: ["issue_classified_as_non_bug_non_spec == true"]
+    postconditions: ["clarifying_questions_asked", "exec_summary_to_issue"]
+    mandatory: false
+    bypass_violation: "Q/A path is for non-bug, non-spec issues; not all issues require it"
+    source: "issue-review/SKILL.md §Tasks"
+
+  - id: completion
+    skill: issue-review
+    preconditions: ["workflow_halted_or_completed"]
+    postconditions: ["mandatory_steps_verified", "status_reported"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping completion task may leave terminal-state dispatch unverified"
+    source: "issue-review/SKILL.md §Tasks"
+
+decomposition:
+  - type: skill-task
+    skill: brainstorming
+    task: explore
+    mandatory: false
+    bypass_violation: "Brainstorming used for analysis depth when root cause is ambiguous"
+    source: "issue-review/SKILL.md §Analyze-and-Spec Path"
+
+  - type: skill-task
+    skill: spec-creation
+    task: create
+    mandatory: true
+    bypass_violation: "Fix spec creation is mandatory for bug report closure"
+    source: "issue-review/SKILL.md §Analyze-and-Spec Path"
+
+  - type: skill-task
+    skill: issue-operations
+    task: creation
+    mandatory: true
+    bypass_violation: "Fix spec sub-issue must be created through issue-operations for validation"
+    source: "issue-review/SKILL.md §Analyze-and-Spec Path"
+
+  - type: skill-task
+    skill: issue-operations
+    task: link-sub-issue
+    mandatory: true
+    bypass_violation: "Fix spec sub-issue must be linked to bug report parent"
+    source: "issue-review/SKILL.md §Analyze-and-Spec Path"
+
+  - type: skill-task
+    skill: spec-auditor
+    task: audit
+    mandatory: false
+    bypass_violation: "Auditor invoked for spec-classified issues only"
+    source: "issue-review/SKILL.md §Audit Path"
+
+  - type: skill-task
+    skill: approval-gate
+    task: verify-fix-spec
+    mandatory: true
+    bypass_violation: "Fix spec verification required before bug report closure"
+    source: "000-critical-rules.md §Bug Reports Without Fix Spec"
+
+gates:
+  - id: root-cause-not-symptom
+    condition: "fix_spec_contains_root_cause_section == true AND fix_approach_targets_root_cause == true"
+    on_fail: HALT
+    critical_violation: true
+    source: "issue-review/SKILL.md §Analyze-and-Spec Path"
+
+  - id: no-code-edits-during-analysis
+    condition: "code_modification_attempted == false"
+    on_fail: HALT
+    critical_violation: true
+    source: "000-critical-rules.md §Bug Discovery Does Not Authorize Bug Fixing"
+
+  - id: comments-read-before-triage
+    condition: "all_comments_read == true"
+    on_fail: HALT
+    critical_violation: true
+    source: "067-context-completeness.md"
+
+  - id: bug-discovery-report-not-fix
+    condition: "bug_discovered == true AND fix_code_change_attempted == false"
+    on_fail: HALT
+    critical_violation: true
+    source: "000-critical-rules.md §Bug Discovery Does Not Authorize Bug Fixing"
+
+  - id: audit-findings-not-on-github
+    condition: "posting_audit_to_github == false"
+    on_fail: HALT
+    critical_violation: true
+    source: "issue-review/SKILL.md §Audit Path"
+
+evidence_artifacts:
+  - name: root_cause_section
+    type: tool_call
+    verification: "Read fix spec body — confirm 'Root Cause' section exists and identifies underlying cause"
+    source: "issue-review/SKILL.md §Analyze-and-Spec Path"
+
+  - name: fix_spec_sub_issue_link
+    type: api_call
+    verification: "github_issue_read(method=get_sub_issues, issue_number=bug_report_N) → confirm fix spec linked"
+    source: "issue-review/SKILL.md §Analyze-and-Spec Path"
+
+  - name: comments_read_evidence
+    type: api_call
+    verification: "github_issue_read(method=get_comments, issue_number=N) → all comments retrieved"
+    source: "067-context-completeness.md"
+
+  - name: authorization_status
+    type: api_call
+    verification: "github_issue_read(method=get_comments) → filter for authorization comments from developer"
+    source: "issue-review/SKILL.md §Live Verification"
+```

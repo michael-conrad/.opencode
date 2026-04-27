@@ -3,6 +3,7 @@ name: sync-guidelines
 description: Use when synchronizing guidelines, skills, or tools between repositories. Triggers on: sync guidelines, cross-repo sync, guideline update, skill update, multi-repo, consistency between repos.
 type: technique
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -21,6 +22,18 @@ Intelligently synchronizes guidelines, skills, and tools between repositories th
 | `sync-pull` | Pull core changes into local repository | ≈300 |
 | `issue-format` | Template for sync issue content | ≈350 |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
+
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `classify` | When classifying files as core or project-specific | File paths, project context | Implementation context, agent memory | NO |
+| `sync-push` | When pushing core changes to target repository | Source paths, target repository, github.owner, github.repo | Implementation context, agent memory | NO |
+| `sync-pull` | When pulling core changes into local repository | Source paths, local repository path | Implementation context, agent memory | NO |
+| `issue-format` | When template for sync issue content is needed | Sync type, file paths | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
 
 ## Invocation
 

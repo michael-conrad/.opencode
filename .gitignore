@@ -4,4 +4,16 @@ package-lock.json
 bun.lock
 tmp/
 .node/
-.gitignore
+.worktrees/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.idea/
+.DS_Store
+Thumbs.db
+.coverage
+htmlcov/

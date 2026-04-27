@@ -3,6 +3,7 @@ name: spec-creation
 description: Use when creating a spec or writing a specification. Triggers on: create spec, write spec, spec creation, spec writing, structure spec, specification.
 type: technique
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -28,6 +29,7 @@ You are a Spec Architect. Your focus is structuring investigation results into a
 | `decompose` | Break into discrete units; define interfaces first (APIs, data contracts, schemas) | #2, #5 | Only for trivial bug fixes with one obvious fix |
 | `traceability` | Map requirements to sections, tests, implementation steps | #3 | Only for single-requirement specs |
 | `risk` | Analyze risk, blast radius, failure propagation, operational needs | #8, #9 | Only for simple bug fixes with no deployment impact |
+| `diagram` | Generate mermaid dependency diagram showing approved structure (no workflow state) | #2, #4 | Only for single-item specs with no dependencies |
 | `write` | Assemble spec, create GitHub Issue, output exec summary + URL + byline | #4, #6, #10 | No — mandatory assembly step |
 | `change-control` | Version spec, document rationale and impact analysis for changes | #12 | Only for initial spec creation (not revisions) |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | — | No — mandatory completion |
@@ -51,11 +53,18 @@ You are a Spec Architect. Your focus is structuring investigation results into a
    - Exempt: New greenfield features with no existing code interaction; trivial typos with no code interaction.
    - Incomplete inspection = HALT and complete the checklist first.
 
-2. **Mandatory invocation (no decision point):** The agent MUST invoke this skill when:
-   - Brainstorming exploration completes (terminal state transitions here)
-   - User says "write spec", "create spec", "spec creation"
-   - User provides investigation results and asks for a structured spec
-   - DO NOT skip to write without completing applicable prerequisite tasks
+ 2. **Mandatory invocation (no decision point):** The agent MUST invoke this skill when:
+    - Brainstorming exploration completes (terminal state transitions here)
+    - User says "write spec", "create spec", "spec creation"
+    - User provides investigation results and asks for a structured spec
+    - DO NOT skip to write without completing applicable prerequisite tasks
+
+ 2b. **Diagram generation gate (MANDATORY when dependencies exist):**
+    - After `decompose` task completes, check if dependencies exist (N > 1 items, or cross-issue dependencies)
+    - If dependencies exist: invoke `diagram` task to generate mermaid diagram
+    - Diagram MUST show approved structure only — NO workflow state markers (✅, 🔄, ❌, "implemented", "pending")
+    - If diagram contains workflow markers: auto-fix by removing markers, note in evidence
+    - Diagram is inserted in spec body after "Dependencies" section (if present) or before "Implementation Plan"
 
 3. **Select-existing pathway (MANDATORY before writing new spec):** Before creating a new spec, the agent MUST check whether an existing spec/plan already covers the request. This pathway is especially relevant when arriving from the `search-prompt-fail` workflow (see `approval-gate` skill → `verify-qa-mode` task → Step 2.5).
    - Search GitHub Issues using labels `[SPEC]`, `[PLAN]`, `[SPEC-FIX]` and keywords from the request
@@ -199,9 +208,24 @@ Findings from evidence verification follow the three-tier model:
 | `decompose` | ≈400 |
 | `traceability` | ≈300 |
 | `risk` | ≈400 |
+| `diagram` | ≈350 |
 | `change-control` | ≈300 |
 
-### Result Contract (write)
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `write` | When structuring spec content into GitHub Issue | Exploration results, spec content, github.owner, github.repo | Implementation context, agent memory | NO |
+| `requirements` | When extracting and clarifying requirements | Exploration results, topic | Implementation context, agent memory | NO |
+| `decompose` | When decomposing multi-phase requirements | Spec content, phase boundaries | Implementation context, agent memory | NO |
+| `traceability` | When checking spec traceability | Spec content, SC list, github.owner, github.repo | Implementation context, agent memory | NO |
+| `risk` | When identifying risk factors | Spec content, file paths | Implementation context, agent memory | NO |
+| `diagram` | When dependencies exist, generate mermaid diagram | Dependency structure, phase list, github.owner, github.repo | Implementation context, agent memory, workflow state | NO |
+| `change-control` | When checking change control procedures | Spec content, github.owner, github.repo | Implementation context, agent memory | NO |
+
+### Result Contracts
+
+#### write
 
 ```yaml
 status: DONE | OVERFLOW
@@ -211,6 +235,17 @@ issue_url: <url>
 spec_created: bool
 self_review_passed: bool
 needs_approval_label_added: bool
+```
+
+#### diagram
+
+```yaml
+status: DONE | SKIP
+task: diagram
+diagram_generated: bool
+diagram_type: mermaid
+dependencies_exist: bool
+workflow_markers_absent: bool
 ```
 
 ### Dispatch Context Schema
@@ -225,6 +260,102 @@ session_vars:
   dev.email: <from-session>
   worktree.path: <from-session>
 ```
+
+## Interdependency Diagram Discipline (MANDATORY When Dependencies Exist)
+
+When a spec or plan has dependencies (multiple phases, cross-issue dependencies, or sequential deliverables), the `diagram` task MUST generate a mermaid diagram showing the **approved dependency structure only**.
+
+### When to Include
+
+| Condition | Include Diagram? |
+|-----------|------------------|
+| Spec/plan has multiple phases or items | YES — mandatory |
+| Spec/plan has cross-issue dependencies | YES — mandatory |
+| Single-item spec with no dependencies | NO — omit |
+
+### Diagram Format Rules
+
+**CORRECT (structure-only, no workflow state):**
+
+```mermaid
+graph TD
+    P1[Phase 1: Tooling] --> P2[Phase 2: Guidelines]
+    P1 --> P3[Phase 3: Skills]
+    P2 --> P3
+    P3 --> P4[Phase 4: Tests]
+```
+
+**FORBIDDEN (workflow state markers):**
+
+```mermaid
+graph TD
+    P1[Phase 1: Tooling ✅] --> P2[Phase 2: Guidelines 🔄]
+    P3[Phase 3: Skills] --> P4[Phase 4: Tests ❌]
+```
+
+### Update Protocol
+
+| Change Type | Action |
+|-------------|--------|
+| Dependency structure correction | Update diagram + document in Revision Notes + STATUS: REVISED |
+| Implementation progress | Do NOT update diagram — use issue status markers instead |
+| New dependency discovered mid-implementation | Halt, update diagram, revise spec, wait for re-approval |
+
+### Rationale
+
+1. **Historical audit trail:** Diagrams show what was approved, not what was implemented. This preserves the decision context for future reviewers.
+2. **Separation of concerns:** Workflow tracking (what's implemented) belongs in issue status markers, not in the approved spec diagram.
+3. **Correctness maintained:** If dependencies are discovered to be wrong during implementation, the diagram is corrected — but the correction is documented as a revision, not silently updated.
+
+### Enforcement
+
+The `diagram` task MUST verify:
+1. Diagram exists when `dependencies_exist == true`
+2. Diagram contains NO workflow state markers (✅, 🔄, ❌, "implemented", "pending", etc.)
+3. Diagram matches the dependency structure in the spec/plan body
+
+Violations are STRUCTURE-VIOLATION findings requiring auto-fix before spec approval.
+
+## PR Merge Boundaries (MANDATORY When Dependencies Exist)
+
+When a spec depends on other specs, plans, or PRs being merged first, the `write` task MUST include a `## PR Merge Boundaries` section in the spec deliverable. This section provides formal merge boundary information that agents implementing downstream plans can read directly from the spec body — no comment-scanning required.
+
+### When to Include
+
+| Condition | Include PR Merge Boundaries? |
+|-----------|------------------------------|
+| Spec depends on other specs/plans (e.g., "Depends on: #37") | YES — mandatory |
+| Spec has no dependencies on other specs/plans | NO — omit the section entirely |
+
+### Section Format
+
+```markdown
+## PR Merge Boundaries
+
+| Boundary | Issues | Must Merge Before | Self-Enforcing | Halt Reason |
+|----------|--------|--------------------|----------------|-------------|
+| PR1 | #38, #39 | #40-#46 | Yes — `skildeck lint` fails | Schema must exist before contract definitions |
+| PR2 | #40, #41 | #42-#46 | Yes — contract alignment | post(verify-authorization) ⊨ pre(pre-work) |
+```
+
+### Field Definitions
+
+| Field | Description |
+|-------|-------------|
+| Boundary | PR identifier (PR1, PR2, etc.) |
+| Issues | Issue numbers included in this PR |
+| Must Merge Before | Issue numbers that CANNOT start until this PR merges |
+| Self-Enforcing | Whether tooling (skildeck lint, contract checks) will fail if boundary is violated |
+| Halt Reason | Human-readable explanation of why this boundary exists |
+
+### Self-Enforcement Classification
+
+- **Self-enforcing**: `skildeck lint` or contract verification will produce a CRITICAL finding if the boundary is violated — the agent cannot bypass silently
+- **Manual enforcement**: The agent MUST halt at the boundary and wait for developer confirmation that the prior PR is merged
+
+### Enforcement
+
+The `write` task MUST verify that each dependency listed in the spec's "Depends on:" line has a corresponding row in the PR Merge Boundaries table. Missing rows are a STRUCTURE-VIOLATION finding.
 
 ## Cross-References
 
@@ -241,3 +372,234 @@ session_vars:
 Co-authored with AI: <AgentName> (<ModelId>)
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: spec-creation-001
+    title: "Pre-spec investigation mandatory before requirements"
+    conditions:
+      all:
+        - "code_inspection_checklist_completed == false"
+        - "spec_touches_existing_code == true"
+    actions:
+      - HALT
+      - INVOKE(015-pre-spec-inspection.md checklist)
+    conflicts_with: []
+    requires: []
+    triggers: [brainstorming]
+    source: "spec-creation/SKILL.md §Operating Protocol #1"
+
+  - id: spec-creation-002
+    title: "Select-existing pathway before new spec creation"
+    conditions:
+      all:
+        - "existing_spec_search_performed == false"
+    actions:
+      - SEARCH(github_issues labels=[SPEC,PLAN,SPEC-FIX])
+      - PRESENT(candidates)
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate verify-qa-mode]
+    source: "spec-creation/SKILL.md §Operating Protocol #3"
+
+  - id: spec-creation-003
+    title: "Verification-enforcement gate before spec generation"
+    conditions:
+      all:
+        - "verification_enforcement_verify_invoked == false"
+    actions:
+      - INVOKE(verification-enforcement --task verify)
+    conflicts_with: []
+    requires: []
+    triggers: [verification-enforcement]
+    source: "spec-creation/SKILL.md §Evidence Artifact Requirements"
+
+  - id: spec-creation-004
+    title: "Requirements task mandatory before write"
+    conditions:
+      all:
+        - "requirements_task_completed == false"
+        - "spec_is_trivial != true"
+    actions:
+      - HALT
+      - INVOKE(spec-creation --task requirements)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "spec-creation/SKILL.md §Enforcement Mechanism #2"
+
+  - id: spec-creation-005
+    title: "Spec must be persisted as GitHub Issue"
+    conditions:
+      all:
+        - "spec_written_to_github_issue == false"
+    actions:
+      - INVOKE(issue-operations --task creation)
+    conflicts_with: []
+    requires: [spec-creation-004]
+    triggers: [issue-operations]
+    source: "spec-creation/SKILL.md §Enforcement Mechanism #4"
+
+  - id: spec-creation-006
+    title: "SC scope alignment validation after write"
+    conditions:
+      all:
+        - "write_task_completed == true"
+        - "sc_phase_mapping_verified == false"
+    actions:
+      - VALIDATE(sc_to_phase_mapping)
+    conflicts_with: []
+    requires: [spec-creation-005]
+    triggers: []
+    source: "spec-creation/SKILL.md §Enforcement Mechanism #3"
+
+  - id: spec-creation-007
+    title: "PR merge boundaries section required when dependencies exist"
+    conditions:
+      all:
+        - "spec_has_dependencies == true"
+        - "pr_boundaries_section_present == false"
+    actions:
+      - ADD(pr_boundaries section)
+    conflicts_with: []
+    requires: [spec-creation-005]
+    triggers: [writing-plans, approval-gate]
+    source: "spec-creation/SKILL.md §PR Merge Boundaries"
+
+  - id: spec-creation-008
+    title: "Interdependency diagram required when dependencies exist"
+    conditions:
+      all:
+        - "dependencies_exist == true"
+        - "mermaid_diagram_generated == false"
+    actions:
+      - GENERATE(mermaid diagram showing approved structure only)
+    conflicts_with: []
+    requires: [spec-creation-002]
+    triggers: [writing-plans]
+    source: "spec-creation/SKILL.md §Interdependency Diagram Discipline"
+
+tasks:
+  - id: explore
+    skill: spec-creation
+    preconditions:
+      - "brainstorming exploration completed OR investigation results provided"
+      - "code_inspection_checklist_completed == true OR greenfield_exempt == true"
+    postconditions:
+      - "requirements_extracted == true"
+      - "constraints_ledger_built == true"
+    mandatory: true
+    bypass_violation: "Spec Without Investigation — creating spec without completed investigation is a critical violation"
+    source: "spec-creation/SKILL.md §Tasks requirements"
+
+  - id: create
+    skill: spec-creation
+    preconditions:
+      - "requirements_task_completed == true"
+      - "acceptance_criteria_defined == true"
+    postconditions:
+      - "github_issue_created == true"
+      - "needs_approval_label_added == true"
+      - "self_review_completed == true"
+    mandatory: true
+    bypass_violation: "Spec not persisted — spec must be GitHub Issue, not chat output"
+    source: "spec-creation/SKILL.md §Tasks write"
+
+  - id: diagram
+    skill: spec-creation
+    preconditions:
+      - "dependencies_exist == true"
+    postconditions:
+      - "mermaid_diagram_generated == true"
+      - "diagram_shows_structure_only == true"
+      - "diagram_has_no_workflow_markers == true"
+    mandatory: true
+    bypass_violation: "Missing interdependency diagram — multi-phase specs require mermaid diagram"
+    source: "spec-creation/SKILL.md §Interdependency Diagram Discipline"
+
+  - id: completion
+    skill: spec-creation
+    preconditions: []
+    postconditions:
+      - "terminal_state_dispatch_occurred == true"
+      - "status_report_produced == true"
+    mandatory: true
+    bypass_violation: "Silent Agent Termination — halting without completion task is a critical violation"
+    source: "spec-creation/SKILL.md §Tasks completion"
+
+decomposition:
+  - type: skill-task
+    skill: verification-enforcement
+    task: verify
+    mandatory: true
+    bypass_violation: "Skipping verification-enforcement — content generation without verification gate is a critical violation"
+
+  - type: sub-agent
+    skill: brainstorming
+    task: explore
+    mandatory: false
+    bypass_violation: "Skipping investigation — only permitted when investigation results already provided"
+
+  - type: sub-agent
+    skill: issue-operations
+    task: creation
+    mandatory: true
+    bypass_violation: "Spec not persisted as GitHub Issue — chat-only spec delivery is prohibited"
+
+  - type: skill-task
+    skill: spec-creation
+    task: diagram
+    mandatory: false
+    condition: "dependencies_exist == true"
+    bypass_violation: "Missing interdependency diagram — multi-phase specs require mermaid diagram showing approved structure"
+
+gates:
+  - id: spec-completeness
+    condition: "requirements_extracted == true AND acceptance_criteria_defined == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: verification-enforcement-gate
+    condition: "verification_enforcement_verify_invoked == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: select-existing-check
+    condition: "existing_spec_search_performed == true"
+    on_fail: HALT
+    critical_violation: false
+
+  - id: pr-boundaries-when-deps-exist
+    condition: "spec_has_dependencies == false OR pr_boundaries_section_present == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: diagram-when-deps-exist
+    condition: "dependencies_exist == false OR mermaid_diagram_present == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: diagram-no-workflow-state
+    condition: "diagram_shows_workflow_state == false"
+    on_fail: HALT
+    critical_violation: true
+
+evidence_artifacts:
+  - name: self_review_placeholder_scan
+    type: tool_call
+    verification: "github_issue_read(method=get) → search body for TBD/TODO/placeholder patterns"
+
+  - name: spec_issue_created
+    type: api_call
+    verification: "github_issue_read(method=get) → check title prefix [SPEC] and needs-approval label"
+
+  - name: sc_phase_mapping
+    type: tool_call
+    verification: "github_issue_read(method=get) → verify SC-to-phase trace references exist"
+
+  - name: pr_boundaries_section
+    type: tool_call
+    verification: "github_issue_read(method=get) → verify '## PR Merge Boundaries' section present when spec has dependencies"
+```

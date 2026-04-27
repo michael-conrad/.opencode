@@ -28,9 +28,157 @@
 import type { Hooks, PluginInput } from "@opencode-ai/plugin";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { execSync } from "child_process";
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
+
+interface GitConfigBaseline {
+  configHash: string;
+  localConfigHash: string;
+  remotes: string[];
+  remoteCount: number;
+  capturedAt: number;
+}
+
+const SECURITY_RELEVANT_KEY_PATTERNS: RegExp[] = [
+  /^remote\./,
+  /^url\./,
+  /^http\.proxy$/,
+  /^core\.sshCommand$/,
+  /^http\.sslVerify$/,
+  /^http\.sslCAInfo$/,
+  /^credential\.helper$/,
+  /^credential\.username$/,
+  /^protocol\..*\.allow$/,
+  /^core\.hooksPath$/,
+  /^init\.templateDir$/,
+];
+
+const EXEMPT_KEY_PATTERNS: RegExp[] = [
+  /^user\.name$/,
+  /^user\.email$/,
+  /^core\.autocrlf$/,
+  /^core\.filemode$/,
+  /^push\.default$/,
+  /^submodule\./,
+  /^branch\./,
+];
+
+function isSecurityRelevantKey(key: string): boolean {
+  return SECURITY_RELEVANT_KEY_PATTERNS.some(p => p.test(key));
+}
+
+function isExemptKey(key: string): boolean {
+  return EXEMPT_KEY_PATTERNS.some(p => p.test(key));
+}
+
+function sha256(data: string): string {
+  return crypto.createHash("sha256").update(data, "utf8").digest("hex");
+}
+
+function captureGitConfigBaseline(projectDir: string): GitConfigBaseline | null {
+  try {
+    const gitDir = resolveGitDir(projectDir);
+    const configContent = gitDir
+      ? fs.readFileSync(path.join(gitDir, "config"), "utf8")
+      : "";
+    const configHash = sha256(configContent);
+
+    let localConfigOutput = "";
+    try {
+      localConfigOutput = execSync("git config --local --list", {
+        cwd: projectDir,
+        encoding: "utf8",
+        input: "",
+        timeout: 5000,
+        stdio: ["pipe", "pipe", "pipe"],
+      }).trim();
+    } catch {
+      // No local config or git unavailable
+    }
+    const localConfigHash = sha256(localConfigOutput);
+
+    let remoteOutput = "";
+    try {
+      remoteOutput = execSync("git remote -v", {
+        cwd: projectDir,
+        encoding: "utf8",
+        input: "",
+        timeout: 5000,
+        stdio: ["pipe", "pipe", "pipe"],
+      }).trim();
+    } catch {
+      // No remotes or git unavailable
+    }
+
+    const remotes = remoteOutput
+      ? [...new Set(remoteOutput.split("\n").map(l => l.split(/\s+/)[0]).filter(Boolean))]
+      : [];
+
+    return {
+      configHash,
+      localConfigHash,
+      remotes,
+      remoteCount: remotes.length,
+      capturedAt: Date.now(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function extractChangedSecurityKeys(oldLocalConfig: string, newLocalConfig: string): string[] {
+  const oldKeys = new Set(
+    oldLocalConfig.split("\n").filter(Boolean).map(l => l.split("=")[0].trim())
+  );
+  const newKeys = new Set(
+    newLocalConfig.split("\n").filter(Boolean).map(l => l.split("=")[0].trim())
+  );
+
+  const changed: string[] = [];
+  for (const key of newKeys) {
+    if (!oldKeys.has(key) && isSecurityRelevantKey(key) && !isExemptKey(key)) {
+      changed.push(key);
+    }
+  }
+  for (const key of oldKeys) {
+    if (!newKeys.has(key) && isSecurityRelevantKey(key) && !isExemptKey(key)) {
+      changed.push(key);
+    }
+  }
+
+  return changed;
+}
+
+let gitConfigBaseline: GitConfigBaseline | null = null;
+let baselineLocalConfig: string = "";
+
+function buildGitConfigMutationBlock(changedKeys: string[]): string {
+  const keyList = changedKeys.map(k => `- \`${k}\``).join("\n");
+  return `<GIT_CONFIG_MUTATION>
+⚠️ CRITICAL: Security-relevant git configuration was mutated during this session!
+
+Changed keys:
+${keyList}
+
+This is a Tier 1 mandate violation unless explicitly authorized by the developer.
+HALT and verify the mutation was authorized before proceeding.
+See 000-critical-rules.md → "Git Configuration and Destructive Command Authorization".
+</GIT_CONFIG_MUTATION>`;
+}
+
+function buildNoVerifyBlockedBlock(): string {
+  return `<NO_VERIFY_BLOCKED>
+⚠️ CRITICAL: \`--no-verify\` is FORBIDDEN in repos with remotes.
+
+\`git commit --no-verify\` and \`git push --no-verify\` bypass git hooks that
+enforce repository safety. This is a Tier 1 mandate.
+
+Only permitted in local-only repos (zero remotes). Check \`git remote -v\` first.
+See 000-critical-rules.md → "Git Configuration and Destructive Command Authorization".
+</NO_VERIFY_BLOCKED>`;
+}
 
 interface PluginDiagnostic {
   source: string;
@@ -137,6 +285,8 @@ function resolveGitDir(projectDir: string): string | null {
     const result = execSync("git rev-parse --git-dir", {
       cwd: projectDir,
       encoding: "utf8",
+      input: "",
+      timeout: 5000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim();
     if (path.isAbsolute(result)) return result;
@@ -207,6 +357,8 @@ async function runSessionInit(projectDir: string): Promise<string> {
     const stdout = execSync("./.opencode/tools/session-init", {
       cwd: projectDir,
       encoding: "utf8",
+      input: "",
+      timeout: 30000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim();
 
@@ -219,20 +371,20 @@ async function runSessionInit(projectDir: string): Promise<string> {
     const stderr = err?.stderr?.toString().trim() ?? "";
     const exitCode = err?.status ?? 1;
 
-    const bunNotFound = /bun: command not found/i.test(stderr);
+    const isTimeout = err?.killed || err?.signal === "SIGTERM";
 
     if (!stdout || stdout.length === 0) {
-      const errorMsg = bunNotFound
-        ? "bun runtime not found — session context unavailable. Install bun or check .opencode/tools/ensure-node for a private Node.js runtime."
+      const errorMsg = isTimeout
+        ? `session-init timed out after 30s — likely git credential prompt, lock contention, or submodule hang`
         : (stderr || "Script returned empty output");
       console.error(`[session-enforcement] session-init: ${errorMsg}`);
       writeDiagnostic(projectDir, {
         source: "session-init",
         level: "error",
         message: errorMsg,
-        exitCode,
+        exitCode: isTimeout ? undefined : exitCode,
       });
-      if (stderr && !bunNotFound) {
+      if (stderr && !isTimeout) {
         writeDiagnostic(projectDir, {
           source: "session-init",
           level: "error",
@@ -271,6 +423,8 @@ async function runSessionContextIdentity(projectDir: string): Promise<string> {
     const stdout = execSync("./.opencode/scripts/session_context_identity.py", {
       cwd: projectDir,
       encoding: "utf8",
+      input: "",
+      timeout: 30000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim();
 
@@ -283,18 +437,18 @@ async function runSessionContextIdentity(projectDir: string): Promise<string> {
     const stderr = err?.stderr?.toString().trim() ?? "";
     const exitCode = err?.status ?? 1;
 
-    const bunNotFound = /bun: command not found/i.test(stderr);
+    const isTimeout = err?.killed || err?.signal === "SIGTERM";
 
     if (!stdout || stdout.length === 0) {
-      const errorMsg = bunNotFound
-        ? "bun runtime not found — session context unavailable. Install bun or check .opencode/tools/ensure-node for a private Node.js runtime."
+      const errorMsg = isTimeout
+        ? `session_context_identity.py timed out after 30s`
         : (stderr || "Script returned empty output");
       console.error(`[session-enforcement] session_context_identity.py: ${errorMsg}`);
       writeDiagnostic(projectDir, {
         source: "session_context_identity.py",
         level: "error",
         message: errorMsg,
-        exitCode,
+        exitCode: isTimeout ? undefined : exitCode,
       });
       return "";
     }
@@ -327,6 +481,8 @@ async function runSessionContextTriggers(projectDir: string): Promise<string> {
     const stdout = execSync("./.opencode/scripts/session_context_triggers.py", {
       cwd: projectDir,
       encoding: "utf8",
+      input: "",
+      timeout: 30000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim();
 
@@ -339,18 +495,18 @@ async function runSessionContextTriggers(projectDir: string): Promise<string> {
     const stderr = err?.stderr?.toString().trim() ?? "";
     const exitCode = err?.status ?? 1;
 
-    const bunNotFound = /bun: command not found/i.test(stderr);
+    const isTimeout = err?.killed || err?.signal === "SIGTERM";
 
     if (exitCode !== 0) {
-      const errorMsg = bunNotFound
-        ? "bun runtime not found — session context unavailable. Install bun or check .opencode/tools/ensure-node for a private Node.js runtime."
+      const errorMsg = isTimeout
+        ? `session_context_triggers.py timed out after 30s`
         : (stderr || "Script exited with non-zero code");
       console.error(`[session-enforcement] session_context_triggers.py exited with code ${exitCode}: ${errorMsg}`);
       writeDiagnostic(projectDir, {
         source: "session_context_triggers.py",
         level: "error",
         message: errorMsg,
-        exitCode,
+        exitCode: isTimeout ? undefined : exitCode,
       });
       return "";
     }
@@ -864,7 +1020,7 @@ ${agentLine}
 
 ⚠️ FATAL: If your echo does not match Platform: ${platform}, Org: ${owner}, Repo: ${repo} character-for-character, you MUST HALT immediately and report the mismatch. Do NOT proceed with any operations with incorrect identity. Do NOT infer identity from repository names, file paths, or environment variables. Use ONLY the values provided in the system prompt identity section.
 
-After the identity echo, acknowledge any trigger warnings from the SESSION_TRIGGERS block above.
+After the identity echo, process any trigger warnings from the SESSION_TRIGGERS block above silently per the 117-session-trigger-behavior.md behavior map. Do NOT echo trigger content in your response.
 </IDENTITY_ECHO>`;
 }
 
@@ -933,30 +1089,15 @@ function redactSecrets(text: string): string {
  * from the session-start trigger in session_context_triggers.py which only
  * checks once at session start.
  */
-function buildProtectedBranchEditWarning(changedFiles: string[], branch: string): string {
-  const fileList = changedFiles.slice(0, 10).map(f => `  - \`${f}\``).join("\n");
-  const moreFiles = changedFiles.length > 10 ? `\n  - ... and ${changedFiles.length - 10} more` : "";
+function buildProtectedBranchEditTrigger(changedFiles: string[], branch: string): string {
+  const fileList = changedFiles.slice(0, 10).map(f => `\`${f}\``).join(", ");
+  const moreFiles = changedFiles.length > 10 ? `, …and ${changedFiles.length - 10} more` : "";
   
-  return `<PROTECTED_BRANCH_EDIT_WARNING>
-⚠️ CRITICAL: Files were edited on branch \`${branch}\` without a worktree or pair-mode prefix.
-
-This is a CRITICAL GUIDELINE VIOLATION. Edits on \`dev\` or \`main\` outside a worktree risk:
-- Corrupting the shared development branch
-- Losing changes when switching branches
-- Conflicting with other developers' work
-
-${changedFiles.length} file(s) changed:
-${fileList}${moreFiles}
-
-**MANDATORY RECOVERY:**
-1. STOP all further edits immediately
-2. Stash or revert the unintended changes: \`git stash\` or \`git checkout -- .\`
-3. Create a proper feature branch in a worktree: invoke \`git-workflow --task pre-work\`
-4. Only resume implementation in the worktree
-
-The only exception: if the branch starts with \`pair-\` (pair-mode collaboration), 
-edits on the development branch are expected and this warning should not fire.
-</PROTECTED_BRANCH_EDIT_WARNING>`;
+  return `<SESSION_TRIGGERS>
+⚠️ protected_branch_with_changes: ${changedFiles.length} file(s) changed on \`${branch}\` branch without worktree or pair-mode prefix.
+Changed: ${fileList}${moreFiles}
+Process per 117-session-trigger-behavior.md behavior map. Do NOT echo this trigger in chat output.
+</SESSION_TRIGGERS>`;
 }
 
 /**
@@ -968,6 +1109,8 @@ function detectUncommittedFileChanges(projectDir: string): string[] {
     const result = execSync("git diff --name-only", {
       cwd: projectDir,
       encoding: "utf8",
+      input: "",
+      timeout: 5000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim();
     if (!result) return [];
@@ -986,6 +1129,8 @@ function getCurrentBranch(projectDir: string): string | null {
     return execSync("git branch --show-current", {
       cwd: projectDir,
       encoding: "utf8",
+      input: "",
+      timeout: 5000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim() || null;
   } catch {
@@ -1019,6 +1164,22 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
 
   // Ensure git hooks from .opencode/hooks/ are installed into .git/hooks/
   ensureHooksInstalled(projectDir);
+
+  // Capture git config baseline for mutation watchdog
+  gitConfigBaseline = captureGitConfigBaseline(projectDir);
+  if (gitConfigBaseline) {
+    try {
+      baselineLocalConfig = execSync("git config --local --list", {
+        cwd: projectDir,
+        encoding: "utf8",
+        input: "",
+        timeout: 5000,
+        stdio: ["pipe", "pipe", "pipe"],
+      }).trim();
+    } catch {
+      baselineLocalConfig = "";
+    }
+  }
 
   return {
     // Inject session context into system prompt (from session-init + PluginInput augmentations)
@@ -1146,6 +1307,16 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           const knownPlatform = extractValue(cachedIdentityOutput, "github.platform");
           const knownOwner = extractValue(cachedIdentityOutput, "github.owner");
           const knownRepo = extractValue(cachedIdentityOutput, "github.repo");
+          const knownIdentitySource = extractValue(cachedIdentityOutput, "github.identity_source");
+
+          // Degraded mode: when identity_source is "none", we have no remote at all.
+          // Platform is "local", owner/repo are "(none)". This is a valid operational state,
+          // not an error. Skip the FATAL identity validation for local-only mode.
+          const isLocalMode = knownPlatform === "local" || knownIdentitySource === "none";
+
+          // Submodule mode: parent repo has zero remotes, owner/repo come from submodule.
+          // Agent must NOT add remotes to the parent repo or push from the parent repo.
+          const isSubmoduleMode = knownIdentitySource === "submodule";
 
           // Detect agent binary for identity echo
           const agentBinary = detectAgentBinary();
@@ -1178,7 +1349,26 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           }
 
           // --- First-turn-only: Identity echo validation ---
-          if (!knownPlatform || !knownOwner || !knownRepo) {
+          if (isLocalMode) {
+            // Local mode: identity values are "(none)" by design. Skip FATAL validation.
+            // Emit a warning instead so the agent knows it's in local-only mode.
+            const lastUser = userMessages[userMessages.length - 1];
+            if (lastUser?.parts?.length) {
+              lastUser.parts.push({
+                type: "text",
+                text: `<LOCAL_MODE>\n⚠️ Operating in local-only mode — no git remote configured.\n\n- github.platform: local\n- github.owner: (none)\n- github.repo: (none)\n- github.identity_source: none\n\nGitHub/GitBucket API calls are unavailable. Local issue tracking (.issues/) is available.\nDo NOT attempt to use GitHub MCP or GitBucket API tools — all issue operations route to local .issues/.\n</LOCAL_MODE>`
+              });
+            }
+          } else if (isSubmoduleMode) {
+            const parentRemoteCount = gitConfigBaseline?.remoteCount ?? 0;
+            const lastUser = userMessages[userMessages.length - 1];
+            if (lastUser?.parts?.length) {
+              lastUser.parts.push({
+                type: "text",
+                text: `<LOCAL_MODE>\n⚠️ Operating in submodule-local mode — parent repo has ${parentRemoteCount} remote(s).\n\n- github.identity_source: submodule\n- All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory — not the project root.\n- The parent repo has ZERO remotes by design.\n- github.owner and github.repo are from the submodule remote for API routing ONLY\n- GitHub MCP calls route to the submodule's repository\n- Local git operations (branch, commit, stash) on the parent repo are permitted\n- Do NOT push from the parent repo — there is no remote to push to.\n- Do NOT add remotes to the parent repo.\n</LOCAL_MODE>`
+              });
+            }
+          } else if (!knownPlatform || !knownOwner || !knownRepo) {
             const missing = [
               !knownPlatform ? "github.platform" : null,
               !knownOwner ? "github.owner" : null,
@@ -1257,6 +1447,76 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         }
       }
 
+      // --- Per-turn: Git config mutation watchdog ---
+      if (gitConfigBaseline) {
+        try {
+          const currentLocalConfig = execSync("git config --local --list", {
+            cwd: projectDir,
+            encoding: "utf8",
+            input: "",
+            timeout: 5000,
+            stdio: ["pipe", "pipe", "pipe"],
+          }).trim();
+
+          const currentBaseline = captureGitConfigBaseline(projectDir);
+          if (currentBaseline) {
+            const configChanged = currentBaseline.configHash !== gitConfigBaseline.configHash;
+            const localConfigChanged = currentBaseline.localConfigHash !== gitConfigBaseline.localConfigHash;
+
+            if (configChanged || localConfigChanged) {
+              const changedKeys = extractChangedSecurityKeys(baselineLocalConfig, currentLocalConfig);
+              if (changedKeys.length > 0) {
+                const mutationBlock = buildGitConfigMutationBlock(changedKeys);
+                const nextUser = userMessages[userMessages.length - 1];
+                if (nextUser?.parts?.length) {
+                  nextUser.parts.push({ type: "text", text: mutationBlock });
+                }
+                gitConfigBaseline = currentBaseline;
+                baselineLocalConfig = currentLocalConfig;
+              }
+            }
+          }
+        } catch {
+          // Git unavailable or config unreadable — skip watchdog
+        }
+      }
+
+      // --- Per-turn: --no-verify detection ---
+      let hasRemotes: boolean;
+      if (gitConfigBaseline) {
+        hasRemotes = gitConfigBaseline.remoteCount > 0;
+      } else {
+        // Baseline capture failed — check remotes inline
+        try {
+          const remoteCheck = execSync("git remote -v", {
+            cwd: projectDir,
+            encoding: "utf8",
+            input: "",
+            timeout: 5000,
+            stdio: ["pipe", "pipe", "pipe"],
+          }).trim();
+          hasRemotes = remoteCheck.length > 0;
+        } catch {
+          hasRemotes = false; // No remotes = local-only → permit --no-verify
+        }
+      }
+      for (const msg of assistantMessages) {
+        if (!msg.parts?.length) continue;
+        for (const part of msg.parts) {
+          if (part.type === "text" && part.text) {
+            const noVerifyMatch = part.text.match(/(?:git\s+commit|git\s+push)\s+.*--no-verify/);
+            if (noVerifyMatch && hasRemotes) {
+              const blockedBlock = buildNoVerifyBlockedBlock();
+              const nextUser = userMessages[userMessages.length - 1];
+              if (nextUser?.parts?.length) {
+                nextUser.parts.push({ type: "text", text: blockedBlock });
+              }
+              break;
+            }
+          }
+        }
+      }
+
       // --- Per-turn: Protected branch edit guard ---
       // After each assistant turn, check if files were edited on dev/main
       // without a worktree or pair- branch prefix. If so, inject warning.
@@ -1268,7 +1528,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         if (!inWorktree && !isPairModeBranch(currentBranch)) {
           const changedFiles = detectUncommittedFileChanges(projectDir);
           if (changedFiles.length > 0) {
-            const warning = buildProtectedBranchEditWarning(changedFiles, currentBranch);
+            const warning = buildProtectedBranchEditTrigger(changedFiles, currentBranch);
             const lastAssistant = assistantMessages[assistantMessages.length - 1];
             if (lastAssistant?.parts?.length) {
               lastAssistant.parts.push({ type: "text", text: warning });

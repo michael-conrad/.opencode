@@ -3,6 +3,7 @@ name: concern-separation-auditor
 description: Use when auditing a spec for phase structure quality or concern separation. Triggers on: concern separation, phase structure, spec audit, mixed concerns.
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -28,6 +29,16 @@ Concern Separation Auditor analyzes spec phase structures to identify deployment
 
 If invoked directly (deprecated, but still works):
 - `/skill concern-separation-auditor --issue N` — Audit (report-only mode)
+
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `audit-phases` | When analyzing phase structure for concern quality | Issue number, plan body, github.owner, github.repo | Implementation context, agent memory | NO |
+| `check-independence` | When validating deployment independence between phases | Issue number, phase boundaries, github.owner, github.repo | Implementation context, agent memory | NO |
+| `concern-coverage` | When verifying sub-issue bodies reflect Plan concern boundaries | Issue number, sub-issue list, github.owner, github.repo | Implementation context, agent memory | NO |
 
 ## Report-Only Model
 
@@ -171,3 +182,108 @@ Co-authored with AI: <AgentName> (<ModelId>)
 Results are used as **evidence** (not verdict) — they supplement prose-only analysis with formal activation graph showing cross-concern dependencies.
 
 **Graceful degradation:** If the engine is unavailable or produces no results, fall back to prose-only analysis. Do NOT block the audit if the engine fails.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-26T00:00:00Z"
+rules:
+  - id: concern-separation-001
+    title: "Concern analysis must verify against actual code"
+    conditions:
+      all:
+        - "boundary_claim_made == true"
+        - "code_verification_performed == false"
+    actions:
+      - HALT
+      - VERIFY_AGAINST_CODE
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "concern-separation-auditor/SKILL.md §Live Verification"
+
+tasks:
+  - id: audit-phases
+    skill: concern-separation-auditor
+    preconditions: ["plan_available == true"]
+    postconditions: ["phase_audit_complete == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Phase Audit"
+    source: "concern-separation-auditor/SKILL.md"
+
+  - id: check-independence
+    skill: concern-separation-auditor
+    preconditions: ["phases_identified == true"]
+    postconditions: ["independence_checked == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Independence Check"
+    source: "concern-separation-auditor/SKILL.md"
+
+  - id: concern-coverage
+    skill: concern-separation-auditor
+    preconditions: ["independence_checked == true"]
+    postconditions: ["coverage_checked == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Concern Coverage Check"
+    source: "concern-separation-auditor/SKILL.md"
+
+decomposition:
+  - type: skill-task
+    skill: spec-auditor
+    task: ground-truth
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Ground-Truth Verification"
+    purpose: "Adversarial verification of boundary claims against actual code"
+
+  - type: skill-task
+    skill: programming-principles
+    task: audit
+    mandatory: false
+    bypass_violation: "WARNING: Skipping Engineering Principle Audit"
+    purpose: "Check SoC and Blast Radius principle definitions"
+
+gates:
+  - id: code-verification-mandatory
+    condition: "boundary_claim_verified_against_code == true"
+    on_fail: "HALT AND VERIFY"
+    critical_violation: true
+
+  - id: independence-verified
+    condition: "independence_check_performed == true"
+    on_fail: "PERFORM_INDEPENDENCE_CHECK"
+    critical_violation: false
+
+evidence_artifacts:
+  - name: phase_structure_analysis
+    type: structured_table
+    verification: "Each phase has concern, deployment independence, risk profile, blast radius"
+
+  - name: boundary_verification
+    type: tool_call_artifact
+    verification: "Each boundary claim verified via srclight against actual code"
+
+  - name: coverage_findings
+    type: structured_table
+    verification: "Each sub-issue checked for scope match against plan phase"
+
+state_machines:
+  - id: concern-audit
+    states: [idle, analyzing, checking_independence, checking_coverage, complete]
+    start_state: idle
+    transitions:
+      - from: idle
+        to: analyzing
+        guard: "plan_available == true"
+        action: INVOKE(audit-phases)
+      - from: analyzing
+        to: checking_independence
+        guard: "phases_identified == true"
+        action: INVOKE(check-independence)
+      - from: checking_independence
+        to: checking_coverage
+        guard: "independence_checked == true"
+        action: INVOKE(concern-coverage)
+      - from: checking_coverage
+        to: complete
+        guard: "coverage_checked == true"
+        action: PROCEED
+```

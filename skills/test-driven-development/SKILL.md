@@ -3,6 +3,7 @@ name: test-driven-development
 description: Use when writing tests before implementation, or when adopting a test-first development approach. Triggers on: TDD, test first, red green refactor, write test, test-driven, unit test, regression.
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -21,6 +22,16 @@ Test-driven development (TDD) workflow that enforces writing tests before implem
 | `red` | Write failing test for new behavior | ≈200 |
 | `green` | Write minimal implementation to pass test | ≈150 |
 | `refactor` | Clean up while keeping tests green | ≈200 |
+
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `red` | When writing failing test for new behavior | Spec SC list, test file paths | Implementation context, implementation intent | NO |
+| `green` | When writing minimal implementation to pass test | Spec SC list, test file paths, implementation file paths | Prior RED test output, implementation intent | NO |
+| `refactor` | When cleaning up code while keeping tests green | Implementation file paths, test file paths | Implementation context, agent memory | NO |
 
 ## Invocation
 
@@ -79,3 +90,81 @@ TDD is invoked contextually — not mandatory for all development.
 - **GitHub:** Not applicable (this repository uses GitBucket)
 - **GitBucket:** Use Python client from gitbucket-api skill
 - **Platform Detection:** Uses `github.platform` environment variable
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: tdd-001
+    title: "Tests MUST be written before implementation code"
+    conditions:
+      all:
+        - "tdd_selected == true"
+        - "implementation_written_before_test == true"
+    actions:
+      - RECOMMEND("start with test first")
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "test-driven-development/SKILL.md §Operating Protocol"
+
+  - id: tdd-002
+    title: "Test MUST fail without implementation (RED phase)"
+    conditions:
+      all:
+        - "tdd_selected == true"
+        - "test_passes_without_implementation == true"
+    actions:
+      - RECOMMEND("test does not validate anything — rewrite test")
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "test-driven-development/SKILL.md §Enforcement Mechanism"
+
+tasks:
+  - id: red
+    skill: test-driven-development
+    preconditions:
+      - "testable_behavior_defined == true"
+    postconditions:
+      - "failing_test_written == true"
+      - "test_defines_expected_behavior == true"
+    mandatory: true
+    bypass_violation: "implementation started before test written"
+    source: "test-driven-development/SKILL.md §Tasks"
+
+  - id: green
+    skill: test-driven-development
+    preconditions:
+      - "red_phase_complete == true"
+      - "failing_test_exists == true"
+    postconditions:
+      - "implementation_passes_test == true"
+      - "implementation_is_minimal == true"
+    mandatory: true
+    bypass_violation: "implementation does not pass the test"
+    source: "test-driven-development/SKILL.md §Tasks"
+
+  - id: refactor
+    skill: test-driven-development
+    preconditions:
+      - "green_phase_complete == true"
+      - "all_tests_passing == true"
+    postconditions:
+      - "code_cleaned_up == true"
+      - "all_tests_still_passing == true"
+    mandatory: false
+    bypass_violation: "refactoring broke tests"
+    source: "test-driven-development/SKILL.md §Tasks"
+
+decomposition: []
+gates:
+  - id: red-before-green
+    type: precondition
+    check: "failing test exists before implementation begins"
+    on_fail: RECOMMEND("write test first")
+    source: "test-driven-development/SKILL.md §Red-Green-Refactor cycle"
+evidence_artifacts:
+  - "test file created before implementation file"
+  - "uv run pytest output showing test results"
+```

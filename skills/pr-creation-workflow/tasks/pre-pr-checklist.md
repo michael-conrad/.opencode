@@ -31,7 +31,19 @@ ls .opencode/tmp/work-*.md 2>/dev/null
 
 # Check commit count between dev and HEAD
 git log origin/dev..HEAD --oneline
+
+# Verify commit count matches expectation
+git log origin/dev..HEAD --oneline | wc -l
 ```
+
+**Commit count enforcement (MANDATORY — `000-critical-rules.md` §Un-Squashed PR):**
+
+| Branch Type | Commit Count | Action on Mismatch |
+| -- | -- | -- |
+| **Single-issue** (no work state file) | MUST be **1** | SQUASH NOW → `pr-creation/squash-push.md` Step 3 |
+| **Work branch** (work state file exists) | MUST equal work items | VERIFY NOW — confirm N commits = N work items |
+
+**If commit count mismatch → SQUASH NOW (single-issue) or VERIFY NOW (work branch).** This is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Un-Squashed PR — creating a PR with incorrect commit count is forbidden.
 
 **Scope check:** If `pr_strategy == none` or `halt_at < pr_created`, HALT — PR creation is not authorized by the current scope. The scope boundary is a hard wall.
 

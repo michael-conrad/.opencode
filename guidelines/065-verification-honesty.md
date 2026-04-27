@@ -99,6 +99,17 @@ This guideline retains governance of reactive honesty during conversation and ad
 
 Both this guideline and the verification-enforcement skill share the same core principle: no claim should be presented as verified without a tool call or live source as evidence. The skill extends this principle with a structured dispatch-and-collect workflow appropriate for multi-section content generation, while this guideline covers the same principle in its simpler, conversational form.
 
+## Evidence Hierarchy
+
+| Tier | Source | Classification | When Permitted |
+|------|--------|----------------|----------------|
+| **Direct evidence** | Live tool call in current session (file read, signature lookup, test execution, API query) | Evidence | As sole basis for PASS judgment |
+| **Process metadata** | PR merge status, issue state, labels, comments | Context only | May inform where to look, NEVER basis for PASS |
+| **Session memory** | Tool call from earlier in same exchange | Evidence (single-exchange window) | ONLY if from immediately preceding exchange |
+| **Session memory (stale)** | Tool call from earlier in same session (not last exchange) | Context only | Treat as unverified; re-read if state may have changed |
+| **Cross-session memory** | Recollection from previous session | PROXY — always stale | NEVER evidence; must re-verify |
+| **Training data** | Model weights / parametric knowledge | PROXY — always stale | NEVER evidence; suggest-only with staleness disclaimer |
+
 ## Research-First Mandate
 
 **🚫 CRITICAL VIOLATION: Presenting unverified claims as facts without first attempting exhaustive research using available tools.**
@@ -315,3 +326,100 @@ When reporting verification results for external values:
 3. The default is ALWAYS `exact` — semantic mode must be explicitly chosen and justified
 
 **For ALL external verifications (DNS, configuration, infrastructure, API responses), `exact` mode is mandatory. No exceptions. No semantic comparison.**
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: verification-honesty-001
+    title: "Must use tools for verification — never rely on memory"
+    conditions:
+      all:
+        - "verification_requested == true"
+        - "tool_call_performed == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "065-verification-honesty.md §Zero Tolerance Rule"
+
+  - id: verification-honesty-002
+    title: "Evidence required for all verification claims"
+    conditions:
+      all:
+        - "claim_presented_as_verified == true"
+        - "tool_call_evidence_visible == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "065-verification-honesty.md §Evidence Requirement"
+
+  - id: verification-honesty-003
+    title: "Proactive verification before structural claims"
+    conditions:
+      all:
+        - "structural_claim_pending == true"
+        - "verified_against_live_source == false"
+    actions:
+      - HALT
+    conflicts_with: [critical-rules-008]
+    requires: []
+    triggers: []
+    source: "065-verification-honesty.md §Proactive Verification"
+
+  - id: verification-honesty-004
+    title: "Exact match for external verifications — no soft-passing"
+    conditions:
+      all:
+        - "verification_mode == 'exact'"
+        - "live_value != specification_value"
+        - "reported_result == 'PASS'"
+    actions:
+      - HALT
+    conflicts_with: [critical-rules-020]
+    requires: []
+    triggers: [verification-before-completion]
+    source: "065-verification-honesty.md §Verification Comparison Semantics"
+
+  - id: verification-honesty-005
+    title: "No code/API suggestions when verification fails"
+    conditions:
+      all:
+        - "claim_type == 'code_or_api'"
+        - "verification_tools_failed == true"
+    actions:
+      - DECLINE_TO_STATE
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "065-verification-honesty.md §Suggest-After-Research Fallback"
+
+  - id: verification-honesty-006
+    title: "Metadata must be verified — not trusted at face value"
+    conditions:
+      all:
+        - "metadata_claim_pending == true"
+        - "metadata_verified_via_tool == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate, spec-auditor]
+    source: "065-verification-honesty.md §Metadata Verification Extension"
+
+  - id: verification-honesty-007
+    title: "Per-field independence in multi-field verification"
+    conditions:
+      all:
+        - "multi_field_record_verified == true"
+        - "any_field_mismatch_masked == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion]
+    source: "065-verification-honesty.md §Per-Field Independence"
+```

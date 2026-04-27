@@ -3,6 +3,7 @@ name: research
 description: Use when discovering information using appropriate modalities, producing findings with source attribution and explicit gap reporting. Triggers on: research, discover, investigate, find information, multimodal research, information discovery.
 type: research
 license: Apache-2.0
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -92,6 +93,14 @@ Every finding requires source attribution with the following fields:
 | `research` | Yes | `ResearchResult` with findings, source attribution, gaps |
 | `research-multi` | Yes | `ResearchResult` with per-modality findings and gap list |
 | `completion` | Yes | Status report with research state |
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `research` | When discovering information with source attribution | Research query, github.owner, github.repo | Implementation context, agent memory, pre-concluded answers | NO |
+| `research-multi` | When routing multimodal research queries | Research query, modality list, github.owner, github.repo | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, research results | Implementation context, agent memory | NO |
 
 ## Cross-References
 

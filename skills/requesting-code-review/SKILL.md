@@ -3,6 +3,7 @@ name: requesting-code-review
 description: Use when preparing a PR for code review, or when reviewer context and documentation are needed. Triggers on: request review, code review, review request, ready for review, review preparation.
 type: technique
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -20,6 +21,15 @@ Workflow for preparing and requesting code reviews. Ensures PR descriptions have
 |------|---------|-------|
 | `prepare` | Prepare PR for review | ≈400 |
 | `request` | Submit review request | ≈250 |
+
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `prepare` | When preparing a PR for review | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `request` | When submitting a review request | PR number, reviewers, github.owner, github.repo | Implementation context, agent memory | NO |
 
 ## Invocation
 
@@ -100,3 +110,50 @@ Before invoking any cross-referenced skill:
 - **GitHub:** Not applicable (this repository uses GitBucket)
 - **GitBucket:** Use Python client from gitbucket-api skill
 - **Platform Detection:** Uses `github.platform` environment variable
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-26T00:00:00Z"
+rules: []
+tasks:
+  - id: prepare
+    skill: requesting-code-review
+    preconditions: ["pr_created == true"]
+    postconditions: ["pr_ready_for_review == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Code Review Preparation"
+    source: "requesting-code-review/SKILL.md"
+  - id: request
+    skill: requesting-code-review
+    preconditions: ["pr_ready_for_review == true"]
+    postconditions: ["review_request_submitted == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Review Request"
+    source: "requesting-code-review/SKILL.md"
+  - id: completion
+    skill: requesting-code-review
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "requesting-code-review/SKILL.md"
+decomposition:
+  - type: sub-agent-dispatch
+    isolation: clean-room
+    must_receive: [diff, PR metadata]
+    must_not_receive: [implementation intent, agent memory from prior phases, cached verification results]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Clean-Room Dispatch for Sub-Agents"
+gates:
+  - id: pr-must-exist
+    condition: "pr_created == true"
+    on_fail: "HALT"
+    critical_violation: true
+evidence_artifacts:
+  - name: pr_description
+    type: tool_call
+    verification: "PR description has Summary/Outcome/Fixes format"
+  - name: review_request
+    type: api_call
+    verification: "Review request submitted via GitHub API"
+```

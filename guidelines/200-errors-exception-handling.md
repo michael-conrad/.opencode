@@ -157,3 +157,86 @@ def calculate_average(values: list[float]) -> float:
 ______________________________________________________________________
 
 *Source: Content migrated from `095-never-hide-problems.md`*
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: exception-handling-001
+    title: "Never swallow exceptions or hide errors"
+    conditions:
+      any:
+        - "code_pattern == 'except: pass'"
+        - "code_pattern == 'except Exception: pass'"
+        - "code_pattern == 'except Exception: continue'"
+        - "code_pattern == 'except Exception: return None'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "200-errors-exception-handling.md §Global Absolute Prohibition"
+
+  - id: exception-handling-002
+    title: "No bare except blocks"
+    conditions:
+      all:
+        - "code_pattern == 'except:'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "200-errors-exception-handling.md §Exception Handling Rules"
+
+  - id: exception-handling-003
+    title: "No log-without-reraise pattern"
+    conditions:
+      all:
+        - "code_pattern == 'log_error_without_reraise'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "200-errors-exception-handling.md §Exception Handling Rules"
+
+  - id: exception-handling-004
+    title: "Exceptions must re-raise or wrap with context"
+    conditions:
+      all:
+        - "except_block_exists == true"
+        - "re_raises == false"
+        - "wraps_with_context == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "200-errors-exception-handling.md §Exception Handling Rules"
+
+  - id: exception-handling-005
+    title: "Use contextual error wrapping at each layer"
+    conditions:
+      all:
+        - "exception_caught == true"
+    actions:
+      - PROCEED
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "200-errors-exception-handling.md §Required Patterns"
+
+  - id: exception-handling-006
+    title: "Let it crash when you cannot add meaningful context"
+    conditions:
+      all:
+        - "can_add_context == false"
+        - "can_handle_meaningfully == false"
+    actions:
+      - PROCEED
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "200-errors-exception-handling.md §Required Patterns"
+```

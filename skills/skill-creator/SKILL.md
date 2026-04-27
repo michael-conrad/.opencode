@@ -2,6 +2,7 @@
 name: skill-creator
 description: Use when creating a new skill, updating an existing skill, or validating skill cards. Triggers on: new skill, update skill, create skill, skill template, skill structure, SKILL.md, validate skill cards, review skills, skill card review.
 license: Apache-2.0
+provenance: AI-generated
 compatibility: opencode
 type: technique
 ---
@@ -21,6 +22,16 @@ Creating skills IS Test-Driven Development applied to process documentation. Wri
 | `init` | Create new skill from template using init_skill.py | ≈200 |
 | `package` | Package skill into distributable zip | ≈150 |
 | `validate` | Agent-driven semantic review of all skill cards (script sensor + intelligent corrections, conflict/ambiguity detection) | ≈100 |
+
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `init` | When creating new skill from template | Skill name, output directory, github.owner, github.repo | Implementation context, agent memory | NO |
+| `package` | When packaging skill into distributable zip | Skill folder path, output directory | Implementation context, agent memory | NO |
+| `validate` | When agent-driven semantic review of skill cards is needed | Skill folder paths, validation scope | Implementation context, agent memory | NO |
 
 ## Invocation
 
@@ -274,3 +285,214 @@ Before invoking any cross-referenced skill:
 | [obra/superpowers `persuasion-principles`](https://github.com/obra/superpowers/blob/main/skills/writing-skills/persuasion-principles.md) | Persuasion principles for skill design |
 
 Related skills: `coherence-auditor` (drift detection and verification for new/updated skills)
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: skill-creator-001
+    title: "TDD mandatory — no skill without failing test first"
+    conditions:
+      all:
+        - "failing_test_documented == false"
+        - "skill_creation_or_update_in_progress == true"
+    actions:
+      - HALT
+      - INVOKE(RED phase — document baseline failure)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "skill-creator/SKILL.md §The Iron Law"
+
+  - id: skill-creator-002
+    title: "No hardcoded identity values in skill files"
+    conditions:
+      all:
+        - "skill_file_contains_hardcoded_identity == true"
+    actions:
+      - REJECT(skill)
+      - REPLACE(with placeholder tokens)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "skill-creator/SKILL.md §Placeholder Enforcement Requirement"
+
+  - id: skill-creator-003
+    title: "Verification-enforcement gate before skill generation"
+    conditions:
+      all:
+        - "verification_enforcement_verify_invoked == false"
+    actions:
+      - INVOKE(verification-enforcement --task verify)
+    conflicts_with: []
+    requires: []
+    triggers: [verification-enforcement]
+    source: "skill-creator/SKILL.md §Cross-Reference Verification"
+
+  - id: skill-creator-004
+    title: "Worktree awareness mandatory in all skills"
+    conditions:
+      all:
+        - "skill_performs_git_or_file_operations == true"
+        - "worktree_mode_section_present == false"
+    actions:
+      - REJECT(skill until Worktree Mode section added)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "skill-creator/SKILL.md §Worktree Awareness Requirement"
+
+  - id: skill-creator-005
+    title: "Enforcement test step mandatory after skill creation/update"
+    conditions:
+      all:
+        - "enforcement_test_updated == false"
+        - "skill_created_or_updated == true"
+    actions:
+      - HALT
+      - ADD_ENFORCEMENT_TEST_SCENARIO
+    conflicts_with: []
+    requires: [skill-creator-001]
+    triggers: []
+    source: "skill-creator/SKILL.md §Enforcement Test Step"
+
+  - id: skill-creator-006
+    title: "Required frontmatter fields present"
+    conditions:
+      all:
+        - "skill_frontmatter_missing_required_field == true"
+    actions:
+      - REJECT(skill until frontmatter complete)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "skill-creator/SKILL.md §Skill Type Taxonomy"
+
+  - id: skill-creator-007
+    title: "Session-init variable names must match canon"
+    conditions:
+      all:
+        - "skill_references_non_canonical_session_var == true"
+    actions:
+      - REPLACE(with canonical dotted name)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "skill-creator/SKILL.md §Session Init Variable Alignment"
+
+  - id: skill-creator-008
+    title: "No 0-based counting patterns in skill/task docs"
+    conditions:
+      all:
+        - "skill_contains_zero_based_counting == true"
+        - "context != code_block"
+    actions:
+      - FLAG(validation error requiring correction)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "skill-creator/SKILL.md §Validation Gate"
+
+tasks:
+  - id: create
+    skill: skill-creator
+    preconditions:
+      - "failing_test_documented == true (RED phase complete)"
+      - "skill_type_determined == true"
+    postconditions:
+      - "skill_file_created == true"
+      - "worktree_mode_section_present == true (if applicable)"
+      - "placeholder_tokens_used == true"
+      - "enforcement_test_scenario_added == true"
+    mandatory: true
+    bypass_violation: "Skill without TDD — creating skill without failing test first violates Iron Law"
+    source: "skill-creator/SKILL.md §Tasks init"
+
+  - id: update
+    skill: skill-creator
+    preconditions:
+      - "existing_skill_file_found == true"
+      - "failing_test_documented == true (RED phase for change)"
+    postconditions:
+      - "skill_file_updated == true"
+      - "no_hardcoded_identity_values == true"
+      - "enforcement_test_scenario_updated == true"
+    mandatory: true
+    bypass_violation: "Skill update without TDD — modifying skill without baseline failure test violates Iron Law"
+    source: "skill-creator/SKILL.md §TDD Cycle"
+
+  - id: validate
+    skill: skill-creator
+    preconditions:
+      - "skill_files_exist == true"
+    postconditions:
+      - "all_frontmatter_complete == true"
+      - "no_hardcoded_identity_values == true"
+      - "worktree_sections_present == true (where applicable)"
+      - "no_zero_based_counting == true"
+      - "session_var_names_canonical == true"
+    mandatory: false
+    bypass_violation: "Validation recommended but not blocking — flagged issues should be addressed before skill is used"
+    source: "skill-creator/SKILL.md §Tasks validate"
+
+  - id: completion
+    skill: skill-creator
+    preconditions: []
+    postconditions:
+      - "terminal_state_dispatch_occurred == true"
+      - "status_report_produced == true"
+    mandatory: true
+    bypass_violation: "Silent Agent Termination — halting without completion task is a critical violation"
+    source: "skill-creator/SKILL.md Operating Protocol"
+
+decomposition:
+  - type: skill-task
+    skill: verification-enforcement
+    task: verify
+    mandatory: true
+    bypass_violation: "Skipping verification-enforcement — skill generation without verification gate is a critical violation"
+
+  - type: sub-agent
+    skill: coherence-auditor
+    task: audit
+    mandatory: false
+    bypass_violation: "Coherence audit optional but recommended for cross-skill consistency"
+
+gates:
+  - id: no-hardcoded-identity
+    condition: "skill_file_contains_hardcoded_identity == false"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: required-frontmatter
+    condition: "frontmatter_name_present == true AND frontmatter_description_present == true AND frontmatter_type_present == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: tdd-red-phase
+    condition: "failing_test_documented == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: worktree-awareness
+    condition: "worktree_mode_section_present == true OR skill_has_no_git_file_operations == true"
+    on_fail: WARN
+    critical_violation: false
+
+evidence_artifacts:
+  - name: tdd_red_phase_evidence
+    type: tool_call
+    verification: "bash .opencode/tests/with-test-home opencode-cli run '<test message>' → baseline failure output"
+
+  - name: validation_output
+    type: tool_call
+    verification: "uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py → REQ-1/2/3 check"
+
+  - name: quick_validate_output
+    type: tool_call
+    verification: "./.opencode/skills/skill-creator/scripts/quick_validate.py <skill-folder> → frontmatter check"
+
+  - name: placeholder_check
+    type: tool_call
+    verification: "grep for hardcoded agent names, model IDs, developer names in SKILL.md and task/*.md files"
+```

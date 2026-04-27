@@ -3,10 +3,19 @@ name: guideline-auditor
 description: Use when checking guideline files for ambiguity, conflicts, or LLM compliance issues. Triggers on: audit guidelines, guideline quality, guideline conflict, ambiguous rule, LLM compliance.
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
 # Persona: Guideline Auditor
+
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `audit` | When guideline audit is invoked | Guideline file paths, audit scope | Implementation context, agent memory | NO |
 
 ## Role
 

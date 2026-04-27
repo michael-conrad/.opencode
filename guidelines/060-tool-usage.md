@@ -82,6 +82,20 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 
 **For `bash` tool:** Continue using `workdir` parameter (already documented in `using-git-worktrees` skill and `000-critical-rules.md`).
 
+### `.issues/` Worktree Exemption (CRITICAL)
+
+`.issues/` files are non-behavioral metadata (issue specs, comments, frontmatter). They are **exempt from the worktree requirement** — agents MAY create, read, edit, and update `.issues/` files without setting up a worktree first.
+
+**However**, the **branching requirement still applies**: `.issues/` files MUST NOT be committed directly to `dev` or `main`. All `.issues/` changes require a feature branch (or pair-mode branch).
+
+| Rule | `.issues/` files | Source code files |
+|------|-------------------|-------------------|
+| Worktree required? | NO (exempt) | Only when `WORKTREE_REQUIRED` set (default: NO) |
+| Feature branch required? | YES | YES |
+| Can commit to `dev`/`main`? | NO | NO |
+
+**Rationale:** `.issues/` files are local workspace metadata, not executable code. Edits to `.issues/` cannot break builds, tests, or deployments. However, they are tracked in git (so devs can resume work on another machine), so branch hygiene still matters.
+
 ## 3. Temp Files & Cleanliness
 
 ### ✅ ALWAYS DO
@@ -160,3 +174,126 @@ Invoke skills when their trigger keywords match the current task. Each skill def
 | **No speculative loading** | Do not load skills "just in case" — load when triggers match |
 | **Skill self-describes boundary** | Each SKILL.md defines what it covers; when in doubt, check `Triggers on:` line |
 | **Sub-agent dispatch priority** | When a SKILL.md Sub-Agent Tasks section marks a task as `sub-agent`, the main agent dispatches via `task()` instead of loading the task file inline. This keeps heavy task files out of the main agent context. Result contracts (≈100-500 words) are read instead of the full task file (>1,000 words) |
+
+## 9. Identity Source Semantics
+
+The `github.identity_source` value (emitted by session-init) determines the agent's relationship to git remotes and GitHub API routing.
+
+| `identity_source` | Routing Description |
+|---|---|
+| `root` | Standard workflow — parent repo has a remote, owner/repo from parent remote. All git operations work normally through the parent repo. |
+| `submodule` | Submodule-local mode — parent repo has ZERO remotes by design. All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory, not the project root. The submodule path is the only path to the remote repository. Do NOT add remotes to the parent repo. Do NOT push from the parent repo. |
+| `none` | Full local-only mode — no remote exists anywhere. All remote git operations (fetch, pull, push) will fail. No GitHub or GitBucket API calls are possible. Do NOT add remotes. |
+
+**When `identity_source == "submodule"`:**
+
+- The parent repo has ZERO remotes by design — do NOT add remotes
+- `github.owner` and `github.repo` come from the submodule's remote for API routing only
+- GitHub MCP calls route to the submodule's repository, not the parent
+- Local git operations (branch, commit, stash) on the parent repo are permitted
+- `git push` from the parent repo is FORBIDDEN — there is no remote to push to
+- `git remote add` on the parent repo is FORBIDDEN — the absence of remotes is intentional |
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: tool-usage-001
+    title: "Notebook files require the-notebook-mcp exclusively"
+    conditions:
+      all:
+        - "file_extension == '.ipynb'"
+        - "using_notebook_mcp == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [notebook-operations]
+    source: "060-tool-usage.md §1 Tool Priority Hierarchy"
+
+  - id: tool-usage-002
+    title: "Absolute paths forbidden in agent terminal commands"
+    conditions:
+      all:
+        - "terminal_command_matches == '/^[a-zA-Z0-9_-]+:.*|^/'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "060-tool-usage.md §2 Path Rules NEVER DO"
+
+  - id: tool-usage-003
+    title: "Worktree path prefixing required for file operations when worktree.path set"
+    conditions:
+      all:
+        - "worktree_path_is_set == true"
+        - "using_relative_paths_for_file_ops == true"
+    actions:
+      - HALT
+    conflicts_with: [critical-rules-007]
+    requires: []
+    triggers: [using-git-worktrees]
+    source: "060-tool-usage.md §2 Worktree Path Resolution"
+
+  - id: tool-usage-004
+    title: "Only ./tmp/ permitted for temp files"
+    conditions:
+      all:
+        - "temp_file_path matches '^/tmp/'"
+    actions:
+      - HALT
+    conflicts_with: [critical-rules-004]
+    requires: []
+    triggers: []
+    source: "060-tool-usage.md §3 Temp Files & Cleanliness"
+
+  - id: tool-usage-005
+    title: "Must use uv run for Python invocation"
+    conditions:
+      all:
+        - "python_invocation_method == 'bare_python'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "060-tool-usage.md §4 Command Restrictions ALWAYS DO"
+
+  - id: tool-usage-006
+    title: "sed -i, printf, echo redirection, and heredocs forbidden"
+    conditions:
+      all:
+        - "command_matches == 'sed -i|printf >|echo >|<<'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "060-tool-usage.md §4 Command Restrictions NEVER DO"
+
+  - id: tool-usage-007
+    title: "API client mandatory — no inline mutation scripts"
+    conditions:
+      all:
+        - "platform_has_api_client == true"
+        - "using_inline_requests_post == true"
+    actions:
+      - HALT
+    conflicts_with: [critical-rules-029]
+    requires: []
+    triggers: [issue-operations]
+    source: "060-tool-usage.md §1 API Client Mandatory"
+
+  - id: tool-usage-008
+    title: "git --recursive forbidden with submodule commands"
+    conditions:
+      all:
+        - "command_matches == 'git submodule.*--recursive'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "060-tool-usage.md §4 Command Restrictions NEVER DO"
+```

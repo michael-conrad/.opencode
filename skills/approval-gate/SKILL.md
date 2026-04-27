@@ -3,6 +3,7 @@ name: approval-gate
 description: Use when user says "approved", "go", or any implementation instruction, or when authorization needs verification. Triggers on: approval, authorized, implement, start work, go ahead, needs-approval label, authorization set, multiple issues approved, interdependency analysis.
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -81,6 +82,35 @@ You are an Authorization Gatekeeper. Your focus is ensuring all code changes fol
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps (authorization result comment, status report) are never skipped. It is idempotent and safe to invoke multiple times.
 
+## Hard Gates (MANDATORY — no bypass)
+
+### Gate 1: Authorization Required Before Implementation
+
+```
+IF implementation is requested AND no explicit authorization exists:
+  1. HALT — do NOT begin any file modifications
+  2. Invoke /skill approval-gate --task verify-authorization
+  3. DO NOT assume authorization from discussion, confirmation, or previous sessions
+  4. Wait for explicit "approved" or "go" before proceeding
+ENDIF
+```
+
+Violation: Implementing without explicit authorization is a Tier 1 mandate violation. "Yes, that's correct" is NOT authorization.
+
+### Gate 2: Spec Required Before Code
+
+```
+IF code changes are needed AND no spec/plan exists:
+  1. HALT — do NOT write code
+  2. Search GitHub Issues for existing [SPEC] or [PLAN] matching the task
+  3. If found: present candidates to user
+  4. If not found: invoke brainstorming → spec-creation
+  5. DO NOT implement without a spec — even if user says "just do it"
+ENDIF
+```
+
+Violation: Writing code without a spec bypasses the review trail and edge case discovery. For clearly simple work (docs, minor config), developer authorization IS the process — but the gate still requires checking.
+
 ## Operating Protocol
 
 1. **Mandatory invocation (no decision point):** The agent MUST invoke approval-gate when it encounters `approved`/`go`, authorization questions, or implementation start. Never prompt for invocation — just invoke the skill.
@@ -93,44 +123,64 @@ You are an Authorization Gatekeeper. Your focus is ensuring all code changes fol
 
 ## Dispatch Order
 
+**Step 0: Orchestrator Purity Gate (MANDATORY)**
+
+Before any dispatch chain step begins, the orchestrator MUST verify that it has NOT performed any inline work. The orchestrator checks its own session log for file operations (`read`, `edit`, `write`, `srclight_*`). If ANY inline file operation exists before a sub-agent dispatch, the orchestrator MUST HALT and report a CRITICAL violation.
+
+- 🚫 FORBIDDEN: Orchestrator performing file reads/edits/writes before dispatching sub-agents
+- 🚫 FORBIDDEN: Orchestrator loading task files or guideline text into its own context for inline execution
+- ✅ REQUIRED: The orchestrator dispatches sub-agents for ALL work; it only routes result contracts
+
+**Step 0.5: Post-Dispatch Output Gate (MANDATORY)**
+
+After every sub-agent dispatch completes, the main agent MUST produce visible chat output before proceeding to the next step or halting.
+
+| Dispatch Result | Next Step | Output Required? |
+|---|---|---|
+| Sub-agent DONE | Next phase | Yes — summarize completion |
+| Sub-agent BLOCKED | Halt | Yes — summarize blocker and required action |
+| Sub-agent ERROR | Inline fallback | Yes — summarize error, fallback attempt |
+| Tool call success | Continue | Yes — state what changed |
+| Tool call failure | Halt | Yes — state what failed and why |
+
 After `verify-authorization` completes successfully (all gates pass), the skill auto-dispatches based on approval context:
 
 ```
 Spec approved (no existing plan)
-  → verify-authorization (all gates pass)
-  → writing-plans --task create (auto-dispatched to create plan issue)
+  → verify-authorization (all gates pass) [DISPATCH_GATE]
+  → writing-plans --task create (auto-dispatched to create plan issue) [DISPATCH_GATE]
   → Plan retains needs-approval label (requires separate plan approval)
 
 Spec approved (existing plan found)
-  → verify-authorization (all gates pass)
-  → Step 5b: cascade approval to existing plan (remove needs-approval, add comment)
-  → Plan is now approved → skip to plan-approved dispatch path
-  → sub-issue verification (Step 5 of verify-authorization, if multi-phase)
-  → pre-implementation-analysis → divide-and-conquer/assemble-work → ...
+  → verify-authorization (all gates pass) [DISPATCH_GATE]
+  → Step 5b: cascade approval to existing plan (remove needs-approval, add comment) [DISPATCH_GATE]
+  → Plan is now approved → skip to plan-approved dispatch path [DISPATCH_GATE]
+  → sub-issue verification (Step 5 of verify-authorization, if multi-phase) [DISPATCH_GATE]
+  → pre-implementation-analysis [DISPATCH_GATE] → divide-and-conquer/assemble-work [DISPATCH_GATE] → ...
 
 Plan approved
-  → verify-authorization (all gates pass)
-  → git-workflow --task pre-work (MANDATORY: worktree creation and environment setup)
-  → sub-issue verification (Step 5 of verify-authorization, if multi-phase)
-  → pre-implementation-analysis (expand sub-issues, classify, build flat item list)
-  → divide-and-conquer/assemble-work (dispatch sub-agents, squash-merge into work branch)
-   → verification-before-completion (VERIFY: SC results exist)
-   → finishing-a-development-branch --task checklist (VERIFY: all items checked)
-   → git-workflow --task review-prep (VERIFY: compare URL generated)
+  → verify-authorization (all gates pass) [DISPATCH_GATE]
+  → git-workflow --task pre-work (MANDATORY: worktree creation and environment setup) [DISPATCH_GATE]
+  → sub-issue verification (Step 5 of verify-authorization, if multi-phase) [DISPATCH_GATE]
+  → pre-implementation-analysis (expand sub-issues, classify, build flat item list) [DISPATCH_GATE]
+  → divide-and-conquer/assemble-work (dispatch sub-agents, squash-merge into work branch) [DISPATCH_GATE]
+   → verification-before-completion (VERIFY: SC results exist) [DISPATCH_GATE]
+   → finishing-a-development-branch --task checklist (VERIFY: all items checked) [DISPATCH_GATE]
+   → git-workflow --task review-prep (VERIFY: compare URL generated) [DISPATCH_GATE]
 
 Clearly simple work (Tier 2 waiver)
-  → git-workflow --task pre-work (MANDATORY: worktree creation)
+  → git-workflow --task pre-work (MANDATORY: worktree creation) [DISPATCH_GATE]
   → Direct implementation in worktree (no sub-agent dispatch for single-file changes)
-  → verification-before-completion (simplified for docs/config)
-  → finishing-a-development-branch --task checklist
-  → git-workflow --task review-prep
+  → verification-before-completion (simplified for docs/config) [DISPATCH_GATE]
+  → finishing-a-development-branch --task checklist [DISPATCH_GATE]
+  → git-workflow --task review-prep [DISPATCH_GATE]
   → HALT (compare URL output)
 
   **Classification check:** Before using this dispatch path, verify work meets ALL "clearly simple" criteria per `000-critical-rules.md` → "Simple Work Dispatch Path (Tier 2 Waiver)" → "Classification: Clearly Simple Work" table. If ANY criterion fails, use the full dispatch chain instead.
 
 Already implemented
-  → verify-authorization (all gates pass)
-  → verify-already-implemented (detects implementation)
+  → verify-authorization (all gates pass) [DISPATCH_GATE]
+  → verify-already-implemented (detects implementation) [DISPATCH_GATE]
   → Auto-close (no dispatch)
 ```
 
@@ -150,6 +200,17 @@ Before proceeding to the next step in the dispatch chain, the agent MUST confirm
 
 **Evidence requirement (MANDATORY):** Each verification gate in the dispatch chain MUST produce a tool-call artifact confirming the prior step completed. Reading chat history is NOT sufficient — the agent MUST explicitly invoke a verification tool or command and record the output as evidence. The enforcement checkpoint table above specifies what artifacts confirm each step. Proceeding past a gate without producing the corresponding evidence is a CRITICAL GUIDELINE VIOLATION.
 
+**Step 5.4: Universal Clean-Room Dispatch Gate (MANDATORY)**
+
+For every pipeline stage in the dispatch chain:
+1. The orchestrator dispatches a sub-agent with scoped context (issue number + task description)
+2. The sub-agent receives ONLY `must_receive` items, NOTHING from `must_not_receive`
+3. The sub-agent performs ONE discrete step (analysis, writing, or verification — never combined)
+4. The sub-agent returns a compact result contract (≈100-500 words)
+5. The orchestrator logs the dispatch in the work state file
+6. The orchestrator routes the result contract to the next stage's sub-agent dispatch
+7. The orchestrator NEVER loads the result contract into its own context for reasoning — it only routes
+
 **Spec approval dispatches to plan creation, NOT implementation.** The plan then requires its own approval before implementation begins — **unless the cascade applies** (spec approved + existing plan = plan inherits approval). See `verify-authorization.md` Step 5b for cascade conditions.
 
 **Dispatch context detection:**
@@ -162,6 +223,32 @@ Before proceeding to the next step in the dispatch chain, the agent MUST confirm
 **Circular dispatch prevention:** Spec approval dispatches to `writing-plans`, which creates a plan. Plan approval dispatches to `executing-plans`. The plan requires its own approval before `executing-plans` can run.
 
 **⚠️ AUTO-DISPATCH ENFORCEMENT:** After `pre-implementation-analysis` completes with `requires_developer: false`, the agent MUST proceed to the next step in the dispatch chain without halting. "Yield" means "produce output and continue," NOT "present output and wait." The only valid halt after analysis is when a screening sub-agent returned `requires_developer: true` per the exhaustive conditions in `screen-issue.md`.
+
+## PR Merge Boundary Gate (verify-authorization)
+
+When a plan's spec declares dependencies on other specs/plans (via "Depends on:" or `pr_boundaries` in the yaml+symbolic block), `verify-authorization` MUST check whether required upstream PRs are merged before authorizing implementation.
+
+### Gate Procedure
+
+1. Read the plan's `pr_boundaries` section from the yaml+symbolic block
+2. For each boundary where `must_be_merged_before_starting: true`:
+   - Check the corresponding PR's merge status via `github_pull_request_read(method=get, pullNumber=N)`
+   - If NOT merged: HALT and report which PR must merge first
+   - If merged: proceed to next boundary
+3. If all required boundaries are merged: pass the gate, continue with verify-authorization
+
+### Gate Placement
+
+This gate runs as part of `verify-authorization`, BEFORE the dispatch chain proceeds to `git-workflow pre-work`. It is a precondition for implementation — agents cannot proceed past verify-authorization if any required PR boundary is not merged.
+
+### Self-Enforcing vs Manual Boundaries
+
+| Boundary Type | What Happens If Violated | Agent Response |
+|---------------|--------------------------|----------------|
+| Self-enforcing (`skildeck lint` will fail) | `skildeck lint` produces CRITICAL finding | Agent may warn but HALT is still mandatory |
+| Manual enforcement | No tooling will catch the violation | Agent MUST halt and wait for developer confirmation |
+
+**Both types require the gate to pass.** Self-enforcement is defense-in-depth, not a substitute for the formal gate check.
 
 ## Chain-of-Responsibility Paths
 
@@ -312,6 +399,42 @@ When `halt_at < pr_created`, no PR is created — the agent halts before reachin
 | `search-prompt-fail` | ≈300 |
 | `verify-schema-api-knowledge` | ≈350 |
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `verify-authorization` | Authorization check before implementation | Issue number, authorization phrase, github.owner, github.repo | Implementation context, agent memory, cached verification results | NO |
+| `verify-authorization/scope-auto-resolve` | Scope resolution from authorization phrase | Authorization phrase, scope parsing table | Implementation context, agent memory | NO |
+| `verify-authorization/item-decomposition-check` | Verify item decomposition in plan | Plan issue number, plan body | Implementation context, other agents' results | NO |
+| `verify-authorization/sc-traceability-check` | Verify SC-to-test traceability | Spec issue number, SC list | Implementation context, other agents' results | NO |
+| `verify-authorization/sub-issue-verification` | Verify sub-issue structure under plan | Plan issue number, plan body, github.owner, github.repo | Implementation context, agent memory, cached verification | NO |
+| `verify-authorization/spec-to-plan-cascade` | Cascade approval from spec to plan | Spec issue number, plan issue number | Implementation context, agent memory | NO |
+| `verify-authorization/gap-fill-cascade` | Gap-fill missing artifacts per scope | Authorization scope, halt_at, gap-fill actions | Implementation context, agent memory | NO |
+| `verify-authorization/auto-dispatch` | Scope-aware auto-dispatch after verification | Authorization scope, halt_at, pr_strategy | Implementation context, agent memory | NO |
+| `verify-qa-mode` | Detect spec-less implementation requests | User request text, github.owner, github.repo | Implementation context, agent memory | NO |
+| `verify-already-implemented` | Check if spec is already implemented | Spec issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `verify-closed-issue` | Verify closed issue has merged PR | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `verify-sub-issues` | Verify sub-issue structure | Parent issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `post-implementation` | Push branch, generate compare URL | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `screen-issue` | Per-issue screening for pre-impl analysis | Issue number, issue body, authorization context, github.owner, github.repo | Implementation context, agent memory, other sub-agents' results | NO |
+| `screen-issue/gate1` | Read issue, screening categories, sub-issue enumeration | Issue number, issue body, authorization context | Implementation context, agent memory, other sub-agents' results | NO |
+| `screen-issue/gate2` | Success criteria verification, cross-reference | Issue number, SC list, github.owner, github.repo | Implementation context, agent memory, other sub-agents' results | NO |
+| `pre-implementation-analysis` | Cross-issue merge, dependency graph, execution plan | Authorization context, issue numbers, github.owner, github.repo | Implementation context, agent memory from prior phases, cached verification | NO |
+| `pre-impl/collect-screening-results` | Collect screening results, gate evidence audit | Screening result contracts, authorization context | Implementation context, agent memory, cached verification | NO |
+| `pre-impl/reconcile-status` | Reconcile issue status inconsistencies | Issue numbers, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pre-impl/build-dependency-graph` | Build dependency graph from cross-issue analysis | Issue numbers, screening results, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pre-impl/check-cross-spec-overlap` | Check overlap with open specs outside batch | Issue numbers, spec titles, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pre-impl/write-work-state` | Write execution strategy and work state file | Dependency graph, execution strategy, dev base hash | Implementation context, agent memory | NO |
+| `pre-impl/yield-to-assemble-work` | Present execution plan, yield to assemble-work | Work state file path, execution plan | Implementation context, agent memory | NO |
+| `verify-fix-spec` | Verify fix spec exists for bug reports | Bug report issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `verify-blockers` | Check for blocking issues/dependencies | Spec issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `verify-codebase` | Re-evaluate codebase state, detect staleness | Spec issue number, file paths, github.owner | Implementation context, agent memory | NO |
+| `verify-open-questions` | Check for unresolved questions in spec | Spec issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `reconcile-issue-graph` | Act on graph traversal findings | Root issue number, traversal findings, github.owner, github.repo | Implementation context, agent memory | NO |
+| `completion` | Ensure mandatory completion steps run | Workflow state, status | Implementation context, agent memory | NO |
+| `search-prompt-fail` | Search for spec/plan candidates before Q/A halt | Search query, github.owner, github.repo | Implementation context, agent memory | NO |
+| `verify-schema-api-knowledge` | Verify live knowledge before structural claims | Claim domain, api/schema/code target | Implementation context, agent memory, cached results | NO |
+
 ### Result Contracts (Sub-Agent Tasks)
 
 Result contracts define the structured YAML output each sub-agent task must return. Full schemas are in the `enforcement/` directory when applicable; key fields are listed below for orchestration reference.
@@ -378,9 +501,115 @@ Rules are classified into two tiers per `000-critical-rules.md` → "Mandate Tie
 
 **For simple work** (docs, runbooks, minor config): developer authorization IS the process — no spec/plan required. **For complex work**: developer authorization means "begin the process"; spec/plan creation is part of the authorized work.
 
+<!-- Issue #5: Submodule Detection & Routing — Success Criteria: Add submodule detection rules, .gitmodules parsing logic, submodule routing rules (Issue Filing, Approval Flow, Worktree Mechanics), submodule PR target rules, Success Criteria verification for submodule context -->
+
+## Submodule Detection & Routing
+
+When operating within a repository that contains submodules, the agent MUST detect and route operations to the correct submodule context. Submodule detection is based on `.gitmodules` parsing and session context.
+
+### .gitmodules Parsing (Session Context Detection)
+
+1. Detect submodule presence: `cat .gitmodules` or `git submodule status` in the parent repo
+2. Parse submodule paths and URLs from `.gitmodules`
+3. Cross-reference the current `worktree.path` against submodule path entries
+4. If `worktree.path` resolves inside a submodule directory, the agent is in **submodule context**
+
+| Field | Source | Action |
+| -- | -- | -- |
+| `submodule.path` | `.gitmodules` `[submodule "name"]` path = ... | Match against `worktree.path` prefix |
+| `submodule.url` | `.gitmodules` `[submodule "name"]` url = ... | Resolve `<github.owner>/<github.repo>` for API calls |
+| `submodule.name` | `.gitmodules` section header | Reference key for provenance tracking |
+
+### Submodule Routing Rules
+
+#### Issue Filing
+
+- Issues affecting submodule behavior MUST be filed in the **submodule repository**, not the parent repo
+- Parent repo issues may reference submodule issues via body text links
+- Provenance tracking creates cross-links between parent PR/issue and submodule PR/issue
+
+#### Approval Flow
+
+- Authorization for submodule changes follows the same approval-gate dispatch chain
+- The `github.owner` and `github.repo` for API calls MUST resolve to the **submodule repository**, not the parent repo
+- Sub-issue verification runs against the submodule repo's issue tracker
+
+#### Worktree Mechanics
+
+- Submodule worktrees are created inside the parent repo's `.worktrees/` structure: `.opencode/.worktrees/<branch-name>/`
+- `git rev-parse --show-toplevel` in a submodule worktree returns the submodule root, NOT the parent repo root
+- Path resolution: ALL file operations MUST use `worktree.path` prefix; relative paths resolve to the parent repo's main working directory, causing silent errors
+
+### Submodule PR Target Rules
+
+| Scenario | PR Target Branch | Base URL |
+| -- | -- | -- |
+| Feature branch in submodule | `dev` | `compare/dev...<branch-name>` |
+| Release promotion (submodule) | `main` | `compare/main...dev` |
+| Parent repo references submodule SHA | N/A | Direct push to submodule `dev` |
+
+### Success Criteria Verification for Submodule Context
+
+When verifying success criteria for submodule issues:
+
+- [ ] Submodule files modified (not parent repo files)
+- [ ] `.gitmodules` references updated if submodule path changed
+- [ ] Provenance issue/PR created in submodule repo (if applicable)
+- [ ] Submodule `dev` branch has the new commits
+- [ ] Parent repo submodule SHA updated to match promoted submodule `dev` SHA (if release promotion)
+
+<!-- Issue #4: Dispatch Chain Enforcement Fix — Success Criteria: Add "Dispatch Enforcement" section, explicit HALT rule for inline implementation without skill dispatch, mandatory invocation callouts -->
+
+## Dispatch Enforcement
+
+### Skill Bypass = Critical Violation
+
+Bypassing any mandatory skill invocation in the dispatch chain is a CRITICAL GUIDELINE VIOLATION. The dispatch chain is not advisory — it is enforceable.
+
+- 🚫 FORBIDDEN: Implementing files directly without invoking `divide-and-conquer --task assemble-work`
+- 🚫 FORBIDDEN: Creating a worktree manually instead of `git-workflow --task pre-work`
+- 🚫 FORBIDDEN: Skipping `verification-before-completion` and claiming task completion
+- 🚫 FORBIDDEN: Generating compare URL without `git-workflow --task review-prep`
+- 🚫 FORBIDDEN: Pushing changes without `finishing-a-development-branch --task checklist`
+- ✅ REQUIRED: Invoke each skill in sequence; verify prior step artifacts before proceeding
+- ✅ REQUIRED: On missing artifact: HALT, invoke the skipped skill, produce evidence, then continue
+
+### Inline Implementation Without Skill Dispatch
+
+**⚠️ Implementing files inline without dispatching through the approval-gate chain is a CRITICAL GUIDELINE VIOLATION.**
+
+- 🚫 FORBIDDEN: Editing files directly in chat without a worktree
+- 🚫 FORBIDDEN: Bypassing `pre-work` to "save time"
+- 🚫 FORBIDDEN: Treating the dispatch chain as optional for "small" changes
+- ✅ REQUIRED: Every file modification follows the chain: `pre-work → assemble-work → implementation → checklist → review-prep`
+
+### Mandatory Invocation Callouts
+
+Every skill file MUST include a mandatory invocation callout in its `## Overview` or `## Operating Protocol` section:
+
+```
+MANDATORY: The agent MUST invoke `<skill> --task <task>` at the appropriate pipeline stage.
+Skipping this invocation is a CRITICAL GUIDELINE VIOLATION.
+```
+
+Skills without this callout MUST be updated to include it. The callout is a behavioral enforcement trigger, not documentation.
+
+### Issue Creation Authorization Exemption
+
+<!-- Issue #99: Authorization-Free Actions — Signal asymmetry fix -->
+
+Skills MUST check authorization for **implementation**, NOT for **issue creation**. The following actions are explicitly exempt from the authorization gate:
+
+- Creating GitHub Issues (specs, plans, bug reports, feature requests)
+- Creating sub-issues under an approved plan
+- Posting progress comments to GitHub
+- Moving issue labels
+
+The `verify-authorization` gate applies only to code/config/file modifications that alter system behavior. Issue creation is a tracking action — the agent MUST proceed without deliberating over authorization. See `010-approval-gate.md` §Issue Creation Is Reporting, Not Implementation for the complete exemption table.
+
 ```yaml+symbolic
-schema_version: "1.0"
-  last_updated: "2026-04-14T12:00:00Z"
+schema_version: "2.0"
+last_updated: "2026-04-26T00:00:00Z"
 rules:
   - id: approval-gate-skill-001
     title: "Pre-implementation authorization verification"
@@ -465,4 +694,334 @@ rules:
     requires: [approval-gate-002]
     triggers: [writing-plans]
     source: "approval-gate/SKILL.md §Spec-to-plan Approval Cascade"
+
+  - id: approval-gate-skill-006
+    title: "PR merge boundary check before implementation"
+    conditions:
+      all:
+        - "plan_has_pr_boundaries == true"
+        - "required_pr_not_merged == true"
+    actions:
+      - HALT
+      - REPORT("CRITICAL: Implementing Before PR Merge Boundary — required PR not merged")
+    conflicts_with: []
+    requires: [approval-gate-skill-001]
+    triggers: [divide-and-conquer, git-workflow]
+    source: "approval-gate/SKILL.md §PR Merge Boundary Gate"
+
+tasks:
+  - id: verify-authorization
+    skill: approval-gate
+    preconditions: ["authorization_phrase_received == true"]
+    postconditions: ["authorization_verified == true || halted == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skill Bypass"
+    source: "approval-gate/SKILL.md"
+
+  - id: scope-auto-resolve
+    skill: approval-gate
+    preconditions: ["authorization_phrase_received == true"]
+    postconditions: ["scope_resolved == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Soliciting Authorization for Already-Authorized Phrases"
+    source: "approval-gate/SKILL.md"
+
+  - id: item-decomposition-check
+    skill: approval-gate
+    preconditions: ["plan_body_parsed == true"]
+    postconditions: ["item_decomposition_exists == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Monolithic Implementation"
+    source: "approval-gate/SKILL.md"
+
+  - id: sc-traceability-check
+    skill: approval-gate
+    preconditions: ["spec_exists == true"]
+    postconditions: ["success_criteria_traceable == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification Skills"
+    source: "approval-gate/SKILL.md"
+
+  - id: sub-issue-verification
+    skill: approval-gate
+    preconditions: ["plan_has_sub_issues == true"]
+    postconditions: ["sub_issue_count_matches == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Sub-issue Structure Bypass"
+    source: "approval-gate/SKILL.md"
+
+  - id: spec-to-plan-cascade
+    skill: approval-gate
+    preconditions: ["spec_approved == true AND existing_plan_faithful == true"]
+    postconditions: ["plan_auto_approved == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Ignoring Spec-to-Plan Approval Cascade"
+    source: "approval-gate/SKILL.md"
+
+  - id: gap-fill-cascade
+    skill: approval-gate
+    preconditions: ["authorization_scope != 'standard'"]
+    postconditions: ["missing_artifacts_created == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Pipeline-Scoped Authorization"
+    source: "approval-gate/SKILL.md"
+
+  - id: pr-merge-boundary-check
+    skill: approval-gate
+    preconditions: ["plan_has_pr_boundaries == true"]
+    postconditions: ["required_pr_boundaries_merged == true || halted_at_boundary == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Implementing Before PR Merge Boundary"
+    source: "approval-gate/SKILL.md §PR Merge Boundary Gate"
+
+  - id: screen-issue
+    skill: approval-gate
+    preconditions: ["single_issue == true"]
+    postconditions: ["screening_result == pass || screening_result == fail"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Inline Screening of Authorization Sets"
+    source: "approval-gate/SKILL.md"
+
+  - id: pre-implementation-analysis
+    skill: approval-gate
+    preconditions: ["authorization_verified == true"]
+    postconditions: ["work_state_written == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Interdependency Analysis"
+    source: "approval-gate/SKILL.md"
+
+  - id: reconcile-issue-graph
+    skill: approval-gate
+    preconditions: ["issue_graph_built == true"]
+    postconditions: ["verified_closed_and_reopened == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Assuming Closed Issues Are Verified"
+    source: "approval-gate/SKILL.md"
+
+  - id: verify-already-implemented
+    skill: approval-gate
+    preconditions: ["closed_issue_found == true"]
+    postconditions: ["implementation_verified == true || implementation_not_found == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Assuming Closed Issues Are Verified"
+    source: "approval-gate/SKILL.md"
+
+  - id: verify-fix-spec
+    skill: approval-gate
+    preconditions: ["bug_report_found == true"]
+    postconditions: ["fix_spec_exists == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Bug Reports Without Fix Spec"
+    source: "approval-gate/SKILL.md"
+
+  - id: verify-closed-issue
+    skill: approval-gate
+    preconditions: ["closed_issue_found == true"]
+    postconditions: ["closure_verified == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Assuming Closed Issues Are Verified"
+    source: "approval-gate/SKILL.md"
+
+  - id: post-implementation
+    skill: approval-gate
+    preconditions: ["implementation_complete == true"]
+    postconditions: ["post_implementation_report_produced == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Wrong Chat Output at Halt Points"
+    source: "approval-gate/SKILL.md"
+
+  - id: completion
+    skill: approval-gate
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "approval-gate/SKILL.md"
+
+decomposition:
+  - type: sub-agent
+    skill: approval-gate
+    task: screen-issue
+    mandatory: true
+    bypass_violation: "CRITICAL: Inline Screening of Authorization Sets"
+    isolation: clean-room
+    must_receive: [issue number, issue body, authorization context, github.owner, github.repo]
+    must_not_receive: [implementation context, agent memory, cached verification results, other sub-agents' prior results]
+
+  - type: skill-task
+    skill: git-workflow
+    task: pre-work
+    mandatory: true
+    bypass_violation: "CRITICAL: Skill Bypass"
+
+  - type: skill-task
+    skill: divide-and-conquer
+    task: assemble-work
+    mandatory: true
+    bypass_violation: "CRITICAL: Unified Dispatch Path"
+
+  - type: skill-task
+    skill: verification-before-completion
+    task: verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Post-Implementation Verification Skills"
+
+  - type: sub-agent-dispatch
+    isolation: clean-room
+    task: pre-implementation-analysis
+    must_receive: [authorization context, issue numbers, github.owner, github.repo]
+    must_not_receive: [implementation context, agent memory from prior phases, cached verification results, other sub-agents' prior results]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Clean-Room Dispatch for Sub-Agents"
+
+  - type: skill-task
+    skill: finishing-a-development-branch
+    task: checklist
+    mandatory: true
+    bypass_violation: "CRITICAL: Uncommitted/Unpushed Changes After Implementation"
+
+  - type: skill-task
+    skill: git-workflow
+    task: review-prep
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping review-prep After Implementation"
+
+gates:
+  - id: authorization-required
+    condition: "has_approved_plan == true || has_explicit_authorization == true"
+    on_fail: "HALT"
+    critical_violation: true
+
+  - id: spec-exists
+    condition: "spec_or_plan_exists == true"
+    on_fail: "INVOKE(brainstorming) or HALT"
+    critical_violation: true
+
+  - id: sub-issue-structure
+    condition: "plan_sub_issues_count >= plan_phase_count"
+    on_fail: "INVOKE(issue-operations/link-sub-issue)"
+    critical_violation: true
+
+  - id: worktree-before-implementation
+    condition: "worktree_path_is_set == true || direct_branch_mode == true"
+    on_fail: "INVOKE(git-workflow/pre-work)"
+    critical_violation: true
+
+  - id: pr-merge-boundary
+    condition: "plan_has_pr_boundaries == false OR required_pr_boundaries_merged == true"
+    on_fail: "HALT"
+    critical_violation: true
+
+evidence_artifacts:
+  - name: authorization_result
+    type: tool_call
+    verification: "github_issue_read(method=get) confirms authorization"
+
+  - name: scope_resolution
+    type: tool_call
+    verification: "scope_auto_resolve output confirms parsed scope"
+
+  - name: sub_issue_count
+    type: tool_call
+    verification: "github_issue_read(method=get_sub_issues) count matches plan"
+
+  - name: work_state_file
+    type: file_exists
+    verification: ".opencode/tmp/work-*.md exists"
+
+  - name: screening_result_contract
+    type: sub_agent_result
+    verification: "screen-issue sub-agent returns structured YAML"
+
+  - name: pr_merge_boundary_verification
+    type: api_call
+    verification: "github_pull_request_read(method=get, pullNumber=N) → check merged field == true for each required PR boundary"
+
+state_machines:
+  - id: approval-lifecycle
+    states: [draft, spec_approved, plan_created, plan_approved, implementing, code_review_ready, pr_created, merged, closed]
+    start_state: draft
+    transitions:
+      - from: draft
+        to: spec_approved
+        guard: "user_authorizes_spec == true"
+        action: INVOKE(writing-plans)
+        decomposition_guard: "spec_exists == true"
+
+      - from: spec_approved
+        to: plan_created
+        guard: "plan_exists == true"
+        action: PROCEED
+        decomposition_guard: "plan_body_parsed == true"
+
+      - from: draft
+        to: plan_approved
+        guard: "user_authorizes_spec == true AND existing_plan_is_faithful == true"
+        action: AUTO_APPROVE_PLAN_THEN_IMPLEMENT
+        decomposition_guard: "spec_approved == true AND existing_plan_faithful == true"
+
+      - from: plan_created
+        to: plan_approved
+        guard: "user_authorizes_plan == true"
+        action: INVOKE(executing-plans)
+        decomposition_guard: "item_decomposition_exists == true AND success_criteria_traceable == true"
+
+      - from: plan_approved
+        to: implementing
+        guard: "plan_approved == true"
+        action: INVOKE(divide-and-conquer)
+        decomposition_guard: "sub_issue_count_matches == true AND worktree_path_is_set == true"
+
+      - from: implementing
+        to: code_review_ready
+        guard: "implementation_complete == true"
+        action: INVOKE(verification-before-completion)
+        decomposition_guard: "verification_before_completion_artifact_exists == true"
+
+      - from: code_review_ready
+        to: pr_created
+        guard: "halt_at >= pr_created OR pr_strategy != none"
+        action: INVOKE(git-workflow_pr-creation)
+        decomposition_guard: "finishing_checklist_artifact_exists == true"
+
+      - from: pr_created
+        to: merged
+        guard: "pr_approved == true"
+        action: PROCEED
+        decomposition_guard: "pr_created == true"
+
+      - from: merged
+        to: closed
+        guard: "all_plan_sub_issues_closed == true"
+        action: PROCEED
+        decomposition_guard: "all_sub_issues_verified_closed == true"
+
+    scope_transitions:
+      - scope: for_spec
+        halt_at: spec_created
+        action: HALT_AFTER_SPEC_CREATED
+
+      - scope: for_plan
+        halt_at: plan_created
+        action: HALT_AFTER_PLAN_CREATED
+
+      - scope: for_implementation
+        halt_at: implementation_complete
+        action: HALT_AFTER_IMPLEMENTATION
+
+      - scope: for_code_review
+        halt_at: code_review_ready
+        action: HALT_AFTER_CODE_REVIEW
+
+      - scope: for_pr
+        halt_at: pr_created
+        action: CONTINUE_THROUGH_PR
+
+      - scope: pr_only
+        halt_at: pr_created
+        action: CONTINUE_THROUGH_PR
+
+      - scope: standard
+        halt_at: review_prep
+        action: HALT_AFTER_REVIEW_PREP
 ```

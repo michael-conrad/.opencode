@@ -3,6 +3,7 @@ name: sre-runbook
 description: Use when generating operational runbooks for infrastructure incidents or procedures. Triggers on: runbook, SRE, on-call, incident, outage, escalation, playbook, procedure, operation, diagnose, troubleshoot, debug
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -25,6 +26,16 @@ You are an SRE-oriented operator writing runbooks for sysops under pressure. You
 | `generate` | Generate an operational runbook — dispatches format based on runbook type | ≈1000 |
 | `track` | Track an incident or change via GitHub Issue with structured labels | ≈450 |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
+
+## Sub-Agent Tasks
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `generate` | When generating an operational runbook | Runbook type, domain context, environment info, github.owner, github.repo | Implementation context, agent memory | NO |
+| `track` | When tracking an incident or change via GitHub Issue | Incident details, labels, github.owner, github.repo | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
 
 ## Invocation
 
@@ -439,3 +450,213 @@ Key adaptations for <AgentName>:
 - No orphaned state is left behind
 
 The completion task is idempotent and safe to invoke multiple times.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: sre-runbook-001
+    title: "Environment context mandatory before generation"
+    conditions:
+      all:
+        - "environment_context_collected == false"
+    actions:
+      - HALT
+      - PROMPT_USER(environment details)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "sre-runbook/SKILL.md §Operating Protocol #1"
+
+  - id: sre-runbook-002
+    title: "Domain context mandatory before generation"
+    conditions:
+      all:
+        - "domain_context_provided == false"
+    actions:
+      - HALT
+      - PROMPT_USER(domain details)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "sre-runbook/SKILL.md §Operating Protocol #2"
+
+  - id: sre-runbook-003
+    title: "Verification gates between sections — reasoning chain must connect"
+    conditions:
+      all:
+        - "symptom_diagnosis_connection_confirmed == false"
+    actions:
+      - HALT
+      - REWORK(symptom → diagnosis connection)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "sre-runbook/SKILL.md §Operating Protocol #3"
+
+  - id: sre-runbook-004
+    title: "Live verification mandatory — no training knowledge fallback"
+    conditions:
+      all:
+        - "all_verification_sources_failed == true"
+    actions:
+      - HALT
+      - INSERT_VERIFICATION_GAP_ANNOTATION
+      - PROMPT_USER(confirm claims manually)
+    conflicts_with: []
+    requires: []
+    triggers: [verification-enforcement]
+    source: "sre-runbook/SKILL.md §Verification-Failure Enforcement Gate"
+
+  - id: sre-runbook-005
+    title: "Single-path rule — one method per operation"
+    conditions:
+      all:
+        - "multiple_alternative_paths_present == true"
+    actions:
+      - REJECT(runbook section)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "sre-runbook/SKILL.md §Enforcement Rules REQUIRED"
+
+  - id: sre-runbook-006
+    title: "Real-values rule — no generic placeholders"
+    conditions:
+      all:
+        - "generic_placeholders_present == true"
+        - "environment_specific_values_available == true"
+    actions:
+      - REPLACE(generic with environment-specific values)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "sre-runbook/SKILL.md §Enforcement Rules REQUIRED"
+
+  - id: sre-runbook-007
+    title: "Exact-match verification — no soft-passing"
+    conditions:
+      all:
+        - "verification_mismatch_found == true"
+    actions:
+      - REPORT_FAIL
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "sre-runbook/SKILL.md §Verification Row-by-Row Template"
+
+  - id: sre-runbook-008
+    title: "DNS-specific validation for DNS runbooks"
+    conditions:
+      all:
+        - "runbook_type == dns"
+        - "dns_record_constraints_validated == false"
+    actions:
+      - CHECK_REFERENCE_DATA
+      - VALIDATE_RFC_COMPLIANCE
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "sre-runbook/SKILL.md §DNS-Specific Validation"
+
+  - id: sre-runbook-009
+    title: "Verification-enforcement gate before runbook generation"
+    conditions:
+      all:
+        - "verification_enforcement_verify_invoked == false"
+    actions:
+      - INVOKE(verification-enforcement --task verify)
+    conflicts_with: []
+    requires: []
+    triggers: [verification-enforcement]
+    source: "sre-runbook/SKILL.md §Live Verification: Runbook Claims"
+
+tasks:
+  - id: generate
+    skill: sre-runbook
+    preconditions:
+      - "environment_context_collected == true"
+      - "domain_context_provided == true"
+      - "runbook_type_classified == true"
+    postconditions:
+      - "all_claims_live_verified == true"
+      - "verification_section_included == true"
+      - "self_review_passed == true"
+    mandatory: true
+    bypass_violation: "Runbook without live verification — generating unverified instructions is a critical violation"
+    source: "sre-runbook/SKILL.md §Tasks generate"
+
+  - id: track
+    skill: sre-runbook
+    preconditions:
+      - "incident_context_provided == true"
+    postconditions:
+      - "github_issue_created == true"
+      - "structured_labels_applied == true"
+    mandatory: false
+    bypass_violation: "Incident tracking optional but recommended for accountability"
+    source: "sre-runbook/SKILL.md §Tasks track"
+
+  - id: completion
+    skill: sre-runbook
+    preconditions: []
+    postconditions:
+      - "terminal_state_dispatch_occurred == true"
+      - "status_report_produced == true"
+    mandatory: true
+    bypass_violation: "Silent Agent Termination — halting without completion task is a critical violation"
+    source: "sre-runbook/SKILL.md §Tasks completion"
+
+decomposition:
+  - type: skill-task
+    skill: verification-enforcement
+    task: verify
+    mandatory: true
+    bypass_violation: "Skipping verification-enforcement — runbook generation without verification gate is a critical violation"
+
+  - type: sub-agent
+    skill: systematic-debugging
+    task: diagnose
+    mandatory: false
+    bypass_violation: "Skipping diagnosis — only permitted for one-off-config runbooks with known fix"
+
+  - type: sub-agent
+    skill: verification-before-completion
+    task: verify
+    mandatory: false
+    bypass_violation: "Post-generation evidence gate optional for steps-only runbooks"
+
+gates:
+  - id: all-claims-verified
+    condition: "all_factual_claims_verified_against_live_sources == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: verification-failure-enforcement
+    condition: "at_least_one_source_confirmed_per_section == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: environment-context-gate
+    condition: "environment_context_collected == true AND domain_context_provided == true"
+    on_fail: HALT
+    critical_violation: false
+
+  - id: dns-constraint-validation
+    condition: "dns_record_constraints_validated == true (for DNS runbooks only)"
+    on_fail: HALT
+    critical_violation: true
+
+evidence_artifacts:
+  - name: live_verification_per_claim
+    type: tool_call
+    verification: "bash --help output, webfetch vendor docs, glob reference data files"
+
+  - name: verification_gap_block
+    type: constructed_url
+    verification: "YAML block with sources_attempted, claims_unconfirmed, user_action_required"
+
+  - name: verification_results_table
+    type: tool_call
+    verification: "Row-by-row exact comparison: each field independently PASS or FAIL"
+```

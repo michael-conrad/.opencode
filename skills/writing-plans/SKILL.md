@@ -3,6 +3,7 @@ name: writing-plans
 description: Use when creating an implementation plan from an approved spec. Triggers on: write plan, create plan, implementation plan, plan spec, approved plan, plan creation.
 type: technique
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -107,6 +108,7 @@ The spec-to-plan approval cascade applies differently based on authorization sco
 | `validate` | Check for placeholders and completeness | ≈500 |
 | `retroactive` | Create plan for existing spec | ≈600 |
 | `clean-room` | Generate independent plan from problem statement only | ≈500 |
+| `diagram` | Generate mermaid dependency diagram showing approved structure (no workflow state) | ≈350 |
 | `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
 
 ## Invocation
@@ -157,6 +159,111 @@ This bottom-up design per item is part of the TDD cycle: RED (write test) → GR
 ## No-Placeholders Rule (CRITICAL)
 
 Every step must contain actual content. These are **plan failures**: `TBD`, `TODO`, `[to be determined]`, `[needs investigation]`, `[placeholder]`, `[requires research]`, `implement later`, `fill in details`, `Add appropriate error handling`, `Add validation`, `Write tests for the above`, `Similar to Task N`, or steps describing what to do without showing how.
+
+## PR Merge Boundaries in Plan Deliverables (MANDATORY When Dependencies Exist)
+
+When a plan's spec declares dependencies on other specs/plans (e.g., "Depends on: #37"), the plan deliverable MUST include `pr_boundaries` in the `yaml+symbolic` block and a prose `## PR Merge Boundaries` section.
+
+### yaml+symbolic Format
+
+```yaml
+pr_boundaries:
+  - phase: 1
+    pr: "PR1"
+    must_be_merged_before_starting: true
+    contract_dependencies:
+      - "yaml+symbolic schema v2.0 in codebase"
+      - "skildeck lint --skill <skill> passes"
+    self_enforcing: true
+  - phase: 2
+    pr: "PR2"
+    must_be_merged_before_starting: true
+    contract_dependencies:
+      - "approval-gate verify-authorization task contract exists"
+    self_enforcing: true
+```
+
+### Prose Section Format
+
+Each phase in the plan body includes a merge boundary annotation:
+
+```markdown
+### Phase 1: [Concern Name]
+**PR Boundary:** PR1 (#38, #39) must be merged before this phase starts.
+**Self-Enforcement:** `skildeck lint` will fail with "contract unresolvable" if boundary is violated.
+```
+
+### When to Include
+
+| Condition | Include pr_boundaries? |
+|-----------|-----------------------|
+| Plan's spec has "Depends on:" references | YES — mandatory |
+| Plan's spec has no dependencies | NO — omit entirely |
+
+### Enforcement
+
+Missing `pr_boundaries` in the `yaml+symbolic` block when dependencies exist is a STRUCTURE-VIOLATION finding from `skildeck lint`.
+
+## Interdependency Diagram Discipline (MANDATORY When Dependencies Exist)
+
+When a plan has dependencies (multiple phases, cross-issue dependencies, or sequential deliverables), the plan MUST include a mermaid diagram showing the **approved dependency structure only**.
+
+### When to Include
+
+| Condition | Include Diagram? |
+|-----------|------------------|
+| Plan has multiple phases | YES — mandatory |
+| Plan has cross-issue dependencies | YES — mandatory |
+| Single-task plan with no dependencies | NO — omit |
+
+### Diagram Format Rules
+
+**CORRECT (structure-only, no workflow state):**
+
+```mermaid
+graph TD
+    P1[Phase 1: Tooling] --> P2[Phase 2: Guidelines]
+    P1 --> P3[Phase 3: Skills]
+    P2 --> P3
+    P3 --> P4[Phase 4: Tests]
+```
+
+**FORBIDDEN (workflow state markers):**
+
+```mermaid
+graph TD
+    P1[Phase 1: Tooling ✅] --> P2[Phase 2: Guidelines 🔄]
+    P3[Phase 3: Skills] --> P4[Phase 4: Tests ❌]
+```
+
+### Update Protocol
+
+| Change Type | Action |
+|-------------|--------|
+| Dependency structure correction | Update diagram + document in Revision Notes + STATUS: REVISED |
+| Implementation progress | Do NOT update diagram — use issue status markers instead |
+| New dependency discovered mid-implementation | Halt, update diagram, revise plan, wait for re-approval |
+
+### Placement
+
+The diagram is placed in the plan body:
+- **Separate plans:** After the plan header (Goal, Architecture, Tech Stack), before "Phase 1"
+- **Combined plans:** In the `## Implementation Plan` section, after the header, before phases
+
+### Rationale
+
+1. **Historical audit trail:** Diagrams show what was approved, not what was implemented. This preserves the decision context for future reviewers.
+2. **Separation of concerns:** Workflow tracking (what's implemented) belongs in issue status markers, not in the approved plan diagram.
+3. **Correctness maintained:** If dependencies are discovered to be wrong during implementation, the diagram is corrected — but the correction is documented as a revision, not silently updated.
+
+### Enforcement
+
+The `validate` task MUST verify:
+1. Diagram exists when `dependencies_exist == true`
+2. Diagram contains NO workflow state markers (✅, 🔄, ❌, "implemented", "pending", etc.)
+3. Diagram matches the dependency structure in the plan body
+
+Violations are STRUCTURE-VIOLATION findings requiring auto-fix before plan approval.
 
 ## Self-Review Checklist
 
@@ -274,6 +381,15 @@ The spec itself is the stable reference. Whether the plan is combined or separat
 | `retroactive` | ≈600 |
 | `clean-room` | ≈500 |
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `create` | When creating a plan from an approved spec | Spec issue number, github.owner, github.repo, authorization_scope | Implementation context, agent memory, cached verification | NO |
+| `validate` | When validating plan structure and fidelity | Plan issue number, spec issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `retroactive` | When creating a retroactive plan for already-implemented work | Spec issue number, implementation evidence, github.owner, github.repo | Implementation context, agent memory | NO |
+| `clean-room` | When generating a clean-room plan without implementation context | Spec issue number, github.owner, github.repo | Implementation context, implementation intent, agent memory | NO |
+
 ### Result Contract (create)
 
 ```yaml
@@ -374,3 +490,237 @@ Action: [auto-fix|conditional|flag-for-review]
 - Source: adapted from [obra/superpowers `writing-plans`](https://github.com/obra/superpowers/blob/main/skills/writing-plans/SKILL.md)
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: writing-plans-001
+    title: "Plan must derive from approved spec only"
+    conditions:
+      all:
+        - "spec_approved == false"
+        - "authorization_scope != for_plan"
+        - "authorization_scope != for_implementation"
+    actions:
+      - HALT
+      - REPORT("spec not approved, cannot create plan")
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate]
+    source: "writing-plans/SKILL.md §Auto-Dispatch Entry"
+
+  - id: writing-plans-002
+    title: "No placeholders in plan"
+    conditions:
+      all:
+        - "plan_contains_placeholders == true"
+    actions:
+      - REJECT(plan)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "writing-plans/SKILL.md §No-Placeholders Rule"
+
+  - id: writing-plans-003
+    title: "Sub-issues under plan, not spec"
+    conditions:
+      all:
+        - "plan_is_multi_task == true"
+        - "sub_issues_parent == spec"
+    actions:
+      - RESTRUCTURE(move sub-issues to plan)
+    conflicts_with: []
+    requires: []
+    triggers: [issue-operations]
+    source: "writing-plans/SKILL.md §Plan Issue Model"
+
+  - id: writing-plans-004
+    title: "Spec revision revokes plan approval"
+    conditions:
+      all:
+        - "spec_revised == true"
+        - "plan_linked_to_spec == true"
+    actions:
+      - REAPPLY(needs-approval label to plan)
+      - ADD_COMMENT("Spec revised — plan requires re-approval")
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "writing-plans/SKILL.md §Spec Revision Revocation"
+
+  - id: writing-plans-005
+    title: "RED verification checkpoint mandatory per TDD step"
+    conditions:
+      all:
+        - "tdd_step_block_missing_red_checkpoint == true"
+    actions:
+      - REJECT(plan)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "writing-plans/SKILL.md §RED Verification Checkpoint"
+
+  - id: writing-plans-006
+    title: "Verification-enforcement gate before plan generation"
+    conditions:
+      all:
+        - "verification_enforcement_verify_invoked == false"
+    actions:
+      - INVOKE(verification-enforcement --task verify)
+    conflicts_with: []
+    requires: []
+    triggers: [verification-enforcement]
+    source: "writing-plans/SKILL.md §Live Verification: Spec State"
+
+  - id: writing-plans-007
+    title: "Scope-aware plan approval cascade"
+    conditions:
+      any:
+        - "authorization_scope == for_plan"
+        - "authorization_scope == for_implementation"
+        - "authorization_scope == for_code_review"
+        - "authorization_scope == for_pr"
+    actions:
+      - AUTO_APPROVE(plan_if_newly_created)
+      - REMOVE(needs-approval label)
+    conflicts_with: [writing-plans-001]
+    requires: []
+    triggers: [approval-gate]
+    source: "writing-plans/SKILL.md §Approval Cascade"
+
+  - id: writing-plans-008
+    title: "Duplicate plan check before creation"
+    conditions:
+      all:
+        - "existing_plan_for_spec_found == true"
+        - "developer_acknowledgment_received == false"
+    actions:
+      - HALT
+
+  - id: writing-plans-009
+    title: "Interdependency diagram required when dependencies exist"
+    conditions:
+      all:
+        - "plan_has_dependencies == true"
+        - "mermaid_diagram_generated == false"
+    actions:
+      - GENERATE(mermaid diagram showing approved structure only)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "writing-plans/SKILL.md §Interdependency Diagram Discipline"
+
+  - id: writing-plans-010
+    title: "Diagram must not show workflow state"
+    conditions:
+      all:
+        - "diagram_shows_workflow_state == true"
+    actions:
+      - REMOVE(workflow markers from diagram)
+    conflicts_with: []
+    requires: [writing-plans-009]
+    triggers: []
+    source: "writing-plans/SKILL.md §Interdependency Diagram Discipline"
+      - PRESENT(overlap)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "writing-plans/SKILL.md §Operating Protocol Step 1.5"
+
+  - id: writing-plans-009
+    title: "PR merge boundaries mandatory when spec has dependencies"
+    conditions:
+      all:
+        - "spec_has_dependencies == true"
+        - "pr_boundaries_in_yaml_symbolic == false"
+    actions:
+      - ADD(pr_boundaries section to yaml+symbolic block)
+      - ADD(pr_boundary annotations to each phase)
+    conflicts_with: []
+    requires: [writing-plans-001]
+    triggers: [approval-gate, divide-and-conquer]
+    source: "writing-plans/SKILL.md §PR Merge Boundaries in Plan Deliverables"
+
+tasks:
+  - id: create
+    skill: writing-plans
+    preconditions:
+      - "spec_approved == true OR authorization_scope >= for_plan"
+      - "spec_issue_number known"
+    postconditions:
+      - "plan_issue_created == true OR combined_plan_appended == true"
+      - "sub_issues_created == true (if multi-task)"
+      - "self_review_passed == true"
+    mandatory: true
+    bypass_violation: "Implementation without plan — plan creation is mandatory before implementation"
+    source: "writing-plans/SKILL.md §Tasks create"
+
+  - id: completion
+    skill: writing-plans
+    preconditions: []
+    postconditions:
+      - "terminal_state_dispatch_occurred == true"
+      - "status_report_produced == true"
+    mandatory: true
+    bypass_violation: "Silent Agent Termination — halting without completion task is a critical violation"
+    source: "writing-plans/SKILL.md §Tasks completion"
+
+decomposition:
+  - type: skill-task
+    skill: verification-enforcement
+    task: verify
+    mandatory: true
+    bypass_violation: "Skipping verification-enforcement — plan generation without verification gate is a critical violation"
+
+  - type: sub-agent
+    skill: brainstorming
+    task: explore
+    mandatory: false
+    bypass_violation: "Skipping analysis — only permitted when spec already contains sufficient detail"
+
+  - type: sub-agent
+    skill: issue-operations
+    task: link-sub-issue
+    mandatory: true
+    bypass_violation: "Multi-task plan requires sub-issue linkage under plan — skipping is a critical violation"
+
+gates:
+  - id: plan-fidelity
+    condition: "plan_covers_all_spec_requirements == true AND plan_no_placeholders == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: sub-issue-count-matches-phases
+    condition: "plan_sub_issues_count == plan_body_phase_count"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: red-checkpoint-present
+    condition: "all_tdd_step_blocks_have_red_checkpoint == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: pr-boundaries-when-deps-exist
+    condition: "spec_has_dependencies == false OR pr_boundaries_in_yaml_symbolic == true"
+    on_fail: HALT
+    critical_violation: true
+
+evidence_artifacts:
+  - name: spec_approved_verification
+    type: tool_call
+    verification: "github_issue_read(method=get_labels) + github_issue_read(method=get_comments) → confirm approval"
+
+  - name: plan_issue_created
+    type: api_call
+    verification: "github_issue_read(method=get) → check title prefix [PLAN] or combined plan section"
+
+  - name: sub_issue_linkage
+    type: api_call
+    verification: "github_issue_read(method=get_sub_issues, issue_number=plan_N) → count matches phase count"
+
+  - name: pr_boundaries_section
+    type: tool_call
+    verification: "github_issue_read(method=get) → verify pr_boundaries in yaml+symbolic block when spec has dependencies"
+```

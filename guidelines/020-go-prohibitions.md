@@ -31,12 +31,37 @@
   - "That makes sense, let's do it" → verbal agreement, NOT explicit authorization
   - "This looks like it should be X" → observation, NOT "make it X"
 - **Questions are NOT authorization.** "Should I do X?" and "Would you like me to X?" are questions seeking permission, not receiving it. Never act on a question — wait for explicit authorization.
+- **Rhetorical and complaint questions are NOT authorization.** "How can we work if we never merge into dev?" is a complaint about process, NOT authorization to merge. "Why hasn't X been done?" is a question, NOT authorization to do X. Treat ALL questions as observation-only.
 - **SILENTLY HALT after every task/report.** Factual reporting is permitted, but it must NEVER be followed by a prompt for next steps.
 - **Never name the next phase or action in a halt message.** Halt messages must be factual statements about what was completed — never forward-looking references to what comes next.
 - **No "offer to edit" patterns.** The agent MUST NOT offer to edit, update, modify, or fix a file directly. Instead, create a spec or bug report. Patterns like "Want me to update X?", "Shall I fix this?", "I can change X to Y" are PROHIBITED — they bypass the spec-first workflow.
 - **Never self-answer a solicitation.** Pose no questions that you then answer yourself to bypass authorization.
 - **NEVER suggest parallel execution as a valid default approach.** Stacking is prerequisite; parallel is opportunistic. Agents must not present parallelism as an equally valid option.
 - **No silent halt without search+prompt.** When no spec/plan exists for an implementation request, the agent MUST NOT simply halt. It must search GitHub Issues for existing candidates, present them with URLs, and offer create-or-select before halting. A silent halt with no search and no candidate presentation is a critical violation — see `000-critical-rules.md` §Silent Halt Without Prompt.
+<!-- Issue #25: Authorization Solicitation Regression — Success Criteria: Update guidelines/020-go-prohibitions.md with additional prohibited output patterns -->
+- **No instructional language in blocker reports.** When the workflow is blocked, the report must state the blocker factually — it must never embed instructions, suggestions, or forward-looking guidance that could be read as an authorization prompt. Examples of prohibited patterns:
+  - "To resolve this, please approve the spec first."
+  - "You can say 'approved' to continue."
+  - "Once you've reviewed, let me know and I'll proceed."
+  - "Waiting for you to give the go-ahead."
+  - "Please provide authorization before I continue."
+- **No implied authorization framing.** The agent must not frame status reports as requests or frame blockers as needing user action in a way that solicits a response. Correct format: "Blocked: no approved spec found for #N." Incorrect format: "We're blocked — can you approve #N so I can continue?"
+- **No forward-looking references in completion reports.** Completion reports must describe what was done, never what should happen next. This prevents the report from reading as an implicit request for the next authorization step.
+
+### Authorization-Free Actions — No Deliberation Required
+
+<!-- Issue #99: Authorization-Free Actions — Signal asymmetry fix -->
+
+The following actions do NOT require `"approved"` or `"go"` and the agent MUST NOT deliberate over them:
+
+- Creating GitHub Issues (specs, plans, bug reports) — see `010-approval-gate.md` §Issue Creation Is Reporting, Not Implementation
+- Creating sub-issues under an approved plan — covered by plan authorization
+- Posting progress comments to GitHub — always permitted
+- Moving issue labels — metadata operation
+- Running lint/typecheck/format commands — read-only verification
+- Creating feature branches — see `git-workflow` skill pre-work
+
+If the action is in this list, proceed immediately without requesting or deliberating over authorization.
 
 ### ⚠️ ASK FIRST
 
@@ -58,6 +83,31 @@
   3. If candidates found: present all candidates with URLs, offer user a choice to select one or create a new spec
   4. If no candidates found: present the failure state ("No existing spec/plan found for [topic]"), offer to create a new spec
   5. Only after search+presentation: HALT, but the halt message now includes the search results
+- **The orchestrator NEVER performs inline work.** ALL file reads, file edits, file writes, analysis, verification, and decision-making MUST be delegated to clean-room sub-agents. The orchestrator ONLY dispatches sub-agents, receives result contracts, and routes to the next pipeline step. Zero inline file operations are permitted in the main agent context.
+
+## 1.5 Soliciting Authorization for Already-Authorized Phrases — CRITICAL VIOLATION
+
+**⚠️ Asking for confirmation or clarification after receiving a pipeline-scoped authorization phrase is a CRITICAL GUIDELINE VIOLATION.**
+
+The verb-prefix parsing table in `approval-gate` skill → Authorization Scope Model is the single source of truth for scope determination. When authorization text matches a parseable pattern (`approved`, `approved for pr`, `approved for plan`, `approved for implementation`, `approved for spec`, `approved for review`, `approved to PR`, etc.), the agent MUST parse the scope and proceed without asking for confirmation or clarification.
+
+**Scope detection via the verb-prefix parsing table is NEVER ambiguous.** The table maps every possible phrase to exactly one scope. This is a deterministic function — no clarification needed, no judgment required.
+
+| Prohibited Pattern | Why It Violates |
+| -- | -- |
+| "Should I proceed?" | Authorization already given; asking re-solicits it |
+| "Shall I begin?" | Same as above |
+| "Ready to proceed?" | Same as above |
+| "How should we handle this?" | The parsing table resolves it — no agent judgment needed |
+| Using `question` tool to ask about scope | The table is deterministic; no user input needed |
+
+| ✅ REQUIRED | 🚫 FORBIDDEN |
+| -- | -- |
+| Parse scope from verb-prefix table, proceed with dispatch chain | Ask user "should I proceed with the full workflow?" |
+| Accept unambiguous authorization at face value | Treat authorization as needing confirmation |
+| Resolve `for_pr`, `for_plan`, `for_implementation`, `for_spec`, `for_review` autonomously | Ask "is this approved to PR or just to implementation?" |
+
+**See `approval-gate` skill → "Authorization Scope Model" for the complete verb-prefix parsing table. See `000-critical-rules.md` §Pushing Agent Intelligence Decisions for the autonomous resolution mandate. See `000-critical-rules.md` → "Structural Decision Solicitation Under for_pr Scope" for the complete enforcement, including the `question` tool prohibition under `for_pr` scope.** **AUTHORITY: `000-critical-rules.md` §Structural Decision Solicitation Under for_pr Scope** (this line is a reference only)
 
 ## 2. Iterative Feedback & Plan Revision
 
@@ -130,8 +180,8 @@ Key points:
 - After auto-creating sub-issues, the agent proceeds with implementation immediately (no re-authorization needed).
 
 ```yaml+symbolic
-schema_version: "1.0"
-last_updated: "2026-04-13T12:00:00Z"
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
 rules:
   - id: go-prohibitions-001
     title: "Agent must never write GO as standalone token"

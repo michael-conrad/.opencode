@@ -225,6 +225,47 @@ else:
 
 Evidence requirements and downgrade rules: see `enforcement/closed-issue-verification.md` §Success Criteria Verification and §Downgrade Path
 
+**Programmatic enforcement:** `skildeck verify-acceptance --spec-file <path>` MUST be used as the primary tool for acceptance criteria extraction and verification in this step. The command parses the issue body, extracts success criteria, and verifies each against the live codebase, producing PASS/FAIL/MANUAL-REVIEW tables with exit code 1 on any failure.
+
+**Extraction procedure using `skildeck verify-acceptance`:**
+
+1. Run `skildeck verify-acceptance --spec-file <issue-body-path>` against the closed issue
+2. Parse the output for per-SC PASS/FAIL/MANUAL-REVIEW results
+3. For any MANUAL-REVIEW results, perform manual tool-call verification (read, grep, srclight_get_symbol, test execution)
+4. Downgrade the result type based on the aggregate findings:
+   - All PASS → VERIFIED_CLOSED
+   - Some PASS, some FAIL → PARTIALLY_IMPLEMENTED
+   - All FAIL → NOT_IMPLEMENTED_DESPITE_CLOSURE
+
+**Fallback when `skildeck verify-acceptance` is unavailable:** Use the manual extraction and verification procedure described above (parsing `- [ ]` / `- [x]` checklist items under "Success Criteria" heading, then verifying each against the live codebase with tool-call evidence).
+
+When no success criteria are found in the issue body, `skildeck verify-acceptance` will report `NO_SC_FOUND`. In this case, proceed with PR-only evidence but flag `SC_VERIFICATION_NOT_PERFORMED: no_sc_found` in the result.
+
+### Step 7.5: Memory/Training Data Rejection (MANDATORY — ZERO TOLERANCE)
+
+**🚫 CRITICAL: The verification agent MUST NOT assume implementation details from memory or training data.** Per `000-critical-rules.md` §Memory/Training-Data-as-Evidence:
+
+- Do NOT recall what "should" be in a file — read the actual file
+- Do NOT assume function signatures from memory — verify via `srclight_get_signature` or source read
+- Do NOT trust "I checked this earlier" from previous sessions — re-verify in current session
+- Do NOT use training-data knowledge of frameworks/libraries as evidence — verify against live code
+- Do NOT assume the issue was implemented correctly just because it is closed — verify each SC against live code
+- Do NOT assume file contents from the PR description — read the actual merged files
+- Do NOT assume the merge resolved all issues — verify each SC independently
+
+**Memory rejection enforcement:** Every SC verification MUST produce a live tool-call artifact from the current session. The following are NOT acceptable as evidence:
+
+| Rejected Evidence Type | Why Rejected | Required Replacement |
+| -- | -- | -- |
+| "I recall that function X does Y" | Memory is stale | `srclight_get_signature("X")` or `read` of the file |
+| "I checked this in a previous session" | Session boundary invalidates cache | Re-run the verification tool call |
+| "This API works like Z" | Training data is always stale | `webfetch` of official docs or `read` of source |
+| "The PR description says it was implemented" | PR description is not code verification | `read` the actual merged file, verify SC against live code |
+| "The issue is closed, so it must be done" | Closed state is metadata, not evidence | `skildeck verify-acceptance --spec-file <path>` or per-SC tool calls |
+| "The code looks like it should work" | Agent reasoning is not verification | Test execution with `uv run pytest` or live tool-call evidence |
+
+Every SC verification in Step 7 MUST include at least one of: `skildeck verify-acceptance` output, `read` tool output, `srclight_get_symbol` result, `grep` match result, or test execution output. Memory recall is NOT an artifact.
+
 ### Step 8: Transitive Graph Traversal (MANDATORY)
 
 **Verification of a single issue is insufficient.** The verified issue may be part of a graph — sub-issues, cross-references, and linked issues must also be verified for consistency. This step traverses the reachable graph from the root issue and verifies every node.

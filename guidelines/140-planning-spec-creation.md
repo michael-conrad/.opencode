@@ -239,3 +239,112 @@ This ensures consistent workflow and prevents context fragmentation.
 ______________________________________________________________________
 
 *Source: Content migrated from `040-plan-delivery.md`, restructured per spec #821*
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-25T00:00:00Z"
+rules:
+  - id: spec-creation-001
+    title: "Spec must be created via skill chain, not written directly"
+    conditions:
+      all:
+        - "action == 'create_spec'"
+        - "skill_chain_used == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [brainstorming, spec-creation, issue-operations]
+    source: "140-planning-spec-creation.md §Spec Creation Skill Chain"
+
+  - id: spec-creation-002
+    title: "Spec revision revokes linked plan approvals"
+    conditions:
+      all:
+        - "spec_revised == true"
+        - "has_linked_plan == true"
+    actions:
+      - PROCEED
+    conflicts_with: []
+    requires: [approval-gate-006]
+    triggers: [writing-plans]
+    source: "140-planning-spec-creation.md §Spec-Driven Development Workflow"
+
+  - id: spec-creation-003
+    title: "No local plan files as fallback"
+    conditions:
+      any:
+        - "action == 'create_local_plan_file'"
+        - "fallback_to_local == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "140-planning-spec-creation.md §1.1 Issue Tracking Required"
+
+  - id: spec-creation-004
+    title: "Refuse planning work when issue tracking unavailable"
+    conditions:
+      all:
+        - "issue_tracking_available == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "140-planning-spec-creation.md §1.1 Issue Tracking Required"
+
+  - id: spec-creation-005
+    title: "Spec must be self-contained with no external references"
+    conditions:
+      any:
+        - "spec_contains == 'as discussed above'"
+        - "spec_contains == 'see previous comment'"
+        - "spec_contains == 'as mentioned in chat'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "140-planning-spec-creation.md §1.2 Fresh-Start Context"
+
+  - id: spec-creation-006
+    title: "Spec success criteria must include executable verification commands"
+    conditions:
+      all:
+        - "success_criteria_defined == true"
+        - "executable_verification_command == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "140-planning-spec-creation.md §1.1 Spec Content Requirements"
+
+  - id: spec-creation-007
+    title: "Spec reality sync — update spec to match code"
+    conditions:
+      all:
+        - "drift_detected == true"
+        - "proposed_action == 'fix_code_to_match_spec'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: [authority-source-005]
+    triggers: []
+    source: "140-planning-spec-creation.md §1. Spec Reality Sync"
+
+  - id: spec-creation-008
+    title: "Investigation must complete before spec creation"
+    conditions:
+      all:
+        - "action == 'create_spec'"
+        - "investigation_complete == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [brainstorming]
+    source: "140-planning-spec-creation.md §Spec-Driven Development Workflow"
+```

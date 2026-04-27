@@ -3,6 +3,7 @@ name: divide-and-conquer
 description: Use when implementing an approved spec, orchestrating sub-agents, or when a task risks context window overflow. Triggers on: implement, build, orchestrate, context overflow, decompose, dispatch subagent, work execution.
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -54,6 +55,48 @@ Enforces context window safety by mandating pre-flight assessment before non-tri
 
 **COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask is idempotent and safe to invoke multiple times.
 
+## Hard Gates (MANDATORY — no bypass)
+
+### Gate 1: No Direct Implementation
+
+```
+IF the main agent (orchestrator) is about to edit an implementation file:
+  1. HALT — the orchestrator NEVER edits implementation files
+  2. DO NOT call edit(), write(), or any file-modification tool
+  3. Dispatch a sub-agent via /skill divide-and-conquer --task dispatch
+  4. The sub-agent performs the implementation inside the worktree
+ENDIF
+```
+
+Violation: The main agent editing files directly is a CRITICAL violation. The orchestrator coordinates; sub-agents implement.
+
+### Gate 2: Sub-Agent Dispatch Required
+
+```
+IF implementation is authorized:
+  1. DO NOT implement directly — even for single issues
+  2. Invoke /skill divide-and-conquer --task assemble-work
+  3. Single issue = work set of one sub-agent (work-of-1)
+  4. The sub-agent receives worktree.path, github.owner, github.repo in dispatch context
+ENDIF
+```
+
+Violation: Skipping sub-agent dispatch for "simple" or "single-issue" work is a CRITICAL violation. There is no IMPLEMENT_DIRECTLY path.
+
+### Gate 3: PR Merge Boundary Check (assemble-work)
+
+```
+IF the plan has pr_boundaries in yaml+symbolic block:
+  1. BEFORE dispatching any sub-agent, check each required PR boundary
+  2. For each boundary where must_be_merged_before_starting == true:
+     - Verify PR is merged via github_pull_request_read(method=get, pullNumber=N)
+     - If NOT merged: HALT and report which PR must merge first
+  3. If ALL required boundaries are merged: proceed with sub-agent dispatch
+ENDIF
+```
+
+Violation: Dispatching sub-agents when a required upstream PR is not merged is a CRITICAL violation. The agent MUST halt at `assemble-work` and report which PR boundary is blocking.
+
 ## Operating Protocol
 
 1. **Pre-flight assessment is MANDATORY** before any non-trivial task. Run `--task assess` first. Skipping assessment for non-trivial work is a CRITICAL violation.
@@ -69,18 +112,32 @@ Enforces context window safety by mandating pre-flight assessment before non-tri
 11. **Stacking is a prerequisite, not a preference** — feature branches MUST be stacked sequentially (merge-based dependency resolution) as the prerequisite approach. Parallel sub-agent dispatch is OPPORTUNISTIC — it depends on circumstances genuinely allowing it (truly independent codepaths, no shared files, no hidden dependencies). When in doubt, stack.
 12. **Completion guarantee** — idempotent completion on any halt. Invoke `--task completion` before halting regardless of outcome.
 
+## Decomposition Rule
+
+**Each sub-agent dispatch handles ONE discrete step.**
+
+| Allowed Single Step | Forbidden Combined Step |
+|---|---|
+| Analyze spec → return design contract | Analyze + write implementation in one dispatch |
+| Write code → return file paths changed | Write code + run tests + verify in one dispatch |
+| Run tests → return pass/fail table | Run tests + fix failures in one dispatch |
+| Verify SCs → return per-SC evidence table | Verify + produce summary in one dispatch |
+| Audit spec → return findings table | Audit + apply fixes in one dispatch |
+
+If a task requires multiple steps, the orchestrator dispatches multiple sub-agents sequentially, each receiving only the prior sub-agent's result contract (if explicitly dependent) or only the task identifier (if independent).
+
 ## Pre-Dispatch Verification Checkpoint (MANDATORY)
 
 **Before dispatching any sub-agent, the main agent MUST verify:**
 
-1. **Worktree exists:** `git worktree list` shows the feature branch worktree
-2. **worktree.path is set:** `echo $WORKTREE_PATH` returns a non-empty path inside the repository (`.worktrees/`)
-3. **git-workflow --task pre-work was invoked:** The worktree was created by the mandatory skill, not manually
-4. **Feature branch is checked out:** The worktree shows the correct branch name
+1. **Feature branch exists:** `git branch --show-current` shows a feature branch (not `main`/`dev`)
+2. **In worktree mode:** `worktree.path` is set and `git worktree list` shows the feature branch worktree
+3. **git-workflow --task pre-work was invoked:** The branch was created by the mandatory skill, not manually
+4. **Feature branch is correct:** The branch name matches the expected issue/feature
 
 **If ANY check fails:** HALT and invoke `git-workflow --task pre-work` before proceeding.
 
-**Evidence requirement:** Record `git worktree list` output and `worktree.path` value before dispatching any sub-agent.
+**Evidence requirement:** Record `git branch --show-current` output (and `worktree.path` value if in worktree mode) before dispatching any sub-agent.
 
 ## Overflow Signal Contract
 
@@ -90,7 +147,7 @@ When a sub-agent cannot fit the assigned work, it MUST return `status: OVERFLOW`
 
 When the orchestrator dispatches a sub-agent, it MUST pass: `issue`, `branch`, `spec`, `plan_issue`, `authorization`, `authorization_scope`, `halt_at`, `pr_strategy`, `depth`, `max_depth`, `prior_context`, `decision_log_reference`, `phase_progress` (prose-driven: completed phases by concern, boundaries crossed, verification evidence), `sub_task` (description, scope, boundaries), `model_context`, `env_vars` (worktree.path, branch, github.owner, github.repo), `tdd_phase`, `current_item`, `top_down_items`, `dev.name`, `dev.email`. See `context-passing` task for the full schema.
 
-**Invariants:** `worktree.path` is MANDATORY — no exceptions. If empty: FATAL ERROR → HALT. `plan_issue` is set when dispatched from plan approval flow. `phase_progress` accumulates across the work set from prior sub-agent results.
+**Invariants:** `worktree.path` is MANDATORY in worktree mode — no exceptions. If empty when `WORKTREE_REQUIRED` is set: FATAL ERROR → HALT. In direct-branch mode, `worktree.path` is NOT set and sub-agents operate in the main repo directory. `plan_issue` is set when dispatched from plan approval flow. `phase_progress` accumulates across the work set from prior sub-agent results.
 
 ## Sub-Agent Completion Checkpoint
 
@@ -174,14 +231,17 @@ UI sub-agents MUST NOT run concurrently when:
 - Non-UI tasks depend on UI artifacts not yet produced
 - The ui-design and ui-engineer sub-agents have a sequential dependency (ui-engineer consumes ui-design output)
 
-## Worktree Mode
+## Worktree Mode (Conditional)
 
-When `worktree.path` is set:
+When `worktree.path` is set (worktree mode — `WORKTREE_REQUIRED`):
 - ALL `bash` tool calls MUST use `workdir` parameter set to `worktree.path`
 - ALL `read`/`write`/`edit`/`glob`/`grep` tool calls MUST prefix `filePath`/`path` with `worktree.path/`
 - `git` commands run from the worktree directory, NOT the main repo
 
-If `worktree.path` is NOT set, operate normally from the project root.
+When `worktree.path` is NOT set (direct-branch mode — DEFAULT):
+- Operate normally from the project root
+- Relative paths work directly
+- No worktree cleanup needed after implementation
 
 ## Sub-Agent Tasks
 
@@ -205,6 +265,26 @@ If `worktree.path` is NOT set, operate normally from the project root.
 | `spec-reviewer-prompt` | ≈200 |
 | `code-quality-reviewer-prompt` | ≈200 |
 
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `assemble-work` | When implementation dispatch is authorized | Work state file, spec issue number, plan issue number, worktree.path, github.owner, github.repo | Implementation context, agent memory, cached verification | NO |
+| `orchestrate` | When multi-issue orchestration is needed | Authorization scope, halt_at, pr_strategy, issue numbers | Implementation context, agent memory | NO |
+| `assess` | When context budget assessment is needed | Work state, issue count, available context | Implementation context, agent memory | NO |
+| `decompose` | When work decomposition is needed | Plan issue number, phase structure | Implementation context, agent memory | NO |
+| `dispatch` | When sub-agent dispatch is needed | Sub-agent task description, scoped context | Orchestrator reasoning, other sub-agents' results | NO |
+| `completion-checkpoint` | When phase completion verification is needed | Phase number, files changed, SC list | Implementation context, agent memory | NO |
+| `result-validation` | When sub-agent result validation is needed | Result contract, expected scope | Implementation context, agent memory | NO |
+| `overflow-signal` | When context overflow is detected | Context budget status, remaining work | Implementation context, agent memory | NO |
+| `merge` | When sub-agent results need merging | Result contracts, work state | Implementation context, agent memory | NO |
+| `context-passing` | When context is passed between sub-agents | Scoped context per dispatch schema | Orchestrator reasoning, cached verification | NO |
+| `purification-and-enforcement` | When result purity is verified | Result contract, enforcement rules | Implementation context, agent memory | NO |
+| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+| `implementer-prompt` | When implementation sub-agent prompt is built | Spec SC list, test file paths, implementation file paths | Prior test output, implementation intent | NO |
+| `spec-reviewer-prompt` | When spec review sub-agent is dispatched | Spec SC list, implementation diff | Implementation intent, agent memory | NO |
+| `code-quality-reviewer-prompt` | When code quality review sub-agent is dispatched | Implementation diff, codebase context | Implementation intent, agent memory | NO |
+
 ### Result Contracts (Sub-Agent Tasks)
 
 See individual task files for full schemas. Key result contract:
@@ -223,6 +303,28 @@ See individual task files for full schemas. Key result contract:
 6. Main agent receives result — no orchestration detail in main context
 
 Pass `<worktree.path>`, `branch`, `<github.owner>`, `<github.repo>`, `<dev.name>`, `<dev.email>` from session init.
+
+## Dispatch Logging in Work State File (MANDATORY)
+
+The work state file MUST log every sub-agent dispatch with:
+
+| Log Field | Description |
+|---|---|
+| `timestamp` | ISO 8601 timestamp of dispatch |
+| `task_name` | Name of the dispatched sub-agent task |
+| `result_contract_summary` | Summary of the returned result contract (status, files_changed, key findings) |
+
+**Log format:** Each dispatch entry is a YAML block appended to the work state file after sub-agent return. Example:
+
+```yaml
+dispatch_log:
+  - timestamp: "2026-04-26T10:30:00Z"
+    task_name: "screen-issue #106"
+    result_contract_summary: "status: DONE, classification: implementation, flat_items: 3"
+  - timestamp: "2026-04-26T10:35:00Z"
+    task_name: "implementer-phase2 #106"
+    result_contract_summary: "status: DONE, files_changed: [SKILL.md, ...], sc_covered: [SC-4, SC-5]"
+```
 
 ## Live Verification: Work State (MANDATORY)
 
@@ -253,8 +355,303 @@ Use when spec has complex success criteria benefiting from independent verificat
 ## Cross-References
 
 - `git-workflow` (git ops), `approval-gate` (authorization), `verification-before-completion` (evidence), `finishing-a-development-branch` (branch readiness), `using-git-worktrees` (worktree creation), `spec-auditor` (ground-truth adversarial verification)
-- `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md` (metadata verification extension)
+- `000-critical-rules.md` (direct-branch default, conditional worktree), `065-verification-honesty.md` (metadata verification extension)
 - Authorization classification: See `010-approval-gate.md` §Action Authorization Classification
 - Adapted from: `implementation-workflow`
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-26T00:00:00Z"
+rules:
+  - id: divide-and-conquer-001
+    title: "No direct implementation by orchestrator"
+    conditions:
+      all:
+        - "is_orchestrator == true"
+        - "about_to_edit_implementation_file == true"
+    actions:
+      - HALT
+      - DISPATCH(sub-agent)
+    conflicts_with: []
+    requires: []
+    triggers: [assemble-work]
+    source: "divide-and-conquer/SKILL.md §Gate 1"
+
+  - id: divide-and-conquer-002
+    title: "Sub-agent dispatch required for all implementation"
+    conditions:
+      all:
+        - "implementation_authorized == true"
+    actions:
+      - INVOKE(assemble-work)
+    conflicts_with: []
+    requires: [approval-gate-skill-001]
+    triggers: [assemble-work]
+    source: "divide-and-conquer/SKILL.md §Gate 2"
+
+  - id: divide-and-conquer-003
+    title: "Stacking is prerequisite, parallelism is opportunistic"
+    conditions:
+      all:
+        - "multiple_issues_approved == true"
+        - "dependencies_exist == true"
+    actions:
+      - STACK_SEQUENTIALLY
+    conflicts_with: []
+    requires: []
+    triggers: [assemble-work]
+    source: "divide-and-conquer/SKILL.md §Operating Protocol"
+
+  - id: divide-and-conquer-004
+    title: "Pre-dispatch verification checkpoint mandatory"
+    conditions:
+      all:
+        - "about_to_dispatch_sub_agent == true"
+        - "feature_branch_exists == false"
+    actions:
+      - HALT
+      - INVOKE(git-workflow --task pre-work)
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "divide-and-conquer/SKILL.md §Pre-Dispatch Verification Checkpoint"
+
+  - id: divide-and-conquer-005
+    title: "Implementation-first gate: post(assemble-work) requires deliverable"
+    conditions:
+      all:
+        - "assemble_work_completed == true"
+        - "files_modified_count == 0"
+        - "authorization_scope >= for_implementation"
+    actions:
+      - HALT
+      - REPORT(zero_deliverables)
+    conflicts_with: []
+    requires: [approval-gate-skill-001]
+    triggers: [assemble-work]
+    source: "divide-and-conquer/SKILL.md §Implementation-first gate"
+
+  - id: divide-and-conquer-006
+    title: "Overflow signal requires output (prevents silent halt)"
+    conditions:
+      all:
+        - "sub_agent_status == OVERFLOW"
+    actions:
+      - RE_DISPATCH(reduced_scope)
+      - REPORT(overflow_signal_received)
+    conflicts_with: []
+    requires: []
+    triggers: [assemble-work]
+    source: "divide-and-conquer/SKILL.md §Overflow Signal Contract"
+
+  - id: divide-and-conquer-007
+    title: "PR merge boundary check before sub-agent dispatch"
+    conditions:
+      all:
+        - "plan_has_pr_boundaries == true"
+        - "required_pr_not_merged == true"
+    actions:
+      - HALT
+      - REPORT("CRITICAL: Bypassing PR Merge Boundary")
+    conflicts_with: []
+    requires: [divide-and-conquer-002]
+    triggers: [assemble-work]
+    source: "divide-and-conquer/SKILL.md §PR Merge Boundary Gate"
+
+tasks:
+  - id: assess
+    skill: divide-and-conquer
+    preconditions: ["implementation_requested == true"]
+    postconditions: ["workload_sized == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Pre-flight Assessment"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: decompose
+    skill: divide-and-conquer
+    preconditions: ["workload_sized == true"]
+    postconditions: ["sub_tasks_defined == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Decomposition"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: dispatch
+    skill: divide-and-conquer
+    preconditions: ["sub_tasks_defined == true"]
+    postconditions: ["sub_agent_spawned == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Sub-Agent Dispatch"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: completion-checkpoint
+    skill: divide-and-conquer
+    preconditions: ["sub_agent_returned == true"]
+    postconditions: ["result_validated == true || abnormal_termination_detected == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Checkpoint"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: result-validation
+    skill: divide-and-conquer
+    preconditions: ["sub_agent_result_available == true"]
+    postconditions: ["result_valid == true || fallback_attempted == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Result Validation"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: overflow-signal
+    skill: divide-and-conquer
+    preconditions: ["sub_agent_overflow == true"]
+    postconditions: ["overflow_reported == true && re_dispatch_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Silent Agent Termination"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: merge
+    skill: divide-and-conquer
+    preconditions: ["all_sub_agents_completed == true"]
+    postconditions: ["results_aggregated == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Merge"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: context-passing
+    skill: divide-and-conquer
+    preconditions: ["dispatch_context_needed == true"]
+    postconditions: ["dispatch_context_provided == true"]
+    mandatory: false
+    bypass_violation: ""
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: purification-and-enforcement
+    skill: divide-and-conquer
+    preconditions: ["any_state"]
+    postconditions: ["scope_boundaries_enforced == true"]
+    mandatory: false
+    bypass_violation: ""
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: completion
+    skill: divide-and-conquer
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: orchestrate
+    skill: divide-and-conquer
+    preconditions: ["authorization_verified == true"]
+    postconditions: ["full_workflow_completed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skill Bypass"
+    source: "divide-and-conquer/SKILL.md"
+
+  - id: assemble-work
+    skill: divide-and-conquer
+    preconditions: ["authorization_verified == true && work_state_file_exists == true"]
+    postconditions: ["all_issues_dispatched == true && work_branch_created == true && at_least_one_file_modified == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Implementation-first gate"
+    source: "divide-and-conquer/SKILL.md"
+
+decomposition:
+  - type: skill-task
+    skill: approval-gate
+    task: verify-authorization
+    mandatory: true
+    bypass_violation: "CRITICAL: Skill Bypass"
+  - type: skill-task
+    skill: git-workflow
+    task: pre-work
+    mandatory: true
+    bypass_violation: "CRITICAL: Worktree Bypass"
+  - type: skill-task
+    skill: verification-before-completion
+    task: verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification"
+  - type: skill-task
+    skill: finishing-a-development-branch
+    task: checklist
+    mandatory: true
+    bypass_violation: "CRITICAL: Uncommitted/Unpushed Changes"
+  - type: skill-task
+    skill: git-workflow
+    task: review-prep
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping review-prep"
+  - type: sub-agent-dispatch
+    isolation: clean-room
+    must_receive: [spec, plan, file paths, worktree.path, github.owner, github.repo]
+    must_not_receive: [implementation context, agent memory from prior phases, cached verification results, other sub-agents' prior results unless declared dependency]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Clean-Room Dispatch for Sub-Agents"
+state_machines:
+  - id: assemble-work-lifecycle
+    states: [assessed, decomposed, dispatched, completed, failed, overflow]
+    start_state: assessed
+    decomposition_guard:
+      field: "decomposition.sub_tasks_defined"
+      message: "CRITICAL: Cannot dispatch without decomposition"
+    transitions:
+      - from: assessed
+        to: decomposed
+        guard: "sub_tasks_defined == true"
+        action: INVOKE(dispatch)
+      - from: decomposed
+        to: dispatched
+        guard: "sub_agents_spawned == true"
+        action: WAIT_FOR_RESULTS
+      - from: dispatched
+        to: completed
+        guard: "all_results_valid == true"
+        action: INVOKE(merge)
+      - from: dispatched
+        to: overflow
+        guard: "sub_agent_status == OVERFLOW"
+        action: RE_DISPATCH(reduced_scope)
+      - from: dispatched
+        to: failed
+        guard: "sub_agent_status == ERROR"
+        action: FALLBACK_INLINE
+      - from: overflow
+        to: decomposed
+        guard: "reduced_scope_available == true"
+        action: INVOKE(decompose)
+gates:
+  - id: orchestrator-no-direct-edit
+    condition: "is_orchestrator == true && about_to_edit_implementation_file == true"
+    on_fail: "HALT and dispatch sub-agent"
+    critical_violation: true
+  - id: feature-branch-before-dispatch
+    condition: "feature_branch_exists == true"
+    on_fail: "INVOKE(git-workflow/pre-work)"
+    critical_violation: true
+  - id: implementation-first-gate
+    condition: "files_modified_count > 0 || authorization_scope < for_implementation"
+    on_fail: "HALT and REPORT zero deliverables"
+    critical_violation: true
+  - id: pr-merge-boundary-before-dispatch
+    condition: "plan_has_pr_boundaries == false || required_pr_boundaries_merged == true"
+    on_fail: "HALT and REPORT required PR not merged"
+    critical_violation: true
+evidence_artifacts:
+  - name: assess_result
+    type: tool_call
+    verification: "assess task output confirms workload sizing"
+  - name: dispatch_context
+    type: file
+    verification: "work state file .opencode/tmp/work-*.md exists"
+  - name: sub_agent_results
+    type: tool_call
+    verification: "sub-agent returned structured result contract"
+  - name: file_modifications
+    type: tool_call
+    verification: "git diff --stat shows at least one file modified"
+  - name: pr_merge_boundary_verification
+    type: api_call
+    verification: "github_pull_request_read(method=get, pullNumber=N) → check merged field == true for each required PR boundary"
+```
 
 Co-authored with AI: <AgentName> (<ModelId>)
