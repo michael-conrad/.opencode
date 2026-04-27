@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: Use when creating a branch, committing changes, pushing work, or creating a PR. Also use when git rebase/merge produces conflicts — invoke conflict-resolution skill for classification. Also use when user says "check pr" or "check prs" to trigger PR state verification and cleanup if merged. Also use when user says "release PR", "promote to main", or "dev to main" — invokes release-promotion task for dev → main promotion. Triggers on: branch, commit, push, PR, pull request, pre-work, review-prep, feature branch, dev branch, squash, conflict, merge conflict, rebase conflict, check pr, check prs, check pull request, check pull requests, release PR, release pr, promote to main, dev to main, release promotion.
+description: Use when creating a branch, committing changes, pushing work, or creating a PR. Also use when git rebase/merge produces conflicts — invoke conflict-resolution skill for classification. Also use when user says "check pr" or "check prs" to trigger PR state verification and cleanup if merged. Also use when user says "release PR", "promote to main", or "dev to main" — invokes release-promotion task for dev → main promotion. Triggers on: branch, commit, push, PR, pull request, pre-work, review-prep, feature branch, dev branch, squash, conflict, merge conflict, rebase conflict, check pr, check prs, check pull request, check pull requests, release PR, release pr, promote to main, dev to main, release promotion, sync submodules, update submodules, dependency sync, submodule update.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
@@ -36,6 +36,7 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 | `pair-pr-creation` | Squash + PR with [pair-mode] trailers targeting dev | ≈300 |
 | `pair-cleanup` | Branch deletion after merge, stash cleanup | ≈350 |
 | `pair-mode-resume` | Detect and report on pair-* branch at session start | ≈300 |
+| `dependency-sync` | Automate submodule update lifecycle: detect, update, analyze, track, commit, push | ≈450 |
 
 ## Routing: Feature PR vs Release PR
 
@@ -61,6 +62,7 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 - `/skill git-workflow --task pair-pr-creation` - Squash + create PR with [pair-mode] trailers
 - `/skill git-workflow --task pair-cleanup` - Cleanup after pair-mode PR merge
 - `/skill git-workflow --task pair-mode-resume` - Resume pair mode session on existing pair-* branch
+- `/skill git-workflow --task dependency-sync` - Automate submodule update lifecycle (detect, update, analyze, track, commit, push)
 - `/skill git-workflow` - Overview only
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps (status report, URL, verification gates) are never skipped. It is idempotent and safe to invoke multiple times.
@@ -200,6 +202,7 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `pair-mode-resume` | ≈300 |
 | `completion` | ≈200 |
 | `check-pr` | ≈50 |
+| `dependency-sync` | ≈450 |
 
 ### Dispatch Audit Table
 
@@ -229,6 +232,7 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `pair-pr-creation` | Pair mode PR creation | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
 | `pair-cleanup` | Pair mode cleanup | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
 | `pair-mode-resume` | Pair mode resume | Branch name, worktree.path | Implementation context, agent memory | NO |
+| `dependency-sync` | Automate submodule update lifecycle | Branch name, github.owner, github.repo, dev.name, dev.email | Implementation context, agent memory | NO |
 | `completion` | Workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
 | `check-pr` | Check PR state for merged/closed | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
 
@@ -363,6 +367,22 @@ issue_number: <N|null>
 changes_summary: <str>
 uncommitted_count: <int>
 unpushed_count: <int>
+```
+
+#### dependency-sync
+
+```yaml
+status: DONE | BLOCKED | SKIP
+task: dependency-sync
+issue_number: <N>
+issue_url: <url>
+compare_url: <url>
+submodules_updated:
+  - path: <submodule-path>
+    old_sha: <sha>
+    new_sha: <sha>
+    commits_count: <N>
+commits_count: <N>
 ```
 
 ### Dispatch Context Schema
@@ -693,6 +713,13 @@ tasks:
     skill: git-workflow
     preconditions: ["commit_sha_provided == true"]
     postconditions: ["provenance_report_produced == true"]
+    mandatory: false
+    bypass_violation: ""
+    source: "git-workflow/SKILL.md"
+  - id: dependency-sync
+    skill: git-workflow
+    preconditions: ["gitmodules_exists == true", "working_tree_clean == true", "submodules_have_updates == true"]
+    postconditions: ["tracking_issue_created == true", "branch_pushed == true", "compare_url_generated == true"]
     mandatory: false
     bypass_violation: ""
     source: "git-workflow/SKILL.md"
