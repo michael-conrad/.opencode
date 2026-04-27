@@ -474,6 +474,16 @@ decomposition:
     task: verify-acceptance
     mandatory: true
     bypass_violation: "CRITICAL: Acceptance Criteria Not Verified"
+  - type: skill-task
+    skill: verification-before-completion
+    task: structural-verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Structural Verify Task Not Run"
+  - type: skill-task
+    skill: verification-before-completion
+    task: acceptance-verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Acceptance Verify Task Not Run"
 state_machines:
   - id: verify-lifecycle
     states: [started, structural_checked, evidence_collected, verified, failed]
