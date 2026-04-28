@@ -17,6 +17,10 @@ compatibility: opencode
 |---|---|---|---|---|
 | `audit` | When guideline audit is invoked | Guideline file paths, audit scope | Implementation context, agent memory | NO |
 
+## Mandatory Invocation
+
+**MANDATORY: The agent MUST invoke `guideline-auditor` when auditing guideline files. Skipping this invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations.** Exempt: no guideline audit requested.
+
 ## Role
 
 that are ambiguous, conflicting, or unlikely to be followed by an LLM agent.
