@@ -1208,6 +1208,36 @@ The output MUST include at minimum:
 - ✅ REQUIRED: Stack branches via `git merge <prior-branch>` into dependent branches before implementation
 - ✅ REQUIRED: When in doubt, stack — parallel execution is never the starting assumption
 
+## Critical Violation: pre-implementation-analysis Halts Under for_pr Scope
+
+**⚠️ When `authorization_scope` is `for_pr`, `pr_only`, `for_implementation`, or `for_code_review`, the `pre-implementation-analysis` task MUST NOT produce a halting summary with "Next steps" or similar forward-looking text. The task MUST check scope and proceed directly to gap-fill cascade and implementation dispatch.**
+
+- 🚫 FORBIDDEN: Producing "Next steps" output when `for_pr` scope is active
+- 🚫 FORBIDDEN: Treating `pre-implementation-analysis` as a terminal deliverable under `for_pr` scope
+- 🚫 FORBIDDEN: Halting after analysis without checking `authorization_scope`
+- 🚫 FORBIDDEN: Using the `question` tool for structural decisions when `halt_at >= pr_created`
+- ✅ REQUIRED: Check `authorization_scope` at end of `pre-implementation-analysis`; set `continue_pipeline=true` when `halt_at >= pr_created`
+- ✅ REQUIRED: When `halt_at >= pr_created`, proceed directly to gap-fill → `pre-work` → `assemble-work` without halting
+- ✅ REQUIRED: Output under `for_pr` scope is informational only, not a halting point
+
+**See `approval-gate/tasks/pre-implementation-analysis.md` §for_pr Scope Continuation Gate for the complete continuation rule table and mandatory behavior.** **AUTHORITY: `000-critical-rules.md` §pre-implementation-analysis Halts Under for_pr Scope**
+
+```yaml+symbolic
+  - id: critical-rules-044
+    title: "pre-implementation-analysis halts under for_pr scope"
+    conditions:
+      all:
+        - "authorization_scope IN ['for_pr', 'pr_only', 'for_implementation', 'for_code_review']"
+        - "pre_impl_analysis_produced_halting_summary == true"
+    actions:
+      - HALT
+      - PROCEED_TO(gap_fill_cascade)
+    conflicts_with: []
+    requires: [critical-rules-037, critical-rules-041]
+    triggers: [approval-gate, divide-and-conquer]
+    source: "000-critical-rules.md §pre-implementation-analysis Halts Under for_pr Scope"
+```
+
 ## Critical Violation: Pipeline-Scoped Authorization with Hard HALT at Scope Boundary
 
 **⚠️ Proceeding past the scope horizon specified in the authorization phrase is a CRITICAL GUIDELINE VIOLATION.**

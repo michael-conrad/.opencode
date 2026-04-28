@@ -86,6 +86,38 @@ These patterns indicate a violation or impending violation:
 - Closed-issue verification: see `enforcement/closed-issue-verification.md`
 - Sub-issue graph traversal: see `enforcement/sub-issue-graph-traversal.md`
 
+## for_pr Scope Continuation Gate (MANDATORY)
+
+**⚠️ CRITICAL: When `authorization_scope` is `for_pr`, `pr_only`, `for_implementation`, or `for_code_review`, the agent MUST NOT produce a halting summary with "Next steps" or similar forward-looking text.**
+
+The `pre-implementation-analysis` task is a pipeline stage, NOT a terminal deliverable. When the authorization scope requires the pipeline to continue, the task MUST set `continue_pipeline=true` and proceed immediately to the next dispatch chain step.
+
+### Scope-Based Continuation Rules
+
+| `authorization_scope` | Action After Analysis | Halting Output? |
+|-----------------------|----------------------|-----------------|
+| `for_pr` | Proceed directly to gap-fill → `pre-work` → `assemble-work` | **NO** — continue pipeline |
+| `pr_only` | Proceed directly to `pre-work` → `assemble-work` → PR creation | **NO** — continue pipeline |
+| `for_implementation` | Proceed directly to `pre-work` → `assemble-work` | **NO** — continue pipeline |
+| `for_code_review` | Proceed directly to `pre-work` → `assemble-work` | **NO** — continue pipeline |
+| `for_plan` | HALT after plan creation | Yes — `halt_at == plan_created` |
+| `for_spec` | HALT after spec creation | Yes — `halt_at == spec_created` |
+| `standard` | HALT after analysis (review-prep) | Yes — `halt_at == review_prep` |
+
+### Mandatory Behavior When `continue_pipeline=true`
+
+1. **DO NOT** include "Next steps", "Recommended actions", or similar forward-looking text in chat output
+2. **DO NOT** produce a summary that reads as a terminal deliverable
+3. **DO NOT** use the `question` tool for structural decisions (execution order, grouping, plan creation)
+4. **DO** set `continue_pipeline=true` in result contract
+5. **DO** proceed immediately to gap-fill cascade (auto-create plans for issues missing them)
+6. **DO** proceed to `git-workflow --task pre-work` after gap-fill
+7. **DO** proceed through the full dispatch chain to `halt_at` without stopping
+
+### Enforcement
+
+Violating this gate is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §pre-implementation-analysis Halts Under for_pr Scope. The agent MUST check `authorization_scope` before producing output and MUST NOT halt when the scope requires pipeline continuation.
+
 ## Result Contract
 
 ```yaml
@@ -96,4 +128,7 @@ execution_order: [<issue_numbers>]
 dependency_graph: <text>
 branch_strategy: <stacked | parallel>
 blocking_reason: <reason|null>
+continue_pipeline: <bool>
+authorization_scope: <standard|for_spec|for_plan|for_implementation|for_code_review|for_pr|pr_only>
+halt_at: <pipeline_stage>
 ```
