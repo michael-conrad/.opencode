@@ -4,7 +4,7 @@
 
 Analyze interdependencies and determine execution order for all approved issues — whether one or many — producing a flat item list for `assemble-work` dispatch. Every approval follows this unified path: sub-issue expansion → flat item list → assemble-work → work branch → pr-creation → one PR.
 
-This task is a **routing document** that delegates to 6 atomic tasks in `pre-impl/`.
+This task is a **routing document** that delegates to 6 atomic tasks in `pre-impl/`. The routing document itself stays compact; sub-agents perform the heavy analysis.
 
 ## Entry Criteria
 
@@ -14,8 +14,8 @@ This task is a **routing document** that delegates to 6 atomic tasks in `pre-imp
 
 ## Exit Criteria
 
-- Execution plan presented in chat (informative only)
-- Agent proceeds immediately to `assemble-work`
+- Execution plan presented in chat (informative only — not a gate)
+- Agent proceeds immediately to `assemble-work` (no HALT between analysis and dispatch)
 
 ## Atomic Task Chain
 
@@ -35,17 +35,41 @@ collect-screening-results → reconcile-status → build-dependency-graph
 
 **Chain-of-responsibility note:** Each atomic task uses the work state file for inter-task I/O. Tasks read inputs from predecessor sections and write results to their own section per `enforcement/work-state-schema.md`.
 
-## Red Flags
+## Execution Order Determination
 
-- Never skip dependency analysis when multiple issues are approved together
-- Never dispatch parallel subagents for conflict-risk issues without serialization
-- Never include meta/non-code, already-implemented, superseded, or moot issues in the implementation plan
-- Never present dependency analysis only in agent reasoning (MUST be in chat)
-- Never assume all issues are independent without analysis
-- Never execute must-precede issues out of order
-- Never use `question` tool after presenting the execution plan
-- Never HALT between plan presentation and `assemble-work`
-- Never escalate status inconsistencies to the developer (use `reconcile-issue-graph`)
+The analysis produces an execution order based on:
+
+1. **Must-precede dependencies:** Issue A must complete before Issue B starts
+2. **Should-precede dependencies:** Issue A should complete before Issue B for efficiency
+3. **Independent issues:** Issues can be executed in any order or in parallel (opportunistic)
+
+**Stacking is prerequisite, parallel is opportunistic.** The default execution model is sequential branch stacking. Parallel execution requires explicit justification documented in the work state.
+
+## Branch Stacking Model
+
+For multi-issue authorization sets, branches are stacked:
+
+```
+dev → feature/A (implement issue A)
+       ↓ merge feature/A into feature/B
+       feature/B (implement issue B, includes A's changes)
+```
+
+This ensures each branch builds on the prior branch's changes, avoiding merge conflicts between the branches.
+
+## Red Flags — CRITICAL
+
+These patterns indicate a violation or impending violation:
+
+- **Never skip dependency analysis** when multiple issues are approved together
+- **Never dispatch parallel subagents** for conflict-risk issues without serialization
+- **Never include meta/non-code, already-implemented, superseded, or moot issues** in the implementation plan
+- **Never present dependency analysis only in agent reasoning** — MUST be in chat
+- **Never assume all issues are independent** without analysis
+- **Never execute must-precede issues out of order**
+- **Never use `question` tool** after presenting the execution plan
+- **Never HALT between plan presentation and `assemble-work`** — proceed immediately
+- **Never escalate status inconsistencies** to the developer (use `reconcile-issue-graph`)
 
 ## Cross-References
 
@@ -61,3 +85,15 @@ collect-screening-results → reconcile-status → build-dependency-graph
 - Auto-dispatch routing: see `enforcement/auto-dispatch-table.md`
 - Closed-issue verification: see `enforcement/closed-issue-verification.md`
 - Sub-issue graph traversal: see `enforcement/sub-issue-graph-traversal.md`
+
+## Result Contract
+
+```yaml
+status: DONE | BLOCKED
+task: pre-implementation-analysis
+issues_analyzed: <count>
+execution_order: [<issue_numbers>]
+dependency_graph: <text>
+branch_strategy: <stacked | parallel>
+blocking_reason: <reason|null>
+```

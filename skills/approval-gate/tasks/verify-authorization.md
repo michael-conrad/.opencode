@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Check for explicit authorization and needs-approval label status before implementation. This task orchestrates the atomized sub-tasks in `verify-authorization/` for fine-grained, low-context verification.
+Check for explicit authorization and needs-approval label status before implementation. This task orchestrates the atomized sub-tasks in `verify-authorization/` for fine-grained, low-context verification. It is the primary authorization gate between approval and implementation.
 
 ## Entry Criteria
 
@@ -41,6 +41,42 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 | 1 issue + `standard` scope + 0 sub-issues + explicit auth | fast-path (skip 2, 4.5, 4.6, 5, 5b, 5b.5+5c) |
 | 1 issue + sub-issues OR plan with phases | medium-path (0.5, 1, 4.5, 4.6, 5, then 6) |
 | Multi-issue authorization set | full-path (all steps) |
+
+## Authorization Source Verification
+
+### Step 1: Explicit Authorization Check
+
+Verify that explicit authorization exists for the specific issue:
+- "approved #N" or "go #N" → authorization for issue N
+- "approved to PR" → authorization with scope `for_pr`
+- "approved for plan" → authorization with scope `for_plan`
+- "approved for implementation" → authorization with scope `for_implementation`
+
+### Step 2: Label Status Check
+
+Read the issue labels:
+- `needs-approval` present + explicit auth → **PROCEED** (explicit auth overrides)
+- `needs-approval` present + no explicit auth → **HALT** (wait for authorization)
+- No `needs-approval` label → check for other authorization signals
+
+### Step 3: Authorization Decision
+
+| Condition | Result |
+|-----------|--------|
+| Explicit auth ("approved"/"go") + any label | ✅ PROCEED |
+| No explicit auth + `needs-approval` label | ⛔ HALT |
+| No explicit auth + no label | ⛔ HALT (wait for auth) |
+
+### Step 4: Scope Resolution
+
+Parse authorization text for scope:
+- "approved #N" (no qualifier) → `standard` scope
+- "approved #N to PR" → `for_pr` scope
+- "approved #N for plan" → `for_plan` scope
+- "approved #N for implementation" → `for_implementation` scope
+- "approved #N for review" → `for_code_review` scope
+
+The verb-prefix parsing table in `approval-gate` skill → Authorization Scope Model is the sole authority for scope determination. No clarification needed, no judgment required.
 
 ## Sub-Agent Result Guard
 

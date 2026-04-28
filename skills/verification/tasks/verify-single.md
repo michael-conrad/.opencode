@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Verify a single claim against evidence using modality-aware dispatch. This is the single-claim version of the `verify` task, designed for targeted verification of individual claims.
+Verify a single claim against evidence using modality-aware dispatch. This is the single-claim version of the `verify` task, designed for targeted verification of individual claims without the overhead of a full multi-claim verification workflow.
 
 ## Entry Criteria
 
@@ -51,30 +51,44 @@ From the `DispatchResult`, build a `ClaimResult`:
 }
 ```
 
-**Status determination:**
+**Status determination rules:**
 
-The model's response determines the claim status:
-- If the model confirms the claim with evidence → PASS
-- If the model contradicts the claim with evidence → FAIL
-- If the model cannot determine → UNVERIFIED
-- If no model is available for the modality → UNVERIFIED with gap description
+| Outcome | Status | When |
+|---------|--------|------|
+| Model confirms claim with evidence | PASS | Explicit confirmation |
+| Model contradicts claim with evidence | FAIL | Explicit contradiction |
+| Model cannot determine | UNVERIFIED | Insufficient evidence |
+| No model available for modality | UNVERIFIED | Modality unsupported |
 
-**FAIL is never downgraded to PASS.** This invariant is absolute. A claim that fails verification stays FAIL regardless of how "close" it is to passing.
+**FAIL is never downgraded to PASS.** This invariant is absolute per `000-critical-rules.md` §Soft-Passing Verification Mismatches. A claim that fails verification stays FAIL regardless of how "close" it is to passing. Only the stakeholder can decide to accept a deviation.
 
 ### Step 4: Return ClaimResult
 
-Return the single `ClaimResult`. The calling skill uses this to build its own result.
+Return the single `ClaimResult`. The calling skill uses this to build its own result. No further processing is required for single-claim verification.
 
 ## Error Handling
 
-- If `multimodal-dispatch` returns `unverified` status → `ClaimResult.status = UNVERIFIED`
-- If `multimodal-dispatch` returns `failed` status → `ClaimResult.status = FAIL` with error details in evidence
-- If the content payload is empty → `ClaimResult.status = UNVERIFIED` with "no content provided for verification"
+| Error | Resolution |
+|-------|-----------|
+| `multimodal-dispatch` returns `unverified` | `ClaimResult.status = UNVERIFIED` with gap description |
+| `multimodal-dispatch` returns `failed` | `ClaimResult.status = FAIL` with error details |
+| Content payload is empty | `ClaimResult.status = UNVERIFIED` with "no content provided" |
+| Model unavailable for modality | `ClaimResult.status = UNVERIFIED` with modality gap description |
+
+## Comparison Modes
+
+| Mode | When to Use | Comparison |
+|------|------------|------------|
+| `exact` | DNS records, config values, API responses, infrastructure state | Character-for-character match |
+| `semantic` | Code behavior where multiple implementations achieve same spec intent | Intent-level match with justification |
+
+The default comparison mode for ALL external verifications is `exact` — character-for-character match. `semantic` mode is ONLY for code behavior where multiple implementations achieve the same spec intent, and requires explicit per-field justification.
 
 ## Context Required
 
 - Depends on: `multimodal-dispatch` (model selection and dispatch)
 - Invoked by: `verify` task (for individual claims), or directly by skills needing single-claim verification
 - Related tasks: `verify`, `completion`
+- `065-verification-honesty.md`: FAIL claims cannot be downgraded
 
 Co-authored with AI: <AgentName> (<ModelId>)
