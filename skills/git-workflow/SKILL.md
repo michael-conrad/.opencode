@@ -89,13 +89,24 @@ Violation: Editing files on `dev` or `main` without a worktree corrupts the shar
 ```
 IF user requests PR creation (or authorization_scope >= for_pr):
   1. DO NOT call github_create_pull_request directly
-  2. Invoke /skill git-workflow --task pr-creation
-  3. pr-creation handles: squash, push, base branch validation (MUST be dev), PR API call
-  4. IF base branch is not dev → HALT and report
+  2. Invoke /skill finishing-a-development-branch --task checklist (MANDATORY — commit count enforcement)
+  3. Invoke /skill git-workflow --task review-prep (MANDATORY — push, compare URL)
+  4. Invoke /skill git-workflow --task pr-creation (MANDATORY — squash, PR API call)
+  5. IF any mandatory skill is skipped → CRITICAL GUIDELINE VIOLATION
 ENDIF
 ```
 
-Violation: Direct `github_create_pull_request` calls skip base branch validation, squash, and push verification. This caused PR #9 merging to `master` instead of `dev`.
+**DISPATCH_GATE Checkpoint:** After implementation, the agent MUST invoke the following skills in order BEFORE calling `github_create_pull_request`:
+
+| Step | Skill | Verification |
+| -- | -- | -- |
+| 1 | `finishing-a-development-branch --task checklist` | All checklist items verified via tool-call artifacts |
+| 2 | `git-workflow --task review-prep` | Compare URL generated in correct format |
+| 3 | `git-workflow --task pr-creation` | PR URL extracted from `github_create_pull_request` response `html_url` |
+
+Skipping any of these steps and calling `github_create_pull_request` directly is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Dispatch Chain Enforcement.
+
+Violation: Direct `github_create_pull_request` calls skip base branch validation, squash verification, commit count enforcement, and compare URL generation. This caused PR #9 merging to `master` instead of `dev` and PR #184 with multiple commits on a single-issue branch.
 
 ### Gate 3: Skill Dispatch Before Worktree/Branch Creation
 
@@ -123,7 +134,7 @@ Violation: Direct `git push` skips verification that the branch has committed ch
 
 ## Operating Protocol
 
-1. **Mandatory invocation (no decision point):** pre-work is invoked after approval-gate passes; review-prep is invoked after implementation completes — the agent MUST invoke both at the appropriate time, never skip them, and never prompt for invocation.
+1. **MANDATORY invocation — no decision point:** `pre-work` is invoked after approval-gate passes; `review-prep` is invoked after implementation completes; `finishing-a-development-branch --task checklist` is invoked before PR creation; `pr-creation` is invoked when PR creation is authorized. The agent MUST invoke all of these at the appropriate time, never skip them, and never prompt for invocation. **Skipping any mandatory skill invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Skipping Mandatory Skill Invocation.**
 2. **Phase sequence:** Pre-work (Phase 1) → Implementation (user-driven) → review-prep (Phase 3, MANDATORY, MUST invoke after implementation) → pr-creation (explicit instruction only) → cleanup (after merge).
 3. **review-prep is mandatory:** Skipping it after implementation is a CRITICAL GUIDELINE VIOLATION. The agent MUST invoke `/skill git-workflow --task review-prep` after implementation completes.
 4. **PR requires explicit instruction OR pipeline scope:** "approved"/"go" authorizes implementation ONLY — not PR creation. **Exception:** When `authorization_scope >= for_pr` or `pr_only`, the user's pipeline instruction authorizes PR creation as part of the scope. When `pr_strategy == none` or `halt_at < pr_created`, do NOT create PR regardless of explicit instruction.
@@ -132,6 +143,7 @@ Violation: Direct `git push` skips verification that the branch has committed ch
 7. **Squash to single commit before any PR:** No exceptions.
 8. **Never merge PRs:** Human-only operation.
 9. **Post-merge cleanup is MANDATORY:** Skipping `git-workflow --task cleanup` after confirming PR merge is a CRITICAL GUIDELINE VIOLATION. The cleanup task is the sole mechanism for branch deletion, issue closure, and dev sync. Every merged PR MUST be followed by `cleanup`.
+10. **Cleanup scope is limited to the merged PR ONLY:** The cleanup task is scoped to the specific merged PR and its related branches. Discovering additional stale branches, stashes, or worktrees does NOT authorize cleanup beyond the merged PR's scope. Report additional cleanup opportunities in the completion message but do NOT act on them without explicit developer authorization. Violating this scope boundary is authorization overreach per `000-critical-rules.md` §Question-as-Authorization.
 
 ### PR Body Keyword Discipline
 

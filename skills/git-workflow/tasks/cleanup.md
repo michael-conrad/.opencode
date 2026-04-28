@@ -22,6 +22,39 @@ Delete merged branches after PR merge, clean stale references, and verify reposi
 - Stale remote references pruned
 - Working tree clean
 
+## Scope Boundary (CRITICAL)
+
+**⚠️ CRITICAL: The cleanup task is scoped to the merged PR and its related branches ONLY.**
+
+Discovering additional stale branches, stashes, or worktrees does NOT authorize cleanup beyond the merged PR's scope. The agent MUST NOT:
+
+- Delete branches unrelated to the merged PR
+- Perform submodule maintenance beyond dev-restore (checkout dev, pull)
+- Create bug reports or fix issues discovered during cleanup
+- Implement code changes as a side effect of cleanup
+
+If the agent observes additional cleanup opportunities, it reports them in the completion message but does NOT act on them without explicit developer authorization ("approved" or "go").
+
+**Examples of scope boundary:**
+
+| Trigger | Authorized Scope | NOT Authorized |
+|---------|-----------------|----------------|
+| "pr merged for #184" | Delete branch for PR #184, sync dev, restore submodule to dev | Delete 14 unrelated stale branches |
+| "check prs" → merged PR found | Cleanup for that merged PR only | General repo hygiene on unrelated branches |
+| Cleanup finds stuck rebase on merged branch | Abort stale rebase, continue cleanup | Fix unrelated stashes found during cleanup |
+
+## Rebase/Merge State Detection
+
+The `branch-cleanup` subtask checks for stuck rebase, merge, cherry-pick, and revert states before proceeding with branch operations. For merged branches, stale rebase states are aborted. For unmerged branches, the agent HALTs and reports the stuck state.
+
+See `cleanup/branch-cleanup.md` Step 0 for the complete detection and resolution procedure.
+
+## Submodule Dev-Restore
+
+The `branch-cleanup` subtask restores the submodule to the `dev` branch after all branch deletions are complete. This prevents the submodule from being left on a detached HEAD, which causes conflicts and lost work.
+
+See `cleanup/branch-cleanup.md` Step 5.5 for the complete submodule dev-restore procedure.
+
 ## Procedure
 
 ### Step 1: Verify PR Merge and Run Gates
