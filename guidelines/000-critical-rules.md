@@ -18,6 +18,7 @@ These mandates protect the integrity of the codebase and repository. They **NEVE
 | No commits to `main` or `dev` | Branch protection is a repository integrity concern |
 | Human-only merge | Agents must never merge PRs |
 | No `/tmp/` usage — `./tmp/` only | Prevents system-level temp file leakage |
+| Audit baselines in permanent storage — NOT `tmp/` | Audit baselines, measurements, and historical data are permanent records, not ephemeral artifacts |
 | Path rules in worktree context | Prevents silent file operation errors across worktrees (only when `WORKTREE_REQUIRED` is set) |
 | Sub-agents must receive `worktree.path` | Prevents sub-agents from mutating main repo (only when main agent is in worktree mode) |
 | Human-only branch deletion | Unmerged branches must never be force-deleted by agents |
@@ -50,6 +51,37 @@ When developer authorization conflicts with a mandate:
 | No developer authorization + any mandate | Mandate holds — HALT and wait |
 
 **See `010-approval-gate.md` → "Mandate Tiering Interaction" for the complete interaction semantics and examples.**
+
+## Critical Violation: Audit Baselines in Temporary Storage
+
+**⚠️ Storing audit baselines, measurements, or historical data in `tmp/` or `/tmp/` is a CRITICAL GUIDELINE VIOLATION.** Audit artifacts are permanent records, not ephemeral artifacts.
+
+- 🚫 FORBIDDEN: Storing audit reports in `tmp/`, `.opencode/tmp/`, or `/tmp/`
+- 🚫 FORBIDDEN: Storing audit scripts in `tmp/`, `.opencode/tmp/`, or `/tmp/`
+- 🚫 FORBIDDEN: Storing baseline measurements in temporary directories
+- 🚫 FORBIDDEN: Suggesting `tmp/` as a storage location for audit artifacts
+- ✅ REQUIRED: Store audit reports in `.opencode/docs/audits/`
+- ✅ REQUIRED: Store audit scripts in `.opencode/tools/audits/`
+- ✅ REQUIRED: Treat audit baselines, measurements, and historical data as permanent records
+
+**Why this matters:** Audit baselines are reference points for regression detection. If stored in temporary directories, they can be deleted by cleanup operations, leaving no historical record for comparison. The enforcement test `phase0-audit-artifacts.sh` verifies this behavior.
+
+```yaml+symbolic
+  - id: critical-rules-043
+    title: "Audit baselines in permanent storage — NOT tmp/"
+    conditions:
+      any:
+        - "file_path matches '.opencode/tmp/.*audit'"
+        - "file_path matches 'tmp/.*audit'"
+        - "storage_suggestion matches 'tmp/'"
+        - "storage_suggestion matches '/tmp/'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [verification-enforcement, sre-runbook]
+    source: "000-critical-rules.md §Audit Baselines in Temporary Storage"
+```
 
 ## Critical Violation: Direct-Branch Default — Feature Branch Without Worktree Is the Norm
 
@@ -2328,4 +2360,19 @@ The commit-per-issue invariant requires that single-issue branches produce exact
     requires: []
     triggers: [test-driven-development, spec-creation, writing-plans]
     source: "000-critical-rules.md §Skipping Behavioral Tests for Behavior Changes"
+
+  - id: critical-rules-043
+    title: "Audit baselines in permanent storage — NOT tmp/"
+    conditions:
+      any:
+        - "file_path matches '.opencode/tmp/.*audit'"
+        - "file_path matches 'tmp/.*audit'"
+        - "storage_suggestion matches 'tmp/'"
+        - "storage_suggestion matches '/tmp/'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [verification-enforcement, sre-runbook]
+    source: "000-critical-rules.md §Audit Baselines in Temporary Storage"
 ```

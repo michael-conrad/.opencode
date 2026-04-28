@@ -2,8 +2,8 @@ node_modules
 package.json
 package-lock.json
 bun.lock
+.opencode/
 tmp/
-.node/
 .worktrees/
 __pycache__/
 *.pyc
