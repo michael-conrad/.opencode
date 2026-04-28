@@ -150,6 +150,43 @@ fi
 2. **Submodule currency check:** If any submodule is not on `dev` branch, sync it: `git submodule foreach "git checkout dev && git pull"`
 3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be run: `git checkout dev && git pull && git submodule init && git submodule foreach "git checkout dev && git pull"`
 
+### Step 2.6: Submodule Dev-Tip Verification (MANDATORY)
+
+**Before proceeding past pre-work, verify ALL submodules are parked at origin/dev tip:**
+
+```bash
+# Check each submodule's HEAD matches origin/dev tip
+git submodule foreach '
+    current_sha=$(git rev-parse HEAD)
+    origin_dev_sha=$(git ls-remote origin dev | cut -f1)
+    
+    if [ "$current_sha" != "$origin_dev_sha" ]; then
+        echo "ERROR: Submodule $name is not at origin/dev tip"
+        echo "  Current: $current_sha"
+        echo "  origin/dev: $origin_dev_sha"
+        echo "  ACTION: Syncing to origin/dev..."
+        git checkout dev && git pull origin dev
+    else
+        echo "OK: Submodule $name is at origin/dev tip"
+    fi
+'
+```
+
+**Detached HEAD detection and correction:**
+
+```bash
+# Detect and correct detached HEAD state in submodules
+git submodule foreach '
+    if ! git rev-parse --abbrev-ref HEAD >/dev/null 2>&1; then
+        echo "ERROR: Submodule $name is in detached HEAD state"
+        echo "  ACTION: Checking out dev branch..."
+        git checkout dev
+    fi
+'
+```
+
+**Agent cannot proceed past pre-work without confirming submodule HEAD matches origin/dev.** If any submodule is stale or in detached HEAD state, the agent MUST sync it before proceeding to Step 3 (feature branch creation).
+
 ### Step 2.7: Automatic Prerequisite Operations
 
 **⚠️ When authorization has been verified (approval-gate `verify-authorization` passed), the following git operations are AUTOMATIC prerequisites that MUST be performed WITHOUT soliciting developer confirmation.**
@@ -161,6 +198,8 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 | `git fetch origin` | Step 1.5/2 | Pipeline prerequisite | Remote exists |
 | `git checkout dev && git pull origin dev` | Step 2 | Tier 1 mandate prerequisite | Always when remote exists |
 | `git submodule init` + `git submodule foreach "git checkout dev && git pull"` | Step 2.5 | Tier 1 mandate prerequisite | `.gitmodules` exists |
+| **Submodule dev-tip verification** | Step 2.6 | **Tier 1 mandate prerequisite** | **`.gitmodules` exists** |
+| **Submodule detached HEAD correction** | Step 2.6 | **Tier 1 mandate prerequisite** | **`.gitmodules` exists** |
 | `git add .opencode` (submodule bump) | Step 3.5 | Tier 1 mandate prerequisite | Submodule SHA changed |
 | `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 3 | Tier 1 mandate — required by `000-critical-rules.md` §Skipping Git Pre-Check | Always |
 | `git push -u origin feature/N-xyz` | Post-Step 5 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
