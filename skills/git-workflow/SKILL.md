@@ -26,7 +26,7 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 | `review-prep` | Push branch, generate compare URL for review (2 subtasks) | ≈390 |
 | `pr-creation` | Squash, push, create PR via GitHub MCP (3 subtasks) | ≈385 |
 | `rebase-pending` | Rebase other open PRs after merge, classify conflicts | 1,666 |
-| `cleanup` | Verify merge, close issues, delete branches (3 subtasks) | ≈950 |
+| `cleanup` | Verify merge, close issues, delete branches, submodule pointer sync (3 subtasks + Step 5.6) | ≈950 |
 | `completion` | Ensure mandatory completion steps run regardless of workflow outcome | ≈200 |
 | `release-promotion` | Automate dev → main promotion and tagging (submodule and non-submodule repos) | ≈500 |
 | `check-pr` | List all PRs (open + merged); if merged found, activate cleanup | ≈50 |
