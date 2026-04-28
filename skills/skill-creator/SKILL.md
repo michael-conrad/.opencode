@@ -52,6 +52,19 @@ Creating skills IS Test-Driven Development applied to process documentation. Wri
 | **Pattern** | Way of thinking about problems | Apply principles flexibly | Recognition + application scenarios |
 | **Reference** | Lookup tables, API docs, command guides | Find and apply | Retrieval + application scenarios |
 
+## Behavioral Test Plan
+
+When creating a new skill, you MUST include a behavioral test plan described in prose:
+
+1. **Behavior to verify** — What does the agent do differently when this skill is invoked vs skipped?
+2. **Trigger** — What prompt or scenario should trigger invocation of this skill?
+3. **Verification method** — How do we confirm the skill was invoked? (agent response pattern, skill output, etc.)
+4. **Failure condition** — What response means the skill was NOT invoked when it should have been?
+
+**Do NOT use a static template.** Describe the behavior in natural language. The test mechanism (opencode-cli invocation, assertion method) follows from what behavior you're verifying.
+
+**New skill without behavioral test plan = incomplete.**
+
 ## The Iron Law
 
 ```

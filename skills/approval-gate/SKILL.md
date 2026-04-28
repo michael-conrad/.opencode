@@ -121,6 +121,19 @@ Violation: Writing code without a spec bypasses the review trail and edge case d
 6. **Spec revision revocation:** If a spec is revised (status contains `REVISED - NEEDS APPROVAL` — in either prose or numeric format), find linked plan issues by searching for `[PLAN]` issues referencing the spec number in their body and mark them for audit. Revision of a spec revokes approval on its linked plan — including cascaded approval. Prose format example: `STATUS: in progress — {concern} (REVISED - NEEDS APPROVAL)`. Numeric format example: `STATUS: 1.1 (REVISED - NEEDS APPROVAL)`.
 7. **Auto-dispatch after verification:** When all verification gates pass, auto-dispatch to the next skill in the chain. See Dispatch Order below.
 
+## Step 6: Test Verification (NEW)
+
+Before authorization is confirmed, verify:
+
+- [ ] Behavioral test description exists (prose, not template)
+- [ ] Test description covers: behavior change, trigger, verification, failure condition
+- [ ] Test type matches behavior type:
+  - Conversational: uses `with-test-home`, verifies agent response
+  - Runtime: executes code/service, verifies output/state
+- [ ] Content test justification provided (if claiming content-only)
+
+**No behavioral test description = authorization incomplete.**
+
 ## Dispatch Order
 
 **Step 0: Orchestrator Purity Gate (MANDATORY)**

@@ -2314,4 +2314,18 @@ The commit-per-issue invariant requires that single-issue branches produce exact
     requires: []
     triggers: [git-workflow]
     source: "000-critical-rules.md §Listing Merged PRs Without Invoking Cleanup"
+
+  - id: critical-rules-042
+    title: "Skipping behavioral tests for behavior changes"
+    conditions:
+      all:
+        - "behavior_change_implemented == true"
+        - "behavioral_test_missing == true"
+    actions:
+      - HALT
+      - INVOKE(test-driven-development)
+    conflicts_with: []
+    requires: []
+    triggers: [test-driven-development, spec-creation, writing-plans]
+    source: "000-critical-rules.md §Skipping Behavioral Tests for Behavior Changes"
 ```

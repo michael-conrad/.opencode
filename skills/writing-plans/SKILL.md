@@ -120,6 +120,30 @@ The spec-to-plan approval cascade applies differently based on authorization sco
 - `/skill writing-plans --task clean-room` — Generate clean-room plan (for comparison by spec-auditor)
 - `/skill writing-plans --task completion` — Invoke when workflow halts at any point
 
+## RED/GREEN/REFACTOR Test Discipline
+
+## RED Phase Requirements
+
+1. **Write behavioral test description FIRST** — before any implementation
+2. **Describe the behavior to verify:**
+   - What changes (agent response or code execution)?
+   - How to trigger it?
+   - What confirms success?
+   - What constitutes failure?
+3. **Implement test mechanism** — write the script that verifies the described behavior
+4. **Verify RED state** — test FAILS before implementation
+
+## GREEN Phase Requirements
+
+1. **Implement behavior change** — skills, guidelines, code, dispatch chain
+2. **Verify GREEN state** — test PASSES after implementation
+3. **Behavior must differ** — before/after response or execution is different
+
+## REFACTOR Phase Requirements
+
+1. **Run full behavioral suite** — `bash .opencode/tests/behaviors/run-all.sh`
+2. **No regressions** — all existing tests still pass
+
 ## Hybrid Structure: Phases + TDD Steps
 
 Plans use **phases** (for sub-issue tracking) with **TDD step granularity** within each task:
