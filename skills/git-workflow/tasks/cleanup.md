@@ -20,6 +20,9 @@ Delete merged branches after PR merge, clean stale references, and verify reposi
 - Local merged branch deleted
 - Remote merged branch deleted (if applicable)
 - Stale remote references pruned
+- Dev branch synced with remote (verified via hash comparison)
+- Submodule on `dev` branch (not detached HEAD)
+- Submodule pointer matches submodule dev HEAD (or dependency-sync PR created)
 - Working tree clean
 
 ## Scope Boundary (CRITICAL)
@@ -54,6 +57,12 @@ See `cleanup/branch-cleanup.md` Step 0 for the complete detection and resolution
 The `branch-cleanup` subtask restores the submodule to the `dev` branch after all branch deletions are complete. This prevents the submodule from being left on a detached HEAD, which causes conflicts and lost work.
 
 See `cleanup/branch-cleanup.md` Step 5.5 for the complete submodule dev-restore procedure.
+
+## Submodule Pointer Sync
+
+After restoring the submodule to `dev`, the `branch-cleanup` subtask checks whether the parent repo's submodule reference matches the submodule's current dev HEAD. If the pointers differ, a dependency-sync PR is auto-created targeting `dev`. This prevents detached HEAD on subsequent `git submodule update`.
+
+See `cleanup/branch-cleanup.md` Step 5.6 for the complete submodule pointer sync procedure.
 
 ## Procedure
 
@@ -221,7 +230,7 @@ Each verification point requires a tool call for evidence. Assertions without to
 | -- | -- | -- |
 | `cleanup/verify-merge` | PR merge verification, SC gate, phase gate | ≈750 |
 | `cleanup/issue-closure` | Hierarchical issue closure, graph reconciliation | ≈800 |
-| `cleanup/branch-cleanup` | Dev sync, worktree removal, branch deletion | ≈700 |
+| `cleanup/branch-cleanup` | Dev sync, worktree removal, branch deletion, submodule pointer sync | ≈900 |
 
 ## Context Required
 

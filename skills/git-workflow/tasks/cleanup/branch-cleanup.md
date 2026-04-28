@@ -15,6 +15,8 @@ Delete merged branches, clean stale references, remove worktrees, sync dev, and 
 - Remote merged branch deleted (if applicable)
 - Stale remote references pruned
 - Dev branch synced with remote (verified via hash comparison)
+- Submodule on `dev` branch (not detached HEAD)
+- Submodule pointer matches submodule dev HEAD (or dependency-sync PR created)
 - Working tree clean
 
 ## Procedure
@@ -275,6 +277,121 @@ For each submodule (detected via `.gitmodules` or `.git` file in submodule direc
 - Leaving submodule on detached HEAD after cleanup
 - Deleting the `dev` branch in the submodule and then trying to checkout `dev`
 - Performing additional submodule cleanup beyond dev-restore (branch deletion, stash cleanup, etc.) without explicit developer authorization
+
+### Step 5.6: Submodule Pointer Sync Check (MANDATORY)
+
+**⚠️ CRITICAL: After restoring the submodule to `dev`, the parent repo's submodule reference MUST match the submodule's current dev HEAD. If they don't match, a dependency-sync PR MUST be auto-created. Leaving a mismatched submodule pointer causes detached HEAD on the next `git submodule update`.**
+
+**Scope boundary:** This step ONLY checks and synchronizes the submodule pointer. It does NOT perform additional maintenance, branch deletion, or code changes in the submodule. The step creates a `dep-sync/` branch and PR in the PARENT repo — not in the submodule.
+
+1. **Capture submodule's current dev HEAD:**
+   ```bash
+   cd <submodule-path>
+   SUBMODULE_DEV_SHA=$(git rev-parse HEAD)
+   cd <parent-repo-root>
+   ```
+
+2. **Capture parent repo's recorded submodule pointer:**
+   ```bash
+   PARENT_POINTER_SHA=$(git ls-tree HEAD -- <submodule-path> | awk '{print $3}')
+   ```
+
+3. **Compare the two SHAs:**
+   - If `SUBMODULE_DEV_SHA == PARENT_POINTER_SHA`: Pointers match. No action needed. Report: "Submodule pointer is current (<sha-short>). No sync required."
+   - If `SUBMODULE_DEV_SHA != PARENT_POINTER_SHA`: Pointers differ. Proceed to Step 5.6.4 to create a dependency-sync PR.
+
+4. **Create dependency-sync PR (when pointers differ):**
+
+   **⚠️ This sub-step runs in a CLEAN SUB-AGENT with MINIMAL context. The sub-agent receives ONLY:**
+   - `submodule_path`, `old_sha`, `new_sha`, `github.owner`, `github.repo`, `dev.name`, `dev.email`
+   - The sub-agent MUST NOT receive implementation context, cleanup history, or agent memory.
+
+   a. **Create tracking issue:**
+      ```python
+      issue = github_issue_write(
+          method="create",
+          owner=<github.owner>,
+          repo=<github.repo>,
+          title="chore: sync .opencode submodule to latest dev",
+          body="""## Submodule Pointer Drift
+
+      After cleanup, the `.opencode` submodule pointer in the parent repo drifted from the submodule's dev HEAD.
+
+      | Field | Value |
+      |-------|-------|
+      | Submodule path | .opencode |
+      | Old pointer | <old_sha_short> |
+      | New pointer (dev HEAD) | <new_sha_short> |
+      | Commits behind | <N> |
+
+      Auto-created by cleanup task to prevent detached HEAD on next `git submodule update`.
+
+      Co-authored with AI: <AgentName> (<ModelId>)"""
+      )
+      issue_number = extract from response
+      ```
+
+   b. **Create feature branch from dev:**
+      ```bash
+      git checkout dev
+      git checkout -b dep-sync/<issue_number>
+      ```
+
+   c. **Stage and commit submodule pointer update:**
+      ```bash
+      git add <submodule-path>
+      git commit -m "dep-sync(#<issue_number>): sync .opencode submodule to latest dev
+
+      - .opencode: <old_sha_short>..<new_sha_short> (<N> commits)
+
+      Fixes #<issue_number>"
+      ```
+
+   d. **Push and create PR:**
+      ```bash
+      git push -u origin dep-sync/<issue_number>
+      ```
+
+      ```python
+      pr = github_create_pull_request(
+          owner=<github.owner>,
+          repo=<github.repo>,
+          title="chore: sync .opencode submodule to latest dev",
+          head=f"dep-sync/{issue_number}",
+          base="dev",
+          body=f"""## Summary
+
+      Auto-created by cleanup task to sync `.opencode` submodule pointer to its dev HEAD, preventing detached HEAD on next checkout.
+
+      **Outcome:** `.opencode` submodule pointer updated from `{old_sha_short}` to `{new_sha_short}`
+
+      Fixes #{issue_number}
+
+      Co-authored with AI: <AgentName> (<ModelId>)"""
+      )
+      pr_url = extract html_url from response
+      ```
+
+   e. **Report in cleanup output:**
+      ```
+      Submodule pointer drift detected. Dependency-sync PR auto-created: <pr_url>
+      ```
+
+5. **Evidence artifact (MANDATORY):**
+   - If pointers match: Tool-call output showing equal SHAs
+   - If pointers differ: PR URL extracted from `github_create_pull_request` response
+
+**🚫 FORBIDDEN:**
+- Leaving a mismatched submodule pointer after cleanup without creating a sync PR
+- Performing code changes in the submodule as part of this sync
+- Skipping the clean sub-agent dispatch for PR creation
+- Combining this sync with other cleanup actions (branch deletion, issue closure)
+
+**✅ REQUIRED:**
+- Run `git submodule update --remote` to pull the latest dev tip before comparing SHAs
+- Verify sub-agent receives ONLY minimal dispatch context
+- Extract PR URL from `github_create_pull_request` response `html_url` field
+- Report PR URL in cleanup output
 
 ### Step 6: Succinct Confirmation
 
