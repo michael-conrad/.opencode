@@ -83,6 +83,27 @@ bash .opencode/tests/test-enforcement.sh
 bash .opencode/tests/with-test-home --clean-all
 ```
 
+## Behavioral Test Mandate
+
+Every item in the implementation plan MUST have a corresponding behavioral test unless:
+
+1. Item is purely documentation (no behavior impact)
+2. Item is a typo fix
+3. Item is formatting only
+
+**Test description (prose-driven, not template):**
+
+For each item, describe:
+
+1. **Behavior change** — What does the agent or code do differently?
+2. **Trigger** — What prompt or command triggers this behavior?
+3. **Verification** — What response, output, or state confirms the change?
+4. **Failure condition** — What means the behavior did NOT change?
+
+**Do NOT copy static templates.** The test mechanism (bash script, Python, etc.) is determined by what behavior you're verifying. Conversational behaviors need opencode-cli + with-test-home. Runtime behaviors need to execute the code/service. Let the behavior dictate the mechanism.
+
+**Item without behavioral test description = implementation incomplete.**
+
 ## Anti-Patterns (Critical Violations)
 
 These patterns are critical violations per `000-critical-rules.md`:

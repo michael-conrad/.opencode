@@ -108,6 +108,36 @@ You are a Spec Architect. Your focus is structuring investigation results into a
 - Required: All tasks
 - No skipping
 
+## Test Requirements (MANDATORY)
+
+Before writing spec, classify:
+
+| Question | If YES → | If NO → |
+|----------|----------|---------|
+| Does this change agent decision logic? | Behavioral (conversational) | Next question |
+| Does this change skill invocation? | Behavioral (conversational) | Next question |
+| Does this add/remove workflow gates? | Behavioral (conversational) | Next question |
+| Does this change code execution? | Behavioral (runtime) | Next question |
+| Does this change build/test commands? | Behavioral (runtime) | Next question |
+| Does this change service/script output? | Behavioral (runtime) | Next question |
+| Is this purely documentation? | Content OK | Behavioral required |
+
+**Default:** Behavioral test required unless you can prove zero behavior impact.
+
+**Test description (prose, not template):**
+
+Describe in natural language:
+1. **What behavior changes** — what does the agent/code do differently after this change?
+2. **How to trigger the behavior** — what prompt (conversational) or what command (runtime)?
+3. **What to verify** — what response, output, or state confirms the behavior changed?
+4. **What constitutes failure** — what response/output means the behavior did NOT change?
+
+Example (conversational): "Prompt the agent with 'I need to implement a feature.' Verify the agent invokes test-driven-development --task red before offering to write code. FAIL if agent offers to write code without invoking TDD first."
+
+Example (runtime): "Execute the build command. Verify the build completes with zero errors. FAIL if build fails or skips compilation steps."
+
+**Do NOT use static templates — describe the behavior to verify in prose.**
+
 ## Key Principles Enforced
 
 | # | Principle | Task |
