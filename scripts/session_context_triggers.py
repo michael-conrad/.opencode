@@ -296,6 +296,11 @@ def build_protected_branch_warning(changed_files: list[str]) -> str:
     if len(changed_files) > 5:
         lines.append(f"  - ... and {len(changed_files) - 5} more")
     lines.append("- Diff summary available: analyze changes to suggest pair mode entry")
+    # SC12: Recommend pair mode before worktree
+    lines.append(
+        "- RECOMMENDATION: Use pair-mode branch (`pair-` prefix) for collaborative work, "
+        "or direct-branch mode for autonomous work. Worktrees are opt-in only when WORKTREE_REQUIRED is set."
+    )
     return "\n".join(lines)
 
 
