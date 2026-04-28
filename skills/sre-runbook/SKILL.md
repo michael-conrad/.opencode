@@ -11,6 +11,8 @@ compatibility: opencode
 
 ## Overview
 
+**MANDATORY: The agent MUST invoke `sre-runbook` when generating operational runbooks for infrastructure incidents. Skipping this invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations.** Exempt: no runbook generation requested, no incident/outage context.
+
 Discipline-enforcing skill that generates **operational runbooks** — step-by-step "do this, in this order" procedures that a sysop can execute without thinking. Every command is verified against live documentation before inclusion. Every value comes from the actual environment, not training data. Every step has ONE definitive path.
 
 **Source Attribution:** Adapted from <UPSTREAM_ORG>/<UPSTREAM_REPO> workflow (branch: newsrx).

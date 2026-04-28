@@ -11,6 +11,8 @@ compatibility: opencode
 
 ## Overview
 
+**MANDATORY: The agent MUST invoke `verification-before-completion --task verify` before marking any task or phase complete. Skipping this invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations.** Exempt: no implementation work performed (read-only sessions, pure Q/A, issue creation without code changes).
+
 Evidence-based verification workflow that prevents premature completion claims. This skill ensures ALL success criteria are verified with actual evidence before ANY task or phase is marked complete.
 
 **Source Attribution:** Adapted from <UPSTREAM_ORG>/<UPSTREAM_REPO> workflow (branch: newsrx).

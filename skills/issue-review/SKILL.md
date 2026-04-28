@@ -11,6 +11,8 @@ compatibility: opencode
 
 ## Overview
 
+**MANDATORY: The agent MUST invoke `issue-review` when reviewing a GitHub issue. Skipping this invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations.** Exempt: no issue review requested.
+
 Unified "review" command for GitHub Issues. Gathers issue data, classifies the review path via content analysis (not label conventions), delegates to appropriate downstream skills, and handles Q/A for non-spec issues. One entry point replaces manual orchestration of comment reading, audit detection, and audit execution.
 
 ## Persona

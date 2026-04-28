@@ -11,6 +11,8 @@ compatibility: opencode
 
 ## Overview
 
+**MANDATORY: The agent MUST invoke `spec-auditor` when auditing specs. Skipping this invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations.** Exempt: no audit requested, no spec/plan being created or audited.
+
 Content-aware audit orchestrator that accepts any document type. Determines document type automatically (or via manual override), selects appropriate subtasks, runs the minimal baseline always, and applies auto-fixes for safe findings while flagging ambiguous findings for review.
 
 **Core v2 shift:** Spec-auditor is now the orchestrator. Plan-fidelity-auditor and concern-separation-auditor are no longer invoked directly — their logic lives as subtasks (`fidelity` and `concerns`) within spec-auditor.
