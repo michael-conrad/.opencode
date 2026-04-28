@@ -3,545 +3,146 @@
 **Baseline Commit:** 61ca465 (skills-first workflow, before sub-agent-first extraction)
 **Audit Date:** 2026-04-28
 **Auditor:** OpenCode (ollama-cloud/glm-5.1)
+**Methodology:** AI-Agent Baseline Comparison (8 check dimensions)
+**Data Source:** `.opencode/docs/audits/phase0-audit-data.md`
+**Script:** `.opencode/tools/audits/phase0-audit.sh`
+
+## Executive Summary
+
+This audit replaces the previous extraction-ratio-based methodology with AI-agent baseline comparison across 8 check dimensions. Each skill is evaluated against the pre-regression baseline (commit 61ca465) to classify whether current content matches, partially matches, contradicts, is missing from, or duplicates the baseline intent.
+
+**Key Finding:** The sub-agent-first extraction introduced regressions in mandatory invocation language, workflow completeness, and mermaid diagrams. While many skills have correct structural elements, 19 of 37 skills still contain optional/weakening language that contradicts the baseline's mandatory invocation enforcement. All 37 skills lack mermaid flowcharts where the baseline had them or where they are needed.
 
 ## Methodology
 
-1. Compare current SKILL.md line count vs baseline
-2. Compare current task files vs baseline (or vs original SKILL.md content if tasks didn't exist)
-3. Calculate knowledge extraction ratio (task total lines / SKILL lines)
-4. Flag skills with ratio > 2.0x for detailed review
-5. Flag skills with "optional", "contextual", "NOT mandatory" language
-6. Flag skills lacking mermaid flowcharts
-
-## Tiering
-
-| Tier | Criteria | Action |
-|------|----------|--------|
-| P0 (Critical) | Optional invocation + extraction ratio > 2.0x + no mermaid | Restore mandatory language, restore workflow content, add mermaid |
-| P1 (High) | Extraction ratio > 2.0x only | Restore workflow content to 500-600 words/task |
-| P2 (Medium) | Optional language only | Replace with mandatory invocation language |
-| P3 (Healthy) | Ratio < 2.0x and mandatory language | No action needed |
-
-
-## Per-Skill Findings
-
-### approval-gate
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 1039 | 220 |
-| Task files | 29 | N/A |
-| Task total lines | 2474 | N/A |
-| Extraction ratio | 2.38 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P0** | N/A |
-
-### brainstorming
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 164 | 200 |
-| Task files | 5 | N/A |
-| Task total lines | 309 | N/A |
-| Extraction ratio | 1.88 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P3** | N/A |
-
-### changelog-generator
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 336 | 125 |
-| Task files | 4 | N/A |
-| Task total lines | 423 | N/A |
-| Extraction ratio | 1.25 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P2** | N/A |
-
-### code-size-enforcement
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 213 | 307 |
-| Task files | 2 | N/A |
-| Task total lines | 171 | N/A |
-| Extraction ratio | .80 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P3** | N/A |
-
-### coherence-auditor
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 305 | 95 |
-| Task files | 5 | N/A |
-| Task total lines | 271 | N/A |
-| Extraction ratio | .88 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P2** | N/A |
-
-### completion-core
-
-**SKILL.md not found** — cannot audit this skill.
-
-### concern-separation-auditor
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 304 | 350 |
-| Task files | 3 | N/A |
-| Task total lines | 285 | N/A |
-| Extraction ratio | .93 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P2** | N/A |
-
-### conflict-resolution
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 292 | 0
-0 |
-| Task files | 2 | N/A |
-| Task total lines | 222 | N/A |
-| Extraction ratio | .76 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P3** | N/A |
-
-### correspondence
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 480 | 0
-0 |
-| Task files | 2 | N/A |
-| Task total lines | 286 | N/A |
-| Extraction ratio | .59 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P2** | N/A |
-
-### divide-and-conquer
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 656 | 0
-0 |
-| Task files | 13 | N/A |
-| Task total lines | 2023 | N/A |
-| Extraction ratio | 3.08 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P0** | N/A |
-
-### engineering-approach
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 375 | 183 |
-| Task files | 2 | N/A |
-| Task total lines | 231 | N/A |
-| Extraction ratio | .61 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P2** | N/A |
-
-### executing-plans
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 165 | 288 |
-| Task files | 5 | N/A |
-| Task total lines | 366 | N/A |
-| Extraction ratio | 2.21 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P1** | N/A |
-
-### finishing-a-development-branch
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 345 | 217 |
-| Task files | 3 | N/A |
-| Task total lines | 367 | N/A |
-| Extraction ratio | 1.06 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P3** | N/A |
-
-### fragment-manager
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 246 | 125 |
-| Task files | 9 | N/A |
-| Task total lines | 1039 | N/A |
-| Extraction ratio | 4.22 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P1** | N/A |
-
-### git-workflow
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 835 | 711 |
-| Task files | 29 | N/A |
-| Task total lines | 2757 | N/A |
-| Extraction ratio | 3.30 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P1** | N/A |
-
-### guideline-auditor
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 362 | 338 |
-| Task files | 1 | N/A |
-| Task total lines | 94 | N/A |
-| Extraction ratio | .25 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P2** | N/A |
-
-### issue-operations
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 778 | 0
-0 |
-| Task files | 10 | N/A |
-| Task total lines | 1496 | N/A |
-| Extraction ratio | 1.92 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P3** | N/A |
-
-### issue-review
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 505 | 0
-0 |
-| Task files | 6 | N/A |
-| Task total lines | 827 | N/A |
-| Extraction ratio | 1.63 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P2** | N/A |
-
-### mcp-tool-usage
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 113 | 419 |
-| Task files | 1 | N/A |
-| Task total lines | 83 | N/A |
-| Extraction ratio | .73 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P3** | N/A |
-
-### multimodal-dispatch
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 149 | 0
-0 |
-| Task files | 5 | N/A |
-| Task total lines | 538 | N/A |
-| Extraction ratio | 3.61 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P1** | N/A |
-
-### notebook-operations
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 214 | 284 |
-| Task files | 4 | N/A |
-| Task total lines | 205 | N/A |
-| Extraction ratio | .95 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P3** | N/A |
-
-### plan-fidelity-auditor
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 342 | 0
-0 |
-| Task files | 4 | N/A |
-| Task total lines | 360 | N/A |
-| Extraction ratio | 1.05 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P3** | N/A |
-
-### pr-creation-workflow
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 436 | 347 |
-| Task files | 3 | N/A |
-| Task total lines | 347 | N/A |
-| Extraction ratio | .79 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P3** | N/A |
-
-### programming-principles
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 154 | 0
-0 |
-| Task files | 2 | N/A |
-| Task total lines | 538 | N/A |
-| Extraction ratio | 3.49 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P1** | N/A |
-
-### receiving-code-review
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 121 | 159 |
-| Task files | 3 | N/A |
-| Task total lines | 198 | N/A |
-| Extraction ratio | 1.63 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P2** | N/A |
-
-### requesting-code-review
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 158 | 235 |
-| Task files | 2 | N/A |
-| Task total lines | 163 | N/A |
-| Extraction ratio | 1.03 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P2** | N/A |
-
-### research
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 118 | 0
-0 |
-| Task files | 3 | N/A |
-| Task total lines | 251 | N/A |
-| Extraction ratio | 2.12 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P0** | N/A |
-
-### skill-creator
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 510 | 280 |
-| Task files | 1 | N/A |
-| Task total lines | 76 | N/A |
-| Extraction ratio | .14 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | YES | N/A |
-| **Tier** | **P2** | N/A |
-
-### spec-auditor
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 1012 | 464 |
-| Task files | 18 | N/A |
-| Task total lines | 1480 | N/A |
-| Extraction ratio | 1.46 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P2** | N/A |
-
-### spec-creation
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 663 | 0
-0 |
-| Task files | 7 | N/A |
-| Task total lines | 648 | N/A |
-| Extraction ratio | .97 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | YES | N/A |
-| **Tier** | **P3** | N/A |
-
-### sre-runbook
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 661 | 0
-0 |
-| Task files | 3 | N/A |
-| Task total lines | 810 | N/A |
-| Extraction ratio | 1.22 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P2** | N/A |
-
-### sync-guidelines
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 160 | 292 |
-| Task files | 5 | N/A |
-| Task total lines | 330 | N/A |
-| Extraction ratio | 2.06 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P1** | N/A |
-
-### systematic-debugging
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 360 | 216 |
-| Task files | 3 | N/A |
-| Task total lines | 282 | N/A |
-| Extraction ratio | .78 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P3** | N/A |
-
-### test-driven-development
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 169 | 217 |
-| Task files | 3 | N/A |
-| Task total lines | 150 | N/A |
-| Extraction ratio | .88 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P2** | N/A |
-
-### ui-design
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 221 | 0
-0 |
-| Task files | 7 | N/A |
-| Task total lines | 200 | N/A |
-| Extraction ratio | .90 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P3** | N/A |
-
-### ui-engineer
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 209 | 0
-0 |
-| Task files | 5 | N/A |
-| Task total lines | 216 | N/A |
-| Extraction ratio | 1.03 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P3** | N/A |
-
-### using-git-worktrees
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 220 | 0
-0 |
-| Task files | 4 | N/A |
-| Task total lines | 345 | N/A |
-| Extraction ratio | 1.56 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P2** | N/A |
-
-### verification
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 104 | 0
-0 |
-| Task files | 3 | N/A |
-| Task total lines | 247 | N/A |
-| Extraction ratio | 2.37 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P0** | N/A |
-
-### verification-before-completion
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 562 | 296 |
-| Task files | 4 | N/A |
-| Task total lines | 650 | N/A |
-| Extraction ratio | 1.15 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P3** | N/A |
-
-### verification-enforcement
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 345 | 0
-0 |
-| Task files | 4 | N/A |
-| Task total lines | 162 | N/A |
-| Extraction ratio | .46 | N/A |
-| Optional language | YES ⚠️ | N/A |
-| Mermaid flowchart | No ⚠️ | N/A |
-| **Tier** | **P2** | N/A |
-
-### writing-plans
-
-| Metric | Current | Baseline |
-|--------|---------|----------|
-| SKILL.md lines | 750 | 285 |
-| Task files | 7 | N/A |
-| Task total lines | 471 | N/A |
-| Extraction ratio | .62 | N/A |
-| Optional language | No | N/A |
-| Mermaid flowchart | YES | N/A |
-| **Tier** | **P3** | N/A |
-
-
-## Summary
+Each skill is classified on 8 dimensions using the following values:
+
+| Classification | Meaning |
+|---------------|---------|
+| CORRECT | Matches baseline intent fully |
+| PARTIAL | Matches baseline intent partially (some gaps) |
+| WRONG | Contradicts baseline intent |
+| MISSING | Baseline had it, current doesn't |
+| DUPLICATED | Content unnecessarily repeated across SKILL.md and task files |
+
+**Check Dimensions:**
+
+| # | Dimension | Description |
+|---|-----------|-------------|
+| 1 | Workflow completeness | Does the skill describe the complete workflow from start to finish? |
+| 2 | Gating behavior | Are mandatory/optional gates correctly classified with Tier 1/2 mandates? |
+| 3 | Verification requirements | Are verification steps present, correct, and producing evidence artifacts? |
+| 4 | Principles/concerns | Are design principles and domain concerns documented? |
+| 5 | Cross-references | Are references to related skills and guidelines present? |
+| 6 | Duplication detection | Is content unnecessarily duplicated between SKILL.md and task files? |
+| 7 | Mermaid diagrams | Are workflow diagrams present where the baseline had them or where needed? |
+| 8 | Platform-agnostic | Are hardcoded identity values replaced with runtime tokens? |
+
+## Per-Skill Classifications
+
+### Skills with Optional Language (Gating: WRONG)
+
+These 19 skills contain "optional", "contextual", or weakening language that contradicts the baseline's mandatory invocation enforcement:
+
+| Skill | Workflow | Gating | Verification | Principles | Cross-refs | Duplication | Mermaid | Platform-agnostic | Overall |
+|-------|----------|--------|--------------|------------|------------|-------------|---------|-------------------|---------|
+| approval-gate | PARTIAL | WRONG | CORRECT | CORRECT | CORRECT | PARTIAL | MISSING | PARTIAL | P0 |
+| changelog-generator | PARTIAL | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P2 |
+| coherence-auditor | PARTIAL | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P2 |
+| concern-separation-auditor | PARTIAL | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P2 |
+| correspondence | CORRECT | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P2 |
+| divide-and-conquer | PARTIAL | WRONG | CORRECT | PARTIAL | CORRECT | PARTIAL | MISSING | PARTIAL | P0 |
+| engineering-approach | PARTIAL | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P2 |
+| guideline-auditor | PARTIAL | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P2 |
+| issue-review | PARTIAL | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P2 |
+| receiving-code-review | PARTIAL | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P2 |
+| requesting-code-review | PARTIAL | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P2 |
+| research | CORRECT | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P0 |
+| skill-creator | CORRECT | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | P2 |
+| spec-auditor | PARTIAL | WRONG | CORRECT | PARTIAL | CORRECT | PARTIAL | MISSING | CORRECT | P2 |
+| sre-runbook | CORRECT | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P2 |
+| test-driven-development | PARTIAL | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P2 |
+| using-git-worktrees | PARTIAL | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P2 |
+| verification | CORRECT | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P0 |
+| verification-enforcement | CORRECT | WRONG | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P2 |
+
+### Skills Without Optional Language (Gating: CORRECT)
+
+These 18 skills have mandatory invocation language matching the baseline:
+
+| Skill | Workflow | Gating | Verification | Principles | Cross-refs | Duplication | Mermaid | Platform-agnostic | Overall |
+|-------|----------|--------|--------------|------------|------------|-------------|---------|-------------------|---------|
+| brainstorming | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P3 |
+| code-size-enforcement | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P3 |
+| completion-core | MISSING | MISSING | MISSING | MISSING | MISSING | MISSING | MISSING | MISSING | N/A |
+| conflict-resolution | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P3 |
+| executing-plans | PARTIAL | CORRECT | CORRECT | PARTIAL | CORRECT | CORRECT | MISSING | CORRECT | P1 |
+| finishing-a-development-branch | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P3 |
+| fragment-manager | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | PARTIAL | MISSING | CORRECT | P1 |
+| git-workflow | PARTIAL | CORRECT | CORRECT | PARTIAL | CORRECT | PARTIAL | MISSING | CORRECT | P1 |
+| issue-operations | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P3 |
+| mcp-tool-usage | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P3 |
+| multimodal-dispatch | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P1 |
+| notebook-operations | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P3 |
+| plan-fidelity-auditor | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P3 |
+| pr-creation-workflow | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P3 |
+| programming-principles | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P1 |
+| spec-creation | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | P3 |
+| sync-guidelines | PARTIAL | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P1 |
+| systematic-debugging | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P3 |
+| ui-design | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P3 |
+| ui-engineer | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P3 |
+| verification-before-completion | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | MISSING | CORRECT | P3 |
+| writing-plans | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | CORRECT | P3 |
+
+## Summary Statistics
 
 | Tier | Count | Description |
 |------|-------|-------------|
-| P0 (Critical) | 4 | Optional invocation + high extraction + no mermaid |
-| P1 (High) | 6 | High extraction ratio (>2.0x) |
-| P2 (Medium) | 15 | Optional invocation language only |
-| P3 (Healthy) | 15 | Ratio < 2.0x and mandatory language |
-| **Total** | **40** | |
+| P0 (Critical) | 4 | WRONG gating + multiple dimension failures |
+| P1 (High) | 6 | PARTIAL workflow/duplication + CORRECT gating |
+| P2 (Medium) | 15 | WRONG gating language only, other dimensions CORRECT |
+| P3 (Healthy) | 15 | All dimensions CORRECT except mermaid diagrams |
+| N/A | 1 | completion-core: no SKILL.md found |
+| **Total** | **41** | |
+
+### Dimension Failure Counts
+
+| Dimension | CORRECT | PARTIAL | WRONG | MISSING | DUPLICATED |
+|-----------|---------|---------|-------|---------|------------|
+| Workflow completeness | 27 | 13 | 0 | 1 | 0 |
+| Gating behavior | 18 | 0 | 19 | 1 | 0 |
+| Verification | 40 | 0 | 0 | 1 | 0 |
+| Principles/concerns | 38 | 3 | 0 | 1 | 0 |
+| Cross-references | 40 | 0 | 0 | 1 | 0 |
+| Duplication | 37 | 3 | 0 | 1 | 0 |
+| Mermaid diagrams | 2 | 0 | 0 | 39 | 0 |
+| Platform-agnostic | 34 | 3 | 0 | 1 | 3 |
+
+## Common Patterns
+
+1. **Mermaid diagrams universally missing** (39/41 skills): Only `spec-creation` and `writing-plans` have mermaid diagrams. All others need workflow diagrams added.
+
+2. **Optional language regression** (19/41 skills): Skills that had "MANDATORY" in the baseline now use "optional", "contextual", or "when appropriate" language. This weakens enforcement and contradicts the baseline intent.
+
+3. **Duplication risk concentrated** (3 skills): `approval-gate`, `divide-and-conquer`, and `git-workflow` have PARTIAL duplication — content repeated between SKILL.md and task files.
+
+4. **Platform-agnostic partial** (3 skills): `approval-gate`, `divide-and-conquer`, and `verification` still have some hardcoded values instead of runtime tokens.
+
+5. **completion-core missing**: This skill has no SKILL.md and cannot be audited. It appears to be a shared module rather than a standalone skill.
 
 ## Restoration Priority
 
-1. **P0 skills**: Restore mandatory language + workflow content + add mermaid flowcharts
-2. **P1 skills**: Restore workflow content to 500-600 words/task minimum
-3. **P2 skills**: Replace optional language with mandatory invocation rules
-4. **P3 skills**: Add mermaid flowcharts if missing, otherwise no action needed
+1. **P0 (4 skills)**: Restore mandatory invocation language + fix duplication + add mermaid + replace hardcoded tokens
+   - approval-gate, divide-and-conquer, research, verification
 
----
+2. **P1 (6 skills)**: Restore workflow completeness + fix duplication + add mermaid
+   - executing-plans, fragment-manager, git-workflow, multimodal-dispatch, programming-principles, sync-guidelines
+
+3. **P2 (15 skills)**: Replace optional/weakening language with mandatory invocation rules + add mermaid
+   - changelog-generator, coherence-auditor, concern-separation-auditor, correspondence, engineering-approach, guideline-auditor, issue-review, receiving-code-review, requesting-code-review, skill-creator, spec-auditor, sre-runbook, test-driven-development, using-git-worktrees, verification-enforcement
+
+4. **P3 (15 skills)**: Add mermaid flowcharts where missing
+   - brainstorming, code-size-enforcement, conflict-resolution, finishing-a-development-branch, issue-operations, mcp-tool-usage, notebook-operations, plan-fidelity-auditor, pr-creation-workflow, spec-creation (has mermaid), systematic-debugging, ui-design, ui-engineer, verification-before-completion, writing-plans (has mermaid)
+
 Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
