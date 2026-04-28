@@ -730,137 +730,7 @@ function buildWorktreeBlock(input: PluginInput): string {
   return "";
 }
 
-/**
- * Extract and strip YAML frontmatter from SKILL.md content.
- * Adapted from obra/superpowers/plugins/superpowers.js
- */
-function extractFrontmatter(content: string): {
-  frontmatter: Record<string, string>;
-  body: string;
-} {
-  const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-  if (!match) return { frontmatter: {}, body: content };
 
-  const frontmatterStr = match[1];
-  const body = match[2];
-  const frontmatter: Record<string, string> = {};
-
-  for (const line of frontmatterStr.split("\n")) {
-    const colonIdx = line.indexOf(":");
-    if (colonIdx > 0) {
-      const key = line.slice(0, colonIdx).trim();
-      const value = line.slice(colonIdx + 1).trim().replace(/^["']|["']$/g, "");
-      frontmatter[key] = value;
-    }
-  }
-
-  return { frontmatter, body };
-}
-
-interface FrontmatterError {
-  skillDir: string;
-  issues: string[];
-}
-
-/**
- * Load skill descriptions from YAML frontmatter in SKILL.md files.
- * Adapted from obra/superpowers/plugins/superpowers.js skill discovery pattern.
- *
- * Source attribution: CSO (Content Search Optimization) principles from
- * https://github.com/obra/superpowers/blob/main/skills/writing-skills/SKILL.md
- * Description format: "Use when..." with triggering conditions, NOT workflow summaries.
- *
- * Returns { skills, errors } where errors collects frontmatter validation issues.
- * See #601 for the original bug that motivated frontmatter validation.
- */
-function loadSkillDescriptions(skillsDir: string): {
-  skills: Array<{ name: string; description: string }>;
-  errors: FrontmatterError[];
-} {
-  const skills: Array<{ name: string; description: string }> = [];
-  const errors: FrontmatterError[] = [];
-
-  try {
-    const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
-      const skillPath = path.join(skillsDir, entry.name, "SKILL.md");
-      if (!fs.existsSync(skillPath)) continue;
-
-      try {
-        const content = fs.readFileSync(skillPath, "utf8");
-        const validationIssues: string[] = [];
-
-        const hasOpeningDelimiter = /^---\s*\n/m.test(content);
-        const { frontmatter } = extractFrontmatter(content);
-
-        if (!hasOpeningDelimiter) {
-          validationIssues.push("Missing `---` opening delimiter");
-        } else if (Object.keys(frontmatter).length === 0) {
-          validationIssues.push("Delimiters present but no key:value pairs parsed (format error)");
-        }
-
-        if (hasOpeningDelimiter && !frontmatter.name) {
-          validationIssues.push("Missing `name` field");
-        }
-
-        if (hasOpeningDelimiter && !frontmatter.description) {
-          validationIssues.push("Missing `description` field — skill will be invisible to enforcement");
-        } else if (frontmatter.description && !frontmatter.description.startsWith("Use when")) {
-          validationIssues.push("Description does not start with \"Use when\" — CSO requirement for trigger discovery");
-        }
-
-        if (validationIssues.length > 0) {
-          errors.push({ skillDir: entry.name, issues: validationIssues });
-        }
-
-        const name = frontmatter.name || entry.name;
-        const description = frontmatter.description || "";
-        if (description) {
-          skills.push({ name, description });
-        }
-      } catch {
-        // Skip unreadable skill files
-      }
-    }
-  } catch {
-    // Skills directory may not exist in all contexts
-  }
-
-  return { skills, errors };
-}
-
-/**
- * Build a structured warning string for frontmatter validation errors.
- * Returns empty string if no errors, so the caller can skip injection.
- * References #601 as the example bug that motivated this validation.
- */
-function buildFrontmatterWarning(errors: FrontmatterError[]): string {
-  if (errors.length === 0) return "";
-
-  const perSkillListing = errors
-    .map(e => `- **${e.skillDir}**: ${e.issues.join("; ")}`)
-    .join("\n");
-
-  return `<FRONTMATTER_VALIDATION_WARNING>
-⚠️ The following SKILL.md files have frontmatter issues that may make skills invisible to enforcement:
-
-${perSkillListing}
-
-**Fix template** — every SKILL.md MUST start with this YAML frontmatter block:
-
-\`\`\`yaml
----
-name: skill-name
-description: Use when [triggering conditions]. Triggers on: [keywords].
-type: discipline-enforcing
-license: MIT
----
-\`\`\`
-
-See #601 for the original bug that motivated this validation.
-</FRONTMATTER_VALIDATION_WARNING>`;
-}
 
 /**
  * Regex matching a bare issue reference: input that is solely an issue number
@@ -891,89 +761,6 @@ Critical rules:
 - Fix audit findings before brainstorming
 - Read ALL comments on the issue before acting
 </ISSUE_PIPELINE_TRIGGER>`;
-}
-
-/**
- * Build the enforcement content injected into the first user message.
- *
- * Adapted from obra/superpowers skill enforcement pattern:
- * https://github.com/obra/superpowers/blob/main/.opencode/plugins/superpowers.js
- *
- * Key principle: removed per spec #1249/#1248.
- * Skill dispatch now follows the deterministic chain-of-responsibility
- * table in approval-gate/SKILL.md. Invoke ONLY the skill(s) mapped
- * to the current pipeline stage. Do NOT load skills speculatively.
- */
-function buildEnforcementContent(skillDescriptions: Array<{ name: string; description: string }>): string {
-  // Process skills first, implementation skills second
-  const processSkills = skillDescriptions.filter(s =>
-    ["approval-gate", "brainstorming", "spec-creation", "writing-plans", "executing-plans",
-     "verification-before-completion", "finishing-a-development-branch",
-     "git-workflow", "using-git-worktrees", "systematic-debugging", "spec-auditor",
-     "issue-operations"].includes(s.name)
-  );
-  const implSkills = skillDescriptions.filter(s => !processSkills.includes(s));
-
-  const sortedSkills = [...processSkills, ...implSkills];
-
-  const skillLines = sortedSkills
-    .map(s => `- **${s.name}**: ${s.description}`)
-    .join("\n");
-
-  return `<EXTREMELY_IMPORTANT>
-You have access to mandatory workflow skills. Skill invocation is NOT optional when a skill applies.
-
-**Deterministic Dispatch:** Skill dispatch follows the chain-of-responsibility table in approval-gate/SKILL.md. Invoke ONLY the skill(s) deterministically mapped to the current pipeline stage. Do NOT load skills speculatively. Never invoke a skill "just in case."
-
-IF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.
-
-This is not negotiable. This is not optional. You cannot rationalize your way out of this.
-
-## Skill Priority
-
-When multiple skills could apply, use this order:
-
-1. **Process skills first** (approval-gate, brainstorming, spec-creation, issue-operations, writing-plans, systematic-debugging) — these determine HOW to approach the task
-2. **Implementation skills second** — these guide execution
-
-## Red Flags — STOP and Invoke the Skill
-
-| Thought | Reality |
-|---------|---------|
-| "This is just a simple question" | Questions are tasks. Check for skills. |
-| "I need more context first" | Skill check comes BEFORE clarifying questions. |
-| "Let me explore the codebase first" | Skills tell you HOW to explore. Check first. |
-| "I can check git/files quickly" | Files lack conversation context. Check for skills. |
-| "Let me gather information first" | Skills tell you HOW to gather information. |
-| "This doesn't need a formal skill" | If a skill exists, use it. |
-| "I remember this skill" | Skills evolve. Read current version. |
-| "This doesn't count as a task" | Action = task. Check for skills. |
-| "The skill is overkill" | Simple things become complex. Use it. |
-| "I'll just do this one thing first" | Check BEFORE doing anything. |
-| "This feels productive" | Undisciplined action wastes time. Skills prevent this. |
-| "I know what that means" | Knowing the concept ≠ using the skill. Invoke it. |
-
-## Default Operating Mode: Discussion
-
-You are in **discussion mode** by default. This means:
-
-- **Valid actions**: Read, analyze, brainstorm, review, plan, answer questions
-- **NOT valid**: Implementation — writing code, editing files, creating branches, or making any changes
-- **Authorization required**: Only explicit "approved" or "go" transitions you to action mode for the specific authorized task
-- **Discussion conclusions are NOT authorization**: Reaching agreement on an approach does NOT authorize implementation
-- **Task-scoped authorization**: After completing an authorized task, you return to discussion mode automatically
-- **No proactive suggestions**: After completing a task, do not suggest next steps or propose additional work
-
-## Available Skills
-
-${skillLines}
-
-## How to Invoke Skills
-
-Use the OpenCode skill tool: \`/skill <skill-name>\` or \`/skill <skill-name> --task <task-name>\`
-
-Invoke relevant skills BEFORE any response or action, per the deterministic dispatch table.
-</EXTREMELY_IMPORTANT>`;
 }
 
 function extractValue(sessionOutput: string | null, key: string): string | null {
@@ -1155,12 +942,8 @@ function isPairModeBranch(branch: string): boolean {
 }
 
 export default async function sessionEnforcementPlugin(input: PluginInput): Promise<Hooks> {
-  // Determine skills directory and project directory
+  // Determine project directory
   const projectDir = input?.directory || process.cwd();
-  const skillsDir = path.join(projectDir, ".opencode", "skills");
-
-  // Pre-load skill descriptions and frontmatter validation at plugin startup
-  const { skills: skillDescriptions, errors: frontmatterErrors } = loadSkillDescriptions(skillsDir);
 
   // Ensure git hooks from .opencode/hooks/ are installed into .git/hooks/
   ensureHooksInstalled(projectDir);
@@ -1232,12 +1015,6 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
       // Inject language preference (Southeastern US English mandate)
       output.system.push(buildLanguagePreferenceBlock());
 
-      // Inject frontmatter validation warning if any skills have broken frontmatter
-      const warning = buildFrontmatterWarning(frontmatterErrors);
-      if (warning) {
-        output.system.push(warning);
-      }
-
       // Inject identity section from session_context_identity.py
       const identityOutput = await runSessionContextIdentity(projectDir);
       if (identityOutput) {
@@ -1294,14 +1071,6 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         const shouldInjectFirstTurn = isFirstTurn && !isSubAgent;
 
         if (shouldInjectFirstTurn) {
-          const enforcementContent = buildEnforcementContent(skillDescriptions);
-          if (enforcementContent && firstUser.parts?.length) {
-            if (!firstUser.parts.some(p => p.type === "text" && p.text?.includes("EXTREMELY_IMPORTANT"))) {
-              const ref = firstUser.parts[0];
-              firstUser.parts.unshift({ ...ref, type: "text", text: enforcementContent });
-            }
-          }
-
           // --- First-turn-only: Identity-echo directive + trigger warnings ---
           const triggersOutput = await runSessionContextTriggers(projectDir);
           const knownPlatform = extractValue(cachedIdentityOutput, "github.platform");
