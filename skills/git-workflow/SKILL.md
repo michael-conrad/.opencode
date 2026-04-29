@@ -62,7 +62,7 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 | `pr-creation` | Squash, push, create PR via GitHub MCP (3 subtasks) | ≈385 |
 | `rebase-pending` | Rebase other open PRs after merge, classify conflicts | 1,666 |
 | `cleanup` | Verify merge, close issues, delete branches, submodule dev-restore (sub-agent dispatch) (3 subtasks) | ≈950 |
-| `release-promotion` | Automate dev → main promotion and tagging (submodule and non-submodule repos) | ≈500 |
+| `release-promotion` | Automate dev → main promotion and tagging (tag-based submodule hash permanence, idempotent tag-if-untagged) | ≈530 |
 | `check-pr` | List all PRs (open + merged); if merged found, activate cleanup | ≈50 |
 | `provenance` | Create provenance issues/PRs in submodule repos after push/promotion (3 subtasks) | ≈460 |
 | `pair-pre-work` | Detect pair mode, WIP-commit switch instead of worktree | ≈400 |
@@ -86,7 +86,7 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 - `/skill git-workflow --task pr-creation` - When user says "create a PR"
 - `/skill git-workflow --task rebase-pending` - After PR merge, before cleanup
 - `/skill git-workflow --task cleanup` - After PR merge confirmed
-- `/skill git-workflow --task release-promotion` - When promoting dev → main (submodule repos: lock SHAs, promote each submodule; non-submodule repos: merge dev → main, tag, push, create release), or explicit "promote/push submodule" instruction
+- `/skill git-workflow --task release-promotion` - When promoting dev → main (submodule repos: tag submodule SHAs for release, no separate submodule PRs; non-submodule repos: merge dev → main, tag, push, create release), or explicit "promote/push submodule" instruction
 - `/skill git-workflow --task check-pr` - When user says "check pr" / "check prs" / "check pull request(s)"
 - `/skill git-workflow --task provenance` - Create provenance tracking in submodule repos
 - `/skill git-workflow --task completion` - Invoke when workflow halts at any point
@@ -248,7 +248,7 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `check-pr` | ≈50 |
 | `submodule-tag-prework` | ≈400 |
 | `submodule-feature-push` | ≈400 |
-| `submodule-liveness-check` | ≈300 |
+| `submodule-liveness-check` | ≈400 |
 | `submodule-dev-restore` | ≈250 |
 
 ### Dispatch Audit Table
@@ -271,7 +271,7 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `provenance/dev-push-provenance` | Dev push provenance | Branch name, commit info, github.owner, github.repo | Implementation context, agent memory | NO |
 | `provenance/promotion-provenance` | Release promotion provenance | Branch name, commit info, github.owner, github.repo | Implementation context, agent memory | NO |
 | `pre-work` | Implementation dispatch chain starts | Spec issue number, worktree.path, github.owner, github.repo | Implementation context, agent memory | NO |
-| `release-promotion` | Release PR creation (dev → main) | Branch info, github.owner, github.repo | Implementation context, agent memory | NO |
+| `release-promotion` | Release PR creation (dev → main), tag-based submodule hash permanence | Branch info, github.owner, github.repo, release version | Implementation context, agent memory | NO |
 | `rebase-pending` | Rebase pending changes | Branch name, worktree.path | Implementation context, agent memory | NO |
 | `implementation` | Implementation dispatch | Branch name, spec file paths | Implementation context, agent memory | NO |
 | `commit-prep` | Stage changes, diff review, WIP commit | Branch name, file paths, worktree.path | Implementation context, agent memory | NO |
@@ -282,7 +282,7 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `pair-mode-resume` | Pair mode resume | Branch name, worktree.path | Implementation context, agent memory | NO |
 | `submodule-tag-prework` | Tag each submodule at dev tip with <parent-repo>/<issue-number>, push tags | github.owner, github.repo, dev.name, dev.email, issue_number, parent repo short name, submodule paths | Implementation context, agent memory, full task file contents | NO |
 | `submodule-feature-push` | Push submodule feature branches and tag tips with <parent-repo>/<issue-number>-<sub> | github.owner, github.repo, dev.name, dev.email, issue_number, feature branch name, parent repo short name, changed submodule paths | Implementation context, agent memory, full task file contents | NO |
-| `submodule-liveness-check` | Verify all referenced submodule hashes are reachable (liveness check only, NO auto-remediation) | github.owner, github.repo, parent repo short name, issue_number, submodule paths | Implementation context, agent memory, auto-remediation instructions | NO |
+| `submodule-liveness-check` | Verify all referenced submodule hashes are reachable; idempotent tag-if-untagged for unreachable SHAs | github.owner, github.repo, parent repo short name, issue_number, submodule paths, context (pre-work/feature-push/enforcement-gate/release-promotion) | Implementation context, agent memory | NO |
 | `submodule-dev-restore` | Restore submodules to dev branch after cleanup | github.owner, github.repo, submodule paths | Implementation context, agent memory, cleanup history | NO |
 | `completion` | Workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
 | `check-pr` | Check PR state for merged/closed | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
@@ -353,7 +353,8 @@ task: release-promotion
 tag_created: bool
 tag_name: <str>
 release_url: <url|null>
-submodules_promoted: [<name>]
+submodules_tagged: [<name>]
+tags_added: [<tag-names-created>]
 ```
 
 #### rebase-pending
@@ -462,11 +463,16 @@ evidence_artifacts:
 ```yaml
 status: DONE | BLOCKED
 task: submodule-liveness-check
+tags_added:
+  - path: <submodule-path>
+    tag_name: <tag-created>
+    sha_tagged: <sha>
 submodule_results:
   - path: <submodule-path>
     committed_sha: <sha>
     reachable: bool
     reachable_via: <tag-name or ref-name or "unreachable">
+    tags_added: [<tag-names>]
 evidence_artifacts:
   - tool: git ls-tree HEAD <path>
     output: <sha>
@@ -584,7 +590,7 @@ When a submodule is pushed or promoted from the parent repo, provenance tracking
 | Integration | When Provenance Runs |
 | -- | -- |
 | `review-prep` (Step 0, Submodule Feature Push) | After each submodule feature branch is pushed and tip-tagged — provenance tracks the feature-branch push |
-| `release-promotion` (Step 2h) | After each submodule is promoted dev → main — provenance tracks the promotion |
+| `release-promotion` (Step 2.5) | After each submodule is tagged with release tag — provenance tracks the promotion |
 
 ### Fire-and-Forget Semantics
 
@@ -681,14 +687,17 @@ When `git rev-parse --show-toplevel` returns a path that is a descendant of a pa
 | Relative `read/edit/write` | Resolves to parent repo root — FORBIDDEN | Allowed only when not in worktree |
 | `.gitmodules` edits | Only in parent repo context | Allowed |
 
-### Provenance & Submodule PRs
+### Provenance & Submodule Hash Permanence
 
 - Submodule feature branches target `dev` (same as non-submodule) — pushes are feature-branch pushes with tip tags
 - Tags use `<parent-repo>/<issue-number>` format (pre-work) and `<parent-repo>/<issue-number>-<sub>` (feature push)
-- Release promotion: lock submodule SHA, promote submodule `dev → main`, update parent repo reference
+- **Idempotent tag-if-untagged:** At every transition point, if a submodule SHA is not reachable via tags, tag it before proceeding. Tags are idempotent — skip if already tagged.
+- **Release promotion:** Tag submodule SHAs with `<parent-repo>/v<N.N.N>` release tags — NO separate submodule dev → main PRs needed
+- **Parent repo dev tip does NOT require tagging** — only submodule SHAs need tags (parent commits are reachable via branch history)
 - Provenance tracking uses the three-tier model (see `## Submodule Provenance`)
-- Cross-repo provenance: parent repo PR body references submodule PR/issue numbers
-- Hash liveness check at PR-time verifies all referenced submodule hashes are reachable via tags
+- Cross-repo provenance: parent repo PR body references submodule provenance records
+- Hash liveness check at PR-time is idempotent: tags unreachable SHAs, then verifies (never blocks without attempting remediation)
+- **Parent release PR has NO dependency on submodule repo merges** — parent can proceed independently once submodule SHAs are verified reachable via tags
 
 ### Safety Gates
 
@@ -866,7 +875,7 @@ tasks:
   - id: submodule-liveness-check
     skill: git-workflow
     preconditions: [".gitmodules exists", "pr_creation_authorized == true"]
-    postconditions: ["all_submodule_hashes_reachable == true"]
+    postconditions: ["all_submodule_hashes_reachable == true", "tags_added_recorded == true"]
     mandatory: true
     bypass_violation: "CRITICAL: Skipping PR creation with unreachable submodule hashes"
     source: "git-workflow/SKILL.md"

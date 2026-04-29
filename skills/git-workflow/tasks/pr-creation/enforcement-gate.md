@@ -26,27 +26,29 @@ Enforce mandatory pre-conditions before PR creation. Verify explicit PR instruct
 
 | Field | Value |
 |-------|-------|
-| **must_receive** | Submodule paths from `git submodule status`, `github.owner`, `github.repo`, parent repo short name, issue number |
-| **must_not_receive** | Implementation context, agent memory, full task file contents, auto-remediation instructions |
+| **must_receive** | Submodule paths from `git submodule status`, `github.owner`, `github.repo`, parent repo short name, issue number, context (enforcement-gate) |
+| **must_not_receive** | Implementation context, agent memory, full task file contents |
 
 #### Dispatch Procedure
 
 Invoke: `/submodule-verify` opencode command (or dispatch sub-agent with scoped instruction).
 
-The sub-agent performs a **liveness verification only — NOT auto-remediation:**
+The sub-agent performs an **idempotent tag-if-untagged liveness check** — if a SHA is unreachable, it tags it first, then re-verifies:
 
 1. For each submodule entry:
    a. Get committed SHA: `git ls-tree HEAD <path> | awk '{print $3}'`
-   b. Check if SHA is reachable via any tag or branch: `git tag --contains <sha>` or `git branch --contains <sha>`
-   c. If reachable via a pre-work tag (`<parent-repo>/<issue-number>`) or feature tag (`<parent-repo>/<issue-number>-<sub>`): ✅ PASS
+   b. Check if SHA is reachable via any parent-repo tag: `git tag --contains <sha> | grep -E '<parent-repo-short>'`
+   c. If reachable via a pre-work tag (`<parent-repo>/<issue-number>`), feature tag (`<parent-repo>/<issue-number>-<sub>`), or release tag (`<parent-repo>/v<N.N.N>`): ✅ PASS
    d. If reachable via dev branch or any other ref: ✅ PASS
-   e. If NOT reachable by any ref: ❌ FAIL — hash is unreachable
+   e. If NOT reachable by any parent-repo tag: **TAG the SHA** with the appropriate context tag, push the tag, then re-verify → PASS
 
-2. If ALL submodule hashes are reachable: Proceed to Step 1.
+2. The liveness check is **self-healing**: unreachable SHAs are tagged, not just reported. It never blocks for an unreachable SHA without attempting remediation first.
 
-3. If ANY submodule hash is NOT reachable: **BLOCK PR creation** with specific failure report listing which submodule and which hash failed.
+3. If ALL submodule hashes are reachable (either pre-existing or after tagging): Proceed to Step 1.
 
-**There is NO auto-remediation path.** The liveness check is verification only. If a hash is unreachable, the developer must resolve it manually (e.g., by pushing the missing tag or updating the submodule reference).
+4. If ANY submodule hash is NOT reachable AND tagging also fails: **BLOCK PR creation** with specific failure report listing which submodule and which hash failed.
+
+**Tagging is idempotent** — no duplicate tags, no errors on already-tagged SHAs. See `submodule-liveness-check.md` for the complete idempotent tag-if-untagged procedure.
 
 **There is NO `--force` override for submodule liveness gates.**
 
@@ -55,11 +57,16 @@ The sub-agent performs a **liveness verification only — NOT auto-remediation:*
 ```yaml
 status: DONE | BLOCKED
 task: submodule-liveness-check
+tags_added:
+  - path: <submodule-path>
+    tag_name: <tag-created>
+    sha_tagged: <sha>
 submodule_results:
   - path: <submodule-path>
     committed_sha: <sha>
     reachable: bool
     reachable_via: <tag-name or ref-name or "unreachable">
+    tags_added: [<tag-names>]
 evidence_artifacts:
   - tool: git ls-tree HEAD <path>
     output: <sha>
