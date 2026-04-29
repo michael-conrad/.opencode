@@ -530,6 +530,24 @@ Before invoking any cross-referenced skill:
 - Authorization classification: See `010-approval-gate.md` Action Authorization Classification
 - Platform sub-skills: `platforms/github-mcp/SKILL.md`, `platforms/gitbucket-api/SKILL.md`, `platforms/local/SKILL.md`
 
+## MANDATORY TASKS
+
+- [ ] MANDATORY: Route ALL issue operations through this skill — never call `github_issue_write`, `github_add_issue_comment`, or `github_sub_issue_write` directly — per §Hard Gates Gate 1
+- [ ] MANDATORY: Verify byline presence (`Co-authored with AI` or emoji byline) before any `github_issue_write` or `github_add_issue_comment` call with AI-authored content — per §Hard Gates Gate 2
+- [ ] MANDATORY: Run `pre-creation` task before creating any issue (conflict/superseded check) — per §Operating Protocol Step 2
+- [ ] MANDATORY: Run Step 0.5 title dedup gate before any issue creation — verify dedup evidence before proceeding — per §Critical Rules ALWAYS DO
+- [ ] MANDATORY: Apply `needs-approval` label to new specs — per §Critical Rules ALWAYS DO
+- [ ] MANDATORY: Add creation byline in issue body footer — per §Critical Rules ALWAYS DO
+- [ ] MANDATORY: Never close issues before PR merge is confirmed via live tool call — per §Critical Rules NEVER DO and yaml+symbolic issue-ops-003
+- [ ] MANDATORY: Never replace issue body with shorter content — verify `len(new_body) >= 0.8 * len(original_body)` before any `github_issue_write(method=update)` — per §Hard Gates and yaml+symbolic issue-ops-004
+- [ ] MANDATORY: Create sub-issues under the plan (NOT under the spec) — per §Critical Rules NEVER DO and yaml+symbolic issue-ops-005
+- [ ] MANDATORY: Include PR Merge Boundary section in sub-issue bodies when parent plan has `pr_boundaries` with `must_be_merged_before_starting: true` for the sub-issue's phase — per §PR Merge Boundary in Sub-Issue Bodies
+- [ ] MANDATORY: Detect platform from session init and route to correct platform sub-skill — per §Platform Routing and yaml+symbolic issue-ops-007
+- [ ] MANDATORY: Route submodule file targets to submodule repo (not parent repo) — per §Submodule Routing for Issue Operations and yaml+symbolic issue-ops-009
+- [ ] MANDATORY: Invoke `spec-auditor` for multi-task specs before approval — per §Interdependencies
+- [ ] MANDATORY: Post only substantive comments — skip non-substantive comments (approval tracking, "created by", hierarchy reports, step evidence, verification results, raw auditor reports) — per §Substantive Comment Gate
+- [ ] MANDATORY: Invoke `--task completion` before halting at any point — per completion task
+
 ```yaml+symbolic
 schema_version: "2.0"
 last_updated: "2026-04-25T00:00:00Z"

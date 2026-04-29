@@ -488,6 +488,23 @@ Co-authored with AI: <AgentName> (<ModelId>)
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
 
+## MANDATORY TASKS
+
+- [ ] MANDATORY: Complete code inspection checklist from `015-pre-spec-inspection.md` before `requirements` task (exempt: greenfield features with no existing code interaction, trivial typos with no code interaction) — per §Operating Protocol #1
+- [ ] MANDATORY: Search GitHub Issues for existing specs/plans before creating a new spec — per §Operating Protocol #3 (select-existing pathway)
+- [ ] MANDATORY: Invoke `verification-enforcement --task verify` before spec content generation — per decomposition gate
+- [ ] MANDATORY: Complete `requirements` task before `write` task (except trivial specs) — per §Enforcement Mechanism #2 and yaml+symbolic spec-creation-004
+- [ ] MANDATORY: Enumerate concerns before `write` task — flag multi-concern specs as `conditional` for splitting — per §Enforcement Mechanism #5 and §Concern Enumeration Guard
+- [ ] MANDATORY: Validate SC-to-phase mapping after `write` — check each SC is scoped to exactly one phase deliverable — per §Enforcement Mechanism #3
+- [ ] MANDATORY: Create spec as GitHub Issue with `[SPEC]` prefix and `needs-approval` label — not chat output — per §Enforcement Mechanism #4 and yaml+symbolic spec-creation-005
+- [ ] MANDATORY: Self-review spec for placeholders, consistency, and ambiguity after creation — per §Evidence Artifact Requirements
+- [ ] MANDATORY: Generate mermaid dependency diagram when dependencies exist (N > 1 items or cross-issue dependencies) — per §Interdependency Diagram Discipline and yaml+symbolic spec-creation-008
+- [ ] MANDATORY: Verify diagram contains NO workflow state markers (✅, 🔄, ❌, "implemented", "pending") — per §Diagram Content Rules
+- [ ] MANDATORY: Include PR Merge Boundaries section when spec has dependencies on other specs/plans — per §PR Merge Boundaries and yaml+symbolic spec-creation-007
+- [ ] MANDATORY: Invoke `spec-auditor --issue N` after spec creation — per §Mandatory Invocation
+- [ ] MANDATORY: Report chat output as exec summary + URL + byline ONLY — no full spec dump — per §Enforcement Mechanism #4
+- [ ] MANDATORY: Invoke `--task completion` before halting at any point — per completion task
+
 ```yaml+symbolic
 schema_version: "2.0"
 last_updated: "2026-04-25T00:00:00Z"

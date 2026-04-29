@@ -706,36 +706,23 @@ Co-authored with AI: <AgentName> (<ModelId>)
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
 
-**⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
+## MANDATORY TASKS
 
-## Symbolic Engine Integration
-
-**Optional pre-step:** Before auditing, invoke the symbolic analysis engine for formal evidence:
-
-```bash
-./.opencode/tools/symbolic states
-./.opencode/tools/symbolic flow
-```
-
-- `sym-states`: Validates state machines extracted from yaml+symbolic blocks — checks reachability from start_state, detects dead/unreachable states, flags dangling references in transitions.
-- `sym-flow`: Builds a networkx DiGraph from rule triggers/requires and detects flow anomalies — unreachable nodes, cycles, orphan nodes with no edges.
-
-Results are used as **evidence** (not verdict) — they supplement prose-only analysis with formal state machine and flow validation.
-
-**Graceful degradation:** If the engine is unavailable or produces no results, fall back to prose-only analysis. Do NOT block the audit if the engine fails.
-
-**Import interface (for in-process usage):**
-```python
-import types, sys
-from pathlib import Path
-impl_dir = Path(".opencode/tools/impl")
-source = (impl_dir / "sym-states").read_text()
-mod = types.ModuleType("symstates")
-mod.__file__ = str(impl_dir / "sym-states")
-sys.modules["symstates"] = mod
-exec(compile(source, str(impl_dir / "sym-states"), "exec"), mod.__dict__)
-anomalies = mod.validate_state_machines(state_machines, rules)
-```
+- [ ] MANDATORY: Invoke spec-auditor for all new specs — per §Mandatory Invocation and yaml+symbolic spec-auditor-001
+- [ ] MANDATORY: Provide one of `--issue N`, `--file path`, or `--url URL` (except overview mode) — per §Operating Protocol #1
+- [ ] MANDATORY: Autodetect document type via signal scoring when `--type` is not specified — per §Operating Protocol #2; if confidence is Low, flag for user confirmation before proceeding
+- [ ] MANDATORY: Run baseline subtasks for the detected document type (Spec: `fresh-start`, `structure`, `fidelity`, `ground-truth`, `principles`, `sc-precision`; Plan: `fresh-start`, `structure`, `ground-truth`, `principles`; etc.) — per §Minimal Baseline
+- [ ] MANDATORY: Classify ALL findings into one of three tiers (auto-fix, conditional, flag-for-review) — per §Auto-Fix Model
+- [ ] MANDATORY: Apply auto-fix findings directly and verify each auto-fix was actually applied via re-read — per §Audit Findings Handling Step 4
+- [ ] MANDATORY: Apply conditional findings ONLY after safety check passes — per §Auto-Fix Model and yaml+symbolic spec-auditor-003
+- [ ] MANDATORY: NEVER apply flag-for-review findings — report in executive summary only — per §Auto-Fix Model and yaml+symbolic spec-auditor-004
+- [ ] MANDATORY: Verify `len(new_body) >= 0.8 * len(original_body)` before any `github_issue_write(method=update)` — per §Body-Preservation Safeguard and yaml+symbolic spec-auditor-005
+- [ ] MANDATORY: Run `ground-truth` subtask for ALL audits — per yaml+symbolic spec-auditor-006
+- [ ] MANDATORY: Post chat executive summary after every audit (even when zero findings) — per §Chat Executive Summary and yaml+symbolic spec-auditor-007
+- [ ] MANDATORY: Post revision comment ONLY for substantive changes (adding/removing phases, changing requirements, altering approach) — non-substantive auto-fixes get NO comment — per §Audit Findings Handling
+- [ ] MANDATORY: Verify cross-references against actual skill files before invoking — per §Cross-Reference Verification
+- [ ] MANDATORY: When audit finds issues for another spec (cross-spec-overlap with CONFLICT-RISK or FULL-SUPERSESSION), note the finding but do NOT modify the other spec — per §Auto-Fix Model flag-for-review
+- [ ] MANDATORY: Invoke `--task completion` before halting at any point — per completion task
 
 ```yaml+symbolic
 schema_version: "2.0"

@@ -649,6 +649,29 @@ Skills MUST check authorization for **implementation**, NOT for **issue creation
 
 The `verify-authorization` gate applies only to code/config/file modifications that alter system behavior. Issue creation is a tracking action — the agent MUST proceed without deliberating over authorization. See `010-approval-gate.md` §Issue Creation Is Reporting, Not Implementation for the complete exemption table.
 
+## MANDATORY TASKS
+
+- [ ] MANDATORY: Invoke `approval-gate --task verify-authorization` before ANY implementation (per Gate 1: Authorization Required Before Implementation)
+- [ ] MANDATORY: Verify spec or plan exists as GitHub Issue before proceeding (per Gate 2: Spec Required Before Code, per `010-approval-gate.md` §Authorization Requirements)
+- [ ] MANDATORY: Search GitHub Issues for existing `[SPEC]`, `[PLAN]`, `[SPEC-FIX]` candidates before Q/A halt (per `000-critical-rules.md` §Silent Halt Without Prompt, per `search-prompt-fail` task)
+- [ ] MANDATORY: Check `pr_boundaries` in plan yaml+symbolic block and verify required upstream PRs are merged via `github_pull_request_read(method=get)` before authorizing implementation (per PR Merge Boundary Gate)
+- [ ] MANDATORY: Invoke `git-workflow --task pre-work` after `verify-authorization` passes, before any implementation (per Dispatch Order Step: MANDATORY WORKTREE STEP)
+- [ ] MANDATORY: Verify sub-issue structure under plan: `github_issue_read(method=get_sub_issues)` count must match plan phase count (per `verify-authorization` Step 5, per `000-critical-rules.md` §Sub-issue Structure Bypass)
+- [ ] MANDATORY: Apply spec-to-plan approval cascade when spec is approved and faithful plan already exists — auto-approve plan, remove `needs-approval` label, add cascade comment (per `verify-authorization` Step 5b, per `010-approval-gate.md` §Spec-to-Plan Approval Cascade)
+- [ ] MANDATORY: Dispatch `screen-issue` sub-agents for EVERY approved issue — no inline screening regardless of set size (per `000-critical-rules.md` §Inline Screening of Authorization Sets, per `pre-implementation-analysis` Step -1)
+- [ ] MANDATORY: Run `pre-implementation-analysis` for all approvals (single or authorization set) — build dependency graph, classify issues, present analysis in chat (per `000-critical-rules.md` §Skipping Interdependency Analysis)
+- [ ] MANDATORY: Parse authorization scope from verb-prefix parsing table — do NOT ask developer for scope classification (per `010-approval-gate.md` §Authorization Scope Model, per `000-critical-rules.md` §Structural Decision Solicitation Under for_pr Scope)
+- [ ] MANDATORY: Execute gap-fill cascade autonomously when `authorization_scope >= for_plan` — do NOT halt for structural decisions that the scope model resolves (per `000-critical-rules.md` §for_pr Gap-Fill Halt)
+- [ ] MANDATORY: Do NOT halt after `pre-implementation-analysis` when `authorization_scope >= for_pr` — check scope and proceed to gap-fill cascade (per `000-critical-rules.md` §pre-implementation-analysis Halts Under for_pr Scope)
+- [ ] MANDATORY: Verify dispatch chain enforcement — confirm prior step's output artifacts before proceeding to next step; HALT and invoke skipped skill on missing artifact (per Dispatch Order Enforcement Checkpoint table)
+- [ ] MANDATORY: Produce visible chat output after every sub-agent dispatch — NEVER transition from dispatch to halt without output (per Step 0.5 Post-Dispatch Output Gate)
+- [ ] MANDATORY: Verify orchestrator has NOT performed inline file operations before dispatch (per Step 0 Orchestrator Purity Gate)
+- [ ] MANDATORY: Invoke `--task completion` on workflow halt at ANY point — idempotent, safe to invoke multiple times (per COMPLETION GUARANTEE)
+- [ ] MANDATORY: Verify bug reports have fix spec sub-issue before closure — invoke `verify-fix-spec` for bug report issues (per `000-critical-rules.md` §Bug Reports Without Fix Spec)
+- [ ] MANDATORY: Verify closed issues have merged PR evidence before treating as resolved — invoke `verify-closed-issue` (per `000-critical-rules.md` §Assuming Closed Issues Are Verified)
+- [ ] MANDATORY: Invoke `reconcile-issue-graph` when graph traversal finds inconsistent issue states — auto-close verified-complete, reopen verified-incomplete (per `000-critical-rules.md` §Process Gaps Are Bugs)
+- [ ] MANDATORY: Classify mandate tier before yielding — Tier 1 mandates (branch protection, human-only merge, no `/tmp/`) NEVER yield to developer authorization; Tier 2 mandates (spec-before-code, plan-before-implementation) yield to explicit authorization (per Mandate Tiering Enforcement table)
+
 ```yaml+symbolic
 schema_version: "2.0"
 last_updated: "2026-04-26T00:00:00Z"

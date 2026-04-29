@@ -703,6 +703,26 @@ When `git rev-parse --show-toplevel` returns a path that is a descendant of a pa
 - Authorization classification: See `010-approval-gate.md` §Action Authorization Classification
 - Related skill tasks: `git-workflow --task pre-work` (branch creation), `git-workflow --task cleanup` (post-merge), `git-workflow --task pr-creation` (PR workflow), `git-workflow --task provenance` (submodule provenance tracking)
 
+## MANDATORY TASKS
+
+- [ ] MANDATORY: Invoke `git-workflow --task pre-work` before ANY implementation — skipping is a CRITICAL GUIDELINE VIOLATION (per Overview, per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations, exempt: no implementation performed)
+- [ ] MANDATORY: Invoke `git-workflow --task review-prep` after implementation completes — skipping is a CRITICAL GUIDELINE VIOLATION (per Operating Protocol §3, per `000-critical-rules.md` §Skipping review-prep After Implementation)
+- [ ] MANDATORY: Invoke `git-workflow --task cleanup` after EVERY confirmed PR merge — never skip post-merge cleanup (per Operating Protocol §9, per `000-critical-rules.md` §Skipping Post-Merge Cleanup)
+- [ ] MANDATORY: Never create worktree or branch directly — invoke `pre-work` task which handles authorization check, dev sync, and worktree creation (per Gate 3: Skill Dispatch Before Worktree/Branch Creation)
+- [ ] MANDATORY: Never call `github_create_pull_request` directly — invoke `finishing-a-development-branch --task checklist` → `review-prep` → `pr-creation` in order (per Gate 2: Skill Dispatch Before PR Creation, per `000-critical-rules.md` §Dispatch Chain Enforcement)
+- [ ] MANDATORY: Never call `git push` directly after implementation — invoke `review-prep` which handles push verification and compare URL generation (per Gate 4: Skill Dispatch Before Push)
+- [ ] MANDATORY: Feature branches target `dev` — compare URLs use `compare/dev...<branch-name>`, release PRs only use `compare/main...dev` (per Operating Protocol §6, per `000-critical-rules.md` §Wrong Compare URL Base Branch)
+- [ ] MANDATORY: Squash to single commit before any PR — verify commit count at enforcement gate per `000-critical-rules.md` §Un-Squashed PR
+- [ ] MANDATORY: NEVER merge PRs — human-only operation (per Operating Protocol §8, per `000-critical-rules.md` §Tier 1 Non-Yielding Mandates)
+- [ ] MANDATORY: Verify actual git/GitHub state via tool calls before acting on claims — never trust cached branch names, assumed merge status, or claimed worktree paths (per Live Verification Requirements, per `065-verification-honesty.md`)
+- [ ] MANDATORY: Extract post-creation URLs (PR, Issue) from API response `html_url` field — NEVER construct from template variables (per `000-critical-rules.md` §Fabricating URLs, per `git-workflow-url-001` rule)
+- [ ] MANDATORY: Construct pre-creation URLs (compare URL) from verified session-init values with character-match verification — `github.owner` and `github.repo` must match character-for-character (per `000-critical-rules.md` §Fabricating URLs, per `git-workflow-url-002` rule)
+- [ ] MANDATORY: Chat output at halt points MUST follow: summary → outcome → URL (if applicable) → byline — NEVER put URL before summary (per Operating Protocol §5, per `000-critical-rules.md` §Wrong Chat Output at Halt Points)
+- [ ] MANDATORY: Cleanup scope is limited to the merged PR ONLY — report additional cleanup opportunities but do NOT act without explicit authorization (per Operating Protocol §10, per `000-critical-rules.md` §Question-as-Authorization)
+- [ ] MANDATORY: Content-verify branches before deletion — `git diff --stat origin/dev...` + per-file IDENTICAL/SUPERSEDED/UNIQUE status; NEVER delete based on PR merge status alone (per `000-critical-rules.md` §Content Verification Before Branch Deletion)
+- [ ] MANDATORY: When `check prs` is requested, invoke `--task check-pr` which routes to cleanup if merged PRs with local branches exist — NEVER just list PRs (per `000-critical-rules.md` §Listing Merged PRs Without Invoking Cleanup)
+- [ ] MANDATORY: Invoke `--task completion` on workflow halt at ANY point — idempotent, safe to invoke multiple times (per COMPLETION GUARANTEE)
+
 ```yaml+symbolic
 schema_version: "2.0"
 last_updated: "2026-04-26T00:00:00Z"
