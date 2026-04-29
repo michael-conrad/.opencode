@@ -61,6 +61,40 @@ Each phase MUST include (prose-driven, not rigid headers):
 - **What could go wrong** — edge cases, known risks, failure modes
 - **What must be done first** — dependencies on prior phases or external prerequisites
 
+## Concern Boundary Check (MANDATORY)
+
+**Before finalizing the plan, verify that each phase maps to exactly one spec concern.**
+
+Apply the concern classification test across plan phases:
+
+**Concern Classification Test:** "Remove concern B from the artifact. If concern A remains complete and verifiable, they are unrelated and must be in separate artifacts."
+
+**Procedure:**
+
+1. For each phase in the plan, identify the spec concern it addresses (root cause, affected scope, verification criteria)
+2. If any single phase addresses ≥2 unrelated concerns → split that phase into separate phases
+3. If two different phases address the same concern → consider merging them (unless sequencing requires separation)
+4. Verify the plan's concern coverage matches the spec's concern scope — no extra concerns added, no spec concerns omitted
+
+| Check | Condition | Action |
+| -- | -- | -- |
+| Phase-to-concern mapping | Each phase maps to exactly one concern | Plan is well-structured |
+| Multi-concern phase | Phase addresses ≥2 unrelated concerns | Split into separate phases |
+| Cross-phase concern | Same concern split across multiple phases | Merge or add cross-phase dependency note |
+| Scope creep | Phase addresses a concern not in the spec | Remove phase — reference `000-critical-rules.md` §Scope Creep |
+
+**Evidence artifact:**
+
+```
+Check: Concern boundary check for plan "<plan title>"
+Phases: [N]
+Phase-to-concern mapping: [list each phase → concern]
+Multi-concern phases: [none | list with required splits]
+Missing spec concerns: [none | list]
+Extra concerns (scope creep): [none | list]
+Action: [proceed | restructure required]
+```
+
 ## Concern Boundary Annotations
 
 When transitioning between architectural concerns, describe:

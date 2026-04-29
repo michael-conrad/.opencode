@@ -92,6 +92,43 @@ Review the assembled spec for plan-level content that belongs in the implementat
 
 **Self-review question:** "Could two developers produce valid but different implementations from this spec?" If yes, the spec is at the right level. If no — if the spec only allows one implementation — it contains plan-level detail that should be removed.
 
+### Step 4.7: Single Concern Classification Test
+
+**MANDATORY after Step 4.5 Spec/Plan Boundary Check and before Step 5 Self-Review.**
+
+Apply the concern classification test to the assembled spec to ensure it addresses exactly one concern. This checkpoint catches multi-concern specs that should have been decomposed earlier.
+
+**Concern Classification Test:** "Remove concern B from the artifact. If concern A remains complete and verifiable, they are unrelated and must be in separate artifacts."
+
+Two concerns are unrelated when ALL of the following hold:
+- Different root causes
+- Can be verified independently
+- Can be closed independently
+- Removing one doesn't break the other's success criteria
+
+**Procedure:**
+
+1. Read through the assembled spec and identify every distinct concern (each problem area with its own root cause, affected scope, and verification criteria)
+2. For each pair of concerns, apply the classification test: "Can you remove concern B, and have concern A remain complete and verifiable?"
+3. If any pair fails the test (concern A is NOT complete without concern B), they are related and may stay in the same spec
+4. If any pair passes (concern A IS complete without concern B), they are unrelated
+
+| Classification | Condition | Action |
+| -- | -- | -- |
+| Single-concern | 0-1 concerns, OR all concerns are related (share root cause, cannot verify/close independently) | Proceed to Step 5 |
+| Multi-concern | ≥2 unrelated concerns identified | HALT — require decomposition into separate specs |
+
+**On HALT for multi-concern:**
+
+```
+Spec fails Single Concern Checkpoint. <N> unrelated concerns detected:
+- Concern A: <description> (root cause: <cause>, verification: <scope>)
+- Concern B: <description> (root cause: <cause>, verification: <scope>)
+Decompose into separate specs per 000-critical-rules.md §Single Concern Principle.
+```
+
+**Note:** This test validates the same SCP rule enforced at issue creation (Step 0.6 of `creation.md`), but catches violations that emerge during spec assembly — where two seemingly related requirements may diverge into separate concerns as detail is added.
+
 ### Step 5: Self-Review
 
 After writing the spec, review with fresh eyes:
