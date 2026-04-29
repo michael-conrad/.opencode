@@ -58,8 +58,8 @@ def get_current_branch() -> str | None:
 def get_root_dir() -> str | None:
     current = Path(__file__).resolve().parent
     while current != current.parent:
-        if (current / ".opencode").is_dir():
-            return str(current)
+        if current.name == ".opencode":
+            return str(current.parent)
         current = current.parent
     return None
 

@@ -4,14 +4,14 @@
 
 Every script/notebook MUST include root resolution:
 
-- **Shell**: `_root="$(cd "$(dirname "$0")" && while [ "$(pwd)" != "/" ]; do [ -d ".opencode" ] && echo "$(pwd)" && break; cd ..; done)"` — if empty, `exit 1`
+- **Shell**: `_root="$(cd "$(dirname "$0")" && while [ "$(pwd)" != "/" ]; do [ "$(basename "$(pwd)")" = ".opencode" ] && echo "$(dirname "$(pwd)")" && break; cd ..; done)"` — if empty, `exit 1`
 - **Python**:
   ```python
   def _find_project_root() -> Path:
       current = Path(__file__).resolve().parent
       while current != current.parent:
-          if (current / ".opencode").is_dir():
-              return current
+          if current.name == ".opencode":
+              return current.parent
           current = current.parent
       raise RuntimeError("Could not find project root (no .opencode/ directory found)")
 
@@ -25,10 +25,10 @@ Every script/notebook MUST include root resolution:
 
 - Scripts self-locate via `dirname "$0"` (Shell) or `Path(__file__).resolve().parent` (Python). No reliance on user's
   CWD.
-- Resolve project root by walking up from the script's location until a directory containing `.opencode/` is found. This works correctly in both standalone repos and git submodules without relying on `git` being available or correct remote configuration.
+- Resolve project root by walking up from the script's location until a directory named `.opencode` is found, then return its parent. This works correctly in both standalone repos and git submodules without relying on `git` being available or correct remote configuration.
 - `git rev-parse --show-cdup` is **prohibited** — it returns empty string inside submodules, causing path doubling bugs.
 - `git rev-parse --show-toplevel` is **prohibited** — inside a submodule it returns the submodule root, not the project root.
-- `git rev-parse --show-superproject-working-tree` is **prohibited** — it depends on git remote configuration and fails when git is unavailable or misconfigured. Walk-up-directory detection via `.opencode/` is more reliable.
+- `git rev-parse --show-superproject-working-tree` is **prohibited** — it depends on git remote configuration and fails when git is unavailable or misconfigured. Walk-up-directory detection via `.opencode` directory name is more reliable.
 
 ## Notebook Operations — MANDATORY MCP
 
@@ -125,7 +125,7 @@ rules:
     source: "210-scripting.md §Notebook Operations"
 
   - id: scripting-004
-    title: "Scripts must self-locate and resolve project root via _find_project_root walk-up"
+    title: "Scripts must self-locate and resolve project root via _find_project_root walk-up checking current.name == .opencode"
     conditions:
       all:
         - "script_created == true"
@@ -152,7 +152,7 @@ rules:
     source: "210-scripting.md §Self-Location & Root Resolution"
 
   - id: scripting-006
-    title: "Scripts must use _find_project_root walk-up pattern, not git commands"
+    title: "Scripts must use _find_project_root walk-up pattern checking current.name == .opencode and returning current.parent"
     conditions:
       all:
         - "script_created == true"

@@ -17,8 +17,8 @@ from pathlib import Path
 def _find_project_root() -> Path:
     current = Path(__file__).resolve().parent
     while current != current.parent:
-        if (current / ".opencode").is_dir():
-            return current
+        if current.name == ".opencode":
+            return current.parent
         current = current.parent
     raise RuntimeError("Could not find project root (no .opencode/ directory found)")
 
