@@ -8,13 +8,21 @@ import argparse
 import base64
 import json
 import os
-import subprocess
 import platform
 import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any
+
+
+def _find_project_root() -> Path:
+    current = Path(__file__).resolve().parent
+    while current != current.parent:
+        if (current / ".opencode").is_dir():
+            return current
+        current = current.parent
+    raise RuntimeError("Could not find project root (no .opencode/ directory found)")
 
 
 class GitBucketError(Exception):
@@ -119,13 +127,8 @@ password = ""
 
 def _load_from_env_file(env_path: Path | None = None) -> dict[str, str]:
     if env_path is None:
-        _base = Path(__file__).resolve().parent
-        _git_out = subprocess.check_output(
-            ["git", "-C", str(_base), "rev-parse", "--show-superproject-working-tree", "--show-toplevel"],
-            text=True, stderr=subprocess.DEVNULL,
-        ).strip()
-        _root = _git_out.splitlines()[0] if _git_out.splitlines() else str(Path.cwd())
-        env_path = Path(_root) / ".env"
+        _root = _find_project_root()
+        env_path = _root / ".env"
     if not env_path.exists():
         return {}
     credentials = {}

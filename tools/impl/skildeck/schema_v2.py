@@ -12,12 +12,21 @@ from __future__ import annotations
 
 import os
 import re
-import subprocess
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 SCHEMA_V1 = "1.0"
 SCHEMA_V2 = "2.0"
+
+def _find_project_root() -> Path:
+    current = Path(__file__).resolve().parent
+    while current != current.parent:
+        if (current / ".opencode").is_dir():
+            return current
+        current = current.parent
+    raise RuntimeError("Could not find project root (no .opencode/ directory found)")
+
+PROJECT_ROOT = _find_project_root()
 
 FENCE_PATTERN = re.compile(r"```yaml\+symbolic\n(.*?)```", re.DOTALL)
 
@@ -44,18 +53,10 @@ def find_skills_dir(tool_path: Path) -> Path:
         if candidate.exists() and candidate.is_dir():
             return candidate
     
-    # 2. Git-based detection: find project root and look for .opencode/skills/
-    try:
-        _git_out = subprocess.check_output(
-            ["git", "-C", str(tool_path.parent), "rev-parse", "--show-superproject-working-tree", "--show-toplevel"],
-            text=True, stderr=subprocess.DEVNULL,
-        ).strip()
-        if _git_out.splitlines():
-            candidate = Path(_git_out.splitlines()[0]) / ".opencode" / "skills"
-            if candidate.exists() and candidate.is_dir():
-                return candidate
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        pass
+    # 2. Project root detection: find .opencode/skills/ via walk-up
+    candidate = PROJECT_ROOT / ".opencode" / "skills"
+    if candidate.exists() and candidate.is_dir():
+        return candidate
     
     # 3. Environment override (explicit user control for edge cases)
     if os.environ.get("SKILDECK_SKILLS_DIR"):
