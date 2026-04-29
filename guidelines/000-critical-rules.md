@@ -991,28 +991,32 @@ The spec-to-plan approval cascade means: when a spec is approved and a plan alre
 - 🚫 FORBIDDEN: Interpreting "why hasn't X been done?" as authorization to do X
 - 🚫 FORBIDDEN: Interpreting "we need X" or "X should be Y" as authorization to implement X
 - 🚫 FORBIDDEN: Proceeding to action after any question, complaint, or frustration expression
+- 🚫 FORBIDDEN: Collapsing an interrogative premise into an authorization directive — when a question contains an implied normative claim (e.g., "why is this suddenly out of scope?" implying "this should be in scope"), the agent MUST NOT treat the implied correction as permission to act
 - ✅ REQUIRED: Treat ALL questions as observation-only — acknowledge and HALT
 - ✅ REQUIRED: If a question identifies a real problem, create a bug report or fix spec, then HALT and wait for explicit authorization
+- ✅ REQUIRED: Follow the question-response gate — answer the question, explain reasoning, HALT, wait for explicit directive per `020-go-prohibitions.md` §1 question-response gate
 
 **This extends the existing "Confirmation ≠ Authorization" and "Offer-to-Edit Bypass" rules.** Questions, complaints, and frustration expressions are not authorization any more than confirmations or offers are. The ONLY authorization tokens are "approved", "go", "#NNN approved", or equivalent explicit phrases from `010-approval-gate.md`.
 
-**See `020-go-prohibitions.md` §1 "NEVER DO" list for the rhetorical/complaint question prohibition. See `approval-gate` skill for the complete authorization verification procedure.** **AUTHORITY: `000-critical-rules.md` §Question-as-Authorization** (this line is a reference only)
+**See `020-go-prohibitions.md` §1 "NEVER DO" list for the question-response gate, rhetorical/complaint question prohibition, and interrogative premise collapse prohibition. See `approval-gate` skill for the complete authorization verification procedure.** **AUTHORITY: `000-critical-rules.md` §Question-as-Authorization** (this line is a reference only)
 
 ```yaml+symbolic
   - id: critical-rules-question-auth-001
-    title: "Question-as-authorization — treating rhetorical/complaint questions as implementation authorization"
+    title: "Question-as-authorization — treating rhetorical/complaint/interrogative questions as implementation authorization"
     conditions:
       any:
         - "user_input_type == 'rhetorical_question'"
         - "user_input_type == 'complaint'"
         - "user_input_type == 'frustration_expression'"
+        - "user_input_type == 'interrogative_premise'"
         - "user_input_matches == 'how can we.*if.*'"
         - "user_input_matches == 'why hasn\\'t.*'"
         - "user_input_matches == 'we need.*'"
         - "user_input_matches == 'should be.*'"
     actions:
-      - CREATE_FIX_SPEC
+      - ANSWER_QUESTION
       - HALT
+      - WAIT_FOR_EXPLICIT_DIRECTIVE
     conflicts_with: []
     triggers: [approval-gate]
     source: "000-critical-rules.md §Question-as-Authorization"

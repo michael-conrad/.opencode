@@ -154,6 +154,51 @@ Action: [proceed|HALT — decomposition required]
 | Single-concern | Proceed to Step 1 |
 | Multi-concern | HALT — do not create combined issue |
 
+### Step 0.7: Submodule Detection & Routing Gate
+
+**MANDATORY before determining title format. Classify which repository the issue should be filed against.**
+
+When operating in a repository that contains submodules (detected via `.gitmodules` or session context `Sub-folder Repo Mappings`), the agent MUST determine the correct target repository before creating the issue.
+
+**Procedure:**
+
+1. Identify which files/paths the issue targets (from the issue body's "Affected Files" section or from context)
+2. Cross-reference each target path against `.gitmodules` entries and session context `Sub-folder Repo Mappings`
+3. Classify routing:
+
+| Path Classification | Route To | Example |
+| -- | -- | -- |
+| Target files under submodule path | Submodule's `owner/repo` | `.opencode/guidelines/*` → `michael-conrad/.opencode` |
+| Target files in parent repo only | Parent's `owner/repo` | `.gitignore`, `AGENTS.md` → `michael-conrad/opencode-config` |
+| Target files in BOTH | Separate issues per repo | Split into two issues, one per repo |
+
+4. **Document the routing decision in the issue body** with a classification comment:
+
+```
+<!-- Routing: Filing against <owner>/<repo> because target files are under <submodule-path>/ -->
+```
+
+5. **Override `owner` and `repo` parameters** in the creation API call to use the classified target repository
+
+**Gate logic:**
+
+| Routing Result | Action |
+| -- | -- |
+| All target files → one repo | Proceed with classified `owner/repo` |
+| Target files span multiple repos | HALT — split into separate issues per `000-critical-rules.md` §Single Concern Principle |
+| No submodule mappings and target files ambiguous | HALT — report ambiguity, request clarification |
+
+**Evidence artifact (MANDATORY):**
+
+```
+Check: Submodule Detection & Routing Gate for "<proposed title>"
+Target paths: [list of file paths]
+Submodule mappings: [list from .gitmodules / session context]
+Classification: [parent|submodule:<path>|ambiguous]
+Routing: <owner>/<repo>
+Action: [proceed|HALT — split required|HALT — ambiguous]
+```
+
 ### Step 1: Determine Title Format
 
 | Issue Type | Title Format | Example |
@@ -280,6 +325,7 @@ Before proceeding, verify ALL:
 | "Issue was created" | Verify API response | Check `number` field in creation response | MISSING-ELEMENT |
 | "`needs-approval` label applied" | Verify label on created issue | `github_issue_read(method="get_labels", issue_number=N)` | MISSING-ELEMENT |
 | "Byline in body" | Verify byline present | Check issue body for `🤖` marker | STRUCTURE-VIOLATION |
+| "Routing gate performed" | Verify routing classification exists | Check issue body for routing comment or check pre-creation output for Step 0.7 evidence | ROUTING-GAP → HALT |
 
 **Evidence artifact:** Pre-creation result, creation API response, post-creation label check.
 
