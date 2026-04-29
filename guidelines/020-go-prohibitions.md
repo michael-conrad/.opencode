@@ -32,6 +32,16 @@
   - "This looks like it should be X" → observation, NOT "make it X"
 - **Questions are NOT authorization.** "Should I do X?" and "Would you like me to X?" are questions seeking permission, not receiving it. Never act on a question — wait for explicit authorization.
 - **Rhetorical and complaint questions are NOT authorization.** "How can we work if we never merge into dev?" is a complaint about process, NOT authorization to merge. "Why hasn't X been done?" is a question, NOT authorization to do X. Treat ALL questions as observation-only.
+- **Question-response gate — NO question may transition directly to action in the same turn.** Before taking ANY action after receiving a question:
+  1. Answer the question (explain reasoning)
+  2. HALT
+  3. Wait for explicit directive ("do it", "go ahead", "yes", "delete them", "approved")
+  
+  The answer-to-action step is MANDATORY. A question containing an implied normative claim (interrogative premise) — e.g., "why is this suddenly out of scope?" implying "this should be in scope" — MUST NOT be collapsed into an authorization directive. The agent MUST answer the question, explain its reasoning, and HALT. Only an explicit directive in a SEPARATE user turn authorizes action.
+  
+  **Prohibited pattern**: Agent makes incorrect decision → user questions reasoning ("why is X out of scope?") → agent treats the question's implied correction as permission → agent acts immediately without waiting for explicit directive.
+  
+  **Correct pattern**: Agent makes decision → user questions reasoning → agent answers the question and explains reasoning → agent HALTS → user gives explicit directive → agent acts.
 - **SILENTLY HALT after every task/report.** Factual reporting is permitted, but it must NEVER be followed by a prompt for next steps.
 - **Never name the next phase or action in a halt message.** Halt messages must be factual statements about what was completed — never forward-looking references to what comes next.
 - **No "offer to edit" patterns.** The agent MUST NOT offer to edit, update, modify, or fix a file directly. Instead, create a spec or bug report. Patterns like "Want me to update X?", "Shall I fix this?", "I can change X to Y" are PROHIBITED — they bypass the spec-first workflow.
