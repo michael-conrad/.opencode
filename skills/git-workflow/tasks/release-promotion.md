@@ -156,6 +156,8 @@ Invoke `submodule-liveness-check` sub-agent to verify reachability. The liveness
 
 **Key invariant:** Submodule dev → main PRs are NOT part of this workflow. Tags guarantee hash permanence. A submodule SHA referenced by the parent is already reachable via its issue/feature tags. A separate dev → main PR adds no reachability guarantee.
 
+**⚠️ Submodule pointer advancement is NOT a separate PR.** The parent repo's submodule pointer advances as a side effect of the next feature branch that modifies `.opencode/` content. The release tags guarantee hash permanence — the pointer will be updated when the next feature branch stages its changes. After Step 2, the parent repo may show `.opencode` as modified (the tracked SHA differs from the submodule's dev tip). This is expected and correct. No separate pointer-bump PR is needed.
+
 ### Step 2.5: Create Provenance Tracking
 
 After tagging submodule SHAs, invoke provenance tracking:
