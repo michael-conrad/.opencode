@@ -455,7 +455,7 @@ For URLs to resources that **haven't been created yet** (Compare URL before push
 - 🚫 FORBIDDEN: Inferring owner from file paths, `$USER`, `git config user.name`, cached values; making GitHub MCP calls without session init values
 - ✅ REQUIRED: Use `github.owner` and `github.repo` from session init for EVERY GitHub MCP call
 
-**Programmatic enforcement**: The `session-enforcement.ts` plugin validates the agent's identity echo against injected expected values. If the agent's first response does not contain a matching identity echo, an `IDENTITY_VALIDATION_FAILURE` block is injected into the next user message, forcing the agent to HALT. This gate prevents operations with incorrect owner/repo values.
+**Programmatic enforcement**: The `session-enforcement.ts` plugin injects repository identity values (github.owner, github.repo, etc.) into the system prompt. The agent reads these from the system prompt context to route API calls correctly. If identity values are missing, the plugin injects a `<LOCAL_MODE>` warning or error block into the first user message.
 
 ## Critical Violation: Wrong API Routing for Submodule/Sub-folder Repos
 

@@ -770,46 +770,7 @@ function extractValue(sessionOutput: string | null, key: string): string | null 
   return match ? match[1] : null;
 }
 
-function detectAgentBinary(): { name: string; version: string } {
-  const argv0 = process.argv[0] || "";
-  const argv1 = process.argv[1] || "";
 
-  for (const arg of [argv1, argv0]) {
-    if (arg.includes("opencode-cli")) {
-      return { name: "OpenCode CLI", version: "" };
-    }
-    if (arg.includes("opencode") || arg.includes("OpenCode")) {
-      return { name: "OpenCode", version: "" };
-    }
-  }
-
-  const envBinary = process.env.OPENCODE_BINARY || "";
-  const envVersion = process.env.OPENCODE_VERSION || "";
-
-  if (envBinary) {
-    return { name: envBinary, version: envVersion || "" };
-  }
-
-  return { name: "unknown (version detection failed)", version: "" };
-}
-
-function buildIdentityEchoDirective(platform: string, owner: string, repo: string, agentName?: string, modelId?: string): string {
-  const agentLine = `🤖 ${agentName || "<AgentName>"} (${modelId || "<ModelId>"}) <status-icon> <status>`;
-
-  return `<IDENTITY_ECHO>
-Before doing anything else, you MUST echo your platform identity as your very first output. The CORRECT values are:
-
-Platform: ${platform}, Org: ${owner}, Repo: ${repo}
-
-You MUST output EXACTLY these values in this format:
-Platform: ${platform}, Org: ${owner}, Repo: ${repo}
-${agentLine}
-
-⚠️ FATAL: If your echo does not match Platform: ${platform}, Org: ${owner}, Repo: ${repo} character-for-character, you MUST HALT immediately and report the mismatch. Do NOT proceed with any operations with incorrect identity. Do NOT infer identity from repository names, file paths, or environment variables. Use ONLY the values provided in the system prompt identity section.
-
-After the identity echo, process any trigger warnings from the SESSION_TRIGGERS block above silently per the 117-session-trigger-behavior.md behavior map. Do NOT echo trigger content in your response.
-</IDENTITY_ECHO>`;
-}
 
 /**
  * Secret patterns for redaction.
@@ -1021,22 +982,16 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         output.system.push(identityOutput);
       }
 
-      // Inject agent binary name and version for LLM identity echo
-      const agentBinary = detectAgentBinary();
-      const agentBlock = [`AgentName: ${agentBinary.name}`];
-      if (agentBinary.version) {
-        agentBlock.push(`ModelId: ${agentBinary.version}`);
-      }
-      output.system.push(agentBlock.join("\n"));
+
     },
 
     // Inject enforcement content into first user message (adapted from obra/superpowers)
       // AND detect bare #N issue references in last user message
-      // AND inject identity-echo directive + trigger warnings into first user message
+      // AND inject trigger warnings into first user message
       // AND inject plugin diagnostics block into first user message
       //
-      // FIRST-TURN GUARD: IDENTITY_ECHO, SESSION_TRIGGERS, EXTREMELY_IMPORTANT,
-      // PLUGIN_DIAGNOSTICS, and IDENTITY_VALIDATION_FAILURE are injected ONLY on
+      // FIRST-TURN GUARD: SESSION_TRIGGERS, EXTREMELY_IMPORTANT,
+      // PLUGIN_DIAGNOSTICS, and LOCAL_MODE warnings are injected ONLY on
       // the first turn of PRIMARY sessions (isFirstTurn && !isSubAgent). Sub-agent
       // sessions inherit context from their parent, so these blocks are redundant
       // and waste context window space (REQ-1/REQ-2).
@@ -1071,43 +1026,13 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         const shouldInjectFirstTurn = isFirstTurn && !isSubAgent;
 
         if (shouldInjectFirstTurn) {
-          // --- First-turn-only: Identity-echo directive + trigger warnings ---
+          // --- First-turn-only: Trigger warnings ---
           const triggersOutput = await runSessionContextTriggers(projectDir);
-          const knownPlatform = extractValue(cachedIdentityOutput, "github.platform");
-          const knownOwner = extractValue(cachedIdentityOutput, "github.owner");
-          const knownRepo = extractValue(cachedIdentityOutput, "github.repo");
-          const knownIdentitySource = extractValue(cachedIdentityOutput, "github.identity_source");
 
-          // Degraded mode: when identity_source is "none", we have no remote at all.
-          // Platform is "local", owner/repo are "(none)". This is a valid operational state,
-          // not an error. Skip the FATAL identity validation for local-only mode.
-          const isLocalMode = knownPlatform === "local" || knownIdentitySource === "none";
-
-          // Submodule mode: parent repo has zero remotes, owner/repo come from submodule.
-          // Agent must NOT add remotes to the parent repo or push from the parent repo.
-          const isSubmoduleMode = knownIdentitySource === "submodule";
-
-          // Detect agent binary for identity echo
-          const agentBinary = detectAgentBinary();
-
-          const identityBlock = buildIdentityEchoDirective(
-            knownPlatform || "<platform>",
-            knownOwner || "<owner>",
-            knownRepo || "<repo>",
-            agentBinary.name,
-            agentBinary.version || undefined,
-          );
           const triggerBlock = triggersOutput ? `<SESSION_TRIGGERS>\n${triggersOutput}\n</SESSION_TRIGGERS>` : "";
 
-          const echoParts: string[] = [];
-          if (identityBlock) {
-            echoParts.push(identityBlock);
-          }
-          if (triggerBlock) {
-            echoParts.push(triggerBlock);
-          }
-          if (echoParts.length > 0 && firstUser.parts?.length) {
-            firstUser.parts.unshift({ type: "text", text: echoParts.join("\n\n") });
+          if (triggerBlock && firstUser.parts?.length) {
+            firstUser.parts.unshift({ type: "text", text: triggerBlock });
           }
 
           // --- First-turn-only: Plugin diagnostics injection ---
@@ -1117,10 +1042,14 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
             firstUser.parts.push({ type: "text", text: diagnosticBlock });
           }
 
-          // --- First-turn-only: Identity echo validation ---
+          // --- First-turn-only: Local/submodule mode warnings ---
+          const knownPlatform = extractValue(cachedIdentityOutput, "github.platform");
+          const knownIdentitySource = extractValue(cachedIdentityOutput, "github.identity_source");
+
+          const isLocalMode = knownPlatform === "local" || knownIdentitySource === "none";
+          const isSubmoduleMode = knownIdentitySource === "submodule";
+
           if (isLocalMode) {
-            // Local mode: identity values are "(none)" by design. Skip FATAL validation.
-            // Emit a warning instead so the agent knows it's in local-only mode.
             const lastUser = userMessages[userMessages.length - 1];
             if (lastUser?.parts?.length) {
               lastUser.parts.push({
@@ -1136,52 +1065,6 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
                 type: "text",
                 text: `<LOCAL_MODE>\n⚠️ Operating in submodule-local mode — parent repo has ${parentRemoteCount} remote(s).\n\n- github.identity_source: submodule\n- All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory — not the project root.\n- The parent repo has ZERO remotes by design.\n- github.owner and github.repo are from the submodule remote for API routing ONLY\n- GitHub MCP calls route to the submodule's repository\n- Local git operations (branch, commit, stash) on the parent repo are permitted\n- Do NOT push from the parent repo — there is no remote to push to.\n- Do NOT add remotes to the parent repo.\n</LOCAL_MODE>`
               });
-            }
-          } else if (!knownPlatform || !knownOwner || !knownRepo) {
-            const missing = [
-              !knownPlatform ? "github.platform" : null,
-              !knownOwner ? "github.owner" : null,
-              !knownRepo ? "github.repo" : null,
-            ].filter(Boolean).join(", ");
-
-            const lastUser = userMessages[userMessages.length - 1];
-            if (lastUser?.parts?.length) {
-              lastUser.parts.push({
-                type: "text",
-                text: `<IDENTITY_VALIDATION_FAILURE>\n⚠️ FATAL: Session identity values are MISSING. HALT all operations immediately.\n\nMissing values: ${missing}\n\nIdentity validation cannot proceed without these values. Do NOT infer identity from repository names, file paths, or environment variables. Resolve the missing identity values before continuing any operations.\n</IDENTITY_VALIDATION_FAILURE>`
-              });
-            }
-          } else {
-            const assistantMessages = output.messages.filter(m => m.info?.role === "assistant");
-            if (assistantMessages.length > 0) {
-              const firstAssistant = assistantMessages[0];
-              const assistantText = firstAssistant.parts
-                ?.filter(p => p.type === "text" && p.text)
-                .map(p => p.text)
-                .join(" ") || "";
-
-              const echoMatch = assistantText.match(/Platform:\s*(\S+),\s*Org:\s*(\S+),\s*Repo:\s*(\S+)/);
-
-              const lastUser = userMessages[userMessages.length - 1];
-
-              if (!echoMatch) {
-                if (lastUser?.parts?.length) {
-                  lastUser.parts.push({
-                    type: "text",
-                    text: `<IDENTITY_VALIDATION_FAILURE>\n⚠️ FATAL: Your first message did not contain a valid identity echo. You MUST echo your platform identity before proceeding with ANY operations.\n\nExpected: Platform: ${knownPlatform}, Org: ${knownOwner}, Repo: ${knownRepo}\n\nHALT all operations. Echo the correct identity values above before continuing.\n</IDENTITY_VALIDATION_FAILURE>`
-                  });
-                }
-              } else {
-                const [, echoPlatform, echoOwner, echoRepo] = echoMatch;
-                if (echoPlatform !== knownPlatform || echoOwner !== knownOwner || echoRepo !== knownRepo) {
-                  if (lastUser?.parts?.length) {
-                    lastUser.parts.push({
-                      type: "text",
-                      text: `<IDENTITY_VALIDATION_FAILURE>\n⚠️ FATAL: Identity echo mismatch detected!\n\nYour echo: Platform: ${echoPlatform}, Org: ${echoOwner}, Repo: ${echoRepo}\nExpected: Platform: ${knownPlatform}, Org: ${knownOwner}, Repo: ${knownRepo}\n\nHALT all operations. These values do NOT match. Use ONLY the expected values above. Do NOT infer identity from repository names, file paths, or environment variables.\n</IDENTITY_VALIDATION_FAILURE>`
-                    });
-                  }
-                }
-              }
             }
           }
         }
