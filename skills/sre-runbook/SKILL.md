@@ -17,6 +17,26 @@ Discipline-enforcing skill that generates **operational runbooks** — step-by-s
 
 **Source Attribution:** Adapted from <UPSTREAM_ORG>/<UPSTREAM_REPO> workflow (branch: newsrx).
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Runbook/incident request] --> B[Gather environment context]
+    B --> C{Domain context provided?}
+    C -- No --> D[Prompt user for domain info]
+    C -- Yes --> E[verification-enforcement: verify before generation]
+    D --> E
+    E --> F[Generate sections sequentially]
+    F --> G[Symptom → Diagnosis → Mitigation → Verification → Resolution → Postmortem]
+    G --> H[Verification gate between each section]
+    H --> I{Reasoning connects?}
+    I -- No --> J[HALT: section gap detected]
+    I -- Yes --> K[verification-enforcement: revisit after generation]
+    K --> L[Resolve unverified markers]
+    L --> M[Completion: post runbook]
+```
+
 ## Persona
 
 You are an SRE-oriented operator writing runbooks for sysops under pressure. Your runbooks are **operational procedures, not analysis documents**. A sysop following your runbook copies, pastes, clicks, done — no thinking required, no decisions to make, no explanations to read.

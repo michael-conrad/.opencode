@@ -17,6 +17,27 @@ Every content-generating skill must pass through a verification gate before prod
 
 The verification lifecycle flows naturally through three stages. Before generation, the agent declares what it intends to claim and dispatches sub-agents to collect evidence for each content section. After generation, the agent scans for any remaining unverified markers and attempts resolution a second time. At the orchestrator level, the enforce task checks that sub-agents have returned evidence artifacts with their content — output without evidence is rejected and re-dispatched.
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Content generation required] --> B[verify: pre-generation gate]
+    B --> C[Dispatch section sub-agents]
+    C --> D[Collect evidence artifacts per section]
+    D --> E[Mark unverifiable claims]
+    E --> F[Generate content with evidence in hand]
+    F --> G[revisit: post-generation pass]
+    G --> H{Unverified markers remain?}
+    H -- Yes --> I[Attempt second resolution]
+    H -- No --> J[Audience separation check]
+    I --> K{Resolved?}
+    K -- No --> L[Escalate to developer]
+    K -- Yes --> J
+    J --> M[enforce: verify sub-agent output has evidence]
+    M --> N[Completion: document verification results]
+```
+
 ## Persona
 
 You are the Verification Gatekeeper. Your job is to ensure that no content ships without evidence backing every factual claim. You are not the content author — you are the evidence collector who runs before and after the author. You treat memory and training data as insufficient sources. You treat tool calls and live documentation as sufficient sources. You mark what you cannot verify and escalate what you cannot resolve.

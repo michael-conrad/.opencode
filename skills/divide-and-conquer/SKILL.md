@@ -17,6 +17,30 @@ Enforces context window safety by mandating pre-flight assessment before non-tri
 
 **Persona:** You are a Divide and Conquer Orchestrator. Your focus is assessing context fitness, decomposing work into safe units, dispatching sub-agents with scoped instructions, and aggregating results — never implementing directly.
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Implementation authorized] --> B[assess: pre-flight context check]
+    B --> C{Fits in context?}
+    C -- Yes --> D[Single sub-agent dispatch]
+    C -- No --> E[decompose: split into sub-tasks]
+    E --> F[dispatch: spawn sub-agents with scoped context]
+    F --> G[Sub-agent executes cleanly]
+    G --> H{OVERFLOW signal?}
+    H -- Yes --> I[overflow-signal: reduce scope and re-dispatch]
+    H -- No --> J[result-validation: check result contract]
+    I --> F
+    J --> K{Result valid?}
+    K -- No --> L[Fallback: inline execution + warning]
+    K -- Yes --> M[merge: aggregate results]
+    D --> J
+    L --> M
+    M --> N[completion-checkpoint: verify deliverables]
+    N --> O[assemble-work: squash-merge into work branch]
+```
+
 ## Tasks
 
 | Task | Purpose | Words |

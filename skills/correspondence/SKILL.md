@@ -21,6 +21,26 @@ Three distinct failures occur when drafting email correspondence without this sk
 
 3. **No format template.** Nothing extends the Summary/Outcome/byline format to email correspondence. The agent guesses at email format and guesses wrong.
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Draft correspondence request] --> B[Classify audience tier]
+    B --> C[verification-enforcement: verify before drafting]
+    C --> D[Collect evidence for claims]
+    D --> E[Draft: multipart/alternative template]
+    E --> F[Audience separation filter]
+    F --> G{Stakeholder tier?}
+    G -- Yes --> H[Remove internal artifacts]
+    G -- No --> I[Keep operator-level detail]
+    H --> J[verification-enforcement: revisit after drafting]
+    I --> J
+    J --> K{Unverified markers?}
+    K -- Yes --> L[Resolve or escalate to developer]
+    K -- No --> M[Completion: post summary]
+```
+
 ## Tasks
 
 | Task | Purpose | Words |

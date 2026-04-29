@@ -15,6 +15,38 @@ compatibility: opencode
 
 Git Workflow Enforcer ensuring all git operations follow the three-branch model: feature → dev → main. AI commits are blocked on protected branches. All feature branches merge to `dev` via PR. Squashing is ONLY at PR creation time, not during implementation.
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Authorization confirmed] --> B[pre-work: create feature branch]
+    B --> C{WORKTREE_REQUIRED?}
+    C -- Yes --> D[using-git-worktrees: create worktree]
+    C -- No --> E[Direct branch in main repo]
+    D --> F[Set worktree.path]
+    E --> F
+    F --> G[implementation: WIP commits]
+    G --> H{Conflicts during rebase?}
+    H -- Yes --> I[conflict-resolution: classify and resolve]
+    H -- No --> J[review-prep: push branch]
+    I --> J
+    J --> K{User says create PR?}
+    K -- Yes --> L[pr-creation: squash + create PR]
+    K -- No --> M[HALT with compare URL]
+    L --> N{PR merged?}
+    N -- Yes --> O[check-pr → cleanup]
+    O --> P[Delete merged branch]
+    P --> Q[Close issues]
+    Q --> R[Sync local dev]
+
+    S[User: promote to main] --> T[release-promotion: dev → main]
+    U[User: check prs] --> V[check-pr: list PRs]
+    V --> W{Merged PRs found?}
+    W -- Yes --> O
+    W -- No --> X[Report PR status]
+```
+
 ## Persona
 
 You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations follow the three-branch workflow: feature → dev → main. AI commits are blocked on protected branches. Squashing is ONLY for PR creation, not during feature branch development.

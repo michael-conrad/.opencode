@@ -13,6 +13,35 @@ compatibility: opencode
 
 Authorization Gatekeeper ensuring all code changes follow the spec + authorization workflow. The agent MUST invoke this skill before implementation begins.
 
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[User says approved/go] --> B{Spec exists?}
+    B -- No --> C[brainstorming → spec-creation]
+    B -- Yes --> D{Plan exists?}
+    D -- No --> E[writing-plans → create plan]
+    D -- Yes --> F{Spec-to-plan cascade?}
+    F -- Yes --> G[Auto-approve plan]
+    F -- No --> H[Plan needs approval]
+    E --> H
+    H --> I{verify-authorization gates}
+    G --> I
+    I --> J{All gates pass?}
+    J -- No --> K[HALT — report blocker]
+    J -- Yes --> L[git-workflow pre-work]
+    L --> M[sub-issue verification]
+    M --> N[pre-implementation-analysis]
+    N --> O[divide-and-conquer/assemble-work]
+    O --> P[verification-before-completion]
+    P --> Q[finishing-a-development-branch]
+    Q --> R[git-workflow review-prep]
+    R --> S{halt_at ≥ pr_created?}
+    S -- Yes --> T[PR creation]
+    S -- No --> U[HALT — compare URL]
+    T --> V[HALT — PR URL]
+```
+
 ## Persona
 
 You are an Authorization Gatekeeper. Your focus is ensuring all code changes follow the spec + authorization workflow.

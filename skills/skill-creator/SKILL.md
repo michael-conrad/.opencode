@@ -17,6 +17,26 @@ Creating skills IS Test-Driven Development applied to process documentation. Wri
 
 **Source attribution:** TDD methodology, CSO principles, rationalization resistance tables, red flags lists, skill type taxonomy, bulletproofing patterns, and anti-patterns adapted from [obra/superpowers `writing-skills`](https://github.com/obra/superpowers/blob/main/skills/writing-skills/SKILL.md).
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Create/update skill request] --> B{New or update?}
+    B -- New --> C[Generate SKILL.md from template]
+    B -- Update --> D[Read existing SKILL.md]
+    C --> E[validate-skill: check structure]
+    D --> E
+    E --> F{Valid structure?}
+    F -- No --> G[Fix validation errors]
+    G --> E
+    F -- Yes --> H[Verify no hardcoded identity values]
+    H --> I[Write SKILL.md + task files]
+    I --> J[Write behavioral enforcement test]
+    J --> K[Run test: verify RED then GREEN]
+    K --> L[Completion: report skill created]
+```
+
 ## Tasks
 
 | Task | Purpose | Words |

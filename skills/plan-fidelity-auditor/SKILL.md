@@ -19,6 +19,24 @@ Plan Fidelity Auditor generates a clean-room plan from the spec's problem statem
 - Invoked via orchestrator: Not called directly
 - Recommends brainstorming: When significant gaps emerge, recommends deeper exploration
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Plan created from spec] --> B[Clean-room audit: spec vs plan]
+    B --> C[Compare plan items against spec SCs]
+    C --> D{Every SC covered?}
+    D -- No --> E[Report MISSING-SC finding]
+    D -- Yes --> F{Plan adds unspecd items?}
+    F -- Yes --> G[Report SCOPE-CREEP finding]
+    F -- No --> H[Report faithful]
+    E --> I[Classify findings: auto-fix/conditional/flag]
+    G --> I
+    H --> I
+    I --> J[Return audit result]
+```
+
 ## Tasks
 
 | Task | Purpose | Words |

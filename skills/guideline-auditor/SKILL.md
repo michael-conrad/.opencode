@@ -17,6 +17,23 @@ compatibility: opencode
 |---|---|---|---|---|
 | `audit` | When guideline audit is invoked | Guideline file paths, audit scope | Implementation context, agent memory | NO |
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Invoke guideline-auditor] --> B[Scan guideline files]
+    B --> C[Check for ambiguous rules]
+    C --> D[Detect conflicting rules]
+    D --> E[Verify LLM compliance]
+    E --> F{Issues found?}
+    F -- Yes --> G[Classify: ambiguity, conflict, non-compliance]
+    F -- No --> H[Report clean]
+    G --> I[Generate findings report]
+    I --> J[Post report to GitHub Issue]
+    H --> J
+```
+
 ## Mandatory Invocation
 
 **MANDATORY: The agent MUST invoke `guideline-auditor` when auditing guideline files. Skipping this invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations.** Exempt: no guideline audit requested.

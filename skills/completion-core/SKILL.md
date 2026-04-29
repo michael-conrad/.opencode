@@ -11,6 +11,28 @@ compatibility: opencode
 
 Reference this file from per-skill `tasks/completion.md` files for common completion operations.
 
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Skill halts or completes] --> B[1. Push branch idempotent]
+    B --> C{Branch has unpushed commits?}
+    C -- Yes --> D[git push -u origin branch]
+    C -- No --> E[Skip push]
+    D --> F[2. Generate URL]
+    E --> F
+    F --> G{Workflow type?}
+    G -- git push --> H[Compare URL from session-init values]
+    G -- creation --> I[Action URL from API response html_url]
+    H --> J[3. Post status comment]
+    I --> J
+    J --> K{Comment substantive?}
+    K -- Yes --> L[github_add_issue_comment]
+    K -- No --> M[Skip — chat only]
+    L --> N[4. Report executive summary in chat]
+    M --> N
+```
+
 ## Common Completion Operations
 
 ### 1. Push Branch (Idempotent)

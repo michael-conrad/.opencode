@@ -17,6 +17,26 @@ Plan execution skill that dispatches to `divide-and-conquer/assemble-work` for i
 
 **There is no single-issue bypass.** Single issue = work of one = one sub-agent.
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Plan approved] --> B[Read plan STATUS and progress]
+    B --> C{RED tests exist?}
+    C -- No --> D[HALT: write enforcement tests first]
+    C -- Yes --> E[dispatch to divide-and-conquer/assemble-work]
+    E --> F[Sub-agents execute TDD cycle]
+    F --> G[RED: enforcement test]
+    G --> H[GREEN: implementation]
+    H --> I[REFACTOR: cleanup]
+    I --> J[COMMIT: test + change together]
+    J --> K[Maintain phase_progress tracking]
+    K --> L{All phases complete?}
+    L -- No --> F
+    L -- Yes --> M[Yield to review-prep pipeline]
+```
+
 ## Received Context
 
 When dispatched from `approval-gate` after plan approval, the following context is available:

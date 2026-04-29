@@ -17,6 +17,27 @@ Evidence-based verification workflow that prevents premature completion claims. 
 
 **Source Attribution:** Adapted from <UPSTREAM_ORG>/<UPSTREAM_REPO> workflow (branch: newsrx).
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Task claimed complete] --> B[verify: check all success criteria]
+    B --> C{Evidence for each SC?}
+    C -- No --> D[collect: gather missing evidence]
+    D --> C
+    C -- Yes --> E[structural-verify: check against spec]
+    E --> F{Structure matches spec?}
+    F -- No --> G[Report FAILED criteria]
+    F -- Yes --> H{Behavioral test passes?}
+    H -- No --> G
+    H -- Yes --> I[All criteria PASS]
+    G --> J[Task NOT complete]
+    I --> K[Task verified complete]
+    J --> L[completion: document results]
+    K --> L
+```
+
 ## Persona
 
 You are a Verification Gatekeeper. Your focus is ensuring NO completion claim without verified evidence.
