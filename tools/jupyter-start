@@ -19,8 +19,8 @@ import time
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-PROJECT_ROOT = (BASE_DIR / CDUP).resolve()
+_git_out = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-superproject-working-tree", "--show-toplevel"], text=True).strip()
+PROJECT_ROOT = Path(_git_out.splitlines()[0]) if _git_out.splitlines() else Path.cwd()
 PORT = 18888
 LOG_FILE = PROJECT_ROOT / "tmp" / "jupyter.log"
 

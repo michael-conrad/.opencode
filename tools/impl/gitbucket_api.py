@@ -8,6 +8,7 @@ import argparse
 import base64
 import json
 import os
+import subprocess
 import platform
 import sys
 import urllib.error
@@ -118,14 +119,13 @@ password = ""
 
 def _load_from_env_file(env_path: Path | None = None) -> dict[str, str]:
     if env_path is None:
-        current = Path.cwd()
-        while current != current.parent:
-            if (current / ".git").exists():
-                env_path = current / ".env"
-                break
-            current = current.parent
-        else:
-            env_path = Path.cwd() / ".env"
+        _base = Path(__file__).resolve().parent
+        _git_out = subprocess.check_output(
+            ["git", "-C", str(_base), "rev-parse", "--show-superproject-working-tree", "--show-toplevel"],
+            text=True, stderr=subprocess.DEVNULL,
+        ).strip()
+        _root = _git_out.splitlines()[0] if _git_out.splitlines() else str(Path.cwd())
+        env_path = Path(_root) / ".env"
     if not env_path.exists():
         return {}
     credentials = {}

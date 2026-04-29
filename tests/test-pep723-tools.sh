@@ -146,7 +146,7 @@ check_no_depth_counting_root_resolution() {
     local depth_matches
     depth_matches=$(grep -rn 'Path(__file__).resolve().parent.parent' .opencode/tools/ 2>/dev/null || true)
     if [ -n "$depth_matches" ]; then
-        echo "FAIL: Depth-counting Path.root resolution found (use git rev-parse --show-cdup per 210-scripting.md):"
+        echo "FAIL: Depth-counting Path.root resolution found (use git rev-parse --show-superproject-working-tree --show-toplevel per 210-scripting.md):"
         echo "$depth_matches"
         FAIL=$((FAIL + 1))
     else
@@ -156,7 +156,7 @@ check_no_depth_counting_root_resolution() {
     local dirname_matches
     dirname_matches=$(grep -rn 'os.path.dirname(os.path.dirname' .opencode/tools/ 2>/dev/null || true)
     if [ -n "$dirname_matches" ]; then
-        echo "FAIL: Depth-counting os.path.dirname root resolution found (use git rev-parse --show-cdup per 210-scripting.md):"
+        echo "FAIL: Depth-counting os.path.dirname root resolution found (use git rev-parse --show-superproject-working-tree --show-toplevel per 210-scripting.md):"
         echo "$dirname_matches"
         FAIL=$((FAIL + 1))
     else
@@ -168,8 +168,8 @@ check_no_depth_counting_root_resolution() {
     for sf in $script_files; do
         [ -f "$sf" ] || continue
         if grep -q 'Path(__file__).resolve().parent' "$sf"; then
-            if ! grep -q 'rev-parse.*--show-cdup' "$sf"; then
-                echo "FAIL: $sf uses Path(__file__).resolve().parent without git rev-parse --show-cdup"
+            if ! grep -qE 'show-superproject-working-tree|show-toplevel' "$sf"; then
+                echo "FAIL: $sf uses Path(__file__).resolve().parent without git rev-parse --show-superproject-working-tree --show-toplevel"
                 FAIL=$((FAIL + 1))
             else
                 PASS=$((PASS + 1))
@@ -182,8 +182,8 @@ check_no_depth_counting_root_resolution() {
     for es in $entry_scripts; do
         [ -f "$es" ] || continue
         if grep -q 'Path(__file__).resolve().parent' "$es"; then
-            if ! grep -q 'rev-parse.*--show-cdup' "$es"; then
-                echo "FAIL: $es uses Path(__file__).resolve().parent without git rev-parse --show-cdup"
+            if ! grep -qE 'show-superproject-working-tree|show-toplevel' "$es"; then
+                echo "FAIL: $es uses Path(__file__).resolve().parent without git rev-parse --show-superproject-working-tree --show-toplevel"
                 FAIL=$((FAIL + 1))
             else
                 PASS=$((PASS + 1))
@@ -196,8 +196,8 @@ check_no_depth_counting_root_resolution() {
     for is in $impl_scripts; do
         [ -f "$is" ] || continue
         if grep -q 'Path(__file__).resolve().parent' "$is"; then
-            if ! grep -q 'rev-parse.*--show-cdup' "$is"; then
-                echo "FAIL: $is uses Path(__file__).resolve().parent without git rev-parse --show-cdup"
+            if ! grep -qE 'show-superproject-working-tree|show-toplevel' "$is"; then
+                echo "FAIL: $is uses Path(__file__).resolve().parent without git rev-parse --show-superproject-working-tree --show-toplevel"
                 FAIL=$((FAIL + 1))
             else
                 PASS=$((PASS + 1))
