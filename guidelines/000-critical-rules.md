@@ -620,6 +620,41 @@ When authorization scope includes implementation (`for_implementation`, `for_cod
 
 **AUTHORITY: Bug #1231, #1232, #1233 — root cause is the same: agent spends all context on process steps and halts before producing deliverables. The implementation-first gate ensures the agent produces at least one tangible modification before it is allowed to report completion.**
 
+## Critical Violation: Implementation-First Gate at Authorization Time — Post-Auth Research Spiral
+
+**⚠️ Entering a read-only research spiral after receiving authorization — performing unlimited tool calls that produce zero file modifications — is a CRITICAL GUIDELINE VIOLATION.** This extends the completion-time implementation-first gate to cover the authorization-to-implementation gap.
+
+The completion-time gate (above) catches the agent halting without deliverables. But the same root cause — context spent on process overhead instead of implementation — also manifests as an unbounded research spiral between authorization receipt and the first file modification. The agent receives "approved" and then makes 5, 10, or 20+ read-only tool calls (re-fetching issues, re-reading specs, parsing JSON sub-agent dispatches for data already in context) before producing any deliverable.
+
+**The authorization-time gate closes this gap:** after explicit authorization is received, the agent MUST transition to implementation dispatch within a bounded number of tool calls. Unbounded metadata gathering between authorization and the first file modification is prohibited.
+
+- 🚫 FORBIDDEN: Making more than 3 tool calls between `verify-authorization` returning `authorized` and invoking `git-workflow --task pre-work`
+- 🚫 FORBIDDEN: Dispatching sub-agents to parse or re-fetch data already available in the current context after authorization
+- 🚫 FORBIDDEN: Re-reading issues, specs, or plans that were already read during verification after authorization is received
+- 🚫 FORBIDDEN: Using `task(subagent_type="general")` for JSON parsing, metadata extraction, or any read-only operation on data already in context after authorization
+- ✅ REQUIRED: After `verify-authorization` returns `authorized`, proceed to `git-workflow --task pre-work` within at most 3 tool calls
+- ✅ REQUIRED: If more than 3 tool calls occur without reaching `pre-work`, HALT and report the delay as a critical violation — include the tool call sequence in the report
+- ✅ REQUIRED: Sub-agents after authorization are for implementation dispatch ONLY — file modifications, code generation, and heavy analysis that produces deliverables
+
+```yaml+symbolic
+  - id: critical-rules-045
+    title: "Implementation-First Gate at Authorization Time — post-auth research spiral"
+    conditions:
+      all:
+        - "authorization_received == true"
+        - "tool_calls_since_authorization > 3"
+        - "first_file_modification_not_reached == true"
+    actions:
+      - HALT
+      - REPORT_DELAY_WITH_TOOL_CALL_SEQUENCE
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate, divide-and-conquer]
+    source: "000-critical-rules.md §Implementation-First Gate at Authorization Time"
+```
+
+**See `approval-gate/tasks/verify-authorization/auto-dispatch.md` §Post-Authorization Dispatch Window for the operational enforcement of the 3-tool-call bound. See `060-tool-usage.md` §Sub-Agent Dispatch Restriction After Authorization for the sub-agent restriction. AUTHORITY: Spec #171**
+
 ## Critical Violation: Single Concern Principle — Every Artifact Addresses Exactly One Concern
 
 **⚠️ Every artifact the agent produces — commits, PRs, issues, specs, plans, code changes, comments, sub-agents — must address exactly one concern. Violating this is a CRITICAL GUIDELINE VIOLATION.**
