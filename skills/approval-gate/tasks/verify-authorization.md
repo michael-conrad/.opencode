@@ -99,6 +99,35 @@ When `verify-authorization` is dispatched as a sub-agent and returns empty or wh
 - Closed-issue verification: see `enforcement/closed-issue-verification.md`
 - Sub-issue graph traversal: see `enforcement/sub-issue-graph-traversal.md`
 
+## Post-Authorization Dispatch Window (MANDATORY)
+
+**After `verify-authorization` returns `authorized`, the agent MUST invoke `git-workflow --task pre-work` within at most 3 subsequent tool calls.** This bound prevents the post-authorization research spiral documented in Spec #171.
+
+### 3-Tool-Call Bound
+
+| Tool Call Position After Authorization | Permitted Actions |
+|----------------------------------------|-------------------|
+| 1st | `git-workflow --task pre-work` (target), or contextual transition calls |
+| 2nd | `git-workflow --task pre-work` (target), or contextual transition calls |
+| 3rd | `git-workflow --task pre-work` (target), or contextual transition calls |
+| >3rd without reaching `pre-work` | **CRITICAL VIOLATION** — HALT and report |
+
+### Self-Correction Protocol
+
+If more than 3 tool calls occur after `verify-authorization` returns `authorized` without the agent reaching `git-workflow --task pre-work`:
+
+1. HALT immediately
+2. Report the delay as a critical violation in chat output
+3. Include the tool call sequence in the report (tool names and parameters)
+4. Do NOT continue with any further read-only operations
+5. State explicitly: "Post-authorization dispatch window exceeded — 3-tool-call bound violated"
+
+### Rationale
+
+The research spiral occurs because the agent re-fetches issues, re-reads specs, dispatches sub-agents for JSON parsing, and performs other read-only operations that consume context budget without producing file modifications. The 3-tool-call bound is generous enough to allow legitimate transition calls (e.g., `pre-implementation-analysis` for multi-issue sets) while preventing unbounded metadata gathering.
+
+**See `000-critical-rules.md` §"Implementation-First Gate at Authorization Time" for the top-level critical violation. See `060-tool-usage.md` §"Sub-Agent Dispatch Restriction After Authorization" for the sub-agent restriction.**
+
 ## Result Contract
 
 ```yaml
