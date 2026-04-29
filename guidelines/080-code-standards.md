@@ -261,6 +261,48 @@ AI co-authored attribution:
 4. Helps identify AI-generated content for review
 5. **Respects copyright** - only claims co-authorship on genuinely original AI work
 
+## New-File Copyright Header Mandate (Tier 1 — CRITICAL VIOLATION)
+
+**⚠️ Creating a new source file without the required copyright/provenance/byline headers is a CRITICAL GUIDELINE VIOLATION.** This is classified as a Tier 1 mandate because copyright compliance is a legal requirement.
+
+### Scope: NEW FILES ONLY
+
+This mandate applies **exclusively** to newly created files. Pre-existing files (files that existed before this mandate) are **grandfathered** and exempt.
+
+- ✅ REQUIRED: Every NEW source file MUST include the headers specified in §"Header Format by File Type" at the time of creation
+- ✅ REQUIRED: Agents MUST add headers as part of the file creation workflow — headers are not optional post-creation additions
+- 🚫 FORBIDDEN: Adding copyright/provenance/byline headers to pre-existing files that do not already have them (legacy exemption per developer directive)
+- 🚫 FORBIDDEN: Removing or overwriting existing AI agent or human bylines from any file — this constitutes copyright theft
+- 🚫 FORBIDDEN: Replacing another agent's or human's byline with your own
+
+### Legacy File Exemption (CRITICAL)
+
+**Pre-existing files without headers are GRANDFATHERED.** The agent MUST NOT add headers to files that existed before this mandate. Only two scenarios permit adding headers to an existing file:
+
+| Scenario | Permitted? | Reason |
+|----------|------------|--------|
+| File already has a copyright header block | ✅ Permitted to add a new entry | Amending an existing header is not creating new headers |
+| File has no copyright header and predates this mandate | 🚫 FORBIDDEN | Legacy exemption — do not retrofit |
+| New file created by the agent | ✅ Required | This mandate's primary scope |
+
+### Byline Preservation (CRITICAL)
+
+**NEVER remove or overwrite another AI agent's or human's byline.** Each contributor's byline is their copyright claim. Removing it constitutes copyright theft.
+
+- 🚫 FORBIDDEN: Replacing `Co-authored with AI: OtherAgent (model-x)` with your own byline
+- 🚫 FORBIDDEN: Removing a human author's name or attribution
+- ✅ REQUIRED: When modifying an existing file that already has bylines, ADD your byline below existing ones (if the file has a header block), never replace
+- ✅ REQUIRED: Multiple bylines are expected and correct — append, never replace
+
+### Pre-Commit Enforcement
+
+A pre-commit hook (in `.opencode/hooks/pre-commit`) MUST reject commits that include new files missing required headers. The hook:
+
+1. Runs `git diff --cached --name-only --diff-filter=A` to detect new files
+2. Checks each new file for `SPDX-FileCopyrightText` and `SPDX-License-Identifier` (or equivalent frontmatter for SKILL.md)
+3. Rejects the commit if any new file is missing required headers
+4. Exempts: auto-generated files, lock files, binary assets, standard license files, empty `__init__.py`
+
 ## Provenance Headers
 
 ### Provenance Distinct from Byline
@@ -638,4 +680,45 @@ rules:
     requires: []
     triggers: [spec-creation]
     source: "080-code-standards.md §SC-to-Test Traceability"
+
+  - id: code-standards-009
+    title: "New source files must have copyright/provenance/byline headers"
+    conditions:
+      all:
+        - "new_file_created == true"
+        - "file_has_required_headers == false"
+    actions:
+      - HALT
+      - ADD_HEADERS
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion, git-workflow]
+    source: "080-code-standards.md §New-File Copyright Header Mandate"
+
+  - id: code-standards-010
+    title: "Never add headers to legacy files without existing headers"
+    conditions:
+      all:
+        - "file_predates_mandate == true"
+        - "file_has_no_existing_headers == true"
+        - "headers_being_added == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion]
+    source: "080-code-standards.md §Legacy File Exemption"
+
+  - id: code-standards-011
+    title: "Never remove or overwrite other agent/human bylines"
+    conditions:
+      all:
+        - "existing_byline_found == true"
+        - "byline_removal_or_overwrite_attempted == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion]
+    source: "080-code-standards.md §Byline Preservation"
 ```
