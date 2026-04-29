@@ -2412,7 +2412,7 @@ The commit-per-issue invariant requires that single-issue branches produce exact
     triggers: [git-workflow]
     source: "000-critical-rules.md §Listing Merged PRs Without Invoking Cleanup"
 
-  - id: critical-rules-042
+  - id: critical-rules-046
     title: "Skipping behavioral tests for behavior changes"
     conditions:
       all:
