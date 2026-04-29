@@ -61,9 +61,19 @@ import re
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 GIT_TIMEOUT = 10
 NETWORK_TIMEOUT = 5
+
+
+def _find_project_root() -> Path:
+    current = Path(__file__).resolve().parent
+    while current != current.parent:
+        if (current / ".opencode").is_dir():
+            return current
+        current = current.parent
+    raise RuntimeError("Could not find project root (no .opencode/ directory found)")
 
 
 def run_git_command(args: list[str]) -> str | None:
@@ -187,14 +197,7 @@ def parse_gitbucket_url(
 def _read_gitbucket_url_from_env() -> str | None:
     """Read GITBUCKET_HTML_URL (preferred) or GITBUCKET_URL (legacy) from .env file."""
     try:
-        _base_dir = os.path.dirname(os.path.abspath(__file__))
-        _git_out = subprocess.check_output(
-            ["git", "-C", _base_dir, "rev-parse", "--show-superproject-working-tree", "--show-toplevel"],
-            text=True,
-            stdin=subprocess.DEVNULL,
-            timeout=NETWORK_TIMEOUT,
-        ).strip()
-        _root = _git_out.splitlines()[0] if _git_out.splitlines() else os.getcwd()
+        _root = str(_find_project_root())
         env_path = os.path.join(_root, ".env")
         if os.path.exists(env_path):
             html_url = None
@@ -881,15 +884,7 @@ def main() -> int:
             print(f"gitbucket.ssh_url: {ssh_url}")
         has_credentials = False
         try:
-            _base_dir = os.path.dirname(os.path.abspath(__file__))
-            _git_out = subprocess.check_output(
-                ["git", "-C", _base_dir, "rev-parse", "--show-superproject-working-tree", "--show-toplevel"],
-                text=True,
-                stdin=subprocess.DEVNULL,
-                timeout=NETWORK_TIMEOUT,
-            ).strip()
-            _root = _git_out.splitlines()[0] if _git_out.splitlines() else os.getcwd()
-            env_path = os.path.join(_root, ".env")
+            env_path = os.path.join(str(_find_project_root()), ".env")
             if os.path.exists(env_path):
                 with open(env_path) as f:
                     content = f.read()

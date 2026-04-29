@@ -23,6 +23,7 @@ import re
 import subprocess
 import sys
 from datetime import datetime
+from pathlib import Path
 
 GIT_TIMEOUT = 10
 
@@ -55,12 +56,11 @@ def get_current_branch() -> str | None:
 
 
 def get_root_dir() -> str | None:
-    result = run_git(["rev-parse", "--show-superproject-working-tree", "--show-toplevel"])
-    if result:
-        for line in result.splitlines():
-            line = line.strip()
-            if line:
-                return line
+    current = Path(__file__).resolve().parent
+    while current != current.parent:
+        if (current / ".opencode").is_dir():
+            return str(current)
+        current = current.parent
     return None
 
 
