@@ -164,6 +164,285 @@ ENDIF
 
 Violation: Direct `git push` skips verification that the branch has committed changes and is up to date.
 
+
+## MANDATORY TASKS
+
+- [ ] MANDATORY: Invoke `git-workflow --task pre-work` before ANY implementation — skipping is a CRITICAL GUIDELINE VIOLATION (per Overview, per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations, exempt: no implementation performed)
+- [ ] MANDATORY: Invoke `git-workflow --task review-prep` after implementation completes — skipping is a CRITICAL GUIDELINE VIOLATION (per Operating Protocol §3, per `000-critical-rules.md` §Skipping review-prep After Implementation)
+- [ ] MANDATORY: Invoke `git-workflow --task cleanup` after EVERY confirmed PR merge — never skip post-merge cleanup (per Operating Protocol §9, per `000-critical-rules.md` §Skipping Post-Merge Cleanup)
+- [ ] MANDATORY: Never create worktree or branch directly — invoke `pre-work` task which handles authorization check, dev sync, and worktree creation (per Gate 3: Skill Dispatch Before Worktree/Branch Creation)
+- [ ] MANDATORY: Never call `github_create_pull_request` directly — invoke `finishing-a-development-branch --task checklist` → `review-prep` → `pr-creation` in order (per Gate 2: Skill Dispatch Before PR Creation, per `000-critical-rules.md` §Dispatch Chain Enforcement)
+- [ ] MANDATORY: Never call `git push` directly after implementation — invoke `review-prep` which handles push verification and compare URL generation (per Gate 4: Skill Dispatch Before Push)
+- [ ] MANDATORY: Feature branches target `dev` — compare URLs use `compare/dev...<branch-name>`, release PRs only use `compare/main...dev` (per Operating Protocol §6, per `000-critical-rules.md` §Wrong Compare URL Base Branch)
+- [ ] MANDATORY: Squash to single commit before any PR — verify commit count at enforcement gate per `000-critical-rules.md` §Un-Squashed PR
+- [ ] MANDATORY: NEVER merge PRs — human-only operation (per Operating Protocol §8, per `000-critical-rules.md` §Tier 1 Non-Yielding Mandates)
+- [ ] MANDATORY: Verify actual git/GitHub state via tool calls before acting on claims — never trust cached branch names, assumed merge status, or claimed worktree paths (per Live Verification Requirements, per `065-verification-honesty.md`)
+- [ ] MANDATORY: Extract post-creation URLs (PR, Issue) from API response `html_url` field — NEVER construct from template variables (per `000-critical-rules.md` §Fabricating URLs, per `git-workflow-url-001` rule)
+- [ ] MANDATORY: Construct pre-creation URLs (compare URL) from verified session-init values with character-match verification — `github.owner` and `github.repo` must match character-for-character (per `000-critical-rules.md` §Fabricating URLs, per `git-workflow-url-002` rule)
+- [ ] MANDATORY: Chat output at halt points MUST follow: summary → outcome → URL (if applicable) → byline — NEVER put URL before summary (per Operating Protocol §5, per `000-critical-rules.md` §Wrong Chat Output at Halt Points)
+- [ ] MANDATORY: Cleanup scope is limited to the merged PR ONLY — report additional cleanup opportunities but do NOT act without explicit authorization (per Operating Protocol §10, per `000-critical-rules.md` §Question-as-Authorization)
+- [ ] MANDATORY: Content-verify branches before deletion — `git diff --stat origin/dev...` + per-file IDENTICAL/SUPERSEDED/UNIQUE status; NEVER delete based on PR merge status alone (per `000-critical-rules.md` §Content Verification Before Branch Deletion)
+- [ ] MANDATORY: When `check prs` is requested, invoke `--task check-pr` which routes to cleanup if merged PRs with local branches exist — NEVER just list PRs (per `000-critical-rules.md` §Listing Merged PRs Without Invoking Cleanup)
+- [ ] MANDATORY: Invoke `--task completion` on workflow halt at ANY point — idempotent, safe to invoke multiple times (per COMPLETION GUARANTEE)
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-26T00:00:00Z"
+rules:
+  - id: git-workflow-provenance-001
+    title: "Submodule provenance tracking after push or promotion"
+    conditions:
+      all:
+        - "submodule_pushed == true OR submodule_promoted == true"
+    actions:
+      - INVOKE(git-workflow --task provenance)
+    conflicts_with: []
+    requires: []
+    triggers: [release-promotion, review-prep]
+    source: "git-workflow/SKILL.md Tasks table"
+  - id: git-workflow-url-001
+    title: "Post-creation URLs must be extracted from API response (NEVER constructed)"
+    conditions:
+      all:
+        - "resource_created_by_api == true"
+        - "url_source == template_construction"
+    actions:
+      - HALT
+      - EXTRACT_FROM_API_RESPONSE
+    conflicts_with: []
+    requires: []
+    triggers: [pr-creation, review-prep]
+    source: "git-workflow/SKILL.md §Fabricating URLs"
+  - id: git-workflow-url-002
+    title: "Pre-creation URLs must be constructed from verified session-init values with character-match"
+    conditions:
+      all:
+        - "resource_not_yet_created == true"
+        - "url_construction_needed == true"
+    actions:
+      - CONSTRUCT_FROM_SESSION_INIT
+      - CHARACTER_MATCH_VERIFY
+    conflicts_with: []
+    requires: []
+    triggers: [review-prep]
+    source: "git-workflow/SKILL.md §Fabricating URLs"
+  - id: git-workflow-chat-001
+    title: "Chat output format requires all 4 elements in order"
+    conditions:
+      all:
+        - "halt_point_reached == true"
+    actions:
+      - VERIFY(summary_exists && outcome_exists && url_if_applicable && byline_last)
+    conflicts_with: []
+    requires: []
+    triggers: [review-prep, pr-creation]
+    source: "git-workflow/SKILL.md §Chat Output Format"
+tasks:
+  - id: pre-work
+    skill: git-workflow
+    preconditions: ["authorization_verified == true"]
+    postconditions: ["worktree_path_is_set == true && feature_branch_exists == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Worktree Bypass"
+    source: "git-workflow/SKILL.md"
+  - id: implementation
+    skill: git-workflow
+    preconditions: ["worktree_path_is_set == true"]
+    postconditions: ["implementation_changes_committed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Uncommitted Changes After Implementation"
+    source: "git-workflow/SKILL.md"
+  - id: review-prep
+    skill: git-workflow
+    preconditions: ["implementation_complete == true", "verification_passed == true", "checklist_passed == true"]
+    postconditions: ["branch_pushed == true", "compare_url_generated == true", "chat_output_format_correct == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping review-prep After Implementation"
+    source: "git-workflow/SKILL.md"
+    evidence_artifacts:
+      - gate: url_sourcing_rule_1
+        verification: "pr_url == html_url_from_github_create_pull_request_response"
+        expected: "exact API response match"
+      - gate: url_sourcing_rule_2
+        verification: "compare_url contains github.owner AND github.repo from session-init"
+        expected: "character-for-character match"
+      - gate: chat_output_format
+        verification: "output contains summary, outcome, URL (if applicable), byline in order"
+        expected: "all 4 elements present and correctly ordered"
+  - id: pr-creation
+    skill: git-workflow
+    preconditions: ["compare_url_exists == true && halt_at >= pr_created"]
+    postconditions: ["pr_url_extracted_from_api == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Fabricating URLs"
+    source: "git-workflow/SKILL.md"
+  - id: cleanup
+    skill: git-workflow
+    preconditions: ["pr_merged == true"]
+    postconditions: ["branch_deleted == true && issues_closed == true && dev_synced == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Post-Merge Cleanup"
+    source: "git-workflow/SKILL.md"
+  - id: release-promotion
+    skill: git-workflow
+    preconditions: ["release_authorized == true"]
+    postconditions: ["release_pr_created == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Branch Protection"
+    source: "git-workflow/SKILL.md"
+  - id: check-pr
+    skill: git-workflow
+    preconditions: ["pr_url_exists == true"]
+    postconditions: ["pr_status_checked == true"]
+    mandatory: false
+    bypass_violation: ""
+    source: "git-workflow/SKILL.md"
+  - id: provenance
+    skill: git-workflow
+    preconditions: ["commit_sha_provided == true"]
+    postconditions: ["provenance_report_produced == true"]
+    mandatory: false
+    bypass_violation: ""
+    source: "git-workflow/SKILL.md"
+  - id: completion
+    skill: git-workflow
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "git-workflow/SKILL.md"
+  - id: submodule-tag-prework
+    skill: git-workflow
+    preconditions: [".gitmodules exists", "authorization_verified == true"]
+    postconditions: ["all_submodules_tagged == true", "all_tags_pushed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Submodule Pre-Work Tagging"
+    source: "git-workflow/SKILL.md"
+  - id: submodule-feature-push
+    skill: git-workflow
+    preconditions: [".gitmodules exists", "submodule_has_changes == true"]
+    postconditions: ["submodule_branch_pushed == true", "submodule_tip_tagged == true"]
+    mandatory: false
+    bypass_violation: ""
+    source: "git-workflow/SKILL.md"
+  - id: submodule-liveness-check
+    skill: git-workflow
+    preconditions: [".gitmodules exists", "pr_creation_authorized == true"]
+    postconditions: ["all_submodule_hashes_reachable == true", "tags_added_recorded == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping PR creation with unreachable submodule hashes"
+    source: "git-workflow/SKILL.md"
+  - id: submodule-dev-restore
+    skill: git-workflow
+    preconditions: ["pr_merged == true", ".gitmodules exists"]
+    postconditions: ["all_submodules_on_dev == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Leaving submodule on detached HEAD after cleanup"
+    source: "git-workflow/SKILL.md"
+decomposition:
+  - type: skill-task
+    skill: approval-gate
+    task: verify-authorization
+    mandatory: true
+    bypass_violation: "CRITICAL: Skill Bypass"
+  - type: skill-task
+    skill: verification-before-completion
+    task: verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification"
+  - type: skill-task
+    skill: finishing-a-development-branch
+    task: checklist
+    mandatory: true
+    bypass_violation: "CRITICAL: Uncommitted/Unpushed Changes After Implementation"
+  - type: command
+    skill: git
+    task: push
+    mandatory: true
+    bypass_violation: "CRITICAL: Fabricating URLs"
+  - type: command
+    skill: git
+    task: rev-parse --show-toplevel
+    mandatory: true
+    bypass_violation: "CRITICAL: Worktree Bypass"
+  - type: command
+    skill: git
+    task: branch --show-current
+    mandatory: true
+    bypass_violation: "CRITICAL: Branch First"
+  - type: sub-agent-dispatch
+    isolation: clean-room
+    must_receive: [task description, required git state, branch name, worktree.path, compare URL data]
+    must_not_receive: [implementation context, agent memory from prior phases, cached verification results]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Clean-Room Dispatch for Sub-Agents"
+state_machines:
+  - id: branch-lifecycle
+    states: [pre_work, implementing, review_ready, pr_created, merged, cleaned_up]
+    start_state: pre_work
+    decomposition_guard:
+      field: "decomposition.feature_branch_exists"
+      message: "CRITICAL: Cannot proceed without feature branch"
+    transitions:
+      - from: pre_work
+        to: implementing
+        guard: "feature_branch_exists == true && worktree_path_is_set == true"
+        action: BEGIN_IMPLEMENTATION
+      - from: implementing
+        to: review_ready
+        guard: "verification_passed == true && checklist_passed == true"
+        action: PUSH_AND_GENERATE_URL
+      - from: review_ready
+        to: pr_created
+        guard: "halt_at >= pr_created && explicit_pr_instruction == true"
+        action: CREATE_PR
+      - from: review_ready
+        to: merged
+        guard: "pr_merged_by_human == true"
+        action: INVOKE(cleanup)
+      - from: pr_created
+        to: merged
+        guard: "pr_merged_by_human == true"
+        action: INVOKE(cleanup)
+      - from: merged
+        to: cleaned_up
+        guard: "branch_deleted == true && issues_closed == true"
+        action: COMPLETE
+gates:
+  - id: not-on-protected-branch
+    condition: "current_branch != 'main' && current_branch != 'dev'"
+    on_fail: "HALT"
+    critical_violation: true
+  - id: feature-branch-exists
+    condition: "feature_branch_exists == true"
+    on_fail: "INVOKE(git-workflow/pre-work)"
+    critical_violation: true
+  - id: push-before-url
+    condition: "branch_pushed == true"
+    on_fail: "HALT and push first"
+    critical_violation: true
+  - id: merge-confirmed-before-cleanup
+    condition: "pr_merged == true"
+    on_fail: "HALT"
+    critical_violation: true
+evidence_artifacts:
+  - name: branch_state
+    type: tool_call
+    verification: "git branch --show-current confirms expected branch"
+  - name: push_confirmation
+    type: tool_call
+    verification: "git push output confirms branch pushed"
+  - name: compare_url
+    type: constructed_url
+    verification: "URL format matches dev...branch pattern"
+  - name: pr_merge_status
+    type: api_call
+    verification: "github_pull_request_read(method=get) merged_at != null"
+  - name: worktree_location
+    type: tool_call
+    verification: "git rev-parse --show-toplevel matches worktree.path"
+```
+
 ## Operating Protocol
 
 1. **MANDATORY invocation — no decision point:** `pre-work` is invoked after approval-gate passes; `review-prep` is invoked after implementation completes; `finishing-a-development-branch --task checklist` is invoked before PR creation; `pr-creation` is invoked when PR creation is authorized. The agent MUST invoke all of these at the appropriate time, never skip them, and never prompt for invocation. **Skipping any mandatory skill invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Skipping Mandatory Skill Invocation.**
@@ -711,281 +990,3 @@ When `git rev-parse --show-toplevel` returns a path that is a descendant of a pa
 - Related guidelines: `000-critical-rules.md`, `115-branch-naming.md`
 - Authorization classification: See `010-approval-gate.md` §Action Authorization Classification
 - Related skill tasks: `git-workflow --task pre-work` (branch creation), `git-workflow --task cleanup` (post-merge), `git-workflow --task pr-creation` (PR workflow), `git-workflow --task provenance` (submodule provenance tracking)
-
-## MANDATORY TASKS
-
-- [ ] MANDATORY: Invoke `git-workflow --task pre-work` before ANY implementation — skipping is a CRITICAL GUIDELINE VIOLATION (per Overview, per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations, exempt: no implementation performed)
-- [ ] MANDATORY: Invoke `git-workflow --task review-prep` after implementation completes — skipping is a CRITICAL GUIDELINE VIOLATION (per Operating Protocol §3, per `000-critical-rules.md` §Skipping review-prep After Implementation)
-- [ ] MANDATORY: Invoke `git-workflow --task cleanup` after EVERY confirmed PR merge — never skip post-merge cleanup (per Operating Protocol §9, per `000-critical-rules.md` §Skipping Post-Merge Cleanup)
-- [ ] MANDATORY: Never create worktree or branch directly — invoke `pre-work` task which handles authorization check, dev sync, and worktree creation (per Gate 3: Skill Dispatch Before Worktree/Branch Creation)
-- [ ] MANDATORY: Never call `github_create_pull_request` directly — invoke `finishing-a-development-branch --task checklist` → `review-prep` → `pr-creation` in order (per Gate 2: Skill Dispatch Before PR Creation, per `000-critical-rules.md` §Dispatch Chain Enforcement)
-- [ ] MANDATORY: Never call `git push` directly after implementation — invoke `review-prep` which handles push verification and compare URL generation (per Gate 4: Skill Dispatch Before Push)
-- [ ] MANDATORY: Feature branches target `dev` — compare URLs use `compare/dev...<branch-name>`, release PRs only use `compare/main...dev` (per Operating Protocol §6, per `000-critical-rules.md` §Wrong Compare URL Base Branch)
-- [ ] MANDATORY: Squash to single commit before any PR — verify commit count at enforcement gate per `000-critical-rules.md` §Un-Squashed PR
-- [ ] MANDATORY: NEVER merge PRs — human-only operation (per Operating Protocol §8, per `000-critical-rules.md` §Tier 1 Non-Yielding Mandates)
-- [ ] MANDATORY: Verify actual git/GitHub state via tool calls before acting on claims — never trust cached branch names, assumed merge status, or claimed worktree paths (per Live Verification Requirements, per `065-verification-honesty.md`)
-- [ ] MANDATORY: Extract post-creation URLs (PR, Issue) from API response `html_url` field — NEVER construct from template variables (per `000-critical-rules.md` §Fabricating URLs, per `git-workflow-url-001` rule)
-- [ ] MANDATORY: Construct pre-creation URLs (compare URL) from verified session-init values with character-match verification — `github.owner` and `github.repo` must match character-for-character (per `000-critical-rules.md` §Fabricating URLs, per `git-workflow-url-002` rule)
-- [ ] MANDATORY: Chat output at halt points MUST follow: summary → outcome → URL (if applicable) → byline — NEVER put URL before summary (per Operating Protocol §5, per `000-critical-rules.md` §Wrong Chat Output at Halt Points)
-- [ ] MANDATORY: Cleanup scope is limited to the merged PR ONLY — report additional cleanup opportunities but do NOT act without explicit authorization (per Operating Protocol §10, per `000-critical-rules.md` §Question-as-Authorization)
-- [ ] MANDATORY: Content-verify branches before deletion — `git diff --stat origin/dev...` + per-file IDENTICAL/SUPERSEDED/UNIQUE status; NEVER delete based on PR merge status alone (per `000-critical-rules.md` §Content Verification Before Branch Deletion)
-- [ ] MANDATORY: When `check prs` is requested, invoke `--task check-pr` which routes to cleanup if merged PRs with local branches exist — NEVER just list PRs (per `000-critical-rules.md` §Listing Merged PRs Without Invoking Cleanup)
-- [ ] MANDATORY: Invoke `--task completion` on workflow halt at ANY point — idempotent, safe to invoke multiple times (per COMPLETION GUARANTEE)
-
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-04-26T00:00:00Z"
-rules:
-  - id: git-workflow-provenance-001
-    title: "Submodule provenance tracking after push or promotion"
-    conditions:
-      all:
-        - "submodule_pushed == true OR submodule_promoted == true"
-    actions:
-      - INVOKE(git-workflow --task provenance)
-    conflicts_with: []
-    requires: []
-    triggers: [release-promotion, review-prep]
-    source: "git-workflow/SKILL.md Tasks table"
-  - id: git-workflow-url-001
-    title: "Post-creation URLs must be extracted from API response (NEVER constructed)"
-    conditions:
-      all:
-        - "resource_created_by_api == true"
-        - "url_source == template_construction"
-    actions:
-      - HALT
-      - EXTRACT_FROM_API_RESPONSE
-    conflicts_with: []
-    requires: []
-    triggers: [pr-creation, review-prep]
-    source: "git-workflow/SKILL.md §Fabricating URLs"
-  - id: git-workflow-url-002
-    title: "Pre-creation URLs must be constructed from verified session-init values with character-match"
-    conditions:
-      all:
-        - "resource_not_yet_created == true"
-        - "url_construction_needed == true"
-    actions:
-      - CONSTRUCT_FROM_SESSION_INIT
-      - CHARACTER_MATCH_VERIFY
-    conflicts_with: []
-    requires: []
-    triggers: [review-prep]
-    source: "git-workflow/SKILL.md §Fabricating URLs"
-  - id: git-workflow-chat-001
-    title: "Chat output format requires all 4 elements in order"
-    conditions:
-      all:
-        - "halt_point_reached == true"
-    actions:
-      - VERIFY(summary_exists && outcome_exists && url_if_applicable && byline_last)
-    conflicts_with: []
-    requires: []
-    triggers: [review-prep, pr-creation]
-    source: "git-workflow/SKILL.md §Chat Output Format"
-tasks:
-  - id: pre-work
-    skill: git-workflow
-    preconditions: ["authorization_verified == true"]
-    postconditions: ["worktree_path_is_set == true && feature_branch_exists == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Worktree Bypass"
-    source: "git-workflow/SKILL.md"
-  - id: implementation
-    skill: git-workflow
-    preconditions: ["worktree_path_is_set == true"]
-    postconditions: ["implementation_changes_committed == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Uncommitted Changes After Implementation"
-    source: "git-workflow/SKILL.md"
-  - id: review-prep
-    skill: git-workflow
-    preconditions: ["implementation_complete == true", "verification_passed == true", "checklist_passed == true"]
-    postconditions: ["branch_pushed == true", "compare_url_generated == true", "chat_output_format_correct == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping review-prep After Implementation"
-    source: "git-workflow/SKILL.md"
-    evidence_artifacts:
-      - gate: url_sourcing_rule_1
-        verification: "pr_url == html_url_from_github_create_pull_request_response"
-        expected: "exact API response match"
-      - gate: url_sourcing_rule_2
-        verification: "compare_url contains github.owner AND github.repo from session-init"
-        expected: "character-for-character match"
-      - gate: chat_output_format
-        verification: "output contains summary, outcome, URL (if applicable), byline in order"
-        expected: "all 4 elements present and correctly ordered"
-  - id: pr-creation
-    skill: git-workflow
-    preconditions: ["compare_url_exists == true && halt_at >= pr_created"]
-    postconditions: ["pr_url_extracted_from_api == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Fabricating URLs"
-    source: "git-workflow/SKILL.md"
-  - id: cleanup
-    skill: git-workflow
-    preconditions: ["pr_merged == true"]
-    postconditions: ["branch_deleted == true && issues_closed == true && dev_synced == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Post-Merge Cleanup"
-    source: "git-workflow/SKILL.md"
-  - id: release-promotion
-    skill: git-workflow
-    preconditions: ["release_authorized == true"]
-    postconditions: ["release_pr_created == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Branch Protection"
-    source: "git-workflow/SKILL.md"
-  - id: check-pr
-    skill: git-workflow
-    preconditions: ["pr_url_exists == true"]
-    postconditions: ["pr_status_checked == true"]
-    mandatory: false
-    bypass_violation: ""
-    source: "git-workflow/SKILL.md"
-  - id: provenance
-    skill: git-workflow
-    preconditions: ["commit_sha_provided == true"]
-    postconditions: ["provenance_report_produced == true"]
-    mandatory: false
-    bypass_violation: ""
-    source: "git-workflow/SKILL.md"
-  - id: completion
-    skill: git-workflow
-    preconditions: ["any_state"]
-    postconditions: ["completion_tasks_executed == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
-    source: "git-workflow/SKILL.md"
-  - id: submodule-tag-prework
-    skill: git-workflow
-    preconditions: [".gitmodules exists", "authorization_verified == true"]
-    postconditions: ["all_submodules_tagged == true", "all_tags_pushed == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Submodule Pre-Work Tagging"
-    source: "git-workflow/SKILL.md"
-  - id: submodule-feature-push
-    skill: git-workflow
-    preconditions: [".gitmodules exists", "submodule_has_changes == true"]
-    postconditions: ["submodule_branch_pushed == true", "submodule_tip_tagged == true"]
-    mandatory: false
-    bypass_violation: ""
-    source: "git-workflow/SKILL.md"
-  - id: submodule-liveness-check
-    skill: git-workflow
-    preconditions: [".gitmodules exists", "pr_creation_authorized == true"]
-    postconditions: ["all_submodule_hashes_reachable == true", "tags_added_recorded == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping PR creation with unreachable submodule hashes"
-    source: "git-workflow/SKILL.md"
-  - id: submodule-dev-restore
-    skill: git-workflow
-    preconditions: ["pr_merged == true", ".gitmodules exists"]
-    postconditions: ["all_submodules_on_dev == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Leaving submodule on detached HEAD after cleanup"
-    source: "git-workflow/SKILL.md"
-decomposition:
-  - type: skill-task
-    skill: approval-gate
-    task: verify-authorization
-    mandatory: true
-    bypass_violation: "CRITICAL: Skill Bypass"
-  - type: skill-task
-    skill: verification-before-completion
-    task: verify
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Verification"
-  - type: skill-task
-    skill: finishing-a-development-branch
-    task: checklist
-    mandatory: true
-    bypass_violation: "CRITICAL: Uncommitted/Unpushed Changes After Implementation"
-  - type: command
-    skill: git
-    task: push
-    mandatory: true
-    bypass_violation: "CRITICAL: Fabricating URLs"
-  - type: command
-    skill: git
-    task: rev-parse --show-toplevel
-    mandatory: true
-    bypass_violation: "CRITICAL: Worktree Bypass"
-  - type: command
-    skill: git
-    task: branch --show-current
-    mandatory: true
-    bypass_violation: "CRITICAL: Branch First"
-  - type: sub-agent-dispatch
-    isolation: clean-room
-    must_receive: [task description, required git state, branch name, worktree.path, compare URL data]
-    must_not_receive: [implementation context, agent memory from prior phases, cached verification results]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Clean-Room Dispatch for Sub-Agents"
-state_machines:
-  - id: branch-lifecycle
-    states: [pre_work, implementing, review_ready, pr_created, merged, cleaned_up]
-    start_state: pre_work
-    decomposition_guard:
-      field: "decomposition.feature_branch_exists"
-      message: "CRITICAL: Cannot proceed without feature branch"
-    transitions:
-      - from: pre_work
-        to: implementing
-        guard: "feature_branch_exists == true && worktree_path_is_set == true"
-        action: BEGIN_IMPLEMENTATION
-      - from: implementing
-        to: review_ready
-        guard: "verification_passed == true && checklist_passed == true"
-        action: PUSH_AND_GENERATE_URL
-      - from: review_ready
-        to: pr_created
-        guard: "halt_at >= pr_created && explicit_pr_instruction == true"
-        action: CREATE_PR
-      - from: review_ready
-        to: merged
-        guard: "pr_merged_by_human == true"
-        action: INVOKE(cleanup)
-      - from: pr_created
-        to: merged
-        guard: "pr_merged_by_human == true"
-        action: INVOKE(cleanup)
-      - from: merged
-        to: cleaned_up
-        guard: "branch_deleted == true && issues_closed == true"
-        action: COMPLETE
-gates:
-  - id: not-on-protected-branch
-    condition: "current_branch != 'main' && current_branch != 'dev'"
-    on_fail: "HALT"
-    critical_violation: true
-  - id: feature-branch-exists
-    condition: "feature_branch_exists == true"
-    on_fail: "INVOKE(git-workflow/pre-work)"
-    critical_violation: true
-  - id: push-before-url
-    condition: "branch_pushed == true"
-    on_fail: "HALT and push first"
-    critical_violation: true
-  - id: merge-confirmed-before-cleanup
-    condition: "pr_merged == true"
-    on_fail: "HALT"
-    critical_violation: true
-evidence_artifacts:
-  - name: branch_state
-    type: tool_call
-    verification: "git branch --show-current confirms expected branch"
-  - name: push_confirmation
-    type: tool_call
-    verification: "git push output confirms branch pushed"
-  - name: compare_url
-    type: constructed_url
-    verification: "URL format matches dev...branch pattern"
-  - name: pr_merge_status
-    type: api_call
-    verification: "github_pull_request_read(method=get) merged_at != null"
-  - name: worktree_location
-    type: tool_call
-    verification: "git rev-parse --show-toplevel matches worktree.path"
-```

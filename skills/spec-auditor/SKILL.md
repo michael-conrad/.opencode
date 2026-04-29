@@ -95,6 +95,322 @@ You are a Content-Aware Audit Orchestrator. Your focus is determining document t
 
 One of `--issue`, `--file`, or `--url` is mandatory (except for overview mode). Use `--type` to override autodetected document type. Use `--task` to run a single subtask.
 
+
+## MANDATORY TASKS
+
+- [ ] MANDATORY: Invoke spec-auditor for all new specs — per §Mandatory Invocation and yaml+symbolic spec-auditor-001
+- [ ] MANDATORY: Provide one of `--issue N`, `--file path`, or `--url URL` (except overview mode) — per §Operating Protocol #1
+- [ ] MANDATORY: Autodetect document type via signal scoring when `--type` is not specified — per §Operating Protocol #2; if confidence is Low, flag for user confirmation before proceeding
+- [ ] MANDATORY: Run baseline subtasks for the detected document type (Spec: `fresh-start`, `structure`, `fidelity`, `ground-truth`, `principles`, `sc-precision`; Plan: `fresh-start`, `structure`, `ground-truth`, `principles`; etc.) — per §Minimal Baseline
+- [ ] MANDATORY: Classify ALL findings into one of three tiers (auto-fix, conditional, flag-for-review) — per §Auto-Fix Model
+- [ ] MANDATORY: Apply auto-fix findings directly and verify each auto-fix was actually applied via re-read — per §Audit Findings Handling Step 4
+- [ ] MANDATORY: Apply conditional findings ONLY after safety check passes — per §Auto-Fix Model and yaml+symbolic spec-auditor-003
+- [ ] MANDATORY: NEVER apply flag-for-review findings — report in executive summary only — per §Auto-Fix Model and yaml+symbolic spec-auditor-004
+- [ ] MANDATORY: Verify `len(new_body) >= 0.8 * len(original_body)` before any `github_issue_write(method=update)` — per §Body-Preservation Safeguard and yaml+symbolic spec-auditor-005
+- [ ] MANDATORY: Run `ground-truth` subtask for ALL audits — per yaml+symbolic spec-auditor-006
+- [ ] MANDATORY: Post chat executive summary after every audit (even when zero findings) — per §Chat Executive Summary and yaml+symbolic spec-auditor-007
+- [ ] MANDATORY: Post revision comment ONLY for substantive changes (adding/removing phases, changing requirements, altering approach) — non-substantive auto-fixes get NO comment — per §Audit Findings Handling
+- [ ] MANDATORY: Verify cross-references against actual skill files before invoking — per §Cross-Reference Verification
+- [ ] MANDATORY: When audit finds issues for another spec (cross-spec-overlap with CONFLICT-RISK or FULL-SUPERSESSION), note the finding but do NOT modify the other spec — per §Auto-Fix Model flag-for-review
+- [ ] MANDATORY: Invoke `--task completion` before halting at any point — per completion task
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-26T00:00:00Z"
+rules:
+  - id: spec-auditor-001
+    title: "Spec audit is mandatory for all new specs"
+    conditions:
+      all:
+        - "spec_created == true"
+        - "audit_invoked == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [spec-creation, issue-operations]
+    source: "spec-auditor/SKILL.md §Mandatory Invocation"
+
+  - id: spec-auditor-002
+    title: "Auto-fix findings applied directly without authorization"
+    conditions:
+      all:
+        - "finding_classification == 'auto-fix'"
+        - "fix_targets_github_issue_body == true"
+        - "fix_is_non_substantive == true"
+    actions:
+      - APPLY_FIX
+      - REPORT_IN_EXECUTIVE_SUMMARY
+    conflicts_with: [approval-gate-001]
+    requires: []
+    triggers: []
+    source: "spec-auditor/SKILL.md §Auto-Fix Model"
+
+  - id: spec-auditor-003
+    title: "Conditional findings require authorization before application"
+    conditions:
+      all:
+        - "finding_classification == 'conditional'"
+    actions:
+      - SAFETY_CHECK
+      - APPLY_IF_SAFE
+      - ESCALATE_IF_UNSAFE
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "spec-auditor/SKILL.md §Auto-Fix Model"
+
+  - id: spec-auditor-004
+    title: "Flag-for-review findings are never applied"
+    conditions:
+      all:
+        - "finding_classification == 'flag-for-review'"
+    actions:
+      - REPORT_IN_EXECUTIVE_SUMMARY_ONLY
+      - DO_NOT_APPLY
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "spec-auditor/SKILL.md §Auto-Fix Model"
+
+  - id: spec-auditor-005
+    title: "Body preservation gate prevents issue body erasure"
+    conditions:
+      all:
+        - "new_body_length < 0.8 * original_body_length"
+    actions:
+      - HALT
+      - REPORT_ERASURE_RISK
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "spec-auditor/SKILL.md §Body-Preservation Safeguard"
+
+  - id: spec-auditor-006
+    title: "Ground-truth verification is mandatory for all audits"
+    conditions:
+      all:
+        - "audit_requested == true"
+    actions:
+      - INVOKE(ground-truth)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "spec-auditor/SKILL.md §ground-truth task"
+
+  - id: spec-auditor-007
+    title: "Executive summary posted to chat after every audit"
+    conditions:
+      all:
+        - "audit_session_complete == true"
+    actions:
+      - POST_EXECUTIVE_SUMMARY_TO_CHAT
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "spec-auditor/SKILL.md §Chat Executive Summary"
+
+tasks:
+  - id: fresh-start
+    skill: spec-auditor
+    preconditions: ["spec_issue_exists == true"]
+    postconditions: ["self_containment_checked == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping fresh-start checks"
+    source: "spec-auditor/SKILL.md"
+
+  - id: structure
+    skill: spec-auditor
+    preconditions: ["fresh_start_complete == true"]
+    postconditions: ["structural_audit_complete == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping structure audit"
+    source: "spec-auditor/SKILL.md"
+
+  - id: content-quality
+    skill: spec-auditor
+    preconditions: ["structural_audit_complete == true"]
+    postconditions: ["content_audit_complete == true"]
+    mandatory: false
+    bypass_violation: "WARNING: Skipping content quality audit"
+    source: "spec-auditor/SKILL.md"
+
+  - id: traceability
+    skill: spec-auditor
+    preconditions: ["structural_audit_complete == true"]
+    postconditions: ["trace_audit_complete == true"]
+    mandatory: false
+    bypass_violation: "WARNING: Skipping traceability audit"
+    source: "spec-auditor/SKILL.md"
+
+  - id: operational
+    skill: spec-auditor
+    preconditions: ["structural_audit_complete == true"]
+    postconditions: ["operational_audit_complete == true"]
+    mandatory: false
+    bypass_violation: "WARNING: Skipping operational audit"
+    source: "spec-auditor/SKILL.md"
+
+  - id: fidelity
+    skill: spec-auditor
+    preconditions: ["document_type == 'spec'"]
+    postconditions: ["fidelity_audit_complete == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping fidelity audit for spec documents"
+    source: "spec-auditor/SKILL.md"
+
+  - id: concerns
+    skill: spec-auditor
+    preconditions: ["structural_audit_complete == true"]
+    postconditions: ["concern_audit_complete == true"]
+    mandatory: false
+    bypass_violation: "WARNING: Skipping concern separation audit"
+    source: "spec-auditor/SKILL.md"
+
+  - id: ground-truth
+    skill: spec-auditor
+    preconditions: ["spec_content_available == true"]
+    postconditions: ["ground_truth_established == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Ground-Truth Verification"
+    source: "spec-auditor/SKILL.md"
+
+  - id: sc-precision
+    skill: spec-auditor
+    preconditions: ["document_type == 'spec'"]
+    postconditions: ["sc_precision_audit_complete == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping SC precision audit for spec documents"
+    source: "spec-auditor/SKILL.md"
+
+  - id: completion
+    skill: spec-auditor
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "spec-auditor/SKILL.md"
+
+decomposition:
+  - type: skill-task
+    skill: spec-auditor
+    task: ground-truth
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Ground-Truth Verification"
+    purpose: "Adversarial verification of metadata claims against direct evidence"
+
+  - type: skill-task
+    skill: plan-fidelity-auditor
+    task: compare
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Plan Fidelity Comparison"
+    purpose: "Clean-room plan comparison for fidelity subtask"
+
+  - type: skill-task
+    skill: concern-separation-auditor
+    task: audit-phases
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Concern Separation Audit"
+    purpose: "Phase independence and concern boundary verification"
+
+  - type: skill-task
+    skill: verification-enforcement
+    task: verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification-Enforcement During Content Generation"
+    purpose: "Verify all claims in audit findings before generating reports"
+
+  - type: skill-task
+    skill: programming-principles
+    task: audit
+    mandatory: true
+    bypass_violation: "WARNING: Skipping Engineering Principle Audit"
+    purpose: "Check for principle violations without documented tradeoffs"
+
+gates:
+  - id: auto-fix-eligible
+    condition: "finding_classification == 'auto-fix' AND fix_targets_issue_body == true AND fix_is_non_substantive == true"
+    on_fail: "RECLASSIFY"
+    critical_violation: false
+
+  - id: conditional-safety-check
+    condition: "finding_classification == 'conditional' AND safety_check_passed == true"
+    on_fail: "ESCALATE_TO_FLAG_FOR_REVIEW"
+    critical_violation: false
+
+  - id: body-preservation
+    condition: "new_body_length >= 0.8 * original_body_length"
+    on_fail: "HALT"
+    critical_violation: true
+
+  - id: ground-truth-mandatory
+    condition: "ground_truth_invoked == true"
+    on_fail: "HALT"
+    critical_violation: true
+
+evidence_artifacts:
+  - name: audit_findings_table
+    type: structured_table
+    verification: "Each finding has Subtask, Problem Class, Location, Classification, Fix Action, Severity"
+
+  - name: auto_fix_verification
+    type: re-read_confirmation
+    verification: "Re-read of issue body confirms all auto-fixes applied"
+
+  - name: body_length_check
+    type: comparison
+    verification: "len(new_body) >= 0.8 * len(original_body)"
+
+  - name: ground_truth_evidence
+    type: tool_call_artifact
+    verification: "Each metadata claim verified via tool call against actual state"
+
+  - name: executive_summary_posted
+    type: chat_output
+    verification: "Executive summary present in chat with all required fields"
+
+state_machines:
+  - id: audit-session
+    states: [idle, type_detected, baseline_running, conditional_running, findings_classified, auto_fixes_applied, conditional_applied, report_generated, complete]
+    start_state: idle
+    transitions:
+      - from: idle
+        to: type_detected
+        guard: "source_input_valid == true"
+        action: DETECT_DOCUMENT_TYPE
+      - from: type_detected
+        to: baseline_running
+        guard: "document_type_determined == true"
+        action: RUN_BASELINE_SUBTASKS
+      - from: baseline_running
+        to: conditional_running
+        guard: "baseline_complete == true"
+        action: RUN_CONDITIONAL_SUBTASKS
+      - from: conditional_running
+        to: findings_classified
+        guard: "all_subtasks_complete == true"
+        action: CLASSIFY_FINDINGS
+      - from: findings_classified
+        to: auto_fixes_applied
+        guard: "auto_fix_findings_exist == true"
+        action: APPLY_AUTO_FIXES
+      - from: findings_classified
+        to: conditional_applied
+        guard: "conditional_findings_exist == true AND auto_fixes_applied == true"
+        action: APPLY_CONDITIONAL_FIXES
+      - from: auto_fixes_applied
+        to: report_generated
+        guard: "all_fixes_verified == true"
+        action: GENERATE_EXECUTIVE_SUMMARY
+      - from: conditional_applied
+        to: report_generated
+        guard: "all_fixes_verified == true"
+        action: GENERATE_EXECUTIVE_SUMMARY
+      - from: report_generated
+        to: complete
+        guard: "executive_summary_posted == true"
+        action: PROCEED
+```
 ## Operating Protocol
 
 1. **Mandatory input parameter:** This skill MUST be invoked with one of `--issue N`, `--file path`, or `--url URL` (except overview mode). The content source determines how to read the document.
@@ -705,319 +1021,3 @@ The `ground-truth` subtask now supports optional multimodal routing for verifyin
 Co-authored with AI: <AgentName> (<ModelId>)
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
-
-## MANDATORY TASKS
-
-- [ ] MANDATORY: Invoke spec-auditor for all new specs — per §Mandatory Invocation and yaml+symbolic spec-auditor-001
-- [ ] MANDATORY: Provide one of `--issue N`, `--file path`, or `--url URL` (except overview mode) — per §Operating Protocol #1
-- [ ] MANDATORY: Autodetect document type via signal scoring when `--type` is not specified — per §Operating Protocol #2; if confidence is Low, flag for user confirmation before proceeding
-- [ ] MANDATORY: Run baseline subtasks for the detected document type (Spec: `fresh-start`, `structure`, `fidelity`, `ground-truth`, `principles`, `sc-precision`; Plan: `fresh-start`, `structure`, `ground-truth`, `principles`; etc.) — per §Minimal Baseline
-- [ ] MANDATORY: Classify ALL findings into one of three tiers (auto-fix, conditional, flag-for-review) — per §Auto-Fix Model
-- [ ] MANDATORY: Apply auto-fix findings directly and verify each auto-fix was actually applied via re-read — per §Audit Findings Handling Step 4
-- [ ] MANDATORY: Apply conditional findings ONLY after safety check passes — per §Auto-Fix Model and yaml+symbolic spec-auditor-003
-- [ ] MANDATORY: NEVER apply flag-for-review findings — report in executive summary only — per §Auto-Fix Model and yaml+symbolic spec-auditor-004
-- [ ] MANDATORY: Verify `len(new_body) >= 0.8 * len(original_body)` before any `github_issue_write(method=update)` — per §Body-Preservation Safeguard and yaml+symbolic spec-auditor-005
-- [ ] MANDATORY: Run `ground-truth` subtask for ALL audits — per yaml+symbolic spec-auditor-006
-- [ ] MANDATORY: Post chat executive summary after every audit (even when zero findings) — per §Chat Executive Summary and yaml+symbolic spec-auditor-007
-- [ ] MANDATORY: Post revision comment ONLY for substantive changes (adding/removing phases, changing requirements, altering approach) — non-substantive auto-fixes get NO comment — per §Audit Findings Handling
-- [ ] MANDATORY: Verify cross-references against actual skill files before invoking — per §Cross-Reference Verification
-- [ ] MANDATORY: When audit finds issues for another spec (cross-spec-overlap with CONFLICT-RISK or FULL-SUPERSESSION), note the finding but do NOT modify the other spec — per §Auto-Fix Model flag-for-review
-- [ ] MANDATORY: Invoke `--task completion` before halting at any point — per completion task
-
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-04-26T00:00:00Z"
-rules:
-  - id: spec-auditor-001
-    title: "Spec audit is mandatory for all new specs"
-    conditions:
-      all:
-        - "spec_created == true"
-        - "audit_invoked == false"
-    actions:
-      - HALT
-    conflicts_with: []
-    requires: []
-    triggers: [spec-creation, issue-operations]
-    source: "spec-auditor/SKILL.md §Mandatory Invocation"
-
-  - id: spec-auditor-002
-    title: "Auto-fix findings applied directly without authorization"
-    conditions:
-      all:
-        - "finding_classification == 'auto-fix'"
-        - "fix_targets_github_issue_body == true"
-        - "fix_is_non_substantive == true"
-    actions:
-      - APPLY_FIX
-      - REPORT_IN_EXECUTIVE_SUMMARY
-    conflicts_with: [approval-gate-001]
-    requires: []
-    triggers: []
-    source: "spec-auditor/SKILL.md §Auto-Fix Model"
-
-  - id: spec-auditor-003
-    title: "Conditional findings require authorization before application"
-    conditions:
-      all:
-        - "finding_classification == 'conditional'"
-    actions:
-      - SAFETY_CHECK
-      - APPLY_IF_SAFE
-      - ESCALATE_IF_UNSAFE
-    conflicts_with: []
-    requires: []
-    triggers: []
-    source: "spec-auditor/SKILL.md §Auto-Fix Model"
-
-  - id: spec-auditor-004
-    title: "Flag-for-review findings are never applied"
-    conditions:
-      all:
-        - "finding_classification == 'flag-for-review'"
-    actions:
-      - REPORT_IN_EXECUTIVE_SUMMARY_ONLY
-      - DO_NOT_APPLY
-    conflicts_with: []
-    requires: []
-    triggers: []
-    source: "spec-auditor/SKILL.md §Auto-Fix Model"
-
-  - id: spec-auditor-005
-    title: "Body preservation gate prevents issue body erasure"
-    conditions:
-      all:
-        - "new_body_length < 0.8 * original_body_length"
-    actions:
-      - HALT
-      - REPORT_ERASURE_RISK
-    conflicts_with: []
-    requires: []
-    triggers: []
-    source: "spec-auditor/SKILL.md §Body-Preservation Safeguard"
-
-  - id: spec-auditor-006
-    title: "Ground-truth verification is mandatory for all audits"
-    conditions:
-      all:
-        - "audit_requested == true"
-    actions:
-      - INVOKE(ground-truth)
-    conflicts_with: []
-    requires: []
-    triggers: []
-    source: "spec-auditor/SKILL.md §ground-truth task"
-
-  - id: spec-auditor-007
-    title: "Executive summary posted to chat after every audit"
-    conditions:
-      all:
-        - "audit_session_complete == true"
-    actions:
-      - POST_EXECUTIVE_SUMMARY_TO_CHAT
-    conflicts_with: []
-    requires: []
-    triggers: []
-    source: "spec-auditor/SKILL.md §Chat Executive Summary"
-
-tasks:
-  - id: fresh-start
-    skill: spec-auditor
-    preconditions: ["spec_issue_exists == true"]
-    postconditions: ["self_containment_checked == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping fresh-start checks"
-    source: "spec-auditor/SKILL.md"
-
-  - id: structure
-    skill: spec-auditor
-    preconditions: ["fresh_start_complete == true"]
-    postconditions: ["structural_audit_complete == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping structure audit"
-    source: "spec-auditor/SKILL.md"
-
-  - id: content-quality
-    skill: spec-auditor
-    preconditions: ["structural_audit_complete == true"]
-    postconditions: ["content_audit_complete == true"]
-    mandatory: false
-    bypass_violation: "WARNING: Skipping content quality audit"
-    source: "spec-auditor/SKILL.md"
-
-  - id: traceability
-    skill: spec-auditor
-    preconditions: ["structural_audit_complete == true"]
-    postconditions: ["trace_audit_complete == true"]
-    mandatory: false
-    bypass_violation: "WARNING: Skipping traceability audit"
-    source: "spec-auditor/SKILL.md"
-
-  - id: operational
-    skill: spec-auditor
-    preconditions: ["structural_audit_complete == true"]
-    postconditions: ["operational_audit_complete == true"]
-    mandatory: false
-    bypass_violation: "WARNING: Skipping operational audit"
-    source: "spec-auditor/SKILL.md"
-
-  - id: fidelity
-    skill: spec-auditor
-    preconditions: ["document_type == 'spec'"]
-    postconditions: ["fidelity_audit_complete == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping fidelity audit for spec documents"
-    source: "spec-auditor/SKILL.md"
-
-  - id: concerns
-    skill: spec-auditor
-    preconditions: ["structural_audit_complete == true"]
-    postconditions: ["concern_audit_complete == true"]
-    mandatory: false
-    bypass_violation: "WARNING: Skipping concern separation audit"
-    source: "spec-auditor/SKILL.md"
-
-  - id: ground-truth
-    skill: spec-auditor
-    preconditions: ["spec_content_available == true"]
-    postconditions: ["ground_truth_established == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Ground-Truth Verification"
-    source: "spec-auditor/SKILL.md"
-
-  - id: sc-precision
-    skill: spec-auditor
-    preconditions: ["document_type == 'spec'"]
-    postconditions: ["sc_precision_audit_complete == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping SC precision audit for spec documents"
-    source: "spec-auditor/SKILL.md"
-
-  - id: completion
-    skill: spec-auditor
-    preconditions: ["any_state"]
-    postconditions: ["completion_tasks_executed == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
-    source: "spec-auditor/SKILL.md"
-
-decomposition:
-  - type: skill-task
-    skill: spec-auditor
-    task: ground-truth
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Ground-Truth Verification"
-    purpose: "Adversarial verification of metadata claims against direct evidence"
-
-  - type: skill-task
-    skill: plan-fidelity-auditor
-    task: compare
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Plan Fidelity Comparison"
-    purpose: "Clean-room plan comparison for fidelity subtask"
-
-  - type: skill-task
-    skill: concern-separation-auditor
-    task: audit-phases
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Concern Separation Audit"
-    purpose: "Phase independence and concern boundary verification"
-
-  - type: skill-task
-    skill: verification-enforcement
-    task: verify
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Verification-Enforcement During Content Generation"
-    purpose: "Verify all claims in audit findings before generating reports"
-
-  - type: skill-task
-    skill: programming-principles
-    task: audit
-    mandatory: true
-    bypass_violation: "WARNING: Skipping Engineering Principle Audit"
-    purpose: "Check for principle violations without documented tradeoffs"
-
-gates:
-  - id: auto-fix-eligible
-    condition: "finding_classification == 'auto-fix' AND fix_targets_issue_body == true AND fix_is_non_substantive == true"
-    on_fail: "RECLASSIFY"
-    critical_violation: false
-
-  - id: conditional-safety-check
-    condition: "finding_classification == 'conditional' AND safety_check_passed == true"
-    on_fail: "ESCALATE_TO_FLAG_FOR_REVIEW"
-    critical_violation: false
-
-  - id: body-preservation
-    condition: "new_body_length >= 0.8 * original_body_length"
-    on_fail: "HALT"
-    critical_violation: true
-
-  - id: ground-truth-mandatory
-    condition: "ground_truth_invoked == true"
-    on_fail: "HALT"
-    critical_violation: true
-
-evidence_artifacts:
-  - name: audit_findings_table
-    type: structured_table
-    verification: "Each finding has Subtask, Problem Class, Location, Classification, Fix Action, Severity"
-
-  - name: auto_fix_verification
-    type: re-read_confirmation
-    verification: "Re-read of issue body confirms all auto-fixes applied"
-
-  - name: body_length_check
-    type: comparison
-    verification: "len(new_body) >= 0.8 * len(original_body)"
-
-  - name: ground_truth_evidence
-    type: tool_call_artifact
-    verification: "Each metadata claim verified via tool call against actual state"
-
-  - name: executive_summary_posted
-    type: chat_output
-    verification: "Executive summary present in chat with all required fields"
-
-state_machines:
-  - id: audit-session
-    states: [idle, type_detected, baseline_running, conditional_running, findings_classified, auto_fixes_applied, conditional_applied, report_generated, complete]
-    start_state: idle
-    transitions:
-      - from: idle
-        to: type_detected
-        guard: "source_input_valid == true"
-        action: DETECT_DOCUMENT_TYPE
-      - from: type_detected
-        to: baseline_running
-        guard: "document_type_determined == true"
-        action: RUN_BASELINE_SUBTASKS
-      - from: baseline_running
-        to: conditional_running
-        guard: "baseline_complete == true"
-        action: RUN_CONDITIONAL_SUBTASKS
-      - from: conditional_running
-        to: findings_classified
-        guard: "all_subtasks_complete == true"
-        action: CLASSIFY_FINDINGS
-      - from: findings_classified
-        to: auto_fixes_applied
-        guard: "auto_fix_findings_exist == true"
-        action: APPLY_AUTO_FIXES
-      - from: findings_classified
-        to: conditional_applied
-        guard: "conditional_findings_exist == true AND auto_fixes_applied == true"
-        action: APPLY_CONDITIONAL_FIXES
-      - from: auto_fixes_applied
-        to: report_generated
-        guard: "all_fixes_verified == true"
-        action: GENERATE_EXECUTIVE_SUMMARY
-      - from: conditional_applied
-        to: report_generated
-        guard: "all_fixes_verified == true"
-        action: GENERATE_EXECUTIVE_SUMMARY
-      - from: report_generated
-        to: complete
-        guard: "executive_summary_posted == true"
-        action: PROCEED
-```
