@@ -103,6 +103,57 @@ Fallthrough reason: Step 0.5 evidence unavailable
 Cannot create issue: Step 0.5 dedup gate evidence missing and runtime search fallback failed. Run pre-creation task first.
 ```
 
+### Step 0.6: Single Concern Checkpoint (SCC)
+
+**MANDATORY before title format determination. Classify the proposed issue as single-concern or multi-concern.**
+
+Apply the concern classification test to the proposed issue body and title:
+
+**Concern Classification Test:** "Remove concern B from the artifact. If concern A remains complete and verifiable, they are unrelated and must be in separate artifacts."
+
+Two concerns are unrelated when ALL of the following hold:
+- Different root causes
+- Can be verified independently
+- Can be closed independently
+- Removing one doesn't break the other's success criteria
+
+**Procedure:**
+
+1. Identify every distinct concern in the proposed issue (each problem area with its own root cause, affected scope, and verification criteria)
+2. For each pair of concerns, apply the classification test: "Can you remove concern B, and have concern A remain complete and verifiable?"
+3. Classify the issue:
+
+| Classification | Condition | Action |
+| -- | -- | -- |
+| Single-concern | 0-1 concerns, OR all concerns share root cause and cannot be verified/closed independently | Proceed to Step 1 |
+| Multi-concern | ≥2 unrelated concerns identified | HALT — require decomposition into separate issues |
+
+**On HALT for multi-concern:**
+
+```
+Cannot create issue: Single Concern Checkpoint failed. <N> unrelated concerns detected:
+- Concern A: <description>
+- Concern B: <description>
+These must be filed as separate issues per 000-critical-rules.md §Single Concern Principle.
+```
+
+**Evidence artifact (MANDATORY):**
+
+```
+Check: Single Concern Checkpoint for "<proposed title>"
+Concerns identified: [N]
+Classification: [single-concern|multi-concern]
+Concerns: [list each concern with root cause and verification scope]
+Action: [proceed|HALT — decomposition required]
+```
+
+**Gate logic:**
+
+| SCC Result | Action |
+| -- | -- |
+| Single-concern | Proceed to Step 1 |
+| Multi-concern | HALT — do not create combined issue |
+
 ### Step 1: Determine Title Format
 
 | Issue Type | Title Format | Example |

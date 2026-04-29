@@ -200,7 +200,7 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 | `git submodule init` + `git submodule foreach "git checkout dev && git pull"` | Step 2.5 | Tier 1 mandate prerequisite | `.gitmodules` exists |
 | **Submodule dev-tip verification** | Step 2.6 | **Tier 1 mandate prerequisite** | **`.gitmodules` exists** |
 | **Submodule detached HEAD correction** | Step 2.6 | **Tier 1 mandate prerequisite** | **`.gitmodules` exists** |
-| `git add .opencode` (submodule bump) | Step 3.5 | Tier 1 mandate prerequisite | Submodule SHA changed |
+| **Submodule pre-work tagging** | Step 3.5 | **Tier 1 mandate prerequisite** | **`.gitmodules` exists** |
 | `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 3 | Tier 1 mandate — required by `000-critical-rules.md` §Skipping Git Pre-Check | Always |
 | `git push -u origin feature/N-xyz` | Post-Step 5 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
 
@@ -214,6 +214,7 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 **🚫 FORBIDDEN: Soliciting developer confirmation for automatic prerequisites:**
 
 - "Should I sync the submodule?" → FORBIDDEN — submodule sync is automatic
+- "Should I tag the submodule?" → FORBIDDEN — tagging is automatic per tag-based discipline
 - "May I create the feature branch?" → FORBIDDEN — branch creation is a Tier 1 mandate
 - "Ready to proceed with git push?" → FORBIDDEN — initial push is a pipeline prerequisite
 - "Proceed with pre-work?" → FORBIDDEN — pre-work is mandatory after authorization
@@ -223,7 +224,7 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 
 The agent MUST NOT ask for confirmation, permission, or readiness before performing any operation listed in the table above. These are mechanical prerequisites that the agent MUST execute as part of the approved workflow.
 
-**See also:** `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" — whether to sync a submodule, create a branch, or push is NOT a decision requiring user input when authorization covers the pipeline stage.
+**See also:** `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" — whether to sync a submodule, tag it, create a branch, or push is NOT a decision requiring user input when authorization covers the pipeline stage.
 
 ### Step 3: Create Feature Branch (Mode-Dependent)
 
@@ -266,52 +267,67 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 - Do NOT attempt any implementation until the worktree infrastructure is fixed
 - There is NO fallback to direct-branch when worktree mode is explicitly requested
 
-### Step 3.5: Submodule Initialization and Sync
+### Step 3.5: Submodule Pre-Work Tagging (MANDATORY — Sub-Agent Dispatch)
 
-**If `.gitmodules` exists**, initialize and sync submodules before proceeding:
+**If `.gitmodules` does NOT exist:** Skip entirely and proceed to Step 4.
 
-```bash
-test -f .gitmodules
+**If `.gitmodules` exists:** The agent MUST dispatch a `submodule-tag-prework` sub-agent. The main agent MUST NOT perform any git tag/push/foreach operations inline — this is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Inline Work.
+
+#### Sub-Agent Boundary
+
+| Field | Value |
+|-------|-------|
+| **must_receive** | `issue_number`, `github.owner`, `github.repo`, `dev.name`, `dev.email`, submodule paths from `git submodule status`, parent repo short name |
+| **must_not_receive** | Implementation context, agent memory, full task file contents, other sub-agents' results |
+
+#### Dispatch Procedure
+
+Invoke: `/submodule-tag-prework` opencode command (or dispatch sub-agent with scoped instruction).
+
+The sub-agent performs:
+1. **Tag each submodule at dev tip** with format `<parent-repo>/<issue-number>`
+2. **Push tags** to each submodule's remote
+3. **Leave submodule hashes dirty** — do NOT commit submodule bumps to the parent branch
+
+#### Tag Format
+
+```
+<parent-repo-short>/<issue-number>
 ```
 
-**If `.gitmodules` exists:**
+- `<parent-repo-short>`: Repository name without owner (e.g., `opencode-config-parent` → `opencode-config-parent`)
+- `<issue-number>`: The issue being implemented
+- Example: `opencode-config-parent/215`
 
-1. **Advance submodules to their `dev` tip:**
+**Why this format:** Supports multi-parent shared-submodule repos. The `<parent-repo>/` prefix prevents tag collisions when the same submodule is referenced by multiple parent repos.
 
-   ```bash
-   git submodule foreach "git checkout dev && git pull"
-   ```
+#### CRITICAL: No Submodule Bump Commit
 
-   - This checks out each submodule at the tip of its `dev` branch.
-   - Do NOT use `--recursive` flag (per `060-tool-usage.md`).
+**The tag replaces the bump commit entirely.** The agent MUST NOT:
+- Run `git add <submodule-path>` to stage submodule SHA changes
+- Run `git commit -m "chore(submodule): pin ..."` 
+- Create any commit in the parent repo that records a submodule SHA change
 
-2. **Log submodule status:**
+Submodule hashes are left dirty during development. The liveness check at PR-time verifies all referenced hashes are reachable via tags.
 
-   ```bash
-   git submodule status
-   ```
+#### Sub-Agent Result Contract
 
-3. **Report status to chat:** Report each submodule's path, checked-out SHA, committed SHA, and dev tip SHA.
+```yaml
+status: DONE | BLOCKED
+task: submodule-tag-prework
+submodule_results:
+  - path: <submodule-path>
+    tag_name: <parent-repo>/<issue-number>
+    sha_tagged: <sha>
+    tag_pushed: bool
+evidence_artifacts:
+  - tool: git tag -l
+    output: <tag list showing created tags>
+  - tool: git push origin --tags
+    output: <push confirmation>
+```
 
-4. **If any submodule SHA changed from the parent's committed ref**, auto-commit the submodule bump:
-
-   For each submodule whose checked-out SHA differs from the parent's committed SHA:
-   1. Read the commit log between old and new SHA:
-      ```bash
-      cd <submodule-path>
-      git log --oneline <old_sha>..<new_sha>
-      cd -
-      ```
-   2. Generate a summary commit message with the count and first-line summaries:
-      ```bash
-      git add <submodule-path>
-      git commit -m "chore(submodule): pin <path> to latest dev (N commits: summary)"
-      ```
-   3. Continue with normal pre-work flow.
-
-**If on `main` worktree:** Use `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to dev tip.
-
-**If `.gitmodules` does NOT exist:** Skip all submodule steps and proceed to Step 4.
+**If the sub-agent returns BLOCKED:** Report the failure and HALT. Do not attempt inline remediation.
 
 ### Step 4: Verify Branch Environment
 
