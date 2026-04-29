@@ -17,6 +17,26 @@ Test-driven development (TDD) workflow that enforces writing tests before implem
 
 **Source Attribution:** This skill is adapted from <UPSTREAM_ORG>/<UPSTREAM_REPO> workflow (branch: newsrx).
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Implementation needed] --> B[RED: write failing test]
+    B --> C[Test fails without implementation?]
+    C -- No --> D[Revise test to be meaningful]
+    D --> C
+    C -- Yes --> E[GREEN: write minimal code to pass]
+    E --> F[Test passes?]
+    F -- No --> G[Revise implementation]
+    G --> F
+    F -- Yes --> H[REFACTOR: clean up code]
+    H --> I{All tests still green?}
+    I -- No --> J[Revert refactor]
+    J --> H
+    I -- Yes --> K[TDD cycle complete]
+```
+
 ## Tasks
 
 | Task | Purpose | Words |

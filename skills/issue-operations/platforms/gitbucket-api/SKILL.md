@@ -13,6 +13,25 @@ compatibility: opencode
 
 GitBucket platform implementation using Python client. Implements a GitHub-compatible API v3 with known deficiencies. This is a platform sub-skill under `issue-operations` — the dispatcher routes GitBucket operations here when `github.platform=gitbucket`.
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[issue-operations dispatches] --> B[Route to gitbucket-api]
+    B --> C{Operation?}
+    C -- create issue --> D[api.create_issue — labels auto-created]
+    C -- update/close --> E[PATCH 404 — comment fallback]
+    C -- add comment --> F[api.add_issue_comment]
+    C -- sub-issues --> G[No API — comment-based linking]
+    C -- search --> H[No API — iterative listing + filter]
+    D --> I[Return result]
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+```
+
 ## Capability Manifest (v4.46.0, empirically probed)
 
 | Operation | Supported | Notes |

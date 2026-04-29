@@ -15,6 +15,27 @@ Systematic debugging process that enforces root cause analysis, hypothesis testi
 
 **Source Attribution:** This skill is adapted from <UPSTREAM_ORG>/<UPSTREAM_REPO> workflow (branch: newsrx).
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Bug/error encountered] --> B[diagnose: read-only analysis]
+    B --> C[Identify root cause]
+    C --> D{Root cause confirmed?}
+    D -- No --> E[Continue investigation]
+    E --> C
+    D -- Yes --> F[Document findings]
+    F --> G{Authorization to fix?}
+    G -- Yes --> H[fix: minimal targeted change]
+    G -- No --> I[Create bug report issue]
+    H --> J[Verify fix resolves issue]
+    I --> K[HALT — wait for authorization]
+    J --> L{New issues introduced?}
+    L -- Yes --> M[Revert and re-diagnose]
+    L -- No --> N[Completion: report fix]
+```
+
 ## Tasks
 
 | Task | Purpose | Words |

@@ -41,6 +41,27 @@ compatibility: opencode
    - DO NOT post comments when creating issues
    - DO NOT post comments for non-substantive updates (cross-references, origin links, STATUS updates)
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Implementation task] --> B[Understand Before Solving]
+    B --> C[Read all relevant code]
+    C --> D[Identify stakeholders and needs]
+    D --> E[Design Before Implementing]
+    E --> F[Document approach in spec]
+    F --> G[Consider multiple solutions]
+    G --> H[Get approval on approach]
+    H --> I[Implement per spec only]
+    I --> J[Verify Before Declaring Complete]
+    J --> K[Run all tests manually]
+    K --> L[Check edge cases]
+    L --> M[Verify against success criteria]
+    M --> N[Communicate Changes]
+    N --> O[Post comments for substantive changes]
+```
+
 ## Scope Discipline (Critical)
 
 ### No Feature Creep

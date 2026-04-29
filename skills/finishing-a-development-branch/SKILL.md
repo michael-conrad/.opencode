@@ -17,6 +17,28 @@ Branch completion workflow that ensures a feature branch is fully ready for PR c
 
 **Source Attribution:** This skill is adapted from \<UPSTREAM_ORG>/\<UPSTREAM_REPO> workflow (branch: newsrx).
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Implementation complete] --> B[prepare: verify branch state]
+    B --> C[checklist: completion verification]
+    C --> D{All changes committed?}
+    D -- No --> E[Commit remaining changes]
+    E --> D
+    D -- Yes --> F{Tests pass?}
+    F -- No --> G[Fix test failures]
+    G --> F
+    F -- Yes --> H[Lint/format clean?]
+    H -- No --> I[Run lint + format]
+    I --> H
+    H -- Yes --> J[Branch pushed to remote?]
+    J -- No --> K[Push branch]
+    J -- Yes --> L[Completion: report readiness]
+    K --> L
+```
+
 ## Tasks
 
 | Task | Purpose | Words |

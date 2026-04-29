@@ -18,6 +18,22 @@ Fragment Manager handles duplicate text blocks (fragments) that appear in multip
 - Drift detection between masters and copies
 - Conflict resolution when changes diverge
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Duplicate content detected] --> B[identify: find duplicate blocks]
+    B --> C{Master copy exists?}
+    C -- Yes --> D[sync: update copies from master]
+    C -- No --> E[Select canonical version]
+    E --> D
+    D --> F[Verify sync across all locations]
+    F --> G{Synchronized?}
+    G -- No --> D
+    G -- Yes --> H[completion: report results]
+```
+
 ## Architecture
 
 **Fragment Registry Schema:**

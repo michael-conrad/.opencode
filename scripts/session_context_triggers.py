@@ -520,6 +520,78 @@ def build_dev_branch_with_changes_warning(changed_files: list[str]) -> str:
     return "\n".join(lines)
 
 
+def check_branch_topology() -> dict[str, list[str]] | None:
+    issues: dict[str, list[str]] = {}
+    remote_output = run_git(["remote", "-v"])
+    if not remote_output or not remote_output.strip():
+        return None
+
+    remote_name = "origin"
+    if not run_git(["remote", "get-url", remote_name]):
+        lines = remote_output.strip().splitlines()
+        if lines:
+            remote_name = lines[0].split()[0]
+
+    run_git(["fetch", remote_name, "--quiet"])
+
+    dev_ref = None
+    if run_git(["rev-parse", "--verify", f"remotes/{remote_name}/dev"]):
+        dev_ref = f"remotes/{remote_name}/dev"
+
+    errors: list[str] = []
+    warnings: list[str] = []
+
+    branch = get_current_branch()
+    is_feature = branch and branch not in ("main", "master", "dev")
+
+    if is_feature and not dev_ref:
+        errors.append(
+            "origin/dev does not exist on remote — feature branch PRs will fail. "
+            "Push dev to remote first: git push origin dev"
+        )
+
+    main_ref = None
+    if run_git(["rev-parse", "--verify", f"remotes/{remote_name}/main"]):
+        main_ref = f"remotes/{remote_name}/main"
+    elif run_git(["rev-parse", "--verify", f"remotes/{remote_name}/master"]):
+        main_ref = f"remotes/{remote_name}/master"
+
+    if main_ref and dev_ref:
+        merge_base = run_git(["merge-base", main_ref, dev_ref])
+        if not merge_base:
+            errors.append(
+                "main and dev are orphaned (no common ancestor) — PRs between them will fail. "
+                "Fix: rebase dev onto main, or merge with --allow-unrelated-histories."
+            )
+        else:
+            is_main_ancestor_of_dev = run_git(
+                ["merge-base", "--is-ancestor", main_ref, dev_ref]
+            )
+            is_dev_ancestor_of_main = run_git(
+                ["merge-base", "--is-ancestor", dev_ref, main_ref]
+            )
+            if is_main_ancestor_of_dev is None and is_dev_ancestor_of_main is None:
+                warnings.append(
+                    "main and dev share a common ancestor but neither is an ancestor of the other — "
+                    "they have diverged. Consider rebasing or merging to clean up the history."
+                )
+
+    if not errors and not warnings:
+        return None
+
+    return {"errors": errors, "warnings": warnings}
+
+
+def build_branch_topology_warning(topology: dict[str, list[str]]) -> str:
+    lines = ["## Branch Topology Issue"]
+    for err in topology.get("errors", []):
+        lines.append(f"- ❌ {err}")
+    for warn in topology.get("warnings", []):
+        lines.append(f"- ⚠️ {warn}")
+    lines.append("- Action: resolve topology issues before pushing feature branches")
+    return "\n".join(lines)
+
+
 def is_local_only_repo() -> bool:
     remote_output = run_git(["remote", "-v"])
     if not remote_output or not remote_output.strip():
@@ -583,6 +655,10 @@ def main() -> int:
     stale_subs = has_stale_submodules()
     if stale_subs:
         sections.append(build_stale_submodule_warning(stale_subs))
+
+    topology = check_branch_topology()
+    if topology:
+        sections.append(build_branch_topology_warning(topology))
 
     if is_local_only_repo():
         sections.append(build_local_only_repo_directive())

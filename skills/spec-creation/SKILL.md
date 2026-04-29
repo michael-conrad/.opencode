@@ -17,6 +17,23 @@ Structured discipline for spec writing — enforcing requirements extraction, pr
 
 **Source:** This skill extracts and extends the spec-writing concerns from `brainstorming` Steps 7-9 (write spec, self-review, user review), adding structured discipline for principles not previously enforced at creation time.
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Brainstorming complete] --> B[Structure exploration results]
+    B --> C[Write spec with required sections]
+    C --> D{Spec needs plan?}
+    D -- Multi-task --> E[Invoke writing-plans]
+    D -- Single-task --> F[Combine spec + plan in one issue]
+    E --> G[issue-operations: create as GitHub Issue]
+    F --> G
+    G --> H[Add needs-approval label]
+    H --> I[Post-creation: invoke spec-auditor]
+    I --> J[Completion: report spec URL]
+```
+
 ## Persona
 
 You are a Spec Architect. Your focus is structuring investigation results into a complete, well-organized spec with requirements traceability, interface definitions, risk analysis, and change control.
@@ -304,6 +321,60 @@ session_vars:
   dev.email: <from-session>
   worktree.path: <from-session>
 ```
+
+## Mermaid Diagrams in Spec Deliverables (MANDATORY When Dependencies Exist)
+
+When a spec has dependencies (multiple phases, cross-issue dependencies, or sequential deliverables), the `write` task MUST include a mermaid diagram in the spec deliverable body. The diagram is part of the spec artifact — not an optional appendix — and shows the **approved dependency structure only**.
+
+### When to Include
+
+| Condition | Include Diagram in Spec Body? |
+|-----------|-------------------------------|
+| Spec has multiple phases or items | YES — mandatory |
+| Spec has cross-issue dependencies | YES — mandatory |
+| Single-item spec with no dependencies | NO — omit |
+
+### Diagram Placement in Deliverable
+
+The mermaid diagram is inserted in the spec body:
+- After the "Dependencies" section (if present)
+- Before the "Implementation Plan" section (if present)
+- After the "Success Criteria" section (if no Dependencies section exists)
+
+The `write` task assembles the diagram into the final spec body alongside other sections. The diagram is a first-class part of the deliverable — agents creating specs with dependencies MUST produce the diagram content within the spec body, not as a separate artifact.
+
+### Diagram Content Rules
+
+- Diagrams MUST show **approved structure only** — phase relationships, dependency flow, data contracts
+- Diagrams MUST NOT include workflow state markers: ✅, 🔄, ❌, "implemented", "pending", "in progress", "blocked", "complete"
+- Diagrams MUST use `graph TD` or `flowchart TD` mermaid syntax
+- Node labels MUST describe the deliverable or concern name, not its status
+- If the `diagram` sub-agent produces markers, the `write` task auto-fixes by removing them before assembly
+
+### Correct Example
+
+```mermaid
+graph TD
+    P1[Phase 1: Tooling] --> P2[Phase 2: Guidelines]
+    P1 --> P3[Phase 3: Skills]
+    P2 --> P3
+```
+
+### Forbidden Example
+
+```mermaid
+graph TD
+    P1[Phase 1: Tooling ✅] --> P2[Phase 2: Guidelines 🔄]
+```
+
+### Enforcement in write Task
+
+The `write` task MUST:
+1. Check if dependencies exist (N > 1 items, or cross-issue dependencies)
+2. If dependencies exist: invoke `diagram` task or inline-generate mermaid diagram
+3. Insert diagram in spec body at the prescribed placement location
+4. Scan diagram content for workflow state markers before final assembly
+5. Auto-fix any discovered markers (remove them, note in evidence)
 
 ## Interdependency Diagram Discipline (MANDATORY When Dependencies Exist)
 
@@ -642,6 +713,16 @@ gates:
 
   - id: diagram-no-workflow-state
     condition: "diagram_shows_workflow_state == false"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: diagram-in-deliverable-when-deps-exist
+    condition: "dependencies_exist == false OR mermaid_diagram_in_spec_body == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: diagram-deliverable-no-workflow-state
+    condition: "diagram_in_deliverable_shows_workflow_state == false"
     on_fail: HALT
     critical_violation: true
 

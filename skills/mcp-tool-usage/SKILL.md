@@ -13,6 +13,28 @@ compatibility: opencode
 
 Tool Priority Enforcer ensuring all operations use the correct tool according to the five-tier hierarchy. Defines PRIMARY, FALLBACK, and PROHIBITED tools for each operation type. Zero tolerance for `.ipynb` files.
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[File operation needed] --> B{File type?}
+    B -- .ipynb --> C[Tier 1: the-notebook-mcp MANDATORY]
+    B -- other --> D{Operation type?}
+    D -- read/write/edit/glob/grep --> E[Tier 1: opencode built-in tools]
+    D -- code search/symbols --> F[Tier 2: srclight MCP]
+    D -- GitHub API --> G[Tier 2: GitHub MCP]
+    D -- guidelines lookup --> H[Tier 3: .opencode/tools/guidelines]
+    D -- unique JetBrains capability --> I[Tier 4: JetBrains MCP]
+    E --> J{Tool available?}
+    F --> J
+    G --> J
+    H --> J
+    I --> J
+    J -- No --> K[Tier 5: direct CLI bash]
+    J -- Yes --> L[Use selected tool]
+```
+
 ## Tasks
 
 | Task | Purpose | Words |

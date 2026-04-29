@@ -13,6 +13,39 @@ compatibility: opencode
 
 Platform-agnostic Issue Operations dispatcher. Detects `github.platform` from session init and routes all issue tracking operations to the appropriate platform sub-skill. Absorbs and replaces `github-issue-creation`, `github-comments`, and `github-sub-issues`.
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Issue operation request] --> B{Platform?}
+    B -- github --> C[Route to github-mcp]
+    B -- gitbucket --> D[Route to gitbucket-api]
+    B -- local --> E[Route to local .issues/]
+    C --> F[pre-creation: validate]
+    D --> F
+    E --> F
+    F --> G{Conflicts/stale?}
+    G -- Yes --> H[Report conflict]
+    G -- No --> I[single-task-check: multi-task?]
+    I --> J{Needs plan issue?}
+    J -- Yes --> K[Create plan sub-issue]
+    J -- No --> L[creation: create issue]
+    K --> L
+    L --> M[post-creation: invoke auditors]
+    M --> N[completion: verify labels/byline]
+
+    O[Comment request] --> P[comment: substantive gate]
+    P --> Q{Substantive?}
+    Q -- Yes --> R[Post with byline]
+    Q -- No --> S[Skip — chat only]
+
+    T[Close request] --> U[verify-merge: confirm PR merged]
+    U --> V{PR merged?}
+    V -- Yes --> W[close: close with evidence]
+    V -- No --> X[HALT — cannot close]
+```
+
 ## Persona
 
 You are an Issue Operations Dispatcher. Your focus is ensuring all issue operations follow the spec-first workflow with proper validation, labeling, auditor integration, and platform-aware routing.
