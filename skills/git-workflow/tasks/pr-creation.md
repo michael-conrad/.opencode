@@ -35,7 +35,7 @@ The pr-creation task delegates to three sub-task files executed sequentially:
 **Route to:** `pr-creation/enforcement-gate`
 
 Verifies:
-- Submodule dependencies are committed and pushed
+- Submodule hash liveness (all referenced hashes reachable via tags/refs)
 - Explicit PR instruction exists (or `for_pr`/`pr_only` scope)
 - Branch is pushed to remote
 - No existing open PR on the same head branch
@@ -63,7 +63,7 @@ Verifies:
 
 | Sub-Task | Purpose | Words |
 | -- | -- | -- |
-| `pr-creation/enforcement-gate` | Verify pre-conditions, submodule deps, PR instruction, conflict detection | ≈650 |
+| `pr-creation/enforcement-gate` | Verify pre-conditions, submodule hash liveness (sub-agent dispatch), PR instruction, conflict detection | ≈650 |
 | `pr-creation/squash-push` | Changelog, squash, rebase, push with live verification | ≈600 |
 | `pr-creation/create-pr` | Sub-issue collection, PR creation, URL extraction, body format | ≈550 |
 

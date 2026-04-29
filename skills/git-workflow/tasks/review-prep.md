@@ -33,7 +33,7 @@ Sequence: Implementation complete → commit → push → **review-prep MUST be 
 
 **Route to:** `review-prep/push-and-cleanup`
 
-Handles submodule push automation, temp file cleanup, rebase on current dev, worktree handoff, and branch push verification.
+Handles submodule feature-branch push with tip tagging (via sub-agent dispatch), temp file cleanup, rebase on current dev, worktree handoff, and branch push verification.
 
 ### Step 2.5: Squash Verification (MANDATORY GATE)
 
@@ -90,7 +90,7 @@ Guideline and documentation changes are NOT exempt from PR workflow.
 
 | Sub-Task | Purpose | Words |
 | -- | -- | -- |
-| `review-prep/push-and-cleanup` | Submodule push, temp cleanup, rebase, branch push, worktree handoff | ≈700 |
+| `review-prep/push-and-cleanup` | Submodule feature-branch push (sub-agent), temp cleanup, rebase, branch push, worktree handoff | ≈700 |
 | `review-prep/report-url` | URL generation, chat format, HALT protocol | ≈600 |
 
 ## Enforcement Checklist

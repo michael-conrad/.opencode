@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: Use when creating a branch, committing changes, pushing work, or creating a PR. Also use when git rebase/merge produces conflicts — invoke conflict-resolution skill for classification. Also use when user says "check pr", "check prs", "check merged prs", or "check merged pr" to trigger PR state verification and cleanup if merged. Also use when user says "release PR", "promote to main", or "dev to main" — invokes release-promotion task for dev → main promotion. Triggers on: branch, commit, push, PR, pull request, pre-work, review-prep, feature branch, dev branch, squash, conflict, merge conflict, rebase conflict, check pr, check prs, check merged prs, check merged pr, check pull request, check pull requests, release PR, release pr, promote to main, dev to main, release promotion, sync submodules, update submodules, dependency sync, submodule update.
+description: Use when creating a branch, committing changes, pushing work, or creating a PR. Also use when git rebase/merge produces conflicts — invoke conflict-resolution skill for classification. Also use when user says "check pr", "check prs", "check merged prs", or "check merged pr" to trigger PR state verification and cleanup if merged. Also use when user says "release PR", "promote to main", or "dev to main" — invokes release-promotion task for dev → main promotion. Triggers on: branch, commit, push, PR, pull request, pre-work, review-prep, feature branch, dev branch, squash, conflict, merge conflict, rebase conflict, check pr, check prs, check merged prs, check merged pr, check pull request, check pull requests, release PR, release pr, promote to main, dev to main, release promotion, submodule tag, submodule verify, submodule liveness.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
@@ -28,8 +28,9 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 | `review-prep` | Push branch, generate compare URL for review (2 subtasks) | ≈390 |
 | `pr-creation` | Squash, push, create PR via GitHub MCP (3 subtasks) | ≈385 |
 | `rebase-pending` | Rebase other open PRs after merge, classify conflicts | 1,666 |
-| `cleanup` | Verify merge, close issues, delete branches, submodule pointer sync (3 subtasks + Step 5.6) | ≈950 |
-| `completion` | Ensure mandatory completion steps run regardless of workflow outcome | ≈200 |
+| `cleanup` | Verify merge, close issues, delete branches, submodule dev-restore (sub-agent dispatch) (3 subtasks) | ≈950 |
+| `pr-creation` | Squash, push, create PR via GitHub MCP (3 subtasks) | ≈385 |
+| `rebase-pending` | Rebase other open PRs after merge, classify conflicts | 1,666 |
 | `release-promotion` | Automate dev → main promotion and tagging (submodule and non-submodule repos) | ≈500 |
 | `check-pr` | List all PRs (open + merged); if merged found, activate cleanup | ≈50 |
 | `provenance` | Create provenance issues/PRs in submodule repos after push/promotion (3 subtasks) | ≈460 |
@@ -38,7 +39,6 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 | `pair-pr-creation` | Squash + PR with [pair-mode] trailers targeting dev | ≈300 |
 | `pair-cleanup` | Branch deletion after merge, stash cleanup | ≈350 |
 | `pair-mode-resume` | Detect and report on pair-* branch at session start | ≈300 |
-| `dependency-sync` | Automate submodule update lifecycle: detect, update, analyze, track, commit, push | ≈450 |
 
 ## Routing: Feature PR vs Release PR
 
@@ -64,7 +64,6 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 - `/skill git-workflow --task pair-pr-creation` - Squash + create PR with [pair-mode] trailers
 - `/skill git-workflow --task pair-cleanup` - Cleanup after pair-mode PR merge
 - `/skill git-workflow --task pair-mode-resume` - Resume pair mode session on existing pair-* branch
-- `/skill git-workflow --task dependency-sync` - Automate submodule update lifecycle (detect, update, analyze, track, commit, push)
 - `/skill git-workflow` - Overview only
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps (status report, URL, verification gates) are never skipped. It is idempotent and safe to invoke multiple times.
@@ -216,7 +215,10 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `pair-mode-resume` | ≈300 |
 | `completion` | ≈200 |
 | `check-pr` | ≈50 |
-| `dependency-sync` | ≈450 |
+| `submodule-tag-prework` | ≈400 |
+| `submodule-feature-push` | ≈400 |
+| `submodule-liveness-check` | ≈300 |
+| `submodule-dev-restore` | ≈250 |
 
 ### Dispatch Audit Table
 
@@ -225,13 +227,13 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `cleanup` (routing) | PR merge confirmed, cleanup workflow started | PR number, branch name, github.owner, github.repo | Implementation context, agent memory | NO |
 | `cleanup/verify-merge` | Cleanup sub-task: verify PR is merged | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
 | `cleanup/issue-closure` | Cleanup sub-task: close issues | Issue numbers, github.owner, github.repo | Implementation context, agent memory | NO |
-| `cleanup/branch-cleanup` | Cleanup sub-task: verify content then delete merged branches | Branch names, worktree.path | Implementation context, agent memory | NO |
+| `cleanup/branch-cleanup` | Cleanup sub-task: verify content then delete merged branches, submodule dev-restore via sub-agent | Branch names, worktree.path, github.owner, github.repo, submodule paths | Implementation context, agent memory | NO |
 | `pr-creation` (routing) | PR creation authorized | Branch name, compare URL, github.owner, github.repo | Implementation context, agent memory | NO |
-| `pr-creation/enforcement-gate` | PR creation enforcement checks | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pr-creation/enforcement-gate` | PR creation enforcement checks, submodule hash liveness via sub-agent | Branch name, github.owner, github.repo, submodule paths | Implementation context, agent memory | NO |
 | `pr-creation/squash-push` | Squash and push before PR | Branch name, worktree.path | Implementation context, agent memory | NO |
 | `pr-creation/create-pr` | Create the pull request | Branch name, PR body, github.owner, github.repo | Implementation context, agent memory | NO |
 | `review-prep` (routing) | Implementation complete, review prep needed | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
-| `review-prep/push-and-cleanup` | Push branch and cleanup | Branch name, worktree.path | Implementation context, agent memory | NO |
+| `review-prep/push-and-cleanup` | Push branch, submodule feature-branch push via sub-agent, cleanup | Branch name, worktree.path, submodule paths | Implementation context, agent memory | NO |
 | `review-prep/report-url` | Generate compare/PR URL | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
 | `provenance` (routing) | Provenance tracking needed | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
 | `provenance/platform-detection` | Detect platform for provenance | Platform detection context | Implementation context, agent memory | NO |
@@ -246,7 +248,10 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `pair-pr-creation` | Pair mode PR creation | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
 | `pair-cleanup` | Pair mode cleanup | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
 | `pair-mode-resume` | Pair mode resume | Branch name, worktree.path | Implementation context, agent memory | NO |
-| `dependency-sync` | Automate submodule update lifecycle | Branch name, github.owner, github.repo, dev.name, dev.email | Implementation context, agent memory | NO |
+| `submodule-tag-prework` | Tag each submodule at dev tip with <parent-repo>/<issue-number>, push tags | github.owner, github.repo, dev.name, dev.email, issue_number, parent repo short name, submodule paths | Implementation context, agent memory, full task file contents | NO |
+| `submodule-feature-push` | Push submodule feature branches and tag tips with <parent-repo>/<issue-number>-<sub> | github.owner, github.repo, dev.name, dev.email, issue_number, feature branch name, parent repo short name, changed submodule paths | Implementation context, agent memory, full task file contents | NO |
+| `submodule-liveness-check` | Verify all referenced submodule hashes are reachable (liveness check only, NO auto-remediation) | github.owner, github.repo, parent repo short name, issue_number, submodule paths | Implementation context, agent memory, auto-remediation instructions | NO |
+| `submodule-dev-restore` | Restore submodules to dev branch after cleanup | github.owner, github.repo, submodule paths | Implementation context, agent memory, cleanup history | NO |
 | `completion` | Workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
 | `check-pr` | Check PR state for merged/closed | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
 
@@ -383,20 +388,73 @@ uncommitted_count: <int>
 unpushed_count: <int>
 ```
 
-#### dependency-sync
+#### submodule-tag-prework
+
+```yaml
+status: DONE | BLOCKED
+task: submodule-tag-prework
+submodule_results:
+  - path: <submodule-path>
+    tag_name: <parent-repo>/<issue-number>
+    sha_tagged: <sha>
+    tag_pushed: bool
+evidence_artifacts:
+  - tool: git tag -l
+    output: <tag list showing created tags>
+  - tool: git push origin --tags
+    output: <push confirmation>
+```
+
+#### submodule-feature-push
 
 ```yaml
 status: DONE | BLOCKED | SKIP
-task: dependency-sync
-issue_number: <N>
-issue_url: <url>
-compare_url: <url>
-submodules_updated:
+task: submodule-feature-push
+submodule_results:
   - path: <submodule-path>
-    old_sha: <sha>
-    new_sha: <sha>
-    commits_count: <N>
-commits_count: <N>
+    branch_pushed: <branch-name>
+    tag_name: <parent-repo>/<issue-number>-<sub>
+    sha_tagged: <sha>
+    tag_pushed: bool
+evidence_artifacts:
+  - tool: git push origin <branch>
+    output: <push confirmation>
+  - tool: git tag -l
+    output: <tag list>
+  - tool: git push origin --tags
+    output: <push confirmation>
+```
+
+#### submodule-liveness-check
+
+```yaml
+status: DONE | BLOCKED
+task: submodule-liveness-check
+submodule_results:
+  - path: <submodule-path>
+    committed_sha: <sha>
+    reachable: bool
+    reachable_via: <tag-name or ref-name or "unreachable">
+evidence_artifacts:
+  - tool: git ls-tree HEAD <path>
+    output: <sha>
+  - tool: git tag --contains <sha>
+    output: <tag list>
+```
+
+#### submodule-dev-restore
+
+```yaml
+status: DONE | BLOCKED
+task: submodule-dev-restore
+submodule_results:
+  - path: <submodule-path>
+    branch: dev
+    sha: <dev-tip-sha>
+    stash_used: bool
+evidence_artifacts:
+  - tool: git branch --show-current
+    output: "dev"
 ```
 
 ### Dispatch Context Schema
@@ -493,7 +551,7 @@ When a submodule is pushed or promoted from the parent repo, provenance tracking
 
 | Integration | When Provenance Runs |
 | -- | -- |
-| `review-prep` (Step 0, Submodule Push Automation) | After each submodule is pushed to dev — provenance tracks the dev-push |
+| `review-prep` (Step 0, Submodule Feature Push) | After each submodule feature branch is pushed and tip-tagged — provenance tracks the feature-branch push |
 | `release-promotion` (Step 2h) | After each submodule is promoted dev → main — provenance tracks the promotion |
 
 ### Fire-and-Forget Semantics
@@ -593,10 +651,12 @@ When `git rev-parse --show-toplevel` returns a path that is a descendant of a pa
 
 ### Provenance & Submodule PRs
 
-- Submodule feature branches target `dev` (same as non-submodule)
+- Submodule feature branches target `dev` (same as non-submodule) — pushes are feature-branch pushes with tip tags
+- Tags use `<parent-repo>/<issue-number>` format (pre-work) and `<parent-repo>/<issue-number>-<sub>` (feature push)
 - Release promotion: lock submodule SHA, promote submodule `dev → main`, update parent repo reference
 - Provenance tracking uses the three-tier model (see `## Submodule Provenance`)
 - Cross-repo provenance: parent repo PR body references submodule PR/issue numbers
+- Hash liveness check at PR-time verifies all referenced submodule hashes are reachable via tags
 
 ### Safety Gates
 
@@ -730,19 +790,40 @@ tasks:
     mandatory: false
     bypass_violation: ""
     source: "git-workflow/SKILL.md"
-  - id: dependency-sync
-    skill: git-workflow
-    preconditions: ["gitmodules_exists == true", "working_tree_clean == true", "submodules_have_updates == true"]
-    postconditions: ["tracking_issue_created == true", "branch_pushed == true", "compare_url_generated == true"]
-    mandatory: false
-    bypass_violation: ""
-    source: "git-workflow/SKILL.md"
   - id: completion
     skill: git-workflow
     preconditions: ["any_state"]
     postconditions: ["completion_tasks_executed == true"]
     mandatory: true
     bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "git-workflow/SKILL.md"
+  - id: submodule-tag-prework
+    skill: git-workflow
+    preconditions: [".gitmodules exists", "authorization_verified == true"]
+    postconditions: ["all_submodules_tagged == true", "all_tags_pushed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Submodule Pre-Work Tagging"
+    source: "git-workflow/SKILL.md"
+  - id: submodule-feature-push
+    skill: git-workflow
+    preconditions: [".gitmodules exists", "submodule_has_changes == true"]
+    postconditions: ["submodule_branch_pushed == true", "submodule_tip_tagged == true"]
+    mandatory: false
+    bypass_violation: ""
+    source: "git-workflow/SKILL.md"
+  - id: submodule-liveness-check
+    skill: git-workflow
+    preconditions: [".gitmodules exists", "pr_creation_authorized == true"]
+    postconditions: ["all_submodule_hashes_reachable == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping PR creation with unreachable submodule hashes"
+    source: "git-workflow/SKILL.md"
+  - id: submodule-dev-restore
+    skill: git-workflow
+    preconditions: ["pr_merged == true", ".gitmodules exists"]
+    postconditions: ["all_submodules_on_dev == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Leaving submodule on detached HEAD after cleanup"
     source: "git-workflow/SKILL.md"
 decomposition:
   - type: skill-task

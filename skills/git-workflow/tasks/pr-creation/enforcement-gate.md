@@ -16,27 +16,56 @@ Enforce mandatory pre-conditions before PR creation. Verify explicit PR instruct
 
 ## Procedure
 
-### Step 0: Submodule PR Dependency Check (MANDATORY GATE)
+### Step 0: Submodule Hash Liveness Check (MANDATORY GATE — Sub-Agent Dispatch)
 
 **If `.gitmodules` does NOT exist:** Skip entirely.
 
-**If `.gitmodules` EXISTS:**
+**If `.gitmodules` exists:** The agent MUST dispatch a `submodule-liveness-check` sub-agent to verify that all referenced submodule hashes are reachable. The main agent MUST NOT perform git operations on submodules inline — this is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Inline Work.
 
-For each submodule entry:
-1. Get committed SHA: `git ls-tree HEAD <path> | awk '{print $3}'`
-2. Get remote dev HEAD SHA: `git ls-remote <url> refs/heads/dev | awk '{print $1}'`
-3. Compare SHA:
-   - Match → pass
-   - Mismatch → **Auto-remediation path:**
-     1. Advance the submodule: `cd <path> && git fetch origin && git checkout origin/dev`
-     2. Read commit log between old and new SHA: `git log --oneline <old_sha>..<new_sha>`
-     3. Commit the bump into the current branch: `git add <path> && git commit -m "chore(submodule): pin <path> to latest dev"`
-     4. Re-check SHA comparison. If pass → PR creation proceeds.
-     5. If still fails (e.g., remote changed again): retry once more from step 1.
-     6. After retry failure → **BLOCK PR creation** with specific failure reason (which submodule, which SHAs).
-4. For `main`-branch PRs: verify SHA is a tagged release
+#### Sub-Agent Boundary
 
-**There is NO `--force` override for submodule dependency gates.**
+| Field | Value |
+|-------|-------|
+| **must_receive** | Submodule paths from `git submodule status`, `github.owner`, `github.repo`, parent repo short name, issue number |
+| **must_not_receive** | Implementation context, agent memory, full task file contents, auto-remediation instructions |
+
+#### Dispatch Procedure
+
+Invoke: `/submodule-verify` opencode command (or dispatch sub-agent with scoped instruction).
+
+The sub-agent performs a **liveness verification only — NOT auto-remediation:**
+
+1. For each submodule entry:
+   a. Get committed SHA: `git ls-tree HEAD <path> | awk '{print $3}'`
+   b. Check if SHA is reachable via any tag or branch: `git tag --contains <sha>` or `git branch --contains <sha>`
+   c. If reachable via a pre-work tag (`<parent-repo>/<issue-number>`) or feature tag (`<parent-repo>/<issue-number>-<sub>`): ✅ PASS
+   d. If reachable via dev branch or any other ref: ✅ PASS
+   e. If NOT reachable by any ref: ❌ FAIL — hash is unreachable
+
+2. If ALL submodule hashes are reachable: Proceed to Step 1.
+
+3. If ANY submodule hash is NOT reachable: **BLOCK PR creation** with specific failure report listing which submodule and which hash failed.
+
+**There is NO auto-remediation path.** The liveness check is verification only. If a hash is unreachable, the developer must resolve it manually (e.g., by pushing the missing tag or updating the submodule reference).
+
+**There is NO `--force` override for submodule liveness gates.**
+
+#### Sub-Agent Result Contract
+
+```yaml
+status: DONE | BLOCKED
+task: submodule-liveness-check
+submodule_results:
+  - path: <submodule-path>
+    committed_sha: <sha>
+    reachable: bool
+    reachable_via: <tag-name or ref-name or "unreachable">
+evidence_artifacts:
+  - tool: git ls-tree HEAD <path>
+    output: <sha>
+  - tool: git tag --contains <sha>
+    output: <tag list>
+```
 
 ### Step 1: Verify PR Instruction (MANDATORY)
 
