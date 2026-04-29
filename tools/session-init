@@ -188,13 +188,14 @@ def _read_gitbucket_url_from_env() -> str | None:
     """Read GITBUCKET_HTML_URL (preferred) or GITBUCKET_URL (legacy) from .env file."""
     try:
         _base_dir = os.path.dirname(os.path.abspath(__file__))
-        _cdup = subprocess.check_output(
-            ["git", "-C", _base_dir, "rev-parse", "--show-cdup"],
+        _git_out = subprocess.check_output(
+            ["git", "-C", _base_dir, "rev-parse", "--show-superproject-working-tree", "--show-toplevel"],
             text=True,
             stdin=subprocess.DEVNULL,
             timeout=NETWORK_TIMEOUT,
         ).strip()
-        env_path = os.path.normpath(os.path.join(_base_dir, _cdup, ".env"))
+        _root = _git_out.splitlines()[0] if _git_out.splitlines() else os.getcwd()
+        env_path = os.path.join(_root, ".env")
         if os.path.exists(env_path):
             html_url = None
             legacy_url = None
@@ -881,13 +882,14 @@ def main() -> int:
         has_credentials = False
         try:
             _base_dir = os.path.dirname(os.path.abspath(__file__))
-            _cdup = subprocess.check_output(
-                ["git", "-C", _base_dir, "rev-parse", "--show-cdup"],
+            _git_out = subprocess.check_output(
+                ["git", "-C", _base_dir, "rev-parse", "--show-superproject-working-tree", "--show-toplevel"],
                 text=True,
                 stdin=subprocess.DEVNULL,
                 timeout=NETWORK_TIMEOUT,
             ).strip()
-            env_path = os.path.normpath(os.path.join(_base_dir, _cdup, ".env"))
+            _root = _git_out.splitlines()[0] if _git_out.splitlines() else os.getcwd()
+            env_path = os.path.join(_root, ".env")
             if os.path.exists(env_path):
                 with open(env_path) as f:
                     content = f.read()

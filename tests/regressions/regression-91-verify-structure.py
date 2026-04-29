@@ -10,11 +10,16 @@ Usage: uv run .opencode/tests/regressions/regression-91-verify-structure.py
 
 from __future__ import annotations
 
-import sys
+import subprocess
 from pathlib import Path
 
-OPENCODE_DIR = Path(__file__).resolve().parent.parent.parent
-PROJECT_ROOT = OPENCODE_DIR.parent
+_THIS_DIR = Path(__file__).resolve().parent
+_git_out = subprocess.check_output(
+    ["git", "-C", str(_THIS_DIR), "rev-parse", "--show-superproject-working-tree", "--show-toplevel"],
+    text=True,
+).strip()
+PROJECT_ROOT = Path(_git_out.splitlines()[0]) if _git_out.splitlines() else Path.cwd()
+OPENCODE_DIR = PROJECT_ROOT / ".opencode"
 
 ISSUES = [41, 42, 43, 45]
 

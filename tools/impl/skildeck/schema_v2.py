@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import os
 import re
+import subprocess
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
@@ -35,7 +36,7 @@ def find_skills_dir(tool_path: Path) -> Path:
     Find skills directory by walking up tree from tool location.
     
     Works for: standalone dirs, submodules, copied folders, any deployment.
-    No git required. No hardcoded paths.
+    No hardcoded paths.
     """
     # 1. Discovery: walk up until finding skills/
     for parent in [tool_path.parent] + list(tool_path.parents):
@@ -43,7 +44,20 @@ def find_skills_dir(tool_path: Path) -> Path:
         if candidate.exists() and candidate.is_dir():
             return candidate
     
-    # 2. Environment override (explicit user control for edge cases)
+    # 2. Git-based detection: find project root and look for .opencode/skills/
+    try:
+        _git_out = subprocess.check_output(
+            ["git", "-C", str(tool_path.parent), "rev-parse", "--show-superproject-working-tree", "--show-toplevel"],
+            text=True, stderr=subprocess.DEVNULL,
+        ).strip()
+        if _git_out.splitlines():
+            candidate = Path(_git_out.splitlines()[0]) / ".opencode" / "skills"
+            if candidate.exists() and candidate.is_dir():
+                return candidate
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+    
+    # 3. Environment override (explicit user control for edge cases)
     if os.environ.get("SKILDECK_SKILLS_DIR"):
         env_path = Path(os.environ["SKILDECK_SKILLS_DIR"])
         if env_path.exists():

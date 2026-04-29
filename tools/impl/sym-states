@@ -19,8 +19,8 @@ from pathlib import Path
 import networkx as nx
 
 IMPL_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-BASE_DIR = (IMPL_DIR / CDUP).resolve()
+_git_out = subprocess.check_output(["git", "-C", str(IMPL_DIR), "rev-parse", "--show-superproject-working-tree", "--show-toplevel"], text=True).strip()
+BASE_DIR = Path(_git_out.splitlines()[0]) if _git_out.splitlines() else Path.cwd()
 
 
 def _load_extract():

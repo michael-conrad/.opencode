@@ -55,7 +55,13 @@ def get_current_branch() -> str | None:
 
 
 def get_root_dir() -> str | None:
-    return run_git(["rev-parse", "--show-toplevel"])
+    result = run_git(["rev-parse", "--show-superproject-working-tree", "--show-toplevel"])
+    if result:
+        for line in result.splitlines():
+            line = line.strip()
+            if line:
+                return line
+    return None
 
 
 def is_on_main_branch() -> bool:

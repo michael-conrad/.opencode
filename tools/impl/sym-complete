@@ -18,8 +18,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 IMPL_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-BASE_DIR = (IMPL_DIR / CDUP).resolve()
+_git_out = subprocess.check_output(["git", "-C", str(IMPL_DIR), "rev-parse", "--show-superproject-working-tree", "--show-toplevel"], text=True).strip()
+BASE_DIR = Path(_git_out.splitlines()[0]) if _git_out.splitlines() else Path.cwd()
 NORMATIVE_RE = re.compile(r"\b(MUST|SHALL|NEVER|ALWAYS|REQUIRED|FORBIDDEN)\b")
 YAML_FENCE_RE = re.compile(r"```yaml\+symbolic\n.*?```", re.DOTALL)
 
