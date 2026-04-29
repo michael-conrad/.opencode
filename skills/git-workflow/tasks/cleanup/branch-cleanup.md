@@ -299,6 +299,24 @@ evidence_artifacts:
     output: "dev"
 ```
 
+### Step 5.6: Submodule Pointer Is Expected Dirty — NOT a Separate PR
+
+After submodule-dev-restore, `git status --porcelain` will show `.opencode` as modified because the parent's tracked SHA differs from the submodule's dev tip. This is expected and correct — the submodule is now on the latest dev commit, but the parent repo still records the old SHA.
+
+**This dirty state does NOT warrant a separate PR.** The parent's submodule pointer advances naturally as part of the next feature branch that modifies `.opencode/` content. The pre-work step for that feature will stage and commit the updated pointer alongside the feature's changes.
+
+**🚫 FORBIDDEN:**
+- Creating a PR solely to update the submodule pointer SHA
+- Creating a "chore: update submodule pointer" commit/PR after cleanup
+- Treating the dirty `.opencode` status as an error that needs resolution
+
+**✅ EXPECTED:**
+- After cleanup, `.opencode` shows as modified in `git status` — this is the correct state
+- The next feature branch that touches `.opencode/` content will stage and commit the pointer update as part of its normal pre-work
+- The pointer update is atomic with the feature changes, not a separate operation
+
+**⚠️ `git submodule update` does NOT restore submodules to dev tip — it checks out the parent-recorded SHA, leaving submodules on detached HEAD. The restore must use `git checkout dev && git pull origin dev` inside each submodule.**
+
 ### Step 6: Succinct Confirmation
 
 **The `cleanup` task is THE END of the PR workflow. It MUST produce a one-line succinct confirmation and then HALT.**
