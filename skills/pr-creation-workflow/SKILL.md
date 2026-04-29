@@ -13,6 +13,26 @@ compatibility: opencode
 
 PR creation is a DISTINCT phase requiring EXPLICIT instruction — it is NOT automatic after implementation. "Approved" and "go" authorize implementation ONLY, not PR creation. The developer MUST explicitly say "create a PR" or equivalent.
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[User says create a PR] --> B{Authorization scope allows PR?}
+    B -- No --> C[HALT: need explicit instruction]
+    B -- Yes --> D[enforcement-gate: verify branch state]
+    D --> E{Single-issue branch?}
+    E -- Yes --> F{More than 1 commit?}
+    F -- Yes --> G[squash-push: squash to single commit]
+    F -- No --> H[Branch ready for PR]
+    E -- No --> I[Verify work state matches commit count]
+    G --> H
+    I --> H
+    H --> J[pr-creation: create via GitHub MCP]
+    J --> K[Extract PR URL from API response]
+    K --> L[Report PR URL in chat]
+```
+
 ## Exclusions
 
 This skill covers **feature branch PRs targeting `dev`** only. Release PRs (dev → main promotion) are handled by `git-workflow --task release-promotion`. The routing decision boundary:

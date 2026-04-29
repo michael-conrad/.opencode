@@ -11,9 +11,31 @@ compatibility: opencode
 
 ## Overview
 
-Test-driven development (TDD) workflow that enforces writing tests before implementation code. Tests define the contract, implementation satisfies the contract, and refactoring maintains quality. This is an optional quality gate skill invoked contextually when the development approach benefits from TDD.
+Test-driven development (TDD) workflow that enforces writing tests before implementation code. Tests define the contract, implementation satisfies the contract, and refactoring maintains quality.
+
+**MANDATORY: The agent MUST invoke `test-driven-development --task red` before implementation for all code changes (exempt: docs-only, config-only, data-only changes). Skipping this invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Skipping Mandatory Skill Invocation.**
 
 **Source Attribution:** This skill is adapted from <UPSTREAM_ORG>/<UPSTREAM_REPO> workflow (branch: newsrx).
+
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Implementation needed] --> B[RED: write failing test]
+    B --> C[Test fails without implementation?]
+    C -- No --> D[Revise test to be meaningful]
+    D --> C
+    C -- Yes --> E[GREEN: write minimal code to pass]
+    E --> F[Test passes?]
+    F -- No --> G[Revise implementation]
+    G --> F
+    F -- Yes --> H[REFACTOR: clean up code]
+    H --> I{All tests still green?}
+    I -- No --> J[Revert refactor]
+    J --> H
+    I -- Yes --> K[TDD cycle complete]
+```
 
 ## Tasks
 
@@ -42,13 +64,13 @@ Test-driven development (TDD) workflow that enforces writing tests before implem
 
 ## Operating Protocol
 
-1. **Contextual invocation:** This skill is invoked when user explicitly requests TDD approach, spec has clear testable behavior, or development involves new functions/classes with well-defined contracts. NOT mandatory — use when TDD adds value.
+1. **MANDATORY invocation:** This skill MUST be invoked for ALL code changes. The agent MUST NOT treat TDD as optional or contextual. Invoke `/skill test-driven-development --task red` before writing any implementation code. Exempt: documentation-only, configuration-only, or data-only changes.
 2. **Red-Green-Refactor cycle:** RED: Write a test that fails (defines expected behavior). GREEN: Write minimal code to make test pass (satisfy contract). REFACTOR: Clean up code while keeping tests green.
 3. **Exit conditions:** TDD cycle is COMPLETE when test was written before implementation, implementation passes the test, code is refactored and clean, and all existing tests still pass.
 
 ## Enforcement Mechanism
 
-This is an **optional** quality gate skill. It is not automatically enforced.
+This skill is **MANDATORY** for all code changes. Skipping the TDD enforcement test before implementation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Skipping Mandatory Skill Invocation and §Enforcement Test Updates.
 
 ### What Skills SHOULD Check
 
@@ -78,7 +100,9 @@ This is an **optional** quality gate skill. It is not automatically enforced.
 executing-plans (step with TDD approach) → TDD red → TDD green → TDD refactor → verification-before-completion
 ```
 
-TDD is invoked contextually — not mandatory for all development.
+TDD is invoked MANDATORILY — not optionally for all development.
+
+**Exempt from mandatory TDD invocation:** Documentation-only changes, configuration-only changes, data-only changes. All other changes require the RED/GREEN/REFACTOR cycle.
 
 ## Cross-References
 
@@ -99,26 +123,28 @@ rules:
     title: "Tests MUST be written before implementation code"
     conditions:
       all:
-        - "tdd_selected == true"
+        - "implementation_selected == true"
         - "implementation_written_before_test == true"
     actions:
-      - RECOMMEND("start with test first")
+      - HALT
+      - INVOKE(test-driven-development --task red)
     conflicts_with: []
     requires: []
-    triggers: []
+    triggers: [test-driven-development]
     source: "test-driven-development/SKILL.md §Operating Protocol"
 
   - id: tdd-002
     title: "Test MUST fail without implementation (RED phase)"
     conditions:
       all:
-        - "tdd_selected == true"
+        - "implementation_selected == true"
         - "test_passes_without_implementation == true"
     actions:
-      - RECOMMEND("test does not validate anything — rewrite test")
+      - HALT
+      - REWRITE_TEST
     conflicts_with: []
     requires: []
-    triggers: []
+    triggers: [test-driven-development]
     source: "test-driven-development/SKILL.md §Enforcement Mechanism"
 
 tasks:

@@ -11,9 +11,32 @@ compatibility: opencode
 
 ## Overview
 
+**MANDATORY: The agent MUST invoke `verification-before-completion --task verify` before marking any task or phase complete. Skipping this invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations.** Exempt: no implementation work performed (read-only sessions, pure Q/A, issue creation without code changes).
+
 Evidence-based verification workflow that prevents premature completion claims. This skill ensures ALL success criteria are verified with actual evidence before ANY task or phase is marked complete.
 
 **Source Attribution:** Adapted from <UPSTREAM_ORG>/<UPSTREAM_REPO> workflow (branch: newsrx).
+
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Task claimed complete] --> B[verify: check all success criteria]
+    B --> C{Evidence for each SC?}
+    C -- No --> D[collect: gather missing evidence]
+    D --> C
+    C -- Yes --> E[structural-verify: check against spec]
+    E --> F{Structure matches spec?}
+    F -- No --> G[Report FAILED criteria]
+    F -- Yes --> H{Behavioral test passes?}
+    H -- No --> G
+    H -- Yes --> I[All criteria PASS]
+    G --> J[Task NOT complete]
+    I --> K[Task verified complete]
+    J --> L[completion: document results]
+    K --> L
+```
 
 ## Persona
 
@@ -55,6 +78,16 @@ You are a Verification Gatekeeper. Your focus is ensuring NO completion claim wi
 - `/skill verification-before-completion --task structural-verify` — Verify structural completeness of implementation against spec
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps (verification result comment, status report) are never skipped. It is idempotent and safe to invoke multiple times.
+
+## Behavioral Test Verification
+
+Before marking complete, verify:
+
+- [ ] Behavioral test description exists and test PASSES
+- [ ] Test verifies actual behavior (conversational or runtime), not file contents
+- [ ] Behavior change documented in prose (what changed, how verified)
+
+**Passing behavioral test = mandatory for completion.**
 
 ## Operating Protocol
 

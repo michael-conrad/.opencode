@@ -13,6 +13,29 @@ compatibility: opencode
 
 Ensures ALL notebook operations use `the-notebook-mcp` tools exclusively. This is a ZERO TOLERANCE rule — violations cause notebook corruption, data integrity issues, and broken functionality. If `the-notebook-mcp` is unavailable, ALL notebook operations are FORBIDDEN.
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[.ipynb file operation] --> B{Operation type?}
+    B -- read cell --> C[the-notebook-mcp_notebook_read_cell]
+    B -- edit cell --> D[the-notebook-mcp_notebook_edit_cell]
+    B -- execute cell --> E[the-notebook-mcp_notebook_execute_cell]
+    B -- add cell --> F[the-notebook-mcp_notebook_add_cell]
+    B -- create notebook --> G[the-notebook-mcp_notebook_create]
+    B -- search --> H[the-notebook-mcp_notebook_search]
+    C --> I[Verify zero direct file access]
+    D --> I
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+    I --> J{Direct .ipynb access attempted?}
+    J -- Yes --> K[CRITICAL VIOLATION: HALT]
+    J -- No --> L[Continue with result]
+```
+
 ## Tasks
 
 | Task | Purpose | Words |

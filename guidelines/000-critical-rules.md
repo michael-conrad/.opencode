@@ -18,6 +18,7 @@ These mandates protect the integrity of the codebase and repository. They **NEVE
 | No commits to `main` or `dev` | Branch protection is a repository integrity concern |
 | Human-only merge | Agents must never merge PRs |
 | No `/tmp/` usage — `./tmp/` only | Prevents system-level temp file leakage |
+| Audit baselines in permanent storage — NOT `tmp/` | Audit baselines, measurements, and historical data are permanent records, not ephemeral artifacts |
 | Path rules in worktree context | Prevents silent file operation errors across worktrees (only when `WORKTREE_REQUIRED` is set) |
 | Sub-agents must receive `worktree.path` | Prevents sub-agents from mutating main repo (only when main agent is in worktree mode) |
 | Human-only branch deletion | Unmerged branches must never be force-deleted by agents |
@@ -50,6 +51,37 @@ When developer authorization conflicts with a mandate:
 | No developer authorization + any mandate | Mandate holds — HALT and wait |
 
 **See `010-approval-gate.md` → "Mandate Tiering Interaction" for the complete interaction semantics and examples.**
+
+## Critical Violation: Audit Baselines in Temporary Storage
+
+**⚠️ Storing audit baselines, measurements, or historical data in `tmp/` or `/tmp/` is a CRITICAL GUIDELINE VIOLATION.** Audit artifacts are permanent records, not ephemeral artifacts.
+
+- 🚫 FORBIDDEN: Storing audit reports in `tmp/`, `.opencode/tmp/`, or `/tmp/`
+- 🚫 FORBIDDEN: Storing audit scripts in `tmp/`, `.opencode/tmp/`, or `/tmp/`
+- 🚫 FORBIDDEN: Storing baseline measurements in temporary directories
+- 🚫 FORBIDDEN: Suggesting `tmp/` as a storage location for audit artifacts
+- ✅ REQUIRED: Store audit reports in `.opencode/docs/audits/`
+- ✅ REQUIRED: Store audit scripts in `.opencode/tools/audits/`
+- ✅ REQUIRED: Treat audit baselines, measurements, and historical data as permanent records
+
+**Why this matters:** Audit baselines are reference points for regression detection. If stored in temporary directories, they can be deleted by cleanup operations, leaving no historical record for comparison. The enforcement test `phase0-audit-artifacts.sh` verifies this behavior.
+
+```yaml+symbolic
+  - id: critical-rules-043
+    title: "Audit baselines in permanent storage — NOT tmp/"
+    conditions:
+      any:
+        - "file_path matches '.opencode/tmp/.*audit'"
+        - "file_path matches 'tmp/.*audit'"
+        - "storage_suggestion matches 'tmp/'"
+        - "storage_suggestion matches '/tmp/'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [verification-enforcement, sre-runbook]
+    source: "000-critical-rules.md §Audit Baselines in Temporary Storage"
+```
 
 ## Critical Violation: Direct-Branch Default — Feature Branch Without Worktree Is the Norm
 
@@ -423,7 +455,7 @@ For URLs to resources that **haven't been created yet** (Compare URL before push
 - 🚫 FORBIDDEN: Inferring owner from file paths, `$USER`, `git config user.name`, cached values; making GitHub MCP calls without session init values
 - ✅ REQUIRED: Use `github.owner` and `github.repo` from session init for EVERY GitHub MCP call
 
-**Programmatic enforcement**: The `session-enforcement.ts` plugin validates the agent's identity echo against injected expected values. If the agent's first response does not contain a matching identity echo, an `IDENTITY_VALIDATION_FAILURE` block is injected into the next user message, forcing the agent to HALT. This gate prevents operations with incorrect owner/repo values.
+**Programmatic enforcement**: The `session-enforcement.ts` plugin injects repository identity values (github.owner, github.repo, etc.) into the system prompt. The agent reads these from the system prompt context to route API calls correctly. If identity values are missing, the plugin injects a `<LOCAL_MODE>` warning or error block into the first user message.
 
 ## Critical Violation: Wrong API Routing for Submodule/Sub-folder Repos
 
@@ -588,9 +620,90 @@ When authorization scope includes implementation (`for_implementation`, `for_cod
 
 **AUTHORITY: Bug #1231, #1232, #1233 — root cause is the same: agent spends all context on process steps and halts before producing deliverables. The implementation-first gate ensures the agent produces at least one tangible modification before it is allowed to report completion.**
 
+## Critical Violation: Implementation-First Gate at Authorization Time — Post-Auth Research Spiral
+
+**⚠️ Entering a read-only research spiral after receiving authorization — performing unlimited tool calls that produce zero file modifications — is a CRITICAL GUIDELINE VIOLATION.** This extends the completion-time implementation-first gate to cover the authorization-to-implementation gap.
+
+The completion-time gate (above) catches the agent halting without deliverables. But the same root cause — context spent on process overhead instead of implementation — also manifests as an unbounded research spiral between authorization receipt and the first file modification. The agent receives "approved" and then makes 5, 10, or 20+ read-only tool calls (re-fetching issues, re-reading specs, parsing JSON sub-agent dispatches for data already in context) before producing any deliverable.
+
+**The authorization-time gate closes this gap:** after explicit authorization is received, the agent MUST transition to implementation dispatch within a bounded number of tool calls. Unbounded metadata gathering between authorization and the first file modification is prohibited.
+
+- 🚫 FORBIDDEN: Making more than 3 tool calls between `verify-authorization` returning `authorized` and invoking `git-workflow --task pre-work`
+- 🚫 FORBIDDEN: Dispatching sub-agents to parse or re-fetch data already available in the current context after authorization
+- 🚫 FORBIDDEN: Re-reading issues, specs, or plans that were already read during verification after authorization is received
+- 🚫 FORBIDDEN: Using `task(subagent_type="general")` for JSON parsing, metadata extraction, or any read-only operation on data already in context after authorization
+- ✅ REQUIRED: After `verify-authorization` returns `authorized`, proceed to `git-workflow --task pre-work` within at most 3 tool calls
+- ✅ REQUIRED: If more than 3 tool calls occur without reaching `pre-work`, HALT and report the delay as a critical violation — include the tool call sequence in the report
+- ✅ REQUIRED: Sub-agents after authorization are for implementation dispatch ONLY — file modifications, code generation, and heavy analysis that produces deliverables
+
+```yaml+symbolic
+  - id: critical-rules-045
+    title: "Implementation-First Gate at Authorization Time — post-auth research spiral"
+    conditions:
+      all:
+        - "authorization_received == true"
+        - "tool_calls_since_authorization > 3"
+        - "first_file_modification_not_reached == true"
+    actions:
+      - HALT
+      - REPORT_DELAY_WITH_TOOL_CALL_SEQUENCE
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate, divide-and-conquer]
+    source: "000-critical-rules.md §Implementation-First Gate at Authorization Time"
+```
+
+**See `approval-gate/tasks/verify-authorization/auto-dispatch.md` §Post-Authorization Dispatch Window for the operational enforcement of the 3-tool-call bound. See `060-tool-usage.md` §Sub-Agent Dispatch Restriction After Authorization for the sub-agent restriction. AUTHORITY: Spec #171**
+
+## Critical Violation: Single Concern Principle — Every Artifact Addresses Exactly One Concern
+
+**⚠️ Every artifact the agent produces — commits, PRs, issues, specs, plans, code changes, comments, sub-agents — must address exactly one concern. Violating this is a CRITICAL GUIDELINE VIOLATION.**
+
+A "concern" is a distinct problem area with its own root cause, affected scope, and verification criteria. Two things are separate concerns if you could implement, verify, and close one without the other.
+
+**The "discovered together" fallacy is explicitly prohibited.** Discovering problems in the same session, same workflow, same bug report, or same investigation does NOT make them related. Each concern gets its own artifact regardless of how it was found.
+
+**Applies to ALL artifacts:**
+
+| Artifact | Violation | Correct |
+| -- | -- | -- |
+| Issue | Combining auth error handling + issue routing in one spec | Separate issues for each |
+| Commit | Bundling correspondence template + submodule migration | Separate commits |
+| PR | Including unrelated file changes because "they're all part of the migration" | Separate PRs for separate concerns |
+| Plan | Mixing implementation phases for different subsystems | One phase per concern |
+| Comment | Combining status update + new bug discovery + authorization request | Separate comments for each purpose |
+| Spec | Multiple "Fix Approach" sections for different root causes | One spec per root cause |
+| Sub-agent | Dispatching an agent to handle two unrelated tasks | One sub-agent per concern |
+
+**Test for "unrelated":** Remove concern B from the artifact. If concern A remains complete and verifiable, they are unrelated and must be in separate artifacts.
+
+**Test for "related":** Two concerns share the same root cause, affect the same files/subsystem, and cannot be verified independently — they MAY be combined in one artifact.
+
+- 🚫 FORBIDDEN: Combining multiple unrelated concerns in a single artifact; treating "discovered together" as "related"; bundling fixes for different root causes in one PR/commit/issue; mixing purposes in a single comment (status + bug discovery + authorization request)
+- ✅ REQUIRED: One concern per artifact; separate artifacts for separate concerns; verify each concern can stand alone before combining; apply SCP universally across all artifact types, not just code
+
+```yaml+symbolic
+  - id: critical-rules-042
+    title: "Single Concern Principle — every artifact addresses exactly one concern"
+    conditions:
+      all:
+        - "artifact_addresses_multiple_unrelated_concerns == true"
+    actions:
+      - HALT
+      - SPLIT_INTO_SEPARATE_ARTIFACTS
+    conflicts_with: []
+    requires: []
+    triggers: [spec-creation, writing-plans, issue-operations, git-workflow, approval-gate]
+    source: "000-critical-rules.md §Single Concern Principle"
+```
+
+**AUTHORITY: Spec #152, NewsRx/.opencode#3 — Regression evidence: agent combined unrelated concerns four times in a single session because fragmented domain-specific rules failed when the agent switched between producing different artifact types.**
+
 ## Critical Violation: Monolithic Implementation — Skipping Item Decomposition
 
 **⚠️ Implementing multiple items in a single branch/commit without decomposition, or skipping the top-down → bottom-up → per-item TDD cycle, is a CRITICAL GUIDELINE VIOLATION.**
+
+**UNIVERSAL RULE: See `000-critical-rules.md` §Single Concern Principle for the universal composition rule. Monolithic Implementation is an implementation-specific instance of SCP — it addresses code commits and plans specifically. The universal rule covers all artifact types (issues, specs, PRs, comments, sub-agents).**
 
 **See `091-incremental-build.md` for the complete discipline rules, scope classification, and per-item TDD cycle. See `091-incremental-build.md` → "Enforcement Mechanism" section for RED phase verification requirements, execution checkpoint references, and plan template checkpoint references.** **AUTHORITY: `091-incremental-build.md`**
 
@@ -646,6 +759,8 @@ When authorization scope includes implementation (`for_implementation`, `for_cod
 ## Critical Violation: Scope Creep — NEVER Do Things Outside the Spec
 
 **⚠️ Implementing changes not explicitly called for in the spec is a CRITICAL GUIDELINE VIOLATION.** The spec defines EXACTLY what to implement.
+
+**UNIVERSAL RULE: See `000-critical-rules.md` §Single Concern Principle for the universal composition rule. Scope Creep is an implementation-specific instance of SCP — it addresses code changes that go beyond the spec's defined scope. The universal rule covers all artifact types (issues, specs, PRs, comments, sub-agents).**
 
 🚫 FORBIDDEN: Helper functions, improving nearby code, refactoring adjacent things, fixing similar issues, any change not in the spec
 
@@ -1127,6 +1242,36 @@ The output MUST include at minimum:
 - ✅ REQUIRED: Explicit documented justification in work state if parallel execution is chosen (opportunistic only)
 - ✅ REQUIRED: Stack branches via `git merge <prior-branch>` into dependent branches before implementation
 - ✅ REQUIRED: When in doubt, stack — parallel execution is never the starting assumption
+
+## Critical Violation: pre-implementation-analysis Halts Under for_pr Scope
+
+**⚠️ When `authorization_scope` is `for_pr`, `pr_only`, `for_implementation`, or `for_code_review`, the `pre-implementation-analysis` task MUST NOT produce a halting summary with "Next steps" or similar forward-looking text. The task MUST check scope and proceed directly to gap-fill cascade and implementation dispatch.**
+
+- 🚫 FORBIDDEN: Producing "Next steps" output when `for_pr` scope is active
+- 🚫 FORBIDDEN: Treating `pre-implementation-analysis` as a terminal deliverable under `for_pr` scope
+- 🚫 FORBIDDEN: Halting after analysis without checking `authorization_scope`
+- 🚫 FORBIDDEN: Using the `question` tool for structural decisions when `halt_at >= pr_created`
+- ✅ REQUIRED: Check `authorization_scope` at end of `pre-implementation-analysis`; set `continue_pipeline=true` when `halt_at >= pr_created`
+- ✅ REQUIRED: When `halt_at >= pr_created`, proceed directly to gap-fill → `pre-work` → `assemble-work` without halting
+- ✅ REQUIRED: Output under `for_pr` scope is informational only, not a halting point
+
+**See `approval-gate/tasks/pre-implementation-analysis.md` §for_pr Scope Continuation Gate for the complete continuation rule table and mandatory behavior.** **AUTHORITY: `000-critical-rules.md` §pre-implementation-analysis Halts Under for_pr Scope**
+
+```yaml+symbolic
+  - id: critical-rules-044
+    title: "pre-implementation-analysis halts under for_pr scope"
+    conditions:
+      all:
+        - "authorization_scope IN ['for_pr', 'pr_only', 'for_implementation', 'for_code_review']"
+        - "pre_impl_analysis_produced_halting_summary == true"
+    actions:
+      - HALT
+      - PROCEED_TO(gap_fill_cascade)
+    conflicts_with: []
+    requires: [critical-rules-037, critical-rules-041]
+    triggers: [approval-gate, divide-and-conquer]
+    source: "000-critical-rules.md §pre-implementation-analysis Halts Under for_pr Scope"
+```
 
 ## Critical Violation: Pipeline-Scoped Authorization with Hard HALT at Scope Boundary
 
@@ -1798,6 +1943,7 @@ rules:
     conflicts_with: []
     requires: []
     triggers: []
+    superseded_by: critical-rules-042
     source: "000-critical-rules.md §Scope Creep"
 
   - id: critical-rules-015
@@ -1836,6 +1982,7 @@ rules:
     conflicts_with: []
     requires: []
     triggers: []
+    superseded_by: critical-rules-042
     source: "000-critical-rules.md §Monolithic Implementation"
 
   - id: critical-rules-018
@@ -2264,4 +2411,33 @@ The commit-per-issue invariant requires that single-issue branches produce exact
     requires: []
     triggers: [git-workflow]
     source: "000-critical-rules.md §Listing Merged PRs Without Invoking Cleanup"
+
+  - id: critical-rules-042
+    title: "Skipping behavioral tests for behavior changes"
+    conditions:
+      all:
+        - "behavior_change_implemented == true"
+        - "behavioral_test_missing == true"
+    actions:
+      - HALT
+      - INVOKE(test-driven-development)
+    conflicts_with: []
+    requires: []
+    triggers: [test-driven-development, spec-creation, writing-plans]
+    source: "000-critical-rules.md §Skipping Behavioral Tests for Behavior Changes"
+
+  - id: critical-rules-043
+    title: "Audit baselines in permanent storage — NOT tmp/"
+    conditions:
+      any:
+        - "file_path matches '.opencode/tmp/.*audit'"
+        - "file_path matches 'tmp/.*audit'"
+        - "storage_suggestion matches 'tmp/'"
+        - "storage_suggestion matches '/tmp/'"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [verification-enforcement, sre-runbook]
+    source: "000-critical-rules.md §Audit Baselines in Temporary Storage"
 ```

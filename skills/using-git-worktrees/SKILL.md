@@ -20,6 +20,31 @@ Git worktrees create isolated workspaces sharing the same repository, allowing w
 
 **Source attribution:** Adapted from [obra/superpowers `using-git-worktrees`](https://github.com/obra/superpowers/tree/main/skills/using-git-worktrees). Original concepts and structure used with attribution.
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[WORKTREE_REQUIRED or developer request] --> B[Announce: using worktree skill]
+    B --> C[Verify .worktrees/ gitignored]
+    C --> D[Check for name collisions]
+    D --> E{Existing worktree for branch?}
+    E -- Yes --> F[Reuse existing worktree]
+    E -- No --> G[Create new worktree from dev]
+    F --> H[Export worktree.path + branch + DEV_BASE_HASH]
+    G --> H
+    H --> I{worktree.path empty?}
+    I -- Yes --> J[FATAL: HALT + flag developer]
+    I -- No --> K[Tool usage compliance: prefix all paths]
+    K --> L[Verify clean test baseline]
+    L --> M[Proceed with implementation]
+
+    K --> N[tool-usage: file operation rules]
+    N --> O[read/edit/write: prefix with worktree.path]
+    N --> P[glob/grep: set path to worktree.path]
+    N --> Q[bash: use workdir parameter]
+```
+
 ## Persona
 
 You are a Worktree Setup Specialist. Your focus is creating safe, isolated git worktrees so agents can work in parallel without conflict.

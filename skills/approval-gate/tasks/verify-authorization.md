@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Check for explicit authorization and needs-approval label status before implementation. This task orchestrates the atomized sub-tasks in `verify-authorization/` for fine-grained, low-context verification.
+Check for explicit authorization and needs-approval label status before implementation. This task orchestrates the atomized sub-tasks in `verify-authorization/` for fine-grained, low-context verification. It is the primary authorization gate between approval and implementation.
 
 ## Entry Criteria
 
@@ -42,6 +42,42 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 | 1 issue + sub-issues OR plan with phases | medium-path (0.5, 1, 4.5, 4.6, 5, then 6) |
 | Multi-issue authorization set | full-path (all steps) |
 
+## Authorization Source Verification
+
+### Step 1: Explicit Authorization Check
+
+Verify that explicit authorization exists for the specific issue:
+- "approved #N" or "go #N" → authorization for issue N
+- "approved to PR" → authorization with scope `for_pr`
+- "approved for plan" → authorization with scope `for_plan`
+- "approved for implementation" → authorization with scope `for_implementation`
+
+### Step 2: Label Status Check
+
+Read the issue labels:
+- `needs-approval` present + explicit auth → **PROCEED** (explicit auth overrides)
+- `needs-approval` present + no explicit auth → **HALT** (wait for authorization)
+- No `needs-approval` label → check for other authorization signals
+
+### Step 3: Authorization Decision
+
+| Condition | Result |
+|-----------|--------|
+| Explicit auth ("approved"/"go") + any label | ✅ PROCEED |
+| No explicit auth + `needs-approval` label | ⛔ HALT |
+| No explicit auth + no label | ⛔ HALT (wait for auth) |
+
+### Step 4: Scope Resolution
+
+Parse authorization text for scope:
+- "approved #N" (no qualifier) → `standard` scope
+- "approved #N to PR" → `for_pr` scope
+- "approved #N for plan" → `for_plan` scope
+- "approved #N for implementation" → `for_implementation` scope
+- "approved #N for review" → `for_code_review` scope
+
+The verb-prefix parsing table in `approval-gate` skill → Authorization Scope Model is the sole authority for scope determination. No clarification needed, no judgment required.
+
 ## Sub-Agent Result Guard
 
 When `verify-authorization` is dispatched as a sub-agent and returns empty or whitespace-only:
@@ -62,6 +98,35 @@ When `verify-authorization` is dispatched as a sub-agent and returns empty or wh
 - Dispatch routing: see `enforcement/auto-dispatch-table.md`
 - Closed-issue verification: see `enforcement/closed-issue-verification.md`
 - Sub-issue graph traversal: see `enforcement/sub-issue-graph-traversal.md`
+
+## Post-Authorization Dispatch Window (MANDATORY)
+
+**After `verify-authorization` returns `authorized`, the agent MUST invoke `git-workflow --task pre-work` within at most 3 subsequent tool calls.** This bound prevents the post-authorization research spiral documented in Spec #171.
+
+### 3-Tool-Call Bound
+
+| Tool Call Position After Authorization | Permitted Actions |
+|----------------------------------------|-------------------|
+| 1st | `git-workflow --task pre-work` (target), or contextual transition calls |
+| 2nd | `git-workflow --task pre-work` (target), or contextual transition calls |
+| 3rd | `git-workflow --task pre-work` (target), or contextual transition calls |
+| >3rd without reaching `pre-work` | **CRITICAL VIOLATION** — HALT and report |
+
+### Self-Correction Protocol
+
+If more than 3 tool calls occur after `verify-authorization` returns `authorized` without the agent reaching `git-workflow --task pre-work`:
+
+1. HALT immediately
+2. Report the delay as a critical violation in chat output
+3. Include the tool call sequence in the report (tool names and parameters)
+4. Do NOT continue with any further read-only operations
+5. State explicitly: "Post-authorization dispatch window exceeded — 3-tool-call bound violated"
+
+### Rationale
+
+The research spiral occurs because the agent re-fetches issues, re-reads specs, dispatches sub-agents for JSON parsing, and performs other read-only operations that consume context budget without producing file modifications. The 3-tool-call bound is generous enough to allow legitimate transition calls (e.g., `pre-implementation-analysis` for multi-issue sets) while preventing unbounded metadata gathering.
+
+**See `000-critical-rules.md` §"Implementation-First Gate at Authorization Time" for the top-level critical violation. See `060-tool-usage.md` §"Sub-Agent Dispatch Restriction After Authorization" for the sub-agent restriction.**
 
 ## Result Contract
 

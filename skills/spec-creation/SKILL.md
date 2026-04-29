@@ -17,6 +17,23 @@ Structured discipline for spec writing — enforcing requirements extraction, pr
 
 **Source:** This skill extracts and extends the spec-writing concerns from `brainstorming` Steps 7-9 (write spec, self-review, user review), adding structured discipline for principles not previously enforced at creation time.
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Brainstorming complete] --> B[Structure exploration results]
+    B --> C[Write spec with required sections]
+    C --> D{Spec needs plan?}
+    D -- Multi-task --> E[Invoke writing-plans]
+    D -- Single-task --> F[Combine spec + plan in one issue]
+    E --> G[issue-operations: create as GitHub Issue]
+    F --> G
+    G --> H[Add needs-approval label]
+    H --> I[Post-creation: invoke spec-auditor]
+    I --> J[Completion: report spec URL]
+```
+
 ## Persona
 
 You are a Spec Architect. Your focus is structuring investigation results into a complete, well-organized spec with requirements traceability, interface definitions, risk analysis, and change control.
@@ -60,13 +77,21 @@ You are a Spec Architect. Your focus is structuring investigation results into a
     - DO NOT skip to write without completing applicable prerequisite tasks
 
  2b. **Diagram generation gate (MANDATORY when dependencies exist):**
-    - After `decompose` task completes, check if dependencies exist (N > 1 items, or cross-issue dependencies)
-    - If dependencies exist: invoke `diagram` task to generate mermaid diagram
-    - Diagram MUST show approved structure only — NO workflow state markers (✅, 🔄, ❌, "implemented", "pending")
-    - If diagram contains workflow markers: auto-fix by removing markers, note in evidence
-    - Diagram is inserted in spec body after "Dependencies" section (if present) or before "Implementation Plan"
+     - After `decompose` task completes, check if dependencies exist (N > 1 items, or cross-issue dependencies)
+     - If dependencies exist: invoke `diagram` task to generate mermaid diagram
+     - Diagram MUST show approved structure only — NO workflow state markers (✅, 🔄, ❌, "implemented", "pending")
+     - If diagram contains workflow markers: auto-fix by removing markers, note in evidence
+     - Diagram is inserted in spec body after "Dependencies" section (if present) or before "Implementation Plan"
 
-3. **Select-existing pathway (MANDATORY before writing new spec):** Before creating a new spec, the agent MUST check whether an existing spec/plan already covers the request. This pathway is especially relevant when arriving from the `search-prompt-fail` workflow (see `approval-gate` skill → `verify-qa-mode` task → Step 2.5).
+ 2c. **Concern enumeration guard (MANDATORY before `write`):**
+     - Before the `write` task, enumerate the concerns the spec addresses
+     - For each concern, assess: does it have its own root cause, affected scope, and verification criteria?
+     - If more than one concern with different root causes is detected, flag as `conditional` in spec-auditor and recommend splitting into separate specs
+     - This check enforces the Single Concern Principle (SCP) from `000-critical-rules.md` §Single Concern Principle
+     - The "discovered together" fallacy is explicitly prohibited: discovering problems in the same session, workflow, or bug report does NOT make them related
+     - Concern enumeration result MUST be recorded in the evidence artifact table
+
+ 3. **Select-existing pathway (MANDATORY before writing new spec):** Before creating a new spec, the agent MUST check whether an existing spec/plan already covers the request. This pathway is especially relevant when arriving from the `search-prompt-fail` workflow (see `approval-gate` skill → `verify-qa-mode` task → Step 2.5).
    - Search GitHub Issues using labels `[SPEC]`, `[PLAN]`, `[SPEC-FIX]` and keywords from the request
    - If candidates found: present them to the user with URLs and relevance assessment
    - If user selects an existing candidate: transition to that issue's workflow (e.g., `approval-gate` if already approved, `brainstorming` Path B if approved, `brainstorming` Path A if not yet a spec)
@@ -99,6 +124,36 @@ You are a Spec Architect. Your focus is structuring investigation results into a
 **Complex specs** (architectural change, deployment impact, multi-phase):
 - Required: All tasks
 - No skipping
+
+## Test Requirements (MANDATORY)
+
+Before writing spec, classify:
+
+| Question | If YES → | If NO → |
+|----------|----------|---------|
+| Does this change agent decision logic? | Behavioral (conversational) | Next question |
+| Does this change skill invocation? | Behavioral (conversational) | Next question |
+| Does this add/remove workflow gates? | Behavioral (conversational) | Next question |
+| Does this change code execution? | Behavioral (runtime) | Next question |
+| Does this change build/test commands? | Behavioral (runtime) | Next question |
+| Does this change service/script output? | Behavioral (runtime) | Next question |
+| Is this purely documentation? | Content OK | Behavioral required |
+
+**Default:** Behavioral test required unless you can prove zero behavior impact.
+
+**Test description (prose, not template):**
+
+Describe in natural language:
+1. **What behavior changes** — what does the agent/code do differently after this change?
+2. **How to trigger the behavior** — what prompt (conversational) or what command (runtime)?
+3. **What to verify** — what response, output, or state confirms the behavior changed?
+4. **What constitutes failure** — what response/output means the behavior did NOT change?
+
+Example (conversational): "Prompt the agent with 'I need to implement a feature.' Verify the agent invokes test-driven-development --task red before offering to write code. FAIL if agent offers to write code without invoking TDD first."
+
+Example (runtime): "Execute the build command. Verify the build completes with zero errors. FAIL if build fails or skips compilation steps."
+
+**Do NOT use static templates — describe the behavior to verify in prose.**
 
 ## Key Principles Enforced
 
@@ -139,13 +194,19 @@ You are a Spec Architect. Your focus is structuring investigation results into a
    - Record SC-to-phase mapping in the spec body for traceability
    - This validation step prevents over-verification at implementation time — per the "Phase-Scoped Test Assertions" mandate in `091-incremental-build.md`
 
-4. **After `write` task (issue creation):**
-   - GitHub Issue created with `[SPEC]` prefix and `needs-approval` label?
-   - Chat output is exec summary + URL + byline ONLY? (no full spec dump)
-   - Spec self-review completed? (placeholder scan, consistency check, ambiguity check)
-   - User directed to review on the GitHub Issue (not in chat)?
+ 4. **After `write` task (issue creation):**
+    - GitHub Issue created with `[SPEC]` prefix and `needs-approval` label?
+    - Chat output is exec summary + URL + byline ONLY? (no full spec dump)
+    - Spec self-review completed? (placeholder scan, consistency check, ambiguity check)
+    - User directed to review on the GitHub Issue (not in chat)?
 
-5. **What does NOT bypass spec-creation:**
+ 5. **Concern enumeration guard (MANDATORY before `write`):**
+    - Before writing the spec, enumerate the concerns it addresses
+    - If more than one concern with different root causes: flag as `conditional` in spec-auditor, recommend splitting
+    - Record concern enumeration result in evidence artifacts
+    - This enforces the Single Concern Principle (SCP) — see `000-critical-rules.md` §Single Concern Principle
+
+ 6. **What does NOT bypass spec-creation:**
    - "skip spec-creation" → NOT allowed (even simple specs need `requirements` + `write`)
    - "brainstorming already wrote the spec" → Brainstorming no longer writes specs; this skill does
    - "just show me the spec in chat" → NOT allowed; spec MUST be persisted as GitHub Issue
@@ -260,6 +321,60 @@ session_vars:
   dev.email: <from-session>
   worktree.path: <from-session>
 ```
+
+## Mermaid Diagrams in Spec Deliverables (MANDATORY When Dependencies Exist)
+
+When a spec has dependencies (multiple phases, cross-issue dependencies, or sequential deliverables), the `write` task MUST include a mermaid diagram in the spec deliverable body. The diagram is part of the spec artifact — not an optional appendix — and shows the **approved dependency structure only**.
+
+### When to Include
+
+| Condition | Include Diagram in Spec Body? |
+|-----------|-------------------------------|
+| Spec has multiple phases or items | YES — mandatory |
+| Spec has cross-issue dependencies | YES — mandatory |
+| Single-item spec with no dependencies | NO — omit |
+
+### Diagram Placement in Deliverable
+
+The mermaid diagram is inserted in the spec body:
+- After the "Dependencies" section (if present)
+- Before the "Implementation Plan" section (if present)
+- After the "Success Criteria" section (if no Dependencies section exists)
+
+The `write` task assembles the diagram into the final spec body alongside other sections. The diagram is a first-class part of the deliverable — agents creating specs with dependencies MUST produce the diagram content within the spec body, not as a separate artifact.
+
+### Diagram Content Rules
+
+- Diagrams MUST show **approved structure only** — phase relationships, dependency flow, data contracts
+- Diagrams MUST NOT include workflow state markers: ✅, 🔄, ❌, "implemented", "pending", "in progress", "blocked", "complete"
+- Diagrams MUST use `graph TD` or `flowchart TD` mermaid syntax
+- Node labels MUST describe the deliverable or concern name, not its status
+- If the `diagram` sub-agent produces markers, the `write` task auto-fixes by removing them before assembly
+
+### Correct Example
+
+```mermaid
+graph TD
+    P1[Phase 1: Tooling] --> P2[Phase 2: Guidelines]
+    P1 --> P3[Phase 3: Skills]
+    P2 --> P3
+```
+
+### Forbidden Example
+
+```mermaid
+graph TD
+    P1[Phase 1: Tooling ✅] --> P2[Phase 2: Guidelines 🔄]
+```
+
+### Enforcement in write Task
+
+The `write` task MUST:
+1. Check if dependencies exist (N > 1 items, or cross-issue dependencies)
+2. If dependencies exist: invoke `diagram` task or inline-generate mermaid diagram
+3. Insert diagram in spec body at the prescribed placement location
+4. Scan diagram content for workflow state markers before final assembly
+5. Auto-fix any discovered markers (remove them, note in evidence)
 
 ## Interdependency Diagram Discipline (MANDATORY When Dependencies Exist)
 
@@ -481,6 +596,21 @@ rules:
     triggers: [writing-plans]
     source: "spec-creation/SKILL.md §Interdependency Diagram Discipline"
 
+  - id: spec-creation-009
+    title: "Concern enumeration guard before write — Single Concern Principle"
+    conditions:
+      all:
+        - "concern_enumeration_performed == false"
+        - "write_task_pending == true"
+    actions:
+      - HALT
+      - ENUMERATE_CONCERNS
+      - FLAG_MULTI_CONCERN
+    conflicts_with: []
+    requires: []
+    triggers: [spec-creation]
+    source: "spec-creation/SKILL.md §Concern Enumeration Guard"
+
 tasks:
   - id: explore
     skill: spec-creation
@@ -583,6 +713,16 @@ gates:
 
   - id: diagram-no-workflow-state
     condition: "diagram_shows_workflow_state == false"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: diagram-in-deliverable-when-deps-exist
+    condition: "dependencies_exist == false OR mermaid_diagram_in_spec_body == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: diagram-deliverable-no-workflow-state
+    condition: "diagram_in_deliverable_shows_workflow_state == false"
     on_fail: HALT
     critical_violation: true
 

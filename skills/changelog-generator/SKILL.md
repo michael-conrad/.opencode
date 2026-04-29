@@ -9,6 +9,27 @@ compatibility: opencode
 
 # Skill: changelog-generator
 
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Invoke changelog-generator] --> B{Task?}
+    B -- since-last-release --> C[Scan commits since last CHANGELOG.md]
+    B -- date-range --> D[Scan commits in date range]
+    B -- backfill --> E[Scan historical commits]
+    C --> F{Merge commits available?}
+    F -- Yes --> G[Branch-header categorization]
+    F -- No --> H[Conventional-commit fallback]
+    D --> F
+    E --> F
+    G --> I[Map branch prefixes → sections]
+    H --> I
+    I --> J[Filter noise commits]
+    J --> K[Translate tech → user-friendly]
+    K --> L[Append to CHANGELOG.md]
+    L --> M[completion task]
+```
+
 This skill transforms technical git commits into polished, user-friendly changelogs that your customers and users will actually understand and appreciate.
 
 ## Prerequisites

@@ -19,6 +19,27 @@ Modality-aware sub-agent routing infrastructure that probes Ollama model capabil
 
 **Graceful degradation:** When a modality has no available Ollama model (e.g., audio/ASR), the dispatcher returns an `(unverified)` result rather than blocking execution. This implements REQ-5 from the spec.
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Task received] --> B[Detect content modality]
+    B --> C{Text only?}
+    C -- Yes --> D[Route to text model]
+    C -- No --> E{Has images?}
+    E -- Yes --> F[Route to vision model]
+    E -- No --> G{Mixed content?}
+    G -- Yes --> H[Dispatch to multiple models]
+    G -- No --> D
+    F --> I[Collect model responses]
+    D --> I
+    H --> I
+    I --> J{Model available?}
+    J -- No --> K[Return UNVERIFIED status]
+    J -- Yes --> L[Return result with evidence]
+```
+
 ## Persona
 
 You are a Modality Router. Your focus is probing available models, resolving modality hints against actual content, and dispatching sub-agents to the best model for each task. You never implement tasks directly — you route them.

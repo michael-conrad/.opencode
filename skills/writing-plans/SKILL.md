@@ -15,6 +15,26 @@ Plan creation workflow that transforms approved specs into actionable implementa
 
 **Source attribution:** TDD step granularity, no-placeholders rule, plan document header, file structure section, and self-review checklist adapted from [obra/superpowers `writing-plans`](https://github.com/obra/superpowers/blob/main/skills/writing-plans/SKILL.md).
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Spec approved] --> B{Single-task or multi-task?}
+    B -- Single-task --> C{Simple enough to combine?}
+    B -- Multi-task --> D[Create separate PLAN issue]
+    C -- Yes --> E[Combined spec+plan in one issue]
+    C -- No --> D
+    D --> F[Decompose into TDD steps]
+    E --> G[Append Implementation Plan section]
+    F --> H[Item enumeration + dependency ordering]
+    H --> I[Write phases with per-item TDD steps]
+    I --> J[Self-review checklist]
+    J --> K[Add needs-approval label]
+    K --> L[Completion: report plan URL]
+    G --> L
+```
+
 ## Plan Issue Model
 
 Plans are either separate GitHub Issues or combined into the spec issue body, depending on agent intelligence evaluation of spec complexity. The hierarchy is:
@@ -120,6 +140,30 @@ The spec-to-plan approval cascade applies differently based on authorization sco
 - `/skill writing-plans --task clean-room` — Generate clean-room plan (for comparison by spec-auditor)
 - `/skill writing-plans --task completion` — Invoke when workflow halts at any point
 
+## RED/GREEN/REFACTOR Test Discipline
+
+## RED Phase Requirements
+
+1. **Write behavioral test description FIRST** — before any implementation
+2. **Describe the behavior to verify:**
+   - What changes (agent response or code execution)?
+   - How to trigger it?
+   - What confirms success?
+   - What constitutes failure?
+3. **Implement test mechanism** — write the script that verifies the described behavior
+4. **Verify RED state** — test FAILS before implementation
+
+## GREEN Phase Requirements
+
+1. **Implement behavior change** — skills, guidelines, code, dispatch chain
+2. **Verify GREEN state** — test PASSES after implementation
+3. **Behavior must differ** — before/after response or execution is different
+
+## REFACTOR Phase Requirements
+
+1. **Run full behavioral suite** — `bash .opencode/tests/behaviors/run-all.sh`
+2. **No regressions** — all existing tests still pass
+
 ## Hybrid Structure: Phases + TDD Steps
 
 Plans use **phases** (for sub-issue tracking) with **TDD step granularity** within each task:
@@ -203,6 +247,59 @@ Each phase in the plan body includes a merge boundary annotation:
 ### Enforcement
 
 Missing `pr_boundaries` in the `yaml+symbolic` block when dependencies exist is a STRUCTURE-VIOLATION finding from `skildeck lint`.
+
+## Mermaid Diagrams in Plan Deliverables (MANDATORY When Dependencies Exist)
+
+When a plan has dependencies (multiple phases, cross-issue dependencies, or sequential deliverables), the `create` task MUST include a mermaid diagram in the plan deliverable body. The diagram is part of the plan artifact — not an optional appendix — and shows the **approved dependency structure only**.
+
+### When to Include
+
+| Condition | Include Diagram in Plan Body? |
+|-----------|-------------------------------|
+| Plan has multiple phases | YES — mandatory |
+| Plan has cross-issue dependencies | YES — mandatory |
+| Single-task plan with no dependencies | NO — omit |
+
+### Diagram Placement in Deliverable
+
+**Separate plans:** The diagram is placed after the plan header (Goal, Architecture, Tech Stack), before "Phase 1".
+
+**Combined plans:** The diagram is placed in the `## Implementation Plan` section, after the header, before phases.
+
+The `create` task assembles the diagram into the final plan body alongside other sections. The diagram is a first-class part of the deliverable — agents creating plans with dependencies MUST produce the diagram content within the plan body, not as a separate artifact.
+
+### Diagram Content Rules
+
+- Diagrams MUST show **approved structure only** — phase relationships, dependency flow, data contracts
+- Diagrams MUST NOT include workflow state markers: ✅, 🔄, ❌, "implemented", "pending", "in progress", "blocked", "complete"
+- Diagrams MUST use `graph TD` or `flowchart TD` mermaid syntax
+- Node labels MUST describe the deliverable or concern name, not its status
+- If the `diagram` sub-agent produces markers, the `create` task auto-fixes by removing them before assembly
+
+### Correct Example
+
+```mermaid
+graph TD
+    P1[Phase 1: Tooling] --> P2[Phase 2: Guidelines]
+    P1 --> P3[Phase 3: Skills]
+    P2 --> P3
+```
+
+### Forbidden Example
+
+```mermaid
+graph TD
+    P1[Phase 1: Tooling ✅] --> P2[Phase 2: Guidelines 🔄]
+```
+
+### Enforcement in create Task
+
+The `create` task MUST:
+1. Check if dependencies exist (multiple phases, or cross-issue dependencies)
+2. If dependencies exist: invoke `diagram` task or inline-generate mermaid diagram
+3. Insert diagram in plan body at the prescribed placement location
+4. Scan diagram content for workflow state markers before final assembly
+5. Auto-fix any discovered markers (remove them, note in evidence)
 
 ## Interdependency Diagram Discipline (MANDATORY When Dependencies Exist)
 
@@ -380,6 +477,8 @@ The spec itself is the stable reference. Whether the plan is combined or separat
 | `validate` | ≈500 |
 | `retroactive` | ≈600 |
 | `clean-room` | ≈500 |
+| `diagram` | ≈350 |
+| `completion` | ≈200 |
 
 ### Dispatch Audit Table
 
@@ -389,6 +488,7 @@ The spec itself is the stable reference. Whether the plan is combined or separat
 | `validate` | When validating plan structure and fidelity | Plan issue number, spec issue number, github.owner, github.repo | Implementation context, agent memory | NO |
 | `retroactive` | When creating a retroactive plan for already-implemented work | Spec issue number, implementation evidence, github.owner, github.repo | Implementation context, agent memory | NO |
 | `clean-room` | When generating a clean-room plan without implementation context | Spec issue number, github.owner, github.repo | Implementation context, implementation intent, agent memory | NO |
+| `diagram` | When dependencies exist, generate mermaid diagram | Dependency structure, phase list, github.owner, github.repo | Implementation context, agent memory, workflow state | NO |
 
 ### Result Contract (create)
 
@@ -400,6 +500,17 @@ plan_url: <url|null>
 combined: bool
 sub_issues_created: [<N>]
 self_review_passed: bool
+```
+
+### Result Contract (diagram)
+
+```yaml
+status: DONE | SKIP
+task: diagram
+diagram_generated: bool
+diagram_type: mermaid
+dependencies_exist: bool
+workflow_markers_absent: bool
 ```
 
 ### Dispatch Context Schema
@@ -667,6 +778,18 @@ tasks:
     bypass_violation: "Silent Agent Termination — halting without completion task is a critical violation"
     source: "writing-plans/SKILL.md §Tasks completion"
 
+  - id: diagram
+    skill: writing-plans
+    preconditions:
+      - "dependencies_exist == true"
+    postconditions:
+      - "mermaid_diagram_generated == true"
+      - "diagram_shows_structure_only == true"
+      - "diagram_has_no_workflow_markers == true"
+    mandatory: true
+    bypass_violation: "Missing interdependency diagram — multi-phase plans require mermaid diagram in deliverable"
+    source: "writing-plans/SKILL.md §Mermaid Diagrams in Plan Deliverables"
+
 decomposition:
   - type: skill-task
     skill: verification-enforcement
@@ -686,6 +809,13 @@ decomposition:
     mandatory: true
     bypass_violation: "Multi-task plan requires sub-issue linkage under plan — skipping is a critical violation"
 
+  - type: skill-task
+    skill: writing-plans
+    task: diagram
+    mandatory: false
+    condition: "dependencies_exist == true"
+    bypass_violation: "Missing interdependency diagram — multi-phase plans require mermaid diagram in deliverable"
+
 gates:
   - id: plan-fidelity
     condition: "plan_covers_all_spec_requirements == true AND plan_no_placeholders == true"
@@ -704,6 +834,16 @@ gates:
 
   - id: pr-boundaries-when-deps-exist
     condition: "spec_has_dependencies == false OR pr_boundaries_in_yaml_symbolic == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: diagram-in-deliverable-when-deps-exist
+    condition: "dependencies_exist == false OR mermaid_diagram_in_plan_body == true"
+    on_fail: HALT
+    critical_violation: true
+
+  - id: diagram-deliverable-no-workflow-state
+    condition: "diagram_in_deliverable_shows_workflow_state == false"
     on_fail: HALT
     critical_violation: true
 

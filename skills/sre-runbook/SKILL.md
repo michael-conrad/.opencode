@@ -11,9 +11,31 @@ compatibility: opencode
 
 ## Overview
 
+**MANDATORY: The agent MUST invoke `sre-runbook` when generating operational runbooks for infrastructure incidents. Skipping this invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations.** Exempt: no runbook generation requested, no incident/outage context.
+
 Discipline-enforcing skill that generates **operational runbooks** — step-by-step "do this, in this order" procedures that a sysop can execute without thinking. Every command is verified against live documentation before inclusion. Every value comes from the actual environment, not training data. Every step has ONE definitive path.
 
 **Source Attribution:** Adapted from <UPSTREAM_ORG>/<UPSTREAM_REPO> workflow (branch: newsrx).
+
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Runbook/incident request] --> B[Gather environment context]
+    B --> C{Domain context provided?}
+    C -- No --> D[Prompt user for domain info]
+    C -- Yes --> E[verification-enforcement: verify before generation]
+    D --> E
+    E --> F[Generate sections sequentially]
+    F --> G[Symptom → Diagnosis → Mitigation → Verification → Resolution → Postmortem]
+    G --> H[Verification gate between each section]
+    H --> I{Reasoning connects?}
+    I -- No --> J[HALT: section gap detected]
+    I -- Yes --> K[verification-enforcement: revisit after generation]
+    K --> L[Resolve unverified markers]
+    L --> M[Completion: post runbook]
+```
 
 ## Persona
 

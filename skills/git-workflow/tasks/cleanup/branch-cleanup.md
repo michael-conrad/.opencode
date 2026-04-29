@@ -15,9 +15,66 @@ Delete merged branches, clean stale references, remove worktrees, sync dev, and 
 - Remote merged branch deleted (if applicable)
 - Stale remote references pruned
 - Dev branch synced with remote (verified via hash comparison)
+- Submodule on `dev` branch (not detached HEAD)
+- Submodule pointer matches submodule dev HEAD
 - Working tree clean
 
 ## Procedure
+
+### Step 0: Detect and Resolve Stuck Git States (MANDATORY)
+
+**⚠️ CRITICAL: Proceeding without detecting stuck rebase/merge states causes `git checkout dev` to fail or produce confusing output. This step MUST run before Step 1.**
+
+Check for stuck git states that block branch operations:
+
+1. **Check for interactive rebase in progress:**
+   ```bash
+   test -d .git/rebase-merge && echo "REBASE-MERGE: interactive rebase in progress" || echo "NO-REBASE-MERGE"
+   ```
+
+2. **Check for non-interactive rebase in progress:**
+   ```bash
+   test -d .git/rebase-apply && echo "REBASE-APPLY: non-interactive rebase in progress" || echo "NO-REBASE-APPLY"
+   ```
+
+3. **Check for merge in progress:**
+   ```bash
+   test -f .git/MERGE_HEAD && echo "MERGE: merge in progress" || echo "NO-MERGE"
+   ```
+
+4. **Check for cherry-pick/revert in progress:**
+   ```bash
+   test -f .git/CHERRY_PICK_HEAD && echo "CHERRY-PICK: cherry-pick in progress" || echo "NO-CHERRY-PICK"
+   test -f .git/REVERT_HEAD && echo "REVERT: revert in progress" || echo "NO-REVERT"
+   ```
+
+5. **If any stuck state is detected:**
+   a. **If the branch has already been merged into dev** (PR confirmed merged via GitHub API):
+      - **Abort** the stuck operation:
+        ```bash
+        # Interactive rebase
+        git rebase --abort 2>/dev/null || true
+        # Non-interactive rebase
+        git rebase --abort 2>/dev/null || true
+        # Merge
+        git merge --abort 2>/dev/null || true
+        # Cherry-pick
+        git cherry-pick --abort 2>/dev/null || true
+        # Revert
+        git revert --abort 2>/dev/null || true
+        ```
+      - The work is already on dev — the rebase is stale and safe to abort
+   b. **If the branch has NOT been merged** (no PR or PR not merged):
+      - **HALT** and report the stuck state to the developer
+      - Do NOT abort — the rebase may contain unmerged work
+      - Report: "Stuck [rebase/merge/cherry-pick/revert] detected on branch. This may contain unmerged work. Resolve manually before continuing cleanup."
+
+6. **After resolving stuck state, verify clean working tree:**
+   ```bash
+   git status --porcelain  # Must be empty or only expected changes
+   ```
+
+**Evidence artifact (MANDATORY):** Tool-call output showing detection check results MUST be present before proceeding to Step 1.
 
 ### Step 1: Switch to Dev and Sync (Fast-Forward Only)
 
@@ -158,6 +215,88 @@ For each merged branch (except main/master/dev): `git branch -d <branch>`
 ```bash
 git status --porcelain  # Must be empty
 git branch -vv          # Should show minimal branches
+```
+
+### Step 5.5: Restore Submodule to Dev Branch (MANDATORY — Sub-Agent Dispatch)
+
+**⚠️ CRITICAL: Leaving submodules on detached HEAD after cleanup causes conflicts and lost work. This step MUST run after all branch deletions are complete.**
+
+**The main agent MUST dispatch a `submodule-dev-restore` sub-agent for all submodule git operations.** The main agent MUST NOT perform git checkout/pull operations on submodules inline — this is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Inline Work.
+
+#### Sub-Agent Boundary
+
+| Field | Value |
+|-------|-------|
+| **must_receive** | Submodule paths from `git submodule status`, `github.owner`, `github.repo` |
+| **must_not_receive** | Implementation context, agent memory, full task file contents, cleanup history |
+
+#### Dispatch Procedure
+
+Dispatch a sub-agent with the scoped instruction to restore each submodule to its `dev` branch:
+
+For each submodule (detected via `.gitmodules` or `.git` file in submodule directories):
+
+1. **Switch submodule to dev:**
+   ```bash
+   cd <submodule-path>
+   git checkout dev
+   git pull origin dev --ff-only
+   cd <parent-repo-root>
+   ```
+
+2. **Verify submodule is NOT on detached HEAD:**
+   ```bash
+   cd <submodule-path>
+   git rev-parse --abbrev-ref HEAD  # MUST return "dev", NOT "HEAD"
+   cd <parent-repo-root>
+   ```
+
+3. **If `dev` branch doesn't exist locally:**
+   ```bash
+   cd <submodule-path>
+   git checkout -b dev origin/dev
+   cd <parent-repo-root>
+   ```
+
+4. **If checkout fails due to uncommitted changes:**
+   ```bash
+   cd <submodule-path>
+   git stash
+   git checkout dev
+   git pull origin dev --ff-only
+   git stash pop
+   cd <parent-repo-root>
+   ```
+
+5. **Verify submodule is clean and on dev:**
+   ```bash
+   cd <submodule-path>
+   git status --porcelain  # Check for unexpected changes
+   git branch --show-current  # MUST return "dev"
+   cd <parent-repo-root>
+   ```
+
+**Evidence artifact (MANDATORY):** Tool-call output showing `git branch --show-current` returning `dev` for the submodule MUST be present before reporting cleanup complete.
+
+**🚫 FORBIDDEN:**
+- Leaving submodule on detached HEAD after cleanup
+- Deleting the `dev` branch in the submodule and then trying to checkout `dev`
+- Performing additional submodule cleanup beyond dev-restore (branch deletion, stash cleanup, etc.) without explicit developer authorization
+- Performing git operations on submodules inline from the main agent
+
+#### Sub-Agent Result Contract
+
+```yaml
+status: DONE | BLOCKED
+task: submodule-dev-restore
+submodule_results:
+  - path: <submodule-path>
+    branch: dev
+    sha: <dev-tip-sha>
+    stash_used: bool
+evidence_artifacts:
+  - tool: git branch --show-current
+    output: "dev"
 ```
 
 ### Step 6: Succinct Confirmation

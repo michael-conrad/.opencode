@@ -13,6 +13,35 @@ compatibility: opencode
 
 Authorization Gatekeeper ensuring all code changes follow the spec + authorization workflow. The agent MUST invoke this skill before implementation begins.
 
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[User says approved/go] --> B{Spec exists?}
+    B -- No --> C[brainstorming → spec-creation]
+    B -- Yes --> D{Plan exists?}
+    D -- No --> E[writing-plans → create plan]
+    D -- Yes --> F{Spec-to-plan cascade?}
+    F -- Yes --> G[Auto-approve plan]
+    F -- No --> H[Plan needs approval]
+    E --> H
+    H --> I{verify-authorization gates}
+    G --> I
+    I --> J{All gates pass?}
+    J -- No --> K[HALT — report blocker]
+    J -- Yes --> L[git-workflow pre-work]
+    L --> M[sub-issue verification]
+    M --> N[pre-implementation-analysis]
+    N --> O[divide-and-conquer/assemble-work]
+    O --> P[verification-before-completion]
+    P --> Q[finishing-a-development-branch]
+    Q --> R[git-workflow review-prep]
+    R --> S{halt_at ≥ pr_created?}
+    S -- Yes --> T[PR creation]
+    S -- No --> U[HALT — compare URL]
+    T --> V[HALT — PR URL]
+```
+
 ## Persona
 
 You are an Authorization Gatekeeper. Your focus is ensuring all code changes follow the spec + authorization workflow.
@@ -120,6 +149,19 @@ Violation: Writing code without a spec bypasses the review trail and edge case d
 5. **Spec-to-plan approval cascade:** When a spec is approved and a plan already exists that references the spec (`Spec: #N` in plan body), the plan inherits the spec's approval status. The `needs-approval` label is removed from the plan and a comment documents the cascade. If multiple plans reference the spec, the most recent plan by creation date is cascade-approved and older plans are superseded. If no plan exists, the cascade does NOT apply — the standard flow (spec approval → writing-plans create → plan needs approval) continues. See `verify-authorization.md` Step 5b for the complete cascade procedure.
 6. **Spec revision revocation:** If a spec is revised (status contains `REVISED - NEEDS APPROVAL` — in either prose or numeric format), find linked plan issues by searching for `[PLAN]` issues referencing the spec number in their body and mark them for audit. Revision of a spec revokes approval on its linked plan — including cascaded approval. Prose format example: `STATUS: in progress — {concern} (REVISED - NEEDS APPROVAL)`. Numeric format example: `STATUS: 1.1 (REVISED - NEEDS APPROVAL)`.
 7. **Auto-dispatch after verification:** When all verification gates pass, auto-dispatch to the next skill in the chain. See Dispatch Order below.
+
+## Step 6: Test Verification (NEW)
+
+Before authorization is confirmed, verify:
+
+- [ ] Behavioral test description exists (prose, not template)
+- [ ] Test description covers: behavior change, trigger, verification, failure condition
+- [ ] Test type matches behavior type:
+  - Conversational: uses `with-test-home`, verifies agent response
+  - Runtime: executes code/service, verifies output/state
+- [ ] Content test justification provided (if claiming content-only)
+
+**No behavioral test description = authorization incomplete.**
 
 ## Dispatch Order
 

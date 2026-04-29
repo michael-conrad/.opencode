@@ -11,9 +11,32 @@ compatibility: opencode
 
 ## Overview
 
+**MANDATORY: The agent MUST invoke `verification-enforcement --task verify` before generating any content that makes factual claims (specs, plans, runbooks, docs, correspondence). Skipping this invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Skipping verification-enforcement During Content Generation.** Exempt: authorized-exploration during brainstorming phases before content is committed to a document; casual chat responses that make no factual claims about code, APIs, or system state.
+
 Every content-generating skill must pass through a verification gate before producing output. This skill provides that shared gate: a mandatory pre-generation check that collects evidence artifacts for every factual claim the agent intends to make, and a mandatory post-generation pass that resolves any claims that could not be verified during generation. The gate prevents agents from writing content based on memory, training data, or unverified assumptions. When claims cannot be verified against live sources, they are marked as unverified and must either be resolved in a revisit pass or escalated to the developer.
 
 The verification lifecycle flows naturally through three stages. Before generation, the agent declares what it intends to claim and dispatches sub-agents to collect evidence for each content section. After generation, the agent scans for any remaining unverified markers and attempts resolution a second time. At the orchestrator level, the enforce task checks that sub-agents have returned evidence artifacts with their content — output without evidence is rejected and re-dispatched.
+
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Content generation required] --> B[verify: pre-generation gate]
+    B --> C[Dispatch section sub-agents]
+    C --> D[Collect evidence artifacts per section]
+    D --> E[Mark unverifiable claims]
+    E --> F[Generate content with evidence in hand]
+    F --> G[revisit: post-generation pass]
+    G --> H{Unverified markers remain?}
+    H -- Yes --> I[Attempt second resolution]
+    H -- No --> J[Audience separation check]
+    I --> K{Resolved?}
+    K -- No --> L[Escalate to developer]
+    K -- Yes --> J
+    J --> M[enforce: verify sub-agent output has evidence]
+    M --> N[Completion: document verification results]
+```
 
 ## Persona
 

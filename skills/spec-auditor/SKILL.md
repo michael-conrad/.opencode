@@ -11,6 +11,8 @@ compatibility: opencode
 
 ## Overview
 
+**MANDATORY: The agent MUST invoke `spec-auditor` when auditing specs. Skipping this invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations.** Exempt: no audit requested, no spec/plan being created or audited.
+
 Content-aware audit orchestrator that accepts any document type. Determines document type automatically (or via manual override), selects appropriate subtasks, runs the minimal baseline always, and applies auto-fixes for safe findings while flagging ambiguous findings for review.
 
 **Core v2 shift:** Spec-auditor is now the orchestrator. Plan-fidelity-auditor and concern-separation-auditor are no longer invoked directly — their logic lives as subtasks (`fidelity` and `concerns`) within spec-auditor.
@@ -18,6 +20,27 @@ Content-aware audit orchestrator that accepts any document type. Determines docu
 **v3 shift:** Spec-auditor now uses an auto-fix model with three-tier classification instead of the previous report-only approach. Safe findings are fixed directly; ambiguous findings are flagged for developer review.
 
 **v4 shift:** Spec-auditor now supports content-aware auditing. Input can come from issues, files, or URLs. Document type is autodetected and subtask selection is tailored per type. Three new operational subtasks (`operational-flow`, `determinism`, `error-recovery`) support process flows, runbooks, and SOPs.
+
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[spec-auditor --issue N] --> B[Read spec body + comments]
+    B --> C[auto-fix pass: structural issues]
+    C --> D[conditional pass: scope/safety check]
+    D --> E[flag-for-review pass: ambiguous findings]
+    E --> F{Subtask invoked?}
+    F -- concerns --> G[concern-separation-auditor]
+    F -- ground-truth --> H[Adversarial metadata verification]
+    F -- plan-fidelity --> I[plan-fidelity-auditor]
+    G --> J[Collect all findings]
+    H --> J
+    I --> J
+    J --> K[Generate executive summary]
+    K --> L[Post summary to chat]
+    L --> M[Post detailed findings as issue comment]
+```
 
 ## Persona
 

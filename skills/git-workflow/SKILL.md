@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: Use when creating a branch, committing changes, pushing work, or creating a PR. Also use when git rebase/merge produces conflicts — invoke conflict-resolution skill for classification. Also use when user says "check pr", "check prs", "check merged prs", or "check merged pr" to trigger PR state verification and cleanup if merged. Also use when user says "release PR", "promote to main", or "dev to main" — invokes release-promotion task for dev → main promotion. Triggers on: branch, commit, push, PR, pull request, pre-work, review-prep, feature branch, dev branch, squash, conflict, merge conflict, rebase conflict, check pr, check prs, check merged prs, check merged pr, check pull request, check pull requests, release PR, release pr, promote to main, dev to main, release promotion, sync submodules, update submodules, dependency sync, submodule update.
+description: Use when creating a branch, committing changes, pushing work, or creating a PR. Also use when git rebase/merge produces conflicts — invoke conflict-resolution skill for classification. Also use when user says "check pr", "check prs", "check merged prs", or "check merged pr" to trigger PR state verification and cleanup if merged. Also use when user says "release PR", "promote to main", or "dev to main" — invokes release-promotion task for dev → main promotion. Triggers on: branch, commit, push, PR, pull request, pre-work, review-prep, feature branch, dev branch, squash, conflict, merge conflict, rebase conflict, check pr, check prs, check merged prs, check merged pr, check pull request, check pull requests, release PR, release pr, promote to main, dev to main, release promotion, submodule tag, submodule verify, submodule liveness.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
@@ -11,7 +11,41 @@ compatibility: opencode
 
 ## Overview
 
+**MANDATORY: The agent MUST invoke `git-workflow --task pre-work` before any implementation, and `git-workflow --task review-prep` after implementation. Skipping these invocations is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations.** Exempt: no implementation performed (spec-only, plan-only, pure Q/A sessions).
+
 Git Workflow Enforcer ensuring all git operations follow the three-branch model: feature → dev → main. AI commits are blocked on protected branches. All feature branches merge to `dev` via PR. Squashing is ONLY at PR creation time, not during implementation.
+
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Authorization confirmed] --> B[pre-work: create feature branch]
+    B --> C{WORKTREE_REQUIRED?}
+    C -- Yes --> D[using-git-worktrees: create worktree]
+    C -- No --> E[Direct branch in main repo]
+    D --> F[Set worktree.path]
+    E --> F
+    F --> G[implementation: WIP commits]
+    G --> H{Conflicts during rebase?}
+    H -- Yes --> I[conflict-resolution: classify and resolve]
+    H -- No --> J[review-prep: push branch]
+    I --> J
+    J --> K{User says create PR?}
+    K -- Yes --> L[pr-creation: squash + create PR]
+    K -- No --> M[HALT with compare URL]
+    L --> N{PR merged?}
+    N -- Yes --> O[check-pr → cleanup]
+    O --> P[Delete merged branch]
+    P --> Q[Close issues]
+    Q --> R[Sync local dev]
+
+    S[User: promote to main] --> T[release-promotion: dev → main]
+    U[User: check prs] --> V[check-pr: list PRs]
+    V --> W{Merged PRs found?}
+    W -- Yes --> O
+    W -- No --> X[Report PR status]
+```
 
 ## Persona
 
@@ -22,12 +56,12 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 | Task | Purpose | Words |
 | -- | -- | -- |
 | `pre-work` | Verify authorization, verify remote dev branch, create worktree | ≈480 |
+| `commit-prep` | Stage changes, diff review, WIP commit | ≈1,131 |
 | `implementation` | Handle WIP commits during implementation | ≈400 |
 | `review-prep` | Push branch, generate compare URL for review (2 subtasks) | ≈390 |
 | `pr-creation` | Squash, push, create PR via GitHub MCP (3 subtasks) | ≈385 |
 | `rebase-pending` | Rebase other open PRs after merge, classify conflicts | 1,666 |
-| `cleanup` | Verify merge, close issues, delete branches (3 subtasks) | ≈950 |
-| `completion` | Ensure mandatory completion steps run regardless of workflow outcome | ≈200 |
+| `cleanup` | Verify merge, close issues, delete branches, submodule dev-restore (sub-agent dispatch) (3 subtasks) | ≈950 |
 | `release-promotion` | Automate dev → main promotion and tagging (submodule and non-submodule repos) | ≈500 |
 | `check-pr` | List all PRs (open + merged); if merged found, activate cleanup | ≈50 |
 | `provenance` | Create provenance issues/PRs in submodule repos after push/promotion (3 subtasks) | ≈460 |
@@ -36,7 +70,6 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 | `pair-pr-creation` | Squash + PR with [pair-mode] trailers targeting dev | ≈300 |
 | `pair-cleanup` | Branch deletion after merge, stash cleanup | ≈350 |
 | `pair-mode-resume` | Detect and report on pair-* branch at session start | ≈300 |
-| `dependency-sync` | Automate submodule update lifecycle: detect, update, analyze, track, commit, push | ≈450 |
 
 ## Routing: Feature PR vs Release PR
 
@@ -62,7 +95,6 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 - `/skill git-workflow --task pair-pr-creation` - Squash + create PR with [pair-mode] trailers
 - `/skill git-workflow --task pair-cleanup` - Cleanup after pair-mode PR merge
 - `/skill git-workflow --task pair-mode-resume` - Resume pair mode session on existing pair-* branch
-- `/skill git-workflow --task dependency-sync` - Automate submodule update lifecycle (detect, update, analyze, track, commit, push)
 - `/skill git-workflow` - Overview only
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps (status report, URL, verification gates) are never skipped. It is idempotent and safe to invoke multiple times.
@@ -89,13 +121,24 @@ Violation: Editing files on `dev` or `main` without a worktree corrupts the shar
 ```
 IF user requests PR creation (or authorization_scope >= for_pr):
   1. DO NOT call github_create_pull_request directly
-  2. Invoke /skill git-workflow --task pr-creation
-  3. pr-creation handles: squash, push, base branch validation (MUST be dev), PR API call
-  4. IF base branch is not dev → HALT and report
+  2. Invoke /skill finishing-a-development-branch --task checklist (MANDATORY — commit count enforcement)
+  3. Invoke /skill git-workflow --task review-prep (MANDATORY — push, compare URL)
+  4. Invoke /skill git-workflow --task pr-creation (MANDATORY — squash, PR API call)
+  5. IF any mandatory skill is skipped → CRITICAL GUIDELINE VIOLATION
 ENDIF
 ```
 
-Violation: Direct `github_create_pull_request` calls skip base branch validation, squash, and push verification. This caused PR #9 merging to `master` instead of `dev`.
+**DISPATCH_GATE Checkpoint:** After implementation, the agent MUST invoke the following skills in order BEFORE calling `github_create_pull_request`:
+
+| Step | Skill | Verification |
+| -- | -- | -- |
+| 1 | `finishing-a-development-branch --task checklist` | All checklist items verified via tool-call artifacts |
+| 2 | `git-workflow --task review-prep` | Compare URL generated in correct format |
+| 3 | `git-workflow --task pr-creation` | PR URL extracted from `github_create_pull_request` response `html_url` |
+
+Skipping any of these steps and calling `github_create_pull_request` directly is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Dispatch Chain Enforcement.
+
+Violation: Direct `github_create_pull_request` calls skip base branch validation, squash verification, commit count enforcement, and compare URL generation. This caused PR #9 merging to `master` instead of `dev` and PR #184 with multiple commits on a single-issue branch.
 
 ### Gate 3: Skill Dispatch Before Worktree/Branch Creation
 
@@ -123,7 +166,7 @@ Violation: Direct `git push` skips verification that the branch has committed ch
 
 ## Operating Protocol
 
-1. **Mandatory invocation (no decision point):** pre-work is invoked after approval-gate passes; review-prep is invoked after implementation completes — the agent MUST invoke both at the appropriate time, never skip them, and never prompt for invocation.
+1. **MANDATORY invocation — no decision point:** `pre-work` is invoked after approval-gate passes; `review-prep` is invoked after implementation completes; `finishing-a-development-branch --task checklist` is invoked before PR creation; `pr-creation` is invoked when PR creation is authorized. The agent MUST invoke all of these at the appropriate time, never skip them, and never prompt for invocation. **Skipping any mandatory skill invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Skipping Mandatory Skill Invocation.**
 2. **Phase sequence:** Pre-work (Phase 1) → Implementation (user-driven) → review-prep (Phase 3, MANDATORY, MUST invoke after implementation) → pr-creation (explicit instruction only) → cleanup (after merge).
 3. **review-prep is mandatory:** Skipping it after implementation is a CRITICAL GUIDELINE VIOLATION. The agent MUST invoke `/skill git-workflow --task review-prep` after implementation completes.
 4. **PR requires explicit instruction OR pipeline scope:** "approved"/"go" authorizes implementation ONLY — not PR creation. **Exception:** When `authorization_scope >= for_pr` or `pr_only`, the user's pipeline instruction authorizes PR creation as part of the scope. When `pr_strategy == none` or `halt_at < pr_created`, do NOT create PR regardless of explicit instruction.
@@ -132,6 +175,7 @@ Violation: Direct `git push` skips verification that the branch has committed ch
 7. **Squash to single commit before any PR:** No exceptions.
 8. **Never merge PRs:** Human-only operation.
 9. **Post-merge cleanup is MANDATORY:** Skipping `git-workflow --task cleanup` after confirming PR merge is a CRITICAL GUIDELINE VIOLATION. The cleanup task is the sole mechanism for branch deletion, issue closure, and dev sync. Every merged PR MUST be followed by `cleanup`.
+10. **Cleanup scope is limited to the merged PR ONLY:** The cleanup task is scoped to the specific merged PR and its related branches. Discovering additional stale branches, stashes, or worktrees does NOT authorize cleanup beyond the merged PR's scope. Report additional cleanup opportunities in the completion message but do NOT act on them without explicit developer authorization. Violating this scope boundary is authorization overreach per `000-critical-rules.md` §Question-as-Authorization.
 
 ### PR Body Keyword Discipline
 
@@ -202,7 +246,10 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `pair-mode-resume` | ≈300 |
 | `completion` | ≈200 |
 | `check-pr` | ≈50 |
-| `dependency-sync` | ≈450 |
+| `submodule-tag-prework` | ≈400 |
+| `submodule-feature-push` | ≈400 |
+| `submodule-liveness-check` | ≈300 |
+| `submodule-dev-restore` | ≈250 |
 
 ### Dispatch Audit Table
 
@@ -211,13 +258,13 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `cleanup` (routing) | PR merge confirmed, cleanup workflow started | PR number, branch name, github.owner, github.repo | Implementation context, agent memory | NO |
 | `cleanup/verify-merge` | Cleanup sub-task: verify PR is merged | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
 | `cleanup/issue-closure` | Cleanup sub-task: close issues | Issue numbers, github.owner, github.repo | Implementation context, agent memory | NO |
-| `cleanup/branch-cleanup` | Cleanup sub-task: verify content then delete merged branches | Branch names, worktree.path | Implementation context, agent memory | NO |
+| `cleanup/branch-cleanup` | Cleanup sub-task: verify content then delete merged branches, submodule dev-restore via sub-agent | Branch names, worktree.path, github.owner, github.repo, submodule paths | Implementation context, agent memory | NO |
 | `pr-creation` (routing) | PR creation authorized | Branch name, compare URL, github.owner, github.repo | Implementation context, agent memory | NO |
-| `pr-creation/enforcement-gate` | PR creation enforcement checks | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pr-creation/enforcement-gate` | PR creation enforcement checks, submodule hash liveness via sub-agent | Branch name, github.owner, github.repo, submodule paths | Implementation context, agent memory | NO |
 | `pr-creation/squash-push` | Squash and push before PR | Branch name, worktree.path | Implementation context, agent memory | NO |
 | `pr-creation/create-pr` | Create the pull request | Branch name, PR body, github.owner, github.repo | Implementation context, agent memory | NO |
 | `review-prep` (routing) | Implementation complete, review prep needed | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
-| `review-prep/push-and-cleanup` | Push branch and cleanup | Branch name, worktree.path | Implementation context, agent memory | NO |
+| `review-prep/push-and-cleanup` | Push branch, submodule feature-branch push via sub-agent, cleanup | Branch name, worktree.path, submodule paths | Implementation context, agent memory | NO |
 | `review-prep/report-url` | Generate compare/PR URL | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
 | `provenance` (routing) | Provenance tracking needed | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
 | `provenance/platform-detection` | Detect platform for provenance | Platform detection context | Implementation context, agent memory | NO |
@@ -227,12 +274,16 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `release-promotion` | Release PR creation (dev → main) | Branch info, github.owner, github.repo | Implementation context, agent memory | NO |
 | `rebase-pending` | Rebase pending changes | Branch name, worktree.path | Implementation context, agent memory | NO |
 | `implementation` | Implementation dispatch | Branch name, spec file paths | Implementation context, agent memory | NO |
+| `commit-prep` | Stage changes, diff review, WIP commit | Branch name, file paths, worktree.path | Implementation context, agent memory | NO |
 | `pair-pre-work` | Pair mode pre-work | Branch name, worktree.path | Implementation context, agent memory | NO |
 | `pair-commit` | Pair mode commit | Branch name, file paths | Implementation context, agent memory | NO |
 | `pair-pr-creation` | Pair mode PR creation | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
 | `pair-cleanup` | Pair mode cleanup | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
 | `pair-mode-resume` | Pair mode resume | Branch name, worktree.path | Implementation context, agent memory | NO |
-| `dependency-sync` | Automate submodule update lifecycle | Branch name, github.owner, github.repo, dev.name, dev.email | Implementation context, agent memory | NO |
+| `submodule-tag-prework` | Tag each submodule at dev tip with <parent-repo>/<issue-number>, push tags | github.owner, github.repo, dev.name, dev.email, issue_number, parent repo short name, submodule paths | Implementation context, agent memory, full task file contents | NO |
+| `submodule-feature-push` | Push submodule feature branches and tag tips with <parent-repo>/<issue-number>-<sub> | github.owner, github.repo, dev.name, dev.email, issue_number, feature branch name, parent repo short name, changed submodule paths | Implementation context, agent memory, full task file contents | NO |
+| `submodule-liveness-check` | Verify all referenced submodule hashes are reachable (liveness check only, NO auto-remediation) | github.owner, github.repo, parent repo short name, issue_number, submodule paths | Implementation context, agent memory, auto-remediation instructions | NO |
+| `submodule-dev-restore` | Restore submodules to dev branch after cleanup | github.owner, github.repo, submodule paths | Implementation context, agent memory, cleanup history | NO |
 | `completion` | Workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
 | `check-pr` | Check PR state for merged/closed | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
 
@@ -369,20 +420,73 @@ uncommitted_count: <int>
 unpushed_count: <int>
 ```
 
-#### dependency-sync
+#### submodule-tag-prework
+
+```yaml
+status: DONE | BLOCKED
+task: submodule-tag-prework
+submodule_results:
+  - path: <submodule-path>
+    tag_name: <parent-repo>/<issue-number>
+    sha_tagged: <sha>
+    tag_pushed: bool
+evidence_artifacts:
+  - tool: git tag -l
+    output: <tag list showing created tags>
+  - tool: git push origin --tags
+    output: <push confirmation>
+```
+
+#### submodule-feature-push
 
 ```yaml
 status: DONE | BLOCKED | SKIP
-task: dependency-sync
-issue_number: <N>
-issue_url: <url>
-compare_url: <url>
-submodules_updated:
+task: submodule-feature-push
+submodule_results:
   - path: <submodule-path>
-    old_sha: <sha>
-    new_sha: <sha>
-    commits_count: <N>
-commits_count: <N>
+    branch_pushed: <branch-name>
+    tag_name: <parent-repo>/<issue-number>-<sub>
+    sha_tagged: <sha>
+    tag_pushed: bool
+evidence_artifacts:
+  - tool: git push origin <branch>
+    output: <push confirmation>
+  - tool: git tag -l
+    output: <tag list>
+  - tool: git push origin --tags
+    output: <push confirmation>
+```
+
+#### submodule-liveness-check
+
+```yaml
+status: DONE | BLOCKED
+task: submodule-liveness-check
+submodule_results:
+  - path: <submodule-path>
+    committed_sha: <sha>
+    reachable: bool
+    reachable_via: <tag-name or ref-name or "unreachable">
+evidence_artifacts:
+  - tool: git ls-tree HEAD <path>
+    output: <sha>
+  - tool: git tag --contains <sha>
+    output: <tag list>
+```
+
+#### submodule-dev-restore
+
+```yaml
+status: DONE | BLOCKED
+task: submodule-dev-restore
+submodule_results:
+  - path: <submodule-path>
+    branch: dev
+    sha: <dev-tip-sha>
+    stash_used: bool
+evidence_artifacts:
+  - tool: git branch --show-current
+    output: "dev"
 ```
 
 ### Dispatch Context Schema
@@ -479,7 +583,7 @@ When a submodule is pushed or promoted from the parent repo, provenance tracking
 
 | Integration | When Provenance Runs |
 | -- | -- |
-| `review-prep` (Step 0, Submodule Push Automation) | After each submodule is pushed to dev — provenance tracks the dev-push |
+| `review-prep` (Step 0, Submodule Feature Push) | After each submodule feature branch is pushed and tip-tagged — provenance tracks the feature-branch push |
 | `release-promotion` (Step 2h) | After each submodule is promoted dev → main — provenance tracks the promotion |
 
 ### Fire-and-Forget Semantics
@@ -579,10 +683,12 @@ When `git rev-parse --show-toplevel` returns a path that is a descendant of a pa
 
 ### Provenance & Submodule PRs
 
-- Submodule feature branches target `dev` (same as non-submodule)
+- Submodule feature branches target `dev` (same as non-submodule) — pushes are feature-branch pushes with tip tags
+- Tags use `<parent-repo>/<issue-number>` format (pre-work) and `<parent-repo>/<issue-number>-<sub>` (feature push)
 - Release promotion: lock submodule SHA, promote submodule `dev → main`, update parent repo reference
 - Provenance tracking uses the three-tier model (see `## Submodule Provenance`)
 - Cross-repo provenance: parent repo PR body references submodule PR/issue numbers
+- Hash liveness check at PR-time verifies all referenced submodule hashes are reachable via tags
 
 ### Safety Gates
 
@@ -716,19 +822,40 @@ tasks:
     mandatory: false
     bypass_violation: ""
     source: "git-workflow/SKILL.md"
-  - id: dependency-sync
-    skill: git-workflow
-    preconditions: ["gitmodules_exists == true", "working_tree_clean == true", "submodules_have_updates == true"]
-    postconditions: ["tracking_issue_created == true", "branch_pushed == true", "compare_url_generated == true"]
-    mandatory: false
-    bypass_violation: ""
-    source: "git-workflow/SKILL.md"
   - id: completion
     skill: git-workflow
     preconditions: ["any_state"]
     postconditions: ["completion_tasks_executed == true"]
     mandatory: true
     bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "git-workflow/SKILL.md"
+  - id: submodule-tag-prework
+    skill: git-workflow
+    preconditions: [".gitmodules exists", "authorization_verified == true"]
+    postconditions: ["all_submodules_tagged == true", "all_tags_pushed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Submodule Pre-Work Tagging"
+    source: "git-workflow/SKILL.md"
+  - id: submodule-feature-push
+    skill: git-workflow
+    preconditions: [".gitmodules exists", "submodule_has_changes == true"]
+    postconditions: ["submodule_branch_pushed == true", "submodule_tip_tagged == true"]
+    mandatory: false
+    bypass_violation: ""
+    source: "git-workflow/SKILL.md"
+  - id: submodule-liveness-check
+    skill: git-workflow
+    preconditions: [".gitmodules exists", "pr_creation_authorized == true"]
+    postconditions: ["all_submodule_hashes_reachable == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping PR creation with unreachable submodule hashes"
+    source: "git-workflow/SKILL.md"
+  - id: submodule-dev-restore
+    skill: git-workflow
+    preconditions: ["pr_merged == true", ".gitmodules exists"]
+    postconditions: ["all_submodules_on_dev == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Leaving submodule on detached HEAD after cleanup"
     source: "git-workflow/SKILL.md"
 decomposition:
   - type: skill-task

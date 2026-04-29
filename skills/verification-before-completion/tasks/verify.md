@@ -52,7 +52,11 @@ Verify all success criteria have evidence before allowing completion claims.
    - Report as PASS
    - Proceed to Step 1
 
-**Grandfather clause:** Pre-existing files modified by the agent are exempt from header verification — only newly created files require headers.
+**Grandfather clause:** Pre-existing files modified by the agent are exempt from header verification — only newly created files require headers. This is a Tier 1 mandate per `080-code-standards.md` §"New-File Copyright Header Mandate".
+
+**Byline preservation:** During header verification, also check that no existing bylines were removed or overwritten. If an existing file was modified and previously contained bylines, verify those bylines are still present. Removing or overwriting another agent's or human's byline is a CRITICAL VIOLATION per `080-code-standards.md` §"Byline Preservation".
+
+**Legacy file exemption:** Do NOT flag pre-existing files that lack headers as missing headers. The agent MUST NOT add headers to files that predate this mandate and do not already have a header block. See `080-code-standards.md` §"Legacy File Exemption".
 
 ### 1. Query Success Criteria
 

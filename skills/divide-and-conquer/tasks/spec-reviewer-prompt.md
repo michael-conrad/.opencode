@@ -6,6 +6,17 @@ Use this template when dispatching a spec compliance reviewer subagent.
 
 **Source attribution:** This prompt pattern is adapted from [obra/superpowers `subagent-driven-development`](https://github.com/obra/superpowers/tree/main/skills/subagent-driven-development).
 
+## When to Dispatch
+
+Dispatch the spec compliance reviewer AFTER the implementer sub-agent has completed its work. The reviewer MUST NOT be dispatched before implementation — it reviews the actual code output against the original spec.
+
+**Prerequisites:**
+- Implementer sub-agent has returned a `status: DONE` result
+- Code changes exist on the feature branch
+- All tests pass (verified by the implementer)
+
+## Dispatch Template
+
 ```
 Task tool (general-purpose):
   description: "Review spec compliance for Task N"
@@ -81,3 +92,37 @@ Task tool (general-purpose):
     - ✅ Spec compliant (if everything matches after code inspection)
     - ❌ Issues found: [list specifically what's missing or extra, with file:line references]
 ```
+
+## Review Methodology
+
+The reviewer follows a systematic approach:
+
+1. **Read spec requirements** — extract each acceptance criterion
+2. **Read actual code** — inspect each file changed by the implementer
+3. **Line-by-line comparison** — map each requirement to implementation
+4. **Missing detection** — requirements with no implementation evidence
+5. **Extra detection** — implementation not traced to any requirement
+6. **Integration check** — verify patterns match codebase conventions
+
+## Result Contract
+
+The reviewer returns one of:
+
+```yaml
+status: PASS  # All requirements met, no extras
+missing: []
+extras: []
+issues: []
+```
+
+```yaml
+status: FAIL  # Requirements missing, extras found, or misunderstandings
+missing: [requirement_id: description]
+extras: [file:line: description]
+issues: [file:line: description]
+```
+
+## Context Required
+
+- Related skills: `divide-and-conquer` (parent skill)
+- Related tasks: `implementer-prompt`, `code-quality-reviewer-prompt`

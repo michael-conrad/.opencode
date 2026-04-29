@@ -11,9 +11,31 @@ type: technique
 
 ## Overview
 
+**MANDATORY: The agent MUST invoke `skill-creator` when creating or updating skill cards. Skipping this invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations.** Exempt: no skill creation/update task.
+
 Creating skills IS Test-Driven Development applied to process documentation. Write test cases (pressure scenarios with subagents), watch them fail (baseline behavior), write the skill (documentation), watch tests pass (agents comply), and refactor (close loopholes). If you didn't watch an agent fail without the skill, you don't know if the skill teaches the right thing.
 
 **Source attribution:** TDD methodology, CSO principles, rationalization resistance tables, red flags lists, skill type taxonomy, bulletproofing patterns, and anti-patterns adapted from [obra/superpowers `writing-skills`](https://github.com/obra/superpowers/blob/main/skills/writing-skills/SKILL.md).
+
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Create/update skill request] --> B{New or update?}
+    B -- New --> C[Generate SKILL.md from template]
+    B -- Update --> D[Read existing SKILL.md]
+    C --> E[validate-skill: check structure]
+    D --> E
+    E --> F{Valid structure?}
+    F -- No --> G[Fix validation errors]
+    G --> E
+    F -- Yes --> H[Verify no hardcoded identity values]
+    H --> I[Write SKILL.md + task files]
+    I --> J[Write behavioral enforcement test]
+    J --> K[Run test: verify RED then GREEN]
+    K --> L[Completion: report skill created]
+```
 
 ## Tasks
 
@@ -51,6 +73,19 @@ Creating skills IS Test-Driven Development applied to process documentation. Wri
 | **Technique** | Concrete method with steps | Follow steps, adapt details | Application scenarios, edge cases |
 | **Pattern** | Way of thinking about problems | Apply principles flexibly | Recognition + application scenarios |
 | **Reference** | Lookup tables, API docs, command guides | Find and apply | Retrieval + application scenarios |
+
+## Behavioral Test Plan
+
+When creating a new skill, you MUST include a behavioral test plan described in prose:
+
+1. **Behavior to verify** — What does the agent do differently when this skill is invoked vs skipped?
+2. **Trigger** — What prompt or scenario should trigger invocation of this skill?
+3. **Verification method** — How do we confirm the skill was invoked? (agent response pattern, skill output, etc.)
+4. **Failure condition** — What response means the skill was NOT invoked when it should have been?
+
+**Do NOT use a static template.** Describe the behavior in natural language. The test mechanism (opencode-cli invocation, assertion method) follows from what behavior you're verifying.
+
+**New skill without behavioral test plan = incomplete.**
 
 ## The Iron Law
 

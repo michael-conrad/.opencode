@@ -11,7 +11,27 @@ compatibility: opencode
 
 ## Overview
 
+**MANDATORY: The agent MUST invoke `issue-review` when reviewing a GitHub issue. Skipping this invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations.** Exempt: no issue review requested.
+
 Unified "review" command for GitHub Issues. Gathers issue data, classifies the review path via content analysis (not label conventions), delegates to appropriate downstream skills, and handles Q/A for non-spec issues. One entry point replaces manual orchestration of comment reading, audit detection, and audit execution.
+
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Review issue request] --> B[Read issue body + all comments]
+    B --> C[analyze-and-spec: root cause analysis]
+    C --> D{Bug report?}
+    D -- Yes --> E[Create fix spec sub-issue]
+    D -- No --> F{Feature request?}
+    F -- Yes --> G[Invoke brainstorming]
+    F -- No --> H[General review findings]
+    E --> I[Post findings as comment]
+    G --> I
+    H --> I
+    I --> J[completion: report results]
+```
 
 ## Persona
 

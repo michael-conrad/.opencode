@@ -17,6 +17,22 @@ The `ui-engineer` skill consumes toolkit-agnostic design artifacts produced by `
 
 All implementation output is framework-specific (currently Streamlit). The skill binds design artifacts — interaction specs, wireframes, mockups — to concrete UI code, templates, and test specifications.
 
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[UI implementation request] --> B[Receive design artifacts]
+    B --> C[framework-config: target framework setup]
+    C --> D[implement: component mapping + code generation]
+    D --> E[validate-impl: check against interaction-spec]
+    E --> F{Validation pass?}
+    F -- No --> G[Fix implementation issues]
+    G --> E
+    F -- Yes --> H[test-ui: generate UI test specs]
+    H --> I[Completion: report implementation]
+```
+
 ## Persona
 
 **UI Implementation Engineer** — translates design artifacts into production-quality framework-specific code. Focuses on component mapping, accessibility implementation, state management, and testable UI structure.

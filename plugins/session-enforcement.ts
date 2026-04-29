@@ -730,137 +730,7 @@ function buildWorktreeBlock(input: PluginInput): string {
   return "";
 }
 
-/**
- * Extract and strip YAML frontmatter from SKILL.md content.
- * Adapted from obra/superpowers/plugins/superpowers.js
- */
-function extractFrontmatter(content: string): {
-  frontmatter: Record<string, string>;
-  body: string;
-} {
-  const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-  if (!match) return { frontmatter: {}, body: content };
 
-  const frontmatterStr = match[1];
-  const body = match[2];
-  const frontmatter: Record<string, string> = {};
-
-  for (const line of frontmatterStr.split("\n")) {
-    const colonIdx = line.indexOf(":");
-    if (colonIdx > 0) {
-      const key = line.slice(0, colonIdx).trim();
-      const value = line.slice(colonIdx + 1).trim().replace(/^["']|["']$/g, "");
-      frontmatter[key] = value;
-    }
-  }
-
-  return { frontmatter, body };
-}
-
-interface FrontmatterError {
-  skillDir: string;
-  issues: string[];
-}
-
-/**
- * Load skill descriptions from YAML frontmatter in SKILL.md files.
- * Adapted from obra/superpowers/plugins/superpowers.js skill discovery pattern.
- *
- * Source attribution: CSO (Content Search Optimization) principles from
- * https://github.com/obra/superpowers/blob/main/skills/writing-skills/SKILL.md
- * Description format: "Use when..." with triggering conditions, NOT workflow summaries.
- *
- * Returns { skills, errors } where errors collects frontmatter validation issues.
- * See #601 for the original bug that motivated frontmatter validation.
- */
-function loadSkillDescriptions(skillsDir: string): {
-  skills: Array<{ name: string; description: string }>;
-  errors: FrontmatterError[];
-} {
-  const skills: Array<{ name: string; description: string }> = [];
-  const errors: FrontmatterError[] = [];
-
-  try {
-    const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
-      const skillPath = path.join(skillsDir, entry.name, "SKILL.md");
-      if (!fs.existsSync(skillPath)) continue;
-
-      try {
-        const content = fs.readFileSync(skillPath, "utf8");
-        const validationIssues: string[] = [];
-
-        const hasOpeningDelimiter = /^---\s*\n/m.test(content);
-        const { frontmatter } = extractFrontmatter(content);
-
-        if (!hasOpeningDelimiter) {
-          validationIssues.push("Missing `---` opening delimiter");
-        } else if (Object.keys(frontmatter).length === 0) {
-          validationIssues.push("Delimiters present but no key:value pairs parsed (format error)");
-        }
-
-        if (hasOpeningDelimiter && !frontmatter.name) {
-          validationIssues.push("Missing `name` field");
-        }
-
-        if (hasOpeningDelimiter && !frontmatter.description) {
-          validationIssues.push("Missing `description` field — skill will be invisible to enforcement");
-        } else if (frontmatter.description && !frontmatter.description.startsWith("Use when")) {
-          validationIssues.push("Description does not start with \"Use when\" — CSO requirement for trigger discovery");
-        }
-
-        if (validationIssues.length > 0) {
-          errors.push({ skillDir: entry.name, issues: validationIssues });
-        }
-
-        const name = frontmatter.name || entry.name;
-        const description = frontmatter.description || "";
-        if (description) {
-          skills.push({ name, description });
-        }
-      } catch {
-        // Skip unreadable skill files
-      }
-    }
-  } catch {
-    // Skills directory may not exist in all contexts
-  }
-
-  return { skills, errors };
-}
-
-/**
- * Build a structured warning string for frontmatter validation errors.
- * Returns empty string if no errors, so the caller can skip injection.
- * References #601 as the example bug that motivated this validation.
- */
-function buildFrontmatterWarning(errors: FrontmatterError[]): string {
-  if (errors.length === 0) return "";
-
-  const perSkillListing = errors
-    .map(e => `- **${e.skillDir}**: ${e.issues.join("; ")}`)
-    .join("\n");
-
-  return `<FRONTMATTER_VALIDATION_WARNING>
-⚠️ The following SKILL.md files have frontmatter issues that may make skills invisible to enforcement:
-
-${perSkillListing}
-
-**Fix template** — every SKILL.md MUST start with this YAML frontmatter block:
-
-\`\`\`yaml
----
-name: skill-name
-description: Use when [triggering conditions]. Triggers on: [keywords].
-type: discipline-enforcing
-license: MIT
----
-\`\`\`
-
-See #601 for the original bug that motivated this validation.
-</FRONTMATTER_VALIDATION_WARNING>`;
-}
 
 /**
  * Regex matching a bare issue reference: input that is solely an issue number
@@ -893,89 +763,6 @@ Critical rules:
 </ISSUE_PIPELINE_TRIGGER>`;
 }
 
-/**
- * Build the enforcement content injected into the first user message.
- *
- * Adapted from obra/superpowers skill enforcement pattern:
- * https://github.com/obra/superpowers/blob/main/.opencode/plugins/superpowers.js
- *
- * Key principle: removed per spec #1249/#1248.
- * Skill dispatch now follows the deterministic chain-of-responsibility
- * table in approval-gate/SKILL.md. Invoke ONLY the skill(s) mapped
- * to the current pipeline stage. Do NOT load skills speculatively.
- */
-function buildEnforcementContent(skillDescriptions: Array<{ name: string; description: string }>): string {
-  // Process skills first, implementation skills second
-  const processSkills = skillDescriptions.filter(s =>
-    ["approval-gate", "brainstorming", "spec-creation", "writing-plans", "executing-plans",
-     "verification-before-completion", "finishing-a-development-branch",
-     "git-workflow", "using-git-worktrees", "systematic-debugging", "spec-auditor",
-     "issue-operations"].includes(s.name)
-  );
-  const implSkills = skillDescriptions.filter(s => !processSkills.includes(s));
-
-  const sortedSkills = [...processSkills, ...implSkills];
-
-  const skillLines = sortedSkills
-    .map(s => `- **${s.name}**: ${s.description}`)
-    .join("\n");
-
-  return `<EXTREMELY_IMPORTANT>
-You have access to mandatory workflow skills. Skill invocation is NOT optional when a skill applies.
-
-**Deterministic Dispatch:** Skill dispatch follows the chain-of-responsibility table in approval-gate/SKILL.md. Invoke ONLY the skill(s) deterministically mapped to the current pipeline stage. Do NOT load skills speculatively. Never invoke a skill "just in case."
-
-IF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.
-
-This is not negotiable. This is not optional. You cannot rationalize your way out of this.
-
-## Skill Priority
-
-When multiple skills could apply, use this order:
-
-1. **Process skills first** (approval-gate, brainstorming, spec-creation, issue-operations, writing-plans, systematic-debugging) — these determine HOW to approach the task
-2. **Implementation skills second** — these guide execution
-
-## Red Flags — STOP and Invoke the Skill
-
-| Thought | Reality |
-|---------|---------|
-| "This is just a simple question" | Questions are tasks. Check for skills. |
-| "I need more context first" | Skill check comes BEFORE clarifying questions. |
-| "Let me explore the codebase first" | Skills tell you HOW to explore. Check first. |
-| "I can check git/files quickly" | Files lack conversation context. Check for skills. |
-| "Let me gather information first" | Skills tell you HOW to gather information. |
-| "This doesn't need a formal skill" | If a skill exists, use it. |
-| "I remember this skill" | Skills evolve. Read current version. |
-| "This doesn't count as a task" | Action = task. Check for skills. |
-| "The skill is overkill" | Simple things become complex. Use it. |
-| "I'll just do this one thing first" | Check BEFORE doing anything. |
-| "This feels productive" | Undisciplined action wastes time. Skills prevent this. |
-| "I know what that means" | Knowing the concept ≠ using the skill. Invoke it. |
-
-## Default Operating Mode: Discussion
-
-You are in **discussion mode** by default. This means:
-
-- **Valid actions**: Read, analyze, brainstorm, review, plan, answer questions
-- **NOT valid**: Implementation — writing code, editing files, creating branches, or making any changes
-- **Authorization required**: Only explicit "approved" or "go" transitions you to action mode for the specific authorized task
-- **Discussion conclusions are NOT authorization**: Reaching agreement on an approach does NOT authorize implementation
-- **Task-scoped authorization**: After completing an authorized task, you return to discussion mode automatically
-- **No proactive suggestions**: After completing a task, do not suggest next steps or propose additional work
-
-## Available Skills
-
-${skillLines}
-
-## How to Invoke Skills
-
-Use the OpenCode skill tool: \`/skill <skill-name>\` or \`/skill <skill-name> --task <task-name>\`
-
-Invoke relevant skills BEFORE any response or action, per the deterministic dispatch table.
-</EXTREMELY_IMPORTANT>`;
-}
-
 function extractValue(sessionOutput: string | null, key: string): string | null {
   if (!sessionOutput) return null;
   const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -983,46 +770,7 @@ function extractValue(sessionOutput: string | null, key: string): string | null 
   return match ? match[1] : null;
 }
 
-function detectAgentBinary(): { name: string; version: string } {
-  const argv0 = process.argv[0] || "";
-  const argv1 = process.argv[1] || "";
 
-  for (const arg of [argv1, argv0]) {
-    if (arg.includes("opencode-cli")) {
-      return { name: "OpenCode CLI", version: "" };
-    }
-    if (arg.includes("opencode") || arg.includes("OpenCode")) {
-      return { name: "OpenCode", version: "" };
-    }
-  }
-
-  const envBinary = process.env.OPENCODE_BINARY || "";
-  const envVersion = process.env.OPENCODE_VERSION || "";
-
-  if (envBinary) {
-    return { name: envBinary, version: envVersion || "" };
-  }
-
-  return { name: "unknown (version detection failed)", version: "" };
-}
-
-function buildIdentityEchoDirective(platform: string, owner: string, repo: string, agentName?: string, modelId?: string): string {
-  const agentLine = `🤖 ${agentName || "<AgentName>"} (${modelId || "<ModelId>"}) <status-icon> <status>`;
-
-  return `<IDENTITY_ECHO>
-Before doing anything else, you MUST echo your platform identity as your very first output. The CORRECT values are:
-
-Platform: ${platform}, Org: ${owner}, Repo: ${repo}
-
-You MUST output EXACTLY these values in this format:
-Platform: ${platform}, Org: ${owner}, Repo: ${repo}
-${agentLine}
-
-⚠️ FATAL: If your echo does not match Platform: ${platform}, Org: ${owner}, Repo: ${repo} character-for-character, you MUST HALT immediately and report the mismatch. Do NOT proceed with any operations with incorrect identity. Do NOT infer identity from repository names, file paths, or environment variables. Use ONLY the values provided in the system prompt identity section.
-
-After the identity echo, process any trigger warnings from the SESSION_TRIGGERS block above silently per the 117-session-trigger-behavior.md behavior map. Do NOT echo trigger content in your response.
-</IDENTITY_ECHO>`;
-}
 
 /**
  * Secret patterns for redaction.
@@ -1155,12 +903,8 @@ function isPairModeBranch(branch: string): boolean {
 }
 
 export default async function sessionEnforcementPlugin(input: PluginInput): Promise<Hooks> {
-  // Determine skills directory and project directory
+  // Determine project directory
   const projectDir = input?.directory || process.cwd();
-  const skillsDir = path.join(projectDir, ".opencode", "skills");
-
-  // Pre-load skill descriptions and frontmatter validation at plugin startup
-  const { skills: skillDescriptions, errors: frontmatterErrors } = loadSkillDescriptions(skillsDir);
 
   // Ensure git hooks from .opencode/hooks/ are installed into .git/hooks/
   ensureHooksInstalled(projectDir);
@@ -1232,34 +976,22 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
       // Inject language preference (Southeastern US English mandate)
       output.system.push(buildLanguagePreferenceBlock());
 
-      // Inject frontmatter validation warning if any skills have broken frontmatter
-      const warning = buildFrontmatterWarning(frontmatterErrors);
-      if (warning) {
-        output.system.push(warning);
-      }
-
       // Inject identity section from session_context_identity.py
       const identityOutput = await runSessionContextIdentity(projectDir);
       if (identityOutput) {
         output.system.push(identityOutput);
       }
 
-      // Inject agent binary name and version for LLM identity echo
-      const agentBinary = detectAgentBinary();
-      const agentBlock = [`AgentName: ${agentBinary.name}`];
-      if (agentBinary.version) {
-        agentBlock.push(`ModelId: ${agentBinary.version}`);
-      }
-      output.system.push(agentBlock.join("\n"));
+
     },
 
     // Inject enforcement content into first user message (adapted from obra/superpowers)
       // AND detect bare #N issue references in last user message
-      // AND inject identity-echo directive + trigger warnings into first user message
+      // AND inject trigger warnings into first user message
       // AND inject plugin diagnostics block into first user message
       //
-      // FIRST-TURN GUARD: IDENTITY_ECHO, SESSION_TRIGGERS, EXTREMELY_IMPORTANT,
-      // PLUGIN_DIAGNOSTICS, and IDENTITY_VALIDATION_FAILURE are injected ONLY on
+      // FIRST-TURN GUARD: SESSION_TRIGGERS, EXTREMELY_IMPORTANT,
+      // PLUGIN_DIAGNOSTICS, and LOCAL_MODE warnings are injected ONLY on
       // the first turn of PRIMARY sessions (isFirstTurn && !isSubAgent). Sub-agent
       // sessions inherit context from their parent, so these blocks are redundant
       // and waste context window space (REQ-1/REQ-2).
@@ -1294,51 +1026,13 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         const shouldInjectFirstTurn = isFirstTurn && !isSubAgent;
 
         if (shouldInjectFirstTurn) {
-          const enforcementContent = buildEnforcementContent(skillDescriptions);
-          if (enforcementContent && firstUser.parts?.length) {
-            if (!firstUser.parts.some(p => p.type === "text" && p.text?.includes("EXTREMELY_IMPORTANT"))) {
-              const ref = firstUser.parts[0];
-              firstUser.parts.unshift({ ...ref, type: "text", text: enforcementContent });
-            }
-          }
-
-          // --- First-turn-only: Identity-echo directive + trigger warnings ---
+          // --- First-turn-only: Trigger warnings ---
           const triggersOutput = await runSessionContextTriggers(projectDir);
-          const knownPlatform = extractValue(cachedIdentityOutput, "github.platform");
-          const knownOwner = extractValue(cachedIdentityOutput, "github.owner");
-          const knownRepo = extractValue(cachedIdentityOutput, "github.repo");
-          const knownIdentitySource = extractValue(cachedIdentityOutput, "github.identity_source");
 
-          // Degraded mode: when identity_source is "none", we have no remote at all.
-          // Platform is "local", owner/repo are "(none)". This is a valid operational state,
-          // not an error. Skip the FATAL identity validation for local-only mode.
-          const isLocalMode = knownPlatform === "local" || knownIdentitySource === "none";
-
-          // Submodule mode: parent repo has zero remotes, owner/repo come from submodule.
-          // Agent must NOT add remotes to the parent repo or push from the parent repo.
-          const isSubmoduleMode = knownIdentitySource === "submodule";
-
-          // Detect agent binary for identity echo
-          const agentBinary = detectAgentBinary();
-
-          const identityBlock = buildIdentityEchoDirective(
-            knownPlatform || "<platform>",
-            knownOwner || "<owner>",
-            knownRepo || "<repo>",
-            agentBinary.name,
-            agentBinary.version || undefined,
-          );
           const triggerBlock = triggersOutput ? `<SESSION_TRIGGERS>\n${triggersOutput}\n</SESSION_TRIGGERS>` : "";
 
-          const echoParts: string[] = [];
-          if (identityBlock) {
-            echoParts.push(identityBlock);
-          }
-          if (triggerBlock) {
-            echoParts.push(triggerBlock);
-          }
-          if (echoParts.length > 0 && firstUser.parts?.length) {
-            firstUser.parts.unshift({ type: "text", text: echoParts.join("\n\n") });
+          if (triggerBlock && firstUser.parts?.length) {
+            firstUser.parts.unshift({ type: "text", text: triggerBlock });
           }
 
           // --- First-turn-only: Plugin diagnostics injection ---
@@ -1348,10 +1042,14 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
             firstUser.parts.push({ type: "text", text: diagnosticBlock });
           }
 
-          // --- First-turn-only: Identity echo validation ---
+          // --- First-turn-only: Local/submodule mode warnings ---
+          const knownPlatform = extractValue(cachedIdentityOutput, "github.platform");
+          const knownIdentitySource = extractValue(cachedIdentityOutput, "github.identity_source");
+
+          const isLocalMode = knownPlatform === "local" || knownIdentitySource === "none";
+          const isSubmoduleMode = knownIdentitySource === "submodule";
+
           if (isLocalMode) {
-            // Local mode: identity values are "(none)" by design. Skip FATAL validation.
-            // Emit a warning instead so the agent knows it's in local-only mode.
             const lastUser = userMessages[userMessages.length - 1];
             if (lastUser?.parts?.length) {
               lastUser.parts.push({
@@ -1367,52 +1065,6 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
                 type: "text",
                 text: `<LOCAL_MODE>\n⚠️ Operating in submodule-local mode — parent repo has ${parentRemoteCount} remote(s).\n\n- github.identity_source: submodule\n- All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory — not the project root.\n- The parent repo has ZERO remotes by design.\n- github.owner and github.repo are from the submodule remote for API routing ONLY\n- GitHub MCP calls route to the submodule's repository\n- Local git operations (branch, commit, stash) on the parent repo are permitted\n- Do NOT push from the parent repo — there is no remote to push to.\n- Do NOT add remotes to the parent repo.\n</LOCAL_MODE>`
               });
-            }
-          } else if (!knownPlatform || !knownOwner || !knownRepo) {
-            const missing = [
-              !knownPlatform ? "github.platform" : null,
-              !knownOwner ? "github.owner" : null,
-              !knownRepo ? "github.repo" : null,
-            ].filter(Boolean).join(", ");
-
-            const lastUser = userMessages[userMessages.length - 1];
-            if (lastUser?.parts?.length) {
-              lastUser.parts.push({
-                type: "text",
-                text: `<IDENTITY_VALIDATION_FAILURE>\n⚠️ FATAL: Session identity values are MISSING. HALT all operations immediately.\n\nMissing values: ${missing}\n\nIdentity validation cannot proceed without these values. Do NOT infer identity from repository names, file paths, or environment variables. Resolve the missing identity values before continuing any operations.\n</IDENTITY_VALIDATION_FAILURE>`
-              });
-            }
-          } else {
-            const assistantMessages = output.messages.filter(m => m.info?.role === "assistant");
-            if (assistantMessages.length > 0) {
-              const firstAssistant = assistantMessages[0];
-              const assistantText = firstAssistant.parts
-                ?.filter(p => p.type === "text" && p.text)
-                .map(p => p.text)
-                .join(" ") || "";
-
-              const echoMatch = assistantText.match(/Platform:\s*(\S+),\s*Org:\s*(\S+),\s*Repo:\s*(\S+)/);
-
-              const lastUser = userMessages[userMessages.length - 1];
-
-              if (!echoMatch) {
-                if (lastUser?.parts?.length) {
-                  lastUser.parts.push({
-                    type: "text",
-                    text: `<IDENTITY_VALIDATION_FAILURE>\n⚠️ FATAL: Your first message did not contain a valid identity echo. You MUST echo your platform identity before proceeding with ANY operations.\n\nExpected: Platform: ${knownPlatform}, Org: ${knownOwner}, Repo: ${knownRepo}\n\nHALT all operations. Echo the correct identity values above before continuing.\n</IDENTITY_VALIDATION_FAILURE>`
-                  });
-                }
-              } else {
-                const [, echoPlatform, echoOwner, echoRepo] = echoMatch;
-                if (echoPlatform !== knownPlatform || echoOwner !== knownOwner || echoRepo !== knownRepo) {
-                  if (lastUser?.parts?.length) {
-                    lastUser.parts.push({
-                      type: "text",
-                      text: `<IDENTITY_VALIDATION_FAILURE>\n⚠️ FATAL: Identity echo mismatch detected!\n\nYour echo: Platform: ${echoPlatform}, Org: ${echoOwner}, Repo: ${echoRepo}\nExpected: Platform: ${knownPlatform}, Org: ${knownOwner}, Repo: ${knownRepo}\n\nHALT all operations. These values do NOT match. Use ONLY the expected values above. Do NOT infer identity from repository names, file paths, or environment variables.\n</IDENTITY_VALIDATION_FAILURE>`
-                    });
-                  }
-                }
-              }
             }
           }
         }
@@ -1514,6 +1166,102 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
               break;
             }
           }
+        }
+      }
+
+      // --- Per-turn: Branch topology check ---
+      // Detect degraded remote branch topology and inject BRANCH_TOPOLOGY warning.
+      // This mirrors the session_context_triggers.py BRANCH_TOPOLOGY detection
+      // but operates at the TypeScript plugin level for real-time detection.
+      let branchTopologyBlock = "";
+      try {
+        const hasRemotesForTopology = gitConfigBaseline ? gitConfigBaseline.remoteCount > 0 : false;
+        if (hasRemotesForTopology) {
+          const currentBranchForTopology = getCurrentBranch(projectDir);
+          const isFeatureForTopology = currentBranchForTopology &&
+            currentBranchForTopology !== "main" &&
+            currentBranchForTopology !== "master" &&
+            currentBranchForTopology !== "dev";
+
+          // Check 1: origin/dev existence for feature branches
+          let originDevMissing = false;
+          if (isFeatureForTopology) {
+            try {
+              execSync("git rev-parse --verify origin/dev", {
+                cwd: projectDir,
+                encoding: "utf8",
+                input: "",
+                timeout: 5000,
+                stdio: ["pipe", "pipe", "pipe"],
+              });
+            } catch {
+              originDevMissing = true;
+            }
+          }
+
+          // Check 2: common ancestor between main and dev
+          let orphanedBranches = false;
+          try {
+            const hasMain = execSync("git rev-parse --verify origin/main 2>/dev/null || git rev-parse --verify origin/master 2>/dev/null", {
+              cwd: projectDir,
+              encoding: "utf8",
+              input: "",
+              timeout: 5000,
+              stdio: ["pipe", "pipe", "pipe"],
+            }).trim();
+            const hasDev = execSync("git rev-parse --verify origin/dev", {
+              cwd: projectDir,
+              encoding: "utf8",
+              input: "",
+              timeout: 5000,
+              stdio: ["pipe", "pipe", "pipe"],
+            }).trim();
+
+            if (hasMain && hasDev) {
+              try {
+                execSync("git merge-base origin/main origin/dev || git merge-base origin/master origin/dev", {
+                  cwd: projectDir,
+                  encoding: "utf8",
+                  input: "",
+                  timeout: 5000,
+                  stdio: ["pipe", "pipe", "pipe"],
+                });
+                // merge-base exists — check ancestry
+              } catch {
+                // No merge-base found — orphaned
+                orphanedBranches = true;
+              }
+            }
+          } catch {
+            // Could not determine branch refs — skip topology check
+          }
+
+          const topologyLines: string[] = [];
+          if (originDevMissing) {
+            topologyLines.push("- ❌ origin/dev does not exist on remote — feature branch PRs will fail. Push dev to remote first: git push origin dev");
+          }
+          if (orphanedBranches) {
+            topologyLines.push("- ❌ main and dev are orphaned (no common ancestor) — PRs between them will fail. Fix: rebase dev onto main, or merge with --allow-unrelated-histories.");
+          }
+
+          if (topologyLines.length > 0) {
+            branchTopologyBlock = `<SESSION_TRIGGERS>
+⚠️ branch_topology: Remote branch topology is degraded.
+${topologyLines.join("\n")}
+- Action: resolve topology issues before pushing feature branches.
+Process per 117-session-trigger-behavior.md behavior map. Do NOT echo this trigger in chat output.
+</SESSION_TRIGGERS>`;
+          }
+        }
+      } catch {
+        // Git unavailable or topology check failed — skip
+      }
+
+      // --- Per-turn: BRANCH_TOPOLOGY injection into last user message ---
+      if (branchTopologyBlock) {
+        const lastUserForTopology = userMessages[userMessages.length - 1];
+        if (lastUserForTopology?.parts?.length) {
+          lastUserForTopology.parts.push({ type: "text", text: branchTopologyBlock });
         }
       }
 

@@ -11,9 +11,33 @@ compatibility: opencode
 
 ## Overview
 
+**MANDATORY: The agent MUST invoke `finishing-a-development-branch --task checklist` after implementation and before PR creation. Skipping this invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations.** Exempt: no implementation performed (spec-only sessions, plan-only sessions, pure Q/A).
+
 Branch completion workflow that ensures a feature branch is fully ready for PR creation. Verifies all changes are committed, tested, pushed, and reviewed before the developer creates a PR. Implementation tracks against plan sub-issues, not spec sub-issues. Adapted from the \<UPSTREAM_ORG>/\<UPSTREAM_REPO> workflow.
 
 **Source Attribution:** This skill is adapted from \<UPSTREAM_ORG>/\<UPSTREAM_REPO> workflow (branch: newsrx).
+
+
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+    A[Implementation complete] --> B[prepare: verify branch state]
+    B --> C[checklist: completion verification]
+    C --> D{All changes committed?}
+    D -- No --> E[Commit remaining changes]
+    E --> D
+    D -- Yes --> F{Tests pass?}
+    F -- No --> G[Fix test failures]
+    G --> F
+    F -- Yes --> H[Lint/format clean?]
+    H -- No --> I[Run lint + format]
+    I --> H
+    H -- Yes --> J[Branch pushed to remote?]
+    J -- No --> K[Push branch]
+    J -- Yes --> L[Completion: report readiness]
+    K --> L
+```
 
 ## Tasks
 
