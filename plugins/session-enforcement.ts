@@ -1169,6 +1169,102 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         }
       }
 
+      // --- Per-turn: Branch topology check ---
+      // Detect degraded remote branch topology and inject BRANCH_TOPOLOGY warning.
+      // This mirrors the session_context_triggers.py BRANCH_TOPOLOGY detection
+      // but operates at the TypeScript plugin level for real-time detection.
+      let branchTopologyBlock = "";
+      try {
+        const hasRemotesForTopology = gitConfigBaseline ? gitConfigBaseline.remoteCount > 0 : false;
+        if (hasRemotesForTopology) {
+          const currentBranchForTopology = getCurrentBranch(projectDir);
+          const isFeatureForTopology = currentBranchForTopology &&
+            currentBranchForTopology !== "main" &&
+            currentBranchForTopology !== "master" &&
+            currentBranchForTopology !== "dev";
+
+          // Check 1: origin/dev existence for feature branches
+          let originDevMissing = false;
+          if (isFeatureForTopology) {
+            try {
+              execSync("git rev-parse --verify origin/dev", {
+                cwd: projectDir,
+                encoding: "utf8",
+                input: "",
+                timeout: 5000,
+                stdio: ["pipe", "pipe", "pipe"],
+              });
+            } catch {
+              originDevMissing = true;
+            }
+          }
+
+          // Check 2: common ancestor between main and dev
+          let orphanedBranches = false;
+          try {
+            const hasMain = execSync("git rev-parse --verify origin/main 2>/dev/null || git rev-parse --verify origin/master 2>/dev/null", {
+              cwd: projectDir,
+              encoding: "utf8",
+              input: "",
+              timeout: 5000,
+              stdio: ["pipe", "pipe", "pipe"],
+            }).trim();
+            const hasDev = execSync("git rev-parse --verify origin/dev", {
+              cwd: projectDir,
+              encoding: "utf8",
+              input: "",
+              timeout: 5000,
+              stdio: ["pipe", "pipe", "pipe"],
+            }).trim();
+
+            if (hasMain && hasDev) {
+              try {
+                execSync("git merge-base origin/main origin/dev || git merge-base origin/master origin/dev", {
+                  cwd: projectDir,
+                  encoding: "utf8",
+                  input: "",
+                  timeout: 5000,
+                  stdio: ["pipe", "pipe", "pipe"],
+                });
+                // merge-base exists — check ancestry
+              } catch {
+                // No merge-base found — orphaned
+                orphanedBranches = true;
+              }
+            }
+          } catch {
+            // Could not determine branch refs — skip topology check
+          }
+
+          const topologyLines: string[] = [];
+          if (originDevMissing) {
+            topologyLines.push("- ❌ origin/dev does not exist on remote — feature branch PRs will fail. Push dev to remote first: git push origin dev");
+          }
+          if (orphanedBranches) {
+            topologyLines.push("- ❌ main and dev are orphaned (no common ancestor) — PRs between them will fail. Fix: rebase dev onto main, or merge with --allow-unrelated-histories.");
+          }
+
+          if (topologyLines.length > 0) {
+            branchTopologyBlock = `<SESSION_TRIGGERS>
+⚠️ branch_topology: Remote branch topology is degraded.
+${topologyLines.join("\n")}
+- Action: resolve topology issues before pushing feature branches.
+Process per 117-session-trigger-behavior.md behavior map. Do NOT echo this trigger in chat output.
+</SESSION_TRIGGERS>`;
+          }
+        }
+      } catch {
+        // Git unavailable or topology check failed — skip
+      }
+
+      // --- Per-turn: BRANCH_TOPOLOGY injection into last user message ---
+      if (branchTopologyBlock) {
+        const lastUserForTopology = userMessages[userMessages.length - 1];
+        if (lastUserForTopology?.parts?.length) {
+          lastUserForTopology.parts.push({ type: "text", text: branchTopologyBlock });
+        }
+      }
+
       // --- Per-turn: Protected branch edit guard ---
       // After each assistant turn, check if files were edited on dev/main
       // without a worktree or pair- branch prefix. If so, inject warning.
