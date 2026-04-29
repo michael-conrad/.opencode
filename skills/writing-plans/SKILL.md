@@ -602,6 +602,25 @@ Action: [auto-fix|conditional|flag-for-review]
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
 
+## MANDATORY TASKS
+
+- [ ] MANDATORY: Read approved spec from GitHub Issue — verify spec approval via live tool call (labels + authorization comment), not cached claims — per §Live Verification: Spec State
+- [ ] MANDATORY: Check for existing plans referencing the same spec before creating a new plan — per §Operating Protocol Step 1.5
+- [ ] MANDATORY: Evaluate combined vs separate plan using `single_task_determination` at decision gate — per §Operating Protocol Step 2
+- [ ] MANDATORY: Include TDD step structure (RED/GREEN/REFACTOR) in every task with Step 2 RED verification checkpoint — per §RED Verification Checkpoint and yaml+symbolic writing-plans-005
+- [ ] MANDATORY: Verify no placeholders (TBD, TODO, etc.) in plan content — per §No-Placeholders Rule and yaml+symbolic writing-plans-002
+- [ ] MANDATORY: Generate mermaid dependency diagram when plan has dependencies (multiple phases or cross-issue dependencies) — per §Interdependency Diagram Discipline and yaml+symbolic writing-plans-009
+- [ ] MANDATORY: Verify diagram contains NO workflow state markers (✅, 🔄, ❌, "implemented", "pending") — per §Diagram Format Rules and yaml+symbolic writing-plans-010
+- [ ] MANDATORY: Include PR Merge Boundaries section when spec has dependencies on other specs/plans — per §PR Merge Boundaries and yaml+symbolic writing-plans-009 (duplicate ID)
+- [ ] MANDATORY: Create sub-issues under the plan (NOT under the spec) for multi-task plans — per §Plan Issue Model and yaml+symbolic writing-plans-003
+- [ ] MANDATORY: Self-review plan for spec coverage, placeholders, and type consistency — per §Self-Review Checklist
+- [ ] MANDATORY: Verify cross-references against actual skill files before invoking — per §Cross-Reference Verification
+- [ ] MANDATORY: Invoke `verification-enforcement --task verify` before plan content generation — per decomposition gate
+- [ ] MANDATORY: Add `needs-approval` label to newly created plans in standard scope — per §Approval Cascade
+- [ ] MANDATORY: Scope-aware cascade: for `for_plan` or higher scope, remove `needs-approval` and document cascade — for `standard` scope, retain label — per §Approval Cascade
+- [ ] MANDATORY: Report chat output as exec summary + URL + byline — per §Operating Protocol Step 10
+- [ ] MANDATORY: Invoke `--task completion` before halting at any point — per completion task
+
 ```yaml+symbolic
 schema_version: "2.0"
 last_updated: "2026-04-25T00:00:00Z"

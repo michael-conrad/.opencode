@@ -383,6 +383,25 @@ Use when spec has complex success criteria benefiting from independent verificat
 - Authorization classification: See `010-approval-gate.md` §Action Authorization Classification
 - Adapted from: `implementation-workflow`
 
+## MANDATORY TASKS
+
+- [ ] MANDATORY: Run `--task assess` (pre-flight context assessment) before ANY non-trivial implementation dispatch (per Operating Protocol §1)
+- [ ] MANDATORY: Dispatch ALL implementation via `--task assemble-work` — no direct implementation by orchestrator, no IMPLEMENT_DIRECTLY path (per Gate 2: Sub-Agent Dispatch Required, per `000-critical-rules.md` §Main Agent Implements Directly)
+- [ ] MANDATORY: Verify feature branch exists (`git branch --show-current`) and `worktree.path` is set before dispatching any sub-agent (per Pre-Dispatch Verification Checkpoint)
+- [ ] MANDATORY: Verify `git-workflow --task pre-work` was invoked — not manual worktree creation — before sub-agent dispatch (per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations)
+- [ ] MANDATORY: Check PR merge boundaries via `github_pull_request_read(method=get)` for each `must_be_merged_before_starting: true` boundary before dispatching sub-agents (per Gate 3: PR Merge Boundary Check, per `000-critical-rules.md` §Implementing Before PR Merge Boundary)
+- [ ] MANDATORY: Each sub-agent handles ONE discrete step — never combine analyze+write, write+verify, or test+fix in a single dispatch (per Decomposition Rule)
+- [ ] MANDATORY: Sub-agents MUST run `verification-before-completion --task verify` and `finishing-a-development-branch --task checklist` before returning results (per Operating Protocol §10)
+- [ ] MANDATORY: Stack branches sequentially (merge-based dependency resolution) as the prerequisite approach — parallel dispatch is opportunistic only, requires documented justification (per Operating Protocol §11, per `000-critical-rules.md` §Treating Branch Stacking as Optional)
+- [ ] MANDATORY: Validate sub-agent result contract before accepting — check `status`, `files_changed`, `summary`, `phase_progress` fields (per Result Validation table, per `000-critical-rules.md` §Skipping Post-Flight Checks)
+- [ ] MANDATORY: On OVERFLOW signal from sub-agent: re-dispatch with reduced scope, NEVER silently halt (per Overflow Signal Contract, per `000-critical-rules.md` §Silent Agent Termination)
+- [ ] MANDATORY: On empty/malformed sub-agent result: FALLBACK to inline execution + warn in chat; on double failure: report + invoke `--task completion` + HALT with status (per Result Validation, per `000-critical-rules.md` §Post-Dispatch Output Guarantee)
+- [ ] MANDATORY: Log every sub-agent dispatch in work state file with timestamp, task name, and result contract summary (per Dispatch Logging in Work State File)
+- [ ] MANDATORY: Verify work state claims against live GitHub/git state before trusting them for workflow decisions (per Live Verification: Work State table, per `065-verification-honesty.md`)
+- [ ] MANDATORY: Verify `files_modified_count > 0` for `for_implementation` or `for_pr` scope before reporting dispatch complete — zero deliverables is a CRITICAL violation (per `000-critical-rules.md` §Implementation-First Gate)
+- [ ] MANDATORY: After authorization received, proceed to `git-workflow --task pre-work` within at most 3 tool calls — no unbounded research spiral (per `000-critical-rules.md` §Implementation-First Gate at Authorization Time)
+- [ ] MANDATORY: Invoke `--task completion` on workflow halt at ANY point — idempotent, safe to invoke multiple times (per COMPLETION GUARANTEE)
+
 ```yaml+symbolic
 schema_version: "2.0"
 last_updated: "2026-04-26T00:00:00Z"

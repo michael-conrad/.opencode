@@ -356,6 +356,23 @@ Key adaptations for <AgentName>:
 - Dispatch table integration for mandatory invocation
 - Structured evidence collection and verification gates
 
+## MANDATORY TASKS
+
+- [ ] MANDATORY: Invoke `verification-before-completion --task verify` before marking any task or phase complete — skipping is a CRITICAL GUIDELINE VIOLATION (per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations, exempt: no implementation performed)
+- [ ] MANDATORY: Run `structural-verify` BEFORE per-SC verification — HALT immediately if any structural component is missing (per Structural Completeness Gate)
+- [ ] MANDATORY: Every success criterion must have verifiable evidence (logs, test outputs, tool-call artifacts) — no placeholders or "trust me" claims (per Operating Protocol §2, per `000-critical-rules.md` §Soft-Passing Verification Mismatches)
+- [ ] MANDATORY: Use `exact` comparison mode as default for ALL external verifications (DNS, config, API responses, infrastructure state) — `semantic` mode requires explicit per-field justification per `065-verification-honesty.md` §Verification Comparison Semantics
+- [ ] MANDATORY: Verify completion claims against LIVE state via tool calls — never trust cached or claimed values (per Live Verification: Completion Claims table, per `000-critical-rules.md` §Verification Dishonesty)
+- [ ] MANDATORY: Verify cross-references against actual skill content before invoking — `ls .opencode/skills/<name>/SKILL.md` for existence, `grep` for task references (per Cross-Reference Verification table)
+- [ ] MANDATORY: Dispatch verification sub-agents with clean-room context — ONLY spec SC list + file paths, NO implementation context, NO prior verification results, NO agent memory (per Clean-Room Dispatch Protocol, per `000-critical-rules.md` §Skipping Clean-Room Dispatch for Sub-Agents)
+- [ ] MANDATORY: Verify per-SC evidence table shows ALL PASS before marking complete — any FAIL or MISSING row blocks completion (per Enforcement Mechanism matrix)
+- [ ] MANDATORY: Run behavioral RED tests in isolated sub-agent sessions via `with-test-home` — never in the same context as the implementation agent (per RED Test Isolation, per `000-critical-rules.md` §Skipping Behavioral Tests for Behavior Changes)
+- [ ] MANDATORY: The verifier sub-agent is ALWAYS different from the producer sub-agent — verifier receives ONLY file paths + SC list, NOT producer's reasoning or drafts (per Verification Isolation table)
+- [ ] MANDATORY: Load guideline `065-verification-honesty.md` before any verification claim — it is not permanently loaded (per Lazy-Loaded Guidelines)
+- [ ] MANDATORY: When worktree mode is active, prefix ALL file operation paths with `worktree.path` and verify `git rev-parse --show-toplevel` matches `worktree.path` before running any command (per Worktree Mode section)
+- [ ] MANDATORY: Produce chat output after every sub-agent dispatch — NEVER silently halt after dispatch (per `000-critical-rules.md` §Silent Agent Termination, §Post-Dispatch Output Guarantee)
+- [ ] MANDATORY: Invoke `--task completion` on workflow halt at ANY point — idempotent, safe to invoke multiple times (per COMPLETION GUARANTEE)
+
 ```yaml+symbolic
 schema_version: "2.0"
 last_updated: "2026-04-26T00:00:00Z"
