@@ -89,6 +89,252 @@ Before marking complete, verify:
 
 **Passing behavioral test = mandatory for completion.**
 
+
+## MANDATORY TASKS
+
+- [ ] MANDATORY: Invoke `verification-before-completion --task verify` before marking any task or phase complete — skipping is a CRITICAL GUIDELINE VIOLATION (per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations, exempt: no implementation performed)
+- [ ] MANDATORY: Run `structural-verify` BEFORE per-SC verification — HALT immediately if any structural component is missing (per Structural Completeness Gate)
+- [ ] MANDATORY: Every success criterion must have verifiable evidence (logs, test outputs, tool-call artifacts) — no placeholders or "trust me" claims (per Operating Protocol §2, per `000-critical-rules.md` §Soft-Passing Verification Mismatches)
+- [ ] MANDATORY: Use `exact` comparison mode as default for ALL external verifications (DNS, config, API responses, infrastructure state) — `semantic` mode requires explicit per-field justification per `065-verification-honesty.md` §Verification Comparison Semantics
+- [ ] MANDATORY: Verify completion claims against LIVE state via tool calls — never trust cached or claimed values (per Live Verification: Completion Claims table, per `000-critical-rules.md` §Verification Dishonesty)
+- [ ] MANDATORY: Verify cross-references against actual skill content before invoking — `ls .opencode/skills/<name>/SKILL.md` for existence, `grep` for task references (per Cross-Reference Verification table)
+- [ ] MANDATORY: Dispatch verification sub-agents with clean-room context — ONLY spec SC list + file paths, NO implementation context, NO prior verification results, NO agent memory (per Clean-Room Dispatch Protocol, per `000-critical-rules.md` §Skipping Clean-Room Dispatch for Sub-Agents)
+- [ ] MANDATORY: Verify per-SC evidence table shows ALL PASS before marking complete — any FAIL or MISSING row blocks completion (per Enforcement Mechanism matrix)
+- [ ] MANDATORY: Run behavioral RED tests in isolated sub-agent sessions via `with-test-home` — never in the same context as the implementation agent (per RED Test Isolation, per `000-critical-rules.md` §Skipping Behavioral Tests for Behavior Changes)
+- [ ] MANDATORY: The verifier sub-agent is ALWAYS different from the producer sub-agent — verifier receives ONLY file paths + SC list, NOT producer's reasoning or drafts (per Verification Isolation table)
+- [ ] MANDATORY: Load guideline `065-verification-honesty.md` before any verification claim — it is not permanently loaded (per Lazy-Loaded Guidelines)
+- [ ] MANDATORY: When worktree mode is active, prefix ALL file operation paths with `worktree.path` and verify `git rev-parse --show-toplevel` matches `worktree.path` before running any command (per Worktree Mode section)
+- [ ] MANDATORY: Produce chat output after every sub-agent dispatch — NEVER silently halt after dispatch (per `000-critical-rules.md` §Silent Agent Termination, §Post-Dispatch Output Guarantee)
+- [ ] MANDATORY: Invoke `--task completion` on workflow halt at ANY point — idempotent, safe to invoke multiple times (per COMPLETION GUARANTEE)
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-26T00:00:00Z"
+rules:
+  - id: verification-before-completion-001
+    title: "No completion claim without evidence"
+    conditions:
+      all:
+        - "agent_claims_complete == true"
+        - "all_sc_have_evidence == false"
+    actions:
+      - HALT
+      - REQUIRE_EVIDENCE
+    conflicts_with: []
+    requires: []
+    triggers: [finishing-a-development-branch]
+    source: "verification-before-completion/SKILL.md §Enforcement Mechanism"
+
+  - id: verification-before-completion-002
+    title: "Per-SC evidence table all PASS required"
+    conditions:
+      all:
+        - "verify_task_executed == true"
+        - "per_sc_evidence_table_all_PASS == false"
+    actions:
+      - HALT
+      - REPORT_FAILING_SC
+    conflicts_with: []
+    requires: []
+    triggers: [finishing-a-development-branch]
+    source: "verification-before-completion/SKILL.md §verify task"
+
+  - id: verification-before-completion-003
+    title: "Evidence must be live-source verified"
+    conditions:
+      all:
+        - "verification_attempted == true"
+        - "evidence_from_memory == true"
+    actions:
+      - HALT
+      - RE_VERIFY_WITH_TOOL_CALL
+    conflicts_with: []
+    requires: []
+    triggers: [spec-auditor]
+    source: "verification-before-completion/SKILL.md §Live Verification"
+
+  - id: verification-before-completion-004
+    title: "Exact comparison mode for external verifications"
+    conditions:
+      all:
+        - "external_verification == true"
+        - "comparison_mode != exact"
+    actions:
+      - SET(comparison_mode=exact)
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "verification-before-completion/SKILL.md §Comparison Modes"
+
+  - id: verification-before-completion-005
+    title: "Structural completeness required before per-SC verification"
+    conditions:
+      all:
+        - "verify_task_executed == true"
+        - "structural_completeness_checked == false"
+    actions:
+      - HALT
+      - INVOKE(structural-verify)
+    conflicts_with: []
+    requires: []
+    triggers: [finishing-a-development-branch]
+    source: "verification-before-completion/SKILL.md §Structural Completeness Gate"
+
+  - id: verification-before-completion-006
+    title: "RED behavioral tests must execute in isolated sub-agent sessions"
+    conditions:
+      all:
+        - "behavioral_red_test_needed == true"
+        - "test_executed_in_implementation_context == true"
+    actions:
+      - HALT
+      - RE_RUN_IN_ISOLATED_SESSION
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "verification-before-completion/SKILL.md §RED Test Isolation"
+
+tasks:
+  - id: verify
+    skill: verification-before-completion
+    preconditions: ["implementation_complete == true"]
+    postconditions: ["per_sc_evidence_table_all_PASS == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification"
+    source: "verification-before-completion/SKILL.md"
+
+  - id: collect
+    skill: verification-before-completion
+    preconditions: ["some_sc_missing_evidence == true"]
+    postconditions: ["all_sc_have_evidence == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Incomplete Evidence"
+    source: "verification-before-completion/SKILL.md"
+
+  - id: completion
+    skill: verification-before-completion
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "verification-before-completion/SKILL.md"
+
+  - id: structural-verify
+    skill: verification-before-completion
+    preconditions: ["implementation_complete == true", "spec_sc_list_available == true"]
+    postconditions: ["structural_completeness_verified == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Structural Completeness Not Verified"
+    source: "verification-before-completion/SKILL.md"
+
+decomposition:
+  - type: skill-task
+    skill: spec-auditor
+    task: ground-truth
+    mandatory: false
+    bypass_violation: ""
+  - type: command
+    skill: pytest
+    task: test-run
+    mandatory: true
+    bypass_violation: "CRITICAL: Tests Not Run"
+  - type: command
+    skill: ruff
+    task: lint-check
+    mandatory: true
+    bypass_violation: "CRITICAL: Lint Not Run"
+  - type: command
+    skill: pyright
+    task: type-check
+    mandatory: true
+    bypass_violation: "CRITICAL: Type Check Not Run"
+  - type: command
+    skill: skildeck
+    task: verify-structure
+    mandatory: true
+    bypass_violation: "CRITICAL: Structural Completeness Not Verified"
+  - type: command
+    skill: skildeck
+    task: verify-acceptance
+    mandatory: true
+    bypass_violation: "CRITICAL: Acceptance Criteria Not Verified"
+  - type: skill-task
+    skill: verification-before-completion
+    task: structural-verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Structural Verify Task Not Run"
+  - type: skill-task
+    skill: verification-before-completion
+    task: acceptance-verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Acceptance Verify Task Not Run"
+state_machines:
+  - id: verify-lifecycle
+    states: [started, structural_checked, evidence_collected, verified, failed]
+    start_state: started
+    decomposition_guard:
+      field: "decomposition.verification_commands"
+      message: "CRITICAL: Cannot verify without verification commands defined"
+    transitions:
+      - from: started
+        to: structural_checked
+        guard: "structural_completeness_verified == true"
+        action: PROCEED_TO_SC_VERIFICATION
+      - from: started
+        to: failed
+        guard: "structural_completeness_verified == false"
+        action: HALT_AND_REPORT_MISSING
+      - from: structural_checked
+        to: evidence_collected
+        guard: "all_sc_have_evidence == true"
+        action: BUILD_EVIDENCE_TABLE
+      - from: evidence_collected
+        to: verified
+        guard: "all_sc_evidence_PASS == true"
+        action: MARK_COMPLETE
+      - from: evidence_collected
+        to: failed
+        guard: "any_sc_evidence_FAIL == true"
+        action: HALT_AND_REPORT_FAILING_SC
+gates:
+  - id: no-completion-without-evidence
+    condition: "all_sc_have_evidence == true"
+    on_fail: "HALT and collect evidence"
+    critical_violation: true
+  - id: structural-completeness-first
+    condition: "structural_completeness_verified == true"
+    on_fail: "HALT and run structural-verify"
+    critical_violation: true
+  - id: live-source-evidence-only
+    condition: "evidence_from_memory == false"
+    on_fail: "HALT and re-verify with tool call"
+    critical_violation: true
+evidence_artifacts:
+  - name: per_sc_evidence_table
+    type: structured_output
+    dispatch_stage: verify
+    verification: "all rows show PASS with live tool-call artifacts"
+  - name: structural_completeness_result
+    type: tool_call
+    dispatch_stage: structural-verify
+    verification: "structural-verify task output confirms completeness"
+  - name: test_results
+    type: tool_call
+    dispatch_stage: verify
+    verification: "pytest output confirms tests pass"
+  - name: lint_results
+    type: tool_call
+    dispatch_stage: verify
+    verification: "ruff check output confirms zero errors"
+  - name: missing_evidence_collection
+    type: tool_call
+    dispatch_stage: collect
+    verification: "collect task output confirms all missing evidence gathered"
+  - name: completion_tasks_executed
+    type: tool_call
+    dispatch_stage: completion
+    verification: "completion task output confirms mandatory steps executed"
+```
 ## Operating Protocol
 
 1. **Mandatory invocation (no decision point):** The agent MUST invoke this skill when:
@@ -355,249 +601,3 @@ Key adaptations for <AgentName>:
 - GitBucket platform support via MCP tools
 - Dispatch table integration for mandatory invocation
 - Structured evidence collection and verification gates
-
-## MANDATORY TASKS
-
-- [ ] MANDATORY: Invoke `verification-before-completion --task verify` before marking any task or phase complete — skipping is a CRITICAL GUIDELINE VIOLATION (per `000-critical-rules.md` §Bypassing Mandatory Skill Invocations, exempt: no implementation performed)
-- [ ] MANDATORY: Run `structural-verify` BEFORE per-SC verification — HALT immediately if any structural component is missing (per Structural Completeness Gate)
-- [ ] MANDATORY: Every success criterion must have verifiable evidence (logs, test outputs, tool-call artifacts) — no placeholders or "trust me" claims (per Operating Protocol §2, per `000-critical-rules.md` §Soft-Passing Verification Mismatches)
-- [ ] MANDATORY: Use `exact` comparison mode as default for ALL external verifications (DNS, config, API responses, infrastructure state) — `semantic` mode requires explicit per-field justification per `065-verification-honesty.md` §Verification Comparison Semantics
-- [ ] MANDATORY: Verify completion claims against LIVE state via tool calls — never trust cached or claimed values (per Live Verification: Completion Claims table, per `000-critical-rules.md` §Verification Dishonesty)
-- [ ] MANDATORY: Verify cross-references against actual skill content before invoking — `ls .opencode/skills/<name>/SKILL.md` for existence, `grep` for task references (per Cross-Reference Verification table)
-- [ ] MANDATORY: Dispatch verification sub-agents with clean-room context — ONLY spec SC list + file paths, NO implementation context, NO prior verification results, NO agent memory (per Clean-Room Dispatch Protocol, per `000-critical-rules.md` §Skipping Clean-Room Dispatch for Sub-Agents)
-- [ ] MANDATORY: Verify per-SC evidence table shows ALL PASS before marking complete — any FAIL or MISSING row blocks completion (per Enforcement Mechanism matrix)
-- [ ] MANDATORY: Run behavioral RED tests in isolated sub-agent sessions via `with-test-home` — never in the same context as the implementation agent (per RED Test Isolation, per `000-critical-rules.md` §Skipping Behavioral Tests for Behavior Changes)
-- [ ] MANDATORY: The verifier sub-agent is ALWAYS different from the producer sub-agent — verifier receives ONLY file paths + SC list, NOT producer's reasoning or drafts (per Verification Isolation table)
-- [ ] MANDATORY: Load guideline `065-verification-honesty.md` before any verification claim — it is not permanently loaded (per Lazy-Loaded Guidelines)
-- [ ] MANDATORY: When worktree mode is active, prefix ALL file operation paths with `worktree.path` and verify `git rev-parse --show-toplevel` matches `worktree.path` before running any command (per Worktree Mode section)
-- [ ] MANDATORY: Produce chat output after every sub-agent dispatch — NEVER silently halt after dispatch (per `000-critical-rules.md` §Silent Agent Termination, §Post-Dispatch Output Guarantee)
-- [ ] MANDATORY: Invoke `--task completion` on workflow halt at ANY point — idempotent, safe to invoke multiple times (per COMPLETION GUARANTEE)
-
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-04-26T00:00:00Z"
-rules:
-  - id: verification-before-completion-001
-    title: "No completion claim without evidence"
-    conditions:
-      all:
-        - "agent_claims_complete == true"
-        - "all_sc_have_evidence == false"
-    actions:
-      - HALT
-      - REQUIRE_EVIDENCE
-    conflicts_with: []
-    requires: []
-    triggers: [finishing-a-development-branch]
-    source: "verification-before-completion/SKILL.md §Enforcement Mechanism"
-
-  - id: verification-before-completion-002
-    title: "Per-SC evidence table all PASS required"
-    conditions:
-      all:
-        - "verify_task_executed == true"
-        - "per_sc_evidence_table_all_PASS == false"
-    actions:
-      - HALT
-      - REPORT_FAILING_SC
-    conflicts_with: []
-    requires: []
-    triggers: [finishing-a-development-branch]
-    source: "verification-before-completion/SKILL.md §verify task"
-
-  - id: verification-before-completion-003
-    title: "Evidence must be live-source verified"
-    conditions:
-      all:
-        - "verification_attempted == true"
-        - "evidence_from_memory == true"
-    actions:
-      - HALT
-      - RE_VERIFY_WITH_TOOL_CALL
-    conflicts_with: []
-    requires: []
-    triggers: [spec-auditor]
-    source: "verification-before-completion/SKILL.md §Live Verification"
-
-  - id: verification-before-completion-004
-    title: "Exact comparison mode for external verifications"
-    conditions:
-      all:
-        - "external_verification == true"
-        - "comparison_mode != exact"
-    actions:
-      - SET(comparison_mode=exact)
-    conflicts_with: []
-    requires: []
-    triggers: []
-    source: "verification-before-completion/SKILL.md §Comparison Modes"
-
-  - id: verification-before-completion-005
-    title: "Structural completeness required before per-SC verification"
-    conditions:
-      all:
-        - "verify_task_executed == true"
-        - "structural_completeness_checked == false"
-    actions:
-      - HALT
-      - INVOKE(structural-verify)
-    conflicts_with: []
-    requires: []
-    triggers: [finishing-a-development-branch]
-    source: "verification-before-completion/SKILL.md §Structural Completeness Gate"
-
-  - id: verification-before-completion-006
-    title: "RED behavioral tests must execute in isolated sub-agent sessions"
-    conditions:
-      all:
-        - "behavioral_red_test_needed == true"
-        - "test_executed_in_implementation_context == true"
-    actions:
-      - HALT
-      - RE_RUN_IN_ISOLATED_SESSION
-    conflicts_with: []
-    requires: []
-    triggers: []
-    source: "verification-before-completion/SKILL.md §RED Test Isolation"
-
-tasks:
-  - id: verify
-    skill: verification-before-completion
-    preconditions: ["implementation_complete == true"]
-    postconditions: ["per_sc_evidence_table_all_PASS == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Verification"
-    source: "verification-before-completion/SKILL.md"
-
-  - id: collect
-    skill: verification-before-completion
-    preconditions: ["some_sc_missing_evidence == true"]
-    postconditions: ["all_sc_have_evidence == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Incomplete Evidence"
-    source: "verification-before-completion/SKILL.md"
-
-  - id: completion
-    skill: verification-before-completion
-    preconditions: ["any_state"]
-    postconditions: ["completion_tasks_executed == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
-    source: "verification-before-completion/SKILL.md"
-
-  - id: structural-verify
-    skill: verification-before-completion
-    preconditions: ["implementation_complete == true", "spec_sc_list_available == true"]
-    postconditions: ["structural_completeness_verified == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Structural Completeness Not Verified"
-    source: "verification-before-completion/SKILL.md"
-
-decomposition:
-  - type: skill-task
-    skill: spec-auditor
-    task: ground-truth
-    mandatory: false
-    bypass_violation: ""
-  - type: command
-    skill: pytest
-    task: test-run
-    mandatory: true
-    bypass_violation: "CRITICAL: Tests Not Run"
-  - type: command
-    skill: ruff
-    task: lint-check
-    mandatory: true
-    bypass_violation: "CRITICAL: Lint Not Run"
-  - type: command
-    skill: pyright
-    task: type-check
-    mandatory: true
-    bypass_violation: "CRITICAL: Type Check Not Run"
-  - type: command
-    skill: skildeck
-    task: verify-structure
-    mandatory: true
-    bypass_violation: "CRITICAL: Structural Completeness Not Verified"
-  - type: command
-    skill: skildeck
-    task: verify-acceptance
-    mandatory: true
-    bypass_violation: "CRITICAL: Acceptance Criteria Not Verified"
-  - type: skill-task
-    skill: verification-before-completion
-    task: structural-verify
-    mandatory: true
-    bypass_violation: "CRITICAL: Structural Verify Task Not Run"
-  - type: skill-task
-    skill: verification-before-completion
-    task: acceptance-verify
-    mandatory: true
-    bypass_violation: "CRITICAL: Acceptance Verify Task Not Run"
-state_machines:
-  - id: verify-lifecycle
-    states: [started, structural_checked, evidence_collected, verified, failed]
-    start_state: started
-    decomposition_guard:
-      field: "decomposition.verification_commands"
-      message: "CRITICAL: Cannot verify without verification commands defined"
-    transitions:
-      - from: started
-        to: structural_checked
-        guard: "structural_completeness_verified == true"
-        action: PROCEED_TO_SC_VERIFICATION
-      - from: started
-        to: failed
-        guard: "structural_completeness_verified == false"
-        action: HALT_AND_REPORT_MISSING
-      - from: structural_checked
-        to: evidence_collected
-        guard: "all_sc_have_evidence == true"
-        action: BUILD_EVIDENCE_TABLE
-      - from: evidence_collected
-        to: verified
-        guard: "all_sc_evidence_PASS == true"
-        action: MARK_COMPLETE
-      - from: evidence_collected
-        to: failed
-        guard: "any_sc_evidence_FAIL == true"
-        action: HALT_AND_REPORT_FAILING_SC
-gates:
-  - id: no-completion-without-evidence
-    condition: "all_sc_have_evidence == true"
-    on_fail: "HALT and collect evidence"
-    critical_violation: true
-  - id: structural-completeness-first
-    condition: "structural_completeness_verified == true"
-    on_fail: "HALT and run structural-verify"
-    critical_violation: true
-  - id: live-source-evidence-only
-    condition: "evidence_from_memory == false"
-    on_fail: "HALT and re-verify with tool call"
-    critical_violation: true
-evidence_artifacts:
-  - name: per_sc_evidence_table
-    type: structured_output
-    dispatch_stage: verify
-    verification: "all rows show PASS with live tool-call artifacts"
-  - name: structural_completeness_result
-    type: tool_call
-    dispatch_stage: structural-verify
-    verification: "structural-verify task output confirms completeness"
-  - name: test_results
-    type: tool_call
-    dispatch_stage: verify
-    verification: "pytest output confirms tests pass"
-  - name: lint_results
-    type: tool_call
-    dispatch_stage: verify
-    verification: "ruff check output confirms zero errors"
-  - name: missing_evidence_collection
-    type: tool_call
-    dispatch_stage: collect
-    verification: "collect task output confirms all missing evidence gathered"
-  - name: completion_tasks_executed
-    type: tool_call
-    dispatch_stage: completion
-    verification: "completion task output confirms mandatory steps executed"
-```
