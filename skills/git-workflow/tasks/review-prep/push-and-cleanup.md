@@ -47,6 +47,27 @@ The sub-agent performs for each submodule with changes:
 1. **Push the submodule's feature branch** to its remote (if not already pushed)
 2. **Tag the submodule's tip** with format `<parent-repo>/<issue-number>-<submodule-name>`
 3. **Push tags** to the submodule's remote
+4. **Verify tags before push** — if the tip SHA is untagged (e.g., mid-implementation bump without tagging), tag it with `<parent-repo>/<issue-number>-<sub>` format and push the tag alongside the branch (idempotent tag-if-untagged)
+
+#### Tag-if-Untagged Verification (MANDATORY for Submodule SHAs)
+
+Before pushing a submodule feature branch, verify that the tip SHA is tagged:
+
+```bash
+cd <submodule-path>
+TIP_SHA=$(git rev-parse HEAD)
+TAGS_ON_SHA=$(git tag --contains $TIP_SHA | grep -E '<parent-repo-short>')
+if [ -z "$TAGS_ON_SHA" ]; then
+    # SHA is untagged — tag it and push
+    git tag -a "<parent-repo-short>/<issue-number>-<sub>" -m "Submodule tip for issue #<issue-number>"
+    git push origin "<parent-repo-short>/<issue-number>-<sub>"
+else
+    # SHA is already tagged — acceptable, no action needed
+fi
+cd ..
+```
+
+This is the idempotent tag-if-untagged rule: if a submodule SHA is already tagged, skip tagging (or add a semantic tag for documentation — acceptable). If untagged, tag it before pushing.
 
 #### Tag Format for Feature Branches
 

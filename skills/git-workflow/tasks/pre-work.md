@@ -329,6 +329,16 @@ evidence_artifacts:
 
 **If the sub-agent returns BLOCKED:** Report the failure and HALT. Do not attempt inline remediation.
 
+#### Parent Repo Dev Tip Does NOT Require Tagging
+
+Only submodule SHAs need tags for reachability. Parent repo commits are reachable via branch history — `git checkout dev` reaches any parent commit on the dev branch. The parent repo's own dev tip does NOT need a tag because:
+
+1. Parent commits are always reachable via `dev` branch ref
+2. Only submodule SHAs can become unreachable if their feature branches are deleted
+3. Tagging the parent dev tip would add no reachability guarantee
+
+**This applies at ALL transition points:** pre-work, feature-branch push, PR-time, and release promotion. Only submodule SHAs require tag-if-untagged verification.
+
 ### Step 4: Verify Branch Environment
 
 **Before yielding back to orchestration layer, verify:**

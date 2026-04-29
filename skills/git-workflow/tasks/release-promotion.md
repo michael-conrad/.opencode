@@ -9,14 +9,15 @@ CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md`.
 
 ## Purpose
 
-Prepare dev → main promotion, semver tagging, and release creation via PR-based workflow. Supports both submodule-based repos (promote each submodule in lockstep) and non-submodule repos. The agent creates the release PR; a human must merge it. Tags and releases are created post-merge.
+Prepare dev → main promotion, semver tagging, and release creation via PR-based workflow. Supports both submodule-based repos (tag-based hash permanence) and non-submodule repos. The agent creates the release PR; a human must merge it. Tags and releases are created post-merge.
 
 ## Operating Protocol
 
-1. **Submodule repos:** When parent repo promotes dev → main, all submodules must be promoted in lockstep via PR
+1. **Submodule repos:** When parent repo promotes dev → main, submodule SHAs are guaranteed reachable via tags — no separate submodule PRs are needed
 2. **Non-submodule repos:** Create release PR from dev targeting main, HALT for human merge, then tag and release
-3. **Explicit trigger:** Developer can instruct promotion of individual submodules
+3. **Explicit trigger:** Developer can instruct promotion of individual submodules (tag-only, no PR)
 4. **Tag validation:** All semver tags must pass `validate-release-tags.sh --semver` before parent promotion proceeds
+5. **Idempotent tagging:** Release tags on submodule SHAs are created only if not already tagged — no duplicate tags, no errors on existing tags
 
 ## Entry Criteria
 
@@ -28,11 +29,12 @@ Prepare dev → main promotion, semver tagging, and release creation via PR-base
 
 ### Submodule Path
 
-- All promoted submodules have a release PR created targeting main
-- Agent has HALTed for human merge of each submodule PR
-- After human merge: each promoted submodule has an annotated semver tag on main (auto-incremented patch or developer-specified)
-- After human merge: each promoted submodule has a GitHub/GitBucket release created
-- After human merge: parent submodule refs updated to tagged SHAs
+- All submodule SHAs are tagged with release tags (`<parent-repo>/v<N.N.N>`) or confirmed already reachable via existing tags
+- Parent release PR created targeting main
+- Agent has HALTed for human merge
+- After human merge: Annotated semver tag created on main (auto-incremented patch or developer-specified)
+- After human merge: Tags pushed to origin
+- After human merge: GitHub/GitBucket release created
 - `validate-release-tags.sh --semver` exits 0
 
 ### Non-Submodule Path
@@ -42,6 +44,38 @@ Prepare dev → main promotion, semver tagging, and release creation via PR-base
 - After human merge: Annotated semver tag created on main (auto-incremented patch or developer-specified)
 - After human merge: Tags pushed to origin
 - After human merge: GitHub/GitBucket release created
+
+## Invariant
+
+**At every transition point, all submodule SHAs referenced by the parent must be reachable via at least one tag. Tags are idempotent — skip if already tagged. Semantic tags on already-tagged SHAs are acceptable for documentation purposes.**
+
+### Tag Layers
+
+| Tag | When Created | Meaning | Already Exists? |
+|-----|-------------|---------|-----------------|
+| `<parent-repo>/<issue-number>` | Pre-work (feature dev start) | "Starting SHA for issue #N" | Only if same issue |
+| `<parent-repo>/<issue-number>-<sub>` | Feature-branch push | "Submodule tip for issue #N" | Only if submodule changed |
+| `<parent-repo>/v<N.N.N>` | Release promotion | "SHA included in release vN.N.N" | Only if version coincides |
+
+All three layers guarantee reachability. Release tags add semantic documentation ("this SHA shipped in v0.1.1") on top of the reachability guarantee. If a SHA already has an issue tag, the release tag is a convenience addition — not a necessity for hash permanence.
+
+### Idempotent Tag-If-Untagged Rule
+
+At any transition point, for each submodule SHA:
+
+```bash
+TAGS_ON_SHA=$(cd <submodule-path> && git tag --contains <sha> | grep -E '<parent-repo>')
+if [ -z "$TAGS_ON_SHA" ]; then
+    # SHA is unreachable via parent-repo tags — tag it and push
+    git tag -a "<parent-repo>/v<N.N.N>" -m "Release v<N.N.N>: <submodule-path>"
+    git push origin "<parent-repo>/v<N.N.N>"
+else
+    # SHA is already reachable — add semantic release tag for documentation (optional, acceptable)
+    # This is NOT an error condition
+fi
+```
+
+No redundant tags are created for already-reachable hashes (unless semantic documentation is desired). Adding a semantic release tag to an already-tagged SHA is idempotent — it provides version documentation without creating duplicate reachability.
 
 ## Procedure
 
@@ -58,54 +92,6 @@ test -f .gitmodules
 
 ## Submodule Path
 
-### Step 0.5: Detect Issue System Availability
-
-Before iterating submodules, detect each submodule's host platform and test API access. Results are cached for the session so that provenance tracking (Step 2h) can use them without redundant API calls.
-
-For each submodule listed in `.gitmodules`:
-
-```bash
-git config --file .gitmodules --get-regexp path | awk '{print $2}'
-```
-
-For each submodule `<path>`:
-
-**a. Determine platform from remote URL:**
-
-```bash
-cd <path>
-REMOTE_URL=$(git remote get-url origin)
-cd ..
-```
-
-Parse `REMOTE_URL` to identify the hosting platform:
-
-| URL Pattern | Platform |
-| -- | -- |
-| Contains `github.com` | `github` |
-| Matches known GitBucket host pattern | `gitbucket` |
-| No match | `unknown` |
-
-**b. Test API availability:**
-
-| Platform | Test | Result Mapping |
-| -- | -- | -- |
-| `github` | `github_get_file_contents(owner, repo, path="")` | Success → `full`; 403 → `no-access`; 404 → `no-repo`; Auth error → `auth-failed` |
-| `gitbucket` | `GET /api/v3/repos/<owner>/<repo>` per `gitbucket-api` skill | Success → `full`; 403 → `no-access`; 404 → `no-repo`; Auth error → `auth-failed` |
-| `unknown` | No API available | `no-access` |
-
-**c. Cache result:**
-
-Session-scoped cache keyed by `<owner>/<repo>`. Value: `{platform, access_level, reason}`.
-
-| `access_level` | Tier Used by Provenance |
-| -- | -- |
-| `full` | Tier 1 (issue + PR) |
-| `issue-only` | Tier 2 (issue only) |
-| `no-access`, `auth-failed`, `no-repo` | Tier 3 (commit message) |
-
-**This step is non-blocking.** Detection failures default to Tier 3 silently.
-
 ### Step 1: Lock Submodule SHAs
 
 When promoting parent dev → main, submodule SHAs must be locked to their current checkout state — NOT a fresh pull:
@@ -118,193 +104,71 @@ git submodule update --init
 
 **Submodule SHA Locking Principle:** The SHA locked during release is exactly what was in the developer's checkout during the dev cycle — not a fresh pull, not an upstream sync performed after the fact. Changing submodule SHAs without integration testing creates untested combinations.
 
-**Post-merge integration (if performed):** If upstream submodule changes were pulled and integration tests passed during the post-merge integration step (`git submodule foreach "git checkout dev && git pull"`), those updated SHAs become part of the tested state. The release then locks whatever is current at release time — which includes any integration-tested upstream changes.
+**Parent repo dev tip does NOT require tagging** — only submodule SHAs need tags. Parent commits are reachable via branch history (`git checkout dev` reaches any parent commit).
 
-**Hotfix submodule discipline:** Hotfixes against `main` MUST NOT modify submodule state. The pinned SHAs in `main` represent the released versions and must remain stable.
-
-### Step 2: Promote Each Submodule
+### Step 2: Tag Submodule SHAs for Release
 
 For each submodule listed in `.gitmodules`:
 
 ```bash
-# Extract submodule paths
 git config --file .gitmodules --get-regexp path | awk '{print $2}'
 ```
 
 For each submodule `<path>`:
 
-#### 2a: Determine Next Semver Tag
+**a. Collect the committed SHA:**
 
-**Auto-increment patch version:**
+```bash
+git ls-tree HEAD <path> | awk '{print $3}'
+```
+
+**b. Check if SHA has existing parent-repo tags (idempotent check):**
 
 ```bash
 cd <path>
-LATEST_TAG=$(git tag --sort=-v:refname | head -1)
+TAGS_ON_SHA=$(git tag --contains <sha> | grep -E '<parent-repo-short>')
 cd ..
-
-if [ -z "$LATEST_TAG" ]; then
-    NEXT_TAG="v0.1.0"
-else
-    VERSION=${LATEST_TAG#v}
-    MAJOR=$(echo "$VERSION" | cut -d. -f1)
-    MINOR=$(echo "$VERSION" | cut -d. -f2)
-    PATCH=$(echo "$VERSION" | cut -d. -f3)
-    NEXT_TAG="v${MAJOR}.${MINOR}.$((PATCH + 1))"
-fi
 ```
 
-**Developer-specified version:** If developer provided an explicit version (e.g., "promote submodule X as v2.0.0"), use that version instead of auto-increment.
-
-#### 2b: Create Release Branch from Dev
+**c. If no parent-repo tags exist on this SHA → tag with release tag and push:**
 
 ```bash
 cd <path>
-RELEASE_BRANCH="release/dev-to-main-v${NEXT_TAG#v}"
-git checkout dev
-git checkout -b "$RELEASE_BRANCH"
+git tag -a "<parent-repo-short>/v<N.N.N>" -m "Release v<N.N.N>: <path> promoted from dev"
+git push origin "<parent-repo-short>/v<N.N.N>"
 cd ..
 ```
 
-#### 2c: Push Release Branch
+**d. If parent-repo tags already exist on this SHA → add semantic release tag for documentation (optional, acceptable, NOT required):**
 
 ```bash
+# Optional: add semantic release tag for documentation
 cd <path>
-git push origin "$RELEASE_BRANCH"
+git tag -a "<parent-repo-short>/v<N.N.N>" -m "Release v<N.N.N>: <path>"
+git push origin "<parent-repo-short>/v<N.N.N>"
 cd ..
+# If the tag already exists, git push will return "already exists" — this is NOT an error
 ```
 
-#### 2d: Create PR Targeting Main
+**e. Verify all SHAs are reachable via tags (liveness check):**
 
-Create a release PR in the submodule repo targeting `main` (or `master`):
+Invoke `submodule-liveness-check` sub-agent to verify reachability. The liveness check is now idempotent — if a SHA is unreachable, it tags it first, then re-verifies. It never blocks for unreachable SHAs.
 
-**For GitHub:**
+**Key invariant:** Submodule dev → main PRs are NOT part of this workflow. Tags guarantee hash permanence. A submodule SHA referenced by the parent is already reachable via its issue/feature tags. A separate dev → main PR adds no reachability guarantee.
 
-```
-github_create_pull_request(
-    owner=<sub-owner>,
-    repo=<sub-repo>,
-    title="Release $NEXT_TAG: promote dev → main",
-    head="$RELEASE_BRANCH",
-    base="main",
-    body="Release $NEXT_TAG\n\nAutomated submodule promotion from dev → main.\n\n⚠️ This PR was prepared by an AI agent. Human review required before merge."
-)
-```
+### Step 2.5: Create Provenance Tracking
 
-**For GitBucket:** Use GitBucket API per `gitbucket-api` skill.
+After tagging submodule SHAs, invoke provenance tracking:
 
-#### 2e: HALT — Wait for Human Merge
+Invoke: `/skill git-workflow --task provenance --mode=promotion`
 
-Report the PR URL to chat. HALT and wait for the human to merge the PR.
+**Provenance tracking uses the same three-tier model as dev-push.** The promotion mode creates issue/PR records in submodule repos documenting the release, but these are tracking records, not merge gates.
 
-After human merges the PR, proceed to post-merge steps (2f-2h). These may be invoked in a subsequent session using `--task release-promotion --post-merge`.
-
-#### 2f: (Post-merge) Tag Main with Semver Tag
-
-```bash
-cd <path>
-git checkout main
-git pull origin main
-git tag -a "$NEXT_TAG" -m "Release $NEXT_TAG: promoted from dev #<parent-issue>"
-cd ..
-```
-
-#### 2g: (Post-merge) Push Tags and Create Platform Release
-
-```bash
-cd <path>
-git push origin main --tags
-cd ..
-```
-
-**For GitHub:**
-
-Use GitHub MCP to create release:
-
-```
-github_get_latest_release(owner=<sub-owner>, repo=<sub-repo>)
-```
-
-**Release body template:**
-
-```markdown
-Release $NEXT_TAG
-
-Automated submodule promotion from dev → main.
-```
-
-**For GitBucket:** Use GitBucket API per `gitbucket-api` skill.
-
-#### 2h: Return to Parent and Update Ref
-
-```bash
-cd <parent-repo-root>
-git add <path>
-```
-
-#### 2i: Create Provenance Tracking
-
-After promoting a submodule, invoke provenance tracking with inline fallback:
-
-```
-Invoke: /skill git-workflow --task provenance --mode=promotion
-```
-
-**Context parameters to pass:**
-
-| Parameter | Value |
-| -- | -- |
-| parent_repo | `<github.owner>/<github.repo>` from session init |
-| parent_branch | The branch being released (commonly `main` or `dev`) |
-| parent_issue | Issue number from the release spec |
-| submodule_path | Path of the promoted submodule |
-| tag_name | The semver tag created in Step 2f |
-| source_branch | The branch promoted (typically `dev`) |
-| change_description | Brief description of changes in this submodule |
-| parent_release_ref | Parent release tag or issue reference |
-
-**Inline fallback (P12) — provenance attempts each tier and falls back automatically:**
-
-1. Detect submodule platform and API availability (provenance.md Step 0-1)
-2. Attempt Tier 1 (issue + PR):
-   - Create issue: `Release <submodule-path> promoted from <source-branch>`
-   - Create PR targeting `main` with `Fixes #<submodule-issue-number>` (P8)
-   - If PR creation fails → downgrade to Tier 2, log reason
-3. Attempt Tier 2 (issue only):
-   - If issue creation fails → downgrade to Tier 3, log reason
-4. Tier 3 (commit message):
-   - No API calls; provenance in tag message: `Release <path>: promoted from <branch> #[parent-issue]` (P9)
-5. All fallbacks are SILENT — no HALT, no blocking of the promotion workflow
-
-**Tier logging (P13):** Each provenance operation logs:
-```
-{timestamp, submodule, operation: "promotion", tier: <1|2|3>, issue_number?, pr_number?, tag_name}
-```
-
-**Cross-reference (P14/P15):** When Tier 1 or 2 succeeds, post comment on parent issue:
-```
-Submodule provenance tracked in <sub-owner>/<sub-repo>#<submodule-issue-number> (Tier <tier>)
-[If PR exists: PR #<pr-number>]
-Operation: promotion | Submodule: <submodule-path> | Tag: <tag-name>
-```
-
-**Provenance is non-blocking:** The promotion workflow continues regardless of provenance outcome. Failures at any tier result in silent downgrade, never HALT.
-
-#### Cross-Reference Step: Add Parent Issue Comment for Promotion
-
-After promotion provenance issue creation succeeds (Tier 1 or Tier 2 only):
-
-1. Add a parent issue comment referencing the submodule provenance issue
-2. Comment format includes: submodule repo, issue number, PR number (if applicable), tier used
-3. Example: `Submodule provenance: <sub-owner>/<sub-repo>#<issue-number> (Tier 1: Issue + PR)`
-4. If tier used is Tier 2 (issue only): `Submodule provenance: <sub-owner>/<sub-repo>#<issue-number> (Tier 2: Issue only)`
-5. If parent issue comment creation fails: log the failure and continue — cross-reference comments are non-blocking
-6. Cross-reference comments provide bidirectional traceability between parent release and submodule promotion
-
-**See `provenance.md` → promotion-provenance section for complete procedure.**
+**Important:** Provenance is fire-and-forget. It never blocks the parent release workflow. Failures at any tier result in silent downgrade, never HALT.
 
 ### Step 3: Validate Tags
 
-After all submodules are promoted and tagged (post-merge):
+After all submodule SHAs are tagged:
 
 ```bash
 ./.opencode/scripts/validate-release-tags.sh --semver
@@ -318,7 +182,9 @@ After all submodules are promoted and tagged (post-merge):
 
 ### Step 4: Proceed with Parent Promotion
 
-After Step 3 passes, the parent repository may proceed with its own dev → main promotion via the Non-Submodule Path below.
+After Step 3 passes, the parent repository proceeds with its own dev → main promotion via the Non-Submodule Path below.
+
+**The parent release PR has NO dependency on submodule repo merges.** Parent PR can be created and merged independently once submodule SHAs are verified reachable via tags.
 
 ---
 
@@ -433,42 +299,49 @@ Developers can target individual submodules without promoting all:
 
 | Instruction | Action |
 | -- | -- |
-| "promote submodule shared-skills" | Promote only the `shared-skills` submodule |
-| "push submodule shared-templates" | Push only `shared-templates` to its dev branch |
-| "promote submodule X as v2.0.0" | Promote X with developer-specified version |
+| "promote submodule shared-skills" | Tag only the `shared-skills` submodule SHA with release tag |
+| "push submodule shared-templates" | Tag and push only `shared-templates` |
+| "promote submodule X as v2.0.0" | Tag X with developer-specified version |
 
 **Explicit instructions do NOT require all submodules to be promoted.** Only the named submodule(s) are processed.
+
+**Explicit instructions do NOT create submodule dev → main PRs.** Tagging replaces PRs for hash permanence.
 
 ## Acceptance Criteria
 
 | ID | Criterion |
 | -- | -- |
-| T19 | Submodule dev → main PR is created; human merges |
+| T19 | Submodule SHAs are tagged with release tags (`<parent-repo>/v<N.N.N>`), NOT promoted via separate submodule PRs |
 | T20 | Semver tag is auto-incremented (patch version) when no developer-specified version |
-| T21 | GitHub/GitBucket release is created post-merge for each promoted submodule |
-| T22 | Parent submodule refs are updated to tagged SHAs after human merge |
-| T23 | `validate-release-tags.sh --semver` passes after automated promotion |
-| T24 | Developer can explicitly instruct push or promotion of individual submodules |
+| T21 | GitHub/GitBucket release is created post-merge for the parent repo |
+| T22 | Parent submodule refs remain at their locked SHAs (no `--remote` flag) |
+| T23 | `validate-release-tags.sh --semver` passes after tagging |
+| T24 | Developer can explicitly instruct tagging of individual submodules |
 | T25 | Submodule SHAs are locked (no `--remote` flag) during release promotion |
 | T26 | Non-submodule repos: agent creates release PR; human merges |
 | T27 | Non-submodule repos: semver tag is created post-merge and pushed |
 | T28 | Non-submodule repos: platform release is created post-merge |
+| T29 | Tagging is idempotent — no errors on already-tagged SHAs |
+| T30 | Semantic release tags on already-tagged SHAs are acceptable (no error, no skip requirement) |
+| T31 | Parent release PR has NO dependency on submodule repo merges |
+| T32 | Liveness check is idempotent: tags unreachable SHAs instead of just reporting FAIL |
+| T33 | Parent repo dev tip does NOT require tagging — only submodule SHAs do |
 
 ## Common Issues
 
 | Issue | Resolution |
 | -- | -- |
-| PR has merge conflicts | Classify per conflict-resolution skill; Tier 3 → HALT for developer |
-| Tag already exists | Report error; developer must specify a different version |
+| Tag already exists on SHA | Acceptable — semantic tag adds documentation, idempotent operation |
 | `validate-release-tags.sh` fails | HALT; report which submodule failed and why |
 | No previous tag exists | Default to `v0.1.0` as first release tag |
 | Submodule has no dev branch | HALT; report that dev branch must exist before promotion |
 | Human merges but forgets to tag | Re-invoke `--task release-promotion --post-merge` for tagging + release |
 | Release branch name collision | Append timestamp or short SHA to branch name |
 | Pre-merge hook blocks direct merge | N/A — PR-based approach avoids this; skill never directs direct merge |
+| Submodule SHA not on dev branch (only on feature branch) | Issue tags from pre-work guarantee reachability even if feature branch is deleted |
 
 ## Context Required
 
 - Related skills: `conflict-resolution` (merge conflict classification), `gitbucket-api` (GitBucket release creation)
-- Related tasks: `pre-work` (submodule initialization), `cleanup` (post-merge cleanup)
+- Related tasks: `pre-work` (submodule initialization and tagging), `submodule-liveness-check` (idempotent tag-if-untagged verification), `cleanup` (post-merge cleanup)
 - Related scripts: `validate-release-tags.sh` (tag validation)
