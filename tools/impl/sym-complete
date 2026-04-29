@@ -20,14 +20,14 @@ from pathlib import Path
 def _find_project_root() -> Path:
     current = Path(__file__).resolve().parent
     while current != current.parent:
-        if (current / ".opencode").is_dir():
-            return current
+        if current.name == ".opencode":
+            return current.parent
         current = current.parent
     raise RuntimeError("Could not find project root (no .opencode/ directory found)")
 
 
 IMPL_DIR = Path(__file__).resolve().parent
-BASE_DIR = _find_project_root()
+PROJECT_ROOT = _find_project_root()
 NORMATIVE_RE = re.compile(r"\b(MUST|SHALL|NEVER|ALWAYS|REQUIRED|FORBIDDEN)\b")
 YAML_FENCE_RE = re.compile(r"```yaml\+symbolic\n.*?```", re.DOTALL)
 
@@ -129,7 +129,7 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(description="Completeness check")
-    parser.add_argument("--dir", type=str, default=str(BASE_DIR / ".opencode"))
+    parser.add_argument("--dir", type=str, default=str(PROJECT_ROOT / ".opencode"))
     args = parser.parse_args()
 
     mod = _load_extract()
