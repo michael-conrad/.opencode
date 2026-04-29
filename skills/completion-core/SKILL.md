@@ -1,3 +1,12 @@
+---
+name: completion-core
+description: Use when completing a skill task — shared completion operations (push branch, generate URL, post status, executive summary) referenced by per-skill completion tasks
+type: pattern
+license: MIT
+provenance: AI-generated
+compatibility: opencode
+---
+
 # Completion Core — Shared Completion Operations
 
 Reference this file from per-skill `tasks/completion.md` files for common completion operations.
