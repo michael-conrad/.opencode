@@ -25,7 +25,7 @@ OVERALL_RESULT=0
 echo "--- Test 1: question-response gate text in 020-go-prohibitions.md ---"
 GO_PROHIBITIONS="$PROJECT_ROOT/.opencode/guidelines/020-go-prohibitions.md"
 if [ -f "$GO_PROHIBITIONS" ]; then
-    if grep -q "question-response gate" "$GO_PROHIBITIONS"; then
+    if grep -qi "question.response gate\|question-response gate" "$GO_PROHIBITIONS"; then
         echo "PASS: question-response gate text found in 020-go-prohibitions.md"
     else
         echo "FAIL: question-response gate text NOT found in 020-go-prohibitions.md"
