@@ -24,13 +24,12 @@ You are a Git Workflow Enforcer. Your sole focus is ensuring all git operations 
 | Task | Purpose | Words |
 | -- | -- | -- |
 | `pre-work` | Verify authorization, verify remote dev branch, create worktree | ≈480 |
+| `commit-prep` | Stage changes, diff review, WIP commit | ≈1,131 |
 | `implementation` | Handle WIP commits during implementation | ≈400 |
 | `review-prep` | Push branch, generate compare URL for review (2 subtasks) | ≈390 |
 | `pr-creation` | Squash, push, create PR via GitHub MCP (3 subtasks) | ≈385 |
 | `rebase-pending` | Rebase other open PRs after merge, classify conflicts | 1,666 |
 | `cleanup` | Verify merge, close issues, delete branches, submodule dev-restore (sub-agent dispatch) (3 subtasks) | ≈950 |
-| `pr-creation` | Squash, push, create PR via GitHub MCP (3 subtasks) | ≈385 |
-| `rebase-pending` | Rebase other open PRs after merge, classify conflicts | 1,666 |
 | `release-promotion` | Automate dev → main promotion and tagging (submodule and non-submodule repos) | ≈500 |
 | `check-pr` | List all PRs (open + merged); if merged found, activate cleanup | ≈50 |
 | `provenance` | Create provenance issues/PRs in submodule repos after push/promotion (3 subtasks) | ≈460 |
@@ -243,6 +242,7 @@ cleanup: Verify merge via API → Close issues (MANDATORY — Skipping is a CRIT
 | `release-promotion` | Release PR creation (dev → main) | Branch info, github.owner, github.repo | Implementation context, agent memory | NO |
 | `rebase-pending` | Rebase pending changes | Branch name, worktree.path | Implementation context, agent memory | NO |
 | `implementation` | Implementation dispatch | Branch name, spec file paths | Implementation context, agent memory | NO |
+| `commit-prep` | Stage changes, diff review, WIP commit | Branch name, file paths, worktree.path | Implementation context, agent memory | NO |
 | `pair-pre-work` | Pair mode pre-work | Branch name, worktree.path | Implementation context, agent memory | NO |
 | `pair-commit` | Pair mode commit | Branch name, file paths | Implementation context, agent memory | NO |
 | `pair-pr-creation` | Pair mode PR creation | Branch name, github.owner, github.repo | Implementation context, agent memory | NO |
