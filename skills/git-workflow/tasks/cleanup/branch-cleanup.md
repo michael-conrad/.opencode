@@ -213,13 +213,17 @@ For each merged branch (except main/master/dev): `git branch -d <branch>`
 ### Step 5: Verify Clean State
 
 ```bash
-git status --porcelain  # Must be empty
+git status --porcelain  # Must be empty except for expected dirty submodule pointer (see Step 5.6)
 git branch -vv          # Should show minimal branches
 ```
+
+**⚠️ After submodule-dev-restore (Step 5.5), the parent repo's submodule pointer will be dirty — `.opencode` will show as modified in `git status`. This is expected and correct. The working tree is "clean" in the sense that all tracked changes are accounted for, even though `git status --porcelain` is not empty. See Step 5.6 for the full explanation.**
 
 ### Step 5.5: Restore Submodule to Dev Branch (MANDATORY — Sub-Agent Dispatch)
 
 **⚠️ CRITICAL: Leaving submodules on detached HEAD after cleanup causes conflicts and lost work. This step MUST run after all branch deletions are complete.**
+
+**⚠️ `git submodule update` does NOT restore submodules to dev tip — it checks out the parent-recorded SHA, leaving submodules on detached HEAD. The restore MUST use `git checkout dev && git pull origin dev` inside each submodule. Using `git submodule update` for dev-restore is FORBIDDEN.**
 
 **The main agent MUST dispatch a `submodule-dev-restore` sub-agent for all submodule git operations.** The main agent MUST NOT perform git checkout/pull operations on submodules inline — this is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Inline Work.
 
