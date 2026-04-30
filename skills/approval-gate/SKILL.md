@@ -30,6 +30,7 @@ You are an Authorization Gatekeeper. Your focus is ensuring all code changes fol
 | `verify-authorization/spec-to-plan-cascade` | Step 5b: Spec-to-plan approval cascade | ≈400 |
 | `verify-authorization/gap-fill-cascade` | Step 5b.5 + 5c: Gap-fill precedence and cascade execution | ≈500 |
 | `verify-authorization/auto-dispatch` | Step 6: Scope-aware auto-dispatch + output lineage | ≈500 |
+| `verify-authorization/model-selection` | Step 0.2: Resolve local and cloud models for behavioral test dispatch | ≈300 |
 | `verify-sub-issues` | Verify sub-issue structure for multi-task specs | ≈480 |
 | `verify-codebase` | Re-evaluate codebase state, detect staleness | ≈400 |
 | `verify-already-implemented` | Check if all success criteria are already met; autoclose if so | ≈400 |
@@ -432,6 +433,7 @@ When `halt_at < pr_created`, no PR is created — the agent halts before reachin
 | `verify-authorization/spec-to-plan-cascade` | Cascade approval from spec to plan | Spec issue number, plan issue number | Implementation context, agent memory | NO |
 | `verify-authorization/gap-fill-cascade` | Gap-fill missing artifacts per scope | Authorization scope, halt_at, gap-fill actions | Implementation context, agent memory | NO |
 | `verify-authorization/auto-dispatch` | Scope-aware auto-dispatch after verification | Authorization scope, halt_at, pr_strategy | Implementation context, agent memory | NO |
+| `verify-authorization/model-selection` | Model resolution for behavioral test dispatch | Enforcement target, hardware info, model list | Implementation context, agent memory | NO |
 | `verify-qa-mode` | Detect spec-less implementation requests | User request text, github.owner, github.repo | Implementation context, agent memory | NO |
 | `verify-already-implemented` | Check if spec is already implemented | Spec issue number, github.owner, github.repo | Implementation context, agent memory | NO |
 | `verify-closed-issue` | Verify closed issue has merged PR | Issue number, github.owner, github.repo | Implementation context, agent memory | NO |
@@ -483,6 +485,9 @@ work_peers: [<N>]  # screen-issue only
 authorization_scope: <scope_value>
 halt_at: <pipeline_stage>
 pr_strategy: stacked | individual | none
+test_models:
+  local: <resolved-local-model>
+  cloud: <resolved-cloud-fallback>
 session_vars:
   github.owner: <from-session>
   github.repo: <from-session>

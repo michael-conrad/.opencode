@@ -210,6 +210,8 @@ SCENARIOS["parent-issue-left-open-violation"]="Does .opencode/guidelines/000-cri
 SCENARIOS["parent-issue-left-open-yaml"]="Does .opencode/guidelines/000-critical-rules.md yaml+symbolic block contain rule critical-rules-039 titled 'Parent issue left open after all children closed'?"
 SCENARIOS["parent-issue-closure-vai-step6"]="Does .opencode/skills/approval-gate/tasks/verify-already-implemented.md contain a Step 6 titled 'Parent Plan Closure Check'?"
 SCENARIOS["parent-issue-closure-cleanup-step28"]="Does .opencode/skills/git-workflow/tasks/cleanup.md contain a Step 2.8 titled 'Parent Plan Closure'?"
+SCENARIOS["model-aware-critical-violation"]="Does .opencode/guidelines/000-critical-rules.md contain critical violation sections titled 'Model-Aware Clean-Room Dispatch for Behavioral Testing' and 'No Inline Fallback on Sub-Agent Failure During Behavioral Testing'?"
+SCENARIOS["ollama-tooling-registration"]="Does .opencode/guidelines/060-tool-usage.md Tier 3 list include 'ollama-probe' and 'ollama-model-resolve'?"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -394,12 +396,14 @@ SCENARIO_TAGS["auth-free-critical-rules"]="content-verification approval"
 SCENARIO_TAGS["auth-free-go-prohibitions"]="content-verification approval"
 SCENARIO_TAGS["auth-free-scope-autonomy"]="content-verification approval"
 SCENARIO_TAGS["auth-free-approval-gate-skill"]="content-verification approval"
+SCENARIO_TAGS["model-aware-critical-violation"]="content-verification behavioral-testing"
+SCENARIO_TAGS["ollama-tooling-registration"]="content-verification tool-usage"
 
 # File-to-scenario mapping for --changed filtering
 # Maps glob patterns to scenario names
 declare -A FILE_SCENARIO_MAP
 FILE_SCENARIO_MAP[".opencode/guidelines/091-incremental-build.md"]="incremental-build-guideline monolithic-implementation-violation item-decomposition-step sc-assertion-tdd-cycle red-state-before-implementation red-phase-enforcement-incremental-build red-phase-enforcement-critical-rules-xref"
-FILE_SCENARIO_MAP[".opencode/guidelines/000-critical-rules.md"]="scope-auto-resolve-guideline monolithic-implementation-violation identity-echo-validation secret-exfiltration-violation url-sourcing-guideline-rules dispatch-artifact-requirements red-phase-enforcement-critical-rules-xref critical-rules-body-erasure direct-branch-default worktree-bypass-conditional for-pr-gap-fill-critical-violation for-pr-gap-fill-forbidden-entries for-pr-gap-fill-required-entries for-pr-gap-fill-pr-creation pr-creation-scope-exception pr-creation-scope-yaml-rule hook-output-advisory-subsection hook-output-advisory-yaml-rule wrong-api-routing-violation wrong-api-routing-yaml-rule dispatch-gate-checkpoint inline-work-dispatch-gate structural-decision-solicitation-vacv structural-decision-solicitation-yaml halt-blockers-format post-tool-output-checkpoint unsquashed-pr-violation unsquashed-pr-yaml-rule parent-issue-left-open-violation parent-issue-left-open-yaml"
+FILE_SCENARIO_MAP[".opencode/guidelines/000-critical-rules.md"]="scope-auto-resolve-guideline monolithic-implementation-violation identity-echo-validation secret-exfiltration-violation url-sourcing-guideline-rules dispatch-artifact-requirements red-phase-enforcement-critical-rules-xref critical-rules-body-erasure direct-branch-default worktree-bypass-conditional for-pr-gap-fill-critical-violation for-pr-gap-fill-forbidden-entries for-pr-gap-fill-required-entries for-pr-gap-fill-pr-creation pr-creation-scope-exception pr-creation-scope-yaml-rule hook-output-advisory-subsection hook-output-advisory-yaml-rule wrong-api-routing-violation wrong-api-routing-yaml-rule dispatch-gate-checkpoint inline-work-dispatch-gate structural-decision-solicitation-vacv structural-decision-solicitation-yaml halt-blockers-format post-tool-output-checkpoint unsquashed-pr-violation unsquashed-pr-yaml-rule parent-issue-left-open-violation parent-issue-left-open-yaml model-aware-critical-violation"
 FILE_SCENARIO_MAP[".opencode/scripts/session_context_triggers.py"]="local-only-trigger-function local-only-trigger-directive dev-edit-guard-trigger stash-triage-directive"
 FILE_SCENARIO_MAP[".opencode/guidelines/010-approval-gate.md"]="for-pr-gap-fill-yaml-rule for-pr-gap-fill-scope-model approval-pr-timing-scope"
 FILE_SCENARIO_MAP[".opencode/guidelines/020-go-prohibitions.md"]="scope-auto-resolve-guideline pipeline-scoped-halt for-pr-solicitation-crossref"
@@ -411,6 +415,7 @@ FILE_SCENARIO_MAP[".opencode/skills/divide-and-conquer/"]="divide-conquer-tdd en
 FILE_SCENARIO_MAP[".opencode/skills/git-workflow/"]="worktree-handoff-step cleanup-sc-verification-gate cleanup-phase-completion-gate review-prep-format-self-check url-sourcing-rule1-review-prep url-sourcing-rule1-pr url-sourcing-rule2-character-match release-pr-routing release-promotion-trigger git-workflow-routing-section cleanup-body-modification-warning pre-work-direct-branch pre-work-worktree-opt-in submodule-sha-locking rebase-pending-submodule-sync enforcement-gate-commit-count review-prep-squash-verification parent-issue-closure-cleanup-step28"
 FILE_SCENARIO_MAP[".opencode/skills/verification-before-completion/"]="per-sc-evidence-table vbc-per-sc-evidence-skill"
 FILE_SCENARIO_MAP[".opencode/skills/finishing-a-development-branch/"]="finishing-sc-verification checklist-chat-output-format"
+FILE_SCENARIO_MAP[".opencode/guidelines/060-tool-usage.md"]="ollama-tooling-registration"
 FILE_SCENARIO_MAP[".opencode/guidelines/080-code-standards.md"]="sc-to-test-traceability red-phase-ordering sc-traceability-example"
 FILE_SCENARIO_MAP[".opencode/guidelines/140-planning-spec-creation.md"]="executable-verification-commands vague-verification-antipattern"
 FILE_SCENARIO_MAP[".opencode/skills/spec-creation/"]="semantic-intent-spec-creation narrow-sc-table-exemption spec-creation-red-gate"

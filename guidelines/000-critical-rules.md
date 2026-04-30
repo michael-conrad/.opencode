@@ -2275,3 +2275,74 @@ The commit-per-issue invariant requires that single-issue branches produce exact
     triggers: [git-workflow]
     source: "000-critical-rules.md §Listing Merged PRs Without Invoking Cleanup"
 ```
+
+<!-- Issue #262: Model-Aware Behavioral Testing — Success Criteria: Add model-aware clean-room and no-inline-fallback critical violations -->
+
+## Critical Violation: Model-Aware Clean-Room Dispatch for Behavioral Testing
+
+**⚠️ Running behavioral enforcement tests by grepping test output files, scanning metadata, or performing pattern matches instead of dispatching clean-room `opencode-cli run` sub-agents against actual AI models is a CRITICAL GUIDELINE VIOLATION.**
+
+Behavioral enforcement tests exist to verify that an AI agent actually follows new rules. Metadata grep on test output is NOT behavioral verification — it is content verification masquerading as behavioral evidence. Every behavioral test MUST run via `opencode-cli run` against at least one real AI model. Accepting metadata-only pass/fail claims as behavioral evidence violates the same principle as #91 (metadata-as-evidence prohibition) applied to testing.
+
+- 🚫 FORBIDDEN: Running `grep`/`rg` on behavioral test output files as a substitute for clean-room `opencode-cli run` dispatching
+- 🚫 FORBIDDEN: Accepting metadata-only pass/fail claims for behavioral rule verification
+- 🚫 FORBIDDEN: Claiming behavioral tests pass without evidence of model execution (tool-call artifact confirming `opencode-cli run` was dispatched)
+- 🚫 FORBIDDEN: Dispatching behavioral test sub-agents without model selection context (at minimum, a resolved local model name)
+- 🚫 FORBIDDEN: Accepting single-model results as cross-model-validated when cross-model validation is required by the spec's phase structure
+- ✅ REQUIRED: Every behavioral enforcement test MUST be executed via `opencode-cli run` against at least one real AI model (local preferred, cloud as fallback)
+- ✅ REQUIRED: Model resolution via `ollama-model-resolve --target enforcement` MUST run before behavioral test dispatch
+- ✅ REQUIRED: Behavioral test results MUST include a tool-call artifact proving the model was dispatched (opencode-cli run log or sub-agent result contract)
+- ✅ REQUIRED: Cross-model validation (both local AND cloud model runs) when the spec mandates brittleness detection
+
+**AUTHORITY:** `verification-before-completion` skill, `divide-and-conquer` skill assemble-work dispatch context, Spec #262
+
+```yaml+symbolic
+  - id: critical-rules-042
+    title: "Model-aware clean-room dispatch required for all behavioral testing"
+    conditions:
+      any:
+        - "behavioral_test_performed_via_grep == true"
+        - "metadata_pass_fail_accepted_as_behavioral == true"
+        - "model_dispatched_for_behavioral_test == false"
+    actions:
+      - HALT
+      - DISPATCH(clean-room opencode-cli run with resolved model)
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion, divide-and-conquer]
+    source: "000-critical-rules.md §Model-Aware Clean-Room Dispatch for Behavioral Testing"
+```
+
+## Critical Violation: No Inline Fallback on Sub-Agent Failure During Behavioral Testing
+
+**⚠️ When a behavioral test sub-agent returns an empty result, error, or timeout, the orchestrator MUST re-dispatch a clean-room sub-agent — it MUST NOT perform inline file operations, read test output files directly, or manually compose test results. Inline fallback on sub-agent failure is the exact violation that #106 (orchestrator purity) was designed to prevent.**
+
+When a behavioral test sub-agent fails, reading its test output files inline and composing results manually produces evidence that bypasses ALL clean-room isolation guarantees. The evidence was not produced by an AI model in an isolated context — it was assembled by the orchestrator from grep results. This is the behavioral testing equivalent of the proxy-evidence regression from #91.
+
+- 🚫 FORBIDDEN: Orchestrator reading behavioral test output files and composing pass/fail results inline after sub-agent failure
+- 🚫 FORBIDDEN: Orchestrator performing inline `opencode-cli run` instead of dispatching a clean-room sub-agent
+- 🚫 FORBIDDEN: Orchestrator grepping behavioral test output for pass/fail patterns and reporting those as behavioral test results
+- 🚫 FORBIDDEN: Skipping re-dispatch because "the test output is readable" or "the result is obvious"
+- 🚫 FORBIDDEN: Accepting a `DONE` result contract that lacks tool-call evidence of model execution
+- ✅ REQUIRED: On sub-agent empty/error result: RE-DISPATCH a clean-room sub-agent with the same scoped context
+- ✅ REQUIRED: On double-failure: invoke `--task completion`, HALT with status message + byline
+- ✅ REQUIRED: Re-dispatch context MUST be identical to original — no additional orchestrator reasoning or expected outcomes
+- ✅ REQUIRED: Re-dispatch MUST receive a new clean-room sub-agent session (fresh context, no memory carryover)
+
+**AUTHORITY:** `divide-and-conquer` skill assemble-work Step 6 Sub-Agent Completion Checkpoint, Spec #106 (universal clean-room dispatch), Spec #262
+
+```yaml+symbolic
+  - id: critical-rules-043
+    title: "No inline fallback on sub-agent failure during behavioral testing"
+    conditions:
+      all:
+        - "behavioral_test_sub_agent_failed == true"
+        - "orchestrator_performed_inline_fallback == true"
+    actions:
+      - HALT
+      - RE_DISPATCH(clean-room sub-agent)
+    conflicts_with: []
+    requires: [critical-rules-034, critical-rules-042]
+    triggers: [divide-and-conquer, verification-before-completion]
+    source: "000-critical-rules.md §No Inline Fallback on Sub-Agent Failure During Behavioral Testing"
+```
