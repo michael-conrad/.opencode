@@ -50,6 +50,46 @@ Test-driven development (TDD) workflow that enforces writing tests before implem
 
 This is an **optional** quality gate skill. It is not automatically enforced.
 
+### test-results.md Append (MANDATORY at RED/GREEN Checkpoints)
+
+After each RED or GREEN checkpoint, append results to `.issues/<issue_number>/test-results.md`:
+
+```markdown
+## Test Results: Issue #<N>
+
+### RED Checkpoint — <ISO8601-timestamp>
+**Task:** <task-description>
+**Command:** `<command>`
+**Exit Code:** <code>
+**Output:**
+```
+<key output lines>
+```
+**Result:** FAIL (expected — RED phase)
+```
+
+```markdown
+### GREEN Checkpoint — <ISO8601-timestamp>
+**Task:** <task-description>
+**Command:** `<command>`
+**Exit Code:** 0
+**Output:**
+```
+<key output lines>
+```
+**Result:** PASS (GREEN phase)
+```
+
+**No TDD pass/fail tables appear in GitHub Issue comments.** All TDD evidence is recorded in `.issues/<issue_number>/test-results.md` only.
+
+### Auto-Commit After Append
+
+After appending to `test-results.md`, auto-commit:
+```bash
+git add .issues/<issue_number>/test-results.md
+git commit -m "docs(issues): <issue_number> - <RED|GREEN>: <task-description>"
+```
+
 ### What Skills SHOULD Check
 
 1. **When TDD is selected:**
