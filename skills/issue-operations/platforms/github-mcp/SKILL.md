@@ -45,6 +45,23 @@ GitHub platform implementation using GitHub MCP tools. Full API coverage with no
 
 All operations dispatched through the `github_*` MCP tool family. No Python client needed — the MCP server handles authentication and API routing.
 
+## Authorization Labels (Platform-Supported)
+
+GitHub MCP supports all eight `approved-for-*` labels for issue labeling:
+
+| Label | Purpose |
+|---|---|
+| `approved-for-spec` | Authorization through spec creation (scope: `for_spec`) |
+| `approved-for-plan` | Authorization through plan creation (scope: `for_plan`) |
+| `approved-for-implementation` | Authorization through implementation (scope: `for_implementation`) |
+| `approved-for-code-review` | Authorization through code review (scope: `for_code_review`) |
+| `approved-for-pr` | Full pipeline through PR creation (scope: `for_pr`) |
+| `approved-for-pr-only` | PR creation only (scope: `pr_only`) |
+| `approved-for-review` | Code review only (scope: `review_only`) |
+| `approved-for-review-prep` | Default authorization (scope: `standard`) |
+
+**Deprecated:** The `needs-approval` label is deprecated and MUST NOT be applied to new issues. No `approved-for-*` label = awaiting approval (equivalent to old `needs-approval` state).
+
 ## Fallbacks
 
 None required. GitHub MCP provides complete API coverage.

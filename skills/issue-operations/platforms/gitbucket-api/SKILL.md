@@ -71,6 +71,23 @@ GitBucket platform implementation using Python client. Implements a GitHub-compa
 | `repository-operations` | When GitBucket repository CRUD is needed | Repository data, github.owner, github.repo | Implementation context, agent memory | NO |
 | `session-integration` | When GitBucket session init integration is needed | Session context, environment variables | Implementation context, agent memory | NO |
 
+## Authorization Labels (Platform-Supported)
+
+GitBucket API supports labels via creation only (post-creation label mutation is broken). The eight `approved-for-*` labels are:
+
+| Label | Purpose |
+|---|---|
+| `approved-for-spec` | Authorization through spec creation |
+| `approved-for-plan` | Authorization through plan creation |
+| `approved-for-implementation` | Authorization through implementation |
+| `approved-for-code-review` | Authorization through code review |
+| `approved-for-pr` | Full pipeline through PR creation |
+| `approved-for-pr-only` | PR creation only |
+| `approved-for-review` | Code review only |
+| `approved-for-review-prep` | Default authorization |
+
+**Deprecated:** The `needs-approval` label is deprecated. No `approved-for-*` label = awaiting approval. Label replacement on re-authorization is implemented via comment fallback (remove old label via `remove_label_from_issue`, apply new on next creation cycle).
+
 ## Authentication
 
 Token authentication ONLY. Basic auth is broken in GitBucket (returns "Bad credentials" for all requests).
