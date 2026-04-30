@@ -4,18 +4,47 @@
 
 Every script/notebook MUST include root resolution:
 
-- **Shell**: `cd "$(dirname "$0")" && cd "$(git rev-parse --show-cdup)" || exit 1`
-- **Python**:
-  `BASE_DIR = Path(__file__).resolve().parent; CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip(); PROJECT_ROOT = (BASE_DIR / CDUP).resolve()`
+- **Shell:** Walk up from script location until the current directory is named `.opencode`; the project root is the parent:
+  ```bash
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  PROJECT_DIR="$SCRIPT_DIR"
+  while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
+      PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+  done
+  PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+  ```
+
+- **Python:**
+  ```python
+  from pathlib import Path
+  _path = Path(__file__).resolve().parent
+  while _path.name != ".opencode":
+      _path = _path.parent
+  PROJECT_DIR = _path.parent
+  ```
+
 - **Notebooks**: Set `base_dir` using Jupyter's directory hint:
   `base_dir = Path(globals()['_dh'][0])`. Add a comment noting this uses `_dh[0]` (Jupyter's directory hint) to locate
   the notebook's directory reliably without relying on CWD.
 
 ## Self-Location & Root Resolution
 
-- Scripts self-locate via `dirname "$0"` (Shell) or `Path(__file__).resolve().parent` (Python). No reliance on user's
-  CWD.
-- Resolve project root via `git rev-parse --show-cdup` only. `show-toplevel` is **strictly prohibited** because it returns absolute paths, which break portability and leak local filesystem structure. All internal project references must be relative.
+- Scripts self-locate via `dirname "${BASH_SOURCE[0]}"` (Shell) or `Path(__file__).resolve().parent` (Python). No reliance on user's CWD.
+- **Canonical method (REQUIRED for all scripts):** Walk up from script location until the current directory is named `.opencode`. The parent of `.opencode/` is the project root. This method works correctly whether `.opencode/` is a git submodule or a tracked directory.
+- **Zero shared functions.** Every script inlines its own walk-up loop. No imports, no source, no `sys.path` manipulation for root detection.
+- **The walk-up loop is the ONLY permitted root detection method.** No exceptions.
+
+## Prohibited Patterns (ZERO TOLERANCE)
+
+These root resolution methods are forbidden in ALL `.opencode/` scripts:
+
+- `git rev-parse --show-cdup` — fails in submodule context
+- `git rev-parse --show-toplevel` — returns submodule root, not parent repo root
+- `../..` or deeper relative traversals from `BASH_SOURCE`/`__file__` (e.g., `dirname "${BASH_SOURCE[0]}"/../..`)
+- `.parent.parent` (or deeper) chains in Python (e.g., `Path(__file__).resolve().parent.parent.parent`)
+- `sys.path.insert` or `sys.path.append` for enabling root detection imports
+- Any shared or imported function for root detection
+- `.git` directory walking to determine project root
 
 ## Notebook Operations — MANDATORY MCP
 
@@ -112,11 +141,11 @@ rules:
     source: "210-scripting.md §Notebook Operations"
 
   - id: scripting-004
-    title: "Scripts must self-locate and resolve project root via git rev-parse --show-cdup"
+    title: "Scripts must use walk-up-to-.opencode pattern for root resolution"
     conditions:
       all:
         - "script_created == true"
-        - "has_root_resolution == false"
+        - "has_walk_up_root_resolution == false"
     actions:
       - HALT
     conflicts_with: []
@@ -125,14 +154,19 @@ rules:
     source: "210-scripting.md §Script Headers, Self-Location"
 
   - id: scripting-005
-    title: "Never use git rev-parse --show-toplevel for root resolution"
+    title: "Prohibited root detection patterns — no git rev-parse, no depth counting, no sys.path hacks"
     conditions:
-      all:
-        - "code_contains == 'show-toplevel'"
+      any:
+        - "code_contains == '--show-cdup'"
+        - "code_contains == '--show-toplevel'"
+        - "code_contains == '.parent.parent'"
+        - "code_contains == 'sys.path.insert'"
+        - "code_contains == 'sys.path.append'"
+        - "code_contains == '.git'"
     actions:
       - HALT
     conflicts_with: []
     requires: []
     triggers: []
-    source: "210-scripting.md §Self-Location & Root Resolution"
+    source: "210-scripting.md §Prohibited Patterns"
 ```

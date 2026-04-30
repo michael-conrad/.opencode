@@ -162,7 +162,10 @@ def test_label_operations() -> bool:
 def verify_openapi_spec() -> bool:
     """Verify OpenAPI spec file exists and is valid JSON."""
     print("\n=== Verifying OpenAPI Specification ===")
-    spec_path = Path(__file__).parent.parent / "reference" / "openapi-v4.42.1.json"
+    _path = Path(__file__).resolve().parent
+    while _path.name != ".opencode":
+        _path = _path.parent
+    spec_path = _path / "skills" / "issue-operations" / "platforms" / "gitbucket-api" / "reference" / "openapi-v4.42.1.json"
 
     if not spec_path.exists():
         print(f"❌ OpenAPI spec not found: {spec_path}")

@@ -11,7 +11,10 @@ from unittest.mock import MagicMock, patch
 
 import sys
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "tools"))
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    _path = _path.parent
+sys.path.insert(0, str(_path / "tools"))
 
 from gitbucket_api import GitBucketAPI
 

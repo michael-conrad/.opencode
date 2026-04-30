@@ -16,7 +16,11 @@ source "$SCRIPT_DIR/helpers.sh"
 SCENARIO_NAME="vbc-evidence-artifacts-dispatch-mapped"
 SCENARIO_PROMPT="Verify the implementation of github issue #1 is complete. Use verification-before-completion."
 
-SKILL_FILE="$SCRIPT_DIR/../../skills/verification-before-completion/SKILL.md"
+OPENDIR="$SCRIPT_DIR"
+while [ "$(basename "$OPENDIR")" != ".opencode" ]; do
+    OPENDIR="$(dirname "$OPENDIR")"
+done
+SKILL_FILE="$OPENDIR/skills/verification-before-completion/SKILL.md"
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 

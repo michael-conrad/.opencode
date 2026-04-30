@@ -15,7 +15,11 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
-WORKTREE_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+WORKTREE_ROOT="$(cd "$SCRIPT_DIR" && pwd)"
+while [ "$(basename "$WORKTREE_ROOT")" != ".opencode" ]; do
+    WORKTREE_ROOT="$(dirname "$WORKTREE_ROOT")"
+done
+WORKTREE_ROOT="$(dirname "$WORKTREE_ROOT")"
 
 SCENARIO_NAME="git-config-watchdog-detection"
 

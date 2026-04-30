@@ -20,7 +20,11 @@ echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
 OVERALL_RESULT=0
 
-WORKTREE_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+WORKTREE_ROOT="$(cd "$SCRIPT_DIR" && pwd)"
+while [ "$(basename "$WORKTREE_ROOT")" != ".opencode" ]; do
+    WORKTREE_ROOT="$(dirname "$WORKTREE_ROOT")"
+done
+WORKTREE_ROOT="$(dirname "$WORKTREE_ROOT")"
 
 # Verify 1: 080-code-standards.md includes Scala header format
 # SC-1: Scala header format under "Header Format by File Type"
