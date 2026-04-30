@@ -34,7 +34,7 @@ These mandates ensure disciplined workflow (spec-first, plan-before-implementati
 | -- | -- |
 | Spec before code | Developer authorization means "you may begin the process" — for complex work, still create a spec/plan |
 | Plan before implementation | Same as above — authorization authorizes the work, not necessarily every intermediate artifact |
-| `needs-approval` label present | Explicit auth overrides this label per `010-approval-gate.md` |
+| No `approved-for-*` label present | Explicit auth applies the correct `approved-for-*` label per `010-approval-gate.md` |
 | Sub-issue structure for multi-task plans | When developer authorizes a multi-task plan, sub-issue creation is auto-setup, not a separate gate |
 
 **For Tier 2 mandates, developer authorization does NOT mean "skip the process entirely"** — it means "you may begin." For complex work (new features, behavioral changes), the spec/plan workflow still produces value even when authorization exists.
