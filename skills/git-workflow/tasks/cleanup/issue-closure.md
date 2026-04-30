@@ -218,6 +218,59 @@ For issues with `[Task: #N]` or `Phase N:` patterns that reference a parent plan
 
 **Only proceed to parent closure after ALL sub-issues are verified.**
 
+### Step 8.5: Submodule Issue Closure Routing (MANDATORY when submodules exist)
+
+**⚠️ CRITICAL: When `.gitmodules` exists and submodules have related issues, issue closure MUST route to the submodule's `owner/repo` instead of the parent repo. Closing submodule issues in the parent repo is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Wrong API Routing.**
+
+Invoke `/command submodule-workflow-state` to discover submodule issue state.
+
+For each submodule with `issue_state.has_related_issue == true`:
+
+1. **Route closure to the submodule repo** — use `submodule_workflow.submodules[].owner` and `submodule_workflow.submodules[].repo` (NOT the parent repo's `github.owner`/`github.repo`)
+
+2. **Verify PR merge for the submodule issue:**
+   - If `pr_state.pr_merged == true`: close the submodule issue with a verification comment
+   - If `pr_state.pr_merged == false`: flag the submodule issue as blocked (submodule PR not merged)
+
+3. **Close the submodule issue using the submodule's owner/repo:**
+
+   ```python
+   github_issue_write(
+       method="update",
+       owner=submodule_owner,  # From submodule_workflow, NOT github.owner
+       repo=submodule_repo,    # From submodule_workflow, NOT github.repo
+       issue_number=issue_number,
+       state="closed",
+       state_reason="completed"
+   )
+   ```
+
+4. **Post a verification comment on the submodule issue:**
+
+   ```python
+   github_add_issue_comment(
+       owner=submodule_owner,
+       repo=submodule_repo,
+       issue_number=issue_number,
+       body=f"Closed via parent PR #{parent_pr_number}. Submodule PR #{submodule_pr_number} merged."
+   )
+   ```
+
+**Evidence artifacts (MANDATORY):**
+
+```
+Check: Submodule issue closure routing
+Tool: /command submodule-workflow-state
+Result: [per-submodule issue state and closure routing]
+Classification: [ROUTED_TO_SUBMODULE|PARENT_ONLY|BLOCKED]
+Action: [close_with_evidence|flag_blocked]
+```
+
+🚫 FORBIDDEN: Closing submodule issues in the parent repo (`michael-conrad/opencode-config`)
+🚫 FORBIDDEN: Using `github.owner`/`github.repo` for submodule issue API calls
+✅ REQUIRED: Use `submodule_workflow.submodules[].owner`/`repo` for all submodule issue API calls
+✅ REQUIRED: Verify submodule PR merge before closing submodule issues
+
 ## Context Required
 
 - Related tasks: `cleanup/verify-merge`, `cleanup/branch-cleanup`

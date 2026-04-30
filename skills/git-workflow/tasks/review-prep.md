@@ -73,6 +73,36 @@ ls .opencode/tmp/work-*.md 2>/dev/null
 
 Generates compare URL from session-init values with character-match verification, reports completion in mandatory chat format, and HALTs waiting for "create a PR".
 
+### Step 2.7: Submodule Push Verification (MANDATORY when submodules exist)
+
+**⚠️ When `.gitmodules` exists, the agent MUST verify submodule push status before generating the parent compare URL for `main_and_sub` combinations. For `sub_only` combinations, a compare URL in the submodule repo must be generated instead of the parent repo.**
+
+Invoke `/command submodule-workflow-state` to discover submodule state.
+
+For `main_and_sub` combinations:
+
+1. Verify each submodule with `branch_state.has_matching_branch == true` was pushed to its remote
+2. Check: `cd <submodule-path> && git log origin/dev..HEAD` — must be empty OR the submodule branch must be pushed
+3. If submodule is NOT pushed: HALT — push the submodule first, then re-verify
+
+For `sub_only` combinations:
+
+1. Generate the compare URL in the **submodule repo** using the submodule's `owner`/`repo`
+2. Compare URL format: `https://github.com/<submodule_owner>/<submodule_repo>/compare/dev...<submodule_branch>`
+3. Character-match verification: confirm `submodule_owner` and `submodule_repo` match session-init values from the command output
+
+For `main_only` combinations: no submodule push verification needed — proceed with standard parent compare URL.
+
+**Evidence artifacts (MANDATORY):**
+
+```
+Check: Submodule push verification
+Tool: /command submodule-workflow-state + git log
+Result: [per-submodule push status]
+Classification: [PUSHED|NOT_PUSHED]
+Action: [proceed|HALT_and_push]
+```
+
 ## "No File Changes" Edge Case
 
 | Scenario | Workflow |
