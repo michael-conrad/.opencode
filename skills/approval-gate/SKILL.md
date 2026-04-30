@@ -1,6 +1,6 @@
 ---
 name: approval-gate
-description: Use when user says "approved", "go", or any implementation instruction, or when authorization needs verification. Triggers on: approval, authorized, implement, start work, go ahead, needs-approval label, authorization set, multiple issues approved, interdependency analysis.
+description: Use when user says "approved", "go", or any implementation instruction, or when authorization needs verification. Triggers on: approval, authorized, implement, start work, go ahead, no approved-for-* label, authorization set, multiple issues approved, interdependency analysis.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
@@ -22,7 +22,7 @@ You are an Authorization Gatekeeper. Your focus is ensuring all code changes fol
 | Task | Purpose | Words |
 |------|---------|-------|
 | `verify-qa-mode` | Detect spec-less implementation requests, switch to Q/A mode | ≈800 |
-| `verify-authorization` | Check explicit auth and needs-approval label; delegates branch creation to `git-workflow --task pre-work` | ≈400 |
+| `verify-authorization` | Check explicit auth and `approved-for-*` label status; delegates branch creation to `git-workflow --task pre-work` | ≈400 |
 | `verify-authorization/scope-auto-resolve` | Step 0.5: Scope auto-resolve from authorization phrase | ≈200 |
 | `verify-authorization/item-decomposition-check` | Step 4.5: Verify item decomposition in plan | ≈250 |
 | `verify-authorization/sc-traceability-check` | Step 4.6: SC-to-test traceability and RED-phase ordering | ≈350 |
@@ -117,7 +117,7 @@ Violation: Writing code without a spec bypasses the review trail and edge case d
 2. **Two-gate authorization model:** Spec approval → plan creation. Plan approval → implementation. Each gate requires explicit authorization. **Exception: Spec-to-plan cascade** — when a spec is approved and a plan already exists, the plan inherits the spec's approval status automatically (see Step 5b in `verify-authorization.md`).
 3. **Pre-Implementation Verification:** Verify spec or plan exists as GitHub Issue, verify authorization, verify sub-issues under plan (multi-task) — all consolidated in `verify-authorization` Step 5 as the single readiness check. The `issue-operations` `link-sub-issue` verification gate is superseded by `verify-authorization`.
 4. **Multi-task cascade:** When plan has sub-issues, authorization cascades from plan to ALL sub-issues. Complete ALL phases, report ONCE, HALT ONCE.
-5. **Spec-to-plan approval cascade:** When a spec is approved and a plan already exists that references the spec (`Spec: #N` in plan body), the plan inherits the spec's approval status. The `needs-approval` label is removed from the plan and a comment documents the cascade. If multiple plans reference the spec, the most recent plan by creation date is cascade-approved and older plans are superseded. If no plan exists, the cascade does NOT apply — the standard flow (spec approval → writing-plans create → plan needs approval) continues. See `verify-authorization.md` Step 5b for the complete cascade procedure.
+5. **Spec-to-plan approval cascade:** When a spec is approved and a plan already exists that references the spec (`Spec: #N` in plan body), the plan inherits the spec's approval status. The `approved-for-*` label matching the spec's scope is applied to the plan and a comment documents the cascade. If multiple plans reference the spec, the most recent plan by creation date receives the label and older plans are superseded. If no plan exists, the cascade does NOT apply — the standard flow (spec approval → writing-plans create → plan needs approval) continues. See `verify-authorization.md` Step 5b for the complete cascade procedure.
 6. **Spec revision revocation:** If a spec is revised (status contains `REVISED - NEEDS APPROVAL` — in either prose or numeric format), find linked plan issues by searching for `[PLAN]` issues referencing the spec number in their body and mark them for audit. Revision of a spec revokes approval on its linked plan — including cascaded approval. Prose format example: `STATUS: in progress — {concern} (REVISED - NEEDS APPROVAL)`. Numeric format example: `STATUS: 1.1 (REVISED - NEEDS APPROVAL)`.
 7. **Auto-dispatch after verification:** When all verification gates pass, auto-dispatch to the next skill in the chain. See Dispatch Order below.
 
@@ -149,11 +149,11 @@ After `verify-authorization` completes successfully (all gates pass), the skill 
 Spec approved (no existing plan)
   → verify-authorization (all gates pass) [DISPATCH_GATE]
   → writing-plans --task create (auto-dispatched to create plan issue) [DISPATCH_GATE]
-  → Plan retains needs-approval label (requires separate plan approval)
+   → Plan has no `approved-for-*` label (requires separate plan approval — equivalent to old `needs-approval` state)
 
 Spec approved (existing plan found)
   → verify-authorization (all gates pass) [DISPATCH_GATE]
-  → Step 5b: cascade approval to existing plan (remove needs-approval, add comment) [DISPATCH_GATE]
+   → Step 5b: cascade approval to existing plan (apply `approved-for-*` label, add comment) [DISPATCH_GATE]
   → Plan is now approved → skip to plan-approved dispatch path [DISPATCH_GATE]
   → sub-issue verification (Step 5 of verify-authorization, if multi-phase) [DISPATCH_GATE]
   → pre-implementation-analysis [DISPATCH_GATE] → divide-and-conquer/assemble-work [DISPATCH_GATE] → ...
@@ -250,14 +250,45 @@ This gate runs as part of `verify-authorization`, BEFORE the dispatch chain proc
 
 Tier 1 mandates never skipped. Work state file bridges hops. See `enforcement/auto-dispatch-table.md` §Path Routing.
 
+## Approval Labels (Single Source of Truth)
+
+### Scope-to-Label Mapping
+
+| authorization_scope | Label | halt_at |
+|---|---|---|
+| `for_spec` | `approved-for-spec` | spec_created |
+| `for_plan` | `approved-for-plan` | plan_created |
+| `for_implementation` | `approved-for-implementation` | implementation_complete |
+| `for_code_review` | `approved-for-code-review` | code_review_ready |
+| `for_pr` | `approved-for-pr` | pr_created |
+| `pr_only` | `approved-for-pr-only` | pr_created |
+| `review_only` | `approved-for-review` | code_review_ready |
+| `standard` (default) | `approved-for-review-prep` | review_prep |
+
+### Label Lifecycle Rules
+
+1. **On authorization:** Apply the `approved-for-*` label matching the resolved `authorization_scope`. Remove any prior `approved-for-*` label (replacement) and the deprecated `needs-approval` label.
+2. **On re-authorization:** Replace — old `approved-for-*` removed, new one applied. Labels never coexist.
+3. **On stage completion:** Label stays. It is a persistent authority record through all downstream stages — never removed until issue closure.
+4. **Absence of any `approved-for-*` label:** Equivalent to the old `needs-approval` state — meaning "awaiting approval." An issue with no `approved-for-*` label must not be implemented.
+
+### Label Application Procedure
+
+1. Resolve `authorization_scope` via `scope-auto-resolve` (Step 0.5 of `verify-authorization.md`)
+2. Determine the correct `approved-for-*` label from the mapping table above
+3. Remove ALL prior `approved-for-*` labels and the `needs-approval` label from the issue
+4. Apply the new `approved-for-*` label
+5. Verify label is present via `github_issue_read(method=get_labels)`
+6. Record the label in the result contract as `applied_label`
+
 ## Authorization Requirements
 
 | Requirement | Description |
 |-------------|-------------|
 | **Spec or Plan exists as GitHub Issue** | No local fallback — GitHub Issues only |
 | **Two-gate authorization** | Spec approval → plan creation; Plan approval → implementation. Exception: spec-to-plan cascade (see below) |
-| **Spec-to-plan approval cascade** | When a spec is approved and a plan already exists referencing the spec, the plan inherits the spec's approval status. `needs-approval` label is removed and a comment documents the cascade. Most recent plan is approved; older plans are superseded. If no plan exists, standard flow applies. |
-| **Explicit authorization** | User says `approved`, `go`, `approved: N.M`, or `approved: {concern}` — OVERRIDES `needs-approval` label |
+| **Spec-to-plan approval cascade** | When a spec is approved and a plan already exists referencing the spec, the plan inherits the spec's approval status. The `approved-for-*` label matching the spec's scope is applied to the plan and a comment documents the cascade. Most recent plan is approved; older plans are superseded. If no plan exists, standard flow applies. |
+| **Explicit authorization** | User says `approved`, `go`, `approved: N.M`, or `approved: {concern}` — applies the correct `approved-for-*` label per the Scope-to-Label Mapping above |
 | **Open questions resolved** | No unresolved items in spec or plan |
 | **Sub-issues verified under plan** | Multi-task plans require phase-level sub-issues (verified in `verify-authorization` Step 5 — single authoritative gate) |
 | **Fix spec for bug reports** | Bug reports must have a fix spec sub-issue before closure (per `000-critical-rules.md`) |
@@ -466,7 +497,7 @@ Every task that reads a metadata claim (label, comment, STATUS marker, sub-issue
 
 **Evidence format and finding classification:** See `enforcement/adversarial-verification.md` for the complete evidence format, three-tier finding classification (auto-fix, conditional, flag-for-review), and problem class taxonomy. Every verification check MUST produce an evidence artifact via tool call — assertions without tool call evidence are verification honesty violations.
 
-Key verification checks: `needs-approval` label status, authorization comment author/scope/currency, STATUS marker maturity, sub-issue open/closed state, fix spec existence, and screen-issue dispatch completeness.
+Key verification checks: `approved-for-*` label status, authorization comment author/scope/currency, STATUS marker maturity, sub-issue open/closed state, fix spec existence, and screen-issue dispatch completeness.
 
 ## Cross-References
 
@@ -485,7 +516,7 @@ Rules are classified into two tiers per `000-critical-rules.md` → "Mandate Tie
 | Tier | Behavior | Examples |
 |------|----------|----------|
 | **Tier 1 (Non-Yielding)** | Enforced REGARDLESS of developer authorization | Worktree requirement, branch protection, human-only merge, no `/tmp/`, path rules |
-| **Tier 2 (Authorization-Waivable)** | Yields to explicit developer authorization | Spec-before-code, plan-before-implementation, `needs-approval` label |
+| **Tier 2 (Authorization-Waivable)** | Yields to explicit developer authorization | Spec-before-code, plan-before-implementation, no `approved-for-*` label |
 
 **Enforcement rule:** When `verify-authorization` confirms developer authorization exists, Tier 2 mandates are satisfied by that authorization. Tier 1 mandates are NEVER satisfied by authorization — they are independently enforced. An agent with developer authorization MUST still create a worktree, MUST still not commit to main/dev, MUST still not merge PRs.
 
@@ -677,7 +708,7 @@ rules:
         - "spec_approved == true"
         - "spec_has_existing_plan == true"
     actions:
-      - REMOVE_LABEL(needs-approval, plan)
+      - APPLY_LABEL(approved-for-*, plan)
       - ADD_COMMENT(cascade approval documentation)
       - PROCEED_TO(plan-approved dispatch path)
     conflicts_with: []
