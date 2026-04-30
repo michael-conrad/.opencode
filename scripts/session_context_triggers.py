@@ -406,6 +406,35 @@ CHECK_PRS_PATTERNS: list[str] = [
 ]
 
 
+NESTED_OPENCODE_DIR = ".opencode/.opencode"
+
+
+def has_nested_opencode() -> bool:
+    root_dir = get_root_dir()
+    nested_path = Path(root_dir) / NESTED_OPENCODE_DIR
+    return nested_path.is_dir()
+
+
+def build_nested_opencode_warning() -> str:
+    return (
+        "\n"
+        "## ⚠️ Nested .opencode Directory Detected — Critical Configuration Error\n\n"
+        "A `.opencode/.opencode/` directory exists at the project root. "
+        "This nested folder breaks skill discovery — the AI agent's skill scanner "
+        "picks up the inner `.opencode/skills/` path (which is empty or incomplete) "
+        "instead of the top-level `.opencode/skills/` directory.\n\n"
+        "**Impact:** Top-level skills (approval-gate, divide-and-conquer, git-workflow, "
+        "etc.) are invisible to the agent. Only deeply nested platform sub-skills "
+        "(local, github-mcp, gitbucket-api) may appear.\n\n"
+        "**Fix Required:** Delete the nested `.opencode/.opencode/` directory immediately. "
+        "Then verify `.opencode/.gitignore` contains `.opencode/` to prevent recurrence.\n\n"
+        "**Root cause:** The nested `.opencode/` was likely created by an agent operating "
+        "in a worktree or pair-mode branch where relative paths resolved incorrectly, "
+        "or by a tool/script that created a `.opencode/` directory without checking "
+        "whether it already exists as a submodule path.\n"
+    )
+
+
 def detect_check_prs_intent() -> str | None:
     import os
 
@@ -582,6 +611,9 @@ def main() -> int:
 
     if is_local_only_repo():
         sections.append(build_local_only_repo_directive())
+
+    if has_nested_opencode():
+        sections.append(build_nested_opencode_warning())
 
     check_prs_intent = detect_check_prs_intent()
     if check_prs_intent:
