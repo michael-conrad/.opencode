@@ -122,6 +122,18 @@ Before deleting ANY merged branch, verify that all branch content is present on 
 - Content comparison table as evidence artifact before any deletion
 - HALT and flag for developer review when UNIQUE content is found
 
+### Step 3.2: Remove Dispatch Entry Marker
+
+After confirming content is safe to delete, remove the dispatch entry marker for the merged branch:
+
+```bash
+CLEANUP_BRANCH_NAME=$(git branch --show-current)
+SAFE_BRANCH=$(echo "$CLEANUP_BRANCH_NAME" | tr '/' '-')
+rm -f .opencode/tmp/dispatch-"$SAFE_BRANCH".marker
+```
+
+This marker was created by `assemble-work` Step 1.5 as dispatch entry proof for the pre-commit hook.
+
 ### Step 3.5: Delete Current Merged Branch
 
 ```bash

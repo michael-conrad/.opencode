@@ -123,11 +123,6 @@ if ls "$WORK_STATE_DIR"/work-*.md 1>/dev/null 2>&1; then
             break
         fi
     done
-        if grep -qE '^## chain-context' "$f" 2>/dev/null; then
-            WORK_FILE_FOUND=1
-            break
-        fi
-    done
 fi
 
 if [ "$WORK_FILE_FOUND" = "0" ]; then
