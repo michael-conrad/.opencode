@@ -1,11 +1,13 @@
 #!/bin/bash
-# Pre-commit hook: Block direct commits to main and dev branches
-# Enforces feature branch workflow for both humans and AI agents
+# Pre-commit hook: Branch protection + dispatch evidence enforcement
+# Gate 1: Block direct commits to main/dev branches
+# Gate 2: Block commits on implementation branches without dispatch evidence
 
 set -e
 
 CURRENT_BRANCH=$(git branch --show-current)
 
+# --- Gate 1: Branch protection (main/dev) ---
 if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "dev" ]; then
     echo ""
     echo "ERROR: Direct commits to '$CURRENT_BRANCH' branch are blocked."
@@ -19,6 +21,132 @@ if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "dev" ]; then
     echo "  2. Or create a hotfix branch: git checkout -b hotfix/<name>"
     echo ""
     echo "AI agent: If OPENCODE=1, relay this message to the developer."
+    echo ""
+    exit 1
+fi
+
+# --- Gate 2: Dispatch evidence check ---
+# Implementation branches (feature/*, spec/*, fix/*) require a work state file
+# in .opencode/tmp/ as evidence that the dispatch chain was followed.
+# Exemptions: pair-* (pair mode), rollback/* (rollback ops), .issues/ only,
+# merge commits, human escape hatch.
+
+SKIP_DISPATCH_CHECK="${SKIP_DISPATCH_CHECK:-}"
+if [ "$SKIP_DISPATCH_CHECK" = "1" ]; then
+    exit 0
+fi
+
+case "$CURRENT_BRANCH" in
+    pair-*|rollback/*|hotfix/*)
+        exit 0
+        ;;
+esac
+
+IS_IMPL_BRANCH=0
+case "$CURRENT_BRANCH" in
+    feature/*|spec/*|fix/*|phase/*)
+        IS_IMPL_BRANCH=1
+        ;;
+esac
+
+if [ "$IS_IMPL_BRANCH" = "0" ]; then
+    exit 0
+fi
+
+# Check for .issues/-only changes (non-behavioral metadata exempt)
+STAGED_FILES=$(git diff --cached --name-only 2>/dev/null)
+ALL_ISSUES_ONLY=1
+for f in $STAGED_FILES; do
+    case "$f" in
+        .issues/*)
+            ;;
+        *)
+            ALL_ISSUES_ONLY=0
+            break
+            ;;
+    esac
+done
+
+if [ "$ALL_ISSUES_ONLY" = "1" ]; then
+    exit 0
+fi
+
+# Allow merge commits
+if [ -f ".git/MERGE_MSG" ] || [ -n "$GIT_DIR" ] && [ -f "$GIT_DIR/MERGE_MSG" ]; then
+    exit 0
+fi
+
+# Allow rollback commits (commit message starts with "rollback")
+COMMIT_MSG_FILE=".git/COMMIT_EDITMSG"
+if [ -f "$COMMIT_MSG_FILE" ]; then
+    FIRST_LINE=$(head -1 "$COMMIT_MSG_FILE" 2>/dev/null)
+    case "$FIRST_LINE" in
+        rollback*|Merge\ pull\ request*|Merge\ branch*)
+            exit 0
+            ;;
+    esac
+fi
+
+# Check for work state file matching current branch
+PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+WORK_STATE_DIR="$PROJECT_ROOT/.opencode/tmp"
+
+if [ ! -d "$WORK_STATE_DIR" ]; then
+    echo ""
+    echo "ERROR: Dispatch evidence check FAILED."
+    echo ""
+    echo "Branch '$CURRENT_BRANCH' is an implementation branch but no"
+    echo "work state directory exists at .opencode/tmp/."
+    echo ""
+    echo "The dispatch chain requires a work state file as evidence that"
+    echo "sub-agent dispatch occurred via divide-and-conquer/assemble-work."
+    echo ""
+    echo "To fix:"
+    echo "  1. Ensure divide-and-conquer --task assemble-work was invoked"
+    echo "  2. Or set SKIP_DISPATCH_CHECK=1 if committing as a human operator"
+    echo ""
+    echo "AI agent: This is a runtime gate, not an advisory rule."
+    echo ""
+    exit 1
+fi
+
+WORK_FILE_FOUND=0
+if ls "$WORK_STATE_DIR"/work-*.md 1>/dev/null 2>&1; then
+    BRANCH_PATTERN=$(echo "$CURRENT_BRANCH" | sed 's/[\/&]/\\&/g')
+    for f in "$WORK_STATE_DIR"/work-*.md; do
+        if grep -qE "(Branch:.*$CURRENT_BRANCH|^# Work State.*$CURRENT_BRANCH)" "$f" 2>/dev/null; then
+            WORK_FILE_FOUND=1
+            break
+        fi
+        if grep -qE '^## chain-context' "$f" 2>/dev/null; then
+            WORK_FILE_FOUND=1
+            break
+        fi
+    done
+        if grep -qE '^## chain-context' "$f" 2>/dev/null; then
+            WORK_FILE_FOUND=1
+            break
+        fi
+    done
+fi
+
+if [ "$WORK_FILE_FOUND" = "0" ]; then
+    echo ""
+    echo "ERROR: Dispatch evidence check FAILED."
+    echo ""
+    echo "Branch '$CURRENT_BRANCH' is an implementation branch but no"
+    echo "work state file in .opencode/tmp/ references this branch."
+    echo ""
+    echo "Work state files found: $(ls "$WORK_STATE_DIR"/work-*.md 2>/dev/null | wc -l)"
+    echo ""
+    echo "The dispatch chain requires a work state file as evidence that"
+    echo "sub-agent dispatch occurred via divide-and-conquer/assemble-work."
+    echo ""
+    echo "To fix:"
+    echo "  1. Ensure divide-and-conquer --task assemble-work was invoked"
+    echo "  2. Or set SKIP_DISPATCH_CHECK=1 if committing as a human operator"
+    echo ""
+    echo "AI agent: This is a runtime gate, not an advisory rule."
     echo ""
     exit 1
 fi

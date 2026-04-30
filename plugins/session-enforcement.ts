@@ -180,6 +180,42 @@ See 000-critical-rules.md → "Git Configuration and Destructive Command Authori
 </NO_VERIFY_BLOCKED>`;
 }
 
+function buildInlineWorkDetectedBlock(editToolNames: string[], dispatchFound: boolean): string {
+  const editList = editToolNames.map(t => `- \`${t}\``).join("\n");
+  const dispatchNote = dispatchFound
+    ? "A sub-agent dispatch was found, but file edits occurred BEFORE the dispatch in this turn."
+    : "No sub-agent dispatch (task tool) was found in this turn.";
+  return `<INLINE_WORK_DETECTED>
+⚠️ CRITICAL: The orchestrator performed file operations without sub-agent dispatch evidence.
+
+File-editing tool calls detected in this turn:
+${editList}
+
+${dispatchNote}
+
+The orchestrator MUST be a pure router — all file modifications MUST be dispatched
+through divide-and-conquer/assemble-work sub-agents. See 000-critical-rules.md §Inline Work.
+
+Exemptions: pair-* branches, .issues/ file edits, simple-work single-file changes.
+If this is an exempt case, disregard this block.
+</INLINE_WORK_DETECTED>`;
+}
+
+function buildEvidenceGateBlock(): string {
+  return `<EVIDENCE_GATE_BLOCK>
+⚠️ CRITICAL: Issue closure attempted without verification evidence.
+
+A github_issue_write call with state=closed was detected, but no per-SC
+verification evidence table exists in recent assistant messages.
+
+Every issue closure requires a verification evidence table confirming each
+success criterion was met with a tool-call artifact. See 000-critical-rules.md
+§Verification Dishonesty and verification-before-completion skill.
+
+If the closure is exempt (not_planned, duplicate, rollback-reopen), disregard this block.
+</EVIDENCE_GATE_BLOCK>`;
+}
+
 interface PluginDiagnostic {
   source: string;
   level: "error" | "warning" | "info";
@@ -1512,6 +1548,103 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
                 nextUser.parts.push({ type: "text", text: blockedBlock });
               }
               break;
+            }
+          }
+        }
+      }
+
+      // --- Per-turn: Inline work detector (Gate 3) ---
+      // Detect when the orchestrator performed file-editing tool calls without
+      // a preceding sub-agent dispatch in the same turn. Exemptions: sub-agent
+      // sessions, pair-* branches, .issues/ only changes.
+      const currentBranchForInline = getCurrentBranch(projectDir);
+      const isPairBranch = currentBranchForInline ? isPairModeBranch(currentBranchForInline) : false;
+      if (!isSubAgent && !isPairBranch) {
+        for (const msg of assistantMessages) {
+          if (!msg.parts?.length) continue;
+          const editToolNames: string[] = [];
+          let dispatchFound = false;
+          let dispatchIndex = -1;
+          let issuesOnlyEdits = true;
+
+          for (const part of msg.parts) {
+            if (part.type === "text" && part.text) {
+              // Detect sub-agent dispatch (task tool)
+              if (part.text.includes("subagent_type") || part.text.includes('"task"') && part.text.includes("dispatch")) {
+                dispatchFound = true;
+                if (dispatchIndex === -1) dispatchIndex = msg.parts.indexOf(part);
+              }
+              // Detect file-editing tool calls
+              const editMatch = part.text.match(/"name"\s*:\s*"(edit|write|create_or_update_file)"/);
+              if (editMatch) {
+                editToolNames.push(editMatch[1]);
+                // Check if the edit targets .issues/ files
+                const filePathMatch = part.text.match(/"filePath"\s*:\s*"([^"]+)"/);
+                if (filePathMatch && !filePathMatch[1].startsWith(".issues/")) {
+                  issuesOnlyEdits = false;
+                }
+              }
+              // Also detect tool call patterns in assistant text (older format)
+              const toolCallMatch = part.text.match(/(edit|write)\(filePath/);
+              if (toolCallMatch) {
+                editToolNames.push(toolCallMatch[1]);
+                const filePathMatch = part.text.match(/filePath["']?\s*[:=]\s*["']([^"']+)/);
+                if (filePathMatch && !filePathMatch[1].startsWith(".issues/")) {
+                  issuesOnlyEdits = false;
+                }
+              }
+            }
+          }
+
+          if (editToolNames.length > 0 && !issuesOnlyEdits) {
+            // If dispatch was found, check if edits came before the dispatch
+            const editsBeforeDispatch = dispatchFound && dispatchIndex > -1
+              ? editToolNames.length > 0 // edits exist, check if any were before dispatch
+              : true;
+
+            if (!dispatchFound || editsBeforeDispatch) {
+              const block = buildInlineWorkDetectedBlock(editToolNames, dispatchFound);
+              const nextUser = userMessages[userMessages.length - 1];
+              if (nextUser?.parts?.length) {
+                nextUser.parts.push({ type: "text", text: block });
+              }
+            }
+          }
+        }
+      }
+
+      // --- Per-turn: Evidence gate (Gate 4) ---
+      // Detect issue closure attempts without verification evidence table.
+      // Exemptions: not_planned, duplicate, rollback-reopen state reasons.
+      for (const msg of assistantMessages) {
+        if (!msg.parts?.length) continue;
+        for (const part of msg.parts) {
+          if (part.type === "text" && part.text) {
+            // Detect github_issue_write with state=closed
+            const closureMatch = part.text.match(/state.*closed|state.*:.*"closed"/i);
+            if (closureMatch) {
+              // Check for exempt state reasons
+              const exemptReason = part.text.match(/state_reason.*(?:not_planned|duplicate)/i);
+              if (!exemptReason) {
+                // Check if a verification evidence table exists in recent messages
+                const allAssistantText = assistantMessages
+                  .map(m => m.parts?.filter(p => p.type === "text" && p.text).map(p => p.text).join(" ") || "")
+                  .join(" ");
+                const hasEvidence = allAssistantText.includes("PASS") &&
+                  (allAssistantText.includes("Success Criteria") || allAssistantText.includes("verification") || allAssistantText.includes("evidence"));
+
+                if (!hasEvidence) {
+                  // Also check for rollback-reopen marker
+                  const rollbackReopen = part.text.match(/\[ROLLBACK-REOPEN\]/i);
+                  if (!rollbackReopen) {
+                    const block = buildEvidenceGateBlock();
+                    const nextUser = userMessages[userMessages.length - 1];
+                    if (nextUser?.parts?.length) {
+                      nextUser.parts.push({ type: "text", text: block });
+                    }
+                  }
+                }
+              }
             }
           }
         }
