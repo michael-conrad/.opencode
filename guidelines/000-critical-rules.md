@@ -2386,6 +2386,105 @@ The commit-per-issue invariant requires that single-issue branches produce exact
 
 **AUTHORITY:** `pr-creation/enforcement-gate.md` Step 1.2, `pr-creation/squash-push.md` Step 3, `review-prep.md` Step 2.5, `pr-creation-workflow/tasks/pre-pr-checklist.md` Step 1
 
+<!-- Issue #240: Enforcement gaps — spec-checklist gate, for_pr evidence audit, uncommitted-work protocol -->
+
+## Critical Violation: Spec Body Checklist Verification Gate
+
+**⚠️ Completing implementation without verifying all spec body mandatory checklist items (`- [ ]` task entries) produced evidence is a CRITICAL GUIDELINE VIOLATION.**
+
+When a spec body contains mandatory checklist items, each item must have a corresponding tool-call evidence artifact before `verification-before-completion` can pass. Missing evidence for any checklist item blocks completion.
+
+- 🚫 FORBIDDEN: Marking verification complete when spec body checklist items lack evidence; skipping the spec body checklist verification gate; treating checklist items as optional when they are mandatory (`- [ ]` entries)
+- ✅ REQUIRED: Parse the spec body for `- [ ]` mandatory checklist items before per-SC verification; verify each checklist item has a corresponding tool-call evidence artifact; HALT verification if any checklist item lacks evidence; proceed to per-SC verification only after all checklist items pass
+
+**Exemption:** If the spec body contains zero `- [ ]` items, this gate passes automatically and proceeds to per-SC verification.
+
+**AUTHORITY:** `verification-before-completion/tasks/verify.md` Step 0.75, Issue #240
+
+```yaml+symbolic
+  - id: critical-rules-046
+    title: "Spec body mandatory checklist items lack evidence — verification gate FAILS"
+    conditions:
+      all:
+        - "spec_body_has_checklist_items == true"
+        - "checklist_items_with_evidence < total_checklist_items"
+      any:
+        - "verification_claimed_complete == true"
+        - "completion_claimed == true"
+    actions:
+      - HALT
+      - REPORT_MISSING_EVIDENCE
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion]
+    source: "000-critical-rules.md §Spec Body Checklist Verification Gate"
+```
+
+## Critical Violation: for_pr Dispatch Chain Evidence Audit
+
+**⚠️ Generating a compare/PR URL without dispatch chain evidence artifacts when `for_pr` or `for_implementation` scope is active is a CRITICAL GUIDELINE VIOLATION.**
+
+The `for_pr` scope means "full pipeline through PR" — it does NOT skip verification steps. When `for_pr`, `for_implementation`, `for_code_review`, or `pr_only` scope is active, `review-prep` and `finishing-a-development-branch --task checklist` MUST confirm the dispatch chain was actually followed before generating any URL.
+
+- 🚫 FORBIDDEN: Generating compare/PR URL when dispatch chain evidence is missing under `for_pr`/`for_implementation` scope; treating `for_pr` as "skip to PR" instead of "full pipeline through PR"; proceeding past `review-prep` without `verification-before-completion` evidence; completing `finishing-a-development-branch` checklist without per-SC evidence table artifacts
+- ✅ REQUIRED: When `for_pr`/`for_implementation` scope is active, confirm `verification-before-completion` ran and produced all-PASS per-SC evidence table; confirm `finishing-a-development-branch` checklist items are verified via tool-call artifacts; confirm spec body checklist items have corresponding evidence; HALT and invoke missing skill(s) before generating any URL if evidence artifacts are missing
+
+**AUTHORITY:** `git-workflow/tasks/review-prep.md` Step 2.8, `finishing-a-development-branch/tasks/checklist.md` §Dispatch Chain Evidence Audit, Issue #240
+
+```yaml+symbolic
+  - id: critical-rules-047
+    title: "for_pr/for_implementation scope — generating compare/PR URL without dispatch chain evidence artifacts"
+    conditions:
+      all:
+        - "authorization_scope IN ['for_pr', 'for_implementation', 'for_code_review', 'pr_only']"
+        - "dispatch_chain_evidence_missing == true"
+        - "url_generation_attempted == true"
+    actions:
+      - HALT
+      - INVOKE_MISSING_SKILLS
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow, finishing-a-development-branch]
+    source: "000-critical-rules.md §for_pr Dispatch Chain Evidence Audit"
+```
+
+## Critical Violation: Uncommitted-Work Start-of-Session Protocol
+
+**⚠️ Committing uncommitted/untracked changes discovered at session start without stashing and following the full verification cycle is a CRITICAL GUIDELINE VIOLATION — unless the developer explicitly directs use of those changes.**
+
+When uncommitted changes or untracked items exist in the working tree at session start (or when the agent first checks git status before implementation):
+
+1. **Stash** all uncommitted changes (`git stash --include-untracked`)
+2. **Record** the stash contents (file list) in the work state file
+3. **Proceed** with implementation from clean state following the full dispatch chain
+4. **After implementation**, review the stashed changes:
+   - If stashed changes overlap with implementation scope → developer decides (stash pop or discard stash)
+   - If stashed changes are unrelated → developer decides (stash pop or keep separate)
+5. **Exception**: If the developer explicitly directs the agent to use existing changes ("use the work already in the working tree", "the changes are correct, just commit them"), the agent may proceed with those changes BUT still must follow the full verification cycle (spec checklist verification, per-SC evidence, smoke tests, etc.)
+
+- 🚫 FORBIDDEN: Committing uncommitted/untracked changes discovered at session start without stashing; treating pre-existing changes as finished work; committing directly without running the full verification cycle; assuming uncommitted changes are correct without developer confirmation; skipping the stash-and-review protocol because "the changes look correct"
+- ✅ REQUIRED: Stash all uncommitted changes before implementation; record stash contents in work state file; implement from clean state; review stashed changes after implementation; developer decides whether to pop or discard stash on overlap; if developer explicitly directs use of existing changes, follow the full verification cycle before committing
+
+**AUTHORITY:** Issue #240
+
+```yaml+symbolic
+  - id: critical-rules-048
+    title: "Committing uncommitted/untracked changes discovered at session start without stashing and verification"
+    conditions:
+      all:
+        - "uncommitted_changes_at_session_start == true"
+        - "stash_before_implementation == false"
+        - "commit_attempted == true"
+        - "developer_explicit_direction == false"
+    actions:
+      - HALT
+      - STASH_AND_REVIEW
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow, approval-gate]
+    source: "000-critical-rules.md §Uncommitted-Work Start-of-Session Protocol"
+```
+
 ```yaml+symbolic
   - id: critical-rules-040
     title: "Un-squashed single-issue PR — creating a PR with multiple commits"
@@ -2444,4 +2543,52 @@ The commit-per-issue invariant requires that single-issue branches produce exact
     requires: []
     triggers: [verification-enforcement, sre-runbook]
     source: "000-critical-rules.md §Audit Baselines in Temporary Storage"
+
+  - id: critical-rules-046
+    title: "Spec body mandatory checklist items lack evidence — verification gate FAILS"
+    conditions:
+      all:
+        - "spec_body_has_checklist_items == true"
+        - "checklist_items_with_evidence < total_checklist_items"
+      any:
+        - "verification_claimed_complete == true"
+        - "completion_claimed == true"
+    actions:
+      - HALT
+      - REPORT_MISSING_EVIDENCE
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion]
+    source: "000-critical-rules.md §Spec Body Checklist Verification Gate"
+
+  - id: critical-rules-047
+    title: "for_pr/for_implementation scope — generating compare/PR URL without dispatch chain evidence artifacts"
+    conditions:
+      all:
+        - "authorization_scope IN ['for_pr', 'for_implementation', 'for_code_review', 'pr_only']"
+        - "dispatch_chain_evidence_missing == true"
+        - "url_generation_attempted == true"
+    actions:
+      - HALT
+      - INVOKE_MISSING_SKILLS
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow, finishing-a-development-branch]
+    source: "000-critical-rules.md §for_pr Dispatch Chain Evidence Audit"
+
+  - id: critical-rules-048
+    title: "Committing uncommitted/untracked changes discovered at session start without stashing and verification"
+    conditions:
+      all:
+        - "uncommitted_changes_at_session_start == true"
+        - "stash_before_implementation == false"
+        - "commit_attempted == true"
+        - "developer_explicit_direction == false"
+    actions:
+      - HALT
+      - STASH_AND_REVIEW
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow, approval-gate]
+    source: "000-critical-rules.md §Uncommitted-Work Start-of-Session Protocol"
 ```

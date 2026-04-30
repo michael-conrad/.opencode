@@ -132,6 +132,9 @@ Implementation tracks against **plan sub-issues**, not spec sub-issues. The hier
 | "Lint passes" | Verify by running linter | `bash` to run `uvx ruff check src/ test/` → confirm no errors | VERIFICATION-GAP |
 | "Branch pushed to remote" | Verify remote branch exists | `bash` to run `git log origin/<branch>..HEAD` → confirm empty | MISSING-ELEMENT |
 | "All files in worktree" | Verify all changed files are under worktree.path (worktree mode only) | `bash` to run `git diff --name-only HEAD≈1` → check paths | STRUCTURE-VIOLATION |
+| "Submodule branches pushed" | Verify submodule feature branches are pushed to remotes | `bash` to run `cd <submodule-path> && git log origin/dev..HEAD` in each submodule | MISSING-ELEMENT |
+| "Submodule PR status checked" | Verify submodule PR state via /command submodule-workflow-state | `/command submodule-workflow-state` | VERIFICATION-GAP |
+| "Submodule issues closed in correct repo" | Verify submodule issues will be closed against submodule repo, not parent | `/command submodule-workflow-state` → check `issue_state` routing | STRUCTURE-VIOLATION |
 
 **Evidence format:**
 

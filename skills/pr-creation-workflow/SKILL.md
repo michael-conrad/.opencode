@@ -103,6 +103,35 @@ Do NOT invoke this skill for release promotion requests.
 - Push verification: no unpushed commits
 - Co-author trailers: both AI and human trailers included
 - Issue references: `Fixes #<parent>` for parent, `Fixes #<child>` for each sub-issue; for work PRs include `## Work Issues` section listing all implemented issues; PR strategy determines whether single stacked PR or individual PRs
+- Submodule PR coordination: Invoke `/command submodule-workflow-state` before PR creation to determine combination class
+
+### Submodule PR Coordination (MANDATORY when `.gitmodules` exists)
+
+**When submodules exist, the PR creation workflow MUST account for submodule PR state:**
+
+| `combination_class` | PR Action |
+|----------------------|-----------|
+| `main_and_sub` | Include submodule PR URL in PR body: "Submodule PR: `<submodule_pr_url>`". Create parent PR normally. |
+| `main_only` | Create parent PR normally. No submodule PR coordination needed. |
+| `sub_only` | Create PR in the **submodule repo** (using `submodule_workflow.submodules[].owner`/`repo`), NOT the parent repo. Parent changes are trivial. |
+
+**PR body template for `main_and_sub` combinations:**
+
+```markdown
+## Summary
+
+<summary>
+
+**Submodule PR:** <submodule_pr_url>
+
+## Outcome
+
+<outcome>
+
+Fixes #<parent_issue>
+```
+
+**CRITICAL:** For `sub_only` combinations, use the submodule's `owner`/`repo` for `github_create_pull_request`, NOT `github.owner`/`github.repo`. This routes the PR to the correct repository.
 
 ## After PR Creation
 

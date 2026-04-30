@@ -8,10 +8,11 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../behaviors/_find_project_root.sh"
 SKILLS_DIR="$(cd "$SCRIPT_DIR/../../skills/git-workflow" && pwd)"
 GUIDELINES_DIR="$(cd "$SCRIPT_DIR/../../guidelines" && pwd)"
 COMMANDS_DIR="$(cd "$SCRIPT_DIR/../../commands" 2>/dev/null && pwd || echo "NOT_FOUND")"
-AGENTS_FILE="$(cd "$SCRIPT_DIR/../../.." && pwd)/AGENTS.md"
+AGENTS_FILE="$(_find_project_root)/AGENTS.md"
 
 OVERALL_RESULT=0
 

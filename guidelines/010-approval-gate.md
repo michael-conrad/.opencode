@@ -180,6 +180,16 @@ When `authorization_scope >= for_plan`, missing intermediate artifacts are gap-f
 
 **`for_pr` gap-fill is autonomous — NO developer input for structural decisions.** The agent MUST NOT halt to ask about plan creation, issue grouping, execution order, or any structural decision that the scope model resolves. These are agent intelligence concerns, not developer decisions. See `000-critical-rules.md` → "for_pr Gap-Fill Halt" for the complete critical violation.
 
+#### `for_pr` Does NOT Skip Verification Steps
+
+**The `for_pr` scope means "full pipeline through PR" — it does NOT mean "skip to PR."** Every dispatch chain step MUST still be executed and produce evidence artifacts:
+
+- `verification-before-completion` MUST run and produce an all-PASS per-SC evidence table
+- `finishing-a-development-branch --task checklist` MUST run and verify each item via tool-call artifacts
+- `review-prep` MUST confirm dispatch chain evidence artifacts exist before generating any URL
+
+**`for_pr` gap-fills missing specs and plans — it does NOT skip verification.** See `000-critical-rules.md` §for_pr Dispatch Chain Evidence Audit for the complete critical violation.
+
 ### Multi-Task Plan Authorization (CRITICAL)
 
 **When a plan has sub-issues:** plan approval cascades authorization to ALL sub-issues under the plan.

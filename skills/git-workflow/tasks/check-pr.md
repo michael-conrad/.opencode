@@ -112,7 +112,43 @@ Report and HALT:
 No cleanup needed. All merged PR branches have been deleted.
 ```
 
-## Content Verification Before Branch Deletion
+### Step 3.5: Submodule PR Status Check (MANDATORY when submodules exist)
+
+**⚠️ When `.gitmodules` exists, the agent MUST check submodule PR status as part of the cleanup decision. Submodule PRs that are merged require submodule branch cleanup, just like parent PRs.**
+
+Invoke `/command submodule-workflow-state` to discover submodule PR state.
+
+For each submodule with `pr_state.has_pr == true` and `pr_state.pr_merged == true`:
+
+1. **Trigger submodule branch cleanup** — the submodule branch for the merged submodule PR should be deleted using the submodule's remote, not the parent remote
+2. **Route deletion to submodule repo:**
+
+   ```bash
+   cd <submodule-path>
+   git branch -d <submodule-branch>
+   git push origin --delete <submodule-branch> 2>/dev/null || echo "Remote branch already deleted"
+   cd <parent-repo-root>
+   ```
+
+For each submodule with `pr_state.has_pr == true` and `pr_state.pr_merged == false`:
+
+1. **Report as open submodule PR** — include in the PR status report
+2. **No automatic cleanup** — submodule PR not yet merged
+
+**Add to PR status report:**
+
+```
+**Submodule PRs:**
+
+| Submodule | PR # | Branch | State | Action |
+|-----------|------|--------|-------|--------|
+| .opencode | #42 | feature/xyz | Merged | Branch deleted |
+| .opencode | #55 | feature/abc | Open | No action |
+```
+
+🚫 FORBIDDEN: Ignoring submodule PRs when checking merged PRs
+✅ REQUIRED: Include submodule PR status in the PR status report
+✅ REQUIRED: Route submodule branch deletion to the submodule remote
 
 When cleanup is activated, the `cleanup` task performs content verification before deleting any branch:
 

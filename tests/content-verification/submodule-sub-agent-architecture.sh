@@ -8,7 +8,9 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILLS_DIR="$(cd "$SCRIPT_DIR/../../skills/git-workflow" && pwd)"
+source "$SCRIPT_DIR/../behaviors/_find_project_root.sh"
+PROJECT_ROOT="$(_find_project_root)"
+SKILLS_DIR="$PROJECT_ROOT/.opencode/skills/git-workflow"
 
 OVERALL_RESULT=0
 
@@ -45,7 +47,7 @@ for f in "${FILES_WITH_SUBAGENT_DISPATCH[@]}"; do
 done
 
 # SC-19: Sub-agents return result contracts with status, submodule_results, evidence_artifacts
-COMMANDS_DIR="$(cd "$SCRIPT_DIR/../../commands" && pwd)"
+COMMANDS_DIR="$PROJECT_ROOT/.opencode/commands"
 CMDS="submodule-tag-prework submodule-tag-feat submodule-verify"
 for cmd in $CMDS; do
     if [ -f "$COMMANDS_DIR/${cmd}.md" ]; then

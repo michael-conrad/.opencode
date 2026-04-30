@@ -84,6 +84,16 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 
 **Auto-fix on failure:** If any element is missing or misordered, fix the output before proceeding. Missing elements are MISSING-ELEMENT (auto-fix). Wrong ordering is STRUCTURE-VIOLATION (auto-fix).
 
+### Dispatch Chain Evidence Audit (MANDATORY — When for_pr or for_implementation Scope Active)
+
+**When `authorization_scope` is `for_pr`, `for_implementation`, `for_code_review`, or `pr_only`, the checklist MUST confirm the dispatch chain was actually followed.**
+
+- [ ] Per-SC evidence table from `verification-before-completion` exists in session (all rows PASS)
+- [ ] Spec body checklist items (`- [ ]` entries) verified with tool-call evidence
+- [ ] Tool-call artifacts for checklist verification exist in current session (not memory or prior sessions)
+
+**If any evidence artifact is missing, HALT — invoke the missing skill(s) before continuing the checklist.**
+
 ### Ready for PR?
 - [ ] All checklist items pass
 - [ ] Compare URL verified

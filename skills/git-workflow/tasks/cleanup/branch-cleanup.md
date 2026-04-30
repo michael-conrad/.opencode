@@ -213,13 +213,17 @@ For each merged branch (except main/master/dev): `git branch -d <branch>`
 ### Step 5: Verify Clean State
 
 ```bash
-git status --porcelain  # Must be empty
+git status --porcelain  # Must be empty except for expected dirty submodule pointer (see Step 5.6)
 git branch -vv          # Should show minimal branches
 ```
+
+**⚠️ After submodule-dev-restore (Step 5.5), the parent repo's submodule pointer will be dirty — `.opencode` will show as modified in `git status`. This is expected and correct. The working tree is "clean" in the sense that all tracked changes are accounted for, even though `git status --porcelain` is not empty. See Step 5.6 for the full explanation.**
 
 ### Step 5.5: Restore Submodule to Dev Branch (MANDATORY — Sub-Agent Dispatch)
 
 **⚠️ CRITICAL: Leaving submodules on detached HEAD after cleanup causes conflicts and lost work. This step MUST run after all branch deletions are complete.**
+
+**⚠️ `git submodule update` does NOT restore submodules to dev tip — it checks out the parent-recorded SHA, leaving submodules on detached HEAD. The restore MUST use `git checkout dev && git pull origin dev` inside each submodule. Using `git submodule update` for dev-restore is FORBIDDEN.**
 
 **The main agent MUST dispatch a `submodule-dev-restore` sub-agent for all submodule git operations.** The main agent MUST NOT perform git checkout/pull operations on submodules inline — this is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Inline Work.
 
@@ -316,6 +320,54 @@ After submodule-dev-restore, `git status --porcelain` will show `.opencode` as m
 - The pointer update is atomic with the feature changes, not a separate operation
 
 **⚠️ `git submodule update` does NOT restore submodules to dev tip — it checks out the parent-recorded SHA, leaving submodules on detached HEAD. The restore must use `git checkout dev && git pull origin dev` inside each submodule.**
+
+### Step 5.7: Submodule Branch Content Verification and Cleanup (MANDATORY when submodules exist)
+
+**⚠️ CRITICAL: When `.gitmodules` exists, submodule feature branches MUST be content-verified before deletion, just like parent branches per the Content Verification Gate (Step 3).**
+
+Invoke `/command submodule-workflow-state` to discover submodule branch state.
+
+For each submodule with `branch_state.has_matching_branch == true`:
+
+1. **Content verification** — compare submodule branch content against submodule dev:
+
+   ```bash
+   cd <submodule-path>
+   git diff --stat origin/dev...<branch_name>
+   cd <parent-repo-root>
+   ```
+
+2. **For each changed file in the diff:**
+   - IDENTICAL (content matches dev): safe to delete
+   - SUPERSEDED (dev version is newer/different but covers the branch change): safe to delete with note
+   - UNIQUE (file does not exist on dev): MUST NOT delete — flag for developer review
+
+3. **Decision:**
+   - If ALL files have IDENTICAL or SUPERSEDED status: delete submodule branch
+   - If ANY file has UNIQUE status: flag branch for developer review, do NOT auto-delete
+
+4. **Delete safe submodule branches:**
+
+   ```bash
+   cd <submodule-path>
+   git branch -d <branch_name>
+   git push origin --delete <branch_name> 2>/dev/null || echo "Remote branch already deleted"
+   cd <parent-repo-root>
+   ```
+
+**Evidence artifacts (MANDATORY):**
+
+```
+Check: Submodule branch content verification
+Tool: /command submodule-workflow-state + git diff --stat
+Result: [per-submodule branch comparison table]
+Classification: [IDENTICAL|SUPERSEDED|UNIQUE per file]
+Action: [delete|flag-for-review per branch]
+```
+
+🚫 FORBIDDEN: Deleting submodule branches without content verification
+🚫 FORBIDDEN: Assuming submodule branches are safe to delete based on parent branch deletion
+✅ REQUIRED: Content comparison table for each submodule branch before deletion
 
 ### Step 6: Succinct Confirmation
 

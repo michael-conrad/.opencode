@@ -10,7 +10,8 @@ set -euo pipefail
 
 TEST_NAME="for-pr-no-halt-after-analysis"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../" && pwd)"
+source "$SCRIPT_DIR/_find_project_root.sh"
+PROJECT_ROOT="$(_find_project_root)"
 
 source "$SCRIPT_DIR/../with-test-home"
 
