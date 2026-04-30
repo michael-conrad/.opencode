@@ -274,6 +274,46 @@ test -f .gitmodules
 
 **If `.gitmodules` does NOT exist:** Skip all submodule steps and proceed to Step 4.
 
+### Step 3.7: Initialize .issues/<issue_number>/ Directory (MANDATORY)
+
+After branch creation and submodule sync, initialize the `.issues/<issue_number>/` tracking directory:
+
+1. **Create directory:**
+   ```bash
+   mkdir -p .issues/<issue_number>/
+   ```
+
+2. **Fetch spec from API and mirror to `spec.md`:**
+   - Call `github_issue_read(method="get", owner=<github.owner>, repo=<github.repo>, issue_number=<issue_number>)`
+   - If success: write `.issues/<issue_number>/spec.md` with header `# Synced from GitHub Issue #<issue_number> at <ISO8601-timestamp>` followed by the issue body
+   - If API unreachable: skip `spec.md` creation (no fallback since there's nothing to fall back to at initialization)
+   - See `issue-operations/platforms/github-mcp/SKILL.md` → "spec.md Mirror" for the complete mirror procedure
+
+3. **Write initial `state.md`:**
+   ```markdown
+   # State: Issue #<issue_number>
+
+   **Branch:** <branch-name>
+   **Workflow Phase:** pre-work
+   **Created:** <ISO8601-timestamp>
+   **Last Updated:** <ISO8601-timestamp>
+   **Status:** initialized
+
+   ## Current State
+
+   Pre-work initialization complete. Awaiting implementation dispatch.
+
+   ## Blockers
+
+   None.
+   ```
+
+4. **Auto-commit `.issues/<issue_number>/`:**
+   ```bash
+   git add .issues/<issue_number>/spec.md .issues/<issue_number>/state.md
+   git commit -m "docs(issues): <issue_number> - spec: mirrored from GitHub Issue #<issue_number>, state: pre-work initialization"
+   ```
+
 ### Step 4: Verify Branch Environment
 
 **Before yielding back to orchestration layer, verify:**
