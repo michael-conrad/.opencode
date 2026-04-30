@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Check for explicit authorization and needs-approval label status before implementation. This task orchestrates the atomized sub-tasks in `verify-authorization/` for fine-grained, low-context verification.
+Check for explicit authorization and apply the correct `approved-for-*` label before implementation. This task orchestrates the atomized sub-tasks in `verify-authorization/` for fine-grained, low-context verification.
 
 ## Entry Criteria
 
@@ -12,7 +12,7 @@ Check for explicit authorization and needs-approval label status before implemen
 ## Exit Criteria
 
 - Authorization verified as explicit and for correct issue
-- needs-approval label status checked
+- `approved-for-*` label applied per mapping table; deprecated `needs-approval` label removed
 - Git state verified (worktree environment ready)
 - Authorization recorded for scope tracking
 
@@ -25,7 +25,7 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 | 0 | Inline fallback guard | If sub-agent returns empty, execute Steps 1-6 inline |
 | 0.5 | `verify-authorization/scope-auto-resolve` | Parse authorization text, resolve scope/halt_at/pr_strategy/gap_fill |
 | 1 | `verify-authorization/verify-explicit-authorization` | Check for "approved"/"go" + author identity + currency |
-| 2 | Label check (inline) | Check needs-approval label status, handle explicit auth override |
+| 2 | Label application (inline) | Apply `approved-for-*` label per mapping table; remove prior `approved-for-*` and `needs-approval` labels |
 | 3 | Authorization decision (inline) | Route based on authorization result |
 | 4.5 | `verify-authorization/item-decomposition-check` | Verify item enumeration, dependency ordering, TDD steps |
 | 4.6 | `verify-authorization/sc-traceability-check` | Verify SC-to-test traceability, RED-phase ordering |
