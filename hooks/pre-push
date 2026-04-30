@@ -54,15 +54,13 @@ case "$CURRENT_BRANCH" in
 esac
 
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+SAFE_BRANCH=$(echo "$CURRENT_BRANCH" | tr '/' '-')
 WORK_STATE_DIR="$PROJECT_ROOT/.opencode/tmp"
 
-# Work branches (work state file exists) have N commits for N work items — skip check
-if ls "$WORK_STATE_DIR"/work-*.md 1>/dev/null 2>&1; then
-    for f in "$WORK_STATE_DIR"/work-*.md; do
-        if grep -q "$CURRENT_BRANCH" "$f" 2>/dev/null; then
-            exit 0
-        fi
-    done
+# Work branches (dispatch marker + work state files exist) have N commits
+# for N work items — skip commit-per-issue check
+if [ -f "$WORK_STATE_DIR/dispatch-$SAFE_BRANCH.marker" ] && ls "$WORK_STATE_DIR"/work-*.md 1>/dev/null 2>&1; then
+    exit 0
 fi
 
 # Single-issue branch: count commits ahead of dev
