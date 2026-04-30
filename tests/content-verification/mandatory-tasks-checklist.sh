@@ -10,7 +10,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILLS_DIR="$(cd "$SCRIPT_DIR/../../skills" && pwd)"
+source "$SCRIPT_DIR/../behaviors/_find_project_root.sh"
+SKILLS_DIR="$(_find_project_root)/.opencode/skills"
 
 OVERALL_RESULT=0
 

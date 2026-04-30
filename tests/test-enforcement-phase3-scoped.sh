@@ -16,7 +16,9 @@
 
 set -euo pipefail
 
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "$(dirname "${BASH_SOURCE[0]}")/behaviors/_find_project_root.sh"
+
+PROJECT_DIR="$(_find_project_root)"
 SKILLS_DIR="$PROJECT_DIR/.opencode/skills"
 
 SCENARIO_FILTER=()

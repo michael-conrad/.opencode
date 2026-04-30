@@ -30,7 +30,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$(dirname "${BASH_SOURCE[0]}")/../../tests/behaviors/_find_project_root.sh"
+PROJECT_DIR="$(_find_project_root)"
 BASELINE_COMMIT="${1:-61ca465}"
 OUTPUT_DIR="${PROJECT_DIR}/docs/audits"
 DATA_FILE="$OUTPUT_DIR/phase0-audit-data.md"

@@ -93,6 +93,31 @@ Guideline and documentation changes are NOT exempt from PR workflow.
 | `review-prep/push-and-cleanup` | Submodule feature-branch push (sub-agent), temp cleanup, rebase, branch push, worktree handoff | ≈700 |
 | `review-prep/report-url` | URL generation, chat format, HALT protocol | ≈600 |
 
+### Step 2.8: Dispatch Chain Evidence Audit (MANDATORY — When for_pr or for_implementation Scope Active)
+
+**When `authorization_scope` is `for_pr`, `for_implementation`, `for_code_review`, or `pr_only`, review-prep MUST confirm the dispatch chain was actually followed before generating any URL.**
+
+This gate prevents the `for_pr` scope from being treated as "skip to PR" — it is "full pipeline through PR."
+
+**Required evidence artifacts (all must exist in the current session):**
+
+| Dispatch Chain Step | Required Evidence |
+| -- | -- |
+| `verification-before-completion` ran | Per-SC evidence table with all rows showing PASS (no FAIL, no MISSING EVIDENCE) |
+| `finishing-a-development-branch --task checklist` ran | Tool-call artifacts confirming each checklist item was verified |
+| Spec body checklist items verified | All `- [ ]` items in spec body have corresponding tool-call evidence |
+
+**If any evidence artifact is missing:**
+
+1. HALT — do NOT generate compare URL
+2. Invoke the missing skill(s) before proceeding
+3. Re-verify evidence artifacts exist after invocation
+4. Only then proceed to URL generation
+
+**This gate applies regardless of `authorization_scope` — all implementation scopes require dispatch chain evidence. However, it is CRITICAL for `for_pr` scope because the most common bypass pattern is treating `for_pr` as authorization to skip verification steps.**
+
+**AUTHORITY:** `000-critical-rules.md` §for_pr Dispatch Chain Evidence Audit, Issue #240
+
 ## Enforcement Checklist
 
 - ✅ Implementation work is complete
@@ -102,6 +127,8 @@ Guideline and documentation changes are NOT exempt from PR workflow.
 - ✅ Compare URL generated correctly (character-match verified)
 - ✅ Chat output format correct (summary BEFORE URL)
 - ✅ All verification comparisons use exact-match semantics
+- ✅ Dispatch chain evidence artifacts present (mandatory when for_pr/for_implementation scope)
+- ✅ Spec body checklist items verified with tool-call evidence (mandatory before per-SC verification)
 
 ## Context Required
 

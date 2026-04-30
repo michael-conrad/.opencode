@@ -14,7 +14,7 @@ source "$SCRIPT_DIR/helpers.sh"
 
 # helpers.sh computes PROJECT_DIR from the main repo. For worktree tests,
 # we need the worktree root (three levels up from behaviors/).
-WORKTREE_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+WORKTREE_ROOT="$PROJECT_DIR"
 
 SCENARIO_NAME="spec-auditor-tdd-discipline"
 SCENARIO_PROMPT="The spec-auditor must include TDD discipline checks: sc-precision.md must verify behavioral test mandates, and content-quality.md must flag TDD-DISCIPLINE-GAP."

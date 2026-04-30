@@ -58,6 +58,24 @@ Verify all success criteria have evidence before allowing completion claims.
 
 **Legacy file exemption:** Do NOT flag pre-existing files that lack headers as missing headers. The agent MUST NOT add headers to files that predate this mandate and do not already have a header block. See `080-code-standards.md` §"Legacy File Exemption".
 
+### 0.75. Spec Body Checklist Verification Gate (MANDATORY — When Spec Has Checklist Items)
+
+**When the spec body contains mandatory checklist items (`- [ ]` task entries), each one must have a corresponding tool-call evidence artifact before completion is allowed.**
+
+1. Read the spec issue body (the spec that authorized the implementation)
+2. Parse for `- [ ]` mandatory checklist items (markdown task list entries)
+3. For each checklist item:
+   - Verify a tool-call artifact exists in the current session confirming that item was addressed
+   - Report PASS if evidence exists, FAIL if evidence is missing
+4. If ANY mandatory checklist item lacks evidence:
+   - HALT verification immediately
+   - Report missing checklist items as FAIL
+   - Do NOT proceed to Step 1 (per-SC evidence collection)
+
+**This gate runs BEFORE per-SC verification because unchecked spec checklist items represent unimplemented requirements that would pass per-SC verification with a subset of criteria.**
+
+**Exemption:** If the spec body contains zero `- [ ]` items, this gate passes automatically and proceeds to Step 1.
+
 ### 1. Query Success Criteria
 
 - Read plan issue for defined success criteria

@@ -14,7 +14,7 @@ source "$SCRIPT_DIR/helpers.sh"
 
 # helpers.sh computes PROJECT_DIR from the main repo. For worktree tests,
 # we need the worktree root (three levels up from behaviors/).
-WORKTREE_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+WORKTREE_ROOT="$PROJECT_DIR"
 
 SCENARIO_NAME="spec-creation-red-gate-removal"
 SCENARIO_PROMPT="The spec-creation write task must no longer contain the Step 0.5 RED gate. Instead it must mandate behavioral test inclusion in Success Criteria."

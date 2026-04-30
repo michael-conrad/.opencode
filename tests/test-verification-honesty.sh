@@ -12,7 +12,9 @@
 
 set -euo pipefail
 
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "$(dirname "${BASH_SOURCE[0]}")/behaviors/_find_project_root.sh"
+
+PROJECT_DIR="$(_find_project_root)"
 
 SCENARIO_FILTER=()
 LIST_ONLY=false
