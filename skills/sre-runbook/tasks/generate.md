@@ -16,12 +16,15 @@ Generate an operational runbook for a given domain and scenario type. The runboo
 
 | Parameter | Required | Description |
 |-----------|----------|-------------|
+| `issue_number` | ✅ Yes | GitHub Issue number tracking this runbook generation — MANDATORY for all runbook types |
 | `domain` | ✅ Yes | System/service name (e.g., "PostgreSQL primary", "Kubernetes ingress") |
 | `runbook_type` | ✅ Yes | One of: `one-off-config`, `periodic-procedure`, `troubleshooting`, `incident-response` |
 | `severity` | ✅ Yes for troubleshooting/incident-response | One of: `P1` (outage), `P2` (degraded), `P3` (minor). Not required for one-off-config/periodic-procedure. |
 | `interface_preference` | ✅ Yes | One of: `gui`, `cli`, `mixed` — determines which instructions go in the runbook |
 | `environment_os` | ✅ Yes | OS name and version (e.g., "Proxmox 8.1", "Windows Server 2022", "Ubuntu 24.04") |
 | `available_tools` | ✅ Yes | Tools/package managers confirmed installed (e.g., "apt, systemctl, qm", or "PowerShell, DNS Manager") |
+
+If `issue_number` is missing, the agent MUST HALT with the diagnostic: "No tracking issue provided. Runbook generation requires a GitHub Issue for traceability." Before halting, invoke `brainstorming` as a mandatory pre-requisite to create a tracking issue. The agent MUST NOT generate a runbook without an issue link. This gate is convention-agnostic — it applies to ALL runbook types.
 
 If domain OR environment context is missing or insufficient, HALT and prompt the user. Do NOT guess or fabricate context.
 
@@ -101,7 +104,7 @@ For configuration changes and scheduled procedures, the operator needs "just do 
 
 Before generating any runbook content:
 
-1. Search the repository for existing runbooks: `glob(pattern="docs/runbooks/**/*.md")`
+1. Search the repository for existing runbooks using the resolved base path: `glob(pattern="<RB_PATH>/**/*.md")`
 2. If sibling repos are accessible, search those too
 3. If existing runbooks exist, examine their format:
    - Do they use YAML enforcement blocks? → match dual-output format
@@ -118,6 +121,24 @@ Before generating any runbook content:
 
 Before collecting environment context or writing any runbook content, invoke `verification-enforcement --task verify`. This gate dispatches section-based sub-agents to collect evidence artifacts for the factual claims the runbook will make — CLI commands, GUI paths, configuration values, and system behavior assertions. Evidence artifacts collected here inform every subsequent step. Claims that cannot be verified at this stage are marked with `⚠️ UNVERIFIED` for resolution in the post-generation revisit pass.
 
+### Agent-Detected Runbook Base Path (MANDATORY BEFORE STEP 0)
+
+Before collecting environment context, resolve the runbook output directory dynamically from the repository structure:
+
+```
+1. Run glob(pattern="**/runbooks/") across the entire repository
+2. If any runbooks/ directories exist:
+   a. Select the runbooks/ directory closest to the domain's context (e.g., if "DNS" runbooks exist under docs/runbooks/, use that path)
+   b. Set RB_PATH = "<discovered_path>/"
+3. If no runbooks/ directory found:
+   a. Run glob(pattern="**/runbooks/") restricted to docs/
+   b. If found, set RB_PATH = "<docs_path>/"
+4. Fallback: RB_PATH = "docs/runbooks/"
+5. All subsequent file operations (glob, write, environment search) use RB_PATH as the base directory
+```
+
+The resolved `RB_PATH` variable is used by all file operations throughout the generate task. It MUST be set before any glob, file write, or environment search runs.
+
 ### Step 0: Collect Environment Context (MANDATORY FIRST)
 
 **WHAT:** Determine the operator's interface preference, available tools, OS version, and existing documentation before writing any instructions.
@@ -128,7 +149,7 @@ Before collecting environment context or writing any runbook content, invoke `ve
 
 ```
 1. Search for IP addresses, hostlists, system reference tables in docs/ or src/docs/
-2. Search for existing runbooks in docs/runbooks/ that reference the same domain
+2. Search for existing runbooks in <RB_PATH>/ that reference the same domain
 3. If environment values (hostnames, IPs, domains, versions) exist in repo docs, USE THEM — never prompt for values already documented
 ```
 
@@ -401,7 +422,7 @@ The output contract depends on the runbook type:
 
 ### Steps-Only Output (one-off-config and periodic-procedure)
 
-File naming convention: `docs/runbooks/<domain>-<scenario>.md`
+File naming convention: `<RB_PATH>/<domain>-<scenario>_<YYYY-MM-DD>_issue-<issue_number>.md`
 
 The generated runbook is saved as a Markdown file with:
 
@@ -416,7 +437,7 @@ The generated runbook is saved as a Markdown file with:
 
 ### Dual-Output (troubleshooting and incident-response)
 
-File naming convention: `docs/runbooks/<domain>-<scenario_type>.md`
+File naming convention: `<RB_PATH>/<domain>-<scenario_type>_<YYYY-MM-DD>_issue-<issue_number>.md`
 
 The generated runbook is saved as a Markdown file with:
 
