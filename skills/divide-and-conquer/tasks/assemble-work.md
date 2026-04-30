@@ -112,7 +112,10 @@ For each issue in execution order:
          github.repo: "<from-session>"
          dev.name: "<from-session>"
          dev.email: "<from-session>"
-      ```
+       test_models:
+         local: "<resolved-local-model>"
+         cloud: "<resolved-cloud-fallback>"
+       ```
 
 3. **Spawn sub-agent** via `task(subagent_type="general", prompt=...)`
 

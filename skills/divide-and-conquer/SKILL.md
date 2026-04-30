@@ -145,7 +145,7 @@ When a sub-agent cannot fit the assigned work, it MUST return `status: OVERFLOW`
 
 ## Dispatch Context Contract
 
-When the orchestrator dispatches a sub-agent, it MUST pass: `issue`, `branch`, `spec`, `plan_issue`, `authorization`, `authorization_scope`, `halt_at`, `pr_strategy`, `depth`, `max_depth`, `prior_context`, `decision_log_reference`, `phase_progress` (prose-driven: completed phases by concern, boundaries crossed, verification evidence), `sub_task` (description, scope, boundaries), `model_context`, `env_vars` (worktree.path, branch, github.owner, github.repo), `tdd_phase`, `current_item`, `top_down_items`, `dev.name`, `dev.email`. See `context-passing` task for the full schema.
+When the orchestrator dispatches a sub-agent, it MUST pass: `issue`, `branch`, `spec`, `plan_issue`, `authorization`, `authorization_scope`, `halt_at`, `pr_strategy`, `depth`, `max_depth`, `prior_context`, `decision_log_reference`, `phase_progress` (prose-driven: completed phases by concern, boundaries crossed, verification evidence), `sub_task` (description, scope, boundaries), `model_context`, `env_vars` (worktree.path, branch, github.owner, github.repo), `tdd_phase`, `current_item`, `top_down_items`, `dev.name`, `dev.email`, `test_models` (local model name, cloud model name — resolved at authorization verification). See `context-passing` task for the full schema.
 
 **Invariants:** `worktree.path` is MANDATORY in worktree mode — no exceptions. If empty when `WORKTREE_REQUIRED` is set: FATAL ERROR → HALT. In direct-branch mode, `worktree.path` is NOT set and sub-agents operate in the main repo directory. `plan_issue` is set when dispatched from plan approval flow. `phase_progress` accumulates across the work set from prior sub-agent results.
 

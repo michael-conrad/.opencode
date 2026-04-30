@@ -94,6 +94,54 @@ You are a Requirements Explorer. Your focus is understanding what the user wants
 - **Structural decisions are agent-resolved** — single-task vs multi-task classification, phase decomposition, and scope sizing are agent intelligence concerns; resolve autonomously unless multiple valid structures exist with meaningful trade-offs
 - **Source attribution** — credit external sources in the spec
 
+### Analysis & Brainstorming Artifacts (MANDATORY)
+
+During exploration, write findings to `.issues/<issue_number>/`:
+
+**`analysis.md`** — Pre-spec investigation findings:
+```markdown
+# Analysis: Issue #<N>
+
+## Code Inspection Checklist
+- [x] Trace call paths
+- [x] Verify imports
+- [x] Detect dead code
+- [x] Verify format/protocol assumptions
+- [x] Confirm architectural layer
+- [x] Check for existing alternatives
+
+## Findings
+<per-checklist-item findings>
+```
+
+**`brainstorm.md`** — Exploration notes:
+```markdown
+# Brainstorm: Issue #<N>
+
+## Questions Asked
+<Q&A pairs from exploration>
+
+## Answers Found
+<key insights>
+
+## Dead Ends Explored
+<approaches that didn't work and why>
+```
+
+**Creation procedure:**
+1. Create directory: `mkdir -p .issues/<issue_number>/`
+2. Write `analysis.md` with code inspection checklist results
+3. Write `brainstorm.md` with exploration notes
+4. Auto-commit:
+   ```bash
+   git add .issues/<issue_number>/analysis.md .issues/<issue_number>/brainstorm.md
+   git commit -m "docs(issues): <issue_number> - analysis: code inspection, brainstorm: exploration notes"
+   ```
+
+**`issue-review --task analyze-and-spec`** also writes analysis findings to `.issues/<issue_number>/analysis.md` following the same format and auto-commit convention.
+
+Note: `analysis.md` and `brainstorm.md` are written in addition to (not replacing) the existing terminal state paths (Paths A/B/C). The terminal state still invokes `spec-creation` or `writing-plans` per existing protocol.
+
 ## Dispatch Order
 
 ```

@@ -148,6 +148,20 @@ If `worktree.path` is NOT set, operate normally from the project root.
 
 When a sub-agent is dispatched for ANY pipeline stage, clean-room dispatch isolation applies. The sub-agent receives ONLY the scoped context it needs and is EXCLUDED from receiving implementation context, other sub-agents' prior results (unless explicitly required by declared dependency), cached verification results, or agent memory from prior phases.
 
+### Cross-Model Verification Gate (MANDATORY)
+
+**When the spec's Phase 4 includes behavioral tests, cross-model validation is REQUIRED before completion.** Single-model evidence for behavioral rules is insufficient — the rules must be validated against both local and cloud models to detect brittleness.
+
+1. **Cross-model evidence check:** Before accepting behavioral test results, verify evidence artifacts exist for both `model: <local>` and `model: <cloud>`
+2. **CROSS_MODEL_GAP detection:** If only one model's evidence exists, flag as `CROSS_MODEL_GAP` — HALT completion and re-dispatch verification against the missing model
+3. **Brittleness detection:** Compare local and cloud results:
+   - Both PASS: cross-model validated (PASS)
+   - Only one PASS: **brittleness detected** — instructions are model-biased. Flag `BRITTLENESS_DETECTED` requiring remediation
+   - Both FAIL: instructions broken — HALT and require fix
+4. **Pre-PR gate:** PR creation is BLOCKED when behavioral tests lack cross-model validation evidence per `pr-creation-workflow` enforcement-gate
+
+**AUTHORITY:** `000-critical-rules.md` §Model-Aware Clean-Room Dispatch for Behavioral Testing, Spec #262
+
 **Dispatch Context Isolation Table:**
 
 | Pipeline Stage | MUST Receive | MUST NOT Receive |

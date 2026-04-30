@@ -88,6 +88,24 @@ Verify all success criteria have evidence before allowing completion claims.
 - If all verified → Allow completion claim
 - If any unverified → HALT and require evidence
 
+### 4.5. Cross-Model Validation Gate (MANDATORY)
+
+**When behavioral testing is part of the spec's verification scope, single-model evidence is insufficient.** The orchestrator MUST verify that both local and cloud model runs exist:
+
+1. Check evidence artifacts for both `model: <local>` and `model: <cloud>` entries
+2. If only single-model evidence is present: flag as `CROSS_MODEL_GAP`
+   - HALT completion claim
+   - Re-dispatch verification against the missing model
+3. Cross-model result comparison:
+   - Both pass: cross-validation confirmed (PASS)
+   - Only one passes: **brittleness detected** — instructions are model-biased. Flag as `BRITTLENESS_DETECTED` with remediation required
+   - Both fail: instructions broken — HALT and require fix
+4. If both model runs produce evidence: proceed to step 4
+
+**🚫 FORBIDDEN:** Accepting single-model results as cross-model-validated; treating `PASS` from one model as equivalent to cross-model verification.
+
+**AUTHORITY:** `000-critical-rules.md` §Model-Aware Clean-Room Dispatch, Spec #262
+
 ## Evidence Types
 
 ### Valid Evidence

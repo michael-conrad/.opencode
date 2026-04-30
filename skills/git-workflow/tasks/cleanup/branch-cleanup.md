@@ -172,6 +172,8 @@ git status --porcelain  # Must be empty
 git branch -vv          # Should show minimal branches
 ```
 
+**`.issues/<N>/` Persistence:** The `.issues/<issue_number>/` directory MUST NOT be deleted. It persists permanently in the working tree on `dev` as immutable history. After merge, the feature branch's `.issues/<N>/` content lands in `dev` via the merge. Do NOT add cleanup steps that remove or archive these directories.
+
 ### Step 6: Succinct Confirmation
 
 **The `cleanup` task is THE END of the PR workflow. It MUST produce a one-line succinct confirmation and then HALT.**

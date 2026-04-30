@@ -84,6 +84,13 @@ If the action is in this list, proceed immediately without requesting or deliber
   4. If no candidates found: present the failure state ("No existing spec/plan found for [topic]"), offer to create a new spec
   5. Only after search+presentation: HALT, but the halt message now includes the search results
 - **The orchestrator NEVER performs inline work.** ALL file reads, file edits, file writes, analysis, verification, and decision-making MUST be delegated to clean-room sub-agents. The orchestrator ONLY dispatches sub-agents, receives result contracts, and routes to the next pipeline step. Zero inline file operations are permitted in the main agent context.
+<!-- Issue #262: Model-Aware Behavioral Testing — Success Criteria: Mandate scope-limited-by-default behavioral testing -->
+- **Scope-limited behavioral testing by default.** When running behavioral enforcement tests, the agent MUST default to scope-limited execution (changed scenarios only, named scenario, or tag-filtered). Full behavioral suite runs are permitted ONLY when model speed permits or when explicitly requested by the developer. Run `ollama-probe hw` to assess hardware before deciding full-suite feasibility. Running the full suite by default when a scope-limited run suffices wastes context budget and compute resources.
+  - 🚫 FORBIDDEN: Running `bash .opencode/tests/behaviors/run-all.sh` without explicit scope filtering when `--changed`, `--scenario`, or `--tag` options are applicable
+  - 🚫 FORBIDDEN: Defaulting to full behavioral suite without verifying model speed permits it
+  - ✅ REQUIRED: Default to `--changed` when there are uncommitted guideline/skill changes
+  - ✅ REQUIRED: Default to `--tag` matching the current work concern when no changed files
+  - ✅ REQUIRED: Assess hardware (`ollama-probe hw`) before running full suite — only proceed if VRAM ≥ 8 GB and at least one local model ≥ 7B is installed
 
 ## 1.5 Soliciting Authorization for Already-Authorized Phrases — CRITICAL VIOLATION
 

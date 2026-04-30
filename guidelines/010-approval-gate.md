@@ -21,7 +21,7 @@
 | **Spec before code** | NO code/guideline changes WITHOUT approved spec |
 | **Plan before implementation** | NO implementation WITHOUT approved plan (spec approval → plan creation, plan approval → implementation) |
 | **Authorization required** | NO implementation WITHOUT explicit `"approved"` or `"go"` |
-| **Explicit auth overrides label** | When user says `approved`/`go`, proceed REGARDLESS of `needs-approval` label |
+| **Explicit auth applies label** | When user says `approved`/`go`, the agent applies the correct `approved-for-*` label from the scope-to-label mapping. No `approved-for-*` label = awaiting approval (equivalent to old `needs-approval`). |
 | **Branch first** | Create feature branch BEFORE any file modification |
 | **Human-only merge** | Agents MUST NEVER merge PRs |
 | **MCP tools** | Use appropriate tools per five-tier hierarchy (see `mcp-tool-usage` skill) |
@@ -95,23 +95,17 @@ Key insight: All authorized work proceeds through the unified dispatch chain reg
 
 ### Explicit Authorization Priority (Critical)
 
-**⚠️ When user provides explicit authorization (`approved`, `go`, `#123 approved`), proceed with implementation even if the `needs-approval` label is present.**
+**⚠️ When user provides explicit authorization (`approved`, `go`, `#123 approved`), apply the correct `approved-for-*` label per the scope-to-label mapping in `approval-gate` skill → "Approval Labels."**
 
-The `needs-approval` label is a **tracking tool**, not a permanent gate. Its purpose is:
-
-- Indicate "awaiting approval" visually
-- Remind reviewers that approval hasn't been given yet
-- Block agents from proceeding **until** explicit authorization is received
-
-**The label does NOT override explicit user authorization.**
+The absence of any `approved-for-*` label on an issue means "awaiting approval" — the equivalent of the old `needs-approval` label. The agent treats an issue with no `approved-for-*` label the same as an issue that previously had a `needs-approval` label: it must HALT and wait for authorization.
 
 | Scenario | Action |
 | -- | -- |
-| User says `approved` AND label present | ✅ **PROCEED** - explicit auth wins |
-| User says `#123 approved` AND label present | ✅ **PROCEED** - explicit auth wins |
-| User says `go` AND label present | ✅ **PROCEED** - explicit auth wins |
-| NO user authorization AND label present | ⛔ **HALT** - wait for authorization |
-| Label removed by user | ✅ **Proceed if authorized** - no issue |
+| User says `approved` (scope resolved) | ✅ **APPLY** the correct `approved-for-*` label per scope mapping. PROCEED. |
+| User says `#123 approved` (scope resolved) | ✅ **APPLY** the correct `approved-for-*` label per scope mapping. PROCEED. |
+| User says `go` (scope resolved) | ✅ **APPLY** the correct `approved-for-*` label per scope mapping. PROCEED. |
+| NO user authorization AND no `approved-for-*` label | ⛔ **HALT** - wait for authorization |
+| User authorizes at higher scope (re-authorization) | ✅ **REPLACE** old `approved-for-*` label with new one matching the higher scope |
 
 ### Authorization Scope
 
@@ -213,14 +207,14 @@ Key rules:
 
 **See `approval-gate` skill for revision status transition rules, mandatory actions, and exemption categories.**
 
-Key rule: Revision = `STATUS: X.Y (REVISED - NEEDS APPROVAL)` + `needs-approval` label + chat output + HALT.
+Key rule: Revision = `STATUS: X.Y (REVISED - NEEDS APPROVAL)` + remove `approved-for-*` label + chat output + HALT.
 
 Exempt from approval revocation:
 
 - STATUS marker updates (`☐ → ☑`, `1.1 → 1.2`)
 - Bug report additions (separate from spec content changes)
 
-**Exception: Needs-Approval State** — When an issue is already in `needs-approval` state (no approval has been granted), spec revision does NOT constitute "revoking approval" — there is nothing to revoke. The `needs-approval` label is preserved and the revision is documented in Revision Notes. This is the common case: most spec updates happen before approval.
+**Exception: Needs-Approval State** — When an issue is already in the "awaiting approval" state (no `approved-for-*` label; no approval has been granted), spec revision does NOT constitute "revoking approval" — there is nothing to revoke. The revision is documented in Revision Notes. This is the common case: most spec updates happen before approval.
 
 ### Re-implementation Workflow
 
@@ -233,17 +227,20 @@ When a spec is revised after a linked plan was already approved:
 
 ### Label Handling
 
-**The `needs-approval` label is informational when explicit authorization is present.**
+**The `approved-for-*` label is the single authority record for authorization status.**
 
-**See `approval-gate` skill for the complete label handling enforcement matrix.**
+See `approval-gate` skill → "Approval Labels" for the complete scope-to-label mapping, lifecycle rules, and label application procedure. Key rules:
 
-Key rule: Explicit authorization (`approved`/`go`) OVERRIDES the `needs-approval` label.
+- No `approved-for-*` label = awaiting approval (replaces the deprecated `needs-approval` label)
+- Authorization applies the correct `approved-for-*` label per the scope-to-label mapping
+- Re-authorization at higher scope replaces the prior label
+- Labels persist through all downstream stages — never removed until issue closure
 
 ### Bug Report Response
 
 **See `approval-gate` skill for the complete bug report response protocol.**
 
-Key rule: Bug reports requiring code changes → add `needs-approval` label → HALT → wait for explicit authorization.
+Key rule: Bug reports requiring code changes → no `approved-for-*` label → HALT → wait for explicit authorization.
 
 ### Audit Auto-Fix Exemption
 
@@ -406,7 +403,7 @@ rules:
     source: "010-approval-gate.md §Tier0"
 
   - id: approval-gate-002
-    title: "Explicit authorization overrides needs-approval label"
+    title: "Explicit authorization applies approved-for-* label"
     conditions:
       any:
         - "user_says == 'approved'"

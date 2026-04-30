@@ -95,6 +95,23 @@ TEXT
 
 **Use case:** When a developer or agent needs to add a comment to a local issue (approval, status update, feedback), use `comment` to append to the comments file.
 
+## Authorization Labels
+
+The local platform supports all eight `approved-for-*` labels in YAML frontmatter. Labels are stored as a frontmatter array field.
+
+| Label | Purpose |
+|---|---|
+| `approved-for-spec` | Authorization through spec creation |
+| `approved-for-plan` | Authorization through plan creation |
+| `approved-for-implementation` | Authorization through implementation |
+| `approved-for-code-review` | Authorization through code review |
+| `approved-for-pr` | Full pipeline through PR creation |
+| `approved-for-pr-only` | PR creation only |
+| `approved-for-review` | Code review only |
+| `approved-for-review-prep` | Default authorization |
+
+**Deprecated:** The `needs-approval` label is deprecated. No `approved-for-*` label = awaiting approval. Label replacement on re-authorization updates the frontmatter array.
+
 ## Promotion Workflow
 
 When `github.platform` is NOT `local` (i.e., a remote is available), local issues can be promoted to GitHub Issues:

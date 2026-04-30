@@ -77,6 +77,10 @@ issue-operations/                     # Dispatcher — workflow logic, platform 
 
 **COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps (labels, auditors, sub-issues, status report) are never skipped. It is idempotent and safe to invoke multiple times.
 
+## spec.md Mirror (MANDATORY)
+
+The dispatcher MUST mirror every successful `github_issue_read(method="get")` to `.issues/<issue_number>/spec.md`. See `platforms/github-mcp/SKILL.md` → "spec.md Mirror" for the complete procedure including sync, fallback, staleness detection, and no-sync-back rules.
+
 ## Hard Gates (MANDATORY — no bypass)
 
 ### Gate 1: Skill Dispatch Before Direct API Calls
@@ -290,7 +294,7 @@ The `link-sub-issue` task MUST read the parent plan's `pr_boundaries` section an
 ### NEVER DO
 
 - Create issues via direct `github_issue_write` calls (bypasses validation)
-- Skip `needs-approval` label for new specs
+- Skip the label for new specs (no `approved-for-*` label = awaiting approval — equivalent to old `needs-approval` state)
 - Create sub-issues for single-task specs
 - Skip auditor invocation for multi-task specs
 - Create issues with conflicting/overlapping objectives
@@ -298,13 +302,14 @@ The `link-sub-issue` task MUST read the parent plan's `pr_boundaries` section an
 - Post non-substantive comments to issues
 - Create an issue without checking for existing matches first
 - Create an issue via `creation` task without Step 0.5 dedup evidence
+- Reference the `needs-approval` label as an active concept (deprecated — use "no `approved-for-*` label = awaiting approval")
 
 ### ALWAYS DO
 
 - Invoke `pre-creation` task before creating issue
 - Run Step 0.5 title dedup gate before any issue creation
 - Verify Step 0.5 dedup evidence before proceeding to `creation` task
-- Apply `needs-approval` label to new specs
+- Leave issues with no `approved-for-*` label until explicitly authorized (no `approved-for-*` label = awaiting approval)
 - Add creation byline in issue body footer
 - Invoke auditors before approval
 - Check for superseding/conflicting issues
@@ -375,7 +380,7 @@ When the `git-workflow` provenance task creates an issue in a submodule reposito
 | -- | -- | -- |
 | Invocation | Via this skill | Via `git-workflow --task provenance` |
 | Target repo | Parent repo | Submodule repo |
-| Labels | `needs-approval` | None (provenance tracking is informational) |
+| Labels | No `approved-for-*` label (awaiting approval) | None (provenance tracking is informational) |
 | Title format | `[SPEC]`, `[SPEC-FIX]`, etc. | `Sync from <parent-repo>/<parent-branch>: ...` or `Release ...` |
 | Body | Spec content | Provenance metadata (parent refs, tier info) |
 | Byline | Required | Required |
@@ -432,7 +437,7 @@ For the provenance issue body format and tier-specific details, see `git-workflo
 | "Issue #N exists" | Verify via platform API | `github_issue_read(method="get", issue_number=N)` | MISSING-ELEMENT |
 | "PR #N is merged" | Verify merge status | `github_pull_request_read(method="get", pullNumber=N)` → check `merged` field | VERIFICATION-GAP |
 | "Platform supports sub-issues" | Probe capabilities | `issue-operations --task capabilities` | CONFLICTING |
-| "Issue has `needs-approval` label" | Verify label presence | `github_issue_read(method="get_labels", issue_number=N)` | VERIFICATION-GAP |
+| "Issue has no `approved-for-*` label" | Verify label absence | `github_issue_read(method="get_labels", issue_number=N)` | VERIFICATION-GAP |
 | "All sub-issues closed" | Verify each sub-issue state | `github_issue_read(method="get_sub_issues", issue_number=N)` → check each closed | VERIFICATION-GAP |
 | "No conflicting spec exists" | Search for overlapping issues | `github_search_issues(query="label:spec <keyword>")` | CONFLICTING |
 | "Session init has <github.owner>/<github.repo>" | Verify session values | Check session init output | MISSING-ELEMENT |
@@ -637,7 +642,7 @@ tasks:
   - id: creation
     skill: issue-operations
     preconditions: ["pre-creation_completed", "single_task_check_completed", "byline_present"]
-    postconditions: ["issue_created", "labels_applied", "needs_approval_label_present"]
+    postconditions: ["issue_created", "labels_applied", "no_approved-for-*_label_on_creation"]
     mandatory: true
     bypass_violation: "CRITICAL: Direct github_issue_write calls skip byline verification, label enforcement, and pre-creation validation"
     source: "issue-operations/SKILL.md §Tasks"

@@ -141,3 +141,24 @@ assert_no_skill_invoked() {
     echo "PASS: assert_no_skill_invoked — skill '$forbidden_skill' was not invoked"
     return 0
 }
+
+behavior_resolve_model() {
+    local resolve_tool="$PROJECT_DIR/.opencode/tools/ollama-model-resolve"
+    if [ -x "$resolve_tool" ]; then
+        local model_info
+        model_info=$("$resolve_tool" --target enforcement 2>/dev/null || true)
+        if [ -n "$model_info" ]; then
+            BEHAVIOR_LOCAL_MODEL=$(echo "$model_info" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('selected',{}).get('name','ollama-cloud/glm-5.1'))" 2>/dev/null || echo "ollama-cloud/glm-5.1")
+            BEHAVIOR_CLOUD_MODEL=$(echo "$model_info" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('fallback',{}).get('name','ollama-cloud/deepseek-v4-pro'))" 2>/dev/null || echo "ollama-cloud/deepseek-v4-pro")
+            export BEHAVIOR_LOCAL_MODEL BEHAVIOR_CLOUD_MODEL
+        else
+            BEHAVIOR_LOCAL_MODEL="${BEHAVIOR_LOCAL_MODEL:-ollama-cloud/glm-5.1}"
+            BEHAVIOR_CLOUD_MODEL="${BEHAVIOR_CLOUD_MODEL:-ollama-cloud/deepseek-v4-pro}"
+            export BEHAVIOR_LOCAL_MODEL BEHAVIOR_CLOUD_MODEL
+        fi
+    else
+        BEHAVIOR_LOCAL_MODEL="${BEHAVIOR_LOCAL_MODEL:-ollama-cloud/glm-5.1}"
+        BEHAVIOR_CLOUD_MODEL="${BEHAVIOR_CLOUD_MODEL:-ollama-cloud/deepseek-v4-pro}"
+        export BEHAVIOR_LOCAL_MODEL BEHAVIOR_CLOUD_MODEL
+    fi
+}

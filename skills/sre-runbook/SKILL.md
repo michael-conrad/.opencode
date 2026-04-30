@@ -162,6 +162,69 @@ Not all runbooks need the same format. The skill classifies runbooks into four t
 2. **Default to one-off-config.** If the type cannot be determined, default to `one-off-config` (steps-only) — it is the least operator-hostile format.
 3. **Format-matching rule.** Before generating a runbook, search the repository (and sibling repos if accessible) for existing runbooks. If an established format exists, match it. Do not invent a new format when a proven one is available. If existing runbooks use steps-only format, use steps-only format — do not add YAML enforcement blocks.
 
+### Type-Based Naming Convention
+
+The runbook type determines the file naming convention. See `generate.md` → Type-Based Naming Convention for the complete per-type table. Key distinction:
+
+| Type | Stamp Component | Pattern |
+|------|----------------|---------|
+| `one-off-config` | Date stamp | `<domain>-<scenario>_<YYYY-MM-DD>_issue-<N>.md` |
+| `periodic-procedure` | Cadence stamp | `<domain>-<scenario>_<cadence>_issue-<N>.md` |
+| `troubleshooting` | Date stamp | `<domain>-<scenario-type>_<YYYY-MM-DD>_issue-<N>.md` |
+| `incident-response` | Date stamp | `<domain>-<scenario-type>_<YYYY-MM-DD>_issue-<N>.md` |
+
+## Cadence Registry
+
+Periodic-procedure runbooks use a cadence stamp in the filename instead of a date stamp. The following six cadence values form the canonical registry:
+
+| Cadence Value | Meaning | Example Use Case |
+|--------------|---------|-----------------|
+| `_daily` | Executed every 24 hours | Database log rotation, temp-file cleanup |
+| `_weekly` | Executed every 7 days | Backup verification, SSL cert expiry check |
+| `_monthly` | Executed once per calendar month | Full backup, usage report generation |
+| `_quarterly` | Executed every 3 months | Access audit, DNS record audit |
+| `_annual` | Executed once per year | Certificate renewal, DR test |
+| `_on-demand` | No fixed schedule — executed when triggered | One-time migration, emergency rotation |
+
+### Derivation Rule
+
+If the user specifies a cadence in natural language ("every Tuesday", "twice a month", "first of every quarter"), the agent MUST map it to the closest registered cadence value:
+
+| Natural Language | Maps To |
+|-----------------|---------|
+| "daily", "every day", "nightly", "every 24 hours" | `_daily` |
+| "weekly", "every week", "every 7 days", "every Monday" | `_weekly` |
+| "monthly", "every month", "first of the month" | `_monthly` |
+| "quarterly", "every quarter", "every 3 months" | `_quarterly` |
+| "annual", "yearly", "once a year", "every 12 months" | `_annual` |
+| "ad-hoc", "when needed", "manual", "no fixed schedule" | `_on-demand` |
+
+### Autonomous Cadence Discovery Flow (MANDATORY)
+
+When `runbook_type` is `periodic-procedure` but `cadence` is not provided:
+
+```
+1. Check the user request for natural-language cadence indicators and apply the derivation rule
+2. If a cadence can be derived → use it, proceed
+3. If cadence is genuinely unknown:
+   a. File an upstream issue in michael-conrad/.opencode with:
+      - Title: "[CADENCE-DISCOVERY] Cadence missing for <domain>-<scenario> periodic-procedure"
+      - Body: "The cadence for runbook <domain>-<scenario> (issue #<N>) could not be derived. Please specify one of: _daily, _weekly, _monthly, _quarterly, _annual, _on-demand."
+      - Labels: needs-info, sre-runbook
+   b. Continue with `_on-demand` as the default cadence
+   c. Log the cadence-discovery issue URL and default assignment in the runbook metadata
+```
+
+**Rationale:** The autonomous discovery flow prevents blocking the runbook generation pipeline while ensuring the missing cadence is captured as a trackable issue. The upstream issue in `.opencode` serves as the permanent record of the unresolved cadence. Using `_on-demand` as the default is the safest choice — it does not assume a schedule that does not exist.
+
+### Cadence Validation Gate
+
+Before generating a periodic-procedure runbook:
+
+1. Verify the cadence value matches exactly one of the six registered values
+2. If the value is not in the registry → HALT and inform: "Cadence '<value>' is not registered. Use one of: _daily, _weekly, _monthly, _quarterly, _annual, _on-demand."
+3. Do NOT accept unregistered cadence values — the registry is the single source of truth
+
 ### Steps-Only Format (one-off-config and periodic-procedure)
 
 For `one-off-config` and `periodic-procedure` runbooks, the output contract is:

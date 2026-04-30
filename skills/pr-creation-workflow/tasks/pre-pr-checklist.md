@@ -122,6 +122,19 @@ Before creating a PR, verify that ALL post-implementation dispatch chain steps w
 
 Skipping this verification is a CRITICAL GUIDELINE VIOLATION per `approval-gate/SKILL.md` §Enforcement checkpoint rules.
 
+**8. Cross-Model Validation Gate (MANDATORY — When Behavioral Tests Exist)**
+
+When the spec includes behavioral enforcement tests (Phase 4), PR creation is BLOCKED unless cross-model validation evidence exists:
+
+1. Verify evidence artifacts for both local and cloud model runs exist
+2. If only single-model evidence is present: HALT PR creation — `CROSS_MODEL_GAP` detected
+3. If both models ran but only one passed: HALT PR creation — `BRITTLENESS_DETECTED`
+4. If both models passed: PR can proceed
+
+**🚫 FORBIDDEN:** Creating a PR with behavioral tests validated against only one model. Cross-model validation is the enforcement gate for rule robustness.
+
+**AUTHORITY:** `000-critical-rules.md` §Model-Aware Clean-Room Dispatch, `verification-before-completion/SKILL.md` §Cross-Model Verification Gate, Spec #262
+
 ## CRITICAL Violations
 
 | Violation | Consequence |
