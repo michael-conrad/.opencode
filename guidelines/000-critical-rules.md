@@ -32,12 +32,12 @@ These mandates ensure disciplined workflow (spec-first, plan-before-implementati
 
 | Mandate | What Waiver Means |
 | -- | -- |
-| Spec before code | Developer authorization means "you may begin the process" — for complex work, still create a spec/plan; for clearly simple work (docs, runbooks, minor config), the developer's explicit authorization IS the process |
+| Spec before code | Developer authorization means "you may begin the process" — for complex work, still create a spec/plan |
 | Plan before implementation | Same as above — authorization authorizes the work, not necessarily every intermediate artifact |
 | `needs-approval` label present | Explicit auth overrides this label per `010-approval-gate.md` |
 | Sub-issue structure for multi-task plans | When developer authorizes a multi-task plan, sub-issue creation is auto-setup, not a separate gate |
 
-**For Tier 2 mandates, developer authorization does NOT mean "skip the process entirely"** — it means "you may begin." For complex work (new features, behavioral changes), the spec/plan workflow still produces value even when authorization exists. For clearly simple work (documentation, runbooks, minor configuration edits), the developer's explicit authorization IS sufficient process — no separate spec/plan is required.
+**For Tier 2 mandates, developer authorization does NOT mean "skip the process entirely"** — it means "you may begin." For complex work (new features, behavioral changes), the spec/plan workflow still produces value even when authorization exists.
 
 ### Interaction Rule
 
@@ -1207,46 +1207,6 @@ Every authorization follows the same pipeline regardless of issue count: `verify
 - ✅ REQUIRED: Follow the complete dispatch chain for every authorization
 
 **See `approval-gate` skill → "Unified Dispatch Path (Work-of-1)" and `divide-and-conquer` skill → `assemble-work` task for the complete dispatch procedure.**
-
-## Simple Work Dispatch Path (Tier 2 Waiver)
-
-When ALL of the following conditions are met:
-- Developer has given explicit authorization (approved/go)
-- Work is "clearly simple" (see classification table below)
-- No spec or plan is required (Tier 2 waiver applies)
-- File modifications ARE needed (Tier 1 worktree mandate applies)
-
-The agent follows this REDUCED dispatch path:
-
-1. `git-workflow --task pre-work` — Create worktree (Tier 1, MANDATORY)
-2. Direct implementation in worktree — No sub-agent dispatch needed for single-file changes
-3. `verification-before-completion` — Verify success criteria exist and pass
-4. `finishing-a-development-branch --task checklist` — Branch readiness check
-5. `git-workflow --task review-prep` — Push, generate compare URL, HALT
-
-Steps SKIPPED for simple work:
-- `verify-authorization` (Tier 2 waiver replaces this — authorization IS the process)
-- `pre-implementation-analysis` (no plan to analyze)
-- `divide-and-conquer/assemble-work` (single implementer, single concern)
-- `verification-before-completion` can be simplified for documentation-only changes
-
-### Classification: "Clearly Simple Work"
-
-Work qualifies as "clearly simple" when ALL criteria are met:
-
-| Criterion | Qualifies | Does Not Qualify |
-|-----------|-----------|------------------|
-| Scope localization | Changes limited to a single concern | Changes span multiple concerns |
-| Behavioral change | None (docs, config, runbooks) | Any behavioral change |
-| Architectural impact | None | Any impact on architecture |
-| Existing code interaction | None (new files, minor edits) | Modified function signatures, APIs |
-| Risk level | Zero rollback risk | Data loss, security, deployment risk |
-
-When work does NOT qualify as "clearly simple", the full dispatch path applies regardless of developer authorization.
-
-### Key Principle
-
-"Simple" describes the PROCESS burden (no spec/plan needed), NOT the SAFETY mechanism. Worktrees protect repository integrity regardless of task complexity. The reduced dispatch path still enforces all Tier 1 mandates — it only skips Tier 2 process steps that are waived by developer authorization.
 
 **⚠️ Leaving stale or uncleared todowrite state after task completion is a CRITICAL GUIDELINE VIOLATION.**
 

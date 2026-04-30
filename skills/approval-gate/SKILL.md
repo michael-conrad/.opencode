@@ -109,7 +109,7 @@ IF code changes are needed AND no spec/plan exists:
 ENDIF
 ```
 
-Violation: Writing code without a spec bypasses the review trail and edge case discovery. For clearly simple work (docs, minor config), developer authorization IS the process — but the gate still requires checking.
+Violation: Writing code without a spec bypasses the review trail and edge case discovery.
 
 ## Operating Protocol
 
@@ -167,16 +167,6 @@ Plan approved
    → verification-before-completion (VERIFY: SC results exist) [DISPATCH_GATE]
    → finishing-a-development-branch --task checklist (VERIFY: all items checked) [DISPATCH_GATE]
    → git-workflow --task review-prep (VERIFY: compare URL generated) [DISPATCH_GATE]
-
-Clearly simple work (Tier 2 waiver)
-  → git-workflow --task pre-work (MANDATORY: worktree creation) [DISPATCH_GATE]
-  → Direct implementation in worktree (no sub-agent dispatch for single-file changes)
-  → verification-before-completion (simplified for docs/config) [DISPATCH_GATE]
-  → finishing-a-development-branch --task checklist [DISPATCH_GATE]
-  → git-workflow --task review-prep [DISPATCH_GATE]
-  → HALT (compare URL output)
-
-  **Classification check:** Before using this dispatch path, verify work meets ALL "clearly simple" criteria per `000-critical-rules.md` → "Simple Work Dispatch Path (Tier 2 Waiver)" → "Classification: Clearly Simple Work" table. If ANY criterion fails, use the full dispatch chain instead.
 
 Already implemented
   → verify-authorization (all gates pass) [DISPATCH_GATE]

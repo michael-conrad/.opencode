@@ -39,6 +39,18 @@ Orchestrate work execution by dispatching sub-agents for each approved issue, us
 
 **Work-of-1.** There is no separate code path. The `assemble-work` task handles single-issue dispatch as the default. This eliminates forked execution paths.
 
+### Step 1.5: Create Dispatch Entry Marker (MANDATORY)
+
+Before any worktree creation or sub-agent dispatch, create the dispatch entry marker so the pre-commit hook Gate 2 can verify authorized dispatch:
+
+```bash
+CURRENT_BRANCH=$(git branch --show-current)
+SAFE_BRANCH=$(echo "$CURRENT_BRANCH" | tr '/' '-')
+touch .opencode/tmp/dispatch-"$SAFE_BRANCH".marker
+```
+
+This marker serves as dispatch entry proof. The pre-commit hook (`.opencode/hooks/pre-commit` lines 33-129) checks for this marker before allowing commits.
+
 ### Step 2: Create Feature Branches and Worktrees
 
 For each issue in the work set:
