@@ -39,8 +39,6 @@ for developer diagnostics but are NOT referenced by guidelines as variables.
 Diagnostic and side-effect output goes to stderr — silent on success.
 
 Guard checks (auto-create missing files/branches/worktree):
-- CHANGELOG.md: Create with Keep a Changelog header if missing
-- .opencode/CHANGELOG.md: Create with minimal header if missing
 - dev branch: Create from origin/dev or main/master if missing
 - .worktrees/main/: Bootstrap worktree layout if not set up
 - .env gitignore: Warn if .env exists but is not in .gitignore
@@ -443,58 +441,6 @@ def _extract_version_from_pyproject() -> str:
     return "0.1.0"
 
 
-def _ensure_changelog_md() -> str:
-    """Create CHANGELOG.md if missing. Returns 'exists', 'created', or 'failed'."""
-    changelog_path = os.path.join(os.getcwd(), "CHANGELOG.md")
-    if os.path.isfile(changelog_path):
-        return "exists"
-
-    version = _extract_version_from_pyproject()
-    content = (
-        "# Changelog\n"
-        "\n"
-        "All notable changes to this project will be documented in this file.\n"
-        "\n"
-        "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).\n"
-        "\n"
-        f"## [{version}] - Unreleased\n"
-    )
-    try:
-        with open(changelog_path, "w") as f:
-            f.write(content)
-        return "created"
-    except OSError as e:
-        print(f"Failed to create CHANGELOG.md: {e}", file=sys.stderr)
-        return "failed"
-
-
-def _ensure_opencode_changelog_md() -> str:
-    """Create .opencode/CHANGELOG.md if missing. Returns 'exists', 'created', or 'failed'."""
-    opencode_dir = os.path.join(os.getcwd(), ".opencode")
-    changelog_path = os.path.join(opencode_dir, "CHANGELOG.md")
-    if os.path.isfile(changelog_path):
-        return "exists"
-    version = _extract_version_from_pyproject()
-    content = (
-        "# OpenCode Changelog\n"
-        "\n"
-        "All notable changes to the `.opencode/` directory (skills, guidelines, agent configuration) "
-        "will be documented in this file.\n"
-        "\n"
-        "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).\n"
-        "\n"
-        f"## [{version}] - Unreleased\n"
-    )
-    try:
-        os.makedirs(opencode_dir, exist_ok=True)
-        with open(changelog_path, "w") as f:
-            f.write(content)
-        return "created"
-    except OSError as e:
-        print(f"Failed to create .opencode/CHANGELOG.md: {e}", file=sys.stderr)
-        return "failed"
-
-
 def _ensure_dev_branch() -> str:
     """Ensure dev branch exists. Returns 'exists', 'created from main', 'created from master', or 'failed'."""
     if run_git_command(["rev-parse", "--verify", "dev"]):
@@ -710,12 +656,6 @@ def _check_credential_files_gitignored() -> list[str]:
 def run_guard_checks() -> list[str]:
     """Run guard checks silently. Returns list of problem descriptions."""
     problems: list[str] = []
-    changelog_status = _ensure_changelog_md()
-    if changelog_status == "failed":
-        problems.append("CHANGELOG.md: failed to create")
-    opencode_changelog_status = _ensure_opencode_changelog_md()
-    if opencode_changelog_status == "failed":
-        problems.append(".opencode/CHANGELOG.md: failed to create")
     dev_branch_status = _ensure_dev_branch()
     if "failed" in dev_branch_status:
         problems.append(f"dev branch: {dev_branch_status}")

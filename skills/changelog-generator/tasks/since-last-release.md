@@ -14,6 +14,22 @@ Generate changelog entries for all commits since the last changelog update.
 
 ## Procedure
 
+### Step 0: Create CHANGELOG.md if Missing
+
+If `CHANGELOG.md` does not exist, create it with a minimal Keep a Changelog header:
+
+```markdown
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [Unreleased]
+```
+
+Do not stage or commit the file at this step — the subsequent steps will populate it.
+
 ### Step 1: Find Last Changelog Update
 
 ```bash
