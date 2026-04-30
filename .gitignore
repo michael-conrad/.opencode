@@ -4,6 +4,7 @@ package-lock.json
 bun.lock
 tmp/
 .node/
+.opencode/
 .worktrees/
 __pycache__/
 *.pyc
