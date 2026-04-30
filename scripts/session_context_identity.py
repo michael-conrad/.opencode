@@ -52,8 +52,13 @@ def get_remote_url() -> str | None:
     return run_git(["remote", "get-url", "origin"])
 
 
-def get_root_dir() -> str | None:
-    return run_git(["rev-parse", "--show-toplevel"])
+def get_project_root() -> str:
+    _path = Path(__file__).resolve().parent
+    while _path.name != ".opencode":
+        _path = _path.parent
+    return str(_path.parent)
+
+get_root_dir = get_project_root
 
 
 def detect_platform(remote_url: str) -> str:
@@ -458,9 +463,6 @@ def main() -> int:
             )
 
     root_dir = get_root_dir()
-    if not root_dir:
-        print("Not in a git repository.", file=sys.stderr)
-        return 1
 
     credential_status = "unavailable"
     if platform not in ("local",) and remote_url and remote_url != "(none)":

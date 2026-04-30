@@ -7,7 +7,11 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILLS_DIR="$SCRIPT_DIR/../../skills"
+OPENDIR="$SCRIPT_DIR"
+while [ "$(basename "$OPENDIR")" != ".opencode" ]; do
+    OPENDIR="$(dirname "$OPENDIR")"
+done
+SKILLS_DIR="$OPENDIR/skills"
 OVERALL_RESULT=0
 
 echo "=== Behavioral Test: skill-dispatch-audit ==="

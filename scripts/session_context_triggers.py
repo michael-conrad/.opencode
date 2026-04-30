@@ -23,6 +23,7 @@ import re
 import subprocess
 import sys
 from datetime import datetime
+from pathlib import Path
 
 GIT_TIMEOUT = 10
 
@@ -54,8 +55,11 @@ def get_current_branch() -> str | None:
     return run_git(["branch", "--show-current"])
 
 
-def get_root_dir() -> str | None:
-    return run_git(["rev-parse", "--show-toplevel"])
+def get_root_dir() -> str:
+    _path = Path(__file__).resolve().parent
+    while _path.name != ".opencode":
+        _path = _path.parent
+    return str(_path.parent)
 
 
 def is_on_main_branch() -> bool:
@@ -533,9 +537,6 @@ def build_local_only_repo_directive() -> str:
 
 def main() -> int:
     root_dir = get_root_dir()
-    if not root_dir:
-        print("Not in a git repository.", file=sys.stderr)
-        return 1
 
     sections: list[str] = []
 

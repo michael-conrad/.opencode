@@ -13,8 +13,11 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-OPENCODE_DIR = Path(__file__).resolve().parent.parent.parent
-PROJECT_ROOT = OPENCODE_DIR.parent
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    _path = _path.parent
+OPENCODE_DIR = _path
+PROJECT_ROOT = _path.parent
 
 ISSUES = [41, 42, 43, 45]
 

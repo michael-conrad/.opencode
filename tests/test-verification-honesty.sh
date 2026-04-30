@@ -12,7 +12,11 @@
 
 set -euo pipefail
 
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
+    PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+done
+PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 
 SCENARIO_FILTER=()
 LIST_ONLY=false

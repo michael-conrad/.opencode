@@ -118,14 +118,10 @@ password = ""
 
 def _load_from_env_file(env_path: Path | None = None) -> dict[str, str]:
     if env_path is None:
-        current = Path.cwd()
-        while current != current.parent:
-            if (current / ".git").exists():
-                env_path = current / ".env"
-                break
-            current = current.parent
-        else:
-            env_path = Path.cwd() / ".env"
+        _path = Path(__file__).resolve().parent
+        while _path.name != ".opencode":
+            _path = _path.parent
+        env_path = _path.parent / ".env"
     if not env_path.exists():
         return {}
     credentials = {}

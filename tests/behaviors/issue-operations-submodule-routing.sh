@@ -14,7 +14,11 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR" && pwd)"
+while [ "$(basename "$PROJECT_ROOT")" != ".opencode" ]; do
+    PROJECT_ROOT="$(dirname "$PROJECT_ROOT")"
+done
+PROJECT_ROOT="$(dirname "$PROJECT_ROOT")"
 
 SCENARIO_NAME="issue-operations-submodule-routing"
 

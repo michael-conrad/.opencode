@@ -19,7 +19,11 @@ set -euo pipefail
 # Script is at .opencode/tests/behaviors/multimodal-dispatch-cache.sh
 # Project root is 3 levels up: behaviors/ → tests/ → .opencode/ → root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR" && pwd)"
+while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
+    PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+done
+PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 
 OVERALL_RESULT=0
 
