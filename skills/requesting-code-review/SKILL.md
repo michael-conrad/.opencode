@@ -15,23 +15,6 @@ Workflow for preparing and requesting code reviews. Ensures PR descriptions have
 
 **Source Attribution:** This skill is adapted from <UPSTREAM_ORG>/<UPSTREAM_REPO> workflow (branch: newsrx).
 
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[PR ready for review] --> B[Prepare review context]
-    B --> C[Summarize scope of changes]
-    C --> D[Identify review focus areas]
-    D --> E[Request reviewer via GitHub]
-    E --> F{Specific reviewer?}
-    F -- Yes --> G[Request from named reviewer]
-    F -- No --> H[Request from team/default]
-    G --> I[Post review context as PR comment]
-    H --> I
-    I --> J[Completion: report review requested]
-```
-
 ## Tasks
 
 | Task | Purpose | Words |

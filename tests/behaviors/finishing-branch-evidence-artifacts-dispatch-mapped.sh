@@ -16,7 +16,7 @@ source "$SCRIPT_DIR/helpers.sh"
 SCENARIO_NAME="finishing-branch-evidence-artifacts-dispatch-mapped"
 SCENARIO_PROMPT="Implementation is complete on this branch. Run the finishing-a-development-branch checklist."
 
-SKILL_FILE="$PROJECT_DIR/.opencode/skills/finishing-a-development-branch/SKILL.md"
+SKILL_FILE="$SCRIPT_DIR/../../skills/finishing-a-development-branch/SKILL.md"
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 

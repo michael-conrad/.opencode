@@ -61,22 +61,9 @@ import re
 import shutil
 import subprocess
 import sys
-from pathlib import Path
 
 GIT_TIMEOUT = 10
 NETWORK_TIMEOUT = 5
-
-
-def _find_project_root() -> Path:
-    current = Path(__file__).resolve().parent
-    while current != current.parent:
-        if current.name == ".opencode":
-            return current.parent
-        current = current.parent
-    raise RuntimeError("Could not find project root (no .opencode/ directory found)")
-
-
-PROJECT_ROOT = _find_project_root()
 
 
 def run_git_command(args: list[str]) -> str | None:
@@ -200,7 +187,14 @@ def parse_gitbucket_url(
 def _read_gitbucket_url_from_env() -> str | None:
     """Read GITBUCKET_HTML_URL (preferred) or GITBUCKET_URL (legacy) from .env file."""
     try:
-        env_path = str(PROJECT_ROOT / ".env")
+        _base_dir = os.path.dirname(os.path.abspath(__file__))
+        _cdup = subprocess.check_output(
+            ["git", "-C", _base_dir, "rev-parse", "--show-cdup"],
+            text=True,
+            stdin=subprocess.DEVNULL,
+            timeout=NETWORK_TIMEOUT,
+        ).strip()
+        env_path = os.path.normpath(os.path.join(_base_dir, _cdup, ".env"))
         if os.path.exists(env_path):
             html_url = None
             legacy_url = None
@@ -886,7 +880,14 @@ def main() -> int:
             print(f"gitbucket.ssh_url: {ssh_url}")
         has_credentials = False
         try:
-            env_path = str(PROJECT_ROOT / ".env")
+            _base_dir = os.path.dirname(os.path.abspath(__file__))
+            _cdup = subprocess.check_output(
+                ["git", "-C", _base_dir, "rev-parse", "--show-cdup"],
+                text=True,
+                stdin=subprocess.DEVNULL,
+                timeout=NETWORK_TIMEOUT,
+            ).strip()
+            env_path = os.path.normpath(os.path.join(_base_dir, _cdup, ".env"))
             if os.path.exists(env_path):
                 with open(env_path) as f:
                     content = f.read()

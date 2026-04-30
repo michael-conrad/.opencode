@@ -1,72 +1,38 @@
 # Task: completion
 
-Idempotent completion subtask for sync-guidelines. Ensures mandatory steps ran regardless of where the workflow halted. This task is the completion guarantee: NO sync-guidelines workflow ends without a status message.
-
-## Purpose
-
-When a sync-guidelines operation halts — whether the sync was successful, partially completed with some files not classified, or failed — the completion task ensures that all mandatory reporting and state maintenance steps have been performed.
+Idempotent completion subtask for sync-guidelines. Ensures mandatory steps ran regardless of where the workflow halted.
 
 ## State Check Phase
 
-### Step 1: Classification Completion
-
-Verify that all files were read and classified:
-- Check evidence that each file was read (not just listed)
-- Check that classification decisions have documented reasoning
-- If missing: invoke `classify` task as remediation for unclassified files
-
-### Step 2: Sync Issue Creation Verification
-
-Verify that sync issues were created for core changes:
-- Check evidence that sync issues exist in the target repository for core files
-- Verify issue URLs are present and valid
-- If missing: invoke `sync-push` or `sync-pull` task as remediation
-
-### Step 3: Sync State File Verification
-
-Verify that `.opencode/sync-state.yml` has been updated:
-- Check that the file exists with updated timestamp and file list
-- Verify the last sync date is current
-- If stale: update sync state with current operation details
-
-### Step 4: No Direct Modification Guard
-
-Verify that no files were directly edited in the target repository:
-- Sync-guidelines creates issues for review, NOT direct file modifications
-- If direct edits were found: create sync issue to propose those changes formally
-- This guard prevents unauthorized modifications to target repos
+1. **Classification completion:** All files classified as core or project-specific
+2. **Sync issue creation:** Sync issues created for core changes (not direct file edits)
+3. **Sync state file:** `.opencode/sync-state.yml` updated after sync operation
+4. **No direct modifications:** No target repository files modified directly
 
 ## Skill-Specific Completion
 
-### Classification Verification (Remediation)
+1. **Classification verification** (if not already performed):
+   - Check evidence that all relevant files were read and classified
+   - If missing: invoke `classify` task as remediation
 
-If classification was not fully completed:
-1. Identify unclassified files from the file list
-2. Read each unclassified file using the `read` tool
-3. Apply the `classify` task criteria to determine core vs project-specific
-4. Document classification reasoning for each file
+2. **Sync issue creation verification** (if not already performed):
+   - Check evidence that sync issues exist in target repository for core changes
+   - If missing: invoke `sync-push` or `sync-pull` task as remediation
 
-### Sync Issue Verification (Remediation)
+3. **Sync state file verification** (if not already performed):
+   - Check `.opencode/sync-state.yml` has updated timestamp and file list
+   - If stale: update sync state with current operation details
 
-If sync issues were not created:
-1. Identify core files that should have sync issues
-2. Invoke `sync-push` or `sync-pull` task for each untracked core file
-3. Verify issue creation by extracting `html_url` from API response
-
-### Sync State File Update (Remediation)
-
-If sync state is stale:
-1. Read current `.opencode/sync-state.yml`
-2. Update timestamp to current date/time
-3. Add current operation details to file list
-4. Write updated state back
+4. **No direct modification guard** (if not already performed):
+   - Verify no files were directly edited in target repository
+   - If direct edits found: create sync issue to propose those changes formally
 
 ## Shared Completion Delegation
 
 Reference `.opencode/skills/completion-core/completion-core.md` for reporting:
 
 1. Report executive summary in chat (always runs)
-2. Sync issue URL(s) as the URL (ALWAYS last)
+2. Action URL (issue URL) as the URL (ALWAYS last)
 
 ## Completion Guarantee
 
@@ -75,7 +41,7 @@ Reference `.opencode/skills/completion-core/completion-core.md` for reporting:
 2. What was attempted but not completed
 3. Why the halt occurred
 
-This guarantee is absolute — no sync-guidelines workflow ends silently.
+This is the completion guarantee: NO sync-guidelines workflow ends without a status message.
 
 ## Report Phase
 
@@ -102,4 +68,3 @@ Generate executive summary in chat:
 - [ ] URL present IF relevant (after outcome, before byline)
 - [ ] AI byline present as **LAST** element
 - [ ] No stale todowrite items remain (all cleared or N/A)
-- [ ] All classified files have documented reasoning

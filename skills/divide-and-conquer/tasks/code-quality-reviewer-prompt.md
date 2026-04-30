@@ -8,18 +8,7 @@ Use this template when dispatching a code quality reviewer subagent.
 
 **Source attribution:** This prompt pattern is adapted from [obra/superpowers `subagent-driven-development`](https://github.com/obra/superpowers/tree/main/skills/subagent-driven-development).
 
-## When to Dispatch
-
-Dispatch the code quality reviewer AFTER the spec compliance reviewer has returned a passing result. The quality reviewer examines code structure, not spec compliance — that was already verified.
-
-**Prerequisites:**
-- Spec compliance review returned ✅ PASS
-- All code changes exist on the feature branch
-- Tests pass (verified by implementer)
-
 **Dispatch AFTER spec compliance review passes. Never dispatch code quality review before spec compliance is ✅.**
-
-## Dispatch Template
 
 ```
 Task tool (general-purpose):
@@ -105,23 +94,3 @@ Task tool (general-purpose):
     If all issues are Minor only, you MAY approve with suggestions noted.
     If ANY Critical or Important issues exist, you MUST mark NEEDS_CHANGES.
 ```
-
-## Review Severity Levels
-
-The reviewer classifies findings into three severity levels:
-
-| Level | Criteria | Action |
-|-------|---------|--------|
-| **Critical** | Security, data loss, race conditions, breaking API changes | Must fix before proceeding |
-| **Important** | Poor names, long functions, missing tests, dead code | Should fix, may proceed with justification |
-| **Minor** | Style, naming, documentation | Nice to have |
-
-## Assessment Outcomes
-
-- **APPROVED:** No Critical or Important issues. Implementation is ready.
-- **NEEDS_CHANGES:** At least one Critical or Important issue. Implementer must fix before proceeding.
-
-## Context Required
-
-- Related skills: `divide-and-conquer` (parent skill)
-- Related tasks: `implementer-prompt`, `spec-reviewer-prompt`

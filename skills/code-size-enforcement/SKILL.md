@@ -13,33 +13,6 @@ compatibility: opencode
 
 Ensures code artifacts stay within size limits for maintainability and readability. Covers Python functions (≈100 words), notebook cells (≈120 words), and source files (≈750 words). Grandfather policy exempts existing files; only new and modified files must comply.
 
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[Code written/modified] --> B[check-limits: measure sizes]
-    B --> C{Within limits?}
-    C -- Yes --> D[Proceed with commit]
-    C -- No --> E{Grandfathered?}
-    E -- Yes --> F[Only check new/modified code]
-    E -- No --> G[decompose oversized artifact]
-    F --> C
-    G --> H{Function > 100w?}
-    H -- Yes --> I[Extract helper functions]
-    H -- No --> J{Cell > 120w?}
-    J -- Yes --> K[Split notebook cells]
-    J -- No --> L{File > 750w?}
-    L -- Yes --> M[Split into package]
-    L -- No --> N[Nesting > 3?]
-    N -- Yes --> O[Flatten nesting]
-    N -- No --> P[Unknown violation]
-    I --> Q[Re-check limits]
-    K --> Q
-    M --> Q
-    O --> Q
-    Q --> C
-```
-
 ## Tasks
 
 | Task | Purpose | Words |

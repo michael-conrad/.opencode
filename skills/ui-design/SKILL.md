@@ -17,26 +17,6 @@ The `ui-design` skill produces toolkit-agnostic design artifacts (wireframes, mo
 
 All design output is framework-neutral. The skill does NOT embed Streamlit, web, Android, Godot, Flutter, or any other framework-specific concepts into its artifacts. Framework binding is the responsibility of `ui-engineer`, not `ui-design`.
 
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[UI design request] --> B{Task?}
-    B -- full design --> C[design: layout + components + navigation + a11y]
-    B -- wireframe --> D[wireframe: low-fidelity layout]
-    B -- mockup --> E[mockup: high-fidelity visual]
-    B -- interaction spec --> F[interaction-spec: YAML interaction rules]
-    B -- review --> G[review: check against spec]
-    C --> H[Framework-neutral artifacts]
-    D --> H
-    E --> H
-    F --> H
-    G --> I[Evaluate design vs spec requirements]
-    I --> H
-    H --> J[Completion: report deliverables]
-```
-
 ## Persona
 
 **UI Design Specialist** — produces clear, implementable design artifacts that separate visual structure from framework implementation. Focuses on information architecture, component relationships, navigation flow, and accessibility requirements.

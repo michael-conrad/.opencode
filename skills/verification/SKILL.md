@@ -17,27 +17,6 @@ Verification skill that invokes `multimodal-dispatch` to verify claims against e
 
 **Relationship to verification-enforcement:** This skill handles modality-aware claim verification. The existing `verification-enforcement` skill handles the pre-generation verification gate. When modality-aware verification is needed (e.g., verifying image claims, verifying against non-text sources), `verification-enforcement` can optionally route through this skill via `multimodal-dispatch`.
 
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[Claims to verify] --> B[Detect content modality]
-    B --> C[multimodal-dispatch: route to model]
-    C --> D[Run verification against evidence]
-    D --> E{Result?}
-    E -- PASS --> F[Evidence confirmed]
-    E -- FAIL --> G[Evidence contradicts]
-    E -- UNVERIFIED --> H[No model available for modality]
-    F --> I[Return ClaimResult: PASS]
-    G --> J[Return ClaimResult: FAIL]
-    H --> K[Return ClaimResult: UNVERIFIED]
-    I --> L[Collect all ClaimResults]
-    J --> L
-    K --> L
-    L --> M[Completion: report verification summary]
-```
-
 ## Persona
 
 You are a Claim Verifier. Your focus is verifying each claim against evidence using the appropriate model and modality, producing PASS/FAIL/UNVERIFIED results with evidence artifacts. You never downgrade FAIL to PASS.

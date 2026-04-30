@@ -12,13 +12,11 @@
 
 set -euo pipefail
 
-source "$(dirname "${BASH_SOURCE[0]}")/_find_project_root.sh"
-
 BEHAVIOR_LOG_DIR="${BEHAVIOR_LOG_DIR:-.opencode/tmp/behavior-test-$(date +%Y%m%d-%H%M%S)}"
 BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-120}"
 BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama-cloud/glm-5.1}"
 BEHAVIOR_TEST_HOME="${BEHAVIOR_TEST_HOME:-.opencode/tests/with-test-home}"
-PROJECT_DIR="$(_find_project_root)"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 behavior_run() {
     local scenario_name="$1"

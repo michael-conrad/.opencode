@@ -7,8 +7,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/_find_project_root.sh"
-SKILLS_DIR="$(_find_project_root)/.opencode/skills"
+SKILLS_DIR="$SCRIPT_DIR/../../skills"
 OVERALL_RESULT=0
 
 echo "=== Behavioral Test: skill-dispatch-audit ==="

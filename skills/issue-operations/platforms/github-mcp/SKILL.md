@@ -13,29 +13,6 @@ compatibility: opencode
 
 GitHub platform implementation using GitHub MCP tools. Full API coverage with no fallbacks needed.
 
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[issue-operations dispatches] --> B[Route to github-mcp]
-    B --> C{Operation?}
-    C -- create issue --> D[github_issue_write method=create]
-    C -- update issue --> E[github_issue_write method=update]
-    C -- close issue --> F[github_issue_write state=closed]
-    C -- add comment --> G[github_add_issue_comment]
-    C -- get sub-issues --> H[github_issue_read method=get_sub_issues]
-    C -- add sub-issue --> I[github_sub_issue_write method=add]
-    C -- search --> J[github_search_issues]
-    D --> K[Return result with html_url]
-    E --> K
-    F --> K
-    G --> K
-    H --> K
-    I --> K
-    J --> K
-```
-
 ## Capability Manifest
 
 | Operation | Supported | Notes |

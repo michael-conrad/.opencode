@@ -13,26 +13,6 @@ compatibility: opencode
 
 Local issue tracking platform using `.issues/` directories at the repo root. This platform is selected when `github.platform` is `local` or when no remote is configured.
 
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[issue-operations dispatches] --> B[Route to local .issues/]
-    B --> C[resolve .issues/ directory]
-    C --> D{Operation?}
-    D -- create --> E[Increment .counter + write spec.md]
-    D -- update --> F[Edit spec.md frontmatter + body]
-    D -- close --> G[Write to closed/ directory]
-    D -- comment --> H[Append to comments.md]
-    D -- sub-issue --> I[Add parent reference in frontmatter]
-    E --> J[Return result]
-    F --> J
-    G --> J
-    H --> J
-    I --> J
-```
-
 ## Architecture
 
 ```

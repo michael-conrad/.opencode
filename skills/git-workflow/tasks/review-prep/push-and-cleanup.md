@@ -18,94 +18,33 @@ Clean temp files, handle submodule push automation, rebase on current dev, and v
 
 ## Procedure
 
-### Step 0: Submodule Feature-Branch Push (CONDITIONAL — Sub-Agent Dispatch)
+### Step 0: Submodule Push Automation (CONDITIONAL)
 
 **If `.gitmodules` does NOT exist:** Skip entirely.
 
-**If `.gitmodules` exists:** Check which submodules have changes, then dispatch a `submodule-feature-push` sub-agent. The main agent MUST NOT perform any git push/tag operations on submodules inline — this is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Inline Work.
-
-#### Detection Step (inline — read-only)
+**If `.gitmodules` exists:**
 
 ```bash
 git submodule foreach 'git diff HEAD --quiet || echo CHANGED'
 ```
 
-If NO submodules are CHANGED: Skip sub-agent dispatch entirely.
-
-#### Sub-Agent Boundary
-
-| Field | Value |
-|-------|-------|
-| **must_receive** | `issue_number`, `github.owner`, `github.repo`, `dev.name`, `dev.email`, changed submodule paths, feature branch name, parent repo short name |
-| **must_not_receive** | Implementation context, agent memory, full task file contents, unchanged submodule info |
-
-#### Dispatch Procedure
-
-Invoke: `/submodule-tag-feat` opencode command (or dispatch sub-agent with scoped instruction).
-
-The sub-agent performs for each submodule with changes:
-1. **Push the submodule's feature branch** to its remote (if not already pushed)
-2. **Tag the submodule's tip** with format `<parent-repo>/<issue-number>-<submodule-name>`
-3. **Push tags** to the submodule's remote
-4. **Verify tags before push** — if the tip SHA is untagged (e.g., mid-implementation bump without tagging), tag it with `<parent-repo>/<issue-number>-<sub>` format and push the tag alongside the branch (idempotent tag-if-untagged)
-
-#### Tag-if-Untagged Verification (MANDATORY for Submodule SHAs)
-
-Before pushing a submodule feature branch, verify that the tip SHA is tagged:
+For each submodule reported as CHANGED:
 
 ```bash
 cd <submodule-path>
-TIP_SHA=$(git rev-parse HEAD)
-TAGS_ON_SHA=$(git tag --contains $TIP_SHA | grep -E '<parent-repo-short>')
-if [ -z "$TAGS_ON_SHA" ]; then
-    # SHA is untagged — tag it and push
-    git tag -a "<parent-repo-short>/<issue-number>-<sub>" -m "Submodule tip for issue #<issue-number>"
-    git push origin "<parent-repo-short>/<issue-number>-<sub>"
-else
-    # SHA is already tagged — acceptable, no action needed
-fi
+git add -A
+git commit -m "Agent push: sync from <parent_repo>"
+git push origin dev
+git branch --remotes --contains HEAD origin/dev
 cd ..
-```
-
-This is the idempotent tag-if-untagged rule: if a submodule SHA is already tagged, skip tagging (or add a semantic tag for documentation — acceptable). If untagged, tag it before pushing.
-
-#### Tag Format for Feature Branches
-
-```
-<parent-repo-short>/<issue-number>-<submodule-name>
-```
-
-- Example: `opencode-config-parent/215-opencode`
-
-**Provenance tracking after submodule push:** Invoke `/skill git-workflow --task provenance --mode=dev-push` for each submodule. Provenance is best-effort and never blocks the git workflow.
-
-#### CRITICAL: Submodule Pushes Are Feature-Branch Pushes
-
-Submodule changes are pushed on feature branches, NOT directly to dev. This maintains the same branch model as the parent repo and enables proper provenance tracking.
-
-#### Sub-Agent Result Contract
-
-```yaml
-status: DONE | BLOCKED | SKIP
-task: submodule-feature-push
-submodule_results:
-  - path: <submodule-path>
-    branch_pushed: <branch-name>
-    tag_name: <parent-repo>/<issue-number>-<sub>
-    sha_tagged: <sha>
-    tag_pushed: bool
-evidence_artifacts:
-  - tool: git push origin <branch>
-    output: <push confirmation>
-  - tool: git tag -l
-    output: <tag list>
-  - tool: git push origin --tags
-    output: <push confirmation>
+git add <submodule-path>
 ```
 
 **Submodule push failure:** BLOCK parent repo push. Report which submodule failed.
 
 **`--skip-submodules` flag:** Warn and proceed without submodule push steps.
+
+**Provenance tracking after submodule push:** Invoke `/skill git-workflow --task provenance --mode=dev-push` for each submodule. Provenance is best-effort and never blocks the git workflow.
 
 ### Step 1: Temp File Cleanup (MANDATORY)
 

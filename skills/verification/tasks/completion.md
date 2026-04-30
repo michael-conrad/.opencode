@@ -2,23 +2,15 @@
 
 ## Purpose
 
-Ensure the verification workflow documents its results and produces a status report regardless of outcome. This task is the completion guarantee for verification — it runs whenever the workflow halts, whether all claims passed, some failed, or an error prevented verification.
+Ensure the verification workflow documents its results and produces a status report regardless of outcome. This task is the completion guarantee for verification — it runs whenever the workflow halts.
 
 ## Entry Criteria
 
-The verification workflow is halting. This includes:
-- All claims verified successfully (all PASS)
-- Partial verification with some unverified claims (no available model or modality)
-- Claims that failed verification (FAIL status)
-- An error that prevented verification from completing
+The verification workflow is halting. This includes: all claims verified successfully, partial verification with some unverified claims, or an error that prevented verification.
 
 ## Exit Criteria
 
-- Verification results documented with PASS/FAIL/UNVERIFIED per claim
-- Status report produced in chat
-- FAIL claims escalated to developer
-- No orphaned state remains
-- Byline present as last element of chat output
+Verification results are documented, a status report is produced, and no orphaned state remains.
 
 ## Procedure
 
@@ -39,17 +31,11 @@ Unverified claims:
 - <claim_id>: <modality> — <reason>
 ```
 
-Status determination:
-- `complete`: All claims have PASS status
-- `partial`: Some claims UNVERIFIED but none FAIL
-- `escalated`: At least one claim has FAIL status requiring developer action
-
 ### Step 2: Clean Up
 
-- Clear any temporary verification state in `./tmp/` (never `/tmp/`)
+- Clear any temporary verification state
 - Ensure multimodal-dispatch cache is left in valid state
-- Document any gaps in modality coverage for future sessions
-- Remove temporary evidence files after documenting their contents
+- Document any gaps in modality coverage
 
 ### Step 3: Report
 
@@ -58,7 +44,7 @@ Produce the status report in chat output. The completion task is idempotent — 
 Follow the completion-core reference for:
 - Push branch (if applicable, idempotent)
 - Generate URL (if applicable)
-- Report executive summary in chat (always runs)
+- Report executive summary in chat
 
 ### Step 4: FAIL Escalation
 
@@ -68,52 +54,9 @@ If any claims have FAIL status, they MUST be escalated to the developer. FAIL cl
 ESCALATION: <claim_id> — <evidence that contradicts the claim>
 ```
 
-**Per `000-critical-rules.md` §Soft-Passing Verification Mismatches:**
-- FAIL is never downgraded to PASS
-- "Functionally equivalent" is NOT a valid downgrade reason
-- "Minor difference" is NOT a valid downgrade reason
-- "Semantically close" is NOT a valid downgrade reason
-- If the stakeholder wants to accept a deviation, that is their decision — not the agent's
-
-### Step 5: Evidence Table
-
-Produce the final evidence table for all claims:
-
-| Claim ID | Status | Evidence | Model |
-|----------|--------|----------|-------|
-| C1 | PASS | <tool-call reference> | <model> |
-| C2 | FAIL | <contradicting evidence> | <model> |
-| C3 | UNVERIFIED | <gap description> | N/A |
-
-## Report Format
-
-```
-**Summary:**
-
-<1-2 sentences describing verification outcome>
-
-**Outcome:** <What was verified, what failed, what was unverified>
-
-<URL if applicable, ALWAYS LAST>
-
-🤖 <AgentName> (<ModelId>) <status>
-```
-
-### Format Verification Before Halt (MANDATORY)
-
-**Idempotent — safe to invoke multiple times. This verification runs before EVERY halt, regardless of path.**
-
-- [ ] Executive summary present as **first** element
-- [ ] Outcome line present after summary
-- [ ] URL present IF relevant (after outcome, before byline)
-- [ ] AI byline present as **LAST** element
-- [ ] No stale todowrite items remain (all cleared or N/A)
-
 ## Context Required
 
 - Invoked by: end of verification workflow
 - Related tasks: `verify`, `verify-single`
-- Completion-core reference: `.opencode/skills/completion-core/completion-core.md`
-- `065-verification-honesty.md`: FAIL claims cannot be downgraded
 
 Co-authored with AI: <AgentName> (<ModelId>)

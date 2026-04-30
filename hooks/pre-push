@@ -1,136 +1,55 @@
 #!/bin/bash
-# Pre-push hook: Enforce branch topology and prevent pushing merged branches
+# Pre-push hook: Prevent pushing branches already merged into main/dev
 #
-# Checks performed (in order):
-# 1. origin/dev existence — feature branches require origin/dev on remote
-# 2. Common ancestor between main and dev — orphaned topology blocks all pushes
-# 3. Already-merged detection — merged branches should be deleted, not pushed
-#
-# Spec: #217 — Pre-push hook and session-enforcement check for remote branch topology
-#
-# Co-authored with AI: <AgentName> (<ModelId>)
+# This hook prevents accidental pushes of branches that have been merged
+# into main or dev, which is typical after PR merge. Merged branches should
+# be deleted locally and remotely, not pushed.
 
 set -e
 
+# Get the current branch name
 CURRENT_BRANCH=$(git branch --show-current)
 
-REMOTE_NAME=""
-if git remote 2>/dev/null | grep -q "^origin$"; then
-    REMOTE_NAME="origin"
+# Skip check for main and dev branches (they should always be pushable)
+if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "dev" ]; then
+    exit 0
 fi
 
-IS_FEATURE_BRANCH=true
-if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "dev" ] || [ "$CURRENT_BRANCH" = "master" ]; then
-    IS_FEATURE_BRANCH=false
+# Check if branch is merged into dev
+if git branch --merged dev 2>/dev/null | grep -q "^\s*$CURRENT_BRANCH$"; then
+    echo ""
+    echo "❌ BLOCKED: Branch '$CURRENT_BRANCH' is already merged into 'dev'"
+    echo ""
+    echo "This branch has been merged and should be deleted, not pushed."
+    echo ""
+    echo "To clean up this merged branch:"
+    echo "  git checkout dev && git pull origin dev"
+    echo "  git branch -d $CURRENT_BRANCH"
+    echo "  git push origin --delete $CURRENT_BRANCH  # if pushed remotely"
+    echo ""
+    echo "If you need to continue working on this branch, create a new feature branch:"
+    echo "  git checkout dev && git checkout -b feature/new-branch-name"
+    echo ""
+    exit 1
 fi
 
-# --- Check 1: origin/dev existence (feature branches only) ---
-# Feature branches target dev for PRs; if origin/dev doesn't exist,
-# PRs will fail. Block the push early with actionable guidance.
-if [ "$IS_FEATURE_BRANCH" = true ] && [ -n "$REMOTE_NAME" ]; then
-    # Fetch remote refs to ensure we have current remote state
-    git fetch "$REMOTE_NAME" --quiet 2>/dev/null || true
-
-    if ! git rev-parse --verify "remotes/$REMOTE_NAME/dev" >/dev/null 2>&1; then
-        echo ""
-        echo "❌ BLOCKED: origin/dev does not exist on remote"
-        echo ""
-        echo "Feature branches target 'dev' for PRs, but 'dev' has not been pushed to the remote."
-        echo "Without origin/dev, pull requests cannot be created against the correct base branch."
-        echo ""
-        echo "To fix this, push dev to the remote first:"
-        echo "  git push origin dev"
-        echo ""
-        echo "If dev has never been pushed, this establishes the branch on the remote."
-        echo "If dev was previously pushed but the remote branch was deleted, push it again."
-        echo ""
-        exit 1
-    fi
+# Check if branch is merged into main
+if git branch --merged main 2>/dev/null | grep -q "^\s*$CURRENT_BRANCH$"; then
+    echo ""
+    echo "❌ BLOCKED: Branch '$CURRENT_BRANCH' is already merged into 'main'"
+    echo ""
+    echo "This branch has been merged and should be deleted, not pushed."
+    echo ""
+    echo "To clean up this merged branch:"
+    echo "  git checkout dev && git pull origin dev"
+    echo "  git branch -d $CURRENT_BRANCH"
+    echo "  git push origin --delete $CURRENT_BRANCH  # if pushed remotely"
+    echo ""
+    echo "If you need to continue working on this branch, create a new feature branch:"
+    echo "  git checkout dev && git checkout -b feature/new-branch-name"
+    echo ""
+    exit 1
 fi
 
-# --- Check 2: Common ancestor between main and dev ---
-# Orphaned branches (no shared history) indicate broken topology.
-# This can happen when main is recreated as an orphan or dev diverges
-# with no merge base. PRs between orphaned branches cannot be created.
-if [ -n "$REMOTE_NAME" ]; then
-    MAIN_REF=""
-    if git rev-parse --verify "remotes/$REMOTE_NAME/main" >/dev/null 2>&1; then
-        MAIN_REF="remotes/$REMOTE_NAME/main"
-    elif git rev-parse --verify "remotes/$REMOTE_NAME/master" >/dev/null 2>&1; then
-        MAIN_REF="remotes/$REMOTE_NAME/master"
-    fi
-
-    DEV_REF=""
-    if git rev-parse --verify "remotes/$REMOTE_NAME/dev" >/dev/null 2>&1; then
-        DEV_REF="remotes/$REMOTE_NAME/dev"
-    fi
-
-    if [ -n "$MAIN_REF" ] && [ -n "$DEV_REF" ]; then
-        if ! git merge-base --is-ancestor "$MAIN_REF" "$DEV_REF" 2>/dev/null && \
-           ! git merge-base --is-ancestor "$DEV_REF" "$MAIN_REF" 2>/dev/null; then
-            MERGE_BASE=$(git merge-base "$MAIN_REF" "$DEV_REF" 2>/dev/null || true)
-            if [ -z "$MERGE_BASE" ]; then
-                echo ""
-                echo "❌ BLOCKED: 'main' and 'dev' are orphaned — no common ancestor"
-                echo ""
-                echo "The 'main' and 'dev' branches share no git history. This broken topology"
-                echo "prevents PRs from being created between these branches."
-                echo ""
-                echo "To fix this, establish a common ancestor:"
-                echo "  Option A — Rebase dev onto main:"
-                echo "    git checkout dev && git rebase main && git push origin dev --force-with-lease"
-                echo ""
-                echo "  Option B — Create a merge commit to join the histories:"
-                echo "    git checkout dev && git merge main --allow-unrelated-histories"
-                echo "    git push origin dev"
-                echo ""
-                echo "  Option C — If main is wrong (orphan with single commit), reset it:"
-                echo "    git checkout main && git reset --hard dev && git push origin main --force-with-lease"
-                echo ""
-                echo "CAUTION: Option C rewrites main history. Coordinate with your team before force-pushing."
-                echo ""
-                exit 1
-            fi
-        fi
-    fi
-fi
-
-# --- Check 3: Already-merged detection (feature branches only) ---
-# Merged branches should be deleted, not pushed.
-if [ "$IS_FEATURE_BRANCH" = true ]; then
-    if git branch --merged dev 2>/dev/null | grep -q "^\s*$CURRENT_BRANCH$"; then
-        echo ""
-        echo "❌ BLOCKED: Branch '$CURRENT_BRANCH' is already merged into 'dev'"
-        echo ""
-        echo "This branch has been merged and should be deleted, not pushed."
-        echo ""
-        echo "To clean up this merged branch:"
-        echo "  git checkout dev && git pull origin dev"
-        echo "  git branch -d $CURRENT_BRANCH"
-        echo "  git push origin --delete $CURRENT_BRANCH  # if pushed remotely"
-        echo ""
-        echo "If you need to continue working on this branch, create a new feature branch:"
-        echo "  git checkout dev && git checkout -b feature/new-branch-name"
-        echo ""
-        exit 1
-    fi
-
-    if git branch --merged main 2>/dev/null | grep -q "^\s*$CURRENT_BRANCH$"; then
-        echo ""
-        echo "❌ BLOCKED: Branch '$CURRENT_BRANCH' is already merged into 'main'"
-        echo ""
-        echo "This branch has been merged and should be deleted, not pushed."
-        echo ""
-        echo "To clean up this merged branch:"
-        echo "  git checkout dev && git pull origin dev"
-        echo "  git branch -d $CURRENT_BRANCH"
-        echo "  git push origin --delete $CURRENT_BRANCH  # if pushed remotely"
-        echo ""
-        echo "If you need to continue working on this branch, create a new feature branch:"
-        echo "  git checkout dev && git checkout -b feature/new-branch-name"
-        echo ""
-        exit 1
-    fi
-fi
-
+# Branch is not merged - allow push
 exit 0

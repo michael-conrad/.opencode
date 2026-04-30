@@ -16,15 +16,6 @@ from pathlib import Path
 from typing import Any
 
 
-def _find_project_root() -> Path:
-    current = Path(__file__).resolve().parent
-    while current != current.parent:
-        if current.name == ".opencode":
-            return current.parent
-        current = current.parent
-    raise RuntimeError("Could not find project root (no .opencode/ directory found)")
-
-
 class GitBucketError(Exception):
     def __init__(self, code: int, message: str, endpoint: str):
         self.code = code
@@ -127,8 +118,14 @@ password = ""
 
 def _load_from_env_file(env_path: Path | None = None) -> dict[str, str]:
     if env_path is None:
-        _root = _find_project_root()
-        env_path = _root / ".env"
+        current = Path.cwd()
+        while current != current.parent:
+            if (current / ".git").exists():
+                env_path = current / ".env"
+                break
+            current = current.parent
+        else:
+            env_path = Path.cwd() / ".env"
     if not env_path.exists():
         return {}
     credentials = {}

@@ -11,24 +11,15 @@ Usage: ./.opencode/tools/symbolic drift
 from __future__ import annotations
 import os as _os
 import re
+import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-
-
-def _find_project_root() -> Path:
-    current = Path(__file__).resolve().parent
-    while current != current.parent:
-        if current.name == ".opencode":
-            return current.parent
-        current = current.parent
-    raise RuntimeError("Could not find project root (no .opencode/ directory found)")
-
-
-PROJECT_ROOT = _find_project_root()
+CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip()
+PROJECT_ROOT = (BASE_DIR / CDUP).resolve()
 FENCE_PATTERN = re.compile(r"```yaml\+symbolic\n(.*?)```", re.DOTALL)
 
 

@@ -4,26 +4,12 @@
 
 Before implementation proceeds, verify that the plan includes item-level decomposition as required by `091-incremental-build.md` AND that items which change agent behavior have behavioral enforcement test coverage in their TDD cycles. This gate applies to ALL scopes (GREENFIELD, NEW_FEATURE, FIX, ENHANCEMENT) and ALL authorization types.
 
-## Key Principles
-
-### Item Decomposition Is Not Optional
-
-A plan without item enumeration is a prose description, not an implementation plan. Item decomposition provides:
-- **Traceability:** Each implementation unit maps to a spec requirement
-- **Dependency ordering:** Items are sequenced so each item's dependencies are satisfied
-- **TDD discipline:** Each item has its own RED/GREEN/COMMIT cycle
-- **Incremental verification:** Each item is independently testable
-
-### Behavioral TDD for Rule Changes Is Not Optional
-
-For items that change agent behavior (guideline text, skill enforcement, critical violation text), content-verification tests alone are insufficient. A content-verification test confirms "the text exists in the file" but does NOT confirm "the agent actually follows the rule." Behavioral enforcement tests verify agent behavior by sending a prompt and checking the response.
-
 ## Verification Checks
 
 1. **Item enumeration exists** — The plan lists every implementation unit as a discrete item with name, scope, and deliverable
 2. **Dependency ordering exists** — Items are ordered so that each item's dependencies are satisfied by preceding items
 3. **Acceptance criteria per item** — Each item has testable acceptance criteria that can be verified independently
-4. **Behavioral TDD for rule items** — For each plan item that changes a rule governing agent behavior, the item's TDD cycle includes a behavioral RED phase and a behavioral GREEN phase. Items with only content-verification tests for behavioral rule changes are flagged as STRUCTURE-VIOLATION.
+4. **Behavioral TDD for rule items** — For each plan item that changes a rule governing agent behavior (guideline text, skill enforcement, critical violation), the item's TDD cycle includes a behavioral RED phase (write behavioral test expecting agent NOT to follow rule) and a behavioral GREEN phase (make rule change, verify agent NOW follows rule). Items with only content-verification tests for behavioral rule changes are flagged as STRUCTURE-VIOLATION.
 
 ## Procedure
 
@@ -65,13 +51,6 @@ for item in plan_items:
 
 Single-task plans (0 or 1 phases) are exempt from the item decomposition check. The check applies ONLY to multi-task plans with more than one phase.
 
-## Item vs Phase Distinction
-
-- **Phase:** A major unit of work containing multiple items (e.g., "Phase 1: Data Model")
-- **Item:** The smallest independently testable implementation unit within a phase (e.g., "Item 1.1: Create User model")
-
-Items are the decomposition unit; phases are the grouping unit. Item-level TDD cycles are the enforcement granularity.
-
 ## Cross-Reference
 
 See `091-incremental-build.md` for the complete discipline rules, scope classification, and per-item TDD cycle. See `091-incremental-build.md` → "Enforcement Mechanism" section for RED phase verification requirements. See `080-code-standards.md` → "Behavioral Enforcement Tests (PRIMARY)" for the behavioral RED/GREEN gate mandate.
@@ -82,15 +61,3 @@ See `091-incremental-build.md` for the complete discipline rules, scope classifi
 - **Writes to:** `## item-decomposition-check`
 
 After completing this task, write results to the work state file under section `## item-decomposition-check` using the YAML format defined in `enforcement/work-state-schema.md`.
-
-## Result Contract
-
-```yaml
-status: PASS | STRUCTURE-VIOLATION
-task: item-decomposition-check
-has_items: bool
-has_tdd_steps: bool
-behavioral_tdd_complete: bool
-violations: [<finding>, ...]
-blocking: bool
-```

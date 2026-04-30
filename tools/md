@@ -14,15 +14,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-def _find_project_root() -> Path:
-    current = Path(__file__).resolve().parent
-    while current != current.parent:
-        if current.name == ".opencode":
-            return current.parent
-        current = current.parent
-    raise RuntimeError("Could not find project root (no .opencode/ directory found)")
-
-PROJECT_ROOT = _find_project_root()
+BASE_DIR = Path(__file__).resolve().parent
+CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip()
+PROJECT_ROOT = (BASE_DIR / CDUP).resolve()
 
 ACTIONS = {
     "read": "md-read",

@@ -15,9 +15,7 @@
 
 set -euo pipefail
 
-source "$(dirname "${BASH_SOURCE[0]}")/behaviors/_find_project_root.sh"
-
-PROJECT_DIR="$(_find_project_root)"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 SCENARIO_FILTER=()
 TAG_FILTER=()
@@ -208,10 +206,6 @@ SCENARIOS["parent-issue-left-open-violation"]="Does .opencode/guidelines/000-cri
 SCENARIOS["parent-issue-left-open-yaml"]="Does .opencode/guidelines/000-critical-rules.md yaml+symbolic block contain rule critical-rules-039 titled 'Parent issue left open after all children closed'?"
 SCENARIOS["parent-issue-closure-vai-step6"]="Does .opencode/skills/approval-gate/tasks/verify-already-implemented.md contain a Step 6 titled 'Parent Plan Closure Check'?"
 SCENARIOS["parent-issue-closure-cleanup-step28"]="Does .opencode/skills/git-workflow/tasks/cleanup.md contain a Step 2.8 titled 'Parent Plan Closure'?"
-SCENARIOS["pre-impl-halt-for-pr-violation"]="Does .opencode/guidelines/000-critical-rules.md contain a section titled 'Critical Violation: pre-implementation-analysis Halts Under for_pr Scope'?"
-SCENARIOS["pre-impl-halt-for-pr-yaml"]="Does .opencode/guidelines/000-critical-rules.md yaml+symbolic block contain rule critical-rules-044 titled 'pre-implementation-analysis halts under for_pr scope'?"
-SCENARIOS["pre-impl-continuation-gate"]="Does .opencode/skills/approval-gate/tasks/pre-implementation-analysis.md contain a section titled 'for_pr Scope Continuation Gate' with scope-based continuation rules?"
-SCENARIOS["pre-impl-continuation-gate-required-entries"]="Does .opencode/skills/approval-gate/tasks/pre-implementation-analysis.md for_pr Scope Continuation Gate REQUIRED list include: check authorization_scope, set continue_pipeline=true when halt_at >= pr_created, proceed to gap-fill pipeline?"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -339,10 +333,6 @@ SCENARIO_TAGS["orchestrator-context-audit"]="content-verification clean-room-dis
 SCENARIO_TAGS["inline-work-dispatch-gate"]="content-verification clean-room-dispatch"
 SCENARIO_TAGS["structural-decision-solicitation-vacv"]="content-verification approval"
 SCENARIO_TAGS["structural-decision-solicitation-yaml"]="content-verification approval"
-SCENARIO_TAGS["pre-impl-halt-for-pr-violation"]="content-verification approval for_pr"
-SCENARIO_TAGS["pre-impl-halt-for-pr-yaml"]="content-verification approval for_pr"
-SCENARIO_TAGS["pre-impl-continuation-gate"]="content-verification approval for_pr"
-SCENARIO_TAGS["pre-impl-continuation-gate-required-entries"]="content-verification approval for_pr"
 SCENARIO_TAGS["for-pr-solicitation-crossref"]="content-verification approval"
 SCENARIOS["halt-blockers-format"]="Does .opencode/guidelines/000-critical-rules.md chat output format contain a Blockers section that is REQUIRED when workflow is incomplete or blocked?"
 SCENARIOS["halt-blockers-completion-fields"]="Does .opencode/skills/approval-gate/tasks/completion.md Completion Guarantee section contain Blocker state and Developer action required fields?"
@@ -405,11 +395,11 @@ SCENARIO_TAGS["auth-free-approval-gate-skill"]="content-verification approval"
 # Maps glob patterns to scenario names
 declare -A FILE_SCENARIO_MAP
 FILE_SCENARIO_MAP[".opencode/guidelines/091-incremental-build.md"]="incremental-build-guideline monolithic-implementation-violation item-decomposition-step sc-assertion-tdd-cycle red-state-before-implementation red-phase-enforcement-incremental-build red-phase-enforcement-critical-rules-xref"
-FILE_SCENARIO_MAP[".opencode/guidelines/000-critical-rules.md"]="scope-auto-resolve-guideline monolithic-implementation-violation identity-echo-validation secret-exfiltration-violation url-sourcing-guideline-rules dispatch-artifact-requirements red-phase-enforcement-critical-rules-xref critical-rules-body-erasure direct-branch-default worktree-bypass-conditional for-pr-gap-fill-critical-violation for-pr-gap-fill-forbidden-entries for-pr-gap-fill-required-entries for-pr-gap-fill-pr-creation pr-creation-scope-exception pr-creation-scope-yaml-rule hook-output-advisory-subsection hook-output-advisory-yaml-rule wrong-api-routing-violation wrong-api-routing-yaml-rule dispatch-gate-checkpoint inline-work-dispatch-gate structural-decision-solicitation-vacv structural-decision-solicitation-yaml pre-impl-halt-for-pr-violation pre-impl-halt-for-pr-yaml halt-blockers-format post-tool-output-checkpoint unsquashed-pr-violation unsquashed-pr-yaml-rule parent-issue-left-open-violation parent-issue-left-open-yaml"
+FILE_SCENARIO_MAP[".opencode/guidelines/000-critical-rules.md"]="scope-auto-resolve-guideline monolithic-implementation-violation identity-echo-validation secret-exfiltration-violation url-sourcing-guideline-rules dispatch-artifact-requirements red-phase-enforcement-critical-rules-xref critical-rules-body-erasure direct-branch-default worktree-bypass-conditional for-pr-gap-fill-critical-violation for-pr-gap-fill-forbidden-entries for-pr-gap-fill-required-entries for-pr-gap-fill-pr-creation pr-creation-scope-exception pr-creation-scope-yaml-rule hook-output-advisory-subsection hook-output-advisory-yaml-rule wrong-api-routing-violation wrong-api-routing-yaml-rule dispatch-gate-checkpoint inline-work-dispatch-gate structural-decision-solicitation-vacv structural-decision-solicitation-yaml halt-blockers-format post-tool-output-checkpoint unsquashed-pr-violation unsquashed-pr-yaml-rule parent-issue-left-open-violation parent-issue-left-open-yaml"
 FILE_SCENARIO_MAP[".opencode/scripts/session_context_triggers.py"]="local-only-trigger-function local-only-trigger-directive dev-edit-guard-trigger stash-triage-directive"
 FILE_SCENARIO_MAP[".opencode/guidelines/010-approval-gate.md"]="for-pr-gap-fill-yaml-rule for-pr-gap-fill-scope-model approval-pr-timing-scope"
 FILE_SCENARIO_MAP[".opencode/guidelines/020-go-prohibitions.md"]="scope-auto-resolve-guideline pipeline-scoped-halt for-pr-solicitation-crossref"
-FILE_SCENARIO_MAP[".opencode/skills/approval-gate/"]="item-decomposition-step scope-auto-resolve-step approval-gate-sc-traceability approval-gate-red-phase dispatch-chain-enforcement-gate dispatch-artifact-requirements dispatch-checkpoint-live-verification gap-fill-precedence-principle gap-fill-precedence-for-pr gap-fill-precedence-standard-scope screen-issue-gap-fill-awareness gap-fill-precedence-before-step5c task-file-enforcement-refs scope-next-phase-resolution scope-phase-n-resolution enforcement-module-adversarial enforcement-module-scope-parsing enforcement-module-auto-dispatch enforcement-module-closed-issue enforcement-module-sub-issue verify-closed-issue-step7 closed-issue-enforcement-sc all-body-modification-safeguards orchestrator-context-audit halt-blockers-completion-fields completion-scope-clarification post-dispatch-output-gate parent-issue-closure-vai-step6 pre-impl-continuation-gate pre-impl-continuation-gate-required-entries"
+FILE_SCENARIO_MAP[".opencode/skills/approval-gate/"]="item-decomposition-step scope-auto-resolve-step approval-gate-sc-traceability approval-gate-red-phase dispatch-chain-enforcement-gate dispatch-artifact-requirements dispatch-checkpoint-live-verification gap-fill-precedence-principle gap-fill-precedence-for-pr gap-fill-precedence-standard-scope screen-issue-gap-fill-awareness gap-fill-precedence-before-step5c task-file-enforcement-refs scope-next-phase-resolution scope-phase-n-resolution enforcement-module-adversarial enforcement-module-scope-parsing enforcement-module-auto-dispatch enforcement-module-closed-issue enforcement-module-sub-issue verify-closed-issue-step7 closed-issue-enforcement-sc all-body-modification-safeguards orchestrator-context-audit halt-blockers-completion-fields completion-scope-clarification post-dispatch-output-gate parent-issue-closure-vai-step6"
 FILE_SCENARIO_MAP[".opencode/skills/brainstorming/"]="brainstorming-top-down verification-mechanics-brainstorming"
 FILE_SCENARIO_MAP[".opencode/skills/writing-plans/"]="writing-plans-bottom-up validate-executable-verification semantic-intent-writing-plans why-specific-value-tdd red-phase-gate-writing-plans red-phase-gate-writing-plans-skillmd"
 FILE_SCENARIO_MAP[".opencode/skills/executing-plans/"]="executing-plans-tdd red-phase-gate-executing-plans red-phase-gate-skillmd"
@@ -721,10 +711,6 @@ EXPECTED_SKILLS["parent-issue-left-open-violation"]=""
 EXPECTED_SKILLS["parent-issue-left-open-yaml"]=""
 EXPECTED_SKILLS["parent-issue-closure-vai-step6"]=""
 EXPECTED_SKILLS["parent-issue-closure-cleanup-step28"]=""
-EXPECTED_SKILLS["pre-impl-halt-for-pr-violation"]=""
-EXPECTED_SKILLS["pre-impl-halt-for-pr-yaml"]=""
-EXPECTED_SKILLS["pre-impl-continuation-gate"]=""
-EXPECTED_SKILLS["pre-impl-continuation-gate-required-entries"]=""
 EXPECTED_SKILLS["auth-free-approval-gate"]=""
 EXPECTED_SKILLS["auth-free-critical-rules"]=""
 EXPECTED_SKILLS["auth-free-go-prohibitions"]=""

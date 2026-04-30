@@ -20,19 +20,8 @@ from pathlib import Path
 import networkx as nx
 
 IMPL_DIR = Path(__file__).resolve().parent
-
-
-def _find_project_root() -> Path:
-    current = Path(__file__).resolve().parent
-    while current != current.parent:
-        if current.name == ".opencode":
-            return current.parent
-        current = current.parent
-    raise RuntimeError("Could not find project root (no .opencode/ directory found)")
-
-
-PROJECT_ROOT = _find_project_root()
-BASE_DIR = PROJECT_ROOT
+CDUP = subprocess.check_output(["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True).strip()
+BASE_DIR = (IMPL_DIR / CDUP).resolve()
 DEFAULT_OUTPUT = BASE_DIR / "tmp"
 
 
