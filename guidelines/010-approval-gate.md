@@ -403,7 +403,7 @@ rules:
     source: "010-approval-gate.md §Tier0"
 
   - id: approval-gate-002
-    title: "Explicit authorization overrides needs-approval label"
+    title: "Explicit authorization applies approved-for-* label"
     conditions:
       any:
         - "user_says == 'approved'"
