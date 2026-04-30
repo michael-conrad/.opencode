@@ -1,13 +1,10 @@
 #!/bin/bash
-# Pre-push hook: Prevent pushing branches already merged into main/dev
-#
-# This hook prevents accidental pushes of branches that have been merged
-# into main or dev, which is typical after PR merge. Merged branches should
-# be deleted locally and remotely, not pushed.
+# Pre-push hook: Branch topology + commit count enforcement
+# Gate 1: Prevent pushing branches already merged into main/dev
+# Gate 2: Block single-issue branches with >1 commit (commit-per-issue invariant)
 
 set -e
 
-# Get the current branch name
 CURRENT_BRANCH=$(git branch --show-current)
 
 # Skip check for main and dev branches (they should always be pushable)
@@ -15,10 +12,10 @@ if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "dev" ]; then
     exit 0
 fi
 
-# Check if branch is merged into dev
+# --- Gate 1: Merged branch topology check ---
 if git branch --merged dev 2>/dev/null | grep -q "^\s*$CURRENT_BRANCH$"; then
     echo ""
-    echo "❌ BLOCKED: Branch '$CURRENT_BRANCH' is already merged into 'dev'"
+    echo "BLOCKED: Branch '$CURRENT_BRANCH' is already merged into 'dev'"
     echo ""
     echo "This branch has been merged and should be deleted, not pushed."
     echo ""
@@ -27,16 +24,12 @@ if git branch --merged dev 2>/dev/null | grep -q "^\s*$CURRENT_BRANCH$"; then
     echo "  git branch -d $CURRENT_BRANCH"
     echo "  git push origin --delete $CURRENT_BRANCH  # if pushed remotely"
     echo ""
-    echo "If you need to continue working on this branch, create a new feature branch:"
-    echo "  git checkout dev && git checkout -b feature/new-branch-name"
-    echo ""
     exit 1
 fi
 
-# Check if branch is merged into main
 if git branch --merged main 2>/dev/null | grep -q "^\s*$CURRENT_BRANCH$"; then
     echo ""
-    echo "❌ BLOCKED: Branch '$CURRENT_BRANCH' is already merged into 'main'"
+    echo "BLOCKED: Branch '$CURRENT_BRANCH' is already merged into 'main'"
     echo ""
     echo "This branch has been merged and should be deleted, not pushed."
     echo ""
@@ -45,11 +38,55 @@ if git branch --merged main 2>/dev/null | grep -q "^\s*$CURRENT_BRANCH$"; then
     echo "  git branch -d $CURRENT_BRANCH"
     echo "  git push origin --delete $CURRENT_BRANCH  # if pushed remotely"
     echo ""
-    echo "If you need to continue working on this branch, create a new feature branch:"
-    echo "  git checkout dev && git checkout -b feature/new-branch-name"
+    exit 1
+fi
+
+# --- Gate 2: Commit count check (commit-per-issue invariant) ---
+SKIP_COMMIT_COUNT_CHECK="${SKIP_COMMIT_COUNT_CHECK:-}"
+if [ "$SKIP_COMMIT_COUNT_CHECK" = "1" ]; then
+    exit 0
+fi
+
+case "$CURRENT_BRANCH" in
+    pair-*|rollback/*|main|dev)
+        exit 0
+        ;;
+esac
+
+PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+WORK_STATE_DIR="$PROJECT_ROOT/.opencode/tmp"
+
+# Work branches (work state file exists) have N commits for N work items — skip check
+if ls "$WORK_STATE_DIR"/work-*.md 1>/dev/null 2>&1; then
+    for f in "$WORK_STATE_DIR"/work-*.md; do
+        if grep -q "$CURRENT_BRANCH" "$f" 2>/dev/null; then
+            exit 0
+        fi
+    done
+fi
+
+# Single-issue branch: count commits ahead of dev
+COMMIT_COUNT=0
+if git rev-parse --verify origin/dev >/dev/null 2>&1; then
+    COMMIT_COUNT=$(git rev-list --count origin/dev..HEAD 2>/dev/null || echo "0")
+elif git rev-parse --verify dev >/dev/null 2>&1; then
+    COMMIT_COUNT=$(git rev-list --count dev..HEAD 2>/dev/null || echo "0")
+fi
+
+if [ "$COMMIT_COUNT" -gt 1 ]; then
+    echo ""
+    echo "BLOCKED: Commit-per-issue invariant violated."
+    echo ""
+    echo "Branch '$CURRENT_BRANCH' has $COMMIT_COUNT commits but no work state file."
+    echo "Single-issue branches must have exactly 1 commit."
+    echo ""
+    echo "To fix:"
+    echo "  1. Squash: git reset --soft origin/dev && git commit -m '<message>'"
+    echo "  2. Or set SKIP_COMMIT_COUNT_CHECK=1 if committing as a human operator"
+    echo ""
+    echo "AI agent: This is a runtime gate, not an advisory rule."
     echo ""
     exit 1
 fi
 
-# Branch is not merged - allow push
 exit 0
