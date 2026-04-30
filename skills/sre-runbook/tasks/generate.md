@@ -20,11 +20,14 @@ Generate an operational runbook for a given domain and scenario type. The runboo
 | `domain` | ✅ Yes | System/service name (e.g., "PostgreSQL primary", "Kubernetes ingress") |
 | `runbook_type` | ✅ Yes | One of: `one-off-config`, `periodic-procedure`, `troubleshooting`, `incident-response` |
 | `severity` | ✅ Yes for troubleshooting/incident-response | One of: `P1` (outage), `P2` (degraded), `P3` (minor). Not required for one-off-config/periodic-procedure. |
+| `cadence` | ✅ Yes for periodic-procedure | Cadence stamp for periodic-procedure runbooks: `_daily`, `_weekly`, `_monthly`, `_quarterly`, `_annual`, `_on-demand`. Not required for other types. |
 | `interface_preference` | ✅ Yes | One of: `gui`, `cli`, `mixed` — determines which instructions go in the runbook |
 | `environment_os` | ✅ Yes | OS name and version (e.g., "Proxmox 8.1", "Windows Server 2022", "Ubuntu 24.04") |
 | `available_tools` | ✅ Yes | Tools/package managers confirmed installed (e.g., "apt, systemctl, qm", or "PowerShell, DNS Manager") |
 
-If `issue_number` is missing, the agent MUST HALT with the diagnostic: "No tracking issue provided. Runbook generation requires a GitHub Issue for traceability." Before halting, invoke `brainstorming` as a mandatory pre-requisite to create a tracking issue. The agent MUST NOT generate a runbook without an issue link. This gate is convention-agnostic — it applies to ALL runbook types.
+If `issue_number` is missing, the agent MUST HALT with the diagnostic: "No tracking issue provided. Runbook generation requires a GitHub Issue for traceability." Before halting, invoke `brainstorming` as a mandatory pre-requisite to create a tracking issue. The agent MUST NOT generate a runbook without an issue link. This gate is convention-agnostic — it applies to ALL runbook types, including periodic-procedure.
+
+If `runbook_type` is `periodic-procedure` and `cadence` is missing, HALT and prompt: "Cadence is required for periodic-procedure runbooks. Specify one of: _daily, _weekly, _monthly, _quarterly, _annual, _on-demand."
 
 If domain OR environment context is missing or insufficient, HALT and prompt the user. Do NOT guess or fabricate context.
 
@@ -42,10 +45,24 @@ When in doubt, default to `one-off-config`.
 domain: <system or service name>
 runbook_type: one-off-config | periodic-procedure | troubleshooting | incident-response
 severity: P1 | P2 | P3  (required for troubleshooting/incident-response only)
+cadence: _daily | _weekly | _monthly | _quarterly | _annual | _on-demand  (required for periodic-procedure only)
 interface_preference: gui | cli | mixed
 environment_os: <OS name and version>
 available_tools: <comma-separated list of confirmed-available tools>
 ```
+
+## Type-Based Naming Convention (MANDATORY)
+
+The runbook type determines the file naming convention. Before writing the runbook file, select the naming convention from this table:
+
+| `runbook_type` | Naming Convention | Stamp Component | Example |
+|----------------|-------------------|-----------------|---------|
+| `one-off-config` | `<RB_PATH>/<domain>-<scenario>_<YYYY-MM-DD>_issue-<N>.md` | Date stamp | `docs/runbooks/dns-videoconcerthall_2026-04-28_issue-250.md` |
+| `periodic-procedure` | `<RB_PATH>/<domain>-<scenario>_<cadence>_issue-<N>.md` | Cadence stamp | `docs/runbooks/backups-pg-primary_weekly_issue-251.md` |
+| `troubleshooting` | `<RB_PATH>/<domain>-<scenario-type>_<YYYY-MM-DD>_issue-<N>.md` | Date stamp | `docs/runbooks/web-500-errors_2026-04-28_issue-252.md` |
+| `incident-response` | `<RB_PATH>/<domain>-<scenario-type>_<YYYY-MM-DD>_issue-<N>.md` | Date stamp | `docs/runbooks/api-outage_2026-04-28_issue-253.md` |
+
+The cadence value used in the filename MUST come from the cadence registry — see SKILL.md → Cadence Registry. If a cadence value outside the registry is supplied, HALT and require one of the six registered values.
 
 ## Type-Aware Format Dispatch
 
@@ -100,20 +117,58 @@ For configuration changes and scheduled procedures, the operator needs "just do 
    | Record not resolving | TTL not expired | Wait for TTL, then re-verify |
    ```
 
-### Format-Matching Step (MANDATORY BEFORE GENERATION)
+### Format-Matching Glob (MANDATORY BEFORE GENERATION)
 
-Before generating any runbook content:
+Before generating any runbook content, search for existing runbooks using a dual-pattern glob that matches BOTH date-stamp and cadence conventions:
 
-1. Search the repository for existing runbooks using the resolved base path: `glob(pattern="<RB_PATH>/**/*.md")`
-2. If sibling repos are accessible, search those too
-3. If existing runbooks exist, examine their format:
+```
+glob(pattern="<RB_PATH>/**/*_<YYYY-MM-DD>_issue-*.md")  — date-stamp pattern (one-off-config, troubleshooting, incident-response)
+glob(pattern="<RB_PATH>/**/*_<cadence>_issue-*.md")     — cadence pattern (periodic-procedure)
+```
+
+The dual-pattern search MUST be run. Do NOT run only one pattern and assume the other has no results.
+
+After collecting results:
+
+1. If sibling repos are accessible, search those too
+2. If existing runbooks exist, examine their format:
    - Do they use YAML enforcement blocks? → match dual-output format
    - Do they use steps-only numbered format? → match steps-only format
    - Is there a proven format from operator feedback? → match that format
-4. If existing runbooks use steps-only format and the runbook_type is `one-off-config` or `periodic-procedure`, use steps-only format
-5. If no existing runbooks exist, use the format dictated by `runbook_type`
+3. If existing runbooks use steps-only format and the runbook_type is `one-off-config` or `periodic-procedure`, use steps-only format
+4. If no existing runbooks exist, use the format dictated by `runbook_type`
 
 **The format-matching rule OVERRIDES the type-based default when existing proven formats exist.**
+
+### File-Replace-on-Revision Logic (MANDATORY)
+
+**When regenerating an existing runbook** (same domain + scenario + issue_number across revisions), the agent MUST replace the old file atomically rather than creating a duplicate with a different filename. This preserves the domain+scenario identity across revisions and prevents stale runbook clutter.
+
+**Pre-generation check:**
+
+```
+1. Run the dual-pattern glob (date-stamp and cadence patterns) against <RB_PATH>/
+2. For each existing file, parse the filename to extract: domain, scenario, cadence_or_date, issue_number
+3. Compare the proposed runbook's (domain, scenario, issue_number) against existing files:
+   a. If an existing file matches on domain + scenario + issue_number:
+      - Mark it as the OLD_FILE to replace
+      - The proposed filename replaces the date-stamp or cadence-stamp component
+   b. If no match exists on domain + scenario + issue_number:
+      - This is a new runbook — proceed with standard write
+```
+
+**Atomic-ish write procedure:**
+
+```
+1. Write the new runbook content to a temp file: <RB_PATH>/<domain>-<scenario>_<new_stamp>_issue-<N>.md.tmp
+2. If OLD_FILE exists:
+   a. Rename temp file to final path: mv <temp> <final>  (atomic rename)
+   b. Delete OLD_FILE: rm <OLD_FILE>
+3. If no OLD_FILE:
+   a. Rename temp file to final path: mv <temp> <final>
+```
+
+**Rationale:** The `.tmp` → rename pattern ensures no window where a reader sees a partially-written file. The OLD_FILE deletion after rename ensures exactly one runbook file exists per domain+scenario identity at any time — no stale copies.
 
 ## Procedure
 
@@ -408,7 +463,10 @@ For each GUI path in the runbook:
 |-----------|--------|
 | Environment context missing or insufficient | HALT, prompt user for context |
 | Domain context missing or insufficient | HALT, prompt user for context |
+| `issue_number` missing (any type) | HALT, invoke `brainstorming` to create tracking issue before generating |
+| `cadence` missing (periodic-procedure only) | HALT, prompt: "Cadence is required for periodic-procedure runbooks. Specify one of: _daily, _weekly, _monthly, _quarterly, _annual, _on-demand." |
 | Runbook type unclear and cannot be classified | Default to one-off-config (steps-only) |
+| Cadence value outside registry (periodic-procedure only) | HALT, require one of six registered values |
 | Diagnosis unconfirmed (low confidence) — troubleshooting/incident-response only | HALT, escalate — do NOT mitigate |
 | Mitigation risk exceeds severity threshold — troubleshooting/incident-response only | HALT, escalate before proceeding |
 | Verification fails — troubleshooting/incident-response only | Return to Step 2, do NOT proceed to postmortem |
@@ -422,7 +480,12 @@ The output contract depends on the runbook type:
 
 ### Steps-Only Output (one-off-config and periodic-procedure)
 
-File naming convention: `<RB_PATH>/<domain>-<scenario>_<YYYY-MM-DD>_issue-<issue_number>.md`
+File naming convention — see Type-Based Naming Convention table above for the per-type convention:
+
+- **one-off-config**: `<RB_PATH>/<domain>-<scenario>_<YYYY-MM-DD>_issue-<issue_number>.md`
+- **periodic-procedure**: `<RB_PATH>/<domain>-<scenario>_<cadence>_issue-<issue_number>.md`
+
+The cadence value comes from the Cadence Registry in SKILL.md. Only registered cadence values (`_daily`, `_weekly`, `_monthly`, `_quarterly`, `_annual`, `_on-demand`) are valid.
 
 The generated runbook is saved as a Markdown file with:
 
