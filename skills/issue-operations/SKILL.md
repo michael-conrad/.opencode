@@ -77,6 +77,10 @@ issue-operations/                     # Dispatcher — workflow logic, platform 
 
 **COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps (labels, auditors, sub-issues, status report) are never skipped. It is idempotent and safe to invoke multiple times.
 
+## spec.md Mirror (MANDATORY)
+
+The dispatcher MUST mirror every successful `github_issue_read(method="get")` to `.issues/<issue_number>/spec.md`. See `platforms/github-mcp/SKILL.md` → "spec.md Mirror" for the complete procedure including sync, fallback, staleness detection, and no-sync-back rules.
+
 ## Hard Gates (MANDATORY — no bypass)
 
 ### Gate 1: Skill Dispatch Before Direct API Calls

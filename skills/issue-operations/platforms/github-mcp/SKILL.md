@@ -49,6 +49,51 @@ All operations dispatched through the `github_*` MCP tool family. No Python clie
 
 None required. GitHub MCP provides complete API coverage.
 
+## spec.md Mirror (MANDATORY)
+
+Every `github_issue_read(method="get")` call MUST mirror the spec body to `.issues/<issue_number>/spec.md`:
+
+| Event | Action |
+|-------|--------|
+| `github_issue_read(method="get")` success | Write `.issues/<issue_number>/spec.md` with header `# Synced from GitHub Issue #<N> at <ISO8601-timestamp>` followed by the issue body |
+| `github_issue_read(method="get")` repeated | Overwrite `spec.md` with updated timestamp and body |
+| API unreachable (network error, rate limit, auth failure) | Read `.issues/<issue_number>/spec.md` from disk, note staleness in chat: `"spec.md last synced at <timestamp>, may be stale"` |
+| API comes back after outage | Re-fetch and overwrite on next spec read |
+
+### Mirror Sync Procedure (MANDATORY)
+
+After every `github_issue_read(method="get")` success:
+
+1. Create directory: `mkdir -p .issues/<issue_number>/`
+2. Write `spec.md`:
+```
+# Synced from GitHub Issue #<N> at <ISO8601-timestamp>
+
+<issue body>
+```
+3. Report to chat: `"spec.md mirror updated for #<N> at <timestamp>"`
+
+### Fallback Procedure (MANDATORY)
+
+When `github_issue_read(method="get")` fails with a network error, rate limit, or auth failure:
+
+1. Check if `.issues/<issue_number>/spec.md` exists
+2. If exists: read from disk, note in chat: `"GitHub API unreachable. Reading spec.md (last synced at <timestamp>, may be stale)."`
+3. If NOT exists and API is unreachable: report `"Cannot read spec #<N> — API unreachable and no local spec.md mirror exists."`
+4. Proceed with stale/absent data noting the risk
+
+### Staleness Detection
+
+`spec.md` is stale when:
+1. The sync timestamp in the header is more than 24 hours old
+2. The GitHub Issue was modified (comments added, labels changed) since the last sync
+
+Agent MUST report staleness when detected and should attempt to refresh. If API still unreachable, proceed with stale copy noting the risk.
+
+### No Sync-Back
+
+`spec.md` is read-only from the agent's perspective. The agent NEVER edits `spec.md` — it always writes to the GitHub Issue via the API. This prevents divergence between the local mirror and the authoritative copy.
+
 ## Cross-References
 
 - Dispatcher: `../SKILL.md` (issue-operations)
