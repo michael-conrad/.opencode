@@ -20,7 +20,7 @@ echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
 OVERALL_RESULT=0
 
-WORKTREE_ROOT="$PROJECT_DIR"
+WORKTREE_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Verify 1: 080-code-standards.md includes Scala header format
 # SC-1: Scala header format under "Header Format by File Type"

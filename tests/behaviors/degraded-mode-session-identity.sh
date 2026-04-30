@@ -15,8 +15,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
-source "$SCRIPT_DIR/_find_project_root.sh"
-WORKTREE_ROOT="$(_find_project_root)"
+WORKTREE_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 SCENARIO_NAME="degraded-mode-session-identity"
 

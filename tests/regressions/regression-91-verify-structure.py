@@ -13,18 +13,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-
-def _find_project_root() -> Path:
-    current = Path(__file__).resolve().parent
-    while current != current.parent:
-        if current.name == ".opencode":
-            return current.parent
-        current = current.parent
-    raise RuntimeError("Could not find project root (no .opencode/ directory found)")
-
-
-PROJECT_ROOT = _find_project_root()
-OPENCODE_DIR = PROJECT_ROOT / ".opencode"
+OPENCODE_DIR = Path(__file__).resolve().parent.parent.parent
+PROJECT_ROOT = OPENCODE_DIR.parent
 
 ISSUES = [41, 42, 43, 45]
 

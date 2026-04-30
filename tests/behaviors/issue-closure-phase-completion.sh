@@ -14,7 +14,7 @@ source "$SCRIPT_DIR/helpers.sh"
 
 # helpers.sh computes PROJECT_DIR from the main repo. For worktree tests,
 # we need the worktree root (three levels up from behaviors/).
-WORKTREE_ROOT="$PROJECT_DIR"
+WORKTREE_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 SCENARIO_NAME="issue-closure-phase-completion"
 SCENARIO_PROMPT="When processing a PR body with 'Implements #N' where the spec #N has incomplete phases, the cleanup/issue-closure task must NOT close #N. Instead, it must require a completeness check first."

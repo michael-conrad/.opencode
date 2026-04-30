@@ -18,16 +18,6 @@ from pathlib import Path
 SCHEMA_V1 = "1.0"
 SCHEMA_V2 = "2.0"
 
-def _find_project_root() -> Path:
-    current = Path(__file__).resolve().parent
-    while current != current.parent:
-        if current.name == ".opencode":
-            return current.parent
-        current = current.parent
-    raise RuntimeError("Could not find project root (no .opencode/ directory found)")
-
-PROJECT_ROOT = _find_project_root()
-
 FENCE_PATTERN = re.compile(r"```yaml\+symbolic\n(.*?)```", re.DOTALL)
 
 REQUIRED_RULE_FIELDS = {"id", "title", "actions"}
@@ -45,7 +35,7 @@ def find_skills_dir(tool_path: Path) -> Path:
     Find skills directory by walking up tree from tool location.
     
     Works for: standalone dirs, submodules, copied folders, any deployment.
-    No hardcoded paths.
+    No git required. No hardcoded paths.
     """
     # 1. Discovery: walk up until finding skills/
     for parent in [tool_path.parent] + list(tool_path.parents):
@@ -53,12 +43,7 @@ def find_skills_dir(tool_path: Path) -> Path:
         if candidate.exists() and candidate.is_dir():
             return candidate
     
-    # 2. Project root detection: find .opencode/skills/ via walk-up
-    candidate = PROJECT_ROOT / ".opencode" / "skills"
-    if candidate.exists() and candidate.is_dir():
-        return candidate
-    
-    # 3. Environment override (explicit user control for edge cases)
+    # 2. Environment override (explicit user control for edge cases)
     if os.environ.get("SKILDECK_SKILLS_DIR"):
         env_path = Path(os.environ["SKILDECK_SKILLS_DIR"])
         if env_path.exists():

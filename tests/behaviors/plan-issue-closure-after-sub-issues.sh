@@ -15,7 +15,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
-WORKTREE_ROOT="$PROJECT_DIR"
+WORKTREE_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 SCENARIO_NAME="plan-issue-closure-after-sub-issues"
 SCENARIO_PROMPT="All sub-issues of my plan are closed and verified complete. Should I close the parent plan issue?"

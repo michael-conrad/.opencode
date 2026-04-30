@@ -103,102 +103,6 @@ Fallthrough reason: Step 0.5 evidence unavailable
 Cannot create issue: Step 0.5 dedup gate evidence missing and runtime search fallback failed. Run pre-creation task first.
 ```
 
-### Step 0.6: Single Concern Checkpoint (SCC)
-
-**MANDATORY before title format determination. Classify the proposed issue as single-concern or multi-concern.**
-
-Apply the concern classification test to the proposed issue body and title:
-
-**Concern Classification Test:** "Remove concern B from the artifact. If concern A remains complete and verifiable, they are unrelated and must be in separate artifacts."
-
-Two concerns are unrelated when ALL of the following hold:
-- Different root causes
-- Can be verified independently
-- Can be closed independently
-- Removing one doesn't break the other's success criteria
-
-**Procedure:**
-
-1. Identify every distinct concern in the proposed issue (each problem area with its own root cause, affected scope, and verification criteria)
-2. For each pair of concerns, apply the classification test: "Can you remove concern B, and have concern A remain complete and verifiable?"
-3. Classify the issue:
-
-| Classification | Condition | Action |
-| -- | -- | -- |
-| Single-concern | 0-1 concerns, OR all concerns share root cause and cannot be verified/closed independently | Proceed to Step 1 |
-| Multi-concern | ≥2 unrelated concerns identified | HALT — require decomposition into separate issues |
-
-**On HALT for multi-concern:**
-
-```
-Cannot create issue: Single Concern Checkpoint failed. <N> unrelated concerns detected:
-- Concern A: <description>
-- Concern B: <description>
-These must be filed as separate issues per 000-critical-rules.md §Single Concern Principle.
-```
-
-**Evidence artifact (MANDATORY):**
-
-```
-Check: Single Concern Checkpoint for "<proposed title>"
-Concerns identified: [N]
-Classification: [single-concern|multi-concern]
-Concerns: [list each concern with root cause and verification scope]
-Action: [proceed|HALT — decomposition required]
-```
-
-**Gate logic:**
-
-| SCC Result | Action |
-| -- | -- |
-| Single-concern | Proceed to Step 1 |
-| Multi-concern | HALT — do not create combined issue |
-
-### Step 0.7: Submodule Detection & Routing Gate
-
-**MANDATORY before determining title format. Classify which repository the issue should be filed against.**
-
-When operating in a repository that contains submodules (detected via `.gitmodules` or session context `Sub-folder Repo Mappings`), the agent MUST determine the correct target repository before creating the issue.
-
-**Procedure:**
-
-1. Identify which files/paths the issue targets (from the issue body's "Affected Files" section or from context)
-2. Cross-reference each target path against `.gitmodules` entries and session context `Sub-folder Repo Mappings`
-3. Classify routing:
-
-| Path Classification | Route To | Example |
-| -- | -- | -- |
-| Target files under submodule path | Submodule's `owner/repo` | `.opencode/guidelines/*` → `michael-conrad/.opencode` |
-| Target files in parent repo only | Parent's `owner/repo` | `.gitignore`, `AGENTS.md` → `michael-conrad/opencode-config` |
-| Target files in BOTH | Separate issues per repo | Split into two issues, one per repo |
-
-4. **Document the routing decision in the issue body** with a classification comment:
-
-```
-<!-- Routing: Filing against <owner>/<repo> because target files are under <submodule-path>/ -->
-```
-
-5. **Override `owner` and `repo` parameters** in the creation API call to use the classified target repository
-
-**Gate logic:**
-
-| Routing Result | Action |
-| -- | -- |
-| All target files → one repo | Proceed with classified `owner/repo` |
-| Target files span multiple repos | HALT — split into separate issues per `000-critical-rules.md` §Single Concern Principle |
-| No submodule mappings and target files ambiguous | HALT — report ambiguity, request clarification |
-
-**Evidence artifact (MANDATORY):**
-
-```
-Check: Submodule Detection & Routing Gate for "<proposed title>"
-Target paths: [list of file paths]
-Submodule mappings: [list from .gitmodules / session context]
-Classification: [parent|submodule:<path>|ambiguous]
-Routing: <owner>/<repo>
-Action: [proceed|HALT — split required|HALT — ambiguous]
-```
-
 ### Step 1: Determine Title Format
 
 | Issue Type | Title Format | Example |
@@ -325,7 +229,6 @@ Before proceeding, verify ALL:
 | "Issue was created" | Verify API response | Check `number` field in creation response | MISSING-ELEMENT |
 | "`needs-approval` label applied" | Verify label on created issue | `github_issue_read(method="get_labels", issue_number=N)` | MISSING-ELEMENT |
 | "Byline in body" | Verify byline present | Check issue body for `🤖` marker | STRUCTURE-VIOLATION |
-| "Routing gate performed" | Verify routing classification exists | Check issue body for routing comment or check pre-creation output for Step 0.7 evidence | ROUTING-GAP → HALT |
 
 **Evidence artifact:** Pre-creation result, creation API response, post-creation label check.
 

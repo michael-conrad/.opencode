@@ -15,7 +15,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
-WORKTREE_ROOT="$PROJECT_DIR"
+WORKTREE_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 SCENARIO_NAME="git-config-watchdog-detection"
 

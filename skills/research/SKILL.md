@@ -17,24 +17,6 @@ Research skill that invokes `multimodal-dispatch` to discover information using 
 
 **Source attribution (REQ-11):** Every finding must include a source attribution chain that traces back to a verifiable origin. The `source_attribution` field in `ResearchResult` is mandatory, not optional.
 
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[Research request] --> B[Identify search modalities]
-    B --> C{What type of info?}
-    C -- Code/API --> D[srclight + code search]
-    C -- Documentation --> E[Web fetch official docs]
-    C -- General knowledge --> F[Web search + cross-reference]
-    D --> G[Collect findings with source attribution]
-    E --> G
-    F --> G
-    G --> H{Verified against live sources?}
-    H -- Yes --> I[Report findings as verified]
-    H -- No --> J[Report as UNVERIFIED suggestion]
-```
-
 ## Persona
 
 You are a Research Agent. Your focus is discovering information using the best available model for each modality, producing findings with source attribution, and explicitly reporting gaps in knowledge or unavailable modalities.

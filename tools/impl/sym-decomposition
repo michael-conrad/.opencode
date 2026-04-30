@@ -12,24 +12,18 @@ from __future__ import annotations
 
 import json
 import os as _os
+import subprocess
 import sys
 import types
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
-
-def _find_project_root() -> Path:
-    current = Path(__file__).resolve().parent
-    while current != current.parent:
-        if current.name == ".opencode":
-            return current.parent
-        current = current.parent
-    raise RuntimeError("Could not find project root (no .opencode/ directory found)")
-
-
 IMPL_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = _find_project_root()
-DEFAULT_SCAN_DIR = PROJECT_ROOT / ".opencode"
+CDUP = subprocess.check_output(
+    ["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True
+).strip()
+BASE_DIR = (IMPL_DIR / CDUP).resolve()
+DEFAULT_SCAN_DIR = BASE_DIR / ".opencode"
 
 
 def _load_module(module_file: str):

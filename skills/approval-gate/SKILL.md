@@ -13,35 +13,6 @@ compatibility: opencode
 
 Authorization Gatekeeper ensuring all code changes follow the spec + authorization workflow. The agent MUST invoke this skill before implementation begins.
 
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[User says approved/go] --> B{Spec exists?}
-    B -- No --> C[brainstorming → spec-creation]
-    B -- Yes --> D{Plan exists?}
-    D -- No --> E[writing-plans → create plan]
-    D -- Yes --> F{Spec-to-plan cascade?}
-    F -- Yes --> G[Auto-approve plan]
-    F -- No --> H[Plan needs approval]
-    E --> H
-    H --> I{verify-authorization gates}
-    G --> I
-    I --> J{All gates pass?}
-    J -- No --> K[HALT — report blocker]
-    J -- Yes --> L[git-workflow pre-work]
-    L --> M[sub-issue verification]
-    M --> N[pre-implementation-analysis]
-    N --> O[divide-and-conquer/assemble-work]
-    O --> P[verification-before-completion]
-    P --> Q[finishing-a-development-branch]
-    Q --> R[git-workflow review-prep]
-    R --> S{halt_at ≥ pr_created?}
-    S -- Yes --> T[PR creation]
-    S -- No --> U[HALT — compare URL]
-    T --> V[HALT — PR URL]
-```
-
 ## Persona
 
 You are an Authorization Gatekeeper. Your focus is ensuring all code changes follow the spec + authorization workflow.
@@ -140,448 +111,6 @@ ENDIF
 
 Violation: Writing code without a spec bypasses the review trail and edge case discovery. For clearly simple work (docs, minor config), developer authorization IS the process — but the gate still requires checking.
 
-
-## MANDATORY TASKS
-
-- [ ] MANDATORY: Invoke `approval-gate --task verify-authorization` before ANY implementation (per Gate 1: Authorization Required Before Implementation)
-- [ ] MANDATORY: Verify spec or plan exists as GitHub Issue before proceeding (per Gate 2: Spec Required Before Code, per `010-approval-gate.md` §Authorization Requirements)
-- [ ] MANDATORY: Search GitHub Issues for existing `[SPEC]`, `[PLAN]`, `[SPEC-FIX]` candidates before Q/A halt (per `000-critical-rules.md` §Silent Halt Without Prompt, per `search-prompt-fail` task)
-- [ ] MANDATORY: Check `pr_boundaries` in plan yaml+symbolic block and verify required upstream PRs are merged via `github_pull_request_read(method=get)` before authorizing implementation (per PR Merge Boundary Gate)
-- [ ] MANDATORY: Invoke `git-workflow --task pre-work` after `verify-authorization` passes, before any implementation (per Dispatch Order Step: MANDATORY WORKTREE STEP)
-- [ ] MANDATORY: Verify sub-issue structure under plan: `github_issue_read(method=get_sub_issues)` count must match plan phase count (per `verify-authorization` Step 5, per `000-critical-rules.md` §Sub-issue Structure Bypass)
-- [ ] MANDATORY: Apply spec-to-plan approval cascade when spec is approved and faithful plan already exists — auto-approve plan, remove `needs-approval` label, add cascade comment (per `verify-authorization` Step 5b, per `010-approval-gate.md` §Spec-to-Plan Approval Cascade)
-- [ ] MANDATORY: Dispatch `screen-issue` sub-agents for EVERY approved issue — no inline screening regardless of set size (per `000-critical-rules.md` §Inline Screening of Authorization Sets, per `pre-implementation-analysis` Step -1)
-- [ ] MANDATORY: Run `pre-implementation-analysis` for all approvals (single or authorization set) — build dependency graph, classify issues, present analysis in chat (per `000-critical-rules.md` §Skipping Interdependency Analysis)
-- [ ] MANDATORY: Parse authorization scope from verb-prefix parsing table — do NOT ask developer for scope classification (per `010-approval-gate.md` §Authorization Scope Model, per `000-critical-rules.md` §Structural Decision Solicitation Under for_pr Scope)
-- [ ] MANDATORY: Execute gap-fill cascade autonomously when `authorization_scope >= for_plan` — do NOT halt for structural decisions that the scope model resolves (per `000-critical-rules.md` §for_pr Gap-Fill Halt)
-- [ ] MANDATORY: Do NOT halt after `pre-implementation-analysis` when `authorization_scope >= for_pr` — check scope and proceed to gap-fill cascade (per `000-critical-rules.md` §pre-implementation-analysis Halts Under for_pr Scope)
-- [ ] MANDATORY: Verify dispatch chain enforcement — confirm prior step's output artifacts before proceeding to next step; HALT and invoke skipped skill on missing artifact (per Dispatch Order Enforcement Checkpoint table)
-- [ ] MANDATORY: Produce visible chat output after every sub-agent dispatch — NEVER transition from dispatch to halt without output (per Step 0.5 Post-Dispatch Output Gate)
-- [ ] MANDATORY: Verify orchestrator has NOT performed inline file operations before dispatch (per Step 0 Orchestrator Purity Gate)
-- [ ] MANDATORY: Invoke `--task completion` on workflow halt at ANY point — idempotent, safe to invoke multiple times (per COMPLETION GUARANTEE)
-- [ ] MANDATORY: Verify bug reports have fix spec sub-issue before closure — invoke `verify-fix-spec` for bug report issues (per `000-critical-rules.md` §Bug Reports Without Fix Spec)
-- [ ] MANDATORY: Verify closed issues have merged PR evidence before treating as resolved — invoke `verify-closed-issue` (per `000-critical-rules.md` §Assuming Closed Issues Are Verified)
-- [ ] MANDATORY: Invoke `reconcile-issue-graph` when graph traversal finds inconsistent issue states — auto-close verified-complete, reopen verified-incomplete (per `000-critical-rules.md` §Process Gaps Are Bugs)
-- [ ] MANDATORY: Classify mandate tier before yielding — Tier 1 mandates (branch protection, human-only merge, no `/tmp/`) NEVER yield to developer authorization; Tier 2 mandates (spec-before-code, plan-before-implementation) yield to explicit authorization (per Mandate Tiering Enforcement table)
-
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-04-26T00:00:00Z"
-rules:
-  - id: approval-gate-skill-001
-    title: "Pre-implementation authorization verification"
-    conditions:
-      all:
-        - "spec_exists == true"
-        - "user_authorized == false"
-    actions:
-      - HALT
-    conflicts_with: []
-    requires: [approval-gate-001]
-    triggers: [git-workflow]
-    source: "approval-gate/SKILL.md §Authorization Requirements"
-
-  - id: approval-gate-skill-002
-    title: "Multi-task cascade: authorization extends from plan to all sub-issues"
-    conditions:
-      all:
-        - "plan_has_sub_issues == true"
-        - "user_authorized == true"
-    actions:
-      - PROCEED
-    conflicts_with: []
-    requires: [approval-gate-002]
-    triggers: [divide-and-conquer, executing-plans]
-    source: "approval-gate/SKILL.md §Multi-task cascade"
-
-  - id: approval-gate-skill-003
-    title: "Post-implementation: push then halt"
-    conditions:
-      all:
-        - "implementation_complete == true"
-        - "pr_not_created == true"
-    actions:
-      - INVOKE(git-workflow)
-      - HALT
-    conflicts_with: []
-    requires: []
-    triggers: [git-workflow]
-    source: "approval-gate/SKILL.md §Post-Implementation Workflow"
-
-  - id: approval-gate-skill-004
-    title: "Search before Q/A halt when no spec/plan found"
-    conditions:
-      all:
-        - "implementation_requested == true"
-        - "matching_spec_exists == false"
-        - "matching_plan_exists == false"
-    actions:
-      - INVOKE(search-prompt-fail)
-      - PRESENT(candidates_or_failure)
-      - HALT
-    conflicts_with: []
-    requires: []
-    triggers: [approval-gate, brainstorming, spec-creation]
-    source: "approval-gate/SKILL.md §search-prompt-fail task"
-
-  - id: approval-gate-skill-010
-    title: "Verify schema/API/code knowledge before claims"
-    conditions:
-      all:
-        - "agent_about_to_make_structural_claim == true"
-        - "verification_performed == false"
-    actions:
-      - INVOKE(verify-schema-api-knowledge)
-    conflicts_with: []
-    requires: []
-    triggers: [engineering-approach]
-    source: "approval-gate/SKILL.md §verify-schema-api-knowledge task"
-
-  - id: approval-gate-skill-005
-    title: "Spec-to-plan approval cascade"
-    conditions:
-      all:
-        - "spec_approved == true"
-        - "spec_has_existing_plan == true"
-    actions:
-      - REMOVE_LABEL(needs-approval, plan)
-      - ADD_COMMENT(cascade approval documentation)
-      - PROCEED_TO(plan-approved dispatch path)
-    conflicts_with: []
-    requires: [approval-gate-002]
-    triggers: [writing-plans]
-    source: "approval-gate/SKILL.md §Spec-to-plan Approval Cascade"
-
-  - id: approval-gate-skill-006
-    title: "PR merge boundary check before implementation"
-    conditions:
-      all:
-        - "plan_has_pr_boundaries == true"
-        - "required_pr_not_merged == true"
-    actions:
-      - HALT
-      - REPORT("CRITICAL: Implementing Before PR Merge Boundary — required PR not merged")
-    conflicts_with: []
-    requires: [approval-gate-skill-001]
-    triggers: [divide-and-conquer, git-workflow]
-    source: "approval-gate/SKILL.md §PR Merge Boundary Gate"
-
-tasks:
-  - id: verify-authorization
-    skill: approval-gate
-    preconditions: ["authorization_phrase_received == true"]
-    postconditions: ["authorization_verified == true || halted == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skill Bypass"
-    source: "approval-gate/SKILL.md"
-
-  - id: scope-auto-resolve
-    skill: approval-gate
-    preconditions: ["authorization_phrase_received == true"]
-    postconditions: ["scope_resolved == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Soliciting Authorization for Already-Authorized Phrases"
-    source: "approval-gate/SKILL.md"
-
-  - id: item-decomposition-check
-    skill: approval-gate
-    preconditions: ["plan_body_parsed == true"]
-    postconditions: ["item_decomposition_exists == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Monolithic Implementation"
-    source: "approval-gate/SKILL.md"
-
-  - id: sc-traceability-check
-    skill: approval-gate
-    preconditions: ["spec_exists == true"]
-    postconditions: ["success_criteria_traceable == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Verification Skills"
-    source: "approval-gate/SKILL.md"
-
-  - id: sub-issue-verification
-    skill: approval-gate
-    preconditions: ["plan_has_sub_issues == true"]
-    postconditions: ["sub_issue_count_matches == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Sub-issue Structure Bypass"
-    source: "approval-gate/SKILL.md"
-
-  - id: spec-to-plan-cascade
-    skill: approval-gate
-    preconditions: ["spec_approved == true AND existing_plan_faithful == true"]
-    postconditions: ["plan_auto_approved == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Ignoring Spec-to-Plan Approval Cascade"
-    source: "approval-gate/SKILL.md"
-
-  - id: gap-fill-cascade
-    skill: approval-gate
-    preconditions: ["authorization_scope != 'standard'"]
-    postconditions: ["missing_artifacts_created == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Pipeline-Scoped Authorization"
-    source: "approval-gate/SKILL.md"
-
-  - id: pr-merge-boundary-check
-    skill: approval-gate
-    preconditions: ["plan_has_pr_boundaries == true"]
-    postconditions: ["required_pr_boundaries_merged == true || halted_at_boundary == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Implementing Before PR Merge Boundary"
-    source: "approval-gate/SKILL.md §PR Merge Boundary Gate"
-
-  - id: screen-issue
-    skill: approval-gate
-    preconditions: ["single_issue == true"]
-    postconditions: ["screening_result == pass || screening_result == fail"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Inline Screening of Authorization Sets"
-    source: "approval-gate/SKILL.md"
-
-  - id: pre-implementation-analysis
-    skill: approval-gate
-    preconditions: ["authorization_verified == true"]
-    postconditions: ["work_state_written == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Interdependency Analysis"
-    source: "approval-gate/SKILL.md"
-
-  - id: reconcile-issue-graph
-    skill: approval-gate
-    preconditions: ["issue_graph_built == true"]
-    postconditions: ["verified_closed_and_reopened == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Assuming Closed Issues Are Verified"
-    source: "approval-gate/SKILL.md"
-
-  - id: verify-already-implemented
-    skill: approval-gate
-    preconditions: ["closed_issue_found == true"]
-    postconditions: ["implementation_verified == true || implementation_not_found == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Assuming Closed Issues Are Verified"
-    source: "approval-gate/SKILL.md"
-
-  - id: verify-fix-spec
-    skill: approval-gate
-    preconditions: ["bug_report_found == true"]
-    postconditions: ["fix_spec_exists == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Bug Reports Without Fix Spec"
-    source: "approval-gate/SKILL.md"
-
-  - id: verify-closed-issue
-    skill: approval-gate
-    preconditions: ["closed_issue_found == true"]
-    postconditions: ["closure_verified == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Assuming Closed Issues Are Verified"
-    source: "approval-gate/SKILL.md"
-
-  - id: post-implementation
-    skill: approval-gate
-    preconditions: ["implementation_complete == true"]
-    postconditions: ["post_implementation_report_produced == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Wrong Chat Output at Halt Points"
-    source: "approval-gate/SKILL.md"
-
-  - id: completion
-    skill: approval-gate
-    preconditions: ["any_state"]
-    postconditions: ["completion_tasks_executed == true"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
-    source: "approval-gate/SKILL.md"
-
-decomposition:
-  - type: sub-agent
-    skill: approval-gate
-    task: screen-issue
-    mandatory: true
-    bypass_violation: "CRITICAL: Inline Screening of Authorization Sets"
-    isolation: clean-room
-    must_receive: [issue number, issue body, authorization context, github.owner, github.repo]
-    must_not_receive: [implementation context, agent memory, cached verification results, other sub-agents' prior results]
-
-  - type: skill-task
-    skill: git-workflow
-    task: pre-work
-    mandatory: true
-    bypass_violation: "CRITICAL: Skill Bypass"
-
-  - type: skill-task
-    skill: divide-and-conquer
-    task: assemble-work
-    mandatory: true
-    bypass_violation: "CRITICAL: Unified Dispatch Path"
-
-  - type: skill-task
-    skill: verification-before-completion
-    task: verify
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Post-Implementation Verification Skills"
-
-  - type: sub-agent-dispatch
-    isolation: clean-room
-    task: pre-implementation-analysis
-    must_receive: [authorization context, issue numbers, github.owner, github.repo]
-    must_not_receive: [implementation context, agent memory from prior phases, cached verification results, other sub-agents' prior results]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping Clean-Room Dispatch for Sub-Agents"
-
-  - type: skill-task
-    skill: finishing-a-development-branch
-    task: checklist
-    mandatory: true
-    bypass_violation: "CRITICAL: Uncommitted/Unpushed Changes After Implementation"
-
-  - type: skill-task
-    skill: git-workflow
-    task: review-prep
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping review-prep After Implementation"
-
-gates:
-  - id: authorization-required
-    condition: "has_approved_plan == true || has_explicit_authorization == true"
-    on_fail: "HALT"
-    critical_violation: true
-
-  - id: spec-exists
-    condition: "spec_or_plan_exists == true"
-    on_fail: "INVOKE(brainstorming) or HALT"
-    critical_violation: true
-
-  - id: sub-issue-structure
-    condition: "plan_sub_issues_count >= plan_phase_count"
-    on_fail: "INVOKE(issue-operations/link-sub-issue)"
-    critical_violation: true
-
-  - id: worktree-before-implementation
-    condition: "worktree_path_is_set == true || direct_branch_mode == true"
-    on_fail: "INVOKE(git-workflow/pre-work)"
-    critical_violation: true
-
-  - id: pr-merge-boundary
-    condition: "plan_has_pr_boundaries == false OR required_pr_boundaries_merged == true"
-    on_fail: "HALT"
-    critical_violation: true
-
-evidence_artifacts:
-  - name: authorization_result
-    type: tool_call
-    verification: "github_issue_read(method=get) confirms authorization"
-
-  - name: scope_resolution
-    type: tool_call
-    verification: "scope_auto_resolve output confirms parsed scope"
-
-  - name: sub_issue_count
-    type: tool_call
-    verification: "github_issue_read(method=get_sub_issues) count matches plan"
-
-  - name: work_state_file
-    type: file_exists
-    verification: ".opencode/tmp/work-*.md exists"
-
-  - name: screening_result_contract
-    type: sub_agent_result
-    verification: "screen-issue sub-agent returns structured YAML"
-
-  - name: pr_merge_boundary_verification
-    type: api_call
-    verification: "github_pull_request_read(method=get, pullNumber=N) → check merged field == true for each required PR boundary"
-
-state_machines:
-  - id: approval-lifecycle
-    states: [draft, spec_approved, plan_created, plan_approved, implementing, code_review_ready, pr_created, merged, closed]
-    start_state: draft
-    transitions:
-      - from: draft
-        to: spec_approved
-        guard: "user_authorizes_spec == true"
-        action: INVOKE(writing-plans)
-        decomposition_guard: "spec_exists == true"
-
-      - from: spec_approved
-        to: plan_created
-        guard: "plan_exists == true"
-        action: PROCEED
-        decomposition_guard: "plan_body_parsed == true"
-
-      - from: draft
-        to: plan_approved
-        guard: "user_authorizes_spec == true AND existing_plan_is_faithful == true"
-        action: AUTO_APPROVE_PLAN_THEN_IMPLEMENT
-        decomposition_guard: "spec_approved == true AND existing_plan_faithful == true"
-
-      - from: plan_created
-        to: plan_approved
-        guard: "user_authorizes_plan == true"
-        action: INVOKE(executing-plans)
-        decomposition_guard: "item_decomposition_exists == true AND success_criteria_traceable == true"
-
-      - from: plan_approved
-        to: implementing
-        guard: "plan_approved == true"
-        action: INVOKE(divide-and-conquer)
-        decomposition_guard: "sub_issue_count_matches == true AND worktree_path_is_set == true"
-
-      - from: implementing
-        to: code_review_ready
-        guard: "implementation_complete == true"
-        action: INVOKE(verification-before-completion)
-        decomposition_guard: "verification_before_completion_artifact_exists == true"
-
-      - from: code_review_ready
-        to: pr_created
-        guard: "halt_at >= pr_created OR pr_strategy != none"
-        action: INVOKE(git-workflow_pr-creation)
-        decomposition_guard: "finishing_checklist_artifact_exists == true"
-
-      - from: pr_created
-        to: merged
-        guard: "pr_approved == true"
-        action: PROCEED
-        decomposition_guard: "pr_created == true"
-
-      - from: merged
-        to: closed
-        guard: "all_plan_sub_issues_closed == true"
-        action: PROCEED
-        decomposition_guard: "all_sub_issues_verified_closed == true"
-
-    scope_transitions:
-      - scope: for_spec
-        halt_at: spec_created
-        action: HALT_AFTER_SPEC_CREATED
-
-      - scope: for_plan
-        halt_at: plan_created
-        action: HALT_AFTER_PLAN_CREATED
-
-      - scope: for_implementation
-        halt_at: implementation_complete
-        action: HALT_AFTER_IMPLEMENTATION
-
-      - scope: for_code_review
-        halt_at: code_review_ready
-        action: HALT_AFTER_CODE_REVIEW
-
-      - scope: for_pr
-        halt_at: pr_created
-        action: CONTINUE_THROUGH_PR
-
-      - scope: pr_only
-        halt_at: pr_created
-        action: CONTINUE_THROUGH_PR
-
-      - scope: standard
-        halt_at: review_prep
-        action: HALT_AFTER_REVIEW_PREP
-```
 ## Operating Protocol
 
 1. **Mandatory invocation (no decision point):** The agent MUST invoke approval-gate when it encounters `approved`/`go`, authorization questions, or implementation start. Never prompt for invocation — just invoke the skill.
@@ -591,19 +120,6 @@ state_machines:
 5. **Spec-to-plan approval cascade:** When a spec is approved and a plan already exists that references the spec (`Spec: #N` in plan body), the plan inherits the spec's approval status. The `needs-approval` label is removed from the plan and a comment documents the cascade. If multiple plans reference the spec, the most recent plan by creation date is cascade-approved and older plans are superseded. If no plan exists, the cascade does NOT apply — the standard flow (spec approval → writing-plans create → plan needs approval) continues. See `verify-authorization.md` Step 5b for the complete cascade procedure.
 6. **Spec revision revocation:** If a spec is revised (status contains `REVISED - NEEDS APPROVAL` — in either prose or numeric format), find linked plan issues by searching for `[PLAN]` issues referencing the spec number in their body and mark them for audit. Revision of a spec revokes approval on its linked plan — including cascaded approval. Prose format example: `STATUS: in progress — {concern} (REVISED - NEEDS APPROVAL)`. Numeric format example: `STATUS: 1.1 (REVISED - NEEDS APPROVAL)`.
 7. **Auto-dispatch after verification:** When all verification gates pass, auto-dispatch to the next skill in the chain. See Dispatch Order below.
-
-## Step 6: Test Verification (NEW)
-
-Before authorization is confirmed, verify:
-
-- [ ] Behavioral test description exists (prose, not template)
-- [ ] Test description covers: behavior change, trigger, verification, failure condition
-- [ ] Test type matches behavior type:
-  - Conversational: uses `with-test-home`, verifies agent response
-  - Runtime: executes code/service, verifies output/state
-- [ ] Content test justification provided (if claiming content-only)
-
-**No behavioral test description = authorization incomplete.**
 
 ## Dispatch Order
 
@@ -1090,3 +606,422 @@ Skills MUST check authorization for **implementation**, NOT for **issue creation
 - Moving issue labels
 
 The `verify-authorization` gate applies only to code/config/file modifications that alter system behavior. Issue creation is a tracking action — the agent MUST proceed without deliberating over authorization. See `010-approval-gate.md` §Issue Creation Is Reporting, Not Implementation for the complete exemption table.
+
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-04-26T00:00:00Z"
+rules:
+  - id: approval-gate-skill-001
+    title: "Pre-implementation authorization verification"
+    conditions:
+      all:
+        - "spec_exists == true"
+        - "user_authorized == false"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: [approval-gate-001]
+    triggers: [git-workflow]
+    source: "approval-gate/SKILL.md §Authorization Requirements"
+
+  - id: approval-gate-skill-002
+    title: "Multi-task cascade: authorization extends from plan to all sub-issues"
+    conditions:
+      all:
+        - "plan_has_sub_issues == true"
+        - "user_authorized == true"
+    actions:
+      - PROCEED
+    conflicts_with: []
+    requires: [approval-gate-002]
+    triggers: [divide-and-conquer, executing-plans]
+    source: "approval-gate/SKILL.md §Multi-task cascade"
+
+  - id: approval-gate-skill-003
+    title: "Post-implementation: push then halt"
+    conditions:
+      all:
+        - "implementation_complete == true"
+        - "pr_not_created == true"
+    actions:
+      - INVOKE(git-workflow)
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "approval-gate/SKILL.md §Post-Implementation Workflow"
+
+  - id: approval-gate-skill-004
+    title: "Search before Q/A halt when no spec/plan found"
+    conditions:
+      all:
+        - "implementation_requested == true"
+        - "matching_spec_exists == false"
+        - "matching_plan_exists == false"
+    actions:
+      - INVOKE(search-prompt-fail)
+      - PRESENT(candidates_or_failure)
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate, brainstorming, spec-creation]
+    source: "approval-gate/SKILL.md §search-prompt-fail task"
+
+  - id: approval-gate-skill-010
+    title: "Verify schema/API/code knowledge before claims"
+    conditions:
+      all:
+        - "agent_about_to_make_structural_claim == true"
+        - "verification_performed == false"
+    actions:
+      - INVOKE(verify-schema-api-knowledge)
+    conflicts_with: []
+    requires: []
+    triggers: [engineering-approach]
+    source: "approval-gate/SKILL.md §verify-schema-api-knowledge task"
+
+  - id: approval-gate-skill-005
+    title: "Spec-to-plan approval cascade"
+    conditions:
+      all:
+        - "spec_approved == true"
+        - "spec_has_existing_plan == true"
+    actions:
+      - REMOVE_LABEL(needs-approval, plan)
+      - ADD_COMMENT(cascade approval documentation)
+      - PROCEED_TO(plan-approved dispatch path)
+    conflicts_with: []
+    requires: [approval-gate-002]
+    triggers: [writing-plans]
+    source: "approval-gate/SKILL.md §Spec-to-plan Approval Cascade"
+
+  - id: approval-gate-skill-006
+    title: "PR merge boundary check before implementation"
+    conditions:
+      all:
+        - "plan_has_pr_boundaries == true"
+        - "required_pr_not_merged == true"
+    actions:
+      - HALT
+      - REPORT("CRITICAL: Implementing Before PR Merge Boundary — required PR not merged")
+    conflicts_with: []
+    requires: [approval-gate-skill-001]
+    triggers: [divide-and-conquer, git-workflow]
+    source: "approval-gate/SKILL.md §PR Merge Boundary Gate"
+
+tasks:
+  - id: verify-authorization
+    skill: approval-gate
+    preconditions: ["authorization_phrase_received == true"]
+    postconditions: ["authorization_verified == true || halted == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skill Bypass"
+    source: "approval-gate/SKILL.md"
+
+  - id: scope-auto-resolve
+    skill: approval-gate
+    preconditions: ["authorization_phrase_received == true"]
+    postconditions: ["scope_resolved == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Soliciting Authorization for Already-Authorized Phrases"
+    source: "approval-gate/SKILL.md"
+
+  - id: item-decomposition-check
+    skill: approval-gate
+    preconditions: ["plan_body_parsed == true"]
+    postconditions: ["item_decomposition_exists == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Monolithic Implementation"
+    source: "approval-gate/SKILL.md"
+
+  - id: sc-traceability-check
+    skill: approval-gate
+    preconditions: ["spec_exists == true"]
+    postconditions: ["success_criteria_traceable == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Verification Skills"
+    source: "approval-gate/SKILL.md"
+
+  - id: sub-issue-verification
+    skill: approval-gate
+    preconditions: ["plan_has_sub_issues == true"]
+    postconditions: ["sub_issue_count_matches == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Sub-issue Structure Bypass"
+    source: "approval-gate/SKILL.md"
+
+  - id: spec-to-plan-cascade
+    skill: approval-gate
+    preconditions: ["spec_approved == true AND existing_plan_faithful == true"]
+    postconditions: ["plan_auto_approved == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Ignoring Spec-to-Plan Approval Cascade"
+    source: "approval-gate/SKILL.md"
+
+  - id: gap-fill-cascade
+    skill: approval-gate
+    preconditions: ["authorization_scope != 'standard'"]
+    postconditions: ["missing_artifacts_created == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Pipeline-Scoped Authorization"
+    source: "approval-gate/SKILL.md"
+
+  - id: pr-merge-boundary-check
+    skill: approval-gate
+    preconditions: ["plan_has_pr_boundaries == true"]
+    postconditions: ["required_pr_boundaries_merged == true || halted_at_boundary == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Implementing Before PR Merge Boundary"
+    source: "approval-gate/SKILL.md §PR Merge Boundary Gate"
+
+  - id: screen-issue
+    skill: approval-gate
+    preconditions: ["single_issue == true"]
+    postconditions: ["screening_result == pass || screening_result == fail"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Inline Screening of Authorization Sets"
+    source: "approval-gate/SKILL.md"
+
+  - id: pre-implementation-analysis
+    skill: approval-gate
+    preconditions: ["authorization_verified == true"]
+    postconditions: ["work_state_written == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Interdependency Analysis"
+    source: "approval-gate/SKILL.md"
+
+  - id: reconcile-issue-graph
+    skill: approval-gate
+    preconditions: ["issue_graph_built == true"]
+    postconditions: ["verified_closed_and_reopened == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Assuming Closed Issues Are Verified"
+    source: "approval-gate/SKILL.md"
+
+  - id: verify-already-implemented
+    skill: approval-gate
+    preconditions: ["closed_issue_found == true"]
+    postconditions: ["implementation_verified == true || implementation_not_found == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Assuming Closed Issues Are Verified"
+    source: "approval-gate/SKILL.md"
+
+  - id: verify-fix-spec
+    skill: approval-gate
+    preconditions: ["bug_report_found == true"]
+    postconditions: ["fix_spec_exists == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Bug Reports Without Fix Spec"
+    source: "approval-gate/SKILL.md"
+
+  - id: verify-closed-issue
+    skill: approval-gate
+    preconditions: ["closed_issue_found == true"]
+    postconditions: ["closure_verified == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Assuming Closed Issues Are Verified"
+    source: "approval-gate/SKILL.md"
+
+  - id: post-implementation
+    skill: approval-gate
+    preconditions: ["implementation_complete == true"]
+    postconditions: ["post_implementation_report_produced == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Wrong Chat Output at Halt Points"
+    source: "approval-gate/SKILL.md"
+
+  - id: completion
+    skill: approval-gate
+    preconditions: ["any_state"]
+    postconditions: ["completion_tasks_executed == true"]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Completion Guarantee on Workflow Halt"
+    source: "approval-gate/SKILL.md"
+
+decomposition:
+  - type: sub-agent
+    skill: approval-gate
+    task: screen-issue
+    mandatory: true
+    bypass_violation: "CRITICAL: Inline Screening of Authorization Sets"
+    isolation: clean-room
+    must_receive: [issue number, issue body, authorization context, github.owner, github.repo]
+    must_not_receive: [implementation context, agent memory, cached verification results, other sub-agents' prior results]
+
+  - type: skill-task
+    skill: git-workflow
+    task: pre-work
+    mandatory: true
+    bypass_violation: "CRITICAL: Skill Bypass"
+
+  - type: skill-task
+    skill: divide-and-conquer
+    task: assemble-work
+    mandatory: true
+    bypass_violation: "CRITICAL: Unified Dispatch Path"
+
+  - type: skill-task
+    skill: verification-before-completion
+    task: verify
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Post-Implementation Verification Skills"
+
+  - type: sub-agent-dispatch
+    isolation: clean-room
+    task: pre-implementation-analysis
+    must_receive: [authorization context, issue numbers, github.owner, github.repo]
+    must_not_receive: [implementation context, agent memory from prior phases, cached verification results, other sub-agents' prior results]
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping Clean-Room Dispatch for Sub-Agents"
+
+  - type: skill-task
+    skill: finishing-a-development-branch
+    task: checklist
+    mandatory: true
+    bypass_violation: "CRITICAL: Uncommitted/Unpushed Changes After Implementation"
+
+  - type: skill-task
+    skill: git-workflow
+    task: review-prep
+    mandatory: true
+    bypass_violation: "CRITICAL: Skipping review-prep After Implementation"
+
+gates:
+  - id: authorization-required
+    condition: "has_approved_plan == true || has_explicit_authorization == true"
+    on_fail: "HALT"
+    critical_violation: true
+
+  - id: spec-exists
+    condition: "spec_or_plan_exists == true"
+    on_fail: "INVOKE(brainstorming) or HALT"
+    critical_violation: true
+
+  - id: sub-issue-structure
+    condition: "plan_sub_issues_count >= plan_phase_count"
+    on_fail: "INVOKE(issue-operations/link-sub-issue)"
+    critical_violation: true
+
+  - id: worktree-before-implementation
+    condition: "worktree_path_is_set == true || direct_branch_mode == true"
+    on_fail: "INVOKE(git-workflow/pre-work)"
+    critical_violation: true
+
+  - id: pr-merge-boundary
+    condition: "plan_has_pr_boundaries == false OR required_pr_boundaries_merged == true"
+    on_fail: "HALT"
+    critical_violation: true
+
+evidence_artifacts:
+  - name: authorization_result
+    type: tool_call
+    verification: "github_issue_read(method=get) confirms authorization"
+
+  - name: scope_resolution
+    type: tool_call
+    verification: "scope_auto_resolve output confirms parsed scope"
+
+  - name: sub_issue_count
+    type: tool_call
+    verification: "github_issue_read(method=get_sub_issues) count matches plan"
+
+  - name: work_state_file
+    type: file_exists
+    verification: ".opencode/tmp/work-*.md exists"
+
+  - name: screening_result_contract
+    type: sub_agent_result
+    verification: "screen-issue sub-agent returns structured YAML"
+
+  - name: pr_merge_boundary_verification
+    type: api_call
+    verification: "github_pull_request_read(method=get, pullNumber=N) → check merged field == true for each required PR boundary"
+
+state_machines:
+  - id: approval-lifecycle
+    states: [draft, spec_approved, plan_created, plan_approved, implementing, code_review_ready, pr_created, merged, closed]
+    start_state: draft
+    transitions:
+      - from: draft
+        to: spec_approved
+        guard: "user_authorizes_spec == true"
+        action: INVOKE(writing-plans)
+        decomposition_guard: "spec_exists == true"
+
+      - from: spec_approved
+        to: plan_created
+        guard: "plan_exists == true"
+        action: PROCEED
+        decomposition_guard: "plan_body_parsed == true"
+
+      - from: draft
+        to: plan_approved
+        guard: "user_authorizes_spec == true AND existing_plan_is_faithful == true"
+        action: AUTO_APPROVE_PLAN_THEN_IMPLEMENT
+        decomposition_guard: "spec_approved == true AND existing_plan_faithful == true"
+
+      - from: plan_created
+        to: plan_approved
+        guard: "user_authorizes_plan == true"
+        action: INVOKE(executing-plans)
+        decomposition_guard: "item_decomposition_exists == true AND success_criteria_traceable == true"
+
+      - from: plan_approved
+        to: implementing
+        guard: "plan_approved == true"
+        action: INVOKE(divide-and-conquer)
+        decomposition_guard: "sub_issue_count_matches == true AND worktree_path_is_set == true"
+
+      - from: implementing
+        to: code_review_ready
+        guard: "implementation_complete == true"
+        action: INVOKE(verification-before-completion)
+        decomposition_guard: "verification_before_completion_artifact_exists == true"
+
+      - from: code_review_ready
+        to: pr_created
+        guard: "halt_at >= pr_created OR pr_strategy != none"
+        action: INVOKE(git-workflow_pr-creation)
+        decomposition_guard: "finishing_checklist_artifact_exists == true"
+
+      - from: pr_created
+        to: merged
+        guard: "pr_approved == true"
+        action: PROCEED
+        decomposition_guard: "pr_created == true"
+
+      - from: merged
+        to: closed
+        guard: "all_plan_sub_issues_closed == true"
+        action: PROCEED
+        decomposition_guard: "all_sub_issues_verified_closed == true"
+
+    scope_transitions:
+      - scope: for_spec
+        halt_at: spec_created
+        action: HALT_AFTER_SPEC_CREATED
+
+      - scope: for_plan
+        halt_at: plan_created
+        action: HALT_AFTER_PLAN_CREATED
+
+      - scope: for_implementation
+        halt_at: implementation_complete
+        action: HALT_AFTER_IMPLEMENTATION
+
+      - scope: for_code_review
+        halt_at: code_review_ready
+        action: HALT_AFTER_CODE_REVIEW
+
+      - scope: for_pr
+        halt_at: pr_created
+        action: CONTINUE_THROUGH_PR
+
+      - scope: pr_only
+        halt_at: pr_created
+        action: CONTINUE_THROUGH_PR
+
+      - scope: standard
+        halt_at: review_prep
+        action: HALT_AFTER_REVIEW_PREP
+```

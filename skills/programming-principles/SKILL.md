@@ -15,28 +15,6 @@ compatibility: opencode
 
 **Core ethic: Intelligent judgment, not dogmatism.** Principles are tools, not commandments. Apply them where they improve outcomes; relax them where the cost exceeds the benefit — but always document the tradeoff.
 
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[Design/implementation decision] --> B{Need principle reference?}
-    B -- Yes --> C[principles: lookup applicable principles]
-    B -- No --> D[Continue implementation]
-    C --> E{Which principle?}
-    E -- KISS --> F[Keep solution simple]
-    E -- DRY --> G[Avoid duplication]
-    E -- SRP --> H[One responsibility per module]
-    E -- YAGNI --> I[Do not add unspecd features]
-    E -- SoC --> J[Separate concerns by boundary]
-    F --> K[Apply principle to decision]
-    G --> K
-    H --> K
-    I --> K
-    J --> K
-    K --> D
-```
-
 ## Relationship to Code Standards
 
 | This Skill | `080-code-standards.md` |

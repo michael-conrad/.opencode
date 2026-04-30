@@ -13,24 +13,6 @@ compatibility: opencode
 
 Concern Separation Auditor analyzes spec phase structures to identify deployment independence, risk profile, and blast radius issues. Reports findings to the agent for decision-making — does NOT auto-fix.
 
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[Called by spec-auditor] --> B[audit-phases: analyze phase structure]
-    B --> C[Identify concerns per phase]
-    C --> D[check-independence: validate deployment independence]
-    D --> E{Phases independent?}
-    E -- No --> F[Report CONCERN_MIXING finding]
-    E -- Yes --> G[concern-coverage: verify sub-issue bodies]
-    G --> H{Sub-issues match plan boundaries?}
-    H -- No --> I[Report MISSING-TRACEABILITY]
-    H -- Yes --> J[Report clean]
-    F --> K[Return findings to spec-auditor]
-    I --> K
-    J --> K
-```
-
 **Core v2 shift:** Report-only. Findings are presented to the agent, who decides whether to apply them given the context. No longer invoked directly — called by spec-auditor orchestrator when relevant.
 
 **Single Concern Principle (SCP):** The authoritative universal rule for concern separation is defined in `000-critical-rules.md` §Single Concern Principle. SCP applies to ALL artifacts the agent produces (issues, commits, PRs, plans, specs, comments, sub-agents). This skill enforces SCP as it applies to spec/plan phase structure — it is a domain-specific instance of the universal rule, not a substitute for it.

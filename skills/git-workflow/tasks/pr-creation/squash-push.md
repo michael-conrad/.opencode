@@ -2,34 +2,21 @@
 
 ## Purpose
 
-Squash implementation commits to a single commit (for single-issue branches) or verify existing commit structure (for work branches), rebase on current dev, and push to remote. This task prepares the branch for PR creation by ensuring a clean, reviewable commit history.
+Squash implementation commits to a single commit (for single-issue branches) or verify existing commit structure (for work branches), rebase on current dev, and push to remote.
 
 ## Entry Criteria
 
 - Enforcement gates passed (pr-creation/enforcement-gate)
 - Implementation is complete and committed
-- Working tree is clean or contains only expected changes
 
 ## Exit Criteria
 
-- Single clean commit on feature branch (single-issue) or verified work branch structure
+- Single clean commit on feature branch (single-issue) OR verified work branch structure
 - Branch rebased on current dev
 - Branch pushed to remote with force-with-lease
 - Working tree clean
 
 ## Procedure
-
-### Step 1: Verify Pre-Conditions
-
-```bash
-# Verify branch
-git branch --show-current
-
-# Verify clean state
-git status --porcelain
-
-# Verify enforcement gate passed (check work state or chat history)
-```
 
 ### Step 2: Changelog Generation (MANDATORY)
 
@@ -61,10 +48,7 @@ git commit -m "<descriptive message>" \
 
 #### Work Branch
 
-If `.opencode/tmp/work-*.md` exists, this is a work branch — skip squash. Verify commit structure instead:
-- Count commits: `git log origin/dev..HEAD --oneline | wc -l`
-- Verify count matches work items in work state file
-- If mismatch, investigate before proceeding
+If `.opencode/tmp/work-*.md` exists, this is a work branch — skip squash. Verify commit structure instead.
 
 ### Step 3.5: Rebase on Current Dev (MANDATORY)
 
@@ -73,7 +57,7 @@ git fetch origin
 git rebase origin/dev
 ```
 
-**If conflicts occur:** HALT and report conflicts to the developer. List conflicting files and provide conflict classification per `conflict-resolution` skill.
+**If conflicts occur:** HALT and report conflicts to the developer. List conflicting files.
 
 **This step is MANDATORY even if review-prep just ran a rebase.** Dev may have been updated since.
 
@@ -82,8 +66,6 @@ git rebase origin/dev
 ```bash
 git push --force-with-lease origin <branch>
 ```
-
-Use `--force-with-lease` because the rebase rewrites history. Plain `git push` will fail after rebase.
 
 ## Worktree Mode (MANDATORY — NO EXCEPTIONS)
 
@@ -97,7 +79,7 @@ All feature branches operate in worktrees. If `worktree.path` is not set: **FATA
 
 ## Live Verification (MANDATORY)
 
-After squash and before push, verify the branch state:
+After squash and before push:
 
 | Check | Command | Expected |
 | -- | -- | -- |
@@ -107,11 +89,8 @@ After squash and before push, verify the branch state:
 | Commits ahead of dev | `git log origin/dev..HEAD --oneline` | Expected commit(s) |
 | Branch tracking | `git branch -vv` | `[origin/<branch>]` |
 | Worktree path correct | `git rev-parse --show-toplevel` | Worktree path |
-| Commit count correct | `git log origin/dev..HEAD --oneline \| wc -l` | 1 (single-issue) or N (work) |
 
 ## Recovery from Accidental Protected Branch Commit
-
-If accidentally committed to `dev` or `main`:
 
 ```bash
 git branch feature/recovery HEAD

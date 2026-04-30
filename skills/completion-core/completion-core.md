@@ -1,37 +1,6 @@
----
-name: completion-core
-description: Use when completing a skill task — shared completion operations (push branch, generate URL, post status, executive summary) referenced by per-skill completion tasks
-type: pattern
-license: MIT
-provenance: AI-generated
-compatibility: opencode
----
-
 # Completion Core — Shared Completion Operations
 
 Reference this file from per-skill `tasks/completion.md` files for common completion operations.
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[Skill halts or completes] --> B[1. Push branch idempotent]
-    B --> C{Branch has unpushed commits?}
-    C -- Yes --> D[git push -u origin branch]
-    C -- No --> E[Skip push]
-    D --> F[2. Generate URL]
-    E --> F
-    F --> G{Workflow type?}
-    G -- git push --> H[Compare URL from session-init values]
-    G -- creation --> I[Action URL from API response html_url]
-    H --> J[3. Post status comment]
-    I --> J
-    J --> K{Comment substantive?}
-    K -- Yes --> L[github_add_issue_comment]
-    K -- No --> M[Skip — chat only]
-    L --> N[4. Report executive summary in chat]
-    M --> N
-```
 
 ## Common Completion Operations
 

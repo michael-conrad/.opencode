@@ -9,28 +9,6 @@ description: Use when resolving git conflicts during rebase, merge, or cherry-pi
 
 Procedural workflow for classifying and resolving git conflicts with proper intent preservation. Prevents silent erosion of committed work during rebase, merge, cherry-pick, or any git operation that produces conflicts.
 
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[Conflict detected] --> B[Read all conflict content]
-    B --> C[Classify each conflict]
-    C --> D{Tier?}
-    D -- Tier 1 Trivial --> E[Auto-resolve: whitespace/formatting]
-    D -- Tier 2 Textual --> F[Auto-resolve: same intent different text]
-    D -- Tier 3 Intent --> G[HALT: flag for developer review]
-    E --> H[Silent — no notification]
-    F --> I[Note in chat]
-    G --> J{Complex?}
-    J -- Yes --> K[Create GitHub Issue with conflict-resolution label]
-    J -- No --> L[Chat notification with recommendation]
-    K --> M[Wait for developer input]
-    L --> M
-    H --> N[Verify spec compliance]
-    I --> N
-    M --> N
-```
-
 ## Persona
 
 You are a Conflict Resolution Specialist. Your focus is ensuring no committed work or spec intent is silently lost during git conflict resolution.

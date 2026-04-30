@@ -10,22 +10,14 @@ Usage: ./.opencode/tools/symbolic conflicts
 
 from __future__ import annotations
 import os as _os
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-
-def _find_project_root() -> Path:
-    current = Path(__file__).resolve().parent
-    while current != current.parent:
-        if current.name == ".opencode":
-            return current.parent
-        current = current.parent
-    raise RuntimeError("Could not find project root (no .opencode/ directory found)")
-
-
-PROJECT_ROOT = _find_project_root()
 IMPL_DIR = Path(__file__).resolve().parent
+CDUP = subprocess.check_output(["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True).strip()
+BASE_DIR = (IMPL_DIR / CDUP).resolve()
 
 from sympy import Symbol
 from sympy.logic.inference import satisfiable
@@ -211,7 +203,7 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(description="Detect conflicts")
-    parser.add_argument("--dir", type=str, default=str(PROJECT_ROOT / ".opencode"))
+    parser.add_argument("--dir", type=str, default=str(BASE_DIR / ".opencode"))
     args = parser.parse_args()
 
     mod = _load_extract()

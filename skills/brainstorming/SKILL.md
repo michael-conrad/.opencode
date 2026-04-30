@@ -17,25 +17,6 @@ Conversational-first exploration workflow. One question at a time, user-driven, 
 
 Co-authored with AI: <AgentName> (<ModelId>)
 
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[User says spec/plan] --> B[explore: one question at a time]
-    B --> C{Requirements complete?}
-    C -- No --> B
-    C -- Yes --> D{Spec already GitHub Issue?}
-    D -- No --> E[Path A: spec-creation]
-    E --> F[issue-operations → create issue]
-    F --> G[HALT for review]
-    D -- Yes --> H{Spec approved?}
-    H -- Yes --> I[Path B: writing-plans]
-    H -- No --> G
-    I --> J[executing-plans]
-    D -- Declines --> K[Path C: FAILURE]
-    K --> L[HALT — spec required]
-```
-
 ## Persona
 
 You are a Requirements Explorer. Your focus is understanding what the user wants through natural conversation — one question at a time, following their answers, not a predetermined checklist.

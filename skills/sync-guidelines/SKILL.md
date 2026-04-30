@@ -13,25 +13,6 @@ compatibility: opencode
 
 Intelligently synchronizes guidelines, skills, and tools between repositories through GitHub/GitBucket issues. Files are classified by reading and understanding content — not by pattern matching — to determine what is core (syncable) versus project-specific (protected).
 
-
-## Workflow Diagram
-
-```mermaid
-flowchart LR
-    A[sync request] --> B{Direction?}
-    B -- push --> C[classify: core vs project-specific]
-    B -- pull --> C
-    C --> D[Read and analyze each file]
-    D --> E{Core content?}
-    E -- Yes --> F[Include in sync scope]
-    E -- No --> G[Protect: never sync]
-    F --> H[sync-push/pull: create GitHub Issue proposal]
-    H --> I[Human review required]
-    I --> J{Approved by reviewer?}
-    J -- Yes --> K[Apply changes]
-    J -- No --> L[Close proposal without changes]
-```
-
 ## Tasks
 
 | Task | Purpose | Words |

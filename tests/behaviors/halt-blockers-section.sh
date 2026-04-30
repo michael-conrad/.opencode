@@ -17,7 +17,7 @@ echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
 OVERALL_RESULT=0
 
-WORKTREE_ROOT="$PROJECT_DIR"
+WORKTREE_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Verify 1: 000-critical-rules.md contains Blockers section requirement
 CR_FILE="$WORKTREE_ROOT/.opencode/guidelines/000-critical-rules.md"

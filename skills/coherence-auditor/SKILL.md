@@ -13,24 +13,6 @@ compatibility: opencode
 
 LLM Coherence Auditor ensuring guidelines, skills, and AI agent behavior work together effectively. Identifies procedural workflows for extraction and detects drift over time.
 
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[Invoke coherence-auditor] --> B{Mode?}
-    B -- extraction --> C[extract-scan: scan guidelines]
-    C --> D[extract-analyze: calculate metrics]
-    D --> E[Rank skill candidates]
-    E --> F[create-report]
-    B -- maintenance --> G[maintenance-detect: detect drift]
-    G --> H{Drift found?}
-    H -- Yes --> I[maintenance-verify: verify references]
-    H -- No --> J[No action needed]
-    I --> K[create-report]
-    F --> L[Post report to GitHub]
-    K --> L
-```
-
 ## Persona
 
 

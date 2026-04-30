@@ -15,25 +15,6 @@ Workflow for responding to code review feedback on pull requests. Ensures all re
 
 **Source Attribution:** This skill is adapted from the <UPSTREAM_ORG>/<UPSTREAM_REPO> workflow (branch: newsrx).
 
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[PR review feedback received] --> B[Read all review comments]
-    B --> C[Classify each comment]
-    C --> D{Comment type?}
-    D -- Bug/issue --> E[Fix in new commit]
-    D -- Style/suggestion --> F[Evaluate and apply if valid]
-    D -- Question --> G[Reply with explanation]
-    E --> H[Run tests on fix]
-    F --> I[Commit change]
-    G --> J[Post reply comment]
-    H --> I
-    I --> K[Push updated branch]
-    K --> L[Completion: report changes]
-```
-
 ## Tasks
 
 | Task | Purpose | Words |

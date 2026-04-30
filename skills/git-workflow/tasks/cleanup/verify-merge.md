@@ -123,40 +123,7 @@ Verify ALL phases/sub-issues have merged PRs before allowing closure of a multi-
 | Sub-issue closed without merged PR | VERIFICATION-GAP | flag-for-review | Investigate closure reason |
 | Sub-issue still open after merge | VERIFICATION-GAP | conditional | Close manually via API |
 
-### Step 5: Submodule PR Merge Verification (MANDATORY when submodules exist)
-
-**⚠️ CRITICAL: When `.gitmodules` exists, the agent MUST verify submodule PR merge status before proceeding to issue closure. Skipping this step when submodules have `main_and_sub` or `sub_only` PR combinations is a CRITICAL GUIDELINE VIOLATION.**
-
-Invoke `/command submodule-workflow-state` to discover submodule workflow state.
-
-For each submodule where `combination_class == "main_and_sub"` or `combination_class == "sub_only"`:
-
-1. Check `pr_state.pr_merged` from the command output
-2. If `pr_state.has_pr == true` and `pr_state.pr_merged == false`: **HALT** — submodule PR is not merged
-3. If `pr_state.has_pr == false` for `sub_only` combinations: **HALT** — submodule has changes but no PR
-
-For `main_only` combinations: no submodule PR check is needed (submodule unchanged).
-
-**Evidence artifacts (MANDATORY):**
-
-```
-Check: Submodule PR merge verification
-Tool: /command submodule-workflow-state
-Result: [per-submodule PR state]
-Classification: [VERIFIED|CONFLICTING]
-Action: [proceed|HALT]
-```
-
-**HALT message format:**
-
-```
-Blocked: Submodule PR not merged — <submodule-repo> PR #<N> is open but not merged.
-Parent PR #<M> merged, but submodule changes require submodule PR merge first.
-Resolve: Wait for submodule PR #<N> to be merged, then re-run cleanup.
-```
-
 ## Context Required
 
 - Related tasks: `cleanup/issue-closure`, `cleanup/branch-cleanup`
 - Related skills: `conflict-resolution` (for rebase conflicts)
-- Related command: `submodule-workflow-state` (submodule PR/branch/issue state discovery)

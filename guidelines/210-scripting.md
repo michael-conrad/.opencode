@@ -4,19 +4,9 @@
 
 Every script/notebook MUST include root resolution:
 
-- **Shell**: `_root="$(cd "$(dirname "$0")" && while [ "$(pwd)" != "/" ]; do [ "$(basename "$(pwd)")" = ".opencode" ] && echo "$(dirname "$(pwd)")" && break; cd ..; done)"` — if empty, `exit 1`
+- **Shell**: `cd "$(dirname "$0")" && cd "$(git rev-parse --show-cdup)" || exit 1`
 - **Python**:
-  ```python
-  def _find_project_root() -> Path:
-      current = Path(__file__).resolve().parent
-      while current != current.parent:
-          if current.name == ".opencode":
-              return current.parent
-          current = current.parent
-      raise RuntimeError("Could not find project root (no .opencode/ directory found)")
-
-  PROJECT_ROOT = _find_project_root()
-  ```
+  `BASE_DIR = Path(__file__).resolve().parent; CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip(); PROJECT_ROOT = (BASE_DIR / CDUP).resolve()`
 - **Notebooks**: Set `base_dir` using Jupyter's directory hint:
   `base_dir = Path(globals()['_dh'][0])`. Add a comment noting this uses `_dh[0]` (Jupyter's directory hint) to locate
   the notebook's directory reliably without relying on CWD.
@@ -25,10 +15,7 @@ Every script/notebook MUST include root resolution:
 
 - Scripts self-locate via `dirname "$0"` (Shell) or `Path(__file__).resolve().parent` (Python). No reliance on user's
   CWD.
-- Resolve project root by walking up from the script's location until a directory named `.opencode` is found, then return its parent. This works correctly in both standalone repos and git submodules without relying on `git` being available or correct remote configuration.
-- `git rev-parse --show-cdup` is **prohibited** — it returns empty string inside submodules, causing path doubling bugs.
-- `git rev-parse --show-toplevel` is **prohibited** — inside a submodule it returns the submodule root, not the project root.
-- `git rev-parse --show-superproject-working-tree` is **prohibited** — it depends on git remote configuration and fails when git is unavailable or misconfigured. Walk-up-directory detection via `.opencode` directory name is more reliable.
+- Resolve project root via `git rev-parse --show-cdup` only. `show-toplevel` is **strictly prohibited** because it returns absolute paths, which break portability and leak local filesystem structure. All internal project references must be relative.
 
 ## Notebook Operations — MANDATORY MCP
 
@@ -125,7 +112,7 @@ rules:
     source: "210-scripting.md §Notebook Operations"
 
   - id: scripting-004
-    title: "Scripts must self-locate and resolve project root via _find_project_root walk-up checking current.name == .opencode"
+    title: "Scripts must self-locate and resolve project root via git rev-parse --show-cdup"
     conditions:
       all:
         - "script_created == true"
@@ -138,25 +125,10 @@ rules:
     source: "210-scripting.md §Script Headers, Self-Location"
 
   - id: scripting-005
-    title: "Never use git rev-parse for root resolution (submodule and git-unavailable breakage)"
-    conditions:
-      any:
-        - "code_contains == 'rev-parse --show-cdup'"
-        - "code_contains == 'rev-parse --show-toplevel'"
-        - "code_contains == 'rev-parse --show-superproject-working-tree'"
-    actions:
-      - HALT
-    conflicts_with: []
-    requires: []
-    triggers: []
-    source: "210-scripting.md §Self-Location & Root Resolution"
-
-  - id: scripting-006
-    title: "Scripts must use _find_project_root walk-up pattern checking current.name == .opencode and returning current.parent"
+    title: "Never use git rev-parse --show-toplevel for root resolution"
     conditions:
       all:
-        - "script_created == true"
-        - "root_resolution_uses_git == true"
+        - "code_contains == 'show-toplevel'"
     actions:
       - HALT
     conflicts_with: []

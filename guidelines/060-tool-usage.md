@@ -175,36 +175,7 @@ Invoke skills when their trigger keywords match the current task. Each skill def
 | **Skill self-describes boundary** | Each SKILL.md defines what it covers; when in doubt, check `Triggers on:` line |
 | **Sub-agent dispatch priority** | When a SKILL.md Sub-Agent Tasks section marks a task as `sub-agent`, the main agent dispatches via `task()` instead of loading the task file inline. This keeps heavy task files out of the main agent context. Result contracts (≈100-500 words) are read instead of the full task file (>1,000 words) |
 
-## 9. Sub-Agent Dispatch Restriction After Authorization
-
-**⚠️ After explicit authorization is received, sub-agent dispatch for read-only parsing of already-fetched data is a CRITICAL GUIDELINE VIOLATION.**
-
-This prevents the post-authorization research spiral documented in Spec #171. When a user says "approved" or "go", the agent must transition to implementation dispatch, not re-read data already in context via sub-agents.
-
-### 🚫 FORBIDDEN (After Authorization)
-
-- Dispatching `task(subagent_type="general")` to parse JSON from `github_issue_read` output already in context
-- Dispatching sub-agents to extract metadata from data the orchestrator already has
-- Dispatching sub-agents for any read-only operation on data already available in the current session
-- Re-reading issues, specs, or plans that were already fetched during verification
-
-### ✅ PERMITTED (After Authorization)
-
-- Dispatching sub-agents for implementation work (file modifications, code generation, heavy analysis)
-- Dispatching via `divide-and-conquer --task assemble-work` for work orchestration
-- Heavy sub-agent analysis that produces NEW deliverables not available in context
-
-### Before Authorization
-
-Before authorization is received, sub-agents may be used freely for research, analysis, and investigation. The restriction applies ONLY after `verify-authorization` returns `authorized`.
-
-### Enforcement
-
-This restriction is enforced by the 3-tool-call bound in `000-critical-rules.md` §"Implementation-First Gate at Authorization Time" and `approval-gate/tasks/verify-authorization/auto-dispatch.md` §Post-Authorization Dispatch Window. Sub-agent dispatch for read-only parsing counts toward the bound and is prohibited.
-
-**AUTHORITY: Spec #171, `000-critical-rules.md` §Implementation-First Gate at Authorization Time**
-
-## 10. Identity Source Semantics
+## 9. Identity Source Semantics
 
 The `github.identity_source` value (emitted by session-init) determines the agent's relationship to git remotes and GitHub API routing.
 

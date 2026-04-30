@@ -18,7 +18,6 @@ These mandates protect the integrity of the codebase and repository. They **NEVE
 | No commits to `main` or `dev` | Branch protection is a repository integrity concern |
 | Human-only merge | Agents must never merge PRs |
 | No `/tmp/` usage — `./tmp/` only | Prevents system-level temp file leakage |
-| Audit baselines in permanent storage — NOT `tmp/` | Audit baselines, measurements, and historical data are permanent records, not ephemeral artifacts |
 | Path rules in worktree context | Prevents silent file operation errors across worktrees (only when `WORKTREE_REQUIRED` is set) |
 | Sub-agents must receive `worktree.path` | Prevents sub-agents from mutating main repo (only when main agent is in worktree mode) |
 | Human-only branch deletion | Unmerged branches must never be force-deleted by agents |
@@ -51,37 +50,6 @@ When developer authorization conflicts with a mandate:
 | No developer authorization + any mandate | Mandate holds — HALT and wait |
 
 **See `010-approval-gate.md` → "Mandate Tiering Interaction" for the complete interaction semantics and examples.**
-
-## Critical Violation: Audit Baselines in Temporary Storage
-
-**⚠️ Storing audit baselines, measurements, or historical data in `tmp/` or `/tmp/` is a CRITICAL GUIDELINE VIOLATION.** Audit artifacts are permanent records, not ephemeral artifacts.
-
-- 🚫 FORBIDDEN: Storing audit reports in `tmp/`, `.opencode/tmp/`, or `/tmp/`
-- 🚫 FORBIDDEN: Storing audit scripts in `tmp/`, `.opencode/tmp/`, or `/tmp/`
-- 🚫 FORBIDDEN: Storing baseline measurements in temporary directories
-- 🚫 FORBIDDEN: Suggesting `tmp/` as a storage location for audit artifacts
-- ✅ REQUIRED: Store audit reports in `.opencode/docs/audits/`
-- ✅ REQUIRED: Store audit scripts in `.opencode/tools/audits/`
-- ✅ REQUIRED: Treat audit baselines, measurements, and historical data as permanent records
-
-**Why this matters:** Audit baselines are reference points for regression detection. If stored in temporary directories, they can be deleted by cleanup operations, leaving no historical record for comparison. The enforcement test `phase0-audit-artifacts.sh` verifies this behavior.
-
-```yaml+symbolic
-  - id: critical-rules-043
-    title: "Audit baselines in permanent storage — NOT tmp/"
-    conditions:
-      any:
-        - "file_path matches '.opencode/tmp/.*audit'"
-        - "file_path matches 'tmp/.*audit'"
-        - "storage_suggestion matches 'tmp/'"
-        - "storage_suggestion matches '/tmp/'"
-    actions:
-      - HALT
-    conflicts_with: []
-    requires: []
-    triggers: [verification-enforcement, sre-runbook]
-    source: "000-critical-rules.md §Audit Baselines in Temporary Storage"
-```
 
 ## Critical Violation: Direct-Branch Default — Feature Branch Without Worktree Is the Norm
 
@@ -455,7 +423,7 @@ For URLs to resources that **haven't been created yet** (Compare URL before push
 - 🚫 FORBIDDEN: Inferring owner from file paths, `$USER`, `git config user.name`, cached values; making GitHub MCP calls without session init values
 - ✅ REQUIRED: Use `github.owner` and `github.repo` from session init for EVERY GitHub MCP call
 
-**Programmatic enforcement**: The `session-enforcement.ts` plugin injects repository identity values (github.owner, github.repo, etc.) into the system prompt. The agent reads these from the system prompt context to route API calls correctly. If identity values are missing, the plugin injects a `<LOCAL_MODE>` warning or error block into the first user message.
+**Programmatic enforcement**: The `session-enforcement.ts` plugin validates the agent's identity echo against injected expected values. If the agent's first response does not contain a matching identity echo, an `IDENTITY_VALIDATION_FAILURE` block is injected into the next user message, forcing the agent to HALT. This gate prevents operations with incorrect owner/repo values.
 
 ## Critical Violation: Wrong API Routing for Submodule/Sub-folder Repos
 
@@ -619,41 +587,6 @@ When authorization scope includes implementation (`for_implementation`, `for_cod
 - ✅ REQUIRED: If context budget is insufficient to reach implementation, report the budget exhaustion explicitly in the halt message rather than silently halting after process steps
 
 **AUTHORITY: Bug #1231, #1232, #1233 — root cause is the same: agent spends all context on process steps and halts before producing deliverables. The implementation-first gate ensures the agent produces at least one tangible modification before it is allowed to report completion.**
-
-## Critical Violation: Implementation-First Gate at Authorization Time — Post-Auth Research Spiral
-
-**⚠️ Entering a read-only research spiral after receiving authorization — performing unlimited tool calls that produce zero file modifications — is a CRITICAL GUIDELINE VIOLATION.** This extends the completion-time implementation-first gate to cover the authorization-to-implementation gap.
-
-The completion-time gate (above) catches the agent halting without deliverables. But the same root cause — context spent on process overhead instead of implementation — also manifests as an unbounded research spiral between authorization receipt and the first file modification. The agent receives "approved" and then makes 5, 10, or 20+ read-only tool calls (re-fetching issues, re-reading specs, parsing JSON sub-agent dispatches for data already in context) before producing any deliverable.
-
-**The authorization-time gate closes this gap:** after explicit authorization is received, the agent MUST transition to implementation dispatch within a bounded number of tool calls. Unbounded metadata gathering between authorization and the first file modification is prohibited.
-
-- 🚫 FORBIDDEN: Making more than 3 tool calls between `verify-authorization` returning `authorized` and invoking `git-workflow --task pre-work`
-- 🚫 FORBIDDEN: Dispatching sub-agents to parse or re-fetch data already available in the current context after authorization
-- 🚫 FORBIDDEN: Re-reading issues, specs, or plans that were already read during verification after authorization is received
-- 🚫 FORBIDDEN: Using `task(subagent_type="general")` for JSON parsing, metadata extraction, or any read-only operation on data already in context after authorization
-- ✅ REQUIRED: After `verify-authorization` returns `authorized`, proceed to `git-workflow --task pre-work` within at most 3 tool calls
-- ✅ REQUIRED: If more than 3 tool calls occur without reaching `pre-work`, HALT and report the delay as a critical violation — include the tool call sequence in the report
-- ✅ REQUIRED: Sub-agents after authorization are for implementation dispatch ONLY — file modifications, code generation, and heavy analysis that produces deliverables
-
-```yaml+symbolic
-  - id: critical-rules-045
-    title: "Implementation-First Gate at Authorization Time — post-auth research spiral"
-    conditions:
-      all:
-        - "authorization_received == true"
-        - "tool_calls_since_authorization > 3"
-        - "first_file_modification_not_reached == true"
-    actions:
-      - HALT
-      - REPORT_DELAY_WITH_TOOL_CALL_SEQUENCE
-    conflicts_with: []
-    requires: []
-    triggers: [approval-gate, divide-and-conquer]
-    source: "000-critical-rules.md §Implementation-First Gate at Authorization Time"
-```
-
-**See `approval-gate/tasks/verify-authorization/auto-dispatch.md` §Post-Authorization Dispatch Window for the operational enforcement of the 3-tool-call bound. See `060-tool-usage.md` §Sub-Agent Dispatch Restriction After Authorization for the sub-agent restriction. AUTHORITY: Spec #171**
 
 ## Critical Violation: Single Concern Principle — Every Artifact Addresses Exactly One Concern
 
@@ -991,32 +924,28 @@ The spec-to-plan approval cascade means: when a spec is approved and a plan alre
 - 🚫 FORBIDDEN: Interpreting "why hasn't X been done?" as authorization to do X
 - 🚫 FORBIDDEN: Interpreting "we need X" or "X should be Y" as authorization to implement X
 - 🚫 FORBIDDEN: Proceeding to action after any question, complaint, or frustration expression
-- 🚫 FORBIDDEN: Collapsing an interrogative premise into an authorization directive — when a question contains an implied normative claim (e.g., "why is this suddenly out of scope?" implying "this should be in scope"), the agent MUST NOT treat the implied correction as permission to act
 - ✅ REQUIRED: Treat ALL questions as observation-only — acknowledge and HALT
 - ✅ REQUIRED: If a question identifies a real problem, create a bug report or fix spec, then HALT and wait for explicit authorization
-- ✅ REQUIRED: Follow the question-response gate — answer the question, explain reasoning, HALT, wait for explicit directive per `020-go-prohibitions.md` §1 question-response gate
 
 **This extends the existing "Confirmation ≠ Authorization" and "Offer-to-Edit Bypass" rules.** Questions, complaints, and frustration expressions are not authorization any more than confirmations or offers are. The ONLY authorization tokens are "approved", "go", "#NNN approved", or equivalent explicit phrases from `010-approval-gate.md`.
 
-**See `020-go-prohibitions.md` §1 "NEVER DO" list for the question-response gate, rhetorical/complaint question prohibition, and interrogative premise collapse prohibition. See `approval-gate` skill for the complete authorization verification procedure.** **AUTHORITY: `000-critical-rules.md` §Question-as-Authorization** (this line is a reference only)
+**See `020-go-prohibitions.md` §1 "NEVER DO" list for the rhetorical/complaint question prohibition. See `approval-gate` skill for the complete authorization verification procedure.** **AUTHORITY: `000-critical-rules.md` §Question-as-Authorization** (this line is a reference only)
 
 ```yaml+symbolic
   - id: critical-rules-question-auth-001
-    title: "Question-as-authorization — treating rhetorical/complaint/interrogative questions as implementation authorization"
+    title: "Question-as-authorization — treating rhetorical/complaint questions as implementation authorization"
     conditions:
       any:
         - "user_input_type == 'rhetorical_question'"
         - "user_input_type == 'complaint'"
         - "user_input_type == 'frustration_expression'"
-        - "user_input_type == 'interrogative_premise'"
         - "user_input_matches == 'how can we.*if.*'"
         - "user_input_matches == 'why hasn\\'t.*'"
         - "user_input_matches == 'we need.*'"
         - "user_input_matches == 'should be.*'"
     actions:
-      - ANSWER_QUESTION
+      - CREATE_FIX_SPEC
       - HALT
-      - WAIT_FOR_EXPLICIT_DIRECTIVE
     conflicts_with: []
     triggers: [approval-gate]
     source: "000-critical-rules.md §Question-as-Authorization"
@@ -1246,36 +1175,6 @@ The output MUST include at minimum:
 - ✅ REQUIRED: Explicit documented justification in work state if parallel execution is chosen (opportunistic only)
 - ✅ REQUIRED: Stack branches via `git merge <prior-branch>` into dependent branches before implementation
 - ✅ REQUIRED: When in doubt, stack — parallel execution is never the starting assumption
-
-## Critical Violation: pre-implementation-analysis Halts Under for_pr Scope
-
-**⚠️ When `authorization_scope` is `for_pr`, `pr_only`, `for_implementation`, or `for_code_review`, the `pre-implementation-analysis` task MUST NOT produce a halting summary with "Next steps" or similar forward-looking text. The task MUST check scope and proceed directly to gap-fill cascade and implementation dispatch.**
-
-- 🚫 FORBIDDEN: Producing "Next steps" output when `for_pr` scope is active
-- 🚫 FORBIDDEN: Treating `pre-implementation-analysis` as a terminal deliverable under `for_pr` scope
-- 🚫 FORBIDDEN: Halting after analysis without checking `authorization_scope`
-- 🚫 FORBIDDEN: Using the `question` tool for structural decisions when `halt_at >= pr_created`
-- ✅ REQUIRED: Check `authorization_scope` at end of `pre-implementation-analysis`; set `continue_pipeline=true` when `halt_at >= pr_created`
-- ✅ REQUIRED: When `halt_at >= pr_created`, proceed directly to gap-fill → `pre-work` → `assemble-work` without halting
-- ✅ REQUIRED: Output under `for_pr` scope is informational only, not a halting point
-
-**See `approval-gate/tasks/pre-implementation-analysis.md` §for_pr Scope Continuation Gate for the complete continuation rule table and mandatory behavior.** **AUTHORITY: `000-critical-rules.md` §pre-implementation-analysis Halts Under for_pr Scope**
-
-```yaml+symbolic
-  - id: critical-rules-044
-    title: "pre-implementation-analysis halts under for_pr scope"
-    conditions:
-      all:
-        - "authorization_scope IN ['for_pr', 'pr_only', 'for_implementation', 'for_code_review']"
-        - "pre_impl_analysis_produced_halting_summary == true"
-    actions:
-      - HALT
-      - PROCEED_TO(gap_fill_cascade)
-    conflicts_with: []
-    requires: [critical-rules-037, critical-rules-041]
-    triggers: [approval-gate, divide-and-conquer]
-    source: "000-critical-rules.md §pre-implementation-analysis Halts Under for_pr Scope"
-```
 
 ## Critical Violation: Pipeline-Scoped Authorization with Hard HALT at Scope Boundary
 
@@ -2386,105 +2285,6 @@ The commit-per-issue invariant requires that single-issue branches produce exact
 
 **AUTHORITY:** `pr-creation/enforcement-gate.md` Step 1.2, `pr-creation/squash-push.md` Step 3, `review-prep.md` Step 2.5, `pr-creation-workflow/tasks/pre-pr-checklist.md` Step 1
 
-<!-- Issue #240: Enforcement gaps — spec-checklist gate, for_pr evidence audit, uncommitted-work protocol -->
-
-## Critical Violation: Spec Body Checklist Verification Gate
-
-**⚠️ Completing implementation without verifying all spec body mandatory checklist items (`- [ ]` task entries) produced evidence is a CRITICAL GUIDELINE VIOLATION.**
-
-When a spec body contains mandatory checklist items, each item must have a corresponding tool-call evidence artifact before `verification-before-completion` can pass. Missing evidence for any checklist item blocks completion.
-
-- 🚫 FORBIDDEN: Marking verification complete when spec body checklist items lack evidence; skipping the spec body checklist verification gate; treating checklist items as optional when they are mandatory (`- [ ]` entries)
-- ✅ REQUIRED: Parse the spec body for `- [ ]` mandatory checklist items before per-SC verification; verify each checklist item has a corresponding tool-call evidence artifact; HALT verification if any checklist item lacks evidence; proceed to per-SC verification only after all checklist items pass
-
-**Exemption:** If the spec body contains zero `- [ ]` items, this gate passes automatically and proceeds to per-SC verification.
-
-**AUTHORITY:** `verification-before-completion/tasks/verify.md` Step 0.75, Issue #240
-
-```yaml+symbolic
-  - id: critical-rules-046
-    title: "Spec body mandatory checklist items lack evidence — verification gate FAILS"
-    conditions:
-      all:
-        - "spec_body_has_checklist_items == true"
-        - "checklist_items_with_evidence < total_checklist_items"
-      any:
-        - "verification_claimed_complete == true"
-        - "completion_claimed == true"
-    actions:
-      - HALT
-      - REPORT_MISSING_EVIDENCE
-    conflicts_with: []
-    requires: []
-    triggers: [verification-before-completion]
-    source: "000-critical-rules.md §Spec Body Checklist Verification Gate"
-```
-
-## Critical Violation: for_pr Dispatch Chain Evidence Audit
-
-**⚠️ Generating a compare/PR URL without dispatch chain evidence artifacts when `for_pr` or `for_implementation` scope is active is a CRITICAL GUIDELINE VIOLATION.**
-
-The `for_pr` scope means "full pipeline through PR" — it does NOT skip verification steps. When `for_pr`, `for_implementation`, `for_code_review`, or `pr_only` scope is active, `review-prep` and `finishing-a-development-branch --task checklist` MUST confirm the dispatch chain was actually followed before generating any URL.
-
-- 🚫 FORBIDDEN: Generating compare/PR URL when dispatch chain evidence is missing under `for_pr`/`for_implementation` scope; treating `for_pr` as "skip to PR" instead of "full pipeline through PR"; proceeding past `review-prep` without `verification-before-completion` evidence; completing `finishing-a-development-branch` checklist without per-SC evidence table artifacts
-- ✅ REQUIRED: When `for_pr`/`for_implementation` scope is active, confirm `verification-before-completion` ran and produced all-PASS per-SC evidence table; confirm `finishing-a-development-branch` checklist items are verified via tool-call artifacts; confirm spec body checklist items have corresponding evidence; HALT and invoke missing skill(s) before generating any URL if evidence artifacts are missing
-
-**AUTHORITY:** `git-workflow/tasks/review-prep.md` Step 2.8, `finishing-a-development-branch/tasks/checklist.md` §Dispatch Chain Evidence Audit, Issue #240
-
-```yaml+symbolic
-  - id: critical-rules-047
-    title: "for_pr/for_implementation scope — generating compare/PR URL without dispatch chain evidence artifacts"
-    conditions:
-      all:
-        - "authorization_scope IN ['for_pr', 'for_implementation', 'for_code_review', 'pr_only']"
-        - "dispatch_chain_evidence_missing == true"
-        - "url_generation_attempted == true"
-    actions:
-      - HALT
-      - INVOKE_MISSING_SKILLS
-    conflicts_with: []
-    requires: []
-    triggers: [git-workflow, finishing-a-development-branch]
-    source: "000-critical-rules.md §for_pr Dispatch Chain Evidence Audit"
-```
-
-## Critical Violation: Uncommitted-Work Start-of-Session Protocol
-
-**⚠️ Committing uncommitted/untracked changes discovered at session start without stashing and following the full verification cycle is a CRITICAL GUIDELINE VIOLATION — unless the developer explicitly directs use of those changes.**
-
-When uncommitted changes or untracked items exist in the working tree at session start (or when the agent first checks git status before implementation):
-
-1. **Stash** all uncommitted changes (`git stash --include-untracked`)
-2. **Record** the stash contents (file list) in the work state file
-3. **Proceed** with implementation from clean state following the full dispatch chain
-4. **After implementation**, review the stashed changes:
-   - If stashed changes overlap with implementation scope → developer decides (stash pop or discard stash)
-   - If stashed changes are unrelated → developer decides (stash pop or keep separate)
-5. **Exception**: If the developer explicitly directs the agent to use existing changes ("use the work already in the working tree", "the changes are correct, just commit them"), the agent may proceed with those changes BUT still must follow the full verification cycle (spec checklist verification, per-SC evidence, smoke tests, etc.)
-
-- 🚫 FORBIDDEN: Committing uncommitted/untracked changes discovered at session start without stashing; treating pre-existing changes as finished work; committing directly without running the full verification cycle; assuming uncommitted changes are correct without developer confirmation; skipping the stash-and-review protocol because "the changes look correct"
-- ✅ REQUIRED: Stash all uncommitted changes before implementation; record stash contents in work state file; implement from clean state; review stashed changes after implementation; developer decides whether to pop or discard stash on overlap; if developer explicitly directs use of existing changes, follow the full verification cycle before committing
-
-**AUTHORITY:** Issue #240
-
-```yaml+symbolic
-  - id: critical-rules-048
-    title: "Committing uncommitted/untracked changes discovered at session start without stashing and verification"
-    conditions:
-      all:
-        - "uncommitted_changes_at_session_start == true"
-        - "stash_before_implementation == false"
-        - "commit_attempted == true"
-        - "developer_explicit_direction == false"
-    actions:
-      - HALT
-      - STASH_AND_REVIEW
-    conflicts_with: []
-    requires: []
-    triggers: [git-workflow, approval-gate]
-    source: "000-critical-rules.md §Uncommitted-Work Start-of-Session Protocol"
-```
-
 ```yaml+symbolic
   - id: critical-rules-040
     title: "Un-squashed single-issue PR — creating a PR with multiple commits"
@@ -2514,81 +2314,4 @@ When uncommitted changes or untracked items exist in the working tree at session
     requires: []
     triggers: [git-workflow]
     source: "000-critical-rules.md §Listing Merged PRs Without Invoking Cleanup"
-
-  - id: critical-rules-042
-    title: "Skipping behavioral tests for behavior changes"
-    conditions:
-      all:
-        - "behavior_change_implemented == true"
-        - "behavioral_test_missing == true"
-    actions:
-      - HALT
-      - INVOKE(test-driven-development)
-    conflicts_with: []
-    requires: []
-    triggers: [test-driven-development, spec-creation, writing-plans]
-    source: "000-critical-rules.md §Skipping Behavioral Tests for Behavior Changes"
-
-  - id: critical-rules-043
-    title: "Audit baselines in permanent storage — NOT tmp/"
-    conditions:
-      any:
-        - "file_path matches '.opencode/tmp/.*audit'"
-        - "file_path matches 'tmp/.*audit'"
-        - "storage_suggestion matches 'tmp/'"
-        - "storage_suggestion matches '/tmp/'"
-    actions:
-      - HALT
-    conflicts_with: []
-    requires: []
-    triggers: [verification-enforcement, sre-runbook]
-    source: "000-critical-rules.md §Audit Baselines in Temporary Storage"
-
-  - id: critical-rules-046
-    title: "Spec body mandatory checklist items lack evidence — verification gate FAILS"
-    conditions:
-      all:
-        - "spec_body_has_checklist_items == true"
-        - "checklist_items_with_evidence < total_checklist_items"
-      any:
-        - "verification_claimed_complete == true"
-        - "completion_claimed == true"
-    actions:
-      - HALT
-      - REPORT_MISSING_EVIDENCE
-    conflicts_with: []
-    requires: []
-    triggers: [verification-before-completion]
-    source: "000-critical-rules.md §Spec Body Checklist Verification Gate"
-
-  - id: critical-rules-047
-    title: "for_pr/for_implementation scope — generating compare/PR URL without dispatch chain evidence artifacts"
-    conditions:
-      all:
-        - "authorization_scope IN ['for_pr', 'for_implementation', 'for_code_review', 'pr_only']"
-        - "dispatch_chain_evidence_missing == true"
-        - "url_generation_attempted == true"
-    actions:
-      - HALT
-      - INVOKE_MISSING_SKILLS
-    conflicts_with: []
-    requires: []
-    triggers: [git-workflow, finishing-a-development-branch]
-    source: "000-critical-rules.md §for_pr Dispatch Chain Evidence Audit"
-
-  - id: critical-rules-048
-    title: "Committing uncommitted/untracked changes discovered at session start without stashing and verification"
-    conditions:
-      all:
-        - "uncommitted_changes_at_session_start == true"
-        - "stash_before_implementation == false"
-        - "commit_attempted == true"
-        - "developer_explicit_direction == false"
-    actions:
-      - HALT
-      - STASH_AND_REVIEW
-    conflicts_with: []
-    requires: []
-    triggers: [git-workflow, approval-gate]
-    source: "000-critical-rules.md §Uncommitted-Work Start-of-Session Protocol"
 ```

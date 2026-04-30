@@ -15,26 +15,6 @@ Plan creation workflow that transforms approved specs into actionable implementa
 
 **Source attribution:** TDD step granularity, no-placeholders rule, plan document header, file structure section, and self-review checklist adapted from [obra/superpowers `writing-plans`](https://github.com/obra/superpowers/blob/main/skills/writing-plans/SKILL.md).
 
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[Spec approved] --> B{Single-task or multi-task?}
-    B -- Single-task --> C{Simple enough to combine?}
-    B -- Multi-task --> D[Create separate PLAN issue]
-    C -- Yes --> E[Combined spec+plan in one issue]
-    C -- No --> D
-    D --> F[Decompose into TDD steps]
-    E --> G[Append Implementation Plan section]
-    F --> H[Item enumeration + dependency ordering]
-    H --> I[Write phases with per-item TDD steps]
-    I --> J[Self-review checklist]
-    J --> K[Add needs-approval label]
-    K --> L[Completion: report plan URL]
-    G --> L
-```
-
 ## Plan Issue Model
 
 Plans are either separate GitHub Issues or combined into the spec issue body, depending on agent intelligence evaluation of spec complexity. The hierarchy is:
@@ -140,30 +120,6 @@ The spec-to-plan approval cascade applies differently based on authorization sco
 - `/skill writing-plans --task clean-room` — Generate clean-room plan (for comparison by spec-auditor)
 - `/skill writing-plans --task completion` — Invoke when workflow halts at any point
 
-## RED/GREEN/REFACTOR Test Discipline
-
-## RED Phase Requirements
-
-1. **Write behavioral test description FIRST** — before any implementation
-2. **Describe the behavior to verify:**
-   - What changes (agent response or code execution)?
-   - How to trigger it?
-   - What confirms success?
-   - What constitutes failure?
-3. **Implement test mechanism** — write the script that verifies the described behavior
-4. **Verify RED state** — test FAILS before implementation
-
-## GREEN Phase Requirements
-
-1. **Implement behavior change** — skills, guidelines, code, dispatch chain
-2. **Verify GREEN state** — test PASSES after implementation
-3. **Behavior must differ** — before/after response or execution is different
-
-## REFACTOR Phase Requirements
-
-1. **Run full behavioral suite** — `bash .opencode/tests/behaviors/run-all.sh`
-2. **No regressions** — all existing tests still pass
-
 ## Hybrid Structure: Phases + TDD Steps
 
 Plans use **phases** (for sub-issue tracking) with **TDD step granularity** within each task:
@@ -247,59 +203,6 @@ Each phase in the plan body includes a merge boundary annotation:
 ### Enforcement
 
 Missing `pr_boundaries` in the `yaml+symbolic` block when dependencies exist is a STRUCTURE-VIOLATION finding from `skildeck lint`.
-
-## Mermaid Diagrams in Plan Deliverables (MANDATORY When Dependencies Exist)
-
-When a plan has dependencies (multiple phases, cross-issue dependencies, or sequential deliverables), the `create` task MUST include a mermaid diagram in the plan deliverable body. The diagram is part of the plan artifact — not an optional appendix — and shows the **approved dependency structure only**.
-
-### When to Include
-
-| Condition | Include Diagram in Plan Body? |
-|-----------|-------------------------------|
-| Plan has multiple phases | YES — mandatory |
-| Plan has cross-issue dependencies | YES — mandatory |
-| Single-task plan with no dependencies | NO — omit |
-
-### Diagram Placement in Deliverable
-
-**Separate plans:** The diagram is placed after the plan header (Goal, Architecture, Tech Stack), before "Phase 1".
-
-**Combined plans:** The diagram is placed in the `## Implementation Plan` section, after the header, before phases.
-
-The `create` task assembles the diagram into the final plan body alongside other sections. The diagram is a first-class part of the deliverable — agents creating plans with dependencies MUST produce the diagram content within the plan body, not as a separate artifact.
-
-### Diagram Content Rules
-
-- Diagrams MUST show **approved structure only** — phase relationships, dependency flow, data contracts
-- Diagrams MUST NOT include workflow state markers: ✅, 🔄, ❌, "implemented", "pending", "in progress", "blocked", "complete"
-- Diagrams MUST use `graph TD` or `flowchart TD` mermaid syntax
-- Node labels MUST describe the deliverable or concern name, not its status
-- If the `diagram` sub-agent produces markers, the `create` task auto-fixes by removing them before assembly
-
-### Correct Example
-
-```mermaid
-graph TD
-    P1[Phase 1: Tooling] --> P2[Phase 2: Guidelines]
-    P1 --> P3[Phase 3: Skills]
-    P2 --> P3
-```
-
-### Forbidden Example
-
-```mermaid
-graph TD
-    P1[Phase 1: Tooling ✅] --> P2[Phase 2: Guidelines 🔄]
-```
-
-### Enforcement in create Task
-
-The `create` task MUST:
-1. Check if dependencies exist (multiple phases, or cross-issue dependencies)
-2. If dependencies exist: invoke `diagram` task or inline-generate mermaid diagram
-3. Insert diagram in plan body at the prescribed placement location
-4. Scan diagram content for workflow state markers before final assembly
-5. Auto-fix any discovered markers (remove them, note in evidence)
 
 ## Interdependency Diagram Discipline (MANDATORY When Dependencies Exist)
 
@@ -441,25 +344,152 @@ When a new plan is needed under the same spec (e.g., previous plan was rejected 
 
 The spec itself is the stable reference. Whether the plan is combined or separate, re-implementation modifies the plan artifact, not the spec content above the `## Implementation Plan` marker.
 
+## Operating Protocol
 
-## MANDATORY TASKS
+**Pre-implementation file changes are ephemeral.** Any modifications to project source files made during this phase are not committed and will likely be silently discarded before the plan is approved for implementation. Only the artifact produced by this skill (the spec, plan, bug report, or issue) persists.
 
-- [ ] MANDATORY: Read approved spec from GitHub Issue — verify spec approval via live tool call (labels + authorization comment), not cached claims — per §Live Verification: Spec State
-- [ ] MANDATORY: Check for existing plans referencing the same spec before creating a new plan — per §Operating Protocol Step 1.5
-- [ ] MANDATORY: Evaluate combined vs separate plan using `single_task_determination` at decision gate — per §Operating Protocol Step 2
-- [ ] MANDATORY: Include TDD step structure (RED/GREEN/REFACTOR) in every task with Step 2 RED verification checkpoint — per §RED Verification Checkpoint and yaml+symbolic writing-plans-005
-- [ ] MANDATORY: Verify no placeholders (TBD, TODO, etc.) in plan content — per §No-Placeholders Rule and yaml+symbolic writing-plans-002
-- [ ] MANDATORY: Generate mermaid dependency diagram when plan has dependencies (multiple phases or cross-issue dependencies) — per §Interdependency Diagram Discipline and yaml+symbolic writing-plans-009
-- [ ] MANDATORY: Verify diagram contains NO workflow state markers (✅, 🔄, ❌, "implemented", "pending") — per §Diagram Format Rules and yaml+symbolic writing-plans-010
-- [ ] MANDATORY: Include PR Merge Boundaries section when spec has dependencies on other specs/plans — per §PR Merge Boundaries and yaml+symbolic writing-plans-009 (duplicate ID)
-- [ ] MANDATORY: Create sub-issues under the plan (NOT under the spec) for multi-task plans — per §Plan Issue Model and yaml+symbolic writing-plans-003
-- [ ] MANDATORY: Self-review plan for spec coverage, placeholders, and type consistency — per §Self-Review Checklist
-- [ ] MANDATORY: Verify cross-references against actual skill files before invoking — per §Cross-Reference Verification
-- [ ] MANDATORY: Invoke `verification-enforcement --task verify` before plan content generation — per decomposition gate
-- [ ] MANDATORY: Add `needs-approval` label to newly created plans in standard scope — per §Approval Cascade
-- [ ] MANDATORY: Scope-aware cascade: for `for_plan` or higher scope, remove `needs-approval` and document cascade — for `standard` scope, retain label — per §Approval Cascade
-- [ ] MANDATORY: Report chat output as exec summary + URL + byline — per §Operating Protocol Step 10
-- [ ] MANDATORY: Invoke `--task completion` before halting at any point — per completion task
+1. Read approved spec from GitHub Issue
+1.5. Check for existing plans referencing the same spec — if found, surface overlap and require developer acknowledgment (see `tasks/create.md` Step 1.6 for the full duplicate plan check procedure)
+2. **Decision gate:** Evaluate combined vs separate plan using `single_task_determination` and `single_task` inputs — see `tasks/create.md` Step 1.5
+3. Map file structure (all files to create/modify with responsibilities)
+4. Plan phase structure by judgment (prose-driven)
+5. Define tasks within each phase using TDD step structure
+6. Write plan document header (Goal, Architecture, Tech Stack)
+7. Store plan document: if combined, append `## Implementation Plan` to spec issue body; if separate, create `[PLAN]` GitHub Issue with sub-issues via `issue-operations` skill
+8. Self-review (coverage, placeholders, type consistency)
+9. Validate (no placeholders, TDD structure, actionable steps)
+10. Chat output with URL — Report plan creation (combined or separate) using exec summary + URL + byline format per `000-critical-rules.md`
+
+## Enforcement
+
+- No plan → CREATE plan (writing-plans skill) as `[PLAN]` GitHub Issue or combined into spec body per decision gate
+- Plan exists but unapproved → HALT, wait for plan approval (not spec approval of plan content)
+- Plan approved but has placeholders → REJECT plan
+- Plan approved but missing TDD steps → REJECT plan
+- Plan approved and complete → PROCEED to implementation
+- Combined spec+plan (scope >= for_plan) → plan inherits spec approval status; no separate plan approval needed
+- Combined spec+plan (standard scope) → plan requires separate approval; cascade does NOT apply to newly created plans
+
+## Sub-Agent Tasks
+
+### Sub-Agent Tasks
+
+| Task | Words |
+|------|-------|
+| `create` | 1,598 |
+| `validate` | ≈500 |
+| `retroactive` | ≈600 |
+| `clean-room` | ≈500 |
+
+### Dispatch Audit Table
+
+| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
+|---|---|---|---|---|
+| `create` | When creating a plan from an approved spec | Spec issue number, github.owner, github.repo, authorization_scope | Implementation context, agent memory, cached verification | NO |
+| `validate` | When validating plan structure and fidelity | Plan issue number, spec issue number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `retroactive` | When creating a retroactive plan for already-implemented work | Spec issue number, implementation evidence, github.owner, github.repo | Implementation context, agent memory | NO |
+| `clean-room` | When generating a clean-room plan without implementation context | Spec issue number, github.owner, github.repo | Implementation context, implementation intent, agent memory | NO |
+
+### Result Contract (create)
+
+```yaml
+status: DONE | OVERFLOW
+task: create
+plan_issue: <N|null>
+plan_url: <url|null>
+combined: bool
+sub_issues_created: [<N>]
+self_review_passed: bool
+```
+
+### Dispatch Context Schema
+
+```yaml
+spec_issue: <N>
+single_task: bool
+single_task_determination: <str>
+authorization_scope: <standard|for_spec|for_plan|for_implementation|for_code_review|for_pr|pr_only|review_only>
+session_vars:
+  github.owner: <from-session>
+  github.repo: <from-session>
+  dev.name: <from-session>
+  dev.email: <from-session>
+  worktree.path: <from-session>
+```
+
+## Cross-Reference Verification (MANDATORY)
+
+**🚫 CRITICAL: Each cross-reference must be verified against actual skill content. Assertions without verification are VERIFICATION-GAP findings.**
+
+| Reference | Verification | Finding Class |
+| -- | -- | -- |
+| `brainstorming` in Cross-References section | File exists at `.opencode/skills/brainstorming/SKILL.md` | MISSING-TRACEABILITY if missing |
+| `approval-gate` in Cross-References and Auto-Dispatch Entry | File exists at `.opencode/skills/approval-gate/SKILL.md` | MISSING-TRACEABILITY if missing |
+| `executing-plans` in Cross-References section | File exists at `.opencode/skills/executing-plans/SKILL.md` | MISSING-TRACEABILITY if missing |
+| `spec-auditor` in Cross-References section | File exists at `.opencode/skills/spec-auditor/SKILL.md` | MISSING-TRACEABILITY if missing |
+| `issue-operations` in Cross-References and Auto-Dispatch Entry | File exists at `.opencode/skills/issue-operations/SKILL.md` | MISSING-TRACEABILITY if missing |
+| `spec-creation` in Cross-References section | File exists at `.opencode/skills/spec-creation/SKILL.md` | MISSING-TRACEABILITY if missing |
+| Task table entry `create` | File exists at `.opencode/skills/writing-plans/tasks/create.md` | MISSING-TRACEABILITY if missing |
+| Task table entry `validate` | File exists at `.opencode/skills/writing-plans/tasks/validate.md` | MISSING-TRACEABILITY if missing |
+| Task table entry `retroactive` | File exists at `.opencode/skills/writing-plans/tasks/retroactive.md` | MISSING-TRACEABILITY if missing |
+| Task table entry `clean-room` | File exists at `.opencode/skills/writing-plans/tasks/clean-room.md` | MISSING-TRACEABILITY if missing |
+| Task table entry `completion` | File exists at `.opencode/skills/writing-plans/tasks/completion.md` | MISSING-TRACEABILITY if missing |
+| `approval-gate` auto-dispatch behavior | Matches actual SKILL.md: `verify-authorization` dispatches to `writing-plans` | CONFLICTING if mismatched |
+| `issue-operations` dispatch behavior | Matches actual SKILL.md: `link-sub-issue` task for sub-issue linking | CONFLICTING if mismatched |
+| `spec-auditor` clean-room invocation | Matches actual SKILL.md: `fidelity` subtask invokes `writing-plans --task clean-room` | CONFLICTING if mismatched |
+
+**Verification Procedure:**
+
+Before invoking any cross-referenced skill:
+1. `ls .opencode/skills/<skill-name>/SKILL.md` → EVIDENCE: file exists or MISSING-TRACEABILITY
+2. `grep -c "<task-name>" .opencode/skills/<skill-name>/SKILL.md` → EVIDENCE: task referenced or MISSING-TRACEABILITY
+3. Compare described behavior with actual content → EVIDENCE: match or CONFLICTING
+
+**Classification on failure:**
+
+| Failure | Problem Class | Classification | Action |
+| -- | -- | -- | -- |
+| Referenced skill file missing | MISSING-TRACEABILITY | flag-for-review | Cannot verify cross-reference |
+| Referenced task file missing | MISSING-TRACEABILITY | flag-for-review | Task may have been renamed |
+| Described behavior mismatches | CONFLICTING | flag-for-review | Cross-reference may be stale |
+| Invocation mismatch | CONFLICTING | flag-for-review | Skill may have been updated |
+
+## Live Verification: Spec State (MANDATORY)
+
+**🚫 CRITICAL: When this skill reads spec metadata (approval status, revision state, content), it MUST verify against live GitHub state. Trusting cached or claimed spec state is a VERIFICATION-GAP finding per `065-verification-honesty.md`.**
+
+| Metadata Trust Point | Verification Action | Tool Call | Problem Class |
+|---------------------|-------------------|-----------|---------------|
+| Spec claimed as "approved" | Verify `needs-approval` label is absent AND authorization comment exists from a developer | `github_issue_read(method=get_labels)` + `github_issue_read(method=get_comments)` | CONFLICTING |
+| Spec content used for planning | Verify spec body matches current issue state, not a cached version | `github_issue_read(method=get, issue_number=N)` → read body fresh | VERIFICATION-GAP |
+| Spec claimed as "not revised since approval" | Verify no revision comments or STATUS changes after authorization comment | `github_issue_read(method=get_comments)` → compare timestamps | CONFLICTING |
+| Spec-to-plan cascade eligibility | Verify spec approval actually exists (not just assumed) before auto-approving plan | `github_issue_read(method=get_comments)` → find explicit authorization comment | VERIFICATION-GAP |
+
+**Evidence format:**
+
+```
+Check: [what was verified]
+Tool: [tool call and parameters]
+Result: [actual state found]
+Classification: [STRUCTURE-VIOLATION|MISSING-ELEMENT|CONFLICTING|VERIFICATION-GAP|MISSING-TRACEABILITY]
+Action: [auto-fix|conditional|flag-for-review]
+```
+
+**Classification on failure:**
+
+| Failure | Problem Class | Classification | Action |
+| -- | -- | -- | -- |
+| Spec lacks approval but plan created | CONFLICTING | flag-for-review | HALT — plan requires separate approval |
+| Spec content stale vs live | VERIFICATION-GAP | auto-fix | Re-read spec, regenerate plan |
+| Spec revised after authorization | CONFLICTING | conditional | Verify plan still matches revised spec |
+| Cascade assumed without evidence | VERIFICATION-GAP | conditional | Collect authorization evidence before proceeding |
+
+## Cross-References
+
+- Related skills: `brainstorming` (pre-spec), `approval-gate` (authorization), `executing-plans` (implementation), `spec-auditor` (fidelity subtask uses clean-room), `issue-operations` (sub-issue creation via `link-sub-issue` task), `spec-creation` (spec creation discipline)
+- Source: adapted from [obra/superpowers `writing-plans`](https://github.com/obra/superpowers/blob/main/skills/writing-plans/SKILL.md)
+
+**⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -637,18 +667,6 @@ tasks:
     bypass_violation: "Silent Agent Termination — halting without completion task is a critical violation"
     source: "writing-plans/SKILL.md §Tasks completion"
 
-  - id: diagram
-    skill: writing-plans
-    preconditions:
-      - "dependencies_exist == true"
-    postconditions:
-      - "mermaid_diagram_generated == true"
-      - "diagram_shows_structure_only == true"
-      - "diagram_has_no_workflow_markers == true"
-    mandatory: true
-    bypass_violation: "Missing interdependency diagram — multi-phase plans require mermaid diagram in deliverable"
-    source: "writing-plans/SKILL.md §Mermaid Diagrams in Plan Deliverables"
-
 decomposition:
   - type: skill-task
     skill: verification-enforcement
@@ -667,13 +685,6 @@ decomposition:
     task: link-sub-issue
     mandatory: true
     bypass_violation: "Multi-task plan requires sub-issue linkage under plan — skipping is a critical violation"
-
-  - type: skill-task
-    skill: writing-plans
-    task: diagram
-    mandatory: false
-    condition: "dependencies_exist == true"
-    bypass_violation: "Missing interdependency diagram — multi-phase plans require mermaid diagram in deliverable"
 
 gates:
   - id: plan-fidelity
@@ -696,16 +707,6 @@ gates:
     on_fail: HALT
     critical_violation: true
 
-  - id: diagram-in-deliverable-when-deps-exist
-    condition: "dependencies_exist == false OR mermaid_diagram_in_plan_body == true"
-    on_fail: HALT
-    critical_violation: true
-
-  - id: diagram-deliverable-no-workflow-state
-    condition: "diagram_in_deliverable_shows_workflow_state == false"
-    on_fail: HALT
-    critical_violation: true
-
 evidence_artifacts:
   - name: spec_approved_verification
     type: tool_call
@@ -723,164 +724,3 @@ evidence_artifacts:
     type: tool_call
     verification: "github_issue_read(method=get) → verify pr_boundaries in yaml+symbolic block when spec has dependencies"
 ```
-
-## Operating Protocol
-
-**Pre-implementation file changes are ephemeral.** Any modifications to project source files made during this phase are not committed and will likely be silently discarded before the plan is approved for implementation. Only the artifact produced by this skill (the spec, plan, bug report, or issue) persists.
-
-1. Read approved spec from GitHub Issue
-1.5. Check for existing plans referencing the same spec — if found, surface overlap and require developer acknowledgment (see `tasks/create.md` Step 1.6 for the full duplicate plan check procedure)
-2. **Decision gate:** Evaluate combined vs separate plan using `single_task_determination` and `single_task` inputs — see `tasks/create.md` Step 1.5
-3. Map file structure (all files to create/modify with responsibilities)
-4. Plan phase structure by judgment (prose-driven)
-5. Define tasks within each phase using TDD step structure
-6. Write plan document header (Goal, Architecture, Tech Stack)
-7. Store plan document: if combined, append `## Implementation Plan` to spec issue body; if separate, create `[PLAN]` GitHub Issue with sub-issues via `issue-operations` skill
-8. Self-review (coverage, placeholders, type consistency)
-9. Validate (no placeholders, TDD structure, actionable steps)
-10. Chat output with URL — Report plan creation (combined or separate) using exec summary + URL + byline format per `000-critical-rules.md`
-
-## Enforcement
-
-- No plan → CREATE plan (writing-plans skill) as `[PLAN]` GitHub Issue or combined into spec body per decision gate
-- Plan exists but unapproved → HALT, wait for plan approval (not spec approval of plan content)
-- Plan approved but has placeholders → REJECT plan
-- Plan approved but missing TDD steps → REJECT plan
-- Plan approved and complete → PROCEED to implementation
-- Combined spec+plan (scope >= for_plan) → plan inherits spec approval status; no separate plan approval needed
-- Combined spec+plan (standard scope) → plan requires separate approval; cascade does NOT apply to newly created plans
-
-## Sub-Agent Tasks
-
-### Sub-Agent Tasks
-
-| Task | Words |
-|------|-------|
-| `create` | 1,598 |
-| `validate` | ≈500 |
-| `retroactive` | ≈600 |
-| `clean-room` | ≈500 |
-| `diagram` | ≈350 |
-| `completion` | ≈200 |
-
-### Dispatch Audit Table
-
-| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
-|---|---|---|---|---|
-| `create` | When creating a plan from an approved spec | Spec issue number, github.owner, github.repo, authorization_scope | Implementation context, agent memory, cached verification | NO |
-| `validate` | When validating plan structure and fidelity | Plan issue number, spec issue number, github.owner, github.repo | Implementation context, agent memory | NO |
-| `retroactive` | When creating a retroactive plan for already-implemented work | Spec issue number, implementation evidence, github.owner, github.repo | Implementation context, agent memory | NO |
-| `clean-room` | When generating a clean-room plan without implementation context | Spec issue number, github.owner, github.repo | Implementation context, implementation intent, agent memory | NO |
-| `diagram` | When dependencies exist, generate mermaid diagram | Dependency structure, phase list, github.owner, github.repo | Implementation context, agent memory, workflow state | NO |
-
-### Result Contract (create)
-
-```yaml
-status: DONE | OVERFLOW
-task: create
-plan_issue: <N|null>
-plan_url: <url|null>
-combined: bool
-sub_issues_created: [<N>]
-self_review_passed: bool
-```
-
-### Result Contract (diagram)
-
-```yaml
-status: DONE | SKIP
-task: diagram
-diagram_generated: bool
-diagram_type: mermaid
-dependencies_exist: bool
-workflow_markers_absent: bool
-```
-
-### Dispatch Context Schema
-
-```yaml
-spec_issue: <N>
-single_task: bool
-single_task_determination: <str>
-authorization_scope: <standard|for_spec|for_plan|for_implementation|for_code_review|for_pr|pr_only|review_only>
-session_vars:
-  github.owner: <from-session>
-  github.repo: <from-session>
-  dev.name: <from-session>
-  dev.email: <from-session>
-  worktree.path: <from-session>
-```
-
-## Cross-Reference Verification (MANDATORY)
-
-**🚫 CRITICAL: Each cross-reference must be verified against actual skill content. Assertions without verification are VERIFICATION-GAP findings.**
-
-| Reference | Verification | Finding Class |
-| -- | -- | -- |
-| `brainstorming` in Cross-References section | File exists at `.opencode/skills/brainstorming/SKILL.md` | MISSING-TRACEABILITY if missing |
-| `approval-gate` in Cross-References and Auto-Dispatch Entry | File exists at `.opencode/skills/approval-gate/SKILL.md` | MISSING-TRACEABILITY if missing |
-| `executing-plans` in Cross-References section | File exists at `.opencode/skills/executing-plans/SKILL.md` | MISSING-TRACEABILITY if missing |
-| `spec-auditor` in Cross-References section | File exists at `.opencode/skills/spec-auditor/SKILL.md` | MISSING-TRACEABILITY if missing |
-| `issue-operations` in Cross-References and Auto-Dispatch Entry | File exists at `.opencode/skills/issue-operations/SKILL.md` | MISSING-TRACEABILITY if missing |
-| `spec-creation` in Cross-References section | File exists at `.opencode/skills/spec-creation/SKILL.md` | MISSING-TRACEABILITY if missing |
-| Task table entry `create` | File exists at `.opencode/skills/writing-plans/tasks/create.md` | MISSING-TRACEABILITY if missing |
-| Task table entry `validate` | File exists at `.opencode/skills/writing-plans/tasks/validate.md` | MISSING-TRACEABILITY if missing |
-| Task table entry `retroactive` | File exists at `.opencode/skills/writing-plans/tasks/retroactive.md` | MISSING-TRACEABILITY if missing |
-| Task table entry `clean-room` | File exists at `.opencode/skills/writing-plans/tasks/clean-room.md` | MISSING-TRACEABILITY if missing |
-| Task table entry `completion` | File exists at `.opencode/skills/writing-plans/tasks/completion.md` | MISSING-TRACEABILITY if missing |
-| `approval-gate` auto-dispatch behavior | Matches actual SKILL.md: `verify-authorization` dispatches to `writing-plans` | CONFLICTING if mismatched |
-| `issue-operations` dispatch behavior | Matches actual SKILL.md: `link-sub-issue` task for sub-issue linking | CONFLICTING if mismatched |
-| `spec-auditor` clean-room invocation | Matches actual SKILL.md: `fidelity` subtask invokes `writing-plans --task clean-room` | CONFLICTING if mismatched |
-
-**Verification Procedure:**
-
-Before invoking any cross-referenced skill:
-1. `ls .opencode/skills/<skill-name>/SKILL.md` → EVIDENCE: file exists or MISSING-TRACEABILITY
-2. `grep -c "<task-name>" .opencode/skills/<skill-name>/SKILL.md` → EVIDENCE: task referenced or MISSING-TRACEABILITY
-3. Compare described behavior with actual content → EVIDENCE: match or CONFLICTING
-
-**Classification on failure:**
-
-| Failure | Problem Class | Classification | Action |
-| -- | -- | -- | -- |
-| Referenced skill file missing | MISSING-TRACEABILITY | flag-for-review | Cannot verify cross-reference |
-| Referenced task file missing | MISSING-TRACEABILITY | flag-for-review | Task may have been renamed |
-| Described behavior mismatches | CONFLICTING | flag-for-review | Cross-reference may be stale |
-| Invocation mismatch | CONFLICTING | flag-for-review | Skill may have been updated |
-
-## Live Verification: Spec State (MANDATORY)
-
-**🚫 CRITICAL: When this skill reads spec metadata (approval status, revision state, content), it MUST verify against live GitHub state. Trusting cached or claimed spec state is a VERIFICATION-GAP finding per `065-verification-honesty.md`.**
-
-| Metadata Trust Point | Verification Action | Tool Call | Problem Class |
-|---------------------|-------------------|-----------|---------------|
-| Spec claimed as "approved" | Verify `needs-approval` label is absent AND authorization comment exists from a developer | `github_issue_read(method=get_labels)` + `github_issue_read(method=get_comments)` | CONFLICTING |
-| Spec content used for planning | Verify spec body matches current issue state, not a cached version | `github_issue_read(method=get, issue_number=N)` → read body fresh | VERIFICATION-GAP |
-| Spec claimed as "not revised since approval" | Verify no revision comments or STATUS changes after authorization comment | `github_issue_read(method=get_comments)` → compare timestamps | CONFLICTING |
-| Spec-to-plan cascade eligibility | Verify spec approval actually exists (not just assumed) before auto-approving plan | `github_issue_read(method=get_comments)` → find explicit authorization comment | VERIFICATION-GAP |
-
-**Evidence format:**
-
-```
-Check: [what was verified]
-Tool: [tool call and parameters]
-Result: [actual state found]
-Classification: [STRUCTURE-VIOLATION|MISSING-ELEMENT|CONFLICTING|VERIFICATION-GAP|MISSING-TRACEABILITY]
-Action: [auto-fix|conditional|flag-for-review]
-```
-
-**Classification on failure:**
-
-| Failure | Problem Class | Classification | Action |
-| -- | -- | -- | -- |
-| Spec lacks approval but plan created | CONFLICTING | flag-for-review | HALT — plan requires separate approval |
-| Spec content stale vs live | VERIFICATION-GAP | auto-fix | Re-read spec, regenerate plan |
-| Spec revised after authorization | CONFLICTING | conditional | Verify plan still matches revised spec |
-| Cascade assumed without evidence | VERIFICATION-GAP | conditional | Collect authorization evidence before proceeding |
-
-## Cross-References
-
-- Related skills: `brainstorming` (pre-spec), `approval-gate` (authorization), `executing-plans` (implementation), `spec-auditor` (fidelity subtask uses clean-room), `issue-operations` (sub-issue creation via `link-sub-issue` task), `spec-creation` (spec creation discipline)
-- Source: adapted from [obra/superpowers `writing-plans`](https://github.com/obra/superpowers/blob/main/skills/writing-plans/SKILL.md)
-
-**⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
