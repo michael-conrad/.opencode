@@ -1613,42 +1613,9 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         }
       }
 
-      // --- Per-turn: Evidence gate (Gate 4) ---
-      // Detect issue closure attempts without verification evidence table.
-      // Exemptions: not_planned, duplicate, rollback-reopen state reasons.
-      for (const msg of assistantMessages) {
-        if (!msg.parts?.length) continue;
-        for (const part of msg.parts) {
-          if (part.type === "text" && part.text) {
-            // Detect github_issue_write with state=closed
-            const closureMatch = part.text.match(/state.*closed|state.*:.*"closed"/i);
-            if (closureMatch) {
-              // Check for exempt state reasons
-              const exemptReason = part.text.match(/state_reason.*(?:not_planned|duplicate)/i);
-              if (!exemptReason) {
-                // Check if a verification evidence table exists in recent messages
-                const allAssistantText = assistantMessages
-                  .map(m => m.parts?.filter(p => p.type === "text" && p.text).map(p => p.text).join(" ") || "")
-                  .join(" ");
-                const hasEvidence = allAssistantText.includes("PASS") &&
-                  (allAssistantText.includes("Success Criteria") || allAssistantText.includes("verification") || allAssistantText.includes("evidence"));
-
-                if (!hasEvidence) {
-                  // Also check for rollback-reopen marker
-                  const rollbackReopen = part.text.match(/\[ROLLBACK-REOPEN\]/i);
-                  if (!rollbackReopen) {
-                    const block = buildEvidenceGateBlock();
-                    const nextUser = userMessages[userMessages.length - 1];
-                    if (nextUser?.parts?.length) {
-                      nextUser.parts.push({ type: "text", text: block });
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+      // --- Gate 4: DISABLED — false positives from matching "closed" in API JSON ---
+      // Regex state.*closed matches PR/issue API response text, not just issue closure calls.
+      // Gate 4 will be redesigned through brainstorm → spec → plan when it's its turn.
 
       // --- Per-turn: Protected branch edit guard ---
       // After each assistant turn, check if files were edited on dev/main
