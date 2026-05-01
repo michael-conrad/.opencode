@@ -53,7 +53,11 @@ case "$CURRENT_BRANCH" in
         ;;
 esac
 
-PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+while [ "$(basename "$PROJECT_ROOT")" != ".opencode" ]; do
+    PROJECT_ROOT="$(dirname "$PROJECT_ROOT")"
+done
+PROJECT_ROOT="$(dirname "$PROJECT_ROOT")"
 WORK_STATE_DIR="$PROJECT_ROOT/.opencode/tmp"
 
 # Work branches (work state file exists) have N commits for N work items — skip check

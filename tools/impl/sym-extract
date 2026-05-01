@@ -19,10 +19,12 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(
-    ["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True
-).strip()
-PROJECT_ROOT = (BASE_DIR / CDUP).resolve()
+_p = BASE_DIR
+while not (_p / ".opencode").is_dir():
+    if _p == _p.parent:
+        raise RuntimeError("Could not find project root (no .opencode/ directory found)")
+    _p = _p.parent
+PROJECT_ROOT = _p
 DEFAULT_SCAN_DIR = PROJECT_ROOT / ".opencode"
 
 SCHEMA_V1 = "1.0"

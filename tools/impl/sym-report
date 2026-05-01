@@ -20,8 +20,10 @@ from pathlib import Path
 import networkx as nx
 
 IMPL_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-BASE_DIR = (IMPL_DIR / CDUP).resolve()
+_cur = IMPL_DIR.resolve()
+while not (_cur / ".git").is_dir():
+    _cur = _cur.parent
+BASE_DIR = _cur
 DEFAULT_OUTPUT = BASE_DIR / "tmp"
 
 

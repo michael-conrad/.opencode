@@ -10,7 +10,6 @@ Usage: ./.opencode/tools/symbolic states
 
 from __future__ import annotations
 import os as _os
-import subprocess
 import sys
 import types
 from dataclasses import dataclass
@@ -19,8 +18,11 @@ from pathlib import Path
 import networkx as nx
 
 IMPL_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-BASE_DIR = (IMPL_DIR / CDUP).resolve()
+BASE_DIR = IMPL_DIR
+for parent in IMPL_DIR.parents:
+    if (parent / ".git").is_dir():
+        BASE_DIR = parent
+        break
 
 
 def _load_extract():

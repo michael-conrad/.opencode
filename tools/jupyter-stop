@@ -18,9 +18,10 @@ import sys
 import time
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-PROJECT_ROOT = (BASE_DIR / CDUP).resolve()
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    _path = _path.parent
+PROJECT_ROOT = _path.parent
 PORT = 18888
 
 

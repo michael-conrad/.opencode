@@ -59,9 +59,15 @@ import re
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 GIT_TIMEOUT = 10
 NETWORK_TIMEOUT = 5
+
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    _path = _path.parent
+PROJECT_ROOT = _path.parent
 
 
 def run_git_command(args: list[str]) -> str | None:
@@ -185,18 +191,11 @@ def parse_gitbucket_url(
 def _read_gitbucket_url_from_env() -> str | None:
     """Read GITBUCKET_HTML_URL (preferred) or GITBUCKET_URL (legacy) from .env file."""
     try:
-        _base_dir = os.path.dirname(os.path.abspath(__file__))
-        _cdup = subprocess.check_output(
-            ["git", "-C", _base_dir, "rev-parse", "--show-cdup"],
-            text=True,
-            stdin=subprocess.DEVNULL,
-            timeout=NETWORK_TIMEOUT,
-        ).strip()
-        env_path = os.path.normpath(os.path.join(_base_dir, _cdup, ".env"))
-        if os.path.exists(env_path):
+        _env_path = PROJECT_ROOT / ".env"
+        if _env_path.exists():
             html_url = None
             legacy_url = None
-            with open(env_path) as f:
+            with open(_env_path) as f:
                 for line in f:
                     line = line.strip()
                     if line.startswith("GITBUCKET_HTML_URL="):
@@ -820,16 +819,9 @@ def main() -> int:
             print(f"gitbucket.ssh_url: {ssh_url}")
         has_credentials = False
         try:
-            _base_dir = os.path.dirname(os.path.abspath(__file__))
-            _cdup = subprocess.check_output(
-                ["git", "-C", _base_dir, "rev-parse", "--show-cdup"],
-                text=True,
-                stdin=subprocess.DEVNULL,
-                timeout=NETWORK_TIMEOUT,
-            ).strip()
-            env_path = os.path.normpath(os.path.join(_base_dir, _cdup, ".env"))
-            if os.path.exists(env_path):
-                with open(env_path) as f:
+            _env_path = PROJECT_ROOT / ".env"
+            if _env_path.exists():
+                with open(_env_path) as f:
                     content = f.read()
                     has_credentials = "GITBUCKET_TOKEN=" in content and (
                         "GITBUCKET_HTML_URL=" in content or "GITBUCKET_URL=" in content

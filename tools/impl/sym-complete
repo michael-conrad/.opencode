@@ -18,8 +18,10 @@ from dataclasses import dataclass
 from pathlib import Path
 
 IMPL_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-BASE_DIR = (IMPL_DIR / CDUP).resolve()
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    _path = _path.parent
+BASE_DIR = _path.parent.resolve()
 NORMATIVE_RE = re.compile(r"\b(MUST|SHALL|NEVER|ALWAYS|REQUIRED|FORBIDDEN)\b")
 YAML_FENCE_RE = re.compile(r"```yaml\+symbolic\n.*?```", re.DOTALL)
 

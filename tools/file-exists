@@ -10,13 +10,13 @@ Usage: ./.opencode/tools/file-exists <path> [<path> ...]
 """
 from __future__ import annotations
 
-import subprocess
 import sys
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-PROJECT_ROOT = (BASE_DIR / CDUP).resolve()
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    _path = _path.parent
+PROJECT_ROOT = _path.parent
 
 
 def main() -> None:
