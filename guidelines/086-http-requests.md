@@ -1,3 +1,9 @@
+---
+trigger_on: HTTP, request, header, User-Agent
+tier: 2
+load_when: sub-agent
+---
+
 # HTTP Requests
 
 ## HTTP Headers — Always Include

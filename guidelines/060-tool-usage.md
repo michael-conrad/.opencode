@@ -1,13 +1,20 @@
+---
+trigger_on: tool, path rule, temp file, command restriction, file operation
+tier: 1
+load_when: sub-agent
+---
+
 # Tool Usage & Terminal Rules
 
-## 0. Lazy-Loaded Guidelines
+## 0. Progressive Disclosure — Index-Only Orchestrator Context
 
-The following guidelines are loaded on-demand by skills, not permanently in context:
+**CRITICAL:** Full guideline content lives exclusively in ephemeral sub-agent context windows — loaded fresh on demand and discarded. The orchestrator holds only `.opencode/guidelines/INDEX.md` (trigger-pattern pairs, ≤1,500 words) for routing decisions. Never load full guideline bodies into orchestrator context.
 
-- `065-verification-honesty.md` — Loaded by verification-dependent skills when invoked
-- `067-context-completeness.md` — Loaded by issue/PR review skills when invoked
+### Loading Protocol
 
-When a skill indicates "Load guideline:" in its pre-conditions, use the `read` tool or `./.opencode/tools/guidelines read` command to load it before proceeding.
+1. **In orchestrator context:** Use INDEX.md for trigger-pattern matching — route to sub-agent based on matching triggers
+2. **In sub-agent context:** Load individual guidelines via `./.opencode/tools/guidelines read <filename>` when needed
+3. **Default load set:** `000-critical-rules.md` is loaded when sub-agent performs safety-critical operations; other guidelines loaded per trigger match
 
 ## 1. Tool Priority Hierarchy
 

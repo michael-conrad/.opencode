@@ -1,3 +1,9 @@
+---
+trigger_on: script, scripting, script header, shebang, bash
+tier: 2
+load_when: sub-agent
+---
+
 # Scripting Standards
 
 ## Script Headers (mandatory)

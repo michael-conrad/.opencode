@@ -1,3 +1,9 @@
+---
+trigger_on: archive, spec structure, spec format, requirements
+tier: 2
+load_when: sub-agent
+---
+
 # Planning: Spec Structure Requirements
 
 ## Spec File Format

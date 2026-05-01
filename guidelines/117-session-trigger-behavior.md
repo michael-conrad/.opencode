@@ -1,3 +1,9 @@
+---
+trigger_on: session trigger, trigger, trigger warning, SESSION_TRIGGER
+tier: 1
+load_when: sub-agent
+---
+
 # Session Trigger Behavior
 
 ## Overview

@@ -1,3 +1,9 @@
+---
+trigger_on: status tracking, STATUS, marker, revision, label state
+tier: 2
+load_when: sub-agent
+---
+
 # Planning: Status Tracking
 
 ## 3. Spec Flow Control (Status & Markers)

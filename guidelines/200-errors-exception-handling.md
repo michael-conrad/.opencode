@@ -1,3 +1,9 @@
+---
+trigger_on: exception, error handling, exception handling, raise
+tier: 2
+load_when: sub-agent
+---
+
 # Error Handling: Exception Handling
 
 ## Global Absolute Prohibition

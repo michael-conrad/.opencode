@@ -1,3 +1,9 @@
+---
+trigger_on: code standard, attribution, co-authored, byline, enforcement test, behavioral test, hardcoded identity
+tier: 1
+load_when: sub-agent
+---
+
 # Code Standards
 
 ## Scope

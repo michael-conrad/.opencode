@@ -1,3 +1,9 @@
+---
+trigger_on: data integrity, mutable, mutation, database, production data
+tier: 1
+load_when: sub-agent
+---
+
 # Data Integrity
 
 ## Global Absolute Prohibition

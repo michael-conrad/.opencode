@@ -1,3 +1,9 @@
+---
+trigger_on: scope, autonomy, agent discretion, agent decision
+tier: 2
+load_when: sub-agent
+---
+
 # Scope & Autonomy Controls
 
 ## 1. Core Principle

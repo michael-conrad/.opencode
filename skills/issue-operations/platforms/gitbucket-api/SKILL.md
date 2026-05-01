@@ -69,6 +69,7 @@ GitBucket platform implementation using Python client. Implements a GitHub-compa
 | `error-recovery` | When GitBucket error handling/retry is needed | Error details, retry context | Implementation context, agent memory | NO |
 | `mcp-operations` | When GitBucket MCP tool mapping is needed | Operation type, MCP context | Implementation context, agent memory | NO |
 | `repository-operations` | When GitBucket repository CRUD is needed | Repository data, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pre-analysis` | Before any execution sub-agent dispatch, determine scope independently | Issue number, task description, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
 | `session-integration` | When GitBucket session init integration is needed | Session context, environment variables | Implementation context, agent memory | NO |
 
 ## Authorization Labels (Platform-Supported)

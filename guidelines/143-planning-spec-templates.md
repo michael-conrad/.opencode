@@ -1,3 +1,9 @@
+---
+trigger_on: template, spec template, template format
+tier: 2
+load_when: sub-agent
+---
+
 # Planning: Spec Templates
 
 ## Intent, Not Templates

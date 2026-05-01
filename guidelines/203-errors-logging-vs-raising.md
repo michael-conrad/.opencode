@@ -1,3 +1,9 @@
+---
+trigger_on: logging, raising, log and raise, error logging
+tier: 2
+load_when: sub-agent
+---
+
 # Error Handling: Logging vs Raising
 
 ## 3. Logging vs Raising

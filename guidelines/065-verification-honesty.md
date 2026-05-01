@@ -1,3 +1,9 @@
+---
+trigger_on: verify, verification, memory, stale, training data, evidence
+tier: 1
+load_when: sub-agent
+---
+
 # Verification Honesty — Never Rely on Memory When Instructed to Check
 
 ## Zero Tolerance Rule

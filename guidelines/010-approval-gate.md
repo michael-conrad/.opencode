@@ -1,3 +1,9 @@
+---
+trigger_on: approved, go, authorization, approve, approval-gate, spec-before-code
+tier: 1
+load_when: sub-agent
+---
+
 # Approval Gate
 
 > **See `approval-gate` skill for complete procedural workflow including:**

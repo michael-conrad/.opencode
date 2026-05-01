@@ -1,3 +1,9 @@
+---
+trigger_on: code inspection, pre-spec, investigate codebase
+tier: 2
+load_when: sub-agent
+---
+
 # Pre-Spec Code Inspection Checklist
 
 **This checklist MUST be completed before proposing any approach in a spec or bug report. Incomplete inspection is the concrete minimum standard for the "Spec Without Investigation" critical violation (see `000-critical-rules.md`).**
