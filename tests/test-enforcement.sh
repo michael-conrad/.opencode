@@ -212,6 +212,13 @@ SCENARIOS["parent-issue-closure-vai-step6"]="Does .opencode/skills/approval-gate
 SCENARIOS["parent-issue-closure-cleanup-step28"]="Does .opencode/skills/git-workflow/tasks/cleanup.md contain a Step 2.8 titled 'Parent Plan Closure'?"
 SCENARIOS["model-aware-critical-violation"]="Does .opencode/guidelines/000-critical-rules.md contain critical violation sections titled 'Model-Aware Clean-Room Dispatch for Behavioral Testing' and 'No Inline Fallback on Sub-Agent Failure During Behavioral Testing'?"
 SCENARIOS["ollama-tooling-registration"]="Does .opencode/guidelines/060-tool-usage.md Tier 3 list include 'ollama-probe' and 'ollama-model-resolve'?"
+SCENARIOS["guideline-frontmatter"]="Verify all 26 guideline files in .opencode/guidelines/ have trigger_on and load_when frontmatter"
+SCENARIOS["guideline-index-exists"]="Verify .opencode/guidelines/INDEX.md exists and contains at least 26 guideline entries"
+SCENARIOS["guideline-index-word-count"]="Verify .opencode/guidelines/INDEX.md is at most 1500 words"
+SCENARIOS["skill-word-count"]="Verify all SKILL.md files in .opencode/skills/ are at most 600 words each"
+SCENARIOS["skildeck-lint-progressive-disclosure"]="Verify skildeck lint includes progressive-disclosure rules for frontmatter and word counts"
+SCENARIOS["session-enforcement-guideline-index"]="Verify session-enforcement.ts injects guideline index via buildGuidelineIndexBlock"
+SCENARIOS["progressive-disclosure-060-updated"]="Verify 060-tool-usage.md section 0 references progressive disclosure and INDEX.md"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -398,6 +405,13 @@ SCENARIO_TAGS["auth-free-scope-autonomy"]="content-verification approval"
 SCENARIO_TAGS["auth-free-approval-gate-skill"]="content-verification approval"
 SCENARIO_TAGS["model-aware-critical-violation"]="content-verification behavioral-testing"
 SCENARIO_TAGS["ollama-tooling-registration"]="content-verification tool-usage"
+SCENARIO_TAGS["guideline-frontmatter"]="content-verification progressive-disclosure"
+SCENARIO_TAGS["guideline-index-exists"]="content-verification progressive-disclosure"
+SCENARIO_TAGS["guideline-index-word-count"]="content-verification progressive-disclosure"
+SCENARIO_TAGS["skill-word-count"]="content-verification progressive-disclosure"
+SCENARIO_TAGS["skildeck-lint-progressive-disclosure"]="content-verification progressive-disclosure"
+SCENARIO_TAGS["session-enforcement-guideline-index"]="content-verification progressive-disclosure"
+SCENARIO_TAGS["progressive-disclosure-060-updated"]="content-verification progressive-disclosure"
 
 # File-to-scenario mapping for --changed filtering
 # Maps glob patterns to scenario names

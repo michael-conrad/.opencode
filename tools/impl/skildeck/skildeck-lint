@@ -68,6 +68,84 @@ def _extract_source_label(filepath: Path, scan_dir: Path) -> str:
         return str(filepath)
 
 
+def _extract_yaml_frontmatter(text: str) -> dict | None:
+    """Extract YAML frontmatter if present (between --- delimiters at start)."""
+    import yaml
+    lines = text.split("\n")
+    if not lines or lines[0].strip() != "---":
+        return None
+    end_idx = None
+    for i in range(1, len(lines)):
+        if lines[i].strip() == "---":
+            end_idx = i
+            break
+    if end_idx is None:
+        return None
+    try:
+        return yaml.safe_load("\n".join(lines[1:end_idx]))
+    except yaml.YAMLError:
+        return None
+
+
+def lint_progressive_disclosure(base_dir: Path) -> list[LintFinding]:
+    findings: list[LintFinding] = []
+
+    guidelines_dir = base_dir / "guidelines"
+    skills_dir = base_dir / "skills"
+
+    if guidelines_dir.exists():
+        guideline_files = sorted(guidelines_dir.glob("*.md"))
+        for gf in guideline_files:
+            if gf.name == "INDEX.md":
+                wc = len(gf.read_text().split())
+                if wc > 1500:
+                    findings.append(LintFinding(
+                        severity="error", category="progressive-disclosure",
+                        source=str(gf.relative_to(base_dir)),
+                        rule_id="index-word-count", message=f"INDEX.md is {wc} words (limit 1500)"
+                    ))
+                continue
+            text = gf.read_text()
+            fm = _extract_yaml_frontmatter(text)
+            if fm is None or "trigger_on" not in fm:
+                findings.append(LintFinding(
+                    severity="error", category="progressive-disclosure",
+                    source=str(gf.relative_to(base_dir)),
+                    rule_id="guideline-frontmatter", message="missing trigger_on frontmatter"
+                ))
+            if fm is None or "load_when" not in fm:
+                findings.append(LintFinding(
+                    severity="error", category="progressive-disclosure",
+                    source=str(gf.relative_to(base_dir)),
+                    rule_id="guideline-frontmatter", message="missing load_when frontmatter"
+                ))
+
+    if skills_dir.exists():
+        total_desc_words = 0
+        for skill_dir in sorted(skills_dir.iterdir()):
+            if not skill_dir.is_dir():
+                continue
+            skmd = skill_dir / "SKILL.md"
+            if not skmd.exists():
+                continue
+            wc = len(skmd.read_text().split())
+            total_desc_words += wc
+            if wc > 600:
+                findings.append(LintFinding(
+                    severity="error", category="progressive-disclosure",
+                    source=str(skmd.relative_to(base_dir)),
+                    rule_id="skill-word-count", message=f"SKILL.md is {wc} words (limit 600)"
+                ))
+        if total_desc_words > 1000:
+            findings.append(LintFinding(
+                severity="error", category="progressive-disclosure",
+                source="skills/",
+                rule_id="skill-index-size", message=f"Combined SKILL.md descriptions are {total_desc_words} words (limit 1000)"
+            ))
+
+    return findings
+
+
 def lint_all(
     scan_dir: Path,
     skill_filter: str = "",
@@ -267,6 +345,9 @@ def main() -> None:
         gate_filter=args.gate,
         scope_filter=args.scope,
     )
+
+    base_dir = scan_dir.parent if scan_dir.name == "skills" else scan_dir
+    findings.extend(lint_progressive_disclosure(base_dir))
 
     if args.json:
         print(json.dumps([f.to_dict() for f in findings], indent=2))

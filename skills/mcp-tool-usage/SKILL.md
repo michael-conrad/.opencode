@@ -83,33 +83,6 @@ Semantic rename, code reformat, build project, inspections, run configs, directo
 
 Bash/shell commands ONLY when no other tool covers the operation or it's inherently a shell operation (git, docker, package management).
 
-## ABSOLUTE EXCEPTION: .ipynb Files
+## Critical Rules
 
-`.ipynb` files are MANDATORY via `the-notebook-mcp`. Zero tolerance, no fallback. Direct access via `read`/`write`/`edit`/`json`/`nbformat`/`sed`/`cat`/`grep`/`jq`/`python` on `.ipynb` files is PROHIBITED and causes corruption.
-
-## Owner Inference Prohibition (ZERO TOLERANCE)
-
-**DO NOT infer GitHub owner from file paths, usernames, or cached values.** Use ONLY values from session-enforcement plugin output (`<github.owner>`, `<github.repo>`).
-
-## Worktree Path Resolution
-
-When `worktree.path` is set, ALL file operations MUST prefix paths with the worktree path. TIER 1 tools (`read`, `edit`, `write`, `glob`, `grep`) resolve relative paths to the **main repo**, NOT the worktree.
-
-| Tool | Wrong (main repo) | Correct (worktree) |
-|------|-------------------|---------------------|
-| `read` | `read(filePath="src/main.py")` | `read(filePath=f"{worktree.path}/src/main.py")` |
-| `edit` | `edit(filePath="src/main.py", ...)` | `edit(filePath=f"{worktree.path}/src/main.py", ...)` |
-| `write` | `write(filePath="src/new.py", ...)` | `write(filePath=f"{worktree.path}/src/new.py", ...)` |
-| `glob` | `glob(pattern="src/**/*.py")` | `glob(pattern="src/**/*.py", path=worktree.path)` |
-| `grep` | `grep(pattern="TODO", path="src/")` | `grep(pattern="TODO", path=f"{worktree.path}/src/")` |
-
-For `bash` tool calls, continue using the `workdir` parameter.
-
-## Cross-References
-
-| Guideline | Section |
-|-----------|---------|
-| `016-srclight-preference.md` | Srclight vs .opencode/tools hierarchy |
-| `060-tool-usage.md` | Tool usage and terminal rules |
-| `notebook-operations` skill | Complete notebook zero-tolerance rules |
-| Session enforcement plugin | MCP probe at startup |
+`.ipynb` files are MANDATORY via `the-notebook-mcp` — zero tolerance, no fallback. Do NOT infer GitHub owner from file paths or cached values. See `060-tool-usage.md` §2 for worktree path resolution rules and `notebook-operations` skill for complete notebook zero-tolerance rules.
