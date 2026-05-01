@@ -755,6 +755,22 @@ This means:
 </LANGUAGE_PREFERENCE>`;
 }
 
+function buildGuidelineIndexBlock(projectDir: string): string {
+  const indexPath = path.join(projectDir, ".opencode", "guidelines", "INDEX.md");
+  if (!fs.existsSync(indexPath)) return "";
+
+  try {
+    const indexContent = fs.readFileSync(indexPath, "utf8");
+    return `<GUIDELINE_INDEX>
+${indexContent}
+</GUIDELINE_INDEX>
+
+Progressive disclosure: Full guideline bodies loaded only by sub-agents when enforcement gates fire. Never load full bodies into orchestrator context. Use \`./.opencode/tools/guidelines read <filename>\` in sub-agent context only.`;
+  } catch {
+    return "";
+  }
+}
+
 function buildWorktreeBlock(input: PluginInput): string {
   const mainRepoDir = input?.directory || "";
   const worktreeDir = input?.worktree || "";
@@ -1267,6 +1283,12 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
 
       // Inject language preference (Southeastern US English mandate)
       output.system.push(buildLanguagePreferenceBlock());
+
+      // Inject progressive-disclosure guideline index (INDEX.md) for orchestrator routing
+      const guidelineIndexBlock = buildGuidelineIndexBlock(projectDir);
+      if (guidelineIndexBlock) {
+        output.system.push(guidelineIndexBlock);
+      }
 
       // Inject frontmatter validation warning if any skills have broken frontmatter
       const warning = buildFrontmatterWarning(frontmatterErrors);
