@@ -18,8 +18,13 @@ import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-PROJECT_ROOT = (BASE_DIR / CDUP).resolve()
+PROJECT_ROOT = BASE_DIR
+while not (PROJECT_ROOT / ".opencode").is_dir():
+    parent = PROJECT_ROOT.parent
+    if parent == PROJECT_ROOT:
+        print("ERROR: Could not find .opencode/ directory", file=sys.stderr)
+        sys.exit(1)
+    PROJECT_ROOT = parent
 MEMORY_FILE = PROJECT_ROOT / ".opencode" / "memory.md"
 
 

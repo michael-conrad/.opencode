@@ -19,11 +19,10 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 
 IMPL_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(
-    ["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True
-).strip()
-BASE_DIR = (IMPL_DIR / CDUP).resolve()
-DEFAULT_SCAN_DIR = BASE_DIR / ".opencode"
+_path = IMPL_DIR
+while _path.name != ".opencode":
+    _path = _path.parent
+DEFAULT_SCAN_DIR = _path
 
 
 def _load_module(module_file: str):

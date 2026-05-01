@@ -10,7 +10,6 @@ Usage: ./.opencode/tools/symbolic flow
 
 from __future__ import annotations
 import os as _os
-import subprocess
 import sys
 import types
 from dataclasses import dataclass
@@ -19,8 +18,10 @@ from pathlib import Path
 import networkx as nx
 
 IMPL_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-BASE_DIR = (IMPL_DIR / CDUP).resolve()
+_path = IMPL_DIR
+while _path.name != ".opencode":
+    _path = _path.parent
+BASE_DIR = _path.parent
 
 
 def _load_extract():

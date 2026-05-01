@@ -13,17 +13,21 @@ from __future__ import annotations
 import json
 import os as _os
 import re
-import subprocess
 import sys
 import types
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 IMPL_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(
-    ["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True
-).strip()
-BASE_DIR = (IMPL_DIR / CDUP).resolve()
+_scan = IMPL_DIR
+while True:
+    if _scan.name == ".opencode":
+        BASE_DIR = _scan.parent
+        break
+    parent = _scan.parent
+    if parent == _scan:
+        raise RuntimeError("Cannot find .opencode ancestor directory")
+    _scan = parent
 DEFAULT_SCAN_DIR = BASE_DIR / ".opencode"
 
 

@@ -11,15 +11,15 @@ Usage: ./.opencode/tools/symbolic extract-dot
 from __future__ import annotations
 import os as _os
 import re
-import subprocess
 import sys
 from pathlib import Path
 
 import networkx as nx
 
-BASE_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-PROJECT_ROOT = (BASE_DIR / CDUP).resolve()
+_candidate = Path(__file__).resolve().parent
+while not (_candidate / ".git").exists() and _candidate.parent != _candidate:
+    _candidate = _candidate.parent
+PROJECT_ROOT = _candidate
 DIGRAPH_PATTERN = re.compile(r"```(?:dot|digraph)\s*\n(.*?)```", re.DOTALL)
 
 
