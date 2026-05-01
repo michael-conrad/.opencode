@@ -1,3 +1,9 @@
+---
+trigger_on: critical, zero tolerance, violation, mandate, Tier 1
+tier: 1
+load_when: sub-agent
+---
+
 # CRITICAL RULES — Zero Tolerance Violations
 
 **See .opencode/AGENTS.md for the authoritative list of critical rules.**
@@ -2311,6 +2317,48 @@ Behavioral enforcement tests exist to verify that an AI agent actually follows n
     requires: []
     triggers: [verification-before-completion, divide-and-conquer]
     source: "000-critical-rules.md §Model-Aware Clean-Room Dispatch for Behavioral Testing"
+```
+
+<!-- Issue #274: Universal Pre-Analysis Gate — Success Criteria: Add Preloading Sub-Agent Context critical violation -->
+
+## Critical Violation: Preloading Sub-Agent Context — Dispatching Execution Sub-Agents with Pre-Determined File Paths, Line Numbers, or Expected Outcomes
+
+**⚠️ Dispatching execution sub-agents with pre-determined file paths, line numbers, expected outcomes, or orchestrator reasoning is a CRITICAL GUIDELINE VIOLATION.**
+
+The orchestrator performs analysis and design inline, then hands sub-agents a script to execute ("edit file X at line 42 and replace A with B"). The sub-agent has no autonomy to determine *what* changes are actually needed. This defeats clean-room isolation at the dispatch-content level: rules exist saying "dispatch clean-room sub-agents," but the orchestrator can still preload biased context within those dispatches.
+
+Every execution dispatch MUST be gated by a pre-analysis sub-agent that independently determines scope — the orchestrator must never preload its own analysis, file lists, line numbers, or expected outcomes into the execution sub-agent's context.
+
+- 🚫 FORBIDDEN: Dispatching execution sub-agents with pre-determined file paths in dispatch context
+- 🚫 FORBIDDEN: Dispatching execution sub-agents with specific line numbers to edit
+- 🚫 FORBIDDEN: Dispatching execution sub-agents with expected outcomes or "correct" answers
+- 🚫 FORBIDDEN: Dispatching execution sub-agents with orchestrator's pre-computed analysis
+- 🚫 FORBIDDEN: Treating `task(subagent_type="general")` as a smarter `edit` tool — sub-agents are intelligent agents, not file editors
+- 🚫 FORBIDDEN: Pre-selecting files for verification sub-agents to check (verifiers must independently determine scope)
+- ✅ REQUIRED: Gate every execution dispatch behind a pre-analysis sub-agent that receives only `{ issue_number, task_description, github.owner, github.repo }` — zero file paths, zero expected outcomes, zero orchestrator reasoning
+- ✅ REQUIRED: Execution sub-agents receive `{ dispatch_plan, scoped_task_description }` — not specific file/line edit instructions
+- ✅ REQUIRED: Verification sub-agents receive `{ success_criteria, github.owner, github.repo }` — no file lists, no scope restrictions
+- ✅ REQUIRED: Pre-analysis sub-agents independently search the codebase to discover affected files
+
+**AUTHORITY:** Spec #274, Issue #273 (canonical evidence: pre-determined scope led to 44 missed files)
+
+```yaml+symbolic
+  - id: critical-rules-044
+    title: "Preloading sub-agent context — dispatching execution sub-agents with pre-determined file paths, line numbers, or expected outcomes"
+    conditions:
+      any:
+        - "sub_agent_dispatched_with_file_paths == true"
+        - "sub_agent_dispatched_with_line_numbers == true"
+        - "sub_agent_dispatched_with_expected_outcomes == true"
+        - "sub_agent_dispatched_with_orchestrator_reasoning == true"
+        - "verification_sub_agent_dispatched_with_file_list == true"
+    actions:
+      - HALT
+      - DISPATCH(pre-analysis sub-agent first)
+    conflicts_with: []
+    requires: [critical-rules-034, critical-rules-030]
+    triggers: [approval-gate, divide-and-conquer, verification-before-completion]
+    source: "000-critical-rules.md §Preloading Sub-Agent Context"
 ```
 
 ## Critical Violation: No Inline Fallback on Sub-Agent Failure During Behavioral Testing

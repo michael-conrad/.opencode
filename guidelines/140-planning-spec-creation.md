@@ -1,3 +1,9 @@
+---
+trigger_on: planning, spec creation, spec workflow, spec-driven
+tier: 2
+load_when: sub-agent
+---
+
 # Planning: Spec Creation
 
 ## Spec-Driven Development Workflow

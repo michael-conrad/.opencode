@@ -123,3 +123,5 @@ Agent MUST report staleness when detected and should attempt to refresh. If API 
 | Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
 |---|---|---|---|---|
 | Platform operations | When GitHub MCP platform operations are dispatched | Operation type, issue/PR number, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pre-analysis` | Before any execution sub-agent dispatch, determine scope independently | Issue number, task description, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
+| `completion` | When workflow halts at any point | Workflow state | Implementation context, agent memory | NO |

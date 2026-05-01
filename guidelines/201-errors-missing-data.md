@@ -1,3 +1,9 @@
+---
+trigger_on: missing data, null, absent, data missing
+tier: 2
+load_when: sub-agent
+---
+
 # Error Handling: Missing Data
 
 ## 2. Missing Data Rules

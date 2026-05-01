@@ -1,3 +1,9 @@
+---
+trigger_on: GO, prohibited, forbidden, never do, soliciting, solicitation
+tier: 1
+load_when: sub-agent
+---
+
 # GO Prohibitions
 
 ## 1. What GO Is Not & Self-Authorization Prohibitions

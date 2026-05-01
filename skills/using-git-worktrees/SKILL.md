@@ -4,188 +4,52 @@ description: Use when creating a feature branch or worktree for implementation. 
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
+compatibility: opencode
 ---
 
 # Skill: using-git-worktrees
 
 ## Overview
 
-Git worktrees create isolated workspaces sharing the same repository, allowing work on multiple branches simultaneously without switching. This skill adapts the [obra/superpowers using-git-worktrees](https://github.com/obra/superpowers/blob/main/skills/using-git-worktrees/SKILL.md) pattern for the `feature→dev→main` three-branch workflow used in this project.
-
-**Core principle:** Systematic directory selection + safety verification = reliable isolation for parallel agent work.
-
-**⚠️ Worktrees are OPT-IN, not mandatory.** The default workflow is direct-branch (feature branch in main repo). Worktrees are only created when `WORKTREE_REQUIRED` is set or the developer explicitly requests isolation. See `000-critical-rules.md` → "Direct-Branch Default" for the primary workflow.
-
-**Announce at start:** "Using the using-git-worktrees skill to set up an isolated workspace."
-
-**Source attribution:** Adapted from [obra/superpowers `using-git-worktrees`](https://github.com/obra/superpowers/tree/main/skills/using-git-worktrees). Original concepts and structure used with attribution.
+Git worktrees create isolated workspaces sharing same repository. Opt-in only — default is direct-branch (feature branch in main repo). Created when `WORKTREE_REQUIRED` set or developer requests isolation.
 
 ## Persona
 
-You are a Worktree Setup Specialist. Your focus is creating safe, isolated git worktrees so agents can work in parallel without conflict.
+Worktree Setup Specialist. Focus: creating safe, isolated git worktrees for parallel agent work.
 
 ## Tasks
 
-| Task | Purpose | Words |
-|------|---------|-------|
-| `create-worktree` | Full worktree creation workflow: sync, verify, setup, export env | ≈600 |
-| `tool-usage` | File operation and bash tool compliance rules for worktrees | ≈250 |
-| `reference` | Quick reference, common mistakes, fatal errors, integration | ≈450 |
-| `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
-
-## Sub-Agent Tasks
-
-### Dispatch Audit Table
-
-| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
-|---|---|---|---|---|
-| `create-worktree` | When worktree creation is needed before implementation | Branch name, worktree.path, github.owner, github.repo | Implementation context, agent memory, cached verification | NO |
-| `tool-usage` | When file operation compliance rules are needed | Worktree.path, file operation context | Implementation context, agent memory | NO |
-| `reference` | When quick reference for worktree operations is needed | Worktree.path, branch name | Implementation context, agent memory | NO |
-| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+| Task | Words |
+|------|-------|
+| `create-worktree` | ≈400 |
+| `verify-worktree` | ≈200 |
+| `completion` | ≈150 |
 
 ## Invocation
 
-- `/skill using-git-worktrees` — Overview only (this document)
-- `/skill using-git-worktrees --task create-worktree` — Create a new worktree
-- `/skill using-git-worktrees --task tool-usage` — Tool usage compliance rules
-- `/skill using-git-worktrees --task reference` — Quick reference and troubleshooting
-- `/skill using-git-worktrees --task completion` — Invoke when workflow halts at any point
+`/skill using-git-worktrees --task create-worktree`, `--task verify-worktree`, `--task completion`. Overview with no flag.
+
+## Worktree Location
+
+`.worktrees/<branch-name>/`. Directory auto-selected with incremented suffix (-2, -3) if taken.
 
 ## Operating Protocol
 
-1. **Announce intent** at start: "Using the using-git-worktrees skill to set up an isolated workspace."
-1. **Default base branch is `dev`** — never from `main`. For work execution workflows, `BASE_BRANCH` may be a prior feature branch or work branch. Feature branches target `dev`.
-1. **This skill is invoked ONLY when `WORKTREE_REQUIRED` is set or developer requests isolation** — direct-branch is the default per `000-critical-rules.md` → "Direct-Branch Default"
-1. **Always use `.worktrees/` directory** — when worktree mode is active, stash+checkout in main repo is FORBIDDEN
-1. **Verify `.worktrees/` is gitignored** before creating worktree. If not, add it and commit.
-1. **Check for name collisions** before creating — reuse existing worktree for same branch, HALT on mismatch.
-1. **Export `worktree.path`, `branch`, `DEV_BASE_HASH`** after creation — downstream skills require these.
-1. **If `worktree.fatal=1`** appears in session init: HALT immediately, report to developer, do NOT proceed.
-1. **If `worktree.path` is empty after creation**: FATAL ERROR → FLAG DEV → HALT.
-1. **Verify clean test baseline** after setup — report failures, get explicit permission to proceed.
-1. **Cleanup** is handled by `finishing-a-development-branch`, not by this skill.
+1. **Opt-in only** — created when `WORKTREE_REQUIRED` or developer requests.
+2. **Safety verification:** confirm git worktree add succeeded, verify path is writable.
+3. **Path resolution:** `worktree.path` set; all file ops prefix paths.
 
-## Three-Branch Model Adaptation
+## Sub-Agent Dispatch Audit
 
-| Original (superpowers) | This Project |
-|------------------------|-------------|
-| Worktrees from `main` | Worktrees from `dev` |
-| Feature branches target `main` | Feature branches target `dev` |
-| No project setup step | Auto-detect and run `uv sync` |
-| No cleanup integration | Integrates with `finishing-a-development-branch` |
-
-Branch naming: `spec/<short-name>` for spec-driven work, `feature/<description>` for general feature work, `work/<short-name>` for work execution branches.
-
-**BASE_BRANCH parameter:** The `create-worktree` task supports creating worktrees from branches other than `dev`. Defaults to `dev` for standalone branches. In work execution workflows, set to a prior feature branch (for dependency merge) or the work branch. Agent decides at creation time based on context.
-
-## Cross-References
-
-- **Called by:** `brainstorming` (Phase 4), `divide-and-conquer`, `executing-plans`
-- **Pairs with:** `finishing-a-development-branch` (cleanup), `git-workflow` (branch/PR management)
-- **Related guidelines:** `000-critical-rules.md` (worktree bypass violation), `060-tool-usage.md` (path rules)
-
-**⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
+Tasks dispatch via `task(subagent_type="general")` with `{ worktree.path, branch_name, github.owner, github.repo }`. Exclusions: implementation context, agent memory. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+last_updated: "2026-05-01T00:00:00Z"
 rules:
-  - id: worktree-001
-    title: "Worktree MUST be created before file modification when WORKTREE_REQUIRED is set"
+  - id: worktrees-001
+    title: "Worktrees opt-in — direct branch is default"
     conditions:
-      all:
-        - "WORKTREE_REQUIRED == true"
-        - "worktree_created == false"
-        - "file_modification_attempted == true"
-    actions:
-      - HALT
-      - INVOKE(create-worktree)
-    conflicts_with: []
-    requires: []
-    triggers: [git-workflow, divide-and-conquer]
-    source: "using-git-worktrees/SKILL.md §Operating Protocol"
-
-  - id: worktree-002
-    title: "If worktree.fatal=1 appears, HALT immediately and report"
-    conditions:
-      all:
-        - "worktree_fatal == 1"
-    actions:
-      - HALT
-      - REPORT("worktree fatal error — flag developer")
-    conflicts_with: []
-    requires: []
-    triggers: []
-    source: "using-git-worktrees/SKILL.md §Operating Protocol"
-
-  - id: worktree-003
-    title: "If worktree.path is empty after creation, HALT — fatal error"
-    conditions:
-      all:
-        - "WORKTREE_REQUIRED == true"
-        - "worktree_path_empty == true"
-    actions:
-      - HALT
-      - REPORT("worktree.path empty after creation — fatal")
-    conflicts_with: []
-    requires: []
-    triggers: []
-    source: "using-git-worktrees/SKILL.md §Operating Protocol"
-
-  - id: worktree-004
-    title: "Stash+checkout in main repo is FORBIDDEN when worktree mode active"
-    conditions:
-      all:
-        - "WORKTREE_REQUIRED == true"
-        - "stash_checkout_attempted == true"
-    actions:
-      - HALT
-      - REPORT("worktree bypass — use .worktrees/ directory")
-    conflicts_with: []
-    requires: []
-    triggers: []
-    source: "using-git-worktrees/SKILL.md §Operating Protocol"
-
-tasks:
-  - id: create-worktree
-    skill: using-git-worktrees
-    preconditions:
-      - "WORKTREE_REQUIRED == true"
-      - "feature_branch_named == true"
-    postconditions:
-      - "worktree_path_exported == true"
-      - "branch_created == true"
-      - "clean_baseline_verified == true"
-    mandatory: true
-    bypass_violation: "file modification without worktree when WORKTREE_REQUIRED"
-    source: "using-git-worktrees/SKILL.md §Tasks"
-
-  - id: tool-usage
-    skill: using-git-worktrees
-    preconditions:
-      - "worktree.path_is_set == true"
-    postconditions:
-      - "all_paths_prefixed_with_worktree_path == true"
-      - "bash_uses_workdir_parameter == true"
-    mandatory: true
-    bypass_violation: "file operations target main repo instead of worktree"
-    source: "using-git-worktrees/SKILL.md §Tasks"
-
-decomposition: []
-gates:
-  - id: worktree-path-gate
-    type: precondition
-    check: "worktree.path is set and non-empty when WORKTREE_REQUIRED"
-    on_fail: HALT
-    source: "using-git-worktrees/SKILL.md §Operating Protocol"
-  - id: toplevel-verification-gate
-    type: postcondition
-    check: "git rev-parse --show-toplevel matches worktree.path"
-    on_fail: HALT
-    source: "using-git-worktrees/SKILL.md §Operating Protocol"
-evidence_artifacts:
-  - "git rev-parse --show-toplevel output"
-  - "git branch --show-current output"
-  - "worktree.path value in dispatch context"
-```
+      all: ["WORKTREE_REQUIRED_not_set == true", "developer_not_requested_worktree == true", "worktree_created == true"]
+    actions: [USE_DIRECT_BRANCH]
+    source: "using-git-worktrees/SKILL.md"

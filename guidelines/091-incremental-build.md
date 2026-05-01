@@ -1,3 +1,9 @@
+---
+trigger_on: incremental, decompose, monolithic, item, TDD, RED, GREEN
+tier: 1
+load_when: sub-agent
+---
+
 # Incremental Build Discipline
 
 ## Mandate

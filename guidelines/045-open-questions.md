@@ -1,3 +1,9 @@
+---
+trigger_on: open questions, unresolved, Q&A, clarify
+tier: 2
+load_when: sub-agent
+---
+
 # Open Questions in Plans
 
 Plans with open questions must have all questions answered before any part of the plan can be implemented.

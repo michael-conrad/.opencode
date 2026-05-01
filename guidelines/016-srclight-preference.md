@@ -1,3 +1,9 @@
+---
+trigger_on: srclight, code search, symbol lookup
+tier: 2
+load_when: sub-agent
+---
+
 # Srclight Preference Guideline for Python Code Analysis
 
 This guideline defines when to prefer srclight MCP tools vs opencode built-in tools vs `.opencode/tools/guidelines` for search/analysis tasks.

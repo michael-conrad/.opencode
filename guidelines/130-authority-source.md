@@ -1,3 +1,9 @@
+---
+trigger_on: authority, authoritative, source of truth, code over doc
+tier: 1
+load_when: sub-agent
+---
+
 # Guideline 10: Code as Authoritative Source
 
 ## Principle

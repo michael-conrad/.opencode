@@ -1,3 +1,9 @@
+---
+trigger_on: backward compat, refactor, deprecate, breaking change
+tier: 2
+load_when: sub-agent
+---
+
 # No Backward Compatibility During Refactoring
 
 ## Rule

@@ -1,3 +1,9 @@
+---
+trigger_on: example, spec example, example structure
+tier: 2
+load_when: sub-agent
+---
+
 # Planning: Spec Examples
 
 ## Examples of Different Valid Structures

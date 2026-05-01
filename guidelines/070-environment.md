@@ -1,3 +1,9 @@
+---
+trigger_on: environment, testing, temp, pytest, uv run
+tier: 2
+load_when: sub-agent
+---
+
 # Environment, Testing & Temporary Files
 
 ## Python Environment

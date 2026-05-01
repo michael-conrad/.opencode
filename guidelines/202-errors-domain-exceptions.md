@@ -1,3 +1,9 @@
+---
+trigger_on: domain exception, exception class, custom exception
+tier: 2
+load_when: sub-agent
+---
+
 # Error Handling: Domain-Specific Exceptions
 
 ## ✅ DOMAIN-SPECIFIC EXCEPTION CLASSES (ACCEPTABLE AND ENCOURAGED)
