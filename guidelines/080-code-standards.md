@@ -450,8 +450,8 @@ Content-verification tests (grep for text presence) are SECONDARY. Behavioral te
 
 The TDD RED/GREEN cycle for rule changes MUST use behavioral enforcement tests, not just content-verification tests:
 
-1. **RED phase**: Write a behavioral enforcement test that sends the agent a prompt and verifies the agent does NOT follow the new rule yet. The test MUST FAIL at this point because the rule change hasn't been made. Use assertion helpers from `.opencode/tests/behaviors/helpers.sh` (`assert_tool_calls_made`, `assert_forbidden_pattern_absent`, `assert_required_pattern_present`, `assert_skill_invoked`).
-2. **GREEN phase**: Make the guideline/rule change and re-run the behavioral test. The test MUST PASS because the agent now follows the rule.
+1. **RED phase**: Write a behavioral enforcement test that sends the agent a prompt and verifies the agent does NOT follow the new rule yet. The test MUST produce FAIL (exit code 1) at this point because the rule change hasn't been made. Use assertion helpers from `.opencode/tests/behaviors/helpers.sh` (`assert_tool_calls_made`, `assert_forbidden_pattern_absent`, `assert_required_pattern_present`, `assert_skill_invoked`). **If the test produces INCONCLUSIVE (exit code 2), the model dispatch failed — escalate to developer and HALT. Never treat INCONCLUSIVE as RED evidence.**
+2. **GREEN phase**: Make the guideline/rule change and re-run the behavioral test. The test MUST produce PASS (exit code 0) because the agent now follows the rule. **If the test produces INCONCLUSIVE (exit code 2), the model dispatch failed — cannot confirm rule compliance; escalate to developer and HALT.**
 3. **No exceptions**: This gate applies to ALL rule changes — guideline files, skill files, task files, critical violation sections, system prompt blocks.
 
 ### 🚫 PROHIBITED (for behavioral rule changes)

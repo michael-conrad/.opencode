@@ -485,6 +485,9 @@ Guideline files (`.opencode/guidelines/*.md`) and skill files (`.opencode/skills
 - 🚫 FORBIDDEN: Running `opencode-cli run` directly without the `with-test-home` wrapper
 - ✅ REQUIRED: Every guideline/skill change comes with a BEHAVIORAL enforcement test that verifies the agent's actual response, not just the rule text
 - ✅ REQUIRED: Add the BEHAVIORAL test FIRST (RED), then make the change (GREEN) — behavioral TDD for rules
+- ✅ REQUIRED: RED phase behavioral test result MUST be FAIL (exit code 1), not INCONCLUSIVE (exit code 2). If RED produces INCONCLUSIVE (model dispatch failed), escalate to developer and HALT — the test could not execute. Never treat INCONCLUSIVE as RED evidence.
+- ✅ REQUIRED: GREEN phase behavioral test result MUST be PASS (exit code 0) against live model output. If GREEN produces INCONCLUSIVE (exit code 2), escalate to developer and HALT — cannot confirm rule compliance.
+- ✅ REQUIRED: RED-to-GREEN transition is gated: only proceed when RED is confirmed FAIL (exit code 1), not INCONCLUSIVE (exit code 2) and not PASS (exit code 0).
 - ✅ REQUIRED: Content-verification tests as a supplementary sanity check, not a replacement for behavioral tests
 - ✅ REQUIRED: Every critical violation change MUST have at least one behavioral test that verifies the agent follows the new rule
 - ✅ REQUIRED: Run `bash .opencode/tests/behaviors/run-all.sh` for behavioral tests and `bash .opencode/tests/test-enforcement.sh` for content-verification tests
