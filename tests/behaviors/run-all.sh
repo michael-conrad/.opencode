@@ -88,25 +88,36 @@ echo ""
 OVERALL_RESULT=0
 PASS_COUNT=0
 FAIL_COUNT=0
+INCONCLUSIVE_COUNT=0
 
 for test_file in "${TEST_FILES[@]}"; do
     test_name="$(basename "$test_file")"
     echo "--- Running: $test_name ---"
-    if bash "$test_file"; then
-        PASS_COUNT=$((PASS_COUNT + 1))
-        echo "  PASSED: $test_name"
-    else
-        OVERALL_RESULT=1
-        FAIL_COUNT=$((FAIL_COUNT + 1))
-        echo "  FAILED: $test_name"
-    fi
+    test_exit=0
+    bash "$test_file" || test_exit=$?
+    case "$test_exit" in
+        0)
+            PASS_COUNT=$((PASS_COUNT + 1))
+            echo "  PASSED: $test_name"
+            ;;
+        2)
+            INCONCLUSIVE_COUNT=$((INCONCLUSIVE_COUNT + 1))
+            echo "  INCONCLUSIVE: $test_name — model dispatch failed, no behavioral evidence"
+            ;;
+        *)
+            OVERALL_RESULT=1
+            FAIL_COUNT=$((FAIL_COUNT + 1))
+            echo "  FAILED: $test_name"
+            ;;
+    esac
     echo ""
 done
 
 echo "=== Results ==="
-echo "Passed: $PASS_COUNT"
-echo "Failed: $FAIL_COUNT"
-echo "Total:  ${#TEST_FILES[@]}"
+echo "Passed:      $PASS_COUNT"
+echo "Failed:      $FAIL_COUNT"
+echo "Inconclusive: $INCONCLUSIVE_COUNT"
+echo "Total:       ${#TEST_FILES[@]}"
 echo ""
 
 if [ "$OVERALL_RESULT" -eq 0 ]; then

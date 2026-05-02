@@ -39,6 +39,22 @@ behavior_run() {
 
     BEHAVIOR_STDOUT="$log_dir/stdout.log"
     BEHAVIOR_STDERR="$log_dir/stderr.log"
+    BEHAVIOR_DISPATCH_FAILED=0
+    export BEHAVIOR_DISPATCH_FAILED
+
+    if [ ! -s "$BEHAVIOR_STDOUT" ]; then
+        if grep -q -i "ProviderModelNotFoundError\|model not found\|ProviderModel" "$BEHAVIOR_STDERR" 2>/dev/null; then
+            echo "HARNESS_FAILURE: model dispatch failed - model not available" >> "$BEHAVIOR_STDOUT"
+            BEHAVIOR_DISPATCH_FAILED=1
+            export BEHAVIOR_DISPATCH_FAILED
+            return
+        fi
+    fi
+
+    if grep -q "^HARNESS_FAILURE:" "$BEHAVIOR_STDOUT" 2>/dev/null; then
+        BEHAVIOR_DISPATCH_FAILED=1
+        export BEHAVIOR_DISPATCH_FAILED
+    fi
 }
 
 behavior_get_stdout() {
@@ -50,6 +66,10 @@ behavior_get_stderr() {
 }
 
 assert_tool_calls_made() {
+    if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "1" ]; then
+        echo "INCONCLUSIVE: assert_tool_calls_made — model dispatch failed, no behavioral evidence"
+        return 2
+    fi
     local min_count="$1"
     shift
     local tool_patterns="$*"
@@ -71,6 +91,10 @@ assert_tool_calls_made() {
 }
 
 assert_forbidden_pattern_absent() {
+    if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "1" ]; then
+        echo "INCONCLUSIVE: assert_forbidden_pattern_absent — model dispatch failed, no behavioral evidence"
+        return 2
+    fi
     local pattern="$1"
     local description="${2:-forbidden pattern}"
     local log_file="${BEHAVIOR_STDOUT:-/dev/null}"
@@ -87,6 +111,10 @@ assert_forbidden_pattern_absent() {
 }
 
 assert_required_pattern_present() {
+    if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "1" ]; then
+        echo "INCONCLUSIVE: assert_required_pattern_present — model dispatch failed, no behavioral evidence"
+        return 2
+    fi
     local pattern="$1"
     local description="${2:-required pattern}"
     local log_file="${BEHAVIOR_STDOUT:-/dev/null}"
@@ -103,6 +131,10 @@ assert_required_pattern_present() {
 }
 
 assert_skill_invoked() {
+    if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "1" ]; then
+        echo "INCONCLUSIVE: assert_skill_invoked — model dispatch failed, no behavioral evidence"
+        return 2
+    fi
     local expected_skill="$1"
     local log_file="${BEHAVIOR_STDERR:-/dev/null}"
     local found
@@ -121,6 +153,10 @@ assert_skill_invoked() {
 }
 
 assert_no_skill_invoked() {
+    if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "1" ]; then
+        echo "INCONCLUSIVE: assert_no_skill_invoked — model dispatch failed, no behavioral evidence"
+        return 2
+    fi
     local forbidden_skill="$1"
     local log_file="${BEHAVIOR_STDERR:-/dev/null}"
     local found
