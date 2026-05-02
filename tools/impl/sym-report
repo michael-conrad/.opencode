@@ -20,10 +20,13 @@ from pathlib import Path
 import networkx as nx
 
 IMPL_DIR = Path(__file__).resolve().parent
-_cur = IMPL_DIR.resolve()
-while not (_cur / ".git").is_dir():
-    _cur = _cur.parent
-BASE_DIR = _cur
+_path = IMPL_DIR
+while _path.name != ".opencode":
+    parent = _path.parent
+    if parent == _path:
+        raise RuntimeError("Could not find .opencode/ directory")
+    _path = parent
+BASE_DIR = _path.parent
 DEFAULT_OUTPUT = BASE_DIR / "tmp"
 
 

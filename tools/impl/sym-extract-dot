@@ -16,10 +16,13 @@ from pathlib import Path
 
 import networkx as nx
 
-_candidate = Path(__file__).resolve().parent
-while not (_candidate / ".git").exists() and _candidate.parent != _candidate:
-    _candidate = _candidate.parent
-PROJECT_ROOT = _candidate
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    parent = _path.parent
+    if parent == _path:
+        raise RuntimeError("Could not find .opencode/ directory")
+    _path = parent
+PROJECT_ROOT = _path.parent
 DIGRAPH_PATTERN = re.compile(r"```(?:dot|digraph)\s*\n(.*?)```", re.DOTALL)
 
 

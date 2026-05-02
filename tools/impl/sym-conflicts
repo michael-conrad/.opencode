@@ -16,14 +16,13 @@ from dataclasses import dataclass
 from pathlib import Path
 
 IMPL_DIR = Path(__file__).resolve().parent
-_candidate = IMPL_DIR
-for _parent in IMPL_DIR.parents:
-    if (_parent / ".git").exists():
-        _candidate = _parent
-        break
-else:
-    _candidate = IMPL_DIR.parent
-BASE_DIR = _candidate.resolve()
+_path = IMPL_DIR
+while _path.name != ".opencode":
+    parent = _path.parent
+    if parent == _path:
+        raise RuntimeError("Could not find .opencode/ directory")
+    _path = parent
+BASE_DIR = _path.parent
 
 from sympy import Symbol
 from sympy.logic.inference import satisfiable
