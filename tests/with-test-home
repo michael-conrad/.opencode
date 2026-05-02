@@ -30,6 +30,56 @@ done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 TMP_DIR="$PROJECT_DIR/.opencode/tmp"
 
+seed_model_config() {
+    local test_home="$1"
+    local config_dir="$test_home/.config/opencode"
+    mkdir -p "$config_dir"
+
+    local config_file="$config_dir/opencode.jsonc"
+    local model_entries=""
+    local model_count=0
+
+    local ollama_bin
+    ollama_bin="$(which ollama 2>/dev/null || true)"
+
+    if [ -n "$ollama_bin" ] && [ -x "$ollama_bin" ]; then
+        local ollama_out
+        ollama_out="$("$ollama_bin" list 2>/dev/null || true)"
+        while IFS= read -r line; do
+            local model_name
+            model_name="$(echo "$line" | awk '{print $1}' 2>/dev/null || true)"
+            if [ -n "$model_name" ] && [ "$model_name" != "NAME" ] && [[ "$model_name" != *":"*":"* ]] && [ "$model_count" -lt 20 ]; then
+                model_entries="$model_entries        \"$model_name\": {},\n"
+                model_count=$((model_count + 1))
+            fi
+        done <<< "$ollama_out"
+    fi
+
+    if [ "$model_count" -eq 0 ]; then
+        model_entries="        \"phi4-mini:3.8b\": {},\n        \"llama3.2:3b\": {},\n"
+        model_count=2
+    fi
+
+    cat > "$config_file" <<JSONC
+{
+  "\$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "ollama": {
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "models": {
+$(printf '%b' "$model_entries" | sed 's/,$//')
+      }
+    }
+  }
+}
+JSONC
+
+    echo "Seeded opencode.jsonc with $model_count model(s) in $config_file" >&2
+    return 0
+}
+
 usage() {
     echo "Usage: bash .opencode/tests/with-test-home [--keep|--clean|--clean-all] <command> [args...]" >&2
     echo "" >&2
@@ -98,6 +148,8 @@ mkdir -p "$TEST_HOME/.local/share"
 mkdir -p "$TEST_HOME/.local/state"
 
 echo "Test home: $TEST_HOME" >&2
+
+seed_model_config "$TEST_HOME" || exit 2
 
 env -i \
     HOME="$TEST_HOME" \
