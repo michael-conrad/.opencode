@@ -10,12 +10,17 @@ load_when: sub-agent
 
 Every script/notebook MUST include root resolution:
 
-- **Shell:** Walk up from script location until the current directory is named `.opencode`; the project root is the parent:
+  - **Shell:** Walk up from script location until the current directory is named `.opencode`; the project root is the parent:
   ```bash
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   PROJECT_DIR="$SCRIPT_DIR"
   while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
-      PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+      PARENT="$(dirname "$PROJECT_DIR")"
+      if [ "$PARENT" = "$PROJECT_DIR" ]; then
+          echo "FATAL: Could not find .opencode/ directory" >&2
+          exit 1
+      fi
+      PROJECT_DIR="$PARENT"
   done
   PROJECT_DIR="$(dirname "$PROJECT_DIR")"
   ```
@@ -25,7 +30,10 @@ Every script/notebook MUST include root resolution:
   from pathlib import Path
   _path = Path(__file__).resolve().parent
   while _path.name != ".opencode":
-      _path = _path.parent
+      parent = _path.parent
+      if parent == _path:
+          raise RuntimeError("Could not find .opencode/ directory")
+      _path = parent
   PROJECT_DIR = _path.parent
   ```
 
@@ -38,7 +46,19 @@ Every script/notebook MUST include root resolution:
 - Scripts self-locate via `dirname "${BASH_SOURCE[0]}"` (Shell) or `Path(__file__).resolve().parent` (Python). No reliance on user's CWD.
 - **Canonical method (REQUIRED for all scripts):** Walk up from script location until the current directory is named `.opencode`. The parent of `.opencode/` is the project root. This method works correctly whether `.opencode/` is a git submodule or a tracked directory.
 - **Zero shared functions.** Every script inlines its own walk-up loop. No imports, no source, no `sys.path` manipulation for root detection.
-- **The walk-up loop is the ONLY permitted root detection method.** No exceptions.
+- **The walk-up loop is the ONLY permitted root detection method.** No exceptions, except for git hooks (see below).
+- **Filesystem-root guard REQUIRED:** Every walk-up loop MUST include a guard detecting when the traversal reaches the filesystem root (`/`). If `.opencode/` is unreachable, the script MUST fail with an explicit error rather than hanging. See canonical patterns below for the required guard implementation.
+
+## Hooks Exception
+
+Git hooks execute from `.git/hooks/`, which is outside the `.opencode/` tree. The walk-up-to-`.opencode` pattern cannot resolve correctly in hook context because hooks are structurally separate from all other `.opencode/` scripts.
+
+**For hook files ONLY (`pre-commit`, `pre-push`, `pre-merge-commit`, `prepare-commit-msg`, `post-commit`):**
+- `git rev-parse --show-toplevel` is PERMITTED for project root detection
+- Hooks are repo-scoped by definition — `--show-toplevel` correctly returns the repo root
+- All other `.opencode/` scripts continue to use the walk-up pattern exclusively
+
+This exception is narrow and intentional: hooks are the only scripts that do not execute from inside `.opencode/`.
 
 ## Prohibited Patterns (ZERO TOLERANCE)
 

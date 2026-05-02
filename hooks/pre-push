@@ -53,11 +53,8 @@ case "$CURRENT_BRANCH" in
         ;;
 esac
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-while [ "$(basename "$PROJECT_ROOT")" != ".opencode" ]; do
-    PROJECT_ROOT="$(dirname "$PROJECT_ROOT")"
-done
-PROJECT_ROOT="$(dirname "$PROJECT_ROOT")"
+# Hooks execute from .git/hooks/ — git rev-parse is correct here (repo-scoped, not submodule-aware)
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 WORK_STATE_DIR="$PROJECT_ROOT/.opencode/tmp"
 
 # Work branches (work state file exists) have N commits for N work items — skip check
