@@ -52,6 +52,64 @@ do_clean() {
     return 0
 }
 
+seed_model_config() {
+    mkdir -p "$TEST_HOME/.config/opencode"
+
+    local models=()
+    local ollama_path
+    ollama_path="$(which ollama 2>/dev/null || true)"
+
+    if [ -n "$ollama_path" ]; then
+        local ollama_output
+        if ollama_output=$("$ollama_path" list 2>/dev/null) && [ -n "$ollama_output" ]; then
+            while IFS= read -r model; do
+                if [ -n "$model" ]; then
+                    models+=("$model")
+                fi
+            done < <(echo "$ollama_output" | tail -n +2 | awk '{print $1}')
+        fi
+    fi
+
+    if [ ${#models[@]} -eq 0 ]; then
+        models=("phi4-mini:3.8b" "llama3.2:3b" "qwen3.5:27b")
+    fi
+
+    if [ ${#models[@]} -eq 0 ]; then
+        echo "HARNESS_FAILURE: no models available" >&2
+        exit 2
+    fi
+
+    local model_entries=""
+    local first=true
+    local model
+    for model in "${models[@]}"; do
+        if [ "$first" != "true" ]; then
+            model_entries+=",
+        "
+        fi
+        first=false
+        model_entries+="\"$model\": {}"
+    done
+
+    cat > "$TEST_HOME/.config/opencode/opencode.jsonc" << JSONC
+{
+  "\$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "ollama": {
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "models": {
+        $model_entries
+      }
+    }
+  }
+}
+JSONC
+
+    echo "Seeded opencode.jsonc with ${#models[@]} model(s)" >&2
+}
+
 do_clean_all() {
     local count
     count="$(find "$TMP_DIR" -maxdepth 1 -mindepth 1 -type d -name 'test-home-*' 2>/dev/null | wc -l)"
@@ -98,6 +156,8 @@ mkdir -p "$TEST_HOME/.local/share"
 mkdir -p "$TEST_HOME/.local/state"
 
 echo "Test home: $TEST_HOME" >&2
+
+seed_model_config
 
 env -i \
     HOME="$TEST_HOME" \
