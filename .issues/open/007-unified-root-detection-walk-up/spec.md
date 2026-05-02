@@ -12,6 +12,9 @@ supersedes: [150, 234, 239]
 author: "michael-conrad"
 authorization: "for_pr"
 branch: "feature/249-unified-root-detection-walk-up"
+carve_outs:
+  - "#318 — Hook root detection: hooks execute from .git/hooks/ outside .opencode/ tree; git rev-parse --show-toplevel permitted for hooks only per 210-scripting.md Hooks Exception"
+  - "#317 — Root-guard addition: canonical walk-up pattern updated to include filesystem-root guard preventing infinite loops"
 ---
 
 ## Phase Progress
