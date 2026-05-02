@@ -219,6 +219,42 @@ check_root_resolution_patterns() {
     else
         PASS=$((PASS + 1))
     fi
+
+    echo "--- Root-Guard Presence Checks ---"
+
+    local root_guard_failures=0
+
+    local py_scripts
+    py_scripts=$(find .opencode/tools .opencode/scripts .opencode/skills -name '*.py' 2>/dev/null | grep -v '__pycache__' | grep -v '/tests/' || true)
+    for pyf in $py_scripts; do
+        [ -f "$pyf" ] || continue
+        if grep -q 'while.*\.opencode' "$pyf"; then
+            if ! grep -q 'if parent == _path' "$pyf"; then
+                echo "FAIL: $pyf has walk-up loop but missing root-guard (if parent == _path)"
+                FAIL=$((FAIL + 1))
+                root_guard_failures=$((root_guard_failures + 1))
+            fi
+        fi
+    done
+
+    local sh_scripts
+    sh_scripts=$(find .opencode/tools .opencode/scripts .opencode/skills -name '*.sh' -type f 2>/dev/null | grep -v '/tests/' || true)
+    sh_scripts="$sh_scripts
+$(find .opencode/tools .opencode/scripts .opencode/skills -type f 2>/dev/null | xargs file 2>/dev/null | grep 'Bourne-Again shell script' | cut -d: -f1 | grep -v '/tests/' || true)"
+    for shf in $sh_scripts; do
+        [ -f "$shf" ] || continue
+        if grep -q 'while.*\.opencode' "$shf" 2>/dev/null; then
+            if ! grep -q 'PARENT.*=.*PROJECT_DIR' "$shf" 2>/dev/null; then
+                echo "FAIL: $shf has walk-up loop but missing root-guard (PARENT == PROJECT_DIR)"
+                FAIL=$((FAIL + 1))
+                root_guard_failures=$((root_guard_failures + 1))
+            fi
+        fi
+    done
+
+    if [ "$root_guard_failures" -eq 0 ]; then
+        PASS=$((PASS + 1))
+    fi
 }
 
 check_root_resolution_patterns

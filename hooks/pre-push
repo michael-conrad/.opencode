@@ -53,9 +53,8 @@ case "$CURRENT_BRANCH" in
         ;;
 esac
 
-# Hooks execute from .git/hooks/ — git rev-parse is correct here (repo-scoped, not submodule-aware)
-PROJECT_ROOT="$(git rev-parse --show-toplevel)"
-WORK_STATE_DIR="$PROJECT_ROOT/.opencode/tmp"
+# Git always CWDs to the project root when invoking hooks — relative paths work directly
+WORK_STATE_DIR=".opencode/tmp"
 
 # Work branches (work state file exists) have N commits for N work items — skip check
 if ls "$WORK_STATE_DIR"/work-*.md 1>/dev/null 2>&1; then

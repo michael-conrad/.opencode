@@ -54,9 +54,9 @@ Every script/notebook MUST include root resolution:
 Git hooks execute from `.git/hooks/`, which is outside the `.opencode/` tree. The walk-up-to-`.opencode` pattern cannot resolve correctly in hook context because hooks are structurally separate from all other `.opencode/` scripts.
 
 **For hook files ONLY (`pre-commit`, `pre-push`, `pre-merge-commit`, `prepare-commit-msg`, `post-commit`):**
-- `git rev-parse --show-toplevel` is PERMITTED for project root detection
-- Hooks are repo-scoped by definition — `--show-toplevel` correctly returns the repo root
-- All other `.opencode/` scripts continue to use the walk-up pattern exclusively
+- Hooks do **not** need project root detection at all — git always CWDs to the project root when invoking hooks
+- Relative paths (e.g., `.opencode/tmp/`) work directly and are the preferred approach
+- `git rev-parse --show-toplevel` is also safe in hook context (hooks are repo-scoped), but is unnecessary
 
 This exception is narrow and intentional: hooks are the only scripts that do not execute from inside `.opencode/`.
 
@@ -71,6 +71,7 @@ These root resolution methods are forbidden in ALL `.opencode/` scripts:
 - `sys.path.insert` or `sys.path.append` for enabling root detection imports
 - Any shared or imported function for root detection
 - `.git` directory walking to determine project root
+- Walk-up loops lacking a filesystem-root guard (the `if parent == _path` check) — the guard is mandatory, not optional. Loops without it hang at `/` when `.opencode/` is unreachable.
 
 ## Notebook Operations — MANDATORY MCP
 
