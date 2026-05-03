@@ -1,6 +1,6 @@
 ---
 name: pre-analysis
-description: Use before dispatching any execution sub-agent to independently determine scope. Triggers on: pre-analysis, pre-analyze, dispatch analysis, scope discovery.
+description: Use when dispatching any execution sub-agent to independently determine scope. Triggers on: pre-analysis, pre-analyze, dispatch analysis, scope discovery.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

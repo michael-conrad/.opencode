@@ -2,7 +2,7 @@
 name: verification-enforcement
 description: Use when generating content that makes factual claims — specs, plans, runbooks, docs, or correspondence — to enforce live-source verification before generation. Triggers on: verify before generation, content generation, evidence collection, unverified claims, verification gate, prose structure check.
 type: discipline-enforcing
-license: Apache-2.0
+license: MIT
 provenance: AI-generated
 compatibility: opencode
 ---

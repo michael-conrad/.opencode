@@ -159,6 +159,8 @@ echo "Test home: $TEST_HOME" >&2
 
 seed_model_config
 
+cd "$PROJECT_DIR"
+
 env -i \
     HOME="$TEST_HOME" \
     XDG_CONFIG_HOME="$TEST_HOME/.config" \

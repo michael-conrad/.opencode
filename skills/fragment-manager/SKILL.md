@@ -1,7 +1,7 @@
 ---
 name: fragment-manager
 description: Use when managing duplicate content blocks (fragments) across guidelines or skills. Triggers on: fragment, duplicate content, sync content, content block, shared content, master copy, synchronize.
-type: technique
+type: discipline-enforcing
 license: MIT
 provenance: AI-generated
 compatibility: opencode

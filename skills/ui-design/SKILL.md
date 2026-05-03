@@ -1,7 +1,7 @@
 ---
 name: ui-design
 description: Use when designing UI wireframes, mockups, interaction specs, or visual artifacts. Triggers on: ui design, wireframe, mockup, interaction spec, visual layout, UI mock, screenshot capture, sidebar navigation, page layout.
-type: technique
+type: discipline-enforcing
 license: MIT
 provenance: AI-generated
 compatibility: opencode
