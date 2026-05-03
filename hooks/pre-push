@@ -53,8 +53,13 @@ case "$CURRENT_BRANCH" in
         ;;
 esac
 
-# Git always CWDs to the project root when invoking hooks — relative paths work directly
+# Git CWDs to the repo root. Detect submodule context: if we're inside .opencode/,
+# use tmp/ directly to avoid .opencode/.opencode/tmp/ nesting.
 WORK_STATE_DIR=".opencode/tmp"
+TOLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [ -n "$TOLEVEL" ] && [ "$(basename "$TOLEVEL")" = ".opencode" ]; then
+    WORK_STATE_DIR="tmp"
+fi
 
 # Work branches (work state file exists) have N commits for N work items — skip check
 if ls "$WORK_STATE_DIR"/work-*.md 1>/dev/null 2>&1; then
