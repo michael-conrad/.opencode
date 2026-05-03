@@ -77,7 +77,7 @@ Available assertion functions:
 1. Copy the template: `cp .opencode/tests/behaviors/template.sh .opencode/tests/behaviors/my-test.sh`
 2. Edit `my-test.sh`: set `SCENARIO_NAME`, `SCENARIO_PROMPT`, and add assertion calls
 3. Run the test: `bash .opencode/tests/behaviors/my-test.sh`
-4. Run all behavioral tests: `bash .opencode/tests/behaviors/run-all.sh`
+4. Run the individual behavioral test: `bash .opencode/tests/behaviors/my-test.sh` (full-suite uber scripts are FORBIDDEN — use `--changed` or `--tag` filtering for batch runs)
 
 ### Behavioral Test Examples
 
@@ -94,7 +94,7 @@ Content-verification tests (`test-enforcement.sh`) are SECONDARY — they verify
 
 Behavioral tests (`behaviors/`) are PRIMARY — they verify the agent actually follows the rule when prompted. They are slower (require LLM invocation) but prove behavioral compliance.
 
-Both types should be run: `bash .opencode/tests/test-enforcement.sh && bash .opencode/tests/behaviors/run-all.sh`
+Both types should be run with scope filtering: `bash .opencode/tests/test-enforcement.sh --tag <tag> && bash .opencode/tests/behaviors/<scenario>.sh` (full-suite uber scripts are FORBIDDEN)
 
 ## Per-Change TDD Pattern for Guideline and Skill Changes
 
@@ -130,7 +130,7 @@ Create or modify the guideline/skill file that makes the test pass.
 
 - Review the behavioral test scenario for clarity
 - Add content-verification cross-reference checks if needed
-- Run the full suite: `bash .opencode/tests/test-enforcement.sh && bash .opencode/tests/behaviors/run-all.sh`
+- Run scope-filtered tests: `bash .opencode/tests/test-enforcement.sh --tag <tag> && bash .opencode/tests/behaviors/<scenario>.sh` (full-suite uber scripts are FORBIDDEN)
 
 ### COMMIT — Working slice
 
