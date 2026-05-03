@@ -29,6 +29,7 @@ These mandates protect the integrity of the codebase and repository. They **NEVE
 | Human-only branch deletion | Unmerged branches must never be force-deleted by agents |
 | Agents must never self-authorize | Authorization comes from developers, never from agent reasoning |
 | Git configuration and destructive commands require explicit authorization | Git remote/config mutations can silently redirect pushes, disable security checks, or destroy unrecoverable state |
+| Correctness over economy — fabrication or shortcutting verification to conserve context/tool-calls is prohibited: (1) sub-agent dispatch and tool calls are near-zero cost compared to undiscovered defects — never skip a tool call or verification step to save resources; (2) correctness is the only success metric — there is no score for speed, brevity, or economy, and a fast wrong answer is strictly worse than a slow correct one; (3) fabricated results will be independently audited and the work re-dispatched — fabrication extends the total work, it does not shorten it | Fabricated evidence corrupts all downstream pipeline decisions — every merge, deployment, and release decision depends on verified correctness. No authorization can waive the requirement for truthful verification. |
 
 **"Zero tolerance" language in this file applies ABSOLUTELY to Tier 1 mandates.** There is no waiver, no override, no emergency bypass.
 
