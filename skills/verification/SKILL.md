@@ -1,8 +1,8 @@
 ---
 name: verification
 description: Use when verifying claims against evidence using appropriate modalities. Produces PASS/FAIL/UNVERIFIED per claim with evidence artifacts. Triggers on: verify claim, claim verification, evidence verification, verify against source, multimodal verification.
-type: verification
-license: Apache-2.0
+type: discipline-enforcing
+license: MIT
 provenance: AI-generated
 compatibility: opencode
 ---

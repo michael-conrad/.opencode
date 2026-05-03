@@ -1,7 +1,7 @@
 ---
 name: writing-plans
 description: Use when creating an implementation plan from an approved spec. Triggers on: write plan, create plan, implementation plan, plan spec, approved plan, plan creation.
-type: technique
+type: discipline-enforcing
 license: MIT
 provenance: AI-generated
 compatibility: opencode

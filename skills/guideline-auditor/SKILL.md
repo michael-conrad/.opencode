@@ -18,6 +18,7 @@ Audits guideline files for ambiguity, conflicts, and LLM compliance. Identifies 
 | Task | Words |
 |------|-------|
 | `audit` | ≈500 |
+| `completion` | ≈100 |
 
 ## Invocation
 
@@ -32,7 +33,7 @@ Audits guideline files for ambiguity, conflicts, and LLM compliance. Identifies 
 
 ## Sub-Agent Dispatch Audit
 
-`audit` dispatches via `task(subagent_type="general")` with `{ file_paths, audit_scope }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
+`audit` dispatches via `task(subagent_type="general")` with `{ file_paths, audit_scope }`. `completion` dispatches via `task(subagent_type="general")` with `{ github.owner, github.repo }`. Exclusions: implementation context, agent memory. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"

@@ -487,7 +487,7 @@ Guideline files (`.opencode/guidelines/*.md`) and skill files (`.opencode/skills
 - ✅ REQUIRED: Add the BEHAVIORAL test FIRST (RED), then make the change (GREEN) — behavioral TDD for rules
 - ✅ REQUIRED: Content-verification tests as a supplementary sanity check, not a replacement for behavioral tests
 - ✅ REQUIRED: Every critical violation change MUST have at least one behavioral test that verifies the agent follows the new rule
-- ✅ REQUIRED: Run `bash .opencode/tests/behaviors/run-all.sh` for behavioral tests and `bash .opencode/tests/test-enforcement.sh` for content-verification tests
+- ✅ REQUIRED: Run individual behavioral test scripts (`bash .opencode/tests/behaviors/<scenario>.sh`) for behavioral tests and scope-filtered `bash .opencode/tests/test-enforcement.sh --tag <tag>` for content-verification tests
 - ✅ REQUIRED: Use `bash .opencode/tests/with-test-home opencode-cli run '<message>'` for all opencode-cli testing
 - ✅ REQUIRED: Clean up test homes after testing: `bash .opencode/tests/with-test-home --clean-all`
 

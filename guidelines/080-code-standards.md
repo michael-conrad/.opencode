@@ -394,8 +394,8 @@ Content-verification tests are valuable as a fast check that files haven't regre
 - Every guideline/skill change comes with a BEHAVIORAL enforcement test that verifies agent behavior
 - Content-verification tests as a supplementary sanity check, NOT the primary enforcement gate
 - Add the BEHAVIORAL test FIRST (RED), then make the change (GREEN) — behavioral TDD for rules
-- Run `bash .opencode/tests/behaviors/run-all.sh` for behavioral tests
-- Run `bash .opencode/tests/test-enforcement.sh` for content-verification tests
+- Run individual behavioral test scripts (`bash .opencode/tests/behaviors/<scenario>.sh`) for behavioral tests
+- Run scope-filtered `bash .opencode/tests/test-enforcement.sh --tag <tag>` or `--changed` for content-verification tests
 - Use `bash .opencode/tests/with-test-home opencode-cli run '<message>'` for all opencode-cli testing — never run bare `opencode-cli run`
 - Clean up test homes after testing: `bash .opencode/tests/with-test-home --clean-all`
 

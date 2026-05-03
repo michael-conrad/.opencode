@@ -1,7 +1,7 @@
 ---
 name: gitbucket-api
-description: GitBucket platform sub-skill for issue-operations. Provides capability manifest and Python client for GitBucket API operations.
-type: reference
+description: Use when GitBucket platform operations are needed. GitBucket platform sub-skill for issue-operations. Provides capability manifest and Python client for GitBucket API operations.
+type: discipline-enforcing
 license: MIT
 provenance: AI-generated
 compatibility: opencode

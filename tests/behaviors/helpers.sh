@@ -12,7 +12,6 @@
 
 set -euo pipefail
 
-BEHAVIOR_LOG_DIR="${BEHAVIOR_LOG_DIR:-.opencode/tmp/behavior-test-$(date +%Y%m%d-%H%M%S)}"
 BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-120}"
 BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama-cloud/glm-5.1}"
 BEHAVIOR_TEST_HOME="${BEHAVIOR_TEST_HOME:-.opencode/tests/with-test-home}"
@@ -21,6 +20,7 @@ while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
     PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+BEHAVIOR_LOG_DIR="${BEHAVIOR_LOG_DIR:-$PROJECT_DIR/.opencode/tmp/behavior-test-$(date +%Y%m%d-%H%M%S)}"
 
 behavior_run() {
     local scenario_name="$1"

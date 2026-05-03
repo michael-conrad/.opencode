@@ -1,7 +1,7 @@
 ---
 name: local
-description: Local .issues/ directory platform for issue tracking. Used when github.platform is local or unset. Routes all issue operations to .issues/ directory with YAML frontmatter and markdown files.
-type: technique
+description: Use when local .issues/ tracking is needed. Local .issues/ directory platform for issue tracking. Used when github.platform is local or unset. Routes all issue operations to .issues/ directory with YAML frontmatter and markdown files.
+type: discipline-enforcing
 license: MIT
 provenance: AI-generated
 compatibility: opencode

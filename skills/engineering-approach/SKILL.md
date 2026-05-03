@@ -17,8 +17,10 @@ Engineering discipline checklist enforcing: understand before solving, design be
 
 | Task | Words |
 |------|-------|
+| `verify-understanding` | ≈300 |
 | `design-before-code` | ≈300 |
 | `verify-before-complete` | ≈300 |
+| `completion` | ≈100 |
 
 ## Invocation
 
@@ -34,7 +36,7 @@ Engineering discipline checklist enforcing: understand before solving, design be
 
 ## Sub-Agent Dispatch Audit
 
-Tasks dispatch via `task(subagent_type="general")` with `{ spec, file_paths, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
+All tasks dispatch via `task(subagent_type="general")`. `verify-understanding` receives `{ issue_number, github.owner, github.repo }`. `design-before-code` receives `{ spec, github.owner, github.repo }`. `verify-before-complete` receives `{ spec, implementation_file_paths, github.owner, github.repo }`. `completion` receives `{ github.owner, github.repo }`. Exclusions: implementation context, agent memory. No inline work.
 
 ## Cross-References
 

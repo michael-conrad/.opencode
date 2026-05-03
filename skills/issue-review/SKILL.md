@@ -1,7 +1,7 @@
 ---
 name: issue-review
 description: Use when reviewing a GitHub issue for comments, audits, or Q/A. Triggers on: review issue, review spec, check issue, issue review, audit issue.
-type: orchestrator
+type: discipline-enforcing
 license: MIT
 provenance: AI-generated
 compatibility: opencode

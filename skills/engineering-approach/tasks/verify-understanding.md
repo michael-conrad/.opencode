@@ -1,3 +1,10 @@
+---
+skill: engineering-approach
+task: verify-understanding
+type: discipline-enforcing
+license: MIT
+---
+
 # Task: verify-understanding
 
 ## Purpose
