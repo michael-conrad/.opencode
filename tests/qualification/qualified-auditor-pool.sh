@@ -1,7 +1,7 @@
 #!/bin/bash
 # qualified-auditor-pool.sh — Static list of cross-validated AUDITOR_CANDIDATE models
 #
-# These 6 models passed both skill-listing and file-reading probes
+# These 9 models passed both skill-listing and file-reading probes
 # with dual-auditor cross-validation. This is the canonical auditor pool.
 # Do NOT add models that failed qualification or were not tested.
 #
