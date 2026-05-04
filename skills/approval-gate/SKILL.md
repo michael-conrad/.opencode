@@ -67,6 +67,7 @@ Authorization Gatekeeper. Focus: verify authorization, resolve scope, enforce tw
 5. **Dispatch order:** `pre-work → pre-analysis → assemble-work → VbC → checklist → review-prep`. Each step produces artifact.
 6. **Submodule:** files under submodule → route API calls to submodule repo.
 7. **Labels:** `approved-for-*` per scope mapping. No label = awaiting approval.
+8. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

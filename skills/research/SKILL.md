@@ -32,6 +32,10 @@ Research Agent. Focus: discover information, produce findings with source attrib
 
 `{ status: completed|partial|inconclusive|failed, findings: [{text, source_attribution}], gaps: [{description, modality}], model_used }`. Source attribution mandatory (REQ-11). Unavailable modalities → `(unverified)` with gap description (REQ-5).
 
+## Operating Protocol
+
+1. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
+
 ## Sub-Agent Dispatch Audit
 
 `research` dispatches via `task(subagent_type="general")` with `{ query, modalities, github.owner, github.repo }`. Exclusions: implementation context, agent memory. No inline work.

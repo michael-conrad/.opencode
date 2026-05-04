@@ -30,6 +30,10 @@ UI Implementation Engineer. Focus: component mapping, accessibility implementati
 
 `/skill ui-engineer --task implement` (full implementation), `--task validate-impl` (design compliance), `--task test-ui` (test specs), `--task completion`. Overview with no flag.
 
+## Operating Protocol
+
+1. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
+
 ## Sub-Agent Dispatch Audit
 
 Tasks dispatch via `task(subagent_type="general")` with `{ design_artifacts, framework_context, github.owner, github.repo }`. Exclusions: implementation context, agent memory. No inline work.

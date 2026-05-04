@@ -132,8 +132,9 @@ For each issue in execution order:
 
   6. **Sub-Agent Completion Checkpoint** — after collecting each result, perform the completion checkpoint per `dispatch` task Step 4:
 
-     - If sub-agent returned a structured result: check `status` field and handle accordingly
-     - If sub-agent returned **NO result** (timeout, crash, empty): this is **ABNORMAL TERMINATION**
+      - If sub-agent returned a structured result: check `status` field and handle accordingly
+      - **FAIL status:** do NOT accept — invoke verify-before-acceptance protocol (see `dispatch` task Step 4.1)
+      - If sub-agent returned **NO result** (timeout, crash, empty): this is **ABNORMAL TERMINATION**
        - Run `git status` in the worktree
        - Clean tree → didn't start → re-dispatch
        - Uncommitted changes + all deliverables → UNDO + re-dispatch by default; manual commit+push only if narrow exception applies (≤50 lines, single file, fully correct, no remaining dispatches — see SKILL.md Recovery Mode)

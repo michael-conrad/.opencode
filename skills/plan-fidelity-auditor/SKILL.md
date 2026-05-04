@@ -33,6 +33,7 @@ Generates clean-room plan from spec's problem statement, compares against existi
 3. **Prose-driven clean-room:** uses prose exploration, not template structure.
 4. **Significant gaps** → recommend brainstorming for deeper exploration.
 5. **Invoked via spec-auditor orchestrator** as `fidelity` subtask, not called directly.
+6. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

@@ -76,12 +76,13 @@ Spec: <relevant spec section>
  If you cannot commit (e.g., conflicts): return status: BLOCKED with explanation.
 
 Return result in Sub-agent Result Contract format:
-  status: DONE | DONE_WITH_CONCERNS | OVERFLOW | BLOCKED
+  status: DONE | DONE_WITH_CONCERNS | FAIL | OVERFLOW | BLOCKED
   files_changed: [...]
   summary: ...
   verification_passed: true | false
   compare_url: "<URL or empty if not available>"
   exec_summary: "<1-2 sentence executive summary or empty>"
+  error_output: "<actual error output from attempted tool invocation or empty>"
 
 If context window overflow risk: return OVERFLOW per Overflow Signal Contract.
 """
@@ -96,6 +97,7 @@ Sub-agent MUST return per Sub-agent Result Contract:
 | -- | -- |
 | **DONE** | Record result, proceed to next sub-task |
 | **DONE_WITH_CONCERNS** | Review concerns, address if about correctness/scope |
+| **FAIL** | Do NOT accept — independently verify the claimed failure. See verify-before-acceptance protocol below |
 | **OVERFLOW** | Handle per `overflow-signal` task |
 | **BLOCKED** | Provide context, escalate, or decompose further |
 
@@ -106,6 +108,7 @@ After collecting the sub-agent result, the orchestrator MUST perform a completio
 1. **If sub-agent returned a structured result** — check `status` field:
    - `DONE` → normal, proceed to Step 5
    - `DONE_WITH_CONCERNS` → review concerns, proceed if OK
+   - `FAIL` → do NOT accept; invoke verify-before-acceptance protocol (below)
    - `OVERFLOW` → handle per `overflow-signal` task
    - `BLOCKED` → HALT and report blocker
 
@@ -121,6 +124,29 @@ After collecting the sub-agent result, the orchestrator MUST perform a completio
     e. Do NOT proceed to next task until recovery is complete
 
 **The orchestrator decides the recovery action autonomously.** Per the "Pushing Agent Intelligence Decisions to the User" critical violation (`000-critical-rules.md`), the recovery decision is an agent intelligence concern. The user is NOT asked to decide. UNDO + re-dispatch is the default; manual completion is a narrow exception (see SKILL.md Recovery Mode for conditions).
+
+### Step 4.1: Verify-Before-Acceptance Protocol (MANDATORY for FAIL results)
+
+When a sub-agent returns `status: FAIL`, the orchestrator MUST NOT accept the result contract at face value. Instead, perform independent verification:
+
+1. **Read the `error_output` field** — a valid FAIL result contract MUST include actual error output from the attempted tool invocation. If `error_output` is empty or contains only summary prose (no raw tool output), treat as INCOMPLETE_FAIL.
+
+2. **Independently reproduce the claimed failure:**
+   - Execute the tool/command that the sub-agent claimed failed
+   - Compare your output against the sub-agent's `error_output`
+   - If the tool succeeds in the orchestrator context → sub-agent fabricated the failure → re-dispatch
+   - If the tool fails but error differs materially → sub-agent may have misreported → re-dispatch
+   - If the tool fails with matching error → failure is verified → escalate to completion
+
+3. **Re-dispatch on unverifiable failure:**
+   - Dispatch a fresh clean-room sub-agent with identical scoped context
+   - Do NOT include the prior sub-agent's error_output in the re-dispatch context
+   - If re-dispatched sub-agent also returns FAIL → verify again → if verified, escalate to completion
+   - If re-dispatched sub-agent returns DONE → accept result, note fabrication in work state
+
+4. **Escalation:** After two consecutive verified FAIL results, invoke `--task completion`, HALT with status message + byline. Report the verified failure in chat.
+
+**This protocol is a critical violation per `000-critical-rules.md` §Verify-Before-Acceptance.** Accepting a FAIL result contract without independent verification is FORBIDDEN.
 
 ### Step 5: Compose Prior Context
 

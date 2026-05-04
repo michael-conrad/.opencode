@@ -35,6 +35,7 @@ Feature PRs target `dev` only. Release PRs (dev→main) handled by `git-workflow
 4. **Changelog generated** before PR.
 5. **No agent merge** — human-only operation.
 6. **Work branch guard:** no individual PRs during work execution (single stacked PR).
+7. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

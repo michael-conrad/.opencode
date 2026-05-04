@@ -26,6 +26,10 @@ ZERO TOLERANCE: ALL notebook operations use `the-notebook-mcp` exclusively. Dire
 
 `/skill notebook-operations --task permitted-operations` (25-operation tool reference). Overview with no flag.
 
+## Operating Protocol
+
+1. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
+
 ## Sub-Agent Dispatch Audit
 
 Tasks dispatch via `task(subagent_type="general")` with `{ notebook_path, operation }`. Exclusions: implementation context, agent memory. No inline work. ABSOLUTE exception: `.ipynb` → `the-notebook-mcp` MANDATORY.
