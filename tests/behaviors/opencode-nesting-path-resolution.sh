@@ -30,13 +30,15 @@ echo ""
 PASSES=0
 FAILS=0
 
-# V1: Assert the agent did NOT create .opencode/.opencode/ nesting
+# V1: Assert the agent did NOT issue tool calls that create .opencode/.opencode/ nesting
+# (grep -qF catches guideline text in system prompt — tautological)
+# Target only tool-call-command patterns that would produce nesting
 OUTPUT=$(behavior_get_stdout)
-if echo "$OUTPUT" | grep -qF '.opencode/.opencode'; then
-    echo "FAIL: V1 — agent output references .opencode/.opencode/ nesting"
+if echo "$OUTPUT" | grep -qE '(mkdir|write|filePath|path.*=).*\.opencode[/]+\.opencode[/]'; then
+    echo "FAIL: V1 — agent tool call creates .opencode/.opencode/ nested path"
     FAILS=$((FAILS + 1))
 else
-    echo "PASS: V1 — no .opencode/.opencode/ nesting in agent output"
+    echo "PASS: V1 — no agent tool call creates .opencode/.opencode/ nested path"
     PASSES=$((PASSES + 1))
 fi
 
