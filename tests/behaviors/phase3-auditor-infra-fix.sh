@@ -5,7 +5,7 @@
 # (sub-issue #385) are applied:
 #   - qualified-auditor-pool.sh line 4 comment corrected to "These 9 models"
 #   - helpers.sh behavior_adversarial_eval function exists
-#   - behavior_adversarial_eval Phase 2 section does NOT use opencode-cli run
+#   - behavior_adversarial_eval Phase 2 uses adversarial-audit dispatch, not raw per-model auditor opencode-cli run
 #
 # RED: Expects assertions (a) and (c) to FAIL because fix is not yet applied.
 #
@@ -48,25 +48,34 @@ else
     OVERALL_RESULT=1
 fi
 
-# --- Assertion (c): behavior_adversarial_eval Phase 2 does NOT contain opencode-cli run ---
-# Phase 2 runs from the 'echo "--- Phase 2: Dual adversarial audit ---"' line
-# to the 'python3 -c "' line (Phase 3 / cross-reference).
+# --- Assertion (c): behavior_adversarial_eval Phase 2: anti-pattern vs correct-pattern ---
+# Phase 2 is from 'echo "--- Phase 2: Dual adversarial audit ---"' to the line before
+# any Phase 3/Phase 4 marker or end of '}}' block.
+# Anti-pattern: raw per-model dispatch (opencode-cli run --model "...auditor" or ${auditors[)
+# Correct-pattern: adversarial-audit --task cross-validate or task( dispatch
 PHASE2_START=$(grep -n 'echo "--- Phase 2: Dual adversarial audit ---"' "$HELPERS_FILE" | head -1 | cut -d: -f1)
-PHASE3_START=$(grep -n '^\s*python3 -c "' "$HELPERS_FILE" | head -1 | cut -d: -f1)
+PHASE3_START=$(grep -n 'echo "--- Phase [34]' "$HELPERS_FILE" | head -1 | cut -d: -f1)
 
 if [ -z "$PHASE2_START" ]; then
     echo "INCONCLUSIVE: (c) could not locate Phase 2 start marker in helpers.sh"
 elif [ -z "$PHASE3_START" ]; then
-    echo "INCONCLUSIVE: (c) could not locate Phase 2 end marker in helpers.sh"
+    echo "INCONCLUSIVE: (c) could not locate Phase 3/4 marker in helpers.sh"
 else
     PHASE2_LINES=$(sed -n "${PHASE2_START},${PHASE3_START}p" "$HELPERS_FILE")
-    OPENCODE_CLI_COUNT=$(echo "$PHASE2_LINES" | grep -c "opencode-cli run" || true)
-    OPENCODE_CLI_COUNT=$(echo "$OPENCODE_CLI_COUNT" | tr -d '[:space:]')
-    if [ "${OPENCODE_CLI_COUNT:-0}" -gt 0 ]; then
-        echo "FAIL: (c) behavior_adversarial_eval Phase 2 contains $OPENCODE_CLI_COUNT 'opencode-cli run' call(s) — should use task() dispatch instead"
+    ANTI_COUNT=$(echo "$PHASE2_LINES" | grep -cE "opencode-cli run.*--model.*auditor|\$\{auditors\[" || true)
+    ANTI_COUNT=$(echo "$ANTI_COUNT" | tr -d '[:space:]')
+    ANTI_COUNT=${ANTI_COUNT:-0}
+    CORRECT_COUNT=$(echo "$PHASE2_LINES" | grep -cE "adversarial-audit|task\(" || true)
+    CORRECT_COUNT=$(echo "$CORRECT_COUNT" | tr -d '[:space:]')
+    CORRECT_COUNT=${CORRECT_COUNT:-0}
+    if [ "$ANTI_COUNT" -gt 0 ]; then
+        echo "FAIL: (c) Phase 2 contains $ANTI_COUNT raw per-model audit dispatch pattern(s) — should use adversarial-audit --task cross-validate"
+        OVERALL_RESULT=1
+    elif [ "$CORRECT_COUNT" -eq 0 ]; then
+        echo "FAIL: (c) Phase 2 does not contain adversarial-audit or task() dispatch — correct-pattern missing"
         OVERALL_RESULT=1
     else
-        echo "PASS: (c) behavior_adversarial_eval Phase 2 does not contain opencode-cli run"
+        echo "PASS: (c) Phase 2: anti-pattern=0, correct-pattern=$CORRECT_COUNT"
     fi
 fi
 
