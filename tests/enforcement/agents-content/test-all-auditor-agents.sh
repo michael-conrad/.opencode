@@ -5,7 +5,7 @@
 # has correct YAML frontmatter per spec #381 canonical schema:
 #   - mode: subagent
 #   - model: <expected model string>
-#   - permission: block with 6 allow + 5 deny keys
+#   - permission: block with 7 allow + 4 deny keys
 #
 # SC-7 from Spec #381: all 9 agent files have correct permission surface
 #
@@ -32,8 +32,8 @@ MODELS["auditor-kimi-k2"]="ollama/kimi-k2.6:cloud"
 MODELS["auditor-qwen3.5"]="ollama/qwen3.5:397b-cloud"
 MODELS["auditor-devstral-2"]="ollama/devstral-2:123b-cloud"
 
-ALLOW_KEYS=("read" "glob" "grep" "skill" "webfetch" "websearch")
-DENY_KEYS=("edit" "bash" "task" "todowrite" "question")
+ALLOW_KEYS=("read" "glob" "grep" "skill" "webfetch" "websearch" "task")
+DENY_KEYS=("edit" "bash" "todowrite" "question")
 EXPECTED_ALLOW=${#ALLOW_KEYS[@]}
 EXPECTED_DENY=${#DENY_KEYS[@]}
 EXPECTED_COUNT=${#MODELS[@]}
