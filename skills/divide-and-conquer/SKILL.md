@@ -49,6 +49,7 @@ Divide and Conquer Orchestrator. Focus: assess context fitness, decompose work, 
 4. **Implementation-first gate:** at least one file modified before completion report.
 5. **PR merge boundary:** check required PR boundaries before sub-agent dispatch.
 6. **Clean-room dispatch:** sub-agents receive spec/plan/file paths only. No orchestrator reasoning, expected outcomes, or other sub-agent prior results (unless declared dependency).
+7. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

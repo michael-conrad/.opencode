@@ -26,6 +26,10 @@ Transforms git commits into polished, user-friendly changelogs. Category-based o
 
 `/skill changelog-generator --task since-last-release` (since last update), `--task date-range --from DATE --to DATE`, `--task backfill` (historical catchup), `--task completion` (halt guarantee). Overview with no flag.
 
+## Operating Protocol
+
+1. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
+
 ## Sub-Agent Dispatch Audit
 
 Tasks dispatch via `task(subagent_type="general")` with `{ date_range, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.

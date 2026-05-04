@@ -428,4 +428,19 @@ rules:
     requires: []
     triggers: [verification-before-completion]
     source: "065-verification-honesty.md §Per-Field Independence"
+
+  - id: verification-honesty-008
+    title: "Dual-auditor evaluation required — no grep-only behavioral assessment"
+    conditions:
+      any:
+        - "behavioral_evaluation_performed_via_grep == true"
+        - "same_model_used_for_production_and_evaluation == true"
+        - "content_verification_reported_as_behavioral == true"
+    actions:
+      - HALT
+      - DISPATCH(second AI model in clean-room isolation)
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion, spec-auditor, behavioral-testing]
+    source: "065-verification-honesty.md §Architectural Invariant: Dual-Auditor Evaluation"
 ```
