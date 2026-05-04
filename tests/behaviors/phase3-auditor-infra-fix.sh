@@ -49,19 +49,18 @@ else
 fi
 
 # --- Assertion (c): behavior_adversarial_eval Phase 2: anti-pattern vs correct-pattern ---
-# Phase 2 is from 'echo "--- Phase 2: Dual adversarial audit ---"' to the line before
-# any Phase 3/Phase 4 marker or end of '}}' block.
+# Phase 2 runs from the Phase 2 echo marker to the python3 cross-reference line.
 # Anti-pattern: raw per-model dispatch (opencode-cli run --model "...auditor" or ${auditors[)
 # Correct-pattern: adversarial-audit --task cross-validate or task( dispatch
-PHASE2_START=$(grep -n 'echo "--- Phase 2: Dual adversarial audit ---"' "$HELPERS_FILE" | head -1 | cut -d: -f1)
-PHASE3_START=$(grep -n 'echo "--- Phase [34]' "$HELPERS_FILE" | head -1 | cut -d: -f1)
+PHASE2_START=$(grep -n 'echo "--- Phase 2: Dual adversarial audit' "$HELPERS_FILE" | head -1 | cut -d: -f1)
+PHASE2_END=$(grep -n '^\s*python3 -c "' "$HELPERS_FILE" | head -1 | cut -d: -f1)
 
 if [ -z "$PHASE2_START" ]; then
     echo "INCONCLUSIVE: (c) could not locate Phase 2 start marker in helpers.sh"
-elif [ -z "$PHASE3_START" ]; then
-    echo "INCONCLUSIVE: (c) could not locate Phase 3/4 marker in helpers.sh"
+elif [ -z "$PHASE2_END" ]; then
+    echo "INCONCLUSIVE: (c) could not locate Phase 2 end marker (python3 -c) in helpers.sh"
 else
-    PHASE2_LINES=$(sed -n "${PHASE2_START},${PHASE3_START}p" "$HELPERS_FILE")
+    PHASE2_LINES=$(sed -n "${PHASE2_START},${PHASE2_END}p" "$HELPERS_FILE")
     ANTI_COUNT=$(echo "$PHASE2_LINES" | grep -cE "opencode-cli run.*--model.*auditor|\$\{auditors\[" || true)
     ANTI_COUNT=$(echo "$ANTI_COUNT" | tr -d '[:space:]')
     ANTI_COUNT=${ANTI_COUNT:-0}
