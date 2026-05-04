@@ -1626,6 +1626,38 @@ The `for_pr` authorization scope explicitly defines gap-fill actions for structu
 
 **See `020-go-prohibitions.md` §1.5 for the complete solicitation prohibition including `question` tool. See `010-approval-gate.md` §Authorization Scope Model for the for_pr gap-fill cascade.** **AUTHORITY: `000-critical-rules.md` §for_pr Gap-Fill Halt, Issue #115**
 
+<!-- Issue #369, #371: .opencode/.opencode/ path nesting -- guideline-level invariant -->
+
+## Critical Violation: Creating .opencode/.opencode/ Nested Directories
+
+**⚠️ Creating `.opencode/.opencode/` directories is a CRITICAL GUIDELINE VIOLATION — this breaks the AI agent's configuration loading by shadowing real configuration files.**
+
+When the agent's workdir is inside `.opencode/` (e.g., working in a submodule), composing paths with a `.opencode/` prefix creates `.opencode/.opencode/` nesting. This shadowing prevents the agent from finding its own configuration files (`AGENTS.md`, `guidelines/`, `skills/`, `tools/`), causing total agent failure.
+
+- 🚫 FORBIDDEN: Any `mkdir`, `write`, or path-creating operation whose resolved path contains `.opencode/.opencode/`
+- 🚫 FORBIDDEN: Hardcoding `.opencode/` prefix in paths when workdir is already inside `.opencode/`
+- 🚫 FORBIDDEN: Assuming the project root context implies `.opencode/` prefix is always safe
+- ✅ REQUIRED: Before any path-creating operation, verify the resolved path against workdir — if workdir is inside `.opencode/`, paths are relative to workdir
+- ✅ REQUIRED: Submodule context detection: when `git rev-parse --show-toplevel` returns a `.opencode` directory, the agent works inside a submodule — paths must NOT compose `.opencode/.opencode/` nesting
+- ✅ REQUIRED: See `060-tool-usage.md` §2 Workdir-Aware Path Composition for the complete workdir path resolution rules
+
+**AUTHORITY:** Spec #369, Spec #371, `060-tool-usage.md` §2 Workdir-Aware Path Composition
+
+```yaml+symbolic
+  - id: critical-rules-045
+    title: "Creating .opencode/.opencode/ nested directories is forbidden"
+    conditions:
+      any:
+        - "resolved_path_contains == '.opencode/.opencode/'"
+        - "workdir_inside_opencode == true AND path_prefixed_with_opencode == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: [tool-usage-009]
+    triggers: [git-workflow, divide-and-conquer, approval-gate, skill-creator]
+    source: "000-critical-rules.md §Creating .opencode/.opencode/ Nested Directories"
+```
+
 ______________________________________________________________________
 
 **Search guidelines:** Use `srclight_search_symbols` or `grep` to find relevant guidelines.

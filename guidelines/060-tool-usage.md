@@ -89,6 +89,24 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 
 **For `bash` tool:** Continue using `workdir` parameter (already documented in `using-git-worktrees` skill and `000-critical-rules.md`).
 
+### Workdir-Aware Path Composition — CRITICAL
+
+**When `workdir` resolves to a path inside `.opencode/`, the workdir IS the `.opencode/` directory — do NOT prefix paths with `.opencode/`.** Paths resolve relative to the workdir. Prefixing with `.opencode/` creates `.opencode/.opencode/` nesting which shadows real configuration files and breaks AI agent configuration loading.
+
+**CRITICAL:** Creating `.opencode/.opencode/` directories is FORBIDDEN. See `000-critical-rules.md` §Creating .opencode/.opencode/ Nested Directories.
+
+| Workdir | Path to create `tmp/` | Correct | Wrong (FORBIDDEN) |
+| -- | -- | -- | -- |
+| `.opencode/` | `tmp/` | `mkdir -p tmp/` | `mkdir -p .opencode/tmp/` |
+| `.opencode/` | `tmp/work.md` | `write(filePath="tmp/work.md")` | `write(filePath=".opencode/tmp/work.md")` |
+| (project root) | `.opencode/tmp/` | `mkdir -p .opencode/tmp/` | N/A |
+| (any) | (any) | Resolve relative to workdir | Do NOT compose `.opencode/.opencode/` |
+
+- 🚫 FORBIDDEN: Any `mkdir`, `write`, or path-creating operation whose resolved path contains `.opencode/.opencode/`
+- 🚫 FORBIDDEN: Hardcoding `.opencode/` prefix in paths when workdir is already inside `.opencode/`
+- ✅ REQUIRED: Before any path-creating operation, verify the resolved path against workdir — if workdir is inside `.opencode/`, paths are relative to workdir
+- ✅ REQUIRED: Submodule context detection: when `git rev-parse --show-toplevel` returns a `.opencode` directory, the agent works inside a submodule — paths must NOT compose `.opencode/.opencode/` nesting
+
 ### `.issues/` Worktree Exemption (CRITICAL)
 
 `.issues/` files are non-behavioral metadata (issue specs, comments, frontmatter). They are **exempt from the worktree requirement** — agents MAY create, read, edit, and update `.issues/` files without setting up a worktree first.
@@ -203,7 +221,7 @@ The `github.identity_source` value (emitted by session-init) determines the agen
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+last_updated: "2026-05-03T00:00:00Z"
 rules:
   - id: tool-usage-001
     title: "Notebook files require the-notebook-mcp exclusively"
@@ -303,4 +321,17 @@ rules:
     requires: []
     triggers: [git-workflow]
     source: "060-tool-usage.md §4 Command Restrictions NEVER DO"
+
+  - id: tool-usage-009
+    title: "No .opencode/.opencode/ nesting — workdir-aware path resolution"
+    conditions:
+      all:
+        - "workdir_inside_opencode == true"
+        - "path_prefixed_with_opencode == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow, divide-and-conquer, approval-gate]
+    source: "060-tool-usage.md §2 Workdir-Aware Path Composition"
 ```
