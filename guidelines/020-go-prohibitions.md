@@ -53,6 +53,19 @@ load_when: sub-agent
   - "Please provide authorization before I continue."
 - **No implied authorization framing.** The agent must not frame status reports as requests or frame blockers as needing user action in a way that solicits a response. Correct format: "Blocked: no approved spec found for #N." Incorrect format: "We're blocked — can you approve #N so I can continue?"
 - **No forward-looking references in completion reports.** Completion reports must describe what was done, never what should happen next. This prevents the report from reading as an implicit request for the next authorization step.
+<!-- Issue #386: Universal Re-Dispatch + Poisoned Pipeline + Gate Non-Waiver + Cost-Blind Verification -->
+- **Orchestrator inline work = poisoned pipeline.** When the orchestrator performs any inline file operation, analysis, verification, or decision-making, the pipeline is irreversibly poisoned — ALL subsequent deliverables are contaminated regardless of when the contamination occurred. The ONLY remediation is a full pipeline restart: discard ALL work from the poisoned session, re-dispatch from `pre-implementation-analysis` onward with a fresh orchestrator context, and flag the incident as a CRITICAL PROCESS VIOLATION. No interim work is salvageable — contamination is total by definition.
+- **"Continue" ≠ gate waiver.** The agent must never treat cumulative "continue" messages, session momentum, or multi-turn dialog flow as authorization to skip mandatory pipeline gates. Only explicit pipeline-scoped authorization ("approved #N to PR", "approved #N for implementation", etc.) changes `halt_at`. "Continue", "next", "proceed", "go ahead", and all similar conversational continuations are NOT gateway waivers — every gate check fires regardless of how many "continue" messages precede it.
+- **Resource cost is NEVER a factor in verification decisions.** The agent MUST NOT consider execution cost, command count, model speed, session duration, or any resource metric when deciding whether to run verification steps. Behavioral enforcement tests MUST run via `opencode-cli run` against real AI models — no substitution with grep, static analysis, pattern matching, or metadata inspection. The cost of `opencode-cli run` is ZERO in the decision calculus. This is an absolute structural invariant:
+  - 🚫 FORBIDDEN: "Running behavioral tests requires too many opencode-cli commands" as a justification for any action
+  - 🚫 FORBIDDEN: "This would take too long" as a justification for skipping or shortcutting verification
+  - 🚫 FORBIDDEN: Substituting grep/static analysis/pattern matching for `opencode-cli run`
+  - 🚫 FORBIDDEN: Counting commands, estimating runtime, or measuring context as factors in correctness decisions
+  - 🚫 FORBIDDEN: "Spot-checking" as a substitute for full behavioral test execution
+  - 🚫 FORBIDDEN: Any sentence containing both a cost/speed/resource noun AND a verification-skip verb
+  - ✅ REQUIRED: Every behavioral enforcement test runs via `opencode-cli run` against at least one real AI model
+  - ✅ REQUIRED: The agent's output contains zero references to command count, execution time, or resource cost as decision factors
+  - ✅ REQUIRED: If verification takes 100 commands, the agent runs 100 commands — there is no upper bound on verification cost
 
 ### Authorization-Free Actions — No Deliberation Required
 
@@ -90,6 +103,8 @@ If the action is in this list, proceed immediately without requesting or deliber
   4. If no candidates found: present the failure state ("No existing spec/plan found for [topic]"), offer to create a new spec
   5. Only after search+presentation: HALT, but the halt message now includes the search results
 - **The orchestrator NEVER performs inline work.** ALL file reads, file edits, file writes, analysis, verification, and decision-making MUST be delegated to clean-room sub-agents. The orchestrator ONLY dispatches sub-agents, receives result contracts, and routes to the next pipeline step. Zero inline file operations are permitted in the main agent context.
+- **Universal re-dispatch on sub-agent failure.** When any sub-agent returns empty result or error at ANY pipeline stage, the orchestrator MUST re-dispatch a clean-room sub-agent with the same scoped context — never fall back to inline file operations, grep, or manual result composition. On double-failure: invoke `--task completion`, HALT with status message + byline. Failed sub-agent work MUST be assumed wrong and discarded before re-dispatch — no interim work is salvageable. Re-dispatch context MUST be identical to original — no additional orchestrator reasoning or expected outcomes. This applies universally, not only to behavioral testing.
+- **Audit-classified coherence auto-remediation.** When a sub-agent detects a spec/plan defect, the orchestrator dispatches an audit-classified remediation chain based on the defect locus: spec defect → create spec-fix → revise plan → re-dispatch RED; plan defect → revise plan → re-dispatch RED; RED test defect → fix RED test only; GREEN defect → re-dispatch GREEN. Max 3 remediation attempts before escalating to developer.
 <!-- Issue #262: Model-Aware Behavioral Testing — Success Criteria: Mandate scope-limited-by-default behavioral testing -->
 - **Scope-limited behavioral testing by default.** When running behavioral enforcement tests, the agent MUST default to scope-limited execution (changed scenarios only, named scenario, or tag-filtered). Full behavioral suite runs are permitted ONLY when model speed permits or when explicitly requested by the developer. Run `ollama-probe hw` to assess hardware before deciding full-suite feasibility. Running the full suite by default when a scope-limited run suffices wastes context budget and compute resources.
   - 🚫 FORBIDDEN: Running any full behavioral test suite — the `run-all.sh` script MUST NOT exist. All behavioral tests MUST be scope-limited to individual scenarios, `--changed`, or `--tag` filters
@@ -319,4 +334,74 @@ rules:
     requires: []
     triggers: [approval-gate]
     source: "020-go-prohibitions.md §1 ASK FIRST"
+
+  - id: go-prohibitions-010
+    title: "Orchestrator inline work poisons entire pipeline — mandatory restart"
+    conditions:
+      all:
+        - "is_orchestrator == true"
+        - "performed_inline_work == true"
+    actions:
+      - DISCARD_ALL_WORK
+      - RESTART_PIPELINE_FROM(pre-implementation-analysis)
+      - FLAG(critical_process_violation)
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate, divide-and-conquer]
+    source: "020-go-prohibitions.md §1 NEVER DO"
+
+  - id: go-prohibitions-011
+    title: "\"Continue\" is NOT a gate waiver"
+    conditions:
+      all:
+        - "user_input_matches == 'continue|next|proceed|go ahead'"
+        - "halt_at > current_stage"
+        - "pipeline_scoped_authorization_received == false"
+    actions:
+      - ENFORCE_GATE
+    conflicts_with: []
+    requires: [approval-gate-010]
+    triggers: [approval-gate, divide-and-conquer, git-workflow]
+    source: "020-go-prohibitions.md §1 NEVER DO"
+
+  - id: go-prohibitions-012
+    title: "Resource cost is NEVER a factor in verification decisions"
+    conditions:
+      all:
+        - "verification_decision_made == true"
+        - "cost_or_speed_was_factor == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion, divide-and-conquer]
+    source: "020-go-prohibitions.md §1 NEVER DO"
+
+  - id: go-prohibitions-013
+    title: "Universal re-dispatch on sub-agent failure — no inline fallback"
+    conditions:
+      all:
+        - "sub_agent_returned_empty_or_error == true"
+        - "retry_count < 2"
+    actions:
+      - DISCARD(failed_work)
+      - RE_DISPATCH(clean-room sub-agent with identical context)
+    conflicts_with: []
+    requires: [go-prohibitions-010]
+    triggers: [divide-and-conquer, verification-before-completion, git-workflow]
+    source: "020-go-prohibitions.md §1 ALWAYS DO"
+
+  - id: go-prohibitions-014
+    title: "Audit-classified coherence auto-remediation"
+    conditions:
+      all:
+        - "sub_agent_detected_spec_or_plan_defect == true"
+        - "remediation_attempts < 3"
+    actions:
+      - CLASSIFY(defect_locus)
+      - DISPATCH(remediation_chain)
+    conflicts_with: []
+    requires: [go-prohibitions-013]
+    triggers: [divide-and-conquer, verification-before-completion]
+    source: "020-go-prohibitions.md §1 ALWAYS DO"
 ```

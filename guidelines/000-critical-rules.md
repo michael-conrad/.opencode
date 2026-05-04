@@ -1467,15 +1467,48 @@ Every sub-agent MUST validate its starting state before beginning work. Pre-flig
 | Target files exist (for modification tasks) | Sub-agent won't create phantom files | `glob` or `read` confirms target files are present |
 | No uncommitted changes from prior sub-agent | Sub-agent starts from clean state | `git status --short` returns empty or expected-only changes |
 | Session context variables are set | `github.owner`, `github.repo`, `github.platform` are present | Values confirmed in dispatch context |
+| Dispatch context is free of contaminating markup | Sub-agent won't receive pre-computed decisions, tool recipes, or expected outcomes | Dispatch context contains only task objectives + scoped context — no MCP tool names, parameter lists, file paths, line numbers, or expected outcomes |
+| Spec/plan content is internally coherent | Sub-agent won't proceed on contradictory instructions | Spec body is non-empty and its approach is consistent with any linked plan; no self-contradictory requirements, no undefined references |
+
+**Coherence gate (pre-RED):** Before RED dispatch, spec and plan MUST be verified as internally coherent. If blocked → audit triage → surgical remediation chain.
+
+**Execution-time coherence detection:** RED sub-agents and GREEN sub-agents MUST block on spec/plan coherence defects detected at runtime — they must NOT proceed while the spec/plan is incoherent. RED sub-agents return `status: BLOCKED (coherence)` with the specific defect; GREEN sub-agents return `status: BLOCKED (coherence)` with the specific defect. Sub-agents detecting a spec/plan defect but proceeding anyway is a CRITICAL VIOLATION.
+
+**Audit-classified remediation:** When coherence is blocked, the orchestrator dispatches an audit-classified remediation chain based on defect locus:
+- Spec defect → create spec-fix → revise plan → re-dispatch RED
+- Plan defect → revise plan → re-dispatch RED
+- RED test defect → fix RED test only
+- GREEN defect → re-dispatch GREEN
+Max 3 remediation attempts before escalating to developer.
+
+```yaml+symbolic
+  - id: critical-rules-preflight-coherence
+    title: "Spec and plan content must be internally coherent before sub-agent dispatch"
+    conditions:
+      any:
+        - "spec_body_empty_or_contradictory == true"
+        - "plan_body_inconsistent_with_spec == true"
+        - "sub_agent_detected_spec_or_plan_defect == true"
+    actions:
+      - HALT
+      - AUDIT_TRIAGE(defect_locus)
+      - DISPATCH(remediation_chain, max_attempts=3)
+    conflicts_with: []
+    requires: [critical-rules-031]
+    triggers: [divide-and-conquer, verification-before-completion, approval-gate]
+    source: "000-critical-rules.md §Spec/Plan Coherence Gate"
+```
 
 - 🚫 FORBIDDEN: Dispatching sub-agents without pre-flight check requirements in dispatch context
 - 🚫 FORBIDDEN: Proceeding with work when any pre-flight check fails
 - 🚫 FORBIDDEN: Returning `status: DONE` instead of `status: BLOCKED` when a pre-flight check fails
+- 🚫 FORBIDDEN: RED/GREEN sub-agents proceeding with work after detecting a spec/plan defect
 - ✅ REQUIRED: Every sub-agent dispatch MUST include pre-flight check requirements in dispatch context
 - ✅ REQUIRED: Sub-agents MUST validate ALL pre-flight checks before beginning work
 - ✅ REQUIRED: Sub-agents MUST return `status: BLOCKED` with descriptive error when any check fails
+- ✅ REQUIRED: RED/GREEN sub-agents MUST block on detected spec/plan coherence defects — never proceed
 
-**Authority:** Spec #98 (pre-flight check protocol)
+**Authority:** Spec #98 (pre-flight check protocol), Spec #386 (coherence gate + execution-time coherence detection + audit-classified remediation)
 
 ## Critical Violation: Skipping Post-Flight Checks for Sub-Agents
 
@@ -1564,6 +1597,9 @@ The orchestrator is a pure router. It dispatches sub-agents and collects result 
 | Orchestrator edits guideline text inline | Dispatch guideline-update sub-agent |
 | Sub-agent performs analysis + writing + verification in one dispatch | Decompose into 3 dispatches (analyze, write, verify) |
 | Verifier receives producer's reasoning or drafts | Verifier gets only deliverable + SC list |
+| RED/GREEN sub-agent also instructed to commit and push | RED/GREEN tasks are test-execution only — no git operations |
+| Sub-agent detects spec/plan defect but proceeds with GREEN anyway | Sub-agent MUST return `status: BLOCKED (coherence)` with specific defect |
+| User said "continue" so mandatory checks are optional | "Continue" is NOT a gate waiver — every gate check fires regardless |
 
 ### DISPATCH_GATE Checkpoint
 
@@ -1583,6 +1619,145 @@ The DISPATCH_GATE is a MANDATORY checkpoint after every routing-table read. Load
 - ✅ REQUIRED: The orchestrator NEVER loads task file content — it only receives result contracts
 
 **AUTHORITY:** Spec #106 (universal clean-room dispatch), Issue #114 (DISPATCH_GATE enforcement)
+
+## Critical Violation: Orchestrator Inline Work = Poisoned Pipeline — Mandatory Full Restart
+
+**⚠️ When the orchestrator performs any inline file operation, analysis, verification, or decision-making, the pipeline is irreversibly poisoned — ALL subsequent deliverables are contaminated regardless of when the contamination occurred. The ONLY remediation is a full pipeline restart.**
+
+When the orchestrator reads a file inline, edits a guideline inline, performs analysis inline, or makes a routing decision without dispatching a sub-agent, the contamination is total. The orchestrator's inline work contaminates its own context, which contaminates every sub-agent dispatch that follows, which contaminates every deliverable those sub-agents produce. There is no "partial contamination" — the pipeline is either pure or poisoned, with no intermediate states.
+
+The ONLY remediation is a full pipeline restart: discard ALL work from the poisoned session, re-dispatch from `pre-implementation-analysis` onward with a fresh orchestrator context, and flag the incident as a CRITICAL PROCESS VIOLATION. No interim work is salvageable — contamination is total by definition.
+
+- 🚫 FORBIDDEN: Proceeding with any deliverables after the orchestrator has performed inline work
+- 🚫 FORBIDDEN: Attempting to salvage partial work from a poisoned session
+- 🚫 FORBIDDEN: Treating "I only read one file" or "it was a small fix" as non-poisoning
+- 🚫 FORBIDDEN: Re-dispatching sub-agents from a poisoned orchestrator context — the orchestrator context itself is contaminated
+- ✅ REQUIRED: On any orchestrator inline work detection: DISCARD all work, RESTART pipeline from pre-implementation-analysis, FLAG as CRITICAL PROCESS VIOLATION
+- ✅ REQUIRED: Fresh orchestrator context — no carryover from poisoned session
+- ✅ REQUIRED: The restart is mandatory regardless of authorization scope or developer override
+
+```yaml+symbolic
+  - id: critical-rules-046
+    title: "Orchestrator inline work poisons entire pipeline — mandatory full restart"
+    conditions:
+      all:
+        - "is_orchestrator == true"
+        - "performed_inline_work == true"
+    actions:
+      - DISCARD_ALL_WORK
+      - RESTART_PIPELINE_FROM(pre-implementation-analysis)
+      - FLAG(critical_process_violation)
+    conflicts_with: []
+    requires: [critical-rules-034]
+    triggers: [approval-gate, divide-and-conquer]
+    source: "000-critical-rules.md §Orchestrator Inline Work = Poisoned Pipeline"
+```
+
+**AUTHORITY:** Spec #386, `020-go-prohibitions.md` §1 NEVER DO
+
+## Critical Violation: Discard on Sub-Agent Failure
+
+**⚠️ When a sub-agent returns FAIL or BLOCKED status, ALL of that sub-agent's work MUST be assumed wrong and discarded before re-dispatch. No interim work is salvageable.**
+
+A failed sub-agent's output is contaminated by definition — the sub-agent reached a state where it could not proceed or could not verify correctness. The orchestrator MUST NOT attempt to salvage partial work, reuse partial file modifications, or carry forward any intermediate state. The re-dispatch MUST start from a clean state with identical scoped context.
+
+- 🚫 FORBIDDEN: Reusing intermediate files, partial edits, or incremental state from a failed sub-agent
+- 🚫 FORBIDDEN: Carrying forward partial work into the re-dispatched sub-agent's context
+- 🚫 FORBIDDEN: "Salvaging" failed sub-agent output because "most of it looks correct"
+- 🚫 FORBIDDEN: Merging partial results from a failed sub-agent with re-dispatch results
+- ✅ REQUIRED: On sub-agent FAIL/BLOCKED: discard ALL work from that sub-agent, re-dispatch with identical scoped context
+- ✅ REQUIRED: Re-dispatched sub-agent receives a completely fresh context — no prior sub-agent's files, state, or reasoning
+- ✅ REQUIRED: The orchestrator treats the failed sub-agent's work as never having happened
+
+**AUTHORITY:** Spec #386, `020-go-prohibitions.md` §1 ALWAYS DO
+
+## Critical Violation: Tool-Recipe Dispatch — Sub-Agents Dispatched as API Proxies
+
+**⚠️ Dispatching sub-agents with exact MCP tool names, parameter lists, or step-by-step API instructions ("call github_issue_write with owner=X, repo=Y, body=Z") instead of task objectives is a CRITICAL GUIDELINE VIOLATION.**
+
+Tool-recipe dispatch treats sub-agents as shell script executors — the orchestrator pre-computes every API call and hands the sub-agent a recipe to execute. The sub-agent has zero autonomy. This violates the Intelligent Agent Assumption: sub-agents are intelligent agents capable of autonomous classification and decision-making, not API proxies.
+
+- 🚫 FORBIDDEN: Dispatching sub-agents with explicit MCP tool names and parameter lists in the dispatch context
+- 🚫 FORBIDDEN: Including "use <tool_name> with parameters <param_list>" in sub-agent dispatch messages
+- 🚫 FORBIDDEN: Pre-computing API responses and embedding them in sub-agent context ("the answer is X, just write it")
+- 🚫 FORBIDDEN: Treating `task(subagent_type="general")` as a parameterized shell executor
+- 🚫 FORBIDDEN: Including exact line numbers and expected edit patterns for sub-agents to apply
+- ✅ REQUIRED: Dispatch sub-agents with task objectives and scoped context — never with tool recipes
+- ✅ REQUIRED: Sub-agents independently determine which tools to invoke and how to use them
+- ✅ REQUIRED: The orchestrator states WHAT needs to be done, never HOW to do it with specific tools
+- ✅ REQUIRED: If the orchestrator knows the exact tool call needed, it should question why it isn't making that call itself — the answer should always be "because a sub-agent must decide autonomously"
+
+| Prohibited Pattern | Correct Pattern |
+| -- | -- |
+| "Call github_issue_write with method=create, title=X, body=Y" | "Create a new issue titled X with content described as follows:" |
+| "Use edit(filePath=X, oldString=Y, newString=Z)" | "Update the file X to change Y to Z" |
+| "Run bash: git commit -m 'msg' && git push" | "Commit and push the changes" |
+| "Read file at line 42 and replace with [content]" | "Update file X with the following improvement:" |
+
+```yaml+symbolic
+  - id: critical-rules-047
+    title: "Tool-recipe dispatch — sub-agents dispatched as API proxies with exact tool calls"
+    conditions:
+      any:
+        - "sub_agent_dispatch_contains_mcp_tool_names == true"
+        - "sub_agent_dispatch_contains_parameter_lists == true"
+        - "sub_agent_dispatch_contains_exact_tool_recipes == true"
+    actions:
+      - HALT
+      - RE_DISPATCH(with task objectives, not tool recipes)
+    conflicts_with: []
+    requires: [critical-rules-034]
+    triggers: [divide-and-conquer, approval-gate]
+    source: "000-critical-rules.md §Tool-Recipe Dispatch"
+```
+
+**AUTHORITY:** Spec #386
+
+## Critical Violation: Gate Non-Waiver — "Continue" Does NOT Authorize Skipping Pipeline Gates
+
+**⚠️ The agent must never treat cumulative "continue" messages, session momentum, or multi-turn dialog flow as authorization to skip mandatory pipeline gates. Only explicit pipeline-scoped authorization ("approved #N to PR", "approved #N for implementation", etc.) changes `halt_at`.**
+
+"Continue", "next", "proceed", "go ahead", and all similar conversational continuations are NOT gateway waivers — every gate check fires regardless of how many "continue" messages precede it.
+
+- 🚫 FORBIDDEN: Treating "continue" as authorization to skip pre-implementation-analysis, verify-authorization, or any pipeline gate
+- 🚫 FORBIDDEN: Accumulating "continue" messages and interpreting them as progressive authorization
+- 🚫 FORBIDDEN: Proceeding past `halt_at` because "the user has said continue three times"
+- 🚫 FORBIDDEN: Interpreting session momentum as implicit authorization
+- ✅ REQUIRED: Every gate check fires at every pipeline stage regardless of preceding conversation flow
+- ✅ REQUIRED: Only explicit pipeline-scoped authorization changes `halt_at`
+- ✅ REQUIRED: "Continue" is a conversational signal — it is NEVER an authorization token
+
+**AUTHORITY:** Spec #386, `020-go-prohibitions.md` §1 NEVER DO
+
+## Critical Violation: Cost-Blind Verification — Resource Cost Is NEVER a Factor in Verification Decisions
+
+**⚠️ The agent MUST NOT consider execution cost, command count, model speed, session duration, or any resource metric when deciding whether to run verification steps. Behavioral enforcement tests MUST run via `opencode-cli run` against real AI models — no substitution with grep, static analysis, pattern matching, or metadata inspection. The cost of `opencode-cli run` is ZERO in the decision calculus.**
+
+This is an absolute structural invariant. The Tier 1 mandate "Correctness over economy" exists at `000-critical-rules.md` §Mandate Tiering but agents routinely override it through rationalization. This critical violation makes the enforcement explicit at the rule level and provides concrete FORBIDDEN patterns.
+
+- 🚫 FORBIDDEN: "Running behavioral tests requires too many opencode-cli commands" as a justification for any action
+- 🚫 FORBIDDEN: "This would take too long" as a justification for skipping or shortcutting verification
+- 🚫 FORBIDDEN: Substituting grep/static analysis/pattern matching for `opencode-cli run`
+- 🚫 FORBIDDEN: Counting commands, estimating runtime, or measuring context as factors in correctness decisions
+- 🚫 FORBIDDEN: "Spot-checking" as a substitute for full behavioral test execution
+- 🚫 FORBIDDEN: Any sentence containing both a cost/speed/resource noun AND a verification-skip verb
+- ✅ REQUIRED: Every behavioral enforcement test runs via `opencode-cli run` against at least one real AI model
+- ✅ REQUIRED: The agent's output contains zero references to command count, execution time, or resource cost as decision factors
+- ✅ REQUIRED: If verification takes 100 commands, the agent runs 100 commands — there is no upper bound on verification cost
+
+**Cost-Blind Verification Principle — Resource Cost Is Zero:**
+
+| Agent Thought (FORBIDDEN) | Correct Behavior |
+|---|---|
+| "These behavioral tests require too many opencode-cli commands" | Run every behavioral test. Command count is not a factor. |
+| "The full suite takes too long, let me spot-check" | Run the full suite. Speed is not a factor. |
+| "Let me grep the output instead of re-dispatching" | Re-dispatch opencode-cli run. No substitution. |
+| "Running all tests means N commands" | Do not count commands. Do not estimate runtime. Execute. |
+| "This model is slow, so I'll validate a different way" | Run with the correct model. Model speed is not a factor. |
+
+The agent is a correctness machine, not a cost optimizer. There is no budget for correctness. There is no threshold at which "too many commands" becomes valid reasoning. Every verification step that the spec requires must be executed, regardless of how many tool calls it consumes.
+
+**AUTHORITY:** `000-critical-rules.md` §Mandate Tiering (Correctness over economy), Spec #386, `020-go-prohibitions.md` §1 ALWAYS DO
 
 ## Critical Violation: for_pr Gap-Fill Halt — Asking Developer for Structural Decisions That the Scope Model Resolves
 
@@ -2394,36 +2569,38 @@ Every execution dispatch MUST be gated by a pre-analysis sub-agent that independ
     source: "000-critical-rules.md §Preloading Sub-Agent Context"
 ```
 
-## Critical Violation: No Inline Fallback on Sub-Agent Failure During Behavioral Testing
+## Critical Violation: No Inline Fallback on Sub-Agent Failure — Universal Re-Dispatch Mandate
 
-**⚠️ When a behavioral test sub-agent returns an empty result, error, or timeout, the orchestrator MUST re-dispatch a clean-room sub-agent — it MUST NOT perform inline file operations, read test output files directly, or manually compose test results. Inline fallback on sub-agent failure is the exact violation that #106 (orchestrator purity) was designed to prevent.**
+**⚠️ When ANY sub-agent returns an empty result or error at ANY pipeline stage, the orchestrator MUST re-dispatch a clean-room sub-agent with the same scoped context — never fall back to inline file operations, grep, or manual result composition. This applies universally, not only to behavioral testing.**
 
-When a behavioral test sub-agent fails, reading its test output files inline and composing results manually produces evidence that bypasses ALL clean-room isolation guarantees. The evidence was not produced by an AI model in an isolated context — it was assembled by the orchestrator from grep results. This is the behavioral testing equivalent of the proxy-evidence regression from #91.
+When a sub-agent fails, reading its output files inline and composing results manually produces evidence that bypasses ALL clean-room isolation guarantees. The evidence was not produced by an AI agent in an isolated context — it was assembled by the orchestrator from grep results. This is the proxy-evidence regression from #91 applied universally.
 
-- 🚫 FORBIDDEN: Orchestrator reading behavioral test output files and composing pass/fail results inline after sub-agent failure
-- 🚫 FORBIDDEN: Orchestrator performing inline `opencode-cli run` instead of dispatching a clean-room sub-agent
-- 🚫 FORBIDDEN: Orchestrator grepping behavioral test output for pass/fail patterns and reporting those as behavioral test results
-- 🚫 FORBIDDEN: Skipping re-dispatch because "the test output is readable" or "the result is obvious"
-- 🚫 FORBIDDEN: Accepting a `DONE` result contract that lacks tool-call evidence of model execution
-- ✅ REQUIRED: On sub-agent empty/error result: RE-DISPATCH a clean-room sub-agent with the same scoped context
+- 🚫 FORBIDDEN: Orchestrator reading any sub-agent output files and composing results inline after sub-agent failure at any pipeline stage
+- 🚫 FORBIDDEN: Orchestrator performing any file operation, analysis, or verification inline as fallback for a failed sub-agent
+- 🚫 FORBIDDEN: Orchestrator grepping any sub-agent output for pass/fail patterns and reporting those as results
+- 🚫 FORBIDDEN: Skipping re-dispatch because "the output is readable" or "the result is obvious"
+- 🚫 FORBIDDEN: Accepting a `DONE` result contract that lacks tool-call evidence
+- 🚫 FORBIDDEN: Falling back to inline execution for implementation, verification, analysis, or any sub-agent task — the only valid fallback is re-dispatch
+- ✅ REQUIRED: On ANY sub-agent empty/error result at ANY pipeline stage: RE-DISPATCH a clean-room sub-agent with the same scoped context
 - ✅ REQUIRED: On double-failure: invoke `--task completion`, HALT with status message + byline
 - ✅ REQUIRED: Re-dispatch context MUST be identical to original — no additional orchestrator reasoning or expected outcomes
 - ✅ REQUIRED: Re-dispatch MUST receive a new clean-room sub-agent session (fresh context, no memory carryover)
+- ✅ REQUIRED: Failed sub-agent work MUST be assumed wrong and discarded before re-dispatch — no interim work is salvageable
 
-**AUTHORITY:** `divide-and-conquer` skill assemble-work Step 6 Sub-Agent Completion Checkpoint, Spec #106 (universal clean-room dispatch), Spec #262
+**AUTHORITY:** `divide-and-conquer` skill assemble-work Step 6 Sub-Agent Completion Checkpoint, Spec #106 (universal clean-room dispatch), Spec #262, Spec #386 (universal re-dispatch mandate)
 
 ```yaml+symbolic
   - id: critical-rules-043
-    title: "No inline fallback on sub-agent failure during behavioral testing"
+    title: "No inline fallback on sub-agent failure — universal re-dispatch mandate for ALL pipeline stages"
     conditions:
       all:
-        - "behavioral_test_sub_agent_failed == true"
+        - "sub_agent_returned_empty_or_error == true"
         - "orchestrator_performed_inline_fallback == true"
     actions:
       - HALT
       - RE_DISPATCH(clean-room sub-agent)
     conflicts_with: []
-    requires: [critical-rules-034, critical-rules-042]
-    triggers: [divide-and-conquer, verification-before-completion]
-    source: "000-critical-rules.md §No Inline Fallback on Sub-Agent Failure During Behavioral Testing"
+    requires: [critical-rules-034]
+    triggers: [divide-and-conquer, verification-before-completion, git-workflow, approval-gate]
+    source: "000-critical-rules.md §No Inline Fallback on Sub-Agent Failure — Universal Re-Dispatch Mandate"
 ```
