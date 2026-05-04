@@ -745,6 +745,9 @@ EXPECTED_SKILLS["auth-free-critical-rules"]=""
 EXPECTED_SKILLS["auth-free-go-prohibitions"]=""
 EXPECTED_SKILLS["auth-free-scope-autonomy"]=""
 EXPECTED_SKILLS["auth-free-approval-gate-skill"]=""
+EXPECTED_SKILLS["opencode-nesting-critical-violation"]=""
+EXPECTED_SKILLS["opencode-nesting-tool-usage"]=""
+EXPECTED_SKILLS["opencode-nesting-skill-creator"]=""
 
 RESULTS_FILE="$LOGDIR/results.md"
 
