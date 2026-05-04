@@ -32,10 +32,6 @@ Claim Verifier. Focus: verify each claim against evidence, produce PASS/FAIL/UNV
 
 `/skill verification --task verify` (verify claims), `--task completion`. Overview with no flag.
 
-## Operating Protocol
-
-1. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
-
 ## Sub-Agent Dispatch Audit
 
 `verify` dispatches via `task(subagent_type="general")` with `{ claims, modalities, github.owner, github.repo }`. Exclusions: implementation context, agent memory. No inline work.

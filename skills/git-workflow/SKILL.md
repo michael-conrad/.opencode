@@ -58,7 +58,6 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 5. **Compare URL base:** feature → `compare/dev...<branch>`. Release → `compare/main...dev`.
 6. **Submodule repos:** git ops from inside submodule dir. No `--recursive`.
 7. **Pair mode:** `pair-*` branches use WIP-commit switching, not worktrees.
-8. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

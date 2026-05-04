@@ -33,10 +33,6 @@ Modality Router. Focus: probe models, resolve modality hints, dispatch sub-agent
 
 Produced by `probe` task: maps model names → modalities (text, vision, audio) + capabilities. Cloud-first for text/vision. Local fallback. Graceful degradation: unavailable modality returns `(unverified)` rather than blocking.
 
-## Operating Protocol
-
-1. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
-
 ## Sub-Agent Dispatch Audit
 
 Tasks dispatch via `task(subagent_type="general")` with `{ task_description, content_modality, github.owner, github.repo }`. Exclusions: implementation context, agent memory. No inline work.

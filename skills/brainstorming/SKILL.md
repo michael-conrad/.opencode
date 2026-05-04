@@ -38,7 +38,6 @@ Requirements Explorer. Focus: understand what user wants through natural convers
 3. **Pre-spec inspection mandatory** (code inspection checklist) before proposing approach.
 4. **Autonomous structural classification:** classify single vs multi-task without asking.
 5. **Terminal state** invokes `spec-creation`.
-6. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

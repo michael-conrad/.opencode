@@ -30,7 +30,6 @@ TDD workflow: tests define the contract, implementation satisfies the contract, 
 1. **RED:** write test, verify it fails. Must produce tool-call evidence of failure.
 2. **GREEN:** write minimal implementation to pass. No extras.
 3. **REFACTOR:** clean up while tests stay green. No scope creep.
-4. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

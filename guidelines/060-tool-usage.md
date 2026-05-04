@@ -109,7 +109,6 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 
 - All temporary scripts and output files MUST be written ONLY to `./tmp/` (project root). NO OTHER FOLDERS OR PATHS ARE PERMITTED.
 - Create the directory if needed: `mkdir -p ./tmp`.
-- **When operating from inside `.opencode/` (workdir = `.opencode/`):** Use `tmp` not `.opencode/tmp` — see §2 Submodule/Subdirectory Path Resolution above. Verify the resolved path does NOT create `.opencode/.opencode/tmp/`.
 - **Mandatory pre-submit root cleanliness check:** Before calling `submit`, run `./.opencode/tools/file-exists .output.txt` and confirm it is MISSING. If it exists, move it to `./tmp/.output.txt` immediately.
 - **ALWAYS clean up temp files after modification tasks are complete.**
 
@@ -304,18 +303,4 @@ rules:
     requires: []
     triggers: [git-workflow]
     source: "060-tool-usage.md §4 Command Restrictions NEVER DO"
-
-  - id: tool-usage-009
-    title: ".opencode/.opencode/ nesting forbidden — resolve paths relative to workdir"
-    conditions:
-      any:
-        - "resolved_path contains '.opencode/.opencode/'"
-        - "workdir_is_submodule == true AND path_starts_with '.opencode/'"
-    actions:
-      - HALT
-      - RESOLVE_PATH_RELATIVE_TO_WORKDIR
-    conflicts_with: []
-    requires: []
-    triggers: [issue-operations]
-    source: "060-tool-usage.md §2 Submodule/Subdirectory Path Resolution"
 ```

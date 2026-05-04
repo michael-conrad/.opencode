@@ -33,7 +33,6 @@ Branch completion workflow ensuring feature branch is fully ready for PR. Verifi
 4. **Type check:** `uvx pyright` clean.
 5. **Branch pushed:** up to date with remote.
 6. **Plan sub-issue closure verification:** matched against implementation.
-7. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

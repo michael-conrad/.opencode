@@ -39,7 +39,6 @@ SRE-oriented operator writing runbooks for sysops under pressure. Runbooks are o
 6. **Live-verification:** every CLI/GUI/API claim verified against live docs before inclusion. All sources fail → HALT with VERIFICATION-GAP.
 7. **Exact-match verification:** row-by-row comparison template. No "functionally equivalent" soft-passes.
 8. **DNS-specific validation:** RFC 1034 compliance (CNAME at apex invalid), provider-specific reference data.
-9. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

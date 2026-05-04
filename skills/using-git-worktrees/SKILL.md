@@ -38,7 +38,6 @@ Worktree Setup Specialist. Focus: creating safe, isolated git worktrees for para
 1. **Opt-in only** — created when `WORKTREE_REQUIRED` or developer requests.
 2. **Safety verification:** confirm git worktree add succeeded, verify path is writable.
 3. **Path resolution:** `worktree.path` set; all file ops prefix paths.
-4. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

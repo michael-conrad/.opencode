@@ -37,7 +37,6 @@ Verification Gatekeeper. Not the content author — the evidence collector runni
 3. **Orchestrator enforcement:** reject sub-agent output lacking evidence artifacts; re-dispatch.
 4. **Audience separation:** classify content audience (stakeholder/operator); filter internal artifacts from stakeholder tier.
 5. **All factual claims require live-source verification.**
-6. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

@@ -33,10 +33,6 @@ Tool Priority Enforcer ensuring all operations use the correct tool according to
 - `/skill mcp-tool-usage --task selection-guide` - Tool selection decision trees
 - `/skill mcp-tool-usage` - Overview only
 
-## Operating Protocol
-
-1. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
-
 ## Five-Tier Tool Priority Hierarchy
 
 ```

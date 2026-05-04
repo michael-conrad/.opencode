@@ -46,7 +46,6 @@ Spec Architect. Focus: structure investigation results into complete, well-organ
 6. **PR merge boundaries** required when dependencies exist.
 7. **Mermaid diagram** required for multi-phase specs (approved structure only, no workflow state).
 8. **Concern enumeration guard:** enumerate single concerns before writing.
-9. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

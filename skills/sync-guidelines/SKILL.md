@@ -27,10 +27,6 @@ Intelligently synchronizes guidelines, skills, and tools between repos via GitHu
 
 `/skill sync-guidelines --task classify`, `--task sync-push`, `--task sync-pull`, `--task issue-format`, `--task completion`. Overview with no flag.
 
-## Operating Protocol
-
-1. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
-
 ## Sub-Agent Dispatch Audit
 
 Tasks dispatch via `task(subagent_type="general")` with `{ source_repo, target_repo, file_paths, github.owner, github.repo }`. Exclusions: implementation context, agent memory. No inline work.
