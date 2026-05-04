@@ -39,7 +39,6 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 3. **No placeholders:** exact file paths, exact function/class names, exact commands.
 4. **Phase structure:** phases for sub-issues, tasks within phases for TDD steps.
 5. **Decision gate:** multi-task → separate plan. Single-task + simple → combined or separate per agent judgment.
-6. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

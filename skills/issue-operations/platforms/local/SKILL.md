@@ -112,10 +112,6 @@ The local platform supports all eight `approved-for-*` labels in YAML frontmatte
 
 **Deprecated:** The `needs-approval` label is deprecated. No `approved-for-*` label = awaiting approval. Label replacement on re-authorization updates the frontmatter array.
 
-## Operating Protocol
-
-1. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
-
 ## Promotion Workflow
 
 When `github.platform` is NOT `local` (i.e., a remote is available), local issues can be promoted to GitHub Issues:

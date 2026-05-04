@@ -32,7 +32,6 @@ No single-issue bypass — single = work of one = one sub-agent.
 2. **Dispatch to divide-and-conquer/assemble-work** with full context.
 3. **Track phase progress** against plan sub-issues.
 4. **Unified path:** no single-task exemption.
-5. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Received Context
 

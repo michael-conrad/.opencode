@@ -190,46 +190,6 @@ When a task file exceeds 3,000 words on first draft, it MUST be split into small
 
 This section was added per `#1197` Phase 7 to mandate word-count complexity metrics across the skill deck and guideline files, replacing any prior line-count references.
 
-### Unix Philosophy Extension — Scripts, Functions, and Tooling
-
-This section extends decomposition rules from implementation plans to all executable and composable artifact types. The Unix "Do One Thing Well" principle applies universally — not just to code commits in implementation plans.
-
-**Authority:** `000-critical-rules.md` §Uber-Artifacts critical violation, Spec #366
-
-#### Script Decomposition
-
-| Rule | Measurement | Enforcement |
-| -- | -- | -- |
-| Scripts iterate externally, never internally | `wc -l` ≤150 | Spec-auditor + code-size-enforcement |
-| One operation per script file | Single concern | Behavioral test verification |
-| No orchestration uber-scripts | Use `--tag`, `--changed`, or `--scenario` filters | Grep for forbidden pattern |
-
-#### Function Decomposition
-
-| Rule | Measurement | Enforcement |
-| -- | -- | -- |
-| ≤3 discrete operations per function | Count of distinct concerns | Code review + spec-auditor |
-| Existing uber-functions are decomposed, not expanded | Decompose before adding | Behavioral test verification |
-
-#### Test Harness Decomposition
-
-| Rule | Measurement | Enforcement |
-| -- | -- | -- |
-| One scenario per behavioral test file | Single `behavior_run()` call | Behavioral test grep |
-| Per-model dispatch for qualification | External loop, per-model probe script | Behavioral test verification |
-
-#### Expanded Complexity Metrics
-
-| Artifact Type | Max Measure | Metric |
-| -- | -- | -- |
-| Script file (bash/Python) | ≤150 lines | `wc -l` |
-| Shell function | ≤3 operations | Concern count |
-| Test harness file | 1 scenario | `behavior_run` count |
-| Atomic task file | ≤3,000 words | `wc -w` |
-| Routing-tier SKILL.md | ≤4,000 words | `wc -w` |
-| Condensed-tier SKILL.md | ≤2,000 words | `wc -w` |
-| Guideline file | Per content needs | `wc -w` |
-
 ## Cross-References
 
 - `000-critical-rules.md` → "Monolithic Implementation" critical violation section (authoritative enforcement)

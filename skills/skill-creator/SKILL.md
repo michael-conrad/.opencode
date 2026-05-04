@@ -34,7 +34,6 @@ Creating skills IS TDD applied to process documentation. Write tests, watch them
 5. **Verification-enforcement gate** before skill generation.
 6. **Required frontmatter:** name, description, type, license, provenance, compatibility.
 7. **Session-init variable alignment:** use canonical dotted-name format.
-8. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

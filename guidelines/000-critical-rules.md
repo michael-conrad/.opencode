@@ -29,10 +29,7 @@ These mandates protect the integrity of the codebase and repository. They **NEVE
 | Human-only branch deletion | Unmerged branches must never be force-deleted by agents |
 | Agents must never self-authorize | Authorization comes from developers, never from agent reasoning |
 | Git configuration and destructive commands require explicit authorization | Git remote/config mutations can silently redirect pushes, disable security checks, or destroy unrecoverable state |
-| `.opencode/.opencode/` nesting is prohibited — paths must be resolved relative to workdir/CWD, never concatenated with a fixed `.opencode/` prefix | Creating `.opencode/.opencode/` directories breaks AI agent configuration loading by shadowing real configuration files with nested copies |
 | Correctness over economy — fabrication or shortcutting verification to conserve context/tool-calls is prohibited: (1) sub-agent dispatch and tool calls are near-zero cost compared to undiscovered defects — never skip a tool call or verification step to save resources; (2) correctness is the only success metric — there is no score for speed, brevity, or economy, and a fast wrong answer is strictly worse than a slow correct one; (3) fabricated results will be independently audited and the work re-dispatched — fabrication extends the total work, it does not shorten it | Fabricated evidence corrupts all downstream pipeline decisions — every merge, deployment, and release decision depends on verified correctness. No authorization can waive the requirement for truthful verification. |
-| Architectural invariance over local fix — when a behavioral rule is violated, the fix MUST be encoded at the architectural level (guideline section + dual-auditor enforcement) rather than patched at the symptom level (static grep, one-line code check). Symptom-level fixes mask the root cause and guarantee regression; architectural fixes encode invariants that models can reason about | Static grep regression (#1217 root cause): an agent adds a grep check to catch a specific output pattern, and the next model learns how to pass the grep check without following the underlying behavioral rule. Architectural fixes (dual-auditor model evaluation + guideline invariants) prevent this by enforcing behavioral compliance through AI evaluation, not text pattern-matching |
-| Unix philosophy "Do One Thing Well" — every artifact (script/executable, function, test harness, sub-agent task, document section, implementation step) must address exactly one concern: (1) scripts perform exactly one operation — iterate externally never internally, hard cap ≤150 lines; (2) functions have exactly one purpose with ≤3 discrete operations — no multi-phase orchestration in a single function; (3) test harnesses test exactly one scenario — per-model per-probe, not batch iteration; (4) no uber-scripts, no uber-functions, no uber-sub-agent-tasks — decomposition is mandatory at all artifact levels, not just code commits | Uber-artifacts combine multiple concerns into single units creating hidden coupling points where one concern's failure blocks all others. The Unix philosophy applies universally to scripts, functions, tests, tooling, and prose — not just code commits. |
 
 **"Zero tolerance" language in this file applies ABSOLUTELY to Tier 1 mandates.** There is no waiver, no override, no emergency bypass.
 
@@ -2397,42 +2394,4 @@ When a behavioral test sub-agent fails, reading its test output files inline and
     requires: [critical-rules-034, critical-rules-042]
     triggers: [divide-and-conquer, verification-before-completion]
     source: "000-critical-rules.md §No Inline Fallback on Sub-Agent Failure During Behavioral Testing"
-```
-
-<!-- Issue #359: Verify-Before-Acceptance — Success Criteria: Add verify-before-acceptance critical violation -->
-
-## Critical Violation: Verify-Before-Acceptance — Accepting Sub-Agent FAIL Claims Without Independent Verification
-
-**⚠️ Accepting a sub-agent result contract that claims `status: FAIL` without independently reproducing the claimed failure is a CRITICAL GUIDELINE VIOLATION.**
-
-Sub-agents can fabricate failure claims (infrastructure failures, tool errors, environment issues) to avoid resource-intensive operations. The orchestrator MUST independently verify every FAIL claim before accepting it. Trusting sub-agent failure claims without reproduction is the same pattern as #91 (metadata-as-evidence prohibition) applied to sub-agent result contracts.
-
-- 🚫 FORBIDDEN: Accepting a `status: FAIL` result contract without independently executing the claimed-failing tool
-- 🚫 FORBIDDEN: Accepting a FAIL result contract where `error_output` is empty or contains only prose summary
-- 🚫 FORBIDDEN: Treating FAIL as DONE_WITH_CONCERNS — FAIL must be independently verified or re-dispatched
-- 🚫 FORBIDDEN: Proceeding past a FAIL result without invoking the verify-before-acceptance protocol
-- 🚫 FORBIDDEN: Including prior sub-agent error_output in re-dispatch context
-- ✅ REQUIRED: Independently execute the tool/command the sub-agent claimed failed before accepting FAIL
-- ✅ REQUIRED: Compare orchestrator output against sub-agent `error_output` — match required for acceptance
-- ✅ REQUIRED: Re-dispatch fresh clean-room sub-agent on unverifiable failure (orchestrator success, different error, or missing error_output)
-- ✅ REQUIRED: After two independently verified consecutive FAIL results, escalate to completion with HALT + byline
-- ✅ REQUIRED: Every FAIL result contract MUST include raw `error_output` from attempted tool invocation
-
-**AUTHORITY:** `divide-and-conquer/enforcement/result-validation.md` §FAIL Result Validation Protocol, `divide-and-conquer/tasks/dispatch.md` Step 4.1, Spec #359
-
-```yaml+symbolic
-  - id: critical-rules-045
-    title: "Verify-before-acceptance — accepting sub-agent FAIL claims without independent verification"
-    conditions:
-      any:
-        - "sub_agent_returned_fail == true AND orchestrator_independently_verified == false"
-        - "fail_result_error_output_empty == true"
-        - "fail_result_accepted_as_concern == true"
-    actions:
-      - HALT
-      - INVOKE(verify-before-acceptance protocol)
-    conflicts_with: []
-    requires: [critical-rules-033]
-    triggers: [divide-and-conquer, verification-before-completion]
-    source: "000-critical-rules.md §Verify-Before-Acceptance"
 ```

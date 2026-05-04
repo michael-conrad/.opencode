@@ -52,7 +52,6 @@ Content-Aware Audit Orchestrator. Focus: detect document type, select subtasks, 
 3. **Auto-fix:** Safe findings applied directly. Conditional after safety check. Flag-for-review reported only.
 4. **Body-preservation:** Verify `len(new_body) >= 0.8 * len(original_body)` before any `github_issue_write(method=update)`.
 5. **Executive summary** to chat after every audit.
-6. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

@@ -31,7 +31,6 @@ NOT invoked directly. Called by spec-auditor via `/skill spec-auditor --issue N 
 2. **Deployment independence:** each phase must be independently deployable.
 3. **Risk profiling:** blast radius and failure isolation per phase.
 4. **Single Concern Principle** per `000-critical-rules.md` — phases address one concern each.
-5. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 

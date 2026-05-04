@@ -134,7 +134,6 @@ All `list_*` endpoints return arrays (`List[Dict]`), NOT objects. The Python cli
 5. Use comment-based linking for sub-issues
 6. Use iterative listing for search operations
 7. Follow error recovery procedures in `tasks/error-recovery.md`
-8. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Cross-References
 

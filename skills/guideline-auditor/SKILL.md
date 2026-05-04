@@ -30,7 +30,6 @@ Audits guideline files for ambiguity, conflicts, and LLM compliance. Identifies 
 2. **Brevity:** prompts ≤200 words. Tables ≤10 rows. Quotes ≤3 lines.
 3. **Problem classes:** AMBIGUOUS, CONFLICTING, UNENFORCEABLE, REDUNDANT-CROSS-FILE, MISSING, CONTEXT-OVERFLOW, REORGANIZE.
 4. **Format:** `File: <path> | Rule: <1-line> | Problem: <class> | Fix? (fix/skip/stop)`.
-5. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Dispatch Audit
 
