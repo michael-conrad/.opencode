@@ -30,10 +30,11 @@ Creating skills IS TDD applied to process documentation. Write tests, watch them
 1. **Iron Law:** no skill creation/update without failing test first (RED phase). Document baseline failure.
 2. **No hardcoded identity values:** use `<AgentName>`, `<ModelId>`, `<github.owner>`, `<github.repo>`, `<dev.name>`, `<dev.email>` placeholders.
 3. **Worktree awareness mandatory** for skills with git/file operations.
-4. **Enforcement test step mandatory** after creation/update — add behavioral test scenarios.
-5. **Verification-enforcement gate** before skill generation.
-6. **Required frontmatter:** name, description, type, license, provenance, compatibility.
-7. **Session-init variable alignment:** use canonical dotted-name format.
+4. **Submodule path awareness:** All tools/scripts in generated skills MUST account for workdir being inside a submodule. Paths MUST NOT compose `.opencode/.opencode/` nesting. See `000-critical-rules.md` §Creating .opencode/.opencode/ Nested Directories and `060-tool-usage.md` §2 Workdir-Aware Path Composition.
+5. **Enforcement test step mandatory** after creation/update — add behavioral test scenarios.
+6. **Verification-enforcement gate** before skill generation.
+7. **Required frontmatter:** name, description, type, license, provenance, compatibility.
+8. **Session-init variable alignment:** use canonical dotted-name format.
 
 ## Sub-Agent Dispatch Audit
 
