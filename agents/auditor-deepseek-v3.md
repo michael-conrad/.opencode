@@ -12,7 +12,7 @@ permission:
   websearch: allow
   edit: deny
   bash: deny
-  task: deny
+  task: allow
   todowrite: deny
   question: deny
 ---
