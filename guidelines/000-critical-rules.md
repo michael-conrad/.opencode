@@ -1120,16 +1120,17 @@ After EVERY `task(subagent_type="general")` dispatch, the agent MUST produce out
 | After Dispatch | Agent MUST |
 |----------------|-----------|
 | Sub-agent returned valid result | Report result or proceed to next step (existing behavior, no change) |
-| Sub-agent returned empty result | FALLBACK to inline execution + report warning in chat |
-| Sub-agent returned error | FALLBACK to inline execution + report error in chat |
-| Inline fallback also failed | Report double-failure + invoke `--task completion` + HALT with status message + byline |
+| Sub-agent returned empty result | RE-DISPATCH clean-room sub-agent with same scoped context |
+| Sub-agent returned error | RE-DISPATCH clean-room sub-agent with same scoped context |
+| Re-dispatch also failed | Report double-failure + invoke `--task completion` + HALT with status message + byline |
 
 | Violation Pattern | Classification |
 |-------------------|----------------|
 | Empty sub-agent result → zero output → silent halt | Critical: Silent Agent Termination |
-| Empty sub-agent result → fallback attempt → status message in chat | Acceptable: self-corrected |
-| Empty sub-agent result → inline succeeds → chain continues | Acceptable: self-corrected |
+| Empty sub-agent result → re-dispatch attempt → status message in chat | Acceptable: self-corrected |
+| Empty sub-agent result → re-dispatch succeeds → chain continues | Acceptable: self-corrected |
 | Error sub-agent result → zero output → silent halt | Critical: Silent Agent Termination |
+| Empty/error sub-agent result → inline fallback | Critical: No Inline Fallback — Universal Re-Dispatch Mandate |
 
 **This guarantee supplements the existing Silent Agent Termination rule by specifying the post-dispatch scenario explicitly.** The existing rule covers general halts; this adds the specific case where the agent dispatches a sub-agent, gets an empty result, and has no code path to recovery or reporting.
 
@@ -1467,6 +1468,8 @@ Every sub-agent MUST validate its starting state before beginning work. Pre-flig
 | Target files exist (for modification tasks) | Sub-agent won't create phantom files | `glob` or `read` confirms target files are present |
 | No uncommitted changes from prior sub-agent | Sub-agent starts from clean state | `git status --short` returns empty or expected-only changes |
 | Session context variables are set | `github.owner`, `github.repo`, `github.platform` are present | Values confirmed in dispatch context |
+| Dispatch context is free of contaminating markup | Dispatch context must not contain orchestrator reasoning, expected outcomes, MCP tool recipes with parameter lists, pre-determined file paths, or line numbers | `grep` on dispatch context confirms no contaminating markup patterns (MCP tool names with explicit parameters, line numbers, expected outputs) |
+| Spec/plan content is internally coherent | No contradictions between spec success criteria and plan phases; plan faithfully maps to spec scope | Plan phases all trace to spec SCs; no plan phase addresses unlisted SCs |
 
 - 🚫 FORBIDDEN: Dispatching sub-agents without pre-flight check requirements in dispatch context
 - 🚫 FORBIDDEN: Proceeding with work when any pre-flight check fails
@@ -1564,6 +1567,10 @@ The orchestrator is a pure router. It dispatches sub-agents and collects result 
 | Orchestrator edits guideline text inline | Dispatch guideline-update sub-agent |
 | Sub-agent performs analysis + writing + verification in one dispatch | Decompose into 3 dispatches (analyze, write, verify) |
 | Verifier receives producer's reasoning or drafts | Verifier gets only deliverable + SC list |
+| Orchestrator performs inline work | Pipeline is poisoned — restart from `verify-authorization` with zero state retained |
+| RED/GREEN sub-agent also instructed to commit and push | RED/GREEN sub-agents only execute tests — never commit, never push |
+| Sub-agent detects spec/plan defect but proceeds with GREEN anyway | Sub-agent returns BLOCKED — defect must be resolved before continuing |
+| User said "continue" so mandatory checks are optional | Mandatory gates are structural invariants — "continue" is NOT authorization to skip |
 
 ### DISPATCH_GATE Checkpoint
 
@@ -1583,6 +1590,64 @@ The DISPATCH_GATE is a MANDATORY checkpoint after every routing-table read. Load
 - ✅ REQUIRED: The orchestrator NEVER loads task file content — it only receives result contracts
 
 **AUTHORITY:** Spec #106 (universal clean-room dispatch), Issue #114 (DISPATCH_GATE enforcement)
+
+## Critical Violation: Orchestrator Inline Work = Poisoned Pipeline
+
+**⚠️ When the orchestrator performs inline work (reading files, running analysis, making decisions instead of dispatching sub-agents), the entire pipeline is irreversibly poisoned.** The orchestrator must restart from `verify-authorization` with ALL state discarded — no caching, no carryover, no partial recovery. A poisoned pipeline produces contaminated deliverables that inherit the orchestrator's preloaded bias through every downstream sub-agent.
+
+- 🚫 FORBIDDEN: Continuing the pipeline after detecting orchestrator inline work; attempting to "clean up" or "patch" a poisoned pipeline; preserving any cached state, work state files, or verification results produced during a poisoned pipeline; treating poisoned pipeline as a "soft" error that self-corrects
+- ✅ REQUIRED: On detection of orchestrator inline work: HALT immediately; discard ALL work state files, cached results, and in-progress artifacts; restart from `verify-authorization` with zero state retained; log the poison-detection event in the new work state file
+- ✅ REQUIRED: This is a NON-WAIVABLE hard gate — no authorization, scope, or developer instruction can override the restart requirement
+
+**AUTHORITY:** Spec #386 (poisoned pipeline enforcement)
+
+## Critical Violation: Discard on Sub-Agent Failure
+
+**⚠️ When a sub-agent returns `status: BLOCKED` or fails, ALL work produced by that sub-agent MUST be discarded before re-dispatch.** The sub-agent's failure contaminates its output — the cause of the failure and the cause of any incorrect output are not distinguishable. Preserving partial output and re-dispatching with it risks propagating contaminated state.
+
+- 🚫 FORBIDDEN: Preserving failed sub-agent's partial output for re-dispatch; merging failed sub-agent's changes into the working branch; re-dispatching with the failed sub-agent's context as input; treating a BLOCKED sub-agent's output as "probably ok for some parts"
+- ✅ REQUIRED: On `status: BLOCKED` or failure: discard ALL files changed by that sub-agent (`git checkout -- <changed-files>`); remove any work state entries referencing the failed sub-agent; re-dispatch with original scoped context only; the re-dispatch sub-agent starts from the pre-failure branch state
+- ✅ REQUIRED: This is a NON-WAIVABLE hard gate — no authorization, scope, or developer instruction can override the discard requirement
+
+**AUTHORITY:** Spec #386 (discard on sub-agent failure)
+
+## Critical Violation: Tool-Recipe Dispatch — Sub-Agents as API Proxies
+
+**⚠️ Dispatching sub-agents with exact MCP tool names, parameter lists, or step-by-step execution scripts instead of task objectives is a CRITICAL GUIDELINE VIOLATION.** Sub-agents are intelligent agents, not API proxies. The orchestrator providing "call github_issue_read with owner=X, repo=Y, issue_number=Z" instead of "read the spec issue" defeats clean-room isolation — the sub-agent becomes a shell-exec handler with no autonomy.
+
+- 🚫 FORBIDDEN: Dispatch context containing MCP tool names with explicit parameter lists (e.g., "use github_issue_read(owner='foo', repo='bar')"); dispatch context containing line numbers or file paths as edit targets; dispatch context structured as a step-by-step execution script; treating `task(subagent_type="general")` as a smarter `edit` or `bash` tool
+- ✅ REQUIRED: Dispatch context specifies WHAT to accomplish (task objective), never HOW to accomplish it (tool recipes); sub-agents autonomously select tools, discover file paths, and determine execution order; the orchestrator provides only `{ issue_number, task_objective, github.owner, github.repo, worktree.path }`
+- ✅ REQUIRED: This is a NON-WAIVABLE hard gate — no authorization, scope, or developer instruction can override the tool-recipe prohibition
+
+**AUTHORITY:** Spec #386 (tool-recipe dispatch prohibition)
+
+## Critical Violation: Skipping Spec/Plan Coherence Gate (Pre-RED)
+
+**⚠️ Proceeding to RED dispatch without verifying spec/plan coherence is a CRITICAL GUIDELINE VIOLATION.** The coherence gate must run before any RED sub-agent is dispatched. Spec and plan content must be internally coherent — no contradictions between spec success criteria and plan phases, and plan phases must faithfully map to all spec SCs without addressing unlisted SCs.
+
+- 🚫 FORBIDDEN: Dispatching RED sub-agent without first verifying spec/plan coherence; proceeding with implementation when coherence check detects contradictions; treating coherence as "best effort" or advisory
+- ✅ REQUIRED: Before RED dispatch: verify plan phases all trace to spec SCs; verify no plan phase addresses SCs not listed in spec; verify spec SCs are all covered by plan phases; if coherence fails: HALT and report which spec SCs are unaddressed or which plan phases are extra
+- ✅ REQUIRED: Coherence gate is a structural invariant — it runs on every implementation pass regardless of issue count or scope
+
+## Critical Violation: Skipping Execution-Time Coherence Detection (RED + GREEN)
+
+**⚠️ RED and GREEN sub-agents must detect spec/plan defects at execution time and return BLOCKED — never proceed with implementation when a defect is discovered.** If a RED sub-agent discovers the spec contradicts the codebase reality, or a GREEN sub-agent discovers the plan phase doesn't address the spec, the sub-agent MUST return `status: BLOCKED` with the specific defect. It MUST NOT proceed with work or return `status: DONE`.
+
+- 🚫 FORBIDDEN: RED sub-agent proceeding with test execution when spec contradicts codebase reality; GREEN sub-agent proceeding with implementation when plan doesn't address spec; sub-agents returning `status: DONE` when a defect was detected but "seemed minor"; treating execution-time defect detection as "not my concern"
+- ✅ REQUIRED: RED sub-agent: on detection of spec/codebase contradiction → return `status: BLOCKED` with specific contradiction; GREEN sub-agent: on detection of plan/spec mismatch → return `status: BLOCKED` with specific mismatch; after BLOCKED, audit triage classifies the defect locus and routes to the appropriate remediation chain
+- ✅ REQUIRED: Remediation is audit-classified (not hardcoded): spec defect → spec-fix → plan-fix → RED-fix; plan defect → plan-fix → RED-fix; RED test defect → RED-fix only; GREEN defect → re-dispatch GREEN. Max 3 remediation attempts before escalating to developer.
+
+**AUTHORITY:** Spec #386 (coherence gate + execution-time coherence detection), Spec #98 (pre-flight check protocol)
+
+## Critical Violation: Gate Non-Waiver Principle — "Continue" Does Not Waive Mandatory Gates
+
+**⚠️ Cumulative "continue" messages ("please continue", "go on", "proceed") and session momentum do NOT waive mandatory pipeline gates.** Mandatory gates (coherence gate, verification-before-completion, finishing-a-development-branch checklist, review-prep) are structural invariants. Session momentum — the fact that the developer said "continue" multiple times in one session — is NOT authorization to skip gates. Only pipeline-scoped authorization (`approved #N to PR`, `approved #N for plan`) changes `halt_at`.
+
+- 🚫 FORBIDDEN: Skipping coherence gate because "user said continue 3 times already"; skipping verification-before-completion because "we're in a long session"; treating repeated "continue" messages as implied gate-waiver authorization; assuming "the developer clearly wants speed over correctness" from cumulative "continue" messages
+- ✅ REQUIRED: Every mandatory gate fires on EVERY implementation pass regardless of how many "continue" messages preceded it; "continue" means "proceed to the next step" — it does NOT mean "skip the step"; the agent MUST NOT treat session momentum or cumulative context as evidence that gates should be bypassed
+- ✅ REQUIRED: This is a NON-WAIVABLE hard gate — no authorization, scope, or developer instruction can override mandatory gate execution. Only pipeline-scoped authorization changes `halt_at`.
+
+**AUTHORITY:** Spec #386 (gate non-waiver principle)
 
 ## Critical Violation: for_pr Gap-Fill Halt — Asking Developer for Structural Decisions That the Scope Model Resolves
 
@@ -2394,36 +2459,36 @@ Every execution dispatch MUST be gated by a pre-analysis sub-agent that independ
     source: "000-critical-rules.md §Preloading Sub-Agent Context"
 ```
 
-## Critical Violation: No Inline Fallback on Sub-Agent Failure During Behavioral Testing
+## Critical Violation: No Inline Fallback on Sub-Agent Failure — Universal Re-Dispatch Mandate
 
-**⚠️ When a behavioral test sub-agent returns an empty result, error, or timeout, the orchestrator MUST re-dispatch a clean-room sub-agent — it MUST NOT perform inline file operations, read test output files directly, or manually compose test results. Inline fallback on sub-agent failure is the exact violation that #106 (orchestrator purity) was designed to prevent.**
+**⚠️ When ANY sub-agent (regardless of pipeline stage — behavioral testing, implementation, verification, git tasks, code review, or any other stage) returns an empty result, error, or timeout, the orchestrator MUST re-dispatch a clean-room sub-agent — it MUST NOT perform inline file operations, read output files directly, or manually compose results. Inline fallback on sub-agent failure is the exact violation that #106 (orchestrator purity) was designed to prevent. This rule applies universally to ALL pipeline stages, not merely behavioral testing.**
 
-When a behavioral test sub-agent fails, reading its test output files inline and composing results manually produces evidence that bypasses ALL clean-room isolation guarantees. The evidence was not produced by an AI model in an isolated context — it was assembled by the orchestrator from grep results. This is the behavioral testing equivalent of the proxy-evidence regression from #91.
+When any sub-agent fails — regardless of its pipeline stage — reading its output files inline and composing results manually produces evidence that bypasses ALL clean-room isolation guarantees. The evidence was not produced by an AI model in an isolated context — it was assembled by the orchestrator from grep or file-read results. This is the universal equivalent of the proxy-evidence regression from #91, applied to any pipeline stage.
 
-- 🚫 FORBIDDEN: Orchestrator reading behavioral test output files and composing pass/fail results inline after sub-agent failure
-- 🚫 FORBIDDEN: Orchestrator performing inline `opencode-cli run` instead of dispatching a clean-room sub-agent
-- 🚫 FORBIDDEN: Orchestrator grepping behavioral test output for pass/fail patterns and reporting those as behavioral test results
-- 🚫 FORBIDDEN: Skipping re-dispatch because "the test output is readable" or "the result is obvious"
-- 🚫 FORBIDDEN: Accepting a `DONE` result contract that lacks tool-call evidence of model execution
-- ✅ REQUIRED: On sub-agent empty/error result: RE-DISPATCH a clean-room sub-agent with the same scoped context
+- 🚫 FORBIDDEN: Orchestrator reading any sub-agent's output files and composing pass/fail results inline after sub-agent failure
+- 🚫 FORBIDDEN: Orchestrator performing any inline execution (`opencode-cli run`, bash commands, file reads) instead of dispatching a clean-room sub-agent
+- 🚫 FORBIDDEN: Orchestrator grepping sub-agent output for pass/fail patterns and reporting those as results
+- 🚫 FORBIDDEN: Skipping re-dispatch because "the output is readable" or "the result is obvious"
+- 🚫 FORBIDDEN: Accepting a `DONE` result contract that lacks tool-call evidence
+- ✅ REQUIRED: On sub-agent empty/error result at ANY pipeline stage: RE-DISPATCH a clean-room sub-agent with the same scoped context
 - ✅ REQUIRED: On double-failure: invoke `--task completion`, HALT with status message + byline
 - ✅ REQUIRED: Re-dispatch context MUST be identical to original — no additional orchestrator reasoning or expected outcomes
 - ✅ REQUIRED: Re-dispatch MUST receive a new clean-room sub-agent session (fresh context, no memory carryover)
 
-**AUTHORITY:** `divide-and-conquer` skill assemble-work Step 6 Sub-Agent Completion Checkpoint, Spec #106 (universal clean-room dispatch), Spec #262
+**AUTHORITY:** `divide-and-conquer` skill assemble-work Step 6 Sub-Agent Completion Checkpoint, Spec #106 (universal clean-room dispatch), Spec #386 (universal re-dispatch mandate)
 
 ```yaml+symbolic
   - id: critical-rules-043
-    title: "No inline fallback on sub-agent failure during behavioral testing"
+    title: "No inline fallback on sub-agent failure — universal re-dispatch mandate"
     conditions:
       all:
-        - "behavioral_test_sub_agent_failed == true"
+        - "sub_agent_failed == true"
         - "orchestrator_performed_inline_fallback == true"
     actions:
       - HALT
       - RE_DISPATCH(clean-room sub-agent)
     conflicts_with: []
-    requires: [critical-rules-034, critical-rules-042]
-    triggers: [divide-and-conquer, verification-before-completion]
-    source: "000-critical-rules.md §No Inline Fallback on Sub-Agent Failure During Behavioral Testing"
+    requires: [critical-rules-034]
+    triggers: [divide-and-conquer, verification-before-completion, git-workflow, approval-gate, issue-operations, executing-plans]
+    source: "000-critical-rules.md §No Inline Fallback on Sub-Agent Failure — Universal Re-Dispatch Mandate"
 ```
