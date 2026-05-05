@@ -49,6 +49,14 @@ Divide and Conquer Orchestrator. Focus: assess context fitness, decompose work, 
 4. **Implementation-first gate:** at least one file modified before completion report.
 5. **PR merge boundary:** check required PR boundaries before sub-agent dispatch.
 6. **Clean-room dispatch:** sub-agents receive spec/plan/file paths only. No orchestrator reasoning, expected outcomes, or other sub-agent prior results (unless declared dependency).
+7. **Tool-recipe prohibition:** sub-agents MUST NOT be dispatched with exact file paths, line numbers, or expected outcomes. Pre-analysis sub-agents independently discover scope.
+8. **Poison Recovery Protocol:** when a sub-agent fails (empty/error/timeout), discard all group work via `git reset --hard <last-clean-commit>`. Re-dispatch clean. No inline fallback.
+9. **RED/GREEN push-prohibition:** sub-agents MUST NOT commit or push. Only the orchestrator commits at gate boundaries after VbC + dual-auditor PASS.
+10. **Coherence gate:** pre-dispatch gate verifying spec/plan coherence. Sub-agents detecting spec/plan defects MUST flag them rather than proceeding with implementation.
+11. **Execution-time coherence detection:** sub-agents that detect spec/plan defects during execution MUST report them as BLOCKED with defect classification.
+12. **Audit-classified remediation:** coherence issues classified into auto-fix, conditional, or flag-for-review tiers. Auto-fix applied directly; conditional requires authorization; flag-for-review reported only.
+13. **Gate Non-Waiver:** "continue"/"proceed" messages do NOT waive mandatory pipeline gates. Every pipeline step MUST still invoke all mandatory verification gates.
+14. **Cost-Blind Verification:** verification MUST use the correct tool/method regardless of cost. Never substitute grep/static-analysis/cheaper methods for actual behavioral test execution.
 
 ## Sub-Agent Dispatch Audit
 

@@ -2412,6 +2412,20 @@ When a behavioral test sub-agent fails, reading its test output files inline and
 
 **AUTHORITY:** `divide-and-conquer` skill assemble-work Step 6 Sub-Agent Completion Checkpoint, Spec #106 (universal clean-room dispatch), Spec #262
 
+## Critical Violation: Progressive Iterative Implementation with Commit-Anchored Inter-Phase Gates
+
+**⚠️ Multi-phase plans MUST NOT deliver all phases in a single monolithic commit. Each inter-phase gate checkpoint produces a git commit verified by VbC + dual-auditor. Poisoned work rolls back to the last known-good commit — no per-group validation means no clean rollback target. Gate checkpoints are mandatory and produce committed evidence of per-group correctness.**
+
+- 🚫 FORBIDDEN: Committing all phases as a single monolithic bundle; proceeding to the next phase group without a verified+committed gate checkpoint; accepting VbC or auditor sub-agent empty results as "equivalent evidence" at a gate boundary
+- ✅ REQUIRED: Each phase group → sub-agent dispatch → VbC PASS → dual-auditor PASS → git commit (gate anchor); on any verification failure, discard group work, roll back to last clean commit, re-dispatch; no phase group proceeds without the prior group's gate anchor committed
+
+## Critical Violation: Plan Review at Each Inter-Phase Checkpoint
+
+**⚠️ At each gate boundary, the orchestrator dispatches a plan-review sub-agent that compares the remaining plan phases against the actual implemented state at the current commit. A prior group's deliverables may invalidate downstream plan assumptions, introduce file conflicts, or reveal missed specification success criteria. The plan-review sub-agent returns PASS (plan faithful, proceed) or ADJUSTMENT_NEEDED with specific proposed changes to remaining phases. Plan revision at checkpoint is implementation-driven adjustment under active authorization — it is NOT a "revision revokes approval" event.**
+
+- 🚫 FORBIDDEN: Blindly executing remaining phases after a group checkpoint without plan review; treating plan review as optional; treating plan adjustments at checkpoints as requiring re-authorization
+- ✅ REQUIRED: Dispatch plan-review sub-agent at each inter-phase gate boundary after the gate anchor is committed; apply proposed adjustments to remaining plan phases when ADJUSTMENT_NEEDED is returned; proceed with adjusted phases without re-authorization; plan-review sub-agent receives spec, plan, and diff of current commit against dev — no orchestrator preload
+
 ```yaml+symbolic
   - id: critical-rules-043
     title: "No inline fallback on sub-agent failure during behavioral testing"
@@ -2426,4 +2440,33 @@ When a behavioral test sub-agent fails, reading its test output files inline and
     requires: [critical-rules-034, critical-rules-042]
     triggers: [divide-and-conquer, verification-before-completion]
     source: "000-critical-rules.md §No Inline Fallback on Sub-Agent Failure During Behavioral Testing"
+
+  - id: critical-rules-046
+    title: "Progressive iterative implementation with commit-anchored inter-phase gates"
+    conditions:
+      all:
+        - "plan_has_multiple_phases == true"
+        - "phases_delivered_monolithically == true"
+    actions:
+      - HALT
+      - RESTRUCTURE(per-group gates with commit anchors)
+    conflicts_with: []
+    requires: [critical-rules-017]
+    triggers: [divide-and-conquer, executing-plans]
+    source: "000-critical-rules.md §Progressive Iterative Implementation"
+
+  - id: critical-rules-047
+    title: "Plan review required at each inter-phase checkpoint"
+    conditions:
+      all:
+        - "plan_has_multiple_phases == true"
+        - "inter_phase_checkpoint_reached == true"
+        - "plan_review_dispatched == false"
+    actions:
+      - HALT
+      - DISPATCH(plan-review sub-agent)
+    conflicts_with: []
+    requires: []
+    triggers: [divide-and-conquer, executing-plans]
+    source: "000-critical-rules.md §Plan Review at Each Inter-Phase Checkpoint"
 ```
