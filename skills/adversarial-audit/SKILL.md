@@ -31,13 +31,14 @@ Adversarial Audit Orchestrator. Does NOT evaluate evidence directly — dispatch
 
 ## Operating Protocol
 
-1. **Always dispatch two cross-family auditors** — single-auditor evaluation is a critical violation (no single-model bias allowed).
-2. **Never select auditors from the same model family** — cross-family requirement ensures architectural diversity.
-3. **Never select the orchestrator's own model as an auditor** — self-auditing defeats adversarial independence.
-4. **Consensus gate is PASS iff both return PASS** — any disagreement, FAIL, or unparseable verdict = FAIL.
-5. **Auditors receive evidence + criteria only** — no orchestrator reasoning, no expected outcomes, no prior results.
-6. **All verdicts must be structured JSON** — `[{id, result, explanation}]` format. Unparseable output = FAIL.
-7. **Independent verification mandate** — auditors must fetch live docs/sources, never trust orchestrator claims.
+1. **Auditors are read-only leaf evaluators. They MUST NOT dispatch sub-agents.** Clean-room isolation is provided by the orchestrator, not by auditor nesting. The `task: deny` permission block enforces this at the runtime level. The LEAF evaluator prompt text enforces this at the instructional level. Both layers must be present.
+2. **Always dispatch two cross-family auditors** — single-auditor evaluation is a critical violation (no single-model bias allowed).
+3. **Never select auditors from the same model family** — cross-family requirement ensures architectural diversity.
+4. **Never select the orchestrator's own model as an auditor** — self-auditing defeats adversarial independence.
+5. **Consensus gate is PASS iff both return PASS** — any disagreement, FAIL, or unparseable verdict = FAIL.
+6. **Auditors receive evidence + criteria only** — no orchestrator reasoning, no expected outcomes, no prior results.
+7. **All verdicts must be structured JSON** — `[{id, result, explanation}]` format. Unparseable output = FAIL.
+8. **Independent verification mandate** — auditors must fetch live docs/sources, never trust orchestrator claims.
 
 ## Sub-Agent Dispatch Audit
 
