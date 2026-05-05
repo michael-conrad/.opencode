@@ -49,6 +49,16 @@ Divide and Conquer Orchestrator. Focus: assess context fitness, decompose work, 
 4. **Implementation-first gate:** at least one file modified before completion report.
 5. **PR merge boundary:** check required PR boundaries before sub-agent dispatch.
 6. **Clean-room dispatch:** sub-agents receive spec/plan/file paths only. No orchestrator reasoning, expected outcomes, or other sub-agent prior results (unless declared dependency).
+7. **Universal re-dispatch:** sub-agent empty/error/failure results (any pipeline stage) handled by clean-room re-dispatch, never inline fallback. On double-failure: invoke `--task completion`, HALT with status message + byline. This applies universally, not just to behavioral testing.
+8. **Poisoned pipeline gate:** orchestrator inline work irreversibly poisons the pipeline. Entire pipeline MUST restart from coherence gate. All sub-agent state discarded. No partial resume permitted.
+9. **Discard on sub-agent failure:** when a sub-agent returns FAIL/BLOCKED/ERROR, its work is contaminated by definition — discard all output before re-dispatch. Never cherry-pick partial results from a failed sub-agent.
+10. **No tool-recipe dispatch:** sub-agents receive task objectives (e.g., "implement Phase 2 of #N"), never exact MCP tool names with parameter lists (e.g., "call srclight_get_symbol then edit line 42"). Tool-recipe dispatch violates clean-room isolation at the dispatch-content level — see `000-critical-rules.md` §Preloading Sub-Agent Context.
+11. **Sub-agent coercion boundaries:** sub-agents MUST NOT be instructed to mutate remote state (commit, push, create PR). Test sub-agents (RED/GREEN) verify correctness, never commit or push.
+12. **Sub-agent blocking authority:** sub-agents detecting spec/plan defects MUST BLOCK, never proceed. Sub-agents have authority to halt the pipeline on coherence failures. Sub-agent detecting a defect but proceeding with GREEN anyway is a critical violation.
+13. **Execution-time coherence detection:** RED and GREEN sub-agents verify spec/plan coherence at execution time. If coherence failure detected → BLOCK → audit triage, not GREEN continuation.
+14. **Audit-classified remediation:** on BLOCKED, classify defect locus via audit triage: spec defect → spec-fix → plan-fix → RED-fix; plan defect → plan-fix → RED-fix; RED test defect → RED-fix only; GREEN failure → re-dispatch GREEN. Max 3 remediation attempts before escalating to developer.
+15. **Gate Non-Waiver Principle:** "continue" messages and session momentum do NOT waive mandatory pipeline gates (coherence gate, verification-before-completion, finishing-a-development-branch checklist). Only pipeline-scoped authorization (`approved #N to PR`) changes `halt_at`.
+16. **Cost-blind verification:** agent MUST NOT cite command count, execution time, model speed, or any resource metric as justification for skipping or shortcutting verification. Behavioral enforcement tests run via `opencode-cli run` against real models — grep, static analysis, or pattern matching are NOT substitutes. The cost of verification is ZERO in the decision calculus — see `000-critical-rules.md` §Correctness over economy.
 
 ## Sub-Agent Dispatch Audit
 
