@@ -1,6 +1,6 @@
 ---
 name: approval-gate
-description: Use when user says "approved", "go", or any implementation instruction, or when authorization needs verification. Triggers on: approval, authorized, implement, start work, go ahead, no approved-for-* label, authorization set, multiple issues approved, interdependency analysis.
+description: "Use when user says approved or go, or when authorization needs verification. Triggers on: approval, authorized, implement, start work, go ahead, no approved-for-* label, authorization set, multiple issues approved, interdependency analysis."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

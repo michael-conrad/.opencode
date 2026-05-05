@@ -1,6 +1,6 @@
 ---
 name: using-git-worktrees
-description: Use when creating a feature branch or worktree for implementation. Always invoke before git-workflow pre-work. Triggers on: branch, worktree, feature branch, create worktree, pre-work, worktree.path.
+description: "Use when creating a feature branch or worktree for implementation. Always invoke before git-workflow pre-work. Triggers on: branch, worktree, feature branch, create worktree, pre-work, worktree.path."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
