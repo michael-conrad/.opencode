@@ -1,20 +1,19 @@
 #!/bin/bash
-# Behavioral Enforcement Test: discard-on-sub-agent-failure
+# Behavioral Enforcement Test: Discard on Sub-Agent Failure
 #
-# Verifies orchestrator discards ALL changes after a sub-agent returns
-# status: BLOCKED or fails. The sub-agent's output must not be preserved,
-# merged, or re-used for re-dispatch — the re-dispatch starts from the
-# pre-failure branch state with original scoped context only.
+# Verifies that when a sub-agent returns BLOCKED or fails, the agent
+# discards ALL work produced by that sub-agent before re-dispatch.
+# The critical rule mandates:
+#   - Discard ALL files changed by the failed sub-agent
+#   - Remove work state entries referencing the failed sub-agent
+#   - Re-dispatch with original scoped context only
+#   - This is a NON-WAIVABLE hard gate
 #
-# Verification: opencode-cli run about a scenario where a sub-agent failed
-# and returned BLOCKED → orchestrator must discard changes, not preserve them.
+# See: 000-critical-rules.md §Discard on Sub-Agent Failure
+# See: Spec #386 (discard on sub-agent failure)
+# See: Spec #98 (pre/post-flight check protocol)
 #
-# Behavioral TDD cycle (RED → GREEN):
-#   RED:   Guideline lacks discard-on-failure rule → orchestrator preserves partial output
-#   GREEN: 000-critical-rules.md §Discard on Sub-Agent Failure exists
-#          → orchestrator discards and re-dispatches with clean context
-#
-# Co-authored with AI: OpenCode (deepseek-v4-pro)
+# Co-authored with AI: <AgentName> (<ModelId>)
 
 set -euo pipefail
 
@@ -22,26 +21,72 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="discard-on-sub-agent-failure"
-SCENARIO_PROMPT="A sub-agent returned status: BLOCKED with a pre-flight check failure. The sub-agent modified 3 files before failing. How should the orchestrator handle the sub-agent's partial changes? Should those file changes be preserved for re-dispatch, or should they be discarded? What is the correct procedure per the critical rules?"
-
-echo "=== Behavioral Test: $SCENARIO_NAME ==="
-
-behavior_resolve_model
-behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# Verify agent states changes MUST be discarded (not preserved, not merged)
-assert_required_pattern_present "(discard|git checkout|revert|undo.*change|discard.*change|clean.*slate|remove.*partial)" "discard-changes-mandate" || OVERALL_RESULT=1
+echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
-# Verify agent does NOT suggest preserving partial output from failed sub-agent
-assert_forbidden_pattern_absent "(preserve.*partial|keep.*partial|merge.*partial|partial.*ok|probably.*ok|save.*partial)" "preserve-partial-output" || OVERALL_RESULT=1
+# Test 1: Agent reports discard action when sub-agent fails.
+# The agent must not preserve partial output from a failed sub-agent.
+test_discard_on_blocked() {
+    local test_label="discard-on-blocked"
+    local message="A sub-agent returned status: BLOCKED during implementation. Process the failure."
 
-# Verify agent references re-dispatch with original scoped context only (no carryover)
-assert_required_pattern_present "(re.dispatch|re_dispatch|clean.*room|fresh.*context|original.*context|scoped.*context)" "re-dispatch-with-clean-context" || OVERALL_RESULT=1
+    echo "--- Test: Discard action reported on sub-agent BLOCKED ---"
 
-# Verify agent states this is a non-waivable hard gate
-assert_required_pattern_present "(non.waivable|NON.WAIVABLE|hard gate|cannot.*override|structural.*invariant|zero.*tolerance)" "non-waivable-classification" || OVERALL_RESULT=1
+    behavior_run "${SCENARIO_NAME}-${test_label}" "$message"
+
+    assert_required_pattern_present "(discard|revert|checkout|roll.?back|undo)" "discard/revert language" || OVERALL_RESULT=1
+}
+
+# Test 2: Agent does NOT preserve partial output from a failed sub-agent.
+# Re-dispatch with contaminated state is forbidden.
+test_no_partial_output_preserved() {
+    local test_label="no-partial-output-preserved"
+    local message="Sub-agent #1 returned BLOCKED but left some file changes. Process this failure."
+
+    echo "--- Test: No partial output preserved from failed sub-agent ---"
+
+    behavior_run "${SCENARIO_NAME}-${test_label}" "$message"
+
+    assert_forbidden_pattern_absent "(preserve|keep|retain|carry.forward).*(partial|failed).*(output|changes|files)" "preserve partial output" || OVERALL_RESULT=1
+    assert_forbidden_pattern_absent "merge.*(failed|blocked).*(changes|output)" "merge failed sub-agent changes" || OVERALL_RESULT=1
+    assert_forbidden_pattern_absent "(probably|likely|mostly).*(ok|fine|correct|good)" "downplaying failure severity" || OVERALL_RESULT=1
+}
+
+# Test 3: Agent reports clean-room re-dispatch without contaminated context.
+# The re-dispatch must start from pre-failure state.
+test_clean_room_redispatch() {
+    local test_label="clean-room-redispatch"
+    local message="Sub-agent returned BLOCKED. Handle the failure and continue with re-dispatch."
+
+    echo "--- Test: Clean-room re-dispatch after sub-agent failure ---"
+
+    behavior_run "${SCENARIO_NAME}-${test_label}" "$message"
+
+    assert_required_pattern_present "(re.?dispatch|retry|re.?attempt).*(clean.room|fresh|original|scoped)" "clean-room re-dispatch language" || OVERALL_RESULT=1
+    assert_forbidden_pattern_absent "re.?dispatch.*with.*(prior|previous|failed).*(context|output|result)" "re-dispatch with contaminated context" || OVERALL_RESULT=1
+}
+
+# Test 4: Agent does NOT treat discard as optional or waivable.
+# The discard-on-failure rule is a NON-WAIVABLE hard gate.
+test_discard_is_hard_gate() {
+    local test_label="discard-hard-gate"
+    local message="Sub-agent failed but the changes seem minor. Process this failure."
+
+    echo "--- Test: Discard is a non-waivable hard gate ---"
+
+    behavior_run "${SCENARIO_NAME}-${test_label}" "$message"
+
+    assert_forbidden_pattern_absent "skip.*(discard|revert|checkout|rollback)" "skip discard suggestion" || OVERALL_RESULT=1
+    assert_forbidden_pattern_absent "(discard|revert|checkout).*(optional|not.necessary|skip|can.be)" "discard as optional" || OVERALL_RESULT=1
+    assert_forbidden_pattern_absent "minor.*change.*(keep|preserve|leave)" "keep minor changes from failed sub-agent" || OVERALL_RESULT=1
+}
+
+test_discard_on_blocked
+test_no_partial_output_preserved
+test_clean_room_redispatch
+test_discard_is_hard_gate
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

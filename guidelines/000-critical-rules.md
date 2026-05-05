@@ -1468,8 +1468,8 @@ Every sub-agent MUST validate its starting state before beginning work. Pre-flig
 | Target files exist (for modification tasks) | Sub-agent won't create phantom files | `glob` or `read` confirms target files are present |
 | No uncommitted changes from prior sub-agent | Sub-agent starts from clean state | `git status --short` returns empty or expected-only changes |
 | Session context variables are set | `github.owner`, `github.repo`, `github.platform` are present | Values confirmed in dispatch context |
-| Dispatch context is free of contaminating markup | Dispatch context must not contain orchestrator reasoning, expected outcomes, MCP tool recipes with parameter lists, pre-determined file paths, or line numbers | `grep` on dispatch context confirms no contaminating markup patterns (MCP tool names with explicit parameters, line numbers, expected outputs) |
-| Spec/plan content is internally coherent | No contradictions between spec success criteria and plan phases; plan faithfully maps to spec scope | Plan phases all trace to spec SCs; no plan phase addresses unlisted SCs |
+| Dispatch context is free of contaminating markup (A4) | Sub-agent received task description, not pre-composed tool recipes or pre-determined file paths | Scan dispatch context for pre-formatted markdown tables (>3 rows), file paths with line numbers, expected outcome statements ("should produce X"), step-by-step tool-call instructions. If found → `BLOCKED`. |
+| Spec/plan coherence (A6) | Sub-agent's assigned spec/plan is internally consistent and faithful | Compare spec SCs against plan phases — spec SCs that have no corresponding plan phase item → `BLOCKED`. Plan phases that add work items not in the spec → `BLOCKED`. |
 
 - 🚫 FORBIDDEN: Dispatching sub-agents without pre-flight check requirements in dispatch context
 - 🚫 FORBIDDEN: Proceeding with work when any pre-flight check fails
@@ -1571,6 +1571,9 @@ The orchestrator is a pure router. It dispatches sub-agents and collects result 
 | RED/GREEN sub-agent also instructed to commit and push | RED/GREEN sub-agents only execute tests — never commit, never push |
 | Sub-agent detects spec/plan defect but proceeds with GREEN anyway | Sub-agent returns BLOCKED — defect must be resolved before continuing |
 | User said "continue" so mandatory checks are optional | Mandatory gates are structural invariants — "continue" is NOT authorization to skip |
+| Orchestrator pushes RED-test evidence inline without clean-room sub-agent dispatch | RED test sub-agent MUST produce its own tool-call evidence in an isolated session; orchestrator never composes test results |
+| Sub-agent skips defect detection in GREEN phase (code-complete without verification) | GREEN sub-agent MUST produce verification evidence before returning; no "code-written-but-not-verified" result contracts |
+| Orchestrator treats "continue" as waiver of a failed gate checkpoint | Failed gate is absolute stop — no dispatch proceeds past incomplete/failed gate; contamination requires full restart |
 
 ### DISPATCH_GATE Checkpoint
 
@@ -2459,31 +2462,36 @@ Every execution dispatch MUST be gated by a pre-analysis sub-agent that independ
     source: "000-critical-rules.md §Preloading Sub-Agent Context"
 ```
 
-## Critical Violation: No Inline Fallback on Sub-Agent Failure — Universal Re-Dispatch Mandate
+## Critical Violation: Universal Re-Dispatch Mandate — No Inline Fallback on Sub-Agent Failure (All Pipeline Stages)
 
-**⚠️ When ANY sub-agent (regardless of pipeline stage — behavioral testing, implementation, verification, git tasks, code review, or any other stage) returns an empty result, error, or timeout, the orchestrator MUST re-dispatch a clean-room sub-agent — it MUST NOT perform inline file operations, read output files directly, or manually compose results. Inline fallback on sub-agent failure is the exact violation that #106 (orchestrator purity) was designed to prevent. This rule applies universally to ALL pipeline stages, not merely behavioral testing.**
+**⚠️ When ANY sub-agent at ANY pipeline stage returns an empty result, error, or timeout, the orchestrator MUST re-dispatch a clean-room sub-agent — it MUST NOT perform inline file operations, read output files directly, manually compose results, or execute the failed task inline. Inline fallback on sub-agent failure is the exact violation that #106 (orchestrator purity) was designed to prevent. This mandate applies universally — all pipeline stages: analysis, planning, implementation, verification, auditing, behavioral testing, git operations, correspondence, and issue operations.**
 
-When any sub-agent fails — regardless of its pipeline stage — reading its output files inline and composing results manually produces evidence that bypasses ALL clean-room isolation guarantees. The evidence was not produced by an AI model in an isolated context — it was assembled by the orchestrator from grep or file-read results. This is the universal equivalent of the proxy-evidence regression from #91, applied to any pipeline stage.
+When a sub-agent fails at any stage, the orchestrator reading output files inline and composing results manually produces evidence that bypasses ALL clean-room isolation guarantees. The evidence was not produced by an AI model in an isolated context — it was assembled by the orchestrator from grep results. This is the universal equivalent of the proxy-evidence regression from #91, applied to every pipeline stage.
 
-- 🚫 FORBIDDEN: Orchestrator reading any sub-agent's output files and composing pass/fail results inline after sub-agent failure
-- 🚫 FORBIDDEN: Orchestrator performing any inline execution (`opencode-cli run`, bash commands, file reads) instead of dispatching a clean-room sub-agent
-- 🚫 FORBIDDEN: Orchestrator grepping sub-agent output for pass/fail patterns and reporting those as results
-- 🚫 FORBIDDEN: Skipping re-dispatch because "the output is readable" or "the result is obvious"
-- 🚫 FORBIDDEN: Accepting a `DONE` result contract that lacks tool-call evidence
-- ✅ REQUIRED: On sub-agent empty/error result at ANY pipeline stage: RE-DISPATCH a clean-room sub-agent with the same scoped context
-- ✅ REQUIRED: On double-failure: invoke `--task completion`, HALT with status message + byline
-- ✅ REQUIRED: Re-dispatch context MUST be identical to original — no additional orchestrator reasoning or expected outcomes
-- ✅ REQUIRED: Re-dispatch MUST receive a new clean-room sub-agent session (fresh context, no memory carryover)
+**🚫 FORBIDDEN (all pipeline stages):**
+- Orchestrator reading any sub-agent output files and composing results inline after failure
+- Orchestrator performing inline execution of the failed task instead of dispatching a clean-room sub-agent
+- Orchestrator grepping sub-agent output for pass/fail patterns and reporting those as results
+- Orchestrator executing CLI commands (`opencode-cli run`, `pytest`, `ruff`, etc.) inline after sub-agent failure
+- Skipping re-dispatch because "the output is readable" or "the result is obvious"
+- Accepting a `DONE` result contract that lacks tool-call evidence
 
-**AUTHORITY:** `divide-and-conquer` skill assemble-work Step 6 Sub-Agent Completion Checkpoint, Spec #106 (universal clean-room dispatch), Spec #386 (universal re-dispatch mandate)
+**✅ REQUIRED (all pipeline stages):**
+- On sub-agent empty/error result: RE-DISPATCH a clean-room sub-agent with the same scoped context
+- On double-failure: invoke `--task completion`, HALT with status message + byline
+- Re-dispatch context MUST be identical to original — no additional orchestrator reasoning or expected outcomes
+- Re-dispatch MUST receive a new clean-room sub-agent session (fresh context, no memory carryover)
+- Applies to ALL sub-agent types: analysis, implementation, verification, behavioral testing, git operations, auditing, correspondence, issue operations
+
+**AUTHORITY:** `divide-and-conquer` skill assemble-work Step 6 Sub-Agent Completion Checkpoint, Spec #106 (universal clean-room dispatch), Spec #98 (pre/post-flight checks), Spec #262, Spec #386 (universal re-dispatch)
 
 ```yaml+symbolic
   - id: critical-rules-043
-    title: "No inline fallback on sub-agent failure — universal re-dispatch mandate"
+    title: "Universal re-dispatch mandate — no inline fallback on sub-agent failure at any pipeline stage"
     conditions:
-      all:
-        - "sub_agent_failed == true"
-        - "orchestrator_performed_inline_fallback == true"
+      any:
+        - "sub_agent_failed == true AND pipeline_stage IN ['analysis','planning','implementation','verification','auditing','behavioral_testing','git_operations','correspondence','issue_operations']"
+        - "sub_agent_result_empty == true AND pipeline_stage IN ['analysis','planning','implementation','verification','auditing','behavioral_testing','git_operations','correspondence','issue_operations']"
     actions:
       - HALT
       - RE_DISPATCH(clean-room sub-agent)

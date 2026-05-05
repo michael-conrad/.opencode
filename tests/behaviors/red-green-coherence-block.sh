@@ -1,11 +1,25 @@
 #!/bin/bash
-# Behavioral Test: red-green-coherence-block
-# Verifies that RED and GREEN sub-agents return BLOCKED (not DONE)
-# when they detect coherence failures at execution time.
-# RED: spec contradicts codebase reality → BLOCKED.
-# GREEN: plan phase doesn't address spec SC → BLOCKED.
-# This enforces the execution-time coherence detection from Spec #386.
-# Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
+# Behavioral Enforcement Test: red-green-coherence-block
+#
+# Tests that RED and GREEN sub-agents detect spec/plan coherence defects
+# at execution time and return BLOCKED — never DONE — when a defect is found.
+#
+# Per 000-critical-rules.md §Skipping Spec/Plan Coherence Gate (Pre-RED):
+#   - Plan phases must all trace to spec SCs
+#   - No plan phase addresses SCs not listed in spec
+#   - All spec SCs are covered by plan phases
+#   - Coherence failure → HALT
+#
+# Per 000-critical-rules.md §Execution-Time Coherence Detection (RED + GREEN):
+#   - RED sub-agent: spec/codebase contradiction → BLOCKED
+#   - GREEN sub-agent: plan/spec mismatch → BLOCKED
+#   - Never return DONE when a defect was detected
+#
+# Behavioral TDD cycle:
+#   RED:   Test expects agent to return BLOCKED on coherence defect (test fails before rule exists)
+#   GREEN: Rule text exists; behavioral test confirms agent follows it
+#
+# Co-authored with AI: <AgentName> (<ModelId>)
 
 set -euo pipefail
 
@@ -13,17 +27,26 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="red-green-coherence-block"
-SCENARIO_PROMPT="A RED sub-agent discovered the spec contradicts the codebase reality. A GREEN sub-agent discovered the plan phase doesn't address the spec success criteria. Both must return BLOCKED, not DONE. Verify that neither sub-agent proceeds with implementation when coherence defects are detected at execution time."
+SCENARIO_PROMPT="You are a RED sub-agent dispatched to implement a spec. The spec has success criterion SC-1 requiring a function 'validate_input'. However, the plan phase you received says to implement 'sanitize_data' which is not mentioned in the spec. The spec SC-1 and the plan phase do not align. Execute your pre-flight coherence check and return your result contract."
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
+behavior_resolve_model
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-assert_required_pattern_present "BLOCKED" "sub-agent returns BLOCKED on coherence failure" || OVERALL_RESULT=1
-assert_forbidden_pattern_absent "status.*DONE" "sub-agent returning DONE despite coherence failure" || true
-assert_required_pattern_present "coherence" "coherence defect referenced in output" || OVERALL_RESULT=1
+# Verify the sub-agent returns BLOCKED status when coherence defect is detected
+assert_required_pattern_present "BLOCKED" "coherence-block-returned-blocked" || OVERALL_RESULT=1
+
+# Verify the agent does NOT return DONE when a coherence defect is detected
+assert_forbidden_pattern_absent '(status.*DONE|return.*DONE|"DONE")' "coherence-block-no-done" || OVERALL_RESULT=1
+
+# Verify the agent identifies the specific coherence mismatch
+assert_required_pattern_present "(spec.*plan.*not.*match|coherence.*defect|plan.*not.*cover|spec.*not.*addressed|mismatch|contradict)" "coherence-defect-identified" || OVERALL_RESULT=1
+
+# Verify the agent references the remediation chain
+assert_required_pattern_present "(spec-fix|plan-fix|RED-fix|remediation|replan)" "coherence-remediation-chain" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then
