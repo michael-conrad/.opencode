@@ -1,15 +1,26 @@
 #!/bin/bash
 # Pre-push hook: Branch topology + commit count enforcement
-# Gate 1: Prevent pushing branches already merged into main/dev
+# Gate 1: Prevent pushing branches already merged into main/master/dev
 # Gate 2: Block single-issue branches with >1 commit (commit-per-issue invariant)
 
 set -e
 
 CURRENT_BRANCH=$(git branch --show-current)
 
-# Skip check for main and dev branches (they should always be pushable)
-if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "dev" ]; then
-    exit 0
+# --- Gate 0: Block direct pushes to main/dev ---
+SKIP_BRANCH_PROTECTION="${SKIP_BRANCH_PROTECTION:-}"
+if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "master" ] || [ "$CURRENT_BRANCH" = "dev" ]; then
+    if [ "$SKIP_BRANCH_PROTECTION" != "1" ]; then
+        echo ""
+        echo "BLOCKED: Direct pushes to '$CURRENT_BRANCH' are prohibited."
+        echo ""
+        echo "Protected branches must only receive changes through pull requests."
+        echo ""
+        echo "To override (deliberate ops action only):"
+        echo "  SKIP_BRANCH_PROTECTION=1 git push origin $CURRENT_BRANCH"
+        echo ""
+        exit 1
+    fi
 fi
 
 # --- Gate 1: Merged branch topology check ---
@@ -48,7 +59,7 @@ if [ "$SKIP_COMMIT_COUNT_CHECK" = "1" ]; then
 fi
 
 case "$CURRENT_BRANCH" in
-    pair-*|rollback/*|main|dev)
+    pair-*|rollback/*)
         exit 0
         ;;
 esac
