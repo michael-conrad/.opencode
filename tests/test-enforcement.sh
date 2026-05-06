@@ -217,7 +217,7 @@ SCENARIOS["guideline-index-exists"]="Verify .opencode/guidelines/INDEX.md exists
 SCENARIOS["guideline-index-word-count"]="Verify .opencode/guidelines/INDEX.md is at most 1500 words"
 SCENARIOS["skill-word-count"]="Verify all SKILL.md files in .opencode/skills/ are at most 600 words each"
 SCENARIOS["skildeck-lint-progressive-disclosure"]="Verify skildeck lint includes progressive-disclosure rules for frontmatter and word counts"
-SCENARIOS["session-enforcement-guideline-index"]="Verify session-enforcement.ts injects guideline index via buildGuidelineIndexBlock"
+SCENARIOS["session-enforcement-guideline-index"]="Verify session-enforcement.ts injects guideline INDEX.md reference via progressive-disclosure blocks (moved from removed buildGuidelineIndexBlock stub)"
 SCENARIOS["progressive-disclosure-060-updated"]="Verify 060-tool-usage.md section 0 references progressive disclosure and INDEX.md"
 SCENARIOS["discard-on-sub-agent-failure"]="Does .opencode/guidelines/000-critical-rules.md contain a 'Discard on Sub-Agent Failure' section requiring ALL failed sub-agent work be discarded before re-dispatch with zero state retained?"
 SCENARIOS["orchestrator-poisoned-pipeline"]="Does .opencode/guidelines/000-critical-rules.md contain an 'Orchestrator Inline Work = Poisoned Pipeline' section requiring full pipeline restart from verify-authorization with ALL state discarded when orchestrator performs inline work?"
