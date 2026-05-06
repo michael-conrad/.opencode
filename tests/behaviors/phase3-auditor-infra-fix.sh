@@ -78,6 +78,32 @@ else
     fi
 fi
 
+# --- Assertion (d): adversarial-audit SKILL.md declares audit_phase (SC-5, spec #397) ---
+SKILL_MD="$OPENDIR/skills/adversarial-audit/SKILL.md"
+if [ -f "$SKILL_MD" ]; then
+    if grep -q "audit_phase" "$SKILL_MD"; then
+        echo "PASS: (d) adversarial-audit SKILL.md declares audit_phase identity (SC-5)"
+    else
+        echo "FAIL: (d) adversarial-audit SKILL.md missing audit_phase identity (SC-5)"
+        OVERALL_RESULT=1
+    fi
+else
+    echo "SKIP: (d) adversarial-audit SKILL.md not found"
+fi
+
+# --- Assertion (e): SKILL.md Sub-Agent Dispatch Audit includes audit_phase (SC-6, spec #397) ---
+if [ -f "$SKILL_MD" ]; then
+    SUB_AGENT_SECTION=$(grep -A5 "Sub-Agent Dispatch Audit" "$SKILL_MD" 2>/dev/null || true)
+    if echo "$SUB_AGENT_SECTION" | grep -q "audit_phase"; then
+        echo "PASS: (e) adversarial-audit SKILL.md dispatch context includes audit_phase (SC-6)"
+    else
+        echo "FAIL: (e) adversarial-audit SKILL.md dispatch context missing audit_phase (SC-6)"
+        OVERALL_RESULT=1
+    fi
+else
+    echo "SKIP: (e) adversarial-audit SKILL.md not found for dispatch audit check"
+fi
+
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then
     echo "PASS: $SCENARIO_NAME"

@@ -33,6 +33,7 @@ Adversarial Audit Orchestrator. Does NOT evaluate evidence directly — dispatch
 
 1. **Auditors are read-only leaf evaluators. They MUST NOT dispatch sub-agents.** Clean-room isolation is provided by the orchestrator, not by auditor nesting. The `task: deny` permission block enforces this at the runtime level. The LEAF evaluator prompt text enforces this at the instructional level. Both layers must be present.
 2. **Always dispatch two cross-family auditors** — single-auditor evaluation is a critical violation (no single-model bias allowed).
+3. **Audit Phase:** `adversarial_verification` — This skill operates in the `adversarial_verification` audit phase. When dispatched, receive `audit_phase: adversarial_verification` in dispatch context.
 3. **Never select auditors from the same model family** — cross-family requirement ensures architectural diversity.
 4. **Never select the orchestrator's own model as an auditor** — self-auditing defeats adversarial independence.
 5. **Consensus gate is PASS iff both return PASS** — any disagreement, FAIL, or unparseable verdict = FAIL.
@@ -44,10 +45,10 @@ Adversarial Audit Orchestrator. Does NOT evaluate evidence directly — dispatch
 
 | Dispatch | Context | Exclusions |
 |----------|---------|------------|
-| `cross-validate` sub-agent | `{ evidence_payload, evaluation_criteria, github.owner, github.repo }` | Implementation context, agent memory, prior verification results |
-| `resolve-models` sub-agent | `{ orchestrator_model, github.owner, github.repo }` | Implementation context, agent memory |
-| `cross-validate` auditor dispatches | `{ evidence_payload, evaluation_criteria }` — no orchestrator reasoning, no expected outcomes | Implementation context, agent memory, other auditor's results |
-| `completion` sub-agent | `{ workflow_state, github.owner, github.repo }` | Implementation context, agent memory |
+| `cross-validate` sub-agent | `{ evidence_payload, evaluation_criteria, audit_phase, github.owner, github.repo }` | Implementation context, agent memory, prior verification results |
+| `resolve-models` sub-agent | `{ orchestrator_model, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `cross-validate` auditor dispatches | `{ evidence_payload, evaluation_criteria, audit_phase }` — no orchestrator reasoning, no expected outcomes | Implementation context, agent memory, other auditor's results |
+| `completion` sub-agent | `{ workflow_state, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
 
 All task execution uses `task(subagent_type="general")` for skill-internal dispatch and `task(subagent_type="auditor-*")` for cross-family auditor dispatch. No inline work. `pre-analysis` receives only `{ issue_number, task_description }`.
 

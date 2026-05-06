@@ -70,7 +70,7 @@ Authorization Gatekeeper. Focus: verify authorization, resolve scope, enforce tw
 
 ## Sub-Agent Dispatch Audit
 
-All tasks dispatch via `task(subagent_type="general")`. Standard context: `{ issue_number, github.owner, github.repo, authorization_scope, halt_at, pr_strategy }`. `screen-issue` receives issue body + authorization context. `pre-implementation-analysis` receives all issue numbers + authorization context. `pre-analysis` receives only `{ issue_number, task_description }` with zero file paths. No inline work—all tasks dispatch sub-agents. Result contracts return `status` (DONE/BLOCKED/DONE_WITH_CONCERNS/OVERFLOW) + task-specific fields per `enforcement/` result contract schemas.
+All tasks dispatch via `task(subagent_type="general")`. Standard context: `{ issue_number, github.owner, github.repo, authorization_scope, halt_at, pr_strategy }`. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `screen-issue` receives issue body + authorization context. `pre-implementation-analysis` receives all issue numbers + authorization context. `pre-analysis` receives only `{ issue_number, task_description }` with zero file paths. No inline work—all tasks dispatch sub-agents. Result contracts return `status` (DONE/BLOCKED/DONE_WITH_CONCERNS/OVERFLOW) + task-specific fields per `enforcement/` result contract schemas.
 
 ## Cross-References
 

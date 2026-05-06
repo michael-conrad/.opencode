@@ -33,6 +33,7 @@ Generates clean-room plan from spec's problem statement, compares against existi
 3. **Prose-driven clean-room:** uses prose exploration, not template structure.
 4. **Significant gaps** → recommend brainstorming for deeper exploration.
 5. **Invoked via spec-auditor orchestrator** as `fidelity` subtask, not called directly.
+6. **Audit Phase:** `plan_fidelity` — This skill operates in the `plan_fidelity` audit phase. When dispatched, receive `audit_phase: plan_fidelity` in dispatch context.
 
 ## Sub-Agent Dispatch Audit
 

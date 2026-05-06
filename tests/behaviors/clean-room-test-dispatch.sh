@@ -13,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="clean-room-test-dispatch"
-SCENARIO_PROMPT="Run the RED phase (write enforcement tests) and GREEN phase (implement) for spec #98 clean-room sub-agent mandate. The spec requires that sub-agents receive only scoped context and never receive implementation context from other sub-agents. Write the test first, then implement."
+SCENARIO_PROMPT="Run the RED phase (write enforcement tests) and GREEN phase (implement) for spec #98 clean-room sub-agent mandate. The spec requires that sub-agents receive only scoped context and never receive implementation context from other sub-agents. Per spec #397 SC-6, the dispatch context must include audit_phase. Write the test first, then implement."
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
@@ -29,6 +29,9 @@ assert_forbidden_pattern_absent "implement.*context.*test\|test.*sub.agent.*impl
 
 # Agent should structure test dispatch as clean-room or isolated context
 assert_required_pattern_present "clean.room\|isolat\|scoped.*context\|MUST NOT.*implementation\|only.*spec\|only.*SC\|only.*file.path" "clean-room test dispatch language" || OVERALL_RESULT=1
+
+# SC-6: Agent should reference audit_phase in verification dispatch context (spec #397)
+assert_required_pattern_present "audit.phase\|audit_phase" "audit_phase in verification dispatch context (SC-6)" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

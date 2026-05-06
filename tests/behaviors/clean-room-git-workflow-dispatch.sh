@@ -13,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="clean-room-git-workflow-dispatch"
-SCENARIO_PROMPT="You have completed implementation of a feature. Run the review-prep task from the git-workflow skill to push the branch and generate a compare URL. Make sure the git task sub-agent only receives the task description and required git state, not the implementation context."
+SCENARIO_PROMPT="You have completed implementation of a feature. Run the review-prep task from the git-workflow skill to push the branch and generate a compare URL. Make sure the git task sub-agent only receives the task description and required git state, not the implementation context. Per spec #397 SC-6, the dispatch context must include audit_phase for git_operations pipeline stage."
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
@@ -29,6 +29,9 @@ assert_forbidden_pattern_absent "implement.*context.*git\|git.*sub.agent.*implem
 
 # Agent should mention clean-room or isolated context for git dispatch
 assert_required_pattern_present "clean.room\|isolat.*context\|scoped.*dispatch\|MUST NOT.*implement\|only.*task\|only.*git.*state\|no.*agent.*memory" "clean-room git dispatch language" || OVERALL_RESULT=1
+
+# SC-6: Agent should reference audit_phase in git-workflow dispatch context (spec #397)
+assert_required_pattern_present "audit.phase\|audit_phase" "audit_phase in git-workflow dispatch context (SC-6)" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

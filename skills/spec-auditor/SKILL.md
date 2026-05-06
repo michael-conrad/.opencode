@@ -17,6 +17,8 @@ Content-aware audit orchestrator. Auto-detects document type, selects subtasks, 
 
 Content-Aware Audit Orchestrator. Focus: detect document type, select subtasks, auto-fix, flag, present executive summary.
 
+**Audit Phase:** `spec` — This skill operates in the `spec` audit phase. When dispatched, receive `audit_phase: spec` in dispatch context.
+
 ## Tasks
 
 | Task | Words |
