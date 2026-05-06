@@ -18,7 +18,7 @@ When `assemble-work` records claims about work state (e.g., "sub-agent completed
 
 ### Work State File Format
 
-Work state files are stored at `.opencode/tmp/work-<timestamp>.md` and contain:
+Work state files are stored at `tmp/work-<timestamp>.md` and contain:
 
 ```markdown
 # Work State: <branch-name>

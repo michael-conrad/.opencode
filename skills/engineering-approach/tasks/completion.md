@@ -13,7 +13,7 @@ Ensure mandatory completion steps run regardless of workflow outcome. Idempotent
 
 ## Procedure
 
-1. Verify no stale design artifacts remain: `ls .opencode/tmp/design-*.md`
+1. Verify no stale design artifacts remain: `ls tmp/design-*.md`
 2. Report completion status
 3. Return compact completion result
 

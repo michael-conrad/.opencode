@@ -58,7 +58,7 @@ Handles submodule push automation, temp file cleanup, rebase on current dev, wor
 git log origin/dev..HEAD --oneline
 
 # Detect branch type
-ls .opencode/tmp/work-*.md 2>/dev/null
+ls tmp/work-*.md 2>/dev/null
 ```
 
 | Branch Type | Expected Commits | On Mismatch |

@@ -13,7 +13,7 @@
 # Options:
 #   --keep       Preserve test home after execution (default)
 #   --clean      Remove the most recent test home directory
-#   --clean-all  Remove ALL test home directories under .opencode/tmp/
+#   --clean-all  Remove ALL test home directories under tmp/
 #
 # Exit codes:
 #   0  - Command succeeded (or clean succeeded)
@@ -28,14 +28,14 @@ while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
     PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
-TMP_DIR="$PROJECT_DIR/.opencode/tmp"
+TMP_DIR="$PROJECT_DIR/tmp"
 
 usage() {
     echo "Usage: bash .opencode/tests/with-test-home [--keep|--clean|--clean-all] <command> [args...]" >&2
     echo "" >&2
     echo "  --keep       Preserve test home after execution (default)" >&2
     echo "  --clean      Remove the most recent test home directory" >&2
-    echo "  --clean-all  Remove ALL test home directories under .opencode/tmp/" >&2
+    echo "  --clean-all  Remove ALL test home directories under tmp/" >&2
     exit 2
 }
 
