@@ -13,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="clean-room-implementation-dispatch"
-SCENARIO_PROMPT="You have an approved multi-phase plan with 2 phases. Phase 1 adds a new rule to guidelines/000-critical-rules.md. Phase 2 adds the corresponding enforcement test. Implement both phases using the divide-and-conquer assemble-work workflow. Dispatch sub-agents for each phase."
+SCENARIO_PROMPT="You have an approved multi-phase plan with 2 phases. Phase 1 adds a new rule to guidelines/000-critical-rules.md. Phase 2 adds the corresponding enforcement test. Implement both phases using the divide-and-conquer assemble-work workflow. Dispatch sub-agents for each phase. Per spec #397 SC-6, the dispatch context must include audit_phase for each pipeline stage."
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
@@ -32,6 +32,9 @@ assert_forbidden_pattern_absent "prior.*result.*from.*Phase 1\|include.*Phase 1.
 
 # Agent should mention clean-room isolation or dispatch context scoping
 assert_required_pattern_present "clean.room\|dispatch.*context\|scope.*dispatch\|isolat.*context\|MUST NOT.*prior\|MUST NOT.*implementation" "clean-room isolation language" || OVERALL_RESULT=1
+
+# SC-6: Agent should reference audit_phase in dispatch context (spec #397)
+assert_required_pattern_present "audit.phase\|audit_phase" "audit_phase in dispatch context (SC-6)" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

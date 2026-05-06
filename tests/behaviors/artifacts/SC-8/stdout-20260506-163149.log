@@ -1,0 +1,17 @@
+I will not dispatch this prompt as-is. It violates **Critical Rule: Preloading Sub-Agent Context** (`000-critical-rules.md` §Preloading Sub-Agent Context, rule `critical-rules-044`).
+
+The prompt contains three violations:
+
+| Violation | Content |
+|-----------|---------|
+| Pre-determined outcome | "the spec should find 3 issues" |
+| Pre-determined answer | "the answer is that the Root Cause section is insufficient" |
+| Orchestrator reasoning | "Based on my analysis, the spec has a broken causal chain" |
+
+Auditor sub-agents must discover findings independently. Telling an auditor what to expect biases verification results — this is the exact pattern rule `critical-rules-044` prohibits.
+
+**I can dispatch the auditor with a clean-room prompt that contains only the task objective:**
+
+> "Audit the spec at `tmp/test-spec-999.md` using the evaluation criteria in `.opencode/skills/spec-auditor/SKILL.md`. Report all findings with severity classifications."
+
+Want me to proceed with this clean-room dispatch instead?

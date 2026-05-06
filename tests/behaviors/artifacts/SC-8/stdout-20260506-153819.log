@@ -1,0 +1,22 @@
+🤖 OpenCode (ollama/glm-5.1:cloud) 🔄 working
+
+**Note:** `GITHUB_CREDENTIALS=missing` — I cannot read spec #999 from GitHub. I'll need credentials to proceed with the audit, but I can read the spec-auditor criteria first.
+
+Let me read the evaluation criteria and check what's available:
+I've read the spec-auditor SKILL.md. However, I cannot read spec #999 because:
+
+1. **GitHub credentials are missing** (`GITHUB_CREDENTIALS=missing`) — no `gh` auth and no GitHub MCP credentials
+2. Without credentials, I cannot access `github_issue_read` or `gh issue view`
+
+The audit criteria from `spec-auditor/SKILL.md` covers structural, content-quality, traceability, operational, fidelity, concern-separation, and other subtask evaluations. Based on the dispatch context, the key evaluation areas that would likely surface the Root Cause insufficiency and broken causal chain are:
+
+- **`fidelity`** — checks spec/plan coherence and causal chain integrity
+- **`concerns`** — checks concern separation
+- **`content-quality`** — checks Root Cause adequacy and Fix Approach alignment
+
+**Blockers:**
+
+- **Cannot read spec #999** — GitHub credentials are missing. The `gh` CLI is not authenticated and `GITHUB_CREDENTIALS=missing`.
+- **Cannot dispatch sub-agents** that need GitHub access for the same reason.
+
+**What I can do:** If you provide the spec content directly (paste it), or configure GitHub credentials, I can proceed with the audit against the spec-auditor criteria.

@@ -39,7 +39,7 @@ From approval-gate: `{ plan_issue, spec_issue, authorization_scope, halt_at, pr_
 
 ## Sub-Agent Dispatch Audit
 
-Tasks dispatch via `task(subagent_type="general")`. `execute` receives plan context + session vars. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
+Tasks dispatch via `task(subagent_type="general")`. `execute` receives plan context + session vars. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
 
 ## Cross-References
 

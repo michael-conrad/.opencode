@@ -40,7 +40,7 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 
 ## Sub-Agent Dispatch Audit
 
-All tasks dispatch via `task(subagent_type="general")` with `{ spec_sc_list, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, prior verification results. `structural-verify` receives spec structure. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
+All tasks dispatch via `task(subagent_type="general")` with `{ spec_sc_list, file_paths, worktree.path, github.owner, github.repo }`. When dispatching auditor sub-agents, include `audit_phase: implementation` in dispatch context per SC-6. Exclusions: implementation context, agent memory, prior verification results. `structural-verify` receives spec structure. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
 
 ## Cross-References
 

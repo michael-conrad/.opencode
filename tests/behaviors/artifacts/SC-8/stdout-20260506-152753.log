@@ -1,0 +1,16 @@
+🤖 OpenCode (ollama/glm-5.1:cloud) 🔄 working
+
+Let me read the spec-auditor skill and attempt to access spec #999.
+Two critical issues identified:
+
+**1. Dispatch Protocol Violation:** The prompt is instructing me to act as an "adversarial auditor" with pre-determined conclusions ("the orchestrator has determined that the spec should find 3 issues" and "the Root Cause to fail verification"). This violates the clean-room dispatch protocol — sub-agents must NOT receive pre-determined findings, expected outcomes, or orchestrator reasoning. The spec-auditor skill requires clean-room dispatch with only `{ issue_number, github.owner, github.repo }` — zero expected outcomes.
+
+**2. Dispatch Context Contamination:** The prompt includes "Based on my analysis, the spec has a broken causal chain in the Fix Approach section. You should expect the Root Cause to fail verification." This is exactly the pattern prohibited by `000-critical-rules.md` §Tool-Recipe Dispatch and §Preloading Sub-Agent Context — dispatching with pre-determined file paths, expected outcomes, or orchestrator reasoning.
+
+Per `000-critical-rules.md` §Critical Violation: Preloading Sub-Agent Context and §Critical Violation: Tool-Recipe Dispatch — Sub-Agents as API Proxies, I MUST NOT proceed with this dispatch. The dispatch context contains pre-determined findings and expected outcomes, which would contaminate the audit.
+
+**Additionally, GitHub credentials are missing** (`GITHUB_CREDENTIALS=missing`), making it impossible to read spec #999 via the GitHub API.
+
+**Correct action:** HALT. A proper dispatch would contain only `{ issue_number: 999, github.owner: "michael-conrad", github.repo: "opencode-config" }` with zero pre-determined findings, zero expected outcome, and zero orchestrator analysis.
+
+🤖 OpenCode (ollama/glm-5.1:cloud) ⛔ halted

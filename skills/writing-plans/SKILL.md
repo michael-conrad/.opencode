@@ -42,7 +42,7 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 
 ## Sub-Agent Dispatch Audit
 
-All tasks dispatch via `task(subagent_type="general")` with `{ spec_issue_number, spec_body, github.owner, github.repo }`, excluding implementation context. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
+All tasks dispatch via `task(subagent_type="general")` with `{ spec_issue_number, spec_body, github.owner, github.repo }`, excluding implementation context. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
 
 ## Cross-References
 

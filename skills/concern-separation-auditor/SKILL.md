@@ -31,6 +31,7 @@ NOT invoked directly. Called by spec-auditor via `/skill spec-auditor --issue N 
 2. **Deployment independence:** each phase must be independently deployable.
 3. **Risk profiling:** blast radius and failure isolation per phase.
 4. **Single Concern Principle** per `000-critical-rules.md` — phases address one concern each.
+5. **Audit Phase:** `concern_separation` — This skill operates in the `concern_separation` audit phase. When dispatched, receive `audit_phase: concern_separation` in dispatch context.
 
 ## Sub-Agent Dispatch Audit
 

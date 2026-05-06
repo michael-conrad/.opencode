@@ -1726,13 +1726,44 @@ When the agent's workdir is inside `.opencode/` (e.g., working in a submodule), 
     source: "000-critical-rules.md §Creating .opencode/.opencode/ Nested Directories"
 ```
 
+<!-- Issue #397: Intelligent Audit Dispatch — SC-7: Mechanical-only audit is a critical violation -->
+
+## Critical Violation: Mechanical-Only Audit Without Semantic and Conflict Exploration
+
+**⚠️ Performing an audit that checks only structural/formatting concerns without exploring semantic completeness and inter-rule conflicts is a CRITICAL GUIDELINE VIOLATION.**
+
+Audits exist to validate whether AI agent behavior actually changes — not just whether rule text exists. A mechanical-only audit checks checklist items, formatting, and boilerplate without probing whether the rules interact correctly, whether semantic gaps exist between related rules, or whether a behavioral change actually follows from the rule text.
+
+This violation applies to both human-initiated audits (`spec-auditor`) and automated audit dispatch (`adversarial-audit` cross-validation, `coherence-auditor` drift detection, `concern-separation-auditor` phase validation, `plan-fidelity-auditor` spec-plan comparison).
+
+- 🚫 FORBIDDEN: Auditing only structural/formatting concerns while ignoring semantic completeness; checking that rule text exists without verifying behavioral impact; skipping inter-rule conflict exploration when rules reference each other; treating content-verification (text presence) as equivalent to behavioral verification (agent response change); accepting "rule exists in file" as audit pass without verifying the rule produces behavioral change
+- ✅ REQUIRED: Every audit MUST include semantic depth exploration — checking whether rules interact correctly, whether behavioral changes follow from the text, and whether gaps exist between related rules; auditor dispatch contexts MUST include `audit_phase` to enable phase-appropriate semantic exploration; content-verification tests are a supplementary sanity check, NOT a replacement for behavioral tests; behavioral tests (`opencode-cli run` against real AI models) are the PRIMARY enforcement gate for behavioral rule changes
+
+**AUTHORITY:** Spec #397, `000-critical-rules.md` §Enforcement Test Updates
+
+```yaml+symbolic
+  - id: critical-rules-046
+    title: "Mechanical-only audit without semantic and conflict exploration is prohibited"
+    conditions:
+      all:
+        - "audit_performed == true"
+        - "semantic_exploration_performed == false"
+    actions:
+      - HALT
+      - REQUIRE_SEMANTIC_EXPLORATION
+    conflicts_with: []
+    requires: [verification-honesty-001, verification-honesty-003]
+    triggers: [spec-auditor, adversarial-audit, concern-separation-auditor, plan-fidelity-auditor, coherence-auditor]
+    source: "000-critical-rules.md §Mechanical-Only Audit Without Semantic and Conflict Exploration"
+```
+
 ______________________________________________________________________
 
 **Search guidelines:** Use `srclight_search_symbols` or `grep` to find relevant guidelines.
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-04-26T00:00:00Z"
+last_updated: "2026-05-06T00:00:00Z"
 rules:
   - id: critical-rules-001
     title: "Tier 1 mandates never yield to developer authorization"
@@ -2499,4 +2530,20 @@ When a sub-agent fails at any stage, the orchestrator reading output files inlin
     requires: [critical-rules-034]
     triggers: [divide-and-conquer, verification-before-completion, git-workflow, approval-gate, issue-operations, executing-plans]
     source: "000-critical-rules.md §No Inline Fallback on Sub-Agent Failure — Universal Re-Dispatch Mandate"
+  ```
+
+  ```yaml+symbolic
+  - id: critical-rules-046
+    title: "Mechanical-only audit without semantic and conflict exploration is prohibited"
+    conditions:
+      all:
+        - "audit_performed == true"
+        - "semantic_exploration_performed == false"
+    actions:
+      - HALT
+      - REQUIRE_SEMANTIC_EXPLORATION
+    conflicts_with: []
+    requires: [verification-honesty-001, verification-honesty-003]
+    triggers: [spec-auditor, adversarial-audit, concern-separation-auditor, plan-fidelity-auditor, coherence-auditor]
+    source: "000-critical-rules.md §Mechanical-Only Audit Without Semantic and Conflict Exploration"
 ```

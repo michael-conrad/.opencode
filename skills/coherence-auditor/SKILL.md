@@ -13,6 +13,8 @@ compatibility: opencode
 
 Ensures guidelines, skills, and AI agent behavior work together effectively. Identifies procedural workflows for extraction as skills and detects drift over time.
 
+**Audit Phase:** `coherence` — This skill operates in the `coherence` audit phase. When dispatched, receive `audit_phase: coherence` in dispatch context.
+
 ## Tasks
 
 | Task | Words |
