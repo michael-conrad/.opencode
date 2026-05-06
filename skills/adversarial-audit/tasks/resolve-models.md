@@ -29,7 +29,6 @@ For each model from the pool, derive the agent name and family:
 
 | Model (pool entry) | Agent Name (`subagent_type`) | Family |
 |---|---|---|
-| `deepseek-v4-pro:cloud` | `auditor-deepseek-v4` | `deepseek` |
 | `deepseek-v4-flash:cloud` | `auditor-deepseek-flash` | `deepseek` |
 | `deepseek-v3.2:cloud` | `auditor-deepseek-v3` | `deepseek` |
 | `glm-5.1:cloud` | `auditor-glm-5.1` | `glm` |
@@ -37,17 +36,15 @@ For each model from the pool, derive the agent name and family:
 | `mistral-large-3:675b-cloud` | `auditor-mistral-large` | `mistral` |
 | `kimi-k2.6:cloud` | `auditor-kimi-k2` | `kimi` |
 | `qwen3.5:397b-cloud` | `auditor-qwen3.5` | `qwen` |
-| `devstral-2:123b-cloud` | `auditor-devstral-2` | `devstral` |
 
 The agent name format is `auditor-<family-base>-<variant>`. Verify each corresponding `.opencode/agents/<agent-name>.md` file exists via glob. Omit any agent whose file is missing.
 
 ### Step 3: Detect Orchestrator's Model Family
 
-Parse `orchestrator_model` from dispatch context. Extract the family by matching against known family prefixes (deepseek, glm, mistral, kimi, qwen, devstral). The orchestrator model ID is typically `ollama/<model>:cloud` or `ollama-cloud/<model>` — strip the prefix and suffix to isolate the model core.
+Parse `orchestrator_model` from dispatch context. Extract the family by matching against known family prefixes (deepseek, glm, mistral, kimi, qwen). The orchestrator model ID is typically `ollama/<model>:cloud` or `ollama-cloud/<model>` — strip the prefix and suffix to isolate the model core.
 
 | Orchestrator Model | Family | Agent Name |
 |---|---|---|
-| Contains `deepseek-v4-pro` | `deepseek` | `auditor-deepseek-v4` |
 | Contains `deepseek-v4-flash` | `deepseek` | `auditor-deepseek-flash` |
 | Contains `deepseek-v3` | `deepseek` | `auditor-deepseek-v3` |
 | Contains `glm-5.1` | `glm` | `auditor-glm-5.1` |
@@ -55,7 +52,6 @@ Parse `orchestrator_model` from dispatch context. Extract the family by matching
 | Contains `mistral-large-3` | `mistral` | `auditor-mistral-large` |
 | Contains `kimi-k2` | `kimi` | `auditor-kimi-k2` |
 | Contains `qwen3.5` | `qwen` | `auditor-qwen3.5` |
-| Contains `devstral-2` | `devstral` | `auditor-devstral-2` |
 
 If the orchestrator model does not match any known family, treat it as unknown — exclude nothing by family, only by agent-name match.
 
@@ -70,7 +66,7 @@ Remove from the candidate pool:
 Group remaining candidates by family. Pick the first available agent from each eligible family.
 
 Selection priority within each family (most capable first):
-- DeepSeek family: `auditor-deepseek-v4` > `auditor-deepseek-flash` > `auditor-deepseek-v3`
+- DeepSeek family: `auditor-deepseek-flash` > `auditor-deepseek-v3`
 - GLM family: `auditor-glm-5.1` > `auditor-glm-5`
 - All other families: single agent, no prioritization needed
 
