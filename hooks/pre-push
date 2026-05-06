@@ -48,34 +48,58 @@ while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
     fi
 
     # --- Gate 1: Merged branch topology check ---
-    # Only applies to same-name pushes (local branch == remote branch), not deletes
+    # Uses remote branches (not local) so force-pushing to a branch whose PR
+    # was merged remotely (e.g. via GitHub UI or another workstation) is blocked.
+    # Only applies to same-name pushes (local branch == remote branch), not deletes.
+    # Remote-merged check: origin/branch must be strictly behind origin/dev|main
+    # (not equal) to avoid blocking pushes on newly-created empty branches.
     if [ "$IS_DELETE" = false ] && [ -n "$LOCAL_BRANCH" ] && [ "$LOCAL_BRANCH" = "$REMOTE_BRANCH" ]; then
-        if git branch --merged dev 2>/dev/null | grep -q "^\s*$LOCAL_BRANCH$"; then
-            echo ""
-            echo "BLOCKED: Branch '$LOCAL_BRANCH' is already merged into 'dev'"
-            echo ""
-            echo "This branch has been merged and should be deleted, not pushed."
-            echo ""
-            echo "To clean up:"
-            echo "  git checkout dev && git pull origin dev"
-            echo "  git branch -d $LOCAL_BRANCH"
-            echo "  git push origin --delete $LOCAL_BRANCH"
-            echo ""
-            ALLOWED=false
+        # Fetch remote refs once before checking both dev and main
+        git fetch origin --prune 2>/dev/null || true
+
+        _MERGED_DEV=false
+        _MERGED_MAIN=false
+        if git branch -r --merged origin/dev 2>/dev/null | grep -q "origin/$LOCAL_BRANCH$"; then
+            _MERGED_DEV=true
+        fi
+        if git branch -r --merged origin/main 2>/dev/null | grep -q "origin/$LOCAL_BRANCH$"; then
+            _MERGED_MAIN=true
         fi
 
-        if git branch --merged main 2>/dev/null | grep -q "^\s*$LOCAL_BRANCH$"; then
-            echo ""
-            echo "BLOCKED: Branch '$LOCAL_BRANCH' is already merged into 'main'"
-            echo ""
-            echo "This branch has been merged and should be deleted, not pushed."
-            echo ""
-            echo "To clean up:"
-            echo "  git checkout dev && git pull origin dev"
-            echo "  git branch -d $LOCAL_BRANCH"
-            echo "  git push origin --delete $LOCAL_BRANCH"
-            echo ""
-            ALLOWED=false
+        # Avoid false positive: a branch pushed at the same commit as origin/dev
+        # is not merged — it was just created. Only block if origin strictly ahead.
+        if [ "$_MERGED_DEV" = true ]; then
+            _AHEAD=$(git rev-list --count "origin/$LOCAL_BRANCH"..origin/dev 2>/dev/null || echo "0")
+            if [ "$_AHEAD" -gt 0 ]; then
+                echo ""
+                echo "BLOCKED: Branch '$LOCAL_BRANCH' is already merged into 'dev'"
+                echo ""
+                echo "This branch has been merged and should be deleted, not pushed."
+                echo ""
+                echo "To clean up:"
+                echo "  git checkout dev && git pull origin dev"
+                echo "  git branch -d $LOCAL_BRANCH"
+                echo "  git push origin --delete $LOCAL_BRANCH"
+                echo ""
+                ALLOWED=false
+            fi
+        fi
+
+        if [ "$_MERGED_MAIN" = true ]; then
+            _AHEAD=$(git rev-list --count "origin/$LOCAL_BRANCH"..origin/main 2>/dev/null || echo "0")
+            if [ "$_AHEAD" -gt 0 ]; then
+                echo ""
+                echo "BLOCKED: Branch '$LOCAL_BRANCH' is already merged into 'main'"
+                echo ""
+                echo "This branch has been merged and should be deleted, not pushed."
+                echo ""
+                echo "To clean up:"
+                echo "  git checkout dev && git pull origin dev"
+                echo "  git branch -d $LOCAL_BRANCH"
+                echo "  git push origin --delete $LOCAL_BRANCH"
+                echo ""
+                ALLOWED=false
+            fi
         fi
     fi
 
