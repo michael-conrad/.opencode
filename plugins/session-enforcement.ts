@@ -156,28 +156,20 @@ let baselineLocalConfig: string = "";
 
 function buildGitConfigMutationBlock(changedKeys: string[]): string {
   const keyList = changedKeys.map(k => `- \`${k}\``).join("\n");
-  return `<GIT_CONFIG_MUTATION>
-⚠️ CRITICAL: Security-relevant git configuration was mutated during this session!
+  return `### Git Configuration Mutation Warning
+
+**Warning:** Security-relevant git configuration was mutated during this session!
 
 Changed keys:
 ${keyList}
 
-This is a Tier 1 mandate violation unless explicitly authorized by the developer.
-HALT and verify the mutation was authorized before proceeding.
-See 000-critical-rules.md → "Git Configuration and Destructive Command Authorization".
-</GIT_CONFIG_MUTATION>`;
+This is a Tier 1 mandate violation unless explicitly authorized by the developer. HALT and verify the mutation was authorized before proceeding. See 000-critical-rules.md for details on Git Configuration and Destructive Command Authorization.`;
 }
 
 function buildNoVerifyBlockedBlock(): string {
-  return `<NO_VERIFY_BLOCKED>
-⚠️ CRITICAL: \`--no-verify\` is FORBIDDEN in repos with remotes.
+  return `### No-Verify Commit Blocked
 
-\`git commit --no-verify\` and \`git push --no-verify\` bypass git hooks that
-enforce repository safety. This is a Tier 1 mandate.
-
-Only permitted in local-only repos (zero remotes). Check \`git remote -v\` first.
-See 000-critical-rules.md → "Git Configuration and Destructive Command Authorization".
-</NO_VERIFY_BLOCKED>`;
+**Warning:** --no-verify is FORBIDDEN in repos with remotes. git commit --no-verify and git push --no-verify bypass git hooks that enforce repository safety. This is a Tier 1 mandate. Only permitted in local-only repos (zero remotes). Check git remote -v first. See 000-critical-rules.md for details on Git Configuration and Destructive Command Authorization.`;
 }
 
 function buildInlineWorkDetectedBlock(editToolNames: string[], dispatchFound: boolean): string {
@@ -185,35 +177,22 @@ function buildInlineWorkDetectedBlock(editToolNames: string[], dispatchFound: bo
   const dispatchNote = dispatchFound
     ? "A sub-agent dispatch was found, but file edits occurred BEFORE the dispatch in this turn."
     : "No sub-agent dispatch (task tool) was found in this turn.";
-  return `<INLINE_WORK_DETECTED>
-⚠️ CRITICAL: The orchestrator performed file operations without sub-agent dispatch evidence.
+  return `### Inline Work Detected
+
+**Warning:** The orchestrator performed file operations without sub-agent dispatch evidence.
 
 File-editing tool calls detected in this turn:
 ${editList}
 
 ${dispatchNote}
 
-The orchestrator MUST be a pure router — all file modifications MUST be dispatched
-through divide-and-conquer/assemble-work sub-agents. See 000-critical-rules.md §Inline Work.
-
-Exemptions: pair-* branches, .issues/ file edits, simple-work single-file changes.
-If this is an exempt case, disregard this block.
-</INLINE_WORK_DETECTED>`;
+The orchestrator MUST be a pure router — all file modifications MUST be dispatched through divide-and-conquer sub-agents. See 000-critical-rules.md Inline Work. Exemptions: pair- branches, .issues/ file edits, simple-work single-file changes. If this is an exempt case, disregard this warning.`;
 }
 
 function buildEvidenceGateBlock(): string {
-  return `<EVIDENCE_GATE_BLOCK>
-⚠️ CRITICAL: Issue closure attempted without verification evidence.
+  return `### Evidence Gate
 
-A github_issue_write call with state=closed was detected, but no per-SC
-verification evidence table exists in recent assistant messages.
-
-Every issue closure requires a verification evidence table confirming each
-success criterion was met with a tool-call artifact. See 000-critical-rules.md
-§Verification Dishonesty and verification-before-completion skill.
-
-If the closure is exempt (not_planned, duplicate, rollback-reopen), disregard this block.
-</EVIDENCE_GATE_BLOCK>`;
+**Warning:** Issue closure attempted without verification evidence. A github_issue_write call with state=closed was detected, but no per-SC verification evidence table exists in recent assistant messages. Every issue closure requires a verification evidence table confirming each success criterion was met with a tool-call artifact. See 000-critical-rules.md Verification Dishonesty and verification-before-completion skill. If the closure is exempt (not_planned, duplicate, rollback-reopen), disregard this warning.`;
 }
 
 interface PluginDiagnostic {
@@ -279,27 +258,27 @@ function buildDiagnosticBlock(diagnostics: PluginDiagnostic[]): string {
       .map(d => `- Investigate and resolve the ${d.source} ERROR before proceeding`)
       .join("\n");
 
-    return `<PLUGIN_DIAGNOSTICS>
-⚠️ The following plugin diagnostics were collected during session startup:
+    return `### Plugin Diagnostics
+
+**Warning:** The following plugin diagnostics were collected during session startup:
 
 ${entries}
 
-🚫 MUST NOT proceed — ERROR-level diagnostics detected. HALT immediately and resolve these errors.
+**Must not proceed:** ERROR-level diagnostics detected. HALT immediately and resolve these errors.
 
-**MANDATORY ACTIONS:**
+**Mandatory actions:**
 ${actions}
 
-Do NOT continue with any operations until ALL ERROR-level diagnostics are resolved.
-</PLUGIN_DIAGNOSTICS>`;
+Do NOT continue with any operations until ALL ERROR-level diagnostics are resolved.`;
   }
 
-  return `<PLUGIN_DIAGNOSTICS>
-⚠️ The following plugin diagnostics were collected during session startup:
+  return `### Plugin Diagnostics
+
+**Warning:** The following plugin diagnostics were collected during session startup:
 
 ${entries}
 
-Review these diagnostics. For errors, investigate the source script. For warnings, assess whether action is needed.
-</PLUGIN_DIAGNOSTICS>`;
+Review these diagnostics. For errors, investigate the source script. For warnings, assess whether action is needed.`;
 }
 
 let cachedOutput: string | null = null;
@@ -638,137 +617,12 @@ function readProjectMetadata(projectDir: string): ProjectMetadata | null {
   return { name, version: version || "0.1.0", pythonVersion };
 }
 
-function buildMetadataBlock(projectDir: string): string {
-  const meta = readProjectMetadata(projectDir);
-  if (!meta) {
-    return "";
-  }
-
-  const lines: string[] = [`Project: ${meta.name} v${meta.version}`];
-  if (meta.pythonVersion) {
-    lines.push(`Python: ${meta.pythonVersion}`);
-  }
-  return lines.join("\n");
+function buildMetadataBlock(_projectDir: string): string {
+  return "";
 }
 
-function buildTrainingStalenessBlock(): string {
-  return `<TRAINING_STALENESS_CRITICAL>
-⚠️ Your training data is STALE. You CANNOT rely on your training data for:
-
-- API signatures, library versions, framework syntax
-- Configuration formats, environment variable names
-- Code patterns, best practices, recommended approaches
-- Documentation, examples, tutorials
-
-**VERIFICATION IS MANDATORY:**
-
-1. **Check live documentation** before using any API, framework, or library
-2. **Verify code signatures** using srclight_get_signature before claiming behavior
-3. **Read actual source files** before asserting code behavior
-4. **Confirm configuration** against live schemas before asserting compliance
-5. **Attempt exhaustive research** using available tools before making factual claims; if research fails, follow suggest-after-research fallback — NEVER present training-data claims as verified facts
-
-**DO NOT TRUST:**
-
-- Your memory about how something works
-- Code comments (they may be outdated or wrong)
-- Documentation snippets from training data
-- "I've seen this before" or "I know this pattern"
-- Second-hand information without live source verification
-
-**ALWAYS VERIFY** before:
-- Proposing a course of action
-- Providing an technical answer
-- Making claims about code behavior
-- Suggesting solutions
-
-**RESEARCH-FIRST RULE:**
-- General knowledge questions still require research attempts — search the web, search documentation, search the codebase
-- If research tools cannot verify a claim, do NOT present it as fact with a disclaimer
-- For general knowledge: offer training-data answer as suggestion contingent on user acceptance
-- For code/API claims: DECLINE to state — no suggestion, no fallback, no disclaimer
-- There is NO exemption for "general explanation" or "brainstorming" — research before claiming
-
-This is a CRITICAL rule. Violations result in incorrect guidance and broken implementations.
-</TRAINING_STALENESS_CRITICAL>`;
-}
-
-function buildReferencesVerificationBlock(): string {
-  return `<REFERENCES_VERIFICATION_MANDATE>
-⚠️ You MUST NOT assume knowledge of any referenced file, schema, configuration, or artifact without FIRST verifying its contents with a tool call. This applies to ALL activities without exception: coding, spec development, plan creation, implementation, skill book updates, runbook authoring, correspondence, and any other work.
-
-**YOU ARE FORBIDDEN FROM:**
-
-- Assuming you know what a file contains without opening it first
-- Claiming knowledge of a schema's fields without reading the schema
-- Proceeding past a reference to a file, path, or configuration without verifying the reference exists
-- Treating any information as "already known" without a visible tool-call artifact proving you checked
-- Writing documentation, runbooks, or specs that describe files/configs/APIs you have not actually read
-- Skipping verification because "I've seen this file before" or "I know this pattern"
-- Claiming a referenced file or artifact exists without confirming via glob, read, or srclight
-
-**SELF-AUDIT GATE (MANDATORY):**
-
-Before making ANY claim about a file, schema, configuration, or referenced artifact, you MUST produce a tool-call artifact in the conversation proving you verified it. Acceptable artifacts:
-
-- A \`read\` tool call showing the file contents
-- A \`srclight_get_signature\` or \`srclight_get_symbol\` call confirming a function/class signature
-- A \`glob\` or \`grep\` call confirming a file or pattern exists
-- A \`bash\` command output confirming system state
-
-**No tool-call artifact = the claim is FORBIDDEN.** You cannot state "the config has X field" without the read call that confirmed it. You cannot state "the function takes Y parameters" without the signature lookup that verified it. You cannot state "the file exists" without the glob or read that confirmed it.
-
-**RESEARCH-FIRST REQUIREMENT:**
-Before making ANY factual claim, the agent MUST attempt exhaustive research using available tools. This includes:
-- Web search for general knowledge claims
-- Code search (srclight, grep, glob) for codebase claims
-- Documentation lookup for API/library claims
-- File read for configuration claims
-
-If research fails, follow the suggest-after-research fallback:
-- For general knowledge: Offer the training-data answer as an explicit suggestion contingent on user acceptance
-- For code/API claims: DECLINE to state the claim — no suggestion, no fallback, no disclaimer
-
-**SINGLE EXCHANGE WINDOW:** The ONLY exception is a tool call from the immediately preceding exchange (last assistant turn in the same conversation). Any earlier reference requires re-verification.
-
-**THIS IS UNCONDITIONAL:**
-
-- No scope exemption: applies to coding, specs, plans, runbooks, skill updates, correspondence, everything
-- No activity exemption: "just checking" is not verification-free
-- No knowledge exemption: "I already know this" is the specific bypass this rule closes
-- No size exemption: "this is too small to verify" is not valid — verify it
-
-**Authority:** This mandate enforces the principles in guidelines 065-verification-honesty.md (proactive verification, evidence requirement) and 075-docs-verification.md (mandatory live documentation verification). This block does not duplicate those guidelines — it operationalizes their core rules at the system-prompt level, at the exact decision point where the agent decides whether to verify or assume.
-</REFERENCES_VERIFICATION_MANDATE>`;
-}
-
-function buildLanguagePreferenceBlock(): string {
-  return `<LANGUAGE_PREFERENCE>
-All communications MUST use **formal/business/professional Southeastern United States English**.
-
-This means:
-- Use Southern US English spelling, vocabulary, and phrasing conventions
-- Maintain a formal, professional, and business-appropriate register
-- Prefer clarity and directness with Southern politeness conventions
-- Avoid regional colloquialisms that sacrifice professionalism
-- Use "y'all" only in informal context; prefer "you" or "your team" in formal writing
-</LANGUAGE_PREFERENCE>`;
-}
-
-function buildGuidelineIndexBlock(projectDir: string): string {
-  const indexPath = path.join(projectDir, ".opencode", "guidelines", "INDEX.md");
-  if (!fs.existsSync(indexPath)) return "";
-
-  try {
-    const indexContent = fs.readFileSync(indexPath, "utf8");
-    return `<GUIDELINE_INDEX>
-${indexContent}
-</GUIDELINE_INDEX>
-
-Progressive disclosure: Full guideline bodies loaded only by sub-agents when enforcement gates fire. Never load full bodies into orchestrator context. Use \`./.opencode/tools/guidelines read <filename>\` in sub-agent context only.`;
-  } catch {
-    return "";
-  }
+function buildGuidelineIndexBlock(_projectDir: string): string {
+  return "";
 }
 
 function buildWorktreeBlock(input: PluginInput): string {
@@ -894,138 +748,13 @@ function buildFrontmatterWarning(errors: FrontmatterError[]): string {
     .map(e => `- **${e.skillDir}**: ${e.issues.join("; ")}`)
     .join("\n");
 
-  return `<FRONTMATTER_VALIDATION_WARNING>
-⚠️ The following SKILL.md files have frontmatter issues that may make skills invisible to enforcement:
+  return `### Frontmatter Validation
+
+**Warning:** The following SKILL.md files have frontmatter issues that may make skills invisible to enforcement:
 
 ${perSkillListing}
 
-**Fix template** — every SKILL.md MUST start with this YAML frontmatter block:
-
-\`\`\`yaml
----
-name: skill-name
-description: Use when [triggering conditions]. Triggers on: [keywords].
-type: discipline-enforcing
-license: MIT
----
-\`\`\`
-
-See #601 for the original bug that motivated this validation.
-</FRONTMATTER_VALIDATION_WARNING>`;
-}
-
-/**
- * Regex matching a bare issue reference: input that is solely an issue number
- * like `#591`. Does NOT match `fix #591`, `see #591 and #592`, or any
- * message with additional context.
- */
-const BARE_ISSUE_RE = /^\s*#(\d+)\s*$/;
-
-/**
- * Build a pipeline directive for bare issue references.
- * When a user sends just `#N`, the agent should follow a deterministic
- * audit→brainstorm→plan→HALT pipeline rather than guessing.
- */
-function buildIssuePipelineDirective(issueNumber: string): string {
-  return `<ISSUE_PIPELINE_TRIGGER>
-The user provided a bare issue reference #${issueNumber}. Follow this mandatory pipeline:
-
-1. **Read the issue**: Use github_issue_read with method=get AND method=get_comments for #${issueNumber}
-2. **Audit the spec**: Invoke /skill spec-auditor --issue ${issueNumber}
-3. **Brainstorm refinements**: Invoke /skill brainstorming
-4. **Write a plan**: Invoke /skill writing-plans --task create
-5. **HALT** — Never auto-execute. Wait for explicit authorization.
-
-Critical rules:
-- Never auto-execute any plan
-- Follow each skill's own protocol
-- Adapt for bug reports (audit still runs, brainstorming explores the bug)
-- Fix audit findings before brainstorming
-- Read ALL comments on the issue before acting
-</ISSUE_PIPELINE_TRIGGER>`;
-}
-
-/**
- * Build the enforcement content injected into the first user message.
- *
- * Adapted from obra/superpowers skill enforcement pattern:
- * https://github.com/obra/superpowers/blob/main/.opencode/plugins/superpowers.js
- *
- * Key principle: removed per spec #1249/#1248.
- * Skill dispatch now follows the deterministic chain-of-responsibility
- * table in approval-gate/SKILL.md. Invoke ONLY the skill(s) mapped
- * to the current pipeline stage. Do NOT load skills speculatively.
- */
-function buildEnforcementContent(skillDescriptions: Array<{ name: string; description: string }>): string {
-  // Process skills first, implementation skills second
-  const processSkills = skillDescriptions.filter(s =>
-    ["approval-gate", "brainstorming", "spec-creation", "writing-plans", "executing-plans",
-     "verification-before-completion", "finishing-a-development-branch",
-     "git-workflow", "using-git-worktrees", "systematic-debugging", "spec-auditor",
-     "issue-operations"].includes(s.name)
-  );
-  const implSkills = skillDescriptions.filter(s => !processSkills.includes(s));
-
-  const sortedSkills = [...processSkills, ...implSkills];
-
-  const skillLines = sortedSkills
-    .map(s => `- **${s.name}**: ${s.description}`)
-    .join("\n");
-
-  return `<EXTREMELY_IMPORTANT>
-You have access to mandatory workflow skills. Skill invocation is NOT optional when a skill applies.
-
-**Deterministic Dispatch:** Skill dispatch follows the chain-of-responsibility table in approval-gate/SKILL.md. Invoke ONLY the skill(s) deterministically mapped to the current pipeline stage. Do NOT load skills speculatively. Never invoke a skill "just in case."
-
-IF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.
-
-This is not negotiable. This is not optional. You cannot rationalize your way out of this.
-
-## Skill Priority
-
-When multiple skills could apply, use this order:
-
-1. **Process skills first** (approval-gate, brainstorming, spec-creation, issue-operations, writing-plans, systematic-debugging) — these determine HOW to approach the task
-2. **Implementation skills second** — these guide execution
-
-## Red Flags — STOP and Invoke the Skill
-
-| Thought | Reality |
-|---------|---------|
-| "This is just a simple question" | Questions are tasks. Check for skills. |
-| "I need more context first" | Skill check comes BEFORE clarifying questions. |
-| "Let me explore the codebase first" | Skills tell you HOW to explore. Check first. |
-| "I can check git/files quickly" | Files lack conversation context. Check for skills. |
-| "Let me gather information first" | Skills tell you HOW to gather information. |
-| "This doesn't need a formal skill" | If a skill exists, use it. |
-| "I remember this skill" | Skills evolve. Read current version. |
-| "This doesn't count as a task" | Action = task. Check for skills. |
-| "The skill is overkill" | Simple things become complex. Use it. |
-| "I'll just do this one thing first" | Check BEFORE doing anything. |
-| "This feels productive" | Undisciplined action wastes time. Skills prevent this. |
-| "I know what that means" | Knowing the concept ≠ using the skill. Invoke it. |
-
-## Default Operating Mode: Discussion
-
-You are in **discussion mode** by default. This means:
-
-- **Valid actions**: Read, analyze, brainstorm, review, plan, answer questions
-- **NOT valid**: Implementation — writing code, editing files, creating branches, or making any changes
-- **Authorization required**: Only explicit "approved" or "go" transitions you to action mode for the specific authorized task
-- **Discussion conclusions are NOT authorization**: Reaching agreement on an approach does NOT authorize implementation
-- **Task-scoped authorization**: After completing an authorized task, you return to discussion mode automatically
-- **No proactive suggestions**: After completing a task, do not suggest next steps or propose additional work
-
-## Available Skills
-
-${skillLines}
-
-## How to Invoke Skills
-
-Use the OpenCode skill tool: \`/skill <skill-name>\` or \`/skill <skill-name> --task <task-name>\`
-
-Invoke relevant skills BEFORE any response or action, per the deterministic dispatch table.
-</EXTREMELY_IMPORTANT>`;
+**Fix template:** every SKILL.md MUST start with YAML frontmatter with name, description (starting with "Use when"), type, and license fields. See #601 for the original bug that motivated this validation.`;
 }
 
 function extractValue(sessionOutput: string | null, key: string): string | null {
@@ -1035,45 +764,11 @@ function extractValue(sessionOutput: string | null, key: string): string | null 
   return match ? match[1] : null;
 }
 
-function detectAgentBinary(): { name: string; version: string } {
-  const argv0 = process.argv[0] || "";
-  const argv1 = process.argv[1] || "";
-
-  for (const arg of [argv1, argv0]) {
-    if (arg.includes("opencode-cli")) {
-      return { name: "OpenCode CLI", version: "" };
-    }
-    if (arg.includes("opencode") || arg.includes("OpenCode")) {
-      return { name: "OpenCode", version: "" };
-    }
-  }
-
-  const envBinary = process.env.OPENCODE_BINARY || "";
-  const envVersion = process.env.OPENCODE_VERSION || "";
-
-  if (envBinary) {
-    return { name: envBinary, version: envVersion || "" };
-  }
-
-  return { name: "unknown (version detection failed)", version: "" };
-}
-
-function buildIdentityEchoDirective(platform: string, owner: string, repo: string, agentName?: string, modelId?: string): string {
-  const agentLine = `🤖 ${agentName || "<AgentName>"} (${modelId || "<ModelId>"}) <status-icon> <status>`;
-
-  return `<IDENTITY_ECHO>
-Before doing anything else, you MUST echo your platform identity as your very first output. The CORRECT values are:
+function buildIdentityEchoDirective(platform: string, owner: string, repo: string): string {
+  return `Before doing anything else, echo your byline using the standard format:
 
 Platform: ${platform}, Org: ${owner}, Repo: ${repo}
-
-You MUST output EXACTLY these values in this format:
-Platform: ${platform}, Org: ${owner}, Repo: ${repo}
-${agentLine}
-
-⚠️ FATAL: If your echo does not match Platform: ${platform}, Org: ${owner}, Repo: ${repo} character-for-character, you MUST HALT immediately and report the mismatch. Do NOT proceed with any operations with incorrect identity. Do NOT infer identity from repository names, file paths, or environment variables. Use ONLY the values provided in the system prompt identity section.
-
-After the identity echo, process any trigger warnings from the SESSION_TRIGGERS block above silently per the 117-session-trigger-behavior.md behavior map. Do NOT echo trigger content in your response.
-</IDENTITY_ECHO>`;
+🤖 <AgentName> (<ModelId>) <status-icon> <status>`;
 }
 
 /**
@@ -1145,11 +840,11 @@ function buildProtectedBranchEditTrigger(changedFiles: string[], branch: string)
   const fileList = changedFiles.slice(0, 10).map(f => `\`${f}\``).join(", ");
   const moreFiles = changedFiles.length > 10 ? `, …and ${changedFiles.length - 10} more` : "";
   
-  return `<SESSION_TRIGGERS>
-⚠️ protected_branch_with_changes: ${changedFiles.length} file(s) changed on \`${branch}\` branch without worktree or pair-mode prefix.
+  return `### Session Triggers
+
+protected_branch_with_changes: ${changedFiles.length} file(s) changed on ${branch} branch without worktree or pair-mode prefix.
 Changed: ${fileList}${moreFiles}
-Process per 117-session-trigger-behavior.md behavior map. Do NOT echo this trigger in chat output.
-</SESSION_TRIGGERS>`;
+Process silently. Do NOT echo this trigger in chat output.`;
 }
 
 /**
@@ -1212,7 +907,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
   const skillsDir = path.join(projectDir, ".opencode", "skills");
 
   // Pre-load skill descriptions and frontmatter validation at plugin startup
-  const { skills: skillDescriptions, errors: frontmatterErrors } = loadSkillDescriptions(skillsDir);
+  const { errors: frontmatterErrors } = loadSkillDescriptions(skillsDir);
 
   // Ensure git hooks from .opencode/hooks/ are installed into .git/hooks/
   ensureHooksInstalled(projectDir);
@@ -1269,27 +964,6 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         output.system.push(worktreeBlock);
       }
 
-      // Inject project metadata (name, version, Python version)
-      const metadataBlock = buildMetadataBlock(projectDir);
-      if (metadataBlock) {
-        output.system.push(metadataBlock);
-      }
-
-      // Inject training staleness warning (verifying everything is mandatory)
-      output.system.push(buildTrainingStalenessBlock());
-
-      // Inject references verification mandate (no assuming knowledge without tool-call artifact)
-      output.system.push(buildReferencesVerificationBlock());
-
-      // Inject language preference (Southeastern US English mandate)
-      output.system.push(buildLanguagePreferenceBlock());
-
-      // Inject progressive-disclosure guideline index (INDEX.md) for orchestrator routing
-      const guidelineIndexBlock = buildGuidelineIndexBlock(projectDir);
-      if (guidelineIndexBlock) {
-        output.system.push(guidelineIndexBlock);
-      }
-
       // Inject frontmatter validation warning if any skills have broken frontmatter
       const warning = buildFrontmatterWarning(frontmatterErrors);
       if (warning) {
@@ -1301,14 +975,6 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
       if (identityOutput) {
         output.system.push(identityOutput);
       }
-
-      // Inject agent binary name and version for LLM identity echo
-      const agentBinary = detectAgentBinary();
-      const agentBlock = [`AgentName: ${agentBinary.name}`];
-      if (agentBinary.version) {
-        agentBlock.push(`ModelId: ${agentBinary.version}`);
-      }
-      output.system.push(agentBlock.join("\n"));
     },
 
     // Inject enforcement content into first user message (adapted from obra/superpowers)
@@ -1352,14 +1018,6 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         const shouldInjectFirstTurn = isFirstTurn && !isSubAgent;
 
         if (shouldInjectFirstTurn) {
-          const enforcementContent = buildEnforcementContent(skillDescriptions);
-          if (enforcementContent && firstUser.parts?.length) {
-            if (!firstUser.parts.some(p => p.type === "text" && p.text?.includes("EXTREMELY_IMPORTANT"))) {
-              const ref = firstUser.parts[0];
-              firstUser.parts.unshift({ ...ref, type: "text", text: enforcementContent });
-            }
-          }
-
           // --- First-turn-only: Identity-echo directive + trigger warnings ---
           const triggersOutput = await runSessionContextTriggers(projectDir);
           const knownPlatform = extractValue(cachedIdentityOutput, "github.platform");
@@ -1376,17 +1034,12 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           // Agent must NOT add remotes to the parent repo or push from the parent repo.
           const isSubmoduleMode = knownIdentitySource === "submodule";
 
-          // Detect agent binary for identity echo
-          const agentBinary = detectAgentBinary();
-
           const identityBlock = buildIdentityEchoDirective(
             knownPlatform || "<platform>",
             knownOwner || "<owner>",
             knownRepo || "<repo>",
-            agentBinary.name,
-            agentBinary.version || undefined,
           );
-          const triggerBlock = triggersOutput ? `<SESSION_TRIGGERS>\n${triggersOutput}\n</SESSION_TRIGGERS>` : "";
+          const triggerBlock = triggersOutput ? `### Session Triggers\n\n${triggersOutput}` : "";
 
           const echoParts: string[] = [];
           if (identityBlock) {
@@ -1414,7 +1067,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
             if (lastUser?.parts?.length) {
               lastUser.parts.push({
                 type: "text",
-                text: `<LOCAL_MODE>\n⚠️ Operating in local-only mode — no git remote configured.\n\n- github.platform: local\n- github.owner: (none)\n- github.repo: (none)\n- github.identity_source: none\n\nGitHub/GitBucket API calls are unavailable. Local issue tracking (.issues/) is available.\nDo NOT attempt to use GitHub MCP or GitBucket API tools — all issue operations route to local .issues/.\n</LOCAL_MODE>`
+                text: `### Local Mode\n\n**Warning:** Operating in local-only mode — no git remote configured.\n\n- github.platform: local\n- github.owner: (none)\n- github.repo: (none)\n- github.identity_source: none\n\nGitHub/GitBucket API calls are unavailable. Local issue tracking (.issues/) is available. Do NOT attempt to use GitHub MCP or GitBucket API tools — all issue operations route to local .issues/.`
               });
             }
           } else if (isSubmoduleMode) {
@@ -1423,7 +1076,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
             if (lastUser?.parts?.length) {
               lastUser.parts.push({
                 type: "text",
-                text: `<LOCAL_MODE>\n⚠️ Operating in submodule-local mode — parent repo has ${parentRemoteCount} remote(s).\n\n- github.identity_source: submodule\n- All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory — not the project root.\n- The parent repo has ZERO remotes by design.\n- github.owner and github.repo are from the submodule remote for API routing ONLY\n- GitHub MCP calls route to the submodule's repository\n- Local git operations (branch, commit, stash) on the parent repo are permitted\n- Do NOT push from the parent repo — there is no remote to push to.\n- Do NOT add remotes to the parent repo.\n</LOCAL_MODE>`
+                text: `### Local Mode\n\n**Warning:** Operating in submodule-local mode — parent repo has ${parentRemoteCount} remote(s).\n\n- github.identity_source: submodule\n- All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory — not the project root.\n- The parent repo has ZERO remotes by design.\n- github.owner and github.repo are from the submodule remote for API routing ONLY\n- GitHub MCP calls route to the submodule's repository\n- Local git operations (branch, commit, stash) on the parent repo are permitted\n- Do NOT push from the parent repo — there is no remote to push to.\n- Do NOT add remotes to the parent repo.`
               });
             }
           } else if (!knownPlatform || !knownOwner || !knownRepo) {
@@ -1437,7 +1090,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
             if (lastUser?.parts?.length) {
               lastUser.parts.push({
                 type: "text",
-                text: `<IDENTITY_VALIDATION_FAILURE>\n⚠️ FATAL: Session identity values are MISSING. HALT all operations immediately.\n\nMissing values: ${missing}\n\nIdentity validation cannot proceed without these values. Do NOT infer identity from repository names, file paths, or environment variables. Resolve the missing identity values before continuing any operations.\n</IDENTITY_VALIDATION_FAILURE>`
+                text: `### Identity Validation Failure\n\nFATAL ERROR: Session identity values are MISSING. HALT all operations immediately.\n\nMissing values: ${missing}\n\nIdentity validation cannot proceed without these values. Do NOT infer identity from repository names, file paths, or environment variables. Resolve the missing identity values before continuing any operations.`
               });
             }
           } else {
@@ -1457,7 +1110,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
                 if (lastUser?.parts?.length) {
                   lastUser.parts.push({
                     type: "text",
-                    text: `<IDENTITY_VALIDATION_FAILURE>\n⚠️ FATAL: Your first message did not contain a valid identity echo. You MUST echo your platform identity before proceeding with ANY operations.\n\nExpected: Platform: ${knownPlatform}, Org: ${knownOwner}, Repo: ${knownRepo}\n\nHALT all operations. Echo the correct identity values above before continuing.\n</IDENTITY_VALIDATION_FAILURE>`
+                    text: `### Identity Validation Failure\n\nFATAL ERROR: Your first message did not contain a valid identity echo. You MUST echo your platform identity before proceeding with ANY operations.\n\nExpected: Platform: ${knownPlatform}, Org: ${knownOwner}, Repo: ${knownRepo}\n\nHALT all operations. Echo the correct identity values above before continuing.`
                   });
                 }
               } else {
@@ -1466,7 +1119,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
                   if (lastUser?.parts?.length) {
                     lastUser.parts.push({
                       type: "text",
-                      text: `<IDENTITY_VALIDATION_FAILURE>\n⚠️ FATAL: Identity echo mismatch detected!\n\nYour echo: Platform: ${echoPlatform}, Org: ${echoOwner}, Repo: ${echoRepo}\nExpected: Platform: ${knownPlatform}, Org: ${knownOwner}, Repo: ${knownRepo}\n\nHALT all operations. These values do NOT match. Use ONLY the expected values above. Do NOT infer identity from repository names, file paths, or environment variables.\n</IDENTITY_VALIDATION_FAILURE>`
+                      text: `### Identity Validation Failure\n\nFATAL ERROR: Identity echo mismatch detected!\n\nYour echo: Platform: ${echoPlatform}, Org: ${echoOwner}, Repo: ${echoRepo}\nExpected: Platform: ${knownPlatform}, Org: ${knownOwner}, Repo: ${knownRepo}\n\nHALT all operations. These values do NOT match. Use ONLY the expected values above. Do NOT infer identity from repository names, file paths, or environment variables.`
                     });
                   }
                 }
@@ -1474,21 +1127,6 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
             }
           }
         }
-
-      // --- Per-turn: Bare issue pipeline detection on LAST user message ---
-      const lastUser = userMessages[userMessages.length - 1];
-      if (lastUser?.parts?.length) {
-        for (const part of lastUser.parts) {
-          if (part.type === "text" && part.text) {
-            const match = part.text.match(BARE_ISSUE_RE);
-            if (match) {
-              const directive = buildIssuePipelineDirective(match[1]);
-              lastUser.parts.push({ type: "text", text: directive });
-              break; // Only inject pipeline directive once per message
-            }
-          }
-        }
-      }
 
       // --- Per-turn: Secret redaction on ALL assistant messages ---
       const assistantMessages = output.messages.filter(m => m.info?.role === "assistant");

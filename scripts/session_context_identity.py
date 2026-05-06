@@ -231,32 +231,6 @@ def probe_credentials_tier3(platform: str, root_dir: str, tier1_status: str) -> 
     return tier1_status
 
 
-def detect_agent_binary() -> tuple[str, str]:
-    """Detect the agent binary name and version from process arguments and environment.
-
-    Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
-    """
-    import os
-    import sys
-
-    argv0 = sys.argv[0] if sys.argv else ""
-    argv1 = sys.argv[1] if len(sys.argv) > 1 else ""
-
-    for arg in [argv1, argv0]:
-        if "opencode-cli" in arg:
-            return "OpenCode CLI", ""
-        if "opencode" in arg.lower() or "OpenCode" in arg:
-            return "OpenCode", ""
-
-    env_binary = os.environ.get("OPENCODE_BINARY", "")
-    env_version = os.environ.get("OPENCODE_VERSION", "")
-
-    if env_binary:
-        return env_binary, env_version
-
-    return "unknown (version detection failed)", ""
-
-
 def build_identity_section(
     owner: str,
     repo: str,
@@ -480,12 +454,6 @@ def main() -> int:
             root_dir,
         )
     )
-
-    agent_name, agent_version = detect_agent_binary()
-    agent_line = f"AgentName: {agent_name}"
-    if agent_version:
-        agent_line += f"\nModelId: {agent_version}"
-    print(agent_line)
 
     return 0
 
