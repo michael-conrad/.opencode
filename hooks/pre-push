@@ -1,107 +1,142 @@
 #!/bin/bash
 # Pre-push hook: Branch topology + commit count enforcement
-# Gate 1: Prevent pushing branches already merged into main/master/dev
-# Gate 2: Block single-issue branches with >1 commit (commit-per-issue invariant)
+# Gates inspect push refspecs from stdin, not the local checkout branch.
+# stdin format per git pre-push protocol:
+#   <local-ref> SP <local-sha> SP <remote-ref> SP <remote-sha> LF
 
 set -e
 
-CURRENT_BRANCH=$(git branch --show-current)
-
-# --- Gate 0: Block direct pushes to main/dev ---
 SKIP_BRANCH_PROTECTION="${SKIP_BRANCH_PROTECTION:-}"
-if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "master" ] || [ "$CURRENT_BRANCH" = "dev" ]; then
-    if [ "$SKIP_BRANCH_PROTECTION" != "1" ]; then
-        echo ""
-        echo "BLOCKED: Direct pushes to '$CURRENT_BRANCH' are prohibited."
-        echo ""
-        echo "Protected branches must only receive changes through pull requests."
-        echo ""
-        echo "To override (deliberate ops action only):"
-        echo "  SKIP_BRANCH_PROTECTION=1 git push origin $CURRENT_BRANCH"
-        echo ""
-        exit 1
-    fi
-fi
-
-# --- Gate 1: Merged branch topology check ---
-if git branch --merged dev 2>/dev/null | grep -q "^\s*$CURRENT_BRANCH$"; then
-    echo ""
-    echo "BLOCKED: Branch '$CURRENT_BRANCH' is already merged into 'dev'"
-    echo ""
-    echo "This branch has been merged and should be deleted, not pushed."
-    echo ""
-    echo "To clean up this merged branch:"
-    echo "  git checkout dev && git pull origin dev"
-    echo "  git branch -d $CURRENT_BRANCH"
-    echo "  git push origin --delete $CURRENT_BRANCH  # if pushed remotely"
-    echo ""
-    exit 1
-fi
-
-if git branch --merged main 2>/dev/null | grep -q "^\s*$CURRENT_BRANCH$"; then
-    echo ""
-    echo "BLOCKED: Branch '$CURRENT_BRANCH' is already merged into 'main'"
-    echo ""
-    echo "This branch has been merged and should be deleted, not pushed."
-    echo ""
-    echo "To clean up this merged branch:"
-    echo "  git checkout dev && git pull origin dev"
-    echo "  git branch -d $CURRENT_BRANCH"
-    echo "  git push origin --delete $CURRENT_BRANCH  # if pushed remotely"
-    echo ""
-    exit 1
-fi
-
-# --- Gate 2: Commit count check (commit-per-issue invariant) ---
 SKIP_COMMIT_COUNT_CHECK="${SKIP_COMMIT_COUNT_CHECK:-}"
-if [ "$SKIP_COMMIT_COUNT_CHECK" = "1" ]; then
-    exit 0
-fi
 
-case "$CURRENT_BRANCH" in
-    pair-*|rollback/*)
-        exit 0
-        ;;
-esac
+# Read stdin refspecs. For each line, evaluate all gates.
+# If any line triggers a block, the hook exits 1.
+# If no lines on stdin, exit 0 (no pushes to validate).
+ALLOWED=true
 
-# Git CWDs to the repo root. Detect submodule context: if we're inside .opencode/,
-# use tmp/ directly to avoid .opencode/.opencode/tmp/ nesting.
-WORK_STATE_DIR=".opencode/tmp"
-TOLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
-if [ -n "$TOLEVEL" ] && [ "$(basename "$TOLEVEL")" = ".opencode" ]; then
-    WORK_STATE_DIR="tmp"
-fi
+while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
+    [ -z "$LOCAL_REF" ] && continue
 
-# Work branches (work state file exists) have N commits for N work items — skip check
-if ls "$WORK_STATE_DIR"/work-*.md 1>/dev/null 2>&1; then
-    for f in "$WORK_STATE_DIR"/work-*.md; do
-        if grep -q "$CURRENT_BRANCH" "$f" 2>/dev/null; then
-            exit 0
+    # Extract branch basename (strip refs/heads/)
+    LOCAL_BRANCH="${LOCAL_REF#refs/heads/}"
+    REMOTE_BRANCH="${REMOTE_REF#refs/heads/}"
+
+    # Detect delete: local-sha is all zeros => ref is being deleted
+    IS_DELETE=false
+    if echo "$LOCAL_SHA" | grep -q '^0\{40\}$'; then
+        IS_DELETE=true
+    fi
+
+    # --- Gate 0: Block direct pushes to protected branches ---
+    # Deletes are always allowed (branch deletion is cleanup, not a push to protected branch)
+    if [ "$IS_DELETE" = false ]; then
+        case "$REMOTE_BRANCH" in
+            main|master|dev)
+                if [ "$SKIP_BRANCH_PROTECTION" != "1" ]; then
+                    echo ""
+                    echo "BLOCKED: Direct pushes to '$REMOTE_BRANCH' are prohibited."
+                    echo ""
+                    echo "Protected branches must only receive changes through pull requests."
+                    echo ""
+                    echo "To override (deliberate ops action only):"
+                    echo "  SKIP_BRANCH_PROTECTION=1 git push origin $REMOTE_BRANCH"
+                    echo ""
+                    ALLOWED=false
+                fi
+                ;;
+        esac
+    fi
+
+    # --- Gate 1: Merged branch topology check ---
+    # Only applies to same-name pushes (local branch == remote branch), not deletes
+    if [ "$IS_DELETE" = false ] && [ -n "$LOCAL_BRANCH" ] && [ "$LOCAL_BRANCH" = "$REMOTE_BRANCH" ]; then
+        if git branch --merged dev 2>/dev/null | grep -q "^\s*$LOCAL_BRANCH$"; then
+            echo ""
+            echo "BLOCKED: Branch '$LOCAL_BRANCH' is already merged into 'dev'"
+            echo ""
+            echo "This branch has been merged and should be deleted, not pushed."
+            echo ""
+            echo "To clean up:"
+            echo "  git checkout dev && git pull origin dev"
+            echo "  git branch -d $LOCAL_BRANCH"
+            echo "  git push origin --delete $LOCAL_BRANCH"
+            echo ""
+            ALLOWED=false
         fi
-    done
-fi
 
-# Single-issue branch: count commits ahead of dev
-COMMIT_COUNT=0
-if git rev-parse --verify origin/dev >/dev/null 2>&1; then
-    COMMIT_COUNT=$(git rev-list --count origin/dev..HEAD 2>/dev/null || echo "0")
-elif git rev-parse --verify dev >/dev/null 2>&1; then
-    COMMIT_COUNT=$(git rev-list --count dev..HEAD 2>/dev/null || echo "0")
-fi
+        if git branch --merged main 2>/dev/null | grep -q "^\s*$LOCAL_BRANCH$"; then
+            echo ""
+            echo "BLOCKED: Branch '$LOCAL_BRANCH' is already merged into 'main'"
+            echo ""
+            echo "This branch has been merged and should be deleted, not pushed."
+            echo ""
+            echo "To clean up:"
+            echo "  git checkout dev && git pull origin dev"
+            echo "  git branch -d $LOCAL_BRANCH"
+            echo "  git push origin --delete $LOCAL_BRANCH"
+            echo ""
+            ALLOWED=false
+        fi
+    fi
 
-if [ "$COMMIT_COUNT" -gt 1 ]; then
-    echo ""
-    echo "BLOCKED: Commit-per-issue invariant violated."
-    echo ""
-    echo "Branch '$CURRENT_BRANCH' has $COMMIT_COUNT commits but no work state file."
-    echo "Single-issue branches must have exactly 1 commit."
-    echo ""
-    echo "To fix:"
-    echo "  1. Squash: git reset --soft origin/dev && git commit -m '<message>'"
-    echo "  2. Or set SKIP_COMMIT_COUNT_CHECK=1 if committing as a human operator"
-    echo ""
-    echo "AI agent: This is a runtime gate, not an advisory rule."
-    echo ""
+    # --- Gate 2: Commit count check (commit-per-issue invariant) ---
+    if [ "$IS_DELETE" = false ] && [ -n "$LOCAL_BRANCH" ] && [ "$LOCAL_BRANCH" = "$REMOTE_BRANCH" ]; then
+        if [ "$SKIP_COMMIT_COUNT_CHECK" = "1" ]; then
+            continue
+        fi
+
+        case "$LOCAL_BRANCH" in
+            pair-*|rollback/*)
+                continue
+                ;;
+        esac
+
+        # Git CWDs to the repo root. Detect submodule context.
+        WORK_STATE_DIR=".opencode/tmp"
+        TOLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+        if [ -n "$TOLEVEL" ] && [ "$(basename "$TOLEVEL")" = ".opencode" ]; then
+            WORK_STATE_DIR="tmp"
+        fi
+
+        # Work branches have N commits for N work items — skip check
+        WORK_BRANCH=false
+        if ls "$WORK_STATE_DIR"/work-*.md 1>/dev/null 2>&1; then
+            for f in "$WORK_STATE_DIR"/work-*.md; do
+                if grep -q "$LOCAL_BRANCH" "$f" 2>/dev/null; then
+                    WORK_BRANCH=true
+                    break
+                fi
+            done
+        fi
+
+        if [ "$WORK_BRANCH" = false ]; then
+            COMMIT_COUNT=0
+            if git rev-parse --verify origin/dev >/dev/null 2>&1; then
+                COMMIT_COUNT=$(git rev-list --count origin/dev.."$LOCAL_SHA" 2>/dev/null || echo "0")
+            elif git rev-parse --verify dev >/dev/null 2>&1; then
+                COMMIT_COUNT=$(git rev-list --count dev.."$LOCAL_SHA" 2>/dev/null || echo "0")
+            fi
+
+            if [ "$COMMIT_COUNT" -gt 1 ]; then
+                echo ""
+                echo "BLOCKED: Commit-per-issue invariant violated."
+                echo ""
+                echo "Branch '$LOCAL_BRANCH' has $COMMIT_COUNT commits but no work state file."
+                echo "Single-issue branches must have exactly 1 commit."
+                echo ""
+                echo "To fix:"
+                echo "  1. Squash: git reset --soft origin/dev && git commit -m '<message>'"
+                echo "  2. Or set SKIP_COMMIT_COUNT_CHECK=1 if committing as a human operator"
+                echo ""
+                echo "AI agent: This is a runtime gate, not an advisory rule."
+                echo ""
+                ALLOWED=false
+            fi
+        fi
+    fi
+done
+
+if [ "$ALLOWED" = false ]; then
     exit 1
 fi
 
