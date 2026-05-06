@@ -24,9 +24,9 @@ Orchestrate work execution by dispatching sub-agents for each approved issue, us
 
 ### Step 1: Verify Gate Evidence Audit and Determine Execution Order
 
-**🚫 CRITICAL PREREQUISITE: Before determining execution order, verify the Gate Evidence Audit Table exists in the work state file (`.opencode/tmp/work-*.md`).**
+**🚫 CRITICAL PREREQUISITE: Before determining execution order, verify the Gate Evidence Audit Table exists in the work state file (`tmp/work-*.md`).**
 
-- Read the work state file from `pre-implementation-analysis` (`.opencode/tmp/work-*.md`)
+- Read the work state file from `pre-implementation-analysis` (`tmp/work-*.md`)
 - **If the Gate Evidence Audit Table is missing** AND any issues were classified as "already-implemented" during screening: HALT and return to `pre-implementation-analysis` Step 0.5 to complete the audit. The table is a mandatory structural artifact — its absence means Gate 1 and Gate 2 evidence was not verified.
 - **If the Gate Evidence Audit Table exists** AND has ❌ entries for any issue: those issues were already downgraded during pre-implementation-analysis. Verify the downgraded classifications are reflected in the execution plan. If not, return to `pre-implementation-analysis`.
 - **If NO issues were classified as "already-implemented":** The Gate Evidence Audit Table is not required. Proceed normally.
@@ -46,7 +46,7 @@ Before any worktree creation or sub-agent dispatch, create the dispatch entry ma
 ```bash
 CURRENT_BRANCH=$(git branch --show-current)
 SAFE_BRANCH=$(echo "$CURRENT_BRANCH" | tr '/' '-')
-touch .opencode/tmp/dispatch-"$SAFE_BRANCH".marker
+touch tmp/dispatch-"$SAFE_BRANCH".marker
 ```
 
 This marker serves as dispatch entry proof. The pre-commit hook (`.opencode/hooks/pre-commit` lines 33-129) checks for this marker before allowing commits.
@@ -215,7 +215,7 @@ After ALL issues in the work set complete:
 
 Before creating ANY pull request, verify:
 
-1. Work state file exists at `.opencode/tmp/work-*.md`
+1. Work state file exists at `tmp/work-*.md`
 2. All feature branches listed in work state have been squash-merged into the work branch
 3. The work branch has exactly one squash-merge commit per issue
 4. Working tree is clean (no uncommitted changes)

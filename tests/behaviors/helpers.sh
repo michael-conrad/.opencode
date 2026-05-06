@@ -20,7 +20,7 @@ while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
     PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
-BEHAVIOR_LOG_DIR="${BEHAVIOR_LOG_DIR:-$PROJECT_DIR/.opencode/tmp/behavior-test-$(date +%Y%m%d-%H%M%S)}"
+BEHAVIOR_LOG_DIR="${BEHAVIOR_LOG_DIR:-$PROJECT_DIR/tmp/behavior-test-$(date +%Y%m%d-%H%M%S)}"
 
 BEHAVIOR_MAX_RETRIES="${BEHAVIOR_MAX_RETRIES:-3}"
 BEHAVIOR_RETRY_DELAY="${BEHAVIOR_RETRY_DELAY:-15}"

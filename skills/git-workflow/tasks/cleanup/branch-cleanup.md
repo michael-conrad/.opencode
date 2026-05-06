@@ -129,7 +129,7 @@ After confirming content is safe to delete, remove the dispatch entry marker for
 ```bash
 CLEANUP_BRANCH_NAME=$(git branch --show-current)
 SAFE_BRANCH=$(echo "$CLEANUP_BRANCH_NAME" | tr '/' '-')
-rm -f .opencode/tmp/dispatch-"$SAFE_BRANCH".marker
+rm -f tmp/dispatch-"$SAFE_BRANCH".marker
 ```
 
 This marker was created by `assemble-work` Step 1.5 as dispatch entry proof for the pre-commit hook.
@@ -152,7 +152,7 @@ When the merged branch was a work branch (created by `assemble-work`):
 1. Delete individual feature branches that were squash-merged into the work branch
 2. Delete the work branch itself
 3. Remove individual feature worktrees
-4. Remove work state file: `rm .opencode/tmp/work-*.md`
+4. Remove work state file: `rm tmp/work-*.md`
 5. Prune remote references
 
 **⚠️ CRITICAL: Never delete a work branch or its feature branches until the work PR is confirmed merged via GitHub API.**

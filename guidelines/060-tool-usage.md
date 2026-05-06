@@ -97,9 +97,7 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 
 | Workdir | Path to create `tmp/` | Correct | Wrong (FORBIDDEN) |
 | -- | -- | -- | -- |
-| `.opencode/` | `tmp/` | `mkdir -p tmp/` | `mkdir -p .opencode/tmp/` |
-| `.opencode/` | `tmp/work.md` | `write(filePath="tmp/work.md")` | `write(filePath=".opencode/tmp/work.md")` |
-| (project root) | `.opencode/tmp/` | `mkdir -p .opencode/tmp/` | N/A |
+| (any) | `tmp/` | `mkdir -p tmp/` | N/A — all ephemeral artifacts go in repo root `tmp/` |
 | (any) | (any) | Resolve relative to workdir | Do NOT compose `.opencode/.opencode/` |
 
 - 🚫 FORBIDDEN: Any `mkdir`, `write`, or path-creating operation whose resolved path contains `.opencode/.opencode/`

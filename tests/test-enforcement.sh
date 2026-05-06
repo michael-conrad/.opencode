@@ -11,7 +11,7 @@
 # run from within an active opencode desktop session without conflicts.
 #
 # Usage:  bash .opencode/tests/test-enforcement.sh
-# Output: .opencode/tmp/enforcement-test-<timestamp>/results.md
+# Output: tmp/enforcement-test-<timestamp>/results.md
 
 set -euo pipefail
 
@@ -62,7 +62,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-LOGDIR="$PROJECT_DIR/.opencode/tmp/enforcement-test-$(date +%Y%m%d-%H%M%S)"
+LOGDIR="$PROJECT_DIR/tmp/enforcement-test-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$LOGDIR"
 
 TIMEOUT=120

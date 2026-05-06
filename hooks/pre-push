@@ -91,12 +91,10 @@ while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
                 ;;
         esac
 
-        # Git CWDs to the repo root. Detect submodule context.
-        WORK_STATE_DIR=".opencode/tmp"
-        TOLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
-        if [ -n "$TOLEVEL" ] && [ "$(basename "$TOLEVEL")" = ".opencode" ]; then
-            WORK_STATE_DIR="tmp"
-        fi
+        # Work state files live at the repo root's tmp/ directory.
+        # git rev-parse --show-toplevel resolves to the correct root
+        # whether running in parent repo or submodule context.
+        WORK_STATE_DIR="tmp"
 
         # Work branches have N commits for N work items — skip check
         WORK_BRANCH=false

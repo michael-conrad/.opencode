@@ -64,7 +64,7 @@ if [ "$LIST_ONLY" = true ]; then
     exit 0
 fi
 
-LOGDIR="$PROJECT_DIR/.opencode/tmp/verification-honesty-test-$(date +%Y%m%d-%H%M%S)"
+LOGDIR="$PROJECT_DIR/tmp/verification-honesty-test-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$LOGDIR"
 
 PASS_COUNT=0
