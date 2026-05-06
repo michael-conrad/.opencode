@@ -6,7 +6,7 @@ Ensure mandatory completion steps run regardless of workflow outcome. Idempotent
 
 ## Procedure
 
-1. Verify dispatch marker still exists: `ls .opencode/tmp/dispatch-*.marker`
+1. Verify dispatch marker still exists: `ls tmp/dispatch-*.marker`
 2. Report completion status to work state file
 3. Return compact completion result
 

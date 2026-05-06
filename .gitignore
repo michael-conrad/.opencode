@@ -3,7 +3,6 @@ package.json
 package-lock.json
 bun.lock
 tmp/*
-!tmp/work-*.md
 .node/
 .opencode/
 .worktrees/

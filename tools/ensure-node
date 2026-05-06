@@ -64,7 +64,7 @@ NODE_DIST_URL="https://nodejs.org/dist/v${NODE_VERSION}/${NODE_FILE}.${EXT}"
 echo "Downloading Node.js v${NODE_VERSION} for ${PLATFORM}..."
 echo "URL: ${NODE_DIST_URL}"
 
-TMPDIR=$(mktemp -d "${REPO_ROOT}/.opencode/tmp/node-download-XXXXXX")
+TMPDIR=$(mktemp -d "${REPO_ROOT}/tmp/node-download-XXXXXX")
 trap 'rm -rf "${TMPDIR}"' EXIT
 
 if ! curl --fail --progress-bar -o "${TMPDIR}/${NODE_FILE}.${EXT}" "${NODE_DIST_URL}" 2>&1; then

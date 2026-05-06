@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the work state file schema extension for chain-of-responsibility orchestration. Each atomic task in the `verify-authorization/`, `pre-impl/`, and `screen/` chains writes results as a dedicated section in the work state file (`.opencode/tmp/work-<timestamp>.md`).
+Define the work state file schema extension for chain-of-responsibility orchestration. Each atomic task in the `verify-authorization/`, `pre-impl/`, and `screen/` chains writes results as a dedicated section in the work state file (`tmp/work-<timestamp>.md`).
 
 ## Header Section
 

@@ -38,6 +38,34 @@ For each submodule entry:
 
 **There is NO `--force` override for submodule dependency gates.**
 
+### Step 0.5: Submodule-Bump-Only PR Gate (MANDATORY — parent repo only)
+
+**If `identity_source` is NOT `root` or `.gitmodules` does NOT exist:** Skip entirely.
+
+**If parent repo context (`identity_source == "root"` AND `.gitmodules` exists):**
+
+Check if the PR diff is submodule-pointer-only:
+
+```bash
+CHANGED=$(git diff --stat dev...HEAD | tail -1 | grep -oP '\d+ file' | grep -oP '\d+')
+SUBMODULE_ONLY=$(git diff --stat dev...HEAD | grep -c '\.opencode')
+if [ "$CHANGED" = "1" ] && [ "$SUBMODULE_ONLY" = "1" ]; then
+  echo "BLOCKED: Submodule-bump-only PRs are prohibited."
+  echo ""
+  echo "Creating a parent repo PR that only updates the submodule SHA is"
+  echo "a guideline violation. The submodule SHA was already updated by"
+  echo "the submodule PR merge. Close this branch with a comment:"
+  echo ""
+  echo "  'Submodule SHA already updated by submodule PR merge. No parent PR needed.'"
+  echo ""
+  echo "Then delete the branch and close any associated issue with"
+  echo "state_reason=completed."
+```
+- **If only `.opencode` changed → BLOCK.** Do NOT create the parent PR. Close branch, comment, and halt.
+- **If >1 file or non-submodule files changed → PASS.** Proceed to Step 1.
+
+**AUTHORITY:** `spec-auditor` auto-fix model, `000-critical-rules.md` §Implementation Without Spec (audit auto-fix exemption). Spec #414 Part 2 — prohibit submodule-bump-only parent PRs.
+
 ### Step 1: Verify PR Instruction (MANDATORY)
 
 **If ANY check fails → STOP and report. DO NOT proceed.**
@@ -66,7 +94,7 @@ For each submodule entry:
 git log origin/dev..HEAD --oneline
 
 # Detect branch type via work state file
-ls .opencode/tmp/work-*.md 2>/dev/null
+ls tmp/work-*.md 2>/dev/null
 ```
 
 **Branch type detection and enforcement:**

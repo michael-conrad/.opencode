@@ -22,11 +22,11 @@ bash .opencode/tests/with-test-home --clean
 bash .opencode/tests/with-test-home --clean-all
 ```
 
-The wrapper creates an isolated temporary home directory (`.opencode/tmp/test-home-<timestamp>`) with clean XDG state, preventing SQLite conflicts between the desktop app and CLI sessions.
+The wrapper creates an isolated temporary home directory (`tmp/test-home-<timestamp>`) with clean XDG state, preventing SQLite conflicts between the desktop app and CLI sessions.
 
 ### `test-enforcement.sh` — Content-Verification Test Suite
 
-Runs opencode-cli sequentially for each test scenario, verifying that the LLM invokes appropriate skills based on user prompts. Content-verification tests check that rule text exists in guideline/skill files. Produces a results file at `.opencode/tmp/enforcement-test-<timestamp>/results.md`.
+Runs opencode-cli sequentially for each test scenario, verifying that the LLM invokes appropriate skills based on user prompts. Content-verification tests check that rule text exists in guideline/skill files. Produces a results file at `tmp/enforcement-test-<timestamp>/results.md`.
 
 ### `test-pep723-tools.sh` — Tool Infrastructure Tests
 

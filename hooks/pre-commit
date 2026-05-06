@@ -27,7 +27,7 @@ fi
 
 # --- Gate 2: Dispatch evidence check ---
 # Implementation branches (feature/*, spec/*, fix/*) require a work state file
-# in .opencode/tmp/ as evidence that the dispatch chain was followed.
+# in tmp/ as evidence that the dispatch chain was followed.
 # Exemptions: pair-* (pair mode), rollback/* (rollback ops), .issues/ only,
 # merge commits, human escape hatch.
 
@@ -88,20 +88,15 @@ if [ -f "$COMMIT_MSG_FILE" ]; then
 fi
 
 # Check for work state file matching current branch
-# Git CWDs to the repo root. Detect submodule context: if we're inside .opencode/,
-# use tmp/ directly to avoid .opencode/.opencode/tmp/ nesting.
-WORK_STATE_DIR=".opencode/tmp"
-TOLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
-if [ -n "$TOLEVEL" ] && [ "$(basename "$TOLEVEL")" = ".opencode" ]; then
-    WORK_STATE_DIR="tmp"
-fi
+# Git CWDs to the repo root. Use tmp/ to avoid .opencode/.opencode/tmp/ nesting.
+WORK_STATE_DIR="tmp"
 
 if [ ! -d "$WORK_STATE_DIR" ]; then
     echo ""
     echo "ERROR: Dispatch evidence check FAILED."
     echo ""
     echo "Branch '$CURRENT_BRANCH' is an implementation branch but no"
-    echo "work state directory exists at .opencode/tmp/."
+    echo "work state directory exists at tmp/."
     echo ""
     echo "The dispatch chain requires a work state file as evidence that"
     echo "sub-agent dispatch occurred via divide-and-conquer/assemble-work."
@@ -135,7 +130,7 @@ if [ "$WORK_FILE_FOUND" = "0" ]; then
     echo "ERROR: Dispatch evidence check FAILED."
     echo ""
     echo "Branch '$CURRENT_BRANCH' is an implementation branch but no"
-    echo "work state file in .opencode/tmp/ references this branch."
+    echo "work state file in tmp/ references this branch."
     echo ""
     echo "Work state files found: $(ls "$WORK_STATE_DIR"/work-*.md 2>/dev/null | wc -l)"
     echo ""
