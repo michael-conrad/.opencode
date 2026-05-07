@@ -1,5 +1,67 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "ollama-cloud": {
+      "options": {
+        "timeout": 1800000,
+        // 30 min overall — generous but still a safety net
+        "chunkTimeout": 120000
+        // 2 mins between chunks — detects dead connections
+      }
+    },
+    "ollama": {
+      "name": "Qwen 3.5 27b",
+      "npm": "@ai-sdk/openai-compatible",
+      "models": {
+        "qwen3.5:27b": {
+          "name": "Qwen 3.5 27b"
+        },
+        "qwen3.5:35b": {
+          "name": "Qwen 3.5 35b"
+        },
+        "deepseek-v3.2:cloud": {
+          "name": "DeepSeek-V3.2 (Cloud)"
+        },
+        "deepseek-v4-flash:cloud": {
+          "name": "DeepSeek-V4-Flash (Cloud)"
+        },
+        "deepseek-v4-pro:cloud": {
+          "name": "DeepSeek-V4-Pro (Cloud)"
+        },
+        "glm-5:cloud": {
+          "name": "GLM-5 (Cloud)"
+        },
+        "glm-5.1:cloud": {
+          "name": "GLM-5.1 (Cloud)"
+        },
+        "qwen3-embedding:latest": {
+          "name": "Qwen 3 Embedding"
+        },
+        "kimi-k2.6:cloud": {
+          "name": "Kimi K2.6 (Cloud)"
+        },
+        "cogito-2.1:671b-cloud": {
+          "name": "Cogito 2.1 671b (Cloud)"
+        },
+        "devstral-2:123b-cloud": {
+          "name": "Devstral 2 123b (Cloud)"
+        },
+        "mistral-large-3:675b-cloud": {
+          "name": "Mistral Large 3 675b (Cloud)"
+        },
+        "qwen3.5:397b-cloud": {
+          "name": "Qwen 3.5 397b (Cloud)"
+        }
+      },
+      "options": {
+        "baseURL": "http://localhost:11434/v1",
+        "timeout": 1800000,
+        // 30 min overall — generous but still a safety net
+        "chunkTimeout": 120000
+        // 2 mins between chunks — detects dead connections
+      }
+    }
+  },
   "instructions": [
     ".opencode/AGENTS.md",
     ".opencode/guidelines/000-critical-rules.md",
