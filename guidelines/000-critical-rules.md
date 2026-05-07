@@ -1799,6 +1799,41 @@ This violation applies to both human-initiated audits (`spec-auditor`) and autom
     source: "000-critical-rules.md §Mechanical-Only Audit Without Semantic and Conflict Exploration"
 ```
 
+<!-- Issue #443: VbC Fabricated PASS — behavioral vs structural evidence distinction -->
+
+## Critical Violation: VbC Fabricated PASS — Reporting File Existence as Verified Behavioral Evidence
+
+**⚠️ Reporting file existence, test file presence, or any structural evidence as sufficient for behavioral success criteria is a CRITICAL GUIDELINE VIOLATION.**
+
+Reading a test implementation file and confirming it exists is structural evidence. Running the test and observing PASS/FAIL output is behavioral evidence. These are fundamentally different categories — a test file that contains a deliberate bug will pass the structural check (the file exists, the test function is present) but fail the behavioral check (the test output shows FAIL). Accepting structural evidence as behavioral evidence is the same category error as reporting metadata-as-evidence: it substitutes existence for behavior.
+
+- 🚫 FORBIDDEN: Reporting file existence as evidence that a behavioral SC is satisfied
+- 🚫 FORBIDDEN: Reading a test file and reporting "test exists → PASS" without executing it
+- 🚫 FORBIDDEN: Using `cat`, `read`, or `ls` to verify behavioral correctness
+- 🚫 FORBIDDEN: Classifying structural evidence (file exists, function present, yaml block present) as PASS for behavioral SCs
+- ✅ REQUIRED: For behavioral SCs, the agent MUST execute the test and report the output
+- ✅ REQUIRED: Classify each SC as structural or behavioral in the evidence table per `verification-before-completion` verify task
+- ✅ REQUIRED: Use behavioral evidence (test execution output) only for behavioral SCs; use structural evidence only for structural SCs
+
+**AUTHORITY:** Spec #443, `verification-before-completion/tasks/verify.md` §Evidence Types, `065-verification-honesty.md` §Verification Comparison Semantics
+
+```yaml+symbolic
+  - id: critical-rules-047
+    title: "Reporting file existence as verified behavioral evidence is prohibited"
+    conditions:
+      all:
+        - "success_criterion_type == 'behavioral'"
+        - "evidence_type == 'structural'"
+        - "evidence_reported_as == 'PASS'"
+    actions:
+      - HALT
+      - REQUIRE_BEHAVIORAL_EVIDENCE
+    conflicts_with: []
+    requires: [verification-honesty-001, verification-honesty-004]
+    triggers: [verification-before-completion]
+    source: "000-critical-rules.md §VbC Fabricated PASS"
+```
+
 ______________________________________________________________________
 
 **Search guidelines:** Use `srclight_search_symbols` or `grep` to find relevant guidelines.
@@ -2588,4 +2623,19 @@ When a sub-agent fails at any stage, the orchestrator reading output files inlin
     requires: [verification-honesty-001, verification-honesty-003]
     triggers: [spec-auditor, adversarial-audit, concern-separation-auditor, plan-fidelity-auditor, coherence-auditor]
     source: "000-critical-rules.md §Mechanical-Only Audit Without Semantic and Conflict Exploration"
+
+  - id: critical-rules-047
+    title: "Reporting file existence as verified behavioral evidence is prohibited"
+    conditions:
+      all:
+        - "success_criterion_type == 'behavioral'"
+        - "evidence_type == 'structural'"
+        - "evidence_reported_as == 'PASS'"
+    actions:
+      - HALT
+      - REQUIRE_BEHAVIORAL_EVIDENCE
+    conflicts_with: []
+    requires: [verification-honesty-001, verification-honesty-004]
+    triggers: [verification-before-completion]
+    source: "000-critical-rules.md §VbC Fabricated PASS"
 ```

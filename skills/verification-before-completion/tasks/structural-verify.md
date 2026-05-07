@@ -97,6 +97,8 @@ For each file path in the dispatch context:
 - ANY component FAIL → Return FAIL, HALT verification, report missing components
 - No yaml+symbolic block found → Return FAIL (structural verification impossible)
 
+**⚠️ DISCLAIMER: Structural completeness verification confirms ONLY that implementation components exist — it does NOT verify behavioral correctness.** A component that passes structural verification (exists in the file, has the right fields, appears in the yaml block) may still fail behavioral verification (the test contains a bug, the function returns wrong values, the rule doesn't produce the expected agent behavior). Structural PASS is a prerequisite for behavioral verification, not a substitute.
+
 ## Adversarial Verification
 
 Each structural component check MUST be verified by reading the actual file. Claims from memory or cached context are VERIFICATION-GAP findings.
