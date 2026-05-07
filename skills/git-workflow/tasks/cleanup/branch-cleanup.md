@@ -60,6 +60,77 @@ git -C /path/to/main/repo checkout dev && git -C /path/to/main/repo pull origin 
 
 🚫 FORBIDDEN: Proceeding past this gate without matching hash evidence.
 
+### Step 1.7: Park Parent Repo on dev
+
+After submodule dev sync (Step 1/1.5), the parent repo must also be parked on `dev` with the latest changes. This step ensures both the submodule and the parent repo are on `dev` and up to date.
+
+**Detect context:**
+
+```bash
+# If running from a worktree, use the main repo path for parent operations
+PARENT_REPO_PATH="$(git -C "$(git rev-parse --show-toplevel)/.." rev-parse --show-toplevel 2>/dev/null || echo '')"
+
+# If no parent repo (not a submodule), skip this step entirely
+if [ -z "$PARENT_REPO_PATH" ]; then
+    echo "Not a submodule — skipping parent repo dev parking."
+    # Verify current repo is on dev (already done in Step 1.5)
+    echo "Parent repo dev parking: N/A (not a submodule)"
+else
+    echo "Parent repo detected at: $PARENT_REPO_PATH"
+fi
+```
+
+**Park parent repo on dev:**
+
+```bash
+if [ -n "$PARENT_REPO_PATH" ]; then
+    # Switch parent repo to dev
+    git -C "$PARENT_REPO_PATH" checkout dev
+    git -C "$PARENT_REPO_PATH" pull origin dev --ff-only
+fi
+```
+
+**Verify parent repo is on dev:**
+
+```bash
+if [ -n "$PARENT_REPO_PATH" ]; then
+    PARENT_BRANCH=$(git -C "$PARENT_REPO_PATH" branch --show-current)
+    if [ "$PARENT_BRANCH" != "dev" ]; then
+        echo "ERROR: Parent repo is on '$PARENT_BRANCH', expected 'dev'"
+        echo "HALT: Parent repo dev parking failed"
+        # Do NOT proceed — dev parking is mandatory
+    fi
+fi
+```
+
+**Handle dirty submodule pointer (CRITICAL):**
+
+After submodule dev sync, the parent repo's submodule pointer will be dirty — this is **expected and normal**. The parent repo tracks a specific submodule commit, and after `git pull origin dev` in the submodule, the submodule HEAD will differ from what the parent repo recorded on its own `dev` branch.
+
+```bash
+if [ -n "$PARENT_REPO_PATH" ]; then
+    # Check if submodule pointer is dirty
+    DIRTY_SUBMODULE=$(git -C "$PARENT_REPO_PATH" diff --stat .opencode 2>/dev/null || echo '')
+
+    if [ -n "$DIRTY_SUBMODULE" ]; then
+        echo "Submodule pointer is dirty (expected after submodule dev sync)."
+        echo "No corrective action needed — dirty pointer is normal post-sync state."
+        # DO NOT: git add, git commit, git stash, or any corrective action on the dirty submodule
+        # The dirty pointer reflects that the submodule is now ahead of the parent repo's recorded commit.
+        # This will be resolved naturally when the parent repo's dev branch merges a PR
+        # that updates the submodule pointer.
+    fi
+fi
+```
+
+**⚠️ CRITICAL: Dirty submodule pointer exemption:**
+- 🚫 FORBIDDEN: Attempting to commit, stash, or resolve the dirty submodule pointer
+- 🚫 FORBIDDEN: Treating a dirty submodule pointer as a cleanup failure or error condition
+- ✅ REQUIRED: Acknowledge the dirty state as expected and continue
+- ✅ REQUIRED: The parent repo `git status` after this step will show `.opencode (modified)` — this is correct and expected
+
+**Evidence artifact (MANDATORY):** Tool-call output showing `git -C "$PARENT_REPO_PATH" branch --show-current` returns `dev` MUST be present before proceeding. If no parent repo exists (not a submodule), evidence that the step was evaluated and skipped is sufficient.
+
 ### Step 2: Remove Feature Worktree
 
 ```bash
