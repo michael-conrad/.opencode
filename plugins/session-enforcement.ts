@@ -758,46 +758,6 @@ function redactSecrets(text: string): string {
 }
 
 /**
- * Build a protected branch edit warning block for when files are edited
- * on dev/main without a worktree or pair- branch prefix.
- * 
- * This is the per-turn runtime guard — it fires AFTER each assistant turn
- * when git diff detects file changes on a protected branch. This is distinct
- * from the session-start trigger in session_context_triggers.py which only
- * checks once at session start.
- */
-function buildProtectedBranchEditTrigger(changedFiles: string[], branch: string): string {
-  const fileList = changedFiles.slice(0, 10).map(f => `\`${f}\``).join(", ");
-  const moreFiles = changedFiles.length > 10 ? `, …and ${changedFiles.length - 10} more` : "";
-  
-  return `### Session Triggers
-
-protected_branch_with_changes: ${changedFiles.length} file(s) changed on ${branch} branch without worktree or pair-mode prefix.
-Changed: ${fileList}${moreFiles}
-Process silently. Do NOT echo this trigger in chat output.`;
-}
-
-/**
- * Detect uncommitted file changes on the current branch via git diff.
- * Returns empty array if no changes or if git is unavailable.
- */
-function detectUncommittedFileChanges(projectDir: string): string[] {
-  try {
-    const result = execSync("git diff --name-only", {
-      cwd: projectDir,
-      encoding: "utf8",
-      input: "",
-      timeout: 5000,
-      stdio: ["pipe", "pipe", "pipe"],
-    }).trim();
-    if (!result) return [];
-    return result.split("\n").filter(line => line.trim().length > 0);
-  } catch {
-    return [];
-  }
-}
-
-/**
  * Get the current git branch name.
  * Returns null if git is unavailable.
  */
@@ -813,14 +773,6 @@ function getCurrentBranch(projectDir: string): string | null {
   } catch {
     return null;
   }
-}
-
-/**
- * Check if the current branch is a protected branch (main/master/dev)
- * that should not have direct edits.
- */
-function isProtectedBranch(branch: string): boolean {
-  return branch === "main" || branch === "master" || branch === "dev";
 }
 
 /**
@@ -969,7 +921,27 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
             knownOwner || "<owner>",
             knownRepo || "<repo>",
           );
-          const triggerBlock = triggersOutput ? `### Session Triggers\n\n${triggersOutput}` : "";
+
+          // Per spec #426: extract NESTED_OPENCODE_FATAL from triggers output
+          // and inject it as a SEPARATE block (not inside Session Triggers)
+          let triggerOutputForSessionBlock = triggersOutput || "";
+          let nestedOpencodeBlock = "";
+          const nestedFatalMatch = triggerOutputForSessionBlock.match(/### NESTED_OPENCODE_FATAL[\s\S]*?(?=\n### |\n\n### |\n*$)/);
+          if (nestedFatalMatch) {
+            nestedOpencodeBlock = nestedFatalMatch[0].trim();
+            // Remove the nested opencode block from the session triggers output
+            triggerOutputForSessionBlock = triggerOutputForSessionBlock.replace(nestedFatalMatch[0], "").trim();
+          }
+          // Also match if it's the only/last section (no trailing ###)
+          if (!nestedOpencodeBlock) {
+            const nestedFatalOnlyMatch = triggersOutput?.match(/### NESTED_OPENCODE_FATAL[\s\S]*/);
+            if (nestedFatalOnlyMatch) {
+              nestedOpencodeBlock = nestedFatalOnlyMatch[0].trim();
+              triggerOutputForSessionBlock = triggerOutputForSessionBlock.replace(nestedFatalOnlyMatch[0], "").trim();
+            }
+          }
+
+          const triggerBlock = triggerOutputForSessionBlock ? `### Session Triggers\n\n${triggerOutputForSessionBlock}` : "";
 
           const echoParts: string[] = [];
           if (identityBlock) {
@@ -980,6 +952,12 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           }
           if (echoParts.length > 0 && firstUser.parts?.length) {
             firstUser.parts.unshift({ type: "text", text: echoParts.join("\n\n") });
+          }
+
+          // Per spec #426 SC-10: Inject NESTED_OPENCODE_FATAL as a separate block
+          // AFTER all other content in the first user message (not inside Session Triggers)
+          if (nestedOpencodeBlock && firstUser.parts?.length) {
+            firstUser.parts.push({ type: "text", text: nestedOpencodeBlock });
           }
 
           // --- First-turn-only: Plugin diagnostics injection ---
@@ -1240,25 +1218,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         }
       }
 
-      // --- Per-turn: Protected branch edit guard ---
-      // After each assistant turn, check if files were edited on dev/main
-      // without a worktree or pair- branch prefix. If so, inject warning.
-      const currentBranch = getCurrentBranch(projectDir);
-      if (currentBranch && isProtectedBranch(currentBranch)) {
-        const worktreeDir = input?.worktree || "";
-        const inWorktree = worktreeDir && worktreeDir !== projectDir;
-        
-        if (!inWorktree && !isPairModeBranch(currentBranch)) {
-          const changedFiles = detectUncommittedFileChanges(projectDir);
-          if (changedFiles.length > 0) {
-            const warning = buildProtectedBranchEditTrigger(changedFiles, currentBranch);
-            const lastAssistant = assistantMessages[assistantMessages.length - 1];
-            if (lastAssistant?.parts?.length) {
-              lastAssistant.parts.push({ type: "text", text: warning });
-            }
-          }
-        }
-      }
+
     },
   };
 }
