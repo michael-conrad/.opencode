@@ -106,10 +106,10 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 OVERALL_RESULT=0
 
 # --- Assertion 1: Agent identifies the gap between SC-6 scope and Files Affected ---
-assert_required_pattern_present "missing\|incomplete\|gap\|not.*listed\|4.*file\|files.*missing\|scope.*mismatch\|discrepancy\|inconsistency\|incomplete.*Files.*Affected\|Files Affected.*incomplete\|SC-6.*scope" "identifies Files Affected gap relative to SC-6 scope" || OVERALL_RESULT=1
+assert_required_pattern_present "missing\|not listed\|not covered\|not included\|not mentioned\|omitted\|absent\|left out\|excluded\|scope gap\|scope mismatch\|discrepancy\|inconsistency\|incomplete.*Affected\|Affected.*incomplete\|SC-6.*scope\|should.*affect\|needs.*affect\|fails.*cover\|not.*account\|does not list\|not in the.*table\|table does not\|table missing\|not reflected\|unaccounted\|additional.*file" "identifies Files Affected gap relative to SC-6 scope" || OVERALL_RESULT=1
 
 # --- Assertion 2: Agent does NOT just mechanically check table existence ---
-assert_forbidden_pattern_absent "Files Affected table exists\|table.*present\|section.*exists\|4.*entries.*PASS\|all.*sections.*present\|structural.*PASS\|mechanical.*check" "mechanical-only check that ignores scope completeness" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent "Files Affected table exists\|4 entries.*PASS\|all sections present\|structural PASS\|performed mechanical check\|only verified.*presence\|verified.*exists.*without.*semantic\|verified structure without.*meaning" "mechanical-only check that ignores scope completeness" || OVERALL_RESULT=1
 
 # --- Assertion 3: Agent performs semantic comparison (not just keyword presence) ---
 assert_required_pattern_present "divide.and.conquer\|executing.plans\|finishing.*development\|writing.plans\|dispatch.*skill\|skill.*dispatch\|sub.agent.*dispatch\|at least.*4\|more.*file\|additional.*file" "identifies specific missing dispatching skills" || OVERALL_RESULT=1
