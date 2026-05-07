@@ -4,7 +4,7 @@
  * Injects session context into the LLM system prompt and enforces
  * runtime guards: inline work detection, evidence gate, git config
  * mutation watchdog, --no-verify detection, protected branch edits,
- * secret redaction, identity echo validation, session triggers,
+ * secret redaction, session triggers,
  * and plugin diagnostics.
  *
  * Hook: system.transform — pushes English prose context (from session-init
@@ -628,19 +628,8 @@ ${perSkillListing}
 **Fix template:** every SKILL.md MUST start with YAML frontmatter with name, description (starting with "Use when"), type, and license fields. See #601 for the original bug that motivated this validation.`;
 }
 
-function extractValue(sessionOutput: string | null, key: string): string | null {
-  if (!sessionOutput) return null;
-  const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = sessionOutput.match(new RegExp(`${escapedKey}=\\s*(\\S+)`));
-  return match ? match[1] : null;
-}
 
-function buildIdentityEchoDirective(platform: string, owner: string, repo: string): string {
-  return `Before doing anything else, echo your byline using the standard format:
 
-Platform: ${platform}, Org: ${owner}, Repo: ${repo}
-🤖 <AgentName> (<ModelId>) <status-icon> <status>`;
-}
 
 /**
  * Secret patterns for redaction.
@@ -740,9 +729,9 @@ function getWorkingTreeStatus(projectDir: string): string {
 }
 
 function buildPreImplementationGate(cachedOutput: string | null, projectDir: string): string {
-  const branch = extractValue(cachedOutput, "branch") || getCurrentBranch(projectDir) || "unknown";
+  const branch = (cachedOutput ? (cachedOutput.match(/branch:\s*(\S+)/)?.[1] || null) : null) || getCurrentBranch(projectDir) || "unknown";
   const treeStatus = getWorkingTreeStatus(projectDir);
-  const worktreePath = extractValue(cachedOutput, "worktree.path") || "none";
+  const worktreePath = (cachedOutput ? (cachedOutput.match(/Worktrees:\s*(\S+)/)?.[1] || "none") : "none");
   return `### Pre-Implementation Gate
 
 **Current state:** branch=${branch}, tree=${treeStatus}, worktree=${worktreePath}
@@ -850,14 +839,14 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
 
     // Inject enforcement content into first user message (adapted from obra/superpowers)
       // AND detect bare #N issue references in last user message
-      // AND inject identity-echo directive + trigger warnings into first user message
+      // AND inject trigger warnings into first user message
       // AND inject plugin diagnostics block into first user message
       //
-      // FIRST-TURN GUARD: IDENTITY_ECHO, SESSION_TRIGGERS, EXTREMELY_IMPORTANT,
-      // PLUGIN_DIAGNOSTICS, and IDENTITY_VALIDATION_FAILURE are injected ONLY on
-      // the first turn of PRIMARY sessions (isFirstTurn && !isSubAgent). Sub-agent
-      // sessions inherit context from their parent, so these blocks are redundant
-      // and waste context window space (REQ-1/REQ-2).
+      // FIRST-TURN GUARD: EXTREMELY_IMPORTANT, SESSION_TRIGGERS, and
+      // PLUGIN_DIAGNOSTICS are injected ONLY on the first turn of PRIMARY
+      // sessions (isFirstTurn && !isSubAgent). Sub-agent sessions inherit
+      // context from their parent, so these blocks are redundant and waste
+      // context window space (REQ-1/REQ-2).
       //
       // Per-turn behaviors (unchanged, unconditional per REQ-3/REQ-6):
       // - Bare issue pipeline detection on lastUser
@@ -889,19 +878,8 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         const shouldInjectFirstTurn = isFirstTurn && !isSubAgent;
 
         if (shouldInjectFirstTurn) {
-          // --- First-turn-only: Identity-echo directive + trigger warnings ---
+          // --- First-turn-only: Trigger warnings ---
           const triggersOutput = await runSessionContextTriggers(projectDir);
-          const knownPlatform = extractValue(cachedOutput, "github.platform");
-          const knownOwner = extractValue(cachedOutput, "github.owner");
-          const knownRepo = extractValue(cachedOutput, "github.repo");
-          const knownIdentitySource = extractValue(cachedOutput, "github.identity_source");
-
-          const identityBlock = buildIdentityEchoDirective(
-            knownPlatform || "<platform>",
-            knownOwner || "<owner>",
-            knownRepo || "<repo>",
-          );
-
           // --- Spec #432: Pre-Implementation Gate + Core Principles ---
           const gateBlock = buildPreImplementationGate(cachedOutput, projectDir);
           const corePrinciplesBlock = buildCorePrinciplesBlock();
@@ -928,14 +906,9 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           const triggerBlock = triggerOutputForSessionBlock ? `### Session Triggers\n\n${triggerOutputForSessionBlock}` : "";
 
           const echoParts: string[] = [];
-          if (identityBlock) {
-            echoParts.push(identityBlock);
-          }
-          // Spec #432: Pre-Implementation Gate injected between identity echo and session triggers
           if (gateBlock) {
             echoParts.push(gateBlock);
           }
-          // Spec #432: Core Principles injected between Gate and session triggers
           if (corePrinciplesBlock) {
             echoParts.push(corePrinciplesBlock);
           }
@@ -959,54 +932,6 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
             firstUser.parts.push({ type: "text", text: diagnosticBlock });
           }
 
-          // --- First-turn-only: Identity echo validation ---
-          if (!knownPlatform || !knownOwner || !knownRepo) {
-            const missing = [
-              !knownPlatform ? "github.platform" : null,
-              !knownOwner ? "github.owner" : null,
-              !knownRepo ? "github.repo" : null,
-            ].filter(Boolean).join(", ");
-
-            const lastUser = userMessages[userMessages.length - 1];
-            if (lastUser?.parts?.length) {
-              lastUser.parts.push({
-                type: "text",
-                text: `### Identity Validation Failure\n\nFATAL ERROR: Session identity values are MISSING. HALT all operations immediately.\n\nMissing values: ${missing}\n\nIdentity validation cannot proceed without these values. Do NOT infer identity from repository names, file paths, or environment variables. Resolve the missing identity values before continuing any operations.`
-              });
-            }
-          } else {
-            const assistantMessages = output.messages.filter(m => m.info?.role === "assistant");
-            if (assistantMessages.length > 0) {
-              const firstAssistant = assistantMessages[0];
-              const assistantText = firstAssistant.parts
-                ?.filter(p => p.type === "text" && p.text)
-                .map(p => p.text)
-                .join(" ") || "";
-
-              const echoMatch = assistantText.match(/Platform:\s*(\S+),\s*Org:\s*(\S+),\s*Repo:\s*(\S+)/);
-
-              const lastUser = userMessages[userMessages.length - 1];
-
-              if (!echoMatch) {
-                if (lastUser?.parts?.length) {
-                  lastUser.parts.push({
-                    type: "text",
-                    text: `### Identity Validation Failure\n\nFATAL ERROR: Your first message did not contain a valid identity echo. You MUST echo your platform identity before proceeding with ANY operations.\n\nExpected: Platform: ${knownPlatform}, Org: ${knownOwner}, Repo: ${knownRepo}\n\nHALT all operations. Echo the correct identity values above before continuing.`
-                  });
-                }
-              } else {
-                const [, echoPlatform, echoOwner, echoRepo] = echoMatch;
-                if (echoPlatform !== knownPlatform || echoOwner !== knownOwner || echoRepo !== knownRepo) {
-                  if (lastUser?.parts?.length) {
-                    lastUser.parts.push({
-                      type: "text",
-                      text: `### Identity Validation Failure\n\nFATAL ERROR: Identity echo mismatch detected!\n\nYour echo: Platform: ${echoPlatform}, Org: ${echoOwner}, Repo: ${echoRepo}\nExpected: Platform: ${knownPlatform}, Org: ${knownOwner}, Repo: ${knownRepo}\n\nHALT all operations. These values do NOT match. Use ONLY the expected values above. Do NOT infer identity from repository names, file paths, or environment variables.`
-                    });
-                  }
-                }
-              }
-            }
-          }
         }
 
         // --- Spec #432: First-turn-only SUB-AGENT sessions: Core Principles ---
