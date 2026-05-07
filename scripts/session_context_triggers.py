@@ -79,6 +79,49 @@ def build_pair_mode_resume(branch: str) -> str:
     )
 
 
+# Feedback-boundary patterns for pair-mode sessions.
+# When the current branch is a pair-mode branch and the most recent
+# commit message contains guidance/feedback language, this trigger warns
+# the agent that feedback ≠ authorization.
+FEEDBACK_COMMIT_PATTERNS = [
+    r"let me clarify",
+    r"the issue is",
+    r"to be clear",
+    r"that makes sense",
+    r"actually,? we",
+    r"you need to",
+    r"the correct approach",
+    r"sounds like we",
+    r"yes, but",
+]
+
+
+def check_feedback_in_recent_commits(branch: str) -> str | None:
+    """Check recent commit messages for feedback patterns that imply authorization."""
+    if not branch.startswith("pair-"):
+        return None
+    log = run_git(["log", "--oneline", "-5", branch])
+    if not log:
+        return None
+    for line in log.splitlines():
+        lower = line.lower()
+        for pat in FEEDBACK_COMMIT_PATTERNS:
+            if re.search(pat, lower):
+                return (
+                    "\n"
+                    "## Feedback Boundary Detected\n\n"
+                    "Recent commit messages contain language that an AI agent "
+                    "could misinterpret as implementation authorization. "
+                    "Feedback, clarification, correction, and confirmation "
+                    "are NEVER implementation authorization. Only explicit "
+                    '"approved", "go", or "#NNN approved" authorize implementation.\n\n'
+                    "**Action required:** Do NOT proceed to implementation based "
+                    "on feedback, guidance, or clarification in this session. "
+                    "Wait for explicit authorization.\n"
+                )
+    return None
+
+
 NESTED_OPENCODE_DIR = ".opencode/.opencode"
 
 
@@ -121,6 +164,9 @@ def main() -> int:
     is_pair, pair_branch = is_pair_mode_branch()
     if is_pair and pair_branch:
         sections.append(build_pair_mode_resume(pair_branch))
+        feedback_warning = check_feedback_in_recent_commits(pair_branch)
+        if feedback_warning:
+            sections.append(feedback_warning)
 
     if has_nested_opencode():
         sections.append(build_nested_opencode_warning())

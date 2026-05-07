@@ -58,6 +58,7 @@ The following actions are explicitly authorized WITHOUT needing `"approved"` or 
 | Moving issue labels | No auth → metadata operation | This section |
 | Creating bug report issues | No auth → reporting action | `000-critical-rules.md` §Bug Discovery |
 | Running lint/typecheck/format commands | No auth → read-only verification | Existing practice |
+| Providing technical feedback, clarification, or domain guidance | No auth — feedback is collaboration, not permission | `000-critical-rules.md` §Feedback ≠ Authorization |
 
 **The agent MUST NOT deliberate over authorization for these actions.** Deliberation over whether issue creation requires authorization is itself a waste of context — the answer is always "no authorization needed, proceed with mandatory skill steps."
 
@@ -237,7 +238,7 @@ When a spec is revised after a linked plan was already approved:
 
 See `approval-gate` skill → "Approval Labels" for the complete scope-to-label mapping, lifecycle rules, and label application procedure. Key rules:
 
-- No `approved-for-*` label = awaiting approval (replaces the deprecated `needs-approval` label)
+- No `approved-for-*` label = awaiting approval (`needs-approval` is the default for unapproved issues; `approved-for-*` replaces it at time of authorization)
 - Authorization applies the correct `approved-for-*` label per the scope-to-label mapping
 - Re-authorization at higher scope replaces the prior label
 - Labels persist through all downstream stages — never removed until issue closure

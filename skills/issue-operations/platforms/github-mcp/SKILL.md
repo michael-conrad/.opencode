@@ -60,7 +60,7 @@ GitHub MCP supports all eight `approved-for-*` labels for issue labeling:
 | `approved-for-review` | Code review only (scope: `review_only`) |
 | `approved-for-review-prep` | Default authorization (scope: `standard`) |
 
-**Deprecated:** The `needs-approval` label is deprecated and MUST NOT be applied to new issues. No `approved-for-*` label = awaiting approval (equivalent to old `needs-approval` state).
+`needs-approval` is the default label for unapproved issues. It is applied on creation and replaced by the corresponding `approved-for-*` label at time of authorization. No `approved-for-*` label = awaiting approval.
 
 ## Fallbacks
 

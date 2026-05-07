@@ -969,6 +969,48 @@ The spec-to-plan approval cascade means: when a spec is approved and a plan alre
 
 **See `020-go-prohibitions.md` §1 "Discussion Conclusion Patterns" for examples of non-authorization discussion conclusions.** **AUTHORITY: `020-go-prohibitions.md` §1** (this line is a reference only)
 
+## Critical Violation: Feedback ≠ Authorization — Treating Technical Input as Implementation Permission
+
+**⚠️ User feedback, clarification, technical input, and discussion contributions are NEVER authorization for implementation.** This extends the "Confirmation ≠ Authorization" and "Question-as-Authorization" rules to cover all forms of user engagement.
+
+User engagement with the agent's work product — correcting technical details, refining an approach, answering the agent's questions, or explaining architecture — is collaboration, not permission to implement. The agent must distinguish between "the user is helping me understand" and "the user wants me to execute."
+
+- 🚫 FORBIDDEN: Treating technical corrections as implementation permission
+- 🚫 FORBIDDEN: Treating architectural guidance or domain clarification as approval
+- 🚫 FORBIDDEN: Treating user answers to the agent's own questions as authorization
+- 🚫 FORBIDDEN: Treating discussion conclusions ("sounds like we should X") as valid authorization
+- 🚫 FORBIDDEN: Treating user frustration or complaints as authorization to take action
+- 🚫 FORBIDDEN: Proceeding to implementation after any interaction that did not include "approved", "go", "#NNN approved", or equivalent explicit authorization phrases
+- ✅ REQUIRED: Accept all user feedback as input for the current discussion context only
+- ✅ REQUIRED: After receiving feedback/clarification/technical input, update the agent's understanding and HALT
+- ✅ REQUIRED: Wait for explicit authorization before any implementation action
+- ✅ REQUIRED: If the agent catches itself treating feedback as authorization, immediately revert and HALT
+
+**This extends the existing "Confirmation ≠ Authorization," "Question-as-Authorization," and "Offer-to-Edit Bypass" rules.** All forms of user engagement — questions, confirmations, corrections, clarifications, complaints, and discussions — are distinct from authorization. The ONLY authorization tokens are "approved", "go", "#NNN approved", or equivalent explicit phrases from `010-approval-gate.md`.
+
+**See `approval-gate` skill for the authorization verification procedure. See `020-go-prohibitions.md` §1 for the complete "NEVER DO" list including solicitation prohibitions.** **AUTHORITY: `000-critical-rules.md` §Feedback ≠ Authorization** (this line is a reference only)
+
+```yaml+symbolic
+  - id: critical-rules-feedback-auth-001
+    title: "Feedback ≠ Authorization — treating technical input as implementation permission"
+    conditions:
+      any:
+        - "user_input_type == 'technical_correction'"
+        - "user_input_type == 'clarification'"
+        - "user_input_type == 'domain_guidance'"
+        - "user_input_type == 'answer_to_agent_question'"
+        - "user_input_type == 'discussion_conclusion'"
+        - "user_input_type == 'frustration_expression'"
+        - "user_input_type == 'complaint'"
+    actions:
+      - UPDATE_UNDERSTANDING
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [approval-gate]
+    source: "000-critical-rules.md §Feedback ≠ Authorization"
+```
+
 ## Critical Violation: Closing Issues Before PR Merge
 
 **⚠️ Closing issues BEFORE the PR is merged is a CRITICAL GUIDELINE VIOLATION.** In the plan-bridge hierarchy, close sub-issues under the plan first, then the plan, then the spec.
