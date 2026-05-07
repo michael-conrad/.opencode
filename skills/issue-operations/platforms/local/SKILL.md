@@ -110,7 +110,7 @@ The local platform supports all eight `approved-for-*` labels in YAML frontmatte
 | `approved-for-review` | Code review only |
 | `approved-for-review-prep` | Default authorization |
 
-**Deprecated:** The `needs-approval` label is deprecated. No `approved-for-*` label = awaiting approval. Label replacement on re-authorization updates the frontmatter array.
+`needs-approval` is the default label for unapproved issues. It is applied on creation and replaced by the corresponding `approved-for-*` label at time of authorization. No `approved-for-*` label = awaiting approval. Label replacement on re-authorization updates the frontmatter array.
 
 ## Promotion Workflow
 
