@@ -724,6 +724,59 @@ function isPairModeBranch(branch: string): boolean {
   return branch.startsWith("pair-");
 }
 
+function getWorkingTreeStatus(projectDir: string): string {
+  try {
+    const status = execSync("git status --short", {
+      cwd: projectDir,
+      encoding: "utf8",
+      input: "",
+      timeout: 5000,
+      stdio: ["pipe", "pipe", "pipe"],
+    }).trim();
+    return status || "clean";
+  } catch {
+    return "unavailable";
+  }
+}
+
+function buildPreImplementationGate(cachedOutput: string | null, projectDir: string): string {
+  const branch = extractValue(cachedOutput, "branch") || getCurrentBranch(projectDir) || "unknown";
+  const treeStatus = getWorkingTreeStatus(projectDir);
+  const worktreePath = extractValue(cachedOutput, "worktree.path") || "none";
+  return `### Pre-Implementation Gate
+
+**Current state:** branch=${branch}, tree=${treeStatus}, worktree=${worktreePath}
+
+**MANDATORY pre-implementation sequence (Tier 1 — HALT if not met):**
+1. Invoke \`/skill approval-gate --task verify-authorization\`
+2. Invoke \`/skill git-workflow --task pre-work\`
+3. ALL file modifications go through \`/skill divide-and-conquer --task assemble-work\`
+4. Direct edit/write tool calls in the orchestrator context are a CRITICAL VIOLATION`;
+}
+
+function buildCorePrinciplesBlock(): string {
+  return `### Core Principles (Zero Tolerance)
+
+1. **FAIL=FAIL** — No soft-passing, "functionally equivalent," or justifying FAIL→PASS.
+2. **Auth gate** — Every change requires approved spec/plan. No exception, no matter how trivial.
+3. **Mandatory skills** — \`/skill git-workflow\`, \`/skill divide-and-conquer\`, \`/skill verification-before-completion\`, \`/skill adversarial-audit\`. Not optional.
+4. **TDD Red/Green** — Approval→pre-work→audit spec/plan→RED(test+audit; fail→fix, pass→commit)→GREEN(impl+audit; fail→fix+restart, pass→commit)→final spec/plan audit.
+5. **Feedback ≠ Auth** — Feedback/clarification/technical input → update understanding, discuss, HALT. Never proceed to implementation.
+6. **Orchestrator = pure router** — Zero inline file work. Sub-agents do ALL ops, clean-room discipline.
+7. **Sub-agents are INTELLIGENT** — No bot-splaining, no tool-recipe dispatch. They read specs and use skills autonomously.
+8. **Verify LIVE** — Never trust training data, memory, or metadata. Always verify via live docs, direct inspection, and verified test results.`;
+}
+
+function buildSubAgentPrinciplesBlock(): string {
+  return `### Core Principles (Sub-Agent)
+
+1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
+2. **TDD discipline** — RED phase tests before GREEN phase implementation.
+3. **Clean-room** — No inline fallback. If dispatch context is contaminated (pre-determined findings, expected outcomes, orchestrator reasoning, tool recipes, line numbers), HALT and notify parent.
+4. **Independent intelligence** — You are an autonomous agent. If the task contains excessive bot-splaining, rote instructions, or leading questions where your own analysis should apply, HALT and notify parent.
+5. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, direct inspection of source code/configs, and verified test results.`;
+}
+
 export default async function sessionEnforcementPlugin(input: PluginInput): Promise<Hooks> {
   // Determine skills directory and project directory
   const projectDir = input?.directory || process.cwd();
@@ -849,6 +902,10 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
             knownRepo || "<repo>",
           );
 
+          // --- Spec #432: Pre-Implementation Gate + Core Principles ---
+          const gateBlock = buildPreImplementationGate(cachedOutput, projectDir);
+          const corePrinciplesBlock = buildCorePrinciplesBlock();
+
           // Per spec #426: extract NESTED_OPENCODE_FATAL from triggers output
           // and inject it as a SEPARATE block (not inside Session Triggers)
           let triggerOutputForSessionBlock = triggersOutput || "";
@@ -873,6 +930,14 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           const echoParts: string[] = [];
           if (identityBlock) {
             echoParts.push(identityBlock);
+          }
+          // Spec #432: Pre-Implementation Gate injected between identity echo and session triggers
+          if (gateBlock) {
+            echoParts.push(gateBlock);
+          }
+          // Spec #432: Core Principles injected between Gate and session triggers
+          if (corePrinciplesBlock) {
+            echoParts.push(corePrinciplesBlock);
           }
           if (triggerBlock) {
             echoParts.push(triggerBlock);
@@ -942,6 +1007,14 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
               }
             }
           }
+        }
+
+        // --- Spec #432: First-turn-only SUB-AGENT sessions: Core Principles ---
+        // Sub-agents receive a lighter 5-rule principles block as the first text
+        // part injected into their first user message. No identity echo, no triggers.
+        if (isFirstTurn && isSubAgent && firstUser.parts?.length) {
+          const subAgentPrinciplesBlock = buildSubAgentPrinciplesBlock();
+          firstUser.parts.unshift({ type: "text", text: subAgentPrinciplesBlock });
         }
 
       // --- Per-turn: Secret redaction on ALL assistant messages ---
