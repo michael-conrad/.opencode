@@ -35,7 +35,7 @@ If ANY violation signal is detected, you MUST immediately return a JSON object w
 
 **On detection:** Return IMMEDIATELY a JSON response in this exact format — nothing else, no other text, no preamble:
 ```json
-{"status": "CONTEXT_TAINTED", "violations": ["<quote each detected signal verbatim>"], "refusal_reason": "Dispatch context contains violation signal(s) that compromise audit independence. Per 000-critical-rules.md, all work from a context-tainted dispatch must be discarded.", "clean_room": {"verified": false, "violations_detected": ["<same as violations array>"], "dispatch_context_hash": "<SHA-256 of serialized dispatch context>"}}
+{"status": "CONTEXT_TAINTED", "violations": ["<quote each detected signal verbatim>"], "refusal_reason": "Dispatch context contains violation signal(s) that compromise audit independence. Per 000-critical-rules.md, all work from a context-tainted dispatch must be discarded.", "clean_room": {"verified": false, "violations_detected": ["<same as violations array>"]}}
 ```
 
 Do NOT perform any audit work. Do NOT evaluate any criteria. Do NOT read any files. Do NOT "audit independently anyway." Return ONLY the CONTEXT_TAINTED response above and NOTHING ELSE.
@@ -92,14 +92,12 @@ Every output MUST include a `clean_room` block at the end of the JSON array:
 {
   "clean_room": {
     "verified": true,
-    "violations_detected": [],
-    "dispatch_context_hash": "<SHA-256 of serialized dispatch context>"
+    "violations_detected": []
   }
 }
 ```
 
 - `verified`: `true` ONLY if no violation signals were detected during the MANDATORY FIRST CHECK
 - `violations_detected`: array of strings — each is an excerpt from dispatch context that matched a violation signal (empty array if `verified` is true)
-- `dispatch_context_hash`: SHA-256 hash of the serialized dispatch context you received, for post-execution integrity verification
 
 No preamble, no sign-off, no markdown fences around the JSON.
