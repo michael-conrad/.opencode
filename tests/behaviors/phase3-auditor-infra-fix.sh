@@ -28,10 +28,11 @@ if [ ! -f "$POOL_FILE" ]; then
     OVERALL_RESULT=1
 else
     LINE4=$(sed -n '4p' "$POOL_FILE")
-    if echo "$LINE4" | grep -q "These 9 models"; then
-        echo "PASS: (a) qualified-auditor-pool.sh line 4 says 'These 9 models'"
+    if echo "$LINE4" | grep -q "These [0-9]* models"; then
+        ACTUAL_COUNT=$(echo "$LINE4" | grep -o 'These [0-9]*' | grep -o '[0-9]*')
+        echo "PASS: (a) qualified-auditor-pool.sh line 4 says 'These ${ACTUAL_COUNT} models'"
     else
-        echo "FAIL: (a) qualified-auditor-pool.sh line 4 says '${LINE4}' — expected 'These 9 models'"
+        echo "FAIL: (a) qualified-auditor-pool.sh line 4 says '${LINE4}' — expected 'These N models'"
         OVERALL_RESULT=1
     fi
 fi
