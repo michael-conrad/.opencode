@@ -2,16 +2,15 @@
  * Session Enforcement Plugin for OpenCode
  *
  * Injects session context into the LLM system prompt and enforces
- * skill invocation rules. Also detects bare issue references (#N)
- * and injects mandatory audit pipelines.
+ * runtime guards: inline work detection, evidence gate, git config
+ * mutation watchdog, --no-verify detection, protected branch edits,
+ * secret redaction, identity echo validation, session triggers,
+ * and plugin diagnostics.
  *
  * Hook: system.transform — pushes English prose context (from session-init
  *   and PluginInput augmentations) into the LLM system prompt.
- * Hook: chat.messages.transform — injects skill enforcement content and
- *   bare issue pipeline directives into user messages.
- *
- * NO shell.env hook — env-loader.ts owns all bash environment injection.
- * NO parsing of session-init output — stdout goes verbatim to system prompt.
+ * Hook: chat.messages.transform — injects runtime enforcement blocks and
+ *   validation gates into user messages.
  *
  * Source attribution:
  * - Session init pattern adapted from existing session-init.ts (project-internal)
@@ -426,64 +425,6 @@ async function runSessionInit(projectDir: string): Promise<string> {
   }
 }
 
-let cachedIdentityOutput: string | null = null;
-let identityCacheTimestamp = 0;
-
-async function runSessionContextIdentity(projectDir: string): Promise<string> {
-  if (cachedIdentityOutput && Date.now() - identityCacheTimestamp < CACHE_TTL_MS) {
-    return cachedIdentityOutput;
-  }
-
-  try {
-    const stdout = execSync("./.opencode/scripts/session_context_identity.py", {
-      cwd: projectDir,
-      encoding: "utf8",
-      input: "",
-      timeout: 30000,
-      stdio: ["pipe", "pipe", "pipe"],
-    }).trim();
-
-    cachedIdentityOutput = stdout;
-    identityCacheTimestamp = Date.now();
-
-    return stdout;
-  } catch (err: any) {
-    const stdout = err?.stdout?.toString().trim() ?? "";
-    const stderr = err?.stderr?.toString().trim() ?? "";
-    const exitCode = err?.status ?? 1;
-
-    const isTimeout = err?.killed || err?.signal === "SIGTERM";
-
-    if (!stdout || stdout.length === 0) {
-      const errorMsg = isTimeout
-        ? `session_context_identity.py timed out after 30s`
-        : (stderr || "Script returned empty output");
-      console.error(`[session-enforcement] session_context_identity.py: ${errorMsg}`);
-      writeDiagnostic(projectDir, {
-        source: "session_context_identity.py",
-        level: "error",
-        message: errorMsg,
-        exitCode: isTimeout ? undefined : exitCode,
-      });
-      return "";
-    }
-
-    if (stderr) {
-      writeDiagnostic(projectDir, {
-        source: "session_context_identity.py",
-        level: "warning",
-        message: stderr,
-        exitCode,
-      });
-    }
-
-    cachedIdentityOutput = stdout;
-    identityCacheTimestamp = Date.now();
-
-    return stdout;
-  }
-}
-
 let cachedTriggersOutput: string | null = null;
 let triggersCacheTimestamp = 0;
 
@@ -852,11 +793,6 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         output.system.push(warning);
       }
 
-      // Inject identity section from session_context_identity.py
-      const identityOutput = await runSessionContextIdentity(projectDir);
-      if (identityOutput) {
-        output.system.push(identityOutput);
-      }
     },
 
     // Inject enforcement content into first user message (adapted from obra/superpowers)
@@ -902,19 +838,10 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         if (shouldInjectFirstTurn) {
           // --- First-turn-only: Identity-echo directive + trigger warnings ---
           const triggersOutput = await runSessionContextTriggers(projectDir);
-          const knownPlatform = extractValue(cachedIdentityOutput, "github.platform");
-          const knownOwner = extractValue(cachedIdentityOutput, "github.owner");
-          const knownRepo = extractValue(cachedIdentityOutput, "github.repo");
-          const knownIdentitySource = extractValue(cachedIdentityOutput, "github.identity_source");
-
-          // Degraded mode: when identity_source is "none", we have no remote at all.
-          // Platform is "local", owner/repo are "(none)". This is a valid operational state,
-          // not an error. Skip the FATAL identity validation for local-only mode.
-          const isLocalMode = knownPlatform === "local" || knownIdentitySource === "none";
-
-          // Submodule mode: parent repo has zero remotes, owner/repo come from submodule.
-          // Agent must NOT add remotes to the parent repo or push from the parent repo.
-          const isSubmoduleMode = knownIdentitySource === "submodule";
+          const knownPlatform = extractValue(cachedOutput, "github.platform");
+          const knownOwner = extractValue(cachedOutput, "github.owner");
+          const knownRepo = extractValue(cachedOutput, "github.repo");
+          const knownIdentitySource = extractValue(cachedOutput, "github.identity_source");
 
           const identityBlock = buildIdentityEchoDirective(
             knownPlatform || "<platform>",
@@ -968,26 +895,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           }
 
           // --- First-turn-only: Identity echo validation ---
-          if (isLocalMode) {
-            // Local mode: identity values are "(none)" by design. Skip FATAL validation.
-            // Emit a warning instead so the agent knows it's in local-only mode.
-            const lastUser = userMessages[userMessages.length - 1];
-            if (lastUser?.parts?.length) {
-              lastUser.parts.push({
-                type: "text",
-                text: `### Local Mode\n\n**Warning:** Operating in local-only mode — no git remote configured.\n\n- github.platform: local\n- github.owner: (none)\n- github.repo: (none)\n- github.identity_source: none\n\nGitHub/GitBucket API calls are unavailable. Local issue tracking (.issues/) is available. Do NOT attempt to use GitHub MCP or GitBucket API tools — all issue operations route to local .issues/.`
-              });
-            }
-          } else if (isSubmoduleMode) {
-            const parentRemoteCount = gitConfigBaseline?.remoteCount ?? 0;
-            const lastUser = userMessages[userMessages.length - 1];
-            if (lastUser?.parts?.length) {
-              lastUser.parts.push({
-                type: "text",
-                text: `### Local Mode\n\n**Warning:** Operating in submodule-local mode — parent repo has ${parentRemoteCount} remote(s).\n\n- github.identity_source: submodule\n- All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory — not the project root.\n- The parent repo has ZERO remotes by design.\n- github.owner and github.repo are from the submodule remote for API routing ONLY\n- GitHub MCP calls route to the submodule's repository\n- Local git operations (branch, commit, stash) on the parent repo are permitted\n- Do NOT push from the parent repo — there is no remote to push to.\n- Do NOT add remotes to the parent repo.`
-              });
-            }
-          } else if (!knownPlatform || !knownOwner || !knownRepo) {
+          if (!knownPlatform || !knownOwner || !knownRepo) {
             const missing = [
               !knownPlatform ? "github.platform" : null,
               !knownOwner ? "github.owner" : null,
