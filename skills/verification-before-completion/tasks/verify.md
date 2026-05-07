@@ -108,18 +108,29 @@ Verify all success criteria have evidence before allowing completion claims.
 
 ## Evidence Types
 
-### Valid Evidence
+### Structural Evidence (Valid for Structural SCs ONLY)
 
-| Type | Description | Storage |
-| -- | -- | -- |
-| Test output | `pytest` pass/fail | Issue comment |
-| Lint output | `ruff check` clean | Issue comment |
-| Type check | `pyright` clean | Issue comment |
-| File path | Created file exists | Issue comment + `ls -la` |
-| File content | File content hash | Issue comment + `head -20` |
-| Git diff | Code changes | Issue comment + `git diff` |
-| API response | Status code and body | Issue comment + curl output |
-| Screenshot | Visual verification | Issue comment + attachment |
+Structural evidence confirms that implementation components **exist** — files, functions, config entries, yaml blocks. It does NOT confirm that they **behave correctly**.
+
+| Type | Description | Storage | Valid For |
+| -- | -- | -- | -- |
+| File path | Created file exists | Issue comment + `ls -la` | Structural SCs only |
+| File content | File content hash | Issue comment + `head -20` | Structural SCs only |
+| Git diff | Code changes | Issue comment + `git diff` | Structural SCs only |
+| `yaml+symbolic` block | Rule/state_machine present | Issue comment + line range | Structural SCs only |
+
+### Behavioral Evidence (Required for Behavioral SCs)
+
+Behavioral evidence confirms that implementation components **behave correctly** — tests pass, lints clean, API responses match, runtime behavior matches spec. Structural evidence is INSUFFICIENT for behavioral SCs.
+
+| Type | Description | Storage | Valid For |
+| -- | -- | -- | -- |
+| Test output | `pytest` pass/fail | Issue comment | Behavioral SCs |
+| Lint output | `ruff check` clean | Issue comment | Behavioral SCs |
+| Type check | `pyright` clean | Issue comment | Behavioral SCs |
+| API response | Status code and body | Issue comment + curl output | Behavioral SCs |
+| Screenshot | Visual verification | Issue comment + attachment | Behavioral SCs |
+| Behavioral test run | `opencode-cli run` output | Issue comment + log excerpt | Behavioral SCs |
 
 ### Invalid Evidence
 
@@ -130,6 +141,20 @@ Verify all success criteria have evidence before allowing completion claims.
 | "I checked" | No artifact |
 | "Code is correct" | No test run |
 | Placeholder text | "TBD" or "TODO" |
+| File exists / test file present | File existence ≠ test execution; structural evidence accepted as behavioral evidence |
+
+### Verification Rule: Behavioral vs Structural Evidence
+
+**When an SC requires behavioral verification, structural evidence is INSUFFICIENT. The agent MUST run the behavioral test and report its output.**
+
+Reading a test implementation file and confirming it exists is structural evidence. Running the test and observing PASS/FAIL output is behavioral evidence. These are fundamentally different — a test file that contains a deliberate bug will pass the structural check (the file exists, the test function is present) but fail the behavioral check (the test output shows FAIL).
+
+- 🚫 FORBIDDEN: Reporting file existence as evidence that a behavioral SC is satisfied
+- 🚫 FORBIDDEN: Reading a test file and reporting "test exists → PASS" without executing it
+- 🚫 FORBIDDEN: Using `cat`, `read`, or `ls` to verify behavioral correctness
+- ✅ REQUIRED: For behavioral SCs, the agent MUST execute the test and report the output
+- ✅ REQUIRED: Classify each SC as structural or behavioral in the evidence table
+- ✅ REQUIRED: Use behavioral evidence (test execution output) only for behavioral SCs
 
 ## Verification Report Format
 
@@ -206,9 +231,9 @@ When verifying live values against specifications, use this row-by-row compariso
 
 ### Table Format
 
-| SC ID | Success Criterion Text | Verification Command Run | Exact Output Observed | Pass/Fail |
-| -- | -- | -- | -- | -- |
-| SC-1 | \[criterion text\] | `command --flag` | \[exact output\] | PASS/FAIL/MISSING EVIDENCE |
+| SC ID | Success Criterion Text | Evidence Category | Verification Command Run | Exact Output Observed | Pass/Fail |
+| -- | -- | -- | -- | -- | -- |
+| SC-1 | \[criterion text\] | structural/behavioral | `command --flag` | \[exact output\] | PASS/FAIL/MISSING EVIDENCE |
 
 ### Mandatory Outcomes Per Row
 
