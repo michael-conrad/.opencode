@@ -213,7 +213,7 @@ function readGitBucketUrlFromEnv(envPath: string): string | null {
   return null;
 }
 
-export async function EnvLoaderPlugin(input: PluginInput): Promise<Hooks> {
+export default async function envLoaderPlugin(input: PluginInput): Promise<Hooks> {
   const projectDir = input?.directory || process.cwd();
   const envPath = path.join(projectDir, ENV_FILE);
 
@@ -336,6 +336,6 @@ export async function EnvLoaderPlugin(input: PluginInput): Promise<Hooks> {
   };
 }
 
-export default EnvLoaderPlugin;
+
 export { parseEnvFile, isEnvGitignored, writeDiagnostic, DIAGNOSTICS_PATH };
 export type { PluginDiagnostic };
