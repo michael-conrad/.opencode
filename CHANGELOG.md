@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **Local-first issue architecture** (#86, #464, #465, #466) - Three-phase implementation eliminating `identity_source: submodule`, making `.issues/` the primary drafting layer, and adding promotion readiness checks. Phase 1: Simplify identity model to `root`/`local`. Phase 2: Mandatory local-first creation before remote promotion. Phase 3: Promotion readiness and sync classification foundation.
+- **Gap-fill cascade path selection** (#460) - Fix authorization gap-fill bypass bug where `for_pr` scope matched fast-path incorrectly. Add gap-fill-path for `for_pr`, `for_implementation`, `for_plan`, `for_code_review` scopes.
+
+### Changed
+
+- **Identity source simplification** (#86, Phase 1) - Remove `submodule` identity source from `session_context_identity.py` and `session-init`. Parent repos with no remote now get `github.platform: local` instead of borrowing submodule's remote.
+
+### Added
+
 - **Identity echo validation gate** (#1151, #1153) - Programmatic validation gate in session-enforcement.ts that compares assistant's identity echo against injected values and injects IDENTITY_VALIDATION_FAILURE on mismatch with HALT instruction. Inline expected values in IDENTITY_ECHO directive with FATAL language.
 - **Secret redaction pipeline** (#1152, #1154) - redactSecrets() function in session-enforcement.ts scanning all assistant output for TOKEN=, KEY=, SECRET=, PASSWORD= patterns with [REDACTED:TYPE] replacement. Pre-submission secret scan for GitHub API calls. File-read blocklist with value redaction for .env, .env.*, *.pem, *.key, secrets.toml, credentials.json.
 - **Target API credentials separation** (#1151) - session_context_identity.py now separates "Repository Hosting Identity" from "Target API Credentials" with clear section headers to prevent AI agent confusion between hosting platform and target API.
