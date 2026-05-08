@@ -51,6 +51,7 @@ Before dispatching behavioral test sub-agents (Phase 4 of any plan), resolve the
 | Condition | Path |
 |-----------|------|
 | 1 issue + `standard` scope + 0 sub-issues + explicit auth | fast-path (skip 2, 4.5, 4.6, 5, 5b, 5b.5+5c) |
+| 1 issue + scope ∈ {for_pr, for_implementation, for_plan, for_code_review} + 0 sub-issues | gap-fill-path (0.5, 1, 5b.5+5c, then 6) |
 | 1 issue + sub-issues OR plan with phases | medium-path (0.5, 1, 4.5, 4.6, 5, then 6) |
 | Multi-issue authorization set | full-path (all steps) |
 
