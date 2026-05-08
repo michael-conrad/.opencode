@@ -43,7 +43,7 @@ Divide and Conquer Orchestrator. Assess context fitness, decompose work, dispatc
 
 ## Sub-Agent Dispatch Audit
 
-All tasks dispatch via `task(subagent_type="general")`. Context: `{ spec, plan, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, cached verification results. `pre-analysis` receives only `{ issue_number, task_description }`. Result contracts: `status: DONE|BLOCKED|ERROR|OVERFLOW`.
+All tasks dispatch via `task(subagent_type="general")`. Context: `{ spec, plan, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, cached verification results. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. Result contracts: `status: DONE|BLOCKED|ERROR|OVERFLOW`.
 
 ## Cross-References
 

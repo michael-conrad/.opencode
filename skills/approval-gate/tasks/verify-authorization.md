@@ -22,7 +22,7 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 
 | Step | Sub-Task | Purpose |
 |------|----------|---------|
-| 0 | Inline fallback guard | If sub-agent returns empty, execute Steps 1-6 inline |
+| 0 | Re-dispatch guard | If sub-agent returns empty, re-dispatch with original scoped context (max 2 retries); on exhaustion, fall through to double-failure protocol |
 | 0.2 | Model resolution (inline) | Resolve local + cloud models via `ollama-model-resolve --target enforcement`; record model pair for dispatch context |
 | 0.5 | `verify-authorization/scope-auto-resolve` | Parse authorization text, resolve scope/halt_at/pr_strategy/gap_fill |
 | 1 | `verify-authorization/verify-explicit-authorization` | Check for "approved"/"go" + author identity + currency |
@@ -59,12 +59,13 @@ Before dispatching behavioral test sub-agents (Phase 4 of any plan), resolve the
 
 When `verify-authorization` is dispatched as a sub-agent and returns empty or whitespace-only:
 
-1. Report: `"Sub-agent for verify-authorization returned empty result, performing inline"`
-2. Execute Steps 0.5–6 inline using direct tool calls
-3. Produce the same result contract format
+1. Report: `"Sub-agent for verify-authorization returned empty result, re-dispatching (retry {N}/2)"`
+2. Re-dispatch with original scoped context only (no expanded context, no orchestrator reasoning)
+3. If re-dispatch returns empty and retry count < 2, go to step 1 (increment retry counter)
+4. If re-dispatch returns empty after 2 retries, fall through to double-failure protocol
 
-**Double-failure protocol:** If inline verification also fails:
-1. Report: `"Sub-agent and inline verification both failed for verify-authorization"`
+**Double-failure protocol (exhaustion handler):** After 2 failed re-dispatch attempts:
+1. Report: `"verify-authorization sub-agent failed after 2 re-dispatch attempts"`
 2. Invoke `--task completion` on the `approval-gate` skill
 3. HALT with status message + byline
 

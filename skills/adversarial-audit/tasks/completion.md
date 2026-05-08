@@ -91,3 +91,9 @@ Generate executive summary in chat:
 | Malformed verdict | VERDICT-INTEGRITY | flag-for-review | HALT — cannot fabricate consensus from bad data |
 | Consensus not computed | CONSENSUS-GAP | auto-fix | Compute from collected verdicts |
 | Both auditors same family | STRUCTURE-VIOLATION | auto-fix | Re-select using `resolve-models` |
+
+## Sub-Agent Dispatch Audit
+
+| Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
+|---|---|---|---|
+| `auditor_dispatch_status`, `resolve_models_result` | Orchestrator reasoning, expected outcomes, verdict content | N/A — this is a completion task, not a dispatch task | NO |

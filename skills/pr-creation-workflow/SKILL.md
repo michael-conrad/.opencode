@@ -36,14 +36,15 @@ Feature PRs target `dev` only. Release PRs (dev→main) handled by `git-workflow
 5. **Adversarial-audit invocation:** after pre-pr-checklist, invoke `adversarial-audit --task spec-summary --pr <N>` with `audit_phase: pr_creation`.
 6. **No agent merge** — human-only operation.
 7. **Work branch guard:** no individual PRs during work execution (single stacked PR).
+8. **Submodule-bump-only PR block (MANDATORY — parent repo context):** Before creating any PR, check whether the diff contains changes outside `.opencode/`. In a parent repo with `.gitmodules`, a PR that only changes `.opencode/` (submodule pointer bump) is BLOCKED by enforcement gate `pr-workflow-003`. The agent MUST NOT create, propose, or assist in creating a submodule-bump-only PR. This is a CRITICAL GUIDELINE VIOLATION — bypassing this gate results in a HALT.
 
 ## Sub-Agent Dispatch Audit
 
-Tasks dispatch via `task(subagent_type="general")` with `{ branch_name, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
+Tasks dispatch via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 
-Skills: `git-workflow`, `changelog-generator`, `adversarial-audit --task spec-summary`. Guidelines: `000-critical-rules.md`.
+Skills: `git-workflow`, `changelog-generator`, `adversarial-audit --task spec-summary`. Guidelines: `000-critical-rules.md` (Step 0.5 enforcement gate).
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -61,4 +62,15 @@ rules:
     conditions:
       all: ["pr_type == 'feature'", "base_branch != 'dev'"]
     actions: [HALT]
+    source: "pr-creation-workflow/SKILL.md"
+
+  - id: pr-workflow-003
+    title: "Submodule-bump-only PRs are BLOCKED — parent repo enforcement gate"
+    conditions:
+      all:
+        - "github.identity_source == 'root'"
+        - ".gitmodules exists"
+        - "pr_creation_attempted == true"
+        - "git diff shows only .opencode changed"
+    actions: [BLOCK]
     source: "pr-creation-workflow/SKILL.md"

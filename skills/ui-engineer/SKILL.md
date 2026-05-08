@@ -32,7 +32,7 @@ UI Implementation Engineer. Focus: component mapping, accessibility implementati
 
 ## Sub-Agent Dispatch Audit
 
-Tasks dispatch via `task(subagent_type="general")` with `{ design_artifacts, framework_context, github.owner, github.repo }`. Exclusions: implementation context, agent memory. No inline work.
+Tasks dispatch via `task(subagent_type="general")` with `{ design_artifacts, framework_context, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"

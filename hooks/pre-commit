@@ -2,6 +2,7 @@
 # Pre-commit hook: Branch protection + dispatch evidence enforcement
 # Gate 1: Block direct commits to main/dev branches
 # Gate 2: Block commits on implementation branches without dispatch evidence
+# Gate 3: Block submodule-bump-only commits (parent repo context)
 
 set -e
 
@@ -23,6 +24,48 @@ if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "dev" ]; then
     echo "AI agent: If OPENCODE=1, relay this message to the developer."
     echo ""
     exit 1
+fi
+
+# --- Gate 3: Submodule-bump-only commit prevention (parent repo context) ---
+# Only fires on feature/fix branches, only when .gitmodules exists,
+# and only when staged changes touch ONLY .opencode/ (submodule pointer bump).
+SKIP_SUBMODULE_GATE="${SKIP_SUBMODULE_GATE:-}"
+if [ "$SKIP_SUBMODULE_GATE" != "1" ] && [ -f ".gitmodules" ]; then
+    case "$CURRENT_BRANCH" in
+        pair-*|rollback/*|hotfix/*|main|dev)
+            ;;
+        *)
+            STAGED_FILES_G3=$(git diff --cached --name-only 2>/dev/null)
+            ALL_STAGED_IN_SUBMODULE=1
+            for f in $STAGED_FILES_G3; do
+                case "$f" in
+                    .opencode/*)
+                        ;;
+                    *)
+                        ALL_STAGED_IN_SUBMODULE=0
+                        break
+                        ;;
+                esac
+            done
+
+            if [ "$ALL_STAGED_IN_SUBMODULE" = "1" ] && [ -n "$STAGED_FILES_G3" ]; then
+                echo ""
+                echo "ERROR: Submodule-bump-only commit blocked."
+                echo ""
+                echo "Branch '$CURRENT_BRANCH' is in a parent repo (.gitmodules found)"
+                echo "but ALL staged changes are inside .opencode/ (submodule)."
+                echo ""
+                echo "Submodule pointer bumps belong in the submodule repo itself,"
+                echo "not as standalone commits in the parent repo."
+                echo ""
+                echo "To unblock:"
+                echo "  1. Commit changes inside .opencode/ directly (cd .opencode && git commit)"
+                echo "  2. Or set SKIP_SUBMODULE_GATE=1 to bypass (human override only)"
+                echo ""
+                exit 1
+            fi
+            ;;
+    esac
 fi
 
 # --- Gate 2: Dispatch evidence check ---

@@ -38,7 +38,7 @@ Creating skills IS TDD applied to process documentation. Write tests, watch them
 
 ## Sub-Agent Dispatch Audit
 
-`init` dispatches with `{ skill_name, output_dir }`. `package` with `{ skill_folder, output_dir }`. `validate` with `{ skill_folders, validation_scope }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
+`init` dispatches with `{ skill_name, output_dir, worktree.path, github.owner, github.repo }`. `package` with `{ skill_folder, output_dir, worktree.path, github.owner, github.repo }`. `validate` with `{ skill_folders, validation_scope, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 

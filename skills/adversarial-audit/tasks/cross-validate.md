@@ -2,14 +2,15 @@
 
 ## Purpose
 
-Accept an evidence payload and evaluation criteria, resolve two cross-family auditor agents via `resolve-models`, dispatch each auditor with clean-room context via `task(subagent_type="auditor-*")`, collect structured JSON verdicts `[{id, result, evidence, explanation}]` from both, and cross-reference them per criterion — producing PASS only when both auditors independently return PASS. Returns a cross-validation result table with per-criterion consensus tracking.
+Accept an evidence payload and evaluation criteria, dispatch two pre-resolved cross-family auditor agents with clean-room context via `task(subagent_type="auditor-*")`, collect structured JSON verdicts `[{id, result, evidence, explanation}]` from both, and cross-reference them per criterion — producing PASS only when both auditors independently return PASS. Returns a cross-validation result table with per-criterion consensus tracking. Auditor models are resolved by the orchestrator BEFORE invoking this task.
 
 ## Entry Criteria
 
 - `evidence_payload`: The claim or output to evaluate (free text, spec body, code snippet, or structured assertion)
 - `evaluation_criteria`: Array of criterion objects, each with `{ id, description, expected_result, source_reference }`
+- `auditor_1`: First auditor subagent type (e.g. `auditor-glm-5.1`) — pre-resolved by orchestrator
+- `auditor_2`: Second auditor subagent type from a different model family — pre-resolved by orchestrator
 - `github.owner`, `github.repo` present in dispatch context
-- `resolve-models` task exists and is readable
 
 ## Exit Criteria
 
@@ -25,13 +26,13 @@ Accept an evidence payload and evaluation criteria, resolve two cross-family aud
 
 Confirm `evidence_payload` and `evaluation_criteria` are present and non-empty. If either is missing, return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }`.
 
-### Step 2: Resolve Auditor Models
+### Step 2: Validate Auditor Models
 
-Dispatch `resolve-models` via `task(subagent_type="general")` with context `{ orchestrator_model: "<ModelId>", github.owner, github.repo }`. Extract `{ auditor_1, auditor_2, family_1, family_2 }` from the result contract.
+Confirm `auditor_1` and `auditor_2` are present, non-null, and belong to different model families. Use the orchestrator-provided values directly — they were resolved by `resolve-models` before this task was invoked.
 
-If `resolve-models` returns `INSUFFICIENT_FAMILIES` error: return `{ status: "BLOCKED", error: "INSUFFICIENT_FAMILIES", reason: "<explanation>" }`.
+If `auditor_1` or `auditor_2` is missing: return `{ status: "BLOCKED", error: "MISSING_AUDITOR", missing: "<field>" }`.
 
-Verify `auditor_1 != auditor_2` and `family_1 != family_2`. If same family: HALT — this constitutes a `resolve-models` failure, re-dispatch it.
+Verify `auditor_1 != auditor_2` and the implied families differ. If same family: HALT and report orchestrator error — cross-family dispatch violated.
 
 ### Step 3: Dispatch Auditor 1 (Clean-Room)
 
@@ -146,7 +147,10 @@ Return structured result:
 
 - `evidence_payload`: The claim, output, or assertion to be evaluated
 - `evaluation_criteria`: Array of `{ id, description, expected_result, source_reference }`
-- `github.owner`, `github.repo`: For resolve-models file-path resolution
+- `auditor_1`: First auditor subagent type (e.g. `auditor-glm-5.1`) — pre-resolved by orchestrator
+- `auditor_2`: Second auditor subagent type from a different model family — pre-resolved by orchestrator
+- `audit_phase`: Current audit phase for dispatch context
+- `github.owner`, `github.repo`: For API calls
 
 ## Red Flags
 
@@ -157,7 +161,7 @@ Return structured result:
 - Never fabricate verdicts when auditor output is unparseable — missing data = FAIL per SKILL.md rule `adversarial-audit-005`
 - Never accept memory-cached claims as evidence — every verdict must reference a live tool call
 - Never re-dispatch an auditor after a FAIL verdict — the protocol accepts the real output
-- Never skip the `resolve-models` step — cross-family selection is mandatory
+- Never resolve auditors inline — `resolve-models` is called by orchestrator before this task
 
 ## Cross-References
 
@@ -168,6 +172,12 @@ Return structured result:
 - `065-verification-honesty.md` — live-source verification mandate, stale evidence prohibition
 - `000-critical-rules.md` — clean-room dispatch protocol, orchestrator purity
 - Spec #381, Plan #382
+
+## Sub-Agent Dispatch Audit
+
+| Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
+|---|---|---|---|
+| `evidence_payload`, `evaluation_criteria`, `auditor_1`, `auditor_2`, `audit_phase`, `github.owner`, `github.repo` | Orchestrator reasoning, expected outcomes, prior verification results, other auditor's verdict or dispatch status | N/A — auditor types are pre-resolved by orchestrator | NO |
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -181,10 +191,10 @@ rules:
     source: "cross-validate.md §Step 1"
 
   - id: cross-validate-002
-    title: "resolve-models must be invoked before auditor dispatch"
+    title: "Auditors must be provided by orchestrator — cross-validate does not call resolve-models"
     conditions:
       all: ["auditor_types == null", "auditor_dispatch_attempted == true"]
-    actions: [HALT, INVOKE_RESOLVE_MODELS]
+    actions: [HALT, REPORT_MISSING_AUDITOR]
     source: "cross-validate.md §Step 2"
 
   - id: cross-validate-003
@@ -198,7 +208,7 @@ rules:
     title: "Cross-family verification — auditor families must differ"
     conditions:
       all: ["family_1 == family_2"]
-    actions: [HALT, REINVOKE_RESOLVE_MODELS]
+    actions: [HALT, REPORT_ORCHESTRATOR_ERROR]
     source: "cross-validate.md §Step 2"
 
   - id: cross-validate-005
@@ -265,9 +275,9 @@ rules:
     source: "cross-validate.md §Step 8"
 
   - id: cross-validate-014
-    title: "INSUFFICIENT_FAMILIES must return BLOCKED status, not silent halt"
+    title: "Missing auditors must return BLOCKED status, not silent halt"
     conditions:
-      all: ["resolve_models_error == 'INSUFFICIENT_FAMILIES'"]
+      all: ["auditor_1 == null OR auditor_2 == null", "proceeded_without_auditors == true"]
     actions: [RETURN_BLOCKED]
     source: "cross-validate.md §Step 2"
 ```

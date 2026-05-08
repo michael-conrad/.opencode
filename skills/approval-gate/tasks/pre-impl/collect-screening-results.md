@@ -160,3 +160,9 @@ Each row comes from the `gate_evidence` field of the corresponding `screen-issue
 - **Writes to:** `## collect-screening-results`
 
 After completing this task, write results to the work state file under section `## collect-screening-results` using the YAML format defined in `enforcement/work-state-schema.md`.
+
+## Sub-Agent Dispatch Audit
+
+| Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
+|---|---|---|---|
+| `issue_number`, `work_peers`, `authorization_scope`, `halt_at`, `pr_strategy`, `github.owner`, `github.repo`, `dev.name`, `dev.email`, `worktree.path` | Issue bodies (never read into orchestrator context), orchestrator reasoning, prior screening results | N/A — screen-issue sub-agents receive full dispatch context directly | NO |

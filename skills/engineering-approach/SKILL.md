@@ -36,7 +36,7 @@ Engineering discipline checklist enforcing: understand before solving, design be
 
 ## Sub-Agent Dispatch Audit
 
-All tasks dispatch via `task(subagent_type="general")`. `verify-understanding` receives `{ issue_number, github.owner, github.repo }`. `design-before-code` receives `{ spec, github.owner, github.repo }`. `verify-before-complete` receives `{ spec, implementation_file_paths, github.owner, github.repo }`. `completion` receives `{ github.owner, github.repo }`. Exclusions: implementation context, agent memory. No inline work.
+All tasks dispatch via `task(subagent_type="general")`. `verify-understanding` receives `{ issue_number, worktree.path, github.owner, github.repo }`. `design-before-code` receives `{ spec, worktree.path, github.owner, github.repo }`. `verify-before-complete` receives `{ spec, implementation_file_paths, worktree.path, github.owner, github.repo }`. `completion` receives `{ worktree.path, github.owner, github.repo }`. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. Exclusions: implementation context, agent memory. No inline work.
 
 ## Cross-References
 

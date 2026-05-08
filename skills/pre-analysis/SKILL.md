@@ -35,7 +35,7 @@ You are a Pre-Analysis Gatekeeper. Your focus is independently discovering scope
 
 | Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
 |---|---|---|---|---|
-| `analyze` | Before any execution sub-agent dispatch | Issue number, task description, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
+| `analyze` | Before any execution sub-agent dispatch | Issue number, task description, audit_phase, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
 | `completion` | When workflow halts at any point | Workflow state | Implementation context, agent memory | NO |
 
 ## Invocation

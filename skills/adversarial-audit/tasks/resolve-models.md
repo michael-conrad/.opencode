@@ -110,6 +110,12 @@ If fewer than two eligible families remain after exclusion: return `{ auditor_1:
 - `adversarial-audit/SKILL.md` — skill-level rules (cross-family invariant, orchestrator exclusion)
 - `multimodal-dispatch` skill — model capability probing if needed for family detection
 
+## Sub-Agent Dispatch Audit
+
+| Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
+|---|---|---|---|
+| `orchestrator_model`, `github.owner`, `github.repo` | Any implementation context, agent memory, cached model pool data | N/A — this task reads the qualified pool directly, not via pre-analysis | NO |
+
 ```yaml+symbolic
 schema_version: "2.0"
 last_updated: "2026-05-04T00:00:00Z"

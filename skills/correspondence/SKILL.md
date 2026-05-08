@@ -37,7 +37,7 @@ Enforces multipart/alternative format (text/plain + text/html) for email, stakeh
 
 ## Sub-Agent Dispatch Audit
 
-`draft` dispatches with `{ context, audience_tier, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
+`draft` dispatches with `{ context, audience_tier, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 
