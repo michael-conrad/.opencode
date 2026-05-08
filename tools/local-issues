@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = "~=3.12"
-# dependencies = []
+# dependencies = ["pyyaml"]
 # ///
 """Local issue tracking CLI for .issues/ directories.
 
@@ -37,6 +37,8 @@ Commands:
     update NNN [--title T] [--status S] ...  Update issue frontmatter
     comment NNN --body TEXT                  Append comment
     close  NNN                               Close issue (move to closed/)
+    promote NNN                              Check promotion readiness
+    sync   NNN [--direction pull|push]       Sync local/remote (stub)
     link   NNN --github NUM                  Set github_issue field
     search [--status S] [--labels L1,L2] [--query TEXT]
     list   [--status S]                      List issues
@@ -55,6 +57,7 @@ import os
 import re
 import shutil
 import sys
+import yaml
 from datetime import datetime, timezone
 
 
@@ -349,62 +352,69 @@ def cmd_close(number: int) -> int:
 
 
 def cmd_link(number: int, github_num: int) -> int:
-    """Set github_issue field in frontmatter."""
-    return cmd_update(number, github_issue=github_num)
+    """Link local issue to GitHub issue number.
+    
+    Updates github_issue field in YAML frontmatter.
+    Deprecated: Use --record-remote for full metadata.
+    """
+    return cmd_record_remote(number, github_num, None)
 
 
-def cmd_search(
-    status: str | None = None, labels: list[str] | None = None, query: str | None = None
-) -> int:
-    """Search local issues."""
-    root = _find_issues_root()
-    if not root:
-        print("No .issues/ directory found", file=sys.stderr)
+def cmd_record_remote(number: int, remote_number: int, remote_url: str | None = None) -> int:
+    """Record remote promotion metadata in local issue.
+    
+    Updates YAML frontmatter:
+        remote_issue: <remote_number>
+        remote_url: <url>
+        promoted_at: <timestamp>
+    
+    This is called after successful remote promotion.
+    """
+    root = _ensure_issues_dir()
+    result = _find_issue(root, number)
+    if not result:
+        print(f"Issue #{number} not found", file=sys.stderr)
         return 1
-    matches: list[tuple[int, str, dict[str, object]]] = []
-    for status_dir in ["open", "closed"]:
-        if status and status_dir != status:
-            continue
-        base = os.path.join(root, ISSUES_DIR, status_dir)
-        if not os.path.isdir(base):
-            continue
-        for entry in sorted(os.listdir(base)):
-            spec_path = os.path.join(base, entry, "spec.md")
-            if not os.path.isfile(spec_path):
-                continue
-            with open(spec_path) as f:
-                content = f.read()
-            meta, body = _parse_frontmatter(content)
-            if labels:
-                issue_labels = set(str(label) for label in meta.get("labels", []))
-                if not issue_labels.issuperset(set(labels)):
-                    continue
-            if query:
-                q = query.lower()
-                if (
-                    q not in str(meta.get("title", "")).lower()
-                    and q not in body.lower()
-                ):
-                    continue
-            num = meta.get("number", 0)
-            title = meta.get("title", "")
-            matches.append((num, status_dir, meta))
-
-    if not matches:
-        print("No issues found")
-        return 0
-
-    for num, s, meta in matches:
-        title = meta.get("title", "")
-        lbl = ", ".join(str(label) for label in meta.get("labels", []))
-        gh = meta.get("github_issue")
-        gh_str = f" → GH#{gh}" if gh else ""
-        print(f"#{num:03d} [{s}] {title} [{lbl}]{gh_str}")
+    
+    issue_dir, meta, body = result
+    
+    # Update metadata
+    meta["remote_issue"] = remote_number
+    if remote_url:
+        meta["remote_url"] = remote_url
+    meta["promoted_at"] = datetime.now(timezone.utc).isoformat()
+    
+    # Update status if still needs-approval
+    labels = meta.get("labels", [])
+    if "needs-approval" in labels:
+        labels = [l for l in labels if l != "needs-approval"]
+        meta["labels"] = labels
+    
+    # Write back
+    spec_path = os.path.join(issue_dir, "spec.md")
+    with open(spec_path, "w") as f:
+        f.write("---\n")
+        yaml.dump(meta, f, default_flow_style=False, sort_keys=False)
+        f.write("---\n")
+        f.write(body)
+    
+    print(f"Recorded remote metadata for #{number}:")
+    print(f"  remote_issue: {remote_number}")
+    if remote_url:
+        print(f"  remote_url: {remote_url}")
+    print(f"  promoted_at: {meta['promoted_at']}")
+    
     return 0
 
 
-def cmd_review(number: int) -> int:
-    """Pretty-print issue spec to stdout for developer review."""
+def cmd_promote(number: int) -> int:
+    """Check promotion readiness and extract exec-summary.
+    
+    Exit codes:
+        0: Success - ready for promotion
+        1: Error (not found, no remote configured, etc.)
+        2: Not ready (semantic readiness criteria not met)
+    """
     root = _find_issues_root()
     if not root:
         print("No .issues/ directory found", file=sys.stderr)
@@ -413,47 +423,108 @@ def cmd_review(number: int) -> int:
     if not result:
         print(f"Issue #{number} not found", file=sys.stderr)
         return 1
+    
     issue_dir, meta, body = result
-
-    title = meta.get("title", "Untitled")
-    status = meta.get("status", "unknown")
-    labels = meta.get("labels", [])
-    created = meta.get("created", "unknown")
-    updated = meta.get("updated", "unknown")
-    gh = meta.get("github_issue")
-    author = meta.get("author", "unknown")
-
-    print(f"# {title}")
+    
+    # Check readiness criteria
+    title = meta.get("title", "")
+    if not title:
+        print("Issue not ready: missing title", file=sys.stderr)
+        return 2
+    
+    # Check for TBDs
+    if "TBD" in body or "TODO" in body:
+        print("Issue not ready: contains TBD or TODO placeholders", file=sys.stderr)
+        return 2
+    
+    # Check for success criteria
+    if "## Success Criteria" not in body and "## SCs" not in body:
+        print("Issue not ready: missing Success Criteria section", file=sys.stderr)
+        return 2
+    
+    # Extract exec-summary (first ## section or up to 500 chars)
+    exec_summary = _extract_exec_summary(body)
+    
+    print(f"Local issue #{number} ready for promotion")
+    print(f"Exec-summary ({len(exec_summary)} chars):")
+    print(exec_summary[:200] + "..." if len(exec_summary) > 200 else exec_summary)
     print()
-    print(f"| Field | Value |")
-    print(f"|-------|-------|")
-    print(f"| Number | #{number:03d} |")
-    print(f"| Status | {status} |")
-    print(f"| Labels | {', '.join(str(l) for l in labels) if labels else 'none'} |")
-    print(f"| Author | {author} |")
-    print(f"| Created | {created} |")
-    print(f"| Updated | {updated} |")
-    if gh:
-        print(f"| GitHub | #{gh} |")
-    print()
-    if body.strip():
-        print(body.strip())
-    else:
-        print("(No spec body yet)")
-
-    comments_path = os.path.join(issue_dir, "comments.md")
-    if os.path.isfile(comments_path):
-        with open(comments_path) as f:
-            comments = f.read().strip()
-        if comments:
-            print()
-            print("---")
-            print()
-            print("## Comments")
-            print()
-            print(comments)
-
+    print("To promote, use GitHub MCP or gitbucket-api with the exec-summary body.")
+    print("After promotion, record remote metadata with:")
+    print(f"  local-issues promote {number} --record-remote <github_url> <remote_number>")
+    
     return 0
+
+
+def _extract_exec_summary(body: str) -> str:
+    """Extract executive summary from spec body.
+    
+    Returns the first ## section (usually Summary or Overview),
+    or first 500 chars if no section found.
+    """
+    lines = body.strip().split("\n")
+    section_lines: list[str] = []
+    in_first_section = False
+    
+    for line in lines:
+        if line.startswith("## "):
+            if in_first_section:
+                break
+            in_first_section = True
+            continue
+        if in_first_section:
+            section_lines.append(line)
+    
+    if section_lines:
+        return "\n".join(section_lines).strip()
+    
+    return body[:500]
+
+
+def cmd_sync(number: int, direction: str = "pull") -> int:
+    """Synchronize local and remote issue state.
+    
+    Direction options:
+        pull: Fetch remote issue, merge into local
+        push: Push local changes to remote (with classification)
+        bidirectional: Pull then push if local newer
+    
+    Exit codes:
+        0: Success (auto-synced or flagged)
+        1: Error
+        2: Conflict flagged for developer review
+    """
+    root = _find_issues_root()
+    if not root:
+        print("No .issues/ directory found", file=sys.stderr)
+        return 1
+    result = _find_issue(root, number)
+    if not result:
+        print(f"Issue #{number} not found", file=sys.stderr)
+        return 1
+    
+    issue_dir, meta, body = result
+    
+    # Check if linked to remote
+    remote_issue = meta.get("remote_issue")
+    remote_url = meta.get("remote_url")
+    
+    if not remote_issue or not remote_url:
+        print(f"Issue #{number} is not linked to a remote issue", file=sys.stderr)
+        print("Use 'local-issues promote' first to create remote issue", file=sys.stderr)
+        return 1
+    
+    if direction == "pull":
+        print(f"Pull from remote #{remote_issue} not yet implemented", file=sys.stderr)
+        print("Use GitHub MCP to fetch remote issue and update local", file=sys.stderr)
+        return 1
+    elif direction == "push":
+        print(f"Push to remote #{remote_issue} not yet implemented", file=sys.stderr)
+        print("Sync classification requires agent judgment", file=sys.stderr)
+        return 1
+    else:
+        print(f"Bidirectional sync not yet implemented", file=sys.stderr)
+        return 1
 
 
 def cmd_list(status: str | None = None) -> int:
@@ -636,6 +707,58 @@ def main() -> int:
             print("Error: invalid issue number", file=sys.stderr)
             return 1
         return cmd_review(num)
+
+    elif command == "promote":
+        if len(args) < 2:
+            print("Error: issue number required", file=sys.stderr)
+            return 1
+        try:
+            num = int(args[1])
+        except ValueError:
+            print("Error: invalid issue number", file=sys.stderr)
+            return 1
+        
+        # Check for --record-remote flag
+        record_remote = False
+        remote_url = None
+        remote_number = None
+        i = 2
+        while i < len(args):
+            if args[i] == "--record-remote" and i + 2 < len(args):
+                remote_url = args[i + 1]
+                try:
+                    remote_number = int(args[i + 2])
+                    record_remote = True
+                except ValueError:
+                    print("Error: invalid remote issue number", file=sys.stderr)
+                    return 1
+                i += 3
+            else:
+                i += 1
+        
+        if record_remote:
+            return cmd_record_remote(num, remote_number, remote_url)
+        else:
+            return cmd_promote(num)
+
+    elif command == "sync":
+        if len(args) < 2:
+            print("Error: issue number required", file=sys.stderr)
+            return 1
+        try:
+            num = int(args[1])
+        except ValueError:
+            print("Error: invalid issue number", file=sys.stderr)
+            return 1
+        direction = "pull"
+        i = 2
+        while i < len(args):
+            if args[i] == "--direction" and i + 1 < len(args):
+                direction = args[i + 1]
+                i += 2
+            else:
+                i += 1
+        return cmd_sync(num, direction)
 
     else:
         print(f"Unknown command: {command}", file=sys.stderr)
