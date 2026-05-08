@@ -204,18 +204,18 @@ The `github.identity_source` value (emitted by session-init) determines the agen
 
 | `identity_source` | Routing Description |
 |---|---|
-| `root` | Standard workflow — parent repo has a remote, owner/repo from parent remote. All git operations work normally through the parent repo. |
-| `submodule` | Submodule-local mode — parent repo has ZERO remotes by design. All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory, not the project root. The submodule path is the only path to the remote repository. Do NOT add remotes to the parent repo. Do NOT push from the parent repo. |
-| `none` | Full local-only mode — no remote exists anywhere. All remote git operations (fetch, pull, push) will fail. No GitHub or GitBucket API calls are possible. Do NOT add remotes. |
+| `root` | Standard workflow — repo has its own remote. Owner/repo from remote URL. All git operations work normally. |
+| `local` | Local-only mode — no remote exists. All remote git operations (fetch, pull, push) will fail. No GitHub or GitBucket API calls are possible. Do NOT add remotes. |
 
-**When `identity_source == "submodule"`:**
+**When `identity_source == "local"`:**
 
-- The parent repo has ZERO remotes by design — do NOT add remotes
-- `github.owner` and `github.repo` come from the submodule's remote for API routing only
-- GitHub MCP calls route to the submodule's repository, not the parent
-- Local git operations (branch, commit, stash) on the parent repo are permitted
-- `git push` from the parent repo is FORBIDDEN — there is no remote to push to
-- `git remote add` on the parent repo is FORBIDDEN — the absence of remotes is intentional |
+- No remote exists anywhere — do NOT add remotes
+- `github.owner` and `github.repo` are `(none)`
+- `github.platform` is `local`
+- GitHub/GitBucket MCP calls are not available — use local `.issues/` directory
+- Local git operations (branch, commit, stash) work normally
+- `git push` is FORBIDDEN — there is no remote to push to
+- `git remote add` is FORBIDDEN — the absence of remotes is intentional |
 
 ```yaml+symbolic
 schema_version: "2.0"

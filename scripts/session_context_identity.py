@@ -237,7 +237,6 @@ def build_identity_section(
     platform: str,
     credential_status: str,
     identity_source: str = "root",
-    submod_path: str | None = None,
     root_dir: str | None = None,
 ) -> str:
     lines = [
@@ -253,16 +252,7 @@ def build_identity_section(
     lines.append(f"- {cred_key}={credential_status}")
     lines.append("- Use these exact values for ALL GitHub MCP and GitBucket API calls")
 
-    if identity_source == "submodule":
-        remote_display = "(none)"
-        if submod_path:
-            remote_display = (
-                f"(none) [submodule: {submod_path} -> {platform}:{owner}/{repo}]"
-            )
-        else:
-            remote_display = f"(none) [submodule: {platform}:{owner}/{repo}]"
-        lines.append(f"- Remote: {remote_display}")
-    elif identity_source == "none":
+    if identity_source == "local":
         lines.append("- Remote: (none)")
     else:
         lines.append(f"- Remote: {platform} remote configured")
@@ -284,27 +274,22 @@ def build_identity_section(
             "check credentials in .env, secrets.toml, or environment variables"
         )
 
-    if identity_source == "submodule":
+    if identity_source == "local":
         lines.append("")
-        lines.append("## Submodule Routing")
-        submod_display = submod_path if submod_path else "(unknown submodule path)"
+        lines.append("## Local-Only Mode")
+        lines.append("- Operating in local-only mode — no git remote configured")
+        lines.append("- github.platform: local")
+        lines.append("- github.owner: (none)")
+        lines.append("- github.repo: (none)")
+        lines.append("- github.identity_source: local")
+        lines.append("- No remote exists anywhere in this repository or its submodules")
         lines.append(
-            "- Operating in submodule-local mode — parent repo has 0 remote(s)"
-        )
-        lines.append("- github.identity_source: submodule")
-        lines.append(
-            "- All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory — not the project root"
-        )
-        lines.append(
-            f'- The submodule at "{submod_display}" is the only path to the remote repository'
+            "- All remote git operations (fetch, pull, push) will fail. No GitHub or GitBucket API calls are possible"
         )
         lines.append(
-            "- Local git operations (branch, commit, stash, checkout) work on the parent repo normally"
+            "- Local git operations (branch, commit, stash, checkout) work normally"
         )
-        lines.append("- Do NOT add remotes to the parent repo")
-        lines.append(
-            "- Do NOT push from the parent repo — there is no remote to push to"
-        )
+        lines.append("- Do NOT add remotes")
 
     root_dir_path = Path(root_dir) if root_dir else Path(".")
     gitmodules_path = root_dir_path / ".gitmodules"
@@ -329,40 +314,7 @@ def build_identity_section(
             for mapping in subfolder_mappings:
                 lines.append(f"- {mapping}")
 
-    if identity_source == "none":
-        lines.append("")
-        lines.append("## Local-Only Mode")
-        lines.append("- Operating in local-only mode — no git remote configured")
-        lines.append("- github.platform: local")
-        lines.append("- github.owner: (none)")
-        lines.append("- github.repo: (none)")
-        lines.append("- github.identity_source: none")
-        lines.append("- No remote exists anywhere in this repository or its submodules")
-        lines.append(
-            "- All remote git operations (fetch, pull, push) will fail. No GitHub or GitBucket API calls are possible"
-        )
-        lines.append(
-            "- Local git operations (branch, commit, stash, checkout) work normally"
-        )
-        lines.append("- Do NOT add remotes")
-
     return "\n".join(lines)
-
-
-def get_submodule_remotes() -> list[tuple[str, str, str]]:
-    """Find remotes from submodules when the root repo has no remote.
-
-    Returns list of (submodule_path, remote_url, platform) tuples.
-    """
-    submod_dirs = get_submodule_dirs()
-    remotes: list[tuple[str, str, str]] = []
-    for submod_path in submod_dirs:
-        submod_remote = run_git(["-C", submod_path, "remote", "get-url", "origin"])
-        if submod_remote:
-            platform = detect_platform(submod_remote)
-            if platform != "unknown":
-                remotes.append((submod_path, submod_remote, platform))
-    return remotes
 
 
 def get_submodule_dirs() -> list[str]:
@@ -384,7 +336,6 @@ def main() -> int:
     owner: str | None = None
     repo: str | None = None
     platform: str = "local"
-    active_submod_path: str | None = None
 
     if remote_url:
         platform = detect_platform(remote_url)
@@ -403,38 +354,13 @@ def main() -> int:
             return 1
     else:
         print(
-            "No root repo remote configured — checking submodules for degraded mode",
+            "No git remote configured — operating in local-only mode",
             file=sys.stderr,
         )
-        submodule_remotes = get_submodule_remotes()
-        if submodule_remotes:
-            submod_path, submod_url, submod_platform = submodule_remotes[0]
-            submod_owner, submod_repo = parse_owner_repo(submod_url, submod_platform)
-            if submod_owner and submod_repo:
-                owner = submod_owner
-                repo = submod_repo
-                platform = submod_platform
-                identity_source = "submodule"
-                active_submod_path = submod_path
-                remote_url = submod_url
-                print(
-                    f"Using submodule remote for degraded mode: {submod_path} -> {submod_url}",
-                    file=sys.stderr,
-                )
-            else:
-                print(
-                    "Could not parse owner/repo from submodule remote.", file=sys.stderr
-                )
-
-        if not owner or not repo:
-            owner = "(none)"
-            repo = "(none)"
-            platform = "local"
-            identity_source = "none"
-            print(
-                "No git remote available — operating in local-only mode",
-                file=sys.stderr,
-            )
+        owner = "(none)"
+        repo = "(none)"
+        platform = "local"
+        identity_source = "local"
 
     root_dir = get_root_dir()
 
@@ -450,7 +376,6 @@ def main() -> int:
             platform,
             credential_status,
             identity_source,
-            active_submod_path,
             root_dir,
         )
     )
