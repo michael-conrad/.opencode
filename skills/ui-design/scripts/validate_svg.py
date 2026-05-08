@@ -51,7 +51,9 @@ def validate_svg(svg_path: str) -> dict:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate SVG structure for ui-design wireframes")
+    parser = argparse.ArgumentParser(
+        description="Validate SVG structure for ui-design wireframes"
+    )
     parser.add_argument("svg_path", help="Path to SVG file to validate")
     args = parser.parse_args()
     result = validate_svg(args.svg_path)

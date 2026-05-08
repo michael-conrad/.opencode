@@ -25,21 +25,23 @@ Expected Results:
     - Document any changes in API-DEFICIENCIES.md after running
 """
 
-import json
 import os
 import sys
-from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 
-GITBUCKET_URL = (os.environ.get("GITBUCKET_HTML_URL") or os.environ.get("GITBUCKET_URL", "")).rstrip("/")
+GITBUCKET_URL = (
+    os.environ.get("GITBUCKET_HTML_URL") or os.environ.get("GITBUCKET_URL", "")
+).rstrip("/")
 GITBUCKET_TOKEN = os.environ.get("GITBUCKET_TOKEN", "")
 
 if not GITBUCKET_URL or not GITBUCKET_TOKEN:
-    print("ERROR: GITBUCKET_HTML_URL (or GITBUCKET_URL) and GITBUCKET_TOKEN required in .env")
+    print(
+        "ERROR: GITBUCKET_HTML_URL (or GITBUCKET_URL) and GITBUCKET_TOKEN required in .env"
+    )
     sys.exit(1)
 
 API_BASE = f"{GITBUCKET_URL}/api/v3"
@@ -62,7 +64,9 @@ def test_patch_issue():
     create_data = {"title": "API Test Issue", "body": "Testing PATCH operation"}
 
     try:
-        create_resp = requests.post(create_url, headers=HEADERS, json=create_data, timeout=10)
+        create_resp = requests.post(
+            create_url, headers=HEADERS, json=create_data, timeout=10
+        )
         if create_resp.status_code not in [200, 201]:
             print(f"⚠️  Failed to create test issue: {create_resp.status_code}")
             print(f"   Response: {create_resp.text[:200]}")
@@ -81,7 +85,9 @@ def test_patch_issue():
         }
 
         print(f"Testing PATCH {patch_url}")
-        patch_resp = requests.patch(patch_url, headers=HEADERS, json=patch_data, timeout=10)
+        patch_resp = requests.patch(
+            patch_url, headers=HEADERS, json=patch_data, timeout=10
+        )
 
         print(f"   Status: {patch_resp.status_code}")
         print(f"   Response: {patch_resp.text[:200]}")
@@ -118,7 +124,9 @@ def test_add_labels(issue_number=None):
         create_data = {"title": "Label Test Issue", "body": "Testing label operations"}
 
         try:
-            create_resp = requests.post(create_url, headers=HEADERS, json=create_data, timeout=10)
+            create_resp = requests.post(
+                create_url, headers=HEADERS, json=create_data, timeout=10
+            )
             if create_resp.status_code not in [200, 201]:
                 print(f"⚠️  Failed to create test issue: {create_resp.status_code}")
                 return False
@@ -138,7 +146,9 @@ def test_add_labels(issue_number=None):
     print(f"   Labels to add: {labels_data}")
 
     try:
-        add_resp = requests.post(labels_url, headers=HEADERS, json=labels_data, timeout=10)
+        add_resp = requests.post(
+            labels_url, headers=HEADERS, json=labels_data, timeout=10
+        )
 
         print(f"   Status: {add_resp.status_code}")
         print(f"   Response: {add_resp.text[:200]}")
@@ -194,7 +204,9 @@ def test_replace_labels(issue_number=None):
         }
 
         try:
-            create_resp = requests.post(create_url, headers=HEADERS, json=create_data, timeout=10)
+            create_resp = requests.post(
+                create_url, headers=HEADERS, json=create_data, timeout=10
+            )
             if create_resp.status_code not in [200, 201]:
                 print(f"⚠️  Failed to create test issue: {create_resp.status_code}")
                 return False
@@ -214,7 +226,9 @@ def test_replace_labels(issue_number=None):
     print(f"   Labels to set: {labels_data}")
 
     try:
-        replace_resp = requests.put(labels_url, headers=HEADERS, json=labels_data, timeout=10)
+        replace_resp = requests.put(
+            labels_url, headers=HEADERS, json=labels_data, timeout=10
+        )
 
         print(f"   Status: {replace_resp.status_code}")
         print(f"   Response: {replace_resp.text[:200]}")

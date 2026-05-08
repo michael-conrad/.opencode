@@ -1776,7 +1776,7 @@ When the agent's workdir is inside `.opencode/` (e.g., working in a submodule), 
 
 Audits exist to validate whether AI agent behavior actually changes — not just whether rule text exists. A mechanical-only audit checks checklist items, formatting, and boilerplate without probing whether the rules interact correctly, whether semantic gaps exist between related rules, or whether a behavioral change actually follows from the rule text.
 
-This violation applies to both human-initiated audits (`spec-auditor`) and automated audit dispatch (`adversarial-audit` cross-validation, `coherence-auditor` drift detection, `concern-separation-auditor` phase validation, `plan-fidelity-auditor` spec-plan comparison).
+This violation applies to all audit invocations via the unified `adversarial-audit --task <type>` architecture (spec-audit, plan-fidelity, concern-separation, coherence-*, guideline-audit, drift-detection, spec-summary, closure-verification).
 
 - 🚫 FORBIDDEN: Auditing only structural/formatting concerns while ignoring semantic completeness; checking that rule text exists without verifying behavioral impact; skipping inter-rule conflict exploration when rules reference each other; treating content-verification (text presence) as equivalent to behavioral verification (agent response change); accepting "rule exists in file" as audit pass without verifying the rule produces behavioral change
 - ✅ REQUIRED: Every audit MUST include semantic depth exploration — checking whether rules interact correctly, whether behavioral changes follow from the text, and whether gaps exist between related rules; auditor dispatch contexts MUST include `audit_phase` to enable phase-appropriate semantic exploration; content-verification tests are a supplementary sanity check, NOT a replacement for behavioral tests; behavioral tests (`opencode-cli run` against real AI models) are the PRIMARY enforcement gate for behavioral rule changes
@@ -1795,7 +1795,7 @@ This violation applies to both human-initiated audits (`spec-auditor`) and autom
       - REQUIRE_SEMANTIC_EXPLORATION
     conflicts_with: []
     requires: [verification-honesty-001, verification-honesty-003]
-    triggers: [spec-auditor, adversarial-audit, concern-separation-auditor, plan-fidelity-auditor, coherence-auditor]
+    triggers: [adversarial-audit --task spec-audit, adversarial-audit --task plan-fidelity, adversarial-audit --task concern-separation, adversarial-audit --task coherence-maintenance, adversarial-audit --task guideline-audit]
     source: "000-critical-rules.md §Mechanical-Only Audit Without Semantic and Conflict Exploration"
 ```
 
@@ -2621,7 +2621,7 @@ When a sub-agent fails at any stage, the orchestrator reading output files inlin
       - REQUIRE_SEMANTIC_EXPLORATION
     conflicts_with: []
     requires: [verification-honesty-001, verification-honesty-003]
-    triggers: [spec-auditor, adversarial-audit, concern-separation-auditor, plan-fidelity-auditor, coherence-auditor]
+    triggers: [adversarial-audit --task spec-audit, adversarial-audit --task plan-fidelity, adversarial-audit --task concern-separation, adversarial-audit --task coherence-maintenance, adversarial-audit --task guideline-audit]
     source: "000-critical-rules.md §Mechanical-Only Audit Without Semantic and Conflict Exploration"
 
   - id: critical-rules-047
@@ -2638,4 +2638,74 @@ When a sub-agent fails at any stage, the orchestrator reading output files inlin
     requires: [verification-honesty-001, verification-honesty-004]
     triggers: [verification-before-completion]
     source: "000-critical-rules.md §VbC Fabricated PASS"
+
+  - id: adversarial-audit-008
+    title: "All audits must be adversarial — single-auditor or orchestrator-evaluation is prohibited"
+    conditions:
+      all:
+        - "audit_requested == true"
+        - "adversarial_mode == false"
+    actions:
+      - HALT
+      - REQUIRE_ADVERSARIAL_DISPATCH
+    conflicts_with: []
+    requires: []
+    triggers: [spec-creation, writing-plans, issue-operations, divide-and-conquer, verification-before-completion, pr-creation-workflow, git-workflow]
+    source: "adversarial-audit/SKILL.md §adversarial-audit-008"
+
+  - id: adversarial-audit-009
+    title: "Consensus required at pipeline gates — PASS gate requires dual cross-family auditor consensus"
+    conditions:
+      all:
+        - "pipeline_gate == true"
+        - "consensus != 'PASS'"
+        - "gate_declared_pass == true"
+    actions:
+      - BLOCK_PIPELINE
+      - REQUIRE_CONSENSUS
+    conflicts_with: []
+    requires: []
+    triggers: [spec-creation, writing-plans, issue-operations, divide-and-conquer, verification-before-completion, pr-creation-workflow, git-workflow]
+    source: "adversarial-audit/SKILL.md §adversarial-audit-009"
+
+  - id: adversarial-audit-010
+    title: "Bidirectional findings presented before revision — FAIL/DISAGREE must show revision options"
+    conditions:
+      all:
+        - "consensus == 'FAIL' OR consensus == 'DISAGREE'"
+        - "revision_options == null"
+    actions:
+      - APPEND_DEFAULT_OPTIONS
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion, git-workflow]
+    source: "adversarial-audit/SKILL.md §adversarial-audit-010"
+
+  - id: adversarial-audit-011
+    title: "Cleanroom dispatch for scan phase — scan sub-agent has NO verifier context"
+    conditions:
+      all:
+        - "audit_phase == 'scan'"
+        - "verifier_context_leaked == true"
+    actions:
+      - HALT
+      - STRIP_VERIFIER_CONTEXT
+    conflicts_with: []
+    requires: []
+    triggers: [adversarial-audit]
+    source: "adversarial-audit/SKILL.md §adversarial-audit-011"
+
+  - id: adversarial-audit-012
+    title: "Live-source verification mandatory — memory-cached evidence is rejected"
+    conditions:
+      all:
+        - "evidence_source == 'memory' OR evidence_source == 'training_data'"
+        - "live_source_verified == false"
+    actions:
+      - REJECT_EVIDENCE
+      - REQUIRE_LIVE_VERIFICATION
+    conflicts_with: []
+    requires: [verification-honesty-001]
+    triggers: [adversarial-audit, verification-before-completion]
+    source: "adversarial-audit/SKILL.md §adversarial-audit-012"
 ```

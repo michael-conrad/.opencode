@@ -64,7 +64,7 @@ if [ "$CHANGED" = "1" ] && [ "$SUBMODULE_ONLY" = "1" ]; then
 - **If only `.opencode` changed → BLOCK.** Do NOT create the parent PR. Close branch, comment, and halt.
 - **If >1 file or non-submodule files changed → PASS.** Proceed to Step 1.
 
-**AUTHORITY:** `spec-auditor` auto-fix model, `000-critical-rules.md` §Implementation Without Spec (audit auto-fix exemption). Spec #414 Part 2 — prohibit submodule-bump-only parent PRs.
+**AUTHORITY:** `adversarial-audit --task spec-audit` auto-fix model, `000-critical-rules.md` §Implementation Without Spec (audit auto-fix exemption). Spec #414 Part 2 — prohibit submodule-bump-only parent PRs.
 
 ### Step 1: Verify PR Instruction (MANDATORY)
 

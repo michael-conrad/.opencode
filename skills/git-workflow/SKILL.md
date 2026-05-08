@@ -58,6 +58,7 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 5. **Compare URL base:** feature → `compare/dev...<branch>`. Release → `compare/main...dev`.
 6. **Submodule repos:** git ops from inside submodule dir. No `--recursive`.
 7. **Pair mode:** `pair-*` branches use WIP-commit switching, not worktrees.
+8. **Adversarial-audit invocation:** after PR merge verification, invoke `adversarial-audit --task closure-verification --pr <N>` with `audit_phase: post_merge`.
 
 ## Sub-Agent Dispatch Audit
 
@@ -65,7 +66,7 @@ All tasks dispatch via `task(subagent_type="general")` with `{ branch_name, work
 
 ## Cross-References
 
-Skills: `conflict-resolution`, `pr-creation-workflow`, `using-git-worktrees`, `pre-analysis`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
+Skills: `conflict-resolution`, `pr-creation-workflow`, `using-git-worktrees`, `pre-analysis`, `adversarial-audit --task closure-verification`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
 
 ```yaml+symbolic
 schema_version: "2.0"

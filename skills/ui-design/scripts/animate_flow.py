@@ -29,7 +29,9 @@ async def animate_flow(interaction_spec_path: str, output_dir: str) -> list[str]
         browser = await p.chromium.launch()
         page = await browser.new_page(viewport={"width": 1280, "height": 800})
         for idx, route in enumerate(routes):
-            await page.set_content(f"<html><body><h1>{route.get('path', 'unknown')}</h1></body></html>")
+            await page.set_content(
+                f"<html><body><h1>{route.get('path', 'unknown')}</h1></body></html>"
+            )
             out_path = out_dir / f"step_{idx:03d}.png"
             await page.screenshot(path=str(out_path))
             screenshots.append(str(out_path))

@@ -43,6 +43,7 @@ Issue Operations Dispatcher. Focus: spec-first workflow, validation, labeling, p
 3. **spec.md mirror:** every `github_issue_read(method="get")` mirrored to `.issues/<N>/spec.md`.
 4. **Byline mandatory:** AI-authored comments must include `🤖 Co-authored with AI: <AgentName> (<ModelId>)`.
 5. **Issue creation = no auth needed** per `010-approval-gate.md`.
+6. **Adversarial-audit invocation:** after sub-issue creation, invoke `adversarial-audit --task concern-separation --issue <N>` with `audit_phase: sub_issue_creation`.
 
 ## Sub-Agent Dispatch Audit
 
@@ -50,7 +51,7 @@ All tasks dispatch via `task(subagent_type="general")` with `{ issue_number, git
 
 ## Cross-References
 
-Skills: `github-mcp`, `gitbucket-api`, `local` (platform sub-skills). Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
+Skills: `github-mcp`, `gitbucket-api`, `local` (platform sub-skills), `adversarial-audit --task concern-separation`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`.
 
 ```yaml+symbolic
 schema_version: "2.0"

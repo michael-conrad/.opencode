@@ -75,7 +75,7 @@ Fixes #<child1>
 
 ### ❌ WRONG (Implementation Details)
 ```
-Add plan-fidelity-auditor skill as the first auditor in the mandatory audit chain. It generates independent clean-room plans from problem statements and compares them against existing spec plans to identify substantive gaps.
+Add adversarial-audit --task plan-fidelity as the first auditor in the mandatory audit chain. It generates independent clean-room plans from problem statements and compares them against existing spec plans to identify substantive gaps.
 ```
 
 ### ✅ CORRECT (Executive Summary)

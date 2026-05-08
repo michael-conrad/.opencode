@@ -33,8 +33,9 @@ Feature PRs target `dev` only. Release PRs (dev→main) handled by `git-workflow
 2. **Base branch = dev** for feature PRs.
 3. **Squash verified** before PR (single commit for single-issue).
 4. **Changelog generated** before PR.
-5. **No agent merge** — human-only operation.
-6. **Work branch guard:** no individual PRs during work execution (single stacked PR).
+5. **Adversarial-audit invocation:** after pre-pr-checklist, invoke `adversarial-audit --task spec-summary --pr <N>` with `audit_phase: pr_creation`.
+6. **No agent merge** — human-only operation.
+7. **Work branch guard:** no individual PRs during work execution (single stacked PR).
 
 ## Sub-Agent Dispatch Audit
 
@@ -42,7 +43,7 @@ Tasks dispatch via `task(subagent_type="general")` with `{ branch_name, github.o
 
 ## Cross-References
 
-Skills: `git-workflow`, `changelog-generator`. Guidelines: `000-critical-rules.md`.
+Skills: `git-workflow`, `changelog-generator`, `adversarial-audit --task spec-summary`. Guidelines: `000-critical-rules.md`.
 
 ```yaml+symbolic
 schema_version: "2.0"

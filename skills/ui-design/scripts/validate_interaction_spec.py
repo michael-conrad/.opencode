@@ -11,7 +11,13 @@ from pathlib import Path
 
 import yaml
 
-REQUIRED_TOP_LEVEL_KEYS = ["metadata", "layout", "components", "navigation", "accessibility"]
+REQUIRED_TOP_LEVEL_KEYS = [
+    "metadata",
+    "layout",
+    "components",
+    "navigation",
+    "accessibility",
+]
 METADATA_KEYS = ["spec_version", "created_by", "created_at"]
 LAYOUT_KEYS = ["regions"]
 COMPONENT_KEYS = ["id", "type", "label"]
@@ -84,9 +90,15 @@ def validate_interaction_spec(spec_path: str, schema_path: str | None = None) ->
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate interaction spec YAML against schema")
+    parser = argparse.ArgumentParser(
+        description="Validate interaction spec YAML against schema"
+    )
     parser.add_argument("spec_path", help="Path to interaction spec YAML file")
-    parser.add_argument("--schema-path", default=None, help="Optional path to schema YAML (reserved for future use)")
+    parser.add_argument(
+        "--schema-path",
+        default=None,
+        help="Optional path to schema YAML (reserved for future use)",
+    )
     args = parser.parse_args()
     result = validate_interaction_spec(args.spec_path, args.schema_path)
     if result["valid"]:

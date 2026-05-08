@@ -21,18 +21,67 @@ Adversarial Audit Orchestrator. Dispatches cross-family auditor sub-agents, coll
 
 | Task | Words | Description |
 |------|-------|-------------|
-| `cross-validate` | ≈400 | Accept evidence + criteria, resolve two cross-family auditors, dispatch, collect verdicts, cross-reference for consensus |
-| `resolve-models` | ≈350 | Enumerate auditor agents, group by family, exclude orchestrator-model, select two from different families |
-| `completion` | ≈150 | Halt guarantee per `completion-core` conventions |
+| `audit` | ≈120 | Unified orchestrator for multi-type audit dispatch |
+| `spec-audit` | ≈180 | Audit spec for quality, structure, completeness |
+| `plan-fidelity` | ≈150 | Audit plan fidelity via clean-room comparison |
+| `concern-separation` | ≈150 | Audit phase structure for concern boundaries |
+| `coherence-extraction` | ≈140 | Generate baseline coherence state |
+| `coherence-maintenance` | ≈140 | Detect drift against baseline |
+| `guideline-audit` | ≈130 | Audit guideline files for ambiguity/conflicts |
+| `drift-detection` | ≈120 | Detect spec/code reality drift |
+| `spec-summary` | ≈100 | Verify PR/spec consistency before merge |
+| `closure-verification` | ≈110 | Verify merge evidence after PR merge |
+| `cross-validate` | ≈400 | Dual cross-family auditor dispatch and consensus |
+| `resolve-models` | ≈350 | Cross-family auditor model selection |
+| `completion` | ≈150 | Halt guarantee per `completion-core` |
 
 ## Invocation
 
-`/skill adversarial-audit --task cross-validate`, `--task resolve-models`, `--task completion`.
+`/skill adversarial-audit --task audit --type <type>` (multi-type dispatch), `--task <type>` (single audit), `--task cross-validate`, `--task resolve-models`, `--task completion`.
+
+Valid types: `spec-audit`, `plan-fidelity`, `concern-separation`, `coherence`, `guideline-audit`, `drift-detection`, `spec-summary`, `closure-verification`.
+
+## Cleanroom Dispatch Protocol
+
+All auditor dispatch MUST follow cleanroom discipline:
+
+1. **Scan Phase**: Auditor receives ONLY evidence payload and evaluation criteria — NO orchestrator reasoning, expected outcomes, or prior verification results.
+
+2. **Evidence Collection**: Auditors MUST fetch live sources via tool calls — memory-cached claims are REJECTED per `065-verification-honesty.md`.
+
+3. **Dual Dispatch**: Each auditor type (scan verifier, evidence verifier, etc.) dispatches TWO cross-family sub-agents independently.
+
+4. **Consensus Gate**: PASS only when BOTH auditors independently return PASS for a criterion. FAIL/DISAGREE triggers bidirectional finding presentation.
+
+5. **Bidirectional Findings**: When consensus is FAIL or DISAGREE, present revision options to developer for decision — NO auto-fix.
+
+## Audit Phases
+
+| Audit Type | Phase | Pipeline Touchpoint |
+|-----------|-------|---------------------|
+| `spec-audit` | `spec_creation` | Post-spec-creation |
+| `plan-fidelity` | `plan_creation` | Post-plan-creation |
+| `concern-separation` | `sub_issue_creation` | Post-sub-issue-creation |
+| `coherence-maintenance` | `coherence_gate` | Pre-RED coherence gate |
+| `guideline-audit` | `guideline_update` | Guideline update |
+| `drift-detection` | `implementation_verification` | Post-GREEN verification |
+| `spec-summary` | `pr_creation` | Pre-PR-creation |
+| `closure-verification` | `post_merge` | Post-merge |
 
 ## Sub-Agent Dispatch Audit
 
 | Dispatch | Context | Exclusions |
 |----------|---------|------------|
+| `audit` | `{ audit_type, audit_phase, evidence_payload, github.owner, github.repo }` | Implementation context, agent memory, expected outcomes |
+| `spec-audit` | `{ spec_issue, audit_phase, github.owner, github.repo }` | Implementation context, agent memory, plan details |
+| `plan-fidelity` | `{ spec_issue, plan_issue, audit_phase, github.owner, github.repo }` | Implementation context, agent memory, existing plan |
+| `concern-separation` | `{ spec_issue, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `coherence-extraction` | `{ write_access, github.owner, github.repo }` | Implementation context, agent memory |
+| `coherence-maintenance` | `{ baseline_path, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `guideline-audit` | `{ target_files, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `drift-detection` | `{ spec_issue, target_files, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `spec-summary` | `{ pr_number, spec_issue, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `closure-verification` | `{ pr_number, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `cross-validate` | `{ evidence_payload, evaluation_criteria, audit_phase, github.owner, github.repo }` | Implementation context, agent memory, prior verification |
 | `resolve-models` | `{ orchestrator_model, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `completion` | `{ workflow_state, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
@@ -43,7 +92,7 @@ Skills: `skill-creator`, `verification-enforcement`, `verification-before-comple
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-04T00:00:00Z"
+last_updated: "2026-05-08T00:00:00Z"
 rules:
   - id: adversarial-audit-001
     title: "Dual cross-family auditor dispatch mandatory — single-auditor evaluation is prohibited"
@@ -92,6 +141,41 @@ rules:
     conditions:
       all: ["auditor_dispatch_context contains 'expected_result' OR 'orchestrator_reasoning' OR 'should_find'"]
     actions: [HALT, STRIP_BIASED_CONTEXT]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-008
+    title: "All audits must be adversarial — single-auditor or orchestrator-evaluation is prohibited"
+    conditions:
+      all: ["audit_requested == true", "adversarial_mode == false"]
+    actions: [HALT, REQUIRE_ADVERSARIAL_DISPATCH]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-009
+    title: "Consensus required at pipeline gates — PASS gate requires auditor consensus"
+    conditions:
+      all: ["pipeline_gate == true", "consensus != 'PASS'", "gate_declared_pass == true"]
+    actions: [BLOCK_PIPELINE, REQUIRE_CONSENSUS]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-010
+    title: "Bidirectional findings presented before revision — FAIL/DISAGREE must show options"
+    conditions:
+      all: ["consensus == 'FAIL' OR consensus == 'DISAGREE'", "revision_options == null"]
+    actions: [APPEND_DEFAULT_OPTIONS]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-011
+    title: "Cleanroom dispatch for scan phase — scan sub-agent has NO verifier context"
+    conditions:
+      all: ["audit_phase == 'scan'", "verifier_context_leaked == true"]
+    actions: [HALT, STRIP_VERIFIER_CONTEXT]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-012
+    title: "Live-source verification mandatory — memory-cached evidence is rejected"
+    conditions:
+      all: ["evidence_source == 'memory' OR evidence_source == 'training_data'", "live_source_verified == false"]
+    actions: [REJECT_EVIDENCE, REQUIRE_LIVE_VERIFICATION]
     source: "adversarial-audit/SKILL.md"
 ```
 

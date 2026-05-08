@@ -47,7 +47,7 @@ All tasks dispatch via `task(subagent_type="general")`. Context: `{ spec, plan, 
 
 ## Cross-References
 
-Skills: `approval-gate`, `git-workflow`, `verification-before-completion`, `finishing-a-development-branch`, `pre-analysis`. Guidelines: `091-incremental-build.md`, `000-critical-rules.md`.
+Skills: `approval-gate`, `git-workflow`, `verification-before-completion`, `finishing-a-development-branch`, `pre-analysis`, `adversarial-audit --task coherence-maintenance`. Guidelines: `091-incremental-build.md`, `000-critical-rules.md`.
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -111,7 +111,7 @@ rules:
     title: "Coherence gate — verify spec/plan coherence before RED dispatch"
     conditions:
       all: ["red_dispatch_pending == true", "spec_plan_coherence_verified == false"]
-    actions: [HALT, VERIFY_COHERENCE]
+    actions: [INVOKE(adversarial-audit --task coherence-maintenance), VERIFY_COHERENCE]
     source: "divide-and-conquer/SKILL.md §B5"
 
   - id: divide-and-conquer-013

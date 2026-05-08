@@ -13,7 +13,7 @@ compatibility: opencode
 
 Structured discipline for spec writing. Enforces requirements extraction, problem decomposition, interface-first thinking, constraints ledgers, risk analysis, traceability, and change control. Invoked after brainstorming exploration.
 
-Pipeline: `brainstorming → spec-creation → spec-auditor → approval-gate → writing-plans`
+Pipeline: `brainstorming → spec-creation → adversarial-audit --task spec-audit → approval-gate → writing-plans`
 
 ## Persona
 
@@ -43,9 +43,10 @@ Spec Architect. Focus: structure investigation results into complete, well-organ
 3. **Select-existing pathway:** search GitHub Issues for existing specs before creating new one.
 4. **Requirements task mandatory** before write (unless trivial).
 5. **Persist as GitHub Issue** via `issue-operations --task creation`.
-6. **PR merge boundaries** required when dependencies exist.
-7. **Mermaid diagram** required for multi-phase specs (approved structure only, no workflow state).
-8. **Concern enumeration guard:** enumerate single concerns before writing.
+6. **Adversarial-audit invocation:** after issue creation, invoke `adversarial-audit --task spec-audit --issue <N>` with `audit_phase: spec_creation`.
+7. **PR merge boundaries** required when dependencies exist.
+8. **Mermaid diagram** required for multi-phase specs (approved structure only, no workflow state).
+9. **Concern enumeration guard:** enumerate single concerns before writing.
 
 ## Sub-Agent Dispatch Audit
 
@@ -53,7 +54,7 @@ All tasks dispatch via `task(subagent_type="general")` with `{ spec_context, git
 
 ## Cross-References
 
-Skills: `brainstorming`, `verification-enforcement`, `issue-operations`, `spec-auditor`. Guidelines: `015-pre-spec-inspection.md`, `000-critical-rules.md`.
+Skills: `brainstorming`, `verification-enforcement`, `issue-operations`, `adversarial-audit --task spec-audit`. Guidelines: `015-pre-spec-inspection.md`, `000-critical-rules.md`.
 
 ```yaml+symbolic
 schema_version: "2.0"

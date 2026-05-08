@@ -4,7 +4,6 @@
 # dependencies = []
 # ///
 import json
-import os
 import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -30,13 +29,27 @@ def _make_api() -> GitBucketAPI:
 
 def test_list_pull_requests_with_head_param():
     api = _make_api()
-    api._request = MagicMock(return_value=[
-        {"number": 1, "head": {"ref": "feature/X", "label": "feature/X"}, "state": "open"},
-        {"number": 2, "head": {"ref": "feature/Y", "label": "feature/Y"}, "state": "open"},
-    ])
+    api._request = MagicMock(
+        return_value=[
+            {
+                "number": 1,
+                "head": {"ref": "feature/X", "label": "feature/X"},
+                "state": "open",
+            },
+            {
+                "number": 2,
+                "head": {"ref": "feature/Y", "label": "feature/Y"},
+                "state": "open",
+            },
+        ]
+    )
     result = api.list_pull_requests("owner", "repo", state="open", head="feature/X")
     call_args = api._request.call_args
-    params = call_args[1].get("params") or call_args[0][2] if len(call_args[0]) > 2 else call_args[1].get("params")
+    params = (
+        call_args[1].get("params") or call_args[0][2]
+        if len(call_args[0]) > 2
+        else call_args[1].get("params")
+    )
     assert params is not None
     assert params.get("head") == "feature/X"
 
@@ -68,7 +81,9 @@ def test_create_pull_request_creates_when_no_existing():
     api._request = MagicMock(return_value=new_pr)
     with tempfile.TemporaryDirectory() as tmp:
         with patch.object(Path, "cwd", return_value=Path(tmp)):
-            result = api.create_pull_request("owner", "repo", "Title", "feature/new", "dev")
+            result = api.create_pull_request(
+                "owner", "repo", "Title", "feature/new", "dev"
+            )
     assert result["number"] == 99
     api._request.assert_called_once()
 
