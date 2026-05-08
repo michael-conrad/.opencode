@@ -496,6 +496,71 @@ async function runSessionContextTriggers(projectDir: string): Promise<string> {
 }
 
 
+/**
+ * Build a formatted guidelines index block from INDEX.md for system prompt injection.
+ * Reads the INDEX.md file and formats it as a compact routing reference.
+ * Returns empty string if INDEX.md is missing or unreadable.
+ */
+function buildGuidelinesIndex(projectDir: string): string {
+  const indexPath = path.join(projectDir, ".opencode", "guidelines", "INDEX.md");
+  if (!fs.existsSync(indexPath)) return "";
+
+  try {
+    const content = fs.readFileSync(indexPath, "utf8");
+    // Strip the heading and intro lines, keep only the table
+    const tableMatch = content.match(/\|.*\|.*\|.*\|.*\|\n\|[-| ]+\|\n([\s\S]*)/);
+    if (!tableMatch) return "";
+
+    const tableBody = tableMatch[1].trim();
+    return `### Guidelines Index (Progressive Disclosure)
+
+Full guideline bodies are loaded on-demand by sub-agents when enforcement gates fire.
+The orchestrator holds only this routing index. To load a specific guideline in a sub-agent,
+use \`./.opencode/tools/guidelines read <filename>\`.
+
+| Guideline | Tier | Trigger Pattern | Load When |
+|-----------|------|-----------------|-----------|
+${tableBody}`;
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Extract trigger patterns from a SKILL.md description field.
+ * Descriptions contain "Triggers on:" followed by comma-separated keywords.
+ */
+function extractTriggerPatterns(description: string): string[] {
+  const match = description.match(/Triggers\s+on:\s*([^]*?)(?:\n|$)/i);
+  if (!match) return [];
+  return match[1].split(",").map(t => t.trim()).filter(Boolean);
+}
+
+/**
+ * Build a formatted skill index block for system prompt injection.
+ * Reads all SKILL.md files, extracts name + description + trigger patterns.
+ * Returns empty string if skills directory is missing.
+ */
+function buildSkillIndex(skillsDir: string): string {
+  const { skills, errors } = loadSkillDescriptions(skillsDir);
+  // Build a compact skill index table (name, description, trigger patterns)
+  const skillRows = skills.map(s => {
+    const triggers = extractTriggerPatterns(s.description);
+    // Shorten description to first sentence only for index
+    const shortDesc = s.description.split(".")[0].trim() + ".";
+    const triggersStr = triggers.length > 0 ? triggers.slice(0, 5).join(", ") : "—";
+    return `| \`${s.name}\` | ${shortDesc} | ${triggersStr} |`;
+  }).join("\n");
+
+  if (skillRows.length === 0) return "";
+
+  return `### Skill Index
+
+| Skill | Description | Trigger Keywords |
+|-------|-------------|------------------|
+${skillRows}`;
+}
+
 function buildWorktreeBlock(input: PluginInput): string {
   const mainRepoDir = input?.directory || "";
   const worktreeDir = input?.worktree || "";
@@ -827,6 +892,18 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
       const worktreeBlock = buildWorktreeBlock(input);
       if (worktreeBlock) {
         output.system.push(worktreeBlock);
+      }
+
+      // Inject guidelines index (INDEX.md) instead of full guideline bodies
+      const guidelinesIndex = buildGuidelinesIndex(projectDir);
+      if (guidelinesIndex) {
+        output.system.push(guidelinesIndex);
+      }
+
+      // Inject skill index (name + description + trigger patterns from SKILL.md frontmatter)
+      const skillIndex = buildSkillIndex(skillsDir);
+      if (skillIndex) {
+        output.system.push(skillIndex);
       }
 
       // Inject frontmatter validation warning if any skills have broken frontmatter
