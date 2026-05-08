@@ -35,7 +35,7 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 ## Operating Protocol
 
 1. **Plan from approved spec only.** No plan without approved spec.
-2. **Adversarial-audit invocation:** after plan creation, invoke `adversarial-audit --task audit --type plan-fidelity,concern-separation` with `audit_phase: plan_creation`.
+2. **Adversarial-audit invocation:** after plan creation, invoke type-specific audit tasks directly — `adversarial-audit --task plan-fidelity` and `adversarial-audit --task concern-separation` — with `audit_phase: plan_creation`.
 3. **TDD steps mandatory:** each step is RED→GREEN→REFACTOR within tasks.
 4. **No placeholders:** exact file paths, exact function/class names, exact commands.
 5. **Phase structure:** phases for sub-issues, tasks within phases for TDD steps.
@@ -43,7 +43,7 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 
 ## Sub-Agent Dispatch Audit
 
-All tasks dispatch via `task(subagent_type="general")` with `{ spec_issue_number, spec_body, github.owner, github.repo }`, excluding implementation context. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
+All tasks dispatch via `task(subagent_type="general")` with `{ spec_issue_number, spec_body, worktree.path, github.owner, github.repo }`, excluding implementation context. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 

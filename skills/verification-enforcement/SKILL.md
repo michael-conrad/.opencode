@@ -40,7 +40,7 @@ Verification Gatekeeper. Not the content author — the evidence collector runni
 
 ## Sub-Agent Dispatch Audit
 
-`verify` dispatches with `{ section_evidence_table, claim_list }`. `revisit` receives `{ generated_content, ⚠️ UNVERIFIED markers }`. `enforce` receives `{ sub_agent_output, evidence_artifact_list }`. Exclusions: implementation context, agent memory, prior verification. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
+`verify` dispatches with `{ section_evidence_table, claim_list, worktree.path, github.owner, github.repo }`. `revisit` receives `{ generated_content, ⚠️ UNVERIFIED markers, worktree.path, github.owner, github.repo }`. `enforce` receives `{ sub_agent_output, evidence_artifact_list, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, prior verification. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 

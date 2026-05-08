@@ -33,7 +33,7 @@ TDD workflow: tests define the contract, implementation satisfies the contract, 
 
 ## Sub-Agent Dispatch Audit
 
-Tasks dispatch via `task(subagent_type="general")` with `{ spec_context, test_path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, prior test results. No inline work.
+Tasks dispatch via `task(subagent_type="general")` with `{ spec_context, test_path, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, prior test results. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"

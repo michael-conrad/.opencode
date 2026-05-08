@@ -33,7 +33,7 @@ UI Design Specialist. Focus: information architecture, component relationships, 
 
 ## Sub-Agent Dispatch Audit
 
-Tasks dispatch via `task(subagent_type="general")` with `{ design_requirements, github.owner, github.repo }`. Exclusions: implementation context, agent memory. No inline work.
+Tasks dispatch via `task(subagent_type="general")` with `{ design_requirements, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"

@@ -21,7 +21,6 @@ Adversarial Audit Orchestrator. Dispatches cross-family auditor sub-agents, coll
 
 | Task | Words | Description |
 |------|-------|-------------|
-| `audit` | ≈120 | Unified orchestrator for multi-type audit dispatch |
 | `spec-audit` | ≈180 | Audit spec for quality, structure, completeness |
 | `plan-fidelity` | ≈150 | Audit plan fidelity via clean-room comparison |
 | `concern-separation` | ≈150 | Audit phase structure for concern boundaries |
@@ -37,9 +36,13 @@ Adversarial Audit Orchestrator. Dispatches cross-family auditor sub-agents, coll
 
 ## Invocation
 
-`/skill adversarial-audit --task audit --type <type>` (multi-type dispatch), `--task <type>` (single audit), `--task cross-validate`, `--task resolve-models`, `--task completion`.
+`/skill adversarial-audit --task <type>` where `<type>` is one of the individual tasks below. Multi-type dispatch uses sequential direct calls.
 
-Valid types: `spec-audit`, `plan-fidelity`, `concern-separation`, `coherence`, `guideline-audit`, `drift-detection`, `spec-summary`, `closure-verification`.
+Valid types: `spec-audit`, `plan-fidelity`, `concern-separation`, `coherence-extraction`, `coherence-maintenance`, `guideline-audit`, `drift-detection`, `spec-summary`, `closure-verification`.
+
+For cross-validation: `/skill adversarial-audit --task cross-validate` (orchestrator passes pre-resolved `auditor_1` and `auditor_2` in dispatch context).
+
+For auditor model resolution: `/skill adversarial-audit --task resolve-models` (called by orchestrator before cross-validate, NOT by cross-validate itself).
 
 ## Cleanroom Dispatch Protocol
 
@@ -72,9 +75,8 @@ All auditor dispatch MUST follow cleanroom discipline:
 
 | Dispatch | Context | Exclusions |
 |----------|---------|------------|
-| `audit` | `{ audit_type, audit_phase, evidence_payload, github.owner, github.repo }` | Implementation context, agent memory, expected outcomes |
 | `spec-audit` | `{ spec_issue, audit_phase, github.owner, github.repo }` | Implementation context, agent memory, plan details |
-| `plan-fidelity` | `{ spec_issue, plan_issue, audit_phase, github.owner, github.repo }` | Implementation context, agent memory, existing plan |
+| `plan-fidelity` | `{ spec_issue, plan_issue, clean_room_plan, auditor_1, auditor_2, audit_phase, github.owner, github.repo }` | Implementation context, agent memory, existing plan |
 | `concern-separation` | `{ spec_issue, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `coherence-extraction` | `{ write_access, github.owner, github.repo }` | Implementation context, agent memory |
 | `coherence-maintenance` | `{ baseline_path, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
@@ -82,9 +84,11 @@ All auditor dispatch MUST follow cleanroom discipline:
 | `drift-detection` | `{ spec_issue, target_files, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `spec-summary` | `{ pr_number, spec_issue, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `closure-verification` | `{ pr_number, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
-| `cross-validate` | `{ evidence_payload, evaluation_criteria, audit_phase, github.owner, github.repo }` | Implementation context, agent memory, prior verification |
+| `cross-validate` | `{ evidence_payload, evaluation_criteria, auditor_1, auditor_2, audit_phase, github.owner, github.repo }` | Implementation context, agent memory, prior verification |
 | `resolve-models` | `{ orchestrator_model, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `completion` | `{ workflow_state, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
+
+`pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. All dispatch contexts also include `worktree.path`.
 
 ## Cross-References
 

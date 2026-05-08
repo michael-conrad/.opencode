@@ -29,7 +29,7 @@ This skill is the master source. `080-code-standards.md` holds project-specific 
 
 ## Sub-Agent Dispatch Audit
 
-`principles` dispatches via `task(subagent_type="general")` with `{ context, github.owner, github.repo }`. Exclusions: implementation context, agent memory. No inline work.
+`principles` dispatches via `task(subagent_type="general")` with `{ context, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"
