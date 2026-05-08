@@ -37,7 +37,36 @@ if pr.get("merged_at") is None:
 - EVIDENCE: `merged_by` = pr.get("merged_by") — Should be populated
 - EVIDENCE: `state` = pr.get("state") — "closed" for merged PRs
 
-### Step 2: Rebase Pending PRs
+### Step 2: Adversarial-Audit Closure Verification
+
+Invoke `adversarial-audit --task closure-verification` to verify merge evidence:
+
+```python
+task(
+    subagent_type="general",
+    prompt=f"""Use adversarial-audit skill --task closure-verification with:
+
+pr_number: {pullNumber}
+audit_phase: post_merge
+
+worktree.path: {worktree.path}
+github.owner: {github.owner}
+github.repo: {github.repo}
+
+Mandatory gates:
+1. Verify PR merge status via GitHub API
+2. Verify success criteria have evidence
+3. Verify spec issue closed with proper resolution
+4. Return structured result contract
+"""
+)
+```
+
+**Evidence artifacts:**
+- EVIDENCE: closure-verification result consensus = PASS
+- EVIDENCE: All success criteria verified
+
+### Step 3: Rebase Pending PRs
 
 After verifying the PR merge and before switching to dev, rebase all other open PRs onto the updated `dev` branch.
 

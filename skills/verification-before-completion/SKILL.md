@@ -33,10 +33,11 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 ## Operating Protocol
 
 1. **Structural completeness first:** verify all specified files/components exist before SC verification.
-2. **Per-SC evidence table:** every SC must produce a tool-call artifact with PASS/FAIL.
-3. **Exact comparison:** external verifications use exact mode. No "functionally equivalent" soft-passes.
-4. **Live-source only:** evidence from memory/training data is FORBIDDEN. Tool-call artifact required.
-5. **Clean-room dispatch:** verification sub-agents receive ONLY spec SC list + file paths. No implementation context, no prior results.
+2. **Adversarial-audit invocation:** during verify task, invoke `adversarial-audit --task drift-detection --issue <N>` with `audit_phase: implementation_verification` to check spec/code reality alignment.
+3. **Per-SC evidence table:** every SC must produce a tool-call artifact with PASS/FAIL.
+4. **Exact comparison:** external verifications use exact mode. No "functionally equivalent" soft-passes.
+5. **Live-source only:** evidence from memory/training data is FORBIDDEN. Tool-call artifact required.
+6. **Clean-room dispatch:** verification sub-agents receive ONLY spec SC list + file paths. No implementation context, no prior results.
 
 ## Sub-Agent Dispatch Audit
 
@@ -44,7 +45,7 @@ All tasks dispatch via `task(subagent_type="general")` with `{ spec_sc_list, fil
 
 ## Cross-References
 
-Skills: `finishing-a-development-branch`, `spec-auditor`. Guidelines: `065-verification-honesty.md`, `000-critical-rules.md`.
+Skills: `finishing-a-development-branch`, `adversarial-audit --task drift-detection`. Guidelines: `065-verification-honesty.md`, `000-critical-rules.md`.
 
 ```yaml+symbolic
 schema_version: "2.0"

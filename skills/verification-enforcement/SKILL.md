@@ -44,7 +44,7 @@ Verification Gatekeeper. Not the content author — the evidence collector runni
 
 ## Cross-References
 
-Guidelines: `065-verification-honesty.md`, `000-critical-rules.md`. Skills: `spec-creation`, `writing-plans`, `sre-runbook`, `skill-creator`, `correspondence`.
+Guidelines: `065-verification-honesty.md`, `000-critical-rules.md`. Skills: `spec-creation`, `writing-plans`, `sre-runbook`, `skill-creator`, `correspondence`, `adversarial-audit --task guideline-audit`.
 
 ```yaml+symbolic
 schema_version: "2.0"

@@ -144,7 +144,9 @@ def _load_from_env_file(env_path: Path | None = None) -> dict[str, str]:
                     credentials[key] = value
     mapped = {}
     if credentials.get("GITBUCKET_HTML_URL") or credentials.get("GITBUCKET_URL"):
-        mapped["url"] = credentials.get("GITBUCKET_HTML_URL") or credentials.get("GITBUCKET_URL")
+        mapped["url"] = credentials.get("GITBUCKET_HTML_URL") or credentials.get(
+            "GITBUCKET_URL"
+        )
     if credentials.get("GITBUCKET_TOKEN"):
         mapped["token"] = credentials["GITBUCKET_TOKEN"]
     if credentials.get("GITBUCKET_USERNAME"):
@@ -154,7 +156,9 @@ def _load_from_env_file(env_path: Path | None = None) -> dict[str, str]:
     return mapped
 
 
-def _load_from_toml_file(toml_path: Path | None = None, create_if_missing: bool = False) -> dict[str, str]:
+def _load_from_toml_file(
+    toml_path: Path | None = None, create_if_missing: bool = False
+) -> dict[str, str]:
     if toml_path is None:
         toml_path = _get_config_file()
     if not toml_path.exists():
@@ -244,7 +248,9 @@ class GitBucketAuth:
                     "Set GITBUCKET_USERNAME and GITBUCKET_PASSWORD in .env, "
                     "~/.config/gitbucket/secrets.toml, or environment variables."
                 )
-            credentials = base64.b64encode(f"{self.username}:{self.password}".encode()).decode()
+            credentials = base64.b64encode(
+                f"{self.username}:{self.password}".encode()
+            ).decode()
             headers["Authorization"] = f"Basic {credentials}"
         elif self.token:
             headers["Authorization"] = f"token {self.token}"
@@ -282,7 +288,9 @@ class GitBucketAPI:
         username: str | None = None,
         password: str | None = None,
     ):
-        creds = _get_credentials(token=token, username=username, password=password, url=url)
+        creds = _get_credentials(
+            token=token, username=username, password=password, url=url
+        )
         self.url = creds["url"]
         if not self.url:
             raise ValueError(
@@ -357,10 +365,14 @@ class GitBucketAPI:
     ) -> dict[str, Any]:
         return self._request("GET", endpoint, params=params, use_basic=use_basic)
 
-    def post(self, endpoint: str, data: dict[str, Any], use_basic: bool = False) -> dict[str, Any]:
+    def post(
+        self, endpoint: str, data: dict[str, Any], use_basic: bool = False
+    ) -> dict[str, Any]:
         return self._request("POST", endpoint, data=data, use_basic=use_basic)
 
-    def patch(self, endpoint: str, data: dict[str, Any], use_basic: bool = False) -> dict[str, Any]:
+    def patch(
+        self, endpoint: str, data: dict[str, Any], use_basic: bool = False
+    ) -> dict[str, Any]:
         return self._request("PATCH", endpoint, data=data, use_basic=use_basic)
 
     def put(
@@ -402,7 +414,9 @@ class GitBucketAPI:
             "private": private,
             "auto_init": auto_init,
         }
-        return self.post("/user/repos", {k: v for k, v in data.items() if v is not None})
+        return self.post(
+            "/user/repos", {k: v for k, v in data.items() if v is not None}
+        )
 
     def create_org_repository(
         self,
@@ -412,7 +426,9 @@ class GitBucketAPI:
         private: bool = False,
     ) -> dict[str, Any]:
         data = {"name": name, "description": description, "private": private}
-        return self.post(f"/orgs/{org}/repos", {k: v for k, v in data.items() if v is not None})
+        return self.post(
+            f"/orgs/{org}/repos", {k: v for k, v in data.items() if v is not None}
+        )
 
     def get_repository(self, owner: str, repo: str) -> dict[str, Any]:
         return self.get(f"/repos/{owner}/{repo}")
@@ -429,7 +445,9 @@ class GitBucketAPI:
             params["state"] = state
         if labels:
             params["labels"] = labels
-        return self.get(f"/repos/{owner}/{repo}/issues", params=params if params else None)
+        return self.get(
+            f"/repos/{owner}/{repo}/issues", params=params if params else None
+        )
 
     def create_issue(
         self,
@@ -483,26 +501,44 @@ class GitBucketAPI:
             data["milestone"] = milestone
         return self.patch(f"/repos/{owner}/{repo}/issues/{issue_number}", data)
 
-    def add_issue_comment(self, owner: str, repo: str, issue_number: int, body: str) -> dict[str, Any]:
-        return self.post(f"/repos/{owner}/{repo}/issues/{issue_number}/comments", {"body": body})
+    def add_issue_comment(
+        self, owner: str, repo: str, issue_number: int, body: str
+    ) -> dict[str, Any]:
+        return self.post(
+            f"/repos/{owner}/{repo}/issues/{issue_number}/comments", {"body": body}
+        )
 
-    def add_labels_to_issue(self, owner: str, repo: str, issue_number: int, labels: list[str]) -> list[dict[str, Any]]:
+    def add_labels_to_issue(
+        self, owner: str, repo: str, issue_number: int, labels: list[str]
+    ) -> list[dict[str, Any]]:
         return self.post(f"/repos/{owner}/{repo}/issues/{issue_number}/labels", labels)
 
-    def replace_issue_labels(self, owner: str, repo: str, issue_number: int, labels: list[str]) -> list[dict[str, Any]]:
+    def replace_issue_labels(
+        self, owner: str, repo: str, issue_number: int, labels: list[str]
+    ) -> list[dict[str, Any]]:
         return self.put(f"/repos/{owner}/{repo}/issues/{issue_number}/labels", labels)
 
-    def remove_label_from_issue(self, owner: str, repo: str, issue_number: int, label_name: str) -> dict[str, Any]:
-        return self.delete(f"/repos/{owner}/{repo}/issues/{issue_number}/labels/{label_name}")
+    def remove_label_from_issue(
+        self, owner: str, repo: str, issue_number: int, label_name: str
+    ) -> dict[str, Any]:
+        return self.delete(
+            f"/repos/{owner}/{repo}/issues/{issue_number}/labels/{label_name}"
+        )
 
-    def remove_all_labels_from_issue(self, owner: str, repo: str, issue_number: int) -> dict[str, Any]:
+    def remove_all_labels_from_issue(
+        self, owner: str, repo: str, issue_number: int
+    ) -> dict[str, Any]:
         return self.delete(f"/repos/{owner}/{repo}/issues/{issue_number}/labels")
 
     def list_labels(self, owner: str, repo: str) -> list[dict[str, Any]]:
         return self.get(f"/repos/{owner}/{repo}/labels")
 
-    def create_label(self, owner: str, repo: str, name: str, color: str) -> dict[str, Any]:
-        return self.post(f"/repos/{owner}/{repo}/labels", {"name": name, "color": color})
+    def create_label(
+        self, owner: str, repo: str, name: str, color: str
+    ) -> dict[str, Any]:
+        return self.post(
+            f"/repos/{owner}/{repo}/labels", {"name": name, "color": color}
+        )
 
     def list_pull_requests(
         self,
@@ -516,7 +552,9 @@ class GitBucketAPI:
             params["state"] = state
         if head:
             params["head"] = head
-        return self.get(f"/repos/{owner}/{repo}/pulls", params=params if params else None)
+        return self.get(
+            f"/repos/{owner}/{repo}/pulls", params=params if params else None
+        )
 
     def create_pull_request(
         self,
@@ -564,9 +602,13 @@ class GitBucketAPI:
             except (json.JSONDecodeError, OSError):
                 existing = []
         existing.append(response)
-        pr_file.write_text(json.dumps(existing, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        pr_file.write_text(
+            json.dumps(existing, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
 
-    def get_pull_request(self, owner: str, repo: str, pull_number: int) -> dict[str, Any]:
+    def get_pull_request(
+        self, owner: str, repo: str, pull_number: int
+    ) -> dict[str, Any]:
         return self.get(f"/repos/{owner}/{repo}/pulls/{pull_number}")
 
     def list_branches(self, owner: str, repo: str) -> list[dict[str, Any]]:
@@ -672,7 +714,9 @@ class GitBucketAPI:
         }
         return self.post(f"/repos/{owner}/{repo}/hooks", data)
 
-    def create_user(self, username: str, password: str, email: str, is_admin: bool = False) -> dict[str, Any]:
+    def create_user(
+        self, username: str, password: str, email: str, is_admin: bool = False
+    ) -> dict[str, Any]:
         data = {
             "username": username,
             "password": password,
@@ -681,7 +725,9 @@ class GitBucketAPI:
         }
         return self.post("/admin/users", data, use_basic=True)
 
-    def create_organization(self, name: str, description: str | None = None) -> dict[str, Any]:
+    def create_organization(
+        self, name: str, description: str | None = None
+    ) -> dict[str, Any]:
         data = {"name": name, "description": description}
         return self.post(
             "/admin/organizations",
@@ -728,7 +774,11 @@ def _cmd_get_issue(args: argparse.Namespace) -> None:
 def _cmd_create_issue(args: argparse.Namespace) -> None:
     api = _make_api(args)
     labels = args.labels.split(",") if args.labels else None
-    _json_output(api.create_issue(args.owner, args.repo, args.title, body=args.body, labels=labels))
+    _json_output(
+        api.create_issue(
+            args.owner, args.repo, args.title, body=args.body, labels=labels
+        )
+    )
 
 
 def _cmd_add_comment(args: argparse.Namespace) -> None:
@@ -738,12 +788,18 @@ def _cmd_add_comment(args: argparse.Namespace) -> None:
 
 def _cmd_list_prs(args: argparse.Namespace) -> None:
     api = _make_api(args)
-    _json_output(api.list_pull_requests(args.owner, args.repo, state=args.state, head=args.head))
+    _json_output(
+        api.list_pull_requests(args.owner, args.repo, state=args.state, head=args.head)
+    )
 
 
 def _cmd_create_pr(args: argparse.Namespace) -> None:
     api = _make_api(args)
-    _json_output(api.create_pull_request(args.owner, args.repo, args.title, args.head, args.base, body=args.body))
+    _json_output(
+        api.create_pull_request(
+            args.owner, args.repo, args.title, args.head, args.base, body=args.body
+        )
+    )
 
 
 def _cmd_list_labels(args: argparse.Namespace) -> None:
@@ -857,7 +913,9 @@ def main() -> None:
     _add_auth_args(p_repo)
 
     p_init = sub.add_parser("init-config", help="Create secrets.toml template")
-    p_init.add_argument("--path", type=Path, help="Custom path (default: platform-specific)")
+    p_init.add_argument(
+        "--path", type=Path, help="Custom path (default: platform-specific)"
+    )
 
     p_check = sub.add_parser("check-auth", help="Verify authentication works")
     _add_auth_args(p_check)

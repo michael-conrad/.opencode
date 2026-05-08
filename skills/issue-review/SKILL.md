@@ -30,7 +30,7 @@ Issue Review Orchestrator. Focus: gather context, classify path, delegate to cor
 
 ## Invocation
 
-`/skill issue-review --task gather` (collect data), `--task triage` (classify), `--task analyze-and-spec` (root cause + fix spec), `--task audit` (delegate to spec-auditor), `--task qa` (clarifying questions), `--task completion` (halt guarantee). Overview with no flag.
+`/skill issue-review --task gather` (collect data), `--task triage` (classify), `--task analyze-and-spec` (root cause + fix spec), `--task audit` (delegate to `adversarial-audit --task spec-audit`), `--task qa` (clarifying questions), `--task completion` (halt guarantee). Overview with no flag.
 
 ## Operating Protocol
 
@@ -46,7 +46,7 @@ All tasks dispatch via `task(subagent_type="general")` with `{ issue_number, git
 
 ## Cross-References
 
-Skills: `spec-auditor`, `brainstorming`, `spec-creation`, `issue-operations`, `approval-gate`. Guidelines: `000-critical-rules.md`, `067-context-completeness.md`.
+Skills: `adversarial-audit --task spec-audit`, `brainstorming`, `spec-creation`, `issue-operations`, `approval-gate`. Guidelines: `000-critical-rules.md`, `067-context-completeness.md`.
 
 ```yaml+symbolic
 schema_version: "2.0"

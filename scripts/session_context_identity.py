@@ -58,6 +58,7 @@ def get_project_root() -> str:
         _path = _path.parent
     return str(_path.parent)
 
+
 get_root_dir = get_project_root
 
 

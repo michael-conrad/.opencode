@@ -25,9 +25,17 @@ import sys
 from pathlib import Path
 from typing import NamedTuple
 
-VALID_TYPES = {"discipline-enforcing", "technique", "pattern", "reference", "orchestrator"}
+VALID_TYPES = {
+    "discipline-enforcing",
+    "technique",
+    "pattern",
+    "reference",
+    "orchestrator",
+}
 VALID_PROVENANCE = {"AI-generated", "AI-assisted", "Human-written", "Derived"}
-HARDCODED_AGENT_NAMES = re.compile(r"\bOpenCode\b|\bClaude\b|\bCopilot\b|\bGemini\b|\bGPT-4\b")
+HARDCODED_AGENT_NAMES = re.compile(
+    r"\bOpenCode\b|\bClaude\b|\bCopilot\b|\bGemini\b|\bGPT-4\b"
+)
 HARDCODED_MODEL_IDS = re.compile(
     r"\bollama-cloud/[a-z0-9._-]+\b"
     r"|claude-3[-_]5[-_]sonnet"
@@ -40,7 +48,9 @@ HARDCODED_DEV_NAMES = re.compile(r"\bexample-developer\b|\bexample-dev-alias\b")
 HARDCODED_ORG_REPO = re.compile(r"\bexample-org\b|\bexample-repo\b")
 ATTRIBUTION_EXEMPT = re.compile(r"Co-authored with AI:.*<AgentName>.*<ModelId>")
 CODE_BLOCK_RE = re.compile(r"```[\s\S]*?```", re.MULTILINE)
-WORKTREE_MODE_HEADING_RE = re.compile(r"^##\s+Worktree\s+Mode", re.MULTILINE | re.IGNORECASE)
+WORKTREE_MODE_HEADING_RE = re.compile(
+    r"^##\s+Worktree\s+Mode", re.MULTILINE | re.IGNORECASE
+)
 FILE_OPS_PATTERN = re.compile(
     r"`?read`?|`?write`?|`?edit`?|`?glob`?|`?grep`?"
     r"|\bbash\b.*tool\b|\bgit\s+\w"
@@ -87,22 +97,50 @@ def skill_name_from_path(p: Path) -> str:
     return "/".join(parts[idx + 1 : -1])
 
 
-def validate_req1(name: str, fields: dict[str, str], fm_text: str, file_path: str) -> list[Violation]:
+def validate_req1(
+    name: str, fields: dict[str, str], fm_text: str, file_path: str
+) -> list[Violation]:
     violations: list[Violation] = []
     if "name" not in fields:
-        violations.append(Violation("REQ-1", name, "name", "Missing 'name' field", file_path=file_path))
+        violations.append(
+            Violation(
+                "REQ-1", name, "name", "Missing 'name' field", file_path=file_path
+            )
+        )
     else:
         val = fields["name"]
         if not re.match(r"^[a-z0-9-]+$", val):
             violations.append(
-                Violation("REQ-1", name, "name", f"Name '{val}' not hyphen-case", val, file_path=file_path)
+                Violation(
+                    "REQ-1",
+                    name,
+                    "name",
+                    f"Name '{val}' not hyphen-case",
+                    val,
+                    file_path=file_path,
+                )
             )
         elif val.startswith("-") or val.endswith("-") or "--" in val:
             violations.append(
-                Violation("REQ-1", name, "name", f"Name '{val}' has bad hyphens", val, file_path=file_path)
+                Violation(
+                    "REQ-1",
+                    name,
+                    "name",
+                    f"Name '{val}' has bad hyphens",
+                    val,
+                    file_path=file_path,
+                )
             )
     if "description" not in fields:
-        violations.append(Violation("REQ-1", name, "description", "Missing 'description' field", file_path=file_path))
+        violations.append(
+            Violation(
+                "REQ-1",
+                name,
+                "description",
+                "Missing 'description' field",
+                file_path=file_path,
+            )
+        )
     else:
         desc = fields["description"]
         if not desc.startswith("Use when"):
@@ -119,20 +157,46 @@ def validate_req1(name: str, fields: dict[str, str], fm_text: str, file_path: st
         if "<" in desc or ">" in desc:
             violations.append(
                 Violation(
-                    "REQ-1", name, "description", "Description contains angle brackets", desc[:60], file_path=file_path
+                    "REQ-1",
+                    name,
+                    "description",
+                    "Description contains angle brackets",
+                    desc[:60],
+                    file_path=file_path,
                 )
             )
     if "type" not in fields:
-        violations.append(Violation("REQ-1", name, "type", "Missing 'type' field", file_path=file_path))
+        violations.append(
+            Violation(
+                "REQ-1", name, "type", "Missing 'type' field", file_path=file_path
+            )
+        )
     elif fields["type"] not in VALID_TYPES:
         violations.append(
-            Violation("REQ-1", name, "type", f"Invalid type '{fields['type']}'", fields["type"], file_path=file_path)
+            Violation(
+                "REQ-1",
+                name,
+                "type",
+                f"Invalid type '{fields['type']}'",
+                fields["type"],
+                file_path=file_path,
+            )
         )
     if "license" not in fields:
-        violations.append(Violation("REQ-1", name, "license", "Missing 'license' field", file_path=file_path))
+        violations.append(
+            Violation(
+                "REQ-1", name, "license", "Missing 'license' field", file_path=file_path
+            )
+        )
     if "compatibility" not in fields:
         violations.append(
-            Violation("REQ-1", name, "compatibility", "Missing 'compatibility' field", file_path=file_path)
+            Violation(
+                "REQ-1",
+                name,
+                "compatibility",
+                "Missing 'compatibility' field",
+                file_path=file_path,
+            )
         )
     return violations
 
@@ -185,7 +249,15 @@ def validate_req3(name: str, body: str, file_path: str) -> list[Violation]:
 def validate_req4(name: str, fields: dict[str, str], file_path: str) -> list[Violation]:
     violations: list[Violation] = []
     if "provenance" not in fields:
-        violations.append(Violation("REQ-4", name, "provenance", "Missing 'provenance' field", file_path=file_path))
+        violations.append(
+            Violation(
+                "REQ-4",
+                name,
+                "provenance",
+                "Missing 'provenance' field",
+                file_path=file_path,
+            )
+        )
     elif fields["provenance"] not in VALID_PROVENANCE:
         violations.append(
             Violation(
@@ -207,10 +279,26 @@ def validate_card(card_path: Path, root: Path) -> list[Violation]:
     fields, fm_text, body = parse_frontmatter(content)
     violations: list[Violation] = []
     if not content.startswith("---"):
-        violations.append(Violation("REQ-1", name, "frontmatter", "No YAML frontmatter found", file_path=rel_path))
+        violations.append(
+            Violation(
+                "REQ-1",
+                name,
+                "frontmatter",
+                "No YAML frontmatter found",
+                file_path=rel_path,
+            )
+        )
         return violations
     if not fields:
-        violations.append(Violation("REQ-1", name, "frontmatter", "Invalid frontmatter format", file_path=rel_path))
+        violations.append(
+            Violation(
+                "REQ-1",
+                name,
+                "frontmatter",
+                "Invalid frontmatter format",
+                file_path=rel_path,
+            )
+        )
         return violations
     violations.extend(validate_req1(name, fields, fm_text, rel_path))
     violations.extend(validate_req2(name, content, rel_path))

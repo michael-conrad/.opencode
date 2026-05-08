@@ -35,10 +35,11 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 ## Operating Protocol
 
 1. **Plan from approved spec only.** No plan without approved spec.
-2. **TDD steps mandatory:** each step is RED→GREEN→REFACTOR within tasks.
-3. **No placeholders:** exact file paths, exact function/class names, exact commands.
-4. **Phase structure:** phases for sub-issues, tasks within phases for TDD steps.
-5. **Decision gate:** multi-task → separate plan. Single-task + simple → combined or separate per agent judgment.
+2. **Adversarial-audit invocation:** after plan creation, invoke `adversarial-audit --task audit --type plan-fidelity,concern-separation` with `audit_phase: plan_creation`.
+3. **TDD steps mandatory:** each step is RED→GREEN→REFACTOR within tasks.
+4. **No placeholders:** exact file paths, exact function/class names, exact commands.
+5. **Phase structure:** phases for sub-issues, tasks within phases for TDD steps.
+6. **Decision gate:** multi-task → separate plan. Single-task + simple → combined or separate per agent judgment.
 
 ## Sub-Agent Dispatch Audit
 
@@ -46,7 +47,7 @@ All tasks dispatch via `task(subagent_type="general")` with `{ spec_issue_number
 
 ## Cross-References
 
-Skills: `approval-gate`, `issue-operations`, `executing-plans`, `plan-fidelity-auditor`, `concern-separation-auditor`. Guidelines: `010-approval-gate.md`, `140-planning-spec-creation.md`.
+Skills: `approval-gate`, `issue-operations`, `executing-plans`, `adversarial-audit --task plan-fidelity`, `adversarial-audit --task concern-separation`. Guidelines: `010-approval-gate.md`, `140-planning-spec-creation.md`.
 
 ```yaml+symbolic
 schema_version: "2.0"

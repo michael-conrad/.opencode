@@ -48,9 +48,15 @@ def validate_skill(skill_path):
         name = name_match.group(1).strip()
         # Check naming convention (hyphen-case: lowercase with hyphens)
         if not re.match(r"^[a-z0-9-]+$", name):
-            return False, f"Name '{name}' should be hyphen-case (lowercase letters, digits, and hyphens only)"
+            return (
+                False,
+                f"Name '{name}' should be hyphen-case (lowercase letters, digits, and hyphens only)",
+            )
         if name.startswith("-") or name.endswith("-") or "--" in name:
-            return False, f"Name '{name}' cannot start/end with hyphen or contain consecutive hyphens"
+            return (
+                False,
+                f"Name '{name}' cannot start/end with hyphen or contain consecutive hyphens",
+            )
 
     # Extract and validate description
     desc_match = re.search(r"description:\s*(.+)", frontmatter)
@@ -65,7 +71,9 @@ def validate_skill(skill_path):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: uv run .opencode/skills/skill-creator/scripts/quick_validate.py <skill_directory>")
+        print(
+            "Usage: uv run .opencode/skills/skill-creator/scripts/quick_validate.py <skill_directory>"
+        )
         sys.exit(1)
 
     valid, message = validate_skill(sys.argv[1])
