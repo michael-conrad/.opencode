@@ -11,11 +11,11 @@ compatibility: opencode
 
 ## Overview
 
-Enforces context window safety. When a task risks overflow, it MUST be decomposed into sub-tasks dispatched to sub-agents. The orchestrator is a pure coordinator — never edits implementation files directly.
+Enforces context window safety. Orchestrator is a pure coordinator — never edits implementation files directly.
 
 ## Persona
 
-Divide and Conquer Orchestrator. Focus: assess context fitness, decompose work, dispatch sub-agents with scoped instructions, aggregate results. Never implement directly.
+Divide and Conquer Orchestrator. Assess context fitness, decompose work, dispatch sub-agents with scoped instructions, aggregate results.
 
 ## Tasks
 
@@ -39,29 +39,11 @@ Divide and Conquer Orchestrator. Focus: assess context fitness, decompose work, 
 
 ## Invocation
 
-`/skill divide-and-conquer --task orchestrate` (full workflow), `--task assemble-work` (work set assembly), `--task assess` (pre-flight), `--task decompose` (split work), `--task dispatch` (spawn sub-agent), `--task completion` (halt guarantee). Overview with no flag.
-
-## Operating Protocol
-
-1. **Orchestrator purity:** never edit implementation files directly. All work via sub-agents.
-2. **Stacking is prerequisite, parallelism is opportunistic.** Never assume parallel by default.
-3. **Pre-dispatch verification:** feature branch exists before any sub-agent dispatch.
-4. **Implementation-first gate:** at least one file modified before completion report.
-5. **PR merge boundary:** check required PR boundaries before sub-agent dispatch.
-6. **Clean-room dispatch:** sub-agents receive spec/plan/file paths only. No orchestrator reasoning, expected outcomes, or other sub-agent prior results (unless declared dependency).
-7. **Tool-Recipe Prohibition (B1):** Dispatch context MUST specify WHAT to accomplish, never HOW (no MCP tool names, parameter lists, file paths, or line numbers in dispatch context). Non-waivable hard gate.
-8. **Poison Recovery Protocol (B2):** Orchestrator inline work irreversibly poisons the pipeline. Restart from `verify-authorization` with ALL state discarded. Non-waivable hard gate.
-9. **Discard-on-Failure (B3):** When a sub-agent returns BLOCKED or fails, ALL files changed by that sub-agent MUST be discarded (`git checkout -- <changed-files>`). Re-dispatch with original scoped context only. Non-waivable hard gate.
-10. **RED/GREEN Push-Prohibition (B4):** RED and GREEN sub-agents execute tests only — they NEVER commit, push, or create branches. Non-waivable hard gate.
-11. **Coherence Gate (B5):** Verify spec/plan coherence before any RED sub-agent is dispatched. Plan phases must all trace to spec SCs; no plan phase addresses unlisted SCs; all spec SCs covered. If coherence fails, HALT and report.
-12. **Execution-Time Coherence Detection (B6):** RED sub-agents return BLOCKED on spec/codebase contradiction. GREEN sub-agents return BLOCKED on plan/spec mismatch. Must not proceed with work or return DONE when a defect is detected.
-13. **Audit-Classified Remediation (B7):** After BLOCKED, defect locus is audit-classified: spec defect → spec-fix → plan-fix → RED-fix; plan defect → plan-fix → RED-fix; RED test defect → RED-fix only; GREEN defect → re-dispatch GREEN. Max 3 remediation attempts before escalating to developer.
-14. **Gate Non-Waiver (B8):** "Continue" messages ("please continue", "go on", "proceed") and session momentum do NOT waive mandatory pipeline gates. Every mandatory gate fires on EVERY implementation pass. Non-waivable hard gate.
-15. **Cost-Blind Verification (B9):** Sub-agent dispatch and tool calls are near-zero cost compared to undiscovered defects. Never skip a dispatch or verification step to conserve resources. Correctness is the only success metric.
+`/skill divide-and-conquer --task orchestrate`, `--task assemble-work`, `--task assess`, `--task decompose`, `--task dispatch`, `--task completion`.
 
 ## Sub-Agent Dispatch Audit
 
-All tasks dispatch via `task(subagent_type="general")`. Context: `{ spec, plan, file_paths, worktree.path, github.owner, github.repo }`. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. Exclusions: implementation context, agent memory, cached verification results. `assemble-work` receives work state file. `pre-analysis` receives only `{ issue_number, task_description }`. Result contracts use `status: DONE|BLOCKED|ERROR|OVERFLOW`. No inline work.
+All tasks dispatch via `task(subagent_type="general")`. Context: `{ spec, plan, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, cached verification results. `pre-analysis` receives only `{ issue_number, task_description }`. Result contracts: `status: DONE|BLOCKED|ERROR|OVERFLOW`.
 
 ## Cross-References
 
@@ -161,3 +143,4 @@ rules:
       all: ["dispatch_or_verification_skipped_for_economy == true"]
     actions: [HALT]
     source: "divide-and-conquer/SKILL.md §B9"
+```
