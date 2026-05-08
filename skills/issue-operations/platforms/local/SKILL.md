@@ -40,7 +40,8 @@ Local issue tracking platform using `.issues/` directories at the repo root. Thi
 | Search issues | Yes | `local-issues search` |
 | List issues | Yes | `local-issues list` |
 | Labels | Yes | YAML frontmatter array |
-| Promotion to GitHub | Yes | `local-issues link --github NNN` + manual promotion via issue-operations |
+| Promotion to remote | Yes | `local-issues promote` + remote API |
+| Sync with remote | Yes | `local-issues sync` with classification |
 | Assignees | No | N/A |
 | Milestones | No | N/A |
 | Reactions | No | N/A |
@@ -56,7 +57,8 @@ local-issues review NNN
 local-issues update NNN [--title T] [--status S] [FIELD=VALUE]
 local-issues comment NNN --body "TEXT"
 local-issues close NNN
-local-issues link NNN --github NUM
+local-issues promote NNN --remote-url <url>
+local-issues sync NNN [--direction pull|push|bidirectional]
 local-issues search [--status S] [--labels L1,L2] [--query TEXT]
 local-issues list [--status S]
 ```
@@ -94,6 +96,60 @@ TEXT
 ```
 
 **Use case:** When a developer or agent needs to add a comment to a local issue (approval, status update, feedback), use `comment` to append to the comments file.
+
+## Task: promotion
+
+Promote a local issue to remote issue tracker (GitHub or GitBucket). Creates a remote copy with exec-summary style body.
+
+**Invocation:**
+
+```bash
+local-issues promote NNN --remote-url <url>
+```
+
+**Process:**
+
+1. Read local issue from `.issues/open/NNN-slug/spec.md`
+2. Extract exec-summary version (first section or explicit `## Summary`)
+3. Create remote issue via platform API (GitHub MCP or gitbucket-api)
+4. Record remote metadata in local frontmatter:
+
+```yaml
+remote_issue: <remote-number>
+remote_url: <html_url>
+promoted_at: <timestamp>
+promotion_type: manual | auto
+```
+
+**Use case:** When a local spec is ready for stakeholder review, promote it to GitHub for visibility and approval workflow.
+
+## Task: sync
+
+Synchronize local and remote issue state. Pull remote updates to local, push local changes to remote (with classification).
+
+**Invocation:**
+
+```bash
+local-issues sync NNN [--direction pull|push|bidirectional]
+```
+
+**Direction options:**
+
+| Direction | Action |
+|-----------|--------|
+| `pull` | Fetch remote issue, merge changes into local `.issues/` |
+| `push` | Push local changes to remote (with classification) |
+| `bidirectional` | Pull first, then push if local has newer changes |
+
+**Classification (for push):**
+
+| Change Type | Auto-Sync? | Action |
+|-------------|-----------|--------|
+| Correction/clarification | Yes | Push without confirmation |
+| Scope/intent change | No | Flag for developer review |
+| Uncertain | No | Flag conservative (don't auto-sync) |
+
+**Use case:** Keep local full-fidelity copy in sync with remote concise copy while preserving developer approval workflow.
 
 ## Authorization Labels
 
