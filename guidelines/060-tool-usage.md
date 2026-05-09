@@ -231,7 +231,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [notebook-operations]
+    triggers: [mcp-tool-usage]
     source: "060-tool-usage.md §1 Tool Priority Hierarchy"
 
   - id: tool-usage-002

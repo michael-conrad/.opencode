@@ -28,6 +28,25 @@ load_when: sub-agent
 
 **See also:** `090-data-integrity.md`, `080-code-standards.md`, `programming-principles` skill.
 
+## 4. Agent Behavior Requirements
+
+- Agents MUST never write code that swallows exceptions
+- Agents MUST never hide missing data with placeholders
+- Agents MUST always add context when wrapping exceptions
+- When in doubt: raise, don't return
+
+## 5. Code Review Checklist
+
+When reviewing code for error handling compliance:
+- [ ] No bare `except:` blocks
+- [ ] No `except: pass` or `except Exception: pass/continue`
+- [ ] No log-without-reraise patterns
+- [ ] All exceptions are wrapped with context (`raise X from e`)
+- [ ] Required data never gets silent defaults
+- [ ] Domain-specific exceptions at module boundaries
+- [ ] Optional data uses explicit `Optional[X]` type hints
+- [ ] Fail-fast validation at function entry
+
 ```yaml+symbolic
 schema_version: "2.0"
 last_updated: "2026-04-25T00:00:00Z"

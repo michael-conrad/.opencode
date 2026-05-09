@@ -414,7 +414,7 @@ Enforcement tests are the verification layer that proves agent guidelines are ac
 
 The `with-test-home` wrapper prevents SQLite session conflicts between the desktop app and CLI tests.
 
-**See `090-incremental-build.md` for the incremental implementation discipline that governs HOW these changes are delivered.** **See `.opencode/tests/README.md` for the enforcement test template and usage guide. See `.opencode/tests/behaviors/` for behavioral test infrastructure, helpers, and template.**
+**See `091-incremental-build.md` for the incremental implementation discipline that governs HOW these changes are delivered.** **See `.opencode/tests/README.md` for the enforcement test template and usage guide. See `.opencode/tests/behaviors/` for behavioral test infrastructure, helpers, and template.**
 
 ### SC-to-Test Traceability (MANDATORY) — Behavioral PRIMARY
 
