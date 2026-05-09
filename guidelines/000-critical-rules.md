@@ -119,7 +119,40 @@ See `finishing-a-development-branch --task checklist`.
 Feature: `compare/dev...<branch>`. Release: `compare/main...dev`.
 
 ### [critical-rules-016] Fabricating URLs — ZERO TOLERANCE
-Rule 1: Post-creation URLs → extract from API response `html_url`. Rule 2: Pre-creation URLs → construct from session-init values.
+Post-creation URLs MUST be extracted from API response `html_url`. Pre-creation URLs MUST be constructed from verified session-init values with character-match verification. See detailed rules below.
+
+#### URL Sourcing Rule 1: Post-Creation URLs — Extract from API Response (NEVER construct)
+
+For URLs to resources that have been **created by an API call** (PR URL, Issue URL), the agent MUST extract the `html_url` field from the API response — never construct from template variables.
+
+**Procedural enforcement in skill tasks:** The following skill task files contain mandatory URL extraction steps:
+- `git-workflow/tasks/pr-creation.md` Step 7 — PR URL extraction from `github_create_pull_request`
+- `git-workflow/tasks/review-prep.md` — PR URL extraction after PR creation
+- `approval-gate/tasks/post-implementation.md` — PR URL extraction after PR creation
+- `issue-operations/tasks/link-sub-issue.md` Step 4 — Sub-issue URL extraction from `github_issue_write`
+- `issue-operations/tasks/creation.md` — Issue URL extraction from `github_issue_write`
+- `issue-operations/tasks/completion.md` — Issue URL extraction from `github_issue_write`
+- `verification-before-completion/tasks/completion.md` — Issue URL extraction from `github_issue_write`
+- `divide-and-conquer/tasks/assemble-work.md` — PR URL extraction after PR creation
+- `finishing-a-development-branch/tasks/checklist.md` — URL extraction checklist verification
+
+- **PR URL:** Extract from `github_create_pull_request` response `html_url` field
+- **Issue URL:** Extract from `github_issue_write` response `html_url` field
+- **Template construction is FORBIDDEN** for post-creation URLs
+- The API response is the single source of truth for post-creation URLs
+
+#### URL Sourcing Rule 2: Pre-Creation URLs — Construct from Verified Session-Init Values
+
+For URLs to resources that **haven't been created yet** (Compare URL before push), the agent MUST construct from session-init values with a mandatory character-match verification step:
+
+1. Read `<github.owner>`, `<github.repo>`, `<gitbucket.html_url>` from session init
+2. Construct the URL using those exact values
+3. **Character-match verification:** Confirm the constructed URL contains the exact `<github.owner>` and `<github.repo>` strings from session init (character-for-character match, no typos, no cached values)
+4. If any mismatch: HALT and report
+
+#### Original Fabricating URLs Rule (superseded by Rule 1 and Rule 2 above)
+
+- ✅ REQUIRED: Follow URL Sourcing Rule 1 and Rule 2 above
 
 ### [critical-rules-036] Inferring GitHub Owner from File Paths/Usernames
 Use `github.owner` and `github.repo` from session init for EVERY GitHub MCP call.
@@ -239,7 +272,72 @@ Must close parent plan when all children verified complete.
 Merged: DELETE IMMEDIATELY. Unmerged: PRESERVE. Stashes: PRESERVE.
 
 ### [critical-rules-026] Git Configuration and Destructive Command Authorization
-See session-enforcement.ts config mutation watchdog + `--no-verify` detection.
+See session-enforcement.ts config mutation watchdog + `--no-verify` detection. Authorization rules below define what requires explicit approval.
+
+#### Operations Requiring Explicit Authorization (FORBIDDEN without "approved" or "go")
+
+| Category | Commands |
+| -- | -- |
+| Remote mutations | `git remote add`, `git remote rm`, `git remote set-url` |
+| Security-relevant config | `git config --local/--global/--system` for keys in Categories 1-4 below |
+| Force push | `git push --force`, `git push --no-verify` |
+| Bypass hooks | `git commit --no-verify` (in repos with remotes) |
+| Destructive resets | `git reset --hard`, `git clean -fd`, `git checkout -- .` |
+| Ref manipulation | `git update-ref`, `git symbolic-ref` |
+| History rewrite | `git filter-branch`, `git filter-repo` |
+| Reflog expiry | `git reflog expire` |
+| Submodule mutations | `git submodule add`, `git submodule deinit` |
+| Env var overrides | Setting `GIT_SSH_COMMAND`, `GIT_CONFIG_GLOBAL`, `GIT_CONFIG_SYSTEM`, `GIT_EXEC_PATH` |
+
+#### Security-Relevant Config Key Categories
+
+| Category | Key Patterns |
+| -- | -- |
+| 1. Remote/URL routing | `remote.*`, `url.*` |
+| 2. Protocol/transfer | `http.*`, `https.*`, `protocol.*` |
+| 3. Credential helpers | `credential.*` |
+| 4. Core security | `core.sshCommand`, `core.gitProxy`, `core.hooksPath` |
+
+#### Required Behaviors
+
+- Verify the EXACT git command (not just its category) is authorized before running
+- Check for implied unsafe operations (e.g., `rebase --strategy=ort` triggers rename detection, which is safe; `rebase --exec` runs shell commands, which is NOT)
+- `git commit --no-verify` is FORBIDDEN in repos with remotes without explicit authorization
+- `git push --force` always requires explicit authorization
+- `git config` mutations on Categories 1-4 always require explicit authorization
+
+#### `--no-verify` Exception for Local-Only Repos
+
+`git commit --no-verify` is permitted without authorization WHEN the repository has NO remotes configured. This exception exists because local-only repos are sandboxed environments where no external damage is possible.
+
+**Definition:** A "local-only repo" is one where `git remote -v` returns no output. This status must be re-checked every time the exception is invoked — adding a remote retroactively removes the exception.
+
+#### Hook Output Is Advisory, Not Absolute
+
+Pre-commit hook output guides, not gates. If a pre-commit hook blocks a commit, evaluate the reason: a legitimate violation should be fixed; a false positive or over-restrictive check may warrant `--no-verify` after reviewing the output. The agent is NOT an enforcement robot for hook scripts — use judgment.
+
+#### Allowlist (No Authorization Needed)
+
+| Operation | Rationale |
+| -- | -- |
+| `git config user.name` | Identity, not security |
+| `git config user.email` | Identity, not security |
+| `git config push.autoSetupRemote` | Convenience, safe |
+| `git config pull.rebase` | Workflow preference |
+
+#### Exempt Config Keys (Safe to Mutate Without Authorization)
+
+| Key | Reason |
+| -- | -- |
+| `user.name` | Identity only, no security impact |
+| `user.email` | Identity only, no security impact |
+| `push.autoSetupRemote` | Convenience, no security impact |
+| `pull.rebase` | Workflow preference, no security impact |
+
+#### Enforcement Mechanisms (session-enforcement.ts)
+
+- `session-enforcement.ts` config mutation watchdog detects `git config --global/--local/--system` for Categories 1-4 and REQUIRES authorization
+- The watchdog is NOT triggered by exempt keys (user.name, user.email, push.autoSetupRemote, pull.rebase)
 
 ### [critical-rules-042] Blind Conflict Resolution
 See `conflict-resolution` skill. Three tiers: Trivial → auto, Textual → note, Intent → HALT.
@@ -251,7 +349,32 @@ See `engineering-approach` skill. Understand → Design → Verify → Communica
 Invoke `--task completion` on current skill before halting.
 
 ### [critical-rules-009] Silent Agent Termination — producing no output before stopping
-Every HALT requires status message. Post-Dispatch Output Guarantee applies.
+Every HALT requires status message. Post-Dispatch Output Guarantee and Post-Tool Execution Output Checkpoint apply. See detailed rules below.
+
+#### Post-Dispatch Output Guarantee
+
+After EVERY `task(subagent_type=...)` dispatch, the agent MUST produce output — never transition directly from dispatch to halt without output.
+
+| After Dispatch | Agent MUST |
+|----------------|-----------|
+| Sub-agent returned valid result | Report result or proceed to next step |
+| Sub-agent returned empty result | RE-DISPATCH clean-room sub-agent with same scoped context |
+| Sub-agent returned error | RE-DISPATCH clean-room sub-agent with same scoped context |
+| Re-dispatch also failed | Report double-failure + invoke `--task completion` + HALT with status message + byline |
+
+| Violation Pattern | Classification |
+|-------------------|----------------|
+| Empty sub-agent result → zero output → silent halt | Critical: Silent Agent Termination |
+| Empty sub-agent result → re-dispatch attempt → status message in chat | Acceptable: self-corrected |
+| Empty/error sub-agent result → inline fallback | Critical: No Inline Fallback — Universal Re-Dispatch Mandate |
+
+#### Post-Tool Execution Output Checkpoint
+
+After EVERY batch of tool calls (ALL types: bash, read, write, edit, github_*, srclight_*, task, etc.), the agent MUST produce visible chat output before halting. This checkpoint applies regardless of tool success/failure, sub-agent results, or workflow end-state. The output MUST include:
+1. What operation/tool was invoked
+2. What the result was (success/failure/error)
+3. What state this leaves the workflow in
+4. What developer action (if any) is required to proceed
 
 ### [critical-rules-016] Skipping Interdependency Analysis for Batch Approvals
 See `approval-gate --task pre-implementation-analysis`.
@@ -320,13 +443,61 @@ See Spec #98. Files match spec, no uncommitted, SC traceability, result contract
 See Bug #91. Every verification claim references a tool-call artifact.
 
 ### [critical-rules-034] Inline Work — orchestrator performing file modifications without sub-agent dispatch
-See `divide-and-conquer` SKILL.md. Orchestrator is pure router.
+See `divide-and-conquer` SKILL.md. Orchestrator is pure router. Detailed rules below.
+
+#### 🚫 FORBIDDEN
+- The main orchestrator reading, editing, writing, or analyzing files in its own context
+- Sub-agents combining multiple steps (analyze + write + verify) in a single dispatch
+- The producer of a deliverable also verifying that deliverable (self-verification)
+- Sub-agents receiving orchestrator reasoning, expected outcomes, or cached results
+- Dispatching a sub-agent without a `dispatch_context` object specifying `must_receive` and `must_not_receive`
+- Any SKILL.md performing inline work (reading files, running analysis, making decisions) instead of delegating to sub-agents
+
+#### ✅ REQUIRED
+- ALL task execution uses clean-room sub-agents decomposed into discrete single-step units
+- The orchestrator is a pure router — it dispatches sub-agents and collects result contracts, never performing work inline
+- Every pipeline stage is a logged sub-agent dispatch in the work state file
+- Every SKILL.md contains a dispatch audit table documenting sub-agent tasks, scope, exclusions, and inline-work status
+- Verification is ALWAYS performed by a different sub-agent from the producer, with ONLY the deliverable + spec received
+- Sub-agents receive minimal context (issue number + scoped instruction) — no orchestrator preload
+
+#### Violation Patterns
+
+| Violation Pattern | Correct Action |
+| -- | -- |
+| Orchestrator reads file inline to "understand context" | Dispatch routing sub-agent instead |
+| Orchestrator edits guideline text inline | Dispatch guideline-update sub-agent |
+| Sub-agent performs analysis + writing + verification in one dispatch | Decompose into 3 dispatches (analyze, write, verify) |
+| Verifier receives producer's reasoning or drafts | Verifier gets only deliverable + SC list |
+| Orchestrator performs inline work | Pipeline is poisoned — restart from `verify-authorization` with zero state retained |
+| RED/GREEN sub-agent also instructed to commit and push | RED/GREEN sub-agents only execute tests — never commit, never push |
+| Sub-agent detects spec/plan defect but proceeds with GREEN anyway | Sub-agent returns BLOCKED — defect must be resolved before continuing |
+| User said "continue" so mandatory checks are optional | Mandatory gates are structural invariants — "continue" is NOT authorization to skip |
+| Sub-agent skips defect detection in GREEN phase (code-complete without verification) | GREEN sub-agent MUST produce verification evidence before returning |
+| Orchestrator treats "continue" as waiver of a failed gate checkpoint | Failed gate is absolute stop — no dispatch proceeds past incomplete/failed gate; contamination requires full restart |
 
 ### [critical-rules-035] DISPATCH_GATE Checkpoint skipped
-After routing decision, MUST dispatch sub-agent. Never perform task inline.
+After routing decision, MUST dispatch sub-agent. Never perform task inline. See DISPATCH_GATE procedure below.
+
+#### DISPATCH_GATE Checkpoint Procedure
+Every routing decision in the approval-gate dispatch chain MUST be followed by an explicit DISPATCH_GATE that forces handoff to a sub-agent:
+
+1. **Confirm next action is dispatch** — verify the routing decision has been made
+2. **Dispatch sub-agent** — invoke `task(subagent_type="general")` with scoped context
+3. **Receive result contract** — collect the structured result (never read the full task file)
+4. **Log dispatch in work state file** — record which sub-agent was dispatched and when
+5. **Proceed based on result contract** — route to next pipeline step based on sub-agent output
+
+- 🚫 FORBIDDEN: Loading a SKILL.md routing section and then performing the described task inline
+- 🚫 FORBIDDEN: Reading full SKILL.md content (beyond the routing section) in the orchestrator context
+- ✅ REQUIRED: After reading routing metadata, immediately dispatch a sub-agent for execution
+- ✅ REQUIRED: The orchestrator NEVER loads task file content — it only receives result contracts
 
 ### [critical-rules-034] Orchestrator Inline Work = Poisoned Pipeline
 On detection: HALT, discard ALL state, restart from `verify-authorization`. Non-waivable.
+
+- 🚫 FORBIDDEN: Continuing the pipeline after detecting orchestrator inline work; attempting to "clean up" or "patch" a poisoned pipeline; preserving any cached state, work state files, or verification results produced during a poisoned pipeline
+- ✅ REQUIRED: On detection of orchestrator inline work: HALT immediately; discard ALL work state files, cached results, and in-progress artifacts; restart from `verify-authorization` with zero state retained; log the poison-detection event in the new work state file
 
 ### [critical-rules-042] Discard on Sub-Agent Failure
 BLOCKED sub-agent → discard ALL files changed. Re-dispatch with original context.

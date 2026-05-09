@@ -27,8 +27,6 @@ load_when: sub-agent
   source record (e.g., `discovery_date` absent from an XML record), the process MUST raise immediately — never skip,
   suppress, or continue. Missing required data is a data integrity defect, not a filter condition. All fields referenced by the current logic are **required** by default. Any field that is genuinely optional (i.e., its absence is expected and documented in the schema) must be explicitly handled by the logic; otherwise, its absence MUST trigger a hard fail. **The agent is prohibited from using a default placeholder (e.g., '—') to mask a missing field that it has not explicitly confirmed as optional.**
 
-  absent without triggering a hard fail.
-
 ## Verify Before Recommend
 
 - Never recommend backfills/schema changes based on assumptions. Verify presence and distribution of source data with a
@@ -91,8 +89,7 @@ load_when: sub-agent
 
 ## Cross-References
 
-- **200-errors-exception-handling.md** — Zero-tolerance rules for exception handling
-- **201-errors-missing-data.md** — Zero-tolerance rules for missing data
+- **200-errors.md** — Zero-tolerance rules for exception handling and missing data
 
 ______________________________________________________________________
 
