@@ -6,7 +6,7 @@ load_when: sub-agent
 
 # Incremental Build Discipline
 
-**Enforced by behavioral test `tests/behaviors/incremental-build-enforcement.sh`.** See `000-critical-rules.md` §Monolithic Implementation for the critical violation.
+**Enforced by yaml+symbolic rules below and `000-critical-rules.md` §Monolithic Implementation. Also covered by `tests/behaviors/tier1-mandate-enforcement.sh` for the overarching incremental build discipline.** See `000-critical-rules.md` §Monolithic Implementation for the critical violation.
 
 ## Mandate
 
