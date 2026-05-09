@@ -215,7 +215,7 @@ ______________________________________________________________________
 
 **Core idea:** Detect errors early. Don't let bad state propagate.
 
-**Enforcement:** "Detect errors early. Don't let bad state propagate." (Also enforced in `200-errors-exception-handling.md` and `201-errors-missing-data.md`)
+**Enforcement:** "Detect errors early. Don't let bad state propagate." (Also enforced in `200-errors.md`)
 
 **Apply strongly when:**
 
