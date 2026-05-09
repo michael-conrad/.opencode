@@ -1,6 +1,6 @@
 ---
 name: skill-creator
-description: Use when creating a new skill, updating an existing skill, or validating skill cards. Triggers on: new skill, update skill, create skill, skill template, skill structure, SKILL.md, validate skill cards, review skills, skill card review.
+description: Use when creating a new skill, updating an existing skill, validating skill cards, or managing duplicate content blocks (fragments) across guidelines or skills. Triggers on: new skill, update skill, create skill, skill template, skill structure, SKILL.md, validate skill cards, review skills, skill card review, fragment, duplicate content, sync content, content block, shared content, master copy, synchronize.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
@@ -11,7 +11,9 @@ compatibility: opencode
 
 ## Overview
 
-Creating skills IS TDD applied to process documentation. Write tests, watch them fail, write the skill, watch tests pass, refactor. If you didn't watch an agent fail without the skill, you don't know if the skill teaches the right thing.
+Creating skills IS TDD applied to process documentation. Write tests, watch them fail, write the skill, watch tests pass, refactor.
+
+Also manages duplicate text blocks across skills (formerly `fragment-manager` skill): CRUD on master files (`.opencode/.guidelines/`), sync masters to copies, drift detection.
 
 ## Tasks
 
@@ -20,10 +22,11 @@ Creating skills IS TDD applied to process documentation. Write tests, watch them
 | `init` | ≈200 |
 | `package` | ≈150 |
 | `validate` | ≈100 |
+| `fragment-management` | ≈300 |
 
 ## Invocation
 
-`/skill skill-creator --task init` (create from template), `--task package` (zip distributable), `--task validate` (semantic review). Overview with no flag.
+`/skill skill-creator --task init` (create from template), `--task package` (zip distributable), `--task validate` (semantic review), `--task fragment-management` (fragment CRUD/sync). Overview with no flag.
 
 ## Operating Protocol
 
@@ -35,10 +38,11 @@ Creating skills IS TDD applied to process documentation. Write tests, watch them
 6. **Verification-enforcement gate** before skill generation.
 7. **Required frontmatter:** name, description, type, license, provenance, compatibility.
 8. **Session-init variable alignment:** use canonical dotted-name format.
+9. **Fragment discipline:** master copy is single source of truth — never edit copies directly. Registry at `.opencode/.guidelines/registry.yaml`.
 
 ## Sub-Agent Dispatch Audit
 
-`init` dispatches with `{ skill_name, output_dir, worktree.path, github.owner, github.repo }`. `package` with `{ skill_folder, output_dir, worktree.path, github.owner, github.repo }`. `validate` with `{ skill_folders, validation_scope, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+`init` dispatches with `{ skill_name, output_dir, worktree.path, github.owner, github.repo }`. `package` with `{ skill_folder, output_dir, worktree.path, github.owner, github.repo }`. `validate` with `{ skill_folders, validation_scope, worktree.path, github.owner, github.repo }`. `fragment-management` with `{ fragment_name, destination_paths, operation, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 
@@ -68,3 +72,11 @@ rules:
       all: ["skill_performs_git_or_file_operations == true", "worktree_mode_section_present == false"]
     actions: [REJECT]
     source: "skill-creator/SKILL.md"
+
+  - id: fragment-001
+    title: "Master copy is single source of truth — never edit copies directly"
+    conditions:
+      all: ["destination_copy_edited == true", "master_updated == false"]
+    actions: [REVERT, EDIT_MASTER_FIRST]
+    source: "skill-creator/SKILL.md (merged from fragment-manager)"
+```

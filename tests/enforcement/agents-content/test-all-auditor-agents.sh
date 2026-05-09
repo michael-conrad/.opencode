@@ -1,19 +1,18 @@
 #!/bin/bash
-# Content-Verification Test: All 9 Auditor Agent Files — Canonical Schema Validation
+# Content-Verification Test: All 7 Auditor Agent Files — Canonical Schema Validation
 #
-# Validates that each of the 9 auditor agent files in .opencode/agents/
+# Validates that each of the 7 auditor agent files in .opencode/agents/
 # has correct YAML frontmatter per spec #381 canonical schema:
 #   - mode: subagent
 #   - model: <expected model string>
-#   - permission: block with 7 allow + 4 deny keys
+#   - permission: block with 6 allow + 5 deny keys
 #
-# SC-7 from Spec #381: all 9 agent files have correct permission surface
+# SC-7 from Spec #381: all 7 agent files have correct permission surface (6 allow, 5 deny)
 #
-# Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
 set -euo pipefail
 
-# Resolve to .opencode/ root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 while [ "$(basename "$SCRIPT_DIR")" != ".opencode" ]; do
     SCRIPT_DIR="$(dirname "$SCRIPT_DIR")"
@@ -22,7 +21,6 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 AGENTS_DIR="$SCRIPT_DIR/agents"
 
 declare -A MODELS
-MODELS["auditor-deepseek-v4"]="ollama/deepseek-v4-pro:cloud"
 MODELS["auditor-deepseek-flash"]="ollama/deepseek-v4-flash:cloud"
 MODELS["auditor-deepseek-v3"]="ollama/deepseek-v3.2:cloud"
 MODELS["auditor-glm-5.1"]="ollama/glm-5.1:cloud"
@@ -30,10 +28,9 @@ MODELS["auditor-glm-5"]="ollama/glm-5:cloud"
 MODELS["auditor-mistral-large"]="ollama/mistral-large-3:675b-cloud"
 MODELS["auditor-kimi-k2"]="ollama/kimi-k2.6:cloud"
 MODELS["auditor-qwen3.5"]="ollama/qwen3.5:397b-cloud"
-MODELS["auditor-devstral-2"]="ollama/devstral-2:123b-cloud"
 
-ALLOW_KEYS=("read" "glob" "grep" "skill" "webfetch" "websearch" "task")
-DENY_KEYS=("edit" "bash" "todowrite" "question")
+ALLOW_KEYS=("read" "glob" "grep" "skill" "webfetch" "websearch")
+DENY_KEYS=("edit" "bash" "task" "todowrite" "question")
 EXPECTED_ALLOW=${#ALLOW_KEYS[@]}
 EXPECTED_DENY=${#DENY_KEYS[@]}
 EXPECTED_COUNT=${#MODELS[@]}
@@ -44,7 +41,6 @@ FAILURES=0
 echo "=== Content-Verification: Auditor Agent Files Canonical Schema ==="
 echo ""
 
-# Step 1: Assert agents directory exists
 if [ ! -d "$AGENTS_DIR" ]; then
     echo "FAIL: .opencode/agents/ directory does not exist"
     FAILURES=1
@@ -53,7 +49,6 @@ else
 fi
 echo ""
 
-# Step 2: Assert all 9 files exist
 echo "--- File Existence ($EXPECTED_COUNT expected) ---"
 EXIST_COUNT=0
 for agent in "${!MODELS[@]}"; do
@@ -75,8 +70,7 @@ else
 fi
 echo ""
 
-# Step 3: For each existing file, validate YAML frontmatter against canonical schema
-echo "--- YAML Frontmatter Validation ---"
+echo "--- YAML Frontmatter Validation (6 allow + 5 deny) ---"
 for agent in "${!MODELS[@]}"; do
     FILE="$AGENTS_DIR/${agent}.md"
     EXPECTED_MODEL="${MODELS[$agent]}"
@@ -88,7 +82,6 @@ for agent in "${!MODELS[@]}"; do
 
     FILE_FAILURES=0
 
-    # Extract YAML frontmatter between --- delimiters (remove the delimiter lines)
     FRONTMATTER=$(sed -n '/^---$/,/^---$/p' "$FILE" | sed '1d' | sed '$d')
 
     if [ -z "$FRONTMATTER" ]; then
@@ -97,27 +90,23 @@ for agent in "${!MODELS[@]}"; do
         continue
     fi
 
-    # Verify mode: subagent
     MODE=$(echo "$FRONTMATTER" | grep '^mode:' | sed 's/^mode:[[:space:]]*//' | tr -d '"' | tr -d "'")
     if [ "$MODE" != "subagent" ]; then
         echo "FAIL: ${agent}.md mode: expected 'subagent', got '$MODE'"
         FILE_FAILURES=1
     fi
 
-    # Verify model string
     ACTUAL_MODEL=$(echo "$FRONTMATTER" | grep '^model:' | sed 's/^model:[[:space:]]*//' | tr -d '"' | tr -d "'")
     if [ "$ACTUAL_MODEL" != "$EXPECTED_MODEL" ]; then
         echo "FAIL: ${agent}.md model: expected '$EXPECTED_MODEL', got '$ACTUAL_MODEL'"
         FILE_FAILURES=1
     fi
 
-    # Reject plural "permissions:" key
     if echo "$FRONTMATTER" | grep -q '^permissions:'; then
         echo "FAIL: ${agent}.md uses 'permissions:' (plural) — must use 'permission:' (singular)"
         FILE_FAILURES=1
     fi
 
-    # Extract permission block (from 'permission:' line to end)
     PERM_BLOCK=$(echo "$FRONTMATTER" | sed -n '/^permission:/,$p')
     if [ -z "$PERM_BLOCK" ]; then
         echo "FAIL: ${agent}.md has no 'permission:' block"
@@ -128,7 +117,6 @@ for agent in "${!MODELS[@]}"; do
         continue
     fi
 
-    # Verify all allow keys
     for key in "${ALLOW_KEYS[@]}"; do
         VAL=$(echo "$PERM_BLOCK" | grep "^  ${key}:" | sed "s/^  ${key}:[[:space:]]*//" | tr -d '"' | tr -d "'")
         if [ "$VAL" != "allow" ]; then
@@ -137,7 +125,6 @@ for agent in "${!MODELS[@]}"; do
         fi
     done
 
-    # Verify all deny keys
     for key in "${DENY_KEYS[@]}"; do
         VAL=$(echo "$PERM_BLOCK" | grep "^  ${key}:" | sed "s/^  ${key}:[[:space:]]*//" | tr -d '"' | tr -d "'")
         if [ "$VAL" != "deny" ]; then
@@ -146,7 +133,6 @@ for agent in "${!MODELS[@]}"; do
         fi
     done
 
-    # Verify exact permission key count (no extra keys)
     PERM_LINE_COUNT=$(echo "$PERM_BLOCK" | grep -c "^  [a-z]" || true)
     if [ "$PERM_LINE_COUNT" -ne "$EXPECTED_PERM_TOTAL" ]; then
         echo "FAIL: ${agent}.md has $PERM_LINE_COUNT permission keys, expected $EXPECTED_PERM_TOTAL ($EXPECTED_ALLOW allow + $EXPECTED_DENY deny)"

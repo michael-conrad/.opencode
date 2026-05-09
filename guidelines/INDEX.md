@@ -34,8 +34,5 @@ Full guideline content is loaded on-demand by sub-agents, never in orchestrator 
 | `142-planning-archive-workflow.md` | 2 | archive, spec structure, spec format, requirements | Spec structure |
 | `143-planning-spec-templates.md` | 2 | template, spec template, template format | Spec templating |
 | `144-planning-spec-examples.md` | 2 | example, spec example, example structure | Spec examples |
-| `200-errors-exception-handling.md` | 2 | exception, error handling, exception handling, raise | Error handling |
-| `201-errors-missing-data.md` | 2 | missing data, null, absent, data missing | Missing data |
-| `202-errors-domain-exceptions.md` | 2 | domain exception, exception class, custom exception | Exception design |
-| `203-errors-logging-vs-raising.md` | 2 | logging, raising, log and raise | Error logging |
+| `200-errors.md` | 2 | exception, error handling, missing data, null, logging, raise, domain exception | Error handling |
 | `210-scripting.md` | 2 | script, scripting, script header, shebang | Script creation |
