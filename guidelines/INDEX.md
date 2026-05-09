@@ -17,16 +17,16 @@ Full guideline content is loaded on-demand by sub-agents, never in orchestrator 
 | `060-tool-usage.md` | 1 | tool, path rule, temp file, command restriction | File operations |
 | `065-verification-honesty.md` | 1 | verify, verification, memory, stale, training data, evidence | Any verification claim |
 | `067-context-completeness.md` | 1 | comment, context completeness, read all, all comments | Issue/PR review |
-| `070-environment.md` | 2 | environment, testing, temp, pytest | Test execution |
+| `070-environment.md` | 2 | environment, testing, temp, pytest, uv run | Test execution |
 | `075-docs-verification.md` | 1 | documentation, docs, live doc, API doc, verify doc | Documentation claims |
-| `080-code-standards.md` | 1 | code standard, attribution, co-authored, byline, enforcement test, behavioral test, hardcoded identity, placeholder | Code writing |
+| `080-code-standards.md` | 1 | code standard, attribution, co-authored, byline, enforcement test, behavioral test, hardcoded identity | Code writing |
 | `086-http-requests.md` | 2 | HTTP, request, header, User-Agent | HTTP client code |
 | `087-no-backward-compat.md` | 2 | backward compat, refactor, deprecate, breaking change | Refactoring |
 | `090-data-integrity.md` | 1 | data integrity, mutable, mutation, database, production data | Data operations |
-| `091-incremental-build.md` | 1 | incremental, decompose, monolithic, item, TDD cycle, RED, GREEN | Implementation planning |
+| `091-incremental-build.md` | 1 | incremental, decompose, monolithic, item, TDD, RED, GREEN | Implementation planning |
 | `100-persistence.md` | 2 | PostgreSQL, SQLAlchemy, persistence, database, ORM, session | Database code |
 | `115-branch-naming.md` | 2 | branch naming, branch name, naming convention | Branch creation |
-| `116-pair-mode.md` | 2 | pair mode, pair branch, pair- | Pair mode operations |
+| `116-pair-mode.md` | 2 | pair mode, pair branch, pair-, dev-pair | Pair mode operations |
 | `117-session-trigger-behavior.md` | 1 | session trigger, trigger, trigger warning, SESSION_TRIGGER | Session start |
 | `130-authority-source.md` | 1 | authority, authoritative, source of truth, code over doc | Documentation drift |
 | `140-planning-spec-creation.md` | 2 | planning, spec creation, spec workflow, spec-driven | Spec creation |

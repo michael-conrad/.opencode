@@ -67,7 +67,7 @@ Self-contained modules with YAML frontmatter for self-discovery:
 | Review | `requesting-code-review`, `receiving-code-review`, `issue-review` |
 | Debug | `systematic-debugging`, `conflict-resolution` |
 | Development | `test-driven-development`, `programming-principles`, `engineering-approach` |
-| Operations | `notebook-operations`, `mcp-tool-usage`, `issue-operations`, `pr-creation-workflow` |
+| Operations | `mcp-tool-usage`, `issue-operations`, `pr-creation-workflow` |
 | Maintenance | `skill-creator`, `fragment-manager`, `sync-guidelines`, `changelog-generator` |
 | Audit | `verification`, `verification-before-completion`, `verification-enforcement` |
 | Other | `correspondence`, `multimodal-dispatch`, `sre-runbook`, `ui-design`, `ui-engineer`, `research` |
