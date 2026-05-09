@@ -413,7 +413,7 @@ ______________________________________________________________________
 
 **Core idea:** If it's hard to test, it's poorly designed. Prefer pure functions and isolated modules.
 
-**Enforcement:** Partially enforced. "If a function exceeds 40 lines, decompose it." (Also in `080-code-standards.md` and `code-size-enforcement` skill)
+**Enforcement:** Partially enforced. "If a function exceeds 40 lines, decompose it." (Also in `080-code-standards.md` and `programming-principles` skill `check-limits` task — merged from `code-size-enforcement`)
 
 **Apply strongly when:**
 

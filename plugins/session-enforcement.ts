@@ -831,6 +831,24 @@ function buildSubAgentPrinciplesBlock(): string {
 5. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, direct inspection of source code/configs, and verified test results.`;
 }
 
+function buildTier1EnforcementBlock(): string {
+  return `### Tier 1 Mandate Enforcement Gate
+
+The following mandates are NON-YIELDING — no developer authorization, emergency bypass, or override can waive them. This gate is injected by session-enforcement.ts and prescriptively enforces:
+
+1. **No commits to \`main\` or \`dev\`** — Branch protection is a repository integrity concern. Always create a feature branch first.
+2. **Human-only merge** — Agents must never merge PRs. Merge requires explicit human action.
+3. **No \`/tmp/\` usage — \`./tmp/\` only** — Prevents system-level temp file leakage outside project scope.
+4. **Path rules in worktree context** — When \`WORKTREE_REQUIRED\` is set, prefix ALL file operation paths with \`worktree.path\`. Relative paths silently target the main repo.
+5. **Sub-agents must receive \`worktree.path\`** — Prevents sub-agents from mutating the main repo when the orchestrator is in worktree mode.
+6. **Human-only branch deletion** — Unmerged branches must never be force-deleted by agents. Merged branches DELETE IMMEDIATELY.
+7. **Agents must never self-authorize** — Authorization comes from developers, never from agent reasoning. Confirmation, feedback, and questions are not authorization.
+8. **Git configuration and destructive commands require explicit authorization** — Remote mutations, config changes, force push, \`--no-verify\` (in repos with remotes), and destructive resets require explicit developer approval.
+9. **Correctness over economy** — Fabrication or shortcutting verification to conserve context/tool-calls is prohibited. Sub-agent dispatch and tool calls are near-zero cost. A fast wrong answer is strictly worse than a slow correct one.
+
+Violations of mandates 1-6 and 8 are detected at runtime by this plugin and flagged via enforcement blocks. See \`000-critical-rules.md\` Tier 1 table for full rationale and symbolic rule definitions.`;
+}
+
 export default async function sessionEnforcementPlugin(input: PluginInput): Promise<Hooks> {
   // Determine skills directory and project directory
   const projectDir = input?.directory || process.cwd();
@@ -960,6 +978,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           // --- Spec #432: Pre-Implementation Gate + Core Principles ---
           const gateBlock = buildPreImplementationGate(cachedOutput, projectDir);
           const corePrinciplesBlock = buildCorePrinciplesBlock();
+          const tier1Block = buildTier1EnforcementBlock();
 
           // Per spec #426: extract NESTED_OPENCODE_FATAL from triggers output
           // and inject it as a SEPARATE block (not inside Session Triggers)
@@ -985,6 +1004,9 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           const echoParts: string[] = [];
           if (gateBlock) {
             echoParts.push(gateBlock);
+          }
+          if (tier1Block) {
+            echoParts.push(tier1Block);
           }
           if (corePrinciplesBlock) {
             echoParts.push(corePrinciplesBlock);

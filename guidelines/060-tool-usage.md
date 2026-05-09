@@ -139,7 +139,7 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 - **ALWAYS use `uv run python` to invoke Python.**
 - **Fixed sleep value for polling**: Always use a fixed value of `15`.
 - **One clear command per invocation.** A short `&&` guard is acceptable.
-- **Use built-in Edit/Write tools for file modifications.** For Jupyter notebooks, use `the-notebook-mcp` tools exclusively — see `notebook-operations` skill.
+- **Use built-in Edit/Write tools for file modifications.** For Jupyter notebooks, use `the-notebook-mcp` tools exclusively — see `mcp-tool-usage` skill `selection-guide` task.
 
 ### 🚫 NEVER DO
 

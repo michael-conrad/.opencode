@@ -85,4 +85,4 @@ Bash/shell commands ONLY when no other tool covers the operation or it's inheren
 
 ## Critical Rules
 
-`.ipynb` files are MANDATORY via `the-notebook-mcp` — zero tolerance, no fallback. Do NOT infer GitHub owner from file paths or cached values. See `060-tool-usage.md` §2 for worktree path resolution rules and `notebook-operations` skill for complete notebook zero-tolerance rules.
+`.ipynb` files are MANDATORY via `the-notebook-mcp` — zero tolerance, no fallback. Do NOT infer GitHub owner from file paths or cached values. See `060-tool-usage.md` §2 for worktree path resolution rules. (Notebook operations skill moved to external repo: `michael-conrad/notebook-operations`.)

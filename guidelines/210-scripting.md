@@ -75,7 +75,7 @@ These root resolution methods are forbidden in ALL `.opencode/` scripts:
 
 ## Notebook Operations — MANDATORY MCP
 
-**ALL notebook operations MUST use `the-notebook-mcp` tools.** See `notebook-operations` skill for the complete tool reference.
+**ALL notebook operations MUST use `the-notebook-mcp` tools.** See `mcp-tool-usage` skill for the tool reference. (Notebook operations skill content consolidated into `mcp-tool-usage`.)
 
 ### ✅ MANDATORY
 

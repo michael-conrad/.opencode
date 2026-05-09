@@ -131,25 +131,6 @@ fragments:
     last_sync: 2026-04-06T21:20:00Z
     notes: "Agent identity attribution with emoji status indicators"
 
-  - id: notebook-rules
-    master:
-      path: .opencode/.guidelines/notebook-rules.md
-      hash: sha256: TBD
-      last_modified: 2026-04-06T10:00:00Z
-    content:
-      type: text-block
-      estimated_tokens: 250
-      description: "Zero-tolerance notebook manipulation rules"
-    destinations:
-      - path: .opencode/skills/notebook-operations/SKILL.md
-        hash: sha256: TBD
-        line_range:
-          start: 40
-          end: 200
-    sync_status: synchronized
-    last_sync: 2026-04-06T10:00:00Z
-    notes: "Never edit .ipynb directly - use the-notebook-mcp only"
-
   - id: engineering-approach
     master:
       path: .opencode/.guidelines/engineering-approach.md
