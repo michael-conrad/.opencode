@@ -140,7 +140,7 @@ When updating status:
 2. **Edit STATUS field ONLY** (change `STATUS: in progress — {concern}, Step N` or `STATUS: 1.1` for backward compatibility)
 3. **Never rewrite the entire body** to change status
 
-See `123-github-ai-identity.md` and `issue-operations` skill → `comment` task for complete rules.
+See `000-critical-rules.md` §[critical-rules-023] and `issue-operations` skill → `comment` task for complete rules.
 
 ### Missing Status Header
 
