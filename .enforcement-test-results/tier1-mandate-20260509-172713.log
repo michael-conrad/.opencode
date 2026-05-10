@@ -1,0 +1,21 @@
+=== Behavioral Test: tier1-mandate-enforcement ===
+PASS: tier1-mandate-enforcement — buildTier1EnforcementBlock() function found
+PASS: tier1-mandate-enforcement — 'Tier 1' referenced in session-enforcement.ts
+PASS: tier1-mandate-enforcement — protected branch enforcement function found
+PASS: tier1-mandate-enforcement — self-authorization prohibition found in enforcement
+PASS: tier1-mandate-enforcement — /tmp/ prohibition in Tier 1 enforcement
+PASS: tier1-mandate-enforcement — Tier 1 enforcement gate function defined AND invoked (count: 2)
+PASS: tier1-mandate-enforcement — inline work detection gate (Gate 3) present
+PASS: tier1-mandate-enforcement — mandatory skill references present in core principles
+
+=== Tier 1 Mandate Enforcement Gate Test Results ===
+  buildTier1EnforcementBlock():       PRESENT
+  Tier 1 references:                  PRESENT
+  Protected branch enforcement:        PRESENT
+  Self-authorization prohibition:      PRESENT
+  /tmp/ prohibition in enforcement:    PRESENT
+  Tier 1 gate invoked in transform:   PRESENT
+  Gate 3 inline work detection:        PRESENT
+  Mandatory skill references:          PRESENT
+
+PASS: tier1-mandate-enforcement
