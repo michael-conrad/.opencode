@@ -1,0 +1,24 @@
+=== Content-Verification: Auditor Agent Files Canonical Schema ===
+
+PASS: .opencode/agents/ directory exists
+
+--- File Existence (7 expected) ---
+PASS: auditor-glm-5.1.md exists
+PASS: auditor-glm-5.md exists
+PASS: auditor-qwen3.5.md exists
+PASS: auditor-kimi-k2.md exists
+PASS: auditor-deepseek-flash.md exists
+PASS: auditor-mistral-large.md exists
+PASS: auditor-deepseek-v3.md exists
+PASS: All 7 agent files exist
+
+--- YAML Frontmatter Validation (6 allow + 5 deny) ---
+PASS: auditor-glm-5.1.md — mode=subagent, model='ollama/glm-5.1:cloud', permissions 6 allow + 5 deny
+PASS: auditor-glm-5.md — mode=subagent, model='ollama/glm-5:cloud', permissions 6 allow + 5 deny
+PASS: auditor-qwen3.5.md — mode=subagent, model='ollama/qwen3.5:397b-cloud', permissions 6 allow + 5 deny
+PASS: auditor-kimi-k2.md — mode=subagent, model='ollama/kimi-k2.6:cloud', permissions 6 allow + 5 deny
+PASS: auditor-deepseek-flash.md — mode=subagent, model='ollama/deepseek-v4-flash:cloud', permissions 6 allow + 5 deny
+PASS: auditor-mistral-large.md — mode=subagent, model='ollama/mistral-large-3:675b-cloud', permissions 6 allow + 5 deny
+PASS: auditor-deepseek-v3.md — mode=subagent, model='ollama/deepseek-v3.2:cloud', permissions 6 allow + 5 deny
+
+=== RESULT: PASS ===

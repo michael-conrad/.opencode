@@ -553,6 +553,9 @@ See Spec #274. Gate every execution behind pre-analysis sub-agent.
 ### [critical-rules-043] Universal Re-Dispatch Mandate — no inline fallback on sub-agent failure
 ALL pipeline stages. Re-dispatch clean-room with same context. See Spec #106.
 
+### [critical-rules-048] Correctness Over Shrinkage — compression must never remove mandatory content
+No mandatory content, behavioral mandate, workflow step, or process rule may be removed during compression — even if it means missing line/word targets. Compression passes require adversarial-audit guideline-audit before merge. See Spec #242 SC-7.
+
 ---
 
 ```yaml+symbolic
@@ -1221,6 +1224,20 @@ rules:
     requires: [verification-honesty-001, verification-honesty-004]
     triggers: [verification-before-completion]
     source: "000-critical-rules.md §VbC Fabricated PASS"
+
+  - id: critical-rules-050
+    title: "Compression must never remove mandatory content"
+    conditions:
+      all:
+        - "compression_proposed == true"
+        - "mandatory_content_removed == true"
+    actions:
+      - HALT
+      - REQUIRE_BEHAVIORAL_EVIDENCE
+    conflicts_with: []
+    requires: []
+    triggers: [skill-creator, guideline-audit]
+    source: "000-critical-rules.md §Correctness Over Shrinkage"
 
   - id: git-workflow-branch-deletion-001
     title: "Branch deletion requires content verification against target branch"
