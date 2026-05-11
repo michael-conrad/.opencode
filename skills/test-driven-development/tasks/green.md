@@ -1,46 +1,36 @@
+<!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: Derived from majiayu000/claude-skill-registry (MIT) -->
+
 # Task: green
 
-## Purpose
+## Invocation
 
-Write minimal implementation code to make the failing test pass. No more, no less.
+`/skill test-driven-development --task green`
 
-## Operating Protocol
+## Exit Criteria
 
-1. Invoked by: `/skill test-driven-development --task green`
-2. When to use: After `--task red` has confirmed a failing test
-3. Exit criteria: Implementation written, test PASSES
+Implementation written, test PASSES.
 
-## Principles
-
-1. **Write minimal code:** Only enough to make the test pass
-2. **No premature optimization:** Get it working first
-3. **No scope creep:** Don't add features not tested
-4. **Don't predict future tests:** Today's test only
-
-## Workflow
-
-```python
-# src/module.py
-
-from datetime import date
-
-def parse_date(date_string: str) -> date:
-    """Parse ISO format date string to date object."""
-    try:
-        return date.fromisoformat(date_string)
-    except ValueError:
-        raise ValueError(f"Invalid date format: {date_string}")
-```
-
-## Verification
+## Verification Command
 
 ```bash
-# Test must PASS after implementation
-uv run pytest test/test_module.py::test_parse_date_iso_format -v
+uv run pytest test/test_module.py::test_<name> -v
 # Expected: PASSED
+
+# Confirm no regressions
+uv run pytest test/ -v
+# Expected: all PASSED
 ```
 
-## Context Required
+## Dispatch Context Schema
 
-- Related skills: `test-driven-development` (parent skill)
-- Related tasks: `red`, `refactor`
+```json
+{
+  "spec_context": "<scope of behavior to implement>",
+  "test_path": "<path to test file>",
+  "worktree.path": "<if set>",
+  "github.owner": "<from session>",
+  "github.repo": "<from session>"
+}
+```

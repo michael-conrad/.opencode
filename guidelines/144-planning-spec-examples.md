@@ -106,6 +106,17 @@ ______________________________________________________________________
 
 **Why this works:** The change touches multiple files and has infrastructure dependencies. The standard format provides affected files, constraints, and risk assessment. Without these, an implementer might miss the Redis unavailable edge case or the memory constraint.
 
+Documentation Sources section: standard and complex specs MUST include a table documenting where the spec author verified each factual claim. Minimal specs and simple bug reports may omit it:
+
+> **Documentation Sources:**
+> | Source Category | What Was Consulted | Purpose |
+> |----------------|-------------------|---------|
+> | Local docs | `README.md`, `docs/architecture.md` | Understand existing caching architecture |
+> | Direct source search | `srclight_search_symbols("cache")`, `grep -r "redis" src/` | Identify existing cache patterns |
+> | Documentation URLs | [redis-py docs](https://redis-py.readthedocs.io/) | Verify Redis client API signatures |
+> | MCP search | `srclight_get_signature("get_article_metadata")` | Verify function signature for cache integration |
+> | Live verification | `uv run pytest test/test_articles.py -k "metadata"` | Confirm test coverage before making changes |
+
 ### Comprehensive Feature Spec (large, cross-cutting change)
 
 For features that span multiple systems, require phased deployment, or have significant risk, use the full structure with phased implementation, extended risk assessment with blast radius analysis, detailed decision rationale with alternatives, and dependencies table. The comprehensive format serves the complexity.
