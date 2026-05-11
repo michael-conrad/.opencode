@@ -529,6 +529,24 @@ See Spec #397. Audits must probe semantic completeness and inter-rule conflicts.
 ### [critical-rules-047] VbC Fabricated PASS — reporting file existence as verified behavioral evidence
 Structural evidence ≠ behavioral evidence. See Spec #443.
 
+### [critical-rules-048] Skill Pre-Read + Inline Execution — reading skill task files and executing steps manually
+
+**CRITICAL VIOLATION:** Reading a skill's task files (`.md` files in `.opencode/skills/<skill>/tasks/`) or SKILL.md body, then executing the described steps via inline tool calls instead of dispatching `skill({name: "..."})` is a critical violation.
+
+- 🚫 FORBIDDEN: Loading `skills/<skill>/tasks/<task>.md` into context then performing the described steps using raw tool calls
+- 🚫 FORBIDDEN: "I know what skill X does, so I'll just do it directly" — rationalization that bypasses enforcement gates
+- 🚫 FORBIDDEN: Opening task files to "check what needs to happen" then proceeding inline without dispatching the skill
+- ✅ REQUIRED: Call `skill({name: "..."})` to load the skill, then use its documented invocation pattern (`--task name`)
+- ✅ REQUIRED: If you need to know what a skill does, the `<available_skills>` list gives name + description — that is enough to route. Invoke the skill to get full content.
+
+**3-Way Violation Distinction:**
+
+| Violation | ID | What Happens |
+|----------|-----|-------------|
+| Pre-read skill + inline execute | critical-rules-048 | Agent reads `.md` task file, executes steps manually without calling `skill()` |
+| Orchestrator inline work | critical-rules-034 | Agent performs file modifications or analysis inline without sub-agent dispatch |
+| Tool-recipe dispatch | #329 (spec-fix) | Agent dispatches sub-agent with raw API calls instead of task objectives |
+
 ### [critical-rules-038] Implementing Before PR Merge Boundary
 See `approval-gate/SKILL.md` PR Merge Boundary Gate.
 
@@ -557,7 +575,7 @@ ALL pipeline stages. Re-dispatch clean-room with same context. See Spec #106.
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-06T00:00:00Z"
+last_updated: "2026-05-11T00:00:00Z"
 rules:
   - id: critical-rules-001
     title: "Tier 1 mandates never yield to developer authorization"
@@ -1221,6 +1239,20 @@ rules:
     requires: [verification-honesty-001, verification-honesty-004]
     triggers: [verification-before-completion]
     source: "000-critical-rules.md §VbC Fabricated PASS"
+
+  - id: critical-rules-048
+    title: "Pre-reading skill task files and executing steps inline instead of dispatching via skill()"
+    conditions:
+      all:
+        - "skill_task_file_read == true"
+        - "skill_dispatched == false"
+        - "inline_execution_followed == true"
+    actions:
+      - HALT
+    conflicts_with: [critical-rules-034]
+    requires: []
+    triggers: [divide-and-conquer, git-workflow, approval-gate, verification-before-completion, finishing-a-development-branch, issue-operations, spec-creation, writing-plans, brainstorming, conflict-resolution, pr-creation-workflow, executing-plans, systematic-debugging, engineering-approach, receiving-code-review, requesting-code-review, changelog-generator, correspondence, sre-runbook, ui-design, ui-engineer, test-driven-development, skill-creator, sync-guidelines, adversarial-audit, verification, verification-enforcement, verification-before-completion, multimodal-dispatch, pre-analysis, completion-core]
+    source: "default.txt §Skill Dispatch Mandate"
 
   - id: git-workflow-branch-deletion-001
     title: "Branch deletion requires content verification against target branch"
