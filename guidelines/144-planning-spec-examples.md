@@ -106,7 +106,7 @@ ______________________________________________________________________
 
 **Why this works:** The change touches multiple files and has infrastructure dependencies. The standard format provides affected files, constraints, and risk assessment. Without these, an implementer might miss the Redis unavailable edge case or the memory constraint.
 
-A Documentation Sources section could be added to document where the spec author verified factual claims:
+Documentation Sources section: standard and complex specs MUST include a table documenting where the spec author verified each factual claim. Minimal specs and simple bug reports may omit it:
 
 > **Documentation Sources:**
 > | Source Category | What Was Consulted | Purpose |
