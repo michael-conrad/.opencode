@@ -1,13 +1,13 @@
 # Guidelines Index
 
 Progressive disclosure routing index for all guideline files. Contains name + trigger-pattern pairs only.
-Full guideline content is loaded on-demand by sub-agents, never in orchestrator context.
+Full guideline content for Tier 2+ is loaded on-demand by sub-agents. Tier 1 files are loaded upfront via the opencode.jsonc instructions array.
 
 ## Index
 
 | Guideline | Tier | Trigger Pattern | Load When |
 |-----------|------|-----------------|-----------|
-| `000-critical-rules.md` | 1 | critical, zero tolerance, violation, mandate, Tier 1 | Always loaded (critical rules) |
+| `000-critical-rules.md` | 1 | critical, zero tolerance, violation, mandate, Tier 1 | Instructions array (all Tier 1 files) |
 | `010-approval-gate.md` | 1 | approved, go, authorization, approve, approval-gate, spec-before-code | Implementation authorization |
 | `015-pre-spec-inspection.md` | 2 | code inspection, pre-spec, investigate codebase | Pre-spec creation |
 | `016-srclight-preference.md` | 2 | srclight, code search, symbol lookup | Code analysis |
