@@ -66,3 +66,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Batch PR enforcement** (#904) - Add mandatory rule #07 to `assemble-batch.md` and update `pr-creation-workflow/SKILL.md` to enforce single PR per batch. No per-issue PRs in batch orchestration.
 - **Submodule provenance tracking** (#783) - Add `provenance.md` task to `git-workflow` skill for submodule commit provenance tracking. Update `release-promotion.md` and `review-prep.md` with submodule-aware checkout verification. Ensure release promotion preserves submodule commit provenance.
 - **Default Base Prompt Override** (#494) - Added `.opencode/prompts/default.txt` with skill-deck-optimized replacement base system prompt. Added `agent.build.prompt` and `agent.plan.prompt` config keys in `opencode.jsonc` for prompt customization.
+
+### Added
+
+- **Tier 1 Guidelines Restoration** (#497) - Restored all 12 Tier 1 guideline files to `opencode.jsonc` instructions array, fixing regression where only `INDEX.md` was loaded at session start. Added WARNING comment to prevent future removal.
+- **TDD Reference Deck** (#310, #479) - Adopted majiayu000 TDD Reference Deck with Phase 0 pre-regression baseline and Phase 4 post-regression verification. Added `patterns.md`, `anti-patterns.md`, and `checklist.md` task files. Added mandatory Documentation Sources section to spec templates.
+- **Skill Dispatch Mandate** (#516) - Replaced Workflow-First Mandate with zero-tolerance CRITICAL VIOLATION rule for skill pre-read + inline execution. Added `critical-rules-048` with 3-way violation distinction table, behavioral test, and content-verification scenarios.
+
+### Changed
+
+- **Submodule Pointer PR Block** (#519) - Strengthened cleanup task prohibition against standalone submodule-only PR creation. Explicitly forbids committing `.opencode/` during cleanup; submodule pointer updates must occur on feature branches during pre-work, never on `dev` during cleanup.

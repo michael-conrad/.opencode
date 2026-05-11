@@ -126,8 +126,11 @@ fi
 **⚠️ CRITICAL: Dirty submodule pointer exemption:**
 - 🚫 FORBIDDEN: Attempting to commit, stash, or resolve the dirty submodule pointer
 - 🚫 FORBIDDEN: Treating a dirty submodule pointer as a cleanup failure or error condition
+- 🚫 FORBIDDEN: Creating a PR whose sole purpose is to update a submodule pointer (submodule-only PR)
+- 🚫 FORBIDDEN: Running `git add .opencode`, `git commit`, or any git operation that commits the submodule pointer during cleanup
 - ✅ REQUIRED: Acknowledge the dirty state as expected and continue
 - ✅ REQUIRED: The parent repo `git status` after this step will show `.opencode (modified)` — this is correct and expected
+- ✅ REQUIRED: Submodule pointer updates happen on feature branches during pre-work (Step 3.5), never on `dev` during cleanup
 
 **Evidence artifact (MANDATORY):** Tool-call output showing `git -C "$PARENT_REPO_PATH" branch --show-current` returns `dev` MUST be present before proceeding. If no parent repo exists (not a submodule), evidence that the step was evaluated and skipped is sufficient.
 
