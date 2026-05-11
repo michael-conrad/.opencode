@@ -68,8 +68,28 @@
       }
     }
   },
+  // WARNING — DO NOT REMOVE OR CONDENSE TO INDEX.MD ONLY
+  // All 12 Tier 1 guidelines MUST be loaded here. The orchestrator needs
+  // safety-critical rules (000: human-only merge, no self-auth, etc.) in
+  // system context at session start — BEFORE any sub-agent dispatch.
+  // Removing these files and relying on INDEX.md alone caused a critical
+  // safety regression: the agent merged a PR because 000-critical-rules.md
+  // was never loaded into orchestrator context. INDEX.md is for Tier 2+
+  // sub-agent routing only. See #497 for the full root-cause analysis.
   "instructions": [
     ".opencode/AGENTS.md",
+    ".opencode/guidelines/000-critical-rules.md",
+    ".opencode/guidelines/010-approval-gate.md",
+    ".opencode/guidelines/020-go-prohibitions.md",
+    ".opencode/guidelines/060-tool-usage.md",
+    ".opencode/guidelines/065-verification-honesty.md",
+    ".opencode/guidelines/067-context-completeness.md",
+    ".opencode/guidelines/075-docs-verification.md",
+    ".opencode/guidelines/080-code-standards.md",
+    ".opencode/guidelines/090-data-integrity.md",
+    ".opencode/guidelines/091-incremental-build.md",
+    ".opencode/guidelines/117-session-trigger-behavior.md",
+    ".opencode/guidelines/130-authority-source.md",
     ".opencode/guidelines/INDEX.md"
   ],
   "agent": {
