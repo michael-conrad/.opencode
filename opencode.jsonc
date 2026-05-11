@@ -10,9 +10,15 @@
       }
     },
     "ollama": {
-      "name": "Qwen 3.5 27b",
+      "name": "Ollama localhost",
       "npm": "@ai-sdk/openai-compatible",
       "models": {
+        "qwen3.6:27b": {
+          "name": "Qwen 3.6 27b"
+        },
+        "qwen3.6:35b": {
+          "name": "Qwen 3.6 35b"
+        },
         "qwen3.5:27b": {
           "name": "Qwen 3.5 27b"
         },
@@ -66,6 +72,14 @@
     ".opencode/AGENTS.md",
     ".opencode/guidelines/INDEX.md"
   ],
+  "agent": {
+    "build": {
+      "prompt": "{file:./prompts/default.txt}"
+    },
+    "plan": {
+      "prompt": "{file:./prompts/default.txt}"
+    }
+  },
   "mcp": {
     "the-notebook-mcp": {
       "type": "local",
