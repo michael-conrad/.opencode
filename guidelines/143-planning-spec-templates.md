@@ -27,6 +27,7 @@ Before creating any spec, bug report, or issue, verify these intent questions ar
 | Does the spec reference related issues with context? | Related issues — links with summaries and relevance (not bare links) |
 | Does the spec identify affected files with anchors? | Affected files — file paths with function names or section headers, not line numbers |
 | Does the spec provide enough context for a fresh agent? | Self-containment — no "as discussed above" or "see previous comment" |
+| Does the spec document what sources were consulted? | Documentation Sources — local docs, direct source search, documentation URLs, MCP search, live verification |
 
 **Simple specs may address several questions in a single paragraph. Complex specs may need separate sections for each. The format adapts to complexity.**
 
@@ -91,6 +92,18 @@ This minimal spec works because the change is small and self-explanatory. Separa
 > **Risk Assessment:** Redis memory limit (Low prob, High impact → monitor). Cache invalidation bugs (Med prob, Med impact → test update flows).
 
 This standard spec adds context, affected files, constraints, and risk because the change touches multiple files and has infrastructure dependencies.
+
+#### Documentation Sources Table
+
+A Documentation Sources section may be included to document where the spec author looked for information. This is particularly important for specs making factual claims about code behavior, config schemas, or API signatures:
+
+| Source Category | What Was Consulted | Purpose |
+|----------------|-------------------|---------|
+| Local docs | `README.md`, `docs/architecture.md` | Understand existing caching architecture |
+| Direct source search | `srclight_search_symbols("cache")`, `grep -r "redis" src/` | Identify existing cache patterns |
+| Documentation URLs | [redis-py docs](https://redis-py.readthedocs.io/) | Verify Redis client API signatures |
+| MCP search | `srclight_get_signature("get_article_metadata")` | Verify function signature for cache integration |
+| Live verification | `uv run pytest test/test_articles.py -k "metadata"` | Confirm test coverage before making changes |
 
 ### Comprehensive Feature Spec (large change, cross-cutting)
 

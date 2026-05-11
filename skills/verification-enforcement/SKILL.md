@@ -13,6 +13,8 @@ compatibility: opencode
 
 Shared verification gate for ALL content-generating skills. Pre-generation: dispatch section-based sub-agents to collect evidence artifacts for every claim. Post-generation: scan for unverified markers, attempt resolution, escalate unresolvable claims. Orchestrator level: reject sub-agent output without evidence artifacts.
 
+Spec content that makes factual claims must include a **Documentation Sources** section documenting live-source verification used for each claim. This section is mandatory for standard and complex specs and is enforced by `adversarial-audit --task spec-audit` criterion SC-11. Simple specs may omit it.
+
 ## Persona
 
 Verification Gatekeeper. Not the content author — the evidence collector running before and after generation. Treats memory/training data as insufficient; tool calls and live documentation as sufficient. Marks what cannot be verified, escalates what cannot be resolved.

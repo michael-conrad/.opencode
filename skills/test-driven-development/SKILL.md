@@ -3,45 +3,113 @@ name: test-driven-development
 description: Use when writing tests before implementation, or when adopting a test-first development approach. Triggers on: TDD, test first, red green refactor, write test, test-driven, unit test, regression.
 type: discipline-enforcing
 license: MIT
-provenance: AI-generated
+provenance: Derived from majiayu000/claude-skill-registry (MIT)
 compatibility: opencode
 ---
 
 # Skill: test-driven-development
 
-## Overview
+## Five Core Principles
 
-TDD workflow: tests define the contract, implementation satisfies the contract, refactoring maintains quality. Optional quality gate invoked contextually.
+1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
+2. **TDD discipline** — RED phase tests before GREEN phase implementation. REFACTOR is mandatory, not optional.
+3. **Clean-room** — No inline fallback. Sub-agents receive only scoped context. No pre-determined findings.
+4. **Independent intelligence** — Autonomous analysis. If the task contains excessive instruction where your own analysis should apply, HALT and notify parent.
+5. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, source code, and test results.
+
+## ASCII Cycle Diagram
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    TDD CYCLE (per item)                  │
+│                                                         │
+│   PHASE 0 ──► RED ──► GREEN ──► REFACTOR ──► PHASE 4    │
+│   (baseline)   │        │          │         (verify)    │
+│       ▲        │  fails │ passes   │            │        │
+│       │        ▼        ▼          ▼            ▼        │
+│       │     BLOCKED  BLOCKED    REVERT       BLOCKED      │
+│       │     (fix or  (fix or    (bad        (2x fail     │
+│       │      halt)    halt)     refactor)    = halt)      │
+│       │                                                  │
+│       └──────────── CYCLE RESET ──────────────────────────┘
+│                                                          │
+│   Next item ──► back to Phase 0                         │
+└──────────────────────────────────────────────────────────┘
+```
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `red` | ≈200 |
-| `green` | ≈150 |
-| `refactor` | ≈200 |
+| Task | Words | Purpose |
+|------|-------|---------|
+| `red` | ≈80 | Execution-only: write failing test |
+| `green` | ≈80 | Execution-only: minimal impl |
+| `refactor` | ≈120 | Execution-only: clean while green |
+| `patterns` | ≈400 | 4-pattern decision matrix |
+| `anti-patterns` | ≈500 | 5 anti-patterns with alternatives |
+| `checklist` | ≈350 | Quality checklists, timing, step-size |
+| `phase-0` | ≈400 | Pre-regression baseline gate |
+| `phase-4` | ≈400 | Post-regression verification gate |
 
 ## Invocation
 
-`/skill test-driven-development --task red` (failing test), `--task green` (minimal impl), `--task refactor` (cleanup). Overview with no flag.
+`/skill test-driven-development --task <name>`. No flag = overview.
 
-## Operating Protocol
+## Gate Descriptions
 
-1. **RED:** write test, verify it fails. Must produce tool-call evidence of failure.
-2. **GREEN:** write minimal implementation to pass. No extras.
-3. **REFACTOR:** clean up while tests stay green. No scope creep.
+### Phase 0 — Pre-Regression Baseline
 
-## Sub-Agent Dispatch Audit
+Invoked before the first RED phase. AI-driven dependency analysis (`srclight_get_dependents`), full test suite execution. BLOCKED on test failure — cycle cannot start until existing failures are resolved. Empty blast radius = silent proceed.
 
-Tasks dispatch via `task(subagent_type="general")` with `{ spec_context, test_path, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, prior test results. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
+### Phase 4 — Post-Regression Verification
+
+Invoked after REFACTOR completes. Re-computes blast radius, runs full suite. Remediation loop: first failure returns to GREEN, second consecutive failure = BLOCKED with halt.
+
+## Cycle-Reset Discipline
+
+### Normal Completion
+
+After Phase 4 PASSES:
+1. Commit the cycle (test + implementation + refactor as one working slice)
+2. Reset to Phase 0 for the next item
+3. Never carry state across cycles
+
+### Mid-Cycle Restart
+
+If at ANY point within RED/GREEN/REFACTOR a step exceeds its timing target (30s RED / 2-5min GREEN / 1-3min REFACTOR) or produces unexpected test failures, the agent MUST restart the full RED→GREEN→REFACTOR cycle from the beginning — not limp forward on a broken foundation:
+
+1. Discard all uncommitted changes from the current cycle
+2. Restart from RED with zero state carryover
+3. If Phase 0 elapsed > 1 full cycle since last baseline, re-execute Phase 0
+
+## Clean-Room Dispatch Audit
+
+Tasks dispatch via `task(subagent_type="general")` with `{ spec_context, test_path, phase_0_contract, cycle_id, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, prior test results, pre-determined file paths, expected outcomes. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
+
+## Provenance
+
+Derived from [majiayu000/claude-skill-registry](https://github.com/majiayu000/claude-skill-registry) (MIT).
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
+last_updated: "2026-05-11T00:00:00Z"
 rules:
   - id: tdd-001
     title: "RED phase must produce evidence of test failure"
     conditions:
       all: ["red_phase_started == true", "test_failure_evidence_missing == true"]
     actions: [HALT, COLLECT_EVIDENCE]
+    source: "test-driven-development/SKILL.md"
+
+  - id: tdd-002
+    title: "Phase 0 must complete before RED phase"
+    conditions:
+      all: ["tdd_cycle_started == true", "phase_0_completed == false"]
+    actions: [HALT, INVOKE(phase-0)]
+    source: "test-driven-development/SKILL.md"
+
+  - id: tdd-003
+    title: "Phase 4 must complete before cycle reset"
+    conditions:
+      all: ["refactor_phase_completed == true", "phase_4_completed == false"]
+    actions: [HALT, INVOKE(phase-4)]
     source: "test-driven-development/SKILL.md"

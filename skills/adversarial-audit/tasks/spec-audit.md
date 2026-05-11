@@ -43,6 +43,7 @@ Define audit criteria based on spec-auditor task structure:
 | SC-8 | Operational clarity | Edge cases and error recovery defined |
 | SC-9 | Determinism achieved | Repeatable execution path |
 | SC-10 | Prose structure valid | Headers, lists, tables properly formatted |
+| SC-11 | Documentation Sources present and populated | Non-empty Documentation Sources section with live-source verification evidence |
 
 ### Step 3: Dispatch Cross-Validate
 
@@ -152,4 +153,11 @@ rules:
       all: ["auditor_1_result != auditor_2_result", "bidirectional_finding == null"]
     actions: [APPEND_BIDIRECTIONAL_FINDING]
     source: "spec-audit.md §Step 5"
+
+  - id: spec-audit-004
+    title: "Documentation Sources section required and populated"
+    conditions:
+      all: ["doc_sources_missing_or_empty == true"]
+    actions: [FAIL_CRITERION(SC-11)]
+    source: "spec-audit.md §Step 2"
 ```

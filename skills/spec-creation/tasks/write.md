@@ -45,6 +45,33 @@ Combine outputs from prerequisite tasks into a coherent spec. The spec should ad
 
 Skip areas that don't apply to simple specs; add areas that do. The spec should be self-contained and clear, regardless of structure.
 
+A **Documentation Sources** section documents where the spec author verified factual claims. This is especially important for specs making claims about code behavior, config schemas, or API signatures. Place it before the AI byline section.
+
+**Source Categories:**
+
+| Category | Description | Examples |
+|----------|-------------|----------|
+| Local docs | Project documentation, README, design docs | `docs/architecture.md`, `README.md` |
+| Direct source search | Codebase search via grep, srclight, or glob | `srclight_search_symbols("cache")`, `grep -r "redis" src/` |
+| Documentation URLs | External documentation or API references | Language docs, library docs, framework guides |
+| MCP search | Tool-based code analysis | `srclight_get_signature()`, `srclight_get_symbol()` |
+| Live verification | Test execution or runtime checks | `uv run pytest test/test_*.py`, config validation |
+
+**Format:**
+
+```markdown
+**Documentation Sources:**
+| Source Category | What Was Consulted | Purpose |
+|----------------|-------------------|---------|
+| Local docs | `README.md`, `docs/architecture.md` | Understand existing architecture |
+| Direct source search | `srclight_search_symbols("cache")` | Identify existing cache patterns |
+| Documentation URLs | [redis-py docs](https://redis-py.readthedocs.io/) | Verify API signatures |
+| MCP search | `srclight_get_signature("get_data")` | Verify function signature |
+| Live verification | `uv run pytest test/test_data.py` | Confirm test coverage |
+```
+
+Simple specs may skip this section. Standard and complex specs SHOULD include it when making factual claims that require verification.
+
 ### Step 2: Eliminate Ambiguity (Principle #4)
 
 Review every requirement statement:

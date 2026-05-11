@@ -1,35 +1,34 @@
+<!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: Derived from majiayu000/claude-skill-registry (MIT) -->
+
 # Task: refactor
 
-## Purpose
+## Invocation
 
-Clean up implementation code while keeping all tests passing. Refactoring changes structure, not behavior.
+`/skill test-driven-development --task refactor`
 
-## Operating Protocol
+## Exit Criteria
 
-1. Invoked by: `/skill test-driven-development --task refactor`
-2. When to use: After `--task green` has confirmed passing tests
-3. Exit criteria: Code refactored, all tests still pass, no behavior changes
+Code refactored, all tests still pass, no behavior changes.
 
-## Principles
-
-1. **Tests stay green:** All tests pass during refactoring
-2. **Small steps:** One refactoring at a time
-3. **Run tests after each step:** Ensure nothing breaks
-4. **No behavior changes:** Refactoring changes structure, not behavior
-
-## Workflow
-
-1. Identify code smells (duplication, long methods, unclear names)
-2. Make one small refactoring
-3. Run tests
-4. If tests pass → commit refactoring
-5. If tests fail → revert and try different approach
-
-## Verification
+## Verification Command
 
 ```bash
-# All tests must pass after refactoring
 uv run pytest test/ -v
+# Expected: all PASSED
+```
+
+## Dispatch Context Schema
+
+```json
+{
+  "spec_context": "<scope of behavior to refactor>",
+  "test_path": "<path to test file>",
+  "worktree.path": "<if set>",
+  "github.owner": "<from session>",
+  "github.repo": "<from session>"
+}
 ```
 
 ## When to Use TDD
@@ -42,8 +41,3 @@ uv run pytest test/ -v
 | Exploration/prototyping | ❌ No | Behavior not yet defined |
 | UI layout changes | ❌ No | Hard to test visually |
 | Config/data changes | ❌ No | No code logic to test |
-
-## Context Required
-
-- Related skills: `test-driven-development` (parent skill)
-- Related tasks: `red`, `green`
