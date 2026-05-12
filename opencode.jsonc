@@ -129,6 +129,11 @@
       "environment": {
         "OLLAMA_BASE_URL": "http://localhost:11434"
       }
+    },
+    "texted": {
+      "type": "local",
+      "command": [".opencode/tools/run-texted-mcp"],
+      "enabled": true
     }
   }
 }
