@@ -71,6 +71,9 @@ def ensure_texted():
 
 
 if __name__ == "__main__":
+    if "--version" in sys.argv:
+        print(f"texted-mcp version 1.0.0 (texted commit: {TEXTED_COMMIT})")
+        sys.exit(0)
     if "--dry-run" in sys.argv:
         print(f"TOOLS_DIR: {TOOLS_DIR}")
         print(f"GO_BIN: {GOROOT / 'bin' / 'go'}")
