@@ -12,7 +12,7 @@
 
 set -euo pipefail
 
-BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-120}"
+BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-300}"
 BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/glm-5.1:cloud}"
 BEHAVIOR_TEST_HOME="${BEHAVIOR_TEST_HOME:-.opencode/tests/with-test-home}"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -22,13 +22,14 @@ done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 BEHAVIOR_LOG_DIR="${BEHAVIOR_LOG_DIR:-$PROJECT_DIR/tmp/behavior-test-$(date +%Y%m%d-%H%M%S)}"
 
-BEHAVIOR_MAX_RETRIES="${BEHAVIOR_MAX_RETRIES:-3}"
+BEHAVIOR_MAX_RETRIES="${BEHAVIOR_MAX_RETRIES:-2}"
 BEHAVIOR_RETRY_DELAY="${BEHAVIOR_RETRY_DELAY:-15}"
 
 behavior_run() {
     local scenario_name="$1"
     local message="$2"
     local model="${3:-${BEHAVIOR_MODEL}}"
+    local workdir="${4:-}"
     local log_dir="$BEHAVIOR_LOG_DIR/$scenario_name"
     mkdir -p "$log_dir"
 
@@ -36,10 +37,20 @@ behavior_run() {
     local output_file="$log_dir/stdout.log"
     local err_file="$log_dir/stderr.log"
 
+    # If no workdir provided, create an isolated git-init test repo
+    if [ -z "$workdir" ]; then
+        workdir=$(mktemp -d "$PROJECT_DIR/tmp/behavior-isolated-XXXXXX")
+        git init -q "$workdir"
+        git -C "$workdir" config user.email "test@test.dev"
+        git -C "$workdir" config user.name "Test"
+        git -C "$workdir" commit -q --allow-empty -m "init"
+    fi
+
     while [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; do
         attempt=$((attempt + 1))
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
 
+        TEST_WORKDIR="$workdir" \
         timeout "$BEHAVIOR_TIMEOUT" bash "$PROJECT_DIR/$BEHAVIOR_TEST_HOME" \
             opencode-cli run "$message" \
             --model "$model" \
