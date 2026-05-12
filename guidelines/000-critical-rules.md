@@ -529,6 +529,10 @@ See Spec #397. Audits must probe semantic completeness and inter-rule conflicts.
 ### [critical-rules-047] VbC Fabricated PASS — reporting file existence as verified behavioral evidence
 Structural evidence ≠ behavioral evidence. See Spec #443.
 
+### [critical-rules-049] Standalone Submodule-Only PR Creation During Cleanup
+
+Creating a PR whose sole purpose is to update a submodule pointer during the cleanup pipeline stage. See `git-workflow cleanup` task Step 1.7 for the complete prohibition and correct behavior (leave dirty pointer on dev).
+
 ### [critical-rules-048] Skill Pre-Read + Inline Execution — reading skill task files and executing steps manually
 
 **CRITICAL VIOLATION:** Reading a skill's task files (`.md` files in `.opencode/skills/<skill>/tasks/`) or SKILL.md body, then executing the described steps via inline tool calls instead of dispatching `skill({name: "..."})` is a critical violation.
@@ -1253,6 +1257,20 @@ rules:
     requires: []
     triggers: [divide-and-conquer, git-workflow, approval-gate, verification-before-completion, finishing-a-development-branch, issue-operations, spec-creation, writing-plans, brainstorming, conflict-resolution, pr-creation-workflow, executing-plans, systematic-debugging, engineering-approach, receiving-code-review, requesting-code-review, changelog-generator, correspondence, sre-runbook, ui-design, ui-engineer, test-driven-development, skill-creator, sync-guidelines, adversarial-audit, verification, verification-enforcement, verification-before-completion, multimodal-dispatch, pre-analysis, completion-core]
     source: "default.txt §Skill Dispatch Mandate"
+
+  - id: critical-rules-049
+    title: "Standalone submodule-only PR creation during cleanup is a critical violation"
+    conditions:
+      all:
+        - "pipeline_stage == 'cleanup'"
+        - "pr_created == true"
+        - "pr_changes_only_submodule == true"
+    actions:
+      - HALT
+    conflicts_with: [critical-rules-048]
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §critical-rules-049"
 
   - id: git-workflow-branch-deletion-001
     title: "Branch deletion requires content verification against target branch"

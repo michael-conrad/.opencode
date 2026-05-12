@@ -209,7 +209,8 @@ After ALL issues in the work set complete:
 
 1. **Verify all results** — check git log for all expected commits
 2. **Run git-workflow --task review-prep** for the work branch
-3. **Collect compare URL**
+3. **🚫 REQUIRED: Cleanup dispatch MUST invoke `skill({name: "git-workflow", args: "--task cleanup"})`. Reading cleanup task files and dispatching a custom sub-agent with inline step instructions is a critical-rules-048 violation.**
+4. **Collect compare URL**
 
 ### Step 5.5: Pre-PR Checklist (MANDATORY before any PR creation)
 
@@ -395,12 +396,14 @@ assemble-work:
 09. **Conflict resolution tiers** — auto-resolve 1-2, HALT on tier 3 during dependency merges
 10. **Always work mode** — single issue = work-of-1, no special-case path
 11. **Decision Log persistence** — after each sub-agent returns, append `decision_log_entry` as a dedicated GitHub Issue comment on the Plan issue. Decision Log uses comments (not body edits) for lightweight, append-only, session-surviving persistence
+12. **Cleanup dispatch MUST use `skill()`** — `skill({name: "git-workflow", args: "--task cleanup"})` is the ONLY permitted invocation. No custom prompts, no inline task file reads, no generic sub-agent with step-by-step instructions. See critical-rules-048.
 
 ## Sub-Agent Dispatch Audit
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|
 | `work_set`, `issue`, `sub_issue_body`, `spec`, `authorization`, `authorization_scope`, `halt_at`, `pr_strategy`, `prior_context`, `phase_progress`, `dependency_branches`, `github.owner`, `github.repo`, `dev.name`, `dev.email`, `worktree.path`, `branch` | Orchestrator implementation context, agent memory, cached verification results, tool recipes | N/A — sub-agents receive the full dispatch context with spec and prior_context | NO |
+| Cleanup sub-agent — `skill({name: "git-workflow", args: "--task cleanup"})` | Only `branch_name`, `worktree.path`, `github.owner`, `github.repo` | Orchestrator reasoning, expected outcomes, cached results, tool recipes | NO |
 
 Co-authored with AI: <AgentName> (<ModelId>)
 

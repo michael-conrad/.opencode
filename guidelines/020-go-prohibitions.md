@@ -179,6 +179,21 @@ This rule applies universally to:
 - **Ecosystem mismatch**: npm packages don't integrate with Python/Java tooling chains.
 - **Team friction**: Requires developers to install/maintain Node.js on their machines.
 
+## 4.5 Project-Local Tool Installation Pattern
+
+When a project requires build tools not available on the host system (e.g., `tsc`, `esbuild`, `sass`), the agent MAY install them **project-locally** as an exception to §4. See `085-project-local-tools.md` for the full rules.
+
+### Key Rules
+
+- **Primary pattern**: `.tools/<tool>/` (e.g., `.tools/node/`, `.tools/jdk/`)
+- **Acceptable alternatives**: `.node/`, `.uv/`, `.jdk/`
+- **MUST be in `.gitignore`** — never tracked
+- **MUST use PATH-prefixed invocation**: `PATH=.tools/node/bin:$PATH npx tsc --noEmit`
+- **MUST NOT modify project config** files (`pyproject.toml`, `package.json`, etc.)
+- **MUST be system-isolated**: never install to `~/.local/`, `/usr/local/`, etc.
+- **MUST be cleanable**: `rm -rf .tools/` removes everything
+- **MUST NOT add to shell profiles** (`~/.bashrc`, `~/.profile`, etc.)
+
 ______________________________________________________________________
 
 ## 5. Multi-task Plan Without Sub-issues — CRITICAL VIOLATION
