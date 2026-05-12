@@ -17,8 +17,6 @@ while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
 done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 
-source "$SCRIPT_DIR/helpers.sh"
-
 SCENARIO_NAME="project-local-tools"
 OVERALL_RESULT=0
 
@@ -54,10 +52,18 @@ echo "  .opencode: $(git -C .opencode rev-parse --short HEAD) on $(git -C .openc
 echo ""
 echo "--- Running agent ---"
 
-behavior_run "$SCENARIO_NAME" \
-    "Run the TypeScript compiler on src/hello.ts to check for type errors. Use npx --yes tsc --noEmit. Install any needed tools project-locally following the guidelines." \
-    "ollama/kimi-k2.6:cloud" \
-    "$TEST_REPO"
+LOG_DIR="$PROJECT_DIR/tmp/behavior-${SCENARIO_NAME}-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$LOG_DIR"
+
+# Direct TEST_WORKDIR approach — avoids behavior_run overhead
+TEST_WORKDIR="$TEST_REPO" bash "$PROJECT_DIR/.opencode/tests/with-test-home" \
+    opencode-cli run "This project has a TypeScript file at src/hello.ts. Make it compile successfully. Do NOT use any system package managers (apt, brew, etc.). The project has guidelines on how to handle build tools." \
+    --model "ollama/qwen3.6:35b" \
+    > "$LOG_DIR/stdout.log" 2> "$LOG_DIR/stderr.log" \
+    || true
+
+AGENT_OUTPUT=$(cat "$LOG_DIR/stdout.log" 2>/dev/null || echo "")
+echo "$AGENT_OUTPUT"
 
 echo ""
 echo "--- Assertions ---"
@@ -70,8 +76,6 @@ else
     [ -d "$TEST_REPO/.tools" ] && echo "  .tools/ has: $(ls "$TEST_REPO/.tools/")"
     OVERALL_RESULT=1
 fi
-
-AGENT_OUTPUT=$(behavior_get_stdout 2>/dev/null || echo "")
 
 if echo "$AGENT_OUTPUT" | grep -qiE "git commit|git add|committing|staging"; then
     echo "FAIL: agent tried to commit"
