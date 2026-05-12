@@ -34,8 +34,8 @@ git config user.name "Test"
 # Clone .opencode submodule — full real environment
 git submodule add https://github.com/michael-conrad/.opencode.git .opencode
 git submodule update --init .opencode
-git -C .opencode fetch origin feature/440-519-521-project-local-tools-texted-cleanup-fix
-git -C .opencode checkout feature/440-519-521-project-local-tools-texted-cleanup-fix
+git -C .opencode fetch origin feature/521-texted-protocol-test
+git -C .opencode checkout feature/521-texted-protocol-test
 
 mkdir -p src
 cat > src/hello.ts << 'TS'
@@ -58,7 +58,7 @@ mkdir -p "$LOG_DIR"
 # Direct TEST_WORKDIR approach — avoids behavior_run overhead
 TEST_WORKDIR="$TEST_REPO" bash "$PROJECT_DIR/.opencode/tests/with-test-home" \
     opencode-cli run "This project has a TypeScript file at src/hello.ts. Make it compile successfully. Do NOT use any system package managers (apt, brew, etc.). The project has guidelines on how to handle build tools." \
-    --model "ollama/qwen3.6:35b" \
+    --model "ollama/deepseek-v4-flash:cloud" \
     > "$LOG_DIR/stdout.log" 2> "$LOG_DIR/stderr.log" \
     || true
 
