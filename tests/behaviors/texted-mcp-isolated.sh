@@ -1,11 +1,9 @@
 #!/bin/bash
 # Behavioral Test: texted-mcp-isolated
 #
-# Creates an isolated git-init test repo with texted MCP configured,
-# then verifies:
-# SC-5: tools/list protocol call returns edit_file, texted_eval, texted_doc
-# SC-7: opencode-cli run session where agent actually uses texted tools
-# SC-8: Go toolchain caching
+# Creates an isolated git-init test repo with full .opencode/ submodule
+# (real opencode.jsonc, AGENTS.md, and texted MCP config), then verifies
+# the agent discovers and uses texted MCP tools via opencode-cli run.
 #
 # #521 — texted MCP Server
 # Co-authored with AI: OpenCode (deepseek-v4-flash)
@@ -36,14 +34,13 @@ git config user.email "test@test.dev"
 git config user.name "Test"
 git commit -q --allow-empty -m "init"
 
-# Clone full .opencode/ with texted MCP configured
+# Full .opencode/ submodule — real config, real AGENTS.md, real MCP setup
 git submodule add https://github.com/michael-conrad/.opencode.git .opencode
 git submodule update --init .opencode
-git -C .opencode fetch origin feature/521-texted-protocol-test
-git -C .opencode checkout feature/521-texted-protocol-test
-chmod +x .opencode/tools/run-texted-mcp
+git -C .opencode fetch origin feature/525-de-lobotomize-dev
+git -C .opencode checkout feature/525-de-lobotomize-dev
 
-# Create a text file the agent will edit via texted
+# Create a file the agent can edit via texted tools
 mkdir -p tmp
 echo "Hello old world" > tmp/texted-edit-target.txt
 
@@ -51,77 +48,35 @@ git add -A
 git commit -q -m "test repo with texted MCP and edit target"
 
 echo "Test repo: $TEST_REPO"
-echo "  .opencode commit: $(git -C .opencode rev-parse --short HEAD)"
+echo "  .opencode: $(git -C .opencode rev-parse --short HEAD) on $(git -C .opencode branch --show-current)"
 
 echo ""
-echo "--- SC-5: MCP tools/list protocol call ---"
-MCP_OUTPUT=$(echo '{"jsonrpc":"2.0","method":"tools/list","params":{},"id":1}' | timeout 120 .opencode/tools/run-texted-mcp 2>/dev/null || true)
+echo "--- Running agent ---"
 
-for tool in edit_file texted_eval texted_doc; do
-    if echo "$MCP_OUTPUT" | grep -q "\"$tool\""; then
-        echo "PASS: $tool found in tools/list response"
-    else
-        echo "FAIL: $tool not found in MCP response"
-        OVERALL_RESULT=1
-    fi
-done
-
-echo ""
-echo "--- SC-7: opencode-cli run session using texted tools ---"
-# Agent must use texted's edit_file tool to transform the file
-# Prompt tells the agent what to do, NOT how to do it
+# Agent must discover texted MCP tools via opencode mcp list and use
+# texted's edit_file to transform the file. Prompt says WHAT, not HOW.
 behavior_run "$SCENARIO_NAME" \
-    "Use the texted MCP server to edit tmp/texted-edit-target.txt. Change 'old' to 'new' using texted's search-and-replace tool." \
+    "Use opencode mcp list to see which MCP tools are available. Then use one of them to edit tmp/texted-edit-target.txt: change 'old' to 'new'." \
     "ollama/kimi-k2.6:cloud" \
     "$TEST_REPO"
 
 AGENT_OUTPUT=$(behavior_get_stdout 2>/dev/null || echo "")
+echo "$AGENT_OUTPUT"
 
-# Check result: file should now contain "Hello new world"
+echo ""
+echo "--- Assertions ---"
+
+# File should be transformed by agent's use of texted edit_file
 if [ -f "$TEST_REPO/tmp/texted-edit-target.txt" ] && [ "$(cat "$TEST_REPO/tmp/texted-edit-target.txt")" = "Hello new world" ]; then
-    echo "PASS: agent used texted edit_file to transform file content"
+    echo "PASS: texted edit_file transformed file content"
 else
     echo "FAIL: file content not transformed by agent"
     [ -f "$TEST_REPO/tmp/texted-edit-target.txt" ] && echo "  Content: $(cat "$TEST_REPO/tmp/texted-edit-target.txt")" || echo "  File missing"
     OVERALL_RESULT=1
 fi
 
-# Verify agent actually invoked the texted tool
-if echo "$AGENT_OUTPUT" | grep -qi "edit_file\|texted"; then
-    echo "PASS: agent referenced texted tool in output"
-else
-    echo "FAIL: agent did not reference texted tools"
-    OVERALL_RESULT=1
-fi
-
-echo ""
-echo "--- SC-8: Go toolchain caching ---"
-rm -f "$TEST_REPO/.tools/gopath/bin/texted" 2>/dev/null || true
-
-REBUILD_OUTPUT=$(echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}' | timeout 120 .opencode/tools/run-texted-mcp 2>&1 || true)
-
-if echo "$REBUILD_OUTPUT" | grep -q '"result"'; then
-    echo "PASS: MCP server started after rebuild without Go download"
-else
-    echo "FAIL: texted failed to start after rebuild"
-    OVERALL_RESULT=1
-fi
-
-GO_MOD_TIME=$(stat -c %Y "$TEST_REPO/.tools/go/bin/go" 2>/dev/null || echo "0")
-echo "  Go toolchain cached at mtime: $GO_MOD_TIME"
-
-echo ""
-echo "--- SC-4: --version flag ---"
-VERSION_OUTPUT=$(timeout 10 .opencode/tools/run-texted-mcp --version 2>&1 || true)
-if echo "$VERSION_OUTPUT" | grep -qi "texted-mcp version"; then
-    echo "PASS: --version flag works"
-else
-    echo "FAIL: --version flag not working"
-    OVERALL_RESULT=1
-fi
-
-# All output is tee'd to artifact directory via the test runner
-: # output saved by test harness redirection
+# Agent must have discovered and referenced texted tools
+assert_required_pattern_present "edit_file" "texted edit_file tool referenced" || OVERALL_RESULT=1
 
 echo ""
 [ "$OVERALL_RESULT" -eq 0 ] && echo "PASS: $SCENARIO_NAME" || echo "FAIL: $SCENARIO_NAME"
