@@ -188,10 +188,7 @@ assert_skill_invoked() {
     found=${found:-0}
     found=$(echo "$found" | head -1 | tr -d '[:space:]')
     if [ "$found" -eq 0 ]; then
-        found=$(grep -oi "$expected_skill" "$BEHAVIOR_STDOUT" 2>/dev/null | head -1 | wc -l || echo "0")
-    fi
-    if [ "$found" -eq 0 ]; then
-        echo "FAIL: assert_skill_invoked — expected skill '$expected_skill' was not invoked"
+        echo "FAIL: assert_skill_invoked — expected skill '$expected_skill' was not invoked (no Skill \"$expected_skill\" in stderr)"
         return 1
     fi
     echo "PASS: assert_skill_invoked — skill '$expected_skill' was invoked"
@@ -211,13 +208,6 @@ assert_no_skill_invoked() {
     found=$(echo "$found" | head -1 | tr -d '[:space:]')
     if [ "$found" -gt 0 ]; then
         echo "FAIL: assert_no_skill_invoked — forbidden skill '$forbidden_skill' was invoked ($found time(s))"
-        return 1
-    fi
-    found=$(grep -ci "$forbidden_skill" "$BEHAVIOR_STDOUT" 2>/dev/null || true)
-    found=${found:-0}
-    found=$(echo "$found" | head -1 | tr -d '[:space:]')
-    if [ "$found" -gt 0 ]; then
-        echo "FAIL: assert_no_skill_invoked — forbidden skill '$forbidden_skill' found in output ($found time(s))"
         return 1
     fi
     echo "PASS: assert_no_skill_invoked — skill '$forbidden_skill' was not invoked"

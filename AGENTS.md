@@ -14,6 +14,46 @@ The AI agent must determine its identity from the system prompt on EVERY session
 
 ---
 
+## Universal Skill Dispatch Gate (Tier 1 — Zero Tolerance, Every Message)
+
+**🚫 CRITICAL VIOLATION: Producing any chat output in response to a user message without first evaluating and dispatching applicable skills is a Tier 1 violation.**
+
+### Pre-Response Gate Procedure (MANDATORY — Every User Message)
+
+Before producing ANY output in response to a user message, the agent MUST:
+
+1. **Evaluate the user message against ALL available skill descriptions** (listed in `<available_skills>` at the bottom of the system prompt). Consider the *intent* and *semantic meaning* of the user's request — not keyword matching.
+
+2. **If one or more skills match the intent of the request**: call `skill({name: "..."})` for the most relevant skill before generating any chat output. If multiple skills match, load the most specific one first.
+
+3. **Only after skill content is loaded**: proceed to produce the response, using the loaded skill's instructions.
+
+4. **If no skill applies directly (read-only questions, simple lookup, status checks)**: proceed without skill dispatch. This is the exception, not the default — err on the side of dispatching.
+
+### This Gate Fires On
+
+| Trigger | Example User Message |
+|---------|---------------------|
+| Implementation requests | "implement this feature", "build the widget" |
+| Bug reports that need fixing | "there's a bug in the parser" |
+| Merge/rebase operations | "merge conflict while rebasing" |
+| Authorization/approval | "approved #42" |
+| PR/session operations | "check prs", "create a PR", "ready for PR" |
+| Test/investigation work | "write tests for the validator", "debug this crash" |
+| Content generation | "draft a spec for X", "write a runbook" |
+| Architecture decisions | "how should we handle X", "design the module" |
+| **Any request that would produce a multi-paragraph or multi-step response** | |
+
+### Evidence Requirement
+
+If no skill was dispatched, the response MUST include a brief justification (1 sentence) explaining why no skill was applicable. This provides traceability and prevents silent skill bypass.
+
+### Non-Waivable
+
+This gate is Tier 1. No authorization, scope, or developer instruction can waive it. "Continue" does not waive it. Session momentum does not waive it.
+
+---
+
 ## Guidelines Structure
 
 Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
