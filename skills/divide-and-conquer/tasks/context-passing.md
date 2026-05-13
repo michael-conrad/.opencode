@@ -20,12 +20,15 @@ Reference document for yield-back context patterns between subtasks in the divid
 ### What Pre-Work Needs FROM Authorization
 
 ```yaml
-authorization: confirmed (bool)
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
 issue_number: int
-authorization_scope: <scope_value>
-halt_at: <pipeline_stage>
-pr_strategy: stacked | individual | none
 ```
+
+**`must_receive` validation:** The dispatch context `must_receive` array MUST include `authorization_scope`. If missing, HALT and report a context-contamination violation.
 
 ### What Implementation Needs FROM Pre-Work
 

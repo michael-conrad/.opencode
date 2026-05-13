@@ -1,0 +1,73 @@
+Test home: /home/muksihs/git/opencode-config/tmp/test-home-20260512-195207
+Seeded opencode.jsonc with 18 model(s)
+Performing one time database migration, may take a few minutes...
+sqlite-migration:done
+Database migration complete.
+[0m
+> build · kimi-k2.6:cloud
+[0m
+[0m$ [0mwhich tsc || echo "tsc not found"
+tsc not found
+[0m
+[0m→ [0mRead src/hello.ts
+[0m
+[0m$ [0mls -la .tools/node/bin/ 2>/dev/null || echo "No .tools/node/"; ls -la .node/bin/ 2>/dev/null || echo "No .node/"
+No .tools/node/
+No .node/
+[0m
+[0m→ [0mRead .opencode/guidelines/085-project-local-tools.md
+[0m
+[0m$ [0mwhich node; node --version
+/usr/bin/bash: line 1: node: command not found
+[0m
+[0m→ [0mRead .gitignore
+[0m
+[0m← [0mEdit .gitignore
+Index: /home/muksihs/git/opencode-config/tmp/project-local-test-OffAh0/.gitignore
+===================================================================
+--- /home/muksihs/git/opencode-config/tmp/project-local-test-OffAh0/.gitignore
++++ /home/muksihs/git/opencode-config/tmp/project-local-test-OffAh0/.gitignore
+@@ -1,1 +1,7 @@
+ .worktrees/
++
++# Project-local build tools (085-project-local-tools.md)
++.tools/
++.node/
++.uv/
++.jdk/
+\ No newline at end of file
+
+[0m
+[0m$ [0mmkdir -p .tools && curl -fsSL https://nodejs.org/dist/v20.11.0/node-v20.11.0-linux-x64.tar.xz | tar -xJ -C .tools/ && mv .tools/node-v20.11.0-linux-x64 .tools/node && PATH=.tools/node/bin:$PATH node --version
+v20.11.0
+[0m
+[0m$ [0mPATH=.tools/node/bin:$PATH npm install -g typescript
+added 1 package in 579ms
+npm notice 
+npm notice New major version of npm available! 10.2.4 -> 11.14.1
+npm notice Changelog: <https://github.com/npm/cli/releases/tag/v11.14.1>
+npm notice Run `npm install -g npm@11.14.1` to update!
+npm notice
+[0m
+[0m→ [0mRead src/hello.ts
+[0m
+[0m$ [0mmkdir -p dist && PATH=.tools/node/bin:$PATH npx tsc src/hello.ts --outDir dist/ --target ES2022 --module commonjs --declaration
+(no output)
+[0m
+[0m$ [0mls -la dist/
+total 16
+drwxrwxr-x 2 muksihs muksihs 4096 May 12 19:55 .
+drwx------ 8 muksihs muksihs 4096 May 12 19:55 ..
+-rw-rw-r-- 1 muksihs muksihs   32 May 12 19:55 hello.d.ts
+-rw-rw-r-- 1 muksihs muksihs   69 May 12 19:55 hello.js
+[0m
+Compiled `src/hello.ts` successfully. Output in `dist/`:
+
+```
+dist/hello.js
+dist/hello.d.ts
+```
+
+Node.js installed locally in `.tools/node/` (v20.11.0), TypeScript installed via project-local `npm`, compiled with `npx tsc`. No system package managers used.
+Test home preserved at: /home/muksihs/git/opencode-config/tmp/test-home-20260512-195207
+Use 'bash .opencode/tests/with-test-home --clean' to remove.

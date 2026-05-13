@@ -57,6 +57,10 @@ task(
 evidence_payload: <spec_body>
 evaluation_criteria: <criteria_json>
 audit_phase: spec_creation
+authorization_scope: <authorization_scope>
+halt_at: <halt_at>
+pr_strategy: <pr_strategy>
+pipeline_phase: <pipeline_phase>
 
 worktree.path: <worktree.path>
 github.owner: <github.owner>

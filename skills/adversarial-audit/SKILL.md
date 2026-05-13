@@ -75,20 +75,33 @@ All auditor dispatch MUST follow cleanroom discipline:
 
 | Dispatch | Context | Exclusions |
 |----------|---------|------------|
-| `spec-audit` | `{ spec_issue, audit_phase, github.owner, github.repo }` | Implementation context, agent memory, plan details |
-| `plan-fidelity` | `{ spec_issue, plan_issue, clean_room_plan, auditor_1, auditor_2, audit_phase, github.owner, github.repo }` | Implementation context, agent memory, existing plan |
-| `concern-separation` | `{ spec_issue, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
-| `coherence-extraction` | `{ write_access, github.owner, github.repo }` | Implementation context, agent memory |
-| `coherence-maintenance` | `{ baseline_path, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
-| `guideline-audit` | `{ target_files, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
-| `drift-detection` | `{ spec_issue, target_files, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
-| `spec-summary` | `{ pr_number, spec_issue, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
-| `closure-verification` | `{ pr_number, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
-| `cross-validate` | `{ evidence_payload, evaluation_criteria, auditor_1, auditor_2, audit_phase, github.owner, github.repo }` | Implementation context, agent memory, prior verification |
-| `resolve-models` | `{ orchestrator_model, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
-| `completion` | `{ workflow_state, audit_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `spec-audit` | `{ spec_issue, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, plan details |
+| `plan-fidelity` | `{ spec_issue, plan_issue, clean_room_plan, auditor_1, auditor_2, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, existing plan |
+| `concern-separation` | `{ spec_issue, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `coherence-extraction` | `{ write_access, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `coherence-maintenance` | `{ baseline_path, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `guideline-audit` | `{ target_files, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `drift-detection` | `{ spec_issue, target_files, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `spec-summary` | `{ pr_number, spec_issue, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `closure-verification` | `{ pr_number, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `cross-validate` | `{ evidence_payload, evaluation_criteria, auditor_1, auditor_2, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, prior verification |
+| `resolve-models` | `{ orchestrator_model, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `completion` | `{ workflow_state, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 
-`pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. All dispatch contexts also include `worktree.path`.
+`pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. All dispatch contexts also include `worktree.path`.
+
+### Authorization Context
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+```
+
+### Dispatch Rules
+- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 ## Cross-References
 

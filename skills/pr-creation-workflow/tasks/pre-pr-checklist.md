@@ -47,6 +47,17 @@ git log origin/dev..HEAD --oneline | wc -l
 
 **Scope check:** If `pr_strategy == none` or `halt_at < pr_created`, HALT — PR creation is not authorized by the current scope. The scope boundary is a hard wall.
 
+**Authorization context:**
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+```
+- Missing `authorization_scope` → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
+
 **Single-issue branch (no work state file):**
 
 ```bash

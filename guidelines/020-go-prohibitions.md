@@ -73,23 +73,53 @@ The following actions do NOT require `"approved"` or `"go"` and the agent MUST N
 - Posting progress comments to GitHub — always permitted
 - Moving issue labels — metadata operation
 - Running lint/typecheck/format commands — read-only verification
-- Creating feature branches — see `git-workflow` skill pre-work
+- Creating feature branches — see `git-workflow` skill pre-work (requires `for_implementation` or above)
+- Creating `investigate/*` scratch branches — see `git-workflow --task pre-work` (permitted under `for_analysis`, MUST discard before HALT)
 
 If the action is in this list, proceed immediately without requesting or deliberating over authorization.
 
-### ⚠️ ASK FIRST
+### `for_analysis` Scope — Self-Assignment Rules
+
+`for_analysis` is the ONLY scope an agent may self-assign. It is the default floor scope when no authorization is given.
+
+#### Self-Assignment Conditions
+
+An agent may self-assign `for_analysis` when:
+- No authorization has been given in the current session
+- The user asked a question, reported a bug, or made a factual claim without authorization language
+- The agent needs to investigate, read files, or create issues
+
+Self-assignment means: operate under the `for_analysis` allowlist/blocklist until explicit authorization is received.
+
+#### 🚫 `for_analysis` Branch Restrictions
+
+Under `for_analysis` scope:
+
+- **`feature/*` and `spec/*` branches are BLOCKED.** Creating these branches requires `for_implementation` or above.
+- **`investigate/*` branches ARE permitted.** Naming convention: `investigate/<topic>` (e.g., `investigate/parsing-bug`).
+- **`investigate/*` branches MUST be discarded before HALT.** Never leave an `investigate/` branch in the repo. Delete it with `git branch -D investigate/<topic>` before the halt message.
+- **No commits to `dev` or `main`** (this is always prohibited regardless of scope).
+
+#### Why `investigate/` Branches Exist
+
+`investigate/` branches allow the agent to create throwaway scratch branches for read-only investigation work:
+- Testing a hypothesis about code behavior
+- Running a throwaway script to check data
+- Examining git history or file structure in a clean context
+
+These branches are NOT for implementation — they are ephemeral scratch space. The agent MUST NOT leave them behind.
 
 - **"GO" requires unambiguous scope; clarify only when ambiguous.** If the user types "GO" (or equivalent), treat it as valid authorization ONLY when the immediate session context identifies exactly one plan/scope target.
 - **Clarification gate for ambiguous "GO" only.** Ask for scope clarification only when more than one plausible plan file, phase, or implementation scope is active.
 - **Pipeline-scoped "GO" phrases specify scope horizon.** "Approved #N to PR", "#N approved for plan", "approved #N through implementation" — these carry implicit scope. Parse per `approval-gate` skill → "Authorization Scope Model" and HALT at the specified pipeline stage.
-- **Scope detection via the verb-prefix parsing table is NEVER ambiguous — the table maps every possible phrase to exactly one scope.** Do not ask the user to classify scope. "Approved #N" (no qualifier) → ALWAYS `standard` scope. No clarification needed. "Approved #N to PR" → ALWAYS `for_pr` scope. The parsing table in `approval-gate` skill → Authorization Scope Model is the sole authority for scope determination.
+- **Scope detection via the verb-prefix parsing table is NEVER ambiguous — the table maps every possible phrase to exactly one scope.** Do not ask the user to classify scope. "Approved #N" (no qualifier) → ALWAYS `for_analysis` scope. No clarification needed. "Approved #N to PR" → ALWAYS `for_pr` scope. The parsing table in `approval-gate` skill → Authorization Scope Model is the sole authority for scope determination.
 
 ### ✅ ALWAYS DO
 
 - **Verify actual codebase state before acting.** When a GO names a specific phase, verify the actual codebase state of that phase's deliverables before taking any action — regardless of plan markers.
 - **SILENTLY HALT after a verified-complete phase.** If verification confirms a named phase is already fully and correctly implemented, report the verified findings and HALT without prompting.
 - **HARD HALT at scope boundary.** When `halt_at` is set from pipeline-scoped authorization, the agent MUST stop at that pipeline stage. `halt_at == plan_created` means stop after plan creation; `halt_at == pr_created` means PR creation is authorized. Proceeding past `halt_at` without re-authorization is a critical violation.
-- **Parse authorization phrases for scope.** "Approved #N" (no scope qualifier) = `standard`. "Approved #N to PR" = `for_pr`. "Approved #N for plan" = `for_plan`. See `approval-gate` skill → "Authorization Scope Model" for the complete verb-prefix parsing table.
+- **Parse authorization phrases for scope.** "Approved #N" (no scope qualifier) = `for_analysis`. "Approved #N to PR" = `for_pr`. "Approved #N for plan" = `for_plan`. See `approval-gate` skill → "Authorization Scope Model" for the complete verb-prefix parsing table.
 - **Every halt MUST produce a status message.** If the agent stops, it MUST output what was completed, what was attempted, and why it stopped. Zero output before stopping is a critical violation.
 - **Search issues before halting on missing spec/plan.** When an implementation request lacks a matching spec or plan:
   1. Search GitHub Issues using label filters: `[SPEC]`, `[PLAN]`, `[SPEC-FIX]`
@@ -114,7 +144,7 @@ If the action is in this list, proceed immediately without requesting or deliber
 
 **⚠️ Asking for confirmation or clarification after receiving a pipeline-scoped authorization phrase is a CRITICAL GUIDELINE VIOLATION.**
 
-The verb-prefix parsing table in `approval-gate` skill → Authorization Scope Model is the single source of truth for scope determination. When authorization text matches a parseable pattern (`approved`, `approved for pr`, `approved for plan`, `approved for implementation`, `approved for spec`, `approved for review`, `approved to PR`, etc.), the agent MUST parse the scope and proceed without asking for confirmation or clarification.
+The verb-prefix parsing table in `approval-gate` skill → Authorization Scope Model is the single source of truth for scope determination. When authorization text matches a parseable pattern (`approved`, `approved for pr`, `approved for plan`, `approved for implementation`, `approved for spec`, `approved for review`, `approved to PR`, etc.), the agent MUST parse the scope and proceed without asking for confirmation or clarification. "Approved #N" with no qualifier self-assigns `for_analysis` scope.
 
 **Scope detection via the verb-prefix parsing table is NEVER ambiguous.** The table maps every possible phrase to exactly one scope. This is a deterministic function — no clarification needed, no judgment required.
 
@@ -130,7 +160,7 @@ The verb-prefix parsing table in `approval-gate` skill → Authorization Scope M
 | -- | -- |
 | Parse scope from verb-prefix table, proceed with dispatch chain | Ask user "should I proceed with the full workflow?" |
 | Accept unambiguous authorization at face value | Treat authorization as needing confirmation |
-| Resolve `for_pr`, `for_plan`, `for_implementation`, `for_spec`, `for_review` autonomously | Ask "is this approved to PR or just to implementation?" |
+| Resolve `for_pr`, `for_plan`, `for_implementation`, `for_spec`, `for_review_only` autonomously | Ask "is this approved to PR or just to implementation?" |
 
 **See `approval-gate` skill → "Authorization Scope Model" for the complete verb-prefix parsing table. See `000-critical-rules.md` §Pushing Agent Intelligence Decisions for the autonomous resolution mandate. See `000-critical-rules.md` → "Structural Decision Solicitation Under for_pr Scope" for the complete enforcement, including the `question` tool prohibition under `for_pr` scope.** **AUTHORITY: `000-critical-rules.md` §Structural Decision Solicitation Under for_pr Scope** (this line is a reference only)
 
@@ -338,7 +368,7 @@ rules:
         - "authorization_text matches 'for plan'"
         - "authorization_text matches 'to implementation'"
         - "authorization_text matches 'for spec'"
-        - "authorization_text matches 'for review'"
+        - "authorization_text matches 'for review_only'"
     actions:
       - PARSE_SCOPE(authorization_text)
       - SET(halt_at, pr_strategy, gap_fill_actions)
