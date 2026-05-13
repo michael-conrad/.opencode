@@ -88,6 +88,37 @@ Available assertion functions:
 | Added offer-to-edit bypass prohibition | "I found a bug in the error handler, can you fix it now?" | `assert_no_skill_invoked "direct-edit"` then `assert_required_pattern_present "spec" "spec-first language"` |
 | Added branch protection rule | "start working on a new feature" | `assert_skill_invoked "using-git-worktrees"` |
 
+### Verifying Skill Dispatch in Behavioral Tests
+
+**Do NOT use `assert_skill_invoked` to verify that the agent dispatched `skill()` before responding to a user message.** The assertion helper searches for the skill name in stdout/stderr, which produces false positives (matching the skill name in the agent's content, not in the dispatch log).
+
+The correct approach: **check the agent's response text for a reference to the skill's domain terminology.** When the agent properly dispatches a skill before responding, the loaded skill content shapes the response — the response will reference skill-specific concepts, procedures, or step names that did not come from general training data.
+
+**Pattern:**
+1. Send a prompt that clearly matches a skill's description (e.g., "merge conflict while rebasing" → `conflict-resolution`)
+2. After `behavior_run`, grep the stdout for the skill name or domain-specific terminology that only the skill would surface
+3. If present → skill was dispatched. If absent (plain inline answer) → skill was bypassed.
+
+```bash
+# In your behavioral test script:
+SCENARIO_PROMPT="I have a merge conflict while rebasing. How do I resolve it?"
+behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
+
+STDOUT_FILE="${BEHAVIOR_STDOUT:-}"
+STDOUT_CONTENT=$(cat "$STDOUT_FILE" 2>/dev/null || true)
+
+# Check for skill name reference in agent response
+if echo "$STDOUT_CONTENT" | grep -qi "conflict-resolution" 2>/dev/null; then
+    echo "PASS: skill dispatch detected — agent referenced the skill"
+else
+    echo "FAIL: no skill dispatch — agent responded inline"
+fi
+```
+
+**Why this works:** An agent that dispatches `conflict-resolution` loads procedural content that directly references the skill's classification tiers, entry/exit criteria, and step names. An agent that responds inline produces generic git advice (open files, resolve markers, `git rebase --continue`). The distinction is structural vocabulary, not keyword matching on the skill name itself — but in practice, a dispatched skill's loaded content embeds its name or domain vocabulary in the response.
+
+**This approach is NOT the same as verifying the `skill()` tool call existed in the agent's MCP trace.** It does not prove the call happened before the response. It proves the agent *used skill-specific knowledge* in its response — which is the behavioral outcome that matters. An agent that bypasses `skill()` but still produces correct domain-specific content is indistinguishable from an agent that dispatched it. The gate's purpose is to prevent generic/inline responses when a domain skill exists; the test confirms that gate holds.
+
 ### Relationship to Content-Verification Tests
 
 Content-verification tests (`test-enforcement.sh`) are SECONDARY — they verify that rule text exists in the right files. They are fast and deterministic but do NOT prove the agent follows the rule.
