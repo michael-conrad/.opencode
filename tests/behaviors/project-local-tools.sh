@@ -1,7 +1,10 @@
 #!/bin/bash
 # Behavioral Test: project-local-tools
-# SC-6: Agent self-discovers .tools/<tool>/ from guidelines.
-# Uses opencode-cli run against isolated git-init test repo.
+# SC-6 + SC-7: Agent self-discovers .tools/<tool>/ from guidelines and
+# installs Node.js in an isolated git-init test repo.
+#
+# Uses qwen3.6:35b. No hints about where to install.
+#
 # #440 — Project-Local Isolated Tool Installation
 # Co-authored with AI: OpenCode (deepseek-v4-flash)
 
@@ -13,6 +16,8 @@ while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
     PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+
+source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="project-local-tools"
 OVERALL_RESULT=0
@@ -27,6 +32,8 @@ cd "$TEST_REPO"
 git init -q
 git config user.email "test@test.dev"
 git config user.name "Test"
+
+# Clone .opencode submodule — full real environment
 git submodule add https://github.com/michael-conrad/.opencode.git .opencode
 git submodule update --init .opencode
 git -C .opencode fetch origin feature/521-texted-protocol-test
@@ -42,22 +49,15 @@ git add -A
 git commit -q -m "test"
 
 echo "Test repo: $TEST_REPO"
-echo "  .opencode: $(git -C .opencode rev-parse --short HEAD)"
+echo "  .opencode: $(git -C .opencode rev-parse --short HEAD) on $(git -C .opencode branch --show-current)"
+
 echo ""
-echo "--- Running agent via opencode-cli ---"
+echo "--- Running agent ---"
 
-ARTIFACT_DIR="$PROJECT_DIR/.opencode/tests/behaviors/artifacts"
-mkdir -p "$ARTIFACT_DIR"
-LOG_FILE="$ARTIFACT_DIR/440-sc6-run-$(date +%Y%m%d-%H%M%S).log"
-
-TEST_WORKDIR="$TEST_REPO" bash "$PROJECT_DIR/.opencode/tests/with-test-home" \
-    opencode-cli run "This project has a TypeScript file at src/hello.ts. Compile it. Do NOT use any system package managers (apt, brew, etc.). There are guidelines on how to handle build tools." \
-    --model "ollama/kimi-k2.6:cloud" \
-    > "$LOG_FILE" 2>&1 \
-    || true
-
-AGENT_OUTPUT=$(cat "$LOG_FILE")
-echo "$AGENT_OUTPUT"
+behavior_run "$SCENARIO_NAME" \
+    "Run the TypeScript compiler on src/hello.ts to check for type errors. Use npx --yes tsc --noEmit. Install any needed tools project-locally following the guidelines." \
+    "ollama/kimi-k2.6:cloud" \
+    "$TEST_REPO"
 
 echo ""
 echo "--- Assertions ---"
@@ -67,9 +67,11 @@ if [ -f "$TEST_REPO/.tools/node/bin/node" ]; then
     echo "PASS: .tools/node/bin/node exists ($NODE_VER)"
 else
     echo "FAIL: .tools/node/bin/node not found"
-    [ -d "$TEST_REPO/.tools" ] && echo "  .tools/: $(ls "$TEST_REPO/.tools/")"
+    [ -d "$TEST_REPO/.tools" ] && echo "  .tools/ has: $(ls "$TEST_REPO/.tools/")"
     OVERALL_RESULT=1
 fi
+
+AGENT_OUTPUT=$(behavior_get_stdout 2>/dev/null || echo "")
 
 if echo "$AGENT_OUTPUT" | grep -qiE "git commit|git add|committing|staging"; then
     echo "FAIL: agent tried to commit"
