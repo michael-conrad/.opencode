@@ -70,7 +70,21 @@ Authorization Gatekeeper. Focus: verify authorization, resolve scope, enforce tw
 
 ## Sub-Agent Dispatch Audit
 
-All tasks dispatch via `task(subagent_type="general")`. Standard context: `{ issue_number, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy }`. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `screen-issue` receives issue body + authorization context. `pre-implementation-analysis` receives all issue numbers + authorization context. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }` with zero file paths. No inline work—all tasks dispatch sub-agents. If a sub-agent returns empty, re-dispatch with original scoped context only (max 2 retries). Result contracts return `status` (DONE/BLOCKED/DONE_WITH_CONCERNS/OVERFLOW) + task-specific fields per `enforcement/` result contract schemas.
+All tasks dispatch via `task(subagent_type="general")`. Standard context: `{ issue_number, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `screen-issue` receives issue body + authorization context + pipeline_phase. `pre-implementation-analysis` receives all issue numbers + authorization context + pipeline_phase. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }` with zero file paths. No inline work—all tasks dispatch sub-agents. If a sub-agent returns empty, re-dispatch with original scoped context only (max 2 retries). Result contracts return `status` (DONE/BLOCKED/DONE_WITH_CONCERNS/OVERFLOW) + task-specific fields per `enforcement/` result contract schemas.
+
+### Authorization Context Template
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+```
+
+### Dispatch Rules
+- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
+- The `pipeline_phase` field is NEW — it tracks which phase of a multi-phase plan is currently executing
 
 ## Cross-References
 

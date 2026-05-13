@@ -142,6 +142,10 @@ DRIFT DETECTED:
 
 evaluation_criteria: <criteria_json>
 audit_phase: implementation_verification
+authorization_scope: {authorization_scope}
+halt_at: {halt_at}
+pr_strategy: {pr_strategy}
+pipeline_phase: {pipeline_phase}
 
 worktree.path: {worktree.path}
 github.owner: {github.owner}

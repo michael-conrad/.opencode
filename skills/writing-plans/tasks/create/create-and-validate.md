@@ -104,15 +104,30 @@ ls .opencode/skills/issue-operations/SKILL.md && grep -c "link-sub-issue" .openc
 
 If any verification fails: flag as MISSING-TRACEABILITY.
 
+### Authorization Context for Dispatch
+
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+```
+
+#### Dispatch Rules
+- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
+- The `pipeline_phase` field is used to track which phase of a multi-phase plan is being executed
+
 ### Step 13: Approval Cascade Check (MANDATORY)
 
 **Scope-aware auto-approval:**
 
 ```python
 SCOPE_LEVELS = {
-    "standard": 0, "for_spec": 1, "for_plan": 2,
-    "for_implementation": 3, "for_code_review": 4,
-    "for_pr": 5, "pr_only": 5, "review_only": 4
+    "for_review_prep": 0, "for_spec": 1, "for_analysis": 2,
+    "for_plan": 3, "for_implementation": 4,
+    "for_pr": 5, "for_pr_only": 5, "for_review_only": 4
 }
 
 if scope_level >= SCOPE_LEVELS["for_plan"]:

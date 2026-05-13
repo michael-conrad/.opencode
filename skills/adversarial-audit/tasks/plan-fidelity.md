@@ -66,6 +66,10 @@ evaluation_criteria: <criteria_json>
 audit_phase: plan_creation
 auditor_1: {auditor_1}
 auditor_2: {auditor_2}
+authorization_scope: {authorization_scope}
+halt_at: {halt_at}
+pr_strategy: {pr_strategy}
+pipeline_phase: {pipeline_phase}
 
 worktree.path: {worktree.path}
 github.owner: {github.owner}

@@ -170,7 +170,7 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 1. Authorization has been verified — `approval-gate --task verify-authorization` passed
 2. The operation is a Tier 1 mandate or a deterministic prerequisite for authorized work
 3. The operation requires no judgment — it is a deterministic, mechanical step
-4. The scope covers the pipeline stage containing the operation (`for_pr`, `for_implementation`, `for_code_review`)
+4. The scope covers the pipeline stage containing the operation (`for_pr`, `for_implementation`, `for_review_prep`)
 
 **🚫 FORBIDDEN: Soliciting developer confirmation for automatic prerequisites:**
 
@@ -369,6 +369,70 @@ dev_base_hash: <7-char-sha>
 working_tree_clean: true
 ready_for: implementation
 ```
+
+## `investigate/` Scratch Branches
+
+Under `for_analysis` scope, the agent may create `investigate/<topic>` scratch branches for read-only investigation. These are NOT feature branches — they are ephemeral throwaway branches.
+
+### When to Use
+
+- Investigating a bug hypothesis
+- Running throwaway scripts to examine data
+- Testing a refactoring idea without committing
+- Exploring file structure in a clean context
+
+### Naming Convention
+
+```bash
+git checkout -b investigate/<topic> dev
+```
+
+Examples: `investigate/parsing-bug`, `investigate/missing-env-var`, `investigate/test-failure-root-cause`
+
+### Scope Gate
+
+- `investigate/*` branches are permitted under `for_analysis` scope (self-assigned or explicit)
+- `investigate/*` branches do NOT require `for_implementation` — they are read-only scratch branches
+- The agent MUST NOT make permanent code changes on `investigate/*` branches
+- Writes to `./tmp/` and throwaway scripts ARE permitted
+
+### MUST Discard Before HALT
+
+**🚫 CRITICAL: `investigate/` branches MUST be discarded before the halt message.**
+
+```bash
+git branch -D investigate/<topic>
+```
+
+This is a hard requirement — leaving `investigate/` branches in the repo pollutes branch space. The enforcement in `enforcement/halt-conditions.md` verifies this.
+
+### `feature/` and `spec/` Branch Scope Gate
+
+Creating `feature/*` or `spec/*` branches requires `for_implementation` scope or above. Under `for_analysis`, these branches are BLOCKED:
+
+```bash
+# 🚫 FORBIDDEN under for_analysis
+git checkout -b feature/123-xyz dev  # Requires for_implementation+
+
+# ✅ PERMITTED under for_analysis
+git checkout -b investigate/parsing-bug dev  # Read-only scratch branch
+```
+
+If the agent attempts to create a `feature/` or `spec/` branch under `for_analysis`, the operation MUST be rejected and reported as a scope boundary violation.
+
+## Authorization Context
+
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+```
+
+### Dispatch Rules
+- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 ## Context Received from Orchestration Layer
 

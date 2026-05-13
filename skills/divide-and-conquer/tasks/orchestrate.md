@@ -32,9 +32,11 @@ context:
   phases: [Core Skills, Dispatch Table, Quality Gates, '...']
   current_phase: 1
   authorization_comment: approved
-  authorization_scope: standard
+  authorization_scope: for_review_prep
   halt_at: review_prep
   pr_strategy: individual
+  pipeline_phase: <current_phase_name>
+  authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
 **Action:**
@@ -48,11 +50,12 @@ context:
 **Context passed to pre-work:**
 
 ```yaml
-authorization: confirmed
-issue: 77
-authorization_scope: standard
+authorization_scope: for_implementation
 halt_at: review_prep
 pr_strategy: individual
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #77 on YYYY-MM-DD"
+issue: 77
 working_tree_status: checked
 ```
 

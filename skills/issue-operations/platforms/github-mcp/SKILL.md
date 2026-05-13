@@ -47,18 +47,18 @@ All operations dispatched through the `github_*` MCP tool family. No Python clie
 
 ## Authorization Labels (Platform-Supported)
 
-GitHub MCP supports all eight `approved-for-*` labels for issue labeling:
+GitHub MCP supports the following `approved-for-*` labels for issue labeling:
 
 | Label | Purpose |
 |---|---|
 | `approved-for-spec` | Authorization through spec creation (scope: `for_spec`) |
+| `approved-for-analysis` | Authorization through analysis (scope: `for_analysis`) |
 | `approved-for-plan` | Authorization through plan creation (scope: `for_plan`) |
 | `approved-for-implementation` | Authorization through implementation (scope: `for_implementation`) |
-| `approved-for-code-review` | Authorization through code review (scope: `for_code_review`) |
 | `approved-for-pr` | Full pipeline through PR creation (scope: `for_pr`) |
-| `approved-for-pr-only` | PR creation only (scope: `pr_only`) |
-| `approved-for-review` | Code review only (scope: `review_only`) |
-| `approved-for-review-prep` | Default authorization (scope: `standard`) |
+| `approved-for-pr-only` | PR creation only (scope: `for_pr_only`) |
+| `approved-for-review` | Code review only (scope: `for_review_only`) |
+| `approved-for-review-prep` | Default authorization (scope: `for_review_prep`) |
 
 `needs-approval` is the default label for unapproved issues. It is applied on creation and replaced by the corresponding `approved-for-*` label at time of authorization. No `approved-for-*` label = awaiting approval.
 

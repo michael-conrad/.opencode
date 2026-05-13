@@ -34,6 +34,17 @@ Verify all success criteria have evidence before allowing completion claims.
 
 **Dispatch as sub-agent:** When the verification context is the same agent that performed implementation, invoke `structural-verify` as a sub-agent to ensure clean-room isolation. The sub-agent receives ONLY the spec SC list and file paths — NOT implementation context.
 
+**Authorization context for sub-agent dispatch:**
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+```
+- Missing `authorization_scope` → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
+
 ### 0.5. Header Verification Checkpoint (MANDATORY — For New Files)
 
 **For each new file added by the agent during implementation, verify it contains the required headers per its file type as defined in `080-code-standards.md` §"Header Format by File Type".**

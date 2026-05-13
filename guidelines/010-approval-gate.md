@@ -20,7 +20,7 @@ load_when: sub-agent
 | 6 | Human-only merge | approval-gate-005 | GitHub branch protection |
 | 7 | Silent halt — no prompts | — | `000-critical-rules.md` |
 | 8 | Search before halt (no spec found) | — | `000-critical-rules.md` §Silent Halt |
-| 9 | PR requires explicit instruction (except `for_pr`/`pr_only`) | critical-rules-019 | `pr-creation-workflow` skill |
+| 9 | PR requires explicit instruction (except `for_pr`/`for_pr_only`) | critical-rules-019 | `pr-creation-workflow` skill |
 | 10 | Close issues only after PR merge confirmed | critical-rules-013 | `git-workflow cleanup` |
 | 11 | Spec-to-Plan cascade (auto-approve faithful plan) | approval-gate-001a-cascade | `approval-gate` skill |
 | 12 | Pipeline-scoped authorization with hard HALT at boundary | approval-gate-010/011 | `approval-gate` skill |
@@ -101,7 +101,7 @@ Authorization scope determines what the agent is authorized to do between approv
 | `authorization_scope` in developer message | Explicit scope keyword in authorization |
 | `approved-for-*` label on issue | Implicit scope from issue labels |
 | `halt_at` from previous scope | Continuation scope when resuming |
-| Default (no scope) | `standard` — HALT after review-prep |
+| Default (no scope) | `for_analysis` — HALT after analysis_complete |
 
 ### Authorization Scope Model (CRITICAL)
 
@@ -111,14 +111,14 @@ Defines where the pipeline halts after a given authorization scope, what gap-fil
 
 | Scope | HALT After | Gap-Fill | PR Strategy |
 |-------|-----------|----------|-------------|
-| `standard` | review-prep | None | individual |
+| `for_review_prep` | review-prep | None | individual |
 | `for_spec` | spec_created | None | none |
 | `for_plan` | plan_created | auto-create spec | none |
 | `for_implementation` | implementation_complete | auto-create spec+plan+auto-approve | individual |
-| `for_code_review` | code_review_ready | auto-create spec+plan+auto-approve | individual |
 | `for_pr` | pr_created | auto-create spec+plan+auto-approve+auto-PR | stacked |
-| `pr_only` | pr_created | None | stacked |
-| `review_only` | code_review_ready | None | individual |
+| `for_pr_only` | pr_created | None | stacked |
+| `for_review_only` | code_review_ready | None | individual |
+| `for_analysis` | analysis_complete | None | none |
 
 #### Unified Dispatch Path (Work-of-1)
 
@@ -136,8 +136,7 @@ When scope includes gap-fill, the agent auto-creates missing artifacts:
 
 1. `for_plan` scope: auto-create spec before plan
 2. `for_implementation` scope: auto-create spec → auto-create plan → auto-approve
-3. `for_code_review` scope: auto-create spec → auto-create plan → auto-approve
-4. `for_pr` scope: auto-create spec → auto-create plan → auto-approve → auto-create PR
+3. `for_pr` scope: auto-create spec → auto-create plan → auto-approve → auto-create PR
 
 ### Multi-Task Plan Authorization (CRITICAL)
 
@@ -196,14 +195,39 @@ Non-substantive GitHub Issue body formatting fixes found during deliberately-inv
 |--------|------------------------|
 | Read files, search code, browse issues | No |
 | Create spec/plan issues | No |
-| Create feature branch | No (automatic prerequisite — see `git-workflow pre-work`) |
+| Create feature branch (`feature/*`, `spec/*`) | Yes (requires `for_implementation` or above) |
+| Create investigation branch (`investigate/*`) | No (must discard before HALT under `for_analysis`) |
 | Write code, modify files | Yes |
-| Create PR | Yes (except `for_pr`/`pr_only` scope) |
+| Create PR | Yes (except `for_pr`/`for_pr_only` scope) |
 | Merge PR | No — human-only |
 | Close issues | Yes (after PR merge confirmed) |
 | Delete branches | Yes |
 | Modify git config | Yes (except exempt keys) |
 | Run tests, verification | No |
+
+### `for_analysis` Scope — Allowlist and Blocklist
+
+The `for_analysis` scope is the default floor scope when no authorization is given. It is also the ONLY scope an agent may self-assign. Under `for_analysis`, the agent operates in read-only investigation mode.
+
+#### ✅ Allowlist
+
+- Read files, search code, browse issues
+- Write to `./tmp/` for investigation artifacts and throwaway scripts
+- Create/update GitHub Issues (specs, plans, bug reports)
+- Add labels and comments to GitHub Issues
+- Run tests and verification commands
+- Create `investigate/<topic>` scratch branches (MUST be discarded before HALT)
+
+#### 🚫 Blocklist
+
+- Writing to `src/`, `test/`, or any permanent project directory
+- Creating feature branches (`feature/*`, `spec/*`)
+- Creating pull requests
+- Committing to `dev` or `main`
+- Closing issues after PR merge
+- Deleting branches (except discarding `investigate/*` branches)
+- Fixing bugs (requires `for_implementation` or above)
+- Any code modification to production files
 
 ### Key Edge Cases
 
@@ -342,7 +366,7 @@ rules:
     title: "Pipeline-scoped authorization extends to scope horizon"
     conditions:
       all:
-        - "authorization_scope != 'standard'"
+        - "authorization_scope != 'for_analysis'"
     actions:
       - GAP_FILL(scope)
       - PROCEED_TO(halt_at)
