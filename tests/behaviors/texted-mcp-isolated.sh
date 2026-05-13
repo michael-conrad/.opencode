@@ -120,6 +120,9 @@ else
     OVERALL_RESULT=1
 fi
 
+# All output is tee'd to artifact directory via the test runner
+: # output saved by test harness redirection
+
 echo ""
 [ "$OVERALL_RESULT" -eq 0 ] && echo "PASS: $SCENARIO_NAME" || echo "FAIL: $SCENARIO_NAME"
 exit $OVERALL_RESULT
