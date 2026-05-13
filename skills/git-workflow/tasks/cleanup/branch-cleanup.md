@@ -134,6 +134,129 @@ fi
 
 **Evidence artifact (MANDATORY):** Tool-call output showing `git -C "$PARENT_REPO_PATH" branch --show-current` returns `dev` MUST be present before proceeding. If no parent repo exists (not a submodule), evidence that the step was evaluated and skipped is sufficient.
 
+### Step 1.9: Submodule Branch Cleanup Descent
+
+After parent repo dev parking (Step 1.7), descend into each submodule to clean merged branches while preserving the dirty submodule pointer.
+
+**Detect submodules:**
+
+```bash
+# Collect submodule paths from .gitmodules
+SUBMODULE_PATHS=$(git config --list --file .gitmodules 2>/dev/null | grep '^submodule\..*\.path=' | sed 's/^submodule\.\(.*\)\.path=/\1:/' | while IFS=: read -r _ path; do echo "$path"; done || echo "")
+```
+
+If no submodules exist (`SUBMODULE_PATHS` is empty), skip this step.
+
+**For each submodule path:**
+
+1. **Enter submodule directory:**
+   ```bash
+   SM_PATH="$SUBMODULE_PATH"
+   echo "Entering submodule: $SM_PATH"
+   cd "$SM_PATH"
+   ```
+
+2. **Sync submodule to dev with fast-forward only:**
+   ```bash
+   # --ff-only is mandatory — no merge commits
+   git checkout dev
+   git pull origin dev --ff-only
+   ```
+
+   **🚫 CRITICAL:** A plain `git pull origin dev` can silently create merge commits. The `--ff-only` flag prevents divergence masking.
+
+   **If `--ff-only` fails (diverged history):**
+   ```bash
+   echo "HALT: Submodule $SM_PATH has diverged from origin/dev"
+   echo "Manual resolution required before cleanup can proceed."
+   # Do NOT proceed — re-sync the submodule first
+   ```
+
+3. **Find merged branches:**
+   ```bash
+   git branch --merged dev | grep -v '^\*' | grep -v 'dev$'
+   ```
+   This lists all local branches whose commits are fully reachable from `dev`.
+
+4. **Content verification gate (MANDATORY — see Step 3 for per-file details):**
+   For each merged branch, verify content exists on `origin/dev` before deletion:
+   ```bash
+   MERGED_BRANCH="<branch>"
+   # Check diff against origin/dev
+   CHANGED_FILES=$(git diff --stat origin/dev..."$MERGED_BRANCH")
+   if [ -z "$CHANGED_FILES" ]; then
+       echo "Branch $MERGED_BRANCH: all content present on origin/dev — safe to delete"
+   else
+       echo "Branch $MERGED_BRANCH has content NOT on origin/dev — flagging for review"
+       # Produce content comparison table (same format as Step 3)
+       # HALT deletion for this branch
+   fi
+   ```
+
+5. **Delete local merged branches:**
+   ```bash
+   git branch -d "$MERGED_BRANCH"
+   ```
+   Use `-d` (safe delete — only if merged). If `-d` fails, the branch is NOT fully merged — HALT and report.
+
+6. **Delete remote merged branches:**
+   ```bash
+   # Check if remote branch exists before attempting deletion
+   if git ls-remote --heads origin "$MERGED_BRANCH" | grep -q "$MERGED_BRANCH"; then
+       git push origin --delete "$MERGED_BRANCH"
+   else
+       echo "Remote branch $MERGED_BRANCH already deleted — skipping remote deletion"
+   fi
+   ```
+   **Authorization note:** Remote branch deletion (`git push origin --delete`) is a destructive command per `000-critical-rules.md` §critical-rules-026. This operation is authorized as part of the cleanup pipeline scope — no separate authorization is required. However, the content verification gate (Step 4 above) MUST pass first.
+
+7. **Tag-based hash permanence — tag-if-untagged:**
+   Per `AGENTS.md` §Tag-Based Hash Permanence and §Idempotent Tag-if-Untagged Rule, verify the current submodule SHA is reachable via a tag. If not, tag it:
+   ```bash
+   CURRENT_SHA=$(git rev-parse HEAD)
+   TAG_EXISTS=$(git tag --points-at "$CURRENT_SHA" | head -1)
+   if [ -z "$TAG_EXISTS" ]; then
+       # Generate context-appropriate tag
+       PARENT_REPO_NAME="$(basename "$(git -C "$PARENT_REPO_PATH" rev-parse --show-toplevel 2>/dev/null || echo 'unknown')")"
+       TAG="${PARENT_REPO_NAME}/v$(date +%Y%m%d)-submodule"
+       git tag "$TAG" "$CURRENT_SHA"
+       git push origin "$TAG" 2>/dev/null || echo "Could not push tag (remote may not be accessible)"
+       echo "Tagged submodule SHA $CURRENT_SHA as $TAG"
+   else
+       echo "Submodule SHA $CURRENT_SHA already tagged ($TAG_EXISTS) — no action needed"
+   fi
+   ```
+
+8. **Exit submodule — do NOT touch the pointer:**
+   ```bash
+   cd - > /dev/null
+   # DO NOT: git add .opencode, git commit, or any operation that modifies the parent repo
+   # The dirty submodule pointer is expected — Step 1.7 already handled acknowledgment
+   ```
+
+**After all submodules processed — acknowledge dirty pointer:**
+```bash
+echo "Submodule branch cleanup complete."
+echo "Submodule pointer is dirty — expected state after dev sync."
+echo "No corrective action taken on submodule pointer."
+echo "The parent repo 'git status' will show .opencode (modified) — this is correct."
+```
+
+**🚫 FORBIDDEN:**
+- `git add .opencode` or any commit modifying the submodule pointer during cleanup
+- `git submodule update --recursive` or any `--recursive` submodule command
+- Switching the parent repo away from `dev`
+- Treating the dirty submodule pointer as an error condition
+- Creating a PR whose sole purpose is to update a submodule pointer (per Step 1.7 prohibition)
+
+**✅ REQUIRED:**
+- Verify each submodule is on `dev` before branch operations
+- Content verification gate before each submodule branch deletion
+- Tag-if-untagged for submodule SHAs
+- Acknowledge dirty pointer after all submodules processed
+
+**Evidence artifact (MANDATORY):** Tool-call output showing each submodule's `git branch --show-current` returns `dev`, the list of deleted branches per submodule, and the tag-if-untagged result per submodule. If no submodules exist, evidence that the step was evaluated and skipped is sufficient.
+
 ### Step 2: Remove Feature Worktree
 
 ```bash
