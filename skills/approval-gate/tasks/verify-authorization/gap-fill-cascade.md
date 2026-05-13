@@ -8,14 +8,14 @@ When `authorization_scope` from Step 2.0 is >= `for_plan`, missing intermediate 
 
 ```python
 SCOPE_HORIZON = {
-    "standard":         "review_prep",
+    "for_review_prep":  "review_prep",
     "for_spec":         "spec_created",
+    "for_analysis":     "analysis_complete",
     "for_plan":         "plan_created",
     "for_implementation": "implementation_complete",
-    "for_code_review":  "code_review_ready",
     "for_pr":           "pr_created",
-    "pr_only":          "pr_created",
-    "review_only":      "code_review_ready",
+    "for_pr_only":      "pr_created",
+    "for_review_only":  "code_review_ready",
 }
 
 # From Step 2.0 result
@@ -28,13 +28,13 @@ halt_at = SCOPE_HORIZON[scope]
 ```python
 GAP_FILL = {
     "for_spec": [],  # Spec is the target; no upstream gap
+    "for_analysis": [],  # No gap-fill; for_analysis is read-only investigation
     "for_plan": ["auto_create_spec"],  # Missing spec is gap-filled
     "for_implementation": ["auto_create_spec", "auto_create_plan", "auto_approve_plan"],
-    "for_code_review": ["auto_create_spec", "auto_create_plan", "auto_approve_plan"],
     "for_pr": ["auto_create_spec", "auto_create_plan", "auto_approve_plan", "auto_create_pr"],
-    "pr_only": [],  # Assumes branch exists; no gap-fill
-    "review_only": [],  # Assumes code exists; no gap-fill
-    "standard": [],  # No gap-fill; all artifacts must pre-exist
+    "for_pr_only": [],  # Assumes branch exists; no gap-fill
+    "for_review_only": [],  # Assumes code exists; no gap-fill
+    "for_review_prep": [],  # No gap-fill; all artifacts must pre-exist
 }
 ```
 
@@ -88,14 +88,13 @@ PR strategy is derived from scope, NOT from issue count. See `enforcement/auto-d
 
 **Application to Bug Reports:**
 
-The critical rule "Bug Reports Without Fix Spec" requires a fix-spec sub-issue before implementation. When `authorization_scope >= for_implementation` (which includes `for_implementation`, `for_code_review`, and `for_pr`), the gap-fill actions include `auto_create_spec`. This means:
+The critical rule "Bug Reports Without Fix Spec" requires a fix-spec sub-issue before implementation. When `authorization_scope >= for_implementation` (which includes `for_implementation` and `for_pr`), the gap-fill actions include `auto_create_spec`. This means:
 
 - **Missing fix-spec for a bug report + `for_pr` authorization** → Gap-fill trigger: proceed to Step 5c. NOT a blocking gate.
 - **Missing fix-spec for a bug report + `for_implementation` authorization** → Gap-fill trigger: same as above. NOT a blocking gate.
-- **Missing fix-spec for a bug report + `for_code_review` authorization** → Gap-fill trigger: same as above. NOT a blocking gate.
 - **Missing fix-spec for a bug report + `for_plan` authorization** → Gap-fill trigger: `for_plan` includes `auto_create_spec`. NOT a blocking gate.
 - **Missing fix-spec for a bug report + `for_spec` authorization** → Gap-fill trigger: `for_spec` targets spec creation. NOT a blocking gate.
-- **Missing fix-spec for a bug report + `standard` authorization** → Blocking gate: `standard` scope has NO gap-fill actions, so the fix-spec must already exist. HALT and report missing fix-spec.
+- **Missing fix-spec for a bug report + `for_review_prep` authorization** → Blocking gate: `for_review_prep` scope has NO gap-fill actions, so the fix-spec must already exist. HALT and report missing fix-spec.
 
 **Evidence artifact:** The agent's verification report MUST note when a blocking gate was overridden by the Gap-Fill Precedence Principle, citing the specific gate, the missing artifact, and the covering gap-fill action.
 

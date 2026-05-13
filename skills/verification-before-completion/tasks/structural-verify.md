@@ -115,6 +115,10 @@ Each structural component check MUST be verified by reading the actual file. Cla
 spec_issue: <N>
 target_files: [<path_list>]
 required_components: [<component_list>]
+authorization_scope: <scope_value>
+halt_at: <pipeline_stage>
+pr_strategy: stacked | individual | none
+pipeline_phase: <current_phase_name>
 ```
 
 ## Result Contract

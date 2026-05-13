@@ -175,9 +175,23 @@ Return structured result:
 
 ## Sub-Agent Dispatch Audit
 
+Authorization context is passed alongside audit context:
+
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+```
+
+### Dispatch Rules
+- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
+
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|
-| `evidence_payload`, `evaluation_criteria`, `auditor_1`, `auditor_2`, `audit_phase`, `github.owner`, `github.repo` | Orchestrator reasoning, expected outcomes, prior verification results, other auditor's verdict or dispatch status | N/A — auditor types are pre-resolved by orchestrator | NO |
+| `evidence_payload`, `evaluation_criteria`, `auditor_1`, `auditor_2`, `audit_phase`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `github.owner`, `github.repo` | Orchestrator reasoning, expected outcomes, prior verification results, other auditor's verdict or dispatch status | N/A — auditor types are pre-resolved by orchestrator | NO |
 
 ```yaml+symbolic
 schema_version: "2.0"

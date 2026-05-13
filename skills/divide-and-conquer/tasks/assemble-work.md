@@ -93,11 +93,12 @@ For each issue in execution order:
          completed_issues: [<completed>]
       issue: #<current>
       sub_issue_body: "<phase prose from sub-issue body, not just parent reference>"
-      spec: "<full spec body from GitHub Issue>"
-      authorization: "User approved #A, #B, #C on <date>"
-      authorization_scope: <scope_value>
-      halt_at: <pipeline_stage>
-      pr_strategy: stacked | individual | none
+       spec: "<full spec body from GitHub Issue>"
+       authorization_scope: <scope_value>
+       halt_at: <pipeline_stage>
+       pr_strategy: stacked | individual | none
+       pipeline_phase: <current_phase_name>
+       authorization_source: "User approved #N on YYYY-MM-DD"
        prior_context: "<AI-composed intent and context from prior issues>"
        decision_log_reference: "<URL or reference to the Decision Log on the Plan issue — the sub-agent can retrieve full decision history from this reference>"
        phase_progress:
@@ -402,7 +403,7 @@ assemble-work:
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|
-| `work_set`, `issue`, `sub_issue_body`, `spec`, `authorization`, `authorization_scope`, `halt_at`, `pr_strategy`, `prior_context`, `phase_progress`, `dependency_branches`, `github.owner`, `github.repo`, `dev.name`, `dev.email`, `worktree.path`, `branch` | Orchestrator implementation context, agent memory, cached verification results, tool recipes | N/A — sub-agents receive the full dispatch context with spec and prior_context | NO |
+| `work_set`, `issue`, `sub_issue_body`, `spec`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `authorization_source`, `prior_context`, `phase_progress`, `dependency_branches`, `github.owner`, `github.repo`, `dev.name`, `dev.email`, `worktree.path`, `branch` | Orchestrator implementation context, agent memory, cached verification results, tool recipes | N/A — sub-agents receive the full dispatch context with spec and prior_context | NO |
 | Cleanup sub-agent — `skill({name: "git-workflow", args: "--task cleanup"})` | Only `branch_name`, `worktree.path`, `github.owner`, `github.repo` | Orchestrator reasoning, expected outcomes, cached results, tool recipes | NO |
 
 Co-authored with AI: <AgentName> (<ModelId>)

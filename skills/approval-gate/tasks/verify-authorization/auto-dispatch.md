@@ -4,6 +4,21 @@
 
 After all verification gates (Steps 1-5) pass, determine the approval context and auto-dispatch to the next skill in the chain. This step runs ONLY when ALL prior verification gates pass. If ANY gate fails, HALT — do NOT dispatch.
 
+## Authorization Context
+
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+```
+
+### Dispatch Rules
+- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
+- The `pipeline_phase` field is NEW — it tracks which phase of a multi-phase plan is currently executing
+
 ## 6.1 Pre-Implementation Worktree Setup (MANDATORY)
 
 **Before any sub-agent dispatch or file modification, the agent MUST invoke `git-workflow --task pre-work` to:**
@@ -32,6 +47,18 @@ The dispatch target is modified by `authorization_scope` from Step 2.0. See `enf
 
 **🚫 HARD HALT AT SCOPE BOUNDARY:** The agent MUST NOT proceed past the pipeline stage specified by `halt_at`. If the dispatch chain reaches the `halt_at` stage, the agent reports completion and STOPS. Proceeding past `halt_at` without re-authorization is a CRITICAL GUIDELINE VIOLATION.
 
+### `for_analysis` Dispatch Behavior
+
+When `authorization_scope == "for_analysis"`:
+
+- Dispatch is read-only investigation
+- No `writing-plans` or `executing-plans` dispatch — only `issue-operations` for issue creation/comments
+- No `divide-and-conquer` dispatch — only `pre-analysis` if needed for context understanding
+- No feature branch creation; `investigate/<topic>` scratch branches permitted
+- Gap-fill cascade is skipped entirely (gap_fill = none)
+- Pre-implementation setup is skipped entirely
+- HALT after `analysis_complete`
+
 ## Auto-Dispatch Procedure
 
 1. Determine approval context (spec vs plan) by checking:
@@ -43,12 +70,12 @@ The dispatch target is modified by `authorization_scope` from Step 2.0. See `enf
 3. Execute gap-fill from Step 5c if scope >= `for_plan`
 4. **If spec approval:** Invoke `writing-plans --task create` with context:
    - `spec_issue=#N` (the approved spec issue number)
-   - `authorization_scope=<scope>` and `halt_at=<stage>`
+   - `authorization_scope=<scope>`, `halt_at=<stage>`, `pr_strategy=<strategy>`, `pipeline_phase=<phase>`
    - `<github.owner>`, `<github.repo>`, `<worktree.path>` from session
 5. **If plan approval:** Invoke `executing-plans --task start` with context:
    - `plan_issue=#N` (the approved plan issue number)
    - `spec_issue=#M` (extracted from plan body — the spec reference)
-   - `authorization_scope=<scope>`, `halt_at=<stage>`, `pr_strategy=<strategy>`
+   - `authorization_scope=<scope>`, `halt_at=<stage>`, `pr_strategy=<strategy>`, `pipeline_phase=<phase>`
    - `<github.owner>`, `<github.repo>`, `<worktree.path>` from session
 6. **Chat output:** Clearly indicate the transition and scope:
    - Spec approval: "Verification passed → Creating implementation plan (scope: <scope>)"
@@ -71,7 +98,7 @@ Numeric format: `STATUS: 1.1 (REVISED - NEEDS APPROVAL)`
 - **Multi-task plan with missing sub-issues:** Step 5 sub-issue verification gate fails → HALT, no dispatch
 - **Authorization set dispatch:** Each plan in the work set gets its own dispatch cycle after work state is established
 - **Scope requires gap-fill but artifact exists:** Skip gap-fill for that artifact (check before creating)
-- **`pr_only` or `review_only` scope with no existing branch/PR:** HALT and report — these scopes assume existing work
+- **`for_pr_only` or `for_review_only` scope with no existing branch/PR:** HALT and report — these scopes assume existing work
 
 ## Authorization Cascade by Output Lineage (Step 2.1)
 
@@ -97,7 +124,7 @@ When cascade does NOT apply (conditions not met):
 
 ## Context Budget Check Before Dispatch (MANDATORY for implementation scopes)
 
-**When `authorization_scope` is `for_implementation`, `for_code_review`, or `for_pr`:**
+**When `authorization_scope` is `for_implementation` or `for_pr`:**
 
 Before dispatching to `divide-and-conquer --task assemble-work`, verify that sufficient context budget remains to complete at least one implementation item:
 

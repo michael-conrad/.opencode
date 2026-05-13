@@ -96,4 +96,17 @@ Generate executive summary in chat:
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|
-| `auditor_dispatch_status`, `resolve_models_result` | Orchestrator reasoning, expected outcomes, verdict content | N/A — this is a completion task, not a dispatch task | NO |
+| `auditor_dispatch_status`, `resolve_models_result`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase` | Orchestrator reasoning, expected outcomes, verdict content | N/A — this is a completion task, not a dispatch task | NO |
+
+### Authorization Context
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+```
+
+### Dispatch Rules
+- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`

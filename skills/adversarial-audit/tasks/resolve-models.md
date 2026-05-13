@@ -112,9 +112,23 @@ If fewer than two eligible families remain after exclusion: return `{ auditor_1:
 
 ## Sub-Agent Dispatch Audit
 
+Authorization context is passed alongside model resolution context:
+
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+```
+
+### Dispatch Rules
+- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
+
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|
-| `orchestrator_model`, `github.owner`, `github.repo` | Any implementation context, agent memory, cached model pool data | N/A — this task reads the qualified pool directly, not via pre-analysis | NO |
+| `orchestrator_model`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `github.owner`, `github.repo` | Any implementation context, agent memory, cached model pool data | N/A — this task reads the qualified pool directly, not via pre-analysis | NO |
 
 ```yaml+symbolic
 schema_version: "2.0"

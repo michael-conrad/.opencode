@@ -59,7 +59,7 @@ Default: `git checkout -b feature/X` in main repo. Worktree opt-in when `WORKTRE
 Conditional: only when `WORKTREE_REQUIRED` is set. See `using-git-worktrees` skill.
 
 ### [critical-rules-005] Skipping Git Pre-Check — working without feature branch
-Must verify git state and create feature branch before any file modification.
+Must verify git state and create feature branch before any file modification. Creating `feature/*` or `spec/*` branches additionally requires `for_implementation` or above authorization scope.
 
 ### [critical-rules-007] Relative File Paths in Worktree Context — using relative paths when worktree.path is set
 Must prefix ALL paths with `worktree.path` in worktree mode. See `060-tool-usage.md` §2.
@@ -227,7 +227,7 @@ Every step in dispatch chain is enforceable, not advisory.
 See `spec-auditor` skill. Auto-fix/conditional/flag-for-review classification.
 
 ### [critical-rules-019] Creating PRs Without Explicit Instruction
-Exception: `for_pr`/`pr_only` scope authorizes PR creation.
+Exception: `for_pr`/`for_pr_only` scope authorizes PR creation.
 
 ### [critical-rules-011] Bug Reports Without Fix Spec
 See `issue-review --task analyze-and-spec`.
@@ -236,7 +236,7 @@ See `issue-review --task analyze-and-spec`.
 Create bug report + `issue-review --task analyze-and-spec`. Read-only until authorized.
 
 ### [critical-rules-009] Authorization-Free Actions — no deliberation required
-Issue creation, sub-issues, progress comments, labels, lint/format, feature branches all authorized per spec scope model.
+Issue creation, sub-issues, progress comments, labels, lint/format all authorized per spec scope model. Feature branches (`feature/*`, `spec/*`) are NOT authorization-free — they require `for_implementation` or above scope per `010-approval-gate.md`.
 
 ### [critical-rules-011] Symptom-Only Fix-Specs — patches without root cause analysis
 See `issue-review --task analyze-and-spec`. Fix specs MUST identify root cause.
@@ -822,7 +822,7 @@ rules:
       all:
         - "pr_creation_attempted == true"
         - "explicit_pr_instruction == false"
-        - "authorization_scope NOT IN ['for_pr', 'pr_only']"
+        - "authorization_scope NOT IN ['for_pr', 'for_pr_only']"
     actions:
       - HALT
     conflicts_with: []
@@ -831,11 +831,11 @@ rules:
     source: "000-critical-rules.md §Creating PRs Without Explicit Instruction"
 
   - id: critical-rules-019a
-    title: "for_pr/pr_only scope authorizes PR creation — no separate instruction needed"
+    title: "for_pr/for_pr_only scope authorizes PR creation — no separate instruction needed"
     conditions:
       all:
         - "pr_creation_attempted == true"
-        - "authorization_scope IN ['for_pr', 'pr_only']"
+        - "authorization_scope IN ['for_pr', 'for_pr_only']"
     actions:
       - PROCEED
     conflicts_with: [critical-rules-019]
@@ -1271,6 +1271,19 @@ rules:
     requires: []
     triggers: [git-workflow]
     source: "000-critical-rules.md §critical-rules-049"
+
+  - id: critical-rules-050
+    title: "Sub-agent scope propagation — missing authorization_scope in dispatch context"
+    conditions:
+      all:
+        - "sub_agent_dispatched == true"
+        - "authorization_scope_missing == true"
+    actions:
+      - RETURN_BLOCKED
+    conflicts_with: []
+    requires: [critical-rules-036]
+    triggers: [divide-and-conquer, approval-gate, verification-before-completion]
+    source: "000-critical-rules.md §critical-rules-050"
 
   - id: git-workflow-branch-deletion-001
     title: "Branch deletion requires content verification against target branch"

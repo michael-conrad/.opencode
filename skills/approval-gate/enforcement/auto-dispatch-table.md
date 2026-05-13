@@ -18,14 +18,14 @@ When a spec is approved, the auto-dispatch chain determines which downstream act
 
 | Authorization Scope | Auto-Dispatch Behavior |
 |---------------------|----------------------|
-| `standard` | Each gate requires explicit approval; no auto-bypass |
+| `for_review_prep` | Each gate requires explicit approval; no auto-bypass |
 | `for_spec` | HALT after spec_created; no auto-dispatch beyond spec creation |
+| `for_analysis` | Auto-create spec (gap-fill), HALT after analysis_complete |
 | `for_plan` | Auto-create spec (gap-fill), HALT after plan_created |
 | `for_implementation` | Auto-create spec+plan (gap-fill), auto-approve, proceed through implementation |
-| `for_code_review` | Auto-create spec+plan, auto-approve, proceed through implementation + code review |
 | `for_pr` | Auto-create spec+plan, auto-approve, proceed through PR creation, stacked PR |
-| `pr_only` | Skip to PR creation, stacked PR |
-| `review_only` | Skip to code review readiness |
+| `for_pr_only` | Skip to PR creation, stacked PR |
+| `for_review_only` | Skip to code review readiness |
 
 ## Dispatch Order (Mandatory)
 
@@ -45,8 +45,20 @@ Three chain-of-responsibility paths route through verify-authorization sub-tasks
 
 | Path | Criteria | Skips |
 |------|----------|-------|
-| fast-path | 1 issue, `standard` scope, 0 sub-issues, explicit auth | needs-approval-label check, item-decomposition, sc-traceability, sub-issue-verification, spec-to-plan-cascade, gap-fill-cascade, screen-issue, pre-implementation-analysis |
+| fast-path | 1 issue, `for_review_prep` scope, 0 sub-issues, explicit auth | needs-approval-label check, item-decomposition, sc-traceability, sub-issue-verification, spec-to-plan-cascade, gap-fill-cascade, screen-issue, pre-implementation-analysis |
 | medium-path | 1 issue + sub-issues OR plan with phases | screen-issue (single issue), pre-implementation-analysis (no dependency graph needed) |
 | full-path | Multi-issue authorization set | None — all steps executed |
+| analysis-path | `for_analysis` scope (self-assigned, no authorization) | All gates — only read/dispatch operations permitted |
 
 **Tier 1 mandates (worktree, branch protection) are never skipped regardless of path.** Work state file is the durable context bridge between hops across all paths.
+
+### `for_analysis` Dispatch Behavior
+
+When scope is `for_analysis`, the auto-dispatch chain is read-only:
+
+- No feature branches are created
+- No PRs are created
+- No code is written to `src/`, `test/`, or permanent directories
+- `./tmp/` writes ARE permitted for investigation artifacts
+- `investigate/<topic>` branches MAY be created (scratch only, MUST discard before HALT)
+- Issue creation, spec creation, and comments ARE permitted
