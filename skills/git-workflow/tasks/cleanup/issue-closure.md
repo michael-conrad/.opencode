@@ -218,6 +218,80 @@ For issues with `[Task: #N]` or `Phase N:` patterns that reference a parent plan
 
 **Only proceed to parent closure after ALL sub-issues are verified.**
 
+### Step 8.5: Submodule Issue Closure Routing
+
+**Routes issue closure API calls to the correct repository when affected files live under a submodule path.**
+
+#### Requirements
+
+1. Accept `submodule_paths` routing context (from `cleanup.md` Step 0 — list of `{path, owner, repo, platform}` mappings) for per-submodule API routing
+2. Accept `verify_merge_output` structured context (from `verify-merge.md` Step 1) containing `merged_pr_number`, `merged_in_repo`, and `pr_files` for cross-referencing
+3. For each closure candidate whose affected files (from PR file diff) are under a submodule path, route the closure API call to the submodule's `owner/repo` instead of the parent repo
+4. Use `submodule_paths` context OR session-init sub-folder repo mappings (`github_issue_read` with resolved `owner`/`repo`) — never hardcode owner/repo values
+5. Include evidence artifacts table tracking each routed closure call
+6. Be platform-agnostic (works for both GitHub and GitBucket)
+
+#### Procedure
+
+```python
+# Context inputs:
+#   verify_merge_output — from verify-merge.md Step 1 (contains pr_number, merged_in_repo, pr_files, submodule_context)
+#   submodule_paths — from cleanup.md Step 0 (list of {path, owner, repo, platform})
+
+def resolve_submodule_owner_repo(issue_num, pr_files, submodule_paths):
+    """Find matching submodule for a closure candidate based on PR file paths."""
+    for file_path in pr_files:
+        for sub in submodule_paths:
+            if file_path.startswith(sub["path"]):
+                return {"owner": sub["owner"], "repo": sub["repo"], "platform": sub["platform"]}
+    return None
+
+parent_pr_number = verify_merge_output.get("pr_number")
+pr_files = verify_merge_output.get("pr_files", [])
+
+for issue_num, classification in closure_candidates.items():
+    sub_info = resolve_submodule_owner_repo(issue_num, pr_files, submodule_paths)
+    
+    if sub_info:
+        # Route closure to submodule's owner/repo
+        if sub_info["platform"] == "github":
+            github_issue_write(
+                method="update",
+                owner=sub_info["owner"],
+                repo=sub_info["repo"],
+                issue_number=issue_num,
+                state="closed",
+                state_reason="completed"
+            )
+            github_add_issue_comment(
+                owner=sub_info["owner"],
+                repo=sub_info["repo"],
+                issue_number=issue_num,
+                body=f"Closed via parent PR #{parent_pr_number}."
+            )
+        elif sub_info["platform"] == "gitbucket":
+            gitbucket_api_post(endpoint=f"/issues/{issue_num}", payload={
+                "state": "closed"
+            })
+    else:
+        # Standard parent-repo closure (existing logic applies)
+        close_in_parent_repo(issue_num, classification)
+```
+
+**Evidence artifacts table:**
+
+| Issue | Submodule Path | Routed Owner/Repo | Closure Posted? | Comment Posted? |
+|-------|---------------|-------------------|-----------------|-----------------|
+| `#N` | `.opencode/` | `michael-conrad/.opencode` | ✅ | ✅ |
+| `#M` | (none — parent) | `michael-conrad/opencode-config` | ✅ | ✅ |
+
+#### Fallback: Session-Init Repo Mappings
+
+If `submodule_paths` is not provided, resolve sub-folder repo mappings from session-init context:
+- `github_issue_read(method="get", issue_number=N)` with resolved `owner`/`repo` per submodule
+- `.gitmodules` entries parsed for `path → owner/repo` mapping
+- Reject any hardcoded owner/repo values — always use live resolution
+
 ## Context Required
 
 - Related tasks: `cleanup/verify-merge`, `cleanup/branch-cleanup`

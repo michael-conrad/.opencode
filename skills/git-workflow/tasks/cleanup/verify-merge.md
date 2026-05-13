@@ -37,6 +37,23 @@ if pr.get("merged_at") is None:
 - EVIDENCE: `merged_by` = pr.get("merged_by") — Should be populated
 - EVIDENCE: `state` = pr.get("state") — "closed" for merged PRs
 
+**Structured output context (MANDATORY):** After verification, produce a structured output that the orchestration layer passes to `issue-closure`:
+
+```yaml
+verify_merge_output:
+  pr_number: <N>
+  merged_at: "<timestamp>"
+  merged_by: "<username>"
+  merged_in_repo: "<owner>/<repo>"  # Parent or submodule repo
+  submodule_context:
+    is_submodule_pr: <true|false>
+    submodule_owner: "<owner>"  # Populated if is_submodule_pr
+    submodule_repo: "<repo>"    # Populated if is_submodule_pr
+  pr_files: ["<path1>", "<path2>", ...]  # Used by issue-closure for submodule routing
+```
+
+The `merged_in_repo` and `submodule_context` fields are REQUIRED inputs to `issue-closure` Step 8.5 for correct submodule routing. If these are missing, issue-closure MUST flag as VERIFICATION-GAP and HALT.
+
 ### Step 2: Adversarial-Audit Closure Verification
 
 Invoke `adversarial-audit --task closure-verification` to verify merge evidence:

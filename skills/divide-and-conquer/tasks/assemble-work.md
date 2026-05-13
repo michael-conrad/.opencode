@@ -27,14 +27,21 @@ Orchestrate work execution by dispatching sub-agents for each approved issue, us
 **🚫 CRITICAL PREREQUISITE: Before determining execution order, verify the Gate Evidence Audit Table exists in the work state file (`tmp/work-*.md`).**
 
 - Read the work state file from `pre-implementation-analysis` (`tmp/work-*.md`)
+
 - **If the Gate Evidence Audit Table is missing** AND any issues were classified as "already-implemented" during screening: HALT and return to `pre-implementation-analysis` Step 0.5 to complete the audit. The table is a mandatory structural artifact — its absence means Gate 1 and Gate 2 evidence was not verified.
+
 - **If the Gate Evidence Audit Table exists** AND has ❌ entries for any issue: those issues were already downgraded during pre-implementation-analysis. Verify the downgraded classifications are reflected in the execution plan. If not, return to `pre-implementation-analysis`.
+
 - **If NO issues were classified as "already-implemented":** The Gate Evidence Audit Table is not required. Proceed normally.
 
 - For multi-issue: use dependency order from `pre-implementation-analysis`
+
 - For single issue: treat as work-of-1 — no special casing, no shortcuts
+
 - Determine complexity level for each issue (simple/moderate/complex)
+
 - **Read scope fields from work state file:** `authorization_scope`, `halt_at`, `pr_strategy`
+
 - **If `halt_at` is reached before all issues complete:** HALT at scope boundary, report what was completed
 
 **Work-of-1.** There is no separate code path. The `assemble-work` task handles single-issue dispatch as the default. This eliminates forked execution paths.
@@ -78,49 +85,52 @@ For each issue in execution order:
 
    2. **Build dispatch context** with AI-composed intent-and-context metadata and phase progress:
 
-     Sub-issues contain phase context in their body (enriched during creation via `create-sub-issue`). When composing dispatch context, reference the sub-issue body for phase-specific context rather than re-reading the Plan body. The sub-issue body should already include: why the phase exists, what it must accomplish, how to verify completion, edge cases, and dependencies. If the sub-issue body is insufficient (only contains `**Parent Plan:** #M`), fall back to reading the Plan body for the relevant phase section.
+   Sub-issues contain phase context in their body (enriched during creation via `create-sub-issue`). When composing dispatch context, reference the sub-issue body for phase-specific context rather than re-reading the Plan body. The sub-issue body should already include: why the phase exists, what it must accomplish, how to verify completion, edge cases, and dependencies. If the sub-issue body is insufficient (only contains `**Parent Plan:** #M`), fall back to reading the Plan body for the relevant phase section.
 
-     **Phase progress composition:** Before each sub-agent dispatch, compose the `phase_progress` section from:
-     - The Plan STATUS marker (which phases are marked complete) — read from the plan issue body or sub-issue STATUS markers
-     - Prior sub-agent results — the `completed_phases`, `concern_boundaries_crossed`, and `verification_evidence` fields returned by preceding sub-agents
-     - The orchestrator's own judgment about concern boundaries — when a new sub-agent's work crosses into a different architectural concern (e.g., from data layer to UI layer, from orchestration to enforcement), name the transition in `concern_boundaries_crossed`
+   **Phase progress composition:** Before each sub-agent dispatch, compose the `phase_progress` section from:
 
-     Phase progress is prose-driven: state what information must travel, trust the orchestrator to decide how to encode it. Completed phases should be named by the concern they address (e.g., "dispatch context schema" rather than "Phase 1"), concern boundaries should describe the architectural transition point, and verification evidence should summarize what was confirmed.
+   - The Plan STATUS marker (which phases are marked complete) — read from the plan issue body or sub-issue STATUS markers
+   - Prior sub-agent results — the `completed_phases`, `concern_boundaries_crossed`, and `verification_evidence` fields returned by preceding sub-agents
+   - The orchestrator's own judgment about concern boundaries — when a new sub-agent's work crosses into a different architectural concern (e.g., from data layer to UI layer, from orchestration to enforcement), name the transition in `concern_boundaries_crossed`
 
-      ```yaml
-       work_set:
-         authorized_issues: [#A, #B, #C]
-         completed_issues: [<completed>]
-      issue: #<current>
-      sub_issue_body: "<phase prose from sub-issue body, not just parent reference>"
-       spec: "<full spec body from GitHub Issue>"
-       authorization_scope: <scope_value>
-       halt_at: <pipeline_stage>
-       pr_strategy: stacked | individual | none
-       pipeline_phase: <current_phase_name>
-       authorization_source: "User approved #N on YYYY-MM-DD"
-       prior_context: "<AI-composed intent and context from prior issues>"
-       decision_log_reference: "<URL or reference to the Decision Log on the Plan issue — the sub-agent can retrieve full decision history from this reference>"
-       phase_progress:
-        completed_phases: "<prose listing of completed phases by concern name, accumulated from prior sub-agent results and Plan STATUS>"
-        concern_boundaries_crossed: "<prose description of architectural concern transitions between the prior sub-agent's work and this sub-agent's work>"
-        verification_evidence: "<prose summary of what was verified in prior phases and the outcomes>"
-      dependency_branches: ["spec/<prior-branch>"]
-      env_vars:
-          worktree.path: ".worktrees/spec-<name>"
-          branch: "spec/<name>"
-         github.owner: "<from-session>"
-         github.repo: "<from-session>"
-         dev.name: "<from-session>"
-         dev.email: "<from-session>"
-       test_models:
-         local: "<resolved-local-model>"
-         cloud: "<resolved-cloud-fallback>"
-       ```
+   Phase progress is prose-driven: state what information must travel, trust the orchestrator to decide how to encode it. Completed phases should be named by the concern they address (e.g., "dispatch context schema" rather than "Phase 1"), concern boundaries should describe the architectural transition point, and verification evidence should summarize what was confirmed.
 
-3. **Spawn sub-agent** via `task(subagent_type="general", prompt=...)`
+   ````yaml
+    work_set:
+      authorized_issues: [#A, #B, #C]
+      completed_issues: [<completed>]
+   issue: #<current>
+   sub_issue_body: "<phase prose from sub-issue body, not just parent reference>"
+    spec: "<full spec body from GitHub Issue>"
+    authorization_scope: <scope_value>
+    halt_at: <pipeline_stage>
+    pr_strategy: stacked | individual | none
+    pipeline_phase: <current_phase_name>
+    authorization_source: "User approved #N on YYYY-MM-DD"
+    prior_context: "<AI-composed intent and context from prior issues>"
+    decision_log_reference: "<URL or reference to the Decision Log on the Plan issue — the sub-agent can retrieve full decision history from this reference>"
+    phase_progress:
+     completed_phases: "<prose listing of completed phases by concern name, accumulated from prior sub-agent results and Plan STATUS>"
+     concern_boundaries_crossed: "<prose description of architectural concern transitions between the prior sub-agent's work and this sub-agent's work>"
+     verification_evidence: "<prose summary of what was verified in prior phases and the outcomes>"
+   dependency_branches: ["spec/<prior-branch>"]
+   env_vars:
+       worktree.path: ".worktrees/spec-<name>"
+       branch: "spec/<name>"
+      github.owner: "<from-session>"
+      github.repo: "<from-session>"
+      dev.name: "<from-session>"
+      dev.email: "<from-session>"
+    test_models:
+      local: "<resolved-local-model>"
+      cloud: "<resolved-cloud-fallback>"
+    ```
 
-4. **Sub-agent responsibilities:**
+   ````
+
+2. **Spawn sub-agent** via `task(subagent_type="general", prompt=...)`
+
+3. **Sub-agent responsibilities:**
 
    - Load spec + session context + prior context
    - Run `divide-and-conquer` skill for the specific issue
@@ -129,55 +139,58 @@ For each issue in execution order:
    - Run `finishing-a-development-branch --task checklist`
    - Return structured result: `{status, files_changed, summary}`
 
- 5. **Collect result** from sub-agent
+4. **Collect result** from sub-agent
 
-  6. **Sub-Agent Completion Checkpoint** — after collecting each result, perform the completion checkpoint per `dispatch` task Step 4:
+5. **Sub-Agent Completion Checkpoint** — after collecting each result, perform the completion checkpoint per `dispatch` task Step 4:
 
-     - If sub-agent returned a structured result: check `status` field and handle accordingly
-     - If sub-agent returned **NO result** (timeout, crash, empty): this is **ABNORMAL TERMINATION**
-       - Run `git status` in the worktree
-       - Clean tree → didn't start → re-dispatch
-       - Uncommitted changes + all deliverables → UNDO + re-dispatch by default; manual commit+push only if narrow exception applies (≤50 lines, single file, fully correct, no remaining dispatches — see SKILL.md Recovery Mode)
-       - Uncommitted changes + partial deliverables → `git checkout .` + re-dispatch reduced scope
-       - Uncommitted changes + wrong changes → `git checkout .` + re-dispatch full scope
-     - Report abnormal termination to chat (see format in SKILL.md "Sub-Agent Completion Checkpoint")
-     - The orchestrator decides recovery action autonomously per "Pushing Agent Intelligence Decisions to the User" (`000-critical-rules.md`)
-     - **Do NOT proceed to the next sub-agent until abnormal termination recovery is complete.** Recovery must fully resolve (re-dispatch succeeded or manual commit+push verified) before advancing.
+   - If sub-agent returned a structured result: check `status` field and handle accordingly
+   - If sub-agent returned **NO result** (timeout, crash, empty): this is **ABNORMAL TERMINATION**
+     - Run `git status` in the worktree
+     - Clean tree → didn't start → re-dispatch
+     - Uncommitted changes + all deliverables → UNDO + re-dispatch by default; manual commit+push only if narrow exception applies (≤50 lines, single file, fully correct, no remaining dispatches — see SKILL.md Recovery Mode)
+     - Uncommitted changes + partial deliverables → `git checkout .` + re-dispatch reduced scope
+     - Uncommitted changes + wrong changes → `git checkout .` + re-dispatch full scope
+   - Report abnormal termination to chat (see format in SKILL.md "Sub-Agent Completion Checkpoint")
+   - The orchestrator decides recovery action autonomously per "Pushing Agent Intelligence Decisions to the User" (`000-critical-rules.md`)
+   - **Do NOT proceed to the next sub-agent until abnormal termination recovery is complete.** Recovery must fully resolve (re-dispatch succeeded or manual commit+push verified) before advancing.
 
- 7. **Compose prior_context and phase_progress** for the next issue based on what was implemented:
+6. **Compose prior_context and phase_progress** for the next issue based on what was implemented:
 
-     prior_context (intent and context):
-     - Design decisions made
-     - Edge cases handled
-     - Assumptions that later issues depend on
-     - Interfaces exposed that later issues should use
-     - NOT a change summary (that's in git) — intent and context only
+   prior_context (intent and context):
 
-     phase_progress (accumulated from sub-agent result + Plan STATUS):
-     - completed_phases: append the just-completed phase concern name to the running list
-     - concern_boundaries_crossed: if the next issue's concern differs from the just-completed issue's concern, note the transition
-     - verification_evidence: append what was verified and the outcome
+   - Design decisions made
+   - Edge cases handled
+   - Assumptions that later issues depend on
+   - Interfaces exposed that later issues should use
+   - NOT a change summary (that's in git) — intent and context only
 
-     Both prior_context and phase_progress are prose-driven. The orchestrator composes them intelligently — no fixed template, no rigid schema.
+   phase_progress (accumulated from sub-agent result + Plan STATUS):
 
- 8. **Append the sub-agent's decision_log_entry to the Decision Log on the Plan issue.** After collecting each sub-agent's result, post their `decision_log_entry` as a dedicated GitHub Issue comment on the Plan issue. The Decision Log persists design decisions across phase boundaries and session restarts.
+   - completed_phases: append the just-completed phase concern name to the running list
+   - concern_boundaries_crossed: if the next issue's concern differs from the just-completed issue's concern, note the transition
+   - verification_evidence: append what was verified and the outcome
 
-   **Decision Log storage:** Use a dedicated GitHub Issue comment on the Plan issue, NOT the Plan body. Rationale:
-   - Append-only — new decisions are added without editing existing content
-   - Lightweight — appending a comment doesn't require re-editing the entire Plan body
-   - Survives session restarts — comments persist on the GitHub Issue independently of any agent session
-   - Doesn't bloat the Plan body — the Plan body stays focused on phase structure and STATUS markers
-   - Sequential — comments are naturally ordered chronologically
+   Both prior_context and phase_progress are prose-driven. The orchestrator composes them intelligently — no fixed template, no rigid schema.
 
-   The orchestrator posts the decision log entry after each sub-agent returns. If posting fails, log the failure and continue — the Decision Log is a durability enhancement, not a blocking gate. The `decision_log_entry` is also returned in the sub-agent result for immediate use by subsequent dispatches within the same session.
+7. **Append the sub-agent's decision_log_entry to the Decision Log on the Plan issue.** After collecting each sub-agent's result, post their `decision_log_entry` as a dedicated GitHub Issue comment on the Plan issue. The Decision Log persists design decisions across phase boundaries and session restarts.
 
- 9. **Mark prior issue's branch as frozen** — no rebasing, amending, or force-pushing
+**Decision Log storage:** Use a dedicated GitHub Issue comment on the Plan issue, NOT the Plan body. Rationale:
 
- 10. **Handle failures:**
+- Append-only — new decisions are added without editing existing content
+- Lightweight — appending a comment doesn't require re-editing the entire Plan body
+- Survives session restarts — comments persist on the GitHub Issue independently of any agent session
+- Doesn't bloat the Plan body — the Plan body stays focused on phase structure and STATUS markers
+- Sequential — comments are naturally ordered chronologically
 
-   - If sub-agent fails: record failure
-   - For independent issues: continue to next issue
-   - For must-precede chains: skip dependent issues, report both
+The orchestrator posts the decision log entry after each sub-agent returns. If posting fails, log the failure and continue — the Decision Log is a durability enhancement, not a blocking gate. The `decision_log_entry` is also returned in the sub-agent result for immediate use by subsequent dispatches within the same session.
+
+09. **Mark prior issue's branch as frozen** — no rebasing, amending, or force-pushing
+
+10. **Handle failures:**
+
+- If sub-agent fails: record failure
+- For independent issues: continue to next issue
+- For must-precede chains: skip dependent issues, report both
 
 ### Step 4: Work Assembly
 
@@ -260,7 +273,9 @@ Compare URL: <<Character-match verified URL from session-init values per URL Sou
 **If a PR has been created for this work set, use "PR URL" label with the `html_url` from `github_create_pull_request` API response:**
 
 ```
-PR URL: <html_url from github_create_pull_request API response>
+
+PR URL: \<html_url from github_create_pull_request API response>
+
 ```
 
 **NEVER use the wrong label for the wrong URL format.** Label-format mismatch (e.g., "Compare URL" with `pull/N` URL, or "PR URL" with `compare/dev...` URL) is a critical violation.
@@ -272,12 +287,12 @@ PR URL: <html_url from github_create_pull_request API response>
 
 Before sending the chat report, verify ALL elements are present and correctly ordered:
 
-- [ ] Executive summary present as **first** element (before any URL)
-- [ ] Outcome line present after summary
-- [ ] URL present IF relevant (after outcome, before byline) — required when branches pushed (compare URL), **omitted** when no branches pushed; **after PR creation**: compare URL becomes PR URL, label changes from "Compare URL" to "PR URL"; label and URL format MUST match context — mismatch is a critical violation
-- [ ] AI byline present as **LAST** element (after URL, or after outcome when no URL)
-- [ ] No URL before executive summary
-- [ ] No byline before URL/outcome
+- \[ \] Executive summary present as **first** element (before any URL)
+- \[ \] Outcome line present after summary
+- \[ \] URL present IF relevant (after outcome, before byline) — required when branches pushed (compare URL), **omitted** when no branches pushed; **after PR creation**: compare URL becomes PR URL, label changes from "Compare URL" to "PR URL"; label and URL format MUST match context — mismatch is a critical violation
+- \[ \] AI byline present as **LAST** element (after URL, or after outcome when no URL)
+- \[ \] No URL before executive summary
+- \[ \] No byline before URL/outcome
 
 **Evidence requirement:** Each checkpoint verification MUST produce a tool-call artifact (e.g., verification of composed message content) confirming the element is present or correctly absent. Verbal assertion without tool-call evidence is insufficient.
 
@@ -404,7 +419,7 @@ assemble-work:
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|
 | `work_set`, `issue`, `sub_issue_body`, `spec`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `authorization_source`, `prior_context`, `phase_progress`, `dependency_branches`, `github.owner`, `github.repo`, `dev.name`, `dev.email`, `worktree.path`, `branch` | Orchestrator implementation context, agent memory, cached verification results, tool recipes | N/A — sub-agents receive the full dispatch context with spec and prior_context | NO |
-| Cleanup sub-agent — `skill({name: "git-workflow", args: "--task cleanup"})` | Only `branch_name`, `worktree.path`, `github.owner`, `github.repo` | Orchestrator reasoning, expected outcomes, cached results, tool recipes | NO |
+| Cleanup sub-agent — `skill({name: "git-workflow", args: "--task cleanup"})` | `branch_name`, `worktree.path`, `github.owner`, `github.repo`, `submodule_paths` (submodule owner/repo routing context) | Orchestrator reasoning, expected outcomes, cached results, tool recipes | NO |
 
 Co-authored with AI: <AgentName> (<ModelId>)
 
@@ -423,6 +438,7 @@ Co-authored with AI: <AgentName> (<ModelId>)
 **Evidence artifacts:** See enforcement/work-state-verification.md §Evidence Artifacts
 
 ## Enforcement References
+
 - Completion checkpoint protocol: see `enforcement/completion-checkpoint.md`
 - Result validation and finding classification: see `enforcement/result-validation.md`
 - Work state verification: see `enforcement/work-state-verification.md`
