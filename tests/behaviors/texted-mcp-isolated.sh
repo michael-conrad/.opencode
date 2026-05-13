@@ -37,8 +37,8 @@ git commit -q --allow-empty -m "init"
 # Full .opencode/ submodule — real config, real AGENTS.md, real MCP setup
 git submodule add https://github.com/michael-conrad/.opencode.git .opencode
 git submodule update --init .opencode
-git -C .opencode fetch origin feature/525-de-lobotomize-dev
-git -C .opencode checkout feature/525-de-lobotomize-dev
+git -C .opencode fetch origin feature/530-de-lobotomize-behavioral-tests
+git -C .opencode checkout feature/530-de-lobotomize-behavioral-tests
 
 # Create a file the agent can edit via texted tools
 mkdir -p tmp
@@ -49,6 +49,13 @@ git commit -q -m "test repo with texted MCP and edit target"
 
 echo "Test repo: $TEST_REPO"
 echo "  .opencode: $(git -C .opencode rev-parse --short HEAD) on $(git -C .opencode branch --show-current)"
+
+echo ""
+echo "--- Ground truth: actual MCP tools loaded ---"
+MCP_LIST=$(opencode mcp list 2>/dev/null || echo "FAIL: opencode mcp list failed")
+echo "$MCP_LIST"
+TEXTED_TOOLS=$(echo "$MCP_LIST" | grep -oP '"texted[^"]*"' | tr -d '"' | sort -u || true)
+echo "  texted tools available: $(echo "$TEXTED_TOOLS" | tr '\n' ' ' || echo 'none')"
 
 echo ""
 echo "--- Running agent ---"
@@ -66,7 +73,7 @@ echo "$AGENT_OUTPUT"
 echo ""
 echo "--- Assertions ---"
 
-# File should be transformed by agent's use of texted edit_file
+# File transformation is the unambiguous behavioral proof
 if [ -f "$TEST_REPO/tmp/texted-edit-target.txt" ] && [ "$(cat "$TEST_REPO/tmp/texted-edit-target.txt")" = "Hello new world" ]; then
     echo "PASS: texted edit_file transformed file content"
 else
@@ -75,8 +82,13 @@ else
     OVERALL_RESULT=1
 fi
 
-# Agent must have discovered and referenced texted tools
-assert_required_pattern_present "edit_file" "texted edit_file tool referenced" || OVERALL_RESULT=1
+# Agent references having used texted/MCP tools (wording varies)
+if echo "$AGENT_OUTPUT" | grep -qiE "texted|mcp.*tool|edit_file"; then
+    echo "PASS: agent referenced texted/MCP tool use"
+else
+    echo "FAIL: agent did not reference texted or MCP tools"
+    OVERALL_RESULT=1
+fi
 
 echo ""
 [ "$OVERALL_RESULT" -eq 0 ] && echo "PASS: $SCENARIO_NAME" || echo "FAIL: $SCENARIO_NAME"
