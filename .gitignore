@@ -5,6 +5,8 @@ bun.lock
 tmp/*
 .tools/
 .node/
+.uv/
+.jdk/
 .opencode/
 .worktrees/
 __pycache__/
