@@ -36,8 +36,8 @@ git config user.name "Test"
 # Clone .opencode submodule — full real environment
 git submodule add https://github.com/michael-conrad/.opencode.git .opencode
 git submodule update --init .opencode
-git -C .opencode fetch origin feature/525-de-lobotomize-dev
-git -C .opencode checkout feature/525-de-lobotomize-dev
+git -C .opencode fetch origin feature/530-de-lobotomize-behavioral-tests
+git -C .opencode checkout feature/530-de-lobotomize-behavioral-tests
 
 mkdir -p src
 cat > src/hello.ts << 'TS'
