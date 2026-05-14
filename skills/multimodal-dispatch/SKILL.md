@@ -27,7 +27,15 @@ Modality Router. Focus: probe models, resolve modality hints, dispatch sub-agent
 
 ## Invocation
 
-`/skill multimodal-dispatch --task probe` (capability snapshot), `--task dispatch` (route task to best model), `--task completion`. Overview with no flag.
+`skill({name: "multimodal-dispatch"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `probe` | `task(..., prompt: "execute probe task from multimodal-dispatch")` |
+| `dispatch` | `task(..., prompt: "execute dispatch task from multimodal-dispatch")` |
+| `completion` | `task(..., prompt: "execute completion task from multimodal-dispatch")` |
+
+**CLI equivalent (for human TUI use):** `/skill multimodal-dispatch --task <task>`
 
 ## Capability Snapshot
 

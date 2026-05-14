@@ -94,3 +94,9 @@ URL is ALWAYS last per `000-critical-rules.md`.
 | Label missing | MISSING-ELEMENT | auto-fix | Add label immediately |
 | Sub-issues missing (multi-task) | MISSING-ELEMENT | conditional | Create sub-issues if multi-task spec |
 | Auditor not invoked | VERIFICATION-GAP | conditional | Invoke spec-auditor |
+
+## Pipeline Signal
+
+```
+HALT
+```

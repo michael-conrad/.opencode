@@ -56,7 +56,18 @@ Authorization Gatekeeper. Focus: verify authorization, resolve scope, enforce tw
 
 ## Invocation
 
-`/skill approval-gate --task <task>`. Key invocations: `verify-authorization` (check auth), `screen-issue` (per-issue screening), `pre-implementation-analysis` (cross-issue merge), `verify-closed-issue` (verify closure), `post-implementation` (push+compare URL), `completion` (halt guarantee). Overview with no flag.
+`skill({name: "approval-gate"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `verify-authorization` | `task(..., prompt: "execute verify-authorization task from approval-gate")` |
+| `screen-issue` | `task(..., prompt: "execute screen-issue task from approval-gate")` |
+| `pre-implementation-analysis` | `task(..., prompt: "execute pre-implementation-analysis task from approval-gate")` |
+| `verify-closed-issue` | `task(..., prompt: "execute verify-closed-issue task from approval-gate")` |
+| `post-implementation` | `task(..., prompt: "execute post-implementation task from approval-gate")` |
+| `completion` | `task(..., prompt: "execute completion task from approval-gate")` |
+
+**CLI equivalent (for human TUI use):** `/skill approval-gate --task <task>`
 
 ## Operating Protocol
 

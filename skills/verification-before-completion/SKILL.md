@@ -28,7 +28,16 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 
 ## Invocation
 
-`/skill verification-before-completion --task verify` (verify all SCs), `--task structural-verify` (structural completeness), `--task collect` (gather missing evidence), `--task completion` (halt guarantee). Overview with no flag.
+`skill({name: "verification-before-completion"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `verify` | `task(..., prompt: "execute verify task from verification-before-completion")` |
+| `structural-verify` | `task(..., prompt: "execute structural-verify task from verification-before-completion")` |
+| `collect` | `task(..., prompt: "execute collect task from verification-before-completion")` |
+| `completion` | `task(..., prompt: "execute completion task from verification-before-completion")` |
+
+**CLI equivalent (for human TUI use):** `/skill verification-before-completion --task <task>`
 
 ## Operating Protocol
 

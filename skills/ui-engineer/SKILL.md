@@ -28,7 +28,16 @@ UI Implementation Engineer. Focus: component mapping, accessibility implementati
 
 ## Invocation
 
-`/skill ui-engineer --task implement` (full implementation), `--task validate-impl` (design compliance), `--task test-ui` (test specs), `--task completion`. Overview with no flag.
+`skill({name: "ui-engineer"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `implement` | `task(..., prompt: "execute implement task from ui-engineer")` |
+| `validate-impl` | `task(..., prompt: "execute validate-impl task from ui-engineer")` |
+| `test-ui` | `task(..., prompt: "execute test-ui task from ui-engineer")` |
+| `completion` | `task(..., prompt: "execute completion task from ui-engineer")` |
+
+**CLI equivalent (for human TUI use):** `/skill ui-engineer --task <task>`
 
 ## Sub-Agent Dispatch Audit
 

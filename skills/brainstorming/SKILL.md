@@ -29,7 +29,17 @@ Requirements Explorer. Focus: understand what user wants through natural convers
 
 ## Invocation
 
-`/skill brainstorming --task explore` (conversational exploration), `--task top-down-analysis` (decomposition output), `--task enforcement` (protocol compliance), `--task cross-scope` (overlap check), `--task completion` (halt guarantee). Overview with no flag.
+`skill({name: "brainstorming"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `explore` | `task(..., prompt: "execute explore task from brainstorming")` |
+| `top-down-analysis` | `task(..., prompt: "execute top-down-analysis task from brainstorming")` |
+| `enforcement` | `task(..., prompt: "execute enforcement task from brainstorming")` |
+| `cross-scope` | `task(..., prompt: "execute cross-scope task from brainstorming")` |
+| `completion` | `task(..., prompt: "execute completion task from brainstorming")` |
+
+**CLI equivalent (for human TUI use):** `/skill brainstorming --task <task>`
 
 ## Operating Protocol
 

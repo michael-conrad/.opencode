@@ -34,7 +34,19 @@ Issue Operations Dispatcher. Focus: spec-first workflow, validation, labeling, p
 
 ## Invocation
 
-`/skill issue-operations --task pre-creation` (validate before create), `--task creation` (create with labels/byline), `--task comment` (post substantive comment), `--task close` (post-merge closure), `--task link-sub-issue` (sub-issue hierarchy), `--task verify-merge` (verify PR merge), `--task completion` (halt guarantee). Overview with no flag.
+`skill({name: "issue-operations"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `pre-creation` | `task(..., prompt: "execute pre-creation task from issue-operations")` |
+| `creation` | `task(..., prompt: "execute creation task from issue-operations")` |
+| `comment` | `task(..., prompt: "execute comment task from issue-operations")` |
+| `close` | `task(..., prompt: "execute close task from issue-operations")` |
+| `link-sub-issue` | `task(..., prompt: "execute link-sub-issue task from issue-operations")` |
+| `verify-merge` | `task(..., prompt: "execute verify-merge task from issue-operations")` |
+| `completion` | `task(..., prompt: "execute completion task from issue-operations")` |
+
+**CLI equivalent (for human TUI use):** `/skill issue-operations --task <task>`
 
 ## Operating Protocol
 

@@ -23,7 +23,15 @@ Responds to PR review feedback. Ensures all comments addressed systematically, c
 
 ## Invocation
 
-`/skill receiving-code-review --task address` (address comments), `--task respond` (reply), `--task completion`. Overview with no flag.
+`skill({name: "receiving-code-review"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `address` | `task(..., prompt: "execute address task from receiving-code-review")` |
+| `respond` | `task(..., prompt: "execute respond task from receiving-code-review")` |
+| `completion` | `task(..., prompt: "execute completion task from receiving-code-review")` |
+
+**CLI equivalent (for human TUI use):** `/skill receiving-code-review --task <task>`
 
 ## Sub-Agent Dispatch Audit
 

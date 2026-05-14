@@ -59,4 +59,10 @@ ESCALATION: <claim_id> — <evidence that contradicts the claim>
 - Invoked by: end of verification workflow
 - Related tasks: `verify`, `verify-single`
 
+## Pipeline Signal
+
+```
+HALT
+```
+
 Co-authored with AI: <AgentName> (<ModelId>)

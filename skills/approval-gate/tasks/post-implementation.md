@@ -152,3 +152,10 @@ PR URL: <html_url from github_create_pull_request API response>
 
 - Evidence format + finding classification: see `enforcement/adversarial-verification.md`
 - Scope parsing: see `enforcement/scope-parsing.md`
+
+## Pipeline Signal
+
+```
+CONTINUE: git-workflow --task review-prep
+HALT
+```

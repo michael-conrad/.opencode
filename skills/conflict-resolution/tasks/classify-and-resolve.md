@@ -6,7 +6,7 @@ Detect, classify, and resolve git conflicts according to a tiered system that pr
 
 ## Operating Protocol
 
-1. Invoked by: `/skill conflict-resolution --task classify-and-resolve`
+1. Invoked by: `skill({name: "conflict-resolution"})` → `task()` for `classify-and-resolve`
 2. When to use: When a git rebase/merge/cherry-pick operation produces conflicts
 3. Exit criteria: All conflicts classified and resolved, post-resolution verification passes
 

@@ -46,3 +46,11 @@ Generate executive summary in chat:
 ```
 
 URL is ALWAYS last per `000-critical-rules.md`.
+
+🤖 <AgentName> (<ModelId>) <status>
+
+## Pipeline Signal
+
+```
+HALT
+```

@@ -18,4 +18,10 @@ pre_analysis_complete: true
 marker_present: true
 ```
 
+## Pipeline Signal
+
+```
+HALT
+```
+
 Co-authored with AI: <AgentName> (<ModelId>)

@@ -6,7 +6,7 @@ Push core guideline/skill changes from source repository to target repository vi
 
 ## Operating Protocol
 
-1. Invoked by: `/skill sync-guidelines --task sync-push`
+1. Invoked by: `skill({name: "sync-guidelines"})` → `task()` for `sync-push`
 2. When to use: When syncing changes FROM source repo TO target repo
 3. Exit criteria: Sync issue created in target repo with classified files
 

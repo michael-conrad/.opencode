@@ -30,7 +30,18 @@ Issue Review Orchestrator. Focus: gather context, classify path, delegate to cor
 
 ## Invocation
 
-`/skill issue-review --task gather` (collect data), `--task triage` (classify), `--task analyze-and-spec` (root cause + fix spec), `--task audit` (delegate to `adversarial-audit --task spec-audit`), `--task qa` (clarifying questions), `--task completion` (halt guarantee). Overview with no flag.
+`skill({name: "issue-review"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `gather` | `task(..., prompt: "execute gather task from issue-review")` |
+| `triage` | `task(..., prompt: "execute triage task from issue-review")` |
+| `analyze-and-spec` | `task(..., prompt: "execute analyze-and-spec task from issue-review")` |
+| `audit` | `task(..., prompt: "execute audit task from issue-review")` |
+| `qa` | `task(..., prompt: "execute qa task from issue-review")` |
+| `completion` | `task(..., prompt: "execute completion task from issue-review")` |
+
+**CLI equivalent (for human TUI use):** `/skill issue-review --task <task>`
 
 ## Operating Protocol
 

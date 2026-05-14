@@ -30,7 +30,16 @@ Verification Gatekeeper. Not the content author — the evidence collector runni
 
 ## Invocation
 
-`/skill verification-enforcement --task verify` (pre-generation), `--task revisit` (post-generation), `--task enforce` (orchestrator evidence gate), `--task completion` (halt guarantee). Overview with no flag.
+`skill({name: "verification-enforcement"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `verify` | `task(..., prompt: "execute verify task from verification-enforcement")` |
+| `revisit` | `task(..., prompt: "execute revisit task from verification-enforcement")` |
+| `enforce` | `task(..., prompt: "execute enforce task from verification-enforcement")` |
+| `completion` | `task(..., prompt: "execute completion task from verification-enforcement")` |
+
+**CLI equivalent (for human TUI use):** `/skill verification-enforcement --task <task>`
 
 ## Operating Protocol
 

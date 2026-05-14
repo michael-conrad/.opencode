@@ -6,7 +6,7 @@ Prepare a feature branch for PR creation by ensuring all changes are committed, 
 
 ## Operating Protocol
 
-1. Invoked by: `/skill finishing-a-development-branch --task prepare`
+1. Invoked by: `skill({name: "finishing-a-development-branch"})` → `task()` for `prepare`
 2. When to use: When implementation is complete and branch needs final preparation
 3. Exit criteria: Working tree clean, all quality checks pass, branch pushed, compare URL generated
 

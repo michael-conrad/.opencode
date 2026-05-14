@@ -29,7 +29,17 @@ UI Design Specialist. Focus: information architecture, component relationships, 
 
 ## Invocation
 
-`/skill ui-design --task design` (full design), `--task wireframe`, `--task mockup`, `--task interaction-spec`, `--task completion`. Overview with no flag.
+`skill({name: "ui-design"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `design` | `task(..., prompt: "execute design task from ui-design")` |
+| `wireframe` | `task(..., prompt: "execute wireframe task from ui-design")` |
+| `mockup` | `task(..., prompt: "execute mockup task from ui-design")` |
+| `interaction-spec` | `task(..., prompt: "execute interaction-spec task from ui-design")` |
+| `completion` | `task(..., prompt: "execute completion task from ui-design")` |
+
+**CLI equivalent (for human TUI use):** `/skill ui-design --task <task>`
 
 ## Sub-Agent Dispatch Audit
 

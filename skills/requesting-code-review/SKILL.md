@@ -22,7 +22,14 @@ Prepares and requests code reviews. Ensures PR descriptions have proper context,
 
 ## Invocation
 
-`/skill requesting-code-review --task prepare` (prepare PR context), `--task request` (submit review). Overview with no flag.
+`skill({name: "requesting-code-review"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `prepare` | `task(..., prompt: "execute prepare task from requesting-code-review")` |
+| `request` | `task(..., prompt: "execute request task from requesting-code-review")` |
+
+**CLI equivalent (for human TUI use):** `/skill requesting-code-review --task <task>`
 
 ## Sub-Agent Dispatch Audit
 

@@ -30,7 +30,14 @@ Claim Verifier. Focus: verify each claim against evidence, produce PASS/FAIL/UNV
 
 ## Invocation
 
-`/skill verification --task verify` (verify claims), `--task completion`. Overview with no flag.
+`skill({name: "verification"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `verify` | `task(..., prompt: "execute verify task from verification")` |
+| `completion` | `task(..., prompt: "execute completion task from verification")` |
+
+**CLI equivalent (for human TUI use):** `/skill verification --task <task>`
 
 ## Sub-Agent Dispatch Audit
 

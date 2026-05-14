@@ -58,6 +58,13 @@ Generate executive summary in chat:
 🤖 <AgentName> (<ModelId>) <status>
 ```
 
+## Pipeline Signal
+
+```
+CONTINUE: approval-gate --task verify-authorization
+HALT
+```
+
 ### Format Verification Before Halt (MANDATORY)
 
 **Idempotent — safe to invoke multiple times. This verification runs before EVERY halt, regardless of path.**

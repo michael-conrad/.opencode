@@ -6,7 +6,7 @@ Address all review comments on a PR systematically, making only requested change
 
 ## Operating Protocol
 
-1. Invoked by: `/skill receiving-code-review --task address`
+1. Invoked by: `skill({name: "receiving-code-review"})` → `task()` for `address`
 2. When to use: When PR has received review feedback that needs to be addressed
 3. Exit criteria: All reviewer comments addressed, replies posted, tests pass, branch pushed
 

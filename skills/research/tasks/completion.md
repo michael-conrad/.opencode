@@ -47,4 +47,11 @@ Follow the completion-core reference for:
 - Invoked by: end of research workflow
 - Related tasks: `research`, `research-multi`
 
+## Pipeline Signal
+
+```
+CONTINUE: spec-creation
+HALT
+```
+
 Co-authored with AI: <AgentName> (<ModelId>)

@@ -47,7 +47,23 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 
 ## Invocation
 
-`/skill git-workflow --task pre-work` (before impl), `--task implementation` (during impl), `--task review-prep` (after impl), `--task pr-creation` (create PR), `--task rebase-pending` (post-merge rebase), `--task cleanup` (post-merge), `--task release-promotion` (dev→main), `--task check-pr` (check prs trigger), `--task provenance` (submodule tracking), `--task dependency-sync` (submodule update lifecycle), `--task pair-*` (pair mode), `--task completion` (halt guarantee). Overview with no flag.
+`skill({name: "git-workflow"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `pre-work` | `task(..., prompt: "execute pre-work task from git-workflow")` |
+| `implementation` | `task(..., prompt: "execute implementation task from git-workflow")` |
+| `review-prep` | `task(..., prompt: "execute review-prep task from git-workflow")` |
+| `pr-creation` | `task(..., prompt: "execute pr-creation task from git-workflow")` |
+| `rebase-pending` | `task(..., prompt: "execute rebase-pending task from git-workflow")` |
+| `cleanup` | `task(..., prompt: "execute cleanup task from git-workflow")` |
+| `release-promotion` | `task(..., prompt: "execute release-promotion task from git-workflow")` |
+| `check-pr` | `task(..., prompt: "execute check-pr task from git-workflow")` |
+| `provenance` | `task(..., prompt: "execute provenance task from git-workflow")` |
+| `dependency-sync` | `task(..., prompt: "execute dependency-sync task from git-workflow")` |
+| `completion` | `task(..., prompt: "execute completion task from git-workflow")` |
+
+**CLI equivalent (for human TUI use):** `/skill git-workflow --task <task>`
 
 ## Operating Protocol
 

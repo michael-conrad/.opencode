@@ -6,7 +6,7 @@ Prepare a PR for code review by ensuring description, checks, and reviewer conte
 
 ## Operating Protocol
 
-1. Invoked by: `/skill requesting-code-review --task prepare`
+1. Invoked by: `skill({name: "requesting-code-review"})` → `task()` for `prepare`
 2. When to use: When PR is created and ready for review preparation
 3. Exit criteria: PR description verified, all checks passing, reviewers identified
 

@@ -23,7 +23,15 @@ Enforces root cause analysis, hypothesis testing, and minimal fixes. Prevents "v
 
 ## Invocation
 
-`/skill systematic-debugging --task diagnose` (root cause analysis), `--task fix` (minimal fix after diagnosis+auth), `--task completion` (halt guarantee). Overview with no flag.
+`skill({name: "systematic-debugging"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `diagnose` | `task(..., prompt: "execute diagnose task from systematic-debugging")` |
+| `fix` | `task(..., prompt: "execute fix task from systematic-debugging")` |
+| `completion` | `task(..., prompt: "execute completion task from systematic-debugging")` |
+
+**CLI equivalent (for human TUI use):** `/skill systematic-debugging --task <task>`
 
 ## Operating Protocol
 

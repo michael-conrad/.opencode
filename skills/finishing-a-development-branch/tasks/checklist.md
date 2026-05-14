@@ -6,7 +6,7 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 
 ## Operating Protocol
 
-1. Invoked by: `/skill finishing-a-development-branch --task checklist`
+1. Invoked by: `skill({name: "finishing-a-development-branch"})` → `task()` for `checklist`
 2. When to use: After `--task prepare` is complete
 3. Exit criteria: All checklist items pass, compare URL verified, HALT and report readiness
 
@@ -38,12 +38,8 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 - [ ] No FORBIDDEN outcomes ("functionally equivalent", "close enough") used in evidence table
 
 ### Structural & Acceptance Verification
-- [ ] Structural completeness verified (`skildeck verify-structure` output available)
-- [ ] Acceptance criteria verified (`skildeck verify-acceptance` output available)
-
-### Structural & Acceptance Verification
-- [ ] Structural completeness verified (`skildeck verify-structure` output available)
-- [ ] Acceptance criteria verified (`skildeck verify-acceptance` output available)
+- [ ] Structural completeness verified (all checklist items in scope are checked)
+- [ ] Acceptance criteria verified (per-SC evidence table in previous section)
 
 ### Branch
 - [ ] Branch pushed to remote

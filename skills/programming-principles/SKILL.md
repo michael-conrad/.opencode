@@ -23,7 +23,15 @@ compatibility: opencode
 
 ## Invocation
 
-`/skill programming-principles --task principles` (full reference), `--task check-limits` (measure before commit), `--task decompose` (decomposition guidance). Overview with no flag.
+`skill({name: "programming-principles"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `principles` | `task(..., prompt: "execute principles task from programming-principles")` |
+| `check-limits` | `task(..., prompt: "execute check-limits task from programming-principles")` |
+| `decompose` | `task(..., prompt: "execute decompose task from programming-principles")` |
+
+**CLI equivalent (for human TUI use):** `/skill programming-principles --task <task>`
 
 ## Relationship
 

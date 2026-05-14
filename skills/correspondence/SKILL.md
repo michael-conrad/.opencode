@@ -22,7 +22,14 @@ Enforces multipart/alternative format (text/plain + text/html) for email, stakeh
 
 ## Invocation
 
-`/skill correspondence --task draft` (draft email), `--task completion` (halt guarantee). Overview with no flag.
+`skill({name: "correspondence"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `draft` | `task(..., prompt: "execute draft task from correspondence")` |
+| `completion` | `task(..., prompt: "execute completion task from correspondence")` |
+
+**CLI equivalent (for human TUI use):** `/skill correspondence --task <task>`
 
 ## Operating Protocol
 

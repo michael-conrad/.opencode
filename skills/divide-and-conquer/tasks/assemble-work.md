@@ -437,6 +437,13 @@ Co-authored with AI: <AgentName> (<ModelId>)
 
 **Evidence artifacts:** See enforcement/work-state-verification.md §Evidence Artifacts
 
+## Orchestrator CONTINUE/HALT Enforcement
+
+After each pipeline step completes, the orchestrator reads the CONTINUE/HALT signal:
+- If CONTINUE: check if next step is within authorization_scope.halt_at
+- If next step exceeds halt_at → convert to HALT
+- If HALT: stop, do NOT proceed
+
 ## Enforcement References
 
 - Completion checkpoint protocol: see `enforcement/completion-checkpoint.md`

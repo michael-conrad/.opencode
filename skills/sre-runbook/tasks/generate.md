@@ -6,7 +6,7 @@ Generate an operational runbook for a given domain and scenario type. The runboo
 
 ## Operating Protocol
 
-1. Invoked by: `/skill sre-runbook --task generate`
+1. Invoked by: `skill({name: "sre-runbook"})` → `task()` for `generate`
 2. When to use: When an operational runbook is needed for a system, service, or infrastructure domain
 3. Exit criteria: Runbook generated with environment-verified instructions at every step, validated against all enforcement rules
 

@@ -6,7 +6,7 @@ Generate a clean-room implementation plan from a problem statement only, using p
 
 ## Operating Protocol
 
-1. **Invoked by:** `adversarial-audit --task plan-fidelity` (not by users directly)
+1. **Invoked by:** `skill({name: "adversarial-audit"})` → `task()` for `plan-fidelity` (not by users directly)
 2. **Bypasses:** Approval gate (clean-room plans don't need approval — they're comparison artifacts)
 3. **Does NOT reference:** Any existing plan, spec phases, or spec steps
 
@@ -158,7 +158,7 @@ affected_files_count: K
 
 ## Cross-References
 
-- Invoked by: `adversarial-audit --task plan-fidelity`
+- Invoked by: `skill({name: "adversarial-audit"})` → `task()` for `plan-fidelity`
 - Related tasks: `create` (standard plan creation), `validate` (plan validation)
 - Related skills: `adversarial-audit` (orchestrator), `brainstorming` (recommended when gaps found)
 
