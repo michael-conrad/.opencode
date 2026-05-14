@@ -2,7 +2,7 @@
 
 ## Purpose
 
-After pushing a submodule to its remote dev branch, create provenance tracking (issue + optionally PR) in the submodule repository with three-tier fallback model.
+After pushing a submodule to its remote dev branch, create provenance tracking (issue + optionally PR) in the submodule repository with three-tier fallback model. Tag-based provenance (per AGENTS.md §Tag Layers) serves as Tier 3 fallback.
 
 ## Entry Criteria
 
@@ -63,20 +63,21 @@ When Tier 1 failed or `access_level` is `issue-only`:
 **If issue creation fails:**
 - Log failure, downgrade to Tier 3
 
-### Step 8: Tier 3 — Commit Message Provenance
+### Step 8: Tier 3 — Tag-Based Provenance
 
 When Tier 2 failed or no API access:
 
-1. No API calls attempted
-2. Structured commit message already in submodule serves as provenance:
+1. No API calls attempted for issue/PR creation
+2. Tag the pushed submodule SHA with `<parent>/<issue-number>-<sub>` per AGENTS.md §Tag Layers:
+   ```bash
+   PARENT_PREFIX=$(basename $(git -C <parent-repo-root> rev-parse --show-toplevel))
+   cd <submodule-path>
+   git tag -a "${PARENT_PREFIX}/${PARENT_ISSUE}-<sub>" \
+       -m "Sync from ${PARENT_REPO}/${PARENT_BRANCH} #${PARENT_ISSUE}: ${CHANGE_DESCRIPTION}"
+   git push origin "${PARENT_PREFIX}/${PARENT_ISSUE}-<sub>"
+   cd ..
    ```
-   Sync <submodule-path> from <parent-repo>/<parent-branch>
-   
-   Triggered-by: <parent-repo>#<parent-issue>
-   Change: <description>
-   [skip-ci]
-   ```
-3. Record: `{timestamp, ..., tier: 3, issue_number: null, pr_number: null}`
+3. Record: `{timestamp, ..., tier: 3, issue_number: null, pr_number: null, tag_name: "${PARENT_PREFIX}/${PARENT_ISSUE}-<sub>"}`
 
 ### Step 9: Cross-Reference Parent Issue
 

@@ -22,19 +22,37 @@ Enforce mandatory pre-conditions before PR creation. Verify explicit PR instruct
 
 **If `.gitmodules` EXISTS:**
 
-For each submodule entry:
-1. Get committed SHA: `git ls-tree HEAD <path> | awk '{print $3}'`
-2. Get remote dev HEAD SHA: `git ls-remote <url> refs/heads/dev | awk '{print $1}'`
-3. Compare SHA:
-   - Match → pass
-   - Mismatch → **Auto-remediation path:**
-     1. Advance the submodule: `cd <path> && git fetch origin && git checkout origin/dev`
-     2. Read commit log between old and new SHA: `git log --oneline <old_sha>..<new_sha>`
-     3. Commit the bump into the current branch: `git add <path> && git commit -m "chore(submodule): pin <path> to latest dev"`
-     4. Re-check SHA comparison. If pass → PR creation proceeds.
-     5. If still fails (e.g., remote changed again): retry once more from step 1.
-     6. After retry failure → **BLOCK PR creation** with specific failure reason (which submodule, which SHAs).
-4. For `main`-branch PRs: verify SHA is a tagged release
+Dispatch a `submodule-liveness-check` sub-agent. The sub-agent performs a report-only liveness verification — it compares committed SHAs against remote `dev` HEAD SHAs and returns PASS/FAIL per submodule. **NO auto-remediation. NO SHA bumps. NO commits.**
+
+#### Dispatch Context
+
+```yaml
+must_receive:
+  - github.owner
+  - github.repo
+  - github.platform
+  - branch (current working branch)
+must_not_receive:
+  - Any pre-determined SHA values or expected outcomes
+  - Any orchestrator reasoning about which submodules should pass/fail
+  - Any tool recipes, inline commands, or expected line numbers
+```
+
+#### Result Contract Schema
+
+```yaml
+status: DONE | BLOCKED
+submodule_checks:
+  - path: <submodule_path>
+    committed_sha: <sha>
+    remote_dev_sha: <sha>
+    result: PASS | FAIL
+    detail: <optional explanation>
+summary: <text>
+```
+
+**PASS →** Proceed to Step 0.5.
+**FAIL →** BLOCK PR creation. Report which submodules failed, with both SHAs. Do NOT create the PR. Do NOT auto-remediate. The developer must resolve submodule SHA mismatches manually.
 
 **There is NO `--force` override for submodule dependency gates.**
 
