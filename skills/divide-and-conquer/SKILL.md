@@ -39,7 +39,7 @@ Divide and Conquer Orchestrator. Assess context fitness, decompose work, dispatc
 
 ## Invocation
 
-`skill({name: "divide-and-conquer"})` — load the skill, then dispatch a task:
+`skill({name: "divide-and-conquer"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|

@@ -52,7 +52,7 @@ compatibility: opencode
 
 ## Invocation
 
-`skill({name: "test-driven-development"})` — load the skill, then dispatch a task:
+`skill({name: "test-driven-development"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -89,7 +89,7 @@ If at ANY point within RED/GREEN/REFACTOR a step exceeds its timing target (30s 
 
 ## Clean-Room Dispatch Audit
 
-Tasks dispatch via `task(subagent_type="general")` with `{ spec_context, test_path, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory, prior test results. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
+Sub-agents dispatch via `task(subagent_type="general")` with `{ spec_context, test_path, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory, prior test results. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
 
 ### Authorization Context
 ```

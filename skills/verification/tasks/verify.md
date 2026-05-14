@@ -29,7 +29,7 @@ The classification uses the content payload: if `image_paths` is non-empty, at l
 
 ### Step 2: Dispatch Each Claim
 
-For each claim, invoke `multimodal-dispatch --task dispatch` with:
+For each claim, call `multimodal-dispatch --task dispatch` with:
 - `task-prompt`: "Verify this claim against the provided evidence: <claim_text>"
 - `modality`: The resolved modality for this claim
 - `content`: The content payload

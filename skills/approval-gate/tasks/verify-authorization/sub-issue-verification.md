@@ -90,7 +90,7 @@ When any issue is authorized (approved, re-approved, or `Fixes`-closed), the age
 | Issue being verified as already-implemented | `verify-already-implemented` encounters a closed issue | 3 |
 | Issue encountered during triage | `triage` classifies a closed issue | 3 |
 
-After traversal completes, invoke `reconcile-issue-graph` to act on findings. See `tasks/reconcile-issue-graph.md` for the reconciliation procedure.
+After traversal completes, dispatch `reconcile-issue-graph` to act on findings. See `tasks/reconcile-issue-graph.md` for the reconciliation procedure.
 
 **Every node in the reachable graph MUST produce an evidence artifact** — a `github_issue_read` tool call result. Graph traversal without per-node evidence is a verification honesty violation.
 

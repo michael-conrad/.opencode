@@ -136,7 +136,7 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 
 ### ✅ ALWAYS DO
 
-- **ALWAYS use `uv run python` to invoke Python.**
+- **ALWAYS use `uv run python` to run Python.**
 - **Fixed sleep value for polling**: Always use a fixed value of `15`.
 - **One clear command per invocation.** A short `&&` guard is acceptable.
 - **Use built-in Edit/Write tools for file modifications.** For Jupyter notebooks, use `the-notebook-mcp` tools exclusively — see `mcp-tool-usage` skill `selection-guide` task.
@@ -175,7 +175,7 @@ When the `todowrite` tool is used during a session, the agent MUST maintain the 
 
 ### ✅ ALWAYS DO
 
-- **CREATE**: When `todowrite` is invoked, every item MUST have an explicit `status` field: `pending`, `in_progress`, or `completed`
+- **CREATE**: When `todowrite` is used, every item MUST have an explicit `status` field: `pending`, `in_progress`, or `completed`
 - **UPDATE**: Each item MUST transition to `in_progress` when work on that item begins, and to `completed` when the item is fully done
 - **CLEAR**: `todowrite(todos=[])` MUST be called when the task completes — this is required before any HALT
 
@@ -194,7 +194,7 @@ Invoke skills when their trigger keywords match the current task. Each skill def
 |-----------|------|
 | **Trigger matching** | Skills apply when their frontmatter `Triggers on:` keywords match the current task |
 | **Priority ordering** | Process skills (approval-gate, brainstorming, writing-plans, systematic-debugging) before implementation skills |
-| **No speculative loading** | Do not load skills "just in case" — load when triggers match |
+| **No speculative calling** | Do not call skills "just in case" — call when triggers match |
 | **Skill self-describes boundary** | Each SKILL.md defines what it covers; when in doubt, check `Triggers on:` line |
 | **Sub-agent dispatch priority** | When a SKILL.md Sub-Agent Tasks section marks a task as `sub-agent`, the main agent dispatches via `task()` instead of loading the task file inline. This keeps heavy task files out of the main agent context. Result contracts (≈100-500 words) are read instead of the full task file (>1,000 words) |
 

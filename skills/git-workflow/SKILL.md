@@ -46,7 +46,7 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 
 ## Invocation
 
-`skill({name: "git-workflow"})` — load the skill, then dispatch a task:
+`skill({name: "git-workflow"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -81,7 +81,7 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 5. **Compare URL base:** feature → `compare/dev...<branch>`. Release → `compare/main...dev`.
 6. **Submodule repos:** git ops from inside submodule dir. No `--recursive`.
 7. **Pair mode:** `pair-*` branches use WIP-commit switching, not worktrees.
-8. **Adversarial-audit invocation:** after PR merge verification, invoke `adversarial-audit --task closure-verification --pr <N>` with `audit_phase: post_merge`.
+8. **Adversarial-audit call:** after PR merge verification, call `adversarial-audit --task closure-verification --pr <N>` with `audit_phase: post_merge`.
 9. **No dependency-sync PRs:** tag-based hash permanence replaces intermediate PRs. Submodule SHAs are preserved via parent-repo-prefixed tags. See AGENTS.md §Tag Layers.
 
 ## Sub-Agent Dispatch Audit

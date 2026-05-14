@@ -224,7 +224,7 @@ github_create_pull_request(
 
 Report the PR URL to chat. HALT and wait for the human to merge the PR.
 
-After human merges the PR, proceed to post-merge steps (N6-N8). These may be invoked in a subsequent session using `--task release-promotion --post-merge`.
+After human merges the PR, proceed to post-merge steps (N6-N8). These may be run in a subsequent session using `--task release-promotion --post-merge`.
 
 ### Step N6: (Post-merge) Tag Master with Semver Tag
 

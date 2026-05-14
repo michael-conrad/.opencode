@@ -30,7 +30,7 @@ Verification Gatekeeper. Not the content author — the evidence collector runni
 
 ## Invocation
 
-`skill({name: "verification-enforcement"})` — load the skill, then dispatch a task:
+`skill({name: "verification-enforcement"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|

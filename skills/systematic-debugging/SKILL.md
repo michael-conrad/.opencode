@@ -23,7 +23,7 @@ Enforces root cause analysis, hypothesis testing, and minimal fixes. Prevents "v
 
 ## Invocation
 
-`skill({name: "systematic-debugging"})` — load the skill, then dispatch a task:
+`skill({name: "systematic-debugging"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -44,7 +44,7 @@ Enforces root cause analysis, hypothesis testing, and minimal fixes. Prevents "v
 
 ## Sub-Agent Dispatch Audit
 
-Tasks dispatch via `task(subagent_type="general")` with `{ bug_description, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+Sub-agents dispatch via `task(subagent_type="general")` with `{ bug_description, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 

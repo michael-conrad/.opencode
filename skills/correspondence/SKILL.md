@@ -22,7 +22,7 @@ Enforces multipart/alternative format (text/plain + text/html) for email, stakeh
 
 ## Invocation
 
-`skill({name: "correspondence"})` — load the skill, then dispatch a task:
+`skill({name: "correspondence"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|

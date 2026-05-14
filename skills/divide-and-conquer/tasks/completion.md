@@ -18,15 +18,15 @@ Idempotent completion subtask for divide-and-conquer. Ensures mandatory steps ru
 
 ## Skill-Specific Completion
 
-1. **If verification-before-completion not yet invoked:** Invoke `--task verify`
+1. **If verification-before-completion not yet called:** Call `--task verify`
    - Check if verification evidence exists in issue comments or `./tmp/artifacts/`
-   - If missing: invoke verification before proceeding
-2. **If finishing-a-development-branch not yet invoked:** Invoke `--task checklist`
+   - If missing: call verification before proceeding
+2. **If finishing-a-development-branch not yet called:** Call `--task checklist`
    - Check if branch readiness checklist has been run
-   - If missing: invoke checklist before proceeding
-3. **If git-workflow review-prep not yet invoked:** Invoke `git-workflow --task review-prep`
+   - If missing: call checklist before proceeding
+3. **If git-workflow review-prep not yet called:** Dispatch `git-workflow --task review-prep`
    - Check if compare URL and executive summary exist in chat output
-   - If missing: invoke review-prep before proceeding
+   - If missing: dispatch review-prep before proceeding
 
 ## Shared Completion Delegation
 

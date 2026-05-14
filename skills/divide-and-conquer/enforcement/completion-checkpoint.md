@@ -26,5 +26,5 @@ When a sub-agent fails:
 1. Log the failure in work state file
 2. Attempt inline fallback (perform the sub-agent's task directly)
 3. If inline fallback succeeds: continue work orchestration
-4. If inline fallback fails: report double-failure, invoke `--task completion`, HALT with status message
+4. If inline fallback fails: report double-failure, call `--task completion`, HALT with status message
 5. NEVER silently continue after sub-agent failure

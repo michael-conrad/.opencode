@@ -41,7 +41,7 @@ Dispatch the sub-agent with:
 - The resolved model as the target for processing
 - The content payload for modality-specific processing (e.g., image paths for vision tasks)
 
-**Nested sub-agent architecture (REQ-6):** Sub-agents dispatched by this task may themselves need to route additional sub-tasks. They can invoke `multimodal-dispatch` recursively. The dispatcher prevents circular dispatch by tracking the call chain — it never re-invokes the calling skill.
+**Nested sub-agent architecture (REQ-6):** Sub-agents dispatched by this task may themselves need to route additional sub-tasks. They can call `multimodal-dispatch` recursively. The dispatcher prevents circular dispatch by tracking the call chain — it never re-calls the calling skill.
 
 **Circular dispatch prevention:** Each dispatch carries a `dispatch_chain` list. Before dispatching, check if the calling skill is already in the chain. If so, return an error rather than dispatching circularly.
 

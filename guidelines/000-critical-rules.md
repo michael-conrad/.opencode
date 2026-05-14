@@ -483,7 +483,7 @@ After routing decision, MUST dispatch sub-agent. Never perform task inline. See 
 Every routing decision in the approval-gate dispatch chain MUST be followed by an explicit DISPATCH_GATE that forces handoff to a sub-agent:
 
 1. **Confirm next action is dispatch** — verify the routing decision has been made
-2. **Dispatch sub-agent** — invoke `task(subagent_type="general")` with scoped context
+2. **Dispatch sub-agent** — dispatch `task(subagent_type="general")` with scoped context
 3. **Receive result contract** — collect the structured result (never read the full task file)
 4. **Log dispatch in work state file** — record which sub-agent was dispatched and when
 5. **Proceed based on result contract** — route to next pipeline step based on sub-agent output
@@ -540,7 +540,7 @@ Creating a PR whose sole purpose is to update a submodule pointer during the cle
 - 🚫 FORBIDDEN: Loading `skills/<skill>/tasks/<task>.md` into context then performing the described steps using raw tool calls
 - 🚫 FORBIDDEN: "I know what skill X does, so I'll just do it directly" — rationalization that bypasses enforcement gates
 - 🚫 FORBIDDEN: Opening task files to "check what needs to happen" then proceeding inline without dispatching the skill
-- ✅ REQUIRED: Call `skill({name: "..."})` to load the skill, then use its documented invocation pattern (`--task name`)
+- ✅ REQUIRED: Call `skill({name: "..."})` to call the skill, then use its documented invocation pattern (`--task name`)
 - ✅ REQUIRED: If you need to know what a skill does, the `<available_skills>` list gives name + description — that is enough to route. Invoke the skill to get full content.
 
 **3-Way Violation Distinction:**
@@ -1258,7 +1258,7 @@ rules:
     conditions:
       all:
         - "skill_task_file_read == true"
-        - "skill_dispatched == false"
+        - "skill_called == false"
         - "inline_execution_followed == true"
     actions:
       - HALT
