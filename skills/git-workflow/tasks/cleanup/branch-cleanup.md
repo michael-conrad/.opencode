@@ -147,7 +147,32 @@ SUBMODULE_PATHS=$(git config --list --file .gitmodules 2>/dev/null | grep '^subm
 
 If no submodules exist (`SUBMODULE_PATHS` is empty), skip this step.
 
-**For each submodule path:**
+#### Dispatch to `submodule-dev-restore` Sub-Agent
+
+For each submodule path, dispatch a clean-room `submodule-dev-restore` sub-agent. The sub-agent handles submodule entry, `git checkout dev`, and `git pull origin dev --ff-only`. The main task does NOT perform these operations inline.
+
+**must_receive / must_not_receive:**
+
+| Element | Value |
+|---------|-------|
+| `must_receive` | `submodule_path` (path to the submodule), `parent_repo_path` (absolute path to parent repo), `branch` = `dev` |
+| `must_not_receive` | Orchestrator reasoning, expected outcomes, cached git state, pre-determined branch names, content verification results, tag data, or any information about branches to delete |
+| `inline_fallback` | FORBIDDEN — re-dispatch clean-room on failure |
+
+**Result contract schema:**
+
+```yaml
+status: DONE | BLOCKED
+submodule_path: <path>
+submodule_dev_head: <sha>
+submodule_dev_synced: true | false
+evidence:
+  - <tool call: git branch --show-current returns dev>
+  - <tool call: git log --oneline -1 dev matching origin/dev>
+blocked_reason: <if BLOCKED, explanation of divergence>
+```
+
+**After dispatch returns DONE for a submodule, proceed with cleanup operations:**
 
 1. **Enter submodule directory:**
    ```bash
@@ -156,20 +181,14 @@ If no submodules exist (`SUBMODULE_PATHS` is empty), skip this step.
    cd "$SM_PATH"
    ```
 
-2. **Sync submodule to dev with fast-forward only:**
+2. **Verify submodule is on dev (post-dispatch check):**
    ```bash
-   # --ff-only is mandatory — no merge commits
-   git checkout dev
-   git pull origin dev --ff-only
-   ```
-
-   **🚫 CRITICAL:** A plain `git pull origin dev` can silently create merge commits. The `--ff-only` flag prevents divergence masking.
-
-   **If `--ff-only` fails (diverged history):**
-   ```bash
-   echo "HALT: Submodule $SM_PATH has diverged from origin/dev"
-   echo "Manual resolution required before cleanup can proceed."
-   # Do NOT proceed — re-sync the submodule first
+   CURRENT_BRANCH=$(git branch --show-current)
+   if [ "$CURRENT_BRANCH" != "dev" ]; then
+       echo "ERROR: Submodule $SM_PATH is on '$CURRENT_BRANCH', expected 'dev'"
+       echo "HALT: Submodule dev state mismatch after dispatch"
+       # Do NOT proceed
+   fi
    ```
 
 3. **Find merged branches:**

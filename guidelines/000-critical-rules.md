@@ -575,11 +575,20 @@ See Spec #274. Gate every execution behind pre-analysis sub-agent.
 ### [critical-rules-043] Universal Re-Dispatch Mandate — no inline fallback on sub-agent failure
 ALL pipeline stages. Re-dispatch clean-room with same context. See Spec #106.
 
+### [critical-rules-051] Skipping mandatory submodule tagging at pre-work
+Pre-work MUST tag each submodule at dev tip with `<parent-repo>/<issue-number>` format.
+Missing this tag makes the starting SHA unreachable after squash merge + branch deletion.
+
+### [critical-rules-052] Inline submodule git operations — ALL must dispatch to sub-agents
+Every submodule git operation (tag, push, checkout, pull, verify) MUST be dispatched as a
+clean-room sub-agent. The main agent MUST NEVER perform submodule git operations inline.
+See git-workflow SKILL.md → Sub-Agent Tasks for Submodule Operations.
+
 ---
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-11T00:00:00Z"
+last_updated: "2026-05-14T00:00:00Z"
 rules:
   - id: critical-rules-001
     title: "Tier 1 mandates never yield to developer authorization"
@@ -1368,4 +1377,33 @@ rules:
     requires: [verification-honesty-001]
     triggers: [adversarial-audit, verification-before-completion]
     source: "adversarial-audit/SKILL.md §adversarial-audit-012"
+
+  - id: critical-rules-051
+    title: "Skipping mandatory submodule tagging at pre-work"
+    conditions:
+      all:
+        - "pipeline_stage == 'pre_work'"
+        - "submodule_tag_created == false"
+    actions:
+      - HALT
+      - REQUIRE_TAG(submodule, format: "<parent-repo>/<issue-number>")
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §critical-rules-051"
+
+  - id: critical-rules-052
+    title: "Inline submodule git operations — ALL must dispatch to sub-agents"
+    conditions:
+      any:
+        - "pipeline_stage == 'pre_work' AND inline_submodule_git_op == true"
+        - "pipeline_stage == 'implementation' AND inline_submodule_git_op == true"
+        - "pipeline_stage == 'cleanup' AND inline_submodule_git_op == true"
+    actions:
+      - HALT
+      - DISPATCH(clean-room sub-agent for submodule operation)
+    conflicts_with: [critical-rules-034]
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §critical-rules-052"
 ```

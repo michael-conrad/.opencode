@@ -146,9 +146,9 @@ fi
 
 **Before creating any feature branch, verify repo state:**
 
-1. **Submodule initialization check:** `git submodule status` — if any submodule shows `-` prefix (not initialized), run `git submodule init && git submodule foreach "git checkout dev && git pull"`
-2. **Submodule currency check:** If any submodule is not on `dev` branch, sync it: `git submodule foreach "git checkout dev && git pull"`
-3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be run: `git checkout dev && git pull && git submodule init && git submodule foreach "git checkout dev && git pull"`
+1. **Submodule initialization check:** Check if `.gitmodules` exists. If it does, note that submodule sync will be handled by the `submodule-tag-prework` sub-agent dispatch in Steps 2.7/3.5 — do NOT run submodule commands inline.
+2. **Submodule currency check:** Deferred to the `submodule-tag-prework` sub-agent dispatch (Steps 2.7/3.5).
+3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be dispatched to `submodule-tag-prework` — do NOT run `git submodule init` or `git submodule foreach` inline.
 
 ### Step 2.7: Automatic Prerequisite Operations
 
@@ -160,8 +160,7 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 |-----------|------|----------------|-----------|
 | `git fetch origin` | Step 1.5/2 | Pipeline prerequisite | Remote exists |
 | `git checkout dev && git pull origin dev` | Step 2 | Tier 1 mandate prerequisite | Always when remote exists |
-| `git submodule init` + `git submodule foreach "git checkout dev && git pull"` | Step 2.5 | Tier 1 mandate prerequisite | `.gitmodules` exists |
-| `git add .opencode` (submodule bump) | Step 3.5 | Tier 1 mandate prerequisite | Submodule SHA changed |
+| Dispatch `submodule-tag-prework` sub-agent | Step 2.5/3.5 | Tier 1 mandate prerequisite | `.gitmodules` exists |
 | `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 3 | Tier 1 mandate — required by `000-critical-rules.md` §Skipping Git Pre-Check | Always |
 | `git push -u origin feature/N-xyz` | Post-Step 5 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
 
@@ -185,6 +184,25 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 The agent MUST NOT ask for confirmation, permission, or readiness before performing any operation listed in the table above. These are mechanical prerequisites that the agent MUST execute as part of the approved workflow.
 
 **See also:** `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" — whether to sync a submodule, create a branch, or push is NOT a decision requiring user input when authorization covers the pipeline stage.
+
+### Sub-Agent Boundary: `submodule-tag-prework` Dispatch
+
+When `.gitmodules` exists, dispatch a `submodule-tag-prework` sub-agent for submodule initialization, sync, and status operations. The sub-agent receives only:
+
+**`must_receive`:**
+- `worktree.path` (if in worktree mode; null otherwise)
+- `.gitmodules` file path
+- `github.owner` and `github.repo` (for context, NOT for API calls into the parent repo)
+
+**`must_not_receive`:**
+- Any pre-determined file paths, line numbers, or expected SHAs
+- The parent's authorization scope or halt_at value
+- Orchestrator reasoning about what the sub-agent should find
+- Any cached `git submodule status` output
+- Any commit messages or summaries from previous syncs
+- Tool recipes (e.g., "run `git submodule foreach` then `git log`")
+
+🚫 **FORBIDDEN:** Pre-loading the sub-agent with expected SHA values, expected commit counts, expected log summaries, or any orchestrator analysis of what changed. The sub-agent independently discovers submodule state.
 
 ### Step 3: Create Feature Branch (Mode-Dependent)
 
@@ -227,52 +245,35 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 - Do NOT attempt any implementation until the worktree infrastructure is fixed
 - There is NO fallback to direct-branch when worktree mode is explicitly requested
 
-### Step 3.5: Submodule Initialization and Sync
+### Step 3.5: Submodule Initialization and Sync — Dispatch to `submodule-tag-prework`
 
-**If `.gitmodules` exists**, initialize and sync submodules before proceeding:
+**If `.gitmodules` does NOT exist:** Skip this step and proceed to Step 3.7.
 
-```bash
-test -f .gitmodules
+**If `.gitmodules` exists:** Dispatch a `submodule-tag-prework` sub-agent with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
+
+1. Checks `.gitmodules` existence
+2. Initializes submodules if needed (`git submodule init`)
+3. Checks out each submodule to its `dev` tip (`git submodule foreach "git checkout dev && git pull"`)
+4. Logs submodule status (`git submodule status`)
+5. Tags each submodule at dev tip with `<parent-repo>/<issue-number>` format (`git tag -a`)
+6. Pushes tags to submodule remote (`git push origin <tag>`)
+7. Verifies tags exist on remote (`git ls-remote --tags origin <tag>`)
+8. Reports results in its result contract
+
+**The orchestrator receives a result contract containing:**
+
+```yaml
+status: DONE | BLOCKED
+submodules_found: <count>
+submodules_updated: <list of (path, old_sha, new_sha, commit_count)>
+gitmodules_path: <path>
 ```
 
-**If `.gitmodules` exists:**
+**If `status: BLOCKED`** (e.g., submodule checkout fails, `.gitmodules` malformed): Re-dispatch with original scoped context. If second dispatch also fails, report the double-failure and HALT.
 
-1. **Advance submodules to their `dev` tip:**
+**If on `main` worktree:** The sub-agent uses `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to dev tip. Pass `worktree_type: main` in the dispatch context.
 
-   ```bash
-   git submodule foreach "git checkout dev && git pull"
-   ```
-
-   - This checks out each submodule at the tip of its `dev` branch.
-   - Do NOT use `--recursive` flag (per `060-tool-usage.md`).
-
-2. **Log submodule status:**
-
-   ```bash
-   git submodule status
-   ```
-
-3. **Report status to chat:** Report each submodule's path, checked-out SHA, committed SHA, and dev tip SHA.
-
-4. **If any submodule SHA changed from the parent's committed ref**, auto-commit the submodule bump:
-
-   For each submodule whose checked-out SHA differs from the parent's committed SHA:
-   1. Read the commit log between old and new SHA:
-      ```bash
-      cd <submodule-path>
-      git log --oneline <old_sha>..<new_sha>
-      cd -
-      ```
-   2. Generate a summary commit message with the count and first-line summaries:
-      ```bash
-      git add <submodule-path>
-      git commit -m "chore(submodule): pin <path> to latest dev (N commits: summary)"
-      ```
-   3. Continue with normal pre-work flow.
-
-**If on `main` worktree:** Use `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to dev tip.
-
-**If `.gitmodules` does NOT exist:** Skip all submodule steps and proceed to Step 4.
+**Do NOT inline the submodule operations.** The orchestrator never runs `git submodule` commands or reads submodule logs directly.
 
 ### Step 3.7: Initialize .issues/<issue_number>/ Directory (MANDATORY)
 
