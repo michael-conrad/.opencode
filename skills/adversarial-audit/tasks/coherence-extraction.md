@@ -8,11 +8,11 @@ Generate baseline coherence state from guidelines and skills. Captures current r
 
 - Baseline not yet generated OR refresh requested
 - `github.owner`, `github.repo` available
-- Write access to `.opencode/tmp/`
+- Write access to `./tmp/artifacts/`
 
 ## Exit Criteria
 
-- Baseline JSON written to `.opencode/tmp/audit-baseline-YYYYMMDD.json`
+- Baseline JSON written to `./tmp/artifacts/baseline-coherence-<issue>.json`
 - All rules extracted from guidelines
 - All behaviors mapped from skills
 - Cross-references validated
@@ -128,10 +128,10 @@ baseline["metrics"] = {
 
 ### Step 6: Write Baseline File
 
-Write to `.opencode/tmp/audit-baseline-<YYYYMMDD>.json`:
+Write to `./tmp/artifacts/baseline-coherence-<issue>.json`:
 
 ```python
-baseline_path = f".opencode/tmp/audit-baseline-{datetime.now().strftime('%Y%m%d')}.json"
+baseline_path = f"./tmp/artifacts/baseline-coherence-{datetime.now().strftime('%Y%m%d')}.json"
 write(baseline_path, json.dumps(baseline, indent=2))
 ```
 

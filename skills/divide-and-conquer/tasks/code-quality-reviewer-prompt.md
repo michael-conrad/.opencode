@@ -70,6 +70,14 @@ Task tool (general-purpose):
       grow existing files? (Don't flag pre-existing file sizes — focus on what this
       change contributed.)
 
+    ### Test Audit
+
+    1. **Assertion-value regression check:** Compare test assertions across RED→GREEN→REFACTOR cycles. If an assertion value was weakened (e.g., exact value replaced with `assert True`, or strict inequality replaced with lenient check), flag as **Critical**.
+    2. **Verification, not tautology:** Verify assertions reference real functions/symbols (not `assert True`). Expected values must be non-tautological — `assert result == result` or `assert True == True` is a Critical violation.
+    3. **Test-function naming:** Test names must match the function names they test from the diff (e.g., `test_parse_config` tests `parse_config`). Mismatched names suggest copy-paste or misaligned testing.
+    4. **Execution evidence required:** Confirm the test was actually executed (look for test output evidence in the diff or implementer's report). If only test FILE exists without execution output, flag as gap.
+    5. **Cannot execute tests (bash:allow not present):** If the reviewer cannot run tests itself, flag execution gaps for the orchestrator to resolve — note which test files need execution verification. Do NOT mark test quality as APPROVED without execution evidence.
+
     ## Branch Model Context
 
     This project uses the `feature→dev→main` three-branch workflow:

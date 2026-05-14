@@ -74,7 +74,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 ### 2. Check for Evidence
 
 - Review issue comments for evidence
-- Check `./tmp/` for artifacts
+- Check `./tmp/artifacts/` for verification artifacts
 - Verify evidence matches criteria
 
 ### 2a. Todowrite Cleanup Verification

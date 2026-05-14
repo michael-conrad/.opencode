@@ -18,13 +18,13 @@ For each missing criterion:
 ### 2. Collect Evidence
 
 - Run required verification commands
-- Store output in `./tmp/` or post to issue
+- Store output in `./tmp/artifacts/` or post to issue
 - Verify evidence is complete and accurate
 
 ### 3. Update Verification Status
 
 - Mark criterion as verified
-- Store evidence in `./tmp/`
+- Store evidence in `./tmp/artifacts/`
 - Proceed to next missing criterion
 
 ## Common Verification Commands
@@ -80,7 +80,7 @@ md5sum path/to/file
 
 ## Evidence Storage
 
-- Store artifacts in `./tmp/` (primary for all outputs)
+- Store artifacts in `./tmp/artifacts/` (primary for all outputs)
 - Report verification results to chat
 
 ## Integration
@@ -93,7 +93,7 @@ executing-plans → verification-before-completion → (completion claim allowed
 
 ### GitBucket Platform Adaptations
 
-- Store verification reports in `./tmp/`
+- Store verification reports in `./tmp/artifacts/`
 - Report results to chat
 
 ### Git-Workflow Integration
@@ -109,7 +109,7 @@ executing-plans → verification-before-completion → (completion claim allowed
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
 | "Evidence collected" | Verify tool-call artifacts exist for each criterion | Check tool-call records in collection output | MISSING-ELEMENT |
-| "Verification report exists" | Verify report file in `./tmp/` | `glob(pattern="./tmp/verification-*")` | MISSING-ELEMENT |
+| "Verification report exists" | Verify report file in `./tmp/artifacts/` | `glob(pattern="./tmp/artifacts/verification-*")` | MISSING-ELEMENT |
 | "All criteria have evidence" | Verify no criterion lacks tool-call proof | Cross-reference criteria list with evidence list | VERIFICATION-GAP |
 
 **Evidence artifact:** Tool call results confirming each evidence item is genuine and complete.

@@ -15,7 +15,7 @@ Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies p
 - All guideline files scanned
 - Problems identified with LLM compliance check
 - PASS/FAIL consensus for each problem class
-- Findings written to `./tmp/audit-YYYYMMDD.md`
+- Findings written to `./tmp/artifacts/audit-guideline-<issue>.md`
 
 ## Procedure
 
@@ -154,7 +154,7 @@ github.repo: {github.repo}
 
 ### Step 6: Write Audit Report
 
-Append findings to `./tmp/audit-YYYYMMDD.md`:
+Append findings to `./tmp/artifacts/audit-guideline-<issue>.md`:
 
 ```markdown
 # Guideline Audit Report - <YYYY-MM-DD>
@@ -198,7 +198,7 @@ Fix: <fix_action>
   },
   "cross_validation": [...],
   "overall_consensus": "PASS | FAIL",
-  "report_path": "./tmp/audit-<YYYYMMDD>.md",
+  "report_path": "./tmp/artifacts/audit-guideline-<issue>.md",
   "exec_summary": "Guideline audit: {files} files, {problems} problems. Consensus: {overall}."
 }
 ```

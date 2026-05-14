@@ -32,11 +32,14 @@ Task tool (general-purpose):
 
     Once you're clear on requirements:
     1. Implement exactly what the task specifies
-    2. Write tests (following TDD if task says to)
-    3. Verify implementation works
-    4. Commit your work
-    5. Self-review (see below)
-    6. Report back
+    2. **TDD is MANDATORY.** Write tests BEFORE implementation code. Do NOT treat TDD as optional or conditional on what "the task says."
+    3. **Pre-test blast radius check:** Run `git diff --name-only <base-branch>...HEAD` to identify changed files. If changed files have dependents (use `srclight_get_dependents` or equivalent project-appropriate tool), blast radius is non-empty. Non-empty blast radius → write at least one cross-boundary/integration test.
+    4. **RED phase is mandatory:** Write the test, confirm it FAILS before writing any implementation code.
+    5. **Never-change-assertion rule:** If a test fails during GREEN, fix the CODE. Never change an assertion to make a test pass. If you believe the assertion is wrong, report BLOCKED with tool-call evidence of the discrepancy, plus executive summary and spec/plan adjustment recommendations.
+    6. Verify implementation works
+    7. Commit your work
+    8. Self-review (see below)
+    9. Report back
 
     Work from: [directory]
 
@@ -118,8 +121,9 @@ Task tool (general-purpose):
 
     **Testing:**
     - Do tests actually verify behavior (not just mock behavior)?
-    - Did I follow TDD if required?
+    - Did I follow TDD (MANDATORY)?
     - Are tests comprehensive?
+    - **Self-review MUST include test execution output** (tool call showing PASS/FAIL), not just "test exists." Evidence of test execution is required before reporting COMPLETE.
 
     If you find issues during self-review, fix them now before reporting.
 

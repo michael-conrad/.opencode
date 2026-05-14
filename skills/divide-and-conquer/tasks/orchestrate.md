@@ -323,7 +323,7 @@ Co-authored with AI: <AgentName> (<ModelId>)
 |-------|-------------------|-----------|---------------|
 | "Workflow step completed" | Verify step was actually executed | Check for step output in context | VERIFICATION-GAP |
 | "Sub-agent dispatch correct" | Verify dispatch context includes worktree.path | Review dispatch prompt | STRUCTURE-VIOLATION |
-| "Work state current" | Verify work state file reflects latest state | `glob(pattern="./tmp/work-*.md")` | VERIFICATION-GAP |
+| "Work state current" | Verify work state file reflects latest state | `glob(pattern="./tmp/artifacts/work-*.md")` | VERIFICATION-GAP |
 | "No skipped steps" | Verify all mandatory steps were invoked | Check for tool-call artifacts per step | MISSING-ELEMENT |
 
 **Evidence artifacts:** See enforcement/work-state-verification.md §Evidence Artifacts

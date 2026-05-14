@@ -9,6 +9,7 @@ Audit a spec for quality, structure, and completeness using dual-adversarial cro
 - Spec issue number provided OR spec content provided
 - `github.owner`, `github.repo` available
 - Audit phase context: `audit_phase: spec_creation`
+- Optional: `failure_description` from prior implementation attempt (triggers enhanced determinism evaluation)
 
 ## Exit Criteria
 
@@ -44,6 +45,7 @@ Define audit criteria based on spec-auditor task structure:
 | SC-9 | Determinism achieved | Repeatable execution path |
 | SC-10 | Prose structure valid | Headers, lists, tables properly formatted |
 | SC-11 | Documentation Sources present and populated | Non-empty Documentation Sources section with live-source verification evidence |
+| SC-DET | SC Determinism | Each SC produces the same PASS/FAIL from any reasonable auditor |
 
 ### Step 3: Dispatch Cross-Validate
 
@@ -66,10 +68,14 @@ worktree.path: <worktree.path>
 github.owner: <github.owner>
 github.repo: <github.repo>
 
+failure_description: <failure_description>  # Optional — provided when routed from remediation loop
+
 Mandatory: dispatch two cross-family auditors, collect independent verdicts, cross-reference for consensus.
 """
 )
 ```
+
+**When `failure_description` is provided:** The spec auditor must evaluate whether the SCs are deterministic and testable specifically in light of the failure evidence. The evaluation should answer: "Would this SC have prevented the observed failure if it were properly deterministic?" or "Is the failure attributable to a non-deterministic SC?" If yes, return SPEC_GAP with revision recommendation. If no (SCs are deterministic but the implementer failed), return confirmation that implementation failure is the root cause.
 
 ### Step 4: Process Verdicts
 
@@ -77,6 +83,39 @@ For each criterion:
 - Both auditors PASS → criterion consensus PASS
 - Either auditor FAIL → criterion consensus FAIL
 - Auditors disagree → mark as DISAGREE, present bidirectional finding
+
+### Step 4.5: Evaluate SC Determinism (SC-DET)
+
+For each success criterion in the spec, evaluate determinism:
+
+- Can two reasonable auditors independently produce the same PASS/FAIL result?
+- Does the SC contain any fail patterns (adverbs without thresholds, comparatives without baselines, open-ended quality, missing expected values, implicit behavior)?
+- Can an executable verification command be written for this SC?
+
+**If any SC would produce INCONCLUSIVE from any reasonable auditor**, flag that SC as `SPEC_GAP` and include a revision recommendation that specifies:
+1. Which fail pattern(s) the SC contains
+2. What a deterministic rewrite would look like
+3. An example executable verification command
+
+**Result format:**
+
+```json
+{
+  "criterion_id": "SC-DET",
+  "description": "SC Determinism",
+  "deterministic_scs": ["SC-1", "SC-2", ...],
+  "non_deterministic_scs": [
+    {
+      "sc_id": "SC-N",
+      "fail_pattern": "missing_expected_values",
+      "revision_recommendation": "...",
+      "executable_verification": "..."
+    }
+  ],
+  "consensus": "PASS | FAIL",
+  "evidence": "<tool-call reference>"
+}
+```
 
 ### Step 5: Generate Bidirectional Findings
 
