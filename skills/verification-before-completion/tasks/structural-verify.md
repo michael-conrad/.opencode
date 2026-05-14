@@ -35,7 +35,7 @@ The sub-agent MUST NOT receive:
 
 ### Step 1: Parse Required Components
 
-From the spec issue, extract the list of required structural components:
+From the spec issue, extract the list of required structural components. Use `vbc_artifact_path` (defaults to `./tmp/artifacts/`) as the canonical base for all artifact paths — not bare `./tmp/`:
 
 | Component | Where to Check | Failure Class |
 |-----------|---------------|---------------|
@@ -115,6 +115,7 @@ Each structural component check MUST be verified by reading the actual file. Cla
 spec_issue: <N>
 target_files: [<path_list>]
 required_components: [<component_list>]
+vbc_artifact_path: <path_to_vbc_artifacts>
 authorization_scope: <scope_value>
 halt_at: <pipeline_stage>
 pr_strategy: stacked | individual | none

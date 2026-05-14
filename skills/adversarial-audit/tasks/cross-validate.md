@@ -60,22 +60,36 @@ Both dispatches MAY run in parallel (independent clean-room contexts). Wait for 
 
 ### Step 5: Parse Auditor Verdicts
 
-Each auditor returns a JSON array of objects. Expected format:
+Each auditor returns a YAML block document (with `---` delimiters). Expected format:
 
 ```
-[
-  { "id": "SC-1", "result": "PASS", "evidence": "<tool-call reference>", "explanation": "<reasoning>" },
-  { "id": "SC-2", "result": "FAIL", "evidence": "<tool-call reference>", "explanation": "<reasoning>" }
-]
+---
+criterion_id: "SC-1"
+result: "PASS"
+evidence: "<tool-call reference>"
+explanation: "<reasoning>"
+remediation: ""
+next_step: "proceed"
+---
+---
+criterion_id: "SC-2"
+result: "FAIL"
+evidence: "<tool-call reference>"
+explanation: "<reasoning>"
+remediation: "Add missing validation for X"
+next_step: "re-evaluate"
+---
 ```
 
 Validation rules per verdict:
-- `id` MUST match a criterion id from `evaluation_criteria`
-- `result` MUST be exactly `"PASS"` or `"FAIL"`
+- `criterion_id` MUST match a criterion id from `evaluation_criteria`
+- `result` MUST be one of: `PASS`, `FAIL`, `AUDIT_FAIL`, `INCONCLUSIVE`, `LIMITED-EVIDENCE`, `FABRICATED`
 - `evidence` MUST reference a live tool call (URL, file path, or command output) — memory-cached claims are FORBIDDEN
 - `explanation` MUST be present and non-empty
+- `remediation` MUST be present when result is not PASS
+- `next_step` MUST be one of: `proceed`, `re-evaluate`, `escalate`
 
-If an auditor's output is unparseable JSON, missing the array structure, or contains no recognizable criterion ids: treat the entire auditor's contribution as `FAIL` for ALL criteria. Do NOT re-dispatch — the protocol requires accepting real output, not retrying until PASS is obtained.
+If an auditor's output is unparseable YAML, missing the `---` delimiters, or contains no recognizable criterion ids: treat the entire auditor's contribution as `FAIL` for ALL criteria. Do NOT re-dispatch — the protocol requires accepting real output, not retrying until PASS is obtained.
 
 If an auditor's output has extra criterion ids not in `evaluation_criteria`: ignore extra verdicts, flag in result contract as `EXTRA_VERDICTS` warning.
 
@@ -89,10 +103,15 @@ For each criterion in `evaluation_criteria`:
 |---|---|
 | Both auditors return `PASS` | `consensus = PASS` |
 | Either auditor returns `FAIL` | `consensus = FAIL` |
+| Non-PASS result (AUDIT_FAIL, INCONCLUSIVE, LIMITED-EVIDENCE, FABRICATED) | `consensus = BLOCKED` |
 | Either auditor's verdict is missing or unparseable | `consensus = FAIL` |
-| Auditors disagree (one PASS, one FAIL) | `consensus = FAIL` |
+| Auditors disagree (one PASS, one non-PASS) | `consensus = FAIL` |
+
+Non-PASS (FAIL, AUDIT_FAIL, INCONCLUSIVE, LIMITED-EVIDENCE, FABRICATED) = BLOCKED pipeline. Orchestrator reads `next_step` from verdict and routes accordingly — does NOT interpret or override.
 
 Track disagreements explicitly in the result contract for transparency: a `PASS`/`FAIL` split is different from a double `FAIL`.
+
+Empty/error sub-agent → re-dispatch with fresh random pair. Never proceed with single auditor.
 
 ### Step 7: Compute Aggregate Consensus
 
@@ -160,7 +179,7 @@ Return structured result:
 - Never soft-pass a mismatch — `PASS`/`FAIL` split = FAIL per SKILL.md rule `adversarial-audit-004`
 - Never fabricate verdicts when auditor output is unparseable — missing data = FAIL per SKILL.md rule `adversarial-audit-005`
 - Never accept memory-cached claims as evidence — every verdict must reference a live tool call
-- Never re-dispatch an auditor after a FAIL verdict — the protocol accepts the real output
+- Never re-dispatch an auditor after a FAIL verdict — FAIL stays FAIL
 - Never resolve auditors inline — `resolve-models` is called by orchestrator before this task
 
 ## Cross-References
@@ -254,16 +273,24 @@ rules:
     source: "cross-validate.md §Step 5"
 
   - id: cross-validate-009
-    title: "Consensus gate — PASS only when both auditors return PASS"
+    title: "Consensus gate — PASS only when both auditors return PASS; non-PASS results block pipeline"
     conditions:
       all: ["auditor_1_result != 'PASS' OR auditor_2_result != 'PASS'", "consensus_reported_as == 'PASS'"]
     actions: [REJECT, DECLARE_FAIL]
     source: "cross-validate.md §Step 6"
 
-  - id: cross-validate-010
-    title: "Aggregate consensus cascades — single criterion FAIL = overall FAIL"
+  - id: cross-validate-009a
+    title: "Non-PASS verdicts (AUDIT_FAIL, INCONCLUSIVE, LIMITED-EVIDENCE, FABRICATED) cascade to BLOCKED"
     conditions:
-      all: ["any_criterion_consensus == 'FAIL'", "overall_consensus_reported_as == 'PASS'"]
+      any: ["auditor_result == 'AUDIT_FAIL'", "auditor_result == 'INCONCLUSIVE'", "auditor_result == 'LIMITED-EVIDENCE'", "auditor_result == 'FABRICATED'"]
+    actions: [SET_CONSENSUS_BLOCKED, ROUTE_VIA_NEXT_STEP]
+    source: "cross-validate.md §Step 6"
+
+  - id: cross-validate-010
+    title: "Aggregate consensus cascades — single criterion FAIL/BLOCKED = overall FAIL"
+    conditions:
+      any: ["any_criterion_consensus == 'FAIL'", "any_criterion_consensus == 'BLOCKED'"]
+      all: ["overall_consensus_reported_as == 'PASS'"]
     actions: [REJECT, DECLARE_OVERALL_FAIL]
     source: "cross-validate.md §Step 7"
 

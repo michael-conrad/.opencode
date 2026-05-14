@@ -61,6 +61,14 @@ Remove from the candidate pool:
 1. Any agent whose family matches the orchestrator's family
 2. The specific agent that maps to the orchestrator's exact model (precautionary — catches edge cases where family match is ambiguous)
 
+### Step 4a: Re-Dispatch Mode
+
+If `re_dispatch` flag is present in dispatch context: run fresh random selection from eligible pool, excluding:
+1. The previously selected auditor pair (if `excluded_pair` provided in context)
+2. The orchestrator's own family (same as Step 4)
+
+Cached pair from previous dispatch must NOT be re-used for re-dispatch. Always select a fresh pair.
+
 ### Step 5: Select Two Cross-Family Auditors
 
 Group remaining candidates by family. Pick the first available agent from each eligible family.
@@ -91,6 +99,8 @@ If fewer than two eligible families remain after exclusion: return `{ auditor_1:
 ## Context Required
 
 - `orchestrator_model`: The orchestrator's resolved model ID (from `<ModelId>`)
+- `re_dispatch`: (optional) If `true`, run fresh random selection excluding previously selected pair
+- `excluded_pair`: (optional) Array of `[family_1, family_2]` from prior dispatch to exclude from re-dispatch
 - `github.owner`, `github.repo`: For file path resolution (defaults to `.opencode` context)
 
 ## Red Flags
@@ -101,6 +111,7 @@ If fewer than two eligible families remain after exclusion: return `{ auditor_1:
 - Never assume agent files exist without glob verification
 - Never return a single auditor — dual dispatch is mandatory
 - Never return raw model strings (e.g., `ollama/glm-5.1:cloud`) — always return `subagent_type` strings (e.g., `auditor-glm-5.1`)
+- Never re-use cached pair from previous dispatch for re-dispatch — always select fresh
 
 ## Cross-References
 
@@ -127,8 +138,9 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
-|---|---|---|---|
+|---|---|---|---|---|
 | `orchestrator_model`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `github.owner`, `github.repo` | Any implementation context, agent memory, cached model pool data | N/A — this task reads the qualified pool directly, not via pre-analysis | NO |
+| `re_dispatch`, `excluded_pair` | — | Only for re-dispatch flows; not used in initial dispatch | NO |
 
 ```yaml+symbolic
 schema_version: "2.0"

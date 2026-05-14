@@ -32,6 +32,7 @@ Adversarial Audit Orchestrator. Dispatches cross-family auditor sub-agents, coll
 | `closure-verification` | ≈110 | Verify merge evidence after PR merge |
 | `cross-validate` | ≈400 | Dual cross-family auditor dispatch and consensus |
 | `resolve-models` | ≈350 | Cross-family auditor model selection |
+| `test-quality-audit` | ≈200 | Structural test quality audit — reader-only checks on test files |
 | `completion` | ≈150 | Halt guarantee per `completion-core` |
 
 ## Invocation
@@ -51,6 +52,7 @@ Adversarial Audit Orchestrator. Dispatches cross-family auditor sub-agents, coll
 | `closure-verification` | `task(..., prompt: "execute closure-verification task from adversarial-audit")` |
 | `cross-validate` | `task(..., prompt: "execute cross-validate task from adversarial-audit")` |
 | `resolve-models` | `task(..., prompt: "execute resolve-models task from adversarial-audit")` |
+| `test-quality-audit` | `task(..., prompt: "execute test-quality-audit task from adversarial-audit")` |
 
 **CLI equivalent (for human TUI use):** `/skill adversarial-audit --task <type>`
 
@@ -95,6 +97,7 @@ All auditor dispatch MUST follow cleanroom discipline:
 | `spec-summary` | `{ pr_number, spec_issue, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `closure-verification` | `{ pr_number, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `cross-validate` | `{ evidence_payload, evaluation_criteria, auditor_1, auditor_2, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, prior verification |
+| `test-quality-audit` | `{ spec_success_criteria, file_paths_changed, vbc_artifact_path, worktree.path, github.owner, github.repo }` | Implementation context, agent memory, implementation details |
 | `resolve-models` | `{ orchestrator_model, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `completion` | `{ workflow_state, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 
@@ -203,6 +206,27 @@ rules:
     conditions:
       all: ["evidence_source == 'memory' OR evidence_source == 'training_data'", "live_source_verified == false"]
     actions: [REJECT_EVIDENCE, REQUIRE_LIVE_VERIFICATION]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-013
+    title: "1st non-PASS at same pipeline stage triggers re-dispatch with fresh model pair"
+    conditions:
+      all: ["result != 'PASS'", "pipeline_stage == previous_stage", "attempt_count == 1"]
+    actions: [RE_DISPATCH_FRESH_MODEL_PAIR]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-014
+    title: "2nd consecutive non-PASS routes to spec-audit with failure_description"
+    conditions:
+      all: ["result != 'PASS'", "pipeline_stage == previous_stage", "attempt_count == 2"]
+    actions: [ROUTE_SPEC_AUDIT_WITH_FAILURE]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-015
+    title: "3rd consecutive non-PASS triggers BLOCKED — pipeline halt, human intervention"
+    conditions:
+      all: ["result != 'PASS'", "pipeline_stage == previous_stage", "attempt_count == 3"]
+    actions: [BLOCK_PIPELINE, HALT, REPORT_EXECUTIVE_SUMMARY]
     source: "adversarial-audit/SKILL.md"
 ```
 

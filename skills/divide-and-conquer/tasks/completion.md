@@ -19,7 +19,7 @@ Idempotent completion subtask for divide-and-conquer. Ensures mandatory steps ru
 ## Skill-Specific Completion
 
 1. **If verification-before-completion not yet invoked:** Invoke `--task verify`
-   - Check if verification evidence exists in issue comments or `./tmp/`
+   - Check if verification evidence exists in issue comments or `./tmp/artifacts/`
    - If missing: invoke verification before proceeding
 2. **If finishing-a-development-branch not yet invoked:** Invoke `--task checklist`
    - Check if branch readiness checklist has been run
@@ -69,7 +69,7 @@ Co-authored with AI: <AgentName> (<ModelId>)
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
 | "All commits pushed" | Verify no unpushed commits | `git diff @{u} HEAD` | VERIFICATION-GAP |
-| "Verification invoked" | Verify evidence exists | `glob(pattern="./tmp/verification-*")` | MISSING-ELEMENT |
+| "Verification invoked" | Verify evidence exists | `glob(pattern="./tmp/artifacts/verification-*")` | MISSING-ELEMENT |
 | "Checklist completed" | Verify branch readiness | `git status --porcelain` → check clean | VERIFICATION-GAP |
 | "Compare URL generated" | Verify URL exists in context | Check chat output for URL | MISSING-ELEMENT |
 

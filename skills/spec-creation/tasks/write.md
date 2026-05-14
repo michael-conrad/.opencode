@@ -41,7 +41,7 @@ Combine outputs from prerequisite tasks into a coherent spec. The spec should ad
 - **Constraints and scope** — What's in and out of scope
 - **Success criteria** — Testable, binary pass/fail conditions
 - **Risk and edge cases** — What could go wrong and boundary conditions
-- **Implementation approach** — For the reader's understanding, not prescribing HOW (see Step 4.5)
+- **Implementation approach** — For the reader's understanding, not prescribing HOW (see Step 5.5)
 
 Skip areas that don't apply to simple specs; add areas that do. The spec should be self-contained and clear, regardless of structure.
 
@@ -93,7 +93,25 @@ For each feature/requirement:
 - **Behavioral test assertions for rule-changing SCs** — Success criteria that change agent behavior (guideline rules, skill enforcement, critical violations) MUST include a behavioral test assertion describing the RED state (agent behavior without the rule) and GREEN state (agent behavior with the rule), not just a content-verification grep command. Content-verification commands are SECONDARY for rule-changing SCs; behavioral assertions are PRIMARY. See `080-code-standards.md` → Behavioral Enforcement Tests (PRIMARY).
 - **Semantic intent field** — Each success criterion MUST include a brief prose annotation explaining WHY the exact criterion value matters and what semantic distinction it represents. This prevents substituting functionally similar values. Example: "Exit code 2 specifically signals removal of a feature, distinct from exit code 1 which signals a validation failure — these are different error categories for different consumer behaviors." Without semantic intent, an SC is a checklist — it verifies that something happened, but not that the right thing happened for the right reason.
 
-### Step 4: Structure the Deliverable (Principle #10)
+### Step 4: Determinism Gate
+
+For each success criterion, ask: **"If two different auditors read this SC, will they independently produce the same PASS/FAIL result against the same implementation?"**
+
+If the answer is "no", the SC must be rewritten.
+
+**Fail patterns (SC must be rewritten if any match):**
+
+| Pattern | Example | Problem |
+|---------|---------|---------|
+| Adverbs without thresholds | "efficiently", "gracefully", "quickly" | Subjective — different auditors assign different thresholds |
+| Comparatives without baselines | "faster than before", "more robust" | Unknown reference point — cannot be evaluated without historical data |
+| Open-ended quality requirements | "handle edge cases", "be resilient" | No enumerated cases or failure modes specified |
+| Missing expected values | "returns the correct result", "validates input" | No concrete expected value to compare against |
+| Implicit behavior | "should not crash", "works normally" | No negative criterion — what constitutes "not crashing" is undefined |
+
+**Verification:** For each SC, attempt to write an executable verification command (`uv run pytest test_X.py::test_Y`, `bash verify.sh arg`, `github_issue_read()` with specific field check). If no executable command can be written, the SC is not deterministic.
+
+### Step 5: Structure the Deliverable (Principle #10)
 
 **Content coverage matters more than section structure.** The agent chooses the optimal structure for the spec's complexity:
 
@@ -103,7 +121,7 @@ For each feature/requirement:
 
 **Any format that covers the required content areas is acceptable.** The agent decides the structure that best serves the specific spec.
 
-### Step 4.5: Spec/Plan Boundary Check
+### Step 5.5: Spec/Plan Boundary Check
 
 Review the assembled spec for plan-level content that belongs in the implementation plan, not the spec. Specs describe **WHAT** and **WHY**; plans describe **HOW**.
 
@@ -119,7 +137,7 @@ Review the assembled spec for plan-level content that belongs in the implementat
 
 **Self-review question:** "Could two developers produce valid but different implementations from this spec?" If yes, the spec is at the right level. If no — if the spec only allows one implementation — it contains plan-level detail that should be removed.
 
-### Step 5: Self-Review
+### Step 6: Self-Review
 
 After writing the spec, review with fresh eyes:
 
@@ -134,7 +152,7 @@ Fix any issues inline. No need to re-review — just fix and move on.
 
 **SC Verification Column Precision Sub-Check:** Scan the Verification column of every SC table for vague verification methods (describes what to check without specifying exact expected value). Flag each vague entry as a STRUCTURE-VIOLATION requiring rewrite with an executable verification command per `140-planning-spec-creation.md` Executable Verification Commands mandate. The spec should read as a coherent narrative document, not as a mechanical checklist.
 
-### Step 5.5: Evidence Artifact Verification (MANDATORY)
+### Step 6.5: Evidence Artifact Verification (MANDATORY)
 
 **🚫 CRITICAL: Each self-review checkpoint MUST produce a tool-call artifact demonstrating the verification was performed. Assertions without tool-call evidence are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
 
@@ -168,9 +186,9 @@ Action: [auto-fix|conditional|flag-for-review]
 
 ### Post-Review: Verification Revisit (MANDATORY)
 
-After Step 5 self-review and Step 5.5 evidence verification, invoke `verification-enforcement --task revisit`. This pass scans the spec for any remaining `⚠️ UNVERIFIED` markers and attempts to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The spec must not be submitted as a GitHub Issue while unverified claims remain without developer acknowledgment.
+After Step 6 self-review and Step 6.5 evidence verification, invoke `verification-enforcement --task revisit`. This pass scans the spec for any remaining `⚠️ UNVERIFIED` markers and attempts to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The spec must not be submitted as a GitHub Issue while unverified claims remain without developer acknowledgment.
 
-### Step 6: Create GitHub Issue
+### Step 7: Create GitHub Issue
 
 Invoke `issue-operations` skill to persist the spec as a GitHub Issue:
 
@@ -196,15 +214,15 @@ Invoke `issue-operations` skill to persist the spec as a GitHub Issue:
 - Claim spec is "written" without a GitHub Issue URL
 - Ask the user to review the spec in chat
 
-### Step 7: User Review on Issue
+### Step 8: User Review on Issue
 
 The user reviews the spec ON THE GITHUB ISSUE, not in chat.
 
 - If user requests revisions via issue comments: update the issue body, then post update summary + URL + byline to chat
-- If user approves the spec on the issue: proceed to Step 8
+- If user approves the spec on the issue: proceed to Step 9
 - Do NOT re-dump the spec to chat for any reason
 
-### Step 8: Transition
+### Step 9: Transition
 
 After user approval of the spec on the GitHub Issue:
 

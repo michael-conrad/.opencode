@@ -129,7 +129,7 @@ Co-authored with AI: <AgentName> (<ModelId>)
 |-------|-------------------|-----------|---------------|
 | "Authorization context preserved" | Verify work state contains auth | Read work state file for auth section | STRUCTURE-VIOLATION |
 | "All commits made" | Verify clean working tree | `git status --porcelain` | VERIFICATION-GAP |
-| "Verification passed" | Verify evidence artifacts exist | `glob(pattern="./tmp/verification-*")` | MISSING-ELEMENT |
+| "Verification passed" | Verify evidence artifacts exist | `glob(pattern="./tmp/artifacts/verification-*")` | MISSING-ELEMENT |
 | "Checklist completed" | Verify branch readiness | `git status --porcelain` and test execution | VERIFICATION-GAP |
 
 **Evidence artifacts:** See enforcement/work-state-verification.md §Evidence Artifacts

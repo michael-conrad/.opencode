@@ -24,9 +24,9 @@ Orchestrate work execution by dispatching sub-agents for each approved issue, us
 
 ### Step 1: Verify Gate Evidence Audit and Determine Execution Order
 
-**🚫 CRITICAL PREREQUISITE: Before determining execution order, verify the Gate Evidence Audit Table exists in the work state file (`tmp/work-*.md`).**
+**🚫 CRITICAL PREREQUISITE: Before determining execution order, verify the Gate Evidence Audit Table exists in the work state file (`./tmp/artifacts/work-*.md`).**
 
-- Read the work state file from `pre-implementation-analysis` (`tmp/work-*.md`)
+- Read the work state file from `pre-implementation-analysis` (`./tmp/artifacts/work-*.md`)
 
 - **If the Gate Evidence Audit Table is missing** AND any issues were classified as "already-implemented" during screening: HALT and return to `pre-implementation-analysis` Step 0.5 to complete the audit. The table is a mandatory structural artifact — its absence means Gate 1 and Gate 2 evidence was not verified.
 
@@ -53,7 +53,7 @@ Before any worktree creation or sub-agent dispatch, create the dispatch entry ma
 ```bash
 CURRENT_BRANCH=$(git branch --show-current)
 SAFE_BRANCH=$(echo "$CURRENT_BRANCH" | tr '/' '-')
-touch tmp/dispatch-"$SAFE_BRANCH".marker
+mkdir -p ./tmp/artifacts && touch ./tmp/artifacts/dispatch-"$SAFE_BRANCH".marker
 ```
 
 This marker serves as dispatch entry proof. The pre-commit hook (`.opencode/hooks/pre-commit` lines 33-129) checks for this marker before allowing commits.
@@ -192,6 +192,16 @@ The orchestrator posts the decision log entry after each sub-agent returns. If p
 - For independent issues: continue to next issue
 - For must-precede chains: skip dependent issues, report both
 
+### Step 3.5: Remediation Loop (MANDATORY)
+
+After collecting a sub-agent result that is not PASS, apply the remediation loop before proceeding:
+
+- **1st non-PASS for the same pipeline stage** → re-dispatch with a fresh random model pair. The original verdict is preserved in the result contract for comparison. The new sub-agent receives the same scoped context and spec, with no exposure to the prior attempt's output.
+- **2nd consecutive non-PASS for the same pipeline stage** → route to `adversarial-audit --task spec-audit` with `failure_description` from the attempt. The spec auditor evaluates whether SCs are deterministic and testable based on the failure evidence.
+- **3rd consecutive non-PASS for the same pipeline stage** → BLOCKED. Pipeline halt. Human intervention required. An executive summary of all 3 attempts (verdicts, failure descriptions, auditor recommendations) is generated and reported.
+
+**Count tracking:** The pass/fail counter resets when moving to the next pipeline stage (e.g., from implementation to verification). A non-PASS on the new stage starts a fresh 1st/2nd/3rd sequence.
+
 ### Step 4: Work Assembly
 
 After ALL issues in the work set complete:
@@ -230,7 +240,7 @@ After ALL issues in the work set complete:
 
 Before creating ANY pull request, verify:
 
-1. Work state file exists at `tmp/work-*.md`
+1. Work state file exists at `./tmp/artifacts/work-*.md`
 2. All feature branches listed in work state have been squash-merged into the work branch
 3. The work branch has exactly one squash-merge commit per issue
 4. Working tree is clean (no uncommitted changes)
@@ -429,7 +439,7 @@ Co-authored with AI: <AgentName> (<ModelId>)
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Work state file exists" | Verify work state file in `./tmp/` | `glob(pattern="./tmp/work-*.md")` | MISSING-ELEMENT |
+| "Work state file exists" | Verify work state file in `./tmp/artifacts/` | `glob(pattern="./tmp/artifacts/work-*.md")` | MISSING-ELEMENT |
 | "All sub-agents returned" | Verify result contracts collected | Check for all expected result contracts | VERIFICATION-GAP |
 | "Branch merged into work branch" | Verify merge commit exists | `git log --oneline work-branch` → check merge messages | VERIFICATION-GAP |
 | "Decision log persisted" | Verify comment on Plan issue | `github_issue_read(method=get_comments)` → search for decision log | MISSING-ELEMENT |
