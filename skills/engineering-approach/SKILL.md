@@ -28,6 +28,7 @@ Engineering discipline checklist enforcing: understand before solving, design be
 
 | Task | Dispatch |
 |------|----------|
+| `verify-understanding` | `task(..., prompt: "execute verify-understanding task from engineering-approach")` |
 | `design-before-code` | `task(..., prompt: "execute design-before-code task from engineering-approach")` |
 | `verify-before-complete` | `task(..., prompt: "execute verify-before-complete task from engineering-approach")` |
 | `completion` | `task(..., prompt: "execute completion task from engineering-approach")` |
