@@ -52,7 +52,13 @@ compatibility: opencode
 
 ## Invocation
 
-`/skill test-driven-development --task <name>`. No flag = overview.
+`skill({name: "test-driven-development"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| (use task name) | `task(..., prompt: "execute <task> task from test-driven-development")` |
+
+**CLI equivalent (for human TUI use):** `/skill test-driven-development --task <name>`
 
 ## Gate Descriptions
 

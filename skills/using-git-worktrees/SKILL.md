@@ -27,7 +27,15 @@ Worktree Setup Specialist. Focus: creating safe, isolated git worktrees for para
 
 ## Invocation
 
-`/skill using-git-worktrees --task create-worktree`, `--task verify-worktree`, `--task completion`. Overview with no flag.
+`skill({name: "using-git-worktrees"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `create-worktree` | `task(..., prompt: "execute create-worktree task from using-git-worktrees")` |
+| `verify-worktree` | `task(..., prompt: "execute verify-worktree task from using-git-worktrees")` |
+| `completion` | `task(..., prompt: "execute completion task from using-git-worktrees")` |
+
+**CLI equivalent (for human TUI use):** `/skill using-git-worktrees --task <task>`
 
 ## Worktree Location
 

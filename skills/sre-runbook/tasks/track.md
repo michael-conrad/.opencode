@@ -6,7 +6,7 @@ Track an incident or change via GitHub Issue with structured labels and prose na
 
 ## Operating Protocol
 
-1. Invoked by: `/skill sre-runbook --task track`
+1. Invoked by: `skill({name: "sre-runbook"})` → `task()` for `track`
 2. When to use: When tracking an incident, outage, or change through its lifecycle
 3. Exit criteria: GitHub Issue created/updated with structured labels and prose narrative
 

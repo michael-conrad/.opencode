@@ -70,3 +70,10 @@ URL is ALWAYS last per `000-critical-rules.md`.
 | Unpushed commits found | VERIFICATION-GAP | auto-fix | Push immediately |
 | Compare URL uses wrong base | STRUCTURE-VIOLATION | auto-fix | Regenerate URL |
 | Status comment missing | MISSING-ELEMENT | auto-fix | Post comment now |
+
+## Pipeline Signal
+
+```
+CONTINUE: git-workflow --task review-prep
+HALT
+```

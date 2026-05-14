@@ -6,7 +6,7 @@ Apply a minimal targeted fix after diagnosis has confirmed the root cause. Requi
 
 ## Operating Protocol
 
-1. Invoked by: `/skill systematic-debugging --task fix`
+1. Invoked by: `skill({name: "systematic-debugging"})` → `task()` for `fix`
 2. When to use: After `--task diagnose` has identified root cause AND user has explicitly authorized the fix
 3. Exit criteria: Fix applied, verified, no regression introduced
 

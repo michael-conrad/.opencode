@@ -26,7 +26,16 @@ Conflict Resolution Specialist. Focus: no committed work or spec intent silently
 
 ## Invocation
 
-Automatic from `git-workflow` when conflicts detected. Manual: `/skill conflict-resolution --task classify-and-resolve`, `--task completion`.
+Automatic from `git-workflow` when conflicts detected. Manual dispatch:
+
+`skill({name: "conflict-resolution"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `classify-and-resolve` | `task(..., prompt: "execute classify-and-resolve task from conflict-resolution")` |
+| `completion` | `task(..., prompt: "execute completion task from conflict-resolution")` |
+
+**CLI equivalent (for human TUI use):** `/skill conflict-resolution --task <task>`
 
 ## Sub-Agent Dispatch Audit
 

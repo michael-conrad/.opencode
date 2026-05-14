@@ -23,7 +23,15 @@ Branch completion workflow ensuring feature branch is fully ready for PR. Verifi
 
 ## Invocation
 
-`/skill finishing-a-development-branch --task prepare` (branch readiness), `--task checklist` (verification checklist), `--task completion` (halt guarantee). Overview with no flag.
+`skill({name: "finishing-a-development-branch"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `prepare` | `task(..., prompt: "execute prepare task from finishing-a-development-branch")` |
+| `checklist` | `task(..., prompt: "execute checklist task from finishing-a-development-branch")` |
+| `completion` | `task(..., prompt: "execute completion task from finishing-a-development-branch")` |
+
+**CLI equivalent (for human TUI use):** `/skill finishing-a-development-branch --task <task>`
 
 ## Operating Protocol
 

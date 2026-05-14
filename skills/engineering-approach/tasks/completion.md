@@ -25,4 +25,10 @@ engineering_approach_workflow_complete: true
 stale_artifacts_cleared: true
 ```
 
+## Pipeline Signal
+
+```
+HALT
+```
+
 Co-authored with AI: <AgentName> (<ModelId>)

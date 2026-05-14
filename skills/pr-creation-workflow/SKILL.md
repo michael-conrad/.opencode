@@ -25,7 +25,15 @@ Feature PRs target `dev` only. Release PRs (dev→main) handled by `git-workflow
 
 ## Invocation
 
-`/skill pr-creation-workflow --task pre-pr-checklist` (mandatory checks), `--task sub-issue-collection` (sub-issue autoclose), `--task completion` (halt guarantee). Overview with no flag.
+`skill({name: "pr-creation-workflow"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `pre-pr-checklist` | `task(..., prompt: "execute pre-pr-checklist task from pr-creation-workflow")` |
+| `sub-issue-collection` | `task(..., prompt: "execute sub-issue-collection task from pr-creation-workflow")` |
+| `completion` | `task(..., prompt: "execute completion task from pr-creation-workflow")` |
+
+**CLI equivalent (for human TUI use):** `/skill pr-creation-workflow --task <task>`
 
 ## Operating Protocol
 

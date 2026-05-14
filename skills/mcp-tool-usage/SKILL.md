@@ -30,8 +30,13 @@ Tool Priority Enforcer ensuring all operations use the correct tool according to
 
 ## Invocation
 
-- `/skill mcp-tool-usage --task selection-guide` - Tool selection decision trees
-- `/skill mcp-tool-usage` - Overview only
+`skill({name: "mcp-tool-usage"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `selection-guide` | `task(..., prompt: "execute selection-guide task from mcp-tool-usage")` |
+
+**CLI equivalent (for human TUI use):** `/skill mcp-tool-usage --task <task>`
 
 ## Five-Tier Tool Priority Hierarchy
 

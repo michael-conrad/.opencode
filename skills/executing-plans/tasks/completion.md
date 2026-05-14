@@ -54,6 +54,13 @@ Generate executive summary in chat:
 🤖 <AgentName> (<ModelId>) <status>
 ```
 
+## Pipeline Signal
+
+```
+CONTINUE: divide-and-conquer --task assemble-work
+HALT
+```
+
 ### Format Verification Before Halt (MANDATORY)
 
 **Idempotent — safe to invoke multiple times. This verification runs before EVERY halt, regardless of path.**

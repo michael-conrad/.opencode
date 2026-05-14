@@ -75,3 +75,10 @@ This checkpoint catches direct API calls that bypassed the `issue-operations` sk
 |--------|---------------|----------------|--------|
 | No verification report found | VERIFICATION-GAP | conditional | Re-run verification |
 | Criterion lacks evidence | MISSING-ELEMENT | conditional | Collect evidence for missing criterion |
+
+## Pipeline Signal
+
+```
+CONTINUE: finishing-a-development-branch --task checklist
+HALT
+```

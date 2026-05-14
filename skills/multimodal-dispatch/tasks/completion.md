@@ -45,4 +45,10 @@ Follow the completion-core reference for:
 - Invoked by: end of multimodal-dispatch workflow
 - Related tasks: `probe`, `resolve`, `dispatch`, `dispatch-multi`
 
+## Pipeline Signal
+
+```
+HALT
+```
+
 Co-authored with AI: <AgentName> (<ModelId>)

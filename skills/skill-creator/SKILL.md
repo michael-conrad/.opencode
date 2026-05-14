@@ -26,7 +26,16 @@ Also manages duplicate text blocks across skills (formerly `fragment-manager` sk
 
 ## Invocation
 
-`/skill skill-creator --task init` (create from template), `--task package` (zip distributable), `--task validate` (semantic review), `--task fragment-management` (fragment CRUD/sync). Overview with no flag.
+`skill({name: "skill-creator"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `init` | `task(..., prompt: "execute init task from skill-creator")` |
+| `package` | `task(..., prompt: "execute package task from skill-creator")` |
+| `validate` | `task(..., prompt: "execute validate task from skill-creator")` |
+| `fragment-management` | `task(..., prompt: "execute fragment-management task from skill-creator")` |
+
+**CLI equivalent (for human TUI use):** `/skill skill-creator --task <task>`
 
 ## Operating Protocol
 

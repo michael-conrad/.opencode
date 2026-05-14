@@ -6,7 +6,7 @@ Pull core guideline/skill changes from source repository into local repository v
 
 ## Operating Protocol
 
-1. Invoked by: `/skill sync-guidelines --task sync-pull`
+1. Invoked by: `skill({name: "sync-guidelines"})` → `task()` for `sync-pull`
 2. When to use: When syncing changes FROM source repo INTO local repo
 3. Exit criteria: Sync issue created in source repo with classified files
 

@@ -53,6 +53,13 @@ Compare URL: <gitbucket.html_url><github.owner>/<github.repo>/compare/dev...<bra
 
 URL is ALWAYS last per `000-critical-rules.md`.
 
+## Pipeline Signal
+
+```
+CONTINUE: code-quality-reviewer
+HALT
+```
+
 Co-authored with AI: <AgentName> (<ModelId>)
 
 ## Live Verification: Completion State (MANDATORY)

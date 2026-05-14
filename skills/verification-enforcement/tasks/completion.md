@@ -39,3 +39,9 @@ Escalated claims:
 
 - Invoked by: end of verification-enforcement workflow
 - Related tasks: `verify`, `revisit`, `enforce`
+
+## Pipeline Signal
+
+```
+HALT
+```

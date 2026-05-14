@@ -166,3 +166,10 @@ The agent's visible output is generated:
 
 - Evidence format + finding classification: see `enforcement/adversarial-verification.md`
 - Scope parsing: see `enforcement/scope-parsing.md`
+
+## Pipeline Signal
+
+```
+CONTINUE: writing-plans
+HALT
+```

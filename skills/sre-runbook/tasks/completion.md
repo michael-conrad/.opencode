@@ -59,6 +59,12 @@ Generate executive summary in chat:
 🤖 <AgentName> (<ModelId>) <status>
 ```
 
+## Pipeline Signal
+
+```
+HALT
+```
+
 ### Format Verification Before Halt (MANDATORY)
 
 **Idempotent — safe to invoke multiple times. This verification runs before EVERY halt, regardless of path.**

@@ -24,7 +24,14 @@ No single-issue bypass — single = work of one = one sub-agent.
 
 ## Invocation
 
-`/skill executing-plans --task execute` (dispatch to assemble-work), `--task completion` (halt guarantee). Overview with no flag.
+`skill({name: "executing-plans"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `execute` | `task(..., prompt: "execute execute task from executing-plans")` |
+| `completion` | `task(..., prompt: "execute completion task from executing-plans")` |
+
+**CLI equivalent (for human TUI use):** `/skill executing-plans --task <task>`
 
 ## Operating Protocol
 

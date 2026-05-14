@@ -6,7 +6,7 @@ Intelligently classify files as core (sync bidirectionally) or project-specific 
 
 ## Operating Protocol
 
-1. Invoked by: `/skill sync-guidelines --task classify`
+1. Invoked by: `skill({name: "sync-guidelines"})` → `task()` for `classify`
 2. When to use: When discovering files that need classification during a sync operation
 3. Exit criteria: All discovered files classified with reasoning documented
 

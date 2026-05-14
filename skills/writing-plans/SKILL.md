@@ -30,7 +30,14 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 
 ## Invocation
 
-`/skill writing-plans --task create` (create plan from approved spec), `--task completion` (halt guarantee). Overview with no flag.
+`skill({name: "writing-plans"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `create` | `task(..., prompt: "execute create task from writing-plans")` |
+| `completion` | `task(..., prompt: "execute completion task from writing-plans")` |
+
+**CLI equivalent (for human TUI use):** `/skill writing-plans --task <task>`
 
 ## Operating Protocol
 

@@ -24,7 +24,16 @@ Transforms git commits into polished, user-friendly changelogs. Category-based o
 
 ## Invocation
 
-`/skill changelog-generator --task since-last-release` (since last update), `--task date-range --from DATE --to DATE`, `--task backfill` (historical catchup), `--task completion` (halt guarantee). Overview with no flag.
+`skill({name: "changelog-generator"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `since-last-release` | `task(..., prompt: "execute since-last-release task from changelog-generator")` |
+| `date-range` | `task(..., prompt: "execute date-range task from changelog-generator with --from DATE --to DATE")` |
+| `backfill` | `task(..., prompt: "execute backfill task from changelog-generator")` |
+| `completion` | `task(..., prompt: "execute completion task from changelog-generator")` |
+
+**CLI equivalent (for human TUI use):** `/skill changelog-generator --task <task>`
 
 ## Sub-Agent Dispatch Audit
 

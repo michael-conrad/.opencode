@@ -25,7 +25,17 @@ Intelligently synchronizes guidelines, skills, and tools between repos via GitHu
 
 ## Invocation
 
-`/skill sync-guidelines --task classify`, `--task sync-push`, `--task sync-pull`, `--task issue-format`, `--task completion`. Overview with no flag.
+`skill({name: "sync-guidelines"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `classify` | `task(..., prompt: "execute classify task from sync-guidelines")` |
+| `sync-push` | `task(..., prompt: "execute sync-push task from sync-guidelines")` |
+| `sync-pull` | `task(..., prompt: "execute sync-pull task from sync-guidelines")` |
+| `issue-format` | `task(..., prompt: "execute issue-format task from sync-guidelines")` |
+| `completion` | `task(..., prompt: "execute completion task from sync-guidelines")` |
+
+**CLI equivalent (for human TUI use):** `/skill sync-guidelines --task <task>`
 
 ## Sub-Agent Dispatch Audit
 

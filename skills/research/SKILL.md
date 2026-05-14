@@ -26,7 +26,14 @@ Research Agent. Focus: discover information, produce findings with source attrib
 
 ## Invocation
 
-`/skill research --task research` (full research workflow), `--task completion`. Overview with no flag.
+`skill({name: "research"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `research` | `task(..., prompt: "execute research task from research")` |
+| `completion` | `task(..., prompt: "execute completion task from research")` |
+
+**CLI equivalent (for human TUI use):** `/skill research --task <task>`
 
 ## ResearchResult Schema
 

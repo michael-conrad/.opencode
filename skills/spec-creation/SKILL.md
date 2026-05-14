@@ -34,7 +34,19 @@ Spec Architect. Focus: structure investigation results into complete, well-organ
 
 ## Invocation
 
-`/skill spec-creation` (full workflow), `--task requirements` (requirements only), `--task decompose`, `--task traceability`, `--task risk`, `--task diagram`, `--task write` (assemble + issue), `--task completion`. Overview with no flag.
+`skill({name: "spec-creation"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `requirements` | `task(..., prompt: "execute requirements task from spec-creation")` |
+| `decompose` | `task(..., prompt: "execute decompose task from spec-creation")` |
+| `traceability` | `task(..., prompt: "execute traceability task from spec-creation")` |
+| `risk` | `task(..., prompt: "execute risk task from spec-creation")` |
+| `diagram` | `task(..., prompt: "execute diagram task from spec-creation")` |
+| `write` | `task(..., prompt: "execute write task from spec-creation")` |
+| `completion` | `task(..., prompt: "execute completion task from spec-creation")` |
+
+**CLI equivalent (for human TUI use):** `/skill spec-creation --task <task>`
 
 ## Operating Protocol
 

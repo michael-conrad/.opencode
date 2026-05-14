@@ -24,7 +24,15 @@ Engineering discipline checklist enforcing: understand before solving, design be
 
 ## Invocation
 
-`/skill engineering-approach --task design-before-code`, `--task verify-before-complete`. Overview with no flag.
+`skill({name: "engineering-approach"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `design-before-code` | `task(..., prompt: "execute design-before-code task from engineering-approach")` |
+| `verify-before-complete` | `task(..., prompt: "execute verify-before-complete task from engineering-approach")` |
+| `completion` | `task(..., prompt: "execute completion task from engineering-approach")` |
+
+**CLI equivalent (for human TUI use):** `/skill engineering-approach --task <task>`
 
 ## Operating Protocol
 

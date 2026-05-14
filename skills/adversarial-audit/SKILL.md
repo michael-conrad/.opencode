@@ -36,13 +36,23 @@ Adversarial Audit Orchestrator. Dispatches cross-family auditor sub-agents, coll
 
 ## Invocation
 
-`/skill adversarial-audit --task <type>` where `<type>` is one of the individual tasks below. Multi-type dispatch uses sequential direct calls.
+`skill({name: "adversarial-audit"})` — load the skill, then dispatch a task:
 
-Valid types: `spec-audit`, `plan-fidelity`, `concern-separation`, `coherence-extraction`, `coherence-maintenance`, `guideline-audit`, `drift-detection`, `spec-summary`, `closure-verification`.
+| Task | Dispatch |
+|------|----------|
+| `spec-audit` | `task(..., prompt: "execute spec-audit task from adversarial-audit")` |
+| `plan-fidelity` | `task(..., prompt: "execute plan-fidelity task from adversarial-audit")` |
+| `concern-separation` | `task(..., prompt: "execute concern-separation task from adversarial-audit")` |
+| `coherence-extraction` | `task(..., prompt: "execute coherence-extraction task from adversarial-audit")` |
+| `coherence-maintenance` | `task(..., prompt: "execute coherence-maintenance task from adversarial-audit")` |
+| `guideline-audit` | `task(..., prompt: "execute guideline-audit task from adversarial-audit")` |
+| `drift-detection` | `task(..., prompt: "execute drift-detection task from adversarial-audit")` |
+| `spec-summary` | `task(..., prompt: "execute spec-summary task from adversarial-audit")` |
+| `closure-verification` | `task(..., prompt: "execute closure-verification task from adversarial-audit")` |
+| `cross-validate` | `task(..., prompt: "execute cross-validate task from adversarial-audit")` |
+| `resolve-models` | `task(..., prompt: "execute resolve-models task from adversarial-audit")` |
 
-For cross-validation: `/skill adversarial-audit --task cross-validate` (orchestrator passes pre-resolved `auditor_1` and `auditor_2` in dispatch context).
-
-For auditor model resolution: `/skill adversarial-audit --task resolve-models` (called by orchestrator before cross-validate, NOT by cross-validate itself).
+**CLI equivalent (for human TUI use):** `/skill adversarial-audit --task <type>`
 
 ## Cleanroom Dispatch Protocol
 

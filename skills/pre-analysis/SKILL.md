@@ -40,9 +40,14 @@ You are a Pre-Analysis Gatekeeper. Your focus is independently discovering scope
 
 ## Invocation
 
-- `/skill pre-analysis` — Overview only
-- `/skill pre-analysis --task analyze` — Independently discover scope and return a dispatch plan
-- `/skill pre-analysis --task completion` — Invoke when workflow halts at any point
+`skill({name: "pre-analysis"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `analyze` | `task(..., prompt: "execute analyze task from pre-analysis")` |
+| `completion` | `task(..., prompt: "execute completion task from pre-analysis")` |
+
+**CLI equivalent (for human TUI use):** `/skill pre-analysis --task <task>`
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask is idempotent and safe to invoke multiple times.
 

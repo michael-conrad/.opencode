@@ -39,7 +39,18 @@ Divide and Conquer Orchestrator. Assess context fitness, decompose work, dispatc
 
 ## Invocation
 
-`/skill divide-and-conquer --task orchestrate`, `--task assemble-work`, `--task assess`, `--task decompose`, `--task dispatch`, `--task completion`.
+`skill({name: "divide-and-conquer"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `orchestrate` | `task(..., prompt: "execute orchestrate task from divide-and-conquer")` |
+| `assemble-work` | `task(..., prompt: "execute assemble-work task from divide-and-conquer")` |
+| `assess` | `task(..., prompt: "execute assess task from divide-and-conquer")` |
+| `decompose` | `task(..., prompt: "execute decompose task from divide-and-conquer")` |
+| `dispatch` | `task(..., prompt: "execute dispatch task from divide-and-conquer")` |
+| `completion` | `task(..., prompt: "execute completion task from divide-and-conquer")` |
+
+**CLI equivalent (for human TUI use):** `/skill divide-and-conquer --task <task>`
 
 ## Sub-Agent Dispatch Audit
 

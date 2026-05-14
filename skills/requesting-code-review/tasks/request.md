@@ -6,7 +6,7 @@ Submit a review request after the PR has been prepared with proper context and d
 
 ## Operating Protocol
 
-1. Invoked by: `/skill requesting-code-review --task request`
+1. Invoked by: `skill({name: "requesting-code-review"})` → `task()` for `request`
 2. When to use: After `--task prepare` is complete and PR is ready
 3. Exit criteria: Review request submitted, HALT and wait for review
 

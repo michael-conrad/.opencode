@@ -27,7 +27,15 @@ SRE-oriented operator writing runbooks for sysops under pressure. Runbooks are o
 
 ## Invocation
 
-`/skill sre-runbook --task generate` (generate runbook), `--task track` (track incident via issue), `--task completion` (halt guarantee). Overview with no flag.
+`skill({name: "sre-runbook"})` — load the skill, then dispatch a task:
+
+| Task | Dispatch |
+|------|----------|
+| `generate` | `task(..., prompt: "execute generate task from sre-runbook")` |
+| `track` | `task(..., prompt: "execute track task from sre-runbook")` |
+| `completion` | `task(..., prompt: "execute completion task from sre-runbook")` |
+
+**CLI equivalent (for human TUI use):** `/skill sre-runbook --task <task>`
 
 ## Operating Protocol
 
