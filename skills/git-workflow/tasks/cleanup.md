@@ -21,6 +21,7 @@ Delete merged branches after PR merge, clean stale references, and verify reposi
 - Remote merged branch deleted (if applicable)
 - Stale remote references pruned
 - Working tree clean
+- Submodule dev restored via `submodule-dev-restore` sub-agent dispatch
 
 ## Procedure
 
@@ -83,7 +84,7 @@ Collects all referenced issues from PR body, classifies each (plan/spec/other), 
 
 **Route to:** `cleanup/branch-cleanup`
 
-Switches to dev, syncs with remote, removes feature worktree, deletes merged branches, verifies clean state.
+Switches to dev, syncs with remote, removes feature worktree, deletes merged branches, dispatches `submodule-dev-restore` sub-agent for each submodule, verifies clean state.
 
 ### Step 4: Post-Cleanup Dev-Tip Verification
 

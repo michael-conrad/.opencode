@@ -30,9 +30,11 @@ Create provenance tracking issues and PRs in submodule repositories after push o
 | -- | -- | -- |
 | **Tier 1** | `full` | Create issue + PR in submodule repo |
 | **Tier 2** | `issue-only` | Create issue only in submodule repo |
-| **Tier 3** | `no-access`, `auth-failed`, `no-repo` | Commit message as provenance record |
+| **Tier 3** | `no-access`, `auth-failed`, `no-repo` | Tag-based provenance via parent-prefixed tags (see `AGENTS.md` §Tag Layers) |
 
 **All fallbacks are silent.** No HALT, no blocking. Git workflow proceeds regardless.
+
+**Tag-based provenance (Tier 3 / release promotion):** Submodule SHAs are tagged with `<parent>/v<version>` and `<parent>/<issue-number>` tags per `AGENTS.md` §Tag-Based Hash Permanence. These tags serve as the provenance record — no separate issue or PR needed.
 
 ## Procedure
 
@@ -76,8 +78,18 @@ For submodule release promotion: creates issue + PR (Tier 1), issue only (Tier 2
 **For promotion-provenance:**
 | Parameter | Source |
 | -- | -- |
-| tag_name | Semver tag created for release |
+| tag_name | Parent-prefixed semver tag (`<parent>/v<version>`) |
 | source_branch | Branch promoted (typically `dev`) |
+
+**Tag layer reference:** See `AGENTS.md` §Tag Layers for the three tag types:
+
+| Tag | When Created | Example |
+|-----|-------------|---------|
+| `<parent>/<issue-number>` | Pre-work (feature dev start) | `opencode-config/221` |
+| `<parent>/<issue-number>-<sub>` | Feature-branch push | `opencode-config/221-opencode` |
+| `<parent>/v<N.N.N>` | Release promotion | `opencode-config/v0.1.1` |
+
+These tag types correspond to provenance tiers. Release tags (`<parent>/v*`) provide Tier 3 provenance automatically — no separate issue or PR creation needed.
 
 ## Context Required
 
