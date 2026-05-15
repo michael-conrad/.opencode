@@ -46,7 +46,7 @@ Analyze cross-issue relationships using file/symbol references from screening re
 
 1. **Cross-issue sub-issue pairs:** If a parent and its sub-issues are both included:
    - Default: omit sub-issues — parent's cascade covers them
-   - Exception: isolated sub-issues with no file overlap → dispatch to own sub-agent
+    - Exception: isolated sub-issues with no file overlap → task() to own sub-agent
    - Edge case: parent excluded but sub-issues included → include independently
 
 1. **Merge-time conflict risk:** Issues touching the same file in different sections. Noted in execution plan for `assemble-work` handling. Do NOT block execution.

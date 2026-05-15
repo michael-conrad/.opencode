@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Query the Ollama API for available models and their capabilities, building a `CapabilitySnapshot` that other tasks use for routing decisions. This task is the entry point for all dispatch operations — without a capability snapshot, no routing can occur.
+Query the Ollama API for available models and their capabilities, building a `CapabilitySnapshot` that other tasks use for routing decisions. This task is the entry point for all task() operations — without a capability snapshot, no routing can occur.
 
 ## Entry Criteria
 
@@ -129,7 +129,7 @@ rm -f ./tmp/capability-snapshot.json
 
 The next `probe` call will rebuild from scratch.
 
-**Event-driven invalidation:** When the agent observes an `ollama pull` or `ollama rm` command being run (in any context), it MUST call `invalidate_cache()` before the next dispatch. This ensures the capability snapshot reflects the current model state.
+**Event-driven invalidation:** When the agent observes an `ollama pull` or `ollama rm` command being run (in any context), it MUST call `invalidate_cache()` before the next task(). This ensures the capability snapshot reflects the current model state.
 
 **TTL-based invalidation:** Even without explicit events, TTL ensures stale snapshots are never served. A snapshot older than 300 seconds is treated as missing and rebuilt on the next `probe` call.
 
@@ -144,7 +144,7 @@ The next `probe` call will rebuild from scratch.
 ## Context Required
 
 - Invoked by: `multimodal-dispatch` skill entry point, or any task needing model capabilities
-- Followed by: `resolve` (modality routing) or `dispatch` (sub-agent dispatch)
+- Followed by: `resolve` (modality routing) or `dispatch` (sub-agent task())
 - Related tasks: `resolve`, `dispatch`, `dispatch-multi`
 
 Co-authored with AI: <AgentName> (<ModelId>)

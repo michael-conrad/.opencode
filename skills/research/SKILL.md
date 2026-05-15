@@ -26,9 +26,9 @@ Research Agent. Focus: discover information, produce findings with source attrib
 
 ## Invocation
 
-`skill({name: "research"})` — call the skill, then dispatch a task:
+`skill({name: "research"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `research` | `task(..., prompt: "execute research task from research")` |
 | `completion` | `task(..., prompt: "execute completion task from research")` |
@@ -39,9 +39,9 @@ Research Agent. Focus: discover information, produce findings with source attrib
 
 `{ status: completed|partial|inconclusive|failed, findings: [{text, source_attribution}], gaps: [{description, modality}], model_used }`. Source attribution mandatory (REQ-11). Unavailable modalities → `(unverified)` with gap description (REQ-5).
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-`research` dispatches via `task(subagent_type="general")` with `{ query, modalities, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
+`research` runs via `task(subagent_type="general")` with `{ query, modalities, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"

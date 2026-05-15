@@ -39,7 +39,7 @@ results:
     completed_work:
       files_changed: ["src/module_d.py"]
       summary: "<partial: sections 1-3 done>"
-    remaining: "<sections 4-5 dispatched to sub-agents>"
+    remaining: "<sections 4-5 task()ed to sub-agents>"
 ```
 
 ### Step 2: Identify Conflicts

@@ -22,7 +22,7 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 OVERALL_RESULT=0
 
 # SC-5: Agent MUST invoke the skill tool, not read task files inline
-assert_skill_invoked "git-workflow" "git-workflow skill dispatch for pre-work trigger" || OVERALL_RESULT=1
+assert_skill_called "git-workflow" "git-workflow skill dispatch for pre-work trigger" || OVERALL_RESULT=1
 
 # SC-5: Agent MUST NOT read skill task files and then execute their steps inline
 # If the agent reads a tasks/*.md file, the very next tool call must be skill() — not an inline execution call

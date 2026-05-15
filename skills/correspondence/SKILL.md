@@ -22,9 +22,9 @@ Enforces multipart/alternative format (text/plain + text/html) for email, stakeh
 
 ## Invocation
 
-`skill({name: "correspondence"})` — call the skill, then dispatch a task:
+`skill({name: "correspondence"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `draft` | `task(..., prompt: "execute draft task from correspondence")` |
 | `completion` | `task(..., prompt: "execute completion task from correspondence")` |
@@ -42,9 +42,9 @@ Enforces multipart/alternative format (text/plain + text/html) for email, stakeh
 7. **Content-type propagation:** match source email format (inspect Content-Type header).
 8. **Attribution verification:** no role-proximity inference — only evidence-backed attribution.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-`draft` dispatches with `{ context, audience_tier, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+`draft` runs with `{ context, audience_tier, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 

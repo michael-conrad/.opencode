@@ -11,7 +11,7 @@ compatibility: opencode
 
 ## Overview
 
-Thin dispatch layer routing plan execution to `divide-and-conquer/assemble-work`. Receives plan context from `approval-gate`. Every approval follows one path: executing-plans → assemble-work → work branch → one PR.
+Thin routing layer routing plan execution to `divide-and-conquer/assemble-work`. Receives plan context from `approval-gate`. Every approval follows one path: executing-plans → assemble-work → work branch → one PR.
 
 No single-issue bypass — single = work of one = one sub-agent.
 
@@ -24,9 +24,9 @@ No single-issue bypass — single = work of one = one sub-agent.
 
 ## Invocation
 
-`skill({name: "executing-plans"})` — call the skill, then dispatch a task:
+`skill({name: "executing-plans"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `execute` | `task(..., prompt: "execute execute task from executing-plans")` |
 | `completion` | `task(..., prompt: "execute completion task from executing-plans")` |
@@ -35,8 +35,8 @@ No single-issue bypass — single = work of one = one sub-agent.
 
 ## Operating Protocol
 
-1. **Requires plan_issue** in dispatch context. HALT if absent.
-2. **Dispatch to divide-and-conquer/assemble-work** with full context.
+1. **Requires plan_issue** in task context. HALT if absent.
+2. **Route to divide-and-conquer/assemble-work** with full context.
 3. **Track phase progress** against plan sub-issues.
 4. **Unified path:** no single-task exemption.
 
@@ -44,9 +44,9 @@ No single-issue bypass — single = work of one = one sub-agent.
 
 From approval-gate: `{ plan_issue, spec_issue, authorization_scope, halt_at, pr_strategy, worktree.path, phase_progress, github.owner, github.repo }`.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-Sub-agents dispatch via `task(subagent_type="general")`. `execute` receives plan context + session vars. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")`. `execute` receives plan context + session vars. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
 
 ### Authorization Context
 ```
@@ -57,8 +57,8 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-### Dispatch Rules
-- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+### Routing Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 ## Cross-References

@@ -13,7 +13,7 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-assert_skill_invoked "git-workflow" || OVERALL_RESULT=1
+assert_skill_called "git-workflow" || OVERALL_RESULT=1
 
 assert_required_pattern_present "check-pr\|cleanup" "check-pr or cleanup task reference" || OVERALL_RESULT=1
 

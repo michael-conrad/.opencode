@@ -1,8 +1,8 @@
 #!/bin/bash
-# Behavioral Enforcement Test: Pre-Flight Dispatch Context Integrity
+# Behavioral Enforcement Test: Pre-Flight Task Context Integrity
 #
 # Verifies that the agent does NOT dispatch sub-agents with contaminating
-# markup in the dispatch context — pre-determined file paths, line numbers,
+# markup in the task context — pre-determined file paths, line numbers,
 # expected outcomes, step-by-step tool recipes, or orchestrator reasoning.
 #
 # Per critical-rules-044 and A4 pre-flight check: sub-agents must receive
@@ -31,12 +31,12 @@ OVERALL_RESULT=0
 
 # The agent when dispatching sub-agents to read/analyze must NOT include
 # pre-determined file paths, line numbers, or expected outcomes in the
-# dispatch context. The sub-agent must discover scope autonomously.
+# task context. The sub-agent must discover scope autonomously.
 
 # Verify no forbidden dispatch-context contamination in agent output.
 # Patterns that indicate the agent preloaded the sub-agent with scope:
-assert_forbidden_pattern_absent "edit.*filePath.*src/env.py" "dispatch context containing pre-determined file path" || OVERALL_RESULT=1
-assert_forbidden_pattern_absent "read.*filePath.*src/env.py" "dispatch context containing pre-determined file path for read" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent "edit.*filePath.*src/env.py" "task context containing pre-determined file path" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent "read.*filePath.*src/env.py" "task context containing pre-determined file path for read" || OVERALL_RESULT=1
 
 # Verify the agent produced a report with at least some tool-call evidence
 # (it should have dispatched a clean-room sub-agent that did the read)

@@ -1,20 +1,20 @@
 # Task: start
 
-Dispatch to divide-and-conquer/assemble-work for implementation.
+Task() to divide-and-conquer/assemble-work for implementation.
 
 ## Purpose
 
-This task dispatches plan execution to `divide-and-conquer --task assemble-work`, which handles all implementation through the unified work workflow.
+This task() routes plan execution to `divide-and-conquer --task assemble-work`, which handles all implementation through the unified work workflow.
 
-## Dispatch Procedure
+## Invocation Procedure
 
 1. **Verify plan approval** — confirm the plan issue has explicit approval in comments
 2. **Verify prerequisites** — feature branch exists, working tree clean, dependencies ready
-3. **Read Plan STATUS to compose initial phase progress** — before dispatching, read the plan issue body to determine which phases (if any) are already marked complete. Compose the initial `phase_progress` for the dispatch context:
+3. **Read Plan STATUS to compose initial phase progress** — before task()ing, read the plan issue body to determine which phases (if any) are already marked complete. Compose the initial `phase_progress` for the task context:
    - If no phases are complete yet: `completed_phases: "No phases completed yet. This is the first phase."`, `concern_boundaries_crossed: ""`, `verification_evidence: ""`
    - If prior phases are complete: list them by concern name using the concern boundary annotations in the plan body, note any transitions between concerns, and summarize verification outcomes from the plan STATUS markers
-4. **Check halt_at boundary** — if `halt_at == plan_created`, HALT. Do NOT dispatch to implementation. The authorization scope stops at plan creation.
-5. **Step 5.5: RED Phase Verification Checkpoint — Content and Behavioral (MANDATORY)** — Before dispatching to divide-and-conquer/assemble-work, the agent MUST verify that for each TDD-marked implementation item, a RED test artifact exists. The type of RED test depends on whether the item is a rule change or a code change:
+4. **Check halt_at boundary** — if `halt_at == plan_created`, HALT. Do NOT task() to implementation. The authorization scope stops at plan creation.
+5. **Step 5.5: RED Phase Verification Checkpoint — Content and Behavioral (MANDATORY)** — Before task()ing to divide-and-conquer/assemble-work, the agent MUST verify that for each TDD-marked implementation item, a RED test artifact exists. The type of RED test depends on whether the item is a rule change or a code change:
 
    - **For rule/guideline items** (changes to `.opencode/guidelines/*.md`, `.opencode/skills/*/SKILL.md`, `.opencode/skills/*/tasks/*.md`, critical violation text, agent behavior rules): The RED test artifact MUST be a **behavioral enforcement test** — one that sends the agent a prompt and verifies the agent does NOT follow the new rule yet (test FAILS because the rule change hasn't been made). Content-verification (grep for text presence) is SECONDARY and does NOT satisfy the behavioral RED gate for rule items. See `080-code-standards.md` → Behavioral Enforcement Tests (PRIMARY) and `091-incremental-build.md` → Behavioral Variant for Rule Items.
    - **For code items** (changes to `src/`, `test/`, Python files, notebook cells): The RED test artifact MUST be a **unit or integration test** that verifies the implementation behavior before the change exists. Standard TDD RED phase applies.
@@ -29,17 +29,17 @@ This task dispatches plan execution to `divide-and-conquer --task assemble-work`
 
 #### Step 5.5a — Verify Behavioral Enforcement Test Files Exist (Missing-Test Recovery)
 
-**5.5a.** Before dispatching, verify behavioral enforcement test files exist for each TDD-marked item. If absent, create them from the spec's Success Criteria test mandate. If present, run them and confirm they fail (RED). If they pass, HALT.
+**5.5a.** Before task()ing, verify behavioral enforcement test files exist for each TDD-marked item. If absent, create them from the spec's Success Criteria test mandate. If present, run them and confirm they fail (RED). If they pass, HALT.
 
 This makes the implementation phase resilient to branch switching, worktree recreation, and developer context-switching.
 
-6. **Dispatch to divide-and-conquer:**
+6. **Task() to divide-and-conquer:**
 
 ```
 /skill divide-and-conquer --task assemble-work
 ```
 
-When dispatching, pass `authorization_scope`, `halt_at`, `pr_strategy`, and `pipeline_phase` alongside `plan_issue`, `spec_issue`, `<github.owner>`, `<github.repo>`, and `<worktree.path>`. The `assemble-work` task uses these fields for scope-aware dispatch boundary enforcement.
+When task()ing, pass `authorization_scope`, `halt_at`, `pr_strategy`, and `pipeline_phase` alongside `plan_issue`, `spec_issue`, `<github.owner>`, `<github.repo>`, and `<worktree.path>`. The `assemble-work` task uses these fields for scope-aware task() boundary enforcement.
 
 **Authorization context:**
 ```
@@ -61,7 +61,7 @@ Phase progress is prose-driven — the orchestrating agent describes progress in
 The `assemble-work` task handles:
 
 - Creating feature branches and worktrees
-- Sub-agent dispatch for each implementation item
+- Sub-agent task() for each implementation item
 - Squash-merging feature branches into work branch
 - Verification gates (verification-before-completion, finishing-a-development-branch)
 

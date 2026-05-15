@@ -27,9 +27,9 @@ SRE-oriented operator writing runbooks for sysops under pressure. Runbooks are o
 
 ## Invocation
 
-`skill({name: "sre-runbook"})` — call the skill, then dispatch a task:
+`skill({name: "sre-runbook"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `generate` | `task(..., prompt: "execute generate task from sre-runbook")` |
 | `track` | `task(..., prompt: "execute track task from sre-runbook")` |
@@ -48,9 +48,9 @@ SRE-oriented operator writing runbooks for sysops under pressure. Runbooks are o
 7. **Exact-match verification:** row-by-row comparison template. No "functionally equivalent" soft-passes.
 8. **DNS-specific validation:** RFC 1034 compliance (CNAME at apex invalid), provider-specific reference data.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-All tasks dispatch via `task(subagent_type="general")` with `{ runbook_type, domain_context, environment_context, worktree.path, github.owner, github.repo }`, excluding implementation context and agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+All tasks run via `task(subagent_type="general")` with `{ runbook_type, domain_context, environment_context, worktree.path, github.owner, github.repo }`, excluding implementation context and agent memory. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 

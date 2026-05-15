@@ -111,7 +111,7 @@ for skill_behavior in current_state["skills"]["behaviors"]:
 | CM-4 | Cross-refs consistent | Guideline ↔ skill mapping valid |
 | CM-5 | Migration candidates identified | Procedural workflows flagged |
 
-### Step 7: Dispatch Cross-Validate
+### Step 7: Cross-Validate via task()
 
 ```python
 task(
@@ -179,7 +179,7 @@ github.repo: {github.repo}
 ## Cross-References
 
 - `tasks/coherence-extraction.md` — baseline generation
-- `tasks/cross-validate.md` — dual auditor dispatch
+- `tasks/cross-validate.md` — dual auditor task()
 - `coherence-auditor/tasks/maintenance-detect.md` — original drift detection
 - `coherence-auditor/tasks/maintenance-verify.md` — original verification
 - `000-critical-rules.md` — coherence maintenance requirement

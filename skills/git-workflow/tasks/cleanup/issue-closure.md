@@ -45,7 +45,7 @@ for pattern_name, pattern in patterns.items():
         closure_candidates[issue_num] = pattern_name
 ```
 
-**Keyword → Closure Behavior Dispatch Table:**
+**Keyword → Closure Behavior Routing Table:**
 
 | Keyword | Closure Behavior |
 |---|---|

@@ -19,7 +19,7 @@ uv run pytest test/ -v
 # Expected: all PASSED
 ```
 
-## Dispatch Context Schema
+## Task Context Schema
 
 ```json
 {

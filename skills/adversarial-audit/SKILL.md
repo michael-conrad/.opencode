@@ -1,91 +1,6 @@
----
-name: adversarial-audit
-description: Use when cross-validating evidence, auditing output against live sources, or dispatching dual-adversarial auditor sub-agents for consensus-based verification. Triggers on: adversarial audit, cross-validate, dual auditor, auditor dispatch, cross-family audit, multi-model verification, auditor consensus, independent verification, adversarial verification.
-type: discipline-enforcing
-license: MIT
-provenance: AI-generated
-compatibility: opencode
----
+Sub-Agent Task Context Audit
 
-# Skill: adversarial-audit
-
-## Overview
-
-Dual-adversarial auditor cross-validation infrastructure. Dispatches two auditor sub-agents from different model families, collects structured JSON verdicts, and enforces a consensus gate — PASS only when both auditors independently agree.
-
-## Persona
-
-Adversarial Audit Orchestrator. Dispatches cross-family auditor sub-agents, collects independent verdicts, cross-references for consensus. Rejects results where auditors disagree or fail to produce structured evidence.
-
-## Tasks
-
-| Task | Words | Description |
-|------|-------|-------------|
-| `spec-audit` | ≈180 | Audit spec for quality, structure, completeness |
-| `plan-fidelity` | ≈150 | Audit plan fidelity via clean-room comparison |
-| `concern-separation` | ≈150 | Audit phase structure for concern boundaries |
-| `coherence-extraction` | ≈140 | Generate baseline coherence state |
-| `coherence-maintenance` | ≈140 | Detect drift against baseline |
-| `guideline-audit` | ≈130 | Audit guideline files for ambiguity/conflicts |
-| `drift-detection` | ≈120 | Detect spec/code reality drift |
-| `spec-summary` | ≈100 | Verify PR/spec consistency before merge |
-| `closure-verification` | ≈110 | Verify merge evidence after PR merge |
-| `cross-validate` | ≈400 | Dual cross-family auditor dispatch and consensus |
-| `resolve-models` | ≈350 | Cross-family auditor model selection |
-| `test-quality-audit` | ≈200 | Structural test quality audit — reader-only checks on test files |
-| `completion` | ≈150 | Halt guarantee per `completion-core` |
-
-## Invocation
-
-`skill({name: "adversarial-audit"})` — call the skill, then dispatch a task:
-
-| Task | Dispatch |
-|------|----------|
-| `spec-audit` | `task(..., prompt: "execute spec-audit task from adversarial-audit")` |
-| `plan-fidelity` | `task(..., prompt: "execute plan-fidelity task from adversarial-audit")` |
-| `concern-separation` | `task(..., prompt: "execute concern-separation task from adversarial-audit")` |
-| `coherence-extraction` | `task(..., prompt: "execute coherence-extraction task from adversarial-audit")` |
-| `coherence-maintenance` | `task(..., prompt: "execute coherence-maintenance task from adversarial-audit")` |
-| `guideline-audit` | `task(..., prompt: "execute guideline-audit task from adversarial-audit")` |
-| `drift-detection` | `task(..., prompt: "execute drift-detection task from adversarial-audit")` |
-| `spec-summary` | `task(..., prompt: "execute spec-summary task from adversarial-audit")` |
-| `closure-verification` | `task(..., prompt: "execute closure-verification task from adversarial-audit")` |
-| `cross-validate` | `task(..., prompt: "execute cross-validate task from adversarial-audit")` |
-| `resolve-models` | `task(..., prompt: "execute resolve-models task from adversarial-audit")` |
-| `test-quality-audit` | `task(..., prompt: "execute test-quality-audit task from adversarial-audit")` |
-
-**CLI equivalent (for human TUI use):** `/skill adversarial-audit --task <type>`
-
-## Cleanroom Dispatch Protocol
-
-All auditor dispatch MUST follow cleanroom discipline:
-
-1. **Scan Phase**: Auditor receives ONLY evidence payload and evaluation criteria — NO orchestrator reasoning, expected outcomes, or prior verification results.
-
-2. **Evidence Collection**: Auditors MUST fetch live sources via tool calls — memory-cached claims are REJECTED per `065-verification-honesty.md`.
-
-3. **Dual Dispatch**: Each auditor type (scan verifier, evidence verifier, etc.) dispatches TWO cross-family sub-agents independently.
-
-4. **Consensus Gate**: PASS only when BOTH auditors independently return PASS for a criterion. FAIL/DISAGREE triggers bidirectional finding presentation.
-
-5. **Bidirectional Findings**: When consensus is FAIL or DISAGREE, present revision options to developer for decision — NO auto-fix.
-
-## Audit Phases
-
-| Audit Type | Phase | Pipeline Touchpoint |
-|-----------|-------|---------------------|
-| `spec-audit` | `spec_creation` | Post-spec-creation |
-| `plan-fidelity` | `plan_creation` | Post-plan-creation |
-| `concern-separation` | `sub_issue_creation` | Post-sub-issue-creation |
-| `coherence-maintenance` | `coherence_gate` | Pre-RED coherence gate |
-| `guideline-audit` | `guideline_update` | Guideline update |
-| `drift-detection` | `implementation_verification` | Post-GREEN verification |
-| `spec-summary` | `pr_creation` | Pre-PR-creation |
-| `closure-verification` | `post_merge` | Post-merge |
-
-## Sub-Agent Dispatch Audit
-
-| Dispatch | Context | Exclusions |
+| Task | Context | Exclusions |
 |----------|---------|------------|
 | `spec-audit` | `{ spec_issue, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, plan details |
 | `plan-fidelity` | `{ spec_issue, plan_issue, clean_room_plan, auditor_1, auditor_2, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, existing plan |
@@ -101,7 +16,7 @@ All auditor dispatch MUST follow cleanroom discipline:
 | `resolve-models` | `{ orchestrator_model, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `completion` | `{ workflow_state, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 
-`pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. All dispatch contexts also include `worktree.path`.
+`pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. All task contexts also include `worktree.path`.
 
 ### Authorization Context
 ```
@@ -112,8 +27,8 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-### Dispatch Rules
-- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+### Routing Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 ## Cross-References
@@ -125,7 +40,7 @@ schema_version: "2.0"
 last_updated: "2026-05-08T00:00:00Z"
 rules:
   - id: adversarial-audit-001
-    title: "Dual cross-family auditor dispatch mandatory — single-auditor evaluation is prohibited"
+    title: "Dual cross-family auditor routing mandatory — single-auditor evaluation is prohibited"
     conditions:
       all: ["adversarial_evaluation_requested == true", "auditor_count < 2"]
     actions: [HALT, RESOLVE_SECOND_AUDITOR]
@@ -156,20 +71,20 @@ rules:
     title: "Structured JSON verdicts mandatory — unparseable output equals FAIL"
     conditions:
       all: ["auditor_verdict_parseable == false", "evaluation_complete == true"]
-    actions: [DECLARE_FAIL, RE_DISPATCH_OPTIONAL]
+    actions: [DECLARE_FAIL, RE_TASK_OPTIONAL]
     source: "adversarial-audit/SKILL.md"
 
   - id: adversarial-audit-006
     title: "Independent verification mandate — auditors must fetch live sources, never trust orchestrator"
     conditions:
       all: ["auditor_verdict_contains == 'orchestrator_stated'", "live_source_checked == false"]
-    actions: [REJECT, RE_DISPATCH_WITH_INDEPENDENCE_INSTRUCTION]
+    actions: [REJECT, RE_TASK_WITH_INDEPENDENCE_INSTRUCTION]
     source: "adversarial-audit/SKILL.md"
 
   - id: adversarial-audit-007
-    title: "Clean-room auditor dispatch — no orchestrator reasoning or expected outcomes leaked to auditors"
+    title: "Clean-room auditor routing — no orchestrator reasoning or expected outcomes leaked to auditors"
     conditions:
-      all: ["auditor_dispatch_context contains 'expected_result' OR 'orchestrator_reasoning' OR 'should_find'"]
+      all: ["auditor_task_context contains 'expected_result' OR 'orchestrator_reasoning' OR 'should_find'"]
     actions: [HALT, STRIP_BIASED_CONTEXT]
     source: "adversarial-audit/SKILL.md"
 
@@ -195,7 +110,7 @@ rules:
     source: "adversarial-audit/SKILL.md"
 
   - id: adversarial-audit-011
-    title: "Cleanroom dispatch for scan phase — scan sub-agent has NO verifier context"
+    title: "Cleanroom routing for scan phase — scan sub-agent has NO verifier context"
     conditions:
       all: ["audit_phase == 'scan'", "verifier_context_leaked == true"]
     actions: [HALT, STRIP_VERIFIER_CONTEXT]
@@ -209,10 +124,10 @@ rules:
     source: "adversarial-audit/SKILL.md"
 
   - id: adversarial-audit-013
-    title: "1st non-PASS at same pipeline stage triggers re-dispatch with fresh model pair"
+    title: "1st non-PASS at same pipeline stage triggers re-task with fresh model pair"
     conditions:
       all: ["result != 'PASS'", "pipeline_stage == previous_stage", "attempt_count == 1"]
-    actions: [RE_DISPATCH_FRESH_MODEL_PAIR]
+    actions: [RE_TASK_FRESH_MODEL_PAIR]
     source: "adversarial-audit/SKILL.md"
 
   - id: adversarial-audit-014

@@ -28,9 +28,9 @@ UI Implementation Engineer. Focus: component mapping, accessibility implementati
 
 ## Invocation
 
-`skill({name: "ui-engineer"})` — call the skill, then dispatch a task:
+`skill({name: "ui-engineer"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `implement` | `task(..., prompt: "execute implement task from ui-engineer")` |
 | `validate-impl` | `task(..., prompt: "execute validate-impl task from ui-engineer")` |
@@ -39,9 +39,9 @@ UI Implementation Engineer. Focus: component mapping, accessibility implementati
 
 **CLI equivalent (for human TUI use):** `/skill ui-engineer --task <task>`
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-Sub-agents dispatch via `task(subagent_type="general")` with `{ design_artifacts, framework_context, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ design_artifacts, framework_context, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -51,5 +51,5 @@ rules:
     title: "Must validate implementation against design artifacts"
     conditions:
       all: ["implemented == true", "validated_against_design == false"]
-    actions: [HALT, INVOKE(validate-impl)]
+    actions: [HALT, TASK(validate-impl)]
     source: "ui-engineer/SKILL.md"

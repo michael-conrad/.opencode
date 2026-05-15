@@ -211,7 +211,7 @@ After analyzing merge commits since `ce6e5f1`:
 
 ### spec/734-divide-and-conquer
 
-- **Divide-and-Conquer Skill** (#734) - New discipline-enforcing skill that mandates pre-flight context-fit assessment before implementation. Tasks that risk context window overflow are decomposed and dispatched to sub-agents.
+- **Divide-and-Conquer Skill** (#734) - New discipline-enforcing skill that mandates pre-flight context-fit assessment before implementation. Tasks that risk context window overflow are decomposed and routed to sub-agents.
 
 ### spec/698-fix-phase1-schema-gaps
 
@@ -224,7 +224,7 @@ After analyzing merge commits since `ce6e5f1`:
 
 ### Fixed
 
-- **Sub-agent worktree dispatch** (from `spec/fix-subagent-worktree-741`) - Add worktree awareness to all sub-agent dispatch and skill creation.
+- **Sub-agent worktree task()** (from `spec/fix-subagent-worktree-741`) - Add worktree awareness to all sub-agent task() and skill creation.
 ```
 
 ## Context Required

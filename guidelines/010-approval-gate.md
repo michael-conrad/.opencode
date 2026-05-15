@@ -58,7 +58,7 @@ An approved spec auto-approves a faithful plan. This prevents redundant authoriz
 
 | Case | Rule |
 |------|------|
-| Spec approved, no plan written yet | Must create plan (invoke `writing-plans`), NO authorization needed for plan creation |
+| Spec approved, no plan written yet | Must create plan (call `writing-plans`), NO authorization needed for plan creation |
 | Faithful plan approved via cascade, then spec revised | Cascade approval revoked — must update plan and get new approval |
 | Unfaithful plan submitted | Must revise plan to match spec; cascade does NOT apply to unfaithful plans |
 | Spec approved with `for_spec` scope | No cascade — scope explicitly limits to spec only; plan creation requires scope expansion |
@@ -120,9 +120,9 @@ Defines where the pipeline halts after a given authorization scope, what gap-fil
 | `for_review_only` | code_review_ready | None | individual |
 | `for_analysis` | analysis_complete | None | none |
 
-#### Unified Dispatch Path (Work-of-1)
+#### Unified Pipeline Path (Work-of-1)
 
-**Work-of-1 requires unified pipeline dispatch — NOT per-task authorization.** Authorization for a phase (e.g., "implement") means authorizing ALL sub-issues under that phase within a single sequential pipeline, each dispatched via `task(subagent_type="general")`. The agent does NOT treat each sub-issue as requiring separate developer authorization.
+**Work-of-1 requires unified pipeline task() — NOT per-task authorization.** Authorization for a phase (e.g., "implement") means authorizing ALL sub-issues under that phase within a single sequential pipeline, each tasked via `task(subagent_type="general")`. The agent does NOT treat each sub-issue as requiring separate developer authorization.
 
 #### Scope-Dependent PR Strategy
 
@@ -157,7 +157,7 @@ Authorization sets persist across scope transitions. If a developer approves `fo
 When `approval-gate-006` fires (spec revision revokes plan approval):
 
 1. Clear the revoked approval markers
-2. Update plan to match revised spec (invoke `writing-plans`)
+2. Update plan to match revised spec (call `writing-plans`)
 3. Present updated plan for developer approval
 4. On approval, re-enter the implementation pipeline
 
@@ -265,7 +265,7 @@ rules:
         - "has_approved_plan == false"
         - "has_existing_plan == false"
     actions:
-      - INVOKE(writing-plans)
+      - CALL(writing-plans)
     requires: [approval-gate-001]
     source: "010-approval-gate.md §Tier0"
 
@@ -288,7 +288,7 @@ rules:
       all:
         - "has_approved_plan == true"
     actions:
-      - INVOKE(executing-plans)
+      - CALL(executing-plans)
     source: "010-approval-gate.md §Tier0"
 
   - id: approval-gate-002
@@ -337,7 +337,7 @@ rules:
         - "has_linked_plan == true"
     actions:
       - REVOKE(plan_approval)
-      - INVOKE(re-implementation-workflow)
+      - RUN(re-implementation-workflow)
     source: "010-approval-gate.md §Revision Revokes Approval"
 
   - id: approval-gate-008
@@ -383,12 +383,12 @@ rules:
     source: "010-approval-gate.md §Authorization Scope Model"
 
   - id: approval-gate-012
-    title: "Unified dispatch path — no single-task exemption"
+    title: "Unified pipeline path — no single-task exemption"
     conditions:
       all:
         - "has_approved_plan == true"
     actions:
-      - INVOKE(divide-and-conquer)
+      - CALL(divide-and-conquer)
     source: "010-approval-gate.md §Unified Dispatch Path"
 
   - id: approval-gate-014

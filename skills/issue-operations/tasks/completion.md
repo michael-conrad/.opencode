@@ -10,8 +10,8 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-### Dispatch Rules
-- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+### Task Context Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 Idempotent completion subtask for issue-operations. Ensures mandatory steps run regardless of where the workflow halted.

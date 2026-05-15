@@ -22,9 +22,9 @@ Enforce mandatory pre-conditions before PR creation. Verify explicit PR instruct
 
 **If `.gitmodules` EXISTS:**
 
-Dispatch a `submodule-liveness-check` sub-agent. The sub-agent performs a report-only liveness verification — it compares committed SHAs against remote `dev` HEAD SHAs and returns PASS/FAIL per submodule. **NO auto-remediation. NO SHA bumps. NO commits.**
+task() a `submodule-liveness-check` sub-agent. The sub-agent performs a report-only liveness verification — it compares committed SHAs against remote `dev` HEAD SHAs and returns PASS/FAIL per submodule. **NO auto-remediation. NO SHA bumps. NO commits.**
 
-#### Dispatch Context
+#### Task Context
 
 ```yaml
 must_receive:

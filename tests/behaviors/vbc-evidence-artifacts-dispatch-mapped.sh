@@ -28,7 +28,7 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-assert_skill_invoked "verification-before-completion" || OVERALL_RESULT=1
+assert_skill_called "verification-before-completion" || OVERALL_RESULT=1
 
 # Content-verification: evidence_artifacts section exists and contains dispatch_stage
 if ! grep -q "evidence_artifacts:" "$SKILL_FILE"; then

@@ -6,20 +6,20 @@ Ensure the multimodal-dispatch workflow documents its results and produces a sta
 
 ## Entry Criteria
 
-The multimodal-dispatch workflow is halting. This includes: successful dispatch and result collection, partial results where some modalities were unavailable, or an error that prevented dispatch.
+The multimodal-dispatch workflow is halting. This includes: successful task() and result collection, partial results where some modalities were unavailable, or an error that prevented task().
 
 ## Exit Criteria
 
-Dispatch results are documented, a status report is produced, and no orphaned state remains.
+Task results are documented, a status report is produced, and no orphaned state remains.
 
 ## Procedure
 
 ### Step 1: Document Results
 
-Compile a status report summarizing all dispatch operations:
+Compile a status report summarizing all task() operations:
 
 ```
-Multimodal Dispatch Status: <completed | partial | unverified | failed>
+Multimodal Task Status: <completed | partial | unverified | failed>
 Models Used: <list of model names>
 Modalities Processed: <list of modalities with status>
 Unverified Modalities: <list of modalities that had no model>
@@ -27,9 +27,9 @@ Unverified Modalities: <list of modalities that had no model>
 
 ### Step 2: Clean Up
 
-- Clear any temporary dispatch state
+- Clear any temporary task() state
 - Ensure the capability snapshot cache is left in a valid state
-- If any dispatch operations produced partial results, document what was completed and what was not
+- If any task() operations produced partial results, document what was completed and what was not
 
 ### Step 3: Report
 

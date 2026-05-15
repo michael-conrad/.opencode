@@ -24,9 +24,9 @@ Idempotent completion subtask for divide-and-conquer. Ensures mandatory steps ru
 2. **If finishing-a-development-branch not yet called:** Call `--task checklist`
    - Check if branch readiness checklist has been run
    - If missing: call checklist before proceeding
-3. **If git-workflow review-prep not yet called:** Dispatch `git-workflow --task review-prep`
+3. **If git-workflow review-prep not yet called:** Run `git-workflow --task review-prep`
    - Check if compare URL and executive summary exist in chat output
-   - If missing: dispatch review-prep before proceeding
+    - If missing: task() review-prep before proceeding
 
 ## Shared Completion Delegation
 

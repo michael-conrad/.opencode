@@ -24,9 +24,9 @@ Engineering discipline checklist enforcing: understand before solving, design be
 
 ## Invocation
 
-`skill({name: "engineering-approach"})` — call the skill, then dispatch a task:
+`skill({name: "engineering-approach"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `verify-understanding` | `task(..., prompt: "execute verify-understanding task from engineering-approach")` |
 | `design-before-code` | `task(..., prompt: "execute design-before-code task from engineering-approach")` |
@@ -43,9 +43,9 @@ Engineering discipline checklist enforcing: understand before solving, design be
 4. **No scope creep:** implement ONLY what's in the approved spec.
 5. **Pre-implementation verification:** verify API signatures, env vars, config formats against live docs.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-All tasks dispatch via `task(subagent_type="general")`. `verify-understanding` receives `{ issue_number, worktree.path, github.owner, github.repo }`. `design-before-code` receives `{ spec, worktree.path, github.owner, github.repo }`. `verify-before-complete` receives `{ spec, implementation_file_paths, worktree.path, github.owner, github.repo }`. `completion` receives `{ worktree.path, github.owner, github.repo }`. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. Exclusions: implementation context, agent memory. No inline work.
+All tasks run via `task(subagent_type="general")`. `verify-understanding` receives `{ issue_number, worktree.path, github.owner, github.repo }`. `design-before-code` receives `{ spec, worktree.path, github.owner, github.repo }`. `verify-before-complete` receives `{ spec, implementation_file_paths, worktree.path, github.owner, github.repo }`. `completion` receives `{ worktree.path, github.owner, github.repo }`. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. Exclusions: implementation context, agent memory. No inline work.
 
 ## Cross-References
 

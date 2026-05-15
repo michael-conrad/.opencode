@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Probe platform capabilities at runtime. Determines what operations the current platform supports, enabling the dispatcher to choose between direct API calls and fallback patterns.
+Probe platform capabilities at runtime. Determines what operations the current platform supports, enabling the caller to choose between direct API calls and fallback patterns.
 
 ## Entry Criteria
 
@@ -12,7 +12,7 @@ Probe platform capabilities at runtime. Determines what operations the current p
 ## Exit Criteria
 
 - Capability manifest returned for current platform
-- Dispatcher knows which operations can use direct API vs fallback
+- Caller knows which operations can use direct API vs fallback
 
 ## Procedure
 
@@ -66,7 +66,7 @@ capabilities:
 
 ### Step 4: Fallback Mapping
 
-For each capability that is `false`, the dispatcher uses the fallback pattern defined in SKILL.md:
+For each capability that is `false`, the caller uses the fallback pattern defined in SKILL.md:
 
 | Capability | Fallback |
 |-----------|----------|
@@ -78,7 +78,7 @@ For each capability that is `false`, the dispatcher uses the fallback pattern de
 
 ## Future MCP Plugin Path
 
-When the GitBucket MCP plugin implements missing endpoints, the capability landscape changes dynamically. The dispatcher automatically uses full capabilities without code changes.
+When the GitBucket MCP plugin implements missing endpoints, the capability landscape changes dynamically. The caller automatically uses full capabilities without code changes.
 
 ## Context Required
 

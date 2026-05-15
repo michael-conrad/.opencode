@@ -35,7 +35,7 @@ If any Phase 4 verification fails (tests broken, blast radius regressions, uncov
 1. **First failure:** Return to GREEN phase — fix the defect. Then re-run Phase 4.
 2. **Second consecutive failure:** HALT and report BLOCKED status.
 3. **Report:** `{ status: "BLOCKED", reason: "2 consecutive Phase 4 failures", cycle: "<cycle-id>" }`
-4. The orchestrator must NOT re-dispatch — this is a genuine blockage requiring human intervention.
+4. The orchestrator must NOT re-task() — this is a genuine blockage requiring human intervention.
 5. Return contract: `{ status: "BLOCKED", reason: "<failure details>", cycle: "<cycle-id>" }`
 
 ### Step 3: Full Suite Verification
@@ -56,7 +56,7 @@ uv run pytest test/ -v
 }
 ```
 
-## Dispatch Context Schema
+## Task Context Schema
 
 ```json
 {

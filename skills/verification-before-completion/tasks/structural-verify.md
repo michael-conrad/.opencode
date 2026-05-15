@@ -1,6 +1,6 @@
 # Task: structural-verify
 
-Clean-room structural completeness verification. This task MUST be dispatched as a sub-agent to ensure isolation from implementation context.
+Clean-room structural completeness verification. This task MUST be task()'d as a sub-agent to ensure isolation from implementation context.
 
 ## Purpose
 
@@ -18,9 +18,9 @@ Verify that ALL structural components required by the spec are present in the im
 - Per-component PASS/FAIL table produced
 - If ANY component missing: verification FAILS, implementation phase blocked
 
-## Clean-Room Dispatch Protocol (MANDATORY)
+## Clean-Room Task() Protocol (MANDATORY)
 
-This task MUST be dispatched as a sub-agent receiving ONLY:
+This task MUST be task()'d as a sub-agent receiving ONLY:
 
 1. **Spec acceptance criteria list** — the SC table from the spec issue
 2. **File paths to verify** — list of files that were modified during implementation
@@ -54,7 +54,7 @@ From the spec issue, extract the list of required structural components. Use `vb
 
 ### Step 2: Read Target Files Fresh
 
-For each file path in the dispatch context:
+For each file path in the task context:
 
 1. Read the file using the `read` tool (NOT from cache or memory)
 2. Extract the yaml+symbolic block
@@ -109,7 +109,7 @@ Each structural component check MUST be verified by reading the actual file. Cla
 | "evidence_artifacts present" | `read` or `grep` confirms section exists | MISSING-STRUCTURE if absent |
 | "gates section present" | `read` or `grep` confirms gates array | MISSING-STRUCTURE if absent |
 
-## Dispatch Context Schema
+## Task Context Schema
 
 ```yaml
 spec_issue: <N>

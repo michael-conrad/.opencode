@@ -183,7 +183,7 @@ When `github.platform` is NOT `local` (i.e., a remote is available), local issue
 
 ## Sub-Agent Tasks
 
-### Dispatch Audit Table
+### Task Routing
 
 | Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
 |---|---|---|---|---|
@@ -196,5 +196,5 @@ When `github.platform` is NOT `local` (i.e., a remote is available), local issue
 | `link` | When linking local issue to GitHub | Local issue number, GitHub issue number, .issues/ path | Implementation context, agent memory | NO |
 | `search` | When searching local issues | Search query, .issues/ path | Implementation context, agent memory | NO |
 | `list` | When listing local issues | Status filter, labels, .issues/ path | Implementation context, agent memory | NO |
-| `pre-analysis` | Before any execution sub-agent dispatch, determine scope independently | Issue number, task description, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
+| `pre-analysis` | Before any sub-agent routing, determine scope independently | Issue number, task description, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
 | `completion` | When workflow halts at any point | Workflow state | Implementation context, agent memory | NO |

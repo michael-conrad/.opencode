@@ -26,20 +26,20 @@ Conflict Resolution Specialist. Focus: no committed work or spec intent silently
 
 ## Invocation
 
-Automatic from `git-workflow` when conflicts detected. Manual dispatch:
+Automatic from `git-workflow` when conflicts detected. Manual invocation:
 
-`skill({name: "conflict-resolution"})` — call the skill, then dispatch a task:
+`skill({name: "conflict-resolution"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `classify-and-resolve` | `task(..., prompt: "execute classify-and-resolve task from conflict-resolution")` |
 | `completion` | `task(..., prompt: "execute completion task from conflict-resolution")` |
 
 **CLI equivalent (for human TUI use):** `/skill conflict-resolution --task <task>`
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-Sub-agents dispatch via `task(subagent_type="general")` with `{ conflict_files, branch_context, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ conflict_files, branch_context, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
 
 ### Authorization Context
 ```
@@ -50,8 +50,8 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-### Dispatch Rules
-- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+### Routing Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 ```yaml+symbolic

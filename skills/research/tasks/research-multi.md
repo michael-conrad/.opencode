@@ -25,9 +25,9 @@ For each modality in the requested list:
 2. Collect the resolved model for that modality
 3. If no model is available, mark the modality as `(unverified)`
 
-### Step 2: Dispatch Per-Modality Research
+### Step 2: Run Per-Modality Research
 
-For each resolved modality, dispatch a research sub-agent:
+For each resolved modality, task() a research sub-agent:
 
 - **Text modality**: Research query targeting text content and context
 - **Vision modality**: Research query targeting image content (what does the image show, what text is in the image, etc.)

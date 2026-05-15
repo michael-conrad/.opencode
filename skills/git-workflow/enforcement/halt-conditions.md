@@ -34,7 +34,7 @@ git branch --show-current | grep -E "^(feature|spec)/"
 
 If the agent detects it is on a `feature/` or `spec/` branch without `for_implementation` scope or above, it MUST HALT and report a scope boundary violation.
 
-## Scope-Check Rules for Dispatch
+## Scope-Check Rules for task()
 
 ### Authorization Context
 ```
@@ -45,8 +45,8 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-### Dispatch Rules
-- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+### Task Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 - Git operations that exceed `halt_at` boundary (e.g., pushing when `halt_at == implementation_complete`) MUST be BLOCKED
 

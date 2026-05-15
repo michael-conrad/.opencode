@@ -30,18 +30,18 @@ Claim Verifier. Focus: verify each claim against evidence, produce PASS/FAIL/UNV
 
 ## Invocation
 
-`skill({name: "verification"})` — call the skill, then dispatch a task:
+`skill({name: "verification"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `verify` | `task(..., prompt: "execute verify task from verification")` |
 | `completion` | `task(..., prompt: "execute completion task from verification")` |
 
 **CLI equivalent (for human TUI use):** `/skill verification --task <task>`
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-`verify` dispatches via `task(subagent_type="general")` with `{ claims, modalities, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
+`verify` runs via `task(subagent_type="general")` with `{ claims, modalities, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"

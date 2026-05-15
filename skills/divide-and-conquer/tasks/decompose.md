@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Split a DECOMPOSE-assessed task into sub-tasks suitable for sub-agent dispatch. Each sub-task receives a scoped description, boundaries, and dispatch context. Preserve spec boundaries — never split within a single spec requirement.
+Split a DECOMPOSE-assessed task into sub-tasks suitable for sub-agent task(). Each sub-task receives a scoped description, boundaries, and task context. Preserve spec boundaries — never split within a single spec requirement.
 
 ## Entry Criteria
 
@@ -46,7 +46,7 @@ sub_task:
 
 - Sub-tasks with no dependencies run first
 - Dependent sub-tasks run after their dependencies complete
-- Independent sub-tasks can be dispatched in sequence (never in parallel — one branch per issue, sequential to avoid merge conflicts)
+- Independent sub-tasks can be task()ed in sequence (never in parallel — one branch per issue, sequential to avoid merge conflicts)
 
 ### Step 4: Verify Decomposition Fitness
 
@@ -83,7 +83,7 @@ decomposition:
 
 If one spec requirement is too large for a single sub-agent:
 1. Do NOT split the requirement
-2. Dispatch it as-is with the OVERFLOW protocol
+2. task() it as-is with the OVERFLOW protocol
 3. The sub-agent may return OVERFLOW; handle per `overflow-signal` task
 
 ### Circular Dependencies
@@ -91,7 +91,7 @@ If one spec requirement is too large for a single sub-agent:
 If decomposition reveals circular dependencies between sub-tasks:
 1. Merge the circular sub-tasks into one
 2. Re-assess if the merged sub-task is still within context capacity
-3. If not, dispatch and handle OVERFLOW
+3. If not, task() and handle OVERFLOW
 
 ### Depth Limit Reached
 

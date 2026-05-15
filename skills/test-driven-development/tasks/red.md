@@ -19,7 +19,7 @@ uv run pytest test/test_module.py::test_<name> -v
 # Expected: FAILED (or ERROR)
 ```
 
-## Dispatch Context Schema
+## Task Context Schema
 
 ```json
 {

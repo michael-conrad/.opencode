@@ -2,12 +2,12 @@
 
 ## Purpose
 
-Read the canonical auditor model pool from `qualified-auditor-pool.sh`, map each model to its agent name and model family, detect the orchestrator's model, exclude same-family agents, and return two `subagent_type` strings from different families suitable for `task(subagent_type="auditor-*")` dispatch.
+Read the canonical auditor model pool from `qualified-auditor-pool.sh`, map each model to its agent name and model family, detect the orchestrator's model, exclude same-family agents, and return two `subagent_type` strings from different families suitable for `task(subagent_type="auditor-*")`.
 
 ## Entry Criteria
 
 - Invoked by `cross-validate` task or behavioral test helper
-- `orchestrator_model` present in dispatch context (from session context `<ModelId>`)
+- `orchestrator_model` present in task context (from session context `<ModelId>`)
 - `.opencode/tests/qualification/qualified-auditor-pool.sh` exists and is readable
 
 ## Exit Criteria
@@ -41,7 +41,7 @@ The agent name format is `auditor-<family-base>-<variant>`. Verify each correspo
 
 ### Step 3: Detect Orchestrator's Model Family
 
-Parse `orchestrator_model` from dispatch context. Extract the family by matching against known family prefixes (deepseek, glm, mistral, kimi, qwen). The orchestrator model ID is typically `ollama/<model>:cloud` or `ollama-cloud/<model>` — strip the prefix and suffix to isolate the model core.
+Parse `orchestrator_model` from task context. Extract the family by matching against known family prefixes (deepseek, glm, mistral, kimi, qwen). The orchestrator model ID is typically `ollama/<model>:cloud` or `ollama-cloud/<model>` — strip the prefix and suffix to isolate the model core.
 
 | Orchestrator Model | Family | Agent Name |
 |---|---|---|
@@ -61,13 +61,11 @@ Remove from the candidate pool:
 1. Any agent whose family matches the orchestrator's family
 2. The specific agent that maps to the orchestrator's exact model (precautionary — catches edge cases where family match is ambiguous)
 
-### Step 4a: Re-Dispatch Mode
+### Step 4a: Re-Task Mode
 
-If `re_dispatch` flag is present in dispatch context: run fresh random selection from eligible pool, excluding:
+If `re_task` flag is present in task context: run fresh random selection from eligible pool, excluding:
 1. The previously selected auditor pair (if `excluded_pair` provided in context)
 2. The orchestrator's own family (same as Step 4)
-
-Cached pair from previous dispatch must NOT be re-used for re-dispatch. Always select a fresh pair.
 
 ### Step 5: Select Two Cross-Family Auditors
 
@@ -99,8 +97,8 @@ If fewer than two eligible families remain after exclusion: return `{ auditor_1:
 ## Context Required
 
 - `orchestrator_model`: The orchestrator's resolved model ID (from `<ModelId>`)
-- `re_dispatch`: (optional) If `true`, run fresh random selection excluding previously selected pair
-- `excluded_pair`: (optional) Array of `[family_1, family_2]` from prior dispatch to exclude from re-dispatch
+- `re_task`: (optional) If `true`, run fresh random selection excluding previously selected pair
+- `excluded_pair`: (optional) Array of `[family_1, family_2]` from prior task() to exclude from re-task
 - `github.owner`, `github.repo`: For file path resolution (defaults to `.opencode` context)
 
 ## Red Flags
@@ -109,19 +107,19 @@ If fewer than two eligible families remain after exclusion: return `{ auditor_1:
 - Never select the orchestrator's own agent type as an auditor — self-auditing defeats adversarial independence
 - Never hardcode the agent-to-family mapping — always derive from `qualified-auditor-pool.sh` plus `.opencode/agents/` glob
 - Never assume agent files exist without glob verification
-- Never return a single auditor — dual dispatch is mandatory
+- Never return a single auditor — dual task() is mandatory
 - Never return raw model strings (e.g., `ollama/glm-5.1:cloud`) — always return `subagent_type` strings (e.g., `auditor-glm-5.1`)
-- Never re-use cached pair from previous dispatch for re-dispatch — always select fresh
+- Never re-use cached pair from previous task() for re-task — always select fresh
 
 ## Cross-References
 
 - `qualified-auditor-pool.sh` — canonical auditor model pool
 - `.opencode/agents/auditor-*.md` — agent files with model and permission definitions
-- `adversarial-audit/tasks/cross-validate.md` — consumer that dispatches resolved auditor types
+- `adversarial-audit/tasks/cross-validate.md` — consumer that task()s resolved auditor types
 - `adversarial-audit/SKILL.md` — skill-level rules (cross-family invariant, orchestrator exclusion)
 - `multimodal-dispatch` skill — model capability probing if needed for family detection
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
 Authorization context is passed alongside model resolution context:
 
@@ -133,14 +131,14 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-### Dispatch Rules
-- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+### Task Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|---|
 | `orchestrator_model`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `github.owner`, `github.repo` | Any implementation context, agent memory, cached model pool data | N/A — this task reads the qualified pool directly, not via pre-analysis | NO |
-| `re_dispatch`, `excluded_pair` | — | Only for re-dispatch flows; not used in initial dispatch | NO |
+| `re_task`, `excluded_pair` | — | Only for re-task flows; not used in initial task() | NO |
 
 ```yaml+symbolic
 schema_version: "2.0"

@@ -47,11 +47,11 @@ SC-2: All auditor agent cards include a Semantic Depth Mandate prohibiting mecha
 
 SC-3: All auditor agent cards include a `clean_room` output block in their JSON response schema.
 
-SC-4: Agent cards remain generic across audit phases — they receive `audit_phase` from dispatch context, not hardcoded in the card.
+SC-4: Agent cards remain generic across audit phases — they receive `audit_phase` from task context, not hardcoded in the card.
 
 SC-5: Each auditor SKILL.md declares its audit phase identity in the Persona/Operating Protocol section.
 
-SC-6: All skills that dispatch auditor sub-agents must include `audit_phase` in their dispatch context schema.
+SC-6: All skills that dispatch auditor sub-agents must include `audit_phase` in their task context schema.
 
 SC-7: A critical violation `critical-rules-046` prohibits mechanical-only audit without full semantic and conflict exploration.
 
@@ -61,7 +61,7 @@ SC-7: A critical violation `critical-rules-046` prohibits mechanical-only audit 
 |------|--------|
 | `.opencode/agents/auditor-*.md` (7 files) | Add MANDATORY FIRST CHECK, semantic depth mandate, CONTEXT_TAINTED refusal, clean_room output block |
 | `.opencode/skills/spec-auditor/SKILL.md` | Add audit phase identity (phase: spec) to Persona/Operating Protocol |
-| `.opencode/skills/adversarial-audit/SKILL.md` | Add audit phase identity + ensure dispatch context includes audit_phase |
+| `.opencode/skills/adversarial-audit/SKILL.md` | Add audit phase identity + ensure task context includes audit_phase |
 | `.opencode/guidelines/000-critical-rules.md` | Add critical-rules-046 yaml+symbolic block |
 SPEC
 
@@ -97,7 +97,7 @@ AGENTCARD
 
 SCENARIO_PROMPT="${SEMANTIC_DEPTH_MANDATE}
 
-Audit the spec at /home/muksihs/git/opencode-config/tmp/test-spec-397-semantic.md for completeness. SC-6 states that ALL skills that dispatch auditor sub-agents must include audit_phase in their dispatch context schema. Check whether the Files Affected table covers every skill mentioned in SC-6, or whether dispatching skills like divide-and-conquer, executing-plans, finishing-a-development-branch, and writing-plans are missing from the table even though they dispatch sub-agents and would need audit_phase in their dispatch context."
+Audit the spec at /home/muksihs/git/opencode-config/tmp/test-spec-397-semantic.md for completeness. SC-6 states that ALL skills that dispatch auditor sub-agents must include audit_phase in their task context schema. Check whether the Files Affected table covers every skill mentioned in SC-6, or whether dispatching skills like divide-and-conquer, executing-plans, finishing-a-development-branch, and writing-plans are missing from the table even though they dispatch sub-agents and would need audit_phase in their task context."
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 

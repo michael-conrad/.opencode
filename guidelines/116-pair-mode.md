@@ -195,7 +195,7 @@ rules:
         - "branch_name in ['dev', 'main']"
         - "uncommitted_changes == true"
     actions:
-      - INVOKE(git-workflow)
+      - CALL(git-workflow)
     conflicts_with: []
     requires: []
     triggers: [git-workflow]

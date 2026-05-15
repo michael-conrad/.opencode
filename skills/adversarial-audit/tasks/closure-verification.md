@@ -105,7 +105,7 @@ for criterion in success_criteria:
         })
 ```
 
-### Step 8: Dispatch Cross-Validate
+### Step 8: Cross-Validate via task()
 
 ```python
 task(
@@ -228,7 +228,7 @@ if follow_up_issues:
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — dual auditor dispatch
+- `tasks/cross-validate.md` — dual auditor task()
 - `git-workflow` skill — merge completion
 - `verification-before-completion` skill — verification gate
 - `000-critical-rules.md` — merge evidence requirements

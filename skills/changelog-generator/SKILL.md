@@ -24,9 +24,9 @@ Transforms git commits into polished, user-friendly changelogs. Category-based o
 
 ## Invocation
 
-`skill({name: "changelog-generator"})` — call the skill, then dispatch a task:
+`skill({name: "changelog-generator"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `since-last-release` | `task(..., prompt: "execute since-last-release task from changelog-generator")` |
 | `date-range` | `task(..., prompt: "execute date-range task from changelog-generator with --from DATE --to DATE")` |
@@ -35,9 +35,9 @@ Transforms git commits into polished, user-friendly changelogs. Category-based o
 
 **CLI equivalent (for human TUI use):** `/skill changelog-generator --task <task>`
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-Sub-agents dispatch via `task(subagent_type="general")` with `{ date_range, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ date_range, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"

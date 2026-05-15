@@ -34,9 +34,9 @@ Spec Architect. Focus: structure investigation results into complete, well-organ
 
 ## Invocation
 
-`skill({name: "spec-creation"})` — call the skill, then dispatch a task:
+`skill({name: "spec-creation"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `requirements` | `task(..., prompt: "execute requirements task from spec-creation")` |
 | `decompose` | `task(..., prompt: "execute decompose task from spec-creation")` |
@@ -60,9 +60,9 @@ Spec Architect. Focus: structure investigation results into complete, well-organ
 8. **Mermaid diagram** required for multi-phase specs (approved structure only, no workflow state).
 9. **Concern enumeration guard:** enumerate single concerns before writing.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-All tasks dispatch via `task(subagent_type="general")` with `{ spec_context, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+All tasks run via `task(subagent_type="general")` with `{ spec_context, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 
@@ -76,14 +76,14 @@ rules:
     title: "Pre-spec investigation mandatory before requirements"
     conditions:
       all: ["code_inspection_checklist_completed == false", "spec_touches_existing_code == true"]
-    actions: [HALT, INVOKE(015-pre-spec-inspection.md)]
+    actions: [HALT, CALL(guideline: 015-pre-spec-inspection.md)]
     source: "spec-creation/SKILL.md"
 
   - id: spec-creation-003
     title: "Verification-enforcement gate before spec generation"
     conditions:
       all: ["verification_enforcement_verify_invoked == false"]
-    actions: [INVOKE(verification-enforcement --task verify)]
+    actions: [CALL(verification-enforcement --task verify)]
     source: "spec-creation/SKILL.md"
 
   - id: spec-creation-009

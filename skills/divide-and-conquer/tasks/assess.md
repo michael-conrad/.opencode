@@ -2,9 +2,9 @@
 
 ## Purpose
 
-Pre-flight context-fit assessment. Determine workload sizing for sub-agent dispatch — how many sub-agents and how much context each needs.
+Pre-flight context-fit assessment. Determine workload sizing for sub-agent task() — how many sub-agents and how much context each needs.
 
-**All implementation goes through `assemble-work`.** There is no IMPLEMENT_DIRECTLY path. Assessment informs sizing (single sub-agent vs multiple), not whether to dispatch.
+**All implementation goes through `assemble-work`.** There is no IMPLEMENT_DIRECTLY path. Assessment informs sizing (single sub-agent vs multiple), not whether to task().
 
 ## Entry Criteria
 
@@ -20,7 +20,7 @@ Pre-flight context-fit assessment. Determine workload sizing for sub-agent dispa
 
 ### Step 1: Evaluate Context Fitness
 
-The agent holistically evaluates context sizing for sub-agent dispatch. Consider:
+The agent holistically evaluates context sizing for sub-agent task(). Consider:
 
 - **Scope of work**: How many spec requirements must be satisfied?
 - **Number of files**: How many source files need modification or creation?
@@ -59,12 +59,12 @@ assessment:
 
 ### No Direct Implementation Exception
 
-**There is no IMPLEMENT_DIRECTLY path.** All implementation goes through sub-agent dispatch in `assemble-work`. The assessment only determines sizing:
+**There is no IMPLEMENT_DIRECTLY path.** All implementation goes through sub-agent task() in `assemble-work`. The assessment only determines sizing:
 
-- `single_sub_agent` → assemble-work dispatches one sub-agent
-- `multi_sub_agent` → assemble-work dispatches multiple sub-agents
+- `single_sub_agent` → assemble-work task()s one sub-agent
+- `multi_sub_agent` → assemble-work task()s multiple sub-agents
 
-Even trivial changes (typo fixes, one-line configs) are dispatched through assemble-work as work-of-1. This eliminates forked code paths and ensures consistent execution flow.
+Even trivial changes (typo fixes, one-line configs) are task()ed through assemble-work as work-of-1. This eliminates forked code paths and ensures consistent execution flow.
 
 ## Edge Cases
 
@@ -72,7 +72,7 @@ Even trivial changes (typo fixes, one-line configs) are dispatched through assem
 
 If during implementation the scope expands beyond what was assessed:
 1. Sub-agent signals OVERFLOW per the overflow-signal contract
-2. Orchestrator decomposes further and dispatches additional sub-agents
+2. Orchestrator decomposes further and tasks additional sub-agents
 3. Continues through assemble-work workflow
 
 ### Assessment Says Multiple for Simple Work

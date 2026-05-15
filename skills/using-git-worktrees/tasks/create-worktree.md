@@ -54,15 +54,15 @@ fi
 
 If a collision is detected with a different branch name, HALT and report to the developer.
 
-### 3.6. Capture Dev Base Hash (Parallel Dispatch)
+### 3.6. Capture Dev Base Hash (Parallel Task())
 
-When multiple worktrees will be created for parallel dispatch (from `pre-implementation-analysis`), capture the dev branch hash BEFORE creating any worktrees:
+When multiple worktrees will be created for parallel task() (from `pre-implementation-analysis`), capture the dev branch hash BEFORE creating any worktrees:
 
 ```bash
 DEV_BASE_HASH=$(git rev-parse --short 7 origin/dev)
 ```
 
-Pass this hash in the dispatch context so all parallel worktrees start from the same base commit.
+Pass this hash in the task context so all parallel worktrees start from the same base commit.
 
 ### 4. Create Worktree
 
@@ -147,6 +147,6 @@ These environment variables are consumed by:
 
 - `git-workflow` tasks (review-prep, pr-creation, cleanup)
 - `finishing-a-development-branch` skill
-- `divide-and-conquer` dispatch context
+- `divide-and-conquer` task context
 - `divide-and-conquer` assemble-work task
 - `pre-implementation-analysis` execution plan

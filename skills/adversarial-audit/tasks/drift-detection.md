@@ -122,7 +122,7 @@ for untracked in untracked_files:
     })
 ```
 
-### Step 6: Dispatch Cross-Validate
+### Step 6: Cross-Validate via task()
 
 ```python
 task(
@@ -218,7 +218,7 @@ Present options for developer decision.
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — dual auditor dispatch
+- `tasks/cross-validate.md` — dual auditor task()
 - `verification-before-completion` skill — verification gate
 - `srclight` tools — code analysis
 - `000-critical-rules.md` — spec-code alignment

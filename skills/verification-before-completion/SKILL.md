@@ -28,9 +28,9 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 
 ## Invocation
 
-`skill({name: "verification-before-completion"})` — call the skill, then dispatch a task:
+`skill({name: "verification-before-completion"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `verify` | `task(..., prompt: "execute verify task from verification-before-completion")` |
 | `structural-verify` | `task(..., prompt: "execute structural-verify task from verification-before-completion")` |
@@ -46,11 +46,11 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 3. **Per-SC evidence table:** every SC must produce a tool-call artifact with PASS/FAIL.
 4. **Exact comparison:** external verifications use exact mode. No "functionally equivalent" soft-passes.
 5. **Live-source only:** evidence from memory/training data is FORBIDDEN. Tool-call artifact required.
-6. **Clean-room dispatch:** verification sub-agents receive ONLY spec SC list + file paths. No implementation context, no prior results.
+6. **Clean-room routing:** verification sub-agents receive ONLY spec SC list + file paths. No implementation context, no prior results.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-All tasks dispatch via `task(subagent_type="general")` with `{ spec_sc_list, file_paths, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. When dispatching auditor sub-agents, include `audit_phase: implementation` in dispatch context per SC-6. Exclusions: implementation context, agent memory, prior verification results. `structural-verify` receives spec structure. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
+All tasks run via `task(subagent_type="general")` with `{ spec_sc_list, file_paths, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. When routing auditor sub-agents, include `audit_phase: implementation` in task context per SC-6. Exclusions: implementation context, agent memory, prior verification results. `structural-verify` receives spec structure. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
 
 ### Authorization Context
 ```
@@ -61,8 +61,8 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-### Dispatch Rules
-- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+### Routing Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 ## Cross-References
@@ -91,5 +91,5 @@ rules:
     title: "Structural completeness required before per-SC verification"
     conditions:
       all: ["verify_task_executed == true", "structural_completeness_checked == false"]
-    actions: [HALT, INVOKE(structural-verify)]
+    actions: [HALT, TASK(structural-verify)]
     source: "verification-before-completion/SKILL.md"

@@ -63,7 +63,7 @@ Delegates to `cleanup` task — do NOT duplicate cleanup logic here.
 ```python
 # If any merged PR has an uncleaned local branch:
 # Invoke cleanup task
-dispatch("--task cleanup")
+call(`--task cleanup`)
 ```
 
 ## Exit Criteria

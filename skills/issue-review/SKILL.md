@@ -30,9 +30,9 @@ Issue Review Orchestrator. Focus: gather context, classify path, delegate to cor
 
 ## Invocation
 
-`skill({name: "issue-review"})` — call the skill, then dispatch a task:
+`skill({name: "issue-review"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `gather` | `task(..., prompt: "execute gather task from issue-review")` |
 | `triage` | `task(..., prompt: "execute triage task from issue-review")` |
@@ -51,9 +51,9 @@ Issue Review Orchestrator. Focus: gather context, classify path, delegate to cor
 4. **Fix spec must target root cause, not symptom** per `000-critical-rules.md`.
 5. **Audit findings are internal** — posted to chat, not GitHub comments.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-All tasks dispatch via `task(subagent_type="general")` with `{ issue_number, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, cached verification. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+All tasks run via `task(subagent_type="general")` with `{ issue_number, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, cached verification. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 
@@ -67,7 +67,7 @@ rules:
     title: "Bug discovery does NOT authorize fixing"
     conditions:
       all: ["bug_discovered_during_analysis == true", "fix_authorization_received == false"]
-    actions: [HALT, CREATE(bug_report), INVOKE(analyze-and-spec)]
+    actions: [HALT, CREATE(bug_report), TASK(analyze-and-spec)]
     source: "issue-review/SKILL.md"
 
   - id: issue-review-002

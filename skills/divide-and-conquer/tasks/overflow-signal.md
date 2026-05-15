@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Defines the structured OVERFLOW response protocol. When a sub-agent determines it cannot fit the assigned work within its context window, it MUST return an OVERFLOW signal. The orchestrator receives this and dispatches further sub-agents for the remaining work.
+Defines the structured OVERFLOW response protocol. When a sub-agent determines it cannot fit the assigned work within its context window, it MUST return an OVERFLOW signal. The orchestrator receives this and task()s further sub-agents for the remaining work.
 
 ## Entry Criteria
 
@@ -11,7 +11,7 @@ Defines the structured OVERFLOW response protocol. When a sub-agent determines i
 
 ## Exit Criteria
 
-- Remaining work is further decomposed and dispatched, OR
+- Remaining work is further decomposed and task()ed, OR
 - Depth limit is reached and user is notified
 
 ## Procedure
@@ -63,9 +63,9 @@ Use the sub-agent's `suggested_splits` as input to the `decompose` task. The orc
 3. Increments depth: `new_depth = current_depth + 1`
 4. Creates sub-tasks from the remaining work
 
-### Step 5: Dispatch Further Sub-agents
+### Step 5: task() Further Sub-agents
 
-Dispatch new sub-agents for each decomposed piece of the remaining work per the `dispatch` task. Pass the incremented depth and the completed_work as `prior_context`.
+task() new sub-agents for each decomposed piece of the remaining work per the `dispatch` task. Pass the incremented depth and the completed_work as `prior_context`.
 
 ### Step 6: Merge All Results
 
@@ -89,7 +89,7 @@ Orchestrator (depth=0)
 
 ## Depth Tracking
 
-Depth is tracked in the Dispatch Context Contract `depth` field:
+Depth is tracked in the Task Context Contract `depth` field:
 - Root orchestrator: depth 0
 - First sub-agent: depth 1
 - Sub-agent spawned from OVERFLOW at depth 1: depth 2

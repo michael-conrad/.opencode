@@ -11,7 +11,7 @@ compatibility: opencode
 
 ## Overview
 
-GitBucket platform implementation using Python client. Implements a GitHub-compatible API v3 with known deficiencies. This is a platform sub-skill under `issue-operations` — the dispatcher routes GitBucket operations here when `github.platform=gitbucket`.
+GitBucket platform implementation using Python client. Implements a GitHub-compatible API v3 with known deficiencies. This is a platform sub-skill under `issue-operations` — the router passes GitBucket operations here when `github.platform=gitbucket`.
 
 ## Capability Manifest (v4.46.0, empirically probed)
 
@@ -60,7 +60,7 @@ GitBucket platform implementation using Python client. Implements a GitHub-compa
 
 ## Sub-Agent Tasks
 
-### Dispatch Audit Table
+### Task Routing
 
 | Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
 |---|---|---|---|---|
@@ -69,7 +69,7 @@ GitBucket platform implementation using Python client. Implements a GitHub-compa
 | `error-recovery` | When GitBucket error handling/retry is needed | Error details, retry context | Implementation context, agent memory | NO |
 | `mcp-operations` | When GitBucket MCP tool mapping is needed | Operation type, MCP context | Implementation context, agent memory | NO |
 | `repository-operations` | When GitBucket repository CRUD is needed | Repository data, github.owner, github.repo | Implementation context, agent memory | NO |
-| `pre-analysis` | Before any execution sub-agent dispatch, determine scope independently | Issue number, task description, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
+| `pre-analysis` | Before any sub-agent routing, determine scope independently | Issue number, task description, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
 | `session-integration` | When GitBucket session init integration is needed | Session context, environment variables | Implementation context, agent memory | NO |
 
 ## Authorization Labels (Platform-Supported)
@@ -139,7 +139,7 @@ All `list_*` endpoints return arrays (`List[Dict]`), NOT objects. The Python cli
 
 | Guideline | Section |
 |-----------|---------|
-| Dispatcher | `../../SKILL.md` (issue-operations) |
+| Router | `../../SKILL.md` (issue-operations) |
 | GitHub platform | `../github-mcp/SKILL.md` |
 | Session init plugin | GitBucket detection and credentials |
 | `reference/` | OpenAPI v4.42.1 specification |

@@ -40,6 +40,6 @@ clean_room:
 ```
 
 - `verified`: `true` ONLY if no violation signals were detected during the MANDATORY FIRST CHECK
-- `violations_detected`: array of strings — each is an excerpt from dispatch context that matched a violation signal (empty array if `verified` is true)
+- `violations_detected`: array of strings — each is an excerpt from task context that matched a violation signal (empty array if `verified` is true)
 
 No preamble, no sign-off, no markdown fences around the YAML blocks.

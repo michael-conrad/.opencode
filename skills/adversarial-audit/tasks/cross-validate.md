@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Accept an evidence payload and evaluation criteria, dispatch two pre-resolved cross-family auditor agents with clean-room context via `task(subagent_type="auditor-*")`, collect structured JSON verdicts `[{id, result, evidence, explanation}]` from both, and cross-reference them per criterion — producing PASS only when both auditors independently return PASS. Returns a cross-validation result table with per-criterion consensus tracking. Auditor models are resolved by the orchestrator BEFORE invoking this task.
+Accept an evidence payload and evaluation criteria, task() two pre-resolved cross-family auditor agents with clean-room context via `task(subagent_type="auditor-*")`, collect structured JSON verdicts `[{id, result, evidence, explanation}]` from both, and cross-reference them per criterion — producing PASS only when both auditors independently return PASS. Returns a cross-validation result table with per-criterion consensus tracking. Auditor models are resolved by the orchestrator BEFORE invoking this task.
 
 ## Entry Criteria
 
@@ -10,7 +10,7 @@ Accept an evidence payload and evaluation criteria, dispatch two pre-resolved cr
 - `evaluation_criteria`: Array of criterion objects, each with `{ id, description, expected_result, source_reference }`
 - `auditor_1`: First auditor subagent type (e.g. `auditor-glm-5.1`) — pre-resolved by orchestrator
 - `auditor_2`: Second auditor subagent type from a different model family — pre-resolved by orchestrator
-- `github.owner`, `github.repo` present in dispatch context
+- `github.owner`, `github.repo` present in task context
 
 ## Exit Criteria
 
@@ -32,22 +32,22 @@ Confirm `auditor_1` and `auditor_2` are present, non-null, and belong to differe
 
 If `auditor_1` or `auditor_2` is missing: return `{ status: "BLOCKED", error: "MISSING_AUDITOR", missing: "<field>" }`.
 
-Verify `auditor_1 != auditor_2` and the implied families differ. If same family: HALT and report orchestrator error — cross-family dispatch violated.
+Verify `auditor_1 != auditor_2` and the implied families differ. If same family: HALT and report orchestrator error — cross-family task() violated.
 
-### Step 3: Dispatch Auditor 1 (Clean-Room)
+### Step 3: Task() Auditor 1 (Clean-Room)
 
-Dispatch `task(subagent_type="<auditor_1>")` with context containing ONLY:
+Run `task(subagent_type="<auditor_1>")` with context containing ONLY:
 
 ```
 evidence_payload: "<evidence_payload>"
 evaluation_criteria: "<evaluation_criteria as JSON>"
 ```
 
-MUST NOT include: orchestrator reasoning, expected outcomes, prior verification results, the other auditor's dispatch status, or any hint of which model family is the second auditor.
+MUST NOT include: orchestrator reasoning, expected outcomes, prior verification results, the other auditor's task() status, or any hint of which model family is the second auditor.
 
-### Step 4: Dispatch Auditor 2 (Clean-Room)
+### Step 4: Task() Auditor 2 (Clean-Room)
 
-Dispatch `task(subagent_type="<auditor_2>")` with context containing ONLY:
+Run `task(subagent_type="<auditor_2>")` with context containing ONLY:
 
 ```
 evidence_payload: "<evidence_payload>"
@@ -56,7 +56,7 @@ evaluation_criteria: "<evaluation_criteria as JSON>"
 
 MUST NOT include: auditor 1's verdict, any cross-reference comparison, orchestrator reasoning, or expected outcomes.
 
-Both dispatches MAY run in parallel (independent clean-room contexts). Wait for both to complete before proceeding.
+Both task() calls MAY run in parallel (independent clean-room contexts). Wait for both to complete before proceeding.
 
 ### Step 5: Parse Auditor Verdicts
 
@@ -89,7 +89,7 @@ Validation rules per verdict:
 - `remediation` MUST be present when result is not PASS
 - `next_step` MUST be one of: `proceed`, `re-evaluate`, `escalate`
 
-If an auditor's output is unparseable YAML, missing the `---` delimiters, or contains no recognizable criterion ids: treat the entire auditor's contribution as `FAIL` for ALL criteria. Do NOT re-dispatch — the protocol requires accepting real output, not retrying until PASS is obtained.
+If an auditor's output is unparseable YAML, missing the `---` delimiters, or contains no recognizable criterion ids: treat the entire auditor's contribution as `FAIL` for ALL criteria. Do NOT re-task — the protocol requires accepting real output, not retrying until PASS is obtained.
 
 If an auditor's output has extra criterion ids not in `evaluation_criteria`: ignore extra verdicts, flag in result contract as `EXTRA_VERDICTS` warning.
 
@@ -111,7 +111,7 @@ Non-PASS (FAIL, AUDIT_FAIL, INCONCLUSIVE, LIMITED-EVIDENCE, FABRICATED) = BLOCKE
 
 Track disagreements explicitly in the result contract for transparency: a `PASS`/`FAIL` split is different from a double `FAIL`.
 
-Empty/error sub-agent → re-dispatch with fresh random pair. Never proceed with single auditor.
+Empty/error sub-agent → re-task with fresh random pair. Never proceed with single auditor.
 
 ### Step 7: Compute Aggregate Consensus
 
@@ -168,18 +168,18 @@ Return structured result:
 - `evaluation_criteria`: Array of `{ id, description, expected_result, source_reference }`
 - `auditor_1`: First auditor subagent type (e.g. `auditor-glm-5.1`) — pre-resolved by orchestrator
 - `auditor_2`: Second auditor subagent type from a different model family — pre-resolved by orchestrator
-- `audit_phase`: Current audit phase for dispatch context
+- `audit_phase`: Current audit phase for task context
 - `github.owner`, `github.repo`: For API calls
 
 ## Red Flags
 
-- Never dispatch a single auditor — dual dispatch is mandatory per SKILL.md rule `adversarial-audit-001`
-- Never leak orchestrator reasoning into auditor dispatch context — clean-room means evidence + criteria ONLY
+- Never task() a single auditor — dual task() is mandatory per SKILL.md rule `adversarial-audit-001`
+- Never leak orchestrator reasoning into auditor task context — clean-room means evidence + criteria ONLY
 - Never leak auditor 1's verdict to auditor 2 — their evaluations must be fully independent
 - Never soft-pass a mismatch — `PASS`/`FAIL` split = FAIL per SKILL.md rule `adversarial-audit-004`
 - Never fabricate verdicts when auditor output is unparseable — missing data = FAIL per SKILL.md rule `adversarial-audit-005`
 - Never accept memory-cached claims as evidence — every verdict must reference a live tool call
-- Never re-dispatch an auditor after a FAIL verdict — FAIL stays FAIL
+- Never re-task an auditor after a FAIL verdict — FAIL stays FAIL
 - Never resolve auditors inline — `resolve-models` is called by orchestrator before this task
 
 ## Cross-References
@@ -189,10 +189,10 @@ Return structured result:
 - `adversarial-audit/tasks/completion.md` — halt guarantee
 - `.opencode/agents/auditor-*.md` — auditor agent files with model and permission definitions
 - `065-verification-honesty.md` — live-source verification mandate, stale evidence prohibition
-- `000-critical-rules.md` — clean-room dispatch protocol, orchestrator purity
+- `000-critical-rules.md` — clean-room task() protocol, orchestrator purity
 - Spec #381, Plan #382
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
 Authorization context is passed alongside audit context:
 
@@ -204,13 +204,13 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-### Dispatch Rules
-- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+### Task Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|
-| `evidence_payload`, `evaluation_criteria`, `auditor_1`, `auditor_2`, `audit_phase`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `github.owner`, `github.repo` | Orchestrator reasoning, expected outcomes, prior verification results, other auditor's verdict or dispatch status | N/A — auditor types are pre-resolved by orchestrator | NO |
+| `evidence_payload`, `evaluation_criteria`, `auditor_1`, `auditor_2`, `audit_phase`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `github.owner`, `github.repo` | Orchestrator reasoning, expected outcomes, prior verification results, other auditor's verdict or task() status | N/A — auditor types are pre-resolved by orchestrator | NO |
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -231,7 +231,7 @@ rules:
     source: "cross-validate.md §Step 2"
 
   - id: cross-validate-003
-    title: "Dual auditor dispatch mandatory — exactly two auditors must be dispatched"
+    title: "Dual auditor task() mandatory — exactly two auditors must be invoked"
     conditions:
       all: ["auditor_dispatch_count != 2"]
     actions: [HALT]
@@ -245,17 +245,17 @@ rules:
     source: "cross-validate.md §Step 2"
 
   - id: cross-validate-005
-    title: "Clean-room dispatch — auditor context must not contain orchestrator reasoning or expected outcomes"
+    title: "Clean-room task() — auditor context must not contain orchestrator reasoning or expected outcomes"
     conditions:
-      any: ["auditor_dispatch_context contains 'expected_result' OR 'orchestrator_reasoning' OR 'should_find' OR 'correct_answer'"]
-    actions: [HALT, STRIP_BIASED_CONTEXT, REDISPATCH]
+      any: ["auditor_task_context contains 'expected_result' OR 'orchestrator_reasoning' OR 'should_find' OR 'correct_answer'"]
+    actions: [HALT, STRIP_BIASED_CONTEXT, RE_TASK]
     source: "cross-validate.md §Steps 3-4"
 
   - id: cross-validate-006
-    title: "Auditor 1 verdict must not leak to auditor 2 dispatch"
+    title: "Auditor 1 verdict must not leak to auditor 2 task()"
     conditions:
-      all: ["auditor_2_dispatch_context contains auditor_1_verdict"]
-    actions: [HALT, STRIP_LEAKED_CONTEXT, REDISPATCH]
+      all: ["auditor_2_task_context contains auditor_1_verdict"]
+    actions: [HALT, STRIP_LEAKED_CONTEXT, RE_TASK]
     source: "cross-validate.md §Step 4"
 
   - id: cross-validate-007
@@ -295,9 +295,9 @@ rules:
     source: "cross-validate.md §Step 7"
 
   - id: cross-validate-011
-    title: "No re-dispatch on FAIL verdict — accept real auditor output"
+    title: "No re-task on FAIL verdict — accept real auditor output"
     conditions:
-      all: ["auditor_result == 'FAIL'", "re_dispatch_attempted == true"]
+      all: ["auditor_result == 'FAIL'", "re_task_attempted == true"]
     actions: [HALT]
     source: "cross-validate.md §Step 5"
 

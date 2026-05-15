@@ -2,7 +2,7 @@
 # Behavioral Enforcement Test: No Preload (SC-9)
 #
 # Verifies orchestrator does not preload sub-agents with guideline body content
-# or file-level instructions. Sub-agent dispatch context must not contain full
+# or file-level instructions. Sub-agent task context must not contain full
 # guideline bodies.
 #
 # Test verifies agent uses guidelines tool to load content in sub-agent context.

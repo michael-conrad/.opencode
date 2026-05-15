@@ -61,7 +61,7 @@ Concern inference:
 - Keywords: API, service, handler → Business logic concern
 - Keywords: UI, component, template → Presentation concern
 
-### Step 4: Dispatch Cross-Validate
+### Step 4: Cross-Validate via task()
 
 ```python
 task(
@@ -139,7 +139,7 @@ Each boundary claim must be verified:
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — dual auditor dispatch
+- `tasks/cross-validate.md` — dual auditor task()
 - `concern-separation-auditor/tasks/audit-phases.md` — original procedure
 - `000-critical-rules.md` — Single Concern Principle
 - `065-verification-honesty.md` — live verification requirement

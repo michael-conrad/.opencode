@@ -81,35 +81,35 @@ elif [ "$ASSERT_EXIT" -eq 2 ]; then
     echo "PASS: assert_tool_calls_made returned INCONCLUSIVE (2) on failed dispatch"
 fi
 
-# Test: assert_skill_invoked should return INCONCLUSIVE (exit 2)
+# Test: assert_skill_called should return INCONCLUSIVE (exit 2)
 echo ""
-echo "--- Test: assert_skill_invoked on failed dispatch ---"
+echo "--- Test: assert_skill_called on failed dispatch ---"
 set +e
-assert_skill_invoked "approval-gate"
+assert_skill_called "approval-gate"
 ASSERT_EXIT=$?
 set -e
 if [ "$ASSERT_EXIT" -eq 0 ]; then
-    echo "FAIL: assert_skill_invoked returned PASS (0) on failed dispatch — false PASS"
+    echo "FAIL: assert_skill_called returned PASS (0) on failed dispatch — false PASS"
     OVERALL_RESULT=1
 elif [ "$ASSERT_EXIT" -eq 2 ]; then
-    echo "PASS: assert_skill_invoked returned INCONCLUSIVE (2) on failed dispatch"
+    echo "PASS: assert_skill_called returned INCONCLUSIVE (2) on failed dispatch"
 fi
 
-# Test: assert_no_skill_invoked should return INCONCLUSIVE (exit 2)
+# Test: assert_skill_not_called should return INCONCLUSIVE (exit 2)
 echo ""
-echo "--- Test: assert_no_skill_invoked on failed dispatch ---"
+echo "--- Test: assert_skill_not_called on failed dispatch ---"
 set +e
-assert_no_skill_invoked "nonexistent-skill"
+assert_skill_not_called "nonexistent-skill"
 ASSERT_EXIT=$?
 set -e
 if [ "$ASSERT_EXIT" -eq 0 ]; then
-    echo "WARN: assert_no_skill_invoked returned PASS (0) on failed dispatch"
+    echo "WARN: assert_skill_not_called returned PASS (0) on failed dispatch"
     echo "  This is the false PASS pattern — INCONCLUSIVE (2) would be more correct"
     echo "  But is not a FAIL since the assertion is vacuously true"
 elif [ "$ASSERT_EXIT" -eq 2 ]; then
-    echo "PASS: assert_no_skill_invoked returned INCONCLUSIVE (2) on failed dispatch"
+    echo "PASS: assert_skill_not_called returned INCONCLUSIVE (2) on failed dispatch"
 else
-    echo "FAIL: assert_no_skill_invoked returned FAIL ($ASSERT_EXIT)"
+    echo "FAIL: assert_skill_not_called returned FAIL ($ASSERT_EXIT)"
     OVERALL_RESULT=1
 fi
 

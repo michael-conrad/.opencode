@@ -21,7 +21,7 @@ Delete merged branches after PR merge, clean stale references, and verify reposi
 - Remote merged branch deleted (if applicable)
 - Stale remote references pruned
 - Working tree clean
-- Submodule dev restored via `submodule-dev-restore` sub-agent dispatch
+- Submodule dev restored via `submodule-dev-restore` sub-agent task()
 
 ## Procedure
 
@@ -63,7 +63,7 @@ Before any cleanup operations, detect and build routing context for submodules.
 
 5. **Pass routing context to sub-tasks:**
 
-   - Include `submodule_paths` in dispatch context for `issue-closure` and `branch-cleanup` sub-tasks
+   - Include `submodule_paths` in task context for `issue-closure` and `branch-cleanup` sub-tasks
    - Each sub-task uses the routing context to route API calls to the correct owner/repo for files under a submodule path
 
 6. **If `.gitmodules` exists but is empty** (no submodule entries): proceed normally, no routing context needed.
@@ -84,7 +84,7 @@ Collects all referenced issues from PR body, classifies each (plan/spec/other), 
 
 **Route to:** `cleanup/branch-cleanup`
 
-Switches to dev, syncs with remote, removes feature worktree, deletes merged branches, dispatches `submodule-dev-restore` sub-agent for each submodule, verifies clean state.
+Switches to dev, syncs with remote, removes feature worktree, deletes merged branches, tasks `submodule-dev-restore` sub-agent via task() for each submodule, verifies clean state.
 
 ### Step 4: Post-Cleanup Dev-Tip Verification
 

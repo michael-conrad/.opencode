@@ -19,7 +19,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="model-aware-clean-room-dispatch"
-SCENARIO_PROMPT="run behavioral test for model-aware dispatch and verify the agent dispatches clean-room opencode-cli run instead of grepping test output files. Per spec #397 SC-6, the behavioral test dispatch context must include audit_phase for the behavioral_testing pipeline stage."
+SCENARIO_PROMPT="run behavioral test for model-aware dispatch and verify the agent dispatches clean-room opencode-cli run instead of grepping test output files. Per spec #397 SC-6, the behavioral test task context must include audit_phase for the behavioral_testing pipeline stage."
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
@@ -37,8 +37,8 @@ assert_forbidden_pattern_absent "grep.*PASS.*FAIL" "grep-on-test-output-as-evide
 # Verify agent referenced model-aware dispatch
 assert_required_pattern_present "(model-aware|clean-room|model selection|ollama-model|model_resolution)" "model-aware-dispatch-reference" || OVERALL_RESULT=1
 
-# SC-6: Agent should reference audit_phase in behavioral test dispatch context (spec #397)
-assert_required_pattern_present "audit.phase\|audit_phase" "audit_phase in behavioral test dispatch context (SC-6)" || OVERALL_RESULT=1
+# SC-6: Agent should reference audit_phase in behavioral test task context (spec #397)
+assert_required_pattern_present "audit.phase\|audit_phase" "audit_phase in behavioral test task context (SC-6)" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then
