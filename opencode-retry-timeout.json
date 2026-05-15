@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "maxRetries": 3,
+  "baseDelayMs": 3000,
+  "maxDelayMs": 30000,
+  "errorPatterns": [
+    "sse read timed out", "timed out", "econnreset",
+    "connection reset", "read timeout", "connection refused", "aborted"
+  ],
+  "skipPatterns": [
+    "401", "403", "429", "authentication", "unauthorized",
+    "invalid api key", "invalid x-api-key", "ProviderAuthError"
+  ],
+  "debugLogging": false,
+  "toastRetry": "Retrying (attempt {attempt}/{max})…",
+  "toastSuccess": "Retry successful",
+  "toastFailure": "Retry failed after {max} attempts"
+}
