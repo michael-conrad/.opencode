@@ -112,7 +112,7 @@ git worktree remove "$WORKTREE_PATH"
 
 ### Step 3: Conflict Classification
 
-When rebase produces conflicts, invoke the conflict-resolution skill's tier system:
+When rebase produces conflicts, call the conflict-resolution skill's tier system:
 
 **For each conflicting file, classify:**
 

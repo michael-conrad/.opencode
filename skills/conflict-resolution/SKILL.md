@@ -28,7 +28,7 @@ Conflict Resolution Specialist. Focus: no committed work or spec intent silently
 
 Automatic from `git-workflow` when conflicts detected. Manual dispatch:
 
-`skill({name: "conflict-resolution"})` — load the skill, then dispatch a task:
+`skill({name: "conflict-resolution"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -39,7 +39,7 @@ Automatic from `git-workflow` when conflicts detected. Manual dispatch:
 
 ## Sub-Agent Dispatch Audit
 
-Tasks dispatch via `task(subagent_type="general")` with `{ conflict_files, branch_context, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
+Sub-agents dispatch via `task(subagent_type="general")` with `{ conflict_files, branch_context, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
 
 ### Authorization Context
 ```

@@ -233,7 +233,7 @@ After ALL issues in the work set complete:
 
 1. **Verify all results** — check git log for all expected commits
 2. **Run git-workflow --task review-prep** for the work branch
-3. **🚫 REQUIRED: Cleanup dispatch MUST invoke `skill({name: "git-workflow", args: "--task cleanup"})`. Reading cleanup task files and dispatching a custom sub-agent with inline step instructions is a critical-rules-048 violation.**
+3. **🚫 REQUIRED: Cleanup dispatch MUST call `skill({name: "git-workflow", args: "--task cleanup"})`. Reading cleanup task files and dispatching a custom sub-agent with inline step instructions is a critical-rules-048 violation.**
 4. **Collect compare URL**
 
 ### Step 5.5: Pre-PR Checklist (MANDATORY before any PR creation)

@@ -30,7 +30,7 @@ Tool Priority Enforcer ensuring all operations use the correct tool according to
 
 ## Invocation
 
-`skill({name: "mcp-tool-usage"})` — load the skill, then dispatch a task:
+`skill({name: "mcp-tool-usage"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|

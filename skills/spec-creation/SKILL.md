@@ -34,7 +34,7 @@ Spec Architect. Focus: structure investigation results into complete, well-organ
 
 ## Invocation
 
-`skill({name: "spec-creation"})` — load the skill, then dispatch a task:
+`skill({name: "spec-creation"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -55,7 +55,7 @@ Spec Architect. Focus: structure investigation results into complete, well-organ
 3. **Select-existing pathway:** search GitHub Issues for existing specs before creating new one.
 4. **Requirements task mandatory** before write (unless trivial).
 5. **Persist as GitHub Issue** via `issue-operations --task creation`.
-6. **Adversarial-audit invocation:** after issue creation, invoke `adversarial-audit --task spec-audit --issue <N>` with `audit_phase: spec_creation`.
+6. **Adversarial-audit call:** after issue creation, call `adversarial-audit --task spec-audit --issue <N>` with `audit_phase: spec_creation`.
 7. **PR merge boundaries** required when dependencies exist.
 8. **Mermaid diagram** required for multi-phase specs (approved structure only, no workflow state).
 9. **Concern enumeration guard:** enumerate single concerns before writing.

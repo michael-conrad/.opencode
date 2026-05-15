@@ -68,7 +68,7 @@ Implemented <task description> via <N> sub-agents.
 
 ### Step 4: Delegate to Completion
 
-After merge, invoke `--task completion` for:
+After merge, call `--task completion` for:
 - Push verification
 - Compare URL generation
 - Executive summary in chat

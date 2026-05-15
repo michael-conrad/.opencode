@@ -23,7 +23,7 @@ Branch completion workflow ensuring feature branch is fully ready for PR. Verifi
 
 ## Invocation
 
-`skill({name: "finishing-a-development-branch"})` — load the skill, then dispatch a task:
+`skill({name: "finishing-a-development-branch"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -44,7 +44,7 @@ Branch completion workflow ensuring feature branch is fully ready for PR. Verifi
 
 ## Sub-Agent Dispatch Audit
 
-Tasks dispatch via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo }`. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
+Sub-agents dispatch via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo }`. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
 
 ## Cross-References
 

@@ -37,7 +37,7 @@ Adversarial Audit Orchestrator. Dispatches cross-family auditor sub-agents, coll
 
 ## Invocation
 
-`skill({name: "adversarial-audit"})` — load the skill, then dispatch a task:
+`skill({name: "adversarial-audit"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|

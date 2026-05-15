@@ -98,7 +98,7 @@ See `067-context-completeness.md`. Must read ALL comments before any action.
 See `117-session-trigger-behavior.md`. Process triggers internally, never echo verbatim.
 
 ### [critical-rules-016] Skipping Post-Implementation Verification Skills
-Must invoke `verification-before-completion` and `finishing-a-development-branch` after implementation.
+Must call `verification-before-completion` and `finishing-a-development-branch` after implementation.
 
 ### [critical-rules-016] Skipping review-prep After Implementation
 See `git-workflow --task review-prep`. Compare URL required.
@@ -214,13 +214,13 @@ See `issue-operations --task pre-creation`.
 ### [critical-rules-025] Main Agent Implements Directly
 See `divide-and-conquer --task assemble-work`. Orchestrator dispatches sub-agents only.
 
-### [critical-rules-016] Bypassing Mandatory Skill Invocations During Implementation
+### [critical-rules-016] Bypassing Mandatory Skill Calls During Implementation
 Dispatch chain: pre-work → assemble-work → verification-before-completion → finishing-checklist → review-prep. Each step MANDATORY.
 
 ### [critical-rules-016] Skill Bypass = Critical Violation
 Every step in dispatch chain is enforceable, not advisory.
 
-### [critical-rules-041] Listing Merged PRs Without Invoking Cleanup
+### [critical-rules-041] Listing Merged PRs Without Calling Cleanup
 "check prs" = cleanup trigger → `git-workflow --task check-pr`.
 
 ### [critical-rules-016] Auditor Skills Enforcement
@@ -346,7 +346,7 @@ See `conflict-resolution` skill. Three tiers: Trivial → auto, Textual → note
 See `engineering-approach` skill. Understand → Design → Verify → Communicate.
 
 ### [critical-rules-016] Skipping Completion Guarantee on Workflow Halt
-Invoke `--task completion` on current skill before halting.
+Call `--task completion` on current skill before halting.
 
 ### [critical-rules-009] Silent Agent Termination — producing no output before stopping
 Every HALT requires status message. Post-Dispatch Output Guarantee and Post-Tool Execution Output Checkpoint apply. See detailed rules below.
@@ -360,7 +360,7 @@ After EVERY `task(subagent_type=...)` dispatch, the agent MUST produce output �
 | Sub-agent returned valid result | Report result or proceed to next step |
 | Sub-agent returned empty result | RE-DISPATCH clean-room sub-agent with same scoped context |
 | Sub-agent returned error | RE-DISPATCH clean-room sub-agent with same scoped context |
-| Re-dispatch also failed | Report double-failure + invoke `--task completion` + HALT with status message + byline |
+| Re-dispatch also failed | Report double-failure + call `--task completion` + HALT with status message + byline |
 
 | Violation Pattern | Classification |
 |-------------------|----------------|
@@ -483,7 +483,7 @@ After routing decision, MUST dispatch sub-agent. Never perform task inline. See 
 Every routing decision in the approval-gate dispatch chain MUST be followed by an explicit DISPATCH_GATE that forces handoff to a sub-agent:
 
 1. **Confirm next action is dispatch** — verify the routing decision has been made
-2. **Dispatch sub-agent** — invoke `task(subagent_type="general")` with scoped context
+2. **Dispatch sub-agent** — dispatch `task(subagent_type="general")` with scoped context
 3. **Receive result contract** — collect the structured result (never read the full task file)
 4. **Log dispatch in work state file** — record which sub-agent was dispatched and when
 5. **Proceed based on result contract** — route to next pipeline step based on sub-agent output
@@ -540,8 +540,8 @@ Creating a PR whose sole purpose is to update a submodule pointer during the cle
 - 🚫 FORBIDDEN: Loading `skills/<skill>/tasks/<task>.md` into context then performing the described steps using raw tool calls
 - 🚫 FORBIDDEN: "I know what skill X does, so I'll just do it directly" — rationalization that bypasses enforcement gates
 - 🚫 FORBIDDEN: Opening task files to "check what needs to happen" then proceeding inline without dispatching the skill
-- ✅ REQUIRED: Call `skill({name: "..."})` to load the skill, then use its documented invocation pattern (`--task name`)
-- ✅ REQUIRED: If you need to know what a skill does, the `<available_skills>` list gives name + description — that is enough to route. Invoke the skill to get full content.
+- ✅ REQUIRED: Call `skill({name: "..."})` to call the skill, then use its documented call pattern (`--task name`)
+- ✅ REQUIRED: If you need to know what a skill does, the `<available_skills>` list gives name + description — that is enough to route. Call the skill to get full content.
 
 **3-Way Violation Distinction:**
 
@@ -563,7 +563,7 @@ See `git-workflow/tasks/cleanup/branch-cleanup.md` Step 3.
 ### [critical-rules-040] Un-Squashed PR — creating single-issue PR with multiple commits
 Single-issue: exactly 1 commit. Work branch: N commits = N items.
 
-### [critical-rules-041] Listing Merged PRs Without Invoking Cleanup
+### [critical-rules-041] Listing Merged PRs Without Calling Cleanup
 "check prs" = cleanup trigger.
 
 ### [critical-rules-042] Model-Aware Clean-Room Dispatch for Behavioral Testing
@@ -786,7 +786,7 @@ rules:
     source: "000-critical-rules.md §Plan ≠ Execution"
 
   - id: critical-rules-016
-    title: "Skip mandatory skill invocation during dispatch chain"
+    title: "Skip mandatory skill call during dispatch chain"
     conditions:
       all:
         - "dispatch_chain_step_skipped == true"
@@ -795,7 +795,7 @@ rules:
     conflicts_with: []
     requires: []
     triggers: [approval-gate, divide-and-conquer]
-    source: "000-critical-rules.md §Bypassing Mandatory Skill Invocations"
+    source: "000-critical-rules.md §Bypassing Mandatory Skill Calls"
 
   - id: critical-rules-017
     title: "Monolithic implementation without item decomposition"
@@ -1152,7 +1152,7 @@ rules:
     source: "000-critical-rules.md §Un-Squashed PR"
 
   - id: critical-rules-041
-    title: "Listing merged PRs without invoking cleanup — check prs is a cleanup trigger"
+    title: "Listing merged PRs without calling cleanup — check prs is a cleanup trigger"
     conditions:
       all:
         - "user_input matches 'check prs|check merged prs|check pr|check pull request'"
@@ -1163,7 +1163,7 @@ rules:
     conflicts_with: []
     requires: []
     triggers: [git-workflow]
-    source: "000-critical-rules.md §Listing Merged PRs Without Invoking Cleanup"
+    source: "000-critical-rules.md §Listing Merged PRs Without Calling Cleanup"
 
   - id: critical-rules-042
     title: "Model-aware clean-room dispatch required for all behavioral testing"
@@ -1258,7 +1258,7 @@ rules:
     conditions:
       all:
         - "skill_task_file_read == true"
-        - "skill_dispatched == false"
+        - "skill_called == false"
         - "inline_execution_followed == true"
     actions:
       - HALT

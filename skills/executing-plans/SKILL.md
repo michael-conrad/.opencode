@@ -24,7 +24,7 @@ No single-issue bypass — single = work of one = one sub-agent.
 
 ## Invocation
 
-`skill({name: "executing-plans"})` — load the skill, then dispatch a task:
+`skill({name: "executing-plans"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -46,7 +46,7 @@ From approval-gate: `{ plan_issue, spec_issue, authorization_scope, halt_at, pr_
 
 ## Sub-Agent Dispatch Audit
 
-Tasks dispatch via `task(subagent_type="general")`. `execute` receives plan context + session vars. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
+Sub-agents dispatch via `task(subagent_type="general")`. `execute` receives plan context + session vars. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
 
 ### Authorization Context
 ```

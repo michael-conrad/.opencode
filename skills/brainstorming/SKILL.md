@@ -29,7 +29,7 @@ Requirements Explorer. Focus: understand what user wants through natural convers
 
 ## Invocation
 
-`skill({name: "brainstorming"})` — load the skill, then dispatch a task:
+`skill({name: "brainstorming"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -51,7 +51,7 @@ Requirements Explorer. Focus: understand what user wants through natural convers
 
 ## Sub-Agent Dispatch Audit
 
-Tasks dispatch via `task(subagent_type="general")` with `{ context, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+Sub-agents dispatch via `task(subagent_type="general")` with `{ context, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 

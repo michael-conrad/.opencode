@@ -174,7 +174,7 @@ After collecting results:
 
 ### Pre-Step: Verification Gate (MANDATORY FIRST)
 
-Before collecting environment context or writing any runbook content, invoke `verification-enforcement --task verify`. This gate dispatches section-based sub-agents to collect evidence artifacts for the factual claims the runbook will make — CLI commands, GUI paths, configuration values, and system behavior assertions. Evidence artifacts collected here inform every subsequent step. Claims that cannot be verified at this stage are marked with `⚠️ UNVERIFIED` for resolution in the post-generation revisit pass.
+Before collecting environment context or writing any runbook content, call `verification-enforcement --task verify`. This gate dispatches section-based sub-agents to collect evidence artifacts for the factual claims the runbook will make — CLI commands, GUI paths, configuration values, and system behavior assertions. Evidence artifacts collected here inform every subsequent step. Claims that cannot be verified at this stage are marked with `⚠️ UNVERIFIED` for resolution in the post-generation revisit pass.
 
 ### Agent-Detected Runbook Base Path (MANDATORY BEFORE STEP 0)
 
@@ -566,7 +566,7 @@ If ANY check fails, fix the runbook before presenting. The user should never nee
 
 ### Post-Self-Review: Verification Revisit (MANDATORY)
 
-After the self-review step, invoke `verification-enforcement --task revisit`. This pass scans the generated runbook for any remaining `⚠️ UNVERIFIED` markers and attempts to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The runbook must not ship as complete while unverified claims remain without developer acknowledgment.
+After the self-review step, call `verification-enforcement --task revisit`. This pass scans the generated runbook for any remaining `⚠️ UNVERIFIED` markers and attempts to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The runbook must not ship as complete while unverified claims remain without developer acknowledgment.
 
 ### Verification-Failure Gate: Runbook-Section Blocking (MANDATORY)
 

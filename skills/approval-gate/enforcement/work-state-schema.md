@@ -95,7 +95,7 @@ inline_work_detected: false
 
 | Field | Description |
 |-------|-------------|
-| `skill_files_loaded` | List of SKILL.md files loaded by the orchestrator (should be routing metadata only) |
+| `skill_files_loaded` | List of SKILL.md files read by the orchestrator for routing metadata (should be routing metadata only) |
 | `issues_read_inline` | List of issue numbers read by the orchestrator inline (should be empty — sub-agents read issues) |
 | `git_commands_inline` | List of git commands run by the orchestrator inline (should be empty — sub-agents run git) |
 | `sub_agent_dispatches` | Count of sub-agent dispatches performed (should be > 0 for any non-trivial workflow) |
@@ -103,6 +103,6 @@ inline_work_detected: false
 
 **Audit enforcement:**
 - If `inline_work_detected == true`, the orchestrator MUST HALT and report a CRITICAL VIOLATION per `000-critical-rules.md` §Inline Work.
-- `skill_files_loaded` should contain only SKILL.md files for routing; loading task files or full enforcement documents is inline work.
+- `skill_files_loaded` should contain only SKILL.md files for routing; reading task files or full enforcement documents is inline work.
 - `issues_read_inline` tracks issue body reads by the orchestrator; issue reading MUST be delegated to screen-issue sub-agents.
 - `git_commands_inline` tracks git operations by the orchestrator; git operations MUST be delegated to git-workflow sub-agents.

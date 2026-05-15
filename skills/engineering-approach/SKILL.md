@@ -24,7 +24,7 @@ Engineering discipline checklist enforcing: understand before solving, design be
 
 ## Invocation
 
-`skill({name: "engineering-approach"})` — load the skill, then dispatch a task:
+`skill({name: "engineering-approach"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|

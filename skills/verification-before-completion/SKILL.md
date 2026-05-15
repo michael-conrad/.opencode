@@ -28,7 +28,7 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 
 ## Invocation
 
-`skill({name: "verification-before-completion"})` — load the skill, then dispatch a task:
+`skill({name: "verification-before-completion"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -42,7 +42,7 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 ## Operating Protocol
 
 1. **Structural completeness first:** verify all specified files/components exist before SC verification.
-2. **Adversarial-audit invocation:** during verify task, invoke `adversarial-audit --task drift-detection --issue <N>` with `audit_phase: implementation_verification` to check spec/code reality alignment.
+2. **Adversarial-audit call:** during verify task, call `adversarial-audit --task drift-detection --issue <N>` with `audit_phase: implementation_verification` to check spec/code reality alignment.
 3. **Per-SC evidence table:** every SC must produce a tool-call artifact with PASS/FAIL.
 4. **Exact comparison:** external verifications use exact mode. No "functionally equivalent" soft-passes.
 5. **Live-source only:** evidence from memory/training data is FORBIDDEN. Tool-call artifact required.
