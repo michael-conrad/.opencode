@@ -23,7 +23,7 @@ Responds to PR review feedback. Ensures all comments addressed systematically, c
 
 ## Invocation
 
-`skill({name: "receiving-code-review"})` — load the skill, then dispatch a task:
+`skill({name: "receiving-code-review"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -35,7 +35,7 @@ Responds to PR review feedback. Ensures all comments addressed systematically, c
 
 ## Sub-Agent Dispatch Audit
 
-Tasks dispatch via `task(subagent_type="general")` with `{ pr_number, review_comments, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
+Sub-agents dispatch via `task(subagent_type="general")` with `{ pr_number, review_comments, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
 
 ### Authorization Context
 ```

@@ -30,7 +30,7 @@ Claim Verifier. Focus: verify each claim against evidence, produce PASS/FAIL/UNV
 
 ## Invocation
 
-`skill({name: "verification"})` — load the skill, then dispatch a task:
+`skill({name: "verification"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|

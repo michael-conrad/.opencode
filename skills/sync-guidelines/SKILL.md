@@ -25,7 +25,7 @@ Intelligently synchronizes guidelines, skills, and tools between repos via GitHu
 
 ## Invocation
 
-`skill({name: "sync-guidelines"})` — load the skill, then dispatch a task:
+`skill({name: "sync-guidelines"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -39,7 +39,7 @@ Intelligently synchronizes guidelines, skills, and tools between repos via GitHu
 
 ## Sub-Agent Dispatch Audit
 
-Tasks dispatch via `task(subagent_type="general")` with `{ source_repo, target_repo, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
+Sub-agents dispatch via `task(subagent_type="general")` with `{ source_repo, target_repo, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"

@@ -21,7 +21,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ## 6.1 Pre-Implementation Worktree Setup (MANDATORY)
 
-**Before any sub-agent dispatch or file modification, the agent MUST invoke `git-workflow --task pre-work` to:**
+**Before any sub-agent dispatch or file modification, the agent MUST dispatch `git-workflow --task pre-work` to:**
 
 1. Create the feature branch in a worktree (`.worktrees/`)
 2. Set the `worktree.path` environment variable

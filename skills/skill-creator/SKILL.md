@@ -26,7 +26,7 @@ Also manages duplicate text blocks across skills (formerly `fragment-manager` sk
 
 ## Invocation
 
-`skill({name: "skill-creator"})` — load the skill, then dispatch a task:
+`skill({name: "skill-creator"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|

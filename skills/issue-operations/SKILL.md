@@ -34,7 +34,7 @@ Issue Operations Dispatcher. Focus: spec-first workflow, validation, labeling, p
 
 ## Invocation
 
-`skill({name: "issue-operations"})` — load the skill, then dispatch a task:
+`skill({name: "issue-operations"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -55,7 +55,7 @@ Issue Operations Dispatcher. Focus: spec-first workflow, validation, labeling, p
 3. **spec.md mirror:** every `github_issue_read(method="get")` mirrored to `.issues/<N>/spec.md`.
 4. **Byline mandatory:** AI-authored comments must include `🤖 Co-authored with AI: <AgentName> (<ModelId>)`.
 5. **Issue creation = no auth needed** per `010-approval-gate.md`.
-6. **Adversarial-audit invocation:** after sub-issue creation, invoke `adversarial-audit --task concern-separation --issue <N>` with `audit_phase: sub_issue_creation`.
+6. **Adversarial-audit call:** after sub-issue creation, call `adversarial-audit --task concern-separation --issue <N>` with `audit_phase: sub_issue_creation`.
 
 ## Sub-Agent Dispatch Audit
 

@@ -30,7 +30,7 @@ Issue Review Orchestrator. Focus: gather context, classify path, delegate to cor
 
 ## Invocation
 
-`skill({name: "issue-review"})` — load the skill, then dispatch a task:
+`skill({name: "issue-review"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|

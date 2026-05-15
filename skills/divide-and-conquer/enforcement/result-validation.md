@@ -36,4 +36,4 @@ When inline fallback is attempted:
 1. Report the original sub-agent failure to chat
 2. Execute the sub-agent's task directly within the orchestration context
 3. If fallback succeeds: continue work orchestration, note in work state
-4. If fallback also fails: report double-failure, invoke `--task completion`, HALT
+4. If fallback also fails: report double-failure, call `--task completion`, HALT

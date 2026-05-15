@@ -23,7 +23,7 @@ compatibility: opencode
 
 ## Invocation
 
-`skill({name: "programming-principles"})` — load the skill, then dispatch a task:
+`skill({name: "programming-principles"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|

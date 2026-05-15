@@ -49,9 +49,9 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 
 ## Operating Protocol
 
-1. **Mandatory invocation (no decision point):** The agent MUST invoke this task when:
+1. **Mandatory dispatch (no decision point):** The agent MUST dispatch this task when:
    - User says `approved`, `go`, or similar authorization to begin implementation
-   - DO NOT prompt for invocation — invoke the skill directly
+    - DO NOT prompt — call the skill directly
 
 ## Entry Criteria
 

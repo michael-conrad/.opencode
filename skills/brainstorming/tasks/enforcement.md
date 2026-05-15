@@ -50,7 +50,7 @@ Exploration required before spec creation.
 
 This ensures thorough requirements investigation before planning.
 
-To invoke: Say '/skill brainstorming' or describe your feature to start exploration.
+To call: Say '/skill brainstorming' or describe your feature to start exploration.
 ```
 
 **Incomplete exploration:**

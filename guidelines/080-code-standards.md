@@ -371,8 +371,8 @@ Every critical violation change MUST have at least one behavioral test that veri
 - `assert_tool_calls_made` — verify the agent made at least N tool calls of a specified type
 - `assert_forbidden_pattern_absent` — verify the agent's response does NOT contain a specified pattern (e.g., `(unverified)` tags)
 - `assert_required_pattern_present` — verify the agent's response DOES contain a specified pattern (e.g., decline-to-answer language)
-- `assert_skill_invoked` — verify a specific skill was invoked
-- `assert_no_skill_invoked` — verify a specific skill was NOT invoked when it shouldn't be
+- `assert_skill_called` — verify a specific skill was called
+- `assert_no_skill_called` — verify a specific skill was NOT called when it shouldn't be
 
 ### Content-Verification Tests (SECONDARY)
 

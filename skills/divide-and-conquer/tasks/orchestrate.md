@@ -120,9 +120,9 @@ If ANY check fails → HALT and report. Do NOT proceed.
 
 **⚠️ CRITICAL: This step is MANDATORY and has NO decision point. Skipping it is a CRITICAL GUIDELINE VIOLATION.**
 
-After implementation completes, BEFORE proceeding to review-prep, invoke verification skills in strict sequence:
+After implementation completes, BEFORE proceeding to review-prep, call verification skills in strict sequence:
 
-**Step 5a: Invoke verification-before-completion**
+**Step 5a: Call verification-before-completion**
 
 ```
 /skill verification-before-completion --task verify

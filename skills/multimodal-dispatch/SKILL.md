@@ -27,7 +27,7 @@ Modality Router. Focus: probe models, resolve modality hints, dispatch sub-agent
 
 ## Invocation
 
-`skill({name: "multimodal-dispatch"})` — load the skill, then dispatch a task:
+`skill({name: "multimodal-dispatch"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -43,7 +43,7 @@ Produced by `probe` task: maps model names → modalities (text, vision, audio) 
 
 ## Sub-Agent Dispatch Audit
 
-Tasks dispatch via `task(subagent_type="general")` with `{ task_description, content_modality, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
+Sub-agents dispatch via `task(subagent_type="general")` with `{ task_description, content_modality, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"

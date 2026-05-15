@@ -30,7 +30,7 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 
 ## Invocation
 
-`skill({name: "writing-plans"})` — load the skill, then dispatch a task:
+`skill({name: "writing-plans"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -42,7 +42,7 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 ## Operating Protocol
 
 1. **Plan from approved spec only.** No plan without approved spec.
-2. **Adversarial-audit invocation:** after plan creation, invoke type-specific audit tasks directly — `adversarial-audit --task plan-fidelity` and `adversarial-audit --task concern-separation` — with `audit_phase: plan_creation`.
+2. **Adversarial-audit call:** after plan creation, call type-specific audit tasks directly — `adversarial-audit --task plan-fidelity` and `adversarial-audit --task concern-separation` — with `audit_phase: plan_creation`.
 3. **TDD steps mandatory:** each step is RED→GREEN→REFACTOR within tasks.
 4. **No placeholders:** exact file paths, exact function/class names, exact commands.
 5. **Phase structure:** phases for sub-issues, tasks within phases for TDD steps.

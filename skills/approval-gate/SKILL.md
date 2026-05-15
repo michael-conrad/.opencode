@@ -56,7 +56,7 @@ Authorization Gatekeeper. Focus: verify authorization, resolve scope, enforce tw
 
 ## Invocation
 
-`skill({name: "approval-gate"})` — load the skill, then dispatch a task:
+`skill({name: "approval-gate"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -71,7 +71,7 @@ Authorization Gatekeeper. Focus: verify authorization, resolve scope, enforce tw
 
 ## Operating Protocol
 
-1. **Mandatory invocation** when `approved`/`go`/implementation requested.
+1. **Mandatory call** when `approved`/`go`/implementation requested.
 2. **Two-gate:** spec approval → plan; plan approval → implementation. Existing plan + approved spec = cascade auto-approve.
 3. **Authorization scope** via verb-prefix parsing. Hard HALT at `halt_at`.
 4. **Multi-task cascade:** plan authorization → ALL sub-issues. Complete all phases, report once, halt once.

@@ -26,7 +26,7 @@ Research Agent. Focus: discover information, produce findings with source attrib
 
 ## Invocation
 
-`skill({name: "research"})` — load the skill, then dispatch a task:
+`skill({name: "research"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|

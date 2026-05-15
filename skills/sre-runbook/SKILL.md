@@ -27,7 +27,7 @@ SRE-oriented operator writing runbooks for sysops under pressure. Runbooks are o
 
 ## Invocation
 
-`skill({name: "sre-runbook"})` — load the skill, then dispatch a task:
+`skill({name: "sre-runbook"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|

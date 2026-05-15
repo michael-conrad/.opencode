@@ -127,7 +127,7 @@ After the execution sub-agent returns:
 
 #### 6.5 Orchestrator Integration
 
-The orchestrator invokes this check as part of the `assemble-work` post-sub-agent completion checkpoint. The check MUST run before any result contract is accepted as `DONE`. A hash mismatch blocks acceptance — the orchestrator treats the result as `BLOCKED` and re-dispatches the pre-analysis sub-agent.
+The orchestrator runs this check as part of the `assemble-work` post-sub-agent completion checkpoint. The check MUST run before any result contract is accepted as `DONE`. A hash mismatch blocks acceptance — the orchestrator treats the result as `BLOCKED` and re-dispatches the pre-analysis sub-agent.
 
 ```yaml+symbolic
   - id: pre-analysis-context-hash

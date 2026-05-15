@@ -176,9 +176,9 @@ assert_required_pattern_present() {
     return 0
 }
 
-assert_skill_invoked() {
+assert_skill_called() {
     if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "1" ]; then
-        echo "INCONCLUSIVE: assert_skill_invoked — model dispatch failed, no behavioral evidence"
+        echo "INCONCLUSIVE: assert_skill_called — model dispatch failed, no behavioral evidence"
         return 2
     fi
     local expected_skill="$1"
@@ -188,11 +188,16 @@ assert_skill_invoked() {
     found=${found:-0}
     found=$(echo "$found" | head -1 | tr -d '[:space:]')
     if [ "$found" -eq 0 ]; then
-        echo "FAIL: assert_skill_invoked — expected skill '$expected_skill' was not invoked (no Skill \"$expected_skill\" in stderr)"
+        echo "FAIL: assert_skill_called — expected skill '$expected_skill' was not called (no Skill \"$expected_skill\" in stderr)"
         return 1
     fi
-    echo "PASS: assert_skill_invoked — skill '$expected_skill' was invoked"
+    echo "PASS: assert_skill_called — skill '$expected_skill' was called"
     return 0
+}
+
+# Backwards-compatible alias
+assert_skill_invoked() {
+    assert_skill_called "$@"
 }
 
 assert_no_skill_invoked() {

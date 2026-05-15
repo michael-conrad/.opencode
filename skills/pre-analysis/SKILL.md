@@ -40,7 +40,7 @@ You are a Pre-Analysis Gatekeeper. Your focus is independently discovering scope
 
 ## Invocation
 
-`skill({name: "pre-analysis"})` — load the skill, then dispatch a task:
+`skill({name: "pre-analysis"})` — call the skill, then dispatch a task:
 
 | Task | Dispatch |
 |------|----------|
@@ -53,7 +53,7 @@ You are a Pre-Analysis Gatekeeper. Your focus is independently discovering scope
 
 ## Operating Protocol
 
-1. **Mandatory invocation:** The orchestrator MUST invoke this skill before ANY execution dispatch
+1. **Mandatory call:** The orchestrator MUST call this skill before ANY execution dispatch
 2. **Minimal context:** Pre-analysis sub-agents receive only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`
 3. **Autonomous discovery:** Independently search the codebase to discover affected files
 4. **Dispatch plan:** Return a structured plan with task partitions and file scope
