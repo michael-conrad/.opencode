@@ -9,7 +9,7 @@ Second gate of per-issue screening for pre-implementation analysis. Execute Gate
 - Gate 1 (screen-issue-gate1) has completed for the issue
 - Issue is a candidate for "already-implemented" classification OR screening category has been assigned
 - Gate 1 evidence audit (GA-1) completed (or issue is not an "already-implemented" candidate)
-- `<github.owner>` and `<github.repo>` available from dispatch context
+- `<github.owner>` and `<github.repo>` available from task context
 
 ## Exit Criteria
 
@@ -144,7 +144,7 @@ When both a parent and its sub-issues are in the approved work set:
 
 2. **Default behavior:** Omit sub-issues from execution plan — parent's cascade covers them. Sub-agent for parent receives the full spec including all phases.
 
-3. **Exception — isolated sub-issues:** If a sub-issue has a well-isolated scope (clear boundaries, no file overlap with parent's other phases), dispatch it to its own sub-agent for parallelism. Isolation criteria:
+3. **Exception — isolated sub-issues:** If a sub-issue has a well-isolated scope (clear boundaries, no file overlap with parent's other phases), run it as its own sub-agent via task() for parallelism. Isolation criteria:
 
    - Touches completely different files from parent's other phases
    - No dependency on parent's other phases
@@ -210,7 +210,7 @@ concerns:
   - <concern text, if any>
 ```
 
-## Dispatch Context Schema
+## Task Context Schema
 
 ```yaml
 issue_number: <N>
@@ -284,7 +284,7 @@ Screening classification decisions are agent intelligence concerns, not develope
 
 ### Screening Results Are Not Decision Points
 
-Screening sub-agents produce result contracts that feed into `pre-implementation-analysis`. The orchestrator assembles results and proceeds to the dispatch chain automatically. Key rules:
+Screening sub-agents produce result contracts that feed into `pre-implementation-analysis`. The orchestrator assembles results and proceeds to the pipeline chain automatically. Key rules:
 
 1. **Screening results are data, not decisions.** The result contract is consumed by `pre-implementation-analysis` which auto-dispatches to `assemble-work`. No human review of screening results is required unless `requires_developer: true`.
 2. **Individual screen-issue sub-agents MUST NOT halt the orchestrator.** They return result contracts and terminate. The orchestrator processes all contracts before any action.
@@ -292,7 +292,7 @@ Screening sub-agents produce result contracts that feed into `pre-implementation
 
 ### Gap-Fill Override for Screening Sub-Agents
 
-**When `authorization_scope` is passed via dispatch context and its gap-fill actions include `auto_create_spec`, screening sub-agents MUST NOT block on missing spec artifacts (including the fix-spec requirement for bug reports).** The missing spec is a gap-fill trigger handled by `verify-authorization` Step 5c, not a screening blocking condition.
+**When `authorization_scope` is passed via task context and its gap-fill actions include `auto_create_spec`, screening sub-agents MUST NOT block on missing spec artifacts (including the fix-spec requirement for bug reports).** The missing spec is a gap-fill trigger handled by `verify-authorization` Step 5c, not a screening blocking condition.
 
 Screening sub-agents classify issues (include/exclude/reduce-scope). They do NOT enforce artifact requirements that are covered by the authorization scope's gap-fill cascade. A bug report without a fix-spec is classified normally (e.g., "included") — the fix-spec creation is deferred to the gap-fill cascade.
 
@@ -301,7 +301,7 @@ Screening sub-agents classify issues (include/exclude/reduce-scope). They do NOT
 ```python
 # When evaluating a bug report during screening:
 if is_bug_report and not has_fix_spec:
-    if "auto_create_spec" in dispatch_context.get("gap_fill_actions", []):
+    if "auto_create_spec" in task_context.get("gap_fill_actions", []):
         # Do NOT flag as blocking — gap-fill handles this
         # Classify normally (include/reduce-scope/etc.)
         pass
@@ -312,7 +312,7 @@ if is_bug_report and not has_fix_spec:
         )
 ```
 
-**The `gap_fill_actions` field MUST be passed in the dispatch context** when `authorization_scope >= for_implementation`. See `verify-authorization.md` Step 2.0 for the `GAP_FILL` mapping.
+**The `gap_fill_actions` field MUST be passed in the task context** when `authorization_scope >= for_implementation`. See `verify-authorization.md` Step 2.0 for the `GAP_FILL` mapping.
 
 ## Enforcement References
 

@@ -19,7 +19,7 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-assert_skill_invoked "approval-gate" || OVERALL_RESULT=1
+assert_skill_called "approval-gate" || OVERALL_RESULT=1
 
 assert_forbidden_pattern_absent "I'll read the skill file" "inline skill reading" || OVERALL_RESULT=1
 assert_forbidden_pattern_absent "Let me check the guidelines" "inline guideline reading" || OVERALL_RESULT=1

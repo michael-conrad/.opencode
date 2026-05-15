@@ -38,7 +38,7 @@ Invoke `multimodal-dispatch --task dispatch` with:
 
 ### Step 3: Construct ClaimResult
 
-From the `DispatchResult`, build a `ClaimResult`:
+From the task result, build a `ClaimResult`:
 
 ```json
 {

@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Independently discover the full scope of work needed for a given task. This sub-agent receives only an issue number and task description — it must autonomously read spec/plan documents, search the codebase, identify affected files, and return a dispatch plan with task partitions.
+Independently discover the full scope of work needed for a given task. This sub-agent receives only an issue number and task description — it must autonomously read spec/plan documents, search the codebase, identify affected files, and return a task plan with partitions.
 
 ## Entry Criteria
 
-- Issue number and task description received in dispatch context
+- Issue number and task description received in task context
 - github.owner and github.repo available for API calls
-- authorization_scope present in dispatch context (if missing, return `status: BLOCKED`)
+- authorization_scope present in task context (if missing, return `status: BLOCKED`)
 
 ## Authorization Context
 
@@ -20,14 +20,14 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-### Dispatch Rules
-- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+### Routing Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 - The `pipeline_phase` field tracks which phase of a multi-phase plan is currently executing
 
 ## Exit Criteria
 
-- Dispatch plan returned with task partitions and file scope
+- Task plan returned with partitions and file scope
 - All affected files independently discovered (not from orchestrator)
 
 ## Procedure
@@ -61,9 +61,9 @@ Group affected files into partitions based on:
 - File type (guidelines, skills, task files, tests, configuration)
 - Dependency ordering (foundational rules before routing changes before test validation)
 
-### Step 5: Return Dispatch Plan
+### Step 5: Return Task Plan
 
-Return a structured dispatch plan:
+Return a structured task plan:
 
 ```yaml
 status: PLAN_READY
@@ -85,11 +85,11 @@ total_estimated_changes: <N>
 
 ### Step 6: Context-Hash Audit Trail
 
-Before dispatching the execution sub-agent, the orchestrator MUST compute and log a context hash. This enables post-execution integrity verification — confirming the execution sub-agent operated on the same dispatch plan that was produced.
+Before task()ing the execution sub-agent, the orchestrator MUST compute and log a context hash. This enables post-execution integrity verification — confirming the execution sub-agent operated on the same task plan that was produced.
 
-#### 6.1 Compute Dispatch Payload Hash
+#### 6.1 Compute Task Payload Hash
 
-1. Serialize the dispatch plan (Step 5 output) as canonical JSON with sorted keys
+1. Serialize the task plan (Step 5 output) as canonical JSON with sorted keys
 2. Compute SHA-256 hash: `printf '%s' "$serialized" | sha256sum | cut -d' ' -f1`
 3. Store the hash as `context_hash` in the work state file alongside the dispatch plan
 
@@ -108,30 +108,30 @@ pre_analysis:
 
 After the execution sub-agent returns:
 
-1. Re-read the original dispatch plan from the work state file
-2. Re-compute the SHA-256 hash from the stored dispatch plan
+1. Re-read the original task plan from the work state file
+2. Re-compute the SHA-256 hash from the stored task plan
 3. Compare against the stored `context_hash`:
-   - **Match**: Dispatch integrity confirmed — execution sub-agent used the same plan
-   - **Mismatch**: Flag as `STRUCTURE-VIOLATION` — dispatch plan was modified between analysis and execution. The orchestrator MUST:
+   - **Match**: Integrity confirmed — execution sub-agent used the same plan
+   - **Mismatch**: Flag as `STRUCTURE-VIOLATION` — task plan was modified between analysis and execution. The orchestrator MUST:
      1. Report the mismatch with both hash values
-     2. Re-run pre-analysis (`analyze` task) on the original issue
+     2. Re-run pre-analysis via `analyze` on the original issue
      3. HALT — do NOT proceed with mismatched context
 
 #### 6.4 Integrity Check Table
 
 | Check | Method | On Mismatch |
 |-------|--------|-------------|
-| Dispatch payload hash | Re-compute vs stored | STRUCTURE-VIOLATION → re-analyze → HALT |
+| Task payload hash | Re-compute vs stored | STRUCTURE-VIOLATION → re-analyze → HALT |
 | Partition count consistency | Compare stored vs actual | WARNING — may indicate scope change |
 | Timestamp freshness | Compare hash timestamp vs dispatch time | WARNING if > 30 min stale |
 
 #### 6.5 Orchestrator Integration
 
-The orchestrator runs this check as part of the `assemble-work` post-sub-agent completion checkpoint. The check MUST run before any result contract is accepted as `DONE`. A hash mismatch blocks acceptance — the orchestrator treats the result as `BLOCKED` and re-dispatches the pre-analysis sub-agent.
+The orchestrator runs this check as part of the `assemble-work` post-sub-agent completion checkpoint. The check MUST run before any result contract is accepted as `DONE`. A hash mismatch blocks acceptance — the orchestrator treats the result as `BLOCKED` and re-tasks the pre-analysis sub-agent.
 
 ```yaml+symbolic
   - id: pre-analysis-context-hash
-    title: "Context-hash audit trail verifies dispatch payload integrity"
+    title: "Context-hash audit trail verifies task payload integrity"
     conditions:
       all:
         - "execution_sub_agent_returned == true"

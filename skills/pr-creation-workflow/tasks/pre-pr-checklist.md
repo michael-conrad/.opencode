@@ -119,9 +119,9 @@ Verify commit message includes BOTH trailers:
 - Single-task: Include `Fixes #<parent>` in PR body
 - Multi-task: Include `Fixes #<parent>` AND `Fixes #<child>` for EACH sub-issue
 
-**7. Dispatch Chain Completion (MANDATORY — Zero Tolerance)**
+**7. Pipeline Chain Completion (MANDATORY — Zero Tolerance)**
 
-Before creating a PR, verify that ALL post-implementation dispatch chain steps were completed. These steps are listed in `approval-gate/SKILL.md` §Dispatch Order and are MANDATORY before PR creation.
+Before creating a PR, verify that ALL post-implementation pipeline chain steps were completed. These steps are listed in `approval-gate/SKILL.md` §Dispatch Order and are MANDATORY before PR creation.
 
 | Step | Evidence to Verify | On Missing |
 | -- | -- | -- |
@@ -129,7 +129,7 @@ Before creating a PR, verify that ALL post-implementation dispatch chain steps w
 | `finishing-a-development-branch --task checklist` | All checklist items verified via tool-call artifacts (see checklist.md Live Verification table) | HALT and call `--task checklist` before proceeding |
 | `git-workflow --task review-prep` | Compare URL generated and reported in chat with mandatory format (summary → outcome → URL → byline) | HALT and call `--task review-prep` before proceeding |
 
-**If ANY dispatch chain step is missing evidence, the agent MUST call the missing step before proceeding with PR creation.** This is a belt-and-suspenders check: even if a step was skipped earlier, this gate catches the omission before the PR is created.
+**If ANY pipeline chain step is missing evidence, the agent MUST call the missing step before proceeding with PR creation.** This is a belt-and-suspenders check: even if a step was skipped earlier, this gate catches the omission before the PR is created.
 
 Skipping this verification is a CRITICAL GUIDELINE VIOLATION per `approval-gate/SKILL.md` §Enforcement checkpoint rules.
 
@@ -144,7 +144,7 @@ When the spec includes behavioral enforcement tests (Phase 4), PR creation is BL
 
 **🚫 FORBIDDEN:** Creating a PR with behavioral tests validated against only one model. Cross-model validation is the enforcement gate for rule robustness.
 
-**AUTHORITY:** `000-critical-rules.md` §Model-Aware Clean-Room Dispatch, `verification-before-completion/SKILL.md` §Cross-Model Verification Gate, Spec #262
+**AUTHORITY:** `000-critical-rules.md` §Model-Aware Clean-Room task(), `verification-before-completion/SKILL.md` §Cross-Model Verification Gate, Spec #262
 
 ## CRITICAL Violations
 

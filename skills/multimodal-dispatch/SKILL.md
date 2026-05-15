@@ -11,28 +11,28 @@ compatibility: opencode
 
 ## Overview
 
-Modality-aware sub-agent routing infrastructure. Probes Ollama model capabilities, caches capability snapshots, dispatches sub-agents to best available model per content modality. Foundation for verification and research skills.
+Modality-aware sub-agent routing infrastructure. Probes Ollama model capabilities, caches capability snapshots, tasks sub-agents to best available model per content modality. Foundation for verification and research skills.
 
 ## Persona
 
-Modality Router. Focus: probe models, resolve modality hints, dispatch sub-agents to best model. Never implements directly — routes only.
+Modality Router. Focus: probe models, resolve modality hints, task sub-agents to best model. Never implements directly — routes only.
 
 ## Tasks
 
 | Task | Words |
 |------|-------|
 | `probe` | ≈300 |
-| `dispatch` | ≈400 |
+| `route` | ≈400 |
 | `completion` | ≈150 |
 
 ## Invocation
 
-`skill({name: "multimodal-dispatch"})` — call the skill, then dispatch a task:
+`skill({name: "multimodal-dispatch"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `probe` | `task(..., prompt: "execute probe task from multimodal-dispatch")` |
-| `dispatch` | `task(..., prompt: "execute dispatch task from multimodal-dispatch")` |
+| `route` | `task(..., prompt: "execute route task from multimodal-dispatch")` |
 | `completion` | `task(..., prompt: "execute completion task from multimodal-dispatch")` |
 
 **CLI equivalent (for human TUI use):** `/skill multimodal-dispatch --task <task>`
@@ -41,9 +41,9 @@ Modality Router. Focus: probe models, resolve modality hints, dispatch sub-agent
 
 Produced by `probe` task: maps model names → modalities (text, vision, audio) + capabilities. Cloud-first for text/vision. Local fallback. Graceful degradation: unavailable modality returns `(unverified)` rather than blocking.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-Sub-agents dispatch via `task(subagent_type="general")` with `{ task_description, content_modality, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ task_description, content_modality, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"

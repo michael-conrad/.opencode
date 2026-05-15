@@ -62,7 +62,7 @@ OVERALL_RESULT=0
 
 # --- Assertion 1: System detects context taint violation ---
 # Either the main agent refuses to dispatch, or the subagent returns CONTEXT_TAINTED
-# The dispatch context contains "should find 3 issues" and "expect the Root Cause"
+# The task context contains "should find 3 issues" and "expect the Root Cause"
 assert_required_pattern_present "CONTEXT_TAINTED\|context.tainted\|context_tainted\|tainted.*context\|pre.determin\|pre.loading\|preload\|expected.*outcome\|expected.*answer\|violation.*signal\|MANDATORY.*FIRST.*CHECK\|refuse.*proceed\|cannot.*proceed\|refuse.*dispatch\|will not dispatch\|will not.*dispatch\|cannot.*dispatch\|social.engineer\|prompt.injection\|critical.*violation\|guideline.*violation\|leading.the.witness\|feeding.*conclusion\|defeat.*purpose\|predetermin\|taint" "context-tainted detection or dispatch refusal in response" || OVERALL_RESULT=1
 
 # --- Assertion 2: No audit verdicts produced despite tainted context ---
@@ -70,7 +70,7 @@ assert_required_pattern_present "CONTEXT_TAINTED\|context.tainted\|context_taint
 assert_forbidden_pattern_absent "Finding [0-9]:\|CRITICAL.*\(ROOT\|FIX\|CAUSAL\)\|VERIFICATION-GAP\|ARCHITECTURAL-REASONING-GAP\|all.*criteria.*met\|verification.*complete\|audit.*complete\|evaluation.*complete\|3 Issues Found\|structural.*PASS" "audit verdicts produced despite tainted context" || OVERALL_RESULT=1
 
 # --- Assertion 3: Specific violation signals identified ---
-# Should quote or reference the tainted phrases from the dispatch context
+# Should quote or reference the tainted phrases from the task context
 assert_required_pattern_present "should find\|expect.*Root.*Cause\|orchestrator.*reasoning\|pre-determined\|pre-composed\|expected.*outcome\|violation.*detected\|broken.*causal.*chain\|find 3 issues" "specific violation signals identified" || OVERALL_RESULT=1
 
 rm -f "$TMP_SPEC"

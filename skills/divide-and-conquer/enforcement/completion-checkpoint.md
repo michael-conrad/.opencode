@@ -2,7 +2,7 @@
 
 ## Sub-Agent Completion Detection
 
-Each sub-agent dispatched by `assemble-work` MUST produce a result contract upon completion. The completion checkpoint determines whether the sub-agent's work is verifiably complete.
+Each sub-agent task()ed by `assemble-work` MUST produce a result contract upon completion. The completion checkpoint determines whether the sub-agent's work is verifiably complete.
 
 ### Completion Detection Protocol
 

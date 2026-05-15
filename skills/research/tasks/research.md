@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Discover information using modality-aware dispatch. This task takes a research query, dispatches it to the appropriate model via `multimodal-dispatch`, and produces findings with source attribution and gap reporting.
+Discover information using modality-aware routing. This task takes a research query, routes it to the appropriate model via `multimodal-dispatch`, and produces findings with source attribution and gap reporting.
 
 ## Entry Criteria
 
@@ -37,7 +37,7 @@ Invoke `multimodal-dispatch --task dispatch` with:
 
 ### Step 3: Collect Findings with Source Attribution
 
-From the `DispatchResult`, extract findings and build source attribution:
+From the task result, extract findings and build source attribution:
 
 ```json
 {

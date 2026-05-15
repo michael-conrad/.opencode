@@ -24,7 +24,7 @@ ls tmp/work-*.md 2>/dev/null
 
 ### Single-Task / Unified Dispatch Path
 
-All specs follow the unified dispatch path (work-of-1). Include parent issue in the PR body. Sub-issues are included when they exist under the plan:
+All specs follow the unified pipeline path (work-of-1). Include parent issue in the PR body. Sub-issues are included when they exist under the plan:
 
 ```
 Fixes #<parent>

@@ -65,7 +65,7 @@ Must verify git state and create feature branch before any file modification. Cr
 Must prefix ALL paths with `worktree.path` in worktree mode. See `060-tool-usage.md` §2.
 
 ### [critical-rules-030] Sub-Agents Ignoring Worktree Context — sub-agents modifying main repo instead of worktree
-Only applies when main agent is in worktree mode. Pass `worktree.path` in dispatch context.
+Only applies when main agent is in worktree mode. Pass `worktree.path` in task context.
 
 ### [critical-rules-008] Implementing Without Verifying Against Live Documentation
 Verify API signatures, env vars, function params against live docs before implementation.
@@ -212,13 +212,13 @@ See `015-pre-spec-inspection.md` for mandate checklist. See `brainstorming` skil
 See `issue-operations --task pre-creation`.
 
 ### [critical-rules-025] Main Agent Implements Directly
-See `divide-and-conquer --task assemble-work`. Orchestrator dispatches sub-agents only.
+See `divide-and-conquer --task assemble-work`. Orchestrator tasks sub-agents via task() only.
 
 ### [critical-rules-016] Bypassing Mandatory Skill Calls During Implementation
-Dispatch chain: pre-work → assemble-work → verification-before-completion → finishing-checklist → review-prep. Each step MANDATORY.
+Pipeline chain: pre-work → assemble-work → verification-before-completion → finishing-checklist → review-prep. Each step MANDATORY.
 
 ### [critical-rules-016] Skill Bypass = Critical Violation
-Every step in dispatch chain is enforceable, not advisory.
+Every step in pipeline chain is enforceable, not advisory.
 
 ### [critical-rules-041] Listing Merged PRs Without Calling Cleanup
 "check prs" = cleanup trigger → `git-workflow --task check-pr`.
@@ -349,24 +349,24 @@ See `engineering-approach` skill. Understand → Design → Verify → Communica
 Call `--task completion` on current skill before halting.
 
 ### [critical-rules-009] Silent Agent Termination — producing no output before stopping
-Every HALT requires status message. Post-Dispatch Output Guarantee and Post-Tool Execution Output Checkpoint apply. See detailed rules below.
+Every HALT requires status message. Post-task() Output Guarantee and Post-Tool Execution Output Checkpoint apply. See detailed rules below.
 
-#### Post-Dispatch Output Guarantee
+#### Post-task() Output Guarantee
 
-After EVERY `task(subagent_type=...)` dispatch, the agent MUST produce output — never transition directly from dispatch to halt without output.
+After EVERY `task(subagent_type=...)` call, the agent MUST produce output — never transition directly from task() to halt without output.
 
-| After Dispatch | Agent MUST |
+| After task() | Agent MUST |
 |----------------|-----------|
 | Sub-agent returned valid result | Report result or proceed to next step |
-| Sub-agent returned empty result | RE-DISPATCH clean-room sub-agent with same scoped context |
-| Sub-agent returned error | RE-DISPATCH clean-room sub-agent with same scoped context |
-| Re-dispatch also failed | Report double-failure + call `--task completion` + HALT with status message + byline |
+| Sub-agent returned empty result | RE-TASK clean-room sub-agent with same scoped context |
+| Sub-agent returned error | RE-TASK clean-room sub-agent with same scoped context |
+| Re-task also failed | Report double-failure + call `--task completion` + HALT with status message + byline |
 
 | Violation Pattern | Classification |
 |-------------------|----------------|
 | Empty sub-agent result → zero output → silent halt | Critical: Silent Agent Termination |
-| Empty sub-agent result → re-dispatch attempt → status message in chat | Acceptable: self-corrected |
-| Empty/error sub-agent result → inline fallback | Critical: No Inline Fallback — Universal Re-Dispatch Mandate |
+| Empty sub-agent result → re-task attempt → status message in chat | Acceptable: self-corrected |
+| Empty/error sub-agent result → inline fallback | Critical: No Inline Fallback — Universal Re-Task Mandate |
 
 #### Post-Tool Execution Output Checkpoint
 
@@ -385,7 +385,7 @@ Stacking is prerequisite, not preference. See `assemble-work`.
 ### [critical-rules-018] Pipeline-Scoped Authorization with Hard HALT at Scope Boundary
 See `approval-gate` skill → Authorization Scope Model.
 
-### [critical-rules-018] Unified Dispatch Path — no single-task exemption
+### [critical-rules-018] Unified Pipeline Path — no single-task exemption
 Single issue = work-of-1. See `assemble-work`.
 
 ### [critical-rules-016] Leaving stale todowrite state after task completion
@@ -407,7 +407,7 @@ See `verify-already-implemented` → Auto-Close Procedure.
 See `approval-gate --task verify-authorization` Step 5.
 
 ### [critical-rules-034] Inline Screening of Authorization Sets
-Always dispatch `screen-issue` sub-agents. No inline screening for any count.
+Always task `screen-issue` sub-agents. No inline screening for any count.
 
 ### [critical-rules-009] Silent Halt Without Prompt — no spec/plan search before stopping
 Search GitHub Issues for candidates before halting. See `verify-qa-mode` Step 2.5.
@@ -430,8 +430,8 @@ See Bug #1215. `len(new_body) >= 0.8 * len(original_body)` safeguard.
 ### [critical-rules-023] Posting AI-Authored Content Without Byline Verification
 Verify byline presence before ANY API call posting AI-authored content.
 
-### [critical-rules-030] Skipping Clean-Room Dispatch for Sub-Agents
-See `verification-before-completion` skill → Clean-Room Dispatch Protocol.
+### [critical-rules-030] Skipping Clean-Room task() for Sub-Agents
+See `verification-before-completion` skill → Clean-Room task() Protocol.
 
 ### [critical-rules-031] Skipping Pre-Flight Checks for Sub-Agents
 See Spec #98. Branch exists, worktree valid, spec readable, no uncommitted changes.
@@ -442,22 +442,22 @@ See Spec #98. Files match spec, no uncommitted, SC traceability, result contract
 ### [critical-rules-033] Claiming Verification Without Tool-Call Evidence in Sub-Agent Results
 See Bug #91. Every verification claim references a tool-call artifact.
 
-### [critical-rules-034] Inline Work — orchestrator performing file modifications without sub-agent dispatch
+### [critical-rules-034] Inline Work — orchestrator performing file modifications without sub-agent task()
 See `divide-and-conquer` SKILL.md. Orchestrator is pure router. Detailed rules below.
 
 #### 🚫 FORBIDDEN
 - The main orchestrator reading, editing, writing, or analyzing files in its own context
-- Sub-agents combining multiple steps (analyze + write + verify) in a single dispatch
+- Sub-agents combining multiple steps (analyze + write + verify) in a single task()
 - The producer of a deliverable also verifying that deliverable (self-verification)
 - Sub-agents receiving orchestrator reasoning, expected outcomes, or cached results
-- Dispatching a sub-agent without a `dispatch_context` object specifying `must_receive` and `must_not_receive`
+- task()ing a sub-agent without a `dispatch_context` object specifying `must_receive` and `must_not_receive`
 - Any SKILL.md performing inline work (reading files, running analysis, making decisions) instead of delegating to sub-agents
 
 #### ✅ REQUIRED
 - ALL task execution uses clean-room sub-agents decomposed into discrete single-step units
-- The orchestrator is a pure router — it dispatches sub-agents and collects result contracts, never performing work inline
-- Every pipeline stage is a logged sub-agent dispatch in the work state file
-- Every SKILL.md contains a dispatch audit table documenting sub-agent tasks, scope, exclusions, and inline-work status
+- The orchestrator is a pure router — it tasks sub-agents via task() and collects result contracts, never performing work inline
+- Every pipeline stage is a logged sub-agent task() in the work state file
+- Every SKILL.md contains a task context audit table documenting sub-agent tasks, scope, exclusions, and inline-work status
 - Verification is ALWAYS performed by a different sub-agent from the producer, with ONLY the deliverable + spec received
 - Sub-agents receive minimal context (issue number + scoped instruction) — no orchestrator preload
 
@@ -465,32 +465,32 @@ See `divide-and-conquer` SKILL.md. Orchestrator is pure router. Detailed rules b
 
 | Violation Pattern | Correct Action |
 | -- | -- |
-| Orchestrator reads file inline to "understand context" | Dispatch routing sub-agent instead |
-| Orchestrator edits guideline text inline | Dispatch guideline-update sub-agent |
-| Sub-agent performs analysis + writing + verification in one dispatch | Decompose into 3 dispatches (analyze, write, verify) |
+| Orchestrator reads file inline to "understand context" | Task routing sub-agent instead |
+| Orchestrator edits guideline text inline | Task guideline-update sub-agent |
+| Sub-agent performs analysis + writing + verification in one task() | Decompose into 3 tasks (analyze, write, verify) |
 | Verifier receives producer's reasoning or drafts | Verifier gets only deliverable + SC list |
 | Orchestrator performs inline work | Pipeline is poisoned — restart from `verify-authorization` with zero state retained |
 | RED/GREEN sub-agent also instructed to commit and push | RED/GREEN sub-agents only execute tests — never commit, never push |
 | Sub-agent detects spec/plan defect but proceeds with GREEN anyway | Sub-agent returns BLOCKED — defect must be resolved before continuing |
 | User said "continue" so mandatory checks are optional | Mandatory gates are structural invariants — "continue" is NOT authorization to skip |
 | Sub-agent skips defect detection in GREEN phase (code-complete without verification) | GREEN sub-agent MUST produce verification evidence before returning |
-| Orchestrator treats "continue" as waiver of a failed gate checkpoint | Failed gate is absolute stop — no dispatch proceeds past incomplete/failed gate; contamination requires full restart |
+| Orchestrator treats "continue" as waiver of a failed gate checkpoint | Failed gate is absolute stop — no task() proceeds past incomplete/failed gate; contamination requires full restart |
 
 ### [critical-rules-035] DISPATCH_GATE Checkpoint skipped
-After routing decision, MUST dispatch sub-agent. Never perform task inline. See DISPATCH_GATE procedure below.
+After routing decision, MUST task sub-agent. Never perform task inline. See DISPATCH_GATE procedure below.
 
 #### DISPATCH_GATE Checkpoint Procedure
-Every routing decision in the approval-gate dispatch chain MUST be followed by an explicit DISPATCH_GATE that forces handoff to a sub-agent:
+Every routing decision in the approval-gate pipeline chain MUST be followed by an explicit DISPATCH_GATE that forces handoff to a sub-agent:
 
-1. **Confirm next action is dispatch** — verify the routing decision has been made
-2. **Dispatch sub-agent** — dispatch `task(subagent_type="general")` with scoped context
+1. **Confirm next action is task()** — verify the routing decision has been made
+2. **Task sub-agent** — call `task(subagent_type="general")` with scoped context
 3. **Receive result contract** — collect the structured result (never read the full task file)
-4. **Log dispatch in work state file** — record which sub-agent was dispatched and when
+4. **Log in work state file** — record which sub-agent was tasked and when
 5. **Proceed based on result contract** — route to next pipeline step based on sub-agent output
 
 - 🚫 FORBIDDEN: Loading a SKILL.md routing section and then performing the described task inline
 - 🚫 FORBIDDEN: Reading full SKILL.md content (beyond the routing section) in the orchestrator context
-- ✅ REQUIRED: After reading routing metadata, immediately dispatch a sub-agent for execution
+- ✅ REQUIRED: After reading routing metadata, immediately task a sub-agent for execution
 - ✅ REQUIRED: The orchestrator NEVER loads task file content — it only receives result contracts
 
 ### [critical-rules-034] Orchestrator Inline Work = Poisoned Pipeline
@@ -500,13 +500,13 @@ On detection: HALT, discard ALL state, restart from `verify-authorization`. Non-
 - ✅ REQUIRED: On detection of orchestrator inline work: HALT immediately; discard ALL work state files, cached results, and in-progress artifacts; restart from `verify-authorization` with zero state retained; log the poison-detection event in the new work state file
 
 ### [critical-rules-042] Discard on Sub-Agent Failure
-BLOCKED sub-agent → discard ALL files changed. Re-dispatch with original context.
+BLOCKED sub-agent → discard ALL files changed. Re-task with original context.
 
-### [critical-rules-034] Tool-Recipe Dispatch — sub-agents as API proxies
-Dispatch WHAT, never HOW. See Spec #386.
+### [critical-rules-034] Tool-Recipe Task() — sub-agents as API proxies
+Task WHAT, never HOW. See Spec #386.
 
 ### [critical-rules-042] Skipping Spec/Plan Coherence Gate (Pre-RED)
-Verify coherence before any RED dispatch. See `divide-and-conquer`.
+Verify coherence before any RED sub-agent task(). See `divide-and-conquer`.
 
 ### [critical-rules-042] Skipping Execution-Time Coherence Detection (RED + GREEN)
 Return BLOCKED on spec/codebase contradiction. See Spec #386.
@@ -535,11 +535,11 @@ Creating a PR whose sole purpose is to update a submodule pointer during the cle
 
 ### [critical-rules-048] Skill Pre-Read + Inline Execution — reading skill task files and executing steps manually
 
-**CRITICAL VIOLATION:** Reading a skill's task files (`.md` files in `.opencode/skills/<skill>/tasks/`) or SKILL.md body, then executing the described steps via inline tool calls instead of dispatching `skill({name: "..."})` is a critical violation.
+**CRITICAL VIOLATION:** Reading a skill's task files (`.md` files in `.opencode/skills/<skill>/tasks/`) or SKILL.md body, then executing the described steps via inline tool calls instead of calling `skill({name: "..."})` is a critical violation.
 
 - 🚫 FORBIDDEN: Loading `skills/<skill>/tasks/<task>.md` into context then performing the described steps using raw tool calls
 - 🚫 FORBIDDEN: "I know what skill X does, so I'll just do it directly" — rationalization that bypasses enforcement gates
-- 🚫 FORBIDDEN: Opening task files to "check what needs to happen" then proceeding inline without dispatching the skill
+- 🚫 FORBIDDEN: Opening task files to "check what needs to happen" then proceeding inline without calling the skill
 - ✅ REQUIRED: Call `skill({name: "..."})` to call the skill, then use its documented call pattern (`--task name`)
 - ✅ REQUIRED: If you need to know what a skill does, the `<available_skills>` list gives name + description — that is enough to route. Call the skill to get full content.
 
@@ -548,8 +548,8 @@ Creating a PR whose sole purpose is to update a submodule pointer during the cle
 | Violation | ID | What Happens |
 |----------|-----|-------------|
 | Pre-read skill + inline execute | critical-rules-048 | Agent reads `.md` task file, executes steps manually without calling `skill()` |
-| Orchestrator inline work | critical-rules-034 | Agent performs file modifications or analysis inline without sub-agent dispatch |
-| Tool-recipe dispatch | #329 (spec-fix) | Agent dispatches sub-agent with raw API calls instead of task objectives |
+| Orchestrator inline work | critical-rules-034 | Agent performs file modifications or analysis inline without sub-agent task() |
+| Tool-recipe dispatch | #329 (spec-fix) | Agent tasks sub-agent with raw API calls instead of task objectives |
 
 ### [critical-rules-038] Implementing Before PR Merge Boundary
 See `approval-gate/SKILL.md` PR Merge Boundary Gate.
@@ -566,21 +566,21 @@ Single-issue: exactly 1 commit. Work branch: N commits = N items.
 ### [critical-rules-041] Listing Merged PRs Without Calling Cleanup
 "check prs" = cleanup trigger.
 
-### [critical-rules-042] Model-Aware Clean-Room Dispatch for Behavioral Testing
+### [critical-rules-042] Model-Aware Clean-Room task() for Behavioral Testing
 See Spec #262. Run via `opencode-cli run` against real AI models.
 
-### [critical-rules-044] Preloading Sub-Agent Context — dispatching with pre-determined file paths/line numbers/outcomes
+### [critical-rules-044] Preloading Sub-Agent Context — task()ing with pre-determined file paths/line numbers/outcomes
 See Spec #274. Gate every execution behind pre-analysis sub-agent.
 
-### [critical-rules-043] Universal Re-Dispatch Mandate — no inline fallback on sub-agent failure
-ALL pipeline stages. Re-dispatch clean-room with same context. See Spec #106.
+### [critical-rules-043] Universal Re-Task Mandate — no inline fallback on sub-agent failure
+ALL pipeline stages. Re-task clean-room with same context. See Spec #106.
 
 ### [critical-rules-051] Skipping mandatory submodule tagging at pre-work
 Pre-work MUST tag each submodule at dev tip with `<parent-repo>/<issue-number>` format.
 Missing this tag makes the starting SHA unreachable after squash merge + branch deletion.
 
-### [critical-rules-052] Inline submodule git operations — ALL must dispatch to sub-agents
-Every submodule git operation (tag, push, checkout, pull, verify) MUST be dispatched as a
+### [critical-rules-052] Inline submodule git operations — ALL must task to sub-agents
+Every submodule git operation (tag, push, checkout, pull, verify) MUST be run via task() as a
 clean-room sub-agent. The main agent MUST NEVER perform submodule git operations inline.
 See git-workflow SKILL.md → Sub-Agent Tasks for Submodule Operations.
 
@@ -786,7 +786,7 @@ rules:
     source: "000-critical-rules.md §Plan ≠ Execution"
 
   - id: critical-rules-016
-    title: "Skip mandatory skill call during dispatch chain"
+    title: "Skip mandatory skill call during pipeline chain"
     conditions:
       all:
         - "dispatch_chain_step_skipped == true"
@@ -918,7 +918,7 @@ rules:
     source: "000-critical-rules.md §Uncommitted/Unpushed Changes After Implementation"
 
   - id: critical-rules-025
-    title: "Main agent implements directly instead of dispatching sub-agents"
+    title: "Main agent implements directly instead of task()ing sub-agents"
     conditions:
       all:
         - "is_main_agent == true"
@@ -1001,7 +1001,7 @@ rules:
     source: "000-critical-rules.md §Non-Idempotent API Mutations"
 
   - id: critical-rules-030
-    title: "Skipping clean-room dispatch for sub-agents"
+    title: "Skipping clean-room task() for sub-agents"
     conditions:
       all:
         - "sub_agent_dispatch_pending == true"
@@ -1011,7 +1011,7 @@ rules:
     conflicts_with: []
     requires: []
     triggers: [divide-and-conquer, verification-before-completion, git-workflow]
-    source: "000-critical-rules.md §Skipping Clean-Room Dispatch for Sub-Agents"
+    source: "000-critical-rules.md §Skipping Clean-Room task() for Sub-Agents"
 
   - id: critical-rules-031
     title: "Skipping pre-flight checks for sub-agents"
@@ -1053,7 +1053,7 @@ rules:
     source: "000-critical-rules.md §Claiming Verification Without Tool-Call Evidence in Sub-Agent Results"
 
   - id: critical-rules-034
-    title: "Inline work — orchestrator performing file modifications, analysis, or verification without sub-agent dispatch"
+    title: "Inline work — orchestrator performing file modifications, analysis, or verification without sub-agent task()"
     conditions:
       all:
         - "is_orchestrator == true"
@@ -1145,7 +1145,7 @@ rules:
         - "pr_creation_attempted == true"
     actions:
       - HALT
-      - INVOKE(pr-creation/squash-push Step 3)
+      - TASK(pr-creation/squash-push Step 3)
     conflicts_with: []
     requires: []
     triggers: [git-workflow, pr-creation-workflow]
@@ -1159,14 +1159,14 @@ rules:
         - "skill_check_pr_invoked == false"
     actions:
       - HALT
-      - INVOKE(git-workflow --task check-pr)
+      - CALL(git-workflow --task check-pr)
     conflicts_with: []
     requires: []
     triggers: [git-workflow]
     source: "000-critical-rules.md §Listing Merged PRs Without Calling Cleanup"
 
   - id: critical-rules-042
-    title: "Model-aware clean-room dispatch required for all behavioral testing"
+    title: "Model-aware clean-room task() required for all behavioral testing"
     conditions:
       any:
         - "behavioral_test_performed_via_grep == true"
@@ -1174,28 +1174,28 @@ rules:
         - "model_dispatched_for_behavioral_test == false"
     actions:
       - HALT
-      - DISPATCH(clean-room opencode-cli run with resolved model)
+      - TASK(clean-room opencode-cli run with resolved model)
     conflicts_with: []
     requires: []
     triggers: [verification-before-completion, divide-and-conquer]
-    source: "000-critical-rules.md §Model-Aware Clean-Room Dispatch for Behavioral Testing"
+    source: "000-critical-rules.md §Model-Aware Clean-Room task() for Behavioral Testing"
 
   - id: critical-rules-043
-    title: "Universal re-dispatch mandate — no inline fallback on sub-agent failure at any pipeline stage"
+    title: "Universal re-task mandate — no inline fallback on sub-agent failure at any pipeline stage"
     conditions:
       any:
         - "sub_agent_failed == true AND pipeline_stage IN ['analysis','planning','implementation','verification','auditing','behavioral_testing','git_operations','correspondence','issue_operations']"
         - "sub_agent_result_empty == true AND pipeline_stage IN ['analysis','planning','implementation','verification','auditing','behavioral_testing','git_operations','correspondence','issue_operations']"
     actions:
       - HALT
-      - RE_DISPATCH(clean-room sub-agent)
+      - RE_TASK(clean-room sub-agent)
     conflicts_with: []
     requires: [critical-rules-034]
     triggers: [divide-and-conquer, verification-before-completion, git-workflow, approval-gate, issue-operations, executing-plans]
-    source: "000-critical-rules.md §No Inline Fallback on Sub-Agent Failure — Universal Re-Dispatch Mandate"
+    source: "000-critical-rules.md §No Inline Fallback on Sub-Agent Failure — Universal Re-Task Mandate"
 
   - id: critical-rules-044
-    title: "Preloading sub-agent context — dispatching execution sub-agents with pre-determined file paths, line numbers, or expected outcomes"
+    title: "Preloading sub-agent context — task()ing execution sub-agents with pre-determined file paths, line numbers, or expected outcomes"
     conditions:
       any:
         - "sub_agent_dispatched_with_file_paths == true"
@@ -1205,7 +1205,7 @@ rules:
         - "verification_sub_agent_dispatched_with_file_list == true"
     actions:
       - HALT
-      - DISPATCH(pre-analysis sub-agent first)
+      - TASK(pre-analysis sub-agent first)
     conflicts_with: []
     requires: [critical-rules-034, critical-rules-030]
     triggers: [approval-gate, divide-and-conquer, verification-before-completion]
@@ -1254,7 +1254,7 @@ rules:
     source: "000-critical-rules.md §VbC Fabricated PASS"
 
   - id: critical-rules-048
-    title: "Pre-reading skill task files and executing steps inline instead of dispatching via skill()"
+    title: "Pre-reading skill task files and executing steps inline instead of calling via skill()"
     conditions:
       all:
         - "skill_task_file_read == true"
@@ -1282,7 +1282,7 @@ rules:
     source: "000-critical-rules.md §critical-rules-049"
 
   - id: critical-rules-050
-    title: "Sub-agent scope propagation — missing authorization_scope in dispatch context"
+    title: "Sub-agent scope propagation — missing authorization_scope in task context"
     conditions:
       all:
         - "sub_agent_dispatched == true"
@@ -1351,7 +1351,7 @@ rules:
     source: "adversarial-audit/SKILL.md §adversarial-audit-010"
 
   - id: adversarial-audit-011
-    title: "Cleanroom dispatch for scan phase — scan sub-agent has NO verifier context"
+    title: "Cleanroom task() for scan phase — scan sub-agent has NO verifier context"
     conditions:
       all:
         - "audit_phase == 'scan'"
@@ -1393,7 +1393,7 @@ rules:
     source: "000-critical-rules.md §critical-rules-051"
 
   - id: critical-rules-052
-    title: "Inline submodule git operations — ALL must dispatch to sub-agents"
+    title: "Inline submodule git operations — ALL must task to sub-agents"
     conditions:
       any:
         - "pipeline_stage == 'pre_work' AND inline_submodule_git_op == true"
@@ -1401,7 +1401,7 @@ rules:
         - "pipeline_stage == 'cleanup' AND inline_submodule_git_op == true"
     actions:
       - HALT
-      - DISPATCH(clean-room sub-agent for submodule operation)
+      - TASK(clean-room sub-agent for submodule operation)
     conflicts_with: [critical-rules-034]
     requires: []
     triggers: [git-workflow]

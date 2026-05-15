@@ -49,7 +49,7 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 
 ## Operating Protocol
 
-1. **Mandatory dispatch (no decision point):** The agent MUST dispatch this task when:
+1. **Mandatory call (no decision point):** The agent MUST call this task when:
    - User says `approved`, `go`, or similar authorization to begin implementation
     - DO NOT prompt — call the skill directly
 
@@ -145,10 +145,10 @@ fi
 ### Step 2.5: Proactive Repo State Verification
 
 **Before creating any feature branch, verify repo state:**
+1. **Submodule initialization check:** Check if `.gitmodules` exists. If it does, note that submodule sync will be handled by the `submodule-tag-prework` sub-agent task() in Steps 2.7/3.5 — do NOT run submodule commands inline.
 
-1. **Submodule initialization check:** Check if `.gitmodules` exists. If it does, note that submodule sync will be handled by the `submodule-tag-prework` sub-agent dispatch in Steps 2.7/3.5 — do NOT run submodule commands inline.
-2. **Submodule currency check:** Deferred to the `submodule-tag-prework` sub-agent dispatch (Steps 2.7/3.5).
-3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be dispatched to `submodule-tag-prework` — do NOT run `git submodule init` or `git submodule foreach` inline.
+2. **Submodule currency check:** Deferred to the `submodule-tag-prework` sub-agent task() (Steps 2.7/3.5).
+3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be task()ed to `submodule-tag-prework` — do NOT run `git submodule init` or `git submodule foreach` inline.
 
 ### Step 2.7: Automatic Prerequisite Operations
 
@@ -160,7 +160,7 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 |-----------|------|----------------|-----------|
 | `git fetch origin` | Step 1.5/2 | Pipeline prerequisite | Remote exists |
 | `git checkout dev && git pull origin dev` | Step 2 | Tier 1 mandate prerequisite | Always when remote exists |
-| Dispatch `submodule-tag-prework` sub-agent | Step 2.5/3.5 | Tier 1 mandate prerequisite | `.gitmodules` exists |
+| Task() `submodule-tag-prework` sub-agent | Step 2.5/3.5 | Tier 1 mandate prerequisite | `.gitmodules` exists |
 | `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 3 | Tier 1 mandate — required by `000-critical-rules.md` §Skipping Git Pre-Check | Always |
 | `git push -u origin feature/N-xyz` | Post-Step 5 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
 
@@ -185,9 +185,9 @@ The agent MUST NOT ask for confirmation, permission, or readiness before perform
 
 **See also:** `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" — whether to sync a submodule, create a branch, or push is NOT a decision requiring user input when authorization covers the pipeline stage.
 
-### Sub-Agent Boundary: `submodule-tag-prework` Dispatch
+### Sub-Agent Boundary: `submodule-tag-prework` task()
 
-When `.gitmodules` exists, dispatch a `submodule-tag-prework` sub-agent for submodule initialization, sync, and status operations. The sub-agent receives only:
+When `.gitmodules` exists, run a `submodule-tag-prework` sub-agent via task() for submodule initialization, sync, and status operations. The sub-agent receives only:
 
 **`must_receive`:**
 - `worktree.path` (if in worktree mode; null otherwise)
@@ -245,11 +245,11 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 - Do NOT attempt any implementation until the worktree infrastructure is fixed
 - There is NO fallback to direct-branch when worktree mode is explicitly requested
 
-### Step 3.5: Submodule Initialization and Sync — Dispatch to `submodule-tag-prework`
+### Step 3.5: Submodule Initialization and Sync — task() to `submodule-tag-prework`
 
 **If `.gitmodules` does NOT exist:** Skip this step and proceed to Step 3.7.
 
-**If `.gitmodules` exists:** Dispatch a `submodule-tag-prework` sub-agent with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
+**If `.gitmodules` exists:** task() a `submodule-tag-prework` sub-agent with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
 
 1. Checks `.gitmodules` existence
 2. Initializes submodules if needed (`git submodule init`)
@@ -269,9 +269,9 @@ submodules_updated: <list of (path, old_sha, new_sha, commit_count)>
 gitmodules_path: <path>
 ```
 
-**If `status: BLOCKED`** (e.g., submodule checkout fails, `.gitmodules` malformed): Re-dispatch with original scoped context. If second dispatch also fails, report the double-failure and HALT.
+**If `status: BLOCKED`** (e.g., submodule checkout fails, `.gitmodules` malformed): Re-task() with original scoped context. If second task() also fails, report the double-failure and HALT.
 
-**If on `main` worktree:** The sub-agent uses `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to dev tip. Pass `worktree_type: main` in the dispatch context.
+**If on `main` worktree:** The sub-agent uses `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to dev tip. Pass `worktree_type: main` in the task context.
 
 **Do NOT inline the submodule operations.** The orchestrator never runs `git submodule` commands or reads submodule logs directly.
 
@@ -302,7 +302,7 @@ After branch creation and submodule sync, initialize the `.issues/<issue_number>
 
    ## Current State
 
-   Pre-work initialization complete. Awaiting implementation dispatch.
+   Pre-work initialization complete. Awaiting implementation task().
 
    ## Blockers
 
@@ -431,8 +431,8 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-### Dispatch Rules
-- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+### Task Context Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 ## Context Received from Orchestration Layer

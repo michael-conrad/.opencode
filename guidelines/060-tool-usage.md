@@ -186,7 +186,7 @@ When the `todowrite` tool is used during a session, the agent MUST maintain the 
 - Create items without a `status` field
 - Skip status transitions (e.g., jump from `pending` directly to `completed` without `in_progress`)
 
-## 8. Skill Dispatch Principle
+## 8. Skill Call Principle
 
 Call skills when their trigger keywords match the current task. Each skill defines explicit trigger patterns in its SKILL.md frontmatter (`Triggers on:` line). Match against those patterns, not against mere possibility.
 
@@ -196,7 +196,7 @@ Call skills when their trigger keywords match the current task. Each skill defin
 | **Priority ordering** | Process skills (approval-gate, brainstorming, writing-plans, systematic-debugging) before implementation skills |
 | **No speculative calling** | Do not call skills "just in case" — call when triggers match |
 | **Skill self-describes boundary** | Each SKILL.md defines what it covers; when in doubt, check `Triggers on:` line |
-| **Sub-agent dispatch priority** | When a SKILL.md Sub-Agent Tasks section marks a task as `sub-agent`, the main agent dispatches via `task()` instead of loading the task file inline. This keeps heavy task files out of the main agent context. Result contracts (≈100-500 words) are read instead of the full task file (>1,000 words) |
+| **Sub-agent task() priority** | When a SKILL.md Sub-Agent Tasks section marks a task as `sub-agent`, the main agent calls via `task()` instead of loading the task file inline. This keeps heavy task files out of the main agent context. Result contracts (≈100-500 words) are read instead of the full task file (>1,000 words) |
 
 ## 9. Identity Source Semantics
 

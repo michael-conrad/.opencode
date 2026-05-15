@@ -195,14 +195,9 @@ assert_skill_called() {
     return 0
 }
 
-# Backwards-compatible alias
-assert_skill_invoked() {
-    assert_skill_called "$@"
-}
-
-assert_no_skill_invoked() {
+assert_skill_not_called() {
     if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "1" ]; then
-        echo "INCONCLUSIVE: assert_no_skill_invoked — model dispatch failed, no behavioral evidence"
+        echo "INCONCLUSIVE: assert_skill_not_called — model dispatch failed, no behavioral evidence"
         return 2
     fi
     local forbidden_skill="$1"
@@ -212,10 +207,10 @@ assert_no_skill_invoked() {
     found=${found:-0}
     found=$(echo "$found" | head -1 | tr -d '[:space:]')
     if [ "$found" -gt 0 ]; then
-        echo "FAIL: assert_no_skill_invoked — forbidden skill '$forbidden_skill' was invoked ($found time(s))"
+        echo "FAIL: assert_skill_not_called — forbidden skill '$forbidden_skill' was called ($found time(s))"
         return 1
     fi
-    echo "PASS: assert_no_skill_invoked — skill '$forbidden_skill' was not invoked"
+    echo "PASS: assert_skill_not_called — skill '$forbidden_skill' was not called"
     return 0
 }
 

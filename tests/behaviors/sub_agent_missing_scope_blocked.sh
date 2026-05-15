@@ -2,7 +2,7 @@
 # Behavioral Enforcement Test (RED Phase): sub-agent returns BLOCKED when missing authorization_scope
 #
 # SC-10: Sub-agent must return status: BLOCKED when dispatched without authorization_scope.
-# The approval-gate dispatch context MUST always include authorization_scope.
+# The approval-gate task context MUST always include authorization_scope.
 # A sub-agent that receives incomplete scope context MUST NOT proceed — it MUST return BLOCKED.
 #
 # RED phase: authorization_scope enforcement in sub-agent dispatch does not exist yet.

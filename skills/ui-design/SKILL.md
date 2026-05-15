@@ -29,9 +29,9 @@ UI Design Specialist. Focus: information architecture, component relationships, 
 
 ## Invocation
 
-`skill({name: "ui-design"})` — call the skill, then dispatch a task:
+`skill({name: "ui-design"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `design` | `task(..., prompt: "execute design task from ui-design")` |
 | `wireframe` | `task(..., prompt: "execute wireframe task from ui-design")` |
@@ -41,9 +41,9 @@ UI Design Specialist. Focus: information architecture, component relationships, 
 
 **CLI equivalent (for human TUI use):** `/skill ui-design --task <task>`
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-Sub-agents dispatch via `task(subagent_type="general")` with `{ design_requirements, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ design_requirements, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"

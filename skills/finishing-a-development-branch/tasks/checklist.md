@@ -72,7 +72,7 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 
 **This format applies to EVERY halt point where implementation is reported complete:**
 - review-prep after implementation
-- Sub-agent result reports from divide-and-conquer dispatch
+- Sub-agent result reports from divide-and-conquer task()
 - Phase boundary halts (merge gates between phases)
 - Approval-gate post-implementation reports
 
@@ -90,7 +90,7 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 
 ### Post-Merge Cleanup Verification
 - [ ] `skill({name: "git-workflow", args: "--task cleanup"})` invoked after PR merge confirmation (CRITICAL — skipping is a guideline violation)
-- [ ] 🚫 FORBIDDEN: Reading cleanup task files into context and dispatching a generic sub-agent with custom step-by-step instructions. This is a critical-rules-048 violation. The ONLY permitted invocation is `skill({name: "git-workflow", args: "--task cleanup"})`.
+- [ ] 🚫 FORBIDDEN: Reading cleanup task files into context and task()ing a generic sub-agent with custom step-by-step instructions. This is a critical-rules-048 violation. The ONLY permitted invocation is `skill({name: "git-workflow", args: "--task cleanup"})`.
 - [ ] Local dev branch synced with origin/dev (dev HEAD matches origin/dev HEAD)
 - [ ] Merged feature branch deleted (local and remote)
 - [ ] No stale worktrees remaining from the merged branch

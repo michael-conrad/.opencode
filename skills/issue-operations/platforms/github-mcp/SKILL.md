@@ -43,7 +43,7 @@ GitHub platform implementation using GitHub MCP tools. Full API coverage with no
 
 ## Tools
 
-All operations dispatched through the `github_*` MCP tool family. No Python client needed — the MCP server handles authentication and API routing.
+All operations routed through the `github_*` MCP tool family. No Python client needed — the MCP server handles authentication and API routing.
 
 ## Authorization Labels (Platform-Supported)
 
@@ -113,15 +113,15 @@ Agent MUST report staleness when detected and should attempt to refresh. If API 
 
 ## Cross-References
 
-- Dispatcher: `../SKILL.md` (issue-operations)
+- Router: `../SKILL.md` (issue-operations)
 - Related platform: `../gitbucket-api/SKILL.md`
 
 ## Sub-Agent Tasks
 
-### Dispatch Audit Table
+### Task Routing
 
 | Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
 |---|---|---|---|---|
 | Platform operations | When GitHub MCP platform operations are dispatched | Operation type, issue/PR number, github.owner, github.repo | Implementation context, agent memory | NO |
-| `pre-analysis` | Before any execution sub-agent dispatch, determine scope independently | Issue number, task description, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
+| `pre-analysis` | Before any sub-agent routing, determine scope independently | Issue number, task description, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
 | `completion` | When workflow halts at any point | Workflow state | Implementation context, agent memory | NO |

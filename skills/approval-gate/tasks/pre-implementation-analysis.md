@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Analyze interdependencies and determine execution order for all approved issues — whether one or many — producing a flat item list for `assemble-work` dispatch. Every approval follows this unified path: sub-issue expansion → flat item list → assemble-work → work branch → pr-creation → one PR.
+Analyze interdependencies and determine execution order for all approved issues — whether one or many — producing a flat item list for `assemble-work`. Every approval follows this unified path: sub-issue expansion → flat item list → assemble-work → work branch → pr-creation → one PR.
 
 This task is a **routing document** that delegates to 6 atomic tasks in `pre-impl/`.
 
@@ -30,15 +30,15 @@ collect-screening-results → reconcile-status → build-dependency-graph
 | `pre-impl/reconcile-status` | Issue status inconsistency reconciliation via `reconcile-issue-graph` | Step 0.7 |
 | `pre-impl/build-dependency-graph` | Flat item list, cross-issue analysis, issue classification, dependency graph construction | Steps 1, 2, 3, 4 |
 | `pre-impl/check-cross-spec-overlap` | Overlap check against open specs/plans outside the batch (four-tier classification) | Step 2 (Cross-Spec Overlap subsection) |
-| `pre-impl/write-work-state` | Execution strategy, dev base hash, dispatch context, work state file persistence | Steps 5, 7, 8, 9 |
-| `pre-impl/yield-to-assemble-work` | Present execution plan, verify no-questions checkpoint, dispatch to assemble-work | Steps 6, 10 |
+| `pre-impl/write-work-state` | Execution strategy, dev base hash, task context, work state file persistence | Steps 5, 7, 8, 9 |
+| `pre-impl/yield-to-assemble-work` | Present execution plan, verify no-questions checkpoint, proceed to assemble-work | Steps 6, 10 |
 
 **Chain-of-responsibility note:** Each atomic task uses the work state file for inter-task I/O. Tasks read inputs from predecessor sections and write results to their own section per `enforcement/work-state-schema.md`.
 
 ## Red Flags
 
 - Never skip dependency analysis when multiple issues are approved together
-- Never dispatch parallel subagents for conflict-risk issues without serialization
+- Never task() parallel subagents for conflict-risk issues without serialization
 - Never include meta/non-code, already-implemented, superseded, or moot issues in the implementation plan
 - Never present dependency analysis only in agent reasoning (MUST be in chat)
 - Never assume all issues are independent without analysis
@@ -52,7 +52,7 @@ collect-screening-results → reconcile-status → build-dependency-graph
 - `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" — structural decisions are agent intelligence concerns
 - `020-go-prohibitions.md` §1 — no prompts for authorization; "approved to PR" covers the full pipeline
 - `screen-issue.md` — exhaustive `requires_developer: true` conditions
-- `approval-gate/SKILL.md` §"Dispatch Order" — "MUST auto-dispatch" after analysis completes
+- `approval-gate/SKILL.md` §"Task Order" — "MUST auto-dispatch" after analysis completes
 
 ## Enforcement References
 

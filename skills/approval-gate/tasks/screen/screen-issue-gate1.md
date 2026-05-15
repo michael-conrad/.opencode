@@ -6,10 +6,10 @@ First gate of per-issue screening for pre-implementation analysis. Read issue bo
 
 ## Entry Criteria
 
-- Single issue number to screen (passed via dispatch context)
+- Single issue number to screen (passed via task context)
 - Issue has been verified by `verify-authorization`
 - User has explicitly authorized implementation
-- `<github.owner>` and `<github.repo>` available from dispatch context
+- `<github.owner>` and `<github.repo>` available from task context
 
 ## Exit Criteria
 

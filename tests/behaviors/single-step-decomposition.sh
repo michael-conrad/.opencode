@@ -18,7 +18,7 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-assert_skill_invoked "spec-auditor" || OVERALL_RESULT=1
+assert_skill_called "spec-auditor" || OVERALL_RESULT=1
 
 assert_forbidden_pattern_absent "I'll audit and then fix" "combined audit and fix" || OVERALL_RESULT=1
 

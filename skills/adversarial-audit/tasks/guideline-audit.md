@@ -123,7 +123,7 @@ Fix? (fix/skip/stop)
 
 Do NOT batch multiple problems in one message.
 
-### Step 5: Dispatch Cross-Validate
+### Step 5: Cross-Validate via task()
 
 For each problem class:
 
@@ -213,7 +213,7 @@ Fix: <fix_action>
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — dual auditor dispatch
+- `tasks/cross-validate.md` — dual auditor task()
 - `guideline-auditor/tasks/audit.md` — original procedure
 - `000-critical-rules.md` — guideline standards
 - `065-verification-honesty.md` — live verification requirement

@@ -64,7 +64,7 @@ The runbook type determines the file naming convention. Before writing the runbo
 
 The cadence value used in the filename MUST come from the cadence registry — see SKILL.md → Cadence Registry. If a cadence value outside the registry is supplied, HALT and require one of the six registered values.
 
-## Type-Aware Format Dispatch
+## Type-Aware Format Selection
 
 The runbook type determines the output format. The generate task MUST select format before producing any content:
 
@@ -174,7 +174,7 @@ After collecting results:
 
 ### Pre-Step: Verification Gate (MANDATORY FIRST)
 
-Before collecting environment context or writing any runbook content, call `verification-enforcement --task verify`. This gate dispatches section-based sub-agents to collect evidence artifacts for the factual claims the runbook will make — CLI commands, GUI paths, configuration values, and system behavior assertions. Evidence artifacts collected here inform every subsequent step. Claims that cannot be verified at this stage are marked with `⚠️ UNVERIFIED` for resolution in the post-generation revisit pass.
+Before collecting environment context or writing any runbook content, call `verification-enforcement --task verify`. This gate tasks section-based sub-agents to collect evidence artifacts for the factual claims the runbook will make — CLI commands, GUI paths, configuration values, and system behavior assertions. Evidence artifacts collected here inform every subsequent step. Claims that cannot be verified at this stage are marked with `⚠️ UNVERIFIED` for resolution in the post-generation revisit pass.
 
 ### Agent-Detected Runbook Base Path (MANDATORY BEFORE STEP 0)
 

@@ -3623,10 +3623,10 @@
       "id": "context-passing",
       "skill": "divide-and-conquer",
       "preconditions": [
-        "dispatch_context_needed == true"
+        "task_context_needed == true"
       ],
       "postconditions": [
-        "dispatch_context_provided == true"
+        "task_context_provided == true"
       ],
       "mandatory": false,
       "bypass_violation": "",

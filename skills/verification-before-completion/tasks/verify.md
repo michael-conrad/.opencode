@@ -32,9 +32,9 @@ Verify all success criteria have evidence before allowing completion claims.
 5. If ALL structural components present:
    - Proceed to Step 1 (Query Success Criteria)
 
-**Dispatch as sub-agent:** When the verification context is the same agent that performed implementation, dispatch `structural-verify` as a sub-agent to ensure clean-room isolation. The sub-agent receives ONLY the spec SC list and file paths — NOT implementation context.
+**task() as sub-agent:** When the verification context is the same agent that performed implementation, task() `structural-verify` as a sub-agent to ensure clean-room isolation. The sub-agent receives ONLY the spec SC list and file paths — NOT implementation context.
 
-**Authorization context for sub-agent dispatch:**
+**Authorization context for sub-agent task():**
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
@@ -106,7 +106,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 1. Check evidence artifacts for both `model: <local>` and `model: <cloud>` entries
 2. If only single-model evidence is present: flag as `CROSS_MODEL_GAP`
    - HALT completion claim
-   - Re-dispatch verification against the missing model
+   - Re-task verification against the missing model
 3. Cross-model result comparison:
    - Both pass: cross-validation confirmed (PASS)
    - Only one passes: **brittleness detected** — instructions are model-biased. Flag as `BRITTLENESS_DETECTED` with remediation required
@@ -115,7 +115,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 **🚫 FORBIDDEN:** Accepting single-model results as cross-model-validated; treating `PASS` from one model as equivalent to cross-model verification.
 
-**AUTHORITY:** `000-critical-rules.md` §Model-Aware Clean-Room Dispatch, Spec #262
+**AUTHORITY:** `000-critical-rules.md` §Model-Aware Clean-Room task(), Spec #262
 
 ## Evidence Types
 

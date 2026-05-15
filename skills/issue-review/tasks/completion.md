@@ -4,7 +4,7 @@ Idempotent completion subtask for issue-review. Ensures mandatory steps ran rega
 
 ## State Check Phase
 
-1. **Full workflow completion:** Gather → triage → dispatch completed for target issue
+1. **Full workflow completion:** Gather → triage → all tasks completed for target issue
 2. **Fix spec sub-issue:** If analyze-and-spec path, fix spec sub-issue was created
 3. **Adversarial-audit invocation:** If audit path, `adversarial-audit --task spec-audit` was invoked
 4. **Executive summary channel:** Output routed to correct channel (chat for audit, issue for qa)
@@ -12,7 +12,7 @@ Idempotent completion subtask for issue-review. Ensures mandatory steps ran rega
 ## Skill-Specific Completion
 
 1. **Workflow completeness** (if not already performed):
-   - Check evidence that gather, triage, and dispatch all ran
+   - Check evidence that gather, triage, and all tasks ran
    - If incomplete: invoke missing task as remediation
 
 2. **Fix spec sub-issue verification** (if analyze-and-spec path was taken):

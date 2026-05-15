@@ -16,7 +16,7 @@ Structural test quality audit — reader-only checks on test files. Evaluates te
 - File paths changed known (`file_paths_changed`)
 - Spec success criteria available (`spec_success_criteria`)
 
-## Dispatch Context
+## Task Context
 
 ```json
 {

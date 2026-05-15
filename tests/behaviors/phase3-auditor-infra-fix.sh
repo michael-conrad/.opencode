@@ -96,9 +96,9 @@ fi
 if [ -f "$SKILL_MD" ]; then
     SUB_AGENT_SECTION=$(grep -A5 "Sub-Agent Dispatch Audit" "$SKILL_MD" 2>/dev/null || true)
     if echo "$SUB_AGENT_SECTION" | grep -q "audit_phase"; then
-        echo "PASS: (e) adversarial-audit SKILL.md dispatch context includes audit_phase (SC-6)"
+        echo "PASS: (e) adversarial-audit SKILL.md task context includes audit_phase (SC-6)"
     else
-        echo "FAIL: (e) adversarial-audit SKILL.md dispatch context missing audit_phase (SC-6)"
+        echo "FAIL: (e) adversarial-audit SKILL.md task context missing audit_phase (SC-6)"
         OVERALL_RESULT=1
     fi
 else

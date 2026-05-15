@@ -30,9 +30,9 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 
 ## Invocation
 
-`skill({name: "writing-plans"})` — call the skill, then dispatch a task:
+`skill({name: "writing-plans"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `create` | `task(..., prompt: "execute create task from writing-plans")` |
 | `completion` | `task(..., prompt: "execute completion task from writing-plans")` |
@@ -48,9 +48,9 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 5. **Phase structure:** phases for sub-issues, tasks within phases for TDD steps.
 6. **Decision gate:** multi-task → separate plan. Single-task + simple → combined or separate per agent judgment.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-All tasks dispatch via `task(subagent_type="general")` with `{ spec_issue_number, spec_body, worktree.path, github.owner, github.repo }`, excluding implementation context. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+All tasks run via `task(subagent_type="general")` with `{ spec_issue_number, spec_body, worktree.path, github.owner, github.repo }`, excluding implementation context. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 

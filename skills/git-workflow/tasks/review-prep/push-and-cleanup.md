@@ -18,13 +18,13 @@ Clean temp files, handle submodule push automation, rebase on current dev, and v
 
 ## Procedure
 
-### Step 0: Submodule Feature Push via Sub-Agent Dispatch (CONDITIONAL)
+### Step 0: Submodule Feature Push via Sub-Agent task() (CONDITIONAL)
 
 **If `.gitmodules` does NOT exist:** Skip entirely.
 
-**If `.gitmodules` exists:** Dispatch a `submodule-feature-push` sub-agent to handle submodule push automation instead of executing inline bash.
+**If `.gitmodules` exists:** task() a `submodule-feature-push` sub-agent to handle submodule push automation instead of executing inline bash.
 
-#### Dispatch Context Schema
+#### Task Context Schema
 
 The sub-agent receives exactly this context — nothing more:
 
@@ -64,7 +64,7 @@ evidence_artifacts:
 
 **Sub-agent push failure (any submodule returns FAILED):** BLOCK parent repo push. Report which submodule failed. Do NOT proceed to Step 1.
 
-**`--skip-submodules` flag:** Warn and proceed without submodule push steps. Skip dispatch entirely; go to Step 1.
+**`--skip-submodules` flag:** Warn and proceed without submodule push steps. Skip task() entirely; go to Step 1.
 
 **Provenance tracking after submodule push:** Invoke `/skill git-workflow --task provenance --mode=dev-push` for each pushed submodule. Provenance is best-effort and never blocks the git workflow.
 

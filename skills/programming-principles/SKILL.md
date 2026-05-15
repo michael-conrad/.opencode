@@ -23,9 +23,9 @@ compatibility: opencode
 
 ## Invocation
 
-`skill({name: "programming-principles"})` — call the skill, then dispatch a task:
+`skill({name: "programming-principles"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `principles` | `task(..., prompt: "execute principles task from programming-principles")` |
 | `check-limits` | `task(..., prompt: "execute check-limits task from programming-principles")` |
@@ -37,9 +37,9 @@ compatibility: opencode
 
 This skill is the master source. `080-code-standards.md` holds project-specific conventions only. Other skills reference HERE, never the reverse.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-`principles` dispatches via `task(subagent_type="general")` with `{ context, worktree.path, github.owner, github.repo }`. `check-limits` and `decompose` with `{ file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
+`principles` runs via `task(subagent_type="general")` with `{ context, worktree.path, github.owner, github.repo }`. `check-limits` and `decompose` with `{ file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"

@@ -10,7 +10,7 @@ The two-gate model STILL applies when no plan exists at the time of spec approva
 
 ## 5b.1 Detect Approval Cascade Conditions
 
-This step runs ONLY when the approved issue is a spec (detected in Step 5 Auto-Dispatch context differentiation).
+This step runs ONLY when the approved issue is a spec (detected in Step 5 Auto-Dispatch Situation differentiation).
 
 ```python
 # Determine if this is a spec approval

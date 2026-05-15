@@ -36,7 +36,7 @@ Before writing any implementation code, enforcement test assertions for UI behav
 
 **Procedure:**
 
-1. **Run `test-ui` task** — If UI test specifications do not yet exist in the worktree, dispatch the `test-ui` sub-agent to generate them. The `test-ui` task produces test specification files that define expected UI behavior
+1. **Run `test-ui` task** — If UI test specifications do not yet exist in the worktree, task() the `test-ui` sub-agent to generate them. The `test-ui` task produces test specification files that define expected UI behavior
 2. **Write enforcement test assertions** — For each success criterion in the spec that applies to UI behavior, write an enforcement test assertion in `test-enforcement.sh` that verifies the UI meets the SC's requirement. Use the format: `# SC-N: <brief UI description>` as a comment above the assertion
 3. **Verify RED state** — Run the newly written assertions and confirm they are in RED state (failing). The assertions MUST fail because the UI implementation does not exist yet
 4. **Produce tool-call evidence** — Record the RED state verification output as a tool-call artifact showing:

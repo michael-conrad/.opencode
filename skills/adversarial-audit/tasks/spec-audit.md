@@ -47,7 +47,7 @@ Define audit criteria based on spec-auditor task structure:
 | SC-11 | Documentation Sources present and populated | Non-empty Documentation Sources section with live-source verification evidence |
 | SC-DET | SC Determinism | Each SC produces the same PASS/FAIL from any reasonable auditor |
 
-### Step 3: Dispatch Cross-Validate
+### Step 3: Cross-Validate via task()
 
 Invoke `cross-validate` task:
 
@@ -70,7 +70,7 @@ github.repo: <github.repo>
 
 failure_description: <failure_description>  # Optional — provided when routed from remediation loop
 
-Mandatory: dispatch two cross-family auditors, collect independent verdicts, cross-reference for consensus.
+Mandatory: task() two cross-family auditors, collect independent verdicts, cross-reference for consensus.
 """
 )
 ```
@@ -166,7 +166,7 @@ Present revision options for developer decision.
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — dual auditor dispatch
+- `tasks/cross-validate.md` — dual auditor task()
 - `tasks/resolve-models.md` — cross-family selection
 - `spec-auditor/SKILL.md` — original task breakdown
 - `spec-auditor/tasks/fidelity.md` — plan fidelity check
@@ -184,7 +184,7 @@ rules:
     source: "spec-audit.md §Step 3"
 
   - id: spec-audit-002
-    title: "Clean-room dispatch — no orchestrator reasoning leaked to auditors"
+    title: "Clean-room task() — no orchestrator reasoning leaked to auditors"
     conditions:
       all: ["auditor_context contains 'expected' OR 'should' OR 'correct'"]
     actions: [HALT, STRIP_BIASED_CONTEXT]

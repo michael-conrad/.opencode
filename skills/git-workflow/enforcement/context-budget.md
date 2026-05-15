@@ -7,4 +7,4 @@ Process steps must be bounded to ensure implementation context is preserved.
 Each process step should verify remaining context budget before proceeding.
 
 ## References
-- See approval-gate skill for dispatch chain
+- See approval-gate skill for pipeline chain

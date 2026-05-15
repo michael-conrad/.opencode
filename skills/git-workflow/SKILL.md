@@ -46,9 +46,9 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 
 ## Invocation
 
-`skill({name: "git-workflow"})` — call the skill, then dispatch a task:
+`skill({name: "git-workflow"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `pre-work` | `task(..., prompt: "execute pre-work task from git-workflow")` |
 | `implementation` | `task(..., prompt: "execute implementation task from git-workflow")` |
@@ -65,7 +65,7 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 
 ## Sub-Agent Tasks for Submodule Operations
 
-| Sub-Agent Task | Trigger | Dispatch Context (MUST receive) | Exclusions (MUST NOT receive) | Words |
+| Sub-Agent Task | Trigger | Task Context (MUST receive) | Exclusions (MUST NOT receive) | Words |
 |----------------|---------|----------------------------------|-------------------------------|-------|
 | `submodule-tag-prework` | pre-work Step 3.5 | parent_repo, issue_number, submodule_paths | Implementation context, agent memory, other sub-agent results | ≈400 |
 | `submodule-feature-push` | review-prep Step 0 | parent_repo, issue_number, submodule_paths, submodule_branches | Implementation context, agent memory, orchestrator reasoning | ≈450 |
@@ -84,11 +84,11 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 8. **Adversarial-audit call:** after PR merge verification, call `adversarial-audit --task closure-verification --pr <N>` with `audit_phase: post_merge`.
 9. **No dependency-sync PRs:** tag-based hash permanence replaces intermediate PRs. Submodule SHAs are preserved via parent-repo-prefixed tags. See AGENTS.md §Tag Layers.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-All tasks dispatch via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo }`, excluding implementation context and agent memory. `pr-creation` receives spec summary. `cleanup` receives PR merge status. `provenance` receives submodule path. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+All tasks run via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo }`, excluding implementation context and agent memory. `pr-creation` receives spec summary. `cleanup` receives PR merge status. `provenance` receives submodule path. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
-Submodule sub-agents (`submodule-tag-prework`, `submodule-feature-push`, `submodule-liveness-check`, `submodule-dev-restore`) receive scoped context per the Sub-Agent Tasks for Submodule Operations table above. All are clean-room dispatches — no implementation context, agent memory, or orchestrator reasoning shared. Submodule git operations are NEVER performed inline.
+Submodule sub-agents (`submodule-tag-prework`, `submodule-feature-push`, `submodule-liveness-check`, `submodule-dev-restore`) receive scoped context per the Sub-Agent Tasks for Submodule Operations table above. All are clean-room runs — no implementation context, agent memory, or orchestrator reasoning shared. Submodule git operations are NEVER performed inline.
 
 ## Cross-References
 
@@ -148,8 +148,8 @@ rules:
     source: "git-workflow/SKILL.md"
 
   - id: git-workflow-submodule-005
-    title: "Submodule operations MUST dispatch to sub-agents, never inline"
+    title: "Submodule operations MUST run via sub-agents, never inline"
     conditions:
-      all: ["submodule_operation_pending == true", "dispatched_to_sub_agent == false"]
+      all: ["submodule_operation_pending == true", "routed_to_sub_agent == false"]
     actions: [HALT]
     source: "git-workflow/SKILL.md"

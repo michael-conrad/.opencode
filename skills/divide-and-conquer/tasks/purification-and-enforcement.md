@@ -18,7 +18,7 @@ Reference document defining what git-workflow tasks DO and DO NOT do, and the en
 
 ### Authorization Context Block Template
 
-Every dispatch context MUST include the authorization context block:
+Every task context MUST include the authorization context block:
 
 ```yaml
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
@@ -98,7 +98,7 @@ NEVER proceed to PR creation without explicit "create a PR" — UNLESS pipeline 
 
 #### ⚠️ CRITICAL: Scope Boundary Enforcement
 
-The `halt_at` field from verify-authorization Step 2.0 defines a hard boundary. The dispatch chain MUST NOT proceed past this stage:
+The `halt_at` field from verify-authorization Step 2.0 defines a hard boundary. The pipeline chain MUST NOT proceed past this stage:
 
 - `halt_at == spec_created` → HALT after spec creation
 - `halt_at == plan_created` → HALT after plan creation

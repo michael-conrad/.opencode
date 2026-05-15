@@ -26,9 +26,9 @@ Also manages duplicate text blocks across skills (formerly `fragment-manager` sk
 
 ## Invocation
 
-`skill({name: "skill-creator"})` — call the skill, then dispatch a task:
+`skill({name: "skill-creator"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `init` | `task(..., prompt: "execute init task from skill-creator")` |
 | `package` | `task(..., prompt: "execute package task from skill-creator")` |
@@ -49,9 +49,9 @@ Also manages duplicate text blocks across skills (formerly `fragment-manager` sk
 8. **Session-init variable alignment:** use canonical dotted-name format.
 9. **Fragment discipline:** master copy is single source of truth — never edit copies directly. Registry at `.opencode/.guidelines/registry.yaml`.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-`init` dispatches with `{ skill_name, output_dir, worktree.path, github.owner, github.repo }`. `package` with `{ skill_folder, output_dir, worktree.path, github.owner, github.repo }`. `validate` with `{ skill_folders, validation_scope, worktree.path, github.owner, github.repo }`. `fragment-management` with `{ fragment_name, destination_paths, operation, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+`init` runs with `{ skill_name, output_dir, worktree.path, github.owner, github.repo }`. `package` with `{ skill_folder, output_dir, worktree.path, github.owner, github.repo }`. `validate` with `{ skill_folders, validation_scope, worktree.path, github.owner, github.repo }`. `fragment-management` with `{ fragment_name, destination_paths, operation, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 

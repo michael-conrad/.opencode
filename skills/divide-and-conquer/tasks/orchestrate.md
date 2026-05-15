@@ -90,10 +90,10 @@ If ANY check fails → HALT and report. Do NOT proceed.
 /skill divide-and-conquer --task assess
 ```
 
-**Assessment yields workload sizing context only** — it informs the dispatch but does NOT change the workflow path. All implementation goes through `assemble-work`:
+**Assessment yields workload sizing context only** — it informs task() sizing but does NOT change the workflow path. All implementation goes through `assemble-work`:
 
-- **Small workload** → `assemble-work` dispatches one sub-agent (work-of-1)
-- **Large workload** → `assemble-work` dispatches multiple sub-agents
+- **Small workload** → `assemble-work` task()s one sub-agent (work-of-1)
+- **Large workload** → `assemble-work` task()s multiple sub-agents
 
 **The unified path is: `orchestrate` → `assemble-work` → sub-agent(s) → verification → review-prep.** There is no IMPLEMENT_DIRECTLY shortcut.
 
@@ -109,7 +109,7 @@ If ANY check fails → HALT and report. Do NOT proceed.
 
    This handles:
    - Branch-per-issue creation and worktrees
-   - Sub-agent dispatch per issue (single issue = one sub-agent)
+    - Sub-agent task() per issue (single issue = one sub-agent)
    - Squash-merge each feature branch into work branch
    - Dependency merge protocol (Tier 1-2 auto-resolve, Tier 3 HALT)
    - Frozen branch enforcement
@@ -322,7 +322,7 @@ Co-authored with AI: <AgentName> (<ModelId>)
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
 | "Workflow step completed" | Verify step was actually executed | Check for step output in context | VERIFICATION-GAP |
-| "Sub-agent dispatch correct" | Verify dispatch context includes worktree.path | Review dispatch prompt | STRUCTURE-VIOLATION |
+| "Sub-agent task correct" | Verify task context includes worktree.path | Review task prompt | STRUCTURE-VIOLATION |
 | "Work state current" | Verify work state file reflects latest state | `glob(pattern="./tmp/artifacts/work-*.md")` | VERIFICATION-GAP |
 | "No skipped steps" | Verify all mandatory steps were invoked | Check for tool-call artifacts per step | MISSING-ELEMENT |
 

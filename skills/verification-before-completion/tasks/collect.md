@@ -85,7 +85,7 @@ md5sum path/to/file
 
 ## Integration
 
-### Dispatch Order
+### Pipeline Order
 
 ```
 executing-plans → verification-before-completion → (completion claim allowed)

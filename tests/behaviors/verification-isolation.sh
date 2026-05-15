@@ -18,7 +18,7 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-assert_skill_invoked "verification-before-completion" || OVERALL_RESULT=1
+assert_skill_called "verification-before-completion" || OVERALL_RESULT=1
 
 assert_forbidden_pattern_absent "I verified that my implementation" "self-verification pattern" || OVERALL_RESULT=1
 

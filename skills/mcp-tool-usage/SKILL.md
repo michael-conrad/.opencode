@@ -21,18 +21,18 @@ Tool Priority Enforcer ensuring all operations use the correct tool according to
 
 ## Sub-Agent Tasks
 
-### Dispatch Audit Table
+### Task Routing
 
 | Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
 |---|---|---|---|---|
-| `pre-analysis` | Before any execution sub-agent dispatch, determine scope independently | Issue number, task description, audit_phase, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
+| `pre-analysis` | Before any sub-agent routing, determine scope independently | Issue number, task description, audit_phase, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
 | `selection-guide` | When tool selection guidance is needed for file operations, notebooks, or code search | Operation type, file extension, project context | Implementation context, agent memory | NO |
 
 ## Invocation
 
-`skill({name: "mcp-tool-usage"})` — call the skill, then dispatch a task:
+`skill({name: "mcp-tool-usage"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `selection-guide` | `task(..., prompt: "execute selection-guide task from mcp-tool-usage")` |
 

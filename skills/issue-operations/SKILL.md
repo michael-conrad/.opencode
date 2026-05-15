@@ -11,11 +11,11 @@ compatibility: opencode
 
 ## Overview
 
-Platform-agnostic Issue Operations dispatcher. Detects `github.platform` and routes all issue operations to the appropriate platform sub-skill (github-mcp, gitbucket-api, local).
+Platform-agnostic Issue Operations router. Detects `github.platform` and routes all issue operations to the appropriate platform sub-skill (github-mcp, gitbucket-api, local).
 
 ## Persona
 
-Issue Operations Dispatcher. Focus: spec-first workflow, validation, labeling, platform-aware routing.
+Issue Operations Router. Focus: spec-first workflow, validation, labeling, platform-aware routing.
 
 ## Tasks
 
@@ -34,9 +34,9 @@ Issue Operations Dispatcher. Focus: spec-first workflow, validation, labeling, p
 
 ## Invocation
 
-`skill({name: "issue-operations"})` — call the skill, then dispatch a task:
+`skill({name: "issue-operations"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `pre-creation` | `task(..., prompt: "execute pre-creation task from issue-operations")` |
 | `creation` | `task(..., prompt: "execute creation task from issue-operations")` |
@@ -57,9 +57,9 @@ Issue Operations Dispatcher. Focus: spec-first workflow, validation, labeling, p
 5. **Issue creation = no auth needed** per `010-approval-gate.md`.
 6. **Adversarial-audit call:** after sub-issue creation, call `adversarial-audit --task concern-separation --issue <N>` with `audit_phase: sub_issue_creation`.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-All tasks dispatch via `task(subagent_type="general")` with `{ issue_number, worktree.path, github.owner, github.repo, github.platform }`, excluding implementation context and agent memory. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+All tasks run via `task(subagent_type="general")` with `{ issue_number, worktree.path, github.owner, github.repo, github.platform }`, excluding implementation context and agent memory. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 

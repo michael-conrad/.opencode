@@ -104,7 +104,7 @@ ls .opencode/skills/issue-operations/SKILL.md && grep -c "link-sub-issue" .openc
 
 If any verification fails: flag as MISSING-TRACEABILITY.
 
-### Authorization Context for Dispatch
+### Authorization Context for Task()
 
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
@@ -114,8 +114,8 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-#### Dispatch Rules
-- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+#### Task() Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 - The `pipeline_phase` field is used to track which phase of a multi-phase plan is being executed
 

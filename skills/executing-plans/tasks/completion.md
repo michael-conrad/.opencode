@@ -4,13 +4,13 @@ Idempotent completion subtask for executing-plans. Ensures mandatory steps ran r
 
 ## State Check Phase
 
-1. **assemble-work dispatch:** Verify divide-and-conquer/assemble-work dispatch was attempted
+1. **assemble-work task():** Verify divide-and-conquer/assemble-work task() was attempted
 2. **Plan issue STATUS:** Verify plan issue STATUS reflects actual outcome (completed, partial, failed)
 3. **Chat exec summary:** Verify chat output follows exec summary format (summary → outcome → URL → byline)
 
 ## Skill-Specific Completion
 
-1. **assemble-work dispatch** (if not already performed):
+1. **assemble-work task()** (if not already performed):
    - Check evidence for assemble-work invocation
    - If missing: invoke `divide-and-conquer --task assemble-work` as remediation
 

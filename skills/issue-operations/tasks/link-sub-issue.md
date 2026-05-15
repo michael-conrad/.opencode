@@ -87,7 +87,7 @@ CRITICAL: Use database ID (`.id`), not issue number.
 ./.opencode/tools/gitbucket-api add-comment <github.owner> <github.repo> <M> "**Sub-issue linked:** #<sub_issue_number> — <phase_description>"
 ```
 
-The dispatcher records which method was used (formal link vs comment) for later closure operations.
+The caller records which method was used (formal link vs comment) for later closure operations.
 
 ## Single-Task Exemption
 

@@ -7,7 +7,7 @@ Spawn a sub-agent with scoped instructions and collect its structured result. Th
 ## Entry Criteria
 
 - Sub-tasks are defined (from `decompose` task)
-- Dispatch context is prepared per Dispatch Context Contract
+- Task context is prepared per Task Context Contract
 
 ## Exit Criteria
 
@@ -16,9 +16,9 @@ Spawn a sub-agent with scoped instructions and collect its structured result. Th
 
 ## Procedure
 
-### Step 1: Build Dispatch Context
+### Step 1: Build Task Context
 
-Assemble the Dispatch Context Contract (see SKILL.md):
+Assemble the Task Context Contract (see SKILL.md):
 
 ```yaml
 issue: <number>
@@ -42,7 +42,7 @@ env_vars:
   dev.email: "<from-session>"
 ```
 
-**MANDATORY verification items before dispatch:**
+**MANDATORY verification items before task():**
 - `worktree.path` is non-empty — FATAL if missing
 - `branch` matches the feature branch for this sub-task
 - `depth` is less than `max_depth`
@@ -62,7 +62,7 @@ If worktree.path is set, all file operations and git commands MUST use it as the
 
 Model context: <value from model_context field, or "default" if empty>
 
-Sub-task: <description from dispatch context>
+Sub-task: <description from task context>
 Scope: <scope>
 Boundaries: <boundaries — do NOT exceed these>
 Spec: <relevant spec section>
@@ -111,16 +111,16 @@ After collecting the sub-agent result, the orchestrator MUST perform a completio
 
 2. **If sub-agent returned NO result** (timeout, crash, empty response) — this is **ABNORMAL TERMINATION**:
    a. Run `git status` in the worktree (`workdir=worktree.path`)
-   b. If working tree is clean → sub-agent didn't start → re-dispatch (return to Step 2)
+    b. If working tree is clean → sub-agent didn't start → re-task (return to Step 2)
    c. If working tree has uncommitted changes → assess the changes:
       - `git diff` and `git diff --cached` to see what was modified
-      - Compare changed files against the dispatch spec deliverables
+       - Compare changed files against the task() spec deliverables
       - Determine completion level: complete / partial / wrong
       - Apply recovery action per the decision matrix in SKILL.md "Sub-Agent Completion Checkpoint" section
     d. Report abnormal termination to chat (see reporting format in SKILL.md)
     e. Do NOT proceed to next task until recovery is complete
 
-**The orchestrator decides the recovery action autonomously.** Per the "Pushing Agent Intelligence Decisions to the User" critical violation (`000-critical-rules.md`), the recovery decision is an agent intelligence concern. The user is NOT asked to decide. UNDO + re-dispatch is the default; manual completion is a narrow exception (see SKILL.md Recovery Mode for conditions).
+**The orchestrator decides the recovery action autonomously.** Per the "Pushing Agent Intelligence Decisions to the User" critical violation (`000-critical-rules.md`), the recovery decision is an agent intelligence concern. The user is NOT asked to decide. UNDO + re-task is the default; manual completion is a narrow exception (see SKILL.md Recovery Mode for conditions).
 
 ### Step 5: Compose Prior Context
 
@@ -158,14 +158,14 @@ Record failure with details. For independent sub-tasks, continue to next. For de
 ### Sub-agent Discovers Bug
 
 Sub-agent reports bug as finding (read-only), HALTs implementation for its sub-task. Orchestrator records and reports in work summary. Bug discovery does NOT authorize fixing.
-## Live Verification: Dispatch Claims (MANDATORY)
+## Live Verification: Task Claims (MANDATORY)
 
-**Verify dispatch state claims against actual sub-agent results per `065-verification-honesty.md`.**
+**Verify task state claims against actual sub-agent results per `065-verification-honesty.md`.**
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
 | "Sub-agent completed" | Verify result contract returned | Check for result contract in context | VERIFICATION-GAP |
-| "worktree.path passed" | Verify worktree path in dispatch context | Check dispatch prompt for worktree.path | STRUCTURE-VIOLATION |
+| "worktree.path passed" | Verify worktree path in task context | Check task prompt for worktree.path | STRUCTURE-VIOLATION |
 | "Sub-agent stayed in worktree" | Verify sub-agent didn't modify main repo | `git -C <main-repo> status --porcelain` | CONFLICTING |
 
 **Evidence artifacts:** See enforcement/work-state-verification.md §Evidence Artifacts

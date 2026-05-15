@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Present the execution plan (informative only, no confirmation), verify the no-questions checkpoint, and execute immediately to `assemble-work`. Contains post-analysis dispatch rules, prohibited actions, and developer involvement triggers.
+Present the execution plan (informative only, no confirmation), verify the no-questions checkpoint, and execute immediately to `assemble-work`. Contains post-analysis task rules, prohibited actions, and developer involvement triggers.
 
 ## Entry Criteria
 
@@ -57,7 +57,7 @@ Format:
 
 **Phase 2 (Parallel-safe):**
 
-Each parallel issue includes dispatch context:
+Each parallel issue includes task context:
 - #662 (`.opencode/skills/`) → `worktree_path: .worktrees/spec-662`
 - #614 (`src/`) → `worktree_path: .worktrees/spec-614`
 - #671 (`.opencode/skills/` — phases 2, 3 only) → `worktree_path: .worktrees/spec-671`
@@ -93,7 +93,7 @@ Yield control to `divide-and-conquer --task assemble-work`:
 **assemble-work** reads the work state file and handles:
 
 - Creating worktrees for the work set
-- Dispatching sub-agents for each issue
+- task()ing sub-agents for each issue
 - Collecting results and updating work state
 - Running review-prep after all issues complete
 
@@ -104,13 +104,13 @@ This handoff ensures:
 - The orchestrator stays clean — no implementation pollution
 - Work state survives context turnover
 
-### Post-Analysis Dispatch (MANDATORY)
+### Post-Analysis Task (MANDATORY)
 
-After producing the execution plan and dependency graph, the agent MUST proceed directly to the next step in the dispatch chain (typically `assemble-work`). The analysis result IS the decision — no separate user confirmation is required. Key rules:
+After producing the execution plan and dependency graph, the agent MUST proceed directly to the next step in the pipeline chain (typically `assemble-work`). The analysis result IS the decision — no separate user confirmation is required. Key rules:
 
 1. **Presentation is a status report, not a decision prompt.** The execution plan presentation (Step 6) is informational. It does NOT create a decision point.
 2. **No HALT after analysis unless `requires_developer: true`.** The only valid halt after pre-implementation-analysis is when screening sub-agents returned `requires_developer: true` per the exhaustive 5-condition list in `screen-issue.md`. When `requires_developer: false`, proceed without halting.
-3. **"Yield" means "produce output and continue," NOT "present output and wait."** The dispatch chain from pre-implementation-analysis to assemble-work is automatic. No user interaction is expected or allowed between them.
+3. **"Yield" means "produce output and continue," NOT "present output and wait."** The pipeline chain from pre-implementation-analysis to assemble-work is automatic. No user interaction is expected or allowed between them.
 4. **Halting to "present" results as a decision point is functionally identical to asking a question** — both violate `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" and `020-go-prohibitions.md` §1.
 
 ### Prohibited Actions

@@ -42,13 +42,13 @@ OVERALL_RESULT=0
 # Example: Verify a required pattern is present in agent output
 # assert_required_pattern_present "decline to answer" "decline-to-verify language" || OVERALL_RESULT=1
 
-# Example: Verify a specific skill was invoked (use grep on stdout for
-# skill name reference — do NOT use assert_skill_invoked for dispatch checks,
+# Example: Verify a specific skill was called (use grep on stdout for
+# skill name reference — do NOT use assert_skill_called for dispatch checks,
 # it produces false positives by matching skill name in response content)
 # grep -qi "skill-name" "$BEHAVIOR_STDOUT" 2>/dev/null || OVERALL_RESULT=1
 
 # Example: Verify a specific skill was NOT invoked
-# assert_no_skill_invoked "some-incorrect-skill" || OVERALL_RESULT=1
+# assert_skill_not_called "some-incorrect-skill" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

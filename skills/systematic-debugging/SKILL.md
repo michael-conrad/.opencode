@@ -23,9 +23,9 @@ Enforces root cause analysis, hypothesis testing, and minimal fixes. Prevents "v
 
 ## Invocation
 
-`skill({name: "systematic-debugging"})` — call the skill, then dispatch a task:
+`skill({name: "systematic-debugging"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `diagnose` | `task(..., prompt: "execute diagnose task from systematic-debugging")` |
 | `fix` | `task(..., prompt: "execute fix task from systematic-debugging")` |
@@ -42,9 +42,9 @@ Enforces root cause analysis, hypothesis testing, and minimal fixes. Prevents "v
 5. **Fix requires authorization** per `approval-gate`.
 6. **No scope creep:** fix only what diagnosis identified.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-Sub-agents dispatch via `task(subagent_type="general")` with `{ bug_description, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ bug_description, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 
@@ -65,5 +65,5 @@ rules:
     title: "Bug discovery does NOT authorize fixing"
     conditions:
       all: ["bug_found_during_diagnosis == true", "fix_authorization_received == false"]
-    actions: [HALT, CREATE(bug_report), INVOKE(issue-review)]
+    actions: [HALT, CREATE(bug_report), CALL(issue-review)]
     source: "systematic-debugging/SKILL.md"

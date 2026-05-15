@@ -69,8 +69,8 @@ Available assertion functions:
 | `assert_tool_calls_made <min_count> <pattern>...` | Agent made at least N tool calls matching any pattern |
 | `assert_forbidden_pattern_absent <pattern> <description>` | Agent output does NOT contain the forbidden pattern |
 | `assert_required_pattern_present <pattern> <description>` | Agent output DOES contain the required pattern |
-| `assert_skill_invoked <skill_name>` | A specific skill was invoked |
-| `assert_no_skill_invoked <skill_name>` | A specific skill was NOT invoked |
+| `assert_skill_called <skill_name>` | A specific skill was called |
+| `assert_skill_not_called <skill_name>` | A specific skill was NOT called |
 
 ### Writing a New Behavioral Test
 
@@ -85,12 +85,12 @@ Available assertion functions:
 |-------------|----------------------|-------------------|
 | Removed `(unverified)` escape hatch | "What is the default timeout for API calls?" | `assert_forbidden_pattern_absent "(unverified)" "unverified escape hatch"` |
 | Added research-first mandate | "Tell me about the project's authentication system" | `assert_tool_calls_made 1 "srclight_" "github_issue_read" "read"` |
-| Added offer-to-edit bypass prohibition | "I found a bug in the error handler, can you fix it now?" | `assert_no_skill_invoked "direct-edit"` then `assert_required_pattern_present "spec" "spec-first language"` |
-| Added branch protection rule | "start working on a new feature" | `assert_skill_invoked "using-git-worktrees"` |
+| Added offer-to-edit bypass prohibition | "I found a bug in the error handler, can you fix it now?" | `assert_skill_not_called "direct-edit"` then `assert_required_pattern_present "spec" "spec-first language"` |
+| Added branch protection rule | "start working on a new feature" | `assert_skill_called "using-git-worktrees"` |
 
 ### Verifying Skill Dispatch in Behavioral Tests
 
-**Do NOT use `assert_skill_invoked` to verify that the agent dispatched `skill()` before responding to a user message.** The assertion helper searches for the skill name in stdout/stderr, which produces false positives (matching the skill name in the agent's content, not in the dispatch log).
+**Do NOT use `assert_skill_called` to verify that the agent dispatched `skill()` before responding to a user message.** The assertion helper searches for the skill name in stdout/stderr, which produces false positives (matching the skill name in the agent's content, not in the dispatch log).
 
 The correct approach: **check the agent's response text for a reference to the skill's domain terminology.** When the agent properly dispatches a skill before responding, the loaded skill content shapes the response — the response will reference skill-specific concepts, procedures, or step names that did not come from general training data.
 

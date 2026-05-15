@@ -73,7 +73,7 @@ comparison = {
 }
 ```
 
-### Step 6: Dispatch Cross-Validate
+### Step 6: Cross-Validate via task()
 
 ```python
 task(
@@ -189,7 +189,7 @@ else:
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — dual auditor dispatch
+- `tasks/cross-validate.md` — dual auditor task()
 - `pr-creation-workflow` skill — PR creation
 - `git-workflow` skill — closing keywords
 - `000-critical-rules.md` — PR completion requirements

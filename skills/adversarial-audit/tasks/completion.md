@@ -5,14 +5,14 @@ Idempotent completion subtask for adversarial-audit. Ensures mandatory steps ran
 ## State Check Phase
 
 1. **Auditor models resolved:** Check whether `resolve-models` successfully returned two cross-family auditor selections
-2. **Cross-validation dispatched:** Check whether auditor sub-agents were dispatched via `task(subagent_type="auditor-*")`
+2. **Cross-validation tasked:** Check whether auditor sub-agents were invoked via `task(subagent_type="auditor-*")`
 3. **Verdicts collected:** Check whether structured JSON verdicts were received from both auditors
 4. **Consensus gate evaluated:** Check whether cross-reference produced a definitive PASS or FAIL result
 
 ## Skill-Specific Completion
 
-1. **Auditor dispatch verification** (if not already performed):
-   - Confirm that exactly two auditors from different model families were dispatched
+1. **Auditor task() verification** (if not already performed):
+   - Confirm that exactly two auditors from different model families were invoked
    - Confirm neither auditor shares the orchestrator's model family
    - If incorrect: re-invoke `resolve-models` to select proper cross-family pair
 
@@ -83,7 +83,7 @@ HALT
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
 | "Cross-family auditors selected" | Verify two different families selected | Check `resolve-models` result contract | MISSING-ELEMENT |
-| "Auditors dispatched" | Verify dispatch occurred | Check `task()` call logs in work state file | MISSING-ELEMENT |
+| "Auditors tasked" | Verify task() occurred | Check `task()` call logs in work state file | MISSING-ELEMENT |
 | "JSON verdicts received" | Verify structured output | Parse `[{id, result, explanation}]` from auditor results | VERDICT-INTEGRITY |
 | "Consensus evaluated" | Verify PASS/FAIL determination | Cross-reference both verdicts | CONSENSUS-GAP |
 
@@ -94,16 +94,16 @@ HALT
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
 | No auditors resolved | MISSING-ELEMENT | auto-fix | Invoke `resolve-models` |
-| Single auditor dispatched | MISSING-ELEMENT | flag-for-review | HALT — dual-auditor invariant violated |
+| Single auditor invoked | MISSING-ELEMENT | flag-for-review | HALT — dual-auditor invariant violated |
 | Malformed verdict | VERDICT-INTEGRITY | flag-for-review | HALT — cannot fabricate consensus from bad data |
 | Consensus not computed | CONSENSUS-GAP | auto-fix | Compute from collected verdicts |
 | Both auditors same family | STRUCTURE-VIOLATION | auto-fix | Re-select using `resolve-models` |
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|
-| `auditor_dispatch_status`, `resolve_models_result`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase` | Orchestrator reasoning, expected outcomes, verdict content | N/A — this is a completion task, not a dispatch task | NO |
+| `auditor_dispatch_status`, `resolve_models_result`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase` | Orchestrator reasoning, expected outcomes, verdict content | N/A — this is a completion task, not a task() routing task | NO |
 
 ### Authorization Context
 ```
@@ -114,6 +114,6 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-### Dispatch Rules
-- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+### Task Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`

@@ -22,18 +22,18 @@ Prepares and requests code reviews. Ensures PR descriptions have proper context,
 
 ## Invocation
 
-`skill({name: "requesting-code-review"})` — call the skill, then dispatch a task:
+`skill({name: "requesting-code-review"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `prepare` | `task(..., prompt: "execute prepare task from requesting-code-review")` |
 | `request` | `task(..., prompt: "execute request task from requesting-code-review")` |
 
 **CLI equivalent (for human TUI use):** `/skill requesting-code-review --task <task>`
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-Sub-agents dispatch via `task(subagent_type="general")` with `{ pr_number, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ pr_number, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"

@@ -2,7 +2,7 @@
 
 ## Context Differentiation
 
-When a spec is approved, the auto-dispatch chain determines which downstream actions are required based on authorization scope and issue state.
+When a spec is approved, the auto-route chain determines which downstream actions are required based on authorization scope and issue state.
 
 | Context | Dispatch Target |
 |---------|----------------|
@@ -54,7 +54,7 @@ Three chain-of-responsibility paths route through verify-authorization sub-tasks
 
 ### `for_analysis` Dispatch Behavior
 
-When scope is `for_analysis`, the auto-dispatch chain is read-only:
+When scope is `for_analysis`, the auto-route chain is read-only:
 
 - No feature branches are created
 - No PRs are created

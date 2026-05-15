@@ -147,9 +147,9 @@ SUBMODULE_PATHS=$(git config --list --file .gitmodules 2>/dev/null | grep '^subm
 
 If no submodules exist (`SUBMODULE_PATHS` is empty), skip this step.
 
-#### Dispatch to `submodule-dev-restore` Sub-Agent
+#### task() to `submodule-dev-restore` Sub-Agent
 
-For each submodule path, dispatch a clean-room `submodule-dev-restore` sub-agent. The sub-agent handles submodule entry, `git checkout dev`, and `git pull origin dev --ff-only`. The main task does NOT perform these operations inline.
+For each submodule path, task() a clean-room `submodule-dev-restore` sub-agent via task(). The sub-agent handles submodule entry, `git checkout dev`, and `git pull origin dev --ff-only`. The main task does NOT perform these operations inline.
 
 **must_receive / must_not_receive:**
 
@@ -157,7 +157,7 @@ For each submodule path, dispatch a clean-room `submodule-dev-restore` sub-agent
 |---------|-------|
 | `must_receive` | `submodule_path` (path to the submodule), `parent_repo_path` (absolute path to parent repo), `branch` = `dev` |
 | `must_not_receive` | Orchestrator reasoning, expected outcomes, cached git state, pre-determined branch names, content verification results, tag data, or any information about branches to delete |
-| `inline_fallback` | FORBIDDEN — re-dispatch clean-room on failure |
+| `inline_fallback` | FORBIDDEN — re-task() clean-room on failure |
 
 **Result contract schema:**
 
@@ -172,24 +172,9 @@ evidence:
 blocked_reason: <if BLOCKED, explanation of divergence>
 ```
 
-**After dispatch returns DONE for a submodule, proceed with cleanup operations:**
+**After task() returns DONE for a submodule, proceed with cleanup operations:**
 
-1. **Enter submodule directory:**
-   ```bash
-   SM_PATH="$SUBMODULE_PATH"
-   echo "Entering submodule: $SM_PATH"
-   cd "$SM_PATH"
-   ```
-
-2. **Verify submodule is on dev (post-dispatch check):**
-   ```bash
-   CURRENT_BRANCH=$(git branch --show-current)
-   if [ "$CURRENT_BRANCH" != "dev" ]; then
-       echo "ERROR: Submodule $SM_PATH is on '$CURRENT_BRANCH', expected 'dev'"
-       echo "HALT: Submodule dev state mismatch after dispatch"
-       # Do NOT proceed
-   fi
-   ```
+2. **Verify submodule is on dev (post-task() check):**
 
 3. **Find merged branches:**
    ```bash
@@ -338,17 +323,17 @@ Before deleting ANY merged branch, verify that all branch content is present on 
 - Content comparison table as evidence artifact before any deletion
 - HALT and flag for developer review when UNIQUE content is found
 
-### Step 3.2: Remove Dispatch Entry Marker
+### Step 3.2: Remove task() Entry Marker
 
-After confirming content is safe to delete, remove the dispatch entry marker for the merged branch:
+After confirming content is safe to delete, remove the task() entry marker for the merged branch:
 
 ```bash
 CLEANUP_BRANCH_NAME=$(git branch --show-current)
 SAFE_BRANCH=$(echo "$CLEANUP_BRANCH_NAME" | tr '/' '-')
-rm -f tmp/dispatch-"$SAFE_BRANCH".marker
+rm -f tmp/task-"$SAFE_BRANCH".marker
 ```
 
-This marker was created by `assemble-work` Step 1.5 as dispatch entry proof for the pre-commit hook.
+This marker was created by `assemble-work` Step 1.5 as task() entry proof for the pre-commit hook.
 
 ### Step 3.5: Delete Current Merged Branch
 

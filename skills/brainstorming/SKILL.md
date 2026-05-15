@@ -29,9 +29,9 @@ Requirements Explorer. Focus: understand what user wants through natural convers
 
 ## Invocation
 
-`skill({name: "brainstorming"})` — call the skill, then dispatch a task:
+`skill({name: "brainstorming"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `explore` | `task(..., prompt: "execute explore task from brainstorming")` |
 | `top-down-analysis` | `task(..., prompt: "execute top-down-analysis task from brainstorming")` |
@@ -49,9 +49,9 @@ Requirements Explorer. Focus: understand what user wants through natural convers
 4. **Autonomous structural classification:** classify single vs multi-task without asking.
 5. **Terminal state** invokes `spec-creation`.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-Sub-agents dispatch via `task(subagent_type="general")` with `{ context, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ context, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
 ## Cross-References
 
@@ -65,5 +65,5 @@ rules:
     title: "Pre-spec inspection mandatory before approach proposal"
     conditions:
       all: ["code_inspection_completed == false", "spec_touches_code == true"]
-    actions: [HALT, INVOKE(015-pre-spec-inspection.md)]
+    actions: [HALT, CALL(guideline: 015-pre-spec-inspection.md)]
     source: "brainstorming/SKILL.md"

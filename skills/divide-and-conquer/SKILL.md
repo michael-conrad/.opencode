@@ -1,6 +1,6 @@
 ---
 name: divide-and-conquer
-description: Use when implementing an approved spec, orchestrating sub-agents, or when a task risks context window overflow. Triggers on: implement, build, orchestrate, context overflow, decompose, dispatch subagent, work execution.
+description: Use when implementing an approved spec, orchestrating sub-agents, or when a task risks context window overflow. Triggers on: implement, build, orchestrate, context overflow, decompose, task subagent, work execution.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
@@ -15,7 +15,7 @@ Enforces context window safety. Orchestrator is a pure coordinator — never edi
 
 ## Persona
 
-Divide and Conquer Orchestrator. Assess context fitness, decompose work, dispatch sub-agents with scoped instructions, aggregate results.
+Divide and Conquer Orchestrator. Assess context fitness, decompose work, task sub-agents with scoped instructions, aggregate results.
 
 ## Tasks
 
@@ -23,7 +23,7 @@ Divide and Conquer Orchestrator. Assess context fitness, decompose work, dispatc
 |------|-------|
 | `assess` | ≈300 |
 | `decompose` | ≈300 |
-| `dispatch` | ≈250 |
+| `route` | ≈250 |
 | `completion-checkpoint` | ≈300 |
 | `result-validation` | ≈200 |
 | `overflow-signal` | ≈200 |
@@ -39,22 +39,22 @@ Divide and Conquer Orchestrator. Assess context fitness, decompose work, dispatc
 
 ## Invocation
 
-`skill({name: "divide-and-conquer"})` — call the skill, then dispatch a task:
+`skill({name: "divide-and-conquer"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `orchestrate` | `task(..., prompt: "execute orchestrate task from divide-and-conquer")` |
 | `assemble-work` | `task(..., prompt: "execute assemble-work task from divide-and-conquer")` |
 | `assess` | `task(..., prompt: "execute assess task from divide-and-conquer")` |
 | `decompose` | `task(..., prompt: "execute decompose task from divide-and-conquer")` |
-| `dispatch` | `task(..., prompt: "execute dispatch task from divide-and-conquer")` |
+| `route` | `task(..., prompt: "execute route task from divide-and-conquer")` |
 | `completion` | `task(..., prompt: "execute completion task from divide-and-conquer")` |
 
 **CLI equivalent (for human TUI use):** `/skill divide-and-conquer --task <task>`
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-All tasks dispatch via `task(subagent_type="general")`. Every dispatch context MUST include the authorization context block:
+All tasks run via `task(subagent_type="general")`. Every task context MUST include the authorization context block:
 
 ```yaml
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
@@ -64,9 +64,9 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-Additional context: `{ spec, plan, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, cached verification results. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. Result contracts: `status: DONE|BLOCKED|ERROR|OVERFLOW`.
+Additional context: `{ spec, plan, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, cached verification results. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. Result contracts: `status: DONE|BLOCKED|ERROR|OVERFLOW`.
 
-**`must_receive` validation:** Every dispatch context MUST include `authorization_scope` in the `must_receive` array. If the dispatch context object lacks `must_receive` or `must_receive` does not contain `authorization_scope`, HALT and report the missing field as a context-contamination violation.
+**`must_receive` validation:** Every task context MUST include `authorization_scope` in the `must_receive` array. If the task context object lacks `must_receive` or `must_receive` does not contain `authorization_scope`, HALT and report the missing field as a context-contamination violation.
 
 ## Cross-References
 
@@ -80,7 +80,7 @@ rules:
     title: "No direct implementation by orchestrator"
     conditions:
       all: ["is_orchestrator == true", "about_to_edit_implementation_file == true"]
-    actions: [HALT, DISPATCH(sub-agent)]
+    actions: [HALT, TASK(sub-agent)]
     source: "divide-and-conquer/SKILL.md"
 
   - id: divide-and-conquer-005
@@ -91,19 +91,19 @@ rules:
     source: "divide-and-conquer/SKILL.md"
 
   - id: divide-and-conquer-007
-    title: "PR merge boundary check before sub-agent dispatch"
+    title: "PR merge boundary check before sub-agent routing"
     conditions:
       all: ["plan_has_pr_boundaries == true", "required_pr_not_merged == true"]
     actions: [HALT]
     source: "divide-and-conquer/SKILL.md"
 
   - id: divide-and-conquer-008
-    title: "Tool-recipe prohibition — dispatch context specifies WHAT, never HOW"
+    title: "Tool-recipe prohibition — task context specifies WHAT, never HOW"
     conditions:
       any:
-        - "dispatch_context_contains_mcp_tool_names == true"
-        - "dispatch_context_contains_line_numbers == true"
-        - "dispatch_context_contains_step_by_step_script == true"
+        - "task_context_contains_mcp_tool_names == true"
+        - "task_context_contains_line_numbers == true"
+        - "task_context_contains_step_by_step_script == true"
     actions: [HALT]
     source: "divide-and-conquer/SKILL.md §B1"
 
@@ -115,12 +115,12 @@ rules:
     source: "divide-and-conquer/SKILL.md §B2"
 
   - id: divide-and-conquer-010
-    title: "Discard on sub-agent failure — ALL files discarded before re-dispatch"
+    title: "Discard on sub-agent failure — ALL files discarded before re-task"
     conditions:
       any:
         - "sub_agent_status == BLOCKED"
         - "sub_agent_status == ERROR"
-    actions: [DISCARD(changed_files), RE_DISPATCH(original_context)]
+    actions: [DISCARD(changed_files), RE_TASK(original_context)]
     source: "divide-and-conquer/SKILL.md §B3"
 
   - id: divide-and-conquer-011
@@ -131,10 +131,10 @@ rules:
     source: "divide-and-conquer/SKILL.md §B4"
 
   - id: divide-and-conquer-012
-    title: "Coherence gate — verify spec/plan coherence before RED dispatch"
+    title: "Coherence gate — verify spec/plan coherence before RED routing"
     conditions:
-      all: ["red_dispatch_pending == true", "spec_plan_coherence_verified == false"]
-    actions: [INVOKE(adversarial-audit --task coherence-maintenance), VERIFY_COHERENCE]
+      all: ["red_routing_pending == true", "spec_plan_coherence_verified == false"]
+    actions: [CALL(adversarial-audit --task coherence-maintenance), VERIFY_COHERENCE]
     source: "divide-and-conquer/SKILL.md §B5"
 
   - id: divide-and-conquer-013
@@ -161,9 +161,9 @@ rules:
     source: "divide-and-conquer/SKILL.md §B8"
 
   - id: divide-and-conquer-016
-    title: "Cost-blind verification — never skip dispatch or verification to save resources"
+    title: "Cost-blind verification — never skip routing or verification to save resources"
     conditions:
-      all: ["dispatch_or_verification_skipped_for_economy == true"]
+      all: ["routing_or_verification_skipped_for_economy == true"]
     actions: [HALT]
     source: "divide-and-conquer/SKILL.md §B9"
 ```

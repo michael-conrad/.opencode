@@ -18,7 +18,7 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-assert_skill_invoked "approval-gate" || OVERALL_RESULT=1
+assert_skill_called "approval-gate" || OVERALL_RESULT=1
 
 assert_forbidden_pattern_absent "this is simple work" "orchestrator pre-classification" || OVERALL_RESULT=1
 assert_forbidden_pattern_absent "I've determined this is" "orchestrator pre-determination" || OVERALL_RESULT=1

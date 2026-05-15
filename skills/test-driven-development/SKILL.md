@@ -52,9 +52,9 @@ compatibility: opencode
 
 ## Invocation
 
-`skill({name: "test-driven-development"})` — call the skill, then dispatch a task:
+`skill({name: "test-driven-development"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | (use task name) | `task(..., prompt: "execute <task> task from test-driven-development")` |
 
@@ -87,9 +87,9 @@ If at ANY point within RED/GREEN/REFACTOR a step exceeds its timing target (30s 
 2. Restart from RED with zero state carryover
 3. If Phase 0 elapsed > 1 full cycle since last baseline, re-execute Phase 0
 
-## Clean-Room Dispatch Audit
+## Sub-Agent Routing
 
-Sub-agents dispatch via `task(subagent_type="general")` with `{ spec_context, test_path, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory, prior test results. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ spec_context, test_path, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory, prior test results. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
 
 ### Authorization Context
 ```
@@ -100,8 +100,8 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-### Dispatch Rules
-- Missing `authorization_scope` in dispatch context → return `status: BLOCKED`
+### Routing Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 ## Provenance
@@ -123,12 +123,12 @@ rules:
     title: "Phase 0 must complete before RED phase"
     conditions:
       all: ["tdd_cycle_started == true", "phase_0_completed == false"]
-    actions: [HALT, INVOKE(phase-0)]
+    actions: [HALT, TASK(phase-0)]
     source: "test-driven-development/SKILL.md"
 
   - id: tdd-003
     title: "Phase 4 must complete before cycle reset"
     conditions:
       all: ["refactor_phase_completed == true", "phase_4_completed == false"]
-    actions: [HALT, INVOKE(phase-4)]
+    actions: [HALT, TASK(phase-4)]
     source: "test-driven-development/SKILL.md"

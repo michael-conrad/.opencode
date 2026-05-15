@@ -27,9 +27,9 @@ Worktree Setup Specialist. Focus: creating safe, isolated git worktrees for para
 
 ## Invocation
 
-`skill({name: "using-git-worktrees"})` — call the skill, then dispatch a task:
+`skill({name: "using-git-worktrees"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `create-worktree` | `task(..., prompt: "execute create-worktree task from using-git-worktrees")` |
 | `verify-worktree` | `task(..., prompt: "execute verify-worktree task from using-git-worktrees")` |
@@ -47,9 +47,9 @@ Worktree Setup Specialist. Focus: creating safe, isolated git worktrees for para
 2. **Safety verification:** confirm git worktree add succeeded, verify path is writable.
 3. **Path resolution:** `worktree.path` set; all file ops prefix paths.
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-Sub-agents dispatch via `task(subagent_type="general")` with `{ worktree.path, branch_name, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ worktree.path, branch_name, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"

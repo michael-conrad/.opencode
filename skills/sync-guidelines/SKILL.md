@@ -25,9 +25,9 @@ Intelligently synchronizes guidelines, skills, and tools between repos via GitHu
 
 ## Invocation
 
-`skill({name: "sync-guidelines"})` — call the skill, then dispatch a task:
+`skill({name: "sync-guidelines"})` — call the skill, then call via task():
 
-| Task | Dispatch |
+| Task | Call via task() |
 |------|----------|
 | `classify` | `task(..., prompt: "execute classify task from sync-guidelines")` |
 | `sync-push` | `task(..., prompt: "execute sync-push task from sync-guidelines")` |
@@ -37,9 +37,9 @@ Intelligently synchronizes guidelines, skills, and tools between repos via GitHu
 
 **CLI equivalent (for human TUI use):** `/skill sync-guidelines --task <task>`
 
-## Sub-Agent Dispatch Audit
+## Sub-Agent Routing
 
-Sub-agents dispatch via `task(subagent_type="general")` with `{ source_repo, target_repo, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When dispatching auditor sub-agents, include `audit_phase` in dispatch context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ source_repo, target_repo, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, github.owner, github.repo }`. No inline work.
 
 ```yaml+symbolic
 schema_version: "2.0"

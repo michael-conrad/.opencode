@@ -16,7 +16,7 @@ All `⚠️ UNVERIFIED` markers have been resolved, or remaining unresolvable cl
 
 ## Procedure
 
-The agent scans the generated output for `⚠️ UNVERIFIED` markers. Each marker identifies a claim that could not be verified during the pre-generation `verify` pass. The agent collects these markers and dispatches section-based sub-agents to attempt verification again, using the domain-appropriate tools that match each claim's verification domain.
+The agent scans the generated output for `⚠️ UNVERIFIED` markers. Each marker identifies a claim that could not be verified during the pre-generation `verify` pass. The agent collects these markers and tasks section-based sub-agents to attempt verification again, using the domain-appropriate tools that match each claim's verification domain.
 
 The revisit pass benefits from the full context of the generated content — the sub-agents can see the claim in its surrounding prose, which may clarify what verification approach is needed. Sometimes the generated text itself reveals that the claim was imprecise and can be rephrased to match what the live source actually says. Other times, the claim is correct but the initial verification attempt used the wrong tool or the wrong query.
 

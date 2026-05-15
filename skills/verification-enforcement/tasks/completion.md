@@ -18,7 +18,7 @@ Document the verification results as a status report. The report lists three cat
 
 If the verification workflow completed successfully with all claims verified, the status report records this and no further action is needed. If unresolved claims remain, the status report records the specific claims, the tools and sources that were consulted, and the reason verification failed for each. This report serves as the escalation document that the developer receives.
 
-The completion task is idempotent — invoking it multiple times produces the same result. It does not re-verify claims, re-dispatch sub-agents, or modify generated content. It only documents the current state and ensures that no verification state is left hanging without a resolution recorded.
+The completion task is idempotent — invoking it multiple times produces the same result. It does not re-verify claims, re-task sub-agents, or modify generated content. It only documents the current state and ensures that no verification state is left hanging without a resolution recorded.
 
 The status report is produced in chat output, following the format:
 

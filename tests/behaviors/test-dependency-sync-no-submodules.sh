@@ -23,7 +23,7 @@ OVERALL_RESULT=0
 assert_required_pattern_present "No submodules found\|no submodules\|no .gitmodules\|dependency-sync" "no-submodules halt message" || OVERALL_RESULT=1
 
 # SC-10: Provenance task is NOT invoked by dependency-sync
-assert_no_skill_invoked "provenance" || OVERALL_RESULT=1
+assert_skill_not_called "provenance" || OVERALL_RESULT=1
 
 # Verify the agent does NOT create branches or commits when no submodules exist
 assert_forbidden_pattern_absent "git checkout -b\|git switch -c\|git commit" "branch/commit creation without submodules" || OVERALL_RESULT=1

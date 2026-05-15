@@ -42,8 +42,8 @@ assert_forbidden_pattern_absent "(inline.*fallback|read.*(\\.issues/|output|log|
 assert_required_pattern_present "(clean.room|re-dispatch|re.dispatch|re_dispatch|re_dispatch|universal.*re.dispatch|clean-room)" "clean-room-re-dispatch-reference" || OVERALL_RESULT=1
 
 # Verify agent invokes the appropriate skills rather than performing work inline
-assert_skill_invoked "approval-gate" || true
-assert_skill_invoked "issue-review" || true
+assert_skill_called "approval-gate" || true
+assert_skill_called "issue-review" || true
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

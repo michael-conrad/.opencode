@@ -27,7 +27,7 @@ Use `srclight_get_dependents` (or equivalent) to identify the blast radius of th
 srclight_get_dependents(symbol_name="<function/class under test>", transitive=True)
 ```
 
-Document the blast radius in the dispatch context:
+Document the blast radius in the task context:
 - Direct dependents (functions that call this symbol)
 - Transitive dependents (functions that call the callers)
 - Test files that cover this area
@@ -59,7 +59,7 @@ If dependency analysis shows zero dependents and all tests pass:
 - The orchestrator proceeds to RED immediately — no user notification needed
 - Empty blast radius means the change cannot cause regressions, so no gate output is required
 
-## Dispatch Context Schema
+## Task Context Schema
 
 ```json
 {
