@@ -1,6 +1,6 @@
 ---
 name: completion-core
-description: "Shared completion operations for skill task workflows. Provides push, URL generation, comment posting, and executive summary reporting. Triggers on: completion, finish, halt, done, branch ready, push changes."
+description: "Use when completing skill task workflows with push, URL generation, comment posting, and executive summary reporting. Triggers on: completion, finish, halt, done, branch ready, push changes."
 license: MIT
 compatibility: opencode
 ---

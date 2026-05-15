@@ -1,12 +1,18 @@
+<!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-generated -->
+
 # Task: resolve-models
 
 ## Purpose
 
 Read the canonical auditor model pool from `qualified-auditor-pool.sh`, map each model to its agent name and model family, detect the orchestrator's model, exclude same-family agents, and return two `subagent_type` strings from different families suitable for `task(subagent_type="auditor-*")`.
 
+resolve-models is the ONLY authorized entry point for model resolution — no alternative paths exist. Hardcoding auditor types, inlining model names, or skipping model resolution are all CRITICAL VIOLATIONS per adversarial-audit-013. The adversarial-audit protocol REQUIRES cross-family auditor resolution before any audit can proceed.
+
 ## Entry Criteria
 
-- Invoked by `cross-validate` task or behavioral test helper
+- Invoked by orchestrator (NOT by cross-validate or any other sub-task)
 - `orchestrator_model` present in task context (from session context `<ModelId>`)
 - `.opencode/tests/qualification/qualified-auditor-pool.sh` exists and is readable
 
@@ -110,12 +116,13 @@ If fewer than two eligible families remain after exclusion: return `{ auditor_1:
 - Never return a single auditor — dual task() is mandatory
 - Never return raw model strings (e.g., `ollama/glm-5.1:cloud`) — always return `subagent_type` strings (e.g., `auditor-glm-5.1`)
 - Never re-use cached pair from previous task() for re-task — always select fresh
+- Never skip resolve-models and inline auditor names — this is the ONLY authorized entry point per adversarial-audit-013
 
 ## Cross-References
 
 - `qualified-auditor-pool.sh` — canonical auditor model pool
 - `.opencode/agents/auditor-*.md` — agent files with model and permission definitions
-- `adversarial-audit/tasks/cross-validate.md` — consumer that task()s resolved auditor types
+- `adversarial-audit/tasks/cross-validate.md` — consumer that receives pre-resolved verdicts (orchestrator task()s auditors, then passes verdicts to cross-validate)
 - `adversarial-audit/SKILL.md` — skill-level rules (cross-family invariant, orchestrator exclusion)
 - `multimodal-dispatch` skill — model capability probing if needed for family detection
 
@@ -136,13 +143,13 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
-|---|---|---|---|---|
+|---|---|---|---|
 | `orchestrator_model`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `github.owner`, `github.repo` | Any implementation context, agent memory, cached model pool data | N/A — this task reads the qualified pool directly, not via pre-analysis | NO |
 | `re_task`, `excluded_pair` | — | Only for re-task flows; not used in initial task() | NO |
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-04T00:00:00Z"
+last_updated: "2026-05-15T00:00:00Z"
 rules:
   - id: resolve-models-001
     title: "Family detection from qualified-auditor-pool.sh mapping is canonical"
