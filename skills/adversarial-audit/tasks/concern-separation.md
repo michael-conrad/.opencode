@@ -1,3 +1,7 @@
+<!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-generated -->
+
 # Task: concern-separation
 
 ## Purpose
@@ -80,6 +84,10 @@ halt_at: {halt_at}
 pr_strategy: {pr_strategy}
 pipeline_phase: {pipeline_phase}
 
+# NOTE: cross-validate does NOT dispatch auditors — it receives
+# pre-resolved auditor_verdicts and computes consensus.
+auditor_verdicts: {auditor_verdicts}
+
 worktree.path: {worktree.path}
 github.owner: {github.owner}
 github.repo: {github.repo}
@@ -137,9 +145,37 @@ Each boundary claim must be verified:
 | Testing | Validates all layers → report as intentional |
 | Single-step | Already atomic → no split needed |
 
+## Dispatch Mandate (CRITICAL — per critical-rules-048)
+
+This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
+1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
+2. Dispatching auditor sub-agents in parallel
+3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_verdicts`
+
+This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
+
+## Completion Dependency Chain
+
+Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
+- Step 1 (Load Spec) → INVALID if skipped
+- Step 2 (Build Evaluation Criteria) → INVALID if skipped
+- Step 3 (Analyze Phase Structure) → INVALID if skipped
+- Step 4 (Cross-Validate) → INVALID if skipped
+- Step 5 (Classify Findings) → INVALID if skipped
+- Step 6 (Verify Boundary Claims) → INVALID if skipped
+- Step 7 (Build Result Contract) → INVALID if skipped
+
+## Next Pipeline Step (MANDATORY CONTINUATION)
+
+After concern-separation completes:
+- If consensus PASS: proceed to plan-fidelity or sub_issue_creation pipeline
+- If consensus FAIL: remediate findings, then re-audit (resolve-models → auditors → cross-validate)
+
+This step is MANDATORY — the pipeline does not terminate early.
+
 ## Cross-References
 
-- `tasks/cross-validate.md` — dual auditor task()
+- `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
 - `concern-separation-auditor/tasks/audit-phases.md` — original procedure
 - `000-critical-rules.md` — Single Concern Principle
 - `065-verification-honesty.md` — live verification requirement

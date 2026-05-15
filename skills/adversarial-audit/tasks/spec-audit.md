@@ -1,3 +1,7 @@
+<!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-generated -->
+
 # Task: spec-audit
 
 ## Purpose
@@ -47,9 +51,9 @@ Define audit criteria based on spec-auditor task structure:
 | SC-11 | Documentation Sources present and populated | Non-empty Documentation Sources section with live-source verification evidence |
 | SC-DET | SC Determinism | Each SC produces the same PASS/FAIL from any reasonable auditor |
 
-### Step 3: Cross-Validate via task()
+### Step 3: Cross-Validate with Pre-Resolved Verdicts
 
-Invoke `cross-validate` task:
+This task does NOT dispatch auditors. The orchestrator dispatches auditors and passes pre-resolved `auditor_verdicts` to this task. Invoke `cross-validate` with verdicts already available:
 
 ```python
 task(
@@ -59,6 +63,7 @@ task(
 evidence_payload: <spec_body>
 evaluation_criteria: <criteria_json>
 audit_phase: spec_creation
+auditor_verdicts: <auditor_verdicts>
 authorization_scope: <authorization_scope>
 halt_at: <halt_at>
 pr_strategy: <pr_strategy>
@@ -70,7 +75,7 @@ github.repo: <github.repo>
 
 failure_description: <failure_description>  # Optional — provided when routed from remediation loop
 
-Mandatory: task() two cross-family auditors, collect independent verdicts, cross-reference for consensus.
+Mandatory: cross-validate receives pre-resolved verdicts — it does NOT dispatch auditors.
 """
 )
 ```
@@ -155,6 +160,35 @@ Present revision options for developer decision.
 }
 ```
 
+## Dispatch Mandate (CRITICAL — per critical-rules-048)
+
+This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
+1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
+2. Dispatching auditor sub-agents in parallel
+3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_verdicts`
+
+This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
+
+## Completion Dependency Chain
+
+Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
+
+1. Load spec content → INVALID if skipped
+2. Build evaluation criteria → INVALID if skipped
+3. Cross-validate with verdicts → INVALID if skipped
+4. Process verdicts → INVALID if skipped
+5. Evaluate SC determinism → INVALID if skipped
+6. Generate bidirectional findings → INVALID if skipped
+7. Build result contract → INVALID if skipped
+
+## Next Pipeline Step (MANDATORY CONTINUATION)
+
+After spec-audit completes:
+- If consensus PASS: proceed to `concern-separation` or next pipeline step
+- If consensus FAIL: remediate findings, then re-audit (resolve-models → auditors → cross-validate)
+
+This step is MANDATORY — the pipeline does not terminate early.
+
 ## Error Handling
 
 | Error | Action |
@@ -166,8 +200,8 @@ Present revision options for developer decision.
 
 ## Cross-References
 
-- `tasks/cross-validate.md` — dual auditor task()
-- `tasks/resolve-models.md` — cross-family selection
+- `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
+- `tasks/resolve-models.md` — cross-family selection (orchestrator dispatches, then passes results)
 - `spec-auditor/SKILL.md` — original task breakdown
 - `spec-auditor/tasks/fidelity.md` — plan fidelity check
 - `000-critical-rules.md` — co-authored requirement

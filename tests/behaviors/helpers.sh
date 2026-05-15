@@ -374,6 +374,102 @@ print(json.dumps(output, indent=2))
 " 
 }
 
+BEHAVIORAL_MODEL_POOL=("opencode/big-pickle" "opencode/minimax-m2.5-free" "opencode/nemotron-3-super-free")
+
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
+
+behavior_run_pool() {
+    # Run a behavioral prompt against every model in BEHAVIORAL_MODEL_POOL.
+    # Usage: behavior_run_pool "$scenario_name" "$prompt"
+    # Stores outputs per model in BEHAVIOR_POOL_OUTPUTS[model_name]=stdout_path
+    # Returns 0 if ANY model produced usable output, 1 if ALL failed.
+    local scenario_name="$1"
+    local message="$2"
+
+    declare -gA BEHAVIOR_POOL_OUTPUTS
+    declare -gA BEHAVIOR_POOL_STDERRS
+    local any_success=0
+
+    for model in "${BEHAVIORAL_MODEL_POOL[@]}"; do
+        local safe_model_name
+        safe_model_name=$(echo "$model" | tr '/:' '_')
+        local model_scenario="${scenario_name}_${safe_model_name}"
+
+        echo "  === Testing with model: $model ==="
+        behavior_run "$model_scenario" "$message" "$model" "$PROJECT_DIR"
+
+        BEHAVIOR_POOL_OUTPUTS["$model"]="$BEHAVIOR_STDOUT"
+        BEHAVIOR_POOL_STDERRS["$model"]="$BEHAVIOR_STDERR"
+
+        if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "0" ]; then
+            any_success=1
+        fi
+    done
+
+    export BEHAVIOR_POOL_OUTPUTS BEHAVIOR_POOL_STDERRS
+    return $((1 - any_success))
+}
+
+assert_forbidden_pattern_absent_all_models() {
+    # Assert that a forbidden pattern is absent in ALL model outputs.
+    # Returns 0 only if ALL models pass (no forbidden pattern found).
+    # Returns 1 if ANY model output contains the forbidden pattern.
+    local pattern="$1"
+    local description="${2:-forbidden pattern}"
+
+    if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "1" ]; then
+        echo "INCONCLUSIVE: assert_forbidden_pattern_absent_all_models — all model dispatches failed"
+        return 2
+    fi
+
+    local overall=0
+    for model in "${BEHAVIORAL_MODEL_POOL[@]}"; do
+        local log_file="${BEHAVIOR_POOL_OUTPUTS[$model]:-/dev/null}"
+        local count
+        count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+        count=${count:-0}
+        count=$(echo "$count" | head -1 | tr -d '[:space:]')
+        if [ "$count" -gt 0 ]; then
+            echo "FAIL: [$model] — found $count occurrence(s) of $description in agent output"
+            overall=1
+        else
+            echo "PASS: [$model] — $description not found in agent output"
+        fi
+    done
+
+    return $overall
+}
+
+assert_required_pattern_present_all_models() {
+    # Assert that a required pattern is present in ALL model outputs.
+    # Returns 0 only if ALL models have at least one match.
+    # Returns 1 if ANY model output is missing the pattern.
+    local pattern="$1"
+    local description="${2:-required pattern}"
+
+    if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "1" ]; then
+        echo "INCONCLUSIVE: assert_required_pattern_present_all_models — all model dispatches failed"
+        return 2
+    fi
+
+    local overall=0
+    for model in "${BEHAVIORAL_MODEL_POOL[@]}"; do
+        local log_file="${BEHAVIOR_POOL_OUTPUTS[$model]:-/dev/null}"
+        local count
+        count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+        count=${count:-0}
+        count=$(echo "$count" | head -1 | tr -d '[:space:]')
+        if [ "$count" -eq 0 ]; then
+            echo "FAIL: [$model] — $description not found in agent output"
+            overall=1
+        else
+            echo "PASS: [$model] — $description found $count time(s) in agent output"
+        fi
+    done
+
+    return $overall
+}
+
 behavior_resolve_model() {
     local resolve_tool="$PROJECT_DIR/.opencode/tools/ollama-model-resolve"
     if [ -x "$resolve_tool" ]; then

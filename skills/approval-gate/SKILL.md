@@ -1,3 +1,10 @@
+---
+name: approval-gate
+description: "Use when checking or enforcing authorization scope, approval cascade, and pipeline halt boundaries. Triggers on: approved, go, authorization, approve, approval-gate, spec-before-code."
+license: MIT
+compatibility: opencode
+---
+
 Sub-Agent Task Context Audit
 
 All tasks run via `task(subagent_type="general")`. Standard context: `{ issue_number, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. `screen-issue` receives issue body + authorization context + pipeline_phase. `pre-implementation-analysis` receives all issue numbers + authorization context + pipeline_phase. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }` with zero file paths. No inline work — all tasks use sub-agents. If a sub-agent returns empty, re-task with original scoped context only (max 2 retries). Result contracts return `status` (DONE/BLOCKED/DONE_WITH_CONCERNS/OVERFLOW) + task-specific fields per `enforcement/` result contract schemas.

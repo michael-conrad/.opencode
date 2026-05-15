@@ -1,3 +1,21 @@
+---
+name: adversarial-audit
+description: "Use when running adversarial audits of specs, plans, or code. Triggers on: adversarial audit, audit, spec audit, plan fidelity, cross-validate, resolve-models."
+license: MIT
+---
+
+<!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-generated -->
+
+## Overview
+
+Adversarial audit skill for dual cross-family verification of specs, plans, and code. Uses independent auditors from different model families to produce structured JSON verdicts, then cross-validates for consensus. The orchestrator dispatches auditors and passes verdicts to cross-validate — cross-validate does NOT dispatch auditors itself.
+
+## Persona
+
+You are an adversarial auditor operating under clean-room constraints. You receive evidence and criteria, evaluate independently, and produce structured verdicts with live-source tool-call evidence. You never trust orchestrator reasoning, never soft-pass mismatches, and never fabricate verdicts. Your role is independent verification — the cross-validate sub-task computes consensus from your verdict and the other auditor's verdict.
+
 Sub-Agent Task Context Audit
 
 | Task | Context | Exclusions |
@@ -11,7 +29,7 @@ Sub-Agent Task Context Audit
 | `drift-detection` | `{ spec_issue, target_files, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `spec-summary` | `{ pr_number, spec_issue, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `closure-verification` | `{ pr_number, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
-| `cross-validate` | `{ evidence_payload, evaluation_criteria, auditor_1, auditor_2, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, prior verification |
+| `cross-validate` | `{ evidence_payload, evaluation_criteria, auditor_verdicts, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Exclusions: Implementation context, agent memory, orchestrator reasoning |
 | `test-quality-audit` | `{ spec_success_criteria, file_paths_changed, vbc_artifact_path, worktree.path, github.owner, github.repo }` | Implementation context, agent memory, implementation details |
 | `resolve-models` | `{ orchestrator_model, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `completion` | `{ workflow_state, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
@@ -37,7 +55,7 @@ Skills: `skill-creator`, `verification-enforcement`, `verification-before-comple
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-08T00:00:00Z"
+last_updated: "2026-05-15T00:00:00Z"
 rules:
   - id: adversarial-audit-001
     title: "Dual cross-family auditor routing mandatory — single-auditor evaluation is prohibited"
@@ -124,20 +142,62 @@ rules:
     source: "adversarial-audit/SKILL.md"
 
   - id: adversarial-audit-013
+    title: "resolve-models is the ONLY authorized entry point for auditor resolution"
+    conditions:
+      all: ["auditor_resolution_attempted == true", "resolve_models_invoked == false"]
+    actions: [HALT, ROUTE_TO_RESOLVE_MODELS]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-014
+    title: "cross-validate computes consensus ONLY — no auditor dispatch, no evidence evaluation"
+    conditions:
+      all: ["cross_validate_dispatching_auditors == true"]
+    actions: [HALT, STRIP_AUDITOR_DISPATCH_FROM_CROSS_VALIDATE]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-015
+    title: "per-audit-type files are reference documents — orchestrator MUST NOT read them inline"
+    conditions:
+      all: ["orchestrator_reads_audit_type_file == true", "sub_agent_not_tasked == true"]
+    actions: [HALT, TASK_SUB_AGENT_INSTEAD]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-016
+    title: "Completion dependency chain — missing steps produce BLOCKED not DONE"
+    conditions:
+      all: ["completion_invoked == true", "dependency_step_missing == true", "status_reported_as == 'DONE'"]
+    actions: [RETURN_BLOCKED, REPORT_MISSING_DEPENDENCY]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-017
+    title: "Non-recovery gates — BLOCKED is terminal, no fallback paths exist"
+    conditions:
+      all: ["error_code IN ['MISSING_INPUT', 'MISSING_VERDICTS', 'INSUFFICIENT_FAMILIES']", "recovery_attempted == true"]
+    actions: [HALT, NO_RECOVERY_PERMITTED]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-018
+    title: "Clean-room plan generation — orchestrator inline work is TAINTED"
+    conditions:
+      all: ["orchestrator_performs_inline_work == true", "audit_pipeline_active == true"]
+    actions: [HALT, DISCARD_TAINTED_STATE, RESTART_FROM_VERIFY_AUTHORIZATION]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-019
     title: "1st non-PASS at same pipeline stage triggers re-task with fresh model pair"
     conditions:
       all: ["result != 'PASS'", "pipeline_stage == previous_stage", "attempt_count == 1"]
     actions: [RE_TASK_FRESH_MODEL_PAIR]
     source: "adversarial-audit/SKILL.md"
 
-  - id: adversarial-audit-014
+  - id: adversarial-audit-020
     title: "2nd consecutive non-PASS routes to spec-audit with failure_description"
     conditions:
       all: ["result != 'PASS'", "pipeline_stage == previous_stage", "attempt_count == 2"]
     actions: [ROUTE_SPEC_AUDIT_WITH_FAILURE]
     source: "adversarial-audit/SKILL.md"
 
-  - id: adversarial-audit-015
+  - id: adversarial-audit-021
     title: "3rd consecutive non-PASS triggers BLOCKED — pipeline halt, human intervention"
     conditions:
       all: ["result != 'PASS'", "pipeline_stage == previous_stage", "attempt_count == 3"]
