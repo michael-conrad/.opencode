@@ -101,7 +101,15 @@ def _next_number(root: str) -> int:
     counter_path = os.path.join(root, COUNTER_FILE)
     with open(counter_path, "r+") as f:
         fcntl.flock(f, fcntl.LOCK_EX)
-        num = int(f.read().strip())
+        try:
+            num = int(f.read().strip())
+        except ValueError:
+            print("Error: corrupted .counter file", file=sys.stderr)
+            f.seek(0)
+            f.write("1\n")
+            f.truncate()
+            fcntl.flock(f, fcntl.LOCK_UN)
+            raise
         f.seek(0)
         f.write(f"{num + 1}\n")
         f.truncate()
@@ -207,8 +215,8 @@ def _find_issue(root: str, number: int) -> tuple[str, dict[str, object], str] | 
 
 
 def _now_iso() -> str:
-    """Current UTC time in ISO format."""
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    """Current UTC time in ISO format with microsecond precision."""
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
 
 def _get_author() -> str:
@@ -231,8 +239,14 @@ def _get_author() -> str:
 
 def cmd_create(title: str, labels: list[str] | None = None) -> int:
     """Create a new local issue."""
+    if not title or not title.strip():
+        print("Error: title cannot be empty", file=sys.stderr)
+        return 1
     root = _ensure_issues_dir()
-    number = _next_number(root)
+    try:
+        number = _next_number(root)
+    except ValueError:
+        return 1
     dir_name = _issue_dir_name(number, title)
     issue_dir = os.path.join(root, OPEN_DIR, dir_name)
     os.makedirs(issue_dir, exist_ok=True)
@@ -309,12 +323,16 @@ def cmd_comment(number: int, body_text: str) -> int:
     if not result:
         print(f"Issue #{number} not found", file=sys.stderr)
         return 1
-    issue_dir, _, _ = result
+    issue_dir, meta, body = result
     comments_path = os.path.join(issue_dir, "comments.md")
     now = _now_iso()
     entry = f"\n---\n\n## {now}\n\n{body_text}\n"
     with open(comments_path, "a") as f:
         f.write(entry)
+    # Also update the updated timestamp in frontmatter
+    meta["updated"] = now
+    spec_path = os.path.join(issue_dir, "spec.md")
+    _write_spec(spec_path, meta, body)
     print(f"Comment added to issue #{number}")
     return 0
 
@@ -332,7 +350,7 @@ def cmd_close(number: int) -> int:
     issue_dir, meta, body = result
     if meta.get("status") == "closed":
         print(f"Issue #{number} is already closed", file=sys.stderr)
-        return 0
+        return 2
 
     meta["status"] = "closed"
     meta["updated"] = _now_iso()
@@ -342,7 +360,11 @@ def cmd_close(number: int) -> int:
     closed_path = os.path.join(root, CLOSED_DIR, dir_name)
 
     os.makedirs(os.path.join(root, CLOSED_DIR), exist_ok=True)
-    shutil.move(open_path, closed_path)
+    try:
+        shutil.move(open_path, closed_path)
+    except OSError as e:
+        print(f"Error: failed to move issue directory: {e}", file=sys.stderr)
+        return 1
 
     spec_path = os.path.join(closed_path, "spec.md")
     _write_spec(spec_path, meta, body)
@@ -355,9 +377,22 @@ def cmd_link(number: int, github_num: int) -> int:
     """Link local issue to GitHub issue number.
     
     Updates github_issue field in YAML frontmatter.
-    Deprecated: Use --record-remote for full metadata.
     """
-    return cmd_record_remote(number, github_num, None)
+    root = _find_issues_root()
+    if not root:
+        print("No .issues/ directory found", file=sys.stderr)
+        return 1
+    result = _find_issue(root, number)
+    if not result:
+        print(f"Issue #{number} not found", file=sys.stderr)
+        return 1
+    issue_dir, meta, body = result
+    meta["github_issue"] = github_num
+    meta["updated"] = _now_iso()
+    spec_path = os.path.join(issue_dir, "spec.md")
+    _write_spec(spec_path, meta, body)
+    print(f"Linked issue #{number} to GitHub issue #{github_num}")
+    return 0
 
 
 def cmd_record_remote(number: int, remote_number: int, remote_url: str | None = None) -> int:
@@ -392,11 +427,7 @@ def cmd_record_remote(number: int, remote_number: int, remote_url: str | None = 
     
     # Write back
     spec_path = os.path.join(issue_dir, "spec.md")
-    with open(spec_path, "w") as f:
-        f.write("---\n")
-        yaml.dump(meta, f, default_flow_style=False, sort_keys=False)
-        f.write("---\n")
-        f.write(body)
+    _write_spec(spec_path, meta, body)
     
     print(f"Recorded remote metadata for #{number}:")
     print(f"  remote_issue: {remote_number}")
@@ -527,6 +558,75 @@ def cmd_sync(number: int, direction: str = "pull") -> int:
         return 1
 
 
+def cmd_review(number: int) -> int:
+    """Pretty-print an issue for developer review."""
+    root = _find_issues_root()
+    if not root:
+        print("No .issues/ directory found", file=sys.stderr)
+        return 1
+    result = _find_issue(root, number)
+    if not result:
+        print(f"Issue #{number} not found", file=sys.stderr)
+        return 1
+    issue_dir, meta, body = result
+    title = meta.get("title", "")
+    status = meta.get("status", "")
+    labels = meta.get("labels", []) or []
+    created = meta.get("created", "")
+    updated = meta.get("updated", "")
+    labels_str = ", ".join(str(l) for l in labels) if labels else ""
+    print(f"#{number:03d}: {title}")
+    print(f"Status: {status} | Labels: [{labels_str}]")
+    print(f"Created: {created} | Updated: {updated}")
+    print("---")
+    print(body)
+    comments_path = os.path.join(issue_dir, "comments.md")
+    if os.path.isfile(comments_path):
+        with open(comments_path) as f:
+            comments_text = f.read()
+        if comments_text.strip():
+            print("---")
+            print("Comments:")
+            print(comments_text)
+    return 0
+
+
+def cmd_search(status: str | None = None, labels: list[str] | None = None, query: str | None = None) -> int:
+    """Search issues by status, labels, and/or query text."""
+    root = _find_issues_root()
+    if not root:
+        print("No .issues/ directory found", file=sys.stderr)
+        return 0
+    for status_dir in ["open", "closed"]:
+        base = os.path.join(root, ISSUES_DIR, status_dir)
+        if not os.path.isdir(base):
+            continue
+        for entry in sorted(os.listdir(base)):
+            spec_path = os.path.join(base, entry, "spec.md")
+            if not os.path.isfile(spec_path):
+                continue
+            with open(spec_path) as f:
+                content = f.read()
+            meta, body = _parse_frontmatter(content)
+            issue_status = meta.get("status", "")
+            issue_labels: list[str] = meta.get("labels", []) or []
+            title: str = meta.get("title", "")
+            number: int = meta.get("number", 0)
+
+            if status is not None and issue_status != status:
+                continue
+            if labels:
+                if not all(lbl in issue_labels for lbl in labels):
+                    continue
+            if query:
+                q = query.lower()
+                if q not in title.lower() and q not in body.lower():
+                    continue
+            labels_str = ", ".join(issue_labels) if issue_labels else ""
+            print(f"#{number:03d}: {title} ({issue_status}) [{labels_str}]")
+    return 0
+
+
 def cmd_list(status: str | None = None) -> int:
     """List local issues."""
     return cmd_search(status=status)
@@ -537,12 +637,17 @@ def main() -> int:
     if not args:
         print("Usage: local-issues <command> [options]", file=sys.stderr)
         print(
-            "Commands: create, read, review, update, comment, close, link, search, list",
+            "Commands: create, read, review, update, comment, close, link, promote, sync, search, list",
             file=sys.stderr,
         )
         return 1
 
     command = args[0]
+
+    if command in ("--help", "-h"):
+        print("Usage: local-issues <command> [options]", file=sys.stderr)
+        print("Commands: create, read, review, update, comment, close, link, promote, sync, search, list", file=sys.stderr)
+        return 0
 
     if command == "create":
         title = None
@@ -724,7 +829,10 @@ def main() -> int:
         remote_number = None
         i = 2
         while i < len(args):
-            if args[i] == "--record-remote" and i + 2 < len(args):
+            if args[i] == "--record-remote":
+                if i + 2 >= len(args):
+                    print("Error: --record-remote requires <url> and <number>", file=sys.stderr)
+                    return 1
                 remote_url = args[i + 1]
                 try:
                     remote_number = int(args[i + 2])
