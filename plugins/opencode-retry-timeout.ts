@@ -336,16 +336,28 @@ const executeRetry = async (
     return;
   }
 
+  // Guard: ensure last assistant is not a terminal non-retryable error
   for (let i = messagesData.length - 1; i >= 0; i--) {
     if (messagesData[i].info?.role === 'assistant') {
+      const errorMsg = extractError(messagesData[i].info.error);
       if (messagesData[i].info?.time?.completed && messagesData[i].info?.error) {
-        showToast(
-          ctx.client,
-          `opencode-retry-timeout: completed-with-error — ${extractError(messagesData[i].info.error)}`,
-          'error',
-        );
-        logDebug(ctx.client, `Completed-with-error assistant detected for ${sessionID}`, config);
-        return;
+        const decision = classifyError(errorMsg, config);
+        if (decision.retryable) {
+          logDebug(
+            ctx.client,
+            `Completed-with-error but retryable ${sessionID}: ${errorMsg}`,
+            config,
+          );
+          // Fall through to retry logic below
+        } else {
+          showToast(
+            ctx.client,
+            `opencode-retry-timeout: non-retryable — ${errorMsg}`,
+            'error',
+          );
+          logDebug(ctx.client, `Non-retryable completed-with-error ${sessionID}: ${errorMsg}`, config);
+          return;
+        }
       }
       break;
     }
@@ -380,7 +392,11 @@ const executeRetry = async (
   let success = false;
 
   while (attempt < config.maxRetries && !success) {
-    const delay = calculateBackoff(attempt, config.baseDelayMs, config.maxDelayMs);
+    // Apply backoff delay before retry (first retry has no delay to prevent CLI exit race)
+    if (attempt > 0) {
+      const delay = calculateBackoff(attempt - 1, config.baseDelayMs, config.maxDelayMs);
+      await new Promise<void>((r) => setTimeout(r, delay));
+    }
 
     state.model = model;
     state.attempt = attempt;
@@ -388,22 +404,20 @@ const executeRetry = async (
 
     const retryToast = config.toastRetry
       .replace(/\{attempt\}/g, String(attempt + 1))
-      .replace(/\{max\}/g, String(config.maxRetries))
-      .replace(/\{delay\}/g, String(delay));
+      .replace(/\{max\}/g, String(config.maxRetries));
     showToast(ctx.client, retryToast, 'info');
 
     logDebug(
       ctx.client,
-      `Retry ${attempt + 1}/${config.maxRetries} ${sessionID} delay=${delay}ms model=${model ? `${model.providerID}/${model.modelID}` : 'default'}`,
+      `Retry ${attempt + 1}/${config.maxRetries} ${sessionID} model=${model ? `${model.providerID}/${model.modelID}` : 'default'}`,
       config,
     );
-
-    await new Promise<void>((r) => setTimeout(r, delay));
 
     try {
       let partialIdx = -1;
       for (let i = messagesData.length - 1; i >= 0; i--) {
-        if (messagesData[i].info?.role === 'assistant' && !messagesData[i].info?.time?.completed) {
+        if (messagesData[i].info?.role === 'assistant') {
+          // Revert any assistant message (partial OR completed-with-error) before re-prompt
           partialIdx = i;
           break;
         }
