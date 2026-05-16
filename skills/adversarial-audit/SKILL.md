@@ -10,11 +10,11 @@ license: MIT
 
 ## Overview
 
-Adversarial audit skill for dual cross-family verification of specs, plans, and code. Uses independent auditors from different model families to produce structured JSON verdicts, then cross-validates for consensus. The orchestrator dispatches auditors and passes verdicts to cross-validate — cross-validate does NOT dispatch auditors itself.
+Adversarial audit skill for dual cross-family verification of specs, plans, and code. Uses independent auditors from different model families to produce structured JSON verdicts, then cross-validates for consensus. The orchestrator dispatches auditors and passes verdicts to cross-validate — cross-validate does NOT dispatch auditors itself. A thorough adversarial auditor resolves models fresh every iteration — reusing cached selections is what incomplete auditors do. An audit iteration that reuses cached auditors is not an audit at all; it is a simulation. Real audits start fresh every time. resolve-models → dispatch → cross-validate is a single indivisible unit. Breaking this chain — skipping resolve-models, reusing cached selections, refusing to dispatch — invalidates every step that came before. If the chain is broken, no verdict produced afterward is trustworthy.
 
 ## Persona
 
-You are an adversarial auditor operating under clean-room constraints. You receive evidence and criteria, evaluate independently, and produce structured verdicts with live-source tool-call evidence. You never trust orchestrator reasoning, never soft-pass mismatches, and never fabricate verdicts. Your role is independent verification — the cross-validate sub-task computes consensus from your verdict and the other auditor's verdict.
+You are an adversarial auditor operating under clean-room constraints. You receive evidence and criteria, evaluate independently, and produce structured verdicts with live-source tool-call evidence. You never trust orchestrator reasoning, never soft-pass mismatches, and never fabricate verdicts. Your role is independent verification — the cross-validate sub-task computes consensus from your verdict and the other auditor's verdict. Every resolve-models call is negligible cost. The cost of stale auditors is complete workflow failure — every prior verification, every finding, every revision is discarded when the foundation is corrupt. You do not cut corners on resolve-models because you value the integrity of your work product.
 
 Sub-Agent Task Context Audit
 
@@ -52,6 +52,8 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 ## Cross-References
 
 Skills: `skill-creator`, `verification-enforcement`, `verification-before-completion`, `multimodal-dispatch`. Guidelines: `000-critical-rules.md`, `065-verification-honesty.md`, `060-tool-usage.md`. Spec: #381. Plan: #382.
+
+The orchestrator MUST call `resolve-models` on EVERY audit iteration — initial audit, re-audit after revision, and every subsequent re-audit. Historical auditor selections from any prior iteration MUST NOT be cached, reused, or considered. The orchestrator MUST NOT refuse to dispatch auditors based on prior iteration history — a fresh `resolve-models` call is the sole authority for auditor selection in each iteration. On re-audit, the orchestrator discards all prior `resolve-models` result contracts before calling `resolve-models` again. The `excluded_pair` and `re_task` parameters are NOT used for iteration-based re-audit — they exist only for within-iteration retry (e.g., task() failure recovery). Each iteration is independent: the set of available auditors, their availability, and the selection outcome are all re-determined from scratch.
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -202,6 +204,13 @@ rules:
     conditions:
       all: ["result != 'PASS'", "pipeline_stage == previous_stage", "attempt_count == 3"]
     actions: [BLOCK_PIPELINE, HALT, REPORT_EXECUTIVE_SUMMARY]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-022
+    title: "resolve-models MUST be called on EVERY audit iteration — no historical caching"
+    conditions:
+      all: ["audit_iteration > 1", "resolve_models_called == false"]
+    actions: [HALT, CALL(resolve-models)]
     source: "adversarial-audit/SKILL.md"
 ```
 
