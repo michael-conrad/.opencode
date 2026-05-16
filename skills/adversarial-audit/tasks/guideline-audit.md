@@ -222,7 +222,7 @@ Fix: <fix_action>
 ## Dispatch Mandate (CRITICAL — per critical-rules-048)
 
 This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
-1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
+1. Invoking the `resolve-models` task to obtain auditor pair
 2. Dispatching auditor sub-agents in parallel
 3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_verdicts`
 
@@ -243,7 +243,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 
 After guideline-audit completes:
 - If consensus PASS: proceed to next audit type or guideline_update pipeline
-- If consensus FAIL: remediate findings, then re-audit (resolve-models → auditors → cross-validate)
+- If consensus FAIL: remediate findings, then re-audit (`resolve-models` task → auditors → cross-validate)
 
 This step is MANDATORY — the pipeline does not terminate early.
 

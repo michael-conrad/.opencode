@@ -1,209 +1,63 @@
+# resolve-models — Resolve Cross-Family Auditor Pairs
+
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# Task: resolve-models
+Resolve two auditor models from different model families for adversarial cross-validation.
 
-## Purpose
+## Invocation
 
-Read the canonical auditor model pool from `qualified-auditor-pool.sh`, map each model to its agent name and model family, detect the orchestrator's model, exclude same-family agents, and return two `subagent_type` strings from different families suitable for `task(subagent_type="auditor-*")`.
+Execute the resolve-models tool:
 
-resolve-models is the ONLY authorized entry point for model resolution — no alternative paths exist. Hardcoding auditor types, inlining model names, or skipping model resolution are all CRITICAL VIOLATIONS per adversarial-audit-013. The adversarial-audit protocol REQUIRES cross-family auditor resolution before any audit can proceed.
-
-## Entry Criteria
-
-- Invoked by orchestrator (NOT by cross-validate or any other sub-task)
-- `orchestrator_model` present in task context (from session context `<ModelId>`)
-- `.opencode/tests/qualification/qualified-auditor-pool.sh` exists and is readable
-
-## Exit Criteria
-
-- Return `{ auditor_1, auditor_2 }` where both are valid `subagent_type` strings (e.g., `"auditor-glm-5.1"`, `"auditor-mistral-large"`)
-- Both auditors belong to different model families
-- Neither auditor shares the orchestrator's model family
-- If fewer than two eligible families remain: return `{ auditor_1: null, auditor_2: null, error: "INSUFFICIENT_FAMILIES" }`
-
-## Procedure
-
-### Step 1: Load Qualified Auditor Pool
-
-Read `.opencode/tests/qualification/qualified-auditor-pool.sh`. Extract every model string between the `MODELS` heredoc delimiters. Each line is one model in `ollama/`-compatible `family-variant:cloud` format.
-
-### Step 2: Build Agent-to-Family Mapping
-
-For each model from the pool, derive the agent name and family:
-
-| Model (pool entry) | Agent Name (`subagent_type`) | Family |
-|---|---|---|
-| `deepseek-v4-flash:cloud` | `auditor-deepseek-flash` | `deepseek` |
-| `deepseek-v3.2:cloud` | `auditor-deepseek-v3` | `deepseek` |
-| `glm-5.1:cloud` | `auditor-glm-5.1` | `glm` |
-| `glm-5:cloud` | `auditor-glm-5` | `glm` |
-| `mistral-large-3:675b-cloud` | `auditor-mistral-large` | `mistral` |
-| `kimi-k2.6:cloud` | `auditor-kimi-k2` | `kimi` |
-| `qwen3.5:397b-cloud` | `auditor-qwen3.5` | `qwen` |
-
-The agent name format is `auditor-<family-base>-<variant>`. Verify each corresponding `.opencode/agents/<agent-name>.md` file exists via glob. Omit any agent whose file is missing.
-
-### Step 3: Detect Orchestrator's Model Family
-
-Parse `orchestrator_model` from task context. Extract the family by matching against known family prefixes (deepseek, glm, mistral, kimi, qwen). The orchestrator model ID is typically `ollama/<model>:cloud` or `ollama-cloud/<model>` — strip the prefix and suffix to isolate the model core.
-
-| Orchestrator Model | Family | Agent Name |
-|---|---|---|
-| Contains `deepseek-v4-flash` | `deepseek` | `auditor-deepseek-flash` |
-| Contains `deepseek-v3` | `deepseek` | `auditor-deepseek-v3` |
-| Contains `glm-5.1` | `glm` | `auditor-glm-5.1` |
-| Contains `glm-5` | `glm` | `auditor-glm-5` |
-| Contains `mistral-large-3` | `mistral` | `auditor-mistral-large` |
-| Contains `kimi-k2` | `kimi` | `auditor-kimi-k2` |
-| Contains `qwen3.5` | `qwen` | `auditor-qwen3.5` |
-
-If the orchestrator model does not match any known family, treat it as unknown — exclude nothing by family, only by agent-name match.
-
-### Step 4: Exclude Ineligible Agents
-
-Remove from the candidate pool:
-1. Any agent whose family matches the orchestrator's family
-2. The specific agent that maps to the orchestrator's exact model (precautionary — catches edge cases where family match is ambiguous)
-
-### Step 4a: Re-Task Mode
-
-If `re_task` flag is present in task context: run fresh random selection from eligible pool, excluding:
-1. The previously selected auditor pair (if `excluded_pair` provided in context)
-2. The orchestrator's own family (same as Step 4)
-
-### Step 5: Select Two Cross-Family Auditors
-
-Group remaining candidates by family. Pick the first available agent from each eligible family.
-
-Selection priority within each family (most capable first):
-- DeepSeek family: `auditor-deepseek-flash` > `auditor-deepseek-v3`
-- GLM family: `auditor-glm-5.1` > `auditor-glm-5`
-- All other families: single agent, no prioritization needed
-
-Select two auditors from two different families. Prefer families with only one agent (forced diversification) to preserve multi-agent families for future expansion.
-
-### Step 6: Return Result Contract
-
-```
-{
-  auditor_1: "auditor-<family>-<variant>",
-  auditor_2: "auditor-<family>-<variant>",
-  family_1: "<family>",
-  family_2: "<family>",
-  orchestrator_family: "<family>",
-  excluded_families: ["<family>", ...],
-  candidates_available: N
-}
+```bash
+bash .opencode/tools/resolve-models
 ```
 
-If fewer than two eligible families remain after exclusion: return `{ auditor_1: null, auditor_2: null, error: "INSUFFICIENT_FAMILIES", reason: "<explanation>" }`.
+The `MODEL_ID` environment variable is set automatically by the session context. No additional arguments are required for standard use.
 
-## Context Required
+### Re-Task (When Prior Audit Pair Failed)
 
-- `orchestrator_model`: The orchestrator's resolved model ID (from `<ModelId>`)
-- `re_task`: (optional) If `true`, run fresh random selection excluding previously selected pair
-- `excluded_pair`: (optional) Array of `[family_1, family_2]` from prior task() to exclude from re-task
-- `github.owner`, `github.repo`: For file path resolution (defaults to `.opencode` context)
+If a prior audit iteration produced a failed/unusable result and the orchestrator needs a fresh pair while optionally excluding the previous pair:
 
-## Red Flags
-
-- Never select two auditors from the same family — cross-family diversity is the invariant
-- Never select the orchestrator's own agent type as an auditor — self-auditing defeats adversarial independence
-- Never hardcode the agent-to-family mapping — always derive from `qualified-auditor-pool.sh` plus `.opencode/agents/` glob
-- Never assume agent files exist without glob verification
-- Never return a single auditor — dual task() is mandatory
-- Never return raw model strings (e.g., `ollama/glm-5.1:cloud`) — always return `subagent_type` strings (e.g., `auditor-glm-5.1`)
-- Never re-use cached pair from previous task() for re-task — always select fresh
-- Never skip resolve-models and inline auditor names — this is the ONLY authorized entry point per adversarial-audit-013
-
-## Cross-References
-
-- `qualified-auditor-pool.sh` — canonical auditor model pool
-- `.opencode/agents/auditor-*.md` — agent files with model and permission definitions
-- `adversarial-audit/tasks/cross-validate.md` — consumer that receives pre-resolved verdicts (orchestrator task()s auditors, then passes verdicts to cross-validate)
-- `adversarial-audit/SKILL.md` — skill-level rules (cross-family invariant, orchestrator exclusion)
-- `multimodal-dispatch` skill — model capability probing if needed for family detection
-
-## Sub-Agent Routing
-
-Authorization context is passed alongside model resolution context:
-
-```
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
-halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
-pipeline_phase: <current_phase_name>
-authorization_source: "User approved #N on YYYY-MM-DD"
+```bash
+bash .opencode/tools/resolve-models --re-task --excluded-pair <family_1> <family_2>
 ```
 
-### Task Rules
-- Missing `authorization_scope` in task context → return `status: BLOCKED`
-- Instructed to exceed `halt_at` → return `status: BLOCKED`
+Replace `<family_1>` and `<family_2>` with the family names from the previous iteration's output.
 
-| Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
-|---|---|---|---|
-| `orchestrator_model`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `github.owner`, `github.repo` | Any implementation context, agent memory, cached model pool data | N/A — this task reads the qualified pool directly, not via pre-analysis | NO |
-| `re_task`, `excluded_pair` | — | Only for re-task flows; not used in initial task() | NO |
+## Output Format
 
-```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-15T00:00:00Z"
-rules:
-  - id: resolve-models-001
-    title: "Family detection from qualified-auditor-pool.sh mapping is canonical"
-    conditions:
-      all: ["auditor_pool_read == false"]
-    actions: [READ_FILE("qualified-auditor-pool.sh")]
-    source: "resolve-models.md §Step 1"
+### Success (exit code 0)
 
-  - id: resolve-models-002
-    title: "Agent file existence must be verified via glob before inclusion in candidate pool"
-    conditions:
-      all: ["agent_file_glob == false"]
-    actions: [GLOB(".opencode/agents/auditor-*.md")]
-    source: "resolve-models.md §Step 2"
-
-  - id: resolve-models-003
-    title: "Cross-family selection mandatory — auditor_1.family != auditor_2.family"
-    conditions:
-      all: ["auditor_1_family == auditor_2_family", "families_available >= 2"]
-    actions: [HALT, RESELECT_DIFFERENT_FAMILY]
-    source: "resolve-models.md §Step 5"
-
-  - id: resolve-models-004
-    title: "Orchestrator model family exclusion mandatory"
-    conditions:
-      all: ["selected_auditor_family == orchestrator_family"]
-    actions: [HALT, RESELECT_EXCLUDE_ORCHESTRATOR]
-    source: "resolve-models.md §Step 4"
-
-  - id: resolve-models-005
-    title: "Insufficient families must return null result contract with error"
-    conditions:
-      all: ["eligible_families < 2"]
-    actions: [RETURN_INSUFFICIENT_FAMILIES_ERROR]
-    source: "resolve-models.md §Step 6"
-
-  - id: resolve-models-006
-    title: "Return subagent_type strings, never raw model strings"
-    conditions:
-      all: ["return_type contains 'ollama'"]
-    actions: [HALT, MAP_TO_SUBAGENT_TYPE]
-    source: "resolve-models.md §Step 6"
-
-  - id: resolve-models-007
-    title: "Orchestrator exact agent exclusion as precautionary defense"
-    conditions:
-      all: ["selected_agent_name == orchestrator_agent_name", "family_match_ambiguous == true"]
-    actions: [HALT, RESELECT_EXCLUDE_EXACT_MATCH]
-    source: "resolve-models.md §Step 4"
-
-  - id: resolve-models-008
-    title: "Unknown orchestrator family — exclude nothing by family, only by exact agent match"
-    conditions:
-      all: ["orchestrator_family == 'unknown'"]
-    actions: [EXCLUDE_EXACT_AGENT_MATCH_ONLY]
-    source: "resolve-models.md §Step 3"
+```yaml
+auditor_1: "auditor-<family>-<variant>"
+auditor_2: "auditor-<family>-<variant>"
+family_1: "<family>"
+family_2: "<family>"
 ```
+
+### Insufficient Families (exit code 1)
+
+```yaml
+error: "INSUFFICIENT_FAMILIES"
+reason: "<explanation>"
+eligible_count: <number>
+```
+
+## Usage
+
+1. Execute `bash .opencode/tools/resolve-models`
+2. Parse the YAML output
+3. If exit code is 0: dispatch `auditor_1` and `auditor_2` as the two cross-family auditors
+4. If exit code is 1 (INSUFFICIENT_FAMILIES): halt the audit pipeline — this is a non-recoverable error per adversarial-audit-017
+
+## Mandatory Rules
+
+- This task is the ONLY authorized entry point for auditor resolution
+- Agents MUST NOT read, reason about, or inline model family composition from any source other than this task's YAML output
+- Agents MUST NOT hardcode auditor types, inline model names, or substitute cached family mappings
+- The orchestrator MUST invoke this task on EVERY audit iteration — initial, re-audit, and all subsequent re-audits
+- Historical auditor selections from any prior iteration MUST NOT be cached, reused, or considered — every invocation starts fresh
+
+Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)

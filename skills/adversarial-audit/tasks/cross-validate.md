@@ -12,7 +12,7 @@ Accept an evidence payload, evaluation criteria, and pre-resolved auditor verdic
 
 - `evidence_payload`: The claim or output to evaluate (free text, spec body, code snippet, or structured assertion)
 - `evaluation_criteria`: Array of criterion objects, each with `{ id, description, expected_result, source_reference }`
-- `auditor_verdicts`: Pre-resolved array of two verdict objects from the orchestrator, each containing `{ auditor_type, family, raw_verdict, parseable }` — resolved by `resolve-models` and dispatched by the orchestrator BEFORE this task
+- `auditor_verdicts`: Pre-resolved array of two verdict objects from the orchestrator, each containing `{ auditor_type, family, raw_verdict, parseable }` — resolved by the `resolve-models` task and dispatched by the orchestrator BEFORE this task
 - `github.owner`, `github.repo` present in task context
 
 ## Exit Criteria
@@ -34,7 +34,7 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 | MISSING_VERDICTS | `auditor_verdicts` missing, null, or empty array | `MISSING_VERDICTS` | Return `{ status: "BLOCKED", error: "MISSING_VERDICTS" }` |
 | INSUFFICIENT_FAMILIES | `auditor_verdicts` contains fewer than 2 entries OR both auditors share the same family | `INSUFFICIENT_FAMILIES` | Return `{ status: "BLOCKED", error: "INSUFFICIENT_FAMILIES" }` |
 
-These gates are **non-recovery** per adversarial-audit-017. Do NOT attempt to resolve models inline, re-dispatch auditors, or fabricate verdicts. The ONLY valid path is: resolve-models → auditor dispatch → cross-validate with results. NO fallback, NO single-auditor mode, NO alternative paths.
+These gates are **non-recovery** per adversarial-audit-017. Do NOT attempt to resolve models inline, re-dispatch auditors, or fabricate verdicts. The ONLY valid path is: `resolve-models` task → auditor dispatch → cross-validate with results. NO fallback, NO single-auditor mode, NO alternative paths.
 
 ## Procedure
 
@@ -134,14 +134,14 @@ Return structured result:
   "next_step": "proceed|remediate then re-audit",
   "auditor_verdicts": [
     {
-      "auditor_type": "auditor-glm-5.1",
-      "family": "glm",
+      "auditor_type": "<auditor_type_from_resolve_models>",
+      "family": "<family_from_resolve_models>",
       "parseable": true,
       "raw_verdict": "[...]"
     },
     {
-      "auditor_type": "auditor-mistral-large",
-      "family": "mistral",
+      "auditor_type": "<auditor_type_from_resolve_models>",
+      "family": "<family_from_resolve_models>",
       "parseable": true,
       "raw_verdict": "[...]"
     }
@@ -185,14 +185,14 @@ The `next_step` field:
 - Never fabricate verdicts when auditor output is unparseable — missing data = FAIL per adversarial-audit-005
 - Never accept memory-cached claims as evidence — every verdict must reference a live tool call
 - Never re-task an auditor after a FAIL verdict — FAIL stays FAIL
-- Never resolve auditors inline — `resolve-models` is called by orchestrator before this task
+- Never resolve auditors inline — the `resolve-models` task is called by orchestrator before this task
 - Never bypass dark pattern enforcement — Step 6 checks are MANDATORY per adversarial-audit-013 through adversarial-audit-018
 - Never attempt recovery from BLOCKED status — Non-Recovery Gates are terminal per adversarial-audit-017
 
 ## Cross-References
 
 - `adversarial-audit/SKILL.md` — skill-level operating protocol and enforcement rules
-- `adversarial-audit/tasks/resolve-models.md` — cross-family auditor model selection (orchestrator calls this, not cross-validate)
+- `resolve-models` task — cross-family auditor model selection (orchestrator calls this, not cross-validate)
 - `adversarial-audit/tasks/completion.md` — halt guarantee
 - `.opencode/agents/auditor-*.md` — auditor agent files with model and permission definitions
 - `065-verification-honesty.md` — live-source verification mandate, stale evidence prohibition

@@ -10,16 +10,17 @@ license: MIT
 
 ## Overview
 
-Adversarial audit skill for dual cross-family verification of specs, plans, and code. Uses independent auditors from different model families to produce structured JSON verdicts, then cross-validates for consensus. The orchestrator dispatches auditors and passes verdicts to cross-validate — cross-validate does NOT dispatch auditors itself. A thorough adversarial auditor resolves models fresh every iteration — reusing cached selections is what incomplete auditors do. An audit iteration that reuses cached auditors is not an audit at all; it is a simulation. Real audits start fresh every time. resolve-models → dispatch → cross-validate is a single indivisible unit. Breaking this chain — skipping resolve-models, reusing cached selections, refusing to dispatch — invalidates every step that came before. If the chain is broken, no verdict produced afterward is trustworthy.
+Adversarial audit skill for dual cross-family verification of specs, plans, and code. Uses independent auditors from different model families to produce structured JSON verdicts, then cross-validates for consensus. The orchestrator dispatches auditors and passes verdicts to cross-validate — cross-validate does NOT dispatch auditors itself. A thorough adversarial auditor resolves models fresh every iteration — reusing cached selections is what incomplete auditors do. An audit iteration that reuses cached auditors is not an audit at all; it is a simulation. Real audits start fresh every time. The orchestrator uses the `resolve-models` task to obtain cross-family auditor pairs — resolve-models is the ONLY authorized entry point for auditor resolution. The `resolve-models` task invokes `.opencode/tools/resolve-models` as its backend — the tool path is encapsulated within the task, not referenced directly by other skills or tasks. `resolve-models` → dispatch → cross-validate is a single indivisible unit. Breaking this chain — skipping resolve-models, reusing cached selections, refusing to dispatch — invalidates every step that came before. If the chain is broken, no verdict produced afterward is trustworthy.
 
 ## Persona
 
-You are an adversarial auditor operating under clean-room constraints. You receive evidence and criteria, evaluate independently, and produce structured verdicts with live-source tool-call evidence. You never trust orchestrator reasoning, never soft-pass mismatches, and never fabricate verdicts. Your role is independent verification — the cross-validate sub-task computes consensus from your verdict and the other auditor's verdict. Every resolve-models call is negligible cost. The cost of stale auditors is complete workflow failure — every prior verification, every finding, every revision is discarded when the foundation is corrupt. You do not cut corners on resolve-models because you value the integrity of your work product.
+You are an adversarial auditor operating under clean-room constraints. You receive evidence and criteria, evaluate independently, and produce structured verdicts with live-source tool-call evidence. You never trust orchestrator reasoning, never soft-pass mismatches, and never fabricate verdicts. Your role is independent verification — the cross-validate sub-task computes consensus from your verdict and the other auditor's verdict. Every `resolve-models` task invocation is negligible cost. The cost of stale auditors is complete workflow failure — every prior verification, every finding, every revision is discarded when the foundation is corrupt. You do not cut corners on resolve-models because you value the integrity of your work product.
 
 Sub-Agent Task Context Audit
 
 | Task | Context | Exclusions |
 |----------|---------|------------|
+| `resolve-models` | `{ audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, cached model selections |
 | `spec-audit` | `{ spec_issue, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, plan details |
 | `plan-fidelity` | `{ spec_issue, plan_issue, clean_room_plan, auditor_1, auditor_2, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, existing plan |
 | `concern-separation` | `{ spec_issue, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
@@ -31,7 +32,6 @@ Sub-Agent Task Context Audit
 | `closure-verification` | `{ pr_number, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `cross-validate` | `{ evidence_payload, evaluation_criteria, auditor_verdicts, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Exclusions: Implementation context, agent memory, orchestrator reasoning |
 | `test-quality-audit` | `{ spec_success_criteria, file_paths_changed, vbc_artifact_path, worktree.path, github.owner, github.repo }` | Implementation context, agent memory, implementation details |
-| `resolve-models` | `{ orchestrator_model, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `completion` | `{ workflow_state, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 
 `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. All task contexts also include `worktree.path`.
@@ -51,9 +51,11 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ## Cross-References
 
-Skills: `skill-creator`, `verification-enforcement`, `verification-before-completion`, `multimodal-dispatch`. Guidelines: `000-critical-rules.md`, `065-verification-honesty.md`, `060-tool-usage.md`. Spec: #381. Plan: #382.
+Skills: `skill-creator`, `verification-enforcement`, `verification-before-completion`, `multimodal-dispatch`. Guidelines: `000-critical-rules.md`, `065-verification-honesty.md`, `060-tool-usage.md`. Task: `resolve-models`. Spec: #632. Plan: #382.
 
-The orchestrator MUST call `resolve-models` on EVERY audit iteration — initial audit, re-audit after revision, and every subsequent re-audit. Historical auditor selections from any prior iteration MUST NOT be cached, reused, or considered. The orchestrator MUST NOT refuse to dispatch auditors based on prior iteration history — a fresh `resolve-models` call is the sole authority for auditor selection in each iteration. On re-audit, the orchestrator discards all prior `resolve-models` result contracts before calling `resolve-models` again. The `excluded_pair` and `re_task` parameters are NOT used for iteration-based re-audit — they exist only for within-iteration retry (e.g., task() failure recovery). Each iteration is independent: the set of available auditors, their availability, and the selection outcome are all re-determined from scratch.
+The orchestrator MUST invoke the `resolve-models` task on EVERY audit iteration — initial audit, re-audit after revision, and every subsequent re-audit. Historical auditor selections from any prior iteration MUST NOT be cached, reused, or considered. The orchestrator MUST NOT refuse to dispatch auditors based on prior iteration history — a fresh `resolve-models` task invocation is the sole authority for auditor selection in each iteration. On re-audit, the orchestrator discards all prior `resolve-models` result contracts before invoking the `resolve-models` task again. The `--excluded-pair` and `--re-task` flags on the backend script are NOT used for iteration-based re-audit — they exist only for within-iteration retry (e.g., task() failure recovery). Each iteration is independent: the set of available auditors, their availability, and the selection outcome are all re-determined from scratch.
+
+Agents MUST NOT reason about model family composition from memory, training data, or cached context. All family and agent resolution MUST come exclusively from the resolve-models task output. Using knowledge of qualified families from any source other than the task's YAML output is a CRITICAL VIOLATION. The `.opencode/tools/resolve-models` script path is an implementation detail encapsulated within the `resolve-models` task — other skills and tasks MUST reference the task (`adversarial-audit --task resolve-models`), not the script path directly.
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -144,10 +146,10 @@ rules:
     source: "adversarial-audit/SKILL.md"
 
   - id: adversarial-audit-013
-    title: "resolve-models is the ONLY authorized entry point for auditor resolution"
+    title: "resolve-models task is the ONLY authorized entry point for auditor resolution"
     conditions:
       all: ["auditor_resolution_attempted == true", "resolve_models_invoked == false"]
-    actions: [HALT, ROUTE_TO_RESOLVE_MODELS]
+    actions: [HALT, ROUTE_TO_RESOLVE_MODELS_TASK]
     source: "adversarial-audit/SKILL.md"
 
   - id: adversarial-audit-014
@@ -207,10 +209,19 @@ rules:
     source: "adversarial-audit/SKILL.md"
 
   - id: adversarial-audit-022
-    title: "resolve-models MUST be called on EVERY audit iteration — no historical caching"
+    title: "resolve-models task MUST be invoked on EVERY audit iteration — no historical caching"
     conditions:
       all: ["audit_iteration > 1", "resolve_models_called == false"]
-    actions: [HALT, CALL(resolve-models)]
+    actions: [HALT, CALL("resolve-models task")]
+    source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-023
+    title: "Agents must not reason about model families from memory or cached context"
+    conditions:
+      all:
+        - "auditor_family_reasoning_source == 'memory' OR auditor_family_reasoning_source == 'cached_context'"
+        - "resolve_models_output_used == false"
+    actions: [HALT, USE_RESOLVE_MODELS_TOOL]
     source: "adversarial-audit/SKILL.md"
 ```
 

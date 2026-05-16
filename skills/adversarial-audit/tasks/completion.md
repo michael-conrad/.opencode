@@ -8,7 +8,7 @@ Idempotent completion subtask for adversarial-audit. Ensures mandatory steps ran
 
 ## State Check Phase
 
-1. **Auditor models resolved:** Check whether `resolve-models` successfully returned two cross-family auditor selections
+1. **Auditor models resolved:** Check whether the `resolve-models` task successfully returned two cross-family auditor selections
 2. **Auditors tasked:** Check whether orchestrator dispatched `task(subagent_type="auditor-*")` for both auditor-1 and auditor-2
 3. **Verdicts collected:** Check whether structured JSON verdicts were received from both auditors
 4. **Cross-validation computed:** Check whether cross-validate produced a definitive PASS or FAIL result with `next_step` field
@@ -17,19 +17,19 @@ Idempotent completion subtask for adversarial-audit. Ensures mandatory steps ran
 
 The dispatch chain is orchestrated by the main agent (orchestrator), NOT by individual sub-tasks. The flow is:
 
-1. **Orchestrator dispatches** `task(general)` ← resolve-models → receives `{ auditor_1, auditor_2 }` pair
+1. **Orchestrator invokes** the `resolve-models` task → receives YAML `{ auditor_1, auditor_2, family_1, family_2 }` output
 2. **Orchestrator dispatches** `task(auditor-1)` and `task(auditor-2)` in parallel → receives verdicts from both
 3. **Orchestrator dispatches** `task(general)` ← cross-validate with `auditor_verdicts` (pre-resolved verdict objects, NOT auditor model names) → receives cross-validation result
 4. **Orchestrator routes** based on `next_step` field: `"proceed"` for PASS, `"remediate then re-audit"` for FAIL
 
-cross-validate does NOT dispatch auditors — it receives pre-resolved verdicts from the orchestrator. resolve-models does NOT dispatch auditors — it returns model pairs for the orchestrator to dispatch.
+cross-validate does NOT dispatch auditors — it receives pre-resolved verdicts from the orchestrator. The `resolve-models` task does NOT dispatch auditors — it returns model pairs for the orchestrator to dispatch.
 
 ## Skill-Specific Completion
 
 1. **Auditor model resolution verification** (if not already performed):
-   - Confirm that `resolve-models` returned two different-family auditor selections
+   - Confirm that the `resolve-models` task returned two different-family auditor selections
    - Confirm neither auditor shares the orchestrator's model family
-   - If incorrect: flag STRUCTURE-VIOLATION for orchestrator retry via `resolve-models`
+   - If incorrect: flag STRUCTURE-VIOLATION for orchestrator retry via the `resolve-models` task
 
 2. **Verdict integrity check** (if not already performed):
    - Each auditor verdict MUST be structured as `[{id, result, explanation}]`
@@ -45,12 +45,12 @@ cross-validate does NOT dispatch auditors — it receives pre-resolved verdicts 
 
 | Finding | Problem Class | Classification | Action |
 |--------|---------------|----------------|--------|
-| No auditors resolved | MISSING-ELEMENT | flag-for-review | HALT — orchestrator must re-invoke `resolve-models` |
+| No auditors resolved | MISSING-ELEMENT | flag-for-review | HALT — orchestrator must re-invoke the `resolve-models` task |
 | Single auditor invoked | MISSING-ELEMENT | flag-for-review | HALT — dual-auditor invariant violated |
 | Malformed verdict | VERDICT-INTEGRITY | flag-for-review | HALT — cannot fabricate consensus from bad data |
 | Consensus not computed | CONSENSUS-GAP | auto-fix | Compute from collected verdicts |
-| Both auditors same family | STRUCTURE-VIOLATION | flag-for-review | HALT — orchestrator must re-invoke `resolve-models` |
-| Missing `resolve-models` invocation | MISSING-ELEMENT | flag-for-review | HALT — resolve-models is mandatory entry point per adversarial-audit-013 |
+| Both auditors same family | STRUCTURE-VIOLATION | flag-for-review | HALT — orchestrator must re-invoke the `resolve-models` task |
+| Missing `resolve-models` task invocation | MISSING-ELEMENT | flag-for-review | HALT — resolve-models task is mandatory entry point per adversarial-audit-013 |
 | Missing auditor task() dispatch | MISSING-ELEMENT | flag-for-review | HALT — orchestrator must task() both auditors |
 | Missing cross-validate invocation with verdicts | MISSING-ELEMENT | flag-for-review | HALT — orchestrator must task() cross-validate with verdicts |
 
@@ -110,7 +110,7 @@ HALT
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Cross-family auditors selected" | Verify two different families selected | Check `resolve-models` result contract | MISSING-ELEMENT |
+| "Cross-family auditors selected" | Verify two different families selected | Check resolve-models task YAML output | MISSING-ELEMENT |
 | "Auditors tasked" | Verify task() occurred | Check `task()` call logs in work state file | MISSING-ELEMENT |
 | "JSON verdicts received" | Verify structured output | Parse `[{id, result, explanation}]` from auditor results | VERDICT-INTEGRITY |
 | "Consensus evaluated" | Verify PASS/FAIL determination | Cross-reference both verdicts | CONSENSUS-GAP |

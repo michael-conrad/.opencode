@@ -1,0 +1,179 @@
+#!/bin/bash
+# resolve-models — Resolve cross-family auditor pairs from qualified pool
+#
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# resolve-models is the ONLY authorized entry point for auditor resolution —
+# no alternative paths exist. Hardcoding auditor types, inlining model names,
+# or skipping model resolution are all CRITICAL VIOLATIONS per adversarial-audit-013.
+#
+# Agents MUST NOT reason about model family composition from memory or cached context.
+# All family and agent resolution MUST come exclusively from this tool's YAML output.
+#
+# Usage:
+#   .opencode/tools/resolve-models [--orchestrator-model <model>] [--re-task] [--excluded-pair <f1> <f2>]
+#
+# Output (YAML):
+#   auditor_1: "auditor-<family>-<variant>"
+#   auditor_2: "auditor-<family>-<variant>"
+#   family_1: "<family>"
+#   family_2: "<family>"
+#
+# Exit codes:
+#   0  — success, YAML output on stdout
+#   1  — INSUFFICIENT_FAMILIES error
+#
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILLS_DIR="$(cd "$SCRIPT_DIR/../skills" && pwd)"
+AGENTS_DIR="$(cd "$SCRIPT_DIR/../agents" && pwd)"
+
+ORCHESTRATOR_MODEL=""
+RE_TASK=false
+EXCLUDED_FAMILY_1=""
+EXCLUDED_FAMILY_2=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --orchestrator-model)
+            ORCHESTRATOR_MODEL="$2"
+            shift 2
+            ;;
+        --re-task)
+            RE_TASK=true
+            shift
+            ;;
+        --excluded-pair)
+            EXCLUDED_FAMILY_1="$2"
+            EXCLUDED_FAMILY_2="$3"
+            shift 3
+            ;;
+        --test-insufficient-families)
+            # Test mode: force INSUFFICIENT_FAMILIES error path
+            echo "error: \"INSUFFICIENT_FAMILIES\""
+            echo "reason: \"forced test mode — only 1 eligible family after exclusion\""
+            echo "eligible_count: 1"
+            exit 1
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
+if [[ -z "$ORCHESTRATOR_MODEL" ]]; then
+    ORCHESTRATOR_MODEL="${MODEL_ID:-}"
+fi
+
+if [[ -z "$ORCHESTRATOR_MODEL" ]]; then
+    echo "error: no orchestrator model specified and MODEL_ID env var not set" >&2
+    exit 1
+fi
+
+ORCHESTRATOR_MODEL_CLEAN="$ORCHESTRATOR_MODEL"
+ORCHESTRATOR_MODEL_CLEAN="${ORCHESTRATOR_MODEL_CLEAN#ollama-cloud/}"
+ORCHESTRATOR_MODEL_CLEAN="${ORCHESTRATOR_MODEL_CLEAN#ollama/}"
+ORCHESTRATOR_MODEL_CLEAN="${ORCHESTRATOR_MODEL_CLEAN%%:*}"
+ORCHESTRATOR_MODEL_CLEAN="${ORCHESTRATOR_MODEL_CLEAN%%+*}"
+
+detect_family() {
+    local model="$1"
+    case "$model" in
+        deepseek*)  echo "deepseek" ;;
+        glm*)       echo "glm" ;;
+        mistral*)   echo "mistral" ;;
+        kimi*)      echo "kimi" ;;
+        qwen*)      echo "qwen" ;;
+        *)          echo "unknown" ;;
+    esac
+}
+
+detect_agent_name() {
+    local model="$1"
+    case "$model" in
+        deepseek-v4-flash)   echo "auditor-deepseek-flash" ;;
+        deepseek-v3*)        echo "auditor-deepseek-v3" ;;
+        glm-5.1)             echo "auditor-glm-5.1" ;;
+        glm-5)               echo "auditor-glm-5" ;;
+        mistral-large-3)     echo "auditor-mistral-large" ;;
+        kimi-k2*)            echo "auditor-kimi-k2" ;;
+        qwen3.5*)            echo "auditor-qwen3.5" ;;
+        *)                   echo "" ;;
+    esac
+}
+
+ORCHESTRATOR_FAMILY="$(detect_family "$ORCHESTRATOR_MODEL_CLEAN")"
+
+QUALIFIED_POOL_SCRIPT="$SKILLS_DIR/../tests/qualification/qualified-auditor-pool.sh"
+if [[ ! -x "$QUALIFIED_POOL_SCRIPT" ]]; then
+    QUALIFIED_POOL_SCRIPT="$SCRIPT_DIR/../tests/qualification/qualified-auditor-pool.sh"
+fi
+
+if [[ ! -x "$QUALIFIED_POOL_SCRIPT" ]]; then
+    echo "error: qualified-auditor-pool.sh not found" >&2
+    exit 1
+fi
+
+POOL_OUTPUT="$("$QUALIFIED_POOL_SCRIPT")"
+
+declare -A FAMILY_AGENTS
+declare -a FAMILIES=()
+
+while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    model_core="${line%%:*}"
+    agent_name="$(detect_agent_name "$model_core")"
+    [[ -z "$agent_name" ]] && continue
+    agent_file="$AGENTS_DIR/${agent_name}.md"
+    [[ ! -f "$agent_file" ]] && continue
+    family="$(detect_family "$model_core")"
+    if [[ "$family" == "unknown" ]]; then
+        continue
+    fi
+    if [[ "$family" == "$ORCHESTRATOR_FAMILY" && "$ORCHESTRATOR_FAMILY" != "unknown" ]]; then
+        continue
+    fi
+    if [[ "$model_core" == "$ORCHESTRATOR_MODEL_CLEAN" ]]; then
+        continue
+    fi
+    if $RE_TASK; then
+        if [[ -n "$EXCLUDED_FAMILY_1" && "$family" == "$EXCLUDED_FAMILY_1" ]]; then
+            continue
+        fi
+        if [[ -n "$EXCLUDED_FAMILY_2" && "$family" == "$EXCLUDED_FAMILY_2" ]]; then
+            continue
+        fi
+    fi
+    if [[ -z "${FAMILY_AGENTS[$family]+x}" ]]; then
+        FAMILIES+=("$family")
+    fi
+    FAMILY_AGENTS[$family]="$agent_name"
+done <<< "$POOL_OUTPUT"
+
+if [[ ${#FAMILIES[@]} -lt 2 ]]; then
+    echo "error: \"INSUFFICIENT_FAMILIES\""
+    echo "reason: \"only ${#FAMILIES[@]} eligible families after excluding orchestrator family '${ORCHESTRATOR_FAMILY}'\""
+    echo "eligible_count: ${#FAMILIES[@]}"
+    exit 1
+fi
+
+SHUFFLED_INDICES=($(shuf -e $(seq 0 $((${#FAMILIES[@]} - 1)))))
+
+FIRST_IDX="${SHUFFLED_INDICES[0]}"
+SECOND_IDX="${SHUFFLED_INDICES[1]}"
+
+FAMILY_1="${FAMILIES[$FIRST_IDX]}"
+FAMILY_2="${FAMILIES[$SECOND_IDX]}"
+
+AUDITOR_1="${FAMILY_AGENTS[$FAMILY_1]}"
+AUDITOR_2="${FAMILY_AGENTS[$FAMILY_2]}"
+
+echo "auditor_1: \"$AUDITOR_1\""
+echo "auditor_2: \"$AUDITOR_2\""
+echo "family_1: \"$FAMILY_1\""
+echo "family_2: \"$FAMILY_2\""
