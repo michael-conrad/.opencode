@@ -1,11 +1,11 @@
 {
-  "$schema": "./schemas/opencode-retry-timeout.json",
   "enabled": true,
   "baseDelayMs": 3000,
   "maxDelayMs": 30000,
   "maxRetries": 3,
-  "nextModel": null,
   "errorPatterns": [
+    "sse read timed out", "timed out", "econnreset", "connection reset",
+    "read timeout", "connection refused", "aborted",
     "timeout", "network", "gateway", "dns", "ssl",
     "connection error", "enotfound", "econnrefused", "socket hang up"
   ],
@@ -15,7 +15,7 @@
     "authentication", "unauthorized", "invalid api key", "invalid x-api-key"
   ],
   "debugLogging": false,
-  "toastRetry": "Retry {attempt}/{max} — {delay}ms",
-  "toastSuccess": "Retry succeeded on attempt {attempt}",
-  "toastFailure": "All {max} retries failed"
+  "toastRetry": "Retrying (attempt {attempt}/{max})…",
+  "toastSuccess": "Retry successful",
+  "toastFailure": "Retry failed after {max} attempts"
 }

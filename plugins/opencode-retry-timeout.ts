@@ -4,6 +4,7 @@
 //
 // Co-authored with AI: OpenCode (deepseek-v4-flash-free)
 
+import type { Plugin } from '@opencode-ai/plugin';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -18,8 +19,8 @@ interface PluginContext {
 
 interface RetryState {
   sessionID: string;
-  model: string;
-  originalModel: string;
+  model: { providerID: string; modelID: string } | undefined;
+  originalModel: { providerID: string; modelID: string } | undefined;
   originalPrompt: string;
   attempt: number;
   exhausted: boolean;
@@ -31,7 +32,6 @@ interface Config {
   baseDelayMs: number;
   maxDelayMs: number;
   maxRetries: number;
-  nextModel: string | null;
   enabled: boolean;
   errorPatterns: string[];
   skipPatterns: string[];
@@ -45,9 +45,10 @@ const DEFAULT_CONFIG: Config = {
   baseDelayMs: 3000,
   maxDelayMs: 30000,
   maxRetries: 3,
-  nextModel: null,
   enabled: true,
   errorPatterns: [
+    'sse read timed out', 'timed out', 'econnreset', 'connection reset',
+    'read timeout', 'connection refused', 'aborted',
     'timeout', 'network', 'gateway', 'dns', 'ssl',
     'connection error', 'enotfound', 'econnrefused', 'socket hang up',
   ],
@@ -57,14 +58,22 @@ const DEFAULT_CONFIG: Config = {
     'authentication', 'unauthorized', 'invalid api key', 'invalid x-api-key',
   ],
   debugLogging: false,
-  toastRetry: 'Retry {attempt}/{max} — {delay}ms',
-  toastSuccess: 'Retry succeeded on attempt {attempt}',
-  toastFailure: 'All {max} retries failed',
+  toastRetry: 'Retrying (attempt {attempt}/{max})…',
+  toastSuccess: 'Retry successful',
+  toastFailure: 'Retry failed after {max} attempts',
 };
+
+const logFilePath = path.join(os.homedir(), '.config', 'opencode', 'opencode-retry-debug.log');
 
 const logDebug = (client: any, message: string, config: Config): void => {
   if (config.debugLogging) {
     client.app.log({ body: { message: `[opencode-retry-timeout] ${message}` } });
+  }
+  const entry = JSON.stringify({ timestamp: new Date().toISOString(), message }) + '\n';
+  try {
+    fs.appendFileSync(logFilePath, entry, 'utf-8');
+  } catch {
+    // silently ignore
   }
 };
 
@@ -74,7 +83,8 @@ const showToast = (client: any, message: string, variant: string): void => {
 
 const extractError = (error: any): string => {
   if (typeof error === 'string') return error;
-  return error?.data?.message ?? error?.data?.responseBody ?? error?.message ?? error?.name ?? String(error);
+  // note: error?.message is an additional fallback beyond the canonical spec order
+  return error?.data?.message ?? error?.data?.responseBody ?? error?.name ?? error?.message ?? 'unknown';
 };
 
 const calculateBackoff = (attempt: number, baseDelayMs: number, maxDelayMs: number): number => {
@@ -111,18 +121,19 @@ function transformUserPartToPartInput(part: any): any {
   return result;
 }
 
-const getSessionMessages = async (client: any, sessionID: string): Promise<any[]> => {
+const getSessionMessages = async (client: any, sessionID: string): Promise<{ messages: any[]; errored: boolean }> => {
   try {
     const raw = await client.session.messages({ path: { id: sessionID } });
-    return Array.isArray(raw) ? raw : (raw?.data ?? []);
+    const messages = Array.isArray(raw) ? raw : (raw?.data ?? []);
+    return { messages, errored: false };
   } catch {
-    return [];
+    return { messages: [], errored: true };
   }
 };
 
 const findLastUserParts = (messages: any[]): any[] | null => {
   for (let i = messages.length - 1; i >= 0; i--) {
-    if (messages[i]?.role === 'user') {
+    if (messages[i]?.info?.role === 'user') {
       const parts = messages[i].parts ?? [];
       const transformed = parts
         .map((p: any) => transformUserPartToPartInput(p))
@@ -175,7 +186,7 @@ const loadConfig = async (ctx: PluginContext): Promise<Config | null> => {
   return config;
 };
 
-export const OpenCodeRetryTimeout = async (
+export const OpenCodeRetryTimeout: Plugin = async (
   ctx: PluginContext,
 ): Promise<{ event: (params: { event: any }) => Promise<void> }> => {
   let config: Config;
@@ -194,20 +205,23 @@ export const OpenCodeRetryTimeout = async (
   }
 
   const retryStates = new Map<string, RetryState>();
-  const sessionModels = new Map<string, string>();
+  const sessionModels = new Map<string, { providerID: string; modelID: string }>();
   const retryingSessions = new Set<string>();
 
   return {
     event: async ({ event }: { event: any }): Promise<void> => {
       if (!event?.type) return;
+      if (!config.enabled) return;
 
       if (event.type === 'message.updated') {
-        const { sessionID, message } = event.properties ?? {};
+        const { sessionID, info: message } = event.properties ?? {};
         if (sessionID && message) {
-          if (message.info?.model?.providerID && message.info?.model?.modelID) {
-            sessionModels.set(sessionID, `${message.info.model.providerID}/${message.info.model.modelID}`);
-          } else if (message.info?.providerID && message.info?.modelID) {
-            sessionModels.set(sessionID, `${message.info.providerID}/${message.info.modelID}`);
+          const modelObj =
+            message.role === 'assistant'
+              ? { providerID: message.providerID, modelID: message.modelID }
+              : { providerID: message.model?.providerID, modelID: message.model?.modelID };
+          if (modelObj.providerID && modelObj.modelID) {
+            sessionModels.set(sessionID, modelObj);
           }
         }
         return;
@@ -244,11 +258,9 @@ const handleSessionError = async (
   event: any,
   config: Config,
   retryStates: Map<string, RetryState>,
-  sessionModels: Map<string, string>,
+  sessionModels: Map<string, { providerID: string; modelID: string }>,
   retryingSessions: Set<string>,
 ): Promise<void> => {
-  if (!config.enabled) return;
-
   const { sessionID, error } = event.properties ?? {};
 
   if (!sessionID) {
@@ -257,38 +269,39 @@ const handleSessionError = async (
     return;
   }
 
-  const errorMsg = extractError(error);
-  logDebug(ctx.client, `Error: ${sessionID} — ${errorMsg}`, config);
-
-  const decision = classifyError(errorMsg, config);
-  logDebug(ctx.client, `Classify: ${sessionID} retryable=${decision.retryable} reason=${decision.reason}`, config);
-
-  if (!decision.retryable) {
-    const state = retryStates.get(sessionID);
-    if (state) {
-      state.lastNonTimeoutError = true;
-    }
-    showToast(ctx.client, `opencode-retry-timeout: ${decision.reason}`, 'error');
-    return;
-  }
-
-  const state = retryStates.get(sessionID);
-
-  if (state && Date.now() - state.lastActivity > 300000) {
-    logDebug(ctx.client, `Stale session ${sessionID}: reset attempts`, config);
-    state.attempt = 0;
-    state.exhausted = false;
-  }
-
-  if (state?.exhausted) {
-    logDebug(ctx.client, `Already exhausted ${sessionID}, skipping`, config);
-    return;
-  }
-
+  // Atomic dedup check — per spec Retry Flow Step 4
   if (retryingSessions.has(sessionID)) return;
   retryingSessions.add(sessionID);
 
   try {
+    const errorMsg = extractError(error);
+    logDebug(ctx.client, `Error: ${sessionID} — ${errorMsg}`, config);
+
+    const decision = classifyError(errorMsg, config);
+    logDebug(ctx.client, `Classify: ${sessionID} retryable=${decision.retryable} reason=${decision.reason}`, config);
+
+    if (!decision.retryable) {
+      const state = retryStates.get(sessionID);
+      if (state) {
+        state.lastNonTimeoutError = true;
+      }
+      showToast(ctx.client, `opencode-retry-timeout: ${decision.reason}`, 'error');
+      return;
+    }
+
+    const state = retryStates.get(sessionID);
+
+    if (state && Date.now() - state.lastActivity > 300000) {
+      logDebug(ctx.client, `Stale session ${sessionID}: reset attempts`, config);
+      state.attempt = 0;
+      state.exhausted = false;
+    }
+
+    if (state?.exhausted) {
+      logDebug(ctx.client, `Already exhausted ${sessionID}, skipping`, config);
+      return;
+    }
+
     await executeRetry(ctx, sessionID, config, retryStates, sessionModels);
   } finally {
     retryingSessions.delete(sessionID);
@@ -300,20 +313,37 @@ const executeRetry = async (
   sessionID: string,
   config: Config,
   retryStates: Map<string, RetryState>,
-  sessionModels: Map<string, string>,
+  sessionModels: Map<string, { providerID: string; modelID: string }>,
 ): Promise<void> => {
-  const messagesData = await getSessionMessages(ctx.client, sessionID);
+  let state = retryStates.get(sessionID);
+
+  if (state?.exhausted) {
+    logDebug(ctx.client, `Already exhausted ${sessionID}, skipping`, config);
+    return;
+  }
+
+  const { messages: messagesData, errored } = await getSessionMessages(ctx.client, sessionID);
+
+  if (errored) {
+    logDebug(ctx.client, `Failed to fetch session messages for ${sessionID}`, config);
+    showToast(ctx.client, 'opencode-retry-timeout: failed to fetch session messages', 'error');
+    return;
+  }
 
   if (!messagesData || messagesData.length === 0) {
     logDebug(ctx.client, `Empty messages for ${sessionID}`, config);
-    showToast(ctx.client, 'opencode-retry-timeout: no messages found', 'error');
+    showToast(ctx.client, 'Retry failed: no messages to re-send', 'error');
     return;
   }
 
   for (let i = messagesData.length - 1; i >= 0; i--) {
-    if (messagesData[i].role === 'assistant') {
-      if (messagesData[i].time?.completed && messagesData[i].error) {
-        showToast(ctx.client, 'opencode-retry-timeout: completed-with-error', 'error');
+    if (messagesData[i].info?.role === 'assistant') {
+      if (messagesData[i].info?.time?.completed && messagesData[i].info?.error) {
+        showToast(
+          ctx.client,
+          `opencode-retry-timeout: completed-with-error — ${extractError(messagesData[i].info.error)}`,
+          'error',
+        );
         logDebug(ctx.client, `Completed-with-error assistant detected for ${sessionID}`, config);
         return;
       }
@@ -328,9 +358,8 @@ const executeRetry = async (
     return;
   }
 
-  const model = sessionModels.get(sessionID) || 'default';
+  const model = sessionModels.get(sessionID);
 
-  let state = retryStates.get(sessionID);
   if (!state) {
     state = {
       sessionID,
@@ -347,19 +376,13 @@ const executeRetry = async (
     state.lastActivity = Date.now();
   }
 
-  if (state.exhausted) return;
-
   let attempt = state.attempt;
   let success = false;
 
   while (attempt < config.maxRetries && !success) {
     const delay = calculateBackoff(attempt, config.baseDelayMs, config.maxDelayMs);
 
-    let currentModel = state.originalModel;
-    if (attempt >= 1 && config.nextModel) {
-      currentModel = currentModel === config.nextModel ? state.originalModel : config.nextModel;
-    }
-    state.model = currentModel;
+    state.model = model;
     state.attempt = attempt;
     state.lastActivity = Date.now();
 
@@ -371,15 +394,28 @@ const executeRetry = async (
 
     logDebug(
       ctx.client,
-      `Retry ${attempt + 1}/${config.maxRetries} ${sessionID} delay=${delay}ms model=${currentModel}`,
+      `Retry ${attempt + 1}/${config.maxRetries} ${sessionID} delay=${delay}ms model=${model ? `${model.providerID}/${model.modelID}` : 'default'}`,
       config,
     );
 
     await new Promise<void>((r) => setTimeout(r, delay));
 
     try {
-      await ctx.client.session.revert({ path: { id: sessionID }, body: {} });
-      logDebug(ctx.client, `Revert OK ${sessionID}`, config);
+      let partialIdx = -1;
+      for (let i = messagesData.length - 1; i >= 0; i--) {
+        if (messagesData[i].info?.role === 'assistant' && !messagesData[i].info?.time?.completed) {
+          partialIdx = i;
+          break;
+        }
+      }
+
+      if (partialIdx >= 0) {
+        const partialMsg = messagesData[partialIdx];
+        await ctx.client.session.revert({ path: { id: sessionID }, body: { messageID: partialMsg.info.id } });
+        logDebug(ctx.client, `Revert OK ${sessionID} (messageID: ${partialMsg.info.id})`, config);
+      } else {
+        logDebug(ctx.client, `No partial assistant found for ${sessionID}, skipping revert`, config);
+      }
     } catch (revertErr) {
       const msg = extractError(revertErr);
       logDebug(ctx.client, `Revert failed ${sessionID}: ${msg}`, config);
@@ -390,9 +426,11 @@ const executeRetry = async (
     }
 
     try {
+      const body: any = { parts: lastUserParts };
+      if (model) body.model = model;
       await ctx.client.session.prompt({
         path: { id: sessionID },
-        body: { parts: lastUserParts, model: currentModel },
+        body,
       });
 
       success = true;
