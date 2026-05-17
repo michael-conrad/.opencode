@@ -1,6 +1,6 @@
 ---
 name: adversarial-audit
-description: "Use when running adversarial audits of specs, plans, or code. Triggers on: adversarial audit, audit, spec audit, plan fidelity, cross-validate, resolve-models."
+description: "Use when running adversarial audits of specs, plans, or code. Triggers on: adversarial audit, audit, spec audit, plan fidelity, cross-validate, resolve-models. Una audited work carries undiscovered defects. Audits are not optional — they are how trustworthy work is verified."
 license: MIT
 ---
 

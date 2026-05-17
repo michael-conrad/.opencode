@@ -1,6 +1,6 @@
 ---
 name: engineering-approach
-description: Use when implementing a spec, or when design, verification, and scope discipline are needed. Triggers on: implement, build, develop, engineering checklist, design before code, verify before complete.
+description: Use when implementing a spec, or when design, verification, and scope discipline are needed. Triggers on: implement, build, develop, engineering checklist, design before code, verify before complete. Engineering is not typing — it is design, verify, and discipline. Agents who skip this produce fragile systems.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

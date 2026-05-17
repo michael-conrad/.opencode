@@ -1,6 +1,6 @@
 ---
 name: spec-creation
-description: Use when creating a spec or writing a specification. Triggers on: create spec, write spec, spec creation, spec writing, structure spec, specification.
+description: Use when creating a spec or writing a specification. Triggers on: create spec, write spec, spec creation, spec writing, structure spec, specification. Writing code without a spec is guesswork. Professional engineers spec first.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
