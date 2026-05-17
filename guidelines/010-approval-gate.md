@@ -67,8 +67,9 @@ An approved spec auto-approves a faithful plan. This prevents redundant authoriz
 
 | Mandate Level | Example | Overridable By |
 |--------------|---------|----------------|
-| Tier 1 | No direct pushes to main, human-only merge | Never — safety-critical |
-| Tier 2 | Approval gate, branch naming | Explicit developer authorization |
+| Tier 1 (Safety-Critical) | No direct pushes to main, human-only merge | Never — safety-critical |
+| Tier 2 (Process-Integrity) | Approval gate, branch naming | Explicit developer authorization |
+| Tier 3 (Workflow-Standard) | Numbering conventions, tool selection | Flag only — no halt |
 | Developer override | User says "approved" or "go" | Only applies to Tier 2 |
 
 #### Decision Table: Authorization + File Modifications
@@ -245,10 +246,11 @@ The `for_analysis` scope is the default floor scope when no authorization is giv
 | Conditional audit fix → requires separate authorization | approval-gate-009 |
 
 ```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+schema_version: "3.0"
+last_updated: "2026-05-17T00:00:00Z"
 rules:
   - id: approval-gate-001
+    tier: 2
     title: "No implementation without authorization"
     conditions:
       all:
@@ -258,6 +260,7 @@ rules:
     source: "010-approval-gate.md §Tier0"
 
   - id: approval-gate-001a
+    tier: 2
     title: "Spec approval authorizes plan creation, not implementation"
     conditions:
       all:
@@ -265,11 +268,13 @@ rules:
         - "has_approved_plan == false"
         - "has_existing_plan == false"
     actions:
+      - HALT
       - CALL(writing-plans)
     requires: [approval-gate-001]
     source: "010-approval-gate.md §Tier0"
 
   - id: approval-gate-001a-cascade
+    tier: 2
     title: "Spec approval cascades to existing faithful plan"
     conditions:
       all:
@@ -277,31 +282,37 @@ rules:
         - "has_existing_plan == true"
         - "plan_is_faithful == true"
     actions:
+      - HALT
       - AUTO_APPROVE(plan)
       - PROCEED_TO(implementation)
     requires: [approval-gate-001]
     source: "010-approval-gate.md §Spec-to-Plan Approval Cascade"
 
   - id: approval-gate-001b
+    tier: 2
     title: "Plan approval authorizes implementation"
     conditions:
       all:
         - "has_approved_plan == true"
     actions:
+      - HALT
       - CALL(executing-plans)
     source: "010-approval-gate.md §Tier0"
 
   - id: approval-gate-002
+    tier: 2
     title: "Explicit authorization applies approved-for-* label"
     conditions:
       any:
         - "user_says == 'approved'"
         - "user_says == 'go'"
     actions:
+      - HALT
       - PROCEED
     source: "010-approval-gate.md §Explicit Authorization Priority"
 
   - id: approval-gate-003
+    tier: 2
     title: "No authorization without user input"
     conditions:
       all:
@@ -312,16 +323,18 @@ rules:
     source: "010-approval-gate.md §Explicit Authorization Priority"
 
   - id: approval-gate-004
+    tier: 3
     title: "Branch first before any file modification"
     conditions:
       all:
         - "has_feature_branch == false"
     actions:
-      - HALT
+      - FLAG
     source: "010-approval-gate.md §Mandatory Requirements"
 
   - id: approval-gate-005
-    title: "Agents must never merge PRs"
+    tier: 1
+    title: "CRITICAL VIOLATION — Agents must never merge PRs"
     conditions:
       all:
         - "is_agent == true"
@@ -330,17 +343,20 @@ rules:
     source: "010-approval-gate.md §Mandatory Requirements"
 
   - id: approval-gate-006
+    tier: 2
     title: "Spec revision revokes linked plan approvals"
     conditions:
       all:
         - "spec_revised == true"
         - "has_linked_plan == true"
     actions:
+      - HALT
       - REVOKE(plan_approval)
       - RUN(re-implementation-workflow)
     source: "010-approval-gate.md §Revision Revokes Approval"
 
   - id: approval-gate-008
+    tier: 2
     title: "Audit auto-fix exempt from authorization when conditions met"
     conditions:
       all:
@@ -349,10 +365,12 @@ rules:
         - "fix_target == 'github-issue-body'"
         - "fix_non_substantive == true"
     actions:
+      - HALT
       - PROCEED
     source: "010-approval-gate.md §Audit Auto-Fix Exemption"
 
   - id: approval-gate-009
+    tier: 2
     title: "Conditional audit fixes require authorization"
     conditions:
       all:
@@ -363,17 +381,20 @@ rules:
     source: "010-approval-gate.md §Audit Auto-Fix Exemption"
 
   - id: approval-gate-010
+    tier: 2
     title: "Pipeline-scoped authorization extends to scope horizon"
     conditions:
       all:
         - "authorization_scope != 'for_analysis'"
     actions:
+      - HALT
       - GAP_FILL(scope)
       - PROCEED_TO(halt_at)
       - HALT_AT(halt_at)
     source: "010-approval-gate.md §Authorization Scope Model"
 
   - id: approval-gate-011
+    tier: 2
     title: "Hard HALT at scope boundary without re-authorization"
     conditions:
       all:
@@ -383,21 +404,25 @@ rules:
     source: "010-approval-gate.md §Authorization Scope Model"
 
   - id: approval-gate-012
+    tier: 2
     title: "Unified pipeline path — no single-task exemption"
     conditions:
       all:
         - "has_approved_plan == true"
     actions:
+      - HALT
       - CALL(divide-and-conquer)
     source: "010-approval-gate.md §Unified Dispatch Path"
 
   - id: approval-gate-014
+    tier: 2
     title: "for_pr scope auto gap-fill — no halt for structural decisions"
     conditions:
       all:
         - "authorization_scope == 'for_pr'"
         - "agent_halted_for_structural_decision == true"
     actions:
+      - HALT
       - PROCEED_WITH_GAP_FILL
     source: "010-approval-gate.md §Authorization Scope Model"
 ```
