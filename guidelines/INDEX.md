@@ -37,3 +37,4 @@ Full guideline content for Tier 2+ is loaded on-demand by sub-agents. Tier 1 fil
 | `144-planning-spec-examples.md` | 2 | example, spec example, example structure | Spec examples |
 | `200-errors.md` | 2 | exception, error handling, missing data, null, logging, raise, domain exception | Error handling |
 | `210-scripting.md` | 2 | script, scripting, script header, shebang | Script creation |
+| `250-dark-prose-reference.md` | 2 | dark prose, prose pattern, confirmshaming, goal hijacking, agency-respecting, identity frame, dark pattern | Dark prose content creation |
