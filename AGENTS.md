@@ -112,7 +112,7 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 - `docs/`: Documentation and specifications
 - `.opencode/`: Skills, guidelines, and agent tools
   - `tools/`: Agent utility scripts (guidelines, md, memory, py, jupyter, etc.)
-  - `scripts/`: Session context scripts (session_context_identity.py, session_context_triggers.py)
+  - `scripts/`: Session context scripts (session_context_triggers.py)
   - `skills/`: Self-contained skills (no guideline dependencies)
   - `guidelines/`: Core zero-tolerance rules only
   - `hooks/`: Git hooks (auto-installed to .git/hooks/ by session-enforcement.ts at session start)
@@ -125,22 +125,21 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 
 ## Session Context
 
-Two plugins run at session start:
+One plugin runs at session start, and one script provides complementary data:
 
-1. **session-init** (`tools/session-init`): Emits session variables silently (owner, repo, platform, hooks)
-2. **session_context_identity.py** (`scripts/session_context_identity.py`): Emits identity section (owner, repo, platform, credentials) into system prompt
-3. **session_context_triggers.py** (`scripts/session_context_triggers.py`): Emits trigger warnings into first user message
+1. **session-init** (`tools/session-init`): Emits session variables silently (owner, repo, platform, hooks). **Canonical source for identity data including Sub-folder Repo Mappings.**
+2. **session_context_triggers.py** (`scripts/session_context_triggers.py`): Emits trigger warnings into first user message
 
 Session context output includes:
 
 - **Identity section** (always, in system prompt): `github.owner`, `github.repo`, `github.platform`, credential status
 - **Identity-echo directive** (always, in first user message): mandatory identity echo at session start
-- **Trigger alerts** (when detected, in first user message): `on_main_branch`, `protected_branch_with_changes`, `pair_mode_resume`, `uncommitted_work`, `stale_stash`, `merge_conflict`, `unpushed_commits`, `orphaned_worktrees`
+- **Trigger alerts** (when detected, in first user message): trigger warnings for special states
 - **Tier 3 probes** (opt-in via `.opencode-issue-probe`): `open_pr_on_branch`, `ci_failure`, `stale_pr`
 
 Credential status values: `verified` (token exists + API ping succeeds), `present` (token exists, liveness unchecked), `missing` (no token found), `stale` (token rejected by API), `unavailable` (platform unknown).
 
-- **Sub-folder repo mappings** (when `.gitmodules` exists): `submodule_path: owner/repo (platform)` — files under submodule paths belong to separate repos; use the mapped `owner/repo` for API calls targeting those paths
+- **Sub-folder repo mappings** (when `.gitmodules` exists): `submodule_path: owner/repo (platform)` — files under submodule paths belong to separate repos; use the mapped `owner/repo` for API calls targeting those paths. Emitted by `session-init` (canonical source).
 
 ---
 
