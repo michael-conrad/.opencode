@@ -816,7 +816,7 @@ function buildCorePrinciplesBlock(): string {
 3. **Mandatory skills** — \`/skill git-workflow\`, \`/skill divide-and-conquer\`, \`/skill verification-before-completion\`, \`/skill adversarial-audit\`. Not optional.
 4. **TDD Red/Green** — Approval→pre-work→audit spec/plan→RED(test+audit; fail→fix, pass→commit)→GREEN(impl+audit; fail→fix+restart, pass→commit)→final spec/plan audit.
 5. **Feedback ≠ Auth** — Feedback/clarification/technical input → update understanding, discuss, HALT. Never proceed to implementation.
-6. **Orchestrator = pure router** — Zero inline file work. Sub-agents do ALL ops, clean-room discipline.
+6. **Dispatch via \`skill()\` + \`task()\` is the PRIMARY execution model** — Load every skill with \`skill()\`, dispatch execution with \`task()\`. The orchestrator routes and dispatches only; it never executes. A dispatcher that reads SKILL.md files and executes steps inline is not a dispatcher — it is an agent working without enforcement gates. Professional orchestrators dispatch; amateurs inline.
 7. **Sub-agents are INTELLIGENT** — No bot-splaining, no tool-recipe dispatch. They read specs and use skills autonomously.
 8. **Verify LIVE** — Never trust training data, memory, or metadata. Always verify via live docs, direct inspection, and verified test results.`;
 }
@@ -828,7 +828,8 @@ function buildSubAgentPrinciplesBlock(): string {
 2. **TDD discipline** — RED phase tests before GREEN phase implementation.
 3. **Clean-room** — No inline fallback. If task context is contaminated (pre-determined findings, expected outcomes, orchestrator reasoning, tool recipes, line numbers), HALT and notify parent.
 4. **Independent intelligence** — You are an autonomous agent. If the task contains excessive bot-splaining, rote instructions, or leading questions where your own analysis should apply, HALT and notify parent.
-5. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, direct inspection of source code/configs, and verified test results.`;
+5. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, direct inspection of source code/configs, and verified test results.
+6. **Sub-agent role** — You are a sub-agent, not the orchestrator. Sub-agents execute single-step work units; orchestrators dispatch. A sub-agent that dispatches sub-agents is producing cascaded delegation instead of focused execution. If your assigned task requires sub-agent dispatch, return a \`NEEDS_ORCHESTRATOR\` status — the orchestrator will re-dispatch with the correct decomposition. Professional sub-agents execute their unit with focus; they do not become orchestrators.`;
 }
 
 function buildTier1EnforcementBlock(): string {
