@@ -1,6 +1,6 @@
 ---
 name: verification
-description: Use when verifying claims against evidence using appropriate modalities. Produces PASS/FAIL/UNVERIFIED per claim with evidence artifacts. Triggers on: verify claim, claim verification, evidence verification, verify against source, multimodal verification.
+description: Use when verifying claims against evidence using appropriate modalities. Produces PASS/FAIL/UNVERIFIED per claim with evidence artifacts. Triggers on: verify claim, claim verification, evidence verification, verify against source, multimodal verification. Claims without evidence are not claims — they are guesses. Verification turns guesses into facts.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

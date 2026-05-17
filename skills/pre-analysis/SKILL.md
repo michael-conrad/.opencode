@@ -1,6 +1,6 @@
 ---
 name: pre-analysis
-description: Use when task()ing any execution sub-agent to independently determine scope. Triggers on: pre-analysis, pre-analyze, task analysis, scope discovery.
+description: Use when task()ing any execution sub-agent to independently determine scope. Triggers on: pre-analysis, pre-analyze, task analysis, scope discovery. Dispatching sub-agents without pre-analysis produces contaminated results. Pre-analysis before dispatch is what reliable orchestrators do.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

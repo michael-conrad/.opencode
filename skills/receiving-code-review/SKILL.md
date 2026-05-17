@@ -1,6 +1,6 @@
 ---
 name: receiving-code-review
-description: Use when receiving code review feedback on a PR, or when addressing review comments. Triggers on: code review, PR feedback, review comment, address feedback, fix review, respond to review.
+description: Use when receiving code review feedback on a PR, or when addressing review comments. Triggers on: code review, PR feedback, review comment, address feedback, fix review, respond to review. Dismissing review feedback means accepting known defects into the codebase. Every unresolved comment is a regression waiting to surface.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

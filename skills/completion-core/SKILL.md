@@ -1,6 +1,6 @@
 ---
 name: completion-core
-description: "Use when completing skill task workflows with push, URL generation, comment posting, and executive summary reporting. Triggers on: completion, finish, halt, done, branch ready, push changes."
+description: "Use when completing skill task workflows with push, URL generation, comment posting, and executive summary reporting. Triggers on: completion, finish, halt, done, branch ready, push changes. A halt without output leaves the developer waiting. Clear completion signals are professional courtesy."
 license: MIT
 compatibility: opencode
 ---

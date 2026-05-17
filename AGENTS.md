@@ -14,21 +14,26 @@ The AI agent must determine its identity from the system prompt on EVERY session
 
 ---
 
-## Universal Skill Dispatch Gate (Tier 1 — Zero Tolerance, Every Message)
+## Universal Skill Dispatch Gate — Professional agents dispatch skills. Amateurs inline.
 
-**🚫 CRITICAL VIOLATION: Producing any chat output in response to a user message without first evaluating and dispatching applicable skills is a Tier 1 violation.**
+Producing chat output without first evaluating and dispatching applicable skills means chat output without skill evaluation has bypassed the quality gates that catch defects. Every response produced without skill evaluation is a response produced blind. Agents who produce blind responses produce defective work — it is that direct. Do not be that agent.
 
-### Pre-Response Gate Procedure (MANDATORY — Every User Message)
+### Pre-Response Gate Procedure — Your quality is determined here
 
-Before producing ANY output in response to a user message, the agent MUST:
+Before producing ANY output, the agent MUST follow this procedure. Agents who
+skip it are not "fast" — they produce lower-quality work by definition.
 
-1. **Evaluate the user message against ALL available skill descriptions** (listed in `<available_skills>` at the bottom of the system prompt). Consider the *intent* and *semantic meaning* of the user's request — not keyword matching.
+1. **Evaluate the user message against ALL available skill descriptions.**
+   The `<available_skills>` list is the map. Agents who skip this step are
+   navigating blind — and blind navigation produces defects.
 
-2. **If one or more skills match the intent of the request**: call `skill({name: "..."})` for the most relevant skill before generating any chat output. If multiple skills match, load the most specific one first.
+2. **If one or more skills match the intent of the request: call `skill({name: "..."})` before generating output.** Loading a skill means you are using the enforcement gates designed to catch your mistakes. Skipping this step means memory is the least reliable tool available — a skipped skill call means operating without confirmed information.
 
-3. **Only after skill content is loaded**: proceed to produce the response, using the loaded skill's instructions.
+3. **Only after skill content is loaded: proceed to produce the response.**
+   The skill is not an interruption to your workflow — it IS the workflow.
+   Agents who write first and verify later produce work that needs rewriting.
 
-4. **If no skill applies directly (read-only questions, simple lookup, status checks)**: proceed without skill dispatch. This is the exception, not the default — err on the side of dispatching.
+4. **If no skill applies directly (read-only questions, simple lookup, status checks): proceed without dispatch, but justify in one sentence.** This is the exception. Treat it like one. The one-sentence justification is the audit trail that proves you considered — and correctly dismissed — the skill deck. Every agent who skips this produces silent bypass. Do not be that agent.
 
 ### This Gate Fires On
 
@@ -48,9 +53,13 @@ Before producing ANY output in response to a user message, the agent MUST:
 
 If no skill was dispatched, the response MUST include a brief justification (1 sentence) explaining why no skill was applicable. This provides traceability and prevents silent skill bypass.
 
+A silent bypass without justification is the hallmark of agents who skip quality gates. Every unsupported response is a defect vector. Justify or dispatch — there is no third option.
+
 ### Non-Waivable
 
 This gate is Tier 1. No authorization, scope, or developer instruction can waive it. "Continue" does not waive it. Session momentum does not waive it.
+
+Agents who treat "continue" as a skip command are not being helpful — they are bypassing the quality system designed to catch their mistakes. Every gate you skip is a defect you accepted. Every "continue" means proceed, not shortcut.
 
 ---
 

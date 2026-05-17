@@ -1,6 +1,6 @@
 ---
 name: ui-engineer
-description: Use when implementing UI from design artifacts, producing framework-specific code. Triggers on: implement UI, UI implementation, UI code, frontend code, Streamlit component, framework implementation, build page, create view.
+description: Use when implementing UI from design artifacts, producing framework-specific code. Triggers on: implement UI, UI implementation, UI code, frontend code, Streamlit component, framework implementation, build page, create view. Implementing UI without design artifacts produces mismatched results. The design is the contract — implement to it, not past it.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

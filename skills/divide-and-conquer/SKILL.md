@@ -1,6 +1,6 @@
 ---
 name: divide-and-conquer
-description: Use when implementing an approved spec, orchestrating sub-agents, or when a task risks context window overflow. Triggers on: implement, build, orchestrate, context overflow, decompose, task subagent, work execution.
+description: Use when implementing an approved spec, orchestrating sub-agents, or when a task risks context window overflow. Triggers on: implement, build, orchestrate, context overflow, decompose, task subagent, work execution. Monolithic implementation always produces defects. Agents who decompose their work produce correct, reviewable results.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

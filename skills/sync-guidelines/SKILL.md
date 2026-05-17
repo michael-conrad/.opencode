@@ -1,6 +1,6 @@
 ---
 name: sync-guidelines
-description: Use when synchronizing guidelines, skills, or tools between repositories. Triggers on: sync guidelines, cross-repo sync, guideline update, skill update, multi-repo, consistency between repos.
+description: Use when synchronizing guidelines, skills, or tools between repositories. Triggers on: sync guidelines, cross-repo sync, guideline update, skill update, multi-repo, consistency between repos. Stale cross-repo guidelines create contradictory agent behavior. Sync is maintenance, not overhead.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

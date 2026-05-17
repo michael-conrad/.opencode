@@ -1,6 +1,6 @@
 ---
 name: sre-runbook
-description: "Use when generating operational runbooks for infrastructure incidents or procedures. Triggers on: runbook, SRE, on-call, incident, outage, escalation, playbook, procedure, operation, diagnose, troubleshoot, debug"
+description: "Use when generating operational runbooks for infrastructure incidents or procedures. Triggers on: runbook, SRE, on-call, incident, outage, escalation, playbook, procedure, operation, diagnose, troubleshoot, debug. Runbooks written during incidents are incomplete. SRE discipline produces procedures that survive the next on-call."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
