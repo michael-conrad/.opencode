@@ -374,7 +374,14 @@ print(json.dumps(output, indent=2))
 " 
 }
 
-BEHAVIORAL_MODEL_POOL=("opencode/big-pickle" "opencode/minimax-m2.5-free" "opencode/nemotron-3-super-free")
+# Source ollama_models() from with-test-home for dynamic model population
+_HELPERS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$_HELPERS_DIR/../with-test-home" 2>/dev/null || true
+mapfile -t BEHAVIORAL_MODEL_POOL < <(ollama_models 2>/dev/null || true)
+# Fallback to empty array if ollama unavailable
+if [ ${#BEHAVIORAL_MODEL_POOL[@]} -eq 0 ]; then
+    echo "WARNING: ollama_models() returned no models — BEHAVIORAL_MODEL_POOL will be empty" >&2
+fi
 
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
