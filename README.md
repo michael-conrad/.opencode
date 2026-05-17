@@ -76,7 +76,7 @@ Self-contained modules with YAML frontmatter for self-discovery:
 
 | Tool | Purpose |
 |------|---------|
-| `session-init` | Emit session context (owner, repo, platform) |
+| `session-init` | Emit session context (owner, repo, platform). **Canonical source for identity data including Sub-folder Repo Mappings.** |
 | `guidelines` | Guideline management |
 | `md` | Markdown utilities |
 | `py` | Python utilities |
@@ -96,7 +96,6 @@ Self-contained modules with YAML frontmatter for self-discovery:
 
 | Script | Purpose |
 |--------|---------|
-| `session_context_identity.py` | Identity section generation |
 | `session_context_triggers.py` | Trigger warning generation |
 | `validate-release-tags.sh` | Release tag validation |
 | `validate-submodule-refs.sh` | Submodule reference validation |

@@ -196,7 +196,7 @@ SCENARIOS["local-only-trigger-function"]="Does .opencode/scripts/session_context
 SCENARIOS["local-only-trigger-directive"]="Does .opencode/scripts/session_context_triggers.py contain a build_local_only_repo_directive function that emits a LOCAL_ONLY_REPO directive?"
 SCENARIOS["wrong-api-routing-violation"]="Does .opencode/guidelines/000-critical-rules.md contain a critical violation section titled 'Wrong API Routing for Submodule/Sub-folder Repos'?"
 SCENARIOS["wrong-api-routing-yaml-rule"]="Does .opencode/guidelines/000-critical-rules.md yaml+symbolic block contain rule critical-rules-036 titled 'Wrong API routing for submodule/sub-folder repos'?"
-SCENARIOS["wrong-api-routing-subfolder-mapping"]="Does .opencode/scripts/session_context_identity.py emit a Sub-folder Repo Mappings section when .gitmodules exists?"
+SCENARIOS["wrong-api-routing-subfolder-mapping"]="Does tools/session-init emit a Sub-folder Repo Mappings section when .gitmodules exists?"
 SCENARIOS["dispatch-gate-checkpoint"]="Does .opencode/guidelines/000-critical-rules.md contain a subsection titled 'DISPATCH_GATE Checkpoint' that mandates an explicit dispatch gate after every routing decision?"
 SCENARIOS["orchestrator-context-audit"]="Does .opencode/skills/approval-gate/enforcement/work-state-schema.md contain an Orchestrator Context Audit section with fields skill_files_loaded, issues_read_inline, git_commands_inline, sub_agent_dispatches, and inline_work_detected?"
 SCENARIOS["inline-work-dispatch-gate"]="Does .opencode/guidelines/000-critical-rules.md contain a DISPATCH_GATE Checkpoint section that is FORBIDDEN from loading SKILL.md routing sections and performing tasks inline?"
@@ -486,7 +486,7 @@ FILE_SCENARIO_MAP[".opencode/skills/issue-review/"]="analyze-and-spec-red-gate"
 FILE_SCENARIO_MAP[".opencode/skills/ui-engineer/"]="ui-engineer-red-gate"
 FILE_SCENARIO_MAP[".opencode/skills/session-enforcement.ts"]="identity-echo-validation secret-exfiltration-violation read-secrets-in-output dev-edit-guard-plugin dev-edit-guard-pair-mode"
 FILE_SCENARIO_MAP[".opencode/plugins/session-enforcement.ts"]="identity-echo-validation secret-exfiltration-violation dev-edit-guard-plugin dev-edit-guard-pair-mode sub-agent-session-detection sub-agent-injection-gating sub-agent-operational-guards-unconditional"
-FILE_SCENARIO_MAP[".opencode/scripts/session_context_identity.py"]="identity-echo-validation wrong-api-routing-subfolder-mapping"
+FILE_SCENARIO_MAP[".opencode/tools/session-init"]="identity-echo-validation wrong-api-routing-subfolder-mapping"
 FILE_SCENARIO_MAP[".opencode/guidelines/117-session-trigger-behavior.md"]="stash-trigger-guideline-reference"
 FILE_SCENARIO_MAP["AGENTS.md"]="agents-md-incremental"
 
@@ -1404,18 +1404,7 @@ else
     OVERALL_PASS=false
 fi
 
-# session_context_identity.py separates Repository Hosting from Target API credentials
-IDENTITY_SCRIPT="$PROJECT_DIR/.opencode/scripts/session_context_identity.py"
-TARGET_API=$(grep -c "Target API\|Repository Hosting" "$IDENTITY_SCRIPT" 2>/dev/null || echo "0")
-if [ "$TARGET_API" -ge 1 ]; then
-    echo "  session_context_identity.py Target API separation: FOUND"
-    echo "- **session_context_identity.py Target API separation:** FOUND" >> "$RESULTS_FILE"
-else
-    echo "  session_context_identity.py Target API separation: MISSING"
-    echo "- **session_context_identity.py Target API separation:** MISSING" >> "$RESULTS_FILE"
-    GUIDELINE_PASS=false
-    OVERALL_PASS=false
-fi
+# (removed: session_context_identity.py was deleted per spec #630 Item C)
 
 # RED Phase Gate in executing-plans/tasks/start.md (Step 5.5)
 EXEC_PLANS_START="$PROJECT_DIR/.opencode/skills/executing-plans/tasks/start.md"

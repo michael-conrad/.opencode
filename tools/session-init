@@ -23,7 +23,7 @@ Canonical session-init variable names (dotted, LLM context):
 github.owner, github.repo, github.platform, github.identity_source, github.html_url,
 gitbucket.owner, gitbucket.repo, gitbucket.html_url, gitbucket.ssh_url,
 gitbucket.has_credentials, srclight.project, dev.name, dev.email,
-branch, worktree.path, worktree.fatal, AgentName, ModelId
+branch, worktree.path, worktree.fatal
 
 Canonical env-loader variable names (UPPER_CASE, bash environment — separate pipeline):
 GIT_OWNER, GIT_REPO, GIT_PLATFORM, GITHUB_HTML_URL, GITBUCKET_HTML_URL,
@@ -266,6 +266,43 @@ def get_submodule_dirs() -> list[str]:
         if len(parts) >= 2:
             paths.append(parts[-1])
     return paths
+
+
+def emit_subfolder_mappings() -> None:
+    """Emit sub-folder repo mappings in YAML format."""
+    submodules = get_submodule_dirs()
+    if not submodules:
+        return
+
+    lines: list[str] = []
+    for sm_path in submodules:
+        url = run_git_command(["-C", sm_path, "remote", "get-url", "origin"])
+        if not url:
+            continue
+
+        if is_github_remote(url):
+            owner, repo = parse_git_remote_url(url)
+            if not owner or not repo:
+                continue
+            platform = "github"
+        else:
+            _base_url, owner, repo = parse_gitbucket_url(url)
+            if not owner or not repo:
+                continue
+            platform = "gitbucket"
+
+        lines.append(f"  - path: {sm_path}")
+        lines.append(f"    owner: {owner}")
+        lines.append(f"    repo: {repo}")
+        lines.append(f"    platform: {platform}")
+
+    if not lines:
+        return
+
+    print("## Sub-folder Repo Mappings")
+    print("submodules:")
+    for line in lines:
+        print(line)
 
 
 def get_source_hooks_dir() -> str | None:
@@ -737,8 +774,6 @@ def main() -> int:
     print(f"github.repo: {repo}")
     print(f"github.platform: {platform}")
     print(f"github.identity_source: {identity_source}")
-    print("AgentName: ")
-    print("ModelId: ")
     print(f"dev.name: {user_name}")
     print(f"dev.email: {user_email}")
     print(f"branch: {current_branch}")
@@ -800,6 +835,7 @@ def main() -> int:
     for problem in guard_problems:
         print(problem)
 
+    emit_subfolder_mappings()
     return 0
 
 

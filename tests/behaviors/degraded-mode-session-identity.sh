@@ -1,12 +1,14 @@
 #!/bin/bash
 # Behavioral Enforcement Test: Degraded-Mode Session Identity
 #
-# Verifies that session-init and session_context_identity.py do NOT exit 1
+# Verifies that session-init does NOT exit 1
 # when a repo has no git remote. Instead, they should emit degraded-mode
 # identity (github.platform: local, github.identity_source: none) and exit 0.
 #
 # RED state: These scripts currently exit 1 when no remote is configured.
 # After implementation, they should exit 0 with degraded-mode output.
+#
+# Includes SC-4d: session-init handles degraded (no remote) mode without crashing.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
@@ -89,21 +91,7 @@ else
     OVERALL_RESULT=1
 fi
 
-# Test 4: session_context_identity.py exits 0 when no remote
-echo "--- Test 4: session_context_identity.py exits 0 with no remote ---"
-IDENTITY_SCRIPT=$(resolve_tool "scripts/session_context_identity.py")
-if [ -z "$IDENTITY_SCRIPT" ] || [ ! -f "$IDENTITY_SCRIPT" ]; then
-    echo "SKIP: session_context_identity.py not found"
-else
-    ID_OUTPUT=$(cd "$TEST_REPO" && uv run "$IDENTITY_SCRIPT" 2>/dev/null) || ID_EXIT=$?
-    ID_EXIT=${ID_EXIT:-0}
-    if [ "$ID_EXIT" -eq 0 ]; then
-        echo "PASS: session_context_identity.py exits 0 when no remote (got $ID_EXIT)"
-    else
-        echo "FAIL: session_context_identity.py exits $ID_EXIT when no remote (expected 0)"
-        OVERALL_RESULT=1
-    fi
-fi
+# (Test 4 removed: session_context_identity.py was deleted per spec #630 Item C)
 
 # Test 5: session_context_triggers.py exits 0 when no remote
 echo "--- Test 5: session_context_triggers.py exits 0 with no remote ---"
@@ -119,6 +107,17 @@ else
         echo "FAIL: session_context_triggers.py exits $TR_EXIT when no remote (expected 0)"
         OVERALL_RESULT=1
     fi
+fi
+
+# SC-4d: session-init handles degraded mode without crashing
+echo "--- Test 6: session-init handles degraded mode without crash (SC-4d) ---"
+# Run session-init with a --dry-run or just verify it doesn't hang/crash
+# We already have OUTPUT and EXIT_CODE from Test 1 — this is a repeat for SC-4d labeling
+if [ "$EXIT_CODE" -eq 0 ]; then
+    echo "PASS: session-init handles degraded mode without crash (exit $EXIT_CODE)"
+else
+    echo "FAIL: session-init crash in degraded mode (exit $EXIT_CODE) (SC-4d RED)"
+    OVERALL_RESULT=1
 fi
 
 # Cleanup
