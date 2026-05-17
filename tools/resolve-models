@@ -1,0 +1,131 @@
+#!/bin/bash
+# resolve-models — Select 2 auditors from different families for adversarial audit
+#
+# Usage:
+#   tools/resolve-models --orchestrator-model <model>
+#   tools/resolve-models --orchestrator-model <model> --excluded-pair <fam1>,<fam2>
+#   tools/resolve-models --orchestrator-model <model> --re-task
+#   tools/resolve-models --orchestrator-model <model> --test-insufficient-families
+#
+# Output (YAML):
+#   auditor_1: auditor-deepseek-v3
+#   auditor_2: auditor-mistral-large
+#   family_1: deepseek
+#   family_2: mistral
+#
+# Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+POOL_SCRIPT="$SCRIPT_DIR/../tests/qualification/qualified-auditor-pool.sh"
+
+ORCHESTRATOR_MODEL=""
+EXCLUDED_FAMILIES=""
+TEST_INSUFFICIENT=false
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --orchestrator-model)
+            ORCHESTRATOR_MODEL="$2"
+            shift 2
+            ;;
+        --excluded-pair)
+            EXCLUDED_FAMILIES="$2"
+            shift 2
+            ;;
+        --test-insufficient-families)
+            TEST_INSUFFICIENT=true
+            shift
+            ;;
+        --re-task)
+            shift
+            ;;
+        *)
+            echo "error: UNKNOWN_FLAG"
+            echo "reason: Unknown flag: $1"
+            echo "eligible_count: 0"
+            exit 1
+            ;;
+    esac
+done
+
+POOL_OUTPUT=$(bash "$POOL_SCRIPT")
+mapfile -t MODEL_ENTRIES < <(echo "$POOL_OUTPUT" | grep -v '^$' | grep -v '^#')
+
+declare -a MODEL_NAMES
+declare -A MODEL_TO_FAMILY
+declare -A MODEL_TO_AUDITOR
+
+for entry in "${MODEL_ENTRIES[@]}"; do
+    name="${entry%%:*}"
+    MODEL_NAMES+=("$name")
+
+    family=$(echo "$name" | sed -E 's/^([a-zA-Z]*).*/\1/' | tr '[:upper:]' '[:lower:]')
+    MODEL_TO_FAMILY["$name"]="$family"
+
+    stripped=$(echo "$name" | sed -E 's/\.[0-9]+$//' | sed -E 's/-[0-9]+$//')
+    MODEL_TO_AUDITOR["$name"]="auditor-$stripped"
+done
+
+if [[ -n "$ORCHESTRATOR_MODEL" ]]; then
+    ORCH_FAMILY="${ORCHESTRATOR_MODEL%%[-.]*}"
+    ORCH_FAMILY=$(echo "$ORCH_FAMILY" | tr '[:upper:]' '[:lower:]')
+else
+    ORCH_FAMILY=""
+fi
+
+declare -A FAMILIES
+for name in "${MODEL_NAMES[@]}"; do
+    fam="${MODEL_TO_FAMILY[$name]}"
+    if [[ -n "$ORCH_FAMILY" && "$fam" == "$ORCH_FAMILY" ]]; then
+        continue
+    fi
+    FAMILIES["$fam"]=1
+done
+
+if [[ -n "$EXCLUDED_FAMILIES" ]]; then
+    IFS=',' read -ra EXCLUDE_LIST <<< "$EXCLUDED_FAMILIES"
+    for excl in "${EXCLUDE_LIST[@]}"; do
+        unset "FAMILIES[$excl]"
+    done
+fi
+
+if [[ "$TEST_INSUFFICIENT" == true ]]; then
+    # Force error by clearing all families
+    for fam in "${!FAMILIES[@]}"; do
+        unset "FAMILIES[$fam]"
+    done
+fi
+
+ELIGIBLE_FAMILIES=("${!FAMILIES[@]}")
+if [[ "${#ELIGIBLE_FAMILIES[@]}" -lt 2 ]]; then
+    echo "error: INSUFFICIENT_FAMILIES"
+    echo "reason: Only ${#ELIGIBLE_FAMILIES[@]} eligible family(s) remain after exclusions, need at least 2"
+    echo "eligible_count: ${#ELIGIBLE_FAMILIES[@]}"
+    exit 1
+fi
+
+SELECTED_FAMILIES=($(shuf -e "${ELIGIBLE_FAMILIES[@]}" | head -2))
+
+FAMILY_1="${SELECTED_FAMILIES[0]}"
+FAMILY_2="${SELECTED_FAMILIES[1]}"
+
+declare -a FAM1_MODELS
+declare -a FAM2_MODELS
+for name in "${MODEL_NAMES[@]}"; do
+    fam="${MODEL_TO_FAMILY[$name]}"
+    if [[ "$fam" == "$FAMILY_1" ]]; then
+        FAM1_MODELS+=("$name")
+    elif [[ "$fam" == "$FAMILY_2" ]]; then
+        FAM2_MODELS+=("$name")
+    fi
+done
+
+chosen_1=$(shuf -e "${FAM1_MODELS[@]}" | head -1)
+chosen_2=$(shuf -e "${FAM2_MODELS[@]}" | head -1)
+
+echo "auditor_1: ${MODEL_TO_AUDITOR[$chosen_1]}"
+echo "auditor_2: ${MODEL_TO_AUDITOR[$chosen_2]}"
+echo "family_1: $FAMILY_1"
+echo "family_2: $FAMILY_2"

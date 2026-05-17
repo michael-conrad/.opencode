@@ -22,6 +22,16 @@
 
 set -euo pipefail
 
+# ollama_models — Output available model identifiers, excluding embedding models.
+ollama_models() {
+    local ollama_path
+    ollama_path="$(which ollama 2>/dev/null || true)"
+    if [ -z "$ollama_path" ]; then
+        return 0
+    fi
+    "$ollama_path" list 2>/dev/null | tail -n +2 | awk '{print $1}' | grep -viE 'embed|nomic|mxbai|e5' || true
+}
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$SCRIPT_DIR"
 while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do

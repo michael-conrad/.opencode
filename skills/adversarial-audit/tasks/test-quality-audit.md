@@ -147,6 +147,7 @@ recommendation: "<prose>"
 
 ## Cross-References
 
+- `resolve-models` task — auditor model resolution (adversarial-audit --task resolve-models)
 - `verification-before-completion/SKILL.md` — VbC artifact format
 - `spec-creation/tasks/write.md` — Step 4: Determinism Gate
 - `spec-creation/tasks/write.md` — SC verification methods

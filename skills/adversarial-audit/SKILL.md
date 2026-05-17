@@ -36,6 +36,10 @@ Sub-Agent Task Context Audit
 
 `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. All task contexts also include `worktree.path`.
 
+### Encapsulation Rules
+
+The resolve-models tool path is encapsulated by the task file — only the task file references the tool command directly. All other references use the task dispatch.
+
 ### Authorization Context
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
@@ -147,7 +151,7 @@ rules:
     title: "resolve-models is the ONLY authorized entry point for auditor resolution"
     conditions:
       all: ["auditor_resolution_attempted == true", "resolve_models_invoked == false"]
-    actions: [HALT, ROUTE_TO_RESOLVE_MODELS]
+    actions: [HALT, ROUTE_TO_RESOLVE_MODELS_TASK]
     source: "adversarial-audit/SKILL.md"
 
   - id: adversarial-audit-014

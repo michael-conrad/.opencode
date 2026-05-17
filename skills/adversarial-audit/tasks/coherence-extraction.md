@@ -164,6 +164,7 @@ write(baseline_path, json.dumps(baseline, indent=2))
 
 ## Cross-References
 
+- `resolve-models` task — auditor model resolution (adversarial-audit --task resolve-models)
 - `tasks/coherence-maintenance.md` — drift detection
 - `coherence-auditor/tasks/extract-scan.md` — original extraction logic
 - `coherence-auditor/tasks/extract-analyze.md` — original analysis logic
