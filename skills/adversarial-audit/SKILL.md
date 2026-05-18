@@ -53,6 +53,33 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 - Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
+### DISPATCH_GATE — Orchestrator Must Route, Never Execute Inline
+
+The orchestrator MUST NOT execute any audit operation directly. Every operation runs via clean-room sub-agent task().
+
+**Forbidden operations in orchestrator context:**
+
+| Operation | Forbidden Pattern | Correct Pattern |
+|-----------|------------------|-----------------|
+| `resolve-models` | `bash tools/resolve-models ...` inline | `task(subagent_type="general")` with `tasks/resolve-models.md` context |
+| Auditor dispatch | Tasking 1 `general` agent with full pipeline | 2 independent clean-room `task()` calls, one per auditor family |
+| Cross-validate | Including auditor dispatch logic in cross-validate task | `task(subagent_type="general")` with verdicts + criteria only |
+| Inline bash call | `bash tools/resolve-models --orchestrator-model ...` | Task resolve-models sub-agent, collect result contract |
+
+**Correct orchestration flow (indivisible unit):**
+
+```
+1. task(resolve-models sub-agent) → result contract {auditor_1, auditor_2, family_1, family_2}
+2. task(auditor_1 sub-agent, clean-room) → verdict JSON (deliverable + SCs only)
+3. task(auditor_2 sub-agent, clean-room) → verdict JSON (deliverable + SCs only)
+4. task(cross-validate sub-agent, verdicts + criteria) → consensus
+5. Orchestrator reports: final verdict, per-SC breakdown (PASS/FAIL/UNVERIFIED)
+```
+
+**Evidence gate:** Before proceeding past any step, verify the result contract has `status: DONE`. Empty or error results → re-task clean-room (max 2 retries), then BLOCKED.
+
+**Violation of this gate is a hard halt.** The orchestrator MUST NOT recover from inline work — the pipeline is poisoned per critical-rules-034 and MUST restart from verify-authorization.
+
 ## Cross-References
 
 Skills: `skill-creator`, `verification-enforcement`, `verification-before-completion`, `multimodal-dispatch`. Guidelines: `000-critical-rules.md`, `065-verification-honesty.md`, `060-tool-usage.md`. Spec: #381. Plan: #382.
@@ -216,6 +243,13 @@ rules:
       all: ["audit_iteration > 1", "resolve_models_called == false"]
     actions: [HALT, CALL(resolve-models)]
     source: "adversarial-audit/SKILL.md"
+
+  - id: adversarial-audit-023
+    title: "DISPATCH_GATE — orchestrator must task resolve-models sub-agent, never run inline bash"
+    conditions:
+      all: ["audit_pipeline_active == true", "orchestrator_runs_tools_resolve_models_inline == true"]
+    actions: [HALT, DISCARD_TAINTED_STATE, RESTART_FROM_VERIFY_AUTHORIZATION]
+    source: "adversarial-audit/SKILL.md §DISPATCH_GATE"
 ```
 
 Co-authored with AI: `<AgentName>` (`<ModelId>`)
