@@ -28,7 +28,7 @@ Verify PR/spec consistency before merge. Ensures PR description matches spec, al
 
 ```python
 pr = github_pull_request_read(method="get", owner=<owner>, repo=<repo>, pullNumber=<N>)
-spec = github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<M>)
+spec = issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<M>) <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 ### Step 2: Extract Spec Requirements

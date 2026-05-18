@@ -34,10 +34,10 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ### Step 1: Load Spec and Plan
 
-1. Read the spec issue via `github_issue_read(method="get", issue_number=<spec>)`
-2. Read the plan issue via `github_issue_read(method="get", issue_number=<plan>)`
-3. Read any sub-issue via `github_issue_read(method="get", issue_number=<sub_issue>)`
-4. Read all comments on the sub-issue: `github_issue_read(method="get_comments", issue_number=<sub_issue>)`
+1. Read the spec issue via `issue-operations -> read-issue (github_issue_read(method="get", issue_number=<spec>)` <!-- Routes through issue-operations per SPEC #683 -->
+2. Read the plan issue via `issue-operations -> read-issue (github_issue_read(method="get", issue_number=<plan>)` <!-- Routes through issue-operations per SPEC #683 -->
+3. Read any sub-issue via `issue-operations -> read-issue (github_issue_read(method="get", issue_number=<sub_issue>)` <!-- Routes through issue-operations per SPEC #683 -->
+4. Read all comments on the sub-issue: `issue-operations -> read-comments (github_issue_read(method="get_comments", issue_number=<sub_issue>)` <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Step 2: Load Relevant Skill Task Files
 

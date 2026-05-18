@@ -48,7 +48,7 @@ else:
 ### Step 3: Fetch Spec Issue
 
 ```python
-spec = github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=spec_issue)
+spec = issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=spec_issue) <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 ### Step 4: Verify Issue Closed
@@ -157,7 +157,7 @@ github.repo: {github.repo}
 
 ```python
 # Check for blocking comments
-comments = github_issue_read(method="get_comments", owner=<owner>, repo=<repo>, issue_number=spec_issue)
+comments = issue-operations -> read-comments (github_issue_read(method="get_comments", owner=<owner>, repo=<repo>, issue_number=spec_issue) <!-- Routes through issue-operations per SPEC #683 -->
 blocking_comments = [c for c in comments if "blocked" in c["body"].lower() or "blocker" in c["body"].lower()]
 
 if blocking_comments:
@@ -178,7 +178,7 @@ follow_up_issues = [int(m[0] or m[1]) for m in follow_up_matches]
 if follow_up_issues:
     # Verify follow-up issues exist and are open
     for issue_num in follow_up_issues:
-        follow_up = github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=issue_num)
+        follow_up = issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=issue_num) <!-- Routes through issue-operations per SPEC #683 -->
         if follow_up["state"] != "open":
             comparison["follow_up_issues"] = {
                 "issue": issue_num,

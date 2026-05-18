@@ -26,8 +26,8 @@ First gate of per-issue screening for pre-implementation analysis. Read issue bo
 Read the full issue body and all comments for the target issue.
 
 ```
-issue = github_issue_read(method="get", issue_number=<target>)
-comments = github_issue_read(method="get_comments", issue_number=<target>)
+issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=<target>) <!-- Routes through issue-operations per SPEC #683 -->
+comments = issue-operations -> read-comments (github_issue_read(method="get_comments", issue_number=<target>) <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 ### Step 2: Screening Categories Check
@@ -138,14 +138,14 @@ When a merged PR references the issue but not all success criteria are met:
 
 ### Step 3: Gate 1 — Sub-Issue Enumeration (MANDATORY for already-implemented candidates)
 
-**🚫 CRITICAL — ZERO TOLERANCE: Before classifying ANY issue as "already-implemented," the agent MUST call `github_issue_read(method=get_sub_issues)` for that issue. Skipping this gate is a CRITICAL GUIDELINE VIOLATION. If `get_sub_issues` is not called, the classification is INVALID.**
+**🚫 CRITICAL — ZERO TOLERANCE: Before classifying ANY issue as "already-implemented," the agent MUST call `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues)` for that issue. Skipping this gate is a CRITICAL GUIDELINE VIOLATION. If `get_sub_issues` is not called, the classification is INVALID.** <!-- Routes through issue-operations per SPEC #683 -->
 
 This gate ensures the agent cannot skip the sub-issue traversal. The section below describes what to check; this gate enforces that the check ACTUALLY HAPPENS.
 
 **Mandatory gate procedure — every candidate "already-implemented" issue MUST pass through ALL steps:**
 
-1. **ENUMERATE:** Call `github_issue_read(method=get_sub_issues, issue_number=<candidate>)` — no exceptions, no shortcuts
-2. **VERIFY EACH CHILD:** For EVERY sub-issue returned, call `github_issue_read(method=get, issue_number=<sub_issue_number>)` — do NOT trust cached state; verify against live GitHub API
+1. **ENUMERATE:** Call `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues, issue_number=<candidate>)` — no exceptions, no shortcuts <!-- Routes through issue-operations per SPEC #683 -->
+2. **VERIFY EACH CHILD:** For EVERY sub-issue returned, call `issue-operations -> read-issue (github_issue_read(method=get, issue_number=<sub_issue_number>)` — do NOT trust cached state; verify against live GitHub API <!-- Routes through issue-operations per SPEC #683 -->
 3. **CHECK CLOSURE LEGITIMACY:** For each closed sub-issue, search for merged PR evidence via `github_search_pull_requests(query=f"Fixes #{sub_issue_number} repo:{<github.owner>}/{<github.repo>}")`. If closed without merged PR and `state_reason != "not_planned"` → DOWNGRADE to "partially-implemented"
 4. **CHECK OPEN SUB-ISSUES:** If ANY sub-issue is open → the parent CANNOT be "already-implemented" — DOWNGRADE to "partially-implemented"
 5. **PRODUCE EVIDENCE:** Each sub-issue MUST produce a tool-call artifact showing its state was verified. Blanket assertions ("all sub-issues checked") WITHOUT per-sub-issue tool-call evidence are VERIFICATION-GAP findings
@@ -154,7 +154,7 @@ This gate ensures the agent cannot skip the sub-issue traversal. The section bel
 
 ```
 For each sub-issue of the candidate "already implemented" issue:
-  child = github_issue_read(method="get", issue_number=sub_issue_number)
+  child = issue-operations -> read-issue (github_issue_read(method="get", issue_number=sub_issue_number) <!-- Routes through issue-operations per SPEC #683 -->
 
   if child.state == "closed":
     state_reason = child.get("state_reason", "")
@@ -188,9 +188,9 @@ For each sub-issue of the candidate "already implemented" issue:
 
 #### Gate 1 Evidence Audit (GA-1)
 
-1. **Check sub-issue enumeration call:** Did you call `github_issue_read(method=get_sub_issues, issue_number=<candidate>)` during screening? If NO → STOP. Return to Step 3 and re-run Gate 1 before proceeding.
+1. **Check sub-issue enumeration call:** Did you call `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues, issue_number=<candidate>)` during screening? If NO → STOP. Return to Step 3 and re-run Gate 1 before proceeding. <!-- Routes through issue-operations per SPEC #683 -->
 
-2. **Check per-sub-issue evidence:** For EACH sub-issue returned by `get_sub_issues`, did you produce a tool-call artifact (`github_issue_read(method=get, issue_number=<sub>)`) verifying its state? If NO → STOP. Return to Step 3 and re-run Gate 1 verification.
+2. **Check per-sub-issue evidence:** For EACH sub-issue returned by `get_sub_issues`, did you produce a tool-call artifact (`issue-operations -> read-issue (github_issue_read(method=get, issue_number=<sub>)`) verifying its state? If NO → STOP. Return to Step 3 and re-run Gate 1 verification. <!-- Routes through issue-operations per SPEC #683 -->
 
 3. **Check closure legitimacy evidence:** For each closed sub-issue, did you search for merged PR evidence? If NO → STOP. Return to Step 3 and re-run Gate 1 closure legitimacy check.
 

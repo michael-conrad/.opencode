@@ -59,7 +59,7 @@ URL is ALWAYS last per `000-critical-rules.md`.
 |-------|-------------------|-----------|---------------|
 | "All commits pushed" | Verify no unpushed commits | `git diff @{u} HEAD` → check empty | VERIFICATION-GAP |
 | "Compare URL correct" | Verify URL uses correct base (dev) and session values | Verify URL string format | STRUCTURE-VIOLATION |
-| "Status comment posted" | Verify comment exists on issue | `github_issue_read(method=get_comments)` → search for byline | MISSING-ELEMENT |
+| "Status comment posted" | Verify comment exists on issue | `issue-operations -> read-comments (github_issue_read(method=get_comments)` → search for byline | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
 
 **Evidence artifact:** Git command output and/or GitHub MCP response confirming each claim.
 

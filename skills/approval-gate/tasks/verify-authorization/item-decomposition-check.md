@@ -14,7 +14,7 @@ Before implementation proceeds, verify that the plan includes item-level decompo
 ## Procedure
 
 ```
-plan_issue = github_issue_read(method="get", issue_number=plan_number)
+plan_issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=plan_number) <!-- Routes through issue-operations per SPEC #683 -->
 plan_body = plan_issue["body"]
 
 # Check for item enumeration

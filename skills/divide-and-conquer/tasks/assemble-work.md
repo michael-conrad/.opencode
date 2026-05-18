@@ -108,7 +108,7 @@ For each issue in execution order:
     pipeline_phase: <current_phase_name>
     authorization_source: "User approved #N on YYYY-MM-DD"
     prior_context: "<AI-composed intent and context from prior issues>"
-    decision_log_reference: "<URL or reference to the Decision Log on the Plan issue — the sub-agent can retrieve full decision history from this reference>"
+    decision_log_reference: "<issue number for .issues/ local storage — use `local-issues read-comments N` to retrieve full decision history>"
     phase_progress:
      completed_phases: "<prose listing of completed phases by concern name, accumulated from prior sub-agent results and Plan STATUS>"
      concern_boundaries_crossed: "<prose description of architectural concern transitions between the prior sub-agent's work and this sub-agent's work>"
@@ -172,17 +172,18 @@ For each issue in execution order:
 
    Both prior_context and phase_progress are prose-driven. The orchestrator composes them intelligently — no fixed template, no rigid schema.
 
-7. **Append the sub-agent's decision_log_entry to the Decision Log on the Plan issue.** After collecting each sub-agent's result, post their `decision_log_entry` as a dedicated GitHub Issue comment on the Plan issue. The Decision Log persists design decisions across phase boundaries and session restarts.
+7. **Append the sub-agent's decision_log_entry to the Decision Log in `.issues/` local storage.** After collecting each sub-agent's result, write their `decision_log_entry` to `.issues/` local storage using `local-issues comment N --body "..."`. Decision logs are classified as `internal` per the content classification gate — they contain agent reasoning, design analysis, and process metadata that persists locally for session-restart scenarios.
 
-**Decision Log storage:** Use a dedicated GitHub Issue comment on the Plan issue, NOT the Plan body. Rationale:
+**Decision Log storage:** Use `local-issues comment N --body "..."` to write to `.issues/<N>/comments.md`, NOT `issue-operations -> comment (github_add_issue_comment`. Rationale: <!-- Routes through issue-operations per SPEC #683 -->
 
-- Append-only — new decisions are added without editing existing content
-- Lightweight — appending a comment doesn't require re-editing the entire Plan body
-- Survives session restarts — comments persist on the GitHub Issue independently of any agent session
-- Doesn't bloat the Plan body — the Plan body stays focused on phase structure and STATUS markers
-- Sequential — comments are naturally ordered chronologically
+- **Content classification: `internal`** — decision logs contain agent reasoning and design analysis, not stakeholder-facing information (per Phase 1 classification gate)
+- **Session-surviving persistence** — `.issues/` comments persist across session restarts via git-tracked local storage, surviving where in-memory state would be lost
+- **Append-only** — `local-issues comment` appends to `comments.md` without editing existing content
+- **Lightweight** — appending a local comment doesn't require API calls or re-editing issue bodies
+- **Doesn't clutter GitHub** — internal decision logs do not belong on remote issues; `stakeholder`-classified content gets promoted via `local-issues sync push` when appropriate
+- **Survives session restarts** — `.issues/` is git-tracked and persists independently of any single agent session
 
-The orchestrator posts the decision log entry after each sub-agent returns. If posting fails, log the failure and continue — the Decision Log is a durability enhancement, not a blocking gate. The `decision_log_entry` is also returned in the sub-agent result for immediate use by subsequent task()s within the same session.
+The orchestrator writes the decision log entry after each sub-agent returns. If writing fails, log the failure and continue — the Decision Log is a durability enhancement, not a blocking gate. The `decision_log_entry` is also returned in the sub-agent result for immediate use by subsequent task()s within the same session.
 
 09. **Mark prior issue's branch as frozen** — no rebasing, amending, or force-pushing
 
@@ -421,7 +422,7 @@ assemble-work:
 08. **Intent-and-context metadata** — AI-composed, no fixed template, focus on why not what
 09. **Conflict resolution tiers** — auto-resolve 1-2, HALT on tier 3 during dependency merges
 10. **Always work mode** — single issue = work-of-1, no special-case path
-11. **Decision Log persistence** — after each sub-agent returns, append `decision_log_entry` as a dedicated GitHub Issue comment on the Plan issue. Decision Log uses comments (not body edits) for lightweight, append-only, session-surviving persistence
+11. **Decision Log persistence** — after each sub-agent returns, write `decision_log_entry` to `.issues/` local storage using `local-issues comment N --body "..."` (NOT `issue-operations -> comment (github_add_issue_comment`). Decision logs are classified `internal` per the content classification gate — they belong in local storage, not on remote issues <!-- Routes through issue-operations per SPEC #683 -->
 12. **Cleanup MUST call `skill()`** — `skill({name: "git-workflow", args: "--task cleanup"})` is the ONLY permitted invocation. No custom prompts, no inline task file reads, no generic sub-agent with step-by-step instructions. See critical-rules-048.
 
 ## Sub-Agent Task Audit
@@ -442,7 +443,7 @@ Co-authored with AI: <AgentName> (<ModelId>)
 | "Work state file exists" | Verify work state file in `./tmp/artifacts/` | `glob(pattern="./tmp/artifacts/work-*.md")` | MISSING-ELEMENT |
 | "All sub-agents returned" | Verify result contracts collected | Check for all expected result contracts | VERIFICATION-GAP |
 | "Branch merged into work branch" | Verify merge commit exists | `git log --oneline work-branch` → check merge messages | VERIFICATION-GAP |
-| "Decision log persisted" | Verify comment on Plan issue | `github_issue_read(method=get_comments)` → search for decision log | MISSING-ELEMENT |
+| "Decision log persisted" | Verify entry in `.issues/N/comments.md` | `local-issues read-comments N` → search for decision log | MISSING-ELEMENT |
 | "Authorization carries forward" | Verify work state contains auth context | Read work state file for auth section | STRUCTURE-VIOLATION |
 
 **Evidence artifacts:** See enforcement/work-state-verification.md §Evidence Artifacts

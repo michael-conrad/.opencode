@@ -132,9 +132,9 @@ SCOPE_LEVELS = {
 
 if scope_level >= SCOPE_LEVELS["for_plan"]:
     # Pipeline authorization covers plan approval
-    github_issue_write(method="update", issue_number=<plan>,
+    issue-operations -> update-issue (github_issue_write(method="update", issue_number=<plan>, <!-- Routes through issue-operations per SPEC #683 -->
                       labels=[l for l in plan_labels if l != "needs-approval"])
-    github_add_issue_comment(
+    issue-operations -> comment (github_add_issue_comment( <!-- Routes through issue-operations per SPEC #683 -->
         issue_number=<plan>,
         body=f"Plan auto-approved via pipeline scope (authorization_scope={scope})."
     )

@@ -35,7 +35,7 @@ def resolve_next_phase(issue_num, issue_body):
     Resolve 'next phase' to a specific phase number based on
     current completion state.
     """
-    sub_issues = github_issue_read(
+    sub_issues = issue-operations -> read-issue (github_issue_read( <!-- Routes through issue-operations per SPEC #683 -->
         method="get_sub_issues", issue_number=issue_num
     )
 
@@ -44,7 +44,7 @@ def resolve_next_phase(issue_num, issue_body):
 
     completed_phases = set()
     for sub in sub_issues:
-        sub_detail = github_issue_read(
+        sub_detail = issue-operations -> read-issue (github_issue_read( <!-- Routes through issue-operations per SPEC #683 -->
             method="get", issue_number=sub["number"]
         )
         if sub_detail.get("state") == "closed":

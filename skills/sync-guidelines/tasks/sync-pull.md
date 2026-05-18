@@ -37,10 +37,10 @@ Before creating pull issue:
 
 ### Step 4: Create Sync Issue
 
-Use `github_issue_write` to create an issue in source repository:
+Use `issue-operations → creation` to create an issue in source repository: <!-- Routes through issue-operations per SPEC #683 -->
 
 ```
-github_issue_write(
+issue-operations -> creation/update (github_issue_write( <!-- Routes through issue-operations per SPEC #683 -->
     method="create",
     owner=<source_owner>,
     repo=<source_repo>,

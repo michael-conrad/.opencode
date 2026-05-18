@@ -23,7 +23,7 @@ A file is **core** if it:
 
 Examples of core content:
 - `## Operating Protocol` — workflow definition
-- `git checkout`, `github_issue_write` — generic operations
+- `git checkout`, `issue-operations → creation/update` — generic operations <!-- Routes through issue-operations per SPEC #683 -->
 - `## Critical Requirements` — universal standards
 - Generic error handling, data integrity rules
 

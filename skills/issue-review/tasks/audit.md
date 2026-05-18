@@ -93,9 +93,9 @@ Format per `000-critical-rules.md`:
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
 | "adversarial-audit invoked" | Verify audit was actually performed (not just planned) | Check that adversarial-audit output/findings exist in context | VERIFICATION-GAP |
-| "Findings are current" | Verify no new comments or revisions since audit | `github_issue_read(method=get_comments)` → check timestamps after last audit | VERIFICATION-GAP |
-| "Triage classification is accurate" | Verify issue content matches triage label | `github_issue_read(method=get)` → re-read body, compare with triage call | CONFLICTING |
-| "Bug report has fix spec" | Verify via GitHub API, not cached sub-issue list | `github_issue_read(method=get_sub_issues)` → check children | MISSING-ELEMENT |
+| "Findings are current" | Verify no new comments or revisions since audit | `issue-operations -> read-comments (github_issue_read(method=get_comments)` → check timestamps after last audit | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
+| "Triage classification is accurate" | Verify issue content matches triage label | `issue-operations -> read-issue (github_issue_read(method=get)` → re-read body, compare with triage call | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
+| "Bug report has fix spec" | Verify via GitHub API, not cached sub-issue list | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues)` → check children | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
 
 **Evidence artifact:** Tool call results confirming audit invocation, recency, and classification accuracy.
 

@@ -32,6 +32,13 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 | `capabilities` | ≈150 | |
 | `completion` | ≈200 | |
 | `body-edit` | ≈200 | Edit remote.md body via 4-agent dispatch (fetch → transform → verify → post) — body edits without structural verification propagate corruption upstream; every remote edit requires verified integrity before propagation |
+| `read-issue` | ≈120 | Read single issue via dispatcher — routes to platform sub-skill, no direct `github_*` calls |
+| `read-comments` | ≈130 | Read issue comments via dispatcher — context completeness, all comments before action |
+| `read-labels` | ≈100 | Read issue labels via dispatcher — authorization scope verification |
+| `read-sub-issues` | ≈120 | Read sub-issues via dispatcher — authorization cascade and closure order verification |
+| `list-issues` | ≈130 | List issues with filters via dispatcher — dedup checks, label search, overlap detection |
+| `search-issues` | ≈130 | Search issues via dispatcher — title dedup, spec/plan overlap detection |
+| `update-issue` | ≈160 | Update issue body/labels/state via dispatcher — body-preservation safeguard enforced |
 
 ## Invocation
 
@@ -46,6 +53,13 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 | `link-sub-issue` | `task(..., prompt: "execute link-sub-issue task from issue-operations")` |
 | `verify-merge` | `task(..., prompt: "execute verify-merge task from issue-operations")` |
 | `completion` | `task(..., prompt: "execute completion task from issue-operations")` |
+| `read-issue` | `task(..., prompt: "execute read-issue task from issue-operations")` |
+| `read-comments` | `task(..., prompt: "execute read-comments task from issue-operations")` |
+| `read-labels` | `task(..., prompt: "execute read-labels task from issue-operations")` |
+| `read-sub-issues` | `task(..., prompt: "execute read-sub-issues task from issue-operations")` |
+| `list-issues` | `task(..., prompt: "execute list-issues task from issue-operations")` |
+| `search-issues` | `task(..., prompt: "execute search-issues task from issue-operations")` |
+| `update-issue` | `task(..., prompt: "execute update-issue task from issue-operations")` |
 
 **CLI equivalent (for human TUI use):** `/skill issue-operations --task <task>`
 
@@ -53,7 +67,7 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 
 1. **Platform routing:** `github.platform` → appropriate sub-skill (github-mcp / gitbucket-api / local).
 2. **Substantive comment gate:** only meaningful updates posted as issue comments. No status spam.
-3. **spec.md mirror:** every `github_issue_read(method="get")` mirrored to `.issues/<N>/spec.md`.
+3. **spec.md mirror:** every `issue-operations -> read-issue (github_issue_read(method="get")` mirrored to `.issues/<N>/spec.md`. <!-- Routes through issue-operations per SPEC #683 -->
 4. **Byline mandatory:** AI-authored comments must include `🤖 Co-authored with AI: <AgentName> (<ModelId>)`.
 5. **Issue creation = no auth needed** per `010-approval-gate.md`.
 6. **Adversarial-audit call:** after sub-issue creation, call `adversarial-audit --task concern-separation --issue <N>` with `audit_phase: sub_issue_creation`.
@@ -68,7 +82,7 @@ Skills: `github-mcp`, `gitbucket-api`, `local` (platform sub-skills), `adversari
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
+last_updated: "2026-05-18T00:00:00Z"
 rules:
   - id: issue-ops-001
     title: "Issue creation does not require authorization"
@@ -82,4 +96,11 @@ rules:
     conditions:
       all: ["ai_authored_comment == true", "byline_present == false"]
     actions: [APPEND_BYLINE]
+    source: "issue-operations/SKILL.md"
+
+  - id: issue-ops-003
+    title: "Issue read operations MUST route through dispatcher"
+    conditions:
+      all: ["issue_read_pending == true", "direct_github_call == true", "call_location_outside_platforms == true"]
+    actions: [HALT]
     source: "issue-operations/SKILL.md"

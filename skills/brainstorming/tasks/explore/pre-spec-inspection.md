@@ -54,7 +54,7 @@ Action: [auto-fix|conditional|flag-for-review]
 
 **Before exploring project context, search for open specs/plans that may overlap:**
 
-1. Query open issues: `github_list_issues(owner, repo, state="open")`
+1. Query open issues: `issue-operations -> list-issues (github_list_issues(owner, repo, state="open")` <!-- Routes through issue-operations per SPEC #683 -->
 2. Filter for specs/plans with `[SPEC]`, `[PLAN]`, `[SPEC-FIX]` prefixes
 3. Extract scope signals from user's request and compare
 

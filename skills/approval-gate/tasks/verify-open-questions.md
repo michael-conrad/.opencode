@@ -48,8 +48,8 @@ Adversarial verification model (evidence format, classification tiers, tier acti
 ### Verify Open Questions Against All Comments
 
 ```
-issue = github_issue_read(method="get", issue_number=N)
-comments = github_issue_read(method="get_comments", issue_number=N)
+issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+comments = issue-operations -> read-comments (github_issue_read(method="get_comments", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
 
 For each open question found in spec body:
   - Search ALL comments for answers or discussions resolving the question
@@ -59,7 +59,7 @@ For each open question found in spec body:
   - If no answer found in any comment → question is genuinely unresolved
 ```
 
-**Evidence artifact:** `github_issue_read(method=get_comments)` search results showing whether answers exist for each open question.
+**Evidence artifact:** `issue-operations -> read-comments (github_issue_read(method=get_comments)` search results showing whether answers exist for each open question. <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Verify Question Is Genuinely a Blocker
 
@@ -76,7 +76,7 @@ For each unresolved open question:
 ### Verify No New Questions in Comments
 
 ```
-comments = github_issue_read(method="get_comments", issue_number=N)
+comments = issue-operations -> read-comments (github_issue_read(method="get_comments", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
 
 - Check ALL comments for questions not listed in the spec's "Open Questions" section
 - Developer may have raised new questions in comments

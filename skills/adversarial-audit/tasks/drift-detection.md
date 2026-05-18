@@ -28,7 +28,7 @@ Detect drift between spec/code reality and expected state. Identifies cases wher
 
 Fetch spec issue and extract requirements:
 ```python
-spec = github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<N>)
+spec = issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<N>) <!-- Routes through issue-operations per SPEC #683 -->
 requirements = extract_requirements(spec["body"])
 ```
 

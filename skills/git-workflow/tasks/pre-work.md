@@ -38,8 +38,8 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 
 - `pycharm_replace_text_in_file` → edits files → MUST be on feature branch
 - `pycharm_create_new_file` → creates files → MUST be on feature branch
-- `github_issue_write` → GitHub Issues, NOT local files → NOT a filesystem change
-- `github_add_issue_comment` → GitHub comments → NOT a filesystem change
+- `github_issue_write` → GitHub Issues via issue-operations, NOT local files → NOT a filesystem change <!-- Routes through issue-operations per SPEC #683 -->
+- `issue-operations -> comment (github_add_issue_comment` → GitHub comments → NOT a filesystem change <!-- Routes through issue-operations per SPEC #683 -->
 
 **Violation = Hard Stop**
 
@@ -285,7 +285,7 @@ After branch creation and submodule sync, initialize the `.issues/<issue_number>
    ```
 
 2. **Fetch spec from API and mirror to `spec.md`:**
-   - Call `github_issue_read(method="get", owner=<github.owner>, repo=<github.repo>, issue_number=<issue_number>)`
+   - Call `issue-operations -> read-issue (github_issue_read(method="get", owner=<github.owner>, repo=<github.repo>, issue_number=<issue_number>)` <!-- Routes through issue-operations per SPEC #683 -->
    - If success: write `.issues/<issue_number>/spec.md` with header `# Synced from GitHub Issue #<issue_number> at <ISO8601-timestamp>` followed by the issue body
    - If API unreachable: skip `spec.md` creation (no fallback since there's nothing to fall back to at initialization)
    - See `issue-operations/platforms/github-mcp/SKILL.md` → "spec.md Mirror" for the complete mirror procedure

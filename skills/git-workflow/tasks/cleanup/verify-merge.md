@@ -147,7 +147,7 @@ For each SC:
 Verify ALL phases/sub-issues have merged PRs before allowing closure of a multi-phase spec or plan.
 
 1. Parse issue body for phase headings (`### Phase N:`, `#### Task N:`)
-2. Get sub-issues via `github_issue_read(method="get_sub_issues")`
+2. Get sub-issues via `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues")` <!-- Routes through issue-operations per SPEC #683 -->
 3. For each sub-issue, verify it is closed with a merged PR
 4. If any phase is open or lacks merged PR evidence → do NOT close the parent
 

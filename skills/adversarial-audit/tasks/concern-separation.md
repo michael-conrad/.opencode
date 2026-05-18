@@ -27,7 +27,7 @@ Audit spec phase structure for concern separation quality using dual-adversarial
 
 Fetch spec issue and extract phase structure:
 ```python
-github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<N>)
+issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<N>) <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 Extract all phases and their steps.

@@ -36,7 +36,7 @@ Verify that the `pre-creation` task's Step 0.5 title dedup gate was executed. Th
 
 ```
 Check: Title dedup gate for "<proposed title>"
-Tool: github_search_issues / gitbucket-api issues / local-issues search
+Tool: `issue-operations → search-issues` / gitbucket-api issues / local-issues search
 Local: [N candidates found in .issues/open/]
 Remote: [N candidates found, match levels classified]
 Classification: [EXACT-DUPLICATE|NEAR-DUPLICATE|CLOSED-IN-ERROR|RELATED-BUT-DISTINCT|FALSE-POSITIVE]
@@ -78,7 +78,7 @@ This fallback catches the scenario where `pre-creation` was not run or its outpu
     - **Local:** `./.opencode/tools/local-issues search --status open --query "<keywords>"`
     - Classify any local matches per `pre-creation.md` Step 0.5 Phase 2 classification table
 3. Search for existing issues via platform API:
-    - **GitHub:** `github_search_issues(query="<keywords> repo:<owner>/<repo>", owner=<owner>, repo=<repo>)`
+    - **GitHub:** `issue-operations → search-issues` with keyword query
     - **GitBucket:** `./.opencode/tools/gitbucket-api issues --state open` + `--state closed` (filter client-side by keyword match)
 4. Collect candidate matches from both local and remote (issues whose titles share ≥2 significant keywords with proposed title)
 5. For each candidate, classify match level per `pre-creation.md` Step 0.5 Phase 2 classification table
@@ -89,7 +89,7 @@ This fallback catches the scenario where `pre-creation` was not run or its outpu
 
 ```
 Check: Runtime search fallback for "<proposed title>"
-Tool: local-issues search / github_search_issues / gitbucket-api issues
+Tool: local-issues search / `issue-operations → search-issues` / gitbucket-api issues
 Local: [N candidates found in .issues/open/]
 Remote: [N candidates found, match levels classified]
 Classification: [EXACT-DUPLICATE|NEAR-DUPLICATE|CLOSED-IN-ERROR|RELATED-BUT-DISTINCT|FALSE-POSITIVE]
@@ -128,13 +128,17 @@ Then write the spec body to `.issues/open/NNN-slug/spec.md` (preserving YAML fro
 
 **Local copy retains full-fidelity detail** — extra metadata, reasoning, and agent notes that stakeholders don't need.
 
-#### Step 2.1: Promote to Remote (If Applicable)
+#### Step 2.1: Promote to Remote (Platform Routing)
 
-**If `github.platform` is NOT `local` (has remote access):**
+Route based on `github.platform`:
 
-Create a remote copy with **exec-summary style** body (concise, stakeholder-readable):
+| `github.platform` | Route to |
+|---|---|
+| `github` | `platforms/github-mcp/` sub-skill |
+| `gitbucket` | `platforms/gitbucket-api/` sub-skill |
+| `local` | Skip remote promotion (local-only) |
 
-**GitHub platform:**
+**GitHub platform (sub-skill implementation):**
 ```python
 github_issue_write(
     method="create",
@@ -146,7 +150,7 @@ github_issue_write(
 )
 ```
 
-**GitBucket platform:**
+**GitBucket platform (sub-skill implementation):**
 ```bash
 ./.opencode/tools/gitbucket-api create-issue <github.owner> <github.repo> "<title>" --body "<exec-summary-body>" --labels needs-approval
 ```
@@ -270,7 +274,8 @@ Before proceeding, verify ALL:
 ## Context Required
 
 - Related tasks: `pre-creation` (runs first), `post-creation` (runs next), `link-sub-issue` (sub-issue creation)
-- Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/`
+- Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
+- No direct `github_*` or `gitbucket-api` calls outside `issue-operations/platforms/`
 - Label state machine: `141-planning-status-tracking.md §10` (add `needs-approval` on creation; GitHub `labels` parameter replaces all labels)
 
 ## Live Verification: Creation Evidence (MANDATORY)
@@ -281,10 +286,10 @@ Before proceeding, verify ALL:
 |-------|-------------------|-----------|---------------|
 | "Title dedup gate performed" | Verify dedup was run before creation | Check pre-creation output for Step 0.5 evidence; if missing, run Step 0.75 runtime search fallback | MISSING-ELEMENT → HALT |
 | "Pre-creation validation passed" | Verify validation result exists | Check pre-creation output in session | MISSING-ELEMENT |
-| "No conflicting spec exists" | Search for overlapping issues | `github_search_issues(query="label:spec <keyword>")` | CONFLICTING |
+| "No conflicting spec exists" | Search for overlapping issues | `issue-operations → search-issues` → verify | CONFLICTING |
 | "Title follows format" | Verify title prefix | Check `[SPEC]`, `[SPEC-FIX]`, `[SPEC-ENHANCEMENT]`, `[Task:` prefix | STRUCTURE-VIOLATION |
 | "Issue was created" | Verify API response | Check `number` field in creation response | MISSING-ELEMENT |
-| "`needs-approval` label applied" | Verify label on created issue | `github_issue_read(method="get_labels", issue_number=N)` | MISSING-ELEMENT |
+| "`needs-approval` label applied" | Verify label on created issue | `issue-operations → read-labels` → verify label | MISSING-ELEMENT |
 | "Byline in body" | Verify byline present | Check issue body for `🤖` marker | STRUCTURE-VIOLATION |
 
 **Evidence artifact:** Pre-creation result, creation API response, post-creation label check.

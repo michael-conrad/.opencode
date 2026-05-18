@@ -21,7 +21,7 @@ Check for blocking issues or dependencies that prevent implementation.
 ### Step 1: Check needs-approval Label
 
 ```python
-issue = github_issue_read(method="get", issue_number=N)
+issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
 has_label = "needs-approval" in [l["name"] for l in issue["labels"]]
 
 if has_label and explicit_authorization:
@@ -34,7 +34,7 @@ elif has_label and not explicit_authorization:
 
 ```python
 # Query for issues that may supersede current spec
-issues = github_list_issues(owner=<github.owner>, repo=<github.repo>, state="open")
+issues = issue-operations -> list-issues (github_list_issues(owner=<github.owner>, repo=<github.repo>, state="open") <!-- Routes through issue-operations per SPEC #683 -->
 for issue in issues:
     if issue_supersedes_current(issue, current_spec):
         HALT("Superseding issue: #{}".format(issue["number"]))
@@ -64,7 +64,7 @@ Adversarial verification model (evidence format, classification tiers, tier acti
 
 ```
 For each identified blocker issue:
-  blocker = github_issue_read(method="get", issue_number=blocker_number)
+  blocker = issue-operations -> read-issue (github_issue_read(method="get", issue_number=blocker_number) <!-- Routes through issue-operations per SPEC #683 -->
   
   - Verify issue exists (404 → MISSING-TRACEABILITY: blocker reference is stale)
   - Verify issue state matches claimed state:
@@ -75,14 +75,14 @@ For each identified blocker issue:
     - If blocker title/content doesn't relate to current issue → VERIFICATION-GAP
 ```
 
-**Evidence artifact:** `github_issue_read(method=get)` for each blocker showing actual state, title, and labels.
+**Evidence artifact:** `issue-operations -> read-issue (github_issue_read(method=get)` for each blocker showing actual state, title, and labels. <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Verify Superseding Issues Against Actual State
 
 ```
 For each potential superseding issue:
-  issue = github_issue_read(method="get", issue_number=N)
-  comments = github_issue_read(method="get_comments", issue_number=N)
+  issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+  comments = issue-operations -> read-comments (github_issue_read(method="get_comments", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
   
   - Verify issue is still open and active (closed → not superseding)
   - Verify issue scope actually covers current spec (read body, compare scope)
@@ -97,7 +97,7 @@ For each potential superseding issue:
 ```
 For each dependency listed in spec:
   - If dependency is a package/library → verify with srclight or import check
-  - If dependency is another issue → verify via github_issue_read(method=get)
+  - If dependency is another issue → verify via issue-operations -> read-issue (github_issue_read(method=get) <!-- Routes through issue-operations per SPEC #683 -->
     - Is it open? Closed? Does it have a merged PR?
   - If dependency is a code symbol → verify with srclight_get_signature
     - Does the symbol exist? Is it in the expected module?
@@ -108,8 +108,8 @@ For each dependency listed in spec:
 ### Verify needs-approval Label Against Actual Auth State
 
 ```
-issue = github_issue_read(method="get", issue_number=N)
-comments = github_issue_read(method="get_comments", issue_number=N)
+issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+comments = issue-operations -> read-comments (github_issue_read(method="get_comments", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
 
 has_label = "needs-approval" in [l["name"] for l in issue["labels"]]
 has_auth = any comment from developer (MEMBER/OWNER/COLLABORATOR) saying "approved"/"go"

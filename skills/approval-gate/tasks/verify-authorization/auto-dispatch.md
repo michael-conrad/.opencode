@@ -120,7 +120,7 @@ When cascade does NOT apply (conditions not met):
 - HALT and inform user: "#P was approved but it is an investigation issue — its spec #C was not named. Please confirm: approve #C?"
 - This is a genuine authorization gap where the developer's intent is ambiguous
 
-**Evidence artifact:** `github_issue_read(method=get_comments)` showing lineage evidence in #P, and `github_issue_write` / `github_add_issue_comment` responses confirming cascade actions on #C.
+**Evidence artifact:** `issue-operations -> read-comments (github_issue_read(method=get_comments)` showing lineage evidence in #P, and `github_issue_write` / `github_add_issue_comment` responses confirming cascade actions on #C. <!-- Routes through issue-operations per SPEC #683 -->
 
 ## Context Budget Check Before task() (MANDATORY for implementation scopes)
 

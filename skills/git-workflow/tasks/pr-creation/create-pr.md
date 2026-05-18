@@ -21,7 +21,7 @@ Create the pull request after squash/push, collect sub-issues, generate PR body,
 ### Step 5: Collect Sub-Issues (Multi-Task Specs)
 
 ```python
-sub_issues = github_issue_read(method="get_sub_issues", issue_number=<parent>)
+sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=<parent>) <!-- Routes through issue-operations per SPEC #683 -->
 autoclose_issues = [<parent>] + [sub["number"] for sub in sub_issues]
 ```
 

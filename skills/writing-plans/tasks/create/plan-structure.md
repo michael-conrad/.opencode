@@ -60,7 +60,7 @@ Reason: <justification referencing evaluation criteria>
 
 Search for existing plans referencing the same spec:
 ```python
-plans = github_search_issues(query="label:plan", owner=<owner>, repo=<repo>, state="open")
+plans = issue-operations -> search-issues (github_search_issues(query="label:plan", owner=<owner>, repo=<repo>, state="open") <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 For each plan found with `Spec: #<spec_number>`, present choice:

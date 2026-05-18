@@ -264,6 +264,14 @@ Guessing `github.owner` from file paths or usernames instead of reading session 
 Routing API calls for submodule repos to the parent repository means every issue operation silently targets the wrong project — and every submodule change gets lost in the wrong repo. Professional engineers resolve the correct remote via `git remote -v` before making any API call. A dry cross-reference to §9 does not route itself.
 
 
+### [critical-rules-platform-routing-bypass] CRITICAL VIOLATION — Platform Routing Bypass — direct `github_*`/`gitbucket-api` issue calls outside `issue-operations/platforms/`
+All `github_*` and `gitbucket-api` issue calls MUST route through the `issue-operations` dispatcher. Making direct platform API calls outside `issue-operations/platforms/` bypasses the routing layer and creates unmaintainable, platform-locked code. Professional engineers route all calls through the dispatcher — amateurs call platform APIs directly and create vendor lock-in.
+
+
+### [critical-rules-platform-api-deliberation] Platform API Deliberation Prohibited
+The `issue-operations` dispatcher resolves platform selection automatically based on `github.platform`. Agents MUST NOT deliberate about which platform API to use — the dispatcher handles this. Asking "should I use GitHub or GitBucket?" or choosing a platform API manually is a routing anti-pattern. Professional engineers trust the dispatcher — amateurs second-guess platform routing.
+
+
 ### [critical-rules-028] Offer-to-Edit Bypass — offering to modify files without spec
 Offering to "fix it quickly" instead of creating a spec is the oldest shortcut in the book — and the fastest path to unreviewed, unapproved changes polluting your codebase. Professional engineers write a spec when a fix is identified. The ONLY permitted action when a fix is found is spec creation — nothing else, no exceptions, no "just this once."
 
@@ -1669,4 +1677,34 @@ rules:
     requires: []
     triggers: [git-workflow]
     source: "000-critical-rules.md §Tier 3 prose section"
+
+  - id: critical-rules-platform-routing-bypass
+    tier: 1
+    title: "CRITICAL VIOLATION — Platform Routing Bypass — direct github_*/gitbucket-api issue calls outside issue-operations/platforms/"
+    conditions:
+      all:
+        - "issue_operation_pending == true"
+        - "direct_platform_api_call == true"
+        - "call_location_outside_platforms == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [issue-operations]
+    source: "000-critical-rules.md §critical-rules-platform-routing-bypass"
+
+  - id: critical-rules-platform-api-deliberation
+    tier: 2
+    title: "Platform API Deliberation Prohibited — agent must not deliberate about platform API selection"
+    conditions:
+      all:
+        - "issue_operation_pending == true"
+        - "agent_deliberating_platform_choice == true"
+    actions:
+      - HALT
+      - ROUTE_THROUGH_DISPATCHER
+    conflicts_with: []
+    requires: []
+    triggers: [issue-operations]
+    source: "000-critical-rules.md §critical-rules-platform-api-deliberation"
 ```

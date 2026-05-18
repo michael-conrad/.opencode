@@ -34,7 +34,7 @@ Fixes #<parent>
 
 1. **Fetch sub-issues:**
    ```python
-   sub_issues = github_issue_read(method="get_sub_issues", issue_number=<parent>)
+   sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=<parent>) <!-- Routes through issue-operations per SPEC #683 -->
    ```
 
 2. **Build autoclose list:** parent + all sub-issues

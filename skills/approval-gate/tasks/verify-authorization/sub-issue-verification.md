@@ -9,7 +9,7 @@ This gate is the SINGLE AUTHORITATIVE verification point for sub-issue readiness
 ### 5.1 Determine Plan Type
 
 ```
-plan_issue = github_issue_read(method="get", issue_number=N)
+plan_issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
 
 # Check if this is a plan (has plan label or [PLAN] prefix)
 is_plan = "plan" in [l["name"] for l in plan_issue["labels"]] or plan_issue["title"].startswith("[PLAN]")
@@ -26,7 +26,7 @@ if is_plan:
 For all plans:
 
 ```python
-sub_issues = github_issue_read(method="get_sub_issues", issue_number=plan_issue)
+sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=plan_issue) <!-- Routes through issue-operations per SPEC #683 -->
 
 # Verify sub-issues exist under the plan (NOT the spec)
 if not sub_issues:
@@ -44,7 +44,7 @@ for phase in phases:
 
 # Verify sub-issue bodies contain phase context (Phase 1 enrichment)
 for sub_issue in sub_issues:
-    body = github_issue_read(method="get", issue_number=sub_issue["number"])["body"]
+    body = issue-operations -> read-issue (github_issue_read(method="get", issue_number=sub_issue["number"])["body"] <!-- Routes through issue-operations per SPEC #683 -->
     if phase_context_insufficient(body):
         # Report: sub-issue body lacks phase context
         pass
@@ -62,14 +62,14 @@ For multi-task plans, verify that the number of sub-issues matches the number of
 
 ```
 For each sub-issue:
-  child = github_issue_read(method="get", issue_number=sub_issue_number)
+  child = issue-operations -> read-issue (github_issue_read(method="get", issue_number=sub_issue_number) <!-- Routes through issue-operations per SPEC #683 -->
   - Verify child.state matches claimed state (do NOT trust cache)
   - If child.state == "closed" → verify merged PR exists (not premature closure)
   - Verify child is linked under plan (NOT spec) → STRUCTURE-VIOLATION if under spec
   - Verify needs-approval label absent if parent plan has explicit authorization
 ```
 
-**Evidence artifact:** `github_issue_read(method=get)` for each sub-issue showing actual state, title, labels, and parent link.
+**Evidence artifact:** `issue-operations -> read-issue (github_issue_read(method=get)` for each sub-issue showing actual state, title, labels, and parent link. <!-- Routes through issue-operations per SPEC #683 -->
 
 ### 5.4 Closed-Issue Verification Before Skipping
 
@@ -92,7 +92,7 @@ When any issue is authorized (approved, re-approved, or `Fixes`-closed), the age
 
 After traversal completes, dispatch `reconcile-issue-graph` to act on findings. See `tasks/reconcile-issue-graph.md` for the reconciliation procedure.
 
-**Every node in the reachable graph MUST produce an evidence artifact** — a `github_issue_read` tool call result. Graph traversal without per-node evidence is a verification honesty violation.
+**Every node in the reachable graph MUST produce an evidence artifact** — a `issue-operations -> read-issue (github_issue_read` tool call result. Graph traversal without per-node evidence is a verification honesty violation. <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Finding Classification for Sub-Issue Verification
 

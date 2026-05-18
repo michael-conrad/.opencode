@@ -6,7 +6,7 @@ Before treating a closed issue as resolved (skipping implementation, auto-closin
 
 ### Verification Steps
 
-1. Read issue via `github_issue_read(method=get, issue_number=N)`
+1. Read issue via `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` <!-- Routes through issue-operations per SPEC #683 -->
 2. Check `state` field — must be `"closed"`
 3. Check `state_reason` field:
    - `"completed"` — requires merged PR evidence

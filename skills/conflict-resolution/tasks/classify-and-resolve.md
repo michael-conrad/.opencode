@@ -101,7 +101,7 @@ Notify in chat:
 5. **For complex intent conflicts**, also create a GitHub Issue:
 
 ```python
-github_issue_write(
+issue-operations -> creation/update (github_issue_write( <!-- Routes through issue-operations per SPEC #683 -->
     method="create",
     title=f"[Conflict] <descriptive-title> during rebase of <branch>",
     body=f"## Conflict During Rebase\n\n...",

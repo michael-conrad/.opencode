@@ -44,7 +44,7 @@ For each success criterion:
 
 #### VAI-1: Verify Gate 1 Evidence
 
-1. Did you call `github_issue_read(method=get_sub_issues, issue_number=<candidate>)`? If NO → STOP. Run Gate 1 now.
+1. Did you call `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues, issue_number=<candidate>)`? If NO → STOP. Run Gate 1 now. <!-- Routes through issue-operations per SPEC #683 -->
 2. For EACH sub-issue, did you produce a tool-call artifact verifying its state? If NO → STOP. Run Gate 1 verification now.
 3. For each closed sub-issue, did you search for merged PR evidence? If NO → STOP. Run closure legitimacy check now.
 
@@ -103,17 +103,17 @@ When ALL success criteria are verified as already met:
 After autoclosing the current issue (Step 5), check if the parent plan issue should also be closed:
 
 1. **Determine parent issue context:**
-   - If this issue is a sub-issue of a plan, retrieve the parent plan issue via `github_issue_read(method="get_sub_issues")` on the plan
+   - If this issue is a sub-issue of a plan, retrieve the parent plan issue via `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues")` on the plan <!-- Routes through issue-operations per SPEC #683 -->
    - If this issue references a plan via body text (`Plan: #N`), use that reference
    - If no parent plan exists, Skip Step 6 — this is a standalone issue
 
 2. **Check if ALL sub-issues of the plan are closed:**
-   - Use `github_issue_read(method="get_sub_issues", issue_number=<plan_number>)` to list all sub-issues
+   - Use `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=<plan_number>)` to list all sub-issues <!-- Routes through issue-operations per SPEC #683 -->
    - Verify each sub-issue has `state == "closed"` with `state_reason == "completed"` (not `"not_planned"` or `"duplicate"` without merged PR evidence)
    - If ANY sub-issue is still open or closed without legitimate completion evidence → do NOT close the parent plan
 
 3. **If ALL sub-issues are legitimately closed:**
-   - Close the parent plan issue with `github_issue_write(method="update", state="closed", state_reason="completed")`
+   - Close the parent plan issue with `issue-operations -> update-issue (github_issue_write(method="update", state="closed", state_reason="completed")` <!-- Routes through issue-operations per SPEC #683 -->
    - Post a verification comment on the plan issue documenting per-SC evidence:
      ```
      All sub-issues verified complete. Closing parent plan.
@@ -154,10 +154,10 @@ When `verify-already-implemented` identifies issues that were already implemente
 1. **Verify PR merge via GitHub API** — Use `github_pull_request_read(method=get)` on the referenced PR. Confirm `merged == true` and `state == "closed"`. Do NOT rely on visual inspection or memory.
 
 2. **Close each verified-already-implemented issue** with a comment referencing the merged PR:
-   - Use `github_issue_write(method=update, state="closed", state_reason="completed")`
-   - Use `github_add_issue_comment` with a reference to the merged PR (e.g., `Closing: implementation verified via merged PR #N`)
+   - Use `issue-operations -> update-issue (github_issue_write(method=update, state="closed", state_reason="completed")` <!-- Routes through issue-operations per SPEC #683 -->
+   - Use `issue-operations -> comment (github_add_issue_comment` with a reference to the merged PR (e.g., `Closing: implementation verified via merged PR #N`) <!-- Routes through issue-operations per SPEC #683 -->
 
-3. **Remove `needs-approval` label** if present — Use `github_issue_read(method=get_labels)` to check, then remove via label update if found.
+3. **Remove `needs-approval` label** if present — Use `issue-operations -> read-labels (github_issue_read(method=get_labels)` to check, then remove via label update if found. <!-- Routes through issue-operations per SPEC #683 -->
 
 4. **Report closure in chat output** — Include:
    - Which issues were closed
@@ -173,7 +173,7 @@ When `verify-already-implemented` identifies issues that were already implemente
 ### Step AC-1: Check for Sub-Issues
 
 ```
-sub_issues = github_issue_read(method="get_sub_issues", issue_number=issue_number)
+sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=issue_number) <!-- Routes through issue-operations per SPEC #683 -->
 
 if sub_issues:
     # Parent has sub-issues — each must be verified before autoclose
@@ -188,7 +188,7 @@ else:
 
 ```
 For each sub-issue:
-  child = github_issue_read(method="get", issue_number=sub_issue_number)
+  child = issue-operations -> read-issue (github_issue_read(method="get", issue_number=sub_issue_number) <!-- Routes through issue-operations per SPEC #683 -->
 
   if child.state == "closed":
     state_reason = child.get("state_reason", "")
@@ -230,8 +230,8 @@ For each sub-issue:
 ```
 For each sub-issue verified as legitimately closed:
   # Verify the sub-issue's scope is covered by the parent's success criteria
-  child_body = github_issue_read(method="get", issue_number=sub_issue_number)["body"]
-  parent_body = github_issue_read(method="get", issue_number=issue_number)["body"]
+  child_body = issue-operations -> read-issue (github_issue_read(method="get", issue_number=sub_issue_number)["body"] <!-- Routes through issue-operations per SPEC #683 -->
+  parent_body = issue-operations -> read-issue (github_issue_read(method="get", issue_number=issue_number)["body"] <!-- Routes through issue-operations per SPEC #683 -->
 
   # If sub-issue covers scope not in parent's success criteria:
   #   The parent may be "implemented" but the sub-issue's specific concern was not addressed

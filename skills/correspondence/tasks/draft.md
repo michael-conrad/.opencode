@@ -47,7 +47,7 @@ For email correspondence, the verification domains are:
 | Service availability (up, down, degraded) | Verify against live service check | `bash` to run health check or `webfetch` |
 | Dates and timelines | Verify against live data | `bash` to run date queries |
 | Quoted content from original email | Verify original email content matches | `read` original email file |
-| Person-action attribution (who did what) | Verify against email headers, commit authors, PR/issue creators, or explicit source statements | `read` email headers, `srclight_blame_symbol`, `github_pull_request_read`, `github_issue_read` |
+| Person-action attribution (who did what) | Verify against email headers, commit authors, PR/issue creators, or explicit source statements | `read` email headers, `srclight_blame_symbol`, `github_pull_request_read`, `issue-operations -> read-issue (github_issue_read` | <!-- Routes through issue-operations per SPEC #683 -->
 
 **Evidence artifacts must be collected before drafting proceeds.**
 

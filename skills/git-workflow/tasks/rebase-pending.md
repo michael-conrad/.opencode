@@ -151,10 +151,10 @@ When a Tier 3 conflict is detected, perform spec-aware analysis:
 ```
 a. Read the conflicting file content (both sides of the conflict markers)
 b. Read the merged PR's issue/spec body:
-   github_issue_read(method="get", owner=<github.owner>, repo=<github.repo>, issue_number=<merged_pr_number>)
+   issue-operations -> read-issue (github_issue_read(method="get", owner=<github.owner>, repo=<github.repo>, issue_number=<merged_pr_number>) <!-- Routes through issue-operations per SPEC #683 -->
    (Or locate the spec issue linked from the PR)
 c. Read the conflicting PR's issue/spec body:
-   github_issue_read(method="get", owner=<github.owner>, repo=<github.repo>, issue_number=<conflicting_pr_number>)
+   issue-operations -> read-issue (github_issue_read(method="get", owner=<github.owner>, repo=<github.repo>, issue_number=<conflicting_pr_number>) <!-- Routes through issue-operations per SPEC #683 -->
    (Or locate the spec issue linked from the PR)
 d. Compare intent:
    - Same intent: Both PRs modify the same file for compatible purposes

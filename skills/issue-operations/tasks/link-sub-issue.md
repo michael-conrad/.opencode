@@ -19,6 +19,15 @@ Create and link sub-issues to parent plan issues. Uses platform sub-issue API wh
 
 ### Step 1: Verify Plan is Multi-Task
 
+Route based on `github.platform`:
+
+| `github.platform` | Route to |
+|---|---|
+| `github` | `platforms/github-mcp/` sub-skill |
+| `gitbucket` | `platforms/gitbucket-api/` sub-skill |
+| `local` | `platforms/local/` sub-skill |
+
+**GitHub platform (sub-skill implementation):**
 ```python
 plan = github_issue_read(method="get", issue_number=M)
 phases = extract_phases(plan["body"])
@@ -27,15 +36,30 @@ if len(phases) == 1:
     return
 ```
 
+**GitBucket platform (sub-skill implementation):**
+```bash
+./.opencode/tools/gitbucket-api get-issue <github.owner> <github.repo> <M>
+```
+
+**Local platform (sub-skill implementation):**
+```bash
+./.opencode/tools/local-issues read <M>
+```
+
 ### Step 2: Check Existing Sub-Issues
 
-**GitHub platform:**
+**GitHub platform (sub-skill implementation):**
 ```python
 sub_issues = github_issue_read(method="get_sub_issues", issue_number=M)
 ```
 
-**GitBucket platform:**
+**GitBucket platform (sub-skill implementation):**
 Check parent issue comments for structured sub-issue list comments.
+
+**Local platform (sub-skill implementation):**
+```bash
+./.opencode/tools/local-issues sub-issues <M>
+```
 
 ### Step 3: Extract Phase Prose from Plan Body
 
@@ -43,7 +67,15 @@ Read the full plan issue body and locate the section for the target phase. Extra
 
 ### Step 4: Create Sub-Issue (Platform Routing)
 
-**GitHub platform:**
+Route based on `github.platform`:
+
+| `github.platform` | Route to |
+|---|---|
+| `github` | `platforms/github-mcp/` sub-skill |
+| `gitbucket` | `platforms/gitbucket-api/` sub-skill |
+| `local` | `platforms/local/` sub-skill |
+
+**GitHub platform (sub-skill implementation):**
 ```python
 sub_issue = github_issue_write(
     method="create",
@@ -55,9 +87,14 @@ sub_issue = github_issue_write(
 )
 ```
 
-**GitBucket platform:**
+**GitBucket platform (sub-skill implementation):**
 ```bash
 ./.opencode/tools/gitbucket-api create-issue <github.owner> <github.repo> "[Task: #<M>] <phase_description>" --body "**Parent Plan:** #<M>\n\n<phase_prose>" --labels task
+```
+
+**Local platform (sub-skill implementation):**
+```bash
+./.opencode/tools/local-issues create --title "[Task: #<M>] <phase_description>" --body "**Parent Plan:** #<M>\n\n<phase_prose>" --labels task
 ```
 
 ### Step 4.5: EXTRACT URL FROM API RESPONSE
@@ -69,7 +106,7 @@ sub_issue = github_issue_write(
 
 ### Step 5: Link Sub-Issue to Parent
 
-**GitHub platform (formal link):**
+**GitHub platform (formal link via sub-skill):**
 ```python
 github_sub_issue_write(
     method="add",
@@ -82,9 +119,14 @@ github_sub_issue_write(
 
 CRITICAL: Use database ID (`.id`), not issue number.
 
-**GitBucket platform (comment-based fallback):**
+**GitBucket platform (comment-based fallback via sub-skill):**
 ```bash
 ./.opencode/tools/gitbucket-api add-comment <github.owner> <github.repo> <M> "**Sub-issue linked:** #<sub_issue_number> — <phase_description>"
+```
+
+**Local platform (comment-based fallback via sub-skill):**
+```bash
+./.opencode/tools/local-issues comment <M> --body "**Sub-issue linked:** #<sub_issue_number> — <phase_description>"
 ```
 
 The caller records which method was used (formal link vs comment) for later closure operations.
@@ -104,18 +146,20 @@ Title format: `[Task: #<plan-number>] <descriptive-title>`
 - Session values: github.owner, github.repo, github.platform
 - Related tasks: `close` (verifies sub-issue state), `track-hierarchy` (verifies structure)
 - Sub-issue closure queries parent comments when comment-based linking was used
+- Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
+- No direct `github_*` or `gitbucket-api` calls outside `issue-operations/platforms/`
 
 ## Live Verification: Sub-Issue Linking Evidence (MANDATORY)
 
 **Each sub-issue operation MUST be verified via tool call. Assertions without tool-call artifacts are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
 
-| Claim | Verification Action | Tool Call | Problem Class |
+| Claim | Verification Action | Tool Call (routed) | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Plan #M is multi-task" | Verify plan has multiple phases | `github_issue_read(method="get", issue_number=M)` → parse body | VERIFICATION-GAP |
-| "Sub-issue created" | Verify sub-issue exists | `github_issue_read(method="get", issue_number=sub_number)` | MISSING-ELEMENT |
-| "Sub-issue linked to plan" | Verify sub-issue parent | `github_issue_read(method="get_sub_issues", issue_number=M)` | STRUCTURE-VIOLATION |
+| "Plan #M is multi-task" | Verify plan has multiple phases | `issue-operations → read-issue` → parse body | VERIFICATION-GAP |
+| "Sub-issue created" | Verify sub-issue exists | `issue-operations → read-issue` → verify | MISSING-ELEMENT |
+| "Sub-issue linked to plan" | Verify sub-issue parent | `issue-operations → read-sub-issues` → verify parent | STRUCTURE-VIOLATION |
 | "Database ID used (not issue number)" | Verify `sub_issue_id` is numeric DB ID | Check `id` field from creation response | STRUCTURE-VIOLATION |
-| "Platform supports sub-issue API" | Probe capabilities | `issue-operations --task capabilities` | CONFLICTING |
+| "Platform supports sub-issue API" | Probe capabilities | `issue-operations → capabilities` | CONFLICTING |
 
 **Evidence artifact:** Creation response, sub-issue link verification result.
 
