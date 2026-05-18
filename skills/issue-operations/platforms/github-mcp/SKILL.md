@@ -107,9 +107,21 @@ When `github_issue_read(method="get")` fails with a network error, rate limit, o
 
 Agent MUST report staleness when detected and should attempt to refresh. If API still unreachable, proceed with stale copy noting the risk.
 
-### No Sync-Back
+### Three-File Layout
 
-`spec.md` is read-only from the agent's perspective. The agent NEVER edits `spec.md` — it always writes to the GitHub Issue via the API. This prevents divergence between the local mirror and the authoritative copy.
+| File | Role | Format | Edited by agent? | Synced to remote? |
+|------|------|-------|-------------------|--------------------|
+| `spec.md` | Canonical full spec | YAML frontmatter + markdown body | Yes — when spec detail changes | Never |
+| `state.md` | Workflow phase tracking and sync timestamps | YAML frontmatter + phase fields | Yes — on phase transitions and sync events | Never |
+| `remote.md` | Exact GitHub/GitBucket issue body | **Pure markdown — no YAML frontmatter**. Read verbatim for sync push, zero composition logic. | Yes — via `body-edit` task only | Yes — sync push after verification |
+
+### Mirror Protocol
+
+The agent edits `remote.md` for remote body changes; `spec.md` is the canonical full spec. `remote.md` is the exact GitHub/GitBucket issue body, read verbatim for sync push. Every edit to `remote.md` MUST go through the `body-edit` task (fetch → transform → verify → post).
+
+**Mirror flow:** local edit to `remote.md` → verify structural integrity → sync push to GitHub/GitBucket.
+
+Mirroring through `remote.md` is what professional synchronization looks like. Composing remote bodies from `spec.md` content means unverified text reaches stakeholders. Professional engineers propagate verified remotes — not composed approximations.
 
 ## Cross-References
 

@@ -19,18 +19,19 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `pre-creation` | ≈240 |
-| `single-task-check` | ≈160 |
-| `creation` | ≈200 |
-| `post-creation` | ≈180 |
-| `comment` | ≈400 |
-| `close` | ≈250 |
-| `link-sub-issue` | ≈200 |
-| `verify-merge` | ≈200 |
-| `capabilities` | ≈150 |
-| `completion` | ≈200 |
+| Task | Words | Description |
+|------|-------|-------------|
+| `pre-creation` | ≈240 | |
+| `single-task-check` | ≈160 | |
+| `creation` | ≈200 | |
+| `post-creation` | ≈180 | |
+| `comment` | ≈400 | |
+| `close` | ≈250 | |
+| `link-sub-issue` | ≈200 | |
+| `verify-merge` | ≈200 | |
+| `capabilities` | ≈150 | |
+| `completion` | ≈200 | |
+| `body-edit` | ≈200 | Edit remote.md body via 4-agent dispatch (fetch → transform → verify → post) — body edits without structural verification propagate corruption upstream; every remote edit requires verified integrity before propagation |
 
 ## Invocation
 
