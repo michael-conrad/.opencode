@@ -39,9 +39,13 @@ Commands:
     close  NNN                               Close issue (move to closed/)
     promote NNN                              Check promotion readiness
     sync   NNN [--direction pull|push]       Sync local/remote (stub)
+    sync-push NNN                            Push remote.md body to GitHub
+    sync-pull NNN                            Pull remote body to remote.md
     link   NNN --github NUM                  Set github_issue field
     search [--status S] [--labels L1,L2] [--query TEXT]
     list   [--status S]                      List issues
+    setup [--parent] [--migrate|--rollback-migration]
+                                            Initialize .issues/ worktree on issues-data branch
 
 Exit codes:
     0: Success
@@ -56,15 +60,18 @@ import fcntl
 import os
 import re
 import shutil
+import subprocess
 import sys
 import yaml
 from datetime import datetime, timezone
+from pathlib import Path
 
 
 ISSUES_DIR = ".issues"
 OPEN_DIR = os.path.join(ISSUES_DIR, "open")
 CLOSED_DIR = os.path.join(ISSUES_DIR, "closed")
 COUNTER_FILE = os.path.join(ISSUES_DIR, ".counter")
+ISSUES_DATA_BRANCH = "issues-data"
 
 
 def _find_issues_root() -> str | None:
@@ -222,8 +229,6 @@ def _now_iso() -> str:
 def _get_author() -> str:
     """Get author from git config or USER env var."""
     try:
-        import subprocess
-
         result = subprocess.run(
             ["git", "config", "user.name"],
             capture_output=True,
@@ -235,6 +240,34 @@ def _get_author() -> str:
     except OSError:
         pass
     return os.environ.get("USER", "unknown")
+
+
+def _git(run_args: list[str], check: bool = True, **kwargs: object) -> subprocess.CompletedProcess[str]:
+    """Run a git command and return the CompletedProcess."""
+    return subprocess.run(
+        ["git"] + run_args,
+        capture_output=True,
+        text=True,
+        check=check,
+        **{k: v for k, v in kwargs.items() if k in ("cwd", "env")},
+    )
+
+
+def _is_submodule(repo_path: str | None = None) -> bool:
+    """Detect if running inside a git submodule (.git is a file, not a directory)."""
+    git_path = os.path.join(repo_path or os.getcwd(), ".git")
+    return os.path.isfile(git_path)
+
+
+def _detect_platform() -> str:
+    """Detect remote platform from git remote URL. Returns 'github' or 'gitbucket'."""
+    result = _git(["remote", "get-url", "origin"], check=False)
+    if result.returncode != 0:
+        return "unknown"
+    url = result.stdout.strip()
+    if "gitbucket" in url.lower():
+        return "gitbucket"
+    return "github"
 
 
 def cmd_create(title: str, labels: list[str] | None = None) -> int:
@@ -269,6 +302,11 @@ def cmd_create(title: str, labels: list[str] | None = None) -> int:
     if not os.path.exists(comments_path):
         with open(comments_path, "w") as f:
             f.write("")
+
+    remote_md_path = os.path.join(issue_dir, "remote.md")
+    remote_body = _extract_exec_summary("") or f"# {title}\n"
+    with open(remote_md_path, "w") as f:
+        f.write(remote_body.strip() + "\n")
 
     print(f"Created issue #{number}: {dir_name}")
     print(f"  Path: {spec_path}")
@@ -329,7 +367,6 @@ def cmd_comment(number: int, body_text: str) -> int:
     entry = f"\n---\n\n## {now}\n\n{body_text}\n"
     with open(comments_path, "a") as f:
         f.write(entry)
-    # Also update the updated timestamp in frontmatter
     meta["updated"] = now
     spec_path = os.path.join(issue_dir, "spec.md")
     _write_spec(spec_path, meta, body)
@@ -413,19 +450,16 @@ def cmd_record_remote(number: int, remote_number: int, remote_url: str | None = 
     
     issue_dir, meta, body = result
     
-    # Update metadata
     meta["remote_issue"] = remote_number
     if remote_url:
         meta["remote_url"] = remote_url
     meta["promoted_at"] = datetime.now(timezone.utc).isoformat()
     
-    # Update status if still needs-approval
-    labels = meta.get("labels", [])
+    labels: list[str] = meta.get("labels", []) or []
     if "needs-approval" in labels:
         labels = [l for l in labels if l != "needs-approval"]
         meta["labels"] = labels
     
-    # Write back
     spec_path = os.path.join(issue_dir, "spec.md")
     _write_spec(spec_path, meta, body)
     
@@ -457,23 +491,19 @@ def cmd_promote(number: int) -> int:
     
     issue_dir, meta, body = result
     
-    # Check readiness criteria
     title = meta.get("title", "")
     if not title:
         print("Issue not ready: missing title", file=sys.stderr)
         return 2
     
-    # Check for TBDs
     if "TBD" in body or "TODO" in body:
         print("Issue not ready: contains TBD or TODO placeholders", file=sys.stderr)
         return 2
     
-    # Check for success criteria
     if "## Success Criteria" not in body and "## SCs" not in body:
         print("Issue not ready: missing Success Criteria section", file=sys.stderr)
         return 2
     
-    # Extract exec-summary (first ## section or up to 500 chars)
     exec_summary = _extract_exec_summary(body)
     
     print(f"Local issue #{number} ready for promotion")
@@ -536,7 +566,6 @@ def cmd_sync(number: int, direction: str = "pull") -> int:
     
     issue_dir, meta, body = result
     
-    # Check if linked to remote
     remote_issue = meta.get("remote_issue")
     remote_url = meta.get("remote_url")
     
@@ -554,8 +583,449 @@ def cmd_sync(number: int, direction: str = "pull") -> int:
         print("Sync classification requires agent judgment", file=sys.stderr)
         return 1
     else:
-        print(f"Bidirectional sync not yet implemented", file=sys.stderr)
+        print("Bidirectional sync not yet implemented", file=sys.stderr)
         return 1
+
+
+def cmd_setup(parent: bool = False, migrate: bool = False, rollback_migration: bool = False) -> int:
+    """Initialize .issues/ as a git worktree on the issues-data branch.
+
+    Creates an orphan issues-data branch, adds .issues/ to .gitignore,
+    and sets up .issues/ as a linked worktree pointing to that branch.
+
+    Flags:
+        --parent: Also set up parent repo worktree (for submodules)
+        --migrate: Move tracked .issues/ files from current branch to issues-data
+        --rollback-migration: Reverse a previous migration
+    """
+    repo_root = _git(["rev-parse", "--show-toplevel"]).stdout.strip()
+    issues_path = os.path.join(repo_root, ISSUES_DIR)
+
+    result = _git(["worktree", "list"], check=False)
+    if result.returncode == 0:
+        for wt_line in result.stdout.splitlines():
+            parts = wt_line.split()
+            if len(parts) >= 3 and os.path.normpath(parts[0]) == os.path.normpath(issues_path):
+                if parts[2] == ISSUES_DATA_BRANCH:
+                    print(f"Idempotent: .issues/ worktree already established on {ISSUES_DATA_BRANCH} branch")
+                    return 0
+                # worktree exists but on different branch — still idempotent
+                print(f"Idempotent: .issues/ worktree already established on {ISSUES_DATA_BRANCH} branch")
+                return 0
+
+    is_submodule = _is_submodule(repo_root)
+
+    current_branch = _git(["rev-parse", "--abbrev-ref", "HEAD"]).stdout.strip()
+
+    if rollback_migration:
+        return _rollback_migration(repo_root, current_branch, is_submodule)
+
+    gitignore_path = os.path.join(repo_root, ".gitignore")
+    gitignore_needs_update = True
+    if os.path.isfile(gitignore_path):
+        with open(gitignore_path) as f:
+            gitignore_content = f.read()
+        if f"/{ISSUES_DIR}" in gitignore_content.splitlines() or f"{ISSUES_DIR}/" in gitignore_content.splitlines() or ISSUES_DIR in gitignore_content.splitlines():
+            gitignore_needs_update = False
+
+    result = _git(["branch", "--list", ISSUES_DATA_BRANCH], check=False)
+    branch_exists = result.stdout.strip() != ""
+
+    if not branch_exists:
+        stash_result = _git(["stash"], check=False)
+        had_stash = stash_result.returncode == 0 and "Saved" in stash_result.stdout
+
+        _git(["checkout", "--orphan", ISSUES_DATA_BRANCH])
+        _git(["rm", "-rf", "."], check=False)
+        _git(["commit", "--allow-empty", "-m", f"Initialize {ISSUES_DATA_BRANCH} branch"])
+
+        _git(["checkout", current_branch])
+
+        if had_stash:
+            _git(["stash", "pop"], check=False)
+
+    if gitignore_needs_update:
+        with open(gitignore_path, "a") as f:
+            f.write(f"\n/{ISSUES_DIR}/\n")
+
+    if migrate:
+        _migrate_issues(repo_root, current_branch, is_submodule)
+
+    add_args = ["worktree", "add", issues_path, ISSUES_DATA_BRANCH]
+    if is_submodule:
+        git_dir = os.path.join(repo_root, ".git")
+        with open(git_dir) as f:
+            gitdir_content = f.read().strip()
+            if gitdir_content.startswith("gitdir: "):
+                real_git_dir = gitdir_content[len("gitdir: "):]
+                add_result = _git(
+                    ["--git-dir", real_git_dir, "--work-tree", repo_root] + add_args,
+                    check=False,
+                )
+            else:
+                add_result = _git(add_args, check=False)
+    else:
+        add_result = _git(add_args, check=False)
+
+    if add_result.returncode != 0:
+        print(f"Error: failed to create .issues/ worktree: {add_result.stderr.strip()}", file=sys.stderr)
+        return 1
+
+    open_dir = os.path.join(issues_path, "open")
+    closed_dir = os.path.join(issues_path, "closed")
+    counter_path = os.path.join(issues_path, ".counter")
+    os.makedirs(open_dir, exist_ok=True)
+    os.makedirs(closed_dir, exist_ok=True)
+    if not os.path.exists(counter_path):
+        with open(counter_path, "w") as f:
+            f.write("1\n")
+
+    _git(["add", ".counter", "open", "closed"], cwd=issues_path)
+    _git(["commit", "-m", f"Initialize {ISSUES_DIR} directory structure"], cwd=issues_path, check=False)
+
+    print(f"Setup complete: .issues/ worktree on {ISSUES_DATA_BRANCH} branch")
+    print(f"  Path: {issues_path}")
+    print(f"  Branch: {ISSUES_DATA_BRANCH}")
+    if is_submodule:
+        print("  Submodule: detected (.git is a file)")
+    if migrate:
+        print("  Migration: completed")
+
+    if parent and is_submodule:
+        return _setup_parent_worktree(repo_root)
+
+    return 0
+
+
+def _migrate_issues(repo_root: str, current_branch: str, is_submodule: bool) -> None:
+    """Migrate tracked .issues/ files from current branch to issues-data branch."""
+    issues_path = os.path.join(repo_root, ISSUES_DIR)
+
+    tracked_result = _git(
+        ["ls-files", ISSUES_DIR],
+        check=False,
+    )
+    tracked_files = [f for f in tracked_result.stdout.strip().splitlines() if f]
+
+    if not tracked_files:
+        print("No tracked .issues/ files found to migrate")
+        return
+
+    print(f"Migrating {len(tracked_files)} tracked .issues/ files to {ISSUES_DATA_BRANCH} branch")
+
+    stash_result = _git(["stash"], check=False)
+    had_stash = stash_result.returncode == 0 and "Saved" in stash_result.stdout
+
+    _git(["checkout", ISSUES_DATA_BRANCH])
+
+    for filepath in tracked_files:
+        src = os.path.join(repo_root, filepath)
+        dst = os.path.join(repo_root, filepath)
+        if os.path.isfile(src):
+            _git(["add", filepath], cwd=repo_root, check=False)
+
+    _git(["commit", "-m", "Migrate .issues/ files from working branch"], check=False)
+
+    _git(["checkout", current_branch])
+
+    for filepath in tracked_files:
+        _git(["rm", "--cached", filepath], check=False)
+
+    _git(["commit", "-m", "Remove .issues/ files from working branch (migrated)"], check=False)
+
+    if had_stash:
+        _git(["stash", "pop"], check=False)
+
+    print(f"Migration complete: {len(tracked_files)} files moved to {ISSUES_DATA_BRANCH}")
+
+
+def _rollback_migration(repo_root: str, current_branch: str, is_submodule: bool) -> int:
+    """Reverse a previous --migrate operation.
+
+    Restores .issues/ files to the current branch and removes them
+    from the issues-data branch.
+    """
+    issues_path = os.path.join(repo_root, ISSUES_DIR)
+
+    stash_result = _git(["stash"], check=False)
+    had_stash = stash_result.returncode == 0 and "Saved" in stash_result.stdout
+
+    _git(["checkout", ISSUES_DATA_BRANCH])
+
+    data_result = _git(["ls-files"], check=False)
+    data_files = [f for f in data_result.stdout.strip().splitlines() if f]
+
+    if not data_files:
+        print(f"No files found on {ISSUES_DATA_BRANCH} to roll back")
+        _git(["checkout", current_branch])
+        return 0
+
+    print(f"Rolling back {len(data_files)} files from {ISSUES_DATA_BRANCH} to {current_branch}")
+
+    for filepath in data_files:
+        src = os.path.join(repo_root, filepath)
+        if os.path.isfile(src):
+            with open(src) as f:
+                content = f.read()
+
+    _git(["checkout", current_branch])
+
+    for filepath in data_files:
+        dst = os.path.join(repo_root, filepath)
+        dst_dir = os.path.dirname(dst)
+        os.makedirs(dst_dir, exist_ok=True)
+        _git(["checkout", f"{ISSUES_DATA_BRANCH}", "--", filepath], check=False)
+
+    _git(["add", ISSUES_DIR], cwd=repo_root)
+    _git(["commit", "-m", "Restore .issues/ files to working branch (rollback)"], check=False)
+
+    _git(["checkout", ISSUES_DATA_BRANCH])
+    for filepath in data_files:
+        _git(["rm", "-f", filepath], check=False)
+    _git(["commit", "-m", "Remove migrated .issues/ files (rollback)"], check=False)
+
+    _git(["checkout", current_branch])
+
+    gitignore_path = os.path.join(repo_root, ".gitignore")
+    if os.path.isfile(gitignore_path):
+        with open(gitignore_path) as f:
+            lines = f.readlines()
+        filtered = [l for l in lines if l.strip() not in (f"/{ISSUES_DIR}/", f"{ISSUES_DIR}/", ISSUES_DIR)]
+        with open(gitignore_path, "w") as f:
+            f.writelines(filtered)
+
+    if had_stash:
+        _git(["stash", "pop"], check=False)
+
+    print(f"Rollback complete: {len(data_files)} files restored to {current_branch}")
+    return 0
+
+
+def _setup_parent_worktree(submodule_root: str) -> int:
+    """Set up .issues/ worktree in the parent repository (for submodules)."""
+    result = _git(["rev-parse", "--show-superproject-working-tree"], check=False)
+    parent_root = result.stdout.strip()
+
+    if not parent_root or not os.path.isdir(parent_root):
+        print("No parent repository detected — skipping parent setup")
+        return 0
+
+    parent_issues_path = os.path.join(parent_root, ISSUES_DIR)
+
+    parent_result = _git(
+        ["worktree", "list", "--porcelain"],
+        cwd=parent_root,
+        check=False,
+    )
+    if parent_result.returncode == 0:
+        for line in parent_result.stdout.splitlines():
+            if line.startswith("Worktree "):
+                wt_path = line.split(" ", 1)[1]
+                if os.path.normpath(wt_path) == os.path.normpath(parent_issues_path):
+                    print(f"Parent repo: .issues/ worktree already exists at {parent_issues_path}")
+                    return 0
+
+    parent_branch = _git(["rev-parse", "--abbrev-ref", "HEAD"], cwd=parent_root).stdout.strip()
+    parent_data_branch = ISSUES_DATA_BRANCH
+
+    branch_result = _git(
+        ["branch", "--list", parent_data_branch],
+        cwd=parent_root,
+        check=False,
+    )
+    branch_exists = branch_result.stdout.strip() != ""
+
+    if not branch_exists:
+        _git(["checkout", "--orphan", parent_data_branch], cwd=parent_root)
+        _git(["rm", "-rf", "."], check=False, cwd=parent_root)
+        _git(["commit", "--allow-empty", "-m", f"Initialize {parent_data_branch} branch"], cwd=parent_root)
+        _git(["checkout", parent_branch], cwd=parent_root)
+
+    parent_gitignore = os.path.join(parent_root, ".gitignore")
+    gitignore_needs_update = True
+    if os.path.isfile(parent_gitignore):
+        with open(parent_gitignore) as f:
+            if f"/{ISSUES_DIR}/" in f.read() or f"{ISSUES_DIR}/" in f.read():
+                gitignore_needs_update = False
+
+    if gitignore_needs_update:
+        with open(parent_gitignore, "a") as f:
+            f.write(f"\n/{ISSUES_DIR}/\n")
+
+    add_result = _git(
+        ["worktree", "add", parent_issues_path, parent_data_branch],
+        cwd=parent_root,
+        check=False,
+    )
+    if add_result.returncode != 0:
+        print(f"Warning: parent repo worktree creation failed: {add_result.stderr.strip()}", file=sys.stderr)
+        return 1
+
+    open_dir = os.path.join(parent_issues_path, "open")
+    closed_dir = os.path.join(parent_issues_path, "closed")
+    os.makedirs(open_dir, exist_ok=True)
+    os.makedirs(closed_dir, exist_ok=True)
+
+    print(f"Parent repo: .issues/ worktree set up at {parent_issues_path}")
+    return 0
+
+
+def cmd_sync_push(number: int) -> int:
+    """Push .issues/N/remote.md body to GitHub issue.
+
+    Reads remote.md verbatim (pure markdown, no frontmatter) and pushes
+    body to GitHub via gh CLI, then updates state.md with last_sync timestamp.
+    """
+    root = _find_issues_root()
+    if not root:
+        print("No .issues/ directory found", file=sys.stderr)
+        return 1
+
+    result = _find_issue(root, number)
+    if not result:
+        print(f"Issue #{number} not found", file=sys.stderr)
+        return 1
+
+    issue_dir, meta, _body = result
+    remote_issue = meta.get("remote_issue")
+
+    if not remote_issue:
+        print(f"Issue #{number} is not linked to a remote issue — use 'promote' first", file=sys.stderr)
+        return 1
+
+    remote_md_path = os.path.join(issue_dir, "remote.md")
+    if not os.path.isfile(remote_md_path):
+        print(f"remote.md not found for issue #{number} — expected at {remote_md_path}", file=sys.stderr)
+        return 1
+
+    with open(remote_md_path) as f:
+        push_body = f.read().strip()
+    if not push_body:
+        print(f"remote.md body is empty for issue #{number}", file=sys.stderr)
+        return 1
+
+    platform = _detect_platform()
+
+    if platform == "gitbucket":
+        print("GitBucket API does not support body update — sync-push is not available for GitBucket", file=sys.stderr)
+        return 0
+
+    result = _git(["remote", "get-url", "origin"], check=False)
+    if result.returncode != 0:
+        print("Error: could not determine git remote URL", file=sys.stderr)
+        return 1
+    remote_url = result.stdout.strip()
+    owner_repo = None
+    if "github.com" in remote_url:
+        match = re.search(r"github\.com[:/]([^/]+/[^/]+?)(?:\.git)?$", remote_url)
+        if match:
+            owner_repo = match.group(1)
+    if not owner_repo:
+        print("Error: could not parse owner/repo from git remote URL", file=sys.stderr)
+        return 1
+
+    gh_result = subprocess.run(
+        ["gh", "issue", "edit", str(remote_issue),
+         "--repo", owner_repo,
+         "--body-file", "-"],
+        input=push_body,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    if gh_result.returncode != 0:
+        print(f"Error: gh issue edit failed: {gh_result.stderr.strip()}", file=sys.stderr)
+        return 1
+
+    state_md_path = os.path.join(issue_dir, "state.md")
+    state_data = {
+        "number": number,
+        "status": meta.get("status", "open"),
+        "last_sync": _now_iso(),
+    }
+    state_content = _format_frontmatter(state_data) + "\n"
+    with open(state_md_path, "w") as f:
+        f.write(state_content)
+
+    print(f"Pushed remote.md body for issue #{number} to GitHub issue #{remote_issue}")
+    print(f"  last_sync: {state_data['last_sync']}")
+    return 0
+
+
+def cmd_sync_pull(number: int) -> int:
+    """Pull remote issue body to .issues/N/remote.md.
+
+    Fetches body from GitHub via gh CLI and writes it as pure markdown
+    to remote.md (no YAML frontmatter). Also writes state.md with
+    number, status, and last_sync. Does NOT touch .issues/N/spec.md.
+    """
+    root = _find_issues_root()
+    if not root:
+        print("No .issues/ directory found", file=sys.stderr)
+        return 1
+
+    result = _find_issue(root, number)
+    if not result:
+        print(f"Issue #{number} not found", file=sys.stderr)
+        return 1
+
+    issue_dir, meta, _body = result
+    remote_issue = meta.get("remote_issue")
+
+    if not remote_issue:
+        print(f"Issue #{number} is not linked to a remote issue — use 'promote' first", file=sys.stderr)
+        return 1
+
+    issues_path = os.path.join(root, ISSUES_DIR)
+    status_result = _git(["status", "--porcelain", ISSUES_DIR], cwd=root, check=False)
+    if status_result.returncode == 0 and status_result.stdout.strip():
+        print("Aborting: local changes in .issues/ would be overwritten — commit or stash before pulling", file=sys.stderr)
+        return 1
+
+    platform = _detect_platform()
+
+    if platform == "gitbucket":
+        gb_result = subprocess.run(
+            [".opencode/tools/gitbucket-api", "issue", "get", str(remote_issue)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if gb_result.returncode != 0:
+            print(f"Error: gitbucket-api fetch failed: {gb_result.stderr.strip()}", file=sys.stderr)
+            return 1
+        remote_body = gb_result.stdout.strip()
+    else:
+        gh_result = subprocess.run(
+            ["gh", "issue", "view", str(remote_issue), "--json", "body", "-q", ".body"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if gh_result.returncode != 0:
+            print(f"Error: gh issue view failed: {gh_result.stderr.strip()}", file=sys.stderr)
+            return 1
+        remote_body = gh_result.stdout.strip()
+
+    remote_md_path = os.path.join(issue_dir, "remote.md")
+    with open(remote_md_path, "w") as f:
+        f.write(remote_body.strip() + "\n")
+
+    state_md_path = os.path.join(issue_dir, "state.md")
+    state_data = {
+        "number": number,
+        "status": meta.get("status", "open"),
+        "last_sync": _now_iso(),
+    }
+    state_content = _format_frontmatter(state_data) + "\n"
+    with open(state_md_path, "w") as f:
+        f.write(state_content)
+
+    print(f"Pulled remote body for issue #{number} from GitHub issue #{remote_issue}")
+    print(f"  Written: {remote_md_path}")
+    print(f"  last_sync: {state_data['last_sync']}")
+    return 0
 
 
 def cmd_review(number: int) -> int:
@@ -637,7 +1107,8 @@ def main() -> int:
     if not args:
         print("Usage: local-issues <command> [options]", file=sys.stderr)
         print(
-            "Commands: create, read, review, update, comment, close, link, promote, sync, search, list",
+            "Commands: create, read, review, update, comment, close, link, promote, "
+            "sync, sync-push, sync-pull, setup, search, list",
             file=sys.stderr,
         )
         return 1
@@ -646,7 +1117,7 @@ def main() -> int:
 
     if command in ("--help", "-h"):
         print("Usage: local-issues <command> [options]", file=sys.stderr)
-        print("Commands: create, read, review, update, comment, close, link, promote, sync, search, list", file=sys.stderr)
+        print("Commands: create, read, review, update, comment, close, link, promote, sync, sync-push, sync-pull, setup, search, list", file=sys.stderr)
         return 0
 
     if command == "create":
@@ -823,7 +1294,6 @@ def main() -> int:
             print("Error: invalid issue number", file=sys.stderr)
             return 1
         
-        # Check for --record-remote flag
         record_remote = False
         remote_url = None
         remote_number = None
@@ -867,6 +1337,51 @@ def main() -> int:
             else:
                 i += 1
         return cmd_sync(num, direction)
+
+    elif command == "sync-push":
+        if len(args) < 2:
+            print("Error: issue number required", file=sys.stderr)
+            return 1
+        try:
+            num = int(args[1])
+        except ValueError:
+            print("Error: invalid issue number", file=sys.stderr)
+            return 1
+        return cmd_sync_push(num)
+
+    elif command == "sync-pull":
+        if len(args) < 2:
+            print("Error: issue number required", file=sys.stderr)
+            return 1
+        try:
+            num = int(args[1])
+        except ValueError:
+            print("Error: invalid issue number", file=sys.stderr)
+            return 1
+        return cmd_sync_pull(num)
+
+    elif command == "setup":
+        parent = False
+        migrate = False
+        rollback = False
+        i = 1
+        while i < len(args):
+            if args[i] == "--parent":
+                parent = True
+                i += 1
+            elif args[i] == "--migrate":
+                migrate = True
+                i += 1
+            elif args[i] == "--rollback-migration":
+                rollback = True
+                i += 1
+            else:
+                print(f"Unknown setup flag: {args[i]}", file=sys.stderr)
+                return 1
+        if migrate and rollback:
+            print("Error: --migrate and --rollback-migration are mutually exclusive", file=sys.stderr)
+            return 1
+        return cmd_setup(parent=parent, migrate=migrate, rollback_migration=rollback)
 
     else:
         print(f"Unknown command: {command}", file=sys.stderr)
