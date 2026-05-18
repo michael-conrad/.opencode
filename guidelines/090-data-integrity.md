@@ -96,11 +96,12 @@ ______________________________________________________________________
 This guideline works with the error handling series (200-203). When in doubt: **raise, don't return.**
 
 ```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+schema_version: "3.0"
+last_updated: "2026-05-17T00:00:00Z"
 rules:
   - id: data-integrity-001
-    title: "No synthetic/imaginary/fabricated data — absolute prohibition"
+    tier: 1
+    title: "CRITICAL VIOLATION — No synthetic/imaginary/fabricated data — absolute prohibition"
     conditions:
       all:
         - "data_type in ['synthetic', 'imaginary', 'fabricated', 'placeholder']"
@@ -112,6 +113,7 @@ rules:
     source: "090-data-integrity.md §Global Absolute Prohibition"
 
   - id: data-integrity-002
+    tier: 2
     title: "Hard fail on missing required data"
     conditions:
       all:
@@ -125,6 +127,7 @@ rules:
     source: "090-data-integrity.md §Fail-Fast"
 
   - id: data-integrity-003
+    tier: 2
     title: "No default data to fill missing DB fields"
     conditions:
       all:
@@ -138,7 +141,8 @@ rules:
     source: "090-data-integrity.md §Fail-Fast"
 
   - id: data-integrity-004
-    title: "No unauthorized semantic changes"
+    tier: 1
+    title: "CRITICAL VIOLATION — No unauthorized semantic changes"
     conditions:
       all:
         - "semantic_change_pending == true"
@@ -151,6 +155,7 @@ rules:
     source: "090-data-integrity.md §No Unauthorized Semantic Changes"
 
   - id: data-integrity-005
+    tier: 2
     title: "No equivalence claims without proof"
     conditions:
       all:
@@ -164,6 +169,7 @@ rules:
     source: "090-data-integrity.md §No Unauthorized Semantic Changes"
 
   - id: data-integrity-006
+    tier: 2
     title: "Mandatory source traceability for validation data"
     conditions:
       all:
@@ -177,7 +183,8 @@ rules:
     source: "090-data-integrity.md §Verify Before Recommend"
 
   - id: data-integrity-007
-    title: "No hardcoded domain entity IDs in source code"
+    tier: 1
+    title: "CRITICAL VIOLATION — No hardcoded domain entity IDs in source code"
     conditions:
       all:
         - "hardcoded_entity_id_found == true"
@@ -189,6 +196,7 @@ rules:
     source: "090-data-integrity.md §No Hardcoded Entity IDs"
 
   - id: data-integrity-008
+    tier: 2
     title: "Correctness over performance in batch operations"
     conditions:
       all:

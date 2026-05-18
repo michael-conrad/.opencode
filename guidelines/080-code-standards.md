@@ -12,7 +12,7 @@ These standards apply to **ALL code artifacts**: Python modules, Jupyter noteboo
 
 ## Typing
 
-- Mandatory explicit type hints (Pydantic/Dataclasses) project-wide. Avoid `Any`; use concrete types wherever possible.
+- Explicit type hints (Pydantic/Dataclasses) project-wide. Avoid `Any`; use concrete types wherever possible. This is the project standard — type hints make code self-documenting and catch errors at definition time.
   `Any` is acceptable only when imposed by third-party signatures.
 - Use Python 3.12+ built-in types (`list[str]`, `dict[str, Any]`), not `typing.List`/`Dict`.
 - **Strict Enum Mapping**: DB-stored enums use plain string values (`NEW_DISCOVERY = "new_discovery"`).
@@ -38,7 +38,7 @@ The following project-specific code structure rules are enforced in this reposit
   - Scripts and configuration files
 - **No Monoliths**: Long procedural blocks are prohibited. If a function exceeds 40 lines, decompose it. If a notebook cell exceeds 50 lines, split it into multiple cells.
 - **No Magic Strings or Numbers**: All literal strings and numbers that carry domain meaning must be extracted to named constants (`UPPER_SNAKE_CASE` at module level, or class-level `ClassVar`) before use. Inline literals are only acceptable for truly universal values (e.g., `0`, `1`, `""`, `True`, `False`, HTTP status `200`).
-- **No Re-exports** (ABSOLUTE PROHIBITION):
+- **No Re-exports**: Imports must reference concrete module paths — IDE navigation depends on it. This is the project standard.
   - NEVER add `from X import Y` or `__all__` to `__init__.py` files.
   - `__init__.py` must contain ONLY a module docstring describing the package purpose.
   - All imports must reference concrete module paths (e.g., `from commons.mesh.validator import MeshValidator`, NOT `from commons.mesh import MeshValidator`).
@@ -99,7 +99,7 @@ The following project-specific code structure rules are enforced in this reposit
 | `pymarkdownlnt` | 🚫 PROHIBITED | ✅ REQUIRED |
 | `mdformat` | 🚫 PROHIBITED | ✅ REQUIRED |
 
-Running `ruff check` or `ruff format` on `.md` files is a **CRITICAL GUIDELINE VIOLATION**.
+Running `ruff check` or `ruff format` on `.md` files is prohibited — Python tools are designed for Python syntax and produce incorrect results on markdown files. Use markdown-specific tools (`pymarkdownlnt`, `mdformat`) instead.
 
 ### Correct Tool Usage
 
@@ -123,7 +123,7 @@ uvx mdformat .opencode/guidelines/ docs/                # Format
 
 ## Numbering — ENFORCED
 
-All enumeration lists, numbered sections, and step sequences in documentation MUST use **natural counting** (starting at 1).
+Numbered lists must start at 1. Zero-indexed documentation is harder for humans to read. This is the project convention — experienced engineers follow it.
 
 **Prohibited:**
 
@@ -356,6 +356,8 @@ Pattern: `// SPDX-FileCopyrightText:` + `// SPDX-License-Identifier:` + `// Prov
 
 ## Enforcement Test Mandate for Guideline and Skill Changes
 
+Behavioral tests are how real agents prove their rules work. Adding a guideline change without a behavioral test means you are documenting, not enforcing.
+
 Guideline files (`.opencode/guidelines/*.md`) and skill files (`.opencode/skills/*/SKILL.md`, `.opencode/skills/*/tasks/*.md`) are enforcement-critical documents that control AI agent behavior. Changes to these files MUST be accompanied by corresponding enforcement test updates.
 
 ### Behavioral Enforcement Tests (PRIMARY)
@@ -539,29 +541,32 @@ Session-init and env-loader are two independent pipelines with separate naming c
 These pipelines are independent. Changing session-init output names does NOT require changes to env-loader, and vice versa.
 
 ```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+schema_version: "3.0"
+last_updated: "2026-05-17T00:00:00Z"
 rules:
   - id: code-standards-001
-    title: "Mandatory explicit type hints project-wide"
+    tier: 3
+    title: "Explicit type hints project-wide"
     conditions:
       all:
         - "python_file_created_or_modified == true"
         - "type_hints_present == false"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "080-code-standards.md §Typing"
 
   - id: code-standards-002
+    tier: 3
     title: "AI co-authored attribution mandatory for AI-generated content"
     conditions:
       all:
         - "ai_generated_content_created == true"
         - "attribution_present == false"
     actions:
+      - FLAG
       - ADD_ATTRIBUTION
     conflicts_with: [critical-rules-023]
     requires: []
@@ -569,19 +574,21 @@ rules:
     source: "080-code-standards.md §AI Co-Authored Attribution"
 
   - id: code-standards-003
+    tier: 3
     title: "No re-exports in __init__.py"
     conditions:
       all:
         - "init_py_modified == true"
         - "imports_or_all_added == true"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "080-code-standards.md §Design Principles — No Re-exports"
 
   - id: code-standards-004
+    tier: 2
     title: "Behavioral enforcement test required for guideline/skill changes"
     conditions:
       all:
@@ -595,6 +602,7 @@ rules:
     source: "080-code-standards.md §Enforcement Test Mandate"
 
   - id: code-standards-005
+    tier: 2
     title: "Behavioral RED before GREEN for rule changes"
     conditions:
       all:
@@ -608,31 +616,34 @@ rules:
     source: "080-code-standards.md §Behavioral RED/GREEN as Primary Enforcement Gate"
 
   - id: code-standards-006
+    tier: 3
     title: "Natural counting for numbered lists — no zero-indexing"
     conditions:
       all:
         - "new_documentation_created == true"
         - "uses_zero_indexed_numbering == true"
     actions:
-      - FIX_NUMBERING
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "080-code-standards.md §Numbering — ENFORCED"
 
   - id: code-standards-007
+    tier: 3
     title: "Python tools must not be run on non-Python files"
     conditions:
       all:
         - "ruff_or_pyright_on_markdown == true"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "080-code-standards.md §Tool Selection by File Type"
 
   - id: code-standards-008
+    tier: 2
     title: "SC-to-test traceability mandatory"
     conditions:
       all:
@@ -644,4 +655,97 @@ rules:
     requires: []
     triggers: [spec-creation]
     source: "080-code-standards.md §SC-to-Test Traceability"
+
+  - id: code-standards-009
+    tier: 3
+    title: "No print statements for narration or self-signaling"
+    conditions:
+      all:
+        - "agent_adding_print_statement == true"
+        - "print_purpose == 'feature_narration'"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Print Statements & Output"
+
+  - id: code-standards-010
+    tier: 3
+    title: "Use f-strings for string interpolation"
+    conditions:
+      all:
+        - "string_interpolation_method == '.format'"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Modern Python"
+
+  - id: code-standards-011
+    tier: 3
+    title: "Use pathlib.Path for file operations"
+    conditions:
+      all:
+        - "file_operation_method == 'os.path'"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Modern Python"
+
+  - id: code-standards-012
+    tier: 3
+    title: "Docstring determinism — no ambiguous hedge phrases"
+    conditions:
+      all:
+        - "docstring_contains_ambiguous_phrase == true"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Design Principles"
+
+  - id: code-standards-013
+    tier: 3
+    title: "Use stable labels over positional index numbers"
+    conditions:
+      all:
+        - "structured_artifact_referenced_by_index == true"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Design Principles"
+
+  - id: code-standards-014
+    tier: 3
+    title: "Top-level docstring or comment in every source file"
+    conditions:
+      all:
+        - "source_file_created == true"
+        - "module_docstring_missing == true"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Design Principles"
+
+  - id: code-standards-015
+    tier: 3
+    title: "Cross-references use stable anchors, not line numbers"
+    conditions:
+      all:
+        - "documentation_uses_line_number_reference == true"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Cross-Reference Standards"
 ```

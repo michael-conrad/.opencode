@@ -250,66 +250,72 @@ Key points:
 - After auto-creating sub-issues, the agent proceeds with implementation immediately (no re-authorization needed).
 
 ```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+schema_version: "3.0"
+last_updated: "2026-05-17T00:00:00Z"
 rules:
   - id: go-prohibitions-001
+    tier: 3
     title: "Agent must never write GO as standalone token"
     conditions:
       all:
         - "agent_output_contains == 'GO'"
         - "context != 'quoted_example'"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "020-go-prohibitions.md §1 NEVER DO"
 
   - id: go-prohibitions-002
+    tier: 3
     title: "No echo or printf commands ever"
     conditions:
       all:
         - "command_includes == 'echo'"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "020-go-prohibitions.md §1 NEVER DO"
 
   - id: go-prohibitions-003
+    tier: 3
     title: "No awaiting-GO or pending-state markers"
     conditions:
       all:
         - "agent_output_contains == 'awaiting'"
         - "agent_output_contains == 'approval'"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "020-go-prohibitions.md §1 NEVER DO"
 
   - id: go-prohibitions-004
+    tier: 3
     title: "Never prompt for authorization"
     conditions:
       any:
         - "agent_output_matches == 'May I proceed?'"
         - "agent_output_matches == 'Shall I continue?'"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "020-go-prohibitions.md §1 NEVER DO"
 
   - id: go-prohibitions-005
+    tier: 2
     title: "Questions are NOT authorization"
     conditions:
       all:
         - "user_input_format == 'question'"
     actions:
+      - HALT
       - SKIP
     conflicts_with: [approval-gate-002]
     requires: []
@@ -317,6 +323,7 @@ rules:
     source: "020-go-prohibitions.md §1 NEVER DO"
 
   - id: go-prohibitions-006
+    tier: 2
     title: "Multi-task plan requires sub-issues under plan"
     conditions:
       all:
@@ -330,6 +337,7 @@ rules:
     source: "020-go-prohibitions.md §5"
 
   - id: go-prohibitions-007
+    tier: 2
     title: "No silent halt without search+prompt for missing spec/plan"
     conditions:
       all:
@@ -347,6 +355,7 @@ rules:
     source: "020-go-prohibitions.md §1 NEVER DO, ALWAYS DO"
 
   - id: go-prohibitions-008
+    tier: 2
     title: "Hard HALT at scope boundary without re-authorization"
     conditions:
       all:
@@ -361,6 +370,7 @@ rules:
     source: "020-go-prohibitions.md §1 ALWAYS DO"
 
   - id: go-prohibitions-009
+    tier: 3
     title: "Pipeline-scoped GO phrases must be parsed for scope horizon"
     conditions:
       any:
@@ -370,6 +380,7 @@ rules:
         - "authorization_text matches 'for spec'"
         - "authorization_text matches 'for review_only'"
     actions:
+      - FLAG
       - PARSE_SCOPE(authorization_text)
       - SET(halt_at, pr_strategy, gap_fill_actions)
     conflicts_with: []
