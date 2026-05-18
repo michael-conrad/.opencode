@@ -109,7 +109,7 @@ If the answer is "no", the SC must be rewritten.
 | Missing expected values | "returns the correct result", "validates input" | No concrete expected value to compare against |
 | Implicit behavior | "should not crash", "works normally" | No negative criterion — what constitutes "not crashing" is undefined |
 
-**Verification:** For each SC, attempt to write an executable verification command (`uv run pytest test_X.py::test_Y`, `bash verify.sh arg`, `github_issue_read()` with specific field check). If no executable command can be written, the SC is not deterministic.
+**Verification:** For each SC, attempt to write an executable verification command (`uv run pytest test_X.py::test_Y`, `bash verify.sh arg`, `issue-operations -> read-issue (github_issue_read())` with specific field check). If no executable command can be written, the SC is not deterministic. <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Step 5: Structure the Deliverable (Principle #10)
 
@@ -158,10 +158,10 @@ Fix any issues inline. No need to re-review — just fix and move on.
 
 | Checkpoint | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |
-| No placeholders remain | Verify spec body contains no "TBD", "TODO", "FIXME", or incomplete section markers | `github_issue_read(method=get, issue_number=N)` → search body for `/TBD\|TODO\|FIXME/` | STRUCTURE-VIOLATION |
-| Internal consistency | Cross-reference requirement IDs between sections; verify no contradictions | `github_issue_read(method=get)` → parse section anchors vs referenced IDs | CONFLICTING |
-| Scope check evidence | Verify scope is appropriate for single plan or flagged for decomposition | `github_issue_read(method=get)` → count affected files, check for phase markers | VERIFICATION-GAP |
-| Ambiguity resolved | Verify no requirement can be interpreted two ways | `github_issue_read(method=get)` → scan for "should", "etc.", vague terms | STRUCTURE-VIOLATION |
+| No placeholders remain | Verify spec body contains no "TBD", "TODO", "FIXME", or incomplete section markers | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → search body for `/TBD\|TODO\|FIXME/` | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
+| Internal consistency | Cross-reference requirement IDs between sections; verify no contradictions | `issue-operations -> read-issue (github_issue_read(method=get)` → parse section anchors vs referenced IDs | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
+| Scope check evidence | Verify scope is appropriate for single plan or flagged for decomposition | `issue-operations -> read-issue (github_issue_read(method=get)` → count affected files, check for phase markers | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
+| Ambiguity resolved | Verify no requirement can be interpreted two ways | `issue-operations -> read-issue (github_issue_read(method=get)` → scan for "should", "etc.", vague terms | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
 
 **Evidence format:**
 

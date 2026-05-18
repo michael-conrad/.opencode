@@ -27,6 +27,48 @@ Before posting, evaluate: Does this comment convey information a stakeholder nee
 | Comment is merely "Task complete" or status update | **SKIP — do not post** |
 | Comment explains what changed during closure (beyond status) | **Post with byline** |
 
+### Step 1.5: Content Classification Gate
+
+After substantiveness, classify comment content before determining type. Classification determines routing — where the comment lands and whether it reaches stakeholders.
+
+| Classification | Definition | Route |
+|---|---|---|
+| **stakeholder** | Information a reviewer/stakeholder needs to act on | Write to `remote.md` → `local-issues sync push N` |
+| **internal** | Agent reasoning, design analysis, corrections, process metadata | `.issues/N/comments.md` only |
+
+**Concrete classification rules:**
+
+| Content Type | Classification | Rationale |
+|---|---|---|
+| What was DONE | Evaluate for stakeholder | May affect stakeholder understanding or require action |
+| HOW it was figured out | **internal** | Process detail, not actionable |
+| Revising/correcting spec | **internal** (triggers Phase 3 body update) | Correction updates the issue body, not a comment |
+| Audit findings, verdicts | **internal** | Process metadata, not stakeholder-facing |
+| Discussion responses | **internal** | Agent-to-agent reasoning |
+| Decision log entries | **internal** | Process metadata |
+
+**Error handling:** Default to `internal` (conservative) when classification is uncertain. Stakeholder-visible content is additive — it can always be promoted later. Internal content posted publicly cannot be retracted.
+
+### Step 1.5b: Body-Revision Check
+
+After classification, evaluate: **Does this stakeholder-classified comment revise, correct, or supersede the spec body?**
+
+| If | Action |
+|----|--------|
+| Comment revises/corrects/supersedes the spec body | **Update spec body flow (below)** |
+| Comment does NOT revise the spec body | **Proceed to Step 2** |
+
+**Update spec body flow** (when comment revises/corrects/supersedes spec body):
+
+1. Update `.issues/N/spec.md` — merge the revision into the canonical spec body
+2. Update `.issues/N/remote.md` — reflect the revision in the exec summary
+3. Run `local-issues sync push N` — push updated spec body to GitHub
+4. Post explanatory comment: "Spec body updated per #683 Phase 3"
+
+**Why this matters:** Without this check, stakeholder corrections sit in comments while the spec body remains stale. The canonical spec body (`.issues/N/spec.md`) is the authoritative source — revisions must propagate to it, not remain stranded in comments.
+
+**Classification interaction:** Only stakeholder-classified content triggers this check. Internal reasoning (design analysis, process metadata) never revises the spec body — it stays in `.issues/N/comments.md`.
+
 ### Step 2: Determine Comment Type
 
 | Type | Purpose | Status Text | Icon |
@@ -109,7 +151,15 @@ Before posting any AI-authored comment, verify the byline is present:
 
 ### Step 6: Post Comment (Platform Routing)
 
-**GitHub platform:**
+Route based on `github.platform`:
+
+| `github.platform` | Route to |
+|---|---|
+| `github` | `platforms/github-mcp/` sub-skill |
+| `gitbucket` | `platforms/gitbucket-api/` sub-skill |
+| `local` | `platforms/local/` sub-skill |
+
+**GitHub platform (sub-skill implementation):**
 ```python
 github_add_issue_comment(
     owner=<github.owner>,
@@ -119,20 +169,25 @@ github_add_issue_comment(
 )
 ```
 
-**GitBucket platform:**
+**GitBucket platform (sub-skill implementation):**
 ```bash
 ./.opencode/tools/gitbucket-api add-comment <github.owner> <github.repo> <issue-number> "<formatted_comment>"
+```
+
+**Local platform (sub-skill implementation):**
+```bash
+./.opencode/tools/local-issues comment <issue-number> --body "<formatted_comment>"
 ```
 
 ## Live Verification: Comment Claims (MANDATORY)
 
 **When this task prepares a comment, any claims about issue/PR state MUST be verified against live state.**
 
-| Comment Claim | Verification Action | Tool Call |
+| Comment Claim | Verification Action | Tool Call (routed) |
 |--------------|-------------------|-----------|
-| "Spec revised" in revision comment | Verify spec body actually changed | `github_issue_read(method=get, issue_number=N)` → compare body |
-| "Implementation complete" in closure comment | Verify PR merged via platform API | `github_pull_request_read(method=get)` → check `merged` field |
-| "Fixes #N" in PR comment | Verify issue #N exists | `github_issue_read(method=get, issue_number=N)` |
+| "Spec revised" in revision comment | Verify spec body actually changed | `issue-operations → read-issue` then compare body |
+| "Implementation complete" in closure comment | Verify PR merged via platform API | `github_pull_request_read(method=get)` → check `merged` field *(PR ops — not routed through issue-operations)* |
+| "Fixes #N" in PR comment | Verify issue #N exists | `issue-operations → read-issue` then verify existence |
 
 ## Common Issues
 
@@ -161,5 +216,6 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 - Session values: github.owner, github.repo, github.platform
 - Related tasks: `close` (uses comment for closure), `link-sub-issue` (uses comment for fallback)
-- Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/`
+- Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
 - Byline verification (Step 3.5) applies to ALL repositories — external posts have higher attribution priority
+- No direct `github_*` or `gitbucket-api` calls outside `issue-operations/platforms/`

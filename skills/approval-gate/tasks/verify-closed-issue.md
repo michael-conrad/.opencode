@@ -25,7 +25,7 @@ Verify that a closed issue was legitimately closed — checking that a merged PR
 ### Step 1: Retrieve Issue State
 
 ```python
-issue = github_issue_read(method="get", issue_number=N)
+issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
 
 if issue["state"] != "closed":
     # Issue is still open — closed verification does not apply
@@ -33,7 +33,7 @@ if issue["state"] != "closed":
     EXIT with result: NOT_CLOSED
 ```
 
-**Evidence artifact:** `github_issue_read(method=get)` response showing `state: "closed"`.
+**Evidence artifact:** `issue-operations -> read-issue (github_issue_read(method=get)` response showing `state: "closed"`. <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Step 2: Determine Closure Reason
 
@@ -112,7 +112,7 @@ EXIT with result: NOT_PLANNED_CLOSURE
 # Also check comments for duplicate reference
 
 body = issue.get("body", "")
-comments = github_issue_read(method="get_comments", issue_number=N)
+comments = issue-operations -> read-comments (github_issue_read(method="get_comments", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
 
 duplicate_target = None
 
@@ -137,7 +137,7 @@ if not duplicate_target:
 
 if duplicate_target:
     # Verify the duplicate target exists and is not also prematurely closed
-    target = github_issue_read(method="get", issue_number=duplicate_target)
+    target = issue-operations -> read-issue (github_issue_read(method="get", issue_number=duplicate_target) <!-- Routes through issue-operations per SPEC #683 -->
     REPORT: f"Issue #{N} closed as duplicate of #{duplicate_target} (state: {target['state']})"
     # Recursively verify the duplicate target if it's also closed
     # (Call verify-closed-issue recursively for the target, with depth limit)
@@ -152,7 +152,7 @@ else:
 If the issue is a parent with sub-issues, verify EACH sub-issue's closure is legitimate before closing the parent:
 
 ```python
-sub_issues = github_issue_read(method="get_sub_issues", issue_number=N)
+sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
 
 if sub_issues:
     for sub_issue in sub_issues:
@@ -278,7 +278,7 @@ From the root issue (already verified in Steps 1-7), collect all adjacent issues
 adjacent = set()
 
 # Edge type 1: Sub-issues
-sub_issues = github_issue_read(method="get_sub_issues", issue_number=root_issue_number)
+sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=root_issue_number) <!-- Routes through issue-operations per SPEC #683 -->
 for sub in sub_issues:
     adjacent.add(sub["number"])
 
@@ -311,7 +311,7 @@ def verify_recursive(issue_number, depth):
         return
     visited.add(issue_number)
 
-    issue = github_issue_read(method="get", issue_number=issue_number)
+    issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=issue_number) <!-- Routes through issue-operations per SPEC #683 -->
 
     # If closed: verify closure (reuse Steps 1-7)
     if issue["state"] == "closed":
@@ -348,7 +348,7 @@ Findings:
 Overall: CONSISTENT / HAS_FLAGS
 ```
 
-**Evidence requirement:** Every node in the graph MUST have a corresponding `github_issue_read` tool call artifact. Graph breadth determines the number of API calls required — this is expected and necessary for thorough verification.
+**Evidence requirement:** Every node in the graph MUST have a corresponding `issue-operations -> read-issue (github_issue_read` tool call artifact. Graph breadth determines the number of API calls required — this is expected and necessary for thorough verification. <!-- Routes through issue-operations per SPEC #683 -->
 
 ## Verification Result Types
 

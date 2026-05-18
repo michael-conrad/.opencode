@@ -58,8 +58,8 @@ After building traceability (Step 1-3), verify every referenced target:
 
 | Trace Target Type | Verification Action | Tool Call | Problem Class |
 |-------------------|-------------------|-----------|---------------|
-| Referenced GitHub Issue | Verify the issue exists and is accessible | `github_issue_read(method=get, issue_number=N)` → confirm `title` is not "404" | MISSING-TRACEABILITY |
-| Referenced spec (by issue number) | Verify the spec Issue exists with proper prefix and labels | `github_issue_read(method=get, issue_number=N)` → check title starts with `[SPEC]` | MISSING-TRACEABILITY |
+| Referenced GitHub Issue | Verify the issue exists and is accessible | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → confirm `title` is not "404" | MISSING-TRACEABILITY | <!-- Routes through issue-operations per SPEC #683 -->
+| Referenced spec (by issue number) | Verify the spec Issue exists with proper prefix and labels | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → check title starts with `[SPEC]` | MISSING-TRACEABILITY | <!-- Routes through issue-operations per SPEC #683 -->
 | Referenced code symbol | Verify the symbol exists in the current codebase | `srclight_get_symbol(name="symbol_name")` → confirm non-empty result | VERIFICATION-GAP |
 | Referenced file path | Verify the file exists at the claimed path | `glob(pattern="**/filepath")` → confirm match | VERIFICATION-GAP |
 | Bidirectional coverage | Verify every requirement maps to a section AND every section maps to a requirement | Cross-reference requirement list with section anchors | MISSING-TRACEABILITY |

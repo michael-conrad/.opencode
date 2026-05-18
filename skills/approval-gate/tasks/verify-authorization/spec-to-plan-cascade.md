@@ -22,7 +22,7 @@ if not is_spec:
 
 # Search for plans referencing this spec
 spec_number = issue["number"]
-plan_issues = github_search_issues(
+plan_issues = issue-operations -> search-issues (github_search_issues( <!-- Routes through issue-operations per SPEC #683 -->
     query=f"open label:plan Spec: #{spec_number} repo:{<github.owner>}/{<github.repo>}"
 )
 ```
@@ -41,19 +41,19 @@ if plan_issues:
         older_plans = plan_issues[1:]
 
         # Cascade-approve the most recent plan
-        github_issue_write(
+        issue-operations -> creation/update (github_issue_write( <!-- Routes through issue-operations per SPEC #683 -->
             method="update",
             issue_number=most_recent["number"],
             labels=[l for l in most_recent["labels"] if l != "needs-approval"],
         )
-        github_add_issue_comment(
+        issue-operations -> comment (github_add_issue_comment( <!-- Routes through issue-operations per SPEC #683 -->
             issue_number=most_recent["number"],
             body="Approval cascaded from spec #{spec_number}. Plan approved automatically because spec is already approved and this is the most recent plan referencing it.",
         )
 
         # Supersede older plans
         for old_plan in older_plans:
-            github_add_issue_comment(
+            issue-operations -> comment (github_add_issue_comment( <!-- Routes through issue-operations per SPEC #683 -->
                 issue_number=old_plan["number"],
                 body="Superseded by #{most_recent_number} — cascade approval applies to the most recent plan only.",
             )
@@ -61,12 +61,12 @@ if plan_issues:
     else:
         # Single plan: cascade-approve it
         plan_issue = plan_issues[0]
-        github_issue_write(
+        issue-operations -> creation/update (github_issue_write( <!-- Routes through issue-operations per SPEC #683 -->
             method="update",
             issue_number=plan_issue["number"],
             labels=[l for l in plan_issue["labels"] if l != "needs-approval"],
         )
-        github_add_issue_comment(
+        issue-operations -> comment (github_add_issue_comment( <!-- Routes through issue-operations per SPEC #683 -->
             issue_number=plan_issue["number"],
             body="Approval cascaded from spec #{spec_number}. Plan approved automatically because spec is already approved.",
         )
@@ -84,7 +84,7 @@ elif not plan_issues:
 - The spec has been revised — existing revocation rules apply; cascade approval is revoked per Step 6 "Spec Revision Revocation Detection"
 - The plan does not faithfully implement the spec — `plan-fidelity-auditor` catches this during implementation review
 
-**⚠️ Body-Preservation Safeguard:** This task only updates labels (no `body=` parameter in `github_issue_write` calls). Status updates use `github_add_issue_comment`. If any future modification were to use `github_issue_write(method=update, body=...)`, it MUST verify that the new body preserves all original content (len(new_body) >= 0.8 * len(original_body)). See `000-critical-rules.md` → "Critical Violation: Issue Body Erasure" for the project-wide rule.
+**⚠️ Body-Preservation Safeguard:** This task only updates labels (no `body=` parameter in `github_issue_write` calls). Status updates use `github_add_issue_comment`. If any future modification were to use `issue-operations -> update-issue (github_issue_write(method=update, body=...)`, it MUST verify that the new body preserves all original content (len(new_body) >= 0.8 * len(original_body)). See `000-critical-rules.md` → "Critical Violation: Issue Body Erasure" for the project-wide rule. <!-- Routes through issue-operations per SPEC #683 -->
 
 ## 5b.4 Edge Cases
 
@@ -96,7 +96,7 @@ elif not plan_issues:
 | No plan exists | Cascade does NOT apply; current flow (spec approval → writing-plans) is correct |
 | Plan already approved (no `needs-approval` label) | No action needed — plan is already approved |
 
-**Evidence artifact:** `github_search_issues` response showing plan issues referencing the spec, and `github_issue_write` response confirming label removal and comment posting.
+**Evidence artifact:** `issue-operations -> search-issues (github_search_issues` response showing plan issues referencing the spec, and `github_issue_write` response confirming label removal and comment posting. <!-- Routes through issue-operations per SPEC #683 -->
 
 ## Work State I/O
 

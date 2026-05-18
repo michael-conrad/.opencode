@@ -20,18 +20,14 @@ Idempotent completion subtask for issue-operations. Ensures mandatory steps run 
 
 1. **Issue created:** Check if the issue already exists
    - Search by title or check recent issue list (via platform sub-skill)
-2. **Labels applied:** Check if `needs-approval` label is present
-3. **Sub-issues created:** Check if multi-task spec has sub-issues (via platform sub-skill `get_sub_issues` or comment-based tracking)
+2. **Labels applied:** Check if `needs-approval` label is present (via `issue-operations → read-labels`)
+3. **Sub-issues created:** Check if multi-task spec has sub-issues (via `issue-operations → read-sub-issues` or comment-based tracking)
 4. **Auditor invoked:** Check if spec-auditor has been run on the issue (via session records or `./tmp/` files)
 
 ## Skill-Specific Completion
 
-1. **Apply `needs-approval` label** (if not already present):
-    ```python
-    labels = github_issue_read(method="get_labels", issue_number=N)
-    if "needs-approval" not in [l["name"] for l in labels]:
-        # Add label
-    ```
+1. **Apply `needs-approval` label** (if not already present, routed via `issue-operations → read-labels`):
+    - If label not present, add it via `issue-operations → update-issue`
 2. **Invoke spec-auditor** (if not already run):
     - Check session records or `./tmp/` files for auditor results
     - If missing: invoke spec-auditor
@@ -77,11 +73,11 @@ URL is ALWAYS last per `000-critical-rules.md`.
 
 **Each completion state check MUST be verified via tool call, not just asserted. Assertions without tool-call artifacts are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
 
-| Claim | Verification Action | Tool Call | Problem Class |
+| Claim | Verification Action | Tool Call (routed) | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Issue was created" | Verify issue exists | `github_issue_read(method="get", issue_number=N)` | MISSING-ELEMENT |
-| "`needs-approval` label applied" | Verify label present | `github_issue_read(method="get_labels", issue_number=N)` | MISSING-ELEMENT |
-| "Sub-issues created" | Verify sub-issues exist | `github_issue_read(method="get_sub_issues", issue_number=N)` | MISSING-ELEMENT |
+| "Issue was created" | Verify issue exists | `issue-operations → read-issue` → verify | MISSING-ELEMENT |
+| "`needs-approval` label applied" | Verify label present | `issue-operations → read-labels` → verify | MISSING-ELEMENT |
+| "Sub-issues created" | Verify sub-issues exist | `issue-operations → read-sub-issues` → verify | MISSING-ELEMENT |
 | "Auditor was invoked" | Check for auditor results | Session records or `./tmp/` files | VERIFICATION-GAP |
 
 **Evidence artifact:** Tool call results for each completion state check.
@@ -94,6 +90,13 @@ URL is ALWAYS last per `000-critical-rules.md`.
 | Label missing | MISSING-ELEMENT | auto-fix | Add label immediately |
 | Sub-issues missing (multi-task) | MISSING-ELEMENT | conditional | Create sub-issues if multi-task spec |
 | Auditor not invoked | VERIFICATION-GAP | conditional | Invoke spec-auditor |
+
+## Context Required
+
+- Session values: github.owner, github.repo, github.platform
+- Related tasks: `creation` (runs first), `post-creation` (runs after), `single-task-check` (uses determination)
+- Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
+- No direct `github_*` or `gitbucket-api` calls outside `issue-operations/platforms/`
 
 ## Pipeline Signal
 

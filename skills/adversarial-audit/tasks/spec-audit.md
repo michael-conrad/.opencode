@@ -27,7 +27,7 @@ Audit a spec for quality, structure, and completeness using dual-adversarial cro
 
 Fetch spec via GitHub MCP if issue number provided:
 ```bash
-github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<N>)
+issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<N>) <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 Extract spec body and metadata.

@@ -38,7 +38,7 @@ If `clean_room_plan` is MISSING or its source is NOT a labeled sub-agent dispatc
 
 If plan issue provided:
 ```python
-github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<plan_issue>)
+issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<plan_issue>) <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 Otherwise, link from spec body.

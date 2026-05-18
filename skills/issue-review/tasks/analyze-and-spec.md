@@ -21,7 +21,7 @@ Perform root cause analysis on a bug report and auto-create a fix spec sub-issue
 - Root cause analysis documented in chat
 - Impact assessment completed
 - Fix spec sub-issue created via `issue-operations` skill
-- Fix spec sub-issue linked to bug report parent via `github_sub_issue_write`
+- Fix spec sub-issue linked to bug report parent via `issue-operations -> link-sub-issue (github_sub_issue_write` <!-- Routes through issue-operations per SPEC #683 -->
 - Smart checkpoint decision made (auto-proceed or HALT)
 
 ## Procedure
@@ -136,7 +136,7 @@ Before creating the fix spec sub-issue, evaluate clarity:
 Invoke `issue-operations` skill to create the fix spec:
 
 ```
-github_issue_write(
+issue-operations -> creation/update (github_issue_write( <!-- Routes through issue-operations per SPEC #683 -->
     method="create",
     owner=<github.owner>,
     repo=<github.repo>,
@@ -151,7 +151,7 @@ github_issue_write(
 Link the newly created fix spec as a sub-issue of the bug report:
 
 ```
-github_sub_issue_write(
+issue-operations -> link-sub-issue (github_sub_issue_write( <!-- Routes through issue-operations per SPEC #683 -->
     method="add",
     owner=<github.owner>,
     repo=<github.repo>,
@@ -167,7 +167,7 @@ github_sub_issue_write(
 Add a comment to the bug report summarizing the analysis and linking the fix spec:
 
 ```
-github_add_issue_comment(
+issue-operations -> comment (github_add_issue_comment( <!-- Routes through issue-operations per SPEC #683 -->
     owner=<github.owner>,
     repo=<github.repo>,
     issue_number=<bug_report_number>,
@@ -213,7 +213,7 @@ Produce prose exec summary for chat:
 
 Before classifying a closed bug report as `already-handled` or `stale`:
 
-1. **Check sub-issues:** `github_issue_read(method="get_sub_issues", issue_number=N)` — if any sub-issue is open, the parent closure is premature
+1. **Check sub-issues:** `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=N)` — if any sub-issue is open, the parent closure is premature <!-- Routes through issue-operations per SPEC #683 -->
 2. **Check cross-references:** Read issue body for `Spec: #N`, `Plan: #N` references — verify referenced issues are also resolved
 3. **Check closure correctness:** Verify `state_reason == "completed"` AND a merged PR exists (search for PRs referencing the issue)
 4. **If all verified:** Classify as `already-handled` and skip analysis

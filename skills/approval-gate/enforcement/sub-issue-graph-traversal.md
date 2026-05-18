@@ -11,12 +11,12 @@ function traverse_sub_issue_graph(parent_issue_number, depth=0, max_depth=5):
     if depth > max_depth:
         HALT with "Sub-issue graph exceeds max depth"
     
-    sub_issues = github_issue_read(method=get_sub_issues, issue_number=parent_issue_number)
+    sub_issues = issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues, issue_number=parent_issue_number) <!-- Routes through issue-operations per SPEC #683 -->
     
     results = []
     for sub in sub_issues:
         # Verify sub-issue state against live data
-        live_state = github_issue_read(method=get, issue_number=sub.number)
+        live_state = issue-operations -> read-issue (github_issue_read(method=get, issue_number=sub.number) <!-- Routes through issue-operations per SPEC #683 -->
         
         # Edge type classification
         edge_type = classify_edge(parent_issue_number, sub.number)
@@ -56,7 +56,7 @@ Verify sub-issue count matches plan body phase count:
 
 1. Parse plan body for `### Phase N:` or `#### Task N:` heading patterns
 2. Count expected phases from headings
-3. Get `github_issue_read(method=get_sub_issues)` count
+3. Get `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues)` count <!-- Routes through issue-operations per SPEC #683 -->
 4. If plan has N > 1 phases and sub-issues count < N:
    - Report STRUCTURE-VIOLATION
    - Block implementation

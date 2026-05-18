@@ -59,12 +59,12 @@ After both Gate 1 and Gate 2 pass, check the issue body for cross-references and
 
 ```
 For each candidate "already-implemented" issue:
-  body = github_issue_read(method="get", issue_number=candidate)
+  body = issue-operations -> read-issue (github_issue_read(method="get", issue_number=candidate) <!-- Routes through issue-operations per SPEC #683 -->
   
   for pattern in [r"Spec:\s*#(\d+)", r"Plan:\s*#(\d+)", r"Implements\s*#(\d+)"]:
     for match in re.finditer(pattern, body):
       ref_num = int(match.group(1))
-      ref_issue = github_issue_read(method="get", issue_number=ref_num)
+      ref_issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=ref_num) <!-- Routes through issue-operations per SPEC #683 -->
       
       if ref_issue["state"] == "open" and candidate is classified as "already-implemented":
         DOWNGRADE to "partially-implemented" or flag-for-review
@@ -123,7 +123,7 @@ For this issue, produce the audit row:
 
 Expand the issue into its sub-issues (flat item list):
 
-1. **Query sub-issues:** `github_issue_read(method="get_sub_issues", issue_number=N)`
+1. **Query sub-issues:** `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=N)` <!-- Routes through issue-operations per SPEC #683 -->
 2. **If sub-issues exist:** Expand the parent into its sub-issues as individual implementation items. The parent's spec body provides context; each sub-issue defines a phase.
 3. **If no sub-issues (work-of-1):** The issue IS the flat item — no expansion needed.
 4. **Build the flat item list:** Each sub-issue (or single issue) becomes one flat item. This is the input to the merge phase.
@@ -241,7 +241,7 @@ session_vars:
 
 **Always:**
 
-- Call `github_issue_read(method=get_sub_issues)` for every candidate "already-implemented" issue (Gate 1)
+- Call `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues)` for every candidate "already-implemented" issue (Gate 1) <!-- Routes through issue-operations per SPEC #683 -->
 - Verify each success criterion against the live codebase before classifying as "already-implemented" (Gate 2)
 - Complete the Gate Evidence Audit row (Step 6) before producing the result contract
 - Produce a per-issue `get_sub_issues` tool-call artifact in the current session for every "already-implemented" classification

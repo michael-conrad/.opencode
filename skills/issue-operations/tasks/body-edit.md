@@ -151,23 +151,34 @@ Commit `.issues/` changes and sync push to remote.
    .opencode/tools/local-issues sync push N
    ```
 
-3. For GitHub platform, also update the remote issue body:
-   ```python
-   # Read remote.md content (pure markdown — read verbatim, no frontmatter to strip)
-   github_issue_write(
-       method="update",
-       owner=github.owner,
-       repo=github.repo,
-       issue_number=N,
-       body=remote_md_body_content
-   )
-   ```
+3. For GitHub platform, also update the remote issue body (routed via platform sub-skill):
 
-4. For GitBucket platform, use the gitbucket-api tool for the body update.
+Route based on `github.platform`:
 
-5. For `local` platform, skip remote push — the commit is sufficient.
+| `github.platform` | Route to |
+|---|---|
+| `github` | `platforms/github-mcp/` sub-skill |
+| `gitbucket` | `platforms/gitbucket-api/` sub-skill |
+| `local` | Skip remote push (local-only) |
 
-6. Return result contract:
+**GitHub platform (sub-skill implementation):**
+```python
+# Read remote.md content (pure markdown — read verbatim, no frontmatter to strip)
+github_issue_write(
+    method="update",
+    owner=github.owner,
+    repo=github.repo,
+    issue_number=N,
+    body=remote_md_body_content
+)
+```
+
+**GitBucket platform (sub-skill implementation):**
+```bash
+./.opencode/tools/gitbucket-api update-issue <github.owner> <github.repo> <issue-number> --body "<remote_md_body_content>"
+```
+
+4. Return result contract:
    ```json
    {
      "sync_status": "pushed|local_only|failed",
@@ -215,7 +226,7 @@ Before dispatching any sub-agent, verify ALL:
 | "Edit applied successfully" | Verify texted_edit_file returned success | Phase 2 result contract `success: true` | STRUCTURE-DAMAGE |
 | "No frontmatter in remote.md" | Verify file does NOT start with `---` | Phase 3 result contract `pass: true` | STRUCTURE-DAMAGE |
 | "No corruption" | Verify no null bytes or binary artifacts | Phase 3 result contract | CORRUPTION |
-| "Sync completed" | Verify remote body matches local | `github_issue_read(method=get, issue_number=N)` body comparison | VERIFICATION-GAP |
+| "Sync completed" | Verify remote body matches local | `issue-operations → read-issue` → compare body | VERIFICATION-GAP |
 
 **Evidence artifact:** Phase result contracts from all four sub-agents.
 
@@ -236,7 +247,8 @@ Before dispatching any sub-agent, verify ALL:
 - Edit instruction: texted script string or natural language edit description
 - Issue number: numeric identifier
 - Related tasks: `comment` (progress comments), `close` (closure may trigger body edit)
-- Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/`
+- Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
+- No direct `github_*` or `gitbucket-api` calls outside `issue-operations/platforms/`
 - Mirror protocol: `../platforms/github-mcp/SKILL.md` §Mirror Protocol (remote.md is the sync source)
 - critical-rules-022: NOT applicable to remote.md (canonical detail lives in spec.md; remote.md is intentionally shorter)
 

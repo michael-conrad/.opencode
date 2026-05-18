@@ -18,7 +18,7 @@ Before implementation proceeds, verify that the corresponding spec's success cri
 
 ```
 # Read the corresponding spec
-spec_issue = github_issue_read(method="get", issue_number=spec_number)
+spec_issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=spec_number) <!-- Routes through issue-operations per SPEC #683 -->
 spec_body = spec_issue["body"]
 
 # Parse success criteria from spec

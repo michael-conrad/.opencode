@@ -29,7 +29,7 @@ Ensure engineering discipline: confirm problem understanding before design or im
 ### Step 1: Read Problem Statement
 
 ```python
-issue = github_issue_read(method="get", issue_number=N)
+issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
 body = issue["body"]
 ```
 

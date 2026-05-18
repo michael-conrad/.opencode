@@ -34,7 +34,7 @@ For each code reference:
 
 ```python
 # Query for later issues that may supersede
-issues = github_list_issues(owner=<github.owner>, repo=<github.repo>, state="open")
+issues = issue-operations -> list-issues (github_list_issues(owner=<github.owner>, repo=<github.repo>, state="open") <!-- Routes through issue-operations per SPEC #683 -->
 for issue in issues:
     if "[SPEC]" in issue["title"] and issue["number"] > current_spec:
         # Check if superseding
@@ -66,7 +66,7 @@ If staleness detected:
 
 - **File existence:** Use `glob` or `read` to verify each file mentioned in the spec exists at its specified path. If missing → VERIFICATION-GAP (flag-for-review).
 - **Code references:** Use `srclight_get_signature` or `srclight_search_symbols` to verify each symbol mentioned in the spec exists and signatures match. If mismatch → CONFLICTING (flag-for-review).
-- **Superseding issues:** Use `github_issue_read` to verify each candidate superseding issue is still open and covers the current spec's scope. Closed as `not_planned` → NOT superseding.
+- **Superseding issues:** Use `issue-operations -> read-issue (github_issue_read` to verify each candidate superseding issue is still open and covers the current spec's scope. Closed as `not_planned` → NOT superseding. <!-- Routes through issue-operations per SPEC #683 -->
 - **Staleness:** Use `srclight_recent_changes` or `git log --since=<spec-date>` to verify referenced files are unchanged since spec creation. If changed → VERIFICATION-GAP (conditional: re-verify).
 
 ## Enforcement References

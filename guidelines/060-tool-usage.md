@@ -46,6 +46,24 @@ When a platform has a dedicated API client (e.g., `gitbucket-api` CLI tool at `.
 3. Include byline
 4. Do NOT bypass the client with raw `requests` calls or `python -c` inline scripts
 
+### Platform Routing Mandate (ZERO TOLERANCE)
+
+All `github_*`/`gitbucket-api` issue calls MUST route through the `issue-operations` dispatcher. Making direct platform API calls outside `issue-operations/platforms/` bypasses the routing layer and creates unmaintainable, platform-locked code. This is a **Tier 1 violation** per `000-critical-rules.md` §critical-rules-platform-routing-bypass.
+
+The dispatcher resolves platform selection automatically based on `github.platform`. Agents MUST NOT deliberate about which platform API to use — the dispatcher handles this. Asking "should I use GitHub or GitBucket?" or choosing a platform API manually is a **Tier 2 violation** per `000-critical-rules.md` §critical-rules-platform-api-deliberation.
+
+| Operation | Dispatcher Task | Direct Call (FORBIDDEN) |
+|-----------|----------------|--------------------------|
+| Read single issue | `read-issue` | `github_issue_read(method="get")` outside platforms/ |
+| Read comments | `read-comments` | `github_issue_read(method="get_comments")` outside platforms/ |
+| Read labels | `read-labels` | `github_issue_read(method="get_labels")` outside platforms/ |
+| Read sub-issues | `read-sub-issues` | `github_issue_read(method="get_sub_issues")` outside platforms/ |
+| List issues | `list-issues` | `github_list_issues()` outside platforms/ |
+| Search issues | `search-issues` | `github_search_issues()` outside platforms/ |
+| Update issue | `update-issue` | `github_issue_write(method="update")` outside platforms/ |
+| Create issue | `creation` | `github_issue_write(method="create")` outside platforms/ |
+| Close issue | `close` | `github_issue_write(method="update", state="closed")` outside platforms/ |
+
 ## 1. Guidelines Lookup
 
 ### ✅ ALWAYS DO
@@ -332,4 +350,34 @@ rules:
     requires: []
     triggers: [git-workflow, divide-and-conquer, approval-gate]
     source: "060-tool-usage.md §2 Workdir-Aware Path Composition"
+
+  - id: tool-usage-010
+    tier: 1
+    title: "Platform routing mandate — direct github_*/gitbucket-api issue calls outside platforms/ are forbidden"
+    conditions:
+      all:
+        - "issue_operation_pending == true"
+        - "direct_platform_api_call == true"
+        - "call_location_outside_platforms == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: [critical-rules-platform-routing-bypass]
+    triggers: [issue-operations]
+    source: "060-tool-usage.md §1 Platform Routing Mandate"
+
+  - id: tool-usage-011
+    tier: 2
+    title: "Platform API deliberation prohibited — dispatcher resolves platform automatically"
+    conditions:
+      all:
+        - "issue_operation_pending == true"
+        - "agent_deliberating_platform_choice == true"
+    actions:
+      - HALT
+      - ROUTE_THROUGH_DISPATCHER
+    conflicts_with: []
+    requires: [critical-rules-platform-api-deliberation]
+    triggers: [issue-operations]
+    source: "060-tool-usage.md §1 Platform Routing Mandate"
 ```

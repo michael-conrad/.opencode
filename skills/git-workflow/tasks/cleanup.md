@@ -249,7 +249,7 @@ After closing sub-issues (Step 2), check whether the parent plan issue should be
 
 1. **Identify the parent plan issue:**
 
-   - Use `github_issue_read(method="get_sub_issues")` on the plan to list all sub-issues
+   - Use `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues")` on the plan to list all sub-issues <!-- Routes through issue-operations per SPEC #683 -->
    - If the current closure context came from a PR body referencing a plan, use that plan issue number
 
 2. **Verify ALL sub-issues are closed with legitimate completion evidence:**
@@ -260,7 +260,7 @@ After closing sub-issues (Step 2), check whether the parent plan issue should be
 
 3. **If ALL sub-issues are legitimately closed:**
 
-   - Close the parent plan issue with `github_issue_write(method="update", state="closed", state_reason="completed")`
+   - Close the parent plan issue with `issue-operations -> update-issue (github_issue_write(method="update", state="closed", state_reason="completed")` <!-- Routes through issue-operations per SPEC #683 -->
    - Post a verification comment documenting per-sub-issue evidence:
      ```
      All sub-issues verified complete. Closing parent plan.
@@ -298,7 +298,7 @@ Each verification point requires a tool call for evidence. Assertions without to
 | -- | -- | -- | -- |
 | PR merge status | `github_pull_request_read(method=get, ...)` | `merged_at` is not None | CONFLICTING → HALT |
 | Local dev synced | `git log --oneline -1 dev` equals remote | Hashes match exactly | VERIFICATION-GAP → re-pull |
-| Sub-issues closed | `github_issue_read(method=get_sub_issues, ...)` | All state=closed | VERIFICATION-GAP → close or investigate |
+| Sub-issues closed | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues, ...)` | All state=closed | VERIFICATION-GAP → close or investigate | <!-- Routes through issue-operations per SPEC #683 -->
 | All repos at dev tip | `git -C $REPO_PATH rev-parse dev` vs `rev-parse origin/dev` for parent + each submodule | Every repo's local dev HEAD matches origin/dev | VERIFICATION-GAP → report which repo diverged, flag for human review |
 
 ## Sub-Task Files

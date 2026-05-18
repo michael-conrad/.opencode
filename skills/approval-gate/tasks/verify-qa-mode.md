@@ -312,7 +312,7 @@ Adversarial verification model (evidence format, classification tiers, tier acti
 
 ```
 If user references an issue number:
-  issue = github_issue_read(method="get", issue_number=N)
+  issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
   body = issue["body"]
   
   - Verify issue actually exists (404 = no issue → Gate 1 FAILS)
@@ -323,13 +323,13 @@ If user references an issue number:
   - If body is empty or placeholder → Gate 1 FAILS (no real spec)
 ```
 
-**Evidence artifact:** `github_issue_read(method=get)` response showing issue body content and STATUS marker.
+**Evidence artifact:** `issue-operations -> read-issue (github_issue_read(method=get)` response showing issue body content and STATUS marker. <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Verify Authorization Against Actual Comment State
 
 ```
 If user claims authorization exists:
-  comments = github_issue_read(method="get_comments", issue_number=N)
+  comments = issue-operations -> read-comments (github_issue_read(method="get_comments", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
   
   - Search ALL comments for "approved", "go", "authorized"
   - Verify author is a developer (author_association: MEMBER/OWNER/COLLABORATOR)
@@ -338,7 +338,7 @@ If user claims authorization exists:
   - If authorization comment found but spec was revised after → Gate 2 FAILS (stale auth)
 ```
 
-**Evidence artifact:** `github_issue_read(method=get_comments)` response with author details for authorization claims.
+**Evidence artifact:** `issue-operations -> read-comments (github_issue_read(method=get_comments)` response with author details for authorization claims. <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Verify Branch State Against Actual Git State
 
