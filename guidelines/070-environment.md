@@ -28,6 +28,21 @@ All Python entry points in `.opencode/tools/` MUST be self-contained PEP 723 scr
 
 New tools MUST follow this pattern. Do NOT use `uv run python .opencode/tools/X`.
 
+### Bash Guard for PEP 723 Scripts (MANDATORY)
+
+All PEP 723 scripts (`# /// script` or `# /// pyproject.toml` metadata blocks) MUST include the polyglot bash guard between the shebang line and the metadata block:
+
+```bash
+#!/usr/bin/env -S uv run --script
+"""":" 
+"echo" "Not a bash script. Use ./$0"
+"exit" "1"
+"""
+# /// script
+```
+
+For scripts without a shebang, the guard MUST be prepended before the `# /// script` block. The guard prevents catastrophic failure when an agent or user invokes the script via `bash <script>` instead of `uv run --script <script>`.
+
 ## Isolated Tool Environments
 
 When developing local tools that need their own dependencies (separate from the main project), use isolated tool environments to keep the main project's `pyproject.toml` clean.

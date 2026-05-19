@@ -25,8 +25,8 @@ Produce a complete toolkit-agnostic UI design covering layout, components, navig
    - Wireframes (SVG) for layout structure — use `templates/wireframe_template.svg` as starting point.
    - Interaction specs (YAML) for navigation and data flow — use `templates/interaction_spec_schema.yaml` for validation.
    - Mockups (HTML) for visual fidelity — use `templates/mockup_template.html` as starting point.
-4. Validate all SVG artifacts with `scripts/validate_svg.py`.
-5. Validate all interaction specs with `scripts/validate_interaction_spec.py`.
+4. Validate all SVG artifacts with `uv run --script scripts/validate_svg.py`.
+5. Validate all interaction specs with `uv run --script scripts/validate_interaction_spec.py`.
 6. Ensure no artifact contains framework-specific terminology (Streamlit, React, Vue, Godot, Flutter, Android, etc.).
 7. Invoke `completion` subtask to clean up temporary resources and produce final summary.
 8. Return result contract.

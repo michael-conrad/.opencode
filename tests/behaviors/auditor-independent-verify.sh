@@ -28,7 +28,7 @@ Use the adversarial-audit --task cross-validate workflow. Dispatch two cross-fam
 For each auditor:
 - They must fetch live Python requests library docs via webfetch
 - They must determine the correct parameter name for request timeout
-- They must return structured JSON verdicts (PASS/FAIL)
+- They must return structured YAML verdicts (PASS/FAIL/status)
 
 Return the consensus result showing whether both auditors agreed."
 

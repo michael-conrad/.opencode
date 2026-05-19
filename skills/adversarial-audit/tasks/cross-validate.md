@@ -11,13 +11,13 @@ Accept an evidence payload, evaluation criteria, and pre-resolved auditor verdic
 ## Entry Criteria
 
 - `evidence_payload`: The claim or output to evaluate (free text, spec body, code snippet, or structured assertion)
-- `evaluation_criteria`: Array of criterion objects, each with `{ id, description, expected_result, source_reference }`
+- `evaluation_criteria`: Array of criterion objects, each with `{ id, description, source_reference }`
 - `auditor_verdicts`: Pre-resolved array of two verdict objects from the orchestrator, each containing `{ auditor_type, family, raw_verdict, parseable }` — resolved by `resolve-models` and dispatched by the orchestrator BEFORE this task
 - `github.owner`, `github.repo` present in task context
 
 ## Exit Criteria
 
-- Cross-validation result array `[{ criterion_id, auditor_1_result, auditor_2_result, consensus, auditor_1_evidence, auditor_2_evidence }]` returned
+- Cross-validation result array `[{ criterion_id, auditor_1_status, auditor_2_status, consensus, auditor_1_evidence, auditor_2_evidence }]` returned
 - Each criterion has a definitive `PASS` or `FAIL` consensus verdict
 - Consensus is `PASS` only when both auditors independently return PASS for that criterion
 - Aggregate `overall_consensus`: `PASS` iff ALL criteria have consensus `PASS`
@@ -38,6 +38,14 @@ These gates are **non-recovery** per adversarial-audit-017. Do NOT attempt to re
 
 ## Procedure
 
+### Step 0: Context Contamination Detection
+
+Before consensus computation, check each auditor's verdict for `status: AUDIT_FAIL` entries:
+
+1. If one auditor returned `AUDIT_FAIL` for context contamination and the other did NOT: the `AUDIT_FAIL` auditor's entire verdict is invalidated. Report "Context contamination detected by one auditor — discarding contaminated verdict. Re-dispatch required."
+2. If BOTH auditors returned `AUDIT_FAIL` for the same contamination source: confirm contamination, report to orchestrator with details, BLOCK pipeline.
+3. Any `AUDIT_FAIL` verdict MUST include `explanation` with the specific contamination signal, source field, and prohibition violated.
+
 ### Step 1: Validate Input
 
 Confirm `evidence_payload` and `evaluation_criteria` are present and non-empty. If either is missing: return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }`.
@@ -57,35 +65,46 @@ Each entry in `auditor_verdicts` contains a `raw_verdict` field with YAML block 
 ```
 ---
 criterion_id: "SC-1"
-result: "PASS"
+discovered: false
+status: "PASS"
 evidence: "<tool-call reference>"
 explanation: "<reasoning>"
-remediation: ""
+remediation: "none"
 next_step: "proceed"
 ---
 ---
 criterion_id: "SC-2"
-result: "FAIL"
+discovered: false
+status: "FAIL"
 evidence: "<tool-call reference>"
 explanation: "<reasoning>"
-remediation: "Add missing validation for X"
-next_step: "re-evaluate"
+remediation: "FIX_CODE"
+next_step: "implementer remediation → VbC → re-audit"
 ---
 ```
 
 Validation rules per verdict:
-- `criterion_id` MUST match a criterion id from `evaluation_criteria`
-- `result` MUST be one of: `PASS`, `FAIL`, `AUDIT_FAIL`, `INCONCLUSIVE`, `LIMITED-EVIDENCE`, `FABRICATED`
+- `criterion_id` MUST match a criterion id from `evaluation_criteria` (unless `discovered: true`)
+- `discovered` MUST be `true` or `false`
+- `status` MUST be one of: `PASS`, `FAIL`, `AUDIT_FAIL`, `INCONCLUSIVE`, `LIMITED-EVIDENCE`, `FABRICATED`
 - `evidence` MUST reference a live tool call (URL, file path, or command output) — memory-cached claims are FORBIDDEN
 - `explanation` MUST be present and non-empty
-- `remediation` MUST be present when result is not PASS
-- `next_step` MUST be one of: `proceed`, `re-evaluate`, `escalate`
+- `remediation` MUST be present when status is not PASS
+- `next_step` MUST be one of: `proceed`, `implementer remediation → VbC → re-audit`, `spec auditor evaluation → spec revision → re-audit`
 
 If an auditor's `raw_verdict` is unparseable YAML, missing the `---` delimiters, or contains no recognizable criterion ids: treat the entire auditor's contribution as `FAIL` for ALL criteria. Do NOT re-task — the protocol requires accepting real output, not retrying until PASS is obtained.
 
-If an auditor's `raw_verdict` has extra criterion ids not in `evaluation_criteria`: ignore extra verdicts, flag in result contract as `EXTRA_VERDICTS` warning.
+If an auditor's `raw_verdict` has extra criterion ids not in `evaluation_criteria`: inspect each for `discovered: true`. If `discovered: true`, treat as a discovered criterion — evaluate it in cross-reference. If `discovered` is absent or `false`, ignore and flag in result contract as `EXTRA_VERDICTS` warning.
 
 If an auditor's `raw_verdict` is missing a criterion id from `evaluation_criteria`: treat that criterion as `FAIL` for that auditor with explanation `"MISSING_VERDICT"`.
+
+### Discovered Criterion Cross-Reference
+
+After parsing both verdicts, compare discovered criteria across auditors:
+
+- For each discovered criterion (where `discovered: true`) in auditor 1's verdicts: if the same `criterion_id` is absent from auditor 2's verdicts, auditor 2 gets `FAIL` for that criterion with explanation `"MISSING_VERDICT_DISCOVERED"`
+- For each discovered criterion in auditor 2's verdicts: if the same `criterion_id` is absent from auditor 1's verdicts, auditor 1 gets `FAIL` for that criterion with explanation `"MISSING_VERDICT_DISCOVERED"`
+- These are first-class verdicts in the cross-validation table, not extra warnings
 
 ### Step 4: Cross-Reference Verdicts
 
@@ -150,8 +169,8 @@ Return structured result:
     {
       "criterion_id": "SC-1",
       "description": "<criterion description>",
-      "auditor_1_result": "PASS",
-      "auditor_2_result": "PASS",
+      "auditor_1_status": "PASS",
+      "auditor_2_status": "PASS",
       "consensus": "PASS",
       "auditor_1_evidence": "<tool-call reference>",
       "auditor_2_evidence": "<tool-call reference>",
@@ -172,7 +191,7 @@ The `next_step` field:
 ## Context Required
 
 - `evidence_payload`: The claim, output, or assertion to be evaluated
-- `evaluation_criteria`: Array of `{ id, description, expected_result, source_reference }`
+- `evaluation_criteria`: Array of `{ id, description, source_reference }`
 - `auditor_verdicts`: Pre-resolved array of two verdict objects from orchestrator (each with `{ auditor_type, family, raw_verdict, parseable }`)
 - `audit_phase`: Current audit phase for task context
 - `github.owner`, `github.repo`: For API calls
@@ -247,7 +266,7 @@ rules:
   - id: cross-validate-004
     title: "Clean-room verdict parsing — orchestrator reasoning must not influence cross-validation"
     conditions:
-      any: ["cross_validate_context contains 'expected_result' OR 'orchestrator_reasoning' OR 'should_find'"]
+      any: ["cross_validate_context contains 'orchestrator_reasoning' OR 'should_find'"]
     actions: [HALT, STRIP_BIASED_CONTEXT]
     source: "cross-validate.md §Step 3"
 

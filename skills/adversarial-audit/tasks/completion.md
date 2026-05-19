@@ -10,7 +10,7 @@ Idempotent completion subtask for adversarial-audit. Ensures mandatory steps ran
 
 1. **Auditor models resolved:** Check whether `resolve-models` successfully returned two cross-family auditor selections
 2. **Auditors tasked:** Check whether orchestrator dispatched `task(subagent_type="auditor-*")` for both auditor-1 and auditor-2
-3. **Verdicts collected:** Check whether structured JSON verdicts were received from both auditors
+3. **Verdicts collected:** Check whether structured YAML verdicts were received from both auditors
 4. **Cross-validation computed:** Check whether cross-validate produced a definitive PASS or FAIL result with `next_step` field
 
 ## Orchestrator-Driven Dispatch Chain
@@ -32,7 +32,7 @@ cross-validate does NOT dispatch auditors — it receives pre-resolved verdicts 
    - If incorrect: flag STRUCTURE-VIOLATION for orchestrator retry via `resolve-models`
 
 2. **Verdict integrity check** (if not already performed):
-   - Each auditor verdict MUST be structured as `[{id, result, explanation}]`
+   - Each auditor verdict MUST be structured as YAML blocks with `criterion_id`, `status`, `evidence`, `explanation`, `remediation`, `next_step`
    - Both verdicts MUST be present (no single-auditor fallback)
    - If missing or malformed: report VERDICT-INTEGRITY failure, do NOT fabricate results
 
@@ -112,7 +112,7 @@ HALT
 |-------|-------------------|-----------|---------------|
 | "Cross-family auditors selected" | Verify two different families selected | Check `resolve-models` result contract | MISSING-ELEMENT |
 | "Auditors tasked" | Verify task() occurred | Check `task()` call logs in work state file | MISSING-ELEMENT |
-| "JSON verdicts received" | Verify structured output | Parse `[{id, result, explanation}]` from auditor results | VERDICT-INTEGRITY |
+| "YAML verdicts received" | Verify structured output | Parse YAML blocks from auditor results | VERDICT-INTEGRITY |
 | "Consensus evaluated" | Verify PASS/FAIL determination | Cross-reference both verdicts | CONSENSUS-GAP |
 
 **Evidence artifact:** Tool call results for each completion state check.

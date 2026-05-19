@@ -10,7 +10,7 @@ license: MIT
 
 ## Overview
 
-Adversarial audit skill for dual cross-family verification of specs, plans, and code. Uses independent auditors from different model families to produce structured JSON verdicts, then cross-validates for consensus. The orchestrator dispatches auditors and passes verdicts to cross-validate — cross-validate does NOT dispatch auditors itself. A thorough adversarial auditor resolves models fresh every iteration — reusing cached selections is what incomplete auditors do. An audit iteration that reuses cached auditors is not an audit at all; it is a simulation. Real audits start fresh every time. resolve-models → dispatch → cross-validate is a single indivisible unit. Breaking this chain — skipping resolve-models, reusing cached selections, refusing to dispatch — invalidates every step that came before. If the chain is broken, no verdict produced afterward is trustworthy.
+Adversarial audit skill for dual cross-family verification of specs, plans, and code. Uses independent auditors from different model families to produce structured YAML verdicts, then cross-validates for consensus. The orchestrator dispatches auditors and passes verdicts to cross-validate — cross-validate does NOT dispatch auditors itself. A thorough adversarial auditor resolves models fresh every iteration — reusing cached selections is what incomplete auditors do. An audit iteration that reuses cached auditors is not an audit at all; it is a simulation. Real audits start fresh every time. resolve-models → dispatch → cross-validate is a single indivisible unit. Breaking this chain — skipping resolve-models, reusing cached selections, refusing to dispatch — invalidates every step that came before. If the chain is broken, no verdict produced afterward is trustworthy.
 
 ## Persona
 
@@ -70,11 +70,13 @@ The orchestrator MUST NOT execute any audit operation directly. Every operation 
 
 ```
 1. task(resolve-models sub-agent) → result contract {auditor_1, auditor_2, family_1, family_2}
-2. task(subagent_type=result.auditor_1, clean-room) → verdict JSON (deliverable + SCs only)
-3. task(subagent_type=result.auditor_2, clean-room) → verdict JSON (deliverable + SCs only)
+2. task(subagent_type=result.auditor_1, clean-room) → verdict YAML (deliverable + SCs only)
+3. task(subagent_type=result.auditor_2, clean-room) → verdict YAML (deliverable + SCs only)
 4. task(cross-validate sub-agent, verdicts + criteria) → consensus
 5. Orchestrator reports: final verdict, per-SC breakdown (PASS/FAIL/UNVERIFIED)
 ```
+
+**Phase A/B/C reference:** All auditor cards now use the Phase A (Evidence Collection) → Phase B (Per-Criterion Evaluation) → Phase C (Output Assembly) structure. Dispatch context MUST include `evaluation_criteria` for Phase A2, and the auditor follows the phased procedure autonomously. The orchestrator provides criteria only — never procedural steps.
 
 **Evidence gate:** Before proceeding past any step, verify the result contract has `status: DONE`. Empty or error results → re-task clean-room (max 2 retries), then BLOCKED.
 
@@ -85,6 +87,27 @@ The orchestrator MUST NOT execute any audit operation directly. Every operation 
 Skills: `skill-creator`, `verification-enforcement`, `verification-before-completion`, `multimodal-dispatch`. Guidelines: `000-critical-rules.md`, `065-verification-honesty.md`, `060-tool-usage.md`. Spec: #381. Plan: #382.
 
 The orchestrator MUST call `resolve-models` on EVERY audit iteration — initial audit, re-audit after revision, and every subsequent re-audit. Historical auditor selections from any prior iteration MUST NOT be cached, reused, or considered. The orchestrator MUST NOT refuse to dispatch auditors based on prior iteration history — a fresh `resolve-models` call is the sole authority for auditor selection in each iteration. On re-audit, the orchestrator discards all prior `resolve-models` result contracts before calling `resolve-models` again. The `excluded_pair` and `re_task` parameters are NOT used for iteration-based re-audit — they exist only for within-iteration retry (e.g., task() failure recovery). Each iteration is independent: the set of available auditors, their availability, and the selection outcome are all re-determined from scratch.
+
+### Dispatch Context Contract (MANDATORY)
+
+Every `task()` call to an auditor sub-agent MUST include `must_receive` and `must_not_receive` arrays:
+
+```yaml
+must_receive:
+  - issue_number
+  - spec_body
+  - evaluation_criteria
+  - pipeline_phase
+must_not_receive:
+  - orchestrator_reasoning
+  - expected_outcomes
+  - prior_verdicts
+  - inline_file_paths
+  - agent_memory
+  - cached_verification_results
+```
+
+Any context object missing `must_receive` or containing items from `must_not_receive` is a context contamination violation. The auditor MUST detect and reject it.
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -119,7 +142,7 @@ rules:
     source: "adversarial-audit/SKILL.md"
 
   - id: adversarial-audit-005
-    title: "Structured JSON verdicts mandatory — unparseable output equals FAIL"
+    title: "Structured YAML verdicts mandatory — unparseable output equals FAIL"
     conditions:
       all: ["auditor_verdict_parseable == false", "evaluation_complete == true"]
     actions: [DECLARE_FAIL, RE_TASK_OPTIONAL]

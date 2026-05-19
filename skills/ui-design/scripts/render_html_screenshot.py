@@ -1,3 +1,8 @@
+""":" 
+"echo" "Not a bash script. Use ./$0"
+"exit" "1"
+"""
+
 # /// script
 # requires-python = ">=3.12"
 # dependencies = [
