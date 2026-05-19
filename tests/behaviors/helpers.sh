@@ -374,13 +374,14 @@ print(json.dumps(output, indent=2))
 " 
 }
 
-# Source ollama_models() from with-test-home for dynamic model population
-_HELPERS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$_HELPERS_DIR/../with-test-home" 2>/dev/null || true
-mapfile -t BEHAVIORAL_MODEL_POOL < <(ollama_models 2>/dev/null || true)
-# Fallback to empty array if ollama unavailable
+# Populate from opencode-cli models (authoritative — only models the
+# opencode config actually knows about). Filter to ollama cloud models.
+# Use shuf to prevent model selection bias from skewing test results.
+HELPERS_OC_MODELS=$(opencode-cli models 2>/dev/null | grep '^ollama/.*:cloud' | shuf | head -2 || true)
+mapfile -t BEHAVIORAL_MODEL_POOL <<< "$HELPERS_OC_MODELS"
+unset HELPERS_OC_MODELS
 if [ ${#BEHAVIORAL_MODEL_POOL[@]} -eq 0 ]; then
-    echo "WARNING: ollama_models() returned no models — BEHAVIORAL_MODEL_POOL will be empty" >&2
+    echo "WARNING: no cloud models found via 'opencode-cli models' — BEHAVIORAL_MODEL_POOL empty" >&2
 fi
 
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
@@ -402,7 +403,8 @@ behavior_run_pool() {
         safe_model_name=$(echo "$model" | tr '/:' '_')
         local model_scenario="${scenario_name}_${safe_model_name}"
 
-        echo "  === Testing with model: $model ==="
+        local display_name="${model#ollama/}"
+        echo "  === Testing with model: $display_name ==="
         behavior_run "$model_scenario" "$message" "$model" "$PROJECT_DIR"
 
         BEHAVIOR_POOL_OUTPUTS["$model"]="$BEHAVIOR_STDOUT"
@@ -497,3 +499,101 @@ behavior_resolve_model() {
         export BEHAVIOR_LOCAL_MODEL BEHAVIOR_CLOUD_MODEL
     fi
 }
+
+# ============================================================
+# Stderr-based assertion helpers
+# Behavioral evidence = agent actions visible in stderr (skill
+# dispatches, file reads, sub-agent task() calls, tool invocations).
+# Prose recall (what the agent says in stdout when asked to describe
+# a procedure) is NOT behavioral evidence.
+# ============================================================
+
+assert_stderr_pattern_present() {
+    if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "1" ]; then
+        echo "INCONCLUSIVE: assert_stderr_pattern_present — model dispatch failed, no behavioral evidence"
+        return 2
+    fi
+    local pattern="$1"
+    local description="${2:-required stderr pattern}"
+    local log_file="${BEHAVIOR_STDERR:-/dev/null}"
+    local count
+    count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+    count=${count:-0}
+    count=$(echo "$count" | head -1 | tr -d '[:space:]')
+    if [ "$count" -eq 0 ]; then
+        echo "FAIL: assert_stderr_pattern_present — $description not found in stderr"
+        return 1
+    fi
+    echo "PASS: assert_stderr_pattern_present — $description found $count time(s) in stderr"
+    return 0
+}
+
+assert_stderr_pattern_absent() {
+    if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "1" ]; then
+        echo "INCONCLUSIVE: assert_stderr_pattern_absent — model dispatch failed, no behavioral evidence"
+        return 2
+    fi
+    local pattern="$1"
+    local description="${2:-forbidden stderr pattern}"
+    local log_file="${BEHAVIOR_STDERR:-/dev/null}"
+    local count
+    count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+    count=${count:-0}
+    count=$(echo "$count" | head -1 | tr -d '[:space:]')
+    if [ "$count" -gt 0 ]; then
+        echo "FAIL: assert_stderr_pattern_absent — found $count occurrence(s) of $description in stderr"
+        return 1
+    fi
+    echo "PASS: assert_stderr_pattern_absent — $description not found in stderr"
+    return 0
+}
+
+assert_stderr_pattern_present_all_models() {
+    local pattern="$1"
+    local description="${2:-required stderr pattern}"
+    if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "1" ]; then
+        echo "INCONCLUSIVE: assert_stderr_pattern_present_all_models — all model dispatches failed"
+        return 2
+    fi
+    local overall=0
+    for model in "${BEHAVIORAL_MODEL_POOL[@]}"; do
+        local log_file="${BEHAVIOR_POOL_STDERRS[$model]:-/dev/null}"
+        local count
+        count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+        count=${count:-0}
+        count=$(echo "$count" | head -1 | tr -d '[:space:]')
+        if [ "$count" -eq 0 ]; then
+            echo "FAIL: [$model] — $description not found in stderr"
+            overall=1
+        else
+            echo "PASS: [$model] — $description found $count time(s) in stderr"
+        fi
+    done
+    return $overall
+}
+
+assert_stderr_pattern_absent_all_models() {
+    local pattern="$1"
+    local description="${2:-forbidden stderr pattern}"
+    if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "1" ]; then
+        echo "INCONCLUSIVE: assert_stderr_pattern_absent_all_models — all model dispatches failed"
+        return 2
+    fi
+    local overall=0
+    for model in "${BEHAVIORAL_MODEL_POOL[@]}"; do
+        local log_file="${BEHAVIOR_POOL_STDERRS[$model]:-/dev/null}"
+        local count
+        count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+        count=${count:-0}
+        count=$(echo "$count" | head -1 | tr -d '[:space:]')
+        if [ "$count" -gt 0 ]; then
+            echo "FAIL: [$model] — found $count occurrence(s) of $description in stderr"
+            overall=1
+        else
+            echo "PASS: [$model] — $description not found in stderr"
+        fi
+    done
+    return $overall
+}
+
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)

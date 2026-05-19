@@ -128,7 +128,9 @@ For each issue in execution order:
 
    ````
 
-2. **Spawn sub-agent** via `task(subagent_type="general", prompt=...)`
+2. **Spawn sub-agent** via `task(subagent_type=..., prompt=...)`
+   - For non-audit tasks: use `task(subagent_type="general")`
+   - For audit/verification tasks (keywords: `audit`, `cross-validate`, `verify`, `spec-audit`, `plan-fidelity`): use `subagent_type` from resolve-models result contract (`result.auditor_1`/`result.auditor_2`) — NOT `"general"`. See adversarial-audit SKILL.md §DISPATCH_GATE.
 
 3. **Sub-agent responsibilities:**
 

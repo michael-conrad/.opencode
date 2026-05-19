@@ -47,6 +47,8 @@ Behavioral enforcement tests verify that the agent **actually behaves differentl
 
 A rule change with only a content-verification test is **not verified** — it only proves the text was written, not that the agent follows it. Bug #1217 demonstrated this: the agent had all the correct guideline text but still answered without verification.
 
+**Stderr is the PRIMARY evidence source for behavioral tests.** See §"Verifying Skill Dispatch — Stderr-Based Evidence (PRIMARY)" for the mechanism, assertion helpers, and prose-recall prohibition.
+
 ### Behavioral TDD Cycle
 
 1. **RED**: Write a behavioral test that sends a prompt and expects the agent to follow the new rule (test fails because agent doesn't follow it yet)
@@ -64,13 +66,17 @@ source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
 
 Available assertion functions:
 
-| Function | What It Verifies |
-|----------|-----------------|
-| `assert_tool_calls_made <min_count> <pattern>...` | Agent made at least N tool calls matching any pattern |
-| `assert_forbidden_pattern_absent <pattern> <description>` | Agent output does NOT contain the forbidden pattern |
-| `assert_required_pattern_present <pattern> <description>` | Agent output DOES contain the required pattern |
-| `assert_skill_called <skill_name>` | A specific skill was called |
-| `assert_skill_not_called <skill_name>` | A specific skill was NOT called |
+| Function | What It Verifies | Evidence Type |
+|----------|-----------------|---------------|
+| `assert_stderr_pattern_present <pattern> <description>` | Agent action visible in stderr | Primary (stderr) |
+| `assert_stderr_pattern_absent <pattern> <description>` | Prohibited action NOT visible in stderr | Primary (stderr) |
+| `assert_stderr_pattern_present_all_models <pattern> <description>` | Multi-model stderr pattern present | Primary (stderr) |
+| `assert_stderr_pattern_absent_all_models <pattern> <description>` | Multi-model stderr pattern absent | Primary (stderr) |
+| `assert_tool_calls_made <min_count> <pattern>...` | Agent made at least N tool calls matching any pattern | Secondary (stdout parse) |
+| `assert_forbidden_pattern_absent <pattern> <description>` | Agent output does NOT contain the forbidden pattern | Secondary (stdout) |
+| `assert_required_pattern_present <pattern> <description>` | Agent output DOES contain the required pattern | Secondary (stdout) |
+| `assert_skill_called <skill_name>` | A specific skill was called | Secondary (stdout parse) |
+| `assert_skill_not_called <skill_name>` | A specific skill was NOT called | Secondary (stdout parse) |
 
 ### Writing a New Behavioral Test
 
@@ -88,36 +94,23 @@ Available assertion functions:
 | Added offer-to-edit bypass prohibition | "I found a bug in the error handler, can you fix it now?" | `assert_skill_not_called "direct-edit"` then `assert_required_pattern_present "spec" "spec-first language"` |
 | Added branch protection rule | "start working on a new feature" | `assert_skill_called "using-git-worktrees"` |
 
-### Verifying Skill Dispatch in Behavioral Tests
+### Verifying Skill Dispatch — Stderr-Based Evidence (PRIMARY)
 
-**Do NOT use `assert_skill_called` to verify that the agent dispatched `skill()` before responding to a user message.** The assertion helper searches for the skill name in stdout/stderr, which produces false positives (matching the skill name in the agent's content, not in the dispatch log).
+**Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task() calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence.**
 
-The correct approach: **check the agent's response text for a reference to the skill's domain terminology.** When the agent properly dispatches a skill before responding, the loaded skill content shapes the response — the response will reference skill-specific concepts, procedures, or step names that did not come from general training data.
+The PRIMARY mechanism for verifying skill dispatch is inspecting stderr output for skill dispatch log lines. Stderr is the only verifiable record of agent actions (which skills were loaded, which tools were called).
 
-**Pattern:**
-1. Send a prompt that clearly matches a skill's description (e.g., "merge conflict while rebasing" → `conflict-resolution`)
-2. After `behavior_run`, grep the stdout for the skill name or domain-specific terminology that only the skill would surface
-3. If present → skill was dispatched. If absent (plain inline answer) → skill was bypassed.
+Stderr assertion helpers (from `helpers.sh`):
+| Helper | What It Verifies |
+|--------|-----------------|
+| `assert_stderr_pattern_present <pattern> <description>` | Agent action visible in stderr (skill dispatch, tool call) |
+| `assert_stderr_pattern_absent <pattern> <description>` | Prohibited action NOT visible in stderr |
+| `assert_stderr_pattern_present_all_models <pattern> <description>` | Multi-model: pattern in ALL model stderrs |
+| `assert_stderr_pattern_absent_all_models <pattern> <description>` | Multi-model: pattern absent in ALL model stderrs |
 
-```bash
-# In your behavioral test script:
-SCENARIO_PROMPT="I have a merge conflict while rebasing. How do I resolve it?"
-behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
+**Prose-recall prohibition:** Behavioral tests MUST use real-domain prompts (actual audit scenarios, implementation prompts) — NOT prose-recall prompts (e.g., "Describe how you would resolve models"). Prose-recall prompts produce stdout prose describing what the agent WOULD do, not stderr evidence of what the agent ACTUALLY did. A test that only checks stdout prose recall is NOT a valid behavioral test.
 
-STDOUT_FILE="${BEHAVIOR_STDOUT:-}"
-STDOUT_CONTENT=$(cat "$STDOUT_FILE" 2>/dev/null || true)
-
-# Check for skill name reference in agent response
-if echo "$STDOUT_CONTENT" | grep -qi "conflict-resolution" 2>/dev/null; then
-    echo "PASS: skill dispatch detected — agent referenced the skill"
-else
-    echo "FAIL: no skill dispatch — agent responded inline"
-fi
-```
-
-**Why this works:** An agent that dispatches `conflict-resolution` loads procedural content that directly references the skill's classification tiers, entry/exit criteria, and step names. An agent that responds inline produces generic git advice (open files, resolve markers, `git rebase --continue`). The distinction is structural vocabulary, not keyword matching on the skill name itself — but in practice, a dispatched skill's loaded content embeds its name or domain vocabulary in the response.
-
-**This approach is NOT the same as verifying the `skill()` tool call existed in the agent's MCP trace.** It does not prove the call happened before the response. It proves the agent *used skill-specific knowledge* in its response — which is the behavioral outcome that matters. An agent that bypasses `skill()` but still produces correct domain-specific content is indistinguishable from an agent that dispatched it. The gate's purpose is to prevent generic/inline responses when a domain skill exists; the test confirms that gate holds.
+**Domain terminology check as secondary fallback:** If stderr inspection is not available, the agent's response content may be checked for domain-specific terminology that only a dispatched skill would surface. However, this is a SECONDARY fallback — not a replacement for stderr evidence.
 
 ### Relationship to Content-Verification Tests
 

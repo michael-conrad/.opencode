@@ -44,7 +44,7 @@ Branch completion workflow ensuring feature branch is fully ready for PR. Verifi
 
 ## Sub-Agent Routing
 
-Sub-agents run via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo }`. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
+Sub-agents run via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description }`. No inline work.
 
 ## Cross-References
 

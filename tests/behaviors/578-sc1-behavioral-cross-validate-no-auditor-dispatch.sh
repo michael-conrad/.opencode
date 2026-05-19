@@ -17,9 +17,9 @@ source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="578-sc1-behavioral-cross-validate-no-auditor-dispatch"
 
-# The prompt instructs the agent to read the cross-validate skill file and
-# state whether it dispatches auditors or receives pre-resolved verdicts.
-SCENARIO_PROMPT="Run the cross-validate task from the adversarial-audit skill. You are the orchestrator. The two auditors have already been resolved and their verdicts are available. Read .opencode/skills/adversarial-audit/tasks/cross-validate.md and execute the task. Answer these questions explicitly: (1) Does cross-validate dispatch auditor sub-agents itself, or does it receive pre-resolved verdicts? (2) What is the name of the input field for the pre-resolved verdicts? (3) What task resolves the auditor models before cross-validate runs?"
+# Real-domain audit scenario: cross-validate with pre-resolved verdicts.
+# Agent must NOT dispatch auditors — verdicts are already available.
+SCENARIO_PROMPT="You are the orchestrator for an adversarial audit of a spec (issue #789). The scan phase has completed. The two auditor verdicts are in auditor_verdicts. Your next task is to take these pre-resolved verdicts and compute cross-validation consensus. The auditors are from Mistral and Qwen families. Do NOT dispatch new auditor sub-agents — the verdicts are already available. Execute the cross-validate step now. What is the consensus?"
 
 echo "=== Behavioral Test (Multi-Model): $SCENARIO_NAME ==="
 echo "Models: ${BEHAVIORAL_MODEL_POOL[*]}"
@@ -29,14 +29,11 @@ behavior_run_pool "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-1 behavioral: Agent should NOT state it will dispatch auditors from cross-validate
-# Forbidden: affirmative first-person intent to dispatch auditors from within cross-validate
-# Allowed: explaining that cross-validate does NOT dispatch (correct architecture)
-# Allowed: explaining the orchestrator dispatches BEFORE cross-validate (correct)
-assert_forbidden_pattern_absent_all_models "I will dispatch.*auditor\|I should dispatch.*auditor\|I.*task(auditor" "affirmative intent to dispatch auditors from cross-validate" || OVERALL_RESULT=1
+# SC-1: stderr shows references auditor_verdicts input
+assert_stderr_pattern_present_all_models "auditor_verdicts" "stderr: references auditor_verdicts input" || OVERALL_RESULT=1
 
-# SC-1 behavioral: Agent should reference auditor_verdicts as input
-assert_required_pattern_present_all_models "auditor_verdicts" "auditor_verdicts reference" || OVERALL_RESULT=1
+# SC-1: stderr shows no unconditional general dispatch for auditors
+assert_stderr_pattern_absent_all_models "task(subagent_type=\"general\")" "stderr: no unconditional general dispatch for auditors" || OVERALL_RESULT=1
 
 # SC-1 behavioral: Agent should reference resolve-models as the task that resolves auditors
 assert_required_pattern_present_all_models "resolve-models" "resolve-models reference" || OVERALL_RESULT=1

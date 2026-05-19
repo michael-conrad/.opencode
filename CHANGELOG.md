@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **Stderr-based behavioral test mandate** (#707) - Stderr assertion helpers (`assert_stderr_pattern_present`, `assert_stderr_pattern_absent`), prose-recall prohibition in behavioral testing, mandate injected into 5 guideline/skill files and `tests/README.md`.
+- **Auditor routing dispatch** (#708) - `adversarial-audit` SKILL.md DISPATCH_GATE references `result.auditor_1`/`result.auditor_2`, 18 SKILL.md files updated with auditor clause, `assemble-work.md` conditional dispatch, behavioral test `708-sc5-audit-dispatch.sh`.
 - **Local-first issue architecture** (#86, #464, #465, #466) - Three-phase implementation eliminating `identity_source: submodule`, making `.issues/` the primary drafting layer, and adding promotion readiness checks. Phase 1: Simplify identity model to `root`/`local`. Phase 2: Mandatory local-first creation before remote promotion. Phase 3: Promotion readiness and sync classification foundation.
 - **Gap-fill cascade path selection** (#460) - Fix authorization gap-fill bypass bug where `for_pr` scope matched fast-path incorrectly. Add gap-fill-path for `for_pr`, `for_implementation`, `for_plan`, `for_code_review` scopes.
 

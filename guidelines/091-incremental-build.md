@@ -30,7 +30,9 @@ All implementation MUST follow: top-down decomposition → bottom-up design → 
 | REFACTOR | Clean up cross-references, verify consistency |
 | COMMIT | Test + change committed together as one working slice |
 
-**Behavioral variant** (for rule/guideline items): Send prompt via `opencode-cli run`, assert agent does NOT follow new rule (RED), then make change and assert agent DOES follow (GREEN).
+**Behavioral variant** (for rule/guideline items): Send a real-domain prompt via `opencode-cli run`, inspect stderr output (not stdout prose) for behavioral evidence of agent actions (skill dispatches, file reads, tool invocations). Assertions use stderr-based helpers (`assert_stderr_pattern_present`/`assert_stderr_pattern_absent_all_models`). Assert agent does NOT follow new rule (RED), then make change and assert agent DOES follow (GREEN).
+
+**Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task() calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence. Prose-recall prompts are NOT accepted as behavioral tests.**
 
 ## Anti-Patterns (Critical Violations)
 
