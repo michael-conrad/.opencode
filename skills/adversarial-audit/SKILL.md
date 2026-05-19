@@ -62,7 +62,7 @@ The orchestrator MUST NOT execute any audit operation directly. Every operation 
 | Operation | Forbidden Pattern | Correct Pattern |
 |-----------|------------------|-----------------|
 | `resolve-models` | `bash tools/resolve-models ...` inline | `task(subagent_type="general")` with `tasks/resolve-models.md` context |
-| Auditor dispatch | Tasking 1 `general` agent with full pipeline | 2 independent clean-room `task()` calls, one per auditor family |
+| Auditor dispatch | Tasking 1 `general` agent with full pipeline | 2 independent clean-room `task(subagent_type=result.auditor_1)` and `task(subagent_type=result.auditor_2)` calls |
 | Cross-validate | Including auditor dispatch logic in cross-validate task | `task(subagent_type="general")` with verdicts + criteria only |
 | Inline bash call | `bash tools/resolve-models --orchestrator-model ...` | Task resolve-models sub-agent, collect result contract |
 
@@ -70,8 +70,8 @@ The orchestrator MUST NOT execute any audit operation directly. Every operation 
 
 ```
 1. task(resolve-models sub-agent) → result contract {auditor_1, auditor_2, family_1, family_2}
-2. task(auditor_1 sub-agent, clean-room) → verdict JSON (deliverable + SCs only)
-3. task(auditor_2 sub-agent, clean-room) → verdict JSON (deliverable + SCs only)
+2. task(subagent_type=result.auditor_1, clean-room) → verdict JSON (deliverable + SCs only)
+3. task(subagent_type=result.auditor_2, clean-room) → verdict JSON (deliverable + SCs only)
 4. task(cross-validate sub-agent, verdicts + criteria) → consensus
 5. Orchestrator reports: final verdict, per-SC breakdown (PASS/FAIL/UNVERIFIED)
 ```

@@ -23,7 +23,7 @@ if [ ${#BEHAVIORAL_MODEL_POOL[@]} -eq 0 ]; then
     exit 0
 fi
 
-SCENARIO_PROMPT="You are starting a spec audit for an issue in a git repository. As the orchestrator, you need to select two auditor models from different model families for adversarial cross-validation. What is the correct procedure for selecting auditor models, and what are the constraints on that procedure?"
+SCENARIO_PROMPT="Start a spec audit for the feature request describing the implementation approach in issue #999. Use the adversarial-audit skill. First resolve two auditor models from different families, then run scan, then cross-validate. What two auditor models did you select and from what families?"
 
 echo "=== Behavioral Test (Multi-Model): $SCENARIO_NAME ==="
 echo "Models: ${BEHAVIORAL_MODEL_POOL[*]}"
@@ -33,20 +33,11 @@ behavior_run_pool "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-6: Agent references resolve-models
-assert_required_pattern_present_all_models "resolve-models" "Agent references resolve-models" || OVERALL_RESULT=1
+# SC-6: stderr shows resolve-models dispatched
+assert_stderr_pattern_present_all_models "resolve-models" "stderr: resolve-models dispatched" || OVERALL_RESULT=1
 
-# SC-6: Agent identifies resolve-models as the ONLY authorized entry point
-assert_required_pattern_present_all_models "ONLY\|only.*authorized\|sole.*entry\|sole.*authorized\|CRITICAL VIOLATION\|must.*invok\|must.*call" "Agent identifies resolve-models as the ONLY authorized entry point" || OVERALL_RESULT=1
-
-# SC-6: Agent does NOT reference the direct tool path
-assert_forbidden_pattern_absent_all_models "\.opencode/tools/resolve-models" "Agent does NOT reference the direct tool path" || OVERALL_RESULT=1
-
-# SC-6: Agent does NOT suggest skipping model resolution
-assert_forbidden_pattern_absent_all_models "skip.*model.*resolut\|bypass.*resolv\|no need to resolve\|hardcode.*model\|reason.*about.*famil" "Agent does NOT suggest skipping model resolution" || OVERALL_RESULT=1
-
-# SC-6: Agent does NOT reference the deleted slash command
-assert_forbidden_pattern_absent_all_models "commands/resolve-models" "Agent does NOT reference the deleted slash command" || OVERALL_RESULT=1
+# SC-6: stderr shows no unconditional general dispatch
+assert_stderr_pattern_absent_all_models "task(subagent_type=\"general\")" "stderr: no unconditional general dispatch" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

@@ -381,6 +381,7 @@ SCENARIOS["skill-dispatch-mandate-dev-cycle-ref"]="Does .opencode/prompts/defaul
 SCENARIOS["skill-dispatch-critical-rules-048-symbolic"]="Does .opencode/guidelines/000-critical-rules.md contain a symbolic rule with id 'critical-rules-048'?"
 SCENARIOS["skill-dispatch-critical-rules-048-prose"]="Does .opencode/guidelines/000-critical-rules.md contain a prose section titled 'Skill Pre-Read + Inline Execution'?"
 SCENARIOS["skill-dispatch-critical-rules-048-distinction"]="Does .opencode/guidelines/000-critical-rules.md contain a 3-way violation distinction table with critical-rules-048, critical-rules-034, and #329?"
+SCENARIOS["sc6-no-unconditional-general"]="Verify none of the 17 Group A+B-4 skill files in .opencode/skills/ still retain the unconditional 'All tasks run via task(subagent_type=\"general\")' pattern — each must have the auditor clause (auditor_1/auditor_2 — NOT \"general\")"
 SCENARIO_TAGS["divide-conquer-decomposition-rule"]="content-verification clean-room-dispatch"
 SCENARIO_TAGS["verification-isolation-section"]="content-verification clean-room-dispatch"
 SCENARIO_TAGS["dispatch-audit-tables"]="content-verification clean-room-dispatch"
@@ -456,6 +457,7 @@ SCENARIO_TAGS["skill-dispatch-mandate-dev-cycle-ref"]="content-verification skil
 SCENARIO_TAGS["skill-dispatch-critical-rules-048-symbolic"]="content-verification skill-dispatch"
 SCENARIO_TAGS["skill-dispatch-critical-rules-048-prose"]="content-verification skill-dispatch"
 SCENARIO_TAGS["skill-dispatch-critical-rules-048-distinction"]="content-verification skill-dispatch"
+SCENARIO_TAGS["sc6-no-unconditional-general"]="content-verification skill-routing"
 
 # File-to-scenario mapping for --changed filtering
 # Maps glob patterns to scenario names
@@ -489,6 +491,7 @@ FILE_SCENARIO_MAP[".opencode/plugins/session-enforcement.ts"]="identity-echo-val
 FILE_SCENARIO_MAP[".opencode/tools/session-init"]="identity-echo-validation wrong-api-routing-subfolder-mapping"
 FILE_SCENARIO_MAP[".opencode/guidelines/117-session-trigger-behavior.md"]="stash-trigger-guideline-reference"
 FILE_SCENARIO_MAP["AGENTS.md"]="agents-md-incremental"
+FILE_SCENARIO_MAP[".opencode/skills/"]="sc6-no-unconditional-general"
 
 # --list: print scenario names and exit
 if [ "$LIST_ONLY" = true ]; then

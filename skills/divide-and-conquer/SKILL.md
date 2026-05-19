@@ -64,7 +64,7 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-Additional context: `{ spec, plan, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, cached verification results. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. Result contracts: `status: DONE|BLOCKED|ERROR|OVERFLOW`.
+Additional context: `{ spec, plan, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, cached verification results. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. Result contracts: `status: DONE|BLOCKED|ERROR|OVERFLOW`.
 
 **`must_receive` validation:** Every task context MUST include `authorization_scope` in the `must_receive` array. If the task context object lacks `must_receive` or `must_receive` does not contain `authorization_scope`, HALT and report the missing field as a context-contamination violation.
 
