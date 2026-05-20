@@ -49,6 +49,7 @@ Define audit criteria based on spec-auditor task structure:
 | SC-9 | Determinism achieved | Repeatable execution path |
 | SC-10 | Prose structure valid | Headers, lists, tables properly formatted |
 | SC-11 | Documentation Sources present and populated | Non-empty Documentation Sources section with live-source verification evidence |
+| SC-12 | Preamble present | "## Intent and Executive Summary" section with all 5 fields (Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions) present for standard+ specs; omitted is acceptable for minimal specs only |
 | SC-DET | SC Determinism | Each SC produces the same PASS/FAIL from any reasonable auditor |
 
 ### Step 3: Cross-Validate with Pre-Resolved Verdicts

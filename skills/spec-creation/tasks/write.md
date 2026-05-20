@@ -123,9 +123,9 @@ If the answer is "no", the SC must be rewritten.
 
 **Content coverage matters more than section structure.** The agent chooses the optimal structure for the spec's complexity:
 
-- **Simple specs** (bug fixes, one-file changes): May use a minimal format — Problem, Context, Fix, Criteria, Edge Cases — all in flowing prose without section headers
-- **Standard specs** (multi-file changes): May use typical sections — Objective, Problem, Context, Fix Approach, Success Criteria, Edge Cases
-- **Complex specs** (cross-cutting, multi-phase): May use full structure — Objective, Problem, Context, Affected Files, Fix Approach, Success Criteria, Edge Cases, Dependencies, Risk, Decision Rationale, Phases
+- **Minimal specs** (bug fixes, one-file changes): May use a minimal format — Problem, Context, Fix, Criteria, Edge Cases — all in flowing prose without section headers. Preamble is optional.
+- **Standard specs** (multi-file changes): May use typical sections — Intent and Executive Summary (mandatory), Objective, Problem, Context, Fix Approach, Success Criteria, Edge Cases. Include a `## Intent and Executive Summary` preamble with the 5 fields (Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions) before the Objective section.
+- **Complex specs** (cross-cutting, multi-phase): May use full structure — Intent and Executive Summary (mandatory), Objective, Problem, Context, Affected Files, Fix Approach, Success Criteria, Edge Cases, Dependencies, Risk, Decision Rationale, Phases. Preamble is mandatory.
 
 **Any format that covers the required content areas is acceptable.** The agent decides the structure that best serves the specific spec.
 
