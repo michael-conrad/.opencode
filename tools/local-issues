@@ -7,7 +7,7 @@
 # dependencies = ["pyyaml"]
 # ///
 
-"""Local issue tracking CLI for .issues/ directories.
+__doc__ = """Local issue tracking CLI for .issues/ directories.
 
 Provides CRUD operations for local issues stored as markdown + YAML
 frontmatter files in .issues/open/ and .issues/closed/ directories.

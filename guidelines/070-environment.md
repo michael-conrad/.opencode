@@ -388,4 +388,17 @@ rules:
     requires: []
     triggers: []
     source: "070-environment.md §PEP 723 Self-Contained Scripts"
+
+  - id: environment-008
+    title: "Polyglot bash guard mandatory on line 2 of all PEP 723 scripts"
+    conditions:
+      all:
+        - "pep723_script_created_or_modified == true"
+        - "bash_guard_missing_on_line_2 == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: [environment-007]
+    triggers: []
+    source: "070-environment.md §Polyglot Bash Guard (MANDATORY)"
 ```

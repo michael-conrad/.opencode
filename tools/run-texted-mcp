@@ -10,8 +10,7 @@
 # SPDX-FileCopyrightText: 2026 Michael Conrad
 # SPDX-License-Identifier: MIT
 # Provenance: AI-generated
-"""
-texted MCP Server Launcher.
+__doc__ = """texted MCP Server Launcher.
 
 Bootstraps Go toolchain and texted compiler, then execs the texted MCP server.
 
