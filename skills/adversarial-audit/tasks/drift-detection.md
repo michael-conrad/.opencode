@@ -60,6 +60,7 @@ target_files = extract_file_paths_from_spec(spec["body"])
 | DD-3 | No extra implementation | No untracked files |
 | DD-4 | Function signatures match | Spec API matches code API |
 | DD-5 | Edge cases covered | All edge cases implemented |
+| DD-STRUCTURAL-FAIL | Structural evidence rejected for behavioral SC drift | If drift evidence reports SC as PASS using structural-only evidence (grep/read/file-exists) when the SC describes behavior, return FAIL with `STRUCTURAL_EVIDENCE` classification. Structural checks do NOT verify behavioral correctness — they only verify existence. |
 
 ### Step 4: Scan Implementation
 

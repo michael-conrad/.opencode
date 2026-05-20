@@ -13,6 +13,18 @@ Enforce the verify-before-declaring-complete discipline per engineering-approach
 
 ## Procedure
 
+### Step 1a: Produce Saved Test Run Artifact
+
+Before declaring completion, produce a saved test run artifact file:
+```bash
+mkdir -p ./tmp/artifacts/
+uv run pytest test/ --junitxml=./tmp/artifacts/test-results.xml
+```
+
+The artifact file is the permanent record that runtime verification occurred. Without it, completion claims are unverifiable post-hoc — a skipped artifact equals an unverifiable completion.
+
+**Cost frame:** Verification cost is measured in defect-discovery-latency, not tool-call count. A skipped artifact means a post-hoc-unverifiable completion — the defect is now discovered at review time instead of verification time, at a multiplier of the original cost. Correctness is the only success metric — there is no score for tool-call economy. Running `uv run pytest --junitxml` costs minutes of execution. A single defect reaching post-merge remediation costs the full pipeline of diagnosis, rework, re-review, re-CI, re-deploy — each roundtrip more expensive than any verification run.
+
 ### Step 1: Run Tests Manually
 
 Execute the test suite against the implementation. Do not assume tests pass based on code inspection alone.

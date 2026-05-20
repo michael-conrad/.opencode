@@ -53,6 +53,8 @@ Otherwise, link from spec body.
 | PF-4 | No missing critical steps | Edge cases, error recovery included |
 | PF-5 | Approach consistent | Clean-room and existing use same strategy |
 | PF-6 | TDD checkpoints present | RED GREEN REFACTOR structure |
+| PF-7 | Cost-frame prose + runtime execution in instructions | Each phase's implementation instructions carry cost-frame reformation prose and require real test execution with saved artifacts |
+| PF-STRUCTURAL-FAIL | Structural evidence rejected for behavioral SCs in plan instructions | If a plan phase's verification instructions accept structural evidence (grep/read/file-exists) for a behavioral SC, return FAIL with `STRUCTURAL_EVIDENCE` classification. Verification instructions MUST require behavioral test execution — structural checks do not verify behavior. |
 
 ### Step 4: Cross-Validate with Pre-Resolved Verdicts
 

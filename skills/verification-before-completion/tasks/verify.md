@@ -117,31 +117,30 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 **AUTHORITY:** `000-critical-rules.md` §Model-Aware Clean-Room task(), Spec #262
 
-## Evidence Types
+## Evidence Types — STRUCTURAL EVIDENCE IS ALWAYS FAIL FOR CODE CHANGES (ZERO TOLERANCE)
 
-### Structural Evidence (Valid for Structural SCs ONLY)
+**🚫 STRUCTURAL EVIDENCE (grep/read/file-exists) IS NEVER ACCEPTABLE FOR TESTABLE CODE.**
 
-Structural evidence confirms that implementation components **exist** — files, functions, config entries, yaml blocks. It does NOT confirm that they **behave correctly**.
+If the change modifies behavior, logic, or executable code, ALL success criteria require behavioral/functional/regression test execution as evidence. grep, read, ls, file-existence, content-checking are NOT evidence of correct behavior — they are evidence that text was written. Code that exists but produces wrong output is indistinguishable from code that does not exist until you run it.
 
-| Type | Description | Storage | Valid For |
-| -- | -- | -- | -- |
-| File path | Created file exists | Issue comment + `ls -la` | Structural SCs only |
-| File content | File content hash | Issue comment + `head -20` | Structural SCs only |
-| Git diff | Code changes | Issue comment + `git diff` | Structural SCs only |
-| `yaml+symbolic` block | Rule/state_machine present | Issue comment + line range | Structural SCs only |
+### Exception: Non-Testable Content (docs, runbooks, guidelines, prose)
 
-### Behavioral Evidence (Required for Behavioral SCs)
+For changes to non-executable content (markdown documentation, runbooks, guidelines, prose-only files), structural evidence IS acceptable but MUST use **semantic intent verification by direct AI agent inspection** — NOT grep/pattern matching. The agent MUST:
 
-Behavioral evidence confirms that implementation components **behave correctly** — tests pass, lints clean, API responses match, runtime behavior matches spec. Structural evidence is INSUFFICIENT for behavioral SCs.
+1. Read the actual content of the modified file
+2. Compare it semantically against the spec's intent — does the prose actually convey the intended meaning?
+3. Report PASS only if the semantic intent is correctly expressed, not just if keywords appear
 
-| Type | Description | Storage | Valid For |
-| -- | -- | -- | -- |
-| Test output | `pytest` pass/fail | Issue comment | Behavioral SCs |
-| Lint output | `ruff check` clean | Issue comment | Behavioral SCs |
-| Type check | `pyright` clean | Issue comment | Behavioral SCs |
-| API response | Status code and body | Issue comment + curl output | Behavioral SCs |
-| Screenshot | Visual verification | Issue comment + attachment | Behavioral SCs |
-| Behavioral test run | `opencode-cli run` output | Issue comment + log excerpt | Behavioral SCs |
+Grep/pattern-match verification is FORBIDDEN even for prose content. The agent must read and understand, not search for string patterns.
+
+### Classification
+
+| Change Type | Evidence Requirement | Method |
+|-------------|---------------------|--------|
+| Testable code (logic, behavior, runtime) | Behavioral/functional/regression test execution | `pytest`, `opencode-cli run`, lint, typecheck — all with saved artifacts in `./tmp/artifacts/` |
+| Non-testable prose (docs, runbooks, guidelines) | Semantic intent verification by direct AI agent read | Read the file, understand the prose, verify semantic intent against spec — NOT grep/pattern matching |
+| | | |
+| Structural-only evidence (grep/read/file-exists) for testable code | **TOTAL FAIL** — entire verification gate returns FAIL | No exceptions. No metadata exemption. |
 
 ### Invalid Evidence
 
