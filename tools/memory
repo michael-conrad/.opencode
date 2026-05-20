@@ -7,8 +7,7 @@
 # dependencies = []
 # ///
 
-__doc__ = """
-DESCRIPTION: Memory tools dispatcher. Usage: ./.opencode/tools/memory <action> [args...]
+__doc__ = """DESCRIPTION: Memory tools dispatcher. Usage: ./.opencode/tools/memory <action> [args...]
 Actions: read, write, update (alias: set), clear
 Example: ./.opencode/tools/memory read
 """

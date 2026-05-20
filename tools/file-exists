@@ -7,8 +7,7 @@
 # dependencies = []
 # ///
 
-__doc__ = """
-DESCRIPTION: Check whether one or more file/directory paths exist and report EXISTS or MISSING.
+__doc__ = """DESCRIPTION: Check whether one or more file/directory paths exist and report EXISTS or MISSING.
 
 Usage: ./.opencode/tools/file-exists <path> [<path> ...]
 """

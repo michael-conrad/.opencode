@@ -7,8 +7,7 @@
 # dependencies = []
 # ///
 
-__doc__ = """
-DESCRIPTION: Symbolic analysis engine for guidelines and skills. Usage: ./.opencode/tools/symbolic <action> [options]
+__doc__ = """DESCRIPTION: Symbolic analysis engine for guidelines and skills. Usage: ./.opencode/tools/symbolic <action> [options]
 Actions: extract, extract-dot, conflicts, flow, states, complete, drift, analyze, report, help
 Example: ./.opencode/tools/symbolic analyze
 """
