@@ -24,7 +24,7 @@ Produce a high-fidelity mockup HTML file from a wireframe or design context.
 2. Copy `templates/mockup_template.html` as the starting point.
 3. Fill in component placeholders (header, nav, main, sidebar, footer) with spec content.
 4. Add inline CSS for visual fidelity (colors, typography, spacing) — toolkit-agnostic.
-5. Optionally capture a screenshot with `scripts/render_html_screenshot.py`.
+5. Optionally capture a screenshot with `uv run --script scripts/render_html_screenshot.py`.
 6. Ensure no framework-specific content (no Streamlit, React, Vue classes, etc.).
 7. Invoke `completion` subtask.
 8. Return result contract.

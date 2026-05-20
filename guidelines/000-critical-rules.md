@@ -38,6 +38,10 @@ Rules that prevent **irreversible harm**: data loss, security breach, production
 See `020-go-prohibitions.md` §1. ONLY "approved"/"go" authorize action.
 
 
+### [critical-rules-006] CRITICAL VIOLATION — Routing-bypass rationalization as self-authorization variant
+The pattern "agent recognizes matching skill, deliberates about whether skill is needed, constructs carveout justification, executes bypass" is explicitly classified as a self-authorization variant. Any agent that matches a skill trigger but self-classifies into a "read-only" or "simple lookup" exemption and bypasses dispatch has committed a routing-bypass self-authorization violation. See `020-go-prohibitions.md` §1.
+
+
 ### [critical-rules-026] CRITICAL VIOLATION — Deleting Branches/Stashes Improperly
 Merged: DELETE IMMEDIATELY. Unmerged: PRESERVE. Stashes: PRESERVE.
 

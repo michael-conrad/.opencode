@@ -33,7 +33,7 @@ skip it are not "fast" — they produce lower-quality work by definition.
    The skill is not an interruption to your workflow — it IS the workflow.
    Agents who write first and verify later produce work that needs rewriting.
 
-4. **If no skill applies directly (read-only questions, simple lookup, status checks): proceed without dispatch, but justify in one sentence.** This is the exception. Treat it like one. The one-sentence justification is the audit trail that proves you considered — and correctly dismissed — the skill deck. Every agent who skips this produces silent bypass. Do not be that agent.
+4. **If no skill applies directly: proceed without dispatch, but justify in one sentence.** This is the exception. Treat it like one. The one-sentence justification is the audit trail that proves you considered — and correctly dismissed — the skill deck. Every agent who skips this produces silent bypass. Do not be that agent.
 
 ### This Gate Fires On
 
