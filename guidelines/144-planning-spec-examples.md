@@ -30,6 +30,18 @@ ______________________________________________________________________
 
 ### Standard Bug Report (needs investigation context)
 
+> **Intent and Executive Summary**
+>
+> **Problem Statement:** OAuth2 refresh_token expiry causes users to be unexpectedly logged out.
+>
+> **Root Cause / Motivation:** 15% of users who don't log in for more than 7 days are affected. Token expiry is not handled gracefully.
+>
+> **Approach Chosen:** Catch `TokenExpiredError` and re-authenticate with stored credentials.
+>
+> **Alternatives Considered & Why Discarded:** Extending token lifetime rejected for security reasons; forcing re-login rejected as poor UX.
+>
+> **Key Design Decisions:** Re-authenticate with stored credentials rather than prompting user; surface network/credential failures appropriately.
+>
 > **Problem:** OAuth2 refresh_token fails on expiry, causing unexpected logout for ≈15% of users who don't log in for more than 7 days.
 >
 > **Expected Behavior:** Automatically re-authenticate using stored credentials when refresh token expires.
@@ -77,6 +89,18 @@ ______________________________________________________________________
 
 ### Standard Feature Spec (multi-file change with dependencies)
 
+> **Intent and Executive Summary**
+>
+> **Problem Statement:** Article metadata queries are slow, causing poor page load performance.
+>
+> **Root Cause / Motivation:** API calls average 150ms response time because queries hit PostgreSQL directly instead of a cache layer.
+>
+> **Approach Chosen:** Add Redis as a cache layer with 1-hour TTL and fallback to DB when Redis is unavailable.
+>
+> **Alternatives Considered & Why Discarded:** Memcached considered but Redis already deployed per infra team; in-memory cache rejected due to stateless deployment architecture.
+>
+> **Key Design Decisions:** 1-hour TTL balances freshness against cache hit rate; fallback to DB ensures availability over consistency.
+>
 > **Objective:** Add Redis caching layer for frequently accessed article metadata.
 >
 > **Problem:** Article metadata API calls average 150ms response time, causing slow page loads. 85% cache hit potential identified.

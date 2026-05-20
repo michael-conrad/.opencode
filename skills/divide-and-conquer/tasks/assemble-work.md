@@ -128,22 +128,53 @@ For each issue in execution order:
 
    ````
 
-2. **Spawn sub-agent** via `task(subagent_type=..., prompt=...)`
-   - For non-audit tasks: use `task(subagent_type="general")`
-   - For audit/verification tasks (keywords: `audit`, `cross-validate`, `verify`, `spec-audit`, `plan-fidelity`): use `subagent_type` from resolve-models result contract (`result.auditor_1`/`result.auditor_2`) — NOT `"general"`. See adversarial-audit SKILL.md §DISPATCH_GATE.
 
-3. **Sub-agent responsibilities:**
+2. **Spawn RED sub-agent** — writes tests only:
 
    - Load spec + session context + prior context
-   - Run `divide-and-conquer` skill for the specific issue
-   - Make WIP commits as needed
+   - Run `test-driven-development` skill for RED phase
+   - Return structured result: `{status, test_files, test_assertions, summary}`
+
+3. **Collect result** from RED sub-agent
+
+4. **Completeness Gate (RED)** — after RED sub-agent completes, run the completeness gate before routing to GREEN:
+
+   - Task `completeness-gate --task check` with `{ spec_success_criteria, deliverable: test_artifacts, spec, audit_readiness_criteria }`
+   - Collect result: `completeness_result: PASS|FAIL`, `findings: [...]`
+
+   **Routing based on completeness_result (RED):**
+
+   - **PASS** → proceed to GREEN sub-agent (step 5)
+   - **FAIL + remediable only** → re-task RED sub-agent with completeness findings as additional context — the findings identify tests missing or incorrect
+   - **FAIL + structural** → route to `spec-creation --task revise` or `writing-plans --task revise`. HALT — structural issues require spec/plan revision before re-implementation.
+
+5. **Spawn GREEN sub-agent** — implements code only:
+
+   - Load spec + session context + prior context + RED test outputs
+   - Run `test-driven-development` skill for GREEN phase
    - Run `verification-before-completion --task verify`
    - Run `finishing-a-development-branch --task checklist`
-   - Return structured result: `{status, files_changed, summary}`
+   - Return structured result: `{status, files_changed, implementation_summary}`
 
-4. **Collect result** from sub-agent
+6. **Collect result** from GREEN sub-agent
 
-5. **Sub-Agent Completion Checkpoint** — after collecting each result, perform the completion checkpoint per `dispatch` task Step 4:
+7. **Completeness Gate (GREEN)** — after GREEN sub-agent completes, run the completeness gate before routing to the adversarial auditor:
+
+   - Task `completeness-gate --task check` with `{ spec_success_criteria, deliverable: implementation_artifacts, spec, audit_readiness_criteria }`
+   - Collect result: `completeness_result: PASS|FAIL`, `findings: [...]`
+
+   **Routing based on completeness_result (GREEN):**
+
+   - **PASS** → proceed to Sub-Agent Completion Checkpoint (step 8)
+   - **FAIL + remediable only** → re-task GREEN sub-agent with completeness findings as additional context. The findings identify what is missing or incorrect — the re-tasked sub-agent corrects the deliverable.
+   - **FAIL + structural** → route to `writing-plans --task revise` or `spec-creation --task revise` depending on whether the spec or plan needs revision. HALT after routing — structural issues require spec/plan revision before re-implementation.
+
+   **Remediability classification:**
+
+   - **Remediable:** Missing content, incomplete implementation, minor structural issues the existing sub-agent can fix
+   - **Structural:** Spec/plan-level gaps, missing files not declared in the plan, incorrect architecture, contradictory requirements
+
+8. **Sub-Agent Completion Checkpoint** — after collecting each result, perform the completion checkpoint per `dispatch` task Step 4:
 
    - If sub-agent returned a structured result: check `status` field and handle accordingly
    - If sub-agent returned **NO result** (timeout, crash, empty): this is **ABNORMAL TERMINATION**
@@ -156,7 +187,7 @@ For each issue in execution order:
    - The orchestrator decides recovery action autonomously per "Pushing Agent Intelligence Decisions to the User" (`000-critical-rules.md`)
    - **Do NOT proceed to the next sub-agent until abnormal termination recovery is complete.** Recovery must fully resolve (re-task succeeded or manual commit+push verified) before advancing.
 
-6. **Compose prior_context and phase_progress** for the next issue based on what was implemented:
+9. **Compose prior_context and phase_progress** for the next issue based on what was implemented:
 
    prior_context (intent and context):
 
@@ -174,7 +205,7 @@ For each issue in execution order:
 
    Both prior_context and phase_progress are prose-driven. The orchestrator composes them intelligently — no fixed template, no rigid schema.
 
-7. **Append the sub-agent's decision_log_entry to the Decision Log in `.issues/` local storage.** After collecting each sub-agent's result, write their `decision_log_entry` to `.issues/` local storage using `local-issues comment N --body "..."`. Decision logs are classified as `internal` per the content classification gate — they contain agent reasoning, design analysis, and process metadata that persists locally for session-restart scenarios.
+11. **Append the sub-agent's decision_log_entry to the Decision Log in `.issues/` local storage.** After collecting each sub-agent's result, write their `decision_log_entry` to `.issues/` local storage using `local-issues comment N --body "..."`. Decision logs are classified as `internal` per the content classification gate — they contain agent reasoning, design analysis, and process metadata that persists locally for session-restart scenarios.
 
 **Decision Log storage:** Use `local-issues comment N --body "..."` to write to `.issues/<N>/comments.md`, NOT `issue-operations -> comment (github_add_issue_comment`. Rationale: <!-- Routes through issue-operations per SPEC #683 -->
 
@@ -187,9 +218,9 @@ For each issue in execution order:
 
 The orchestrator writes the decision log entry after each sub-agent returns. If writing fails, log the failure and continue — the Decision Log is a durability enhancement, not a blocking gate. The `decision_log_entry` is also returned in the sub-agent result for immediate use by subsequent task()s within the same session.
 
-09. **Mark prior issue's branch as frozen** — no rebasing, amending, or force-pushing
+12. **Mark prior issue's branch as frozen** — no rebasing, amending, or force-pushing
 
-10. **Handle failures:**
+13. **Handle failures:**
 
 - If sub-agent fails: record failure
 - For independent issues: continue to next issue

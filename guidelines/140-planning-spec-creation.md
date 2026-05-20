@@ -117,6 +117,7 @@ ______________________________________________________________________
 
 | Question | Why It Matters |
 | -- | -- |
+| Does the spec include an Intent and Executive Summary preamble with Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, and Key Design Decisions? | Without this preamble, future readers cannot reconstruct the spec's rationale or understand why decisions were made |
 | Does the spec clearly state the problem it solves and why? | Without this, the reader doesn't know what they're solving or whether the solution addresses the right thing |
 | Does the spec provide enough context for someone with no prior knowledge? | Agents lack memory context; the spec must be self-contained |
 | Does the spec identify what constraints and assumptions apply? | Constraints shape the solution space; assumptions may be wrong and need verification |

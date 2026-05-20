@@ -57,7 +57,7 @@ Writes plan header, stores as combined section or separate issue, creates sub-is
 Each phase MUST include (prose-driven, not rigid headers):
 - **Why this phase exists** — concern it addresses and place in overall design
 - **What it must accomplish** — tasks, deliverables, behavioral requirements
-- **How to verify completion** — success criteria and testable outcomes
+- **How to verify completion** — success criteria and testable outcomes. Each phase's verification guidance MUST carry cost-frame identity prose that reframes verification cost using the dark-prose-007 formula from `250-dark-prose-reference.md` §Section 3. Verification MUST require real test execution commands that produce saved artifact files in `./tmp/artifacts/`. Structural checks (file exists, grep match) are NEVER acceptable substitutes for behavioral runtime evidence — a skipped execution is a defect accepted at the point of verification.
 - **What could go wrong** — edge cases, known risks, failure modes
 - **What must be done first** — dependencies on prior phases or external prerequisites
 

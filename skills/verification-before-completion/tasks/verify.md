@@ -142,6 +142,9 @@ Behavioral evidence confirms that implementation components **behave correctly**
 | API response | Status code and body | Issue comment + curl output | Behavioral SCs |
 | Screenshot | Visual verification | Issue comment + attachment | Behavioral SCs |
 | Behavioral test run | `opencode-cli run` output | Issue comment + log excerpt | Behavioral SCs |
+| Test artifact file | Saved test output in `./tmp/artifacts/` | `./tmp/artifacts/` file + issue comment | Behavioral SCs |
+
+Every behavioral SC's verification MUST produce a saved artifact file in `./tmp/artifacts/`. Chat-only output is INSUFFICIENT — structural evidence (file exists, grep match) is NEVER a valid substitute for skipped runtime execution. Ensure the directory exists: `mkdir -p ./tmp/artifacts/`.
 
 ### Invalid Evidence
 
