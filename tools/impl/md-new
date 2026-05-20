@@ -7,8 +7,7 @@
 # dependencies = []
 # ///
 
-__doc__ = """
-DESCRIPTION: Create a new markdown file with an optional H1 title. Fails if file already exists.
+__doc__ = """DESCRIPTION: Create a new markdown file with an optional H1 title. Fails if file already exists.
 Usage: ./.opencode/tools/md new <file.md> [--title "Title Text"] [--help]
 """
 import os as _os

@@ -7,8 +7,7 @@
 # dependencies = []
 # ///
 
-__doc__ = """
-DESCRIPTION: Jupyter server tools dispatcher. Usage: ./.opencode/tools/jupyter <action> [args...]
+__doc__ = """DESCRIPTION: Jupyter server tools dispatcher. Usage: ./.opencode/tools/jupyter <action> [args...]
 Actions: start, stop
 Example: ./.opencode/tools/jupyter start
 """

@@ -7,8 +7,7 @@
 # dependencies = []
 # ///
 
-__doc__ = """
-DESCRIPTION: Read a section from a markdown file by header, or list all headers.
+__doc__ = """DESCRIPTION: Read a section from a markdown file by header, or list all headers.
 Usage: ./.opencode/tools/md read <file.md> (--header "Header Text" [--level N] | --list) [--help]
 """
 import os as _os

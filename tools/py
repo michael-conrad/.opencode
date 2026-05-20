@@ -7,8 +7,7 @@
 # dependencies = []
 # ///
 
-__doc__ = """
-DESCRIPTION: Python source tools dispatcher. Usage: ./.opencode/tools/py <action> [args...]
+__doc__ = """DESCRIPTION: Python source tools dispatcher. Usage: ./.opencode/tools/py <action> [args...]
 Actions: ls, mkpkg
 Example: ./.opencode/tools/py ls src/commons
          ./.opencode/tools/py mkpkg src/commons/query

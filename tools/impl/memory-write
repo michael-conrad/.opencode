@@ -7,8 +7,7 @@
 # dependencies = []
 # ///
 
-__doc__ = """
-DESCRIPTION: Overwrite .opencode/memory.md with content from stdin or a file argument.
+__doc__ = """DESCRIPTION: Overwrite .opencode/memory.md with content from stdin or a file argument.
 Usage: ./.opencode/tools/memory write [file]
        echo "content" | ./.opencode/tools/memory write
 """

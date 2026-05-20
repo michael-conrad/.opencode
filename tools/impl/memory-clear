@@ -7,8 +7,7 @@
 # dependencies = []
 # ///
 
-__doc__ = """
-DESCRIPTION: Clear the Session State section of .opencode/memory.md.
+__doc__ = """DESCRIPTION: Clear the Session State section of .opencode/memory.md.
 Usage: ./.opencode/tools/memory clear
 """
 import os as _os

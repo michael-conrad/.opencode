@@ -7,8 +7,7 @@
 # dependencies = []
 # ///
 
-__doc__ = """
-DESCRIPTION: Update a single key: value line in .opencode/memory.md.
+__doc__ = """DESCRIPTION: Update a single key: value line in .opencode/memory.md.
 If the key exists, its line is replaced. If not, it is appended to the matching section.
 Usage: ./.opencode/tools/memory update <section> <key> (<value> | --value-file <path>)
 WARNING: Use --value-file <path> for complex text to avoid shell escaping issues.

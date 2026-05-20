@@ -7,8 +7,7 @@
 # dependencies = []
 # ///
 
-__doc__ = """
-DESCRIPTION: Insert a new section (header + body) into a markdown file.
+__doc__ = """DESCRIPTION: Insert a new section (header + body) into a markdown file.
 Usage: ./.opencode/tools/md add <file.md> --header "New Header" --level N (--content <text> | --content-file <path>) [--after "Header" | --before "Header" | --append] [--help]
 Default position: --append (add at end of file).
 """

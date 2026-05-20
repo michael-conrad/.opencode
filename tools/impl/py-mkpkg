@@ -7,8 +7,7 @@
 # dependencies = []
 # ///
 
-__doc__ = """
-DESCRIPTION: Create a Python package (directory + __init__.py). Creates all intermediate packages too.
+__doc__ = """DESCRIPTION: Create a Python package (directory + __init__.py). Creates all intermediate packages too.
 Usage: ./.opencode/tools/py mkpkg <path> [<path2> ...]
 Example: ./.opencode/tools/py mkpkg src/commons/query
          ./.opencode/tools/py mkpkg src/commons/query test/commons/query

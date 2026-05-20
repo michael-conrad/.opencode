@@ -7,7 +7,7 @@
 # dependencies = []
 # ///
 
-"""Session initialization script for AI agents.
+__doc__ = """Session initialization script for AI agents.
 
 Outputs key:value pairs for LLM consumption on stdout. Key names use
 the dotted scope.param convention where the prefix is the tool scope

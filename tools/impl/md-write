@@ -7,8 +7,7 @@
 # dependencies = []
 # ///
 
-__doc__ = """
-DESCRIPTION: Replace the body of a section in a markdown file, preserving the header line.
+__doc__ = """DESCRIPTION: Replace the body of a section in a markdown file, preserving the header line.
 Usage: ./.opencode/tools/md write <file.md> --header "Header Text" (--content <text> | --content-file <path>) [--level N] [--help]
 WARNING: Use --content-file <path> for any content containing newlines or special characters
          to avoid shell escaping and literal \n issues.

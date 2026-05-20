@@ -7,8 +7,7 @@
 # dependencies = []
 # ///
 
-__doc__ = """
-DESCRIPTION: List packages and modules under a path (replaces `ls` for Python source trees).
+__doc__ = """DESCRIPTION: List packages and modules under a path (replaces `ls` for Python source trees).
 Usage: ./.opencode/tools/py ls [<path>] [--all]
 Example: ./.opencode/tools/py ls src/commons
          ./.opencode/tools/py ls src/commons/persistence
