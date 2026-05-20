@@ -1,15 +1,17 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
-"""
-DESCRIPTION: Create a Python package (directory + __init__.py). Creates all intermediate packages too.
+
+__doc__ = """DESCRIPTION: Create a Python package (directory + __init__.py). Creates all intermediate packages too.
 Usage: ./.opencode/tools/py mkpkg <path> [<path2> ...]
 Example: ./.opencode/tools/py mkpkg src/commons/query
          ./.opencode/tools/py mkpkg src/commons/query test/commons/query
 """
-from __future__ import annotations
 import os as _os
 if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
     print("ERROR: This script must be run via its dispatcher (e.g. ./.opencode/tools/py ...). "
@@ -22,7 +24,6 @@ _path = Path(__file__).resolve().parent
 while _path.name != ".opencode":
     _path = _path.parent
 PROJECT_ROOT = _path.parent
-
 
 def make_package(rel_path: str) -> None:
     target = PROJECT_ROOT / rel_path
@@ -37,7 +38,6 @@ def make_package(rel_path: str) -> None:
         else:
             print(f"exists  {init.relative_to(PROJECT_ROOT)}")
 
-
 def main() -> None:
     args = sys.argv[1:]
     if not args or args[0] in ("-h", "--help"):
@@ -48,7 +48,6 @@ def main() -> None:
         if path.startswith("--"):
             continue
         make_package(path)
-
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,7 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = ">=3.10"
 # dependencies = []
@@ -7,8 +10,7 @@
 # SPDX-FileCopyrightText: 2026 Michael Conrad
 # SPDX-License-Identifier: MIT
 # Provenance: AI-generated
-"""
-texted MCP Server Launcher.
+__doc__ = """texted MCP Server Launcher.
 
 Bootstraps Go toolchain and texted compiler, then execs the texted MCP server.
 
@@ -32,7 +34,6 @@ GO_VERSION = "1.22.10"
 GO_ARCHIVE = f"go{GO_VERSION}.linux-amd64.tar.gz"
 GO_URL = f"https://go.dev/dl/{GO_ARCHIVE}"
 
-
 def ensure_go_toolchain():
     go_bin = GOROOT / "bin" / "go"
     if go_bin.exists():
@@ -47,7 +48,6 @@ def ensure_go_toolchain():
         os.unlink(tmp.name)
     if not go_bin.exists():
         sys.exit(f"Go binary not found at {go_bin}")
-
 
 def ensure_texted():
     if TEXTED_BIN.exists():
@@ -68,7 +68,6 @@ def ensure_texted():
         sys.exit(f"go install failed:\n{result.stderr}")
     if not TEXTED_BIN.exists():
         sys.exit(f"texted binary not found at {TEXTED_BIN} after install")
-
 
 if __name__ == "__main__":
     if "--version" in sys.argv:

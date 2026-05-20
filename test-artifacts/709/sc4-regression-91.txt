@@ -1,0 +1,16 @@
+PASS: Issue #41 - ABSENT-FAIL for ['state_machines', 'gates', 'evidence_artifacts', 'task_context'] (regression detection works)
+PASS: Issue #42 - ABSENT-FAIL for ['state_machines', 'gates', 'evidence_artifacts', 'task_context'] (regression detection works)
+PASS: Issue #43 - ABSENT-FAIL for ['state_machines', 'gates', 'evidence_artifacts', 'task_context'] (regression detection works)
+PASS: Issue #45 - ABSENT-FAIL for ['state_machines', 'gates', 'task_context'] (regression detection works)
+
+=== Regression Test Summary ===
+skildeck verify-structure correctly identifies missing structural components.
+The original regression (partial implementation verified as complete) would have been caught.
+PASS: Issue #41 - ABSENT-FAIL for ['state_machines', 'gates', 'evidence_artifacts', 'task_context'] (regression detection works)
+PASS: Issue #42 - ABSENT-FAIL for ['state_machines', 'gates', 'evidence_artifacts', 'task_context'] (regression detection works)
+PASS: Issue #43 - ABSENT-FAIL for ['state_machines', 'gates', 'evidence_artifacts', 'task_context'] (regression detection works)
+PASS: Issue #45 - ABSENT-FAIL for ['state_machines', 'gates', 'task_context'] (regression detection works)
+
+=== Regression Test Summary ===
+skildeck verify-structure correctly identifies missing structural components.
+The original regression (partial implementation verified as complete) would have been caught.

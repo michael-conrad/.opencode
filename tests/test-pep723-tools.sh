@@ -5,6 +5,16 @@ TOOLS_DIR=".opencode/tools"
 PASS=0
 FAIL=0
 
+check_bash_guard() {
+    local file="$1"
+    if head -2 "$file" | tail -1 | grep -Fq '"exec" "uv" "run" "--script" "$0" "$@"'; then
+        PASS=$((PASS + 1))
+    else
+        echo "FAIL: $file missing polyglot bash guard on line 2"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
 check_shebang() {
     local file="$1"
     if head -1 "$file" | grep -q '^#!/usr/bin/env -S uv run --script$'; then
@@ -70,6 +80,7 @@ check_no_old_references() {
 check_python_script() {
     local file="$1"
     check_shebang "$file"
+    check_bash_guard "$file"
     check_pep723_metadata "$file"
     check_python_version_pinned "$file"
 }

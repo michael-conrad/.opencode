@@ -1,14 +1,16 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
-"""
-DESCRIPTION: Symbolic analysis engine for guidelines and skills. Usage: ./.opencode/tools/symbolic <action> [options]
+
+__doc__ = """DESCRIPTION: Symbolic analysis engine for guidelines and skills. Usage: ./.opencode/tools/symbolic <action> [options]
 Actions: extract, extract-dot, conflicts, flow, states, complete, drift, analyze, report, help
 Example: ./.opencode/tools/symbolic analyze
 """
-from __future__ import annotations
 import os
 import subprocess
 import sys
@@ -31,7 +33,6 @@ ACTIONS = {
     "report": "sym-report",
 }
 
-
 def _get_description(script_path: Path) -> str:
     import re
     try:
@@ -40,7 +41,6 @@ def _get_description(script_path: Path) -> str:
         return m.group(1).strip() if m else ""
     except Exception:
         return ""
-
 
 def _run_action(script: Path, forwarded_args: list[str], summary: str) -> int:
     result = subprocess.run(
@@ -56,7 +56,6 @@ def _run_action(script: Path, forwarded_args: list[str], summary: str) -> int:
     if result.returncode == 0 and not result.stdout and not result.stderr:
         print(summary)
     return result.returncode
-
 
 def main() -> None:
     args = sys.argv[1:]
@@ -74,7 +73,6 @@ def main() -> None:
         sys.exit(1)
     script = PROJECT_ROOT / ".opencode" / "tools" / "impl" / ACTIONS[action]
     sys.exit(_run_action(script, args[1:], f"OK: .opencode/tools/symbolic {action} completed."))
-
 
 if __name__ == "__main__":
     main()

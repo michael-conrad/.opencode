@@ -1,14 +1,16 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
-"""
-DESCRIPTION: Memory tools dispatcher. Usage: ./.opencode/tools/memory <action> [args...]
+
+__doc__ = """DESCRIPTION: Memory tools dispatcher. Usage: ./.opencode/tools/memory <action> [args...]
 Actions: read, write, update (alias: set), clear
 Example: ./.opencode/tools/memory read
 """
-from __future__ import annotations
 import os
 import subprocess
 import sys
@@ -27,7 +29,6 @@ ACTIONS = {
     "clear": "memory-clear",
 }
 
-
 def _run_action(script: Path, forwarded_args: list[str], summary: str) -> int:
     result = subprocess.run(
         ["uv", "run", str(script)] + forwarded_args,
@@ -42,7 +43,6 @@ def _run_action(script: Path, forwarded_args: list[str], summary: str) -> int:
     if result.returncode == 0 and not result.stdout and not result.stderr:
         print(summary)
     return result.returncode
-
 
 def main() -> None:
     args = sys.argv[1:]
@@ -98,7 +98,6 @@ def main() -> None:
             sys.exit(1)
     script = PROJECT_ROOT / ".opencode" / "tools" / "impl" / ACTIONS[action]
     sys.exit(_run_action(script, args[1:], f"OK: .opencode/tools/memory {action} completed."))
-
 
 if __name__ == "__main__":
     main()

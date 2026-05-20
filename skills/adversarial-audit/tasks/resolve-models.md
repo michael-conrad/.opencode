@@ -4,7 +4,7 @@
 
 # Task: resolve-models
 
-Invoke `bash .opencode/tools/resolve-models` to select two auditors from different model families.
+Invoke `.opencode/tools/resolve-models` to select two auditors from different model families.
 
 Flags: `--orchestrator-model <model>` (required), `--re-task` (fresh randomization), `--excluded-pair <fam1>,<fam2>` (exclude specific families), `--test-insufficient-families` (force error for testing).
 

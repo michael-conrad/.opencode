@@ -38,6 +38,13 @@ These gates are **non-recovery** per adversarial-audit-017. Do NOT attempt to re
 
 ## Procedure
 
+### Step 0: Context Contamination Detection
+
+Before consensus, check each auditor's verdict for AUDIT_FAIL entries:
+1. One AUDIT_FAIL + one normal → invalidate contaminated verdict, re-dispatch
+2. Both AUDIT_FAIL same source → confirm, BLOCK pipeline
+3. AUDIT_FAIL MUST include explanation with specific contamination signal
+
 ### Step 1: Validate Input
 
 Confirm `evidence_payload` and `evaluation_criteria` are present and non-empty. If either is missing: return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }`.

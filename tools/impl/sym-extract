@@ -1,14 +1,16 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["pyyaml>=6.0"]
 # ///
+
 """
 DESCRIPTION: Extended extraction pipeline for yaml+symbolic v2.0 (tasks, decomposition, gates, evidence_artifacts). Backward compatible with v1.0.
 Usage: ./.opencode/tools/symbolic extract [--dir PATH] [--verbose]
 """
-
-from __future__ import annotations
 
 import json
 import os as _os
@@ -38,7 +40,6 @@ REQUIRED_DECOMP_FIELDS = {"type", "skill", "task"}
 REQUIRED_GATE_FIELDS = {"id", "condition"}
 REQUIRED_EVIDENCE_FIELDS = {"name", "type", "verification"}
 
-
 @dataclass
 class Rule:
     id: str
@@ -55,7 +56,6 @@ class Rule:
     def to_dict(self) -> dict:
         return asdict(self)
 
-
 @dataclass
 class Transition:
     from_state: str
@@ -65,7 +65,6 @@ class Transition:
 
     def to_dict(self) -> dict:
         return asdict(self)
-
 
 @dataclass
 class StateMachine:
@@ -82,7 +81,6 @@ class StateMachine:
             "transitions": [t.to_dict() for t in self.transitions],
         }
 
-
 @dataclass
 class Task:
     id: str
@@ -96,7 +94,6 @@ class Task:
     def to_dict(self) -> dict:
         return asdict(self)
 
-
 @dataclass
 class DecompositionEntry:
     type: str
@@ -109,7 +106,6 @@ class DecompositionEntry:
     def to_dict(self) -> dict:
         return asdict(self)
 
-
 @dataclass
 class Gate:
     id: str
@@ -121,7 +117,6 @@ class Gate:
     def to_dict(self) -> dict:
         return asdict(self)
 
-
 @dataclass
 class EvidenceArtifact:
     name: str
@@ -131,7 +126,6 @@ class EvidenceArtifact:
 
     def to_dict(self) -> dict:
         return asdict(self)
-
 
 @dataclass
 class ExtractResult:
@@ -157,7 +151,6 @@ class ExtractResult:
             "blocks_found": self.blocks_found,
             "warnings": self.warnings,
         }
-
 
 def _parse_rule(raw: dict, warnings: list[str], source_file: str) -> Rule | None:
     missing = REQUIRED_RULE_FIELDS - set(raw.keys())
@@ -188,7 +181,6 @@ def _parse_rule(raw: dict, warnings: list[str], source_file: str) -> Rule | None
         triggers=[str(t) for t in raw.get("triggers", [])],
         source=str(raw.get("source", "")),
     )
-
 
 def _parse_state_machine(
     raw: dict, warnings: list[str], source_file: str
@@ -221,7 +213,6 @@ def _parse_state_machine(
         transitions=transitions,
     )
 
-
 def _parse_task(raw: dict, warnings: list[str], source_file: str) -> Task | None:
     missing = REQUIRED_TASK_FIELDS - set(raw.keys())
     if missing:
@@ -238,7 +229,6 @@ def _parse_task(raw: dict, warnings: list[str], source_file: str) -> Task | None
         bypass_violation=str(raw.get("bypass_violation", "")),
         source=source_file,
     )
-
 
 def _parse_decomposition(
     raw: dict, warnings: list[str], source_file: str
@@ -258,7 +248,6 @@ def _parse_decomposition(
         source=source_file,
     )
 
-
 def _parse_gate(raw: dict, warnings: list[str], source_file: str) -> Gate | None:
     missing = REQUIRED_GATE_FIELDS - set(raw.keys())
     if missing:
@@ -273,7 +262,6 @@ def _parse_gate(raw: dict, warnings: list[str], source_file: str) -> Gate | None
         critical_violation=bool(raw.get("critical_violation", False)),
         source=source_file,
     )
-
 
 def _parse_evidence_artifact(
     raw: dict, warnings: list[str], source_file: str
@@ -290,7 +278,6 @@ def _parse_evidence_artifact(
         verification=str(raw["verification"]),
         source=source_file,
     )
-
 
 def extract_yaml_blocks(scan_dir: Path, verbose: bool = False) -> ExtractResult:
     import yaml
@@ -377,7 +364,6 @@ def extract_yaml_blocks(scan_dir: Path, verbose: bool = False) -> ExtractResult:
 
     return result
 
-
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
         print(
@@ -437,7 +423,6 @@ def main() -> None:
             f"\n({len(result.warnings)} warnings — use --verbose for details)",
             file=sys.stderr,
         )
-
 
 if __name__ == "__main__":
     main()

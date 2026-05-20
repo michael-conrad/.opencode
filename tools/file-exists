@@ -1,15 +1,16 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
-"""
-DESCRIPTION: Check whether one or more file/directory paths exist and report EXISTS or MISSING.
+
+__doc__ = """DESCRIPTION: Check whether one or more file/directory paths exist and report EXISTS or MISSING.
 
 Usage: ./.opencode/tools/file-exists <path> [<path> ...]
 """
-from __future__ import annotations
-
 import sys
 from pathlib import Path
 
@@ -17,7 +18,6 @@ _path = Path(__file__).resolve().parent
 while _path.name != ".opencode":
     _path = _path.parent
 PROJECT_ROOT = _path.parent
-
 
 def main() -> None:
     if "--help" in sys.argv or "-h" in sys.argv:
@@ -39,7 +39,6 @@ def main() -> None:
             all_exist = False
 
     sys.exit(0 if all_exist else 1)
-
 
 if __name__ == "__main__":
     main()

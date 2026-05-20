@@ -1,3 +1,7 @@
+#!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = ">=3.12"
 # dependencies = [
@@ -6,13 +10,13 @@
 # ]
 #
 # ///
+
 import argparse
 import asyncio
 from pathlib import Path
 
 import yaml
 from playwright.async_api import async_playwright
-
 
 async def animate_flow(interaction_spec_path: str, output_dir: str) -> list[str]:
     spec_file = Path(interaction_spec_path)
@@ -38,7 +42,6 @@ async def animate_flow(interaction_spec_path: str, output_dir: str) -> list[str]
         await browser.close()
     return screenshots
 
-
 def main():
     parser = argparse.ArgumentParser(description="Animate interaction spec flow")
     parser.add_argument("interaction_spec_path", help="Path to interaction spec YAML")
@@ -47,7 +50,6 @@ def main():
     result = asyncio.run(animate_flow(args.interaction_spec_path, args.output_dir))
     for path in result:
         print(f"Captured: {path}")
-
 
 if __name__ == "__main__":
     main()

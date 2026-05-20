@@ -1,14 +1,16 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["pyyaml>=6.0"]
 # ///
+
 """
 DESCRIPTION: Regression test for spec #91 SC-12. Runs skildeck verify-structure against known-incomplete SKILL.md files from issues #41-#45 to verify ABSENT-FAIL is reported for missing structural components that were added in later commits.
 Usage: uv run .opencode/tests/regressions/regression-91-verify-structure.py
 """
-
-from __future__ import annotations
 
 import sys
 from pathlib import Path
@@ -34,7 +36,6 @@ MISSING_COMPONENTS = {
     43: ["state_machines", "evidence_artifacts", "gates", "task_context"],
     45: ["state_machines", "gates", "task_context"],
 }
-
 
 def _extract_yaml_components(filepath: Path) -> dict:
     import yaml
@@ -79,7 +80,6 @@ def _extract_yaml_components(filepath: Path) -> dict:
                     components[key] = True
     return components
 
-
 def main() -> None:
     overall = 0
     for issue_num in ISSUES:
@@ -117,7 +117,6 @@ def main() -> None:
     )
 
     sys.exit(overall)
-
 
 if __name__ == "__main__":
     main()

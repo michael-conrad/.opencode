@@ -1,8 +1,12 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+
 """
 Skill card validation only (sensor mode). Corrections are agent-driven.
 
@@ -58,7 +62,6 @@ FILE_OPS_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
-
 class Violation(NamedTuple):
     violation_type: str
     skill_name: str
@@ -68,12 +71,10 @@ class Violation(NamedTuple):
     file_path: str = ""
     line_approx: int | None = None
 
-
 def discover_skill_cards(root: Path) -> list[Path]:
     cards = sorted(root.glob(".opencode/skills/*/SKILL.md"))
     cards.extend(sorted(root.glob(".opencode/skills/*/platforms/*/SKILL.md")))
     return cards
-
 
 def parse_frontmatter(content: str) -> tuple[dict[str, str], str, str]:
     match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
@@ -90,12 +91,10 @@ def parse_frontmatter(content: str) -> tuple[dict[str, str], str, str]:
             fields[key] = val
     return fields, fm_text, body
 
-
 def skill_name_from_path(p: Path) -> str:
     parts = p.parts
     idx = parts.index("skills")
     return "/".join(parts[idx + 1 : -1])
-
 
 def validate_req1(
     name: str, fields: dict[str, str], fm_text: str, file_path: str
@@ -200,7 +199,6 @@ def validate_req1(
         )
     return violations
 
-
 def validate_req2(name: str, content: str, file_path: str) -> list[Violation]:
     violations: list[Violation] = []
     content_no_code = CODE_BLOCK_RE.sub("", content)
@@ -228,7 +226,6 @@ def validate_req2(name: str, content: str, file_path: str) -> list[Violation]:
                 )
     return violations
 
-
 def validate_req3(name: str, body: str, file_path: str) -> list[Violation]:
     violations: list[Violation] = []
     if WORKTREE_MODE_HEADING_RE.search(body):
@@ -244,7 +241,6 @@ def validate_req3(name: str, body: str, file_path: str) -> list[Violation]:
             )
         )
     return violations
-
 
 def validate_req4(name: str, fields: dict[str, str], file_path: str) -> list[Violation]:
     violations: list[Violation] = []
@@ -270,7 +266,6 @@ def validate_req4(name: str, fields: dict[str, str], file_path: str) -> list[Vio
             )
         )
     return violations
-
 
 def validate_card(card_path: Path, root: Path) -> list[Violation]:
     name = skill_name_from_path(card_path.relative_to(root))
@@ -306,7 +301,6 @@ def validate_card(card_path: Path, root: Path) -> list[Violation]:
     violations.extend(validate_req4(name, fields, rel_path))
     return violations
 
-
 def violation_to_dict(v: Violation) -> dict:
     return {
         "skill_name": v.skill_name,
@@ -317,7 +311,6 @@ def violation_to_dict(v: Violation) -> dict:
         "detail": v.detail,
         "line_approx": v.line_approx,
     }
-
 
 def main() -> int:
     if "--fix" in sys.argv:
@@ -364,7 +357,6 @@ def main() -> int:
         violating_skills = sorted({v.skill_name for v in all_violations})
         print(f"Failing skills: {', '.join(violating_skills)}")
     return 0 if not all_violations else 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,8 +1,12 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+
 """Trigger section emitter for AI agent session context.
 
 Purged per spec #426: all branch-status-based triggers that caused
@@ -20,7 +24,6 @@ import sys
 from pathlib import Path
 
 GIT_TIMEOUT = 10
-
 
 def run_git(args: list[str]) -> str | None:
     try:
@@ -40,10 +43,8 @@ def run_git(args: list[str]) -> str | None:
         pass
     return None
 
-
 def get_current_branch() -> str | None:
     return run_git(["branch", "--show-current"])
-
 
 def get_root_dir() -> str:
     _path = Path(__file__).resolve().parent
@@ -51,13 +52,11 @@ def get_root_dir() -> str:
         _path = _path.parent
     return str(_path.parent)
 
-
 def is_pair_mode_branch() -> tuple[bool, str | None]:
     branch = get_current_branch()
     if branch and branch.startswith("pair-"):
         return True, branch
     return False, None
-
 
 def build_pair_mode_resume(branch: str) -> str:
     issue_match = re.search(r"/(\d+)[-/]", branch)
@@ -78,7 +77,6 @@ def build_pair_mode_resume(branch: str) -> str:
         ]
     )
 
-
 # Feedback-boundary patterns for pair-mode sessions.
 # When the current branch is a pair-mode branch and the most recent
 # commit message contains guidance/feedback language, this trigger warns
@@ -94,7 +92,6 @@ FEEDBACK_COMMIT_PATTERNS = [
     r"sounds like we",
     r"yes, but",
 ]
-
 
 def check_feedback_in_recent_commits(branch: str) -> str | None:
     """Check recent commit messages for feedback patterns that imply authorization."""
@@ -121,15 +118,12 @@ def check_feedback_in_recent_commits(branch: str) -> str | None:
                 )
     return None
 
-
 NESTED_OPENCODE_DIR = ".opencode/.opencode"
-
 
 def has_nested_opencode() -> bool:
     root_dir = get_root_dir()
     nested_path = Path(root_dir) / NESTED_OPENCODE_DIR
     return nested_path.is_dir()
-
 
 def build_nested_opencode_warning() -> str:
     return (
@@ -148,13 +142,11 @@ def build_nested_opencode_warning() -> str:
         "HALT all operations. Do NOT continue working. Report this to the developer immediately.\n"
     )
 
-
 def is_local_only_repo() -> bool:
     remote_output = run_git(["remote", "-v"])
     if not remote_output or not remote_output.strip():
         return True
     return False
-
 
 def main() -> int:
     root_dir = get_root_dir()
@@ -175,7 +167,6 @@ def main() -> int:
         print("\n\n".join(sections))
 
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

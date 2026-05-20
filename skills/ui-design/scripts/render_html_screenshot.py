@@ -1,3 +1,7 @@
+#!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = ">=3.12"
 # dependencies = [
@@ -5,12 +9,12 @@
 # ]
 #
 # ///
+
 import argparse
 import asyncio
 from pathlib import Path
 
 from playwright.async_api import async_playwright
-
 
 async def render_html_screenshot(
     html_path: str, output_path: str, viewport: str = "1280x800"
@@ -29,7 +33,6 @@ async def render_html_screenshot(
         await browser.close()
     return str(out_file)
 
-
 def main():
     parser = argparse.ArgumentParser(description="Render HTML to screenshot PNG")
     parser.add_argument("html_path", help="Path to input HTML file")
@@ -42,7 +45,6 @@ def main():
         render_html_screenshot(args.html_path, args.output_path, args.viewport)
     )
     print(f"Screenshot {args.html_path} -> {result}")
-
 
 if __name__ == "__main__":
     main()

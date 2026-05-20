@@ -1,129 +1,119 @@
-#!/bin/bash
-# ollama-model-resolve — Select smallest VRAM-fitting model with enforcement capability
-#
-# Usage:
-#   .opencode/tools/ollama-model-resolve [--target enforcement|general|coding]
-#
-# Output (JSON):
-#   {
-#     "selected": { "name": "...", "size_gb": ..., "quantization": "..." },
-#     "fallback": { "name": "...", "provider": "cloud", ... },
-#     "local_only": false,
-#     "selection_reason": "..."
-#   }
-#
-# Co-authored with AI: OpenCode (deepseek-v4-pro)
+#!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
-set -euo pipefail
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
+# /// script
+# requires-python = ">=3.12"
+# dependencies = []
+# ///
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+__doc__ = """Model resolution tool for Ollama — selects smallest VRAM-fitting model for a given target capability.
 
-TARGET="${1:-enforcement}"
-TARGET=$(echo "$TARGET" | sed 's/^--target //')
+Usage: tools/ollama-model-resolve [--target enforcement|general|coding]
+"""
 
-MIN_ENFORCEMENT_PARAMS=7000000000
+import json
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
 
-resolve_models() {
-    local hw_info models_info vram_gb ram_gb
-    hw_info=$("$SCRIPT_DIR/ollama-probe" hw 2>/dev/null || echo '{"gpu":{"count":0,"vram_total_gb":0},"memory":{"total_gb":0}}')
-    models_info=$("$SCRIPT_DIR/ollama-probe" list 2>/dev/null || echo '{"models":[]}')
 
-    vram_gb=$(echo "$hw_info" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['gpu']['vram_total_gb'])" 2>/dev/null || echo "0")
-    ram_gb=$(echo "$hw_info" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['memory']['total_gb'])" 2>/dev/null || echo "0")
+OLLAMA_PROBE = Path(__file__).resolve().parent / "ollama-probe"
 
-    python3 -c "
-import json, sys, re
 
-MIN_PARAMS = $MIN_ENFORCEMENT_PARAMS
+def run_ollama_probe(*args: str) -> dict[str, Any]:
+    """Run ollama-probe with given args and return parsed JSON, or {} on failure."""
+    result = subprocess.run(
+        [str(OLLAMA_PROBE), *args],
+        capture_output=True, text=True, check=False, timeout=30,
+    )
+    if result.returncode != 0:
+        return {}
+    return json.loads(result.stdout)
 
-hw = json.loads('''$hw_info''') if '$hw_info' else {'gpu': {'count': 0, 'vram_total_gb': 0}, 'memory': {'total_gb': 0}}
-models = json.loads('''$models_info''') if '$models_info' else {'models': []}
-vram = float('$vram_gb') if '$vram_gb' else 0
-ram = float('$ram_gb') if '$ram_gb' else 0
 
-def parse_param_count(name):
-    match = re.search(r'(\d+(?:\.\d+)?)\s*[bB]', name)
-    return float(match.group(1)) * 1e9 if match else None
+def select_model(
+    hardware: dict[str, Any],
+    local_models: list[dict[str, Any]],
+    cloud_models: list[dict[str, Any]],
+    target: str,
+) -> dict[str, Any]:
+    """Select smallest VRAM-fitting model for the given target."""
+    vram_gb = hardware.get("vram_gb", 0)
+    local_only = hardware.get("gpu_count", 0) == 0
 
-def quant_vram_multiplier(quant):
-    multipliers = {
-        'F16': 2.0, 'FP16': 2.0,
-        'Q8_0': 1.0, 'Q8O': 1.0,
-        'Q6_K': 0.75, 'Q6K': 0.75, 'Q6-K': 0.75,
-        'Q5_K_M': 0.625, 'Q5KM': 0.625, 'Q5-K-M': 0.625,
-        'Q4_K_M': 0.5, 'Q4KM': 0.5, 'Q4-K-M': 0.5,
-        'Q4_0': 0.4375, 'Q4O': 0.4375,
-        'Q4_1': 0.5, 'Q4I': 0.5,
-        'Q3_K': 0.375, 'Q3K': 0.375,
-        'Q2_K': 0.25, 'Q2K': 0.25,
-        'UNKNOWN': 0.75
+    def matches_target(m: dict[str, Any]) -> bool:
+        tags = m.get("tags", [])
+        return "enforcement" in tags if target == "enforcement" else True
+
+    candidates = [m for m in local_models if matches_target(m)]
+    candidates.sort(key=lambda m: m.get("size_gb", 999))
+
+    selected = None
+    fallback = None
+    selection_reason = ""
+
+    for model in candidates:
+        if model.get("size_gb", 999) <= vram_gb:
+            selected = model
+            selected["provider"] = "local"
+            selection_reason = f"Local model {model['name']} fits VRAM ({model['size_gb']}GB <= {vram_gb}GB)"
+            break
+
+    if selected is None and cloud_models:
+        cloud_candidates = [m for m in cloud_models if matches_target(m)]
+        cloud_candidates.sort(key=lambda m: m.get("size_gb", 999))
+        if cloud_candidates:
+            selected = cloud_candidates[0]
+            selected["provider"] = "cloud"
+            selection_reason = f"No local model fits VRAM. Using cloud model {selected['name']}"
+            remaining = [m for m in cloud_candidates if m != selected]
+            if remaining:
+                fallback = remaining[0]
+        elif cloud_models:
+            cloud_candidates = sorted(cloud_models, key=lambda m: m.get("size_gb", 999))
+            if cloud_candidates:
+                selected = cloud_candidates[0]
+                selected["provider"] = "cloud"
+                selection_reason = f"No enforcement-capable cloud model. Fallback to {selected['name']}"
+
+    elif selected is None:
+        local_only = True
+        candidates = sorted(local_models, key=lambda m: m.get("size_gb", 999))
+        if candidates:
+            selected = candidates[0]
+            selected["provider"] = "local"
+            selection_reason = f"No VRAM-fitting model. Using smallest: {selected['name']}"
+
+    return {
+        "selected": selected,
+        "fallback": fallback,
+        "local_only": local_only,
+        "selection_reason": selection_reason or "No models available",
+        "hardware": hardware,
+        "candidates_considered": len(local_models) + len(cloud_models),
+        "target": target,
     }
-    return multipliers.get(quant.upper(), 0.75)
 
-def estimate_vram(param_count, quant_name):
-    base_gb = (param_count / 1e9) * quant_vram_multiplier(quant_name)
-    return round(base_gb, 1)
 
-candidates = []
-for m in models.get('models', []):
-    params = parse_param_count(m.get('name', ''))
-    if params is None:
-        params = parse_param_count(m.get('parameter_size', m.get('name', '')))
-    if params is None:
-        continue
-    quant = m.get('quantization', 'UNKNOWN') or 'UNKNOWN'
-    est_vram = estimate_vram(params, quant)
-    candidates.append({
-        'name': m['name'],
-        'params': params,
-        'size_gb': m.get('size_gb', est_vram),
-        'quantization': quant,
-        'estimated_vram_gb': est_vram,
-        'fits_vram': est_vram <= (vram if vram > 0 else float('inf')),
-        'fits_ram': m.get('size_gb', est_vram) <= (ram if ram > 0 else float('inf'))
-    })
+def main() -> None:
+    target = "enforcement"
+    for i, arg in enumerate(sys.argv[1:]):
+        if arg.startswith("--target="):
+            target = arg.split("=", 1)[1]
+        elif arg == "--target" and i + 2 < len(sys.argv):
+            target = sys.argv[i + 2]
 
-target = '$TARGET'
-enforcement_capable = []
-for c in candidates:
-    if target == 'enforcement' and c['params'] < MIN_PARAMS:
-        continue
-    enforcement_capable.append(c)
+    hardware = run_ollama_probe("hw")
+    local_result = run_ollama_probe("list", "--json")
+    local_models = local_result.get("models", [])
+    cloud_data = run_ollama_probe("remote", "--capability", "enforcement")
+    cloud_models = cloud_data.get("models", [])
 
-enforcement_capable.sort(key=lambda x: x['estimated_vram_gb'])
+    result = select_model(hardware, local_models, cloud_models, target)
+    print(json.dumps(result, indent=2))
 
-selected = None
-for c in enforcement_capable:
-    if c['fits_vram']:
-        selected = c
-        break
 
-fallback = None
-if selected is None and enforcement_capable:
-    selected = enforcement_capable[0]
-
-cloud_fallback = {
-    'name': 'deepseek-v4-pro:latest',
-    'provider': 'cloud',
-    'provider_url': 'ollama-cloud',
-    'estimated_vram_gb': 118.0,
-    'status': 'cloud-available'
-}
-
-print(json.dumps({
-    'selected': selected,
-    'fallback': cloud_fallback,
-    'local_only': selected is not None and selected.get('fits_vram', False),
-    'selection_reason': 'smallest local enforcement-capable model fitting VRAM' if selected else 'no local model fits VRAM — fallback to cloud',
-    'hardware': {
-        'vram_gb': vram,
-        'ram_gb': ram,
-        'gpu_count': hw.get('gpu', {}).get('count', 0)
-    },
-    'candidates_considered': len(enforcement_capable),
-    'target': target
-}, indent=2))
-"
-}
-
-resolve_models
+if __name__ == "__main__":
+    main()

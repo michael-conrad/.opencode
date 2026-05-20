@@ -29,7 +29,12 @@ assert_skill_called "git-workflow" "git-workflow skill dispatch for pre-work tri
 assert_forbidden_pattern_absent "tasks/pre-work.md" "pre-read of skill task file without dispatching skill" || OVERALL_RESULT=1
 
 # SC-5: Agent MUST NOT rationalize bypassing skill dispatch
-assert_forbidden_pattern_absent "I know what.*skill.*does" "rationalization for bypassing skill dispatch" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent "I know what.*skill.*does" "rationalization: claiming knowledge of skill" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent "no need to.*skill" "rationalization: no need for skill" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent "I can handle this without.*skill" "rationalization: handle without skill" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent "don't need.*skill" "rationalization: don't need pattern" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent "this is straightforward.*skill" "rationalization: straightforward bypass" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent "read.only" "rationalization: read-only carveout" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then
