@@ -1,14 +1,17 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+
 """
 DESCRIPTION: Completeness check. Finds uncovered normative terms, dangling cross-refs, rules without prose.
 Usage: ./.opencode/tools/symbolic complete
 """
 
-from __future__ import annotations
 import os as _os
 import re
 import subprocess
@@ -25,7 +28,6 @@ BASE_DIR = _path.parent.resolve()
 NORMATIVE_RE = re.compile(r"\b(MUST|SHALL|NEVER|ALWAYS|REQUIRED|FORBIDDEN)\b")
 YAML_FENCE_RE = re.compile(r"```yaml\+symbolic\n.*?```", re.DOTALL)
 
-
 def _load_extract():
     source = (IMPL_DIR / "sym-extract").read_text()
     mod = types.ModuleType("symextract")
@@ -33,7 +35,6 @@ def _load_extract():
     sys.modules["symextract"] = mod
     exec(compile(source, str(IMPL_DIR / "sym-extract"), "exec"), mod.__dict__)
     return mod
-
 
 @dataclass
 class CompletenessGap:
@@ -43,7 +44,6 @@ class CompletenessGap:
 
     def to_dict(self) -> dict:
         return {"type": self.type, "location": self.location, "detail": self.detail}
-
 
 def _prose_lines(text: str) -> list[tuple[int, str]]:
     lines = text.splitlines()
@@ -56,7 +56,6 @@ def _prose_lines(text: str) -> list[tuple[int, str]]:
         if not in_code_block:
             result.append((i, line))
     return result
-
 
 def check_completeness(rules: list, scan_dir: Path) -> list[CompletenessGap]:
     gaps: list[CompletenessGap] = []
@@ -110,7 +109,6 @@ def check_completeness(rules: list, scan_dir: Path) -> list[CompletenessGap]:
 
     return gaps
 
-
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
         print(
@@ -136,7 +134,6 @@ def main() -> None:
             print(f"  [{g.type}] {g.location}: {g.detail}")
     else:
         print("No completeness gaps found.")
-
 
 if __name__ == "__main__":
     main()

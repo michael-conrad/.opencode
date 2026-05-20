@@ -1,8 +1,12 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+
 """
 DESCRIPTION: Start Jupyter server on port 18888 (XSRF disabled, no token) for notebook editing.
 
@@ -11,8 +15,6 @@ Usage: ./.opencode/tools/jupyter-start [--help]
 Checks if port 18888 is already listening. If not, starts the server in the
 background and logs to tmp/jupyter.log. Prints the server URL on success.
 """
-from __future__ import annotations
-
 import subprocess
 import sys
 import time
@@ -25,7 +27,6 @@ PROJECT_ROOT = _path.parent
 PORT = 18888
 LOG_FILE = PROJECT_ROOT / "tmp" / "jupyter.log"
 
-
 def is_port_listening(port: int) -> bool:
     result = subprocess.run(
         ["ss", "-tlnp"],
@@ -33,7 +34,6 @@ def is_port_listening(port: int) -> bool:
         text=True,
     )
     return f":{port}" in result.stdout
-
 
 def main() -> None:
     if "--help" in sys.argv or "-h" in sys.argv:
@@ -70,7 +70,6 @@ def main() -> None:
 
     print(f"ERROR: Jupyter server did not start within 8 seconds. Check tmp/jupyter.log.", file=sys.stderr)
     sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

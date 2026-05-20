@@ -1,14 +1,17 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+
 """
 DESCRIPTION: Drift detection. Compares YAML last_updated timestamps against file mtime.
 Usage: ./.opencode/tools/symbolic drift
 """
 
-from __future__ import annotations
 import os as _os
 import re
 import sys
@@ -22,7 +25,6 @@ while not (_current / ".opencode").is_dir() and _current.parent != _current:
     _current = _current.parent
 PROJECT_ROOT = _current
 FENCE_PATTERN = re.compile(r"```yaml\+symbolic\n(.*?)```", re.DOTALL)
-
 
 @dataclass
 class DriftEntry:
@@ -38,7 +40,6 @@ class DriftEntry:
             "file_mtime": self.file_mtime,
             "drift_days": self.drift_days,
         }
-
 
 def detect_drift(scan_dir: Path) -> list[DriftEntry]:
     import yaml
@@ -85,7 +86,6 @@ def detect_drift(scan_dir: Path) -> list[DriftEntry]:
 
     return entries
 
-
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
         print(
@@ -108,7 +108,6 @@ def main() -> None:
             print(f"  {e.file}: {e.drift_days:.1f} days drift (yaml: {e.yaml_last_updated}, file: {e.file_mtime})")
     else:
         print("No drift detected.")
-
 
 if __name__ == "__main__":
     main()

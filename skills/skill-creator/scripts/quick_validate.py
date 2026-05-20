@@ -1,8 +1,12 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+
 """
 Quick validation script for skills - minimal version
 
@@ -13,7 +17,6 @@ Usage:
 import re
 import sys
 from pathlib import Path
-
 
 def validate_skill(skill_path):
     """Basic validation of a skill"""
@@ -67,7 +70,6 @@ def validate_skill(skill_path):
             return False, "Description cannot contain angle brackets (< or >)"
 
     return True, "Skill is valid!"
-
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

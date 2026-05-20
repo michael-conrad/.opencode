@@ -1,15 +1,17 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["pyyaml>=6.0"]
 # ///
+
 """
 DESCRIPTION: Extract structural requirements + acceptance criteria from GitHub issue body. Agent fetches body via GitHub MCP (github_issue_read) and passes it via --body or --body-file. Tool extracts and classifies; agent verifies substance with live reads.
 Usage: ./.opencode/tools/skildeck verify-issue --issue N --body "issue body text" [--pr-status "MERGED: 2026-01-01"] [--title "Issue title"] [--json]
        ./.opencode/tools/skildeck verify-issue --issues 41,42,43,45 --body-file ./tmp/issue-41.md [--json]
 """
-
-from __future__ import annotations
 
 import json
 import os as _os
@@ -28,7 +30,6 @@ HEADING_PATTERN = re.compile(
 )
 NUMBERED_LIST_PATTERN = re.compile(r"^\d+\.\s+(.+)$", re.MULTILINE)
 
-
 @dataclass
 class CriterionResult:
     criterion_id: str
@@ -36,7 +37,6 @@ class CriterionResult:
     classification: str
     suggested_verification: str
     detail: str = ""
-
 
 @dataclass
 class IssueVerificationReport:
@@ -49,7 +49,6 @@ class IssueVerificationReport:
 
     def to_dict(self) -> dict:
         return asdict(self)
-
 
 def _classify_criterion(
     text: str, index: int, section_context: str = ""
@@ -123,7 +122,6 @@ def _classify_criterion(
         "Could not auto-classify - human judgment required",
     )
 
-
 def _extract_criteria(text: str) -> list[tuple[str, str, str]]:
     criteria = []
     section_context = ""
@@ -160,7 +158,6 @@ def _extract_criteria(text: str) -> list[tuple[str, str, str]]:
 
     return criteria
 
-
 def verify_issue(
     issue_number: int,
     body: str,
@@ -194,7 +191,6 @@ def verify_issue(
         report.warnings.append("No issue body provided - cannot extract criteria")
 
     return report
-
 
 def _print_report(report: IssueVerificationReport, use_json: bool = False) -> None:
     if use_json:
@@ -239,7 +235,6 @@ def _print_report(report: IssueVerificationReport, use_json: bool = False) -> No
         print(f"\nWarnings ({len(report.warnings)}):")
         for w in report.warnings:
             print(f"  {w}")
-
 
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
@@ -321,7 +316,6 @@ def main() -> None:
 
     if any(r.warnings for r in all_reports):
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

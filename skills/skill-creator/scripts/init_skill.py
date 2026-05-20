@@ -1,8 +1,12 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+
 """
 Skill Initializer - Creates a new skill from template
 
@@ -214,11 +218,9 @@ Example asset files from other skills:
 Note: This is a text placeholder. Actual assets can be any file type.
 """
 
-
 def title_case_skill_name(skill_name):
     """Convert hyphenated skill name to Title Case for display."""
     return " ".join(word.capitalize() for word in skill_name.split("-"))
-
 
 def init_skill(skill_name, path):
     """
@@ -299,7 +301,6 @@ def init_skill(skill_name, path):
 
     return skill_dir
 
-
 def main():
     if len(sys.argv) < 4 or sys.argv[2] != "--path":
         print(
@@ -335,7 +336,6 @@ def main():
         sys.exit(0)
     else:
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

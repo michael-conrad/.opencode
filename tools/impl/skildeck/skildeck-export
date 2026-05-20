@@ -1,14 +1,16 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["pyyaml>=6.0"]
 # ///
+
 """
 DESCRIPTION: Export symbolic models to static formats (mermaid, dot, html).
 Usage: ./.opencode/tools/skildeck export --format mermaid|dot|html [--dir PATH] [--output PATH]
 """
-
-from __future__ import annotations
 
 import json
 import os as _os
@@ -34,7 +36,6 @@ if SKILLS_DIR is None:
 DEFAULT_SCAN_DIR = SKILLS_DIR
 DEFAULT_OUTPUT_DIR = Path("./tmp")
 
-
 def _load_module(module_file: str):
     target = IMPL_DIR.parent / module_file
     source = target.read_text()
@@ -43,7 +44,6 @@ def _load_module(module_file: str):
     sys.modules[module_file.replace("-", "_")] = mod
     exec(compile(source, str(target), "exec"), mod.__dict__)
     return mod
-
 
 def _export_mermaid(rules, state_machines, tasks, gates) -> str:
     lines = ["graph TD"]
@@ -81,7 +81,6 @@ def _export_mermaid(rules, state_machines, tasks, gates) -> str:
 
     return "\n".join(lines)
 
-
 def _export_dot(rules, state_machines, tasks, gates) -> str:
     lines = ["digraph symbolic {"]
     lines.append("    rankdir=TB;")
@@ -116,7 +115,6 @@ def _export_dot(rules, state_machines, tasks, gates) -> str:
 
     lines.append("}")
     return "\n".join(lines)
-
 
 def _export_html(
     rules, state_machines, tasks, gates, evidence_artifacts, decomposition
@@ -167,7 +165,6 @@ pre {{ overflow-x: auto; background: #0a0a1a; padding: 1rem; border-radius: 4px;
 <div class="section"><h2>Raw Data</h2><pre id="raw-data"></pre></div>
 <script>document.getElementById('raw-data').textContent = {json.dumps(json_data)};</script>
 </body></html>"""
-
 
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
@@ -242,7 +239,6 @@ def main() -> None:
                 indent=2,
             )
         )
-
 
 if __name__ == "__main__":
     main()

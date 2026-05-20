@@ -1,3 +1,7 @@
+#!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = ">=3.12"
 # dependencies = [
@@ -5,6 +9,7 @@
 # ]
 #
 # ///
+
 import argparse
 import sys
 from pathlib import Path
@@ -19,7 +24,6 @@ SVG_SCHEMA = [
 ]
 
 REQUIRED_REGIONS = {"header", "content", "footer"}
-
 
 def validate_svg(svg_path: str) -> dict:
     svg_file = Path(svg_path)
@@ -49,7 +53,6 @@ def validate_svg(svg_path: str) -> dict:
         return {"valid": False, "errors": errors}
     return {"valid": True, "errors": []}
 
-
 def main():
     parser = argparse.ArgumentParser(
         description="Validate SVG structure for ui-design wireframes"
@@ -64,7 +67,6 @@ def main():
         for err in result["errors"]:
             print(f"  - {err}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

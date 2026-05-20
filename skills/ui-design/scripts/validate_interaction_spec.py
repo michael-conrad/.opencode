@@ -1,3 +1,7 @@
+#!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = ">=3.12"
 # dependencies = [
@@ -5,6 +9,7 @@
 # ]
 #
 # ///
+
 import argparse
 import sys
 from pathlib import Path
@@ -46,7 +51,6 @@ FRAMEWORK_TERMS = frozenset(
     ]
 )
 
-
 def _check_framework_terms(data, path="") -> list[str]:
     errors = []
     if isinstance(data, str):
@@ -61,7 +65,6 @@ def _check_framework_terms(data, path="") -> list[str]:
         for i, item in enumerate(data):
             errors.extend(_check_framework_terms(item, f"{path}[{i}]"))
     return errors
-
 
 def validate_interaction_spec(spec_path: str, schema_path: str | None = None) -> dict:
     spec_file = Path(spec_path)
@@ -88,7 +91,6 @@ def validate_interaction_spec(spec_path: str, schema_path: str | None = None) ->
         return {"valid": False, "errors": errors}
     return {"valid": True, "errors": []}
 
-
 def main():
     parser = argparse.ArgumentParser(
         description="Validate interaction spec YAML against schema"
@@ -108,7 +110,6 @@ def main():
         for err in result["errors"]:
             print(f"  - {err}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

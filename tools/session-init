@@ -1,8 +1,12 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+
 """Session initialization script for AI agents.
 
 Outputs key:value pairs for LLM consumption on stdout. Key names use
@@ -52,8 +56,6 @@ Exit codes:
     2: Non-GitHub/GitBucket remote detected
 """
 
-from __future__ import annotations
-
 import os
 import re
 import shutil
@@ -68,7 +70,6 @@ _path = Path(__file__).resolve().parent
 while _path.name != ".opencode":
     _path = _path.parent
 PROJECT_ROOT = _path.parent
-
 
 def run_git_command(args: list[str]) -> str | None:
     """Run a git command and return output, or None if failed."""
@@ -89,14 +90,12 @@ def run_git_command(args: list[str]) -> str | None:
         pass
     return None
 
-
 def get_user_name() -> str:
     """Get git user name or fallback to $USER."""
     name = run_git_command(["config", "user.name"])
     if name:
         return name
     return os.environ.get("USER", "unknown")
-
 
 def get_user_email() -> str:
     """Get git user email or fallback to $USER@$HOSTNAME."""
@@ -106,7 +105,6 @@ def get_user_email() -> str:
     user = os.environ.get("USER", "unknown")
     hostname = os.environ.get("HOSTNAME", "localhost")
     return f"{user}@{hostname}"
-
 
 def parse_git_remote_url(url: str) -> tuple[str, str] | tuple[None, None]:
     """Parse owner and repo from GitHub remote URL.
@@ -130,16 +128,13 @@ def parse_git_remote_url(url: str) -> tuple[str, str] | tuple[None, None]:
 
     return None, None
 
-
 def is_github_remote(url: str) -> bool:
     """Check if remote URL is a GitHub remote."""
     return "github.com" in url
 
-
 def is_gitbucket_remote(url: str) -> bool:
     """Check if remote URL is a GitBucket remote (non-github.com)."""
     return not is_github_remote(url)
-
 
 def parse_gitbucket_url(
     url: str,
@@ -187,7 +182,6 @@ def parse_gitbucket_url(
 
     return base_url, owner, repo
 
-
 def _read_gitbucket_url_from_env() -> str | None:
     """Read GITBUCKET_HTML_URL (preferred) or GITBUCKET_URL (legacy) from .env file."""
     try:
@@ -207,7 +201,6 @@ def _read_gitbucket_url_from_env() -> str | None:
         pass
     return None
 
-
 def extract_ssh_url(url: str) -> str | None:
     """Extract SSH base URL (host + port, no path) from a GitBucket SSH remote.
 
@@ -220,16 +213,13 @@ def extract_ssh_url(url: str) -> str | None:
         return match.group(1)
     return None
 
-
 def get_remote_url() -> str | None:
     """Get origin remote URL or None if not configured."""
     return run_git_command(["remote", "get-url", "origin"])
 
-
 def get_current_branch() -> str | None:
     """Get current git branch name or None if HEAD is detached."""
     return run_git_command(["branch", "--show-current"])
-
 
 def check_srclight() -> str:
     """Check srclight index health. Returns 'indexed', 'empty', or 'not_indexed'."""
@@ -251,7 +241,6 @@ def check_srclight() -> str:
         )
         return "not_indexed"
 
-
 def get_submodule_dirs() -> list[str]:
     """Get list of submodule directory paths using git config."""
     result = run_git_command(
@@ -266,7 +255,6 @@ def get_submodule_dirs() -> list[str]:
         if len(parts) >= 2:
             paths.append(parts[-1])
     return paths
-
 
 def emit_subfolder_mappings() -> None:
     """Emit sub-folder repo mappings in YAML format."""
@@ -304,7 +292,6 @@ def emit_subfolder_mappings() -> None:
     for line in lines:
         print(line)
 
-
 def get_source_hooks_dir() -> str | None:
     """Find the .opencode/hooks/ directory or None if missing."""
     hooks_dir = os.path.join(os.getcwd(), ".opencode", "hooks")
@@ -312,12 +299,10 @@ def get_source_hooks_dir() -> str | None:
         return hooks_dir
     return None
 
-
 def get_hooks_path() -> str:
     """Get git hooks path or empty string if not configured."""
     hooks = run_git_command(["config", "core.hooksPath"])
     return hooks or ""
-
 
 def _hooks_match(src: str, dst: str) -> bool:
     """Check if two hook files have the same content."""
@@ -325,7 +310,6 @@ def _hooks_match(src: str, dst: str) -> bool:
         return os.path.isfile(dst) and open(src).read() == open(dst).read()
     except OSError:
         return False
-
 
 def _copy_hook(src: str, dst: str) -> bool:
     """Copy a hook file, making it executable."""
@@ -336,7 +320,6 @@ def _copy_hook(src: str, dst: str) -> bool:
     except OSError:
         return False
 
-
 def _resolve_git_dir() -> str | None:
     """Resolve the actual .git directory using git rev-parse --git-dir."""
     result = run_git_command(["rev-parse", "--git-dir"])
@@ -346,7 +329,6 @@ def _resolve_git_dir() -> str | None:
     if os.path.isabs(result):
         return result
     return os.path.normpath(os.path.join(cwd, result))
-
 
 def install_hooks() -> None:
     """Install git hooks from .opencode/hooks/. Reports failures to stderr."""
@@ -459,7 +441,6 @@ def install_hooks() -> None:
             file=sys.stderr,
         )
 
-
 def _extract_version_from_pyproject() -> str:
     """Extract version string from pyproject.toml, or return '0.1.0' as fallback."""
     pyproject_path = os.path.join(os.getcwd(), "pyproject.toml")
@@ -475,7 +456,6 @@ def _extract_version_from_pyproject() -> str:
         except OSError:
             pass
     return "0.1.0"
-
 
 def _ensure_dev_branch() -> str:
     """Ensure dev branch exists. Returns 'exists', 'created from main', 'created from master', or 'failed'."""
@@ -495,12 +475,10 @@ def _ensure_dev_branch() -> str:
     )
     return "failed"
 
-
 def is_worktree_setup() -> bool:
     main_wt = os.path.join(os.getcwd(), ".worktrees", "main")
     git_entry = os.path.join(main_wt, ".git")
     return os.path.isdir(main_wt) and os.path.exists(git_entry)
-
 
 def detect_worktree() -> tuple[bool, str | None, str | None]:
     toplevel = run_git_command(["rev-parse", "--show-toplevel"])
@@ -529,7 +507,6 @@ def detect_worktree() -> tuple[bool, str | None, str | None]:
 
     return False, None, None
 
-
 def is_submodule_context() -> bool:
     toplevel = run_git_command(["rev-parse", "--show-toplevel"])
     if not toplevel:
@@ -552,7 +529,6 @@ def is_submodule_context() -> bool:
             pass
     return False
 
-
 def _add_to_gitignore(entry: str) -> bool:
     """Add an entry to .gitignore if not already present."""
     gitignore_path = os.path.join(os.getcwd(), ".gitignore")
@@ -571,7 +547,6 @@ def _add_to_gitignore(entry: str) -> bool:
     except OSError:
         return False
 
-
 def get_worktree_display() -> str:
     in_wt, wt_path, _ = detect_worktree()
     if in_wt:
@@ -579,7 +554,6 @@ def get_worktree_display() -> str:
     if is_worktree_setup():
         return "Worktrees: .worktrees/main/"
     return ""
-
 
 def bootstrap_worktree_layout() -> bool:
     in_wt, _, _ = detect_worktree()
@@ -648,13 +622,11 @@ def bootstrap_worktree_layout() -> bool:
 
     return True
 
-
 CREDENTIAL_FILE_PATTERNS = [
     (".env", "Environment variables file"),
     (".streamlit/secrets.toml", "Streamlit secrets file"),
     (".streamlit/secrets.toml.production", "Streamlit production secrets file"),
 ]
-
 
 def _check_credential_files_gitignored() -> list[str]:
     """Check credential files for gitignore coverage.
@@ -688,7 +660,6 @@ def _check_credential_files_gitignored() -> list[str]:
             )
     return unprotected
 
-
 def run_guard_checks() -> list[str]:
     """Run guard checks silently. Returns list of problem descriptions."""
     problems: list[str] = []
@@ -698,7 +669,6 @@ def run_guard_checks() -> list[str]:
     unprotected = _check_credential_files_gitignored()
     problems.extend(unprotected)
     return problems
-
 
 def resolve_identity(remote_url: str) -> tuple[str, str, str] | tuple[None, None, None]:
     """Resolve git platform, owner, and repo from the remote URL.
@@ -717,7 +687,6 @@ def resolve_identity(remote_url: str) -> tuple[str, str, str] | tuple[None, None
     if owner and repo:
         return "gitbucket", owner, repo
     return None, None, None
-
 
 def main() -> int:
     remote_url = get_remote_url()
@@ -837,7 +806,6 @@ def main() -> int:
 
     emit_subfolder_mappings()
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

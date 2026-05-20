@@ -1,14 +1,16 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["pyyaml>=6.0"]
 # ///
+
 """
 DESCRIPTION: Missing mandatory decomposition entries — finds dispatch chain steps missing mandatory:true decomposition entries in task contracts.
 Usage: ./.opencode/tools/skildeck lint --analysis decomposition [--json] [--verbose]
 """
-
-from __future__ import annotations
 
 import json
 import os as _os
@@ -24,7 +26,6 @@ while _path.name != ".opencode":
     _path = _path.parent
 DEFAULT_SCAN_DIR = _path
 
-
 def _load_module(module_file: str):
     target = IMPL_DIR / module_file
     source = target.read_text()
@@ -33,7 +34,6 @@ def _load_module(module_file: str):
     sys.modules[module_file.replace("-", "_")] = mod
     exec(compile(source, str(target), "exec"), mod.__dict__)
     return mod
-
 
 DISPATCH_CHAIN_STEPS = [
     {
@@ -68,7 +68,6 @@ DISPATCH_CHAIN_STEPS = [
     },
 ]
 
-
 @dataclass
 class DecompositionFinding:
     step: str
@@ -81,7 +80,6 @@ class DecompositionFinding:
 
     def to_dict(self) -> dict:
         return asdict(self)
-
 
 def analyze_decomposition(
     scan_dir: Path, verbose: bool = False
@@ -200,7 +198,6 @@ def analyze_decomposition(
 
     return findings
 
-
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
         print(
@@ -243,7 +240,6 @@ def main() -> None:
                     step_str = f"Step {item.step}: " if item.step else ""
                     print(f"  {step_str}{item.skill}/{item.task} — {item.finding_type}")
                     print(f"    {item.message}")
-
 
 if __name__ == "__main__":
     main()

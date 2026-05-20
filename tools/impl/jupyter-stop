@@ -1,8 +1,12 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+
 """
 DESCRIPTION: Stop the Jupyter server running on port 18888.
 
@@ -11,7 +15,6 @@ Usage: ./.opencode/tools/jupyter stop [--help]
 Sends SIGTERM to any process listening on port 18888. Waits up to 5 seconds
 to confirm the port is released, then reports success or failure.
 """
-from __future__ import annotations
 import os as _os
 if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
     print("ERROR: This script must be run via its dispatcher (e.g. ./.opencode/tools/jupyter ...). "
@@ -29,11 +32,9 @@ while _path.name != ".opencode":
 PROJECT_ROOT = _path.parent
 PORT = 18888
 
-
 def is_port_listening(port: int) -> bool:
     result = subprocess.run(["ss", "-tlnp"], capture_output=True, text=True)
     return f":{port}" in result.stdout
-
 
 def main() -> None:
     if "--help" in sys.argv or "-h" in sys.argv:
@@ -54,7 +55,6 @@ def main() -> None:
 
     print(f"ERROR: Port {PORT} still listening after 5 seconds.", file=sys.stderr)
     sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

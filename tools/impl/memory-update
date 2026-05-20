@@ -1,8 +1,12 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+
 """
 DESCRIPTION: Update a single key: value line in .opencode/memory.md.
 If the key exists, its line is replaced. If not, it is appended to the matching section.
@@ -11,7 +15,6 @@ WARNING: Use --value-file <path> for complex text to avoid shell escaping issues
 Sections: project_context, key_symbols, persistent_notes, session_state
 Example: ./.opencode/tools/memory update session_state task "refine topic seeds"
 """
-from __future__ import annotations
 import os as _os
 if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
     print("ERROR: This script must be run via its dispatcher (e.g. ./.opencode/tools/memory ...). "
@@ -35,7 +38,6 @@ SECTION_HEADERS = {
     "persistent_notes": "## Persistent Notes",
     "session_state": "## Session State",
 }
-
 
 def main() -> None:
     if "--help" in sys.argv or "-h" in sys.argv:
@@ -127,7 +129,6 @@ def main() -> None:
             return
     print(f"Error: section header '{header}' not found in memory.md.", file=sys.stderr)
     sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

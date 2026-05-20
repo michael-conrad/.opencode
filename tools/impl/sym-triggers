@@ -1,14 +1,16 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["pyyaml>=6.0"]
 # ///
+
 """
 DESCRIPTION: Trigger keyword ambiguity detection — finds multiply-claimed keywords where N>1 skills share the same trigger.
 Usage: ./.opencode/tools/skildeck lint --analysis triggers [--json] [--verbose]
 """
-
-from __future__ import annotations
 
 import json
 import os as _os
@@ -23,7 +25,6 @@ while not (PROJECT_ROOT / ".opencode").is_dir():
     PROJECT_ROOT = PROJECT_ROOT.parent
 SKILLS_DIR = PROJECT_ROOT / ".opencode" / "skills"
 
-
 @dataclass
 class TriggerFinding:
     keyword: str
@@ -34,7 +35,6 @@ class TriggerFinding:
 
     def to_dict(self) -> dict:
         return asdict(self)
-
 
 def _extract_triggers_from_skill_md(skill_dir: Path) -> tuple[str, list[str]]:
     skill_md = skill_dir / "SKILL.md"
@@ -52,7 +52,6 @@ def _extract_triggers_from_skill_md(skill_dir: Path) -> tuple[str, list[str]]:
     trigger_text = m.group(1).strip().rstrip(".")
     keywords = [k.strip().lower() for k in trigger_text.split(",") if k.strip()]
     return skill_dir.name, keywords
-
 
 def analyze_triggers(
     scandir: Path = SKILLS_DIR, verbose: bool = False
@@ -148,7 +147,6 @@ def analyze_triggers(
 
     return findings
 
-
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
         print(
@@ -204,7 +202,6 @@ def main() -> None:
                 print(f"\n{ftype.replace('_', ' ').title()} ({len(items)}):")
                 for item in items:
                     print(f"  [{item.severity}] {item.message}")
-
 
 if __name__ == "__main__":
     main()

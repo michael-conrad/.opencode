@@ -1,14 +1,16 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["pyyaml>=6.0"]
 # ///
+
 """
 DESCRIPTION: Lint all yaml+symbolic blocks for consistency, completeness, and gate compliance.
 Usage: ./.opencode/tools/skildeck lint [--skill NAME] [--gate NAME] [--scope SCOPE] [--json]
 """
-
-from __future__ import annotations
 
 import json
 import os as _os
@@ -39,7 +41,6 @@ FENCE_PATTERN = __import__("re").compile(
     r"```yaml\+symbolic\n(.*?)```", __import__("re").DOTALL
 )
 
-
 @dataclass
 class LintFinding:
     severity: str
@@ -51,7 +52,6 @@ class LintFinding:
     def to_dict(self) -> dict:
         return asdict(self)
 
-
 def _load_sym_extract():
     source = (IMPL_DIR.parent / "sym-extract").read_text()
     mod = types.ModuleType("sym_extract")
@@ -60,13 +60,11 @@ def _load_sym_extract():
     exec(compile(source, str(IMPL_DIR.parent / "sym-extract"), "exec"), mod.__dict__)
     return mod
 
-
 def _extract_source_label(filepath: Path, scan_dir: Path) -> str:
     try:
         return str(filepath.relative_to(scan_dir))
     except ValueError:
         return str(filepath)
-
 
 def _extract_yaml_frontmatter(text: str) -> dict | None:
     """Extract YAML frontmatter if present (between --- delimiters at start)."""
@@ -85,7 +83,6 @@ def _extract_yaml_frontmatter(text: str) -> dict | None:
         return yaml.safe_load("\n".join(lines[1:end_idx]))
     except yaml.YAMLError:
         return None
-
 
 def lint_progressive_disclosure(base_dir: Path) -> list[LintFinding]:
     findings: list[LintFinding] = []
@@ -144,7 +141,6 @@ def lint_progressive_disclosure(base_dir: Path) -> list[LintFinding]:
             ))
 
     return findings
-
 
 def lint_all(
     scan_dir: Path,
@@ -315,7 +311,6 @@ def lint_all(
 
     return findings
 
-
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
         print(
@@ -365,7 +360,6 @@ def main() -> None:
                         f" [{item.rule_id}]" if item.rule_id else ""
                     )
                     print(f"  {loc}: {item.message} ({item.category})")
-
 
 if __name__ == "__main__":
     main()

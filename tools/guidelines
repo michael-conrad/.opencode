@@ -1,14 +1,16 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
-"""
-DESCRIPTION: Guidelines tools dispatcher. Usage: ./.opencode/tools/guidelines <action> [args...]
+
+__doc__ = """DESCRIPTION: Guidelines tools dispatcher. Usage: ./.opencode/tools/guidelines <action> [args...]
 Actions: read, load, list, show, search, edit
 Example: ./.opencode/tools/guidelines search <term>
 """
-from __future__ import annotations
 import os
 import subprocess
 import sys

@@ -1,14 +1,16 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["pyyaml>=6.0"]
 # ///
+
 """
 DESCRIPTION: Full symbolic analysis across all yaml+symbolic blocks including v2.0 sections.
 Usage: ./.opencode/tools/skildeck analyze [--dir PATH] [--json] [--verbose]
 """
-
-from __future__ import annotations
 
 import json
 import os as _os
@@ -34,7 +36,6 @@ if SKILLS_DIR is None:
 DEFAULT_SCAN_DIR = SKILLS_DIR
 DEFAULT_OUTPUT_DIR = Path("./tmp")
 
-
 def _load_module(module_file: str):
     source = (IMPL_DIR.parent / module_file).read_text()
     mod = types.ModuleType(module_file.replace("-", "_"))
@@ -42,7 +43,6 @@ def _load_module(module_file: str):
     sys.modules[module_file.replace("-", "_")] = mod
     exec(compile(source, str(IMPL_DIR.parent / module_file), "exec"), mod.__dict__)
     return mod
-
 
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
@@ -97,7 +97,6 @@ def main() -> None:
 
     if args.json:
         print(json.dumps(all_results, indent=2, default=str))
-
 
 if __name__ == "__main__":
     main()

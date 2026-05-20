@@ -1,4 +1,7 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
@@ -15,7 +18,6 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
-
 class GitBucketError(Exception):
     def __init__(self, code: int, message: str, endpoint: str):
         self.code = code
@@ -26,33 +28,27 @@ class GitBucketError(Exception):
     def __str__(self) -> str:
         return f"HTTP {self.code} at {self.endpoint}: {self.message}"
 
-
 class AuthenticationError(GitBucketError):
     def __init__(self, endpoint: str, message: str = "Unauthorized"):
         super().__init__(401, message, endpoint)
-
 
 class NotFoundError(GitBucketError):
     def __init__(self, endpoint: str, message: str = "Not Found"):
         super().__init__(404, message, endpoint)
 
-
 class ValidationError(GitBucketError):
     def __init__(self, endpoint: str, message: str = "Validation Error"):
         super().__init__(422, message, endpoint)
 
-
 class RateLimitError(GitBucketError):
     def __init__(self, endpoint: str, message: str = "Rate Limit Exceeded"):
         super().__init__(403, message, endpoint)
-
 
 class ServerError(GitBucketError):
     def __init__(self, code: int, endpoint: str, message: str = "Server Error"):
         if code < 500 or code >= 600:
             raise ValueError(f"Server error codes must be 5xx, got {code}")
         super().__init__(code, message, endpoint)
-
 
 class MCPToolError(Exception):
     def __init__(self, tool: str, message: str):
@@ -62,7 +58,6 @@ class MCPToolError(Exception):
 
     def __str__(self) -> str:
         return f"MCP tool {self.tool} failed: {self.message}"
-
 
 def _get_config_file() -> Path:
     system = platform.system()
@@ -81,7 +76,6 @@ def _get_config_file() -> Path:
         if xdg_config:
             return Path(xdg_config) / "gitbucket" / "secrets.toml"
         return Path.home() / ".config" / "gitbucket" / "secrets.toml"
-
 
 def _create_config_template(toml_path: Path | None = None) -> Path:
     if toml_path is None:
@@ -114,7 +108,6 @@ password = ""
     with open(toml_path, "w", encoding="utf-8") as f:
         f.write(template_content)
     return toml_path
-
 
 def _load_from_env_file(env_path: Path | None = None) -> dict[str, str]:
     if env_path is None:
@@ -155,7 +148,6 @@ def _load_from_env_file(env_path: Path | None = None) -> dict[str, str]:
         mapped["password"] = credentials["GITBUCKET_PASSWORD"]
     return mapped
 
-
 def _load_from_toml_file(
     toml_path: Path | None = None, create_if_missing: bool = False
 ) -> dict[str, str]:
@@ -184,7 +176,6 @@ def _load_from_toml_file(
                 if key in key_map:
                     credentials[key_map[key]] = value
     return credentials
-
 
 def _get_credentials(
     token: str | None = None,
@@ -216,7 +207,6 @@ def _get_credentials(
     if password is not None:
         creds["password"] = password
     return creds
-
 
 class GitBucketAuth:
     def __init__(
@@ -278,7 +268,6 @@ class GitBucketAuth:
         if self.username and self.password:
             methods.append("basic")
         return f"GitBucketAuth(methods={methods})"
-
 
 class GitBucketAPI:
     def __init__(
@@ -735,10 +724,8 @@ class GitBucketAPI:
             use_basic=True,
         )
 
-
 def _json_output(data: Any) -> None:
     print(json.dumps(data, indent=2, ensure_ascii=False))
-
 
 def _make_api(args: argparse.Namespace) -> GitBucketAPI:
     return GitBucketAPI(
@@ -748,28 +735,23 @@ def _make_api(args: argparse.Namespace) -> GitBucketAPI:
         password=getattr(args, "password", None),
     )
 
-
 def _add_auth_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--url", help="GitBucket base URL")
     parser.add_argument("--token", help="GitBucket personal access token")
     parser.add_argument("--username", help="Username for basic auth")
     parser.add_argument("--password", help="Password for basic auth")
 
-
 def _cmd_me(args: argparse.Namespace) -> None:
     api = _make_api(args)
     _json_output(api.get_current_user())
-
 
 def _cmd_list_issues(args: argparse.Namespace) -> None:
     api = _make_api(args)
     _json_output(api.list_issues(args.owner, args.repo, state=args.state))
 
-
 def _cmd_get_issue(args: argparse.Namespace) -> None:
     api = _make_api(args)
     _json_output(api.get_issue(args.owner, args.repo, args.number))
-
 
 def _cmd_create_issue(args: argparse.Namespace) -> None:
     api = _make_api(args)
@@ -780,18 +762,15 @@ def _cmd_create_issue(args: argparse.Namespace) -> None:
         )
     )
 
-
 def _cmd_add_comment(args: argparse.Namespace) -> None:
     api = _make_api(args)
     _json_output(api.add_issue_comment(args.owner, args.repo, args.number, args.body))
-
 
 def _cmd_list_prs(args: argparse.Namespace) -> None:
     api = _make_api(args)
     _json_output(
         api.list_pull_requests(args.owner, args.repo, state=args.state, head=args.head)
     )
-
 
 def _cmd_create_pr(args: argparse.Namespace) -> None:
     api = _make_api(args)
@@ -801,16 +780,13 @@ def _cmd_create_pr(args: argparse.Namespace) -> None:
         )
     )
 
-
 def _cmd_list_labels(args: argparse.Namespace) -> None:
     api = _make_api(args)
     _json_output(api.list_labels(args.owner, args.repo))
 
-
 def _cmd_list_branches(args: argparse.Namespace) -> None:
     api = _make_api(args)
     _json_output(api.list_branches(args.owner, args.repo))
-
 
 def _cmd_list_repos(args: argparse.Namespace) -> None:
     api = _make_api(args)
@@ -819,16 +795,13 @@ def _cmd_list_repos(args: argparse.Namespace) -> None:
     else:
         _json_output(api.list_own_repositories())
 
-
 def _cmd_get_repo(args: argparse.Namespace) -> None:
     api = _make_api(args)
     _json_output(api.get_repository(args.owner, args.repo))
 
-
 def _cmd_init_config(args: argparse.Namespace) -> None:
     path = _create_config_template()
     print(f"Config file at: {path}")
-
 
 def _cmd_check_auth(args: argparse.Namespace) -> None:
     api = _make_api(args)
@@ -838,7 +811,6 @@ def _cmd_check_auth(args: argparse.Namespace) -> None:
     except AuthenticationError:
         print("Authentication failed: invalid or missing token")
         sys.exit(1)
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -944,7 +916,6 @@ def main() -> None:
     else:
         parser.print_help()
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

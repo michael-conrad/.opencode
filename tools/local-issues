@@ -1,8 +1,12 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["pyyaml"]
 # ///
+
 """Local issue tracking CLI for .issues/ directories.
 
 Provides CRUD operations for local issues stored as markdown + YAML
@@ -54,8 +58,6 @@ Exit codes:
 Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 """
 
-from __future__ import annotations
-
 import fcntl
 import os
 import re
@@ -66,13 +68,11 @@ import yaml
 from datetime import datetime, timezone
 from pathlib import Path
 
-
 ISSUES_DIR = ".issues"
 OPEN_DIR = os.path.join(ISSUES_DIR, "open")
 CLOSED_DIR = os.path.join(ISSUES_DIR, "closed")
 COUNTER_FILE = os.path.join(ISSUES_DIR, ".counter")
 ISSUES_DATA_BRANCH = "issues-data"
-
 
 def _find_issues_root() -> str | None:
     """Find the .issues/ root by walking up from CWD."""
@@ -85,7 +85,6 @@ def _find_issues_root() -> str | None:
         if parent == cwd:
             return None
         cwd = parent
-
 
 def _ensure_issues_dir(root: str | None = None) -> str:
     """Ensure .issues/ structure exists, creating if needed. Returns root path."""
@@ -101,7 +100,6 @@ def _ensure_issues_dir(root: str | None = None) -> str:
         with open(counter_path, "w") as f:
             f.write("1\n")
     return root
-
 
 def _next_number(root: str) -> int:
     """Get and increment the next issue number using file locking."""
@@ -123,19 +121,16 @@ def _next_number(root: str) -> int:
         fcntl.flock(f, fcntl.LOCK_UN)
     return num
 
-
 def _slugify(title: str) -> str:
     """Convert title to a 3-5 word kebab-case slug."""
     words = re.sub(r"[^a-zA-Z0-9\s-]", "", title.lower()).split()
     slug_words = words[:5]
     return "-".join(slug_words)
 
-
 def _issue_dir_name(number: int, title: str) -> str:
     """Format: 001-slug."""
     slug = _slugify(title)
     return f"{number:03d}-{slug}"
-
 
 def _parse_frontmatter(content: str) -> tuple[dict[str, object], str]:
     """Parse YAML frontmatter from markdown content. Returns (meta, body)."""
@@ -176,7 +171,6 @@ def _parse_frontmatter(content: str) -> tuple[dict[str, object], str]:
                 meta[key] = val
     return meta, body
 
-
 def _format_frontmatter(meta: dict[str, object]) -> str:
     """Format meta dict as YAML frontmatter."""
     lines = ["---"]
@@ -195,13 +189,11 @@ def _format_frontmatter(meta: dict[str, object]) -> str:
     lines.append("---")
     return "\n".join(lines)
 
-
 def _write_spec(path: str, meta: dict[str, object], body: str) -> None:
     """Write spec.md with frontmatter and body."""
     content = _format_frontmatter(meta) + "\n\n" + body.strip() + "\n"
     with open(path, "w") as f:
         f.write(content)
-
 
 def _find_issue(root: str, number: int) -> tuple[str, dict[str, object], str] | None:
     """Find issue by number in open/ or closed/. Returns (dir_path, meta, body) or None."""
@@ -220,11 +212,9 @@ def _find_issue(root: str, number: int) -> tuple[str, dict[str, object], str] | 
                 return os.path.join(base, entry), meta, body
     return None
 
-
 def _now_iso() -> str:
     """Current UTC time in ISO format with microsecond precision."""
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-
 
 def _get_author() -> str:
     """Get author from git config or USER env var."""
@@ -241,7 +231,6 @@ def _get_author() -> str:
         pass
     return os.environ.get("USER", "unknown")
 
-
 def _git(run_args: list[str], check: bool = True, **kwargs: object) -> subprocess.CompletedProcess[str]:
     """Run a git command and return the CompletedProcess."""
     return subprocess.run(
@@ -252,12 +241,10 @@ def _git(run_args: list[str], check: bool = True, **kwargs: object) -> subproces
         **{k: v for k, v in kwargs.items() if k in ("cwd", "env")},
     )
 
-
 def _is_submodule(repo_path: str | None = None) -> bool:
     """Detect if running inside a git submodule (.git is a file, not a directory)."""
     git_path = os.path.join(repo_path or os.getcwd(), ".git")
     return os.path.isfile(git_path)
-
 
 def _detect_platform() -> str:
     """Detect remote platform from git remote URL. Returns 'github' or 'gitbucket'."""
@@ -268,7 +255,6 @@ def _detect_platform() -> str:
     if "gitbucket" in url.lower():
         return "gitbucket"
     return "github"
-
 
 def cmd_create(title: str, labels: list[str] | None = None) -> int:
     """Create a new local issue."""
@@ -312,7 +298,6 @@ def cmd_create(title: str, labels: list[str] | None = None) -> int:
     print(f"  Path: {spec_path}")
     return 0
 
-
 def cmd_read(number: int) -> int:
     """Read an issue spec to stdout."""
     root = _find_issues_root()
@@ -328,7 +313,6 @@ def cmd_read(number: int) -> int:
     print()
     print(body)
     return 0
-
 
 def cmd_update(number: int, **kwargs: object) -> int:
     """Update issue frontmatter fields."""
@@ -349,7 +333,6 @@ def cmd_update(number: int, **kwargs: object) -> int:
     _write_spec(spec_path, meta, body)
     print(f"Updated issue #{number}")
     return 0
-
 
 def cmd_comment(number: int, body_text: str) -> int:
     """Append a comment to an issue."""
@@ -372,7 +355,6 @@ def cmd_comment(number: int, body_text: str) -> int:
     _write_spec(spec_path, meta, body)
     print(f"Comment added to issue #{number}")
     return 0
-
 
 def cmd_close(number: int) -> int:
     """Close an issue: move from open/ to closed/ and update status."""
@@ -409,7 +391,6 @@ def cmd_close(number: int) -> int:
     print(f"Closed issue #{number}")
     return 0
 
-
 def cmd_link(number: int, github_num: int) -> int:
     """Link local issue to GitHub issue number.
     
@@ -430,7 +411,6 @@ def cmd_link(number: int, github_num: int) -> int:
     _write_spec(spec_path, meta, body)
     print(f"Linked issue #{number} to GitHub issue #{github_num}")
     return 0
-
 
 def cmd_record_remote(number: int, remote_number: int, remote_url: str | None = None) -> int:
     """Record remote promotion metadata in local issue.
@@ -470,7 +450,6 @@ def cmd_record_remote(number: int, remote_number: int, remote_url: str | None = 
     print(f"  promoted_at: {meta['promoted_at']}")
     
     return 0
-
 
 def cmd_promote(number: int) -> int:
     """Check promotion readiness and extract exec-summary.
@@ -516,7 +495,6 @@ def cmd_promote(number: int) -> int:
     
     return 0
 
-
 def _extract_exec_summary(body: str) -> str:
     """Extract executive summary from spec body.
     
@@ -540,7 +518,6 @@ def _extract_exec_summary(body: str) -> str:
         return "\n".join(section_lines).strip()
     
     return body[:500]
-
 
 def cmd_sync(number: int, direction: str = "pull") -> int:
     """Synchronize local and remote issue state.
@@ -585,7 +562,6 @@ def cmd_sync(number: int, direction: str = "pull") -> int:
     else:
         print("Bidirectional sync not yet implemented", file=sys.stderr)
         return 1
-
 
 def cmd_setup(parent: bool = False, migrate: bool = False, rollback_migration: bool = False) -> int:
     """Initialize .issues/ as a git worktree on the issues-data branch.
@@ -696,7 +672,6 @@ def cmd_setup(parent: bool = False, migrate: bool = False, rollback_migration: b
 
     return 0
 
-
 def _migrate_issues(repo_root: str, current_branch: str, is_submodule: bool) -> None:
     """Migrate tracked .issues/ files from current branch to issues-data branch."""
     issues_path = os.path.join(repo_root, ISSUES_DIR)
@@ -737,7 +712,6 @@ def _migrate_issues(repo_root: str, current_branch: str, is_submodule: bool) -> 
         _git(["stash", "pop"], check=False)
 
     print(f"Migration complete: {len(tracked_files)} files moved to {ISSUES_DATA_BRANCH}")
-
 
 def _rollback_migration(repo_root: str, current_branch: str, is_submodule: bool) -> int:
     """Reverse a previous --migrate operation.
@@ -799,7 +773,6 @@ def _rollback_migration(repo_root: str, current_branch: str, is_submodule: bool)
 
     print(f"Rollback complete: {len(data_files)} files restored to {current_branch}")
     return 0
-
 
 def _setup_parent_worktree(submodule_root: str) -> int:
     """Set up .issues/ worktree in the parent repository (for submodules)."""
@@ -868,7 +841,6 @@ def _setup_parent_worktree(submodule_root: str) -> int:
 
     print(f"Parent repo: .issues/ worktree set up at {parent_issues_path}")
     return 0
-
 
 def cmd_sync_push(number: int) -> int:
     """Push .issues/N/remote.md body to GitHub issue.
@@ -952,7 +924,6 @@ def cmd_sync_push(number: int) -> int:
     print(f"  last_sync: {state_data['last_sync']}")
     return 0
 
-
 def cmd_sync_pull(number: int) -> int:
     """Pull remote issue body to .issues/N/remote.md.
 
@@ -1027,7 +998,6 @@ def cmd_sync_pull(number: int) -> int:
     print(f"  last_sync: {state_data['last_sync']}")
     return 0
 
-
 def cmd_review(number: int) -> int:
     """Pretty-print an issue for developer review."""
     root = _find_issues_root()
@@ -1059,7 +1029,6 @@ def cmd_review(number: int) -> int:
             print("Comments:")
             print(comments_text)
     return 0
-
 
 def cmd_search(status: str | None = None, labels: list[str] | None = None, query: str | None = None) -> int:
     """Search issues by status, labels, and/or query text."""
@@ -1096,11 +1065,9 @@ def cmd_search(status: str | None = None, labels: list[str] | None = None, query
             print(f"#{number:03d}: {title} ({issue_status}) [{labels_str}]")
     return 0
 
-
 def cmd_list(status: str | None = None) -> int:
     """List local issues."""
     return cmd_search(status=status)
-
 
 def main() -> int:
     args = sys.argv[1:]
@@ -1386,7 +1353,6 @@ def main() -> int:
     else:
         print(f"Unknown command: {command}", file=sys.stderr)
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

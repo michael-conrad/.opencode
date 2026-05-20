@@ -1,8 +1,12 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+
 """
 Skill Packager - Creates a distributable zip file of a skill folder
 
@@ -18,7 +22,6 @@ import re
 import sys
 import zipfile
 from pathlib import Path
-
 
 def validate_skill(skill_path):
     skill_path = Path(skill_path)
@@ -63,7 +66,6 @@ def validate_skill(skill_path):
             return False, "Description cannot contain angle brackets (< or >)"
 
     return True, "Skill is valid!"
-
 
 def package_skill(skill_path, output_dir=None):
     """
@@ -130,7 +132,6 @@ def package_skill(skill_path, output_dir=None):
         print(f"❌ Error creating zip file: {e}")
         return None
 
-
 def main():
     if len(sys.argv) < 2:
         print(
@@ -162,7 +163,6 @@ def main():
         sys.exit(0)
     else:
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

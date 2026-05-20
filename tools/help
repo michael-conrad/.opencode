@@ -1,15 +1,17 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+
 """
 DESCRIPTION: List all agent tools in .opencode/tools/ with their descriptions.
 
 Usage: ./.opencode/tools/help
 """
-from __future__ import annotations
-
 import ast
 import os
 import sys
@@ -20,7 +22,6 @@ while _path.name != ".opencode":
     _path = _path.parent
 PROJECT_ROOT = _path.parent
 TOOLS_DIR = Path(__file__).resolve().parent
-
 
 def get_description(script: Path) -> str:
     """Extract DESCRIPTION from the module docstring."""
@@ -35,7 +36,6 @@ def get_description(script: Path) -> str:
     except Exception:
         pass
     return "(no description)"
-
 
 def main() -> None:
     if "--help" in sys.argv or "-h" in sys.argv:
@@ -56,7 +56,6 @@ def main() -> None:
         desc = get_description(script)
         print(f"  {script.name:<24} — {desc}")
     print(f"\nCWD: {os.getcwd()}")
-
 
 if __name__ == "__main__":
     main()
