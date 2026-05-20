@@ -1,0 +1,12 @@
+DESCRIPTION: Guidelines tools dispatcher. Usage: ./.opencode/tools/guidelines <action> [args...]
+Actions: read, load, list, show, search, edit
+Example: ./.opencode/tools/guidelines search <term>
+
+Available actions:
+  read                 — Print the contents of a guideline file from .opencode/guidelines/.
+  load                 — Print the contents of a guideline file from .opencode/guidelines/.
+  list                 — Print the contents of a guideline file from .opencode/guidelines/.
+  show                 — Show guideline files with their brief summary header.
+  search               — Search guideline files using BM25 ranking with optional section blocks and context lines.
+  edit                 — Edit a guideline file by replacing a section or appending content.
+CWD: /home/muksihs/git/opencode-config
