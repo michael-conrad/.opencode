@@ -36,6 +36,25 @@ Sub-Agent Task Context Audit
 
 `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. All task contexts also include `worktree.path`.
 
+### Dispatch Context Contract (MANDATORY)
+
+Every `task()` call to an auditor sub-agent MUST include `must_receive` and `must_not_receive` arrays:
+
+```yaml
+must_receive:
+  - issue_number
+  - spec_body
+  - evaluation_criteria
+  - pipeline_phase
+must_not_receive:
+  - orchestrator_reasoning
+  - expected_outcomes
+  - prior_verdicts
+  - inline_file_paths
+  - agent_memory
+  - cached_verification_results
+```
+
 ### Encapsulation Rules
 
 The resolve-models tool path is encapsulated by the task file — only the task file references the tool command directly. All other references use the task dispatch.
