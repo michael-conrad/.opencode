@@ -49,6 +49,9 @@ Define audit criteria based on spec-auditor task structure:
 | SC-9 | Determinism achieved | Repeatable execution path |
 | SC-10 | Prose structure valid | Headers, lists, tables properly formatted |
 | SC-11 | Documentation Sources present and populated | Non-empty Documentation Sources section with live-source verification evidence |
+| SC-12 | Preamble present | "## Intent and Executive Summary" section with all 5 fields (Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions) present for standard+ specs; omitted is acceptable for minimal specs only. Missing preamble for a standard+ spec is a SPEC-PRODUCER defect, not a reviewer oversight — the spec producer owns the omission regardless of whether downstream gates caught it. |
+| SC-13 | Cost-frame prose + runtime execution in SCs | Each SC carries cost-frame reformation language and requires a real test execution command, not a structural check |
+| SC-STRUCTURAL-FAIL | Structural evidence rejected for behavioral SCs | If an SC describes testable behavior (correctness, output, result, pass/fail, runtime logic) but verification evidence is purely structural (grep/read/file-exists), return FAIL with `STRUCTURAL_EVIDENCE` classification. Structural checks do NOT verify correct behavior — they only verify existence. Exception: non-testable prose changes (docs, runbooks, guidelines) may use semantic intent verification by direct AI agent read — NOT grep/pattern matching. |
 | SC-DET | SC Determinism | Each SC produces the same PASS/FAIL from any reasonable auditor |
 
 ### Step 3: Cross-Validate with Pre-Resolved Verdicts

@@ -4,16 +4,26 @@ Collect evidence for incomplete success criteria when verification identifies ga
 
 ## Process
 
+**EVIDENCE COLLECTION CLASSIFICATION:** All evidence collection defaults to Tier 1 (behavioral/functional test execution). Tier 2 (structural grep/read) is ONLY acceptable for explicit metadata/existence SCs.
+
+| Tier | Classification | Default | Acceptable For |
+|------|---------------|---------|----------------|
+| 1 | Behavioral/Functional Test Execution | **DEFAULT — ALL SCs** | Any SC. REQUIRED for behavioral SCs (anything describing behavior, correctness, output, result, pass/fail) |
+| 2 | Structural Existence Check | OPT-IN REQUIRED | Only metadata/existence SCs: "file X exists", "label Y present", "header Z present" |
+
+**🚫 FAIL RULE:** If evidence collection uses Tier 2 (structural grep/read) for a Tier 1 SC (behavioral/correctness/output), the collection MUST be reclassified as FAIL with `STRUCTURAL_EVIDENCE` classification. The agent MUST re-run collection using behavioral test execution.
+
 For each missing criterion:
 
 ### 1. Identify What Evidence Is Needed
 
-| Need | Collection Method |
-|------|-------------------|
-| Test output? | Run test, capture output |
-| File creation? | Show file path and content hash |
-| Code change? | Show `git diff` output |
-| API response? | Show status code and body |
+| Need | Tier | Collection Method |
+|------|------|-------------------|
+| Test output? | 1 — REQUIRED | Run test, capture output |
+| Test artifact output? | 1 — REQUIRED | Run test with `--junitxml` or equivalent, save to `./tmp/artifacts/` |
+| File creation? | 2 — OPT-IN ONLY | Show file path and content hash |
+| Code change? | 2 — OPT-IN ONLY | Show `git diff` output |
+| API response? | 1 — REQUIRED | Show status code and body |
 
 ### 2. Collect Evidence
 

@@ -2,6 +2,8 @@
 
 ## Purpose
 
+PR body creation IS verification evidence publishing. Every PR body requires preceding verification PASS. No valid PR exists without verification evidence embedded in the body — a PR without evidence is a PR that carries undiscovered defects into the codebase.
+
 Create the pull request after squash/push, collect sub-issues, generate PR body, and extract PR URL from API response.
 
 ## Entry Criteria
@@ -17,6 +19,83 @@ Create the pull request after squash/push, collect sub-issues, generate PR body,
 - Agent HALTs waiting for human merge
 
 ## Procedure
+
+### Step 4.5: Dispatch Chain Compliance Gate (MANDATORY — Before PR Creation)
+
+**The verification-evidence check is a gate, not a banner. A PR without evidence is not a PR with a warning label — it is a PR that does not exist.**
+
+Before reading any artifacts or assembling the PR body, verify that the work was produced through the proper dispatch chain:
+
+1. Check the dispatch log for `skill({name: "verification-before-completion"})` and `skill({name: "adversarial-audit"})` calls
+2. If either `skill()` call is MISSING from the dispatch log: return BLOCKED with `DISPATCH_CHAIN_VIOLATION`
+3. If both `skill()` calls are present: proceed to Step 4.75
+
+**No override path exists.** A PR created from inline work carries undiscovered defects regardless of how correct the output looks.
+
+### Step 4.75: Read Source Artifacts
+
+The Summary section MUST be sourced from the issue ticket body that authorized the work — not from agent memory, free-form paraphrasing, or implementation details.
+
+**Summary Sourcing Rule:**
+1. Route through `issue-operations --task read-issue` on the parent issue
+2. Extract the core problem statement or intent from the issue body
+3. Rephrase into 1-2 succinct sentences describing stakeholder impact
+4. NEVER use direct `github_issue_read` calls — all issue reads MUST route through the `issue-operations` dispatcher per `000-critical-rules.md` §critical-rules-platform-routing-bypass
+
+**Forbidden:**
+- Direct `github_*` calls bypassing `issue-operations` dispatcher
+- Free-form paraphrasing from agent memory of what was implemented
+- Implementation-detail summaries ("Added a method to class X that validates Y")
+- Hallucinated intent not present in the source issue
+
+**Data Flow:**
+
+| Body Section | Source | Access Method |
+|--------------|--------|---------------|
+| **Summary** | Issue ticket body (spec/plan issue for this PR) | `issue-operations --task read-issue` on parent issue |
+| **Outcome** | Issue ticket body + implementation knowledge | Synthesized from issue body + changesets |
+| **Per-SC Evidence** | VbC verification report | `read ./tmp/artifacts/verification-*.md` |
+| **Dual-Auditor Cross-Validation** | Cross-validate result contract | `read ./tmp/artifacts/audit-cross-validate-*.json` |
+| **Tracking references** | Sub-issues from parent | `issue-operations --task read-sub-issues` on parent issue |
+
+### Step 4.75: Verification-Evidence-Check Gate
+
+The verification-evidence check is a gate, not a banner. A PR without evidence is not a PR with a warning label — it is a PR that does not exist. The create-pr sub-agent that produces an unverified PR is not creating a deliverable; it is routing a defect into the codebase under a label that no reviewer will read. Every unverified PR that reaches a reviewer is a quality failure that verification should have caught. No valid PR exists without a preceding verification PASS — the gate is the identity, not the label.
+
+**Before proceeding to Step 5, check that required verification artifacts exist:**
+
+1. Check `./tmp/artifacts/verification-*.md` exists and contains PASS for all SCs
+2. Check `./tmp/artifacts/audit-cross-validate-*.json` exists and reports consensus PASS from both auditors
+3. If any artifact is MISSING or reports FAIL: do NOT create a PR
+
+**Blocked State (Missing or Failing Verification Evidence):**
+
+If verification or audit evidence is missing or reports FAIL, return BLOCKED status with structured defect list:
+
+```
+Status: BLOCKED
+Gate: verification-evidence-check
+Blockers:
+  - [MISSING|FAIL] <path> — <description>
+    <details>
+remediation: "<action to remediate>"
+next_step: "remediate then re-audit"
+```
+
+Example:
+```
+Status: BLOCKED
+Gate: verification-evidence-check
+Blockers:
+  - [MISSING] ./tmp/artifacts/verification-*.md — VbC evidence not found
+  - [FAIL] ./tmp/artifacts/audit-cross-validate-*.json — auditor consensus reports FAIL
+    SC-1: Auditor 1 PASS, Auditor 2 FAIL
+    Remediation: Re-audit SC-1 with fresh model pair
+remediation: "Run verification-before-completion --task verify, then adversarial-audit before retrying PR creation"
+next_step: "remediate then re-audit"
+```
+
+**No PR is created in this state.** The orchestrator receives the BLOCKED contract and routes to remediation.
 
 ### Step 5: Collect Sub-Issues (Multi-Task Specs)
 
@@ -46,12 +125,27 @@ github_create_pull_request(
     title="[SPEC] <description>",
     body="""**Summary:**
 
-<1-2 sentences describing impact and stakeholder value>
+<1-2 sentences describing impact and stakeholder value, sourced from issue body via issue-operations --task read-issue>
 
 **Outcome:** <What changed for stakeholders>
 
-Fixes #<parent>
-Fixes #<child1>
+**Verification Attestation:** All success criteria verified PASS — exact-match against live evidence. Dual independent auditors from different model families returned consensus PASS on every criterion. No caveats. No qualifications. Every PASS is a binary exact match. This deliverable is ready for merge.
+
+**Detail: Per-SC Evidence**
+
+| SC ID | Success Criterion | Command | Result |
+|-------|-------------------|---------|--------|
+| SC-1 | ... | ... | PASS |
+| SC-2 | ... | ... | PASS |
+
+**Detail: Dual-Auditor Cross-Validation**
+
+| Criterion | Auditor 1 | Auditor 2 | Consensus |
+|-----------|-----------|-----------|-----------|
+| SC-1 | PASS | PASS | PASS |
+| SC-2 | PASS | PASS | PASS |
+
+Implements #<parent>
 """,
     head=branch_name,
     base="dev"
@@ -66,9 +160,14 @@ Fixes #<child1>
 
 ### PR Body Requirements
 
-- **Summary** section: 1-2 sentences describing stakeholder value (NOT implementation details)
+A Summary sourced from the issue ticket through the issue-operations dispatcher is what correct attribution looks like. A free-formed summary means the reviewer cannot verify intent against the authorizing issue — the summary is an unverifiable assertion. Professional-grade PRs derive their Summary from the authorizing issue; bodies that fabricate it introduce scope the reviewer never approved.
+
+- **Summary** section: 1-2 sentences describing stakeholder value (NOT implementation details) — sourced from issue body via `issue-operations --task read-issue`
 - **Outcome** section: What changed for stakeholders
-- `Fixes #N` annotations at bottom (informational — autoclose is inert for `dev` merges)
+- **Verification Attestation**: Binary PASS language — no caveats, no justifications, no false-fail remediation language
+- **Per-SC Evidence Table**: SC ID, Success Criterion, Command, Result columns
+- **Dual-Auditor Cross-Validation Table**: Criterion, Auditor 1, Auditor 2, Consensus columns
+- `Fixes #N` or `Implements #N` annotations at bottom (informational — autoclose is inert for `dev` merges)
 - Target branch is `dev` for feature work
 
 **Use `Implements #N` instead of `Fixes #N` when the issue has sub-issues or is part of a plan-bridge hierarchy.**
@@ -87,9 +186,11 @@ Ensures specs are audited for plan fidelity before implementation, catching miss
 **Outcome:** Developers will catch spec quality issues before code changes begin.
 
 Fixes #505
-
+```
 
 ### Step 6.5: Verify Byline in PR Body (MANDATORY)
+
+The byline is the authorship check — the verification table is the quality check. A PR body with a byline but without verification evidence is incomplete — it carries authorship attribution without quality attestation. The implementing agent reads #627 Section 3 to derive the exact confirmshaming formula; the consequence assertion must match the PR domain. The verification evidence tables in this PR body satisfy the quality check requirement.
 
 **Before calling the PR creation API, verify the PR body contains an AI co-authored byline.**
 
@@ -97,15 +198,15 @@ All AI-authored PR bodies MUST contain one of the following byline patterns:
 
 | Format | Pattern |
 |--------|---------|
-| Emoji format | `🤖 Co-authored with AI: \u003cAgentName\u003e (\u003cModelId\u003e)` |
-| Non-emoji format | `Co-authored with AI: \u003cAgentName\u003e (\u003cModelId\u003e)` |
+| Emoji format | `🤖 Co-authored with AI: <AgentName> (<ModelId>)` |
+| Non-emoji format | `Co-authored with AI: <AgentName> (<ModelId>)` |
 
 **Verification:**
 1. Scan the assembled PR `body` string for `Co-authored with AI:` before the API call
 2. If missing: append a byline footer to the body:
 
 ```
-🤖 Co-authored with AI: \u003cAgentName\u003e (\u003cModelId\u003e)
+🤖 Co-authored with AI: <AgentName> (<ModelId>)
 ```
 
 3. If present: proceed to the API call

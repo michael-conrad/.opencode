@@ -70,6 +70,10 @@ Invoked before the first RED phase. AI-driven dependency analysis (`srclight_get
 
 Invoked after REFACTOR completes. Re-computes blast radius, runs full suite. Remediation loop: first failure returns to GREEN, second consecutive failure = BLOCKED with halt.
 
+### Completeness Gate (After TDD Cycle, Before Audit)
+
+After Phase 4 passes and before routing to adversarial audit, the orchestrator MUST run `completeness-gate --task check` on the deliverable. This gate verifies the deliverable covers all spec success criteria and is structurally sound. The gate is non-adversarial and read-only — it checks presence and coverage, not correctness depth. See `completeness-gate` skill for routing decisions.
+
 ## Cycle-Reset Discipline
 
 ### Normal Completion
