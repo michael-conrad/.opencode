@@ -62,6 +62,8 @@ load_when: sub-agent
   - 🚫 FORBIDDEN: "Spot-checking" as a substitute for full behavioral test execution
   - 🚫 FORBIDDEN: Any sentence containing both a cost/speed/resource noun AND a verification-skip verb
 
+**Cost is measured in defect-discovery-latency, not model roundtrips.** Running verification costs minutes of execution time — a bounded delay that surfaces defects before they reach CI. Skipping a verification step to save a tool call costs the full pipeline of rework when the defect surfaces downstream: diagnosis, fix, re-review, re-CI, re-deploy — each of which costs more roundtrips than the skipped verification would have consumed. Correctness is the only success metric — there is no score for tool-call economy.
+
 ### Authorization-Free Actions — No Deliberation Required
 
 <!-- Issue #99: Authorization-Free Actions — Signal asymmetry fix -->

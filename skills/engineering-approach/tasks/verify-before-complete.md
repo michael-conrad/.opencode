@@ -13,6 +13,16 @@ Enforce the verify-before-declaring-complete discipline per engineering-approach
 
 ## Procedure
 
+### Step 1a: Produce Saved Test Run Artifact
+
+Before declaring completion, produce a saved test run artifact file:
+```bash
+mkdir -p ./tmp/artifacts/
+uv run pytest test/ --junitxml=./tmp/artifacts/test-results.xml
+```
+
+The artifact file is the permanent record that runtime verification occurred. Without it, completion claims are unverifiable post-hoc — a skipped artifact equals an unverifiable completion.
+
 ### Step 1: Run Tests Manually
 
 Execute the test suite against the implementation. Do not assume tests pass based on code inspection alone.

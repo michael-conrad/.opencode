@@ -11,6 +11,7 @@ For each missing criterion:
 | Need | Collection Method |
 |------|-------------------|
 | Test output? | Run test, capture output |
+| Test artifact output? | Run test with `--junitxml` or equivalent, save to `./tmp/artifacts/` | `./tmp/artifacts/test-results.xml` |
 | File creation? | Show file path and content hash |
 | Code change? | Show `git diff` output |
 | API response? | Show status code and body |

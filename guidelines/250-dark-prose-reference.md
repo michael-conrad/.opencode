@@ -47,6 +47,7 @@ Examples of PASSING (treats agent as professional):
 | `dark-prose-004` | Authority frame (Tier 1) | #624 | Tier 1 only |
 | `dark-prose-005` | Social proof / quality signal | #624 | Tier 3 only |
 | `dark-prose-006` | Agency-respecting identity frame | All | All tiers (meta-pattern) |
+| `dark-prose-007` | Cost-Frame Reformation | #734 | Tier 1+ |
 
 ### Anti-Patterns: What Dark Prose Is NOT
 
@@ -109,6 +110,7 @@ Multiple dark prose patterns addressing the same behavior with different formula
 | Correspondence (stakeholder communications) | Social proof / quality signal | Light | 005 |
 | CHANGELOG entries | Social proof / quality signal | Light | 005 |
 | Spec body / task definition (instruction layer) | Agency-respecting identity frame | Strong | 006 |
+| Cost-blind verification guidelines (`020-go-prohibitions.md`) | Cost-Frame Reformation | Strong | 007 |
 
 ## Section 3: Pattern Formulas (Canonical)
 
@@ -159,6 +161,16 @@ This pattern is used in spec bodies and task definitions where one agent instruc
 
 Example: "The Purpose section must carry identity-framing prose using the confirmshaming pattern (dark-prose-001). The implementing agent reads #627 Section 3 to derive the exact formulation — the specific consequence assertion must match the skill's domain. The compliance gate (#641) verifies correctness; the spec does not prescribe exact text."
 
+**dark-prose-007 — Cost-Frame Reformation (identity-frame):**
+```
+[Cost computation frame]: [metric labeled 'cost'] is measured in [correct unit], not [wrong unit].
+[Action cost]: [action] costs [magnitude] [unit] — [consequence if cost computed correctly].
+[Skipping-cost]: [skipped action] costs [magnitude] [unit] — [consequence if skip rationalized].
+[Identity anchor]: Correctness is the only success metric — there is no score for [wrong metric].
+```
+
+This pattern reframes the agent's internal cost model from tool-call-accounting to defect-discovery-latency. It replaces a procedural "don't compute cost that way" prohibition with an identity-grounded "cost IS latency-to-discovery" redefinition. The implementing agent reads the formula and derives location-specific prose autonomously — the specific consequences, magnitudes, and units must match the domain where the pattern is applied.
+
 ## Section 4: Non-Compliance Handling
 
 **DEFERRED**
@@ -180,6 +192,7 @@ When dark prose patterns overlap or conflict, the following rules apply:
 | Version | Date | SHA | Changes |
 |---------|------|-----|---------|
 | 1.0 | 2026-05-17 | `0000000000000000000000000000000000000000` | Initial catalog — all 6 patterns documented, 13-row matrix, version tracking established |
+| 1.1 | 2026-05-20 | `6ded65200bfe9b96fb448ab89ffa67a2c4284de8` | Added dark-prose-007 (Cost-Frame Reformation), 14-row matrix, cost-blind row in selection matrix, full formula in Section 3 |
 
 SHA format: 40-character lowercase hex SHA of the commit that introduced this version of the reference card. When a new version is committed, the SHA in this row is updated to match the commit hash.
 
