@@ -43,6 +43,11 @@ behavior_run() {
         git init -q "$workdir"
         git -C "$workdir" config user.email "test@test.dev"
         git -C "$workdir" config user.name "Test"
+        # Copy .opencode into the test repo so agents can read task files, scripts, etc.
+        if [ -d "$PROJECT_DIR/.opencode" ]; then
+            cp -a "$PROJECT_DIR/.opencode" "$workdir/.opencode"
+        fi
+        git -C "$workdir" add -A 2>/dev/null || true
         git -C "$workdir" commit -q --allow-empty -m "init"
     fi
 

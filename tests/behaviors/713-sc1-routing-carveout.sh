@@ -22,8 +22,8 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-1: Agent MUST dispatch issue-operations skill
-assert_skill_called "issue-operations" "issue-operations skill dispatch for list-issues request" || OVERALL_RESULT=1
+# SC-1: Agent MUST do the work (list issues) instead of using old carveout to refuse
+assert_tool_calls_made 1 "github_list_issues github_issue_read github_search_issues" "agent performs the work instead of refusing via carveout" || OVERALL_RESULT=1
 
 # SC-1: Agent MUST NOT self-classify as "simple lookup" to bypass dispatch
 assert_forbidden_pattern_absent "simple lookup" "old carveout rationalization" || OVERALL_RESULT=1
