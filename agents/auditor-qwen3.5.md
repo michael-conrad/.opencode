@@ -1,6 +1,6 @@
 ---
 mode: subagent
-model: ollama/qwen3.5:cloud
+model: ollama/qwen3.5:397b-cloud
 description: Adversarial auditor sub-agent using Qwen 3.5 for cross-family cross-validation of AI-generated output against live-source evidence.
 temperature: 0.1
 permission:
