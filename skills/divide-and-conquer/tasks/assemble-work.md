@@ -143,7 +143,23 @@ For each issue in execution order:
 
 4. **Collect result** from sub-agent
 
-5. **Sub-Agent Completion Checkpoint** — after collecting each result, perform the completion checkpoint per `dispatch` task Step 4:
+5. **Completeness Gate** — after collecting each result, run the completeness gate:
+
+   - Task `completeness-gate --task check` with `{ spec_success_criteria, deliverable, spec, audit_readiness_criteria }`
+   - Collect result: `completeness_result: PASS|FAIL|UNVERIFIED`, `findings: [...]`
+
+   **Routing based on completeness_result:**
+
+   - **PASS** → proceed to Sub-Agent Completion Checkpoint (step 6)
+   - **FAIL + remediable only** → re-task RED/GREEN sub-agent with completeness findings as additional context. The findings identify what is missing or incorrect — the re-tasked sub-agent corrects the deliverable.
+   - **FAIL + structural** → route to `writing-plans --task revise` or `spec-creation --task revise` depending on whether the spec or plan needs revision. HALT after routing — structural issues require spec/plan revision before re-implementation.
+
+   **Remediability classification:**
+
+   - **Remediable:** Missing content, incomplete implementation, minor structural issues the existing sub-agent can fix
+   - **Structural:** Spec/plan-level gaps, missing files not declared in the plan, incorrect architecture, contradictory requirements
+
+6. **Sub-Agent Completion Checkpoint** — after collecting each result, perform the completion checkpoint per `dispatch` task Step 4:
 
    - If sub-agent returned a structured result: check `status` field and handle accordingly
    - If sub-agent returned **NO result** (timeout, crash, empty): this is **ABNORMAL TERMINATION**
@@ -156,7 +172,7 @@ For each issue in execution order:
    - The orchestrator decides recovery action autonomously per "Pushing Agent Intelligence Decisions to the User" (`000-critical-rules.md`)
    - **Do NOT proceed to the next sub-agent until abnormal termination recovery is complete.** Recovery must fully resolve (re-task succeeded or manual commit+push verified) before advancing.
 
-6. **Compose prior_context and phase_progress** for the next issue based on what was implemented:
+7. **Compose prior_context and phase_progress** for the next issue based on what was implemented:
 
    prior_context (intent and context):
 
@@ -174,7 +190,7 @@ For each issue in execution order:
 
    Both prior_context and phase_progress are prose-driven. The orchestrator composes them intelligently — no fixed template, no rigid schema.
 
-7. **Append the sub-agent's decision_log_entry to the Decision Log in `.issues/` local storage.** After collecting each sub-agent's result, write their `decision_log_entry` to `.issues/` local storage using `local-issues comment N --body "..."`. Decision logs are classified as `internal` per the content classification gate — they contain agent reasoning, design analysis, and process metadata that persists locally for session-restart scenarios.
+8. **Append the sub-agent's decision_log_entry to the Decision Log in `.issues/` local storage.** After collecting each sub-agent's result, write their `decision_log_entry` to `.issues/` local storage using `local-issues comment N --body "..."`. Decision logs are classified as `internal` per the content classification gate — they contain agent reasoning, design analysis, and process metadata that persists locally for session-restart scenarios.
 
 **Decision Log storage:** Use `local-issues comment N --body "..."` to write to `.issues/<N>/comments.md`, NOT `issue-operations -> comment (github_add_issue_comment`. Rationale: <!-- Routes through issue-operations per SPEC #683 -->
 
