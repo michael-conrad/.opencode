@@ -166,4 +166,11 @@ rules:
       all: ["routing_or_verification_skipped_for_economy == true"]
     actions: [HALT]
     source: "divide-and-conquer/SKILL.md §B9"
+
+  - id: divide-and-conquer-017
+    title: "Completeness gate required after RED/GREEN before adversarial audit"
+    conditions:
+      all: ["sub_agent_result_collected == true", "completeness_gate_run == false", "adversarial_audit_routing_pending == true"]
+    actions: [CALL(completeness-gate --task check)]
+    source: "divide-and-conquer/SKILL.md §B10"
 ```

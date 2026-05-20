@@ -53,6 +53,7 @@ Otherwise, link from spec body.
 | PF-4 | No missing critical steps | Edge cases, error recovery included |
 | PF-5 | Approach consistent | Clean-room and existing use same strategy |
 | PF-6 | TDD checkpoints present | RED GREEN REFACTOR structure |
+| PF-7 | Cost-frame prose + runtime execution in instructions | Each phase's implementation instructions carry cost-frame reformation prose and require real test execution with saved artifacts |
 
 ### Step 4: Cross-Validate with Pre-Resolved Verdicts
 
