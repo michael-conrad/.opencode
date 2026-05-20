@@ -7,7 +7,7 @@
 # dependencies = []
 # ///
 
-"""
+__doc__ = """
 DESCRIPTION: Markdown tools dispatcher. Usage: ./.opencode/tools/md <action> [args...]
 Actions: read, write, add, delete, new
 Example: ./.opencode/tools/md read <file.md> [--section <header>]

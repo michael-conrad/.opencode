@@ -7,7 +7,7 @@
 # dependencies = []
 # ///
 
-"""
+__doc__ = """
 DESCRIPTION: Start Jupyter server on port 18888 (XSRF disabled, no token) for notebook editing.
 
 Usage: ./.opencode/tools/jupyter-start [--help]

@@ -7,7 +7,7 @@
 # dependencies = []
 # ///
 
-"""
+__doc__ = """
 DESCRIPTION: Print the full contents of .opencode/memory.md.
 Usage: ./.opencode/tools/memory read
 """

@@ -7,7 +7,7 @@
 # dependencies = []
 # ///
 
-"""
+__doc__ = """
 DESCRIPTION: GitBucket API CLI client. Usage: ./.opencode/tools/gitbucket-api <command> [args...]
 Commands: me, issues, issue, create-issue, add-comment, prs, create-pr, labels, branches, repos, repo, init-config, check-auth
 Example: ./.opencode/tools/gitbucket-api issues Brothertown-Language snea-shoebox-editor --state open

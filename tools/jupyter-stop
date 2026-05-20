@@ -7,7 +7,7 @@
 # dependencies = []
 # ///
 
-"""
+__doc__ = """
 DESCRIPTION: Stop the Jupyter server running on port 18888.
 
 Usage: ./.opencode/tools/jupyter-stop [--help]

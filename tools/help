@@ -7,7 +7,7 @@
 # dependencies = []
 # ///
 
-"""
+__doc__ = """
 DESCRIPTION: List all agent tools in .opencode/tools/ with their descriptions.
 
 Usage: ./.opencode/tools/help
