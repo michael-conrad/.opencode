@@ -28,6 +28,31 @@ All Python entry points in `.opencode/tools/` MUST be self-contained PEP 723 scr
 
 New tools MUST follow this pattern. Do NOT use `uv run python .opencode/tools/X`.
 
+### Polyglot Bash Guard (MANDATORY)
+
+Every PEP 723 script MUST include a polyglot bash guard as the second line, immediately after the shebang and before the PEP 723 header:
+
+```python
+#!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
+# /// script
+# requires-python = "~=3.12"
+# dependencies = []
+# ///
+```
+
+The guard prevents catastrophic failure when an agent or user invokes `bash <script>` instead of `uv run --script <script>` — bash sees `"exec" "uv" "run" "--script" "$0" "$@"` and replaces itself with `uv`, forwarding all arguments. Under Python, the guard is a bare string expression and is silently discarded.
+
+**Structure rules:**
+- Line 1: `#!/usr/bin/env -S uv run --script` (only allowed shebang)
+- Line 2: `"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER` (bash guard)
+- Lines 4-8: PEP 723 metadata block (comment line, `# /// script`, metadata, `# ///`)
+- After `# ///`: blank line, then optional `from __future__` or `__doc__ = ` or imports
+
+Scripts that print `__doc__` at runtime MUST use `__doc__ = """..."""` assignment (not bare `"""..."""`) because the bash guard string captures the first docstring slot.
+
 ## Isolated Tool Environments
 
 When developing local tools that need their own dependencies (separate from the main project), use isolated tool environments to keep the main project's `pyproject.toml` clean.
