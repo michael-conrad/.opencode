@@ -23,7 +23,6 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 | Step | Sub-Task | Purpose |
 |------|----------|---------|
 | 0 | Re-task guard | If sub-agent returns empty, re-task with original scoped context (max 2 retries); on exhaustion, fall through to double-failure protocol |
-| 0.2 | Model resolution (inline) | Resolve local + cloud models via `ollama-model-resolve --target enforcement`; record model pair for task context |
 | 0.5 | `verify-authorization/scope-auto-resolve` | Parse authorization text, resolve scope/halt_at/pr_strategy/gap_fill |
 | 1 | `verify-authorization/verify-explicit-authorization` | Check for "approved"/"go" + author identity + currency |
 | 2 | Label application (inline) | Apply `approved-for-*` label per mapping table; remove prior `approved-for-*` and `needs-approval` labels |
@@ -35,16 +34,6 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 | 5b.5+5c | `verify-authorization/gap-fill-cascade` | Gap-fill precedence and cascade execution |
 | 6 | `verify-authorization/auto-dispatch` | Scope-aware auto-dispatch + output lineage |
 
-### Step 0.2: Model Selection Gate (MANDATORY)
-
-Before dispatching behavioral test sub-agents (Phase 4 of any plan), resolve the local and cloud model pair:
-
-1. Run `.opencode/tools/ollama-model-resolve --target enforcement` to select the smallest local model
-2. Extract `selected` (local model) and `fallback` (cloud model) from the JSON output
-3. Record the model pair in the authorization context: `test_models: {local: "<model_name>", cloud: "<model_name>"}`
-4. This model pair is embedded in all downstream task contexts
-
-**Model resolution evidence:** Tool-call artifact from `ollama-model-resolve` must be present in the session log before behavioral test dispatch proceeds.
 
 **Chain-of-responsibility:** Sub-tasks use work state file for I/O per `enforcement/work-state-schema.md`. Path selection per SKILL.md §Chain-of-Responsibility Paths:
 

@@ -586,6 +586,24 @@ Skipping submodule tagging means the starting SHA becomes unreachable after squa
 See `approval-gate` skill → Authorization Scope Model.
 
 
+### [critical-rules-hard-fail] Hard Failure Discipline — FAIL is a hard gate, never reclassifiable
+
+A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup gate, SC-verification gate, phase-completion gate) is a **hard gate** — it must be remediated, not sidestepped.
+
+**Remediation-first sequence (mandated by #763):**
+1. **Remediate** the root cause — diagnose what produced the FAIL
+2. **Re-verify** — repeat the verification command/assertion that produced the FAIL
+3. **Proceed** only on confirmed PASS from re-verification
+4. **HALT only on double-failure** — if re-verification also fails, report blocker with both failure artifacts
+
+**Prohibited patterns:**
+- **Reclassification** — turning a FAIL into "PASS with caveats" or "functionally equivalent" is soft-passing by another name (see `000-critical-rules.md` §critical-rules-020)
+- **INCONCLUSIVE** — a verdict of INCONCLUSIVE for a gate that produces deterministic PASS/FAIL is a reclassification, not a finding. INCONCLUSIVE is prohibited as a gate verdict at all pipeline stages. The auditor files have been updated to remove INCONCLUSIVE — see `adversarial-audit` task files
+- **HALT without remediation attempt** — a FAIL that halts the pipeline without any remediation attempt is abandoning the root cause instead of fixing it. Professional engineers always attempt remediation before escalation. See `763-remediation-first`
+
+Professional engineers remediate then re-verify — amateurs reclassify, soft-pass, or INCONCLUSIVE to avoid doing the work. See `065-verification-honesty.md` → "Hard Failure Discipline".
+
+
 ### Tier 3 — Workflow-Standard (FLAG — Convention/Consistency)
 
 Rules that prevent **inconsistency or tech debt**: naming conventions, numbering, comment style, tool selection. Violations are flagged but do not halt.
@@ -684,6 +702,46 @@ Single-issue: exactly 1 commit. Work branch: N commits = N items.
 
 ### [critical-rules-041] Listing Merged PRs Without Calling Cleanup
 "check prs" = cleanup trigger.
+
+
+### [critical-rules-060] Functional/Behavioral Test Substitution Prohibition — substituting structural/grep/metadata checks when behavioral tests cannot execute
+
+"Functional test" and "behavioral test" are synonymous — both verify actual agent behavior by executing code and observing output. When a behavioral/functional test CANNOT be executed (model unavailable, timeout, infrastructure failure, `opencode-cli` not installed), the ONLY valid outcome is FAIL. The agent MUST NEVER substitute grep, string matching, metadata checks, pattern scanning, or file-existence checks for behavioral/functional test execution.
+
+#### Authority Sources
+
+- `080-code-standards.md` §Terminology Note — functional test and behavioral test are synonymous
+- `080-code-standards.md` §Behavioral RED/GREEN as Primary Enforcement Gate — behavioral evidence is PRIMARY
+- `020-go-prohibitions.md` §1 ALWAYS DO — Cost-blind verification: substitution is forbidden
+- `skills/verification-before-completion/tasks/verify.md` §"When Behavioral/Functional Tests Cannot Execute" — FAIL is the only valid outcome when the test cannot run
+
+#### Forbidden Substitutions
+- Grep/string matching/pattern scanning as behavioral evidence
+- Metadata checks (file existence, label state, PR merge status) as behavioral evidence
+- File-existence checks as behavioral evidence
+- "Spot-checking" as behavioral test substitute
+- Any structural check reported as PASS for a behavioral SC
+
+#### Required Actions
+1. When a behavioral/functional test cannot execute: report FAIL with explanation
+2. Attempt remediation (alternative model selection, infrastructure check)
+3. Exhaustive remediation before escalation: only after ALL available model selection, infrastructure check, and alternative model paths have been verified as failed may the agent HALT with escalation
+4. There is NO valid path from "test cannot run" to "PASS" or "UNVERIFIED with structural substitute"
+
+
+### [critical-rules-accountability-ownership] Accountability/Remediation Ownership Model
+
+ALL failures are agent-owned. Remediation is the default action. Escalation is only permitted after verified remediation failure. The following 7 principles govern agent accountability:
+
+1. **Audit fail is a fail** — no exceptions, no reclassification, no soft-passing
+2. **Bad prompt is on the agent** — the agent owns prompt quality; a poorly specified prompt is the agent's defect to remediate
+3. **Defective spec/plan is on the agent** — the agent produces correct artifacts or remediates them; defective upstream artifacts are not an excuse for downstream failures
+4. **Bad/incomplete implementation is on the agent** — the agent owns implementation quality; incomplete or incorrect output must be remediated, not flagged for someone else
+5. **Missing text artifacts is a fail** — the agent produces complete deliverables; absent preamble, missing documentation, or incomplete issue bodies are agent-owned defects
+6. **Skipped functional/behavioral testing is a fail** — no exceptions, no excuses; the agent runs and passes behavioral tests before claiming completion
+7. **Remediate autonomously, never escalate** — escalation is only for dire circumstances (infrastructure failure, model crash, credentials missing); skipping remediation is not a valid choice
+
+All failures are agent-owned. Remediation is the default action. Escalation is only permitted after verified remediation failure — never as a first response, never as a shortcut.
 
 
 ---
@@ -1682,6 +1740,38 @@ rules:
     triggers: [git-workflow]
     source: "000-critical-rules.md §Tier 3 prose section"
 
+  - id: critical-rules-060
+    tier: 2
+    title: "Functional/Behavioral Test Substitution Prohibition — substituting structural/grep/metadata checks when behavioral tests cannot execute"
+    conditions:
+      all:
+        - "behavioral_or_functional_test_cannot_execute == true"
+        - "structural_substitute_reported_as_pass == true"
+    actions:
+      - HALT
+      - REPORT_FAIL
+      - REQUIRE_REMEDIATION
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion]
+    source: "000-critical-rules.md §Functional/Behavioral Test Substitution Prohibition"
+
+  - id: critical-rules-accountability-ownership
+    tier: 2
+    title: "Accountability/Remediation Ownership Model"
+    conditions:
+      all:
+        - "failure_detected == true"
+        - "remediation_attempted_before_escalation == false"
+    actions:
+      - HALT
+      - REMEDIATE
+      - RE_VERIFY
+    conflicts_with: [critical-rules-020]
+    requires: []
+    triggers: [adversarial-audit, divide-and-conquer, verification-before-completion, git-workflow, approval-gate]
+    source: "000-critical-rules.md §critical-rules-accountability-ownership"
+
   - id: critical-rules-platform-routing-bypass
     tier: 1
     title: "CRITICAL VIOLATION — Platform Routing Bypass — direct github_*/gitbucket-api issue calls outside issue-operations/platforms/"
@@ -1711,4 +1801,21 @@ rules:
     requires: []
     triggers: [issue-operations]
     source: "000-critical-rules.md §critical-rules-platform-api-deliberation"
+
+  - id: critical-rules-hard-fail
+    tier: 2
+    title: "Hard Failure Discipline — FAIL is a hard gate, never reclassifiable"
+    conditions:
+      all:
+        - "pipeline_stage in ['verdict','sub_agent_result','cleanup_gate','sc_verification_gate','phase_completion_gate']"
+        - "gate_result == 'FAIL'"
+        - "action_taken in ['reclassify','inconclusive_verdict','halt_no_remediate']"
+    actions:
+      - HALT
+      - REMEDIATE
+      - RE_VERIFY
+    conflicts_with: [critical-rules-020]
+    requires: []
+    triggers: [adversarial-audit, divide-and-conquer, verification-before-completion, git-workflow, approval-gate]
+    source: "000-critical-rules.md §critical-rules-hard-fail"
 ```

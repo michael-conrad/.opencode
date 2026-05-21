@@ -49,12 +49,15 @@ Otherwise, link from spec body.
 |--------------|-------------|-----------------|
 | PF-1 | All phases in clean-room appear in existing | One-to-one phase coverage |
 | PF-2 | Phase order matches dependency order | No dependency reversal |
-| PF-3 | Steps cover all success criteria | Each SC has corresponding step |
+| PF-3 | Steps cover ALL success criteria; missing any is automatic FAIL per spec gate | Each SC has corresponding step — missing any is automatic FAIL |
 | PF-4 | No missing critical steps | Edge cases, error recovery included |
 | PF-5 | Approach consistent | Clean-room and existing use same strategy |
 | PF-6 | TDD checkpoints present | RED GREEN REFACTOR structure |
-| PF-7 | Cost-frame prose + runtime execution in instructions | Each phase's implementation instructions carry cost-frame reformation prose and require real test execution with saved artifacts |
+| PF-7a | Cost-frame prose + runtime execution in instructions | Each phase's implementation instructions carry cost-frame reformation prose and require real test execution with saved artifacts |
+| PF-7 | SC gate language preserved in plan tasks | Plan task structure references the all-or-nothing gate from spec; each TDD RED checkpoint is a sub-gate in the chain |
 | PF-STRUCTURAL-FAIL | Structural evidence rejected for behavioral SCs in plan instructions | If a plan phase's verification instructions accept structural evidence (grep/read/file-exists) for a behavioral SC, return FAIL with `STRUCTURAL_EVIDENCE` classification. Verification instructions MUST require behavioral test execution — structural checks do not verify behavior. |
+
+<!-- Fragment ID: sc-enforcement-gate -->
 
 ### Step 4: Cross-Validate with Pre-Resolved Verdicts
 

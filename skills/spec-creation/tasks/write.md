@@ -94,6 +94,26 @@ Review every requirement statement:
 
 ### Step 3: Define Acceptance Criteria (Principle #6)
 
+**🚫 ALL-OR-NOTHING GATE: ALL success criteria MUST pass for implementation to be considered complete.**
+
+| Rule | Description |
+|------|-------------|
+| ALL pass | Implementation is complete — proceed to next pipeline step |
+| Any SKIPPED | Treated as FAIL — skipped SCs must be explicitly documented as superseded or out of scope with rationale |
+| Any FAILED | Triggers autonomous remediation by the producing agent. Gate holds position (does not pass) until remediation is verified. If re-verification also fails (double-failure), HALT with blocker report. The agent MUST attempt remediation before any escalation. |
+| Remediated SC | Re-verified independently — same PASS/FAIL gate applies; no carryover credit from prior passes |
+| Re-verification | Repeat the verification command/assertion; confirm PASS before claiming remediation complete |
+
+**SC Table Format (4-column):**
+
+| ID | Criterion | Verification Method | Remediation |
+|----|-----------|-------------------|-------------|
+| SC-1 | ... | Executable command/assertion producing deterministic PASS/FAIL | What corrective action is required on FAIL, including re-verification procedure |
+
+**The Verification Method column MUST specify an executable command or assertion producing deterministic PASS/FAIL. The Remediation column MUST specify what corrective action is required on FAIL and how re-verification is performed.**
+
+<!-- Fragment ID: sc-enforcement-gate -->
+
 For each feature/requirement:
 
 - Binary pass/fail criteria (NOT subjective)
@@ -120,6 +140,8 @@ If the answer is "no", the SC must be rewritten.
 | Implicit behavior | "should not crash", "works normally" | No negative criterion — what constitutes "not crashing" is undefined |
 
 **Verification:** For each SC, attempt to write an executable verification command (`uv run pytest test_X.py::test_Y`, `bash verify.sh arg`, `issue-operations -> read-issue (github_issue_read())` with specific field check). If no executable command can be written, the SC is not deterministic. <!-- Routes through issue-operations per SPEC #683 -->
+
+✅ **Gate presence verification:** Verify the all-or-nothing gate statement is present in the assembled spec body. If absent → `STRUCTURE-VIOLATION` requiring rewrite before submission.
 
 ### Step 5: Structure the Deliverable (Principle #10)
 

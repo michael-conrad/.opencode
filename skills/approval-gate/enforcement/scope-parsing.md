@@ -10,7 +10,7 @@ Authorization phrases carry implicit scope — the pipeline stage the developer 
 | `"approved #N for spec"` or `"#N approved for spec"` | for_spec | spec_created | None | none |
 | `"approved #N for analysis"` or `"#N approved for analysis"` | for_analysis | analysis_complete | auto-create spec | none |
 | `"approved #N for plan"` or `"#N approved for plan"` | for_plan | plan_created | auto-create spec | none |
-| `"approved #N for implementation"` or `"#N approved for implementation"` | for_implementation | implementation_complete | auto-create spec+plan, auto-approve | individual |
+| `"approved #N for implementation"` or `"#N approved for implementation"` | for_implementation | verification_complete | auto-create spec+plan, auto-approve | individual |
 | `"approved #N to PR"` or `"#N approved to PR"` | for_pr | pr_created | auto-create spec+plan, auto-approve, auto-PR | stacked |
 | `"approved #N pr only"` or `"#N approved for pr only"` | for_pr_only | pr_created | None | stacked |
 | `"approved #N for review"` or `"#N approved for review only"` | for_review_only | code_review_ready | None | individual |

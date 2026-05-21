@@ -333,6 +333,22 @@ When reporting verification results for external values:
 
 **For ALL external verifications (DNS, configuration, infrastructure, API responses), `exact` mode is mandatory. No exceptions. No semantic comparison.**
 
+## Hard Failure Discipline — Universal Invariant
+
+**Failure is not debatable.** PASS means clean PASS — no findings, no caveats, no "minor issues," no "functionally equivalent" rationalizations. FAIL means FAIL — never INCONCLUSIVE, never "PASS with concerns," never "PASS with notes."
+
+### Identity Fusion: Verification IS Completion
+
+**Verification IS Completion — there is no valid state called "implemented but unverified."** An implementation is not complete until its verification is confirmed PASS. Any artifact marked "done" without verified PASS for all success criteria is incomplete by definition. The pipeline does not advance past unverified work — completion and verification are the same gate, not two sequential gates.
+
+### Cost Frame: Correctness Over Economy
+
+**Cost is measured in defect-discovery-latency, not model roundtrips.** Running verification costs minutes of execution time — a bounded delay that surfaces defects before they reach CI. Skipping a verification step to save a tool call costs the full pipeline of rework when the defect surfaces downstream: diagnosis, fix, re-review, re-CI, re-deploy — each of which costs more roundtrips than the skipped verification would have consumed. Correctness is the only success metric — there is no score for tool-call economy.
+
+### Remediation-First Protocol
+
+When a FAIL signal is received at any pipeline stage, the agent MUST remediate before halting. See `000-critical-rules.md` §critical-rules-hard-fail for the complete protocol.
+
 ```yaml+symbolic
 schema_version: "3.0"
 last_updated: "2026-05-17T00:00:00Z"
@@ -436,4 +452,20 @@ rules:
     requires: []
     triggers: [verification-before-completion]
     source: "065-verification-honesty.md §Per-Field Independence"
+
+  - id: verification-honesty-hard-fail
+    tier: 2
+    title: "Hard Failure Discipline — verification IS completion, no INCONCLUSIVE as gate verdict"
+    conditions:
+      any:
+        - "inconclusive_reported_as_gate_verdict == true"
+        - "fail_reclassified_as_pass == true"
+        - "completion_claimed_without_verified_pass == true"
+    actions:
+      - HALT
+      - REQUIRE_CLEAN_PASS
+    conflicts_with: [critical-rules-hard-fail]
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit, divide-and-conquer, git-workflow]
+    source: "065-verification-honesty.md §Hard Failure Discipline"
 ```

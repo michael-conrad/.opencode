@@ -27,7 +27,7 @@ SCENARIO_PROMPT="Analyze the issue graph for github issue #1 and report on its i
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
-behavior_resolve_model
+
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
@@ -36,10 +36,10 @@ OVERALL_RESULT=0
 assert_tool_calls_made 1 "task\\(subagent_type" "re-dispatch" "re_dispatch" "dispatch" || OVERALL_RESULT=1
 
 # Verify agent does NOT perform inline fallback — reading output files directly after failure
-assert_forbidden_pattern_absent "(inline.*fallback|read.*(\\.issues/|output|log|result|stdout)|manually.*compos)" "inline-fallback-universal" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent "(inline.*fallback\|read.*(\\.issues/\|output\|log\|result\|stdout)\|manually.*compos)" "inline-fallback-universal" || OVERALL_RESULT=1
 
 # Verify agent references clean-room re-dispatch or universal re-dispatch mandate
-assert_required_pattern_present "(clean.room|re-dispatch|re.dispatch|re_dispatch|re_dispatch|universal.*re.dispatch|clean-room)" "clean-room-re-dispatch-reference" || OVERALL_RESULT=1
+assert_required_pattern_present "(clean.room\|re-dispatch\|re.dispatch\|re_dispatch\|re_dispatch\|universal.*re.dispatch\|clean-room)" "clean-room-re-dispatch-reference" || OVERALL_RESULT=1
 
 # Verify agent invokes the appropriate skills rather than performing work inline
 assert_skill_called "approval-gate" || true

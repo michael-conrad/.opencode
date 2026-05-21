@@ -58,7 +58,7 @@ All tasks run via `task(subagent_type="general")`. Every task context MUST inclu
 
 ```yaml
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
-halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
 pr_strategy: <none|individual|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
@@ -67,6 +67,8 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 Additional context: `{ spec, plan, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, cached verification results. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. Result contracts: `status: DONE|BLOCKED|ERROR|OVERFLOW`.
 
 **`must_receive` validation:** Every task context MUST include `authorization_scope` in the `must_receive` array. If the task context object lacks `must_receive` or `must_receive` does not contain `authorization_scope`, HALT and report the missing field as a context-contamination violation.
+
+**No acceptance without verification evidence:** Unverified result contracts are unfinished work — re-task instead.
 
 ## Cross-References
 

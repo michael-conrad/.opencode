@@ -275,22 +275,28 @@ gitmodules_path: <path>
 
 **Do NOT inline the submodule operations.** The orchestrator never runs `git submodule` commands or reads submodule logs directly.
 
-### Step 3.7: Initialize .issues/<issue_number>/ Directory (MANDATORY)
+### Step 3.7: Initialize .issues/ Worktree and Issue Directory (MANDATORY)
 
-After branch creation and submodule sync, initialize the `.issues/<issue_number>/` tracking directory:
+After branch creation and submodule sync, initialize the `.issues/` worktree and `.issues/<issue_number>/` tracking directory:
 
-1. **Create directory:**
+1. **Initialize .issues/ worktree (if not already initialized):**
+   ```bash
+   local-issues setup
+   ```
+   This is idempotent — if `.issues/` is already a worktree, it exits cleanly. If a regular `.issues/` directory exists (not a worktree), it renames it to `.issues.bak`, creates the worktree, and migrates content.
+
+2. **Create issue-specific directory:**
    ```bash
    mkdir -p .issues/<issue_number>/
    ```
 
-2. **Fetch spec from API and mirror to `spec.md`:**
+3. **Fetch spec from API and mirror to `spec.md`:**
    - Call `issue-operations -> read-issue (github_issue_read(method="get", owner=<github.owner>, repo=<github.repo>, issue_number=<issue_number>)` <!-- Routes through issue-operations per SPEC #683 -->
    - If success: write `.issues/<issue_number>/spec.md` with header `# Synced from GitHub Issue #<issue_number> at <ISO8601-timestamp>` followed by the issue body
    - If API unreachable: skip `spec.md` creation (no fallback since there's nothing to fall back to at initialization)
    - See `issue-operations/platforms/github-mcp/SKILL.md` → "spec.md Mirror" for the complete mirror procedure
 
-3. **Write initial `state.md`:**
+4. **Write initial `state.md`:**
    ```markdown
    # State: Issue #<issue_number>
 
@@ -309,7 +315,7 @@ After branch creation and submodule sync, initialize the `.issues/<issue_number>
    None.
    ```
 
-4. **Auto-commit `.issues/<issue_number>/`:**
+5. **Auto-commit `.issues/<issue_number>/`:**
    ```bash
    git add .issues/<issue_number>/spec.md .issues/<issue_number>/state.md
    git commit -m "docs(issues): <issue_number> - spec: mirrored from GitHub Issue #<issue_number>, state: pre-work initialization"
@@ -425,7 +431,7 @@ If the agent attempts to create a `feature/` or `spec/` branch under `for_analys
 
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
-halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
 pr_strategy: <none|individual|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"

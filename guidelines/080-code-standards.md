@@ -356,6 +356,8 @@ Pattern: `// SPDX-FileCopyrightText:` + `// SPDX-License-Identifier:` + `// Prov
 
 ## Enforcement Test Mandate for Guideline and Skill Changes
 
+**Terminology:** In this document, "behavioral test" and "functional test" are synonymous. Both refer to tests that verify actual agent behavior by executing code and observing output, as opposed to structural/content-verification tests that verify text patterns in files. When a functional/behavioral test cannot execute, the SC is FAIL — never PASS or UNVERIFIED with a structural substitute.
+
 Behavioral tests are how real agents prove their rules work. Adding a guideline change without a behavioral test means you are documenting, not enforcing.
 
 Guideline files (`.opencode/guidelines/*.md`) and skill files (`.opencode/skills/*/SKILL.md`, `.opencode/skills/*/tasks/*.md`) are enforcement-critical documents that control AI agent behavior. Changes to these files MUST be accompanied by corresponding enforcement test updates.
@@ -759,4 +761,19 @@ rules:
     requires: []
     triggers: []
     source: "080-code-standards.md §Cross-Reference Standards"
+
+  - id: code-standards-016
+    tier: 2
+    title: "Functional/Behavioral test substitution is prohibited when test cannot execute"
+    conditions:
+      all:
+        - "behavioral_or_functional_test_cannot_execute == true"
+        - "structural_substitute_reported_as_pass_or_unverified == true"
+    actions:
+      - HALT
+      - REPORT_FAIL
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion]
+    source: "080-code-standards.md §Enforcement Test Mandate"
 ```

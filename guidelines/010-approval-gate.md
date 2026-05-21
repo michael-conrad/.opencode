@@ -115,7 +115,7 @@ Defines where the pipeline halts after a given authorization scope, what gap-fil
 | `for_review_prep` | review-prep | None | individual |
 | `for_spec` | spec_created | None | none |
 | `for_plan` | plan_created | auto-create spec | none |
-| `for_implementation` | implementation_complete | auto-create spec+plan+auto-approve | individual |
+| `for_implementation` | verification_complete | auto-create spec+plan+auto-approve | individual |
 | `for_pr` | pr_created | auto-create spec+plan+auto-approve+auto-PR | stacked |
 | `for_pr_only` | pr_created | None | stacked |
 | `for_review_only` | code_review_ready | None | individual |

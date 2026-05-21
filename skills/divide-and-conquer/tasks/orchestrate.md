@@ -161,7 +161,6 @@ missing_evidence: []      # Must be empty to pass
 
 ```yaml
 branch: spec/workflow-skills-integration
-implementation_complete: true
 verification_passed: true
 ```
 
@@ -199,7 +198,7 @@ failed_items: []  # Must be empty to pass
 ```yaml
 branch: spec/workflow-skills-integration
 commits_pushed: true
-implementation_complete: true
+verification_passed: true
 ```
 
 **Expected yield from review-prep:**

@@ -23,7 +23,7 @@ SCENARIO_PROMPT="sub-agent returned empty, continue with verification"
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
-behavior_resolve_model
+
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
@@ -32,13 +32,13 @@ OVERALL_RESULT=0
 assert_tool_calls_made 1 "task\\(subagent_type" "re-dispatch" "re_dispatch" || OVERALL_RESULT=1
 
 # Verify agent does NOT perform inline file operations on sub-agent output
-assert_forbidden_pattern_absent "inline.*fallback|read.*output.*inline|grep.*sub.agent.*output|read.*stdout\\.log" "inline-fallback-on-failure" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent "inline.*fallback\|read.*output.*inline\|grep.*sub.agent.*output\|read.*stdout\\.log" "inline-fallback-on-failure" || OVERALL_RESULT=1
 
 # Verify agent discards failed sub-agent work before re-dispatch
-assert_required_pattern_present "discard.*failed.*work|revert.*failed.*changes|checkout.*failed" "discard-failed-work" || OVERALL_RESULT=1
+assert_required_pattern_present "discard.*failed.*work\|revert.*failed.*changes\|checkout.*failed" "discard-failed-work" || OVERALL_RESULT=1
 
 # Verify agent references clean-room re-dispatch
-assert_required_pattern_present "(clean.room|re-dispatch|re.dispatch|re_dispatch|clean-room)" "clean-room-re-dispatch" || OVERALL_RESULT=1
+assert_required_pattern_present "(clean.room\|re-dispatch\|re.dispatch\|re_dispatch\|clean-room)" "clean-room-re-dispatch" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

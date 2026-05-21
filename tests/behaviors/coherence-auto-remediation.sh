@@ -42,7 +42,7 @@ assert_required_pattern_present "coherence" "coherence defect identified" || OVE
 assert_forbidden_pattern_absent "DONE" "no DONE status on coherence defect" || OVERALL_RESULT=1
 
 # Verify remediation chain is offered, not hardcoded
-assert_required_pattern_present "spec-fix|plan-fix|RED-fix|remediation" "remediation chain suggested" || OVERALL_RESULT=1
+assert_required_pattern_present "spec-fix\|plan-fix\|RED-fix\|remediation" "remediation chain suggested" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

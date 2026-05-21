@@ -37,7 +37,7 @@ Verify all success criteria have evidence before allowing completion claims.
 **Authorization context for sub-agent task():**
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
-halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
 pr_strategy: <none|individual|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
@@ -181,6 +181,27 @@ Reading a test implementation file and confirming it exists is structural eviden
 - ✅ REQUIRED: For behavioral SCs, the agent MUST execute the test and report the output
 - ✅ REQUIRED: Classify each SC as structural or behavioral in the evidence table
 - ✅ REQUIRED: Use behavioral evidence (test execution output) only for behavioral SCs
+
+### When Behavioral/Functional Tests Cannot Execute
+
+If a behavioral/functional test cannot run (model unavailable, timeout, infrastructure error, `opencode-cli` not installed):
+
+| Outcome | Classification | Correct Report |
+|---------|---------------|-----------------|
+| Test executed successfully | Behavioral evidence | PASS or FAIL per test output |
+| Test cannot execute | **FAIL** — never PASS/UNVERIFIED with substitute | `FAIL: behavioral/functional test could not execute` |
+| Test cannot execute, agent substitutes structural check | **CRITICAL VIOLATION** | HALT and report |
+
+**"Functional test" and "behavioral test" are synonymous.** Both refer to tests that verify actual agent behavior by executing code and observing output.
+
+The only valid outcomes for a behavioral SC are:
+1. Test runs → report PASS or FAIL based on actual test output
+2. Test cannot run → report FAIL with explanation of why
+3. Test cannot run → attempt remediation (model selection, infrastructure check)
+4. Remediation also fails → report FAIL, await human intervention
+5. Remediation must be exhaustive before escalation: only after ALL available model selection, infrastructure check, and alternative model paths have been verified as failed may the agent HALT with escalation
+
+There is NO valid path from "test cannot run" to "PASS" or "UNVERIFIED with structural substitute."
 
 ## Verification Report Format
 

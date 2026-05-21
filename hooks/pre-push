@@ -148,9 +148,11 @@ while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
                 echo ""
                 echo "To fix:"
                 echo "  1. Squash: git reset --soft origin/dev && git commit -m '<message>'"
-                echo "  2. Or set SKIP_COMMIT_COUNT_CHECK=1 if committing as a human operator"
                 echo ""
-                echo "AI agent: This is a runtime gate, not an advisory rule."
+                echo "BLOCKED: Pushing without work state — unattributed commits entering the integration branch."
+                echo "No traceability means defects untraceable to spec. Every unpipelined push is orphaned changes."
+                echo ""
+                echo "Remediate: call skill({name: \"divide-and-conquer\"}) --task assemble-work"
                 echo ""
                 ALLOWED=false
             fi

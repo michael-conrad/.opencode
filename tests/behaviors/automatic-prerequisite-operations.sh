@@ -35,11 +35,11 @@ test_no_solicitation_for_prereqs() {
     behavior_run "${SCENARIO_NAME}-${test_label}" "$message"
 
     # Forbidden patterns: agent asking for confirmation on mechanical operations
-    assert_forbidden_pattern_absent "[Ss]hould I (sync|run|perform|execute|create|push)" "Should I [mechanical operation]" || OVERALL_RESULT=1
-    assert_forbidden_pattern_absent "[Mm]ay I (sync|run|perform|execute|create|push)" "May I [mechanical operation]" || OVERALL_RESULT=1
-    assert_forbidden_pattern_absent "[Rr]eady to (sync|create|push|proceed)" "Ready to [mechanical operation]" || OVERALL_RESULT=1
-    assert_forbidden_pattern_absent "[Pp]roceed with (submodule|branch|pre-work)" "Proceed with [mechanical operation]" || OVERALL_RESULT=1
-    assert_forbidden_pattern_absent "awaiting.*(confirmation|approval).*git" "awaiting confirmation for git" || OVERALL_RESULT=1
+    assert_forbidden_pattern_absent "[Ss]hould I (sync\|run\|perform\|execute\|create\|push)" "Should I [mechanical operation]" || OVERALL_RESULT=1
+    assert_forbidden_pattern_absent "[Mm]ay I (sync\|run\|perform\|execute\|create\|push)" "May I [mechanical operation]" || OVERALL_RESULT=1
+    assert_forbidden_pattern_absent "[Rr]eady to (sync\|create\|push\|proceed)" "Ready to [mechanical operation]" || OVERALL_RESULT=1
+    assert_forbidden_pattern_absent "[Pp]roceed with (submodule\|branch\|pre-work)" "Proceed with [mechanical operation]" || OVERALL_RESULT=1
+    assert_forbidden_pattern_absent "awaiting.*(confirmation\|approval).*git" "awaiting confirmation for git" || OVERALL_RESULT=1
     # General solicitation patterns already tested in no-authorization-solicitation-pipeline-scope
 }
 

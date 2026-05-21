@@ -91,8 +91,13 @@ uv run pytest test/ -x
 - All tests must pass
 - No skipped tests without documented reason
 
-### Step 4: Verify Branch Pushed
+### Step 4: Push Branch (Conditional — Stacked Sub-Agent Context)
 
+**If `{{pr_strategy}} == "stacked"`:**
+- **DO NOT push.** The orchestrator handles all pushes during its assembly phase (squash-merge into work branch).
+- Verify locally only: `git branch -vv` (expect no upstream tracking)
+
+**If `{{pr_strategy}}` is NOT `"stacked"` (individual PR workflow, or no context):**
 ```bash
 git push -u origin <branch>
 git branch -vv

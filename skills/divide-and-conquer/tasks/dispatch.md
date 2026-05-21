@@ -98,6 +98,7 @@ Sub-agent MUST return per Sub-agent Result Contract:
 | **DONE_WITH_CONCERNS** | Review concerns, address if about correctness/scope |
 | **OVERFLOW** | Handle per `overflow-signal` task |
 | **BLOCKED** | Provide context, escalate, or decompose further |
+| **FAIL** | Initiate Verify-Before-Acceptance protocol — orchestrator MUST independently reproduce, re-dispatch with remediation, double-verify, HALT only on double-failure. See `enforcement/completion-checkpoint.md` §Verify-Before-Acceptance Protocol |
 
 ### Step 4: Sub-Agent Completion Checkpoint
 

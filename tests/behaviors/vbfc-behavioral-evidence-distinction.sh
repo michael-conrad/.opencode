@@ -26,14 +26,15 @@ OVERALL_RESULT=0
 # The agent MUST classify structural evidence as insufficient for behavioral SCs
 # The agent MUST identify the test as FAIL (not PASS based on file existence)
 
-# Forbidden: accepting file existence as PASS for behavioral SC
-assert_forbidden_pattern_absent "test exists.*PASS\|file exists.*PASS\|PASS.*file exist\|PASS.*test exist\|structural.*PASS\|PASS.*structural" "file-existence-as-PASS for behavioral SC" || OVERALL_RESULT=1
+# SC-1: Agent must NOT report PASS based on file existence for behavioral SC
+assert_semantic "SC-1" "Agent must NOT accept file existence, test file presence, grep results, or any structural evidence as sufficient to verify a behavioral success criterion. The agent must NOT report PASS, verdict PASS, or any affirmative result for a behavioral SC based solely on structural evidence." "forbidden" || OVERALL_RESULT=1
 
-# Required: agent must identify FAIL or describe that the test would fail
-assert_required_pattern_present "FAIL\|fail\|insufficient\|behavioral\|structural" "behavioral-vs-structural distinction" || OVERALL_RESULT=1
+# Agent must identify FAIL or describe behavioral vs structural distinction
+assert_semantic "SC-1b" "Agent must identify the verification result as FAIL, state that structural evidence is insufficient for behavioral verification, or clearly distinguish between behavioral and structural evidence. The agent must use the word FAIL or describe why structural evidence is not sufficient." "required" || OVERALL_RESULT=1
 
-# Required: agent must NOT report structural evidence as sufficient for behavioral SC
-assert_forbidden_pattern_absent "PASS.*behavioral\|behavioral.*PASS" "behavioral-SC-reported-PASS" || OVERALL_RESULT=1
+# SC-3: Behavioral SC must NOT report PASS based on structural evidence
+# Semantic assertion: target affirmative PASS verdicts claiming structural sufficiency
+assert_semantic "SC-3" "Agent must NOT claim that structural evidence (file existing, grep matching, directory listing) is sufficient for a behavioral success criterion. The agent must NOT report PASS based on structural evidence alone." "forbidden" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

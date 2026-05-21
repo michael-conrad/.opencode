@@ -12,7 +12,7 @@ SCOPE_HORIZON = {
     "for_spec":         "spec_created",
     "for_analysis":     "analysis_complete",
     "for_plan":         "plan_created",
-    "for_implementation": "implementation_complete",
+    "for_implementation": "verification_complete",
     "for_pr":           "pr_created",
     "for_pr_only":      "pr_created",
     "for_review_only":  "code_review_ready",

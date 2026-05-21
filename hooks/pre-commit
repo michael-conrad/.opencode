@@ -22,7 +22,10 @@ GATE_EXIT_CODES=()
     echo "  1. Create a feature branch: git checkout -b feature/<name>"
     echo "  2. Or create a hotfix branch: git checkout -b hotfix/<name>"
     echo ""
-    echo "AI agent: If OPENCODE=1, relay this message to the developer."
+    echo "BLOCKED: Direct commit to protected branch — unreviewed changes entering production integration."
+    echo "No PR means no verification occurred. Every unprotected commit is an unreviewed deployment risk."
+    echo ""
+    echo "Remediate: call skill({name: \"git-workflow\"}) --task pre-work"
     echo ""
     exit 1
   fi
@@ -65,9 +68,12 @@ GATE_EXIT_CODES+=($?)
     echo "Submodule pointer bumps belong in the submodule repo itself,"
     echo "not as standalone commits in the parent repo."
     echo ""
-    echo "To unblock:"
-    echo "  1. Commit changes inside .opencode/ directly (cd .opencode && git commit)"
-    echo "  2. Or set SKIP_SUBMODULE_GATE=1 to bypass (human override only)"
+    echo "BLOCKED: Submodule changes in parent repo — lost submodule review history."
+    echo "Every parent-repo submodule bump means unreviewed submodule changes."
+    echo ""
+    echo "To fix: Commit changes inside .opencode/ directly (cd .opencode && git commit)"
+    echo ""
+    echo "Remediate: call skill({name: \"git-workflow\"}) --task implementation"
     echo ""
     exit 1
   fi
@@ -142,10 +148,10 @@ GATE_EXIT_CODES+=($?)
     echo "Branch '$CURRENT_BRANCH' is an implementation branch but no"
     echo "work state directory exists at tmp/."
     echo ""
-    echo "To fix: ensure divide-and-conquer --task assemble-work was invoked"
-    echo "  or set SKIP_DISPATCH_CHECK=1 if committing as a human operator"
+    echo "BLOCKED: Committing without dispatch evidence — untracked work entering the codebase."
+    echo "No verification gate ran means defects uncaught. Every unpipelined commit is unverified implementation."
     echo ""
-    echo "AI agent: This is a runtime gate, not an advisory rule."
+    echo "Remediate: call skill({name: \"divide-and-conquer\"}) --task assemble-work"
     echo ""
     exit 1
   fi
@@ -173,10 +179,10 @@ GATE_EXIT_CODES+=($?)
     echo ""
     echo "Work state files found: $(ls "$WORK_STATE_DIR"/work-*.md 2>/dev/null | wc -l)"
     echo ""
-    echo "To fix: ensure divide-and-conquer --task assemble-work was invoked"
-    echo "  or set SKIP_DISPATCH_CHECK=1 if committing as a human operator"
+    echo "BLOCKED: Committing without dispatch evidence — untracked work entering the codebase."
+    echo "No verification gate ran means defects uncaught. Every unpipelined commit is unverified implementation."
     echo ""
-    echo "AI agent: This is a runtime gate, not an advisory rule."
+    echo "Remediate: call skill({name: \"divide-and-conquer\"}) --task assemble-work"
     echo ""
     exit 1
   fi
@@ -191,10 +197,10 @@ GATE_EXIT_CODES+=($?)
       echo "Branch '$CURRENT_BRANCH' has a work state file but it does not"
       echo "contain both 'authorization_scope:' and 'halt_at:' fields."
       echo ""
-      echo "To fix: ensure approval-gate --task verify-authorization was invoked"
-      echo "  or set SKIP_DISPATCH_CHECK=1 if committing as a human operator"
+      echo "BLOCKED: Committing without dispatch evidence — untracked work entering the codebase."
+      echo "No verification gate ran means defects uncaught. Every unpipelined commit is unverified implementation."
       echo ""
-      echo "AI agent: This is a runtime gate, not an advisory rule."
+      echo "Remediate: call skill({name: \"approval-gate\"}) --task verify-authorization"
       echo ""
       exit 1
     fi

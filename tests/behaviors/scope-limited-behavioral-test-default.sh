@@ -24,19 +24,19 @@ SCENARIO_PROMPT="run behavioral tests"
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
-behavior_resolve_model
+
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
 # Verify agent defaults to scope-limited (using --changed, --scenario, or --tag)
-assert_required_pattern_present "(--changed|--scenario|--tag|scope.limited)" "scope-limited-default" || OVERALL_RESULT=1
+assert_required_pattern_present "(--changed\|--scenario\|--tag\|scope.limited)" "scope-limited-default" || OVERALL_RESULT=1
 
 # Verify agent does NOT run full suite by default
-assert_forbidden_pattern_absent "run-all\\.sh\\s*$|run-all\\.sh\\s*\\||run.all\\.sh\\s*without" "full-suite-by-default" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent "run-all\\.sh\\s*$\|run-all\\.sh\\s*\\|\|run.all\\.sh\\s*without" "full-suite-by-default" || OVERALL_RESULT=1
 
 # Verify agent checks hardware before considering full suite
-assert_required_pattern_present "(ollama-probe hw|ollama.probe.*hw|hardware.*check|VRAM)" "hardware-assessment" || OVERALL_RESULT=1
+assert_required_pattern_present "(ollama-probe hw\|ollama.probe.*hw\|hardware.*check\|VRAM)" "hardware-assessment" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

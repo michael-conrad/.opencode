@@ -112,13 +112,62 @@ Cannot create issue: Step 0.5 dedup gate evidence missing and runtime search fal
 | Enhancement | `[SPEC-ENHANCEMENT] <Enhancement>` | `[SPEC-ENHANCEMENT] Add Rate Limiting` |
 | Task | `[Task: #<parent>] <Task Description>` | `[Task: #100] Create user tables` |
 
-### Step 2: Create Issue (Local-First Architecture)
+### Step 2: Create Issue (Platform-Aware Ordering)
 
-**All issue creation starts in `.issues/` FIRST, regardless of remote presence.**
+#### Step 2.0: Platform Check
 
-#### Step 2.0: Create Local Issue (MANDATORY FIRST STAGE)
+Determine creation order based on `github.platform`:
 
-**For ALL platforms (GitHub, GitBucket, Local), create local first:**
+| `github.platform` | Creation Order |
+|---|---|
+| `github` | Remote first → local |
+| `gitbucket` | Remote first → local |
+| `local` | Local first (existing behavior) |
+
+**For `github` and `gitbucket` platforms** proceed to Step 2.1 (Remote-First).
+**For `local` platform** proceed to Step 2.2 (Local-First).
+
+#### Step 2.1: Remote-First Flow (when `github.platform != local`)
+
+1. Promote to remote platform FIRST. Route based on `github.platform`:
+
+   **GitHub:**
+   ```python
+   github_issue_write(
+       method="create",
+       owner=owner,
+       repo=repo,
+       title=title,
+       body=<exec-summary body>,
+       labels=["needs-approval"]
+   )
+   ```
+
+   **GitBucket:**
+   ```bash
+   ./.opencode/tools/gitbucket-api create-issue <github.owner> <github.repo> "<title>" --body "<exec-summary-body>" --labels needs-approval
+   ```
+
+   **Note (GitBucket):** Labels can ONLY be set during creation. Post-creation label changes do not work.
+
+2. **Extract remote issue number** from API response `number` field
+3. **Create local `.issues/open/<remote-number>-<slug>/`** — the remote number IS the local directory name (no local counter needed)
+4. Write spec body to `.issues/open/<remote-number>-<slug>/spec.md` (preserving YAML frontmatter)
+5. Record remote metadata in YAML frontmatter:
+
+   ```yaml
+   remote_issue: <remote-number>
+   remote_url: <html_url-from-api-response>
+   promoted_at: <timestamp>
+   ```
+
+6. **Counter advancement:** Read `.counter`. If `counter <= remote_number`, write `remote_number + 1` to `.counter` to prevent future local-first issues from colliding with this remote number.
+
+**Local copy retains full-fidelity detail** — extra metadata, reasoning, and agent notes that stakeholders don't need.
+
+#### Step 2.2: Local-First Flow (when `github.platform == local`)
+
+**Use counter-based numbering. Create local first, no remote promotion:**
 
 ```bash
 local-issues create --title "<title>" --labels "needs-approval"
@@ -128,54 +177,11 @@ Then write the spec body to `.issues/open/NNN-slug/spec.md` (preserving YAML fro
 
 **Local copy retains full-fidelity detail** — extra metadata, reasoning, and agent notes that stakeholders don't need.
 
-#### Step 2.1: Promote to Remote (Platform Routing)
-
-Route based on `github.platform`:
-
-| `github.platform` | Route to |
-|---|---|
-| `github` | `platforms/github-mcp/` sub-skill |
-| `gitbucket` | `platforms/gitbucket-api/` sub-skill |
-| `local` | Skip remote promotion (local-only) |
-
-**GitHub platform (sub-skill implementation):**
-```python
-github_issue_write(
-    method="create",
-    owner=owner,
-    repo=repo,
-    title=title,
-    body=<exec-summary body>,
-    labels=["needs-approval"]
-)
-```
-
-**GitBucket platform (sub-skill implementation):**
-```bash
-./.opencode/tools/gitbucket-api create-issue <github.owner> <github.repo> "<title>" --body "<exec-summary-body>" --labels needs-approval
-```
-
-**Note (GitBucket):** Labels can ONLY be set during creation. Post-creation label changes do not work.
-
-**Remote promotion metadata:**
-
-After successful remote creation, record in local `.issues/open/NNN-slug/spec.md` YAML frontmatter:
-
-```yaml
-remote_issue: <remote-issue-number>
-remote_url: <html_url-from-api-response>
-promoted_at: <timestamp>
-```
-
-**If `github.platform` is `local`:**
-
-Skip remote promotion. Issue exists only in `.issues/open/`.
+**No remote promotion possible.** Issue exists only in `.issues/open/`.
 
 **Response includes:**
-- Local issue number
+- Local issue number (counter-based)
 - Local path: `.issues/open/NNN-slug/spec.md`
-- Remote issue number (if promoted)
-- Remote URL (if promoted)
 
 **Post-Creation URL Extraction (MANDATORY — per `000-critical-rules.md` §URL Sourcing):**
 
@@ -198,37 +204,36 @@ The Issue URL MUST be extracted from the API response `html_url` field — NEVER
 
 ### Step 4: Report Issue Created
 
-Report: "Created local issue #<local-number>. Remote promotion pending or complete."
+Report based on creation flow:
 
-**Standard output:**
+**Remote-first flow (GitHub/GitBucket):**
+
+```
+Created remote issue #MMM at <html_url>
+Local mirror: .issues/open/MMM-slug/spec.md
+```
+
+**Local-first flow (local platform only):**
 
 ```
 Created local issue #NNN at `.issues/open/NNN-slug/spec.md`
-```
-
-**If promoted to remote:**
-
-```
-Created local issue #NNN → promoted to remote #MMM
-Local: .issues/open/NNN-slug/spec.md
-Remote: <html_url>
 ```
 
 ### Step 4.5: Developer Review Signal
 
 When an issue is created (local or promoted), remind the developer how to review:
 
-**Local-only:**
+**Local platform (local-first):**
 ```
 Local issue #NNN created. Review with:
   local-issues review NNN
 ```
 
-**Promoted to remote:**
+**Remote platform (remote-first):**
 ```
-Issue #NNN promoted to GitHub #MMM. Review:
-  Local: local-issues review NNN
+Issue #MMM created on GitHub. Review:
   Remote: <html_url>
+  Local mirror: local-issues review MMM
 ```
 
 ## Multi-Task Spec Handling
@@ -249,7 +254,7 @@ Issue #NNN promoted to GitHub #MMM. Review:
 
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
-halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
 pr_strategy: <none|individual|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"

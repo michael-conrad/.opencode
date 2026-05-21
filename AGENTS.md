@@ -194,6 +194,7 @@ Pair mode tasks: `pair-pre-work`, `pair-commit`, `pair-pr-creation`, `pair-clean
 - Wait for explicit authorization ("approved" or "go") before implementing
 - SILENTLY HALT after completing a task
 - Use appropriate tools per five-tier hierarchy (see `mcp-tool-usage` skill)
+- Verify before completing. Verification IS completion.
 
 **✅ Multi-Task Spec Workflow (CRITICAL):**
 When parent issue has sub-issues, authorization cascades to ALL sub-issues:

@@ -11,7 +11,11 @@ compatibility: opencode
 
 ## Overview
 
-Evidence-based verification preventing premature completion claims. Ensures ALL success criteria are verified with actual evidence before ANY task or phase is marked complete. Structural completeness checked before per-SC verification.
+Verification IS completion — there is no valid state called "implemented but unverified." Every claim of completion requires verified PASS for all success criteria. Completion without verification is not completion — it is a placeholder for undiscovered defects.
+
+Remediation of failed verification IS agent-owned — the producing agent owns every defect in its output, and autonomous remediation is the default action before any escalation.
+
+Ensures ALL success criteria are verified with actual evidence before ANY task or phase is marked complete. Structural completeness checked before per-SC verification.
 
 ## Persona
 
@@ -55,7 +59,7 @@ All tasks run via `task(subagent_type="general")` with `{ spec_sc_list, file_pat
 ### Authorization Context
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
-halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
 pr_strategy: <none|individual|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
