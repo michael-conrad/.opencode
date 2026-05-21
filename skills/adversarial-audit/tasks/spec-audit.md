@@ -17,7 +17,7 @@ Audit a spec for quality, structure, and completeness using dual-adversarial cro
 
 ## Exit Criteria
 
-- All subtask criteria evaluated with PASS/FAIL consensus
+- All subtask criteria evaluated with PASS/FAIL consensus (no INCONCLUSIVE verdicts)
 - Bidirectional findings reported
 - Executive summary generated
 
@@ -53,6 +53,9 @@ Define audit criteria based on spec-auditor task structure:
 | SC-13 | Cost-frame prose + runtime execution in SCs | Each SC carries cost-frame reformation language and requires a real test execution command, not a structural check |
 | SC-STRUCTURAL-FAIL | Structural evidence rejected for behavioral SCs | If an SC describes testable behavior (correctness, output, result, pass/fail, runtime logic) but verification evidence is purely structural (grep/read/file-exists), return FAIL with `STRUCTURAL_EVIDENCE` classification. Structural checks do NOT verify correct behavior — they only verify existence. Exception: non-testable prose changes (docs, runbooks, guidelines) may use semantic intent verification by direct AI agent read — NOT grep/pattern matching. |
 | SC-DET | SC Determinism | Each SC produces the same PASS/FAIL from any reasonable auditor |
+| SC-14 | SC Enforcement Gate present and explicit | Spec contains all-or-nothing gate statement with PASS/FAIL/Remediation requirements per gate format |
+
+<!-- Fragment ID: sc-enforcement-gate -->
 
 ### Step 3: Cross-Validate with Pre-Resolved Verdicts
 

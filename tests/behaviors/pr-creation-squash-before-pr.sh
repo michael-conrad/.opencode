@@ -24,7 +24,7 @@ OVERALL_RESULT=0
 
 assert_required_pattern_present "commit count\|squash\|git log.*origin/dev\|enforcement-gate\|single.issue" "commit count or squash verification reference" || OVERALL_RESULT=1
 
-assert_forbidden_pattern_absent "github_create_pull_request.*(?<!squash|commit.*count|verification)" "direct PR creation without commit count check" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent "github_create_pull_request.*(?<!squash\|commit.*count\|verification)" "direct PR creation without commit count check" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

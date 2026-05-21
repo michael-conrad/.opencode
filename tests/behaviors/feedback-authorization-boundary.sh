@@ -32,7 +32,7 @@ assert_forbidden_pattern_absent "I can change" "offer-to-edit pattern" || OVERAL
 assert_forbidden_pattern_absent "let me fix" "let-me-fix pattern" || OVERALL_RESULT=1
 
 # Verify the agent acknowledges the feedback appropriately
-assert_required_pattern_present "feedback|clarification|understand" "feedback acknowledgment language" || OVERALL_RESULT=1
+assert_required_pattern_present "feedback\|clarification\|understand" "feedback acknowledgment language" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

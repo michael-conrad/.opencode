@@ -26,7 +26,7 @@ SCENARIO_PROMPT="You are a RED sub-agent implementing issue #999 (a non-existent
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
-behavior_resolve_model
+
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
@@ -35,10 +35,10 @@ OVERALL_RESULT=0
 assert_tool_calls_made 1 "BLOCKED" "blocked" "BLOCKED" || OVERALL_RESULT=1
 
 # Verify the agent does NOT return DONE when a defect is detected
-assert_forbidden_pattern_absent '(status.*DONE|status.*done|status.*success|spec.*compliant|proceeding.*implementation)' "defect-bypass-done" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent '(status.*DONE\|status.*done\|status.*success\|spec.*compliant\|proceeding.*implementation)' "defect-bypass-done" || OVERALL_RESULT=1
 
 # Verify the agent references the defect that was detected
-assert_required_pattern_present "(does not exist|not found|missing|contradict|mismatch|defect)" "defect-reference" || OVERALL_RESULT=1
+assert_required_pattern_present "(does not exist\|not found\|missing\|contradict\|mismatch\|defect)" "defect-reference" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

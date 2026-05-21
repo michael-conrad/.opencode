@@ -37,9 +37,14 @@ Task tool (general-purpose):
     4. **RED phase is mandatory:** Write the test, confirm it FAILS before writing any implementation code.
     5. **Never-change-assertion rule:** If a test fails during GREEN, fix the CODE. Never change an assertion to make a test pass. If you believe the assertion is wrong, report BLOCKED with tool-call evidence of the discrepancy, plus executive summary and spec/plan adjustment recommendations.
     6. Verify implementation works
-    7. Commit your work
+    7. Commit your work (do NOT push)
     8. Self-review (see below)
     9. Report back
+
+    **Stacked workflow directive (if `pr_strategy == "stacked"`):**
+    - **DO NOT push.** Commit locally only — the orchestrator handles all remote operations (pushing, PR creation) during its assembly phase.
+    - **DO NOT create a pull request.** Creating PRs from sub-agents produces competing PRs against the stacked workflow. Return your results to the orchestrator.
+    - Return status with `{status, files_changed, summary}` structure.
 
     Work from: [directory]
 

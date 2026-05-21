@@ -29,11 +29,12 @@ OVERALL_RESULT=0
 # REQUIRED: Agent produces verification tool calls (file read, signature lookup, grep)
 assert_tool_calls_made 1 "read\|get_signature\|grep\|srclight" "verification tool calls" || OVERALL_RESULT=1
 
-# FORBIDDEN: Agent answers without any tool call evidence
-# Check that the output is NOT purely from memory (no tool call evidence)
-assert_forbidden_pattern_absent "I recall\|from my training\|I remember\|as far as I know\|based on my knowledge" "memory/training data as evidence" || OVERALL_RESULT=1
+# FORBIDDEN: Agent answers from memory or training data without verification
+# Semantic assertion: agent must NOT claim to know the answer from memory/training
+assert_semantic "SC-11" "Agent must NOT state or imply that it knows the answer from memory, training data, or prior knowledge without verification. The agent must NOT recall, remember, or assert knowledge from training data. Expressions of uncertainty followed by verification are acceptable." "forbidden" || OVERALL_RESULT=1
 
 # REQUIRED: Agent references the actual file or verification action
+# This is a structural check — tool call evidence is structural, keep as grep
 assert_required_pattern_present "skildeck\|_run_action\|read.*file\|signature\|verified\|source" "file content reference" || OVERALL_RESULT=1
 
 echo ""

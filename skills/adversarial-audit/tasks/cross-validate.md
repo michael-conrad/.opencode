@@ -82,7 +82,7 @@ next_step: "re-evaluate"
 
 Validation rules per verdict:
 - `criterion_id` MUST match a criterion id from `evaluation_criteria`
-- `result` MUST be one of: `PASS`, `FAIL`, `AUDIT_FAIL`, `INCONCLUSIVE`, `LIMITED-EVIDENCE`, `FABRICATED`
+- `result` MUST be one of: `PASS`, `FAIL`, `AUDIT_FAIL`, `LIMITED-EVIDENCE`, `FABRICATED`
 - `evidence` MUST reference a live tool call (URL, file path, or command output) — memory-cached claims are FORBIDDEN
 - `explanation` MUST be present and non-empty
 - `remediation` MUST be present when result is not PASS
@@ -102,17 +102,31 @@ For each criterion in `evaluation_criteria`:
 |---|---|
 | Both auditors return `PASS` | `consensus = PASS` |
 | Either auditor returns `FAIL` | `consensus = FAIL` |
-| Non-PASS result (AUDIT_FAIL, INCONCLUSIVE, LIMITED-EVIDENCE, FABRICATED) | `consensus = BLOCKED` |
+| Non-PASS result (AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED) | `consensus = BLOCKED` |
 | Either auditor's verdict is missing or unparseable | `consensus = FAIL` |
 | Auditors disagree (one PASS, one non-PASS) | `consensus = FAIL` |
 
-Non-PASS (FAIL, AUDIT_FAIL, INCONCLUSIVE, LIMITED-EVIDENCE, FABRICATED) = BLOCKED pipeline. Orchestrator reads `next_step` from verdict and routes accordingly — does NOT interpret or override.
+Non-PASS (FAIL, AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED) = BLOCKED pipeline. Orchestrator reads `next_step` from verdict and routes accordingly — does NOT interpret or override.
 
 Track disagreements explicitly in the result contract for transparency: a `PASS`/`FAIL` split is different from a double `FAIL`.
 
 ### Step 5: Compute Aggregate Consensus
 
 `overall_consensus = PASS` iff `consensus == PASS` for ALL criteria. Any single `FAIL` in the table cascades to `overall_consensus = FAIL`.
+
+### Step 5.5: Verdict Self-Consistency Gate
+
+Before dark pattern enforcement, every verdict must pass a self-consistency check:
+
+1. **PASS with finding language**: If `result: "PASS"` while `explanation`, `evidence`, or `remediation` field contains finding/critique language (e.g., "should be", "needs", "missing", "could improve"), the PASS is contradictory — downgrade to FAIL. PASS must be strictly confirmatory with no critique.
+2. **clean_room.verified constraint**: When `violations_detected` is non-empty, `clean_room.verified` MUST be `false`. If violations exist but verified is true, flag as `SELF_CONSISTENCY_FAIL`.
+3. **Evidence-verdict alignment**: If `result: "PASS"` but `evidence` references "minor concerns", "some issues", or other hedging language, downgrade to FAIL. A PASS verdict must have PASS-level evidence (confirmatory only).
+
+| Self-Consistency Rule | Trigger | Action |
+|---|---|---|
+| PASS + critique language | `explanation` or `remediation` contains finding/fix language | Downgrade to FAIL |
+| violations_detected + verified=true | Non-empty violations with verified=true | flag `SELF_CONSISTENCY_FAIL` |
+| PASS + hedging evidence | Evidence contains concern/minor/issue qualifiers | Downgrade to FAIL |
 
 ### Step 6: Dark Pattern Enforcement (MANDATORY — NO BYPASS)
 
@@ -212,7 +226,7 @@ Authorization context is passed alongside audit context:
 
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
-halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
 pr_strategy: <none|individual|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
@@ -280,9 +294,9 @@ rules:
     source: "cross-validate.md §Step 4"
 
   - id: cross-validate-007a
-    title: "Non-PASS verdicts (AUDIT_FAIL, INCONCLUSIVE, LIMITED-EVIDENCE, FABRICATED) cascade to BLOCKED"
+    title: "Non-PASS verdicts (AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED) cascade to BLOCKED"
     conditions:
-      any: ["auditor_result == 'AUDIT_FAIL'", "auditor_result == 'INCONCLUSIVE'", "auditor_result == 'LIMITED-EVIDENCE'", "auditor_result == 'FABRICATED'"]
+      any: ["auditor_result == 'AUDIT_FAIL'", "auditor_result == 'LIMITED-EVIDENCE'", "auditor_result == 'FABRICATED'"]
     actions: [SET_CONSENSUS_BLOCKED, ROUTE_VIA_NEXT_STEP]
     source: "cross-validate.md §Step 4"
 

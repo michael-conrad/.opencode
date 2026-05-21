@@ -9,6 +9,12 @@ compatibility: opencode
 
 Reference this file from per-skill `tasks/completion.md` files for common completion operations.
 
+## Entry Gate
+
+**Entry gate: verification-before-completion PASS required before any completion operation.**
+
+Verification IS completion — the concept is fused. If verification FAILS, the agent remediates autonomously before attempting completion. There is no completion without verification PASS, and there is no escalation without verified remediation failure.
+
 ## Common Completion Operations
 
 ### 1. Push Branch (Idempotent)

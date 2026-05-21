@@ -11,6 +11,10 @@ compatibility: opencode
 
 ## Overview
 
+Branch readiness IS verification completion. A finished branch has passed verification. Branches left dirty after implementation are liabilities — their readiness is unconfirmed until every SC is verified PASS.
+
+Remediation of failed verification IS agent-owned — the producing agent owns every defect in its output, and autonomous remediation is the default action before any escalation.
+
 Branch completion workflow ensuring feature branch is fully ready for PR. Verifies all changes committed, tested, pushed, and reviewed. Tracks against plan sub-issues.
 
 ## Tasks

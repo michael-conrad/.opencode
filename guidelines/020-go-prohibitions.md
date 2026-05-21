@@ -61,6 +61,8 @@ load_when: sub-agent
   - 🚫 FORBIDDEN: Counting commands, estimating runtime, or measuring context as factors in correctness decisions
   - 🚫 FORBIDDEN: "Spot-checking" as a substitute for full behavioral test execution
   - 🚫 FORBIDDEN: Any sentence containing both a cost/speed/resource noun AND a verification-skip verb
+- **NEVER substitute structural evidence for behavioral/functional evidence when the test cannot run.** If the behavioral test is unexecutable, the SC is FAIL. No exceptions.
+- **NEVER escalate without attempting remediation first. NEVER skip remediation.**
 
 **Cost is measured in defect-discovery-latency, not model roundtrips.** Running verification costs minutes of execution time — a bounded delay that surfaces defects before they reach CI. Skipping a verification step to save a tool call costs the full pipeline of rework when the defect surfaces downstream: diagnosis, fix, re-review, re-CI, re-deploy — each of which costs more roundtrips than the skipped verification would have consumed. Correctness is the only success metric — there is no score for tool-call economy.
 
@@ -141,6 +143,8 @@ These branches are NOT for implementation — they are ephemeral scratch space. 
   - ✅ REQUIRED: Default to `--changed` when there are uncommitted guideline/skill changes
   - ✅ REQUIRED: Default to `--tag` matching the current work concern when no changed files
   - ✅ REQUIRED: Assess hardware (`ollama-probe hw`) before running full suite — only proceed if VRAM ≥ 8 GB and at least one local model ≥ 7B is installed
+- **Functional/behavioral test substitution is FORBIDDEN.** When a behavioral/functional test cannot be executed (model unavailable, timeout, infrastructure failure), the agent MUST report FAIL — NEVER substitute grep, string matching, metadata checks, pattern scanning, or file-existence checks. "Functional test" and "behavioral test" are synonymous in this rule.
+- **Remediate before escalating.** Escalation is only permitted after verified remediation failure. Skipping remediation is not a valid choice.
 
 ## 1.5 Soliciting Authorization for Already-Authorized Phrases — CRITICAL VIOLATION
 

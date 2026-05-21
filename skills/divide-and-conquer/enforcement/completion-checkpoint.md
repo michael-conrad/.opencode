@@ -19,12 +19,23 @@ Each sub-agent task()ed by `assemble-work` MUST produce a result contract upon c
 | `DONE_WITH_CONCERNS` | Completed but with warnings | Record concerns in work state, proceed |
 | `BLOCKED` | Cannot proceed due to external dependency | HALT, report blocker in chat |
 | `OVERFLOW` | Context window exceeded during execution | Initiate overflow recovery |
+| `FAIL` | Sub-agent returned FAIL status | Initiate Verify-Before-Acceptance protocol |
+
+### Verify-Before-Acceptance Protocol (for FAIL status)
+
+When a sub-agent returns `status: FAIL`, the orchestrator MUST NOT accept it at face value. Professional orchestrators verify failures independently — amateurs trust FAIL reports without confirmation.
+
+1. **Independently reproduce** the failure — run the same verification command or assertion the sub-agent ran
+2. **If reproduction confirms FAIL**: re-dispatch with remediation instructions (include the failure evidence)
+3. **If reproduction shows PASS**: the sub-agent result was incorrect — discard and re-task clean-room
+4. **Double-verify** after remediation — re-run the verification on the remediated result
+5. **Double-failure**: if remediation also fails, HALT and report blocker with both failure artifacts. If remediation passes, accept and proceed.
 
 ### Recovery Mode
 
 When a sub-agent fails:
 1. Log the failure in work state file
-2. Attempt inline fallback (perform the sub-agent's task directly)
-3. If inline fallback succeeds: continue work orchestration
-4. If inline fallback fails: report double-failure, call `--task completion`, HALT with status message
+2. Initiate the Verify-Before-Acceptance protocol (do NOT inline fallback — see `000-critical-rules.md` §critical-rules-043)
+3. If remediation succeeds: continue work orchestration
+4. If remediation double-fails: report double-failure, call `--task completion`, HALT with status message
 5. NEVER silently continue after sub-agent failure

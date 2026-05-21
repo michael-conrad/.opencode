@@ -39,6 +39,8 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 | `list-issues` | ≈130 | List issues with filters via dispatcher — dedup checks, label search, overlap detection |
 | `search-issues` | ≈130 | Search issues via dispatcher — title dedup, spec/plan overlap detection |
 | `update-issue` | ≈160 | Update issue body/labels/state via dispatcher — body-preservation safeguard enforced |
+| `sync-pull-to-local` | ≈600 | Mirror remote issue body to `.issues/<N>/spec.md` after any `read-issue` — enforces Operating Protocol §3 spec.md mirror mandate |
+| `import-remote` | ≈690 | Retroactively import a pre-existing remote issue into local `.issues/` — full mirror with body, comments, frontmatter, and `promotion_type: retroactive_import` |
 
 ## Invocation
 
@@ -60,6 +62,8 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 | `list-issues` | `task(..., prompt: "execute list-issues task from issue-operations")` |
 | `search-issues` | `task(..., prompt: "execute search-issues task from issue-operations")` |
 | `update-issue` | `task(..., prompt: "execute update-issue task from issue-operations")` |
+| `sync-pull-to-local` | `task(..., prompt: "execute sync-pull-to-local task from issue-operations")` |
+| `import-remote` | `task(..., prompt: "execute import-remote task from issue-operations")` |
 
 **CLI equivalent (for human TUI use):** `/skill issue-operations --task <task>`
 
@@ -67,7 +71,7 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 
 1. **Platform routing:** `github.platform` → appropriate sub-skill (github-mcp / gitbucket-api / local).
 2. **Substantive comment gate:** only meaningful updates posted as issue comments. No status spam.
-3. **spec.md mirror:** every `issue-operations -> read-issue (github_issue_read(method="get")` mirrored to `.issues/<N>/spec.md`. <!-- Routes through issue-operations per SPEC #683 -->
+3. **spec.md mirror:** every `issue-operations -> read-issue` MUST be followed by `sync-pull-to-local` to mirror the body to `.issues/<N>/spec.md`. <!-- Enforced by sync-pull-to-local task per issue #764 -->
 4. **Byline mandatory:** AI-authored comments must include `🤖 Co-authored with AI: <AgentName> (<ModelId>)`.
 5. **Issue creation = no auth needed** per `010-approval-gate.md`.
 6. **Adversarial-audit call:** after sub-issue creation, call `adversarial-audit --task concern-separation --issue <N>` with `audit_phase: sub_issue_creation`.
@@ -102,5 +106,12 @@ rules:
     title: "Issue read operations MUST route through dispatcher"
     conditions:
       all: ["issue_read_pending == true", "direct_github_call == true", "call_location_outside_platforms == true"]
+    actions: [HALT]
+    source: "issue-operations/SKILL.md"
+
+  - id: issue-ops-004
+    title: "read-issue MUST mirror body to .issues/ spec.md"
+    conditions:
+      all: ["issue_read_completed == true", "sync_pull_to_local_not_called == true"]
     actions: [HALT]
     source: "issue-operations/SKILL.md"

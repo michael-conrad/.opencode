@@ -23,7 +23,7 @@ SCENARIO_PROMPT="detect cross-model brittleness for the model-aware dispatch rul
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
-behavior_resolve_model
+
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
@@ -32,10 +32,10 @@ OVERALL_RESULT=0
 assert_tool_calls_made 1 "opencode-cli.*run|with-test-home.*opencode-cli" || OVERALL_RESULT=1
 
 # Verify agent references cross-model validation
-assert_required_pattern_present "(cross.model|both.*model|local.*cloud|cloud.*local|two.*model|brittleness)" "cross-model-reference" || OVERALL_RESULT=1
+assert_required_pattern_present "(cross.model\|both.*model\|local.*cloud\|cloud.*local\|two.*model\|brittleness)" "cross-model-reference" || OVERALL_RESULT=1
 
 # Verify agent does NOT accept single-model as cross-model validated
-assert_forbidden_pattern_absent "single.*model.*PASS|cross.model.*PASS.*single|validated.*single" "single-model-as-cross-validated" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent "single.*model.*PASS\|cross.model.*PASS.*single\|validated.*single" "single-model-as-cross-validated" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

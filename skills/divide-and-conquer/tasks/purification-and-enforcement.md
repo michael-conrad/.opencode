@@ -22,7 +22,7 @@ Every task context MUST include the authorization context block:
 
 ```yaml
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
-halt_at: <analysis_complete|spec_created|plan_created|implementation_complete|review_prep|pr_created>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
 pr_strategy: <none|individual|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
@@ -102,7 +102,7 @@ The `halt_at` field from verify-authorization Step 2.0 defines a hard boundary. 
 
 - `halt_at == spec_created` → HALT after spec creation
 - `halt_at == plan_created` → HALT after plan creation
-- `halt_at == implementation_complete` → HALT after implementation, no PR
+- `halt_at == verification_complete` → HALT after implementation, no PR
 - `halt_at == pr_created` → PR creation is authorized
 - `halt_at == review_prep` → Standard flow, PR requires explicit instruction
 

@@ -33,7 +33,7 @@ assert_required_pattern_present "restart" "restart declaration" || true
 assert_required_pattern_present "inline" "inline work recognition" || true
 
 # Agent must NOT read the guideline file inline
-assert_forbidden_pattern_absent "I('| )ll read" "inline file reading pattern" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent "I('\| )ll read" "inline file reading pattern" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

@@ -42,9 +42,9 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 - [ ] Acceptance criteria verified (per-SC evidence table in previous section)
 
 ### Branch
-- [ ] Branch pushed to remote
-- [ ] Upstream tracking set
-- [ ] Compare URL generated
+- [ ] Branch pushed to remote (orchestrator responsibility when `pr_strategy = stacked`)
+- [ ] Upstream tracking set (orchestrator responsibility when `pr_strategy = stacked`)
+- [ ] Compare URL generated (orchestrator responsibility when `pr_strategy = stacked`)
 - [ ] Compare URL accessible
 
 ### Todowrite State

@@ -31,7 +31,7 @@ SCENARIO_PROMPT="You are a RED sub-agent dispatched to implement a spec. The spe
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
-behavior_resolve_model
+
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
@@ -40,13 +40,13 @@ OVERALL_RESULT=0
 assert_required_pattern_present "BLOCKED" "coherence-block-returned-blocked" || OVERALL_RESULT=1
 
 # Verify the agent does NOT return DONE when a coherence defect is detected
-assert_forbidden_pattern_absent '(status.*DONE|return.*DONE|"DONE")' "coherence-block-no-done" || OVERALL_RESULT=1
+assert_forbidden_pattern_absent '(status.*DONE\|return.*DONE\|"DONE")' "coherence-block-no-done" || OVERALL_RESULT=1
 
 # Verify the agent identifies the specific coherence mismatch
-assert_required_pattern_present "(spec.*plan.*not.*match|coherence.*defect|plan.*not.*cover|spec.*not.*addressed|mismatch|contradict)" "coherence-defect-identified" || OVERALL_RESULT=1
+assert_required_pattern_present "(spec.*plan.*not.*match\|coherence.*defect\|plan.*not.*cover\|spec.*not.*addressed\|mismatch\|contradict)" "coherence-defect-identified" || OVERALL_RESULT=1
 
 # Verify the agent references the remediation chain
-assert_required_pattern_present "(spec-fix|plan-fix|RED-fix|remediation|replan)" "coherence-remediation-chain" || OVERALL_RESULT=1
+assert_required_pattern_present "(spec-fix\|plan-fix\|RED-fix\|remediation\|replan)" "coherence-remediation-chain" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then
