@@ -3,8 +3,7 @@
  *
  * Injects session context into the LLM system prompt and enforces
  * runtime guards: inline work detection, evidence gate, git config
- * mutation watchdog, --no-verify detection, protected branch edits,
- * secret redaction, session triggers,
+ * mutation watchdog, protected branch edits, secret redaction, session triggers,
  * and plugin diagnostics.
  *
  * Hook: system.transform — pushes English prose context (from session-init
@@ -165,11 +164,7 @@ ${keyList}
 This is a Tier 1 mandate violation unless explicitly authorized by the developer. HALT and verify the mutation was authorized before proceeding. See 000-critical-rules.md for details on Git Configuration and Destructive Command Authorization.`;
 }
 
-function buildNoVerifyBlockedBlock(): string {
-  return `### No-Verify Commit Blocked
-
-**Warning:** --no-verify is FORBIDDEN in repos with remotes. git commit --no-verify and git push --no-verify bypass git hooks that enforce repository safety. This is a Tier 1 mandate. Only permitted in local-only repos (zero remotes). Check git remote -v first. See 000-critical-rules.md for details on Git Configuration and Destructive Command Authorization.`;
-}
+// buildNoVerifyBlockedBlock() REMOVED per SPEC-FIX #823 — see removal comment above.
 
 function buildInlineWorkDetectedBlock(editToolNames: string[], dispatchFound: boolean): string {
   const editList = editToolNames.map(t => `- \`${t}\``).join("\n");
@@ -844,7 +839,7 @@ The following mandates are NON-YIELDING — no developer authorization, emergenc
 5. **Sub-agents must receive \`worktree.path\`** — Prevents sub-agents from mutating the main repo when the orchestrator is in worktree mode.
 6. **Human-only branch deletion** — Unmerged branches must never be force-deleted by agents. Merged branches DELETE IMMEDIATELY.
 7. **Agents must never self-authorize** — Authorization comes from developers, never from agent reasoning. Confirmation, feedback, and questions are not authorization.
-8. **Git configuration and destructive commands require explicit authorization** — Remote mutations, config changes, force push, \`--no-verify\` (in repos with remotes), and destructive resets require explicit developer approval.
+8. **Git configuration and destructive commands require explicit authorization** — Remote mutations, config changes, force push, and destructive resets require explicit developer approval.
 9. **Correctness over economy** — Fabrication or shortcutting verification to conserve context/tool-calls is prohibited. Sub-agent dispatch and tool calls are near-zero cost. A fast wrong answer is strictly worse than a slow correct one.
 
 Violations of mandates 1-6 and 8 are detected at runtime by this plugin and flagged via enforcement blocks. See \`000-critical-rules.md\` Tier 1 table for full rationale and symbolic rule definitions.`;
@@ -1091,41 +1086,17 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         }
       }
 
-      // --- Per-turn: --no-verify detection ---
-      let hasRemotes: boolean;
-      if (gitConfigBaseline) {
-        hasRemotes = gitConfigBaseline.remoteCount > 0;
-      } else {
-        // Baseline capture failed — check remotes inline
-        try {
-          const remoteCheck = execSync("git remote -v", {
-            cwd: projectDir,
-            encoding: "utf8",
-            input: "",
-            timeout: 5000,
-            stdio: ["pipe", "pipe", "pipe"],
-          }).trim();
-          hasRemotes = remoteCheck.length > 0;
-        } catch {
-          hasRemotes = false; // No remotes = local-only → permit --no-verify
-        }
-      }
-      for (const msg of assistantMessages) {
-        if (!msg.parts?.length) continue;
-        for (const part of msg.parts) {
-          if (part.type === "text" && part.text) {
-            const noVerifyMatch = part.text.match(/(?:git\s+commit|git\s+push)\s+.*--no-verify/);
-            if (noVerifyMatch && hasRemotes) {
-              const blockedBlock = buildNoVerifyBlockedBlock();
-              const nextUser = userMessages[userMessages.length - 1];
-              if (nextUser?.parts?.length) {
-                nextUser.parts.push({ type: "text", text: blockedBlock });
-              }
-              break;
-            }
-          }
-        }
-      }
+      // --- Per-turn: --no-verify detection REMOVED ---
+      // Removed per SPEC-FIX #823: The unconditional --no-verify detection gate
+      // contradicts the guidelines (000-critical-rules.md §Hook Output Is Advisory,
+      // Not Absolute and §--no-verify Exception for Local-Only Repos) which state
+      // that --no-verify usage requires judgment and may be warranted for false
+      // positive hook blocks, tag pushes, and developer-authorized overrides.
+      // The 010-approval-gate.md Allowlist already governs when --no-verify is
+      // permissible. This gate was producing Tier 1 violation warnings for
+      // legitimate --no-verify usage (e.g., tag pushes blocked by the pre-push
+      // hook false positive, structural branch pushes like issues-data), causing
+      // repeated workflow failures.
 
       // --- Per-turn: Inline work detector (Gate 3) ---
       // Detect when the orchestrator performed file-editing tool calls without
