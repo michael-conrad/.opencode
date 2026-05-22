@@ -11,7 +11,7 @@ Accept an evidence payload, evaluation criteria, and pre-resolved auditor verdic
 ## Entry Criteria
 
 - `evidence_payload`: The claim or output to evaluate (free text, spec body, code snippet, or structured assertion)
-- `evaluation_criteria`: Array of criterion objects, each with `{ id, description, expected_result, source_reference }`
+- `evaluation_criteria`: Array of criterion objects, each with `{ id, description, expected_result, source_reference, evidence_type }` — `evidence_type` MUST be included per `080-code-standards.md` §Evidence Type Taxonomy
 - `auditor_verdicts`: Pre-resolved array of two verdict objects from the orchestrator, each containing `{ auditor_type, family, raw_verdict, parseable }` — resolved by `resolve-models` and dispatched by the orchestrator BEFORE this task
 - `github.owner`, `github.repo` present in task context
 
@@ -110,6 +110,35 @@ Non-PASS (FAIL, AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED) = BLOCKED pipeline. Or
 
 Track disagreements explicitly in the result contract for transparency: a `PASS`/`FAIL` split is different from a double `FAIL`.
 
+#### Evidence Type Gate (MANDATORY — Per SC)
+
+Before computing consensus for each criterion, cross-validate MUST check the declared evidence type against the actual evidence type used by each auditor. This gate prevents auditors from verifying behavioral SCs with structural evidence and reporting PASS.
+
+**For each criterion in `evaluation_criteria`:**
+
+1. Read the criterion's declared `evidence_type` field (from the spec's success criteria table)
+2. For each auditor's verdict on that criterion, check the evidence type used:
+   - If `evidence_type` is not declared in the criterion, default to `string`
+   - If the auditor used structural evidence (file existence, grep, read) for a criterion declared as `behavioral`, downgrade that auditor's verdict from PASS to FAIL with `EVIDENCE_TYPE_MISMATCH` classification
+   - If the auditor used structural or string-only evidence for a criterion declared as `semantic`, downgrade that auditor's verdict from PASS to FAIL with `EVIDENCE_TYPE_MISMATCH` classification
+3. If both auditors used wrong evidence types for a behavioral SC: consensus is FAIL with `EVIDENCE_TYPE_MISMATCH`
+4. If one auditor used correct evidence type (PASS) and the other used wrong evidence type (PASS → downgraded to FAIL): consensus is DISAGREE — resolve by re-dispatching the wrong-evidence-type auditor with explicit evidence type classification
+5. The evidence type gate applies BEFORE the consensus computation — it modifies auditor verdicts before they enter the consensus matrix
+
+**EVIDENCE_TYPE_MISMATCH is not a soft-pass condition.** It is a hard FAIL that prevents structural evidence from passing as behavioral evidence — the exact defect exposed by spec #804.
+
+#### DISAGREE Is Terminal — No Reclassification (MANDATORY)
+
+When auditors disagree on a criterion (one PASS, one FAIL), the consensus is FAIL. The cross-validate sub-agent MUST NOT:
+
+1. **Reclassify FAIL as PASS** — reasoning that one auditor's pattern was "more correct" or "over-broad" is soft-passing per `000-critical-rules.md` §critical-rules-020. FAIL is never reclassifiable as PASS.
+2. **Resolve disagreements through reasoning** — the cross-validate sub-agent does not have authority to determine which auditor is correct. DISAGREE means the evidence is contested, and contested evidence is FAIL.
+3. **Annotate PASS on a FAIL criterion** — any annotation, footnote, caveat, or "resolved as PASS" qualifier on a FAIL criterion is a soft-pass violation.
+
+Disagreements MUST be surfaced to the developer for resolution. The `disagreements` list in the result contract MUST contain every SC where auditors diverged, with both auditors' evidence. The developer decides whether to remediate the underlying issue or accept the contested SC — the cross-validate sub-agent does not make this decision.
+
+This rule is non-waivable. Per `000-critical-rules.md` §critical-rules-020, verification is binary: exact match or FAIL. "Functionally equivalent" is never a valid consensus outcome.
+
 ### Step 5: Compute Aggregate Consensus
 
 `overall_consensus = PASS` iff `consensus == PASS` for ALL criteria. Any single `FAIL` in the table cascades to `overall_consensus = FAIL`.
@@ -171,13 +200,15 @@ Return structured result:
     {
       "criterion_id": "SC-1",
       "description": "<criterion description>",
+      "evidence_type": "structural|string|semantic|behavioral",
       "auditor_1_result": "PASS",
       "auditor_2_result": "PASS",
       "consensus": "PASS",
       "auditor_1_evidence": "<tool-call reference>",
       "auditor_2_evidence": "<tool-call reference>",
       "agreement": true,
-      "dark_pattern_flags": []
+      "dark_pattern_flags": [],
+      "evidence_type_mismatch": false
     }
   ],
   "disagreements": [],
@@ -292,6 +323,23 @@ rules:
       all: ["auditor_1_result != 'PASS' OR auditor_2_result != 'PASS'", "consensus_reported_as == 'PASS'"]
     actions: [REJECT, DECLARE_FAIL]
     source: "cross-validate.md §Step 4"
+
+  - id: cross-validate-007a-disagree
+    title: "DISAGREE is terminal — cross-validate MUST NOT reclassify FAIL as PASS or resolve disagreements through reasoning"
+    conditions:
+      any: ["auditor_1_result != auditor_2_result", "cross_validate_reclassifies_FAIL_to_PASS == true", "cross_validate_annotates_PASS_on_FAIL == true"]
+    actions: [HALT, SURFACE_DISAGREEMENT_TO_DEVELOPER]
+    source: "cross-validate.md §Step 4 DISAGREE Is Terminal"
+
+  - id: cross-validate-007b
+    title: "Evidence type gate — structural evidence for behavioral SC MUST be downgraded to FAIL"
+    conditions:
+      all:
+        - "sc_evidence_type == 'behavioral'"
+        - "auditor_evidence_type in ['structural', 'string']"
+        - "auditor_verdict == 'PASS'"
+    actions: [DOWNGRADE_TO_FAIL, CLASSIFY_EVIDENCE_TYPE_MISMATCH]
+    source: "cross-validate.md §Step 4 Evidence Type Gate"
 
   - id: cross-validate-007a
     title: "Non-PASS verdicts (AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED) cascade to BLOCKED"

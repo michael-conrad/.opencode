@@ -71,8 +71,8 @@ The `assemble-work` task handles:
 
 | Legacy Task | Redirect Target |
 |------------|----------------|
-| `step` | `divide-and-conquer --task orchestrate` |
-| `progress` | `divide-and-conquer --task orchestrate` |
+| `step` | `divide-and-conquer --task assemble-work` |
+| `progress` | `divide-and-conquer --task assemble-work` |
 | `verify` | `verification-before-completion --task verify` |
 
 ## Enforcement

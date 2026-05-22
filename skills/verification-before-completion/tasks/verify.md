@@ -278,9 +278,29 @@ When verifying live values against specifications, use this row-by-row compariso
 
 ### Table Format
 
-| SC ID | Success Criterion Text | Evidence Category | Verification Command Run | Exact Output Observed | Pass/Fail |
+| SC ID | Success Criterion Text | Evidence Type | Verification Command Run | Exact Output Observed | Pass/Fail |
 | -- | -- | -- | -- | -- | -- |
-| SC-1 | \[criterion text\] | structural/behavioral | `command --flag` | \[exact output\] | PASS/FAIL/MISSING EVIDENCE |
+| SC-1 | \[criterion text\] | structural/string/semantic/behavioral | `command --flag` | \[exact output\] | PASS/FAIL/MISSING EVIDENCE |
+
+The **Evidence Type** column is MANDATORY. It MUST match the evidence type declared in the spec's success criteria table. If the spec does not declare evidence types, default to `string` per `080-code-standards.md` §Evidence Type Taxonomy.
+
+**Every row's evidence MUST match or exceed the declared evidence type:**
+
+| Declared Evidence Type | Minimum Acceptable Evidence | Using Lower Evidence |
+| -- | -- | -- |
+| `structural` | `ls`, `wc`, file existence | N/A (structural is minimum) |
+| `string` | `grep`, pattern matching | ❌ CRITICAL VIOLATION if only structural |
+| `semantic` | Sub-agent read + analytical judgment | ❌ CRITICAL VIOLATION if only structural/string |
+| `behavioral` | Test execution with output inspection | ❌ CRITICAL VIOLATION if only structural/string/semantic |
+
+### Behavioral SC Enforcement
+
+When an SC declares evidence type `behavioral`:
+
+1. The VbC sub-agent MUST execute the behavioral test (e.g., `bash test/script.sh`) and include the execution output (especially stderr) in its evidence
+2. The VbC sub-agent MUST NOT accept `ls test/script.sh` or `grep assertion test/script.sh` as evidence for a behavioral SC
+3. If the test cannot execute (infrastructure failure, model unavailable), the SC verdict is FAIL — never PASS or UNVERIFIED with a structural substitute
+4. The evidence table MUST show the test execution command and its result, not just the file path
 
 ### Mandatory Outcomes Per Row
 

@@ -52,6 +52,7 @@ Define audit criteria based on spec-auditor task structure:
 | SC-12 | Preamble present | "## Intent and Executive Summary" section with all 5 fields (Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions) present for standard+ specs; omitted is acceptable for minimal specs only. Missing preamble for a standard+ spec is a SPEC-PRODUCER defect, not a reviewer oversight — the spec producer owns the omission regardless of whether downstream gates caught it. |
 | SC-13 | Cost-frame prose + runtime execution in SCs | Each SC carries cost-frame reformation language and requires a real test execution command, not a structural check |
 | SC-STRUCTURAL-FAIL | Structural evidence rejected for behavioral SCs | If an SC describes testable behavior (correctness, output, result, pass/fail, runtime logic) but verification evidence is purely structural (grep/read/file-exists), return FAIL with `STRUCTURAL_EVIDENCE` classification. Structural checks do NOT verify correct behavior — they only verify existence. Exception: non-testable prose changes (docs, runbooks, guidelines) may use semantic intent verification by direct AI agent read — NOT grep/pattern matching. |
+| SC-EVIDENCE-TYPE | Evidence type matches declared type | For each SC, the auditor MUST check the declared evidence type and verify using the minimum acceptable method: `structural` → file existence; `string` → grep/pattern; `semantic` → sub-agent read + judgment; `behavioral` → test execution with output inspection. If the declared evidence type is `behavioral` and the auditor provides structural evidence only, the verdict MUST be FAIL with `EVIDENCE_TYPE_MISMATCH`. If the declared type is `semantic` and the auditor provides string-only evidence, the verdict MUST be FAIL with `EVIDENCE_TYPE_MISMATCH`. Default to `string` if no evidence type is declared. |
 | SC-DET | SC Determinism | Each SC produces the same PASS/FAIL from any reasonable auditor |
 | SC-14 | SC Enforcement Gate present and explicit | Spec contains all-or-nothing gate statement with PASS/FAIL/Remediation requirements per gate format |
 
@@ -60,6 +61,8 @@ Define audit criteria based on spec-auditor task structure:
 ### Step 3: Cross-Validate with Pre-Resolved Verdicts
 
 This task does NOT dispatch auditors. The orchestrator dispatches auditors and passes pre-resolved `auditor_verdicts` to this task. Invoke `cross-validate` with verdicts already available:
+
+When dispatching auditors, the `evaluation_criteria` array MUST include each SC's `evidence_type` field. Auditors MUST use the declared evidence type to determine their verification method. For `behavioral` SCs, auditors MUST require execution evidence (test output, stderr) — not file existence. This is enforced by the cross-validate evidence type gate (per `cross-validate.md` §Evidence Type Gate).
 
 ```python
 task(
@@ -153,6 +156,7 @@ Present revision options for developer decision.
     {
       "criterion_id": "SC-1",
       "description": "Problem statement present",
+      "evidence_type": "string",
       "auditor_1_result": "PASS",
       "auditor_2_result": "PASS",
       "consensus": "PASS",

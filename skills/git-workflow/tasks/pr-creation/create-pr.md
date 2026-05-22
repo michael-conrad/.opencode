@@ -133,15 +133,15 @@ github_create_pull_request(
 
 **Detail: Per-SC Evidence**
 
-| SC ID | Success Criterion | Command | Result |
-|-------|-------------------|---------|--------|
-| SC-1 | ... | ... | PASS |
-| SC-2 | ... | ... | PASS |
+| SC ID | Success Criterion | Evidence Type | Command | Result |
+|-------|-------------------|---------------|---------|--------|
+| SC-1 | ... | structural | ... | PASS |
+| SC-2 | ... | behavioral | ... | PASS |
 
 **Detail: Dual-Auditor Cross-Validation**
 
-| Criterion | Auditor 1 | Auditor 2 | Consensus |
-|-----------|-----------|-----------|-----------|
+| Criterion | Evidence Type | Auditor 1 | Auditor 2 | Consensus |
+|-----------|---------------|-----------|-----------|-----------|
 | SC-1 | PASS | PASS | PASS |
 | SC-2 | PASS | PASS | PASS |
 
@@ -165,7 +165,7 @@ A Summary sourced from the issue ticket through the issue-operations dispatcher 
 - **Summary** section: 1-2 sentences describing stakeholder value (NOT implementation details) — sourced from issue body via `issue-operations --task read-issue`
 - **Outcome** section: What changed for stakeholders
 - **Verification Attestation**: Binary PASS language — no caveats, no justifications, no false-fail remediation language
-- **Per-SC Evidence Table**: SC ID, Success Criterion, Command, Result columns
+- **Per-SC Evidence Table**: SC ID, Success Criterion, Evidence Type, Command, Result columns — the Evidence Type column is MANDATORY per `080-code-standards.md` §Evidence Type Taxonomy
 - **Dual-Auditor Cross-Validation Table**: Criterion, Auditor 1, Auditor 2, Consensus columns
 - `Fixes #N` or `Implements #N` annotations at bottom (informational — autoclose is inert for `dev` merges)
 - Target branch is `dev` for feature work

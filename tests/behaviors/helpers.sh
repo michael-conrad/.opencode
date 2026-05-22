@@ -38,15 +38,62 @@ behavior_run() {
     local err_file="$log_dir/stderr.log"
 
     # If no workdir provided, create an isolated git-init test repo
+    # with .opencode as a proper git submodule (mirrors real project structure).
+    #
+    # IMPORTANT: .opencode is set up as a git submodule via clone + submodule add,
+    # NOT by file copy. This ensures:
+    #   1. Full isolation from the live submodule (no alternates, no shared objects)
+    #   2. Proper .gitmodules configuration for opencode-cli session-init
+    #   3. Ability to checkout specific fixture commits for behavioral tests
+    #   4. Test repo is discarded after test completion
     if [ -z "$workdir" ]; then
         workdir=$(mktemp -d "$PROJECT_DIR/tmp/behavior-isolated-XXXXXX")
         git init -q "$workdir"
         git -C "$workdir" config user.email "test@test.dev"
         git -C "$workdir" config user.name "Test"
-        # Copy .opencode into the test repo so agents can read task files, scripts, etc.
-        if [ -d "$PROJECT_DIR/.opencode" ]; then
-            cp -a "$PROJECT_DIR/.opencode" "$workdir/.opencode"
+
+        # Determine submodule commit to check out.
+        # BEHAVIOR_SUBMODULE_COMMIT overrides the default (current submodule HEAD).
+        # This allows tests to run against specific fixture states (e.g., pre-redesign).
+        local submodule_commit="${BEHAVIOR_SUBMODULE_COMMIT:-}"
+        if [ -z "$submodule_commit" ]; then
+            # Default: use the current submodule commit from the real project
+            submodule_commit=$(git -C "$PROJECT_DIR" submodule status .opencode 2>/dev/null | awk '{print $1}' | sed 's/^[-+]//' || true)
         fi
+
+        # Determine the submodule remote URL from the real project.
+        # Uses HTTPS by default to avoid SSH dependency in CI environments.
+        local submodule_remote_url=""
+        if [ -f "$PROJECT_DIR/.gitmodules" ]; then
+            submodule_remote_url=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || true)
+        fi
+        if [ -z "$submodule_remote_url" ]; then
+            submodule_remote_url="https://github.com/michael-conrad/.opencode.git"
+        fi
+        # Ensure HTTPS (not SSH) for CI portability
+        submodule_remote_url=$(echo "$submodule_remote_url" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
+
+        # Step 1: Clone .opencode as independent repo (full clone for commit checkout)
+        git clone -q "$submodule_remote_url" "$workdir/.opencode" 2>/dev/null || {
+            echo "FATAL: git clone failed for .opencode from $submodule_remote_url" >&2
+            echo "Check network connectivity and repository access" >&2
+            exit 1
+        }
+
+        # Step 2: Add as submodule (registers in .gitmodules, makes opencode-cli happy)
+        git -C "$workdir" submodule add -q "$submodule_remote_url" .opencode 2>/dev/null || {
+            echo "FATAL: git submodule add failed for .opencode" >&2
+            exit 1
+        }
+
+        # Step 3: Checkout the desired fixture commit if specified
+        if [ -n "$submodule_commit" ]; then
+            git -C "$workdir/.opencode" checkout -q "$submodule_commit" 2>/dev/null || {
+                echo "FATAL: could not checkout submodule commit $submodule_commit" >&2
+                exit 1
+            }
+        fi
+
         git -C "$workdir" add -A 2>/dev/null || true
         git -C "$workdir" commit -q --allow-empty -m "init"
     fi
