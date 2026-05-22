@@ -1,495 +1,149 @@
 # Task: assemble-work
 
-Migrated from `implementation-workflow` task work-orchestrate.
+Assembly IS verification-enforced completion. Every implementation step requires a verification gate as preceding condition. No valid completion state exists without a verification gate.
 
 ## Purpose
 
-Orchestrate work execution by task()ing sub-agents for each approved issue, using branch-per-issue with merge-based dependency resolution. This task makes the main agent a pure orchestrator that never edits implementation files directly.
+Orchestration without verification gates produces undetected defects that compound through every downstream consumer. Every artifact assembled without an independent verification gate carries undiscoverable failures — professional engineers verify every step, amateurs trust their own work.
 
-## Entry Criteria
+## Pipeline (Single Branch, Dependency Order)
 
-- Approval-gate has verified authorization for one or more issues
-- `pre-implementation-analysis` has expanded sub-issues and produced the flat item list
-- Worktree is created and ready
-
-## Exit Criteria
-
-- All issues in the work set have been implemented via sub-agents in separate branches
-- Each sub-agent ran verification + finishing before returning
-- All feature branches squash-merged into a single work branch
-- Compare URL generated, executive summary in chat
-- HALT after review-prep (no PR creation without explicit instruction)
-
-## Procedure
-
-### Step 1: Verify Gate Evidence Audit and Determine Execution Order
-
-**🚫 CRITICAL PREREQUISITE: Before determining execution order, verify the Gate Evidence Audit Table exists in the work state file (`./tmp/artifacts/work-*.md`).**
-
-- Read the work state file from `pre-implementation-analysis` (`./tmp/artifacts/work-*.md`)
-
-- **If the Gate Evidence Audit Table is missing** AND any issues were classified as "already-implemented" during screening: HALT and return to `pre-implementation-analysis` Step 0.5 to complete the audit. The table is a mandatory structural artifact — its absence means Gate 1 and Gate 2 evidence was not verified.
-
-- **If the Gate Evidence Audit Table exists** AND has ❌ entries for any issue: those issues were already downgraded during pre-implementation-analysis. Verify the downgraded classifications are reflected in the execution plan. If not, return to `pre-implementation-analysis`.
-
-- **If NO issues were classified as "already-implemented":** The Gate Evidence Audit Table is not required. Proceed normally.
-
-- For multi-issue: use dependency order from `pre-implementation-analysis`
-
-- For single issue: treat as work-of-1 — no special casing, no shortcuts
-
-- Determine complexity level for each issue (simple/moderate/complex)
-
-- **Read scope fields from work state file:** `authorization_scope`, `halt_at`, `pr_strategy`
-
-- **If `halt_at` is reached before all issues complete:** HALT at scope boundary, report what was completed
-
-**Work-of-1.** There is no separate code path. The `assemble-work` task handles single-issue task() as the default. This eliminates forked execution paths.
-
-### Step 1.5: Create Task Entry Marker (MANDATORY)
-
-Before any worktree creation or sub-agent task(), create the task entry marker so the pre-commit hook Gate 2 can verify authorized task():
-
-```bash
-CURRENT_BRANCH=$(git branch --show-current)
-SAFE_BRANCH=$(echo "$CURRENT_BRANCH" | tr '/' '-')
-mkdir -p ./tmp/artifacts && touch ./tmp/artifacts/dispatch-"$SAFE_BRANCH".marker
-```
-
-This marker serves as task entry proof. The pre-commit hook (`.opencode/hooks/pre-commit` lines 33-129) checks for this marker before allowing commits.
-
-### Step 2: Create Feature Branches and Worktrees
-
-For each issue in the work set:
-
-1. Create a worktree with feature branch using `using-git-worktrees --task create-worktree`
-2. `BASE_BRANCH` defaults to `dev` for the first/only issue in the work set
-3. For dependent issues: `BASE_BRANCH` is set to the prior issue's feature branch (the merged branch, not the work branch)
-4. Record each issue's branch name and worktree path
-
-### Step 3: Execute Issues in Dependency Order
-
-For each issue in execution order:
-
-**Checkpoint (MANDATORY):** Before task()ing the next sub-agent, verify NO `question` tool calls have been made. If any were made, remove them and proceed autonomously. Structural decisions (single-task vs multi-task, execution order, scope sizing) are agent intelligence concerns that the agent must resolve autonomously.
-
-1. **Before sub-agent task()**, if this issue depends on a prior issue:
-
-   - Merge the prior issue's feature branch into this issue's feature branch:
-     ```bash
-     git merge <prior-issue-branch> -m "Merge <prior-issue-branch> into <current-branch> — dependency chain (#<prior>, #<current>)"
-     ```
-   - If merge produces conflicts:
-     - Tiers 1-2 (trivial/formatting): Auto-resolve per `conflict-resolution` skill
-     - Tier 3 (intent conflict): HALT and flag for developer review
-
-   2. **Build task context** with AI-composed intent-and-context metadata and phase progress:
-
-   Sub-issues contain phase context in their body (enriched during creation via `create-sub-issue`). When composing task context, reference the sub-issue body for phase-specific context rather than re-reading the Plan body. The sub-issue body should already include: why the phase exists, what it must accomplish, how to verify completion, edge cases, and dependencies. If the sub-issue body is insufficient (only contains `**Parent Plan:** #M`), fall back to reading the Plan body for the relevant phase section.
-
-   **Phase progress composition:** Before each sub-agent task(), compose the `phase_progress` section from:
-
-   - The Plan STATUS marker (which phases are marked complete) — read from the plan issue body or sub-issue STATUS markers
-   - Prior sub-agent results — the `completed_phases`, `concern_boundaries_crossed`, and `verification_evidence` fields returned by preceding sub-agents
-   - The orchestrator's own judgment about concern boundaries — when a new sub-agent's work crosses into a different architectural concern (e.g., from data layer to UI layer, from orchestration to enforcement), name the transition in `concern_boundaries_crossed`
-
-   Phase progress is prose-driven: state what information must travel, trust the orchestrator to decide how to encode it. Completed phases should be named by the concern they address (e.g., "task context schema" rather than "Phase 1"), concern boundaries should describe the architectural transition point, and verification evidence should summarize what was confirmed.
-
-   ````yaml
-    work_set:
-      authorized_issues: [#A, #B, #C]
-      completed_issues: [<completed>]
-   issue: #<current>
-   sub_issue_body: "<phase prose from sub-issue body, not just parent reference>"
-    spec: "<full spec body from GitHub Issue>"
-    authorization_scope: <scope_value>
-    halt_at: <pipeline_stage>
-    pr_strategy: stacked | individual | none
-    pipeline_phase: <current_phase_name>
-    authorization_source: "User approved #N on YYYY-MM-DD"
-    prior_context: "<AI-composed intent and context from prior issues>"
-    decision_log_reference: "<issue number for .issues/ local storage — use `local-issues read-comments N` to retrieve full decision history>"
-    phase_progress:
-     completed_phases: "<prose listing of completed phases by concern name, accumulated from prior sub-agent results and Plan STATUS>"
-     concern_boundaries_crossed: "<prose description of architectural concern transitions between the prior sub-agent's work and this sub-agent's work>"
-     verification_evidence: "<prose summary of what was verified in prior phases and the outcomes>"
-   dependency_branches: ["spec/<prior-branch>"]
-   env_vars:
-       worktree.path: ".worktrees/spec-<name>"
-       branch: "spec/<name>"
-      github.owner: "<from-session>"
-      github.repo: "<from-session>"
-      dev.name: "<from-session>"
-      dev.email: "<from-session>"
-    test_models:
-      local: "<resolved-local-model>"
-      cloud: "<resolved-cloud-fallback>"
-    ```
-
-   ````
-
-
-2. **Spawn RED sub-agent** — writes tests only:
-
-   - Load spec + session context + prior context
-   - Run `test-driven-development` skill for RED phase
-   - Return structured result: `{status, test_files, test_assertions, summary}`
-
-3. **Collect result** from RED sub-agent
-
-4. **Completeness Gate (RED)** — after RED sub-agent completes, run the completeness gate before routing to GREEN:
-
-   - Task `completeness-gate --task check` with `{ spec_success_criteria, deliverable: test_artifacts, spec, audit_readiness_criteria }`
-   - Collect result: `completeness_result: PASS|FAIL`, `findings: [...]`
-
-   **Routing based on completeness_result (RED):**
-
-   - **PASS** → proceed to GREEN sub-agent (step 5)
-   - **FAIL + remediable only** → re-task RED sub-agent with completeness findings as additional context — the findings identify tests missing or incorrect
-   - **FAIL + structural** → route to `spec-creation --task revise` or `writing-plans --task revise`. HALT — structural issues require spec/plan revision before re-implementation.
-
-5. **Spawn GREEN sub-agent** — implements code only:
-
-   - Load spec + session context + prior context + RED test outputs
-   - Run `test-driven-development` skill for GREEN phase
-   - Run `verification-before-completion --task verify`
-   - Run `finishing-a-development-branch --task checklist`
-   - Return structured result: `{status, files_changed, implementation_summary}`
-
-6. **Collect result** from GREEN sub-agent
-
-7. **Completeness Gate (GREEN)** — after GREEN sub-agent completes, run the completeness gate before routing to the adversarial auditor:
-
-   - Task `completeness-gate --task check` with `{ spec_success_criteria, deliverable: implementation_artifacts, spec, audit_readiness_criteria }`
-   - Collect result: `completeness_result: PASS|FAIL`, `findings: [...]`
-
-   **Routing based on completeness_result (GREEN):**
-
-   - **PASS** → proceed to Sub-Agent Completion Checkpoint (step 8)
-   - **FAIL + remediable only** → re-task GREEN sub-agent with completeness findings as additional context. The findings identify what is missing or incorrect — the re-tasked sub-agent corrects the deliverable.
-   - **FAIL + structural** → route to `writing-plans --task revise` or `spec-creation --task revise` depending on whether the spec or plan needs revision. HALT after routing — structural issues require spec/plan revision before re-implementation.
-
-   **Remediability classification:**
-
-   - **Remediable:** Missing content, incomplete implementation, minor structural issues the existing sub-agent can fix
-   - **Structural:** Spec/plan-level gaps, missing files not declared in the plan, incorrect architecture, contradictory requirements
-
-8. **Sub-Agent Completion Checkpoint** — after collecting each result, perform the completion checkpoint per `dispatch` task Step 4:
-
-   - If sub-agent returned a structured result: check `status` field and handle accordingly
-   - If sub-agent returned **NO result** (timeout, crash, empty): this is **ABNORMAL TERMINATION**
-     - Run `git status` in the worktree
-     - Clean tree → didn't start → re-task
-     - Uncommitted changes + all deliverables → UNDO + re-task by default; manual commit+push only if narrow exception applies (≤50 lines, single file, fully correct, no remaining task()s — see SKILL.md Recovery Mode)
-     - Uncommitted changes + partial deliverables → `git checkout .` + re-task reduced scope
-     - Uncommitted changes + wrong changes → `git checkout .` + re-task full scope
-   - Report abnormal termination to chat (see format in SKILL.md "Sub-Agent Completion Checkpoint")
-   - The orchestrator decides recovery action autonomously per "Pushing Agent Intelligence Decisions to the User" (`000-critical-rules.md`)
-   - **Do NOT proceed to the next sub-agent until abnormal termination recovery is complete.** Recovery must fully resolve (re-task succeeded or manual commit+push verified) before advancing.
-
-9. **Compose prior_context and phase_progress** for the next issue based on what was implemented:
-
-   prior_context (intent and context):
-
-   - Design decisions made
-   - Edge cases handled
-   - Assumptions that later issues depend on
-   - Interfaces exposed that later issues should use
-   - NOT a change summary (that's in git) — intent and context only
-
-   phase_progress (accumulated from sub-agent result + Plan STATUS):
-
-   - completed_phases: append the just-completed phase concern name to the running list
-   - concern_boundaries_crossed: if the next issue's concern differs from the just-completed issue's concern, note the transition
-   - verification_evidence: append what was verified and the outcome
-
-   Both prior_context and phase_progress are prose-driven. The orchestrator composes them intelligently — no fixed template, no rigid schema.
-
-11. **Append the sub-agent's decision_log_entry to the Decision Log in `.issues/` local storage.** After collecting each sub-agent's result, write their `decision_log_entry` to `.issues/` local storage using `local-issues comment N --body "..."`. Decision logs are classified as `internal` per the content classification gate — they contain agent reasoning, design analysis, and process metadata that persists locally for session-restart scenarios.
-
-**Decision Log storage:** Use `local-issues comment N --body "..."` to write to `.issues/<N>/comments.md`, NOT `issue-operations -> comment (github_add_issue_comment`. Rationale: <!-- Routes through issue-operations per SPEC #683 -->
-
-- **Content classification: `internal`** — decision logs contain agent reasoning and design analysis, not stakeholder-facing information (per Phase 1 classification gate)
-- **Session-surviving persistence** — `.issues/` comments persist across session restarts via git-tracked local storage, surviving where in-memory state would be lost
-- **Append-only** — `local-issues comment` appends to `comments.md` without editing existing content
-- **Lightweight** — appending a local comment doesn't require API calls or re-editing issue bodies
-- **Doesn't clutter GitHub** — internal decision logs do not belong on remote issues; `stakeholder`-classified content gets promoted via `local-issues sync push` when appropriate
-- **Survives session restarts** — `.issues/` is git-tracked and persists independently of any single agent session
-
-The orchestrator writes the decision log entry after each sub-agent returns. If writing fails, log the failure and continue — the Decision Log is a durability enhancement, not a blocking gate. The `decision_log_entry` is also returned in the sub-agent result for immediate use by subsequent task()s within the same session.
-
-12. **Mark prior issue's branch as frozen** — no rebasing, amending, or force-pushing
-
-13. **Handle failures:**
-
-- If sub-agent fails: record failure
-- For independent issues: continue to next issue
-- For must-precede chains: skip dependent issues, report both
-
-### Step 3.5: Remediation Loop (MANDATORY)
-
-After collecting a sub-agent result that is not PASS, apply the remediation loop before proceeding:
-
-- **1st non-PASS for the same pipeline stage** → re-task with a fresh random model pair. The original verdict is preserved in the result contract for comparison. The new sub-agent receives the same scoped context and spec, with no exposure to the prior attempt's output.
-- **2nd consecutive non-PASS for the same pipeline stage** → route to `adversarial-audit --task spec-audit` with `failure_description` from the attempt. The spec auditor evaluates whether SCs are deterministic and testable based on the failure evidence.
-- **3rd consecutive non-PASS for the same pipeline stage** → BLOCKED. Pipeline halt. Human intervention required. An executive summary of all 3 attempts (verdicts, failure descriptions, auditor recommendations) is generated and reported.
-
-**Count tracking:** The pass/fail counter resets when moving to the next pipeline stage (e.g., from implementation to verification). A non-PASS on the new stage starts a fresh 1st/2nd/3rd sequence.
-
-### Step 4: Work Assembly
-
-After ALL issues in the work set complete:
-
-1. **Create a work branch** (name chosen by agent at creation time, e.g., `work/<short-name>` or `spec/<short-name>`):
-
-   ```bash
-   git checkout dev
-   git checkout -b <work-branch-name>
-   ```
-
-2. **Squash-merge each feature branch** into the work branch, one commit per issue:
-
-   ```bash
-   git merge --squash spec/issue-a
-   git commit -m "Implement #A: <description>"
-
-   git merge --squash spec/issue-b
-   git commit -m "Implement #B: <description> (#A dependency)"
-   ```
-
-3. **Commit message format:**
-
-   - MUST include issue number for GitHub auto-linking
-   - Dependents reference their dependencies
-   - Example: `Implement #703: add reprocessing logic (#698 dependency)`
-
-### Step 5: Post-Work Review-Prep
-
-1. **Verify all results** — check git log for all expected commits
-2. **Run git-workflow --task review-prep** for the work branch
-3. **🚫 REQUIRED: Cleanup MUST call `skill({name: "git-workflow", args: "--task cleanup"})`. Reading cleanup task files and task()ing a custom sub-agent with inline step instructions is a critical-rules-048 violation.**
-4. **Collect compare URL**
-
-### Step 5.5: Pre-PR Checklist (MANDATORY before any PR creation)
-
-Before creating ANY pull request, verify:
-
-1. Work state file exists at `./tmp/artifacts/work-*.md`
-2. All feature branches listed in work state have been squash-merged into the work branch
-3. The work branch has exactly one squash-merge commit per issue
-4. Working tree is clean (no uncommitted changes)
-
-If any check fails:
-
-- If work state file missing → the agent skipped pre-implementation-analysis; HALT
-- If squash-merges missing → complete Step 4 (Work Assembly) first
-- If working tree dirty → commit or stash changes first
-
-**🚫 CRITICAL: Individual PR creation for work-approved issues is FORBIDDEN when `pr_strategy = stacked`.** All issues in a work set MUST be squash-merged into a single work branch, then ONE PR created from that branch.
-
-**Scope-dependent PR strategy:**
-
-| `pr_strategy` | PR Behavior |
-|----------------|------------|
-| `stacked` | One PR for the entire work set (single stacked PR) |
-| `individual` | Separate PR per issue after squash-merge into work branch |
-| `none` | No PR creation — `halt_at` is before `pr_created` stage |
-
-**If `halt_at < pr_created`:** Do NOT proceed to PR creation. HALT at scope boundary after review-prep.
-
-### Step 6: Report and HALT
-
-**Chat output:**
-
-```markdown
-**Summary:**
-
-Implemented <N> issues via branch-per-issue work orchestration.
-
-**Outcome:**
-
-- #A: <summary> ✅
-- #B: <summary> ✅
-- #C: <summary> ⚠️ (partial — see details)
-
-Compare URL: <<Character-match verified URL from session-init values per URL Sourcing Rules>>
-
-**If a PR has been created for this work set, use "PR URL" label with the `html_url` from `github_create_pull_request` API response:**
+Issues are processed in dependency order — an issue whose dependencies haven't completed waits. All issues share one feature branch. Per-issue commits via git-workflow.
 
 ```
-
-PR URL: \<html_url from github_create_pull_request API response>
-
+Authorization received (#N)
+│
+├─ 1. git-workflow --task pre-work
+│     Create ONE feature branch from dev
+│
+├─ 2. approval-gate --task pre-implementation-analysis
+│     Screen issues, reconcile, dependency graph, write work state
+│
+├─ 3. FOR EACH issue in dependency order:
+│     │
+│     ├─ 3a. task() → RED sub-agent
+│     │     Write tests only, return result contract
+│     │
+│     ├─ 3b. completeness-gate --task check (RED)
+│     │     Structural pre-check: files exist, tests compile, SCs covered
+│     │
+│     ├─ 3c. task() → verification-before-completion sub-agent (RED deliverable)
+│     │     Verify tests against spec success criteria (clean-room)
+│     │
+│     ├─ 3d. task() → adversarial-audit (RED deliverable)
+│     │     Dual cross-family audit of test quality and spec coverage
+│     │
+│     ├─ 3e. task() → GREEN sub-agent
+│     │     Implement code only, return result contract
+│     │
+│     ├─ 3f. completeness-gate --task check (GREEN)
+│     │     Structural pre-check: files exist, code compiles, no missing artifacts
+│     │
+│     ├─ 3g. task() → verification-before-completion sub-agent (GREEN deliverable)
+│     │     Verify implementation against spec success criteria (clean-room)
+│     │
+│     ├─ 3h. task() → adversarial-audit (GREEN deliverable)
+│     │     Dual cross-family audit of implementation quality
+│     │
+│     └─ 3i. git-workflow --task implementation
+│           WIP checkpoint commit per issue on shared branch
+│
+├─ 4. finishing-a-development-branch --task checklist
+│     Lint, typecheck, structural final checks
+│
+├─ 5. git-workflow --task review-prep
+│     Commit-prep analysis, push, compare URL
+│
+└─ 6. HALT with results
+      Executive summary + compare URL in chat
 ```
 
-**NEVER use the wrong label for the wrong URL format.** Label-format mismatch (e.g., "Compare URL" with `pull/N` URL, or "PR URL" with `compare/dev...` URL) is a critical violation.
-
-🤖 <AgentName> (<ModelId>) <status>
-```
-
-**Chat Output Format Verification (MANDATORY — Zero Tolerance)**
-
-Before sending the chat report, verify ALL elements are present and correctly ordered:
-
-- \[ \] Executive summary present as **first** element (before any URL)
-- \[ \] Outcome line present after summary
-- \[ \] URL present IF relevant (after outcome, before byline) — required when branches pushed (compare URL), **omitted** when no branches pushed; **after PR creation**: compare URL becomes PR URL, label changes from "Compare URL" to "PR URL"; label and URL format MUST match context — mismatch is a critical violation
-- \[ \] AI byline present as **LAST** element (after URL, or after outcome when no URL)
-- \[ \] No URL before executive summary
-- \[ \] No byline before URL/outcome
-
-**Evidence requirement:** Each checkpoint verification MUST produce a tool-call artifact (e.g., verification of composed message content) confirming the element is present or correctly absent. Verbal assertion without tool-call evidence is insufficient.
-
-**URL applicability:**
-
-| Scenario | URL Required? | Label | URL Format |
-| -- | -- | -- | -- |
-| Branches pushed, no PR yet | ✅ Yes | Compare URL | `compare/dev...<work-branch>` |
-| PR already created | ✅ Yes | PR URL | `pull/<PR-number>` |
-| No branches pushed | ❌ No | (omit) | Omit URL element entirely |
-
-**Auto-fix on failure:** If any element is missing or misordered, fix the output before sending. Missing elements are MISSING-ELEMENT (auto-fix). Missing URL when required → generate URL. URL included when not applicable → STRUCTURE-VIOLATION, remove URL and reorder. Wrong ordering is STRUCTURE-VIOLATION (auto-fix). Elements are auto-fixed before output is sent — NOT reported after the fact.
-
-**Issue comments:**
-Post completion comment on each issue ONLY if substantive (per `issue-operations` skill `comment` task Substantive Comment Gate). Skip comment for non-substantive completions.
-
-**HALT condition:**
-
-- Do NOT create PR unless `pr_strategy != none` AND `halt_at >= pr_created`
-- Do NOT close issues
-- **If `halt_at < pr_created`:** HALT at scope boundary — do NOT create PR
-- Wait for explicit "create a PR" instruction when scope does not include PR creation
-
-## Intent-and-Context Metadata
-
-`prior_context` replaces the old `prior_results` field. It is:
-
-- **AI-composed**: The orchestrating agent intelligently composes the metadata based on the relationship between issues
-- **No fixed template**: Format is flexible prose, not a structured form
-- **Focus on intent**: Design decisions, edge case handling, assumptions, non-obvious constraints, interfaces that later issues depend on
-- **NOT a change summary**: What changed is in git; why it changed is in prior_context
-
-**What to include in prior_context:**
-
-- Key design decisions made during implementation
-- Non-obvious constraints discovered (e.g., "API returns 404 for missing items, not 403")
-- Interfaces exposed that dependents should use
-- Edge cases handled and how
-- Assumptions that downstream code relies on
-
-**What NOT to include:**
-
-- List of files changed (available via `git diff`)
-- Diff contents (available via `git log -p`)
-- Verbatim spec text (sub-agent reads the spec directly)
-
-## Frozen Branches
-
-Once a prior issue's branch is merged into a dependent branch, it is **frozen**:
-
-- No rebasing, amending, or force-pushing the frozen branch
-- If a backtrack is needed:
-  - Minor fix: Fix on the frozen branch, then each dependent branch re-merges
-  - Major change: Full review of all dependent implementations, potential discard-and-restart
-  - AI agent assesses scope based on blast radius
-  - Always requires explicit developer authorization before proceeding
-
-## Edge Cases
-
-### Sub-Agent Failure
+After explicit "create a PR" from developer:
 
 ```
-assemble-work:
-    → task() sub-agent for #B
-        → Sub-agent fails (error/timeout)
-        → Record failure
-    → If #B has dependents (#C requires #B): skip #C, report both
-    → If #C is independent: continue with #C
-    → After all possible issues complete:
-        → Report failures clearly
-        → HALT with partial results if any issues succeeded
+├─ 7. git-workflow --task completion
+│   └─ pr-creation-workflow
 ```
 
-### Sub-Agent Discovers Bug
+## Verification Layers (per issue)
 
-```
-assemble-work:
-    → task() sub-agent for #B
-        → Sub-agent discovers bug per bug-discovery protocol
-        → Sub-agent reports bug as finding (read-only)
-        → Sub-agent HALTs implementation for #B
-        → Records: "#B halted — bug discovered at <location>"
-    → Continue to next independent issue
-    → Report bug in work summary
-```
+Verification quality is the only success metric. Every verification layer must produce clean PASS — no third category exists. See `000-critical-rules.md` §critical-rules-hard-fail.
 
-### Tier 3 Conflict During Dependency Merge
+| Layer | What | Why | Dispatch |
+|-------|------|-----|----------|
+| Completeness gate | Structural check (exists? compiles? SCs covered?) | Cheap deterministic gate before expensive verification | Skill call |
+| verification-before-completion | Verify against spec success criteria | Clean-room verification, independent from producer | task() sub-agent |
+| Adversarial audit | Dual cross-family quality verification | Independent verification catches structural misses | task() sub-agent |
 
-- HALT immediately
-- Report the conflict and which two branches are involved
-- Do NOT attempt to resolve intent conflicts automatically
-- Wait for developer review per `conflict-resolution` skill
+## Result Contract Schema
 
-### Session Restart Mid-Work
+Every sub-agent MUST return a result contract with:
 
-- Use `git log --oneline` on the work branch to determine completed issues
-- Each squash-merged commit in the work branch corresponds to one completed issue
-- Resume from the first incomplete issue by checking which issue numbers appear in commit messages
-- Feature branches still contain the individual issue work for reference
+| Field | Required | Description |
+|-------|----------|-------------|
+| `status` | Yes | `DONE \| DONE_WITH_CONCERNS \| BLOCKED \| OVERFLOW \| FAIL` |
+| `task` | Yes | Task identifier |
+| `concerns` | If DONE_WITH_CONCERNS | List of non-blocking issues |
+| `blocker` | If BLOCKED | What prevented completion |
+| `evidence` | Yes | Tool-call artifacts proving the result |
 
-### Parallel-Safe Issues (No Dependencies) — Opportunistic Only
+### Status Classification
 
-- Even independent issues SHOULD be stacked sequentially. Parallel execution is opportunistic — it depends on circumstances genuinely allowing it (no shared files, no logical coupling, no hidden dependencies).
-- "Independent" in a work context means "no declared dependency," not "safe to run in parallel." Stacking catches hidden dependencies automatically.
-- If parallel execution is chosen for an independent issue, document the justification in the work state file with explicit reasoning (why stacking was bypassed, what makes the issue genuinely independent).
+| Status | Meaning | Orchestrator Action |
+|--------|---------|---------------------|
+| `DONE` | All sub-tasks completed successfully | Record result, proceed to next step |
+| `DONE_WITH_CONCERNS` | Completed but with warnings | Record concerns in work state, proceed |
+| `BLOCKED` | Cannot proceed due to external dependency | HALT, report blocker in chat |
+| `OVERFLOW` | Context window exceeded | Initiate overflow recovery per `enforcement/overflow-signal.md` |
+| `FAIL` | Sub-agent returned FAIL status | Initiate Verify-Before-Acceptance protocol |
 
-## Mandatory Rules
+### Verify-Before-Acceptance Protocol (FAIL status)
 
-01. **Main agent NEVER edits implementation files** — only orchestrates
-02. **Every sub-agent runs verification + finishing** — no skipping
-03. **One branch per issue** — each issue gets its own feature branch, never shared
-04. **Dependency resolution via git merge** — later issues merge prior branches, not branch-from-prior
-05. **Frozen branches after merge** — no rebasing or amending a merged branch
-06. **No HALTs between issues** — all issues complete before single HALT
-07. **Single work PR** — squash-merge each feature branch into work branch, then one PR
-08. **Intent-and-context metadata** — AI-composed, no fixed template, focus on why not what
-09. **Conflict resolution tiers** — auto-resolve 1-2, HALT on tier 3 during dependency merges
-10. **Always work mode** — single issue = work-of-1, no special-case path
-11. **Decision Log persistence** — after each sub-agent returns, write `decision_log_entry` to `.issues/` local storage using `local-issues comment N --body "..."` (NOT `issue-operations -> comment (github_add_issue_comment`). Decision logs are classified `internal` per the content classification gate — they belong in local storage, not on remote issues <!-- Routes through issue-operations per SPEC #683 -->
-12. **Cleanup MUST call `skill()`** — `skill({name: "git-workflow", args: "--task cleanup"})` is the ONLY permitted invocation. No custom prompts, no inline task file reads, no generic sub-agent with step-by-step instructions. See critical-rules-048.
+Orchestration without independent failure verification means accepting unconfirmed failures. Professional orchestrators independently reproduce failures before accepting them.
 
-## Sub-Agent Task Audit
+1. Independently reproduce the failure — run the same verification command or assertion
+2. If reproduction confirms FAIL: re-dispatch with remediation instructions including failure evidence
+3. If reproduction shows PASS: discard the sub-agent result, re-task clean-room
+4. Double-verify after remediation: re-run verification on remediated result
+5. Double-failure: HALT and report blocker with both failure artifacts
 
-| Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
-|---|---|---|---|
-| `work_set`, `issue`, `sub_issue_body`, `spec`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `authorization_source`, `prior_context`, `phase_progress`, `dependency_branches`, `github.owner`, `github.repo`, `dev.name`, `dev.email`, `worktree.path`, `branch` | Orchestrator implementation context, agent memory, cached verification results, tool recipes | N/A — sub-agents receive the full task context with spec and prior_context | NO |
-| Cleanup sub-agent — `skill({name: "git-workflow", args: "--task cleanup"})` | `branch_name`, `worktree.path`, `github.owner`, `github.repo`, `submodule_paths` (submodule owner/repo routing context) | Orchestrator reasoning, expected outcomes, cached results, tool recipes | NO |
+Max 3 remediation attempts before escalating to developer.
 
-Co-authored with AI: <AgentName> (<ModelId>)
+## Dispatch Method Rationale
 
-## Live Verification: Work State Claims (MANDATORY)
+| Work type | Dispatch method | Why |
+|-----------|----------------|-----|
+| Creative work (RED, GREEN) | task() sub-agent | Clean context, scoped, no contamination |
+| Verification (verification-before-completion) | task() sub-agent | Different agent than producer — clean-room separation |
+| Quality verification (adversarial audit) | task() sub-agent | Dual cross-family, independent from producer and VbC |
+| Structural check (completeness-gate) | Skill call | Deterministic, no judgment, no contamination risk |
+| Git operations (commit, push, branch) | git-workflow skill | Complete git workflow, not raw git commands |
+| Routing (which issue next, record results) | Orchestrator | Requires work state, must happen in sequence |
 
-**Each work state claim MUST be verified against actual git and GitHub state. Assertions without tool-call artifacts are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
+## How-to Guidance
 
-| Claim | Verification Action | Tool Call | Problem Class |
-|-------|-------------------|-----------|---------------|
-| "Work state file exists" | Verify work state file in `./tmp/artifacts/` | `glob(pattern="./tmp/artifacts/work-*.md")` | MISSING-ELEMENT |
-| "All sub-agents returned" | Verify result contracts collected | Check for all expected result contracts | VERIFICATION-GAP |
-| "Branch merged into work branch" | Verify merge commit exists | `git log --oneline work-branch` → check merge messages | VERIFICATION-GAP |
-| "Decision log persisted" | Verify entry in `.issues/N/comments.md` | `local-issues read-comments N` → search for decision log | MISSING-ELEMENT |
-| "Authorization carries forward" | Verify work state contains auth context | Read work state file for auth section | STRUCTURE-VIOLATION |
+Each verification layer runs independently — the implementing agent determines the specific assertions and evidence collection by reading the spec success criteria and the verification skill documentation.
 
-**Evidence artifacts:** See enforcement/work-state-verification.md §Evidence Artifacts
+Every sub-agent dispatch includes `authorization_scope`, `halt_at`, and `must_receive` in the task context. Omitting any required field is a context-contamination violation per `000-critical-rules.md`.
 
-## Orchestrator CONTINUE/HALT Enforcement
+Git operations are delegated to git-workflow skill entirely. The orchestrator never invokes raw git commands — git-workflow enforces hooks, state verification, and conflict resolution.
 
-After each pipeline step completes, the orchestrator reads the CONTINUE/HALT signal:
-- If CONTINUE: check if next step is within authorization_scope.halt_at
-- If next step exceeds halt_at → convert to HALT
-- If HALT: stop, do NOT proceed
+Dependency-ordered iteration means issues whose dependencies are satisfied go next. All dependencies must reach DONE before an issue starts its RED phase.
 
-## Enforcement References
+## Enforcement
 
-- Completion checkpoint protocol: see `enforcement/completion-checkpoint.md`
-- Result validation and finding classification: see `enforcement/result-validation.md`
-- Work state verification: see `enforcement/work-state-verification.md`
+- No approval → HALT (approval-gate blocks)
+- Placeholders in plan → HALT (writing-plans blocks)
+- No feature branch → HALT (git-workflow creates)
+- Sub-agent BLOCKED → remediate or HALT (max 3 attempts)
+- Sub-agent OVERFLOW → re-dispatch with reduced scope per `enforcement/overflow-signal.md`
+- Sub-agent FAIL → Verify-Before-Acceptance protocol
+- Orchestrator inline work → poison recovery per `000-critical-rules.md` §critical-rules-009
+
+## Overflows
+
+See `enforcement/overflow-signal.md` for OVERFLOW contract and re-dispatch strategies.
+
+## Work State
+
+See `enforcement/work-state-verification.md` for work state format and verification table schema.

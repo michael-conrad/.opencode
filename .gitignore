@@ -22,3 +22,5 @@ Thumbs.db
 .coverage
 htmlcov/
 /.issues/
+
+/.issues/

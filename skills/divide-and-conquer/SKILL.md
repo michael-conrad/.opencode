@@ -1,6 +1,6 @@
 ---
 name: divide-and-conquer
-description: Use when implementing an approved spec, orchestrating sub-agents, or when a task risks context window overflow. Triggers on: implement, build, orchestrate, context overflow, decompose, task subagent, work execution. Monolithic implementation always produces defects. Agents who decompose their work produce correct, reviewable results.
+description: Orchestrating implementation without verification gates produces defects that compound through every downstream consumer. Every artifact assembled without a verification gate carries undiscoverable failures. Professional engineers verify every step.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
@@ -11,50 +11,27 @@ compatibility: opencode
 
 ## Overview
 
-Enforces context window safety. Orchestrator is a pure coordinator — never edits implementation files directly.
-
-## Persona
-
-Divide and Conquer Orchestrator. Assess context fitness, decompose work, task sub-agents with scoped instructions, aggregate results.
+Professional orchestration is what verified delivery looks like. Monolithic implementation means undetected defects in every downstream consumer. Professional engineers verify every step — amateur implementations skip verification gates.
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `assess` | ≈300 |
-| `decompose` | ≈300 |
-| `route` | ≈250 |
-| `completion-checkpoint` | ≈300 |
-| `result-validation` | ≈200 |
-| `overflow-signal` | ≈200 |
-| `merge` | ≈150 |
-| `context-passing` | ≈200 |
-| `purification-and-enforcement` | ≈250 |
-| `orchestrate` | ≈400 |
-| `assemble-work` | ≈200 |
-| `implementer-prompt` | ≈250 |
-| `spec-reviewer-prompt` | ≈200 |
-| `code-quality-reviewer-prompt` | ≈200 |
-| `completion` | ≈150 |
+| Task | Purpose |
+|------|---------|
+| `assemble-work` | Single-branch pipeline — the only task in this skill |
 
 ## Invocation
 
-`skill({name: "divide-and-conquer"})` — call the skill, then call via task():
+`skill({name: "divide-and-conquer"})` — call the skill, then route to:
 
 | Task | Call via task() |
 |------|----------|
-| `orchestrate` | `task(..., prompt: "execute orchestrate task from divide-and-conquer")` |
 | `assemble-work` | `task(..., prompt: "execute assemble-work task from divide-and-conquer")` |
-| `assess` | `task(..., prompt: "execute assess task from divide-and-conquer")` |
-| `decompose` | `task(..., prompt: "execute decompose task from divide-and-conquer")` |
-| `route` | `task(..., prompt: "execute route task from divide-and-conquer")` |
-| `completion` | `task(..., prompt: "execute completion task from divide-and-conquer")` |
 
-**CLI equivalent (for human TUI use):** `/skill divide-and-conquer --task <task>`
+**CLI equivalent (for human TUI use):** `/skill divide-and-conquer --task assemble-work`
 
 ## Sub-Agent Routing
 
-All tasks run via `task(subagent_type="general")`. Every task context MUST include the authorization context block:
+All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Every task context MUST include the authorization context block:
 
 ```yaml
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
@@ -64,19 +41,29 @@ pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-Additional context: `{ spec, plan, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, cached verification results. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. Result contracts: `status: DONE|BLOCKED|ERROR|OVERFLOW`.
+Additional context: `{ spec, plan, file_paths, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory, cached verification results. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
+
+Result contracts: `status: DONE | DONE_WITH_CONCERNS | BLOCKED | OVERFLOW | FAIL`.
 
 **`must_receive` validation:** Every task context MUST include `authorization_scope` in the `must_receive` array. If the task context object lacks `must_receive` or `must_receive` does not contain `authorization_scope`, HALT and report the missing field as a context-contamination violation.
 
 **No acceptance without verification evidence:** Unverified result contracts are unfinished work — re-task instead.
 
+## Enforcement Reference
+
+| Document | Purpose |
+|----------|---------|
+| Sub-agent context shape | Context shape and exclusions for task() routing |
+| `enforcement/overflow-signal.md` | OVERFLOW contract and re-routing strategies |
+| `enforcement/work-state-verification.md` | Verification table and work state format |
+
 ## Cross-References
 
-Skills: `approval-gate`, `git-workflow`, `verification-before-completion`, `finishing-a-development-branch`, `pre-analysis`, `adversarial-audit --task coherence-maintenance`. Guidelines: `091-incremental-build.md`, `000-critical-rules.md`.
+Skills: `approval-gate`, `git-workflow`, `VbC`, `finishing-a-development-branch`, `pre-analysis`, `adversarial-audit --task coherence-maintenance`, `completeness-gate`. Guidelines: `091-incremental-build.md`, `000-critical-rules.md`.
 
 ```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
+schema_version: "3.0"
+last_updated: "2026-05-21T00:00:00Z"
 rules:
   - id: divide-and-conquer-001
     title: "No direct implementation by orchestrator"

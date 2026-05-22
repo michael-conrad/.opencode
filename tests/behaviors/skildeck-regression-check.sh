@@ -18,14 +18,35 @@ SCENARIO_NAME="skildeck-regression-check"
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
 # Test 1: Verify skildeck lint works without git metadata
+# Uses git submodule to set up .opencode (mirrors real project structure).
 echo "Test 1: skildeck lint without git"
-TEST_DIR=$(mktemp -d)
-cp -r .opencode "$TEST_DIR/"
-cd "$TEST_DIR/.opencode"
-rm -rf .git
+TEST_DIR=$(mktemp -d "$PROJECT_DIR/tmp/skildeck-test-XXXXXX")
+git init -q "$TEST_DIR"
+git -C "$TEST_DIR" config user.email "test@test.dev"
+git -C "$TEST_DIR" config user.name "Test"
+
+# Add .opencode as submodule from local source (avoids network dependency)
+local_submodule_url=""
+if [ -f "$PROJECT_DIR/.gitmodules" ]; then
+    local_submodule_url=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || true)
+fi
+if [ -z "$local_submodule_url" ]; then
+    local_submodule_url="https://github.com/michael-conrad/.opencode.git"
+fi
+
+git -C "$TEST_DIR" submodule add -q "$PROJECT_DIR/.opencode" .opencode 2>/dev/null || {
+    echo "FATAL: git submodule add failed for .opencode" >&2
+    exit 1
+}
+git -C "$TEST_DIR" submodule update --init .opencode 2>/dev/null || true
+git -C "$TEST_DIR/.opencode" remote set-url origin "$local_submodule_url" 2>/dev/null || true
+
+# Remove .git from submodule to test git-free operation
+rm -rf "$TEST_DIR/.opencode/.git"
 
 # This should work without git
-if ../../tools/skildeck lint --json > /dev/null 2>&1; then
+cd "$TEST_DIR/.opencode"
+if tools/skildeck lint --json > /dev/null 2>&1; then
     echo "PASS: skildeck lint works without git"
     TEST1_PASS=1
 else
@@ -37,17 +58,29 @@ cd - > /dev/null
 rm -rf "$TEST_DIR"
 
 # Test 2: Verify new skill is immediately available (no regeneration needed)
+# Uses git submodule for .opencode setup.
 echo "Test 2: New skill immediately available"
-TEST_DIR=$(mktemp -d)
-cp -r .opencode "$TEST_DIR/"
+TEST_DIR=$(mktemp -d "$PROJECT_DIR/tmp/skildeck-test-XXXXXX")
+git init -q "$TEST_DIR"
+git -C "$TEST_DIR" config user.email "test@test.dev"
+git -C "$TEST_DIR" config user.name "Test"
+
+git -C "$TEST_DIR" submodule add -q "$PROJECT_DIR/.opencode" .opencode 2>/dev/null || {
+    echo "FATAL: git submodule add failed for .opencode" >&2
+    exit 1
+}
+git -C "$TEST_DIR" submodule update --init .opencode 2>/dev/null || true
+git -C "$TEST_DIR/.opencode" remote set-url origin "$local_submodule_url" 2>/dev/null || true
+
+# Remove .git from submodule to test git-free operation
+rm -rf "$TEST_DIR/.opencode/.git"
+
+mkdir -p "$TEST_DIR/.opencode/skills/test-skill"
+echo "# Test Skill" > "$TEST_DIR/.opencode/skills/test-skill/SKILL.md"
+
 cd "$TEST_DIR/.opencode"
-rm -rf .git
-
-mkdir -p skills/test-skill
-echo "# Test Skill" > skills/test-skill/SKILL.md
-
 # This should find the new skill without regeneration
-if ../../tools/skildeck lint --skill test-skill 2>&1 | grep -q "test-skill\|Test Skill"; then
+if tools/skildeck lint --skill test-skill 2>&1 | grep -q "test-skill\|Test Skill"; then
     echo "PASS: New skill found without regeneration"
     TEST2_PASS=1
 else

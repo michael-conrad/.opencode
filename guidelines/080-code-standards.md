@@ -431,6 +431,34 @@ The `with-test-home` wrapper prevents SQLite session conflicts between the deskt
 
 **See `091-incremental-build.md` for the incremental implementation discipline that governs HOW these changes are delivered.** **See `.opencode/tests/README.md` for the enforcement test template and usage guide. See `.opencode/tests/behaviors/` for behavioral test infrastructure, helpers, and template.**
 
+### Evidence Type Taxonomy (MANDATORY)
+
+Every spec success criterion MUST declare an evidence type from the four-type taxonomy. The evidence type determines the minimum acceptable verification method — using evidence below the minimum type is a CRITICAL VIOLATION.
+
+| Evidence Type | Method | Verifies | Minimum Acceptable |
+|---|---|---|---|
+| `structural` | `ls`, `wc`, file existence | File exists, file is non-empty, file has correct name | `ls`/`wc` |
+| `string` | `grep`, pattern matching | Content pattern present or absent | `grep` |
+| `semantic` | AI agent read + analytical judgment | Intent and meaning, not just pattern | Sub-agent read + judgment |
+| `behavioral` | Test execution (`opencode-cli run`, `pytest`, `bash test.sh`) | Agent behavior, runtime output, functional correctness | Test execution with output inspection |
+
+### Evidence Type Enforcement Matrix
+
+| SC Evidence Type | Structural Evidence | String Evidence | Semantic Evidence | Behavioral Evidence |
+|---|---|---|---|---|
+| `structural` | ✅ Sufficient | ✅ Sufficient | ✅ Sufficient but unnecessary | ⚠️ Overkill |
+| `string` | ❌ Insufficient | ✅ Sufficient | ✅ Sufficient | ⚠️ Overkill |
+| `semantic` | ❌ Insufficient | ❌ Insufficient | ✅ Sufficient | ✅ Sufficient |
+| `behavioral` | ❌ **CRITICAL VIOLATION** | ❌ **CRITICAL VIOLATION** | ❌ **CRITICAL VIOLATION** | ✅ Only sufficient type |
+
+Evidence below the minimum type for an SC's declared evidence type is a CRITICAL VIOLATION — it is not a soft-pass or an acceptable substitute. This applies at every pipeline stage: VbC, auditor dispatch, cross-validate, and PR body.
+
+**Existing specs without evidence type columns default to `string` evidence type.** The spec-audit SC-DET check flags specs missing evidence type declarations but does not block them — only downgrade to a warning until the spec is updated.
+
+**Mixed-evidence SCs** (e.g., `string + behavioral`) require ALL declared types to be present in the evidence. An SC that requires both string and behavioral evidence must have both a `grep` result and a test execution result.
+
+**EVIDENCE_TYPE_MISMATCH** classification: When an auditor or VbC sub-agent provides structural evidence for a behavioral SC, the verdict MUST be reported as FAIL with `EVIDENCE_TYPE_MISMATCH` classification. This is not a soft-pass — it is a hard FAIL. Cross-validate MUST downgrade any PASS verdict with wrong evidence type to FAIL with `EVIDENCE_TYPE_MISMATCH`.
+
 ### SC-to-Test Traceability (MANDATORY) — Behavioral PRIMARY
 
 Every spec success criterion MUST have at least one corresponding BEHAVIORAL enforcement test assertion that references the SC ID. The assertion must include a comment linking it to the specific SC:
@@ -443,6 +471,17 @@ assert_forbidden_pattern_absent "(unverified)" "unverified escape hatch" || OVER
 The SC ID comment convention is now a REQUIREMENT, not a convention. Every enforcement test that verifies a spec success criterion MUST include a `# SC-N:` comment prefix identifying which SC it covers.
 
 Content-verification tests (checking rule text existence) are SECONDARY — they supplement behavioral tests but MUST NOT be the only enforcement for behavioral rule changes.
+
+**Spec Success Criteria tables MUST include an Evidence Type column** declaring the evidence type for each SC:
+
+```
+| ID | Criterion | Evidence Type | Verification Method |
+|----|-----------|---------------|---------------------|
+| SC-1 | SKILL.md routes only to assemble-work | `string + semantic` | grep + sub-agent read |
+| SC-14 | Agent dispatches sub-agents, no inline work | `behavioral` | `opencode-cli run` → stderr assertions |
+```
+
+The Evidence Type column is MANDATORY in all spec success criteria tables. Specs missing the Evidence Type column fail the spec-audit SC-DET check with a warning (not a block) until updated.
 
 ### RED-Phase Ordering (BEHAVIORAL PRIMARY) — MANDATORY
 
@@ -776,4 +815,21 @@ rules:
     requires: []
     triggers: [verification-before-completion]
     source: "080-code-standards.md §Enforcement Test Mandate"
+
+  - id: code-standards-016a
+    tier: 2
+    title: "EVIDENCE_TYPE_MISMATCH — structural evidence for behavioral SC is a hard FAIL"
+    conditions:
+      all:
+        - "sc_evidence_type == 'behavioral'"
+        - "actual_evidence_type in ['structural', 'string']"
+        - "verdict_reported_as == 'PASS'"
+    actions:
+      - HALT
+      - DOWNGRADE_TO_FAIL
+      - CLASSIFY_AS_EVIDENCE_TYPE_MISMATCH
+    conflicts_with: []
+    requires: [critical-rules-020, critical-rules-060]
+    triggers: [verification-before-completion, adversarial-audit]
+    source: "080-code-standards.md §Evidence Type Taxonomy"
 ```
