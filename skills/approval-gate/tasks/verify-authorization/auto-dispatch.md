@@ -19,17 +19,17 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 - The `pipeline_phase` field is NEW — it tracks which phase of a multi-phase plan is currently executing
 
-## 6.1 Pre-Implementation Worktree Setup (MANDATORY)
+## 6.1 Pre-Implementation Branch Setup (MANDATORY)
 
 **Before any sub-agent task() or file modification, the agent MUST task `git-workflow --task pre-work` to:**
 
-1. Create the feature branch in a worktree (`.worktrees/`)
-2. Set the `worktree.path` environment variable
+1. Create the feature branch (direct-branch or worktree depending on `WORKTREE_REQUIRED`)
+2. If `WORKTREE_REQUIRED` is set: set the `worktree.path` environment variable
 3. Verify branch state and working tree cleanliness
 
-**This step is MANDATORY and CANNOT be skipped.** If the worktree already exists from a previous session, verify it and proceed. If worktree creation fails, HALT — do not proceed without a valid worktree.
+**This step is MANDATORY and CANNOT be skipped.** Pre-work.md handles the worktree vs direct-branch decision — the agent does NOT decide worktree mode here. If pre-work fails, HALT — do not proceed without a valid branch.
 
-**Evidence requirement:** `git worktree list` must show the feature branch worktree, and `worktree.path` must be set before any `divide-and-conquer` task().
+**Evidence requirement:** `git branch --show-current` must show the feature branch. If `WORKTREE_REQUIRED` is set, `git worktree list` must also show the feature branch worktree and `worktree.path` must be set before any `divide-and-conquer` task().
 
 ## Auto-Dispatch Situation Differentiation
 

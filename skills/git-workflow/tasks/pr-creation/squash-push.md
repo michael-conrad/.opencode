@@ -67,15 +67,23 @@ git rebase origin/dev
 git push --force-with-lease origin <branch>
 ```
 
-## Worktree Mode (MANDATORY — NO EXCEPTIONS)
+## Branch Mode (Conditional — Based on WORKTREE_REQUIRED)
 
-All feature branches operate in worktrees. If `worktree.path` is not set: **FATAL ERROR → HALT.**
+**Direct-branch mode (default — when `WORKTREE_REQUIRED` is NOT set):**
+
+- Operate normally from the main repo directory
+- Relative paths work directly
+- No worktree path prefixing needed
+
+**Worktree mode (opt-in — when `WORKTREE_REQUIRED` is set):**
+
+If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT.** Do not proceed without a valid worktree path.
 
 1. All `bash` tool calls MUST use `workdir="{{worktree.path}}"`
 2. All `read`/`edit`/`write`/`glob`/`grep` tool calls MUST prefix with `{{worktree.path}}/`
 3. Before any push/squash/rebase: verify `git branch --show-current` matches expected branch
 4. `git rev-parse --show-toplevel` MUST return the worktree path
-5. NEVER operate in the main working directory during implementation
+5. NEVER operate in the main working directory during worktree mode
 
 ## Live Verification (MANDATORY)
 

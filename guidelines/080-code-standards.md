@@ -207,6 +207,66 @@ When a byline is missing from AI-authored posted content:
 
 The byline must be **part of the content body**, never a separate message.
 
+### Preserve Existing Bylines
+
+When an AI agent edits a file or posted content that already contains a `Co-authored with AI:` byline from a prior AI agent, the editing agent MUST preserve the existing byline. Overwriting a prior agent's identity erases audit trail, falsifies content origin history, and breaks traceability.
+
+#### Rules
+
+1. **Never overwrite a prior agent's byline.** When editing a file with an existing `Co-authored with AI:` line, the agent MUST NOT modify, replace, or remove that line.
+
+2. **Append, don't replace.** If the editing agent contributed substantive new AI-generated content, it appends its own byline on a new line following existing byline(s). Minor edits (typo fix, formatting, refactoring without new creative content) do not need an additional byline.
+
+3. **Format consistency.** The editing agent uses the same format as existing byline(s) — do not change `*italic*` to emoji or vice versa. New files use the format specified per file type.
+
+4. **Multi-agent bylines.** When a file has bylines from multiple AI agents, chronological order is preserved — each new byline appended at the end.
+
+#### Examples
+
+**Source file editing — CORRECT (preserve + append):**
+
+```python
+# Before edit (byline from prior agent Alpha):
+"""Process user data.
+
+Co-authored with AI: Alpha (alpha-model-v1)
+"""
+
+# After edit by agent Beta — CORRECT:
+"""Process user data and validate input.
+
+Co-authored with AI: Alpha (alpha-model-v1)
+Co-authored with AI: Beta (beta-model-v2)
+"""
+```
+
+**Source file editing — WRONG (identity overwrite):**
+
+```python
+# Before edit (byline from prior agent Alpha):
+"""Process user data.
+
+Co-authored with AI: Alpha (alpha-model-v1)
+"""
+
+# After edit by agent Beta — WRONG:
+"""Process user data and validate input.
+
+Co-authored with AI: Beta (beta-model-v2)  # ← prior agent identity erased
+"""
+```
+
+**Posted content editing — CORRECT (preserve + append):**
+
+When editing an existing issue or PR comment that already has a byline, preserve the existing byline and append the new one:
+
+```
+Original content here.
+
+🤖 Co-authored with AI: Alpha (alpha-model-v1)
+🤖 Co-authored with AI: Beta (beta-model-v2)
+```
+
 ### Files NOT Requiring Attribution
 
 | File Type | Reason |
@@ -624,6 +684,21 @@ rules:
     requires: []
     triggers: [issue-operations]
     source: "080-code-standards.md §AI Co-Authored Attribution"
+
+  - id: code-standards-002a
+    tier: 3
+    title: "Preserve existing AI bylines — never overwrite prior agent identity"
+    conditions:
+      all:
+        - "editing_file_with_existing_byline == true"
+        - "byline_overwrite_attempted == true"
+    actions:
+      - FLAG
+      - PRESERVE_AND_APPEND
+    conflicts_with: []
+    requires: []
+    triggers: [issue-operations]
+    source: "080-code-standards.md §Preserve Existing Bylines"
 
   - id: code-standards-003
     tier: 3
