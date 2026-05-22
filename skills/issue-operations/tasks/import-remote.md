@@ -80,6 +80,14 @@ If `.issues/` directory does not exist, call `local-issues setup`:
 ./.opencode/tools/local-issues setup
 ```
 
+**Exit code handling:**
+
+| Exit Code | Meaning | Action |
+|-----------|---------|--------|
+| 0 | Success | Continue |
+| 1 | Fatal error | HALT and report stderr |
+| 2 | Stale worktree detected | Read stale path from stderr, run `git worktree remove <stale_path>`, re-run `local-issues setup` |
+
 ### Step 4: Create Local Issue
 
 Create the local issue directory manually (not via `local-issues create`, because we need to set the number to match the remote):

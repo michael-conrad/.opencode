@@ -51,9 +51,10 @@ Commands:
     setup [--parent] [--migrate|--rollback-migration]
                                             Initialize .issues/ worktree on issues-data branch
 
-Exit codes:
-    0: Success
-    1: Error (issue not found, invalid input, etc.)
+    Exit codes:
+        0: Success
+        1: Error (issue not found, invalid input, etc.)
+        2: Blocked (stale state requiring intelligent correction)
 
 Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 """
@@ -629,7 +630,8 @@ def cmd_setup(
             if len(parts) >= 3 and os.path.normpath(parts[0]) == os.path.normpath(
                 issues_path
             ):
-                if parts[2] == ISSUES_DATA_BRANCH:
+                branch_name = parts[2].strip("[]")
+                if branch_name == ISSUES_DATA_BRANCH:
                     print(
                         f"Idempotent: .issues/ worktree already established on {ISSUES_DATA_BRANCH} branch"
                     )
@@ -639,6 +641,65 @@ def cmd_setup(
                     f"Idempotent: .issues/ worktree already established on {ISSUES_DATA_BRANCH} branch"
                 )
                 return 0
+
+    # Stale worktree detection: issues-data branch checked out at wrong path
+    if result.returncode == 0:
+        for wt_line in result.stdout.splitlines():
+            parts = wt_line.split()
+            if len(parts) >= 3:
+                branch_name = parts[2].strip("[]")
+                if branch_name == ISSUES_DATA_BRANCH:
+                    wrong_path = os.path.normpath(parts[0])
+                    if wrong_path != os.path.normpath(issues_path):
+                        print(
+                            f"ERROR: Stale issues-data worktree detected at: {wrong_path}",
+                            file=sys.stderr,
+                        )
+                        print(
+                            "\nThe .issues/ directory must be a git worktree on the 'issues-data' branch,",
+                            file=sys.stderr,
+                        )
+                        print(
+                            "but the 'issues-data' branch is currently checked out at a different path.",
+                            file=sys.stderr,
+                        )
+                        print(
+                            "\nRemediation required before retry:",
+                            file=sys.stderr,
+                        )
+                        print(
+                            f"  1. git worktree remove {wrong_path}",
+                            file=sys.stderr,
+                        )
+                        print(
+                            "     (Removes the linked worktree. The issues-data branch commits are",
+                            file=sys.stderr,
+                        )
+                        print(
+                            "      preserved — no data loss.)",
+                            file=sys.stderr,
+                        )
+                        print(
+                            "\n  2. Re-run: local-issues setup",
+                            file=sys.stderr,
+                        )
+                        print(
+                            "     (Creates the .issues/ worktree at the correct path, migrates any",
+                            file=sys.stderr,
+                        )
+                        print(
+                            "      existing .issues/ content, adds /.issues/ to .gitignore.)",
+                            file=sys.stderr,
+                        )
+                        print(
+                            "\nUntracked .issues/ files on the current branch will be preserved through",
+                            file=sys.stderr,
+                        )
+                        print(
+                            "the setup script's .issues/ → .issues.bak → migrate cycle.",
+                            file=sys.stderr,
+                        )
+                        return 2
 
     # Phase 1: Check for pre-existing regular .issues/ directory (not a worktree)
     had_existing_issues = False
@@ -914,14 +975,98 @@ def _setup_parent_worktree(submodule_root: str) -> int:
         check=False,
     )
     if parent_result.returncode == 0:
-        for line in parent_result.stdout.splitlines():
-            if line.startswith("Worktree "):
-                wt_path = line.split(" ", 1)[1]
-                if os.path.normpath(wt_path) == os.path.normpath(parent_issues_path):
+        # Parse porcelain format: Worktree <path>\nHEAD <sha>\nbranch refs/heads/<name>
+        # Group lines by worktree entry (separated by blank lines)
+        wt_blocks = parent_result.stdout.strip().split("\n\n")
+        parent_data_branch = ISSUES_DATA_BRANCH
+        for block in wt_blocks:
+            lines = block.splitlines()
+            wt_path = None
+            wt_branch = None
+            for line in lines:
+                if line.startswith("Worktree "):
+                    wt_path = line.split(" ", 1)[1]
+                elif line.startswith("branch "):
+                    ref = line.split(" ", 1)[1]
+                    # Extract branch name from refs/heads/<name>
+                    if ref.startswith("refs/heads/"):
+                        wt_branch = ref[len("refs/heads/"):]
+                    else:
+                        wt_branch = ref.strip("[]")
+            if wt_path and os.path.normpath(wt_path) == os.path.normpath(parent_issues_path):
+                print(
+                    f"Parent repo: .issues/ worktree already exists at {parent_issues_path}"
+                )
+                return 0
+
+    # Stale worktree detection for parent repo
+    if parent_result.returncode == 0:
+        wt_blocks = parent_result.stdout.strip().split("\n\n")
+        parent_data_branch = ISSUES_DATA_BRANCH
+        for block in wt_blocks:
+            lines = block.splitlines()
+            wt_path = None
+            wt_branch = None
+            for line in lines:
+                if line.startswith("Worktree "):
+                    wt_path = line.split(" ", 1)[1]
+                elif line.startswith("branch "):
+                    ref = line.split(" ", 1)[1]
+                    if ref.startswith("refs/heads/"):
+                        wt_branch = ref[len("refs/heads/"):]
+                    else:
+                        wt_branch = ref.strip("[]")
+            if wt_branch == parent_data_branch and wt_path:
+                if os.path.normpath(wt_path) != os.path.normpath(parent_issues_path):
                     print(
-                        f"Parent repo: .issues/ worktree already exists at {parent_issues_path}"
+                        f"ERROR: Stale issues-data worktree detected in parent repo at: {wt_path}",
+                        file=sys.stderr,
                     )
-                    return 0
+                    print(
+                        "\nThe .issues/ directory must be a git worktree on the 'issues-data' branch,",
+                        file=sys.stderr,
+                    )
+                    print(
+                        "but the 'issues-data' branch is currently checked out at a different path.",
+                        file=sys.stderr,
+                    )
+                    print(
+                        "\nRemediation required before retry:",
+                        file=sys.stderr,
+                    )
+                    print(
+                        f"  1. git worktree remove {wt_path}",
+                        file=sys.stderr,
+                    )
+                    print(
+                        "     (Removes the linked worktree. The issues-data branch commits are",
+                        file=sys.stderr,
+                    )
+                    print(
+                        "      preserved — no data loss.)",
+                        file=sys.stderr,
+                    )
+                    print(
+                        "\n  2. Re-run: local-issues setup",
+                        file=sys.stderr,
+                    )
+                    print(
+                        "     (Creates the .issues/ worktree at the correct path, migrates any",
+                        file=sys.stderr,
+                    )
+                    print(
+                        "      existing .issues/ content, adds /.issues/ to .gitignore.)",
+                        file=sys.stderr,
+                    )
+                    print(
+                        "\nUntracked .issues/ files on the current branch will be preserved through",
+                        file=sys.stderr,
+                    )
+                    print(
+                        "the setup script's .issues/ → .issues.bak → migrate cycle.",
+                        file=sys.stderr,
+                    )
+                    return 2
 
     parent_branch = _git(
         ["rev-parse", "--abbrev-ref", "HEAD"], cwd=parent_root
