@@ -17,6 +17,12 @@ ALLOWED=true
 while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
     [ -z "$LOCAL_REF" ] && continue
 
+    # Skip all gates for tag pushes — tags are immutable pointers to existing
+    # commits and do not introduce new code. All gates below are branch-only.
+    if [[ "$LOCAL_REF" == refs/tags/* ]]; then
+        continue
+    fi
+
     # Extract branch basename (strip refs/heads/)
     LOCAL_BRANCH="${LOCAL_REF#refs/heads/}"
     REMOTE_BRANCH="${REMOTE_REF#refs/heads/}"
