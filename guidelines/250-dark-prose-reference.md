@@ -193,6 +193,7 @@ When dark prose patterns overlap or conflict, the following rules apply:
 |---------|------|-----|---------|
 | 1.0 | 2026-05-17 | `0000000000000000000000000000000000000000` | Initial catalog — all 6 patterns documented, 13-row matrix, version tracking established |
 | 1.1 | 2026-05-20 | `6ded65200bfe9b96fb448ab89ffa67a2c4284de8` | Added dark-prose-007 (Cost-Frame Reformation), 14-row matrix, cost-blind row in selection matrix, full formula in Section 3 |
+| 1.2 | 2026-05-21 | `0000000000000000000000000000000000000000` | Added Section 9: Bright-Line Rules — Binary Enforcement Gates, companion pairings for 001/002/003/006, diagnostic table |
 
 SHA format: 40-character lowercase hex SHA of the commit that introduced this version of the reference card. When a new version is committed, the SHA in this row is updated to match the commit hash.
 
@@ -231,6 +232,63 @@ To deprecate an existing pattern:
 4. Move the formula to a Deprecated Formulas subsection in Section 3 with strikethrough formatting
 5. After the sunset date passes, remove the pattern entirely and increment Section 6 version
 
+
+
+## Section 9: Bright-Line Rules — Binary Enforcement Gates
+
+### Definition
+
+A bright-line rule is a binary gate the agent cannot reason around. It eliminates the rationalization surface by defining three things:
+
+1. **absolute rule** — A statement using MUST/MUST NOT/NEVER/ALWAYS language that allows exactly one interpretation. No "prefer," "consider," "try to," "where possible," or "may want to."
+2. **exception carve-out** — The single condition where the rule does not apply, or "No exceptions" if none exists.
+3. **failure definition** — A deterministic test for compliance: what constitutes a violation and what the consequence is (FAIL/correction/rejection).
+
+### Relationship to Dark Prose
+
+Bright-line rules are companions to dark prose patterns, not replacements. The dark prose identity-frame closes the conceptual gap. The bright-line rule provides the binary enforcement gate. Both are required — one without the other is half enforcement.
+
+### Pattern Pairing
+
+| Pattern | Bright-Line Companion | Gate Language |
+|---------|----------------------|---------------|
+| dark-prose-001 (confirmshaming) | Non-waivable hard gate — "CRITICAL VIOLATION — [violation]: [description]. Non-waivable. Tier 1." | Non-waivable, hard gate, CRITICAL VIOLATION |
+| dark-prose-002 (goal hijacking identity) | Binary compliance — "[state] IS [definition]. [state] IS NOT [anti-definition]. Period." | IS, IS NOT, Period |
+| dark-prose-003 (consequence assertion) | Rejection/termination — "REJECTED — [pattern]. [violation] produces [defect]. [artifact] carries unrecoverable failure." | REJECTED, unrecoverable |
+| dark-prose-006 (agency-respecting) | Trust but verify — "The implementing agent determines the HOW. The verification gate confirms the WHAT. [Evidence type] evidence required." | Trust but verify, evidence required |
+
+### Non-Paired Patterns
+
+Patterns 004 (authority frame) and 005 (social proof) do NOT receive bright-line companions because:
+- dark-prose-004 (authority frame, Tier 1) is ALREADY a binary gate — its language (HALT, CRITICAL VIOLATION, NEVER yields) is bright-line by definition.
+- dark-prose-005 (social proof, Tier 3) is workflow-standard only — Tier 3 rules are FLAG-only and do not warrant binary enforcement gates.
+- dark-prose-007 (Cost-Frame Reformation) is already identity-framed as reformation rather than prohibition — its mechanism is cost-model replacement, not gate enforcement.
+
+### Violation Protocol
+
+When the agent detects that it has violated a bright-line rule:
+1. STOP the current action immediately
+2. Identify which rule was violated
+3. Determine remediation (correct the action, not the rule)
+4. If remediation fails: flag for human review
+5. Do NOT rationalize the violation — a bright-line violation is a defect, not a judgment call
+
+### Bright-Line vs Advisory — Diagnostic Table
+
+| Characteristic | Advisory Language | Bright-Line Rule |
+|---------------|-------------------|------------------|
+| Compliance | Recommended | Mandatory |
+| Interpretation | Multiple paths | Exactly one |
+| Rationalization | Possible | Impossible (binary) |
+| Enforcement | Guideline | Gate |
+| Violation | Flag | HALT/FAIL |
+| Exception | Implicit | Explicitly defined |
+| Language | "prefer," "consider," "should" | "MUST," "MUST NOT," "NEVER," "ALWAYS" |
+
 ---
 
-*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*
+Adherence to bright-line rules is verified through the adversarial-audit pipeline. A bright-line violation found during audit is a FAIL with mandatory remediation before proceeding.
+
+---
+
+🤖 Co-authored with AI: OpenCode (opencode/deepseek-v4-flash-free)
