@@ -74,6 +74,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Tier 1 Guidelines Restoration** (#497) - Restored all 12 Tier 1 guideline files to `opencode.jsonc` instructions array, fixing regression where only `INDEX.md` was loaded at session start. Added WARNING comment to prevent future removal.
 - **TDD Reference Deck** (#310, #479) - Adopted majiayu000 TDD Reference Deck with Phase 0 pre-regression baseline and Phase 4 post-regression verification. Added `patterns.md`, `anti-patterns.md`, and `checklist.md` task files. Added mandatory Documentation Sources section to spec templates.
 - **Skill Dispatch Mandate** (#516) - Replaced Workflow-First Mandate with zero-tolerance CRITICAL VIOLATION rule for skill pre-read + inline execution. Added `critical-rules-048` with 3-way violation distinction table, behavioral test, and content-verification scenarios.
+- **Bright-Line Mandate** (#805) - Added forbidden rationalizations (9 patterns), evidence hierarchy table (4-tier with priority ordering), and cost model override to `default.txt`. Added Section 9 Bright-Line Rules to `250-dark-prose-reference.md` with 5 IS/IS NOT companions + 3 non-paired bright-line rules. Includes 12 content-verification and 3 behavioral enforcement tests.
 
 ### Changed
 

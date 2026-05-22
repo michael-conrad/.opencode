@@ -175,7 +175,7 @@ assert_tool_calls_made() {
     local total=0
     for pattern in $tool_patterns; do
         local count
-        count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+        count=$(grep -cE "$pattern" "$log_file" 2>/dev/null || true)
         count=${count:-0}
         count=$(echo "$count" | head -1 | tr -d '[:space:]')
         total=$((total + count))
@@ -197,7 +197,7 @@ assert_forbidden_pattern_absent() {
     local description="${2:-forbidden pattern}"
     local log_file="${BEHAVIOR_STDOUT:-/dev/null}"
     local count
-    count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+    count=$(grep -cE "$pattern" "$log_file" 2>/dev/null || true)
     count=${count:-0}
     count=$(echo "$count" | head -1 | tr -d '[:space:]')
     if [ "$count" -gt 0 ]; then
@@ -217,7 +217,7 @@ assert_required_pattern_present() {
     local description="${2:-required pattern}"
     local log_file="${BEHAVIOR_STDOUT:-/dev/null}"
     local count
-    count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+    count=$(grep -cE "$pattern" "$log_file" 2>/dev/null || true)
     count=${count:-0}
     count=$(echo "$count" | head -1 | tr -d '[:space:]')
     if [ "$count" -eq 0 ]; then
@@ -753,7 +753,7 @@ assert_forbidden_pattern_absent_all_models() {
     for model in "${BEHAVIORAL_MODEL_POOL[@]}"; do
         local log_file="${BEHAVIOR_POOL_OUTPUTS[$model]:-/dev/null}"
         local count
-        count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+        count=$(grep -cE "$pattern" "$log_file" 2>/dev/null || true)
         count=${count:-0}
         count=$(echo "$count" | head -1 | tr -d '[:space:]')
         if [ "$count" -gt 0 ]; then
@@ -783,7 +783,7 @@ assert_required_pattern_present_all_models() {
     for model in "${BEHAVIORAL_MODEL_POOL[@]}"; do
         local log_file="${BEHAVIOR_POOL_OUTPUTS[$model]:-/dev/null}"
         local count
-        count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+        count=$(grep -cE "$pattern" "$log_file" 2>/dev/null || true)
         count=${count:-0}
         count=$(echo "$count" | head -1 | tr -d '[:space:]')
         if [ "$count" -eq 0 ]; then
@@ -815,7 +815,7 @@ assert_stderr_pattern_present() {
     local description="${2:-required stderr pattern}"
     local log_file="${BEHAVIOR_STDERR:-/dev/null}"
     local count
-    count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+    count=$(grep -cE "$pattern" "$log_file" 2>/dev/null || true)
     count=${count:-0}
     count=$(echo "$count" | head -1 | tr -d '[:space:]')
     if [ "$count" -eq 0 ]; then
@@ -835,7 +835,7 @@ assert_stderr_pattern_absent() {
     local description="${2:-forbidden stderr pattern}"
     local log_file="${BEHAVIOR_STDERR:-/dev/null}"
     local count
-    count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+    count=$(grep -cE "$pattern" "$log_file" 2>/dev/null || true)
     count=${count:-0}
     count=$(echo "$count" | head -1 | tr -d '[:space:]')
     if [ "$count" -gt 0 ]; then
@@ -857,7 +857,7 @@ assert_stderr_pattern_present_all_models() {
     for model in "${BEHAVIORAL_MODEL_POOL[@]}"; do
         local log_file="${BEHAVIOR_POOL_STDERRS[$model]:-/dev/null}"
         local count
-        count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+        count=$(grep -cE "$pattern" "$log_file" 2>/dev/null || true)
         count=${count:-0}
         count=$(echo "$count" | head -1 | tr -d '[:space:]')
         if [ "$count" -eq 0 ]; then
@@ -881,7 +881,7 @@ assert_stderr_pattern_absent_all_models() {
     for model in "${BEHAVIORAL_MODEL_POOL[@]}"; do
         local log_file="${BEHAVIOR_POOL_STDERRS[$model]:-/dev/null}"
         local count
-        count=$(grep -c "$pattern" "$log_file" 2>/dev/null || true)
+        count=$(grep -cE "$pattern" "$log_file" 2>/dev/null || true)
         count=${count:-0}
         count=$(echo "$count" | head -1 | tr -d '[:space:]')
         if [ "$count" -gt 0 ]; then
