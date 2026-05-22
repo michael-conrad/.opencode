@@ -1,27 +1,32 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["networkx>=3.1"]
 # ///
+
 """
 DESCRIPTION: Digraph block parser. Extracts dot/digraph fenced blocks from markdown and converts to networkx DiGraph.
 Usage: ./.opencode/tools/symbolic extract-dot
 """
 
-from __future__ import annotations
 import os as _os
 import re
-import subprocess
 import sys
 from pathlib import Path
 
 import networkx as nx
 
-BASE_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-PROJECT_ROOT = (BASE_DIR / CDUP).resolve()
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    parent = _path.parent
+    if parent == _path:
+        raise RuntimeError("Could not find .opencode/ directory")
+    _path = parent
+PROJECT_ROOT = _path.parent
 DIGRAPH_PATTERN = re.compile(r"```(?:dot|digraph)\s*\n(.*?)```", re.DOTALL)
-
 
 def parse_dot_to_networkx(dot_text: str) -> nx.DiGraph:
     g = nx.DiGraph()
@@ -41,7 +46,6 @@ def parse_dot_to_networkx(dot_text: str) -> nx.DiGraph:
             g.add_edge(bare_edge.group(1), bare_edge.group(2))
 
     return g
-
 
 def extract_digraphs(scan_dir: Path) -> list[tuple[str, nx.DiGraph, str]]:
     import yaml
@@ -80,7 +84,6 @@ def extract_digraphs(scan_dir: Path) -> list[tuple[str, nx.DiGraph, str]]:
 
     return results
 
-
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
         print(
@@ -103,7 +106,6 @@ def main() -> None:
             print(f"  {rel}: {g.number_of_nodes()} nodes, {g.number_of_edges()} edges")
     else:
         print("No digraph blocks found.")
-
 
 if __name__ == "__main__":
     main()

@@ -1,14 +1,16 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["pyyaml>=6.0"]
 # ///
+
 """
 DESCRIPTION: Extract and classify acceptance criteria from spec files. Supports SC-N: prefix, [ ] checkboxes, ## Success/Acceptance Criteria sections. Outputs classification table. Agent verifies substance with live reads.
 Usage: ./.opencode/tools/skildeck verify-acceptance --spec PATH [--base dev] [--json]
 """
-
-from __future__ import annotations
 
 import json
 import os as _os
@@ -28,7 +30,6 @@ HEADING_PATTERN = re.compile(
 )
 NUMBERED_LIST_PATTERN = re.compile(r"^\d+\.\s+(.+)$", re.MULTILINE)
 
-
 @dataclass
 class CriterionResult:
     criterion_id: str
@@ -36,7 +37,6 @@ class CriterionResult:
     classification: str
     suggested_verification: str
     detail: str = ""
-
 
 @dataclass
 class AcceptanceReport:
@@ -46,7 +46,6 @@ class AcceptanceReport:
 
     def to_dict(self) -> dict:
         return asdict(self)
-
 
 def _classify_criterion(
     text: str, index: int, section_context: str = ""
@@ -141,7 +140,6 @@ def _classify_criterion(
         "Could not auto-classify - human judgment required",
     )
 
-
 def extract_criteria(text: str) -> list[tuple[str, str, str]]:
     """Extract acceptance criteria from spec text.
     Returns list of (criterion_id, text, section_context).
@@ -192,7 +190,6 @@ def extract_criteria(text: str) -> list[tuple[str, str, str]]:
 
     return criteria
 
-
 def verify_acceptance(spec_path: Path) -> AcceptanceReport:
     try:
         text = spec_path.read_text()
@@ -226,7 +223,6 @@ def verify_acceptance(spec_path: Path) -> AcceptanceReport:
         )
 
     return report
-
 
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
@@ -287,7 +283,6 @@ def main() -> None:
                 print(f"  ⚠ {w}")
 
             sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

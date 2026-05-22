@@ -1,9 +1,7 @@
 ---
 name: completion-core
-description: Use when completing a skill task — shared completion operations (push branch, generate URL, post status, executive summary) referenced by per-skill completion tasks
-type: pattern
+description: "Use when completing skill task workflows with push, URL generation, comment posting, and executive summary reporting. Triggers on: completion, finish, halt, done, branch ready, push changes. A halt without output leaves the developer waiting. Clear completion signals are professional courtesy."
 license: MIT
-provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -11,27 +9,11 @@ compatibility: opencode
 
 Reference this file from per-skill `tasks/completion.md` files for common completion operations.
 
-## Workflow Diagram
+## Entry Gate
 
-```mermaid
-flowchart TD
-    A[Skill halts or completes] --> B[1. Push branch idempotent]
-    B --> C{Branch has unpushed commits?}
-    C -- Yes --> D[git push -u origin branch]
-    C -- No --> E[Skip push]
-    D --> F[2. Generate URL]
-    E --> F
-    F --> G{Workflow type?}
-    G -- git push --> H[Compare URL from session-init values]
-    G -- creation --> I[Action URL from API response html_url]
-    H --> J[3. Post status comment]
-    I --> J
-    J --> K{Comment substantive?}
-    K -- Yes --> L[github_add_issue_comment]
-    K -- No --> M[Skip — chat only]
-    L --> N[4. Report executive summary in chat]
-    M --> N
-```
+**Entry gate: verification-before-completion PASS required before any completion operation.**
+
+Verification IS completion — the concept is fused. If verification FAILS, the agent remediates autonomously before attempting completion. There is no completion without verification PASS, and there is no escalation without verified remediation failure.
 
 ## Common Completion Operations
 
@@ -69,7 +51,7 @@ COMPARE_URL="${GITBUCKET_HTML_URL:-https://github.com/}${GIT_OWNER}/${GIT_REPO}/
 
 **Action URL** (for creation workflows — issue creation, approval gate):
 
-- **Issue URL:** Extract from `github_issue_write` API response `html_url` field — NEVER construct from template
+- **Issue URL:** Extract from `github_issue_write` API response `html_url` field — NEVER construct from template <!-- Routes through issue-operations per SPEC #683 -->
 - **PR URL:** Extract from `github_create_pull_request` API response `html_url` field — NEVER construct from template
 
 ### 3. Post Status Comment (Substantive Only)
@@ -79,7 +61,7 @@ Before posting, evaluate whether the comment is substantive per the `issue-opera
 ```python
 # ONLY post if the comment conveys stakeholder-meaningful information
 if is_substantive:
-    github_add_issue_comment(owner=<github.owner>, repo=<github.repo>, issue_number=N, body="...")
+    issue-operations -> comment (github_add_issue_comment(owner=<github.owner>, repo=<github.repo>, issue_number=N, body="...") <!-- Routes through issue-operations per SPEC #683 -->
 else:
     # Skip posting — progress goes to chat only
     pass

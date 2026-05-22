@@ -38,8 +38,8 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 
 - `pycharm_replace_text_in_file` → edits files → MUST be on feature branch
 - `pycharm_create_new_file` → creates files → MUST be on feature branch
-- `github_issue_write` → GitHub Issues, NOT local files → NOT a filesystem change
-- `github_add_issue_comment` → GitHub comments → NOT a filesystem change
+- `github_issue_write` → GitHub Issues via issue-operations, NOT local files → NOT a filesystem change <!-- Routes through issue-operations per SPEC #683 -->
+- `issue-operations -> comment (github_add_issue_comment` → GitHub comments → NOT a filesystem change <!-- Routes through issue-operations per SPEC #683 -->
 
 **Violation = Hard Stop**
 
@@ -49,9 +49,9 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 
 ## Operating Protocol
 
-1. **Mandatory invocation (no decision point):** The agent MUST invoke this task when:
+1. **Mandatory call (no decision point):** The agent MUST call this task when:
    - User says `approved`, `go`, or similar authorization to begin implementation
-   - DO NOT prompt for invocation — invoke the skill directly
+    - DO NOT prompt — call the skill directly
 
 ## Entry Criteria
 
@@ -145,47 +145,10 @@ fi
 ### Step 2.5: Proactive Repo State Verification
 
 **Before creating any feature branch, verify repo state:**
+1. **Submodule initialization check:** Check if `.gitmodules` exists. If it does, note that submodule sync will be handled by the `submodule-tag-prework` sub-agent task() in Steps 2.7/3.5 — do NOT run submodule commands inline.
 
-1. **Submodule initialization check:** `git submodule status` — if any submodule shows `-` prefix (not initialized), run `git submodule init && git submodule foreach "git checkout dev && git pull"`
-2. **Submodule currency check:** If any submodule is not on `dev` branch, sync it: `git submodule foreach "git checkout dev && git pull"`
-3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be run: `git checkout dev && git pull && git submodule init && git submodule foreach "git checkout dev && git pull"`
-
-### Step 2.6: Submodule Dev-Tip Verification (MANDATORY)
-
-**Before proceeding past pre-work, verify ALL submodules are parked at origin/dev tip:**
-
-```bash
-# Check each submodule's HEAD matches origin/dev tip
-git submodule foreach '
-    current_sha=$(git rev-parse HEAD)
-    origin_dev_sha=$(git ls-remote origin dev | cut -f1)
-    
-    if [ "$current_sha" != "$origin_dev_sha" ]; then
-        echo "ERROR: Submodule $name is not at origin/dev tip"
-        echo "  Current: $current_sha"
-        echo "  origin/dev: $origin_dev_sha"
-        echo "  ACTION: Syncing to origin/dev..."
-        git checkout dev && git pull origin dev
-    else
-        echo "OK: Submodule $name is at origin/dev tip"
-    fi
-'
-```
-
-**Detached HEAD detection and correction:**
-
-```bash
-# Detect and correct detached HEAD state in submodules
-git submodule foreach '
-    if ! git rev-parse --abbrev-ref HEAD >/dev/null 2>&1; then
-        echo "ERROR: Submodule $name is in detached HEAD state"
-        echo "  ACTION: Checking out dev branch..."
-        git checkout dev
-    fi
-'
-```
-
-**Agent cannot proceed past pre-work without confirming submodule HEAD matches origin/dev.** If any submodule is stale or in detached HEAD state, the agent MUST sync it before proceeding to Step 3 (feature branch creation).
+2. **Submodule currency check:** Deferred to the `submodule-tag-prework` sub-agent task() (Steps 2.7/3.5).
+3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be task()ed to `submodule-tag-prework` — do NOT run `git submodule init` or `git submodule foreach` inline.
 
 ### Step 2.7: Automatic Prerequisite Operations
 
@@ -197,10 +160,7 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 |-----------|------|----------------|-----------|
 | `git fetch origin` | Step 1.5/2 | Pipeline prerequisite | Remote exists |
 | `git checkout dev && git pull origin dev` | Step 2 | Tier 1 mandate prerequisite | Always when remote exists |
-| `git submodule init` + `git submodule foreach "git checkout dev && git pull"` | Step 2.5 | Tier 1 mandate prerequisite | `.gitmodules` exists |
-| **Submodule dev-tip verification** | Step 2.6 | **Tier 1 mandate prerequisite** | **`.gitmodules` exists** |
-| **Submodule detached HEAD correction** | Step 2.6 | **Tier 1 mandate prerequisite** | **`.gitmodules` exists** |
-| **Submodule pre-work tagging** | Step 3.5 | **Tier 1 mandate prerequisite** | **`.gitmodules` exists** |
+| Task() `submodule-tag-prework` sub-agent | Step 2.5/3.5 | Tier 1 mandate prerequisite | `.gitmodules` exists |
 | `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 3 | Tier 1 mandate — required by `000-critical-rules.md` §Skipping Git Pre-Check | Always |
 | `git push -u origin feature/N-xyz` | Post-Step 5 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
 
@@ -209,12 +169,11 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 1. Authorization has been verified — `approval-gate --task verify-authorization` passed
 2. The operation is a Tier 1 mandate or a deterministic prerequisite for authorized work
 3. The operation requires no judgment — it is a deterministic, mechanical step
-4. The scope covers the pipeline stage containing the operation (`for_pr`, `for_implementation`, `for_code_review`)
+4. The scope covers the pipeline stage containing the operation (`for_pr`, `for_implementation`, `for_review_prep`)
 
 **🚫 FORBIDDEN: Soliciting developer confirmation for automatic prerequisites:**
 
 - "Should I sync the submodule?" → FORBIDDEN — submodule sync is automatic
-- "Should I tag the submodule?" → FORBIDDEN — tagging is automatic per tag-based discipline
 - "May I create the feature branch?" → FORBIDDEN — branch creation is a Tier 1 mandate
 - "Ready to proceed with git push?" → FORBIDDEN — initial push is a pipeline prerequisite
 - "Proceed with pre-work?" → FORBIDDEN — pre-work is mandatory after authorization
@@ -224,7 +183,26 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 
 The agent MUST NOT ask for confirmation, permission, or readiness before performing any operation listed in the table above. These are mechanical prerequisites that the agent MUST execute as part of the approved workflow.
 
-**See also:** `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" — whether to sync a submodule, tag it, create a branch, or push is NOT a decision requiring user input when authorization covers the pipeline stage.
+**See also:** `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" — whether to sync a submodule, create a branch, or push is NOT a decision requiring user input when authorization covers the pipeline stage.
+
+### Sub-Agent Boundary: `submodule-tag-prework` task()
+
+When `.gitmodules` exists, run a `submodule-tag-prework` sub-agent via task() for submodule initialization, sync, and status operations. The sub-agent receives only:
+
+**`must_receive`:**
+- `worktree.path` (if in worktree mode; null otherwise)
+- `.gitmodules` file path
+- `github.owner` and `github.repo` (for context, NOT for API calls into the parent repo)
+
+**`must_not_receive`:**
+- Any pre-determined file paths, line numbers, or expected SHAs
+- The parent's authorization scope or halt_at value
+- Orchestrator reasoning about what the sub-agent should find
+- Any cached `git submodule status` output
+- Any commit messages or summaries from previous syncs
+- Tool recipes (e.g., "run `git submodule foreach` then `git log`")
+
+🚫 **FORBIDDEN:** Pre-loading the sub-agent with expected SHA values, expected commit counts, expected log summaries, or any orchestrator analysis of what changed. The sub-agent independently discovers submodule state.
 
 ### Step 3: Create Feature Branch (Mode-Dependent)
 
@@ -267,67 +245,99 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 - Do NOT attempt any implementation until the worktree infrastructure is fixed
 - There is NO fallback to direct-branch when worktree mode is explicitly requested
 
-### Step 3.5: Submodule Pre-Work Tagging (MANDATORY — Sub-Agent Dispatch)
+### Step 3.5: Submodule Initialization and Sync — task() to `submodule-tag-prework`
 
-**If `.gitmodules` does NOT exist:** Skip entirely and proceed to Step 4.
+**If `.gitmodules` does NOT exist:** Skip this step and proceed to Step 3.7.
 
-**If `.gitmodules` exists:** The agent MUST dispatch a `submodule-tag-prework` sub-agent. The main agent MUST NOT perform any git tag/push/foreach operations inline — this is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Inline Work.
+**If `.gitmodules` exists:** task() a `submodule-tag-prework` sub-agent with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
 
-#### Sub-Agent Boundary
+1. Checks `.gitmodules` existence
+2. Initializes submodules if needed (`git submodule init`)
+3. Checks out each submodule to its `dev` tip (`git submodule foreach "git checkout dev && git pull"`)
+4. Logs submodule status (`git submodule status`)
+5. Tags each submodule at dev tip with `<parent-repo>/<issue-number>` format (`git tag -a`)
+6. Pushes tags to submodule remote (`git push origin <tag>`)
+7. Verifies tags exist on remote (`git ls-remote --tags origin <tag>`)
+8. Reports results in its result contract
 
-| Field | Value |
-|-------|-------|
-| **must_receive** | `issue_number`, `github.owner`, `github.repo`, `dev.name`, `dev.email`, submodule paths from `git submodule status`, parent repo short name |
-| **must_not_receive** | Implementation context, agent memory, full task file contents, other sub-agents' results |
-
-#### Dispatch Procedure
-
-Invoke: `/submodule-tag-prework` opencode command (or dispatch sub-agent with scoped instruction).
-
-The sub-agent performs:
-1. **Tag each submodule at dev tip** with format `<parent-repo>/<issue-number>`
-2. **Push tags** to each submodule's remote
-3. **Leave submodule hashes dirty** — do NOT commit submodule bumps to the parent branch
-
-#### Tag Format
-
-```
-<parent-repo-short>/<issue-number>
-```
-
-- `<parent-repo-short>`: Repository name without owner (e.g., `opencode-config-parent` → `opencode-config-parent`)
-- `<issue-number>`: The issue being implemented
-- Example: `opencode-config-parent/215`
-
-**Why this format:** Supports multi-parent shared-submodule repos. The `<parent-repo>/` prefix prevents tag collisions when the same submodule is referenced by multiple parent repos.
-
-#### CRITICAL: No Submodule Bump Commit
-
-**The tag replaces the bump commit entirely.** The agent MUST NOT:
-- Run `git add <submodule-path>` to stage submodule SHA changes
-- Run `git commit -m "chore(submodule): pin ..."` 
-- Create any commit in the parent repo that records a submodule SHA change
-
-Submodule hashes are left dirty during development. The liveness check at PR-time verifies all referenced hashes are reachable via tags.
-
-#### Sub-Agent Result Contract
+**The orchestrator receives a result contract containing:**
 
 ```yaml
 status: DONE | BLOCKED
-task: submodule-tag-prework
-submodule_results:
-  - path: <submodule-path>
-    tag_name: <parent-repo>/<issue-number>
-    sha_tagged: <sha>
-    tag_pushed: bool
-evidence_artifacts:
-  - tool: git tag -l
-    output: <tag list showing created tags>
-  - tool: git push origin --tags
-    output: <push confirmation>
+submodules_found: <count>
+submodules_updated: <list of (path, old_sha, new_sha, commit_count)>
+gitmodules_path: <path>
 ```
 
-**If the sub-agent returns BLOCKED:** Report the failure and HALT. Do not attempt inline remediation.
+**If `status: BLOCKED`** (e.g., submodule checkout fails, `.gitmodules` malformed): Re-task() with original scoped context. If second task() also fails, report the double-failure and HALT.
+
+**If on `main` worktree:** The sub-agent uses `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to dev tip. Pass `worktree_type: main` in the task context.
+
+**Do NOT inline the submodule operations.** The orchestrator never runs `git submodule` commands or reads submodule logs directly.
+
+### Step 3.7: Initialize .issues/ Worktree and Issue Directory (MANDATORY)
+
+After branch creation and submodule sync, initialize the `.issues/` worktree and `.issues/<issue_number>/` tracking directory:
+
+1. **Initialize .issues/ worktree (if not already initialized):**
+   ```bash
+   local-issues setup
+   ```
+   This is idempotent — if `.issues/` is already a worktree, it exits cleanly. If a regular `.issues/` directory exists (not a worktree), it renames it to `.issues.bak`, creates the worktree, and migrates content.
+
+   **Exit code handling:**
+   | Exit Code | Meaning | Agent Action |
+   |-----------|---------|--------------|
+   | 0 | Success — worktree ready | Continue to step 2 |
+   | 1 | Fatal error — retry won't help | HALT and report the error from stderr |
+   | 2 | Blocked — stale worktree detected | Remediate: read the stale path from the stderr report, run `git worktree remove <stale_path>`, then retry `local-issues setup` |
+
+   **Exit code 2 remediation flow (STALE worktree):**
+   1. Read the stale path from the stderr report (lines starting with `ERROR: Stale issues-data worktree detected at:`)
+   2. Remove the stale worktree: `git worktree remove <stale_path>`
+   3. Re-run: `local-issues setup` — should succeed
+   4. Verify `.issues/` is now a worktree on `issues-data` at the correct path
+   5. After setup, examine all `.issues/` files on the current branch and ensure they are properly represented on `issues-data`:
+      - Tracked `.issues/` files → copy into the worktree, commit on `issues-data`, then `git rm --cached` from current branch and commit
+      - Untracked `.issues/` directories → copy into the worktree, commit on `issues-data`
+   6. Remove `.issues.bak` if leftover from the setup cycle
+   7. Resume the original calling task
+
+2. **Create issue-specific directory:**
+   ```bash
+   mkdir -p .issues/<issue_number>/
+   ```
+
+3. **Fetch spec from API and mirror to `spec.md`:**
+   - Call `issue-operations -> read-issue (github_issue_read(method="get", owner=<github.owner>, repo=<github.repo>, issue_number=<issue_number>)` <!-- Routes through issue-operations per SPEC #683 -->
+   - If success: write `.issues/<issue_number>/spec.md` with header `# Synced from GitHub Issue #<issue_number> at <ISO8601-timestamp>` followed by the issue body
+   - If API unreachable: skip `spec.md` creation (no fallback since there's nothing to fall back to at initialization)
+   - See `issue-operations/platforms/github-mcp/SKILL.md` → "spec.md Mirror" for the complete mirror procedure
+
+4. **Write initial `state.md`:**
+   ```markdown
+   # State: Issue #<issue_number>
+
+   **Branch:** <branch-name>
+   **Workflow Phase:** pre-work
+   **Created:** <ISO8601-timestamp>
+   **Last Updated:** <ISO8601-timestamp>
+   **Status:** initialized
+
+   ## Current State
+
+   Pre-work initialization complete. Awaiting implementation task().
+
+   ## Blockers
+
+   None.
+   ```
+
+5. **Auto-commit `.issues/<issue_number>/`:**
+   ```bash
+   git add .issues/<issue_number>/spec.md .issues/<issue_number>/state.md
+   git commit -m "docs(issues): <issue_number> - spec: mirrored from GitHub Issue #<issue_number>, state: pre-work initialization"
+   ```
 
 ### Step 4: Verify Branch Environment
 
@@ -384,6 +394,70 @@ dev_base_hash: <7-char-sha>
 working_tree_clean: true
 ready_for: implementation
 ```
+
+## `investigate/` Scratch Branches
+
+Under `for_analysis` scope, the agent may create `investigate/<topic>` scratch branches for read-only investigation. These are NOT feature branches — they are ephemeral throwaway branches.
+
+### When to Use
+
+- Investigating a bug hypothesis
+- Running throwaway scripts to examine data
+- Testing a refactoring idea without committing
+- Exploring file structure in a clean context
+
+### Naming Convention
+
+```bash
+git checkout -b investigate/<topic> dev
+```
+
+Examples: `investigate/parsing-bug`, `investigate/missing-env-var`, `investigate/test-failure-root-cause`
+
+### Scope Gate
+
+- `investigate/*` branches are permitted under `for_analysis` scope (self-assigned or explicit)
+- `investigate/*` branches do NOT require `for_implementation` — they are read-only scratch branches
+- The agent MUST NOT make permanent code changes on `investigate/*` branches
+- Writes to `./tmp/` and throwaway scripts ARE permitted
+
+### MUST Discard Before HALT
+
+**🚫 CRITICAL: `investigate/` branches MUST be discarded before the halt message.**
+
+```bash
+git branch -D investigate/<topic>
+```
+
+This is a hard requirement — leaving `investigate/` branches in the repo pollutes branch space. The enforcement in `enforcement/halt-conditions.md` verifies this.
+
+### `feature/` and `spec/` Branch Scope Gate
+
+Creating `feature/*` or `spec/*` branches requires `for_implementation` scope or above. Under `for_analysis`, these branches are BLOCKED:
+
+```bash
+# 🚫 FORBIDDEN under for_analysis
+git checkout -b feature/123-xyz dev  # Requires for_implementation+
+
+# ✅ PERMITTED under for_analysis
+git checkout -b investigate/parsing-bug dev  # Read-only scratch branch
+```
+
+If the agent attempts to create a `feature/` or `spec/` branch under `for_analysis`, the operation MUST be rejected and reported as a scope boundary violation.
+
+## Authorization Context
+
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+```
+
+### Task Context Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 ## Context Received from Orchestration Layer
 

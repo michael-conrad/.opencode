@@ -24,7 +24,7 @@ Mandatory checks that must pass before creating ANY PR. No exceptions.
 
 ```bash
 # Check if this is a work branch (assembly by assemble-work)
-ls .opencode/tmp/work-*.md 2>/dev/null
+ls tmp/work-*.md 2>/dev/null
 
 # Read scope fields from work state file if present
 # authorization_scope, halt_at, pr_strategy
@@ -46,6 +46,17 @@ git log origin/dev..HEAD --oneline | wc -l
 **If commit count mismatch → SQUASH NOW (single-issue) or VERIFY NOW (work branch).** This is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Un-Squashed PR — creating a PR with incorrect commit count is forbidden.
 
 **Scope check:** If `pr_strategy == none` or `halt_at < pr_created`, HALT — PR creation is not authorized by the current scope. The scope boundary is a hard wall.
+
+**Authorization context:**
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+```
+- Missing `authorization_scope` → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 **Single-issue branch (no work state file):**
 
@@ -108,19 +119,32 @@ Verify commit message includes BOTH trailers:
 - Single-task: Include `Fixes #<parent>` in PR body
 - Multi-task: Include `Fixes #<parent>` AND `Fixes #<child>` for EACH sub-issue
 
-**7. Dispatch Chain Completion (MANDATORY — Zero Tolerance)**
+**7. Pipeline Chain Completion (MANDATORY — Zero Tolerance)**
 
-Before creating a PR, verify that ALL post-implementation dispatch chain steps were completed. These steps are listed in `approval-gate/SKILL.md` §Dispatch Order and are MANDATORY before PR creation.
+Before creating a PR, verify that ALL post-implementation pipeline chain steps were completed. These steps are listed in `approval-gate/SKILL.md` §Dispatch Order and are MANDATORY before PR creation.
 
 | Step | Evidence to Verify | On Missing |
 | -- | -- | -- |
-| `verification-before-completion` | Success criteria verification results exist in chat output | HALT and invoke `verification-before-completion` before proceeding |
-| `finishing-a-development-branch --task checklist` | All checklist items verified via tool-call artifacts (see checklist.md Live Verification table) | HALT and invoke `--task checklist` before proceeding |
-| `git-workflow --task review-prep` | Compare URL generated and reported in chat with mandatory format (summary → outcome → URL → byline) | HALT and invoke `--task review-prep` before proceeding |
+| `verification-before-completion` | Success criteria verification results exist in chat output | HALT and call `verification-before-completion` before proceeding |
+| `finishing-a-development-branch --task checklist` | All checklist items verified via tool-call artifacts (see checklist.md Live Verification table) | HALT and call `--task checklist` before proceeding |
+| `git-workflow --task review-prep` | Compare URL generated and reported in chat with mandatory format (summary → outcome → URL → byline) | HALT and call `--task review-prep` before proceeding |
 
-**If ANY dispatch chain step is missing evidence, the agent MUST invoke the missing step before proceeding with PR creation.** This is a belt-and-suspenders check: even if a step was skipped earlier, this gate catches the omission before the PR is created.
+**If ANY pipeline chain step is missing evidence, the agent MUST call the missing step before proceeding with PR creation.** This is a belt-and-suspenders check: even if a step was skipped earlier, this gate catches the omission before the PR is created.
 
 Skipping this verification is a CRITICAL GUIDELINE VIOLATION per `approval-gate/SKILL.md` §Enforcement checkpoint rules.
+
+**8. Cross-Model Validation Gate (MANDATORY — When Behavioral Tests Exist)**
+
+When the spec includes behavioral enforcement tests (Phase 4), PR creation is BLOCKED unless cross-model validation evidence exists:
+
+1. Verify evidence artifacts for both local and cloud model runs exist
+2. If only single-model evidence is present: HALT PR creation — `CROSS_MODEL_GAP` detected
+3. If both models ran but only one passed: HALT PR creation — `BRITTLENESS_DETECTED`
+4. If both models passed: PR can proceed
+
+**🚫 FORBIDDEN:** Creating a PR with behavioral tests validated against only one model. Cross-model validation is the enforcement gate for rule robustness.
+
+**AUTHORITY:** `000-critical-rules.md` §Model-Aware Clean-Room task(), `verification-before-completion/SKILL.md` §Cross-Model Verification Gate, Spec #262
 
 ## CRITICAL Violations
 

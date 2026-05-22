@@ -106,9 +106,9 @@ HALT after posting the summary. Wait for the developer to act on the outcomes.
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Issue is NOT a bug" | Verify no bug language in body/comments | `github_issue_read(method=get)` → scan for bug patterns | CONFLICTING |
-| "Issue needs spec-creation" | Verify no existing spec/plan covers this topic | `github_search_issues(query="topic")` → check for duplicates | MISSING-ELEMENT |
-| "Q/A resolution is current" | Verify no new comments since Q/A | `github_issue_read(method=get_comments)` → check timestamps | VERIFICATION-GAP |
+| "Issue is NOT a bug" | Verify no bug language in body/comments | `issue-operations -> read-issue (github_issue_read(method=get)` → scan for bug patterns | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
+| "Issue needs spec-creation" | Verify no existing spec/plan covers this topic | `issue-operations -> search-issues (github_search_issues(query="topic")` → check for duplicates | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
+| "Q/A resolution is current" | Verify no new comments since Q/A | `issue-operations -> read-comments (github_issue_read(method=get_comments)` → check timestamps | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
 
 **Evidence artifact:** Tool call results confirming classification and recency.
 

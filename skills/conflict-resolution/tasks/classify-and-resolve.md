@@ -6,7 +6,7 @@ Detect, classify, and resolve git conflicts according to a tiered system that pr
 
 ## Operating Protocol
 
-1. Invoked by: `/skill conflict-resolution --task classify-and-resolve`
+1. Invoked by: `skill({name: "conflict-resolution"})` → `task()` for `classify-and-resolve`
 2. When to use: When a git rebase/merge/cherry-pick operation produces conflicts
 3. Exit criteria: All conflicts classified and resolved, post-resolution verification passes
 
@@ -101,7 +101,7 @@ Notify in chat:
 5. **For complex intent conflicts**, also create a GitHub Issue:
 
 ```python
-github_issue_write(
+issue-operations -> creation/update (github_issue_write( <!-- Routes through issue-operations per SPEC #683 -->
     method="create",
     title=f"[Conflict] <descriptive-title> during rebase of <branch>",
     body=f"## Conflict During Rebase\n\n...",

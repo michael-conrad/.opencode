@@ -1,3 +1,9 @@
+---
+trigger_on: pair mode, pair branch, pair-, dev-pair
+tier: 2
+load_when: sub-agent
+---
+
 # Pair Mode Branch Discipline
 
 ## Overview
@@ -189,7 +195,7 @@ rules:
         - "branch_name in ['dev', 'main']"
         - "uncommitted_changes == true"
     actions:
-      - INVOKE(git-workflow)
+      - CALL(git-workflow)
     conflicts_with: []
     requires: []
     triggers: [git-workflow]

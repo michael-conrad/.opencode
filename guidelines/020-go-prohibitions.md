@@ -1,3 +1,9 @@
+---
+trigger_on: GO, prohibited, forbidden, never do, soliciting, solicitation
+tier: 1
+load_when: sub-agent
+---
+
 # GO Prohibitions
 
 ## 1. What GO Is Not & Self-Authorization Prohibitions
@@ -47,6 +53,18 @@
   - "Please provide authorization before I continue."
 - **No implied authorization framing.** The agent must not frame status reports as requests or frame blockers as needing user action in a way that solicits a response. Correct format: "Blocked: no approved spec found for #N." Incorrect format: "We're blocked — can you approve #N so I can continue?"
 - **No forward-looking references in completion reports.** Completion reports must describe what was done, never what should happen next. This prevents the report from reading as an implicit request for the next authorization step.
+- **"Continue" and session momentum do NOT waive mandatory pipeline gates.** Cumulative "continue" messages ("please continue", "go on", "proceed") and repeated calls in a single session do NOT authorize skipping mandatory pipeline gates (coherence gate, verification-before-completion, finishing-a-development-branch checklist, review-prep). Only pipeline-scoped authorization (`approved #N to PR`, `approved #N for plan`) changes `halt_at`. Session momentum — the fact that the developer said "continue" multiple times in one session — is NOT authorization. The agent MUST NOT treat repeated "continue" messages or the cumulative context of a long session as evidence that the developer wants gates bypassed. Mandatory gates are structural invariants; "continue" is instruction to proceed to the next step, not to skip the step.
+- **Resource cost is NEVER a factor in verification decisions.** The agent MUST NOT consider execution cost, command count, model speed, session duration, or any resource metric when deciding whether to run verification steps. Behavioral enforcement tests MUST run via `opencode-cli run` against real AI models — no substitution with grep, static analysis, pattern matching, or metadata inspection. The cost of `opencode-cli run` is ZERO in the decision calculus:
+  - 🚫 FORBIDDEN: "Running behavioral tests requires too many opencode-cli commands" as a justification for any action
+  - 🚫 FORBIDDEN: "This would take too long" as a justification for skipping or shortcutting verification
+  - 🚫 FORBIDDEN: Substituting grep/static analysis/pattern matching for `opencode-cli run`
+  - 🚫 FORBIDDEN: Counting commands, estimating runtime, or measuring context as factors in correctness decisions
+  - 🚫 FORBIDDEN: "Spot-checking" as a substitute for full behavioral test execution
+  - 🚫 FORBIDDEN: Any sentence containing both a cost/speed/resource noun AND a verification-skip verb
+- **NEVER substitute structural evidence for behavioral/functional evidence when the test cannot run.** If the behavioral test is unexecutable, the SC is FAIL. No exceptions.
+- **NEVER escalate without attempting remediation first. NEVER skip remediation.**
+
+**Cost is measured in defect-discovery-latency, not model roundtrips.** Running verification costs minutes of execution time — a bounded delay that surfaces defects before they reach CI. Skipping a verification step to save a tool call costs the full pipeline of rework when the defect surfaces downstream: diagnosis, fix, re-review, re-CI, re-deploy — each of which costs more roundtrips than the skipped verification would have consumed. Correctness is the only success metric — there is no score for tool-call economy.
 
 ### Authorization-Free Actions — No Deliberation Required
 
@@ -59,23 +77,53 @@ The following actions do NOT require `"approved"` or `"go"` and the agent MUST N
 - Posting progress comments to GitHub — always permitted
 - Moving issue labels — metadata operation
 - Running lint/typecheck/format commands — read-only verification
-- Creating feature branches — see `git-workflow` skill pre-work
+- Creating feature branches — see `git-workflow` skill pre-work (requires `for_implementation` or above)
+- Creating `investigate/*` scratch branches — see `git-workflow --task pre-work` (permitted under `for_analysis`, MUST discard before HALT)
 
 If the action is in this list, proceed immediately without requesting or deliberating over authorization.
 
-### ⚠️ ASK FIRST
+### `for_analysis` Scope — Self-Assignment Rules
+
+`for_analysis` is the ONLY scope an agent may self-assign. It is the default floor scope when no authorization is given.
+
+#### Self-Assignment Conditions
+
+An agent may self-assign `for_analysis` when:
+- No authorization has been given in the current session
+- The user asked a question, reported a bug, or made a factual claim without authorization language
+- The agent needs to investigate, read files, or create issues
+
+Self-assignment means: operate under the `for_analysis` allowlist/blocklist until explicit authorization is received.
+
+#### 🚫 `for_analysis` Branch Restrictions
+
+Under `for_analysis` scope:
+
+- **`feature/*` and `spec/*` branches are BLOCKED.** Creating these branches requires `for_implementation` or above.
+- **`investigate/*` branches ARE permitted.** Naming convention: `investigate/<topic>` (e.g., `investigate/parsing-bug`).
+- **`investigate/*` branches MUST be discarded before HALT.** Never leave an `investigate/` branch in the repo. Delete it with `git branch -D investigate/<topic>` before the halt message.
+- **No commits to `dev` or `main`** (this is always prohibited regardless of scope).
+
+#### Why `investigate/` Branches Exist
+
+`investigate/` branches allow the agent to create throwaway scratch branches for read-only investigation work:
+- Testing a hypothesis about code behavior
+- Running a throwaway script to check data
+- Examining git history or file structure in a clean context
+
+These branches are NOT for implementation — they are ephemeral scratch space. The agent MUST NOT leave them behind.
 
 - **"GO" requires unambiguous scope; clarify only when ambiguous.** If the user types "GO" (or equivalent), treat it as valid authorization ONLY when the immediate session context identifies exactly one plan/scope target.
 - **Clarification gate for ambiguous "GO" only.** Ask for scope clarification only when more than one plausible plan file, phase, or implementation scope is active.
 - **Pipeline-scoped "GO" phrases specify scope horizon.** "Approved #N to PR", "#N approved for plan", "approved #N through implementation" — these carry implicit scope. Parse per `approval-gate` skill → "Authorization Scope Model" and HALT at the specified pipeline stage.
-- **Scope detection via the verb-prefix parsing table is NEVER ambiguous — the table maps every possible phrase to exactly one scope.** Do not ask the user to classify scope. "Approved #N" (no qualifier) → ALWAYS `standard` scope. No clarification needed. "Approved #N to PR" → ALWAYS `for_pr` scope. The parsing table in `approval-gate` skill → Authorization Scope Model is the sole authority for scope determination.
+- **Scope detection via the verb-prefix parsing table is NEVER ambiguous — the table maps every possible phrase to exactly one scope.** Do not ask the user to classify scope. "Approved #N" (no qualifier) → ALWAYS `for_analysis` scope. No clarification needed. "Approved #N to PR" → ALWAYS `for_pr` scope. The parsing table in `approval-gate` skill → Authorization Scope Model is the sole authority for scope determination.
 
 ### ✅ ALWAYS DO
 
 - **Verify actual codebase state before acting.** When a GO names a specific phase, verify the actual codebase state of that phase's deliverables before taking any action — regardless of plan markers.
 - **SILENTLY HALT after a verified-complete phase.** If verification confirms a named phase is already fully and correctly implemented, report the verified findings and HALT without prompting.
 - **HARD HALT at scope boundary.** When `halt_at` is set from pipeline-scoped authorization, the agent MUST stop at that pipeline stage. `halt_at == plan_created` means stop after plan creation; `halt_at == pr_created` means PR creation is authorized. Proceeding past `halt_at` without re-authorization is a critical violation.
-- **Parse authorization phrases for scope.** "Approved #N" (no scope qualifier) = `standard`. "Approved #N to PR" = `for_pr`. "Approved #N for plan" = `for_plan`. See `approval-gate` skill → "Authorization Scope Model" for the complete verb-prefix parsing table.
+- **Parse authorization phrases for scope.** "Approved #N" (no scope qualifier) = `for_analysis`. "Approved #N to PR" = `for_pr`. "Approved #N for plan" = `for_plan`. See `approval-gate` skill → "Authorization Scope Model" for the complete verb-prefix parsing table.
 - **Every halt MUST produce a status message.** If the agent stops, it MUST output what was completed, what was attempted, and why it stopped. Zero output before stopping is a critical violation.
 - **Search issues before halting on missing spec/plan.** When an implementation request lacks a matching spec or plan:
   1. Search GitHub Issues using label filters: `[SPEC]`, `[PLAN]`, `[SPEC-FIX]`
@@ -83,13 +131,26 @@ If the action is in this list, proceed immediately without requesting or deliber
   3. If candidates found: present all candidates with URLs, offer user a choice to select one or create a new spec
   4. If no candidates found: present the failure state ("No existing spec/plan found for [topic]"), offer to create a new spec
   5. Only after search+presentation: HALT, but the halt message now includes the search results
-- **The orchestrator NEVER performs inline work.** ALL file reads, file edits, file writes, analysis, verification, and decision-making MUST be delegated to clean-room sub-agents. The orchestrator ONLY dispatches sub-agents, receives result contracts, and routes to the next pipeline step. Zero inline file operations are permitted in the main agent context.
+- **The orchestrator NEVER performs inline work.** ALL file reads, file edits, file writes, analysis, verification, and decision-making MUST be delegated to clean-room sub-agents. The orchestrator ONLY tasks sub-agents via task(), receives result contracts, and routes to the next pipeline step. Zero inline file operations are permitted in the main agent context.
+- **Orchestrator inline work irreversibly poisons the pipeline — full restart required.** When the orchestrator performs inline work (reading files, running analysis, making decisions instead of task()ing sub-agents), the entire pipeline is irreversibly poisoned. The orchestrator MUST restart from `verify-authorization` with ALL state discarded — no caching, no carryover, no partial recovery. A poisoned pipeline produces contaminated deliverables that inherit the orchestrator's preloaded bias through every downstream sub-agent. This is a NON-WAIVABLE hard gate — no authorization, scope, or developer instruction can override the restart requirement. See `000-critical-rules.md` §Orchestrator Inline Work = Poisoned Pipeline.
+- **Discard all work on sub-agent failure before re-task.** When a sub-agent returns `status: BLOCKED` or fails, ALL work produced by that sub-agent MUST be discarded before re-task. The sub-agent's failure contaminates its output — the cause of the failure and the cause of any incorrect output are not distinguishable. Preserving partial output and re-tasking with it risks propagating contaminated state. Re-task with original scoped context only — the re-task sub-agent starts from the pre-failure branch state. This is a NON-WAIVABLE hard gate — no authorization, scope, or developer instruction can override the discard requirement. See `000-critical-rules.md` §Discard on Sub-Agent Failure.
+- **"Continue" does NOT waive mandatory pipeline gates.** Cumulative "continue" messages ("please continue", "go on", "proceed") and session momentum do NOT waive mandatory gates (coherence gate, verification-before-completion, finishing-a-development-branch checklist, review-prep). Only pipeline-scoped authorization (`approved #N to PR`, `approved #N for plan`) changes `halt_at`. Every mandatory gate fires on EVERY implementation pass regardless of how many "continue" messages preceded it. "Continue" means "proceed to the next step" — it does NOT mean "skip the step." This is a NON-WAIVABLE hard gate — no authorization, scope, or developer instruction can override mandatory gate execution. See `000-critical-rules.md` §Gate Non-Waiver Principle.
+- **Cost-blind verification — never skip verification to conserve resources.** Sub-agent task() and tool calls are near-zero cost compared to undiscovered defects. The agent MUST NEVER skip a tool call, verification step, or sub-agent task() to save resources. Correctness is the only success metric — there is no score for speed, brevity, or economy. A fast wrong answer is strictly worse than a slow correct one. This is a NON-WAIVABLE hard gate — no authorization, scope, or developer instruction can override this requirement. See `000-critical-rules.md` §Tier 1 Mandate: Correctness over economy.
+<!-- Issue #262: Model-Aware Behavioral Testing — Success Criteria: Mandate scope-limited-by-default behavioral testing -->
+- **Scope-limited behavioral testing by default.** When running behavioral enforcement tests, the agent MUST default to scope-limited execution (changed scenarios only, named scenario, or tag-filtered). Full behavioral suite runs are permitted ONLY when model speed permits or when explicitly requested by the developer. Run `ollama-probe hw` to assess hardware before deciding full-suite feasibility. Running the full suite by default when a scope-limited run suffices wastes context budget and compute resources.
+  - 🚫 FORBIDDEN: Running any full behavioral test suite — the `run-all.sh` script MUST NOT exist. All behavioral tests MUST be scope-limited to individual scenarios, `--changed`, or `--tag` filters
+  - 🚫 FORBIDDEN: Defaulting to full behavioral suite without verifying model speed permits it
+  - ✅ REQUIRED: Default to `--changed` when there are uncommitted guideline/skill changes
+  - ✅ REQUIRED: Default to `--tag` matching the current work concern when no changed files
+  - ✅ REQUIRED: Assess hardware (`ollama-probe hw`) before running full suite — only proceed if VRAM ≥ 8 GB and at least one local model ≥ 7B is installed
+- **Functional/behavioral test substitution is FORBIDDEN.** When a behavioral/functional test cannot be executed (model unavailable, timeout, infrastructure failure), the agent MUST report FAIL — NEVER substitute grep, string matching, metadata checks, pattern scanning, or file-existence checks. "Functional test" and "behavioral test" are synonymous in this rule.
+- **Remediate before escalating.** Escalation is only permitted after verified remediation failure. Skipping remediation is not a valid choice.
 
 ## 1.5 Soliciting Authorization for Already-Authorized Phrases — CRITICAL VIOLATION
 
 **⚠️ Asking for confirmation or clarification after receiving a pipeline-scoped authorization phrase is a CRITICAL GUIDELINE VIOLATION.**
 
-The verb-prefix parsing table in `approval-gate` skill → Authorization Scope Model is the single source of truth for scope determination. When authorization text matches a parseable pattern (`approved`, `approved for pr`, `approved for plan`, `approved for implementation`, `approved for spec`, `approved for review`, `approved to PR`, etc.), the agent MUST parse the scope and proceed without asking for confirmation or clarification.
+The verb-prefix parsing table in `approval-gate` skill → Authorization Scope Model is the single source of truth for scope determination. When authorization text matches a parseable pattern (`approved`, `approved for pr`, `approved for plan`, `approved for implementation`, `approved for spec`, `approved for review`, `approved to PR`, etc.), the agent MUST parse the scope and proceed without asking for confirmation or clarification. "Approved #N" with no qualifier self-assigns `for_analysis` scope.
 
 **Scope detection via the verb-prefix parsing table is NEVER ambiguous.** The table maps every possible phrase to exactly one scope. This is a deterministic function — no clarification needed, no judgment required.
 
@@ -103,9 +164,9 @@ The verb-prefix parsing table in `approval-gate` skill → Authorization Scope M
 
 | ✅ REQUIRED | 🚫 FORBIDDEN |
 | -- | -- |
-| Parse scope from verb-prefix table, proceed with dispatch chain | Ask user "should I proceed with the full workflow?" |
+| Parse scope from verb-prefix table, proceed with pipeline chain | Ask user "should I proceed with the full workflow?" |
 | Accept unambiguous authorization at face value | Treat authorization as needing confirmation |
-| Resolve `for_pr`, `for_plan`, `for_implementation`, `for_spec`, `for_review` autonomously | Ask "is this approved to PR or just to implementation?" |
+| Resolve `for_pr`, `for_plan`, `for_implementation`, `for_spec`, `for_review_only` autonomously | Ask "is this approved to PR or just to implementation?" |
 
 **See `approval-gate` skill → "Authorization Scope Model" for the complete verb-prefix parsing table. See `000-critical-rules.md` §Pushing Agent Intelligence Decisions for the autonomous resolution mandate. See `000-critical-rules.md` → "Structural Decision Solicitation Under for_pr Scope" for the complete enforcement, including the `question` tool prohibition under `for_pr` scope.** **AUTHORITY: `000-critical-rules.md` §Structural Decision Solicitation Under for_pr Scope** (this line is a reference only)
 
@@ -154,6 +215,21 @@ This rule applies universally to:
 - **Ecosystem mismatch**: npm packages don't integrate with Python/Java tooling chains.
 - **Team friction**: Requires developers to install/maintain Node.js on their machines.
 
+## 4.5 Project-Local Tool Installation Pattern
+
+When a project requires build tools not available on the host system (e.g., `tsc`, `esbuild`, `sass`), the agent MAY install them **project-locally** as an exception to §4. See `085-project-local-tools.md` for the full rules.
+
+### Key Rules
+
+- **Primary pattern**: `.tools/<tool>/` (e.g., `.tools/node/`, `.tools/jdk/`)
+- **Acceptable alternatives**: `.node/`, `.uv/`, `.jdk/`
+- **MUST be in `.gitignore`** — never tracked
+- **MUST use PATH-prefixed invocation**: `PATH=.tools/node/bin:$PATH npx tsc --noEmit`
+- **MUST NOT modify project config** files (`pyproject.toml`, `package.json`, etc.)
+- **MUST be system-isolated**: never install to `~/.local/`, `/usr/local/`, etc.
+- **MUST be cleanable**: `rm -rf .tools/` removes everything
+- **MUST NOT add to shell profiles** (`~/.bashrc`, `~/.profile`, etc.)
+
 ______________________________________________________________________
 
 ## 5. Multi-task Plan Without Sub-issues — CRITICAL VIOLATION
@@ -180,66 +256,72 @@ Key points:
 - After auto-creating sub-issues, the agent proceeds with implementation immediately (no re-authorization needed).
 
 ```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+schema_version: "3.0"
+last_updated: "2026-05-17T00:00:00Z"
 rules:
   - id: go-prohibitions-001
+    tier: 3
     title: "Agent must never write GO as standalone token"
     conditions:
       all:
         - "agent_output_contains == 'GO'"
         - "context != 'quoted_example'"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "020-go-prohibitions.md §1 NEVER DO"
 
   - id: go-prohibitions-002
+    tier: 3
     title: "No echo or printf commands ever"
     conditions:
       all:
         - "command_includes == 'echo'"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "020-go-prohibitions.md §1 NEVER DO"
 
   - id: go-prohibitions-003
+    tier: 3
     title: "No awaiting-GO or pending-state markers"
     conditions:
       all:
         - "agent_output_contains == 'awaiting'"
         - "agent_output_contains == 'approval'"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "020-go-prohibitions.md §1 NEVER DO"
 
   - id: go-prohibitions-004
+    tier: 3
     title: "Never prompt for authorization"
     conditions:
       any:
         - "agent_output_matches == 'May I proceed?'"
         - "agent_output_matches == 'Shall I continue?'"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "020-go-prohibitions.md §1 NEVER DO"
 
   - id: go-prohibitions-005
+    tier: 2
     title: "Questions are NOT authorization"
     conditions:
       all:
         - "user_input_format == 'question'"
     actions:
+      - HALT
       - SKIP
     conflicts_with: [approval-gate-002]
     requires: []
@@ -247,6 +329,7 @@ rules:
     source: "020-go-prohibitions.md §1 NEVER DO"
 
   - id: go-prohibitions-006
+    tier: 2
     title: "Multi-task plan requires sub-issues under plan"
     conditions:
       all:
@@ -260,6 +343,7 @@ rules:
     source: "020-go-prohibitions.md §5"
 
   - id: go-prohibitions-007
+    tier: 2
     title: "No silent halt without search+prompt for missing spec/plan"
     conditions:
       all:
@@ -277,6 +361,7 @@ rules:
     source: "020-go-prohibitions.md §1 NEVER DO, ALWAYS DO"
 
   - id: go-prohibitions-008
+    tier: 2
     title: "Hard HALT at scope boundary without re-authorization"
     conditions:
       all:
@@ -291,6 +376,7 @@ rules:
     source: "020-go-prohibitions.md §1 ALWAYS DO"
 
   - id: go-prohibitions-009
+    tier: 3
     title: "Pipeline-scoped GO phrases must be parsed for scope horizon"
     conditions:
       any:
@@ -298,8 +384,9 @@ rules:
         - "authorization_text matches 'for plan'"
         - "authorization_text matches 'to implementation'"
         - "authorization_text matches 'for spec'"
-        - "authorization_text matches 'for review'"
+        - "authorization_text matches 'for review_only'"
     actions:
+      - FLAG
       - PARSE_SCOPE(authorization_text)
       - SET(halt_at, pr_strategy, gap_fill_actions)
     conflicts_with: []

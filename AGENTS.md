@@ -8,9 +8,58 @@ The AI agent must determine its identity from the system prompt on EVERY session
 2. **Report identity** in byline format: `🤖 <AgentName> (<ModelId>) <status-icon> <status>`
 3. **Examples**: `🤖 OpenCode (ollama-cloud/glm-5) ✅ completed`, `🤖 OpenCode (ollama-cloud/glm-5) 🔄 working`
 
-**Programmatic validation**: The `session-enforcement.ts` plugin injects repository identity values (github.owner, github.repo, etc.) into the system prompt. The agent reads these from the system prompt context to route API calls correctly. See `000-critical-rules.md` §Inferring GitHub Owner.
+**Programmatic validation**: The `session-enforcement.ts` plugin injects expected identity values into the `IDENTITY_ECHO` directive and validates the agent's first response against them. On mismatch, an `IDENTITY_VALIDATION_FAILURE` block is injected into the next user message, halting all operations. See `000-critical-rules.md` §Inferring GitHub Owner.
 
 **WHY**: Different agents/loaders provide different context. System prompt tells you what you are.
+
+---
+
+## Universal Skill Dispatch Gate — Professional agents dispatch skills. Amateurs inline.
+
+Producing chat output without first evaluating and dispatching applicable skills means chat output without skill evaluation has bypassed the quality gates that catch defects. Every response produced without skill evaluation is a response produced blind. Agents who produce blind responses produce defective work — it is that direct. Do not be that agent.
+
+### Pre-Response Gate Procedure — Your quality is determined here
+
+Before producing ANY output, the agent MUST follow this procedure. Agents who
+skip it are not "fast" — they produce lower-quality work by definition.
+
+1. **Evaluate the user message against ALL available skill descriptions.**
+   The `<available_skills>` list is the map. Agents who skip this step are
+   navigating blind — and blind navigation produces defects.
+
+2. **If one or more skills match the intent of the request: call `skill({name: "..."})` before generating output.** Loading a skill means you are using the enforcement gates designed to catch your mistakes. Skipping this step means memory is the least reliable tool available — a skipped skill call means operating without confirmed information.
+
+3. **Only after skill content is loaded: proceed to produce the response.**
+   The skill is not an interruption to your workflow — it IS the workflow.
+   Agents who write first and verify later produce work that needs rewriting.
+
+4. **If no skill applies directly: proceed without dispatch, but justify in one sentence.** This is the exception. Treat it like one. The one-sentence justification is the audit trail that proves you considered — and correctly dismissed — the skill deck. Every agent who skips this produces silent bypass. Do not be that agent.
+
+### This Gate Fires On
+
+| Trigger | Example User Message |
+|---------|---------------------|
+| Implementation requests | "implement this feature", "build the widget" |
+| Bug reports that need fixing | "there's a bug in the parser" |
+| Merge/rebase operations | "merge conflict while rebasing" |
+| Authorization/approval | "approved #42" |
+| PR/session operations | "check prs", "create a PR", "ready for PR" |
+| Test/investigation work | "write tests for the validator", "debug this crash" |
+| Content generation | "draft a spec for X", "write a runbook" |
+| Architecture decisions | "how should we handle X", "design the module" |
+| **Any request that would produce a multi-paragraph or multi-step response** | |
+
+### Evidence Requirement
+
+If no skill was dispatched, the response MUST include a brief justification (1 sentence) explaining why no skill was applicable. This provides traceability and prevents silent skill bypass.
+
+A silent bypass without justification is the hallmark of agents who skip quality gates. Every unsupported response is a defect vector. Justify or dispatch — there is no third option.
+
+### Non-Waivable
+
+This gate is Tier 1. No authorization, scope, or developer instruction can waive it. "Continue" does not waive it. Session momentum does not waive it.
+
+Agents who treat "continue" as a skip command are not being helpful — they are bypassing the quality system designed to catch their mistakes. Every gate you skip is a defect you accepted. Every "continue" means proceed, not shortcut.
 
 ---
 
@@ -22,6 +71,7 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 |--------|----------|-------|
 | 000-099 | Core Rules | critical-rules, session-enforcement, approval-gate, go-prohibitions, scope-autonomy, tool-usage, environment, incremental-build |
 | 200-209 | Error Handling | exception-handling, missing-data, logging-vs-raising |
+| 250-299 | Dark Prose Patterns | dark-prose-reference |
 
 **Registry of migrated content**: `.opencode/.guidelines/registry.yaml` tracks content moved from guidelines to skills.
 
@@ -51,6 +101,8 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 | Behavioral enforcement test | `bash .opencode/tests/behaviors/run-all.sh` | opencode-cli |
 | Behavioral enforcement test (list) | `bash .opencode/tests/behaviors/run-all.sh --list` | opencode-cli |
 | Behavioral enforcement test (dry-run) | `bash .opencode/tests/behaviors/run-all.sh --dry-run` | opencode-cli |
+| TypeScript check | `PATH=.tools/node/bin:$PATH npx tsc --noEmit` | TypeScript |
+| TypeScript check (alt) | `PATH=.node/bin:$PATH npx tsc --noEmit` | TypeScript |
 | All enforcement tests (content + behavioral) | `bash .opencode/tests/test-enforcement.sh && bash .opencode/tests/behaviors/run-all.sh` | opencode-cli |
 | Isolated opencode-cli run | `bash .opencode/tests/with-test-home opencode-cli run '<message>'` | opencode-cli |
 | Clean test artifacts | `bash .opencode/tests/with-test-home --clean` | opencode-cli |
@@ -70,7 +122,7 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 - `docs/`: Documentation and specifications
 - `.opencode/`: Skills, guidelines, and agent tools
   - `tools/`: Agent utility scripts (guidelines, md, memory, py, jupyter, etc.)
-  - `scripts/`: Session context scripts (session_context_identity.py, session_context_triggers.py)
+  - `scripts/`: Session context scripts (session_context_triggers.py)
   - `skills/`: Self-contained skills (no guideline dependencies)
   - `guidelines/`: Core zero-tolerance rules only
   - `hooks/`: Git hooks (auto-installed to .git/hooks/ by session-enforcement.ts at session start)
@@ -83,22 +135,21 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 
 ## Session Context
 
-Two plugins run at session start:
+One plugin runs at session start, and one script provides complementary data:
 
-1. **session-init** (`tools/session-init`): Emits session variables silently (owner, repo, platform, hooks)
-2. **session_context_identity.py** (`scripts/session_context_identity.py`): Emits identity section (owner, repo, platform, credentials) into system prompt
-3. **session_context_triggers.py** (`scripts/session_context_triggers.py`): Emits trigger warnings into first user message
+1. **session-init** (`tools/session-init`): Emits session variables silently (owner, repo, platform, hooks). **Canonical source for identity data including Sub-folder Repo Mappings.**
+2. **session_context_triggers.py** (`scripts/session_context_triggers.py`): Emits trigger warnings into first user message
 
 Session context output includes:
 
 - **Identity section** (always, in system prompt): `github.owner`, `github.repo`, `github.platform`, credential status
 - **Identity-echo directive** (always, in first user message): mandatory identity echo at session start
-- **Trigger alerts** (when detected, in first user message): `on_main_branch`, `protected_branch_with_changes`, `pair_mode_resume`, `uncommitted_work`, `stale_stash`, `merge_conflict`, `unpushed_commits`, `orphaned_worktrees`
+- **Trigger alerts** (when detected, in first user message): trigger warnings for special states
 - **Tier 3 probes** (opt-in via `.opencode-issue-probe`): `open_pr_on_branch`, `ci_failure`, `stale_pr`
 
 Credential status values: `verified` (token exists + API ping succeeds), `present` (token exists, liveness unchecked), `missing` (no token found), `stale` (token rejected by API), `unavailable` (platform unknown).
 
-- **Sub-folder repo mappings** (when `.gitmodules` exists): `submodule_path: owner/repo (platform)` — files under submodule paths belong to separate repos; use the mapped `owner/repo` for API calls targeting those paths
+- **Sub-folder repo mappings** (when `.gitmodules` exists): `submodule_path: owner/repo (platform)` — files under submodule paths belong to separate repos; use the mapped `owner/repo` for API calls targeting those paths. Emitted by `session-init` (canonical source).
 
 ---
 
@@ -143,6 +194,7 @@ Pair mode tasks: `pair-pre-work`, `pair-commit`, `pair-pr-creation`, `pair-clean
 - Wait for explicit authorization ("approved" or "go") before implementing
 - SILENTLY HALT after completing a task
 - Use appropriate tools per five-tier hierarchy (see `mcp-tool-usage` skill)
+- Verify before completing. Verification IS completion.
 
 **✅ Multi-Task Spec Workflow (CRITICAL):**
 When parent issue has sub-issues, authorization cascades to ALL sub-issues:

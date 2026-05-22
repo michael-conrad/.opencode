@@ -103,7 +103,7 @@ Present conversationally with recommendation and reasoning. Lead with recommende
 
 **Terminal state: invoking spec-creation.**
 
-> "Exploration complete. I'll now invoke the spec-creation skill to structure and write the spec from our investigation results."
+> "Exploration complete. I'll now call the spec-creation skill to structure and write the spec from our investigation results."
 
 `spec-creation` handles:
 - Requirements extraction, problem decomposition

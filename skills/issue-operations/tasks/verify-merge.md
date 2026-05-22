@@ -18,7 +18,15 @@ Verify that a PR has actually been merged before closing associated issues. Prev
 
 ### Step 1: Get PR Status (Platform Routing)
 
-**GitHub platform:**
+Route based on `github.platform`:
+
+| `github.platform` | Route to |
+|---|---|
+| `github` | `platforms/github-mcp/` sub-skill |
+| `gitbucket` | `platforms/gitbucket-api/` sub-skill |
+| `local` | Skip — no PR merge state in local mode |
+
+**GitHub platform (sub-skill implementation):**
 ```python
 pr = github_pull_request_read(
     method="get",
@@ -30,7 +38,7 @@ merged = pr.get("merged", False)
 state = pr.get("state", "unknown")
 ```
 
-**GitBucket platform:**
+**GitBucket platform (sub-skill implementation):**
 ```bash
 # Get PR details and parse merged/state fields
 ./.opencode/tools/gitbucket-api prs <github.owner> <github.repo> --state all | jq '.[] | select(.number == N)'
@@ -72,6 +80,8 @@ When searching for a PR that fixes a specific issue on GitBucket (no search API)
 
 - Session values: github.owner, github.repo, github.platform
 - Related tasks: `close` (uses merge verification before closing)
+- Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
+- No direct `github_*` or `gitbucket-api` calls outside `issue-operations/platforms/`
 
 ## Live Verification: Merge Evidence (MANDATORY)
 

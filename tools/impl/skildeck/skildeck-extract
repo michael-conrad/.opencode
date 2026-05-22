@@ -1,14 +1,16 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["pyyaml>=6.0"]
 # ///
+
 """
 DESCRIPTION: Extract symbolic models from all files or a single skill. Outputs structured JSON.
 Usage: ./.opencode/tools/skildeck extract [--dir PATH] [--skill NAME] [--json] [--verbose]
 """
-
-from __future__ import annotations
 
 import json
 import os as _os
@@ -33,7 +35,6 @@ if SKILLS_DIR is None:
 
 DEFAULT_SCAN_DIR = SKILLS_DIR
 
-
 def _load_module(module_file: str):
     target = IMPL_DIR.parent / module_file
     source = target.read_text()
@@ -42,7 +43,6 @@ def _load_module(module_file: str):
     sys.modules[module_file.replace("-", "_")] = mod
     exec(compile(source, str(target), "exec"), mod.__dict__)
     return mod
-
 
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
@@ -137,7 +137,6 @@ def main() -> None:
         for ea in result.evidence_artifacts:
             print(f"\n  EVIDENCE[{ea.name}] type={ea.type}")
             print(f"    verification: {ea.verification}")
-
 
 if __name__ == "__main__":
     main()

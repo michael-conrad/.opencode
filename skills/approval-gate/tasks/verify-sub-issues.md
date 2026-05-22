@@ -24,7 +24,7 @@ Verify sub-issue structure and STATUS gate for multi-task plans before implement
 ### Step 1: Check for Sub-issues
 
 ```python
-sub_issues = github_issue_read(method="get_sub_issues", issue_number=plan_issue)
+sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=plan_issue) <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 ### Step 2: Determine Plan Type
@@ -51,7 +51,7 @@ sub_issues = github_issue_read(method="get_sub_issues", issue_number=plan_issue)
 
 2. Get plan issue STATUS:
     ```python
-    plan = github_issue_read(method="get", issue_number=plan_issue)
+    plan = issue-operations -> read-issue (github_issue_read(method="get", issue_number=plan_issue) <!-- Routes through issue-operations per SPEC #683 -->
     # Parse STATUS from body
     # Prose-driven formats (recommended):
     #   "STATUS: in progress — {concern}, Step {N}"
@@ -98,13 +98,13 @@ If empty AND multi-task:
 
 ```python
 # For each PHASE in plan:
-issue = github_issue_write(
+issue = issue-operations -> creation/update (github_issue_write( <!-- Routes through issue-operations per SPEC #683 -->
     method="create",
     title=f"[Task: #{plan_issue}] {phase_description}",
     body=f"Plan: #{plan_issue}\nSubtask: {phase_number}\n\n## Purpose\n\n{phase_objective}\n\n## Procedure\n\n{phase_steps}",
     labels=["enhancement", "architecture"]
 )
-github_sub_issue_write(
+issue-operations -> link-sub-issue (github_sub_issue_write( <!-- Routes through issue-operations per SPEC #683 -->
     method="add",
     issue_number=plan_issue,
     sub_issue_id=issue["id"]
@@ -113,7 +113,7 @@ github_sub_issue_write(
 
 Auto-creating sub-issues for an approved multi-task plan does NOT require separate authorization. The plan's authorization covers this setup step.
 
-**⚠️ Body-Preservation Safeguard:** This task only creates new issues (`method="create"`) and does not modify existing issue bodies. If any task in this skill were to use `github_issue_write(method=update, body=...)`, it MUST verify that the new body preserves all original content (len(new_body) >= 0.8 * len(original_body)). See `000-critical-rules.md` → "Critical Violation: Issue Body Erasure" for the project-wide rule.
+**⚠️ Body-Preservation Safeguard:** This task only creates new issues (`method="create"`) and does not modify existing issue bodies. If any task in this skill were to use `issue-operations -> update-issue (github_issue_write(method=update, body=...)`, it MUST verify that the new body preserves all original content (len(new_body) >= 0.8 * len(original_body)). See `000-critical-rules.md` → "Critical Violation: Issue Body Erasure" for the project-wide rule. <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Step 5: Post Comment
 
@@ -188,10 +188,10 @@ Adversarial verification model (evidence format, classification tiers, tier acti
 ### Verify Sub-Issue Existence and State
 
 ```
-sub_issues = github_issue_read(method="get_sub_issues", issue_number=plan_issue)
+sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=plan_issue) <!-- Routes through issue-operations per SPEC #683 -->
 
 For each sub-issue returned:
-  child = github_issue_read(method="get", issue_number=sub_issue_number)
+  child = issue-operations -> read-issue (github_issue_read(method="get", issue_number=sub_issue_number) <!-- Routes through issue-operations per SPEC #683 -->
   
   - Verify child exists (404 = deleted sub-issue → MISSING-TRACEABILITY)
   - Verify child.state matches claimed state (do NOT trust cache)
@@ -201,14 +201,14 @@ For each sub-issue returned:
   - Verify child.title matches the phase description (not reassigned to different work)
 ```
 
-**Evidence artifact:** `github_issue_read(method=get)` for each sub-issue showing actual state, title, and labels.
+**Evidence artifact:** `issue-operations -> read-issue (github_issue_read(method=get)` for each sub-issue showing actual state, title, and labels. <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Verify Sub-Issue Labels and STATUS
 
 ```
 For each sub-issue:
-  labels = github_issue_read(method=get_labels, issue_number=sub_issue_number)
-  body = github_issue_read(method=get, issue_number=sub_issue_number)
+  labels = issue-operations -> read-labels (github_issue_read(method=get_labels, issue_number=sub_issue_number) <!-- Routes through issue-operations per SPEC #683 -->
+  body = issue-operations -> read-issue (github_issue_read(method=get, issue_number=sub_issue_number) <!-- Routes through issue-operations per SPEC #683 -->
   
   - If has "needs-approval" label but parent plan has explicit authorization → STRUCTURE-VIOLATION
     (auto-fix: authorization cascades from plan, label should be removed)
@@ -223,8 +223,8 @@ For each sub-issue:
 ### Verify Sub-Issue Link Integrity
 
 ```
-sub_issues = github_issue_read(method="get_sub_issues", issue_number=plan_issue)
-parent_check = github_issue_read(method="get_sub_issues", issue_number=sub_issue_number)
+sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=plan_issue) <!-- Routes through issue-operations per SPEC #683 -->
+parent_check = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=sub_issue_number) <!-- Routes through issue-operations per SPEC #683 -->
 
 - Verify sub-issues are linked under the correct parent (plan, not spec)
 - If sub-issue is linked under spec instead of plan → STRUCTURE-VIOLATION

@@ -30,7 +30,7 @@ Validate spec before creating GitHub Issue to prevent conflicts, superseded issu
 
 1. Extract significant keywords from proposed title (remove stop words, prefixes like `[SPEC]`, `[SPEC-FIX]`, `[Task:]`)
 2. Search for existing issues:
-   - **GitHub:** `github_search_issues(query="<keywords> repo:<owner>/<repo>", owner=<owner>, repo=<repo>)` for both open and closed states
+   - **GitHub:** Use `issue-operations → search-issues` with keyword query for both open and closed states
    - **GitBucket:** `./.opencode/tools/gitbucket-api issues --state open` + `--state closed` (filter client-side by keyword match + recency)
 3. Determine recency window for closed issues based on context (issue type, topic stability, org activity)
 4. Collect candidate matches (issues whose titles share ≥2 significant keywords with proposed title)
@@ -59,7 +59,7 @@ For ambiguous matches where match level cannot be determined with confidence: HA
 
 ```
 Check: Title dedup gate for "<proposed title>"
-Tool: github_search_issues / gitbucket-api issues
+Tool: `issue-operations → search-issues` / gitbucket-api issues / local-issues search
 Result: [N candidates found, match levels classified]
 Classification: [EXACT-DUPLICATE|NEAR-DUPLICATE|CLOSED-IN-ERROR|RELATED-BUT-DISTINCT|FALSE-POSITIVE]
 Action: [auto-resolved strategy | proceed | HALT]
@@ -70,7 +70,7 @@ Action: [auto-resolved strategy | proceed | HALT]
 **Query for all open `[SPEC]`, `[SPEC-FIX]`, and `[SPEC-ENHANCEMENT]` issues:**
 
 ```
-github_list_issues(owner, repo, state="open")
+issue-operations → list-issues (state="open")
 ```
 
 For each open spec issue, perform overlap analysis at three levels:
@@ -102,7 +102,7 @@ Use `srclight_get_dependents` or `srclight_get_callers` where possible to verify
 
 ```
 Check: [existing spec #N overlap with new spec]
-Tool: github_issue_read(method=get, issue_number=N) + srclight_get_dependents/srclight_get_callers
+Tool: `issue-operations → read-issue` + srclight_get_dependents/srclight_get_callers
 Result: [shared files, shared symbols, overlap classification]
 Classification: [FULL-SUPERSESSION|PARTIAL-OVERLAP|CONFLICT-RISK|INDEPENDENT]
 Action: [BLOCK|surface|surface|proceed]
@@ -164,9 +164,9 @@ The check is content-coverage, not structural conformity. A spec that covers all
 
 **Before creating any plan issue, check whether an existing plan already references the same spec.** This mirrors the duplicate plan check in `writing-plans/tasks/create.md` Step 1.6 and ensures that even when plan creation is invoked via a different path, the duplication check is performed.
 
-1. Using `github_search_issues`, search for issues labeled `plan` in the repository:
+1. Using `issue-operations → search-issues`, search for issues labeled `plan` in the repository:
    ```
-   github_search_issues(query="label:plan", owner=<github.owner>, repo=<github.repo>, state="open")
+   issue-operations → search-issues (query="label:plan", state="open")
    ```
 2. Filter results for those whose body contains `Spec: #<spec_number>` referencing the spec that will be planned.
 3. If one or more existing plans are found:
@@ -238,8 +238,8 @@ Before proceeding, verify ALL:
 |-----------------|-------------------|-----------|---------------|
 | "Spec may be implemented but left open" | Verify referenced code exists and matches spec claims | `srclight_get_symbol(name="symbol")` or `glob(pattern="**/file")` | VERIFICATION-GAP |
 | "Referenced code locations changed" | Verify file paths and symbols still exist as referenced | `srclight_get_symbol(name="symbol")` → confirm location | CONFLICTING |
-| "Problem statement still applies" | Verify the original problem is not resolved | `github_issue_read(method=get_comments)` → check for resolution comments | VERIFICATION-GAP |
-| "Superseding issue found" | Verify superseding issue actually supersedes (compare objectives) | `github_issue_read(method=get, issue_number=N)` → compare objectives | CONFLICTING |
+| "Problem statement still applies" | Verify the original problem is not resolved | `issue-operations → read-comments` → check for resolution comments | VERIFICATION-GAP |
+| "Superseding issue found" | Verify superseding issue actually supersedes (compare objectives) | `issue-operations → read-issue` → compare objectives | CONFLICTING |
 
 **Evidence format:**
 
@@ -264,3 +264,5 @@ Action: [auto-fix|conditional|flag-for-review]
 
 - Related tasks: `creation` (create after validation)
 - Related skills: `concern-separation-auditor`, `spec-auditor` (auditors invoked later)
+- Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
+- No direct `github_*` or `gitbucket-api` calls outside `issue-operations/platforms/`

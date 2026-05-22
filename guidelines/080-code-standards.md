@@ -1,3 +1,9 @@
+---
+trigger_on: code standard, attribution, co-authored, byline, enforcement test, behavioral test, hardcoded identity
+tier: 1
+load_when: sub-agent
+---
+
 # Code Standards
 
 ## Scope
@@ -6,7 +12,7 @@ These standards apply to **ALL code artifacts**: Python modules, Jupyter noteboo
 
 ## Typing
 
-- Mandatory explicit type hints (Pydantic/Dataclasses) project-wide. Avoid `Any`; use concrete types wherever possible.
+- Explicit type hints (Pydantic/Dataclasses) project-wide. Avoid `Any`; use concrete types wherever possible. This is the project standard — type hints make code self-documenting and catch errors at definition time.
   `Any` is acceptable only when imposed by third-party signatures.
 - Use Python 3.12+ built-in types (`list[str]`, `dict[str, Any]`), not `typing.List`/`Dict`.
 - **Strict Enum Mapping**: DB-stored enums use plain string values (`NEW_DISCOVERY = "new_discovery"`).
@@ -32,7 +38,7 @@ The following project-specific code structure rules are enforced in this reposit
   - Scripts and configuration files
 - **No Monoliths**: Long procedural blocks are prohibited. If a function exceeds 40 lines, decompose it. If a notebook cell exceeds 50 lines, split it into multiple cells.
 - **No Magic Strings or Numbers**: All literal strings and numbers that carry domain meaning must be extracted to named constants (`UPPER_SNAKE_CASE` at module level, or class-level `ClassVar`) before use. Inline literals are only acceptable for truly universal values (e.g., `0`, `1`, `""`, `True`, `False`, HTTP status `200`).
-- **No Re-exports** (ABSOLUTE PROHIBITION):
+- **No Re-exports**: Imports must reference concrete module paths — IDE navigation depends on it. This is the project standard.
   - NEVER add `from X import Y` or `__all__` to `__init__.py` files.
   - `__init__.py` must contain ONLY a module docstring describing the package purpose.
   - All imports must reference concrete module paths (e.g., `from commons.mesh.validator import MeshValidator`, NOT `from commons.mesh import MeshValidator`).
@@ -93,7 +99,7 @@ The following project-specific code structure rules are enforced in this reposit
 | `pymarkdownlnt` | 🚫 PROHIBITED | ✅ REQUIRED |
 | `mdformat` | 🚫 PROHIBITED | ✅ REQUIRED |
 
-Running `ruff check` or `ruff format` on `.md` files is a **CRITICAL GUIDELINE VIOLATION**.
+Running `ruff check` or `ruff format` on `.md` files is prohibited — Python tools are designed for Python syntax and produce incorrect results on markdown files. Use markdown-specific tools (`pymarkdownlnt`, `mdformat`) instead.
 
 ### Correct Tool Usage
 
@@ -117,7 +123,7 @@ uvx mdformat .opencode/guidelines/ docs/                # Format
 
 ## Numbering — ENFORCED
 
-All enumeration lists, numbered sections, and step sequences in documentation MUST use **natural counting** (starting at 1).
+Numbered lists must start at 1. Zero-indexed documentation is harder for humans to read. This is the project convention — experienced engineers follow it.
 
 **Prohibited:**
 
@@ -261,48 +267,6 @@ AI co-authored attribution:
 4. Helps identify AI-generated content for review
 5. **Respects copyright** - only claims co-authorship on genuinely original AI work
 
-## New-File Copyright Header Mandate (Tier 1 — CRITICAL VIOLATION)
-
-**⚠️ Creating a new source file without the required copyright/provenance/byline headers is a CRITICAL GUIDELINE VIOLATION.** This is classified as a Tier 1 mandate because copyright compliance is a legal requirement.
-
-### Scope: NEW FILES ONLY
-
-This mandate applies **exclusively** to newly created files. Pre-existing files (files that existed before this mandate) are **grandfathered** and exempt.
-
-- ✅ REQUIRED: Every NEW source file MUST include the headers specified in §"Header Format by File Type" at the time of creation
-- ✅ REQUIRED: Agents MUST add headers as part of the file creation workflow — headers are not optional post-creation additions
-- 🚫 FORBIDDEN: Adding copyright/provenance/byline headers to pre-existing files that do not already have them (legacy exemption per developer directive)
-- 🚫 FORBIDDEN: Removing or overwriting existing AI agent or human bylines from any file — this constitutes copyright theft
-- 🚫 FORBIDDEN: Replacing another agent's or human's byline with your own
-
-### Legacy File Exemption (CRITICAL)
-
-**Pre-existing files without headers are GRANDFATHERED.** The agent MUST NOT add headers to files that existed before this mandate. Only two scenarios permit adding headers to an existing file:
-
-| Scenario | Permitted? | Reason |
-|----------|------------|--------|
-| File already has a copyright header block | ✅ Permitted to add a new entry | Amending an existing header is not creating new headers |
-| File has no copyright header and predates this mandate | 🚫 FORBIDDEN | Legacy exemption — do not retrofit |
-| New file created by the agent | ✅ Required | This mandate's primary scope |
-
-### Byline Preservation (CRITICAL)
-
-**NEVER remove or overwrite another AI agent's or human's byline.** Each contributor's byline is their copyright claim. Removing it constitutes copyright theft.
-
-- 🚫 FORBIDDEN: Replacing `Co-authored with AI: OtherAgent (model-x)` with your own byline
-- 🚫 FORBIDDEN: Removing a human author's name or attribution
-- ✅ REQUIRED: When modifying an existing file that already has bylines, ADD your byline below existing ones (if the file has a header block), never replace
-- ✅ REQUIRED: Multiple bylines are expected and correct — append, never replace
-
-### Pre-Commit Enforcement
-
-A pre-commit hook (in `.opencode/hooks/pre-commit`) MUST reject commits that include new files missing required headers. The hook:
-
-1. Runs `git diff --cached --name-only --diff-filter=A` to detect new files
-2. Checks each new file for `SPDX-FileCopyrightText` and `SPDX-License-Identifier` (or equivalent frontmatter for SKILL.md)
-3. Rejects the commit if any new file is missing required headers
-4. Exempts: auto-generated files, lock files, binary assets, standard license files, empty `__init__.py`
-
 ## Provenance Headers
 
 ### Provenance Distinct from Byline
@@ -392,6 +356,10 @@ Pattern: `// SPDX-FileCopyrightText:` + `// SPDX-License-Identifier:` + `// Prov
 
 ## Enforcement Test Mandate for Guideline and Skill Changes
 
+**Terminology:** In this document, "behavioral test" and "functional test" are synonymous. Both refer to tests that verify actual agent behavior by executing code and observing output, as opposed to structural/content-verification tests that verify text patterns in files. When a functional/behavioral test cannot execute, the SC is FAIL — never PASS or UNVERIFIED with a structural substitute.
+
+Behavioral tests are how real agents prove their rules work. Adding a guideline change without a behavioral test means you are documenting, not enforcing.
+
 Guideline files (`.opencode/guidelines/*.md`) and skill files (`.opencode/skills/*/SKILL.md`, `.opencode/skills/*/tasks/*.md`) are enforcement-critical documents that control AI agent behavior. Changes to these files MUST be accompanied by corresponding enforcement test updates.
 
 ### Behavioral Enforcement Tests (PRIMARY)
@@ -407,8 +375,19 @@ Every critical violation change MUST have at least one behavioral test that veri
 - `assert_tool_calls_made` — verify the agent made at least N tool calls of a specified type
 - `assert_forbidden_pattern_absent` — verify the agent's response does NOT contain a specified pattern (e.g., `(unverified)` tags)
 - `assert_required_pattern_present` — verify the agent's response DOES contain a specified pattern (e.g., decline-to-answer language)
-- `assert_skill_invoked` — verify a specific skill was invoked
-- `assert_no_skill_invoked` — verify a specific skill was NOT invoked when it shouldn't be
+- `assert_skill_called` — verify a specific skill was called
+- `assert_no_skill_called` — verify a specific skill was NOT called when it shouldn't be
+
+### Stderr Assertion Helpers (PRIMARY for Behavioral Evidence)
+
+Behavioral tests verify agent ACTIONS, not agent prose recall. The canonical assertion helpers for behavioral evidence are:
+
+- `assert_stderr_pattern_present <pattern> <description>` — verify the agent performed an action visible in stderr
+- `assert_stderr_pattern_absent <pattern> <description>` — verify the agent did NOT perform a prohibited action
+- `assert_stderr_pattern_present_all_models <pattern> <description>` — multi-model variant
+- `assert_stderr_pattern_absent_all_models <pattern> <description>` — multi-model variant
+
+**Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task() calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence. Prose-recall prompts (e.g., "Describe how you would resolve models") produce prose recall in stdout, not behavioral evidence in stderr, and are NOT accepted as behavioral tests.**
 
 ### Content-Verification Tests (SECONDARY)
 
@@ -430,8 +409,8 @@ Content-verification tests are valuable as a fast check that files haven't regre
 - Every guideline/skill change comes with a BEHAVIORAL enforcement test that verifies agent behavior
 - Content-verification tests as a supplementary sanity check, NOT the primary enforcement gate
 - Add the BEHAVIORAL test FIRST (RED), then make the change (GREEN) — behavioral TDD for rules
-- Run `bash .opencode/tests/behaviors/run-all.sh` for behavioral tests
-- Run `bash .opencode/tests/test-enforcement.sh` for content-verification tests
+- Run individual behavioral test scripts (`bash .opencode/tests/behaviors/<scenario>.sh`) for behavioral tests
+- Run scope-filtered `bash .opencode/tests/test-enforcement.sh --tag <tag>` or `--changed` for content-verification tests
 - Use `bash .opencode/tests/with-test-home opencode-cli run '<message>'` for all opencode-cli testing — never run bare `opencode-cli run`
 - Clean up test homes after testing: `bash .opencode/tests/with-test-home --clean-all`
 
@@ -450,7 +429,35 @@ Enforcement tests are the verification layer that proves agent guidelines are ac
 
 The `with-test-home` wrapper prevents SQLite session conflicts between the desktop app and CLI tests.
 
-**See `090-incremental-build.md` for the incremental implementation discipline that governs HOW these changes are delivered.** **See `.opencode/tests/README.md` for the enforcement test template and usage guide. See `.opencode/tests/behaviors/` for behavioral test infrastructure, helpers, and template.**
+**See `091-incremental-build.md` for the incremental implementation discipline that governs HOW these changes are delivered.** **See `.opencode/tests/README.md` for the enforcement test template and usage guide. See `.opencode/tests/behaviors/` for behavioral test infrastructure, helpers, and template.**
+
+### Evidence Type Taxonomy (MANDATORY)
+
+Every spec success criterion MUST declare an evidence type from the four-type taxonomy. The evidence type determines the minimum acceptable verification method — using evidence below the minimum type is a CRITICAL VIOLATION.
+
+| Evidence Type | Method | Verifies | Minimum Acceptable |
+|---|---|---|---|
+| `structural` | `ls`, `wc`, file existence | File exists, file is non-empty, file has correct name | `ls`/`wc` |
+| `string` | `grep`, pattern matching | Content pattern present or absent | `grep` |
+| `semantic` | AI agent read + analytical judgment | Intent and meaning, not just pattern | Sub-agent read + judgment |
+| `behavioral` | Test execution (`opencode-cli run`, `pytest`, `bash test.sh`) | Agent behavior, runtime output, functional correctness | Test execution with output inspection |
+
+### Evidence Type Enforcement Matrix
+
+| SC Evidence Type | Structural Evidence | String Evidence | Semantic Evidence | Behavioral Evidence |
+|---|---|---|---|---|
+| `structural` | ✅ Sufficient | ✅ Sufficient | ✅ Sufficient but unnecessary | ⚠️ Overkill |
+| `string` | ❌ Insufficient | ✅ Sufficient | ✅ Sufficient | ⚠️ Overkill |
+| `semantic` | ❌ Insufficient | ❌ Insufficient | ✅ Sufficient | ✅ Sufficient |
+| `behavioral` | ❌ **CRITICAL VIOLATION** | ❌ **CRITICAL VIOLATION** | ❌ **CRITICAL VIOLATION** | ✅ Only sufficient type |
+
+Evidence below the minimum type for an SC's declared evidence type is a CRITICAL VIOLATION — it is not a soft-pass or an acceptable substitute. This applies at every pipeline stage: VbC, auditor dispatch, cross-validate, and PR body.
+
+**Existing specs without evidence type columns default to `string` evidence type.** The spec-audit SC-DET check flags specs missing evidence type declarations but does not block them — only downgrade to a warning until the spec is updated.
+
+**Mixed-evidence SCs** (e.g., `string + behavioral`) require ALL declared types to be present in the evidence. An SC that requires both string and behavioral evidence must have both a `grep` result and a test execution result.
+
+**EVIDENCE_TYPE_MISMATCH** classification: When an auditor or VbC sub-agent provides structural evidence for a behavioral SC, the verdict MUST be reported as FAIL with `EVIDENCE_TYPE_MISMATCH` classification. This is not a soft-pass — it is a hard FAIL. Cross-validate MUST downgrade any PASS verdict with wrong evidence type to FAIL with `EVIDENCE_TYPE_MISMATCH`.
 
 ### SC-to-Test Traceability (MANDATORY) — Behavioral PRIMARY
 
@@ -464,6 +471,17 @@ assert_forbidden_pattern_absent "(unverified)" "unverified escape hatch" || OVER
 The SC ID comment convention is now a REQUIREMENT, not a convention. Every enforcement test that verifies a spec success criterion MUST include a `# SC-N:` comment prefix identifying which SC it covers.
 
 Content-verification tests (checking rule text existence) are SECONDARY — they supplement behavioral tests but MUST NOT be the only enforcement for behavioral rule changes.
+
+**Spec Success Criteria tables MUST include an Evidence Type column** declaring the evidence type for each SC:
+
+```
+| ID | Criterion | Evidence Type | Verification Method |
+|----|-----------|---------------|---------------------|
+| SC-1 | SKILL.md routes only to assemble-work | `string + semantic` | grep + sub-agent read |
+| SC-14 | Agent dispatches sub-agents, no inline work | `behavioral` | `opencode-cli run` → stderr assertions |
+```
+
+The Evidence Type column is MANDATORY in all spec success criteria tables. Specs missing the Evidence Type column fail the spec-audit SC-DET check with a warning (not a block) until updated.
 
 ### RED-Phase Ordering (BEHAVIORAL PRIMARY) — MANDATORY
 
@@ -486,7 +504,7 @@ Content-verification tests (grep for text presence) are SECONDARY. Behavioral te
 
 The TDD RED/GREEN cycle for rule changes MUST use behavioral enforcement tests, not just content-verification tests:
 
-1. **RED phase**: Write a behavioral enforcement test that sends the agent a prompt and verifies the agent does NOT follow the new rule yet. The test MUST FAIL at this point because the rule change hasn't been made. Use assertion helpers from `.opencode/tests/behaviors/helpers.sh` (`assert_tool_calls_made`, `assert_forbidden_pattern_absent`, `assert_required_pattern_present`, `assert_skill_invoked`).
+1. **RED phase**: Write a behavioral enforcement test that sends the agent a prompt and verifies the agent does NOT follow the new rule yet. The test MUST FAIL at this point because the rule change hasn't been made. Use assertion helpers from `.opencode/tests/behaviors/helpers.sh` (`assert_tool_calls_made`, `assert_forbidden_pattern_absent`, `assert_required_pattern_present`, `assert_skill_called`, `assert_stderr_pattern_present`, `assert_stderr_pattern_absent`, `assert_stderr_pattern_present_all_models`, `assert_stderr_pattern_absent_all_models`).
 2. **GREEN phase**: Make the guideline/rule change and re-run the behavioral test. The test MUST PASS because the agent now follows the rule.
 3. **No exceptions**: This gate applies to ALL rule changes — guideline files, skill files, task files, critical violation sections, system prompt blocks.
 
@@ -566,7 +584,7 @@ Session-init and env-loader are two independent pipelines with separate naming c
 | LLM context | session-init (Python) | Dotted `scope.param` | Agent system prompt | `github.owner` |
 | Bash environment | env-loader.ts (TypeScript) | UPPER_CASE | Shell commands, Python scripts | `GIT_OWNER` |
 
-**Session-init dotted names** (use in skill files, guidelines, dispatch contexts):
+**Session-init dotted names** (use in skill files, guidelines, task contexts):
 `github.owner`, `github.repo`, `github.platform`, `github.html_url`, `gitbucket.owner`, `gitbucket.repo`, `gitbucket.html_url`, `gitbucket.ssh_url`, `gitbucket.has_credentials`, `srclight.project`, `dev.name`, `dev.email`, `branch`, `worktree.path`, `worktree.fatal`
 
 **Env-loader UPPER_CASE names** (use in bash scripts, Python env reads):
@@ -575,29 +593,32 @@ Session-init and env-loader are two independent pipelines with separate naming c
 These pipelines are independent. Changing session-init output names does NOT require changes to env-loader, and vice versa.
 
 ```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+schema_version: "3.0"
+last_updated: "2026-05-17T00:00:00Z"
 rules:
   - id: code-standards-001
-    title: "Mandatory explicit type hints project-wide"
+    tier: 3
+    title: "Explicit type hints project-wide"
     conditions:
       all:
         - "python_file_created_or_modified == true"
         - "type_hints_present == false"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "080-code-standards.md §Typing"
 
   - id: code-standards-002
+    tier: 3
     title: "AI co-authored attribution mandatory for AI-generated content"
     conditions:
       all:
         - "ai_generated_content_created == true"
         - "attribution_present == false"
     actions:
+      - FLAG
       - ADD_ATTRIBUTION
     conflicts_with: [critical-rules-023]
     requires: []
@@ -605,19 +626,21 @@ rules:
     source: "080-code-standards.md §AI Co-Authored Attribution"
 
   - id: code-standards-003
+    tier: 3
     title: "No re-exports in __init__.py"
     conditions:
       all:
         - "init_py_modified == true"
         - "imports_or_all_added == true"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "080-code-standards.md §Design Principles — No Re-exports"
 
   - id: code-standards-004
+    tier: 2
     title: "Behavioral enforcement test required for guideline/skill changes"
     conditions:
       all:
@@ -631,6 +654,7 @@ rules:
     source: "080-code-standards.md §Enforcement Test Mandate"
 
   - id: code-standards-005
+    tier: 2
     title: "Behavioral RED before GREEN for rule changes"
     conditions:
       all:
@@ -644,31 +668,34 @@ rules:
     source: "080-code-standards.md §Behavioral RED/GREEN as Primary Enforcement Gate"
 
   - id: code-standards-006
+    tier: 3
     title: "Natural counting for numbered lists — no zero-indexing"
     conditions:
       all:
         - "new_documentation_created == true"
         - "uses_zero_indexed_numbering == true"
     actions:
-      - FIX_NUMBERING
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "080-code-standards.md §Numbering — ENFORCED"
 
   - id: code-standards-007
+    tier: 3
     title: "Python tools must not be run on non-Python files"
     conditions:
       all:
         - "ruff_or_pyright_on_markdown == true"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: []
     source: "080-code-standards.md §Tool Selection by File Type"
 
   - id: code-standards-008
+    tier: 2
     title: "SC-to-test traceability mandatory"
     conditions:
       all:
@@ -682,43 +709,127 @@ rules:
     source: "080-code-standards.md §SC-to-Test Traceability"
 
   - id: code-standards-009
-    title: "New source files must have copyright/provenance/byline headers"
+    tier: 3
+    title: "No print statements for narration or self-signaling"
     conditions:
       all:
-        - "new_file_created == true"
-        - "file_has_required_headers == false"
+        - "agent_adding_print_statement == true"
+        - "print_purpose == 'feature_narration'"
     actions:
-      - HALT
-      - ADD_HEADERS
+      - FLAG
     conflicts_with: []
     requires: []
-    triggers: [verification-before-completion, git-workflow]
-    source: "080-code-standards.md §New-File Copyright Header Mandate"
+    triggers: []
+    source: "080-code-standards.md §Print Statements & Output"
 
   - id: code-standards-010
-    title: "Never add headers to legacy files without existing headers"
+    tier: 3
+    title: "Use f-strings for string interpolation"
     conditions:
       all:
-        - "file_predates_mandate == true"
-        - "file_has_no_existing_headers == true"
-        - "headers_being_added == true"
+        - "string_interpolation_method == '.format'"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
-    triggers: [verification-before-completion]
-    source: "080-code-standards.md §Legacy File Exemption"
+    triggers: []
+    source: "080-code-standards.md §Modern Python"
 
   - id: code-standards-011
-    title: "Never remove or overwrite other agent/human bylines"
+    tier: 3
+    title: "Use pathlib.Path for file operations"
     conditions:
       all:
-        - "existing_byline_found == true"
-        - "byline_removal_or_overwrite_attempted == true"
+        - "file_operation_method == 'os.path'"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Modern Python"
+
+  - id: code-standards-012
+    tier: 3
+    title: "Docstring determinism — no ambiguous hedge phrases"
+    conditions:
+      all:
+        - "docstring_contains_ambiguous_phrase == true"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Design Principles"
+
+  - id: code-standards-013
+    tier: 3
+    title: "Use stable labels over positional index numbers"
+    conditions:
+      all:
+        - "structured_artifact_referenced_by_index == true"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Design Principles"
+
+  - id: code-standards-014
+    tier: 3
+    title: "Top-level docstring or comment in every source file"
+    conditions:
+      all:
+        - "source_file_created == true"
+        - "module_docstring_missing == true"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Design Principles"
+
+  - id: code-standards-015
+    tier: 3
+    title: "Cross-references use stable anchors, not line numbers"
+    conditions:
+      all:
+        - "documentation_uses_line_number_reference == true"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: []
+    source: "080-code-standards.md §Cross-Reference Standards"
+
+  - id: code-standards-016
+    tier: 2
+    title: "Functional/Behavioral test substitution is prohibited when test cannot execute"
+    conditions:
+      all:
+        - "behavioral_or_functional_test_cannot_execute == true"
+        - "structural_substitute_reported_as_pass_or_unverified == true"
     actions:
       - HALT
+      - REPORT_FAIL
     conflicts_with: []
     requires: []
     triggers: [verification-before-completion]
-    source: "080-code-standards.md §Byline Preservation"
+    source: "080-code-standards.md §Enforcement Test Mandate"
+
+  - id: code-standards-016a
+    tier: 2
+    title: "EVIDENCE_TYPE_MISMATCH — structural evidence for behavioral SC is a hard FAIL"
+    conditions:
+      all:
+        - "sc_evidence_type == 'behavioral'"
+        - "actual_evidence_type in ['structural', 'string']"
+        - "verdict_reported_as == 'PASS'"
+    actions:
+      - HALT
+      - DOWNGRADE_TO_FAIL
+      - CLASSIFY_AS_EVIDENCE_TYPE_MISMATCH
+    conflicts_with: []
+    requires: [critical-rules-020, critical-rules-060]
+    triggers: [verification-before-completion, adversarial-audit]
+    source: "080-code-standards.md §Evidence Type Taxonomy"
 ```

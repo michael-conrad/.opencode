@@ -23,3 +23,10 @@ Idempotent cleanup of temporary resources and production of a final summary afte
 4. Produce a final summary of all artifacts created, their locations, and any concerns.
 5. Return result contract.
 6. HALT — no further action after completion.
+
+## Pipeline Signal
+
+```
+CONTINUE: ui-engineer
+HALT
+```

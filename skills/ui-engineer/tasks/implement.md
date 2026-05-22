@@ -30,13 +30,13 @@ Produce a complete framework-specific UI implementation from design artifacts (i
 Before writing any implementation code, enforcement test assertions for UI behavior MUST be written and verified to be in RED state.
 
 **Prerequisites:**
-- `test-ui` task MUST have been completed (invoke `/skill ui-engineer --task test-ui` if UI test specifications do not yet exist)
+- `test-ui` task MUST have been completed (call `/skill ui-engineer --task test-ui` if UI test specifications do not yet exist)
 - Interaction spec YAML is available in the worktree
 - `worktree.path` is set and verified
 
 **Procedure:**
 
-1. **Invoke `test-ui` task** — If UI test specifications do not yet exist in the worktree, invoke the `test-ui` task to generate them. The `test-ui` task produces test specification files that define expected UI behavior
+1. **Run `test-ui` task** — If UI test specifications do not yet exist in the worktree, task() the `test-ui` sub-agent to generate them. The `test-ui` task produces test specification files that define expected UI behavior
 2. **Write enforcement test assertions** — For each success criterion in the spec that applies to UI behavior, write an enforcement test assertion in `test-enforcement.sh` that verifies the UI meets the SC's requirement. Use the format: `# SC-N: <brief UI description>` as a comment above the assertion
 3. **Verify RED state** — Run the newly written assertions and confirm they are in RED state (failing). The assertions MUST fail because the UI implementation does not exist yet
 4. **Produce tool-call evidence** — Record the RED state verification output as a tool-call artifact showing:

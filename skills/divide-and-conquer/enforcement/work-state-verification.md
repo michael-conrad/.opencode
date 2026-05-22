@@ -9,8 +9,8 @@ When `assemble-work` records claims about work state (e.g., "sub-agent completed
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|---------------------|-----------|---------------|
 | Sub-agent completed | Result contract exists with status DONE or DONE_WITH_CONCERNS | Read work state file | STRUCTURE-VIOLATION |
-| Issue created | Issue exists on GitHub with correct title and labels | `github_issue_read(method=get, issue_number=N)` | MISSING-ELEMENT |
-| Sub-issues linked | `github_issue_read(method=get_sub_issues)` returns expected sub-issues | `github_issue_read(method=get_sub_issues, issue_number=N)` | MISSING-ELEMENT |
+| Issue created | Issue exists on GitHub with correct title and labels | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
+| Sub-issues linked | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues)` returns expected sub-issues | `github_issue_read(method=get_sub_issues, issue_number=N)` | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
 | Branch created | Branch exists in local worktree | `git rev-parse --verify <branch>` | MISSING-ELEMENT |
 | Worktree path set | Worktree directory exists and is git repository | `git rev-parse --show-toplevel` in worktree | STRUCTURE-VIOLATION |
 | All phases complete | Every phase in work state has status DONE | Read work state file | VERIFICATION-GAP |
@@ -18,7 +18,7 @@ When `assemble-work` records claims about work state (e.g., "sub-agent completed
 
 ### Work State File Format
 
-Work state files are stored at `.opencode/tmp/work-<timestamp>.md` and contain:
+Work state files are stored at `tmp/work-<timestamp>.md` and contain:
 
 ```markdown
 # Work State: <branch-name>

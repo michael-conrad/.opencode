@@ -6,14 +6,14 @@ Authorization phrases carry implicit scope — the pipeline stage the developer 
 
 | Phrase Pattern | Scope | HALT After | Gap-Fill | PR Strategy |
 |----------------|-------|------------|----------|-------------|
-| `"approved #N"` (no qualifier) | standard | review-prep | None | individual |
+| `"approved #N"` (no qualifier) | for_review_prep | review-prep | None | individual |
 | `"approved #N for spec"` or `"#N approved for spec"` | for_spec | spec_created | None | none |
+| `"approved #N for analysis"` or `"#N approved for analysis"` | for_analysis | analysis_complete | auto-create spec | none |
 | `"approved #N for plan"` or `"#N approved for plan"` | for_plan | plan_created | auto-create spec | none |
-| `"approved #N for implementation"` or `"#N approved for implementation"` | for_implementation | implementation_complete | auto-create spec+plan, auto-approve | individual |
-| `"approved #N for code review"` or `"#N approved for code review"` | for_code_review | code_review_ready | auto-create spec+plan, auto-approve | individual |
+| `"approved #N for implementation"` or `"#N approved for implementation"` | for_implementation | verification_complete | auto-create spec+plan, auto-approve | individual |
 | `"approved #N to PR"` or `"#N approved to PR"` | for_pr | pr_created | auto-create spec+plan, auto-approve, auto-PR | stacked |
-| `"approved #N pr only"` or `"#N approved for pr only"` | pr_only | pr_created | None | stacked |
-| `"approved #N for review"` or `"#N approved for review only"` | review_only | code_review_ready | None | individual |
+| `"approved #N pr only"` or `"#N approved for pr only"` | for_pr_only | pr_created | None | stacked |
+| `"approved #N for review"` or `"#N approved for review only"` | for_review_only | code_review_ready | None | individual |
 | `"approved for next phase"` or `"approved #N for next phase"` | for_next_phase | next_phase_complete | auto-approve next phase | individual |
 | `"approved for phase N"` or `"approved #N for phase N"` | for_phase_N | phase_N_complete | auto-approve up to phase N | individual |
 
@@ -35,7 +35,7 @@ def resolve_next_phase(issue_num, issue_body):
     Resolve 'next phase' to a specific phase number based on
     current completion state.
     """
-    sub_issues = github_issue_read(
+    sub_issues = issue-operations -> read-issue (github_issue_read( <!-- Routes through issue-operations per SPEC #683 -->
         method="get_sub_issues", issue_number=issue_num
     )
 
@@ -44,7 +44,7 @@ def resolve_next_phase(issue_num, issue_body):
 
     completed_phases = set()
     for sub in sub_issues:
-        sub_detail = github_issue_read(
+        sub_detail = issue-operations -> read-issue (github_issue_read( <!-- Routes through issue-operations per SPEC #683 -->
             method="get", issue_number=sub["number"]
         )
         if sub_detail.get("state") == "closed":
@@ -77,7 +77,7 @@ def resolve_next_phase(issue_num, issue_body):
 
     if next_phase is None:
         return {
-            "resolved_scope": "standard",
+            "resolved_scope": "for_review_prep",
             "halt_at": "review_prep",
             "reason": "All phases already completed",
         }
@@ -120,8 +120,9 @@ def resolve_phase_n(phase_number, total_phases):
 
 ## Scope Derivation Rules
 
-1. **No qualifier = standard**: `"approved #1200"` → `standard` scope, review-prep halt, no gap-fill
-2. **Qualifier present = parse**: Match phrase against table above; ambiguous phrases default to standard
+1. **No qualifier in authorization message = `for_review_prep`**: `"approved #1200"` → `for_review_prep` scope, review-prep halt, no gap-fill
+2. **Non-authorization message (no "approved"/"go") = `for_analysis`**: Default floor scope when user asks a question, reports a bug, or makes a factual claim without authorization language. Self-assigned by agent.
+3. **Qualifier present = parse**: Match phrase against table above; ambiguous phrases default to for_review_prep
 3. **Multiple issues**: `"approved #1200 #1201 #1197 for implementation"` → `for_implementation` scope applies to all listed issues
 4. **Phase qualifier**: `"approved: Phase 1 only"` → single-phase authorization for the named phase only, then HALT
 5. **"Next phase" resolution**: `"approved #N for next phase"` → resolve via `resolve_next_phase()` which reads spec/plan body, identifies completed phases (via merged PRs and STATUS markers), and sets halt_at to the next sequential uncompleted phase
@@ -131,13 +132,13 @@ def resolve_phase_n(phase_number, total_phases):
 
 | Scope | PR Strategy |
 |-------|-------------|
-| standard | individual (one PR per issue) |
+| for_review_prep | individual (one PR per issue) |
 | for_spec | none |
+| for_analysis | none |
 | for_plan | none |
 | for_implementation | individual |
-| for_code_review | individual |
 | for_pr | stacked |
-| pr_only | stacked |
-| review_only | individual |
+| for_pr_only | stacked |
+| for_review_only | individual |
 | for_next_phase | individual |
 | for_phase_N | individual |

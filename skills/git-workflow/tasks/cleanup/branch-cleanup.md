@@ -15,66 +15,9 @@ Delete merged branches, clean stale references, remove worktrees, sync dev, and 
 - Remote merged branch deleted (if applicable)
 - Stale remote references pruned
 - Dev branch synced with remote (verified via hash comparison)
-- Submodule on `dev` branch (not detached HEAD)
-- Submodule pointer matches submodule dev HEAD
 - Working tree clean
 
 ## Procedure
-
-### Step 0: Detect and Resolve Stuck Git States (MANDATORY)
-
-**⚠️ CRITICAL: Proceeding without detecting stuck rebase/merge states causes `git checkout dev` to fail or produce confusing output. This step MUST run before Step 1.**
-
-Check for stuck git states that block branch operations:
-
-1. **Check for interactive rebase in progress:**
-   ```bash
-   test -d .git/rebase-merge && echo "REBASE-MERGE: interactive rebase in progress" || echo "NO-REBASE-MERGE"
-   ```
-
-2. **Check for non-interactive rebase in progress:**
-   ```bash
-   test -d .git/rebase-apply && echo "REBASE-APPLY: non-interactive rebase in progress" || echo "NO-REBASE-APPLY"
-   ```
-
-3. **Check for merge in progress:**
-   ```bash
-   test -f .git/MERGE_HEAD && echo "MERGE: merge in progress" || echo "NO-MERGE"
-   ```
-
-4. **Check for cherry-pick/revert in progress:**
-   ```bash
-   test -f .git/CHERRY_PICK_HEAD && echo "CHERRY-PICK: cherry-pick in progress" || echo "NO-CHERRY-PICK"
-   test -f .git/REVERT_HEAD && echo "REVERT: revert in progress" || echo "NO-REVERT"
-   ```
-
-5. **If any stuck state is detected:**
-   a. **If the branch has already been merged into dev** (PR confirmed merged via GitHub API):
-      - **Abort** the stuck operation:
-        ```bash
-        # Interactive rebase
-        git rebase --abort 2>/dev/null || true
-        # Non-interactive rebase
-        git rebase --abort 2>/dev/null || true
-        # Merge
-        git merge --abort 2>/dev/null || true
-        # Cherry-pick
-        git cherry-pick --abort 2>/dev/null || true
-        # Revert
-        git revert --abort 2>/dev/null || true
-        ```
-      - The work is already on dev — the rebase is stale and safe to abort
-   b. **If the branch has NOT been merged** (no PR or PR not merged):
-      - **HALT** and report the stuck state to the developer
-      - Do NOT abort — the rebase may contain unmerged work
-      - Report: "Stuck [rebase/merge/cherry-pick/revert] detected on branch. This may contain unmerged work. Resolve manually before continuing cleanup."
-
-6. **After resolving stuck state, verify clean working tree:**
-   ```bash
-   git status --porcelain  # Must be empty or only expected changes
-   ```
-
-**Evidence artifact (MANDATORY):** Tool-call output showing detection check results MUST be present before proceeding to Step 1.
 
 ### Step 1: Switch to Dev and Sync (Fast-Forward Only)
 
@@ -116,6 +59,207 @@ git -C /path/to/main/repo checkout dev && git -C /path/to/main/repo pull origin 
 **Evidence artifact (MANDATORY):** Tool-call output showing matching hashes MUST be present before proceeding.
 
 🚫 FORBIDDEN: Proceeding past this gate without matching hash evidence.
+
+### Step 1.7: Park Parent Repo on dev
+
+After submodule dev sync (Step 1/1.5), the parent repo must also be parked on `dev` with the latest changes. This step ensures both the submodule and the parent repo are on `dev` and up to date.
+
+**Detect context:**
+
+```bash
+# If running from a worktree, use the main repo path for parent operations
+PARENT_REPO_PATH="$(git -C "$(git rev-parse --show-toplevel)/.." rev-parse --show-toplevel 2>/dev/null || echo '')"
+
+# If no parent repo (not a submodule), skip this step entirely
+if [ -z "$PARENT_REPO_PATH" ]; then
+    echo "Not a submodule — skipping parent repo dev parking."
+    # Verify current repo is on dev (already done in Step 1.5)
+    echo "Parent repo dev parking: N/A (not a submodule)"
+else
+    echo "Parent repo detected at: $PARENT_REPO_PATH"
+fi
+```
+
+**Park parent repo on dev:**
+
+```bash
+if [ -n "$PARENT_REPO_PATH" ]; then
+    # Switch parent repo to dev
+    git -C "$PARENT_REPO_PATH" checkout dev
+    git -C "$PARENT_REPO_PATH" pull origin dev --ff-only
+fi
+```
+
+**Verify parent repo is on dev:**
+
+```bash
+if [ -n "$PARENT_REPO_PATH" ]; then
+    PARENT_BRANCH=$(git -C "$PARENT_REPO_PATH" branch --show-current)
+    if [ "$PARENT_BRANCH" != "dev" ]; then
+        echo "ERROR: Parent repo is on '$PARENT_BRANCH', expected 'dev'"
+        echo "HALT: Parent repo dev parking failed"
+        # Do NOT proceed — dev parking is mandatory
+    fi
+fi
+```
+
+**Handle dirty submodule pointer (CRITICAL):**
+
+After submodule dev sync, the parent repo's submodule pointer will be dirty — this is **expected and normal**. The parent repo tracks a specific submodule commit, and after `git pull origin dev` in the submodule, the submodule HEAD will differ from what the parent repo recorded on its own `dev` branch.
+
+```bash
+if [ -n "$PARENT_REPO_PATH" ]; then
+    # Check if submodule pointer is dirty
+    DIRTY_SUBMODULE=$(git -C "$PARENT_REPO_PATH" diff --stat .opencode 2>/dev/null || echo '')
+
+    if [ -n "$DIRTY_SUBMODULE" ]; then
+        echo "Submodule pointer is dirty (expected after submodule dev sync)."
+        echo "No corrective action needed — dirty pointer is normal post-sync state."
+        # DO NOT: git add, git commit, git stash, or any corrective action on the dirty submodule
+        # The dirty pointer reflects that the submodule is now ahead of the parent repo's recorded commit.
+        # This will be resolved naturally when the parent repo's dev branch merges a PR
+        # that updates the submodule pointer.
+    fi
+fi
+```
+
+**⚠️ CRITICAL: Dirty submodule pointer exemption:**
+- 🚫 FORBIDDEN: Attempting to commit, stash, or resolve the dirty submodule pointer
+- 🚫 FORBIDDEN: Treating a dirty submodule pointer as a cleanup failure or error condition
+- 🚫 FORBIDDEN: Creating a PR whose sole purpose is to update a submodule pointer (submodule-only PR)
+- 🚫 FORBIDDEN: Running `git add .opencode`, `git commit`, or any git operation that commits the submodule pointer during cleanup
+- ✅ REQUIRED: Acknowledge the dirty state as expected and continue
+- ✅ REQUIRED: The parent repo `git status` after this step will show `.opencode (modified)` — this is correct and expected
+- ✅ REQUIRED: Submodule pointer updates happen on feature branches during pre-work (Step 3.5), never on `dev` during cleanup
+
+**Evidence artifact (MANDATORY):** Tool-call output showing `git -C "$PARENT_REPO_PATH" branch --show-current` returns `dev` MUST be present before proceeding. If no parent repo exists (not a submodule), evidence that the step was evaluated and skipped is sufficient.
+
+### Step 1.9: Submodule Branch Cleanup Descent
+
+After parent repo dev parking (Step 1.7), descend into each submodule to clean merged branches while preserving the dirty submodule pointer.
+
+**Detect submodules:**
+
+```bash
+# Collect submodule paths from .gitmodules
+SUBMODULE_PATHS=$(git config --list --file .gitmodules 2>/dev/null | grep '^submodule\..*\.path=' | sed 's/^submodule\.\(.*\)\.path=/\1:/' | while IFS=: read -r _ path; do echo "$path"; done || echo "")
+```
+
+If no submodules exist (`SUBMODULE_PATHS` is empty), skip this step.
+
+#### task() to `submodule-dev-restore` Sub-Agent
+
+For each submodule path, task() a clean-room `submodule-dev-restore` sub-agent via task(). The sub-agent handles submodule entry, `git checkout dev`, and `git pull origin dev --ff-only`. The main task does NOT perform these operations inline.
+
+**must_receive / must_not_receive:**
+
+| Element | Value |
+|---------|-------|
+| `must_receive` | `submodule_path` (path to the submodule), `parent_repo_path` (absolute path to parent repo), `branch` = `dev` |
+| `must_not_receive` | Orchestrator reasoning, expected outcomes, cached git state, pre-determined branch names, content verification results, tag data, or any information about branches to delete |
+| `inline_fallback` | FORBIDDEN — re-task() clean-room on failure |
+
+**Result contract schema:**
+
+```yaml
+status: DONE | BLOCKED
+submodule_path: <path>
+submodule_dev_head: <sha>
+submodule_dev_synced: true | false
+evidence:
+  - <tool call: git branch --show-current returns dev>
+  - <tool call: git log --oneline -1 dev matching origin/dev>
+blocked_reason: <if BLOCKED, explanation of divergence>
+```
+
+**After task() returns DONE for a submodule, proceed with cleanup operations:**
+
+2. **Verify submodule is on dev (post-task() check):**
+
+3. **Find merged branches:**
+   ```bash
+   git branch --merged dev | grep -v '^\*' | grep -v 'dev$'
+   ```
+   This lists all local branches whose commits are fully reachable from `dev`.
+
+4. **Content verification gate (MANDATORY — see Step 3 for per-file details):**
+   For each merged branch, verify content exists on `origin/dev` before deletion:
+   ```bash
+   MERGED_BRANCH="<branch>"
+   # Check diff against origin/dev
+   CHANGED_FILES=$(git diff --stat origin/dev..."$MERGED_BRANCH")
+   if [ -z "$CHANGED_FILES" ]; then
+       echo "Branch $MERGED_BRANCH: all content present on origin/dev — safe to delete"
+   else
+       echo "Branch $MERGED_BRANCH has content NOT on origin/dev — flagging for review"
+       # Produce content comparison table (same format as Step 3)
+       # HALT deletion for this branch
+   fi
+   ```
+
+5. **Delete local merged branches:**
+   ```bash
+   git branch -d "$MERGED_BRANCH"
+   ```
+   Use `-d` (safe delete — only if merged). If `-d` fails, the branch is NOT fully merged — HALT and report.
+
+6. **Delete remote merged branches:**
+   ```bash
+   # Check if remote branch exists before attempting deletion
+   if git ls-remote --heads origin "$MERGED_BRANCH" | grep -q "$MERGED_BRANCH"; then
+       git push origin --delete "$MERGED_BRANCH"
+   else
+       echo "Remote branch $MERGED_BRANCH already deleted — skipping remote deletion"
+   fi
+   ```
+   **Authorization note:** Remote branch deletion (`git push origin --delete`) is a destructive command per `000-critical-rules.md` §critical-rules-026. This operation is authorized as part of the cleanup pipeline scope — no separate authorization is required. However, the content verification gate (Step 4 above) MUST pass first.
+
+7. **Tag-based hash permanence — tag-if-untagged:**
+   Per `AGENTS.md` §Tag-Based Hash Permanence and §Idempotent Tag-if-Untagged Rule, verify the current submodule SHA is reachable via a tag. If not, tag it:
+   ```bash
+   CURRENT_SHA=$(git rev-parse HEAD)
+   TAG_EXISTS=$(git tag --points-at "$CURRENT_SHA" | head -1)
+   if [ -z "$TAG_EXISTS" ]; then
+       # Generate context-appropriate tag
+       PARENT_REPO_NAME="$(basename "$(git -C "$PARENT_REPO_PATH" rev-parse --show-toplevel 2>/dev/null || echo 'unknown')")"
+       TAG="${PARENT_REPO_NAME}/v$(date +%Y%m%d)-submodule"
+       git tag "$TAG" "$CURRENT_SHA"
+       git push origin "$TAG" 2>/dev/null || echo "Could not push tag (remote may not be accessible)"
+       echo "Tagged submodule SHA $CURRENT_SHA as $TAG"
+   else
+       echo "Submodule SHA $CURRENT_SHA already tagged ($TAG_EXISTS) — no action needed"
+   fi
+   ```
+
+8. **Exit submodule — do NOT touch the pointer:**
+   ```bash
+   cd - > /dev/null
+   # DO NOT: git add .opencode, git commit, or any operation that modifies the parent repo
+   # The dirty submodule pointer is expected — Step 1.7 already handled acknowledgment
+   ```
+
+**After all submodules processed — acknowledge dirty pointer:**
+```bash
+echo "Submodule branch cleanup complete."
+echo "Submodule pointer is dirty — expected state after dev sync."
+echo "No corrective action taken on submodule pointer."
+echo "The parent repo 'git status' will show .opencode (modified) — this is correct."
+```
+
+**🚫 FORBIDDEN:**
+- `git add .opencode` or any commit modifying the submodule pointer during cleanup
+- `git submodule update --recursive` or any `--recursive` submodule command
+- Switching the parent repo away from `dev`
+- Treating the dirty submodule pointer as an error condition
+- Creating a PR whose sole purpose is to update a submodule pointer (per Step 1.7 prohibition)
+
+**✅ REQUIRED:**
+- Verify each submodule is on `dev` before branch operations
+- Content verification gate before each submodule branch deletion
+- Tag-if-untagged for submodule SHAs
+- Acknowledge dirty pointer after all submodules processed
+
+**Evidence artifact (MANDATORY):** Tool-call output showing each submodule's `git branch --show-current` returns `dev`, the list of deleted branches per submodule, and the tag-if-untagged result per submodule. If no submodules exist, evidence that the step was evaluated and skipped is sufficient.
 
 ### Step 2: Remove Feature Worktree
 
@@ -179,6 +323,18 @@ Before deleting ANY merged branch, verify that all branch content is present on 
 - Content comparison table as evidence artifact before any deletion
 - HALT and flag for developer review when UNIQUE content is found
 
+### Step 3.2: Remove task() Entry Marker
+
+After confirming content is safe to delete, remove the task() entry marker for the merged branch:
+
+```bash
+CLEANUP_BRANCH_NAME=$(git branch --show-current)
+SAFE_BRANCH=$(echo "$CLEANUP_BRANCH_NAME" | tr '/' '-')
+rm -f tmp/task-"$SAFE_BRANCH".marker
+```
+
+This marker was created by `assemble-work` Step 1.5 as task() entry proof for the pre-commit hook.
+
 ### Step 3.5: Delete Current Merged Branch
 
 ```bash
@@ -197,7 +353,7 @@ When the merged branch was a work branch (created by `assemble-work`):
 1. Delete individual feature branches that were squash-merged into the work branch
 2. Delete the work branch itself
 3. Remove individual feature worktrees
-4. Remove work state file: `rm .opencode/tmp/work-*.md`
+4. Remove work state file: `rm tmp/work-*.md`
 5. Prune remote references
 
 **⚠️ CRITICAL: Never delete a work branch or its feature branches until the work PR is confirmed merged via GitHub API.**
@@ -217,87 +373,7 @@ git status --porcelain  # Must be empty
 git branch -vv          # Should show minimal branches
 ```
 
-### Step 5.5: Restore Submodule to Dev Branch (MANDATORY — Sub-Agent Dispatch)
-
-**⚠️ CRITICAL: Leaving submodules on detached HEAD after cleanup causes conflicts and lost work. This step MUST run after all branch deletions are complete.**
-
-**The main agent MUST dispatch a `submodule-dev-restore` sub-agent for all submodule git operations.** The main agent MUST NOT perform git checkout/pull operations on submodules inline — this is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Inline Work.
-
-#### Sub-Agent Boundary
-
-| Field | Value |
-|-------|-------|
-| **must_receive** | Submodule paths from `git submodule status`, `github.owner`, `github.repo` |
-| **must_not_receive** | Implementation context, agent memory, full task file contents, cleanup history |
-
-#### Dispatch Procedure
-
-Dispatch a sub-agent with the scoped instruction to restore each submodule to its `dev` branch:
-
-For each submodule (detected via `.gitmodules` or `.git` file in submodule directories):
-
-1. **Switch submodule to dev:**
-   ```bash
-   cd <submodule-path>
-   git checkout dev
-   git pull origin dev --ff-only
-   cd <parent-repo-root>
-   ```
-
-2. **Verify submodule is NOT on detached HEAD:**
-   ```bash
-   cd <submodule-path>
-   git rev-parse --abbrev-ref HEAD  # MUST return "dev", NOT "HEAD"
-   cd <parent-repo-root>
-   ```
-
-3. **If `dev` branch doesn't exist locally:**
-   ```bash
-   cd <submodule-path>
-   git checkout -b dev origin/dev
-   cd <parent-repo-root>
-   ```
-
-4. **If checkout fails due to uncommitted changes:**
-   ```bash
-   cd <submodule-path>
-   git stash
-   git checkout dev
-   git pull origin dev --ff-only
-   git stash pop
-   cd <parent-repo-root>
-   ```
-
-5. **Verify submodule is clean and on dev:**
-   ```bash
-   cd <submodule-path>
-   git status --porcelain  # Check for unexpected changes
-   git branch --show-current  # MUST return "dev"
-   cd <parent-repo-root>
-   ```
-
-**Evidence artifact (MANDATORY):** Tool-call output showing `git branch --show-current` returning `dev` for the submodule MUST be present before reporting cleanup complete.
-
-**🚫 FORBIDDEN:**
-- Leaving submodule on detached HEAD after cleanup
-- Deleting the `dev` branch in the submodule and then trying to checkout `dev`
-- Performing additional submodule cleanup beyond dev-restore (branch deletion, stash cleanup, etc.) without explicit developer authorization
-- Performing git operations on submodules inline from the main agent
-
-#### Sub-Agent Result Contract
-
-```yaml
-status: DONE | BLOCKED
-task: submodule-dev-restore
-submodule_results:
-  - path: <submodule-path>
-    branch: dev
-    sha: <dev-tip-sha>
-    stash_used: bool
-evidence_artifacts:
-  - tool: git branch --show-current
-    output: "dev"
-```
+**`.issues/<N>/` Persistence:** The `.issues/<issue_number>/` directory MUST NOT be deleted. It persists permanently in the working tree on `dev` as immutable history. After merge, the feature branch's `.issues/<N>/` content lands in `dev` via the merge. Do NOT add cleanup steps that remove or archive these directories.
 
 ### Step 6: Succinct Confirmation
 

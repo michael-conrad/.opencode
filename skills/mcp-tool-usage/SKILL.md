@@ -1,7 +1,7 @@
 ---
 name: mcp-tool-usage
-description: Use when selecting tools for file operations, code search, or any task that could use multiple tool options. Triggers on: which tool, tool priority, MCP, PyCharm, JetBrains, read file, write file, search code, tool selection.
-type: reference
+description: Use when selecting tools for file operations, code search, or any task that could use multiple tool options. Triggers on: which tool, tool priority, MCP, PyCharm, JetBrains, read file, write file, search code, tool selection. Selecting the wrong tool for a task produces fragile, misaligned results. Tool-awareness is what separates reliable agents from guessers.
+type: discipline-enforcing
 license: MIT
 provenance: AI-generated
 compatibility: opencode
@@ -13,28 +13,6 @@ compatibility: opencode
 
 Tool Priority Enforcer ensuring all operations use the correct tool according to the five-tier hierarchy. Defines PRIMARY, FALLBACK, and PROHIBITED tools for each operation type. Zero tolerance for `.ipynb` files.
 
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[File operation needed] --> B{File type?}
-    B -- .ipynb --> C[Tier 1: the-notebook-mcp MANDATORY]
-    B -- other --> D{Operation type?}
-    D -- read/write/edit/glob/grep --> E[Tier 1: opencode built-in tools]
-    D -- code search/symbols --> F[Tier 2: srclight MCP]
-    D -- GitHub API --> G[Tier 2: GitHub MCP]
-    D -- guidelines lookup --> H[Tier 3: .opencode/tools/guidelines]
-    D -- unique JetBrains capability --> I[Tier 4: JetBrains MCP]
-    E --> J{Tool available?}
-    F --> J
-    G --> J
-    H --> J
-    I --> J
-    J -- No --> K[Tier 5: direct CLI bash]
-    J -- Yes --> L[Use selected tool]
-```
-
 ## Tasks
 
 | Task | Purpose | Words |
@@ -43,16 +21,22 @@ flowchart TD
 
 ## Sub-Agent Tasks
 
-### Dispatch Audit Table
+### Task Routing
 
 | Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
 |---|---|---|---|---|
+| `pre-analysis` | Before any sub-agent routing, determine scope independently | Issue number, task description, audit_phase, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
 | `selection-guide` | When tool selection guidance is needed for file operations, notebooks, or code search | Operation type, file extension, project context | Implementation context, agent memory | NO |
 
 ## Invocation
 
-- `/skill mcp-tool-usage --task selection-guide` - Tool selection decision trees
-- `/skill mcp-tool-usage` - Overview only
+`skill({name: "mcp-tool-usage"})` — call the skill, then call via task():
+
+| Task | Call via task() |
+|------|----------|
+| `selection-guide` | `task(..., prompt: "execute selection-guide task from mcp-tool-usage")` |
+
+**CLI equivalent (for human TUI use):** `/skill mcp-tool-usage --task <task>`
 
 ## Five-Tier Tool Priority Hierarchy
 
@@ -104,33 +88,6 @@ Semantic rename, code reformat, build project, inspections, run configs, directo
 
 Bash/shell commands ONLY when no other tool covers the operation or it's inherently a shell operation (git, docker, package management).
 
-## ABSOLUTE EXCEPTION: .ipynb Files
+## Critical Rules
 
-`.ipynb` files are MANDATORY via `the-notebook-mcp`. Zero tolerance, no fallback. Direct access via `read`/`write`/`edit`/`json`/`nbformat`/`sed`/`cat`/`grep`/`jq`/`python` on `.ipynb` files is PROHIBITED and causes corruption.
-
-## Owner Inference Prohibition (ZERO TOLERANCE)
-
-**DO NOT infer GitHub owner from file paths, usernames, or cached values.** Use ONLY values from session-enforcement plugin output (`<github.owner>`, `<github.repo>`).
-
-## Worktree Path Resolution
-
-When `worktree.path` is set, ALL file operations MUST prefix paths with the worktree path. TIER 1 tools (`read`, `edit`, `write`, `glob`, `grep`) resolve relative paths to the **main repo**, NOT the worktree.
-
-| Tool | Wrong (main repo) | Correct (worktree) |
-|------|-------------------|---------------------|
-| `read` | `read(filePath="src/main.py")` | `read(filePath=f"{worktree.path}/src/main.py")` |
-| `edit` | `edit(filePath="src/main.py", ...)` | `edit(filePath=f"{worktree.path}/src/main.py", ...)` |
-| `write` | `write(filePath="src/new.py", ...)` | `write(filePath=f"{worktree.path}/src/new.py", ...)` |
-| `glob` | `glob(pattern="src/**/*.py")` | `glob(pattern="src/**/*.py", path=worktree.path)` |
-| `grep` | `grep(pattern="TODO", path="src/")` | `grep(pattern="TODO", path=f"{worktree.path}/src/")` |
-
-For `bash` tool calls, continue using the `workdir` parameter.
-
-## Cross-References
-
-| Guideline | Section |
-|-----------|---------|
-| `016-srclight-preference.md` | Srclight vs .opencode/tools hierarchy |
-| `060-tool-usage.md` | Tool usage and terminal rules |
-| `notebook-operations` skill | Complete notebook zero-tolerance rules |
-| Session enforcement plugin | MCP probe at startup |
+`.ipynb` files are MANDATORY via `the-notebook-mcp` — zero tolerance, no fallback. Do NOT infer GitHub owner from file paths or cached values. See `060-tool-usage.md` §2 for worktree path resolution rules and `060-tool-usage.md` §1 for notebook MCP mandate.

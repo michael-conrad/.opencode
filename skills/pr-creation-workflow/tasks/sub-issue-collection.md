@@ -12,7 +12,7 @@ First, detect whether this is a single-issue or work PR:
 
 ```bash
 # Check if work state file exists
-ls .opencode/tmp/work-*.md 2>/dev/null
+ls tmp/work-*.md 2>/dev/null
 
 # If exists → work PR format
 # If not exists → single/multi-task PR format
@@ -24,7 +24,7 @@ ls .opencode/tmp/work-*.md 2>/dev/null
 
 ### Single-Task / Unified Dispatch Path
 
-All specs follow the unified dispatch path (work-of-1). Include parent issue in the PR body. Sub-issues are included when they exist under the plan:
+All specs follow the unified pipeline path (work-of-1). Include parent issue in the PR body. Sub-issues are included when they exist under the plan:
 
 ```
 Fixes #<parent>
@@ -34,7 +34,7 @@ Fixes #<parent>
 
 1. **Fetch sub-issues:**
    ```python
-   sub_issues = github_issue_read(method="get_sub_issues", issue_number=<parent>)
+   sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=<parent>) <!-- Routes through issue-operations per SPEC #683 -->
    ```
 
 2. **Build autoclose list:** parent + all sub-issues
@@ -56,7 +56,7 @@ Fixes #<parent>
 
 For work PRs (assembled from multiple issues via `assemble-work`):
 
-1. **Read work state file** (`.opencode/tmp/work-*.md`) to get list of all issues in the work
+1. **Read work state file** (`tmp/work-*.md`) to get list of all issues in the work
 2. **Build both sections:**
    - `## Work Issues` section listing each issue with its description
    - `Fixes #N` annotations for all issues at the bottom

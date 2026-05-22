@@ -1,0 +1,27 @@
+=== Behavioral Test: texted-mcp-isolated ===
+Cloning into '/home/muksihs/git/opencode-config/tmp/texted-test-repo-cNQ8nD/.opencode'...
+From https://github.com/michael-conrad/.opencode
+ * branch            feature/521-texted-protocol-test -> FETCH_HEAD
+Switched to a new branch 'feature/521-texted-protocol-test'
+branch 'feature/521-texted-protocol-test' set up to track 'origin/feature/521-texted-protocol-test'.
+Test repo: /home/muksihs/git/opencode-config/tmp/texted-test-repo-cNQ8nD
+  .opencode commit: 06ef8a8
+
+--- SC-5: MCP tools/list protocol call ---
+PASS: edit_file found in tools/list response
+PASS: texted_eval found in tools/list response
+PASS: texted_doc found in tools/list response
+
+--- SC-7: opencode-cli run session using texted tools ---
+  [attempt 1/2]
+PASS: agent used texted edit_file to transform file content
+PASS: agent referenced texted tool in output
+
+--- SC-8: Go toolchain caching ---
+PASS: MCP server started after rebuild without Go download
+  Go toolchain cached at mtime: 1732739240
+
+--- SC-4: --version flag ---
+PASS: --version flag works
+
+PASS: texted-mcp-isolated

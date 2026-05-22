@@ -1,10 +1,13 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
-"""
-DESCRIPTION: List packages and modules under a path (replaces `ls` for Python source trees).
+
+__doc__ = """DESCRIPTION: List packages and modules under a path (replaces `ls` for Python source trees).
 Usage: ./.opencode/tools/py ls [<path>] [--all]
 Example: ./.opencode/tools/py ls src/commons
          ./.opencode/tools/py ls src/commons/persistence
@@ -12,24 +15,21 @@ Example: ./.opencode/tools/py ls src/commons
 Options:
   --all   Include non-package directories and non-.py files too
 """
-from __future__ import annotations
 import os as _os
 if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
     print("ERROR: This script must be run via its dispatcher (e.g. ./.opencode/tools/py ...). "
           "Direct invocation is not permitted.", file=__import__('sys').stderr)
     __import__('sys').exit(1)
-import subprocess
 import sys
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-PROJECT_ROOT = (BASE_DIR / CDUP).resolve()
-
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    _path = _path.parent
+PROJECT_ROOT = _path.parent
 
 def is_package(p: Path) -> bool:
     return p.is_dir() and (p / "__init__.py").exists()
-
 
 def main() -> None:
     args = sys.argv[1:]
@@ -75,7 +75,6 @@ def main() -> None:
     if not printed:
         rel = target.relative_to(PROJECT_ROOT)
         print(f"(no Python packages or modules found in {rel})")
-
 
 if __name__ == "__main__":
     main()

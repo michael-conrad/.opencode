@@ -1,12 +1,27 @@
-# Task: verify-authorization — Step 6: Scope-Aware Auto-Dispatch
+# Task: verify-authorization — Step 6: Scope-Aware Auto-Route
 
 ## Purpose
 
-After all verification gates (Steps 1-5) pass, determine the approval context and auto-dispatch to the next skill in the chain. This step runs ONLY when ALL prior verification gates pass. If ANY gate fails, HALT — do NOT dispatch.
+After all verification gates (Steps 1-5) pass, determine the approval context and auto-route to the next skill in the chain. This step runs ONLY when ALL prior verification gates pass. If ANY gate fails, HALT — do NOT route.
+
+## Authorization Context
+
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+```
+
+### Routing Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
+- The `pipeline_phase` field is NEW — it tracks which phase of a multi-phase plan is currently executing
 
 ## 6.1 Pre-Implementation Worktree Setup (MANDATORY)
 
-**Before any sub-agent dispatch or file modification, the agent MUST invoke `git-workflow --task pre-work` to:**
+**Before any sub-agent task() or file modification, the agent MUST task `git-workflow --task pre-work` to:**
 
 1. Create the feature branch in a worktree (`.worktrees/`)
 2. Set the `worktree.path` environment variable
@@ -14,9 +29,9 @@ After all verification gates (Steps 1-5) pass, determine the approval context an
 
 **This step is MANDATORY and CANNOT be skipped.** If the worktree already exists from a previous session, verify it and proceed. If worktree creation fails, HALT — do not proceed without a valid worktree.
 
-**Evidence requirement:** `git worktree list` must show the feature branch worktree, and `worktree.path` must be set before any `divide-and-conquer` dispatch.
+**Evidence requirement:** `git worktree list` must show the feature branch worktree, and `worktree.path` must be set before any `divide-and-conquer` task().
 
-## Auto-Dispatch Context Differentiation
+## Auto-Dispatch Situation Differentiation
 
 | Approval Context | How to Detect | Auto-Dispatch Target |
 | -- | -- | -- |
@@ -26,13 +41,25 @@ After all verification gates (Steps 1-5) pass, determine the approval context an
 | **Reconciled during verification** | reconcile-issue-graph returned auto-closed or reopened tickets | Include reconciled tickets in chat output; proceed with dispatch |
 | **Closed but NOT verified** | Step 5.4 closed-issue verification finds closure without merged PR evidence | flag-for-review — do NOT autoclose |
 
-## Scope-Aware Dispatch Targets
+## Scope-Aware Route Targets
 
-The dispatch target is modified by `authorization_scope` from Step 2.0. See `enforcement/auto-dispatch-table.md` for the complete scope-dependent routing.
+The routing target is modified by `authorization_scope` from Step 2.0. See `enforcement/auto-dispatch-table.md` for the complete scope-dependent routing.
 
-**🚫 HARD HALT AT SCOPE BOUNDARY:** The agent MUST NOT proceed past the pipeline stage specified by `halt_at`. If the dispatch chain reaches the `halt_at` stage, the agent reports completion and STOPS. Proceeding past `halt_at` without re-authorization is a CRITICAL GUIDELINE VIOLATION.
+**🚫 HARD HALT AT SCOPE BOUNDARY:** The agent MUST NOT proceed past the pipeline stage specified by `halt_at`. If the pipeline chain reaches the `halt_at` stage, the agent reports completion and STOPS. Proceeding past `halt_at` without re-authorization is a CRITICAL GUIDELINE VIOLATION.
 
-## Auto-Dispatch Procedure
+### `for_analysis` Route Behavior
+
+When `authorization_scope == "for_analysis"`:
+
+- Dispatch is read-only investigation
+- No `writing-plans` or `executing-plans` routing — only `issue-operations` for issue creation/comments
+- No `divide-and-conquer` routing — only `pre-analysis` if needed for context understanding
+- No feature branch creation; `investigate/<topic>` scratch branches permitted
+- Gap-fill cascade is skipped entirely (gap_fill = none)
+- Pre-implementation setup is skipped entirely
+- HALT after `analysis_complete`
+
+## Auto-Route Procedure
 
 1. Determine approval context (spec vs plan) by checking:
    - Issue title format: `[SPEC` prefix = spec approval
@@ -41,14 +68,14 @@ The dispatch target is modified by `authorization_scope` from Step 2.0. See `enf
    - Plan detection is via `plan` label or `[PLAN]` prefix in title (NOT via sub-issue relationship to spec)
 2. Determine scope from Step 2.0 result (`authorization_scope`, `halt_at`, `pr_strategy`)
 3. Execute gap-fill from Step 5c if scope >= `for_plan`
-4. **If spec approval:** Invoke `writing-plans --task create` with context:
+5. **If spec approval:** Invoke `writing-plans --task create` with context:
    - `spec_issue=#N` (the approved spec issue number)
-   - `authorization_scope=<scope>` and `halt_at=<stage>`
+   - `authorization_scope=<scope>`, `halt_at=<stage>`, `pr_strategy=<strategy>`, `pipeline_phase=<phase>`
    - `<github.owner>`, `<github.repo>`, `<worktree.path>` from session
 5. **If plan approval:** Invoke `executing-plans --task start` with context:
    - `plan_issue=#N` (the approved plan issue number)
    - `spec_issue=#M` (extracted from plan body — the spec reference)
-   - `authorization_scope=<scope>`, `halt_at=<stage>`, `pr_strategy=<strategy>`
+   - `authorization_scope=<scope>`, `halt_at=<stage>`, `pr_strategy=<strategy>`, `pipeline_phase=<phase>`
    - `<github.owner>`, `<github.repo>`, `<worktree.path>` from session
 6. **Chat output:** Clearly indicate the transition and scope:
    - Spec approval: "Verification passed → Creating implementation plan (scope: <scope>)"
@@ -65,13 +92,13 @@ Numeric format: `STATUS: 1.1 (REVISED - NEEDS APPROVAL)`
 2. Mark found plans for audit (their authorization is revoked by the spec revision)
 3. Report affected plans in chat output
 
-## Auto-Dispatch Edge Cases
+## Auto-Route Edge Cases
 
 - **Spec already has a plan:** `writing-plans --task create` handles this (skips or updates per its existing logic)
 - **Multi-task plan with missing sub-issues:** Step 5 sub-issue verification gate fails → HALT, no dispatch
 - **Authorization set dispatch:** Each plan in the work set gets its own dispatch cycle after work state is established
 - **Scope requires gap-fill but artifact exists:** Skip gap-fill for that artifact (check before creating)
-- **`pr_only` or `review_only` scope with no existing branch/PR:** HALT and report — these scopes assume existing work
+- **`for_pr_only` or `for_review_only` scope with no existing branch/PR:** HALT and report — these scopes assume existing work
 
 ## Authorization Cascade by Output Lineage (Step 2.1)
 
@@ -93,13 +120,13 @@ When cascade does NOT apply (conditions not met):
 - HALT and inform user: "#P was approved but it is an investigation issue — its spec #C was not named. Please confirm: approve #C?"
 - This is a genuine authorization gap where the developer's intent is ambiguous
 
-**Evidence artifact:** `github_issue_read(method=get_comments)` showing lineage evidence in #P, and `github_issue_write` / `github_add_issue_comment` responses confirming cascade actions on #C.
+**Evidence artifact:** `issue-operations -> read-comments (github_issue_read(method=get_comments)` showing lineage evidence in #P, and `github_issue_write` / `github_add_issue_comment` responses confirming cascade actions on #C. <!-- Routes through issue-operations per SPEC #683 -->
 
-## Context Budget Check Before Dispatch (MANDATORY for implementation scopes)
+## Context Budget Check Before task() (MANDATORY for implementation scopes)
 
-**When `authorization_scope` is `for_implementation`, `for_code_review`, or `for_pr`:**
+**When `authorization_scope` is `for_implementation` or `for_pr`:**
 
-Before dispatching to `divide-and-conquer --task assemble-work`, verify that sufficient context budget remains to complete at least one implementation item:
+Before routing to `divide-and-conquer --task assemble-work`, verify that sufficient context budget remains to complete at least one implementation item:
 
 1. Estimate remaining context: if the agent has consumed >75% of its context window on process steps (verification, screening, worktree setup), the remaining budget may be insufficient for implementation
 2. If context budget is critically low (<25% remaining): report budget exhaustion explicitly in chat output before halting — do NOT silently halt after process overhead
@@ -115,36 +142,3 @@ This check prevents the pattern documented in bugs #1232 and #1233 where the age
 - **Writes to:** `## auto-dispatch`
 
 After completing this task, write results to the work state file under section `## auto-dispatch` using the YAML format defined in `enforcement/work-state-schema.md`.
-
-## Post-Authorization Dispatch Window Enforcement
-
-**This section enforces the 3-tool-call bound from `000-critical-rules.md` §"Implementation-First Gate at Authorization Time".**
-
-After `verify-authorization` returns `authorized`, the agent MUST transition to `git-workflow --task pre-work` within at most 3 subsequent tool calls. This prevents the post-authorization research spiral documented in Spec #171.
-
-### Enforcement Protocol
-
-1. **Track tool calls:** After authorization is confirmed, maintain an internal count of tool calls made
-2. **Bound:** If 3 tool calls have been made without reaching `git-workflow --task pre-work`, HALT immediately
-3. **Report:** Include the tool call sequence (names and brief descriptions) in the halt message
-4. **No bypass:** Sub-agent dispatch for JSON parsing, metadata extraction, or re-reading already-fetched data counts toward the bound
-5. **Permitted calls within bound:** `git-workflow --task pre-work` (the target), `pre-implementation-analysis` for multi-issue sets
-
-### Prohibited Patterns After Authorization
-
-| Pattern | Count | Violation |
-|---------|-------|-----------|
-| Re-fetching an issue already read during verification | 1+ call | Post-auth spiral |
-| Dispatching `task(subagent_type="general")` for JSON parsing of data in context | 1+ call | Post-auth spiral |
-| Reading spec/plan content already available from verification | 1+ call | Post-auth spiral |
-| Any read-only metadata gathering beyond the 3-call bound | >3 calls | Post-auth spiral |
-
-### Permitted Patterns After Authorization
-
-| Pattern | Rationale |
-|----------|-----------|
-| `git-workflow --task pre-work` | Target dispatch — this IS the goal |
-| `pre-implementation-analysis` for multi-issue sets | Legitimate transition to orchestration |
-| Work state file writes | Administrative, not read-only research |
-
-**AUTHORITY: Spec #171, `000-critical-rules.md` §Implementation-First Gate at Authorization Time**

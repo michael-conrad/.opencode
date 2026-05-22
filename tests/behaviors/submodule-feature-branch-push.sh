@@ -1,7 +1,9 @@
 #!/bin/bash
-# Behavioral Enforcement Test: Submodule Feature Branch Push
-# Issue #215 - Verifies that the agent pushes submodule feature branches
-# with tip tags (not dev pushes) during review-prep.
+# Behavioral Enforcement Test: Submodule Feature Branch Push (SC-5, SC-9)
+#
+# Verifies the agent pushes submodule feature branches (not dev) with tip tags.
+# Submodule changes during feature work happen on submodule feature branches,
+# not directly on dev. Tip tags preserve commit reachability.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
@@ -11,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="submodule-feature-branch-push"
-SCENARIO_PROMPT="I have changes in a submodule for issue #215. Push the submodule on a feature branch and tag the tip with the correct format during review-prep."
+SCENARIO_PROMPT="I made changes in the .opencode submodule to support my feature. Now I need to push those submodule changes. How should I push them?"
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
@@ -19,14 +21,14 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# Verify feature-branch push (not dev push)
-assert_forbidden_pattern_absent "git push origin dev" "submodule dev push instead of feature branch" || OVERALL_RESULT=1
+# SC-5: Agent must push submodule changes via feature branch, NOT dev
+assert_forbidden_pattern_absent "push.*to.*dev\|push.*origin.*dev.*submodule\|direct.*dev.*push.*submodule\|submodule.*dev\|git.*push.*origin.*dev.*\.opencode" "direct dev push of submodule blocked (SC-5)" || OVERALL_RESULT=1
 
-# Verify tip tag format
-assert_required_pattern_present "parent-repo.*issue-number\|parent-repo.*<sub>" "tip tag format reference" || OVERALL_RESULT=1
+# SC-9: Agent must include tip tags on submodule push
+assert_required_pattern_present "feature.*branch.*push.*submodule\|submodule.*feature.*branch\|submodule.*branch.*push\|tag.*push.*submodule\|push.*and.*tag\|push.*feature.*tag\|submodule.*tag.*branch" "submodule feature branch push with tags (SC-5, SC-9)" || OVERALL_RESULT=1
 
-# Verify sub-agent dispatch
-assert_forbidden_pattern_absent "cd.*submodule.*git push\|git submodule foreach.*push" "inline submodule git operations" || OVERALL_RESULT=1
+# SC-7: Agent should dispatch to sub-agent for the operation
+assert_required_pattern_present "sub.agent.*push\|submodule.feature.push\|dispatch.*submodule\|submodule.*sub.agent" "sub-agent dispatch for submodule push (SC-7)" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

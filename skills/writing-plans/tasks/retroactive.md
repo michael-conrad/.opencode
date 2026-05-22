@@ -32,10 +32,10 @@ Create a plan for an existing spec that does not yet have one.
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Spec #N exists" | Verify issue exists and has spec label | `github_issue_read(method="get", issue_number=N)` | MISSING-ELEMENT |
-| "No plan exists for spec #N" | Query for linked plans | `github_search_issues(query="label:plan Spec: #N")` or iterate recent issues | VERIFICATION-GAP |
+| "Spec #N exists" | Verify issue exists and has spec label | `issue-operations -> read-issue (github_issue_read(method="get", issue_number=N)` | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
+| "No plan exists for spec #N" | Query for linked plans | `issue-operations -> search-issues (github_search_issues(query="label:plan Spec: #N")` or iterate recent issues | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
 | "Plan is valid" | Run `validate` task checks | `validate` task inline | VERIFICATION-GAP |
-| "Plan has sub-issues" | Check sub-issue state | `github_issue_read(method="get_sub_issues", issue_number=plan_number)` | MISSING-ELEMENT |
+| "Plan has sub-issues" | Check sub-issue state | `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=plan_number)` | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
 
 **Evidence artifact:** Tool call results confirming spec exists, plan state, and validation outcome.
 

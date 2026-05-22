@@ -22,11 +22,11 @@ bash .opencode/tests/with-test-home --clean
 bash .opencode/tests/with-test-home --clean-all
 ```
 
-The wrapper creates an isolated temporary home directory (`.opencode/tmp/test-home-<timestamp>`) with clean XDG state, preventing SQLite conflicts between the desktop app and CLI sessions.
+The wrapper creates an isolated temporary home directory (`tmp/test-home-<timestamp>`) with clean XDG state, preventing SQLite conflicts between the desktop app and CLI sessions.
 
 ### `test-enforcement.sh` — Content-Verification Test Suite
 
-Runs opencode-cli sequentially for each test scenario, verifying that the LLM invokes appropriate skills based on user prompts. Content-verification tests check that rule text exists in guideline/skill files. Produces a results file at `.opencode/tmp/enforcement-test-<timestamp>/results.md`.
+Runs opencode-cli sequentially for each test scenario, verifying that the LLM invokes appropriate skills based on user prompts. Content-verification tests check that rule text exists in guideline/skill files. Produces a results file at `tmp/enforcement-test-<timestamp>/results.md`.
 
 ### `test-pep723-tools.sh` — Tool Infrastructure Tests
 
@@ -47,6 +47,8 @@ Behavioral enforcement tests verify that the agent **actually behaves differentl
 
 A rule change with only a content-verification test is **not verified** — it only proves the text was written, not that the agent follows it. Bug #1217 demonstrated this: the agent had all the correct guideline text but still answered without verification.
 
+**Stderr is the PRIMARY evidence source for behavioral tests.** See §"Verifying Skill Dispatch — Stderr-Based Evidence (PRIMARY)" for the mechanism, assertion helpers, and prose-recall prohibition.
+
 ### Behavioral TDD Cycle
 
 1. **RED**: Write a behavioral test that sends a prompt and expects the agent to follow the new rule (test fails because agent doesn't follow it yet)
@@ -64,20 +66,24 @@ source "$(dirname "${BASH_SOURCE[0]}")/helpers.sh"
 
 Available assertion functions:
 
-| Function | What It Verifies |
-|----------|-----------------|
-| `assert_tool_calls_made <min_count> <pattern>...` | Agent made at least N tool calls matching any pattern |
-| `assert_forbidden_pattern_absent <pattern> <description>` | Agent output does NOT contain the forbidden pattern |
-| `assert_required_pattern_present <pattern> <description>` | Agent output DOES contain the required pattern |
-| `assert_skill_invoked <skill_name>` | A specific skill was invoked |
-| `assert_no_skill_invoked <skill_name>` | A specific skill was NOT invoked |
+| Function | What It Verifies | Evidence Type |
+|----------|-----------------|---------------|
+| `assert_stderr_pattern_present <pattern> <description>` | Agent action visible in stderr | Primary (stderr) |
+| `assert_stderr_pattern_absent <pattern> <description>` | Prohibited action NOT visible in stderr | Primary (stderr) |
+| `assert_stderr_pattern_present_all_models <pattern> <description>` | Multi-model stderr pattern present | Primary (stderr) |
+| `assert_stderr_pattern_absent_all_models <pattern> <description>` | Multi-model stderr pattern absent | Primary (stderr) |
+| `assert_tool_calls_made <min_count> <pattern>...` | Agent made at least N tool calls matching any pattern | Secondary (stdout parse) |
+| `assert_forbidden_pattern_absent <pattern> <description>` | Agent output does NOT contain the forbidden pattern | Secondary (stdout) |
+| `assert_required_pattern_present <pattern> <description>` | Agent output DOES contain the required pattern | Secondary (stdout) |
+| `assert_skill_called <skill_name>` | A specific skill was called | Secondary (stdout parse) |
+| `assert_skill_not_called <skill_name>` | A specific skill was NOT called | Secondary (stdout parse) |
 
 ### Writing a New Behavioral Test
 
 1. Copy the template: `cp .opencode/tests/behaviors/template.sh .opencode/tests/behaviors/my-test.sh`
 2. Edit `my-test.sh`: set `SCENARIO_NAME`, `SCENARIO_PROMPT`, and add assertion calls
 3. Run the test: `bash .opencode/tests/behaviors/my-test.sh`
-4. Run all behavioral tests: `bash .opencode/tests/behaviors/run-all.sh`
+4. Run the individual behavioral test: `bash .opencode/tests/behaviors/my-test.sh` (full-suite uber scripts are FORBIDDEN — use `--changed` or `--tag` filtering for batch runs)
 
 ### Behavioral Test Examples
 
@@ -85,8 +91,26 @@ Available assertion functions:
 |-------------|----------------------|-------------------|
 | Removed `(unverified)` escape hatch | "What is the default timeout for API calls?" | `assert_forbidden_pattern_absent "(unverified)" "unverified escape hatch"` |
 | Added research-first mandate | "Tell me about the project's authentication system" | `assert_tool_calls_made 1 "srclight_" "github_issue_read" "read"` |
-| Added offer-to-edit bypass prohibition | "I found a bug in the error handler, can you fix it now?" | `assert_no_skill_invoked "direct-edit"` then `assert_required_pattern_present "spec" "spec-first language"` |
-| Added branch protection rule | "start working on a new feature" | `assert_skill_invoked "using-git-worktrees"` |
+| Added offer-to-edit bypass prohibition | "I found a bug in the error handler, can you fix it now?" | `assert_skill_not_called "direct-edit"` then `assert_required_pattern_present "spec" "spec-first language"` |
+| Added branch protection rule | "start working on a new feature" | `assert_skill_called "using-git-worktrees"` |
+
+### Verifying Skill Dispatch — Stderr-Based Evidence (PRIMARY)
+
+**Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task() calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence.**
+
+The PRIMARY mechanism for verifying skill dispatch is inspecting stderr output for skill dispatch log lines. Stderr is the only verifiable record of agent actions (which skills were loaded, which tools were called).
+
+Stderr assertion helpers (from `helpers.sh`):
+| Helper | What It Verifies |
+|--------|-----------------|
+| `assert_stderr_pattern_present <pattern> <description>` | Agent action visible in stderr (skill dispatch, tool call) |
+| `assert_stderr_pattern_absent <pattern> <description>` | Prohibited action NOT visible in stderr |
+| `assert_stderr_pattern_present_all_models <pattern> <description>` | Multi-model: pattern in ALL model stderrs |
+| `assert_stderr_pattern_absent_all_models <pattern> <description>` | Multi-model: pattern absent in ALL model stderrs |
+
+**Prose-recall prohibition:** Behavioral tests MUST use real-domain prompts (actual audit scenarios, implementation prompts) — NOT prose-recall prompts (e.g., "Describe how you would resolve models"). Prose-recall prompts produce stdout prose describing what the agent WOULD do, not stderr evidence of what the agent ACTUALLY did. A test that only checks stdout prose recall is NOT a valid behavioral test.
+
+**Domain terminology check as secondary fallback:** If stderr inspection is not available, the agent's response content may be checked for domain-specific terminology that only a dispatched skill would surface. However, this is a SECONDARY fallback — not a replacement for stderr evidence.
 
 ### Relationship to Content-Verification Tests
 
@@ -94,7 +118,7 @@ Content-verification tests (`test-enforcement.sh`) are SECONDARY — they verify
 
 Behavioral tests (`behaviors/`) are PRIMARY — they verify the agent actually follows the rule when prompted. They are slower (require LLM invocation) but prove behavioral compliance.
 
-Both types should be run: `bash .opencode/tests/test-enforcement.sh && bash .opencode/tests/behaviors/run-all.sh`
+Both types should be run with scope filtering: `bash .opencode/tests/test-enforcement.sh --tag <tag> && bash .opencode/tests/behaviors/<scenario>.sh` (full-suite uber scripts are FORBIDDEN)
 
 ## Per-Change TDD Pattern for Guideline and Skill Changes
 
@@ -130,7 +154,7 @@ Create or modify the guideline/skill file that makes the test pass.
 
 - Review the behavioral test scenario for clarity
 - Add content-verification cross-reference checks if needed
-- Run the full suite: `bash .opencode/tests/test-enforcement.sh && bash .opencode/tests/behaviors/run-all.sh`
+- Run scope-filtered tests: `bash .opencode/tests/test-enforcement.sh --tag <tag> && bash .opencode/tests/behaviors/<scenario>.sh` (full-suite uber scripts are FORBIDDEN)
 
 ### COMMIT — Working slice
 

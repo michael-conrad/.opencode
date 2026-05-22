@@ -1,196 +1,138 @@
 ---
 name: test-driven-development
-description: Use when writing tests before implementation, or when adopting a test-first development approach. Triggers on: TDD, test first, red green refactor, write test, test-driven, unit test, regression.
+description: Use when writing tests before implementation, or when adopting a test-first development approach. Triggers on: TDD, test first, red green refactor, write test, test-driven, unit test, regression. Writing code before tests is the oldest shortcut in engineering. TDD produces testable, correct code.
 type: discipline-enforcing
 license: MIT
-provenance: AI-generated
+provenance: Derived from majiayu000/claude-skill-registry (MIT)
 compatibility: opencode
 ---
 
 # Skill: test-driven-development
 
-## Overview
+## Five Core Principles
 
-Test-driven development (TDD) workflow that enforces writing tests before implementation code. Tests define the contract, implementation satisfies the contract, and refactoring maintains quality.
+1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
+2. **TDD discipline** — RED phase tests before GREEN phase implementation. REFACTOR is mandatory, not optional.
+3. **Clean-room** — No inline fallback. Sub-agents receive only scoped context. No pre-determined findings.
+4. **Independent intelligence** — Autonomous analysis. If the task contains excessive instruction where your own analysis should apply, HALT and notify parent.
+5. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, source code, and test results.
 
-**MANDATORY: The agent MUST invoke `test-driven-development --task red` before implementation for all code changes (exempt: docs-only, config-only, data-only changes). Skipping this invocation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Skipping Mandatory Skill Invocation.**
+## ASCII Cycle Diagram
 
-**Source Attribution:** This skill is adapted from <UPSTREAM_ORG>/<UPSTREAM_REPO> workflow (branch: newsrx).
-
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[Implementation needed] --> B[RED: write failing test]
-    B --> C[Test fails without implementation?]
-    C -- No --> D[Revise test to be meaningful]
-    D --> C
-    C -- Yes --> E[GREEN: write minimal code to pass]
-    E --> F[Test passes?]
-    F -- No --> G[Revise implementation]
-    G --> F
-    F -- Yes --> H[REFACTOR: clean up code]
-    H --> I{All tests still green?}
-    I -- No --> J[Revert refactor]
-    J --> H
-    I -- Yes --> K[TDD cycle complete]
+```
+┌─────────────────────────────────────────────────────────┐
+│                    TDD CYCLE (per item)                  │
+│                                                         │
+│   PHASE 0 ──► RED ──► GREEN ──► REFACTOR ──► PHASE 4    │
+│   (baseline)   │        │          │         (verify)    │
+│       ▲        │  fails │ passes   │            │        │
+│       │        ▼        ▼          ▼            ▼        │
+│       │     BLOCKED  BLOCKED    REVERT       BLOCKED      │
+│       │     (fix or  (fix or    (bad        (2x fail     │
+│       │      halt)    halt)     refactor)    = halt)      │
+│       │                                                  │
+│       └──────────── CYCLE RESET ──────────────────────────┘
+│                                                          │
+│   Next item ──► back to Phase 0                         │
+└──────────────────────────────────────────────────────────┘
 ```
 
 ## Tasks
 
-| Task | Purpose | Words |
-|------|---------|-------|
-| `red` | Write failing test for new behavior | ≈200 |
-| `green` | Write minimal implementation to pass test | ≈150 |
-| `refactor` | Clean up while keeping tests green | ≈200 |
-
-## Sub-Agent Tasks
-
-### Dispatch Audit Table
-
-| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
-|---|---|---|---|---|
-| `red` | When writing failing test for new behavior | Spec SC list, test file paths | Implementation context, implementation intent | NO |
-| `green` | When writing minimal implementation to pass test | Spec SC list, test file paths, implementation file paths | Prior RED test output, implementation intent | NO |
-| `refactor` | When cleaning up code while keeping tests green | Implementation file paths, test file paths | Implementation context, agent memory | NO |
+| Task | Words | Purpose |
+|------|-------|---------|
+| `red` | ≈80 | Execution-only: write failing test |
+| `green` | ≈80 | Execution-only: minimal impl |
+| `refactor` | ≈120 | Execution-only: clean while green |
+| `patterns` | ≈400 | 4-pattern decision matrix |
+| `anti-patterns` | ≈500 | 5 anti-patterns with alternatives |
+| `checklist` | ≈350 | Quality checklists, timing, step-size |
+| `phase-0` | ≈400 | Pre-regression baseline gate |
+| `phase-4` | ≈400 | Post-regression verification gate |
 
 ## Invocation
 
-- `/skill test-driven-development` — Overview only
-- `/skill test-driven-development --task red` — Write failing test
-- `/skill test-driven-development --task green` — Write minimal implementation
-- `/skill test-driven-development --task refactor` — Refactor with tests green
+`skill({name: "test-driven-development"})` — call the skill, then call via task():
 
-## Operating Protocol
+| Task | Call via task() |
+|------|----------|
+| (use task name) | `task(..., prompt: "execute <task> task from test-driven-development")` |
 
-1. **MANDATORY invocation:** This skill MUST be invoked for ALL code changes. The agent MUST NOT treat TDD as optional or contextual. Invoke `/skill test-driven-development --task red` before writing any implementation code. Exempt: documentation-only, configuration-only, or data-only changes.
-2. **Red-Green-Refactor cycle:** RED: Write a test that fails (defines expected behavior). GREEN: Write minimal code to make test pass (satisfy contract). REFACTOR: Clean up code while keeping tests green.
-3. **Exit conditions:** TDD cycle is COMPLETE when test was written before implementation, implementation passes the test, code is refactored and clean, and all existing tests still pass.
+**CLI equivalent (for human TUI use):** `/skill test-driven-development --task <name>`
 
-## Enforcement Mechanism
+## Gate Descriptions
 
-This skill is **MANDATORY** for all code changes. Skipping the TDD enforcement test before implementation is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Skipping Mandatory Skill Invocation and §Enforcement Test Updates.
+### Phase 0 — Pre-Regression Baseline
 
-### What Skills SHOULD Check
+Invoked before the first RED phase. AI-driven dependency analysis (`srclight_get_dependents`), full test suite execution. BLOCKED on test failure — cycle cannot start until existing failures are resolved. Empty blast radius = silent proceed.
 
-1. **When TDD is selected:**
-   - Was test written before implementation?
-   - Does test fail without implementation?
-   - Does implementation pass the test?
-   - Are all tests still green after refactoring?
+### Phase 4 — Post-Regression Verification
 
-2. **TDD violations:**
-   - Implementation before test → RECOMMEND starting with test
-   - Test always passes → Test doesn't validate anything
-   - Refactoring breaks tests → Revert and refactor differently
+Invoked after REFACTOR completes. Re-computes blast radius, runs full suite. Remediation loop: first failure returns to GREEN, second consecutive failure = BLOCKED with halt.
 
-## Test Standards
+### Completeness Gate (After TDD Cycle, Before Audit)
 
-- Use `pytest` for all tests
-- Run from root: `uv run pytest test/test_filename.py`
-- Use `PgServerManager` for database tests (never SQLite)
-- Use `./tmp/` for test artifacts
+After Phase 4 passes and before routing to adversarial audit, the orchestrator MUST run `completeness-gate --task check` on the deliverable. This gate verifies the deliverable covers all spec success criteria and is structurally sound. The gate is non-adversarial and read-only — it checks presence and coverage, not correctness depth. See `completeness-gate` skill for routing decisions.
 
-## Integration with Existing Workflow
+## Cycle-Reset Discipline
 
-### Dispatch Order
+### Normal Completion
 
+After Phase 4 PASSES:
+1. Commit the cycle (test + implementation + refactor as one working slice)
+2. Reset to Phase 0 for the next item
+3. Never carry state across cycles
+
+### Mid-Cycle Restart
+
+If at ANY point within RED/GREEN/REFACTOR a step exceeds its timing target (30s RED / 2-5min GREEN / 1-3min REFACTOR) or produces unexpected test failures, the agent MUST restart the full RED→GREEN→REFACTOR cycle from the beginning — not limp forward on a broken foundation:
+
+1. Discard all uncommitted changes from the current cycle
+2. Restart from RED with zero state carryover
+3. If Phase 0 elapsed > 1 full cycle since last baseline, re-execute Phase 0
+
+## Sub-Agent Routing
+
+Sub-agents run via `task(subagent_type="general")` with `{ spec_context, test_path, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory, prior test results. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
+
+### Authorization Context
 ```
-executing-plans (step with TDD approach) → TDD red → TDD green → TDD refactor → verification-before-completion
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-TDD is invoked MANDATORILY — not optionally for all development.
+### Routing Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
 
-**Exempt from mandatory TDD invocation:** Documentation-only changes, configuration-only changes, data-only changes. All other changes require the RED/GREEN/REFACTOR cycle.
+## Provenance
 
-## Cross-References
-
-- Related skills: `systematic-debugging` (testing bug fixes), `verification-before-completion` (evidence)
-- Related guidelines: `070-environment.md` (testing standards), `080-code-standards.md` (code quality)
-
-## Platform Compatibility
-
-- **GitHub:** Not applicable (this repository uses GitBucket)
-- **GitBucket:** Use Python client from gitbucket-api skill
-- **Platform Detection:** Uses `github.platform` environment variable
+Derived from [majiayu000/claude-skill-registry](https://github.com/majiayu000/claude-skill-registry) (MIT).
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+last_updated: "2026-05-11T00:00:00Z"
 rules:
   - id: tdd-001
-    title: "Tests MUST be written before implementation code"
+    title: "RED phase must produce evidence of test failure"
     conditions:
-      all:
-        - "implementation_selected == true"
-        - "implementation_written_before_test == true"
-    actions:
-      - HALT
-      - INVOKE(test-driven-development --task red)
-    conflicts_with: []
-    requires: []
-    triggers: [test-driven-development]
-    source: "test-driven-development/SKILL.md §Operating Protocol"
+      all: ["red_phase_started == true", "test_failure_evidence_missing == true"]
+    actions: [HALT, COLLECT_EVIDENCE]
+    source: "test-driven-development/SKILL.md"
 
   - id: tdd-002
-    title: "Test MUST fail without implementation (RED phase)"
+    title: "Phase 0 must complete before RED phase"
     conditions:
-      all:
-        - "implementation_selected == true"
-        - "test_passes_without_implementation == true"
-    actions:
-      - HALT
-      - REWRITE_TEST
-    conflicts_with: []
-    requires: []
-    triggers: [test-driven-development]
-    source: "test-driven-development/SKILL.md §Enforcement Mechanism"
+      all: ["tdd_cycle_started == true", "phase_0_completed == false"]
+    actions: [HALT, TASK(phase-0)]
+    source: "test-driven-development/SKILL.md"
 
-tasks:
-  - id: red
-    skill: test-driven-development
-    preconditions:
-      - "testable_behavior_defined == true"
-    postconditions:
-      - "failing_test_written == true"
-      - "test_defines_expected_behavior == true"
-    mandatory: true
-    bypass_violation: "implementation started before test written"
-    source: "test-driven-development/SKILL.md §Tasks"
-
-  - id: green
-    skill: test-driven-development
-    preconditions:
-      - "red_phase_complete == true"
-      - "failing_test_exists == true"
-    postconditions:
-      - "implementation_passes_test == true"
-      - "implementation_is_minimal == true"
-    mandatory: true
-    bypass_violation: "implementation does not pass the test"
-    source: "test-driven-development/SKILL.md §Tasks"
-
-  - id: refactor
-    skill: test-driven-development
-    preconditions:
-      - "green_phase_complete == true"
-      - "all_tests_passing == true"
-    postconditions:
-      - "code_cleaned_up == true"
-      - "all_tests_still_passing == true"
-    mandatory: false
-    bypass_violation: "refactoring broke tests"
-    source: "test-driven-development/SKILL.md §Tasks"
-
-decomposition: []
-gates:
-  - id: red-before-green
-    type: precondition
-    check: "failing test exists before implementation begins"
-    on_fail: RECOMMEND("write test first")
-    source: "test-driven-development/SKILL.md §Red-Green-Refactor cycle"
-evidence_artifacts:
-  - "test file created before implementation file"
-  - "uv run pytest output showing test results"
-```
+  - id: tdd-003
+    title: "Phase 4 must complete before cycle reset"
+    conditions:
+      all: ["refactor_phase_completed == true", "phase_4_completed == false"]
+    actions: [HALT, TASK(phase-4)]
+    source: "test-driven-development/SKILL.md"

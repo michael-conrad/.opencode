@@ -1,7 +1,7 @@
 ---
 name: gitbucket-api
-description: GitBucket platform sub-skill for issue-operations. Provides capability manifest and Python client for GitBucket API operations.
-type: reference
+description: Use when GitBucket platform operations are needed. GitBucket platform sub-skill for issue-operations. Provides capability manifest and Python client for GitBucket API operations. GitBucket operations without platform awareness fail silently. Platform-aware routing is what makes multi-platform workflows reliable.
+type: discipline-enforcing
 license: MIT
 provenance: AI-generated
 compatibility: opencode
@@ -11,26 +11,7 @@ compatibility: opencode
 
 ## Overview
 
-GitBucket platform implementation using Python client. Implements a GitHub-compatible API v3 with known deficiencies. This is a platform sub-skill under `issue-operations` — the dispatcher routes GitBucket operations here when `github.platform=gitbucket`.
-
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[issue-operations dispatches] --> B[Route to gitbucket-api]
-    B --> C{Operation?}
-    C -- create issue --> D[api.create_issue — labels auto-created]
-    C -- update/close --> E[PATCH 404 — comment fallback]
-    C -- add comment --> F[api.add_issue_comment]
-    C -- sub-issues --> G[No API — comment-based linking]
-    C -- search --> H[No API — iterative listing + filter]
-    D --> I[Return result]
-    E --> I
-    F --> I
-    G --> I
-    H --> I
-```
+GitBucket platform implementation using Python client. Implements a GitHub-compatible API v3 with known deficiencies. This is a platform sub-skill under `issue-operations` — the router passes GitBucket operations here when `github.platform=gitbucket`.
 
 ## Capability Manifest (v4.46.0, empirically probed)
 
@@ -79,7 +60,7 @@ flowchart TD
 
 ## Sub-Agent Tasks
 
-### Dispatch Audit Table
+### Task Routing
 
 | Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
 |---|---|---|---|---|
@@ -88,7 +69,25 @@ flowchart TD
 | `error-recovery` | When GitBucket error handling/retry is needed | Error details, retry context | Implementation context, agent memory | NO |
 | `mcp-operations` | When GitBucket MCP tool mapping is needed | Operation type, MCP context | Implementation context, agent memory | NO |
 | `repository-operations` | When GitBucket repository CRUD is needed | Repository data, github.owner, github.repo | Implementation context, agent memory | NO |
+| `pre-analysis` | Before any sub-agent routing, determine scope independently | Issue number, task description, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
 | `session-integration` | When GitBucket session init integration is needed | Session context, environment variables | Implementation context, agent memory | NO |
+
+## Authorization Labels (Platform-Supported)
+
+GitBucket API supports labels via creation only (post-creation label mutation is broken). The eight `approved-for-*` labels are:
+
+| Label | Purpose |
+|---|---|
+| `approved-for-spec` | Authorization through spec creation |
+| `approved-for-plan` | Authorization through plan creation |
+| `approved-for-implementation` | Authorization through implementation |
+| `approved-for-code-review` | Authorization through code review |
+| `approved-for-pr` | Full pipeline through PR creation |
+| `approved-for-pr-only` | PR creation only |
+| `approved-for-review` | Code review only |
+| `approved-for-review-prep` | Default authorization |
+
+`needs-approval` is the default label for unapproved issues. It is applied on creation and replaced by the corresponding `approved-for-*` label at time of authorization. No `approved-for-*` label = awaiting approval. Label replacement on re-authorization is implemented via comment fallback (remove old label via `remove_label_from_issue`, apply new on next creation cycle).
 
 ## Authentication
 
@@ -140,7 +139,7 @@ All `list_*` endpoints return arrays (`List[Dict]`), NOT objects. The Python cli
 
 | Guideline | Section |
 |-----------|---------|
-| Dispatcher | `../../SKILL.md` (issue-operations) |
+| Router | `../../SKILL.md` (issue-operations) |
 | GitHub platform | `../github-mcp/SKILL.md` |
 | Session init plugin | GitBucket detection and credentials |
 | `reference/` | OpenAPI v4.42.1 specification |

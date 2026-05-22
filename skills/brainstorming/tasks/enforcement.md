@@ -19,7 +19,7 @@ Enforcement rules and messages for the brainstorming skill. Ensures brainstormin
    | Exploration invoked, batch-dump detected | Agent produced findings without developer interaction | HALT — require developer confirmation of each item |
    | Exploration invoked, partial protocol | Agent asked one question then ignored the answer | HALT — require per-item developer confirmation before proceeding |
     | Exploration invoked, protocol followed | Interactive Q&A with developer confirmation for key items | PROCEED to spec creation |
-    | Terminal dispatch to spec-creation occurred (not just issue-operations)? | Verify spec-creation was invoked after exploration | Chat + tool call evidence | SOFT-PASS |
+    | Terminal routing to spec-creation occurred (not just issue-operations)? | Verify spec-creation was invoked after exploration | Chat + tool call evidence | SOFT-PASS |
 
 3. **What does NOT bypass exploration:**
 
@@ -50,7 +50,7 @@ Exploration required before spec creation.
 
 This ensures thorough requirements investigation before planning.
 
-To invoke: Say '/skill brainstorming' or describe your feature to start exploration.
+To call: Say '/skill brainstorming' or describe your feature to start exploration.
 ```
 
 **Incomplete exploration:**
@@ -126,11 +126,11 @@ Before creating a spec, investigation MUST be complete. This is a hard gate, not
 |-------------|-------------------|-----------|---------------|
 | "Exploration complete" | Verify all investigation checklist items have evidence artifacts (not just assertions) | Check that tool-call artifacts exist for each of the 6 checklist items | VERIFICATION-GAP |
 | "Code inspection done" | Verify actual tool calls were made for call paths, imports, dead code, formats, layers, alternatives | `srclight_get_callers`, `srclight_get_symbol`, etc. — confirm in artifacts | MISSING-ELEMENT |
-| "Problem understood" | Verify a clear problem statement exists in the spec or exploration notes | `github_issue_read(method=get, issue_number=N)` → check body for problem section | STRUCTURE-VIOLATION |
-| "Alternatives considered" | Verify at least 2 approaches were documented for significant decisions | `github_issue_read(method=get, issue_number=N)` → check for approach comparison | MISSING-ELEMENT |
-| "Risks identified" | Verify risk assessment with mitigation is documented | `github_issue_read(method=get, issue_number=N)` → check for risk section | MISSING-ELEMENT |
-| "User approved design" | Verify approval comment exists from a developer (not bot/agent) on the issue | `github_issue_read(method=get_comments)` → filter by author_association | CONFLICTING |
-| "STATUS marker value" | Compare claimed STATUS against actual issue content maturity | `github_issue_read(method=get)` → parse STATUS from body | STRUCTURE-VIOLATION |
+| "Problem understood" | Verify a clear problem statement exists in the spec or exploration notes | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → check body for problem section | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
+| "Alternatives considered" | Verify at least 2 approaches were documented for significant decisions | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → check for approach comparison | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
+| "Risks identified" | Verify risk assessment with mitigation is documented | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → check for risk section | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
+| "User approved design" | Verify approval comment exists from a developer (not bot/agent) on the issue | `issue-operations -> read-comments (github_issue_read(method=get_comments)` → filter by author_association | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
+| "STATUS marker value" | Compare claimed STATUS against actual issue content maturity | `issue-operations -> read-issue (github_issue_read(method=get)` → parse STATUS from body | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
 | "Protocol compliance verified" | Verify exploration involved interactive Q&A (not batch-dump); check for consecutive agent-only messages | Chat/exploration record review — confirm developer responses interleave agent messages | CONFLICTING |
 | "Developer confirmed findings" | Verify each significant discovery has a developer acknowledgment before being included | Chat/exploration record review — confirm per-item confirmation | VERIFICATION-GAP |
 | "Min interactive turns met" | Verify at least 2 Q&A exchanges occurred before proceeding to approaches | Chat/exploration record review — count developer-agent exchanges | VERIFICATION-GAP |

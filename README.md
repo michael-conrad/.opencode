@@ -67,7 +67,7 @@ Self-contained modules with YAML frontmatter for self-discovery:
 | Review | `requesting-code-review`, `receiving-code-review`, `issue-review` |
 | Debug | `systematic-debugging`, `conflict-resolution` |
 | Development | `test-driven-development`, `programming-principles`, `engineering-approach` |
-| Operations | `notebook-operations`, `mcp-tool-usage`, `issue-operations`, `pr-creation-workflow` |
+| Operations | `mcp-tool-usage`, `issue-operations`, `pr-creation-workflow` |
 | Maintenance | `skill-creator`, `fragment-manager`, `sync-guidelines`, `changelog-generator` |
 | Audit | `verification`, `verification-before-completion`, `verification-enforcement` |
 | Other | `correspondence`, `multimodal-dispatch`, `sre-runbook`, `ui-design`, `ui-engineer`, `research` |
@@ -76,7 +76,7 @@ Self-contained modules with YAML frontmatter for self-discovery:
 
 | Tool | Purpose |
 |------|---------|
-| `session-init` | Emit session context (owner, repo, platform) |
+| `session-init` | Emit session context (owner, repo, platform). **Canonical source for identity data including Sub-folder Repo Mappings.** |
 | `guidelines` | Guideline management |
 | `md` | Markdown utilities |
 | `py` | Python utilities |
@@ -96,7 +96,6 @@ Self-contained modules with YAML frontmatter for self-discovery:
 
 | Script | Purpose |
 |--------|---------|
-| `session_context_identity.py` | Identity section generation |
 | `session_context_triggers.py` | Trigger warning generation |
 | `validate-release-tags.sh` | Release tag validation |
 | `validate-submodule-refs.sh` | Submodule reference validation |

@@ -37,7 +37,53 @@ if pr.get("merged_at") is None:
 - EVIDENCE: `merged_by` = pr.get("merged_by") — Should be populated
 - EVIDENCE: `state` = pr.get("state") — "closed" for merged PRs
 
-### Step 2: Rebase Pending PRs
+**Structured output context (MANDATORY):** After verification, produce a structured output that the orchestration layer passes to `issue-closure`:
+
+```yaml
+verify_merge_output:
+  pr_number: <N>
+  merged_at: "<timestamp>"
+  merged_by: "<username>"
+  merged_in_repo: "<owner>/<repo>"  # Parent or submodule repo
+  submodule_context:
+    is_submodule_pr: <true|false>
+    submodule_owner: "<owner>"  # Populated if is_submodule_pr
+    submodule_repo: "<repo>"    # Populated if is_submodule_pr
+  pr_files: ["<path1>", "<path2>", ...]  # Used by issue-closure for submodule routing
+```
+
+The `merged_in_repo` and `submodule_context` fields are REQUIRED inputs to `issue-closure` Step 8.5 for correct submodule routing. If these are missing, issue-closure MUST flag as VERIFICATION-GAP and HALT.
+
+### Step 2: Adversarial-Audit Closure Verification
+
+Invoke `adversarial-audit --task closure-verification` to verify merge evidence:
+
+```python
+task(
+    subagent_type="general",
+    prompt=f"""Use adversarial-audit skill --task closure-verification with:
+
+pr_number: {pullNumber}
+audit_phase: post_merge
+
+worktree.path: {worktree.path}
+github.owner: {github.owner}
+github.repo: {github.repo}
+
+Mandatory gates:
+1. Verify PR merge status via GitHub API
+2. Verify success criteria have evidence
+3. Verify spec issue closed with proper resolution
+4. Return structured result contract
+"""
+)
+```
+
+**Evidence artifacts:**
+- EVIDENCE: closure-verification result consensus = PASS
+- EVIDENCE: All success criteria verified
+
+### Step 3: Rebase Pending PRs
 
 After verifying the PR merge and before switching to dev, rebase all other open PRs onto the updated `dev` branch.
 
@@ -101,7 +147,7 @@ For each SC:
 Verify ALL phases/sub-issues have merged PRs before allowing closure of a multi-phase spec or plan.
 
 1. Parse issue body for phase headings (`### Phase N:`, `#### Task N:`)
-2. Get sub-issues via `github_issue_read(method="get_sub_issues")`
+2. Get sub-issues via `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues")` <!-- Routes through issue-operations per SPEC #683 -->
 3. For each sub-issue, verify it is closed with a merged PR
 4. If any phase is open or lacks merged PR evidence → do NOT close the parent
 

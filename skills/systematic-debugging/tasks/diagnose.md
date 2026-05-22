@@ -6,7 +6,7 @@ Systematic bug diagnosis workflow that enforces root cause analysis before any f
 
 ## Operating Protocol
 
-1. Invoked by: `/skill systematic-debugging --task diagnose`
+1. Invoked by: `skill({name: "systematic-debugging"})` → `task()` for `diagnose`
 2. When to use: When a bug or error is reported or encountered during implementation
 3. Exit criteria: Root cause identified with evidence, documented in chat
 

@@ -1,3 +1,9 @@
+---
+trigger_on: template, spec template, template format
+tier: 2
+load_when: sub-agent
+---
+
 # Planning: Spec Templates
 
 ## Intent, Not Templates
@@ -21,6 +27,7 @@ Before creating any spec, bug report, or issue, verify these intent questions ar
 | Does the spec reference related issues with context? | Related issues — links with summaries and relevance (not bare links) |
 | Does the spec identify affected files with anchors? | Affected files — file paths with function names or section headers, not line numbers |
 | Does the spec provide enough context for a fresh agent? | Self-containment — no "as discussed above" or "see previous comment" |
+| Does the spec document what sources were consulted? | Documentation Sources — local docs, direct source search, documentation URLs, MCP search, live verification |
 
 **Simple specs may address several questions in a single paragraph. Complex specs may need separate sections for each. The format adapts to complexity.**
 
@@ -57,6 +64,18 @@ This minimal spec works because the change is small and self-explanatory. Separa
 
 ### Standard Feature Spec (moderate change, multiple files)
 
+> **Intent and Executive Summary**
+>
+> **Problem Statement:** Article metadata queries are slow, causing poor page load performance.
+>
+> **Root Cause / Motivation:** API calls average 150ms response time because queries hit PostgreSQL directly instead of a cache layer.
+>
+> **Approach Chosen:** Add Redis as a cache layer with 1-hour TTL and fallback to DB when Redis is unavailable.
+>
+> **Alternatives Considered & Why Discarded:** Memcached considered but Redis already deployed per infra team; in-memory cache rejected due to stateless deployment architecture.
+>
+> **Key Design Decisions:** 1-hour TTL balances freshness against cache hit rate; fallback to DB ensures availability over consistency.
+>
 > **Objective:** Add Redis caching layer for frequently accessed article metadata.
 >
 > **Problem:** Article metadata API calls average 150ms response time, causing slow page loads. 85% cache hit potential identified.
@@ -86,6 +105,18 @@ This minimal spec works because the change is small and self-explanatory. Separa
 
 This standard spec adds context, affected files, constraints, and risk because the change touches multiple files and has infrastructure dependencies.
 
+#### Documentation Sources Table
+
+A Documentation Sources section may be included to document where the spec author looked for information. This is particularly important for specs making factual claims about code behavior, config schemas, or API signatures:
+
+| Source Category | What Was Consulted | Purpose |
+|----------------|-------------------|---------|
+| Local docs | `README.md`, `docs/architecture.md` | Understand existing caching architecture |
+| Direct source search | `srclight_search_symbols("cache")`, `grep -r "redis" src/` | Identify existing cache patterns |
+| Documentation URLs | [redis-py docs](https://redis-py.readthedocs.io/) | Verify Redis client API signatures |
+| MCP search | `srclight_get_signature("get_article_metadata")` | Verify function signature for cache integration |
+| Live verification | `uv run pytest test/test_articles.py -k "metadata"` | Confirm test coverage before making changes |
+
 ### Comprehensive Feature Spec (large change, cross-cutting)
 
 See the full example in `144-planning-spec-examples.md` for comprehensive specs with phased implementation, full risk assessment, and detailed decision rationale. Comprehensive specs use all the structure they need — phases, affected files with code snippets, extended risk assessment, dependencies table, and decision rationale with alternatives.
@@ -106,6 +137,18 @@ ______________________________________________________________________
 
 ### Standard Bug Fix Spec (needs investigation context)
 
+> **Intent and Executive Summary**
+>
+> **Problem Statement:** OAuth2 refresh_token expiry causes users to be unexpectedly logged out.
+>
+> **Root Cause / Motivation:** 15% of users who don't log in for more than 7 days are affected. Token expiry is not handled gracefully.
+>
+> **Approach Chosen:** Catch `TokenExpiredError` and re-authenticate with stored credentials.
+>
+> **Alternatives Considered & Why Discarded:** Extending token lifetime rejected for security reasons; forcing re-login rejected as poor UX.
+>
+> **Key Design Decisions:** Re-authenticate with stored credentials rather than prompting user; surface network/credential failures appropriately.
+>
 > **Problem:** OAuth2 refresh_token fails on expiry, causing unexpected logout for ≈15% of users who don't log in for more than 7 days.
 >
 > **Expected Behavior:** Automatically re-authenticate using stored credentials when refresh token expires.

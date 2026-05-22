@@ -1,16 +1,18 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["networkx>=3.1"]
 # ///
+
 """
 DESCRIPTION: State machine extraction and validation. Checks reachability, dead states, dangling references.
 Usage: ./.opencode/tools/symbolic states
 """
 
-from __future__ import annotations
 import os as _os
-import subprocess
 import sys
 import types
 from dataclasses import dataclass
@@ -19,9 +21,13 @@ from pathlib import Path
 import networkx as nx
 
 IMPL_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-BASE_DIR = (IMPL_DIR / CDUP).resolve()
-
+_path = IMPL_DIR
+while _path.name != ".opencode":
+    parent = _path.parent
+    if parent == _path:
+        raise RuntimeError("Could not find .opencode/ directory")
+    _path = parent
+BASE_DIR = _path.parent
 
 def _load_extract():
     source = (IMPL_DIR / "sym-extract").read_text()
@@ -30,7 +36,6 @@ def _load_extract():
     sys.modules["symextract"] = mod
     exec(compile(source, str(IMPL_DIR / "sym-extract"), "exec"), mod.__dict__)
     return mod
-
 
 @dataclass
 class StateAnomaly:
@@ -41,7 +46,6 @@ class StateAnomaly:
 
     def to_dict(self) -> dict:
         return {"machine_id": self.machine_id, "state": self.state, "anomaly_type": self.anomaly_type, "description": self.description}
-
 
 def validate_state_machines(state_machines: list, rules: list | None = None) -> list[StateAnomaly]:
     anomalies: list[StateAnomaly] = []
@@ -107,7 +111,6 @@ def validate_state_machines(state_machines: list, rules: list | None = None) -> 
 
     return anomalies
 
-
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
         print(
@@ -136,7 +139,6 @@ def main() -> None:
             print(f"  [{a.anomaly_type}] {a.machine_id}/{a.state}: {a.description}")
     else:
         print("All state machines valid.")
-
 
 if __name__ == "__main__":
     main()

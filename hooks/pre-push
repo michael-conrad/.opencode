@@ -1,136 +1,167 @@
 #!/bin/bash
-# Pre-push hook: Enforce branch topology and prevent pushing merged branches
-#
-# Checks performed (in order):
-# 1. origin/dev existence — feature branches require origin/dev on remote
-# 2. Common ancestor between main and dev — orphaned topology blocks all pushes
-# 3. Already-merged detection — merged branches should be deleted, not pushed
-#
-# Spec: #217 — Pre-push hook and session-enforcement check for remote branch topology
-#
-# Co-authored with AI: <AgentName> (<ModelId>)
+# Pre-push hook: Branch topology + commit count enforcement
+# Gates inspect push refspecs from stdin, not the local checkout branch.
+# stdin format per git pre-push protocol:
+#   <local-ref> SP <local-sha> SP <remote-ref> SP <remote-sha> LF
 
 set -e
 
-CURRENT_BRANCH=$(git branch --show-current)
+SKIP_BRANCH_PROTECTION="${SKIP_BRANCH_PROTECTION:-}"
+SKIP_COMMIT_COUNT_CHECK="${SKIP_COMMIT_COUNT_CHECK:-}"
 
-REMOTE_NAME=""
-if git remote 2>/dev/null | grep -q "^origin$"; then
-    REMOTE_NAME="origin"
-fi
+# Read stdin refspecs. For each line, evaluate all gates.
+# If any line triggers a block, the hook exits 1.
+# If no lines on stdin, exit 0 (no pushes to validate).
+ALLOWED=true
 
-IS_FEATURE_BRANCH=true
-if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "dev" ] || [ "$CURRENT_BRANCH" = "master" ]; then
-    IS_FEATURE_BRANCH=false
-fi
+while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
+    [ -z "$LOCAL_REF" ] && continue
 
-# --- Check 1: origin/dev existence (feature branches only) ---
-# Feature branches target dev for PRs; if origin/dev doesn't exist,
-# PRs will fail. Block the push early with actionable guidance.
-if [ "$IS_FEATURE_BRANCH" = true ] && [ -n "$REMOTE_NAME" ]; then
-    # Fetch remote refs to ensure we have current remote state
-    git fetch "$REMOTE_NAME" --quiet 2>/dev/null || true
+    # Extract branch basename (strip refs/heads/)
+    LOCAL_BRANCH="${LOCAL_REF#refs/heads/}"
+    REMOTE_BRANCH="${REMOTE_REF#refs/heads/}"
 
-    if ! git rev-parse --verify "remotes/$REMOTE_NAME/dev" >/dev/null 2>&1; then
-        echo ""
-        echo "❌ BLOCKED: origin/dev does not exist on remote"
-        echo ""
-        echo "Feature branches target 'dev' for PRs, but 'dev' has not been pushed to the remote."
-        echo "Without origin/dev, pull requests cannot be created against the correct base branch."
-        echo ""
-        echo "To fix this, push dev to the remote first:"
-        echo "  git push origin dev"
-        echo ""
-        echo "If dev has never been pushed, this establishes the branch on the remote."
-        echo "If dev was previously pushed but the remote branch was deleted, push it again."
-        echo ""
-        exit 1
-    fi
-fi
-
-# --- Check 2: Common ancestor between main and dev ---
-# Orphaned branches (no shared history) indicate broken topology.
-# This can happen when main is recreated as an orphan or dev diverges
-# with no merge base. PRs between orphaned branches cannot be created.
-if [ -n "$REMOTE_NAME" ]; then
-    MAIN_REF=""
-    if git rev-parse --verify "remotes/$REMOTE_NAME/main" >/dev/null 2>&1; then
-        MAIN_REF="remotes/$REMOTE_NAME/main"
-    elif git rev-parse --verify "remotes/$REMOTE_NAME/master" >/dev/null 2>&1; then
-        MAIN_REF="remotes/$REMOTE_NAME/master"
+    # Detect delete: local-sha is all zeros => ref is being deleted
+    IS_DELETE=false
+    if echo "$LOCAL_SHA" | grep -q '^0\{40\}$'; then
+        IS_DELETE=true
     fi
 
-    DEV_REF=""
-    if git rev-parse --verify "remotes/$REMOTE_NAME/dev" >/dev/null 2>&1; then
-        DEV_REF="remotes/$REMOTE_NAME/dev"
+    # --- Gate 0: Block direct pushes to protected branches ---
+    # Deletes are always allowed (branch deletion is cleanup, not a push to protected branch)
+    if [ "$IS_DELETE" = false ]; then
+        case "$REMOTE_BRANCH" in
+            main|master|dev)
+                if [ "$SKIP_BRANCH_PROTECTION" != "1" ]; then
+                    echo ""
+                    echo "BLOCKED: Direct pushes to '$REMOTE_BRANCH' are prohibited."
+                    echo ""
+                    echo "Protected branches must only receive changes through pull requests."
+                    echo ""
+                    echo "To override (deliberate ops action only):"
+                    echo "  SKIP_BRANCH_PROTECTION=1 git push origin $REMOTE_BRANCH"
+                    echo ""
+                    ALLOWED=false
+                fi
+                ;;
+        esac
     fi
 
-    if [ -n "$MAIN_REF" ] && [ -n "$DEV_REF" ]; then
-        if ! git merge-base --is-ancestor "$MAIN_REF" "$DEV_REF" 2>/dev/null && \
-           ! git merge-base --is-ancestor "$DEV_REF" "$MAIN_REF" 2>/dev/null; then
-            MERGE_BASE=$(git merge-base "$MAIN_REF" "$DEV_REF" 2>/dev/null || true)
-            if [ -z "$MERGE_BASE" ]; then
+    # --- Gate 1: Merged branch topology check ---
+    # Uses remote branches (not local) so force-pushing to a branch whose PR
+    # was merged remotely (e.g. via GitHub UI or another workstation) is blocked.
+    # Only applies to same-name pushes (local branch == remote branch), not deletes.
+    # Remote-merged check: origin/branch must be strictly behind origin/dev|main
+    # (not equal) to avoid blocking pushes on newly-created empty branches.
+    if [ "$IS_DELETE" = false ] && [ -n "$LOCAL_BRANCH" ] && [ "$LOCAL_BRANCH" = "$REMOTE_BRANCH" ]; then
+        # Fetch remote refs once before checking both dev and main
+        git fetch origin --prune 2>/dev/null || true
+
+        _MERGED_DEV=false
+        _MERGED_MAIN=false
+        if git branch -r --merged origin/dev 2>/dev/null | grep -q "origin/$LOCAL_BRANCH$"; then
+            _MERGED_DEV=true
+        fi
+        if git branch -r --merged origin/main 2>/dev/null | grep -q "origin/$LOCAL_BRANCH$"; then
+            _MERGED_MAIN=true
+        fi
+
+        # Avoid false positive: a branch pushed at the same commit as origin/dev
+        # is not merged — it was just created. Only block if origin strictly ahead.
+        if [ "$_MERGED_DEV" = true ]; then
+            _AHEAD=$(git rev-list --count "origin/$LOCAL_BRANCH"..origin/dev 2>/dev/null || echo "0")
+            if [ "$_AHEAD" -gt 0 ]; then
                 echo ""
-                echo "❌ BLOCKED: 'main' and 'dev' are orphaned — no common ancestor"
+                echo "BLOCKED: Branch '$LOCAL_BRANCH' is already merged into 'dev'"
                 echo ""
-                echo "The 'main' and 'dev' branches share no git history. This broken topology"
-                echo "prevents PRs from being created between these branches."
+                echo "This branch has been merged and should be deleted, not pushed."
                 echo ""
-                echo "To fix this, establish a common ancestor:"
-                echo "  Option A — Rebase dev onto main:"
-                echo "    git checkout dev && git rebase main && git push origin dev --force-with-lease"
+                echo "To clean up:"
+                echo "  git checkout dev && git pull origin dev"
+                echo "  git branch -d $LOCAL_BRANCH"
+                echo "  git push origin --delete $LOCAL_BRANCH"
                 echo ""
-                echo "  Option B — Create a merge commit to join the histories:"
-                echo "    git checkout dev && git merge main --allow-unrelated-histories"
-                echo "    git push origin dev"
+                ALLOWED=false
+            fi
+        fi
+
+        if [ "$_MERGED_MAIN" = true ]; then
+            _AHEAD=$(git rev-list --count "origin/$LOCAL_BRANCH"..origin/main 2>/dev/null || echo "0")
+            if [ "$_AHEAD" -gt 0 ]; then
                 echo ""
-                echo "  Option C — If main is wrong (orphan with single commit), reset it:"
-                echo "    git checkout main && git reset --hard dev && git push origin main --force-with-lease"
+                echo "BLOCKED: Branch '$LOCAL_BRANCH' is already merged into 'main'"
                 echo ""
-                echo "CAUTION: Option C rewrites main history. Coordinate with your team before force-pushing."
+                echo "This branch has been merged and should be deleted, not pushed."
                 echo ""
-                exit 1
+                echo "To clean up:"
+                echo "  git checkout dev && git pull origin dev"
+                echo "  git branch -d $LOCAL_BRANCH"
+                echo "  git push origin --delete $LOCAL_BRANCH"
+                echo ""
+                ALLOWED=false
             fi
         fi
     fi
-fi
 
-# --- Check 3: Already-merged detection (feature branches only) ---
-# Merged branches should be deleted, not pushed.
-if [ "$IS_FEATURE_BRANCH" = true ]; then
-    if git branch --merged dev 2>/dev/null | grep -q "^\s*$CURRENT_BRANCH$"; then
-        echo ""
-        echo "❌ BLOCKED: Branch '$CURRENT_BRANCH' is already merged into 'dev'"
-        echo ""
-        echo "This branch has been merged and should be deleted, not pushed."
-        echo ""
-        echo "To clean up this merged branch:"
-        echo "  git checkout dev && git pull origin dev"
-        echo "  git branch -d $CURRENT_BRANCH"
-        echo "  git push origin --delete $CURRENT_BRANCH  # if pushed remotely"
-        echo ""
-        echo "If you need to continue working on this branch, create a new feature branch:"
-        echo "  git checkout dev && git checkout -b feature/new-branch-name"
-        echo ""
-        exit 1
-    fi
+    # --- Gate 2: Commit count check (commit-per-issue invariant) ---
+    if [ "$IS_DELETE" = false ] && [ -n "$LOCAL_BRANCH" ] && [ "$LOCAL_BRANCH" = "$REMOTE_BRANCH" ]; then
+        if [ "$SKIP_COMMIT_COUNT_CHECK" = "1" ]; then
+            continue
+        fi
 
-    if git branch --merged main 2>/dev/null | grep -q "^\s*$CURRENT_BRANCH$"; then
-        echo ""
-        echo "❌ BLOCKED: Branch '$CURRENT_BRANCH' is already merged into 'main'"
-        echo ""
-        echo "This branch has been merged and should be deleted, not pushed."
-        echo ""
-        echo "To clean up this merged branch:"
-        echo "  git checkout dev && git pull origin dev"
-        echo "  git branch -d $CURRENT_BRANCH"
-        echo "  git push origin --delete $CURRENT_BRANCH  # if pushed remotely"
-        echo ""
-        echo "If you need to continue working on this branch, create a new feature branch:"
-        echo "  git checkout dev && git checkout -b feature/new-branch-name"
-        echo ""
-        exit 1
+        case "$LOCAL_BRANCH" in
+            pair-*|rollback/*)
+                continue
+                ;;
+        esac
+
+        # Work state files live at the repo root's tmp/ directory.
+        # git rev-parse --show-toplevel resolves to the correct root
+        # whether running in parent repo or submodule context.
+        WORK_STATE_DIR="tmp"
+
+        # Work branches have N commits for N work items — skip check
+        WORK_BRANCH=false
+        if ls "$WORK_STATE_DIR"/work-*.md 1>/dev/null 2>&1; then
+            for f in "$WORK_STATE_DIR"/work-*.md; do
+                if grep -q "$LOCAL_BRANCH" "$f" 2>/dev/null; then
+                    WORK_BRANCH=true
+                    break
+                fi
+            done
+        fi
+
+        if [ "$WORK_BRANCH" = false ]; then
+            COMMIT_COUNT=0
+            if git rev-parse --verify origin/dev >/dev/null 2>&1; then
+                COMMIT_COUNT=$(git rev-list --count origin/dev.."$LOCAL_SHA" 2>/dev/null || echo "0")
+            elif git rev-parse --verify dev >/dev/null 2>&1; then
+                COMMIT_COUNT=$(git rev-list --count dev.."$LOCAL_SHA" 2>/dev/null || echo "0")
+            fi
+
+            if [ "$COMMIT_COUNT" -gt 1 ]; then
+                echo ""
+                echo "BLOCKED: Commit-per-issue invariant violated."
+                echo ""
+                echo "Branch '$LOCAL_BRANCH' has $COMMIT_COUNT commits but no work state file."
+                echo "Single-issue branches must have exactly 1 commit."
+                echo ""
+                echo "To fix:"
+                echo "  1. Squash: git reset --soft origin/dev && git commit -m '<message>'"
+                echo ""
+                echo "BLOCKED: Pushing without work state — unattributed commits entering the integration branch."
+                echo "No traceability means defects untraceable to spec. Every unpipelined push is orphaned changes."
+                echo ""
+                echo "Remediate: call skill({name: \"divide-and-conquer\"}) --task assemble-work"
+                echo ""
+                ALLOWED=false
+            fi
+        fi
     fi
+done
+
+if [ "$ALLOWED" = false ]; then
+    exit 1
 fi
 
 exit 0

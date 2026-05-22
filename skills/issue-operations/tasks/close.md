@@ -32,9 +32,17 @@ Invoke `verify-merge` task to confirm PR is actually merged before closing any i
 
 ### Step 3: Close Issue (Platform Routing)
 
+Route based on `github.platform`:
+
+| `github.platform` | Route to |
+|---|---|
+| `github` | `platforms/github-mcp/` sub-skill |
+| `gitbucket` | `platforms/gitbucket-api/` sub-skill |
+| `local` | `platforms/local/` sub-skill |
+
 **⚠️ Body-Preservation Safeguard (CRITICAL):** If `github_issue_write(method=update, body=...)` is used to close an issue, the body parameter MUST preserve all original content. NEVER replace an issue body with a shortened status summary or closing comment. The 80% length threshold applies: if `len(new_body) < 0.8 * len(original_body)`, HALT — this indicates content erasure. Status updates and closing comments MUST be added as separate comments, not written into the body.
 
-**GitHub platform:**
+**GitHub platform (sub-skill implementation):**
 ```python
 github_issue_write(
     method="update",
@@ -46,11 +54,16 @@ github_issue_write(
 )
 ```
 
-**GitBucket platform (PATCH fallback):**
+**GitBucket platform (sub-skill implementation — PATCH fallback):**
 ```bash
 # PATCH /issues/:number returns 404 on GitBucket
 # Post closure comment instead
 ./.opencode/tools/gitbucket-api add-comment <github.owner> <github.repo> <issue-number> "Closing: PR merged and implementation verified."
+```
+
+**Local platform (sub-skill implementation):**
+```bash
+./.opencode/tools/local-issues close <issue-number> --reason "completed"
 ```
 
 ### Step 4: Post Closure Comment (if substantive)
@@ -84,17 +97,19 @@ All tasks complete from this specification.
 - Session values: github.owner, github.repo, github.platform
 - Related tasks: `verify-merge` (runs first), `comment` (format for closure comment)
 - Parent/child closure order per `010-approval-gate.md`
+- Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
+- No direct `github_*` or `gitbucket-api` calls outside `issue-operations/platforms/`
 
 ## Live Verification: Closure Evidence (MANDATORY)
 
 **Each closure precondition MUST be verified via tool call before closing. Assertions without tool-call artifacts are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
 
-| Claim | Verification Action | Tool Call | Problem Class |
+| Claim | Verification Action | Tool Call (routed) | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "PR #N is merged" | Verify merge status via API | `github_pull_request_read(method="get", pullNumber=N)` → `merged` field | VERIFICATION-GAP |
-| "All sub-issues are closed" | Verify each sub-issue state | `github_issue_read(method="get_sub_issues", issue_number=N)` → check each closed | VERIFICATION-GAP |
+| "PR #N is merged" | Verify merge status via platform API | `github_pull_request_read(method="get", pullNumber=N)` → `merged` field *(PR ops — not routed through issue-operations)* | VERIFICATION-GAP |
+| "All sub-issues are closed" | Verify each sub-issue state | `issue-operations → read-sub-issues` → check each closed | VERIFICATION-GAP |
 | "Issue #N has a merged PR" | Search for PR referencing issue | `github_search_pull_requests(query="fixes #N")` | MISSING-ELEMENT |
-| "Platform supports PATCH close" | Probe platform capabilities | `issue-operations --task capabilities` | CONFLICTING |
+| "Platform supports PATCH close" | Probe platform capabilities | `issue-operations → capabilities` | CONFLICTING |
 
 **Evidence artifact:** Merge verification result, sub-issue state check results.
 

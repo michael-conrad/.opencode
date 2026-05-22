@@ -1,6 +1,6 @@
 # Task: structural-verify
 
-Clean-room structural completeness verification. This task MUST be dispatched as a sub-agent to ensure isolation from implementation context.
+Clean-room structural completeness verification. This task MUST be task()'d as a sub-agent to ensure isolation from implementation context.
 
 ## Purpose
 
@@ -18,9 +18,9 @@ Verify that ALL structural components required by the spec are present in the im
 - Per-component PASS/FAIL table produced
 - If ANY component missing: verification FAILS, implementation phase blocked
 
-## Clean-Room Dispatch Protocol (MANDATORY)
+## Clean-Room Task() Protocol (MANDATORY)
 
-This task MUST be dispatched as a sub-agent receiving ONLY:
+This task MUST be task()'d as a sub-agent receiving ONLY:
 
 1. **Spec acceptance criteria list** — the SC table from the spec issue
 2. **File paths to verify** — list of files that were modified during implementation
@@ -35,7 +35,7 @@ The sub-agent MUST NOT receive:
 
 ### Step 1: Parse Required Components
 
-From the spec issue, extract the list of required structural components:
+From the spec issue, extract the list of required structural components. Use `vbc_artifact_path` (defaults to `./tmp/artifacts/`) as the canonical base for all artifact paths — not bare `./tmp/`:
 
 | Component | Where to Check | Failure Class |
 |-----------|---------------|---------------|
@@ -54,7 +54,7 @@ From the spec issue, extract the list of required structural components:
 
 ### Step 2: Read Target Files Fresh
 
-For each file path in the dispatch context:
+For each file path in the task context:
 
 1. Read the file using the `read` tool (NOT from cache or memory)
 2. Extract the yaml+symbolic block
@@ -97,6 +97,8 @@ For each file path in the dispatch context:
 - ANY component FAIL → Return FAIL, HALT verification, report missing components
 - No yaml+symbolic block found → Return FAIL (structural verification impossible)
 
+**⚠️ DISCLAIMER: Structural completeness verification confirms ONLY that implementation components exist — it does NOT verify behavioral correctness.** A component that passes structural verification (exists in the file, has the right fields, appears in the yaml block) may still fail behavioral verification (the test contains a bug, the function returns wrong values, the rule doesn't produce the expected agent behavior). Structural PASS is a prerequisite for behavioral verification, not a substitute.
+
 ## Adversarial Verification
 
 Each structural component check MUST be verified by reading the actual file. Claims from memory or cached context are VERIFICATION-GAP findings.
@@ -107,12 +109,17 @@ Each structural component check MUST be verified by reading the actual file. Cla
 | "evidence_artifacts present" | `read` or `grep` confirms section exists | MISSING-STRUCTURE if absent |
 | "gates section present" | `read` or `grep` confirms gates array | MISSING-STRUCTURE if absent |
 
-## Dispatch Context Schema
+## Task Context Schema
 
 ```yaml
 spec_issue: <N>
 target_files: [<path_list>]
 required_components: [<component_list>]
+vbc_artifact_path: <path_to_vbc_artifacts>
+authorization_scope: <scope_value>
+halt_at: <pipeline_stage>
+pr_strategy: stacked | individual | none
+pipeline_phase: <current_phase_name>
 ```
 
 ## Result Contract

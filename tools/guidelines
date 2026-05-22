@@ -1,22 +1,25 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
-"""
-DESCRIPTION: Guidelines tools dispatcher. Usage: ./.opencode/tools/guidelines <action> [args...]
+
+__doc__ = """DESCRIPTION: Guidelines tools dispatcher. Usage: ./.opencode/tools/guidelines <action> [args...]
 Actions: read, load, list, show, search, edit
 Example: ./.opencode/tools/guidelines search <term>
 """
-from __future__ import annotations
 import os
 import subprocess
 import sys
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-PROJECT_ROOT = (BASE_DIR / CDUP).resolve()
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    _path = _path.parent
+PROJECT_ROOT = _path.parent
 
 ACTIONS = {
     "read": "guidelines-read",

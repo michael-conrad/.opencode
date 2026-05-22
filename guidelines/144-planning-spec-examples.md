@@ -1,3 +1,9 @@
+---
+trigger_on: example, spec example, example structure
+tier: 2
+load_when: sub-agent
+---
+
 # Planning: Spec Examples
 
 ## Examples of Different Valid Structures
@@ -24,6 +30,18 @@ ______________________________________________________________________
 
 ### Standard Bug Report (needs investigation context)
 
+> **Intent and Executive Summary**
+>
+> **Problem Statement:** OAuth2 refresh_token expiry causes users to be unexpectedly logged out.
+>
+> **Root Cause / Motivation:** 15% of users who don't log in for more than 7 days are affected. Token expiry is not handled gracefully.
+>
+> **Approach Chosen:** Catch `TokenExpiredError` and re-authenticate with stored credentials.
+>
+> **Alternatives Considered & Why Discarded:** Extending token lifetime rejected for security reasons; forcing re-login rejected as poor UX.
+>
+> **Key Design Decisions:** Re-authenticate with stored credentials rather than prompting user; surface network/credential failures appropriately.
+>
 > **Problem:** OAuth2 refresh_token fails on expiry, causing unexpected logout for ≈15% of users who don't log in for more than 7 days.
 >
 > **Expected Behavior:** Automatically re-authenticate using stored credentials when refresh token expires.
@@ -71,6 +89,18 @@ ______________________________________________________________________
 
 ### Standard Feature Spec (multi-file change with dependencies)
 
+> **Intent and Executive Summary**
+>
+> **Problem Statement:** Article metadata queries are slow, causing poor page load performance.
+>
+> **Root Cause / Motivation:** API calls average 150ms response time because queries hit PostgreSQL directly instead of a cache layer.
+>
+> **Approach Chosen:** Add Redis as a cache layer with 1-hour TTL and fallback to DB when Redis is unavailable.
+>
+> **Alternatives Considered & Why Discarded:** Memcached considered but Redis already deployed per infra team; in-memory cache rejected due to stateless deployment architecture.
+>
+> **Key Design Decisions:** 1-hour TTL balances freshness against cache hit rate; fallback to DB ensures availability over consistency.
+>
 > **Objective:** Add Redis caching layer for frequently accessed article metadata.
 >
 > **Problem:** Article metadata API calls average 150ms response time, causing slow page loads. 85% cache hit potential identified.
@@ -99,6 +129,17 @@ ______________________________________________________________________
 > **Risk Assessment:** Redis memory limit (Low prob, High impact). Cache invalidation bugs (Med prob, Med impact).
 
 **Why this works:** The change touches multiple files and has infrastructure dependencies. The standard format provides affected files, constraints, and risk assessment. Without these, an implementer might miss the Redis unavailable edge case or the memory constraint.
+
+Documentation Sources section: standard and complex specs MUST include a table documenting where the spec author verified each factual claim. Minimal specs and simple bug reports may omit it:
+
+> **Documentation Sources:**
+> | Source Category | What Was Consulted | Purpose |
+> |----------------|-------------------|---------|
+> | Local docs | `README.md`, `docs/architecture.md` | Understand existing caching architecture |
+> | Direct source search | `srclight_search_symbols("cache")`, `grep -r "redis" src/` | Identify existing cache patterns |
+> | Documentation URLs | [redis-py docs](https://redis-py.readthedocs.io/) | Verify Redis client API signatures |
+> | MCP search | `srclight_get_signature("get_article_metadata")` | Verify function signature for cache integration |
+> | Live verification | `uv run pytest test/test_articles.py -k "metadata"` | Confirm test coverage before making changes |
 
 ### Comprehensive Feature Spec (large, cross-cutting change)
 

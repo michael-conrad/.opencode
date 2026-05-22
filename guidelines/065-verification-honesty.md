@@ -1,8 +1,14 @@
+---
+trigger_on: verify, verification, memory, stale, training data, evidence
+tier: 1
+load_when: sub-agent
+---
+
 # Verification Honesty — Never Rely on Memory When Instructed to Check
 
 ## Zero Tolerance Rule
 
-**🚫 CRITICAL VIOLATION: Reporting unverified information as verified, or using memory recall instead of actual verification.**
+**Reporting unverified information as verified — or using memory recall instead of actual verification — is a process-integrity failure. Agents who present memory as evidence produce work that cannot be trusted.**
 
 When instructed to check, verify, confirm, look up, or ensure something — the agent MUST perform actual verification work using tools, commands, or queries. Memory alone is NOT sufficient.
 
@@ -93,11 +99,11 @@ This is consistent with the Session-Verified State Trust rule in `000-critical-r
 
 ## Verification-Enforcement Boundary
 
-The `verification-enforcement` skill supersedes this guideline for content generation workflows. When an agent is generating content — runbooks, specs, plans, documentation, or correspondence — the `verification-enforcement` skill's proactive verification requirements take priority. The skill dispatches section-based sub-agents to collect evidence artifacts for every factual claim before generation begins, and resolves unverified claims after generation through its revisit pass. This represents a stricter, more structured form of proactive verification than this guideline alone provides.
+The `verification-enforcement` skill supersedes this guideline for content generation workflows. When an agent is generating content — runbooks, specs, plans, documentation, or correspondence — the `verification-enforcement` skill's proactive verification requirements take priority. The skill tasks section-based sub-agents to collect evidence artifacts for every factual claim before generation begins, and resolves unverified claims after generation through its revisit pass. This represents a stricter, more structured form of proactive verification than this guideline alone provides.
 
 This guideline retains governance of reactive honesty during conversation and ad-hoc claims. When a discussion involves factual assertions in chat — explaining how a function works, reporting test results, describing current code state — this guideline's evidence requirements apply directly. The boundary is generative: if the agent is producing a document or formal content, verification-enforcement governs; if the agent is responding in conversation, this guideline governs.
 
-Both this guideline and the verification-enforcement skill share the same core principle: no claim should be presented as verified without a tool call or live source as evidence. The skill extends this principle with a structured dispatch-and-collect workflow appropriate for multi-section content generation, while this guideline covers the same principle in its simpler, conversational form.
+Both this guideline and the verification-enforcement skill share the same core principle: no claim should be presented as verified without a tool call or live source as evidence. The skill extends this principle with a structured task-and-collect workflow appropriate for multi-section content generation, while this guideline covers the same principle in its simpler, conversational form.
 
 ## Evidence Hierarchy
 
@@ -112,7 +118,7 @@ Both this guideline and the verification-enforcement skill share the same core p
 
 ## Research-First Mandate
 
-**🚫 CRITICAL VIOLATION: Presenting unverified claims as facts without first attempting exhaustive research using available tools.**
+**Presenting unverified claims as facts without first attempting exhaustive research using available tools is a process-integrity failure. Research-first is how trustworthy agents operate.**
 
 Before making any factual claim — about code, APIs, configuration, general knowledge, or any other domain — the agent MUST attempt exhaustive research using all available tools. The research-first mandate applies regardless of claim type.
 
@@ -220,7 +226,7 @@ The verification honesty principle extends beyond reactive verification (when in
 
 ### Core Rule: Verify Before Claiming
 
-**🚫 CRITICAL VIOLATION: Asserting config schema compliance, API signatures, or code implementation details without verifying against live documentation or live source.**
+**Asserting config schema compliance, API signatures, or code implementation details without verifying against live documentation or live source is a process-integrity failure. Verification before claiming is how trustworthy agents operate.**
 
 When an agent is about to make a structural claim — about config schemas, API signatures, function parameters, or code behavior — it MUST verify that claim against live documentation or live source before asserting it. Memory, training data, and "common knowledge" are NOT verification sources.
 
@@ -271,7 +277,7 @@ All three duties share the same evidence requirement: visible tool call or comma
 
 ## Verification Comparison Semantics
 
-**🚫 CRITICAL VIOLATION: Reporting a verification mismatch as "passing" or "close enough" instead of FAIL.**
+**Reporting a verification mismatch as "passing" or "close enough" instead of FAIL is a process-integrity failure. Verification is binary: exact match or FAIL — nothing else.**
 
 Verification against a specification is a binary predicate: `value == specification → PASS`, otherwise → `FAIL`. There is no "close enough." There is no "functionally equivalent." There is no "minor difference." If the live value does not match the specification exactly, it is a FAIL.
 
@@ -327,11 +333,28 @@ When reporting verification results for external values:
 
 **For ALL external verifications (DNS, configuration, infrastructure, API responses), `exact` mode is mandatory. No exceptions. No semantic comparison.**
 
+## Hard Failure Discipline — Universal Invariant
+
+**Failure is not debatable.** PASS means clean PASS — no findings, no caveats, no "minor issues," no "functionally equivalent" rationalizations. FAIL means FAIL — never INCONCLUSIVE, never "PASS with concerns," never "PASS with notes."
+
+### Identity Fusion: Verification IS Completion
+
+**Verification IS Completion — there is no valid state called "implemented but unverified."** An implementation is not complete until its verification is confirmed PASS. Any artifact marked "done" without verified PASS for all success criteria is incomplete by definition. The pipeline does not advance past unverified work — completion and verification are the same gate, not two sequential gates.
+
+### Cost Frame: Correctness Over Economy
+
+**Cost is measured in defect-discovery-latency, not model roundtrips.** Running verification costs minutes of execution time — a bounded delay that surfaces defects before they reach CI. Skipping a verification step to save a tool call costs the full pipeline of rework when the defect surfaces downstream: diagnosis, fix, re-review, re-CI, re-deploy — each of which costs more roundtrips than the skipped verification would have consumed. Correctness is the only success metric — there is no score for tool-call economy.
+
+### Remediation-First Protocol
+
+When a FAIL signal is received at any pipeline stage, the agent MUST remediate before halting. See `000-critical-rules.md` §critical-rules-hard-fail for the complete protocol.
+
 ```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+schema_version: "3.0"
+last_updated: "2026-05-17T00:00:00Z"
 rules:
   - id: verification-honesty-001
+    tier: 2
     title: "Must use tools for verification — never rely on memory"
     conditions:
       all:
@@ -345,6 +368,7 @@ rules:
     source: "065-verification-honesty.md §Zero Tolerance Rule"
 
   - id: verification-honesty-002
+    tier: 2
     title: "Evidence required for all verification claims"
     conditions:
       all:
@@ -358,6 +382,7 @@ rules:
     source: "065-verification-honesty.md §Evidence Requirement"
 
   - id: verification-honesty-003
+    tier: 2
     title: "Proactive verification before structural claims"
     conditions:
       all:
@@ -371,6 +396,7 @@ rules:
     source: "065-verification-honesty.md §Proactive Verification"
 
   - id: verification-honesty-004
+    tier: 2
     title: "Exact match for external verifications — no soft-passing"
     conditions:
       all:
@@ -385,12 +411,14 @@ rules:
     source: "065-verification-honesty.md §Verification Comparison Semantics"
 
   - id: verification-honesty-005
+    tier: 2
     title: "No code/API suggestions when verification fails"
     conditions:
       all:
         - "claim_type == 'code_or_api'"
         - "verification_tools_failed == true"
     actions:
+      - HALT
       - DECLINE_TO_STATE
     conflicts_with: []
     requires: []
@@ -398,6 +426,7 @@ rules:
     source: "065-verification-honesty.md §Suggest-After-Research Fallback"
 
   - id: verification-honesty-006
+    tier: 2
     title: "Metadata must be verified — not trusted at face value"
     conditions:
       all:
@@ -411,6 +440,7 @@ rules:
     source: "065-verification-honesty.md §Metadata Verification Extension"
 
   - id: verification-honesty-007
+    tier: 2
     title: "Per-field independence in multi-field verification"
     conditions:
       all:
@@ -422,4 +452,20 @@ rules:
     requires: []
     triggers: [verification-before-completion]
     source: "065-verification-honesty.md §Per-Field Independence"
+
+  - id: verification-honesty-hard-fail
+    tier: 2
+    title: "Hard Failure Discipline — verification IS completion, no INCONCLUSIVE as gate verdict"
+    conditions:
+      any:
+        - "inconclusive_reported_as_gate_verdict == true"
+        - "fail_reclassified_as_pass == true"
+        - "completion_claimed_without_verified_pass == true"
+    actions:
+      - HALT
+      - REQUIRE_CLEAN_PASS
+    conflicts_with: [critical-rules-hard-fail]
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit, divide-and-conquer, git-workflow]
+    source: "065-verification-honesty.md §Hard Failure Discipline"
 ```

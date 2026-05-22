@@ -131,25 +131,6 @@ fragments:
     last_sync: 2026-04-06T21:20:00Z
     notes: "Agent identity attribution with emoji status indicators"
 
-  - id: notebook-rules
-    master:
-      path: .opencode/.guidelines/notebook-rules.md
-      hash: sha256: TBD
-      last_modified: 2026-04-06T10:00:00Z
-    content:
-      type: text-block
-      estimated_tokens: 250
-      description: "Zero-tolerance notebook manipulation rules"
-    destinations:
-      - path: .opencode/skills/notebook-operations/SKILL.md
-        hash: sha256: TBD
-        line_range:
-          start: 40
-          end: 200
-    sync_status: synchronized
-    last_sync: 2026-04-06T10:00:00Z
-    notes: "Never edit .ipynb directly - use the-notebook-mcp only"
-
   - id: engineering-approach
     master:
       path: .opencode/.guidelines/engineering-approach.md
@@ -199,8 +180,43 @@ purged:
     purged_date: 2026-04-06
     notes: "Temporary file - DELETED"
 
+  - id: sc-enforcement-gate
+    master:
+      path: .opencode/.guidelines/sc-enforcement-gate.md
+      hash: sha256:8c56a05ab813860155a99df17d076d83484f15cd3374aefb472c09ea42020e86
+      last_modified: 2026-05-20T00:00:00Z
+      lines: 19
+    content:
+      type: text-block
+      estimated_tokens: 160
+      description: "SC enforcement gate — all-or-nothing gate for success criteria"
+    destinations:
+      - path: .opencode/skills/spec-creation/tasks/write.md
+        hash: sha256:8c56a05ab813860155a99df17d076d83484f15cd3374aefb472c09ea42020e86
+        line_range:
+          start: 97
+          end: 115
+      - path: .opencode/skills/writing-plans/tasks/create/plan-structure.md
+        hash: sha256:8c56a05ab813860155a99df17d076d83484f15cd3374aefb472c09ea42020e86
+        line_range:
+          start: 32
+          end: 50
+      - path: .opencode/skills/adversarial-audit/tasks/spec-audit.md
+        hash: sha256:8c56a05ab813860155a99df17d076d83484f15cd3374aefb472c09ea42020e86
+        line_range:
+          start: 40
+          end: 58
+      - path: .opencode/skills/adversarial-audit/tasks/plan-fidelity.md
+        hash: sha256:8c56a05ab813860155a99df17d076d83484f15cd3374aefb472c09ea42020e86
+        line_range:
+          start: 50
+          end: 57
+    sync_status: synchronized
+    last_sync: 2026-05-20T00:00:00Z
+    notes: "SC enforcement gate with remediation-first before HALT — incorporates #763 amendment"
+
 metadata:
-  total_fragments: 9
+  total_fragments: 10
   total_purged: 2
   schema_version: "2.0.0"
   last_migration: 2026-04-06

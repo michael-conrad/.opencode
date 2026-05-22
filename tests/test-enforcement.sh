@@ -11,11 +11,15 @@
 # run from within an active opencode desktop session without conflicts.
 #
 # Usage:  bash .opencode/tests/test-enforcement.sh
-# Output: .opencode/tmp/enforcement-test-<timestamp>/results.md
+# Output: tmp/enforcement-test-<timestamp>/results.md
 
 set -euo pipefail
 
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
+    PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+done
+PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 
 SCENARIO_FILTER=()
 TAG_FILTER=()
@@ -58,7 +62,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-LOGDIR="$PROJECT_DIR/.opencode/tmp/enforcement-test-$(date +%Y%m%d-%H%M%S)"
+LOGDIR="$PROJECT_DIR/tmp/enforcement-test-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$LOGDIR"
 
 TIMEOUT=120
@@ -79,7 +83,7 @@ SCENARIOS["item-decomposition-step"]="Does .opencode/skills/approval-gate/tasks/
 SCENARIOS["brainstorming-top-down"]="Does .opencode/skills/brainstorming/SKILL.md reference the top-down-analysis task?"
 SCENARIOS["writing-plans-bottom-up"]="Does .opencode/skills/writing-plans/SKILL.md contain per-item bottom-up design sections?"
 SCENARIOS["executing-plans-tdd"]="Does .opencode/skills/executing-plans/SKILL.md reference the per-item TDD cycle?"
-SCENARIOS["divide-conquer-tdd"]="Does .opencode/skills/divide-and-conquer/SKILL.md dispatch context include tdd_phase?"
+SCENARIOS["divide-conquer-tdd"]="Does .opencode/skills/divide-and-conquer/SKILL.md task context include tdd_phase?"
 SCENARIOS["agents-md-incremental"]="Does AGENTS.md list incremental-build in the guidelines table?"
 SCENARIOS["worktree-handoff-step"]="Does .opencode/skills/git-workflow/tasks/review-prep.md contain a Step 2.5 for worktree handoff after push?"
 SCENARIOS["scope-auto-resolve-guideline"]="Does .opencode/guidelines/000-critical-rules.md contain scope classification FORBIDDEN examples in the Pushing Agent Intelligence section?"
@@ -192,7 +196,7 @@ SCENARIOS["local-only-trigger-function"]="Does .opencode/scripts/session_context
 SCENARIOS["local-only-trigger-directive"]="Does .opencode/scripts/session_context_triggers.py contain a build_local_only_repo_directive function that emits a LOCAL_ONLY_REPO directive?"
 SCENARIOS["wrong-api-routing-violation"]="Does .opencode/guidelines/000-critical-rules.md contain a critical violation section titled 'Wrong API Routing for Submodule/Sub-folder Repos'?"
 SCENARIOS["wrong-api-routing-yaml-rule"]="Does .opencode/guidelines/000-critical-rules.md yaml+symbolic block contain rule critical-rules-036 titled 'Wrong API routing for submodule/sub-folder repos'?"
-SCENARIOS["wrong-api-routing-subfolder-mapping"]="Does .opencode/scripts/session_context_identity.py emit a Sub-folder Repo Mappings section when .gitmodules exists?"
+SCENARIOS["wrong-api-routing-subfolder-mapping"]="Does tools/session-init emit a Sub-folder Repo Mappings section when .gitmodules exists?"
 SCENARIOS["dispatch-gate-checkpoint"]="Does .opencode/guidelines/000-critical-rules.md contain a subsection titled 'DISPATCH_GATE Checkpoint' that mandates an explicit dispatch gate after every routing decision?"
 SCENARIOS["orchestrator-context-audit"]="Does .opencode/skills/approval-gate/enforcement/work-state-schema.md contain an Orchestrator Context Audit section with fields skill_files_loaded, issues_read_inline, git_commands_inline, sub_agent_dispatches, and inline_work_detected?"
 SCENARIOS["inline-work-dispatch-gate"]="Does .opencode/guidelines/000-critical-rules.md contain a DISPATCH_GATE Checkpoint section that is FORBIDDEN from loading SKILL.md routing sections and performing tasks inline?"
@@ -206,6 +210,26 @@ SCENARIOS["parent-issue-left-open-violation"]="Does .opencode/guidelines/000-cri
 SCENARIOS["parent-issue-left-open-yaml"]="Does .opencode/guidelines/000-critical-rules.md yaml+symbolic block contain rule critical-rules-039 titled 'Parent issue left open after all children closed'?"
 SCENARIOS["parent-issue-closure-vai-step6"]="Does .opencode/skills/approval-gate/tasks/verify-already-implemented.md contain a Step 6 titled 'Parent Plan Closure Check'?"
 SCENARIOS["parent-issue-closure-cleanup-step28"]="Does .opencode/skills/git-workflow/tasks/cleanup.md contain a Step 2.8 titled 'Parent Plan Closure'?"
+SCENARIOS["model-aware-critical-violation"]="Does .opencode/guidelines/000-critical-rules.md contain critical violation sections titled 'Model-Aware Clean-Room Dispatch for Behavioral Testing' and 'No Inline Fallback on Sub-Agent Failure During Behavioral Testing'?"
+SCENARIOS["ollama-tooling-registration"]="Does .opencode/guidelines/060-tool-usage.md Tier 3 list include 'ollama-probe'?"
+SCENARIOS["guideline-frontmatter"]="Verify all 26 guideline files in .opencode/guidelines/ have trigger_on and load_when frontmatter"
+SCENARIOS["guideline-index-exists"]="Verify .opencode/guidelines/INDEX.md exists and contains at least 26 guideline entries"
+SCENARIOS["guideline-index-word-count"]="Verify .opencode/guidelines/INDEX.md is at most 1500 words"
+SCENARIOS["skill-word-count"]="Verify all SKILL.md files in .opencode/skills/ are at most 600 words each"
+SCENARIOS["skildeck-lint-progressive-disclosure"]="Verify skildeck lint includes progressive-disclosure rules for frontmatter and word counts"
+SCENARIOS["session-enforcement-guideline-index"]="Verify session-enforcement.ts injects guideline INDEX.md reference via progressive-disclosure blocks (moved from removed buildGuidelineIndexBlock stub)"
+SCENARIOS["progressive-disclosure-060-updated"]="Verify 060-tool-usage.md section 0 references progressive disclosure and INDEX.md"
+SCENARIOS["discard-on-sub-agent-failure"]="Does .opencode/guidelines/000-critical-rules.md contain a 'Discard on Sub-Agent Failure' section requiring ALL failed sub-agent work be discarded before re-dispatch with zero state retained?"
+SCENARIOS["orchestrator-poisoned-pipeline"]="Does .opencode/guidelines/000-critical-rules.md contain an 'Orchestrator Inline Work = Poisoned Pipeline' section requiring full pipeline restart from verify-authorization with ALL state discarded when orchestrator performs inline work?"
+SCENARIOS["tool-recipe-dispatch-prohibited"]="Does .opencode/guidelines/000-critical-rules.md contain a 'Tool-Recipe Dispatch' section prohibiting dispatching sub-agents with exact MCP tool names, parameter lists, or step-by-step execution scripts?"
+SCENARIOS["coherence-gate-pre-red"]="Does .opencode/guidelines/000-critical-rules.md contain a 'Skipping Spec/Plan Coherence Gate (Pre-RED)' section requiring spec/plan coherence verification before RED sub-agent dispatch?"
+SCENARIOS["execution-time-coherence-detection"]="Does .opencode/guidelines/000-critical-rules.md contain a 'Skipping Execution-Time Coherence Detection (RED + GREEN)' section requiring RED and GREEN sub-agents to detect defects and return status BLOCKED?"
+SCENARIOS["audit-classified-remediation-section"]="Does .opencode/guidelines/000-critical-rules.md Execution-Time Coherence Detection section mention audit triage classifies the defect locus and routes to the appropriate remediation chain, with max 3 remediation attempts before escalating to developer?"
+SCENARIOS["gate-non-waiver-principle"]="Does .opencode/guidelines/000-critical-rules.md contain a 'Gate Non-Waiver Principle' section stating cumulative continue messages do NOT waive mandatory pipeline gates?"
+SCENARIOS["cost-blind-verification"]="Does .opencode/guidelines/000-critical-rules.md contain a 'Correctness over economy' tier 1 mandate prohibiting skipping tool calls or verification steps to conserve resources?"
+SCENARIOS["functional-test-substitution-prohibited-rule"]="Does .opencode/guidelines/000-critical-rules.md contain a critical-rules-060 section titled 'Functional/Behavioral Test Substitution Prohibition' with forbidden substitutions and required actions?"
+SCENARIOS["universal-redispatch-mandate"]="Does .opencode/guidelines/000-critical-rules.md contain a 'Universal Re-Dispatch Mandate' section requiring re-dispatch of clean-room sub-agents at ALL pipeline stages with no inline fallback on sub-agent failure?"
+SCENARIOS["progressive-iterative-gates"]="Does .opencode/guidelines/000-critical-rules.md contain references to 'commit-anchored gates' or 'progressive iterative' implementation discipline in the Monolithic Implementation or enforcement sections?"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -346,6 +370,19 @@ SCENARIOS["auth-free-critical-rules"]="Does .opencode/guidelines/000-critical-ru
 SCENARIOS["auth-free-go-prohibitions"]="Does .opencode/guidelines/020-go-prohibitions.md contain an 'Authorization-Free Actions' section stating the agent MUST NOT deliberate over authorization for listed actions?"
 SCENARIOS["auth-free-scope-autonomy"]="Does .opencode/guidelines/050-scope-autonomy.md contain an 'Authorization-Free Actions' table listing issue creation and label changes as not requiring authorization?"
 SCENARIOS["auth-free-approval-gate-skill"]="Does .opencode/skills/approval-gate/SKILL.md contain an 'Issue Creation Authorization Exemption' section stating skills must check auth for implementation, NOT issue creation?"
+SCENARIOS["opencode-nesting-critical-violation"]="Does .opencode/guidelines/000-critical-rules.md contain a 'Creating .opencode/.opencode/ Nested Directories' critical violation section?"
+SCENARIOS["opencode-nesting-tool-usage"]="Does .opencode/guidelines/060-tool-usage.md contain a 'Workdir-Aware Path Composition' section with a tool-by-tool table?"
+SCENARIOS["opencode-nesting-skill-creator"]="Does .opencode/skills/skill-creator/SKILL.md contain 'Submodule path awareness' as a numbered operating protocol item?"
+SCENARIOS["skill-dispatch-mandate-heading"]="Does .opencode/prompts/default.txt contain a section heading 'Skill Dispatch Mandate'?"
+SCENARIOS["skill-dispatch-mandate-zero-tolerance"]="Does .opencode/prompts/default.txt contain the text 'CRITICAL (ZERO TOLERANCE)' in the Skill Dispatch Mandate section?"
+SCENARIOS["skill-dispatch-mandate-canonical-form"]="Does .opencode/prompts/default.txt contain the canonical skill invocation form 'skill({name:' ?"
+SCENARIOS["skill-dispatch-mandate-no-pre-read"]="Does .opencode/prompts/default.txt contain the text 'Do not read skill cards' or 'Do not pre-read task files'?"
+SCENARIOS["skill-dispatch-mandate-critical-violation"]="Does .opencode/prompts/default.txt contain the text 'CRITICAL VIOLATION' referring to inline skill execution?"
+SCENARIOS["skill-dispatch-mandate-dev-cycle-ref"]="Does .opencode/prompts/default.txt Development cycle section contain 'skill({name:' canonical form and 'CRITICAL VIOLATION' referring to pre-reading skill cards?"
+SCENARIOS["skill-dispatch-critical-rules-048-symbolic"]="Does .opencode/guidelines/000-critical-rules.md contain a symbolic rule with id 'critical-rules-048'?"
+SCENARIOS["skill-dispatch-critical-rules-048-prose"]="Does .opencode/guidelines/000-critical-rules.md contain a prose section titled 'Skill Pre-Read + Inline Execution'?"
+SCENARIOS["skill-dispatch-critical-rules-048-distinction"]="Does .opencode/guidelines/000-critical-rules.md contain a 3-way violation distinction table with critical-rules-048, critical-rules-034, and #329?"
+SCENARIOS["sc6-no-unconditional-general"]="Verify none of the 17 Group A+B-4 skill files in .opencode/skills/ still retain the unconditional 'All tasks run via task(subagent_type=\"general\")' pattern — each must have the auditor clause (auditor_1/auditor_2 — NOT \"general\")"
 SCENARIO_TAGS["divide-conquer-decomposition-rule"]="content-verification clean-room-dispatch"
 SCENARIO_TAGS["verification-isolation-section"]="content-verification clean-room-dispatch"
 SCENARIO_TAGS["dispatch-audit-tables"]="content-verification clean-room-dispatch"
@@ -390,24 +427,59 @@ SCENARIO_TAGS["auth-free-critical-rules"]="content-verification approval"
 SCENARIO_TAGS["auth-free-go-prohibitions"]="content-verification approval"
 SCENARIO_TAGS["auth-free-scope-autonomy"]="content-verification approval"
 SCENARIO_TAGS["auth-free-approval-gate-skill"]="content-verification approval"
+SCENARIO_TAGS["opencode-nesting-critical-violation"]="content-verification opencode-nesting"
+SCENARIO_TAGS["opencode-nesting-tool-usage"]="content-verification opencode-nesting"
+SCENARIO_TAGS["opencode-nesting-skill-creator"]="content-verification opencode-nesting"
+SCENARIO_TAGS["model-aware-critical-violation"]="content-verification behavioral-testing"
+SCENARIO_TAGS["ollama-tooling-registration"]="content-verification tool-usage"
+SCENARIO_TAGS["guideline-frontmatter"]="content-verification progressive-disclosure"
+SCENARIO_TAGS["guideline-index-exists"]="content-verification progressive-disclosure"
+SCENARIO_TAGS["guideline-index-word-count"]="content-verification progressive-disclosure"
+SCENARIO_TAGS["skill-word-count"]="content-verification progressive-disclosure"
+SCENARIO_TAGS["skildeck-lint-progressive-disclosure"]="content-verification progressive-disclosure"
+SCENARIO_TAGS["session-enforcement-guideline-index"]="content-verification progressive-disclosure"
+SCENARIO_TAGS["progressive-disclosure-060-updated"]="content-verification progressive-disclosure"
+SCENARIO_TAGS["discard-on-sub-agent-failure"]="content-verification clean-room-dispatch enforcement-module"
+SCENARIO_TAGS["orchestrator-poisoned-pipeline"]="content-verification clean-room-dispatch enforcement-module"
+SCENARIO_TAGS["tool-recipe-dispatch-prohibited"]="content-verification clean-room-dispatch enforcement-module"
+SCENARIO_TAGS["coherence-gate-pre-red"]="content-verification clean-room-dispatch enforcement-module incremental-build"
+SCENARIO_TAGS["execution-time-coherence-detection"]="content-verification clean-room-dispatch enforcement-module incremental-build"
+SCENARIO_TAGS["audit-classified-remediation-section"]="content-verification clean-room-dispatch enforcement-module"
+SCENARIO_TAGS["gate-non-waiver-principle"]="content-verification clean-room-dispatch enforcement-module"
+SCENARIO_TAGS["cost-blind-verification"]="content-verification clean-room-dispatch enforcement-module"
+SCENARIO_TAGS["functional-test-substitution-prohibited-rule"]="content-verification functional-test-substitution"
+SCENARIO_TAGS["universal-redispatch-mandate"]="content-verification clean-room-dispatch enforcement-module"
+SCENARIO_TAGS["progressive-iterative-gates"]="content-verification clean-room-dispatch incremental-build"
+SCENARIO_TAGS["skill-dispatch-mandate-heading"]="content-verification skill-dispatch"
+SCENARIO_TAGS["skill-dispatch-mandate-zero-tolerance"]="content-verification skill-dispatch"
+SCENARIO_TAGS["skill-dispatch-mandate-canonical-form"]="content-verification skill-dispatch"
+SCENARIO_TAGS["skill-dispatch-mandate-no-pre-read"]="content-verification skill-dispatch"
+SCENARIO_TAGS["skill-dispatch-mandate-critical-violation"]="content-verification skill-dispatch"
+SCENARIO_TAGS["skill-dispatch-mandate-dev-cycle-ref"]="content-verification skill-dispatch"
+SCENARIO_TAGS["skill-dispatch-critical-rules-048-symbolic"]="content-verification skill-dispatch"
+SCENARIO_TAGS["skill-dispatch-critical-rules-048-prose"]="content-verification skill-dispatch"
+SCENARIO_TAGS["skill-dispatch-critical-rules-048-distinction"]="content-verification skill-dispatch"
+SCENARIO_TAGS["sc6-no-unconditional-general"]="content-verification skill-routing"
 
 # File-to-scenario mapping for --changed filtering
 # Maps glob patterns to scenario names
 declare -A FILE_SCENARIO_MAP
 FILE_SCENARIO_MAP[".opencode/guidelines/091-incremental-build.md"]="incremental-build-guideline monolithic-implementation-violation item-decomposition-step sc-assertion-tdd-cycle red-state-before-implementation red-phase-enforcement-incremental-build red-phase-enforcement-critical-rules-xref"
-FILE_SCENARIO_MAP[".opencode/guidelines/000-critical-rules.md"]="scope-auto-resolve-guideline monolithic-implementation-violation identity-echo-validation secret-exfiltration-violation url-sourcing-guideline-rules dispatch-artifact-requirements red-phase-enforcement-critical-rules-xref critical-rules-body-erasure direct-branch-default worktree-bypass-conditional for-pr-gap-fill-critical-violation for-pr-gap-fill-forbidden-entries for-pr-gap-fill-required-entries for-pr-gap-fill-pr-creation pr-creation-scope-exception pr-creation-scope-yaml-rule hook-output-advisory-subsection hook-output-advisory-yaml-rule wrong-api-routing-violation wrong-api-routing-yaml-rule dispatch-gate-checkpoint inline-work-dispatch-gate structural-decision-solicitation-vacv structural-decision-solicitation-yaml halt-blockers-format post-tool-output-checkpoint unsquashed-pr-violation unsquashed-pr-yaml-rule parent-issue-left-open-violation parent-issue-left-open-yaml"
+FILE_SCENARIO_MAP[".opencode/guidelines/000-critical-rules.md"]="scope-auto-resolve-guideline monolithic-implementation-violation identity-echo-validation secret-exfiltration-violation url-sourcing-guideline-rules dispatch-artifact-requirements red-phase-enforcement-critical-rules-xref critical-rules-body-erasure direct-branch-default worktree-bypass-conditional for-pr-gap-fill-critical-violation for-pr-gap-fill-forbidden-entries for-pr-gap-fill-required-entries for-pr-gap-fill-pr-creation pr-creation-scope-exception pr-creation-scope-yaml-rule hook-output-advisory-subsection hook-output-advisory-yaml-rule wrong-api-routing-violation wrong-api-routing-yaml-rule dispatch-gate-checkpoint inline-work-dispatch-gate structural-decision-solicitation-vacv structural-decision-solicitation-yaml halt-blockers-format post-tool-output-checkpoint unsquashed-pr-violation unsquashed-pr-yaml-rule parent-issue-left-open-violation parent-issue-left-open-yaml model-aware-critical-violation discard-on-sub-agent-failure orchestrator-poisoned-pipeline tool-recipe-dispatch-prohibited coherence-gate-pre-red execution-time-coherence-detection audit-classified-remediation-section gate-non-waiver-principle cost-blind-verification universal-redispatch-mandate progressive-iterative-gates skill-dispatch-critical-rules-048-symbolic skill-dispatch-critical-rules-048-prose skill-dispatch-critical-rules-048-distinction functional-test-substitution-prohibited-rule"
+FILE_SCENARIO_MAP[".opencode/prompts/default.txt"]="skill-dispatch-mandate-heading skill-dispatch-mandate-zero-tolerance skill-dispatch-mandate-canonical-form skill-dispatch-mandate-no-pre-read skill-dispatch-mandate-critical-violation skill-dispatch-mandate-dev-cycle-ref"
 FILE_SCENARIO_MAP[".opencode/scripts/session_context_triggers.py"]="local-only-trigger-function local-only-trigger-directive dev-edit-guard-trigger stash-triage-directive"
 FILE_SCENARIO_MAP[".opencode/guidelines/010-approval-gate.md"]="for-pr-gap-fill-yaml-rule for-pr-gap-fill-scope-model approval-pr-timing-scope"
-FILE_SCENARIO_MAP[".opencode/guidelines/020-go-prohibitions.md"]="scope-auto-resolve-guideline pipeline-scoped-halt for-pr-solicitation-crossref"
+FILE_SCENARIO_MAP[".opencode/guidelines/020-go-prohibitions.md"]="scope-auto-resolve-guideline pipeline-scoped-halt for-pr-solicitation-crossref functional-test-substitution-prohibited-rule"
 FILE_SCENARIO_MAP[".opencode/skills/approval-gate/"]="item-decomposition-step scope-auto-resolve-step approval-gate-sc-traceability approval-gate-red-phase dispatch-chain-enforcement-gate dispatch-artifact-requirements dispatch-checkpoint-live-verification gap-fill-precedence-principle gap-fill-precedence-for-pr gap-fill-precedence-standard-scope screen-issue-gap-fill-awareness gap-fill-precedence-before-step5c task-file-enforcement-refs scope-next-phase-resolution scope-phase-n-resolution enforcement-module-adversarial enforcement-module-scope-parsing enforcement-module-auto-dispatch enforcement-module-closed-issue enforcement-module-sub-issue verify-closed-issue-step7 closed-issue-enforcement-sc all-body-modification-safeguards orchestrator-context-audit halt-blockers-completion-fields completion-scope-clarification post-dispatch-output-gate parent-issue-closure-vai-step6"
 FILE_SCENARIO_MAP[".opencode/skills/brainstorming/"]="brainstorming-top-down verification-mechanics-brainstorming"
 FILE_SCENARIO_MAP[".opencode/skills/writing-plans/"]="writing-plans-bottom-up validate-executable-verification semantic-intent-writing-plans why-specific-value-tdd red-phase-gate-writing-plans red-phase-gate-writing-plans-skillmd"
 FILE_SCENARIO_MAP[".opencode/skills/executing-plans/"]="executing-plans-tdd red-phase-gate-executing-plans red-phase-gate-skillmd"
 FILE_SCENARIO_MAP[".opencode/skills/divide-and-conquer/"]="divide-conquer-tdd enforcement-module-completion enforcement-module-result-validation enforcement-module-overflow enforcement-module-work-state"
 FILE_SCENARIO_MAP[".opencode/skills/git-workflow/"]="worktree-handoff-step cleanup-sc-verification-gate cleanup-phase-completion-gate review-prep-format-self-check url-sourcing-rule1-review-prep url-sourcing-rule1-pr url-sourcing-rule2-character-match release-pr-routing release-promotion-trigger git-workflow-routing-section cleanup-body-modification-warning pre-work-direct-branch pre-work-worktree-opt-in submodule-sha-locking rebase-pending-submodule-sync enforcement-gate-commit-count review-prep-squash-verification parent-issue-closure-cleanup-step28"
-FILE_SCENARIO_MAP[".opencode/skills/verification-before-completion/"]="per-sc-evidence-table vbc-per-sc-evidence-skill"
+FILE_SCENARIO_MAP[".opencode/skills/verification-before-completion/"]="per-sc-evidence-table vbc-per-sc-evidence-skill functional-test-substitution-prohibited-rule"
 FILE_SCENARIO_MAP[".opencode/skills/finishing-a-development-branch/"]="finishing-sc-verification checklist-chat-output-format"
-FILE_SCENARIO_MAP[".opencode/guidelines/080-code-standards.md"]="sc-to-test-traceability red-phase-ordering sc-traceability-example"
+FILE_SCENARIO_MAP[".opencode/guidelines/060-tool-usage.md"]="ollama-tooling-registration"
+FILE_SCENARIO_MAP[".opencode/guidelines/080-code-standards.md"]="sc-to-test-traceability red-phase-ordering sc-traceability-example functional-test-substitution-prohibited-rule"
 FILE_SCENARIO_MAP[".opencode/guidelines/140-planning-spec-creation.md"]="executable-verification-commands vague-verification-antipattern"
 FILE_SCENARIO_MAP[".opencode/skills/spec-creation/"]="semantic-intent-spec-creation narrow-sc-table-exemption spec-creation-red-gate"
 FILE_SCENARIO_MAP[".opencode/skills/spec-auditor/"]="sc-precision-audit spec-auditor-body-preservation"
@@ -418,9 +490,10 @@ FILE_SCENARIO_MAP[".opencode/skills/issue-review/"]="analyze-and-spec-red-gate"
 FILE_SCENARIO_MAP[".opencode/skills/ui-engineer/"]="ui-engineer-red-gate"
 FILE_SCENARIO_MAP[".opencode/skills/session-enforcement.ts"]="identity-echo-validation secret-exfiltration-violation read-secrets-in-output dev-edit-guard-plugin dev-edit-guard-pair-mode"
 FILE_SCENARIO_MAP[".opencode/plugins/session-enforcement.ts"]="identity-echo-validation secret-exfiltration-violation dev-edit-guard-plugin dev-edit-guard-pair-mode sub-agent-session-detection sub-agent-injection-gating sub-agent-operational-guards-unconditional"
-FILE_SCENARIO_MAP[".opencode/scripts/session_context_identity.py"]="identity-echo-validation wrong-api-routing-subfolder-mapping"
+FILE_SCENARIO_MAP[".opencode/tools/session-init"]="identity-echo-validation wrong-api-routing-subfolder-mapping"
 FILE_SCENARIO_MAP[".opencode/guidelines/117-session-trigger-behavior.md"]="stash-trigger-guideline-reference"
 FILE_SCENARIO_MAP["AGENTS.md"]="agents-md-incremental"
+FILE_SCENARIO_MAP[".opencode/skills/"]="sc6-no-unconditional-general"
 
 # --list: print scenario names and exit
 if [ "$LIST_ONLY" = true ]; then
@@ -716,6 +789,29 @@ EXPECTED_SKILLS["auth-free-critical-rules"]=""
 EXPECTED_SKILLS["auth-free-go-prohibitions"]=""
 EXPECTED_SKILLS["auth-free-scope-autonomy"]=""
 EXPECTED_SKILLS["auth-free-approval-gate-skill"]=""
+EXPECTED_SKILLS["opencode-nesting-critical-violation"]=""
+EXPECTED_SKILLS["opencode-nesting-tool-usage"]=""
+EXPECTED_SKILLS["opencode-nesting-skill-creator"]=""
+EXPECTED_SKILLS["discard-on-sub-agent-failure"]=""
+EXPECTED_SKILLS["orchestrator-poisoned-pipeline"]=""
+EXPECTED_SKILLS["tool-recipe-dispatch-prohibited"]=""
+EXPECTED_SKILLS["coherence-gate-pre-red"]=""
+EXPECTED_SKILLS["execution-time-coherence-detection"]=""
+EXPECTED_SKILLS["audit-classified-remediation-section"]=""
+EXPECTED_SKILLS["gate-non-waiver-principle"]=""
+EXPECTED_SKILLS["cost-blind-verification"]=""
+EXPECTED_SKILLS["functional-test-substitution-prohibited-rule"]=""
+EXPECTED_SKILLS["universal-redispatch-mandate"]=""
+EXPECTED_SKILLS["progressive-iterative-gates"]=""
+EXPECTED_SKILLS["skill-dispatch-mandate-heading"]=""
+EXPECTED_SKILLS["skill-dispatch-mandate-zero-tolerance"]=""
+EXPECTED_SKILLS["skill-dispatch-mandate-canonical-form"]=""
+EXPECTED_SKILLS["skill-dispatch-mandate-no-pre-read"]=""
+EXPECTED_SKILLS["skill-dispatch-mandate-critical-violation"]=""
+EXPECTED_SKILLS["skill-dispatch-mandate-dev-cycle-ref"]=""
+EXPECTED_SKILLS["skill-dispatch-critical-rules-048-symbolic"]=""
+EXPECTED_SKILLS["skill-dispatch-critical-rules-048-prose"]=""
+EXPECTED_SKILLS["skill-dispatch-critical-rules-048-distinction"]=""
 
 RESULTS_FILE="$LOGDIR/results.md"
 
@@ -983,7 +1079,7 @@ else
     OVERALL_PASS=false
 fi
 
-# Verify divide-and-conquer TDD phase in dispatch context
+# Verify divide-and-conquer TDD phase in task context
 DC_SKILL="$PROJECT_DIR/.opencode/skills/divide-and-conquer/SKILL.md"
 if [ -f "$DC_SKILL" ]; then
     TDD_DC=$(grep -c "tdd_phase" "$DC_SKILL" 2>/dev/null || echo "0")
@@ -1314,18 +1410,7 @@ else
     OVERALL_PASS=false
 fi
 
-# session_context_identity.py separates Repository Hosting from Target API credentials
-IDENTITY_SCRIPT="$PROJECT_DIR/.opencode/scripts/session_context_identity.py"
-TARGET_API=$(grep -c "Target API\|Repository Hosting" "$IDENTITY_SCRIPT" 2>/dev/null || echo "0")
-if [ "$TARGET_API" -ge 1 ]; then
-    echo "  session_context_identity.py Target API separation: FOUND"
-    echo "- **session_context_identity.py Target API separation:** FOUND" >> "$RESULTS_FILE"
-else
-    echo "  session_context_identity.py Target API separation: MISSING"
-    echo "- **session_context_identity.py Target API separation:** MISSING" >> "$RESULTS_FILE"
-    GUIDELINE_PASS=false
-    OVERALL_PASS=false
-fi
+# (removed: session_context_identity.py was deleted per spec #630 Item C)
 
 # RED Phase Gate in executing-plans/tasks/start.md (Step 5.5)
 EXEC_PLANS_START="$PROJECT_DIR/.opencode/skills/executing-plans/tasks/start.md"

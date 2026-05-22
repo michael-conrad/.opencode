@@ -12,7 +12,11 @@
 
 set -euo pipefail
 
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
+    PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+done
+PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 
 SCENARIO_FILTER=()
 LIST_ONLY=false
@@ -60,7 +64,7 @@ if [ "$LIST_ONLY" = true ]; then
     exit 0
 fi
 
-LOGDIR="$PROJECT_DIR/.opencode/tmp/verification-honesty-test-$(date +%Y%m%d-%H%M%S)"
+LOGDIR="$PROJECT_DIR/tmp/verification-honesty-test-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$LOGDIR"
 
 PASS_COUNT=0

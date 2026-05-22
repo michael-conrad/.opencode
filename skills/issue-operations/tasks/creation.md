@@ -36,7 +36,7 @@ Verify that the `pre-creation` task's Step 0.5 title dedup gate was executed. Th
 
 ```
 Check: Title dedup gate for "<proposed title>"
-Tool: github_search_issues / gitbucket-api issues / local-issues search
+Tool: `issue-operations → search-issues` / gitbucket-api issues / local-issues search
 Local: [N candidates found in .issues/open/]
 Remote: [N candidates found, match levels classified]
 Classification: [EXACT-DUPLICATE|NEAR-DUPLICATE|CLOSED-IN-ERROR|RELATED-BUT-DISTINCT|FALSE-POSITIVE]
@@ -78,7 +78,7 @@ This fallback catches the scenario where `pre-creation` was not run or its outpu
     - **Local:** `./.opencode/tools/local-issues search --status open --query "<keywords>"`
     - Classify any local matches per `pre-creation.md` Step 0.5 Phase 2 classification table
 3. Search for existing issues via platform API:
-    - **GitHub:** `github_search_issues(query="<keywords> repo:<owner>/<repo>", owner=<owner>, repo=<repo>)`
+    - **GitHub:** `issue-operations → search-issues` with keyword query
     - **GitBucket:** `./.opencode/tools/gitbucket-api issues --state open` + `--state closed` (filter client-side by keyword match)
 4. Collect candidate matches from both local and remote (issues whose titles share ≥2 significant keywords with proposed title)
 5. For each candidate, classify match level per `pre-creation.md` Step 0.5 Phase 2 classification table
@@ -89,7 +89,7 @@ This fallback catches the scenario where `pre-creation` was not run or its outpu
 
 ```
 Check: Runtime search fallback for "<proposed title>"
-Tool: local-issues search / github_search_issues / gitbucket-api issues
+Tool: local-issues search / `issue-operations → search-issues` / gitbucket-api issues
 Local: [N candidates found in .issues/open/]
 Remote: [N candidates found, match levels classified]
 Classification: [EXACT-DUPLICATE|NEAR-DUPLICATE|CLOSED-IN-ERROR|RELATED-BUT-DISTINCT|FALSE-POSITIVE]
@@ -103,57 +103,6 @@ Fallthrough reason: Step 0.5 evidence unavailable
 Cannot create issue: Step 0.5 dedup gate evidence missing and runtime search fallback failed. Run pre-creation task first.
 ```
 
-### Step 0.6: Single Concern Checkpoint (SCC)
-
-**MANDATORY before title format determination. Classify the proposed issue as single-concern or multi-concern.**
-
-Apply the concern classification test to the proposed issue body and title:
-
-**Concern Classification Test:** "Remove concern B from the artifact. If concern A remains complete and verifiable, they are unrelated and must be in separate artifacts."
-
-Two concerns are unrelated when ALL of the following hold:
-- Different root causes
-- Can be verified independently
-- Can be closed independently
-- Removing one doesn't break the other's success criteria
-
-**Procedure:**
-
-1. Identify every distinct concern in the proposed issue (each problem area with its own root cause, affected scope, and verification criteria)
-2. For each pair of concerns, apply the classification test: "Can you remove concern B, and have concern A remain complete and verifiable?"
-3. Classify the issue:
-
-| Classification | Condition | Action |
-| -- | -- | -- |
-| Single-concern | 0-1 concerns, OR all concerns share root cause and cannot be verified/closed independently | Proceed to Step 1 |
-| Multi-concern | ≥2 unrelated concerns identified | HALT — require decomposition into separate issues |
-
-**On HALT for multi-concern:**
-
-```
-Cannot create issue: Single Concern Checkpoint failed. <N> unrelated concerns detected:
-- Concern A: <description>
-- Concern B: <description>
-These must be filed as separate issues per 000-critical-rules.md §Single Concern Principle.
-```
-
-**Evidence artifact (MANDATORY):**
-
-```
-Check: Single Concern Checkpoint for "<proposed title>"
-Concerns identified: [N]
-Classification: [single-concern|multi-concern]
-Concerns: [list each concern with root cause and verification scope]
-Action: [proceed|HALT — decomposition required]
-```
-
-**Gate logic:**
-
-| SCC Result | Action |
-| -- | -- |
-| Single-concern | Proceed to Step 1 |
-| Multi-concern | HALT — do not create combined issue |
-
 ### Step 1: Determine Title Format
 
 | Issue Type | Title Format | Example |
@@ -163,36 +112,75 @@ Action: [proceed|HALT — decomposition required]
 | Enhancement | `[SPEC-ENHANCEMENT] <Enhancement>` | `[SPEC-ENHANCEMENT] Add Rate Limiting` |
 | Task | `[Task: #<parent>] <Task Description>` | `[Task: #100] Create user tables` |
 
-### Step 2: Create Issue (Platform Routing)
+### Step 2: Create Issue (Platform-Aware Ordering)
 
-**GitHub platform:**
-```python
-github_issue_write(
-    method="create",
-    owner=owner,
-    repo=repo,
-    title=title,
-    body=body,
-    labels=["needs-approval"]
-)
-```
+#### Step 2.0: Platform Check
 
-**GitBucket platform:**
-```bash
-./.opencode/tools/gitbucket-api create-issue <github.owner> <github.repo> "<title>" --body "<body>" --labels needs-approval
-```
+Determine creation order based on `github.platform`:
 
-**Note (GitBucket):** Labels can ONLY be set during creation. Post-creation label changes do not work.
+| `github.platform` | Creation Order |
+|---|---|
+| `github` | Remote first → local |
+| `gitbucket` | Remote first → local |
+| `local` | Local first (existing behavior) |
 
-**Local platform:**
+**For `github` and `gitbucket` platforms** proceed to Step 2.1 (Remote-First).
+**For `local` platform** proceed to Step 2.2 (Local-First).
+
+#### Step 2.1: Remote-First Flow (when `github.platform != local`)
+
+1. Promote to remote platform FIRST. Route based on `github.platform`:
+
+   **GitHub:**
+   ```python
+   github_issue_write(
+       method="create",
+       owner=owner,
+       repo=repo,
+       title=title,
+       body=<exec-summary body>,
+       labels=["needs-approval"]
+   )
+   ```
+
+   **GitBucket:**
+   ```bash
+   ./.opencode/tools/gitbucket-api create-issue <github.owner> <github.repo> "<title>" --body "<exec-summary-body>" --labels needs-approval
+   ```
+
+   **Note (GitBucket):** Labels can ONLY be set during creation. Post-creation label changes do not work.
+
+2. **Extract remote issue number** from API response `number` field
+3. **Create local `.issues/open/<remote-number>-<slug>/`** — the remote number IS the local directory name (no local counter needed)
+4. Write spec body to `.issues/open/<remote-number>-<slug>/spec.md` (preserving YAML frontmatter)
+5. Record remote metadata in YAML frontmatter:
+
+   ```yaml
+   remote_issue: <remote-number>
+   remote_url: <html_url-from-api-response>
+   promoted_at: <timestamp>
+   ```
+
+6. **Counter advancement:** Read `.counter`. If `counter <= remote_number`, write `remote_number + 1` to `.counter` to prevent future local-first issues from colliding with this remote number.
+
+**Local copy retains full-fidelity detail** — extra metadata, reasoning, and agent notes that stakeholders don't need.
+
+#### Step 2.2: Local-First Flow (when `github.platform == local`)
+
+**Use counter-based numbering. Create local first, no remote promotion:**
+
 ```bash
 local-issues create --title "<title>" --labels "needs-approval"
 ```
 
-Then write the spec body to the created `.issues/open/NNN-slug/spec.md` file (preserving the YAML frontmatter generated by `local-issues create`).
+Then write the spec body to `.issues/open/NNN-slug/spec.md` (preserving YAML frontmatter).
+
+**Local copy retains full-fidelity detail** — extra metadata, reasoning, and agent notes that stakeholders don't need.
+
+**No remote promotion possible.** Issue exists only in `.issues/open/`.
 
 **Response includes:**
-- Issue number (from CLI output: `Created issue #NNN`)
+- Local issue number (counter-based)
 - Local path: `.issues/open/NNN-slug/spec.md`
 
 **Post-Creation URL Extraction (MANDATORY — per `000-critical-rules.md` §URL Sourcing):**
@@ -216,24 +204,37 @@ The Issue URL MUST be extracted from the API response `html_url` field — NEVER
 
 ### Step 4: Report Issue Created
 
-Report: "Created issue #<number>. Next step: Invoke auditors before approval."
+Report based on creation flow:
 
-**For local issues, the chat output MUST include:**
+**Remote-first flow (GitHub/GitBucket):**
+
+```
+Created remote issue #MMM at <html_url>
+Local mirror: .issues/open/MMM-slug/spec.md
+```
+
+**Local-first flow (local platform only):**
 
 ```
 Created local issue #NNN at `.issues/open/NNN-slug/spec.md`
 ```
 
-### Step 4.5: Developer Review Signal (Local Issues Only)
+### Step 4.5: Developer Review Signal
 
-When a local issue is created, the developer needs a way to review the spec before approving it. Output the following to chat:
+When an issue is created (local or promoted), remind the developer how to review:
 
+**Local platform (local-first):**
 ```
 Local issue #NNN created. Review with:
   local-issues review NNN
 ```
 
-This ensures the developer can inspect local drafts that are not visible on a remote GitHub/GitBucket dashboard.
+**Remote platform (remote-first):**
+```
+Issue #MMM created on GitHub. Review:
+  Remote: <html_url>
+  Local mirror: local-issues review MMM
+```
 
 ## Multi-Task Spec Handling
 
@@ -248,6 +249,20 @@ This ensures the developer can inspect local drafts that are not visible on a re
 - If spec has ONE task, skip sub-issue creation
 - Apply `needs-approval` label
 - Proceed to `post-creation` task
+
+## Authorization Context
+
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+```
+
+### Task Context Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 ## Safety Checks
 
@@ -264,7 +279,8 @@ Before proceeding, verify ALL:
 ## Context Required
 
 - Related tasks: `pre-creation` (runs first), `post-creation` (runs next), `link-sub-issue` (sub-issue creation)
-- Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/`
+- Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
+- No direct `github_*` or `gitbucket-api` calls outside `issue-operations/platforms/`
 - Label state machine: `141-planning-status-tracking.md §10` (add `needs-approval` on creation; GitHub `labels` parameter replaces all labels)
 
 ## Live Verification: Creation Evidence (MANDATORY)
@@ -275,10 +291,10 @@ Before proceeding, verify ALL:
 |-------|-------------------|-----------|---------------|
 | "Title dedup gate performed" | Verify dedup was run before creation | Check pre-creation output for Step 0.5 evidence; if missing, run Step 0.75 runtime search fallback | MISSING-ELEMENT → HALT |
 | "Pre-creation validation passed" | Verify validation result exists | Check pre-creation output in session | MISSING-ELEMENT |
-| "No conflicting spec exists" | Search for overlapping issues | `github_search_issues(query="label:spec <keyword>")` | CONFLICTING |
+| "No conflicting spec exists" | Search for overlapping issues | `issue-operations → search-issues` → verify | CONFLICTING |
 | "Title follows format" | Verify title prefix | Check `[SPEC]`, `[SPEC-FIX]`, `[SPEC-ENHANCEMENT]`, `[Task:` prefix | STRUCTURE-VIOLATION |
 | "Issue was created" | Verify API response | Check `number` field in creation response | MISSING-ELEMENT |
-| "`needs-approval` label applied" | Verify label on created issue | `github_issue_read(method="get_labels", issue_number=N)` | MISSING-ELEMENT |
+| "`needs-approval` label applied" | Verify label on created issue | `issue-operations → read-labels` → verify label | MISSING-ELEMENT |
 | "Byline in body" | Verify byline present | Check issue body for `🤖` marker | STRUCTURE-VIOLATION |
 
 **Evidence artifact:** Pre-creation result, creation API response, post-creation label check.

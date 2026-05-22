@@ -16,7 +16,11 @@ source "$SCRIPT_DIR/helpers.sh"
 SCENARIO_NAME="finishing-branch-evidence-artifacts-dispatch-mapped"
 SCENARIO_PROMPT="Implementation is complete on this branch. Run the finishing-a-development-branch checklist."
 
-SKILL_FILE="$SCRIPT_DIR/../../skills/finishing-a-development-branch/SKILL.md"
+OPENDIR="$SCRIPT_DIR"
+while [ "$(basename "$OPENDIR")" != ".opencode" ]; do
+    OPENDIR="$(dirname "$OPENDIR")"
+done
+SKILL_FILE="$OPENDIR/skills/finishing-a-development-branch/SKILL.md"
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
@@ -24,7 +28,7 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-assert_skill_invoked "finishing-a-development-branch" || OVERALL_RESULT=1
+assert_skill_called "finishing-a-development-branch" || OVERALL_RESULT=1
 
 # Content-verification: evidence_artifacts section exists and contains dispatch_stage
 if ! grep -q "evidence_artifacts:" "$SKILL_FILE"; then

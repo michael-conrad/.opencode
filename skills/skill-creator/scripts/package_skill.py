@@ -1,8 +1,12 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+
 """
 Skill Packager - Creates a distributable zip file of a skill folder
 
@@ -18,7 +22,6 @@ import re
 import sys
 import zipfile
 from pathlib import Path
-
 
 def validate_skill(skill_path):
     skill_path = Path(skill_path)
@@ -46,9 +49,15 @@ def validate_skill(skill_path):
     if name_match:
         name = name_match.group(1).strip()
         if not re.match(r"^[a-z0-9-]+$", name):
-            return False, f"Name '{name}' should be hyphen-case (lowercase letters, digits, and hyphens only)"
+            return (
+                False,
+                f"Name '{name}' should be hyphen-case (lowercase letters, digits, and hyphens only)",
+            )
         if name.startswith("-") or name.endswith("-") or "--" in name:
-            return False, f"Name '{name}' cannot start/end with hyphen or contain consecutive hyphens"
+            return (
+                False,
+                f"Name '{name}' cannot start/end with hyphen or contain consecutive hyphens",
+            )
 
     desc_match = re.search(r"description:\s*(.+)", frontmatter)
     if desc_match:
@@ -57,7 +66,6 @@ def validate_skill(skill_path):
             return False, "Description cannot contain angle brackets (< or >)"
 
     return True, "Skill is valid!"
-
 
 def package_skill(skill_path, output_dir=None):
     """
@@ -124,7 +132,6 @@ def package_skill(skill_path, output_dir=None):
         print(f"❌ Error creating zip file: {e}")
         return None
 
-
 def main():
     if len(sys.argv) < 2:
         print(
@@ -156,7 +163,6 @@ def main():
         sys.exit(0)
     else:
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

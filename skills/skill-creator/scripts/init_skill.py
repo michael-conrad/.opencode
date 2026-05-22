@@ -1,8 +1,12 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+
 """
 Skill Initializer - Creates a new skill from template
 
@@ -214,11 +218,9 @@ Example asset files from other skills:
 Note: This is a text placeholder. Actual assets can be any file type.
 """
 
-
 def title_case_skill_name(skill_name):
     """Convert hyphenated skill name to Title Case for display."""
     return " ".join(word.capitalize() for word in skill_name.split("-"))
-
 
 def init_skill(skill_name, path):
     """
@@ -249,7 +251,9 @@ def init_skill(skill_name, path):
 
     # Create SKILL.md from template
     skill_title = title_case_skill_name(skill_name)
-    skill_content = SKILL_TEMPLATE.format(skill_name=skill_name, skill_title=skill_title)
+    skill_content = SKILL_TEMPLATE.format(
+        skill_name=skill_name, skill_title=skill_title
+    )
 
     skill_md_path = skill_dir / "SKILL.md"
     try:
@@ -290,24 +294,33 @@ def init_skill(skill_name, path):
     print(f"\n✅ Skill '{skill_name}' initialized successfully at {skill_dir}")
     print("\nNext steps:")
     print("1. Edit SKILL.md to complete the TODO items and update the description")
-    print("2. Customize or delete the example files in scripts/, references/, and assets/")
+    print(
+        "2. Customize or delete the example files in scripts/, references/, and assets/"
+    )
     print("3. Run the validator when ready to check the skill structure")
 
     return skill_dir
 
-
 def main():
     if len(sys.argv) < 4 or sys.argv[2] != "--path":
-        print("Usage: uv run .opencode/skills/skill-creator/scripts/init_skill.py <skill-name> --path <path>")
+        print(
+            "Usage: uv run .opencode/skills/skill-creator/scripts/init_skill.py <skill-name> --path <path>"
+        )
         print("\nSkill name requirements:")
         print("  - Hyphen-case identifier (e.g., 'data-analyzer')")
         print("  - Lowercase letters, digits, and hyphens only")
         print("  - Max 40 characters")
         print("  - Must match directory name exactly")
         print("\nExamples:")
-        print("  uv run .opencode/skills/skill-creator/scripts/init_skill.py my-new-skill --path .opencode/skills")
-        print("  uv run .opencode/skills/skill-creator/scripts/init_skill.py my-api-helper --path .opencode/skills")
-        print("  uv run .opencode/skills/skill-creator/scripts/init_skill.py custom-skill --path /custom/location")
+        print(
+            "  uv run .opencode/skills/skill-creator/scripts/init_skill.py my-new-skill --path .opencode/skills"
+        )
+        print(
+            "  uv run .opencode/skills/skill-creator/scripts/init_skill.py my-api-helper --path .opencode/skills"
+        )
+        print(
+            "  uv run .opencode/skills/skill-creator/scripts/init_skill.py custom-skill --path /custom/location"
+        )
         sys.exit(1)
 
     skill_name = sys.argv[1]
@@ -323,7 +336,6 @@ def main():
         sys.exit(0)
     else:
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

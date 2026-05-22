@@ -29,7 +29,7 @@ The classification uses the content payload: if `image_paths` is non-empty, at l
 
 ### Step 2: Dispatch Each Claim
 
-For each claim, invoke `multimodal-dispatch --task dispatch` with:
+For each claim, call `multimodal-dispatch --task dispatch` with:
 - `task-prompt`: "Verify this claim against the provided evidence: <claim_text>"
 - `modality`: The resolved modality for this claim
 - `content`: The content payload
@@ -38,7 +38,7 @@ For multi-modality claims, use `multimodal-dispatch --task dispatch-multi` inste
 
 ### Step 3: Collect ClaimResults
 
-For each dispatch result, construct a `ClaimResult`:
+For each result from task(), construct a `ClaimResult`:
 
 ```json
 {
@@ -51,16 +51,16 @@ For each dispatch result, construct a `ClaimResult`:
 }
 ```
 
-**Status determination from `DispatchResult.status`:**
+**Status determination from task().status:**
 
-| DispatchResult.status | ClaimResult.status |
+| task().status | ClaimResult.status |
 |----------------------|-------------------|
 | `completed` | `PASS` or `FAIL` based on evidence |
 | `partial` | `PASS` for verified parts, `UNVERIFIED` for unavailable parts |
 | `unverified` | `UNVERIFIED` — no model available for modality |
 | `failed` | `FAIL` — verification failed due to error |
 
-The key distinction: `completed` dispatch means the model processed the claim successfully, but the claim itself may still fail verification. The dispatch `status` refers to whether the model operation completed, not whether the claim passes verification. A claim that the model processed but found to be false gets `FAIL`, not `PASS`.
+The key distinction: `completed` task means the model processed the claim successfully, but the claim itself may still fail verification. The task() `status` refers to whether the model operation completed, not whether the claim passes verification. A claim that the model processed but found to be false gets `FAIL`, not `PASS`.
 
 **FAIL is never downgraded to PASS (per 065-verification-honesty.md).** If the verifying model determines a claim is false, the `ClaimResult.status` is FAIL. No amount of "close enough" or "functionally equivalent" reasoning can change FAIL to PASS.
 

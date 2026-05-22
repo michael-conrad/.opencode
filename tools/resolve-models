@@ -1,0 +1,189 @@
+#!/bin/bash
+# resolve-models — Select 2 auditors from different families for adversarial audit
+#
+# Usage:
+#   tools/resolve-models --orchestrator-model <model>
+#   tools/resolve-models --orchestrator-model <model> --excluded-pair <fam1>,<fam2>
+#   tools/resolve-models --orchestrator-model <model> --re-task
+#   tools/resolve-models --orchestrator-model <model> --test-insufficient-families
+#
+# Architecture:
+#   resolve-models scans agents/auditor-*.md files directly.
+#   Card filenames (minus .md) ARE the canonical auditor names.
+#   The model: field in each card's YAML frontmatter IS the model binding.
+#   qualified-auditor-pool.sh is cross-referenced as a qualification gate.
+#
+# Output (YAML):
+#   auditor_1: auditor-deepseek-v3
+#   auditor_2: auditor-mistral-large
+#   family_1: deepseek
+#   family_2: mistral
+#
+# Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+AGENTS_DIR="$SCRIPT_DIR/../agents"
+POOL_SCRIPT="$SCRIPT_DIR/../tests/qualification/qualified-auditor-pool.sh"
+
+ORCHESTRATOR_MODEL=""
+EXCLUDED_FAMILIES=""
+TEST_INSUFFICIENT=false
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --orchestrator-model)
+            ORCHESTRATOR_MODEL="$2"
+            shift 2
+            ;;
+        --excluded-pair)
+            EXCLUDED_FAMILIES="$2"
+            shift 2
+            ;;
+        --test-insufficient-families)
+            TEST_INSUFFICIENT=true
+            shift
+            ;;
+        --re-task)
+            shift
+            ;;
+        *)
+            echo "error: UNKNOWN_FLAG"
+            echo "reason: Unknown flag: $1"
+            echo "eligible_count: 0"
+            exit 1
+            ;;
+    esac
+done
+
+# Get pool entries (qualified model:tag pairs)
+POOL_OUTPUT=$(bash "$POOL_SCRIPT")
+mapfile -t POOL_ENTRIES < <(echo "$POOL_OUTPUT" | grep -v '^$' | grep -v '^#')
+
+# Scan agents/auditor-*.md files to build auditor card registry
+declare -A CARD_MODEL    # card_name -> model:tag (from frontmatter)
+declare -A MODEL_CARD    # model:tag -> card_name (reverse lookup)
+
+shopt -s nullglob
+card_files=("$AGENTS_DIR"/auditor-*.md)
+shopt -u nullglob
+
+if [[ ${#card_files[@]} -eq 0 ]]; then
+    echo "error: NO_AUDITOR_CARDS"
+    echo "reason: No auditor-*.md files found in $AGENTS_DIR"
+    echo "eligible_count: 0"
+    exit 1
+fi
+
+for card_file in "${card_files[@]}"; do
+    card_name="$(basename "$card_file" .md)"
+
+    # Extract model: from YAML frontmatter (e.g., "ollama/deepseek-v3.2:cloud")
+    model_line=$(grep -m1 '^model:' "$card_file" | sed 's/^model: *//')
+
+    if [[ -z "$model_line" ]]; then
+        echo "error: MISSING_MODEL_FIELD"
+        echo "reason: Card '$card_name' has no 'model:' field in frontmatter"
+        echo "eligible_count: 0"
+        exit 1
+    fi
+
+    # Strip provider prefix (e.g., "ollama/deepseek-v3.2:cloud" -> "deepseek-v3.2:cloud")
+    model_line="${model_line#*/}"
+
+    CARD_MODEL["$card_name"]="$model_line"
+    MODEL_CARD["$model_line"]="$card_name"
+done
+
+# Build eligible model list: intersect pool entries with discovered cards
+declare -a MODEL_NAMES
+declare -A MODEL_TO_FAMILY
+declare -A MODEL_TO_AUDITOR
+
+for pool_entry in "${POOL_ENTRIES[@]}"; do
+    pool_model="${pool_entry%%:*}"
+    pool_full="$pool_entry"
+
+    if [[ -n "${MODEL_CARD[$pool_full]:-}" ]]; then
+        # Pool entry matches a discovered card
+        card_name="${MODEL_CARD[$pool_full]}"
+        MODEL_NAMES+=("$pool_full")
+    elif [[ -n "${MODEL_CARD[${pool_model}]:-}" ]]; then
+        # Pool entry matches by model name only (no tag)
+        card_name="${MODEL_CARD[$pool_model]}"
+        MODEL_NAMES+=("$pool_model")
+    else
+        # Pool entry references a model not backed by any card
+        echo "error: MISSING_AUDITOR_CARD"
+        echo "reason: Pool model '$pool_full' has no matching auditor card in $AGENTS_DIR"
+        echo "eligible_count: 0"
+        exit 1
+    fi
+
+    # Extract family from model name (leading alpha prefix)
+    family=$(echo "$pool_model" | sed -E 's/^([a-zA-Z]*).*/\1/' | tr '[:upper:]' '[:lower:]')
+    MODEL_TO_FAMILY["$pool_full"]="$family"
+    MODEL_TO_AUDITOR["$pool_full"]="$card_name"
+done
+
+if [[ -n "$ORCHESTRATOR_MODEL" ]]; then
+    ORCH_FAMILY="${ORCHESTRATOR_MODEL%%[-.]*}"
+    ORCH_FAMILY=$(echo "$ORCH_FAMILY" | tr '[:upper:]' '[:lower:]')
+else
+    ORCH_FAMILY=""
+fi
+
+declare -A FAMILIES
+for name in "${MODEL_NAMES[@]}"; do
+    fam="${MODEL_TO_FAMILY[$name]}"
+    if [[ -n "$ORCH_FAMILY" && "$fam" == "$ORCH_FAMILY" ]]; then
+        continue
+    fi
+    FAMILIES["$fam"]=1
+done
+
+if [[ -n "$EXCLUDED_FAMILIES" ]]; then
+    IFS=',' read -ra EXCLUDE_LIST <<< "$EXCLUDED_FAMILIES"
+    for excl in "${EXCLUDE_LIST[@]}"; do
+        unset "FAMILIES[$excl]"
+    done
+fi
+
+if [[ "$TEST_INSUFFICIENT" == true ]]; then
+    for fam in "${!FAMILIES[@]}"; do
+        unset "FAMILIES[$fam]"
+    done
+fi
+
+ELIGIBLE_FAMILIES=("${!FAMILIES[@]}")
+if [[ "${#ELIGIBLE_FAMILIES[@]}" -lt 2 ]]; then
+    echo "error: INSUFFICIENT_FAMILIES"
+    echo "reason: Only ${#ELIGIBLE_FAMILIES[@]} eligible family(s) remain after exclusions, need at least 2"
+    echo "eligible_count: ${#ELIGIBLE_FAMILIES[@]}"
+    exit 1
+fi
+
+SELECTED_FAMILIES=($(shuf -e "${ELIGIBLE_FAMILIES[@]}" | head -2))
+
+FAMILY_1="${SELECTED_FAMILIES[0]}"
+FAMILY_2="${SELECTED_FAMILIES[1]}"
+
+declare -a FAM1_MODELS
+declare -a FAM2_MODELS
+for name in "${MODEL_NAMES[@]}"; do
+    fam="${MODEL_TO_FAMILY[$name]}"
+    if [[ "$fam" == "$FAMILY_1" ]]; then
+        FAM1_MODELS+=("$name")
+    elif [[ "$fam" == "$FAMILY_2" ]]; then
+        FAM2_MODELS+=("$name")
+    fi
+done
+
+chosen_1=$(shuf -e "${FAM1_MODELS[@]}" | head -1)
+chosen_2=$(shuf -e "${FAM2_MODELS[@]}" | head -1)
+
+echo "auditor_1: ${MODEL_TO_AUDITOR[$chosen_1]}"
+echo "auditor_2: ${MODEL_TO_AUDITOR[$chosen_2]}"
+echo "family_1: $FAMILY_1"
+echo "family_2: $FAMILY_2"

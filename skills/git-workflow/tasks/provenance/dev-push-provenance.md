@@ -2,9 +2,7 @@
 
 ## Purpose
 
-After pushing a submodule on a feature branch with a tip tag, create provenance tracking (issue + optionally PR) in the submodule repository with three-tier fallback model.
-
-**Tag-based workflow:** Submodule pushes are now feature-branch pushes with tip tags (`<parent-repo>/<issue-number>-<sub>`), NOT direct pushes to dev. Provenance tracks the feature branch and tip tag.
+After pushing a submodule to its remote dev branch, create provenance tracking (issue + optionally PR) in the submodule repository with three-tier fallback model. Tag-based provenance (per AGENTS.md §Tag Layers) serves as Tier 3 fallback.
 
 ## Entry Criteria
 
@@ -34,12 +32,12 @@ Call `provenance/platform-detection` functions if not cached:
 When `access_level` is `full`:
 
 **Create issue in submodule repo:**
-- Title: `Feature push from <parent-repo>/<parent-branch>: <change-description>`
-- Body includes parent repo, branch, issue, submodule path, tip tag, and what changed
+- Title: `Sync from <parent-repo>/<parent-branch>: <change-description>`
+- Body includes parent repo, branch, issue, submodule path, and what changed
 
 **Create PR in submodule repo (targeting dev branch):**
 - Title: Same as issue
-- Body: `Fixes #<submodule-issue-number>` + parent references + tip tag reference
+- Body: `Fixes #<submodule-issue-number>` + parent references
 
 **If PR creation succeeds:**
 - Record: `{timestamp, submodule, operation: "dev-push", tier: 1, issue_number, pr_number}`
@@ -51,7 +49,7 @@ When `access_level` is `full`:
 
 ### Step 7: Attempt Tier 2 — Issue Only
 
-When Tier 2 failed or `access_level` is `issue-only`:
+When Tier 1 failed or `access_level` is `issue-only`:
 
 **Create issue in submodule repo** (if not already created):
 - Title: Same as Tier 1
@@ -65,21 +63,21 @@ When Tier 2 failed or `access_level` is `issue-only`:
 **If issue creation fails:**
 - Log failure, downgrade to Tier 3
 
-### Step 8: Tier 3 — Commit Message Provenance
+### Step 8: Tier 3 — Tag-Based Provenance
 
 When Tier 2 failed or no API access:
 
-1. No API calls attempted
-2. Structured commit message already in submodule serves as provenance:
+1. No API calls attempted for issue/PR creation
+2. Tag the pushed submodule SHA with `<parent>/<issue-number>-<sub>` per AGENTS.md §Tag Layers:
+   ```bash
+   PARENT_PREFIX=$(basename $(git -C <parent-repo-root> rev-parse --show-toplevel))
+   cd <submodule-path>
+   git tag -a "${PARENT_PREFIX}/${PARENT_ISSUE}-<sub>" \
+       -m "Sync from ${PARENT_REPO}/${PARENT_BRANCH} #${PARENT_ISSUE}: ${CHANGE_DESCRIPTION}"
+   git push origin "${PARENT_PREFIX}/${PARENT_ISSUE}-<sub>"
+   cd ..
    ```
-   Feature <submodule-path> from <parent-repo>/<parent-branch>
-   
-   Triggered-by: <parent-repo>#<parent-issue>
-   Tip-tag: <parent-repo>/<issue-number>-<sub>
-   Change: <description>
-   [skip-ci]
-   ```
-3. Record: `{timestamp, ..., tier: 3, issue_number: null, pr_number: null}`
+3. Record: `{timestamp, ..., tier: 3, issue_number: null, pr_number: null, tag_name: "${PARENT_PREFIX}/${PARENT_ISSUE}-<sub>"}`
 
 ### Step 9: Cross-Reference Parent Issue
 

@@ -1,4 +1,7 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
@@ -28,11 +31,15 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-GITBUCKET_URL = (os.environ.get("GITBUCKET_HTML_URL") or os.environ.get("GITBUCKET_URL", "")).rstrip("/")
+GITBUCKET_URL = (
+    os.environ.get("GITBUCKET_HTML_URL") or os.environ.get("GITBUCKET_URL", "")
+).rstrip("/")
 GITBUCKET_TOKEN = os.environ.get("GITBUCKET_TOKEN", "")
 
 if not GITBUCKET_URL or not GITBUCKET_TOKEN:
-    print("ERROR: GITBUCKET_HTML_URL (or GITBUCKET_URL) and GITBUCKET_TOKEN required in .env")
+    print(
+        "ERROR: GITBUCKET_HTML_URL (or GITBUCKET_URL) and GITBUCKET_TOKEN required in .env"
+    )
     sys.exit(1)
 
 API_BASE = f"{GITBUCKET_URL}/api/v3"
@@ -82,7 +89,9 @@ def test_endpoint(method: str, path: str, expected_status: int = 200) -> bool:
             print(f"✅ {method} {path} → {response.status_code}")
             return True
         else:
-            print(f"❌ {method} {path} → {response.status_code} (expected {expected_status})")
+            print(
+                f"❌ {method} {path} → {response.status_code} (expected {expected_status})"
+            )
             return False
     except requests.RequestException as e:
         print(f"❌ {method} {path} → Connection error: {e}")
@@ -103,16 +112,32 @@ def test_core_endpoints() -> dict:
     repo = os.environ.get("GIT_REPO", "<GitRepo>")
 
     results[f"/repos/{owner}/{repo}"] = test_endpoint("GET", f"/repos/{owner}/{repo}")
-    results[f"/repos/{owner}/{repo}/issues"] = test_endpoint("GET", f"/repos/{owner}/{repo}/issues")
-    results[f"/repos/{owner}/{repo}/pulls"] = test_endpoint("GET", f"/repos/{owner}/{repo}/pulls")
-    results[f"/repos/{owner}/{repo}/branches"] = test_endpoint("GET", f"/repos/{owner}/{repo}/branches")
-    results[f"/repos/{owner}/{repo}/labels"] = test_endpoint("GET", f"/repos/{owner}/{repo}/labels")
-    results[f"/repos/{owner}/{repo}/releases"] = test_endpoint("GET", f"/repos/{owner}/{repo}/releases")
-    results[f"/repos/{owner}/{repo}/milestones"] = test_endpoint("GET", f"/repos/{owner}/{repo}/milestones")
-    results[f"/repos/{owner}/{repo}/hooks"] = test_endpoint("GET", f"/repos/{owner}/{repo}/hooks")
+    results[f"/repos/{owner}/{repo}/issues"] = test_endpoint(
+        "GET", f"/repos/{owner}/{repo}/issues"
+    )
+    results[f"/repos/{owner}/{repo}/pulls"] = test_endpoint(
+        "GET", f"/repos/{owner}/{repo}/pulls"
+    )
+    results[f"/repos/{owner}/{repo}/branches"] = test_endpoint(
+        "GET", f"/repos/{owner}/{repo}/branches"
+    )
+    results[f"/repos/{owner}/{repo}/labels"] = test_endpoint(
+        "GET", f"/repos/{owner}/{repo}/labels"
+    )
+    results[f"/repos/{owner}/{repo}/releases"] = test_endpoint(
+        "GET", f"/repos/{owner}/{repo}/releases"
+    )
+    results[f"/repos/{owner}/{repo}/milestones"] = test_endpoint(
+        "GET", f"/repos/{owner}/{repo}/milestones"
+    )
+    results[f"/repos/{owner}/{repo}/hooks"] = test_endpoint(
+        "GET", f"/repos/{owner}/{repo}/hooks"
+    )
 
     # Contents endpoint
-    results["/repos/{owner}/{repo}/contents/"] = test_endpoint("GET", f"/repos/{owner}/{repo}/contents/")
+    results["/repos/{owner}/{repo}/contents/"] = test_endpoint(
+        "GET", f"/repos/{owner}/{repo}/contents/"
+    )
 
     return results
 
@@ -152,7 +177,7 @@ def test_label_operations() -> bool:
             print(f"⚠️  Delete failed: {delete_response.status_code}")
             return False
     elif create_response.status_code == 422:
-        print(f"⚠️  Label already exists (GitBucket auto-creation)")
+        print("⚠️  Label already exists (GitBucket auto-creation)")
         return True
     else:
         print(f"❌ Create failed: {create_response.status_code}")
@@ -162,7 +187,18 @@ def test_label_operations() -> bool:
 def verify_openapi_spec() -> bool:
     """Verify OpenAPI spec file exists and is valid JSON."""
     print("\n=== Verifying OpenAPI Specification ===")
-    spec_path = Path(__file__).parent.parent / "reference" / "openapi-v4.42.1.json"
+    _path = Path(__file__).resolve().parent
+    while _path.name != ".opencode":
+        _path = _path.parent
+    spec_path = (
+        _path
+        / "skills"
+        / "issue-operations"
+        / "platforms"
+        / "gitbucket-api"
+        / "reference"
+        / "openapi-v4.42.1.json"
+    )
 
     if not spec_path.exists():
         print(f"❌ OpenAPI spec not found: {spec_path}")

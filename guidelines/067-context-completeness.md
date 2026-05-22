@@ -1,3 +1,9 @@
+---
+trigger_on: comment, context completeness, read all, all comments
+tier: 1
+load_when: sub-agent
+---
+
 # Context Completeness — Read All Comments Before Acting
 
 ## Zero Tolerance Rule

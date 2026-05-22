@@ -1,16 +1,17 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
-"""
-DESCRIPTION: Show guideline files with their brief summary header.
+
+__doc__ = """DESCRIPTION: Show guideline files with their brief summary header.
 Usage: ./.opencode/tools/guidelines show [<file> ...]
 Example: ./.opencode/tools/guidelines show 010 040
 Note: Prefer 3-digit shorthand for guideline files when available (for example `041`).
 """
-
-from __future__ import annotations
 import os as _os
 
 if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
@@ -20,13 +21,13 @@ if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
         file=__import__("sys").stderr,
     )
     __import__("sys").exit(1)
-import subprocess
 import sys
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-PROJECT_ROOT = (BASE_DIR / CDUP).resolve()
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    _path = _path.parent
+PROJECT_ROOT = _path.parent
 OPENCODE_DIR = PROJECT_ROOT / ".opencode"
 GUIDELINES_DIR = OPENCODE_DIR / "guidelines"
 

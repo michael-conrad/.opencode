@@ -1,10 +1,13 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
-"""
-DESCRIPTION: Print current UTC datetime as YYYYMMDDHHMMSS. ONLY run when explicitly instructed to create a migration. NEVER run speculatively.
+
+__doc__ = """DESCRIPTION: Print current UTC datetime as YYYYMMDDHHMMSS. ONLY run when explicitly instructed to create a migration. NEVER run speculatively.
 Usage: ./.opencode/tools/schema-version
 
 Use this value as the VERSION constant when writing a new migration script.

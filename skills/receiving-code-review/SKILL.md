@@ -1,7 +1,7 @@
 ---
 name: receiving-code-review
-description: Use when receiving code review feedback on a PR, or when addressing review comments. Triggers on: code review, PR feedback, review comment, address feedback, fix review, respond to review.
-type: technique
+description: Use when receiving code review feedback on a PR, or when addressing review comments. Triggers on: code review, PR feedback, review comment, address feedback, fix review, respond to review. Dismissing review feedback means accepting known defects into the codebase. Every unresolved comment is a regression waiting to surface.
+type: discipline-enforcing
 license: MIT
 provenance: AI-generated
 compatibility: opencode
@@ -11,131 +11,52 @@ compatibility: opencode
 
 ## Overview
 
-Workflow for responding to code review feedback on pull requests. Ensures all reviewer comments are addressed systematically, changes are minimal and targeted, and no scope creep occurs during review response. Adapted from the <UPSTREAM_ORG>/<UPSTREAM_REPO> workflow.
-
-**Source Attribution:** This skill is adapted from the <UPSTREAM_ORG>/<UPSTREAM_REPO> workflow (branch: newsrx).
-
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[PR review feedback received] --> B[Read all review comments]
-    B --> C[Classify each comment]
-    C --> D{Comment type?}
-    D -- Bug/issue --> E[Fix in new commit]
-    D -- Style/suggestion --> F[Evaluate and apply if valid]
-    D -- Question --> G[Reply with explanation]
-    E --> H[Run tests on fix]
-    F --> I[Commit change]
-    G --> J[Post reply comment]
-    H --> I
-    I --> K[Push updated branch]
-    K --> L[Completion: report changes]
-```
+Responds to PR review feedback. Ensures all comments addressed systematically, changes are minimal, no scope creep.
 
 ## Tasks
 
-| Task | Purpose | Words |
-|------|---------|-------|
-| `address` | Address all review comments | ≈350 |
-| `respond` | Reply to review comments | ≈250 |
-| `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
-
-## Sub-Agent Tasks
-
-### Dispatch Audit Table
-
-| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
-|---|---|---|---|---|
-| `address` | When addressing all review comments on a PR | PR number, github.owner, github.repo | Implementation context, agent memory | NO |
-| `respond` | When replying to review comments on a PR | PR number, comment IDs, github.owner, github.repo | Implementation context, agent memory | NO |
-| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+| Task | Words |
+|------|-------|
+| `address` | ≈350 |
+| `respond` | ≈250 |
+| `completion` | ≈200 |
 
 ## Invocation
 
-- `/skill receiving-code-review` — Overview only
-- `/skill receiving-code-review --task address` — Address review feedback
-- `/skill receiving-code-review --task respond` — Reply to comments
-- `/skill receiving-code-review --task completion` — Invoke when workflow halts at any point
+`skill({name: "receiving-code-review"})` — call the skill, then call via task():
 
-## Operating Protocol
+| Task | Call via task() |
+|------|----------|
+| `address` | `task(..., prompt: "execute address task from receiving-code-review")` |
+| `respond` | `task(..., prompt: "execute respond task from receiving-code-review")` |
+| `completion` | `task(..., prompt: "execute completion task from receiving-code-review")` |
 
-1. **Contextual invocation:** This skill is invoked when PR receives review comments, user says "address review" or "fix review feedback", or agent detects review comments on PR. NOT automatic — requires user instruction.
-2. **Scoping discipline:** Address ONLY what the reviewer requested. No "while I'm here" changes. No refactoring beyond what was asked. No new features added during review.
-3. **Exit conditions:** Review response is COMPLETE when all reviewer comments addressed, all replies posted, tests still pass, and branch pushed with changes.
+**CLI equivalent (for human TUI use):** `/skill receiving-code-review --task <task>`
 
-## Anti-Patterns
+## Sub-Agent Routing
 
-### 🚫 Scope Creep During Review
+Sub-agents run via `task(subagent_type="general")` with `{ pr_number, review_comments, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
 
-```python
-# ❌ WRONG: Refactoring while addressing review
-# Reviewer asked: "Rename this variable"
-# Agent also: Refactored the entire function, changed return type, added logging
+### Authorization Context
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-### ✅ Targeted Review Response
+### Routing Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
 
-```python
-# ✅ CORRECT: Address only what was requested
-# Reviewer asked: "Rename this variable"
-# Agent: Renamed the variable, nothing else
-```
-
-## Integration with Existing Workflow
-
-### Dispatch Order
-
-```
-PR review received → receiving-code-review (address) → push changes → (reviewer re-reviews)
-```
-
-### Git-Workflow Integration
-
-- Address review comments on existing branch
-- Push additional commits (do NOT squash review fixes)
-- PR is updated automatically on push
-
-## Cross-Reference Verification (MANDATORY)
-
-**🚫 CRITICAL: Each cross-reference must be verified against actual skill content. Assertions without verification are VERIFICATION-GAP findings.**
-
-| Reference | Verification | Finding Class |
-| -- | -- | -- |
-| `issue-operations` (implied by PR comment responses) | File exists at `.opencode/skills/issue-operations/SKILL.md` | MISSING-TRACEABILITY if missing |
-| `requesting-code-review` in Cross-References section | File exists at `.opencode/skills/requesting-code-review/SKILL.md` | MISSING-TRACEABILITY if missing |
-| `git-workflow` in Cross-References section | File exists at `.opencode/skills/git-workflow/SKILL.md` | MISSING-TRACEABILITY if missing |
-| Task table entry `address` | File exists at `.opencode/skills/receiving-code-review/tasks/address.md` | MISSING-TRACEABILITY if missing |
-| Task table entry `respond` | File exists at `.opencode/skills/receiving-code-review/tasks/respond.md` | MISSING-TRACEABILITY if missing |
-| `git-workflow` branch management behavior | Matches actual SKILL.md: push additional commits, no squash of review fixes | CONFLICTING if mismatched |
-| `requesting-code-review` review request behavior | Matches actual SKILL.md: `prepare` and `request` tasks | CONFLICTING if mismatched |
-
-**Verification Procedure:**
-
-Before invoking any cross-referenced skill:
-1. `ls .opencode/skills/<skill-name>/SKILL.md` → EVIDENCE: file exists or MISSING-TRACEABILITY
-2. `grep -c "<task-name>" .opencode/skills/<skill-name>/SKILL.md` → EVIDENCE: task referenced or MISSING-TRACEABILITY
-3. Compare described behavior with actual content → EVIDENCE: match or CONFLICTING
-
-**Classification on failure:**
-
-| Failure | Problem Class | Classification | Action |
-| -- | -- | -- | -- |
-| Referenced skill file missing | MISSING-TRACEABILITY | flag-for-review | Cannot verify cross-reference |
-| Referenced task file missing | MISSING-TRACEABILITY | flag-for-review | Task may have been renamed |
-| Described behavior mismatches | CONFLICTING | flag-for-review | Cross-reference may be stale |
-| Invocation mismatch | CONFLICTING | flag-for-review | Skill may have been updated |
-
-## Cross-References
-
-- Related skills: `requesting-code-review` (requesting review), `git-workflow` (branch management), `issue-operations` (PR comment format and routing via `comment` task)
-- Related guidelines: `050-scope-autonomy.md` (no scope creep), `060-tool-usage.md` (commands)
-
-## Platform Compatibility
-
-- **GitHub:** Not applicable (this repository uses GitBucket)
-- **GitBucket:** Use Python client from gitbucket-api skill
-- **Platform Detection:** Uses `github.platform` environment variable
-
-**⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-05-01T00:00:00Z"
+rules:
+  - id: rec-review-001
+    title: "Review fixes must be minimal and targeted — no scope creep"
+    conditions:
+      all: ["fix_includes_unrelated_changes == true"]
+    actions: [REVERT_UNRELATED]
+    source: "receiving-code-review/SKILL.md"

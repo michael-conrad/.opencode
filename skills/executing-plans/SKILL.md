@@ -1,7 +1,7 @@
 ---
 name: executing-plans
-description: Use when executing an approved plan step-by-step or moving through implementation gates sequentially. Triggers on: execute plan, next step, continue implementation, plan approved, start implementation.
-type: technique
+description: Use when executing an approved plan step-by-step or moving through implementation gates sequentially. Triggers on: execute plan, next step, continue implementation, plan approved, start implementation. Skipping plan steps produces incomplete implementation. Every skipped step is a defect waiting for CI to find.
+type: discipline-enforcing
 license: MIT
 provenance: AI-generated
 compatibility: opencode
@@ -11,176 +11,67 @@ compatibility: opencode
 
 ## Overview
 
-Plan execution skill that dispatches to `divide-and-conquer/assemble-work` for implementation. This skill is a thin dispatch layer — all implementation logic flows through the unified work workflow. It receives plan context from `approval-gate` after plan approval.
+Thin routing layer routing plan execution to `divide-and-conquer/assemble-work`. Receives plan context from `approval-gate`. Every approval follows one path: executing-plans → assemble-work → work branch → one PR.
 
-**Every approval follows one path:** `executing-plans` → `divide-and-conquer/assemble-work` → work branch → pr-creation → one PR.
-
-**There is no single-issue bypass.** Single issue = work of one = one sub-agent.
-
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[Plan approved] --> B[Read plan STATUS and progress]
-    B --> C{RED tests exist?}
-    C -- No --> D[HALT: write enforcement tests first]
-    C -- Yes --> E[dispatch to divide-and-conquer/assemble-work]
-    E --> F[Sub-agents execute TDD cycle]
-    F --> G[RED: enforcement test]
-    G --> H[GREEN: implementation]
-    H --> I[REFACTOR: cleanup]
-    I --> J[COMMIT: test + change together]
-    J --> K[Maintain phase_progress tracking]
-    K --> L{All phases complete?}
-    L -- No --> F
-    L -- Yes --> M[Yield to review-prep pipeline]
-```
-
-## Received Context
-
-When dispatched from `approval-gate` after plan approval, the following context is available:
-
-```yaml
-plan_issue: <number>
-spec_issue: <number, extracted from plan body>
-authorization_scope: <scope_value>
-halt_at: <pipeline_stage>
-pr_strategy: stacked | individual | none
-github.owner: "<from-session>"
-github.repo: "<from-session>"
-worktree.path: "<worktree path>"
-phase_progress:
-  completed_phases: "<prose listing of completed phases by concern name, from Plan STATUS>"
-  concern_boundaries_crossed: "<prose description of architectural concern transitions from plan>"
-  verification_evidence: "<prose summary of what was verified and outcomes>"
-```
-
-**Verification:** If `plan_issue` is not present in the dispatch context, HALT — this skill requires plan context to track progress against the correct issue.
-
-**Phase progress composition:** Before dispatching to `divide-and-conquer`, `executing-plans` reads the Plan STATUS marker and concern boundary annotations to compose the initial `phase_progress`. If no phases are complete yet, the field notes that explicitly. The `assemble-work` task then maintains and extends phase progress as each sub-agent completes.
-
-## Per-Item TDD Cycle (Per `091-incremental-build.md`)
-
-Each implementation item dispatched by `executing-plans` follows the per-item TDD cycle mandated by `091-incremental-build.md`:
-
-| TDD Phase | Action | Purpose |
-|-----------|--------|---------|
-| **RED** | Add enforcement test scenario | Verify the change is testable before implementation |
-| **GREEN** | Make the `.md` file change | The actual guideline, skill, or configuration modification |
-| **REFACTOR** | Clean up cross-references | Ensure no broken references between files |
-| **COMMIT** | Both test and change committed together | One working slice per item |
-
-**RED Phase Verification Checkpoint (Step 5.5 in start task):** Before dispatching to `divide-and-conquer/assemble-work`, the `start` task includes a mandatory checkpoint that verifies RED test artifacts exist for each TDD-marked implementation item. This checkpoint requires:
-
-1. Confirming an enforcement test scenario exists for each implementation item
-2. Confirming the enforcement test has been run and is in RED state (failing)
-3. Halting if no RED test artifact exists — the RED phase must be completed first
-4. Producing a tool-call artifact proving the check was performed
-
-This checkpoint ensures that no implementation proceeds without a corresponding RED test, enforcing the TDD discipline per `091-incremental-build.md` and `000-critical-rules.md`.
-
-The `divide-and-conquer` dispatch context includes `tdd_phase` to track which phase the sub-agent is executing. Sub-agents MUST follow this cycle per item — monolithic implementation (skipping the TDD cycle) is a critical violation per `000-critical-rules.md`.
+No single-issue bypass — single = work of one = one sub-agent.
 
 ## Tasks
 
-| Task | Purpose | Words |
-|------|---------|-------|
-| `start` | Dispatch to divide-and-conquer/assemble-work for implementation | ≈200 |
-| `step` | Legacy — redirects to divide-and-conquer/orchestrate | ≈100 |
-| `progress` | Legacy — redirects to divide-and-conquer/orchestrate | ≈100 |
-| `verify` | Redirects to verification-before-completion | ≈100 |
-| `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
-
-## Sub-Agent Tasks
-
-### Dispatch Audit Table
-
-| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
-|---|---|---|---|---|
-| `start` | When plan execution begins | Plan issue number, github.owner, github.repo | Implementation context, agent memory | NO |
-| `step` | Legacy — redirects to divide-and-conquer/orchestrate | Plan issue number | Implementation context, agent memory | NO |
-| `progress` | Legacy — redirects to divide-and-conquer/orchestrate | Plan issue number | Implementation context, agent memory | NO |
-| `verify` | Redirects to verification-before-completion | Spec issue number, file paths | Implementation context, agent memory | NO |
-| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+| Task | Words |
+|------|-------|
+| `execute` | ≈300 |
+| `completion` | ≈150 |
 
 ## Invocation
 
-- `/skill executing-plans` — Overview only
-- `/skill executing-plans --task start` — Dispatch to divide-and-conquer/assemble-work
-- `/skill executing-plans --task step` — Redirects to divide-and-conquer/orchestrate
-- `/skill executing-plans --task progress` — Redirects to divide-and-conquer/orchestrate
-- `/skill executing-plans --task verify` — Redirects to verification-before-completion
-- `/skill executing-plans --task completion` — Invoke when workflow halts at any point
+`skill({name: "executing-plans"})` — call the skill, then call via task():
+
+| Task | Call via task() |
+|------|----------|
+| `execute` | `task(..., prompt: "execute execute task from executing-plans")` |
+| `completion` | `task(..., prompt: "execute completion task from executing-plans")` |
+
+**CLI equivalent (for human TUI use):** `/skill executing-plans --task <task>`
 
 ## Operating Protocol
 
-1. **Verify plan context:** Before dispatching, confirm `plan_issue` is present in received context. If missing, HALT and report.
+1. **Requires plan_issue** in task context. HALT if absent.
+2. **Route to divide-and-conquer/assemble-work** with full context.
+3. **Track phase progress** against plan sub-issues.
+4. **Unified path:** no single-task exemption.
 
-2. **Dispatch to divide-and-conquer:** The `start` task invokes `divide-and-conquer --task assemble-work` which handles all implementation — single issue or work — through the unified workflow. Pass `plan_issue` in the dispatch context.
+## Received Context
 
-3. **No direct implementation:** This skill does not implement directly. It dispatches.
+From approval-gate: `{ plan_issue, spec_issue, authorization_scope, halt_at, pr_strategy, worktree.path, phase_progress, github.owner, github.repo }`.
 
-4. **Single issue = work of one:** There is no separate path for single issues. The `assemble-work` task handles single-issue dispatch as the default code path.
+## Sub-Agent Routing
 
-5. **Progress reports against plan:** All progress tracking references the plan issue (not the spec issue). The plan is the implementation tracking artifact; the spec is the requirements artifact.
+Sub-agents run via `task(subagent_type="general")`. `execute` receives plan context + session vars. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
 
-6. **halt_at boundary enforcement:** If `halt_at` from the authorization scope is set, the dispatch chain MUST NOT proceed past that pipeline stage. When `halt_at == implementation_complete`, the workflow stops after implementation and does NOT proceed to PR creation.
-
-## Dispatch Order
-
+### Authorization Context
 ```
-Plan approved (approval-gate)
-  → executing-plans --task start
-  → divide-and-conquer --task assemble-work
-  → verification-before-completion
-  → finishing-a-development-branch
-  → git-workflow/review-prep
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-**Progress is tracked against the plan issue.** The plan references the spec via body text (linked reference), not via GitHub sub-issue link.
-
-## Cross-Reference Verification (MANDATORY)
-
-**🚫 CRITICAL: Each cross-reference must be verified against actual skill content. Assertions without verification are VERIFICATION-GAP findings.**
-
-| Reference | Verification | Finding Class |
-| -- | -- | -- |
-| `divide-and-conquer` in Cross-References and Dispatch Order | File exists at `.opencode/skills/divide-and-conquer/SKILL.md` | MISSING-TRACEABILITY if missing |
-| `approval-gate` in Cross-References and Dispatch Order | File exists at `.opencode/skills/approval-gate/SKILL.md` | MISSING-TRACEABILITY if missing |
-| `verification-before-completion` in Cross-References and Dispatch Order | File exists at `.opencode/skills/verification-before-completion/SKILL.md` | MISSING-TRACEABILITY if missing |
-| `finishing-a-development-branch` in Cross-References and Dispatch Order | File exists at `.opencode/skills/finishing-a-development-branch/SKILL.md` | MISSING-TRACEABILITY if missing |
-| `git-workflow` in Cross-References and Dispatch Order | File exists at `.opencode/skills/git-workflow/SKILL.md` | MISSING-TRACEABILITY if missing |
-| `writing-plans` in Received Context | File exists at `.opencode/skills/writing-plans/SKILL.md` | MISSING-TRACEABILITY if missing |
-| Task table entry `start` | File exists at `.opencode/skills/executing-plans/tasks/start.md` | MISSING-TRACEABILITY if missing |
-| Task table entry `step` | File exists at `.opencode/skills/executing-plans/tasks/step.md` | MISSING-TRACEABILITY if missing |
-| Task table entry `progress` | File exists at `.opencode/skills/executing-plans/tasks/progress.md` | MISSING-TRACEABILITY if missing |
-| Task table entry `verify` | File exists at `.opencode/skills/executing-plans/tasks/verify.md` | MISSING-TRACEABILITY if missing |
-| Task table entry `completion` | File exists at `.opencode/skills/executing-plans/tasks/completion.md` | MISSING-TRACEABILITY if missing |
-| `divide-and-conquer` dispatch behavior | Matches actual SKILL.md: `assemble-work` task handles implementation | CONFLICTING if mismatched |
-| `approval-gate` dispatch behavior | Matches actual SKILL.md: `verify-authorization` dispatches to `executing-plans` | CONFLICTING if mismatched |
-| `verification-before-completion` redirect | Matches actual SKILL.md: `verify` task exists and redirects | CONFLICTING if mismatched |
-
-**Verification Procedure:**
-
-Before invoking any cross-referenced skill:
-1. `ls .opencode/skills/<skill-name>/SKILL.md` → EVIDENCE: file exists or MISSING-TRACEABILITY
-2. `grep -c "<task-name>" .opencode/skills/<skill-name>/SKILL.md` → EVIDENCE: task referenced or MISSING-TRACEABILITY
-3. Compare described behavior with actual content → EVIDENCE: match or CONFLICTING
-
-**Classification on failure:**
-
-| Failure | Problem Class | Classification | Action |
-| -- | -- | -- | -- |
-| Referenced skill file missing | MISSING-TRACEABILITY | flag-for-review | Cannot verify cross-reference |
-| Referenced task file missing | MISSING-TRACEABILITY | flag-for-review | Task may have been renamed |
-| Described behavior mismatches | CONFLICTING | flag-for-review | Cross-reference may be stale |
-| Invocation mismatch | CONFLICTING | flag-for-review | Skill may have been updated |
+### Routing Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 ## Cross-References
 
-- Related skills: `divide-and-conquer` (implementation orchestration), `approval-gate` (authorization), `verification-before-completion` (evidence), `finishing-a-development-branch` (branch readiness), `git-workflow` (branch/PR/cleanup), `writing-plans` (plan creation)
+Skills: `divide-and-conquer`, `approval-gate`, `git-workflow`.
 
-Co-authored with AI: <AgentName> (<ModelId>)
-
-**⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
+```yaml+symbolic
+schema_version: "2.0"
+last_updated: "2026-05-01T00:00:00Z"
+rules:
+  - id: exec-plans-001
+    title: "Plan context required before execution — HALT if absent"
+    conditions:
+      all: ["plan_issue_not_in_context == true"]
+    actions: [HALT, REPORT(missing_plan_context)]
+    source: "executing-plans/SKILL.md"

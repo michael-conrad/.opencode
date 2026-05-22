@@ -1,0 +1,87 @@
+#!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
+# /// script
+# requires-python = ">=3.10"
+# dependencies = []
+# ///
+
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+__doc__ = """texted MCP Server Launcher.
+
+Bootstraps Go toolchain and texted compiler, then execs the texted MCP server.
+
+Co-authored with AI: OpenCode (deepseek-v4-flash)
+"""
+
+import os
+import subprocess
+import sys
+import tarfile
+import tempfile
+import urllib.request
+from pathlib import Path
+
+TOOLS_DIR = Path(".tools").resolve()
+GOROOT = TOOLS_DIR / "go"
+GOPATH = TOOLS_DIR / "gopath"
+TEXTED_BIN = GOPATH / "bin" / "texted"
+TEXTED_COMMIT = "2a9d1b04e7ac0e5a98dd648534f438626a9437a1"
+GO_VERSION = "1.22.10"
+GO_ARCHIVE = f"go{GO_VERSION}.linux-amd64.tar.gz"
+GO_URL = f"https://go.dev/dl/{GO_ARCHIVE}"
+
+def ensure_go_toolchain():
+    go_bin = GOROOT / "bin" / "go"
+    if go_bin.exists():
+        return
+    TOOLS_DIR.mkdir(parents=True, exist_ok=True)
+    print(f"Downloading Go {GO_VERSION}...", file=sys.stderr)
+    with tempfile.NamedTemporaryFile(suffix=".tar.gz", delete=False) as tmp:
+        urllib.request.urlretrieve(GO_URL, tmp.name)
+        print(f"Extracting to {GOROOT}...", file=sys.stderr)
+        with tarfile.open(tmp.name, "r:gz") as tar:
+            tar.extractall(path=TOOLS_DIR)
+        os.unlink(tmp.name)
+    if not go_bin.exists():
+        sys.exit(f"Go binary not found at {go_bin}")
+
+def ensure_texted():
+    if TEXTED_BIN.exists():
+        return
+    ensure_go_toolchain()
+    env = os.environ.copy()
+    env["GOROOT"] = str(GOROOT)
+    env["GOPATH"] = str(GOPATH)
+    env["PATH"] = f"{GOROOT / 'bin'}:{env['PATH']}"
+    print(f"Compiling texted ({TEXTED_COMMIT})...", file=sys.stderr)
+    result = subprocess.run(
+        ["go", "install", f"github.com/dhamidi/texted/cmd/texted@{TEXTED_COMMIT}"],
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        sys.exit(f"go install failed:\n{result.stderr}")
+    if not TEXTED_BIN.exists():
+        sys.exit(f"texted binary not found at {TEXTED_BIN} after install")
+
+if __name__ == "__main__":
+    if "--version" in sys.argv:
+        print(f"texted-mcp version 1.0.0 (texted commit: {TEXTED_COMMIT})")
+        sys.exit(0)
+    if "--dry-run" in sys.argv:
+        print(f"TOOLS_DIR: {TOOLS_DIR}")
+        print(f"GO_BIN: {GOROOT / 'bin' / 'go'}")
+        print(f"TEXTED_BIN: {TEXTED_BIN}")
+        sys.exit(0)
+    ensure_go_toolchain()
+    ensure_texted()
+    env = os.environ.copy()
+    env["GOROOT"] = str(GOROOT)
+    env["GOPATH"] = str(GOPATH)
+    env["PATH"] = f"{GOROOT / 'bin'}:{env['PATH']}"
+    os.execvpe(str(TEXTED_BIN), [str(TEXTED_BIN), "mcp"], env)

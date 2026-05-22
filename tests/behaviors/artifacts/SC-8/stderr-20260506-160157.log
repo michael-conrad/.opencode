@@ -1,0 +1,15 @@
+Test home: /home/muksihs/git/opencode-config/tmp/test-home-20260506-160157
+Seeded opencode.jsonc with 17 model(s)
+Performing one time database migration, may take a few minutes...
+sqlite-migration:done
+Database migration complete.
+[0m
+> build · glm-5.1:cloud
+[0m
+[0m→ [0mRead tmp/test-spec-999.md
+[0m→ [0mRead .opencode/skills/spec-auditor/SKILL.md
+[0m✱ [0mGlob ".opencode/skills/spec-auditor/tasks/*.md"[90m 18 matches[0m
+[0m→ [0mRead .opencode/skills/spec-auditor/tasks/structure.md
+[0m→ [0mRead .opencode/skills/spec-auditor/tasks/content-quality.md
+[0m→ [0mRead .opencode/skills/spec-auditor/tasks/ground-truth.md
+[0m→ [0mRead .opencode/skills/spec-auditor/tasks/concerns.md

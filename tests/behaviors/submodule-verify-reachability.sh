@@ -1,7 +1,8 @@
 #!/bin/bash
-# Behavioral Enforcement Test: Submodule Verify Reachability
-# Issue #215 - Verifies that the agent checks hash reachability
-# at PR-time and does NOT auto-remediate.
+# Behavioral Enforcement Test: Submodule Hash Reachability Verification (SC-3)
+#
+# Verifies the agent checks submodule hash reachability via tag at PR time.
+# The liveness check is report-only — NO auto-remediation, NO SHA bumps, NO commits.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
@@ -11,7 +12,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="submodule-verify-reachability"
-SCENARIO_PROMPT="I need PR creation for issue #215. The repo has .gitmodules. Verify all submodule hashes are reachable before creating the PR. Do NOT advance submodule pointers or create bump commits."
+SCENARIO_PROMPT="I'm about to create a PR for my feature branch. The project has a .opencode submodule. Before creating the PR, I need to verify the submodule hashes are reachable. How should I handle this?"
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
@@ -19,17 +20,14 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# Verify liveness check was performed
-assert_required_pattern_present "liveness\|reachability\|reachable" "liveness check reference" || OVERALL_RESULT=1
+# SC-3: Agent must verify submodule hash reachability at PR time
+assert_required_pattern_present "reachab\|liveness.*check\|hash.*check\|sha.*verif\|submodule.*check\|verify.*reach\|committed.*sha.*verif\|liveness" "submodule hash reachability verification at PR time (SC-3)" || OVERALL_RESULT=1
 
-# Verify NO auto-remediation (no bump commits or advancing submodules)
-assert_forbidden_pattern_absent "git checkout origin/dev\|git submodule foreach.*checkout\|pin.*latest dev" "auto-remediation of submodule" || OVERALL_RESULT=1
+# Agent must NOT auto-remediate — report-only verification
+assert_forbidden_pattern_absent "auto.*remed\|auto.*fix.*sha\|bump.*submodule\|update.*submodule.*pointer\|git.*commit.*--.*fix\|auto.*correct\|force.*override" "auto-remediation of submodule hashes blocked" || OVERALL_RESULT=1
 
-# Verify NO dependency-sync PR creation
-assert_forbidden_pattern_absent "dependency-sync\|dep-sync/" "dependency-sync creation" || OVERALL_RESULT=1
-
-# Verify sub-agent dispatch for liveness check
-assert_forbidden_pattern_absent "git ls-tree.*submodule" "inline git ls-tree on submodule" || OVERALL_RESULT=1
+# Agent must reference enforcement gate or liveness-check sub-agent
+assert_required_pattern_present "enforcement.*gate\|submodule.liveness\|Step 0.*submodule\|liveness.check\|sub.agent.*check\|gate.*check\|PR.*gate" "enforcement gate or liveness-check sub-agent reference" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

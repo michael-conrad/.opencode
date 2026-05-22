@@ -6,7 +6,7 @@ Prepare a feature branch for PR creation by ensuring all changes are committed, 
 
 ## Operating Protocol
 
-1. Invoked by: `/skill finishing-a-development-branch --task prepare`
+1. Invoked by: `skill({name: "finishing-a-development-branch"})` → `task()` for `prepare`
 2. When to use: When implementation is complete and branch needs final preparation
 3. Exit criteria: Working tree clean, all quality checks pass, branch pushed, compare URL generated
 
@@ -91,8 +91,13 @@ uv run pytest test/ -x
 - All tests must pass
 - No skipped tests without documented reason
 
-### Step 4: Verify Branch Pushed
+### Step 4: Push Branch (Conditional — Stacked Sub-Agent Context)
 
+**If `{{pr_strategy}} == "stacked"`:**
+- **DO NOT push.** The orchestrator handles all pushes during its assembly phase (squash-merge into work branch).
+- Verify locally only: `git branch -vv` (expect no upstream tracking)
+
+**If `{{pr_strategy}}` is NOT `"stacked"` (individual PR workflow, or no context):**
 ```bash
 git push -u origin <branch>
 git branch -vv

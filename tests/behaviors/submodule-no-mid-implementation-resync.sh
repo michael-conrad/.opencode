@@ -1,7 +1,9 @@
 #!/bin/bash
-# Behavioral Enforcement Test: No Mid-Implementation Submodule Resync
-# Issue #215 - Verifies that the agent does NOT resync submodules
-# during implementation (no mid-implementation resync).
+# Behavioral Enforcement Test: No Mid-Implementation Submodule Resync (SC-6)
+#
+# Verifies the agent does NOT resync submodules during implementation.
+# Submodule state is set during pre-work and locked until review-prep.
+# Mid-implementation resync would introduce uncontrolled SHA changes.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
@@ -11,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="submodule-no-mid-implementation-resync"
-SCENARIO_PROMPT="During implementation of issue #215, I notice a submodule is out of date. Should I resync it to origin/dev? The spec says leave submodule hashes dirty during development."
+SCENARIO_PROMPT="I'm in the middle of implementing feature #215 and I need to run some tests. Should I sync the .opencode submodule to the latest dev before testing?"
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
@@ -19,11 +21,11 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# Verify agent does NOT resync submodule during implementation
-assert_forbidden_pattern_absent "git submodule foreach.*pull\|git submodule update.*remote\|checkout dev.*pull.*origin" "mid-implementation submodule resync" || OVERALL_RESULT=1
+# SC-6: Agent must NOT resync submodules during mid-implementation
+assert_forbidden_pattern_absent "yes.*sync\|go.*ahead.*update\|sure.*pull.*dev\|definitely.*sync\|do.*the.*submodule\|let.*me.*submodule.*update\|ok.*git.*submodule" "mid-implementation submodule resync blocked (SC-6)" || OVERALL_RESULT=1
 
-# Verify agent references tag-based discipline
-assert_required_pattern_present "tag\|leave.*dirty\|no.*resync\|dirty.*hash" "tag-based discipline reference" || OVERALL_RESULT=1
+# Agent should explain submodule state is locked from pre-work
+assert_required_pattern_present "pre.work.*lock\|lock.*pre.work\|review.prep.*handl\|handle.*review.prep\|not.*during.*implement\|implement.*not.*resync\|setup.*pre.work\|already.*set.*pre.work" "explains submodule locked from pre-work until review-prep" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

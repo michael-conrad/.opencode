@@ -18,73 +18,55 @@ Clean temp files, handle submodule push automation, rebase on current dev, and v
 
 ## Procedure
 
-### Step 0: Submodule Feature-Branch Push (CONDITIONAL — Sub-Agent Dispatch)
+### Step 0: Submodule Feature Push via Sub-Agent task() (CONDITIONAL)
 
 **If `.gitmodules` does NOT exist:** Skip entirely.
 
-**If `.gitmodules` exists:** Check which submodules have changes, then dispatch a `submodule-feature-push` sub-agent. The main agent MUST NOT perform any git push/tag operations on submodules inline — this is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Inline Work.
+**If `.gitmodules` exists:** task() a `submodule-feature-push` sub-agent to handle submodule push automation instead of executing inline bash.
 
-#### Detection Step (inline — read-only)
+#### Task Context Schema
 
-```bash
-git submodule foreach 'git diff HEAD --quiet || echo CHANGED'
-```
-
-If NO submodules are CHANGED: Skip sub-agent dispatch entirely.
-
-#### Sub-Agent Boundary
-
-| Field | Value |
-|-------|-------|
-| **must_receive** | `issue_number`, `github.owner`, `github.repo`, `dev.name`, `dev.email`, changed submodule paths, feature branch name, parent repo short name |
-| **must_not_receive** | Implementation context, agent memory, full task file contents, unchanged submodule info |
-
-#### Dispatch Procedure
-
-Invoke: `/submodule-tag-feat` opencode command (or dispatch sub-agent with scoped instruction).
-
-The sub-agent performs for each submodule with changes:
-1. **Push the submodule's feature branch** to its remote (if not already pushed)
-2. **Tag the submodule's tip** with format `<parent-repo>/<issue-number>-<submodule-name>`
-3. **Push tags** to the submodule's remote
-
-#### Tag Format for Feature Branches
-
-```
-<parent-repo-short>/<issue-number>-<submodule-name>
-```
-
-- Example: `opencode-config-parent/215-opencode`
-
-**Provenance tracking after submodule push:** Invoke `/skill git-workflow --task provenance --mode=dev-push` for each submodule. Provenance is best-effort and never blocks the git workflow.
-
-#### CRITICAL: Submodule Pushes Are Feature-Branch Pushes
-
-Submodule changes are pushed on feature branches, NOT directly to dev. This maintains the same branch model as the parent repo and enables proper provenance tracking.
-
-#### Sub-Agent Result Contract
+The sub-agent receives exactly this context — nothing more:
 
 ```yaml
-status: DONE | BLOCKED | SKIP
-task: submodule-feature-push
-submodule_results:
-  - path: <submodule-path>
-    branch_pushed: <branch-name>
-    tag_name: <parent-repo>/<issue-number>-<sub>
-    sha_tagged: <sha>
-    tag_pushed: bool
-evidence_artifacts:
-  - tool: git push origin <branch>
-    output: <push confirmation>
-  - tool: git tag -l
-    output: <tag list>
-  - tool: git push origin --tags
-    output: <push confirmation>
+must_receive:
+  - parent_repo_owner: string   # github.owner of parent repo
+  - parent_repo_name: string    # github.repo of parent repo
+  - parent_branch: string       # feature branch name in parent
+  - submodule_paths: string[]   # list of submodule paths from `.gitmodules`
+  - dev_name: string            # developer name for commit authorship
+  - dev_email: string           # developer email for commit authorship
+
+must_not_receive:
+  - Any implementation context
+  - Agent reasoning or cached results
+  - Expected outcomes or pre-determined file paths
+  - Parent repo implementation details or work state
 ```
 
-**Submodule push failure:** BLOCK parent repo push. Report which submodule failed.
+#### Result Contract Schema
 
-**`--skip-submodules` flag:** Warn and proceed without submodule push steps.
+The sub-agent returns:
+
+```yaml
+status: "DONE" | "FAILED" | "SKIPPED"
+submodule_results:
+  - path: string
+    status: "PUSHED" | "NO_CHANGES" | "FAILED"
+    sha: string | null
+    error: string | null
+evidence_artifacts:
+  - check: "submodule_foreach_diff"
+    result: "ALL_CLEAN" | "CHANGED_DETECTED" | "NOT_RUN"
+  - check: "push_verification"
+    result: "PUSHED" | "FAILED" | "SKIPPED"
+```
+
+**Sub-agent push failure (any submodule returns FAILED):** BLOCK parent repo push. Report which submodule failed. Do NOT proceed to Step 1.
+
+**`--skip-submodules` flag:** Warn and proceed without submodule push steps. Skip task() entirely; go to Step 1.
+
+**Provenance tracking after submodule push:** Invoke `/skill git-workflow --task provenance --mode=dev-push` for each pushed submodule. Provenance is best-effort and never blocks the git workflow.
 
 ### Step 1: Temp File Cleanup (MANDATORY)
 

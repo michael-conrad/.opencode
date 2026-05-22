@@ -1,8 +1,12 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["pyyaml>=6.0"]
 # ///
+
 """
 DESCRIPTION: Watch work-state and auto-regenerate HTML report. Polls for changes.
 Usage: ./.opencode/tools/skildeck watch [--dir PATH] [--output PATH] [--interval SECONDS]
@@ -34,7 +38,6 @@ DEFAULT_SCAN_DIR = SKILLS_DIR
 DEFAULT_OUTPUT_DIR = Path("./tmp")
 DEFAULT_INTERVAL = 30
 
-
 def _load_module(module_file: str):
     target = IMPL_DIR.parent / module_file
     source = target.read_text()
@@ -43,7 +46,6 @@ def _load_module(module_file: str):
     sys.modules[module_file.replace("-", "_")] = mod
     exec(compile(source, str(target), "exec"), mod.__dict__)
     return mod
-
 
 def _load_impl(module_name: str):
     target = IMPL_DIR / module_name
@@ -54,7 +56,6 @@ def _load_impl(module_name: str):
     exec(compile(source, str(target), "exec"), mod.__dict__)
     return mod
 
-
 def _hash_dir(scan_dir: Path) -> str:
     h = hashlib.sha256()
     md_files = sorted(scan_dir.rglob("*.md"))
@@ -64,7 +65,6 @@ def _hash_dir(scan_dir: Path) -> str:
         except Exception:
             pass
     return h.hexdigest()[:16]
-
 
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
@@ -122,7 +122,6 @@ def main() -> None:
             time.sleep(args.interval)
     except KeyboardInterrupt:
         print("\nWatch stopped.")
-
 
 if __name__ == "__main__":
     main()

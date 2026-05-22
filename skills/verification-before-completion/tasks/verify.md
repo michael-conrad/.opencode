@@ -32,9 +32,36 @@ Verify all success criteria have evidence before allowing completion claims.
 5. If ALL structural components present:
    - Proceed to Step 1 (Query Success Criteria)
 
-**Dispatch as sub-agent:** When the verification context is the same agent that performed implementation, invoke `structural-verify` as a sub-agent to ensure clean-room isolation. The sub-agent receives ONLY the spec SC list and file paths — NOT implementation context.
+**task() as sub-agent:** When the verification context is the same agent that performed implementation, task() `structural-verify` as a sub-agent to ensure clean-room isolation. The sub-agent receives ONLY the spec SC list and file paths — NOT implementation context.
 
-### 0.5. Header Verification Checkpoint (MANDATORY — For New Files)
+**Authorization context for sub-agent task():**
+```
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
+```
+- Missing `authorization_scope` → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
+
+### 0.5. Dispatch Chain Compliance Gate (MANDATORY — Before Per-SC Verification)
+
+**Verify that the work was produced through the proper `skill() → task()` dispatch chain, not via inline execution.**
+
+Inline execution bypasses every quality gate — clean-room isolation, cross-family auditors, evidence classification. A structurally correct implementation produced inline is indistinguishable from a bypass until the dispatch log is checked.
+
+1. Check the dispatch log for `skill()` calls matching the current pipeline stage:
+   - `skill({name: "spec-creation"})` or `skill({name: "writing-plans"})` for plan/spec stages
+   - `skill({name: "verification-before-completion"})` for this verification stage
+   - `skill({name: "adversarial-audit"})` for audit stages
+2. If the dispatch log is empty (no `skill()` calls recorded): return BLOCKED with `DISPATCH_CHAIN_VIOLATION`
+3. If the dispatch log has `skill()` calls but none match the current pipeline stage: return BLOCKED with `DISPATCH_CHAIN_VIOLATION`
+4. If the dispatch log has matching `skill()` calls: proceed to Step 0.5a
+
+**No override path exists.** A DISPATCH_CHAIN_VIOLATION is terminal for this verification pass — the agent must restart from `verify-authorization` with proper skill dispatch.
+
+### 0.5a. Header Verification Checkpoint (MANDATORY — For New Files)
 
 **For each new file added by the agent during implementation, verify it contains the required headers per its file type as defined in `080-code-standards.md` §"Header Format by File Type".**
 
@@ -52,11 +79,7 @@ Verify all success criteria have evidence before allowing completion claims.
    - Report as PASS
    - Proceed to Step 1
 
-**Grandfather clause:** Pre-existing files modified by the agent are exempt from header verification — only newly created files require headers. This is a Tier 1 mandate per `080-code-standards.md` §"New-File Copyright Header Mandate".
-
-**Byline preservation:** During header verification, also check that no existing bylines were removed or overwritten. If an existing file was modified and previously contained bylines, verify those bylines are still present. Removing or overwriting another agent's or human's byline is a CRITICAL VIOLATION per `080-code-standards.md` §"Byline Preservation".
-
-**Legacy file exemption:** Do NOT flag pre-existing files that lack headers as missing headers. The agent MUST NOT add headers to files that predate this mandate and do not already have a header block. See `080-code-standards.md` §"Legacy File Exemption".
+**Grandfather clause:** Pre-existing files modified by the agent are exempt from header verification — only newly created files require headers.
 
 ### 1. Query Success Criteria
 
@@ -67,7 +90,7 @@ Verify all success criteria have evidence before allowing completion claims.
 ### 2. Check for Evidence
 
 - Review issue comments for evidence
-- Check `./tmp/` for artifacts
+- Check `./tmp/artifacts/` for verification artifacts
 - Verify evidence matches criteria
 
 ### 2a. Todowrite Cleanup Verification
@@ -92,20 +115,48 @@ Verify all success criteria have evidence before allowing completion claims.
 - If all verified → Allow completion claim
 - If any unverified → HALT and require evidence
 
-## Evidence Types
+### 4.5. Cross-Model Validation Gate (MANDATORY)
 
-### Valid Evidence
+**When behavioral testing is part of the spec's verification scope, single-model evidence is insufficient.** The orchestrator MUST verify that both local and cloud model runs exist:
 
-| Type | Description | Storage |
-| -- | -- | -- |
-| Test output | `pytest` pass/fail | Issue comment |
-| Lint output | `ruff check` clean | Issue comment |
-| Type check | `pyright` clean | Issue comment |
-| File path | Created file exists | Issue comment + `ls -la` |
-| File content | File content hash | Issue comment + `head -20` |
-| Git diff | Code changes | Issue comment + `git diff` |
-| API response | Status code and body | Issue comment + curl output |
-| Screenshot | Visual verification | Issue comment + attachment |
+1. Check evidence artifacts for both `model: <local>` and `model: <cloud>` entries
+2. If only single-model evidence is present: flag as `CROSS_MODEL_GAP`
+   - HALT completion claim
+   - Re-task verification against the missing model
+3. Cross-model result comparison:
+   - Both pass: cross-validation confirmed (PASS)
+   - Only one passes: **brittleness detected** — instructions are model-biased. Flag as `BRITTLENESS_DETECTED` with remediation required
+   - Both fail: instructions broken — HALT and require fix
+4. If both model runs produce evidence: proceed to step 4
+
+**🚫 FORBIDDEN:** Accepting single-model results as cross-model-validated; treating `PASS` from one model as equivalent to cross-model verification.
+
+**AUTHORITY:** `000-critical-rules.md` §Model-Aware Clean-Room task(), Spec #262
+
+## Evidence Types — STRUCTURAL EVIDENCE IS ALWAYS FAIL FOR CODE CHANGES (ZERO TOLERANCE)
+
+**🚫 STRUCTURAL EVIDENCE (grep/read/file-exists) IS NEVER ACCEPTABLE FOR TESTABLE CODE.**
+
+If the change modifies behavior, logic, or executable code, ALL success criteria require behavioral/functional/regression test execution as evidence. grep, read, ls, file-existence, content-checking are NOT evidence of correct behavior — they are evidence that text was written. Code that exists but produces wrong output is indistinguishable from code that does not exist until you run it.
+
+### Exception: Non-Testable Content (docs, runbooks, guidelines, prose)
+
+For changes to non-executable content (markdown documentation, runbooks, guidelines, prose-only files), structural evidence IS acceptable but MUST use **semantic intent verification by direct AI agent inspection** — NOT grep/pattern matching. The agent MUST:
+
+1. Read the actual content of the modified file
+2. Compare it semantically against the spec's intent — does the prose actually convey the intended meaning?
+3. Report PASS only if the semantic intent is correctly expressed, not just if keywords appear
+
+Grep/pattern-match verification is FORBIDDEN even for prose content. The agent must read and understand, not search for string patterns.
+
+### Classification
+
+| Change Type | Evidence Requirement | Method |
+|-------------|---------------------|--------|
+| Testable code (logic, behavior, runtime) | Behavioral/functional/regression test execution | `pytest`, `opencode-cli run`, lint, typecheck — all with saved artifacts in `./tmp/artifacts/` |
+| Non-testable prose (docs, runbooks, guidelines) | Semantic intent verification by direct AI agent read | Read the file, understand the prose, verify semantic intent against spec — NOT grep/pattern matching |
+| | | |
+| Structural-only evidence (grep/read/file-exists) for testable code | **TOTAL FAIL** — entire verification gate returns FAIL | No exceptions. No metadata exemption. |
 
 ### Invalid Evidence
 
@@ -116,6 +167,41 @@ Verify all success criteria have evidence before allowing completion claims.
 | "I checked" | No artifact |
 | "Code is correct" | No test run |
 | Placeholder text | "TBD" or "TODO" |
+| File exists / test file present | File existence ≠ test execution; structural evidence accepted as behavioral evidence |
+
+### Verification Rule: Behavioral vs Structural Evidence
+
+**When an SC requires behavioral verification, structural evidence is INSUFFICIENT. The agent MUST run the behavioral test and report its output.**
+
+Reading a test implementation file and confirming it exists is structural evidence. Running the test and observing PASS/FAIL output is behavioral evidence. These are fundamentally different — a test file that contains a deliberate bug will pass the structural check (the file exists, the test function is present) but fail the behavioral check (the test output shows FAIL).
+
+- 🚫 FORBIDDEN: Reporting file existence as evidence that a behavioral SC is satisfied
+- 🚫 FORBIDDEN: Reading a test file and reporting "test exists → PASS" without executing it
+- 🚫 FORBIDDEN: Using `cat`, `read`, or `ls` to verify behavioral correctness
+- ✅ REQUIRED: For behavioral SCs, the agent MUST execute the test and report the output
+- ✅ REQUIRED: Classify each SC as structural or behavioral in the evidence table
+- ✅ REQUIRED: Use behavioral evidence (test execution output) only for behavioral SCs
+
+### When Behavioral/Functional Tests Cannot Execute
+
+If a behavioral/functional test cannot run (model unavailable, timeout, infrastructure error, `opencode-cli` not installed):
+
+| Outcome | Classification | Correct Report |
+|---------|---------------|-----------------|
+| Test executed successfully | Behavioral evidence | PASS or FAIL per test output |
+| Test cannot execute | **FAIL** — never PASS/UNVERIFIED with substitute | `FAIL: behavioral/functional test could not execute` |
+| Test cannot execute, agent substitutes structural check | **CRITICAL VIOLATION** | HALT and report |
+
+**"Functional test" and "behavioral test" are synonymous.** Both refer to tests that verify actual agent behavior by executing code and observing output.
+
+The only valid outcomes for a behavioral SC are:
+1. Test runs → report PASS or FAIL based on actual test output
+2. Test cannot run → report FAIL with explanation of why
+3. Test cannot run → attempt remediation (model selection, infrastructure check)
+4. Remediation also fails → report FAIL, await human intervention
+5. Remediation must be exhaustive before escalation: only after ALL available model selection, infrastructure check, and alternative model paths have been verified as failed may the agent HALT with escalation
+
+There is NO valid path from "test cannot run" to "PASS" or "UNVERIFIED with structural substitute."
 
 ## Verification Report Format
 
@@ -192,9 +278,29 @@ When verifying live values against specifications, use this row-by-row compariso
 
 ### Table Format
 
-| SC ID | Success Criterion Text | Verification Command Run | Exact Output Observed | Pass/Fail |
-| -- | -- | -- | -- | -- |
-| SC-1 | \[criterion text\] | `command --flag` | \[exact output\] | PASS/FAIL/MISSING EVIDENCE |
+| SC ID | Success Criterion Text | Evidence Type | Verification Command Run | Exact Output Observed | Pass/Fail |
+| -- | -- | -- | -- | -- | -- |
+| SC-1 | \[criterion text\] | structural/string/semantic/behavioral | `command --flag` | \[exact output\] | PASS/FAIL/MISSING EVIDENCE |
+
+The **Evidence Type** column is MANDATORY. It MUST match the evidence type declared in the spec's success criteria table. If the spec does not declare evidence types, default to `string` per `080-code-standards.md` §Evidence Type Taxonomy.
+
+**Every row's evidence MUST match or exceed the declared evidence type:**
+
+| Declared Evidence Type | Minimum Acceptable Evidence | Using Lower Evidence |
+| -- | -- | -- |
+| `structural` | `ls`, `wc`, file existence | N/A (structural is minimum) |
+| `string` | `grep`, pattern matching | ❌ CRITICAL VIOLATION if only structural |
+| `semantic` | Sub-agent read + analytical judgment | ❌ CRITICAL VIOLATION if only structural/string |
+| `behavioral` | Test execution with output inspection | ❌ CRITICAL VIOLATION if only structural/string/semantic |
+
+### Behavioral SC Enforcement
+
+When an SC declares evidence type `behavioral`:
+
+1. The VbC sub-agent MUST execute the behavioral test (e.g., `bash test/script.sh`) and include the execution output (especially stderr) in its evidence
+2. The VbC sub-agent MUST NOT accept `ls test/script.sh` or `grep assertion test/script.sh` as evidence for a behavioral SC
+3. If the test cannot execute (infrastructure failure, model unavailable), the SC verdict is FAIL — never PASS or UNVERIFIED with a structural substitute
+4. The evidence table MUST show the test execution command and its result, not just the file path
 
 ### Mandatory Outcomes Per Row
 

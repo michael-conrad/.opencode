@@ -8,6 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **Stderr-based behavioral test mandate** (#707) - Stderr assertion helpers (`assert_stderr_pattern_present`, `assert_stderr_pattern_absent`), prose-recall prohibition in behavioral testing, mandate injected into 5 guideline/skill files and `tests/README.md`.
+- **Auditor routing dispatch** (#708) - `adversarial-audit` SKILL.md DISPATCH_GATE references `result.auditor_1`/`result.auditor_2`, 18 SKILL.md files updated with auditor clause, `assemble-work.md` conditional dispatch, behavioral test `708-sc5-audit-dispatch.sh`.
+- **Local-first issue architecture** (#86, #464, #465, #466) - Three-phase implementation eliminating `identity_source: submodule`, making `.issues/` the primary drafting layer, and adding promotion readiness checks. Phase 1: Simplify identity model to `root`/`local`. Phase 2: Mandatory local-first creation before remote promotion. Phase 3: Promotion readiness and sync classification foundation.
+- **Gap-fill cascade path selection** (#460) - Fix authorization gap-fill bypass bug where `for_pr` scope matched fast-path incorrectly. Add gap-fill-path for `for_pr`, `for_implementation`, `for_plan`, `for_code_review` scopes.
+
+### Changed
+
+- **Identity source simplification** (#86, Phase 1) - Remove `submodule` identity source from `session_context_identity.py` and `session-init`. Parent repos with no remote now get `github.platform: local` instead of borrowing submodule's remote.
+
+### Added
+
 - **Identity echo validation gate** (#1151, #1153) - Programmatic validation gate in session-enforcement.ts that compares assistant's identity echo against injected values and injects IDENTITY_VALIDATION_FAILURE on mismatch with HALT instruction. Inline expected values in IDENTITY_ECHO directive with FATAL language.
 - **Secret redaction pipeline** (#1152, #1154) - redactSecrets() function in session-enforcement.ts scanning all assistant output for TOKEN=, KEY=, SECRET=, PASSWORD= patterns with [REDACTED:TYPE] replacement. Pre-submission secret scan for GitHub API calls. File-read blocklist with value redaction for .env, .env.*, *.pem, *.key, secrets.toml, credentials.json.
 - **Target API credentials separation** (#1151) - session_context_identity.py now separates "Repository Hosting Identity" from "Target API Credentials" with clear section headers to prevent AI agent confusion between hosting platform and target API.
@@ -56,3 +67,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Placeholder identity resolution** (#905) - Replace hardcoded identity tokens (`<specific-agent-name>`, `<specific-model-id>`, `example-developer`, `example-org`, `example-repo`) with runtime-resolvable placeholders (`<AgentName>`, `<ModelId>`, `<DevName>`, `<GitOwner>`, `<GitRepo>`) across all guidelines and skills. Add critical violation for hardcoded identity values. Update `session-init` tool to emit these values.
 - **Batch PR enforcement** (#904) - Add mandatory rule #07 to `assemble-batch.md` and update `pr-creation-workflow/SKILL.md` to enforce single PR per batch. No per-issue PRs in batch orchestration.
 - **Submodule provenance tracking** (#783) - Add `provenance.md` task to `git-workflow` skill for submodule commit provenance tracking. Update `release-promotion.md` and `review-prep.md` with submodule-aware checkout verification. Ensure release promotion preserves submodule commit provenance.
+- **Default Base Prompt Override** (#494) - Added `.opencode/prompts/default.txt` with skill-deck-optimized replacement base system prompt. Added `agent.build.prompt` and `agent.plan.prompt` config keys in `opencode.jsonc` for prompt customization.
+
+### Added
+
+- **Tier 1 Guidelines Restoration** (#497) - Restored all 12 Tier 1 guideline files to `opencode.jsonc` instructions array, fixing regression where only `INDEX.md` was loaded at session start. Added WARNING comment to prevent future removal.
+- **TDD Reference Deck** (#310, #479) - Adopted majiayu000 TDD Reference Deck with Phase 0 pre-regression baseline and Phase 4 post-regression verification. Added `patterns.md`, `anti-patterns.md`, and `checklist.md` task files. Added mandatory Documentation Sources section to spec templates.
+- **Skill Dispatch Mandate** (#516) - Replaced Workflow-First Mandate with zero-tolerance CRITICAL VIOLATION rule for skill pre-read + inline execution. Added `critical-rules-048` with 3-way violation distinction table, behavioral test, and content-verification scenarios.
+- **Bright-Line Mandate** (#805) - Added forbidden rationalizations (9 patterns), evidence hierarchy table (4-tier with priority ordering), and cost model override to `default.txt`. Added Section 9 Bright-Line Rules to `250-dark-prose-reference.md` with 5 IS/IS NOT companions + 3 non-paired bright-line rules. Includes 12 content-verification and 3 behavioral enforcement tests.
+
+### Changed
+
+- **Submodule Pointer PR Block** (#519) - Strengthened cleanup task prohibition against standalone submodule-only PR creation. Explicitly forbids committing `.opencode/` during cleanup; submodule pointer updates must occur on feature branches during pre-work, never on `dev` during cleanup.

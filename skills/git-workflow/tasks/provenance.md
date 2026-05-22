@@ -2,37 +2,39 @@
 
 ## Purpose
 
-Create provenance tracking issues and PRs in submodule repositories after push or promotion operations. Detects the submodule's host platform and falls back gracefully through a three-tier model. Provenance ensures that submodule changes are tracked in the submodule's own repository, creating an audit trail for cross-repo modifications.
+Create provenance tracking issues and PRs in submodule repositories after push or promotion operations. Detects the submodule's host platform and falls back gracefully through a three-tier model.
 
 ## Operating Protocol
 
 1. **Triggered after push or promotion** — submodule push/merge triggers provenance attempt
 2. **Three-tier fallback** — if full API access unavailable, fall back silently to next tier
 3. **Platform detection** — determine submodule's issue system from remote URL before API calls
-4. **Never HALT** — all fallbacks are silent; git workflow continues regardless of provenance success
+4. **Never HALT** — all fallbacks are silent; git workflow continues regardless
 
 ## Entry Criteria
 
 - A submodule has been pushed or promoted
 - `.gitmodules` exists in the worktree
-- Submodule remote URL is available via `git remote get-url origin`
+- Submodule remote URL is available
 
 ## Exit Criteria
 
 - Platform detection cached for session
-- Provenance tracked at the highest available tier
+- Provenance tracked (Tier 1, 2, or 3)
 - All detection results logged
-- Git workflow continues (no blocking — provenance is non-blocking)
+- Git workflow continues (no blocking)
 
 ## Three-Tier Fallback Model
 
 | Tier | Access Level | Action |
 | -- | -- | -- |
-| **Tier 1** | `full` | Create issue + PR in submodule repo linking to parent context |
-| **Tier 2** | `issue-only` | Create issue only in submodule repo (no PR capability) |
-| **Tier 3** | `no-access`, `auth-failed`, `no-repo` | Commit message as provenance record (no API access) |
+| **Tier 1** | `full` | Create issue + PR in submodule repo |
+| **Tier 2** | `issue-only` | Create issue only in submodule repo |
+| **Tier 3** | `no-access`, `auth-failed`, `no-repo` | Tag-based provenance via parent-prefixed tags (see `AGENTS.md` §Tag Layers) |
 
-**All fallbacks are silent.** No HALT, no blocking, no error reporting that stops the workflow. Provenance failure is logged but never blocks git operations.
+**All fallbacks are silent.** No HALT, no blocking. Git workflow proceeds regardless.
+
+**Tag-based provenance (Tier 3 / release promotion):** Submodule SHAs are tagged with `<parent>/v<version>` and `<parent>/<issue-number>` tags per `AGENTS.md` §Tag-Based Hash Permanence. These tags serve as the provenance record — no separate issue or PR needed.
 
 ## Procedure
 
@@ -40,19 +42,19 @@ Create provenance tracking issues and PRs in submodule repositories after push o
 
 **Route to:** `provenance/platform-detection`
 
-Parses submodule remote URL, identifies platform (github/gitbucket/unknown), tests API availability, and caches result for the session. This step determines which provenance tier applies.
+Parses submodule remote URL, identifies platform (github/gitbucket/unknown), tests API availability, and caches result.
 
 ### Steps 6-10: Dev-Push Provenance
 
 **Route to:** `provenance/dev-push-provenance`
 
-For submodule push operations during review-prep: creates issue + PR (Tier 1), issue only (Tier 2), or commit message fallback (Tier 3). Includes parent branch reference and change description.
+For submodule push operations during review-prep: creates issue + PR (Tier 1), issue only (Tier 2), or commit message fallback (Tier 3).
 
 ### Steps 11-16: Promotion Provenance
 
 **Route to:** `provenance/promotion-provenance`
 
-For submodule release promotion: creates issue + PR (Tier 1), issue only (Tier 2), or commit message fallback (Tier 3) with tag context and release notes.
+For submodule release promotion: creates issue + PR (Tier 1), issue only (Tier 2), or commit message fallback (Tier 3) with tag context.
 
 ## Sub-Task Files
 
@@ -65,7 +67,6 @@ For submodule release promotion: creates issue + PR (Tier 1), issue only (Tier 2
 ## Context Parameters
 
 **For dev-push-provenance:**
-
 | Parameter | Source |
 | -- | -- |
 | parent_repo | `<github.owner>/<github.repo>` from session |
@@ -75,20 +76,20 @@ For submodule release promotion: creates issue + PR (Tier 1), issue only (Tier 2
 | change_description | Brief description of what changed |
 
 **For promotion-provenance:**
-
 | Parameter | Source |
 | -- | -- |
-| tag_name | Semver tag created for release |
+| tag_name | Parent-prefixed semver tag (`<parent>/v<version>`) |
 | source_branch | Branch promoted (typically `dev`) |
 
-## Error Handling
+**Tag layer reference:** See `AGENTS.md` §Tag Layers for the three tag types:
 
-| Error | Resolution |
-|-------|-----------|
-| Platform detection fails | Classify as `unknown`, fall back to Tier 3 |
-| API test timeout | Treat as `no-access`, fall back to Tier 3 |
-| Issue creation fails | Fall back to Tier 3 commit message |
-| PR creation fails | Keep issue (Tier 2), skip PR |
+| Tag | When Created | Example |
+|-----|-------------|---------|
+| `<parent>/<issue-number>` | Pre-work (feature dev start) | `opencode-config/221` |
+| `<parent>/<issue-number>-<sub>` | Feature-branch push | `opencode-config/221-opencode` |
+| `<parent>/v<N.N.N>` | Release promotion | `opencode-config/v0.1.1` |
+
+These tag types correspond to provenance tiers. Release tags (`<parent>/v*`) provide Tier 3 provenance automatically — no separate issue or PR creation needed.
 
 ## Context Required
 

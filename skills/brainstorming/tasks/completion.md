@@ -4,14 +4,14 @@ Idempotent completion subtask for brainstorming. Ensures mandatory steps ran reg
 
 ## State Check Phase
 
-1. **Terminal-state dispatch:** Verify spec-creation/writing-plans dispatch occurred (Path A or Path B), or FAILURE documented (Path C)
+1. **Terminal-state routing:** Verify spec-creation/writing-plans call occurred (Path A or Path B), or FAILURE documented (Path C)
 2. **Chat output format:** Verify chat output follows exec summary format (summary → outcome → URL → byline)
 
 ## Skill-Specific Completion
 
-1. **Terminal-state dispatch** (if not already performed):
-   - Check evidence for spec-creation or writing-plans dispatch
-   - If missing: invoke appropriate skill as remediation (spec-creation for Path A, writing-plans for Path B), or document FAILURE for Path C
+1. **Terminal-state routing** (if not already performed):
+   - Check evidence for spec-creation or writing-plans call
+    - If missing: call appropriate skill as remediation (spec-creation for Path A, writing-plans for Path B), or document FAILURE for Path C
 
 2. **Chat output** (if not already produced):
    - Verify exec summary was posted to chat
@@ -47,6 +47,13 @@ Generate executive summary in chat:
 <URL if applicable, ALWAYS LAST>
 
 🤖 <AgentName> (<ModelId>) <status>
+```
+
+## Pipeline Signal
+
+```
+CONTINUE: spec-creation
+HALT
 ```
 
 ### Format Verification Before Halt (MANDATORY)

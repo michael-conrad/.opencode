@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Dispatch a single-modality sub-agent task to the resolved model. This is the core execution task that takes a task prompt, a resolved model, and a content payload, then invokes the appropriate model to process the task.
+Run a single-modality sub-agent task via the resolved model. This is the core execution task that takes a task prompt, a resolved model, and a content payload, then calls the appropriate model to process the task.
 
 ## Entry Criteria
 
@@ -11,7 +11,7 @@ Dispatch a single-modality sub-agent task to the resolved model. This is the cor
 
 ## Exit Criteria
 
-A `DispatchResult` is returned with status, findings, evidence artifacts, and any unverified modalities.
+A `TaskResult` is returned with status, findings, evidence artifacts, and any unverified modalities.
 
 ## Procedure
 
@@ -23,7 +23,7 @@ If a model was already resolved, proceed with it.
 
 ### Step 2: Build Sub-Agent Context
 
-Construct the sub-agent dispatch context:
+Construct the sub-agent task context:
 
 ```
 Task Prompt: <task-prompt>
@@ -34,16 +34,16 @@ Content Payload: <ContentPayload JSON>
 
 The sub-agent receives this context and processes the task using the resolved model.
 
-### Step 3: Execute Sub-Agent Dispatch
+### Step 3: Execute Sub-Agent task()
 
-Dispatch the sub-agent with:
+Launch the sub-agent via task() with:
 - The task prompt as the primary instruction
 - The resolved model as the target for processing
 - The content payload for modality-specific processing (e.g., image paths for vision tasks)
 
-**Nested sub-agent architecture (REQ-6):** Sub-agents dispatched by this task may themselves need to route additional sub-tasks. They can invoke `multimodal-dispatch` recursively. The dispatcher prevents circular dispatch by tracking the call chain — it never re-invokes the calling skill.
+**Nested sub-agent architecture (REQ-6):** Sub-agents task()ed by this task may themselves need to route additional sub-tasks. They can call `multimodal-dispatch` recursively. The dispatcher prevents circular dispatch by tracking the call chain — it never re-calls the calling skill.
 
-**Circular dispatch prevention:** Each dispatch carries a `dispatch_chain` list. Before dispatching, check if the calling skill is already in the chain. If so, return an error rather than dispatching circularly.
+**Circular task prevention:** Each task() call carries a `task_chain` list. Before task()ing, check if the calling skill is already in the chain. If so, return an error rather than forming a circular task.
 
 ### Step 4: Collect Results
 
@@ -52,9 +52,9 @@ The sub-agent returns:
 - **Evidence artifacts**: Tool call references that support the findings
 - **Model used**: Which model actually processed the task (for traceability)
 
-### Step 5: Build DispatchResult
+### Step 5: Build Result
 
-Assemble the dispatch result:
+Assemble the result:
 
 ```json
 {
@@ -77,13 +77,13 @@ Assemble the dispatch result:
 | No model available for the modality | `unverified` |
 | Sub-agent execution failed | `failed` |
 
-**FAIL is never downgraded to PASS (per 065-verification-honesty.md).** If a verification sub-agent returns FAIL, the dispatch result MUST preserve that FAIL status. It is a critical violation to downgrade FAIL to PASS based on agent judgment.
+**FAIL is never downgraded to PASS (per 065-verification-honesty.md).** If a verification sub-agent returns FAIL, the task result MUST preserve that FAIL status. It is a critical violation to downgrade FAIL to PASS based on agent judgment.
 
-### Step 6: Return DispatchResult
+### Step 6: Return Result
 
 Return the assembled result. The calling skill (`verification`, `research`, etc.) uses this to build its own result schema.
 
-## DispatchResult Schema
+## Result Schema
 
 ```json
 {
@@ -112,7 +112,7 @@ This implements REQ-5: unavailable modalities produce `(unverified)` results, ne
 ## Context Required
 
 - Depends on: `resolve` (model selection)
-- Invoked by: `verification`, `research`, and other skills needing modality-aware sub-agent dispatch
-- Followed by: calling skill integrates DispatchResult into its own result schema
+- Invoked by: `verification`, `research`, and other skills needing modality-aware sub-agent task()
+- Followed by: calling skill integrates the task result into its own result schema
 
 Co-authored with AI: <AgentName> (<ModelId>)

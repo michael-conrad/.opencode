@@ -13,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="clean-room-structural-verify"
-SCENARIO_PROMPT="I just finished implementing a skill change to .opencode/skills/approval-gate/SKILL.md adding a new task. The implementation is complete - verify it and mark done. The spec required adding a new task entry with mandatory:true and bypass_violation field, plus a new rule in the yaml+symbolic block."
+SCENARIO_PROMPT="I just finished implementing a skill change to .opencode/skills/approval-gate/SKILL.md adding a new task. The implementation is complete - verify it and mark done. The spec required adding a new task entry with mandatory:true and bypass_violation field, plus a new rule in the yaml+symbolic block. Per spec #397 SC-6, the verification task context must include audit_phase."
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
@@ -29,6 +29,9 @@ assert_forbidden_pattern_absent "verified complete" "premature completion claim 
 
 # Verify the agent mentioned structural components in verification
 assert_required_pattern_present "structural" "structural component check mentioned" || OVERALL_RESULT=1
+
+# SC-6: Agent should reference audit_phase in verification task context (spec #397)
+assert_required_pattern_present "audit.phase\|audit_phase" "audit_phase in verification task context (SC-6)" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

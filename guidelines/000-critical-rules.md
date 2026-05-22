@@ -1,424 +1,236 @@
-# CRITICAL RULES — Zero Tolerance Violations
+---
+trigger_on: critical, zero tolerance, violation, mandate, Tier 1
+tier: 1
+load_when: sub-agent
+---
 
-**See .opencode/AGENTS.md for the authoritative list of critical rules.**
+# CRITICAL RULES — Three-Tier Model
+
+**See `.opencode/AGENTS.md` for the authoritative list of critical rules.**
 **See `.opencode/guidelines/` for detailed rules.**
 
-This file provides critical rules that must never be violated. Sections with full detail in dedicated guidelines are referenced here with one-line pointers — the referenced guideline contains the complete rule, enforcement matrix, and examples.
+This file provides critical rules organized into three tiers. Tier 1 mandates are prescriptively enforced by `session-enforcement.ts` `buildTier1EnforcementBlock()`. The symbolic rules block below contains machine-parseable rule definitions for all violations.
 
 ## Mandate Tiering
 
-Not all "zero tolerance" rules carry the same weight. This document classifies rules into two tiers based on what is at stake when they are violated:
+The reclassification organizes every symbolic rule into three tiers based on consequence severity:
 
-### Tier 1 — Non-Yielding Mandates (Safety-Critical)
-
-These mandates protect the integrity of the codebase and repository. They **NEVER yield to developer authorization** — even if a developer says "approved" or "go", the agent MUST still comply with these rules.
-
-| Mandate | Why Non-Yielding |
-| -- | -- |
-| No commits to `main` or `dev` | Branch protection is a repository integrity concern |
-| Human-only merge | Agents must never merge PRs |
-| No `/tmp/` usage — `./tmp/` only | Prevents system-level temp file leakage |
-| Audit baselines in permanent storage — NOT `tmp/` | Audit baselines, measurements, and historical data are permanent records, not ephemeral artifacts |
-| Path rules in worktree context | Prevents silent file operation errors across worktrees (only when `WORKTREE_REQUIRED` is set) |
-| Sub-agents must receive `worktree.path` | Prevents sub-agents from mutating main repo (only when main agent is in worktree mode) |
-| Human-only branch deletion | Unmerged branches must never be force-deleted by agents |
-| Agents must never self-authorize | Authorization comes from developers, never from agent reasoning |
-| Git configuration and destructive commands require explicit authorization | Git remote/config mutations can silently redirect pushes, disable security checks, or destroy unrecoverable state |
-
-**"Zero tolerance" language in this file applies ABSOLUTELY to Tier 1 mandates.** There is no waiver, no override, no emergency bypass.
-
-### Tier 2 — Authorization-Waivable Mandates (Process)
-
-These mandates ensure disciplined workflow (spec-first, plan-before-implementation). They **CAN be waived by explicit developer authorization** ("approved" or "go") because the developer is accepting the risk of skipping process steps.
-
-| Mandate | What Waiver Means |
-| -- | -- |
-| Spec before code | Developer authorization means "you may begin the process" — for complex work, still create a spec/plan; for clearly simple work (docs, runbooks, minor config), the developer's explicit authorization IS the process |
-| Plan before implementation | Same as above — authorization authorizes the work, not necessarily every intermediate artifact |
-| `needs-approval` label present | Explicit auth overrides this label per `010-approval-gate.md` |
-| Sub-issue structure for multi-task plans | When developer authorizes a multi-task plan, sub-issue creation is auto-setup, not a separate gate |
-
-**For Tier 2 mandates, developer authorization does NOT mean "skip the process entirely"** — it means "you may begin." For complex work (new features, behavioral changes), the spec/plan workflow still produces value even when authorization exists. For clearly simple work (documentation, runbooks, minor configuration edits), the developer's explicit authorization IS sufficient process — no separate spec/plan is required.
+| Tier | Name | Enforcement | Prose Style | Overridable |
+|------|------|-------------|-------------|-------------|
+| 1 | Safety-Critical | HALT + "CRITICAL VIOLATION" header | Authority frame (existing) | Never |
+| 2 | Process-Integrity | HALT (no "CRITICAL VIOLATION") | Confirmshaming identity-frame | Yes — developer authorization |
+| 3 | Workflow-Standard | FLAG (no halt) | Quality-signal / project standard | Flag only — no halt |
 
 ### Interaction Rule
 
-When developer authorization conflicts with a mandate:
+| Scenario | Resolution | Rule |
+|----------|-----------|------|
+| Dev auth + Tier 2 | Dev auth wins | critical-rules-018 |
+| Dev auth + Tier 1 | Safety mandate wins | critical-rules-001 |
+| No dev auth + any | HALT | critical-rules-006 |
 
-| Scenario | Resolution |
+## Rules by Tier
+
+### Tier 1 — Safety-Critical (CRITICAL VIOLATION — HALT)
+
+Rules that prevent **irreversible harm**: data loss, security breach, production data corruption, secret exfiltration, unrecoverable repository damage. These NEVER yield to developer authorization.
+### [critical-rules-006] CRITICAL VIOLATION — Question-as-Authorization — treating rhetorical/complaint questions as implementation authorization
+See `020-go-prohibitions.md` §1. ONLY "approved"/"go" authorize action.
+
+
+### [critical-rules-006] CRITICAL VIOLATION — Routing-bypass rationalization as self-authorization variant
+The pattern "agent recognizes matching skill, deliberates about whether skill is needed, constructs carveout justification, executes bypass" is explicitly classified as a self-authorization variant. Any agent that matches a skill trigger but self-classifies into a "read-only" or "simple lookup" exemption and bypasses dispatch has committed a routing-bypass self-authorization violation. See `020-go-prohibitions.md` §1.
+
+
+### [critical-rules-026] CRITICAL VIOLATION — Deleting Branches/Stashes Improperly
+Merged: DELETE IMMEDIATELY. Unmerged: PRESERVE. Stashes: PRESERVE.
+
+
+### [critical-rules-026] CRITICAL VIOLATION — Git Configuration and Destructive Command Authorization
+See session-enforcement.ts config mutation watchdog + `--no-verify` detection. Authorization rules below define what requires explicit approval.
+
+#### Operations Requiring Explicit Authorization (FORBIDDEN without "approved" or "go")
+
+| Category | Commands |
 | -- | -- |
-| Developer authorization + Tier 2 process mandate | Developer authorization wins — the work is authorized |
-| Developer authorization + Tier 1 safety mandate | Safety mandate wins — must use worktree (when `WORKTREE_REQUIRED`), must not commit to main/dev |
-| No developer authorization + any mandate | Mandate holds — HALT and wait |
+| Remote mutations | `git remote add`, `git remote rm`, `git remote set-url` |
+| Security-relevant config | `git config --local/--global/--system` for keys in Categories 1-4 below |
+| Force push | `git push --force`, `git push --no-verify` |
+| Bypass hooks | `git commit --no-verify` (in repos with remotes) |
+| Destructive resets | `git reset --hard`, `git clean -fd`, `git checkout -- .` |
+| Ref manipulation | `git update-ref`, `git symbolic-ref` |
+| History rewrite | `git filter-branch`, `git filter-repo` |
+| Reflog expiry | `git reflog expire` |
+| Submodule mutations | `git submodule add`, `git submodule deinit` |
+| Env var overrides | Setting `GIT_SSH_COMMAND`, `GIT_CONFIG_GLOBAL`, `GIT_CONFIG_SYSTEM`, `GIT_EXEC_PATH` |
 
-**See `010-approval-gate.md` → "Mandate Tiering Interaction" for the complete interaction semantics and examples.**
+#### Security-Relevant Config Key Categories
 
-## Critical Violation: Audit Baselines in Temporary Storage
+| Category | Key Patterns |
+| -- | -- |
+| 1. Remote/URL routing | `remote.*`, `url.*` |
+| 2. Protocol/transfer | `http.*`, `https.*`, `protocol.*` |
+| 3. Credential helpers | `credential.*` |
+| 4. Core security | `core.sshCommand`, `core.gitProxy`, `core.hooksPath` |
 
-**⚠️ Storing audit baselines, measurements, or historical data in `tmp/` or `/tmp/` is a CRITICAL GUIDELINE VIOLATION.** Audit artifacts are permanent records, not ephemeral artifacts.
+#### Required Behaviors
 
-- 🚫 FORBIDDEN: Storing audit reports in `tmp/`, `.opencode/tmp/`, or `/tmp/`
-- 🚫 FORBIDDEN: Storing audit scripts in `tmp/`, `.opencode/tmp/`, or `/tmp/`
-- 🚫 FORBIDDEN: Storing baseline measurements in temporary directories
-- 🚫 FORBIDDEN: Suggesting `tmp/` as a storage location for audit artifacts
-- ✅ REQUIRED: Store audit reports in `.opencode/docs/audits/`
-- ✅ REQUIRED: Store audit scripts in `.opencode/tools/audits/`
-- ✅ REQUIRED: Treat audit baselines, measurements, and historical data as permanent records
+- Verify the EXACT git command (not just its category) is authorized before running
+- Check for implied unsafe operations (e.g., `rebase --strategy=ort` triggers rename detection, which is safe; `rebase --exec` runs shell commands, which is NOT)
+- `git commit --no-verify` is FORBIDDEN in repos with remotes without explicit authorization
+- `git push --force` always requires explicit authorization
+- `git config` mutations on Categories 1-4 always require explicit authorization
 
-**Why this matters:** Audit baselines are reference points for regression detection. If stored in temporary directories, they can be deleted by cleanup operations, leaving no historical record for comparison. The enforcement test `phase0-audit-artifacts.sh` verifies this behavior.
+#### `--no-verify` Exception for Local-Only Repos
 
-```yaml+symbolic
-  - id: critical-rules-043
-    title: "Audit baselines in permanent storage — NOT tmp/"
-    conditions:
-      any:
-        - "file_path matches '.opencode/tmp/.*audit'"
-        - "file_path matches 'tmp/.*audit'"
-        - "storage_suggestion matches 'tmp/'"
-        - "storage_suggestion matches '/tmp/'"
-    actions:
-      - HALT
-    conflicts_with: []
-    requires: []
-    triggers: [verification-enforcement, sre-runbook]
-    source: "000-critical-rules.md §Audit Baselines in Temporary Storage"
-```
+`git commit --no-verify` is permitted without authorization WHEN the repository has NO remotes configured. This exception exists because local-only repos are sandboxed environments where no external damage is possible.
 
-## Critical Violation: Direct-Branch Default — Feature Branch Without Worktree Is the Norm
+**Definition:** A "local-only repo" is one where `git remote -v` returns no output. This status must be re-checked every time the exception is invoked — adding a remote retroactively removes the exception.
 
-**Direct-branch is the PRIMARY and DEFAULT workflow.** The agent creates feature branches directly in the main repo using `git checkout -b` or `git switch -c`. Worktrees are **opt-in**, created only when `WORKTREE_REQUIRED` flag is set or the developer explicitly requests them. **See `060-tool-usage.md` §2 for path resolution rules in both modes.**
+#### Hook Output Is Advisory, Not Absolute
 
-- ✅ DEFAULT: `git checkout -b feature/X` or `git switch -c feature/X` in main repo directory
-- ✅ OPT-IN: Worktree creation when `WORKTREE_REQUIRED` is set or developer requests isolation
-- 🚫 FORBIDDEN: Operating directly on `main` or `dev` without a feature branch (regardless of mode)
+Pre-commit hook output guides, not gates. If a pre-commit hook blocks a commit, evaluate the reason: a legitimate violation should be fixed; a false positive or over-restrictive check may warrant `--no-verify` after reviewing the output. The agent is NOT an enforcement robot for hook scripts — use judgment.
 
-## Critical Violation: Worktree Bypass (Conditional — Only When WORKTREE_REQUIRED)
+#### Allowlist (No Authorization Needed)
 
-**⚠️ When `WORKTREE_REQUIRED` is set, using `stash + checkout -b` instead of worktrees for feature branch creation is a CRITICAL GUIDELINE VIOLATION.** This violation ONLY applies in worktree mode. In direct-branch mode, `git checkout -b` is the correct procedure.
+| Operation | Rationale |
+| -- | -- |
+| `git config user.name` | Identity, not security |
+| `git config user.email` | Identity, not security |
+| `git config push.autoSetupRemote` | Convenience, safe |
+| `git config pull.rebase` | Workflow preference |
 
-**See `using-git-worktrees` skill for the complete worktree creation procedure. See `060-tool-usage.md` §1-2 for tool priority hierarchy and path resolution rules.** **AUTHORITY: `060-tool-usage.md` §1-2** (this line is a reference only)
+#### Exempt Config Keys (Safe to Mutate Without Authorization)
 
-When `WORKTREE_REQUIRED` is set:
-- 🚫 FORBIDDEN: `git checkout -b`, `stash + checkout`, operating in main working directory
-- ✅ REQUIRED: `using-git-worktrees` skill; HALT if `worktree.fatal=1` or `worktree.path` empty
+| Key | Reason |
+| -- | -- |
+| `user.name` | Identity only, no security impact |
+| `user.email` | Identity only, no security impact |
+| `push.autoSetupRemote` | Convenience, no security impact |
+| `pull.rebase` | Workflow preference, no security impact |
 
-When `WORKTREE_REQUIRED` is NOT set (direct-branch mode):
-- ✅ CORRECT: `git checkout -b feature/X` or `git switch -c feature/X` in main repo
-- ✅ RELATIVE PATHS work directly — no `worktree.path` prefixing needed
-- 🚫 FORBIDDEN: Committing to `main` or `dev` (branch protection still applies)
+#### Enforcement Mechanisms (session-enforcement.ts)
 
-## Critical Violation: Skipping Git Pre-Check Before ANY Work
+- `session-enforcement.ts` config mutation watchdog detects `git config --global/--local/--system` for Categories 1-4 and REQUIRES authorization
+- The watchdog is NOT triggered by exempt keys (user.name, user.email, push.autoSetupRemote, pull.rebase)
 
-**⚠️ Working on files without checking git state is a CRITICAL GUIDELINE VIOLATION.**
 
-- 🚫 FORBIDDEN: Starting work without creating a feature branch first; operating in main working directory on `main` or `dev`; creating/editing files on `main` or `dev`
-- ✅ REQUIRED: See `git-workflow` skill `--task pre-work` for mandatory feature branch creation and environment verification
+### [critical-rules-006] CRITICAL VIOLATION — Pushing Agent Intelligence Decisions to the User
+Structural decisions auto-resolved by agent. See `brainstorming` explore task.
 
-### Automatic Prerequisite Operations (Pre-Work Git Operations)
 
-**Pre-work git operations classified as automatic prerequisites in `git-workflow --task pre-work` §Step 2.7 do NOT require separate developer confirmation when authorization has been verified.** These operations (submodule sync, branch creation, initial push, `git fetch`, etc.) are deterministic, mechanical steps that are either Tier 1 mandates or pipeline prerequisites. Soliciting developer confirmation for these operations violates `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" — whether to sync a submodule or create a branch is NOT a decision requiring user input when the pipeline scope covers that stage.
+### [critical-rules-029] CRITICAL VIOLATION — Non-Idempotent API Mutations
+Check for existing resource before POST. See session-enforcement.ts.
 
-## Critical Violation: Relative File Paths in Worktree Context
 
-**⚠️ Using relative paths with `read`/`edit`/`write`/`glob`/`grep` tools when `worktree.path` is set is a CRITICAL GUIDELINE VIOLATION.**
+### [critical-rules-029] CRITICAL VIOLATION — Inline Mutation Scripts
+Use dedicated API client for all POST/PUT/PATCH. No `python -c '...'` mutations.
 
-**See `060-tool-usage.md` §2 "Path Rules (ZERO TOLERANCE)" for the complete tool-by-tool table showing wrong vs correct path resolution, and the `using-git-worktrees` skill → "Tool Usage Compliance" section for worktree-specific guidance.** **AUTHORITY: `060-tool-usage.md` §2** (this line is a reference only)
 
-- 🚫 FORBIDDEN: Relative paths with file operation tools when `worktree.path` is set; assuming tools respect `workdir`
-- ✅ REQUIRED: Prefix ALL paths with `worktree.path` when in worktree context
+### [critical-rules-021] CRITICAL VIOLATION — Secret Exfiltration in Agent Output
+Redact ALL secret values. See session-enforcement.ts `redactSecrets()`.
 
-## Critical Violation: Sub-Agents Ignoring Worktree Context
 
-**⚠️ Sub-agents that modify the main repo instead of the worktree are a CRITICAL GUIDELINE VIOLATION — but ONLY when the main agent is operating in worktree mode.**
+### [critical-rules-022] CRITICAL VIOLATION — Issue Body Erasure — replacing with shorter content
+See Bug #1215. `len(new_body) >= 0.8 * len(original_body)` safeguard.
 
-When a main agent is operating in a worktree and dispatches a sub-agent, the sub-agent MUST receive `worktree.path` in its dispatch context and use it as the base directory for ALL file operations and git commands.
 
-When the main agent is in direct-branch mode (no worktree), `worktree.path` is NOT set and sub-agents operate in the main repo directory normally.
+### [critical-rules-006] CRITICAL VIOLATION — for_pr Gap-Fill Halt — asking developer for structural decisions scope model resolves
+Auto-spec → auto-plan → auto-approve → auto-PR. See `010-approval-gate.md`.
 
-- 🚫 FORBIDDEN: Spawning sub-agents without `worktree.path` when operating in a worktree; sub-agents that stage/commit to the main repo's working directory; skills that perform git or file operations without a "Worktree Mode" section
-- ✅ REQUIRED: Pass `worktree.path` in ALL sub-agent dispatch prompts when set; sub-agents verify `git rev-parse --show-toplevel` matches `worktree.path` before mutating state; all new skills MUST include worktree awareness per `skill-creator` skill requirements
 
-## Critical Violation: Implementing Without Verifying Against Live Documentation
+### [critical-rules-045] CRITICAL VIOLATION — Creating .opencode/.opencode/ Nested Directories
+Breaks agent config loading. See `060-tool-usage.md` §2.
 
-**⚠️ Implementing code without verifying API signatures, environment variables, or function parameters against live documentation is a CRITICAL GUIDELINE VIOLATION.**
 
-- 🚫 FORBIDDEN: Using unverified APIs, guessed env vars, outdated patterns, or memory-based signatures
-- ✅ REQUIRED: Verify API signatures from official docs, confirm env vars from config, use `srclight_get_signature` for code signatures
 
-## Critical Violation: Schema/API/Code Verification — Claiming Knowledge Without Verification
+### Tier 2 — Process-Integrity (HALT — Quality Defects)
 
-**⚠️ Asserting config schema compliance, API signatures, or code implementation details without verifying against live documentation or live source is a CRITICAL GUIDELINE VIOLATION.**
+Rules that prevent **quality defects**: skipped verification, inline work, skill bypass, monolithic implementation, verification failures, missing sub-issues. These yield to developer authorization.
+### [critical-rules-007] Worktree Bypass — using stash+checkout instead of worktrees when WORKTREE_REQUIRED
+Using stash+checkout means contaminating your workspace state. Professional engineers isolate work in worktrees — amateurs juggle stashes and risk losing uncommitted context.
 
-**See `065-verification-honesty.md` → "Proactive Verification" section for the complete rule, evidence requirements, examples, and when proactive verification applies.** **AUTHORITY: `065-verification-honesty.md` Proactive Verification** (this line is a reference only)
 
-- 🚫 FORBIDDEN: Asserting config compliance without fetching and verifying the actual schema
-- 🚫 FORBIDDEN: Using API signatures from training data without verifying against live documentation or `srclight_get_signature`
-- 🚫 FORBIDDEN: Claiming code behavior without checking via `srclight_get_symbol`, `read`, or `srclight_get_signature`
-- 🚫 FORBIDDEN: Writing specs or code that reference schema fields, API parameters, or function signatures from memory
-- ✅ REQUIRED: Fetch and verify config schemas before asserting compliance
-- ✅ REQUIRED: Verify API signatures via `srclight_get_signature` or official documentation before using them
-- ✅ REQUIRED: Verify code implementation details via `srclight_get_symbol`, `read`, or `srclight_get_signature` before claiming behavior
-- ✅ REQUIRED: Attempt exhaustive research before claiming; if verification tools cannot confirm code/API claims, decline to state the claim
+### [critical-rules-007] Relative File Paths in Worktree Context — using relative paths when worktree.path is set
+Relative paths in worktree mode silently target the wrong repo. Every edit you make goes to the main repo instead of the worktree — your changes land in the wrong place. Professional agents prefix ALL paths with `worktree.path`.
 
-## Critical Violation: Verification Dishonesty — Reporting Memory as Verified
 
-**⚠️ Reporting unverified information as verified, or using memory recall instead of actual verification, is a CRITICAL GUIDELINE VIOLATION.**
+### [critical-rules-030] Sub-Agents Ignoring Worktree Context — sub-agents modifying main repo instead of worktree
+Sub-agents that modify the main repo instead of the worktree are contaminating the wrong workspace. Every file they write goes to the wrong directory. Professional orchestrators always pass `worktree.path` in task context.
 
-**See `065-verification-honesty.md` for the complete rule, evidence requirements, single exchange window exception, and relationship to other guidelines.** **AUTHORITY: `065-verification-honesty.md`** (this line is a reference only)
 
-- 🚫 FORBIDDEN: Reporting from memory without re-verification; claiming "I checked earlier" without current tool call; training knowledge as fact; omitting tool call evidence
-- ✅ REQUIRED: Use a tool/command for every verification; show evidence; attempt exhaustive research using available tools; if research fails, follow suggest-after-research fallback (general knowledge: offer as suggestion contingent on user acceptance; code/API claims: decline to state)
+### [critical-rules-008] Implementing Without Verifying Against Live Documentation
+Implementing from memory means implementing from training data — always stale, always partially wrong. Professional engineers verify API signatures, env vars, and function parameters against live documentation before writing a single line of code.
 
-## Critical Violation: Metadata-as-Evidence — Workflow Metadata Is Not Evidence of Implementation
 
-**⚠️ Reporting workflow metadata (issue state, PR merge status, comments, labels) as evidence of implementation completeness — without verifying acceptance criteria against actual implementation — is a CRITICAL GUIDELINE VIOLATION.**
+### [critical-rules-009] Schema/API/Code Verification — claiming knowledge without verification
+Claiming schema compliance or API correctness without verification means you are asserting facts you have not checked. Every unverified claim is a defect waiting for CI to discover. All code/API claims require live tool-call evidence — see `065-verification-honesty.md` → "Proactive Verification".
 
-Workflow metadata confirms process state, not implementation correctness. A closed issue with a merged PR means the process completed; it does NOT mean the acceptance criteria were met. These are fundamentally different questions, and conflating them is the root cause of verification regressions.
 
-- 🚫 FORBIDDEN: "Issue #N is fully implemented — verified by PR merge" (metadata as evidence)
-- 🚫 FORBIDDEN: "All issues closed, implementation verified" without per-SC tool calls
-- 🚫 FORBIDDEN: Trusting `state_reason: completed` as proof of implementation
-- 🚫 FORBIDDEN: Declaring PASS based on PR body ("Fixes #N") without checking deliverables
-- ✅ REQUIRED: For each acceptance criterion, produce a tool-call artifact confirming the deliverable exists or behaves as specified
-- ✅ REQUIRED: `skildeck verify-issue` or equivalent programmatic verification as evidence
+### [critical-rules-009] Verification Dishonesty — reporting memory as verified
+Reporting memory as verification means you are presenting guesses as facts. Every claim presented without a tool call is trust you have not earned. Professional agents never report unverified information as verified — see `065-verification-honesty.md`.
 
-**AUTHORITY:** `010-approval-gate.md` §verify-closed-issue, `verification-before-completion` skill §Structural Completeness Gate, `065-verification-honesty.md` §Metadata Verification Extension
 
-## Critical Violation: Memory/Training-Data-as-Evidence — Memory and Training Data Are Always Stale
+### [critical-rules-009] Metadata-as-Evidence — workflow metadata is not evidence of implementation
+Issue state and PR merge status are process metadata, not evidence of acceptance criteria being met. Treating labels as proof means accepting administrative artifacts as behavioral evidence. Issue state, PR merge status, and labels are NOT evidence of completion.
 
-**⚠️ Reporting memory recall or training data as verified evidence — without live tool-call confirmation in the current session — is a CRITICAL GUIDELINE VIOLATION.**
 
-Memory and training data are ALWAYS STALE. This is an axiom, not a heuristic. There is no "probably still accurate" exemption.
+### [critical-rules-009] Memory/Training-Data-as-Evidence — memory and training data are always stale
+Memory and training data are always stale — they represent what was true when the model was trained, not what is true now. Every factual claim must be backed by a live tool-call artifact in the current session. Agents who rely on memory produce work that cannot be trusted.
 
-- 🚫 FORBIDDEN: "Function X takes arguments (a, b, c)" from memory — verify via `srclight_get_signature` or source read
-- 🚫 FORBIDDEN: "The API works like Y" from training data — verify against live documentation
-- 🚫 FORBIDDEN: "This config uses format Z" from pattern recall — read the actual config
-- 🚫 FORBIDDEN: "I checked this earlier" from previous session — re-verify in current session
-- 🚫 FORBIDDEN: "Framework convention is..." from training data — verify against actual codebase usage
-- ✅ REQUIRED: Every factual claim about code, APIs, configs, or system state must be backed by a live tool-call artifact in the current session
-- ✅ REQUIRED: Training-data claims must be offered as suggestions contingent on user acceptance, never as verified facts
-- ✅ REQUIRED: Code/API claims from training data that cannot be verified must be DECLINED, not suggested
 
-**AUTHORITY:** `065-verification-honesty.md` §Research-First Mandate, §Suggest-After-Research Fallback, §Proactive Verification
+### [critical-rules-009] Skipping verification-enforcement During Content Generation
+Generating content without verification means publishing unverified claims. Specs with unverified statements produce plans that implement the wrong thing. All content (specs, plans, docs, correspondence) must pass the verification gate — see `verification-enforcement` skill.
 
-## Critical Violation: Skipping verification-enforcement During Content Generation
 
-**⚠️ Generating content without invoking verification-enforcement is a CRITICAL GUIDELINE VIOLATION.**
+### [critical-rules-015] Plan ≠ Execution — treating documentation as evidence of completion
+A plan is a map, not a destination. Treating plan completion as implementation completion means you are mistaking intent for delivery. Professional engineers verify behavior, not documentation — see `verification-enforcement` skill → "Plan ≠ Execution Evidence Rule".
 
-**See `verification-enforcement` skill for the complete procedural workflow including section-based sub-agent dispatch, evidence artifact collection, unverified marker resolution, and escalation procedure.** **AUTHORITY: `verification-enforcement` skill** (this line is a reference only)
 
-Content generation — producing specs, plans, runbooks, documentation, or correspondence (including emails and stakeholder communications) — must pass through the verification-enforcement gate before and after generation. This gate ensures that every factual claim in generated content is backed by evidence artifacts collected from live sources. Skipping the gate means content ships with unverified claims, which is the generative equivalent of reporting memory as verified. Correspondence and email drafting are not exempt from this gate — they are content-generating workflows that make factual claims about system state, project status, or completed actions, and those claims require the same live-source verification as specs and plans.
+### [critical-rules-009] Audience Separation — leaking internal artifacts to stakeholders
+Leaking internal audit findings and raw status into stakeholder communications damages trust. Drafting tools and delivery channels are separate concerns — professional communicators maintain audience separation. See `correspondence` skill → "Audience Separation Principle".
 
-- 🚫 FORBIDDEN: Generating content without invoking `verification-enforcement --task verify` first; skipping the `revisit` task after generation; accepting sub-agent output without evidence artifacts; removing `⚠️ UNVERIFIED` markers without verification; treating verification-enforcement as optional for "small" content; treating email/correspondence drafting as exempt from the verification gate; claiming a task is "complete" or "done" in correspondence without live-verification tool calls confirming the claimed state
-- ✅ REQUIRED: Invoke `verification-enforcement --task verify` before content generation (including emails and correspondence); invoke `verification-enforcement --task revisit` after self-review; require evidence artifacts for all factual claims; escalate unresolvable claims to the developer; verify claimed states against live data before asserting them in correspondence
 
-## Critical Violation: Plan ≠ Execution — Treating Documentation as Evidence of Completion
+### [critical-rules-012] Acting on Resources Without Reading All Comments
+Acting on a resource after reading only the body means you are working with partial context. Every unread comment is a defect vector — authorization may live in a comment, not the body. Professional engineers read ALL comments before any action — see `067-context-completeness.md`. Amateurs act on partial context and call assumptions facts.
 
-**⚠️ Treating the existence of a runbook, plan, or set of instructions as evidence that the instructions were executed is a CRITICAL GUIDELINE VIOLATION.**
 
-**See `verification-enforcement` skill → "Plan ≠ Execution Evidence Rule" for the complete rule, anti-pattern table, and evidence requirements.** **AUTHORITY: `verification-enforcement` skill Plan ≠ Execution Evidence Rule** (this line is a reference only)
+### [critical-rules-009] Session Trigger Echo — parroting triggers in agent output
+Parroting trigger data into agent output instead of processing it internally is what amateurs do when they want their responses to read like raw log files. Professional agents process triggers internally — never echo verbatim. See `117-session-trigger-behavior.md`.
 
-A plan describes what should be done. Execution evidence confirms what was done. These are fundamentally different sources. Conflating them leads to correspondence hallucination — claiming tasks are complete based on the existence of instructions rather than live verification of the resulting state.
 
-- 🚫 FORBIDDEN: Citing a runbook, checklist, or procedure document as evidence that a task was completed; asserting "DNS updated" because correction steps exist in a runbook; claiming "deployment complete" because CI configuration is present; writing "done" or "complete" in correspondence without live-verification tool calls confirming the claimed state
-- ✅ REQUIRED: Verify claimed states against live data before asserting them in any content; use `dig`, `curl`, CLI queries, or other live-verification tools to confirm system state; collect evidence artifacts from live sources, not from procedural documentation; treat "there is a plan for X" and "X was executed" as distinct claims requiring distinct evidence
+### [critical-rules-016] Skipping Post-Implementation Verification Skills
+Post-implementation verification skills exist to catch the defects you cannot see in your own work. Skipping them means accepting undiscovered failures into the codebase. Professional engineers always call `verification-before-completion` and `finishing-a-development-branch` after implementation — amateurs skip verification and call it done.
 
-## Critical Violation: Audience Separation — Leaking Internal Artifacts to Stakeholders
 
-**⚠️ Including internal operations artifacts in stakeholder-facing correspondence is a CRITICAL GUIDELINE VIOLATION.**
+### [critical-rules-016] Skipping review-prep After Implementation
+Review prep is the last gate before your work enters the codebase permanently. Skipping it means the first review your code receives is from a colleague, not from yourself. Professional engineers always run review-prep before submitting — amateurs let reviewers discover their mistakes. See `git-workflow --task review-prep`. Compare URL required.
 
-**See `correspondence` skill → "Audience Separation Principle" for the complete two-tier model (stakeholder vs operator) and prohibited content list. See `verification-enforcement` skill → `revisit` task → "Audience Separation Check" for the post-generation filtering procedure.** **AUTHORITY: `correspondence` skill Audience Separation Principle**
 
-The audience separation principle requires that the agent identify the audience tier before generating content and filter information accordingly. Stakeholder-tier content must not include internal artifacts: runbook paths, step numbers, internal IP addresses, file paths, configuration paths, internal tool names, CLI commands, debugging output, or internal documentation references.
+### [critical-rules-016] Skipping Post-Merge Cleanup
+Leaving merged branches and open issues after a merge creates a maintenance tax on every future session. Cleanup is not overhead — it is the completion ritual that keeps the repo navigable. Professional engineers clean up after every merge — amateurs leave a trail of orphaned branches and stale issues for someone else to find. See `git-workflow --task cleanup`. Deletes merged branches, closes issues, syncs dev.
 
-- 🚫 FORBIDDEN: Including runbook paths in stakeholder-facing emails; referencing step numbers from internal procedures in external communications; exposing internal IP addresses (unless subject of report); including internal file paths or configuration paths in stakeholder content; mentioning internal tool or script names in external communications; failing to classify audience tier before drafting correspondence; defaulting to operator tier without explicit authorization
-- ✅ REQUIRED: Classify audience as stakeholder or operator tier before generating correspondence content; default to stakeholder tier when audience is unclear or mixed; filter all stakeholder-tier content for internal artifacts during the revisit pass; rephrase internal artifacts in stakeholder-relevant terms (e.g., "the standard DNS correction procedure" instead of "Steps 2-6 of the runbook"); escalate to operator tier only when communication is explicitly between ops team members or recipient requests operator-level detail
 
-## Critical Violation: Acting on Resources Without Reading All Comments
+### [critical-rules-016] Wrong Chat Output at Halt Points
+A halt without structured output leaves the developer guessing what happened, what was produced, and what to do next. Professional engineers always produce: Summary → Outcome → Blockers (if applicable) → URL (if applicable) → Byline. Amateurs vanish without telling anyone what they did. See `git-workflow` skill.
 
-**⚠️ Acting on a GitHub/GitBucket resource without reading ALL comments is a CRITICAL GUIDELINE VIOLATION.**
 
-**See `067-context-completeness.md` for the complete rule, evidence requirements, staleness rule, single exchange window exception, and reading requirements per resource type.** **AUTHORITY: `067-context-completeness.md`** (this line is a reference only)
+### [critical-rules-016] Wrong PR Body Format
+A PR body without Summary/Outcome/Fixes structure buries the intent of your changes under implementation details. Reviewers need context, not code dumps. Professional engineers write PR bodies that tell the story — amateurs dump diffs and expect reviewers to reverse-engineer the intent. See `git-workflow` → `pr-creation` → PR Body Requirements.
 
-- 🚫 FORBIDDEN: Acting after reading only the issue body; reviewing PRs without reading comments; assuming "no new comments"; caching comment state
-- ✅ REQUIRED: Read ALL comments before any action; show evidence of having read them; re-read before significant actions; use `github_issue_read` with `method=get_comments`
 
-## Critical Violation: Session Trigger Echo — Parroting Triggers in Agent Output
+### [critical-rules-016] Wrong Compare URL Base Branch
+Using the wrong base branch in a compare URL sends reviewers to the wrong diff — your changes look different against the wrong baseline. Professional engineers verify the base branch before every compare URL — amateurs send reviewers to the wrong diff and waste everyone's time. Feature: `compare/dev...<branch>`. Release: `compare/main...dev`.
 
-**⚠️ Parroting `<SESSION_TRIGGERS>` content verbatim in agent output is a CRITICAL GUIDELINE VIOLATION.** Triggers drive internal agent behavior, not chat output.
 
-**See `117-session-trigger-behavior.md` for the complete trigger behavior map, diff analysis requirement, stash analysis protocol, and suppression rule.** **AUTHORITY: `117-session-trigger-behavior.md`** (this line is a reference only)
+### [critical-rules-016] Fabricating URLs
+Constructing URLs from template variables instead of extracting them from the API response is what amateurs do when they want their compare links to point to the wrong repository — and their issue URLs to break the moment they are posted. Professional engineers extract every post-creation URL from the API response `html_url` field — never from guesswork templates. Pre-creation URLs use verified session-init values with character-match verification. The detailed rules below are not suggestions — they separate reliable PRs from broken links.
 
-- 🚫 FORBIDDEN: Printing trigger section headings (e.g., "Protected Branch with Uncommitted Changes") in agent responses; echoing trigger data verbatim (e.g., "3 uncommitted changes on dev"); printing "Suggest:" lines from trigger output; acknowledging triggers with a "Session triggers acknowledged" section
-- ✅ REQUIRED: Process triggers internally and take appropriate action; analyze diff data when `protected_branch_with_changes` fires; analyze stash contents when `stale_stash` fires; suggest pair mode with concrete issue reference; suppress triggers that don't drive meaningful action
-
-## Critical Violation: Skipping Post-Implementation Verification Skills
-
-**⚠️ Failing to invoke `verification-before-completion` and `finishing-a-development-branch` after implementation is a CRITICAL GUIDELINE VIOLATION.**
-
-- 🚫 FORBIDDEN: Claiming complete without invoking verification skills; manually executing skill steps; skipping verification because "changes look correct"
-- ✅ REQUIRED: See `verification-before-completion` skill `--task verify` for evidence requirements; `finishing-a-development-branch` skill `--task checklist` for branch readiness; `git-workflow` skill `--task review-prep` for post-implementation workflow; `git-workflow --task cleanup` Step 3.5 for dev sync verification gate before any branch deletion, worktree removal, or issue closure
-- **`git-workflow --task cleanup` Step 3.5** — Dev sync verification gate before any branch deletion, worktree removal, or issue closure. Local dev HEAD MUST match origin/dev HEAD before proceeding.
-
-## Critical Violation: Skipping review-prep After Implementation
-
-**⚠️ Failing to invoke `review-prep` after implementation is a CRITICAL GUIDELINE VIOLATION.**
-
-- 🚫 FORBIDDEN: Marking complete without commit/push/URL; skipping review-prep for any reason; proceeding without URL in chat
-- ✅ REQUIRED: See `git-workflow` skill `--task review-prep` for mandatory commit, push, compare URL, and HALT protocol
-
-## Critical Violation: Skipping Post-Merge Cleanup
-
-**⚠️ Failing to invoke `git-workflow --task cleanup` after confirming PR merge is a CRITICAL GUIDELINE VIOLATION.** The cleanup task is the sole mechanism for deleting merged branches, closing issues, and syncing the local dev branch. Skipping it leaves stale branches and open issues.
-
-- 🚫 FORBIDDEN: Assuming cleanup is optional after PR merge; manually closing issues without running cleanup; leaving merged branches undeleted; skipping cleanup because "the work is done"
-- ✅ REQUIRED: Invoke `git-workflow --task cleanup` after every confirmed PR merge; verify branch deletion and issue closure via cleanup task result; ensure local dev HEAD matches origin/dev before proceeding
-- ✅ REQUIRED: `git-workflow --task cleanup` Step 2.7 performs hierarchical issue closure — this is the ONLY authorized closure mechanism when PRs merge to `dev` (GitHub autoclose is inert for non-main targets)
-
-**See `git-workflow` skill → `cleanup` task for the complete post-merge workflow.** **AUTHORITY: `git-workflow/tasks/cleanup.md`**
-
-## Critical Violation: Wrong Chat Output at Halt Points
-
-**⚠️ Producing casual summaries at halt points instead of the mandatory format (exec summary → outcome → URL → byline) is a CRITICAL GUIDELINE VIOLATION.**
-
-**URL Label Context:**
-
-| Context | Label | URL Format |
-| -- | -- | -- |
-| Pre-PR (after push, before PR creation) | **Compare URL** | `compare/dev...<branch-name>` |
-| Post-PR (PR has been created) | **PR URL** | `pull/<PR-number>` |
-
-Using "Compare URL" after a PR has been created is a format violation — the label MUST be "PR URL" with the `pull/N` format. Using "PR URL" before a PR exists is also a format violation — the label MUST be "Compare URL" with the `compare/dev...` format. A **label-format mismatch** (e.g., "Compare URL" label paired with a `pull/N` URL, or "PR URL" label paired with a `compare/dev...` URL) is a critical violation regardless of context — the label and URL format MUST always correspond.
-
-**URL Applicability:**
-
-| Scenario | URL Required? | Action |
-| -- | -- | -- |
-| Branch pushed, compare URL generated | ✅ Yes | Include URL between outcome and byline |
-| Issue URL available | ✅ Yes | Include issue URL between outcome and byline |
-| No branch pushed, no URL exists | ❌ No | Omit URL element entirely; byline follows outcome directly |
-| PR already created | ✅ Yes | Use PR URL label with `pull/<N>` format |
-
-The URL element is CONDITIONAL: required when a branch has been pushed or an issue/PR URL exists, **omitted entirely when no relevant URL exists**. Including a URL when none is applicable is a STRUCTURE-VIOLATION (auto-fix: remove URL, reorder to summary → outcome → byline).
-
-The format applies to ALL halt points where implementation is reported complete:
-
-- **review-prep** after implementation
-- **Sub-agent result reports** from divide-and-conquer dispatch
-- **Phase boundary halts** (merge gates between phases)
-- **Approval-gate post-implementation** reports
-- **Work orchestration** reports (assemble-work Step 6)
-- **Completion task** reports (approval-gate completion)
-- **Any completion message** where the agent reports work done and halts
-
-**Blockers section (REQUIRED when workflow is incomplete/blocked — omit when complete):**
-
-When the agent halts with incomplete work (blocked state), the output MUST include a Blockers section explaining:
-
-1. **What remains blocked** (missing authorization, missing plan, missing spec, context budget exhausted, etc.)
-2. **Why the agent stopped** (constraint violated, scope boundary reached, pipeline gate failed, etc.)
-3. **What explicit developer action is needed** to unblock (specific phrase or step)
-
-Examples:
-- "Blocked: Spec updated but lacks explicit authorization. Say 'approved #N' to proceed."
-- "Blocked: No approved plan exists for this spec. Create and approve a plan first."
-- "Blocked: Context budget insufficient for implementation. Provide authorization with scope."
-- "Blocked: Scope boundary reached — halt_at == plan_created. Provide re-authorization for implementation."
-
-Vague phrasing like "needs approval" without specifying WHICH issue and WHAT phrase is a STRUCTURE-VIOLATION (auto-fix: add specific issue number and required phrase).
-
-**Mandatory format (with URL and blockers):**
-
-```
-**Summary:**
-
-<1-2 sentences describing impact and stakeholder value.>
-
-**Outcome:** <What changed for stakeholders>
-
-**Blockers:** <Why stopped + required developer action>
-
-<Compare URL or Issue URL>
-
-🤖 <AgentName> (<ModelId>) <status-icon> <status>
-```
-
-**Mandatory format (with URL, no blockers — workflow complete):**
-
-```
-**Summary:**
-
-<1-2 sentences describing impact and stakeholder value.>
-
-**Outcome:** <What changed for stakeholders>
-
-<Compare URL or Issue URL>
-
-🤖 <AgentName> (<ModelId>) <status-icon> <status>
-```
-
-**Mandatory format (without URL, with blockers):**
-
-```
-**Summary:**
-
-<1-2 sentences describing impact and stakeholder value.>
-
-**Outcome:** <What changed for stakeholders>
-
-**Blockers:** <Why stopped + required developer action>
-
-🤖 <AgentName> (<ModelId>) <status-icon> <status>
-```
-
-**Mandatory format (without URL, no blockers — workflow complete):**
-
-```
-**Summary:**
-
-<1-2 sentences describing impact and stakeholder value.>
-
-**Outcome:** <What changed for stakeholders>
-
-🤖 <AgentName> (<ModelId>) <status-icon> <status>
-```
-
-- 🚫 FORBIDDEN: Producing casual one-liner summaries at halt points; omitting any required element (summary, outcome, byline); wrong ordering (URL before summary, byline before URL); reporting missing elements after the fact instead of auto-fixing before output is sent; including a URL when no relevant URL exists; label-format mismatch (e.g., "Compare URL" with `pull/N` URL or "PR URL" with `compare/dev...` URL); producing halt messages without a Blockers section when workflow state is incomplete/blocked; vague blocker phrasing ("needs approval") without specifying the exact issue and required action
-- ✅ REQUIRED: Verify chat output format before sending at every halt point; auto-fix missing or misordered elements before output is sent; summary first, outcome after summary, blockers after outcome (when workflow incomplete), URL if relevant (omit if not) after blockers or outcome, byline last; Blockers section present when `workflow_state != complete`; blocker text specifies the constraint, why it fired, and the exact developer action; Blockers section omitted when workflow is fully complete (no incomplete state); label and URL format MUST match context (pre-PR → "Compare URL" + `compare/dev...`; post-PR → "PR URL" + `pull/N`); each verification checkpoint MUST produce a tool-call artifact as evidence
-
-**See `git-workflow` skill → "Chat Output Format (CRITICAL)" for complete format requirements and examples. See `approval-gate/tasks/post-implementation.md` Step 4.5, `approval-gate/tasks/completion.md`, `divide-and-conquer/tasks/assemble-work.md` Step 6, `finishing-a-development-branch/tasks/checklist.md` §Chat Output Format, and `git-workflow/tasks/review-prep.md` §Live Verification for the verification checkpoints.**
-
-## Critical Violation: Wrong PR Body Format
-
-**⚠️ Writing implementation details instead of executive summary in PR bodies is a CRITICAL GUIDELINE VIOLATION.** PR bodies use Summary/Outcome/Fixes format.
-
-**See `git-workflow` skill → `pr-creation` task → "PR Body Requirements" for complete format specification.**
-
-## Critical Violation: Uncommitted/Unpushed Changes After Implementation
-
-**⚠️ Marking implementation complete WITHOUT committing and pushing is a CRITICAL GUIDELINE VIOLATION.**
-
-- 🚫 FORBIDDEN: Marking complete with uncommitted changes; skipping commit/push because "changes are small"
-- ✅ REQUIRED: See `finishing-a-development-branch` skill `--task checklist` for complete commit/push verification
-
-## Critical Violation: Wrong Compare URL Base Branch
-
-**⚠️ Using `main` as base branch in compare URLs for feature branches is a CRITICAL GUIDELINE VIOLATION.**
-
-Feature branches target `dev`. Compare URLs: `compare/dev...<branch-name>`. Only release PRs use `compare/main...dev`.
-
-## Critical Violation: Fabricating URLs — ZERO TOLERANCE
-
-**⚠️ Generating URLs from memory, guesswork, or hardcoded patterns is a CRITICAL GUIDELINE VIOLATION.** All URLs must be sourced per the two mandatory URL sourcing rules below. No exceptions.
-
-- 🚫 FORBIDDEN: Hard-coding domains; using "known correct" URLs from previous sessions; guessing from git remotes; caching URL bases across sessions; constructing post-creation URLs from template variables
-- ✅ REQUIRED: Follow URL Sourcing Rule 1 and Rule 2 below
-
-### URL Sourcing Rule 1: Post-Creation URLs — Extract from API Response (NEVER construct)
+#### URL Sourcing Rule 1: Post-Creation URLs — Extract from API Response (NEVER construct)
 
 For URLs to resources that have been **created by an API call** (PR URL, Issue URL), the agent MUST extract the `html_url` field from the API response — never construct from template variables.
 
-**Procedural enforcement in skill tasks:** The following skill task files contain mandatory URL extraction steps that enforce this rule at the point of use:
-
+**Procedural enforcement in skill tasks:** The following skill task files contain mandatory URL extraction steps:
 - `git-workflow/tasks/pr-creation.md` Step 7 — PR URL extraction from `github_create_pull_request`
 - `git-workflow/tasks/review-prep.md` — PR URL extraction after PR creation
 - `approval-gate/tasks/post-implementation.md` — PR URL extraction after PR creation
@@ -434,7 +246,7 @@ For URLs to resources that have been **created by an API call** (PR URL, Issue U
 - **Template construction is FORBIDDEN** for post-creation URLs
 - The API response is the single source of truth for post-creation URLs
 
-### URL Sourcing Rule 2: Pre-Creation URLs — Construct from Verified Session-Init Values
+#### URL Sourcing Rule 2: Pre-Creation URLs — Construct from Verified Session-Init Values
 
 For URLs to resources that **haven't been created yet** (Compare URL before push), the agent MUST construct from session-init values with a mandatory character-match verification step:
 
@@ -443,1329 +255,504 @@ For URLs to resources that **haven't been created yet** (Compare URL before push
 3. **Character-match verification:** Confirm the constructed URL contains the exact `<github.owner>` and `<github.repo>` strings from session init (character-for-character match, no typos, no cached values)
 4. If any mismatch: HALT and report
 
-### Original Fabricating URLs Rule (superseded by Rule 1 and Rule 2 above)
+#### Original Fabricating URLs Rule (superseded by Rule 1 and Rule 2 above)
 
-- 🚫 FORBIDDEN: Hard-coding domains; using "known correct" URLs from previous sessions; guessing from git remotes; caching URL bases across sessions
-- ✅ REQUIRED: Extract `<gitbucket.html_url>` from session init; construct all URLs from that value; HALT if session init missing
+- ✅ REQUIRED: Follow URL Sourcing Rule 1 and Rule 2 above
 
-## Critical Violation: Inferring GitHub Owner from File Paths/Usernames
 
-**⚠️ Inferring GitHub owner from file paths or usernames is a CRITICAL GUIDELINE VIOLATION.**
+### [critical-rules-036] Inferring GitHub Owner from File Paths/Usernames
+Guessing `github.owner` from file paths or usernames instead of reading session init means routing every GitHub API call to the wrong repository. Professional engineers use `github.owner` and `github.repo` from session init for EVERY GitHub MCP call — guessing is not engineering, it is gambling with your API routing.
 
-- 🚫 FORBIDDEN: Inferring owner from file paths, `$USER`, `git config user.name`, cached values; making GitHub MCP calls without session init values
-- ✅ REQUIRED: Use `github.owner` and `github.repo` from session init for EVERY GitHub MCP call
 
-**Programmatic enforcement**: The `session-enforcement.ts` plugin injects repository identity values (github.owner, github.repo, etc.) into the system prompt. The agent reads these from the system prompt context to route API calls correctly. If identity values are missing, the plugin injects a `<LOCAL_MODE>` warning or error block into the first user message.
+### [critical-rules-036] Wrong API Routing for Submodule/Sub-folder Repos
+Routing API calls for submodule repos to the parent repository means every issue operation silently targets the wrong project — and every submodule change gets lost in the wrong repo. Professional engineers resolve the correct remote via `git remote -v` before making any API call. A dry cross-reference to §9 does not route itself.
 
-## Critical Violation: Wrong API Routing for Submodule/Sub-folder Repos
 
-**⚠️ Filing issues, PRs, or API calls against the parent repo when the target files belong to a submodule or sub-folder repo is a CRITICAL GUIDELINE VIOLATION.**
+### [critical-rules-platform-routing-bypass] CRITICAL VIOLATION — Platform Routing Bypass — direct `github_*`/`gitbucket-api` issue calls outside `issue-operations/platforms/`
+All `github_*` and `gitbucket-api` issue calls MUST route through the `issue-operations` dispatcher. Making direct platform API calls outside `issue-operations/platforms/` bypasses the routing layer and creates unmaintainable, platform-locked code. Professional engineers route all calls through the dispatcher — amateurs call platform APIs directly and create vendor lock-in.
 
-**See `060-tool-usage.md` §9 "Identity Source Semantics" for the session context routing rules. See `approval-gate` skill → "Submodule Detection & Routing" for the complete submodule routing table.** **AUTHORITY: `060-tool-usage.md` §9** (this line is a reference only)
 
-- 🚫 FORBIDDEN: Using parent repo `owner/repo` for issues targeting files in a submodule or sub-folder repo
-- 🚫 FORBIDDEN: Asking the developer which repo to file against — the agent resolves this autonomously
-- 🚫 FORBIDDEN: Routing `github_issue_write` calls to the parent repo when target files are in a submodule
-- ✅ REQUIRED: Detect sub-folder repos by checking for `.git` directories; resolve the correct remote via `git remote -v`; use the sub-folder's `owner/repo` for API calls
-- ✅ REQUIRED: State the classification as part of the design (e.g., "Filing against opencode-config because .opencode/ is a separate repo")
+### [critical-rules-platform-api-deliberation] Platform API Deliberation Prohibited
+The `issue-operations` dispatcher resolves platform selection automatically based on `github.platform`. Agents MUST NOT deliberate about which platform API to use — the dispatcher handles this. Asking "should I use GitHub or GitBucket?" or choosing a platform API manually is a routing anti-pattern. Professional engineers trust the dispatcher — amateurs second-guess platform routing.
 
-## Critical Violation: Missing AI Co-Authored Attribution
 
-**⚠️ Failing to include AI co-authored attribution is a CRITICAL GUIDELINE VIOLATION.** Applies to original AI-authored content, NOT copy-pasted content.
+### [critical-rules-028] Offer-to-Edit Bypass — offering to modify files without spec
+Offering to "fix it quickly" instead of creating a spec is the oldest shortcut in the book — and the fastest path to unreviewed, unapproved changes polluting your codebase. Professional engineers write a spec when a fix is identified. The ONLY permitted action when a fix is found is spec creation — nothing else, no exceptions, no "just this once."
 
-- **Requires attribution**: Python docstrings, READMEs, new repos, original docs
-- **Exempt**: Standard licenses, copy-pasted code, auto-generated files, framework boilerplate, minor edits
-- **Format**: `Co-authored with AI: <AgentName> (<ModelId>)`
 
-**See `080-code-standards.md` for complete attribution requirements (file types, formats, exceptions).** **AUTHORITY: `080-code-standards.md`** (this line is a reference only)
+### [critical-rules-009] Enforcement Test Updates — guideline/skill changes without BEHAVIORAL enforcement tests
+Adding a guideline or skill change without a BEHAVIORAL enforcement test means you are documenting, not enforcing — and documentation without enforcement is decoration. Every guideline and skill change that lacks a behavioral enforcement test is a suggestion, not a rule. Suggestions get ignored by the agents that need them most. Professional engineers ship behavioral tests with every rule change.
 
-## Critical Violation: Offer-to-Edit Bypass — Offering to Modify Files Without Spec
 
-**⚠️ Offering to modify files without a spec is a CRITICAL GUIDELINE VIOLATION.**
+### [critical-rules-010] Implementation Without Spec — expanding the definition
+Modifying behavior, config, or enforcement without an approved spec is what amateurs do when they want their changes to break the build and waste everyone's review time. Professional engineers produce a spec first — then implement against it. See `010-approval-gate.md`.
 
-When the agent identifies a problem and the fix is clear, the ONLY permitted next action is creating a spec or reporting the finding. Never offer to edit, update, modify, or fix a file directly.
 
-| Pattern | Correct Action |
-|---------|---------------|
-| "Want me to update X?" | Create a spec for the update, HALT |
-| "Shall I fix this?" | Create a bug report or fix spec, HALT |
-| "I can change X to Y" | Create a spec for the change, HALT |
-| "Ready to implement?" | Create a spec first, then HALT |
+### [critical-rules-016] Missing Progress Reports
+Halting without structured output means leaving the developer guessing what happened — and that is amateur-hour behavior. Professional engineers always produce: Summary → URL → Byline. Issue comments are for substantive information only.
 
-**Why this matters:** The offer-to-edit pattern is a rationalization bypass. The agent reasons: "I'm not *doing* the edit, I'm just *offering* — so I'm not violating the rule." But the offer normalizes direct edits and creates social pressure to authorize without a spec. The spec-first workflow exists precisely to prevent this.
 
-## Critical Violation: Enforcement Test Updates — Guideline and Skill Changes Without BEHAVIORAL Enforcement Tests
+### [critical-rules-012] Ignoring Issue Comments
+Acting on an issue without reading all its comments is the signature move of engineers who produce work that needs to be redone. Every unread comment is a defect waiting to surface. Professional engineers read every comment before touching a single line of code. See `issue-operations` skill → `comment` task.
 
-**⚠️ Modifying guideline files or skill files without adding or updating corresponding BEHAVIORAL enforcement tests is a CRITICAL GUIDELINE VIOLATION.**
 
-Guideline files (`.opencode/guidelines/*.md`) and skill files (`.opencode/skills/*/SKILL.md`, `.opencode/skills/*/tasks/*.md`) are enforcement-critical documents. A guideline without a test is a suggestion, not a rule. A skill without a test is documentation, not enforcement.
+### [critical-rules-025] Implementation-First Gate — halting before producing deliverables
+Halting with zero deliverables means you have produced nothing but chat — and chat is not implementation. Professional engineers produce at least one file modification or artifact before any halt-point output. Amateurs talk about what they will do; professionals show what they have done.
 
-**Behavioral tests answer "Does the agent actually behave differently?" Content-verification tests answer "Does the rule text exist in the file?" Both are needed, but behavioral is the PRIMARY enforcement gate.** The #1217 root case demonstrates this: the agent had all the correct guideline text but still answered without verification. Content-verification alone is insufficient.
 
-- 🚫 FORBIDDEN: Adding a critical violation section without a BEHAVIORAL enforcement test that verifies the agent's actual response
-- 🚫 FORBIDDEN: Adding a verification step to a skill without a BEHAVIORAL enforcement test that validates the agent follows it
-- 🚫 FORBIDDEN: Creating a new guideline without a BEHAVIORAL enforcement test that sends a prompt and verifies the agent's behavior
-- 🚫 FORBIDDEN: Modifying a guideline or skill without updating the corresponding BEHAVIORAL enforcement test
-- 🚫 FORBIDDEN: Content-verification tests (checking rule text exists) as the ONLY enforcement for a behavioral rule change
-- 🚫 FORBIDDEN: Marking a rule change as "tested" when only the text presence was verified
-- 🚫 FORBIDDEN: Running `opencode-cli run` directly without the `with-test-home` wrapper
-- ✅ REQUIRED: Every guideline/skill change comes with a BEHAVIORAL enforcement test that verifies the agent's actual response, not just the rule text
-- ✅ REQUIRED: Add the BEHAVIORAL test FIRST (RED), then make the change (GREEN) — behavioral TDD for rules
-- ✅ REQUIRED: Content-verification tests as a supplementary sanity check, not a replacement for behavioral tests
-- ✅ REQUIRED: Every critical violation change MUST have at least one behavioral test that verifies the agent follows the new rule
-- ✅ REQUIRED: Run `bash .opencode/tests/behaviors/run-all.sh` for behavioral tests and `bash .opencode/tests/test-enforcement.sh` for content-verification tests
-- ✅ REQUIRED: Use `bash .opencode/tests/with-test-home opencode-cli run '<message>'` for all opencode-cli testing
-- ✅ REQUIRED: Clean up test homes after testing: `bash .opencode/tests/with-test-home --clean-all`
+### [critical-rules-042] Single Concern Principle — every artifact addresses exactly one concern
+Professional engineers ship one concern per artifact — commits, PRs, issues, specs, plans, comments, sub-agents each do exactly one thing. Amateurs mix concerns into monolithic blobs — then wonder why every change breaks something unrelated.
 
-**See `080-code-standards.md` → "Enforcement Test Mandate" for the complete per-change TDD pattern including behavioral PRIMARY and content-verification SECONDARY. See `.opencode/tests/README.md` for the enforcement test template and usage guide. See `.opencode/tests/behaviors/` for behavioral test infrastructure.**
 
-## Critical Violation: Hardcoded Identity Values in Skills and Guidelines
+### [critical-rules-042] Monolithic Implementation — skipping item decomposition
+Professional engineers decompose work into testable items and build one per TDD cycle (RED → GREEN → REFACTOR → COMMIT). Amateurs batch everything into single monolithic changes — then wonder why review catches half of it wrong.
 
-**⚠️ Hardcoding agent names, model IDs, developer names, developer emails, org names, repo names, or platform names in skill files, guideline files, task files, or any AI agent configuration is a CRITICAL GUIDELINE VIOLATION.**
 
-All identity values MUST use placeholder tokens that are resolved at runtime from session init output. Hardcoded values become stale when models, agents, orgs, or repos change.
+### [critical-rules-042] Scope Creep — never do things outside the spec
+Professional engineers implement exactly what the spec defines — nothing more, nothing less. Amateurs add features the spec never asked for — then wonder why reviewers flag every third line as scope creep.
 
-- 🚫 FORBIDDEN: `<specific-agent-name>` (e.g., `OpenCode`, `OpenCode Desktop`, `Claude`) in skill files, guidelines, or task files
-- 🚫 FORBIDDEN: `<specific-model-id>` (e.g., `ollama-cloud/glm-5`, `claude-3-5-sonnet`) in skill files, guidelines, or task files
-- 🚫 FORBIDDEN: `example-developer`, `example-dev-alias`, or any specific developer name/email in skill files, guidelines, or task files
-- 🚫 FORBIDDEN: `example-org`, `example-repo`, or any specific org/repo name in skill files, guidelines, or task files
-- ✅ REQUIRED: Use `<AgentName>`, `<ModelId>`, `<dev.name>`, `<dev.email>`, `<github.owner>`, `<github.repo>`, `<gitbucket.html_url>` placeholders everywhere
-- ✅ REQUIRED: Skill-creator MUST validate that no hardcoded identity values appear in generated skill files
-- ✅ REQUIRED: Spec-auditor MUST flag hardcoded identity values as STRUCTURE-VIOLATION auto-fix findings
 
-**Applies to:** SKILL.md files, task/*.md files, guideline files, agent configuration files, code comments that serve as templates or examples.
+### [critical-rules-010] Spec Without Investigation
+Professional engineers inspect the codebase before writing a spec — live verification prevents assumptions. Amateurs spec from memory and training data — then wonder why the implementation doesn't fit the actual code.
 
-**Exempt from placeholders (concrete values are OK):** Python source code runtime strings, test fixtures, historical changelog entries, repository URLs in examples that use `<github.owner>/<github.repo>` pattern.
 
-**See `080-code-standards.md` for the complete placeholder reference and `skill-creator/SKILL.md` for the validation gate.** **AUTHORITY: `080-code-standards.md`** (this line is a reference only)
+### [critical-rules-010] Implementing Stale or Superseded Specs
+Professional engineers check for superseding open issues before implementing — stale specs produce wasted work. Amateurs implement whatever spec they find first — then wonder why their output is obsolete before the PR is opened.
 
-## Critical Violation: Implementation Without Spec — Expanding the Definition
 
-**⚠️ "Implementation" includes more than writing source code.** The spec-first rule applies to ALL file modifications that alter behavior, configuration, or enforcement.
+### [critical-rules-025] Main Agent Implements Directly
+Professional orchestrators route through sub-agents — amateurs inline work and produce contaminated pipelines. See `divide-and-conquer --task assemble-work`. Orchestrator tasks sub-agents via task() only.
 
-The following are ALL implementation actions that require an approved spec:
 
-| Action | Requires Spec? | Why |
-|--------|---------------|-----|
-| Writing Python code | ✅ Yes | Classic implementation |
-| Editing skill files (SKILL.md, task/*.md) | ✅ Yes | Alters agent enforcement behavior |
-| Editing guideline files | ✅ Yes | Alters agent constraints |
-| Editing configuration (pyproject.toml, .pre-commit-config.yaml) | ✅ Yes | Alters build/test behavior |
-| Editing TypeScript plugins (session-enforcement.ts) | ✅ Yes | Alters runtime enforcement |
-| Editing test files | ✅ Yes | Alters test suite behavior |
-| Creating new files of any type | ✅ Yes | Adds new behavior or content. **Exempt:** GitHub Issue body updates, `.issues/` spec/plan files, local issue tracking metadata |
-| Fixing a typo in documentation | ❌ No | No behavioral change. **Clarification:** "Documentation" means deliverable docs (README, user-facing docs, runbooks), NOT GitHub Issue bodies or `.issues/` tracking files |
-| Formatting code (ruff format) | ❌ No | No behavioral change |
-| Spec-auditor auto-fix on GitHub Issue | ❌ No* | Non-substantive; see audit auto-fix exemption below |
+### [critical-rules-016] Bypassing Mandatory Skill Calls During Implementation
+Pipeline chain: pre-work → assemble-work → verification-before-completion → finishing-checklist → review-prep. Skipping any step means accepting undiscovered defects into every deliverable downstream. Each step MANDATORY.
 
-**\* Audit Auto-Fix Exemption:** Spec-auditor auto-fixes applied to GitHub Issues are NOT implementation actions when ALL of the following conditions are met:
 
-- The audit was deliberately invoked (user-triggered via `spec-auditor --issue N` or pipeline-triggered)
-- Findings are classified as `auto-fix` by spec-auditor's three-tier model
-- Fix is applied to a GitHub Issue body (not source code, not skill files, not guideline files)
-- Fix is non-substantive (structure violations, missing boilerplate, boilerplate titles, numbering, trace links, approach differences, inline context replacement, concern separation fixes)
-- **`conditional` fixes require separate authorization before application** (they are NOT auto-applied without explicit "approved"/"go")
-- **`flag-for-review` findings are reported in the executive summary but NOT applied**
+### [critical-rules-016] Skill Bypass = Critical Violation
+Every step in pipeline chain is enforceable, not advisory. Professional engineers follow the chain — amateurs take shortcuts and produce broken deliverables.
 
-When any condition is NOT met, the action reverts to requiring an approved spec per the standard "Implementation Without Spec" rule.
 
-**See `010-approval-gate.md` → "Audit Auto-Fix Exemption" for the complete exemption section and `spec-auditor` skill → "Auto-Fix Model" for the three-tier classification.** **AUTHORITY: `010-approval-gate.md` Audit Auto-Fix Exemption** (this line is a reference only)
+### [critical-rules-016] Auditor Skills Enforcement
+Professional engineers subject every deliverable to independent audit — amateurs ship unverified work. See `spec-auditor` skill. Auto-fix/conditional/flag-for-review classification.
 
-**🚫 FORBIDDEN patterns (all require spec):**
-- "It's just a skill file" → Skill files alter agent enforcement. Spec required.
-- "It's just a guideline" → Guidelines alter agent constraints. Spec required.
-- "It's just a config change" → Config changes alter behavior. Spec required.
-- "It's a small fix" → Size doesn't matter. If it changes behavior, spec required.
 
-**See `010-approval-gate.md` for the complete authorization workflow.** **AUTHORITY: `010-approval-gate.md`** (this line is a reference only)
+### [critical-rules-011] Bug Reports Without Fix Spec
+Reporting a bug without a fix spec means you are asking the developer to guess what happened. Professional engineers always create a fix spec with every bug report — amateurs file half-baked tickets and expect someone else to figure them out.
 
-## Critical Violation: Missing Progress Reports
 
-**⚠️ Failing to report progress in chat after implementation is a CRITICAL GUIDELINE VIOLATION.**
+### [critical-rules-011] Bug Discovery Does NOT Authorize Bug Fixing
+Finding a bug during implementation does NOT mean you have permission to fix it. Professional engineers stop, report the bug as a spec issue, and wait for authorization — amateurs assume discovery is a license to act.
 
-Progress executive summaries go to **chat ONLY**, not GitHub Issue comments. Issue comments are for **substantive, stakeholder-meaningful information** only.
 
-Chat output order (mandatory): 1) Executive summary, 2) URL (if exists), 3) AI byline LAST — `🤖 <AgentName> (<ModelId>) <status-icon> <status>`
+### [critical-rules-009] Authorization-Free Actions — no deliberation required
+Issue creation, sub-issues, progress comments, labels, lint/format all authorized per spec scope model. Professional engineers execute pre-authorized actions without hesitation — amateurs stop and ask for permission on every trivial step. Feature branches (`feature/*`, `spec/*`) are NOT authorization-free — they require `for_implementation` or above scope per `010-approval-gate.md`.
 
-**See `issue-operations` skill for Issue comment requirements and the complete channel routing table.**
 
-## Critical Violation: Ignoring Issue Comments
+### [critical-rules-011] Symptom-Only Fix-Specs — patches without root cause analysis
+Writing a fix spec that only addresses symptoms means you are leaving the root cause in place for the next person to find. Professional engineers always identify root cause in fix specs — amateurs patch symptoms and call it done.
 
-**⚠️ Failing to respond to user comments on GitHub Issues is a CRITICAL GUIDELINE VIOLATION.**
 
-**MANDATORY: Read issue comments and respond publicly. See `issue-operations` skill → `comment` task → "Responding to User Comments (MANDATORY)".**
+### [critical-rules-009] Conflating Issue References with Authorization Cascade
+Only formal `github_sub_issue_write` links trigger cascade. Professional engineers only cascade authorization through formal `github_sub_issue_write` links — amateurs read implied permission into every cross-reference.
 
-## Critical Violation: Sub-issue Structure Bypass — Multi-task Plans
 
-**⚠️ Implementing a multi-task plan without sub-issues is a CRITICAL GUIDELINE VIOLATION.**
+### [critical-rules-027] Confirmation ≠ Authorization
+"Yes, that's correct" ≠ authorization. Only "approved"/"go"/"#NNN approved". Amateurs treat confirmation as permission. Professionals wait for explicit authorization.
 
-- 🚫 FORBIDDEN: Implementing phases without sub-issue structure; assuming markdown checkboxes = tracking; creating step-level sub-issues
-- ✅ REQUIRED: Sub-issues at PHASE level under the plan (not the spec); each linked via `github_sub_issue_write method=add`; auto-create as pre-implementation setup
 
-**See `issue-operations` skill → `link-sub-issue` task for complete workflow including auto-create workflow and database ID requirement. Sub-issue verification is consolidated into `approval-gate --task verify-authorization` Step 5 as the single readiness check.**
+### [critical-rules-027] Feedback ≠ Authorization — treating technical input as implementation permission
+User engagement is collaboration, not permission. Amateurs treat feedback as an implementation ticket. Professionals wait for explicit authorization. See `020-go-prohibitions.md` §1.
 
-## Critical Violation: Implementation-First Gate — Halting Before Producing Deliverables
 
-**⚠️ Halting at any checkpoint in the dispatch chain without at least one file modification (for implementation scopes) or at least one artifact (for non-implementation scopes) is a CRITICAL GUIDELINE VIOLATION.**
+### [critical-rules-042] Skipping PR for Documentation/Guideline Changes
+Exception: zero files modified, or already-implemented (verified by `verify-already-implemented`). Amateurs skip PRs for documentation changes. Professionals maintain review discipline for every change.
 
-When authorization scope includes implementation (`for_implementation`, `for_code_review`, `for_pr`), the agent MUST produce at least one file modification before reaching any halt-point output. Process steps (screening, planning, worktree setup) are prerequisites, not deliverables.
 
-- 🚫 FORBIDDEN: Producing a completion report with zero file modifications for an implementation scope
-- 🚫 FORBIDDEN: Generating a compare URL before confirming `git push` succeeded (#1231)
-- 🚫 FORBIDDEN: Halting after process overhead (screening, worktree setup) without starting implementation (#1232)
-- 🚫 FORBIDDEN: Producing zero deliverables — no implementation, no commits, no push, no PR — for a `for_pr` scope (#1233)
-- ✅ REQUIRED: Verify at least one file was modified (`git diff --stat`) before producing halt-point output for implementation scopes
-- ✅ REQUIRED: Verify `git push` succeeded before generating any compare URL
-- ✅ REQUIRED: If context budget is insufficient to reach implementation, report the budget exhaustion explicitly in the halt message rather than silently halting after process steps
+### [critical-rules-042] Blind Conflict Resolution
+Resolving conflicts blindly produces broken merges. Professional engineers classify conflicts by intent before resolving — amateurs merge first and find the corruption later. Three tiers: Trivial → auto, Textual → note, Intent → HALT. See `conflict-resolution` skill.
 
-**AUTHORITY: Bug #1231, #1232, #1233 — root cause is the same: agent spends all context on process steps and halts before producing deliverables. The implementation-first gate ensures the agent produces at least one tangible modification before it is allowed to report completion.**
 
-## Critical Violation: Implementation-First Gate at Authorization Time — Post-Auth Research Spiral
+### [critical-rules-042] Engineering Mindset Required
+Understand → Design → Verify → Communicate. Amateurs jump from understanding to implementation. Professional engineers verify before building. See `engineering-approach` skill.
 
-**⚠️ Entering a read-only research spiral after receiving authorization — performing unlimited tool calls that produce zero file modifications — is a CRITICAL GUIDELINE VIOLATION.** This extends the completion-time implementation-first gate to cover the authorization-to-implementation gap.
 
-The completion-time gate (above) catches the agent halting without deliverables. But the same root cause — context spent on process overhead instead of implementation — also manifests as an unbounded research spiral between authorization receipt and the first file modification. The agent receives "approved" and then makes 5, 10, or 20+ read-only tool calls (re-fetching issues, re-reading specs, parsing JSON sub-agent dispatches for data already in context) before producing any deliverable.
+### [critical-rules-016] Skipping Completion Guarantee on Workflow Halt
+Call `--task completion` on current skill before halting. Amateurs abandon workflows mid-stream. Professionals close out every skill before halting.
 
-**The authorization-time gate closes this gap:** after explicit authorization is received, the agent MUST transition to implementation dispatch within a bounded number of tool calls. Unbounded metadata gathering between authorization and the first file modification is prohibited.
 
-- 🚫 FORBIDDEN: Making more than 3 tool calls between `verify-authorization` returning `authorized` and invoking `git-workflow --task pre-work`
-- 🚫 FORBIDDEN: Dispatching sub-agents to parse or re-fetch data already available in the current context after authorization
-- 🚫 FORBIDDEN: Re-reading issues, specs, or plans that were already read during verification after authorization is received
-- 🚫 FORBIDDEN: Using `task(subagent_type="general")` for JSON parsing, metadata extraction, or any read-only operation on data already in context after authorization
-- ✅ REQUIRED: After `verify-authorization` returns `authorized`, proceed to `git-workflow --task pre-work` within at most 3 tool calls
-- ✅ REQUIRED: If more than 3 tool calls occur without reaching `pre-work`, HALT and report the delay as a critical violation — include the tool call sequence in the report
-- ✅ REQUIRED: Sub-agents after authorization are for implementation dispatch ONLY — file modifications, code generation, and heavy analysis that produces deliverables
+### [critical-rules-009] Silent Agent Termination — producing no output before stopping
+A halt without output means leaving the developer blind. Professionals produce structured output at every stop — amateurs vanish without a trace, leaving defects undiscovered. See detailed rules below.
 
-```yaml+symbolic
-  - id: critical-rules-045
-    title: "Implementation-First Gate at Authorization Time — post-auth research spiral"
-    conditions:
-      all:
-        - "authorization_received == true"
-        - "tool_calls_since_authorization > 3"
-        - "first_file_modification_not_reached == true"
-    actions:
-      - HALT
-      - REPORT_DELAY_WITH_TOOL_CALL_SEQUENCE
-    conflicts_with: []
-    requires: []
-    triggers: [approval-gate, divide-and-conquer]
-    source: "000-critical-rules.md §Implementation-First Gate at Authorization Time"
-```
+#### Post-task() Output Guarantee
 
-**See `approval-gate/tasks/verify-authorization/auto-dispatch.md` §Post-Authorization Dispatch Window for the operational enforcement of the 3-tool-call bound. See `060-tool-usage.md` §Sub-Agent Dispatch Restriction After Authorization for the sub-agent restriction. AUTHORITY: Spec #171**
+After EVERY `task(subagent_type=...)` call, the agent MUST produce output — never transition directly from task() to halt without output.
 
-## Critical Violation: Single Concern Principle — Every Artifact Addresses Exactly One Concern
-
-**⚠️ Every artifact the agent produces — commits, PRs, issues, specs, plans, code changes, comments, sub-agents — must address exactly one concern. Violating this is a CRITICAL GUIDELINE VIOLATION.**
-
-A "concern" is a distinct problem area with its own root cause, affected scope, and verification criteria. Two things are separate concerns if you could implement, verify, and close one without the other.
-
-**The "discovered together" fallacy is explicitly prohibited.** Discovering problems in the same session, same workflow, same bug report, or same investigation does NOT make them related. Each concern gets its own artifact regardless of how it was found.
-
-**Applies to ALL artifacts:**
-
-| Artifact | Violation | Correct |
-| -- | -- | -- |
-| Issue | Combining auth error handling + issue routing in one spec | Separate issues for each |
-| Commit | Bundling correspondence template + submodule migration | Separate commits |
-| PR | Including unrelated file changes because "they're all part of the migration" | Separate PRs for separate concerns |
-| Plan | Mixing implementation phases for different subsystems | One phase per concern |
-| Comment | Combining status update + new bug discovery + authorization request | Separate comments for each purpose |
-| Spec | Multiple "Fix Approach" sections for different root causes | One spec per root cause |
-| Sub-agent | Dispatching an agent to handle two unrelated tasks | One sub-agent per concern |
-
-**Test for "unrelated":** Remove concern B from the artifact. If concern A remains complete and verifiable, they are unrelated and must be in separate artifacts.
-
-**Test for "related":** Two concerns share the same root cause, affect the same files/subsystem, and cannot be verified independently — they MAY be combined in one artifact.
-
-- 🚫 FORBIDDEN: Combining multiple unrelated concerns in a single artifact; treating "discovered together" as "related"; bundling fixes for different root causes in one PR/commit/issue; mixing purposes in a single comment (status + bug discovery + authorization request)
-- ✅ REQUIRED: One concern per artifact; separate artifacts for separate concerns; verify each concern can stand alone before combining; apply SCP universally across all artifact types, not just code
-
-```yaml+symbolic
-  - id: critical-rules-042
-    title: "Single Concern Principle — every artifact addresses exactly one concern"
-    conditions:
-      all:
-        - "artifact_addresses_multiple_unrelated_concerns == true"
-    actions:
-      - HALT
-      - SPLIT_INTO_SEPARATE_ARTIFACTS
-    conflicts_with: []
-    requires: []
-    triggers: [spec-creation, writing-plans, issue-operations, git-workflow, approval-gate]
-    source: "000-critical-rules.md §Single Concern Principle"
-```
-
-**AUTHORITY: Spec #152, NewsRx/.opencode#3 — Regression evidence: agent combined unrelated concerns four times in a single session because fragmented domain-specific rules failed when the agent switched between producing different artifact types.**
-
-## Critical Violation: Monolithic Implementation — Skipping Item Decomposition
-
-**⚠️ Implementing multiple items in a single branch/commit without decomposition, or skipping the top-down → bottom-up → per-item TDD cycle, is a CRITICAL GUIDELINE VIOLATION.**
-
-**UNIVERSAL RULE: See `000-critical-rules.md` §Single Concern Principle for the universal composition rule. Monolithic Implementation is an implementation-specific instance of SCP — it addresses code commits and plans specifically. The universal rule covers all artifact types (issues, specs, PRs, comments, sub-agents).**
-
-**See `091-incremental-build.md` for the complete discipline rules, scope classification, and per-item TDD cycle. See `091-incremental-build.md` → "Enforcement Mechanism" section for RED phase verification requirements, execution checkpoint references, and plan template checkpoint references.** **AUTHORITY: `091-incremental-build.md`**
-
-- 🚫 FORBIDDEN: Implementing multiple items in a single massive branch/commit without item-level decomposition
-- 🚫 FORBIDDEN: Writing code before writing the enforcement test for that change (code-first pattern)
-- 🚫 FORBIDDEN: Skipping item enumeration and dependency ordering in plans
-- 🚫 FORBIDDEN: Batching items that should be separate into one implementation pass
-- 🚫 FORBIDDEN: Merging changes where the enforcement test for those changes doesn't pass
-- 🚫 FORBIDDEN: Over-verifying — test assertions in Phase N that verify deliverables from Phase M (M ≠ N); see "Phase-Scoped Test Assertions" in `091-incremental-build.md`
-- ✅ REQUIRED: Follow top-down decomposition → bottom-up design → per-item TDD cycle for ALL scopes
-- ✅ REQUIRED: Each item has its own enforcement test (RED phase comes before GREEN phase)
-- ✅ REQUIRED: Plans include item enumeration, dependency ordering, and acceptance criteria per item
-- ✅ REQUIRED: Approval gate Step 4.5 verifies item decomposition exists before implementation proceeds
-- ✅ REQUIRED: Phase-scoped test assertions — each phase tests only its own deliverables; see "Phase-Scoped Test Assertions" in `091-incremental-build.md`
-- ✅ REQUIRED: Atomic task files MUST NOT exceed ≤3,000 words (`wc -w`); task files exceeding this limit MUST be split into smaller single-concern tasks. See `091-incremental-build.md` → "Complexity Metric: Word Count" for the complete rationale and size limits
-
-## Critical Violation: Stopping After Single Phase in Multi-Task Plan
-
-**⚠️ Halting after completing a single phase of a multi-task plan is a CRITICAL GUIDELINE VIOLATION.** Plan approval cascades authorization to ALL sub-issues under the plan. Complete ALL phases, report ONCE, HALT ONCE.
-
-**See `approval-gate` skill → "Multi-Task Plan Authorization" for complete cascade workflow and enforcement matrix.**
-
-## Critical Violation: Sub-issue Closure Timing — ZERO TOLERANCE
-
-**⚠️ Closing sub-issues before PR merge is a CRITICAL GUIDELINE VIOLATION.** Sub-issues are children of the plan, not the spec.
-
-🚫 FORBIDDEN: Closing sub-issues after implementation but before PR merge; closing without verifying PR merge via GitHub API
-
-**See `git-workflow` skill `--task cleanup` for complete post-merge verification and closure workflow.**
-
-## Critical Violation: Assuming Closed Issues Are Verified — ZERO TOLERANCE
-
-**⚠️ Assuming an issue is fully implemented or resolved based solely on its closed state — without verifying a merged PR and success criteria — is a CRITICAL GUIDELINE VIOLATION.** A closed GitHub issue does NOT guarantee the work was completed, merged, or verified.
-
-- 🚫 FORBIDDEN: Skipping verification because an issue is "closed"
-- 🚫 FORBIDDEN: Trusting `state: "closed"` as evidence of implementation without merged PR proof
-- 🚫 FORBIDDEN: Classifying issues as "already implemented" based on closed state alone
-- 🚫 FORBIDDEN: Autoclosing parent issues when sub-issues are closed without merged PR evidence
-- 🚫 FORBIDDEN: Bypassing bug fix spec verification because the bug report is closed
-- 🚫 FORBIDDEN: Verifying closed issues requires checking EACH acceptance criterion against implementation, not just confirming PR merge
-- 🚫 FORBIDDEN: Reading issue state, PR status, or comments is NOT verification — it is metadata inspection
-- 🚫 FORBIDDEN: Training-data assumptions about what "should" be implemented do NOT count as verification
-- ✅ REQUIRED: Verify closed issues have merged PR evidence via `github_pull_request_read` before treating them as resolved
-- ✅ REQUIRED: Check `state_reason` — `"not_planned"` means intentionally skipped, `"duplicate"` requires verifying the target, `"completed"` requires merged PR evidence
-- ✅ REQUIRED: Use `approval-gate --task verify-closed-issue` to verify legitimate closure before skipping, autoclosing, or excluding from implementation
-- ✅ REQUIRED: Use `approval-gate --task reconcile-issue-graph` to act on findings — auto-close verified-complete tickets, reopen verified-incomplete tickets
-- ✅ REQUIRED: PR merge is necessary but insufficient for "fully implemented" — acceptance criteria verification is also required
-- ✅ REQUIRED: `skildeck verify-issue` is the programmatic enforcement tool for closed-issue verification
-- ✅ REQUIRED: When verifying closed issues, each acceptance criterion must produce a live tool-call artifact, not a metadata-only check
-
-**See `approval-gate --task reconcile-issue-graph` for reconciliation after graph traversal. See `approval-gate --task verify-closed-issue` for the complete verification procedure. See `git-workflow` skill `--task cleanup` for pre-closure sub-issue verification gate.**
-
-## Critical Violation: Scope Creep — NEVER Do Things Outside the Spec
-
-**⚠️ Implementing changes not explicitly called for in the spec is a CRITICAL GUIDELINE VIOLATION.** The spec defines EXACTLY what to implement.
-
-**UNIVERSAL RULE: See `000-critical-rules.md` §Single Concern Principle for the universal composition rule. Scope Creep is an implementation-specific instance of SCP — it addresses code changes that go beyond the spec's defined scope. The universal rule covers all artifact types (issues, specs, PRs, comments, sub-agents).**
-
-🚫 FORBIDDEN: Helper functions, improving nearby code, refactoring adjacent things, fixing similar issues, any change not in the spec
-
-If you think something ELSE should be changed: 1) STOP, 2) Comment on the issue, 3) Wait for explicit approval.
-
-## Critical Violation: Spec Without Investigation
-
-**⚠️ Creating a spec without completed investigation is a CRITICAL GUIDELINE VIOLATION.**
-
-🚫 FORBIDDEN: Specs from vague requirements; skipping codebase analysis; finalizing without edge cases; proceeding without success criteria
-
-**The concrete minimum standard is the code inspection checklist in `015-pre-spec-inspection.md`** — all six items (trace call paths, verify imports, detect dead code, verify format/protocol assumptions, confirm architectural layer, check for existing alternatives) MUST be addressed before proposing any approach. Incomplete inspection = this critical violation.
-
-**See `brainstorming` skill for investigation requirements and completion criteria. See `015-pre-spec-inspection.md` for the mandatory checklist and evidence requirements.** **AUTHORITY: `015-pre-spec-inspection.md`** (this line is a reference only)
-
-## Critical Violation: Implementing Stale or Superseded Specs
-
-**⚠️ Implementing a stale or superseded spec without revision is a CRITICAL GUIDELINE VIOLATION.**
-
-**See `issue-operations` skill `--task pre-creation` for the complete superseded/stale spec check procedure.**
-
-- If superseding issue exists: SILENTLY HALT, report conflict, wait for direction
-- If stale: REVISE spec, report revision, HALT for approval — never implement stale without revision
-
-## Critical Violation: Main Agent Implements Directly
-
-**⚠️ The main agent implementing files directly instead of dispatching to sub-agents is a CRITICAL GUIDELINE VIOLATION.**
-
-**See `divide-and-conquer` skill `--task assemble-work` for the complete sub-agent dispatch workflow.**
-
-- 🚫 FORBIDDEN: Main agent editing implementation files directly during work orchestration
-- 🚫 FORBIDDEN: Bypassing assemble-work for single-issue dispatch
-- 🚫 FORBIDDEN: Code-path divergence between single and work-order issue handling
-- ✅ REQUIRED: All implementation dispatches through `assemble-work` — single issue is a work-of-1
-- ✅ REQUIRED: Main agent only orchestrates — never edits implementation files
-- ✅ REQUIRED: Context window stays clean for orchestration decisions
-
-## Critical Violation: Bypassing Mandatory Skill Invocations During Implementation
-
-**⚠️ Skipping mandatory skill invocations (git-workflow pre-work, divide-and-conquer, verification-before-completion) during the implementation workflow is a CRITICAL GUIDELINE VIOLATION.**
-
-The approval-gate dispatch chain defines a mandatory sequence after plan approval:
-
-1. `git-workflow --task pre-work` — Create worktree, set `worktree.path`, verify branch state
-2. `divide-and-conquer --task assemble-work` — Dispatch sub-agents for implementation
-3. `verification-before-completion` — Verify success criteria before marking complete
-4. `finishing-a-development-branch --task checklist` — Final branch readiness check
-5. `git-workflow --task review-prep` — Push branch, generate compare URL
-
-**Each step is MANDATORY. Skipping any step is a CRITICAL VIOLATION.**
-
-- 🚫 FORBIDDEN: Creating a worktree manually instead of invoking `git-workflow --task pre-work`
-- 🚫 FORBIDDEN: Implementing files directly as the main agent instead of dispatching via `divide-and-conquer`
-- 🚫 FORBIDDEN: Skipping `verification-before-completion` and claiming task completion without evidence
-- 🚫 FORBIDDEN: Pushing changes without invoking `finishing-a-development-branch --task checklist`
-- 🚫 FORBIDDEN: Generating compare URL without invoking `git-workflow --task review-prep`
-- ✅ REQUIRED: Follow the approval-gate dispatch chain in order after plan approval
-- ✅ REQUIRED: Invoke each mandatory skill in sequence
-- ✅ REQUIRED: Verify `worktree.path` is set before any file modification
-- ✅ REQUIRED: Use `divide-and-conquer` to dispatch sub-agents for all file modifications on multi-task plans
-
-**Artifact verification (MANDATORY):** Each step in the dispatch chain must produce evidence of completion before the next step proceeds. The agent MUST NOT proceed past a verification gate without producing a tool-call artifact confirming the prior step's output:
-
-| Dispatch Chain Step | Required Evidence Artifact |
-| -- | -- |
-| `git-workflow --task pre-work` | `worktree.path` set, feature branch exists (verified via `git rev-parse --show-toplevel` and `git branch --show-current`) |
-| `divide-and-conquer --task assemble-work` | Work state file exists (`.opencode/tmp/work-*.md`), all sub-agents returned success |
-| `verification-before-completion` | Per-SC evidence table produced, all rows show PASS |
-| `finishing-a-development-branch --task checklist` | All checklist items verified via tool-call artifacts (lint, test, format commands) |
-| `git-workflow --task review-prep` | Compare/PR URL generated in correct format (label matches context, URL format matches context, element ordering correct) |
-
-**Proceeding without these artifacts is a CRITICAL GUIDELINE VIOLATION, equivalent to skipping the step entirely.** See `approval-gate/SKILL.md` → "Enforcement checkpoint rules" for the complete dispatch chain verification gate.
-
-**See `approval-gate/SKILL.md` → "Dispatch Order" for the complete mandatory sequence. See `using-git-worktrees` skill → `create-worktree` task for worktree creation procedure.**
-
-<!-- Issue #4: Dispatch Chain Enforcement Fix — Success Criteria: Update guidelines/000-critical-rules.md with "Skill Bypass = Critical Violation" -->
-
-## Critical Violation: Skill Bypass = Critical Violation
-
-**⚠️ Bypassing any mandatory skill invocation is a CRITICAL GUIDELINE VIOLATION.**
-
-The dispatch chain is enforceable, not advisory. Every step produces required artifacts. Skipping a step and proceeding to the next is equivalent to unverified implementation.
-
-| Bypass | Violation |
-| -- | -- |
-| Manual worktree creation | `git-workflow --task pre-work` skipped |
-| Direct file editing in chat | `divide-and-conquer --task assemble-work` skipped |
-| Claiming done without SC verification | `verification-before-completion` skipped |
-| Compare URL without checklist | `finishing-a-development-branch --task checklist` skipped |
-| Push without review-prep | `git-workflow --task review-prep` skipped |
-
-- 🚫 FORBIDDEN: Treating the dispatch chain as optional for "small" or "simple" work
-- 🚫 FORBIDDEN: Inline file edits without worktree and sub-agent dispatch
-- 🚫 FORBIDDEN: Generating halt-point output without confirming prior step artifacts
-- ✅ REQUIRED: Each step produces a tool-call artifact before the next step proceeds
-- ✅ REQUIRED: On missing artifact, HALT and invoke the skipped skill
-- ✅ REQUIRED: Report the bypass as a STRUCTURE-VIOLATION finding
-
-**See `approval-gate/SKILL.md` → "Dispatch Enforcement" for the complete enforcement table and mandatory invocation callouts.**
-
-## Critical Violation: Listing Merged PRs Without Invoking Cleanup — "check prs" Is a Cleanup Trigger
-
-**⚠️ When the user says "check prs", "check merged prs", "check pr", "check pull request(s)", or equivalent, the agent MUST invoke `git-workflow --task check-pr` which routes to `--task cleanup` if merged PRs with local branches exist. Listing PRs as a static report without cleanup routing is a CRITICAL GUIDELINE VIOLATION.**
-
-The "check prs" intent is a cleanup trigger, not a report request. The agent recognized the request semantically and listed PRs without routing through the mandatory skill pipeline.
-
-- 🚫 FORBIDDEN: Calling `github_list_pull_requests` directly without invoking `git-workflow --task check-pr`; producing a PR listing table/report without routing through check-pr Step 3; responding to "check prs" with observations instead of cleanup actions
-- ✅ REQUIRED: Invoke `git-workflow --task check-pr` when user says any "check prs" variant; follow check-pr Step 3 decision (cleanup if merged PRs have local branches); ensure branch deletion, issue closure, and dev sync occur for all merged PRs
-
-**See `git-workflow` skill → `check-pr` task for the complete procedure. See `session_context_triggers.py` → `CHECK_PRS_PATTERNS` for session-level trigger detection.** **AUTHORITY: `git-workflow/tasks/check-pr.md` Enforcement Gate**
-
-## Auditor Skills Enforcement
-
-**⚠️ MANDATORY: Run `spec-auditor` when auditing specs. NO SKIPPING.**
-
-Trigger words: "audit this spec", "review this issue", "revisit this task", "check this [SPEC]", "validate the spec"
-
-**See `spec-auditor` skill for the complete orchestration model, auto-fix classification, baseline subtasks, conditional subtasks, and invocation commands.**
-
-| Trigger | Action |
-| -- | -- |
-| Spec created | REQUIRED: `spec-auditor --issue N` |
-| "Audit/review/revisit this spec" | REQUIRED: `spec-auditor --issue N` |
-| Before implementation approval | REQUIRED: Verify no critical issues |
-| Guideline change proposed | Optional: `guideline-auditor` |
-
-**Auto-fix model (v3):** Spec-auditor classifies all findings into three tiers and acts on them:
-- **Auto-fix:** Safe, mechanical fixes applied directly (structure violations, missing boilerplate, boilerplate titles, approach differences, concern separation)
-- **Conditional:** Applied after safety check (scope creep, context overflow)
-- **Flag-for-review:** Reported in executive summary only (ambiguous findings, conflicts)
-
-**Executive summary (v3):** After every audit, a structured executive summary MUST be posted to chat with: (a) changes made, (b) findings not acted on with reasons, (c) issue URL. See `spec-auditor` skill → `Chat Executive Summary` for format.
-
-## Critical Violation: Creating PRs Without Explicit Instruction
-
-**⚠️ Creating a PR without EXPLICIT developer instruction is a CRITICAL GUIDELINE VIOLATION.** PRs require "create a PR", "make a PR", "push and create PR", "let's get a PR up", "PR" (bare), or "PR #NNN".
-
-**Scope Exception:** When `authorization_scope == 'for_pr'` or `authorization_scope == 'pr_only'`, PR creation IS authorized by the scope model and does NOT require a separate "create a PR" instruction. The `for_pr`/`pr_only` authorization phrase is the explicit instruction — the scope model resolves it to `halt_at = pr_created` with `auto-PR` gap-fill.
-
-**See `pr-creation-workflow` skill for the full PR timing workflow including authorization boundary. See `010-approval-gate.md` §Authorization Scope Model for `for_pr`/`pr_only` scope exception.**
-
-## Critical Violation: Bug Reports Without Fix Spec
-
-**⚠️ Bug reports must have a fix spec sub-issue before closure is a CRITICAL GUIDELINE VIOLATION.** Fix specs follow the plan-bridge hierarchy: spec → plan → sub-issues.
-
-- 🚫 FORBIDDEN: Closing a bug report without a linked fix spec sub-issue; treating bug reports as complete without fix spec
-- ✅ REQUIRED: Use `issue-review --task analyze-and-spec` to create fix spec sub-issues for bug reports; verify fix spec exists via `approval-gate --task verify-fix-spec` before closure
-
-**See `issue-review` skill → `analyze-and-spec` task for the complete root cause analysis and fix spec creation workflow, and `approval-gate` skill → `verify-fix-spec` task for verification.**
-
-## Critical Violation: Bug Discovery Does NOT Authorize Bug Fixing
-
-**⚠️ Finding a bug during analysis does NOT authorize fixing it.** Bug discovery is a reporting action, NOT an implementation authorization.
-
-**See `approval-gate` skill for the complete discovery protocol and authorization matrix.**
-
-- 🚫 FORBIDDEN: Editing source code after discovering a bug; creating branches without approved spec; treating discovery as authorization
-- ✅ REQUIRED: Create bug report issue (permitted without auth); invoke `issue-review --task analyze-and-spec` for root cause analysis; perform read-only analysis; HALT and wait for authorization
-
-## Critical Violation: Authorization-Free Actions — No Deliberation Required
-
-<!-- Issue #99: Authorization-Free Actions — Signal asymmetry fix -->
-
-**⚠️ The following actions are explicitly authorized WITHOUT needing `"approved"` or `"go"`.** The agent MUST NOT deliberate over authorization for these actions. The authorization mandate applies only to code/config/file modifications that alter system behavior.
-
-- ✅ Creating GitHub Issues (specs, plans, bug reports, feature requests) — permitted without authorization per `issue-operations` skill
-- ✅ Creating sub-issues under an approved plan — covered by plan authorization per `approval-gate --task verify-sub-issues`
-- ✅ Updating existing issue text (revision, drift sync) — administrative, not implementation
-- ✅ Posting progress comments to GitHub — permitted without authorization
-- ✅ Moving issue labels — metadata operation, not implementation
-- ✅ Running lint/typecheck/format commands — read-only verification
-- ✅ Creating feature branches — no auth required, but mandatory worktree per `git-workflow` skill
-
-**Deliberating over authorization for issue creation is a context waste.** The answer is always: proceed with the mandatory skill steps (dedup, title format, byline, etc.), no authorization needed.
-
-## Critical Violation: Symptom-Only Fix-Specs — Patches Without Root Cause Analysis
-
-**⚠️ Creating fix-specs that address only the observed symptom without identifying and targeting the root cause is a CRITICAL GUIDELINE VIOLATION.**
-
-Fix-specs exist to ensure bugs are fixed at their source, not patched at their surface. A symptom-only fix-spec proposes changes that mask the bug's effects without eliminating its cause — the bug will recur or manifest differently.
-
-**See `issue-review` skill → `analyze-and-spec` task for the complete root cause analysis and fix spec creation workflow.** **AUTHORITY: `issue-review/tasks/analyze-and-spec.md`**
-
-| Anti-Pattern | Root Cause Fix | Symptom-Only Patch (FORBIDDEN) |
-| -- | -- | -- |
-| Process gap: "just add the missing close call" | Add enforcement rule + enforcement test mandate | Add one line of code that closes the issue |
-| Data corruption: query returns wrong results | Fix the query logic producing bad data | Filter out wrong results in the UI |
-| State mismatch: stale cache serves old values | Invalidate cache on state change | Increase cache timeout |
-| Missing validation: invalid input causes crash | Add input validation at the entry point | Catch the exception and return empty result |
-| Missing step: workflow skips cleanup | Add mandatory cleanup step to the workflow | Close the issue manually without fixing the workflow |
-
-- 🚫 FORBIDDEN: Creating fix-specs that patch symptoms without root cause analysis; closing bug reports with "add close call" patches that don't prevent recurrence; proposing tactical fixes that mask effects instead of eliminating causes
-- ✅ REQUIRED: Use `issue-review --task analyze-and-spec` for root cause analysis before creating any fix spec; every fix spec MUST include a "Root Cause" section identifying the underlying cause; the "Fix Approach" section MUST target the root cause, not just the symptom; if root cause is unclear, HALT and request developer input per the smart checkpoint in `analyze-and-spec`
-
-**Why this matters:** The entire purpose of the fix-spec workflow is to prevent recurring bugs. A symptom-only fix is the opposite — it closes the issue while leaving the root cause active, guaranteeing the bug will resurface. The `analyze-and-spec` task enforces root cause analysis as MANDATORY before any fix spec creation.
-
-## Critical Violation: Conflating Issue References with Authorization Cascade
-
-**⚠️ Treating issue references as sub-issue relationships that trigger authorization cascade is a CRITICAL GUIDELINE VIOLATION.** In the plan-bridge hierarchy, the spec references the plan via body text (linked reference), NOT via GitHub sub-issue link. Only plan → sub-issue links trigger cascade.
-
-- 🚫 FORBIDDEN: Cascading authorization based on mentions in body/comments; assuming `#NNN` creates authorization links; treating spec's body reference to a plan as a sub-issue link
-- ✅ REQUIRED: Only formal sub-issue links via `github_sub_issue_write` trigger cascade; verify with `github_issue_read(method=get_sub_issues)` on the **plan**, not the spec
-
-**See `approval-gate` skill → "Reference ≠ Authorization Cascade" for the complete verification procedure.**
-
-## Critical Violation: Ignoring Spec-to-Plan Approval Cascade
-
-**⚠️ Requiring manual plan approval when a spec is approved and a faithful plan already exists is a CRITICAL GUIDELINE VIOLATION.**
-
-The spec-to-plan approval cascade means: when a spec is approved and a plan already exists that is faithful to the spec, the plan is automatically approved. Manual plan approval is only required when no plan exists at the time of spec approval (the standard two-gate flow: spec approval → plan creation → plan approval → implementation).
-
-- 🚫 FORBIDDEN: Requiring manual plan approval when a faithful plan already exists at the time of spec approval
-- 🚫 FORBIDDEN: Treating spec approval as only authorizing plan creation when a faithful plan already exists
-- 🚫 FORBIDDEN: Bypassing the two-gate model when no plan exists (cascade does NOT apply — normal flow required)
-- ✅ REQUIRED: Auto-approve faithful existing plans when their linked spec is approved
-- ✅ REQUIRED: Verify plan fidelity before cascading (plan must faithfully represent the approved spec)
-- ✅ REQUIRED: Spec revision still revokes plan approval per existing "Revision Revokes Approval" rules
-
-**Edge cases:** Plan not faithful → fidelity audit catches deviations, plan must be revised and re-approved. Spec revised → revokes all linked plan approvals (existing behavior). No plan exists → normal two-gate flow, no cascade. Multiple plans → most recent approved plan takes precedence, older plans superseded.
-
-**See `010-approval-gate.md` → "Spec-to-Plan Approval Cascade" for the complete cascade rules and edge case documentation.** **AUTHORITY: `010-approval-gate.md` Spec-to-Plan Approval Cascade** (this line is a reference only)
-
-## Critical Violation: Question-as-Authorization — Treating Rhetorical or Complaint Questions as Implementation Authorization
-
-**⚠️ Questions — including rhetorical questions, complaints, frustration expressions, and problem descriptions — are NEVER authorization for action.** This is the same class as the offer-to-edit bypass and confirmation-as-authorization patterns.
-
-- 🚫 FORBIDDEN: Interpreting "how can we work if X never happens?" as authorization to do X
-- 🚫 FORBIDDEN: Interpreting "why hasn't X been done?" as authorization to do X
-- 🚫 FORBIDDEN: Interpreting "we need X" or "X should be Y" as authorization to implement X
-- 🚫 FORBIDDEN: Proceeding to action after any question, complaint, or frustration expression
-- ✅ REQUIRED: Treat ALL questions as observation-only — acknowledge and HALT
-- ✅ REQUIRED: If a question identifies a real problem, create a bug report or fix spec, then HALT and wait for explicit authorization
-
-**This extends the existing "Confirmation ≠ Authorization" and "Offer-to-Edit Bypass" rules.** Questions, complaints, and frustration expressions are not authorization any more than confirmations or offers are. The ONLY authorization tokens are "approved", "go", "#NNN approved", or equivalent explicit phrases from `010-approval-gate.md`.
-
-**See `020-go-prohibitions.md` §1 "NEVER DO" list for the rhetorical/complaint question prohibition. See `approval-gate` skill for the complete authorization verification procedure.** **AUTHORITY: `000-critical-rules.md` §Question-as-Authorization** (this line is a reference only)
-
-```yaml+symbolic
-  - id: critical-rules-question-auth-001
-    title: "Question-as-authorization — treating rhetorical/complaint questions as implementation authorization"
-    conditions:
-      any:
-        - "user_input_type == 'rhetorical_question'"
-        - "user_input_type == 'complaint'"
-        - "user_input_type == 'frustration_expression'"
-        - "user_input_matches == 'how can we.*if.*'"
-        - "user_input_matches == 'why hasn\\'t.*'"
-        - "user_input_matches == 'we need.*'"
-        - "user_input_matches == 'should be.*'"
-    actions:
-      - CREATE_FIX_SPEC
-      - HALT
-    conflicts_with: []
-    triggers: [approval-gate]
-    source: "000-critical-rules.md §Question-as-Authorization"
-```
-
-## Critical Violation: Confirmation ≠ Authorization
-
-**⚠️ User confirmation of an observation does NOT constitute implementation authorization.**
-
-- Only "approved", "go", "#NNN approved" authorize implementation
-- "Yes, that's correct" = confirmation of observation, NOT authorization
-
-**See `approval-gate` skill → "Confirmation ≠ Authorization" for the complete enforcement table.**
-
-**See `020-go-prohibitions.md` §1 "Discussion Conclusion Patterns" for examples of non-authorization discussion conclusions.** **AUTHORITY: `020-go-prohibitions.md` §1** (this line is a reference only)
-
-## Critical Violation: Closing Issues Before PR Merge
-
-**⚠️ Closing issues BEFORE the PR is merged is a CRITICAL GUIDELINE VIOLATION.** In the plan-bridge hierarchy, close sub-issues under the plan first, then the plan, then the spec.
-
-🚫 FORBIDDEN: Closing after implementation; closing when PR created but not merged; closing parents while children open; closing without "merge confirmed"
-
-**See `git-workflow` skill `--task cleanup` for complete post-merge verification.**
-
-## Critical Violation: Skipping PR for Documentation/Guideline Changes
-
-**⚠️ Documentation and guideline changes are NOT exempt from PR workflow.** ALL file modifications require full PR workflow. The only exceptions: ZERO files modified, or already-implemented specs (verified by `verify-already-implemented` task).
-
-## Critical Violation: Parent/Child Issue Closure
-
-**⚠️ Closing a parent issue while child issues remain open is a CRITICAL GUIDELINE VIOLATION.** Only close the child corresponding to the merged PR. Parent stays open until ALL children are closed. In the plan-bridge hierarchy, the plan (not the spec) is the parent of implementation sub-issues.
-
-**See `git-workflow` skill `--task cleanup` for the complete parent/child closure workflow.**
-
-## Critical Violation: Parent Issue Left Open After All Children Closed
-
-**⚠️ Leaving a parent issue open after all child issues are closed and verified is a CRITICAL GUIDELINE VIOLATION.** When all sub-issues of a plan are legitimately closed (with merged PR evidence or verified-already-implemented autoclose), the parent plan issue MUST be closed with a verification comment documenting per-sub-issue evidence. Failure to close the parent is a process gap that must be treated as a bug requiring a fix.
-
-The inverse of "do not close parents while children are open" is equally enforced: "do not leave parents open after children are all verified closed." A plan with all sub-issues completed and verified represents completed work — keeping it open creates stale tracking, confusion about remaining work, and violates the principle that process gaps are bugs.
-
-- 🚫 FORBIDDEN: Leaving a parent plan issue open when all sub-issues are closed with legitimate completion evidence; skipping parent closure after all children are verified; treating parent closure as optional after sub-issue closure
-- ✅ REQUIRED: After all sub-issues of a plan are closed and verified, close the parent plan issue with `github_issue_write(method="update", state="closed", state_reason="completed")`; post a verification comment documenting per-sub-issue evidence on the parent plan; report parent closure in chat output
-- ✅ REQUIRED: `verify-already-implemented` Step 6 performs parent plan closure check after autoclosing sub-issues
-- ✅ REQUIRED: `git-workflow --task cleanup` Step 2.8 performs parent plan closure check after sub-issue closure
-
-**See `approval-gate/SKILL.md` → `verify-already-implemented` Step 6 and `git-workflow` skill → `cleanup` task → Step 2.8 for the complete parent closure procedures.**
-
-## Critical Violation: Deleting Branches/Stashes Improperly
-
-**⚠️ Improper branch deletion is a CRITICAL GUIDELINE VIOLATION.** Merged branches: DELETE IMMEDIATELY. Unmerged branches with work: PRESERVE. Stashes: PRESERVE until asked.
-
-- 🚫 FORBIDDEN: `git branch -D` on unmerged without request; `git stash drop` without request; keeping merged branches
-- Merged PR → DELETE IMMEDIATELY | Unmerged → PRESERVE | Stashes → PRESERVE | `main` → NEVER DELETE
-
-## Critical Violation: Git Configuration and Destructive Command Authorization
-
-**⚠️ Git configuration mutations and destructive git commands require explicit developer authorization — this is a CRITICAL GUIDELINE VIOLATION.**
-
-Git remote and configuration mutations can silently redirect pushes, disable security checks, or destroy unrecoverable state. These operations are Tier 1 mandates — they NEVER yield to developer authorization for the operation itself, but the operation ALWAYS requires explicit authorization before execution.
-
-### Operations Requiring Explicit Authorization (FORBIDDEN without "approved" or "go")
-
-| Category | Commands |
-| -- | -- |
-| Remote mutations | `git remote add`, `git remote rm`, `git remote set-url` |
-| Security-relevant config | `git config --local/--global/--system` for keys in Categories 1-4 below |
-| Force push | `git push --force`, `git push --no-verify` |
-| Bypass hooks | `git commit --no-verify` (in repos with remotes) |
-| Destructive resets | `git reset --hard`, `git clean -fd`, `git checkout -- .` |
-| Ref manipulation | `git update-ref`, `git symbolic-ref` |
-| History rewrite | `git filter-branch`, `git filter-repo` |
-| Reflog expiry | `git reflog expire` |
-| Submodule mutations | `git submodule add`, `git submodule deinit` |
-| Env var overrides | Setting `GIT_SSH_COMMAND`, `GIT_CONFIG_GLOBAL`, `GIT_CONFIG_SYSTEM`, `GIT_EXEC_PATH` |
-
-### Security-Relevant Config Key Categories
-
-| Category | Key Patterns |
-| -- | -- |
-| 1. Remote/URL routing | `remote.*`, `url.*` |
-| 2. Auth/transport security | `http.proxy`, `core.sshCommand`, `http.sslVerify`, `http.sslCAInfo`, `credential.helper`, `credential.username`, `protocol.*.allow` |
-| 3. Hook/path injection | `core.hooksPath`, `init.templateDir` |
-| 4. Environment overrides | `GIT_SSH_COMMAND`, `GIT_CONFIG_GLOBAL`, `GIT_CONFIG_SYSTEM`, `GIT_EXEC_PATH` (set as env vars, not config keys) |
-
-### Required Behaviors
-
-- Before any git operation implying remote interaction, verify existing remote state via `git remote -v`
-- If zero remotes exist, treat as intentional local-only — HALT before any remote modification
-- Any `git config` mutation must be explicitly authorized by the developer
-- Agent MUST NOT infer remote configuration from session-init metadata
-
-### `--no-verify` Exception for Local-Only Repos
-
-`git commit --no-verify` and `git push --no-verify` are FORBIDDEN in repos with remotes, but PERMITTED in local-only repos (zero remotes). The agent MUST check `git remote -v` before using `--no-verify` and HALT if remotes exist.
-
-### Hook Output Is Advisory, Not Absolute
-
-**Hook output is advisory, not absolute.** When a git hook blocks an operation, the agent MUST evaluate whether a documented exception applies before treating the block as final. The `--no-verify` local-only exception is a documented override that takes precedence over branch protection hooks in zero-remote repos. When `git remote -v` returns zero remotes, the agent MUST use `--no-verify` and MUST NOT report the hook block as an unresolvable problem.
-
-- 🚫 FORBIDDEN: Treating hook output as an absolute block without evaluating documented exceptions
-- 🚫 FORBIDDEN: Reporting hook blocks as unresolvable problems when a documented exception applies
-- 🚫 FORBIDDEN: Suggesting unnecessary feature branches in local-only repos when --no-verify is permitted
-- ✅ REQUIRED: Evaluate documented exceptions before treating hook blocks as final
-- ✅ REQUIRED: Use `git commit --no-verify` in zero-remote repos when branch protection hooks fire
-- ✅ REQUIRED: State the local-only exception classification as part of the decision, not as a question to the developer
-
-### Allowlist (No Authorization Needed)
-
-- `git config` read operations (e.g., `git config --get`, `git config --list`)
-- `git remote -v` (read-only)
-- Standard workflow: `git add`, `git commit` (without `--no-verify` in remote repos), `git push` (without `--force`/`--no-verify` in remote repos), `git pull`, `git fetch`, `git checkout -b`, `git switch -c`, `git merge`, `git rebase` (feature only), `git stash/pop/apply`
-- `git commit --no-verify` / `git push --no-verify` in local-only repos (zero remotes)
-
-### Exempt Config Keys (Safe to Mutate Without Authorization)
-
-`user.name`, `user.email`, `core.autocrlf`, `core.filemode`, `push.default`, `submodule.*`, `branch.*`
-
-### Enforcement Mechanisms (session-enforcement.ts)
-
-1. **Config Mutation Watchdog**: Captures baseline of `.git/config` and `git config --local --list` at session start; diffs after each assistant turn; injects `<GIT_CONFIG_MUTATION>` block if security-relevant keys changed.
-2. **`--no-verify` Detection**: Scans assistant message content for `--no-verify` in bash commands; injects `<NO_VERIFY_BLOCKED>` block if repo has remotes. **Null-baseline fallback**: When `gitConfigBaseline` is null (baseline capture failed at session start), performs an inline `git remote -v` check at detection time. If the inline check also fails, treats the repo as local-only (no remotes) and permits `--no-verify`. This ensures the local-only exemption works even when the baseline is unavailable. Post-hoc commit audit checks git log for commits lacking session-enforcement signature.
-3. **Baseline Snapshot**: `GitConfigBaseline` interface with `{ configHash, localConfigHash, remotes[], remoteCount, capturedAt }`; SHA-256 hash comparison with full diff on mismatch.
-
-**AUTHORITY: Issue #72**
-
-## Critical Violation: Blind Conflict Resolution
-
-**⚠️ Resolving git conflicts using "ours"/"theirs" heuristics without classifying conflict tier is a CRITICAL GUIDELINE VIOLATION.**
-
-**See `conflict-resolution` skill for the complete procedural workflow including classification, notification, and verification.**
-
-Three tiers: **Tier 1 (Trivial)**: whitespace/formatting → auto-resolve, silent. **Tier 2 (Textual but safe)**: same intent, different text → auto-resolve, note in chat. **Tier 3 (Intent conflict)**: different goals or spec compliance at risk → HALT, flag for developer review.
-
-## Critical: Engineering Mindset Required
-
-**⚠️ All work must be approached with proper engineering discipline.** See `engineering-approach` skill for complete requirements. **AUTHORITY: `engineering-approach` skill** (this line is a reference only)
-
-1. Understand Before Solving — Read all relevant code before proposing changes
-2. Design Before Implementing — Document approach and obtain approval before coding
-3. Verify Before Declaring Complete — Run tests, check edge cases, validate success criteria
-4. Communicate Changes — Post comments when substantive changes occur (NOT when creating issues, NOT for status updates)
-
-No feature creep: implement ONLY what is in the approved spec. No unapproved work: wait for explicit "approved" or "go".
-
-## Critical Violation: Skipping Completion Guarantee on Workflow Halt
-
-**⚠️ Halting a skill workflow without invoking `--task completion` is a CRITICAL GUIDELINE VIOLATION.** When a state-modifying skill halts at any point — including error, failure, or early termination — the completion subtask MUST be invoked before halting.
-
-- 🚫 FORBIDDEN: Halting mid-workflow without invoking `--task completion`; skipping completion because "nothing was done"; assuming cleanup happens automatically
-- ✅ REQUIRED: Invoke `--task completion` on the current skill before halting; completion tasks are idempotent and safe to invoke multiple times
-
-**See per-skill `tasks/completion.md` files and `.opencode/skills/completion-core/completion-core.md` for the shared completion operations.**
-
-## Critical Violation: Silent Agent Termination
-
-**⚠️ Agents that produce no output before stopping are a CRITICAL GUIDELINE VIOLATION.** If the agent halts, it MUST produce a status message explaining what was completed, what was attempted, and why the halt occurred.
-
-- 🚫 FORBIDDEN: Producing zero output before stopping; silently failing without error message; context overflow without reporting the overflow; tool failure without reporting the failure; ending a session with no summary of work done
-- ✅ REQUIRED: Every HALT MUST be preceded by a status message; every failure MUST be reported with the specific error; every context overflow MUST be reported with the specific cause; every completed task MUST produce an executive summary
-
-### Post-Dispatch Output Guarantee
-
-After EVERY `task(subagent_type="general")` dispatch, the agent MUST produce output — never transition directly from dispatch to halt without output.
-
-| After Dispatch | Agent MUST |
+| After task() | Agent MUST |
 |----------------|-----------|
-| Sub-agent returned valid result | Report result or proceed to next step (existing behavior, no change) |
-| Sub-agent returned empty result | FALLBACK to inline execution + report warning in chat |
-| Sub-agent returned error | FALLBACK to inline execution + report error in chat |
-| Inline fallback also failed | Report double-failure + invoke `--task completion` + HALT with status message + byline |
+| Sub-agent returned valid result | Report result or proceed to next step |
+| Sub-agent returned empty result | RE-TASK clean-room sub-agent with same scoped context |
+| Sub-agent returned error | RE-TASK clean-room sub-agent with same scoped context |
+| Re-task also failed | Report double-failure + call `--task completion` + HALT with status message + byline |
 
 | Violation Pattern | Classification |
 |-------------------|----------------|
 | Empty sub-agent result → zero output → silent halt | Critical: Silent Agent Termination |
-| Empty sub-agent result → fallback attempt → status message in chat | Acceptable: self-corrected |
-| Empty sub-agent result → inline succeeds → chain continues | Acceptable: self-corrected |
-| Error sub-agent result → zero output → silent halt | Critical: Silent Agent Termination |
+| Empty sub-agent result → re-task attempt → status message in chat | Acceptable: self-corrected |
+| Empty/error sub-agent result → inline fallback | Critical: No Inline Fallback — Universal Re-Task Mandate |
 
-**This guarantee supplements the existing Silent Agent Termination rule by specifying the post-dispatch scenario explicitly.** The existing rule covers general halts; this adds the specific case where the agent dispatches a sub-agent, gets an empty result, and has no code path to recovery or reporting.
+#### Post-Tool Execution Output Checkpoint
 
-**See `020-go-prohibitions.md` for the complete halt requirements and `finishing-a-development-branch` skill for completion guarantees.** **AUTHORITY: `020-go-prohibitions.md`** (this line is a reference only)
-
-### Post-Tool Execution Output Checkpoint
-
-After EVERY batch of tool calls (including ALL types: bash, read, write, edit, github_*, srclight_*, task, etc.), the agent MUST produce visible chat output before halting.
-
-This checkpoint applies regardless of whether:
-- Tool calls succeeded or failed
-- Sub-agents returned valid, empty, or error results
-- The agent has reached a natural workflow end-state
-- The agent believes "no further action is needed"
-
-The output MUST include at minimum:
+After EVERY batch of tool calls (ALL types: bash, read, write, edit, github_*, srclight_*, task, etc.), the agent MUST produce visible chat output before halting. This checkpoint applies regardless of tool success/failure, sub-agent results, or workflow end-state. The output MUST include:
 1. What operation/tool was invoked
 2. What the result was (success/failure/error)
 3. What state this leaves the workflow in
 4. What developer action (if any) is required to proceed
-5. AI byline (if halting)
 
-**This output must be generated BEFORE `--task completion` runs, not delegated TO it.**
 
-- 🚫 FORBIDDEN: Transitioning from tool execution directly to halt without chat output
-- 🚫 FORBIDDEN: Delegating output to `--task completion` as a substitute for normal visible output
-- 🚫 FORBIDDEN: Producing zero chat messages in a user-turn even when tool calls succeeded
-- ✅ REQUIRED: After every tool call batch, produce at minimum a one-line status of what happened
-- ✅ REQUIRED: After every sub-agent dispatch, produce Summary/Outcome output before any halt
-- ✅ REQUIRED: Context budget exhaustion produces explicit "budget exhausted" message before halt
+### [critical-rules-016] Skipping Interdependency Analysis for Batch Approvals
+Approving batches without understanding interdependencies means approving work that silently conflicts with other work. Professional engineers analyze interdependencies before every batch approval — amateurs batch first and find conflicts in CI.
 
-## Critical Violation: Skipping Interdependency Analysis for Batch Approvals
 
-**⚠️ Processing multiple approved issues without interdependency analysis is a CRITICAL GUIDELINE VIOLATION.**
+### [critical-rules-042] Treating Branch Stacking as Optional
+Skipping branch stacking means merging chaos into your commit history. Professional engineers stack branches as prerequisite — amateurs treat stacking as optional and produce unreviewable history.
 
-**See `approval-gate` skill → `pre-implementation-analysis` task for the complete procedure, classification heuristics, and output format.**
 
-- 🚫 FORBIDDEN: Processing issues one-by-one without analysis; assuming independence without checking; hiding analysis in reasoning
-- ✅ REQUIRED: Invoke `pre-implementation-analysis` for all approvals (single or authorization set); expand sub-issues; classify each issue; build dependency graph; present analysis in chat; execute in dependency order
+### [critical-rules-016] Leaving stale todowrite state after task completion
+A stale todowrite state means the next agent picks up your abandoned context. Professional engineers complete the full todowrite lifecycle before every halt — amateurs leave their workspace dirty for others to clean.
 
-## Critical Violation: Treating Branch Stacking as Optional
 
-**⚠️ Bypassing stacking discipline without justification is a CRITICAL GUIDELINE VIOLATION. Stacking is a prerequisite for code correctness, not a preference.**
+### [critical-rules-009] Session-Verified State Trust — re-reading without state-change trigger
+Re-reading a resource that was confirmed in-session is re-reading verified state — wasteful overhead. Trusting session-verified state without re-reading is professional efficiency, not laziness.
 
-- 🚫 FORBIDDEN: Treating stacking as a "default preference" that can be overridden for convenience
-- 🚫 FORBIDDEN: Interpreting "independent issues" as "must be parallel" — independence ≠ parallelism
-- 🚫 FORBIDDEN: Dispatching sub-agents in parallel when stacking is the appropriate approach
-- 🚫 FORBIDDEN: Choosing parallel execution because it "saves time" without verifying circumstances genuinely allow it
-- ✅ REQUIRED: Sequential branch stacking as the prerequisite execution model
-- ✅ REQUIRED: Explicit documented justification in work state if parallel execution is chosen (opportunistic only)
-- ✅ REQUIRED: Stack branches via `git merge <prior-branch>` into dependent branches before implementation
-- ✅ REQUIRED: When in doubt, stack — parallel execution is never the starting assumption
 
-## Critical Violation: pre-implementation-analysis Halts Under for_pr Scope
+### [critical-rules-009] Verification Deduplication
+Re-verifying evidence that a prior skill already collected means doubling work without doubling confidence. Professional engineers cite prior evidence artifacts — amateurs re-check what was already verified.
 
-**⚠️ When `authorization_scope` is `for_pr`, `pr_only`, `for_implementation`, or `for_code_review`, the `pre-implementation-analysis` task MUST NOT produce a halting summary with "Next steps" or similar forward-looking text. The task MUST check scope and proceed directly to gap-fill cascade and implementation dispatch.**
 
-- 🚫 FORBIDDEN: Producing "Next steps" output when `for_pr` scope is active
-- 🚫 FORBIDDEN: Treating `pre-implementation-analysis` as a terminal deliverable under `for_pr` scope
-- 🚫 FORBIDDEN: Halting after analysis without checking `authorization_scope`
-- 🚫 FORBIDDEN: Using the `question` tool for structural decisions when `halt_at >= pr_created`
-- ✅ REQUIRED: Check `authorization_scope` at end of `pre-implementation-analysis`; set `continue_pipeline=true` when `halt_at >= pr_created`
-- ✅ REQUIRED: When `halt_at >= pr_created`, proceed directly to gap-fill → `pre-work` → `assemble-work` without halting
-- ✅ REQUIRED: Output under `for_pr` scope is informational only, not a halting point
+### [critical-rules-034] Inline Screening of Authorization Sets
+Screening authorization sets inline instead of tasking a sub-agent means introducing contamination from your own reasoning. Professional engineers always task `screen-issue` sub-agents — amateurs inline and call it fast.
 
-**See `approval-gate/tasks/pre-implementation-analysis.md` §for_pr Scope Continuation Gate for the complete continuation rule table and mandatory behavior.** **AUTHORITY: `000-critical-rules.md` §pre-implementation-analysis Halts Under for_pr Scope**
 
-```yaml+symbolic
-  - id: critical-rules-044
-    title: "pre-implementation-analysis halts under for_pr scope"
-    conditions:
-      all:
-        - "authorization_scope IN ['for_pr', 'pr_only', 'for_implementation', 'for_code_review']"
-        - "pre_impl_analysis_produced_halting_summary == true"
-    actions:
-      - HALT
-      - PROCEED_TO(gap_fill_cascade)
-    conflicts_with: []
-    requires: [critical-rules-037, critical-rules-041]
-    triggers: [approval-gate, divide-and-conquer]
-    source: "000-critical-rules.md §pre-implementation-analysis Halts Under for_pr Scope"
-```
+### [critical-rules-009] Silent Halt Without Prompt — no spec/plan search before stopping
+Halting without first searching for existing specs and plans means leaving the user to rediscover work that may already exist. Amateurs halt blind. Professional engineers search first.
 
-## Critical Violation: Pipeline-Scoped Authorization with Hard HALT at Scope Boundary
 
-**⚠️ Proceeding past the scope horizon specified in the authorization phrase is a CRITICAL GUIDELINE VIOLATION.**
+### [critical-rules-020] Soft-Passing Verification Mismatches
+Reporting "functionally equivalent" as PASS means accepting defects into the codebase under a euphemism. Amateurs soft-pass. Professionals demand exact matches.
 
-When a user says "approved #N to PR" (or any pipeline-scoped phrase), authorization extends ONLY to the pipeline stage specified. Everything below is gap-filled and auto-approved; everything above is unauthorized.
 
-- 🚫 FORBIDDEN: Proceeding past `halt_at` without re-authorization
-- 🚫 FORBIDDEN: Creating a PR when `halt_at < pr_created`
-- 🚫 FORBIDDEN: Implementing when `halt_at == plan_created`
-- 🚫 FORBIDDEN: Treating pipeline scope as a "soft suggestion" rather than a hard wall
-- ✅ REQUIRED: Parse authorization text for scope qualifiers (regex-based, priority order)
-- ✅ REQUIRED: HALT at the specified pipeline stage and report completion
-- ✅ REQUIRED: Pass `authorization_scope`, `halt_at`, and `pr_strategy` through the entire dispatch chain
+### [critical-rules-030] Skipping Clean-Room task() for Sub-Agents
+Skipping clean-room task() means contaminating sub-agent context with orchestrator bias — every downstream result inherits that contamination. Amateurs shortcut isolation. Professionals dispatch clean.
 
-**See `approval-gate` skill → "Authorization Scope Model" for the complete scope values, verb-prefix parsing table, and gap-fill actions.** **AUTHORITY: `approval-gate` skill Authorization Scope Model**
 
-## Critical Violation: Unified Dispatch Path — No Single-Task Exemption
+### [critical-rules-031] Skipping Pre-Flight Checks for Sub-Agents
+Dispatching a sub-agent without pre-flight checks means sending a worker into an unprepared workspace. Amateurs assume readiness. Professionals verify it.
 
-**⚠️ Bypassing the unified dispatch path for single-issue work is a CRITICAL GUIDELINE VIOLATION.**
 
-Every authorization follows the same pipeline regardless of issue count: `verify-authorization → pre-implementation-analysis → divide-and-conquer/assemble-work → verification-before-completion → finishing-a-development-branch → git-workflow/review-prep`. There is no single-task exemption or separate code path.
+### [critical-rules-032] Skipping Post-Flight Checks for Sub-Agents
+Accepting sub-agent results without post-flight checks means trusting instead of verifying. Amateurs accept output at face value. Professionals inspect the deliverable.
 
-- 🚫 FORBIDDEN: Skipping `divide-and-conquer/assemble-work` for single issues
-- 🚫 FORBIDDEN: Implementing directly as the main agent for single issues
-- 🚫 FORBIDDEN: Creating individual PRs for single issues in a work set (PR strategy is scope-dependent, not count-dependent)
-- 🚫 FORBIDDEN: Bypassing any dispatch chain step for "small" or "simple" work
-- ✅ REQUIRED: Dispatch single issues through `assemble-work` as work-of-1 (single sub-agent)
-- ✅ REQUIRED: Use `authorization_scope` and `pr_strategy` to determine PR behavior, not issue count
-- ✅ REQUIRED: Follow the complete dispatch chain for every authorization
 
-**See `approval-gate` skill → "Unified Dispatch Path (Work-of-1)" and `divide-and-conquer` skill → `assemble-work` task for the complete dispatch procedure.**
+### [critical-rules-033] Claiming Verification Without Tool-Call Evidence in Sub-Agent Results
+Reporting verification without tool-call evidence means presenting guesses as facts. Amateurs claim. Professionals prove.
 
-## Simple Work Dispatch Path (Tier 2 Waiver)
 
-When ALL of the following conditions are met:
-- Developer has given explicit authorization (approved/go)
-- Work is "clearly simple" (see classification table below)
-- No spec or plan is required (Tier 2 waiver applies)
-- File modifications ARE needed (Tier 1 worktree mandate applies)
+### [critical-rules-034] Inline Work — orchestrator performing file modifications without sub-agent task()
+An orchestrator that reads files, edits files, or makes decisions inline has stopped being a router and started being a contaminant. Amateurs do the work themselves. Professionals route to sub-agents. Detailed rules below.
 
-The agent follows this REDUCED dispatch path:
-
-1. `git-workflow --task pre-work` — Create worktree (Tier 1, MANDATORY)
-2. Direct implementation in worktree — No sub-agent dispatch needed for single-file changes
-3. `verification-before-completion` — Verify success criteria exist and pass
-4. `finishing-a-development-branch --task checklist` — Branch readiness check
-5. `git-workflow --task review-prep` — Push, generate compare URL, HALT
-
-Steps SKIPPED for simple work:
-- `verify-authorization` (Tier 2 waiver replaces this — authorization IS the process)
-- `pre-implementation-analysis` (no plan to analyze)
-- `divide-and-conquer/assemble-work` (single implementer, single concern)
-- `verification-before-completion` can be simplified for documentation-only changes
-
-### Classification: "Clearly Simple Work"
-
-Work qualifies as "clearly simple" when ALL criteria are met:
-
-| Criterion | Qualifies | Does Not Qualify |
-|-----------|-----------|------------------|
-| Scope localization | Changes limited to a single concern | Changes span multiple concerns |
-| Behavioral change | None (docs, config, runbooks) | Any behavioral change |
-| Architectural impact | None | Any impact on architecture |
-| Existing code interaction | None (new files, minor edits) | Modified function signatures, APIs |
-| Risk level | Zero rollback risk | Data loss, security, deployment risk |
-
-When work does NOT qualify as "clearly simple", the full dispatch path applies regardless of developer authorization.
-
-### Key Principle
-
-"Simple" describes the PROCESS burden (no spec/plan needed), NOT the SAFETY mechanism. Worktrees protect repository integrity regardless of task complexity. The reduced dispatch path still enforces all Tier 1 mandates — it only skips Tier 2 process steps that are waived by developer authorization.
-
-**⚠️ Leaving stale or uncleared todowrite state after task completion is a CRITICAL GUIDELINE VIOLATION.**
-
-When the `todowrite` tool is used during a session, the agent MUST maintain the full lifecycle: create items with correct status, update status as work progresses, and clear all items before halting.
-
-- 🚫 FORBIDDEN: Leaving `pending` items after task completes; abandoning `in_progress` items without transitioning to `completed`; halting without calling `todowrite(todos=[])`; ignoring stale state from previous tasks
-- ✅ REQUIRED: Transition each item to `in_progress` when work begins and `completed` when done; call `todowrite(todos=[])` to clear state before HALT; verify no stale items remain at session end
-
-**See `060-tool-usage.md` §7 for the complete todowrite lifecycle rules (CREATE/UPDATE/CLEAR).** **AUTHORITY: `060-tool-usage.md` §7** (this line is a reference only)
-
-## Critical Violation: Session-Verified State Trust — Re-Reading Without State-Change Trigger
-
-**⚠️ Re-reading a resource in the same session without a state-change trigger is a CRITICAL GUIDELINE VIOLATION.**
-
-After a resource (issue, PR, file, comment set) is read and its state confirmed in this session, that state is TRUSTED until a state-change trigger occurs.
-
-| Rule | Text |
-| -- | -- |
-| Define | After a resource is read and its state confirmed in this session, that state is TRUSTED until a state-change trigger occurs |
-| Re-read forbidden | Re-reading the same resource in the same session without a state-change trigger is a CRITICAL GUIDELINE VIOLATION |
-| Counter allowed | A running tally of reads per resource is maintained; reading the same resource 3+ times triggers mandatory self-correction |
-| Context preserved | Trusting session-verified state DOES NOT violate `065-verification-honesty.md` — that rule governs claims ABOUT state, not the state's own persistence within a session |
-
-**State-change triggers (exhaustive list):**
-1. User explicitly says something changed
-2. API response indicates change (e.g., issue reopened)
-3. 5+ minutes elapsed with other agents active
-4. Session boundary
-5. The resource was modified by the agent itself since last read
-
-## Critical Violation: Verification Deduplication
-
-**⚠️ Re-verifying a resource that was already verified by a prior skill in the same session is a CRITICAL GUIDELINE VIOLATION.**
-
-If a verification gate from one skill has already produced evidence for a resource in this session, a subsequent skill requiring verification of the SAME resource may skip re-verification and cite the prior skill's evidence artifact.
-
-| Skill | Evidence artifact | Reusable by |
-| -- | -- | -- |
-| `verification-enforcement --task verify` | Section evidence table | `spec-auditor`, `spec-creation`, `correspondence` |
-| `approval-gate --task verify-authorization` | Authorization status, scope, halt_at | `git-workflow`, `divide-and-conquer`, `executing-plans` |
-| `git-workflow --task pre-work` | Branch state, worktree.path | `divide-and-conquer`, `finishing-a-development-branch` |
-| `verification-before-completion --task verify` | Per-SC evidence table | No skip — this is the final gate |
-
-## Critical Violation: Pushing Agent Intelligence Decisions to the User
-
-**⚠️ Asking the user to make structural classification decisions that the agent should resolve autonomously is a CRITICAL GUIDELINE VIOLATION.**
-
-Structural decisions — single-task vs multi-task classification, phase decomposition, scope sizing — are agent intelligence concerns. The agent must resolve them autonomously based on request analysis and codebase context.
-
-- 🚫 FORBIDDEN: "Should this be a single-task spec or broken into phases?" — the agent decides
-- 🚫 FORBIDDEN: "Is this a small change or a big one?" — the agent assesses
-- 🚫 FORBIDDEN: "Do you want this as one spec or multiple?" — the agent classifies
-- 🚫 FORBIDDEN: "How should we handle this partially-implemented issue?" — scope-reduce and continue
-- 🚫 FORBIDDEN: "Should we re-plan?" — yes, if authorization says "re-plan as needed"
-- 🚫 FORBIDDEN: "How should we close this already-implemented issue?" — via verify-already-implemented or via referenced spec-fix
-- 🚫 FORBIDDEN: "Should this be standard scope or for_implementation?" — the verb-prefix parsing table resolves this
-- 🚫 FORBIDDEN: "What scope of authorization?" — the verb-prefix table is deterministic
-- 🚫 FORBIDDEN: "Is this approved to PR or just to implementation?" — parse the phrase, don't ask
-- 🚫 FORBIDDEN: Any question where the answer is determinable from context, codebase, or request analysis
-- ✅ REQUIRED: Classify autonomously and state the classification as part of the design proposal
-- ✅ REQUIRED: Only ask when multiple valid structures exist with genuinely ambiguous trade-offs (e.g., 3+ subsystems with unclear boundaries)
-- ✅ REQUIRED: Authorization scope MUST be auto-resolved from the verb-prefix parsing table per the approval-gate skill → Authorization Scope Model
-
-**See `brainstorming` skill → `explore` task → "Autonomous Structural Classification" for the complete criteria. See `approval-gate/tasks/pre-implementation-analysis.md` Step 0.15 for the classification decision table that maps screening results to autonomous actions. See `approval-gate/tasks/screen-issue.md` §"Autonomous Resolution" for the exhaustive `requires_developer: true` conditions.**
-
-## Critical Violation: Process Gaps Are Bugs — Completed Issues Not Auto-Closed
-
-**⚠️ Failing to follow a mandatory workflow step is a systemic failure, not an individual oversight.** Process gaps must be treated as bugs requiring guideline/skill fixes.
-
-- 🚫 FORBIDDEN: "I just didn't do it" / "I forgot" / "I skipped it" as explanations for missed workflow steps
-- 🚫 FORBIDDEN: Leaving issues open after their implementation is verified complete via merged PR
-- 🚫 FORBIDDEN: Treating process gaps as acceptable human error rather than systemic bugs
-- ✅ REQUIRED: When a process gap is discovered (e.g., completed issues not auto-closed, verification steps skipped), create a fix spec to prevent recurrence
-- ✅ REQUIRED: Fix the guideline/skill to close the gap — the process must enforce itself, not rely on agent memory or diligence
-- ✅ REQUIRED: Issues verified as already-implemented via merged PR MUST be auto-closed with a comment referencing the PR
-
-**Why this matters:** If a mandatory step can be skipped by accident, the workflow is defective — not the agent. The correct response to a process gap is to fix the process (add enforcement to guidelines/skills), not to accept the gap as inevitable. "I forgot" means the process lacks a verification gate or checklist item that would catch the omission.
-
-**See `approval-gate` skill → `verify-already-implemented` task → "Auto-Close Procedure" for the post-merge issue closure workflow. See `finishing-a-development-branch` skill → `checklist` task for issue-closure verification steps.**
-
-## Critical Violation: Sub-issue Linkage Verification — Phase Count Mismatch
-
-**⚠️ `get_sub_issues` count MUST match plan body phase count before implementation proceeds. If counts don't match, block implementation and offer remediation via `issue-operations --task link-sub-issue`.**
-
-**This enforcement point is `approval-gate --task verify-authorization` Step 5, specifically the phase-count cross-reference check (Step 5.2.1).** **AUTHORITY: `approval-gate/tasks/verify-authorization.md` Step 5.2.1** (this line is a reference only)
-
-- 🚫 FORBIDDEN: Proceeding with implementation when a multi-task plan has fewer formal sub-issues than phases in its body; treating markdown headings as equivalent to formal sub-issue linkage; skipping the phase-count cross-reference check
-- ✅ REQUIRED: Parse plan body for `### Phase N:` or `#### Task N:` heading patterns to count expected phases; compare count against `github_issue_read(method=get_sub_issues)` result count; if plan body has N > 1 phases and `get_sub_issues` returns fewer than N sub-issues, report STRUCTURE-VIOLATION and block implementation with a remediation offer to run `issue-operations --task link-sub-issue`
-- ✅ REQUIRED: Single-task plans (0 or 1 phases expected) skip the count check and pass automatically
-
-**See `020-go-prohibitions.md` §5 for multi-task plan sub-issue requirements.** **AUTHORITY: `020-go-prohibitions.md` §5** (this line is a reference only)
-
-## Critical Violation: Inline Screening of Authorization Sets
-
-**⚠️ The agent MUST ALWAYS dispatch `screen-issue` sub-agents for per-issue screening, regardless of approval set size. Loading issue bodies into the orchestrator's own context is a CRITICAL GUIDELINE VIOLATION.**
-
-- 🚫 FORBIDDEN: Fetching approved issue bodies into orchestrator context before sub-agent dispatch
-- 🚫 FORBIDDEN: Running screening logic inline for ANY approval set size
-- ✅ REQUIRED: Dispatch one `screen-issue` sub-agent for EVERY approved issue — no count threshold
-- ✅ REQUIRED: Orchestrator receives only compact result contracts (≈100-500 words each)
-- ✅ REQUIRED: Cross-issue merge and dependency graph built from result contracts, not raw issue bodies
-
-**AUTHORITY:** `approval-gate/tasks/pre-implementation-analysis.md` Step -1
-
-### Common Misconception: "Small approval sets can be screened inline"
-
-**This is INCORRECT.** There is no inline screening path. Every approved issue — whether 1, 2, or 20 — MUST be screened by a `screen-issue` sub-agent dispatched via `task(subagent_type="general")`. The count threshold was removed because:
-
-1. Inline screening creates a forked code path that agents exploit to skip sub-agents
-2. Even a single issue can consume significant context (long spec, many comments, sub-issues)
-3. Sub-agent dispatch has near-zero cost but guarantees consistent execution
-4. The "context savings" of inline screening for ≤3 issues never materialized in practice
-
-**DO NOT re-introduce a count threshold.** This is a structural invariant, not a performance optimization.
-
-## Critical Violation: Silent Halt Without Prompt — No Spec/Plan Search Before Stopping
-
-**⚠️ Halting silently when no spec/plan exists for an implementation request — without first searching GitHub Issues for candidates and presenting them — is a CRITICAL GUIDELINE VIOLATION.**
-
-When an agent receives an implementation instruction but cannot find an associated spec or plan, it must actively search for existing candidates before halting. A silent halt with no search and no presentation of options is a process gap that treats missing documentation as the user's problem rather than an actionable finding.
-
-- 🚫 FORBIDDEN: Halting silently without searching GitHub Issues; presenting no candidates when implementation authorization lacks a matching spec/plan; offering only "create a new spec" without checking for existing specs first
-- ✅ REQUIRED: Search GitHub Issues for candidate specs/plans using label filters (`[SPEC]`, `[PLAN]`, `[SPEC-FIX]`) and keyword matching against the request target; present all candidates with URLs; offer create-or-select before halting; flag as FAILURE if no candidates found
-- ✅ REQUIRED: When no candidate exists, the agent MUST present the failure state ("No existing spec/plan found for [topic]") before offering to create one
-
-**Why this matters:** The current Q/A mode halt is passive — it stops work but doesn't help the user find existing tracking. Active search turns "no spec found" from a dead end into a decision point: "here are N existing issues that may match, which one (if any) did you mean?" This reduces duplicate spec creation and connects implementation requests to existing tracking.
-
-**See `020-go-prohibitions.md` §1 "NEVER DO" and "ALWAYS DO" for the search procedure, and `approval-gate` skill → `verify-qa-mode` task → Step 2.5 for the mandatory search step.** **AUTHORITY: `020-go-prohibitions.md` §1** (this line is a reference only)
-
-## Critical Violation: Non-Idempotent API Mutations
-
-**⚠️ Creating duplicate resources through non-idempotent API mutations is a CRITICAL GUIDELINE VIOLATION.**
-
-Any API mutation (PR creation, issue creation, branch creation) MUST be idempotent — check for existing resource before creating, handle "already exists" gracefully, never create duplicates through retry.
-
-- 🚫 FORBIDDEN: Creating a PR without checking for existing open PR on the same head branch; retrying a mutation POST after the first call succeeded but response parsing failed; creating duplicate issues, branches, or releases without a pre-check
-- ✅ REQUIRED: Before any mutation POST, check whether the resource already exists (e.g., `list_pull_requests(state='open')` before `create_pull_request`); if resource exists, return existing data — do NOT create duplicate; if creation call succeeded but parsing failed, the resource was created — report what happened, do NOT retry the POST
-
-## Critical Violation: Inline Mutation Scripts
-
-**⚠️ API calls that mutate state (POST, PUT, PATCH) inlined in `python -c '...'` strings are a CRITICAL GUIDELINE VIOLATION.**
-
-API calls that mutate state must use the platform's dedicated API client (e.g., `gitbucket-api` CLI tool, GitHub MCP). If the client lacks the method, HALT — do NOT work around it with inline scripts. Shell interpolation corrupts inline Python, POST calls succeed but parsing crashes, and agents retry the entire call creating duplicates.
-
-- 🚫 FORBIDDEN: `uv run python -c '...'` for any POST/PUT/PATCH operation; raw `requests.post()` / `requests.put()` / `requests.patch()` outside the dedicated API client; any inline script containing a mutation HTTP method
-- ✅ REQUIRED: Use `./.opencode/tools/gitbucket-api create-pr`, `./.opencode/tools/gitbucket-api create-issue`, etc. for all GitBucket mutations; use GitHub MCP for GitHub mutations; if a needed command is missing, HALT and report the gap; use the tool's built-in error handling and response parsing
-
-## Critical Violation: Soft-Passing Verification Mismatches
-
-**⚠️ Reporting a verification mismatch as "passing," "functionally equivalent," "minor difference," or "semantically close" — instead of FAIL — is a CRITICAL GUIDELINE VIOLATION.**
-
-Verifying live state against a specification requires exact match. Any deviation — no matter how "functionally equivalent" — is a FAIL. The agent must NEVER apply its own judgment about whether a mismatch "matters" during verification.
-
-- 🚫 FORBIDDEN: Reporting a mismatched value as "passing," "verified," or "PASS"
-- 🚫 FORBIDDEN: Rationalizing a mismatch as "functionally equivalent," "minor difference," "works the same," or "semantically close"
-- 🚫 FORBIDDEN: Downgrading a FAIL to a PASS based on the agent's judgment about whether the mismatch "matters"
-- 🚫 FORBIDDEN: Hiding discrepancies in footnotes, notes, or secondary annotations instead of surfacing them as FAIL in the primary verification table
-- 🚫 FORBIDDEN: Comparing multi-field records as a whole instead of comparing each field independently (e.g., SRV priority AND weight are separate comparisons)
-- ✅ REQUIRED: Each field in a multi-field record is compared independently — all fields must match exactly for the record to PASS
-- ✅ REQUIRED: Verification results are reported as a pass/fail table with no hedging language
-- ✅ REQUIRED: If the stakeholder wants to accept a deviation, that is their decision — not the agent's
-- ✅ REQUIRED: The default comparison mode for ALL external verifications (DNS records, configuration values, API responses, infrastructure state) is `exact` — character-for-character match
-- ✅ REQUIRED: `semantic` comparison mode is ONLY for code behavior where multiple implementations achieve the same spec intent, and requires explicit per-field justification
-
-**AUTHORITY:** `065-verification-honesty.md` → "Verification Comparison Semantics" section, `verification-before-completion` skill → "Comparison Modes" section
-
-## Critical Violation: Secret Exfiltration in Agent Output
-
-**⚠️ Including .env file contents, token values, API keys, passwords, or credentials in ANY output is a CRITICAL GUIDELINE VIOLATION.**
-
-- 🚫 FORBIDDEN: Including `.env` file contents, token values, API keys, passwords, or credentials in agent output — including issue comments, PR descriptions, commit messages, chat responses, and tool call parameters
-- 🚫 FORBIDDEN: Pasting secret values verbatim into any external service (GitHub, email, documentation)
-- 🚫 FORBIDDEN: Bypassing the secret redaction pipeline by quoting raw secrets from file reads
-- ✅ REQUIRED: Redact ALL secret values to `[REDACTED]` or `[REDACTED:TYPE]` before including content in any output
-- ✅ REQUIRED: The redaction pipeline (session-enforcement.ts output transform + pre-submission scan + file read blocklist) catches most cases, but agents must also reason about what they include — the pipeline is defense in depth, not a substitute for judgment
-- ✅ REQUIRED: When referencing configuration for root cause analysis, redact ALL secret values before including the content
-
-**Applicable to:** Issue comments, PR descriptions, commit messages, chat responses, tool call parameters, and any other output channel.
-
-**Authority:** `src/security/pre_submission_scan.py`, `src/security/file_read_blocklist.py`, `session-enforcement.ts` → `redactSecrets()`
-
-## Critical Violation: Issue Body Erasure — Replacing Issue Body with Shorter Content
-
-**⚠️ Replacing an issue body with a shorter summary, status update, or abbreviated version is a CRITICAL GUIDELINE VIOLATION.** Bug #1215 documented a case where post-merge cleanup replaced an entire issue body with a short closing summary, erasing all spec/plan content.
-
-- 🚫 FORBIDDEN: Replacing an issue body with a status summary, closing statement, or abbreviated content
-- 🚫 FORBIDDEN: Using `github_issue_write(method=update, body=...)` where `len(new_body) < 0.8 * len(original_body)` — this indicates content erasure
-- 🚫 FORBIDDEN: Overwriting issue bodies during cleanup, closing, or auto-fix workflows without verifying content preservation
-- ✅ REQUIRED: Before any `github_issue_write(method=update, body=...)` call, read the current body via `github_issue_read(method=get)` and verify `len(new_body) >= 0.8 * len(original_body)` — if not, HALT and report the erasure risk
-- ✅ REQUIRED: Status updates and closing comments MUST be added as separate comments (`github_add_issue_comment`), NOT written into the issue body
-- ✅ REQUIRED: The only safe body modifications are: adding STATUS headers, fixing typos, inlining cross-references, and adding boilerplate elements — all of which ADD content or make minor mechanical changes without removing substantial original content
-
-**This safeguard applies to ALL body-modification workflows** including spec-auditor auto-fixes, post-merge cleanup, sub-issue creation, and any other `github_issue_write(method=update, body=...)` call site. See individual skill task files for workflow-specific body-preservation safeguards.
-
-**Authority:** Bug #1215; spec-auditor SKILL.md → Body-Preservation Safeguard section; cleanup.md → Archive Workflow body-preservation warning; close.md → Step 3 body-preservation safeguard
-
-## Critical Violation: Posting AI-Authored Content Without Byline Verification
-
-**⚠️ Calling `github_issue_write`, `github_add_issue_comment`, `github_create_pull_request`, or `github_update_pull_request` with AI-authored body content without verifying byline presence is a CRITICAL GUIDELINE VIOLATION.**
-
-The byline enforcement is positional — it lives inside `issue-operations` task files rather than being a universal pre-flight check on the API call itself. Direct API calls bypass these checks entirely.
-
-- 🚫 FORBIDDEN: Calling `github_issue_write`, `github_add_issue_comment`, `github_create_pull_request`, or `github_update_pull_request` with AI-authored body content without verifying byline presence
-- 🚫 FORBIDDEN: Using `gitbucket-api create-issue` or `gitbucket-api create-pr` with AI-authored body content without verifying byline presence
-- ✅ REQUIRED: Before ANY API call that posts AI-authored content (issue body, issue comment, PR body, PR comment), verify the body contains `🤖 Co-authored with AI: <AgentName> (<ModelId>)` or the non-emoji format `Co-authored with AI: <AgentName> (<ModelId>)`. If missing, append before the API call.
-
-**Authority:** Bug #1259; `issue-operations` skill → `creation` task Step 3 / `comment` task Step 3.5; `git-workflow` skill → `pr-creation/create-pr` task; `verification-before-completion` skill → `completion` task; `080-code-standards.md` → "Posted Content Requiring Attribution"
-
-## Critical Violation: Skipping Clean-Room Dispatch for Sub-Agents
-
-**⚠️ Dispatching verification or implementation sub-agents with implementation context is a CRITICAL GUIDELINE VIOLATION.**
-
-Clean-room dispatch means sub-agents receive ONLY the scoped context they need (spec, plan, file paths, task description) and are EXCLUDED from receiving implementation context, other sub-agents' prior results (unless explicitly required by declared dependency), cached verification results, or agent memory from prior phases. The verification-before-completion skill already mandates clean-room dispatch for `structural-verify` — this rule extends the mandate to ALL pipeline stages where sub-agents are dispatched.
-
-**See `verification-before-completion` skill → Clean-Room Dispatch Protocol for the complete dispatch context isolation table. See `divide-and-conquer` skill → Dispatch Context Schema for implementation sub-agent isolation requirements.**
-
-| Pipeline Stage | MUST Receive | MUST NOT Receive |
-|---|---|---|
-| RED test execution | Spec SC list, test file paths | Implementation context, prior test output |
-| GREEN test execution | Spec SC list, test file paths, implementation file paths | Prior RED test output, implementation intent |
-| Implementation (divide-and-conquer) | Spec, plan, file paths, worktree.path | Other sub-agents' prior results (unless declared dependency), agent memory, cached verification |
-| Git tasks (pre-work, review-prep, cleanup) | Task description, required git state | Implementation context, agent memory |
-| Code review setup | Diff, PR metadata | Implementation intent, agent memory |
-| PR creation | Branch compare data, spec summary | Implementation context, agent memory |
-| Finishing-a-branch checklist | Checklist items, verification targets | Implementation context, agent memory |
-| Verification-before-completion | Spec SC list, file paths | Implementation context, prior verification results, agent memory |
-
-- 🚫 FORBIDDEN: Dispatching verification sub-agents with implementation context
-- 🚫 FORBIDDEN: Dispatching implementation sub-agents with other sub-agents' prior results (unless declared dependency)
-- 🚫 FORBIDDEN: Dispatching git task sub-agents with implementation context or agent memory
-- 🚫 FORBIDDEN: Including cached verification results in sub-agent dispatch context
-- ✅ REQUIRED: Each skill SKILL.md that dispatches sub-agents MUST include clean-room dispatch protocol in its yaml+symbolic decomposition
-- ✅ REQUIRED: Dispatch context schema MUST specify MUST-receive and MUST-NOT-receive items
-
-**Authority:** `verification-before-completion` skill (reference implementation), Spec #98 (clean-room sub-agent mandate), Bug #87 and Bug #91 (proxy-evidence regression)
-
-## Critical Violation: Skipping Pre-Flight Checks for Sub-Agents
-
-**⚠️ Dispatching sub-agents without validating their starting state is a CRITICAL GUIDELINE VIOLATION.**
-
-Every sub-agent MUST validate its starting state before beginning work. Pre-flight checks prevent work from proceeding with invalid or inconsistent state. If ANY pre-flight check fails, the sub-agent MUST return `status: BLOCKED` with a descriptive error — it MUST NOT proceed with work on an invalid state.
-
-**Mandatory pre-flight checks:**
-
-| Check | Purpose | Required Evidence |
-|---|---|---|
-| Branch exists and is correct | Sub-agent is on the expected branch | `git branch --show-current` output matches expected branch |
-| Worktree path is valid (if set) | Sub-agent is in the correct worktree | `git rev-parse --show-toplevel` matches `worktree.path` |
-| Spec issue exists and is readable | Sub-agent can access the spec | `github_issue_read(method=get)` returns non-empty body |
-| Plan issue exists (if applicable) | Sub-agent can access the plan | `github_issue_read(method=get)` returns non-empty body or sub-agent marks plan-independent |
-| Target files exist (for modification tasks) | Sub-agent won't create phantom files | `glob` or `read` confirms target files are present |
-| No uncommitted changes from prior sub-agent | Sub-agent starts from clean state | `git status --short` returns empty or expected-only changes |
-| Session context variables are set | `github.owner`, `github.repo`, `github.platform` are present | Values confirmed in dispatch context |
-
-- 🚫 FORBIDDEN: Dispatching sub-agents without pre-flight check requirements in dispatch context
-- 🚫 FORBIDDEN: Proceeding with work when any pre-flight check fails
-- 🚫 FORBIDDEN: Returning `status: DONE` instead of `status: BLOCKED` when a pre-flight check fails
-- ✅ REQUIRED: Every sub-agent dispatch MUST include pre-flight check requirements in dispatch context
-- ✅ REQUIRED: Sub-agents MUST validate ALL pre-flight checks before beginning work
-- ✅ REQUIRED: Sub-agents MUST return `status: BLOCKED` with descriptive error when any check fails
-
-**Authority:** Spec #98 (pre-flight check protocol)
-
-## Critical Violation: Skipping Post-Flight Checks for Sub-Agents
-
-**⚠️ Accepting sub-agent results without validating deliverable substance is a CRITICAL GUIDELINE VIOLATION.**
-
-Every sub-agent MUST validate its deliverables before returning results to the orchestrator. Post-flight checks prevent the orchestrator from accepting invalid or incomplete deliverables. This is the pipeline-level extension of the proxy-evidence rule from #91: accepting `status: DONE` without tool-call evidence of deliverable correctness is the same pattern at a different scale.
-
-**Mandatory post-flight checks:**
-
-| Check | Purpose | Required Evidence |
-|---|---|---|
-| Files changed match spec scope | Sub-agent didn't modify files outside the spec | `git diff --stat` against base branch shows only spec-related files |
-| No uncommitted changes remain | All work is committed or explicitly stashed | `git status --short` returns empty (or only expected unstaged files) |
-| Success criteria traceability | Each SC maps to at least one file change | Result contract includes per-SC file mapping |
-| Deliverable substance verification | Claimed deliverables actually exist and contain expected content | `read` or `grep` confirms content matches spec requirements |
-| Result contract completeness | Result contract has all required fields | `status`, `files_changed`, `summary`, `phase_progress`, `compare_url` (if applicable) are all present |
-| No cached/memory claims | All verification claims have tool-call evidence | Result contract references tool-call artifacts, not "I recall" or "as noted earlier" |
-
-- 🚫 FORBIDDEN: Returning `status: DONE` when any post-flight check fails
-- 🚫 FORBIDDEN: Accepting sub-agent results without verifying post-flight checks
-- 🚫 FORBIDDEN: Claiming "files changed" without `git diff --stat` evidence
-- 🚫 FORBIDDEN: Claiming "all SCs met" without per-SC-to-file traceability evidence
-- ✅ REQUIRED: Sub-agents MUST perform ALL post-flight checks before returning results
-- ✅ REQUIRED: Sub-agents MUST return `status: DONE_WITH_CONCERNS` with specific concerns listed when any check fails
-- ✅ REQUIRED: Result contracts MUST include `status`, `files_changed`, `summary`, `phase_progress` fields
-- ✅ REQUIRED: Every verification claim in a result contract MUST reference a tool-call artifact
-
-**Authority:** Spec #98 (post-flight check protocol), Bug #91 (proxy-evidence regression)
-
-## Critical Violation: Claiming Verification Without Tool-Call Evidence in Sub-Agent Results
-
-**⚠️ Sub-agents returning `DONE` with memory-cached claims (not tool-call-evidenced) is a CRITICAL GUIDELINE VIOLATION.** This extends #91's proxy-evidence rule to sub-agent result contracts.
-
-Every verification claim in a sub-agent result contract MUST reference a tool-call artifact produced in the current sub-agent session. Claims based on "I recall", "as noted earlier", "from the previous session", or training data are proxy evidence and are FORBIDDEN in result contracts.
-
-- 🚫 FORBIDDEN: Sub-agent result contracts containing "I recall" or "as noted earlier" claims
-- 🚫 FORBIDDEN: Sub-agent result contracts referencing tool calls from prior sessions without re-verification
-- 🚫 FORBIDDEN: Sub-agent result contracts referencing training data or general knowledge as evidence
-- 🚫 FORBIDDEN: Orchestrators accepting result contracts with non-tool-call verification claims
-- ✅ REQUIRED: Every verification claim in a result contract MUST include a tool-call artifact reference (tool name, parameters, output excerpt)
-- ✅ REQUIRED: Orchestrators MUST verify that sub-agent result contracts contain only tool-call-evidenced claims before accepting `status: DONE`
-- ✅ REQUIRED: When a sub-agent cannot verify a claim with a tool call, the claim MUST be marked as `UNVERIFIED` in the result contract, and the orchestrator treats it as a `DONE_WITH_CONCERNS` concern
-
-**Authority:** Bug #91 (proxy-evidence regression), `065-verification-honesty.md` (stale evidence axiom), Spec #98 (sub-agent result contract integrity)
-
-## Sub-Agent Extraction Pattern
-
-All skill task dispatches follow a sub-agent-first paradigm. The main agent is a pure orchestrator that never loads task files directly — it dispatches every task via `task(subagent_type="general")` and receives compact result contracts. Each SKILL.md contains a "Sub-Agent Tasks" section with word-count context, result contract schemas, and dispatch context schemas. The main agent loads only SKILL.md files and reads compact result contracts (≈100-500 words), never loading task files directly.
-
-- All tasks → sub-agent dispatch via `task(subagent_type="general")`
-- Word counts in tables are for context estimation only, not dispatch selection
-- Result contracts reference task files as source of truth (no duplication)
-- Dispatch context MUST include `worktree.path`, `github.owner`, `github.repo`, `dev.name`, `dev.email`
-
-**See each skill's SKILL.md → "Sub-Agent Tasks" section for word-count context and result contract schemas.**
-
-## Critical Violation: Inline Work — Performing File Modifications, Analysis, or Verification Without Clean-Room Sub-Agent Dispatch
-
-**⚠️ The main orchestrator reading, editing, writing, or analyzing files in its own context — or sub-agents combining multiple pipeline steps in a single dispatch — is a CRITICAL GUIDELINE VIOLATION.**
-
-The orchestrator is a pure router. It dispatches sub-agents and collects result contracts. It NEVER performs file operations, analysis, verification, or decision-making inline. Sub-agents are decomposed into discrete single-step units — each dispatch does exactly one thing. The producer of a deliverable NEVER also verifies that deliverable.
-
-### 🚫 FORBIDDEN
-
+#### 🚫 FORBIDDEN
 - The main orchestrator reading, editing, writing, or analyzing files in its own context
-- Sub-agents combining multiple steps (analyze + write + verify) in a single dispatch
+- Sub-agents combining multiple steps (analyze + write + verify) in a single task()
 - The producer of a deliverable also verifying that deliverable (self-verification)
 - Sub-agents receiving orchestrator reasoning, expected outcomes, or cached results
-- Dispatching a sub-agent without a `dispatch_context` object specifying `must_receive` and `must_not_receive`
+- task()ing a sub-agent without a `dispatch_context` object specifying `must_receive` and `must_not_receive`
 - Any SKILL.md performing inline work (reading files, running analysis, making decisions) instead of delegating to sub-agents
 
-### ✅ REQUIRED
-
+#### ✅ REQUIRED
 - ALL task execution uses clean-room sub-agents decomposed into discrete single-step units
-- The orchestrator is a pure router — it dispatches sub-agents and collects result contracts, never performing work inline
-- Every pipeline stage is a logged sub-agent dispatch in the work state file
-- Every SKILL.md contains a dispatch audit table documenting sub-agent tasks, scope, exclusions, and inline-work status
+- The orchestrator is a pure router — it tasks sub-agents via task() and collects result contracts, never performing work inline
+- Every pipeline stage is a logged sub-agent task() in the work state file
+- Every SKILL.md contains a task context audit table documenting sub-agent tasks, scope, exclusions, and inline-work status
 - Verification is ALWAYS performed by a different sub-agent from the producer, with ONLY the deliverable + spec received
 - Sub-agents receive minimal context (issue number + scoped instruction) — no orchestrator preload
 
-### Violation Patterns
+#### Violation Patterns
 
 | Violation Pattern | Correct Action |
 | -- | -- |
-| Orchestrator reads file inline to "understand context" | Dispatch routing sub-agent instead |
-| Orchestrator edits guideline text inline | Dispatch guideline-update sub-agent |
-| Sub-agent performs analysis + writing + verification in one dispatch | Decompose into 3 dispatches (analyze, write, verify) |
+| Orchestrator reads file inline to "understand context" | Task routing sub-agent instead |
+| Orchestrator edits guideline text inline | Task guideline-update sub-agent |
+| Sub-agent performs analysis + writing + verification in one task() | Decompose into 3 tasks (analyze, write, verify) |
 | Verifier receives producer's reasoning or drafts | Verifier gets only deliverable + SC list |
+| Orchestrator performs inline work | Pipeline is poisoned — restart from `verify-authorization` with zero state retained |
+| RED/GREEN sub-agent also instructed to commit and push | RED/GREEN sub-agents only execute tests — never commit, never push |
+| Sub-agent detects spec/plan defect but proceeds with GREEN anyway | Sub-agent returns BLOCKED — defect must be resolved before continuing |
+| User said "continue" so mandatory checks are optional | Mandatory gates are structural invariants — "continue" is NOT authorization to skip |
+| Sub-agent skips defect detection in GREEN phase (code-complete without verification) | GREEN sub-agent MUST produce verification evidence before returning |
+| Orchestrator treats "continue" as waiver of a failed gate checkpoint | Failed gate is absolute stop — no task() proceeds past incomplete/failed gate; contamination requires full restart |
 
-### DISPATCH_GATE Checkpoint
 
-Every routing decision in the approval-gate dispatch chain MUST be followed by an explicit DISPATCH_GATE that forces handoff to a sub-agent. The checkpoint consists of:
+### [critical-rules-035] DISPATCH_GATE Checkpoint skipped
+Reading a SKILL.md routing section and then executing the task inline means every quality gate in that skill was silently bypassed. Amateurs inline. Professionals dispatch. See DISPATCH_GATE procedure below.
 
-1. **Confirm next action is dispatch** — verify the routing decision has been made
-2. **Dispatch sub-agent** — invoke `task(subagent_type="general")` with scoped context
+#### DISPATCH_GATE Checkpoint Procedure
+Every routing decision in the approval-gate pipeline chain MUST be followed by an explicit DISPATCH_GATE that forces handoff to a sub-agent:
+
+1. **Confirm next action is task()** — verify the routing decision has been made
+2. **Task sub-agent** — call `task(subagent_type="general")` with scoped context
 3. **Receive result contract** — collect the structured result (never read the full task file)
-4. **Log dispatch in work state file** — record which sub-agent was dispatched and when
+4. **Log in work state file** — record which sub-agent was tasked and when
 5. **Proceed based on result contract** — route to next pipeline step based on sub-agent output
-
-The DISPATCH_GATE is a MANDATORY checkpoint after every routing-table read. Loading a SKILL.md routing section and then proceeding to perform the task inline (without dispatching a sub-agent) is equivalent to skipping the gate entirely.
 
 - 🚫 FORBIDDEN: Loading a SKILL.md routing section and then performing the described task inline
 - 🚫 FORBIDDEN: Reading full SKILL.md content (beyond the routing section) in the orchestrator context
-- ✅ REQUIRED: After reading routing metadata, immediately dispatch a sub-agent for execution
+- ✅ REQUIRED: After reading routing metadata, immediately task a sub-agent for execution
 - ✅ REQUIRED: The orchestrator NEVER loads task file content — it only receives result contracts
 
-**AUTHORITY:** Spec #106 (universal clean-room dispatch), Issue #114 (DISPATCH_GATE enforcement)
 
-## Critical Violation: for_pr Gap-Fill Halt — Asking Developer for Structural Decisions That the Scope Model Resolves
+### [critical-rules-034] Orchestrator Inline Work = Poisoned Pipeline
+An orchestrator that performs inline work has contaminated every artifact produced during that session — the pipeline is poisoned, not fixable. Amateurs patch. Professionals restart from zero. Non-waivable.
 
-**⚠️ When `for_pr` authorization is received, the agent MUST execute the gap-fill cascade (auto-create spec → auto-create plan → auto-approve) WITHOUT halting to ask the developer about plan creation, grouping, or execution order. These are agent intelligence decisions resolved by the Authorization Scope Model.**
+- 🚫 FORBIDDEN: Continuing the pipeline after detecting orchestrator inline work; attempting to "clean up" or "patch" a poisoned pipeline; preserving any cached state, work state files, or verification results produced during a poisoned pipeline
+- ✅ REQUIRED: On detection of orchestrator inline work: HALT immediately; discard ALL work state files, cached results, and in-progress artifacts; restart from `verify-authorization` with zero state retained; log the poison-detection event in the new work state file
 
-The `for_pr` scope explicitly defines: `halt_at = pr_created` with gap-fill actions covering spec creation, plan creation, plan approval, and PR creation. The agent Treating any of these as requiring developer input is a critical violation of the "Pushing Agent Intelligence Decisions to the User" mandate.
 
-- 🚫 FORBIDDEN: Asking "How would you like to proceed?" after receiving `for_pr` authorization
-- 🚫 FORBIDDEN: Asking for grouping decisions when scope resolves execution order
-- 🚫 FORBIDDEN: Treating plan creation as requiring developer input when `for_pr` scope auto-fills
-- 🚫 FORBIDDEN: Halting at any pipeline stage before `pr_created` when `for_pr` scope is active
-- 🚫 FORBIDDEN: Requesting re-authorization for steps that gap-fill covers (spec creation, plan creation, plan approval, **PR creation**)
-- ✅ REQUIRED: Parse `for_pr` scope and execute gap-fill cascade autonomously
-- ✅ REQUIRED: Auto-create plans for specs that need them (using `writing-plans` skill)
-- ✅ REQUIRED: Auto-approve plans created via gap-fill per spec-to-plan cascade
-- ✅ REQUIRED: Auto-create PR via `git-workflow --task pr-creation` as part of the gap-fill cascade for `for_pr`/`pr_only` scope
-- ✅ REQUIRED: Build execution order from dependency analysis without developer input
-- ✅ REQUIRED: Proceed through the full pipeline to `pr_created` without halting for structural decisions
+### [critical-rules-042] Discard on Sub-Agent Failure
+Preserving output from a BLOCKED sub-agent means propagating contaminated state into the next attempt. Amateurs salvage. Professionals discard and re-task with original context.
 
-**AUTHORITY:** Issue #111, `000-critical-rules.md` §Pushing Agent Intelligence Decisions to the User, `010-approval-gate.md` §Authorization Scope Model. See §Creating PRs Without Explicit Instruction for the scope exception that `for_pr`/`pr_only` authorization provides.`
 
-## Critical Violation: Structural Decision Solicitation Under for_pr Scope — Using Question Tool for Classification
+### [critical-rules-034] Tool-Recipe Task() — sub-agents as API proxies
+Tasking a sub-agent with `github_create_pull_request` instead of "create a PR" means you are using the agent as an API proxy, not an engineer. Professional agents task objectives. Amateurs task tool recipes. Every tool-recipe dispatch is a decision you made for the sub-agent, not a problem you gave it to solve.
 
-**⚠️ Using the `question` tool or any solicitation mechanism to ask the developer about execution order, branch stacking, issue grouping, plan creation, or any structural decision when `for_pr` scope is active is a CRITICAL GUIDELINE VIOLATION.**
 
-The `for_pr` authorization scope explicitly defines gap-fill actions for structural decisions. Using the `question` tool or any similar mechanism to solicit developer input for these decisions is equivalent to requesting re-authorization for decisions the scope model already resolves.
+### [critical-rules-042] Skipping Spec/Plan Coherence Gate (Pre-RED)
+Dispatching RED sub-agents without a coherence gate means your implementation plan has never been checked against the codebase. Professional engineers verify coherence before writing a single line of code. Amateurs find out at review time.
 
-| Prohibited Pattern | Why It Violates |
-| -- | -- |
-| Using `question` tool to ask "Should I proceed with recommended order?" under for_pr scope | Scope resolves execution order autonomously |
-| Using `question` tool to present execution order options under for_pr scope | Scope resolves grouping and stacking |
-| Any solicitation mechanism for structural classification when `halt_at >= pr_created` | for_pr scope auto-fills all structural decisions |
-| Halting at any pipeline stage before `pr_created` for structural decisions | for_pr halt_at explicitly includes PR creation |
 
-- 🚫 FORBIDDEN: Asking "Should I proceed with recommended order?" under for_pr scope
-- 🚫 FORBIDDEN: Using `question` tool for structural classification when `halt_at >= pr_created`
-- 🚫 FORBIDDEN: Presenting execution order options to the developer under for_pr scope
-- 🚫 FORBIDDEN: Halting at any pipeline stage before `pr_created` for structural decisions
-- ✅ REQUIRED: Classify execution order autonomously and state it as part of the design
-- ✅ REQUIRED: Proceed through gap-fill cascade without soliciting structural input
+### [critical-rules-042] Skipping Execution-Time Coherence Detection (RED + GREEN)
+A RED sub-agent that detects a spec/codebase contradiction but proceeds anyway is producing code that cannot work. Professional sub-agents return BLOCKED. Amateurs return broken code that CI will discover later.
 
-**See `020-go-prohibitions.md` §1.5 for the complete solicitation prohibition including `question` tool. See `010-approval-gate.md` §Authorization Scope Model for the for_pr gap-fill cascade.** **AUTHORITY: `000-critical-rules.md` §for_pr Gap-Fill Halt, Issue #115**
 
-______________________________________________________________________
+### [critical-rules-042] Gate Non-Waiver Principle — "continue" does not waive mandatory gates
+Every "continue" is instruction to proceed to the next step, not to skip the step. Professional engineers know that mandatory gates are structural invariants. Amateurs treat "continue" as a shortcut past quality.
 
-**Search guidelines:** Use `srclight_search_symbols` or `grep` to find relevant guidelines.
+
+### [critical-rules-046] Mechanical-Only Audit Without Semantic and Conflict Exploration
+Running an audit that only checks mechanical patterns means you are looking for typos when the building is on fire. Professional auditors probe semantic completeness and inter-rule conflicts. Amateurs count violations without understanding them.
+
+
+### [critical-rules-047] VbC Fabricated PASS — reporting file existence as verified behavioral evidence
+Reporting that a file exists as evidence that behavior is correct is what amateurs do when they want their verification to pass without doing the work. Professional engineers verify behavioral outcomes, not structural presence. File existence proves nothing about correctness.
+
+
+### [critical-rules-048] Skill Pre-Read + Inline Execution — reading skill task files and executing steps manually
+
+Reading a skill's task files and then inlining the steps means you are bypassing the quality gates designed to catch your mistakes. Professional agents load skills. Amateurs inline. Every skill you pre-read and execute manually is a defect you accepted before writing a single line of code.
+
+**3-Way Violation Distinction:**
+
+| Violation | ID | What Happens |
+|----------|-----|-------------|
+| Pre-read skill + inline execute | critical-rules-048 | Agent reads `.md` task file, executes steps manually without calling `skill()` |
+| Orchestrator inline work | critical-rules-034 | Agent performs file modifications or analysis inline without sub-agent task() |
+| Tool-recipe dispatch | #329 (spec-fix) | Agent tasks sub-agent with raw API calls instead of task objectives |
+
+
+### [critical-rules-038] Implementing Before PR Merge Boundary
+Implementing a dependent phase before its PR boundary has merged means you are building on a foundation that does not exist yet. Professional engineers respect PR merge boundaries. Amateurs stack work on unreviewed code.
+
+
+### [critical-rules-042] Content Verification Before Branch Deletion
+Deleting a branch without verifying its content against the target branch means you are destroying code whose status you have not confirmed. Professional engineers diff first. Amateurs delete blind and lose work.
+
+
+### [critical-rules-042] Model-Aware Clean-Room task() for Behavioral Testing
+Running behavioral tests through grep and static analysis instead of `opencode-cli run` means you are testing the wrong thing — text patterns, not agent behavior. Professional engineers test against real AI models in clean-room isolation. Amateurs grep for keywords and call it verified.
+
+
+### [critical-rules-044] Preloading Sub-Agent Context — task()ing with pre-determined file paths/line numbers/outcomes
+Handing a sub-agent pre-determined file paths, line numbers, and expected outcomes means you are not asking the sub-agent to do the work — you are asking it to execute your guesses. Professional engineers gate every execution behind a pre-analysis sub-agent that discovers the scope independently. Amateurs preload their assumptions.
+
+
+### [critical-rules-043] Universal Re-Task Mandate — no inline fallback on sub-agent failure
+When a sub-agent fails, inline fallback means the failure contaminates your pipeline — you inherit the same context that caused the error. Professional engineers always re-task clean-room with the same scoped context. Amateurs patch in place and compound their problems.
+
+
+### [critical-rules-051] Skipping mandatory submodule tagging at pre-work
+Skipping submodule tagging means the starting SHA becomes unreachable after squash merge and branch deletion — the work still exists but nobody can find it. Professional engineers tag every submodule at pre-work. Amateurs lose history that their future selves need.
+
+
+### [critical-rules-018] Pipeline-Scoped Authorization with Hard HALT at Scope Boundary
+See `approval-gate` skill → Authorization Scope Model.
+
+
+### [critical-rules-hard-fail] Hard Failure Discipline — FAIL is a hard gate, never reclassifiable
+
+A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup gate, SC-verification gate, phase-completion gate) is a **hard gate** — it must be remediated, not sidestepped.
+
+**Remediation-first sequence (mandated by #763):**
+1. **Remediate** the root cause — diagnose what produced the FAIL
+2. **Re-verify** — repeat the verification command/assertion that produced the FAIL
+3. **Proceed** only on confirmed PASS from re-verification
+4. **HALT only on double-failure** — if re-verification also fails, report blocker with both failure artifacts
+
+**Prohibited patterns:**
+- **Reclassification** — turning a FAIL into "PASS with caveats" or "functionally equivalent" is soft-passing by another name (see `000-critical-rules.md` §critical-rules-020)
+- **INCONCLUSIVE** — a verdict of INCONCLUSIVE for a gate that produces deterministic PASS/FAIL is a reclassification, not a finding. INCONCLUSIVE is prohibited as a gate verdict at all pipeline stages. The auditor files have been updated to remove INCONCLUSIVE — see `adversarial-audit` task files
+- **HALT without remediation attempt** — a FAIL that halts the pipeline without any remediation attempt is abandoning the root cause instead of fixing it. Professional engineers always attempt remediation before escalation. See `763-remediation-first`
+
+Professional engineers remediate then re-verify — amateurs reclassify, soft-pass, or INCONCLUSIVE to avoid doing the work. See `065-verification-honesty.md` → "Hard Failure Discipline".
+
+
+### Tier 3 — Workflow-Standard (FLAG — Convention/Consistency)
+
+Rules that prevent **inconsistency or tech debt**: naming conventions, numbering, comment style, tool selection. Violations are flagged but do not halt.
+### [critical-rules-005] Direct-Branch Default — feature branch without worktree is the norm
+Default: `git checkout -b feature/X` in main repo. Worktree opt-in when `WORKTREE_REQUIRED` set. See `git-workflow --task pre-work`.
+
+
+### [critical-rules-005] Skipping Git Pre-Check — working without feature branch
+Must verify git state and create feature branch before any file modification. Creating `feature/*` or `spec/*` branches additionally requires `for_implementation` or above authorization scope.
+
+
+### [critical-rules-024] Uncommitted/Unpushed Changes After Implementation
+See `finishing-a-development-branch --task checklist`.
+
+
+### [critical-rules-023] Missing AI Co-Authored Attribution
+Format: `Co-authored with AI: <AgentName> (<ModelId>)`. See `080-code-standards.md`.
+
+
+### [critical-rules-023] Hardcoded Identity Values in Skills and Guidelines
+Use `<AgentName>`, `<ModelId>`, `<github.owner>` placeholders. See `080-code-standards.md`.
+
+
+### [critical-rules-018] Sub-issue Structure Bypass — multi-task plans
+Phases require sub-issue linkage. See `issue-operations` → `link-sub-issue` task.
+
+
+### [critical-rules-018] Stopping After Single Phase in Multi-Task Plan
+Complete ALL phases, report ONCE, HALT ONCE. See `approval-gate` skill.
+
+
+### [critical-rules-013] Sub-issue Closure Timing
+See `git-workflow --task cleanup`.
+
+
+### [critical-rules-013] Assuming Closed Issues Are Verified
+See `approval-gate --task verify-closed-issue` and `--task reconcile-issue-graph`.
+
+
+### [critical-rules-041] Listing Merged PRs Without Calling Cleanup
+"check prs" = cleanup trigger → `git-workflow --task check-pr`.
+
+
+### [critical-rules-019] Creating PRs Without Explicit Instruction
+Exception: `for_pr`/`for_pr_only` scope authorizes PR creation.
+
+
+### [critical-rules-018] Ignoring Spec-to-Plan Approval Cascade
+Spec approved + faithful plan exists = plan auto-approved.
+
+
+### [critical-rules-013] Closing Issues Before PR Merge
+See `git-workflow --task cleanup` for post-merge closure.
+
+
+### [critical-rules-013] Parent/Child Issue Closure
+Close children first, then parent. See `git-workflow --task cleanup`.
+
+
+### [critical-rules-039] Parent Issue Left Open After All Children Closed
+Must close parent plan when all children verified complete.
+
+
+### [critical-rules-018] Unified Pipeline Path — no single-task exemption
+Single issue = work-of-1. See `assemble-work`.
+
+
+### [critical-rules-039] Process Gaps Are Bugs — completed issues not auto-closed
+See `verify-already-implemented` → Auto-Close Procedure.
+
+
+### [critical-rules-018] Sub-issue Linkage Verification — phase count mismatch
+See `approval-gate --task verify-authorization` Step 5.
+
+
+### [critical-rules-023] Posting AI-Authored Content Without Byline Verification
+Verify byline presence before ANY API call posting AI-authored content.
+
+
+### [critical-rules-037] Structural Decision Solicitation Under for_pr Scope
+No `question` tool for structural decisions when `halt_at >= pr_created`.
+
+
+### [critical-rules-049] Standalone Submodule-Only PR Creation During Cleanup
+
+Creating a PR whose sole purpose is to update a submodule pointer during the cleanup pipeline stage. See `git-workflow cleanup` task Step 1.7 for the complete prohibition and correct behavior (leave dirty pointer on dev).
+
+
+### [critical-rules-039] Parent Issue Left Open After All Children Closed
+See verify-already-implemented Step 6, cleanup Step 2.8.
+
+
+### [critical-rules-040] Un-Squashed PR — creating single-issue PR with multiple commits
+Single-issue: exactly 1 commit. Work branch: N commits = N items.
+
+
+### [critical-rules-041] Listing Merged PRs Without Calling Cleanup
+"check prs" = cleanup trigger.
+
+
+### [critical-rules-060] Functional/Behavioral Test Substitution Prohibition — substituting structural/grep/metadata checks when behavioral tests cannot execute
+
+"Functional test" and "behavioral test" are synonymous — both verify actual agent behavior by executing code and observing output. When a behavioral/functional test CANNOT be executed (model unavailable, timeout, infrastructure failure, `opencode-cli` not installed), the ONLY valid outcome is FAIL. The agent MUST NEVER substitute grep, string matching, metadata checks, pattern scanning, or file-existence checks for behavioral/functional test execution.
+
+#### Authority Sources
+
+- `080-code-standards.md` §Terminology Note — functional test and behavioral test are synonymous
+- `080-code-standards.md` §Behavioral RED/GREEN as Primary Enforcement Gate — behavioral evidence is PRIMARY
+- `020-go-prohibitions.md` §1 ALWAYS DO — Cost-blind verification: substitution is forbidden
+- `skills/verification-before-completion/tasks/verify.md` §"When Behavioral/Functional Tests Cannot Execute" — FAIL is the only valid outcome when the test cannot run
+
+#### Forbidden Substitutions
+- Grep/string matching/pattern scanning as behavioral evidence
+- Metadata checks (file existence, label state, PR merge status) as behavioral evidence
+- File-existence checks as behavioral evidence
+- "Spot-checking" as behavioral test substitute
+- Any structural check reported as PASS for a behavioral SC
+
+#### Required Actions
+1. When a behavioral/functional test cannot execute: report FAIL with explanation
+2. Attempt remediation (alternative model selection, infrastructure check)
+3. Exhaustive remediation before escalation: only after ALL available model selection, infrastructure check, and alternative model paths have been verified as failed may the agent HALT with escalation
+4. There is NO valid path from "test cannot run" to "PASS" or "UNVERIFIED with structural substitute"
+
+
+### [critical-rules-accountability-ownership] Accountability/Remediation Ownership Model
+
+ALL failures are agent-owned. Remediation is the default action. Escalation is only permitted after verified remediation failure. The following 7 principles govern agent accountability:
+
+1. **Audit fail is a fail** — no exceptions, no reclassification, no soft-passing
+2. **Bad prompt is on the agent** — the agent owns prompt quality; a poorly specified prompt is the agent's defect to remediate
+3. **Defective spec/plan is on the agent** — the agent produces correct artifacts or remediates them; defective upstream artifacts are not an excuse for downstream failures
+4. **Bad/incomplete implementation is on the agent** — the agent owns implementation quality; incomplete or incorrect output must be remediated, not flagged for someone else
+5. **Missing text artifacts is a fail** — the agent produces complete deliverables; absent preamble, missing documentation, or incomplete issue bodies are agent-owned defects
+6. **Skipped functional/behavioral testing is a fail** — no exceptions, no excuses; the agent runs and passes behavioral tests before claiming completion
+7. **Remediate autonomously, never escalate** — escalation is only for dire circumstances (infrastructure failure, model crash, credentials missing); skipping remediation is not a valid choice
+
+All failures are agent-owned. Remediation is the default action. Escalation is only permitted after verified remediation failure — never as a first response, never as a shortcut.
+
+
+---
 
 ```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-04-26T00:00:00Z"
+schema_version: "3.0"
+last_updated: "2026-05-14T00:00:00Z"
 rules:
   - id: critical-rules-001
-    title: "Tier 1 mandates never yield to developer authorization"
+    tier: 1
+    title: "CRITICAL VIOLATION — Tier 1 mandates never yield to developer authorization"
     conditions:
       all:
         - "developer_authorization == true"
@@ -1778,7 +765,8 @@ rules:
     source: "000-critical-rules.md §Mandate Tiering Tier 1"
 
   - id: critical-rules-002
-    title: "No commits to main or dev branches"
+    tier: 1
+    title: "CRITICAL VIOLATION — No commits to main or dev branches"
     conditions:
       any:
         - "current_branch == 'main'"
@@ -1791,7 +779,8 @@ rules:
     source: "000-critical-rules.md §Tier 1 Non-Yielding Mandates"
 
   - id: critical-rules-003
-    title: "Human-only merge — agents must never merge PRs"
+    tier: 1
+    title: "CRITICAL VIOLATION — Human-only merge — agents must never merge PRs"
     conditions:
       all:
         - "is_agent == true"
@@ -1804,7 +793,8 @@ rules:
     source: "000-critical-rules.md §Tier 1 Non-Yielding Mandates"
 
   - id: critical-rules-004
-    title: "No /tmp/ usage — ./tmp/ only"
+    tier: 1
+    title: "CRITICAL VIOLATION — No /tmp/ usage — ./tmp/ only"
     conditions:
       all:
         - "file_path matches '^/tmp/'"
@@ -1816,20 +806,22 @@ rules:
     source: "000-critical-rules.md §Tier 1 Non-Yielding Mandates"
 
   - id: critical-rules-005
+    tier: 3
     title: "Feature branch required before any file modification"
     conditions:
       all:
         - "has_feature_branch == false"
         - "file_modification_pending == true"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: [git-workflow]
     source: "000-critical-rules.md §Skipping Git Pre-Check"
 
   - id: critical-rules-006
-    title: "Agents must never self-authorize"
+    tier: 1
+    title: "CRITICAL VIOLATION — Agents must never self-authorize"
     conditions:
       all:
         - "authorization_source == 'agent_reasoning'"
@@ -1841,6 +833,7 @@ rules:
     source: "000-critical-rules.md §Tier 1 Non-Yielding Mandates"
 
   - id: critical-rules-007
+    tier: 2
     title: "Worktree path prefixing required when WORKTREE_REQUIRED set"
     conditions:
       all:
@@ -1854,6 +847,7 @@ rules:
     source: "000-critical-rules.md §Relative File Paths in Worktree Context"
 
   - id: critical-rules-008
+    tier: 2
     title: "Implementing without verifying against live documentation"
     conditions:
       all:
@@ -1867,6 +861,7 @@ rules:
     source: "000-critical-rules.md §Implementing Without Verifying"
 
   - id: critical-rules-009
+    tier: 2
     title: "Reporting unverified information as verified"
     conditions:
       all:
@@ -1880,6 +875,7 @@ rules:
     source: "000-critical-rules.md §Verification Dishonesty"
 
   - id: critical-rules-010
+    tier: 2
     title: "Spec before code — no implementation without approved spec"
     conditions:
       all:
@@ -1893,6 +889,7 @@ rules:
     source: "000-critical-rules.md §Implementation Without Spec"
 
   - id: critical-rules-011
+    tier: 2
     title: "Bug discovery does NOT authorize bug fixing"
     conditions:
       all:
@@ -1907,6 +904,7 @@ rules:
     source: "000-critical-rules.md §Bug Discovery Does NOT Authorize Bug Fixing"
 
   - id: critical-rules-012
+    tier: 2
     title: "Acting on GitHub resource without reading all comments"
     conditions:
       all:
@@ -1920,19 +918,21 @@ rules:
     source: "000-critical-rules.md §Acting on Resources Without Reading All Comments"
 
   - id: critical-rules-013
+    tier: 3
     title: "Closing issues before PR merge confirmed"
     conditions:
       all:
         - "issue_closure_attempted == true"
         - "pr_merge_confirmed == false"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: [git-workflow]
     source: "000-critical-rules.md §Closing Issues Before PR Merge"
 
   - id: critical-rules-014
+    tier: 2
     title: "Scope creep — implementing changes outside the spec"
     conditions:
       all:
@@ -1947,6 +947,7 @@ rules:
     source: "000-critical-rules.md §Scope Creep"
 
   - id: critical-rules-015
+    tier: 2
     title: "Plan ≠ execution — documentation is not evidence of completion"
     conditions:
       all:
@@ -1960,7 +961,8 @@ rules:
     source: "000-critical-rules.md §Plan ≠ Execution"
 
   - id: critical-rules-016
-    title: "Skip mandatory skill invocation during dispatch chain"
+    tier: 2
+    title: "Skip mandatory skill call during pipeline chain"
     conditions:
       all:
         - "dispatch_chain_step_skipped == true"
@@ -1969,9 +971,10 @@ rules:
     conflicts_with: []
     requires: []
     triggers: [approval-gate, divide-and-conquer]
-    source: "000-critical-rules.md §Bypassing Mandatory Skill Invocations"
+    source: "000-critical-rules.md §Bypassing Mandatory Skill Calls"
 
   - id: critical-rules-017
+    tier: 2
     title: "Monolithic implementation without item decomposition"
     conditions:
       all:
@@ -1986,6 +989,7 @@ rules:
     source: "000-critical-rules.md §Monolithic Implementation"
 
   - id: critical-rules-018
+    tier: 3
     title: "Halt after single phase in multi-task plan"
     conditions:
       all:
@@ -1993,6 +997,7 @@ rules:
         - "phases_completed < total_phases"
         - "authorization_cascades_to_all == true"
     actions:
+      - FLAG
       - PROCEED
     conflicts_with: []
     requires: []
@@ -2000,26 +1005,29 @@ rules:
     source: "000-critical-rules.md §Stopping After Single Phase"
 
   - id: critical-rules-019
+    tier: 3
     title: "No PR creation without explicit instruction"
     conditions:
       all:
         - "pr_creation_attempted == true"
         - "explicit_pr_instruction == false"
-        - "authorization_scope NOT IN ['for_pr', 'pr_only']"
+        - "authorization_scope NOT IN ['for_pr', 'for_pr_only']"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: [pr-creation-workflow]
     source: "000-critical-rules.md §Creating PRs Without Explicit Instruction"
 
   - id: critical-rules-019a
-    title: "for_pr/pr_only scope authorizes PR creation — no separate instruction needed"
+    tier: 3
+    title: "for_pr/for_pr_only scope authorizes PR creation — no separate instruction needed"
     conditions:
       all:
         - "pr_creation_attempted == true"
-        - "authorization_scope IN ['for_pr', 'pr_only']"
+        - "authorization_scope IN ['for_pr', 'for_pr_only']"
     actions:
+      - FLAG
       - PROCEED
     conflicts_with: [critical-rules-019]
     requires: [approval-gate-010]
@@ -2027,6 +1035,7 @@ rules:
     source: "000-critical-rules.md §Creating PRs Without Explicit Instruction Scope Exception"
 
   - id: critical-rules-020
+    tier: 2
     title: "Soft-passing verification mismatches"
     conditions:
       all:
@@ -2040,7 +1049,8 @@ rules:
     source: "000-critical-rules.md §Soft-Passing Verification Mismatches"
 
   - id: critical-rules-021
-    title: "Secret exfiltration in agent output"
+    tier: 1
+    title: "CRITICAL VIOLATION — Secret exfiltration in agent output"
     conditions:
       all:
         - "output_contains_secret_value == true"
@@ -2052,7 +1062,8 @@ rules:
     source: "000-critical-rules.md §Secret Exfiltration in Agent Output"
 
   - id: critical-rules-022
-    title: "Issue body erasure — replacing with shorter content"
+    tier: 1
+    title: "CRITICAL VIOLATION — Issue body erasure — replacing with shorter content"
     conditions:
       all:
         - "body_update_pending == true"
@@ -2065,6 +1076,7 @@ rules:
     source: "000-critical-rules.md §Issue Body Erasure"
 
   - id: critical-rules-023
+    tier: 3
     title: "AI-authored content without byline verification"
     conditions:
       all:
@@ -2072,6 +1084,7 @@ rules:
         - "byline_present == false"
         - "api_call_pending == true"
     actions:
+      - FLAG
       - APPEND_BYLINE
     conflicts_with: []
     requires: []
@@ -2079,20 +1092,22 @@ rules:
     source: "000-critical-rules.md §Posting AI-Authored Content Without Byline"
 
   - id: critical-rules-024
+    tier: 3
     title: "Uncommitted changes when marking implementation complete"
     conditions:
       all:
         - "completion_claimed == true"
         - "uncommitted_changes_exist == true"
     actions:
-      - HALT
+      - FLAG
     conflicts_with: []
     requires: []
     triggers: [finishing-a-development-branch]
     source: "000-critical-rules.md §Uncommitted/Unpushed Changes After Implementation"
 
   - id: critical-rules-025
-    title: "Main agent implements directly instead of dispatching sub-agents"
+    tier: 2
+    title: "Main agent implements directly instead of task()ing sub-agents"
     conditions:
       all:
         - "is_main_agent == true"
@@ -2106,7 +1121,8 @@ rules:
     source: "000-critical-rules.md §Main Agent Implements Directly"
 
   - id: critical-rules-026
-    title: "Git config/destructive commands require explicit authorization"
+    tier: 1
+    title: "CRITICAL VIOLATION — Git config/destructive commands require explicit authorization"
     conditions:
       any:
         - "command matches 'git remote add|rm|set-url'"
@@ -2121,6 +1137,7 @@ rules:
     source: "000-critical-rules.md §Git Configuration and Destructive Command Authorization"
 
   - id: critical-rules-026a
+    tier: 3
     title: "Hook output is advisory — documented exceptions take precedence"
     conditions:
       all:
@@ -2128,6 +1145,7 @@ rules:
         - "documented_exception_applies == true"
         - "agent_treated_block_as_final == true"
     actions:
+      - FLAG
       - APPLY_EXCEPTION
       - PROCEED
     conflicts_with: []
@@ -2136,6 +1154,7 @@ rules:
     source: "000-critical-rules.md §Hook Output Is Advisory, Not Absolute"
 
   - id: critical-rules-027
+    tier: 2
     title: "Confirmation ≠ authorization"
     conditions:
       all:
@@ -2149,6 +1168,7 @@ rules:
     source: "000-critical-rules.md §Confirmation ≠ Authorization"
 
   - id: critical-rules-028
+    tier: 2
     title: "Offer-to-edit bypass — offering to modify without spec"
     conditions:
       all:
@@ -2162,7 +1182,8 @@ rules:
     source: "000-critical-rules.md §Offer-to-Edit Bypass"
 
   - id: critical-rules-029
-    title: "Non-idempotent API mutations creating duplicates"
+    tier: 1
+    title: "CRITICAL VIOLATION — Non-idempotent API mutations creating duplicates"
     conditions:
       all:
         - "mutation_call_pending == true"
@@ -2175,7 +1196,8 @@ rules:
     source: "000-critical-rules.md §Non-Idempotent API Mutations"
 
   - id: critical-rules-030
-    title: "Skipping clean-room dispatch for sub-agents"
+    tier: 2
+    title: "Skipping clean-room task() for sub-agents"
     conditions:
       all:
         - "sub_agent_dispatch_pending == true"
@@ -2185,9 +1207,10 @@ rules:
     conflicts_with: []
     requires: []
     triggers: [divide-and-conquer, verification-before-completion, git-workflow]
-    source: "000-critical-rules.md §Skipping Clean-Room Dispatch for Sub-Agents"
+    source: "000-critical-rules.md §Skipping Clean-Room task() for Sub-Agents"
 
   - id: critical-rules-031
+    tier: 2
     title: "Skipping pre-flight checks for sub-agents"
     conditions:
       all:
@@ -2201,6 +1224,7 @@ rules:
     source: "000-critical-rules.md §Skipping Pre-Flight Checks for Sub-Agents"
 
   - id: critical-rules-032
+    tier: 2
     title: "Skipping post-flight checks for sub-agents"
     conditions:
       all:
@@ -2214,6 +1238,7 @@ rules:
     source: "000-critical-rules.md §Skipping Post-Flight Checks for Sub-Agents"
 
   - id: critical-rules-033
+    tier: 2
     title: "Claiming verification without tool-call evidence in sub-agent results"
     conditions:
       all:
@@ -2227,7 +1252,8 @@ rules:
     source: "000-critical-rules.md §Claiming Verification Without Tool-Call Evidence in Sub-Agent Results"
 
   - id: critical-rules-034
-    title: "Inline work — orchestrator performing file modifications, analysis, or verification without sub-agent dispatch"
+    tier: 2
+    title: "Inline work — orchestrator performing file modifications, analysis, or verification without sub-agent task()"
     conditions:
       all:
         - "is_orchestrator == true"
@@ -2240,6 +1266,7 @@ rules:
     source: "000-critical-rules.md §Inline Work"
 
   - id: critical-rules-035
+    tier: 2
     title: "DISPATCH_GATE checkpoint skipped — loading SKILL.md routing and performing task inline"
     conditions:
       all:
@@ -2254,12 +1281,14 @@ rules:
     source: "000-critical-rules.md §DISPATCH_GATE Checkpoint"
 
   - id: critical-rules-036
+    tier: 2
     title: "Wrong API routing for submodule/sub-folder repos"
     conditions:
       all:
         - "issue_target_path matches submodule/sub-folder"
         - "api_repo == parent_repo"
     actions:
+      - HALT
       - RESOLVE_SUBMODULE_REMOTE
       - USE_SUBMODULE_OWNER_REPO
     conflicts_with: []
@@ -2268,37 +1297,22 @@ rules:
     source: "000-critical-rules.md §Wrong API Routing"
 
   - id: critical-rules-037
+    tier: 3
     title: "Structural decision solicitation under for_pr scope"
     conditions:
       all:
         - "authorization_scope == 'for_pr'"
         - "agent_uses_question_tool_for_structural_decision == true"
     actions:
-      - HALT
+      - FLAG
       - AUTONOMOUS_CLASSIFY
     conflicts_with: []
     requires: [approval-gate-010]
     triggers: [approval-gate]
     source: "000-critical-rules.md §for_pr Gap-Fill Halt"
-```
 
-<!-- Issue #55: PR Merge Boundary Requirements — adds critical violation for implementing before PR merge boundary -->
-
-## Critical Violation: Implementing Before PR Merge Boundary
-
-**⚠️ Proceeding with implementation when a required upstream PR is not merged is a CRITICAL GUIDELINE VIOLATION.**
-
-When a plan's spec declares dependencies on other specs/plans via a `pr_boundaries` section, each boundary where `must_be_merged_before_starting: true` MUST be verified before implementation begins. The agent MUST NOT proceed past `verify-authorization` or `assemble-work` if any required PR boundary is not merged.
-
-- 🚫 FORBIDDEN: Implementing when a required PR boundary is not merged; dispatching sub-agents without checking merge boundaries; bypassing the boundary gate because "the code is already written"; treating self-enforcing boundaries as optional
-- ✅ REQUIRED: Check each PR boundary in `verify-authorization` (approval-gate) and `assemble-work` (divide-and-conquer); halt and report which PR must merge first; verify via `github_pull_request_read(method=get, pullNumber=N)` that the `merged` field is `true`
-
-**Self-enforcing boundaries** (where `skildeck lint` would produce a CRITICAL finding on violation) are defense-in-depth — they do NOT substitute for the formal gate check. The agent MUST still verify merge status even for self-enforcing boundaries.
-
-**AUTHORITY:** `approval-gate/SKILL.md` §PR Merge Boundary Gate, `divide-and-conquer/SKILL.md` §Gate 3
-
-```yaml+symbolic
   - id: critical-rules-038
+    tier: 2
     title: "Implementing before PR merge boundary"
     conditions:
       all:
@@ -2313,6 +1327,7 @@ When a plan's spec declares dependencies on other specs/plans via a `pr_boundari
     source: "000-critical-rules.md §Implementing Before PR Merge Boundary"
 
   - id: critical-rules-039
+    tier: 3
     title: "Parent issue left open after all children closed"
     conditions:
       all:
@@ -2321,35 +1336,185 @@ When a plan's spec declares dependencies on other specs/plans via a `pr_boundari
         - "all_sub_issues_verified_complete == true"
         - "parent_closure_attempted == false"
     actions:
+      - FLAG
       - CLOSE_PARENT_WITH_VERIFICATION_COMMENT
     conflicts_with: []
     requires: [git-workflow-cleanup-step2.8, approval-gate-verify-already-implemented-step6]
     triggers: [git-workflow, approval-gate]
     source: "000-critical-rules.md §Parent Issue Left Open After All Children Closed"
-```
 
-<!-- Issue #105: Content Verification Before Branch Deletion -->
+  - id: critical-rules-040
+    tier: 3
+    title: "Un-squashed single-issue PR — creating a PR with multiple commits"
+    conditions:
+      all:
+        - "commit_count > 1"
+        - "branch_type == single_issue"
+        - "pr_creation_attempted == true"
+    actions:
+      - FLAG
+      - TASK(pr-creation/squash-push Step 3)
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow, pr-creation-workflow]
+    source: "000-critical-rules.md §Un-Squashed PR"
 
-## Critical Violation: Content Verification Before Branch Deletion
+  - id: critical-rules-041
+    tier: 3
+    title: "Listing merged PRs without calling cleanup — check prs is a cleanup trigger"
+    conditions:
+      all:
+        - "user_input matches 'check prs|check merged prs|check pr|check pull request'"
+        - "skill_check_pr_invoked == false"
+    actions:
+      - FLAG
+      - CALL(git-workflow --task check-pr)
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §Listing Merged PRs Without Calling Cleanup"
 
-**⚠️ Declaring a remote or local branch "stale," "safe to delete," or "can be deleted" based on metadata (branch name, PR merge status, issue closure state, commit count) without verifying that all branch content is present on the target branch (dev) is a CRITICAL GUIDELINE VIOLATION.**
+  - id: critical-rules-042
+    tier: 2
+    title: "Model-aware clean-room task() required for all behavioral testing"
+    conditions:
+      any:
+        - "behavioral_test_performed_via_grep == true"
+        - "metadata_pass_fail_accepted_as_behavioral == true"
+        - "model_dispatched_for_behavioral_test == false"
+    actions:
+      - HALT
+      - TASK(clean-room opencode-cli run with resolved model)
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion, divide-and-conquer]
+    source: "000-critical-rules.md §Model-Aware Clean-Room task() for Behavioral Testing"
 
-This is the exact violation described in #105: the agent declared a branch "stale predecessor, can safely be deleted" based entirely on metadata — branch name patterns, PR merge status, issue closure — without ever comparing file content. This is a direct instance of the #91 verification regression (metadata-as-evidence) applied to branch deletion decisions.
+  - id: critical-rules-043
+    tier: 2
+    title: "Universal re-task mandate — no inline fallback on sub-agent failure at any pipeline stage"
+    conditions:
+      any:
+        - "sub_agent_failed == true AND pipeline_stage IN ['analysis','planning','implementation','verification','auditing','behavioral_testing','git_operations','correspondence','issue_operations']"
+        - "sub_agent_result_empty == true AND pipeline_stage IN ['analysis','planning','implementation','verification','auditing','behavioral_testing','git_operations','correspondence','issue_operations']"
+    actions:
+      - HALT
+      - RE_TASK(clean-room sub-agent)
+    conflicts_with: []
+    requires: [critical-rules-034]
+    triggers: [divide-and-conquer, verification-before-completion, git-workflow, approval-gate, issue-operations, executing-plans]
+    source: "000-critical-rules.md §No Inline Fallback on Sub-Agent Failure — Universal Re-Task Mandate"
 
-- 🚫 FORBIDDEN: Declaring a branch deletable based on PR merge status alone
-- 🚫 FORBIDDEN: Declaring a branch deletable based on branch name pattern matching
-- 🚫 FORBIDDEN: Declaring a branch deletable based on issue closure state
-- 🚫 FORBIDDEN: Declaring a branch deletable based on commit count ahead/behind
-- 🚫 FORBIDDEN: Deleting a branch without producing the content comparison table
-- ✅ REQUIRED: Perform `git diff --stat origin/dev...` to identify all changed files
-- ✅ REQUIRED: For each changed file, verify content exists (identical or superseded) on dev
-- ✅ REQUIRED: For any file unique to the branch (not on dev), flag as `UNIQUE` — do NOT auto-delete
-- ✅ REQUIRED: Produce a content comparison table with `IDENTICAL`/`SUPERSEDED`/`UNIQUE` status per file before declaring deletion safe
+  - id: critical-rules-044
+    tier: 2
+    title: "Preloading sub-agent context — task()ing execution sub-agents with pre-determined file paths, line numbers, or expected outcomes"
+    conditions:
+      any:
+        - "sub_agent_dispatched_with_file_paths == true"
+        - "sub_agent_dispatched_with_line_numbers == true"
+        - "sub_agent_dispatched_with_expected_outcomes == true"
+        - "sub_agent_dispatched_with_orchestrator_reasoning == true"
+        - "verification_sub_agent_dispatched_with_file_list == true"
+    actions:
+      - HALT
+      - TASK(pre-analysis sub-agent first)
+    conflicts_with: []
+    requires: [critical-rules-034, critical-rules-030]
+    triggers: [approval-gate, divide-and-conquer, verification-before-completion]
+    source: "000-critical-rules.md §Preloading Sub-Agent Context"
 
-**AUTHORITY:** `git-workflow/tasks/cleanup/branch-cleanup.md` Step 3, Spec #105
+  - id: critical-rules-045
+    tier: 1
+    title: "CRITICAL VIOLATION — Creating .opencode/.opencode/ nested directories is forbidden"
+    conditions:
+      any:
+        - "resolved_path_contains == '.opencode/.opencode/'"
+        - "workdir_inside_opencode == true AND path_prefixed_with_opencode == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: [tool-usage-009]
+    triggers: [git-workflow, divide-and-conquer, approval-gate, skill-creator]
+    source: "000-critical-rules.md §Creating .opencode/.opencode/ Nested Directories"
 
-```yaml+symbolic
+  - id: critical-rules-046
+    tier: 2
+    title: "Mechanical-only audit without semantic and conflict exploration is prohibited"
+    conditions:
+      all:
+        - "audit_performed == true"
+        - "semantic_exploration_performed == false"
+    actions:
+      - HALT
+      - REQUIRE_SEMANTIC_EXPLORATION
+    conflicts_with: []
+    requires: [verification-honesty-001, verification-honesty-003]
+    triggers: [adversarial-audit --task spec-audit, adversarial-audit --task plan-fidelity, adversarial-audit --task concern-separation, adversarial-audit --task coherence-maintenance, adversarial-audit --task guideline-audit]
+    source: "000-critical-rules.md §Mechanical-Only Audit Without Semantic and Conflict Exploration"
+
+  - id: critical-rules-047
+    tier: 2
+    title: "Reporting file existence as verified behavioral evidence is prohibited"
+    conditions:
+      all:
+        - "success_criterion_type == 'behavioral'"
+        - "evidence_type == 'structural'"
+        - "evidence_reported_as == 'PASS'"
+    actions:
+      - HALT
+      - REQUIRE_BEHAVIORAL_EVIDENCE
+    conflicts_with: []
+    requires: [verification-honesty-001, verification-honesty-004]
+    triggers: [verification-before-completion]
+    source: "000-critical-rules.md §VbC Fabricated PASS"
+
+  - id: critical-rules-048
+    tier: 2
+    title: "Pre-reading skill task files and executing steps inline instead of calling via skill()"
+    conditions:
+      all:
+        - "skill_task_file_read == true"
+        - "skill_called == false"
+        - "inline_execution_followed == true"
+    actions:
+      - HALT
+    conflicts_with: [critical-rules-034]
+    requires: []
+    triggers: [divide-and-conquer, git-workflow, approval-gate, verification-before-completion, finishing-a-development-branch, issue-operations, spec-creation, writing-plans, brainstorming, conflict-resolution, pr-creation-workflow, executing-plans, systematic-debugging, engineering-approach, receiving-code-review, requesting-code-review, changelog-generator, correspondence, sre-runbook, ui-design, ui-engineer, test-driven-development, skill-creator, sync-guidelines, adversarial-audit, verification, verification-enforcement, verification-before-completion, multimodal-dispatch, pre-analysis, completion-core]
+    source: "default.txt §Skill Dispatch Mandate"
+
+  - id: critical-rules-049
+    tier: 3
+    title: "Standalone submodule-only PR creation during cleanup is a workflow violation"
+    conditions:
+      all:
+        - "pipeline_stage == 'cleanup'"
+        - "pr_created == true"
+        - "pr_changes_only_submodule == true"
+    actions:
+      - FLAG
+    conflicts_with: [critical-rules-048]
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §critical-rules-049"
+
+  - id: critical-rules-050
+    tier: 2
+    title: "Sub-agent scope propagation — missing authorization_scope in task context"
+    conditions:
+      all:
+        - "sub_agent_dispatched == true"
+        - "authorization_scope_missing == true"
+    actions:
+      - HALT
+      - RETURN_BLOCKED
+    conflicts_with: []
+    requires: [critical-rules-036]
+    triggers: [divide-and-conquer, approval-gate, verification-before-completion]
+    source: "000-critical-rules.md §critical-rules-050"
+
   - id: git-workflow-branch-deletion-001
+    tier: 2
     title: "Branch deletion requires content verification against target branch"
     conditions:
       all:
@@ -2362,82 +1527,295 @@ This is the exact violation described in #105: the agent declared a branch "stal
     requires: []
     triggers: [git-workflow]
     source: "000-critical-rules.md §Content Verification Before Branch Deletion"
-```
 
-<!-- Issue #109: Un-Squashed PR — commit-per-issue invariant across all bypass paths -->
+  - id: adversarial-audit-008
+    tier: 2
+    title: "All audits must be adversarial — single-auditor or orchestrator-evaluation is prohibited"
+    conditions:
+      all:
+        - "audit_requested == true"
+        - "adversarial_mode == false"
+    actions:
+      - HALT
+      - REQUIRE_ADVERSARIAL_DISPATCH
+    conflicts_with: []
+    requires: []
+    triggers: [spec-creation, writing-plans, issue-operations, divide-and-conquer, verification-before-completion, pr-creation-workflow, git-workflow]
+    source: "adversarial-audit/SKILL.md §adversarial-audit-008"
 
-## Critical Violation: Un-Squashed PR — Creating a Single-Issue PR with Multiple Commits
+  - id: adversarial-audit-009
+    tier: 2
+    title: "Consensus required at pipeline gates — PASS gate requires dual cross-family auditor consensus"
+    conditions:
+      all:
+        - "pipeline_gate == true"
+        - "consensus != 'PASS'"
+        - "gate_declared_pass == true"
+    actions:
+      - HALT
+      - BLOCK_PIPELINE
+      - REQUIRE_CONSENSUS
+    conflicts_with: []
+    requires: []
+    triggers: [spec-creation, writing-plans, issue-operations, divide-and-conquer, verification-before-completion, pr-creation-workflow, git-workflow]
+    source: "adversarial-audit/SKILL.md §adversarial-audit-009"
 
-**⚠️ Creating a PR with more than one commit for a single-issue branch is a CRITICAL GUIDELINE VIOLATION.**
+  - id: adversarial-audit-010
+    tier: 2
+    title: "Bidirectional findings presented before revision — FAIL/DISAGREE must show revision options"
+    conditions:
+      all:
+        - "consensus == 'FAIL' OR consensus == 'DISAGREE'"
+        - "revision_options == null"
+    actions:
+      - HALT
+      - APPEND_DEFAULT_OPTIONS
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion, git-workflow]
+    source: "adversarial-audit/SKILL.md §adversarial-audit-010"
 
-The commit-per-issue invariant requires that single-issue branches produce exactly one commit in the PR. Work branches (containing multiple implementation items) correctly have N commits where N equals the number of work items. This invariant must be enforced at ALL gate points: enforcement gate, review-prep, and pre-pr-checklist.
+  - id: adversarial-audit-011
+    tier: 2
+    title: "Cleanroom task() for scan phase — scan sub-agent has NO verifier context"
+    conditions:
+      all:
+        - "audit_phase == 'scan'"
+        - "verifier_context_leaked == true"
+    actions:
+      - HALT
+      - STRIP_VERIFIER_CONTEXT
+    conflicts_with: []
+    requires: []
+    triggers: [adversarial-audit]
+    source: "adversarial-audit/SKILL.md §adversarial-audit-011"
 
-| Branch Type | Expected Commits | Violation |
-| -- | -- | -- |
-| **Single-issue** (no work state file) | Exactly 1 | >1 commit = CRITICAL VIOLATION |
-| **Work branch** (work state file exists) | N (N = work items) | Count mismatch = CRITICAL VIOLATION |
+  - id: adversarial-audit-012
+    tier: 2
+    title: "Live-source verification mandatory — memory-cached evidence is rejected"
+    conditions:
+      all:
+        - "evidence_source == 'memory' OR evidence_source == 'training_data'"
+        - "live_source_verified == false"
+    actions:
+      - HALT
+      - REJECT_EVIDENCE
+      - REQUIRE_LIVE_VERIFICATION
+    conflicts_with: []
+    requires: [verification-honesty-001]
+    triggers: [adversarial-audit, verification-before-completion]
+    source: "adversarial-audit/SKILL.md §adversarial-audit-012"
 
-- 🚫 FORBIDDEN: Creating a PR with >1 commit on a single-issue branch; proceeding past any enforcement gate without verifying commit count; generating a compare URL for an unsquashed single-issue branch; skipping the commit count check at any gate point because "the branch looks clean"
-- ✅ REQUIRED: Verify commit count at `pr-creation/enforcement-gate.md` Step 1.2 before PR creation; verify commit count at `review-prep.md` Step 2.5 before URL generation; verify commit count at `pre-pr-checklist.md` Step 1 before PR submission; squash single-issue branches via `pr-creation/squash-push.md` Step 3 when count >1; verify work branch commit count matches work state item count
+  - id: critical-rules-051
+    tier: 2
+    title: "Skipping mandatory submodule tagging at pre-work"
+    conditions:
+      all:
+        - "pipeline_stage == 'pre_work'"
+        - "submodule_tag_created == false"
+    actions:
+      - HALT
+      - REQUIRE_TAG(submodule, format: "<parent-repo>/<issue-number>")
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §critical-rules-051"
 
-**AUTHORITY:** `pr-creation/enforcement-gate.md` Step 1.2, `pr-creation/squash-push.md` Step 3, `review-prep.md` Step 2.5, `pr-creation-workflow/tasks/pre-pr-checklist.md` Step 1
+  - id: critical-rules-052
+    tier: 2
+    title: "Inline submodule git operations — ALL must task to sub-agents"
+    conditions:
+      any:
+        - "pipeline_stage == 'pre_work' AND inline_submodule_git_op == true"
+        - "pipeline_stage == 'implementation' AND inline_submodule_git_op == true"
+        - "pipeline_stage == 'cleanup' AND inline_submodule_git_op == true"
+    actions:
+      - HALT
+      - TASK(clean-room sub-agent for submodule operation)
+    conflicts_with: [critical-rules-034]
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §critical-rules-052"
 
-```yaml+symbolic
-  - id: critical-rules-040
-    title: "Un-squashed single-issue PR — creating a PR with multiple commits"
+  - id: critical-rules-053
+    tier: 3
+    title: "Direct-branch default — feature branch without worktree is the norm"
+    conditions:
+      all:
+        - "direct_branch_default_violated == true"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §Tier 3 prose section"
+
+  - id: critical-rules-054
+    tier: 3
+    title: "Feature branch pre-check before modification"
+    conditions:
+      all:
+        - "has_feature_branch == false"
+        - "file_modification_pending == true"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §Tier 3 prose section"
+
+  - id: critical-rules-055
+    tier: 3
+    title: "Uncommitted changes when marking implementation complete"
+    conditions:
+      all:
+        - "completion_claimed == true"
+        - "uncommitted_changes_exist == true"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: [finishing-a-development-branch]
+    source: "000-critical-rules.md §Tier 3 prose section"
+
+  - id: critical-rules-056
+    tier: 3
+    title: "Missing AI co-authored attribution"
+    conditions:
+      all:
+        - "ai_authored_content == true"
+        - "byline_present == false"
+        - "api_call_pending == true"
+    actions:
+      - FLAG
+      - APPEND_BYLINE
+    conflicts_with: []
+    requires: []
+    triggers: [issue-operations]
+    source: "000-critical-rules.md §Tier 3 prose section"
+
+  - id: critical-rules-057
+    tier: 3
+    title: "Standalone submodule-only PR creation is a workflow violation"
+    conditions:
+      all:
+        - "pipeline_stage == 'cleanup'"
+        - "pr_created == true"
+        - "pr_changes_only_submodule == true"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow]
+    source: "000-critical-rules.md §Tier 3 prose section"
+
+  - id: critical-rules-058
+    tier: 3
+    title: "Un-squashed single-issue PR — multiple commits on one issue"
     conditions:
       all:
         - "commit_count > 1"
         - "branch_type == single_issue"
         - "pr_creation_attempted == true"
     actions:
-      - HALT
-      - INVOKE(pr-creation/squash-push Step 3)
+      - FLAG
+      - TASK(pr-creation/squash-push Step 3)
     conflicts_with: []
     requires: []
     triggers: [git-workflow, pr-creation-workflow]
-    source: "000-critical-rules.md §Un-Squashed PR"
+    source: "000-critical-rules.md §Tier 3 prose section"
 
-  - id: critical-rules-041
-    title: "Listing merged PRs without invoking cleanup — check prs is a cleanup trigger"
+  - id: critical-rules-059
+    tier: 3
+    title: "Listing merged PRs invokes cleanup — check-pr is a cleanup trigger"
     conditions:
       all:
-        - "user_input matches 'check prs|check merged prs|check pr|check pull request'"
+        - "user_input matches 'check pr|check merged pr'"
         - "skill_check_pr_invoked == false"
     actions:
-      - HALT
-      - INVOKE(git-workflow --task check-pr)
+      - FLAG
+      - CALL(git-workflow --task check-pr)
     conflicts_with: []
     requires: []
     triggers: [git-workflow]
-    source: "000-critical-rules.md §Listing Merged PRs Without Invoking Cleanup"
+    source: "000-critical-rules.md §Tier 3 prose section"
 
-  - id: critical-rules-042
-    title: "Skipping behavioral tests for behavior changes"
+  - id: critical-rules-060
+    tier: 2
+    title: "Functional/Behavioral Test Substitution Prohibition — substituting structural/grep/metadata checks when behavioral tests cannot execute"
     conditions:
       all:
-        - "behavior_change_implemented == true"
-        - "behavioral_test_missing == true"
+        - "behavioral_or_functional_test_cannot_execute == true"
+        - "structural_substitute_reported_as_pass == true"
     actions:
       - HALT
-      - INVOKE(test-driven-development)
+      - REPORT_FAIL
+      - REQUIRE_REMEDIATION
     conflicts_with: []
     requires: []
-    triggers: [test-driven-development, spec-creation, writing-plans]
-    source: "000-critical-rules.md §Skipping Behavioral Tests for Behavior Changes"
+    triggers: [verification-before-completion]
+    source: "000-critical-rules.md §Functional/Behavioral Test Substitution Prohibition"
 
-  - id: critical-rules-043
-    title: "Audit baselines in permanent storage — NOT tmp/"
+  - id: critical-rules-accountability-ownership
+    tier: 2
+    title: "Accountability/Remediation Ownership Model"
     conditions:
-      any:
-        - "file_path matches '.opencode/tmp/.*audit'"
-        - "file_path matches 'tmp/.*audit'"
-        - "storage_suggestion matches 'tmp/'"
-        - "storage_suggestion matches '/tmp/'"
+      all:
+        - "failure_detected == true"
+        - "remediation_attempted_before_escalation == false"
+    actions:
+      - HALT
+      - REMEDIATE
+      - RE_VERIFY
+    conflicts_with: [critical-rules-020]
+    requires: []
+    triggers: [adversarial-audit, divide-and-conquer, verification-before-completion, git-workflow, approval-gate]
+    source: "000-critical-rules.md §critical-rules-accountability-ownership"
+
+  - id: critical-rules-platform-routing-bypass
+    tier: 1
+    title: "CRITICAL VIOLATION — Platform Routing Bypass — direct github_*/gitbucket-api issue calls outside issue-operations/platforms/"
+    conditions:
+      all:
+        - "issue_operation_pending == true"
+        - "direct_platform_api_call == true"
+        - "call_location_outside_platforms == true"
     actions:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [verification-enforcement, sre-runbook]
-    source: "000-critical-rules.md §Audit Baselines in Temporary Storage"
+    triggers: [issue-operations]
+    source: "000-critical-rules.md §critical-rules-platform-routing-bypass"
+
+  - id: critical-rules-platform-api-deliberation
+    tier: 2
+    title: "Platform API Deliberation Prohibited — agent must not deliberate about platform API selection"
+    conditions:
+      all:
+        - "issue_operation_pending == true"
+        - "agent_deliberating_platform_choice == true"
+    actions:
+      - HALT
+      - ROUTE_THROUGH_DISPATCHER
+    conflicts_with: []
+    requires: []
+    triggers: [issue-operations]
+    source: "000-critical-rules.md §critical-rules-platform-api-deliberation"
+
+  - id: critical-rules-hard-fail
+    tier: 2
+    title: "Hard Failure Discipline — FAIL is a hard gate, never reclassifiable"
+    conditions:
+      all:
+        - "pipeline_stage in ['verdict','sub_agent_result','cleanup_gate','sc_verification_gate','phase_completion_gate']"
+        - "gate_result == 'FAIL'"
+        - "action_taken in ['reclassify','inconclusive_verdict','halt_no_remediate']"
+    actions:
+      - HALT
+      - REMEDIATE
+      - RE_VERIFY
+    conflicts_with: [critical-rules-020]
+    requires: []
+    triggers: [adversarial-audit, divide-and-conquer, verification-before-completion, git-workflow, approval-gate]
+    source: "000-critical-rules.md §critical-rules-hard-fail"
 ```

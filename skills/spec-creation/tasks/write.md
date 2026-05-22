@@ -21,7 +21,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
 ### Pre-Step: Verification Gate (MANDATORY FIRST)
 
-Before assembling the spec, invoke `verification-enforcement --task verify`. This gate dispatches section-based sub-agents to collect evidence artifacts for the factual claims the spec will make — file references, API signatures, configuration fields, code behavior, and environment details. Evidence artifacts collected here ensure that the spec's claims are grounded in live sources. Claims that cannot be verified at this stage are marked with `⚠️ UNVERIFIED` for resolution in the post-generation revisit pass.
+Before assembling the spec, invoke `verification-enforcement --task verify`. This gate task()s section-based sub-agents to collect evidence artifacts for the factual claims the spec will make — file references, API signatures, configuration fields, code behavior, and environment details. Evidence artifacts collected here ensure that the spec's claims are grounded in live sources. Claims that cannot be verified at this stage are marked with `⚠️ UNVERIFIED` for resolution in the post-generation revisit pass.
 
 ### Step 0.5: Behavioral Test Mandate in Success Criteria (MANDATORY)
 
@@ -33,6 +33,16 @@ Before assembling the spec, invoke `verification-enforcement --task verify`. Thi
 
 **Cross-reference:** See `091-incremental-build.md` → Per-Item TDD Cycle → RED phase, `080-code-standards.md` → SC-to-Test Traceability and RED-Phase Ordering, and `080-code-standards.md` → Behavioral Enforcement Tests (PRIMARY) for the behavioral RED/GREEN gate.
 
+**Cost-frame mandate in SCs:** Each success criterion MUST carry a short cost-frame reformation statement that reframes what "expensive" means for that SC's domain. The statement uses the dark-prose-007 formula from `250-dark-prose-reference.md` §Section 3 — the implementing agent derives the exact prose autonomously based on the SC's verification method. Each SC's verification method MUST require a real test execution command — not a structural check (file exists, grep match). Structural verification is NEVER a valid substitute for behavioral execution: a skipped runtime equals a defect undiscovered.
+
+### Step 0.5a: Behavioral Test Definition — Stderr-Based Evidence (MANDATORY)
+
+Valid behavioral enforcement tests use **stderr-based assertion helpers** (`assert_stderr_pattern_present`/`assert_stderr_pattern_absent_all_models`) to verify agent actions (skill dispatches, file reads, tool invocations). **Prose-recall prompts** (e.g., "Describe how you would resolve models") produce stdout prose, not behavioral evidence, and are NOT accepted as valid behavioral tests.
+
+**Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task() calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence.**
+
+When creating the behavioral test success criterion, ensure it mandates real-domain prompts and stderr-based assertions, not prose-recall prompts.
+
 ### Step 1: Assemble Spec
 
 Combine outputs from prerequisite tasks into a coherent spec. The spec should address the following content areas — the agent decides which sections to use and how to organize them:
@@ -41,9 +51,36 @@ Combine outputs from prerequisite tasks into a coherent spec. The spec should ad
 - **Constraints and scope** — What's in and out of scope
 - **Success criteria** — Testable, binary pass/fail conditions
 - **Risk and edge cases** — What could go wrong and boundary conditions
-- **Implementation approach** — For the reader's understanding, not prescribing HOW (see Step 4.5)
+- **Implementation approach** — For the reader's understanding, not prescribing HOW (see Step 5.5)
 
 Skip areas that don't apply to simple specs; add areas that do. The spec should be self-contained and clear, regardless of structure.
+
+A **Documentation Sources** section documents where the spec author verified factual claims. This is especially important for specs making claims about code behavior, config schemas, or API signatures. Place it before the AI byline section.
+
+**Source Categories:**
+
+| Category | Description | Examples |
+|----------|-------------|----------|
+| Local docs | Project documentation, README, design docs | `docs/architecture.md`, `README.md` |
+| Direct source search | Codebase search via grep, srclight, or glob | `srclight_search_symbols("cache")`, `grep -r "redis" src/` |
+| Documentation URLs | External documentation or API references | Language docs, library docs, framework guides |
+| MCP search | Tool-based code analysis | `srclight_get_signature()`, `srclight_get_symbol()` |
+| Live verification | Test execution or runtime checks | `uv run pytest test/test_*.py`, config validation |
+
+**Format:**
+
+```markdown
+**Documentation Sources:**
+| Source Category | What Was Consulted | Purpose |
+|----------------|-------------------|---------|
+| Local docs | `README.md`, `docs/architecture.md` | Understand existing architecture |
+| Direct source search | `srclight_search_symbols("cache")` | Identify existing cache patterns |
+| Documentation URLs | [redis-py docs](https://redis-py.readthedocs.io/) | Verify API signatures |
+| MCP search | `srclight_get_signature("get_data")` | Verify function signature |
+| Live verification | `uv run pytest test/test_data.py` | Confirm test coverage |
+```
+
+Simple specs may skip this section. Standard and complex specs SHOULD include it when making factual claims that require verification.
 
 ### Step 2: Eliminate Ambiguity (Principle #4)
 
@@ -57,6 +94,26 @@ Review every requirement statement:
 
 ### Step 3: Define Acceptance Criteria (Principle #6)
 
+**🚫 ALL-OR-NOTHING GATE: ALL success criteria MUST pass for implementation to be considered complete.**
+
+| Rule | Description |
+|------|-------------|
+| ALL pass | Implementation is complete — proceed to next pipeline step |
+| Any SKIPPED | Treated as FAIL — skipped SCs must be explicitly documented as superseded or out of scope with rationale |
+| Any FAILED | Triggers autonomous remediation by the producing agent. Gate holds position (does not pass) until remediation is verified. If re-verification also fails (double-failure), HALT with blocker report. The agent MUST attempt remediation before any escalation. |
+| Remediated SC | Re-verified independently — same PASS/FAIL gate applies; no carryover credit from prior passes |
+| Re-verification | Repeat the verification command/assertion; confirm PASS before claiming remediation complete |
+
+**SC Table Format (4-column):**
+
+| ID | Criterion | Verification Method | Remediation |
+|----|-----------|-------------------|-------------|
+| SC-1 | ... | Executable command/assertion producing deterministic PASS/FAIL | What corrective action is required on FAIL, including re-verification procedure |
+
+**The Verification Method column MUST specify an executable command or assertion producing deterministic PASS/FAIL. The Remediation column MUST specify what corrective action is required on FAIL and how re-verification is performed.**
+
+<!-- Fragment ID: sc-enforcement-gate -->
+
 For each feature/requirement:
 
 - Binary pass/fail criteria (NOT subjective)
@@ -66,17 +123,37 @@ For each feature/requirement:
 - **Behavioral test assertions for rule-changing SCs** — Success criteria that change agent behavior (guideline rules, skill enforcement, critical violations) MUST include a behavioral test assertion describing the RED state (agent behavior without the rule) and GREEN state (agent behavior with the rule), not just a content-verification grep command. Content-verification commands are SECONDARY for rule-changing SCs; behavioral assertions are PRIMARY. See `080-code-standards.md` → Behavioral Enforcement Tests (PRIMARY).
 - **Semantic intent field** — Each success criterion MUST include a brief prose annotation explaining WHY the exact criterion value matters and what semantic distinction it represents. This prevents substituting functionally similar values. Example: "Exit code 2 specifically signals removal of a feature, distinct from exit code 1 which signals a validation failure — these are different error categories for different consumer behaviors." Without semantic intent, an SC is a checklist — it verifies that something happened, but not that the right thing happened for the right reason.
 
-### Step 4: Structure the Deliverable (Principle #10)
+### Step 4: Determinism Gate
+
+For each success criterion, ask: **"If two different auditors read this SC, will they independently produce the same PASS/FAIL result against the same implementation?"**
+
+If the answer is "no", the SC must be rewritten.
+
+**Fail patterns (SC must be rewritten if any match):**
+
+| Pattern | Example | Problem |
+|---------|---------|---------|
+| Adverbs without thresholds | "efficiently", "gracefully", "quickly" | Subjective — different auditors assign different thresholds |
+| Comparatives without baselines | "faster than before", "more robust" | Unknown reference point — cannot be evaluated without historical data |
+| Open-ended quality requirements | "handle edge cases", "be resilient" | No enumerated cases or failure modes specified |
+| Missing expected values | "returns the correct result", "validates input" | No concrete expected value to compare against |
+| Implicit behavior | "should not crash", "works normally" | No negative criterion — what constitutes "not crashing" is undefined |
+
+**Verification:** For each SC, attempt to write an executable verification command (`uv run pytest test_X.py::test_Y`, `bash verify.sh arg`, `issue-operations -> read-issue (github_issue_read())` with specific field check). If no executable command can be written, the SC is not deterministic. <!-- Routes through issue-operations per SPEC #683 -->
+
+✅ **Gate presence verification:** Verify the all-or-nothing gate statement is present in the assembled spec body. If absent → `STRUCTURE-VIOLATION` requiring rewrite before submission.
+
+### Step 5: Structure the Deliverable (Principle #10)
 
 **Content coverage matters more than section structure.** The agent chooses the optimal structure for the spec's complexity:
 
-- **Simple specs** (bug fixes, one-file changes): May use a minimal format — Problem, Context, Fix, Criteria, Edge Cases — all in flowing prose without section headers
-- **Standard specs** (multi-file changes): May use typical sections — Objective, Problem, Context, Fix Approach, Success Criteria, Edge Cases
-- **Complex specs** (cross-cutting, multi-phase): May use full structure — Objective, Problem, Context, Affected Files, Fix Approach, Success Criteria, Edge Cases, Dependencies, Risk, Decision Rationale, Phases
+- **Minimal specs** (bug fixes, one-file changes): May use a minimal format — Problem, Context, Fix, Criteria, Edge Cases — all in flowing prose without section headers. Preamble is optional.
+- **Standard specs** (multi-file changes): May use typical sections — Intent and Executive Summary (mandatory), Objective, Problem, Context, Fix Approach, Success Criteria, Edge Cases. Include a `## Intent and Executive Summary` preamble with the 5 fields (Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions) before the Objective section.
+- **Complex specs** (cross-cutting, multi-phase): May use full structure — Intent and Executive Summary (mandatory), Objective, Problem, Context, Affected Files, Fix Approach, Success Criteria, Edge Cases, Dependencies, Risk, Decision Rationale, Phases. Preamble is mandatory.
 
 **Any format that covers the required content areas is acceptable.** The agent decides the structure that best serves the specific spec.
 
-### Step 4.5: Spec/Plan Boundary Check
+### Step 5.5: Spec/Plan Boundary Check
 
 Review the assembled spec for plan-level content that belongs in the implementation plan, not the spec. Specs describe **WHAT** and **WHY**; plans describe **HOW**.
 
@@ -92,44 +169,7 @@ Review the assembled spec for plan-level content that belongs in the implementat
 
 **Self-review question:** "Could two developers produce valid but different implementations from this spec?" If yes, the spec is at the right level. If no — if the spec only allows one implementation — it contains plan-level detail that should be removed.
 
-### Step 4.7: Single Concern Classification Test
-
-**MANDATORY after Step 4.5 Spec/Plan Boundary Check and before Step 5 Self-Review.**
-
-Apply the concern classification test to the assembled spec to ensure it addresses exactly one concern. This checkpoint catches multi-concern specs that should have been decomposed earlier.
-
-**Concern Classification Test:** "Remove concern B from the artifact. If concern A remains complete and verifiable, they are unrelated and must be in separate artifacts."
-
-Two concerns are unrelated when ALL of the following hold:
-- Different root causes
-- Can be verified independently
-- Can be closed independently
-- Removing one doesn't break the other's success criteria
-
-**Procedure:**
-
-1. Read through the assembled spec and identify every distinct concern (each problem area with its own root cause, affected scope, and verification criteria)
-2. For each pair of concerns, apply the classification test: "Can you remove concern B, and have concern A remain complete and verifiable?"
-3. If any pair fails the test (concern A is NOT complete without concern B), they are related and may stay in the same spec
-4. If any pair passes (concern A IS complete without concern B), they are unrelated
-
-| Classification | Condition | Action |
-| -- | -- | -- |
-| Single-concern | 0-1 concerns, OR all concerns are related (share root cause, cannot verify/close independently) | Proceed to Step 5 |
-| Multi-concern | ≥2 unrelated concerns identified | HALT — require decomposition into separate specs |
-
-**On HALT for multi-concern:**
-
-```
-Spec fails Single Concern Checkpoint. <N> unrelated concerns detected:
-- Concern A: <description> (root cause: <cause>, verification: <scope>)
-- Concern B: <description> (root cause: <cause>, verification: <scope>)
-Decompose into separate specs per 000-critical-rules.md §Single Concern Principle.
-```
-
-**Note:** This test validates the same SCP rule enforced at issue creation (Step 0.6 of `creation.md`), but catches violations that emerge during spec assembly — where two seemingly related requirements may diverge into separate concerns as detail is added.
-
-### Step 5: Self-Review
+### Step 6: Self-Review
 
 After writing the spec, review with fresh eyes:
 
@@ -144,16 +184,16 @@ Fix any issues inline. No need to re-review — just fix and move on.
 
 **SC Verification Column Precision Sub-Check:** Scan the Verification column of every SC table for vague verification methods (describes what to check without specifying exact expected value). Flag each vague entry as a STRUCTURE-VIOLATION requiring rewrite with an executable verification command per `140-planning-spec-creation.md` Executable Verification Commands mandate. The spec should read as a coherent narrative document, not as a mechanical checklist.
 
-### Step 5.5: Evidence Artifact Verification (MANDATORY)
+### Step 6.5: Evidence Artifact Verification (MANDATORY)
 
 **🚫 CRITICAL: Each self-review checkpoint MUST produce a tool-call artifact demonstrating the verification was performed. Assertions without tool-call evidence are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
 
 | Checkpoint | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |
-| No placeholders remain | Verify spec body contains no "TBD", "TODO", "FIXME", or incomplete section markers | `github_issue_read(method=get, issue_number=N)` → search body for `/TBD\|TODO\|FIXME/` | STRUCTURE-VIOLATION |
-| Internal consistency | Cross-reference requirement IDs between sections; verify no contradictions | `github_issue_read(method=get)` → parse section anchors vs referenced IDs | CONFLICTING |
-| Scope check evidence | Verify scope is appropriate for single plan or flagged for decomposition | `github_issue_read(method=get)` → count affected files, check for phase markers | VERIFICATION-GAP |
-| Ambiguity resolved | Verify no requirement can be interpreted two ways | `github_issue_read(method=get)` → scan for "should", "etc.", vague terms | STRUCTURE-VIOLATION |
+| No placeholders remain | Verify spec body contains no "TBD", "TODO", "FIXME", or incomplete section markers | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → search body for `/TBD\|TODO\|FIXME/` | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
+| Internal consistency | Cross-reference requirement IDs between sections; verify no contradictions | `issue-operations -> read-issue (github_issue_read(method=get)` → parse section anchors vs referenced IDs | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
+| Scope check evidence | Verify scope is appropriate for single plan or flagged for decomposition | `issue-operations -> read-issue (github_issue_read(method=get)` → count affected files, check for phase markers | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
+| Ambiguity resolved | Verify no requirement can be interpreted two ways | `issue-operations -> read-issue (github_issue_read(method=get)` → scan for "should", "etc.", vague terms | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
 
 **Evidence format:**
 
@@ -178,9 +218,9 @@ Action: [auto-fix|conditional|flag-for-review]
 
 ### Post-Review: Verification Revisit (MANDATORY)
 
-After Step 5 self-review and Step 5.5 evidence verification, invoke `verification-enforcement --task revisit`. This pass scans the spec for any remaining `⚠️ UNVERIFIED` markers and attempts to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The spec must not be submitted as a GitHub Issue while unverified claims remain without developer acknowledgment.
+After Step 6 self-review and Step 6.5 evidence verification, invoke `verification-enforcement --task revisit`. This pass scans the spec for any remaining `⚠️ UNVERIFIED` markers and attempts to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The spec must not be submitted as a GitHub Issue while unverified claims remain without developer acknowledgment.
 
-### Step 6: Create GitHub Issue
+### Step 7: Create GitHub Issue
 
 Invoke `issue-operations` skill to persist the spec as a GitHub Issue:
 
@@ -206,15 +246,15 @@ Invoke `issue-operations` skill to persist the spec as a GitHub Issue:
 - Claim spec is "written" without a GitHub Issue URL
 - Ask the user to review the spec in chat
 
-### Step 7: User Review on Issue
+### Step 8: User Review on Issue
 
 The user reviews the spec ON THE GITHUB ISSUE, not in chat.
 
 - If user requests revisions via issue comments: update the issue body, then post update summary + URL + byline to chat
-- If user approves the spec on the issue: proceed to Step 8
+- If user approves the spec on the issue: proceed to Step 9
 - Do NOT re-dump the spec to chat for any reason
 
-### Step 8: Transition
+### Step 9: Transition
 
 After user approval of the spec on the GitHub Issue:
 

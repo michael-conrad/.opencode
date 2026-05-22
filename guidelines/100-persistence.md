@@ -1,3 +1,9 @@
+---
+trigger_on: PostgreSQL, SQLAlchemy, persistence, database, ORM, session
+tier: 2
+load_when: sub-agent
+---
+
 # PostgreSQL & SQLAlchemy Standards
 
 Applies to `pubmed_data_3` and all new persistence code.

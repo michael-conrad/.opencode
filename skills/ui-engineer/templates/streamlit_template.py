@@ -15,7 +15,9 @@ def main():
 
     user_role = st.session_state.get("user_role")
     if user_role not in ("<ROLE_REQUIREMENT>",):
-        st.error("You do not have permission to access this page. <ROLE_DESCRIPTION> role required.")
+        st.error(
+            "You do not have permission to access this page. <ROLE_DESCRIPTION> role required."
+        )
         return
 
     with st.sidebar:

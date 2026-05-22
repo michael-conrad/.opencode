@@ -1,9 +1,13 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
-"""Session initialization script for AI agents.
+
+__doc__ = """Session initialization script for AI agents.
 
 Outputs key:value pairs for LLM consumption on stdout. Key names use
 the dotted scope.param convention where the prefix is the tool scope
@@ -23,7 +27,7 @@ Canonical session-init variable names (dotted, LLM context):
 github.owner, github.repo, github.platform, github.identity_source, github.html_url,
 gitbucket.owner, gitbucket.repo, gitbucket.html_url, gitbucket.ssh_url,
 gitbucket.has_credentials, srclight.project, dev.name, dev.email,
-branch, worktree.path, worktree.fatal, AgentName, ModelId
+branch, worktree.path, worktree.fatal
 
 Canonical env-loader variable names (UPPER_CASE, bash environment — separate pipeline):
 GIT_OWNER, GIT_REPO, GIT_PLATFORM, GITHUB_HTML_URL, GITBUCKET_HTML_URL,
@@ -39,8 +43,6 @@ for developer diagnostics but are NOT referenced by guidelines as variables.
 Diagnostic and side-effect output goes to stderr — silent on success.
 
 Guard checks (auto-create missing files/branches/worktree):
-- CHANGELOG.md: Create with Keep a Changelog header if missing
-- .opencode/CHANGELOG.md: Create with minimal header if missing
 - dev branch: Create from origin/dev or main/master if missing
 - .worktrees/main/: Bootstrap worktree layout if not set up
 - .env gitignore: Warn if .env exists but is not in .gitignore
@@ -54,17 +56,20 @@ Exit codes:
     2: Non-GitHub/GitBucket remote detected
 """
 
-from __future__ import annotations
-
 import os
 import re
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 GIT_TIMEOUT = 10
 NETWORK_TIMEOUT = 5
 
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    _path = _path.parent
+PROJECT_ROOT = _path.parent
 
 def run_git_command(args: list[str]) -> str | None:
     """Run a git command and return output, or None if failed."""
@@ -85,14 +90,12 @@ def run_git_command(args: list[str]) -> str | None:
         pass
     return None
 
-
 def get_user_name() -> str:
     """Get git user name or fallback to $USER."""
     name = run_git_command(["config", "user.name"])
     if name:
         return name
     return os.environ.get("USER", "unknown")
-
 
 def get_user_email() -> str:
     """Get git user email or fallback to $USER@$HOSTNAME."""
@@ -102,7 +105,6 @@ def get_user_email() -> str:
     user = os.environ.get("USER", "unknown")
     hostname = os.environ.get("HOSTNAME", "localhost")
     return f"{user}@{hostname}"
-
 
 def parse_git_remote_url(url: str) -> tuple[str, str] | tuple[None, None]:
     """Parse owner and repo from GitHub remote URL.
@@ -126,16 +128,13 @@ def parse_git_remote_url(url: str) -> tuple[str, str] | tuple[None, None]:
 
     return None, None
 
-
 def is_github_remote(url: str) -> bool:
     """Check if remote URL is a GitHub remote."""
     return "github.com" in url
 
-
 def is_gitbucket_remote(url: str) -> bool:
     """Check if remote URL is a GitBucket remote (non-github.com)."""
     return not is_github_remote(url)
-
 
 def parse_gitbucket_url(
     url: str,
@@ -183,22 +182,14 @@ def parse_gitbucket_url(
 
     return base_url, owner, repo
 
-
 def _read_gitbucket_url_from_env() -> str | None:
     """Read GITBUCKET_HTML_URL (preferred) or GITBUCKET_URL (legacy) from .env file."""
     try:
-        _base_dir = os.path.dirname(os.path.abspath(__file__))
-        _cdup = subprocess.check_output(
-            ["git", "-C", _base_dir, "rev-parse", "--show-cdup"],
-            text=True,
-            stdin=subprocess.DEVNULL,
-            timeout=NETWORK_TIMEOUT,
-        ).strip()
-        env_path = os.path.normpath(os.path.join(_base_dir, _cdup, ".env"))
-        if os.path.exists(env_path):
+        _env_path = PROJECT_ROOT / ".env"
+        if _env_path.exists():
             html_url = None
             legacy_url = None
-            with open(env_path) as f:
+            with open(_env_path) as f:
                 for line in f:
                     line = line.strip()
                     if line.startswith("GITBUCKET_HTML_URL="):
@@ -209,7 +200,6 @@ def _read_gitbucket_url_from_env() -> str | None:
     except OSError:
         pass
     return None
-
 
 def extract_ssh_url(url: str) -> str | None:
     """Extract SSH base URL (host + port, no path) from a GitBucket SSH remote.
@@ -223,16 +213,13 @@ def extract_ssh_url(url: str) -> str | None:
         return match.group(1)
     return None
 
-
 def get_remote_url() -> str | None:
     """Get origin remote URL or None if not configured."""
     return run_git_command(["remote", "get-url", "origin"])
 
-
 def get_current_branch() -> str | None:
     """Get current git branch name or None if HEAD is detached."""
     return run_git_command(["branch", "--show-current"])
-
 
 def check_srclight() -> str:
     """Check srclight index health. Returns 'indexed', 'empty', or 'not_indexed'."""
@@ -254,7 +241,6 @@ def check_srclight() -> str:
         )
         return "not_indexed"
 
-
 def get_submodule_dirs() -> list[str]:
     """Get list of submodule directory paths using git config."""
     result = run_git_command(
@@ -270,6 +256,41 @@ def get_submodule_dirs() -> list[str]:
             paths.append(parts[-1])
     return paths
 
+def emit_subfolder_mappings() -> None:
+    """Emit sub-folder repo mappings in YAML format."""
+    submodules = get_submodule_dirs()
+    if not submodules:
+        return
+
+    lines: list[str] = []
+    for sm_path in submodules:
+        url = run_git_command(["-C", sm_path, "remote", "get-url", "origin"])
+        if not url:
+            continue
+
+        if is_github_remote(url):
+            owner, repo = parse_git_remote_url(url)
+            if not owner or not repo:
+                continue
+            platform = "github"
+        else:
+            _base_url, owner, repo = parse_gitbucket_url(url)
+            if not owner or not repo:
+                continue
+            platform = "gitbucket"
+
+        lines.append(f"  - path: {sm_path}")
+        lines.append(f"    owner: {owner}")
+        lines.append(f"    repo: {repo}")
+        lines.append(f"    platform: {platform}")
+
+    if not lines:
+        return
+
+    print("## Sub-folder Repo Mappings")
+    print("submodules:")
+    for line in lines:
+        print(line)
 
 def get_source_hooks_dir() -> str | None:
     """Find the .opencode/hooks/ directory or None if missing."""
@@ -278,12 +299,10 @@ def get_source_hooks_dir() -> str | None:
         return hooks_dir
     return None
 
-
 def get_hooks_path() -> str:
     """Get git hooks path or empty string if not configured."""
     hooks = run_git_command(["config", "core.hooksPath"])
     return hooks or ""
-
 
 def _hooks_match(src: str, dst: str) -> bool:
     """Check if two hook files have the same content."""
@@ -291,7 +310,6 @@ def _hooks_match(src: str, dst: str) -> bool:
         return os.path.isfile(dst) and open(src).read() == open(dst).read()
     except OSError:
         return False
-
 
 def _copy_hook(src: str, dst: str) -> bool:
     """Copy a hook file, making it executable."""
@@ -302,7 +320,6 @@ def _copy_hook(src: str, dst: str) -> bool:
     except OSError:
         return False
 
-
 def _resolve_git_dir() -> str | None:
     """Resolve the actual .git directory using git rev-parse --git-dir."""
     result = run_git_command(["rev-parse", "--git-dir"])
@@ -312,7 +329,6 @@ def _resolve_git_dir() -> str | None:
     if os.path.isabs(result):
         return result
     return os.path.normpath(os.path.join(cwd, result))
-
 
 def install_hooks() -> None:
     """Install git hooks from .opencode/hooks/. Reports failures to stderr."""
@@ -425,7 +441,6 @@ def install_hooks() -> None:
             file=sys.stderr,
         )
 
-
 def _extract_version_from_pyproject() -> str:
     """Extract version string from pyproject.toml, or return '0.1.0' as fallback."""
     pyproject_path = os.path.join(os.getcwd(), "pyproject.toml")
@@ -441,59 +456,6 @@ def _extract_version_from_pyproject() -> str:
         except OSError:
             pass
     return "0.1.0"
-
-
-def _ensure_changelog_md() -> str:
-    """Create CHANGELOG.md if missing. Returns 'exists', 'created', or 'failed'."""
-    changelog_path = os.path.join(os.getcwd(), "CHANGELOG.md")
-    if os.path.isfile(changelog_path):
-        return "exists"
-
-    version = _extract_version_from_pyproject()
-    content = (
-        "# Changelog\n"
-        "\n"
-        "All notable changes to this project will be documented in this file.\n"
-        "\n"
-        "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).\n"
-        "\n"
-        f"## [{version}] - Unreleased\n"
-    )
-    try:
-        with open(changelog_path, "w") as f:
-            f.write(content)
-        return "created"
-    except OSError as e:
-        print(f"Failed to create CHANGELOG.md: {e}", file=sys.stderr)
-        return "failed"
-
-
-def _ensure_opencode_changelog_md() -> str:
-    """Create .opencode/CHANGELOG.md if missing. Returns 'exists', 'created', or 'failed'."""
-    opencode_dir = os.path.join(os.getcwd(), ".opencode")
-    changelog_path = os.path.join(opencode_dir, "CHANGELOG.md")
-    if os.path.isfile(changelog_path):
-        return "exists"
-    version = _extract_version_from_pyproject()
-    content = (
-        "# OpenCode Changelog\n"
-        "\n"
-        "All notable changes to the `.opencode/` directory (skills, guidelines, agent configuration) "
-        "will be documented in this file.\n"
-        "\n"
-        "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).\n"
-        "\n"
-        f"## [{version}] - Unreleased\n"
-    )
-    try:
-        os.makedirs(opencode_dir, exist_ok=True)
-        with open(changelog_path, "w") as f:
-            f.write(content)
-        return "created"
-    except OSError as e:
-        print(f"Failed to create .opencode/CHANGELOG.md: {e}", file=sys.stderr)
-        return "failed"
-
 
 def _ensure_dev_branch() -> str:
     """Ensure dev branch exists. Returns 'exists', 'created from main', 'created from master', or 'failed'."""
@@ -513,12 +475,10 @@ def _ensure_dev_branch() -> str:
     )
     return "failed"
 
-
 def is_worktree_setup() -> bool:
     main_wt = os.path.join(os.getcwd(), ".worktrees", "main")
     git_entry = os.path.join(main_wt, ".git")
     return os.path.isdir(main_wt) and os.path.exists(git_entry)
-
 
 def detect_worktree() -> tuple[bool, str | None, str | None]:
     toplevel = run_git_command(["rev-parse", "--show-toplevel"])
@@ -547,7 +507,6 @@ def detect_worktree() -> tuple[bool, str | None, str | None]:
 
     return False, None, None
 
-
 def is_submodule_context() -> bool:
     toplevel = run_git_command(["rev-parse", "--show-toplevel"])
     if not toplevel:
@@ -570,7 +529,6 @@ def is_submodule_context() -> bool:
             pass
     return False
 
-
 def _add_to_gitignore(entry: str) -> bool:
     """Add an entry to .gitignore if not already present."""
     gitignore_path = os.path.join(os.getcwd(), ".gitignore")
@@ -589,7 +547,6 @@ def _add_to_gitignore(entry: str) -> bool:
     except OSError:
         return False
 
-
 def get_worktree_display() -> str:
     in_wt, wt_path, _ = detect_worktree()
     if in_wt:
@@ -597,7 +554,6 @@ def get_worktree_display() -> str:
     if is_worktree_setup():
         return "Worktrees: .worktrees/main/"
     return ""
-
 
 def bootstrap_worktree_layout() -> bool:
     in_wt, _, _ = detect_worktree()
@@ -666,13 +622,11 @@ def bootstrap_worktree_layout() -> bool:
 
     return True
 
-
 CREDENTIAL_FILE_PATTERNS = [
     (".env", "Environment variables file"),
     (".streamlit/secrets.toml", "Streamlit secrets file"),
     (".streamlit/secrets.toml.production", "Streamlit production secrets file"),
 ]
-
 
 def _check_credential_files_gitignored() -> list[str]:
     """Check credential files for gitignore coverage.
@@ -706,23 +660,15 @@ def _check_credential_files_gitignored() -> list[str]:
             )
     return unprotected
 
-
 def run_guard_checks() -> list[str]:
     """Run guard checks silently. Returns list of problem descriptions."""
     problems: list[str] = []
-    changelog_status = _ensure_changelog_md()
-    if changelog_status == "failed":
-        problems.append("CHANGELOG.md: failed to create")
-    opencode_changelog_status = _ensure_opencode_changelog_md()
-    if opencode_changelog_status == "failed":
-        problems.append(".opencode/CHANGELOG.md: failed to create")
     dev_branch_status = _ensure_dev_branch()
     if "failed" in dev_branch_status:
         problems.append(f"dev branch: {dev_branch_status}")
     unprotected = _check_credential_files_gitignored()
     problems.extend(unprotected)
     return problems
-
 
 def resolve_identity(remote_url: str) -> tuple[str, str, str] | tuple[None, None, None]:
     """Resolve git platform, owner, and repo from the remote URL.
@@ -742,32 +688,12 @@ def resolve_identity(remote_url: str) -> tuple[str, str, str] | tuple[None, None
         return "gitbucket", owner, repo
     return None, None, None
 
-
-def get_submodule_remotes() -> list[tuple[str, str, str]]:
-    """Find remotes from submodules when the root repo has no remote.
-
-    Returns list of (submodule_path, remote_url, platform) tuples.
-    """
-    submod_dirs = get_submodule_dirs()
-    remotes: list[tuple[str, str, str]] = []
-    for submod_path in submod_dirs:
-        submod_remote = run_git_command(
-            ["-C", submod_path, "remote", "get-url", "origin"]
-        )
-        if submod_remote:
-            platform, owner, repo = resolve_identity(submod_remote)
-            if platform and owner and repo:
-                remotes.append((submod_path, submod_remote, platform))
-    return remotes
-
-
 def main() -> int:
     remote_url = get_remote_url()
     identity_source = "root"
     platform: str | None = None
     owner: str | None = None
     repo: str | None = None
-    active_submod_path: str | None = None
 
     if remote_url:
         platform, owner, repo = resolve_identity(remote_url)
@@ -780,46 +706,14 @@ def main() -> int:
             return 1
     else:
         print(
-            "No root repo remote configured — checking submodules for degraded mode",
+            "No git remote configured — operating in local-only mode",
             file=sys.stderr,
         )
-        submodule_remotes = get_submodule_remotes()
-        if submodule_remotes:
-            submod_path, submod_url, submod_platform = submodule_remotes[0]
-            submod_owner, submod_repo = (
-                parse_git_remote_url(submod_url)
-                if submod_platform == "github"
-                else (None, None)
-            )
-            if submod_platform != "github":
-                _, submod_owner, submod_repo = parse_gitbucket_url(submod_url)
-            if submod_owner and submod_repo:
-                owner = submod_owner
-                repo = submod_repo
-                platform = submod_platform
-                identity_source = "submodule"
-                remote_url = submod_url
-                active_submod_path = submod_path
-                print(
-                    f"Using submodule remote for degraded mode: {submod_path} -> {submod_url}",
-                    file=sys.stderr,
-                )
-            else:
-                print(
-                    "Could not parse owner/repo from submodule remote.", file=sys.stderr
-                )
-                print(f"Submodule remote: {submod_url}", file=sys.stderr)
-
-        if not platform:
-            owner = "(none)"
-            repo = "(none)"
-            platform = "local"
-            identity_source = "none"
-            remote_url = "(none)"
-            print(
-                "No git remote available — operating in local-only mode",
-                file=sys.stderr,
-            )
+        owner = "(none)"
+        repo = "(none)"
+        platform = "local"
+        identity_source = "local"
+        remote_url = "(none)"
 
     user_name = get_user_name()
     user_email = get_user_email()
@@ -849,16 +743,11 @@ def main() -> int:
     print(f"github.repo: {repo}")
     print(f"github.platform: {platform}")
     print(f"github.identity_source: {identity_source}")
-    print("AgentName: ")
-    print("ModelId: ")
     print(f"dev.name: {user_name}")
     print(f"dev.email: {user_email}")
     print(f"branch: {current_branch}")
 
-    if identity_source == "submodule":
-        submod_display = submod_path if submod_path else "(unknown)"
-        print(f"Remote: (none) [submodule: {remote_url}]")
-    elif identity_source == "none":
+    if identity_source == "local":
         print("Remote: (none)")
     else:
         print(f"Remote: {remote_url}")
@@ -880,16 +769,9 @@ def main() -> int:
             print(f"gitbucket.ssh_url: {ssh_url}")
         has_credentials = False
         try:
-            _base_dir = os.path.dirname(os.path.abspath(__file__))
-            _cdup = subprocess.check_output(
-                ["git", "-C", _base_dir, "rev-parse", "--show-cdup"],
-                text=True,
-                stdin=subprocess.DEVNULL,
-                timeout=NETWORK_TIMEOUT,
-            ).strip()
-            env_path = os.path.normpath(os.path.join(_base_dir, _cdup, ".env"))
-            if os.path.exists(env_path):
-                with open(env_path) as f:
+            _env_path = PROJECT_ROOT / ".env"
+            if _env_path.exists():
+                with open(_env_path) as f:
                     content = f.read()
                     has_credentials = "GITBUCKET_TOKEN=" in content and (
                         "GITBUCKET_HTML_URL=" in content or "GITBUCKET_URL=" in content
@@ -922,8 +804,8 @@ def main() -> int:
     for problem in guard_problems:
         print(problem)
 
+    emit_subfolder_mappings()
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,315 +1,66 @@
 ---
 name: conflict-resolution
-description: Use when resolving git conflicts during rebase, merge, or cherry-pick operations. Triggers on: conflict, merge conflict, rebase conflict, resolve conflict, cherry-pick conflict, conflict resolution, intent conflict, conflict classification.
+description: Use when resolving git conflicts during rebase, merge, or cherry-pick operations. Triggers on: conflict, merge conflict, rebase conflict, resolve conflict, cherry-pick conflict, conflict resolution, intent conflict, conflict classification. Resolving conflicts blindly produces broken merges. Intent analysis before resolution separates correct merges from silent corruption.
+type: discipline-enforcing
+license: MIT
+provenance: AI-generated
+compatibility: opencode
 ---
 
 # Skill: conflict-resolution
 
 ## Overview
 
-Procedural workflow for classifying and resolving git conflicts with proper intent preservation. Prevents silent erosion of committed work during rebase, merge, cherry-pick, or any git operation that produces conflicts.
-
-## Workflow Diagram
-
-```mermaid
-flowchart TD
-    A[Conflict detected] --> B[Read all conflict content]
-    B --> C[Classify each conflict]
-    C --> D{Tier?}
-    D -- Tier 1 Trivial --> E[Auto-resolve: whitespace/formatting]
-    D -- Tier 2 Textual --> F[Auto-resolve: same intent different text]
-    D -- Tier 3 Intent --> G[HALT: flag for developer review]
-    E --> H[Silent — no notification]
-    F --> I[Note in chat]
-    G --> J{Complex?}
-    J -- Yes --> K[Create GitHub Issue with conflict-resolution label]
-    J -- No --> L[Chat notification with recommendation]
-    K --> M[Wait for developer input]
-    L --> M
-    H --> N[Verify spec compliance]
-    I --> N
-    M --> N
-```
+Classifies and resolves git conflicts with intent preservation. Three tiers: Tier 1 (trivial, auto-resolve), Tier 2 (textual, auto-resolve + note), Tier 3 (intent conflict, HALT for developer).
 
 ## Persona
 
-You are a Conflict Resolution Specialist. Your focus is ensuring no committed work or spec intent is silently lost during git conflict resolution.
-
-## Invocation
-
-- **Automatic**: Invoked by `git-workflow` tasks when conflicts are detected during rebase/merge
-- **Manual**: `/skill conflict-resolution` — Overview only
-- **Manual**: `/skill conflict-resolution --task classify-and-resolve` — Full classification and resolution procedure
-- **Manual**: `/skill conflict-resolution --task completion` — Invoke when workflow halts at any point
+Conflict Resolution Specialist. Focus: no committed work or spec intent silently lost during conflict resolution.
 
 ## Tasks
 
-| Task | Purpose | Words |
-|------|---------|-------|
-| `classify-and-resolve` | Detect, classify, and resolve conflicts by tier | ≈550 |
-| `completion` | Ensure mandatory terminal-state dispatch occurred; remediate if not; report status | ≈200 |
+| Task | Words |
+|------|-------|
+| `classify-and-resolve` | ≈550 |
+| `completion` | ≈200 |
 
-## Sub-Agent Tasks
+## Invocation
 
-### Dispatch Audit Table
+Automatic from `git-workflow` when conflicts detected. Manual invocation:
 
-| Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
-|---|---|---|---|---|
-| `classify-and-resolve` | When a git conflict is detected and needs resolution | Branch name, conflict file paths, worktree.path | Implementation context, agent memory, conflict resolution decisions from prior sessions | NO |
-| `completion` | When workflow halts at any point | Workflow state, status | Implementation context, agent memory | NO |
+`skill({name: "conflict-resolution"})` — call the skill, then call via task():
 
-## Conflict Classification Tiers
+| Task | Call via task() |
+|------|----------|
+| `classify-and-resolve` | `task(..., prompt: "execute classify-and-resolve task from conflict-resolution")` |
+| `completion` | `task(..., prompt: "execute completion task from conflict-resolution")` |
 
-Before resolving ANY conflict, classify it:
+**CLI equivalent (for human TUI use):** `/skill conflict-resolution --task <task>`
 
-| Tier | Name | Criteria | Agent Action |
-|------|------|----------|-------------|
-| 1 | **Trivial** | Whitespace, formatting, reordering of unchanged lines | Auto-resolve, silent |
-| 2 | **Textual but safe** | Same intent on both sides, just different text | Auto-resolve, note in chat |
-| 3 | **Intent conflict** | Different goals, or resolution could alter spec compliance | HALT, flag for developer review |
+## Sub-Agent Routing
 
-**Classification rule:** When in doubt, classify UP to the next tier. If unsure whether something is Tier 2 or Tier 3, treat it as Tier 3.
+Sub-agents run via `task(subagent_type="general")` with `{ conflict_files, branch_context, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
 
-## Notification Format
-
-### Tier 2 (Chat only)
-
+### Authorization Context
 ```
-**Conflict Resolution (Tier 2 - Textual):**
-- File: <path>
-- Reason: <why it's textual but safe>
-- Resolution: <which side was accepted>
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
+pr_strategy: <none|individual|stacked>
+pipeline_phase: <current_phase_name>
+authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
-### Tier 3 Minor (Chat only)
-
-```
-**⚠️ Intent Conflict Detected (Tier 3 - Minor):**
-- File: <path>
-- Feature branch intent: <what>
-- Parent branch intent: <what>
-- Resolution: <agent recommendation, awaiting developer confirmation>
-```
-
-### Tier 3 Complex (Chat + GitHub Issue)
-
-Chat notification plus persistent GitHub Issue with `conflict-resolution` label for tracking.
-
-## Anti-Patterns
-
-**🚫 NEVER:**
-- Resolve ALL conflicts with `git checkout --theirs` or `git checkout --ours`
-- Use `git rebase --strategy-option=theirs/ours` as blanket resolution
-- Skip reading the conflict content before resolving
-- Assume formatting conflicts are always trivial (could hide intent changes)
-- Continue rebase after resolving intent conflicts without verifying spec compliance
-- Create commits that silently drop committed work
-
-**✅ ALWAYS:**
-- Classify every conflict into a tier before resolving
-- When in doubt, classify UP (Tier 2 vs Tier 3 → Tier 3)
-- Verify spec compliance after resolving all conflicts
-- Notify developer for Tier 3 conflicts
-- Create GitHub Issue for complex Tier 3 conflicts
-- Preserve feature branch intent unless developer says otherwise
-
-## Integration Points
-
-| Skill | When |
-|-------|------|
-| `git-workflow` `--task review-prep` | Automatically invokes this skill when rebase produces conflicts |
-| `git-workflow` `--task implementation` | May invoke if mid-implementation merge produces conflicts |
-
-## Cross-References
-
-- Related skills: `git-workflow` (branch management, rebase operations)
-- Related guidelines: `000-critical-rules.md` → "Critical Violation: Blind Conflict Resolution"
-
-**⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask ensures mandatory steps are never skipped. It is idempotent and safe to invoke multiple times.
+### Routing Rules
+- Missing `authorization_scope` in task context → return `status: BLOCKED`
+- Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+last_updated: "2026-05-01T00:00:00Z"
 rules:
-  - id: conflict-res-001
-    title: "Tier 3 conflicts MUST halt for developer review"
+  - id: conflict-001
+    title: "Tier 3 intent conflicts require developer review"
     conditions:
-      all:
-        - "conflict_classified == 'tier_3_intent'"
-    actions:
-      - HALT
-      - NOTIFY(developer)
-      - CREATE(github_issue_with_conflict-resolution_label_if_complex)
-    conflicts_with: []
-    requires: []
-    triggers: [classify-and-resolve]
-    source: "conflict-resolution/SKILL.md §Conflict Classification Tiers"
-
-  - id: conflict-res-002
-    title: "Classify before resolving — never use blanket ours/theirs"
-    conditions:
-      all:
-        - "conflict_detected == true"
-        - "conflict_classified == false"
-    actions:
-      - HALT
-      - INVOKE(classify-and-resolve)
-    conflicts_with: []
-    requires: []
-    triggers: [classify-and-resolve]
-    source: "conflict-resolution/SKILL.md §Anti-Patterns"
-
-  - id: conflict-res-003
-    title: "No blanket ours/theirs resolution"
-    conditions:
-      any:
-        - "resolution_uses == 'git checkout --theirs' ( blanket )"
-        - "resolution_uses == 'git checkout --ours' ( blanket )"
-        - "resolution_uses == 'git rebase --strategy-option=theirs/ours' ( blanket )"
-    actions:
-      - HALT
-    conflicts_with: []
-    requires: []
-    triggers: [classify-and-resolve]
-    source: "conflict-resolution/SKILL.md §Anti-Patterns"
-
-  - id: conflict-res-004
-    title: "When in doubt classify UP"
-    conditions:
-      all:
-        - "conflict_tier_ambiguous == true"
-    actions:
-      - CLASSIFY(next_higher_tier)
-    conflicts_with: []
-    requires: []
-    triggers: [classify-and-resolve]
-    source: "conflict-resolution/SKILL.md §Conflict Classification Tiers"
-
-  - id: conflict-res-005
-    title: "Read conflict content before resolving"
-    conditions:
-      all:
-        - "conflict_detected == true"
-        - "conflict_content_read == false"
-    actions:
-      - HALT
-      - READ(conflict_file_content)
-    conflicts_with: []
-    requires: []
-    triggers: [classify-and-resolve]
-    source: "conflict-resolution/SKILL.md §Anti-Patterns"
-
-  - id: conflict-res-006
-    title: "No commits that silently drop committed work"
-    conditions:
-      all:
-        - "resolution_would_drop_committed_work == true"
-    actions:
-      - HALT
-    conflicts_with: []
-    requires: []
-    triggers: [classify-and-resolve]
-    source: "conflict-resolution/SKILL.md §Anti-Patterns"
-
-  - id: conflict-res-007
-    title: "Verify spec compliance after all conflicts resolved"
-    conditions:
-      all:
-        - "all_conflicts_resolved == true"
-        - "spec_compliance_verified == false"
-    actions:
-      - VERIFY(spec_compliance)
-    conflicts_with: []
-    requires: []
-    triggers: [classify-and-resolve]
-    source: "conflict-resolution/SKILL.md §Anti-Patterns ALWAYS DO"
-
-tasks:
-  - id: classify-and-resolve
-    skill: conflict-resolution
-    preconditions: ["conflict_detected == true"]
-    postconditions: ["conflict_classified", "trivial_or_textual_resolved OR tier3_halted_for_developer", "spec_compliance_verified"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Resolving conflicts without classification risks silently eroding committed work"
-    source: "conflict-resolution/SKILL.md §Tasks"
-
-  - id: completion
-    skill: conflict-resolution
-    preconditions: ["workflow_halted_or_completed"]
-    postconditions: ["mandatory_steps_verified", "status_reported"]
-    mandatory: true
-    bypass_violation: "CRITICAL: Skipping completion task may leave conflict resolution state unverified"
-    source: "conflict-resolution/SKILL.md §Tasks"
-
-decomposition:
-  - type: skill-task
-    skill: git-workflow
-    task: review-prep
-    mandatory: false
-    bypass_violation: "git-workflow review-prep auto-invokes this skill when rebase produces conflicts"
-    source: "conflict-resolution/SKILL.md §Integration Points"
-
-  - type: skill-task
-    skill: git-workflow
-    task: implementation
-    mandatory: false
-    bypass_violation: "Mid-implementation merge may invoke if conflicts produced"
-    source: "conflict-resolution/SKILL.md §Integration Points"
-
-gates:
-  - id: tier-3-halt-for-developer
-    condition: "conflict_tier != 'tier_3_intent'"
-    on_fail: HALT
-    critical_violation: true
-    source: "conflict-resolution/SKILL.md §Conflict Classification Tiers"
-
-  - id: classification-before-resolution
-    condition: "conflict_classified == true"
-    on_fail: HALT
-    critical_violation: true
-    source: "conflict-resolution/SKILL.md §Anti-Patterns"
-
-  - id: no-blanket-ours-theirs
-    condition: "resolution_is_per_conflict == true ( NOT blanket )"
-    on_fail: HALT
-    critical_violation: true
-    source: "conflict-resolution/SKILL.md §Anti-Patterns"
-
-  - id: conflict-content-read
-    condition: "conflict_content_read == true"
-    on_fail: HALT
-    critical_violation: false
-    source: "conflict-resolution/SKILL.md §Anti-Patterns"
-
-  - id: no-silent-drop
-    condition: "resolution_would_drop_committed_work == false"
-    on_fail: HALT
-    critical_violation: true
-    source: "conflict-resolution/SKILL.md §Anti-Patterns"
-
-evidence_artifacts:
-  - name: conflict_classification
-    type: tool_call
-    verification: "bash: git diff output showing conflict markers, then classification decision recorded in chat"
-    source: "conflict-resolution/SKILL.md §Conflict Classification Tiers"
-
-  - name: tier2_resolution_note
-    type: tool_call
-    verification: "Chat notification with file path, reason, and resolution side for Tier 2 conflicts"
-    source: "conflict-resolution/SKILL.md §Notification Format Tier 2"
-
-  - name: tier3_developer_notification
-    type: tool_call
-    verification: "Chat notification with feature branch intent, parent branch intent, and agent recommendation"
-    source: "conflict-resolution/SKILL.md §Notification Format Tier 3"
-
-  - name: tier3_github_issue
-    type: api_call
-    verification: "github_issue_read(method=get) → issue with conflict-resolution label exists for complex Tier 3"
-    source: "conflict-resolution/SKILL.md §Notification Format Tier 3 Complex"
-
-  - name: spec_compliance_check
-    type: tool_call
-    verification: "Read spec body, compare against resolved files to confirm spec intent preserved"
-    source: "conflict-resolution/SKILL.md §Anti-Patterns ALWAYS DO"
-```
+      all: ["conflict_tier == 3", "auto_resolved == true"]
+    actions: [HALT, FLAG_FOR_DEVELOPER]
+    source: "conflict-resolution/SKILL.md"

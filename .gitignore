@@ -2,8 +2,12 @@ node_modules
 package.json
 package-lock.json
 bun.lock
+tmp/*
+.tools/
+.node/
+.uv/
+.jdk/
 .opencode/
-tmp/
 .worktrees/
 __pycache__/
 *.pyc
@@ -17,3 +21,6 @@ build/
 Thumbs.db
 .coverage
 htmlcov/
+/.issues/
+
+/.issues/

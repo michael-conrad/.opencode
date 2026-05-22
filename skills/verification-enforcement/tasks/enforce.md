@@ -6,17 +6,17 @@ Verify that sub-agent output includes evidence artifacts before the orchestrator
 
 ## Entry Criteria
 
-An orchestrator skill (such as `divide-and-conquer`) has dispatched sub-agents for content generation and needs to validate their output before incorporating it.
+An orchestrator skill (such as `divide-and-conquer`) has tasked sub-agents for content generation and needs to validate their output before incorporating it.
 
 ## Exit Criteria
 
-All sub-agent outputs have been checked for evidence artifacts. Outputs without evidence have been rejected, re-dispatched, or escalated.
+All sub-agent outputs have been checked for evidence artifacts. Outputs without evidence have been rejected, re-tasked, or escalated.
 
 ## Procedure
 
 The orchestrator receives output from each sub-agent. For every sub-agent that returned content containing factual claims, the orchestrator checks that evidence artifacts accompany the claims. Evidence artifacts follow the format defined in the `verify` task: `Claim`, `Domain`, `Source`, `Verified`, and optionally `Marker` and `Reason`.
 
-A sub-agent that returns content with factual claims but no evidence artifacts has not completed verification. The orchestrator must reject this output and either re-dispatch the sub-agent with explicit instructions to collect evidence, or escalate if re-dispatch is not feasible.
+A sub-agent that returns content with factual claims but no evidence artifacts has not completed verification. The orchestrator must reject this output and either re-task the sub-agent with explicit instructions to collect evidence, or escalate if re-task is not feasible.
 
 The check is straightforward: for each factual claim in the sub-agent's output, does an evidence artifact exist? If the claim appears in the output unadorned by either an evidence artifact or a `⚠️ UNVERIFIED` marker, the sub-agent has produced content without verification — the very pattern that verification-enforcement exists to prevent.
 

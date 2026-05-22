@@ -2,16 +2,15 @@
  * Session Enforcement Plugin for OpenCode
  *
  * Injects session context into the LLM system prompt and enforces
- * skill invocation rules. Also detects bare issue references (#N)
- * and injects mandatory audit pipelines.
+ * runtime guards: inline work detection, evidence gate, git config
+ * mutation watchdog, --no-verify detection, protected branch edits,
+ * secret redaction, session triggers,
+ * and plugin diagnostics.
  *
  * Hook: system.transform — pushes English prose context (from session-init
  *   and PluginInput augmentations) into the LLM system prompt.
- * Hook: chat.messages.transform — injects skill enforcement content and
- *   bare issue pipeline directives into user messages.
- *
- * NO shell.env hook — env-loader.ts owns all bash environment injection.
- * NO parsing of session-init output — stdout goes verbatim to system prompt.
+ * Hook: chat.messages.transform — injects runtime enforcement blocks and
+ *   validation gates into user messages.
  *
  * Source attribution:
  * - Session init pattern adapted from existing session-init.ts (project-internal)
@@ -156,28 +155,43 @@ let baselineLocalConfig: string = "";
 
 function buildGitConfigMutationBlock(changedKeys: string[]): string {
   const keyList = changedKeys.map(k => `- \`${k}\``).join("\n");
-  return `<GIT_CONFIG_MUTATION>
-⚠️ CRITICAL: Security-relevant git configuration was mutated during this session!
+  return `### Git Configuration Mutation Warning
+
+**Warning:** Security-relevant git configuration was mutated during this session!
 
 Changed keys:
 ${keyList}
 
-This is a Tier 1 mandate violation unless explicitly authorized by the developer.
-HALT and verify the mutation was authorized before proceeding.
-See 000-critical-rules.md → "Git Configuration and Destructive Command Authorization".
-</GIT_CONFIG_MUTATION>`;
+This is a Tier 1 mandate violation unless explicitly authorized by the developer. HALT and verify the mutation was authorized before proceeding. See 000-critical-rules.md for details on Git Configuration and Destructive Command Authorization.`;
 }
 
 function buildNoVerifyBlockedBlock(): string {
-  return `<NO_VERIFY_BLOCKED>
-⚠️ CRITICAL: \`--no-verify\` is FORBIDDEN in repos with remotes.
+  return `### No-Verify Commit Blocked
 
-\`git commit --no-verify\` and \`git push --no-verify\` bypass git hooks that
-enforce repository safety. This is a Tier 1 mandate.
+**Warning:** --no-verify is FORBIDDEN in repos with remotes. git commit --no-verify and git push --no-verify bypass git hooks that enforce repository safety. This is a Tier 1 mandate. Only permitted in local-only repos (zero remotes). Check git remote -v first. See 000-critical-rules.md for details on Git Configuration and Destructive Command Authorization.`;
+}
 
-Only permitted in local-only repos (zero remotes). Check \`git remote -v\` first.
-See 000-critical-rules.md → "Git Configuration and Destructive Command Authorization".
-</NO_VERIFY_BLOCKED>`;
+function buildInlineWorkDetectedBlock(editToolNames: string[], dispatchFound: boolean): string {
+  const editList = editToolNames.map(t => `- \`${t}\``).join("\n");
+  const dispatchNote = dispatchFound
+    ? "A sub-agent dispatch was found, but file edits occurred BEFORE the dispatch in this turn."
+    : "No sub-agent dispatch (task tool) was found in this turn.";
+  return `### Inline Work Detected
+
+**Warning:** The orchestrator performed file operations without sub-agent dispatch evidence.
+
+File-editing tool calls detected in this turn:
+${editList}
+
+${dispatchNote}
+
+The orchestrator MUST be a pure router — all file modifications MUST be dispatched through divide-and-conquer sub-agents. See 000-critical-rules.md Inline Work. Exemptions: pair- branches, .issues/ file edits, simple-work single-file changes. If this is an exempt case, disregard this warning.`;
+}
+
+function buildEvidenceGateBlock(): string {
+  return `### Evidence Gate
+
+**Warning:** Issue closure attempted without verification evidence. A github_issue_write call with state=closed was detected, but no per-SC verification evidence table exists in recent assistant messages. Every issue closure requires a verification evidence table confirming each success criterion was met with a tool-call artifact. See 000-critical-rules.md Verification Dishonesty and verification-before-completion skill. If the closure is exempt (not_planned, duplicate, rollback-reopen), disregard this warning.`;
 }
 
 interface PluginDiagnostic {
@@ -243,27 +257,27 @@ function buildDiagnosticBlock(diagnostics: PluginDiagnostic[]): string {
       .map(d => `- Investigate and resolve the ${d.source} ERROR before proceeding`)
       .join("\n");
 
-    return `<PLUGIN_DIAGNOSTICS>
-⚠️ The following plugin diagnostics were collected during session startup:
+    return `### Plugin Diagnostics
+
+**Warning:** The following plugin diagnostics were collected during session startup:
 
 ${entries}
 
-🚫 MUST NOT proceed — ERROR-level diagnostics detected. HALT immediately and resolve these errors.
+**Must not proceed:** ERROR-level diagnostics detected. HALT immediately and resolve these errors.
 
-**MANDATORY ACTIONS:**
+**Mandatory actions:**
 ${actions}
 
-Do NOT continue with any operations until ALL ERROR-level diagnostics are resolved.
-</PLUGIN_DIAGNOSTICS>`;
+Do NOT continue with any operations until ALL ERROR-level diagnostics are resolved.`;
   }
 
-  return `<PLUGIN_DIAGNOSTICS>
-⚠️ The following plugin diagnostics were collected during session startup:
+  return `### Plugin Diagnostics
+
+**Warning:** The following plugin diagnostics were collected during session startup:
 
 ${entries}
 
-Review these diagnostics. For errors, investigate the source script. For warnings, assess whether action is needed.
-</PLUGIN_DIAGNOSTICS>`;
+Review these diagnostics. For errors, investigate the source script. For warnings, assess whether action is needed.`;
 }
 
 let cachedOutput: string | null = null;
@@ -411,64 +425,6 @@ async function runSessionInit(projectDir: string): Promise<string> {
   }
 }
 
-let cachedIdentityOutput: string | null = null;
-let identityCacheTimestamp = 0;
-
-async function runSessionContextIdentity(projectDir: string): Promise<string> {
-  if (cachedIdentityOutput && Date.now() - identityCacheTimestamp < CACHE_TTL_MS) {
-    return cachedIdentityOutput;
-  }
-
-  try {
-    const stdout = execSync("./.opencode/scripts/session_context_identity.py", {
-      cwd: projectDir,
-      encoding: "utf8",
-      input: "",
-      timeout: 30000,
-      stdio: ["pipe", "pipe", "pipe"],
-    }).trim();
-
-    cachedIdentityOutput = stdout;
-    identityCacheTimestamp = Date.now();
-
-    return stdout;
-  } catch (err: any) {
-    const stdout = err?.stdout?.toString().trim() ?? "";
-    const stderr = err?.stderr?.toString().trim() ?? "";
-    const exitCode = err?.status ?? 1;
-
-    const isTimeout = err?.killed || err?.signal === "SIGTERM";
-
-    if (!stdout || stdout.length === 0) {
-      const errorMsg = isTimeout
-        ? `session_context_identity.py timed out after 30s`
-        : (stderr || "Script returned empty output");
-      console.error(`[session-enforcement] session_context_identity.py: ${errorMsg}`);
-      writeDiagnostic(projectDir, {
-        source: "session_context_identity.py",
-        level: "error",
-        message: errorMsg,
-        exitCode: isTimeout ? undefined : exitCode,
-      });
-      return "";
-    }
-
-    if (stderr) {
-      writeDiagnostic(projectDir, {
-        source: "session_context_identity.py",
-        level: "warning",
-        message: stderr,
-        exitCode,
-      });
-    }
-
-    cachedIdentityOutput = stdout;
-    identityCacheTimestamp = Date.now();
-
-    return stdout;
-  }
-}
-
 let cachedTriggersOutput: string | null = null;
 let triggersCacheTimestamp = 0;
 
@@ -539,184 +495,70 @@ async function runSessionContextTriggers(projectDir: string): Promise<string> {
   }
 }
 
-interface ProjectMetadata {
-  name: string;
-  version: string;
-  pythonVersion: string;
-}
 
-function readProjectMetadata(projectDir: string): ProjectMetadata | null {
-  const pyprojectPath = path.join(projectDir, "pyproject.toml");
-  if (!fs.existsSync(pyprojectPath)) {
-    return null;
-  }
-
-  let name = "";
-  let version = "";
-  let inProjectSection = false;
+/**
+ * Build a formatted guidelines index block from INDEX.md for system prompt injection.
+ * Reads the INDEX.md file and formats it as a compact routing reference.
+ * Returns empty string if INDEX.md is missing or unreadable.
+ */
+function buildGuidelinesIndex(projectDir: string): string {
+  const indexPath = path.join(projectDir, ".opencode", "guidelines", "INDEX.md");
+  if (!fs.existsSync(indexPath)) return "";
 
   try {
-    const content = fs.readFileSync(pyprojectPath, "utf8");
-    for (const line of content.split("\n")) {
-      const trimmed = line.trim();
-      if (trimmed === "[project]") {
-        inProjectSection = true;
-        continue;
-      }
-      if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
-        inProjectSection = false;
-        continue;
-      }
-      if (inProjectSection) {
-        if (trimmed.startsWith("name")) {
-          const eqIdx = trimmed.indexOf("=");
-          if (eqIdx > 0) {
-            name = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, "");
-          }
-        } else if (trimmed.startsWith("version")) {
-          const eqIdx = trimmed.indexOf("=");
-          if (eqIdx > 0) {
-            version = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, "");
-          }
-        }
-      }
-    }
+    const content = fs.readFileSync(indexPath, "utf8");
+    // Strip the heading and intro lines, keep only the table
+    const tableMatch = content.match(/\|.*\|.*\|.*\|.*\|\n\|[-| ]+\|\n([\s\S]*)/);
+    if (!tableMatch) return "";
+
+    const tableBody = tableMatch[1].trim();
+    return `### Guidelines Index (Progressive Disclosure)
+
+Full guideline bodies are loaded on-demand by sub-agents when enforcement gates fire.
+The orchestrator holds only this routing index. To load a specific guideline in a sub-agent,
+use \`./.opencode/tools/guidelines read <filename>\`.
+
+| Guideline | Tier | Trigger Pattern | Load When |
+|-----------|------|-----------------|-----------|
+${tableBody}`;
   } catch {
-    return null;
-  }
-
-  if (!name) {
-    return null;
-  }
-
-  let pythonVersion = "";
-  const pythonVersionPath = path.join(projectDir, ".python-version");
-  if (fs.existsSync(pythonVersionPath)) {
-    try {
-      pythonVersion = fs.readFileSync(pythonVersionPath, "utf8").trim();
-    } catch {
-      // Ignore read errors
-    }
-  }
-
-  return { name, version: version || "0.1.0", pythonVersion };
-}
-
-function buildMetadataBlock(projectDir: string): string {
-  const meta = readProjectMetadata(projectDir);
-  if (!meta) {
     return "";
   }
-
-  const lines: string[] = [`Project: ${meta.name} v${meta.version}`];
-  if (meta.pythonVersion) {
-    lines.push(`Python: ${meta.pythonVersion}`);
-  }
-  return lines.join("\n");
 }
 
-function buildTrainingStalenessBlock(): string {
-  return `<TRAINING_STALENESS_CRITICAL>
-⚠️ Your training data is STALE. You CANNOT rely on your training data for:
-
-- API signatures, library versions, framework syntax
-- Configuration formats, environment variable names
-- Code patterns, best practices, recommended approaches
-- Documentation, examples, tutorials
-
-**VERIFICATION IS MANDATORY:**
-
-1. **Check live documentation** before using any API, framework, or library
-2. **Verify code signatures** using srclight_get_signature before claiming behavior
-3. **Read actual source files** before asserting code behavior
-4. **Confirm configuration** against live schemas before asserting compliance
-5. **Attempt exhaustive research** using available tools before making factual claims; if research fails, follow suggest-after-research fallback — NEVER present training-data claims as verified facts
-
-**DO NOT TRUST:**
-
-- Your memory about how something works
-- Code comments (they may be outdated or wrong)
-- Documentation snippets from training data
-- "I've seen this before" or "I know this pattern"
-- Second-hand information without live source verification
-
-**ALWAYS VERIFY** before:
-- Proposing a course of action
-- Providing an technical answer
-- Making claims about code behavior
-- Suggesting solutions
-
-**RESEARCH-FIRST RULE:**
-- General knowledge questions still require research attempts — search the web, search documentation, search the codebase
-- If research tools cannot verify a claim, do NOT present it as fact with a disclaimer
-- For general knowledge: offer training-data answer as suggestion contingent on user acceptance
-- For code/API claims: DECLINE to state — no suggestion, no fallback, no disclaimer
-- There is NO exemption for "general explanation" or "brainstorming" — research before claiming
-
-This is a CRITICAL rule. Violations result in incorrect guidance and broken implementations.
-</TRAINING_STALENESS_CRITICAL>`;
+/**
+ * Extract trigger patterns from a SKILL.md description field.
+ * Descriptions contain "Triggers on:" followed by comma-separated keywords.
+ */
+function extractTriggerPatterns(description: string): string[] {
+  const match = description.match(/Triggers\s+on:\s*([^]*?)(?:\n|$)/i);
+  if (!match) return [];
+  return match[1].split(",").map(t => t.trim()).filter(Boolean);
 }
 
-function buildReferencesVerificationBlock(): string {
-  return `<REFERENCES_VERIFICATION_MANDATE>
-⚠️ You MUST NOT assume knowledge of any referenced file, schema, configuration, or artifact without FIRST verifying its contents with a tool call. This applies to ALL activities without exception: coding, spec development, plan creation, implementation, skill book updates, runbook authoring, correspondence, and any other work.
+/**
+ * Build a formatted skill index block for system prompt injection.
+ * Reads all SKILL.md files, extracts name + description + trigger patterns.
+ * Returns empty string if skills directory is missing.
+ */
+function buildSkillIndex(skillsDir: string): string {
+  const { skills, errors } = loadSkillDescriptions(skillsDir);
+  // Build a compact skill index table (name, description, trigger patterns)
+  const skillRows = skills.map(s => {
+    const triggers = extractTriggerPatterns(s.description);
+    // Shorten description to first sentence only for index
+    const shortDesc = s.description.split(".")[0].trim() + ".";
+    const triggersStr = triggers.length > 0 ? triggers.slice(0, 5).join(", ") : "—";
+    return `| \`${s.name}\` | ${shortDesc} | ${triggersStr} |`;
+  }).join("\n");
 
-**YOU ARE FORBIDDEN FROM:**
+  if (skillRows.length === 0) return "";
 
-- Assuming you know what a file contains without opening it first
-- Claiming knowledge of a schema's fields without reading the schema
-- Proceeding past a reference to a file, path, or configuration without verifying the reference exists
-- Treating any information as "already known" without a visible tool-call artifact proving you checked
-- Writing documentation, runbooks, or specs that describe files/configs/APIs you have not actually read
-- Skipping verification because "I've seen this file before" or "I know this pattern"
-- Claiming a referenced file or artifact exists without confirming via glob, read, or srclight
+  return `### Skill Index
 
-**SELF-AUDIT GATE (MANDATORY):**
-
-Before making ANY claim about a file, schema, configuration, or referenced artifact, you MUST produce a tool-call artifact in the conversation proving you verified it. Acceptable artifacts:
-
-- A \`read\` tool call showing the file contents
-- A \`srclight_get_signature\` or \`srclight_get_symbol\` call confirming a function/class signature
-- A \`glob\` or \`grep\` call confirming a file or pattern exists
-- A \`bash\` command output confirming system state
-
-**No tool-call artifact = the claim is FORBIDDEN.** You cannot state "the config has X field" without the read call that confirmed it. You cannot state "the function takes Y parameters" without the signature lookup that verified it. You cannot state "the file exists" without the glob or read that confirmed it.
-
-**RESEARCH-FIRST REQUIREMENT:**
-Before making ANY factual claim, the agent MUST attempt exhaustive research using available tools. This includes:
-- Web search for general knowledge claims
-- Code search (srclight, grep, glob) for codebase claims
-- Documentation lookup for API/library claims
-- File read for configuration claims
-
-If research fails, follow the suggest-after-research fallback:
-- For general knowledge: Offer the training-data answer as an explicit suggestion contingent on user acceptance
-- For code/API claims: DECLINE to state the claim — no suggestion, no fallback, no disclaimer
-
-**SINGLE EXCHANGE WINDOW:** The ONLY exception is a tool call from the immediately preceding exchange (last assistant turn in the same conversation). Any earlier reference requires re-verification.
-
-**THIS IS UNCONDITIONAL:**
-
-- No scope exemption: applies to coding, specs, plans, runbooks, skill updates, correspondence, everything
-- No activity exemption: "just checking" is not verification-free
-- No knowledge exemption: "I already know this" is the specific bypass this rule closes
-- No size exemption: "this is too small to verify" is not valid — verify it
-
-**Authority:** This mandate enforces the principles in guidelines 065-verification-honesty.md (proactive verification, evidence requirement) and 075-docs-verification.md (mandatory live documentation verification). This block does not duplicate those guidelines — it operationalizes their core rules at the system-prompt level, at the exact decision point where the agent decides whether to verify or assume.
-</REFERENCES_VERIFICATION_MANDATE>`;
-}
-
-function buildLanguagePreferenceBlock(): string {
-  return `<LANGUAGE_PREFERENCE>
-All communications MUST use **formal/business/professional Southeastern United States English**.
-
-This means:
-- Use Southern US English spelling, vocabulary, and phrasing conventions
-- Maintain a formal, professional, and business-appropriate register
-- Prefer clarity and directness with Southern politeness conventions
-- Avoid regional colloquialisms that sacrifice professionalism
-- Use "y'all" only in informal context; prefer "you" or "your team" in formal writing
-</LANGUAGE_PREFERENCE>`;
+| Skill | Description | Trigger Keywords |
+|-------|-------------|------------------|
+${skillRows}`;
 }
 
 function buildWorktreeBlock(input: PluginInput): string {
@@ -730,45 +572,127 @@ function buildWorktreeBlock(input: PluginInput): string {
   return "";
 }
 
-
-
 /**
- * Regex matching a bare issue reference: input that is solely an issue number
- * like `#591`. Does NOT match `fix #591`, `see #591 and #592`, or any
- * message with additional context.
+ * Extract and strip YAML frontmatter from SKILL.md content.
+ * Adapted from obra/superpowers/plugins/superpowers.js
  */
-const BARE_ISSUE_RE = /^\s*#(\d+)\s*$/;
+function extractFrontmatter(content: string): {
+  frontmatter: Record<string, string>;
+  body: string;
+} {
+  const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  if (!match) return { frontmatter: {}, body: content };
 
-/**
- * Build a pipeline directive for bare issue references.
- * When a user sends just `#N`, the agent should follow a deterministic
- * audit→brainstorm→plan→HALT pipeline rather than guessing.
- */
-function buildIssuePipelineDirective(issueNumber: string): string {
-  return `<ISSUE_PIPELINE_TRIGGER>
-The user provided a bare issue reference #${issueNumber}. Follow this mandatory pipeline:
+  const frontmatterStr = match[1];
+  const body = match[2];
+  const frontmatter: Record<string, string> = {};
 
-1. **Read the issue**: Use github_issue_read with method=get AND method=get_comments for #${issueNumber}
-2. **Audit the spec**: Invoke /skill spec-auditor --issue ${issueNumber}
-3. **Brainstorm refinements**: Invoke /skill brainstorming
-4. **Write a plan**: Invoke /skill writing-plans --task create
-5. **HALT** — Never auto-execute. Wait for explicit authorization.
+  for (const line of frontmatterStr.split("\n")) {
+    const colonIdx = line.indexOf(":");
+    if (colonIdx > 0) {
+      const key = line.slice(0, colonIdx).trim();
+      const value = line.slice(colonIdx + 1).trim().replace(/^["']|["']$/g, "");
+      frontmatter[key] = value;
+    }
+  }
 
-Critical rules:
-- Never auto-execute any plan
-- Follow each skill's own protocol
-- Adapt for bug reports (audit still runs, brainstorming explores the bug)
-- Fix audit findings before brainstorming
-- Read ALL comments on the issue before acting
-</ISSUE_PIPELINE_TRIGGER>`;
+  return { frontmatter, body };
 }
 
-function extractValue(sessionOutput: string | null, key: string): string | null {
-  if (!sessionOutput) return null;
-  const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = sessionOutput.match(new RegExp(`${escapedKey}=\\s*(\\S+)`));
-  return match ? match[1] : null;
+interface FrontmatterError {
+  skillDir: string;
+  issues: string[];
 }
+
+/**
+ * Load skill descriptions from YAML frontmatter in SKILL.md files.
+ * Adapted from obra/superpowers/plugins/superpowers.js skill discovery pattern.
+ *
+ * Source attribution: CSO (Content Search Optimization) principles from
+ * https://github.com/obra/superpowers/blob/main/skills/writing-skills/SKILL.md
+ * Description format: "Use when..." with triggering conditions, NOT workflow summaries.
+ *
+ * Returns { skills, errors } where errors collects frontmatter validation issues.
+ * See #601 for the original bug that motivated frontmatter validation.
+ */
+function loadSkillDescriptions(skillsDir: string): {
+  skills: Array<{ name: string; description: string }>;
+  errors: FrontmatterError[];
+} {
+  const skills: Array<{ name: string; description: string }> = [];
+  const errors: FrontmatterError[] = [];
+
+  try {
+    const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      const skillPath = path.join(skillsDir, entry.name, "SKILL.md");
+      if (!fs.existsSync(skillPath)) continue;
+
+      try {
+        const content = fs.readFileSync(skillPath, "utf8");
+        const validationIssues: string[] = [];
+
+        const hasOpeningDelimiter = /^---\s*\n/m.test(content);
+        const { frontmatter } = extractFrontmatter(content);
+
+        if (!hasOpeningDelimiter) {
+          validationIssues.push("Missing `---` opening delimiter");
+        } else if (Object.keys(frontmatter).length === 0) {
+          validationIssues.push("Delimiters present but no key:value pairs parsed (format error)");
+        }
+
+        if (hasOpeningDelimiter && !frontmatter.name) {
+          validationIssues.push("Missing `name` field");
+        }
+
+        if (hasOpeningDelimiter && !frontmatter.description) {
+          validationIssues.push("Missing `description` field — skill will be invisible to enforcement");
+        } else if (frontmatter.description && !frontmatter.description.startsWith("Use when")) {
+          validationIssues.push("Description does not start with \"Use when\" — CSO requirement for trigger discovery");
+        }
+
+        if (validationIssues.length > 0) {
+          errors.push({ skillDir: entry.name, issues: validationIssues });
+        }
+
+        const name = frontmatter.name || entry.name;
+        const description = frontmatter.description || "";
+        if (description) {
+          skills.push({ name, description });
+        }
+      } catch {
+        // Skip unreadable skill files
+      }
+    }
+  } catch {
+    // Skills directory may not exist in all contexts
+  }
+
+  return { skills, errors };
+}
+
+/**
+ * Build a structured warning string for frontmatter validation errors.
+ * Returns empty string if no errors, so the caller can skip injection.
+ * References #601 as the example bug that motivated this validation.
+ */
+function buildFrontmatterWarning(errors: FrontmatterError[]): string {
+  if (errors.length === 0) return "";
+
+  const perSkillListing = errors
+    .map(e => `- **${e.skillDir}**: ${e.issues.join("; ")}`)
+    .join("\n");
+
+  return `### Frontmatter Validation
+
+**Warning:** The following SKILL.md files have frontmatter issues that may make skills invisible to enforcement:
+
+${perSkillListing}
+
+**Fix template:** every SKILL.md MUST start with YAML frontmatter with name, description (starting with "Use when"), type, and license fields. See #601 for the original bug that motivated this validation.`;
+}
+
 
 
 
@@ -829,46 +753,6 @@ function redactSecrets(text: string): string {
 }
 
 /**
- * Build a protected branch edit warning block for when files are edited
- * on dev/main without a worktree or pair- branch prefix.
- * 
- * This is the per-turn runtime guard — it fires AFTER each assistant turn
- * when git diff detects file changes on a protected branch. This is distinct
- * from the session-start trigger in session_context_triggers.py which only
- * checks once at session start.
- */
-function buildProtectedBranchEditTrigger(changedFiles: string[], branch: string): string {
-  const fileList = changedFiles.slice(0, 10).map(f => `\`${f}\``).join(", ");
-  const moreFiles = changedFiles.length > 10 ? `, …and ${changedFiles.length - 10} more` : "";
-  
-  return `<SESSION_TRIGGERS>
-⚠️ protected_branch_with_changes: ${changedFiles.length} file(s) changed on \`${branch}\` branch without worktree or pair-mode prefix.
-Changed: ${fileList}${moreFiles}
-Process per 117-session-trigger-behavior.md behavior map. Do NOT echo this trigger in chat output.
-</SESSION_TRIGGERS>`;
-}
-
-/**
- * Detect uncommitted file changes on the current branch via git diff.
- * Returns empty array if no changes or if git is unavailable.
- */
-function detectUncommittedFileChanges(projectDir: string): string[] {
-  try {
-    const result = execSync("git diff --name-only", {
-      cwd: projectDir,
-      encoding: "utf8",
-      input: "",
-      timeout: 5000,
-      stdio: ["pipe", "pipe", "pipe"],
-    }).trim();
-    if (!result) return [];
-    return result.split("\n").filter(line => line.trim().length > 0);
-  } catch {
-    return [];
-  }
-}
-
-/**
  * Get the current git branch name.
  * Returns null if git is unavailable.
  */
@@ -887,14 +771,6 @@ function getCurrentBranch(projectDir: string): string | null {
 }
 
 /**
- * Check if the current branch is a protected branch (main/master/dev)
- * that should not have direct edits.
- */
-function isProtectedBranch(branch: string): boolean {
-  return branch === "main" || branch === "master" || branch === "dev";
-}
-
-/**
  * Check if the current branch is a pair-mode branch (starts with "pair-").
  * Pair-mode branches allow direct edits on the development directory.
  */
@@ -902,9 +778,85 @@ function isPairModeBranch(branch: string): boolean {
   return branch.startsWith("pair-");
 }
 
+function getWorkingTreeStatus(projectDir: string): string {
+  try {
+    const status = execSync("git status --short", {
+      cwd: projectDir,
+      encoding: "utf8",
+      input: "",
+      timeout: 5000,
+      stdio: ["pipe", "pipe", "pipe"],
+    }).trim();
+    return status || "clean";
+  } catch {
+    return "unavailable";
+  }
+}
+
+function buildPreImplementationGate(cachedOutput: string | null, projectDir: string): string {
+  const branch = (cachedOutput ? (cachedOutput.match(/branch:\s*(\S+)/)?.[1] || null) : null) || getCurrentBranch(projectDir) || "unknown";
+  const treeStatus = getWorkingTreeStatus(projectDir);
+  const worktreePath = (cachedOutput ? (cachedOutput.match(/Worktrees:\s*(\S+)/)?.[1] || "none") : "none");
+  return `### Pre-Implementation Gate
+
+**Current state:** branch=${branch}, tree=${treeStatus}, worktree=${worktreePath}
+
+**MANDATORY pre-implementation sequence (Tier 1 — HALT if not met):**
+1. Invoke \`/skill approval-gate --task verify-authorization\`
+2. Invoke \`/skill git-workflow --task pre-work\`
+3. ALL file modifications go through \`/skill divide-and-conquer --task assemble-work\`
+4. Direct edit/write tool calls in the orchestrator context are a CRITICAL VIOLATION`;
+}
+
+function buildCorePrinciplesBlock(): string {
+  return `### Core Principles (Zero Tolerance)
+
+1. **FAIL=FAIL** — No soft-passing, "functionally equivalent," or justifying FAIL→PASS.
+2. **Auth gate** — Every change requires approved spec/plan. No exception, no matter how trivial.
+3. **Mandatory skills** — \`/skill git-workflow\`, \`/skill divide-and-conquer\`, \`/skill verification-before-completion\`, \`/skill adversarial-audit\`. Not optional.
+4. **TDD Red/Green** — Approval→pre-work→audit spec/plan→RED(test+audit; fail→fix, pass→commit)→GREEN(impl+audit; fail→fix+restart, pass→commit)→final spec/plan audit.
+5. **Feedback ≠ Auth** — Feedback/clarification/technical input → update understanding, discuss, HALT. Never proceed to implementation.
+6. **Dispatch via \`skill()\` + \`task()\` is the PRIMARY execution model** — Load every skill with \`skill()\`, dispatch execution with \`task()\`. The orchestrator routes and dispatches only; it never executes. A dispatcher that reads SKILL.md files and executes steps inline is not a dispatcher — it is an agent working without enforcement gates. Professional orchestrators dispatch; amateurs inline.
+7. **Sub-agents are INTELLIGENT** — No bot-splaining, no tool-recipe dispatch. They read specs and use skills autonomously.
+8. **Verify LIVE** — Never trust training data, memory, or metadata. Always verify via live docs, direct inspection, and verified test results.`;
+}
+
+function buildSubAgentPrinciplesBlock(): string {
+  return `### Core Principles (Sub-Agent)
+
+1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
+2. **TDD discipline** — RED phase tests before GREEN phase implementation.
+3. **Clean-room** — No inline fallback. If task context is contaminated (pre-determined findings, expected outcomes, orchestrator reasoning, tool recipes, line numbers), HALT and notify parent.
+4. **Independent intelligence** — You are an autonomous agent. If the task contains excessive bot-splaining, rote instructions, or leading questions where your own analysis should apply, HALT and notify parent.
+5. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, direct inspection of source code/configs, and verified test results.
+6. **Sub-agent role** — You are a sub-agent, not the orchestrator. Sub-agents execute single-step work units; orchestrators dispatch. A sub-agent that dispatches sub-agents is producing cascaded delegation instead of focused execution. If your assigned task requires sub-agent dispatch, return a \`NEEDS_ORCHESTRATOR\` status — the orchestrator will re-dispatch with the correct decomposition. Professional sub-agents execute their unit with focus; they do not become orchestrators.`;
+}
+
+function buildTier1EnforcementBlock(): string {
+  return `### Tier 1 Mandate Enforcement Gate
+
+The following mandates are NON-YIELDING — no developer authorization, emergency bypass, or override can waive them. This gate is injected by session-enforcement.ts and prescriptively enforces:
+
+1. **No commits to \`main\` or \`dev\`** — Branch protection is a repository integrity concern. Always create a feature branch first.
+2. **Human-only merge** — Agents must never merge PRs. Merge requires explicit human action.
+3. **No \`/tmp/\` usage — \`./tmp/\` only** — Prevents system-level temp file leakage outside project scope.
+4. **Path rules in worktree context** — When \`WORKTREE_REQUIRED\` is set, prefix ALL file operation paths with \`worktree.path\`. Relative paths silently target the main repo.
+5. **Sub-agents must receive \`worktree.path\`** — Prevents sub-agents from mutating the main repo when the orchestrator is in worktree mode.
+6. **Human-only branch deletion** — Unmerged branches must never be force-deleted by agents. Merged branches DELETE IMMEDIATELY.
+7. **Agents must never self-authorize** — Authorization comes from developers, never from agent reasoning. Confirmation, feedback, and questions are not authorization.
+8. **Git configuration and destructive commands require explicit authorization** — Remote mutations, config changes, force push, \`--no-verify\` (in repos with remotes), and destructive resets require explicit developer approval.
+9. **Correctness over economy** — Fabrication or shortcutting verification to conserve context/tool-calls is prohibited. Sub-agent dispatch and tool calls are near-zero cost. A fast wrong answer is strictly worse than a slow correct one.
+
+Violations of mandates 1-6 and 8 are detected at runtime by this plugin and flagged via enforcement blocks. See \`000-critical-rules.md\` Tier 1 table for full rationale and symbolic rule definitions.`;
+}
+
 export default async function sessionEnforcementPlugin(input: PluginInput): Promise<Hooks> {
-  // Determine project directory
+  // Determine skills directory and project directory
   const projectDir = input?.directory || process.cwd();
+  const skillsDir = path.join(projectDir, ".opencode", "skills");
+
+  // Pre-load skill descriptions and frontmatter validation at plugin startup
+  const { errors: frontmatterErrors } = loadSkillDescriptions(skillsDir);
 
   // Ensure git hooks from .opencode/hooks/ are installed into .git/hooks/
   ensureHooksInstalled(projectDir);
@@ -961,27 +913,23 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         output.system.push(worktreeBlock);
       }
 
-      // Inject project metadata (name, version, Python version)
-      const metadataBlock = buildMetadataBlock(projectDir);
-      if (metadataBlock) {
-        output.system.push(metadataBlock);
+      // Inject guidelines index (INDEX.md) instead of full guideline bodies
+      const guidelinesIndex = buildGuidelinesIndex(projectDir);
+      if (guidelinesIndex) {
+        output.system.push(guidelinesIndex);
       }
 
-      // Inject training staleness warning (verifying everything is mandatory)
-      output.system.push(buildTrainingStalenessBlock());
-
-      // Inject references verification mandate (no assuming knowledge without tool-call artifact)
-      output.system.push(buildReferencesVerificationBlock());
-
-      // Inject language preference (Southeastern US English mandate)
-      output.system.push(buildLanguagePreferenceBlock());
-
-      // Inject identity section from session_context_identity.py
-      const identityOutput = await runSessionContextIdentity(projectDir);
-      if (identityOutput) {
-        output.system.push(identityOutput);
+      // Inject skill index (name + description + trigger patterns from SKILL.md frontmatter)
+      const skillIndex = buildSkillIndex(skillsDir);
+      if (skillIndex) {
+        output.system.push(skillIndex);
       }
 
+      // Inject frontmatter validation warning if any skills have broken frontmatter
+      const warning = buildFrontmatterWarning(frontmatterErrors);
+      if (warning) {
+        output.system.push(warning);
+      }
 
     },
 
@@ -990,11 +938,11 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
       // AND inject trigger warnings into first user message
       // AND inject plugin diagnostics block into first user message
       //
-      // FIRST-TURN GUARD: SESSION_TRIGGERS, EXTREMELY_IMPORTANT,
-      // PLUGIN_DIAGNOSTICS, and LOCAL_MODE warnings are injected ONLY on
-      // the first turn of PRIMARY sessions (isFirstTurn && !isSubAgent). Sub-agent
-      // sessions inherit context from their parent, so these blocks are redundant
-      // and waste context window space (REQ-1/REQ-2).
+      // FIRST-TURN GUARD: EXTREMELY_IMPORTANT, SESSION_TRIGGERS, and
+      // PLUGIN_DIAGNOSTICS are injected ONLY on the first turn of PRIMARY
+      // sessions (isFirstTurn && !isSubAgent). Sub-agent sessions inherit
+      // context from their parent, so these blocks are redundant and waste
+      // context window space (REQ-1/REQ-2).
       //
       // Per-turn behaviors (unchanged, unconditional per REQ-3/REQ-6):
       // - Bare issue pipeline detection on lastUser
@@ -1028,11 +976,53 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         if (shouldInjectFirstTurn) {
           // --- First-turn-only: Trigger warnings ---
           const triggersOutput = await runSessionContextTriggers(projectDir);
+          // --- Spec #432: Pre-Implementation Gate + Core Principles ---
+          const gateBlock = buildPreImplementationGate(cachedOutput, projectDir);
+          const corePrinciplesBlock = buildCorePrinciplesBlock();
+          const tier1Block = buildTier1EnforcementBlock();
 
-          const triggerBlock = triggersOutput ? `<SESSION_TRIGGERS>\n${triggersOutput}\n</SESSION_TRIGGERS>` : "";
+          // Per spec #426: extract NESTED_OPENCODE_FATAL from triggers output
+          // and inject it as a SEPARATE block (not inside Session Triggers)
+          let triggerOutputForSessionBlock = triggersOutput || "";
+          let nestedOpencodeBlock = "";
+          const nestedFatalMatch = triggerOutputForSessionBlock.match(/### NESTED_OPENCODE_FATAL[\s\S]*?(?=\n### |\n\n### |\n*$)/);
+          if (nestedFatalMatch) {
+            nestedOpencodeBlock = nestedFatalMatch[0].trim();
+            // Remove the nested opencode block from the session triggers output
+            triggerOutputForSessionBlock = triggerOutputForSessionBlock.replace(nestedFatalMatch[0], "").trim();
+          }
+          // Also match if it's the only/last section (no trailing ###)
+          if (!nestedOpencodeBlock) {
+            const nestedFatalOnlyMatch = triggersOutput?.match(/### NESTED_OPENCODE_FATAL[\s\S]*/);
+            if (nestedFatalOnlyMatch) {
+              nestedOpencodeBlock = nestedFatalOnlyMatch[0].trim();
+              triggerOutputForSessionBlock = triggerOutputForSessionBlock.replace(nestedFatalOnlyMatch[0], "").trim();
+            }
+          }
 
-          if (triggerBlock && firstUser.parts?.length) {
-            firstUser.parts.unshift({ type: "text", text: triggerBlock });
+          const triggerBlock = triggerOutputForSessionBlock ? `### Session Triggers\n\n${triggerOutputForSessionBlock}` : "";
+
+          const echoParts: string[] = [];
+          if (gateBlock) {
+            echoParts.push(gateBlock);
+          }
+          if (tier1Block) {
+            echoParts.push(tier1Block);
+          }
+          if (corePrinciplesBlock) {
+            echoParts.push(corePrinciplesBlock);
+          }
+          if (triggerBlock) {
+            echoParts.push(triggerBlock);
+          }
+          if (echoParts.length > 0 && firstUser.parts?.length) {
+            firstUser.parts.unshift({ type: "text", text: echoParts.join("\n\n") });
+          }
+
+          // Per spec #426 SC-10: Inject NESTED_OPENCODE_FATAL as a separate block
+          // AFTER all other content in the first user message (not inside Session Triggers)
+          if (nestedOpencodeBlock && firstUser.parts?.length) {
+            firstUser.parts.push({ type: "text", text: nestedOpencodeBlock });
           }
 
           // --- First-turn-only: Plugin diagnostics injection ---
@@ -1042,47 +1032,15 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
             firstUser.parts.push({ type: "text", text: diagnosticBlock });
           }
 
-          // --- First-turn-only: Local/submodule mode warnings ---
-          const knownPlatform = extractValue(cachedIdentityOutput, "github.platform");
-          const knownIdentitySource = extractValue(cachedIdentityOutput, "github.identity_source");
-
-          const isLocalMode = knownPlatform === "local" || knownIdentitySource === "none";
-          const isSubmoduleMode = knownIdentitySource === "submodule";
-
-          if (isLocalMode) {
-            const lastUser = userMessages[userMessages.length - 1];
-            if (lastUser?.parts?.length) {
-              lastUser.parts.push({
-                type: "text",
-                text: `<LOCAL_MODE>\n⚠️ Operating in local-only mode — no git remote configured.\n\n- github.platform: local\n- github.owner: (none)\n- github.repo: (none)\n- github.identity_source: none\n\nGitHub/GitBucket API calls are unavailable. Local issue tracking (.issues/) is available.\nDo NOT attempt to use GitHub MCP or GitBucket API tools — all issue operations route to local .issues/.\n</LOCAL_MODE>`
-              });
-            }
-          } else if (isSubmoduleMode) {
-            const parentRemoteCount = gitConfigBaseline?.remoteCount ?? 0;
-            const lastUser = userMessages[userMessages.length - 1];
-            if (lastUser?.parts?.length) {
-              lastUser.parts.push({
-                type: "text",
-                text: `<LOCAL_MODE>\n⚠️ Operating in submodule-local mode — parent repo has ${parentRemoteCount} remote(s).\n\n- github.identity_source: submodule\n- All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory — not the project root.\n- The parent repo has ZERO remotes by design.\n- github.owner and github.repo are from the submodule remote for API routing ONLY\n- GitHub MCP calls route to the submodule's repository\n- Local git operations (branch, commit, stash) on the parent repo are permitted\n- Do NOT push from the parent repo — there is no remote to push to.\n- Do NOT add remotes to the parent repo.\n</LOCAL_MODE>`
-              });
-            }
-          }
         }
 
-      // --- Per-turn: Bare issue pipeline detection on LAST user message ---
-      const lastUser = userMessages[userMessages.length - 1];
-      if (lastUser?.parts?.length) {
-        for (const part of lastUser.parts) {
-          if (part.type === "text" && part.text) {
-            const match = part.text.match(BARE_ISSUE_RE);
-            if (match) {
-              const directive = buildIssuePipelineDirective(match[1]);
-              lastUser.parts.push({ type: "text", text: directive });
-              break; // Only inject pipeline directive once per message
-            }
-          }
+        // --- Spec #432: First-turn-only SUB-AGENT sessions: Core Principles ---
+        // Sub-agents receive a lighter 5-rule principles block as the first text
+        // part injected into their first user message. No identity echo, no triggers.
+        if (isFirstTurn && isSubAgent && firstUser.parts?.length) {
+          const subAgentPrinciplesBlock = buildSubAgentPrinciplesBlock();
+          firstUser.parts.unshift({ type: "text", text: subAgentPrinciplesBlock });
         }
-      }
 
       // --- Per-turn: Secret redaction on ALL assistant messages ---
       const assistantMessages = output.messages.filter(m => m.info?.role === "assistant");
@@ -1169,121 +1127,104 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         }
       }
 
-      // --- Per-turn: Branch topology check ---
-      // Detect degraded remote branch topology and inject BRANCH_TOPOLOGY warning.
-      // This mirrors the session_context_triggers.py BRANCH_TOPOLOGY detection
-      // but operates at the TypeScript plugin level for real-time detection.
-      let branchTopologyBlock = "";
-      try {
-        const hasRemotesForTopology = gitConfigBaseline ? gitConfigBaseline.remoteCount > 0 : false;
-        if (hasRemotesForTopology) {
-          const currentBranchForTopology = getCurrentBranch(projectDir);
-          const isFeatureForTopology = currentBranchForTopology &&
-            currentBranchForTopology !== "main" &&
-            currentBranchForTopology !== "master" &&
-            currentBranchForTopology !== "dev";
+      // --- Per-turn: Inline work detector (Gate 3) ---
+      // Detect when the orchestrator performed file-editing tool calls without
+      // a preceding sub-agent dispatch in the same turn. Exemptions: sub-agent
+      // sessions, pair-* branches, .issues/ only changes.
+      const currentBranchForInline = getCurrentBranch(projectDir);
+      const isPairBranch = currentBranchForInline ? isPairModeBranch(currentBranchForInline) : false;
+      if (!isSubAgent && !isPairBranch) {
+        for (const msg of assistantMessages) {
+          if (!msg.parts?.length) continue;
+          const editToolNames: string[] = [];
+          let dispatchFound = false;
+          let dispatchIndex = -1;
+          let issuesOnlyEdits = true;
 
-          // Check 1: origin/dev existence for feature branches
-          let originDevMissing = false;
-          if (isFeatureForTopology) {
-            try {
-              execSync("git rev-parse --verify origin/dev", {
-                cwd: projectDir,
-                encoding: "utf8",
-                input: "",
-                timeout: 5000,
-                stdio: ["pipe", "pipe", "pipe"],
-              });
-            } catch {
-              originDevMissing = true;
-            }
-          }
-
-          // Check 2: common ancestor between main and dev
-          let orphanedBranches = false;
-          try {
-            const hasMain = execSync("git rev-parse --verify origin/main 2>/dev/null || git rev-parse --verify origin/master 2>/dev/null", {
-              cwd: projectDir,
-              encoding: "utf8",
-              input: "",
-              timeout: 5000,
-              stdio: ["pipe", "pipe", "pipe"],
-            }).trim();
-            const hasDev = execSync("git rev-parse --verify origin/dev", {
-              cwd: projectDir,
-              encoding: "utf8",
-              input: "",
-              timeout: 5000,
-              stdio: ["pipe", "pipe", "pipe"],
-            }).trim();
-
-            if (hasMain && hasDev) {
-              try {
-                execSync("git merge-base origin/main origin/dev || git merge-base origin/master origin/dev", {
-                  cwd: projectDir,
-                  encoding: "utf8",
-                  input: "",
-                  timeout: 5000,
-                  stdio: ["pipe", "pipe", "pipe"],
-                });
-                // merge-base exists — check ancestry
-              } catch {
-                // No merge-base found — orphaned
-                orphanedBranches = true;
+          for (const part of msg.parts) {
+            if (part.type === "text" && part.text) {
+              // Detect sub-agent dispatch (task tool)
+              if (part.text.includes("subagent_type") || part.text.includes('"task"') && part.text.includes("dispatch")) {
+                dispatchFound = true;
+                if (dispatchIndex === -1) dispatchIndex = msg.parts.indexOf(part);
+              }
+              // Detect file-editing tool calls
+              const editMatch = part.text.match(/"name"\s*:\s*"(edit|write|create_or_update_file)"/);
+              if (editMatch) {
+                editToolNames.push(editMatch[1]);
+                // Check if the edit targets .issues/ files
+                const filePathMatch = part.text.match(/"filePath"\s*:\s*"([^"]+)"/);
+                if (filePathMatch && !filePathMatch[1].startsWith(".issues/")) {
+                  issuesOnlyEdits = false;
+                }
+              }
+              // Also detect tool call patterns in assistant text (older format)
+              const toolCallMatch = part.text.match(/(edit|write)\(filePath/);
+              if (toolCallMatch) {
+                editToolNames.push(toolCallMatch[1]);
+                const filePathMatch = part.text.match(/filePath["']?\s*[:=]\s*["']([^"']+)/);
+                if (filePathMatch && !filePathMatch[1].startsWith(".issues/")) {
+                  issuesOnlyEdits = false;
+                }
               }
             }
-          } catch {
-            // Could not determine branch refs — skip topology check
           }
 
-          const topologyLines: string[] = [];
-          if (originDevMissing) {
-            topologyLines.push("- ❌ origin/dev does not exist on remote — feature branch PRs will fail. Push dev to remote first: git push origin dev");
-          }
-          if (orphanedBranches) {
-            topologyLines.push("- ❌ main and dev are orphaned (no common ancestor) — PRs between them will fail. Fix: rebase dev onto main, or merge with --allow-unrelated-histories.");
-          }
+          if (editToolNames.length > 0 && !issuesOnlyEdits) {
+            // If dispatch was found, check if edits came before the dispatch
+            const editsBeforeDispatch = dispatchFound && dispatchIndex > -1
+              ? editToolNames.length > 0 // edits exist, check if any were before dispatch
+              : true;
 
-          if (topologyLines.length > 0) {
-            branchTopologyBlock = `<SESSION_TRIGGERS>
-⚠️ branch_topology: Remote branch topology is degraded.
-${topologyLines.join("\n")}
-- Action: resolve topology issues before pushing feature branches.
-Process per 117-session-trigger-behavior.md behavior map. Do NOT echo this trigger in chat output.
-</SESSION_TRIGGERS>`;
-          }
-        }
-      } catch {
-        // Git unavailable or topology check failed — skip
-      }
-
-      // --- Per-turn: BRANCH_TOPOLOGY injection into last user message ---
-      if (branchTopologyBlock) {
-        const lastUserForTopology = userMessages[userMessages.length - 1];
-        if (lastUserForTopology?.parts?.length) {
-          lastUserForTopology.parts.push({ type: "text", text: branchTopologyBlock });
-        }
-      }
-
-      // --- Per-turn: Protected branch edit guard ---
-      // After each assistant turn, check if files were edited on dev/main
-      // without a worktree or pair- branch prefix. If so, inject warning.
-      const currentBranch = getCurrentBranch(projectDir);
-      if (currentBranch && isProtectedBranch(currentBranch)) {
-        const worktreeDir = input?.worktree || "";
-        const inWorktree = worktreeDir && worktreeDir !== projectDir;
-        
-        if (!inWorktree && !isPairModeBranch(currentBranch)) {
-          const changedFiles = detectUncommittedFileChanges(projectDir);
-          if (changedFiles.length > 0) {
-            const warning = buildProtectedBranchEditTrigger(changedFiles, currentBranch);
-            const lastAssistant = assistantMessages[assistantMessages.length - 1];
-            if (lastAssistant?.parts?.length) {
-              lastAssistant.parts.push({ type: "text", text: warning });
+            if (!dispatchFound || editsBeforeDispatch) {
+              const block = buildInlineWorkDetectedBlock(editToolNames, dispatchFound);
+              const nextUser = userMessages[userMessages.length - 1];
+              if (nextUser?.parts?.length) {
+                nextUser.parts.push({ type: "text", text: block });
+              }
             }
           }
         }
       }
+
+      // --- Per-turn: Evidence gate (Gate 4) ---
+      // Detect issue closure attempts without verification evidence table.
+      // Exemptions: not_planned, duplicate, rollback-reopen state reasons.
+      for (const msg of assistantMessages) {
+        if (!msg.parts?.length) continue;
+        for (const part of msg.parts) {
+          if (part.type === "text" && part.text) {
+            // Detect github_issue_write with state=closed
+            const closureMatch = part.text.match(/state.*closed|state.*:.*"closed"/i);
+            if (closureMatch) {
+              // Check for exempt state reasons
+              const exemptReason = part.text.match(/state_reason.*(?:not_planned|duplicate)/i);
+              if (!exemptReason) {
+                // Check if a verification evidence table exists in recent messages
+                const allAssistantText = assistantMessages
+                  .map(m => m.parts?.filter(p => p.type === "text" && p.text).map(p => p.text).join(" ") || "")
+                  .join(" ");
+                const hasEvidence = allAssistantText.includes("PASS") &&
+                  (allAssistantText.includes("Success Criteria") || allAssistantText.includes("verification") || allAssistantText.includes("evidence"));
+
+                if (!hasEvidence) {
+                  // Also check for rollback-reopen marker
+                  const rollbackReopen = part.text.match(/\[ROLLBACK-REOPEN\]/i);
+                  if (!rollbackReopen) {
+                    const block = buildEvidenceGateBlock();
+                    const nextUser = userMessages[userMessages.length - 1];
+                    if (nextUser?.parts?.length) {
+                      nextUser.parts.push({ type: "text", text: block });
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+
     },
   };
 }

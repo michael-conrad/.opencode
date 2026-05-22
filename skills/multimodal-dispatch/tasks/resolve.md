@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Resolve a caller's modality hint against the actual content payload, validate the hint, select the best available model from the capability snapshot, and log any overrides. This task implements the hybrid routing principle (REQ-2): the caller provides a hint, the dispatcher validates it, and if the hint contradicts the content, the dispatcher overrides and logs.
+Resolve a caller's modality hint against the actual content payload, validate the hint, select the best available model from the capability snapshot, and log any overrides. This task implements the hybrid routing principle (REQ-2): the caller provides a hint, the dispatcher validates it, and if the hint contradicts the content, the dispatcher overrides and logs. (The name `dispatcher` refers to this skill's internal router role — preserved as-is for technical accuracy.)
 
 ## Entry Criteria
 
@@ -12,7 +12,7 @@ Resolve a caller's modality hint against the actual content payload, validate th
 
 ## Exit Criteria
 
-A resolved `ModelCapability` is selected, any hint overrides are logged, and the result is ready for `dispatch`.
+A resolved `ModelCapability` is selected, any hint overrides are logged, and the result is ready for task().
 
 ## Procedure
 
@@ -46,7 +46,7 @@ Override logging format:
 MODALITY_OVERRIDE: caller_hint=<hint> content_derived=<actual> resolved=<final> reason=<why>
 ```
 
-This log entry is included in the `DispatchResult.findings` field for traceability.
+This log entry is included in the `TaskResult.findings` field for traceability.
 
 ### Step 4: Select Best Model
 

@@ -6,7 +6,7 @@ Track an incident or change via GitHub Issue with structured labels and prose na
 
 ## Operating Protocol
 
-1. Invoked by: `/skill sre-runbook --task track`
+1. Invoked by: `skill({name: "sre-runbook"})` → `task()` for `track`
 2. When to use: When tracking an incident, outage, or change through its lifecycle
 3. Exit criteria: GitHub Issue created/updated with structured labels and prose narrative
 
@@ -115,10 +115,10 @@ Label set:
 **WHY:** Timeline entries create the audit trail. Without them, postmortems lack data. Each entry must include reasoning — not just what happened, but why it matters.
 
 **Update workflow:**
-1. Read current issue body via `github_issue_read`
+1. Read current issue body via `issue-operations -> read-issue (github_issue_read` <!-- Routes through issue-operations per SPEC #683 -->
 2. Add new timeline entry with timestamp, event, and reasoning
 3. Update status field if changed
-4. Update issue via `github_issue_write`
+4. Update issue via `issue-operations → update-issue` <!-- Routes through issue-operations per SPEC #683 -->
 
 **Each timeline entry MUST include:**
 - Timestamp (or relative marker if exact time unknown)
@@ -174,7 +174,7 @@ change:
 
 **Do NOT close issues before postmortem for P1/P2 incidents.** See `git-workflow --task cleanup` for post-merge closure workflow.
 
-**⚠️ Body-Preservation Safeguard:** When updating timeline entries in Step 3, the update workflow reads the current issue body, adds the new timeline entry, and updates via `github_issue_write(method=update, body=...)`. This MUST verify that the new body preserves all original content. The new body should be LONGER than the original (adding a timeline entry), not shorter. If `len(new_body) < 0.8 * len(original_body)`, HALT — this indicates content erasure. NEVER replace an issue body with a status summary. See `000-critical-rules.md` → "Critical Violation: Issue Body Erasure" for the project-wide rule.
+**⚠️ Body-Preservation Safeguard:** When updating timeline entries in Step 3, the update workflow reads the current issue body, adds the new timeline entry, and updates via `issue-operations -> update-issue (github_issue_write(method=update, body=...)`. This MUST verify that the new body preserves all original content. The new body should be LONGER than the original (adding a timeline entry), not shorter. If `len(new_body) < 0.8 * len(original_body)`, HALT — this indicates content erasure. NEVER replace an issue body with a status summary. See `000-critical-rules.md` → "Critical Violation: Issue Body Erasure" for the project-wide rule. <!-- Routes through issue-operations per SPEC #683 -->
 
 ## HALT Conditions
 

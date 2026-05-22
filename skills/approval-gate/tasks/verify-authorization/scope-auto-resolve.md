@@ -16,14 +16,16 @@ Parse the authorization text using the verb-prefix regex patterns from the Scope
 
 | Authorization Phrase | Resolved Scope |
 | -- | -- |
-| "approved #N" (no qualifier) | `standard` |
+| "approved #N" (no qualifier) | `for_review_prep` |
 | "approved #N to PR" / "for PR" | `for_pr` |
+| "approved #N to analysis" / "for analysis" | `for_analysis` |
 | "approved #N to implementation" / "for implementation" | `for_implementation` |
 | "approved #N to plan" / "for plan" | `for_plan` |
-| "approved #N for review" | `for_code_review` |
 | "approved #N to spec" / "for spec" | `for_spec` |
 
-If a qualifier matches, set `authorization_scope` to the corresponding scope value with `scope_source = "parsed"`. If no qualifier matches, set `authorization_scope = "standard"` with `scope_source = "default"`.
+If a qualifier matches, set `authorization_scope` to the corresponding scope value with `scope_source = "parsed"`. If no qualifier matches and the message contains authorization language (`approved`, `go`), set `authorization_scope = "for_review_prep"` with `scope_source = "default"`.
+
+If the message does NOT contain authorization language (question, bug report, factual claim, investigation request), set `authorization_scope = "for_analysis"` with `scope_source = "self-assigned"`. This is the ONLY scope the agent may self-assign.
 
 Derive `halt_at`, `pr_strategy`, and `gap_fill_actions` from the resolved scope per the Auto-Dispatch Table Module (`enforcement/auto-dispatch-table.md`).
 

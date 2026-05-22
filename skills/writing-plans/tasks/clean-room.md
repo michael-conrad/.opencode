@@ -2,17 +2,17 @@
 
 ## Purpose
 
-Generate a clean-room implementation plan from a problem statement only, using prose-driven exploration rather than template structure. Used by the spec-auditor's fidelity subtask to create an independent plan for comparison against the existing spec.
+Generate a clean-room implementation plan from a problem statement only, using prose-driven exploration rather than template structure. Used by the adversarial-audit plan-fidelity task to create an independent plan for comparison against the existing spec.
 
 ## Operating Protocol
 
-1. **Invoked by:** `spec-auditor` fidelity subtask (not by users directly)
+1. **Invoked by:** `skill({name: "adversarial-audit"})` → `task()` for `plan-fidelity` (not by users directly)
 2. **Bypasses:** Approval gate (clean-room plans don't need approval — they're comparison artifacts)
 3. **Does NOT reference:** Any existing plan, spec phases, or spec steps
 
 ## Entry Criteria
 
-- Problem statement input file exists at `./tmp/clean-room-input-N.md`
+- Problem statement input file exists at `./tmp/artifacts/clean-room-<issue>-N.md`
 - Problem statement contains: Objective, Problem Statement, Context, Constraints, Success Criteria
 - The writing-plans skill is available
 
@@ -41,7 +41,7 @@ Generate a clean-room implementation plan from a problem statement only, using p
 **Read the clean-room input file:**
 
 ```
-Read: ./tmp/clean-room-input-N.md
+Read: ./tmp/artifacts/clean-room-<issue>-N.md
 ```
 
 **Extract what's available:**
@@ -139,7 +139,7 @@ affected_files_count: K
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Problem statement exists at path" | Verify file exists and is non-empty | `ls ./tmp/clean-room-input-N.md` | MISSING-ELEMENT |
+| "Problem statement exists at path" | Verify file exists and is non-empty | `ls ./tmp/artifacts/clean-room-<issue>-N.md` | MISSING-ELEMENT |
 | "Affected file X exists" | Verify file in codebase | `srclight_search_symbols(query="X")` or `glob(pattern="**/X")` | VERIFICATION-GAP |
 | "Function Y has signature Z" | Verify signature against live code | `srclight_get_signature(name="Y")` | VERIFICATION-GAP |
 | "Pattern follows existing code" | Verify the referenced pattern exists | `grep(pattern="pattern_text")` | CONFLICTING |
@@ -158,8 +158,8 @@ affected_files_count: K
 
 ## Cross-References
 
-- Invoked by: `spec-auditor` fidelity subtask
+- Invoked by: `skill({name: "adversarial-audit"})` → `task()` for `plan-fidelity`
 - Related tasks: `create` (standard plan creation), `validate` (plan validation)
-- Related skills: `spec-auditor` (orchestrator), `brainstorming` (recommended when gaps found)
+- Related skills: `adversarial-audit` (orchestrator), `brainstorming` (recommended when gaps found)
 
 Co-authored with AI: <AgentName> (<ModelId>)

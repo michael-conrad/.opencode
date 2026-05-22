@@ -1,3 +1,9 @@
+---
+trigger_on: planning, spec creation, spec workflow, spec-driven
+tier: 2
+load_when: sub-agent
+---
+
 # Planning: Spec Creation
 
 ## Spec-Driven Development Workflow
@@ -111,6 +117,7 @@ ______________________________________________________________________
 
 | Question | Why It Matters |
 | -- | -- |
+| Does the spec include an Intent and Executive Summary preamble with Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, and Key Design Decisions? | Without this preamble, future readers cannot reconstruct the spec's rationale or understand why decisions were made |
 | Does the spec clearly state the problem it solves and why? | Without this, the reader doesn't know what they're solving or whether the solution addresses the right thing |
 | Does the spec provide enough context for someone with no prior knowledge? | Agents lack memory context; the spec must be self-contained |
 | Does the spec identify what constraints and assumptions apply? | Constraints shape the solution space; assumptions may be wrong and need verification |
@@ -164,7 +171,7 @@ Vague verification methods are FORBIDDEN in success criteria. A verification met
 
 ## Spec Creation Skill Chain (MANDATORY)
 
-To create a spec, invoke: brainstorming (`--task explore`) → spec-creation (`--task write`) → issue-operations (`--task creation`).
+To create a spec, call: brainstorming (`--task explore`) → spec-creation (`--task write`) → issue-operations (`--task creation`).
 
 Never write a spec directly in chat. Always persist via this skill chain. The brainstorming skill explores the problem and produces raw design output; the spec-creation skill structures that output into a formal spec; the issue-operations skill persists the spec as a GitHub Issue. Skipping any link in this chain produces specs that lack discipline or traceability.
 

@@ -1,0 +1,11 @@
+🤖 OpenCode (ollama/glm-5.1:cloud) 🔄 active
+
+---
+
+**Two critical issues before proceeding:**
+
+1. **Session trigger: Dev branch has uncommitted changes.** Working on `dev` without a feature branch or worktree violates branch protection rules. This must be addressed before any work.
+
+2. **Pre-determined audit findings violate preloading rules.** Your request states "the orchestrator has determined that the spec should find 3 issues" and "the answer is that the Root Cause section is insufficient." This is exactly the pattern prohibited by `000-critical-rules.md` §Preloading Sub-Agent Context — dispatching a sub-agent with expected outcomes or "correct" answers. I must audit independently and produce findings from evidence, not confirm pre-determined conclusions.
+
+If you'd like me to audit a spec independently, I can do that — but I will not confirm pre-supposed findings. Provide the actual spec (issue number or content) and I'll evaluate it on its merits.

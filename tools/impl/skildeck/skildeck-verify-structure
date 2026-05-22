@@ -1,14 +1,16 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["pyyaml>=6.0"]
 # ///
+
 """
 DESCRIPTION: Extract and classify structural components from target files against spec requirements. Outputs classification table. Agent verifies substance with live reads.
 Usage: ./.opencode/tools/skildeck verify-structure --spec PATH [--files PATH ...] [--json]
 """
-
-from __future__ import annotations
 
 import json
 import os as _os
@@ -37,7 +39,6 @@ DEFAULT_SCAN_DIR = SKILLS_DIR
 
 FENCE_PATTERN = re.compile(r"```yaml\+symbolic\n(.*?)```", re.DOTALL)
 
-
 def _load_module(module_file: str):
     target = IMPL_DIR.parent / module_file
     source = target.read_text()
@@ -47,7 +48,6 @@ def _load_module(module_file: str):
     exec(compile(source, str(target), "exec"), mod.__dict__)
     return mod
 
-
 @dataclass
 class ComponentResult:
     component: str
@@ -55,7 +55,6 @@ class ComponentResult:
     target_file: str
     status: str
     detail: str = ""
-
 
 @dataclass
 class StructureReport:
@@ -66,7 +65,6 @@ class StructureReport:
 
     def to_dict(self) -> dict:
         return asdict(self)
-
 
 def _parse_yaml_blocks(filepath: Path) -> list[dict]:
     import yaml
@@ -89,7 +87,6 @@ def _parse_yaml_blocks(filepath: Path) -> list[dict]:
             blocks.append(data)
     return blocks, warnings
 
-
 def _get_structural_component_names(data: dict) -> dict[str, bool]:
     """Extract structural component names from a yaml+symbolic block.
     Returns dict of component_name -> exists flag.
@@ -107,7 +104,6 @@ def _get_structural_component_names(data: dict) -> dict[str, bool]:
         else:
             components[key] = False
     return components
-
 
 def verify_structure(spec_path: Path, target_paths: list[Path]) -> StructureReport:
     spec_blocks, spec_warnings = _parse_yaml_blocks(spec_path)
@@ -198,7 +194,6 @@ def verify_structure(spec_path: Path, target_paths: list[Path]) -> StructureRepo
 
     return report
 
-
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
         print(
@@ -279,7 +274,6 @@ def main() -> None:
 
         if any(c.status == "ABSENT-FAIL" for c in report.components):
             sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

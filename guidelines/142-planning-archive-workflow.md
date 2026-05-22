@@ -1,3 +1,9 @@
+---
+trigger_on: archive, spec structure, spec format, requirements
+tier: 2
+load_when: sub-agent
+---
+
 # Planning: Spec Structure Requirements
 
 ## Spec File Format
@@ -105,6 +111,18 @@ Creating a spec without completed investigation is a CRITICAL GUIDELINE VIOLATIO
 STATUS: 1.1
 CREATED: YYYY-MM-DD
 
+## Intent and Executive Summary
+
+**Problem Statement:** What problem does this spec solve? What is broken or missing?
+
+**Root Cause / Motivation:** Why is this change needed? What drove this decision?
+
+**Approach Chosen:** High-level description of the selected approach.
+
+**Alternatives Considered & Why Discarded:** What other approaches were evaluated and why were they not chosen?
+
+**Key Design Decisions:** What structural or architectural decisions were made and why?
+
 ---
 
 ## Phase 1: [Concern Name] (Gated)
@@ -159,10 +177,11 @@ ______________________________________________________________________
 
 Every spec file MUST include:
 
-1. **Title**: `# Spec: [Feature Name]`
-2. **STATUS Header**: `STATUS: phase.step` (e.g., `STATUS: 1.2`)
-3. **CREATED Date**: `CREATED: YYYY-MM-DD`
-4. **Numbered Phases**: Phase 1, Phase 2, Phase 3...
+1. **Intent and Executive Summary**: `## Intent and Executive Summary` section with all 5 fields (Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions) — positioned as the first section after STATUS/CREATED header
+2. **Title**: `# Spec: [Feature Name]`
+3. **STATUS Header**: `STATUS: phase.step` (e.g., `STATUS: 1.2`)
+4. **CREATED Date**: `CREATED: YYYY-MM-DD`
+5. **Numbered Phases**: Phase 1, Phase 2, Phase 3...
 5. **Numbered Steps**: 1, 2, 3 within each phase
 6. **Status Markers**: `☐`/`↻`/`☑`/`☒` for each step
 7. **Byline Footer**: A footer line with AI attribution: `🤖 <AgentName> (<ModelId>) created`

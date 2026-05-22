@@ -1,14 +1,16 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
-"""
-DESCRIPTION: Overwrite .opencode/memory.md with content from stdin or a file argument.
+
+__doc__ = """DESCRIPTION: Overwrite .opencode/memory.md with content from stdin or a file argument.
 Usage: ./.opencode/tools/memory write [file]
        echo "content" | ./.opencode/tools/memory write
 """
-from __future__ import annotations
 import os as _os
 if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
     print("ERROR: This script must be run via its dispatcher (e.g. ./.opencode/tools/memory ...). "
@@ -19,10 +21,10 @@ import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-PROJECT_ROOT = (BASE_DIR / CDUP).resolve()
+PROJECT_ROOT = BASE_DIR
+while not (PROJECT_ROOT / ".opencode").is_dir():
+    PROJECT_ROOT = PROJECT_ROOT.parent
 MEMORY_FILE = PROJECT_ROOT / ".opencode" / "memory.md"
-
 
 def main() -> None:
     if "--help" in sys.argv or "-h" in sys.argv:
@@ -61,7 +63,6 @@ def main() -> None:
     MEMORY_FILE.write_text(content, encoding="utf-8")
     lines = content.count("\n") + 1
     print(f"memory.md written ({lines} lines).")
-
 
 if __name__ == "__main__":
     main()

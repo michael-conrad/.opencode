@@ -1,31 +1,36 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["pyyaml>=6.0"]
 # ///
+
 """
 DESCRIPTION: Maps critical rules from 000-critical-rules.md to skill task enforcement checkpoints. Finds rules with no enforcement.
 Usage: ./.opencode/tools/skildeck lint --analysis enforcement [--json] [--verbose]
 """
 
-from __future__ import annotations
-
 import json
 import os as _os
 import re
-import subprocess
 import sys
 import types
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 IMPL_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(
-    ["git", "-C", str(IMPL_DIR), "rev-parse", "--show-cdup"], text=True
-).strip()
-BASE_DIR = (IMPL_DIR / CDUP).resolve()
+_scan = IMPL_DIR
+while True:
+    if _scan.name == ".opencode":
+        BASE_DIR = _scan.parent
+        break
+    parent = _scan.parent
+    if parent == _scan:
+        raise RuntimeError("Cannot find .opencode ancestor directory")
+    _scan = parent
 DEFAULT_SCAN_DIR = BASE_DIR / ".opencode"
-
 
 def _load_module(module_file: str):
     target = IMPL_DIR / module_file
@@ -35,7 +40,6 @@ def _load_module(module_file: str):
     sys.modules[module_file.replace("-", "_")] = mod
     exec(compile(source, str(target), "exec"), mod.__dict__)
     return mod
-
 
 @dataclass
 class EnforcementFinding:
@@ -49,7 +53,6 @@ class EnforcementFinding:
 
     def to_dict(self) -> dict:
         return asdict(self)
-
 
 ENFORCEMENT_PATTERNS: list[dict] = [
     {
@@ -414,7 +417,6 @@ ENFORCEMENT_PATTERNS: list[dict] = [
     },
 ]
 
-
 def analyze_enforcement(
     scan_dir: Path, verbose: bool = False
 ) -> list[EnforcementFinding]:
@@ -520,7 +522,6 @@ def analyze_enforcement(
 
     return findings
 
-
 def main() -> None:
     if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
         print(
@@ -565,7 +566,6 @@ def main() -> None:
                         print(f"    skills: {', '.join(item.mapped_skills)}")
                     if item.mapped_tasks:
                         print(f"    tasks: {', '.join(item.mapped_tasks)}")
-
 
 if __name__ == "__main__":
     main()

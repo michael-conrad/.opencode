@@ -83,7 +83,7 @@ ______________________________________________________________________
 
 **Core idea:** Keep domains isolated. UI ≠ business logic ≠ data access.
 
-**Enforcement:** "Non-Monolithic: Break large blocks into cohesive, independent components." (Also enforced in `080-code-standards.md` as "Non-Monolithic" and in `concern-separation-auditor` skill)
+**Enforcement:** "Non-Monolithic: Break large blocks into cohesive, independent components." (Also enforced in `080-code-standards.md` as "Non-Monolithic" and in `adversarial-audit --task concern-separation`)
 
 **Apply strongly when:**
 
@@ -215,7 +215,7 @@ ______________________________________________________________________
 
 **Core idea:** Detect errors early. Don't let bad state propagate.
 
-**Enforcement:** "Detect errors early. Don't let bad state propagate." (Also enforced in `200-errors-exception-handling.md` and `201-errors-missing-data.md`)
+**Enforcement:** "Detect errors early. Don't let bad state propagate." (Also enforced in `200-errors.md`)
 
 **Apply strongly when:**
 
@@ -413,7 +413,35 @@ ______________________________________________________________________
 
 **Core idea:** If it's hard to test, it's poorly designed. Prefer pure functions and isolated modules.
 
-**Enforcement:** Partially enforced. "If a function exceeds 40 lines, decompose it." (Also in `080-code-standards.md` and `code-size-enforcement` skill)
+**Enforcement:** Partially enforced. "If a function exceeds 40 lines, decompose it." (Also in `080-code-standards.md` and `programming-principles` skill `check-limits` task — merged from `code-size-enforcement`)
+
+### Measurement Methods
+
+**Functions:**
+```bash
+# Get function sizes via srclight
+srclight_symbols_in_file(path="src/module.py")
+```
+For word counts, use `wc -w` on specific function ranges.
+
+**Source Files:**
+```bash
+wc -l <filepath>
+```
+
+**Class Method Count:** Use `srclight_symbols_in_file(path="<filepath>")` and filter for class definitions with nested method counts.
+
+### Decomposition Thresholds
+
+| Threshold | Action |
+|-----------|--------|
+| File > 400 lines | Split into multiple files |
+| Function > 30 lines | Extract helper functions |
+| Method > 50 lines | Extract sub-methods or delegate |
+| Class > 7 methods | Extract to delegate class |
+| Class file > 300 lines | Split into focused sub-classes |
+
+When any threshold is exceeded: identify abstraction boundaries, split, verify re-check sizes, commit only after limits satisfied.
 
 **Apply strongly when:**
 
@@ -435,7 +463,7 @@ ______________________________________________________________________
 
 **Core idea:** Isolate failures. Isolate deployments. Isolate data ownership. Isolate scaling concerns.
 
-**Enforcement:** "Isolate failures. Isolate deployments. Isolate data ownership. Isolate scaling concerns." (Also in `concern-separation-auditor` skill)
+**Enforcement:** "Isolate failures. Isolate deployments. Isolate data ownership. Isolate scaling concerns." (Also in `adversarial-audit --task concern-separation`)
 
 **Apply strongly when:**
 

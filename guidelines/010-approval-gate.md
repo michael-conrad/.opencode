@@ -1,376 +1,266 @@
+---
+trigger_on: approved, go, authorization, approve, approval-gate, spec-before-code
+tier: 1
+load_when: sub-agent
+---
+
 # Approval Gate
 
-> **See `approval-gate` skill for complete procedural workflow including:**
->
-> - Spec + authorization requirements
-> - Plan approval gate
-> - Sub-issue verification gate (under plan) — consolidated into `approval-gate --task verify-authorization` Step 5
-> - Scope-horizon authorization model
-> - Gap-fill cascade for pipeline-scoped authorization
-> - Re-evaluation checklist
-> - Bug report response
+**Enforced by `hooks/pre-commit` Gate 2b (authorization_scope + halt_at check).** See `approval-gate` skill for complete procedural workflow.
 
 ## Tier 0: Zero Tolerance Rules
 
-**These rules are inviolable. Violation is a protocol breach.**
+| # | Requirement | Symbolic Rule | Enforced By |
+|---|-------------|-------------|-------------|
+| 1 | Spec before code | approval-gate-001 | `approval-gate` skill |
+| 2 | Plan before implementation | approval-gate-001a | `writing-plans` skill |
+| 3 | Explicit authorization required | approval-gate-002 | `approval-gate` skill |
+| 4 | Apply `approved-for-*` label | approval-gate-002 | `approval-gate` skill |
+| 5 | Branch before any file modification | approval-gate-004 | `git-workflow` / `pre-commit` Gate 1 |
+| 6 | Human-only merge | approval-gate-005 | GitHub branch protection |
+| 7 | Silent halt — no prompts | — | `000-critical-rules.md` |
+| 8 | Search before halt (no spec found) | — | `000-critical-rules.md` §Silent Halt |
+| 9 | PR requires explicit instruction (except `for_pr`/`for_pr_only`) | critical-rules-019 | `pr-creation-workflow` skill |
+| 10 | Close issues only after PR merge confirmed | critical-rules-013 | `git-workflow cleanup` |
+| 11 | Spec-to-Plan cascade (auto-approve faithful plan) | approval-gate-001a-cascade | `approval-gate` skill |
+| 12 | Pipeline-scoped authorization with hard HALT at boundary | approval-gate-010/011 | `approval-gate` skill |
+| 13 | Issue creation = reporting, NOT implementation (no auth required) | — | `issue-operations` skill |
+| 14 | Bug discovery ≠ bug fixing authorization | critical-rules-011 | `approval-gate` skill |
 
 ### Mandatory Requirements
 
-| Requirement | Rule |
-| -- | -- |
-| **Spec before code** | NO code/guideline changes WITHOUT approved spec |
-| **Plan before implementation** | NO implementation WITHOUT approved plan (spec approval → plan creation, plan approval → implementation) |
-| **Authorization required** | NO implementation WITHOUT explicit `"approved"` or `"go"` |
-| **Explicit auth overrides label** | When user says `approved`/`go`, proceed REGARDLESS of `needs-approval` label |
-| **Branch first** | Create feature branch BEFORE any file modification |
-| **Human-only merge** | Agents MUST NEVER merge PRs |
-| **MCP tools** | Use appropriate tools per five-tier hierarchy (see `mcp-tool-usage` skill) |
-| **Silent halt** | HALT after completion, after PR creation — no prompts |
-| **Search before halt** | When no spec/plan exists for an implementation request, search GitHub Issues for existing candidates (label filters: `[SPEC]`, `[PLAN]`, `[SPEC-FIX]`; keyword matching against request target), present candidates with URLs, offer create-or-select before halting — see `000-critical-rules.md` §Silent Halt Without Prompt |
-| **PR timing** | PRs require explicit `"create a PR"` instruction — **except** when `authorization_scope == 'for_pr'` or `'pr_only'` (scope model authorizes PR creation) |
-| **Issue closure** | Close issues ONLY after PR merge confirmed |
-| **Spec-to-Plan cascade** | When a spec is approved and a plan already exists, the plan is automatically approved. Manual plan approval is only required when no plan exists at the time of spec approval |
-| **Pipeline-scoped authorization** | Authorization phrases ("approved #N to PR", "approved #N for plan") specify a scope horizon — pipeline stages where authorization extends. See Authorization Scope Model below |
-| **Hard HALT at scope boundary** | Agent MUST NOT proceed past `halt_at` pipeline stage without re-authorization |
-| **Item decomposition** | Approval gate Step 4.5 verifies item decomposition exists before implementation proceeds — see `091-incremental-build.md` for the discipline |
+- **Spec before code:** Every code change requires an approved spec
+- **Plan before implementation:** Every implementation requires an approved plan
+- **Branch first:** Create feature branch before any file modification
+- **Explicit authorization:** "approved" or "go" — implicit, rhetorical, or complaint-based authorization is invalid
+- **Label application:** Apply `approved-for-*` label on authorization
+- **Human-only merge:** Agent never merges PRs
 
 ### Issue Creation Is Reporting, Not Implementation (CRITICAL)
 
-<!-- Issue #99: Authorization-Free Actions — Signal asymmetry fix -->
+Creating a GitHub Issue is a reporting action, not an implementation action — it does NOT require authorization. This rule prevents the approval-gate from blocking bug reports, feature requests, spec drafts, or any other non-implementation issue.
 
-**⚠️ Creating GitHub Issues (specs, plans, bug reports, feature requests) does NOT require authorization.** Issue creation is a reporting and tracking action, not an implementation action. The authorization mandate applies only to code/config/file modifications that alter system behavior.
-
-The following actions are explicitly authorized WITHOUT needing `"approved"` or `"go"`:
-
-| Action | Classification | Authority |
-|--------|---------------|-----------|
-| Creating new GitHub Issue (spec/plan) | No auth → mandatory `issue-operations` skill | This section |
-| Creating sub-issues under an approved plan | No auth → covered by plan authorization | `approval-gate --task verify-sub-issues` |
-| Updating existing issue spec text (revision) | No auth → revision ≠ implementation | `010-approval-gate.md` §Revision ≠ Implementation |
-| Updating issue text to match code reality (drift sync) | No auth → administrative sync | `130-authority-source.md` §Documentation Drift |
-| Posting progress comments to GitHub | No auth → `issue-operations` skill | `issue-operations` skill |
-| Moving issue labels | No auth → metadata operation | This section |
-| Creating bug report issues | No auth → reporting action | `000-critical-rules.md` §Bug Discovery |
-| Running lint/typecheck/format commands | No auth → read-only verification | Existing practice |
-
-**The agent MUST NOT deliberate over authorization for these actions.** Deliberation over whether issue creation requires authorization is itself a waste of context — the answer is always "no authorization needed, proceed with mandatory skill steps."
+- ✅ Issue creation (any type: bug, feature, spec, plan, question) does NOT require authorization
+- ✅ Spec creation does NOT require authorization — spec content IS the authorization request
+- ✅ Adding labels, comments, or assigning issues does NOT require authorization
+- 🚫 Creating a branch, writing code, or modifying files still requires authorization (separate step)
+- 🚫 Issue creation is NOT a backdoor to implementation — creating a spec issue does not authorize implementing it
 
 ### Spec-to-Plan Approval Cascade (Critical)
 
-**When a spec is approved and a plan already exists, the plan is automatically approved.** This eliminates redundant manual approval when the implementation plan was already created and is faithful to the approved spec.
+An approved spec auto-approves a faithful plan. This prevents redundant authorization requests when the plan faithfully reflects the spec.
 
-**The two-gate model still applies when no plan exists at the time of spec approval:** spec approval → plan creation → plan approval → implementation.
+**Cascade rule:** When a faithful plan exists for the approved spec, `approval-gate-001a-cascade` auto-approves the plan without requiring separate developer input. The agent proceeds directly to implementation.
+
+**Revocation:** If the spec is revised after auto-approval, the linked plan approval is revoked per `approval-gate-006`.
 
 #### Edge Cases
 
-| Edge Case | Resolution |
-| -- | -- |
-| **Plan not faithful** | If the plan deviates from the spec, the plan-fidelity-auditor catches this during implementation. The plan must be revised to match the spec, and the revised plan requires fresh approval. |
-| **Spec revised after cascade** | Spec revision revokes ALL linked plan approvals (existing behavior per "Revision Revokes Approval"). The cascade does not override revision-based revocation. |
-| **No plan exists at spec approval** | Normal two-gate flow applies. The cascade only activates when a plan already exists. Spec approval authorizes plan creation via `writing-plans` skill, then plan approval is required before implementation. |
-| **Multiple plans exist** | When a spec has multiple linked plans, the most recent approved plan takes precedence. Older plans are superseded and treated as stale per "Implementing Stale or Superseded Specs" rules. |
+| Case | Rule |
+|------|------|
+| Spec approved, no plan written yet | Must create plan (call `writing-plans`), NO authorization needed for plan creation |
+| Faithful plan approved via cascade, then spec revised | Cascade approval revoked — must update plan and get new approval |
+| Unfaithful plan submitted | Must revise plan to match spec; cascade does NOT apply to unfaithful plans |
+| Spec approved with `for_spec` scope | No cascade — scope explicitly limits to spec only; plan creation requires scope expansion |
 
 ### Mandate Tiering Interaction (Critical)
 
-**The contradiction between zero-tolerance mandates and explicit authorization is resolved through mandate tiering.** See `000-critical-rules.md` → "Mandate Tiering" for the complete classification.
+| Mandate Level | Example | Overridable By |
+|--------------|---------|----------------|
+| Tier 1 (Safety-Critical) | No direct pushes to main, human-only merge | Never — safety-critical |
+| Tier 2 (Process-Integrity) | Approval gate, branch naming | Explicit developer authorization |
+| Tier 3 (Workflow-Standard) | Numbering conventions, tool selection | Flag only — no halt |
+| Developer override | User says "approved" or "go" | Only applies to Tier 2 |
 
-The interaction between developer authorization and process mandates follows these rules:
+#### Decision Table: Authorization + File Modifications
 
-| Scenario | Resolution | Rationale |
-| -- | -- | -- |
-| Developer authorization + Tier 2 process mandate | Developer authorization wins | The developer has accepted the risk of skipping process; the work is authorized |
-| Developer authorization + Tier 1 safety mandate | Safety mandate wins | Worktree and branch protection protect repository integrity regardless of authorization |
-| No developer authorization + any mandate | Mandate holds | Authorization is always required for implementation |
-
-#### Decision Table: Simple Work + File Modifications
-
-| Authorization | Work Type | File Mods? | Dispatch Path |
-|---------------|-----------|-------------|---------------|
-| Explicit (approved/go) | Clearly simple | Yes | `pre-work → implement → VbC → checklist → review-prep` (simple work dispatch path) |
-| Explicit (approved/go) | Clearly simple | No | Create issue only, no worktree needed |
-| Explicit (approved/go) | Complex | Yes | Full dispatch chain |
-| None | Any | Any | HALT — wait for authorization |
-
-Key insight: "Simple" describes the PROCESS burden (no spec/plan), not the SAFETY mechanism. Worktrees protect repository integrity regardless of task complexity.
-
-**For clearly simple work** (documentation, runbooks, minor configuration edits, single-file non-behavioral changes), developer authorization IS sufficient process — no separate spec/plan is required. The developer's explicit "approved" or "go" serves as both the authorization and the process justification.
-
-**For complex work** (new features, behavioral changes, multi-file modifications), developer authorization means "you may begin the process." The spec/plan workflow still produces value (traceability, review trail, edge case discovery) even when authorization exists. The agent should proceed through spec/plan creation as part of the authorized work.
-
-**This resolves the contradiction identified in #912:** "NO code WITHOUT approved spec" is a Tier 2 mandate that yields to explicit developer authorization, while "create worktree before editing" is a Tier 1 mandate that never yields.
+| Has Authorization? | Spec/Plan Exists? | Action |
+|--------------------|-------------------|--------|
+| Yes | Yes | Proceed with implementation |
+| Yes | No | Create spec (authorization cascades to spec creation) |
+| No | Yes | HALT — authorization required before implementation |
+| No | No | HALT — spec and authorization both required |
 
 ### Explicit Authorization Priority (Critical)
 
-**⚠️ When user provides explicit authorization (`approved`, `go`, `#123 approved`), proceed with implementation even if the `needs-approval` label is present.**
-
-The `needs-approval` label is a **tracking tool**, not a permanent gate. Its purpose is:
-
-- Indicate "awaiting approval" visually
-- Remind reviewers that approval hasn't been given yet
-- Block agents from proceeding **until** explicit authorization is received
-
-**The label does NOT override explicit user authorization.**
-
-| Scenario | Action |
-| -- | -- |
-| User says `approved` AND label present | ✅ **PROCEED** - explicit auth wins |
-| User says `#123 approved` AND label present | ✅ **PROCEED** - explicit auth wins |
-| User says `go` AND label present | ✅ **PROCEED** - explicit auth wins |
-| NO user authorization AND label present | ⛔ **HALT** - wait for authorization |
-| Label removed by user | ✅ **Proceed if authorized** - no issue |
+| Phrase | Means | Authorization? |
+|--------|-------|---------------|
+| "approved" or "go" | Explicit authorization | Yes |
+| "what would happen if X" | Rhetorical question | No |
+| "can you explain Y" | Information request | No |
+| "Z is broken" | Bug report | Creates issue, not authorization |
+| "the deadline is Friday" | Context/narrative | No |
+| "confirmed" or "looks good" | Confirmation of understanding | No — confirmation ≠ authorization |
+| "fix the spacing" or "add validation" | Feedback on approach | No — feedback ≠ authorization |
 
 ### Authorization Scope
 
-- **Issue-bound**: Authorization applies ONLY to the specific issue where it was given
-- **Session-bound**: New session = new authorization required (no carryover from previous sessions)
-- **Single-use**: Authorization for current phase/task only within that issue
-- **External input invalidates**: Bug reports require re-authorization
-- **Revision ≠ implementation**: Spec updates don't authorize code changes; spec revision revokes linked plan approvals
-- **Reference ≠ authorization cascade**: Issue mentions in body/comments do NOT cascade authorization; spec references plan via body text, not sub-issue link
-- **Confirmation ≠ authorization**: Confirming an observation does NOT authorize implementation
-- **Pipeline-scoped**: Authorization phrases specify scope horizon — everything below is gap-filled, everything above is unauthorized
+Authorization scope determines what the agent is authorized to do between approvals. The scope is set by the authorization message and constrains all subsequent work.
 
-**🚫 CRITICAL: Old authorizations do NOT apply:**
-
-- "Approved #332" in previous session → NOT VALID for new session
-- Previous session authorization → NOT VALID for new issue/spec
-- Authorization is ZERO-BASED — every task needs NEW authorization
+| Scope Source | How Determined |
+|-------------|----------------|
+| `authorization_scope` in developer message | Explicit scope keyword in authorization |
+| `approved-for-*` label on issue | Implicit scope from issue labels |
+| `halt_at` from previous scope | Continuation scope when resuming |
+| Default (no scope) | `for_analysis` — HALT after analysis_complete |
 
 ### Authorization Scope Model (CRITICAL)
 
-Authorization phrases carry implicit scope — the pipeline stage the developer expects work to reach. The scope horizon determines where the agent MUST stop, and what intermediate artifacts are gap-filled.
-
-**See `approval-gate` skill → "Authorization Scope Model" for the complete table of scope values, verb-prefix parsing, gap-fill actions, and PR strategy derivation.**
+Defines where the pipeline halts after a given authorization scope, what gap-fill actions to auto-perform, and the PR strategy.
 
 #### Key Scope Values
 
-| Scope | Meaning | HALT After | Gap-Fill | PR Strategy |
-|-------|---------|------------|----------|--------------|
-| `standard` | Default: all artifacts must pre-exist | review-prep | None | individual |
-| `for_spec` | Through spec creation | spec_created | None | none |
-| `for_plan` | Through plan creation | plan_created | auto-create spec | none |
-| `for_implementation` | Through implementation | implementation_complete | auto-create spec+plan, auto-approve | individual |
-| `for_code_review` | Through code review | code_review_ready | auto-create spec+plan, auto-approve | individual |
-| `for_pr` | Full pipeline through PR creation | pr_created | auto-create spec+plan, auto-approve, auto-PR | stacked |
-| `pr_only` | PR creation only | pr_created | None | stacked |
-| `review_only` | Code review only | code_review_ready | None | individual |
+| Scope | HALT After | Gap-Fill | PR Strategy |
+|-------|-----------|----------|-------------|
+| `for_review_prep` | review-prep | None | individual |
+| `for_spec` | spec_created | None | none |
+| `for_plan` | plan_created | auto-create spec | none |
+| `for_implementation` | verification_complete | auto-create spec+plan+auto-approve | individual |
+| `for_pr` | pr_created | auto-create spec+plan+auto-approve+auto-PR | stacked |
+| `for_pr_only` | pr_created | None | stacked |
+| `for_review_only` | code_review_ready | None | individual |
+| `for_analysis` | analysis_complete | None | none |
 
-#### Unified Dispatch Path (Work-of-1)
+#### Unified Pipeline Path (Work-of-1)
 
-Every authorization follows the same pipeline regardless of issue count. There is no single-task exemption — the dispatch chain is unified:
-
-```
-verify-authorization → gap-fill (if scope >= for_plan) → git-workflow pre-work
-→ pre-implementation-analysis → divide-and-conquer/assemble-work
-→ verification-before-completion → finishing-a-development-branch checklist
-→ git-workflow review-prep → [HALT at halt_at or continue to PR creation]
-```
+**Work-of-1 requires unified pipeline task() — NOT per-task authorization.** Authorization for a phase (e.g., "implement") means authorizing ALL sub-issues under that phase within a single sequential pipeline, each tasked via `task(subagent_type="general")`. The agent does NOT treat each sub-issue as requiring separate developer authorization.
 
 #### Scope-Dependent PR Strategy
 
-PR strategy is derived from scope, NOT from issue count. `standard` scope = individual PRs per issue; `for_pr`/`pr_only` scope = single stacked PR; `for_spec`/`for_plan` scope = no PR creation.
+- **stacked:** Feature PR targets dev. No PR for spec/plan-only scopes.
+- **individual:** Single PR per issue. Standard workflow.
+- **none:** No PR — only spec or plan creation.
 
 #### Gap-Fill Cascade
 
-When `authorization_scope >= for_plan`, missing intermediate artifacts are gap-filled automatically:
-- Spec missing → `brainstorming --task explore` creates it
-- Plan missing → `writing-plans --task create` creates it
-- Plan needs approval → auto-approved via pipeline scope
-- `for_pr` scope → PR creation is part of gap-fill
+When scope includes gap-fill, the agent auto-creates missing artifacts:
 
-**`for_pr` gap-fill is autonomous — NO developer input for structural decisions.** The agent MUST NOT halt to ask about plan creation, issue grouping, execution order, or any structural decision that the scope model resolves. These are agent intelligence concerns, not developer decisions. See `000-critical-rules.md` → "for_pr Gap-Fill Halt" for the complete critical violation.
+1. `for_plan` scope: auto-create spec before plan
+2. `for_implementation` scope: auto-create spec → auto-create plan → auto-approve
+3. `for_pr` scope: auto-create spec → auto-create plan → auto-approve → auto-create PR
 
 ### Multi-Task Plan Authorization (CRITICAL)
 
-**When a plan has sub-issues:** plan approval cascades authorization to ALL sub-issues under the plan.
+When a parent issue has sub-issues with different `halt_at` values, authorization for the parent cascades to ALL sub-issues. The agent completes ALL phases in sequence without halting between them, reporting ONCE after all phases complete.
 
-**See `approval-gate` skill → "Multi-Task Plan Authorization" for the complete authorization cascade workflow and enforcement matrix.**
-
-The plan-bridge hierarchy: Spec → (body linked reference) → Plan → Sub-issues. Sub-issues are children of the plan, NOT the spec.
-
-Key rules:
-
-- 🚫 DO NOT halt after each phase of multi-task plan
-- 🚫 DO NOT ask for re-authorization between phases
-- 🚫 DO NOT treat sub-issues as separate authorization units
-- ✅ Complete ALL phases, then report ONCE and HALT ONCE
-
-**Exception:** User explicitly names a phase (e.g., "approved: 1.2" or "Phase 2 only") → complete that phase ONLY, then HALT.
+**Exception:** Developer explicitly names a phase (e.g., "approved: Phase 2 only") — complete that phase ONLY, then HALT.
 
 ### Authorization Set Carry-Forward
 
-**When multiple issues are approved together:** authorization carries forward within the work set via the persisted work state file.
-
-**See `divide-and-conquer` skill `--task assemble-work` for the complete work orchestration workflow.**
-
-Key rules:
-
-- 🚫 DO NOT re-authorize between issues in a work set
-- 🚫 DO NOT HALT between issues in a work set
-- ✅ Work state file (`.opencode/tmp/work-<timestamp>.md`) carries authorization context forward
-- ✅ Each sub-agent receives `prior_results` from preceding issues
-- ✅ Authorization is issue-bound but carries forward within the same approval
-
-**This replaces the old "session-bound" limitation for authorization sets.** Within a work set, authorization persists via the work state file, not via ephemeral chat context.
+Authorization sets persist across scope transitions. If a developer approves `for_implementation` scope and later expands to `for_pr`, the existing authorization carries forward — no re-authorization needed for the expanded scope.
 
 ### Revision Revokes Approval (MANDATORY)
 
-**Any modification to a spec or plan document MUST immediately revoke approval.** Spec revision revokes approval of any linked plan (referenced via body text). Plan revision revokes implementation authorization for its sub-issues.
-
-**See `approval-gate` skill for revision status transition rules, mandatory actions, and exemption categories.**
-
-Key rule: Revision = `STATUS: X.Y (REVISED - NEEDS APPROVAL)` + `needs-approval` label + chat output + HALT.
-
-Exempt from approval revocation:
-
-- STATUS marker updates (`☐ → ☑`, `1.1 → 1.2`)
-- Bug report additions (separate from spec content changes)
-
-**Exception: Needs-Approval State** — When an issue is already in `needs-approval` state (no approval has been granted), spec revision does NOT constitute "revoking approval" — there is nothing to revoke. The `needs-approval` label is preserved and the revision is documented in Revision Notes. This is the common case: most spec updates happen before approval.
+**Spec revision revokes all linked plan approvals.** If a spec is revised after a plan was approved (via cascade or direct), the linked plan approval is automatically revoked. The plan must be updated to match the revised spec and re-approved before any implementation proceeds.
 
 ### Re-implementation Workflow
 
-When a spec is revised after a linked plan was already approved:
+When `approval-gate-006` fires (spec revision revokes plan approval):
 
-1. Spec revision revokes the linked plan's approval
-2. The old plan is closed with a comment referencing the spec revision
-3. A new plan is created under the same spec (using `writing-plans` skill)
-4. The new plan requires fresh approval before implementation proceeds
+1. Clear the revoked approval markers
+2. Update plan to match revised spec (call `writing-plans`)
+3. Present updated plan for developer approval
+4. On approval, re-enter the implementation pipeline
 
 ### Label Handling
 
-**The `needs-approval` label is informational when explicit authorization is present.**
-
-**See `approval-gate` skill for the complete label handling enforcement matrix.**
-
-Key rule: Explicit authorization (`approved`/`go`) OVERRIDES the `needs-approval` label.
+- **Apply label:** On authorization, apply `approved-for-<scope>` label to the issue
+- **Remove label:** On completion/closure, remove `approved-for-*` label
+- **No label = no approval:** Absence of `approved-for-*` label means the issue has NOT been authorized for that scope
+- **Multiple labels:** An issue may have multiple `approved-for-*` labels for different scopes (e.g., `approved-for-spec` and `approved-for-implementation`)
 
 ### Bug Report Response
 
-**See `approval-gate` skill for the complete bug report response protocol.**
+When a bug is reported via GitHub Issue or developer message:
 
-Key rule: Bug reports requiring code changes → add `needs-approval` label → HALT → wait for explicit authorization.
+1. The bug IS a spec — create a spec issue from the bug report
+2. The agent does NOT propose implementing any fix — creating the spec is sufficient
+3. Do NOT ask "do you want me to fix this" — the spec IS the response
+4. The bug spec goes through standard spec→plan→implementation pipeline
 
 ### Audit Auto-Fix Exemption
 
-**Spec-auditor auto-fixes applied to GitHub Issues are exempt from the "no implementation without authorization" rule** when ALL conditions below are met. This exemption exists because audit auto-fixes are analogous to linter auto-fixes (`ruff --fix`) — they correct mechanical issues without changing semantics.
-
-**Conditions for exemption (ALL must be true):**
-
-| Condition | Requirement |
-| -- | -- |
-| Deliberate invocation | Audit was user-triggered (`spec-auditor --issue N`) or pipeline-triggered |
-| Classification | Finding is classified as `auto-fix` by spec-auditor's three-tier model |
-| Target | Fix is applied to a GitHub Issue body only (not source code, not skill files, not guideline files, not configuration) |
-| Non-substantive | Fix is structural/mechanical: STATUS headers, numbering, markers, boilerplate additions, trace links, approach differences, concern separation, inline context replacement |
-| No scope change | Fix does not add/remove phases, requirements, success criteria, or alter scope |
-
-**Conditional fixes are NOT exempt.** They require separate authorization ("approved"/"go") before application, even when the audit itself was deliberately invoked. The safety check in the conditional tier assesses whether the fix could break dependencies — it does NOT substitute for authorization.
-
-**Flag-for-review findings are never applied.** They are reported in the executive summary for developer action.
-
-**When any condition is NOT met**, the action reverts to the standard approval-gate rule: no implementation without explicit authorization.
-
-**See `000-critical-rules.md` → "Implementation Without Spec" table for the auto-fix exemption row, and `spec-auditor` skill → "Auto-Fix Model" for the three-tier classification.**
+Non-substantive GitHub Issue body formatting fixes found during deliberately-invoked audits are exempt from authorization per `approval-gate-008`. Conditional fixes still require separate authorization per `approval-gate-009`.
 
 ### Bug Discovery Protocol (CRITICAL)
 
-**⚠️ Finding a bug during analysis or any other activity does NOT authorize fixing it.**
+**Discovering a bug during implementation does NOT authorize the agent to fix it.** The agent MUST:
 
-**See `000-critical-rules.md` → "Bug Discovery Does NOT Authorize Bug Fixing" for the complete authorization matrix, self-correction protocol, and enforcement details.**
-
-Key rules:
-
-- 🚫 NEVER edit source code after discovering a bug without an approved spec
-- 🚫 NEVER create a branch for a bug fix without authorization
-- ✅ ALWAYS create a bug report issue (permitted without authorization)
-- ✅ ALWAYS perform read-only analysis (permitted without authorization)
-- ✅ ALWAYS HALT and wait for explicit authorization before any code changes
-- ✅ If you catch yourself editing code without a spec, immediately `git checkout` and HALT
-
-**Bug discovery is a reporting action, NOT an implementation authorization.**
+1. Report the bug as a spec issue (see Bug Report Response above)
+2. HALT the current implementation
+3. Wait for developer decision — continue with current scope or switch to bug fix
 
 ### Action Authorization Classification
 
-**The single source for determining whether an action requires authorization.** When in doubt, check this table before checking other files.
+| Action | Authorization Required? |
+|--------|------------------------|
+| Read files, search code, browse issues | No |
+| Create spec/plan issues | No |
+| Create feature branch (`feature/*`, `spec/*`) | Yes (requires `for_implementation` or above) |
+| Create investigation branch (`investigate/*`) | No (must discard before HALT under `for_analysis`) |
+| Write code, modify files | Yes |
+| Create PR | Yes (except `for_pr`/`for_pr_only` scope) |
+| Merge PR | No — human-only |
+| Close issues | Yes (after PR merge confirmed) |
+| Delete branches | Yes |
+| Modify git config | Yes (except exempt keys) |
+| Run tests, verification | No |
 
-| Action | Requires Auth? | Authority Source |
-|--------|---------------|-----------------|
-| Writing Python/source code | Yes | Tier 0: Spec before code |
-| Editing skill files (SKILL.md, task/*.md) | Yes | `000-critical-rules.md` §Implementation Without Spec |
-| Editing guideline files | Yes | `000-critical-rules.md` §Implementation Without Spec |
-| Editing config (pyproject.toml, .pre-commit) | Yes | `000-critical-rules.md` §Implementation Without Spec |
-| Editing test files | Yes | `000-critical-rules.md` §Implementation Without Spec |
-| Creating new files of any type | Yes | `000-critical-rules.md` §Implementation Without Spec |
-| **Graph reconciliation** | On approval/re-approval, `reconcile-issue-graph` auto-closes verified-complete tickets and reopens verified-incomplete tickets in the reachable issue graph |
-| Creating new GitHub Issue (spec/plan) | No auth, but mandatory `issue-operations` skill | `issue-operations` skill |
-| Updating existing issue spec text (revision) | No auth — spec revision ≠ implementation | `010-approval-gate.md` §Revision ≠ Implementation |
-| Updating issue spec to match code reality (drift sync) | No auth — administrative sync | `130-authority-source.md` §Documentation Drift Protocol |
-| Moving issue labels | No auth | (explicit classification) |
-| Running lint/typecheck/format commands | No auth | (existing practice, now explicit) |
-| Posting progress comments to GitHub | No auth | `issue-operations` skill (`comment` task) |
-| Creating feature branch | No auth, but mandatory worktree | `git-workflow` skill pre-work |
-| Merging PR | Forbidden — human-only | Tier 0: Human-only merge |
-| Closing issues | Only after PR merge confirmed | `git-workflow` skill cleanup |
-| Creating/updating `.issues/` local spec or plan files | No auth — same as GitHub Issue spec revision | `010-approval-gate.md` §Revision ≠ Implementation |
-| Spec-auditor auto-fixes on GitHub Issue bodies | Exempt (per conditions) | `010-approval-gate.md` §Audit Auto-Fix Exemption |
+### `for_analysis` Scope — Allowlist and Blocklist
 
-**Key invariant**: This table does NOT weaken any existing authorization gate. It only makes existing practice explicit and resolves ambiguous boundary cases.
+The `for_analysis` scope is the default floor scope when no authorization is given. It is also the ONLY scope an agent may self-assign. Under `for_analysis`, the agent operates in read-only investigation mode.
 
-## Skill Enforcement (CRITICAL)
+#### ✅ Allowlist
 
-**⚠️ CRITICAL: Skills MUST enforce authorization — guidelines alone are insufficient.**
+- Read files, search code, browse issues
+- Write to `./tmp/` for investigation artifacts and throwaway scripts
+- Create/update GitHub Issues (specs, plans, bug reports)
+- Add labels and comments to GitHub Issues
+- Run tests and verification commands
+- Create `investigate/<topic>` scratch branches (MUST be discarded before HALT)
 
-**See `approval-gate` skill for the complete enforcement specification including:**
+#### 🚫 Blocklist
 
-- Which skills MUST check authorization
-- What each skill MUST check (pre-work, pr-creation)
-- Enforcement matrix (explicit auth, label + no auth, conditionals)
-- Conditional phrases that are NOT authorization
+- Writing to `src/`, `test/`, or any permanent project directory
+- Creating feature branches (`feature/*`, `spec/*`)
+- Creating pull requests
+- Committing to `dev` or `main`
+- Closing issues after PR merge
+- Deleting branches (except discarding `investigate/*` branches)
+- Fixing bugs (requires `for_implementation` or above)
+- Any code modification to production files
 
-## What This Guideline Does NOT Cover
+### Key Edge Cases
 
-**The skill handles procedural workflow:**
-
-- Spec + approval requirements details
-- Re-evaluation checklist
-- Pre-implementation verification steps
-- Scope-horizon authorization model and gap-fill cascade
-- Authorization scope rules
-- Workflow decision tree
-
-**See the skill for complete implementation details.**
-
-## Related Guidelines
-
-| Guideline | Purpose |
-| -- | -- |
-| `000-critical-rules.md` | Critical violations and auditor enforcement |
-| `020-go-prohibitions.md` | GO command restrictions |
-| `140-planning-spec-creation.md` | Spec creation and plan-bridge hierarchy |
-| `issue-operations` skill | Sub-issue creation and hierarchy tracking via `link-sub-issue` task (verification superseded by `approval-gate --task verify-authorization`) |
-| `git-workflow` skill `cleanup` task | Post-merge closure workflow |
-| `pr-creation-workflow` skill | PR creation timing |
-| `writing-plans` skill | Plan creation from approved spec |
-| `executing-plans` skill | Plan execution after plan approval |
+| Case | Rule |
+|------|------|
+| Spec revised → revokes linked plan approvals | approval-gate-006 |
+| Plan not faithful to spec → must revise and re-approve | `plan-fidelity` audit |
+| Confirmation ≠ authorization | critical-rules-027 |
+| Feedback ≠ authorization | critical-rules-027 |
+| Question/ complaint ≠ authorization | critical-rules-question-auth-001 |
+| for_pr scope → no halt for structural decisions | approval-gate-014, critical-rules-037 |
+| Multi-task plan → authorization cascades to ALL sub-issues | critical-rules-018 |
+| No `approved-for-*` label → awaiting approval | approval-gate-003 |
+| Audit auto-fix (non-substantive GitHub Issue body only) → exempt | approval-gate-008 |
+| Conditional audit fix → requires separate authorization | approval-gate-009 |
 
 ```yaml+symbolic
-schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+schema_version: "3.0"
+last_updated: "2026-05-17T00:00:00Z"
 rules:
   - id: approval-gate-001
+    tier: 2
     title: "No implementation without authorization"
     conditions:
       all:
         - "has_approved_plan == false"
     actions:
       - HALT
-    conflicts_with: []
-    requires: []
-    triggers: []
     source: "010-approval-gate.md §Tier0"
 
   - id: approval-gate-001a
+    tier: 2
     title: "Spec approval authorizes plan creation, not implementation"
     conditions:
       all:
@@ -378,13 +268,13 @@ rules:
         - "has_approved_plan == false"
         - "has_existing_plan == false"
     actions:
-      - INVOKE(writing-plans)
-    conflicts_with: []
+      - HALT
+      - CALL(writing-plans)
     requires: [approval-gate-001]
-    triggers: [writing-plans]
     source: "010-approval-gate.md §Tier0"
 
   - id: approval-gate-001a-cascade
+    tier: 2
     title: "Spec approval cascades to existing faithful plan"
     conditions:
       all:
@@ -392,39 +282,37 @@ rules:
         - "has_existing_plan == true"
         - "plan_is_faithful == true"
     actions:
+      - HALT
       - AUTO_APPROVE(plan)
       - PROCEED_TO(implementation)
-    conflicts_with: [approval-gate-001a]
     requires: [approval-gate-001]
-    triggers: [executing-plans]
     source: "010-approval-gate.md §Spec-to-Plan Approval Cascade"
 
   - id: approval-gate-001b
+    tier: 2
     title: "Plan approval authorizes implementation"
     conditions:
       all:
         - "has_approved_plan == true"
     actions:
-      - INVOKE(executing-plans)
-    conflicts_with: []
-    requires: [approval-gate-001a]
-    triggers: [executing-plans]
+      - HALT
+      - CALL(executing-plans)
     source: "010-approval-gate.md §Tier0"
 
   - id: approval-gate-002
-    title: "Explicit authorization overrides needs-approval label"
+    tier: 2
+    title: "Explicit authorization applies approved-for-* label"
     conditions:
       any:
         - "user_says == 'approved'"
         - "user_says == 'go'"
     actions:
+      - HALT
       - PROCEED
-    conflicts_with: []
-    requires: []
-    triggers: [approval-gate, divide-and-conquer]
     source: "010-approval-gate.md §Explicit Authorization Priority"
 
   - id: approval-gate-003
+    tier: 2
     title: "No authorization without user input"
     conditions:
       all:
@@ -432,63 +320,43 @@ rules:
         - "needs_approval_label == true"
     actions:
       - HALT
-    conflicts_with: [approval-gate-002]
-    requires: []
-    triggers: []
     source: "010-approval-gate.md §Explicit Authorization Priority"
 
   - id: approval-gate-004
+    tier: 3
     title: "Branch first before any file modification"
     conditions:
       all:
         - "has_feature_branch == false"
     actions:
-      - HALT
-    conflicts_with: []
-    requires: [approval-gate-001]
-    triggers: [git-workflow]
+      - FLAG
     source: "010-approval-gate.md §Mandatory Requirements"
 
   - id: approval-gate-005
-    title: "Agents must never merge PRs"
+    tier: 1
+    title: "CRITICAL VIOLATION — Agents must never merge PRs"
     conditions:
       all:
         - "is_agent == true"
     actions:
       - HALT
-    conflicts_with: []
-    requires: []
-    triggers: []
     source: "010-approval-gate.md §Mandatory Requirements"
 
   - id: approval-gate-006
+    tier: 2
     title: "Spec revision revokes linked plan approvals"
     conditions:
       all:
         - "spec_revised == true"
         - "has_linked_plan == true"
     actions:
+      - HALT
       - REVOKE(plan_approval)
-      - INVOKE(re-implementation-workflow)
-    conflicts_with: []
-    requires: []
-    triggers: [writing-plans]
+      - RUN(re-implementation-workflow)
     source: "010-approval-gate.md §Revision Revokes Approval"
 
-  - id: approval-gate-007
-    title: "Sub-issues are under plan, not spec"
-    conditions:
-      all:
-        - "spec_has_sub_issues == true"
-        - "plan_has_sub_issues == false"
-    actions:
-      - RESTRUCTURE(move sub-issues to plan)
-    conflicts_with: []
-    requires: []
-    triggers: [issue-operations]
-    source: "010-approval-gate.md §Multi-Task Plan Authorization"
-
   - id: approval-gate-008
+    tier: 2
     title: "Audit auto-fix exempt from authorization when conditions met"
     conditions:
       all:
@@ -497,13 +365,12 @@ rules:
         - "fix_target == 'github-issue-body'"
         - "fix_non_substantive == true"
     actions:
+      - HALT
       - PROCEED
-    conflicts_with: [approval-gate-001]
-    requires: []
-    triggers: [spec-auditor]
     source: "010-approval-gate.md §Audit Auto-Fix Exemption"
 
   - id: approval-gate-009
+    tier: 2
     title: "Conditional audit fixes require authorization"
     conditions:
       all:
@@ -511,136 +378,51 @@ rules:
         - "finding_classification == 'conditional'"
     actions:
       - HALT
-    conflicts_with: [approval-gate-008]
-    requires: []
-    triggers: [spec-auditor]
     source: "010-approval-gate.md §Audit Auto-Fix Exemption"
 
   - id: approval-gate-010
+    tier: 2
     title: "Pipeline-scoped authorization extends to scope horizon"
     conditions:
       all:
-        - "authorization_scope != 'standard'"
+        - "authorization_scope != 'for_analysis'"
     actions:
+      - HALT
       - GAP_FILL(scope)
       - PROCEED_TO(halt_at)
       - HALT_AT(halt_at)
-    conflicts_with: []
-    requires: [approval-gate-002]
-    triggers: [approval-gate, divide-and-conquer]
     source: "010-approval-gate.md §Authorization Scope Model"
 
   - id: approval-gate-011
+    tier: 2
     title: "Hard HALT at scope boundary without re-authorization"
     conditions:
       all:
         - "pipeline_stage > halt_at"
     actions:
       - HALT
-    conflicts_with: []
-    requires: [approval-gate-010]
-    triggers: [approval-gate, divide-and-conquer, git-workflow]
     source: "010-approval-gate.md §Authorization Scope Model"
 
   - id: approval-gate-012
-    title: "Unified dispatch path — no single-task exemption"
+    tier: 2
+    title: "Unified pipeline path — no single-task exemption"
     conditions:
       all:
         - "has_approved_plan == true"
     actions:
-      - INVOKE(divide-and-conquer)
-    conflicts_with: []
-    requires: [approval-gate-001b]
-    triggers: [divide-and-conquer]
+      - HALT
+      - CALL(divide-and-conquer)
     source: "010-approval-gate.md §Unified Dispatch Path"
 
-  - id: approval-gate-013
-    title: "PR strategy is scope-dependent, not count-dependent"
-    conditions:
-      any:
-        - "authorization_scope == 'for_pr'"
-        - "authorization_scope == 'pr_only'"
-    actions:
-      - SET(pr_strategy=stacked)
-    conflicts_with: []
-    requires: [approval-gate-010]
-    triggers: [git-workflow, pr-creation-workflow]
-    source: "010-approval-gate.md §Scope-Dependent PR Strategy"
-
   - id: approval-gate-014
+    tier: 2
     title: "for_pr scope auto gap-fill — no halt for structural decisions"
     conditions:
       all:
         - "authorization_scope == 'for_pr'"
         - "agent_halted_for_structural_decision == true"
     actions:
+      - HALT
       - PROCEED_WITH_GAP_FILL
-    conflicts_with: []
-    requires: [approval-gate-010]
-    triggers: [approval-gate, divide-and-conquer]
     source: "010-approval-gate.md §Authorization Scope Model"
-
-state_machines:
-  - id: approval-lifecycle
-    states: [draft, spec_approved, plan_created, plan_approved, implementing, code_review_ready, pr_created, merged, closed]
-    start_state: draft
-    transitions:
-      - from: draft
-        to: spec_approved
-        guard: "user_authorizes_spec == true"
-        action: INVOKE(writing-plans)
-      - from: spec_approved
-        to: plan_created
-        guard: "plan_exists == true"
-        action: PROCEED
-      - from: draft
-        to: plan_approved
-        guard: "user_authorizes_spec == true AND existing_plan_is_faithful == true"
-        action: AUTO_APPROVE_PLAN_THEN_IMPLEMENT
-      - from: plan_created
-        to: plan_approved
-        guard: "user_authorizes_plan == true"
-        action: INVOKE(executing-plans)
-      - from: plan_approved
-        to: implementing
-        guard: "plan_approved == true"
-        action: INVOKE(divide-and-conquer)
-      - from: implementing
-        to: code_review_ready
-        guard: "implementation_complete == true"
-        action: INVOKE(verification-before-completion)
-      - from: code_review_ready
-        to: pr_created
-        guard: "halt_at >= pr_created OR pr_strategy != none"
-        action: INVOKE(git-workflow_pr-creation)
-      - from: pr_created
-        to: merged
-        guard: "pr_approved == true"
-        action: PROCEED
-      - from: merged
-        to: closed
-        guard: "all_plan_sub_issues_closed == true"
-        action: PROCEED
-    scope_transitions:
-      - scope: for_spec
-        halt_at: spec_created
-        action: HALT_AFTER_SPEC_CREATED
-      - scope: for_plan
-        halt_at: plan_created
-        action: HALT_AFTER_PLAN_CREATED
-      - scope: for_implementation
-        halt_at: implementation_complete
-        action: HALT_AFTER_IMPLEMENTATION
-      - scope: for_code_review
-        halt_at: code_review_ready
-        action: HALT_AFTER_CODE_REVIEW
-      - scope: for_pr
-        halt_at: pr_created
-        action: CONTINUE_THROUGH_PR
-      - scope: pr_only
-        halt_at: pr_created
-        action: CONTINUE_THROUGH_PR
-      - scope: standard
-        halt_at: review_prep
-        action: HALT_AFTER_REVIEW_PREP
 ```

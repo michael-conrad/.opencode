@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Determine execution strategy, capture the dev base hash, build dispatch context for parallel issues, and write the work state file that persists the execution plan for sub-agent dispatch.
+Determine execution strategy, capture the dev base hash, build task context for parallel issues, and write the work state file that persists the execution plan for sub-agent task().
 
 ## Entry Criteria
 
@@ -14,8 +14,8 @@ Determine execution strategy, capture the dev base hash, build dispatch context 
 
 - Execution strategy determined (sequential, parallel, hybrid, exclude, or reduce-scope)
 - Dev base hash captured via `git rev-parse origin/dev`
-- Dispatch context built for each issue (including worktree paths, partially-implemented context, revised status)
-- Work state file written to `.opencode/tmp/work-<timestamp>.md`
+- Task context built for each issue (including worktree paths, partially-implemented context, revised status)
+- Work state file written to `./tmp/artifacts/work-<issue>.md`
 - File contains: authorization context, scope fields, pre-analysis results, gate evidence audit table, execution order, merge-time ordering, completed tracking, and results placeholder
 
 ## Procedure
@@ -25,24 +25,24 @@ Determine execution strategy, capture the dev base hash, build dispatch context 
 | Strategy | When | How |
 |----------|------|-----|
 | **Sequential** | Must-precede chain exists | Execute in dependency order |
-| **Parallel** | Independent issues | Dispatch via `divide-and-conquer` |
+| **Parallel** | Independent issues | task() via `divide-and-conquer` |
 | **Hybrid** | Mix of both | Serial for must-precede, parallel for independent groups |
 | **Exclude** | Meta/non-code, already-implemented, superseded, moot | Report exclusion with reason |
 | **Reduce scope** | Partially-implemented | Include remaining phases only |
 
-### Step 7: Capture Dev Base Hash (Before Dispatch)
+### Step 7: Capture Dev Base Hash (Before Task())
 
-Before dispatching any parallel worktrees, the orchestrating agent MUST capture the current dev branch hash:
+Before task()ing any parallel worktrees, the orchestrating agent MUST capture the current dev branch hash:
 
 ```bash
 git rev-parse origin/dev
 ```
 
-This `dev_base_hash` MUST be included in the dispatch context for each parallel issue. See Step 8 for the complete dispatch context schema.
+This `dev_base_hash` MUST be included in the task context for each parallel issue. See Step 8 for the complete task context schema.
 
-### Step 8: Dispatch Context for Parallel Issues
+### Step 8: Task Context for Parallel Issues
 
-For each issue in a parallel-safe group, the dispatch context MUST include worktree information:
+For each issue in a parallel-safe group, the task context MUST include worktree information:
 
 ```yaml
 issue: <number>
@@ -83,13 +83,13 @@ The `dev_base_hash` ensures all parallel worktrees start from the same base comm
 
 ### Step 9: Write Work State File
 
-After the execution plan is presented, write a work state file that persists the plan for sub-agent dispatch:
+After the execution plan is presented, write a work state file that persists the plan for sub-agent task():
 
 ```bash
-mkdir -p .opencode/tmp
+mkdir -p ./tmp/artifacts
 ```
 
-**File:** `.opencode/tmp/work-<timestamp>.md`
+**File:** `./tmp/artifacts/work-<issue>.md`
 
 **Contents:**
 

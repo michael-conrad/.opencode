@@ -21,6 +21,22 @@ Backfill CHANGELOG.md with entries from historical commits that were missing cha
 
 ## Procedure
 
+### Step 0: Create CHANGELOG.md if Missing
+
+If `CHANGELOG.md` does not exist, create it with a minimal Keep a Changelog header:
+
+```markdown
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [Unreleased]
+```
+
+Do not stage or commit the file at this step — the subsequent steps will populate it.
+
 ### Step 1: Identify Scope
 
 ```bash
@@ -66,7 +82,7 @@ git tag --sort=-creatordate
 ## Example
 
 ```
-/skill changelog-generator --backfill
+/skill changelog-generator --task backfill
 ```
 
 Creates entries for all historical PRs not yet in changelog.

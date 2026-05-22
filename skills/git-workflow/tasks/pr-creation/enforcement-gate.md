@@ -16,56 +16,73 @@ Enforce mandatory pre-conditions before PR creation. Verify explicit PR instruct
 
 ## Procedure
 
-### Step 0: Submodule Hash Liveness Check (MANDATORY GATE — Sub-Agent Dispatch)
+### Step 0: Submodule PR Dependency Check (MANDATORY GATE)
 
 **If `.gitmodules` does NOT exist:** Skip entirely.
 
-**If `.gitmodules` exists:** The agent MUST dispatch a `submodule-liveness-check` sub-agent to verify that all referenced submodule hashes are reachable. The main agent MUST NOT perform git operations on submodules inline — this is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Inline Work.
+**If `.gitmodules` EXISTS:**
 
-#### Sub-Agent Boundary
+task() a `submodule-liveness-check` sub-agent. The sub-agent performs a report-only liveness verification — it compares committed SHAs against remote `dev` HEAD SHAs and returns PASS/FAIL per submodule. **NO auto-remediation. NO SHA bumps. NO commits.**
 
-| Field | Value |
-|-------|-------|
-| **must_receive** | Submodule paths from `git submodule status`, `github.owner`, `github.repo`, parent repo short name, issue number |
-| **must_not_receive** | Implementation context, agent memory, full task file contents, auto-remediation instructions |
+#### Task Context
 
-#### Dispatch Procedure
+```yaml
+must_receive:
+  - github.owner
+  - github.repo
+  - github.platform
+  - branch (current working branch)
+must_not_receive:
+  - Any pre-determined SHA values or expected outcomes
+  - Any orchestrator reasoning about which submodules should pass/fail
+  - Any tool recipes, inline commands, or expected line numbers
+```
 
-Invoke: `/submodule-verify` opencode command (or dispatch sub-agent with scoped instruction).
-
-The sub-agent performs a **liveness verification only — NOT auto-remediation:**
-
-1. For each submodule entry:
-   a. Get committed SHA: `git ls-tree HEAD <path> | awk '{print $3}'`
-   b. Check if SHA is reachable via any tag or branch: `git tag --contains <sha>` or `git branch --contains <sha>`
-   c. If reachable via a pre-work tag (`<parent-repo>/<issue-number>`) or feature tag (`<parent-repo>/<issue-number>-<sub>`): ✅ PASS
-   d. If reachable via dev branch or any other ref: ✅ PASS
-   e. If NOT reachable by any ref: ❌ FAIL — hash is unreachable
-
-2. If ALL submodule hashes are reachable: Proceed to Step 1.
-
-3. If ANY submodule hash is NOT reachable: **BLOCK PR creation** with specific failure report listing which submodule and which hash failed.
-
-**There is NO auto-remediation path.** The liveness check is verification only. If a hash is unreachable, the developer must resolve it manually (e.g., by pushing the missing tag or updating the submodule reference).
-
-**There is NO `--force` override for submodule liveness gates.**
-
-#### Sub-Agent Result Contract
+#### Result Contract Schema
 
 ```yaml
 status: DONE | BLOCKED
-task: submodule-liveness-check
-submodule_results:
-  - path: <submodule-path>
+submodule_checks:
+  - path: <submodule_path>
     committed_sha: <sha>
-    reachable: bool
-    reachable_via: <tag-name or ref-name or "unreachable">
-evidence_artifacts:
-  - tool: git ls-tree HEAD <path>
-    output: <sha>
-  - tool: git tag --contains <sha>
-    output: <tag list>
+    remote_dev_sha: <sha>
+    result: PASS | FAIL
+    detail: <optional explanation>
+summary: <text>
 ```
+
+**PASS →** Proceed to Step 0.5.
+**FAIL →** BLOCK PR creation. Report which submodules failed, with both SHAs. Do NOT create the PR. Do NOT auto-remediate. The developer must resolve submodule SHA mismatches manually.
+
+**There is NO `--force` override for submodule dependency gates.**
+
+### Step 0.5: Submodule-Bump-Only PR Gate (MANDATORY — parent repo only)
+
+**If `identity_source` is NOT `root` or `.gitmodules` does NOT exist:** Skip entirely.
+
+**If parent repo context (`identity_source == "root"` AND `.gitmodules` exists):**
+
+Check if the PR diff is submodule-pointer-only:
+
+```bash
+CHANGED=$(git diff --stat dev...HEAD | tail -1 | grep -oP '\d+ file' | grep -oP '\d+')
+SUBMODULE_ONLY=$(git diff --stat dev...HEAD | grep -c '\.opencode')
+if [ "$CHANGED" = "1" ] && [ "$SUBMODULE_ONLY" = "1" ]; then
+  echo "BLOCKED: Submodule-bump-only PRs are prohibited."
+  echo ""
+  echo "Creating a parent repo PR that only updates the submodule SHA is"
+  echo "a guideline violation. The submodule SHA was already updated by"
+  echo "the submodule PR merge. Close this branch with a comment:"
+  echo ""
+  echo "  'Submodule SHA already updated by submodule PR merge. No parent PR needed.'"
+  echo ""
+  echo "Then delete the branch and close any associated issue with"
+  echo "state_reason=completed."
+```
+- **If only `.opencode` changed → BLOCK.** Do NOT create the parent PR. Close branch, comment, and halt.
+- **If >1 file or non-submodule files changed → PASS.** Proceed to Step 1.
+
+**AUTHORITY:** `adversarial-audit --task spec-audit` auto-fix model, `000-critical-rules.md` §Implementation Without Spec (audit auto-fix exemption). Spec #414 Part 2 — prohibit submodule-bump-only parent PRs.
 
 ### Step 1: Verify PR Instruction (MANDATORY)
 
@@ -95,7 +112,7 @@ evidence_artifacts:
 git log origin/dev..HEAD --oneline
 
 # Detect branch type via work state file
-ls .opencode/tmp/work-*.md 2>/dev/null
+ls tmp/work-*.md 2>/dev/null
 ```
 
 **Branch type detection and enforcement:**

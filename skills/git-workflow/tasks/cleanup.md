@@ -20,44 +20,53 @@ Delete merged branches after PR merge, clean stale references, and verify reposi
 - Local merged branch deleted
 - Remote merged branch deleted (if applicable)
 - Stale remote references pruned
-- Dev branch synced with remote (verified via hash comparison)
-- Submodule on `dev` branch (not detached HEAD)
 - Working tree clean
-
-## Scope Boundary (CRITICAL)
-
-**⚠️ CRITICAL: The cleanup task is scoped to the merged PR and its related branches ONLY.**
-
-Discovering additional stale branches, stashes, or worktrees does NOT authorize cleanup beyond the merged PR's scope. The agent MUST NOT:
-
-- Delete branches unrelated to the merged PR
-- Perform submodule maintenance beyond dev-restore (checkout dev, pull)
-- Create bug reports or fix issues discovered during cleanup
-- Implement code changes as a side effect of cleanup
-
-If the agent observes additional cleanup opportunities, it reports them in the completion message but does NOT act on them without explicit developer authorization ("approved" or "go").
-
-**Examples of scope boundary:**
-
-| Trigger | Authorized Scope | NOT Authorized |
-|---------|-----------------|----------------|
-| "pr merged for #184" | Delete branch for PR #184, sync dev, restore submodule to dev | Delete 14 unrelated stale branches |
-| "check prs" → merged PR found | Cleanup for that merged PR only | General repo hygiene on unrelated branches |
-| Cleanup finds stuck rebase on merged branch | Abort stale rebase, continue cleanup | Fix unrelated stashes found during cleanup |
-
-## Rebase/Merge State Detection
-
-The `branch-cleanup` subtask checks for stuck rebase, merge, cherry-pick, and revert states before proceeding with branch operations. For merged branches, stale rebase states are aborted. For unmerged branches, the agent HALTs and reports the stuck state.
-
-See `cleanup/branch-cleanup.md` Step 0 for the complete detection and resolution procedure.
-
-## Submodule Dev-Restore
-
-The `branch-cleanup` subtask restores the submodule to the `dev` branch after all branch deletions are complete. This prevents the submodule from being left on a detached HEAD, which causes conflicts and lost work. Submodule git operations are dispatched to a sub-agent — the main agent never performs git operations on submodules inline.
-
-See `cleanup/branch-cleanup.md` Step 5.5 for the complete submodule dev-restore procedure (sub-agent dispatch).
+- Submodule dev restored via `submodule-dev-restore` sub-agent task()
 
 ## Procedure
+
+### Step 0: Detect Submodules and Build Routing Context
+
+Before any cleanup operations, detect and build routing context for submodules.
+
+1. **Check for `.gitmodules` at project root:**
+
+   - Run `test -f .gitmodules && echo "EXISTS" || echo "NOT_FOUND"`
+   - If NOT_FOUND: skip submodule detection, proceed normally (no submodule routing context)
+
+2. **Parse `.gitmodules` if it exists:**
+
+   - Extract all `[submodule "..."]` entries using `git config --file .gitmodules --list`
+   - For each submodule entry, extract:
+     - `submodule.<path>.path` — the submodule path
+     - `submodule.<path>.url` — the remote URL
+
+3. **Resolve owner/repo from each remote URL:**
+
+   - SSH URLs (`git@github.com:owner/repo.git`): extract owner/repo
+   - HTTPS URLs (`https://github.com/owner/repo.git`): extract owner/repo
+   - If URL format is unexpected: mark as UNKNOWN, proceed with remaining submodules
+
+4. **Build routing context dictionary:**
+
+   ```yaml
+   submodule_paths:
+     <path1>:
+       owner: <resolved_owner>
+       repo: <resolved_repo>
+       platform: github
+     <path2>:
+       owner: <resolved_owner>
+       repo: <resolved_repo>
+       platform: github
+   ```
+
+5. **Pass routing context to sub-tasks:**
+
+   - Include `submodule_paths` in task context for `issue-closure` and `branch-cleanup` sub-tasks
+   - Each sub-task uses the routing context to route API calls to the correct owner/repo for files under a submodule path
+
+6. **If `.gitmodules` exists but is empty** (no submodule entries): proceed normally, no routing context needed.
 
 ### Step 1: Verify PR Merge and Run Gates
 
@@ -75,7 +84,75 @@ Collects all referenced issues from PR body, classifies each (plan/spec/other), 
 
 **Route to:** `cleanup/branch-cleanup`
 
-Switches to dev, syncs with remote, removes feature worktree, deletes merged branches, verifies clean state.
+Switches to dev, syncs with remote, removes feature worktree, deletes merged branches, tasks `submodule-dev-restore` sub-agent via task() for each submodule, verifies clean state.
+
+### Step 4: Post-Cleanup Dev-Tip Verification
+
+Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all submodule iterations are complete. This is the final verification gate — nothing runs after it.
+
+1. **Determine the parent repo path:**
+
+   - Run `git rev-parse --show-superproject-working-tree 2>/dev/null` to detect parent repo
+   - If output is non-empty: this is the parent repo path (we are inside a submodule)
+   - If output is empty: we are in the parent repo (standalone or no superproject)
+
+2. **Build repo list for verification:**
+
+   ```
+   repos_to_check:
+     - repo_name: <parent or current repo name>
+       repo_path: <parent_path | current_toplevel>
+     - repo_name: <submodule_1_name>
+       repo_path: <parent_path>/<submodule_1_path>
+     - repo_name: <submodule_2_name>
+       repo_path: <parent_path>/<submodule_2_path>
+     ...
+   ```
+
+   - Include the parent (or current) repo at index 0
+   - Append each submodule path from `submodule_paths` (resolved relative to parent repo)
+
+3. **For each repo in the list:**
+
+   a. Get local dev HEAD:
+      ```bash
+      git -C "$REPO_PATH" rev-parse dev
+      ```
+
+   b. Get remote dev HEAD:
+      ```bash
+      git -C "$REPO_PATH" rev-parse origin/dev
+      ```
+
+   c. Collect evidence artifact:
+      ```bash
+      git -C "$REPO_PATH" log --oneline -1 dev
+      ```
+
+   d. Compare local vs remote:
+      - If hashes match → repo is at dev tip
+      - If hashes differ → repo has diverged
+
+4. **Report results as a comparison table:**
+
+   ```
+   | Repo | Local dev HEAD | Remote dev HEAD | Status |
+   |------|---------------|-----------------|--------|
+   | opencode-config | abc1234 | abc1234 | ✅ At tip |
+   | .opencode | def5678 | def5678 | ✅ At tip |
+   ```
+
+5. **Outcome:**
+
+   - **All repos at dev tip:** Report "All repos at dev tip — ready for next dev cycle"
+   - **Any repo diverged:** Report which repo, the local vs remote hashes, and flag for human review:
+
+     ```
+     ⚠️ Repo <name> diverged from origin/dev:
+       Local dev:  <hash>
+       Origin/dev: <hash>
+       Action required: Human review — determine whether to push, pull --rebase, or investigate.
+     ```
 
 ## Branch Cleanup After Merge — MANDATORY
 
@@ -147,6 +224,7 @@ GitHub autoclose is inert for this repo (PRs merge to `dev`, not `main`). The cl
 **Parent issues MUST NOT be closed while ANY child issues remain open.**
 
 Example:
+
 ```
 SPEC #100 (parent)
 ├── Task #101: Phase 1 → PR merges → Close #101 ONLY
@@ -157,6 +235,7 @@ SPEC #100 (parent)
 **Parent issues MUST be closed after ALL child issues are verified complete.** Leaving a parent plan issue open after all sub-issues are closed and verified is a process gap that must be treated as a bug requiring a fix.
 
 Example:
+
 ```
 Plan #50 (parent)
 ├── Task #51: Phase 1 → closed, verified complete → OK
@@ -169,16 +248,19 @@ Plan #50 (parent)
 After closing sub-issues (Step 2), check whether the parent plan issue should be closed:
 
 1. **Identify the parent plan issue:**
-   - Use `github_issue_read(method="get_sub_issues")` on the plan to list all sub-issues
+
+   - Use `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues")` on the plan to list all sub-issues <!-- Routes through issue-operations per SPEC #683 -->
    - If the current closure context came from a PR body referencing a plan, use that plan issue number
 
 2. **Verify ALL sub-issues are closed with legitimate completion evidence:**
+
    - Each sub-issue must have `state == "closed"` and `state_reason == "completed"` (not `"not_planned"` or `"duplicate"` without merged PR evidence)
    - Closed sub-issues with `state_reason == "completed"` must have merged PR evidence (verified via `github_pull_request_read` or `github_search_pull_requests`)
    - If any sub-issue has `state_reason == "not_planned"` without explicit developer justification → flag for review, do NOT auto-close parent
 
 3. **If ALL sub-issues are legitimately closed:**
-   - Close the parent plan issue with `github_issue_write(method="update", state="closed", state_reason="completed")`
+
+   - Close the parent plan issue with `issue-operations -> update-issue (github_issue_write(method="update", state="closed", state_reason="completed")` <!-- Routes through issue-operations per SPEC #683 -->
    - Post a verification comment documenting per-sub-issue evidence:
      ```
      All sub-issues verified complete. Closing parent plan.
@@ -192,8 +274,9 @@ After closing sub-issues (Step 2), check whether the parent plan issue should be
      ```
 
 4. **If ANY sub-issue is NOT closed or NOT legitimately completed:**
+
    - Do NOT close the parent plan
-   - Report in cleanup output: "Parent plan #<plan_number> remains open — sub-issue #<open_num> is not yet complete"
+   - Report in cleanup output: "Parent plan #\<plan_number> remains open — sub-issue #\<open_num> is not yet complete"
 
 ## Closing Summary (Conditional)
 
@@ -215,7 +298,8 @@ Each verification point requires a tool call for evidence. Assertions without to
 | -- | -- | -- | -- |
 | PR merge status | `github_pull_request_read(method=get, ...)` | `merged_at` is not None | CONFLICTING → HALT |
 | Local dev synced | `git log --oneline -1 dev` equals remote | Hashes match exactly | VERIFICATION-GAP → re-pull |
-| Sub-issues closed | `github_issue_read(method=get_sub_issues, ...)` | All state=closed | VERIFICATION-GAP → close or investigate |
+| Sub-issues closed | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues, ...)` | All state=closed | VERIFICATION-GAP → close or investigate | <!-- Routes through issue-operations per SPEC #683 -->
+| All repos at dev tip | `git -C $REPO_PATH rev-parse dev` vs `rev-parse origin/dev` for parent + each submodule | Every repo's local dev HEAD matches origin/dev | VERIFICATION-GAP → report which repo diverged, flag for human review |
 
 ## Sub-Task Files
 
@@ -223,7 +307,7 @@ Each verification point requires a tool call for evidence. Assertions without to
 | -- | -- | -- |
 | `cleanup/verify-merge` | PR merge verification, SC gate, phase gate | ≈750 |
 | `cleanup/issue-closure` | Hierarchical issue closure, graph reconciliation | ≈800 |
-| `cleanup/branch-cleanup` | Dev sync, worktree removal, branch deletion, submodule dev-restore (sub-agent dispatch) | ≈900 |
+| `cleanup/branch-cleanup` | Dev sync, worktree removal, branch deletion | ≈700 |
 
 ## Context Required
 

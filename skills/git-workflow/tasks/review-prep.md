@@ -29,11 +29,25 @@ Sequence: Implementation complete → commit → push → **review-prep MUST be 
 
 ## Procedure
 
+### Step 0: Auto-Commit Dirty .issues/<N>/ Files (MANDATORY)
+
+Before push, auto-commit any dirty `.issues/<issue_number>/` files to ensure all tracking artifacts ride with the feature PR:
+
+```bash
+# Check for uncommitted .issues/ changes
+if git status --porcelain -- .issues/ 2>/dev/null | grep -q '^'; then
+    git add .issues/
+    git commit -m "docs(issues): <issue_number> - tracking artifacts checkpoint before review-prep"
+fi
+```
+
+**No separate PR required.** `.issues/<N>/` commits ride along with the feature branch PR. No additional authorization needed — covered by feature branch authorization per `000-critical-rules.md` §Auto-Commit Convention.
+
 ### Steps 0-2: Push, Cleanup, Rebase, Verify
 
 **Route to:** `review-prep/push-and-cleanup`
 
-Handles submodule feature-branch push with tip tagging (via sub-agent dispatch), temp file cleanup, rebase on current dev, worktree handoff, and branch push verification.
+Tasks `submodule-feature-push` sub-agent for submodule changes (if `.gitmodules` exists), then handles temp file cleanup, rebase on current dev, worktree handoff, and branch push verification.
 
 ### Step 2.5: Squash Verification (MANDATORY GATE)
 
@@ -44,7 +58,7 @@ Handles submodule feature-branch push with tip tagging (via sub-agent dispatch),
 git log origin/dev..HEAD --oneline
 
 # Detect branch type
-ls .opencode/tmp/work-*.md 2>/dev/null
+ls tmp/work-*.md 2>/dev/null
 ```
 
 | Branch Type | Expected Commits | On Mismatch |
@@ -88,14 +102,15 @@ Guideline and documentation changes are NOT exempt from PR workflow.
 
 ## Sub-Task Files
 
-| Sub-Task | Purpose | Words |
-| -- | -- | -- |
-| `review-prep/push-and-cleanup` | Submodule feature-branch push (sub-agent), temp cleanup, rebase, branch push, worktree handoff | ≈700 |
-| `review-prep/report-url` | URL generation, chat format, HALT protocol | ≈600 |
+| Sub-Task | Purpose | Handler | Words |
+| -- | -- | -- | -- |
+| `review-prep/push-and-cleanup` | Submodule push via sub-agent, temp cleanup, rebase, branch push, worktree handoff | `submodule-feature-push` sub-agent (Step 0, conditional) | ≈700 |
+| `review-prep/report-url` | URL generation, chat format, HALT protocol | — | ≈600 |
 
 ## Enforcement Checklist
 
 - ✅ Implementation work is complete
+- ✅ `.issues/<N>/` dirty files auto-committed (Step 0)
 - ✅ All file changes committed
 - ✅ Branch pushed to remote
 - ✅ Temp files cleaned

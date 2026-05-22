@@ -2,7 +2,11 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+REPO_ROOT="$SCRIPT_DIR"
+while [ "$(basename "$REPO_ROOT")" != ".opencode" ]; do
+    REPO_ROOT="$(dirname "$REPO_ROOT")"
+done
+REPO_ROOT="$(dirname "$REPO_ROOT")"
 NODE_DIR="${REPO_ROOT}/.opencode/.node"
 NODE_BIN="${NODE_DIR}/bin/node"
 TSC_BIN="${NODE_DIR}/bin/tsc"
@@ -60,7 +64,7 @@ NODE_DIST_URL="https://nodejs.org/dist/v${NODE_VERSION}/${NODE_FILE}.${EXT}"
 echo "Downloading Node.js v${NODE_VERSION} for ${PLATFORM}..."
 echo "URL: ${NODE_DIST_URL}"
 
-TMPDIR=$(mktemp -d "${REPO_ROOT}/.opencode/tmp/node-download-XXXXXX")
+TMPDIR=$(mktemp -d "${REPO_ROOT}/tmp/node-download-XXXXXX")
 trap 'rm -rf "${TMPDIR}"' EXIT
 
 if ! curl --fail --progress-bar -o "${TMPDIR}/${NODE_FILE}.${EXT}" "${NODE_DIST_URL}" 2>&1; then

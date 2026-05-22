@@ -1,10 +1,13 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
-"""
-DESCRIPTION: Search guideline files using BM25 ranking with optional section blocks and context lines.
+
+__doc__ = """DESCRIPTION: Search guideline files using BM25 ranking with optional section blocks and context lines.
 Usage: ./.opencode/tools/guidelines search <query> [--file <filename>] [--top N] [--section-names] [--section-blocks] [--context-lines N] [--minimal] [--surrounding N]
        ./.opencode/tools/guidelines search <filename.md> <query>
 Note: Prefer 3-digit guideline filename shorthand when available (for example `041`).
@@ -21,8 +24,6 @@ Examples: ./.opencode/tools/guidelines search "pyclbr"
           ./.opencode/tools/guidelines search "branch" --minimal
           ./.opencode/tools/guidelines search "error" --surrounding 3
 """
-
-from __future__ import annotations
 import os as _os
 
 if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
@@ -34,13 +35,13 @@ if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
     __import__("sys").exit(1)
 import math
 import re
-import subprocess
 import sys
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
-CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip()
-PROJECT_ROOT = (BASE_DIR / CDUP).resolve()
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    _path = _path.parent
+PROJECT_ROOT = _path.parent
 GUIDELINES_DIR = PROJECT_ROOT / ".opencode" / "guidelines"
 
 DEFAULT_TOP = 15

@@ -56,10 +56,10 @@ After Step 1 (Identify Changes) and Step 2 (Version the Spec), verify any STATUS
 
 | Exemption Claim | Verification Action | Tool Call | Problem Class |
 |----------------|-------------------|-----------|---------------|
-| "Initial spec creation" (no version increment) | Verify the spec has no prior versions — check Issue body for `STATUS: 1.0` or version history | `github_issue_read(method=get, issue_number=N)` → search body for `STATUS:` markers | CONFLICTING |
-| "Non-substantive change" (typos, cross-refs) | Verify the change is truly non-substantive — no scope, requirements, or success criteria changes | `github_issue_read(method=get, issue_number=N)` → compare current vs previous body content | CONFLICTING |
-| "STATUS marker update" (checkbox, phase number) | Verify the change is only a STATUS marker toggle — no content change | `github_issue_read(method=get, issue_number=N)` → diff body against comment history | STRUCTURE-VIOLATION |
-| "Bug report addition" (separate from spec content) | Verify the added content is a bug report section, not a spec content change | `github_issue_read(method=get, issue_number=N)` → check section added | VERIFICATION-GAP |
+| "Initial spec creation" (no version increment) | Verify the spec has no prior versions — check Issue body for `STATUS: 1.0` or version history | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → search body for `STATUS:` markers | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
+| "Non-substantive change" (typos, cross-refs) | Verify the change is truly non-substantive — no scope, requirements, or success criteria changes | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → compare current vs previous body content | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
+| "STATUS marker update" (checkbox, phase number) | Verify the change is only a STATUS marker toggle — no content change | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → diff body against comment history | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
+| "Bug report addition" (separate from spec content) | Verify the added content is a bug report section, not a spec content change | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → check section added | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Evidence Format
 

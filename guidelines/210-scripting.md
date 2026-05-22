@@ -1,25 +1,81 @@
+---
+trigger_on: script, scripting, script header, shebang, bash
+tier: 2
+load_when: sub-agent
+---
+
 # Scripting Standards
 
 ## Script Headers (mandatory)
 
 Every script/notebook MUST include root resolution:
 
-- **Shell**: `cd "$(dirname "$0")" && cd "$(git rev-parse --show-cdup)" || exit 1`
-- **Python**:
-  `BASE_DIR = Path(__file__).resolve().parent; CDUP = subprocess.check_output(["git", "-C", str(BASE_DIR), "rev-parse", "--show-cdup"], text=True).strip(); PROJECT_ROOT = (BASE_DIR / CDUP).resolve()`
+  - **Shell:** Walk up from script location until the current directory is named `.opencode`; the project root is the parent:
+  ```bash
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  PROJECT_DIR="$SCRIPT_DIR"
+  while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
+      PARENT="$(dirname "$PROJECT_DIR")"
+      if [ "$PARENT" = "$PROJECT_DIR" ]; then
+          echo "FATAL: Could not find .opencode/ directory" >&2
+          exit 1
+      fi
+      PROJECT_DIR="$PARENT"
+  done
+  PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+  ```
+
+- **Python:**
+  ```python
+  from pathlib import Path
+  _path = Path(__file__).resolve().parent
+  while _path.name != ".opencode":
+      parent = _path.parent
+      if parent == _path:
+          raise RuntimeError("Could not find .opencode/ directory")
+      _path = parent
+  PROJECT_DIR = _path.parent
+  ```
+
 - **Notebooks**: Set `base_dir` using Jupyter's directory hint:
   `base_dir = Path(globals()['_dh'][0])`. Add a comment noting this uses `_dh[0]` (Jupyter's directory hint) to locate
   the notebook's directory reliably without relying on CWD.
 
 ## Self-Location & Root Resolution
 
-- Scripts self-locate via `dirname "$0"` (Shell) or `Path(__file__).resolve().parent` (Python). No reliance on user's
-  CWD.
-- Resolve project root via `git rev-parse --show-cdup` only. `show-toplevel` is **strictly prohibited** because it returns absolute paths, which break portability and leak local filesystem structure. All internal project references must be relative.
+- Scripts self-locate via `dirname "${BASH_SOURCE[0]}"` (Shell) or `Path(__file__).resolve().parent` (Python). No reliance on user's CWD.
+- **Canonical method (REQUIRED for all scripts):** Walk up from script location until the current directory is named `.opencode`. The parent of `.opencode/` is the project root. This method works correctly whether `.opencode/` is a git submodule or a tracked directory.
+- **Zero shared functions.** Every script inlines its own walk-up loop. No imports, no source, no `sys.path` manipulation for root detection.
+- **The walk-up loop is the ONLY permitted root detection method.** No exceptions, except for git hooks (see below).
+- **Filesystem-root guard REQUIRED:** Every walk-up loop MUST include a guard detecting when the traversal reaches the filesystem root (`/`). If `.opencode/` is unreachable, the script MUST fail with an explicit error rather than hanging. See canonical patterns below for the required guard implementation.
+
+## Hooks Exception
+
+Git hooks execute from `.git/hooks/`, which is outside the `.opencode/` tree. The walk-up-to-`.opencode` pattern cannot resolve correctly in hook context because hooks are structurally separate from all other `.opencode/` scripts.
+
+**For hook files ONLY (`pre-commit`, `pre-push`, `pre-merge-commit`, `prepare-commit-msg`, `post-commit`):**
+- Hooks do **not** need project root detection at all — git always CWDs to the project root when invoking hooks
+- Relative paths (e.g., `.opencode/tmp/`) work directly and are the preferred approach
+- `git rev-parse --show-toplevel` is also safe in hook context (hooks are repo-scoped), but is unnecessary
+
+This exception is narrow and intentional: hooks are the only scripts that do not execute from inside `.opencode/`.
+
+## Prohibited Patterns (ZERO TOLERANCE)
+
+These root resolution methods are forbidden in ALL `.opencode/` scripts:
+
+- `git rev-parse --show-cdup` — fails in submodule context
+- `git rev-parse --show-toplevel` — returns submodule root, not parent repo root
+- `../..` or deeper relative traversals from `BASH_SOURCE`/`__file__` (e.g., `dirname "${BASH_SOURCE[0]}"/../..`)
+- `.parent.parent` (or deeper) chains in Python (e.g., `Path(__file__).resolve().parent.parent.parent`)
+- `sys.path.insert` or `sys.path.append` for enabling root detection imports
+- Any shared or imported function for root detection
+- `.git` directory walking to determine project root
+- Walk-up loops lacking a filesystem-root guard (the `if parent == _path` check) — the guard is mandatory, not optional. Loops without it hang at `/` when `.opencode/` is unreachable.
 
 ## Notebook Operations — MANDATORY MCP
 
-**ALL notebook operations MUST use `the-notebook-mcp` tools.** See `notebook-operations` skill for the complete tool reference.
+**ALL notebook operations MUST use `the-notebook-mcp` tools.** See `060-tool-usage.md` and `mcp-tool-usage` skill for the tool reference.
 
 ### ✅ MANDATORY
 
@@ -60,7 +116,7 @@ To retire a notebook:
 
 **Reorder cells**: Sequence of `move_cell` operations from target layout backward.
 
-**If `the-notebook-mcp` is unavailable, REFUSE all notebook operations.** See `notebook-operations` skill for the no-fallback policy and detailed workflows.
+**If `the-notebook-mcp` is unavailable, REFUSE all notebook operations.** See `060-tool-usage.md` §1 for the no-fallback policy and detailed workflows.
 
 ## Command Restrictions
 
@@ -80,7 +136,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [notebook-operations]
+    triggers: [mcp-tool-usage]
     source: "210-scripting.md §Notebook Operations"
 
   - id: scripting-002
@@ -95,7 +151,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [notebook-operations]
+    triggers: [mcp-tool-usage]
     source: "210-scripting.md §FORBIDDEN"
 
   - id: scripting-003
@@ -108,15 +164,15 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [notebook-operations]
+    triggers: [mcp-tool-usage]
     source: "210-scripting.md §Notebook Operations"
 
   - id: scripting-004
-    title: "Scripts must self-locate and resolve project root via git rev-parse --show-cdup"
+    title: "Scripts must use walk-up-to-.opencode pattern for root resolution"
     conditions:
       all:
         - "script_created == true"
-        - "has_root_resolution == false"
+        - "has_walk_up_root_resolution == false"
     actions:
       - HALT
     conflicts_with: []
@@ -125,14 +181,19 @@ rules:
     source: "210-scripting.md §Script Headers, Self-Location"
 
   - id: scripting-005
-    title: "Never use git rev-parse --show-toplevel for root resolution"
+    title: "Prohibited root detection patterns — no git rev-parse, no depth counting, no sys.path hacks"
     conditions:
-      all:
-        - "code_contains == 'show-toplevel'"
+      any:
+        - "code_contains == '--show-cdup'"
+        - "code_contains == '--show-toplevel'"
+        - "code_contains == '.parent.parent'"
+        - "code_contains == 'sys.path.insert'"
+        - "code_contains == 'sys.path.append'"
+        - "code_contains == '.git'"
     actions:
       - HALT
     conflicts_with: []
     requires: []
     triggers: []
-    source: "210-scripting.md §Self-Location & Root Resolution"
+    source: "210-scripting.md §Prohibited Patterns"
 ```

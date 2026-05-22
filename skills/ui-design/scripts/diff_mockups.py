@@ -1,3 +1,7 @@
+#!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = ">=3.12"
 # dependencies = [
@@ -5,11 +9,11 @@
 # ]
 #
 # ///
+
 import argparse
 from pathlib import Path
 
 from PIL import Image, ImageChops
-
 
 def diff_mockups(before_path: str, after_path: str, output_path: str) -> str:
     before_file = Path(before_path)
@@ -29,7 +33,6 @@ def diff_mockups(before_path: str, after_path: str, output_path: str) -> str:
     diff.save(str(out_file))
     return str(out_file)
 
-
 def main():
     parser = argparse.ArgumentParser(description="Visual diff of two mockup images")
     parser.add_argument("before_path", help="Path to before image")
@@ -38,7 +41,6 @@ def main():
     args = parser.parse_args()
     result = diff_mockups(args.before_path, args.after_path, args.output_path)
     print(f"Diff saved: {result}")
-
 
 if __name__ == "__main__":
     main()

@@ -1,13 +1,20 @@
+---
+trigger_on: tool, path rule, temp file, command restriction, file operation
+tier: 1
+load_when: sub-agent
+---
+
 # Tool Usage & Terminal Rules
 
-## 0. Lazy-Loaded Guidelines
+## 0. Progressive Disclosure — Index-Only Orchestrator Context
 
-The following guidelines are loaded on-demand by skills, not permanently in context:
+**CRITICAL:** Full guideline content lives exclusively in ephemeral sub-agent context windows — loaded fresh on demand and discarded. The orchestrator holds only `.opencode/guidelines/INDEX.md` (trigger-pattern pairs, ≤1,500 words) for routing decisions. Never load full guideline bodies into orchestrator context.
 
-- `065-verification-honesty.md` — Loaded by verification-dependent skills when invoked
-- `067-context-completeness.md` — Loaded by issue/PR review skills when invoked
+### Loading Protocol
 
-When a skill indicates "Load guideline:" in its pre-conditions, use the `read` tool or `./.opencode/tools/guidelines read` command to load it before proceeding.
+1. **In orchestrator context:** Use INDEX.md for trigger-pattern matching — route to sub-agent based on matching triggers
+2. **In sub-agent context:** Load individual guidelines via `./.opencode/tools/guidelines read <filename>` when needed
+3. **Default load set:** `000-critical-rules.md` is loaded when sub-agent performs safety-critical operations; other guidelines loaded per trigger match
 
 ## 1. Tool Priority Hierarchy
 
@@ -18,7 +25,7 @@ When a skill indicates "Load guideline:" in its pre-conditions, use the `read` t
 ```
 TIER 1 — PRIMARY: opencode built-in tools (read/write/edit/glob/grep)
 TIER 2 — PRIMARY: Domain MCP (srclight, the-notebook-mcp, GitHub MCP)
-TIER 3 — PRIMARY: .opencode/tools/ (guidelines, md, memory, py ls/mkpkg)
+TIER 3 — PRIMARY: .opencode/tools/ (guidelines, md, memory, py ls/mkpkg, ollama-probe)
 TIER 4 — FALLBACK: JetBrains MCP (pycharm_*) — only for unique capabilities
 TIER 5 — LAST RESORT: Direct CLI (bash)
 
@@ -38,6 +45,24 @@ When a platform has a dedicated API client (e.g., `gitbucket-api` CLI tool at `.
 2. Report: executive summary of what was needed, the missing method name, possible resolution
 3. Include byline
 4. Do NOT bypass the client with raw `requests` calls or `python -c` inline scripts
+
+### Platform Routing Mandate (ZERO TOLERANCE)
+
+All `github_*`/`gitbucket-api` issue calls MUST route through the `issue-operations` dispatcher. Making direct platform API calls outside `issue-operations/platforms/` bypasses the routing layer and creates unmaintainable, platform-locked code. This is a **Tier 1 violation** per `000-critical-rules.md` §critical-rules-platform-routing-bypass.
+
+The dispatcher resolves platform selection automatically based on `github.platform`. Agents MUST NOT deliberate about which platform API to use — the dispatcher handles this. Asking "should I use GitHub or GitBucket?" or choosing a platform API manually is a **Tier 2 violation** per `000-critical-rules.md` §critical-rules-platform-api-deliberation.
+
+| Operation | Dispatcher Task | Direct Call (FORBIDDEN) |
+|-----------|----------------|--------------------------|
+| Read single issue | `read-issue` | `github_issue_read(method="get")` outside platforms/ |
+| Read comments | `read-comments` | `github_issue_read(method="get_comments")` outside platforms/ |
+| Read labels | `read-labels` | `github_issue_read(method="get_labels")` outside platforms/ |
+| Read sub-issues | `read-sub-issues` | `github_issue_read(method="get_sub_issues")` outside platforms/ |
+| List issues | `list-issues` | `github_list_issues()` outside platforms/ |
+| Search issues | `search-issues` | `github_search_issues()` outside platforms/ |
+| Update issue | `update-issue` | `github_issue_write(method="update")` outside platforms/ |
+| Create issue | `creation` | `github_issue_write(method="create")` outside platforms/ |
+| Close issue | `close` | `github_issue_write(method="update", state="closed")` outside platforms/ |
 
 ## 1. Guidelines Lookup
 
@@ -82,6 +107,22 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 
 **For `bash` tool:** Continue using `workdir` parameter (already documented in `using-git-worktrees` skill and `000-critical-rules.md`).
 
+### Workdir-Aware Path Composition — CRITICAL
+
+**When `workdir` resolves to a path inside `.opencode/`, the workdir IS the `.opencode/` directory — do NOT prefix paths with `.opencode/`.** Paths resolve relative to the workdir. Prefixing with `.opencode/` creates `.opencode/.opencode/` nesting which shadows real configuration files and breaks AI agent configuration loading.
+
+**CRITICAL:** Creating `.opencode/.opencode/` directories is FORBIDDEN. See `000-critical-rules.md` §Creating .opencode/.opencode/ Nested Directories.
+
+| Workdir | Path to create `tmp/` | Correct | Wrong (FORBIDDEN) |
+| -- | -- | -- | -- |
+| (any) | `tmp/` | `mkdir -p tmp/` | N/A — all ephemeral artifacts go in repo root `tmp/` |
+| (any) | (any) | Resolve relative to workdir | Do NOT compose `.opencode/.opencode/` |
+
+- 🚫 FORBIDDEN: Any `mkdir`, `write`, or path-creating operation whose resolved path contains `.opencode/.opencode/`
+- 🚫 FORBIDDEN: Hardcoding `.opencode/` prefix in paths when workdir is already inside `.opencode/`
+- ✅ REQUIRED: Before any path-creating operation, verify the resolved path against workdir — if workdir is inside `.opencode/`, paths are relative to workdir
+- ✅ REQUIRED: Submodule context detection: when `git rev-parse --show-toplevel` returns a `.opencode` directory, the agent works inside a submodule — paths must NOT compose `.opencode/.opencode/` nesting
+
 ### `.issues/` Worktree Exemption (CRITICAL)
 
 `.issues/` files are non-behavioral metadata (issue specs, comments, frontmatter). They are **exempt from the worktree requirement** — agents MAY create, read, edit, and update `.issues/` files without setting up a worktree first.
@@ -113,10 +154,10 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 
 ### ✅ ALWAYS DO
 
-- **ALWAYS use `uv run python` to invoke Python.**
+- **ALWAYS use `uv run python` to run Python.**
 - **Fixed sleep value for polling**: Always use a fixed value of `15`.
 - **One clear command per invocation.** A short `&&` guard is acceptable.
-- **Use built-in Edit/Write tools for file modifications.** For Jupyter notebooks, use `the-notebook-mcp` tools exclusively — see `notebook-operations` skill.
+- **Use built-in Edit/Write tools for file modifications.** For Jupyter notebooks, use `the-notebook-mcp` tools exclusively — see `mcp-tool-usage` skill `selection-guide` task.
 
 ### 🚫 NEVER DO
 
@@ -152,7 +193,7 @@ When the `todowrite` tool is used during a session, the agent MUST maintain the 
 
 ### ✅ ALWAYS DO
 
-- **CREATE**: When `todowrite` is invoked, every item MUST have an explicit `status` field: `pending`, `in_progress`, or `completed`
+- **CREATE**: When `todowrite` is used, every item MUST have an explicit `status` field: `pending`, `in_progress`, or `completed`
 - **UPDATE**: Each item MUST transition to `in_progress` when work on that item begins, and to `completed` when the item is fully done
 - **CLEAR**: `todowrite(todos=[])` MUST be called when the task completes — this is required before any HALT
 
@@ -163,69 +204,40 @@ When the `todowrite` tool is used during a session, the agent MUST maintain the 
 - Create items without a `status` field
 - Skip status transitions (e.g., jump from `pending` directly to `completed` without `in_progress`)
 
-## 8. Skill Dispatch Principle
+## 8. Skill Call Principle
 
-Invoke skills when their trigger keywords match the current task. Each skill defines explicit trigger patterns in its SKILL.md frontmatter (`Triggers on:` line). Match against those patterns, not against mere possibility.
+Call skills when their trigger keywords match the current task. Each skill defines explicit trigger patterns in its SKILL.md frontmatter (`Triggers on:` line). Match against those patterns, not against mere possibility.
 
 | Principle | Rule |
 |-----------|------|
 | **Trigger matching** | Skills apply when their frontmatter `Triggers on:` keywords match the current task |
 | **Priority ordering** | Process skills (approval-gate, brainstorming, writing-plans, systematic-debugging) before implementation skills |
-| **No speculative loading** | Do not load skills "just in case" — load when triggers match |
+| **No speculative calling** | Do not call skills "just in case" — call when triggers match |
 | **Skill self-describes boundary** | Each SKILL.md defines what it covers; when in doubt, check `Triggers on:` line |
-| **Sub-agent dispatch priority** | When a SKILL.md Sub-Agent Tasks section marks a task as `sub-agent`, the main agent dispatches via `task()` instead of loading the task file inline. This keeps heavy task files out of the main agent context. Result contracts (≈100-500 words) are read instead of the full task file (>1,000 words) |
+| **Sub-agent task() priority** | When a SKILL.md Sub-Agent Tasks section marks a task as `sub-agent`, the main agent calls via `task()` instead of loading the task file inline. This keeps heavy task files out of the main agent context. Result contracts (≈100-500 words) are read instead of the full task file (>1,000 words) |
 
-## 9. Sub-Agent Dispatch Restriction After Authorization
-
-**⚠️ After explicit authorization is received, sub-agent dispatch for read-only parsing of already-fetched data is a CRITICAL GUIDELINE VIOLATION.**
-
-This prevents the post-authorization research spiral documented in Spec #171. When a user says "approved" or "go", the agent must transition to implementation dispatch, not re-read data already in context via sub-agents.
-
-### 🚫 FORBIDDEN (After Authorization)
-
-- Dispatching `task(subagent_type="general")` to parse JSON from `github_issue_read` output already in context
-- Dispatching sub-agents to extract metadata from data the orchestrator already has
-- Dispatching sub-agents for any read-only operation on data already available in the current session
-- Re-reading issues, specs, or plans that were already fetched during verification
-
-### ✅ PERMITTED (After Authorization)
-
-- Dispatching sub-agents for implementation work (file modifications, code generation, heavy analysis)
-- Dispatching via `divide-and-conquer --task assemble-work` for work orchestration
-- Heavy sub-agent analysis that produces NEW deliverables not available in context
-
-### Before Authorization
-
-Before authorization is received, sub-agents may be used freely for research, analysis, and investigation. The restriction applies ONLY after `verify-authorization` returns `authorized`.
-
-### Enforcement
-
-This restriction is enforced by the 3-tool-call bound in `000-critical-rules.md` §"Implementation-First Gate at Authorization Time" and `approval-gate/tasks/verify-authorization/auto-dispatch.md` §Post-Authorization Dispatch Window. Sub-agent dispatch for read-only parsing counts toward the bound and is prohibited.
-
-**AUTHORITY: Spec #171, `000-critical-rules.md` §Implementation-First Gate at Authorization Time**
-
-## 10. Identity Source Semantics
+## 9. Identity Source Semantics
 
 The `github.identity_source` value (emitted by session-init) determines the agent's relationship to git remotes and GitHub API routing.
 
 | `identity_source` | Routing Description |
 |---|---|
-| `root` | Standard workflow — parent repo has a remote, owner/repo from parent remote. All git operations work normally through the parent repo. |
-| `submodule` | Submodule-local mode — parent repo has ZERO remotes by design. All remote git operations (fetch, pull, push, remote branch management) must run from inside the submodule directory, not the project root. The submodule path is the only path to the remote repository. Do NOT add remotes to the parent repo. Do NOT push from the parent repo. |
-| `none` | Full local-only mode — no remote exists anywhere. All remote git operations (fetch, pull, push) will fail. No GitHub or GitBucket API calls are possible. Do NOT add remotes. |
+| `root` | Standard workflow — repo has its own remote. Owner/repo from remote URL. All git operations work normally. |
+| `local` | Local-only mode — no remote exists. All remote git operations (fetch, pull, push) will fail. No GitHub or GitBucket API calls are possible. Do NOT add remotes. |
 
-**When `identity_source == "submodule"`:**
+**When `identity_source == "local"`:**
 
-- The parent repo has ZERO remotes by design — do NOT add remotes
-- `github.owner` and `github.repo` come from the submodule's remote for API routing only
-- GitHub MCP calls route to the submodule's repository, not the parent
-- Local git operations (branch, commit, stash) on the parent repo are permitted
-- `git push` from the parent repo is FORBIDDEN — there is no remote to push to
-- `git remote add` on the parent repo is FORBIDDEN — the absence of remotes is intentional |
+- No remote exists anywhere — do NOT add remotes
+- `github.owner` and `github.repo` are `(none)`
+- `github.platform` is `local`
+- GitHub/GitBucket MCP calls are not available — use local `.issues/` directory
+- Local git operations (branch, commit, stash) work normally
+- `git push` is FORBIDDEN — there is no remote to push to
+- `git remote add` is FORBIDDEN — the absence of remotes is intentional |
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-04-25T00:00:00Z"
+last_updated: "2026-05-03T00:00:00Z"
 rules:
   - id: tool-usage-001
     title: "Notebook files require the-notebook-mcp exclusively"
@@ -237,7 +249,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [notebook-operations]
+    triggers: [mcp-tool-usage]
     source: "060-tool-usage.md §1 Tool Priority Hierarchy"
 
   - id: tool-usage-002
@@ -325,4 +337,47 @@ rules:
     requires: []
     triggers: [git-workflow]
     source: "060-tool-usage.md §4 Command Restrictions NEVER DO"
+
+  - id: tool-usage-009
+    title: "No .opencode/.opencode/ nesting — workdir-aware path resolution"
+    conditions:
+      all:
+        - "workdir_inside_opencode == true"
+        - "path_prefixed_with_opencode == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow, divide-and-conquer, approval-gate]
+    source: "060-tool-usage.md §2 Workdir-Aware Path Composition"
+
+  - id: tool-usage-010
+    tier: 1
+    title: "Platform routing mandate — direct github_*/gitbucket-api issue calls outside platforms/ are forbidden"
+    conditions:
+      all:
+        - "issue_operation_pending == true"
+        - "direct_platform_api_call == true"
+        - "call_location_outside_platforms == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: [critical-rules-platform-routing-bypass]
+    triggers: [issue-operations]
+    source: "060-tool-usage.md §1 Platform Routing Mandate"
+
+  - id: tool-usage-011
+    tier: 2
+    title: "Platform API deliberation prohibited — dispatcher resolves platform automatically"
+    conditions:
+      all:
+        - "issue_operation_pending == true"
+        - "agent_deliberating_platform_choice == true"
+    actions:
+      - HALT
+      - ROUTE_THROUGH_DISPATCHER
+    conflicts_with: []
+    requires: [critical-rules-platform-api-deliberation]
+    triggers: [issue-operations]
+    source: "060-tool-usage.md §1 Platform Routing Mandate"
 ```

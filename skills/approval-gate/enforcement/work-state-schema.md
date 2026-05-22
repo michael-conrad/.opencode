@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the work state file schema extension for chain-of-responsibility orchestration. Each atomic task in the `verify-authorization/`, `pre-impl/`, and `screen/` chains writes results as a dedicated section in the work state file (`.opencode/tmp/work-<timestamp>.md`).
+Define the work state file schema extension for chain-of-responsibility orchestration. Each atomic task in the `verify-authorization/`, `pre-impl/`, and `screen/` chains writes results as a dedicated section in the work state file (`tmp/work-<timestamp>.md`).
 
 ## Header Section
 
@@ -11,6 +11,7 @@ Define the work state file schema extension for chain-of-responsibility orchestr
 authorization_scope: <scope_value>
 halt_at: <pipeline_stage>
 pr_strategy: stacked | individual | none
+pipeline_phase: <current_phase_name>
 issue_numbers: [<N>]
 created_at: <ISO-8601>
 ```
@@ -53,6 +54,32 @@ result: <YAML-structured task output>
 - Status transitions: `pending → in_progress → done | failed | skipped`.
 - Failed tasks set `status: failed` with error detail in `result.error`.
 
+## `for_analysis` Scope Constraints
+
+When `authorization_scope == "for_analysis"`:
+
+```yaml
+## for_analysis-constraints
+scope: for_analysis
+for_analysis_allowlist:
+  - reads (files, code, issues)
+  - writes to ./tmp/
+  - issue creation and comments
+  - investigate/<topic> scratch branches (discard before HALT)
+  - test and verification execution
+for_analysis_blocklist:
+  - writes to src/ or test/
+  - feature/* or spec/* branches
+  - PR creation
+  - dev/main commits
+  - bug fixes
+  - deleting branches (except investigate/* discard)
+investigate_branches_created: []
+must_discard_before_halt: true
+```
+
+The `investigate_branches_created` field tracks which `investigate/` branches were created during the session. The orchestrator MUST verify every tracked branch is deleted before yielding or halting.
+
 ## Orchestrator Context Audit
 
 Every work state file MUST include an Orchestrator Context Audit section. This section tracks whether the orchestrator stayed within its routing role or performed inline work.
@@ -68,7 +95,7 @@ inline_work_detected: false
 
 | Field | Description |
 |-------|-------------|
-| `skill_files_loaded` | List of SKILL.md files loaded by the orchestrator (should be routing metadata only) |
+| `skill_files_loaded` | List of SKILL.md files read by the orchestrator for routing metadata (should be routing metadata only) |
 | `issues_read_inline` | List of issue numbers read by the orchestrator inline (should be empty — sub-agents read issues) |
 | `git_commands_inline` | List of git commands run by the orchestrator inline (should be empty — sub-agents run git) |
 | `sub_agent_dispatches` | Count of sub-agent dispatches performed (should be > 0 for any non-trivial workflow) |
@@ -76,6 +103,6 @@ inline_work_detected: false
 
 **Audit enforcement:**
 - If `inline_work_detected == true`, the orchestrator MUST HALT and report a CRITICAL VIOLATION per `000-critical-rules.md` §Inline Work.
-- `skill_files_loaded` should contain only SKILL.md files for routing; loading task files or full enforcement documents is inline work.
+- `skill_files_loaded` should contain only SKILL.md files for routing; reading task files or full enforcement documents is inline work.
 - `issues_read_inline` tracks issue body reads by the orchestrator; issue reading MUST be delegated to screen-issue sub-agents.
 - `git_commands_inline` tracks git operations by the orchestrator; git operations MUST be delegated to git-workflow sub-agents.

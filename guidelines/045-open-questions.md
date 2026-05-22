@@ -1,15 +1,20 @@
+---
+trigger_on: open questions, unresolved, Q&A, clarify
+tier: 2
+load_when: sub-agent
+---
+
 # Open Questions in Plans
 
-Plans with open questions must have all questions answered before any part of the plan can be implemented.
+Implementation BLOCKED while open questions remain. All must be answered before any part of the plan can proceed.
 
 ## 1. Mandatory Q&A Phase
 
-When a plan/spec contains an "Open Questions" section:
-
-1. **STOP immediately** — SILENTLY HALT and do not implement any part of the plan. Do NOT prompt for answers.
-2. **ASK each question** one at a time using the interviewer approach
-3. **WAIT for user answer** before proceeding to the next question
-4. **UPDATE the plan** with the answered question before asking the next
+1. STOP — SILENTLY HALT, do not implement
+2. ASK each question one at a time using interviewer format (options a/b/c + custom)
+3. WAIT for answer before proceeding to next question
+4. UPDATE the plan with the answered question before asking the next
+5. After all answered: user must say "approved" before implementation
 
 ## 2. Interviewer Approach
 
@@ -29,7 +34,6 @@ Your choice:
 ```
 
 After receiving the answer:
-
 1. Acknowledge the answer
 2. Explain how it affects the plan (if applicable)
 3. Update the plan file with the decision
@@ -45,7 +49,6 @@ After receiving the answer:
 ## 4. Complete Before Implementation
 
 Implementation is BLOCKED until:
-
 - All open questions have documented answers
 - The plan file reflects all decisions
 - User confirms "proceed with implementation"
@@ -57,10 +60,10 @@ Agent: "Found plan with 3 open questions. Starting Q&A..."
 
 ## Open Question 1 of 3
 
-Should we use NCBI E-utilities `esearch` with `field=MeSH` or the dedicated MeSH API for term validation?
+Should we use NCBI E-utilities esearch with field=MeSH or the dedicated MeSH API for term validation?
 
 Options:
-a) Use `esearch` with retmax=1 per MeSH term (simpler, uses existing client)
+a) Use esearch with retmax=1 per MeSH term (simpler, uses existing client)
 b) Use dedicated MeSH API (more accurate, requires new integration)
 c) Custom answer
 
@@ -68,7 +71,7 @@ Your choice:
 
 User: a
 
-Agent: "Using `esearch` with retmax=1 per MeSH term - simpler and uses existing PubMedClient."
+Agent: "Using esearch with retmax=1 per MeSH term - simpler and uses existing PubMedClient."
 
 [Updates plan with decision]
 
@@ -79,8 +82,8 @@ Agent: "Using `esearch` with retmax=1 per MeSH term - simpler and uses existing 
 
 ## 6. Boundary Rule
 
-🚫 **NEVER start implementation** while open questions remain unanswered.
-✅ **ALWAYS complete Q&A first**, then get explicit "approved" confirmation.
+🚫 NEVER start implementation while open questions remain unanswered.
+✅ ALWAYS complete Q&A first, then get explicit "approved" confirmation.
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -89,39 +92,22 @@ rules:
   - id: open-questions-001
     title: "Implementation blocked while open questions remain"
     conditions:
-      all:
-        - "plan_has_open_questions == true"
-        - "implementation_attempted == true"
-    actions:
-      - HALT
-    conflicts_with: []
-    requires: []
+      all: ["plan_has_open_questions == true", "implementation_attempted == true"]
+    actions: [HALT]
     triggers: [approval-gate]
-    source: "045-open-questions.md §4 Complete Before Implementation"
 
   - id: open-questions-002
     title: "All open questions must be answered before implementation"
     conditions:
-      all:
-        - "plan_has_open_questions == true"
-        - "all_questions_answered == false"
-    actions:
-      - HALT
-    conflicts_with: []
-    requires: []
+      all: ["plan_has_open_questions == true", "all_questions_answered == false"]
+    actions: [HALT]
     triggers: [executing-plans]
-    source: "045-open-questions.md §1 Mandatory Q&A Phase"
 
   - id: open-questions-003
     title: "Explicit approved confirmation required after Q&A completion"
     conditions:
-      all:
-        - "all_questions_answered == true"
-        - "explicit_approval_received == false"
-    actions:
-      - HALT
-    conflicts_with: []
+      all: ["all_questions_answered == true", "explicit_approval_received == false"]
+    actions: [HALT]
     requires: [open-questions-002]
     triggers: [approval-gate]
-    source: "045-open-questions.md §4 Complete Before Implementation"
 ```

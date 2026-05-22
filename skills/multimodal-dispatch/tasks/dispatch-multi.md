@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Dispatch a task across multiple modalities simultaneously. When a single task requires processing in multiple modalities (e.g., verifying an OCR'd document requires both vision to read the original image and text to check the transcription), this task coordinates dispatches to multiple models and aggregates the results.
+Run a task across multiple modalities simultaneously. When a single task requires processing in multiple modalities (e.g., verifying an OCR'd document requires both vision to read the original image and text to check the transcription), this task coordinates task()s to multiple models and aggregates the results.
 
 ## Entry Criteria
 
@@ -12,7 +12,7 @@ Dispatch a task across multiple modalities simultaneously. When a single task re
 
 ## Exit Criteria
 
-A `list[DispatchResult]` is returned with one entry per modality. Partial results are returned for modalities where models are available; `(unverified)` results for modalities where no model exists.
+A `list[TaskResult]` is returned with one entry per modality. Partial results are returned for modalities where models are available; `(unverified)` results for modalities where no model exists.
 
 ## Procedure
 
@@ -24,9 +24,9 @@ For each modality in the requested list:
 2. Collect the resolved model for that modality
 3. If no model is available, mark the modality as `(unverified)`
 
-### Step 2: Dispatch Per-Modality Sub-Agents
+### Step 2: Run Per-Modality Sub-Agents
 
-For each resolved modality, dispatch a sub-agent using `dispatch`:
+For each resolved modality, task() a sub-agent using `dispatch`:
 
 - **Text modality**: Sub-agent processes text content, uses text model
 - **Vision modality**: Sub-agent processes image content, uses vision model
@@ -39,7 +39,7 @@ Each sub-agent receives:
 
 ### Step 3: Aggregate Results
 
-Collect all `DispatchResult` entries and aggregate into a combined result:
+Collect all `TaskResult` entries and aggregate into a combined result:
 
 ```json
 [
@@ -79,14 +79,14 @@ The overall status is determined by the worst-case per-modality status:
 
 ### Step 5: Return Results
 
-Return the `list[DispatchResult]`. The calling skill is responsible for integrating the multi-modality results into its own result schema (e.g., `ResearchResult` for the `research` skill, or a combined verification result for the `verification` skill).
+Return the `list[TaskResult]`. The calling skill is responsible for integrating the multi-modality results into its own result schema (e.g., `ResearchResult` for the `research` skill, or a combined verification result for the `verification` skill).
 
 ## Multi-Modality Example
 
 Verifying that an OCR transcription matches an original document:
 
 1. User provides `content = { text: "transcribed text", image_paths: ["document.png"] }` and `modalities = ["vision", "text"]`
-2. `dispatch-multi` resolves vision model for the image, text model for the transcription
+2. `dispatch-multi` resolves a vision model for the image, text model for the transcription
 3. Vision sub-agent reads the original image and reports what it sees
 4. Text sub-agent analyzes the transcription for accuracy
 5. Both results are returned; the calling skill compares vision findings against text findings
@@ -102,8 +102,8 @@ If a modality has no available model:
 
 ## Context Required
 
-- Depends on: `resolve` (per-modality model selection), `dispatch` (per-modality execution)
-- Invoked by: `verification`, `research`, and other skills needing multi-modality processing
+- Depends on: `resolve` (per-modality model selection), `dispatch` (per-modality execution via task())
+
 - Related tasks: `dispatch` (single-modality version)
 
 Co-authored with AI: <AgentName> (<ModelId>)

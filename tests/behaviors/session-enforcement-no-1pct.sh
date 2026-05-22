@@ -13,7 +13,11 @@ source "$SCRIPT_DIR/helpers.sh"
 
 # helpers.sh computes PROJECT_DIR from the main repo. For worktree tests,
 # we need the worktree root (three levels up from behaviors/).
-WORKTREE_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+WORKTREE_ROOT="$(cd "$SCRIPT_DIR" && pwd)"
+while [ "$(basename "$WORKTREE_ROOT")" != ".opencode" ]; do
+    WORKTREE_ROOT="$(dirname "$WORKTREE_ROOT")"
+done
+WORKTREE_ROOT="$(dirname "$WORKTREE_ROOT")"
 
 SCENARIO_NAME="session-enforcement-no-1pct"
 SCENARIO_PROMPT="The session-enforcement.ts plugin output must not reference '1% Rule' or '1% chance'. It must use 'Deterministic Dispatch' instead."

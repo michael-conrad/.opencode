@@ -30,7 +30,10 @@ Collects evidence artifacts for factual claims. Unverified claims marked with `â
 
 - Query GitHub Issue for spec content
 - Extract objectives, constraints, success criteria
+- Extract the all-or-nothing gate statement from the spec's SC section. The plan MUST preserve this gate language in its task structure â€” each TDD RED checkpoint is a sub-gate in the all-or-nothing chain. If the spec lacks the gate statement, flag as `SPEC_GAP`: the spec must be revised to include the gate before the plan proceeds.
 - Identify affected files and dependencies
+
+<!-- Fragment ID: sc-enforcement-gate -->
 
 ### Step 1.5: Combined vs Separate Plan Decision Gate
 
@@ -60,7 +63,7 @@ Reason: <justification referencing evaluation criteria>
 
 Search for existing plans referencing the same spec:
 ```python
-plans = github_search_issues(query="label:plan", owner=<owner>, repo=<repo>, state="open")
+plans = issue-operations -> search-issues (github_search_issues(query="label:plan", owner=<owner>, repo=<repo>, state="open") <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 For each plan found with `Spec: #<spec_number>`, present choice:

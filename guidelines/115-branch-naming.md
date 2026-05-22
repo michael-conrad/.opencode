@@ -1,3 +1,9 @@
+---
+trigger_on: branch naming, branch name, naming convention
+tier: 2
+load_when: sub-agent
+---
+
 # Branch Naming Conventions
 
 ## Branch Naming Rules

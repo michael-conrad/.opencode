@@ -1,118 +1,97 @@
 #!/bin/bash
-# Behavioral Enforcement Test Runner
-#
-# Discovers and executes all behavioral test scripts in .opencode/tests/behaviors/
-# (excluding helpers.sh and template.sh).
+# Run all behavioral enforcement tests with exit code tracking.
+# Reports PASS (0), FAIL (1), and INCONCLUSIVE (2) separately.
 #
 # Usage:
-#   bash .opencode/tests/behaviors/run-all.sh           # Run all behavioral tests
-#   bash .opencode/tests/behaviors/run-all.sh --list    # List discovered tests
-#   bash .opencode/tests/behaviors/run-all.sh --dry-run # Show what would run without executing
-#
-# Exit code 0 only if ALL tests pass.
-#
-# Co-authored with AI: <AgentName> (<ModelId>)
+#   bash .opencode/tests/behaviors/run-all.sh [--list]
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-EXCLUDE_FILES=("helpers.sh" "template.sh" "run-all.sh")
+source "$SCRIPT_DIR/helpers.sh"
 
 LIST_ONLY=false
-DRY_RUN=false
-
-while [[ $# -gt 0 ]]; do
-    case "$1" in
-        --list)
-            LIST_ONLY=true
-            shift
-            ;;
-        --dry-run)
-            DRY_RUN=true
-            shift
-            ;;
-        *)
-            echo "Unknown option: $1" >&2
-            echo "Usage: bash .opencode/tests/behaviors/run-all.sh [--list] [--dry-run]" >&2
-            exit 1
-            ;;
-    esac
-done
-
-is_excluded() {
-    local filename="$1"
-    for excluded in "${EXCLUDE_FILES[@]}"; do
-        if [ "$filename" = "$excluded" ]; then
-            return 0
-        fi
-    done
-    return 1
-}
-
-TEST_FILES=()
-if [ -d "$SCRIPT_DIR" ]; then
-    for file in "$SCRIPT_DIR"/*.sh; do
-        [ -f "$file" ] || continue
-        filename="$(basename "$file")"
-        is_excluded "$filename" && continue
-        TEST_FILES+=("$file")
-    done
+if [ "${1:-}" = "--list" ]; then
+    LIST_ONLY=true
 fi
 
-TEST_FILES=($(for f in "${TEST_FILES[@]}"; do echo "$f"; done | sort))
+RESULTS_DIR="${BEHAVIOR_LOG_DIR:-$PROJECT_DIR/tmp/behavior-runall-$(date +%Y%m%d-%H%M%S)}"
+mkdir -p "$RESULTS_DIR"
 
-if [ "$LIST_ONLY" = true ]; then
-    echo "Discovered behavioral test scripts:"
-    for file in "${TEST_FILES[@]}"; do
-        echo "  $(basename "$file")"
-    done
-    echo ""
-    echo "Total: ${#TEST_FILES[@]} test(s)"
-    exit 0
-fi
-
-if [ "$DRY_RUN" = true ]; then
-    echo "=== Behavioral Enforcement Test Runner (dry-run) ==="
-    echo ""
-    echo "Would run ${#TEST_FILES[@]} behavioral test(s):"
-    for file in "${TEST_FILES[@]}"; do
-        echo "  $(basename "$file")"
-    done
-    exit 0
-fi
-
-echo "=== Behavioral Enforcement Tests ==="
-echo "Running ${#TEST_FILES[@]} test(s)..."
-echo ""
-
-OVERALL_RESULT=0
 PASS_COUNT=0
 FAIL_COUNT=0
+INCONCLUSIVE_COUNT=0
+declare -a FAILED_NAMES
+declare -a INCONCLUSIVE_NAMES
 
-for test_file in "${TEST_FILES[@]}"; do
-    test_name="$(basename "$test_file")"
-    echo "--- Running: $test_name ---"
-    if bash "$test_file"; then
-        PASS_COUNT=$((PASS_COUNT + 1))
-        echo "  PASSED: $test_name"
-    else
-        OVERALL_RESULT=1
-        FAIL_COUNT=$((FAIL_COUNT + 1))
-        echo "  FAILED: $test_name"
+for script in "$SCRIPT_DIR"/*.sh; do
+    name="$(basename "$script")"
+    [ "$name" = "helpers.sh" ] && continue
+    [ "$name" = "run-all.sh" ] && continue
+    [ "$name" = "template.sh" ] && continue
+
+    if $LIST_ONLY; then
+        echo "$name"
+        continue
     fi
+
     echo ""
+    echo "=== $name ==="
+
+    set +e
+    bash "$script" > "$RESULTS_DIR/$name.stdout" 2> "$RESULTS_DIR/$name.stderr"
+    exit_code=$?
+    set -e
+
+    if [ "$exit_code" -eq 0 ]; then
+        echo "  RESULT: PASS"
+        PASS_COUNT=$((PASS_COUNT + 1))
+    elif [ "$exit_code" -eq 2 ]; then
+        echo "  RESULT: INCONCLUSIVE"
+        INCONCLUSIVE_COUNT=$((INCONCLUSIVE_COUNT + 1))
+        INCONCLUSIVE_NAMES+=("$name")
+    else
+        echo "  RESULT: FAIL (exit $exit_code)"
+        FAIL_COUNT=$((FAIL_COUNT + 1))
+        FAILED_NAMES+=("$name")
+    fi
 done
 
-echo "=== Results ==="
-echo "Passed: $PASS_COUNT"
-echo "Failed: $FAIL_COUNT"
-echo "Total:  ${#TEST_FILES[@]}"
-echo ""
-
-if [ "$OVERALL_RESULT" -eq 0 ]; then
-    echo "ALL TESTS PASSED"
-else
-    echo "SOME TESTS FAILED"
+if $LIST_ONLY; then
+    exit 0
 fi
 
-exit $OVERALL_RESULT
+echo ""
+echo "========================================="
+echo "  Behavioral Test Results Summary"
+echo "========================================="
+echo "  PASS:         $PASS_COUNT"
+echo "  FAIL:         $FAIL_COUNT"
+echo "  INCONCLUSIVE: $INCONCLUSIVE_COUNT"
+echo "  TOTAL:        $((PASS_COUNT + FAIL_COUNT + INCONCLUSIVE_COUNT))"
+echo "========================================="
+
+if [ "${#FAILED_NAMES[@]}" -gt 0 ]; then
+    echo ""
+    echo "FAILED tests:"
+    for name in "${FAILED_NAMES[@]}"; do
+        echo "  - $name"
+    done
+fi
+
+if [ "${#INCONCLUSIVE_NAMES[@]}" -gt 0 ]; then
+    echo ""
+    echo "INCONCLUSIVE tests (model dispatch failed):"
+    for name in "${INCONCLUSIVE_NAMES[@]}"; do
+        echo "  - $name"
+    done
+fi
+
+# Exit codes: 0 = all pass, 1 = any fail, 2 = inconclusive only
+if [ "$FAIL_COUNT" -gt 0 ]; then
+    exit 1
+fi
+if [ "$INCONCLUSIVE_COUNT" -gt 0 ] && [ "$FAIL_COUNT" -eq 0 ]; then
+    exit 2
+fi
+exit 0

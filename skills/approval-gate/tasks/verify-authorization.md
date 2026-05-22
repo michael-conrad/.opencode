@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Check for explicit authorization and needs-approval label status before implementation. This task orchestrates the atomized sub-tasks in `verify-authorization/` for fine-grained, low-context verification. It is the primary authorization gate between approval and implementation.
+Check for explicit authorization and apply the correct `approved-for-*` label before implementation. This task orchestrates the atomized sub-tasks in `verify-authorization/` for fine-grained, low-context verification.
 
 ## Entry Criteria
 
@@ -12,20 +12,20 @@ Check for explicit authorization and needs-approval label status before implemen
 ## Exit Criteria
 
 - Authorization verified as explicit and for correct issue
-- needs-approval label status checked
+- `approved-for-*` label applied per mapping table; deprecated `needs-approval` label removed
 - Git state verified (worktree environment ready)
 - Authorization recorded for scope tracking
 
-## Sub-Task Dispatch Order
+## Sub-Task Run Order
 
 This task delegates to atomic sub-tasks. Each sub-task reads inputs from the work state file and writes results back. Invoke in sequence:
 
 | Step | Sub-Task | Purpose |
 |------|----------|---------|
-| 0 | Inline fallback guard | If sub-agent returns empty, execute Steps 1-6 inline |
+| 0 | Re-task guard | If sub-agent returns empty, re-task with original scoped context (max 2 retries); on exhaustion, fall through to double-failure protocol |
 | 0.5 | `verify-authorization/scope-auto-resolve` | Parse authorization text, resolve scope/halt_at/pr_strategy/gap_fill |
 | 1 | `verify-authorization/verify-explicit-authorization` | Check for "approved"/"go" + author identity + currency |
-| 2 | Label check (inline) | Check needs-approval label status, handle explicit auth override |
+| 2 | Label application (inline) | Apply `approved-for-*` label per mapping table; remove prior `approved-for-*` and `needs-approval` labels |
 | 3 | Authorization decision (inline) | Route based on authorization result |
 | 4.5 | `verify-authorization/item-decomposition-check` | Verify item enumeration, dependency ordering, TDD steps |
 | 4.6 | `verify-authorization/sc-traceability-check` | Verify SC-to-test traceability, RED-phase ordering |
@@ -34,60 +34,27 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 | 5b.5+5c | `verify-authorization/gap-fill-cascade` | Gap-fill precedence and cascade execution |
 | 6 | `verify-authorization/auto-dispatch` | Scope-aware auto-dispatch + output lineage |
 
+
 **Chain-of-responsibility:** Sub-tasks use work state file for I/O per `enforcement/work-state-schema.md`. Path selection per SKILL.md §Chain-of-Responsibility Paths:
 
 | Condition | Path |
 |-----------|------|
-| 1 issue + `standard` scope + 0 sub-issues + explicit auth | fast-path (skip 2, 4.5, 4.6, 5, 5b, 5b.5+5c) |
+| 1 issue + `for_review_prep` scope + 0 sub-issues + explicit auth | fast-path (skip 2, 4.5, 4.6, 5, 5b, 5b.5+5c) |
+| 1 issue + scope ∈ {for_pr, for_implementation, for_plan, for_analysis} + 0 sub-issues | gap-fill-path (0.5, 1, 5b.5+5c, then 6) |
 | 1 issue + sub-issues OR plan with phases | medium-path (0.5, 1, 4.5, 4.6, 5, then 6) |
 | Multi-issue authorization set | full-path (all steps) |
-
-## Authorization Source Verification
-
-### Step 1: Explicit Authorization Check
-
-Verify that explicit authorization exists for the specific issue:
-- "approved #N" or "go #N" → authorization for issue N
-- "approved to PR" → authorization with scope `for_pr`
-- "approved for plan" → authorization with scope `for_plan`
-- "approved for implementation" → authorization with scope `for_implementation`
-
-### Step 2: Label Status Check
-
-Read the issue labels:
-- `needs-approval` present + explicit auth → **PROCEED** (explicit auth overrides)
-- `needs-approval` present + no explicit auth → **HALT** (wait for authorization)
-- No `needs-approval` label → check for other authorization signals
-
-### Step 3: Authorization Decision
-
-| Condition | Result |
-|-----------|--------|
-| Explicit auth ("approved"/"go") + any label | ✅ PROCEED |
-| No explicit auth + `needs-approval` label | ⛔ HALT |
-| No explicit auth + no label | ⛔ HALT (wait for auth) |
-
-### Step 4: Scope Resolution
-
-Parse authorization text for scope:
-- "approved #N" (no qualifier) → `standard` scope
-- "approved #N to PR" → `for_pr` scope
-- "approved #N for plan" → `for_plan` scope
-- "approved #N for implementation" → `for_implementation` scope
-- "approved #N for review" → `for_code_review` scope
-
-The verb-prefix parsing table in `approval-gate` skill → Authorization Scope Model is the sole authority for scope determination. No clarification needed, no judgment required.
 
 ## Sub-Agent Result Guard
 
 When `verify-authorization` is dispatched as a sub-agent and returns empty or whitespace-only:
 
-1. Report: `"Sub-agent for verify-authorization returned empty result, performing inline"`
-2. Execute Steps 0.5–6 inline using direct tool calls
-3. Produce the same result contract format
+1. Report: `"Sub-agent for verify-authorization returned empty result, re-dispatching (retry {N}/2)"`
+2. Re-dispatch with original scoped context only (no expanded context, no orchestrator reasoning)
+3. If re-dispatch returns empty and retry count < 2, go to step 1 (increment retry counter)
+4. If re-dispatch returns empty after 2 retries, fall through to double-failure protocol
 
-**Double-failure protocol:** If inline verification also fails:
-1. Report: `"Sub-agent and inline verification both failed for verify-authorization"`
+**Double-failure protocol (exhaustion handler):** After 2 failed re-dispatch attempts:
+1. Report: `"verify-authorization sub-agent failed after 2 re-dispatch attempts"`
 2. Invoke `--task completion` on the `approval-gate` skill
 3. HALT with status message + byline
 
@@ -98,35 +65,6 @@ When `verify-authorization` is dispatched as a sub-agent and returns empty or wh
 - Dispatch routing: see `enforcement/auto-dispatch-table.md`
 - Closed-issue verification: see `enforcement/closed-issue-verification.md`
 - Sub-issue graph traversal: see `enforcement/sub-issue-graph-traversal.md`
-
-## Post-Authorization Dispatch Window (MANDATORY)
-
-**After `verify-authorization` returns `authorized`, the agent MUST invoke `git-workflow --task pre-work` within at most 3 subsequent tool calls.** This bound prevents the post-authorization research spiral documented in Spec #171.
-
-### 3-Tool-Call Bound
-
-| Tool Call Position After Authorization | Permitted Actions |
-|----------------------------------------|-------------------|
-| 1st | `git-workflow --task pre-work` (target), or contextual transition calls |
-| 2nd | `git-workflow --task pre-work` (target), or contextual transition calls |
-| 3rd | `git-workflow --task pre-work` (target), or contextual transition calls |
-| >3rd without reaching `pre-work` | **CRITICAL VIOLATION** — HALT and report |
-
-### Self-Correction Protocol
-
-If more than 3 tool calls occur after `verify-authorization` returns `authorized` without the agent reaching `git-workflow --task pre-work`:
-
-1. HALT immediately
-2. Report the delay as a critical violation in chat output
-3. Include the tool call sequence in the report (tool names and parameters)
-4. Do NOT continue with any further read-only operations
-5. State explicitly: "Post-authorization dispatch window exceeded — 3-tool-call bound violated"
-
-### Rationale
-
-The research spiral occurs because the agent re-fetches issues, re-reads specs, dispatches sub-agents for JSON parsing, and performs other read-only operations that consume context budget without producing file modifications. The 3-tool-call bound is generous enough to allow legitimate transition calls (e.g., `pre-implementation-analysis` for multi-issue sets) while preventing unbounded metadata gathering.
-
-**See `000-critical-rules.md` §"Implementation-First Gate at Authorization Time" for the top-level critical violation. See `060-tool-usage.md` §"Sub-Agent Dispatch Restriction After Authorization" for the sub-agent restriction.**
 
 ## Result Contract
 
@@ -141,9 +79,10 @@ gates_passed: [gate_name]
 blocking_reason: <reason|null>
 cascade_type: plan_cascade | output_lineage_cascade | none
 cascade_parent: <issue_number | null>
-authorization_scope: standard | for_spec | for_plan | for_implementation | for_code_review | for_pr | pr_only | review_only
+authorization_scope: for_review_prep | for_spec | for_analysis | for_plan | for_implementation | for_pr | for_pr_only | for_review_only
 scope_source: parsed | default
 halt_at: <pipeline_stage>
 pr_strategy: stacked | individual | none
 gap_fill_actions: [<action_list>]
+pipeline_phase: <current_phase_name>
 ```

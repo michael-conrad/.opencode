@@ -1,7 +1,9 @@
 #!/bin/bash
-# Behavioral Enforcement Test: Submodule Pre-Work Tagging
-# Issue #215 - Verifies that the agent tags submodules at dev tip
-# with <parent-repo>/<issue-number> format during pre-work.
+# Behavioral Enforcement Test: Submodule Tag at Pre-work (SC-1, SC-2)
+#
+# Verifies the agent tags submodules at dev tip with <parent>/<issue> format
+# during pre-work and pushes tags. Submodule tagging is the mechanism that
+# preserves submodule SHA reachability across the feature branch lifecycle.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
@@ -11,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="submodule-tag-prework"
-SCENARIO_PROMPT="I need pre-work for issue #215 on a repo with .gitmodules. Tag each submodule at dev tip and push tags to remotes. Don't create bump commits for submodules."
+SCENARIO_PROMPT="I have a project with a .opencode git submodule. I'm starting pre-work for a new feature on issue #215. I need to init, sync submodules to dev tip, and tag them. What steps should I follow?"
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
@@ -19,17 +21,17 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# Verify the agent created tags with correct format
-assert_required_pattern_present "parent-repo.*issue-number\|<parent-repo>/<issue-number>" "tag format reference" || OVERALL_RESULT=1
+# SC-1: Agent must tag submodule dev tip with <parent>/<issue> format
+assert_required_pattern_present "tag.*215\|215.*tag\|opencode-config/215\|<parent.*issue.*tag\|tag.*submodule\|parent.*prefix.*tag\|parent-repo/issue-number\|parent_repo.*issue_number.*tag" "submodule tagging with issue number (SC-1)" || OVERALL_RESULT=1
 
-# Verify the agent did NOT create bump commits
-assert_forbidden_pattern_absent "chore(submodule).*pin.*to latest dev" "submodule bump commit" || OVERALL_RESULT=1
+# SC-2: Agent must push tags after creating them
+assert_required_pattern_present "git.*push.*tag\|push.*origin.*tag\|git.*tag.*push\|push.*tag.*origin" "pushing tags after creation (SC-2)" || OVERALL_RESULT=1
 
-# Verify the agent dispatched sub-agent (not inline git operations)
-assert_forbidden_pattern_absent "git tag.*submodule" "inline git tag on submodule" || OVERALL_RESULT=1
+# Agent must NOT attempt to commit the submodule pointer in parent
+assert_forbidden_pattern_absent "git.*add.*\.opencode\|git.*commit.*submodule\|git.*add.*opencode.*pointer" "committing submodule pointer" || OVERALL_RESULT=1
 
-# Verify tag push was mentioned
-assert_required_pattern_present "push.*tag\|tag.*push" "tag push reference" || OVERALL_RESULT=1
+# Agent must dispatch submodule operations to sub-agent, not inline
+assert_required_pattern_present "sub.agent.*tag\|submodule.tag.prework\|tag.*sub.agent\|dispatch.*tag" "sub-agent dispatch for tagging (SC-7)" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

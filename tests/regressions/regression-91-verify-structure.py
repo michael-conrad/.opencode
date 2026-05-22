@@ -1,20 +1,25 @@
 #!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
 # dependencies = ["pyyaml>=6.0"]
 # ///
+
 """
 DESCRIPTION: Regression test for spec #91 SC-12. Runs skildeck verify-structure against known-incomplete SKILL.md files from issues #41-#45 to verify ABSENT-FAIL is reported for missing structural components that were added in later commits.
 Usage: uv run .opencode/tests/regressions/regression-91-verify-structure.py
 """
 
-from __future__ import annotations
-
 import sys
 from pathlib import Path
 
-OPENCODE_DIR = Path(__file__).resolve().parent.parent.parent
-PROJECT_ROOT = OPENCODE_DIR.parent
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    _path = _path.parent
+OPENCODE_DIR = _path
+PROJECT_ROOT = _path.parent
 
 ISSUES = [41, 42, 43, 45]
 
@@ -26,12 +31,11 @@ ISSUE_SPEC_FILES = {
 }
 
 MISSING_COMPONENTS = {
-    41: ["state_machines", "evidence_artifacts", "gates", "dispatch_context"],
-    42: ["state_machines", "evidence_artifacts", "gates", "dispatch_context"],
-    43: ["state_machines", "evidence_artifacts", "gates", "dispatch_context"],
-    45: ["state_machines", "gates", "dispatch_context"],
+    41: ["state_machines", "evidence_artifacts", "gates", "task_context"],
+    42: ["state_machines", "evidence_artifacts", "gates", "task_context"],
+    43: ["state_machines", "evidence_artifacts", "gates", "task_context"],
+    45: ["state_machines", "gates", "task_context"],
 }
-
 
 def _extract_yaml_components(filepath: Path) -> dict:
     import yaml
@@ -41,7 +45,7 @@ def _extract_yaml_components(filepath: Path) -> dict:
         "gates": False,
         "evidence_artifacts": False,
         "decomposition": False,
-        "dispatch_context": False,
+        "task_context": False,
     }
     try:
         text = filepath.read_text()
@@ -59,7 +63,7 @@ def _extract_yaml_components(filepath: Path) -> dict:
             continue
         if isinstance(data, dict):
             for key in components:
-                if key == "dispatch_context":
+                if key == "task_context":
                     decomp = data.get("decomposition", [])
                     if isinstance(decomp, list):
                         for entry in decomp:
@@ -68,14 +72,13 @@ def _extract_yaml_components(filepath: Path) -> dict:
                                 and entry.get("type") == "sub-agent-dispatch"
                                 and "isolation" in entry
                             ):
-                                components["dispatch_context"] = True
+                                components["task_context"] = True
                                 break
                     continue
                 entries = data.get(key, [])
                 if isinstance(entries, list) and len(entries) > 0:
                     components[key] = True
     return components
-
 
 def main() -> None:
     overall = 0
@@ -114,7 +117,6 @@ def main() -> None:
     )
 
     sys.exit(overall)
-
 
 if __name__ == "__main__":
     main()

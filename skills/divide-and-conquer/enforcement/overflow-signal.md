@@ -33,6 +33,10 @@ When `assemble-work` receives an OVERFLOW result:
 
 ### Context Budget
 
-- Target: Each sub-agent should operate within 60-70% of context window
-- Warning: 80% context usage triggers proactive overflow signal
-- Hard limit: 90% context usage — MUST emit OVERFLOW
+Signal OVERFLOW only on concrete, observable signs:
+
+- Tool output is truncated mid-result with content missing
+- Required spec, plan, or file content cannot be included in task context because earlier content fills the window
+- Previously read content is no longer accessible due to context displacement
+
+Sub-process dispatch (opencode-cli run, task()) spawns independent processes — they do not consume your context budget.

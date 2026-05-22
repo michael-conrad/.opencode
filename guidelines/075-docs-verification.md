@@ -1,3 +1,9 @@
+---
+trigger_on: documentation, docs, live doc, API doc, verify doc
+tier: 1
+load_when: sub-agent
+---
+
 # Mandatory Live Documentation Verification
 
 ## Zero Tolerance Rule
