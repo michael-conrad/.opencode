@@ -85,9 +85,17 @@ There is no fixed template, no rigid YAML schema, no mandatory section headers. 
 
 `prior_context` in the task context carries the most recent intent summary — it is designed for immediate consumption by the next sub-agent. For the full history of design decisions across ALL phases, the orchestrator and sub-agents should reference the **Decision Log** persisted on the Plan issue.
 
-The Decision Log is an append-only sequence of GitHub Issue comments on the Plan issue. Each comment captures one sub-agent's `decision_log_entry` — the design decisions made during that phase. It survives session restarts because it lives on the GitHub Issue, not in transient agent context.
+The Decision Log is an append-only sequence stored in `.issues/` local storage. Each entry captures one sub-agent's `decision_log_entry` — the design decisions made during that phase. It survives session restarts because it lives in the `.issues/` directory, not in transient agent context. <!-- Decision log routes to .issues/ per SPEC #683 Phase 4 -->
 
-When `prior_context` references a decision that may need fuller explanation, the orchestrator should note "see Decision Log on Plan #N" so the sub-agent can retrieve the full context history if needed.
+When `prior_context` references a decision that may need fuller explanation, the orchestrator should note "see Decision Log in `.issues/N/comments.md`" so the sub-agent can retrieve the full context history if needed.
+
+To append a decision log entry:
+
+```bash
+./.opencode/tools/local-issues comment N --body "decision_log_entry: <content>"
+```
+
+Decision log entries are classified as `internal` content per the content classification gate (Step 1.5 in `comment.md`). They are written to `.issues/N/comments.md` only — they are NOT posted to GitHub Issue comments. <!-- Decision log routes to .issues/ per SPEC #683 Phase 4 -->
 
 ## Edge Cases
 

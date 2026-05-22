@@ -45,8 +45,13 @@ Authorization received (#N)
 │     ├─ 3h. task() → adversarial-audit (GREEN deliverable)
 │     │     Dual cross-family audit of implementation quality
 │     │
-│     └─ 3i. git-workflow --task implementation
-│           WIP checkpoint commit per issue on shared branch
+│     ├─ 3i. git-workflow --task implementation
+│     │     WIP checkpoint commit per issue on shared branch
+│     │
+│     └─ 3j. Record decision log entry (per issue)
+│           Write sub-agent decision_log_entry to .issues/N/comments.md
+│           via `local-issues comment N --body "decision_log_entry: <content>"`
+│           Decision log entries are INTERNAL content — never post to GitHub
 │
 ├─ 4. finishing-a-development-branch --task checklist
 │     Lint, typecheck, structural final checks
@@ -129,6 +134,25 @@ Every sub-agent dispatch includes `authorization_scope`, `halt_at`, and `must_re
 Git operations are delegated to git-workflow skill entirely. The orchestrator never invokes raw git commands — git-workflow enforces hooks, state verification, and conflict resolution.
 
 Dependency-ordered iteration means issues whose dependencies are satisfied go next. All dependencies must reach DONE before an issue starts its RED phase.
+
+## Decision Log Recording (Step 3j)
+
+After each sub-agent returns a `decision_log_entry` in its result contract, the orchestrator MUST persist it to `.issues/` local storage — NOT to GitHub Issue comments. Decision log entries are classified as `internal` content per the content classification gate (Step 1.5 in `issue-operations/tasks/comment.md`).
+
+**How to record a decision log entry:**
+
+```bash
+./.opencode/tools/local-issues comment N --body "decision_log_entry: <content>"
+```
+
+Where `N` is the Plan issue number.
+
+**Routing rules:**
+- Decision log entries → `.issues/N/comments.md` only (internal content)
+- Decision log entries MUST NOT be posted to GitHub via `github_add_issue_comment`
+- Decision log entries survive session restarts because `.issues/` is persisted in git
+
+The full Decision Log specification is in `enforcement/context-passing.md`.
 
 ## Enforcement
 

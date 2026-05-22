@@ -9,7 +9,10 @@
 # SC-2: Agent does NOT call github_add_issue_comment for internal content
 # SC-3: Agent defaults to internal classification when uncertain
 #
-# Co-authored with AI: <AgentName> (<ModelId>)
+# Uses assert_semantic for behavioral SC verification — inspector model evaluates
+# semantic meaning of agent output, not just grep pattern matching.
+#
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
 set -euo pipefail
 
@@ -25,17 +28,20 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-1: Agent should invoke or reference classification before posting
-# The agent should show evidence of classifying content (stakeholder vs internal)
-assert_required_pattern_present "classif\|stakeholder\|internal\|local-issues\|remote\.md\|comments\.md" "classification gate invocation" || OVERALL_RESULT=1
+# SC-1: Agent should invoke or reference content classification before posting
+# Semantic check: does the agent's response show evidence of classifying the content
+# as stakeholder vs internal before deciding where to route it?
+assert_semantic "SC-1" "Agent invokes or references a content classification step (classifying content as stakeholder or internal) before deciding where to post the comment" "required" || OVERALL_RESULT=1
 
-# SC-2: Agent should NOT call github_add_issue_comment directly for internal content
-# Internal reasoning (HOW analysis was done) should not be posted to remote
-assert_forbidden_pattern_absent "github_add_issue_comment" "direct remote posting of internal content" || OVERALL_RESULT=1
+# SC-2: Agent should NOT use github_add_issue_comment directly for internal content
+# Semantic check: does the agent avoid posting internal reasoning to GitHub and instead
+# route it to local .issues/ storage?
+assert_semantic "SC-2" "Agent does NOT post internal reasoning content to GitHub via github_add_issue_comment; instead routes it to local .issues/ storage or local-issues comment" "required" || OVERALL_RESULT=1
 
 # SC-3: Agent should default to internal classification when content is reasoning
-# The prompt describes internal reasoning, so the agent should classify it as internal
-assert_required_pattern_present "internal\|local\|comments\.md\|\.issues" "default internal classification" || OVERALL_RESULT=1
+# Semantic check: does the agent classify the prompt's content as internal
+# (agent reasoning, analysis methodology) rather than stakeholder-facing?
+assert_semantic "SC-3" "Agent classifies the content as internal (agent reasoning, analysis methodology) rather than stakeholder-facing information" "required" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

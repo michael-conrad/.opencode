@@ -26,7 +26,13 @@ If `.issues/` directory does not exist, call `local-issues setup`:
 ./.opencode/tools/local-issues setup
 ```
 
-Verify setup succeeded before proceeding.
+**Exit code handling:**
+
+| Exit Code | Meaning | Action |
+|-----------|---------|--------|
+| 0 | Success | Continue |
+| 1 | Fatal error | HALT and report stderr |
+| 2 | Stale worktree detected | Read stale path from stderr, run `git worktree remove <stale_path>`, re-run `local-issues setup` |
 
 ### Step 2: Create or Update Local Issue
 

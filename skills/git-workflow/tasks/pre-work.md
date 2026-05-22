@@ -285,6 +285,24 @@ After branch creation and submodule sync, initialize the `.issues/` worktree and
    ```
    This is idempotent — if `.issues/` is already a worktree, it exits cleanly. If a regular `.issues/` directory exists (not a worktree), it renames it to `.issues.bak`, creates the worktree, and migrates content.
 
+   **Exit code handling:**
+   | Exit Code | Meaning | Agent Action |
+   |-----------|---------|--------------|
+   | 0 | Success — worktree ready | Continue to step 2 |
+   | 1 | Fatal error — retry won't help | HALT and report the error from stderr |
+   | 2 | Blocked — stale worktree detected | Remediate: read the stale path from the stderr report, run `git worktree remove <stale_path>`, then retry `local-issues setup` |
+
+   **Exit code 2 remediation flow (STALE worktree):**
+   1. Read the stale path from the stderr report (lines starting with `ERROR: Stale issues-data worktree detected at:`)
+   2. Remove the stale worktree: `git worktree remove <stale_path>`
+   3. Re-run: `local-issues setup` — should succeed
+   4. Verify `.issues/` is now a worktree on `issues-data` at the correct path
+   5. After setup, examine all `.issues/` files on the current branch and ensure they are properly represented on `issues-data`:
+      - Tracked `.issues/` files → copy into the worktree, commit on `issues-data`, then `git rm --cached` from current branch and commit
+      - Untracked `.issues/` directories → copy into the worktree, commit on `issues-data`
+   6. Remove `.issues.bak` if leftover from the setup cycle
+   7. Resume the original calling task
+
 2. **Create issue-specific directory:**
    ```bash
    mkdir -p .issues/<issue_number>/

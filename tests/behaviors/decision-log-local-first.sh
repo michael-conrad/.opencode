@@ -5,9 +5,8 @@
 # local storage via `local-issues comment`, NOT to GitHub via
 # `github_add_issue_comment`.
 #
-# The agent should route decision_log_entry to local .issues/ storage
-# because decision logs are classified as `internal` per the Phase 1
-# content classification gate.
+# Uses assert_semantic for behavioral SC verification — inspector model evaluates
+# semantic meaning of agent output, not just grep pattern matching.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
@@ -25,13 +24,16 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# #683 SC-9: Decision log entries must be written to .issues/ local storage
+# SC-9: Decision log entries must be written to .issues/ local storage
 # via `local-issues comment N --body "..."`, NOT to GitHub via
 # `github_add_issue_comment`.
-assert_required_pattern_present "local-issues comment\|\.issues/\|comments\.md" "SC-9: decision log routed to .issues/ local storage" || OVERALL_RESULT=1
+# Semantic check: does the agent route the decision log to local .issues/
+# storage rather than posting to GitHub?
+assert_semantic "SC-9-routing" "Agent routes the decision log entry to local .issues/ storage (via local-issues comment or writing to .issues/N/comments.md) rather than posting it to GitHub via github_add_issue_comment" "required" || OVERALL_RESULT=1
 
-# SC-9: The agent must NOT use github_add_issue_comment for decision log entries
-assert_forbidden_pattern_absent "github_add_issue_comment" "SC-9: direct github_add_issue_comment for decision log (should use local-issues)" || OVERALL_RESULT=1
+# SC-9: Agent must NOT use github_add_issue_comment for decision log entries
+# Semantic check: does the agent avoid posting internal decision logs to GitHub?
+assert_semantic "SC-9-no-remote" "Agent explicitly avoids or declines to post the decision log to GitHub, recognizing it as internal content that belongs in local .issues/ storage" "forbidden" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then
