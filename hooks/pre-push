@@ -116,7 +116,7 @@ while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
         fi
 
         case "$LOCAL_BRANCH" in
-            pair-*|rollback/*)
+            pair-*|rollback/*|issues-data)
                 continue
                 ;;
         esac

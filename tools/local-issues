@@ -810,6 +810,22 @@ def cmd_setup(
     if had_existing_issues:
         print("  Pre-existing .issues/ migrated from .issues.bak")
 
+    # Push the issues-data branch to remote so subsequent commits can be pushed
+    push_result = _git(["push", "-u", "origin", ISSUES_DATA_BRANCH], check=False)
+    if push_result.returncode != 0:
+        print(
+            f"ERROR: Failed to push {ISSUES_DATA_BRANCH} branch to remote.",
+            file=sys.stderr,
+        )
+        if push_result.stderr:
+            print(push_result.stderr.strip(), file=sys.stderr)
+        print("", file=sys.stderr)
+        print("Remediate: resolve the push error above, then re-run setup.", file=sys.stderr)
+        print("Re-dispatch: call local-issues setup after resolving.", file=sys.stderr)
+        return 1
+    else:
+        print(f"  Pushed {ISSUES_DATA_BRANCH} to origin")
+
     if parent and is_submodule:
         return _setup_parent_worktree(repo_root)
 
