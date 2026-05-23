@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Squash implementation commits to a single commit (for single-issue branches) or verify existing commit structure (for work branches), rebase on current dev, and push to remote.
+Squash implementation commits or verify existing commit structure for work branches, rebase on current dev, and push to remote.
 
 ## Entry Criteria
 
@@ -11,7 +11,7 @@ Squash implementation commits to a single commit (for single-issue branches) or 
 
 ## Exit Criteria
 
-- Single clean commit on feature branch (single-issue) OR verified work branch structure
+- Verified commit structure on feature/work branch (one commit per implementation item)
 - Branch rebased on current dev
 - Branch pushed to remote with force-with-lease
 - Working tree clean
@@ -36,7 +36,17 @@ Then stage: `git add CHANGELOG.md`
 | -- | -- |
 | **Feature/Work branch** | One commit per implementation item (N commits is correct) |
 
-#### Single-Issue Branch (Default)
+#### Feature/Work Branch
+
+For work branches, verify commit structure matches the stacked PR model: one commit per implementation item. No squash is needed — the commit-per-item structure is correct by design.
+
+If the branch has accrued extraneous merge commits or fixup commits during development, interactive rebase to clean up:
+
+```bash
+git rebase -i origin/dev
+```
+
+If only one implementation item exists on the branch and it has been squash-merged during development (multiple small commits for one logical change), consolidate into a single commit:
 
 ```bash
 git reset --soft origin/dev
