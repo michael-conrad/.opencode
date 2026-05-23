@@ -97,6 +97,10 @@ Return the structured output contract with completeness result and findings.
 
 **Do NOT** include remediation suggestions, routing advice, or fix proposals. The gate is read-only.
 
+## Behavioral Uplift in Non-Adversatorial Check
+
+When running completeness checks, uplift SC evidence types to `behavioral` for changes that affect runtime behavior. The classification question ("Does this change affect runtime behavior?") is substrate-determined. If YES, structural evidence is `EVIDENCE_TYPE_MISMATCH` — per `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
+
 ## Single-Pass Enforcement
 
 This is a single-pass gate. Do NOT loop back to re-check after findings. Each handoff from orchestrator to gate produces exactly one check run. If the orchestrator re-tasks the gate after remediation, that is a new handoff — not a loop within the gate.

@@ -33,7 +33,9 @@ This task() routes plan execution to `divide-and-conquer --task assemble-work`, 
 
 This makes the implementation phase resilient to branch switching, worktree recreation, and developer context-switching.
 
-6. **Task() to divide-and-conquer:**
+6. **Behavioral uplift at TDD start:** When starting TDD for an item, if the change affects runtime behavior, declare the SC evidence type as `behavioral`. The classification question ("Does this change affect runtime behavior?") is substrate-determined. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
+
+7. **Task() to divide-and-conquer:**
 
 ```
 /skill divide-and-conquer --task assemble-work

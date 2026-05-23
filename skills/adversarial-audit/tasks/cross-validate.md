@@ -177,6 +177,19 @@ Disagreements MUST be surfaced to the developer for resolution. The `disagreemen
 
 This rule is non-waivable. Per `000-critical-rules.md` §critical-rules-020, verification is binary: exact match or FAIL. "Functionally equivalent" is never a valid consensus outcome.
 
+#### Finding Types (MANDATORY)
+
+The cross-validate result contract MUST use the following finding type classifications. All produce FAIL verdicts per `critical-rules-hard-fail`:
+
+| Finding Type | When to Use | Verdict |
+|-------------|-------------|---------|
+| `VERIFICATION-GAP` | Orphan change with no matching SC — implementation exists but no SC covers it | FAIL |
+| `COVERAGE-GAP` | Implementation extends beyond spec scope — code does more than the SC requires | FAIL |
+| `EVIDENCE_TYPE_MISMATCH` | Wrong evidence type for SC tier — structural evidence for behavioral SC | FAIL |
+| `ANTI_EVASION` | Agent evading behavioral testing — claiming model unavailability, "too slow", or test-not-needed for runtime-behavioral changes | FAIL |
+
+**Authority:** `guidelines/000-critical-rules.md` §critical-rules-BEH-EV, §critical-rules-hard-fail, §critical-rules-060
+
 ### Step 5: Compute Aggregate Consensus
 
 `overall_consensus = PASS` iff `consensus == PASS` for ALL criteria. Any single `FAIL` in the table cascades to `overall_consensus = FAIL`.

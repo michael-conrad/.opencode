@@ -38,6 +38,7 @@ Identify and verify edge cases from the spec. Confirm each edge case is handled 
 For each success criterion in the approved spec:
 - [ ] Produce a tool-call artifact confirming the criterion is met
 - [ ] Flag any criterion that cannot be verified as FAIL
+- [ ] For changes affecting runtime behavior, uplift the SC evidence type to `behavioral` regardless of declaration — see `guidelines/000-critical-rules.md` §critical-rules-BEH-EV
 
 ### Step 4: Report Findings
 

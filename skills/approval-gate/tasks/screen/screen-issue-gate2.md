@@ -27,6 +27,8 @@ Second gate of per-issue screening for pre-implementation analysis. Execute Gate
 
 **🚫 CRITICAL — ZERO TOLERANCE: After Gate 1 passes (all sub-issues legitimately closed), the agent MUST verify every success criterion from the issue body against the live codebase. `state:closed` + merged PR does NOT shortcut this gate — closed issues require the SAME evidence as open issues, plus the additional merged PR evidence.**
 
+**Evidence type extraction with uplift:** When screening issues, extract SC evidence types and apply the runtime-behavioral classification question. Changes affecting runtime behavior MUST use `behavioral` evidence type. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
+
 A merged PR proves code was merged. It does NOT prove that success criteria are met, that changes are complete, or that no files were accidentally omitted. The merged PR is a **prerequisite gate** (needed to begin verification), NOT proof of implementation. Verification against the live codebase IS the evidence.
 
 **Mandatory gate procedure — every candidate "already-implemented" issue MUST pass through ALL steps:**
