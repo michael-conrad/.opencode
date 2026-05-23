@@ -15,6 +15,44 @@ Accept an evidence payload, evaluation criteria, and pre-resolved auditor verdic
 - `auditor_verdicts`: Pre-resolved array of two verdict objects from the orchestrator, each containing `{ auditor_type, family, raw_verdict, parseable }` — resolved by `resolve-models` and dispatched by the orchestrator BEFORE this task
 - `github.owner`, `github.repo` present in task context
 
+## Pre-Inspection Classification Gate (MANDATORY)
+
+**Before evaluating any evidence, the auditor MUST classify each SC by asking: "Does this change affect runtime behavior? YES/NO."**
+
+### Classification Question
+
+For each success criterion in the audit scope:
+
+1. Read the implementation diff for the files the SC covers
+2. Ask: "Does this change affect runtime behavior?" — this is a substrate-determined question, not intent-determined
+3. If YES → the SC's evidence type is UPLIFTED to `behavioral` regardless of how it was declared
+4. If NO → the declared type stands
+
+### What Affects Runtime Behavior
+
+| Change Type | Affects Runtime Behavior? | Classification |
+|-------------|---------------------------|----------------|
+| Function logic changes | YES | Uplift to behavioral |
+| Control flow changes | YES | Uplift to behavioral |
+| API endpoint changes | YES | Uplift to behavioral |
+| New code paths | YES | Uplift to behavioral |
+| Config-only changes (no runtime effect) | NO | Declared type stands |
+| Documentation-only changes | NO | Declared type stands |
+| Style/formatting changes | NO | Declared type stands |
+| Data schema changes with runtime effects | YES | Uplift to behavioral |
+
+### Uplift Protocol
+
+When an SC is uplifted:
+1. Record the uplift in the audit report: `SC-N: uplifted from [declared_type] to behavioral (change affects runtime behavior: [reason])`
+2. Evaluate ALL evidence against the `behavioral` tier
+3. Structural or string evidence for an uplifted SC is classified as `EVIDENCE_TYPE_MISMATCH` with a FAIL verdict
+4. The uplift is MANDATORY — no opt-out, no "close enough" exception
+
+**🚫 FORBIDDEN:** Accepting structural evidence for an uplifted SC. The uplift is automatic and non-negotiable.
+
+**Authority:** `guidelines/000-critical-rules.md` §critical-rules-BEH-EV, `guidelines/080-code-standards.md` §Evidence Type Taxonomy
+
 ## Exit Criteria
 
 - Cross-validation result array `[{ criterion_id, auditor_1_result, auditor_2_result, consensus, auditor_1_evidence, auditor_2_evidence }]` returned
