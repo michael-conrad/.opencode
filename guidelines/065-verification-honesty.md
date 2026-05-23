@@ -349,6 +349,56 @@ When reporting verification results for external values:
 
 When a FAIL signal is received at any pipeline stage, the agent MUST remediate before halting. See `000-critical-rules.md` §critical-rules-hard-fail for the complete protocol.
 
+## Anti-Evasion Rules — Cost, Availability, and Necessity Are Not Excuses
+
+Evasion patterns are predictable. When a behavioral test cannot run, agents produce three categories of rationalization instead of the required FAIL verdict. Each category is a Tier 2 prohibition with a mandatory remediation-first protocol.
+
+### Pattern (a): Claiming Model Unavailability Without Tool-Call Evidence
+
+An agent claiming a model is unavailable MUST produce tool-call evidence before the claim is accepted. "The model timed out" is not evidence — `opencode-cli models` output showing the model is not listed, or a timed-out execution log showing the timeout duration, is evidence.
+
+**Remediation-first protocol (minimum 2 steps before FAIL):**
+1. Run `opencode-cli models` to verify model availability
+2. Attempt alternative model selection (select a different available model)
+3. Increase timeout and retry
+4. Only after 2+ remediation attempts: report FAIL with tool-call evidence of each attempt
+
+### Pattern (b): Claiming "Too Slow" as Justification for Skipping Behavioral Testing
+
+Per `020-go-prohibitions.md` §1 ALWAYS DO — Cost-blind verification: resource cost is NEVER a factor in verification decisions. "This would take too long" is not an acceptable reason to skip or substitute behavioral verification. Correctness is the only metric — there is no score for tool-call economy.
+
+**Remediation-first protocol (minimum 2 steps before FAIL):**
+1. Increase timeout configuration (BEHAVIOR_TIMEOUT, BEHAVIOR_SEMANTIC_TIMEOUT)
+2. Run behavioral test with increased timeout
+3. Attempt alternative model with faster inference
+4. Only after 2+ remediation attempts: report FAIL with evidence of each attempt
+
+### Pattern (c): Claiming Behavioral Testing "Not Needed" for Runtime-Behavioral Changes
+
+Per `080-code-standards.md` §Test Integrity Mandate — removing or weakening behavioral assertions is a CRITICAL VIOLATION. When a change affects runtime behavior (agent dispatch decisions, enforcement gate outcomes, tool selection, pipeline routing, conditional branching, test execution results), behavioral testing is not optional — it is the only sufficient evidence type. Declaring an SC as `structural` to avoid behavioral testing when the change affects runtime behavior is an automatic uplift to `behavioral`.
+
+**Remediation-first protocol (minimum 2 steps before FAIL):**
+1. Reclassify evidence type from `structural`/`string` to `behavioral` per the substrate classification
+2. Design and execute a behavioral test that verifies the runtime behavior change
+3. If behavioral test environment unavailable: apply patterns (a) and (b) remediation steps
+4. Only after 2+ remediation attempts: report FAIL with EVIDENCE_TYPE_MISMATCH classification
+
+### 🚫 FORBIDDEN
+
+- Claiming model unavailability without tool-call evidence (`opencode-cli models` output, execution logs)
+- Claiming "too slow" or "too many tool calls" as justification for skipping any verification step
+- Declaring a runtime-behavioral change as `structural` to avoid behavioral testing
+- Producing an INCONCLUSIVE verdict when EVIDENCE_TYPE_MISMATCH is detected — the verdict MUST be FAIL
+- Skipping remediation steps before reporting FAIL — exhaustion before escalation
+
+### ✅ REQUIRED
+
+- Produce tool-call evidence before claiming model unavailability
+- Run behavioral tests regardless of estimated cost or duration
+- Apply automatic evidence type uplift when a change affects runtime behavior
+- Attempt at least 2 remediation steps (alternative model, timeout increase, infrastructure check) before reporting FAIL
+- Report EVIDENCE_TYPE_MISMATCH with FAIL verdict when structural evidence is submitted for a runtime-behavioral change
+
 ```yaml+symbolic
 schema_version: "3.0"
 last_updated: "2026-05-17T00:00:00Z"
@@ -468,4 +518,50 @@ rules:
     requires: []
     triggers: [verification-before-completion, adversarial-audit, divide-and-conquer, git-workflow]
     source: "065-verification-honesty.md §Hard Failure Discipline"
+
+  - id: verification-honesty-008a
+    tier: 2
+    title: "Anti-evasion: claiming model unavailability without tool-call evidence"
+    conditions:
+      all:
+        - "behavioral_test_needed == true"
+        - "agent_claim == 'model_unavailable'"
+        - "tool_call_evidence_exists == false"
+    actions:
+      - HALT
+      - REQUIRE_TOOL_CALL_EVIDENCE
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit]
+    source: "065-verification-honesty.md §Anti-Evasion Rules"
+
+  - id: verification-honesty-008b
+    tier: 2
+    title: "Anti-evasion: claiming 'too slow' as justification for skipping behavioral testing"
+    conditions:
+      all:
+        - "behavioral_test_needed == true"
+        - "agent_claim == 'too_slow'"
+    actions:
+      - HALT
+      - REQUIRE_EXECUTION
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit]
+    source: "065-verification-honesty.md §Anti-Evasion Rules"
+
+  - id: verification-honesty-008c
+    tier: 2
+    title: "Anti-evasion: claiming behavioral testing 'not needed' for runtime-behavioral change"
+    conditions:
+      all:
+        - "change_affects_runtime_behavior == true"
+        - "agent_claim == 'behavioral_testing_not_needed'"
+    actions:
+      - HALT
+      - REQUIRE_BEHAVIORAL_TEST
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit]
+    source: "065-verification-honesty.md §Anti-Evasion Rules"
 ```

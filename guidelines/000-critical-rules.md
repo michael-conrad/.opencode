@@ -615,6 +615,29 @@ Removing or weakening a behavioral (semantic, functional) test assertion to work
 - **Rule 4**: FAIL is a hard gate — never proceed past FAIL. Only valid outcomes: PASS, FAIL (remediate and re-run), or INCONCLUSIVE after exhaustive remediation (escalate only)
 
 
+### [critical-rules-BEH-EV] Runtime-Behavioral Evidence Classification Gate — structural evidence for behavioral changes is EVIDENCE_TYPE_MISMATCH
+
+The question "does this change affect runtime behavior?" is substrate-determined — the change either alters runtime behavior or it does not. Intent, author assertion, and hope are irrelevant. When the answer is YES, submitting structural or string evidence is EVIDENCE_TYPE_MISMATCH, not a soft downgrade. The verdict is FAIL. No advisory, no "PASS with structural caveat," no INCONCLUSIVE. The classification gate enforces what the evidence type taxonomy already requires: behavioral changes demand behavioral evidence.
+
+Runtime behavior includes: agent dispatch decisions, enforcement gate outcomes, tool selection, pipeline routing, conditional branching, test execution results, and any observable system output. A change that modifies WHAT a system DOES at runtime — as opposed to what it CONTAINS statically — is a runtime-behavioral change.
+
+The uplift is automatic. Declaring an SC as `structural` or `string` does not exempt it from behavioral evidence requirements when the underlying change affects runtime behavior. Evidence type is determined by what the change DOES, not by what the author declares. A `string` SC that tests a runtime-behavioral change is automatically uplifted to `behavioral` — the declared type is overridden by the substrate classification.
+
+🚫 FORBIDDEN:
+- Submitting structural or string evidence for a runtime-behavioral change and reporting PASS
+- Declaring an SC as `structural` to avoid behavioral testing when the change affects runtime behavior
+- Classifying the evidence type question as intent-determined ("what did the author mean?") instead of substrate-determined ("does this change affect runtime behavior?")
+- Producing an advisory or INCONCLUSIVE verdict when EVIDENCE_TYPE_MISMATCH is detected
+
+✅ REQUIRED:
+- Classify the change question as substrate-determined: "Does this change affect runtime behavior? YES/NO"
+- When YES: automatically uplift declared evidence type to `behavioral` regardless of author declaration
+- When the declared type is `structural` or `string` but the change is runtime-behavioral: report EVIDENCE_TYPE_MISMATCH with a FAIL verdict
+- Apply the same remediation-first protocol as all hard failures: diagnose, remediate, re-verify
+
+Authority sources: `080-code-standards.md` §Evidence Type Taxonomy, `080-code-standards.md` §Test Integrity Mandate, `020-go-prohibitions.md` §1 ALWAYS DO — Cost-blind verification.
+
+
 ### Tier 3 — Workflow-Standard (FLAG — Convention/Consistency)
 
 Rules that prevent **inconsistency or tech debt**: naming conventions, numbering, comment style, tool selection. Violations are flagged but do not halt.
@@ -1891,4 +1914,21 @@ rules:
     requires: []
     triggers: [verification-before-completion, adversarial-audit, test-driven-development]
     source: "080-code-standards.md §Rule 5: Agent Output MUST Be Verified by Clean-Room Semantic Inspection"
+
+  - id: critical-rules-BEH-EV
+    tier: 2
+    title: "Runtime-Behavioral Evidence Classification Gate — structural evidence for behavioral changes is EVIDENCE_TYPE_MISMATCH"
+    conditions:
+      all:
+        - "change_affects_runtime_behavior == true"
+        - "sc_evidence_type IN ['structural', 'string']"
+        - "reporting_classification != 'EVIDENCE_TYPE_MISMATCH'"
+    actions:
+      - HALT
+      - DOWNGRADE_TO_FAIL
+      - CLASSIFY_AS_EVIDENCE_TYPE_MISMATCH
+    conflicts_with: [critical-rules-060, critical-rules-020]
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit, test-driven-development]
+    source: "000-critical-rules.md §Runtime-Behavioral Evidence Classification Gate"
 ```
