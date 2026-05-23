@@ -112,6 +112,23 @@ Review every requirement statement:
 
 **The Verification Method column MUST specify an executable command or assertion producing deterministic PASS/FAIL. The Remediation column MUST specify what corrective action is required on FAIL and how re-verification is performed.**
 
+### Evidence Type Classification Gate (MANDATORY)
+
+**When authoring success criteria, the agent MUST classify each SC's evidence type by asking: "Does this change affect runtime behavior? If YES, evidence type MUST be behavioral."**
+
+The declared evidence type in the SC table MUST reflect the classification question's answer:
+
+| Change Affects Runtime Behavior? | Required Evidence Type | Minimum Verification |
+|----------------------------------|----------------------|---------------------|
+| YES | `behavioral` | Test execution with output inspection |
+| NO | Per declared type | Per Evidence Type Taxonomy |
+
+**🚫 FORBIDDEN:** Declaring a runtime-behavioral change as `structural` or `string` evidence type. The classification question is substrate-determined — the code path either executes at runtime or it does not.
+
+**Remediation:** If the agent classifies an SC as structural/string for a runtime-behavioral change, the VbC pre-flight classification gate will uplift it to behavioral anyway. Classifying correctly at authorship time prevents downstream rework.
+
+**Authority:** `guidelines/000-critical-rules.md` §critical-rules-BEH-EV, `guidelines/080-code-standards.md` §Evidence Type Taxonomy
+
 <!-- Fragment ID: sc-enforcement-gate -->
 
 For each feature/requirement:
