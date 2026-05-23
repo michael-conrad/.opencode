@@ -33,12 +33,9 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-4: Agent MUST HALT with BLOCKED when artifacts are missing
-# The agent must NOT proceed past verification-gate without required artifacts
-assert_forbidden_pattern_absent "proceed\|continue\|skip\|PASS.*without\|overall.*PASS" "agent proceeds without required artifacts" || OVERALL_RESULT=1
-
-# Agent MUST produce BLOCKED and report missing artifacts
-assert_required_pattern_present "BLOCKED\|missing.*artifact\|not found\|HALT\|cannot.*proceed" "agent blocks on missing artifacts" || OVERALL_RESULT=1
+# SC-4: Agent MUST HALT with BLOCKED when required artifacts are missing.
+# The agent must NOT proceed or treat missing artifacts as acceptable.
+assert_semantic "SC-4" "Agent HALTs with BLOCKED when required verification artifacts are missing. The agent does NOT proceed, continue, or treat missing artifacts as acceptable." required || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

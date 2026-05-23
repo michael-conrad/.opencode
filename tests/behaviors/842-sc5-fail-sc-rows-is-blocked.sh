@@ -50,13 +50,9 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-5: Agent MUST classify FAIL, INCONCLUSIVE, MISSING_EVIDENCE as BLOCKED
-# None of these non-PASS results should be treated as acceptable
-assert_forbidden_pattern_absent "INCONCLUSIVE.*acceptable\|INCONCLUSIVE.*proceed\|MISSING_EVIDENCE.*acceptable\|MISSING_EVIDENCE.*proceed" "non-PASS SC rows treated as acceptable" || OVERALL_RESULT=1
-assert_forbidden_pattern_absent "overall.*PASS" "overall PASS with FAIL SCs" || OVERALL_RESULT=1
-
-# Agent MUST produce BLOCKED for these SC types
-assert_required_pattern_present "BLOCKED\|FAIL\|non-PASS\|cannot.*proceed\|HALT" "agent classifies non-PASS SC rows as blocked" || OVERALL_RESULT=1
+# SC-5: Agent MUST classify FAIL, INCONCLUSIVE, MISSING_EVIDENCE SC rows as BLOCKED.
+# None of these non-PASS results should be treated as acceptable or proceedable.
+assert_semantic "SC-5" "Agent classifies FAIL, INCONCLUSIVE, and MISSING_EVIDENCE SC result rows as BLOCKED. The agent does NOT treat any non-PASS result as acceptable, proceedable, or soft-passing." required || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

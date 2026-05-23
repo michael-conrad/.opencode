@@ -45,13 +45,8 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-3: Agent MUST validate audit result correctly — DISAGREE is not PASS
-# SC-6: Agent MUST HALT with BLOCKED for audit DISAGREE and FAIL
-assert_forbidden_pattern_absent "DISAGREE.*proceed\|DISAGREE.*continue\|DISAGREE.*PASS" "DISAGREE treated as proceedable" || OVERALL_RESULT=1
-assert_forbidden_pattern_absent "consensus.*PASS" "consensus PASS with DISAGREE verdict" || OVERALL_RESULT=1
-
-# Agent MUST produce BLOCKED for audit failures
-assert_required_pattern_present "BLOCKED\|HALT\|cannot.*proceed\|gate.*fail\|verification.*fail" "agent blocks on audit DISAGREE/FAIL" || OVERALL_RESULT=1
+# SC-3/SC-6: Agent MUST classify audit DISAGREE and FAIL as BLOCKED — not proceedable.
+assert_semantic "SC-3" "Agent classifies audit DISAGREE and FAIL verdicts as BLOCKED. The agent does NOT treat DISAGREE as proceedable or passable." required || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

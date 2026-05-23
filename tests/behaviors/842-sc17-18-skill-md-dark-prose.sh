@@ -30,19 +30,20 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-17: Agent MUST describe Overview as using identity-anchoring (professional/amateur) language
-# Dark-prose-001 uses confirmshaming identity-frame: "Professional engineers X. Amateurs Y."
-assert_required_pattern_present "professional\|amateur\|Professional\|Amateur" "agent recognizes identity-anchoring language" || OVERALL_RESULT=1
+# SC-17/SC-18: Agent MUST recognize dark-prose-001 identity-anchoring language and
+# dark-prose-002 IS/IS NOT definitions in SKILL.md.
+# Per §Rule 5 of 080-code-standards.md, assert_semantic is the ONLY valid assertion
+# type for behavioral SCs that verify agent recognition of writing patterns.
+# grep/string assertions on LLM prose are EVIDENCE_TYPE_MISMATCH for behavioral SCs.
+assert_semantic "SC-17" "Agent recognizes that the SKILL.md Overview uses professional identity language with confirmshaming identity-frame — contrasting professional engineers with amateurs (e.g., 'Professional engineers X. Amateurs Y.'). The agent identifies this as dark-prose-001 pattern." required || OVERALL_RESULT=1
 
-# SC-18: Agent MUST describe Purpose entries as using IS/IS NOT binary definitions
-assert_required_pattern_present "IS\|IS NOT\|is.*not\|are.*not" "agent recognizes IS/IS NOT pattern" || OVERALL_RESULT=1
+assert_semantic "SC-18" "Agent recognizes that the task Purpose entries use binary IS/IS NOT definitions (dark-prose-002) that define what each task IS and IS NOT, rather than vague or advisory language." required || OVERALL_RESULT=1
 
 # Structural check: SKILL.md Overview should NOT use advisory language
 # (should, please, recommended, make sure are advisory — forbidden by SC-16)
+# This is a content-verification on the file itself, NOT on agent prose — appropriate.
 SKILL_FILE="$SCRIPT_DIR/../../skills/git-workflow/SKILL.md"
 if [ -f "$SKILL_FILE" ]; then
-    # After GREEN: this should find 0 advisory words in the Overview section
-    # Currently: the old Overview likely contains advisory language
     OVERVIEW_START=$(grep -n "^# " "$SKILL_FILE" | head -1 | cut -d: -f1)
     TASK_TABLE_START=$(grep -n "^## Tasks\|^## Task\|Task.*Words" "$SKILL_FILE" | head -1 | cut -d: -f1)
     if [ -n "$OVERVIEW_START" ] && [ -n "$TASK_TABLE_START" ]; then
@@ -51,7 +52,8 @@ if [ -f "$SKILL_FILE" ]; then
         else
             OVERVIEW_LINES=50
         fi
-        ADVISORY_COUNT=$(sed -n "${OVERVIEW_START},+${OVERVIEW_LINES}p" "$SKILL_FILE" | grep -ci "should\|please\|recommended\|make sure" || echo "0")
+        ADVISORY_COUNT=$(sed -n "${OVERVIEW_START},+${OVERVIEW_LINES}p" "$SKILL_FILE" | grep -ci "should\|please\|recommended\|make sure" || echo 0)
+        ADVISORY_COUNT=$(echo "$ADVISORY_COUNT" | head -1 | tr -d '[:space:]')
         if [ "$ADVISORY_COUNT" -ne 0 ]; then
             echo "FAIL: Overview contains $ADVISORY_COUNT advisory language instances (should/please/recommended/make sure)"
             OVERALL_RESULT=1

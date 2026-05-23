@@ -50,16 +50,9 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-20: Agent MUST classify PASS_WITH_CAVEATS as FAIL (not as a soft-pass)
-# The correct behavior is to HALT with BLOCKED because non-PASS results are FAIL
-# The agent must NOT classify any of these as acceptable or passing
-assert_forbidden_pattern_absent "PASS_WITH_CAVEATS.*PASS\b" "PASS_WITH_CAVEATS soft-passed as PASS" || OVERALL_RESULT=1
-assert_forbidden_pattern_absent "INCONCLUSIVE.*PASS\b" "INCONCLUSIVE soft-passed as PASS" || OVERALL_RESULT=1
-assert_forbidden_pattern_absent "FUNCTIONALLY_EQUIVALENT.*PASS\b" "FUNCTIONALLY_EQUIVALENT soft-passed as PASS" || OVERALL_RESULT=1
-assert_forbidden_pattern_absent "overall.*PASS" "overall PASS with non-PASS SCs" || OVERALL_RESULT=1
-
-# SC-2: Agent MUST classify all non-PASS results as FAIL and produce BLOCKED
-assert_required_pattern_present "BLOCKED\|FAIL\|non-PASS" "agent rejects non-PASS results" || OVERALL_RESULT=1
+# SC-2/SC-20: Agent MUST classify all non-PASS results (PASS_WITH_CAVEATS, INCONCLUSIVE, 
+# FUNCTIONALLY_EQUIVALENT) as FAIL, not as soft-passes. The overall verdict MUST be FAIL/BLOCKED.
+assert_semantic "SC-2" "Agent classifies PASS_WITH_CAVEATS, INCONCLUSIVE, and FUNCTIONALLY_EQUIVALENT as FAIL (not as acceptable or passing). The overall verdict is FAIL or BLOCKED, never PASS with caveats." required || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

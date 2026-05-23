@@ -4,7 +4,7 @@
 
 Pre-work IS the foundation of authorized work. Work without authorization IS unauthorized — period. The pre-work sequence establishes the branch, syncs the repository, and initializes the environment before any implementation begins.
 
-This file is a **sequence reference** — not a routing file. The orchestrator reads this file to understand the correct sequence order, then invokes each sub-task individually via its own task file.
+This file is a **sequence reference** — not a routing file. The orchestrator reads this file to understand the correct sequence order, then executes each sub-task individually by loading its task file via `skill()`.
 
 ## 🚫 ZERO TOLERANCE: Branch Before Edit
 
@@ -21,7 +21,7 @@ This file is a **sequence reference** — not a routing file. The orchestrator r
 
 ## Sub-Task Sequence
 
-The orchestrator invokes each sub-task individually. The sequence order is:
+The orchestrator executes each sub-task individually by loading its task file. The sequence order is:
 
 | Order | Sub-Task | File | Achieves |
 |-------|----------|------|----------|

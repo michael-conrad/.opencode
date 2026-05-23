@@ -29,19 +29,25 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
+# SC-22 Behavioral: agent does NOT dispatch sub-agents when reading pre-work.md
+assert_semantic "SC-22" "Agent reads pre-work.md as a sequence of steps to perform itself, NOT dispatching sub-agents via task(). Pre-work.md is a sequence reference for the current agent, not a dispatch table." required || OVERALL_RESULT=1
+
 # SC-22: pre-work.md must NOT contain task() calls, dispatch instructions,
-# or sub-agent invocation language
-# We verify two ways:
-# 1. Structural: grep the file for dispatch patterns (content-verification)
-# 2. Behavioral: agent should NOT invoke sub-agent dispatch from pre-work.md
+# or sub-agent invocation language. Verify via:
+# 1. Structural: grep for dispatch patterns (content-verification)
+# 2. Behavioral: assert_semantic (agent does not dispatch sub-agents from pre-work)
 
 # Structural check: pre-work.md must not contain dispatch language
-# This is a content-verification test that will FAIL until the rewrite is done
 PRE_WORK_FILE="$SCRIPT_DIR/../../skills/git-workflow/tasks/pre-work.md"
 
 if [ -f "$PRE_WORK_FILE" ]; then
-    TASK_CALLS=$(grep -c "task(" "$PRE_WORK_FILE" 2>/dev/null || echo "0")
-    DISPATCH_REFS=$(grep -ci "dispatch\|sub-agent\|call task\|invoke.*task" "$PRE_WORK_FILE" 2>/dev/null || echo "0")
+    TASK_CALLS=$(grep -c "task(" "$PRE_WORK_FILE" 2>/dev/null || echo 0)
+    # Match "dispatch", "sub-agent", "sub_agent", "call task", "task()", "invoke task"
+    # but NOT "sub-task" or "invokes each sub-task" (legitimate sequence language)
+    DISPATCH_REFS=$(grep -ciE "\bdispatch\b|\bsub.agent\b|\bcall.task\b|\btask\(\)|\binvoke task\b" "$PRE_WORK_FILE" 2>/dev/null || echo 0)
+    # Handle grep returning "0\n0" on no match — take first line only
+    TASK_CALLS=$(echo "$TASK_CALLS" | head -1 | tr -d '[:space:]')
+    DISPATCH_REFS=$(echo "$DISPATCH_REFS" | head -1 | tr -d '[:space:]')
 
     if [ "$TASK_CALLS" -ne 0 ]; then
         echo "FAIL: pre-work.md contains $TASK_CALLS task() calls (expected 0)"

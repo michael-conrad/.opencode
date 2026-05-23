@@ -28,19 +28,23 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-9: Agent MUST identify verification-gate as a task
-assert_required_pattern_present "verification-gate" "agent finds verification-gate task" || OVERALL_RESULT=1
+# SC-8/SC-9/SC-23: Agent MUST identify verification-gate, commit-prep, and
+# pre-work sub-tasks in the SKILL.md routing table.
+# Per §Rule 5 of 080-code-standards.md, assert_semantic is the ONLY valid assertion
+# type for behavioral SCs that verify agent recognition of routing entries.
+# grep/string assertions on LLM prose are EVIDENCE_TYPE_MISMATCH for behavioral SCs.
+assert_semantic "SC-8" "Agent identifies verification-gate as a task in the git-workflow SKILL.md routing table. The agent correctly finds the verification-gate task between VbC/audit and review-prep." required || OVERALL_RESULT=1
 
-# SC-9: Agent MUST identify commit-prep as a task
-assert_required_pattern_present "commit-prep" "agent finds commit-prep task" || OVERALL_RESULT=1
+assert_semantic "SC-9" "Agent identifies commit-prep as a task in the git-workflow SKILL.md routing table." required || OVERALL_RESULT=1
 
-# SC-23: Agent MUST identify individual pre-work sub-tasks
-assert_required_pattern_present "verify-auth\|sync-dev\|create-branch\|init-env\|report-ready" "agent finds pre-work sub-tasks" || OVERALL_RESULT=1
+assert_semantic "SC-23" "Agent identifies the individual pre-work sub-tasks (verify-auth, sync-dev, create-branch, init-env, report-ready) in the git-workflow SKILL.md routing table." required || OVERALL_RESULT=1
 
 # Structural check: no word counts in task table
+# This is a content-verification on the file itself, NOT on agent prose — appropriate.
 SKILL_FILE="$SCRIPT_DIR/../../skills/git-workflow/SKILL.md"
 if [ -f "$SKILL_FILE" ]; then
-    WORD_COUNTS=$(grep -c "≈" "$SKILL_FILE" 2>/dev/null || echo "0")
+    WORD_COUNTS=$(grep -c "≈" "$SKILL_FILE" 2>/dev/null || echo 0)
+    WORD_COUNTS=$(echo "$WORD_COUNTS" | head -1 | tr -d '[:space:]')
     if [ "$WORD_COUNTS" -ne 0 ]; then
         echo "FAIL: SKILL.md still contains $WORD_COUNTS word-count markers (≈) in task table"
         OVERALL_RESULT=1
