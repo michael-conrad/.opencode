@@ -6,16 +6,16 @@ Authorization phrases carry implicit scope — the pipeline stage the developer 
 
 | Phrase Pattern | Scope | HALT After | Gap-Fill | PR Strategy |
 |----------------|-------|------------|----------|-------------|
-| `"approved #N"` (no qualifier) | for_review_prep | review-prep | None | individual |
+| `"approved #N"` (no qualifier) | for_review_prep | review-prep | None | none |
 | `"approved #N for spec"` or `"#N approved for spec"` | for_spec | spec_created | None | none |
 | `"approved #N for analysis"` or `"#N approved for analysis"` | for_analysis | analysis_complete | auto-create spec | none |
 | `"approved #N for plan"` or `"#N approved for plan"` | for_plan | plan_created | auto-create spec | none |
-| `"approved #N for implementation"` or `"#N approved for implementation"` | for_implementation | verification_complete | auto-create spec+plan, auto-approve | individual |
+| `"approved #N for implementation"` or `"#N approved for implementation"` | for_implementation | verification_complete | auto-create spec+plan, auto-approve | none |
 | `"approved #N to PR"` or `"#N approved to PR"` | for_pr | pr_created | auto-create spec+plan, auto-approve, auto-PR | stacked |
 | `"approved #N pr only"` or `"#N approved for pr only"` | for_pr_only | pr_created | None | stacked |
-| `"approved #N for review"` or `"#N approved for review only"` | for_review_only | code_review_ready | None | individual |
-| `"approved for next phase"` or `"approved #N for next phase"` | for_next_phase | next_phase_complete | auto-approve next phase | individual |
-| `"approved for phase N"` or `"approved #N for phase N"` | for_phase_N | phase_N_complete | auto-approve up to phase N | individual |
+| `"approved #N for review"` or `"#N approved for review only"` | for_review_only | code_review_ready | None | none |
+| `"approved for next phase"` or `"approved #N for next phase"` | for_next_phase | next_phase_complete | auto-approve next phase | none |
+| `"approved for phase N"` or `"approved #N for phase N"` | for_phase_N | phase_N_complete | auto-approve up to phase N | none |
 
 ## "Next Phase" Resolution
 
@@ -107,14 +107,14 @@ def resolve_phase_n(phase_number, total_phases):
         "phase_number": phase_number,
         "gap_fill": f"auto-approve up to phase {phase_number}",
         "is_final_phase": is_final,
-        "pr_strategy": "individual" if not is_final else "individual",
+        "pr_strategy": "none" if not is_final else "none",
     }
 ```
 
 | Phase Context | halt_at | Gap-Fill | PR Strategy |
 |---------------|---------|----------|-------------|
-| Phase N is intermediate | `phase_N_complete` | Auto-approve phases 1 through N | individual |
-| Phase N is final | `review_prep` (standard completion) | Auto-approve all phases | individual |
+| Phase N is intermediate | `phase_N_complete` | Auto-approve phases 1 through N | none |
+| Phase N is final | `review_prep` (standard completion) | Auto-approve all phases | none |
 
 **⚠️ CRITICAL: `for_next_phase` and `for_phase_N` scopes do NOT cascade to subsequent phases.** Authorization for "next phase" covers exactly that one phase. Authorization for "phase 2" covers phases 1–2 only. Subsequent phases require separate authorization.
 
@@ -132,13 +132,13 @@ def resolve_phase_n(phase_number, total_phases):
 
 | Scope | PR Strategy |
 |-------|-------------|
-| for_review_prep | individual (one PR per issue) |
+| for_review_prep | none |
 | for_spec | none |
 | for_analysis | none |
 | for_plan | none |
-| for_implementation | individual |
+| for_implementation | none |
 | for_pr | stacked |
 | for_pr_only | stacked |
-| for_review_only | individual |
-| for_next_phase | individual |
-| for_phase_N | individual |
+| for_review_only | none |
+| for_next_phase | none |
+| for_phase_N | none |

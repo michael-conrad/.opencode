@@ -97,7 +97,7 @@ uv run pytest test/ -x
 - **DO NOT push.** The orchestrator handles all pushes during its assembly phase (squash-merge into work branch).
 - Verify locally only: `git branch -vv` (expect no upstream tracking)
 
-**If `{{pr_strategy}}` is NOT `"stacked"` (individual PR workflow, or no context):**
+**If `{{pr_strategy}}` is `"none"` or empty (no PR workflow, or no context):**
 ```bash
 git push -u origin <branch>
 git branch -vv

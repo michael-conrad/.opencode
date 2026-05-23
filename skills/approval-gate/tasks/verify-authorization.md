@@ -82,7 +82,7 @@ cascade_parent: <issue_number | null>
 authorization_scope: for_review_prep | for_spec | for_analysis | for_plan | for_implementation | for_pr | for_pr_only | for_review_only
 scope_source: parsed | default
 halt_at: <pipeline_stage>
-pr_strategy: stacked | individual | none
+pr_strategy: stacked | none
 gap_fill_actions: [<action_list>]
 pipeline_phase: <current_phase_name>
 ```

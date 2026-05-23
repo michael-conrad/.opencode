@@ -112,13 +112,13 @@ Defines where the pipeline halts after a given authorization scope, what gap-fil
 
 | Scope | HALT After | Gap-Fill | PR Strategy |
 |-------|-----------|----------|-------------|
-| `for_review_prep` | review-prep | None | individual |
+| `for_review_prep` | review-prep | None | none |
 | `for_spec` | spec_created | None | none |
 | `for_plan` | plan_created | auto-create spec | none |
-| `for_implementation` | verification_complete | auto-create spec+plan+auto-approve | individual |
+| `for_implementation` | verification_complete | auto-create spec+plan+auto-approve | none |
 | `for_pr` | pr_created | auto-create spec+plan+auto-approve+auto-PR | stacked |
 | `for_pr_only` | pr_created | None | stacked |
-| `for_review_only` | code_review_ready | None | individual |
+| `for_review_only` | code_review_ready | None | none |
 | `for_analysis` | analysis_complete | None | none |
 
 #### Unified Pipeline Path (Work-of-1)
@@ -128,7 +128,6 @@ Defines where the pipeline halts after a given authorization scope, what gap-fil
 #### Scope-Dependent PR Strategy
 
 - **stacked:** Feature PR targets dev. No PR for spec/plan-only scopes.
-- **individual:** Single PR per issue. Standard workflow.
 - **none:** No PR — only spec or plan creation.
 
 #### Gap-Fill Cascade

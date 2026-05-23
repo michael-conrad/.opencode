@@ -118,7 +118,7 @@ required_components: [<component_list>]
 vbc_artifact_path: <path_to_vbc_artifacts>
 authorization_scope: <scope_value>
 halt_at: <pipeline_stage>
-pr_strategy: stacked | individual | none
+pr_strategy: stacked | none
 pipeline_phase: <current_phase_name>
 ```
 
