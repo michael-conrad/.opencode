@@ -30,7 +30,7 @@ Verify all success criteria have evidence before allowing completion claims.
    - Report missing components as FAIL
    - Do NOT proceed to per-SC evidence check
 5. If ALL structural components present:
-   - Proceed to Step 1 (Query Success Criteria)
+    - Proceed to Step 1 (Query Success Criteria)
 
 **task() as sub-agent:** When the verification context is the same agent that performed implementation, task() `structural-verify` as a sub-agent to ensure clean-room isolation. The sub-agent receives ONLY the spec SC list and file paths — NOT implementation context.
 
@@ -44,6 +44,22 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 - Missing `authorization_scope` → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
+
+### 0.75. Coverage Completeness Gate (MANDATORY — After Structural Completeness, Before Per-SC Verification)
+
+**After verifying that all structural components exist (Step 0), verify that every changed file has at least one matching success criterion. Changed files with zero matching SCs are orphan changes — code paths that execute at runtime with zero behavioral verification.**
+
+1. Get the list of changed files: `git diff --name-only dev`
+2. Get the spec's SC table and affected files list
+3. For each changed file, check if at least one SC covers it
+4. Any changed file with zero matching SCs is flagged as `VERIFICATION-GAP` with FAIL verdict
+5. `VERIFICATION-GAP` files MUST be resolved before proceeding:
+   a. Add an SC for the file (if it's in scope), OR
+   b. Document the file as explicitly out-of-scope with developer authorization
+
+**🚫 FORBIDDEN:** Silently skipping uncovered changes. A changed file with no matching SC is a code path executing at runtime with zero behavioral verification — the agent "verified" the spec's SCs but never asked whether the implementation went beyond the spec.
+
+**Authority:** `guidelines/000-critical-rules.md` §critical-rules-BEH-EV, Issue #836
 
 ### 0.5. Dispatch Chain Compliance Gate (MANDATORY — Before Per-SC Verification)
 
