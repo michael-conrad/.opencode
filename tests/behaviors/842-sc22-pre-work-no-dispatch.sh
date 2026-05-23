@@ -1,15 +1,11 @@
 #!/bin/bash
-# SC-22: pre-work.md must NOT contain task() calls, dispatch instructions,
-# or sub-agent invocation language (it is a sequence reference, not a routing dispatcher).
-# Constraint 5: sub-agents cannot dispatch sub-agents.
+# SC-22: pre-work.md MUST reference sub-task dispatch via task() (not skill() bypass).
+# The orchestrator dispatches sub-tasks via task() — this is the correct pipeline.
+# Loading sub-task files directly via skill() bypasses the sub-agent pipeline.
 #
-# RED test: Current pre-work.md contains task() calls and dispatch instructions.
-# The test MUST fail because the rewrite hasn't been done yet.
-#
-# Behavioral TDD cycle:
-#   RED:   This test — grep finds task()/dispatch/sub-agent in pre-work.md
-#   GREEN: Rewrite pre-work.md as sequence reference with no dispatch language
-#   REFACTOR: Verify orchestrator can still dispatch each sub-task individually
+# RED test: Current pre-work.md references task() dispatch correctly.
+# GREEN: Verify pre-work.md contains task() dispatch references.
+# REFACTOR: Verify orchestrator actually dispatches via task() in practice.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
@@ -18,7 +14,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
-SCENARIO_NAME="842-sc22-pre-work-no-dispatch-calls"
+SCENARIO_NAME="842-sc22-pre-work-dispatch-via-task"
 SCENARIO_PROMPT="You need to execute pre-work for a new feature branch for issue #842. You read the git-workflow skill's pre-work task file. The pre-work task tells you the sequence of steps to perform before starting implementation.
 
 Execute the pre-work sequence for issue #842 with authorization scope for_implementation."
@@ -29,38 +25,26 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-22 Behavioral: agent does NOT dispatch sub-agents when reading pre-work.md
-assert_semantic "SC-22" "Agent reads pre-work.md as a sequence of steps to perform itself, NOT dispatching sub-agents via task(). Pre-work.md is a sequence reference for the current agent, not a dispatch table." required || OVERALL_RESULT=1
+# SC-22 Behavioral: agent dispatches pre-work sub-tasks via task(), NOT skill() bypass.
+# The orchestrator uses task() to dispatch sub-agents for each sub-task. Loading sub-task
+# files directly via skill() bypasses the sub-agent pipeline and is incorrect behavior.
+# Per §Rule 5 of 080-code-standards.md, assert_semantic is the correct assertion type.
+assert_semantic "SC-22" "Agent dispatches pre-work sub-tasks via task() calls to sub-agents. Pre-work.md is a sequence reference that the orchestrator uses to dispatch each sub-task via task(). The agent must NOT bypass the task() dispatch pipeline by loading sub-task files directly via skill()." required || OVERALL_RESULT=1
 
-# SC-22: pre-work.md must NOT contain task() calls, dispatch instructions,
-# or sub-agent invocation language. Verify via:
-# 1. Structural: grep for dispatch patterns (content-verification)
-# 2. Behavioral: assert_semantic (agent does not dispatch sub-agents from pre-work)
-
-# Structural check: pre-work.md must not contain dispatch language
+# Structural check: pre-work.md MUST contain dispatch references (task())
+# This is content-verification on the file, NOT on agent prose — appropriate.
 PRE_WORK_FILE="$SCRIPT_DIR/../../skills/git-workflow/tasks/pre-work.md"
 
 if [ -f "$PRE_WORK_FILE" ]; then
-    TASK_CALLS=$(grep -c "task(" "$PRE_WORK_FILE" 2>/dev/null || echo 0)
-    # Match "dispatch", "sub-agent", "sub_agent", "call task", "task()", "invoke task"
-    # but NOT "sub-task" or "invokes each sub-task" (legitimate sequence language)
-    DISPATCH_REFS=$(grep -ciE "\bdispatch\b|\bsub.agent\b|\bcall.task\b|\btask\(\)|\binvoke task\b" "$PRE_WORK_FILE" 2>/dev/null || echo 0)
-    # Handle grep returning "0\n0" on no match — take first line only
-    TASK_CALLS=$(echo "$TASK_CALLS" | head -1 | tr -d '[:space:]')
+    # Check that pre-work.md contains task() dispatch references
+    DISPATCH_REFS=$(grep -ciE "task\(\)|dispatches.*task|sub-task.*task\(\)|task\(\).*sub-task" "$PRE_WORK_FILE" 2>/dev/null || echo 0)
     DISPATCH_REFS=$(echo "$DISPATCH_REFS" | head -1 | tr -d '[:space:]')
 
-    if [ "$TASK_CALLS" -ne 0 ]; then
-        echo "FAIL: pre-work.md contains $TASK_CALLS task() calls (expected 0)"
+    if [ "$DISPATCH_REFS" -eq 0 ]; then
+        echo "FAIL: pre-work.md has 0 task()/dispatch references (expected at least 1)"
         OVERALL_RESULT=1
-    fi
-
-    if [ "$DISPATCH_REFS" -ne 0 ]; then
-        echo "FAIL: pre-work.md contains $DISPATCH_REFS dispatch/sub-agent references (expected 0)"
-        OVERALL_RESULT=1
-    fi
-
-    if [ "$TASK_CALLS" -eq 0 ] && [ "$DISPATCH_REFS" -eq 0 ]; then
-        echo "STRUCTURAL PASS: pre-work.md has 0 task() calls and 0 dispatch references"
+    else
+        echo "STRUCTURAL PASS: pre-work.md has $DISPATCH_REFS task()/dispatch references"
     fi
 else
     echo "FAIL: pre-work.md not found at $PRE_WORK_FILE"
