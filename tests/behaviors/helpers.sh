@@ -566,10 +566,27 @@ assert_semantic() {
         return 2
     fi
 
-    # Read agent output
-    local agent_output=""
+    # Read agent output — MUST include both stdout (prose) and stderr (actions).
+    # Per 080-code-standards.md §Rule 5, behavioral evidence is in stderr
+    # (skill dispatches, git commands, tool calls), not just prose in stdout.
+    # The inspector needs both to judge agent ACTIONS, not just narration.
+    local stdout_content=""
+    local stderr_content=""
     if [ -f "${BEHAVIOR_STDOUT:-/dev/null}" ]; then
-        agent_output=$(cat "$BEHAVIOR_STDOUT" 2>/dev/null || true)
+        stdout_content=$(cat "$BEHAVIOR_STDOUT" 2>/dev/null || true)
+    fi
+    if [ -f "${BEHAVIOR_STDERR:-/dev/null}" ]; then
+        stderr_content=$(cat "$BEHAVIOR_STDERR" 2>/dev/null || true)
+    fi
+    local agent_output=""
+    if [ -n "$stderr_content" ]; then
+        agent_output="=== AGENT PROSE (stdout) ===
+${stdout_content}
+
+=== AGENT ACTIONS (stderr) ===
+${stderr_content}"
+    else
+        agent_output="${stdout_content}"
     fi
 
     if [ -z "$agent_output" ] || [ "$(echo "$agent_output" | wc -w | tr -d ' ')" -le 3 ]; then
