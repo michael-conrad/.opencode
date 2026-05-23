@@ -33,7 +33,9 @@ This task() routes plan execution to `divide-and-conquer --task assemble-work`, 
 
 This makes the implementation phase resilient to branch switching, worktree recreation, and developer context-switching.
 
-6. **Task() to divide-and-conquer:**
+6. **Behavioral uplift at TDD start:** When starting TDD for an item, if the change affects runtime behavior, declare the SC evidence type as `behavioral`. The classification question ("Does this change affect runtime behavior?") is substrate-determined. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
+
+7. **Task() to divide-and-conquer:**
 
 ```
 /skill divide-and-conquer --task assemble-work
@@ -45,7 +47,7 @@ When task()ing, pass `authorization_scope`, `halt_at`, `pr_strategy`, and `pipel
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```

@@ -53,6 +53,10 @@ Requirements Explorer. Focus: understand what user wants through natural convers
 
 Sub-agents run via `task(subagent_type="general")` with `{ context, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
+## Ideation-Time Classification
+
+When brainstorming specs, if a proposed change affects runtime behavior, its SCs MUST declare `behavioral` evidence type. The classification question ("Does this change affect runtime behavior?") is substrate-determined — not intent-determined. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
+
 ## Cross-References
 
 Skills: `spec-creation`, `writing-plans`. Guidelines: `015-pre-spec-inspection.md`.

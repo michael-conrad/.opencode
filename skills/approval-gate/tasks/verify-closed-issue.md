@@ -174,6 +174,8 @@ if sub_issues:
 
 **🚫 CRITICAL: Step 7 is MANDATORY and BLOCKING. Skipping this step is a CRITICAL GUIDELINE VIOLATION.** A merged PR proves code was merged, NOT that success criteria are met. This step enforces the rule from `000-critical-rules.md` §"Assuming Closed Issues Are Verified".
 
+**Behavioral uplift for live-codebase SCs:** When verifying closed issues against the live codebase, uplift SC evidence types to `behavioral` for changes that affect runtime behavior. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
+
 For legitimately closed issues (VERIFIED_CLOSED from Step 3), verify that EACH success criterion from the issue body is actually met in the live codebase:
 
 ```python

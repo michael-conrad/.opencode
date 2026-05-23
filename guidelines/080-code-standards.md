@@ -438,16 +438,28 @@ Every critical violation change MUST have at least one behavioral test that veri
 - `assert_skill_called` — verify a specific skill was called
 - `assert_no_skill_called` — verify a specific skill was NOT called when it shouldn't be
 
-### Stderr Assertion Helpers (PRIMARY for Behavioral Evidence)
+### Assert Helpers — Correct Evidence Type per SC Type
 
-Behavioral tests verify agent ACTIONS, not agent prose recall. The canonical assertion helpers for behavioral evidence are:
+Behavioral tests verify agent ACTIONS and DECISIONS. The assertion helper must match the SC's evidence type:
 
-- `assert_stderr_pattern_present <pattern> <description>` — verify the agent performed an action visible in stderr
-- `assert_stderr_pattern_absent <pattern> <description>` — verify the agent did NOT perform a prohibited action
-- `assert_stderr_pattern_present_all_models <pattern> <description>` — multi-model variant
-- `assert_stderr_pattern_absent_all_models <pattern> <description>` — multi-model variant
+| SC Evidence Type | PRIMARY Assertion | SECONDARY (corroboration only) | FORBIDDEN |
+|---|---|---|---|
+| `behavioral` | `assert_semantic` (clean-room AI inspector) | `assert_stderr_pattern_*` for tool dispatch strings only | grep/string on agent output prose |
+| `string` | `assert_stderr_pattern_*`, `assert_required_pattern_present`, `assert_forbidden_pattern_absent` | — | — |
+| `structural` | `ls`, `wc`, file existence | — | — |
 
-**Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task() calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence. Prose-recall prompts (e.g., "Describe how you would resolve models") produce prose recall in stdout, not behavioral evidence in stderr, and are NOT accepted as behavioral tests.**
+**`assert_semantic`** — Clean-room AI inspector evaluates full agent output and judges whether the agent TOOK THE RIGHT ACTION or MADE THE RIGHT DECISION. Different model, no context preloading, no cached results. This is the ONLY valid assertion type for behavioral SCs that verify agent actions, decisions, or reasoning.
+
+**`assert_stderr_pattern_present/absent`** — grep on stderr for tool-call strings (e.g., `Skill "approval-gate"`, `git checkout -b`). Only valid for verifying that a tool dispatch OCCURRED or DID NOT occur — NEVER for judging agent reasoning, approach, or decisions. USE AS SECONDARY CORROBORATION ONLY for behavioral SCs, never as primary evidence.
+
+**All other string assertions** (`assert_required_pattern_present`, `assert_forbidden_pattern_absent`, `assert_tool_calls_made`, `assert_skill_called`, `assert_no_skill_called`) — string evidence, appropriate for string or structural SCs, FORBIDDEN as primary evidence for behavioral SCs.
+
+**Prohibitions (per §Rule 5):**
+- 🚫 `assert_stderr_pattern_present` as PRIMARY evidence for "agent verified authorization scope" — this is string evidence, not behavioral
+- 🚫 `assert_required_pattern_present` on agent prose as primary evidence for "agent chose stacked approach" — this is string evidence on prose, the weakest form
+- 🚫 Any grep/string assertion on agent output prose as PRIMARY evidence for a behavioral SC — EVIDENCE_TYPE_MISMATCH
+- ✅ `assert_semantic "SC-N" "description of required action"` — clean-room inspector judges full output
+- ✅ `assert_stderr_pattern_present 'Skill "approval-gate"'` as SECONDARY corroboration only
 
 ### Content-Verification Tests (SECONDARY)
 
@@ -587,6 +599,99 @@ The TDD RED/GREEN cycle for rule changes MUST use behavioral enforcement tests, 
 ### Root Case
 
 Bug #1217 demonstrated that the agent had all the correct guideline text about verification but still answered a general knowledge question with zero tool-call verification. Content-verification alone was insufficient — the agent behavior did not match the rule text. This is why behavioral tests are PRIMARY: they verify that the agent actually behaves differently, not just that the rule text exists.
+
+## Test Integrity Mandate — No Lobotomizing Tests
+
+**Removing or weakening a behavioral test assertion to work around a timeout, failure, or infrastructure issue is the most expensive defect you can introduce. A lobotomized test passes by removing the signal it was designed to verify — producing a false PASS that masks a real defect. This is equivalent to soft-passing a verification mismatch (already prohibited by §Evidence Type Taxonomy and `000-critical-rules.md` §critical-rules-020).**
+
+### Rule 1: No Lobotomizing Tests — ZERO TOLERANCE
+
+Removing or weakening a behavioral (semantic, functional) test assertion to work around a timeout, failure, or infrastructure issue is a **CRITICAL VIOLATION**.
+
+**Prohibited patterns:**
+- Removing `assert_semantic` because the semantic inspector model times out
+- Replacing a `behavioral` evidence type with `string` or `structural` to "fix" a failing test
+- Removing an assertion entirely because it "flakes" or "hangs"
+- Commenting out an assertion with `# TODO: fix later`
+- Changing `assert_semantic` to `assert_stderr_pattern_present` because "it's faster"
+
+**The only valid remediation cycle:**
+1. **Increase timeout** — `BEHAVIOR_TIMEOUT`, `BEHAVIOR_SEMANTIC_TIMEOUT`, or `BEHAVIOR_MAX_RETRIES`
+2. **Inspect stdout** — Read `$BEHAVIOR_STDOUT` or `$log_dir/stdout.log` to understand what the agent actually produced
+3. **Inspect stderr** — Read `$BEHAVIOR_STDERR` or `$log_dir/stderr.log` to understand tool dispatch and errors
+4. **Diagnose root cause** — Determine if the issue is: infrastructure (model load time, network latency, GPU memory), test harness (test repo setup, model config seeding), or test spec (prompt too complex, assertion too broad)
+5. **Remediate** — Fix the root cause: increase timeout, fix model config, adjust prompt specificity, add retry logic
+6. **Repeat** — Re-run the test after remediation
+7. **Escalate** — Only after multiple remediation cycles have genuinely failed
+
+**Escalation is the LAST resort, not the first. Proceeding past a FAIL is never legitimate — it is always cheaper to diagnose and fix than to hide the defect.**
+
+### Rule 2: Timeout Is Always Diagnosable — Never Assume Model Unavailability
+
+When a behavioral test times out, the agent MUST:
+1. Inspect `stdout.log` and `stderr.log` from the test run
+2. Run `opencode-cli models` to verify model availability — never assume unavailability from memory or training data
+3. Run a direct `with-test-home opencode-cli run "test ping" --model <model>` to verify the model works
+4. Report the actual root cause (timeout duration, model load time, network latency, etc.)
+
+**Never claim "model not available" or "model timed out" without tool-call evidence.** This is already covered by `065-verification-honesty.md` but the pattern keeps recurring in behavioral test contexts, so this rule cannonizes it specifically for the test integrity domain.
+
+### Rule 3: Research Sub-Agents for Test Infrastructure Problems
+
+When the remediation cycle (increase timeout → inspect output → diagnose → fix) fails to resolve the issue after 2+ attempts, the agent MUST dispatch a research sub-agent to investigate known solutions for:
+- LLM inference timeouts in CI environments
+- `opencode-cli run` timeout patterns and mitigation
+- Model loading latency in test environments
+- Behavioral test harness reliability patterns
+
+This research is mandatory — the agent MUST NOT give up on a behavioral test and proceed past a FAIL. Research, remediate, and repeat is the only valid cycle.
+
+### Rule 5: Agent Output MUST Be Verified by Clean-Room Semantic Inspection — NEVER by grep/string on Prose
+
+**Agent output (stdout + stderr) is LLM-generated English prose. grep/string assertions on LLM prose are string evidence, which is EVIDENCE_TYPE_MISMATCH for behavioral SCs.**
+
+Behavioral SCs require behavioral evidence. Behavioral evidence means a **clean-room sub-agent** (the semantic inspector) evaluates the full agent output and renders a PASS/FAIL judgment. The inspector is a different model reading the output cold — no context preloading, no orchestrator hints, no cached results. This is the only valid form of behavioral verification for agent output.
+
+#### What Each Assertion Type Actually Verifies
+
+| Assertion | Evidence Type | What It Checks | When It's Sufficient |
+|-----------|--------------|----------------|----------------------|
+| `assert_semantic` | behavioral | AI inspector judges full output for agent ACTIONS and DECISIONS | PRIMARY — always sufficient for behavioral SCs |
+| `assert_stderr_pattern_present/absent` on tool calls | string (acceptable for structural checks only) | grep matches raw tool-call strings in stderr (e.g., `Skill "approval-gate"`, `git checkout -b`) | ONLY for verifying tool dispatches occurred/didn't occur — NEVER for judging agent reasoning |
+| `assert_forbidden_pattern_absent` | string | grep matches forbidden text patterns in agent prose | ONLY for detecting prohibited output patterns (e.g., `(unverified)` tags, solicitation phrases) — NEVER for judging agent decisions or approach |
+| `assert_required_pattern_present` | string | grep matches required text in agent prose | ONLY for detecting required output patterns (e.g., byline presence) — NEVER for judging agent reasoning or approach |
+
+#### The Hard Rule
+
+**For any SC that requires verifying the agent TOOK THE RIGHT ACTION or MADE THE RIGHT DECISION (e.g., "agent creates 1 branch, not 2", "agent dispatches the correct skill", "agent follows stacked PR strategy"), the ONLY sufficient assertion is `assert_semantic` with a clean-room semantic inspector. grep/string assertions on agent output are EVIDENCE_TYPE_MISMATCH for behavioral SCs.**
+
+This means:
+
+- 🚫 FORBIDDEN: `assert_stderr_pattern_present "Skill.*approval-gate"` as primary evidence for "agent verified authorization scope" — this is string evidence, not behavioral
+- 🚫 FORBIDDEN: `assert_stderr_pattern_absent "create_branch.*feature"` as primary evidence for "agent did not create multiple branches" — this is string evidence, not behavioral
+- 🚫 FORBIDDEN: `assert_required_pattern_present "stacked"` in agent prose as primary evidence for "agent chose stacked approach" — this is string evidence on prose, the weakest form
+- ✅ REQUIRED: `assert_semantic "SC-N" "Agent dispatched approval-gate skill and created exactly ONE feature branch for both issues together"` — clean-room semantic inspector judges full output
+- ✅ ACCEPTABLE: `assert_stderr_pattern_present 'Skill "approval-gate"'` as SECONDARY structural corroboration — confirms tool dispatch occurred, but does NOT verify the agent's decision or approach
+
+#### Why This Matters
+
+LLM output is non-deterministic. The exact strings the agent produces change on every run. grep patterns that match today break tomorrow. A semantic inspector evaluates the *meaning* of the output, not the *strings*. This is the same distinction as the Evidence Type Taxonomy: `behavioral` > `semantic` > `string` > `structural`. Using string evidence where behavioral is required is EVIDENCE_TYPE_MISMATCH — a hard FAIL.
+
+### Rule 4: FAIL Is a Hard Gate — Never Proceed Past FAIL
+
+This reinforces `000-critical-rules.md` §critical-rules-hard-fail for the behavioral testing context specifically:
+
+**A behavioral test that FAILS is a hard gate. The agent MUST NOT:**
+- Proceed to the next task or pipeline stage
+- Mark the test as "PASS with caveats" or "functionally equivalent"
+- Report the test as "INCONCLUSIVE" without exhausting remediation first
+- Treat INCONCLUSIVE as anything other than a FAIL that needs more remediation
+- Remove or weaken the assertion that produced the FAIL
+
+**The only valid outcomes:**
+- **PASS** — all assertions pass with genuine behavioral evidence
+- **FAIL** — one or more assertions fail; remediate and re-run
+- **INCONCLUSIVE after exhaustive remediation** — escalate; do NOT proceed
 
 ## Cross-Reference Standards
 

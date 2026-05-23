@@ -145,10 +145,12 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 - Create the directory if needed: `mkdir -p ./tmp`.
 - **Mandatory pre-submit root cleanliness check:** Before calling `submit`, run `./.opencode/tools/file-exists .output.txt` and confirm it is MISSING. If it exists, move it to `./tmp/.output.txt` immediately.
 - **ALWAYS clean up temp files after modification tasks are complete.**
+- **Behavioral evidence artifacts are exempt from mandatory cleanup.** Files matching `./tmp/behavioral-evidence-*.{log,json}` MUST NOT be deleted by the agent during VbC or verification stages. These artifacts are preserved until PR merge cleanup (`git-workflow --task cleanup`), which is the ONLY authorized cleanup point. The `./tmp/` cleanup rule applies to all other temporary files, but behavioral evidence artifacts serve as cross-validation inputs and MUST survive until the PR is merged.
 
 ### 🚫 NEVER DO
 
 - **ZERO TOLERANCE — NEVER use or access any other folder (e.g., `/tmp/`, `.tmp/`, etc.) for any reason.** Only `./tmp/` is permitted.
+- **NEVER delete `./tmp/behavioral-evidence-*` files before PR merge cleanup.** These artifacts are required for adversarial audit cross-validation. Deleting them before the auditor inspects them produces a false "no behavioral evidence found" — indistinguishable from "evidence was never produced."
 
 ## 4. Command Restrictions & Quality
 
@@ -380,4 +382,20 @@ rules:
     requires: [critical-rules-platform-api-deliberation]
     triggers: [issue-operations]
     source: "060-tool-usage.md §1 Platform Routing Mandate"
+
+  - id: tool-usage-012
+    tier: 2
+    title: "Behavioral evidence artifacts exempt from mandatory cleanup — preserved until PR merge"
+    conditions:
+      any:
+        - "file_path matches './tmp/behavioral-evidence-*'"
+        - "cleanup_stage in ['vbc', 'verification', 'audit']"
+        - "file_deletion_pending == true"
+        - "file_path matches 'behavioral-evidence-SC-*'"
+    actions:
+      - BLOCK_DELETION
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit, git-workflow]
+    source: "060-tool-usage.md §3 Temp Files & Cleanliness"
 ```

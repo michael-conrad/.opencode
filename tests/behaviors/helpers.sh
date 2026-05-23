@@ -12,9 +12,10 @@
 
 set -euo pipefail
 
-BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-300}"
+BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-420}"
 BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/glm-5.1:cloud}"
 BEHAVIOR_TEST_HOME="${BEHAVIOR_TEST_HOME:-.opencode/tests/with-test-home}"
+BEHAVIOR_FIXTURE_ISSUES="${BEHAVIOR_FIXTURE_ISSUES:-1}"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
     PROJECT_DIR="$(dirname "$PROJECT_DIR")"
@@ -23,7 +24,7 @@ PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 BEHAVIOR_LOG_DIR="${BEHAVIOR_LOG_DIR:-$PROJECT_DIR/tmp/behavior-test-$(date +%Y%m%d-%H%M%S)}"
 
 BEHAVIOR_MAX_RETRIES="${BEHAVIOR_MAX_RETRIES:-2}"
-BEHAVIOR_RETRY_DELAY="${BEHAVIOR_RETRY_DELAY:-15}"
+BEHAVIOR_RETRY_DELAY="${BEHAVIOR_RETRY_DELAY:-30}"
 
 behavior_run() {
     local scenario_name="$1"
@@ -96,6 +97,17 @@ behavior_run() {
 
         git -C "$workdir" add -A 2>/dev/null || true
         git -C "$workdir" commit -q --allow-empty -m "init"
+
+        # Inject fixture .issues/ entries if BEHAVIOR_FIXTURE_ISSUES is enabled.
+        # This creates realistic local issue data that behavioral tests can reference.
+        if [ "${BEHAVIOR_FIXTURE_ISSUES:-1}" = "1" ]; then
+            FIXTURE_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-fixture-issues.sh"
+            if [ -f "$FIXTURE_SETUP" ]; then
+                # shellcheck disable=SC1090
+                source "$FIXTURE_SETUP"
+                setup_fixture_issues "$workdir"
+            fi
+        fi
     fi
 
     while [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; do
@@ -111,12 +123,13 @@ behavior_run() {
 
         local output
         output=$(cat "$output_file" 2>/dev/null || true)
-        if [ -n "$output" ]; then
-            local word_count
-            word_count=$(echo "$output" | wc -w | tr -d ' ')
-            if [ "${word_count:-0}" -gt 3 ]; then
-                break
-            fi
+        local word_count
+        word_count=$(echo "$output" | wc -w | tr -d ' ')
+        # Accept any non-empty output with word count > 0 as a valid response.
+        # Short responses (1-3 words) are valid — the agent may produce concise output.
+        # Only retry on truly empty output or explicit harness failure.
+        if [ -n "$output" ] && [ "${word_count:-0}" -gt 0 ]; then
+            break
         fi
 
         if grep -qi 'sse.*timeout\|unexpected EOF\|connection reset\|ProviderModelNotFoundError\|model not found' "$err_file" 2>/dev/null; then
@@ -127,9 +140,11 @@ behavior_run() {
             fi
         fi
 
-        if [ "${word_count:-0}" -le 3 ]; then
+        # Only retry if output is truly empty (word count = 0).
+        # Short-but-valid output is NOT a retry condition.
+        if [ -z "$output" ] || [ "${word_count:-0}" -eq 0 ]; then
             if [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; then
-                echo "  retry in ${BEHAVIOR_RETRY_DELAY}s (empty/short output)..."
+                echo "  retry in ${BEHAVIOR_RETRY_DELAY}s (empty output)..."
                 sleep "$BEHAVIOR_RETRY_DELAY"
                 continue
             fi
@@ -140,12 +155,21 @@ behavior_run() {
     output=$(cat "$output_file" 2>/dev/null || true)
     local word_count
     word_count=$(echo "$output" | wc -w | tr -d ' ')
-    if [ -z "$output" ] || [ "${word_count:-0}" -le 3 ]; then
+    if [ -z "$output" ] || [ "${word_count:-0}" -eq 0 ]; then
         if grep -qi 'sse.*timeout\|unexpected EOF\|connection reset\|ProviderModelNotFoundError\|model not found' "$err_file" 2>/dev/null; then
             echo "HARNESS_FAILURE: model dispatch failed (timeout or provider error)"
             echo "HARNESS_FAILURE: model dispatch failed (timeout or provider error)" >> "$output_file"
             export BEHAVIOR_DISPATCH_FAILED=1
+        else
+            echo "HARNESS_FAILURE: behavior_run produced empty output after all retries"
+            echo "  BEHAVIOR_TIMEOUT=$BEHAVIOR_TIMEOUT, BEHAVIOR_MODEL=$model"
+            echo "  stdout: empty, stderr word count: $(wc -w < "$err_file" 2>/dev/null || echo 0)"
+            echo "HARNESS_FAILURE: empty output" >> "$output_file"
         fi
+    elif [ "${word_count:-0}" -le 3 ]; then
+        # Short but non-empty output — likely valid but brief. Log diagnostics for debugging.
+        echo "  NOTE: behavior_run produced short output (${word_count} words). Consider increasing BEHAVIOR_TIMEOUT if this is unexpected."
+        echo "  BEHAVIOR_TIMEOUT=$BEHAVIOR_TIMEOUT, BEHAVIOR_MODEL=$model"
     fi
 
     sleep 1
@@ -447,7 +471,7 @@ fi
 # ============================================================
 
 BEHAVIOR_SEMANTIC_INSPECTOR_MODEL="${BEHAVIOR_SEMANTIC_INSPECTOR_MODEL:-}"
-BEHAVIOR_SEMANTIC_TIMEOUT="${BEHAVIOR_SEMANTIC_TIMEOUT:-120}"
+BEHAVIOR_SEMANTIC_TIMEOUT="${BEHAVIOR_SEMANTIC_TIMEOUT:-240}"
 
 __semantic_inspector_prompt() {
     # Build the inspector prompt for semantic evaluation.
@@ -502,7 +526,17 @@ SEOF
 
 assert_semantic() {
     # Evaluate whether agent output semantically meets or violates a criterion.
-    # Uses a separate AI inspector model to avoid same-model bias.
+    # Uses a CLEAN-ROOM AI inspector model to avoid same-model bias.
+    #
+    # This is the ONLY valid assertion type for verifying agent actions, decisions,
+    # and reasoning in behavioral tests (EVIDENCE_TYPE_MISMATCH per 080-code-standards.md
+    # §Rule 5). grep/string assertions on agent output prose are FORBIDDEN as primary
+    # evidence for behavioral SCs — they can only be used as secondary structural
+    # corroboration for tool dispatch strings in stderr.
+    #
+    # The semantic inspector is a different model reading the output cold — no context
+    # preloading, no orchestrator hints, no cached results. This is clean-room
+    # behavioral verification.
     #
     # Usage:
     #   assert_semantic "SC-7a" "Agent must NOT report PASS based on file existence" "forbidden"
@@ -532,10 +566,27 @@ assert_semantic() {
         return 2
     fi
 
-    # Read agent output
-    local agent_output=""
+    # Read agent output — MUST include both stdout (prose) and stderr (actions).
+    # Per 080-code-standards.md §Rule 5, behavioral evidence is in stderr
+    # (skill dispatches, git commands, tool calls), not just prose in stdout.
+    # The inspector needs both to judge agent ACTIONS, not just narration.
+    local stdout_content=""
+    local stderr_content=""
     if [ -f "${BEHAVIOR_STDOUT:-/dev/null}" ]; then
-        agent_output=$(cat "$BEHAVIOR_STDOUT" 2>/dev/null || true)
+        stdout_content=$(cat "$BEHAVIOR_STDOUT" 2>/dev/null || true)
+    fi
+    if [ -f "${BEHAVIOR_STDERR:-/dev/null}" ]; then
+        stderr_content=$(cat "$BEHAVIOR_STDERR" 2>/dev/null || true)
+    fi
+    local agent_output=""
+    if [ -n "$stderr_content" ]; then
+        agent_output="=== AGENT PROSE (stdout) ===
+${stdout_content}
+
+=== AGENT ACTIONS (stderr) ===
+${stderr_content}"
+    else
+        agent_output="${stdout_content}"
     fi
 
     if [ -z "$agent_output" ] || [ "$(echo "$agent_output" | wc -w | tr -d ' ')" -le 3 ]; then
@@ -806,6 +857,11 @@ assert_required_pattern_present_all_models() {
 # a procedure) is NOT behavioral evidence.
 # ============================================================
 
+# EVIDENCE TYPE: string — ONLY valid as SECONDARY structural corroboration
+# for behavioral SCs (confirms a tool dispatch occurred). NEVER use as
+# primary evidence for behavioral SCs — use assert_semantic instead.
+# For string/structural SCs, this assertion IS sufficient as primary evidence.
+# See 080-code-standards.md §Rule 5 for the evidence type hierarchy.
 assert_stderr_pattern_present() {
     if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "1" ]; then
         echo "INCONCLUSIVE: assert_stderr_pattern_present — model dispatch failed, no behavioral evidence"
@@ -826,6 +882,11 @@ assert_stderr_pattern_present() {
     return 0
 }
 
+# EVIDENCE TYPE: string — ONLY valid as SECONDARY structural corroboration
+# for behavioral SCs (confirms a prohibited tool dispatch did NOT occur).
+# NEVER use as primary evidence for behavioral SCs — use assert_semantic instead.
+# For string/structural SCs, this assertion IS sufficient as primary evidence.
+# See 080-code-standards.md §Rule 5 for the evidence type hierarchy.
 assert_stderr_pattern_absent() {
     if [ "${BEHAVIOR_DISPATCH_FAILED:-0}" = "1" ]; then
         echo "INCONCLUSIVE: assert_stderr_pattern_absent — model dispatch failed, no behavioral evidence"

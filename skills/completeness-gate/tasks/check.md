@@ -16,7 +16,7 @@ Non-adversarial completeness check after RED/GREEN sub-agent returns. Verifies t
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
@@ -96,6 +96,10 @@ Based on findings from Step 2:
 Return the structured output contract with completeness result and findings.
 
 **Do NOT** include remediation suggestions, routing advice, or fix proposals. The gate is read-only.
+
+## Behavioral Uplift in Non-Adversatorial Check
+
+When running completeness checks, uplift SC evidence types to `behavioral` for changes that affect runtime behavior. The classification question ("Does this change affect runtime behavior?") is substrate-determined. If YES, structural evidence is `EVIDENCE_TYPE_MISMATCH` — per `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
 
 ## Single-Pass Enforcement
 

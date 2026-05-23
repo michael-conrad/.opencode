@@ -603,6 +603,40 @@ A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup 
 
 Professional engineers remediate then re-verify — amateurs reclassify, soft-pass, or INCONCLUSIVE to avoid doing the work. See `065-verification-honesty.md` → "Hard Failure Discipline".
 
+### [critical-rules-test-integrity] Test Integrity Mandate — No Lobotomizing Tests
+
+Removing or weakening a behavioral (semantic, functional) test assertion to work around a timeout, failure, or infrastructure issue is the most expensive defect you can introduce. A lobotomized test passes by removing the signal it was designed to produce — producing a false PASS that masks a real defect.
+
+**This rule is enforced by `080-code-standards.md` §Test Integrity Mandate. Key provisions:**
+
+- **Rule 1**: Removing or weakening behavioral assertions is a CRITICAL VIOLATION — equivalent to soft-passing a verification mismatch
+- **Rule 2**: Timeout is always diagnosable — never assume model unavailability without tool-call evidence
+- **Rule 3**: Research sub-agents for test infrastructure problems — mandatory after 2+ remediation failures
+- **Rule 4**: FAIL is a hard gate — never proceed past FAIL. Only valid outcomes: PASS, FAIL (remediate and re-run), or INCONCLUSIVE after exhaustive remediation (escalate only)
+
+
+### [critical-rules-BEH-EV] Runtime-Behavioral Evidence Classification Gate — structural evidence for behavioral changes is EVIDENCE_TYPE_MISMATCH
+
+The question "does this change affect runtime behavior?" is substrate-determined — the change either alters runtime behavior or it does not. Intent, author assertion, and hope are irrelevant. When the answer is YES, submitting structural or string evidence is EVIDENCE_TYPE_MISMATCH, not a soft downgrade. The verdict is FAIL. No advisory, no "PASS with structural caveat," no INCONCLUSIVE. The classification gate enforces what the evidence type taxonomy already requires: behavioral changes demand behavioral evidence.
+
+Runtime behavior includes: agent dispatch decisions, enforcement gate outcomes, tool selection, pipeline routing, conditional branching, test execution results, and any observable system output. A change that modifies WHAT a system DOES at runtime — as opposed to what it CONTAINS statically — is a runtime-behavioral change.
+
+The uplift is automatic. Declaring an SC as `structural` or `string` does not exempt it from behavioral evidence requirements when the underlying change affects runtime behavior. Evidence type is determined by what the change DOES, not by what the author declares. A `string` SC that tests a runtime-behavioral change is automatically uplifted to `behavioral` — the declared type is overridden by the substrate classification.
+
+🚫 FORBIDDEN:
+- Submitting structural or string evidence for a runtime-behavioral change and reporting PASS
+- Declaring an SC as `structural` to avoid behavioral testing when the change affects runtime behavior
+- Classifying the evidence type question as intent-determined ("what did the author mean?") instead of substrate-determined ("does this change affect runtime behavior?")
+- Producing an advisory or INCONCLUSIVE verdict when EVIDENCE_TYPE_MISMATCH is detected
+
+✅ REQUIRED:
+- Classify the change question as substrate-determined: "Does this change affect runtime behavior? YES/NO"
+- When YES: automatically uplift declared evidence type to `behavioral` regardless of author declaration
+- When the declared type is `structural` or `string` but the change is runtime-behavioral: report EVIDENCE_TYPE_MISMATCH with a FAIL verdict
+- Apply the same remediation-first protocol as all hard failures: diagnose, remediate, re-verify
+
+Authority sources: `080-code-standards.md` §Evidence Type Taxonomy, `080-code-standards.md` §Test Integrity Mandate, `020-go-prohibitions.md` §1 ALWAYS DO — Cost-blind verification.
+
 
 ### Tier 3 — Workflow-Standard (FLAG — Convention/Consistency)
 
@@ -727,6 +761,19 @@ Single-issue: exactly 1 commit. Work branch: N commits = N items.
 2. Attempt remediation (alternative model selection, infrastructure check)
 3. Exhaustive remediation before escalation: only after ALL available model selection, infrastructure check, and alternative model paths have been verified as failed may the agent HALT with escalation
 4. There is NO valid path from "test cannot run" to "PASS" or "UNVERIFIED with structural substitute"
+
+
+### [critical-rules-PR-ORG] Stacked PR Is the Only Valid Organization
+
+Creating N branches for N issues under any authorization scope is a critical violation. All issues within an authorization scope share one feature branch with one commit per issue. The only valid PR strategy is `stacked` — one branch, N commits, one PR. The `individual` strategy (N branches, N PRs) does not exist.
+
+An authorization scope that halts before PR creation declares `pr_strategy: none`. An authorization scope that creates PRs declares `pr_strategy: stacked`. There is no third option.
+
+Bright-line companion:
+
+PR organization IS branch organization. Stacked PR IS the only valid organization.
+Every authorization scope declares exactly one strategy: stacked or none.
+Creating N branches for N issues IS a critical violation — Period.
 
 
 ### [critical-rules-accountability-ownership] Accountability/Remediation Ownership Model
@@ -1802,6 +1849,17 @@ rules:
     triggers: [issue-operations]
     source: "000-critical-rules.md §critical-rules-platform-api-deliberation"
 
+  - id: critical-rules-PR-ORG
+    tier: 2
+    title: "CRITICAL VIOLATION — Creating N branches for N issues under stacked scope"
+    conditions:
+      all:
+        - "authorization_scope_maps_to_stacked == true"
+        - "branch_count > 1"
+    actions:
+      - HALT
+    source: "000-critical-rules.md §Stacked PR Discipline"
+
   - id: critical-rules-hard-fail
     tier: 2
     title: "Hard Failure Discipline — FAIL is a hard gate, never reclassifiable"
@@ -1818,4 +1876,59 @@ rules:
     requires: []
     triggers: [adversarial-audit, divide-and-conquer, verification-before-completion, git-workflow, approval-gate]
     source: "000-critical-rules.md §critical-rules-hard-fail"
+
+  - id: critical-rules-test-integrity
+    tier: 2
+    title: "Test Integrity Mandate — removing or weakening behavioral assertions is a critical violation"
+    conditions:
+      any:
+        - "behavioral_assertion_removed == true"
+        - "behavioral_evidence_type_downgraded == true"
+        - "assert_semantic_replaced_with_stderr == true"
+        - "assertion_commented_out == true"
+        - "timeout_treated_as_model_unavailability == true"
+        - "inconclusive_without_exhaustive_remediation == true"
+    actions:
+      - HALT
+      - RESTORE_ASSERTION
+      - INCREASE_TIMEOUT
+      - REMEDIATE
+    conflicts_with: [critical-rules-060, critical-rules-020]
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit, test-driven-development]
+    source: "080-code-standards.md §Test Integrity Mandate"
+
+  - id: critical-rules-061
+    tier: 2
+    title: "grep/string assertions on agent output prose are EVIDENCE_TYPE_MISMATCH for behavioral SCs"
+    conditions:
+      all:
+        - "sc_evidence_type == 'behavioral'"
+        - "primary_assertion_type in ['grep', 'string', 'assert_stderr_pattern', 'assert_required_pattern']"
+        - "assertion_target == 'agent_prose_or_reasoning'"
+    actions:
+      - HALT
+      - DOWNGRADE_TO_FAIL
+      - CLASSIFY_AS_EVIDENCE_TYPE_MISMATCH
+    conflicts_with: [critical-rules-060, critical-rules-020]
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit, test-driven-development]
+    source: "080-code-standards.md §Rule 5: Agent Output MUST Be Verified by Clean-Room Semantic Inspection"
+
+  - id: critical-rules-BEH-EV
+    tier: 2
+    title: "Runtime-Behavioral Evidence Classification Gate — structural evidence for behavioral changes is EVIDENCE_TYPE_MISMATCH"
+    conditions:
+      all:
+        - "change_affects_runtime_behavior == true"
+        - "sc_evidence_type IN ['structural', 'string']"
+        - "reporting_classification != 'EVIDENCE_TYPE_MISMATCH'"
+    actions:
+      - HALT
+      - DOWNGRADE_TO_FAIL
+      - CLASSIFY_AS_EVIDENCE_TYPE_MISMATCH
+    conflicts_with: [critical-rules-060, critical-rules-020]
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit, test-driven-development]
+    source: "000-critical-rules.md §Runtime-Behavioral Evidence Classification Gate"
 ```

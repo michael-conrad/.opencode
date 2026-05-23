@@ -101,13 +101,13 @@ mkdir -p ./tmp/artifacts
 **Authorization Context:** User said "approved" on <date>
 **Authorization Scope:** <scope_value> (parsed from authorization text)
 **HALT At:** <pipeline_stage> (derived from scope horizon)
-**PR Strategy:** stacked | individual | none (derived from scope)
+**PR Strategy:** stacked | none (derived from scope)
 
 ## Scope Fields
 
 - **authorization_scope:** <scope_value>
 - **halt_at:** <pipeline_stage>
-- **pr_strategy:** <stacked|individual|none>
+- **pr_strategy:** <stacked|none>
 - **gap_fill:** <list of gap-fill actions executed or pending>
 
 ## Pre-Analysis Results
