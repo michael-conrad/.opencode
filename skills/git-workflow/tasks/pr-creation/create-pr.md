@@ -109,7 +109,6 @@ autoclose_issues = [<parent>] + [sub["number"] for sub in sub_issues]
 | `pr_strategy` | PR Behavior |
 | -- | -- |
 | `stacked` | Single PR for all issues in work set |
-| `individual` | Standard PR per branch |
 | `none` | No PR creation — halt_at boundary |
 
 **⚠️ CRITICAL: Sub-issues are closed by the cleanup task via API, NOT by autoclose.** GitHub autoclose is inert for `dev`-branch merges.

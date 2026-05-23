@@ -21,18 +21,27 @@ List all PRs (open and merged) for the repository. If merged PRs with uncleaned 
 
 ### Step 1: Query All PRs
 
-```python
-# List open PRs
-open_prs = github_list_pull_requests(
-    owner=<github.owner>, repo=<github.repo>, state="open", perPage=50
-)
+First, build the repo list from session-init values, including submodule repos:
 
-# List merged PRs
-merged_prs = github_list_pull_requests(
-    owner=<github.owner>, repo=<github.repo>, state="closed", perPage=50
-)
-# Note: GitHub "closed" includes both merged and unmerged; filter by merged_at
-merged_prs = [pr for pr in merged_prs if pr.get("merged_at") is not None]
+```python
+# Build repo list from session-init sub-folder repo mappings
+repos = [{"owner": <github.owner>, "repo": <github.repo>}]
+# Append submodule repos from session-init sub-folder repo mappings
+repos += [{"owner": m["owner"], "repo": m["repo"]} for m in submodules]
+
+# Query each repo for open and merged PRs
+for repo in repos:
+    # List open PRs
+    open_prs = github_list_pull_requests(
+        owner=repo["owner"], repo=repo["repo"], state="open", perPage=50
+    )
+
+    # List merged PRs
+    merged_prs = github_list_pull_requests(
+        owner=repo["owner"], repo=repo["repo"], state="closed", perPage=50
+    )
+    # Note: GitHub "closed" includes both merged and unmerged; filter by merged_at
+    merged_prs = [pr for pr in merged_prs if pr.get("merged_at") is not None]
 ```
 
 ### Step 2: Report PR Status

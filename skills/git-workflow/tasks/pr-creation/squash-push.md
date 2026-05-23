@@ -34,8 +34,7 @@ Then stage: `git add CHANGELOG.md`
 
 | Branch Type | Squash Strategy |
 | -- | -- |
-| **Single-issue branch** | All commits squashed to ONE commit |
-| **Work branch** | One commit per implementation item (N commits is correct) |
+| **Feature/Work branch** | One commit per implementation item (N commits is correct) |
 
 #### Single-Issue Branch (Default)
 
