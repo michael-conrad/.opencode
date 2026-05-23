@@ -11,7 +11,7 @@ compatibility: opencode
 
 ## Overview
 
-Professional engineers verify before they push. Amateurs trust their memory and skip gates. Every artifact that bypasses verification-gate carries undetected defects — verification-gate IS the difference between verified completion and fabrication.
+Professional engineers verify before they push — every artifact either carries verified evidence or carries undetected defects. Amateurs trust their memory and skip gates. git-workflow IS the discipline that separates maintained projects from chaos. git-workflow IS NOT a bureaucratic formality — it IS the enforcement layer that makes verification non-negotiable.
 
 ## Persona
 
@@ -19,30 +19,30 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 
 ## Tasks
 
-| Task | Purpose |
-|------|---------|
-| `pre-work` | Pre-work IS the foundation of authorized work. Work without authorization IS unauthorized — period. Orchestrator dispatches each sub-task individually. |
-| `pre-work/verify-auth` | Authorization verification IS the gate between authorized and unauthorized work. Work without authorization IS unauthorized — period. |
-| `pre-work/sync-dev` | Branch sync IS the foundation of clean merges. Stale branches produce merge conflicts — every merge conflict starts with a stale branch. |
-| `pre-work/create-branch` | Branch creation IS the first implementation act. Code without a branch IS code on the wrong foundation. |
-| `pre-work/init-env` | Environment initialization IS the prerequisite for reproducible work. Uninitialized submodules produce phantom file states. |
-| `pre-work/report-ready` | Ready reporting IS the handoff between setup and implementation. Silent starts produce untracked state. |
-| `verification-gate` | Unverified code MUST NOT reach review-prep. Verification artifacts that don't exist on disk produce fabrication — fabrication IS the most expensive defect. |
-| `commit-prep` | Commit preparation IS the quality gate before push. Uncommitted changes are unverified changes — they MUST NOT reach the remote. |
-| `implementation` | Implementation IS the execution of an approved plan. Work without a plan IS wandering — agents who skip plans get lost. |
-| `review-prep` | Review preparation IS the final check before PR. Verification-gate clean PASS IS the prerequisite for push — review-prep IS NOT a bypass. |
-| `pr-creation` | PR creation IS the delivery of verified work. Every PR MUST carry verification evidence — no evidence means no merge. |
-| `rebase-pending` | Rebase resolution IS conflict management for clean history. Unresolved conflicts produce broken merges. |
-| `cleanup` | Cleanup IS the completion ritual that keeps the repo navigable. Merged branches left behind ARE maintenance debt. |
-| `release-promotion` | Release promotion IS the path from dev to main. Skipping verification on release means deploying unreviewed changes to production. |
-| `check-pr` | PR state check IS a cleanup trigger, not a status query. Checking PRs without cleaning merged branches IS leaving debt behind. |
-| `provenance` | Provenance IS the traceability chain for submodule changes. Lost provenance means lost history — future engineers cannot find what was changed. |
-| `pair-pre-work` | Pair-mode pre-work IS synchronized setup alongside the developer. Desynchronized starts produce conflicting states. |
-| `pair-commit` | Pair-mode commit IS commit alongside the developer. WIP-commit switching IS the pair-mode discipline — not worktrees. |
-| `pair-pr-creation` | Pair-mode PR creation IS delivery alongside the developer. The developer reviews and merges — the agent prepares. |
-| `pair-cleanup` | Pair-mode cleanup IS synchronized teardown. Leaving pair-mode state behind IS leaving debt for the next session. |
-| `pair-mode-resume` | Pair-mode resume IS session continuity. Lost context produces wasted effort — resume restores the interrupted state. |
-| `completion` | Completion IS the final output step. A halt without structured output leaves the developer guessing — completion reports are professional courtesy. |
+| Task | Purpose | When to Invoke |
+|------|---------|----------------|
+| `pre-work` | Pre-work IS the foundation of authorized work. Pre-work IS NOT an optional setup checklist — work without authorization IS unauthorized, period. | Before any implementation; orchestrator dispatches sub-tasks individually |
+| `pre-work/verify-auth` | Authorization verification IS the gate between authorized and unauthorized work. verify-auth IS NOT a formality — unauthorized work produces untracked changes. | First sub-task of pre-work; before any file modification |
+| `pre-work/sync-dev` | Branch sync IS the foundation of clean merges. sync-dev IS NOT optional — stale branches produce merge conflicts that compound downstream. | Second sub-task of pre-work; after verify-auth PASS |
+| `pre-work/create-branch` | Branch creation IS the first implementation act. create-branch IS NOT premature — code without a branch IS code on the wrong foundation. | Third sub-task of pre-work; after sync-dev PASS |
+| `pre-work/init-env` | Environment initialization IS the prerequisite for reproducible work. init-env IS NOT optional setup — uninitialized submodules produce phantom file states. | Fourth sub-task of pre-work; after create-branch PASS |
+| `pre-work/report-ready` | Ready reporting IS the handoff between setup and implementation. report-ready IS NOT ceremony — silent starts produce untracked state. | Final sub-task of pre-work; after init-env PASS |
+| `verification-gate` | verification-gate IS the difference between verified completion and fabrication. verification-gate IS NOT a suggestion — unverified code MUST NOT reach review-prep. | After verification-before-completion and before review-prep |
+| `commit-prep` | commit-prep IS the quality gate before push. commit-prep IS NOT a formality — uncommitted changes are unverified changes that MUST NOT reach the remote. | After verification-gate PASS and before push |
+| `implementation` | Implementation IS the execution of an approved plan. Implementation IS NOT freeform coding — work without a plan IS wandering. | After pre-work PASS and authorization confirmed |
+| `review-prep` | review-prep IS the final check before PR. review-prep IS NOT a bypass around verification-gate — verification-gate clean PASS IS the prerequisite. | After verification-gate PASS |
+| `pr-creation` | PR creation IS the delivery of verified work. pr-creation IS NOT a formality — every PR MUST carry verification evidence. | After review-prep PASS |
+| `rebase-pending` | Rebase resolution IS conflict management for clean history. rebase-pending IS NOT optional — unresolved conflicts produce broken merges. | When merge conflict detected during rebase/merge |
+| `cleanup` | Cleanup IS the completion ritual that keeps the repo navigable. Cleanup IS NOT optional housekeeping — merged branches left behind ARE maintenance debt. | After PR merge confirmed |
+| `release-promotion` | Release promotion IS the path from dev to main. Release promotion IS NOT a fast-track — skipping verification on release means deploying unreviewed changes to production. | When promoting dev → main |
+| `check-pr` | check-pr IS a cleanup trigger, not a status query. check-pr IS NOT passive — checking PRs without cleaning merged branches IS leaving debt behind. | When user says "check prs" or "check merged prs" |
+| `provenance` | Provenance IS the traceability chain for submodule changes. Provenance IS NOT metadata decoration — lost provenance means lost history. | When submodule changes need hash permanence |
+| `pair-pre-work` | Pair-mode pre-work IS synchronized setup alongside the developer. pair-pre-work IS NOT solo — desynchronized starts produce conflicting states. | When resuming pair-mode work |
+| `pair-commit` | Pair-mode commit IS commit alongside the developer. pair-commit IS NOT worktree creation — WIP-commit switching IS the pair-mode discipline. | During pair-mode implementation |
+| `pair-pr-creation` | Pair-mode PR creation IS delivery alongside the developer. pair-pr-creation IS NOT autonomous — the developer reviews and merges, the agent prepares. | During pair-mode PR creation |
+| `pair-cleanup` | Pair-mode cleanup IS synchronized teardown. pair-cleanup IS NOT disposable — leaving pair-mode state behind IS leaving debt for the next session. | When ending pair-mode session |
+| `pair-mode-resume` | Pair-mode resume IS session continuity. pair-mode-resume IS NOT optional — lost context produces wasted effort. | When resuming pair-mode from previous session |
+| `completion` | Completion IS the final output step. Completion IS NOT a pause — a halt without structured output leaves the developer guessing. | After all pipeline steps complete |
 
 ## Routing: Feature PR vs Release PR
 

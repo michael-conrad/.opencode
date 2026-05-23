@@ -762,6 +762,8 @@ Single-issue: exactly 1 commit. Work branch: N commits = N items.
 3. Exhaustive remediation before escalation: only after ALL available model selection, infrastructure check, and alternative model paths have been verified as failed may the agent HALT with escalation
 4. There is NO valid path from "test cannot run" to "PASS" or "UNVERIFIED with structural substitute"
 
+### [critical-rules-BEH-EV] Runtime-Behavioral Evidence Classification Gate — structural evidence for behavioral changes is EVIDENCE_TYPE_MISMATCH
+
 
 ### [critical-rules-PR-ORG] Stacked PR Is the Only Valid Organization
 
@@ -1791,9 +1793,10 @@ rules:
     tier: 2
     title: "Functional/Behavioral Test Substitution Prohibition — substituting structural/grep/metadata checks when behavioral tests cannot execute"
     conditions:
-      all:
+      any:
         - "behavioral_or_functional_test_cannot_execute == true"
         - "structural_substitute_reported_as_pass == true"
+        - "agent_fabricates_infrastructure_blocker_without_evidence == true"
     actions:
       - HALT
       - REPORT_FAIL

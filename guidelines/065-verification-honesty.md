@@ -349,9 +349,9 @@ When reporting verification results for external values:
 
 When a FAIL signal is received at any pipeline stage, the agent MUST remediate before halting. See `000-critical-rules.md` §critical-rules-hard-fail for the complete protocol.
 
-## Anti-Evasion Rules — Cost, Availability, and Necessity Are Not Excuses
+## Anti-Evasion Rules — Cost, Availability, Necessity, and Infrastructure Are Not Excuses
 
-Evasion patterns are predictable. When a behavioral test cannot run, agents produce three categories of rationalization instead of the required FAIL verdict. Each category is a Tier 2 prohibition with a mandatory remediation-first protocol.
+Evasion patterns are predictable. When a behavioral test cannot run, agents produce four categories of rationalization instead of the required FAIL verdict. Each category is a Tier 2 prohibition with a mandatory remediation-first protocol.
 
 ### Pattern (a): Claiming Model Unavailability Without Tool-Call Evidence
 
@@ -383,6 +383,26 @@ Per `080-code-standards.md` §Test Integrity Mandate — removing or weakening b
 3. If behavioral test environment unavailable: apply patterns (a) and (b) remediation steps
 4. Only after 2+ remediation attempts: report FAIL with EVIDENCE_TYPE_MISMATCH classification
 
+### Pattern (d): Claiming Setup/Infrastructure Required Without Evidence Is Fabrication
+
+An agent claiming a setup step or infrastructure dependency is required MUST attempt the step before asserting the requirement. The attempt IS the evidence — not attempting IS the evidence of fabrication. An infrastructure-verified, attempt-first professional does not fabricate blockers; an attempt-deflecting amateur fabricates credible-sounding pretexts to bypass quality gates. Verification attempts the step; fabrication skips it.
+
+**Purpose:** Attempting the step IS verification — not attempting IS fabrication. An infrastructure-verified professional does not fabricate blockers; a fabrication-resisting professional attempts first, reports errors as evidence, and diagnoses from actual failure — never from imagined prerequisites.
+
+**Remediation-first protocol (minimum 2 steps before FAIL):**
+1. Attempt the step — run the command, execute the test, invoke the tool. The attempt produces evidence: either success or a concrete error with diagnostics.
+2. If the attempt produces an error, report the error output as evidence — the actual error message, exit code, and diagnostic output from the failed attempt.
+3. Diagnose the actual missing dependency from the error evidence — not from assumption or training data.
+4. Only after diagnosis with evidence: report setup is needed, with the error as evidence.
+
+**Bright-line rule:**
+
+- RULE: Claiming infrastructure/tooling/setup is required without first attempting the step is fabrication. Attempting the step IS the evidence — not attempting IS the evidence of fabrication.
+- EXCEPTION: None.
+- FAILURE: REJECTED — fabricated precondition. [claim] without [attempt] produces fabrication. Fabrication IS the most expensive defect — it routes unverified work past quality gates under a credible-sounding pretext.
+- REMEDIATION: (1) Attempt the step. (2) If the attempt produces an error, report the error output as evidence. (3) Diagnose the actual missing dependency from the error. (4) Only after diagnosis with evidence: report setup is needed, with the error as evidence.
+- PROCEED: Only when the step has been attempted and the result (success or error with evidence) is known.
+
 ### 🚫 FORBIDDEN
 
 - Claiming model unavailability without tool-call evidence (`opencode-cli models` output, execution logs)
@@ -390,6 +410,7 @@ Per `080-code-standards.md` §Test Integrity Mandate — removing or weakening b
 - Declaring a runtime-behavioral change as `structural` to avoid behavioral testing
 - Producing an INCONCLUSIVE verdict when EVIDENCE_TYPE_MISMATCH is detected — the verdict MUST be FAIL
 - Skipping remediation steps before reporting FAIL — exhaustion before escalation
+- Claiming setup, infrastructure, or tooling is required without attempting the step first — fabrication. Fabrication IS the most expensive defect. It routes unverified work past quality gates under a credible-sounding pretext.
 
 ### ✅ REQUIRED
 
@@ -398,11 +419,13 @@ Per `080-code-standards.md` §Test Integrity Mandate — removing or weakening b
 - Apply automatic evidence type uplift when a change affects runtime behavior
 - Attempt at least 2 remediation steps (alternative model, timeout increase, infrastructure check) before reporting FAIL
 - Report EVIDENCE_TYPE_MISMATCH with FAIL verdict when structural evidence is submitted for a runtime-behavioral change
+- Attempt the step before claiming infrastructure is required — the attempt IS the evidence
+- Report actual error output as evidence when an attempt fails — diagnosis from real diagnostics, never from imagined prerequisites
 
 ```yaml+symbolic
 schema_version: "3.0"
-last_updated: "2026-05-17T00:00:00Z"
-rules:
+  last_updated: "2026-05-23T00:00:00Z"
+  rules:
   - id: verification-honesty-001
     tier: 2
     title: "Must use tools for verification — never rely on memory"
@@ -564,4 +587,20 @@ rules:
     requires: []
     triggers: [verification-before-completion, adversarial-audit]
     source: "065-verification-honesty.md §Anti-Evasion Rules"
+
+  - id: verification-honesty-008d
+    tier: 2
+    title: "Anti-evasion: claiming setup/infrastructure required without tool-call evidence is fabrication"
+    conditions:
+      all:
+        - "behavioral_test_needed == true"
+        - "agent_claim == 'setup_required' OR agent_claim == 'infrastructure_needed'"
+        - "step_attempt_evidence_exists == false"
+    actions:
+      - HALT
+      - REQUIRE_STEP_ATTEMPT
+    conflicts_with: []
+    requires: [verification-honesty-008a, verification-honesty-008b, verification-honesty-008c]
+    triggers: [verification-before-completion, adversarial-audit]
+    source: "065-verification-honesty.md §Anti-Evasion Rules Pattern (d)"
 ```
