@@ -170,6 +170,42 @@ For OPEN PRs, check `mergeable` attribute:
 **For AI-objective conflicts (imports, whitespace, additive):** Auto-resolve.
 **For AI-subjective conflicts (logical, architectural, intent):** HALT and request developer input.
 
+### Step 1.75: Verification Artifact Re-Verification (BELT-AND-SUSPENDERS)
+
+This step re-verifies the verification artifacts produced by `verification-before-completion` and `adversarial-audit` as a belt-and-suspenders check. The primary gate is `verification-gate` (between VbC and review-prep). This step catches any artifact drift that may have occurred since the primary gate passed.
+
+**Locate and verify VbC artifact:**
+
+```bash
+ls ./tmp/artifacts/verification-*.yaml 2>/dev/null
+```
+
+**Locate and verify audit cross-validation artifact (if audit was run):**
+
+```bash
+ls ./tmp/artifacts/audit-cross-validate-*.yaml 2>/dev/null
+```
+
+**For each VbC YAML found:**
+1. Parse all SC rows. Every `result` field MUST be the exact string `PASS`. Any non-`PASS` result IS a FAIL.
+2. For each SC row with `result: PASS`, verify the referenced evidence artifact exists on disk:
+
+```bash
+ls ./tmp/behavioral-evidence-SC-*.log 2>/dev/null
+```
+
+3. If any referenced evidence file is missing or empty: `evidence_chain_integrity: BROKEN` → HALT. Referenced evidence that doesn't exist IS fabrication.
+
+**For each audit cross-validation YAML found:**
+1. `consensus` MUST be `PASS`. `DISAGREE` and `FAIL` are both FAIL outcomes.
+2. ALL individual auditor verdicts MUST be `PASS`. A single `FAIL` or `INCONCLUSIVE` verdict IS a pipeline failure regardless of consensus.
+
+**RULE:** Only the exact string `PASS` IS PASS. `PASS_WITH_CAVEATS`, `INCONCLUSIVE`, `FUNCTIONALLY_EQUIVALENT`, and `MISSING_EVIDENCE` are all FAIL.
+**EXCEPTION:** None.
+**FAILURE:** `BLOCKED: Enforcement-gate re-verification found [specific failures]. Remediate: [specific steps].`
+**REMEDIATION:** Fix the underlying failures and re-enter verification-gate.
+**PROCEED:** Only when ALL re-verified artifacts show clean PASS with intact evidence chains.
+
 ## Enforcement Mechanisms
 
 | Layer | Mechanism | Scope | Bypassable? |

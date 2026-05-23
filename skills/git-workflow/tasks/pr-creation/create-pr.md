@@ -20,17 +20,29 @@ Create the pull request after squash/push, collect sub-issues, generate PR body,
 
 ## Procedure
 
-### Step 4.5: Dispatch Chain Compliance Gate (MANDATORY — Before PR Creation)
+### Step 4.5: Verification Artifact Re-Verification (BELT-AND-SUSPENDERS — Primary Gate is verification-gate)
 
-**The verification-evidence check is a gate, not a banner. A PR without evidence is not a PR with a warning label — it is a PR that does not exist.**
+**The primary verification gate is `verification-gate` (between VbC and review-prep). This step is a belt-and-suspenders re-verification at PR creation time. The verification-gate run already confirmed PASS on all SCs with intact evidence chains. This step catches any artifact drift since the primary gate passed.**
 
-Before reading any artifacts or assembling the PR body, verify that the work was produced through the proper dispatch chain:
+Before reading any artifacts or assembling the PR body, re-verify that the verification YAML artifacts exist on disk and show clean PASS:
 
-1. Check the dispatch log for `skill({name: "verification-before-completion"})` and `skill({name: "adversarial-audit"})` calls
-2. If either `skill()` call is MISSING from the dispatch log: return BLOCKED with `DISPATCH_CHAIN_VIOLATION`
-3. If both `skill()` calls are present: proceed to Step 4.75
+1. Check `./tmp/artifacts/verification-*.yaml` exists and contains `overall_result: PASS`
+2. For each SC row with `result: PASS`, verify the referenced evidence artifact exists on disk:
 
-**No override path exists.** A PR created from inline work carries undiscovered defects regardless of how correct the output looks.
+```bash
+ls ./tmp/behavioral-evidence-SC-*.log
+```
+
+3. If any referenced evidence file is missing or empty: `evidence_chain_integrity: BROKEN` → HALT. Referenced evidence that doesn't exist IS fabrication.
+4. If `./tmp/artifacts/audit-cross-validate-*.yaml` exists, verify `consensus: PASS`.
+
+**RULE:** Only the exact string `PASS` IS PASS. `PASS_WITH_CAVEATS`, `INCONCLUSIVE`, `FUNCTIONALLY_EQUIVALENT`, and `MISSING_EVIDENCE` are all FAIL.
+**EXCEPTION:** None.
+**FAILURE:** `BLOCKED: Verification artifact re-verification found [specific failures].`
+**REMEDIATION:** Fix the underlying failures and re-enter verification-gate.
+**PROCEED:** Only when ALL re-verified artifacts show clean PASS with intact evidence chains.
+
+**No override path exists.** A PR created with missing or failing verification artifacts carries undiscovered defects regardless of how correct the output looks.
 
 ### Step 4.75: Read Source Artifacts
 
@@ -54,19 +66,34 @@ The Summary section MUST be sourced from the issue ticket body that authorized t
 |--------------|--------|---------------|
 | **Summary** | Issue ticket body (spec/plan issue for this PR) | `issue-operations --task read-issue` on parent issue |
 | **Outcome** | Issue ticket body + implementation knowledge | Synthesized from issue body + changesets |
-| **Per-SC Evidence** | VbC verification report | `read ./tmp/artifacts/verification-*.md` |
-| **Dual-Auditor Cross-Validation** | Cross-validate result contract | `read ./tmp/artifacts/audit-cross-validate-*.json` |
+| **Per-SC Evidence** | VbC verification report | `read ./tmp/artifacts/verification-*.yaml` |
+| **Dual-Auditor Cross-Validation** | Cross-validate result contract | `read ./tmp/artifacts/audit-cross-validate-*.yaml` |
 | **Tracking references** | Sub-issues from parent | `issue-operations --task read-sub-issues` on parent issue |
 
-### Step 4.75: Verification-Evidence-Check Gate
+### Step 4.75: Verification-Evidence-Check Gate (BELT-AND-SUSPENDERS — Primary Gate is verification-gate)
+
+**The primary verification gate is `verification-gate` (between VbC and review-prep). This step is a belt-and-suspenders re-verification at PR creation time. The primary gate already confirmed PASS on all SCs with intact evidence chains. This step catches any artifact drift since the primary gate passed.**
 
 The verification-evidence check is a gate, not a banner. A PR without evidence is not a PR with a warning label — it is a PR that does not exist. The create-pr sub-agent that produces an unverified PR is not creating a deliverable; it is routing a defect into the codebase under a label that no reviewer will read. Every unverified PR that reaches a reviewer is a quality failure that verification should have caught. No valid PR exists without a preceding verification PASS — the gate is the identity, not the label.
 
 **Before proceeding to Step 5, check that required verification artifacts exist:**
 
-1. Check `./tmp/artifacts/verification-*.md` exists and contains PASS for all SCs
-2. Check `./tmp/artifacts/audit-cross-validate-*.json` exists and reports consensus PASS from both auditors
-3. If any artifact is MISSING or reports FAIL: do NOT create a PR
+1. Check `./tmp/artifacts/verification-*.yaml` exists and contains `overall_result: PASS` (YAML format, not markdown)
+2. For each SC row with `result: PASS`, verify the referenced evidence artifact exists on disk:
+
+```bash
+ls ./tmp/behavioral-evidence-SC-*.log
+```
+
+3. If any referenced evidence file is missing or empty: `evidence_chain_integrity: BROKEN` → HALT. Referenced evidence that doesn't exist IS fabrication.
+4. Check `./tmp/artifacts/audit-cross-validate-*.yaml` exists and reports consensus PASS from both auditors
+5. If any artifact is MISSING or reports FAIL: do NOT create a PR
+
+**RULE:** Only the exact string `PASS` IS PASS. `PASS_WITH_CAVEATS`, `INCONCLUSIVE`, `FUNCTIONALLY_EQUIVALENT`, and `MISSING_EVIDENCE` are all FAIL.
+**EXCEPTION:** None.
+**FAILURE:** `BLOCKED: Verification-evidence-check found [specific failures].`
+**REMEDIATION:** Fix the underlying failures and re-enter verification-gate.
+**PROCEED:** Only when ALL re-verified artifacts show clean PASS with intact evidence chains.
 
 **Blocked State (Missing or Failing Verification Evidence):**
 

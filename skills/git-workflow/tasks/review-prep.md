@@ -2,22 +2,23 @@
 
 ## Purpose
 
-Generate GitHub compare URL for developer review AFTER implementation. Provides visibility into changes BEFORE deciding to create a PR.
+Generate GitHub compare URL for developer review AFTER verification-gate PASS. Verification-gate clean PASS IS the prerequisite for push — review-prep IS NOT a bypass for unverified code. Unverified code MUST NOT reach review-prep.
 
 ## ⚠️ MANDATORY INVOCATION
 
-**This task MUST be invoked after every implementation completes. NO decision point. NO asking the developer if they want review. Just generate the compare URL.**
+**This task MUST be invoked after verification-gate produces `overall_result: PASS`. NO decision point. NO asking the developer if they want review. Just generate the compare URL.**
 
-Sequence: Implementation complete → commit → push → **review-prep MUST be invoked**
+Sequence: Implementation complete → verification-before-completion → adversarial-audit → **verification-gate PASS** → commit → push → **review-prep MUST be invoked**
 
 ## Operating Protocol
 
-1. **After implementation:** Runs AFTER all implementation is complete
+1. **After verification-gate PASS:** Runs AFTER verification-gate confirms all SCs PASS with intact evidence chains
 2. **MANDATORY step:** Branch MUST be pushed for developer review
 3. **HALT after push:** Wait for developer to review and authorize PR creation
 
 ## Entry Criteria
 
+- Verification-gate has produced `overall_result: PASS` with intact evidence chains
 - All implementation work complete AND pushed to remote
 - Feature branch pushed (done by implementation task)
 - No explicit "create a PR" instruction yet
@@ -109,6 +110,7 @@ Guideline and documentation changes are NOT exempt from PR workflow.
 
 ## Enforcement Checklist
 
+- ✅ Verification-gate produced `overall_result: PASS` (mandatory prerequisite)
 - ✅ Implementation work is complete
 - ✅ `.issues/<N>/` dirty files auto-committed (Step 0)
 - ✅ All file changes committed

@@ -11,7 +11,7 @@ compatibility: opencode
 
 ## Overview
 
-Git Workflow Enforcer. Three-branch model: feature → dev → main. AI commits blocked on protected branches. Feature branches merge to `dev` via PR. Squash at PR creation only. Submodule-aware.
+Professional engineers verify before they push. Amateurs trust their memory and skip gates. Every artifact that bypasses verification-gate carries undetected defects — verification-gate IS the difference between verified completion and fabrication.
 
 ## Persona
 
@@ -19,23 +19,30 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `pre-work` | ≈480 |
-| `implementation` | ≈400 |
-| `review-prep` | ≈390 |
-| `pr-creation` | ≈385 |
-| `rebase-pending` | ≈1666 |
-| `cleanup` | ≈950 |
-| `release-promotion` | ≈500 |
-| `check-pr` | ≈50 |
-| `provenance` | ≈460 |
-| `pair-pre-work` | ≈400 |
-| `pair-commit` | ≈350 |
-| `pair-pr-creation` | ≈300 |
-| `pair-cleanup` | ≈350 |
-| `pair-mode-resume` | ≈300 |
-| `completion` | ≈200 |
+| Task | Purpose |
+|------|---------|
+| `pre-work` | Pre-work IS the foundation of authorized work. Work without authorization IS unauthorized — period. Orchestrator dispatches each sub-task individually. |
+| `pre-work/verify-auth` | Authorization verification IS the gate between authorized and unauthorized work. Work without authorization IS unauthorized — period. |
+| `pre-work/sync-dev` | Branch sync IS the foundation of clean merges. Stale branches produce merge conflicts — every merge conflict starts with a stale branch. |
+| `pre-work/create-branch` | Branch creation IS the first implementation act. Code without a branch IS code on the wrong foundation. |
+| `pre-work/init-env` | Environment initialization IS the prerequisite for reproducible work. Uninitialized submodules produce phantom file states. |
+| `pre-work/report-ready` | Ready reporting IS the handoff between setup and implementation. Silent starts produce untracked state. |
+| `verification-gate` | Unverified code MUST NOT reach review-prep. Verification artifacts that don't exist on disk produce fabrication — fabrication IS the most expensive defect. |
+| `commit-prep` | Commit preparation IS the quality gate before push. Uncommitted changes are unverified changes — they MUST NOT reach the remote. |
+| `implementation` | Implementation IS the execution of an approved plan. Work without a plan IS wandering — agents who skip plans get lost. |
+| `review-prep` | Review preparation IS the final check before PR. Verification-gate clean PASS IS the prerequisite for push — review-prep IS NOT a bypass. |
+| `pr-creation` | PR creation IS the delivery of verified work. Every PR MUST carry verification evidence — no evidence means no merge. |
+| `rebase-pending` | Rebase resolution IS conflict management for clean history. Unresolved conflicts produce broken merges. |
+| `cleanup` | Cleanup IS the completion ritual that keeps the repo navigable. Merged branches left behind ARE maintenance debt. |
+| `release-promotion` | Release promotion IS the path from dev to main. Skipping verification on release means deploying unreviewed changes to production. |
+| `check-pr` | PR state check IS a cleanup trigger, not a status query. Checking PRs without cleaning merged branches IS leaving debt behind. |
+| `provenance` | Provenance IS the traceability chain for submodule changes. Lost provenance means lost history — future engineers cannot find what was changed. |
+| `pair-pre-work` | Pair-mode pre-work IS synchronized setup alongside the developer. Desynchronized starts produce conflicting states. |
+| `pair-commit` | Pair-mode commit IS commit alongside the developer. WIP-commit switching IS the pair-mode discipline — not worktrees. |
+| `pair-pr-creation` | Pair-mode PR creation IS delivery alongside the developer. The developer reviews and merges — the agent prepares. |
+| `pair-cleanup` | Pair-mode cleanup IS synchronized teardown. Leaving pair-mode state behind IS leaving debt for the next session. |
+| `pair-mode-resume` | Pair-mode resume IS session continuity. Lost context produces wasted effort — resume restores the interrupted state. |
+| `completion` | Completion IS the final output step. A halt without structured output leaves the developer guessing — completion reports are professional courtesy. |
 
 ## Routing: Feature PR vs Release PR
 
@@ -51,6 +58,13 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 | Task | Call via task() |
 |------|----------|
 | `pre-work` | `task(..., prompt: "execute pre-work task from git-workflow")` |
+| `pre-work/verify-auth` | `task(..., prompt: "execute verify-auth sub-task from git-workflow pre-work")` |
+| `pre-work/sync-dev` | `task(..., prompt: "execute sync-dev sub-task from git-workflow pre-work")` |
+| `pre-work/create-branch` | `task(..., prompt: "execute create-branch sub-task from git-workflow pre-work")` |
+| `pre-work/init-env` | `task(..., prompt: "execute init-env sub-task from git-workflow pre-work")` |
+| `pre-work/report-ready` | `task(..., prompt: "execute report-ready sub-task from git-workflow pre-work")` |
+| `verification-gate` | `task(..., prompt: "execute verification-gate task from git-workflow")` |
+| `commit-prep` | `task(..., prompt: "execute commit-prep task from git-workflow")` |
 | `implementation` | `task(..., prompt: "execute implementation task from git-workflow")` |
 | `review-prep` | `task(..., prompt: "execute review-prep task from git-workflow")` |
 | `pr-creation` | `task(..., prompt: "execute pr-creation task from git-workflow")` |
@@ -65,24 +79,25 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 
 ## Sub-Agent Tasks for Submodule Operations
 
-| Sub-Agent Task | Trigger | Task Context (MUST receive) | Exclusions (MUST NOT receive) | Words |
-|----------------|---------|----------------------------------|-------------------------------|-------|
-| `submodule-tag-prework` | pre-work Step 3.5 | parent_repo, issue_number, submodule_paths | Implementation context, agent memory, other sub-agent results | ≈400 |
-| `submodule-feature-push` | review-prep Step 0 | parent_repo, issue_number, submodule_paths, submodule_branches | Implementation context, agent memory, orchestrator reasoning | ≈450 |
-| `submodule-liveness-check` | enforcement-gate Step 0, PR-time | submodule_paths, referenced_hashes, parent_repo, issue_number | Implementation context, agent memory, prior verification results | ≈350 |
-| `submodule-dev-restore` | cleanup Step 1.9 | submodule_paths | Implementation context, agent memory, other sub-agent results | ≈300 |
+| Sub-Agent Task | Trigger | Task Context (MUST receive) | Exclusions (MUST NOT receive) | Purpose |
+|----------------|---------|----------------------------------|-------------------------------|---------|
+| `submodule-tag-prework` | pre-work Step 3.5 | parent_repo, issue_number, submodule_paths | Implementation context, agent memory, other sub-agent results | Tag submodule SHAs for hash permanence before implementation |
+| `submodule-feature-push` | review-prep Step 0 | parent_repo, issue_number, submodule_paths, submodule_branches | Implementation context, agent memory, orchestrator reasoning | Push submodule changes from worktree to submodule remote |
+| `submodule-liveness-check` | enforcement-gate Step 0, PR-time | submodule_paths, referenced_hashes, parent_repo, issue_number | Implementation context, agent memory, prior verification results | Report-only liveness verification of submodule SHAs against remote dev |
+| `submodule-dev-restore` | cleanup Step 1.9 | submodule_paths | Implementation context, agent memory, other sub-agent results | Restore submodule branch to dev after PR merge |
 
 ## Operating Protocol
 
 1. **Worktree first:** set `worktree.path` before file ops (direct-branch mode when `WORKTREE_REQUIRED` not set).
 2. **Protected branches:** never commit to `main`/`dev`.
 3. **Squash discipline:** squash ONLY at PR creation, not during feature dev.
-4. **Clean-room content diff:** before branch deletion, verify content exists on target branch.
-5. **Compare URL base:** feature → `compare/dev...<branch>`. Release → `compare/main...dev`.
-6. **Submodule repos:** git ops from inside submodule dir. No `--recursive`.
-7. **Pair mode:** `pair-*` branches use WIP-commit switching, not worktrees.
-8. **Adversarial-audit call:** after PR merge verification, call `adversarial-audit --task closure-verification --pr <N>` with `audit_phase: post_merge`.
-9. **No dependency-sync PRs:** tag-based hash permanence replaces intermediate PRs. Submodule SHAs are preserved via parent-repo-prefixed tags. See AGENTS.md §Tag Layers.
+4. **Verification-gate IS mandatory:** after verification-before-completion and before review-prep, verification-gate MUST produce `overall_result: PASS`. No bypass. No soft-pass. No `INCONCLUSIVE`.
+5. **Clean-room content diff:** before branch deletion, verify content exists on target branch.
+6. **Compare URL base:** feature → `compare/dev...<branch>`. Release → `compare/main...dev`.
+7. **Submodule repos:** git ops from inside submodule dir. No `--recursive`.
+8. **Pair mode:** `pair-*` branches use WIP-commit switching, not worktrees.
+9. **Adversarial-audit call:** after PR merge verification, call `adversarial-audit --task closure-verification --pr <N>` with `audit_phase: post_merge`.
+10. **No dependency-sync PRs:** tag-based hash permanence replaces intermediate PRs. Submodule SHAs are preserved via parent-repo-prefixed tags. See AGENTS.md §Tag Layers.
 
 ## Sub-Agent Routing
 
