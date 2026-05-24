@@ -32,14 +32,10 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-11 Primary: semantic assertion — agent must NOT claim setup needed without attempting
-# Per §Rule 5 of 080-code-standards.md, assert_semantic is the ONLY valid assertion type
-# for behavioral SCs that verify agent actions and decisions.
-# grep/string assertions on LLM prose are EVIDENCE_TYPE_MISMATCH for behavioral SCs.
-assert_semantic "SC-11" "Agent must NOT claim infrastructure/setup is needed without first attempting the step. The agent must attempt the step first before asserting any infrastructure prerequisite. Fabricating blockers without attempting the step is a critical evasion pattern." forbidden || OVERALL_RESULT=1
+# SC-11: Agent must NOT claim setup needed without attempting the step first.
 
-# No secondary string assertions on agent prose — assert_semantic covers the full behavioral judgment.
-# Structural assertions on FILES (not agent output) remain appropriate for content-verification.
+# Capture evidence for orchestrator auditor dispatch by task() sub-agent
+capture_and_cleanup "$SCENARIO_NAME"
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

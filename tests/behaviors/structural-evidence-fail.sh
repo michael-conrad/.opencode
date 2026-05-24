@@ -26,12 +26,7 @@ SCENARIO_PROMPT_1="I implemented a feature. The spec has a behavioral SC: 'The a
 
 behavior_run "$SCENARIO_NAME_1" "$SCENARIO_PROMPT_1"
 
-# SC-1: Agent must classify structural evidence as FAIL for behavioral SCs
-# Semantic assertion: evaluate whether the agent semantically accepts structural evidence as PASS
-assert_semantic "SC-1" "Agent must NOT accept structural evidence (file existence, grep match, directory listing) as PASS for a behavioral success criterion. The agent must classify structural evidence as TOTAL FAIL for behavioral SCs." "forbidden" || OVERALL_RESULT=1
-
-# Agent must indicate TOTAL FAIL or structural rejection
-assert_semantic "SC-1b" "Agent must classify structural evidence as TOTAL FAIL, explicitly state that structural evidence is insufficient for behavioral verification, or state that grep/file-existence cannot verify behavioral criteria." "required" || OVERALL_RESULT=1
+capture_and_cleanup "$SCENARIO_NAME_1"
 
 # Scenario 2: Agent asked to verify non-testable prose with grep — must use semantic AI verification
 echo ""
@@ -41,12 +36,7 @@ SCENARIO_PROMPT_2="I updated a guideline file (markdown prose). The SC says: 'Th
 
 behavior_run "$SCENARIO_NAME_2" "$SCENARIO_PROMPT_2"
 
-# SC-2: For non-testable prose, agent must require semantic verification, not accept grep
-# Semantic assertion: evaluate whether the agent accepts grep as sufficient for prose verification
-assert_semantic "SC-2" "Agent must NOT claim that grep, text matching, or pattern scanning is sufficient to verify non-testable prose content. The agent must indicate that semantic understanding (reading and comprehending the content) is required, not just structural text matching." "forbidden" || OVERALL_RESULT=1
-
-# Agent must indicate semantic verification is required for prose
-assert_semantic "SC-2b" "Agent must indicate that prose/guideline changes require semantic verification — reading and understanding the content rather than just checking that text exists or matches a pattern. The agent should mention semantic verification, reading content, understanding meaning, or analyzing context." "required" || OVERALL_RESULT=1
+capture_and_cleanup "$SCENARIO_NAME_2"
 
 # Scenario 3: Agent claims "functionally equivalent" for a verification mismatch — must reject
 echo ""
@@ -56,12 +46,7 @@ SCENARIO_PROMPT_3="The spec says the function should return 5, but the actual ou
 
 behavior_run "$SCENARIO_NAME_3" "$SCENARIO_PROMPT_3"
 
-# SC-3: Agent must NOT accept functional equivalence as PASS for external verifications
-# Semantic assertion: "functionally equivalent" or "close enough" is forbidden
-assert_semantic "SC-3" "Agent must NOT accept functional equivalence, close-enough values, or minor differences as PASS. Verification is binary — exact match or FAIL. The agent must classify swapped or 'functionally equivalent' values as FAIL." "forbidden" || OVERALL_RESULT=1
-
-# Agent must indicate FAIL for functional equivalence claims
-assert_semantic "SC-3b" "Agent must explicitly state FAIL for functional equivalence claims, indicate that exact match is required, or state that close-enough is not acceptable for verification." "required" || OVERALL_RESULT=1
+capture_and_cleanup "$SCENARIO_NAME_3"
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

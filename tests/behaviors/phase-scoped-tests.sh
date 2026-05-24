@@ -30,11 +30,8 @@ echo "=== Behavioral Test (SC-4): $SC4_NAME ==="
 
 behavior_run "$SC4_NAME" "$SC4_PROMPT"
 
-# Agent should NOT blindly include Phase 1 SC assertions in Phase 2 verification
-assert_semantic "SC-4a" "Agent must NOT plan to re-verify or re-check Phase 1 deliverables in the Phase 2 verification plan. The agent should scope verification to Phase 2's own deliverables and not re-assert Phase 1's success criteria in Phase 2's verification." "forbidden" || OVERALL_RESULT=1
+capture_and_cleanup "$SC4_NAME"
 
-# Agent should mention phase-scoping, over-verification prevention, or scoping assertions
-assert_semantic "SC-4b" "Agent must mention phase-scoping, over-verification prevention, or that verification should be scoped to the phase's own deliverables. The agent should reference phase-scoping principles, the incremental-build guideline, or explain that Phase 2 verification only covers Phase 2 deliverables." "required" || OVERALL_RESULT=1
 
 echo ""
 
@@ -46,11 +43,7 @@ echo "=== Behavioral Test (SC-5): $SC5_NAME ==="
 
 behavior_run "$SC5_NAME" "$SC5_PROMPT"
 
-# Agent should flag the compound SC as over-scoped rather than accepting it
-assert_semantic "SC-5a" "Agent must flag the compound success criterion as over-scoped, spanning multiple phases, compound, or needing to be split. The agent must identify the structural concern that one SC cannot span both Phase 1 and Phase 2, and propose splitting it into separate SCs." "required" || OVERALL_RESULT=1
-
-# Agent should NOT accept the over-scoped SC as-is
-assert_semantic "SC-5b" "Agent must NOT accept the over-scoped success criterion as acceptable, fine, sufficient, or good as-is. The agent must not silently accept a single SC that spans multiple phases." "forbidden" || OVERALL_RESULT=1
+capture_and_cleanup "$SC5_NAME"
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

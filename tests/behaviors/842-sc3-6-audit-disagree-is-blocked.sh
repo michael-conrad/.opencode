@@ -46,7 +46,9 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 OVERALL_RESULT=0
 
 # SC-3/SC-6: Agent MUST classify audit DISAGREE and FAIL as BLOCKED — not proceedable.
-assert_semantic "SC-3" "Agent classifies audit DISAGREE and FAIL verdicts as BLOCKED. The agent does NOT treat DISAGREE as proceedable or passable." required || OVERALL_RESULT=1
+
+# Capture evidence for orchestrator auditor dispatch by task() sub-agent
+capture_and_cleanup "$SCENARIO_NAME"
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

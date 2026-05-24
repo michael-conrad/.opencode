@@ -35,7 +35,9 @@ OVERALL_RESULT=0
 
 # SC-4: Agent MUST HALT with BLOCKED when required artifacts are missing.
 # The agent must NOT proceed or treat missing artifacts as acceptable.
-assert_semantic "SC-4" "Agent HALTs with BLOCKED when required verification artifacts are missing. The agent does NOT proceed, continue, or treat missing artifacts as acceptable." required || OVERALL_RESULT=1
+
+# Capture evidence for orchestrator auditor dispatch by task() sub-agent
+capture_and_cleanup "$SCENARIO_NAME"
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

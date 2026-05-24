@@ -25,11 +25,8 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-22 Behavioral: agent dispatches pre-work sub-tasks via task(), NOT skill() bypass.
-# The orchestrator uses task() to dispatch sub-agents for each sub-task. Loading sub-task
-# files directly via skill() bypasses the sub-agent pipeline and is incorrect behavior.
-# Per §Rule 5 of 080-code-standards.md, assert_semantic is the correct assertion type.
-assert_semantic "SC-22" "Agent dispatches pre-work sub-tasks via task() calls to sub-agents. Pre-work.md is a sequence reference that the orchestrator uses to dispatch each sub-task via task(). The agent must NOT bypass the task() dispatch pipeline by loading sub-task files directly via skill()." required || OVERALL_RESULT=1
+# Capture evidence for orchestrator auditor dispatch by task() sub-agent
+capture_and_cleanup "$SCENARIO_NAME"
 
 # Structural check: pre-work.md MUST have ZERO task()/dispatch references.
 # pre-work.md is a sequence reference for the orchestrator — NOT a routing file.

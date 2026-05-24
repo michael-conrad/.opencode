@@ -52,7 +52,9 @@ OVERALL_RESULT=0
 
 # SC-5: Agent MUST classify FAIL, INCONCLUSIVE, MISSING_EVIDENCE SC rows as BLOCKED.
 # None of these non-PASS results should be treated as acceptable or proceedable.
-assert_semantic "SC-5" "Agent classifies FAIL, INCONCLUSIVE, and MISSING_EVIDENCE SC result rows as BLOCKED. The agent does NOT treat any non-PASS result as acceptable, proceedable, or soft-passing." required || OVERALL_RESULT=1
+
+# Capture evidence for orchestrator auditor dispatch by task() sub-agent
+capture_and_cleanup "$SCENARIO_NAME"
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

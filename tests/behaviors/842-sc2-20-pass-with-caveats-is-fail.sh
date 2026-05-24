@@ -50,9 +50,11 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-2/SC-20: Agent MUST classify all non-PASS results (PASS_WITH_CAVEATS, INCONCLUSIVE, 
+# SC-2/SC-20: Agent MUST classify all non-PASS results (PASS_WITH_CAVEATS, INCONCLUSIVE,
 # FUNCTIONALLY_EQUIVALENT) as FAIL, not as soft-passes. The overall verdict MUST be FAIL/BLOCKED.
-assert_semantic "SC-2" "Agent classifies PASS_WITH_CAVEATS, INCONCLUSIVE, and FUNCTIONALLY_EQUIVALENT as FAIL (not as acceptable or passing). The overall verdict is FAIL or BLOCKED, never PASS with caveats." required || OVERALL_RESULT=1
+
+# Capture evidence for orchestrator auditor dispatch by task() sub-agent
+capture_and_cleanup "$SCENARIO_NAME"
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

@@ -160,7 +160,7 @@ case "${1:-}" in
         ;;
 esac
 
-if [ $# -eq 0 ]; then
+if [ "$DO_SETUP" != "true" ] && [ $# -eq 0 ]; then
     usage
 fi
 

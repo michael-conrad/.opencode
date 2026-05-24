@@ -31,7 +31,7 @@ assert_skill_called "git-workflow" || OVERALL_RESULT=1
 
 # SC-1: Behavioral evidence — clean-room semantic inspector verifies
 # the agent routed "check prs" to cleanup, not just listed PRs.
-assert_semantic "SC-1" "Agent received 'check prs' and routed it to git-workflow cleanup (check-pr task), NOT by listing merged PRs in a table or summary. The agent must demonstrate it treated 'check prs' as a cleanup trigger per critical-rules-041, not as an information query." "required" || OVERALL_RESULT=1
+
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

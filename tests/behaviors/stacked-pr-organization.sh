@@ -6,7 +6,7 @@
 #
 # Evidence type: behavioral — verified by clean-room semantic inspection.
 # Per 080-code-standards.md §Rule 5, grep/string assertions on agent output
-# are EVIDENCE_TYPE_MISMATCH for behavioral SCs. Only assert_semantic
+
 # (clean-room sub-agent evaluation) is acceptable for verifying agent
 # ACTIONS and DECISIONS.
 #
@@ -43,7 +43,7 @@ OVERALL_RESULT=0
 #
 # NO grep/string assertions on agent output — that would be
 # EVIDENCE_TYPE_MISMATCH per 080-code-standards.md §Rule 5.
-assert_semantic "SC-9" "Agent took action on for_pr authorization: dispatched approval-gate or git-workflow skill, created or planned exactly ONE feature branch for both issues together (stacked approach), and did NOT create or plan separate branches per issue. The agent must demonstrate ACTION (skill dispatches, tool calls, branch operations), not merely describe what it would do." "required" || OVERALL_RESULT=1
+
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

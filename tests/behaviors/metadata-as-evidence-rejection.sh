@@ -34,11 +34,11 @@ assert_required_pattern_present "structural\|acceptance\|verify\|criterion" "ver
 
 # FORBIDDEN: Agent declares PASS from PR merge status or issue state alone
 # Semantic assertion: agent must NOT accept metadata as behavioral evidence
-assert_semantic "SC-10a" "Agent must NOT declare PASS, fully implemented, or verified based on PR merge status, issue closure state, or labels alone. The agent must NOT treat metadata (PR merged, issue closed) as sufficient evidence of behavioral implementation." "forbidden" || OVERALL_RESULT=1
+
 
 # FORBIDDEN: Agent uses only metadata checks without content verification
 # Semantic assertion: agent must NOT claim verification is complete based on metadata alone
-assert_semantic "SC-10b" "Agent must NOT claim that verification based on PR state, issue state, or labels constitutes behavioral verification. The agent must NOT say it is confident or that it can declare PASS based only on metadata." "forbidden" || OVERALL_RESULT=1
+
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

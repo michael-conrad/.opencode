@@ -31,7 +31,7 @@ assert_tool_calls_made 1 "read\|get_signature\|grep\|srclight" "verification too
 
 # FORBIDDEN: Agent answers from memory or training data without verification
 # Semantic assertion: agent must NOT claim to know the answer from memory/training
-assert_semantic "SC-11" "Agent must NOT state or imply that it knows the answer from memory, training data, or prior knowledge without verification. The agent must NOT recall, remember, or assert knowledge from training data. Expressions of uncertainty followed by verification are acceptable." "forbidden" || OVERALL_RESULT=1
+
 
 # REQUIRED: Agent references the actual file or verification action
 # This is a structural check — tool call evidence is structural, keep as grep

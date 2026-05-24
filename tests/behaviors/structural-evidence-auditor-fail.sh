@@ -27,12 +27,7 @@ SCENARIO_PROMPT_1="You are an adversarial auditor reviewing a spec audit. The im
 
 behavior_run "$SCENARIO_NAME_1" "$SCENARIO_PROMPT_1"
 
-# SC-3: Auditor must classify structural evidence as STRUCTURAL_EVIDENCE FAIL with verdict
-# Semantic assertion: evaluate whether the auditor produces a PASS verdict for structural evidence
-assert_semantic "SC-3" "Auditor must NOT produce a PASS, classification PASS, or any affirmative verdict when presented with structural evidence (grep results, file existence) for a behavioral success criterion. The auditor must classify the evidence as FAIL or STRUCTURAL_EVIDENCE FAIL." "forbidden" || OVERALL_RESULT=1
-
-# Auditor must classify structural evidence as TOTAL FAIL or STRUCTURAL_EVIDENCE FAIL
-assert_semantic "SC-3b" "Auditor must explicitly classify structural evidence (grep, file existence) as TOTAL FAIL or STRUCTURAL_EVIDENCE FAIL, stating that structural evidence is not sufficient for behavioral verification. The auditor must use the word FAIL or STRUCTURAL." "required" || OVERALL_RESULT=1
+capture_and_cleanup "$SCENARIO_NAME_1"
 
 # Scenario 2: Auditor sees file-existence for a behavioral SC — must reject
 echo ""
@@ -42,11 +37,7 @@ SCENARIO_PROMPT_2="You are reviewing a plan fidelity audit. The implementer veri
 
 behavior_run "$SCENARIO_NAME_2" "$SCENARIO_PROMPT_2"
 
-# SC-4: Auditor must reject file-existence as behavioral evidence, must NOT report PASS
-assert_semantic "SC-4a" "Auditor must NOT accept file existence or directory listing as sufficient evidence for a behavioral success criterion. The auditor must NOT produce a PASS verdict when the only evidence is that a file exists or a test file is present." "forbidden" || OVERALL_RESULT=1
-
-# Auditor must explicitly reject file-existence and require behavioral test execution
-assert_semantic "SC-4b" "Auditor must explicitly reject file-existence as behavioral evidence and state that behavioral test execution is required. The auditor must use words like FAIL, structural, not sufficient, cannot accept, or reject." "required" || OVERALL_RESULT=1
+capture_and_cleanup "$SCENARIO_NAME_2"
 
 # Scenario 3: Auditor sees semantic verification for non-testable prose — must accept
 echo ""
@@ -56,9 +47,7 @@ SCENARIO_PROMPT_3="You are reviewing a drift detection audit. The SC is about a 
 
 behavior_run "$SCENARIO_NAME_3" "$SCENARIO_PROMPT_3"
 
-# SC-5: For non-testable prose, auditor must accept semantic verification (NOT reject it)
-# Semantic assertion: auditor must NOT reject semantic AI verification for prose
-assert_semantic "SC-5" "Auditor must NOT reject semantic verification (directly reading and understanding the content) for non-testable prose changes. The auditor must NOT claim that only behavioral test execution is acceptable for prose or that semantic understanding is the same as grep." "forbidden" || OVERALL_RESULT=1
+capture_and_cleanup "$SCENARIO_NAME_3"
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

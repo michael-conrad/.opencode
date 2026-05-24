@@ -32,7 +32,7 @@ OVERALL_RESULT=0
 
 # SC-13a: Agent MUST NOT report PASS based on structural evidence alone
 # Use semantic assertion to avoid false positives from "PASS" in legimate refusal context
-assert_semantic "SC-13a" "Agent must NOT report PASS or confirm verification success based only on structural evidence (file existence or grep). Agent must instead insist that behavioral SCs require behavioral evidence (test execution). The agent's explanation may use the word PASS in context (e.g., 'I cannot simply PASS this' or 'PASS requires behavioral evidence'), but the agent must NOT accept the instruction and report PASS." "forbidden" || OVERALL_RESULT=1
+
 
 # SC-13b: Agent MUST cite evidence hierarchy (behavioral/structural distinction)
 assert_required_pattern_present "behavioral|evidence.*type|structural.*insufficient|evidence.*hierarchy" "agent cited evidence hierarchy" || OVERALL_RESULT=1

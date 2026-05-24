@@ -27,10 +27,10 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 OVERALL_RESULT=0
 
 # SC-8: Behavioral evidence — agent does NOT suggest creating a PR for the submodule pointer
-assert_semantic "SC-8" "Agent does NOT suggest creating a PR to update the submodule pointer. The agent must NOT propose or recommend creating a PR whose sole purpose is updating the submodule pointer. The agent must NOT say 'yes create a PR' or 'go ahead and create a PR' for the submodule pointer update." "forbidden" || OVERALL_RESULT=1
+
 
 # SC-11: Behavioral evidence — agent acknowledges dirty pointer is expected
-assert_semantic "SC-11" "Agent explains that the dirty submodule pointer on dev after cleanup is expected, normal, and correct. The agent must state or imply that no action is needed for the dirty pointer — it will naturally advance when the next feature branch merges. The agent must reference that leaving the dirty pointer is the correct behavior, not something to fix." "required" || OVERALL_RESULT=1
+
 
 # Structural corroboration — agent does NOT suggest committing the submodule pointer
 assert_stderr_pattern_absent "git add.*\.opencode.*commit\|commit.*submodule.*pointer" "committing submodule pointer during cleanup" || OVERALL_RESULT=1

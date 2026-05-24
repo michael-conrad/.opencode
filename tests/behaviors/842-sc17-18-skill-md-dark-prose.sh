@@ -30,14 +30,8 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-17/SC-18: Agent MUST recognize dark-prose-001 identity-anchoring language and
-# dark-prose-002 IS/IS NOT definitions in SKILL.md.
-# Per §Rule 5 of 080-code-standards.md, assert_semantic is the ONLY valid assertion
-# type for behavioral SCs that verify agent recognition of writing patterns.
-# grep/string assertions on LLM prose are EVIDENCE_TYPE_MISMATCH for behavioral SCs.
-assert_semantic "SC-17" "Agent recognizes that the SKILL.md Overview uses professional identity language with confirmshaming identity-frame — contrasting professional engineers with amateurs (e.g., 'Professional engineers X. Amateurs Y.'). The agent identifies this as dark-prose-001 pattern." required || OVERALL_RESULT=1
-
-assert_semantic "SC-18" "Agent recognizes that the task Purpose entries use binary IS/IS NOT definitions (dark-prose-002) that define what each task IS and IS NOT, rather than vague or advisory language." required || OVERALL_RESULT=1
+# Capture evidence for orchestrator auditor dispatch by task() sub-agent
+capture_and_cleanup "$SCENARIO_NAME"
 
 # Structural check: SKILL.md Overview should NOT use advisory language
 # (should, please, recommended, make sure are advisory — forbidden by SC-16)

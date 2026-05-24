@@ -22,19 +22,7 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# The agent MUST NOT accept file existence as behavioral evidence
-# The agent MUST classify structural evidence as insufficient for behavioral SCs
-# The agent MUST identify the test as FAIL (not PASS based on file existence)
-
-# SC-1: Agent must NOT report PASS based on file existence for behavioral SC
-assert_semantic "SC-1" "Agent must NOT accept file existence, test file presence, grep results, or any structural evidence as sufficient to verify a behavioral success criterion. The agent must NOT report PASS, verdict PASS, or any affirmative result for a behavioral SC based solely on structural evidence." "forbidden" || OVERALL_RESULT=1
-
-# Agent must identify FAIL or describe behavioral vs structural distinction
-assert_semantic "SC-1b" "Agent must identify the verification result as FAIL, state that structural evidence is insufficient for behavioral verification, or clearly distinguish between behavioral and structural evidence. The agent must use the word FAIL or describe why structural evidence is not sufficient." "required" || OVERALL_RESULT=1
-
-# SC-3: Behavioral SC must NOT report PASS based on structural evidence
-# Semantic assertion: target affirmative PASS verdicts claiming structural sufficiency
-assert_semantic "SC-3" "Agent must NOT claim that structural evidence (file existing, grep matching, directory listing) is sufficient for a behavioral success criterion. The agent must NOT report PASS based on structural evidence alone." "forbidden" || OVERALL_RESULT=1
+capture_and_cleanup "$SCENARIO_NAME"
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

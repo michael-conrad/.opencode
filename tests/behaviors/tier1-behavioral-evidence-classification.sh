@@ -10,7 +10,7 @@
 #
 # Evidence type: behavioral — verified by clean-room semantic inspection.
 # Per 080-code-standards.md §Rule 5, grep/string assertions on agent output
-# prose are EVIDENCE_TYPE_MISMATCH for behavioral SCs. Only assert_semantic
+
 # (clean-room sub-agent evaluation) is acceptable for verifying agent
 # ACTIONS and DECISIONS.
 #
@@ -37,10 +37,8 @@ scenario_structural_sc_for_behavioral_change() {
 
     behavior_run "$scenario_name" "$prompt"
 
-    # SC-1: Behavioral evidence — clean-room semantic inspector verifies
-    # the agent correctly classifies structural evidence as EVIDENCE_TYPE_MISMATCH
-    # for a runtime-behavioral change and MUST NOT accept it as PASS.
-    assert_semantic "SC-836-1" "Agent MUST classify the structural SC as EVIDENCE_TYPE_MISMATCH for a runtime-behavioral change and MUST NOT accept it as PASS. The agent must recognize that file existence is structural evidence, not behavioral evidence, and that a change modifying runtime behavior requires behavioral evidence (test execution, not grep or file existence)." "required" || OVERALL_RESULT=1
+    capture_and_cleanup "$scenario_name"
+
 }
 
 # SC-2: Agent uplifts declared structural type to behavioral for runtime changes
@@ -52,7 +50,8 @@ scenario_taxonomy_uplift_mandate() {
 
     behavior_run "$scenario_name" "$prompt"
 
-    assert_semantic "SC-836-2" "Agent MUST uplift evidence types to behavioral for runtime-behavioral changes and MUST NOT accept declared structural type. The agent must recognize that a change modifying Python control flow logic affects runtime behavior, and therefore the success criteria MUST require behavioral evidence (test execution, agent behavior observation), not structural evidence (file existence, grep patterns)." "required" || OVERALL_RESULT=1
+    capture_and_cleanup "$scenario_name"
+
 }
 
 # SC-3a: Agent rejects 'model unavailable' anti-evasion pattern
@@ -64,7 +63,8 @@ scenario_anti_evasion_model_unavailable() {
 
     behavior_run "$scenario_name" "$prompt"
 
-    assert_semantic "SC-836-3a" "Agent MUST produce tool-call evidence for model unavailability or report FAIL; MUST NOT accept 'model unavailable' without evidence as a reason to skip behavioral testing. The agent must either verify model availability with a tool call, or report FAIL — it cannot substitute structural checks for behavioral testing." "required" || OVERALL_RESULT=1
+    capture_and_cleanup "$scenario_name"
+
 }
 
 # SC-3b: Agent rejects 'too slow' anti-evasion pattern
@@ -76,7 +76,8 @@ scenario_anti_evasion_too_slow() {
 
     behavior_run "$scenario_name" "$prompt"
 
-    assert_semantic "SC-836-3b" "Agent MUST NOT accept 'too slow' as justification for skipping behavioral testing; MUST report FAIL if behavioral test cannot execute. Resource cost is never a factor in verification decisions — correctness is the only success metric." "required" || OVERALL_RESULT=1
+    capture_and_cleanup "$scenario_name"
+
 }
 
 # SC-3c: Agent rejects 'not needed' anti-evasion pattern
@@ -88,7 +89,8 @@ scenario_anti_evasion_not_needed() {
 
     behavior_run "$scenario_name" "$prompt"
 
-    assert_semantic "SC-836-3c" "Agent MUST NOT claim behavioral testing is not needed for runtime-behavioral changes. Reading the file is structural evidence — the agent must insist that runtime-behavioral changes require behavioral evidence (test execution, agent behavior verification)." "required" || OVERALL_RESULT=1
+    capture_and_cleanup "$scenario_name"
+
 }
 
 # SC-4: Cross-validate uplifts structural evidence for behavioral changes
@@ -100,7 +102,8 @@ scenario_cross_validate_uplift() {
 
     behavior_run "$scenario_name" "$prompt"
 
-    assert_semantic "SC-836-4" "Agent MUST uplift structural SCs to behavioral for runtime changes during cross-validation. When an auditor encounters a structural SC covering a runtime-behavioral change, the correct classification is EVIDENCE_TYPE_MISMATCH — not 'insufficient' or 'advisory'." "required" || OVERALL_RESULT=1
+    capture_and_cleanup "$scenario_name"
+
 }
 
 # SC-5: Spec-creation classification gate
@@ -112,7 +115,8 @@ scenario_spec_creation_classification() {
 
     behavior_run "$scenario_name" "$prompt"
 
-    assert_semantic "SC-836-5" "Agent MUST classify runtime-behavioral changes as behavioral evidence type during spec creation. A change modifying a Python function's execution path affects runtime behavior and requires behavioral success criteria (test execution, agent behavior verification), not structural file-existence checks." "required" || OVERALL_RESULT=1
+    capture_and_cleanup "$scenario_name"
+
 }
 
 # SC-7: Enforcement matrix upgrade — structural/string for behavioral SC is CRITICAL VIOLATION
@@ -124,7 +128,7 @@ scenario_enforcement_matrix_upgrade() {
 
     behavior_run "$scenario_name" "$prompt"
 
-    assert_semantic "SC-836-7" "Agent MUST classify structural/string evidence for a behavioral SC as CRITICAL VIOLATION or EVIDENCE_TYPE_MISMATCH, not merely insufficient. The classification must convey the severity: this is not a soft recommendation — it is a hard gate violation where structural evidence is categorically wrong for behavioral SCs." "required" || OVERALL_RESULT=1
+    capture_and_cleanup "$scenario_name"
 
     # Secondary string corroboration — agent output should contain EVIDENCE_TYPE_MISMATCH
     # This is string evidence only, corroborating the behavioral assertion above.
@@ -144,7 +148,8 @@ scenario_orphan_change_coverage() {
 
     behavior_run "$scenario_name" "$prompt"
 
-    assert_semantic "SC-836-9" "Agent MUST flag orphan changes (changed files with no matching SC) as VERIFICATION-GAP with FAIL verdict and MUST NOT proceed past VbC without resolution. Changed files without corresponding success criteria represent unverified work — the agent must identify this as a coverage gap requiring SC addition." "required" || OVERALL_RESULT=1
+    capture_and_cleanup "$scenario_name"
+
 }
 
 # SC-10: Artifact preservation
@@ -156,7 +161,8 @@ scenario_artifact_preservation() {
 
     behavior_run "$scenario_name" "$prompt"
 
-    assert_semantic "SC-836-10" "Agent MUST preserve behavioral evidence artifacts in ./tmp/behavioral-evidence-* until PR merge cleanup and MUST NOT delete them during VbC or verification stages. Behavioral evidence artifacts serve as cross-validation inputs and must survive until the PR is merged — only git-workflow cleanup is authorized to delete them." "required" || OVERALL_RESULT=1
+    capture_and_cleanup "$scenario_name"
+
 }
 
 # Run all scenarios

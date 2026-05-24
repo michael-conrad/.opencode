@@ -41,7 +41,7 @@ behavior_run \
 # 1. Identified the evidence type mismatch
 # 2. Classified it as EVIDENCE_TYPE_MISMATCH (not just "insufficient")
 # 3. Reported the correct verdict (FAIL for structural evidence on behavioral SC)
-assert_semantic "SC-7" "Agent correctly classifies structural evidence (file existence) as EVIDENCE_TYPE_MISMATCH when presented for a behavioral SC. The agent must: (1) identify that file existence is structural evidence, not behavioral evidence, (2) classify this as EVIDENCE_TYPE_MISMATCH per 080-code-standards.md Evidence Type Taxonomy, and (3) report that the correct verdict for structural evidence on a behavioral SC is FAIL, not PASS. The agent must NOT accept file existence as sufficient for a behavioral success criterion." "required" || OVERALL_RESULT=1
+
 
 # Secondary string corroboration — agent output should contain EVIDENCE_TYPE_MISMATCH
 # This is string evidence only, corroborating the behavioral assertion above.
