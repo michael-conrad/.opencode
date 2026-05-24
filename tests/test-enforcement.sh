@@ -842,9 +842,32 @@ for scenario_name in "${SCENARIO_NAMES[@]}"; do
     echo "**Expected skill:** ${EXPECTED:-none}" >> "$RESULTS_FILE"
     echo "" >> "$RESULTS_FILE"
 
-    # Run opencode-cli in isolated mode via with-test-home wrapper
+    # Run opencode-cli in isolated mode via with-test-home --setup + env -i
     # --print-logs goes to stderr, formatted output to stdout
-    timeout $TIMEOUT bash "$WITH_TEST_HOME" opencode-cli run "$MESSAGE" \
+    local setup_env
+    setup_env=$(bash "$WITH_TEST_HOME" --setup 2>/dev/null)
+    eval "$setup_env"
+    local auth_env=()
+    for var in GITHUB_TOKEN GH_TOKEN; do
+        if [ -n "${!var:-}" ]; then
+            auth_env+=("$var=${!var}")
+        fi
+    done
+    timeout --kill-after=30 $TIMEOUT env -i \
+        HOME="$TEST_HOME" \
+        XDG_CONFIG_HOME="$XDG_CONFIG_HOME" \
+        XDG_CACHE_HOME="$XDG_CACHE_HOME" \
+        XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" \
+        XDG_DATA_HOME="$XDG_DATA_HOME" \
+        XDG_STATE_HOME="$XDG_STATE_HOME" \
+        PATH="$PATH" \
+        SHELL="${SHELL:-/bin/bash}" \
+        USER="${USER:-$(id -un)}" \
+        LOGNAME="${LOGNAME:-$(id -un)}" \
+        LANG="${LANG:-en_US.UTF-8}" \
+        TERM="${TERM:-xterm-256color}" \
+        "${auth_env[@]}" \
+        opencode-cli run "$MESSAGE" \
         --model "$MODEL" \
         --print-logs \
         > "$SCENARIO_OUT" 2> "$SCENARIO_LOG" \

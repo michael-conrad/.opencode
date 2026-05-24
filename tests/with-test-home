@@ -137,6 +137,8 @@ if [ $# -eq 0 ]; then
     usage
 fi
 
+DO_SETUP=false
+
 case "${1:-}" in
     --clean)
         do_clean
@@ -145,6 +147,10 @@ case "${1:-}" in
     --clean-all)
         do_clean_all
         exit $?
+        ;;
+    --setup)
+        DO_SETUP=true
+        shift
         ;;
     --keep)
         shift
@@ -174,6 +180,16 @@ echo "Test home: $TEST_HOME" >&2
 
 seed_model_config
 
+if [ "$DO_SETUP" = "true" ]; then
+    echo "TEST_HOME=$TEST_HOME"
+    echo "XDG_CONFIG_HOME=$TEST_HOME/.config"
+    echo "XDG_CACHE_HOME=$TEST_HOME/.cache"
+    echo "XDG_RUNTIME_DIR=$TEST_HOME/.runtime"
+    echo "XDG_DATA_HOME=$TEST_HOME/.local/share"
+    echo "XDG_STATE_HOME=$TEST_HOME/.local/state"
+    exit 0
+fi
+
 if [ -n "${TEST_WORKDIR:-}" ]; then
     # Strip trailing slash for consistency
     TEST_WORKDIR="${TEST_WORKDIR%/}"
@@ -193,6 +209,8 @@ for var in GITHUB_TOKEN GH_TOKEN GH_AUTH_TOKEN SSH_AUTH_SOCK GIT_AUTHOR_NAME GIT
         pass_through_env+=("$var=${!var}")
     fi
 done
+
+trap 'pkill -TERM -P $$ 2>/dev/null; exit' TERM INT EXIT
 
 env -i \
     HOME="$TEST_HOME" \

@@ -114,8 +114,28 @@ behavior_run() {
         attempt=$((attempt + 1))
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
 
-        TEST_WORKDIR="$workdir" \
-        timeout "$BEHAVIOR_TIMEOUT" bash "$PROJECT_DIR/$BEHAVIOR_TEST_HOME" \
+        # Phase 1: Setup isolated test home via --setup mode
+        local setup_env
+        setup_env=$(bash "$PROJECT_DIR/$BEHAVIOR_TEST_HOME" --setup 2>/dev/null)
+        eval "$setup_env"
+
+        # Phase 2: Run opencode-cli under timeout with clean env (no bash in signal chain)
+        # --kill-after=30 ensures SIGKILL reaches opencode-cli if SIGTERM doesn't
+        # interrupt a blocked syscall (Go runtime signal handling quirk).
+        timeout --kill-after=30 "$BEHAVIOR_TIMEOUT" env -i \
+            HOME="$TEST_HOME" \
+            XDG_CONFIG_HOME="$XDG_CONFIG_HOME" \
+            XDG_CACHE_HOME="$XDG_CACHE_HOME" \
+            XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" \
+            XDG_DATA_HOME="$XDG_DATA_HOME" \
+            XDG_STATE_HOME="$XDG_STATE_HOME" \
+            PATH="$PATH" \
+            SHELL="${SHELL:-/bin/bash}" \
+            USER="${USER:-$(id -un)}" \
+            LOGNAME="${LOGNAME:-$(id -un)}" \
+            LANG="${LANG:-en_US.UTF-8}" \
+            TERM="${TERM:-xterm-256color}" \
+            TEST_WORKDIR="$workdir" \
             opencode-cli run "$message" \
             --model "$model" \
             > "$output_file" 2> "$err_file" \
@@ -635,7 +655,25 @@ ${stderr_content}"
         attempt=$((attempt + 1))
         echo "  [semantic inspector attempt $attempt/$max_attempts, model: ${inspector_model##*/}]"
 
-        timeout "$BEHAVIOR_SEMANTIC_TIMEOUT" bash "$PROJECT_DIR/$BEHAVIOR_TEST_HOME" \
+        # Phase 1: Setup isolated test home via --setup mode
+        local setup_env
+        setup_env=$(bash "$PROJECT_DIR/$BEHAVIOR_TEST_HOME" --setup 2>/dev/null)
+        eval "$setup_env"
+
+        # Phase 2: Run inspector under timeout with clean env (no bash in signal chain)
+        timeout --kill-after=30 "$BEHAVIOR_SEMANTIC_TIMEOUT" env -i \
+            HOME="$TEST_HOME" \
+            XDG_CONFIG_HOME="$XDG_CONFIG_HOME" \
+            XDG_CACHE_HOME="$XDG_CACHE_HOME" \
+            XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" \
+            XDG_DATA_HOME="$XDG_DATA_HOME" \
+            XDG_STATE_HOME="$XDG_STATE_HOME" \
+            PATH="$PATH" \
+            SHELL="${SHELL:-/bin/bash}" \
+            USER="${USER:-$(id -un)}" \
+            LOGNAME="${LOGNAME:-$(id -un)}" \
+            LANG="${LANG:-en_US.UTF-8}" \
+            TERM="${TERM:-xterm-256color}" \
             opencode-cli run "$inspector_prompt" \
             --model "$inspector_model" \
             > "$log_dir/inspector-stdout.log" 2> "$log_dir/inspector-stderr.log" \
