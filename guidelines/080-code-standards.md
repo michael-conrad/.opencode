@@ -444,11 +444,15 @@ Behavioral tests verify agent ACTIONS and DECISIONS. The assertion helper must m
 
 | SC Evidence Type | PRIMARY Assertion | SECONDARY (corroboration only) | FORBIDDEN |
 |---|---|---|---|
-| `behavioral` | `assert_semantic` (clean-room AI inspector) | `assert_stderr_pattern_*` for tool dispatch strings only | grep/string on agent output prose |
+| `behavioral` | Clean-room adversarial auditor dispatch — `task(subagent_type="auditor-*")` reads captured evidence | `assert_stderr_pattern_*` for tool dispatch strings only | grep/string on agent output prose |
 | `string` | `assert_stderr_pattern_*`, `assert_required_pattern_present`, `assert_forbidden_pattern_absent` | — | — |
 | `structural` | `ls`, `wc`, file existence | — | — |
 
-**`assert_semantic`** — Clean-room AI inspector evaluates full agent output and judges whether the agent TOOK THE RIGHT ACTION or MADE THE RIGHT DECISION. Different model, no context preloading, no cached results. This is the ONLY valid assertion type for behavioral SCs that verify agent actions, decisions, or reasoning.
+**Post-#860 two-tier verification** — Behavioral SCs are verified in two tiers:
+1. **Bash level**: `behavior_run` + `capture_and_cleanup` — runs the agent against a prompt, captures stdout/stderr to `./tmp/behavioral-evidence-<scenario>/`. No inline semantic assertions at the bash level.
+2. **Orchestrator level**: Clean-room adversarial auditors dispatched via `task(subagent_type="auditor-*")` read the captured evidence artifacts and render PASS/FAIL verdicts per SC.
+
+This replaces the removed `assert_semantic()` function. Behavioral verification now lives entirely in the orchestrator's adversarial audit pipeline, not in bash-level assertions.
 
 **`assert_stderr_pattern_present/absent`** — grep on stderr for tool-call strings (e.g., `Skill "approval-gate"`, `git checkout -b`). Only valid for verifying that a tool dispatch OCCURRED or DID NOT occur — NEVER for judging agent reasoning, approach, or decisions. USE AS SECONDARY CORROBORATION ONLY for behavioral SCs, never as primary evidence.
 
@@ -458,8 +462,8 @@ Behavioral tests verify agent ACTIONS and DECISIONS. The assertion helper must m
 - 🚫 `assert_stderr_pattern_present` as PRIMARY evidence for "agent verified authorization scope" — this is string evidence, not behavioral
 - 🚫 `assert_required_pattern_present` on agent prose as primary evidence for "agent chose stacked approach" — this is string evidence on prose, the weakest form
 - 🚫 Any grep/string assertion on agent output prose as PRIMARY evidence for a behavioral SC — EVIDENCE_TYPE_MISMATCH
-- ✅ `assert_semantic "SC-N" "description of required action"` — clean-room inspector judges full output
-- ✅ `assert_stderr_pattern_present 'Skill "approval-gate"'` as SECONDARY corroboration only
+- ✅ `task(subagent_type="auditor-*")` with captured evidence artifacts — clean-room adversarial auditor judges full output
+- ✅ `assert_stderr_pattern_present 'Skill "approval-gate"'` as SECONDARY structural corroboration only
 
 ### Content-Verification Tests (SECONDARY)
 
@@ -609,14 +613,14 @@ Bug #1217 demonstrated that the agent had all the correct guideline text about v
 Removing or weakening a behavioral (semantic, functional) test assertion to work around a timeout, failure, or infrastructure issue is a **CRITICAL VIOLATION**.
 
 **Prohibited patterns:**
-- Removing `assert_semantic` because the semantic inspector model times out
+- Removing the adversarial auditor dispatch step because the auditor model times out
 - Replacing a `behavioral` evidence type with `string` or `structural` to "fix" a failing test
 - Removing an assertion entirely because it "flakes" or "hangs"
 - Commenting out an assertion with `# TODO: fix later`
-- Changing `assert_semantic` to `assert_stderr_pattern_present` because "it's faster"
+- Replacing adversarial auditor dispatch with `assert_stderr_pattern_present` because "it's faster"
 
 **The only valid remediation cycle:**
-1. **Increase timeout** — `BEHAVIOR_TIMEOUT`, `BEHAVIOR_SEMANTIC_TIMEOUT`, or `BEHAVIOR_MAX_RETRIES`
+1. **Increase timeout** — `BEHAVIOR_TIMEOUT` or `BEHAVIOR_MAX_RETRIES`
 2. **Inspect stdout** — Read `$BEHAVIOR_STDOUT` or `$log_dir/stdout.log` to understand what the agent actually produced
 3. **Inspect stderr** — Read `$BEHAVIOR_STDERR` or `$log_dir/stderr.log` to understand tool dispatch and errors
 4. **Diagnose root cause** — Determine if the issue is: infrastructure (model load time, network latency, GPU memory), test harness (test repo setup, model config seeding), or test spec (prompt too complex, assertion too broad)
@@ -656,21 +660,21 @@ Behavioral SCs require behavioral evidence. Behavioral evidence means a **clean-
 
 | Assertion | Evidence Type | What It Checks | When It's Sufficient |
 |-----------|--------------|----------------|----------------------|
-| `assert_semantic` | behavioral | AI inspector judges full output for agent ACTIONS and DECISIONS | PRIMARY — always sufficient for behavioral SCs |
+| Post-#860 two-tier (capture + auditor dispatch) | behavioral | Bash captures evidence → adversarial auditor reads artifacts and judges agent ACTIONS and DECISIONS | PRIMARY — always sufficient for behavioral SCs |
 | `assert_stderr_pattern_present/absent` on tool calls | string (acceptable for structural checks only) | grep matches raw tool-call strings in stderr (e.g., `Skill "approval-gate"`, `git checkout -b`) | ONLY for verifying tool dispatches occurred/didn't occur — NEVER for judging agent reasoning |
 | `assert_forbidden_pattern_absent` | string | grep matches forbidden text patterns in agent prose | ONLY for detecting prohibited output patterns (e.g., `(unverified)` tags, solicitation phrases) — NEVER for judging agent decisions or approach |
 | `assert_required_pattern_present` | string | grep matches required text in agent prose | ONLY for detecting required output patterns (e.g., byline presence) — NEVER for judging agent reasoning or approach |
 
 #### The Hard Rule
 
-**For any SC that requires verifying the agent TOOK THE RIGHT ACTION or MADE THE RIGHT DECISION (e.g., "agent creates 1 branch, not 2", "agent dispatches the correct skill", "agent follows stacked PR strategy"), the ONLY sufficient assertion is `assert_semantic` with a clean-room semantic inspector. grep/string assertions on agent output are EVIDENCE_TYPE_MISMATCH for behavioral SCs.**
+**For any SC that requires verifying the agent TOOK THE RIGHT ACTION or MADE THE RIGHT DECISION (e.g., "agent creates 1 branch, not 2", "agent dispatches the correct skill", "agent follows stacked PR strategy"), the ONLY sufficient verification is the post-#860 two-tier approach: bash capture + clean-room adversarial auditor dispatch. grep/string assertions on agent output are EVIDENCE_TYPE_MISMATCH for behavioral SCs.**
 
 This means:
 
 - 🚫 FORBIDDEN: `assert_stderr_pattern_present "Skill.*approval-gate"` as primary evidence for "agent verified authorization scope" — this is string evidence, not behavioral
 - 🚫 FORBIDDEN: `assert_stderr_pattern_absent "create_branch.*feature"` as primary evidence for "agent did not create multiple branches" — this is string evidence, not behavioral
 - 🚫 FORBIDDEN: `assert_required_pattern_present "stacked"` in agent prose as primary evidence for "agent chose stacked approach" — this is string evidence on prose, the weakest form
-- ✅ REQUIRED: `assert_semantic "SC-N" "Agent dispatched approval-gate skill and created exactly ONE feature branch for both issues together"` — clean-room semantic inspector judges full output
+- ✅ REQUIRED: `task(subagent_type="auditor-*")` with captured evidence — clean-room adversarial auditor reads `./tmp/behavioral-evidence-<scenario>/` and judges agent actions
 - ✅ ACCEPTABLE: `assert_stderr_pattern_present 'Skill "approval-gate"'` as SECONDARY structural corroboration — confirms tool dispatch occurred, but does NOT verify the agent's decision or approach
 
 #### Why This Matters

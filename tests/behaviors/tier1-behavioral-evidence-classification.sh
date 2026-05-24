@@ -23,7 +23,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/helpers.sh"
 
 : "${BEHAVIOR_TIMEOUT:=120}"
-: "${BEHAVIOR_SEMANTIC_TIMEOUT:=60}"
 : "${BEHAVIOR_MAX_RETRIES:=2}"
 
 OVERALL_RESULT=0
