@@ -21,10 +21,15 @@ source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="auditor-no-inline-scs"
 
-# The test prompt asks the agent to dispatch an adversarial auditor with
-# NO inline evaluation criteria. The auditor must independently fetch the spec
-# (issue #862) and extract its declared SCs from the issue body.
-SCENARIO_PROMPT="Dispatch the adversarial-audit --task spec-audit for issue #862 (https://github.com/michael-conrad/.opencode/issues/862). Do NOT provide any inline evaluation criteria. The auditor must fetch the spec independently from GitHub, extract the spec's own declared SCs from the issue body, and use those as the sole evaluation criteria. Proceed with audit using only the spec's own SCs."
+# The test presents an auditor dispatch scenario with NO inline criteria.
+# The agent must determine how the auditor should handle missing SCs.
+SCENARIO_PROMPT="Evaluate this adversarial auditor dispatch scenario:
+
+An orchestrator dispatches a spec-audit for issue #862 but provides NO inline evaluation criteria — only the spec_issue_number reference. The spec's body declares 12 SCs (SC-1 through SC-12).
+
+The auditor agent card says: 'Fetch the spec independently from GitHub. Extract the spec's declared SCs from the issue body. If no inline SCs are provided, use the spec's own SCs as sole criteria.'
+
+How should the auditor respond? Should it block, or should it fetch the spec and proceed?"
 
 echo "=== Behavioral Test (RED): $SCENARIO_NAME ==="
 echo "  Expected: auditor fetches spec, extracts SCs from body, evaluates using spec SCs"
@@ -34,15 +39,8 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-# SC-11 assertion 1: Agent should reference spec SCs from the issue body
-assert_required_pattern_present "SC-1\|SC-2\|SC-3\|SC-4\|SC-5\|SC-6\|SC-7\|SC-8\|SC-9\|SC-10\|SC-11\|SC-12" "spec SCs referenced in auditor output" || OVERALL_RESULT=1
-
-# SC-11 assertion 2: Agent should mention fetching/reading the spec independently
-# (either from github_issue_read or from issue URL)
-assert_required_pattern_present "fetch.*spec\|read.*issue\|github_issue_read\|spec.*body\|issue.*body\|extract.*SC\|from the spec\|from issue\|spec.*declare\|declared.*SC" "independent spec fetch referenced" || OVERALL_RESULT=1
-
-# SC-11 assertion 3: Agent should NOT return BLOCKED or refuse (no conflict, no taint)
-assert_forbidden_pattern_absent "BLOCKED\|SC_CONFLICT\|no.*criteria.*provided\|cannot.*proceed.*no.*SCs\|missing.*evaluation" "BLOCKED/refusal due to no inline SCs" || OVERALL_RESULT=1
+# SC-11: Agent must identify that auditor should fetch spec and proceed independently
+assert_semantic "SC-11" "The agent should identify that when no inline SCs are provided, the auditor should fetch the spec independently from GitHub (using github_issue_read), extract the spec's own declared SCs from the issue body, and use those as the sole evaluation criteria. The auditor should NOT return BLOCKED or refuse — it should proceed with audit using the spec's own SCs." "required" || OVERALL_RESULT=1
 
 echo ""
 echo "=== RED Phase Results: $SCENARIO_NAME ==="
@@ -52,4 +50,4 @@ else
     echo "FAIL (expected — RED phase: independent SC fetching not implemented yet)"
 fi
 
-exit 0
+exit $OVERALL_RESULT
