@@ -68,15 +68,7 @@ task(
     subagent_type="general",
     prompt=f"""Use adversarial-audit skill --task cross-validate with:
 
-evidence_payload:
----
-CLEAN-ROOM PLAN:
-{clean_room_plan}
-
-EXISTING PLAN:
-{existing_plan}
-
-evaluation_criteria: <criteria_json>
+plan_issue_number: {plan_issue}
 audit_phase: plan_creation
 auditor_verdicts: {auditor_verdicts}
 authorization_scope: {authorization_scope}

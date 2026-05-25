@@ -10,10 +10,22 @@ Accept an evidence payload, evaluation criteria, and pre-resolved auditor verdic
 
 ## Entry Criteria
 
-- `evidence_payload`: The claim or output to evaluate (free text, spec body, code snippet, or structured assertion)
-- `evaluation_criteria`: Array of criterion objects, each with `{ id, description, expected_result, source_reference, evidence_type }` — `evidence_type` MUST be included per `080-code-standards.md` §Evidence Type Taxonomy
+- `spec_issue_number`: Spec issue number to fetch independently via GitHub API
+- `github.owner`, `github.repo`: For API calls to fetch spec
 - `auditor_verdicts`: Pre-resolved array of two verdict objects from the orchestrator, each containing `{ auditor_type, family, raw_verdict, parseable }` — resolved by `resolve-models` and dispatched by the orchestrator BEFORE this task
-- `github.owner`, `github.repo` present in task context
+- Lightweight audit-type structural criteria (SC-1/PF-1/CS-1/GA-1 templates) provided as task-file-defined templates WITHOUT embedded spec SC content
+
+### Step 0: Fetch Spec Independently
+
+Fetch the spec issue from GitHub to obtain the spec's success criteria and evidence type declarations:
+
+```python
+spec = github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<spec_issue_number>)
+spec_scs = extract_success_criteria(spec["body"])
+spec_evidence_types = extract_evidence_types(spec_scs)
+```
+
+Use the fetched spec SCs as the sole authoritative baseline for evidence type checks. Do NOT accept inline-provided evaluation_criteria as authoritative for evidence type — the spec's own declarations are the source of truth.
 
 ## Pre-Inspection Classification Gate (MANDATORY)
 
@@ -68,7 +80,7 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 
 | Gate | Condition | Error Code | Action |
 |------|-----------|------------|--------|
-| MISSING_INPUT | `evidence_payload` or `evaluation_criteria` missing or empty | `MISSING_INPUT` | Return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }` |
+| MISSING_INPUT | `spec_issue_number` missing or empty, or spec not fetchable | `MISSING_INPUT` | Return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }` |
 | MISSING_VERDICTS | `auditor_verdicts` missing, null, or empty array | `MISSING_VERDICTS` | Return `{ status: "BLOCKED", error: "MISSING_VERDICTS" }` |
 | INSUFFICIENT_FAMILIES | `auditor_verdicts` contains fewer than 2 entries OR both auditors share the same family | `INSUFFICIENT_FAMILIES` | Return `{ status: "BLOCKED", error: "INSUFFICIENT_FAMILIES" }` |
 
@@ -85,7 +97,7 @@ Before consensus, check each auditor's verdict for AUDIT_FAIL entries:
 
 ### Step 1: Validate Input
 
-Confirm `evidence_payload` and `evaluation_criteria` are present and non-empty. If either is missing: return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }`.
+Confirm `spec_issue_number` is present and non-empty. Fetch the spec via `github_issue_read(method="get", owner, repo, issue_number=spec_issue_number)`. If `spec_issue_number` is missing or the spec cannot be fetched: return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }`.
 
 ### Step 2: Validate Pre-Resolved Verdicts
 
@@ -152,9 +164,9 @@ Track disagreements explicitly in the result contract for transparency: a `PASS`
 
 Before computing consensus for each criterion, cross-validate MUST check the declared evidence type against the actual evidence type used by each auditor. This gate prevents auditors from verifying behavioral SCs with structural evidence and reporting PASS.
 
-**For each criterion in `evaluation_criteria`:**
+**For each criterion (from the fetched spec SCs in Step 0):**
 
-1. Read the criterion's declared `evidence_type` field (from the spec's success criteria table)
+1. Read the criterion's declared `evidence_type` from the fetched spec (spec_scs from Step 0 — NOT from inline evaluation_criteria)
 2. For each auditor's verdict on that criterion, check the evidence type used:
    - If `evidence_type` is not declared in the criterion, default to `string`
    - If the auditor used structural evidence (file existence, grep, read) for a criterion declared as `behavioral`, downgrade that auditor's verdict from PASS to FAIL with `EVIDENCE_TYPE_MISMATCH` classification
@@ -274,11 +286,10 @@ The `next_step` field:
 
 ## Context Required
 
-- `evidence_payload`: The claim, output, or assertion to be evaluated
-- `evaluation_criteria`: Array of `{ id, description, expected_result, source_reference }`
+- `spec_issue_number`: Spec issue number to fetch independently via GitHub API
 - `auditor_verdicts`: Pre-resolved array of two verdict objects from orchestrator (each with `{ auditor_type, family, raw_verdict, parseable }`)
 - `audit_phase`: Current audit phase for task context
-- `github.owner`, `github.repo`: For API calls
+- `github.owner`, `github.repo`: For API calls to fetch spec
 
 ## Red Flags
 
@@ -319,8 +330,8 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
-|---|---|---|---|
-| `evidence_payload`, `evaluation_criteria`, `auditor_verdicts`, `audit_phase`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `github.owner`, `github.repo` | Implementation context, agent memory, orchestrator reasoning, prior verification | N/A — cross-validate receives verdicts, does not dispatch auditors | NO |
+|---|---|---|---|---|
+| `spec_issue_number`, `auditor_verdicts`, `audit_phase`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `github.owner`, `github.repo` | Implementation context, agent memory, orchestrator reasoning, prior verification, spec_body, evaluation_criteria | N/A — cross-validate receives verdicts, does not dispatch auditors | NO |
 
 ```yaml+symbolic
 schema_version: "2.0"
