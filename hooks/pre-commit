@@ -81,8 +81,59 @@ GATE_EXIT_CODES+=($?)
 )
 GATE_EXIT_CODES+=($?)
 
+# --- Gate 4: Submodule-pointer-only commit prevention (dynamic path detection) ---
+(
+  if [ ! -f ".gitmodules" ]; then
+    exit 0
+  fi
+
+  SUBMODULE_PATHS=$(git submodule status 2>/dev/null | awk '{print $2}')
+
+  if [ -z "$SUBMODULE_PATHS" ]; then
+    exit 0
+  fi
+
+  STAGED_FILES_G4=$(git diff --cached --name-only 2>/dev/null)
+
+  if [ -z "$STAGED_FILES_G4" ]; then
+    exit 0
+  fi
+
+  ALL_STAGED_ARE_SUBMODULE=1
+  for f in $STAGED_FILES_G4; do
+    IS_SUBMODULE=0
+    for sm_path in $SUBMODULE_PATHS; do
+      if [ "$f" = "$sm_path" ]; then
+        IS_SUBMODULE=1
+        break
+      fi
+    done
+    if [ "$IS_SUBMODULE" = "0" ]; then
+      ALL_STAGED_ARE_SUBMODULE=0
+      break
+    fi
+  done
+
+  if [ "$ALL_STAGED_ARE_SUBMODULE" = "1" ]; then
+    echo ""
+    echo "ERROR: Submodule-pointer-only commit blocked by Gate 4."
+    echo ""
+    echo "ALL staged files are submodule pointer updates:"
+    echo "$STAGED_FILES_G4" | sed 's/^/  - /'
+    echo ""
+    echo "Submodule pointer changes belong in the submodule repo itself,"
+    echo "not as standalone commits in the parent repo."
+    echo ""
+    echo "BLOCKED: Submodule-pointer-only commit — lost submodule review history."
+    echo ""
+    exit 1
+  fi
+  exit 0
+)
+GATE_EXIT_CODES+=($?)
+
 # Report per-gate status
-GATE_NAMES=("Gate 1 (branch protection)" "Gate 3 (submodule bump)")
+GATE_NAMES=("Gate 1 (branch protection)" "Gate 3 (submodule bump)" "Gate 4 (submodule pointer)")
 ANY_FAILED=0
 for i in "${!GATE_EXIT_CODES[@]}"; do
   if [ "${GATE_EXIT_CODES[$i]}" -ne 0 ]; then

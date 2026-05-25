@@ -79,3 +79,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - **Submodule Pointer PR Block** (#519) - Strengthened cleanup task prohibition against standalone submodule-only PR creation. Explicitly forbids committing `.opencode/` during cleanup; submodule pointer updates must occur on feature branches during pre-work, never on `dev` during cleanup.
+
+### Added
+
+- **Gate 4: Submodule-pointer-only commit blocker** (#892) - Added Gate 4 to `hooks/pre-commit` that blocks commits where ALL staged files are submodule pointer entries. Content-based detection reads submodule paths dynamically from `git submodule status`. No branch-name exemptions — fires on all branches including `pair-*`, `rollback/*`, `hotfix/*`. Dual-phase TDD test covers SC-1 through SC-6.
+- **Content classification gate and local-issues stale worktree** (#691, #816) - Added content classification gate to pre-push enforcement. Fixed stale worktree detection in local-issues mode. Migrated behavioral tests to assert_semantic.
+- **DISPATCH_GATE protocol on all SKILL.md files** (#864) - Added canonical DISPATCH_GATE protocol to all 34 SKILL.md files. Added PRELOADED_CONTEXT_REJECTED as Tier 1 mandate in 020-go-prohibitions.md. Sub-agents now reject preloaded context and return BLOCKED with protocol code.
+- **Reference-based auditor dispatch** (#862) - Added SC_CONFLICT detection protocol for adversarial auditors with independent spec fetching. Removed task() dispatch instructions from sub-agent-readable task files.
+- **Behavioral test migration to scenario evaluation** (#862, #863) - Reframed remaining behavioral tests as scenario evaluation with assert_semantic, eliminating sub-agent roleplay artifacts from test prompts.
+- **Evidence classification gate** (#836) - Added critical-rules-BEH-EV uplift rule, coverage completeness gate to VbC verify, evidence type classification gate to spec-creation write, pre-inspection classification gate to cross-validate, and behavioral artifact preservation protocol. Includes tier 1 behavioral enforcement test.
+- **assert_semantic dual-stream reading** (#835) - assert_semantic now reads both stdout and stderr, eliminating EVIDENCE_TYPE_MISMATCH from semantic inspections.
+- **Test integrity Rule 5 mandate** (#831) - Added Rule 5 mandate prohibiting behavioral assertion weakening. Added behavioral test fixtures for assert_semantic-only verification of agent output.
+- **PR organization mandate** (#826) - Eliminated individual PR strategy. Stacked is the only valid PR organization. Creating N branches for N issues is a critical violation.
+- **Git-workflow frontmatter restoration** (#808) - Restored frontmatter triggers to git-workflow SKILL.md. Added submodule-aware check-pr task.
+- **Session-init linked repo discovery** (#819) - Session-init now auto-discovers linked repos via git remote walking, replacing .gitmodules-only discovery.
+- **AI byline preservation on edit** (#814) - Agents now preserve existing AI bylines when editing files. Prior agent identities are no longer overwritten.
+- **Reference cards 255/257** (#848, #849, #853) - Added distribution-shifting-reference and procedural-discipline-reference cards with mandatory triple co-application policy.
+- **Mode-switch anchor replacement** (#602) - Added declarative mode-switch anchor replacement to session-enforcement.ts.
+
+### Changed
+
+- **Worktree mandate conditioning** (#815) - Worktree mandates now condition on WORKTREE_REQUIRED flag. Direct-branch is the default; worktrees are opt-in.
+- **Pre-push Gate 2 removal** (#818) - Removed commit count enforcement from pre-push gate.
+- **Dead pre-commit Gate 2 removed** (#810) - Removed non-functional dispatch evidence check from pre-commit hooks.
+- **Squash-push orphaned references removed** - Eliminated orphaned Single-Issue Branch references from squash-push workflow.
+
+### Fixed
+
+- **Tag push false positive** (#821) - Pre-push hooks now skip all gates for tag pushes.
+- **Local-issues push enforcement** (#823) - Fixed push issues-data branch to skip unnecessary operations and remove obsoleted no-verify gate.
+- **Submodule-only PR prohibition** (#862, #863, #864) - Added Tier 1 CRITICAL VIOLATION prohibiting submodule-only PR creation during cleanup. Removed dev-commit instruction and hardcoded submodule name from dirty-pointer rules.
