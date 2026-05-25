@@ -189,6 +189,42 @@ function buildEvidenceGateBlock(): string {
 **Warning:** Issue closure attempted without verification evidence. A github_issue_write call with state=closed was detected, but no per-SC verification evidence table exists in recent assistant messages. Every issue closure requires a verification evidence table confirming each success criterion was met with a tool-call artifact. See 000-critical-rules.md Verification Dishonesty and verification-before-completion skill. If the closure is exempt (not_planned, duplicate, rollback-reopen), disregard this warning.`;
 }
 
+const MODE_SWITCH_ANCHOR = [
+  'skill() + task() gate every action. Both skill() and task() are mandatory \u2014 every workflow.',
+  'Inline work poisons your output \u2014 unrecoverable.',
+  'FAIL = FAIL \u2014 justifiable violations do not exist.',
+].join('\n');
+
+function isModeSwitchContent(text: string): boolean {
+  return text.includes('Your operational mode has changed from plan to build.')
+      || text.includes('# Plan Mode - System Reminder');
+}
+
+function handleModeSwitchParts(
+  messages: { info: { role: string; agent?: string }; parts: { type?: string; text?: string; synthetic?: boolean }[] }[],
+): void {
+  const currentUser = messages.findLast(m => m.info?.role === 'user');
+  if (!currentUser) return;
+
+  // Phase 1: determine if this turn is a mode transition
+  const lastAssistant = messages.findLast(m => m.info?.role === 'assistant');
+  const isTransition = !lastAssistant ||
+    lastAssistant.info?.agent !== currentUser.info?.agent;
+
+  // Phase 2: process each synthetic text part matching mode-switch content
+  for (const part of currentUser.parts) {
+    if (!part.synthetic || part.type !== 'text') continue;
+    if (!isModeSwitchContent(part.text || '')) continue;
+
+    if (isTransition) {
+      part.text = MODE_SWITCH_ANCHOR;
+    } else {
+      part.text = '';
+      part.synthetic = false;
+    }
+  }
+}
+
 interface PluginDiagnostic {
   source: string;
   level: "error" | "warning" | "info";
@@ -1036,6 +1072,11 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           const subAgentPrinciplesBlock = buildSubAgentPrinciplesBlock();
           firstUser.parts.unshift({ type: "text", text: subAgentPrinciplesBlock });
         }
+
+      // --- Per-turn: Mode switch anchor replacement ---
+      // Replaces core-injected build-switch.txt and plan.txt with compliance anchor
+      // on transition turns; strips on non-transition re-injections.
+      handleModeSwitchParts(output.messages);
 
       // --- Per-turn: Secret redaction on ALL assistant messages ---
       const assistantMessages = output.messages.filter(m => m.info?.role === "assistant");
