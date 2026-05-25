@@ -231,6 +231,17 @@ SCENARIOS["functional-test-substitution-prohibited-rule"]="Does .opencode/guidel
 SCENARIOS["universal-redispatch-mandate"]="Does .opencode/guidelines/000-critical-rules.md contain a 'Universal Re-Dispatch Mandate' section requiring re-dispatch of clean-room sub-agents at ALL pipeline stages with no inline fallback on sub-agent failure?"
 SCENARIOS["progressive-iterative-gates"]="Does .opencode/guidelines/000-critical-rules.md contain references to 'commit-anchored gates' or 'progressive iterative' implementation discipline in the Monolithic Implementation or enforcement sections?"
 
+# SC-1: must_receive contract change
+SCENARIOS["sc1-must-receive-no-spec-body"]="Does .opencode/skills/adversarial-audit/SKILL.md Dispatch Context Contract must_receive array REMOVE spec_body and evaluation_criteria and ADD spec_issue_number as the primary reference field?"
+# SC-2: must_not_receive contract change
+SCENARIOS["sc2-must-not-receive-spec-body-forbidden"]="Does .opencode/skills/adversarial-audit/SKILL.md Dispatch Context Contract must_not_receive array ADD spec_body and evaluation_criteria as forbidden fields?"
+# SC-4: task context audit entries updated
+SCENARIOS["sc4-task-context-spec-body-removed"]="Does .opencode/skills/adversarial-audit/SKILL.md Sub-Agent Task Context Audit table REMOVE evidence_payload and evaluation_criteria from cross-validate context scope?"
+# SC-8: CONTEXT_TAINTED extended with SC_CONFLICT
+SCENARIOS["sc8-context-tainted-sc-conflict"]="Does .opencode/agents/auditor-glm-5.1.md CONTEXT_TAINTED violation signals include SC_CONFLICT as a specific violation type?"
+# SC-12: task context audit tables updated
+SCENARIOS["sc12-task-context-tables-reflect-removal"]="Do ALL task context audit tables in .opencode/skills/adversarial-audit/tasks/ reflect removal of inline spec_body and evaluation_criteria from dispatch scope?"
+
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
 SCENARIO_TAGS["bug-report"]="skill-invocation debugging"
@@ -460,6 +471,11 @@ SCENARIO_TAGS["skill-dispatch-critical-rules-048-symbolic"]="content-verificatio
 SCENARIO_TAGS["skill-dispatch-critical-rules-048-prose"]="content-verification skill-dispatch"
 SCENARIO_TAGS["skill-dispatch-critical-rules-048-distinction"]="content-verification skill-dispatch"
 SCENARIO_TAGS["sc6-no-unconditional-general"]="content-verification skill-routing"
+SCENARIO_TAGS["sc1-must-receive-no-spec-body"]="content-verification adversarial-audit"
+SCENARIO_TAGS["sc2-must-not-receive-spec-body-forbidden"]="content-verification adversarial-audit"
+SCENARIO_TAGS["sc4-task-context-spec-body-removed"]="content-verification adversarial-audit"
+SCENARIO_TAGS["sc8-context-tainted-sc-conflict"]="content-verification adversarial-audit"
+SCENARIO_TAGS["sc12-task-context-tables-reflect-removal"]="content-verification adversarial-audit"
 
 # File-to-scenario mapping for --changed filtering
 # Maps glob patterns to scenario names
@@ -494,6 +510,9 @@ FILE_SCENARIO_MAP[".opencode/tools/session-init"]="identity-echo-validation wron
 FILE_SCENARIO_MAP[".opencode/guidelines/117-session-trigger-behavior.md"]="stash-trigger-guideline-reference"
 FILE_SCENARIO_MAP["AGENTS.md"]="agents-md-incremental"
 FILE_SCENARIO_MAP[".opencode/skills/"]="sc6-no-unconditional-general"
+FILE_SCENARIO_MAP[".opencode/skills/adversarial-audit/SKILL.md"]="sc1-must-receive-no-spec-body sc2-must-not-receive-spec-body-forbidden sc4-task-context-spec-body-removed"
+FILE_SCENARIO_MAP[".opencode/agents/auditor-glm-5.1.md"]="sc8-context-tainted-sc-conflict"
+FILE_SCENARIO_MAP[".opencode/skills/adversarial-audit/tasks/"]="sc12-task-context-tables-reflect-removal"
 
 # --list: print scenario names and exit
 if [ "$LIST_ONLY" = true ]; then
@@ -1393,6 +1412,74 @@ if [ "$AGENTS_IDENTITY" -ge 1 ]; then
 else
     echo "  AGENTS.md programmatic validation reference: MISSING"
     echo "- **AGENTS.md programmatic validation reference:** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-1: must_receive contract — spec_body and evaluation_criteria removed, spec_issue_number added
+AUDIT_SKILL_FILE="$PROJECT_DIR/.opencode/skills/adversarial-audit/SKILL.md"
+SC1_MUST_RECEIVE=$(grep -c "must_receive.*spec_issue_number\|spec_issue_number.*must_receive" "$AUDIT_SKILL_FILE" 2>/dev/null || echo "0")
+SC1_NO_SPEC_BODY=$(grep -c "must_receive.*spec_body\|spec_body.*must_receive" "$AUDIT_SKILL_FILE" 2>/dev/null || echo "0")
+if [ "$SC1_MUST_RECEIVE" -ge 1 ] && [ "$SC1_NO_SPEC_BODY" -eq 0 ]; then
+    echo "  adversarial-audit SKILL.md must_receive (no spec_body, has spec_issue_number): FOUND"
+    echo "- **adversarial-audit SKILL.md must_receive (SC-1):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  adversarial-audit SKILL.md must_receive: MISSING (spec_issue_number=$SC1_MUST_RECEIVE, spec_body=$SC1_NO_SPEC_BODY)"
+    echo "- **adversarial-audit SKILL.md must_receive (SC-1):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-2: must_not_receive — spec_body and evaluation_criteria added as forbidden
+SC2_NO_SPEC_BODY=$(grep -c "must_not_receive.*spec_body\|spec_body.*must_not_receive" "$AUDIT_SKILL_FILE" 2>/dev/null || echo "0")
+SC2_NO_EVAL=$(grep -c "must_not_receive.*evaluation_criteria\|evaluation_criteria.*must_not_receive" "$AUDIT_SKILL_FILE" 2>/dev/null || echo "0")
+if [ "$SC2_NO_SPEC_BODY" -ge 1 ] && [ "$SC2_NO_EVAL" -ge 1 ]; then
+    echo "  adversarial-audit SKILL.md must_not_receive (spec_body, evaluation_criteria): FOUND"
+    echo "- **adversarial-audit SKILL.md must_not_receive (SC-2):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  adversarial-audit SKILL.md must_not_receive: MISSING (spec_body=$SC2_NO_SPEC_BODY, eval=$SC2_NO_EVAL)"
+    echo "- **adversarial-audit SKILL.md must_not_receive (SC-2):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-4: Task context audit entries — evidence_payload and evaluation_criteria removed from cross-validate scope
+SC4_CROSS_VALIDATE=$(grep -c "cross-validate.*evidence_payload\|evidence_payload.*cross-validate" "$AUDIT_SKILL_FILE" 2>/dev/null || echo "0")
+SC4_EVAL_CRITERIA=$(grep -c "cross-validate.*evaluation_criteria\|evaluation_criteria.*cross-validate" "$AUDIT_SKILL_FILE" 2>/dev/null || echo "0")
+if [ "$SC4_CROSS_VALIDATE" -eq 0 ] && [ "$SC4_EVAL_CRITERIA" -eq 0 ]; then
+    echo "  adversarial-audit SKILL.md task context (cross-validate no evidence_payload/eval): FOUND"
+    echo "- **adversarial-audit SKILL.md task context (SC-4):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  adversarial-audit SKILL.md task context: MISSING (evidence_payload=$SC4_CROSS_VALIDATE, eval=$SC4_EVAL_CRITERIA)"
+    echo "- **adversarial-audit SKILL.md task context (SC-4):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-8: CONTEXT_TAINTED extended with SC_CONFLICT in auditor agent cards
+AUDITOR_AGENT_FILE="$PROJECT_DIR/.opencode/agents/auditor-glm-5.1.md"
+SC8_SC_CONFLICT=$(grep -c "SC_CONFLICT\|sc_conflict" "$AUDITOR_AGENT_FILE" 2>/dev/null || echo "0")
+if [ "$SC8_SC_CONFLICT" -ge 1 ]; then
+    echo "  auditor-glm-5.1.md CONTEXT_TAINTED with SC_CONFLICT: FOUND"
+    echo "- **auditor-glm-5.1.md CONTEXT_TAINTED with SC_CONFLICT (SC-8):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  auditor-glm-5.1.md CONTEXT_TAINTED with SC_CONFLICT: MISSING"
+    echo "- **auditor-glm-5.1.md CONTEXT_TAINTED with SC_CONFLICT (SC-8):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-12: All task context audit tables reflect removal — verify cross-validate task file
+CROSS_VALIDATE_TASK="$PROJECT_DIR/.opencode/skills/adversarial-audit/tasks/cross-validate.md"
+SC12_EVIDENCE_PAYLOAD=$(grep -c "evidence_payload" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+SC12_SPEC_ISSUE=$(grep -c "spec_issue_number\|spec_issue\|github.owner\|github.repo" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+# evidence_payload should be replaced (0 occurrences) and spec_issue_number should exist
+if [ "$SC12_EVIDENCE_PAYLOAD" -eq 0 ] && [ "$SC12_SPEC_ISSUE" -ge 1 ]; then
+    echo "  cross-validate.md task context (no evidence_payload, has issue refs): FOUND"
+    echo "- **cross-validate.md task context reflects removal (SC-12):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md task context: MISSING (evidence_payload=$SC12_EVIDENCE_PAYLOAD, issue_refs=$SC12_SPEC_ISSUE)"
+    echo "- **cross-validate.md task context reflects removal (SC-12):** MISSING" >> "$RESULTS_FILE"
     GUIDELINE_PASS=false
     OVERALL_PASS=false
 fi
