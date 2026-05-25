@@ -151,6 +151,7 @@ These branches are NOT for implementation — they are ephemeral scratch space. 
   - 🚫 FORBIDDEN: Asking for clarification instead of returning the protocol code
   - 🚫 FORBIDDEN: Proceeding to execute any part of the preloaded prompt
   - ✅ REQUIRED: Return `status: BLOCKED with reason: PRELOADED_CONTEXT_REJECTED`
+  - **EXCEPTION — Auditor SC_CONFLICT protocol:** Adversarial auditors performing SC_CONFLICT detection do NOT apply PRELOADED_CONTEXT_REJECTED to inline SCs. Instead they apply the SC_CONFLICT protocol: fetch spec independently, compare caller SCs against spec SCs, BLOCKED on conflict with `reason: SC_CONFLICT`, accept superset SCs without blocking, proceed using spec's own SCs when no inline SCs provided. This exception is scoped exclusively to adversarial auditor sub-agents performing spec audits.
 
 ## 1.5 Soliciting Authorization for Already-Authorized Phrases — CRITICAL VIOLATION
 
