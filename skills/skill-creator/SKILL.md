@@ -53,6 +53,51 @@ Also manages duplicate text blocks across skills (formerly `fragment-manager` sk
 
 `init` runs with `{ skill_name, output_dir, worktree.path, github.owner, github.repo }`. `package` with `{ skill_folder, output_dir, worktree.path, github.owner, github.repo }`. `validate` with `{ skill_folders, validation_scope, worktree.path, github.owner, github.repo }`. `fragment-management` with `{ fragment_name, destination_paths, operation, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. When routing auditor sub-agents, include `audit_phase` in task context per SC-6. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
+### DISPATCH_GATE — Orchestrator task() Prompt Protocol
+
+The orchestrator MUST NOT preload execution context into `task()` prompts.
+Every sub-agent MUST independently discover scope and produce its own result contract.
+
+#### Forbidden in task() Prompts
+
+| Violation | Forbidden Pattern | Correct Pattern |
+|-----------|-------------------|-----------------|
+| Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
+| Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
+| Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
+| Preloaded orchestrator reasoning | "The merge was just completed so we need to..." | Pure objective, no narrative |
+
+#### Dispatch Context Contract
+
+Every `task()` call MUST include only:
+
+- `worktree.path`
+- `github.owner`
+- `github.repo`
+- `authorization_scope`
+- `halt_at`
+- `pr_strategy`
+- `pipeline_phase`
+
+Plus skill-specific fields per the `## Sub-Agent Routing` section above.
+
+Exclusions (MUST NOT be in prompt):
+- `orchestrator_reasoning`
+- `expected_outcomes`
+- `inline_file_paths`
+- `agent_memory`
+- `cached_verification_results`
+
+#### Sub-Agent Entry Criteria
+
+A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+- Inline file paths to task files
+- Inline step or procedure definitions
+- Expected outcome structures or schema constraints
+- Pre-loaded evidence or orchestrator-derived conclusions
+
+Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
 ## Cross-References
 
 Skills: `verification-enforcement`, `coherence-auditor`. Guidelines: `080-code-standards.md`, `000-critical-rules.md`.

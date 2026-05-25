@@ -185,9 +185,9 @@ The agent MUST NOT ask for confirmation, permission, or readiness before perform
 
 **See also:** `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" — whether to sync a submodule, create a branch, or push is NOT a decision requiring user input when authorization covers the pipeline stage.
 
-### Sub-Agent Boundary: `submodule-tag-prework` task()
+### Sub-Agent Boundary: `submodule-tag-prework` — Orchestrator Dispatch
 
-When `.gitmodules` exists, run a `submodule-tag-prework` sub-agent via task() for submodule initialization, sync, and status operations. The sub-agent receives only:
+When `.gitmodules` exists, the orchestrator dispatches a `submodule-tag-prework` sub-agent for submodule initialization, sync, and status operations. The sub-agent receives only:
 
 **`must_receive`:**
 - `worktree.path` (if in worktree mode; null otherwise)
@@ -245,11 +245,11 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 - Do NOT attempt any implementation until the worktree infrastructure is fixed
 - There is NO fallback to direct-branch when worktree mode is explicitly requested
 
-### Step 3.5: Submodule Initialization and Sync — task() to `submodule-tag-prework`
+### Step 3.5: Submodule Initialization and Sync — Orchestrator Dispatches `submodule-tag-prework`
 
 **If `.gitmodules` does NOT exist:** Skip this step and proceed to Step 3.7.
 
-**If `.gitmodules` exists:** task() a `submodule-tag-prework` sub-agent with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
+**If `.gitmodules` exists:** The orchestrator dispatches a `submodule-tag-prework` sub-agent with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
 
 1. Checks `.gitmodules` existence
 2. Initializes submodules if needed (`git submodule init`)

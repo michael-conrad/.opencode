@@ -24,12 +24,12 @@ Sub-Agent Task Context Audit
 | `plan-fidelity` | `{ spec_issue, plan_issue, clean_room_plan, auditor_1, auditor_2, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, existing plan |
 | `concern-separation` | `{ spec_issue, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `coherence-extraction` | `{ write_access, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
-| `coherence-maintenance` | `{ baseline_path, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
+| `coherence-maintenance` | `{ baseline_path, spec_issue_number, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `guideline-audit` | `{ target_files, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `drift-detection` | `{ spec_issue, target_files, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `spec-summary` | `{ pr_number, spec_issue, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `closure-verification` | `{ pr_number, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
-| `cross-validate` | `{ evidence_payload, evaluation_criteria, auditor_verdicts, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Exclusions: Implementation context, agent memory, orchestrator reasoning |
+| `cross-validate` | `{ spec_issue_number, auditor_verdicts, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Exclusions: Implementation context, agent memory, orchestrator reasoning, spec_body, evaluation_criteria |
 | `test-quality-audit` | `{ spec_success_criteria, file_paths_changed, vbc_artifact_path, worktree.path, github.owner, github.repo }` | Implementation context, agent memory, implementation details |
 | `resolve-models` | `{ orchestrator_model, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `completion` | `{ workflow_state, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
@@ -42,9 +42,7 @@ Every `task()` call to an auditor sub-agent MUST include `must_receive` and `mus
 
 ```yaml
 must_receive:
-  - issue_number
-  - spec_body
-  - evaluation_criteria
+  - spec_issue_number
   - pipeline_phase
 must_not_receive:
   - orchestrator_reasoning
@@ -53,7 +51,23 @@ must_not_receive:
   - inline_file_paths
   - agent_memory
   - cached_verification_results
+  - spec_body
+  - evaluation_criteria
 ```
+
+#### SC_CONFLICT Mandate
+
+When the calling agent provides evaluation criteria (SCs) inline alongside the dispatch — and those SCs **conflict** with what the spec actually declares — the auditor MUST:
+
+1. Fetch the spec independently from GitHub (`github_issue_read(method="get", owner, repo, issue_number=spec_issue_number)`)
+2. Extract the spec's declared SCs from the issue body
+3. Compare caller-provided SCs against spec-declared SCs
+4. If any caller-provided SC **conflicts** with a spec-declared SC (changes requirements, narrows scope, rewrites intent): return `BLOCKED` with `reason: SC_CONFLICT` and list the conflicting SCs with evidence (quotes from spec vs quotes from caller context)
+5. If caller-provided SCs are a **superset** of spec-declared SCs (all spec SCs present + additional ones): proceed and evaluate all (spec + additional)
+6. If caller-provided SCs are a **subset** that faithfully restates spec SCs without conflict: proceed normally
+7. If caller-provided SCs are absent: proceed using spec's own SCs only
+
+Conflict signals include: changed threshold, removed requirement, rewritten intent, added constraint that contradicts spec, contradictory framing that weakens a mandatory requirement.
 
 ### Encapsulation Rules
 
@@ -98,6 +112,16 @@ The orchestrator MUST NOT execute any audit operation directly. Every operation 
 **Evidence gate:** Before proceeding past any step, verify the result contract has `status: DONE`. Empty or error results → re-task clean-room (max 2 retries), then BLOCKED.
 
 **Violation of this gate is a hard halt.** The orchestrator MUST NOT recover from inline work — the pipeline is poisoned per critical-rules-034 and MUST restart from verify-authorization.
+
+#### Sub-Agent Entry Criteria
+
+A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+- Inline file paths to task files
+- Inline step or procedure definitions
+- Expected outcome structures or schema constraints
+- Pre-loaded evidence or orchestrator-derived conclusions
+
+Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Cross-References
 

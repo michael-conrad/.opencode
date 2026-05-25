@@ -69,8 +69,7 @@ task(
     subagent_type="general",
     prompt="""Use adversarial-audit skill --task cross-validate with:
 
-evidence_payload: <spec_body>
-evaluation_criteria: <criteria_json>
+spec_issue_number: <spec_issue_number>
 audit_phase: spec_creation
 auditor_verdicts: <auditor_verdicts>
 authorization_scope: <authorization_scope>
@@ -84,7 +83,7 @@ github.repo: <github.repo>
 
 failure_description: <failure_description>  # Optional — provided when routed from remediation loop
 
-Mandatory: cross-validate receives pre-resolved verdicts — it does NOT dispatch auditors.
+Mandatory: cross-validate receives pre-resolved verdicts and fetches spec independently via spec_issue_number — it does NOT dispatch auditors.
 """
 )
 ```

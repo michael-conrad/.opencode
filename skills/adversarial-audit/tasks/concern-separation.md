@@ -72,12 +72,8 @@ task(
     subagent_type="general",
     prompt=f"""Use adversarial-audit skill --task cross-validate with:
 
-evidence_payload:
----
-PHASE ANALYSIS:
-{phase_analyses_json}
-
-evaluation_criteria: <criteria_json>
+spec_issue_number: {spec_issue_number}
+plan_issue_number: {plan_issue_number}
 audit_phase: {audit_phase}
 authorization_scope: {authorization_scope}
 halt_at: {halt_at}

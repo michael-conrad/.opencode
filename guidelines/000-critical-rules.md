@@ -1915,6 +1915,21 @@ rules:
     triggers: [verification-before-completion, adversarial-audit, test-driven-development]
     source: "080-code-standards.md §Rule 5: Agent Output MUST Be Verified by Clean-Room Semantic Inspection"
 
+  - id: critical-rules-062
+    tier: 2
+    title: "SC conflict detection — caller providing SCs that conflict with the spec is a context contamination violation"
+    conditions:
+      all:
+        - "caller_provided_scs_conflict_with_spec_scs == true"
+        - "auditor_dispatched == true"
+    actions:
+      - HALT
+      - RETURN_BLOCKED(reason=SC_CONFLICT)
+    conflicts_with: []
+    requires: []
+    triggers: [adversarial-audit]
+    source: "000-critical-rules.md §critical-rules-062"
+
   - id: critical-rules-BEH-EV
     tier: 2
     title: "Runtime-Behavioral Evidence Classification Gate — structural evidence for behavioral changes is EVIDENCE_TYPE_MISMATCH"

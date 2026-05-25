@@ -122,18 +122,8 @@ task(
     subagent_type="general",
     prompt=f"""Use adversarial-audit skill --task cross-validate with:
 
-evidence_payload:
----
-BASELINE:
-{baseline_summary}
-
-CURRENT STATE:
-{current_state_summary}
-
-DRIFT DETECTED:
-{drift_summary}
-
-evaluation_criteria: <criteria_json>
+baseline_file: {baseline_path}
+spec_issue_number: {spec_issue_number}
 audit_phase: coherence_gate
 authorization_scope: {authorization_scope}
 halt_at: {halt_at}

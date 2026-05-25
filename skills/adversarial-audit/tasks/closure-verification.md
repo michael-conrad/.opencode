@@ -116,26 +116,8 @@ task(
     subagent_type="general",
     prompt=f"""Use adversarial-audit skill --task cross-validate with:
 
-evidence_payload:
----
-PR:
-Number: {pr["number"]}
-Title: {pr["title"]}
-State: {pr["state"]}
-Merged: {pr["merged_at"]}
-
-SPEC:
-Number: {spec["number"]}
-Title: {spec["title"]}
-State: {spec["state"]}
-
-SUCCESS CRITERIA:
-{success_criteria}
-
-VERIFICATION EVIDENCE:
-{verification_evidence}
-
-evaluation_criteria: <criteria_json>
+pr_number: {pr_number}
+spec_issue_number: {spec_issue_number}
 audit_phase: post_merge
 authorization_scope: {authorization_scope}
 halt_at: {halt_at}

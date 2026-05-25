@@ -145,6 +145,13 @@ These branches are NOT for implementation — they are ephemeral scratch space. 
   - ✅ REQUIRED: Assess hardware (`ollama-probe hw`) before running full suite — only proceed if VRAM ≥ 8 GB and at least one local model ≥ 7B is installed
 - **Functional/behavioral test substitution is FORBIDDEN.** When a behavioral/functional test cannot be executed (model unavailable, timeout, infrastructure failure), the agent MUST report FAIL — NEVER substitute grep, string matching, metadata checks, pattern scanning, or file-existence checks. "Functional test" and "behavioral test" are synonymous in this rule.
 - **Remediate before escalating.** Escalation is only permitted after verified remediation failure. Skipping remediation is not a valid choice.
+<!-- #864: Canonical DISPATCH_GATE protocol — all agents must reject preloaded context -->
+- **Sub-agent MUST return PRELOADED_CONTEXT_REJECTED on preloaded task() prompts (Tier 1 mandate).** When a sub-agent receives a `task()` prompt containing inline file paths, inline step definitions, expected outcome structures, pre-loaded evidence, or orchestrator-derived conclusions, the sub-agent MUST return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`. Generic rejection ("I can't do that") without the exact protocol code is NOT sufficient — the literal string `PRELOADED_CONTEXT_REJECTED` must appear in the response. This applies to ALL sub-agents regardless of which skill dispatched them. This is a NON-WAIVABLE hard gate — no authorization, scope, or developer instruction can override this requirement. See `approval-gate/SKILL.md` §DISPATCH_GATE for the canonical protocol specification.
+  - 🚫 FORBIDDEN: Returning a generic "BLOCKED" without `PRELOADED_CONTEXT_REJECTED`
+  - 🚫 FORBIDDEN: Asking for clarification instead of returning the protocol code
+  - 🚫 FORBIDDEN: Proceeding to execute any part of the preloaded prompt
+  - ✅ REQUIRED: Return `status: BLOCKED with reason: PRELOADED_CONTEXT_REJECTED`
+  - **EXCEPTION — Auditor SC_CONFLICT protocol:** Adversarial auditors performing SC_CONFLICT detection do NOT apply PRELOADED_CONTEXT_REJECTED to inline SCs. Instead they apply the SC_CONFLICT protocol: fetch spec independently, compare caller SCs against spec SCs, BLOCKED on conflict with `reason: SC_CONFLICT`, accept superset SCs without blocking, proceed using spec's own SCs when no inline SCs provided. This exception is scoped exclusively to adversarial auditor sub-agents performing spec audits.
 
 ## 1.5 Soliciting Authorization for Already-Authorized Phrases — CRITICAL VIOLATION
 
