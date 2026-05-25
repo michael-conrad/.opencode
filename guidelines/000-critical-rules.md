@@ -727,7 +727,7 @@ No `question` tool for structural decisions when `halt_at >= pr_created`.
 
 ### [critical-rules-049] Standalone Submodule-Only PR Creation During Cleanup
 
-Creating a PR whose sole purpose is to update a submodule pointer during the cleanup pipeline stage. See `git-workflow cleanup` task Step 1.7 for the complete prohibition and correct behavior (leave dirty pointer on dev).
+Creating a PR whose sole purpose is to update a submodule pointer during the cleanup pipeline stage. See `git-workflow cleanup` task Step 1.7 for the complete prohibition and correct behavior (leave dirty pointer untouched).
 
 
 ### [critical-rules-039] Parent Issue Left Open After All Children Closed
