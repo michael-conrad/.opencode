@@ -38,3 +38,5 @@ Full guideline content for Tier 2+ is loaded on-demand by sub-agents. Tier 1 fil
 | `200-errors.md` | 2 | exception, error handling, missing data, null, logging, raise, domain exception | Error handling |
 | `210-scripting.md` | 2 | script, scripting, script header, shebang | Script creation |
 | `250-dark-prose-reference.md` | 2 | dark prose, prose pattern, confirmshaming, goal hijacking, agency-respecting, identity frame, dark pattern | Dark prose content creation |
+| `255-distribution-shifting-reference.md` | 2 | distribution shift, dist-shift, mean response, expert tail, RLHF diversity, contrastive decoding, anti-mean, anti-consensus, external-signal verification, corrupt-success contrast | Distribution shifting content |
+| `257-procedural-discipline-reference.md` | 2 | procedural discipline, p-dis, dependency order, re-priming, controlled vocabulary, continue drift, verification signal, positional enforcement, dependency-order gate | Procedural discipline content |

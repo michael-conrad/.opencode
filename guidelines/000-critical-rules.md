@@ -570,6 +570,10 @@ Deleting a branch without verifying its content against the target branch means 
 Running behavioral tests through grep and static analysis instead of `opencode-cli run` means you are testing the wrong thing — text patterns, not agent behavior. Professional engineers test against real AI models in clean-room isolation. Amateurs grep for keywords and call it verified.
 
 
+### [critical-rules-pipeline-reprime] Pipeline re-priming — enforcement blocks at each skill boundary
+Pipeline stage transitions require re-encountering an enforcement block restating procedural discipline identity. Professional engineers re-prime at every boundary. Amateurs let context degrade between gates.
+
+
 ### [critical-rules-044] Preloading Sub-Agent Context — task()ing with pre-determined file paths/line numbers/outcomes
 Handing a sub-agent pre-determined file paths, line numbers, and expected outcomes means you are not asking the sub-agent to do the work — you are asking it to execute your guesses. Professional engineers gate every execution behind a pre-analysis sub-agent that discovers the scope independently. Amateurs preload their assumptions.
 
@@ -723,7 +727,7 @@ No `question` tool for structural decisions when `halt_at >= pr_created`.
 
 ### [critical-rules-049] Standalone Submodule-Only PR Creation During Cleanup
 
-Creating a PR whose sole purpose is to update a submodule pointer during the cleanup pipeline stage. See `git-workflow cleanup` task Step 1.7 for the complete prohibition and correct behavior (leave dirty pointer on dev).
+Creating a PR whose sole purpose is to update a submodule pointer during the cleanup pipeline stage. See `git-workflow cleanup` task Step 1.7 for the complete prohibition and correct behavior (leave dirty pointer untouched).
 
 
 ### [critical-rules-039] Parent Issue Left Open After All Children Closed
@@ -1531,15 +1535,18 @@ rules:
     source: "default.txt §Skill Dispatch Mandate"
 
   - id: critical-rules-049
-    tier: 3
+    tier: 2
     title: "Standalone submodule-only PR creation during cleanup is a workflow violation"
     conditions:
-      all:
+      any:
         - "pipeline_stage == 'cleanup'"
+        - "pipeline_stage == 'pre_work'"
+        - "pipeline_stage == 'implementation'"
+      all:
         - "pr_created == true"
         - "pr_changes_only_submodule == true"
     actions:
-      - FLAG
+      - HALT
     conflicts_with: [critical-rules-048]
     requires: []
     triggers: [git-workflow]
@@ -1741,21 +1748,6 @@ rules:
     triggers: [issue-operations]
     source: "000-critical-rules.md §Tier 3 prose section"
 
-  - id: critical-rules-057
-    tier: 3
-    title: "Standalone submodule-only PR creation is a workflow violation"
-    conditions:
-      all:
-        - "pipeline_stage == 'cleanup'"
-        - "pr_created == true"
-        - "pr_changes_only_submodule == true"
-    actions:
-      - FLAG
-    conflicts_with: []
-    requires: []
-    triggers: [git-workflow]
-    source: "000-critical-rules.md §Tier 3 prose section"
-
   - id: critical-rules-058
     tier: 3
     title: "Un-squashed single-issue PR — multiple commits on one issue"
@@ -1946,4 +1938,19 @@ rules:
     requires: []
     triggers: [verification-before-completion, adversarial-audit, test-driven-development]
     source: "000-critical-rules.md §Runtime-Behavioral Evidence Classification Gate"
+
+  - id: critical-rules-pipeline-reprime
+    tier: 2
+    title: "Pipeline re-priming — enforcement blocks at each skill boundary"
+    conditions:
+      all:
+        - "pipeline_stage_transition == true"
+        - "enforcement_block_present == false"
+    actions:
+      - FLAG
+      - ADD_ENFORCEMENT_BLOCK
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow, approval-gate, divide-and-conquer]
+    source: "000-critical-rules.md §Pipeline re-priming"
 ```
