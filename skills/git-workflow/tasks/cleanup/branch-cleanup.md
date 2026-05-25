@@ -103,33 +103,35 @@ if [ -n "$PARENT_REPO_PATH" ]; then
 fi
 ```
 
-**Handle dirty submodule pointer (CRITICAL):**
+**Handle dirty submodule pointer(s) (CRITICAL):**
 
-After submodule dev sync, the parent repo's submodule pointer will be dirty — this is **expected and normal**. The parent repo tracks a specific submodule commit, and after `git pull origin dev` in the submodule, the submodule HEAD will differ from what the parent repo recorded on its own `dev` branch.
+After submodule dev sync, the parent repo's submodule pointer(s) will be dirty — this is **expected and normal**. The parent repo tracks a specific submodule commit, and after `git pull origin dev` in each submodule, the submodule HEAD will differ from what the parent repo recorded on its own `dev` branch.
+
+Detect dirty submodule(s) by checking `git status` for modified submodule entries — do NOT hardcode submodule names. Every submodule with a dirty pointer must be acknowledged but NEVER committed:
 
 ```bash
 if [ -n "$PARENT_REPO_PATH" ]; then
-    # Check if submodule pointer is dirty
-    DIRTY_SUBMODULE=$(git -C "$PARENT_REPO_PATH" diff --stat .opencode 2>/dev/null || echo '')
+    # Check for ANY dirty submodule pointer (detect dynamically, never hardcode)
+    DIRTY_MODULES=$(git -C "$PARENT_REPO_PATH" status --short 2>/dev/null | grep '^\s*M' | awk '{print $2}' || echo '')
 
-    if [ -n "$DIRTY_SUBMODULE" ]; then
-        echo "Submodule pointer is dirty (expected after submodule dev sync)."
-        echo "No corrective action needed — dirty pointer is normal post-sync state."
-        # DO NOT: git add, git commit, git stash, or any corrective action on the dirty submodule
-        # The dirty pointer reflects that the submodule is now ahead of the parent repo's recorded commit.
-        # This will be resolved naturally when the parent repo's dev branch merges a PR
-        # that updates the submodule pointer.
+    if [ -n "$DIRTY_MODULES" ]; then
+        echo "Dirty submodule pointer(s) detected:"
+        echo "$DIRTY_MODULES"
+        echo "No corrective action needed — dirty pointer(s) are normal post-sync state."
+        # DO NOT: git add, git commit, git stash, or any corrective action on dirty submodule(s)
+        # The dirty pointer(s) reflect that the submodule(s) are ahead of the parent repo's recorded commit.
+        # This will be resolved naturally on the next pre-work cycle via tag-based hash permanence.
     fi
 fi
 ```
 
 **⚠️ CRITICAL: Dirty submodule pointer exemption:**
-- 🚫 FORBIDDEN: Attempting to commit, stash, or resolve the dirty submodule pointer
+- 🚫 FORBIDDEN: Attempting to commit, stash, or resolve any dirty submodule pointer
 - 🚫 FORBIDDEN: Treating a dirty submodule pointer as a cleanup failure or error condition
-- 🚫 FORBIDDEN: Creating a PR whose sole purpose is to update a submodule pointer (submodule-only PR)
-- 🚫 FORBIDDEN: Running `git add .opencode`, `git commit`, or any git operation that commits the submodule pointer during cleanup
+- 🚫 FORBIDDEN: Creating a feature branch + PR solely to update submodule pointer(s) (submodule-only PR, any number of submodules)
+- 🚫 FORBIDDEN: Running `git add <submodule_path>`, `git commit`, or any git operation that commits submodule pointer(s) during cleanup
 - ✅ REQUIRED: Acknowledge the dirty state as expected and continue
-- ✅ REQUIRED: The parent repo `git status` after this step will show `.opencode (modified)` — this is correct and expected
+- ✅ REQUIRED: The parent repo `git status` after this step will show modified submodule entry/entries — this is correct and expected
 - ✅ REQUIRED: Submodule pointer updates happen on feature branches during pre-work (Step 3.5), never on `dev` during cleanup
 
 **Evidence artifact (MANDATORY):** Tool-call output showing `git -C "$PARENT_REPO_PATH" branch --show-current` returns `dev` MUST be present before proceeding. If no parent repo exists (not a submodule), evidence that the step was evaluated and skipped is sufficient.
@@ -234,24 +236,24 @@ blocked_reason: <if BLOCKED, explanation of divergence>
 8. **Exit submodule — do NOT touch the pointer:**
    ```bash
    cd - > /dev/null
-   # DO NOT: git add .opencode, git commit, or any operation that modifies the parent repo
-   # The dirty submodule pointer is expected — Step 1.7 already handled acknowledgment
+   # DO NOT: git add the submodule path, git commit, or any operation that modifies the parent repo
+   # The dirty submodule pointer(s) are expected — Step 1.7 already handled acknowledgment
    ```
 
-**After all submodules processed — acknowledge dirty pointer:**
+**After all submodules processed — acknowledge dirty pointer(s):**
 ```bash
 echo "Submodule branch cleanup complete."
-echo "Submodule pointer is dirty — expected state after dev sync."
-echo "No corrective action taken on submodule pointer."
-echo "The parent repo 'git status' will show .opencode (modified) — this is correct."
+echo "Submodule pointer(s) are dirty — expected state after dev sync."
+echo "No corrective action taken on submodule pointer(s)."
+echo "The parent repo 'git status' will show modified submodule entry/entries — this is correct."
 ```
 
 **🚫 FORBIDDEN:**
-- `git add .opencode` or any commit modifying the submodule pointer during cleanup
+- `git add <submodule_path>` or any commit modifying any submodule pointer during cleanup
 - `git submodule update --recursive` or any `--recursive` submodule command
 - Switching the parent repo away from `dev`
-- Treating the dirty submodule pointer as an error condition
-- Creating a PR whose sole purpose is to update a submodule pointer (per Step 1.7 prohibition)
+- Treating a dirty submodule pointer as an error condition
+- Creating a PR whose sole purpose is to update submodule pointer(s) (submodule-only PR, any number of submodules)
 
 **✅ REQUIRED:**
 - Verify each submodule is on `dev` before branch operations

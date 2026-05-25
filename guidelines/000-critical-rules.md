@@ -1535,15 +1535,18 @@ rules:
     source: "default.txt §Skill Dispatch Mandate"
 
   - id: critical-rules-049
-    tier: 3
+    tier: 2
     title: "Standalone submodule-only PR creation during cleanup is a workflow violation"
     conditions:
-      all:
+      any:
         - "pipeline_stage == 'cleanup'"
+        - "pipeline_stage == 'pre_work'"
+        - "pipeline_stage == 'implementation'"
+      all:
         - "pr_created == true"
         - "pr_changes_only_submodule == true"
     actions:
-      - FLAG
+      - HALT
     conflicts_with: [critical-rules-048]
     requires: []
     triggers: [git-workflow]
@@ -1743,21 +1746,6 @@ rules:
     conflicts_with: []
     requires: []
     triggers: [issue-operations]
-    source: "000-critical-rules.md §Tier 3 prose section"
-
-  - id: critical-rules-057
-    tier: 3
-    title: "Standalone submodule-only PR creation is a workflow violation"
-    conditions:
-      all:
-        - "pipeline_stage == 'cleanup'"
-        - "pr_created == true"
-        - "pr_changes_only_submodule == true"
-    actions:
-      - FLAG
-    conflicts_with: []
-    requires: []
-    triggers: [git-workflow]
     source: "000-critical-rules.md §Tier 3 prose section"
 
   - id: critical-rules-058
