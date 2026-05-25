@@ -113,6 +113,16 @@ The orchestrator MUST NOT execute any audit operation directly. Every operation 
 
 **Violation of this gate is a hard halt.** The orchestrator MUST NOT recover from inline work — the pipeline is poisoned per critical-rules-034 and MUST restart from verify-authorization.
 
+#### Sub-Agent Entry Criteria
+
+A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+- Inline file paths to task files
+- Inline step or procedure definitions
+- Expected outcome structures or schema constraints
+- Pre-loaded evidence or orchestrator-derived conclusions
+
+Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
 ## Cross-References
 
 Skills: `skill-creator`, `verification-enforcement`, `verification-before-completion`, `multimodal-dispatch`. Guidelines: `000-critical-rules.md`, `065-verification-honesty.md`, `060-tool-usage.md`. Spec: #381. Plan: #382.
