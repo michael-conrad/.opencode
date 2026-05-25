@@ -740,6 +740,34 @@ See `process_data()` in `file.py` for the function definition.
 See `"Cross-Reference Standards"` section in `guidelines.md` for the rule.
 ```
 
+## Mandatory Triple Co-Application
+
+### Scope
+
+Mandatory Triple Co-Application applies to all **AI-agent-facing text** — any content whose primary consumer is an AI agent rather than a human reader. This includes:
+
+- Skill descriptions, Overview, Persona, and Purpose sections
+- Task file headers, purpose statements, and routing instructions
+- Guideline enforcement blocks and procedural rules
+- System prompt fragments and configuration descriptions
+- Any instruction or directive written for consumption by another AI agent
+
+### Triple Applicability
+
+Each of the three reference cards handles a distinct layer of AI-agent-facing text:
+
+| Card | Layer | Handles |
+|------|-------|---------|
+| `250-dark-prose-reference.md` | Identity | Dark prose patterns, identity-anchoring, confirmshaming, goal hijacking, authority frame, agency-respecting prose |
+| `255-distribution-shifting-reference.md` | Signal | Distribution shifting, mean response, expert tail, contrastive decoding, external-signal verification, corrupt-success contrast |
+| `257-procedural-discipline-reference.md` | Structure | Procedural discipline, dependency order, re-priming, controlled vocabulary, verification signal, positional enforcement |
+
+### Auto-Detection Trigger
+
+Any agent that creates or modifies AI-agent-facing text MUST consult all three reference cards (250, 255, 257) before producing output. The trigger is: the content being created/modified will be read by an AI agent as instructions, guidance, or enforcement. Detection is automatic — no separate authorization or deliberation required.
+
+All three reference cards (250, 255, 257) are mandatory for all AI-agent-facing text creation or modification. Omission of any card during content generation is a content-completeness defect.
+
 ## Parameter Naming Convention
 
 Session-init and env-loader are two independent pipelines with separate naming conventions:

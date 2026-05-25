@@ -12,6 +12,10 @@ The AI agent must determine its identity from the system prompt on EVERY session
 
 **WHY**: Different agents/loaders provide different context. System prompt tells you what you are.
 
+## Pipeline Re-Priming
+
+Every skill boundary requires a re-encounter of the enforcement identity. Professional engineers complete each gate in dependency order before advancing. Amateurs skip gates and compound defects.
+
 ---
 
 ## Universal Skill Dispatch Gate — Professional agents dispatch skills. Amateurs inline.

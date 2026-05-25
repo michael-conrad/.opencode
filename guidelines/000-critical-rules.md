@@ -570,6 +570,10 @@ Deleting a branch without verifying its content against the target branch means 
 Running behavioral tests through grep and static analysis instead of `opencode-cli run` means you are testing the wrong thing — text patterns, not agent behavior. Professional engineers test against real AI models in clean-room isolation. Amateurs grep for keywords and call it verified.
 
 
+### [critical-rules-pipeline-reprime] Pipeline re-priming — enforcement blocks at each skill boundary
+Pipeline stage transitions require re-encountering an enforcement block restating procedural discipline identity. Professional engineers re-prime at every boundary. Amateurs let context degrade between gates.
+
+
 ### [critical-rules-044] Preloading Sub-Agent Context — task()ing with pre-determined file paths/line numbers/outcomes
 Handing a sub-agent pre-determined file paths, line numbers, and expected outcomes means you are not asking the sub-agent to do the work — you are asking it to execute your guesses. Professional engineers gate every execution behind a pre-analysis sub-agent that discovers the scope independently. Amateurs preload their assumptions.
 
@@ -1946,4 +1950,19 @@ rules:
     requires: []
     triggers: [verification-before-completion, adversarial-audit, test-driven-development]
     source: "000-critical-rules.md §Runtime-Behavioral Evidence Classification Gate"
+
+  - id: critical-rules-pipeline-reprime
+    tier: 2
+    title: "Pipeline re-priming — enforcement blocks at each skill boundary"
+    conditions:
+      all:
+        - "pipeline_stage_transition == true"
+        - "enforcement_block_present == false"
+    actions:
+      - FLAG
+      - ADD_ENFORCEMENT_BLOCK
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow, approval-gate, divide-and-conquer]
+    source: "000-critical-rules.md §Pipeline re-priming"
 ```
