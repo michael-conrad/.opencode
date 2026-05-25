@@ -65,12 +65,12 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 
 ## Sub-Agent Tasks for Submodule Operations
 
-| Sub-Agent Task | Trigger | Task Context (MUST receive) | Exclusions (MUST NOT receive) | Words |
-|----------------|---------|----------------------------------|-------------------------------|-------|
-| `submodule-tag-prework` | pre-work Step 3.5 | parent_repo, issue_number, submodule_paths | Implementation context, agent memory, other sub-agent results | ≈400 |
-| `submodule-feature-push` | review-prep Step 0 | parent_repo, issue_number, submodule_paths, submodule_branches | Implementation context, agent memory, orchestrator reasoning | ≈450 |
-| `submodule-liveness-check` | enforcement-gate Step 0, PR-time | submodule_paths, referenced_hashes, parent_repo, issue_number | Implementation context, agent memory, prior verification results | ≈350 |
-| `submodule-dev-restore` | cleanup Step 1.9 | submodule_paths | Implementation context, agent memory, other sub-agent results | ≈300 |
+| Sub-Agent Task | Trigger | Task Context (MUST receive) | Exclusions (MUST NOT receive) | Config | Words |
+|----------------|---------|----------------------------------|-------------------------------|--------|-------|
+| `submodule-tag-prework` | pre-work Step 3.5 | parent_repo, issue_number, submodule_paths | Implementation context, agent memory, other sub-agent results | `.opencode/agents/submodule-tag-prework.jsonc` | ≈400 |
+| `submodule-feature-push` | review-prep Step 0 | parent_repo, issue_number, submodule_paths, submodule_branches | Implementation context, agent memory, orchestrator reasoning | `.opencode/agents/submodule-feature-push.jsonc` | ≈450 |
+| `submodule-liveness-check` | enforcement-gate Step 0, PR-time | submodule_paths, referenced_hashes, parent_repo, issue_number | Implementation context, agent memory, prior verification results | `.opencode/agents/submodule-liveness-check.jsonc` | ≈350 |
+| `submodule-dev-restore` | cleanup Step 1.9 | submodule_paths | Implementation context, agent memory, other sub-agent results | `.opencode/agents/submodule-dev-restore.jsonc` | ≈300 |
 
 ## Operating Protocol
 

@@ -147,9 +147,9 @@ SUBMODULE_PATHS=$(git config --list --file .gitmodules 2>/dev/null | grep '^subm
 
 If no submodules exist (`SUBMODULE_PATHS` is empty), skip this step.
 
-#### task() to `submodule-dev-restore` Sub-Agent
+#### Orchestrator Dispatching: `submodule-dev-restore` Sub-Agent
 
-For each submodule path, task() a clean-room `submodule-dev-restore` sub-agent via task(). The sub-agent handles submodule entry, `git checkout dev`, and `git pull origin dev --ff-only`. The main task does NOT perform these operations inline.
+For each submodule path, the orchestrator dispatches a clean-room `submodule-dev-restore` sub-agent. The sub-agent handles submodule entry, `git checkout dev`, and `git pull origin dev --ff-only`. The main task does NOT perform these operations inline.
 
 **must_receive / must_not_receive:**
 
@@ -172,7 +172,7 @@ evidence:
 blocked_reason: <if BLOCKED, explanation of divergence>
 ```
 
-**After task() returns DONE for a submodule, proceed with cleanup operations:**
+**After the orchestrator receives DONE from the sub-agent for a submodule, proceed with cleanup operations:**
 
 2. **Verify submodule is on dev (post-task() check):**
 

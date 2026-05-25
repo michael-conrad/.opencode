@@ -224,7 +224,7 @@ After analyzing merge commits since `ce6e5f1`:
 
 ### Fixed
 
-- **Sub-agent worktree task()** (from `spec/fix-subagent-worktree-741`) - Add worktree awareness to all sub-agent task() and skill creation.
+- **Sub-agent worktree dispatch** (from `spec/fix-subagent-worktree-741`) - Add worktree awareness to all sub-agent dispatch and skill creation.
 ```
 
 ## Context Required

@@ -18,11 +18,11 @@ Clean temp files, handle submodule push automation, rebase on current dev, and v
 
 ## Procedure
 
-### Step 0: Submodule Feature Push via Sub-Agent task() (CONDITIONAL)
+### Step 0: Submodule Feature Push via Sub-Agent Orchestrator Dispatch (CONDITIONAL)
 
 **If `.gitmodules` does NOT exist:** Skip entirely.
 
-**If `.gitmodules` exists:** task() a `submodule-feature-push` sub-agent to handle submodule push automation instead of executing inline bash.
+**If `.gitmodules` exists:** The orchestrator dispatches a `submodule-feature-push` sub-agent to handle submodule push automation instead of executing inline bash.
 
 #### Task Context Schema
 

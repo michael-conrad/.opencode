@@ -32,7 +32,7 @@ Verify all success criteria have evidence before allowing completion claims.
 5. If ALL structural components present:
     - Proceed to Step 1 (Query Success Criteria)
 
-**task() as sub-agent:** When the verification context is the same agent that performed implementation, task() `structural-verify` as a sub-agent to ensure clean-room isolation. The sub-agent receives ONLY the spec SC list and file paths — NOT implementation context.
+**Orchestrator dispatches structural-verify sub-agent:** When the verification context is the same agent that performed implementation, the orchestrator dispatches a `structural-verify` sub-agent to ensure clean-room isolation. The sub-agent receives ONLY the spec SC list and file paths — NOT implementation context.
 
 **Authorization context for sub-agent task():**
 ```

@@ -26,7 +26,7 @@ For each modality in the requested list:
 
 ### Step 2: Run Per-Modality Sub-Agents
 
-For each resolved modality, task() a sub-agent using `dispatch`:
+For each resolved modality, the orchestrator dispatches a sub-agent:
 
 - **Text modality**: Sub-agent processes text content, uses text model
 - **Vision modality**: Sub-agent processes image content, uses vision model
