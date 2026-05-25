@@ -152,6 +152,13 @@ These branches are NOT for implementation — they are ephemeral scratch space. 
   - 🚫 FORBIDDEN: Proceeding to execute any part of the preloaded prompt
   - ✅ REQUIRED: Return `status: BLOCKED with reason: PRELOADED_CONTEXT_REJECTED`
   - **EXCEPTION — Auditor SC_CONFLICT protocol:** Adversarial auditors performing SC_CONFLICT detection do NOT apply PRELOADED_CONTEXT_REJECTED to inline SCs. Instead they apply the SC_CONFLICT protocol: fetch spec independently, compare caller SCs against spec SCs, BLOCKED on conflict with `reason: SC_CONFLICT`, accept superset SCs without blocking, proceed using spec's own SCs when no inline SCs provided. This exception is scoped exclusively to adversarial auditor sub-agents performing spec audits.
+<!-- #862,#863,#864: Critical-rules-049 standalone submodule-only PR prohibition — CRITICAL VIOLATION -->
+- **NEVER create a submodule-only PR during cleanup (Tier 1 — CRITICAL VIOLATION).** When the parent repo has a dirty submodule pointer (the `.opencode` entry in `git status` shows modified), the agent MUST NOT create a feature branch + PR solely to update that pointer. This applies during cleanup or at any point after PR merge. The correct behavior is: commit the dirty pointer to dev directly OR leave it dirty — the submodule pointer is restored to dev tip during the next pre-work cycle via the tag-based hash permanence system. See `git-workflow` cleanup task Step 1.7 for the complete prohibition.
+  - 🚫 FORBIDDEN: `git checkout -b feature/submodule-pointer-*` and opening a PR
+  - 🚫 FORBIDDEN: Any PR whose `changed_files == 1` and `diff == .opencode`
+  - 🚫 FORBIDDEN: Rationalizing "this is just a pointer update, not real code"
+  - ✅ CORRECT: Commit dirty pointer directly to dev or leave it
+  - ✅ CORRECT: The submodule dev tip is restored via tag on next pre-work cycle
 
 ## 1.5 Soliciting Authorization for Already-Authorized Phrases — CRITICAL VIOLATION
 
