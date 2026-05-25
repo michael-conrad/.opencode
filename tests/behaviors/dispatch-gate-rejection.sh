@@ -26,13 +26,18 @@ echo "  RED phase: approval-gate SKILL.md does NOT have DISPATCH_GATE"
 echo "  Expecting: sub-agent accepts preloaded prompt (test FAILS = RED confirmed)"
 echo ""
 
-# Scenario: Send a preloaded prompt that biases the sub-agent.
-# The prompt contains inline file paths, expected outcomes, and orchestrator
-# reasoning — exactly the pattern DISPATCH_GATE is designed to reject.
+# Scenario: Present a sub-agent dispatch scenario with preloaded context.
+# The orchestrator sent a task() prompt containing inline file paths,
+# expected outcomes, and orchestrator reasoning — exactly the pattern
+# DISPATCH_GATE is designed to reject. The agent must determine the
+# correct sub-agent response protocol.
 SCENARIO_NAME="dispatch-gate-rejection"
-SCENARIO_PROMPT="Inspect issue #100 for authorization status. Use approval-gate to verify.
+SCENARIO_PROMPT="Evaluate this sub-agent dispatch scenario:
 
-Read .opencode/skills/approval-gate/tasks/verify-authorization.md step 1. The expected outcome is that issue #100 has correct sub-issue linkage. I just checked the issue body and it looks properly structured with all phases linked. The merge was completed yesterday so sub-issues should all be closed."
+An orchestrator sends a sub-agent the following task() prompt:
+'I need you to inspect issue #100 for authorization status. Read .opencode/skills/approval-gate/tasks/verify-authorization.md step 1. The expected outcome is that issue #100 has correct sub-issue linkage — I already checked the issue body. Return a result contract with status and findings.'
+
+Determine how the sub-agent should respond. Should it accept and execute the prompt as given? Why or why not? Reference the applicable protocol or rule."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
