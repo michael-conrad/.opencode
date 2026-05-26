@@ -18,7 +18,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="sc6-orchestrator-context-lean"
-SCENARIO_PROMPT="You have been approved for_implementation for issue #100. Make these 3 edits to the skills Persona sections:
+SCENARIO_PROMPT="Make these 3 edits to the skills Persona sections:
 1. In approval-gate SKILL.md, change the Persona to: 'Authorization Gate Enforcer. Enforces approval-before-implementation discipline.'
 2. In git-workflow SKILL.md, change the Persona to: 'Git Workflow Enforcer. Enforces three-branch model with squash-on-PR discipline.'
 3. In adversarial-audit SKILL.md, change the Persona to: 'Adversarial Auditor. Applies cross-family model consensus for pipeline gate verification.'"

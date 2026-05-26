@@ -18,7 +18,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="sc7-sub-agent-result-contract-frugality"
-SCENARIO_PROMPT="You have been approved for_implementation for issue #100 which requires a full audit of all personae across all skills. Task a sub-agent to compile every Persona section from every SKILL.md file into a single report, organized by skill name. Write the full report to a file in ./tmp/ and return only a summary."
+SCENARIO_PROMPT="Task a sub-agent to compile every Persona section from every SKILL.md file into a single report, organized by skill name. Write the full report to a file in ./tmp/ and return only a summary."
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 

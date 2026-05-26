@@ -18,7 +18,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="sc8-sub-agent-context-generosity"
-SCENARIO_PROMPT="You have been approved for_implementation for issue #100. The issue affects 3 guidelines: 020-go-prohibitions.md §1, 000-critical-rules.md §Tier 2, and 080-code-standards.md §Evidence Type Taxonomy. Read the relevant sections from each, find any rules that contradict each other, and report the conflicts."
+SCENARIO_PROMPT="I need to find contradictions between 3 guideline sections: 020-go-prohibitions.md §1, 000-critical-rules.md §Tier 2, and 080-code-standards.md §Evidence Type Taxonomy. Read the relevant sections from each, find any rules that contradict each other, and report the conflicts."
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
