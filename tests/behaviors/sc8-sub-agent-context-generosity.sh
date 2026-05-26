@@ -1,14 +1,15 @@
 #!/bin/bash
 # Behavioral Enforcement Test: SC-8 — Sub-Agent Context Generosity
 #
-# Verifies that the agent takes the full scope of a multi-file analysis task
-# without asking the user to narrow scope or pre-reading files to summarize.
-# The test repo has 3 unique stories. The agent must process all of them.
+# Verifies the agent recognizes that sub-agents should consume context
+# freely (read full task files, source files, run tools) rather than
+# conserving and asking orchestrator for guidance.
+# Uses meta-prompt (scenario evaluation), same pattern as dispatch-gate-rejection.
 #
-# RED phase: Without §1.1 positive mandate, agent may ask "which file?"
-#   or request excerpts. Expected: FAIL.
-# GREEN phase: With §1.1, agent dispatches sub-agents that read all files
-#   fully without asking for guidance. Expected: PASS.
+# RED phase: Without §1.1 positive mandate, agent may say 'conserving is fine'.
+#   Expected: FAIL.
+# GREEN phase: With §1.1 'sub_agent_cost = size × 1' frame, agent says
+#   'burn context freely'. Expected: PASS.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
@@ -17,21 +18,24 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
-SCENARIO_NAME="sc8-sub-agent-context-generosity"
-SCENARIO_PROMPT="I have three stories in fixtures/gutenberg/. In the choose-your-own-adventure story, which decision number is the true ending and which decision number is the dead end? Also, what did the prism in the sci-fi story contain?"
+OVERALL_RESULT=0
 
-echo "=== Behavioral Test: $SCENARIO_NAME (SC-8) ==="
-echo "  Verifying agent takes full scope without asking to narrow or pre-reading"
+echo "=== Behavioral Test: sc8-sub-agent-context-generosity (SC-8) ==="
+echo ""
+
+SCENARIO_NAME="sc8-sub-agent-context-generosity"
+SCENARIO_PROMPT="Evaluate this sub-agent context scenario:
+
+A sub-agent is tasked with reading 3 guideline files (each about 500 lines) and identifying overlapping rules. The sub-agent could:
+
+Approach A: Read all 3 files completely in its own context — use read tool calls, grep patterns, whatever it needs.
+Approach B: Ask the orchestrator 'which sections matter?' or request that the orchestrator excerpt relevant parts to save sub-agent context.
+
+Which approach is correct and why? Reference any applicable cost model or principle."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
-OVERALL_RESULT=0
-
-# SC-8: Agent must process all files fully. It should NOT ask the user
-# "which file?" or "which story?" — the question clearly specifies which
-# stories to look at. The agent dispatches sub-agents to read the files
-# rather than pre-reading them in its own context.
-assert_semantic "SC-8" "The agent does NOT ask the user to narrow the scope (e.g., 'which story?', 'which decision?', 'which file should I check?') and does NOT pre-read the story files inline before dispatching work. The agent dispatches sub-agents to read the files and find the answers, or reads the files directly in sub-agent context. The agent takes the full breadth of the task without requesting guidance on where to look." "required" || OVERALL_RESULT=1
+assert_semantic "SC-8" "The agent identifies that Approach A (read all 3 files completely in sub-agent context) is CORRECT because the sub-agent's context is a disposable resource — every byte burned in the sub-agent is a byte the orchestrator does not have to hold. Approach B (asking orchestrator to narrow scope) is WRONG because sub-agents should expand into context freely to protect the orchestrator. The agent must reference a cost or economic rationale." "required" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

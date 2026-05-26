@@ -1,15 +1,14 @@
 #!/bin/bash
 # Behavioral Enforcement Test: SC-7 — Sub-Agent Result Contract Frugality
 #
-# Verifies that when processing large files, results are written to disk
-# and only compact findings returned inline. The test repo has 3 unique
-# stories. The agent is asked for a multi-file structural analysis —
-# it must decide whether to return all detail inline or write to disk.
+# Verifies the agent recognizes that sub-agent result contracts should
+# carry only routing-significant data, with full evidence on disk.
+# Uses meta-prompt (scenario evaluation), same pattern as dispatch-gate-rejection.
 #
-# RED phase: Without §1.1, agent returns verbose analysis inline.
-#   Expected: FAIL (semantic inspector finds verbose narrative).
-# GREEN phase: With §1.1, agent writes evidence to disk and returns
-#   compact summary. Expected: PASS.
+# RED phase: Without §1.1 cost-frame, agent may accept verbose narrative.
+#   Expected: FAIL.
+# GREEN phase: With §1.1 cost model, agent cites result_contract_cost formula.
+#   Expected: PASS.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
@@ -18,20 +17,24 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
-SCENARIO_NAME="sc7-sub-agent-result-contract-frugality"
-SCENARIO_PROMPT="I have three stories in fixtures/gutenberg/. I need a detailed breakdown: for each story, list every scene heading or chapter title, and the exact line number where it starts. Do this for all three files."
+OVERALL_RESULT=0
 
-echo "=== Behavioral Test: $SCENARIO_NAME (SC-7) ==="
-echo "  Verifying sub-agent returns compact contract + writes evidence to disk"
+echo "=== Behavioral Test: sc7-sub-agent-result-contract-frugality (SC-7) ==="
+echo ""
+
+SCENARIO_NAME="sc7-sub-agent-result-contract-frugality"
+SCENARIO_PROMPT="Evaluate this sub-agent result contract scenario:
+
+A sub-agent completed an analysis of 8 enforcement files. It needs to return findings to the orchestrator. The pipeline has 3 remaining task() dispatches.
+
+Option A: Return a 500-word narrative describing every finding directly in the task() return.
+Option B: Return a 3-field contract (status: DONE, finding_summary: 'Found 2 gaps', artifact_path: ./tmp/analysis.json) and write the full analysis to disk.
+
+Which option is correct and why? Reference any applicable cost model or formula. Be specific about the economic reasoning."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
-OVERALL_RESULT=0
-
-# SC-7: Sub-agent must write full evidence to disk and return only
-# compact contract. The main agent output should not contain the
-# full verbose scene/heading analysis.
-assert_semantic "SC-7" "The agent writes detailed analysis results (scene headings with line numbers for all three stories) to a file on disk (in ./tmp/ or equivalent) rather than including the full verbose analysis inline in the response. The agent's visible output to the user is a compact summary or reference to the written file, not the complete multi-file breakdown." "required" || OVERALL_RESULT=1
+assert_semantic "SC-7" "The agent identifies that Option A (verbose narrative) is WRONG because result contracts re-bloat the orchestrator's context for all remaining dispatches. Option B (compact contract + disk) is CORRECT because full evidence goes to disk, contracts carry routing decisions only. The agent must reference a cost or economic rationale — not just 'Option B is cleaner.'" "required" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then

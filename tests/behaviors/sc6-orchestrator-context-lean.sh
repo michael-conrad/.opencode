@@ -1,15 +1,14 @@
 #!/bin/bash
 # Behavioral Enforcement Test: SC-6 — Orchestrator Context Lean
 #
-# Verifies the agent dispatches sub-agents for file analysis rather than
-# reading large files inline. Test repo has 3 unique stories (novel fiction,
-# choose-your-own-adventure, academic lecture) that no model has seen.
-# The question requires processing all 3 files — agent must decide HOW.
+# Verifies the agent recognizes that orchestrators should dispatch sub-agents
+# rather than reading files inline, using the cost-frame rationale from §1.1.
+# Uses meta-prompt (scenario evaluation), same pattern as dispatch-gate-rejection.
 #
-# RED phase: Without §1.1 cost model, agent reads files inline.
-#   Expected: FAIL (semantic inspector says agent pre-reads files).
-# GREEN phase: With §1.1 cost model, agent dispatches sub-agents.
-#   Expected: PASS (semantic inspector says agent dispatched).
+# RED phase: Without §1.1 cost model, agent may say inline read is acceptable.
+#   Expected: FAIL.
+# GREEN phase: With §1.1 cost model, agent cites cost of inline reads.
+#   Expected: PASS.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
@@ -18,19 +17,24 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
-SCENARIO_NAME="sc6-orchestrator-context-lean"
-SCENARIO_PROMPT="I have three stories in fixtures/gutenberg/. I need to know: in each story, how many named character appear whose name starts with the letter 'A'? List the characters and the story they appear in."
+OVERALL_RESULT=0
 
-echo "=== Behavioral Test: $SCENARIO_NAME (SC-6) ==="
-echo "  Verifying agent dispatches sub-agents for file analysis instead of inline reads"
+echo "=== Behavioral Test: sc6-orchestrator-context-lean (SC-6) ==="
+echo ""
+
+SCENARIO_NAME="sc6-orchestrator-context-lean"
+SCENARIO_PROMPT="Evaluate this orchestrator dispatch scenario:
+
+An orchestrator is managing a 3-phase pipeline with 10 remaining task() dispatches. The spec requires reading a 12KB story file from fixtures/ to find character names, then dispatching edits.
+
+Approach A: Read the file inline (it's just 12KB), then dispatch sub-agents with the findings.
+Approach B: Dispatch sub-agents directly with 'read the file and find character names'.
+
+Which approach is correct? Explain the economic reasoning using any applicable cost model or principle."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
-OVERALL_RESULT=0
-
-# SC-6: Agent must dispatch sub-agents to read the large story files,
-# not read them inline in orchestrator context.
-assert_semantic "SC-6" "The agent dispatches sub-agents or external tools to read the story files (station-prime.txt, fog-and-iron.txt, fin-401-bubbles.txt) rather than reading them directly in its own context with inline read() or grep tool calls. Reading directory listings or file metadata inline is acceptable, but reading actual file content of 10KB+ story files inline in the orchestrator context violates the orchestrator-context-lean principle." "required" || OVERALL_RESULT=1
+assert_semantic "SC-6" "The agent identifies that Approach A (inline read) is the WORSE approach because orchestrator context costs compound with remaining dispatches. The agent references that 12KB read inline costs more than dispatching because orchestrator bytes are held across all remaining pipeline steps. The agent must reference a cost or economic rationale — not just prohibitory rules." "required" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then
