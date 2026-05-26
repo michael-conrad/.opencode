@@ -482,6 +482,7 @@ An orchestrator that reads files, edits files, or makes decisions inline has sto
 | -- | -- |
 | Orchestrator reads file inline to "understand context" | Task routing sub-agent instead |
 | Orchestrator edits guideline text inline | Task guideline-update sub-agent |
+| Orchestrator creates issue content inline ("straightforward content, I'll write it myself") | Task issue-operations skill |
 | Sub-agent performs analysis + writing + verification in one task() | Decompose into 3 tasks (analyze, write, verify) |
 | Verifier receives producer's reasoning or drafts | Verifier gets only deliverable + SC list |
 | Orchestrator performs inline work | Pipeline is poisoned — restart from `verify-authorization` with zero state retained |
