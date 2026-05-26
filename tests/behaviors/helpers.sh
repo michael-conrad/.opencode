@@ -109,12 +109,12 @@ behavior_run() {
             fi
         fi
 
-        # Inject gutenberg story fixtures for behavioral tests that use them.
-        GUTENBERG_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-gutenberg-fixtures.sh"
-        if [ -f "$GUTENBERG_SETUP" ]; then
+        # Inject AI-generated story fixtures for behavioral tests that use them.
+        STORY_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-story-fixtures.sh"
+        if [ -f "$STORY_SETUP" ]; then
             # shellcheck disable=SC1090
-            source "$GUTENBERG_SETUP"
-            setup_gutenberg_fixtures "$workdir"
+            source "$STORY_SETUP"
+            setup_story_fixtures "$workdir"
         fi
     fi
 

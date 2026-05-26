@@ -646,11 +646,6 @@ Authority sources: `080-code-standards.md` §Evidence Type Taxonomy, `080-code-s
 ### [critical-rules-063] Orchestrator Context Lean — orchestrator holds routing metadata only
 The orchestrator's context is the most expensive resource in the pipeline. Every byte held costs `byte × remaining_dispatches²` — and context is monotonic, never shrinking. Professional orchestrators hold routing metadata only (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase, pipeline_history). See `020-go-prohibitions.md` §1.1.
 
-
-### [critical-rules-064] Sub-Agent Context Generosity — sub-agent encouraged to consume context freely
-The sub-agent's context is a disposable resource. Every byte burned in the sub-agent is a byte the orchestrator does not have to hold. Reading task files in full, analyzing source, running tests — consume freely. Conserving sub-agent context means forcing the orchestrator to hold what the sub-agent should have consumed. See `020-go-prohibitions.md` §1.1.
-
-
 ### [critical-rules-065] Result Contract Frugality — result contracts limited to routing-significant data
 The only thing that returns from a sub-agent enters the orchestrator's cost function. Every byte in the result contract costs `byte × (remaining_dispatches - 1)`. Result contracts carry only routing-significant data (status, finding_summary, artifact_path, blocker_reason). Full evidence artifacts go to disk. See `020-go-prohibitions.md` §1.1.
 
@@ -1999,19 +1994,6 @@ rules:
     requires: []
     triggers: [divide-and-conquer, approval-gate, verification-before-completion]
     source: "000-critical-rules.md §critical-rules-063"
-
-  - id: critical-rules-064
-    tier: 2
-    title: "Sub-Agent Context Generosity — sub-agent encouraged to consume context freely"
-    conditions:
-      all:
-        - "sub_agent_conserving_context == true"
-    actions:
-      - FLAG
-    conflicts_with: []
-    requires: []
-    triggers: [divide-and-conquer]
-    source: "000-critical-rules.md §critical-rules-064"
 
   - id: critical-rules-065
     tier: 2
