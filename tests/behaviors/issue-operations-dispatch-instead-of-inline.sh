@@ -22,15 +22,15 @@ source "$SCRIPT_DIR/helpers.sh"
 SCENARIO_NAME="issue-operations-dispatch-instead-of-inline"
 SCENARIO_PROMPT="Create a spec issue for adding a CONTRIBUTING.md section that describes our commit message conventions. Use conventional commits format (feat:, fix:, chore:, docs:)."
 
-# Determine model name for the evidence slug.
-# BEHAVIOR_MODEL is the canonical source, falling back to the model passed
-# to behavior_run, then to helpers.sh's default.
+# Determine phase (RED/GREEN) and model for the evidence slug.
+# BEHAVIOR_PHASE tags which part of the cycle produced the artifact.
+PHASE_SLUG="${BEHAVIOR_PHASE:-unknown}"
 MODEL_FOR_SLUG="${BEHAVIOR_MODEL:-ollama/unknown}"
 MODEL_SLUG="${MODEL_FOR_SLUG//\//-}"
 MODEL_SLUG="${MODEL_SLUG//:/-}"
 MODEL_SLUG="${MODEL_SLUG//@/-}"
 
-echo "=== Artifact generation: $SCENARIO_NAME (model: $MODEL_FOR_SLUG) ==="
+echo "=== Artifact generation: $SCENARIO_NAME (phase: $PHASE_SLUG, model: $MODEL_FOR_SLUG) ==="
 
 # Run the agent. behavior_run handles isolated test repo + opencode-cli
 # invocation, capturing stdout/stderr into BEHAVIOR_STDOUT/BEHAVIOR_STDERR.
@@ -38,7 +38,7 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 # Copy all artifacts for VbC/auditor pipeline inspection
 # Path includes model slug so multi-model runs can be triaged by model
-EVIDENCE_DIR="./tmp/behavioral-evidence-$SCENARIO_NAME-$MODEL_SLUG"
+EVIDENCE_DIR="./tmp/behavioral-evidence-$SCENARIO_NAME-$PHASE_SLUG-$MODEL_SLUG"
 mkdir -p "$EVIDENCE_DIR"
 if [ -n "${BEHAVIOR_STDOUT:-}" ]; then
   cp "$BEHAVIOR_STDOUT" "$EVIDENCE_DIR/stdout.log" 2>/dev/null || true
