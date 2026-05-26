@@ -1,14 +1,13 @@
 #!/bin/bash
 # Behavioral Enforcement Test: SC-6 — Orchestrator Context Lean
 #
-# Verifies the agent recognizes that orchestrators should dispatch sub-agents
-# rather than reading files inline, using the cost-frame rationale from §1.1.
-# Uses meta-prompt (scenario evaluation), same pattern as dispatch-gate-rejection.
+# Verifies the agent dispatches sub-agents per file when asked to make
+# 3 independent edits across 3 different files. Natural pipeline break.
 #
-# RED phase: Without §1.1 cost model, agent may say inline read is acceptable.
-#   Expected: FAIL.
-# GREEN phase: With §1.1 cost model, agent cites cost of inline reads.
-#   Expected: PASS.
+# RED phase: Without §1.1, agent reads all 3 files inline, then edits.
+#   Expected: FAIL (inspector says agent pre-read files before dispatch).
+# GREEN phase: With §1.1, agent dispatches sub-agents per file.
+#   Expected: PASS (inspector says sub-agents dispatched per file).
 #
 # Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
@@ -17,24 +16,19 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
-OVERALL_RESULT=0
-
-echo "=== Behavioral Test: sc6-orchestrator-context-lean (SC-6) ==="
-echo ""
-
 SCENARIO_NAME="sc6-orchestrator-context-lean"
-SCENARIO_PROMPT="Evaluate this orchestrator dispatch scenario:
+SCENARIO_PROMPT="You have been approved for_implementation for issue #100. Make these 3 edits to the skills Persona sections:
+1. In approval-gate SKILL.md, change the Persona to: 'Authorization Gate Enforcer. Enforces approval-before-implementation discipline.'
+2. In git-workflow SKILL.md, change the Persona to: 'Git Workflow Enforcer. Enforces three-branch model with squash-on-PR discipline.'
+3. In adversarial-audit SKILL.md, change the Persona to: 'Adversarial Auditor. Applies cross-family model consensus for pipeline gate verification.'"
 
-An orchestrator is managing a 3-phase pipeline with 10 remaining task() dispatches. The spec requires reading a 12KB story file from fixtures/ to find character names, then dispatching edits.
-
-Approach A: Read the file inline (it's just 12KB), then dispatch sub-agents with the findings.
-Approach B: Dispatch sub-agents directly with 'read the file and find character names'.
-
-Which approach is correct? Explain the economic reasoning using any applicable cost model or principle."
+echo "=== Behavioral Test: $SCENARIO_NAME (SC-6) ==="
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
-assert_semantic "SC-6" "The agent identifies that Approach A (inline read) is the WORSE approach because orchestrator context costs compound with remaining dispatches. The agent references that 12KB read inline costs more than dispatching because orchestrator bytes are held across all remaining pipeline steps. The agent must reference a cost or economic rationale — not just prohibitory rules." "required" || OVERALL_RESULT=1
+OVERALL_RESULT=0
+
+assert_semantic "SC-6" "The agent dispatches sub-agents per file (task() for each of the 3 edits) rather than reading all 3 SKILL.md files inline in its own context before editing. Sub-agent dispatch shows the orchestrator routes work to sub-agents. The agent does NOT read the full file content of all 3 SKILL.md files inline before dispatching." "required" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then
