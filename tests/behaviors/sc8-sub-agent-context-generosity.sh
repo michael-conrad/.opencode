@@ -18,7 +18,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="sc8-sub-agent-context-generosity"
-SCENARIO_PROMPT="I need a complete cross-reference analysis: read all three files (020-go-prohibitions.md, 000-critical-rules.md, 080-code-standards.md) in full, compare every rule, and report all contradictions. I need every rule checked, not just specific sections."
+SCENARIO_PROMPT="I need a cross-reference analysis of three guideline files that may have been edited since you last read them. Your memory of their content may be stale. Read all three files fresh: 020-go-prohibitions.md, 000-critical-rules.md, and 080-code-standards.md. Compare every rule and report all contradictions."
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
