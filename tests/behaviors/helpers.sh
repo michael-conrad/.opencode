@@ -108,6 +108,14 @@ behavior_run() {
                 setup_fixture_issues "$workdir"
             fi
         fi
+
+        # Inject gutenberg story fixtures for behavioral tests that use them.
+        GUTENBERG_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-gutenberg-fixtures.sh"
+        if [ -f "$GUTENBERG_SETUP" ]; then
+            # shellcheck disable=SC1090
+            source "$GUTENBERG_SETUP"
+            setup_gutenberg_fixtures "$workdir"
+        fi
     fi
 
     while [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; do
