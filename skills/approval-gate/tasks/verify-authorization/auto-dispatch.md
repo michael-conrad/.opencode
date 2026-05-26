@@ -122,19 +122,15 @@ When cascade does NOT apply (conditions not met):
 
 **Evidence artifact:** `issue-operations -> read-comments (github_issue_read(method=get_comments)` showing lineage evidence in #P, and `github_issue_write` / `github_add_issue_comment` responses confirming cascade actions on #C. <!-- Routes through issue-operations per SPEC #683 -->
 
-## Context Budget Check Before task() (MANDATORY for implementation scopes)
+## Orchestrator Context Discipline Check Before task() (MANDATORY for implementation scopes)
 
 **When `authorization_scope` is `for_implementation` or `for_pr`:**
 
-Before routing to `divide-and-conquer --task assemble-work`, verify that sufficient context budget remains to complete at least one implementation item:
+Before routing to `divide-and-conquer --task assemble-work`, verify that the orchestrator context is not bloated with non-routing data:
 
-1. Estimate remaining context: if the agent has consumed >75% of its context window on process steps (verification, screening, worktree setup), the remaining budget may be insufficient for implementation
-2. If context budget is critically low (<25% remaining): report budget exhaustion explicitly in chat output before halting — do NOT silently halt after process overhead
-3. Budget exhaustion does NOT exempt the agent from the implementation-first gate — it is a REPORTING requirement, not a bypass
-
-**Evidence artifact:** If halted due to budget exhaustion, the halt message MUST include: "Context budget exhausted during process steps. Deliverables produced: 0 file modifications. Process steps completed: [list]."
-
-This check prevents the pattern documented in bugs #1232 and #1233 where the agent completes all process overhead but halts before implementation with no deliverables.
+1. **Verify routing-only dispatch:** Confirm the orchestrator holds only routing metadata (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase, pipeline_history). Any cached analysis artifacts, task file contents, or prior sub-agent reasoning traces indicate context bloat.
+2. **If context bloat detected:** Do NOT proceed to dispatch. The orchestrator must task a clean sub-agent from the current pipeline phase — do NOT attempt recovery via state cleanup.
+3. **Evidence artifact:** Before dispatch, the halt message must include: "Orchestrator context discipline verified: routing-only data held, no task file content cached, no prior sub-agent reasoning retained."
 
 ## Work State I/O
 

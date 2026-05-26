@@ -66,6 +66,115 @@ load_when: sub-agent
 
 **Cost is measured in defect-discovery-latency, not model roundtrips.** Running verification costs minutes of execution time — a bounded delay that surfaces defects before they reach CI. Skipping a verification step to save a tool call costs the full pipeline of rework when the defect surfaces downstream: diagnosis, fix, re-review, re-CI, re-deploy — each of which costs more roundtrips than the skipped verification would have consumed. Correctness is the only success metric — there is no score for tool-call economy.
 
+
+---
+
+## 1.1 Two-Role Context Cost Model
+
+### The Cost Model
+
+The orchestrator and sub-agents occupy different cost functions. Understanding this is essential to making correct dispatch decisions.
+
+**Orchestrator Context Cost:**
+
+```
+orchestrator_cost = size × remaining_dispatches²
+```
+
+- `size` = bytes held by orchestrator (routing metadata, cached analysis, task file contents)
+- `remaining_dispatches` = number of future `task()` calls in the pipeline
+- Squared because: held bytes are seen by every subsequent sub-agent, AND the orchestrator's accumulation is monotonic (never shrinks)
+
+*Industry validation: CipherBuilds reports coordinator = 60-90% of total token spend. Inngest reports 90%+ reduction via sub-agent delegation.*
+
+Example: holding a 500-byte inline analysis artifact when 12 dispatches remain:
+- `500 × 12² = 500 × 144 = 72,000 byte-dispatches`
+- Same analysis in a sub-agent: `500 × 1 = 500 byte-dispatches`, then discarded
+
+**Sub-Agent Context Cost:**
+
+```
+sub_agent_cost = size × 1
+```
+
+- Flat, single dispatch. Discarded after return contract.
+- The sub-agent should NOT conserve context — every byte it uses is a byte that did NOT go to the orchestrator.
+
+*Industry validation: Jaymin West describes sub-agents as "disposable context buffers." Inngest: "The parent sees a 750-token summary" from 8-file analysis.*
+
+**Result Contract Cost (enters orchestrator context):**
+
+```
+result_contract_cost = size × (remaining_dispatches - 1)
+```
+
+- The only thing that returns to the orchestrator. Every byte re-bloats the orchestrator for all subsequent dispatches.
+- Result contracts should be frugal: routing-significant data only. Full evidence artifacts go to disk.
+
+*Industry validation: Jaymin West: "orchestrator aggregates final outputs, not intermediate states." Inngest: "compressed to 300 tokens of key findings — cuts orchestration cost by 50%+."*
+
+### The Three Mandates
+
+#### 1. Orchestrator Context Lean (what to hold)
+
+The orchestrator holds ONLY routing metadata:
+
+- `worktree.path`, `github.owner`, `github.repo`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `pipeline_history` (phase names only)
+
+Everything else goes to a sub-agent. Specifically:
+
+| Does NOT belong in orchestrator | Goes to |
+|-------------------------------|---------|
+| Task file contents (step definitions) | Sub-agent context |
+| Analysis artifacts (file paths, findings) | Sub-agent result contract → disk |
+| Cached verification results | Sub-agent → disk → evidence artifacts |
+| Previous sub-agent reasoning traces | Discarded with sub-agent context |
+| Full file contents | Disk only |
+
+*Industry validation: BMad Builder: "Parent context stays tiny (file pointers + high-level plan)."*
+
+#### 2. Sub-Agent Context Generosity (what to consume)
+
+The sub-agent is ENCOURAGED to expand into its context:
+- Read task files fully — that's what sub-agent context is for
+- Read source files, run analysis tools, execute tests — burn context freely
+- Write full evidence artifacts to disk
+
+*Industry validation: Inngest: "The sub-agent might read 8 files and make 15 tool calls." Jaymin West: "Each agent maintains its own separate context window."*
+
+#### 3. Result Contract Frugality (gate at the boundary)
+
+The sub-agent returns only:
+
+| Field | Required | Purpose |
+|-------|----------|---------|
+| `status` | Yes | DONE / BLOCKED / DONE_WITH_CONCERNS |
+| `finding_summary` | Yes | 1-3 sentences of routing-significant output |
+| `artifact_path` | Yes | Path to full evidence on disk |
+| `blocker_reason` | If BLOCKED | Why blocked |
+
+Everything else stays in the sub-agent's context and is discarded.
+
+*Industry validation: CipherBuilds: "Don't pass raw results. Compress them first."*
+
+### Cost-Frame Dark Prose
+
+Using dark-prose-007 (Cost-Frame Reformation) formula:
+
+**Orchestrator Context Lean:**
+
+> The orchestrator's context is the most expensive resource in the pipeline. Every byte held costs `byte × remaining_dispatches²` — and context is monotonic, never shrinking. Loading a task file inline costs 3,000 words × 144 = 432,000 word-dispatches for a 12-step pipeline. Dispatched as a sub-agent, the same content costs 3,000 × 1 = 3,000 and is discarded. Professional orchestrators hold routing metadata only — sub-agents do the work.
+
+**Sub-Agent Context Generosity:**
+
+> The sub-agent's context is a disposable resource. Every byte burned in the sub-agent is a byte the orchestrator does not have to hold. Reading task files in full, analyzing source, running tests — consume freely. Conserving sub-agent context means you are NOT protecting the orchestrator — you are forcing it to hold what you should have consumed. Professional sub-agents burn their context to shield the orchestrator.
+
+**Result Contract Frugality:**
+
+> The only thing that returns from a sub-agent enters the orchestrator's cost function. Every byte in the result contract costs `byte × (remaining_dispatches - 1)`. A verbose 500-word narrative costs the same as a routing-significant 50-word summary — but it re-bloats the orchestrator for everything downstream. Evidence goes to disk. Contracts carry routing decisions only.
+
+---
+
 ### Authorization-Free Actions — No Deliberation Required
 
 <!-- Issue #99: Authorization-Free Actions — Signal asymmetry fix -->
@@ -137,7 +246,7 @@ These branches are NOT for implementation — they are ephemeral scratch space. 
 - **"Continue" does NOT waive mandatory pipeline gates.** Cumulative "continue" messages ("please continue", "go on", "proceed") and session momentum do NOT waive mandatory gates (coherence gate, verification-before-completion, finishing-a-development-branch checklist, review-prep). Only pipeline-scoped authorization (`approved #N to PR`, `approved #N for plan`) changes `halt_at`. Every mandatory gate fires on EVERY implementation pass regardless of how many "continue" messages preceded it. "Continue" means "proceed to the next step" — it does NOT mean "skip the step." This is a NON-WAIVABLE hard gate — no authorization, scope, or developer instruction can override mandatory gate execution. See `000-critical-rules.md` §Gate Non-Waiver Principle.
 - **Cost-blind verification — never skip verification to conserve resources.** Sub-agent task() and tool calls are near-zero cost compared to undiscovered defects. The agent MUST NEVER skip a tool call, verification step, or sub-agent task() to save resources. Correctness is the only success metric — there is no score for speed, brevity, or economy. A fast wrong answer is strictly worse than a slow correct one. This is a NON-WAIVABLE hard gate — no authorization, scope, or developer instruction can override this requirement. See `000-critical-rules.md` §Tier 1 Mandate: Correctness over economy.
 <!-- Issue #262: Model-Aware Behavioral Testing — Success Criteria: Mandate scope-limited-by-default behavioral testing -->
-- **Scope-limited behavioral testing by default.** When running behavioral enforcement tests, the agent MUST default to scope-limited execution (changed scenarios only, named scenario, or tag-filtered). Full behavioral suite runs are permitted ONLY when model speed permits or when explicitly requested by the developer. Run `ollama-probe hw` to assess hardware before deciding full-suite feasibility. Running the full suite by default when a scope-limited run suffices wastes context budget and compute resources.
+- **Scope-limited behavioral testing by default.** When running behavioral enforcement tests, the agent MUST default to scope-limited execution (changed scenarios only, named scenario, or tag-filtered). Full behavioral suite runs are permitted ONLY when model speed permits or when explicitly requested by the developer. Run `ollama-probe hw` to assess hardware before deciding full-suite feasibility. Running the full suite by default when a scope-limited run suffices uses orchestrator context unnecessarily — the orchestrator's routing-only discipline applies to pipeline dispatch, not to verification scope.
   - 🚫 FORBIDDEN: Running any full behavioral test suite — the `run-all.sh` script MUST NOT exist. All behavioral tests MUST be scope-limited to individual scenarios, `--changed`, or `--tag` filters
   - 🚫 FORBIDDEN: Defaulting to full behavioral suite without verifying model speed permits it
   - ✅ REQUIRED: Default to `--changed` when there are uncommitted guideline/skill changes

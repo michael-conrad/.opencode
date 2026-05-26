@@ -30,7 +30,7 @@ Before adding or removing labels in completion, consult `141-planning-status-tra
 1. Authorization decision (approved/rejected/blocked)
 2. Issue number and branch (if applicable)
 3. What happens next (workflow forward, HALT, or error)
-4. **Blocker state** — what constraint caused the halt (authorization/spec/plan/budget/error/none)
+4. **Blocker state** — what constraint caused the halt (authorization/spec/plan/context/error/none)
 5. **Developer action required** — exact phrase or step the developer must provide to continue (empty string when no blocker)
 
 When `status == blocked`, fields 4 and 5 MUST be non-empty and specific. Vague phrasing like "needs approval" is STRUCTURE-VIOLATION — the blocker state must name the specific constraint and the developer action must specify the exact phrase or step.

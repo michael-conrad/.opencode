@@ -643,6 +643,18 @@ The uplift is automatic. Declaring an SC as `structural` or `string` does not ex
 Authority sources: `080-code-standards.md` §Evidence Type Taxonomy, `080-code-standards.md` §Test Integrity Mandate, `020-go-prohibitions.md` §1 ALWAYS DO — Cost-blind verification.
 
 
+### [critical-rules-063] Orchestrator Context Lean — orchestrator holds routing metadata only
+The orchestrator's context is the most expensive resource in the pipeline. Every byte held costs `byte × remaining_dispatches²` — and context is monotonic, never shrinking. Professional orchestrators hold routing metadata only (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase, pipeline_history). See `020-go-prohibitions.md` §1.1.
+
+
+### [critical-rules-064] Sub-Agent Context Generosity — sub-agent encouraged to consume context freely
+The sub-agent's context is a disposable resource. Every byte burned in the sub-agent is a byte the orchestrator does not have to hold. Reading task files in full, analyzing source, running tests — consume freely. Conserving sub-agent context means forcing the orchestrator to hold what the sub-agent should have consumed. See `020-go-prohibitions.md` §1.1.
+
+
+### [critical-rules-065] Result Contract Frugality — result contracts limited to routing-significant data
+The only thing that returns from a sub-agent enters the orchestrator's cost function. Every byte in the result contract costs `byte × (remaining_dispatches - 1)`. Result contracts carry only routing-significant data (status, finding_summary, artifact_path, blocker_reason). Full evidence artifacts go to disk. See `020-go-prohibitions.md` §1.1.
+
+
 ### Tier 3 — Workflow-Standard (FLAG — Convention/Consistency)
 
 Rules that prevent **inconsistency or tech debt**: naming conventions, numbering, comment style, tool selection. Violations are flagged but do not halt.
@@ -794,6 +806,10 @@ ALL failures are agent-owned. Remediation is the default action. Escalation is o
 7. **Remediate autonomously, never escalate** — escalation is only for dire circumstances (infrastructure failure, model crash, credentials missing); skipping remediation is not a valid choice
 
 All failures are agent-owned. Remediation is the default action. Escalation is only permitted after verified remediation failure — never as a first response, never as a shortcut.
+
+
+### [critical-rules-066] Terminology Standardization — all context cost references must use standardized vocabulary
+All references to "context budget", "context cost", and "context awareness" must use the standardized vocabulary: "orchestrator context", "sub-agent context", and "orchestrator context discipline". See `020-go-prohibitions.md` §1.1 Terminology Standardization. CHANGELOG entries and historical references are exempt.
 
 
 ---
@@ -1970,4 +1986,56 @@ rules:
     requires: []
     triggers: [git-workflow, approval-gate, divide-and-conquer]
     source: "000-critical-rules.md §Pipeline re-priming"
+
+  - id: critical-rules-063
+    tier: 2
+    title: "Orchestrator Context Lean — orchestrator holds routing metadata only"
+    conditions:
+      all:
+        - "orchestrator_holds_non_routing_data == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [divide-and-conquer, approval-gate, verification-before-completion]
+    source: "000-critical-rules.md §critical-rules-063"
+
+  - id: critical-rules-064
+    tier: 2
+    title: "Sub-Agent Context Generosity — sub-agent encouraged to consume context freely"
+    conditions:
+      all:
+        - "sub_agent_conserving_context == true"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: [divide-and-conquer]
+    source: "000-critical-rules.md §critical-rules-064"
+
+  - id: critical-rules-065
+    tier: 2
+    title: "Result Contract Frugality — result contracts limited to routing-significant data"
+    conditions:
+      all:
+        - "result_contract_contains_non_routing_data == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [divide-and-conquer, verification-before-completion]
+    source: "000-critical-rules.md §critical-rules-065"
+
+  - id: critical-rules-066
+    tier: 3
+    title: "Terminology Standardization — all context cost references must use standardized vocabulary"
+    conditions:
+      all:
+        - "non_standard_context_terminology_used == true"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: [skill-creator, sync-guidelines]
+    source: "000-critical-rules.md §critical-rules-066"
 ```

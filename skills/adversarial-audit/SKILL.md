@@ -88,6 +88,8 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ### DISPATCH_GATE — Orchestrator Must Route, Never Execute Inline
 
+> **Context cost frame:** The orchestrator's context is the most expensive resource in the pipeline — sub-agents do the work, not the orchestrator. Every byte held by the orchestrator costs `byte × remaining_dispatches²`. See `020-go-prohibitions.md` §1.1.
+
 The orchestrator MUST NOT execute any audit operation directly. Every operation runs via clean-room sub-agent task().
 
 **Forbidden operations in orchestrator context:**
