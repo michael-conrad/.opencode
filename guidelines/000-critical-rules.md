@@ -490,7 +490,6 @@ An orchestrator that reads files, edits files, or makes decisions inline has sto
 | User said "continue" so mandatory checks are optional | Mandatory gates are structural invariants — "continue" is NOT authorization to skip |
 | Sub-agent skips defect detection in GREEN phase (code-complete without verification) | GREEN sub-agent MUST produce verification evidence before returning |
 | Orchestrator treats "continue" as waiver of a failed gate checkpoint | Failed gate is absolute stop — no task() proceeds past incomplete/failed gate; contamination requires full restart |
-| Orchestrator creates issue content inline (Edit on `.issues/` or direct `github_issue_write`) | Dispatch to `issue-operations --task creation`. **Fallback:** If `skill("issue-operations")` + `task()` is unavailable, use `github_issue_write` directly but MUST log tool name, version, and reason in a comment on the created issue. |
 
 
 ### [critical-rules-035] DISPATCH_GATE Checkpoint skipped
@@ -1316,22 +1315,6 @@ rules:
     requires: []
     triggers: [divide-and-conquer, verification-before-completion, git-workflow]
     source: "000-critical-rules.md §Inline Work"
-
-  - id: critical-rules-inline-issue-content
-    tier: 2
-    title: "Inline issue content creation — orchestrator editing .issues/ files or calling github_issue_write directly instead of dispatching to issue-operations"
-    conditions:
-      all:
-        - "is_orchestrator == true"
-        - "creating_issue_content_inline == true"
-        - "dispatched_to_issue_operations == false"
-    actions:
-      - HALT
-      - DISPATCH_TO(issue-operations --task creation)
-    conflicts_with: [critical-rules-034]
-    requires: []
-    triggers: [issue-operations, divide-and-conquer]
-    source: "000-critical-rules.md §Inline Work — Violation Patterns — Orchestrator creates issue content inline"
 
   - id: critical-rules-035
     tier: 2
