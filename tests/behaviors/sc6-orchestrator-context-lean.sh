@@ -1,13 +1,14 @@
 #!/bin/bash
 # Behavioral Enforcement Test: SC-6 — Orchestrator Context Lean
 #
-# Verifies the agent dispatches sub-agents per file when asked to make
-# 3 independent edits across 3 different files. Natural pipeline break.
+# GENERATES ARTIFACTS ONLY — no assertions. Runs the agent against the prompt
+# and captures stdout/stderr. A separate orchestrator step dispatches
+# clean-room adversarial auditors to compare RED vs GREEN artifacts.
 #
-# RED phase: Without §1.1, agent reads all 3 files inline, then edits.
-#   Expected: FAIL (inspector says agent pre-read files before dispatch).
-# GREEN phase: With §1.1, agent dispatches sub-agents per file.
-#   Expected: PASS (inspector says sub-agents dispatched per file).
+# RED phase: Run against commit WITHOUT §1.1 cost model.
+#   Expected artifact: agent reads files inline (pre-reads SKILL.md content).
+# GREEN phase: Run against commit WITH §1.1 cost model.
+#   Expected artifact: agent dispatches sub-agents per file.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
@@ -22,19 +23,11 @@ SCENARIO_PROMPT="You have been approved for_implementation for issue #100. Make 
 2. In git-workflow SKILL.md, change the Persona to: 'Git Workflow Enforcer. Enforces three-branch model with squash-on-PR discipline.'
 3. In adversarial-audit SKILL.md, change the Persona to: 'Adversarial Auditor. Applies cross-family model consensus for pipeline gate verification.'"
 
-echo "=== Behavioral Test: $SCENARIO_NAME (SC-6) ==="
+echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
-OVERALL_RESULT=0
-
-assert_semantic "SC-6" "The agent dispatches sub-agents per file (task() for each of the 3 edits) rather than reading all 3 SKILL.md files inline in its own context before editing. Sub-agent dispatch shows the orchestrator routes work to sub-agents. The agent does NOT read the full file content of all 3 SKILL.md files inline before dispatching." "required" || OVERALL_RESULT=1
-
-echo ""
-if [ "$OVERALL_RESULT" -eq 0 ]; then
-    echo "PASS: $SCENARIO_NAME"
-else
-    echo "FAIL: $SCENARIO_NAME"
-fi
-
-exit $OVERALL_RESULT
+echo "=== Artifacts written ==="
+echo "stdout: $BEHAVIOR_STDOUT"
+echo "stderr: $BEHAVIOR_STDERR"
+echo "log_dir: $BEHAVIOR_LOG_DIR/$SCENARIO_NAME"

@@ -1,14 +1,14 @@
 #!/bin/bash
 # Behavioral Enforcement Test: SC-7 — Sub-Agent Result Contract Frugality
 #
-# Verifies the sub-agent returns compact findings (write evidence to disk)
-# when doing analysis work. Tests with a multi-book character analysis task
-# where the sub-agent must process the file and return results.
+# GENERATES ARTIFACTS ONLY — no assertions. Runs the agent against the prompt
+# and captures stdout/stderr. A separate orchestrator step dispatches
+# clean-room adversarial auditors to compare RED vs GREEN artifacts.
 #
-# RED phase: Without §1.1, sub-agent returns full verbose analysis inline.
-#   Expected: FAIL.
-# GREEN phase: With §1.1, sub-agent writes to disk, returns compact contract.
-#   Expected: PASS.
+# RED phase: Run against commit WITHOUT §1.1 cost model.
+#   Expected artifact: sub-agent returns verbose analysis inline.
+# GREEN phase: Run against commit WITH §1.1 cost model.
+#   Expected artifact: sub-agent writes evidence to disk, returns compact summary.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
@@ -20,19 +20,11 @@ source "$SCRIPT_DIR/helpers.sh"
 SCENARIO_NAME="sc7-sub-agent-result-contract-frugality"
 SCENARIO_PROMPT="You have been approved for_implementation for issue #100 which requires a full audit of all personae across all skills. Task a sub-agent to compile every Persona section from every SKILL.md file into a single report, organized by skill name. Write the full report to a file in ./tmp/ and return only a summary."
 
-echo "=== Behavioral Test: $SCENARIO_NAME (SC-7) ==="
+echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
-OVERALL_RESULT=0
-
-assert_semantic "SC-7" "The sub-agent writes the full persona compilation report to a file on disk (in ./tmp/ or equivalent) and returns only a compact summary to the orchestrator. The agent's visible output is a brief summary referencing the disk artifact, not the full multi-skill persona report inline." "required" || OVERALL_RESULT=1
-
-echo ""
-if [ "$OVERALL_RESULT" -eq 0 ]; then
-    echo "PASS: $SCENARIO_NAME"
-else
-    echo "FAIL: $SCENARIO_NAME"
-fi
-
-exit $OVERALL_RESULT
+echo "=== Artifacts written ==="
+echo "stdout: $BEHAVIOR_STDOUT"
+echo "stderr: $BEHAVIOR_STDERR"
+echo "log_dir: $BEHAVIOR_LOG_DIR/$SCENARIO_NAME"

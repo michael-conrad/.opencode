@@ -1,14 +1,14 @@
 #!/bin/bash
 # Behavioral Enforcement Test: SC-8 — Sub-Agent Context Generosity
 #
-# Verifies the sub-agent reads files fully in its own context rather than
-# asking the orchestrator to summarize/excerpt. Tests by giving the agent
-# a task where it must read multi-section files to find information.
+# GENERATES ARTIFACTS ONLY — no assertions. Runs the agent against the prompt
+# and captures stdout/stderr. A separate orchestrator step dispatches
+# clean-room adversarial auditors to compare RED vs GREEN artifacts.
 #
-# RED phase: Without §1.1, agent pre-reads files or asks "which section?".
-#   Expected: FAIL.
-# GREEN phase: With §1.1, sub-agent reads full files without asking.
-#   Expected: PASS.
+# RED phase: Run against commit WITHOUT §1.1 cost model.
+#   Expected artifact: agent pre-reads guideline files or asks to narrow scope.
+# GREEN phase: Run against commit WITH §1.1 cost model.
+#   Expected artifact: sub-agent reads full files without asking for guidance.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
@@ -20,19 +20,11 @@ source "$SCRIPT_DIR/helpers.sh"
 SCENARIO_NAME="sc8-sub-agent-context-generosity"
 SCENARIO_PROMPT="You have been approved for_implementation for issue #100. The issue affects 3 guidelines: 020-go-prohibitions.md §1, 000-critical-rules.md §Tier 2, and 080-code-standards.md §Evidence Type Taxonomy. Read the relevant sections from each, find any rules that contradict each other, and report the conflicts."
 
-echo "=== Behavioral Test: $SCENARIO_NAME (SC-8) ==="
+echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
-OVERALL_RESULT=0
-
-assert_semantic "SC-8" "The agent dispatches a sub-agent to read the guideline sections fully in sub-agent context, rather than pre-reading the files inline in the orchestrator context before dispatching. The agent does NOT read the file contents inline first. The sub-agent reads the content itself." "required" || OVERALL_RESULT=1
-
-echo ""
-if [ "$OVERALL_RESULT" -eq 0 ]; then
-    echo "PASS: $SCENARIO_NAME"
-else
-    echo "FAIL: $SCENARIO_NAME"
-fi
-
-exit $OVERALL_RESULT
+echo "=== Artifacts written ==="
+echo "stdout: $BEHAVIOR_STDOUT"
+echo "stderr: $BEHAVIOR_STDERR"
+echo "log_dir: $BEHAVIOR_LOG_DIR/$SCENARIO_NAME"
