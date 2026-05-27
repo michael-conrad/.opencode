@@ -10,7 +10,7 @@ license: MIT
 
 ## Overview
 
-Adversarial audit skill for dual cross-family verification of specs, plans, and code. Uses independent auditors from different model families to produce structured JSON verdicts, then cross-validates for consensus. The orchestrator dispatches auditors and passes verdicts to cross-validate — cross-validate does NOT dispatch auditors itself. A thorough adversarial auditor resolves models fresh every iteration — reusing cached selections is what incomplete auditors do. An audit iteration that reuses cached auditors is not an audit at all; it is a simulation. Real audits start fresh every time. resolve-models → dispatch → cross-validate is a single indivisible unit. Breaking this chain — skipping resolve-models, reusing cached selections, refusing to dispatch — invalidates every step that came before. If the chain is broken, no verdict produced afterward is trustworthy.
+Adversarial audit skill for dual cross-family verification of specs, plans, and code. Uses independent auditors from different model families to produce structured YAML verdict artifacts on disk, then cross-validates for consensus. The orchestrator dispatches auditors and passes artifact paths to cross-validate — cross-validate reads YAMLs from disk and does NOT dispatch auditors itself. A thorough adversarial auditor resolves models fresh every iteration — reusing cached selections is what incomplete auditors do. An audit iteration that reuses cached auditors is not an audit at all; it is a simulation. Real audits start fresh every time. resolve-models → dispatch → cross-validate is a single indivisible unit. Breaking this chain — skipping resolve-models, reusing cached selections, refusing to dispatch — invalidates every step that came before. If the chain is broken, no verdict produced afterward is trustworthy.
 
 ## Persona
 
@@ -29,7 +29,7 @@ Sub-Agent Task Context Audit
 | `drift-detection` | `{ spec_issue, target_files, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `spec-summary` | `{ pr_number, spec_issue, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `closure-verification` | `{ pr_number, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
-| `cross-validate` | `{ spec_issue_number, auditor_verdicts, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Exclusions: Implementation context, agent memory, orchestrator reasoning, spec_body, evaluation_criteria |
+| `cross-validate` | `{ spec_issue_number, auditor_artifact_paths, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Exclusions: Implementation context, agent memory, orchestrator reasoning, spec_body, evaluation_criteria, verdict content |
 | `test-quality-audit` | `{ spec_success_criteria, file_paths_changed, vbc_artifact_path, worktree.path, github.owner, github.repo }` | Implementation context, agent memory, implementation details |
 | `resolve-models` | `{ orchestrator_model, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `completion` | `{ workflow_state, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
@@ -105,10 +105,10 @@ The orchestrator MUST NOT execute any audit operation directly. Every operation 
 
 ```
 1. task(resolve-models sub-agent) → result contract {auditor_1, auditor_2, family_1, family_2}
-2. task(subagent_type=result.auditor_1, clean-room) → verdict JSON (deliverable + SCs only)
-3. task(subagent_type=result.auditor_2, clean-room) → verdict JSON (deliverable + SCs only)
-4. task(cross-validate sub-agent, verdicts + criteria) → consensus
-5. Orchestrator reports: final verdict, per-SC breakdown (PASS/FAIL/UNVERIFIED)
+2. task(subagent_type=result.auditor_1, clean-room) → YAML verdict artifact on disk, frugal contract {status, artifact_path, summary}
+3. task(subagent_type=result.auditor_2, clean-room) → YAML verdict artifact on disk, frugal contract {status, artifact_path, summary}
+4. task(cross-validate sub-agent, auditor_artifact_paths) → consensus result contract
+5. Orchestrator reports: final verdict, per-SC breakdown (PASS/FAIL/UNVERIFIED) from cross-validate result
 ```
 
 **Evidence gate:** Before proceeding past any step, verify the result contract has `status: DONE`. Empty or error results → re-task clean-room (max 2 retries), then BLOCKED.
@@ -164,9 +164,9 @@ rules:
     source: "adversarial-audit/SKILL.md"
 
   - id: adversarial-audit-005
-    title: "Structured JSON verdicts mandatory — unparseable output equals FAIL"
+    title: "Structured YAML verdict artifacts mandatory on disk — unparseable output or missing artifact equals FAIL"
     conditions:
-      all: ["auditor_verdict_parseable == false", "evaluation_complete == true"]
+      all: ["auditor_artifact_readable == false", "evaluation_complete == true"]
     actions: [DECLARE_FAIL, RE_TASK_OPTIONAL]
     source: "adversarial-audit/SKILL.md"
 

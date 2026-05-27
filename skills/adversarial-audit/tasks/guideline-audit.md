@@ -144,8 +144,8 @@ pr_strategy: {pr_strategy}
 pipeline_phase: {pipeline_phase}
 
 # NOTE: cross-validate does NOT dispatch auditors — it receives
-# pre-resolved auditor_verdicts and computes consensus.
-auditor_verdicts: {auditor_verdicts}
+# pre-resolved auditor_artifact_paths and reads YAMLs from disk.
+auditor_artifact_paths: {auditor_artifact_paths}
 
 worktree.path: {worktree.path}
 github.owner: {github.owner}
@@ -182,27 +182,43 @@ Fix: <fix_action>
 ...
 ```
 
-### Step 7: Build Result Contract
+### Step 7: Write Verdict Artifact to Disk
 
-```json
-{
-  "status": "DONE",
-  "audit_type": "guideline-audit",
-  "files_audited": <N>,
-  "problems_found": <M>,
-  "problem_breakdown": {
-    "AMBIGUOUS": <count>,
-    "CONFLICTING": <count>,
-    "UNENFORCEABLE": <count>,
-    "REDUNDANT-CROSS-FILE": <count>,
-    "MISSING": <count>,
-    "CONTEXT-OVERFLOW": <count>
-  },
-  "cross_validation": [...],
-  "overall_consensus": "PASS | FAIL",
-  "report_path": "./tmp/artifacts/audit-guideline-<issue>.md",
-  "exec_summary": "Guideline audit: {files} files, {problems} problems. Consensus: {overall}."
-}
+Write the full YAML verdict artifact to `./tmp/artifacts/pipeline-{issue_number}-audit-guideline-audit-{STATUS}-{timestamp}.yaml`:
+
+```yaml
+audit_phase: guideline_update
+auditor_type: guideline-audit
+family: <family>
+issue_number: <N>
+generated_at: "<timestamp>"
+orchestrator_model: "<model>"
+files_audited: N
+problems_found: M
+problem_breakdown:
+  AMBIGUOUS: 0
+  CONFLICTING: 0
+  UNENFORCEABLE: 0
+  REDUNDANT-CROSS-FILE: 0
+  MISSING: 0
+  CONTEXT-OVERFLOW: 0
+per_criterion:
+  - criterion_id: "GA-1"
+    result: "PASS"
+    evidence: "<tool-call reference>"
+    explanation: "<reasoning>"
+    remediation: ""
+    next_step: "proceed"
+report_path: "./tmp/artifacts/audit-guideline-<issue>.md"
+exec_summary: "Guideline audit: N files, M problems. Consensus: PASS|FAIL."
+```
+
+### Step 8: Return Frugal Result Contract
+
+```yaml
+status: DONE
+artifact_path: "./tmp/artifacts/pipeline-{issue_number}-audit-guideline-audit-PASS-{timestamp}.yaml"
+summary: "N files audited, M problems found. X/Y criteria PASS."
 ```
 
 ## Error Handling
@@ -218,7 +234,7 @@ Fix: <fix_action>
 This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
 1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
 2. Dispatching auditor sub-agents in parallel
-3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_verdicts`
+3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_artifact_paths`
 
 This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
 

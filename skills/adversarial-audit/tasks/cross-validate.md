@@ -12,8 +12,9 @@ Accept an evidence payload, evaluation criteria, and pre-resolved auditor verdic
 
 - `spec_issue_number`: Spec issue number to fetch independently via GitHub API
 - `github.owner`, `github.repo`: For API calls to fetch spec
-- `auditor_verdicts`: Pre-resolved array of two verdict objects from the orchestrator, each containing `{ auditor_type, family, raw_verdict, parseable }` — resolved by `resolve-models` and dispatched by the orchestrator BEFORE this task
+- `auditor_artifact_paths`: Array of two artifact paths from the orchestrator, pointing to YAML verdict files on disk — resolved by `resolve-models`, written by auditor task dispatch, and passed by the orchestrator BEFORE this task
 - Lightweight audit-type structural criteria (SC-1/PF-1/CS-1/GA-1 templates) provided as task-file-defined templates WITHOUT embedded spec SC content
+- `auditor_metadata`: Optional array of `{ auditor_type, family, parseable }` for auditor identity context
 
 ### Step 0: Fetch Spec Independently
 
@@ -81,8 +82,9 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 | Gate | Condition | Error Code | Action |
 |------|-----------|------------|--------|
 | MISSING_INPUT | `spec_issue_number` missing or empty, or spec not fetchable | `MISSING_INPUT` | Return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }` |
-| MISSING_VERDICTS | `auditor_verdicts` missing, null, or empty array | `MISSING_VERDICTS` | Return `{ status: "BLOCKED", error: "MISSING_VERDICTS" }` |
-| INSUFFICIENT_FAMILIES | `auditor_verdicts` contains fewer than 2 entries OR both auditors share the same family | `INSUFFICIENT_FAMILIES` | Return `{ status: "BLOCKED", error: "INSUFFICIENT_FAMILIES" }` |
+| MISSING_ARTIFACT_PATHS | `auditor_artifact_paths` missing, null, or empty array | `MISSING_ARTIFACT_PATHS` | Return `{ status: "BLOCKED", error: "MISSING_ARTIFACT_PATHS" }` |
+| ARTIFACT_UNREADABLE | Auditor YAML artifact file cannot be read or parsed | `ARTIFACT_UNREADABLE` | Return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }` |
+| INSUFFICIENT_ARTIFACTS | `auditor_artifact_paths` contains fewer than 2 entries OR both auditors share the same family | `INSUFFICIENT_ARTIFACTS` | Return `{ status: "BLOCKED", error: "INSUFFICIENT_ARTIFACTS" }` |
 
 These gates are **non-recovery** per adversarial-audit-017. Do NOT attempt to resolve models inline, re-dispatch auditors, or fabricate verdicts. The ONLY valid path is: resolve-models → auditor dispatch → cross-validate with results. NO fallback, NO single-auditor mode, NO alternative paths.
 
@@ -99,17 +101,18 @@ Before consensus, check each auditor's verdict for AUDIT_FAIL entries:
 
 Confirm `spec_issue_number` is present and non-empty. Fetch the spec via `github_issue_read(method="get", owner, repo, issue_number=spec_issue_number)`. If `spec_issue_number` is missing or the spec cannot be fetched: return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }`.
 
-### Step 2: Validate Pre-Resolved Verdicts
+### Step 2: Validate Auditor Artifact Paths
 
-Confirm `auditor_verdicts` is present, non-null, and contains exactly two entries from different model families. Each entry MUST contain `{ auditor_type, family, raw_verdict, parseable }`.
+Confirm `auditor_artifact_paths` is present, non-null, and contains exactly two paths pointing to existing YAML files on disk. Each entry MUST contain `{ artifact_path, auditor_type, family, parseable }`. Read each YAML file via `read` tool to verify it exists and is parseable.
 
-- If `auditor_verdicts` is missing or null: return `{ status: "BLOCKED", error: "MISSING_VERDICTS" }`.
-- If `auditor_verdicts` has fewer than 2 entries: return `{ status: "BLOCKED", error: "INSUFFICIENT_FAMILIES" }`.
+- If `auditor_artifact_paths` is missing or null: return `{ status: "BLOCKED", error: "MISSING_ARTIFACT_PATHS" }`.
+- If `auditor_artifact_paths` has fewer than 2 entries: return `{ status: "BLOCKED", error: "INSUFFICIENT_ARTIFACTS" }`.
+- If either artifact file cannot be read: return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }`.
 - If both entries share the same `family`: return `{ status: "BLOCKED", error: "INSUFFICIENT_FAMILIES" }`.
 
-### Step 3: Parse Auditor Verdicts
+### Step 3: Read and Parse Auditor Verdicts from Disk
 
-Each entry in `auditor_verdicts` contains a `raw_verdict` field with YAML block document format (with `---` delimiters). Expected format per verdict:
+For each entry in `auditor_artifact_paths`, read the YAML verdict file from disk using the `read` tool. Each file contains the full YAML verdict artifact. Expected format per verdict file:
 
 ```
 ---
@@ -138,11 +141,11 @@ Validation rules per verdict:
 - `remediation` MUST be present when result is not PASS
 - `next_step` MUST be one of: `proceed`, `re-evaluate`, `escalate`
 
-If an auditor's `raw_verdict` is unparseable YAML, missing the `---` delimiters, or contains no recognizable criterion ids: treat the entire auditor's contribution as `FAIL` for ALL criteria. Do NOT re-task — the protocol requires accepting real output, not retrying until PASS is obtained.
+If an auditor's YAML artifact is unparseable, missing the expected fields, or contains no recognizable criterion ids: treat the entire auditor's contribution as `FAIL` for ALL criteria. Do NOT re-task — the protocol requires accepting real output, not retrying until PASS is obtained.
 
-If an auditor's `raw_verdict` has extra criterion ids not in `evaluation_criteria`: ignore extra verdicts, flag in result contract as `EXTRA_VERDICTS` warning.
+If an auditor's YAML artifact has extra criterion ids not in `evaluation_criteria`: ignore extra verdicts, flag in result contract as `EXTRA_VERDICTS` warning.
 
-If an auditor's `raw_verdict` is missing a criterion id from `evaluation_criteria`: treat that criterion as `FAIL` for that auditor with explanation `"MISSING_VERDICT"`.
+If an auditor's YAML artifact is missing a criterion id from `evaluation_criteria`: treat that criterion as `FAIL` for that auditor with explanation `"MISSING_VERDICT"`.
 
 ### Step 4: Cross-Reference Verdicts — Monotonic Non-Increasing Invariant
 
@@ -295,19 +298,9 @@ Return structured result:
   "status": "DONE",
   "overall_consensus": "PASS|FAIL",
   "next_step": "proceed|remediate then re-audit",
-  "auditor_verdicts": [
-    {
-      "auditor_type": "auditor-glm-5.1",
-      "family": "glm",
-      "parseable": true,
-      "raw_verdict": "[...]"
-    },
-    {
-      "auditor_type": "auditor-mistral-large",
-      "family": "mistral",
-      "parseable": true,
-      "raw_verdict": "[...]"
-    }
+  "auditor_artifact_paths": [
+    "./tmp/artifacts/pipeline-928-audit-auditor-glm-5-done-20260527T030000Z.yaml",
+    "./tmp/artifacts/pipeline-928-audit-auditor-mistral-large-done-20260527T030100Z.yaml"
   ],
   "cross_validation": [
     {
@@ -347,21 +340,22 @@ The `next_step` field:
 ## Context Required
 
 - `spec_issue_number`: Spec issue number to fetch independently via GitHub API
-- `auditor_verdicts`: Pre-resolved array of two verdict objects from orchestrator (each with `{ auditor_type, family, raw_verdict, parseable }`)
+- `auditor_artifact_paths`: Pre-resolved array of two artifact paths from orchestrator (each with `{ artifact_path, auditor_type, family, parseable }`)
 - `audit_phase`: Current audit phase for task context
 - `github.owner`, `github.repo`: For API calls to fetch spec
 
 ## Red Flags
 
-- Never task() auditors from within cross-validate — the orchestrator dispatches auditors, cross-validate receives verdicts only
+- Never task() auditors from within cross-validate — the orchestrator dispatches auditors, cross-validate receives artifact paths only
 - Never leak orchestrator reasoning into verdict parsing — clean-room means evidence + criteria ONLY
 - Never soft-pass a mismatch — `PASS`/`FAIL` split = FAIL per adversarial-audit-004
-- Never fabricate verdicts when auditor output is unparseable — missing data = FAIL per adversarial-audit-005
+- Never fabricate verdicts when auditor YAML artifact is unreadable or unparseable — missing data = FAIL per adversarial-audit-005
 - Never accept memory-cached claims as evidence — every verdict must reference a live tool call
 - Never re-task an auditor after a FAIL verdict — FAIL stays FAIL
 - Never resolve auditors inline — `resolve-models` is called by orchestrator before this task
 - Never bypass dark pattern enforcement — Step 6 checks are MANDATORY per adversarial-audit-013 through adversarial-audit-018
 - Never attempt recovery from BLOCKED status — Non-Recovery Gates are terminal per adversarial-audit-017
+- Never pass YAML verdict content inline through orchestrator context — verdict artifacts stay on disk; only artifact_path reaches orchestrator
 
 ## Cross-References
 
@@ -391,7 +385,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|---|
-| `spec_issue_number`, `auditor_verdicts`, `audit_phase`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `github.owner`, `github.repo` | Implementation context, agent memory, orchestrator reasoning, prior verification, spec_body, evaluation_criteria | N/A — cross-validate receives verdicts, does not dispatch auditors | NO |
+| `spec_issue_number`, `auditor_artifact_paths`, `audit_phase`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `github.owner`, `github.repo` | Implementation context, agent memory, orchestrator reasoning, prior verification, spec_body, evaluation_criteria, verdict content | N/A — cross-validate receives artifact paths, does not dispatch auditors | NO |
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -405,10 +399,10 @@ rules:
     source: "cross-validate.md §Step 1"
 
   - id: cross-validate-002
-    title: "Pre-resolved verdicts must be provided by orchestrator — cross-validate does not dispatch auditors"
+    title: "Pre-resolved artifact paths must be provided by orchestrator — cross-validate does not dispatch auditors"
     conditions:
-      all: ["auditor_verdicts == null OR auditor_verdicts_count < 2"]
-    actions: [RETURN_BLOCKED, REPORT_MISSING_VERDICTS]
+      all: ["auditor_artifact_paths == null OR auditor_artifact_paths_count < 2"]
+    actions: [RETURN_BLOCKED, REPORT_MISSING_ARTIFACT_PATHS]
     source: "cross-validate.md §Step 2"
 
   - id: cross-validate-003
@@ -542,9 +536,9 @@ rules:
     source: "cross-validate.md §Step 6"
 
   - id: cross-validate-018
-    title: "Non-recovery gate — MISSING_INPUT, MISSING_VERDICTS, INSUFFICIENT_FAMILIES are terminal with no fallback"
+    title: "Non-recovery gate — MISSING_INPUT, MISSING_ARTIFACT_PATHS, ARTIFACT_UNREADABLE, INSUFFICIENT_ARTIFACTS are terminal with no fallback"
     conditions:
-      any: ["error == 'MISSING_INPUT'", "error == 'MISSING_VERDICTS'", "error == 'INSUFFICIENT_FAMILIES'"]
+      any: ["error == 'MISSING_INPUT'", "error == 'MISSING_ARTIFACT_PATHS'", "error == 'ARTIFACT_UNREADABLE'", "error == 'INSUFFICIENT_ARTIFACTS'"]
     actions: [RETURN_BLOCKED, NO_RECOVERY]
     source: "cross-validate.md §Non-Recovery Gates"
 ```

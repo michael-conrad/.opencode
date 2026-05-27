@@ -125,8 +125,8 @@ pr_strategy: {pr_strategy}
 pipeline_phase: {pipeline_phase}
 
 # NOTE: cross-validate does NOT dispatch auditors — it receives
-# pre-resolved auditor_verdicts and computes consensus.
-auditor_verdicts: {auditor_verdicts}
+# pre-resolved auditor_artifact_paths and reads YAMLs from disk.
+auditor_artifact_paths: {auditor_artifact_paths}
 
 worktree.path: {worktree.path}
 github.owner: {github.owner}
@@ -179,33 +179,44 @@ if follow_up_issues:
 | OPEN_BLOCKERS | HIGH | Blocking issues remain |
 | FOLLOW_UP_NOT_OPEN | MEDIUM | Follow-up issue closed |
 
-### Step 12: Build Result Contract
+### Step 12: Write Verdict Artifact to Disk
 
-```json
-{
-  "status": "DONE",
-  "audit_type": "closure-verification",
-  "pr_number": <N>,
-  "spec_issue": <M>,
-  "merge_status": {
-    "pr_merged": true,
-    "spec_closed": true | false,
-    "closing_commit": "<sha>"
-  },
-  "success_criteria_verification": [
-    {
-      "criterion": "<SC-1>",
-      "verified": true | false | null,
-      "evidence": "<tool-call reference>",
-      "manual_required": false | true
-    }
-  ],
-  "follow_up_issues": [...],
-  "blocking_issues": [...],
-  "cross_validation": [...],
-  "overall_consensus": "PASS | FAIL",
-  "exec_summary": "Closure verification: {verified_count}/{total} criteria verified. Consensus: {overall}."
-}
+Write the full YAML verdict artifact to `./tmp/artifacts/pipeline-{issue_number}-audit-closure-verification-{STATUS}-{timestamp}.yaml`:
+
+```yaml
+audit_phase: post_merge
+auditor_type: closure-verification
+family: <family>
+issue_number: <N>
+generated_at: "<timestamp>"
+orchestrator_model: "<model>"
+merge_status:
+  pr_merged: true
+  spec_closed: true
+  closing_commit: "<sha>"
+success_criteria_verification:
+  - criterion: "CV-1"
+    verified: true
+    evidence: "<tool-call reference>"
+    manual_required: false
+follow_up_issues: []
+blocking_issues: []
+per_criterion:
+  - criterion_id: "CV-1"
+    result: "PASS"
+    evidence: "<tool-call reference>"
+    explanation: "<reasoning>"
+    remediation: ""
+    next_step: "proceed"
+exec_summary: "Closure verification: X/Y criteria. Consensus: PASS|FAIL."
+```
+
+### Step 13: Return Frugal Result Contract
+
+```yaml
+status: DONE
+artifact_path: "./tmp/artifacts/pipeline-{issue_number}-audit-closure-verification-PASS-{timestamp}.yaml"
+summary: "N criteria evaluated. X PASS, Y FAIL."
 ```
 
 ## Error Handling
@@ -221,7 +232,7 @@ if follow_up_issues:
 This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
 1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
 2. Dispatching auditor sub-agents in parallel
-3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_verdicts`
+3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_artifact_paths`
 
 This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
 
