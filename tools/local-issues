@@ -42,6 +42,7 @@ Commands:
     comment NNN --body TEXT                  Append comment
     close  NNN                               Close issue (move to closed/)
     promote NNN                              Check promotion readiness
+    push                                    Push issues-data branch to remote
     sync   NNN [--direction pull|push]       Sync local/remote (stub)
     sync-push NNN                            Push remote.md body to GitHub
     sync-pull NNN                            Pull remote body to remote.md
@@ -635,6 +636,14 @@ def cmd_setup(
                     print(
                         f"Idempotent: .issues/ worktree already established on {ISSUES_DATA_BRANCH} branch"
                     )
+                    # Idempotent re-entry: verify upstream tracking exists; push if not
+                    tracking = _git(["config", f"branch.{ISSUES_DATA_BRANCH}.remote"], check=False)
+                    if tracking.returncode != 0 or tracking.stdout.strip() != "origin":
+                        push_result = _git(["push", "-u", "origin", ISSUES_DATA_BRANCH], check=False)
+                        if push_result.returncode != 0:
+                            print("ERROR: upstream tracking missing and push failed.", file=sys.stderr)
+                            return 1
+                        print(f"  Restored upstream tracking: pushed {ISSUES_DATA_BRANCH} to origin")
                     return 0
                 # worktree exists but on different branch — still idempotent
                 print(
@@ -825,6 +834,16 @@ def cmd_setup(
         return 1
     else:
         print(f"  Pushed {ISSUES_DATA_BRANCH} to origin")
+
+    # Verify upstream tracking was established
+    tracking_check = _git(["config", f"branch.{ISSUES_DATA_BRANCH}.remote"], check=False)
+    if tracking_check.returncode != 0 or tracking_check.stdout.strip() != "origin":
+        print(
+            f"ERROR: Push completed but upstream tracking not set for {ISSUES_DATA_BRANCH}.",
+            file=sys.stderr,
+        )
+        _git(["push", "-u", "origin", ISSUES_DATA_BRANCH], check=False)
+        return 1
 
     if parent and is_submodule:
         return _setup_parent_worktree(repo_root)
@@ -1405,13 +1424,47 @@ def cmd_list(status: str | None = None) -> int:
     return cmd_search(status=status)
 
 
+def cmd_push() -> int:
+    """Push pending issues-data commits to remote."""
+    repo_root = _git(["rev-parse", "--show-toplevel"]).stdout.strip()
+    issues_path = os.path.join(repo_root, ISSUES_DIR)
+
+    if not os.path.isdir(issues_path):
+        print("ERROR: .issues/ not found. Run local-issues setup first.", file=sys.stderr)
+        return 1
+
+    # Check if tracking branch exists
+    tracking = _git(["config", f"branch.{ISSUES_DATA_BRANCH}.remote"], check=False)
+    if tracking.returncode != 0 or tracking.stdout.strip() != "origin":
+        first_push = _git(["push", "-u", "origin", ISSUES_DATA_BRANCH], check=False)
+        if first_push.returncode != 0:
+            print(f"ERROR: Failed to set upstream and push {ISSUES_DATA_BRANCH}.", file=sys.stderr)
+            return 1
+        print(f"  Set upstream and pushed {ISSUES_DATA_BRANCH}")
+        return 0
+
+    # Check for unpushed commits
+    ahead = _git(["rev-list", "--count", f"origin/{ISSUES_DATA_BRANCH}..{ISSUES_DATA_BRANCH}"], check=False)
+    if ahead.returncode == 0 and ahead.stdout.strip() == "0":
+        print(f"  {ISSUES_DATA_BRANCH} is up to date (no unpushed commits)")
+        return 0
+
+    push_result = _git(["push", "origin", ISSUES_DATA_BRANCH], check=False)
+    if push_result.returncode != 0:
+        print(f"ERROR: Failed to push {ISSUES_DATA_BRANCH}.", file=sys.stderr)
+        return 1
+
+    print(f"  Pushed {ISSUES_DATA_BRANCH} to origin ({ahead.stdout.strip()} commit(s))")
+    return 0
+
+
 def main() -> int:
     args = sys.argv[1:]
     if not args:
         print("Usage: local-issues <command> [options]", file=sys.stderr)
         print(
             "Commands: create, read, review, update, comment, close, link, promote, "
-            "sync, sync-push, sync-pull, setup, search, list",
+            "push, setup, sync, sync-push, sync-pull, search, list",
             file=sys.stderr,
         )
         return 1
@@ -1421,7 +1474,8 @@ def main() -> int:
     if command in ("--help", "-h"):
         print("Usage: local-issues <command> [options]", file=sys.stderr)
         print(
-            "Commands: create, read, review, update, comment, close, link, promote, sync, sync-push, sync-pull, setup, search, list",
+            "Commands: create, read, review, update, comment, close, link, promote, "
+            "push, setup, sync, sync-push, sync-pull, search, list",
             file=sys.stderr,
         )
         return 0
@@ -1668,6 +1722,9 @@ def main() -> int:
             print("Error: invalid issue number", file=sys.stderr)
             return 1
         return cmd_sync_pull(num)
+
+    elif command == "push":
+        return cmd_push()
 
     elif command == "setup":
         parent = False

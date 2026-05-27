@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: 578-sc21-behavioral-skill-frontmatter-validation
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # SC-21 (behavioral): Agent discovers previously-broken skills in available_skills
 #
 # Behavioral test for spec #578 SC-21.

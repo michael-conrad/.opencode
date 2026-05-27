@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: model-aware-clean-room-dispatch
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: model-aware-clean-room-dispatch
 #
 # Tests that behavioral enforcement tests are run via clean-room opencode-cli run

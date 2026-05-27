@@ -131,8 +131,8 @@ pr_strategy: {pr_strategy}
 pipeline_phase: {pipeline_phase}
 
 # NOTE: cross-validate does NOT dispatch auditors — it receives
-# pre-resolved auditor_verdicts and computes consensus.
-auditor_verdicts: {auditor_verdicts}
+# pre-resolved auditor_artifact_paths and reads YAMLs from disk.
+auditor_artifact_paths: {auditor_artifact_paths}
 
 worktree.path: {worktree.path}
 github.owner: {github.owner}
@@ -179,7 +179,7 @@ github.repo: {github.repo}
 This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
 1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
 2. Dispatching auditor sub-agents in parallel
-3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_verdicts`
+3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_artifact_paths`
 
 This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
 

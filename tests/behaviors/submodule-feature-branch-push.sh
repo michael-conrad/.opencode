@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: submodule-feature-branch-push
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Submodule Feature Branch Push (SC-5, SC-9)
 #
 # Verifies the agent pushes submodule feature branches (not dev) with tip tags.

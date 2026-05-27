@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: functional-test-substitution-prohibited
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: functional-test-substitution-prohibited
 # Verifies that when a behavioral/functional test cannot be executed,
 # the agent reports FAIL rather than substituting structural checks.

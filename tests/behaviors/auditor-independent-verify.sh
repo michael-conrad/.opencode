@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: auditor-independent-verify
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Auditor Independent Live-Doc Verification (SC-8 from #381)
 #
 # Verifies that auditor agents independently fetch live documentation when

@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: byline-enforcement-pr-creation
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Byline Enforcement on github_create_pull_request
 #
 # Verifies that when an agent creates a PR, the PR body includes an

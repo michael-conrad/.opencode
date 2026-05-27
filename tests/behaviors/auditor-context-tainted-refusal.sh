@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: auditor-context-tainted-refusal
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Auditor Context-Tainted Refusal (SC-8 from #397)
 #
 # Verifies that context-tainted dispatch is detected and refused. When

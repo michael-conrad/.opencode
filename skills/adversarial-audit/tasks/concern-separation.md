@@ -81,8 +81,8 @@ pr_strategy: {pr_strategy}
 pipeline_phase: {pipeline_phase}
 
 # NOTE: cross-validate does NOT dispatch auditors — it receives
-# pre-resolved auditor_verdicts and computes consensus.
-auditor_verdicts: {auditor_verdicts}
+# pre-resolved auditor_artifact_paths and reads YAMLs from disk.
+auditor_artifact_paths: {auditor_artifact_paths}
 
 worktree.path: {worktree.path}
 github.owner: {github.owner}
@@ -111,26 +111,45 @@ Each boundary claim must be verified:
 | "Phase is deployment-independent" | `srclight_get_callers(symbol_name)` → check cross-phase calls |
 | "Risk classification accurate" | `srclight_get_dependents(symbol_name, transitive=true)` → count affected |
 
-### Step 7: Build Result Contract
+### Step 7: Write Verdict Artifact to Disk
 
-```json
-{
-  "status": "DONE",
-  "audit_type": "concern-separation",
-  "phases_analyzed": <count>,
-  "phase_analyses": [...],
-  "cross_validation": [...],
-  "overall_consensus": "PASS | FAIL",
-  "findings": [
-    {
-      "type": "BOILERPLATE_TITLE",
-      "phase": "Implementation",
-      "recommendation": "Consider splitting into Data Layer, Business Logic, Presentation phases",
-      "classification": "flag-for-review"
-    }
-  ],
-  "exec_summary": "Concern separation: {pass_count}/{total} criteria. {findings} phases need review."
-}
+Write the full YAML verdict artifact to `./tmp/artifacts/pipeline-{issue_number}-audit-concern-separation-{STATUS}-{timestamp}.yaml`:
+
+```yaml
+audit_phase: concern_separation
+auditor_type: concern-separation
+family: <family>
+issue_number: <N>
+generated_at: "<timestamp>"
+orchestrator_model: "<model>"
+phases_analyzed: N
+phase_analyses:
+  - phase_name: "<phase>"
+    concern: "<concern>"
+    risk_profile: "<high|medium|low>"
+    deployment_independence: true
+    blast_radius: "<contained|cross-phase>"
+per_criterion:
+  - criterion_id: "CS-1"
+    result: "PASS"
+    evidence: "<tool-call reference>"
+    explanation: "<reasoning>"
+    remediation: ""
+    next_step: "proceed"
+findings:
+  - type: "BOILERPLATE_TITLE"
+    phase: "<phase>"
+    classification: "flag-for-review"
+    recommendation: "<recommendation>"
+exec_summary: "Concern separation: X/Y criteria. N phases need review."
+```
+
+### Step 8: Return Frugal Result Contract
+
+```yaml
+status: DONE
+artifact_path: "./tmp/artifacts/pipeline-{issue_number}-audit-concern-separation-PASS-{timestamp}.yaml"
+summary: "N criteria evaluated. X PASS, Y FAIL."
 ```
 
 ## Edge Cases
@@ -146,7 +165,7 @@ Each boundary claim must be verified:
 This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
 1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
 2. Dispatching auditor sub-agents in parallel
-3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_verdicts`
+3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_artifact_paths`
 
 This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
 

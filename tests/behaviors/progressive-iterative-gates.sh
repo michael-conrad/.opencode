@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: progressive-iterative-gates
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Progressive Iterative Gates
 #
 # Verifies that the agent follows progressive iterative gate discipline,

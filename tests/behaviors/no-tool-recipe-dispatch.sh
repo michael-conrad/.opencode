@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: no-tool-recipe-dispatch
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: no-tool-recipe-dispatch
 # Verifies that sub-agent task context contains task OBJECTIVES (WHAT to accomplish),
 # not tool RECIPES (HOW to accomplish it — MCP tool names, parameter lists, file paths).

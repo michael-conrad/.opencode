@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: auditor-no-inline-scs
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test (RED Phase): Auditor No Inline SCs (SC-11 from #862)
 #
 # Verifies that when an adversarial auditor is dispatched with NO inline SCs,

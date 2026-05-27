@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: for-pr-implementation
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: for_pr scope must produce implementation deliverables
 #
 # Verifies that the agent does NOT halt after process overhead when

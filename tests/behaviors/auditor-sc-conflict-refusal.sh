@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: auditor-sc-conflict-refusal
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test (RED Phase): Auditor SC Conflict Refusal (SC-9 from #862)
 #
 # Verifies that an adversarial auditor dispatched with SCs that CONFLICT with

@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: review-prep-task-decomposition
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: review-prep-task-decomposition
 # Verifies that review-prep atomic subtask routing is correct
 #

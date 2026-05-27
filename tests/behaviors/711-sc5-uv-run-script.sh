@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: 711-sc5-uv-run-script
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # SC-5 (behavioral): Agent invokes PEP 723 scripts with `uv run --script`
 #
 # Behavioral test for spec #711.

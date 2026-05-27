@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: 804-evidence-type-mismatch-detection
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # SC-7: Behavioral enforcement test for evidence type mismatch detection
 # Verifies that the agent detects structural evidence being used for behavioral SCs
 # and reports EVIDENCE_TYPE_MISMATCH classification

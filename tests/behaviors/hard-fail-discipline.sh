@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: hard-fail-discipline
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: hard-fail-discipline
 # Verifies that FAIL is a hard gate — never reclassifiable, no INCONCLUSIVE,
 # no acceptance without verification, no halt without remediation attempt.

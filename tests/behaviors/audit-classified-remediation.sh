@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: audit-classified-remediation
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: audit-classified-remediation
 #
 # Verifies that after a sub-agent returns BLOCKED, the audit triage classifies

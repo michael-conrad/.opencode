@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: pr-merge-boundary-halt
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: PR Merge Boundary Halt
 #
 # Verifies that the agent halts at verify-authorization when a required

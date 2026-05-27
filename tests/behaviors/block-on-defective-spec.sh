@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: block-on-defective-spec
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: block-on-defective-spec
 #
 # Tests that RED and GREEN sub-agents detect spec/plan defects at execution time

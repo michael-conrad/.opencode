@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: submodule-sub-agent-clean-room
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Submodule Sub-Agent Clean-Room (SC-10)
 #
 # Verifies sub-agents receive only scoped context (must_receive)

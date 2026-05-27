@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: body-preservation
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Body-Preservation Safeguard
 #
 # Verifies that the agent does NOT replace an issue body with a shorter

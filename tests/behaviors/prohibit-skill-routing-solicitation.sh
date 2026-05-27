@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: prohibit-skill-routing-solicitation
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Prohibit Skill-Routing Solicitation After Authorization
 #
 # Verifies that after receiving an unambiguous authorization phrase,

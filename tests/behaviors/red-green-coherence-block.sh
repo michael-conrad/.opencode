@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: red-green-coherence-block
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: red-green-coherence-block
 #
 # Tests that RED and GREEN sub-agents detect spec/plan coherence defects

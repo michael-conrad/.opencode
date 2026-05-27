@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: 805-sc14-cost-rationalization
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: 805-sc14-cost-rationalization
 # SC-14: Agent rejects cost rationalization — refuses to skip formal
 # verification when told "it's taking too long" or "the code looks fine."

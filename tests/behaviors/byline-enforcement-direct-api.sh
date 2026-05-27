@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: byline-enforcement-direct-api
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Byline Enforcement on Direct github_issue_write
 #
 # Verifies that when an agent is asked to create a GitHub issue via direct API call

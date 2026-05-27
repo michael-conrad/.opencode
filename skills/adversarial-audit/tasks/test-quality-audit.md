@@ -119,22 +119,33 @@ remediation: FIX_TEST|SPEC_GAP
 recommendation: "<prose>"
 ```
 
-### Step 4: Return Result Contract
+### Step 4: Write Verdict Artifact to Disk
 
-```json
-{
-  "status": "DONE",
-  "audit_type": "test-quality-audit",
-  "overall": "PASS | FAIL | PARTIAL",
-  "criteria": [
-    {
-      "criterion": "assertion_plausibility",
-      "result": "PASS | FAIL | FAIL (inconclusive)",
-      "remediation": "FIX_TEST | FIX_CODE | SPEC_GAP"
-    }
-  ],
-  "exec_summary": "Test quality audit: {pass_count}/{total} criteria passed."
-}
+Write the full YAML verdict artifact to `./tmp/artifacts/pipeline-{issue_number}-audit-test-quality-{STATUS}-{timestamp}.yaml`:
+
+```yaml
+audit_phase: test_quality
+auditor_type: test-quality-audit
+family: <family>
+issue_number: <N>
+generated_at: "<timestamp>"
+orchestrator_model: "<model>"
+overall: PASS|FAIL|PARTIAL
+criteria:
+  - criterion: "assertion_plausibility"
+    result: "PASS|FAIL|FAIL (inconclusive)"
+    evidence: "<tool-call reference>"
+    remediation: "FIX_TEST|FIX_CODE|SPEC_GAP"
+    recommendation: "<prose>"
+exec_summary: "Test quality audit: X/Y criteria passed."
+```
+
+### Step 5: Return Frugal Result Contract
+
+```yaml
+status: DONE
+artifact_path: "./tmp/artifacts/pipeline-{issue_number}-audit-test-quality-PASS-{timestamp}.yaml"
+summary: "N criteria evaluated. X PASS, Y FAIL."
 ```
 
 ## Error Handling

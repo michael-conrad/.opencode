@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: 578-sc1-behavioral-cross-validate-no-auditor-dispatch
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # SC-1 (behavioral): Agent does NOT dispatch auditors from cross-validate
 #
 # Behavioral test for spec #578 Defect 1+2.

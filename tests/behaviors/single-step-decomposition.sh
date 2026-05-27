@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: single-step-decomposition
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: single-step-decomposition
 # Verifies that sub-agents perform single discrete steps,
 # not combined analyze+write+verify in one dispatch.

@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: universal-skill-dispatch-pre-response
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: universal-skill-dispatch-pre-response
 # Verifies that the agent dispatches `skill()` before producing chat output
 # when the user message matches a skill's intent/descriptions.

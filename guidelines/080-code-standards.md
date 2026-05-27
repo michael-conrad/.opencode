@@ -507,12 +507,14 @@ The `with-test-home` wrapper prevents SQLite session conflicts between the deskt
 
 Every spec success criterion MUST declare an evidence type from the four-type taxonomy. The evidence type determines the minimum acceptable verification method — using evidence below the minimum type is a CRITICAL VIOLATION.
 
-| Evidence Type | Method | Verifies | Minimum Acceptable |
-|---|---|---|---|
-| `structural` | `ls`, `wc`, file existence | File exists, file is non-empty, file has correct name | `ls`/`wc` |
-| `string` | `grep`, pattern matching | Content pattern present or absent | `grep` |
-| `semantic` | AI agent read + analytical judgment | Intent and meaning, not just pattern | Sub-agent read + judgment |
-| `behavioral` | Test execution (`opencode-cli run`, `pytest`, `bash test.sh`) | Agent behavior, runtime output, functional correctness | Test execution with output inspection |
+| Evidence Type | Method | Verifies | Minimum Acceptable | Cost | Gate Position |
+|---|---|---|---|---|---|
+| `behavioral` | Test execution (`opencode-cli run`, `pytest`, `bash test.sh`) | Agent behavior, runtime output, functional correctness | Test execution with output inspection | Lowest: behavioral FAIL at gate 1 → immediate fix → zero downstream cost | pre-commit / pre-RED |
+| `semantic` | AI agent read + analytical judgment | Intent and meaning, not just pattern | Sub-agent read + judgment | Medium: semantic PASS → behavioral FAIL at CI → 100x rework | pre-PR / review |
+| `string` | `grep`, pattern matching | Content pattern present or absent | `grep` | High: string PASS → behavioral FAIL in production → NIST 29x escalation | CI / static analysis |
+| `structural` | `ls`, `wc`, file existence | File exists, file is non-empty, file has correct name | `ls`/`wc` | Highest: structural PASS → defect ships → death spiral → compounding exponential cost | none / irrelevant |
+
+**Cost explanation:** See `065-verification-honesty.md` §Cost Model for death spiral / break dynamics. Evidence type cost is measured in defect-discovery-latency (DDL), not execution time. A structural check costs ~1s to run but may take weeks to discover the defect it misses — making it the most expensive type in total pipeline cost. A behavioral test costs minutes to execute but catches the defect at the earliest possible gate — making it the cheapest in total pipeline cost.
 
 ### Evidence Type Enforcement Matrix
 

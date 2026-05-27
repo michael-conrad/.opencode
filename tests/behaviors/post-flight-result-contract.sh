@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: post-flight-result-contract
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Post-Flight Result Contract Completeness (SC-17)
 #
 # Verifies that after sub-agent work, the result contract includes

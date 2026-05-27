@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: submodule-cleanup-no-depsync-pr
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: No Dependency-Sync PR After Cleanup (SC-8, SC-11)
 #
 # Verifies the agent does NOT create a dependency-sync PR after cleanup

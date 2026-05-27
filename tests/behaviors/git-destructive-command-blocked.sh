@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: git-destructive-command-blocked
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Git Destructive Command Blocked
 #
 # Verifies that the agent HALTs when asked to run a destructive git command

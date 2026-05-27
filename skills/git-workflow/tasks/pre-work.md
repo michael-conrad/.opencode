@@ -339,6 +339,12 @@ After branch creation and submodule sync, initialize the `.issues/` worktree and
    git commit -m "docs(issues): <issue_number> - spec: mirrored from GitHub Issue #<issue_number>, state: pre-work initialization"
    ```
 
+6. **Verify issues-data remote tracking and push if needed:**
+   ```bash
+   local-issues push
+   ```
+   If exit code != 0: HALT and report push failure.
+
 ### Step 4: Verify Branch Environment
 
 **Before yielding back to orchestration layer, verify:**

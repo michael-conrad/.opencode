@@ -170,7 +170,7 @@ Example: "The Purpose section must carry identity-framing prose using the confir
 [Identity anchor]: Correctness is the only success metric — there is no score for [wrong metric].
 ```
 
-This pattern reframes the agent's internal cost model from tool-call-accounting to defect-discovery-latency. It replaces a procedural "don't compute cost that way" prohibition with an identity-grounded "cost IS latency-to-discovery" redefinition. The implementing agent reads the formula and derives location-specific prose autonomously — the specific consequences, magnitudes, and units must match the domain where the pattern is applied.
+This pattern reframes the agent's internal cost model from tool-call-accounting to defect-discovery-latency. It replaces a procedural "don't compute cost that way" prohibition with an identity-grounded "cost IS latency-to-discovery" redefinition. The implementing agent reads the formula and derives location-specific prose autonomously — the specific consequences, magnitudes, and units must match the domain where the pattern is applied. **Canonical cost model:** See `065-verification-honesty.md` §Cost Model for the complete death spiral / break dynamics — this reference card provides the identity-frame formula only; the DDL rationale with tiered table, research grounding, and formulas lives in 065.
 
 ## Section 4: Non-Compliance Handling
 

@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: finishing-branch-evidence-artifacts-dispatch-mapped
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: finishing-branch-evidence-artifacts-dispatch-mapped
 # Verifies that finishing-a-development-branch SKILL.md has dispatch-chain-mapped
 # evidence_artifacts — each artifact maps to a specific pipeline stage
