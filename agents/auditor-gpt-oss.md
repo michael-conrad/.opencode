@@ -1,7 +1,7 @@
 ---
 mode: subagent
-model: ollama/deepseek-v3.2:cloud
-description: Adversarial auditor sub-agent using DeepSeek V3.2 for cross-family cross-validation of AI-generated output against live-source evidence.
+model: ollama/gpt-oss:20b-cloud
+description: Adversarial auditor sub-agent using GPT-OSS (20B) for cross-family cross-validation of AI-generated output against live-source evidence.
 temperature: 0.1
 permission:
   read: allow

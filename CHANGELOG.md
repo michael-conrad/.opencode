@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Local-first issue architecture** (#86, #464, #465, #466) - Three-phase implementation eliminating `identity_source: submodule`, making `.issues/` the primary drafting layer, and adding promotion readiness checks. Phase 1: Simplify identity model to `root`/`local`. Phase 2: Mandatory local-first creation before remote promotion. Phase 3: Promotion readiness and sync classification foundation.
 - **Gap-fill cascade path selection** (#460) - Fix authorization gap-fill bypass bug where `for_pr` scope matched fast-path incorrectly. Add gap-fill-path for `for_pr`, `for_implementation`, `for_plan`, `for_code_review` scopes.
 
+- **Auditor Pool Swap** (#928) - Replaced the adversarial auditor pool: removed 4 retirees (deepseek-v3, glm-5.1, glm-5, kimi-k2) and added 3 new model auditors (devstral-small-2, gemma4, gpt-oss). Created auditor agent cards, updated `qualified-auditor-pool.sh` and `test-all-auditor-agents.sh`, fixed a frontmatter extraction bug in the content-verification test, and registered new cloud models in `opencode.jsonc`.
+
 ### Changed
 
 - **Identity source simplification** (#86, Phase 1) - Remove `submodule` identity source from `session_context_identity.py` and `session-init`. Parent repos with no remote now get `github.platform: local` instead of borrowing submodule's remote.
