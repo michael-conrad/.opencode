@@ -83,6 +83,7 @@ Framing skipping one gate as equivalent to skipping ALL gates. Overreach induces
 | Plan bodies and implementation plans | Dependency-Order Gate | Medium | p-dis-001 |
 | Verification-before-completion sections | Self-Drift Contrast + Verification-Signal Discipline | Strong | p-dis-002 + p-dis-006 |
 | Post-merge cleanup documentation | Dependency-Order Gate | Medium | p-dis-001 |
+| Context cost compliance (`020-go-prohibitions.md` §1.1) | Verification-Signal Discipline | Strong | p-dis-006 |
 
 ## Section 3: Pattern Formulas (Canonical)
 
@@ -309,6 +310,7 @@ The following sources were researched and confirmed as the basis for the pattern
 | `010-approval-gate.md` §Authorization Scope Model | p-dis-001 — halt_at and scope horizon | Direct read — scope values table, halt boundary definitions |
 | `080-code-standards.md` §Test Integrity Mandate | p-dis-006 — verification signal discipline in behavioral testing | Direct read — no lobotomizing tests, timeout is diagnosable |
 | `250-dark-prose-reference.md` (this repository) | Structure reference, agency-respecting constraint, co-application rules | Direct read — Sections 1, 4, 9 for dark-prose pattern integration |
+| `020-go-prohibitions.md` §1.1 | Two-Role Context Cost Model — orchestrator cost function, sub-agent generosity, result contract frugality | Direct read — cost formulas, three mandates, dark prose reformation |
 
 **Note:** All citations are from files in `.opencode/guidelines/` at `/home/muksihs/git/opencode-config/.opencode/guidelines/` — verified by direct read during file creation. Citations reference section anchors, not line numbers.
 

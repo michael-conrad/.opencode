@@ -108,6 +108,14 @@ behavior_run() {
                 setup_fixture_issues "$workdir"
             fi
         fi
+
+        # Inject AI-generated story fixtures for behavioral tests that use them.
+        STORY_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-story-fixtures.sh"
+        if [ -f "$STORY_SETUP" ]; then
+            # shellcheck disable=SC1090
+            source "$STORY_SETUP"
+            setup_story_fixtures "$workdir"
+        fi
     fi
 
     while [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; do

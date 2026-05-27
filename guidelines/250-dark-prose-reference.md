@@ -111,6 +111,7 @@ Multiple dark prose patterns addressing the same behavior with different formula
 | CHANGELOG entries | Social proof / quality signal | Light | 005 |
 | Spec body / task definition (instruction layer) | Agency-respecting identity frame | Strong | 006 |
 | Cost-blind verification guidelines (`020-go-prohibitions.md`) | Cost-Frame Reformation | Strong | 007 |
+| Orchestrator context guidelines (`020-go-prohibitions.md` §1.1) | Cost-Frame Reformation | Strong | 007 |
 
 ## Section 3: Pattern Formulas (Canonical)
 

@@ -31,7 +31,7 @@ When `assemble-work` receives an OVERFLOW result:
 | Chunked | Many small items | Split remaining items into 2-3 equal chunks |
 | Fallback | No clear split point | HALT and report context overflow to developer |
 
-### Context Budget
+### Context Allocation Awareness
 
 Signal OVERFLOW only on concrete, observable signs:
 
@@ -39,4 +39,4 @@ Signal OVERFLOW only on concrete, observable signs:
 - Required spec, plan, or file content cannot be included in task context because earlier content fills the window
 - Previously read content is no longer accessible due to context displacement
 
-Sub-process dispatch (opencode-cli run, task()) spawns independent processes — they do not consume your context budget.
+Sub-process dispatch (opencode-cli run, task()) spawns independent processes — they do not affect orchestrator context allocation.

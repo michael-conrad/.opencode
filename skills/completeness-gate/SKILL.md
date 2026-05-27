@@ -33,6 +33,8 @@ You are a Completeness Gate Sub-Agent. Your focus is verifying that a deliverabl
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 
+> **Context cost frame:** The orchestrator's context is the most expensive resource in the pipeline — sub-agents do the work, not the orchestrator. Every byte held by the orchestrator costs `byte × remaining_dispatches²`. See `020-go-prohibitions.md` §1.1.
+
 The orchestrator MUST NOT preload execution context into `task()` prompts.
 Every sub-agent MUST independently discover scope and produce its own result contract.
 
