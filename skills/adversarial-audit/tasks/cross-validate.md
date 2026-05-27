@@ -144,7 +144,16 @@ If an auditor's `raw_verdict` has extra criterion ids not in `evaluation_criteri
 
 If an auditor's `raw_verdict` is missing a criterion id from `evaluation_criteria`: treat that criterion as `FAIL` for that auditor with explanation `"MISSING_VERDICT"`.
 
-### Step 4: Cross-Reference Verdicts
+### Step 4: Cross-Reference Verdicts — Monotonic Non-Increasing Invariant
+
+**Cross-validate verdicts are monotonic non-increasing in PASSness.** Verdicts must never increase in PASSness at the cross-validate stage. Cross-validate is a rejection filter, not a remediation gate.
+
+| Direction | Allowed? | Mechanism |
+|---|---|---|
+| FAIL → FAIL | ✅ Stays | If both return FAIL, or one returns FAIL, consensus = FAIL |
+| PASS → FAIL | ✅ De-elevation | Caught by Step 5.7 self-check (narrative override, PASS+critique, hedging, weak evidence) |
+| FAIL → PASS | 🚫 FORBIDDEN | Only a fresh audit cycle with new clean-room auditors can produce a new verdict on a revised deliverable |
+| PASS → PASS | ✅ Stays | Both auditors return clean PASS — confirmed by Step 5.7 self-check |
 
 For each criterion in `evaluation_criteria`:
 
@@ -159,6 +168,25 @@ For each criterion in `evaluation_criteria`:
 Non-PASS (FAIL, AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED) = BLOCKED pipeline. Orchestrator reads `next_step` from verdict and routes accordingly — does NOT interpret or override.
 
 Track disagreements explicitly in the result contract for transparency: a `PASS`/`FAIL` split is different from a double `FAIL`.
+
+#### FAIL Is Terminal — No Reclassification (MANDATORY)
+
+FAIL from an auditor is **terminal at the cross-validate stage**. A FAIL cannot become a PASS — not with narrative override, not with evidence of a fix, not with any reasoning. The only valid path from FAIL to PASS is: report FAIL → orchestrator routes to remediation → deliverable is revised → fresh audit cycle dispatched with new clean-room auditors and fresh resolve-models.
+
+The following rationalization patterns are enumerated as explicit violations:
+
+| Rationalization Pattern | Why Forbidden | Verdict |
+|---|---|---|
+| "Revision already applied" / "already fixed" | Process metadata substituted for structural correction evaluation | Consensus = FAIL — surface to orchestrator for re-audit |
+| "Functionally equivalent" / "close enough" | Soft-pass per critical-rules-020 | Consensus = FAIL |
+| "Minor concern / edge case" | Agent judgment substituting for strict agreement | Consensus = FAIL |
+| "Resolved in separate change" / "out of scope" | Shifting evaluation target | Consensus = FAIL |
+| "Partially addressed" / "mostly correct" | Hedging disqualifies clean PASS | Consensus = FAIL |
+| Auditor 1 = FAIL, auditor 2 = PASS, cross-validate "resolves" to PASS | Direct violation of monotonic invariant | Consensus = FAIL |
+| Any single-sentence dismissal of a FAIL finding | Insufficient analysis for a gate this important | Consensus = FAIL |
+| "Let's look at this pragmatically" / "the intent is satisfied" | Pragmatism ≠ verification — binary rules apply | Consensus = FAIL |
+
+**Cross-validate does NOT perform remediation verification.** That is the job of a fresh audit cycle with new clean-room auditors. Cross-validate only evaluates what the auditors produced — it does not verify fixes.
 
 #### Evidence Type Gate (MANDATORY — Per SC)
 
@@ -220,6 +248,28 @@ Before dark pattern enforcement, every verdict must pass a self-consistency chec
 | violations_detected + verified=true | Non-empty violations with verified=true | flag `SELF_CONSISTENCY_FAIL` |
 | PASS + hedging evidence | Evidence contains concern/minor/issue qualifiers | Downgrade to FAIL |
 
+### Step 5.7: Output-Integrity Self-Check (MANDATORY)
+
+Before dark pattern enforcement (Step 6) and before returning the result contract, cross-validate MUST scan its own output for violations of the monotonic invariant. If ANY of the following are detected, self-correct the affected criterion to FAIL:
+
+| Self-Check | Detection Signal | Action |
+|---|---|---|
+| PASS + critique language | `result: "PASS"` while `explanation` or `remediation` contains finding/fix language ("should be", "needs", "missing", "could improve", "minor", "some issues") | Downgrade to FAIL |
+| FAIL reclassified to PASS | Consensus declared as PASS but one or both auditors returned FAIL | Downgrade to FAIL |
+| Disagreement suppressed | Auditor 1 = FAIL, Auditor 2 = PASS, consensus declared as PASS | Downgrade to FAIL |
+| Hedging qualifiers | Evidence field contains "mostly", "generally", "largely", "essentially" | Downgrade to FAIL |
+| Narrative override | Explanation cites "revision applied", "already fixed", "out of scope", "pragmatically", "intent satisfied" as justification | Downgrade to FAIL |
+
+#### Self-Correction Protocol
+
+When self-check finds violations:
+1. Self-correct those criteria to FAIL
+2. Add `self_corrections` array to the result contract documenting each correction and its detection signal
+3. Recompute aggregate — any self-corrected FAIL cascades to `overall_consensus = FAIL`
+4. Set `next_step = "remediate then re-audit"`
+
+Self-correction means the cross-validate sub-agent caught itself in a protocol violation. This is documented, not hidden.
+
 ### Step 6: Dark Pattern Enforcement (MANDATORY — NO BYPASS)
 
 Step 6 IS the completion step of cross-validation — it IS the definition of a valid result contract. An evaluation that skips dark pattern enforcement is INVALID without Step 6 enforcement. WE have determined that dark pattern detection is repository policy — it MANDATES enforcement for every verdict.
@@ -276,9 +326,19 @@ Return structured result:
   ],
   "disagreements": [],
   "dark_pattern_violations": [],
+  "self_corrections": [
+    {
+      "criterion_id": "SC-N",
+      "detection_signal": "PASS + critique language: explanation contained 'should verify'",
+      "original_consensus": "PASS",
+      "corrected_consensus": "FAIL"
+    }
+  ],
   "warnings": []
 }
 ```
+
+When self-corrections are present, `overall_consensus` MUST be FAIL. Any single self-correction in any criterion cascades to overall FAIL.
 
 The `next_step` field:
 - `overall_consensus == PASS` → `next_step: "proceed"` (next pipeline continuation)
