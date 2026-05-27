@@ -394,6 +394,22 @@ SCENARIOS["skill-dispatch-critical-rules-048-symbolic"]="Does .opencode/guidelin
 SCENARIOS["skill-dispatch-critical-rules-048-prose"]="Does .opencode/guidelines/000-critical-rules.md contain a prose section titled 'Skill Pre-Read + Inline Execution'?"
 SCENARIOS["skill-dispatch-critical-rules-048-distinction"]="Does .opencode/guidelines/000-critical-rules.md contain a 3-way violation distinction table with critical-rules-048, critical-rules-034, and #329?"
 SCENARIOS["sc6-no-unconditional-general"]="Verify none of the 17 Group A+B-4 skill files in .opencode/skills/ still retain the unconditional 'All tasks run via task(subagent_type=\"general\")' pattern — each must have the auditor clause (auditor_1/auditor_2 — NOT \"general\")"
+SCENARIOS["cross-validate-sc1-monotonic-invariant"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md Step 4 header declare the monotonic invariant: verdicts only decrease in PASSness, FAIL→PASS is universally forbidden?"
+SCENARIOS["cross-validate-sc2-fail-is-terminal"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md Step 4 contain a 'FAIL Is Terminal' subsection enumerating rationalization patterns with hard FAIL consensus?"
+SCENARIOS["cross-validate-sc3-self-check-step-5-7"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md contain a Step 5.7 'Output-Integrity Self-Check' section before Step 6?"
+SCENARIOS["cross-validate-sc4-self-corrections-in-result-contract"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md Step 7 result contract template include a \`self_corrections\` array?"
+SCENARIOS["cross-validate-sc5-no-remediation-verification"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md FAIL Is Terminal subsection state that cross-validate does NOT perform remediation verification?"
+SCENARIOS["cross-validate-sc6-self-check-scans-explanation"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md Step 5.7 self-check scan for hedging qualifiers, critique language, narrative override, and suppressed disagreement?"
+SCENARIOS["cross-validate-sc10-existing-rules-preserved"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md still contain the DISAGREE Is Terminal section (cross-validate-007a-disagree) and Evidence Type Gate (cross-validate-007b) rules?"
+SCENARIOS["cross-validate-sc11-self-corrections-cascade-fail"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md Step 7 state that any single self-correction produces overall_consensus = FAIL?"
+SCENARIO_TAGS["cross-validate-sc1-monotonic-invariant"]="content-verification adversarial-audit"
+SCENARIO_TAGS["cross-validate-sc2-fail-is-terminal"]="content-verification adversarial-audit"
+SCENARIO_TAGS["cross-validate-sc3-self-check-step-5-7"]="content-verification adversarial-audit"
+SCENARIO_TAGS["cross-validate-sc4-self-corrections-in-result-contract"]="content-verification adversarial-audit"
+SCENARIO_TAGS["cross-validate-sc5-no-remediation-verification"]="content-verification adversarial-audit"
+SCENARIO_TAGS["cross-validate-sc6-self-check-scans-explanation"]="content-verification adversarial-audit"
+SCENARIO_TAGS["cross-validate-sc10-existing-rules-preserved"]="content-verification adversarial-audit"
+SCENARIO_TAGS["cross-validate-sc11-self-corrections-cascade-fail"]="content-verification adversarial-audit"
 SCENARIO_TAGS["divide-conquer-decomposition-rule"]="content-verification clean-room-dispatch"
 SCENARIO_TAGS["verification-isolation-section"]="content-verification clean-room-dispatch"
 SCENARIO_TAGS["dispatch-audit-tables"]="content-verification clean-room-dispatch"
@@ -498,6 +514,7 @@ FILE_SCENARIO_MAP[".opencode/guidelines/060-tool-usage.md"]="ollama-tooling-regi
 FILE_SCENARIO_MAP[".opencode/guidelines/080-code-standards.md"]="sc-to-test-traceability red-phase-ordering sc-traceability-example functional-test-substitution-prohibited-rule"
 FILE_SCENARIO_MAP[".opencode/guidelines/140-planning-spec-creation.md"]="executable-verification-commands vague-verification-antipattern"
 FILE_SCENARIO_MAP[".opencode/skills/spec-creation/"]="semantic-intent-spec-creation narrow-sc-table-exemption spec-creation-red-gate"
+FILE_SCENARIO_MAP[".opencode/skills/adversarial-audit/tasks/cross-validate.md"]="cross-validate-sc1-monotonic-invariant cross-validate-sc2-fail-is-terminal cross-validate-sc3-self-check-step-5-7 cross-validate-sc4-self-corrections-in-result-contract cross-validate-sc5-no-remediation-verification cross-validate-sc6-self-check-scans-explanation cross-validate-sc10-existing-rules-preserved cross-validate-sc11-self-corrections-cascade-fail"
 FILE_SCENARIO_MAP[".opencode/skills/spec-auditor/"]="sc-precision-audit spec-auditor-body-preservation"
 FILE_SCENARIO_MAP[".opencode/skills/sre-runbook/"]="all-body-modification-safeguards"
 FILE_SCENARIO_MAP[".opencode/skills/issue-operations/"]="sub-issue-structure url-sourcing-issue-operations close-body-preservation"
@@ -1480,6 +1497,103 @@ if [ "$SC12_EVIDENCE_PAYLOAD" -eq 0 ] && [ "$SC12_SPEC_ISSUE" -ge 1 ]; then
 else
     echo "  cross-validate.md task context: MISSING (evidence_payload=$SC12_EVIDENCE_PAYLOAD, issue_refs=$SC12_SPEC_ISSUE)"
     echo "- **cross-validate.md task context reflects removal (SC-12):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-1: Monotonic invariant declared in Step 4 header
+CROSS_VALIDATE_SC1_MONOTONIC=$(grep -c "monotonic non-increasing\|verdicts only decrease\|verdicts must never increase" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC1_MONOTONIC" -ge 1 ]; then
+    echo "  cross-validate.md Step 4 monotonic invariant (SC-903-SC-1): FOUND"
+    echo "- **cross-validate.md monotonic invariant (SC-903-SC-1):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md Step 4 monotonic invariant (SC-903-SC-1): MISSING"
+    echo "- **cross-validate.md monotonic invariant (SC-903-SC-1):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-2: FAIL Is Terminal subsection enumerating rationalization patterns
+CROSS_VALIDATE_SC2_FAIL_TERMINAL=$(grep -c "FAIL Is Terminal\|terminal at the cross-validate stage\|Revision already applied\|already fixed" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC2_FAIL_TERMINAL" -ge 2 ]; then
+    echo "  cross-validate.md FAIL Is Terminal (SC-903-SC-2): FOUND"
+    echo "- **cross-validate.md FAIL Is Terminal (SC-903-SC-2):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md FAIL Is Terminal (SC-903-SC-2): MISSING (found $CROSS_VALIDATE_SC2_FAIL_TERMINAL)"
+    echo "- **cross-validate.md FAIL Is Terminal (SC-903-SC-2):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-3: Step 5.7 Output-Integrity Self-Check
+CROSS_VALIDATE_SC3_SELF_CHECK=$(grep -c "Step 5.7\|Output-Integrity Self-Check\|self_corrections.*array" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC3_SELF_CHECK" -ge 1 ]; then
+    echo "  cross-validate.md Step 5.7 self-check (SC-903-SC-3): FOUND"
+    echo "- **cross-validate.md Step 5.7 self-check (SC-903-SC-3):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md Step 5.7 self-check (SC-903-SC-3): MISSING"
+    echo "- **cross-validate.md Step 5.7 self-check (SC-903-SC-3):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-4: self_corrections array in result contract template
+CROSS_VALIDATE_SC4_SELF_CORRECTIONS=$(grep -c "self_corrections" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC4_SELF_CORRECTIONS" -ge 1 ]; then
+    echo "  cross-validate.md self_corrections in result contract (SC-903-SC-4): FOUND"
+    echo "- **cross-validate.md self_corrections in result contract (SC-903-SC-4):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md self_corrections in result contract (SC-903-SC-4): MISSING"
+    echo "- **cross-validate.md self_corrections in result contract (SC-903-SC-4):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-5: DISAGREE Is Terminal reinforced — no remediation verification
+CROSS_VALIDATE_SC5_NO_REMED=$(grep -c "does NOT perform remediation\|not perform remediation\|remediation verification" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC5_NO_REMED" -ge 1 ]; then
+    echo "  cross-validate.md no remediation verification (SC-903-SC-5): FOUND"
+    echo "- **cross-validate.md no remediation verification (SC-903-SC-5):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md no remediation verification (SC-903-SC-5): MISSING"
+    echo "- **cross-validate.md no remediation verification (SC-903-SC-5):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-6: Step 5.7 self-check scans explanation/evidence
+CROSS_VALIDATE_SC6_SCAN=$(grep -c "hedging qualifiers\|critique language.*PASS\|narrative override\|suppressed disagreement" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC6_SCAN" -ge 1 ]; then
+    echo "  cross-validate.md self-check scans explanation/evidence (SC-903-SC-6): FOUND"
+    echo "- **cross-validate.md self-check scans explanation/evidence (SC-903-SC-6):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md self-check scans explanation/evidence (SC-903-SC-6): MISSING"
+    echo "- **cross-validate.md self-check scans explanation/evidence (SC-903-SC-6):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-10: Existing DISAGREE Is Terminal and Evidence Type Gate preserved
+CROSS_VALIDATE_SC10_DISAGREE=$(grep -c "DISAGREE Is Terminal" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+CROSS_VALIDATE_SC10_EVIDENCE_GATE=$(grep -c "Evidence Type Gate\|evidence.*type.*gate\|EVIDENCE_TYPE" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC10_DISAGREE" -ge 1 ] && [ "$CROSS_VALIDATE_SC10_EVIDENCE_GATE" -ge 1 ]; then
+    echo "  cross-validate.md existing DISAGREE+Evidence Gate preserved (SC-903-SC-10): FOUND"
+    echo "- **cross-validate.md existing rules preserved (SC-903-SC-10):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md existing rules preserved (SC-903-SC-10): MISSING (disagree=$CROSS_VALIDATE_SC10_DISAGREE, evidence_gate=$CROSS_VALIDATE_SC10_EVIDENCE_GATE)"
+    echo "- **cross-validate.md existing rules preserved (SC-903-SC-10):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-11: Self-corrections cascade to overall FAIL
+CROSS_VALIDATE_SC11_CASCADE=$(grep -c "single self-correction.*overall\|self-correct.*FAIL.*cascade\|any.*self.correction.*overall" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC11_CASCADE" -ge 1 ]; then
+    echo "  cross-validate.md self-corrections cascade to FAIL (SC-903-SC-11): FOUND"
+    echo "- **cross-validate.md self-corrections cascade to FAIL (SC-903-SC-11):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md self-corrections cascade to FAIL (SC-903-SC-11): MISSING"
+    echo "- **cross-validate.md self-corrections cascade to FAIL (SC-903-SC-11):** MISSING" >> "$RESULTS_FILE"
     GUIDELINE_PASS=false
     OVERALL_PASS=false
 fi
