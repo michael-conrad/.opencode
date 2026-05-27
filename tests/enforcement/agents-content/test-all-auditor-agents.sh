@@ -1,13 +1,13 @@
 #!/bin/bash
-# Content-Verification Test: All 7 Auditor Agent Files — Canonical Schema Validation
+# Content-Verification Test: All 6 Auditor Agent Files — Canonical Schema Validation
 #
-# Validates that each of the 7 auditor agent files in .opencode/agents/
+# Validates that each of the 6 auditor agent files in .opencode/agents/
 # has correct YAML frontmatter per spec #381 canonical schema:
 #   - mode: subagent
 #   - model: <expected model string>
 #   - permission: block with 6 allow + 5 deny keys
 #
-# SC-7 from Spec #381: all 7 agent files have correct permission surface (6 allow, 5 deny)
+# SC-7 from Spec #381: all agent files have correct permission surface (6 allow, 5 deny)
 #
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
@@ -22,11 +22,10 @@ AGENTS_DIR="$SCRIPT_DIR/agents"
 
 declare -A MODELS
 MODELS["auditor-deepseek-flash"]="ollama/deepseek-v4-flash:cloud"
-MODELS["auditor-deepseek-v3"]="ollama/deepseek-v3.2:cloud"
-MODELS["auditor-glm-5.1"]="ollama/glm-5.1:cloud"
-MODELS["auditor-glm-5"]="ollama/glm-5:cloud"
+MODELS["auditor-devsstral-small-2"]="ollama/devstral-small-2:24b-cloud"
+MODELS["auditor-gemma4"]="ollama/gemma4:31b-cloud"
+MODELS["auditor-gpt-oss"]="ollama/gpt-oss:20b-cloud"
 MODELS["auditor-mistral-large"]="ollama/mistral-large-3:675b-cloud"
-MODELS["auditor-kimi-k2"]="ollama/kimi-k2.6:cloud"
 MODELS["auditor-qwen3.5"]="ollama/qwen3.5:397b-cloud"
 
 ALLOW_KEYS=("read" "glob" "grep" "skill" "webfetch" "websearch")
@@ -82,7 +81,7 @@ for agent in "${!MODELS[@]}"; do
 
     FILE_FAILURES=0
 
-    FRONTMATTER=$(sed -n '/^---$/,/^---$/p' "$FILE" | sed '1d' | sed '$d')
+    FRONTMATTER=$(awk '/^---$/{c++; if(c==2) exit; next} c==1' "$FILE")
 
     if [ -z "$FRONTMATTER" ]; then
         echo "FAIL: ${agent}.md has no YAML frontmatter"

@@ -34,6 +34,15 @@
         "deepseek-v4-pro:cloud": {
           "name": "DeepSeek-V4-Pro (Cloud)"
         },
+        "devstral-small-2:24b-cloud": {
+          "name": "Devstral Small 2 24B (Cloud)"
+        },
+        "gemma4:31b-cloud": {
+          "name": "Gemma 4 31B (Cloud)"
+        },
+        "gpt-oss:20b-cloud": {
+          "name": "GPT-OSS 20B (Cloud)"
+        },
         "glm-5:cloud": {
           "name": "GLM-5 (Cloud)"
         },

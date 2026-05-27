@@ -1,7 +1,7 @@
 ---
 mode: subagent
-model: ollama/kimi-k2.6:cloud
-description: Adversarial auditor sub-agent using Kimi K2.6 for cross-family cross-validation of AI-generated output against live-source evidence.
+model: ollama/gemma4:31b-cloud
+description: Adversarial auditor sub-agent using Gemma 4 (31B) for cross-family cross-validation of AI-generated output against live-source evidence.
 temperature: 0.1
 permission:
   read: allow
