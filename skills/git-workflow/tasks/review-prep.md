@@ -43,6 +43,12 @@ fi
 
 **No separate PR required.** `.issues/<N>/` commits ride along with the feature branch PR. No additional authorization needed — covered by feature branch authorization per `000-critical-rules.md` §Auto-Commit Convention.
 
+6. **Push issues-data branch to remote (MANDATORY):**
+   ```bash
+   local-issues push
+   ```
+   If exit code != 0: HALT. Feature branch push MUST NOT proceed if `issues-data` cannot be pushed.
+
 ### Steps 0-2: Push, Cleanup, Rebase, Verify
 
 **Route to:** `review-prep/push-and-cleanup`
