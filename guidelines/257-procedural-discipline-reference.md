@@ -141,7 +141,7 @@ When patterns from this reference card (257) co-apply with patterns from other r
 3. **Pattern overlap resolution:** When a content location matches triggers for both 257 and 250 patterns, apply the following priority:
    - If the content defines pipeline ordering or dependency structure: p-dis-001 or p-dis-005 takes precedence — structural ordering is procedural discipline territory.
    - If the content defines identity or quality standard: dark-prose-001/002/003 takes precedence — identity-framing is dark prose territory.
-   - If the content defines verification evidence requirements: p-dis-006 takes precedence with dark-prose-007 cost-frame companion.
+    - If the content defines verification evidence requirements: p-dis-006 takes precedence with dark-prose-007 cost-frame companion. **Canonical cost model:** `065-verification-honesty.md` §Cost Model for death spiral / break dynamics — cost-frame formula lives in 250, DDL rationale with tiered table lives in 065.
    - If both apply equally: apply both with agency-respecting formulation.
 
 4. **One enforcement mechanism per location:** No two 257 patterns may target the same content location with different gate formulas. When overlap is detected, the dominant pattern (by tier or specificity) supersedes; the subordinate pattern is applied at a different location or omitted.

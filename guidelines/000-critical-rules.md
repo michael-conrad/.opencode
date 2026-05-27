@@ -641,7 +641,7 @@ The uplift is automatic. Declaring an SC as `structural` or `string` does not ex
 - When the declared type is `structural` or `string` but the change is runtime-behavioral: report EVIDENCE_TYPE_MISMATCH with a FAIL verdict
 - Apply the same remediation-first protocol as all hard failures: diagnose, remediate, re-verify
 
-Authority sources: `080-code-standards.md` §Evidence Type Taxonomy, `080-code-standards.md` §Test Integrity Mandate, `020-go-prohibitions.md` §1 ALWAYS DO — Cost-blind verification.
+Authority sources: `080-code-standards.md` §Evidence Type Taxonomy, `080-code-standards.md` §Test Integrity Mandate, `020-go-prohibitions.md` §1 ALWAYS DO — Cost-blind verification. See `065-verification-honesty.md` §Cost Model for the death-spiral cost rationale underlying this classification gate — automatic uplift from structural→behavioral prevents the death spiral at the earliest possible gate.
 
 
 ### [critical-rules-063] Orchestrator Context Lean — orchestrator holds routing metadata only

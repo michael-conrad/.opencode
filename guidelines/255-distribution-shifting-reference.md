@@ -186,7 +186,7 @@ The contrast names the specific shortcut that the hollow completion statement co
 
 4. **The bright-line companion (250 §9) and the Overconstraining Guard (255 §3) are natural companions for enforcement locations.** When a location requires a binary enforcement gate, pair dark-prose-004 (authority frame) or its bright-line companion with dist-shift-006 (Overconstraining Guard). The authority frame defines the rule; the guard pre-commits against rationalization.
 
-5. **Cost-Frame Reformation (dark-prose-007) pairs with External-Signal Verification Shifting (dist-shift-007) for cost-blind verification guidelines.** The identity-frame redefines cost as defect-discovery-latency; the distribution shift reframes verification as external-signal-dependent. Both target the same rationalization surface: the agent's internal cost model.
+5. **Cost-Frame Reformation (dark-prose-007) pairs with External-Signal Verification Shifting (dist-shift-007) for cost-blind verification guidelines.** The identity-frame redefines cost as defect-discovery-latency; the distribution shift reframes verification as external-signal-dependent. Both target the same rationalization surface: the agent's internal cost model. **Canonical cost model:** `065-verification-honesty.md` §Cost Model provides the complete death spiral / break dynamics with tiered table — this reference card provides the co-application rule only.
 
 ### Rules for Co-Application with 257 — When 257 Is Defined
 
