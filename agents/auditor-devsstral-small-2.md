@@ -1,7 +1,7 @@
 ---
 mode: subagent
-model: ollama/glm-5:cloud
-description: Adversarial auditor sub-agent using GLM 5 for cross-family cross-validation of AI-generated output against live-source evidence.
+model: ollama/devstral-small-2:24b-cloud
+description: Adversarial auditor sub-agent using Devstral Small 2 (24B) for cross-family cross-validation of AI-generated output against live-source evidence.
 temperature: 0.1
 permission:
   read: allow
