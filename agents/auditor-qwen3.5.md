@@ -11,9 +11,7 @@ permission:
   skill: allow
   webfetch: allow
   websearch: allow
-  edit:
-    "*": deny
-    "./tmp/artifacts/*.yaml": allow
+  edit: allow
   bash: deny
   task: deny
   todowrite: deny
