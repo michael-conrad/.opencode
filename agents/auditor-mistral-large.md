@@ -3,6 +3,7 @@ mode: subagent
 model: ollama/mistral-large-3:675b-cloud
 description: Adversarial auditor sub-agent using Mistral Large 3 for cross-family cross-validation of AI-generated output against live-source evidence.
 temperature: 0.1
+steps: 50
 permission:
   read: allow
   glob: allow
@@ -17,6 +18,7 @@ permission:
   task: deny
   todowrite: deny
   question: deny
+  doom_loop: deny
   github_issue_read: allow
   github_search_issues: allow
   github_list_issues: allow
