@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: dispatch-gate-rejection
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: dispatch-gate-rejection (SC-5)
 #
 # Verifies that a sub-agent receiving a task() prompt with preloaded context

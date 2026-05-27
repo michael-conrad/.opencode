@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: submodule-verify-reachability
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Submodule Hash Reachability Verification (SC-3)
 #
 # Verifies the agent checks submodule hash reachability via tag at PR time.

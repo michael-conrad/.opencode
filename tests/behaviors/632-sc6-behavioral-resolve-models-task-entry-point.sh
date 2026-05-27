@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: 632-sc6-behavioral-resolve-models-task-entry-point
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # SC-6 (behavioral): Agent uses resolve-models as the ONLY authorized entry
 # point for auditor model resolution, referencing the skill task resolver
 # (not the direct tool path or deleted slash command).

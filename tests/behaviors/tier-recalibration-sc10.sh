@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: tier-recalibration-sc10
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: SC-10 — Tier 2 confirmshaming identity frame
 #
 # Verifies that when the agent is presented with a Tier 2 violation

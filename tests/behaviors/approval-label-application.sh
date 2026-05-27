@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: approval-label-application
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Agent applies correct approved-for-* label on authorization
 #
 # Verifies that when the agent receives for_plan authorization, it:

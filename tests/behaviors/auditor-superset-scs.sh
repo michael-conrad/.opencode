@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: auditor-superset-scs
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test (RED Phase): Auditor Superset SC Acceptance (SC-10 from #862)
 #
 # Verifies that an adversarial auditor dispatched with SUPERSET SCs (all spec SCs

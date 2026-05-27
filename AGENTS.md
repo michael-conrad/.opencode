@@ -102,12 +102,9 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 | Skill enforcement test (changed files) | `bash .opencode/tests/test-enforcement.sh --changed [--base BRANCH]` | opencode-cli |
 | Skill enforcement test (list scenarios) | `bash .opencode/tests/test-enforcement.sh --list` | opencode-cli |
 | Skill enforcement test (list tags) | `bash .opencode/tests/test-enforcement.sh --list-tags` | opencode-cli |
-| Behavioral enforcement test | `bash .opencode/tests/behaviors/run-all.sh` | opencode-cli |
-| Behavioral enforcement test (list) | `bash .opencode/tests/behaviors/run-all.sh --list` | opencode-cli |
-| Behavioral enforcement test (dry-run) | `bash .opencode/tests/behaviors/run-all.sh --dry-run` | opencode-cli |
+| Behavioral enforcement test | `bash .opencode/tests/behaviors/<scenario>.sh` | opencode-cli |
 | TypeScript check | `PATH=.tools/node/bin:$PATH npx tsc --noEmit` | TypeScript |
 | TypeScript check (alt) | `PATH=.node/bin:$PATH npx tsc --noEmit` | TypeScript |
-| All enforcement tests (content + behavioral) | `bash .opencode/tests/test-enforcement.sh && bash .opencode/tests/behaviors/run-all.sh` | opencode-cli |
 | Isolated opencode-cli run | `bash .opencode/tests/with-test-home opencode-cli run '<message>'` | opencode-cli |
 | Clean test artifacts | `bash .opencode/tests/with-test-home --clean` | opencode-cli |
 

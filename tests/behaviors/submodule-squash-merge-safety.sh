@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: submodule-squash-merge-safety
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Submodule Squash Merge Safety (SC-1, SC-2)
 #
 # Verifies that pre-work tags persist after squash merge + branch deletion.

@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: skill-invocation-enforcement-worktree-gate
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Skill Invocation Enforcement — Pre-Work Gate
 #
 # Verifies that when an agent is asked to create a feature branch, it does NOT

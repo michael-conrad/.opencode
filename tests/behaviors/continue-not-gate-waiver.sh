@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: continue-not-gate-waiver
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: continue-not-gate-waiver
 # Verifies that cumulative "continue" messages ("please continue", "go on",
 # "proceed") do NOT waive mandatory pipeline gates. The agent must still

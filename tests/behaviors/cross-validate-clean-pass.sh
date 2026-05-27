@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: cross-validate-clean-pass
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # SC-9: Clean PASS → Consensus PASS — GREEN path baseline
 #
 # When both auditors return clean PASS with proper behavioral evidence

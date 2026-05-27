@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: issue-operations-dispatch-instead-of-inline
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Issue Operations — No Inline Issue Content Editing
 #
 # PURPOSE: Generate test artifacts (stdout, stderr, logs) for VbC and

@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: spec-body-staleness-fix
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Spec Body Staleness Fix — Phase 3 (#684)
 #
 # Verifies that when a stakeholder-classified comment revises/corrects/supersedes

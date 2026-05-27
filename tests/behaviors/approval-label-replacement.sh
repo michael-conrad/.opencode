@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: approval-label-replacement
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Agent replaces approval label on re-authorization
 #
 # Verifies that when the agent re-authorizes at a higher scope (for_plan → for_pr):

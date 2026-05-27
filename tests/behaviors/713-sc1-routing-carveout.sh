@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: 713-sc1-routing-carveout
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: 713-sc1-routing-carveout
 # SC-1: Verifies that the agent dispatches issue-operations skill for a
 # "list open issues" request instead of self-classifying as "simple lookup".

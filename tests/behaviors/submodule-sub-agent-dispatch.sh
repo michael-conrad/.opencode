@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: submodule-sub-agent-dispatch
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Submodule Sub-Agent Dispatch (SC-7)
 #
 # Verifies the agent uses sub-agents for ALL submodule git operations.

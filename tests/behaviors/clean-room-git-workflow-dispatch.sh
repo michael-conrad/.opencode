@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: clean-room-git-workflow-dispatch
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Clean-Room Git Workflow Dispatch (SC-12)
 #
 # Verifies that when an agent dispatches a git-workflow task (e.g., review-prep),

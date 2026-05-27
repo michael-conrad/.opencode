@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: decision-log-local-first
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Decision Log Local-First Storage
 #
 # SC-9: assemble-work.md Step 7 writes decision log entries to .issues/

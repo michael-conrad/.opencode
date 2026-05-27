@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: no-authorization-solicitation-pipeline-scope
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: No Authorization Solicitation for Pipeline-Scoped Phrases
 #
 # Verifies that the agent does NOT solicit confirmation or clarification

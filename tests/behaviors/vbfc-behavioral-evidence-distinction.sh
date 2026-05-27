@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: vbfc-behavioral-evidence-distinction
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: vbfc-behavioral-evidence-distinction
 # Verifies that an agent correctly classifies structural evidence as INSUFFICIENT
 # for behavioral success criteria, and does NOT report "test file exists → PASS"

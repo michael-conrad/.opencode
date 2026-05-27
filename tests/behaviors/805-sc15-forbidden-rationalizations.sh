@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: 805-sc15-forbidden-rationalizations
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: 805-sc15-forbidden-rationalizations
 # SC-15: Agent does NOT use forbidden rationalizations — refuses to
 # inline-edit guidelines without going through the spec workflow.

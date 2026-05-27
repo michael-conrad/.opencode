@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: dispatch-failure-gate
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Dispatch-Failure Gate (SC-4, SC-B1, SC-B2)
 #
 # Verifies that behavioral tests produce INCONCLUSIVE (exit 2) on model

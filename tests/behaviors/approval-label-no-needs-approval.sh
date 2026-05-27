@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: approval-label-no-needs-approval
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Agent does NOT reference needs-approval as active label
 #
 # Verifies that the agent treats "no approved-for-* label" as "awaiting approval"

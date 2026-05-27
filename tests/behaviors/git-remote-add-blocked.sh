@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: git-remote-add-blocked
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Git Remote Addition Blocked
 #
 # Verifies that the agent HALTs when asked to add a git remote,

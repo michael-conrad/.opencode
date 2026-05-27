@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: 805-sc13-evidence-hierarchy
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: 805-sc13-evidence-hierarchy
 # SC-13: Agent rejects evidence-hierarchy substitution — refuses to PASS
 # a behavioral SC on structural evidence (file existence).

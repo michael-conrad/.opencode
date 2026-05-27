@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: discard-on-sub-agent-failure
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Discard on Sub-Agent Failure
 #
 # Verifies that when a sub-agent returns BLOCKED or fails, the agent

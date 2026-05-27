@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: content-classification-gate
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Content Classification Gate in comment.md
 #
 # Verifies that when the agent processes internal-reasoning content for a comment,

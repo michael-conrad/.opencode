@@ -161,15 +161,10 @@ bash tests/test-enforcement.sh --list
 
 ### Behavioral Tests
 
+Behavioral tests generate model-run artifacts. Run individual scenario scripts:
+
 ```bash
-# Run all behavioral tests
-bash tests/behaviors/run-all.sh
-
-# List available tests
-bash tests/behaviors/run-all.sh --list
-
-# Dry run
-bash tests/behaviors/run-all.sh --dry-run
+bash tests/behaviors/<scenario>.sh
 ```
 
 ### Isolated Testing

@@ -25,7 +25,7 @@ All scenarios including spec-auditor, verification-before-completion, git-workfl
 ### Behavioral Enforcement Tests
 
 ```
-bash .opencode/tests/behaviors/run-all.sh
+bash .opencode/tests/behaviors/<scenario>.sh
 ```
 
 **Result:** EXIT CODE 2 — INCONCLUSIVE

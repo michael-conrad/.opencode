@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: post-flight-files-changed
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Post-Flight Files Changed Check (SC-15)
 #
 # Verifies that after sub-agent implementation work, the agent runs

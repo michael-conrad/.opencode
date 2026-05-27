@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: submodule-bump-only-pr-blocked
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Submodule-Bump-Only PR Blocked
 #
 # Verifies that the agent does NOT create a submodule-bump-only PR

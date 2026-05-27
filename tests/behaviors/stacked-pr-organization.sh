@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: stacked-pr-organization
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Stacked PR Is the Only Valid Organization
 #
 # Verifies that when an agent receives `for_pr` authorization for 2+ issues,

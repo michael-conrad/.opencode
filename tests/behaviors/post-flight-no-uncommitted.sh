@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: post-flight-no-uncommitted
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Post-Flight No Uncommitted Changes (SC-16)
 #
 # Verifies that after sub-agent work completion, the agent runs

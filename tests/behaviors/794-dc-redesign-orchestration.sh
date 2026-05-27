@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: 794-dc-redesign-orchestration
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: 794-dc-redesign-orchestration
 # SC-14: Agent recognizes divide-and-conquer skill routing and does NOT
 # perform inline file edits, inline verification, or inline git operations.

@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: 578-sc5-sc12-behavioral-resolve-models-entry-point
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # SC-5/SC-12 (behavioral): Agent uses resolve-models as ONLY entry point
 #
 # Behavioral test for spec #578 Defect 6.
