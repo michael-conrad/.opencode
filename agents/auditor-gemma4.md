@@ -19,10 +19,10 @@ permission:
   todowrite: deny
   question: deny
   doom_loop: deny
+  github_*: deny
   github_issue_read: allow
   github_search_issues: allow
   github_list_issues: allow
-  github_*: deny
   srclight_*: allow
 ---
 
