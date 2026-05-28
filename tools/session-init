@@ -9,36 +9,23 @@
 
 __doc__ = """Session initialization script for AI agents.
 
-Outputs key:value pairs for LLM consumption on stdout. Key names use
-the dotted scope.param convention where the prefix is the tool scope
-(github, gitbucket, srclight, dev, worktree) and the suffix is the
-exact parameter name the MCP tool or API expects. A convention comment
-at the top teaches the agent the rule.
+Outputs key:value pairs + repo identity YAML for LLM consumption on stdout.
+Developer/workspace identity (dev.name, dev.email) uses dotted key format.
+Repo identity is in the ## Repo Information YAML section with path/owner/repo/platform/url entries.
+
+Match file path (.) for root repo; subdirectory paths for submodule repos.
+Agents use repo identity values for MCP API routing (github_issue_read etc.).
 
 Session-init and env-loader are TWO INDEPENDENT PIPELINES:
-- Session-init (this script): stdout → LLM system prompt (dotted names)
-- env-loader.ts: output.env → bash environment (UPPER_CASE names, unchanged)
+- Session-init (this script): stdout → LLM system prompt
+- env-loader.ts: output.env → bash environment (UPPER_CASE names)
 
 Changing session-init output names does NOT require changes to env-loader.
-Agents read dotted names from session-init; bash scripts read UPPER_CASE
-names from env-loader. Never couple these pipelines.
-
-Canonical session-init variable names (dotted, LLM context):
-github.owner, github.repo, github.platform, github.identity_source, github.html_url,
-gitbucket.owner, gitbucket.repo, gitbucket.html_url, gitbucket.ssh_url,
-gitbucket.has_credentials, srclight.project, dev.name, dev.email,
-branch, worktree.path, worktree.fatal
 
 Canonical env-loader variable names (UPPER_CASE, bash environment — separate pipeline):
 GIT_OWNER, GIT_REPO, GIT_PLATFORM, GITHUB_HTML_URL, GITBUCKET_HTML_URL,
 GITBUCKET_SSH_URL, GITBUCKET_HAS_CREDENTIALS, DEV_NAME, DEV_EMAIL,
 BRANCH_NAME, WORKTREE_PATH, WORKTREE_FATAL
-
-Agents must use dotted session-init names for MCP parameters — do NOT
-infer values from git remotes or other sources.
-
-Human-readable diagnostic lines (Remote:, Srclight:, Hooks path:) are preserved
-for developer diagnostics but are NOT referenced by guidelines as variables.
 
 Diagnostic and side-effect output goes to stderr — silent on success.
 
@@ -52,8 +39,6 @@ Usage:
 
 Exit codes:
     0: Success
-    1: No remote configured or failed to parse owner/repo
-    2: Non-GitHub/GitBucket remote detected
 """
 
 import os
@@ -140,75 +125,6 @@ def parse_repo_url(url: str) -> tuple[str, str, str] | tuple[None, None, None]:
     return None, None, None
 
 
-def parse_git_remote_url(url: str) -> tuple[str, str] | tuple[None, None]:
-    """Parse owner and repo from GitHub remote URL (backward compat).
-
-    Delegates to parse_repo_url and returns (owner, repo) for github.com URLs.
-    """
-    owner, repo, platform = parse_repo_url(url)
-    if owner and repo and platform == "github.com":
-        return owner, repo
-    return None, None
-
-
-def is_github_remote(url: str) -> bool:
-    """Check if remote URL is a GitHub remote."""
-    owner, repo, platform = parse_repo_url(url)
-    return platform == "github.com" if platform else "github.com" in url
-
-
-def is_gitbucket_remote(url: str) -> bool:
-    """Check if remote URL is a GitBucket remote (non-github.com)."""
-    return not is_github_remote(url)
-
-
-def parse_gitbucket_url(
-    url: str,
-) -> tuple[str | None, str, str] | tuple[None, None, None]:
-    """Parse owner and repo from GitBucket remote URL. Base URL comes from .env ONLY.
-
-    Supports:
-    - SSH: ssh://git@hostname:port/owner/repo.git
-    - SSH: git@hostname:owner/repo.git (no port)
-    - HTTPS: https://hostname/owner/repo.git
-
-    Returns:
-        (base_url, owner, repo) on success, (None, None, None) on failure
-
-    CRITICAL: base_url is read from .env GITBUCKET_URL, NEVER constructed from
-    the remote URL hostname. The SSH host may differ from the web UI host.
-    """
-    owner: str | None = None
-    repo: str | None = None
-
-    ssh_url_pattern = r"^ssh://git@([^:/]+):(\d+)/([^/]+)/([^/]+?)(?:\.git)?$"
-    match = re.match(ssh_url_pattern, url)
-    if match:
-        owner = match.group(3)
-        repo = match.group(4)
-
-    if not owner:
-        ssh_short_pattern = r"^git@([^:]+):([^/]+)/([^/]+?)(?:\.git)?$"
-        match = re.match(ssh_short_pattern, url)
-        if match:
-            owner = match.group(2)
-            repo = match.group(3)
-
-    if not owner:
-        https_pattern = r"^https://([^/]+)/([^/]+)/([^/]+?)(?:\.git)?$"
-        match = re.match(https_pattern, url)
-        if match:
-            owner = match.group(2)
-            repo = match.group(3)
-
-    if not owner or not repo:
-        return None, None, None
-
-    base_url = _read_gitbucket_url_from_env()
-
-    return base_url, owner, repo
-
-
 def _read_gitbucket_url_from_env() -> str | None:
     """Read GITBUCKET_HTML_URL (preferred) or GITBUCKET_URL (legacy) from .env file."""
     try:
@@ -226,19 +142,6 @@ def _read_gitbucket_url_from_env() -> str | None:
             return html_url or legacy_url
     except OSError:
         pass
-    return None
-
-
-def extract_ssh_url(url: str) -> str | None:
-    """Extract SSH base URL (host + port, no path) from a GitBucket SSH remote.
-
-    For ssh://git@<GITBUCKET_HOST>:29418/org/repo.git
-    returns ssh://git@<GITBUCKET_HOST>:29418
-    """
-    ssh_url_pattern = r"^(ssh://git@[^:/]+:\d+)"
-    match = re.match(ssh_url_pattern, url)
-    if match:
-        return match.group(1)
     return None
 
 
@@ -273,84 +176,76 @@ def check_srclight() -> str:
         return "not_indexed"
 
 
-def get_linked_repo_dirs() -> list[str]:
-    """Get immediate subdirectories containing .git entries (file or directory).
+def collect_repo_info() -> list[dict[str, str]]:
+    """Collect all repo identity entries.
 
-    Depth-1 only: scans os.listdir(cwd), no recursion.
-    Returns directories that have a .git entry, an 'origin' remote,
-    and whose origin resolves to a DIFFERENT owner/repo than the parent.
-    Worktrees of the parent repo (same owner/repo) are excluded.
+    Returns a list of dicts with keys: path, owner, repo, platform, url.
+    Root entry always first; subdirectory entries follow.
     """
+    entries: list[dict[str, str]] = []
     cwd = os.getcwd()
-    parent_url = get_remote_url()
-    parent_owner = None
-    parent_repo = None
-    if parent_url:
-        parent_owner, parent_repo, _ = parse_repo_url(parent_url)
+    remote_url = get_remote_url()
 
+    # Root entry
+    if remote_url:
+        owner, repo, platform = parse_repo_url(remote_url)
+        if not owner or not repo:
+            owner = "(unknown)"
+            repo = "(unknown)"
+        url_str = remote_url
+    else:
+        owner = "(none)"
+        repo = "(none)"
+        platform = "local"
+        url_str = "(none)"
+
+    parent_owner = owner
+    parent_repo = repo
+
+    entries.append({
+        "path": ".",
+        "owner": owner,
+        "repo": repo,
+        "platform": platform or "unknown",
+        "url": url_str,
+    })
+
+    # Subdirectory scan: immediate subdirs with .git entries
     try:
-        entries = os.listdir(cwd)
+        dir_entries = sorted(os.listdir(cwd))
     except OSError:
-        return []
+        return entries
 
-    dirs: list[str] = []
-    for entry in sorted(entries):
-        entry_path = os.path.join(cwd, entry)
+    for entry_name in dir_entries:
+        entry_path = os.path.join(cwd, entry_name)
         if not os.path.isdir(entry_path):
             continue
         git_path = os.path.join(entry_path, ".git")
         if not os.path.exists(git_path):
             continue
-        url = run_git_command(["-C", entry_path, "remote", "get-url", "origin"])
-        if not url:
+        sub_url = run_git_command(["-C", entry_name, "remote", "get-url", "origin"])
+        if not sub_url:
             continue
-        owner, repo, _ = parse_repo_url(url)
-        if not owner or not repo:
+        sub_owner, sub_repo, sub_platform = parse_repo_url(sub_url)
+        if not sub_owner or not sub_repo:
             continue
+        # Skip worktrees (same owner/repo as parent)
         if (
             parent_owner
             and parent_repo
-            and owner == parent_owner
-            and repo == parent_repo
+            and sub_owner == parent_owner
+            and sub_repo == parent_repo
         ):
             continue
-        dirs.append(entry)
-    return dirs
+        entries.append({
+            "path": entry_name,
+            "owner": sub_owner,
+            "repo": sub_repo,
+            "platform": sub_platform or "unknown",
+            "url": sub_url,
+        })
 
-
-def emit_subfolder_mappings() -> None:
-    """Emit linked repo mappings in YAML format.
-
-    Uses get_linked_repo_dirs() for auto-discovery instead of .gitmodules.
-    Output includes owner, repo, platform (bare hostname), and url fields.
-    """
-    linked_dirs = get_linked_repo_dirs()
-    if not linked_dirs:
-        return
-
-    lines: list[str] = []
-    for dir_name in linked_dirs:
-        url = run_git_command(["-C", dir_name, "remote", "get-url", "origin"])
-        if not url:
-            continue
-
-        owner, repo, platform = parse_repo_url(url)
-        if not owner or not repo:
-            continue
-
-        lines.append(f"  - path: {dir_name}")
-        lines.append(f"    owner: {owner}")
-        lines.append(f"    repo: {repo}")
-        lines.append(f"    platform: {platform or ''}")
-        lines.append(f"    url: {url}")
-
-    if not lines:
-        return
-
-    print("## Sub-folder Repo Mappings")
-    print("submodules:")
-    for line in lines:
-        print(line)
+    return entries
 
 
 def get_source_hooks_dir() -> str | None:
@@ -449,9 +344,10 @@ def install_hooks() -> None:
                 )
                 failed_count += 1
 
-    linked_dirs = get_linked_repo_dirs()
-    for dir_name in linked_dirs:
-        if not os.path.isdir(dir_name):
+    linked_repos = collect_repo_info()
+    for repo_entry in linked_repos:
+        dir_name = repo_entry["path"]
+        if dir_name == "." or not os.path.isdir(dir_name):
             continue
 
         dir_git_path = os.path.join(os.getcwd(), dir_name, ".git")
@@ -680,8 +576,11 @@ def bootstrap_worktree_layout() -> bool:
 
     _add_to_gitignore(".worktrees/")
 
-    linked_dirs = get_linked_repo_dirs()
-    for dir_name in linked_dirs:
+    linked_repos = collect_repo_info()
+    for repo_entry in linked_repos:
+        dir_name = repo_entry["path"]
+        if dir_name == ".":
+            continue
         dir_git_path = os.path.join(os.getcwd(), dir_name, ".git")
         if os.path.isfile(dir_git_path):
             run_git_command(
@@ -749,51 +648,9 @@ def run_guard_checks() -> list[str]:
     return problems
 
 
-def resolve_identity(remote_url: str) -> tuple[str, str, str] | tuple[None, None, None]:
-    """Resolve git platform, owner, and repo from the remote URL.
-
-    Returns:
-        (platform, owner, repo) on success, (None, None, None) on failure.
-        platform is 'github' or 'gitbucket'.
-    """
-    if is_github_remote(remote_url):
-        owner, repo = parse_git_remote_url(remote_url)
-        if owner and repo:
-            return "github", owner, repo
-        return None, None, None
-
-    base_url, owner, repo = parse_gitbucket_url(remote_url)
-    if owner and repo:
-        return "gitbucket", owner, repo
-    return None, None, None
-
-
 def main() -> int:
-    remote_url = get_remote_url()
-    identity_source = "root"
-    platform: str | None = None
-    owner: str | None = None
-    repo: str | None = None
-
-    if remote_url:
-        platform, owner, repo = resolve_identity(remote_url)
-        if not platform or not owner or not repo:
-            print(
-                "Could not determine repository identity from remote URL.",
-                file=sys.stderr,
-            )
-            print(f"Remote URL: {remote_url}", file=sys.stderr)
-            return 1
-    else:
-        print(
-            "No git remote configured — operating in local-only mode",
-            file=sys.stderr,
-        )
-        owner = "(none)"
-        repo = "(none)"
-        platform = "local"
-        identity_source = "local"
-        remote_url = "(none)"
+    repo_info = collect_repo_info()
+    root_entry = repo_info[0] if repo_info else {}
 
     user_name = get_user_name()
     user_email = get_user_email()
@@ -819,46 +676,9 @@ def main() -> int:
     print("# Use scope.param directly as the tool parameter value.")
     print("# Example: github_issue_read(owner=github.owner, repo=github.repo)")
 
-    print(f"github.owner: {owner}")
-    print(f"github.repo: {repo}")
-    print(f"github.platform: {platform}")
-    print(f"github.identity_source: {identity_source}")
     print(f"dev.name: {user_name}")
     print(f"dev.email: {user_email}")
     print(f"branch: {current_branch}")
-
-    if identity_source == "local":
-        print("Remote: (none)")
-    else:
-        print(f"Remote: {remote_url}")
-
-    if platform == "github":
-        print("github.html_url: https://github.com/")
-
-    if platform == "gitbucket" and remote_url != "(none)":
-        base_url, _, _ = parse_gitbucket_url(remote_url)
-        if base_url:
-            print(f"gitbucket.html_url: {base_url}")
-        else:
-            print(
-                "GITBUCKET_HTML_URL not found in .env — URL generation unavailable",
-                file=sys.stderr,
-            )
-        ssh_url = extract_ssh_url(remote_url)
-        if ssh_url:
-            print(f"gitbucket.ssh_url: {ssh_url}")
-        has_credentials = False
-        try:
-            _env_path = PROJECT_ROOT / ".env"
-            if _env_path.exists():
-                with open(_env_path) as f:
-                    content = f.read()
-                    has_credentials = "GITBUCKET_TOKEN=" in content and (
-                        "GITBUCKET_HTML_URL=" in content or "GITBUCKET_URL=" in content
-                    )
-        except OSError:
-            pass
-        print(f"gitbucket.has_credentials: {'true' if has_credentials else 'false'}")
 
     if in_wt and wt_path and main_repo:
         print(f"worktree.path: {wt_path}")
@@ -874,7 +694,7 @@ def main() -> int:
         print(f"Hooks path: {hooks_path}")
 
     if srclight_status == "indexed":
-        print(f"srclight.project: {repo}")
+        print(f"srclight.project: {root_entry.get('repo', '')}")
         print("Srclight: indexed")
     else:
         print(
@@ -884,7 +704,16 @@ def main() -> int:
     for problem in guard_problems:
         print(problem)
 
-    emit_subfolder_mappings()
+    # Emit unified ## Repo Information section
+    print("## Repo Information")
+    print("# Match file path to entry for owner/repo/platform values.")
+    for entry in repo_info:
+        print(f"- path: {entry['path']}")
+        print(f"  owner: {entry['owner']}")
+        print(f"  repo: {entry['repo']}")
+        print(f"  platform: {entry['platform']}")
+        print(f"  url: {entry['url']}")
+
     return 0
 
 
