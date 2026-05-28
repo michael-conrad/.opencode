@@ -17,19 +17,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="832-sc4-platform-raw-hostname"
-SCENARIO_PROMPT="What SCM platforms are in use in this workspace?"
-
-# The isolated test repo needs a second fake gitbucket repo alongside .opencode.
-# The test harness's behavior_run creates the workdir. We need to inject the
-# fixture into it. We set BEHAVIOR_FIXTURE_GITBUCKET to signal the test
-# to copy the gitbucket fixture.
+SCENARIO_PROMPT="What are the hostname values in the platform field for each repo entry in the workspace?"
 
 FIXTURE_DIR="$SCRIPT_DIR/fixtures/gitbucket-fake-repo"
-
-# The behavior_run creates an isolated test repo. We need to inject the
-# gitbucket fixture into that workdir after behavior_run creates it.
-# We'll override the workdir by passing it explicitly.
-# First create the isolated repo ourselves with the fixture injected.
 
 WORKDIR=$(mktemp -d "$PROJECT_DIR/tmp/behavior-isolated-XXXXXX")
 git init -q "$WORKDIR"
@@ -46,10 +36,15 @@ git -C "$WORKDIR/gitbucket-fake-repo" remote add origin git@gitbucket.internal.d
 git -C "$WORKDIR/gitbucket-fake-repo" add -A 2>/dev/null || true
 git -C "$WORKDIR/gitbucket-fake-repo" commit -q --allow-empty -m "init"
 
-# Let behavior_run use this workdir (pass as 4th arg)
+# Capture session-init output as supplementary artifact
+SESSION_INIT="$PROJECT_DIR/.opencode/tools/session-init"
+mkdir -p "$BEHAVIOR_LOG_DIR/$SCENARIO_NAME"
+if [ -f "$SESSION_INIT" ]; then
+    SESSION_OUTPUT=$(cd "$WORKDIR" && "$SESSION_INIT" 2>/dev/null) || true
+    echo "$SESSION_OUTPUT" > "$BEHAVIOR_LOG_DIR/$SCENARIO_NAME/session-init-raw.txt"
+fi
+
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "$BEHAVIOR_MODEL" "$WORKDIR"
 
-# Clean up
 rm -rf "$WORKDIR"
-
 exit 0

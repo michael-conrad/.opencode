@@ -138,19 +138,19 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 
 One plugin runs at session start, and one script provides complementary data:
 
-1. **session-init** (`tools/session-init`): Emits session variables silently (owner, repo, platform, hooks). **Canonical source for identity data including Sub-folder Repo Mappings.**
+1. **session-init** (`tools/session-init`): Emits session variables silently (owner, repo, platform, hooks). **Canonical source for identity data including ## Repo Information section.**
 2. **session_context_triggers.py** (`scripts/session_context_triggers.py`): Emits trigger warnings into first user message
 
 Session context output includes:
 
-- **Identity section** (always, in system prompt): `github.owner`, `github.repo`, `github.platform`, credential status
+- **Repo Information section** (always, in system prompt): `owner`, `repo`, `platform`, `url` per repo entry in `## Repo Information` YAML block
 - **Identity-echo directive** (always, in first user message): mandatory identity echo at session start
 - **Trigger alerts** (when detected, in first user message): trigger warnings for special states
 - **Tier 3 probes** (opt-in via `.opencode-issue-probe`): `open_pr_on_branch`, `ci_failure`, `stale_pr`
 
 Credential status values: `verified` (token exists + API ping succeeds), `present` (token exists, liveness unchecked), `missing` (no token found), `stale` (token rejected by API), `unavailable` (platform unknown).
 
-- **Sub-folder repo mappings** (when `.gitmodules` exists): `submodule_path: owner/repo (platform)` — files under submodule paths belong to separate repos; use the mapped `owner/repo` for API calls targeting those paths. Emitted by `session-init` (canonical source).
+- **Repo Information section** (always, in system prompt): `owner`, `repo`, `platform`, `url` per repo entry in `## Repo Information` YAML block. Emitted by `session-init` (canonical source).
 
 ---
 
