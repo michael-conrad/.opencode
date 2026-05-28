@@ -19,32 +19,17 @@ source "$SCRIPT_DIR/helpers.sh"
 SCENARIO_NAME="832-sc1-repo-information-section"
 SCENARIO_PROMPT="What git repository are you working in right now? Tell me the owner, repo name, and platform."
 
-# Build isolated test repo with github.com remote + .opencode submodule
 WORKDIR=$(mktemp -d "$PROJECT_DIR/tmp/behavior-isolated-XXXXXX")
 git init -q "$WORKDIR"
 git -C "$WORKDIR" config user.email "test@test.dev"
 git -C "$WORKDIR" config user.name "Test"
 git -C "$WORKDIR" remote add origin git@github.com:michael-conrad/opencode-config.git
 
-# Clone and add .opencode submodule
-SUBMODULE_URL="https://github.com/michael-conrad/.opencode.git"
-git clone -q "$SUBMODULE_URL" "$WORKDIR/.opencode" 2>/dev/null || true
-git -C "$WORKDIR" submodule add -q "$SUBMODULE_URL" .opencode 2>/dev/null || true
-git -C "$WORKDIR" add -A 2>/dev/null || true
-git -C "$WORKDIR" commit -q --allow-empty -m "init" 2>/dev/null || true
-
-# Inject story fixtures
-STORY_SETUP="$SCRIPT_DIR/fixtures/setup-story-fixtures.sh"
-if [ -f "$STORY_SETUP" ]; then
-    source "$STORY_SETUP"
-    setup_story_fixtures "$WORKDIR"
-fi
-
 # Capture session-init output as supplementary artifact
 SESSION_INIT="$PROJECT_DIR/.opencode/tools/session-init"
 mkdir -p "$BEHAVIOR_LOG_DIR/$SCENARIO_NAME"
 if [ -f "$SESSION_INIT" ]; then
-    SESSION_OUTPUT=$(cd "$WORKDIR" && "$SESSION_INIT" 2>/dev/null) || true
+    SESSION_OUTPUT=$(cd "$WORKDIR" && uv run --script "$SESSION_INIT" 2>/dev/null) || true
     echo "$SESSION_OUTPUT" > "$BEHAVIOR_LOG_DIR/$SCENARIO_NAME/session-init-raw.txt"
 fi
 

@@ -140,60 +140,62 @@ behavior_run() {
     local output_file="$log_dir/stdout.log"
     local err_file="$log_dir/stderr.log"
 
+    local did_create_workdir=0
     if [ -z "$workdir" ]; then
         workdir=$(mktemp -d "$PROJECT_DIR/tmp/behavior-isolated-XXXXXX")
         git init -q "$workdir"
         git -C "$workdir" config user.email "test@test.dev"
         git -C "$workdir" config user.name "Test"
+        did_create_workdir=1
+    fi
 
-        local submodule_commit="${BEHAVIOR_SUBMODULE_COMMIT:-}"
-        if [ -z "$submodule_commit" ]; then
-            submodule_commit=$(git -C "$PROJECT_DIR" submodule status .opencode 2>/dev/null | awk '{print $1}' | sed 's/^[-+]//' || true)
-        fi
+    local submodule_remote_url=""
+    if [ -f "$PROJECT_DIR/.gitmodules" ]; then
+        submodule_remote_url=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || true)
+    fi
+    if [ -z "$submodule_remote_url" ]; then
+        submodule_remote_url="https://github.com/michael-conrad/.opencode.git"
+    fi
+    submodule_remote_url=$(echo "$submodule_remote_url" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
 
-        local submodule_remote_url=""
-        if [ -f "$PROJECT_DIR/.gitmodules" ]; then
-            submodule_remote_url=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || true)
-        fi
-        if [ -z "$submodule_remote_url" ]; then
-            submodule_remote_url="https://github.com/michael-conrad/.opencode.git"
-        fi
-        submodule_remote_url=$(echo "$submodule_remote_url" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
-
+    if [ ! -d "$workdir/.opencode" ]; then
         git clone -q "$submodule_remote_url" "$workdir/.opencode" 2>/dev/null || {
             echo "FATAL: git clone failed for .opencode from $submodule_remote_url" >&2
             echo "Check network connectivity and repository access" >&2
             exit 1
         }
+    fi
 
-        git -C "$workdir" submodule add -q "$submodule_remote_url" .opencode 2>/dev/null || {
-            echo "FATAL: git submodule add failed for .opencode" >&2
+    local submodule_commit="${BEHAVIOR_SUBMODULE_COMMIT:-}"
+    if [ -z "$submodule_commit" ]; then
+        submodule_commit=$(git -C "$PROJECT_DIR" submodule status .opencode 2>/dev/null | awk '{print $1}' | sed 's/^[-+]//' || true)
+    fi
+    if [ -n "$submodule_commit" ]; then
+        git -C "$workdir/.opencode" checkout -q "$submodule_commit" 2>/dev/null || {
+            echo "FATAL: could not checkout submodule commit $submodule_commit" >&2
             exit 1
         }
+    fi
 
-        if [ -n "$submodule_commit" ]; then
-            git -C "$workdir/.opencode" checkout -q "$submodule_commit" 2>/dev/null || {
-                echo "FATAL: could not checkout submodule commit $submodule_commit" >&2
-                exit 1
-            }
+    if [ ! -f "$workdir/.gitmodules" ] || ! grep -q '.opencode' "$workdir/.gitmodules" 2>/dev/null; then
+        git -C "$workdir" submodule add -q "$submodule_remote_url" .opencode 2>/dev/null || true
+    fi
+
+    git -C "$workdir" add -A 2>/dev/null || true
+    git -C "$workdir" commit -q --allow-empty -m "init" 2>/dev/null || true
+
+    if [ "${BEHAVIOR_FIXTURE_ISSUES:-1}" = "1" ]; then
+        FIXTURE_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-fixture-issues.sh"
+        if [ -f "$FIXTURE_SETUP" ]; then
+            source "$FIXTURE_SETUP"
+            setup_fixture_issues "$workdir"
         fi
+    fi
 
-        git -C "$workdir" add -A 2>/dev/null || true
-        git -C "$workdir" commit -q --allow-empty -m "init"
-
-        if [ "${BEHAVIOR_FIXTURE_ISSUES:-1}" = "1" ]; then
-            FIXTURE_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-fixture-issues.sh"
-            if [ -f "$FIXTURE_SETUP" ]; then
-                source "$FIXTURE_SETUP"
-                setup_fixture_issues "$workdir"
-            fi
-        fi
-
-        STORY_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-story-fixtures.sh"
-        if [ -f "$STORY_SETUP" ]; then
-            source "$STORY_SETUP"
-            setup_story_fixtures "$workdir"
-        fi
+    STORY_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-story-fixtures.sh"
+    if [ -f "$STORY_SETUP" ]; then
+        source "$STORY_SETUP"
+        setup_story_fixtures "$workdir"
     fi
 
     while [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; do
