@@ -45,5 +45,6 @@ fi
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "$BEHAVIOR_MODEL" "$WORKDIR"
 
+chmod -R u+w "$WORKDIR" 2>/dev/null || true
 rm -rf "$WORKDIR"
 exit 0
