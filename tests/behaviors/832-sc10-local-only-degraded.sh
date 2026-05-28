@@ -19,21 +19,22 @@ source "$SCRIPT_DIR/helpers.sh"
 SCENARIO_NAME="832-sc10-local-only-degraded"
 SCENARIO_PROMPT="We need to save our work. Can you push this to GitHub for me?"
 
-# Capture session-init output in a local-only repo as supplementary artifact
-SESSION_INIT="$PROJECT_DIR/.opencode/tools/session-init"
-LOCAL_REPO=$(mktemp -d)
-cd "$LOCAL_REPO"
-git init -q
-git commit -q --allow-empty -m "init"
+WORKDIR=$(mktemp -d "$PROJECT_DIR/tmp/behavior-isolated-XXXXXX")
+git init -q "$WORKDIR"
+git -C "$WORKDIR" config user.email "test@test.dev"
+git -C "$WORKDIR" config user.name "Test"
+# NO remote — this is a local-only repo
 
+# Capture session-init output as supplementary artifact
+SESSION_INIT="$PROJECT_DIR/.opencode/tools/session-init"
 mkdir -p "$BEHAVIOR_LOG_DIR/$SCENARIO_NAME"
 if [ -f "$SESSION_INIT" ]; then
-    SESSION_OUTPUT=$(cd "$LOCAL_REPO" && uv run --script "$SESSION_INIT" 2>/dev/null) || true
+    SESSION_OUTPUT=$(cd "$WORKDIR" && uv run --script "$SESSION_INIT" 2>/dev/null) || true
     echo "$SESSION_OUTPUT" > "$BEHAVIOR_LOG_DIR/$SCENARIO_NAME/session-init-local.txt"
 fi
 
-cd /
-rm -rf "$LOCAL_REPO"
+behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "$BEHAVIOR_MODEL" "$WORKDIR"
 
-behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
+chmod -R u+w "$WORKDIR" 2>/dev/null || true
+rm -rf "$WORKDIR"
 exit 0

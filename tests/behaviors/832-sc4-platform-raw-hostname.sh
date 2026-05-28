@@ -36,15 +36,15 @@ git -C "$WORKDIR/gitbucket-fake-repo" remote add origin git@gitbucket.internal.d
 git -C "$WORKDIR/gitbucket-fake-repo" add -A 2>/dev/null || true
 git -C "$WORKDIR/gitbucket-fake-repo" commit -q --allow-empty -m "init"
 
-# Capture session-init output as supplementary artifact
 SESSION_INIT="$PROJECT_DIR/.opencode/tools/session-init"
 mkdir -p "$BEHAVIOR_LOG_DIR/$SCENARIO_NAME"
 if [ -f "$SESSION_INIT" ]; then
-    SESSION_OUTPUT=$(cd "$WORKDIR" && "$SESSION_INIT" 2>/dev/null) || true
+    SESSION_OUTPUT=$(cd "$WORKDIR" && uv run --script "$SESSION_INIT" 2>/dev/null) || true
     echo "$SESSION_OUTPUT" > "$BEHAVIOR_LOG_DIR/$SCENARIO_NAME/session-init-raw.txt"
 fi
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "$BEHAVIOR_MODEL" "$WORKDIR"
 
+chmod -R u+w "$WORKDIR" 2>/dev/null || true
 rm -rf "$WORKDIR"
 exit 0
