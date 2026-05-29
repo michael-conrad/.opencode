@@ -541,15 +541,6 @@ def _add_to_gitignore(entry: str) -> bool:
         return False
 
 
-def get_worktree_display() -> str:
-    in_wt, wt_path, _ = detect_worktree()
-    if in_wt:
-        return f"Worktrees: {wt_path}"
-    if is_worktree_setup():
-        return "Worktrees: .worktrees/main/"
-    return ""
-
-
 def bootstrap_worktree_layout() -> bool:
     in_wt, _, _ = detect_worktree()
     if in_wt:
@@ -685,40 +676,26 @@ def main() -> int:
             "Submodule context detected — skipping worktree bootstrap and hook installation",
             file=sys.stderr,
         )
-        worktree_ok = False
     else:
         install_hooks()
-        worktree_ok = bootstrap_worktree_layout()
+        bootstrap_worktree_layout()
 
     current_branch = get_current_branch() or "unknown"
     in_wt, wt_path, main_repo = detect_worktree()
-    wt_display = get_worktree_display()
     hooks_path = get_hooks_path()
 
-    print("# Convention: dotted prefix = tool scope, suffix = MCP/API parameter name")
-    print("# Use scope.param directly as the tool parameter value.")
-    print("# Example: github_issue_read(owner=github.owner, repo=github.repo)")
-
-    print(f"dev.name: {user_name}")
-    print(f"dev.email: {user_email}")
-    print(f"branch: {current_branch}")
+    print(f"Developer: {user_name}")
+    print(f"Email: {user_email}")
+    print(f"Git branch: {current_branch}")
 
     if in_wt and wt_path and main_repo:
-        print(f"worktree.path: {wt_path}")
-    elif worktree_ok:
-        if wt_display:
-            print(wt_display)
-        else:
-            print("Worktrees: available")
-    else:
-        print("worktree.fatal: 1")
+        print(f"Worktree: {wt_path}")
 
     if hooks_path:
-        print(f"Hooks path: {hooks_path}")
+        print(f"Git hooks: {hooks_path}")
 
     if srclight_status == "indexed":
-        print(f"srclight.project: {root_entry.get('repo', '')}")
-        print("Srclight: indexed")
+        print(f"Code index: {root_entry.get('repo', '')}")
     else:
         print(
             "Srclight: NOT indexed — tell the developer to run: uvx srclight index --embed qwen3-embedding"

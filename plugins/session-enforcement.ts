@@ -311,9 +311,6 @@ ${entries}
 Review these diagnostics. For errors, investigate the source script. For warnings, assess whether action is needed.`;
 }
 
-let cachedOutput: string | null = null;
-let cacheTimestamp = 0;
-
 /**
  * Process-scoped set of session IDs that are sub-agent sessions
  * (sessions with a parentID). Populated in system.transform by
@@ -393,11 +390,7 @@ function ensureHooksInstalled(projectDir: string): void {
   }
 }
 
-async function runSessionInit(projectDir: string): Promise<string> {
-  if (cachedOutput && Date.now() - cacheTimestamp < CACHE_TTL_MS) {
-    return cachedOutput;
-  }
-
+function runSessionInit(projectDir: string): string {
   try {
     const stdout = execSync("./.opencode/tools/session-init", {
       cwd: projectDir,
@@ -406,9 +399,6 @@ async function runSessionInit(projectDir: string): Promise<string> {
       timeout: 30000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim();
-
-    cachedOutput = stdout;
-    cacheTimestamp = Date.now();
 
     return stdout;
   } catch (err: any) {
@@ -448,9 +438,6 @@ async function runSessionInit(projectDir: string): Promise<string> {
         exitCode,
       });
     }
-
-    cachedOutput = stdout;
-    cacheTimestamp = Date.now();
 
     return stdout;
   }
@@ -824,10 +811,10 @@ function getWorkingTreeStatus(projectDir: string): string {
   }
 }
 
-function buildPreImplementationGate(cachedOutput: string | null, projectDir: string): string {
-  const branch = (cachedOutput ? (cachedOutput.match(/branch:\s*(\S+)/)?.[1] || null) : null) || getCurrentBranch(projectDir) || "unknown";
+function buildPreImplementationGate(projectDir: string): string {
+  const branch = getCurrentBranch(projectDir) || "unknown";
   const treeStatus = getWorkingTreeStatus(projectDir);
-  const worktreePath = (cachedOutput ? (cachedOutput.match(/Worktrees:\s*(\S+)/)?.[1] || "none") : "none");
+  const worktreePath = "none";
   return `### Pre-Implementation Gate
 
 **Current state:** branch=${branch}, tree=${treeStatus}, worktree=${worktreePath}
@@ -933,7 +920,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         }
       }
 
-      const scriptOutput = await runSessionInit(projectDir);
+      const scriptOutput = runSessionInit(projectDir);
       if (scriptOutput) {
         output.system.push(scriptOutput);
       }
@@ -1008,7 +995,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           // --- First-turn-only: Trigger warnings ---
           const triggersOutput = await runSessionContextTriggers(projectDir);
           // --- Spec #432: Pre-Implementation Gate + Core Principles ---
-          const gateBlock = buildPreImplementationGate(cachedOutput, projectDir);
+          const gateBlock = buildPreImplementationGate(projectDir);
           const corePrinciplesBlock = buildCorePrinciplesBlock();
           const tier1Block = buildTier1EnforcementBlock();
 
