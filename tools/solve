@@ -1,0 +1,233 @@
+#!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
+# /// script
+# requires-python = "~=3.12"
+# dependencies = ["z3-solver", "pyyaml>=6.0"]
+# ///
+
+"""
+DESCRIPTION: Z3 SAT solver for constraint rules. Accepts YAML constraint files and produces SAT/UNSAT verdicts.
+Usage: ./.opencode/tools/solve --file <constraints.yaml> [--no-global] [--timeout <ms>] [--track-unsat]
+"""
+
+import os as _os
+import sys
+import re
+from pathlib import Path
+
+TOOL_DIR = Path(__file__).resolve().parent
+_path = TOOL_DIR
+while _path.name != ".opencode":
+    if _path == _path.parent:
+        break
+    _path = _path.parent
+GLOBAL_CONSTRAINTS = _path / "issues" / "artifacts" / "global-constraints.yaml" if _path.name == ".opencode" else None
+
+
+def _parse_z3_expr(expr_str: str) -> str:
+    """Translate a constraint expression string to a Z3 Python expression.
+    Replaces logical operators and normalizes identifiers.
+    """
+    cleaned = expr_str.strip()
+    cleaned = cleaned.replace("==", " __EQ__ ")
+    cleaned = cleaned.replace("!=", " __NE__ ")
+    cleaned = re.sub(r'\bAND\b', 'And', cleaned)
+    cleaned = re.sub(r'\bOR\b', 'Or', cleaned)
+    cleaned = re.sub(r'\bNOT\b', 'Not', cleaned)
+    cleaned = re.sub(r'\bimplies\b', 'Implies', cleaned)
+    cleaned = re.sub(r'\bXOR\b', 'Xor', cleaned)
+    cleaned = cleaned.replace("__EQ__", "==")
+    cleaned = cleaned.replace("__NE__", "!=")
+    return cleaned
+
+
+def _load_yaml_constraints(file_path: Path) -> dict:
+    import yaml
+    try:
+        data = yaml.safe_load(file_path.read_text())
+    except Exception as e:
+        return {"error": f"Cannot parse {file_path}: {e}"}
+
+    if not isinstance(data, dict):
+        return {"error": f"Expected dict, got {type(data).__name__}"}
+    return data
+
+
+def _get_bool_vars(expressions: list[str]) -> set[str]:
+    vars_set: set[str] = set()
+    for expr in expressions:
+        for token in expr.split():
+            base = token.strip("()").replace("==", "").replace("!=", "").replace(">", "").replace("<", "")
+            if base and base.isidentifier() and base not in ("And", "Or", "Not", "Implies", "Xor", "True", "False"):
+                vars_set.add(base)
+    return vars_set
+
+
+def _build_z3_model(constraints_data: dict, track_unsat: bool, timeout_ms: int) -> dict:
+    from z3 import Bool, Solver, sat, unsat, unknown, And, Or, Not, Implies, Xor, Z3Exception
+
+    constraints = constraints_data.get("constraints", [])
+    if not constraints:
+        return {
+            "status": "ERROR",
+            "error_code": "NO_CONSTRAINTS",
+            "error_message": "No constraints found in input file",
+        }
+
+    names = []
+    exprs = []
+    for c in constraints:
+        name = c.get("name", "?")
+        raw = str(c.get("expr", ""))
+        z3_expr = _parse_z3_expr(raw)
+        names.append(name)
+        exprs.append(z3_expr)
+
+    all_vars = _get_bool_vars(exprs) | _get_bool_vars([str(c.get("expr", "")) for c in constraints])
+    z3_vars = {v: Bool(v) for v in all_vars}
+
+    solver = Solver()
+    if timeout_ms > 0:
+        solver.set("timeout", timeout_ms)
+
+    if track_unsat:
+        solver.set("unsat_core", True)
+
+    z3_assertions = []
+    for name, expr_str in zip(names, exprs):
+        try:
+            compiled = eval(expr_str, {"__builtins__": {}}, {
+                "And": And, "Or": Or, "Not": Not, "Implies": Implies, "Xor": Xor,
+                **z3_vars,
+            })
+            if track_unsat:
+                solver.assert_and_track(compiled, name)
+            else:
+                solver.add(compiled)
+            z3_assertions.append((name, str(expr_str)))
+        except Exception as e:
+            return {
+                "status": "ERROR",
+                "error_code": "PARSE_ERROR",
+                "error_message": f"Cannot parse constraint '{name}': {expr_str} — {e}",
+            }
+
+    result = solver.check()
+    verdict = "SAT" if result == sat else "UNSAT" if result == unsat else "UNKNOWN"
+    model_str = ""
+    unsat_core: list[str] = []
+
+    if result == sat:
+        m = solver.model()
+        model_lines = []
+        for decl in m.decls():
+            model_lines.append(f"  {decl.name()} = {m[decl]}")
+        model_str = "\n".join(model_lines)
+    elif track_unsat and result == unsat:
+        try:
+            unsat_core_list = solver.unsat_core()
+            unsat_core = [str(c) for c in unsat_core_list] if unsat_core_list else []
+        except (AttributeError, Z3Exception):
+            unsat_core = []
+
+    return {
+        "status": verdict,
+        "assertions": [(n, e) for n, e in z3_assertions],
+        "model": model_str,
+        "unsat_core": unsat_core,
+    }
+
+
+def _format_output(z3_result: dict) -> str:
+    status = z3_result["status"]
+    verdict_prose = {
+        "SAT": "SATISFIABLE — A valid assignment exists for all constraints.",
+        "UNSAT": "UNSATISFIABLE — No assignment satisfies all constraints simultaneously.",
+        "UNKNOWN": "UNKNOWN — Solver could not determine satisfiability within the given timeout.",
+        "ERROR": "ERROR — Constraint solving failed.",
+    }
+    lines = [verdict_prose.get(status, f"Status: {status}")]
+
+    if status == "SAT" and z3_result.get("model"):
+        lines.append("")
+        lines.append("Model assignment:")
+        lines.append(z3_result["model"])
+
+    if status == "UNSAT" and z3_result.get("unsat_core"):
+        lines.append("")
+        lines.append("Unsat core:")
+        for c in z3_result["unsat_core"]:
+            lines.append(f"  - {c}")
+
+    lines.append("---")
+    yaml_parts = [f"status: \"{z3_result['status']}\""]
+    if status == "SAT" and z3_result.get("model"):
+        yaml_parts.append("model:")
+        for decl_line in z3_result["model"].split("\n"):
+            yaml_parts.append(f"  {decl_line.strip()}")
+    if status == "UNSAT" and z3_result.get("unsat_core"):
+        yaml_parts.append("unsat_core:")
+        for c in z3_result["unsat_core"]:
+            yaml_parts.append(f"  - \"{c}\"")
+    if status == "ERROR":
+        yaml_parts.append(f"error_code: \"{z3_result.get('error_code', '')}\"")
+        yaml_parts.append(f"error_message: \"{z3_result.get('error_message', '')}\"")
+
+    lines.append("\n".join(yaml_parts))
+    return "\n".join(lines)
+
+
+def main() -> None:
+    if _os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
+        print(
+            "ERROR: This script must be run via its dispatcher. Direct invocation is not permitted.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Z3 SAT solver for constraint rules")
+    parser.add_argument("--file", type=str, required=True, help="Path to YAML constraint file")
+    parser.add_argument("--no-global", action="store_true", help="Skip loading global constraints")
+    parser.add_argument("--timeout", type=int, default=30000, help="Solver timeout in ms (default: 30000)")
+    parser.add_argument("--track-unsat", action="store_true", help="Enable unsat core tracking")
+    args = parser.parse_args()
+
+    constraints_path = Path(args.file)
+    if not constraints_path.exists():
+        print(f"Error: constraint file not found: {constraints_path}", file=sys.stderr)
+        sys.exit(2)
+
+    combined_constraints: dict = {"constraints": []}
+
+    if not args.no_global and GLOBAL_CONSTRAINTS and GLOBAL_CONSTRAINTS.exists():
+        global_data = _load_yaml_constraints(GLOBAL_CONSTRAINTS)
+        if "error" not in global_data:
+            combined_constraints["constraints"].extend(global_data.get("constraints", []))
+
+    file_data = _load_yaml_constraints(constraints_path)
+    if "error" in file_data:
+        print(file_data["error"], file=sys.stderr)
+        sys.exit(2)
+
+    combined_constraints["constraints"].extend(file_data.get("constraints", []))
+
+    z3_result = _build_z3_model(combined_constraints, track_unsat=args.track_unsat, timeout_ms=args.timeout)
+
+    output = _format_output(z3_result)
+    print(output)
+
+    output_path = constraints_path.parent / (constraints_path.stem + ".out")
+    output_path.write_text(output)
+
+    if z3_result["status"] == "ERROR":
+        sys.exit(2)
+
+    sys.exit(0 if z3_result["status"] == "SAT" else 1 if z3_result["status"] == "UNSAT" else 2)
+
+
+if __name__ == "__main__":
+    main()

@@ -73,7 +73,7 @@ def main() -> None:
         print(f"Error: directory not found: {scan_dir}", file=sys.stderr)
         sys.exit(1)
 
-    extract_mod = _load_module("sym-extract")
+    extract_mod = _load_module("rules-extract")
     result = extract_mod.extract_yaml_blocks(scan_dir)
 
     gates = result.gates

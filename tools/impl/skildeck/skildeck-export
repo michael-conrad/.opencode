@@ -195,7 +195,7 @@ def main() -> None:
     output_dir = Path(args.output)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    extract_mod = _load_module("sym-extract")
+    extract_mod = _load_module("rules-extract")
     result = extract_mod.extract_yaml_blocks(scan_dir)
 
     fmt = args.format

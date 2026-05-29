@@ -7,9 +7,9 @@
 # dependencies = []
 # ///
 
-__doc__ = """DESCRIPTION: Symbolic analysis engine for guidelines and skills. Usage: ./.opencode/tools/symbolic <action> [options]
+__doc__ = """DESCRIPTION: Rules analysis engine for guidelines and skills. Usage: ./.opencode/tools/rules <action> [options]
 Actions: extract, extract-dot, conflicts, flow, states, complete, drift, analyze, report, help
-Example: ./.opencode/tools/symbolic analyze
+Example: ./.opencode/tools/rules analyze
 """
 import os
 import subprocess
@@ -22,15 +22,15 @@ while _path.name != ".opencode":
 PROJECT_ROOT = _path.parent
 
 ACTIONS = {
-    "extract": "sym-extract",
-    "extract-dot": "sym-extract-dot",
-    "conflicts": "sym-conflicts",
-    "flow": "sym-flow",
-    "states": "sym-states",
-    "complete": "sym-complete",
-    "drift": "sym-drift",
-    "analyze": "sym-analyze",
-    "report": "sym-report",
+    "extract": "rules-extract",
+    "extract-dot": "rules-extract-dot",
+    "conflicts": "rules-conflicts",
+    "flow": "rules-flow",
+    "states": "rules-states",
+    "complete": "rules-complete",
+    "drift": "rules-drift",
+    "analyze": "rules-analyze",
+    "report": "rules-report",
 }
 
 def _get_description(script_path: Path) -> str:
@@ -72,7 +72,7 @@ def main() -> None:
         print(f"Error: unknown action {action!r}. Available: {', '.join(ACTIONS)}", file=sys.stderr)
         sys.exit(1)
     script = PROJECT_ROOT / ".opencode" / "tools" / "impl" / ACTIONS[action]
-    sys.exit(_run_action(script, args[1:], f"OK: .opencode/tools/symbolic {action} completed."))
+    sys.exit(_run_action(script, args[1:], f"OK: .opencode/tools/rules {action} completed."))
 
 if __name__ == "__main__":
     main()

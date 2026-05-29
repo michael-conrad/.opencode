@@ -53,11 +53,11 @@ class LintFinding:
         return asdict(self)
 
 def _load_sym_extract():
-    source = (IMPL_DIR.parent / "sym-extract").read_text()
+    source = (IMPL_DIR.parent / "rules-extract").read_text()
     mod = types.ModuleType("sym_extract")
-    mod.__file__ = str(IMPL_DIR.parent / "sym-extract")
+    mod.__file__ = str(IMPL_DIR.parent / "rules-extract")
     sys.modules["sym_extract"] = mod
-    exec(compile(source, str(IMPL_DIR.parent / "sym-extract"), "exec"), mod.__dict__)
+    exec(compile(source, str(IMPL_DIR.parent / "rules-extract"), "exec"), mod.__dict__)
     return mod
 
 def _extract_source_label(filepath: Path, scan_dir: Path) -> str:

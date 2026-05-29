@@ -103,7 +103,7 @@ def main() -> None:
             if current_hash != last_hash:
                 print(f"Change detected (hash: {current_hash}), regenerating...")
                 try:
-                    extract_mod = _load_module("sym-extract")
+                    extract_mod = _load_module("rules-extract")
                     result = extract_mod.extract_yaml_blocks(scan_dir)
                     html_output = export_mod._export_html(
                         result.rules,

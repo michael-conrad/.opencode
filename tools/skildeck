@@ -46,12 +46,12 @@ ACTIONS = {
 }
 
 ANALYSIS = {
-    "exhaustive": "sym-exhaustive",
-    "entailment": "sym-entailment",
-    "guards": "sym-guards",
-    "enforcement": "sym-enforcement",
-    "triggers": "sym-triggers",
-    "decomposition": "sym-decomposition",
+    "exhaustive": "rules-exhaustive",
+    "entailment": "rules-entailment",
+    "guards": "rules-guards",
+    "enforcement": "rules-enforcement",
+    "triggers": "rules-triggers",
+    "decomposition": "rules-decomposition",
 }
 
 def _get_description(script_path: Path) -> str:

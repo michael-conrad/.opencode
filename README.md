@@ -82,7 +82,6 @@ Self-contained modules with YAML frontmatter for self-discovery:
 | `py` | Python utilities |
 | `jupyter`, `jupyter-start`, `jupyter-stop` | Jupyter notebook management |
 | `memory` | Memory/state persistence |
-| `symbolic` | Symbolic link management |
 | `help` | Help documentation |
 
 ### Plugins (`plugins/`)

@@ -25,6 +25,7 @@ Full guideline content for Tier 2+ is loaded on-demand by sub-agents. Tier 1 fil
 | `087-no-backward-compat.md` | 2 | backward compat, refactor, deprecate, breaking change | Refactoring |
 | `090-data-integrity.md` | 1 | data integrity, mutable, mutation, database, production data | Data operations |
 | `091-incremental-build.md` | 1 | incremental, decompose, monolithic, item, TDD, RED, GREEN | Implementation planning |
+| `092-spec-reasoning-tools.md` | 2 | constrain..., rule..., SAT, UNSAT, Z3, consistency | Constraint and reasoning tools |
 | `100-persistence.md` | 2 | PostgreSQL, SQLAlchemy, persistence, database, ORM, session | Database code |
 | `115-branch-naming.md` | 2 | branch naming, branch name, naming convention | Branch creation |
 | `116-pair-mode.md` | 2 | pair mode, pair branch, pair-, dev-pair | Pair mode operations |
