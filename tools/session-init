@@ -199,9 +199,6 @@ def collect_repo_info() -> list[dict[str, str]]:
         platform = "local"
         url_str = "(none)"
 
-    parent_owner = owner
-    parent_repo = repo
-
     entries.append({
         "path": ".",
         "owner": owner,
@@ -229,14 +226,6 @@ def collect_repo_info() -> list[dict[str, str]]:
         sub_owner, sub_repo, sub_platform = parse_repo_url(sub_url)
         if not sub_owner or not sub_repo:
             continue
-        # Skip worktrees (same owner/repo as parent)
-        if (
-            parent_owner
-            and parent_repo
-            and sub_owner == parent_owner
-            and sub_repo == parent_repo
-        ):
-            continue
         entries.append({
             "path": entry_name,
             "owner": sub_owner,
@@ -244,6 +233,40 @@ def collect_repo_info() -> list[dict[str, str]]:
             "platform": sub_platform or "unknown",
             "url": sub_url,
         })
+
+    # Submodule recursion: one level deep into each submodule directory
+    # Catches nested worktrees like .opencode/.issues/
+    for entry_name in dir_entries:
+        entry_path = os.path.join(cwd, entry_name)
+        if not os.path.isdir(entry_path):
+            continue
+        git_path = os.path.join(entry_path, ".git")
+        if not os.path.exists(git_path):
+            continue
+        try:
+            nested_entries = sorted(os.listdir(entry_path))
+        except OSError:
+            continue
+        for nested_name in nested_entries:
+            nested_path = os.path.join(entry_path, nested_name)
+            if not os.path.isdir(nested_path):
+                continue
+            nested_git = os.path.join(nested_path, ".git")
+            if not os.path.exists(nested_git):
+                continue
+            nested_url = run_git_command(["-C", nested_path, "remote", "get-url", "origin"])
+            if not nested_url:
+                continue
+            nested_owner, nested_repo, nested_platform = parse_repo_url(nested_url)
+            if not nested_owner or not nested_repo:
+                continue
+            entries.append({
+                "path": f"{entry_name}/{nested_name}",
+                "owner": nested_owner,
+                "repo": nested_repo,
+                "platform": nested_platform or "unknown",
+                "url": nested_url,
+            })
 
     return entries
 
@@ -706,7 +729,7 @@ def main() -> int:
 
     # Emit unified ## Repo Information section
     print("## Repo Information")
-    print("# Match file path to entry for owner/repo/platform values.")
+    print("Professional engineers route issue operations by matching affected file paths to the `path` prefix below, then using that entry's `owner` and `repo`. Amateurs default to root and route to the wrong repo.")
     for entry in repo_info:
         print(f"- path: {entry['path']}")
         print(f"  owner: {entry['owner']}")
