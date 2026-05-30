@@ -10,9 +10,11 @@ Audit a spec for quality, structure, and completeness using dual-adversarial cro
 
 ## Entry Criteria
 
-- Spec issue number provided OR spec content provided
+- `spec_local_dir` provided (local issue directory containing spec.md)
+- `spec_issue_number` provided
 - `github.owner`, `github.repo` available
 - Audit phase context: `audit_phase: spec_creation`
+- Optional: `artifact_evidence_dir` (behavioral evidence directory, single or list)
 - Optional: `failure_description` from prior implementation attempt (triggers enhanced determinism evaluation)
 
 ## Exit Criteria
@@ -25,7 +27,12 @@ Audit a spec for quality, structure, and completeness using dual-adversarial cro
 
 ### Step 1: Load Spec Content
 
-Fetch spec via GitHub MCP if issue number provided:
+Read spec from `spec_local_dir/spec.md` when `spec_local_dir` is provided:
+1. Read `<spec_local_dir>/spec.md` via `read` tool
+2. Extract spec body and metadata
+3. If `spec_local_dir` is a list, read each entry's `spec.md`, extract SCs from each, perform interdependency analysis (overlaps, conflicts, independences)
+
+Fallback to GitHub fetch only when `spec_local_dir` is absent:
 ```bash
 issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<N>) <!-- Routes through issue-operations per SPEC #683 -->
 ```

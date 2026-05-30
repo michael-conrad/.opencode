@@ -20,7 +20,7 @@ Sub-Agent Task Context Audit
 
 | Task | Context | Exclusions |
 |----------|---------|------------|
-| `spec-audit` | `{ spec_issue, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, plan details |
+| `spec-audit` | `{ spec_issue, spec_local_dir, artifact_evidence_dir, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, plan details. `spec_local_dir` and `artifact_evidence_dir` are standard dispatch fields — PROCEED, not contamination |
 | `plan-fidelity` | `{ spec_issue, plan_issue, clean_room_plan, auditor_1, auditor_2, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, existing plan |
 | `concern-separation` | `{ spec_issue, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `coherence-extraction` | `{ write_access, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |

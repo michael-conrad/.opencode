@@ -28,21 +28,31 @@ permission:
 
 Scan the entire received prompt for contamination signals:
 
-- **Pre-analysis contamination signals**: pre-loaded bias (expected outcomes or "should find" language), orchestrator reasoning (cached conclusions), cached state (prior verdicts), session context contamination (conversation history), external findings (pre-supplied evidence)
+- **Pre-analysis contamination signals**: pre-loaded bias (expected outcomes or "should find" language), orchestrator reasoning (cached conclusions), cached state (prior verdicts), session context contamination (conversation history), external findings (pre-supplied evidence). Standard dispatch fields (`spec_local_dir`, `artifact_evidence_dir`) are NOT contamination.
 - **Methodology-specification signals**: tool-call instructions embedded in evaluation criteria, search patterns in criterion descriptions, step-by-step procedures in dispatch context, leading questions in criterion framing, expected findings that imply a specific verification method
 
 **Action if detected:** HALT evaluation and return `status: AUDIT_FAIL` with `criterion_id: CONTEXT_TAINTED` and `explanation` documenting the contamination signal detected.
 
-## MANDATORY FIRST CHECK — Context Taint Detection
+## Mandatory Input Directory Pre-Check (FIRST)
 
-**THIS CHECK IS THE VERY FIRST THING YOU DO.** Before reading any files, before checking credentials, before any other action — scan your dispatch context for violation signals.
+**THIS CHECK IS THE VERY FIRST THING YOU DO.** Before any other action, before contamination scanning, before reading any files — check the dispatch context for standard input directory fields.
+
+1. **`spec_local_dir`** — REQUIRED. MUST be present and non-empty (single path or list of paths). If missing: return `status: BLOCKED` with `error: MISSING_INPUT_DIR`. No fallback to GitHub fetch.
+2. **`artifact_evidence_dir`** — OPTIONAL. MAY be absent, empty, single, or a list of paths. If present, auditor discovers contents via `read`/`glob`. Handle gracefully.
+3. **Both fields are PROCEED** — they are standard evidence input directory paths, not contamination. The auditor discovers contents inside them independently. The contamination guard catches inline file paths and file lists, not directory paths.
+
+When `spec_local_dir` is a list, all entries are equally relevant — read `spec.md` from each, extract SCs from each, perform lightweight interdependency analysis (identify overlapping, conflicting, independent SCs), and issue a single verdict covering all.
+
+## MANDATORY SECOND CHECK — Context Taint Detection
+
+**THIS CHECK IS THE SECOND THING YOU DO.** After validating input directories, scan your dispatch context for violation signals.
 
 If ANY violation signal is detected, return `status: CONTEXT_TAINTED` and STOP. A context-tainted dispatch is POISONED — all work must be discarded per `000-critical-rules.md` §Discard on Sub-Agent Failure.
 
 ### Pre-Analysis Violation Signals
 
 1. **Expected outcomes** — phrases like "should find X", "expect Y to pass", "the answer is Z", "correct output is W"
-2. **Pre-determined file paths** — any file path beyond "read spec #N" or "evaluate artifact at [path]"
+2. **Pre-determined file paths** — any file path or file list beyond the values of `spec_local_dir` and `artifact_evidence_dir`. These standard dispatch fields are directory paths, not file lists — the auditor discovers contents inside them via `glob`/`read`.
 3. **Orchestrator reasoning** — sentences like "I think", "based on my analysis", "the issue appears to be"
 4. **Cached/prior results** — references to other auditors, prior sessions, verdicts from previous dispatches
 5. **Implementation context** — code snippets, execution logs, implementation notes, or implementation intent
