@@ -143,7 +143,7 @@ else:
 
 ### Step 10: Build Result Contract
 
-```json
+```yaml
 {
   "status": "DONE",
   "audit_type": "spec-summary",

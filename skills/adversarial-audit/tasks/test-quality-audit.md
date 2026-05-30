@@ -18,7 +18,7 @@ Structural test quality audit — reader-only checks on test files. Evaluates te
 
 ## Task Context
 
-```json
+```yaml
 {
   "spec_success_criteria": "<SC list from spec>",
   "file_paths_changed": ["<path1>", "<path2>", ...],

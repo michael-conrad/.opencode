@@ -143,7 +143,7 @@ github.repo: {github.repo}
 
 ### Step 8: Build Result Contract
 
-```json
+```yaml
 {
   "status": "DONE",
   "audit_type": "coherence-maintenance",

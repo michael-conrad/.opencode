@@ -112,7 +112,7 @@ For each success criterion in the spec, evaluate determinism:
 
 **Result format:**
 
-```json
+```yaml
 {
   "criterion_id": "SC-DET",
   "description": "SC Determinism",
