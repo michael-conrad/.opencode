@@ -180,7 +180,7 @@ ${editList}
 
 ${dispatchNote}
 
-The orchestrator MUST be a pure router — all file modifications MUST be dispatched through divide-and-conquer sub-agents. See 000-critical-rules.md Inline Work. Exemptions: pair- branches, .issues/ file edits, simple-work single-file changes. If this is an exempt case, disregard this warning.`;
+The orchestrator MUST be a pure router — all file modifications MUST be dispatched through implementation-pipeline sub-agents. See 000-critical-rules.md Inline Work. Exemptions: pair- branches, .issues/ file edits, simple-work single-file changes. If this is an exempt case, disregard this warning.`;
 }
 
 function buildEvidenceGateBlock(): string {
