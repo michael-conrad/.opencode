@@ -83,7 +83,7 @@ SCENARIOS["item-decomposition-step"]="Does .opencode/skills/approval-gate/tasks/
 SCENARIOS["brainstorming-top-down"]="Does .opencode/skills/brainstorming/SKILL.md reference the top-down-analysis task?"
 SCENARIOS["writing-plans-bottom-up"]="Does .opencode/skills/writing-plans/SKILL.md contain per-item bottom-up design sections?"
 SCENARIOS["executing-plans-tdd"]="Does .opencode/skills/executing-plans/SKILL.md reference the per-item TDD cycle?"
-SCENARIOS["divide-conquer-tdd"]="Does .opencode/skills/divide-and-conquer/SKILL.md task context include tdd_phase?"
+SCENARIOS["divide-conquer-tdd"]="Does .opencode/skills/implementation-pipeline/SKILL.md task context include tdd_phase?"
 SCENARIOS["agents-md-incremental"]="Does AGENTS.md list incremental-build in the guidelines table?"
 SCENARIOS["worktree-handoff-step"]="Does .opencode/skills/git-workflow/tasks/review-prep.md contain a Step 2.5 for worktree handoff after push?"
 SCENARIOS["scope-auto-resolve-guideline"]="Does .opencode/guidelines/000-critical-rules.md contain scope classification FORBIDDEN examples in the Pushing Agent Intelligence section?"
@@ -177,7 +177,7 @@ SCENARIOS["inline-work-required-entries"]="Does .opencode/guidelines/000-critica
 SCENARIOS["orchestrator-purity-go-prohibitions"]="Does .opencode/guidelines/020-go-prohibitions.md ALWAYS DO section contain a requirement that the orchestrator NEVER performs inline work?"
 SCENARIOS["approval-gate-step0"]="Does .opencode/skills/approval-gate/SKILL.md contain a Step 0 titled 'Orchestrator Purity Gate' that mandates the orchestrator verify it has NOT performed any inline work?"
 SCENARIOS["approval-gate-step54"]="Does .opencode/skills/approval-gate/SKILL.md contain a Step 5.4 titled 'Universal Clean-Room Dispatch Gate' that mandates sub-agent dispatch for every pipeline stage?"
-SCENARIOS["divide-conquer-decomposition-rule"]="Does .opencode/skills/divide-and-conquer/SKILL.md contain a Decomposition Rule section with a table that lists Allowed Single Steps and Forbidden Combined Steps?"
+SCENARIOS["divide-conquer-decomposition-rule"]="Does .opencode/skills/implementation-pipeline/SKILL.md contain a Decomposition Rule section with a table that lists Allowed Single Steps and Forbidden Combined Steps?"
 SCENARIOS["verification-isolation-section"]="Does .opencode/skills/verification-before-completion/SKILL.md contain a Verification Isolation section requiring verification by a DIFFERENT sub-agent from the producer?"
 SCENARIOS["dispatch-audit-tables"]="Does every SKILL.md file in .opencode/skills/ contain a Sub-Agent Tasks section or dispatch audit table with columns for Task, Trigger Condition, Scope of Context, Exclusions, and Inline Work?"
 SCENARIOS["no-inline-work-yes"]="Is Inline Work? = NO in every dispatch audit table across all SKILL.md files in .opencode/skills/?"
@@ -506,7 +506,7 @@ FILE_SCENARIO_MAP[".opencode/skills/approval-gate/"]="item-decomposition-step sc
 FILE_SCENARIO_MAP[".opencode/skills/brainstorming/"]="brainstorming-top-down verification-mechanics-brainstorming"
 FILE_SCENARIO_MAP[".opencode/skills/writing-plans/"]="writing-plans-bottom-up validate-executable-verification semantic-intent-writing-plans why-specific-value-tdd red-phase-gate-writing-plans red-phase-gate-writing-plans-skillmd"
 FILE_SCENARIO_MAP[".opencode/skills/executing-plans/"]="executing-plans-tdd red-phase-gate-executing-plans red-phase-gate-skillmd"
-FILE_SCENARIO_MAP[".opencode/skills/divide-and-conquer/"]="divide-conquer-tdd enforcement-module-completion enforcement-module-result-validation enforcement-module-overflow enforcement-module-work-state"
+FILE_SCENARIO_MAP[".opencode/skills/implementation-pipeline/"]="divide-conquer-tdd enforcement-module-completion enforcement-module-result-validation enforcement-module-overflow enforcement-module-work-state"
 FILE_SCENARIO_MAP[".opencode/skills/git-workflow/"]="worktree-handoff-step cleanup-sc-verification-gate cleanup-phase-completion-gate review-prep-format-self-check url-sourcing-rule1-review-prep url-sourcing-rule1-pr url-sourcing-rule2-character-match release-pr-routing release-promotion-trigger git-workflow-routing-section cleanup-body-modification-warning pre-work-direct-branch pre-work-worktree-opt-in submodule-sha-locking rebase-pending-submodule-sync enforcement-gate-commit-count review-prep-squash-verification parent-issue-closure-cleanup-step28"
 FILE_SCENARIO_MAP[".opencode/skills/verification-before-completion/"]="per-sc-evidence-table vbc-per-sc-evidence-skill functional-test-substitution-prohibited-rule"
 FILE_SCENARIO_MAP[".opencode/skills/finishing-a-development-branch/"]="finishing-sc-verification checklist-chat-output-format"
@@ -1116,7 +1116,7 @@ else
 fi
 
 # Verify divide-and-conquer TDD phase in task context
-DC_SKILL="$PROJECT_DIR/.opencode/skills/divide-and-conquer/SKILL.md"
+DC_SKILL="$PROJECT_DIR/.opencode/skills/implementation-pipeline/SKILL.md"
 if [ -f "$DC_SKILL" ]; then
     TDD_DC=$(grep -c "tdd_phase" "$DC_SKILL" 2>/dev/null || echo "0")
     if [ "$TDD_DC" -ge 1 ]; then

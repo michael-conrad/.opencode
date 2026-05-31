@@ -102,7 +102,7 @@ if should_run "SC-4"; then
     done
 
     for module in "${DC_MODULES[@]}"; do
-        path="$SKILLS_DIR/divide-and-conquer/enforcement/$module"
+        path="$SKILLS_DIR/implementation-pipeline/enforcement/$module"
         if [ -f "$path" ] && [ -s "$path" ]; then
             echo "  OK: divide-and-conquer/enforcement/$module exists and non-empty"
         else
@@ -186,17 +186,17 @@ if should_run "SC-5-scoped"; then
     done
 
     # Check divide-and-conquer surviving task files
-    for taskfile in "$SKILLS_DIR/divide-and-conquer/tasks/"*.md; do
+    for taskfile in "$SKILLS_DIR/implementation-pipeline/tasks/"*.md; do
         basename=$(basename "$taskfile")
 
         if grep -q "$EVIDENCE_MODEL_PATTERN" "$taskfile" 2>/dev/null; then
             has_violations=true
-            violations+=("divide-and-conquer/tasks/$basename: contains embedded Evidence Artifact Format code block template")
+            violations+=("implementation-pipeline/tasks/$basename: contains embedded Evidence Artifact Format code block template")
         fi
 
         if grep -q "$THREE_TIER_PATTERN" "$taskfile" 2>/dev/null; then
             has_violations=true
-            violations+=("divide-and-conquer/tasks/$basename: contains embedded three-tier Finding Classification definition")
+            violations+=("implementation-pipeline/tasks/$basename: contains embedded three-tier Finding Classification definition")
         fi
     done
 
@@ -221,7 +221,7 @@ if should_run "SC-5-scoped"; then
         fi
     done
 
-    for taskfile in "$SKILLS_DIR/divide-and-conquer/tasks/"*.md; do
+    for taskfile in "$SKILLS_DIR/implementation-pipeline/tasks/"*.md; do
         if grep -q 'enforcement/' "$taskfile" 2>/dev/null; then
             reference_count=$((reference_count + 1))
         fi
@@ -285,7 +285,7 @@ if should_run "SC-4-wordcount"; then
 
     echo "  --- divide-and-conquer enforcement modules ---"
     for module in "${DC_MODULES[@]}"; do
-        path="$SKILLS_DIR/divide-and-conquer/enforcement/$module"
+        path="$SKILLS_DIR/implementation-pipeline/enforcement/$module"
         if [ -f "$path" ]; then
             words=$(wc -w < "$path")
             if [ "$words" -gt 0 ]; then
