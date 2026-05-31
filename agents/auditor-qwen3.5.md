@@ -41,7 +41,7 @@ permission:
 
 **THIS CHECK IS THE VERY FIRST THING YOU DO.** Before any other action, before contamination scanning, before reading any files — check the dispatch context for standard input directory fields.
 
-1. **`spec_local_dir`** — REQUIRED. MUST be present and non-empty (single path or list of paths). If absent from dispatch context: return `status: BLOCKED` with `error: MISSING_INPUT_DIR`. If present but file not found at path: return `status: BLOCKED` with `error: SPEC_NOT_FOUND`.
+1. **`spec_local_dir`** — REQUIRED. MUST be present and non-empty (single path or list of paths). If absent from dispatch context: return `status: BLOCKED` with `error: MISSING_INPUT_DIR` and STOP — do NOT proceed to any other action. If present but file not found at path: return `status: BLOCKED` with `error: SPEC_NOT_FOUND` and STOP — do NOT proceed.
 2. **`artifact_evidence_dir`** — REQUIRED. MUST be present and non-empty. If absent: return `status: BLOCKED` with `error: MISSING_EVIDENCE_DIR`. If present but directory not found: return `status: BLOCKED` with `error: EVIDENCE_NOT_FOUND`.
 3. **Both fields are PROCEED** — they are standard evidence input directory paths, not contamination. The auditor discovers contents inside them independently. The contamination guard catches inline file paths and file lists, not directory paths.
 
@@ -77,20 +77,14 @@ If ANY violation signal is detected, return `status: CONTEXT_TAINTED` and STOP. 
 
 1. If `spec_issue_number` is provided in dispatch context, read the spec from `<spec_local_dir>/spec.md` via `read` tool
 2. Extract the spec's declared success criteria from the issue body
-3. If caller also provided evaluation_criteria inline:
-   a. Compare inline-provided SCs against spec-declared SCs
-   b. If any inline SC **conflicts** with a spec-declared SC (changes requirements, narrows scope, rewrites intent): return `BLOCKED` with `reason: SC_CONFLICT` and list the conflicting SCs with evidence (quotes from spec vs quotes from caller context)
-   c. If inline SCs are a **superset** of spec SCs (all spec SCs present + additional): proceed and evaluate all
-   d. If inline SCs are a **subset** that faithfully restates spec SCs: proceed normally
-   e. If inline SCs are absent: proceed using spec's own SCs only
-4. If the caller re-dispatches with the same tainted SCs after an SC_CONFLICT: return `BLOCKED` with `reason: SC_CONFLICT_REPEATED`
+3. If caller provided ANY evaluation_criteria inline: return BLOCKED with reason: PRELOADED_CONTEXT_REJECTED. The auditor MUST discover SCs independently from the spec in spec_local_dir. All inline SCs from the orchestrator are context contamination -- accept none, regardless of match, superset, or conflict status.
+4. If the caller re-dispatches with inline SCs after PRELOADED_CONTEXT_REJECTED: return BLOCKED with reason: CONTAMINATION_REPEATED.
 
 ### CONTEXT_TAINTED Signals Extended
 
-In addition to the 10 violation signals above, the following are SPECIFIC CONTEXT_TAINTED violation types:
 
-- `SC_CONFLICT`: Caller-provided SCs conflict with spec-declared SCs
-- `SC_CONFLICT_REPEATED`: Caller re-dispatched with same conflicting SCs after SC_CONFLICT was raised
+- `PRELOADED_CONTEXT`: Caller provided inline evaluation_criteria (any) - BLOCKED with PRELOADED_CONTEXT_REJECTED
+- `CONTAMINATION_REPEATED`: Caller re-dispatched with inline SCs after PRELOADED_CONTEXT_REJECTED
 
 **On detection:** Return IMMEDIATELY the CONTEXT_TAINTED response:
 

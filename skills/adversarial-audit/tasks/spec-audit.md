@@ -10,9 +10,9 @@ Audit a spec for quality, structure, and completeness using dual-adversarial cro
 
 ## Entry Criteria
 
-- `spec_local_dir` provided (local issue directory containing spec.md)
+- `spec_local_dir` provided (local issue directory containing spec.md) — MUST be a filesystem directory confirmed to exist before dispatch. The orchestrator MUST verify `spec_local_dir` is a valid directory before dispatching any auditor. If the spec is only on GitHub (not locally mirrored), the orchestrator MUST mirror it to `spec_local_dir/spec.md` first. Dispatching without a valid `spec_local_dir` is a CRITICAL VIOLATION.
 - `spec_issue_number` provided
-- - `github.owner`, `github.repo` available
+- `github.owner`, `github.repo` available
 - Audit phase context: `audit_phase: spec_creation`
 - Optional: `artifact_evidence_dir` (behavioral evidence directory, single or list)
 - Optional: `failure_description` from prior implementation attempt (triggers enhanced determinism evaluation)
