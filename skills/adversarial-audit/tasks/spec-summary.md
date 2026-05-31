@@ -24,11 +24,13 @@ Verify PR/spec consistency before merge. Ensures PR description matches spec, al
 
 ## Procedure
 
-### Step 1: Fetch PR and Spec
+### Step 1: Fetch PR and Load Spec
+
+`spec_local_dir` is REQUIRED. Auditors BLOCK if absent.
 
 ```python
 pr = github_pull_request_read(method="get", owner=<owner>, repo=<repo>, pullNumber=<N>)
-spec = issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<M>) <!-- Routes through issue-operations per SPEC #683 -->
+spec = read(filePath=f"<spec_local_dir>/spec.md")
 ```
 
 ### Step 2: Extract Spec Requirements
@@ -84,8 +86,7 @@ task(
     subagent_type="general",
     prompt=f"""Use adversarial-audit skill --task cross-validate with:
 
-spec_issue_number: {spec_issue_number}
-pr_number: {pr_number}
+spec_local_dir: {spec_local_dir}
 audit_phase: pr_creation
 authorization_scope: {authorization_scope}
 halt_at: {halt_at}
@@ -97,8 +98,6 @@ pipeline_phase: {pipeline_phase}
 auditor_artifact_paths: {auditor_artifact_paths}
 
 worktree.path: {worktree.path}
-github.owner: {github.owner}
-github.repo: {github.repo}
 """
 )
 ```

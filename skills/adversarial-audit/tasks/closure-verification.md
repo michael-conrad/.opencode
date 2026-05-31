@@ -45,10 +45,11 @@ else:
     return BLOCKED("No linked spec issue found")
 ```
 
-### Step 3: Fetch Spec Issue
+### Step 3: Load Spec
 
+`spec_local_dir` is REQUIRED. Auditors BLOCK if absent.
 ```python
-spec = issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=spec_issue) <!-- Routes through issue-operations per SPEC #683 -->
+spec = read(filePath=f"<spec_local_dir>/spec.md")
 ```
 
 ### Step 4: Verify Issue Closed
@@ -116,8 +117,7 @@ task(
     subagent_type="general",
     prompt=f"""Use adversarial-audit skill --task cross-validate with:
 
-pr_number: {pr_number}
-spec_issue_number: {spec_issue_number}
+spec_local_dir: {spec_local_dir}
 audit_phase: post_merge
 authorization_scope: {authorization_scope}
 halt_at: {halt_at}
@@ -129,8 +129,6 @@ pipeline_phase: {pipeline_phase}
 auditor_artifact_paths: {auditor_artifact_paths}
 
 worktree.path: {worktree.path}
-github.owner: {github.owner}
-github.repo: {github.repo}
 """
 )
 ```
