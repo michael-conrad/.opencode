@@ -13,7 +13,6 @@ set -euo pipefail
 
 cat <<'MODELS'
 deepseek-v4-flash:cloud
-devstral-small-2:24b-cloud
 gemma4:31b-cloud
 gpt-oss:20b-cloud
 mistral-large-3:675b-cloud
