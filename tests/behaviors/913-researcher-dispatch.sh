@@ -15,10 +15,10 @@ source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="913-researcher-dispatch"
 
-# Task prompt: agent must discover how to dispatch a deep investigation
-# in this project. In RED: no dedicated investigation skill exists.
-# In GREEN: researcher skill at .opencode/skills/researcher/.
-SCENARIO_PROMPT="A CI behavioral test is failing intermittently with timeout errors. I need an exhaustive investigation: find root cause, check infrastructure, verify model availability, and suggest remediation. What skill in this project handles this kind of open-ended investigation task where I need verifiable source evidence?"
+# Task prompt: agent must discover the researcher skill by its unique features
+# (YAML frontmatter artifacts, Z3 solve integration, remediation scope).
+# In RED: no researcher skill exists. In GREEN: researcher skill exists.
+SCENARIO_PROMPT="A pipeline step failed and I need remediation scope determination. I need a skill that produces investigation artifacts with YAML frontmatter (including remediation_steps, triggered_by_step, escalation_required) and can use solve model/solve prove for Z3 constraint investigation. Read its SKILL.md and tell me the artifact format."
 
 echo "=== Behavioral Test (RED): $SCENARIO_NAME ==="
 echo "  Task: find the researcher skill for investigation tasks"
