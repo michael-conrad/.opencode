@@ -20,7 +20,7 @@ Sub-Agent Task Context Audit
 
 | Task | Context | Exclusions |
 |----------|---------|------------|
-| `spec-audit` | `{ spec_issue, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, plan details |
+| `spec-audit` | `{ spec_issue, spec_local_dir, artifact_evidence_dir, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, plan details. `spec_local_dir` and `artifact_evidence_dir` are standard dispatch fields — PROCEED, not contamination |
 | `plan-fidelity` | `{ spec_issue, plan_issue, clean_room_plan, auditor_1, auditor_2, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory, existing plan |
 | `concern-separation` | `{ spec_issue, audit_phase, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
 | `coherence-extraction` | `{ write_access, authorization_scope, halt_at, pr_strategy, pipeline_phase, github.owner, github.repo }` | Implementation context, agent memory |
@@ -124,6 +124,22 @@ A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
 - Pre-loaded evidence or orchestrator-derived conclusions
 
 Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
+## Auditor Card Mandatory Structure
+
+Every auditor agent card (`.opencode/agents/auditor-*.md`) MUST include the following sections after the YAML frontmatter, in this order:
+
+1. **Audit Workflow Checklist** — numbered checklist mapping to the A/B/C phase structure
+2. **Mandatory Input Directory Pre-Check** — validates `spec_local_dir`, `artifact_evidence_dir` before any other action
+3. **Step 0: Prompt Integrity Scan** — contamination signal detection
+4. **Context Taint Detection** — pre-analysis violation signals
+5. **SC_CONFLICT Detection** — compare dispatch SCs vs spec SCs
+6. **Phase A1-A7: Evidence Collection** — spec folder, artifact folder, codebase
+7. **Phase B1-B8: Per-Criterion Evaluation** — PASS/FAIL/LIMITED-EVIDENCE per SC
+8. **Phase C1: Write Verdict Artifact to Disk**
+9. **Phase C2-C3: Return Frugal Contract**
+
+New auditor cards MUST copy the structure from an existing conformant card (e.g., `auditor-deepseek-flash.md`). The checklist format is `- [ ] N. Description` (dash + space + brackets).
 
 ## Cross-References
 

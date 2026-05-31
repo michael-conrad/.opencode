@@ -177,7 +177,7 @@ Present options for developer decision.
 
 ### Step 9: Build Result Contract
 
-```json
+```yaml
 {
   "status": "DONE",
   "audit_type": "drift-detection",

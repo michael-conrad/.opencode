@@ -36,7 +36,24 @@ setup_fixture_issues() {
         issue_name=$(basename "$issue_dir")
         mkdir -p "$workdir/.issues/open/$issue_name"
         cp -r "$issue_dir"* "$workdir/.issues/open/$issue_name/" 2>/dev/null || true
+
+        # Create flat .issues/<number>/ path as well for spec_local_dir tests
+        local number
+        number=$(echo "$issue_name" | grep -oE '^[0-9]+' || echo "")
+        if [ -n "$number" ]; then
+            mkdir -p "$workdir/.issues/$number"
+            if [ -f "$workdir/.issues/open/$issue_name/spec.md" ]; then
+                cp "$workdir/.issues/open/$issue_name/spec.md" "$workdir/.issues/$number/spec.md"
+            fi
+        fi
     done
+
+    # Inject fixture evidence directory for artifact_evidence_dir tests
+    local fixture_evidence_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/evidence"
+    if [ -d "$fixture_evidence_dir" ]; then
+        mkdir -p "$workdir/tmp/behavioral-evidence-fixture"
+        cp -r "$fixture_evidence_dir"/* "$workdir/tmp/behavioral-evidence-fixture/" 2>/dev/null || true
+    fi
 
     # Update the counter file to be at least as high as the highest issue number
     local max_number=0
@@ -53,6 +70,6 @@ setup_fixture_issues() {
     local next_number=$((max_number + 1))
     echo "$next_number" > "$workdir/.issues/.counter"
 
-    # Stage the .issues/ directory
-    git -C "$workdir" add .issues/ 2>/dev/null || true
+    # Stage the .issues/ and tmp/ directories
+    git -C "$workdir" add .issues/ tmp/ 2>/dev/null || true
 }

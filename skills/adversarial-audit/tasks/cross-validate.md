@@ -289,46 +289,61 @@ Before finalizing the result contract, scan ALL auditor verdicts, explanations, 
 | Sycophancy exploitation | Verdict agrees with the spec/plan author without independent evidence, or mirrors orchestrator-stated expectations | Require independent tool-call evidence per adversarial-audit-006 |
 | Continuity hooks | Verdict includes "next time", "in future iterations", "consider also" or other scope-expanding suggestions beyond the current criterion | Strip scope-expanding language; evaluate only current criterion |
 
-### Step 7: Build Result Contract
+### Step 6.5: Write Findings YAML to Disk
 
-Return structured result:
+Write the full cross-validate findings YAML to `./tmp/artifacts/pipeline-{issue_number}-cross-validate-{STATUS}-{timestamp}.yaml`:
 
-```json
-{
-  "status": "DONE",
-  "overall_consensus": "PASS|FAIL",
-  "next_step": "proceed|remediate then re-audit",
-  "auditor_artifact_paths": [
-    "./tmp/artifacts/pipeline-928-audit-auditor-glm-5-done-20260527T030000Z.yaml",
-    "./tmp/artifacts/pipeline-928-audit-auditor-mistral-large-done-20260527T030100Z.yaml"
-  ],
-  "cross_validation": [
-    {
-      "criterion_id": "SC-1",
-      "description": "<criterion description>",
-      "evidence_type": "structural|string|semantic|behavioral",
-      "auditor_1_result": "PASS",
-      "auditor_2_result": "PASS",
-      "consensus": "PASS",
-      "auditor_1_evidence": "<tool-call reference>",
-      "auditor_2_evidence": "<tool-call reference>",
-      "agreement": true,
-      "dark_pattern_flags": [],
-      "evidence_type_mismatch": false
-    }
-  ],
-  "disagreements": [],
-  "dark_pattern_violations": [],
-  "self_corrections": [
-    {
-      "criterion_id": "SC-N",
-      "detection_signal": "PASS + critique language: explanation contained 'should verify'",
-      "original_consensus": "PASS",
-      "corrected_consensus": "FAIL"
-    }
-  ],
-  "warnings": []
-}
+```yaml
+phase: cross-validate
+issue_number: <N>
+generated_at: "<timestamp>"
+orchestrator_model: "<model>"
+auditor_1:
+  type: "<auditor_type>"
+  family: "<family>"
+  artifact: "<artifact_path>"
+auditor_2:
+  type: "<auditor_type>"
+  family: "<family>"
+  artifact: "<artifact_path>"
+summary:
+  overall_consensus: PASS|FAIL
+  next_step: "proceed|remediate then re-audit"
+  total_criteria: N
+  agreed: N
+  disagreed: N
+  evidence_type_mismatches: N
+  dark_pattern_violations: N
+findings:
+  - criterion_id: "SC-1"
+    declared_evidence_type: "structural|string|semantic|behavioral"
+    auditor_1_result: PASS
+    auditor_2_result: PASS
+    consensus: PASS
+    agreement: true
+    evidence_type_mismatch: false
+self_corrections:
+  - criterion_id: "SC-N"
+    detection_signal: "PASS + critique language: explanation contained 'should verify'"
+    original_consensus: PASS
+    corrected_consensus: FAIL
+disagreements: []
+dark_pattern_violations: []
+warnings: []
+```
+
+Create `./tmp/artifacts/` if needed (write tool creates implicitly). Use the `write` tool to persist the full YAML document.
+
+### Step 7: Return Frugal YAML Result Contract
+
+Return ONLY this YAML as the final response — no preamble, no commentary, no markdown fences:
+
+```yaml
+status: DONE
+overall_consensus: PASS|FAIL
+next_step: "proceed|remediate then re-audit"
+artifact_path: "./tmp/artifacts/pipeline-{issue_number}-cross-validate-{STATUS}-{timestamp}.yaml"
+summary: "N SCs: X agreed, Y disagreed, Z evidence_type_mismatch"
 ```
 
 When self-corrections are present, `overall_consensus` MUST be FAIL. Any single self-correction in any criterion cascades to overall FAIL.

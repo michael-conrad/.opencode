@@ -1,7 +1,7 @@
 #!/bin/bash
-# Content-Verification Test: All 6 Auditor Agent Files — Canonical Schema Validation
+# Content-Verification Test: All Auditor Agent Files — Canonical Schema Validation
 #
-# Validates that each of the 6 auditor agent files in .opencode/agents/
+# Validates that each auditor agent file in .opencode/agents/
 # has correct YAML frontmatter per spec #381 canonical schema:
 #   - mode: subagent
 #   - model: <expected model string>
@@ -22,14 +22,12 @@ AGENTS_DIR="$SCRIPT_DIR/agents"
 
 declare -A MODELS
 MODELS["auditor-deepseek-flash"]="ollama/deepseek-v4-flash:cloud"
-MODELS["auditor-devsstral-small-2"]="ollama/devstral-small-2:24b-cloud"
 MODELS["auditor-gemma4"]="ollama/gemma4:31b-cloud"
-MODELS["auditor-gpt-oss"]="ollama/gpt-oss:20b-cloud"
 MODELS["auditor-mistral-large"]="ollama/mistral-large-3:675b-cloud"
 MODELS["auditor-qwen3.5"]="ollama/qwen3.5:397b-cloud"
 
-ALLOW_KEYS=("read" "glob" "grep" "skill" "webfetch" "websearch")
-DENY_KEYS=("edit" "bash" "task" "todowrite" "question")
+ALLOW_KEYS=("read" "glob" "grep" "skill" "webfetch" "websearch" "edit" "github_issue_read" "github_search_issues" "github_list_issues" "srclight_*")
+DENY_KEYS=("bash" "task" "todowrite" "question" "doom_loop" "github_*")
 EXPECTED_ALLOW=${#ALLOW_KEYS[@]}
 EXPECTED_DENY=${#DENY_KEYS[@]}
 EXPECTED_COUNT=${#MODELS[@]}
@@ -117,7 +115,8 @@ for agent in "${!MODELS[@]}"; do
     fi
 
     for key in "${ALLOW_KEYS[@]}"; do
-        VAL=$(echo "$PERM_BLOCK" | grep "^  ${key}:" | sed "s/^  ${key}:[[:space:]]*//" | tr -d '"' | tr -d "'")
+        escaped_key=$(echo "$key" | sed 's/\*/\\*/g')
+        VAL=$(echo "$PERM_BLOCK" | grep "^  ${escaped_key}:" | sed "s/^  ${escaped_key}:[[:space:]]*//" | tr -d '"' | tr -d "'")
         if [ "$VAL" != "allow" ]; then
             echo "FAIL: ${agent}.md permission.${key}: expected 'allow', got '$VAL'"
             FILE_FAILURES=1
@@ -125,7 +124,8 @@ for agent in "${!MODELS[@]}"; do
     done
 
     for key in "${DENY_KEYS[@]}"; do
-        VAL=$(echo "$PERM_BLOCK" | grep "^  ${key}:" | sed "s/^  ${key}:[[:space:]]*//" | tr -d '"' | tr -d "'")
+        escaped_key=$(echo "$key" | sed 's/\*/\\*/g')
+        VAL=$(echo "$PERM_BLOCK" | grep "^  ${escaped_key}:" | sed "s/^  ${escaped_key}:[[:space:]]*//" | tr -d '"' | tr -d "'")
         if [ "$VAL" != "deny" ]; then
             echo "FAIL: ${agent}.md permission.${key}: expected 'deny', got '$VAL'"
             FILE_FAILURES=1

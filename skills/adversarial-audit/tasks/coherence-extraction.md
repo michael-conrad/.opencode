@@ -21,7 +21,7 @@ Generate baseline coherence state from guidelines and skills. Captures current r
 
 ### Step 1: Initialize Baseline Structure
 
-```json
+```yaml
 {
   "baseline_version": "1.0",
   "generated_at": "<ISO timestamp>",
@@ -137,7 +137,7 @@ write(baseline_path, json.dumps(baseline, indent=2))
 
 ### Step 7: Build Result Contract
 
-```json
+```yaml
 {
   "status": "DONE",
   "audit_type": "coherence-extraction",
