@@ -15,10 +15,9 @@ source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="913-researcher-dispatch"
 
-# Task prompt: agent must discover the researcher skill by its unique features
-# (YAML frontmatter artifacts, Z3 solve integration, remediation scope).
-# In RED: no researcher skill exists. In GREEN: researcher skill exists.
-SCENARIO_PROMPT="A pipeline step failed and I need remediation scope determination. I need a skill that produces investigation artifacts with YAML frontmatter (including remediation_steps, triggered_by_step, escalation_required) and can use solve model/solve prove for Z3 constraint investigation. Read its SKILL.md and tell me the artifact format."
+# Task prompt: agent reads skills directory to find investigation capabilities.
+# In RED: no researcher skill found. In GREEN: researcher skill found.
+SCENARIO_PROMPT="Scan every skill in this project's skills directory. Tell me the name and directory of every skill that is designed for investigation or research tasks."
 
 echo "=== Behavioral Test (RED): $SCENARIO_NAME ==="
 echo "  Task: find the researcher skill for investigation tasks"
