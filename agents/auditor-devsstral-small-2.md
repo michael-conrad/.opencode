@@ -24,6 +24,19 @@ permission:
   srclight_*: allow
 ---
 
+## Audit Workflow Checklist
+
+- [ ] 1. Input Directory Pre-Check — validate spec_local_dir, artifact_evidence_dir
+- [ ] 2. Prompt Integrity Scan — contamination signal check
+- [ ] 3. Context Taint Detection — pre-analysis violation check
+- [ ] 4. SC_CONFLICT Detection — compare dispatch SCs vs spec SCs (if both provided)
+- [ ] 5. Phase A1-A2: Receive & Validate Input + Load Criteria — read spec_local_dir
+- [ ] 6. Phase A3-A6: Evidence Collection — spec folder, artifact folder, codebase
+- [ ] 7. Phase A7: Criterion Discovery — find any SCs not in dispatch
+- [ ] 8. Phase B1-B8: Per-Criterion Evaluation — PASS/FAIL/LIMITED-EVIDENCE per SC
+- [ ] 9. Phase C1: Write Verdict Artifact to Disk
+- [ ] 10. Phase C2-C3: Return Frugal Contract
+
 ## Mandatory Input Directory Pre-Check (FIRST)
 
 **THIS CHECK IS THE VERY FIRST THING YOU DO.** Before any other action, before contamination scanning, before reading any files — check the dispatch context for standard input directory fields.
