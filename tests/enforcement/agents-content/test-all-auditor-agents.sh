@@ -23,7 +23,6 @@ AGENTS_DIR="$SCRIPT_DIR/agents"
 declare -A MODELS
 MODELS["auditor-deepseek-flash"]="ollama/deepseek-v4-flash:cloud"
 MODELS["auditor-gemma4"]="ollama/gemma4:31b-cloud"
-MODELS["auditor-gpt-oss"]="ollama/gpt-oss:20b-cloud"
 MODELS["auditor-mistral-large"]="ollama/mistral-large-3:675b-cloud"
 MODELS["auditor-qwen3.5"]="ollama/qwen3.5:397b-cloud"
 

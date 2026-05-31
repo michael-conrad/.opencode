@@ -24,15 +24,6 @@ permission:
   srclight_*: allow
 ---
 
-### Step 0: Prompt Integrity Scan
-
-Scan the entire received prompt for contamination signals:
-
-- **Pre-analysis contamination signals**: pre-loaded bias (expected outcomes or "should find" language), orchestrator reasoning (cached conclusions), cached state (prior verdicts), session context contamination (conversation history), external findings (pre-supplied evidence). Standard dispatch fields (`spec_local_dir`, `artifact_evidence_dir`) are NOT contamination.
-- **Methodology-specification signals**: tool-call instructions embedded in evaluation criteria, search patterns in criterion descriptions, step-by-step procedures in dispatch context, leading questions in criterion framing, expected findings that imply a specific verification method
-
-**Action if detected:** HALT evaluation and return `status: AUDIT_FAIL` with `criterion_id: CONTEXT_TAINTED` and `explanation` documenting the contamination signal detected.
-
 ## Audit Workflow Checklist
 
 - [ ] 1. Input Directory Pre-Check — validate spec_local_dir, artifact_evidence_dir
@@ -50,7 +41,7 @@ Scan the entire received prompt for contamination signals:
 
 **THIS CHECK IS THE VERY FIRST THING YOU DO.** Before any other action, before contamination scanning, before reading any files — check the dispatch context for standard input directory fields.
 
-1. **`spec_local_dir`** — REQUIRED. MUST be present and non-empty (single path or list of paths). If absent from dispatch context: return `status: BLOCKED` with `error: MISSING_INPUT_DIR`. If present but file not found at path: fallback to GitHub fetch via `github_issue_read`.
+1. **`spec_local_dir`** — REQUIRED. MUST be present and non-empty (single path or list of paths). If absent from dispatch context: return `status: BLOCKED` with `error: MISSING_INPUT_DIR`. If present but file not found at path: return `status: BLOCKED` with `error: SPEC_NOT_FOUND`. No fallback to GitHub fetch.
 2. **`artifact_evidence_dir`** — OPTIONAL. MAY be absent, empty, single, or a list of paths. If present, auditor discovers contents via `read`/`glob`. Handle gracefully.
 3. **Both fields are PROCEED** — they are standard evidence input directory paths, not contamination. The auditor discovers contents inside them independently. The contamination guard catches inline file paths and file lists, not directory paths.
 
