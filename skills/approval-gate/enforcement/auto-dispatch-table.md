@@ -9,7 +9,7 @@ When a spec is approved, the auto-route chain determines which downstream action
 | Spec approved, no plan exists | `writing-plans --task create` |
 | Spec approved, faithful plan exists | Auto-approve plan (cascade) |
 | Plan approved, no sub-issues | `issue-operations --task link-sub-issue` |
-| Plan approved, sub-issues linked | `divide-and-conquer --task assemble-work` |
+| Plan approved, sub-issues linked | `implementation-pipeline --task assemble-work` |
 | Implementation complete | `verification-before-completion` |
 | Verification passed | `finishing-a-development-branch --task checklist` |
 | Checklist passed | `git-workflow --task review-prep` |
@@ -32,7 +32,7 @@ When a spec is approved, the auto-route chain determines which downstream action
 After plan approval, the dispatch order is:
 
 1. `git-workflow --task pre-work` — worktree creation
-2. `divide-and-conquer --task assemble-work` — sub-agent dispatch
+2. `implementation-pipeline --task assemble-work` — sub-agent dispatch
 3. `verification-before-completion` — success criteria verification
 4. `finishing-a-development-branch --task checklist` — branch readiness
 5. `git-workflow --task review-prep` — push, compare URL

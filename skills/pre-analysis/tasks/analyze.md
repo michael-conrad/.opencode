@@ -142,7 +142,7 @@ The orchestrator runs this check as part of the `assemble-work` post-sub-agent c
       - HALT
     conflicts_with: []
     requires: [pre-analysis-001]
-    triggers: [pre-analysis, divide-and-conquer]
+    triggers: [pre-analysis, implementation-pipeline]
     source: "pre-analysis/tasks/analyze.md §Step 6"
 ```
 

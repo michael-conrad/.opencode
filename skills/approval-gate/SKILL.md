@@ -72,7 +72,7 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Cross-References
 
-Skills: `git-workflow`, `pr-creation-workflow`, `issue-review`, `divide-and-conquer`, `writing-plans`, `executing-plans`, `pre-analysis`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`.
+Skills: `git-workflow`, `pr-creation-workflow`, `issue-review`, `implementation-pipeline`, `writing-plans`, `executing-plans`, `pre-analysis`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`.
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -91,7 +91,7 @@ rules:
     conditions:
       all: ["plan_has_sub_issues == true", "user_authorized == true"]
     actions: [PROCEED]
-    triggers: [divide-and-conquer, executing-plans]
+    triggers: [implementation-pipeline, executing-plans]
     source: "approval-gate/SKILL.md"
 
   - id: approval-gate-skill-005
@@ -107,5 +107,5 @@ rules:
     conditions:
       all: ["plan_has_pr_boundaries == true", "required_pr_not_merged == true"]
     actions: [HALT, REPORT(CRITICAL: required PR not merged)]
-    triggers: [divide-and-conquer, git-workflow]
+    triggers: [implementation-pipeline, git-workflow]
     source: "approval-gate/SKILL.md"

@@ -11,7 +11,7 @@ compatibility: opencode
 
 ## Overview
 
-Thin routing layer routing plan execution to `divide-and-conquer/assemble-work`. Receives plan context from `approval-gate`. Every approval follows one path: executing-plans → assemble-work → work branch → one PR.
+Thin routing layer routing plan execution to `implementation-pipeline`. Receives plan context from `approval-gate`. Every approval follows one path: executing-plans → assemble-work → work branch → one PR.
 
 No single-issue bypass — single = work of one = one sub-agent.
 
@@ -36,7 +36,7 @@ No single-issue bypass — single = work of one = one sub-agent.
 ## Operating Protocol
 
 1. **Requires plan_issue** in task context. HALT if absent.
-2. **Route to divide-and-conquer/assemble-work** with full context.
+2. **Route to implementation-pipeline** with full context.
 3. **Track phase progress** against plan sub-issues.
 4. **Unified path:** no single-task exemption.
 
@@ -110,7 +110,7 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Cross-References
 
-Skills: `divide-and-conquer`, `approval-gate`, `git-workflow`.
+Skills: `implementation-pipeline`, `approval-gate`, `git-workflow`.
 
 ```yaml+symbolic
 schema_version: "2.0"

@@ -560,7 +560,7 @@ rules:
       - REQUIRE_CLEAN_PASS
     conflicts_with: [critical-rules-hard-fail]
     requires: []
-    triggers: [verification-before-completion, adversarial-audit, divide-and-conquer, git-workflow]
+    triggers: [verification-before-completion, adversarial-audit, implementation-pipeline, git-workflow]
     source: "065-verification-honesty.md §Hard Failure Discipline"
 
   - id: verification-honesty-008a

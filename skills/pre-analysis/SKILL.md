@@ -124,7 +124,7 @@ rules:
       - CALL(pre-analysis --task analyze)
     conflicts_with: []
     requires: [critical-rules-044]
-    triggers: [approval-gate, divide-and-conquer, verification-before-completion]
+    triggers: [approval-gate, implementation-pipeline, verification-before-completion]
     source: "pre-analysis/SKILL.md §Operating Protocol"
 
 gates:

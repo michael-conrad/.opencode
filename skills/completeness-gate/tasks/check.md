@@ -121,7 +121,7 @@ This gate does NOT replace the adversarial auditor. It checks completeness — p
       - RETURN(status=BLOCKED, reason="single-pass enforcement")
     conflicts_with: [completeness-gate-001]
     requires: []
-    triggers: [divide-and-conquer]
+    triggers: [implementation-pipeline]
     source: "completeness-gate/tasks/check.md §Single-Pass Enforcement"
 
   - id: completeness-gate-check-002
@@ -135,6 +135,6 @@ This gate does NOT replace the adversarial auditor. It checks completeness — p
       - RETURN(status=BLOCKED, reason="prohibited content in completeness findings")
     conflicts_with: [completeness-gate-002]
     requires: []
-    triggers: [divide-and-conquer]
+    triggers: [implementation-pipeline]
     source: "completeness-gate/tasks/check.md §Non-Adversarial Boundary"
 ```

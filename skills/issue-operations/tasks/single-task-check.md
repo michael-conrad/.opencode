@@ -150,7 +150,7 @@ Next: Pass single_task_determination to post-creation → writing-plans
 ```
 ## Phase 1: Update Skills (Gated)
 - Update approval-gate
-- Update divide-and-conquer
+- Update implementation-pipeline
 ```
 
 **Analysis:**

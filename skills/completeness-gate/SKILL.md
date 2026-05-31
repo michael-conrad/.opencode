@@ -123,7 +123,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer, verification-before-completion]
+    triggers: [implementation-pipeline, verification-before-completion]
     source: "completeness-gate/SKILL.md §Operating Protocol"
 
   - id: completeness-gate-002
@@ -137,7 +137,7 @@ rules:
       - STRIP_PROHIBITED_CONTENT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer]
+    triggers: [implementation-pipeline]
     source: "completeness-gate/SKILL.md §Operating Protocol"
 
   - id: completeness-gate-003
@@ -165,6 +165,6 @@ rules:
       - REDUCE_TO_SINGLE_SUB_AGENT
     conflicts_with: [adversarial-audit-001]
     requires: []
-    triggers: [divide-and-conquer]
+    triggers: [implementation-pipeline]
     source: "completeness-gate/SKILL.md §Operating Protocol"
 ```

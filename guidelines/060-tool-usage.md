@@ -350,7 +350,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [git-workflow, divide-and-conquer, approval-gate]
+    triggers: [git-workflow, implementation-pipeline, approval-gate]
     source: "060-tool-usage.md §2 Workdir-Aware Path Composition"
 
   - id: tool-usage-010

@@ -29,7 +29,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 **This step is MANDATORY and CANNOT be skipped.** Pre-work.md handles the worktree vs direct-branch decision — the agent does NOT decide worktree mode here. If pre-work fails, HALT — do not proceed without a valid branch.
 
-**Evidence requirement:** `git branch --show-current` must show the feature branch. If `WORKTREE_REQUIRED` is set, `git worktree list` must also show the feature branch worktree and `worktree.path` must be set before any `divide-and-conquer` task().
+**Evidence requirement:** `git branch --show-current` must show the feature branch. If `WORKTREE_REQUIRED` is set, `git worktree list` must also show the feature branch worktree and `worktree.path` must be set before any `implementation-pipeline` task().
 
 ## Auto-Dispatch Situation Differentiation
 
@@ -53,7 +53,7 @@ When `authorization_scope == "for_analysis"`:
 
 - Dispatch is read-only investigation
 - No `writing-plans` or `executing-plans` routing — only `issue-operations` for issue creation/comments
-- No `divide-and-conquer` routing — only `pre-analysis` if needed for context understanding
+- No `implementation-pipeline` routing — only `pre-analysis` if needed for context understanding
 - No feature branch creation; `investigate/<topic>` scratch branches permitted
 - Gap-fill cascade is skipped entirely (gap_fill = none)
 - Pre-implementation setup is skipped entirely
@@ -126,7 +126,7 @@ When cascade does NOT apply (conditions not met):
 
 **When `authorization_scope` is `for_implementation` or `for_pr`:**
 
-Before routing to `divide-and-conquer --task assemble-work`, verify that the orchestrator context is not bloated with non-routing data:
+Before routing to `implementation-pipeline --task assemble-work`, verify that the orchestrator context is not bloated with non-routing data:
 
 1. **Verify routing-only dispatch:** Confirm the orchestrator holds only routing metadata (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase, pipeline_history). Any cached analysis artifacts, task file contents, or prior sub-agent reasoning traces indicate context bloat.
 2. **If context bloat detected:** Do NOT proceed to dispatch. The orchestrator must task a clean sub-agent from the current pipeline phase — do NOT attempt recovery via state cleanup.

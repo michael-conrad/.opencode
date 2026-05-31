@@ -410,7 +410,7 @@ rules:
         - "has_approved_plan == true"
     actions:
       - HALT
-      - CALL(divide-and-conquer)
+      - CALL(implementation-pipeline)
     source: "010-approval-gate.md §Unified Dispatch Path"
 
   - id: approval-gate-014

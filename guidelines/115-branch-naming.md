@@ -206,7 +206,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer, approval-gate]
+    triggers: [implementation-pipeline, approval-gate]
     source: "115-branch-naming.md §Stacking Prerequisite"
 
   - id: branch-naming-004

@@ -72,7 +72,7 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 
 **This format applies to EVERY halt point where implementation is reported complete:**
 - review-prep after implementation
-- Sub-agent result reports from divide-and-conquer task()
+- Sub-agent result reports from implementation-pipeline task()
 - Phase boundary halts (merge gates between phases)
 - Approval-gate post-implementation reports
 
