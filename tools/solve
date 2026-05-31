@@ -273,7 +273,7 @@ def _py_to_z3(val, decl: dict, const: z3.ExprRef) -> z3.ExprRef:
 
 
 def _action_state_init(path: str) -> None:
-    p = Path(path)
+    p = _state_path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     state = {
         "variables": {},
