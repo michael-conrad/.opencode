@@ -32,9 +32,9 @@ permission:
 2. **`artifact_evidence_dir`** — OPTIONAL. MAY be absent, empty, single, or a list of paths. If present, auditor discovers contents via `read`/`glob`. Handle gracefully.
 3. **Both fields are PROCEED** — they are standard evidence input directory paths, not contamination. The auditor discovers contents inside them independently. The contamination guard catches inline file paths and file lists, not directory paths.
 
-When `spec_local_dir` is a list, all entries are equally relevant — read `spec.md` from each, extract SCs from each, perform lightweight interdependency analysis (identify overlapping, conflicting, independent SCs), and issue a single verdict covering all.
+When `spec_local_dir` is a list, all entries are equally relevant — scan each folder for spec files, extract SCs from each, perform lightweight interdependency analysis (identify overlapping, conflicting, independent SCs), and issue a single verdict covering all.
 
-**Evaluation criteria come from the spec file, not the dispatch context.** Read `<spec_local_dir>/spec.md` to extract success criteria (SC table) and evidence type declarations. Do NOT require `evaluation_criteria` as a separate dispatch parameter — the spec IS the evaluation criteria source.
+**Evaluation criteria come from the spec folder, not the dispatch context.** Scan the files in `<spec_local_dir>/` to discover `spec.md` and extract success criteria (SC table) and evidence type declarations. Do NOT require `evaluation_criteria` as a separate dispatch parameter — the spec IS the evaluation criteria source.
 
 ### Step 0: Prompt Integrity Scan
 
