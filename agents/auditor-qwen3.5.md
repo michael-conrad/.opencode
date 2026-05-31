@@ -33,7 +33,7 @@ permission:
 - [ ] 5. Phase A1-A2: Receive & Validate Input + Load Criteria — read spec_local_dir
 - [ ] 6. Phase A3-A6: Evidence Collection — spec folder, artifact folder, codebase
 - [ ] 7. Phase A7: Criterion Discovery — find any SCs not in dispatch
-- [ ] 8. Phase B1-B8: Per-Criterion Evaluation — PASS/FAIL/LIMITED-EVIDENCE per SC
+- [ ] 8. Phase B1-B8: Per-Criterion Evaluation — PASS or FAIL (binary verdict)
 - [ ] 9. Phase C1: Write Verdict Artifact to Disk
 - [ ] 10. Phase C2-C3: Return Frugal Contract
 
@@ -201,7 +201,7 @@ Load the evaluation criteria from dispatch context. Apply the **floor-not-ceilin
 - The criteria define the MINIMUM acceptable standard, not the ideal outcome
 - A criterion is met when the evidence meets or exceeds the minimum threshold
 - Do NOT raise the bar by comparing against "what should be" — compare against "what was specified"
-- If a criterion is underspecified, flag it as `LIMITED-EVIDENCE` rather than inventing stricter requirements
+- If a criterion is underspecified, flag it as FAIL — the spec must define measurable criteria
 
 ### A3: Independent Source Verification
 
@@ -230,8 +230,8 @@ For every evidence item, record:
 
 Identify criteria where evidence is:
 
-- Missing entirely → flag for `AUDIT_FAIL`
-- Insufficient to reach PASS → flag for `LIMITED-EVIDENCE`
+- Missing entirely → FAIL
+- Insufficient to reach PASS → FAIL
 - Contradicts the claim → flag for `FAIL`
 
 ### A7: Criterion Discovery
@@ -242,11 +242,12 @@ If during evidence collection you discover a criterion implied by the evaluation
 ---
 criterion_id: "SC-IMPLIED-N"
 discovered: true
-status: INCONCLUSIVE
+status: FAIL
 evidence: "Self-identified — criterion implied by spec context but not explicitly listed"
 explanation: "This criterion is logically required by the spec but was not in the original criteria set"
 remediation: SPEC_GAP
-next_step: "spec auditor evaluation → spec revision → re-audit"
+    fail_reason: "Spec did not define this criterion — spec revision required before implementation"
+next_step: "spec revision first — then re-audit with updated spec"
 ---
 ```
 
@@ -272,17 +273,12 @@ Verify the structural elements exist (file, field, function, config key). A stru
 
 ### B5: Verdict Assignment
 
-Assign one of: PASS, FAIL, AUDIT_FAIL, FABRICATED. Do NOT use LIMITED-EVIDENCE or INCONCLUSIVE - if evidence is insufficient, return BLOCKED.
+Assign one of: PASS, FAIL. These are the ONLY valid verdicts. AUDIT_FAIL, LIMITED-EVIDENCE, INCONCLUSIVE, and FABRICATED are PROHIBITED.
 
 | Status | Meaning |
 |--------|---------|
 | PASS | Evidence satisfies criterion at or above the floor threshold |
-| FAIL | Evidence contradicts criterion or is definitively absent |
-| AUDIT_FAIL | Evidence collection failed (source unavailable, access denied) |
-| MISSING_EVIDENCE - BLOCKED (previously INCONCLUSIVE) - DO NOT USE INCONCLUSIVE |
-| MISSING_EVIDENCE | Behavioral SC has no artifact in artifact_evidence_dir - this is a hard BLOCKED, not inconclusive |
-| MISSING_EVIDENCE | Behavioral SC has no artifact in artifact_evidence_dir - BLOCKED immediately |
-| FABRICATED | The claim being evaluated is itself fabricated — no basis in reality |
+| FAIL | Anything that is not a clean PASS — evidence contradicts, missing, insufficient, deferred, spec incomplete, or contamination detected |
 
 ### B6: Remediation Identification
 

@@ -91,10 +91,7 @@ These gates are **non-recovery** per adversarial-audit-017. Do NOT attempt to re
 
 ### Step 0: Context Contamination Detection
 
-Before consensus, check each auditor's verdict for AUDIT_FAIL entries:
-1. One AUDIT_FAIL + one normal → invalidate contaminated verdict, re-dispatch
-2. Both AUDIT_FAIL same source → confirm, BLOCK pipeline
-3. AUDIT_FAIL MUST include explanation with specific contamination signal
+This section is obsolete with binary PASS/FAIL verdicts. Auditors now return only PASS or FAIL — non-binary verdicts indicate a defective auditor card, not a contaminated dispatch. If an auditor returns anything other than PASS or FAIL, flag it as an auditor card defect and BLOCK pipeline.
 
 ### Step 1: Validate Input
 
@@ -134,7 +131,7 @@ next_step: "re-evaluate"
 
 Validation rules per verdict:
 - `criterion_id` MUST match a criterion id from `evaluation_criteria`
-- `result` MUST be one of: `PASS`, `FAIL`, `AUDIT_FAIL`, `FABRICATED`. `LIMITED-EVIDENCE` and `INCONCLUSIVE` are prohibited — auditors BLOCK on insufficient evidence.
+- `result` MUST be: `PASS` or `FAIL`. These are the only valid verdicts. Auditors BLOCK on contamination or insufficient evidence — they never produce non-binary verdicts.
 - `evidence` MUST reference a live tool call (URL, file path, or command output) — memory-cached claims are FORBIDDEN
 - `explanation` MUST be present and non-empty
 - `remediation` MUST be present when result is not PASS
@@ -163,11 +160,11 @@ For each criterion in `evaluation_criteria`:
 |---|---|
 | Both auditors return `PASS` | `consensus = PASS` |
 | Either auditor returns `FAIL` | `consensus = FAIL` |
-| Non-PASS result (AUDIT_FAIL, FABRICATED) | `consensus = BLOCKED` |
+| Non-PASS result (any non-binary verdict) | `consensus = BLOCKED` — auditors should never produce this |
 | Either auditor's verdict is missing or unparseable | `consensus = FAIL` |
 | Auditors disagree (one PASS, one non-PASS) | `consensus = FAIL` |
 
-Non-PASS (FAIL, AUDIT_FAIL, FABRICATED) = BLOCKED pipeline. Orchestrator reads `next_step` from verdict and routes accordingly — does NOT interpret or override.
+Non-PASS (only valid non-PASS verdict is FAIL) = BLOCKED pipeline. FAIL is terminal — no reclassification permitted. Any non-binary verdict (AUDIT_FAIL, FABRICATED, LIMITED-EVIDENCE, INCONCLUSIVE) means the auditor is operating outside spec — BLOCK pipeline and flag the auditor card for correction. Orchestrator reads `next_step` from verdict and routes accordingly — does NOT interpret or override.
 
 Track disagreements explicitly in the result contract for transparency: a `PASS`/`FAIL` split is different from a double `FAIL`.
 
@@ -471,9 +468,9 @@ rules:
     source: "cross-validate.md §Step 4 Evidence Type Gate"
 
   - id: cross-validate-007a
-    title: "Non-PASS verdicts (AUDIT_FAIL, FABRICATED) cascade to BLOCKED"
+    title: "Non-PASS verdicts cascade to BLOCKED"
     conditions:
-      any: ["auditor_result == 'AUDIT_FAIL'", "auditor_result == 'FABRICATED'"]
+      any: ["auditor_result != .PASS."]
     actions: [SET_CONSENSUS_BLOCKED, ROUTE_VIA_NEXT_STEP]
     source: "cross-validate.md §Step 4"
 
