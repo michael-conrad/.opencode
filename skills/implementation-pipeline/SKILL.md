@@ -9,6 +9,12 @@ compatibility: opencode
 
 # Implementation Pipeline
 
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-generated -->
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+
 ## Overview
 
 Pure orchestrator routing table with 14 serial dispatch steps. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`. YAML contract artifacts at `./tmp/artifacts/pipeline-{issue}-{step_label}-{STATUS}-{timestamp}.yaml`.

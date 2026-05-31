@@ -1,5 +1,7 @@
 # Task: pipeline-executor
 
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+
 ## Purpose
 
 This is the core dispatch routing table for the 14-step serial implementation pipeline. Each step dispatches to an existing skill's task file via `task()` using clean-room sub-agents. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`.

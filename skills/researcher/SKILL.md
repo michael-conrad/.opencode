@@ -9,6 +9,12 @@ compatibility: opencode
 
 # Researcher
 
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-generated -->
+
+Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+
 ## Overview
 
 Dedicated research skill for exhaustive investigation with verifiable source evidence. Used by the implementation-pipeline on FAIL for remediation scope determination, but generally available for all research tasks.

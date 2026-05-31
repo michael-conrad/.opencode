@@ -1,4 +1,8 @@
 # Pipeline State Machine Contract for Z3 Validation
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+# Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 schema_version: "1.0"
 last_updated: "2026-05-31T00:00:00Z"
 
