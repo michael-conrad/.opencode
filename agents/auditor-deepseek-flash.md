@@ -2,7 +2,7 @@
 mode: subagent
 model: ollama/deepseek-v4-flash:cloud
 description: Adversarial auditor sub-agent using DeepSeek V4 Flash for cross-family cross-validation of AI-generated output against live-source evidence.
-temperature: 0.1
+temperature: 0.3
 steps: 50
 permission:
   read: allow
