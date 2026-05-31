@@ -170,6 +170,30 @@ missing: "<field_name>"
 ---
 ```
 
+
+### A1a: Validate Behavioral Evidence in artifact_evidence_dir
+
+Before any evaluation, scan the spec SCs from `spec_local_dir/spec.md` and identify which SCs require behavioral evidence (declared_evidence_type = behavioral).
+
+Then `read`/`glob` the contents of `artifact_evidence_dir` to inventory available evidence artifacts.
+
+If ANY behavioral SC exists but has NO corresponding evidence artifact in `artifact_evidence_dir`:
+- Do NOT degrade to LIMITED-EVIDENCE or INCONCLUSIVE
+- Do NOT search for alternative sources
+- Return BLOCKED immediately:
+
+```yaml
+---
+status: BLOCKED
+error: MISSING_EVIDENCE
+missing: "<SC-ID>"
+evidence_path: "<artifact_evidence_dir>"
+reason: "Behavioral SC requires evidence artifact in artifact_evidence_dir. Evidence not found for this SC. Auditor must not fabricate or substitute evidence."
+---
+```
+
+The evidence dir is the single source of behavioral truth. Auditors NEVER search outside it for behavioral evidence.
+
 ### A2: Floor-Not-Ceiling Evaluation Criteria Loading
 
 Load the evaluation criteria from dispatch context. Apply the **floor-not-ceiling** principle:
@@ -248,15 +272,16 @@ Verify the structural elements exist (file, field, function, config key). A stru
 
 ### B5: Verdict Assignment
 
-Assign one of: PASS, FAIL, AUDIT_FAIL, INCONCLUSIVE, LIMITED-EVIDENCE, FABRICATED.
+Assign one of: PASS, FAIL, AUDIT_FAIL, FABRICATED. Do NOT use LIMITED-EVIDENCE or INCONCLUSIVE - if evidence is insufficient, return BLOCKED.
 
 | Status | Meaning |
 |--------|---------|
 | PASS | Evidence satisfies criterion at or above the floor threshold |
 | FAIL | Evidence contradicts criterion or is definitively absent |
 | AUDIT_FAIL | Evidence collection failed (source unavailable, access denied) |
-| INCONCLUSIVE | Evidence is ambiguous or conflicting |
-| LIMITED-EVIDENCE | Some evidence exists but is insufficient for PASS |
+| MISSING_EVIDENCE - BLOCKED (previously INCONCLUSIVE) - DO NOT USE INCONCLUSIVE |
+| MISSING_EVIDENCE | Behavioral SC has no artifact in artifact_evidence_dir - this is a hard BLOCKED, not inconclusive |
+| MISSING_EVIDENCE | Behavioral SC has no artifact in artifact_evidence_dir - BLOCKED immediately |
 | FABRICATED | The claim being evaluated is itself fabricated — no basis in reality |
 
 ### B6: Remediation Identification
