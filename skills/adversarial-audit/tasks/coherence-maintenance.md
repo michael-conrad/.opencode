@@ -123,7 +123,7 @@ task(
     prompt=f"""Use adversarial-audit skill --task cross-validate with:
 
 baseline_file: {baseline_path}
-spec_issue_number: {spec_issue_number}
+spec_local_dir: {spec_local_dir}
 audit_phase: coherence_gate
 authorization_scope: {authorization_scope}
 halt_at: {halt_at}
@@ -135,8 +135,6 @@ pipeline_phase: {pipeline_phase}
 auditor_artifact_paths: {auditor_artifact_paths}
 
 worktree.path: {worktree.path}
-github.owner: {github.owner}
-github.repo: {github.repo}
 """
 )
 ```

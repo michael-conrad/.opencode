@@ -25,9 +25,9 @@ Audit spec phase structure for concern separation quality using dual-adversarial
 
 ### Step 1: Load Spec
 
-Fetch spec issue and extract phase structure:
+`spec_local_dir` is REQUIRED. Auditors BLOCK if absent.
 ```python
-issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<N>) <!-- Routes through issue-operations per SPEC #683 -->
+spec = read(filePath=f"<spec_local_dir>/spec.md")
 ```
 
 Extract all phases and their steps.
@@ -72,8 +72,7 @@ task(
     subagent_type="general",
     prompt=f"""Use adversarial-audit skill --task cross-validate with:
 
-spec_issue_number: {spec_issue_number}
-plan_issue_number: {plan_issue_number}
+spec_local_dir: {spec_local_dir}
 audit_phase: {audit_phase}
 authorization_scope: {authorization_scope}
 halt_at: {halt_at}
@@ -85,8 +84,6 @@ pipeline_phase: {pipeline_phase}
 auditor_artifact_paths: {auditor_artifact_paths}
 
 worktree.path: {worktree.path}
-github.owner: {github.owner}
-github.repo: {github.repo}
 """
 )
 ```

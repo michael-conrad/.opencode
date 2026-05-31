@@ -26,10 +26,10 @@ Detect drift between spec/code reality and expected state. Identifies cases wher
 
 ### Step 1: Load Spec Requirements
 
-Fetch spec issue and extract requirements:
+`spec_local_dir` is REQUIRED. Auditors BLOCK if absent.
 ```python
-spec = issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<N>) <!-- Routes through issue-operations per SPEC #683 -->
-requirements = extract_requirements(spec["body"])
+spec = read(filePath=f"<spec_local_dir>/spec.md")
+requirements = extract_requirements(spec)
 ```
 
 Requirements extraction:
@@ -134,8 +134,7 @@ task(
     subagent_type="general",
     prompt=f"""Use adversarial-audit skill --task cross-validate with:
 
-spec_issue_number: {spec_issue_number}
-target_file_paths: {target_files}
+spec_local_dir: {spec_local_dir}
 audit_phase: implementation_verification
 authorization_scope: {authorization_scope}
 halt_at: {halt_at}
@@ -147,8 +146,6 @@ pipeline_phase: {pipeline_phase}
 auditor_artifact_paths: {auditor_artifact_paths}
 
 worktree.path: {worktree.path}
-github.owner: {github.owner}
-github.repo: {github.repo}
 """
 )
 ```

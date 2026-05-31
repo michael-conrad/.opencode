@@ -1,10 +1,10 @@
 # Task: start
 
-Task() to divide-and-conquer/assemble-work for implementation.
+Task() to implementation-pipeline for implementation.
 
 ## Purpose
 
-This task() routes plan execution to `divide-and-conquer --task assemble-work`, which handles all implementation through the unified work workflow.
+This task() routes plan execution to `implementation-pipeline --task assemble-work`, which handles all implementation through the unified work workflow.
 
 ## Invocation Procedure
 
@@ -14,7 +14,7 @@ This task() routes plan execution to `divide-and-conquer --task assemble-work`, 
    - If no phases are complete yet: `completed_phases: "No phases completed yet. This is the first phase."`, `concern_boundaries_crossed: ""`, `verification_evidence: ""`
    - If prior phases are complete: list them by concern name using the concern boundary annotations in the plan body, note any transitions between concerns, and summarize verification outcomes from the plan STATUS markers
 4. **Check halt_at boundary** — if `halt_at == plan_created`, HALT. Do NOT task() to implementation. The authorization scope stops at plan creation.
-5. **Step 5.5: RED Phase Verification Checkpoint — Content and Behavioral (MANDATORY)** — Before task()ing to divide-and-conquer/assemble-work, the agent MUST verify that for each TDD-marked implementation item, a RED test artifact exists. The type of RED test depends on whether the item is a rule change or a code change:
+5. **Step 5.5: RED Phase Verification Checkpoint — Content and Behavioral (MANDATORY)** — Before task()ing to implementation-pipeline/assemble-work, the agent MUST verify that for each TDD-marked implementation item, a RED test artifact exists. The type of RED test depends on whether the item is a rule change or a code change:
 
    - **For rule/guideline items** (changes to `.opencode/guidelines/*.md`, `.opencode/skills/*/SKILL.md`, `.opencode/skills/*/tasks/*.md`, critical violation text, agent behavior rules): The RED test artifact MUST be a **behavioral enforcement test** — one that sends the agent a prompt and verifies the agent does NOT follow the new rule yet (test FAILS because the rule change hasn't been made). Content-verification (grep for text presence) is SECONDARY and does NOT satisfy the behavioral RED gate for rule items. See `080-code-standards.md` → Behavioral Enforcement Tests (PRIMARY) and `091-incremental-build.md` → Behavioral Variant for Rule Items. **The prompt MUST be a real-domain scenario (e.g., actual audit prompt, actual implementation request) — NOT a prose-recall prompt (e.g., 'Describe how you would resolve models'). Behavioral evidence is collected from stderr (agent actions), not stdout prose recall. Stderr assertion helpers (`assert_stderr_pattern_present`/`assert_stderr_pattern_absent_all_models`) are the PRIMARY assertion mechanism.**
    - **For code items** (changes to `src/`, `test/`, Python files, notebook cells): The RED test artifact MUST be a **unit or integration test** that verifies the implementation behavior before the change exists. Standard TDD RED phase applies.
@@ -35,10 +35,10 @@ This makes the implementation phase resilient to branch switching, worktree recr
 
 6. **Behavioral uplift at TDD start:** When starting TDD for an item, if the change affects runtime behavior, declare the SC evidence type as `behavioral`. The classification question ("Does this change affect runtime behavior?") is substrate-determined. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
 
-7. **Task() to divide-and-conquer:**
+7. **Task() to implementation-pipeline:**
 
 ```
-/skill divide-and-conquer --task assemble-work
+/skill implementation-pipeline --task assemble-work
 ```
 
 When task()ing, pass `authorization_scope`, `halt_at`, `pr_strategy`, and `pipeline_phase` alongside `plan_issue`, `spec_issue`, `<github.owner>`, `<github.repo>`, and `<worktree.path>`. The `assemble-work` task uses these fields for scope-aware task() boundary enforcement.
@@ -73,8 +73,8 @@ The `assemble-work` task handles:
 
 | Legacy Task | Redirect Target |
 |------------|----------------|
-| `step` | `divide-and-conquer --task assemble-work` |
-| `progress` | `divide-and-conquer --task assemble-work` |
+| `step` | `implementation-pipeline --task assemble-work` |
+| `progress` | `implementation-pipeline --task assemble-work` |
 | `verify` | `verification-before-completion --task verify` |
 
 ## Enforcement

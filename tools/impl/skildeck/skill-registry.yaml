@@ -86,7 +86,7 @@ rules:
       - PROCEED
     conflicts_with: []
     requires: []
-    triggers: [approval-gate, divide-and-conquer]
+    triggers: [approval-gate, implementation-pipeline]
     source: "010-approval-gate.md §Explicit Authorization Priority"
 
   - id: approval-gate-003
@@ -192,7 +192,7 @@ rules:
       - HALT_AT(halt_at)
     conflicts_with: []
     requires: [approval-gate-002]
-    triggers: [approval-gate, divide-and-conquer]
+    triggers: [approval-gate, implementation-pipeline]
     source: "010-approval-gate.md §Authorization Scope Model"
 
   - id: approval-gate-011
@@ -204,7 +204,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: [approval-gate-010]
-    triggers: [approval-gate, divide-and-conquer, git-workflow]
+    triggers: [approval-gate, implementation-pipeline, git-workflow]
     source: "010-approval-gate.md §Authorization Scope Model"
 
   - id: approval-gate-012
@@ -213,10 +213,10 @@ rules:
       all:
         - "has_approved_plan == true"
     actions:
-      - INVOKE(divide-and-conquer)
+      - INVOKE(implementation-pipeline)
     conflicts_with: []
     requires: [approval-gate-001b]
-    triggers: [divide-and-conquer]
+    triggers: [implementation-pipeline]
     source: "010-approval-gate.md §Unified Dispatch Path"
 
   - id: approval-gate-013
@@ -377,7 +377,7 @@ rules:
       - REPORT(scope_boundary_reached)
     conflicts_with: []
     requires: [approval-gate-010]
-    triggers: [approval-gate, divide-and-conquer, git-workflow]
+    triggers: [approval-gate, implementation-pipeline, git-workflow]
     source: "020-go-prohibitions.md §1 ALWAYS DO"
 
   - id: go-prohibitions-009
@@ -421,7 +421,7 @@ rules:
       - PROCEED
     conflicts_with: []
     requires: [approval-gate-002]
-    triggers: [divide-and-conquer, executing-plans]
+    triggers: [implementation-pipeline, executing-plans]
     source: "approval-gate/SKILL.md §Multi-task cascade"
 
   - id: approval-gate-skill-003
@@ -528,7 +528,7 @@ state_machines:
       - from: plan_approved
         to: implementing
         guard: "plan_approved == true"
-        action: INVOKE(divide-and-conquer)
+        action: INVOKE(implementation-pipeline)
       - from: implementing
         to: code_review_ready
         guard: "implementation_complete == true"

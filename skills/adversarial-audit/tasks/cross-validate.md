@@ -10,23 +10,22 @@ Accept an evidence payload, evaluation criteria, and pre-resolved auditor verdic
 
 ## Entry Criteria
 
-- `spec_issue_number`: Spec issue number to fetch independently via GitHub API
-- `github.owner`, `github.repo`: For API calls to fetch spec
+- `spec_local_dir`: Local directory containing spec.md
 - `auditor_artifact_paths`: Array of two artifact paths from the orchestrator, pointing to YAML verdict files on disk — resolved by `resolve-models`, written by auditor task dispatch, and passed by the orchestrator BEFORE this task
 - Lightweight audit-type structural criteria (SC-1/PF-1/CS-1/GA-1 templates) provided as task-file-defined templates WITHOUT embedded spec SC content
 - `auditor_metadata`: Optional array of `{ auditor_type, family, parseable }` for auditor identity context
 
-### Step 0: Fetch Spec Independently
+### Step 0: Load Spec
 
-Fetch the spec issue from GitHub to obtain the spec's success criteria and evidence type declarations:
+`spec_local_dir` is REQUIRED. Auditors BLOCK if absent.
 
 ```python
-spec = github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<spec_issue_number>)
-spec_scs = extract_success_criteria(spec["body"])
+spec = read(filePath=f"<spec_local_dir>/spec.md")
+spec_scs = extract_success_criteria(spec)
 spec_evidence_types = extract_evidence_types(spec_scs)
 ```
 
-Use the fetched spec SCs as the sole authoritative baseline for evidence type checks. Do NOT accept inline-provided evaluation_criteria as authoritative for evidence type — the spec's own declarations are the source of truth.
+Use the loaded spec SCs as the sole authoritative baseline for evidence type checks. Do NOT accept inline-provided evaluation_criteria as authoritative for evidence type — the spec's own declarations are the source of truth.
 
 ## Pre-Inspection Classification Gate (MANDATORY)
 
@@ -81,7 +80,7 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 
 | Gate | Condition | Error Code | Action |
 |------|-----------|------------|--------|
-| MISSING_INPUT | `spec_issue_number` missing or empty, or spec not fetchable | `MISSING_INPUT` | Return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }` |
+| MISSING_INPUT | `spec_local_dir` missing or empty, or spec.md not readable | `MISSING_INPUT` | Return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }` |
 | MISSING_ARTIFACT_PATHS | `auditor_artifact_paths` missing, null, or empty array | `MISSING_ARTIFACT_PATHS` | Return `{ status: "BLOCKED", error: "MISSING_ARTIFACT_PATHS" }` |
 | ARTIFACT_UNREADABLE | Auditor YAML artifact file cannot be read or parsed | `ARTIFACT_UNREADABLE` | Return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }` |
 | INSUFFICIENT_ARTIFACTS | `auditor_artifact_paths` contains fewer than 2 entries OR both auditors share the same family | `INSUFFICIENT_ARTIFACTS` | Return `{ status: "BLOCKED", error: "INSUFFICIENT_ARTIFACTS" }` |
@@ -92,14 +91,11 @@ These gates are **non-recovery** per adversarial-audit-017. Do NOT attempt to re
 
 ### Step 0: Context Contamination Detection
 
-Before consensus, check each auditor's verdict for AUDIT_FAIL entries:
-1. One AUDIT_FAIL + one normal → invalidate contaminated verdict, re-dispatch
-2. Both AUDIT_FAIL same source → confirm, BLOCK pipeline
-3. AUDIT_FAIL MUST include explanation with specific contamination signal
+This section is obsolete with binary PASS/FAIL verdicts. Auditors now return only PASS or FAIL — non-binary verdicts indicate a defective auditor card, not a contaminated dispatch. If an auditor returns anything other than PASS or FAIL, flag it as an auditor card defect and BLOCK pipeline.
 
 ### Step 1: Validate Input
 
-Confirm `spec_issue_number` is present and non-empty. Fetch the spec via `github_issue_read(method="get", owner, repo, issue_number=spec_issue_number)`. If `spec_issue_number` is missing or the spec cannot be fetched: return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }`.
+Confirm `spec_local_dir` is present and non-empty. Read `<spec_local_dir>/spec.md` via `read` tool. If `spec_local_dir` is missing, empty, or the file cannot be read: return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }`.
 
 ### Step 2: Validate Auditor Artifact Paths
 
@@ -135,7 +131,7 @@ next_step: "re-evaluate"
 
 Validation rules per verdict:
 - `criterion_id` MUST match a criterion id from `evaluation_criteria`
-- `result` MUST be one of: `PASS`, `FAIL`, `AUDIT_FAIL`, `LIMITED-EVIDENCE`, `FABRICATED`
+- `result` MUST be: `PASS` or `FAIL`. These are the only valid verdicts. Auditors BLOCK on contamination or insufficient evidence — they never produce non-binary verdicts.
 - `evidence` MUST reference a live tool call (URL, file path, or command output) — memory-cached claims are FORBIDDEN
 - `explanation` MUST be present and non-empty
 - `remediation` MUST be present when result is not PASS
@@ -164,11 +160,11 @@ For each criterion in `evaluation_criteria`:
 |---|---|
 | Both auditors return `PASS` | `consensus = PASS` |
 | Either auditor returns `FAIL` | `consensus = FAIL` |
-| Non-PASS result (AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED) | `consensus = BLOCKED` |
+| Non-PASS result (any non-binary verdict) | `consensus = BLOCKED` — auditors should never produce this |
 | Either auditor's verdict is missing or unparseable | `consensus = FAIL` |
 | Auditors disagree (one PASS, one non-PASS) | `consensus = FAIL` |
 
-Non-PASS (FAIL, AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED) = BLOCKED pipeline. Orchestrator reads `next_step` from verdict and routes accordingly — does NOT interpret or override.
+Non-PASS (only valid non-PASS verdict is FAIL) = BLOCKED pipeline. FAIL is terminal — no reclassification permitted. Any non-binary verdict (AUDIT_FAIL, FABRICATED, LIMITED-EVIDENCE, INCONCLUSIVE) means the auditor is operating outside spec — BLOCK pipeline and flag the auditor card for correction. Orchestrator reads `next_step` from verdict and routes accordingly — does NOT interpret or override.
 
 Track disagreements explicitly in the result contract for transparency: a `PASS`/`FAIL` split is different from a double `FAIL`.
 
@@ -195,9 +191,9 @@ The following rationalization patterns are enumerated as explicit violations:
 
 Before computing consensus for each criterion, cross-validate MUST check the declared evidence type against the actual evidence type used by each auditor. This gate prevents auditors from verifying behavioral SCs with structural evidence and reporting PASS.
 
-**For each criterion (from the fetched spec SCs in Step 0):**
+**For each criterion (from the loaded spec SCs in Step 0):**
 
-1. Read the criterion's declared `evidence_type` from the fetched spec (spec_scs from Step 0 — NOT from inline evaluation_criteria)
+1. Read the criterion's declared `evidence_type` from the loaded spec (spec_scs from Step 0 — NOT from inline evaluation_criteria)
 2. For each auditor's verdict on that criterion, check the evidence type used:
    - If `evidence_type` is not declared in the criterion, default to `string`
    - If the auditor used structural evidence (file existence, grep, read) for a criterion declared as `behavioral`, downgrade that auditor's verdict from PASS to FAIL with `EVIDENCE_TYPE_MISMATCH` classification
@@ -354,10 +350,9 @@ The `next_step` field:
 
 ## Context Required
 
-- `spec_issue_number`: Spec issue number to fetch independently via GitHub API
+- `spec_local_dir`: Local directory containing spec.md
 - `auditor_artifact_paths`: Pre-resolved array of two artifact paths from orchestrator (each with `{ artifact_path, auditor_type, family, parseable }`)
 - `audit_phase`: Current audit phase for task context
-- `github.owner`, `github.repo`: For API calls to fetch spec
 
 ## Red Flags
 
@@ -400,7 +395,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|---|
-| `spec_issue_number`, `auditor_artifact_paths`, `audit_phase`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `github.owner`, `github.repo` | Implementation context, agent memory, orchestrator reasoning, prior verification, spec_body, evaluation_criteria, verdict content | N/A — cross-validate receives artifact paths, does not dispatch auditors | NO |
+| `spec_local_dir`, `auditor_artifact_paths`, `audit_phase`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase` | Implementation context, agent memory, orchestrator reasoning, prior verification, spec_body, evaluation_criteria, verdict content | N/A — cross-validate receives artifact paths, does not dispatch auditors | NO |
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -473,9 +468,9 @@ rules:
     source: "cross-validate.md §Step 4 Evidence Type Gate"
 
   - id: cross-validate-007a
-    title: "Non-PASS verdicts (AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED) cascade to BLOCKED"
+    title: "Non-PASS verdicts cascade to BLOCKED"
     conditions:
-      any: ["auditor_result == 'AUDIT_FAIL'", "auditor_result == 'LIMITED-EVIDENCE'", "auditor_result == 'FABRICATED'"]
+      any: ["auditor_result != .PASS."]
     actions: [SET_CONSENSUS_BLOCKED, ROUTE_VIA_NEXT_STEP]
     source: "cross-validate.md §Step 4"
 

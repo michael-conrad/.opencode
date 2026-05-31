@@ -180,7 +180,7 @@ ${editList}
 
 ${dispatchNote}
 
-The orchestrator MUST be a pure router — all file modifications MUST be dispatched through divide-and-conquer sub-agents. See 000-critical-rules.md Inline Work. Exemptions: pair- branches, .issues/ file edits, simple-work single-file changes. If this is an exempt case, disregard this warning.`;
+The orchestrator MUST be a pure router — all file modifications MUST be dispatched through implementation-pipeline sub-agents. See 000-critical-rules.md Inline Work. Exemptions: pair- branches, .issues/ file edits, simple-work single-file changes. If this is an exempt case, disregard this warning.`;
 }
 
 function buildEvidenceGateBlock(): string {
@@ -822,7 +822,7 @@ function buildPreImplementationGate(projectDir: string): string {
 **MANDATORY pre-implementation sequence (Tier 1 — HALT if not met):**
 1. Invoke \`/skill approval-gate --task verify-authorization\`
 2. Invoke \`/skill git-workflow --task pre-work\`
-3. ALL file modifications go through \`/skill divide-and-conquer --task assemble-work\`
+3. ALL file modifications go through \`/skill implementation-pipeline --task <step_label>\`
 4. Direct edit/write tool calls in the orchestrator context are a CRITICAL VIOLATION`;
 }
 
@@ -831,7 +831,7 @@ function buildCorePrinciplesBlock(): string {
 
 1. **FAIL=FAIL** — No soft-passing, "functionally equivalent," or justifying FAIL→PASS.
 2. **Auth gate** — Every change requires approved spec/plan. No exception, no matter how trivial.
-3. **Mandatory skills** — \`/skill git-workflow\`, \`/skill divide-and-conquer\`, \`/skill verification-before-completion\`, \`/skill adversarial-audit\`. Not optional.
+3. **Mandatory skills** — \`/skill git-workflow\`, \`/skill implementation-pipeline\`, \`/skill verification-before-completion\`, \`/skill adversarial-audit\`. Not optional.
 4. **TDD Red/Green** — Approval→pre-work→audit spec/plan→RED(test+audit; fail→fix, pass→commit)→GREEN(impl+audit; fail→fix+restart, pass→commit)→final spec/plan audit.
 5. **Feedback ≠ Auth** — Feedback/clarification/technical input → update understanding, discuss, HALT. Never proceed to implementation.
 6. **Dispatch via \`skill()\` + \`task()\` is the PRIMARY execution model** — Load every skill with \`skill()\`, dispatch execution with \`task()\`. The orchestrator routes and dispatches only; it never executes. A dispatcher that reads SKILL.md files and executes steps inline is not a dispatcher — it is an agent working without enforcement gates. Professional orchestrators dispatch; amateurs inline.

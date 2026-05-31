@@ -25,7 +25,7 @@ ISSUES = [41, 42, 43, 45]
 
 ISSUE_SPEC_FILES = {
     41: "skills/git-workflow/SKILL.md",
-    42: "skills/divide-and-conquer/SKILL.md",
+    42: "skills/implementation-pipeline/SKILL.md",
     43: "skills/verification-before-completion/SKILL.md",
     45: "skills/finishing-a-development-branch/SKILL.md",
 }

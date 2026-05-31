@@ -238,7 +238,7 @@ For URLs to resources that have been **created by an API call** (PR URL, Issue U
 - `issue-operations/tasks/creation.md` — Issue URL extraction from `github_issue_write`
 - `issue-operations/tasks/completion.md` — Issue URL extraction from `github_issue_write`
 - `verification-before-completion/tasks/completion.md` — Issue URL extraction from `github_issue_write`
-- `divide-and-conquer/tasks/assemble-work.md` — PR URL extraction after PR creation
+- `implementation-pipeline/tasks/assemble-work.md` — PR URL extraction after PR creation
 - `finishing-a-development-branch/tasks/checklist.md` — URL extraction checklist verification
 
 - **PR URL:** Extract from `github_create_pull_request` response `html_url` field
@@ -321,7 +321,7 @@ Professional engineers check for superseding open issues before implementing —
 
 
 ### [critical-rules-025] Main Agent Implements Directly
-Professional orchestrators route through sub-agents — amateurs inline work and produce contaminated pipelines. See `divide-and-conquer --task assemble-work`. Orchestrator tasks sub-agents via task() only.
+Professional orchestrators route through sub-agents — amateurs inline work and produce contaminated pipelines. See `implementation-pipeline --task assemble-work`. Orchestrator tasks sub-agents via task() only.
 
 
 ### [critical-rules-016] Bypassing Mandatory Skill Calls During Implementation
@@ -1034,7 +1034,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [approval-gate, divide-and-conquer]
+    triggers: [approval-gate, implementation-pipeline]
     source: "000-critical-rules.md §Bypassing Mandatory Skill Calls"
 
   - id: critical-rules-017
@@ -1181,7 +1181,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer]
+    triggers: [implementation-pipeline]
     source: "000-critical-rules.md §Main Agent Implements Directly"
 
   - id: critical-rules-026
@@ -1270,7 +1270,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer, verification-before-completion, git-workflow]
+    triggers: [implementation-pipeline, verification-before-completion, git-workflow]
     source: "000-critical-rules.md §Skipping Clean-Room task() for Sub-Agents"
 
   - id: critical-rules-031
@@ -1284,7 +1284,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer, verification-before-completion, git-workflow]
+    triggers: [implementation-pipeline, verification-before-completion, git-workflow]
     source: "000-critical-rules.md §Skipping Pre-Flight Checks for Sub-Agents"
 
   - id: critical-rules-032
@@ -1298,7 +1298,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer, verification-before-completion]
+    triggers: [implementation-pipeline, verification-before-completion]
     source: "000-critical-rules.md §Skipping Post-Flight Checks for Sub-Agents"
 
   - id: critical-rules-033
@@ -1312,7 +1312,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer, verification-before-completion]
+    triggers: [implementation-pipeline, verification-before-completion]
     source: "000-critical-rules.md §Claiming Verification Without Tool-Call Evidence in Sub-Agent Results"
 
   - id: critical-rules-034
@@ -1326,7 +1326,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer, verification-before-completion, git-workflow]
+    triggers: [implementation-pipeline, verification-before-completion, git-workflow]
     source: "000-critical-rules.md §Inline Work"
 
   - id: critical-rules-inline-issue-content
@@ -1342,7 +1342,7 @@ rules:
       - DISPATCH_TO(issue-operations --task creation)
     conflicts_with: [critical-rules-034]
     requires: []
-    triggers: [issue-operations, divide-and-conquer]
+    triggers: [issue-operations, implementation-pipeline]
     source: "000-critical-rules.md §Inline Work — Violation Patterns — Orchestrator creates issue content inline"
 
   - id: critical-rules-035
@@ -1357,7 +1357,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: [critical-rules-034]
-    triggers: [approval-gate, divide-and-conquer]
+    triggers: [approval-gate, implementation-pipeline]
     source: "000-critical-rules.md §DISPATCH_GATE Checkpoint"
 
   - id: critical-rules-036
@@ -1402,8 +1402,8 @@ rules:
     actions:
       - HALT
     conflicts_with: []
-    requires: [approval-gate-skill-006, divide-and-conquer-007]
-    triggers: [approval-gate, divide-and-conquer]
+    requires: [approval-gate-skill-006, implementation-pipeline-007]
+    triggers: [approval-gate, implementation-pipeline]
     source: "000-critical-rules.md §Implementing Before PR Merge Boundary"
 
   - id: critical-rules-039
@@ -1467,7 +1467,7 @@ rules:
       - TASK(clean-room opencode-cli run with resolved model)
     conflicts_with: []
     requires: []
-    triggers: [verification-before-completion, divide-and-conquer]
+    triggers: [verification-before-completion, implementation-pipeline]
     source: "000-critical-rules.md §Model-Aware Clean-Room task() for Behavioral Testing"
 
   - id: critical-rules-043
@@ -1482,7 +1482,7 @@ rules:
       - RE_TASK(clean-room sub-agent)
     conflicts_with: []
     requires: [critical-rules-034]
-    triggers: [divide-and-conquer, verification-before-completion, git-workflow, approval-gate, issue-operations, executing-plans]
+    triggers: [implementation-pipeline, verification-before-completion, git-workflow, approval-gate, issue-operations, executing-plans]
     source: "000-critical-rules.md §No Inline Fallback on Sub-Agent Failure — Universal Re-Task Mandate"
 
   - id: critical-rules-044
@@ -1500,7 +1500,7 @@ rules:
       - TASK(pre-analysis sub-agent first)
     conflicts_with: []
     requires: [critical-rules-034, critical-rules-030]
-    triggers: [approval-gate, divide-and-conquer, verification-before-completion]
+    triggers: [approval-gate, implementation-pipeline, verification-before-completion]
     source: "000-critical-rules.md §Preloading Sub-Agent Context"
 
   - id: critical-rules-045
@@ -1514,7 +1514,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: [tool-usage-009]
-    triggers: [git-workflow, divide-and-conquer, approval-gate, skill-creator]
+    triggers: [git-workflow, implementation-pipeline, approval-gate, skill-creator]
     source: "000-critical-rules.md §Creating .opencode/.opencode/ Nested Directories"
 
   - id: critical-rules-046
@@ -1560,7 +1560,7 @@ rules:
       - HALT
     conflicts_with: [critical-rules-034]
     requires: []
-    triggers: [divide-and-conquer, git-workflow, approval-gate, verification-before-completion, finishing-a-development-branch, issue-operations, spec-creation, writing-plans, brainstorming, conflict-resolution, pr-creation-workflow, executing-plans, systematic-debugging, engineering-approach, receiving-code-review, requesting-code-review, changelog-generator, correspondence, sre-runbook, ui-design, ui-engineer, test-driven-development, skill-creator, sync-guidelines, adversarial-audit, verification, verification-enforcement, verification-before-completion, multimodal-dispatch, pre-analysis, completion-core]
+    triggers: [implementation-pipeline, git-workflow, approval-gate, verification-before-completion, finishing-a-development-branch, issue-operations, spec-creation, writing-plans, brainstorming, conflict-resolution, pr-creation-workflow, executing-plans, systematic-debugging, engineering-approach, receiving-code-review, requesting-code-review, changelog-generator, correspondence, sre-runbook, ui-design, ui-engineer, test-driven-development, skill-creator, sync-guidelines, adversarial-audit, verification, verification-enforcement, verification-before-completion, multimodal-dispatch, pre-analysis, completion-core]
     source: "default.txt §Skill Dispatch Mandate"
 
   - id: critical-rules-049
@@ -1593,7 +1593,7 @@ rules:
       - RETURN_BLOCKED
     conflicts_with: []
     requires: [critical-rules-036]
-    triggers: [divide-and-conquer, approval-gate, verification-before-completion]
+    triggers: [implementation-pipeline, approval-gate, verification-before-completion]
     source: "000-critical-rules.md §critical-rules-050"
 
   - id: git-workflow-branch-deletion-001
@@ -1623,7 +1623,7 @@ rules:
       - REQUIRE_ADVERSARIAL_DISPATCH
     conflicts_with: []
     requires: []
-    triggers: [spec-creation, writing-plans, issue-operations, divide-and-conquer, verification-before-completion, pr-creation-workflow, git-workflow]
+    triggers: [spec-creation, writing-plans, issue-operations, implementation-pipeline, verification-before-completion, pr-creation-workflow, git-workflow]
     source: "adversarial-audit/SKILL.md §adversarial-audit-008"
 
   - id: adversarial-audit-009
@@ -1640,7 +1640,7 @@ rules:
       - REQUIRE_CONSENSUS
     conflicts_with: []
     requires: []
-    triggers: [spec-creation, writing-plans, issue-operations, divide-and-conquer, verification-before-completion, pr-creation-workflow, git-workflow]
+    triggers: [spec-creation, writing-plans, issue-operations, implementation-pipeline, verification-before-completion, pr-creation-workflow, git-workflow]
     source: "adversarial-audit/SKILL.md §adversarial-audit-009"
 
   - id: adversarial-audit-010
@@ -1837,7 +1837,7 @@ rules:
       - RE_VERIFY
     conflicts_with: [critical-rules-020]
     requires: []
-    triggers: [adversarial-audit, divide-and-conquer, verification-before-completion, git-workflow, approval-gate]
+    triggers: [adversarial-audit, implementation-pipeline, verification-before-completion, git-workflow, approval-gate]
     source: "000-critical-rules.md §critical-rules-accountability-ownership"
 
   - id: critical-rules-platform-routing-bypass
@@ -1895,7 +1895,7 @@ rules:
       - RE_VERIFY
     conflicts_with: [critical-rules-020]
     requires: []
-    triggers: [adversarial-audit, divide-and-conquer, verification-before-completion, git-workflow, approval-gate]
+    triggers: [adversarial-audit, implementation-pipeline, verification-before-completion, git-workflow, approval-gate]
     source: "000-critical-rules.md §critical-rules-hard-fail"
 
   - id: critical-rules-test-integrity
@@ -1980,7 +1980,7 @@ rules:
       - ADD_ENFORCEMENT_BLOCK
     conflicts_with: []
     requires: []
-    triggers: [git-workflow, approval-gate, divide-and-conquer]
+    triggers: [git-workflow, approval-gate, implementation-pipeline]
     source: "000-critical-rules.md §Pipeline re-priming"
 
   - id: critical-rules-063
@@ -1993,7 +1993,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer, approval-gate, verification-before-completion]
+    triggers: [implementation-pipeline, approval-gate, verification-before-completion]
     source: "000-critical-rules.md §critical-rules-063"
 
   - id: critical-rules-065
@@ -2006,7 +2006,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer, verification-before-completion]
+    triggers: [implementation-pipeline, verification-before-completion]
     source: "000-critical-rules.md §critical-rules-065"
 
   - id: critical-rules-066

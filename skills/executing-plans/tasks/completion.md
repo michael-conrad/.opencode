@@ -4,7 +4,7 @@ Idempotent completion subtask for executing-plans. Ensures mandatory steps ran r
 
 ## State Check Phase
 
-1. **assemble-work task():** Verify divide-and-conquer/assemble-work task() was attempted
+1. **assemble-work task():** Verify implementation-pipeline task() was attempted
 2. **Plan issue STATUS:** Verify plan issue STATUS reflects actual outcome (completed, partial, failed)
 3. **Chat exec summary:** Verify chat output follows exec summary format (summary → outcome → URL → byline)
 
@@ -12,7 +12,7 @@ Idempotent completion subtask for executing-plans. Ensures mandatory steps ran r
 
 1. **assemble-work task()** (if not already performed):
    - Check evidence for assemble-work invocation
-   - If missing: invoke `divide-and-conquer --task assemble-work` as remediation
+   - If missing: invoke `implementation-pipeline --task assemble-work` as remediation
 
 2. **Plan issue STATUS** (if not already updated):
    - Check plan issue STATUS marker against actual completion state
@@ -57,7 +57,7 @@ Generate executive summary in chat:
 ## Pipeline Signal
 
 ```
-CONTINUE: divide-and-conquer --task assemble-work
+CONTINUE: implementation-pipeline --task assemble-work
 HALT
 ```
 

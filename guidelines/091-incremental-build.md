@@ -79,7 +79,7 @@ rules:
       - HALT
     conflicts_with: [critical-rules-017]
     requires: []
-    triggers: [approval-gate, divide-and-conquer]
+    triggers: [approval-gate, implementation-pipeline]
     source: "091-incremental-build.md §Mandate"
 
   - id: incremental-build-002
@@ -105,7 +105,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [executing-plans, divide-and-conquer]
+    triggers: [executing-plans, implementation-pipeline]
     source: "091-incremental-build.md §Per-Item TDD Cycle"
 
   - id: incremental-build-004

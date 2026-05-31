@@ -36,12 +36,9 @@ If `clean_room_plan` is MISSING or its source is NOT a labeled sub-agent dispatc
 
 ### Step 2: Fetch Existing Plan
 
-If plan issue provided:
-```python
-issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<plan_issue>) <!-- Routes through issue-operations per SPEC #683 -->
-```
-
-Otherwise, link from spec body.
+Read the existing plan from `spec_local_dir/`:
+- `read <spec_local_dir>/plan.md` if the plan file exists in the spec directory
+- Otherwise, the plan is embedded in the spec body — extract from there
 
 ### Step 3: Build Evaluation Criteria
 

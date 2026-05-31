@@ -495,7 +495,7 @@ rules:
       - REPORT(scope_boundary_reached)
     conflicts_with: []
     requires: [approval-gate-010]
-    triggers: [approval-gate, divide-and-conquer, git-workflow]
+    triggers: [approval-gate, implementation-pipeline, git-workflow]
     source: "020-go-prohibitions.md §1 ALWAYS DO"
 
   - id: go-prohibitions-009

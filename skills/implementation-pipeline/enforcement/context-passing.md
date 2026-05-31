@@ -4,7 +4,7 @@ Migrated from `implementation-workflow` task context-passing.
 
 ## Purpose
 
-Reference document for yield-back context patterns between subtasks in the divide-and-conquer orchestration chain, including phase progress information that must travel across phase boundaries.
+Reference document for yield-back context patterns between subtasks in the implementation-pipeline orchestration chain, including phase progress information that must travel across phase boundaries.
 
 ## Entry Criteria
 

@@ -134,7 +134,7 @@ def build_nested_opencode_warning() -> str:
         "This nested folder breaks skill discovery — the AI agent's skill scanner "
         "picks up the inner `.opencode/skills/` path (which is empty or incomplete) "
         "instead of the top-level `.opencode/skills/` directory.\n\n"
-        "**Impact:** Top-level skills (approval-gate, divide-and-conquer, git-workflow, "
+        "**Impact:** Top-level skills (approval-gate, implementation-pipeline, git-workflow, "
         "etc.) are invisible to the agent. Only deeply nested platform sub-skills "
         "(local, github-mcp, gitbucket-api) may appear.\n\n"
         "**Fix Required:** Delete the nested `.opencode/.opencode/` directory immediately. "
