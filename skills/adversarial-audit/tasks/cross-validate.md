@@ -134,7 +134,7 @@ next_step: "re-evaluate"
 
 Validation rules per verdict:
 - `criterion_id` MUST match a criterion id from `evaluation_criteria`
-- `result` MUST be one of: `PASS`, `FAIL`, `AUDIT_FAIL`, `LIMITED-EVIDENCE`, `FABRICATED`
+- `result` MUST be one of: `PASS`, `FAIL`, `AUDIT_FAIL`, `FABRICATED`. `LIMITED-EVIDENCE` and `INCONCLUSIVE` are prohibited — auditors BLOCK on insufficient evidence.
 - `evidence` MUST reference a live tool call (URL, file path, or command output) — memory-cached claims are FORBIDDEN
 - `explanation` MUST be present and non-empty
 - `remediation` MUST be present when result is not PASS
@@ -163,11 +163,11 @@ For each criterion in `evaluation_criteria`:
 |---|---|
 | Both auditors return `PASS` | `consensus = PASS` |
 | Either auditor returns `FAIL` | `consensus = FAIL` |
-| Non-PASS result (AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED) | `consensus = BLOCKED` |
+| Non-PASS result (AUDIT_FAIL, FABRICATED) | `consensus = BLOCKED` |
 | Either auditor's verdict is missing or unparseable | `consensus = FAIL` |
 | Auditors disagree (one PASS, one non-PASS) | `consensus = FAIL` |
 
-Non-PASS (FAIL, AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED) = BLOCKED pipeline. Orchestrator reads `next_step` from verdict and routes accordingly — does NOT interpret or override.
+Non-PASS (FAIL, AUDIT_FAIL, FABRICATED) = BLOCKED pipeline. Orchestrator reads `next_step` from verdict and routes accordingly — does NOT interpret or override.
 
 Track disagreements explicitly in the result contract for transparency: a `PASS`/`FAIL` split is different from a double `FAIL`.
 
@@ -471,9 +471,9 @@ rules:
     source: "cross-validate.md §Step 4 Evidence Type Gate"
 
   - id: cross-validate-007a
-    title: "Non-PASS verdicts (AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED) cascade to BLOCKED"
+    title: "Non-PASS verdicts (AUDIT_FAIL, FABRICATED) cascade to BLOCKED"
     conditions:
-      any: ["auditor_result == 'AUDIT_FAIL'", "auditor_result == 'LIMITED-EVIDENCE'", "auditor_result == 'FABRICATED'"]
+      any: ["auditor_result == 'AUDIT_FAIL'", "auditor_result == 'FABRICATED'"]
     actions: [SET_CONSENSUS_BLOCKED, ROUTE_VIA_NEXT_STEP]
     source: "cross-validate.md §Step 4"
 
