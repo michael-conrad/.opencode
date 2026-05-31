@@ -2,7 +2,8 @@
 # Behavioral test: auditor-accepts-spec-local-dir
 # See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
-# RED phase: tests that auditor does NOT accept spec_local_dir yet (no implementation)
+# Verifies that auditor accepts spec_local_dir as a standard dispatch field without contamination rejection.
+# Fixture: .issues/956/spec.md exists from setup-fixture-issues.sh
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

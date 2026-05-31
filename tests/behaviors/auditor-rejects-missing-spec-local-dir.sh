@@ -2,7 +2,8 @@
 # Behavioral test: auditor-rejects-missing-spec-local-dir
 # See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
-# RED phase: tests that auditor does NOT reject missing spec_local_dir yet (no implementation)
+# Verifies that auditor rejects missing spec_local_dir with BLOCKED/MISSING_INPUT_DIR.
+# No fixture needed — the test intentionally omits spec_local_dir.
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
