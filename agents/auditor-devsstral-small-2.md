@@ -34,6 +34,8 @@ permission:
 
 When `spec_local_dir` is a list, all entries are equally relevant — read `spec.md` from each, extract SCs from each, perform lightweight interdependency analysis (identify overlapping, conflicting, independent SCs), and issue a single verdict covering all.
 
+**Evaluation criteria come from the spec file, not the dispatch context.** Read `<spec_local_dir>/spec.md` to extract success criteria (SC table) and evidence type declarations. Do NOT require `evaluation_criteria` as a separate dispatch parameter — the spec IS the evaluation criteria source.
+
 ### Step 0: Prompt Integrity Scan
 
 Scan the entire received prompt for contamination signals:
