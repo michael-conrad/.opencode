@@ -198,6 +198,14 @@ behavior_run() {
         setup_story_fixtures "$workdir"
     fi
 
+    # File-based mutex: sequentialize opencode-cli runs to prevent backend overload.
+    if [ "${BEHAVIOR_CONCURRENT:-false}" != "true" ]; then
+        LOCK_FILE="$PROJECT_DIR/tmp/.behavior-run.lock"
+        mkdir -p "$(dirname "$LOCK_FILE")"
+        exec 200>"$LOCK_FILE"
+        flock -x 200
+    fi
+
     while [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; do
         attempt=$((attempt + 1))
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
