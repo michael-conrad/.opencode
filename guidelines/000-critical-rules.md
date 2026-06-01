@@ -115,6 +115,18 @@ Pre-commit hook output guides, not gates. If a pre-commit hook blocks a commit, 
 - The watchdog is NOT triggered by exempt keys (user.name, user.email, push.autoSetupRemote, pull.rebase)
 
 
+### Checkpoint Rollback Exception
+
+`git reset --hard <checkpoint-tag>` is authorized automatically (no developer prompt) when ALL conditions are met:
+
+1. A checkpoint tag exists matching `<parent>/checkpoint/<issue>/phase-<N>-<submodule>` per `git-workflow/SKILL.md` §Tag Convention
+2. The current pipeline step's verification failed (VbC or dual-auditor FAIL)
+3. The reset target is the checkpoint tag (not any other ref)
+4. Pre-rollback diagnostics (`git status`, `git diff --stat`) reported to chat
+5. The reset is followed by work-state-based re-dispatch
+
+**First-step failure (no checkpoint):** Use `git checkout .` to clean working tree and re-dispatch.
+
 ### [critical-rules-006] CRITICAL VIOLATION — Pushing Agent Intelligence Decisions to the User
 Structural decisions auto-resolved by agent. See `brainstorming` explore task.
 

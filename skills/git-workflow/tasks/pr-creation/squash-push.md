@@ -57,7 +57,7 @@ git commit -m "<descriptive message>" \
 
 #### Work Branch
 
-If `tmp/work-*.md` exists, this is a work branch — skip squash. Verify commit structure instead.
+If `./tmp/work-*.md` exists, this is a work branch — skip squash. Verify commit structure instead.
 
 ### Step 3.5: Rebase on Current Dev (MANDATORY)
 

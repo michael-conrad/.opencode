@@ -65,19 +65,21 @@ When Tier 1 failed or `access_level` is `issue-only`:
 
 ### Step 8: Tier 3 — Tag-Based Provenance
 
+**Tag suffix convention:** Replace `<submodule>` with the submodule directory name (e.g., `.opencode` → `-opencode`). This follows the unified convention defined in `git-workflow/SKILL.md` §Tag Convention.
+
 When Tier 2 failed or no API access:
 
 1. No API calls attempted for issue/PR creation
-2. Tag the pushed submodule SHA with `<parent>/<issue-number>-<sub>` per AGENTS.md §Tag Layers:
+2. Tag the pushed submodule SHA with `<parent>/<issue-number>-<submodule>` per AGENTS.md §Tag Layers:
    ```bash
    PARENT_PREFIX=$(basename $(git -C <parent-repo-root> rev-parse --show-toplevel))
    cd <submodule-path>
-   git tag -a "${PARENT_PREFIX}/${PARENT_ISSUE}-<sub>" \
+   git tag -a "${PARENT_PREFIX}/${PARENT_ISSUE}-<submodule>" \
        -m "Sync from ${PARENT_REPO}/${PARENT_BRANCH} #${PARENT_ISSUE}: ${CHANGE_DESCRIPTION}"
-   git push origin "${PARENT_PREFIX}/${PARENT_ISSUE}-<sub>"
+   git push origin "${PARENT_PREFIX}/${PARENT_ISSUE}-<submodule>"
    cd ..
    ```
-3. Record: `{timestamp, ..., tier: 3, issue_number: null, pr_number: null, tag_name: "${PARENT_PREFIX}/${PARENT_ISSUE}-<sub>"}`
+3. Record: `{timestamp, ..., tier: 3, issue_number: null, pr_number: null, tag_name: "${PARENT_PREFIX}/${PARENT_ISSUE}-<submodule>"}`
 
 ### Step 9: Cross-Reference Parent Issue
 
