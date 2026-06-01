@@ -34,7 +34,7 @@ The orchestrator is a pure router — never reads task file content, never perfo
 | `structural-checks` | `finishing-a-development-branch --task checklist` | lint/typecheck/format results |
 | `green-doublecheck` | `verification-before-completion --task verify` | GREEN-side SC evidence |
 | `green-vbc` | `verification-before-completion --task completion` | VbC completion artifact |
-| `adversarial-audit` | `adversarial-audit --task spec-audit` | dual-auditor YAML verdicts |
+| `adversarial-audit` | `adversarial-audit --task verification-audit` | dual-auditor YAML verdicts |
 | `cross-validate` | `adversarial-audit --task cross-validate` | cross-validate findings YAML |
 | `regression-check` | `test-driven-development --task patterns` (regression) | regression test results |
 | `review-prep` | `git-workflow --task review-prep` | review-prep status |

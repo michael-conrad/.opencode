@@ -36,7 +36,7 @@ This is the core dispatch routing table for the 14-step serial implementation pi
 | 7 | `structural-checks` | `finishing-a-development-branch --task checklist` | `./tmp/artifacts/pipeline-{issue}-structural-checks-{STATUS}-{timestamp}.yaml` | single-criterion |
 | 8 | `green-doublecheck` | `verification-before-completion --task verify` | `./tmp/artifacts/pipeline-{issue}-green-doublecheck-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
 | 9 | `green-vbc` | `verification-before-completion --task completion` | `./tmp/artifacts/pipeline-{issue}-green-vbc-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 10 | `adversarial-audit` | `adversarial-audit --task spec-audit` | `./tmp/artifacts/pipeline-{issue}-audit-{auditor_type}-{STATUS}-{timestamp}.yaml` | `per_criterion[]` (#932 schema) |
+| 10 | `adversarial-audit` | `adversarial-audit --task verification-audit` | `./tmp/artifacts/pipeline-{issue}-audit-{auditor_type}-{STATUS}-{timestamp}.yaml` | `per_criterion[]` (#932 schema) |
 | 11 | `cross-validate` | `adversarial-audit --task cross-validate` | `./tmp/artifacts/pipeline-{issue}-cross-validate-{STATUS}-{timestamp}.yaml` | cross-validate YAML (#932 schema) |
 | 12 | `regression-check` | `test-driven-development --task patterns` (regression) | `./tmp/artifacts/pipeline-{issue}-regression-check-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
 | 13 | `review-prep` | `git-workflow --task review-prep` | review-prep status | single-criterion |

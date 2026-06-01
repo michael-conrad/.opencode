@@ -17,7 +17,8 @@ Dual cross-family audit via clean-room sub-agents. Auditors write YAML verdicts 
 | Task | Purpose |
 |------|---------|
 | `resolve-models` | Select two cross-family auditors via capability probe |
-| `spec-audit` | Audit spec content against success criteria |
+| `verification-audit` | Audit implemented code against spec SCs using behavioral evidence. Default audit task. Requires artifact_evidence_dir. |
+| `spec-audit` | Pre-implementation spec quality audit. Verifies spec structure, determinism, and live documentation sources. Evidence dir optional. |
 | `plan-fidelity` | Verify plan faithfully implements spec |
 | `concern-separation` | Audit concern boundaries and scope isolation |
 | `coherence-extraction` | Extract coherence baseline from codebase |
@@ -33,3 +34,5 @@ Dual cross-family audit via clean-room sub-agents. Auditors write YAML verdicts 
 ## Blind Dispatch
 
 Dispatch via `skill()` + `task()`. Standard dispatch fields only. Auditors independently discover SCs and evidence from `spec_local_dir` and `artifact_evidence_dir`. The orchestrator does NOT read task files.
+
+**Default dispatch routing:** Bare "audit #NNN" or "adversarial audit #NNN" routes to `verification-audit` (post-implementation). "Spec audit #NNN" routes to `spec-audit` (pre-implementation). Other tasks have explicit `--task` qualifiers.
