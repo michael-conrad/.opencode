@@ -27,7 +27,9 @@ Audit spec phase structure for concern separation quality using dual-adversarial
 
 `spec_local_dir` is REQUIRED. Auditors BLOCK if absent.
 ```python
-spec = read(filePath=f"<spec_local_dir>/spec.md")
+spec_files = glob(pattern="**/*.md", path=f"<spec_local_dir>")
+for f in spec_files:
+    read(filePath=f)
 ```
 
 Extract all phases and their steps.

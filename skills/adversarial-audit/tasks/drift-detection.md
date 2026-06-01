@@ -28,8 +28,10 @@ Detect drift between spec/code reality and expected state. Identifies cases wher
 
 `spec_local_dir` is REQUIRED. Auditors BLOCK if absent.
 ```python
-spec = read(filePath=f"<spec_local_dir>/spec.md")
-requirements = extract_requirements(spec)
+spec_content = ""
+for f in glob(pattern="**/*.md", path=f"<spec_local_dir>"):
+    spec_content += read(filePath=f) + "\n"
+requirements = extract_requirements(spec_content)
 ```
 
 Requirements extraction:

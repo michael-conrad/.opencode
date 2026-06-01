@@ -30,7 +30,10 @@ Verify PR/spec consistency before merge. Ensures PR description matches spec, al
 
 ```python
 pr = github_pull_request_read(method="get", owner=<owner>, repo=<repo>, pullNumber=<N>)
-spec = read(filePath=f"<spec_local_dir>/spec.md")
+spec_files = glob(pattern="**/*.md", path=f"<spec_local_dir>")
+spec_content = ""
+for f in spec_files:
+    spec_content += read(filePath=f) + "\n"
 ```
 
 ### Step 2: Extract Spec Requirements
