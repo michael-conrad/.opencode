@@ -23,6 +23,17 @@ Audit spec phase structure for concern separation quality using dual-adversarial
 
 ## Procedure
 
+## Concern Separation Checklist
+
+- [ ] 1. Load Spec — glob spec_local_dir for .md files, read all, extract phases
+- [ ] 2. Build Evaluation Criteria — define CS table with evidence types
+- [ ] 3. Analyze Phase Structure — per-phase concern/risk/independence/blast radius
+- [ ] 4. Cross-Validate via task() — invoke cross-validate with pre-resolved verdicts
+- [ ] 5. Classify Findings — map to finding types
+- [ ] 6. Verify Boundary Claims — live tool-call verification per claim
+- [ ] 7. Write Verdict Artifact to Disk — YAML output
+- [ ] 8. Return Frugal Result Contract
+
 ### Step 1: Load Spec
 
 `spec_local_dir` is REQUIRED. Auditors BLOCK if absent.

@@ -25,6 +25,17 @@ Audit a spec for quality, structure, and completeness using dual-adversarial cro
 
 ## Procedure
 
+## Spec Audit Checklist
+
+- [ ] 1. Load Spec Content — glob spec_local_dir for .md files, read all
+- [ ] 2. Build Evaluation Criteria — define SC table with evidence types
+- [ ] 3. Cross-Validate with Pre-Resolved Verdicts — invoke cross-validate task
+- [ ] 4. Process Verdicts — per-criterion PASS/FAIL consensus
+- [ ] 5. Evaluate SC Determinism (SC-DET) — check each SC for determinism
+- [ ] 6. Generate Bidirectional Findings — FAIL/DISAGREE criteria with revision options
+- [ ] 7. Write Verdict Artifact to Disk — YAML output
+- [ ] 8. Return Frugal Result Contract
+
 ### Step 1: Load Spec Content
 
 `spec_local_dir` is REQUIRED. Auditors mandate this directory and BLOCK if absent. The orchestrator MUST provide a valid local path before dispatching.

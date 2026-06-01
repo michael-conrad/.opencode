@@ -23,6 +23,17 @@ Detect drift between baseline coherence state and current guidelines/skills. Ide
 
 ## Procedure
 
+## Coherence Maintenance Checklist
+
+- [ ] 1. Load Baseline — find latest baseline JSON, parse rules and behaviors
+- [ ] 2. Extract Current State — re-extract guideline rules and skill behaviors
+- [ ] 3. Compare Against Baseline — rules_added/removed/modified, behaviors drift
+- [ ] 4. Classify Drift — controlled vs uncontrolled per severity
+- [ ] 5. Identify Migration Candidates — procedural workflows suitable for extraction
+- [ ] 6. Build Evaluation Criteria — define CM table with evidence types
+- [ ] 7. Cross-Validate via task() — invoke cross-validate with pre-resolved verdicts
+- [ ] 8. Build Result Contract — YAML verdict with drift analysis
+
 ### Step 1: Load Baseline
 
 Find latest baseline:

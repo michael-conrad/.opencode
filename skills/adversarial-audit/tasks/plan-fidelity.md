@@ -28,6 +28,17 @@ Audit a plan for fidelity against its spec using clean-room comparison and dual-
 
 ## Procedure
 
+## Plan Fidelity Checklist
+
+- [ ] 1. Validate Clean-Room Plan Source — confirm sub-agent dispatch origin
+- [ ] 2. Fetch Existing Plan — read from spec_local_dir or spec body
+- [ ] 3. Build Evaluation Criteria — define PF table with evidence types
+- [ ] 4. Cross-Validate with Pre-Resolved Verdicts — invoke cross-validate task
+- [ ] 5. Classify Discrepancies — map findings to classification types
+- [ ] 6. Generate Bidirectional Findings — FAIL/DISAGREE with revision options
+- [ ] 7. Write Verdict Artifact to Disk — YAML output
+- [ ] 8. Return Frugal Result Contract
+
 ### Step 1: Validate Clean-Room Plan Source
 
 The `clean_room_plan` MUST come from a sub-agent dispatch invoking writing-plans, NOT from orchestrator inline generation. Any orchestrator-generated plan is TAINTED by definition — the orchestrator has a conflict of interest when evaluating its own work. This is a CRITICAL VIOLATION per critical-rules-034.
