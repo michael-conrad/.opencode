@@ -6,10 +6,8 @@ Non-adversarial completeness check after RED/GREEN sub-agent returns. Verifies t
 
 ## Entry Criteria
 
-- Spec success criteria received in task context
-- Deliverable path(s) received in task context
-- Spec body received for criterion reference
-- Audit readiness criteria received (if applicable)
+- spec_local_dir received in task context (REQUIRED — local issue directories containing spec.md)
+- artifact_evidence_dir received in task context (OPTIONAL — RED/GREEN sub-agent output directories)
 
 ## Authorization Context
 
@@ -19,6 +17,8 @@ halt_at: <analysis_complete|spec_created|plan_created|verification_complete|revi
 pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
+spec_local_dir: <path> | [<path>, ...]     # REQUIRED — local issue directories
+artifact_evidence_dir: <path> | [<path>, ...]  # OPTIONAL — behavioral evidence directories
 ```
 
 ### Routing Rules
@@ -33,15 +33,16 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 ## Input Contract
 
 ```yaml
+spec_local_dir:
+  - "<path to local issue directory>"
+artifact_evidence_dir:
+  - "<path to behavioral evidence directory>"
 spec_success_criteria:
   - id: "SC-1"
-    description: "<success criterion description>"
-  - id: "SC-2"
     description: "<success criterion description>"
 deliverable:
   paths: ["path/to/deliverable1", "path/to/deliverable2"]
   type: "file|PR|branch"
-spec: "<full spec body text>"
 audit_readiness_criteria:
   - "deliverable exists and is non-empty"
   - "all spec SCs addressed"
@@ -75,8 +76,9 @@ For each deliverable path in the input contract:
 
 For each success criterion in the input:
 
-1. Read the deliverable content relevant to the criterion
-2. Inspect whether the criterion is addressed:
+1. Read `spec_local_dir` for the spec's success criteria definitions
+2. Read the deliverable content relevant to the criterion
+3. Inspect whether the criterion is addressed:
    - **present**: Deliverable includes content addressing this SC
    - **partial**: Some aspects covered, some missing
    - **missing**: No content found addressing this SC

@@ -9,7 +9,7 @@ Verify that ALL structural components required by the spec are present in the im
 ## Entry Criteria
 
 - Implementation claimed complete
-- Spec or plan issue available with structural component requirements
+- Spec or plan issue available with structural component requirements, or `spec_local_dir` provided for local spec access
 - Target skill/guideline files exist
 
 ## Exit Criteria
@@ -22,8 +22,8 @@ Verify that ALL structural components required by the spec are present in the im
 
 This task MUST be task()'d as a sub-agent receiving ONLY:
 
-1. **Spec acceptance criteria list** — the SC table from the spec issue
-2. **File paths to verify** — list of files that were modified during implementation
+1. **spec_local_dir** — REQUIRED path(s) to local issue directories containing spec.md. If absent: BLOCKED with MISSING_INPUT_DIR.
+2. **Target files** — list of files that were modified during implementation
 3. **Required structural components** — list derived from parent spec's requirements
 
 The sub-agent MUST NOT receive:
@@ -114,6 +114,8 @@ Each structural component check MUST be verified by reading the actual file. Cla
 ## Task Context Schema
 
 ```yaml
+spec_local_dir: <path> | [<path>, ...]     # REQUIRED — local issue directories
+artifact_evidence_dir: <path> | [<path>, ...]  # OPTIONAL — behavioral evidence directories
 spec_issue: <N>
 target_files: [<path_list>]
 required_components: [<component_list>]
