@@ -395,23 +395,11 @@ The `next_step` field:
 
 ## Sub-Agent Routing
 
-Authorization context is passed alongside audit context:
-
-```
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
-halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|stacked>
-pipeline_phase: <current_phase_name>
-authorization_source: "User approved #N on YYYY-MM-DD"
-```
-
 ### Task Rules
-- Missing `authorization_scope` in task context → return `status: BLOCKED`
-- Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|---|
-| `spec_local_dir`, `auditor_artifact_paths`, `audit_phase`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase` | Implementation context, agent memory, orchestrator reasoning, prior verification, spec_body, evaluation_criteria, verdict content | N/A — cross-validate receives artifact paths, does not dispatch auditors | NO |
+| `spec_local_dir`, `auditor_artifact_paths`, `audit_phase` | Implementation context, agent memory, orchestrator reasoning, prior verification, spec_body, evaluation_criteria, verdict content | N/A — cross-validate receives artifact paths, does not dispatch auditors | NO |
 
 ```yaml+symbolic
 schema_version: "2.0"

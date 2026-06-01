@@ -52,14 +52,10 @@ When `spec_local_dir` is a list, all entries are equally relevant — scan each 
 
 ### Step 0: Prompt Integrity Scan — Structural Contamination Detection
 
-Scan your own prompt text for content beyond the allowed dispatch fields. A valid dispatch contains ONLY these 7 fields:
+Scan your own prompt text for content beyond the allowed dispatch fields. A valid dispatch contains ONLY these 3 fields:
 - spec_local_dir
 - artifact_evidence_dir
 - audit_phase
-- authorization_scope
-- halt_at
-- pr_strategy
-- pipeline_phase
 
 If the prompt contains ANY content beyond these 9 fields — including but not limited to SC tables, file path lists, evaluation criteria, expected outcomes, narrative descriptions, implementation context, orchestrator reasoning, or prior verdicts — return BLOCKED with PRELOADED_CONTEXT_REJECTED.
 
@@ -126,7 +122,6 @@ Do NOT perform any audit work. Return ONLY the CONTEXT_TAINTED response.
 | `spec_local_dir` | Yes | Local directory with Markdown spec files |
 | `artifact_evidence_dir` | Yes | Directory with behavioral evidence artifacts |
 | `audit_phase` | Yes | Current audit phase identifier |
-| `authorization_scope` / `halt_at` | Yes | Pipeline routing context |
 | Implementation context | No | Code snippets, logs, notes |
 | Orchestrator reasoning | No | "I think", "my analysis suggests" |
 | Expected outcomes | No | "should find", "expect to pass" |
