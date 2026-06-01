@@ -10,7 +10,7 @@ Audit a spec for quality, structure, and completeness using dual-adversarial cro
 
 ## Entry Criteria
 
-- `spec_local_dir` provided (local issue directory containing spec.md) — MUST be a filesystem directory confirmed to exist before dispatch. The orchestrator MUST verify `spec_local_dir` is a valid directory before dispatching any auditor. If the spec is only on GitHub (not locally mirrored), the orchestrator MUST mirror it to `spec_local_dir/spec.md` first. Dispatching without a valid `spec_local_dir` is a CRITICAL VIOLATION.
+- `spec_local_dir` provided (local issue directory containing Markdown spec files) — MUST be a filesystem directory confirmed to exist before dispatch. The orchestrator MUST verify `spec_local_dir` is a valid directory before dispatching any auditor. If the spec is only on GitHub (not locally mirrored), the orchestrator MUST mirror it as .md files in `spec_local_dir/` first. Dispatching without a valid `spec_local_dir` is a CRITICAL VIOLATION.
 - `spec_issue_number` provided
 - `github.owner`, `github.repo` available
 - Audit phase context: `audit_phase: spec_creation`
@@ -25,14 +25,26 @@ Audit a spec for quality, structure, and completeness using dual-adversarial cro
 
 ## Procedure
 
+## Spec Audit Checklist
+
+- [ ] 1. Load Spec Content — glob spec_local_dir for .md files, read all
+- [ ] 2. Build Evaluation Criteria — define SC table with evidence types
+- [ ] 3. Cross-Validate with Pre-Resolved Verdicts — invoke cross-validate task
+- [ ] 4. Process Verdicts — per-criterion PASS/FAIL consensus
+- [ ] 5. Evaluate SC Determinism (SC-DET) — check each SC for determinism
+- [ ] 6. Generate Bidirectional Findings — FAIL/DISAGREE criteria with revision options
+- [ ] 7. Write Verdict Artifact to Disk — YAML output
+- [ ] 8. Return Frugal Result Contract
+
 ### Step 1: Load Spec Content
 
 `spec_local_dir` is REQUIRED. Auditors mandate this directory and BLOCK if absent. The orchestrator MUST provide a valid local path before dispatching.
 
-Read spec from `spec_local_dir/spec.md`:
-1. Read `<spec_local_dir>/spec.md` via `read` tool
-2. Extract spec body and metadata
-3. If `spec_local_dir` is a list, read each entry's `spec.md`, extract SCs from each, perform interdependency analysis (overlaps, conflicts, independences)
+Read spec from `spec_local_dir/`:
+
+1. Glob `**/*.md` in `<spec_local_dir>/` via `glob` tool, read all discovered files
+2. Extract spec body and metadata from each
+3. If `spec_local_dir` is a list, glob each entry's `**/*.md`, extract SCs from each, perform interdependency analysis (overlaps, conflicts, independences)
 
 Auditors return BLOCKED with `SPEC_NOT_FOUND` if `spec_local_dir` is absent.
 

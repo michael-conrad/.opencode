@@ -10,19 +10,35 @@ Accept an evidence payload, evaluation criteria, and pre-resolved auditor verdic
 
 ## Entry Criteria
 
-- `spec_local_dir`: Local directory containing spec.md
+- `spec_local_dir`: Local directory containing Markdown spec files
 - `auditor_artifact_paths`: Array of two artifact paths from the orchestrator, pointing to YAML verdict files on disk — resolved by `resolve-models`, written by auditor task dispatch, and passed by the orchestrator BEFORE this task
 - Lightweight audit-type structural criteria (SC-1/PF-1/CS-1/GA-1 templates) provided as task-file-defined templates WITHOUT embedded spec SC content
 - `auditor_metadata`: Optional array of `{ auditor_type, family, parseable }` for auditor identity context
+
+## Cross-Validate Checklist
+
+- [ ] 1. Load Spec + extract SCs from spec_local_dir
+- [ ] 2. Pre-Inspection Classification Gate — runtime-behavioral uplift check for each SC
+- [ ] 3. Load both auditor verdict artifacts (auditor_artifact_paths)
+- [ ] 4. Per-SC comparison: Auditor-A verdict vs Auditor-B verdict
+- [ ] 5. **Do NOT reclassify FAIL** — a FAIL from either auditor is a FAIL in the cross-validate verdict
+- [ ] 6. PASS only when BOTH auditors returned PASS for the SC
+- [ ] 7. Evidence Type Matrix enforcement — downgrade PASS with EVIDENCE_TYPE_MISMATCH to FAIL
+- [ ] 8. Write unified verdict artifact to disk
+- [ ] 9. Return frugal contract with verdict summary
 
 ### Step 0: Load Spec
 
 `spec_local_dir` is REQUIRED. Auditors BLOCK if absent.
 
 ```python
-spec = read(filePath=f"<spec_local_dir>/spec.md")
-spec_scs = extract_success_criteria(spec)
-spec_evidence_types = extract_evidence_types(spec_scs)
+spec_files = glob(pattern="**/*.md", path=f"<spec_local_dir>")
+spec_scs = []
+spec_evidence_types = {}
+for f in spec_files:
+    content = read(filePath=f)
+    extract_success_criteria(content, spec_scs)
+    extract_evidence_types(content, spec_evidence_types)
 ```
 
 Use the loaded spec SCs as the sole authoritative baseline for evidence type checks. Do NOT accept inline-provided evaluation_criteria as authoritative for evidence type — the spec's own declarations are the source of truth.
@@ -80,7 +96,7 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 
 | Gate | Condition | Error Code | Action |
 |------|-----------|------------|--------|
-| MISSING_INPUT | `spec_local_dir` missing or empty, or spec.md not readable | `MISSING_INPUT` | Return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }` |
+| MISSING_INPUT | `spec_local_dir` missing or empty, or no .md files readable | `MISSING_INPUT` | Return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }` |
 | MISSING_ARTIFACT_PATHS | `auditor_artifact_paths` missing, null, or empty array | `MISSING_ARTIFACT_PATHS` | Return `{ status: "BLOCKED", error: "MISSING_ARTIFACT_PATHS" }` |
 | ARTIFACT_UNREADABLE | Auditor YAML artifact file cannot be read or parsed | `ARTIFACT_UNREADABLE` | Return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }` |
 | INSUFFICIENT_ARTIFACTS | `auditor_artifact_paths` contains fewer than 2 entries OR both auditors share the same family | `INSUFFICIENT_ARTIFACTS` | Return `{ status: "BLOCKED", error: "INSUFFICIENT_ARTIFACTS" }` |
@@ -95,7 +111,7 @@ This section is obsolete with binary PASS/FAIL verdicts. Auditors now return onl
 
 ### Step 1: Validate Input
 
-Confirm `spec_local_dir` is present and non-empty. Read `<spec_local_dir>/spec.md` via `read` tool. If `spec_local_dir` is missing, empty, or the file cannot be read: return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }`.
+Confirm `spec_local_dir` is present and non-empty. Glob `**/*.md` in `<spec_local_dir>/`, read all discovered files via `read` tool. If `spec_local_dir` is missing, empty, or no .md files can be read: return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }`.
 
 ### Step 2: Validate Auditor Artifact Paths
 
@@ -350,7 +366,7 @@ The `next_step` field:
 
 ## Context Required
 
-- `spec_local_dir`: Local directory containing spec.md
+- `spec_local_dir`: Local directory containing Markdown spec files
 - `auditor_artifact_paths`: Pre-resolved array of two artifact paths from orchestrator (each with `{ artifact_path, auditor_type, family, parseable }`)
 - `audit_phase`: Current audit phase for task context
 
@@ -379,23 +395,11 @@ The `next_step` field:
 
 ## Sub-Agent Routing
 
-Authorization context is passed alongside audit context:
-
-```
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
-halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|stacked>
-pipeline_phase: <current_phase_name>
-authorization_source: "User approved #N on YYYY-MM-DD"
-```
-
 ### Task Rules
-- Missing `authorization_scope` in task context → return `status: BLOCKED`
-- Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|---|
-| `spec_local_dir`, `auditor_artifact_paths`, `audit_phase`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase` | Implementation context, agent memory, orchestrator reasoning, prior verification, spec_body, evaluation_criteria, verdict content | N/A — cross-validate receives artifact paths, does not dispatch auditors | NO |
+| `spec_local_dir`, `auditor_artifact_paths`, `audit_phase` | Implementation context, agent memory, orchestrator reasoning, prior verification, spec_body, evaluation_criteria, verdict content | N/A — cross-validate receives artifact paths, does not dispatch auditors | NO |
 
 ```yaml+symbolic
 schema_version: "2.0"

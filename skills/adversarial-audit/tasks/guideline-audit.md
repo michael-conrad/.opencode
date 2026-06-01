@@ -23,6 +23,17 @@ Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies p
 
 ## Procedure
 
+## Guideline Audit Checklist
+
+- [ ] 1. Identify Target Files — specific files or full glob of guidelines/
+- [ ] 2. Build Evaluation Criteria — define GA table with evidence types
+- [ ] 3. Scan for Problem Classes — per-file ambiguous/conflicting/unenforceable/redundant/missing/overflow
+- [ ] 4. One Problem At a Time — present single findings per interaction
+- [ ] 5. Cross-Validate via task() — invoke cross-validate with pre-resolved verdicts
+- [ ] 6. Write Audit Report — markdown report to artifacts directory
+- [ ] 7. Write Verdict Artifact to Disk — YAML output
+- [ ] 8. Return Frugal Result Contract
+
 ### Step 1: Identify Target Files
 
 If specific file(s) provided:

@@ -49,7 +49,13 @@ else:
 
 `spec_local_dir` is REQUIRED. Auditors BLOCK if absent.
 ```python
-spec = read(filePath=f"<spec_local_dir>/spec.md")
+spec_files = glob(pattern="**/*.md", path=f"<spec_local_dir>")
+spec = None
+for f in spec_files:
+    content = read(filePath=f)
+    if "state:" in content:
+        spec = content  # first file with state field
+        break
 ```
 
 ### Step 4: Verify Issue Closed

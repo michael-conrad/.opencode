@@ -24,12 +24,26 @@ Detect drift between spec/code reality and expected state. Identifies cases wher
 
 ## Procedure
 
+## Drift Detection Checklist
+
+- [ ] 1. Load Spec Requirements — glob spec_local_dir, extract problem, SCs, phases, files
+- [ ] 2. Identify Target Files — specific files or full scan from spec
+- [ ] 3. Build Evaluation Criteria — define DD table with evidence types
+- [ ] 4. Scan Implementation — per-file existence, signatures, extra code
+- [ ] 5. Check Untracked Files — code files not in spec
+- [ ] 6. Cross-Validate via task() — invoke cross-validate with pre-resolved verdicts
+- [ ] 7. Classify Drift Severity — map drift to HIGH/MEDIUM/LOW
+- [ ] 8. Generate Bidirectional Findings — SPEC_DRIFT/CODE_DRIFT with revision options
+- [ ] 9. Build Result Contract — YAML verdict with drift summary
+
 ### Step 1: Load Spec Requirements
 
 `spec_local_dir` is REQUIRED. Auditors BLOCK if absent.
 ```python
-spec = read(filePath=f"<spec_local_dir>/spec.md")
-requirements = extract_requirements(spec)
+spec_content = ""
+for f in glob(pattern="**/*.md", path=f"<spec_local_dir>"):
+    spec_content += read(filePath=f) + "\n"
+requirements = extract_requirements(spec_content)
 ```
 
 Requirements extraction:
