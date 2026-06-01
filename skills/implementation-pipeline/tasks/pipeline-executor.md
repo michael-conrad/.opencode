@@ -36,7 +36,7 @@ This is the core dispatch routing table for the 14-step serial implementation pi
 | 7 | `structural-checks` | `finishing-a-development-branch --task checklist` | `./tmp/artifacts/pipeline-{issue}-structural-checks-{STATUS}-{timestamp}.yaml` | single-criterion |
 | 8 | `green-doublecheck` | `verification-before-completion --task verify` | `./tmp/artifacts/pipeline-{issue}-green-doublecheck-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
 | 9 | `green-vbc` | `verification-before-completion --task completion` | `./tmp/artifacts/pipeline-{issue}-green-vbc-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 10 | `adversarial-audit` | `adversarial-audit --task spec-audit` | `./tmp/artifacts/pipeline-{issue}-audit-{auditor_type}-{STATUS}-{timestamp}.yaml` | `per_criterion[]` (#932 schema) |
+| 10 | `adversarial-audit` | `adversarial-audit --task verification-audit` | `./tmp/artifacts/pipeline-{issue}-audit-{auditor_type}-{STATUS}-{timestamp}.yaml` | `per_criterion[]` (#932 schema) |
 | 11 | `cross-validate` | `adversarial-audit --task cross-validate` | `./tmp/artifacts/pipeline-{issue}-cross-validate-{STATUS}-{timestamp}.yaml` | cross-validate YAML (#932 schema) |
 | 12 | `regression-check` | `test-driven-development --task patterns` (regression) | `./tmp/artifacts/pipeline-{issue}-regression-check-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
 | 13 | `review-prep` | `git-workflow --task review-prep` | review-prep status | single-criterion |
@@ -109,12 +109,32 @@ Step results (PASS/FAIL, evidence paths) go into YAML disk artifact — never in
 
 ## Remediation Routing
 
+### FAIL → Researcher → Remediate Protocol
+
 When a step returns FAIL:
-1. Orchestrator reads the FAIL artifact's YAML from disk
-2. Dispatches `researcher` skill for remediation scope determination
-3. Routes to `remediation_steps[0].target_step`
-4. Re-runs pipeline from the target step
-5. Max 3 remediation attempts before escalation
+
+1. **Read FAIL artifact YAML frontmatter** — the orchestrator reads only the YAML frontmatter from the FAIL artifact at `./tmp/artifacts/pipeline-{issue}-{step_label}-FAIL-{timestamp}.yaml`:
+   - `status`, `next_step`, `escalation_required`, `step_label`
+2. **Dispatch researcher** — the orchestrator dispatches the `researcher` skill with:
+   - FAIL artifact path
+   - ALL prior pipeline artifacts (glob `./tmp/artifacts/pipeline-{issue}-*`)
+   - Spec issue number (#912)
+   - Plan issue number (if applicable)
+3. **Researcher determines scope** — the researcher produces a remediation artifact at `./tmp/artifacts/pipeline-{issue}-researcher-{topic}-{STATUS}-{timestamp}.md` containing:
+   - `remediation_scope`: `full` | `partial` | `spec_plan_and_implementation` | `none`
+   - `remediation_steps[]`: list of `{target_step, action}` pairs
+   - `escalation_required`: `true` | `false`
+4. **Orchestrator routes** — the orchestrator reads the researcher artifact's YAML frontmatter, extracts `remediation_steps[0].target_step`, and re-dispatches to that pipeline step via the dispatch routing table
+5. **Re-run pipeline** — the pipeline re-executes from the target remediation step
+6. **No arbitrary attempt caps** — each remediation is fresh research with full context. The researcher consults prior remediation artifacts to avoid repeating failed approaches. Max 3 attempts before escalation is guidance, not a hard gate — genuine progress extends the cap.
+7. **Escalate on `escalation_required: true`** — if the researcher artifact sets `escalation_required: true`, the orchestrator halts and reports the blocker to the developer. No further dispatch occurs.
+
+### Session Resume Rule
+
+When resuming a session with existing artifacts:
+- Glob `./tmp/artifacts/pipeline-{issue}-*` to find the latest artifact
+- If the latest artifact is FAIL and a companion researcher-remediation-PASS artifact exists, follow the remediation plan in `remediation_steps` — do NOT re-dispatch the researcher
+- If no researcher artifact exists, or the latest FAIL has no companion researcher artifact, run the standard FAIL → Researcher protocol from Step 1 above
 
 ## Frugal Result Contracts
 
@@ -138,4 +158,9 @@ Example: `./tmp/artifacts/pipeline-928-red-phase-PASS-20260527T030000Z.yaml`
 
 - `skills/implementation-pipeline/pipeline-state-machine.yaml` — Z3 legal transition definitions
 - `skills/implementation-pipeline/SKILL.md` — dispatch routing table
+- `skills/researcher/SKILL.md` — researcher skill for remediation scope determination
+- `skills/researcher/tasks/investigate.md` — researcher investigation task
+- `skills/researcher/tasks/findings.md` — researcher findings formatting
+- `skills/completion-core/tasks/completion.md` — exec-summary pipeline step target
+- `skills/adversarial-audit/tasks/coherence-extraction.md` — SC coherence gate with Z3 + evidence type checks
 - `.opencode/tools/solve` — Z3 constraint tool

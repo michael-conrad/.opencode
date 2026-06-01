@@ -43,7 +43,7 @@ permission:
 Check the dispatch context for standard input directory fields.
 
 1. **`spec_local_dir`** — REQUIRED. MUST be present and non-empty (single path or list of paths). If absent from dispatch context: return `status: BLOCKED` with `error: MISSING_INPUT_DIR` and STOP — do NOT proceed to any other action. If present but file not found at path: return `status: BLOCKED` with `error: SPEC_NOT_FOUND` and STOP — do NOT proceed.
-2. **`artifact_evidence_dir`** — REQUIRED. MUST be present and non-empty. If absent: return `status: BLOCKED` with `error: MISSING_EVIDENCE_DIR`. If present but directory not found: return `status: BLOCKED` with `error: EVIDENCE_NOT_FOUND`.
+2. **`artifact_evidence_dir`** — REQUIRED when `audit_phase != spec_creation`. MUST be present and non-empty during non-spec phases. When `audit_phase == spec_creation`, this field is OPTIONAL — the auditor proceeds without behavioral evidence evaluation. If absent during non-spec phase: return `status: BLOCKED` with `error: MISSING_EVIDENCE_DIR`. If present but directory not found: return `status: BLOCKED` with `error: EVIDENCE_NOT_FOUND`.
 3. **Both fields are PROCEED** — they are standard evidence input directory paths, not contamination. The auditor discovers contents inside them independently. The contamination guard catches inline file paths and file lists, not directory paths.
 
 When `spec_local_dir` is a list, all entries are equally relevant — scan each folder for spec files, extract SCs from each, perform lightweight interdependency analysis (identify overlapping, conflicting, independent SCs), and issue a single verdict covering all.
@@ -177,7 +177,9 @@ missing: "<field_name>"
 
 ### A1a: Validate Behavioral Evidence in artifact_evidence_dir
 
-Before any evaluation, scan the spec SCs from `<spec_local_dir>/` (glob `**/*.md`, read all discovered) and identify which SCs require behavioral evidence (declared_evidence_type = behavioral).
+**Phase guard:** This section applies ONLY when `audit_phase != spec_creation`. When `audit_phase == spec_creation`, skip A1a entirely and proceed to A2.
+
+When active, before any evaluation, scan the spec SCs from `<spec_local_dir>/` (glob `**/*.md`, read all discovered) and identify which SCs require behavioral evidence (declared_evidence_type = behavioral).
 
 Then `read`/`glob` the contents of `artifact_evidence_dir` to inventory available evidence artifacts.
 

@@ -28,13 +28,14 @@ Audit a spec for quality, structure, and completeness using dual-adversarial cro
 ## Spec Audit Checklist
 
 - [ ] 1. Load Spec Content — glob spec_local_dir for .md files, read all
-- [ ] 2. Build Evaluation Criteria — define SC table with evidence types
-- [ ] 3. Cross-Validate with Pre-Resolved Verdicts — invoke cross-validate task
-- [ ] 4. Process Verdicts — per-criterion PASS/FAIL consensus
-- [ ] 5. Evaluate SC Determinism (SC-DET) — check each SC for determinism
-- [ ] 6. Generate Bidirectional Findings — FAIL/DISAGREE criteria with revision options
-- [ ] 7. Write Verdict Artifact to Disk — YAML output
-- [ ] 8. Return Frugal Result Contract
+- [ ] 2. Verify Documentation Sources — research each cited URL, API reference, or documentation claim against live sources
+- [ ] 3. Build Evaluation Criteria — define SC table with evidence types
+- [ ] 4. Cross-Validate with Pre-Resolved Verdicts — invoke cross-validate task
+- [ ] 5. Process Verdicts — per-criterion PASS/FAIL consensus
+- [ ] 6. Evaluate SC Determinism (SC-DET) — check each SC for determinism
+- [ ] 7. Generate Bidirectional Findings — FAIL/DISAGREE criteria with revision options
+- [ ] 8. Write Verdict Artifact to Disk — YAML output
+- [ ] 9. Return Frugal Result Contract
 
 ### Step 1: Load Spec Content
 
@@ -48,7 +49,28 @@ Read spec from `spec_local_dir/`:
 
 Auditors return BLOCKED with `SPEC_NOT_FOUND` if `spec_local_dir` is absent.
 
-### Step 2: Build Evaluation Criteria
+### Step 2: Verify Documentation Sources Against Live Sources
+
+For each URL, API reference, or documentation claim in the spec (including any `Documentation Sources` section), verify against live sources:
+
+1. Fetch each URL using `webfetch` — verify the page exists and contains the referenced content
+2. For API documentation claims: use `srclight_get_signature` or official docs to verify function signatures, parameter names, and behavior
+3. For environment variables: check `.env.example` or config schema
+4. For library/framework patterns: verify against official release docs or changelogs
+
+Record per-reference results:
+
+```yaml
+documentation_verification:
+  - source: "<URL or reference>"
+    verified: true | false
+    method: "webfetch | srclight | read"
+    finding: "Source confirms claim" | "Source not found" | "Content mismatch"
+```
+
+If any source cannot be verified, flag the finding and include in the SC-11 (Documentation Sources) evaluation. Claims verified by tool-call evidence PASS; unverified claims receive a FAIL with the specific discrepancy.
+
+### Step 3: Build Evaluation Criteria
 
 Define audit criteria based on spec-auditor task structure:
 
@@ -209,12 +231,13 @@ This task MUST NOT be read and executed inline. Reading this file and performing
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
 
 1. Load spec content → INVALID if skipped
-2. Build evaluation criteria → INVALID if skipped
-3. Cross-validate with verdicts → INVALID if skipped
-4. Process verdicts → INVALID if skipped
-5. Evaluate SC determinism → INVALID if skipped
-6. Generate bidirectional findings → INVALID if skipped
-7. Build result contract → INVALID if skipped
+2. Verify documentation sources → INVALID if skipped
+3. Build evaluation criteria → INVALID if skipped
+4. Cross-validate with verdicts → INVALID if skipped
+5. Process verdicts → INVALID if skipped
+6. Evaluate SC determinism → INVALID if skipped
+7. Generate bidirectional findings → INVALID if skipped
+8. Build result contract → INVALID if skipped
 
 ## Next Pipeline Step (MANDATORY CONTINUATION)
 
