@@ -57,7 +57,7 @@ Scan your own prompt text for content beyond the allowed dispatch fields. A vali
 - artifact_evidence_dir
 - audit_phase
 
-If the prompt contains ANY content beyond these 9 fields — including but not limited to SC tables, file path lists, evaluation criteria, expected outcomes, narrative descriptions, implementation context, orchestrator reasoning, or prior verdicts — return BLOCKED with PRELOADED_CONTEXT_REJECTED.
+If the prompt contains ANY content beyond these 3 fields — including but not limited to SC tables, file path lists, evaluation criteria, expected outcomes, narrative descriptions, implementation context, orchestrator reasoning, or prior verdicts — return BLOCKED with PRELOADED_CONTEXT_REJECTED.
 
 This is a STRUCTURAL check, not pattern-based. Check WHAT exists in your prompt, not HOW it is phrased.
 
