@@ -41,9 +41,23 @@ halt_at: <analysis_complete|spec_created|plan_created|verification_complete|revi
 pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
+spec_local_dir: <path> | [<path>, ...]     # REQUIRED — one or more local issue directories containing spec.md
+artifact_evidence_dir: <path> | [<path>, ...]  # OPTIONAL — one or more behavioral evidence directories
 ```
 - Missing `authorization_scope` → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
+
+### VbC Pre-Check (MANDATORY)
+
+**`spec_local_dir` semantics:**
+All entries equally relevant. Sub-agent scans each folder for spec files, extracts SCs from each.
+
+**`artifact_evidence_dir` semantics:**
+Sub-agent searches all listed directories for evidence files via `glob`/`read`.
+
+1. **`spec_local_dir`** — REQUIRED. If absent from context: BLOCKED with MISSING_INPUT_DIR. If present but path not found: BLOCKED with SPEC_NOT_FOUND.
+2. **`artifact_evidence_dir`** — OPTIONAL. Absent or empty: handle gracefully.
+3. Both fields are PROCEED — standard evidence input directories, not contamination.
 
 ### 0.75. Coverage Completeness Gate (MANDATORY — After Structural Completeness, Before Per-SC Verification)
 
@@ -99,7 +113,7 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
 
 ### 1. Query Success Criteria
 
-- Read plan issue for defined success criteria
+- Read spec files from `spec_local_dir` directories for defined success criteria
 - Parse each criterion as a testable statement
 - Identify evidence needed for each
 

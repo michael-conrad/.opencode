@@ -11,7 +11,7 @@ Accept an evidence payload, evaluation criteria, and pre-resolved auditor verdic
 ## Entry Criteria
 
 - `spec_local_dir`: Local directory containing Markdown spec files
-- `auditor_artifact_paths`: Array of two artifact paths from the orchestrator, pointing to YAML verdict files on disk — resolved by `resolve-models`, written by auditor task dispatch, and passed by the orchestrator BEFORE this task
+- `artifact_evidence_dir`: Path(s) to directories containing auditor YAML verdict artifacts on disk
 - Lightweight audit-type structural criteria (SC-1/PF-1/CS-1/GA-1 templates) provided as task-file-defined templates WITHOUT embedded spec SC content
 - `auditor_metadata`: Optional array of `{ auditor_type, family, parseable }` for auditor identity context
 
@@ -19,7 +19,7 @@ Accept an evidence payload, evaluation criteria, and pre-resolved auditor verdic
 
 - [ ] 1. Load Spec + extract SCs from spec_local_dir
 - [ ] 2. Pre-Inspection Classification Gate — runtime-behavioral uplift check for each SC
-- [ ] 3. Load both auditor verdict artifacts (auditor_artifact_paths)
+- [ ] 3. Load both auditor verdict artifacts (artifact_evidence_dir)
 - [ ] 4. Per-SC comparison: Auditor-A verdict vs Auditor-B verdict
 - [ ] 5. **Do NOT reclassify FAIL** — a FAIL from either auditor is a FAIL in the cross-validate verdict
 - [ ] 6. PASS only when BOTH auditors returned PASS for the SC
@@ -97,9 +97,9 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 | Gate | Condition | Error Code | Action |
 |------|-----------|------------|--------|
 | MISSING_INPUT | `spec_local_dir` missing or empty, or no .md files readable | `MISSING_INPUT` | Return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }` |
-| MISSING_ARTIFACT_PATHS | `auditor_artifact_paths` missing, null, or empty array | `MISSING_ARTIFACT_PATHS` | Return `{ status: "BLOCKED", error: "MISSING_ARTIFACT_PATHS" }` |
+| MISSING_EVIDENCE_DIR | `artifact_evidence_dir` missing, null, or empty | `MISSING_EVIDENCE_DIR` | Return `{ status: "BLOCKED", error: "MISSING_EVIDENCE_DIR" }` |
 | ARTIFACT_UNREADABLE | Auditor YAML artifact file cannot be read or parsed | `ARTIFACT_UNREADABLE` | Return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }` |
-| INSUFFICIENT_ARTIFACTS | `auditor_artifact_paths` contains fewer than 2 entries OR both auditors share the same family | `INSUFFICIENT_ARTIFACTS` | Return `{ status: "BLOCKED", error: "INSUFFICIENT_ARTIFACTS" }` |
+| INSUFFICIENT_ARTIFACTS | Each auditor produces fewer than 1 verdict OR both auditors share the same family | `INSUFFICIENT_ARTIFACTS` | Return `{ status: "BLOCKED", error: "INSUFFICIENT_ARTIFACTS" }` |
 
 These gates are **non-recovery** per adversarial-audit-017. Do NOT attempt to resolve models inline, re-dispatch auditors, or fabricate verdicts. The ONLY valid path is: resolve-models → auditor dispatch → cross-validate with results. NO fallback, NO single-auditor mode, NO alternative paths.
 
@@ -113,18 +113,18 @@ This section is obsolete with binary PASS/FAIL verdicts. Auditors now return onl
 
 Confirm `spec_local_dir` is present and non-empty. Glob `**/*.md` in `<spec_local_dir>/`, read all discovered files via `read` tool. If `spec_local_dir` is missing, empty, or no .md files can be read: return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }`.
 
-### Step 2: Validate Auditor Artifact Paths
+### Step 2: Validate Evidence Directory
 
-Confirm `auditor_artifact_paths` is present, non-null, and contains exactly two paths pointing to existing YAML files on disk. Each entry MUST contain `{ artifact_path, auditor_type, family, parseable }`. Read each YAML file via `read` tool to verify it exists and is parseable.
+Confirm `artifact_evidence_dir` is present, non-null, and non-empty. The sub-agent reads auditor YAML verdict artifacts from files discovered in the evidence directory via `glob`/`read`. Each discovered YAML file MUST contain `{ criterion_id, result, evidence, explanation, remediation, next_step }`.
 
-- If `auditor_artifact_paths` is missing or null: return `{ status: "BLOCKED", error: "MISSING_ARTIFACT_PATHS" }`.
-- If `auditor_artifact_paths` has fewer than 2 entries: return `{ status: "BLOCKED", error: "INSUFFICIENT_ARTIFACTS" }`.
-- If either artifact file cannot be read: return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }`.
-- If both entries share the same `family`: return `{ status: "BLOCKED", error: "INSUFFICIENT_FAMILIES" }`.
+- If `artifact_evidence_dir` is missing or null: return `{ status: "BLOCKED", error: "MISSING_EVIDENCE_DIR" }`.
+- If `artifact_evidence_dir` has fewer than 2 YAML files: return `{ status: "BLOCKED", error: "INSUFFICIENT_ARTIFACTS" }`.
+- If artifact file cannot be read: return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }`.
+- If both files share the same `family`: return `{ status: "BLOCKED", error: "INSUFFICIENT_FAMILIES" }`.
 
 ### Step 3: Read and Parse Auditor Verdicts from Disk
 
-For each entry in `auditor_artifact_paths`, read the YAML verdict file from disk using the `read` tool. Each file contains the full YAML verdict artifact. Expected format per verdict file:
+For each YAML file discovered via glob/read in `artifact_evidence_dir`, read the verdict file from disk using the `read` tool. Each file contains the full YAML verdict artifact. Expected format per verdict file:
 
 ```
 ---
@@ -367,12 +367,12 @@ The `next_step` field:
 ## Context Required
 
 - `spec_local_dir`: Local directory containing Markdown spec files
-- `auditor_artifact_paths`: Pre-resolved array of two artifact paths from orchestrator (each with `{ artifact_path, auditor_type, family, parseable }`)
+- `artifact_evidence_dir`: Path(s) to directories containing auditor YAML verdict artifacts
 - `audit_phase`: Current audit phase for task context
 
 ## Red Flags
 
-- Never task() auditors from within cross-validate — the orchestrator dispatches auditors, cross-validate receives artifact paths only
+- Never task() auditors from within cross-validate — the orchestrator dispatches auditors, cross-validate discovers artifacts via evidence dir
 - Never leak orchestrator reasoning into verdict parsing — clean-room means evidence + criteria ONLY
 - Never soft-pass a mismatch — `PASS`/`FAIL` split = FAIL per adversarial-audit-004
 - Never fabricate verdicts when auditor YAML artifact is unreadable or unparseable — missing data = FAIL per adversarial-audit-005
@@ -399,7 +399,7 @@ The `next_step` field:
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
 |---|---|---|---|---|
-| `spec_local_dir`, `auditor_artifact_paths`, `audit_phase` | Implementation context, agent memory, orchestrator reasoning, prior verification, spec_body, evaluation_criteria, verdict content | N/A — cross-validate receives artifact paths, does not dispatch auditors | NO |
+| `spec_local_dir`, `artifact_evidence_dir`, `audit_phase` | Implementation context, agent memory, orchestrator reasoning, prior verification, spec_body, evaluation_criteria, verdict content | N/A — cross-validate discovers artifacts via evidence dir, does not dispatch auditors | NO |
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -413,10 +413,10 @@ rules:
     source: "cross-validate.md §Step 1"
 
   - id: cross-validate-002
-    title: "Pre-resolved artifact paths must be provided by orchestrator — cross-validate does not dispatch auditors"
+    title: "Evidence directory must be provided — cross-validate discovers artifacts via glob/read"
     conditions:
-      all: ["auditor_artifact_paths == null OR auditor_artifact_paths_count < 2"]
-    actions: [RETURN_BLOCKED, REPORT_MISSING_ARTIFACT_PATHS]
+      all: ["artifact_evidence_dir == null OR artifact_evidence_dir_empty == true"]
+    actions: [RETURN_BLOCKED, REPORT_MISSING_EVIDENCE_DIR]
     source: "cross-validate.md §Step 2"
 
   - id: cross-validate-003
@@ -550,9 +550,9 @@ rules:
     source: "cross-validate.md §Step 6"
 
   - id: cross-validate-018
-    title: "Non-recovery gate — MISSING_INPUT, MISSING_ARTIFACT_PATHS, ARTIFACT_UNREADABLE, INSUFFICIENT_ARTIFACTS are terminal with no fallback"
+    title: "Non-recovery gate — MISSING_INPUT, MISSING_EVIDENCE_DIR, ARTIFACT_UNREADABLE, INSUFFICIENT_ARTIFACTS are terminal with no fallback"
     conditions:
-      any: ["error == 'MISSING_INPUT'", "error == 'MISSING_ARTIFACT_PATHS'", "error == 'ARTIFACT_UNREADABLE'", "error == 'INSUFFICIENT_ARTIFACTS'"]
+      any: ["error == 'MISSING_INPUT'", "error == 'MISSING_EVIDENCE_DIR'", "error == 'ARTIFACT_UNREADABLE'", "error == 'INSUFFICIENT_ARTIFACTS'"]
     actions: [RETURN_BLOCKED, NO_RECOVERY]
     source: "cross-validate.md §Non-Recovery Gates"
 ```
