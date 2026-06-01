@@ -42,6 +42,52 @@ This is the core dispatch routing table for the 14-step serial implementation pi
 | 13 | `review-prep` | `git-workflow --task review-prep` | review-prep status | single-criterion |
 | 14 | `exec-summary` | `completion-core --task completion` | push status + issue comment | single-criterion |
 
+## Post-Step Checkpoint Creation
+
+After each pipeline step returns DONE and the orchestrator logs the YAML artifact at `./tmp/artifacts/pipeline-{issue}-{step_label}-{STATUS}-{timestamp}.yaml`, create a checkpoint tag before advancing to the next step:
+
+```bash
+CONSUMER_REPO=<github.repo>
+SUBMODULE_SUFFIX=-opencode
+
+# Reap any prior tag for this step (re-dispatch from prior failure):
+git tag -d "$CONSUMER_REPO/checkpoint/$ISSUE_NUM/phase-$N$SUBMODULE_SUFFIX" 2>/dev/null || true
+git push origin --delete "$CONSUMER_REPO/checkpoint/$ISSUE_NUM/phase-$N$SUBMODULE_SUFFIX" 2>/dev/null || true
+
+# Commit current state and tag checkpoint:
+git add -A
+git commit -m "checkpoint(#$ISSUE_NUM): step-$N complete"
+git tag "$CONSUMER_REPO/checkpoint/$ISSUE_NUM/phase-$N$SUBMODULE_SUFFIX"
+git push origin "$CONSUMER_REPO/checkpoint/$ISSUE_NUM/phase-$N$SUBMODULE_SUFFIX" 2>/dev/null || echo "Remote push skipped"
+```
+
+**Tag format:** `<parent>/checkpoint/<issue>/phase-<N>-<submodule>` per `git-workflow/SKILL.md` §Tag Convention.
+
+**Suffix rule:** `<submodule>` is the submodule directory name from `.gitmodules` (e.g., `.opencode` → `-opencode`).
+
+**Step N is 1-indexed** from the dispatch routing table above.
+
+## Phase Rollback
+
+When a step returns FAIL and a prior checkpoint exists, apply rollback before researcher dispatch:
+
+```bash
+CONSUMER_REPO=<github.repo>
+SUBMODULE_SUFFIX=-opencode
+LAST_PASS_PHASE=<from pipeline state file (current_step or previous_step in solve state)>
+
+git status
+git diff --stat
+git reset --hard "$CONSUMER_REPO/checkpoint/$ISSUE_NUM/phase-$LAST_PASS_PHASE$SUBMODULE_SUFFIX"
+git submodule update --init
+```
+
+Read restored pipeline state from `./tmp/state/{ISSUE}/pipeline/`. Re-dispatch the failed step with original dispatch parameters.
+
+**First-step failure (no checkpoint):** Run `git checkout .` to clean working tree. Re-dispatch from current state without rollback.
+
+**Integration with Remediation Routing:** Before dispatching the researcher skill on FAIL, the orchestrator checks for a prior checkpoint tag matching `phase-<STEP_N-1>$SUBMODULE_SUFFIX`. If found, apply Phase Rollback first. If not found (step 1 failure), skip to researcher dispatch with clean checkout.
+
 ## Orchestrator Dispatch Model
 
 For each step:

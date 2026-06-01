@@ -332,12 +332,29 @@ After confirming content is safe to delete, remove the task() entry marker for t
 ```bash
 CLEANUP_BRANCH_NAME=$(git branch --show-current)
 SAFE_BRANCH=$(echo "$CLEANUP_BRANCH_NAME" | tr '/' '-')
-rm -f tmp/task-"$SAFE_BRANCH".marker
+rm -f .issues/workflow/task-"$SAFE_BRANCH".marker
 ```
 
 This marker was created by `assemble-work` Step 1.5 as task() entry proof for the pre-commit hook.
 
-### Step 3.5: Delete Current Merged Branch
+### Step 3.3: Delete Checkpoint Tags
+
+Delete any checkpoint tags for the current issue(s) on this branch:
+
+```bash
+CONSUMER_REPO=<github.repo>
+LOCAL_TAGS=$(git tag --list "${CONSUMER_REPO}/checkpoint/*" 2>/dev/null)
+if [ -n "$LOCAL_TAGS" ]; then
+  echo "$LOCAL_TAGS" | xargs -r git tag -d
+  for tag in $LOCAL_TAGS; do
+    git push origin --delete "$tag" 2>/dev/null || true
+  done
+fi
+```
+
+Checkpoint tag format: `<parent>/checkpoint/<issue>/phase-<N>-<submodule>` per `git-workflow/SKILL.md` §Tag Convention. Tags are workflow-ephemeral — deleted on branch cleanup.
+
+### Step 3.4: Delete Current Merged Branch
 
 ```bash
 git branch -d <merged-branch-name>
@@ -348,14 +365,14 @@ git remote prune origin
 
 **Why `git remote prune origin` is mandatory:** Stale remote-tracking references cause confusion and can interfere with new branch creation.
 
-### Step 3.6: Work Branch Cleanup
+### Step 3.5: Work Branch Cleanup
 
 When the merged branch was a work branch (created by `assemble-work`):
 
 1. Delete individual feature branches that were squash-merged into the work branch
 2. Delete the work branch itself
 3. Remove individual feature worktrees
-4. Remove work state file: `rm tmp/work-*.md`
+4. Remove work state file: `rm -f .issues/workflow/work-*.md 2>/dev/null || true`
 5. Prune remote references
 
 **⚠️ CRITICAL: Never delete a work branch or its feature branches until the work PR is confirmed merged via GitHub API.**

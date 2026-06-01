@@ -3,7 +3,7 @@ name: git-workflow
 description: Use when creating a branch, committing, pushing, or creating a PR. Also for rebase/merge conflicts (invoke conflict-resolution). Also for "check pr"/"check prs"/"check merged prs"/"pr merged" (PR state verification + cleanup). Also for "release PR"/"promote to main"/"dev to main" (release-promotion). Triggers on: branch, commit, push, PR, pull request, pre-work, review-prep, feature branch, dev branch, squash, conflict, merge conflict, rebase conflict, check pr, check prs, check merged prs, check merged pr, check pull request, check pull requests, release PR, release pr, promote to main, dev to main, release promotion, pr merged, cleanup, clean up, sync submodules, update submodules, submodule update. Branch-and-PR discipline is not bureaucracy — it is what separates maintainable projects from chaos.
 type: discipline-enforcing
 license: MIT
-provenance: AI-generated (feature-branch push + tip tag context; tag layers: `<parent>/<issue>`, `<parent>/<issue>-<sub>`, `<parent>/v<version>`)
+provenance: AI-generated (unified tag convention: `<parent>/<issue>-<submodule>` for hash permanence, `<parent>/checkpoint/<issue>/phase-<N>-<submodule>` for checkpoint, `<parent>/v<version>` for release)
 compatibility: opencode
 ---
 
@@ -84,6 +84,25 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 8. **Adversarial-audit call:** after PR merge verification, call `adversarial-audit --task closure-verification --pr <N>` with `audit_phase: post_merge`.
 9. **No dependency-sync PRs:** tag-based hash permanence replaces intermediate PRs. Submodule SHAs are preserved via parent-repo-prefixed tags. See AGENTS.md §Tag Layers.
 
+### Tag Convention (Canonical)
+
+All git tags in this project follow a unified naming convention. The suffix rule is defined in spec #950 and applies to ALL tag types.
+
+**Suffix Rule:** Tag suffix MUST be derived from the submodule directory name in `.gitmodules` (e.g., `.opencode` → `-opencode`). DO NOT use issue title, phase name, or any ad-hoc string.
+
+| Tag Type | Format | Example | Purpose |
+|----------|--------|---------|---------|
+| Hash permanence | `<parent>/<issue>-<submodule>` | `opencode-config/950-opencode` | Pin submodule SHA at feature-branch tip |
+| Checkpoint | `<parent>/checkpoint/<issue>/phase-<N>-<submodule>` | `opencode-config/checkpoint/391/phase-1-opencode` | Rollback anchor after sub-agent verification PASS |
+| Release | `<parent>/v<version>` | `opencode-config/v0.1.1` | Release marker (no suffix) |
+
+**Cross-references:**
+- Spec #950 — canonical suffix derivation rule
+- Spec #391 — checkpoint tag lifecycle (create during assemble-work, delete during cleanup)
+- `submodule-tag-prework` task — hash permanence tag creation
+- `pipeline-executor.md` — checkpoint creation and rollback substeps
+- `branch-cleanup.md` Step 3.3 — checkpoint tag deletion
+
 ## Sub-Agent Routing
 
 All tasks run via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo }`, excluding implementation context and agent memory. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. `pr-creation` receives spec summary. `cleanup` receives PR merge status. `provenance` receives submodule path. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
@@ -143,7 +162,7 @@ Skills: `conflict-resolution`, `pr-creation-workflow`, `using-git-worktrees`, `p
 
 ```yaml+symbolic
 schema_version: "2.0"
-last_updated: "2026-05-01T00:00:00Z"
+last_updated: "2026-06-01T00:00:00Z"
 rules:
   - id: git-workflow-001
     title: "No commits to main or dev branches"

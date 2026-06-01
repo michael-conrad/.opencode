@@ -378,6 +378,20 @@ Key points:
 - Auto-creating sub-issues for an approved multi-task plan is a pre-implementation setup step covered by the plan's authorization. No separate authorization is required.
 - After auto-creating sub-issues, the agent proceeds with implementation immediately (no re-authorization needed).
 
+### 6. Progressive Iterative Implementation — Rollback on Verification Failure
+
+**MANDATORY:** When a pipeline step's verification fails AND a checkpoint tag exists for the prior PASS state, the orchestrator MUST:
+
+1. Report pre-rollback diagnostics (`git status`, `git diff --stat`)
+2. Read pipeline state to determine `$LAST_PASS_PHASE`
+3. Execute rollback: `git reset --hard <parent>/checkpoint/<issue>/phase-<LAST_PASS_PHASE>-<submodule> && git submodule update --init`
+4. Read restored pipeline state
+5. Re-dispatch the failed step with original dispatch parameters
+
+**Authorization source:** `000-critical-rules.md` §Checkpoint Rollback Exception.
+
+**No checkpoint:** First-step failure. Run `git checkout .`, re-dispatch from current state.
+
 ```yaml+symbolic
 schema_version: "3.0"
 last_updated: "2026-05-17T00:00:00Z"
