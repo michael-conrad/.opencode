@@ -15,6 +15,18 @@ Accept an evidence payload, evaluation criteria, and pre-resolved auditor verdic
 - Lightweight audit-type structural criteria (SC-1/PF-1/CS-1/GA-1 templates) provided as task-file-defined templates WITHOUT embedded spec SC content
 - `auditor_metadata`: Optional array of `{ auditor_type, family, parseable }` for auditor identity context
 
+## Cross-Validate Checklist
+
+- [ ] 1. Load Spec + extract SCs from spec_local_dir
+- [ ] 2. Pre-Inspection Classification Gate — runtime-behavioral uplift check for each SC
+- [ ] 3. Load both auditor verdict artifacts (auditor_artifact_paths)
+- [ ] 4. Per-SC comparison: Auditor-A verdict vs Auditor-B verdict
+- [ ] 5. **Do NOT reclassify FAIL** — a FAIL from either auditor is a FAIL in the cross-validate verdict
+- [ ] 6. PASS only when BOTH auditors returned PASS for the SC
+- [ ] 7. Evidence Type Matrix enforcement — downgrade PASS with EVIDENCE_TYPE_MISMATCH to FAIL
+- [ ] 8. Write unified verdict artifact to disk
+- [ ] 9. Return frugal contract with verdict summary
+
 ### Step 0: Load Spec
 
 `spec_local_dir` is REQUIRED. Auditors BLOCK if absent.

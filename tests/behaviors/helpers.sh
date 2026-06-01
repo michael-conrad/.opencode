@@ -133,6 +133,10 @@ behavior_run() {
     local message="$2"
     local model="${3:-${BEHAVIOR_MODEL}}"
     local workdir="${4:-}"
+    local agent="${5:-}"
+    # NOTE: Agent 5th arg is EXPERIMENTAL. Not all test scripts set it.
+    # When empty, the default agent (build) is used, which is correct for
+    # most behavioral tests that test prompt-response behavior.
     local log_dir="$BEHAVIOR_LOG_DIR/$scenario_name"
     mkdir -p "$log_dir"
 
@@ -214,6 +218,7 @@ behavior_run() {
         timeout "$BEHAVIOR_TIMEOUT" bash "$PROJECT_DIR/$BEHAVIOR_TEST_HOME" \
             opencode-cli run "$message" \
             --model "$model" \
+            ${agent:+--agent "$agent"} \
             > "$output_file" 2> "$err_file" \
             || true
 

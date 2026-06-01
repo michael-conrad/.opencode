@@ -180,11 +180,14 @@ if [ -n "${TEST_WORKDIR:-}" ]; then
     if [ -d "$TEST_WORKDIR" ]; then
         cd "$TEST_WORKDIR"
     else
-        echo "WARNING: TEST_WORKDIR '$TEST_WORKDIR' does not exist, falling back to PROJECT_DIR" >&2
-        cd "$PROJECT_DIR"
+        echo "WARNING: TEST_WORKDIR '$TEST_WORKDIR' does not exist, falling back to TEST_HOME" >&2
+        cd "$TEST_HOME"
     fi
 else
-    cd "$PROJECT_DIR"
+    # Default: run inside the isolated test home, NOT the main repo root.
+    # The test home is the clean environment — commands should run there
+    # unless explicitly asked to work in a different directory.
+    cd "$TEST_HOME"
 fi
 
 pass_through_env=()
