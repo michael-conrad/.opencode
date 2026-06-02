@@ -16,7 +16,7 @@ source "$SCRIPT_DIR/helpers.sh"
 # auto-route github.platform==local yet (Phase 3 of #983 fixes routing).
 # Phase 3 variant: remove "use the local platform sub-skill" hint.
 SCENARIO_NAME="982-sc2-local-read-dispatch"
-SCENARIO_PROMPT="first load the issue-operations skill. then read issue #100 and show me the comments. use the local platform sub-skill. the platform is local."
+SCENARIO_PROMPT="execute the read-issue task from the local platform sub-skill in issue-operations for issue #100. show me the comments. the platform is local."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
