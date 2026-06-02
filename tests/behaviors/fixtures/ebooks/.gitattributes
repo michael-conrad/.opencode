@@ -1,0 +1,4 @@
+# Fixture files are stored as .gz to preserve exact line endings
+# (LF, CRLF, CR) that git would otherwise normalize on checkout.
+# Gunzip at test setup time — never commit uncompressed text versions.
+*.gz binary
