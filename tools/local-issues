@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run
+#!/usr/bin/env -S uv run --script
 # SPDX-FileCopyrightText: 2026 Michael Conrad
 # SPDX-License-Identifier: MIT
 # Provenance: AI-generated
