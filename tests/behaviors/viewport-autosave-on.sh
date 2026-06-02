@@ -33,7 +33,15 @@ MODEL_SLUG="$(echo "$BEHAVIOR_MODEL" | tr '/:@' '-')"
 ARTIFACT_DIR="$PROJECT_DIR/tmp/behavioral-evidence-${SCENARIO_NAME}-GREEN-${MODEL_SLUG}"
 mkdir -p "$ARTIFACT_DIR"
 
-SCENARIO_PROMPT="You have access to a viewport-editor MCP tool — a windowed file editor where edits stage in a buffer. If autosave is enabled, edits persist to disk automatically on each edit. Open \`fixtures/frankenstein.txt\` WITH autosave enabled, change the first \"Frankenstein\" to \"FRANKENSTEIN\", and verify that the change is already on disk without an explicit save step. Close the viewport when done and report what you observed at each step."
+SCENARIO_PROMPT="You have access to a viewport-editor MCP tool — a windowed file editor where edits stage in a buffer. If autosave is enabled, edits persist to disk automatically on each edit.
+
+Open \`fixtures/frankenstein.txt\` WITH autosave enabled. Use the edit tool's \`replace\` action (NOT \`replace-all\`) to change only the first occurrence of the word \"Frankenstein\" to \"FRANKENSTEIN\". After the edit, verify the change is on disk by running this exact bash command:
+
+\`\`\`
+head -1 fixtures/frankenstein.txt
+\`\`\`
+
+Confirm whether the first line now contains \"FRANKENSTEIN\". Close the viewport when done and report what you observed at each step."
 
 cat > "$ARTIFACT_DIR/instruction_card.md" <<CARD
 # SC-2: Autosave ON
