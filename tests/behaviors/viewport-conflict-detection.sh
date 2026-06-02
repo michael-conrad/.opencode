@@ -3,58 +3,91 @@
 # See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# SC-5: Conflict detection — edit a file in the viewport, then external modification,
-# then attempt to save. The server should detect the conflict and report it.
+# SC-5: Conflict detection — external file modification while viewport is open.
+# Goal-directed prompt: agent must detect and handle external file changes.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-source "$SCRIPT_DIR/../../tmp/setup-viewport-test.sh" 2>/dev/null || {
-    echo "FATAL: setup-viewport-test.sh not found. Run from project root." >&2
-    exit 1
-}
-
 PROJECT_DIR="$SCRIPT_DIR"
-while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
+while [ "$(basename "$PROJECT_DIR")" != ".opencode" ] && [ "$PROJECT_DIR" != "/" ]; do
     PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 done
-PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+if [ "$PROJECT_DIR" = "/" ]; then
+    PROJECT_DIR="$(git rev-parse --show-toplevel)"
+else
+    PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+fi
 
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="viewport-conflict-detection"
+BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/glm-5.1:cloud}"
+BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-420}"
 
-# Create a test file that will be externally modified
-CONFLICT_FILE="$VIEWPORT_TEST_REPO/conflict-test.txt"
-cat > "$CONFLICT_FILE" <<'EOF'
-Original line 1
-Original line 2
-Original line 3
-EOF
-git -C "$VIEWPORT_TEST_REPO" add conflict-test.txt
-git -C "$VIEWPORT_TEST_REPO" commit -q -m "add conflict test file"
+source "$PROJECT_DIR/tmp/setup-viewport-test.sh"
 
-# The agent needs to know it should look for a file called conflict-test.txt
-# but NOT modify it externally itself — the test orchestrator handles external modification.
-# However, in the artifact-only paradigm, we can't modify the file mid-run.
-# Strategy: include the external modification as part of the prompt instructions.
+MODEL_SLUG="$(echo "$BEHAVIOR_MODEL" | tr '/:@' '-')"
+ARTIFACT_DIR="$PROJECT_DIR/tmp/behavioral-evidence-${SCENARIO_NAME}-GREEN-${MODEL_SLUG}"
+mkdir -p "$ARTIFACT_DIR"
 
-SCENARIO_PROMPT="You have access to a viewport-editor MCP tool that provides a windowed editor with conflict detection. When the file on disk has been modified externally since the viewport was opened, the server detects the conflict and reports it on save.
+SCENARIO_PROMPT="You have access to a viewport-editor MCP tool. Open \`fixtures/config.yaml\` WITHOUT autosave. Make an edit (change \"port: 8080\" to \"port: 9090\"). Then, using your bash tool, modify the same file on disk with \`sed -i 's/debug: true/debug: false/' fixtures/config.yaml\`. After the external modification, interact with the viewport again (scroll or show diff) and observe whether the viewport detected the external change. Close the viewport and report what happened."
 
-Use the viewport-editor tool to demonstrate conflict detection:
+cat > "$ARTIFACT_DIR/instruction_card.md" <<CARD
+# SC-5: Conflict Detection
 
-1. Open conflict-test.txt with autosave OFF (action='open', file_path='conflict-test.txt', autosave=false)
-2. Replace 'Original' with 'Modified' (action='replace-all', old_text='Original', new_text='Modified')
-3. Do NOT save yet — instead, use your bash tool to modify the file on disk:
-   Run: sed -i 's/Original line 2/EXTERNAL CHANGE/' conflict-test.txt
-   (This simulates an external process modifying the file)
-4. Now try to save (file action='save') — the server should detect the conflict between the buffer and the externally-modified file on disk
-5. Use the diff tool to see the conflict state (action='show')
-6. Report whether the server detected the conflict and what happened when you tried to save
+$SCENARIO_PROMPT
+CARD
 
-Report what happened at each step. The key question is: did the server detect that the file on disk was modified externally?"
+echo "SC-5 instruction card written to: $ARTIFACT_DIR/instruction_card.md"
+echo ""
+echo "Test home:    $VIEWPORT_TEST_HOME"
+echo "Test repo:    $VIEWPORT_TEST_REPO"
+echo "MCP config:   $VIEWPORT_MCP_CONFIG"
 
-behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
+echo ""
+echo "=== Running behavioral test with model: $BEHAVIOR_MODEL ==="
+
+LOG_DIR="$ARTIFACT_DIR"
+STDOUT_LOG="$LOG_DIR/stdout.log"
+STDERR_LOG="$LOG_DIR/stderr.log"
+
+cd "$VIEWPORT_TEST_REPO"
+
+HOME="$VIEWPORT_TEST_HOME" \
+XDG_CONFIG_HOME="$VIEWPORT_TEST_HOME/.config" \
+XDG_DATA_HOME="$VIEWPORT_TEST_HOME/.local/share" \
+XDG_STATE_HOME="$VIEWPORT_TEST_HOME/.local/state" \
+timeout "$BEHAVIOR_TIMEOUT" opencode-cli run "$SCENARIO_PROMPT" \
+    --model "$BEHAVIOR_MODEL" \
+    > "$STDOUT_LOG" 2> "$STDERR_LOG" || true
+
+cat > "$ARTIFACT_DIR/manifest.yaml" <<MANIFEST
+scenario_name: $SCENARIO_NAME
+phase: GREEN
+model: $BEHAVIOR_MODEL
+timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+exit_code: $?
+harness_version: 1
+MANIFEST
+
+echo $? > "$ARTIFACT_DIR/exit_code" 2>/dev/null || echo "1" > "$ARTIFACT_DIR/exit_code"
+
+(
+    export XDG_CONFIG_HOME="$VIEWPORT_TEST_HOME/.config"
+    export XDG_DATA_HOME="$VIEWPORT_TEST_HOME/.local/share"
+    export XDG_STATE_HOME="$VIEWPORT_TEST_HOME/.local/state"
+    __export_sqlite_to_yaml "$ARTIFACT_DIR/session.yaml"
+)
+
+WORD_COUNT=$(wc -w < "$STDOUT_LOG" 2>/dev/null || echo "0")
+echo ""
+echo "=== Test complete ==="
+echo "Artifacts:   $ARTIFACT_DIR"
+echo "Stdout:      $STDOUT_LOG (${WORD_COUNT} words)"
+echo "Stderr:      $STDERR_LOG"
+echo "Manifest:    $ARTIFACT_DIR/manifest.yaml"
+
 exit 0

@@ -1,45 +1,93 @@
-#!/usr/bin/env bash
-# viewport-search-navigate.sh — SC-8: Search and navigate workflow
+#!/bin/bash
+# Behavioral test: viewport-search-navigate
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# Validates: search:find with scopes, jump-to-text navigation, edit at found location
-# Line endings: config.yaml (LF), chapter.md (CRLF), example.py (LF)
+# SC-8: Search and navigate — use search/jump instead of reading the entire file.
+# Goal-directed prompt: agent must discover search and jump actions on its own.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
 set -euo pipefail
-
-BEHAVIOR="viewport-search-navigate"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# shellcheck source=helpers.sh
+PROJECT_DIR="$SCRIPT_DIR"
+while [ "$(basename "$PROJECT_DIR")" != ".opencode" ] && [ "$PROJECT_DIR" != "/" ]; do
+    PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+done
+if [ "$PROJECT_DIR" = "/" ]; then
+    PROJECT_DIR="$(git rev-parse --show-toplevel)"
+else
+    PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+fi
+
 source "$SCRIPT_DIR/helpers.sh"
 
-BEHAVIOR_DIR="$(behavior_setup "$BEHAVIOR")"
+SCENARIO_NAME="viewport-search-navigate"
+BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/glm-5.1:cloud}"
+BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-420}"
 
-cat > "$BEHAVIOR_DIR/instruction_card.md" <<'CARD'
-# SC-8: Search and Navigate Workflow
+source "$PROJECT_DIR/tmp/setup-viewport-test.sh"
 
-You have access to the `viewport-editor` MCP tool with actions: viewport, edit, file, diff, search, regex, clipboard.
+MODEL_SLUG="$(echo "$BEHAVIOR_MODEL" | tr '/:@' '-')"
+ARTIFACT_DIR="$PROJECT_DIR/tmp/behavioral-evidence-${SCENARIO_NAME}-GREEN-${MODEL_SLUG}"
+mkdir -p "$ARTIFACT_DIR"
 
-**Setup:** Open `fixtures/config.yaml` in a viewport with height 30.
+SCENARIO_PROMPT="You have access to a viewport-editor MCP tool with search and navigation capabilities. Open \`fixtures/dorian-gray.txt\`. Instead of reading the entire file, navigate it efficiently: use the search tool to find \"Chapter 3\", then navigate to that location. Report what line number \"Chapter 3\" starts on and what you see around it. Close the viewport when done."
 
-**Task sequence:**
-1. Use `viewport` action `open` to open `fixtures/config.yaml` with height 30
-2. Use `search` action `find` with pattern `pool` and scope `viewport` to find the connection pool section
-3. Use `viewport` action `jump` with target `pool` to navigate to the found line
-4. Use `edit` action `replace` to change `max_size: 20` to `max_size: 50` in the pool configuration
-5. Use `search` action `find` with pattern `^  \\w+:` and regex `true` to find YAML key lines
-6. Use `viewport` action `jump` with target `viewports:` to navigate to the viewports section
-7. Use `edit` action `replace` to change `height: 50` to `height: 80` in the viewports defaults
-8. Use `diff` action `show` to verify both changes appear in the diff
-9. Use `viewport` action `close` to close the viewport
+cat > "$ARTIFACT_DIR/instruction_card.md" <<CARD
+# SC-8: Search and Navigate
 
-**Success criteria:**
-- Both search results return line numbers pointing to the correct sections
-- Jump navigates to the target text (not just a line number)
-- Both edits are applied and visible in the diff
-- The YAML file structure remains valid (correct indentation preserved)
+$SCENARIO_PROMPT
 CARD
 
-echo "SC-8 instruction card written to: $BEHAVIOR_DIR/instruction_card.md"
-echo "Artifacts: $BEHAVIOR_DIR"
+echo "SC-8 instruction card written to: $ARTIFACT_DIR/instruction_card.md"
+echo ""
+echo "Test home:    $VIEWPORT_TEST_HOME"
+echo "Test repo:    $VIEWPORT_TEST_REPO"
+echo "MCP config:   $VIEWPORT_MCP_CONFIG"
+
+echo ""
+echo "=== Running behavioral test with model: $BEHAVIOR_MODEL ==="
+
+LOG_DIR="$ARTIFACT_DIR"
+STDOUT_LOG="$LOG_DIR/stdout.log"
+STDERR_LOG="$LOG_DIR/stderr.log"
+
+cd "$VIEWPORT_TEST_REPO"
+
+HOME="$VIEWPORT_TEST_HOME" \
+XDG_CONFIG_HOME="$VIEWPORT_TEST_HOME/.config" \
+XDG_DATA_HOME="$VIEWPORT_TEST_HOME/.local/share" \
+XDG_STATE_HOME="$VIEWPORT_TEST_HOME/.local/state" \
+timeout "$BEHAVIOR_TIMEOUT" opencode-cli run "$SCENARIO_PROMPT" \
+    --model "$BEHAVIOR_MODEL" \
+    > "$STDOUT_LOG" 2> "$STDERR_LOG" || true
+
+cat > "$ARTIFACT_DIR/manifest.yaml" <<MANIFEST
+scenario_name: $SCENARIO_NAME
+phase: GREEN
+model: $BEHAVIOR_MODEL
+timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+exit_code: $?
+harness_version: 1
+MANIFEST
+
+echo $? > "$ARTIFACT_DIR/exit_code" 2>/dev/null || echo "1" > "$ARTIFACT_DIR/exit_code"
+
+(
+    export XDG_CONFIG_HOME="$VIEWPORT_TEST_HOME/.config"
+    export XDG_DATA_HOME="$VIEWPORT_TEST_HOME/.local/share"
+    export XDG_STATE_HOME="$VIEWPORT_TEST_HOME/.local/state"
+    __export_sqlite_to_yaml "$ARTIFACT_DIR/session.yaml"
+)
+
+WORD_COUNT=$(wc -w < "$STDOUT_LOG" 2>/dev/null || echo "0")
+echo ""
+echo "=== Test complete ==="
+echo "Artifacts:   $ARTIFACT_DIR"
+echo "Stdout:      $STDOUT_LOG (${WORD_COUNT} words)"
+echo "Stderr:      $STDERR_LOG"
+echo "Manifest:    $ARTIFACT_DIR/manifest.yaml"
+
+exit 0

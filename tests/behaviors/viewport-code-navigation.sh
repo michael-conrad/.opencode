@@ -1,53 +1,93 @@
-#!/usr/bin/env bash
-# viewport-code-navigation.sh — SC-9: Code and config navigation
+#!/bin/bash
+# Behavioral test: viewport-code-navigation
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# Validates: jump to function/class definitions, regex pattern search, 
-#            search-in-viewport scope, edit within function body
-# Line endings: example.py (LF — code navigation with def/class targets)
+# SC-9: Code navigation — navigate Python code by searching for classes and functions.
+# Goal-directed prompt: agent must discover search tool for code navigation on its own.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
 set -euo pipefail
-
-BEHAVIOR="viewport-code-navigation"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# shellcheck source=helpers.sh
+PROJECT_DIR="$SCRIPT_DIR"
+while [ "$(basename "$PROJECT_DIR")" != ".opencode" ] && [ "$PROJECT_DIR" != "/" ]; do
+    PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+done
+if [ "$PROJECT_DIR" = "/" ]; then
+    PROJECT_DIR="$(git rev-parse --show-toplevel)"
+else
+    PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+fi
+
 source "$SCRIPT_DIR/helpers.sh"
 
-BEHAVIOR_DIR="$(behavior_setup "$BEHAVIOR")"
+SCENARIO_NAME="viewport-code-navigation"
+BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/glm-5.1:cloud}"
+BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-420}"
 
-cat > "$BEHAVIOR_DIR/instruction_card.md" <<'CARD'
-# SC-9: Code and Config Navigation
+source "$PROJECT_DIR/tmp/setup-viewport-test.sh"
 
-You have access to the `viewport-editor` MCP tool with actions: viewport, edit, file, diff, search, regex, clipboard.
+MODEL_SLUG="$(echo "$BEHAVIOR_MODEL" | tr '/:@' '-')"
+ARTIFACT_DIR="$PROJECT_DIR/tmp/behavioral-evidence-${SCENARIO_NAME}-GREEN-${MODEL_SLUG}"
+mkdir -p "$ARTIFACT_DIR"
 
-**Setup:** Open `fixtures/example.py` in a viewport with height 30.
+SCENARIO_PROMPT="You have access to a viewport-editor MCP tool with search capabilities. Open \`fixtures/example.py\`. Use the search tool to find each class and function definition (search for \"class \" and \"def \"). For each one found, report its name and line number. Close the viewport when done."
 
-**Task sequence:**
-1. Use `viewport` action `open` to open `fixtures/example.py` with height 30
-2. Use `viewport` action `jump` with target `def apply_edit` to navigate to the apply_edit function
-3. Use `search` action `find` with pattern `class ` and scope `viewport` to find all class definitions
-4. Use `viewport` action `jump` with target `class SessionManager` to navigate to SessionManager class
-5. Use `regex` action `test` with pattern `def \\w+\\(` and text `def apply_edit` to verify the regex matches function definitions
-6. Use `regex` action `escape` with pattern `file.txt` to get the escaped version
-7. Use `edit` action `replace` to change `max_sessions: int = 10` to `max_sessions: int = 25` in SessionManager.__init__
-8. Use `edit` action `replace` to change `"session {session_id} already exists"` to `"session {session_id} already exists — duplicate rejected"` in the same class
-9. Use `viewport` action `jump` with target `VERSION` to navigate to the module-level constant
-10. Use `edit` action `replace` to change `VERSION = "0.1.0"` to `VERSION = "0.2.0"`
-11. Use `diff` action `show` to verify all three changes appear in the diff
-12. Use `file` action `save` to write changes to disk
-13. Use `viewport` action `close` to close the viewport
+cat > "$ARTIFACT_DIR/instruction_card.md" <<CARD
+# SC-9: Code Navigation
 
-**Success criteria:**
-- `jump` with `def apply_edit` navigates to the function definition line
-- `jump` with `class SessionManager` navigates to the class definition line
-- `jump` with `VERSION` navigates to the module-level constant
-- Search returns correct line numbers for class definitions
-- Regex test confirms pattern matches function definitions
-- All three edits appear in the diff output
-- Saved file on disk has all three edits applied
+$SCENARIO_PROMPT
 CARD
 
-echo "SC-9 instruction card written to: $BEHAVIOR_DIR/instruction_card.md"
-echo "Artifacts: $BEHAVIOR_DIR"
+echo "SC-9 instruction card written to: $ARTIFACT_DIR/instruction_card.md"
+echo ""
+echo "Test home:    $VIEWPORT_TEST_HOME"
+echo "Test repo:    $VIEWPORT_TEST_REPO"
+echo "MCP config:   $VIEWPORT_MCP_CONFIG"
+
+echo ""
+echo "=== Running behavioral test with model: $BEHAVIOR_MODEL ==="
+
+LOG_DIR="$ARTIFACT_DIR"
+STDOUT_LOG="$LOG_DIR/stdout.log"
+STDERR_LOG="$LOG_DIR/stderr.log"
+
+cd "$VIEWPORT_TEST_REPO"
+
+HOME="$VIEWPORT_TEST_HOME" \
+XDG_CONFIG_HOME="$VIEWPORT_TEST_HOME/.config" \
+XDG_DATA_HOME="$VIEWPORT_TEST_HOME/.local/share" \
+XDG_STATE_HOME="$VIEWPORT_TEST_HOME/.local/state" \
+timeout "$BEHAVIOR_TIMEOUT" opencode-cli run "$SCENARIO_PROMPT" \
+    --model "$BEHAVIOR_MODEL" \
+    > "$STDOUT_LOG" 2> "$STDERR_LOG" || true
+
+cat > "$ARTIFACT_DIR/manifest.yaml" <<MANIFEST
+scenario_name: $SCENARIO_NAME
+phase: GREEN
+model: $BEHAVIOR_MODEL
+timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+exit_code: $?
+harness_version: 1
+MANIFEST
+
+echo $? > "$ARTIFACT_DIR/exit_code" 2>/dev/null || echo "1" > "$ARTIFACT_DIR/exit_code"
+
+(
+    export XDG_CONFIG_HOME="$VIEWPORT_TEST_HOME/.config"
+    export XDG_DATA_HOME="$VIEWPORT_TEST_HOME/.local/share"
+    export XDG_STATE_HOME="$VIEWPORT_TEST_HOME/.local/state"
+    __export_sqlite_to_yaml "$ARTIFACT_DIR/session.yaml"
+)
+
+WORD_COUNT=$(wc -w < "$STDOUT_LOG" 2>/dev/null || echo "0")
+echo ""
+echo "=== Test complete ==="
+echo "Artifacts:   $ARTIFACT_DIR"
+echo "Stdout:      $STDOUT_LOG (${WORD_COUNT} words)"
+echo "Stderr:      $STDERR_LOG"
+echo "Manifest:    $ARTIFACT_DIR/manifest.yaml"
+
+exit 0

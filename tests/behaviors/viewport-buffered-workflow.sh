@@ -3,13 +3,8 @@
 # See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# SC-1: Buffered workflow — open, edit, verify in buffer, then save.
-# The agent must use viewport-editor to open a file, make edits in the buffer,
-# verify the changes are staged but NOT on disk, then explicitly save.
-#
-# This scenario requires the viewport-editor MCP server, so it uses
-# setup-viewport-test.sh for isolated environment creation (not behavior_run)
-# and runs opencode-cli directly with the configured XDG home.
+# SC-1: Buffered workflow — open a file, change one word, verify in buffer, then save.
+# Goal-directed prompt: agent must discover tool actions on its own.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
@@ -35,35 +30,14 @@ BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/glm-5.1:cloud}"
 BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-420}"
 
 # Setup: create isolated test environment with viewport-editor MCP config.
-# This creates VIEWPORT_TEST_HOME, VIEWPORT_TEST_REPO, VIEWPORT_CLONE_DIR,
-# VIEWPORT_MCP_CONFIG with the correct opencode.jsonc schema.
 source "$PROJECT_DIR/tmp/setup-viewport-test.sh"
-
-# Create paste-target file for clipboard scenarios (used by later tests too)
-cat > "$VIEWPORT_TEST_REPO/paste-target.txt" <<'PASTETARGET'
-Line 1: placeholder text
-Line 2: another placeholder
-Line 3: end of placeholder file
-PASTETARGET
-git -C "$VIEWPORT_TEST_REPO" add -A 2>/dev/null || true
-git -C "$VIEWPORT_TEST_REPO" commit -q --allow-empty -m "add paste target" 2>/dev/null || true
 
 # Artifact directory
 MODEL_SLUG="$(echo "$BEHAVIOR_MODEL" | tr '/:@' '-')"
 ARTIFACT_DIR="$PROJECT_DIR/tmp/behavioral-evidence-${SCENARIO_NAME}-GREEN-${MODEL_SLUG}"
 mkdir -p "$ARTIFACT_DIR"
 
-SCENARIO_PROMPT="You have access to a viewport-editor MCP tool. It provides a windowed editor for files with buffered editing — edits stage in a buffer and do NOT write to disk until explicitly saved. Use the viewport-editor tool to do the following, in order:
-
-1. Open fixtures/dorian-gray.txt with autosave OFF (action='open', file_path='fixtures/dorian-gray.txt', autosave=false)
-2. Use the edit tool to replace 'Dorian' with 'DORIAN' on the first occurrence only (action='replace', old_text='Dorian', new_text='DORIAN')
-3. Use the diff tool to show the pending changes (action='show')
-4. Verify the diff shows the replacement is staged but not yet on disk
-5. Use the file tool to save the changes (action='save')
-6. Use the file tool to discard (close without saving) — this should be a no-op since you already saved
-7. Use the viewport tool to close the viewport (action='close')
-
-After completing these steps, report what you saw at each step."
+SCENARIO_PROMPT="You have access to a viewport-editor MCP tool — a windowed file editor where edits stage in a buffer and do NOT write to disk until explicitly saved. Open \`fixtures/dorian-gray.txt\`, change only the first occurrence of \"Dorian\" to \"DORIAN\", make sure changes are saved to disk before you finish, then close the viewport. After each step, briefly report what you observed."
 
 cat > "$ARTIFACT_DIR/instruction_card.md" <<CARD
 # SC-1: Buffered Workflow
@@ -79,7 +53,6 @@ echo "MCP config:   $VIEWPORT_MCP_CONFIG"
 echo "Clone dir:    $VIEWPORT_CLONE_DIR"
 
 # Run opencode-cli directly in the isolated test home
-# (behavior_run would use with-test-home which re-creates config without MCP)
 echo ""
 echo "=== Running behavioral test with model: $BEHAVIOR_MODEL ==="
 

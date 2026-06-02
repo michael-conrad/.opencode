@@ -3,48 +3,91 @@
 # See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# SC-7: Stash/pop/swap — use named stash slots to save and restore clipboard content.
-# Tests clipboard named stashes: stash, pop, and swap operations.
+# SC-7: Stash/pop/swap — stash edits on one viewport, pop them onto another.
+# Goal-directed prompt: agent must discover stash/pop/swap capabilities on its own.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-source "$SCRIPT_DIR/../../tmp/setup-viewport-test.sh" 2>/dev/null || {
-    echo "FATAL: setup-viewport-test.sh not found. Run from project root." >&2
-    exit 1
-}
-
 PROJECT_DIR="$SCRIPT_DIR"
-while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
+while [ "$(basename "$PROJECT_DIR")" != ".opencode" ] && [ "$PROJECT_DIR" != "/" ]; do
     PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 done
-PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+if [ "$PROJECT_DIR" = "/" ]; then
+    PROJECT_DIR="$(git rev-parse --show-toplevel)"
+else
+    PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+fi
 
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="viewport-stash-pop-swap"
+BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/glm-5.1:cloud}"
+BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-420}"
 
-SCENARIO_PROMPT="You have access to a viewport-editor MCP tool with clipboard stash support. Named stashes allow you to save clipboard content under a name and retrieve it later — like a multi-slot clipboard.
+source "$PROJECT_DIR/tmp/setup-viewport-test.sh"
 
-Use the viewport-editor tool to do the following:
+MODEL_SLUG="$(echo "$BEHAVIOR_MODEL" | tr '/:@' '-')"
+ARTIFACT_DIR="$PROJECT_DIR/tmp/behavioral-evidence-${SCENARIO_NAME}-GREEN-${MODEL_SLUG}"
+mkdir -p "$ARTIFACT_DIR"
 
-1. Open sample.txt with autosave OFF (action='open', file_path='sample.txt', autosave=false)
-2. Copy line 1 to the clipboard (clipboard action='copy', start_line=1, end_line=1)
-3. Stash the clipboard content under the name 'line-one' (clipboard action='stash', name='line-one')
-4. Copy lines 4-5 to the clipboard (clipboard action='copy', start_line=4, end_line=5)
-5. Stash the clipboard content under the name 'lines-four-five' (clipboard action='stash', name='lines-four-five')
-6. Show all stashes (clipboard action='stash-list') — should show both named stashes
-7. Pop 'line-one' back to the clipboard (clipboard action='pop', name='line-one')
-8. Show the clipboard content (clipboard action='show') — should contain line 1
-9. Pop 'lines-four-five' back to the clipboard (clipboard action='pop', name='lines-four-five')
-10. Show the clipboard content (clipboard action='show') — should contain lines 4-5
-11. Now test swap: stash the current clipboard under 'swapped' (clipboard action='stash', name='swapped')
-12. Pop 'line-one' (clipboard action='pop', name='line-one')
-13. Close the viewport (action='close')
+SCENARIO_PROMPT="You have access to a viewport-editor MCP tool with stash/pop/swap capabilities. Open \`fixtures/dorian-gray.txt\` and \`fixtures/config.yaml\` in separate viewports. In the dorian-gray viewport, change the first \"Dorian\" to \"DORIAN\". Stash that edit, then pop it onto the config.yaml viewport. Observe what happens — does the stash transfer the change to the other file? Save and close both viewports. Report what you observed."
 
-Report what you saw at each step, especially the stash-list output and what each pop/show operation revealed."
+cat > "$ARTIFACT_DIR/instruction_card.md" <<CARD
+# SC-7: Stash/Pop/Swap
 
-behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
+$SCENARIO_PROMPT
+CARD
+
+echo "SC-7 instruction card written to: $ARTIFACT_DIR/instruction_card.md"
+echo ""
+echo "Test home:    $VIEWPORT_TEST_HOME"
+echo "Test repo:    $VIEWPORT_TEST_REPO"
+echo "MCP config:   $VIEWPORT_MCP_CONFIG"
+
+echo ""
+echo "=== Running behavioral test with model: $BEHAVIOR_MODEL ==="
+
+LOG_DIR="$ARTIFACT_DIR"
+STDOUT_LOG="$LOG_DIR/stdout.log"
+STDERR_LOG="$LOG_DIR/stderr.log"
+
+cd "$VIEWPORT_TEST_REPO"
+
+HOME="$VIEWPORT_TEST_HOME" \
+XDG_CONFIG_HOME="$VIEWPORT_TEST_HOME/.config" \
+XDG_DATA_HOME="$VIEWPORT_TEST_HOME/.local/share" \
+XDG_STATE_HOME="$VIEWPORT_TEST_HOME/.local/state" \
+timeout "$BEHAVIOR_TIMEOUT" opencode-cli run "$SCENARIO_PROMPT" \
+    --model "$BEHAVIOR_MODEL" \
+    > "$STDOUT_LOG" 2> "$STDERR_LOG" || true
+
+cat > "$ARTIFACT_DIR/manifest.yaml" <<MANIFEST
+scenario_name: $SCENARIO_NAME
+phase: GREEN
+model: $BEHAVIOR_MODEL
+timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+exit_code: $?
+harness_version: 1
+MANIFEST
+
+echo $? > "$ARTIFACT_DIR/exit_code" 2>/dev/null || echo "1" > "$ARTIFACT_DIR/exit_code"
+
+(
+    export XDG_CONFIG_HOME="$VIEWPORT_TEST_HOME/.config"
+    export XDG_DATA_HOME="$VIEWPORT_TEST_HOME/.local/share"
+    export XDG_STATE_HOME="$VIEWPORT_TEST_HOME/.local/state"
+    __export_sqlite_to_yaml "$ARTIFACT_DIR/session.yaml"
+)
+
+WORD_COUNT=$(wc -w < "$STDOUT_LOG" 2>/dev/null || echo "0")
+echo ""
+echo "=== Test complete ==="
+echo "Artifacts:   $ARTIFACT_DIR"
+echo "Stdout:      $STDOUT_LOG (${WORD_COUNT} words)"
+echo "Stderr:      $STDERR_LOG"
+echo "Manifest:    $ARTIFACT_DIR/manifest.yaml"
+
 exit 0

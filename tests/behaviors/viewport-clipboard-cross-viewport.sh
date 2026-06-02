@@ -4,51 +4,90 @@
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
 # SC-6: Clipboard cross-viewport — copy from one viewport, paste into another.
-# Tests that clipboard content persists across viewport switches.
+# Goal-directed prompt: agent must discover clipboard actions on its own.
 #
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-source "$SCRIPT_DIR/../../tmp/setup-viewport-test.sh" 2>/dev/null || {
-    echo "FATAL: setup-viewport-test.sh not found. Run from project root." >&2
-    exit 1
-}
-
 PROJECT_DIR="$SCRIPT_DIR"
-while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
+while [ "$(basename "$PROJECT_DIR")" != ".opencode" ] && [ "$PROJECT_DIR" != "/" ]; do
     PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 done
-PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+if [ "$PROJECT_DIR" = "/" ]; then
+    PROJECT_DIR="$(git rev-parse --show-toplevel)"
+else
+    PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+fi
 
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="viewport-clipboard-cross-viewport"
+BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/glm-5.1:cloud}"
+BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-420}"
 
-# Create a second file for cross-viewport paste
-PASTE_FILE="$VIEWPORT_TEST_REPO/paste-target.txt"
-cat > "$PASTE_FILE" <<'EOF'
-Target line 1
-Target line 2
-Target line 3
-EOF
-git -C "$VIEWPORT_TEST_REPO" add paste-target.txt
-git -C "$VIEWPORT_TEST_REPO" commit -q -m "add paste target file"
+source "$PROJECT_DIR/tmp/setup-viewport-test.sh"
 
-SCENARIO_PROMPT="You have access to a viewport-editor MCP tool with clipboard support. The clipboard persists across viewport switches, so you can copy from one file and paste into another.
+MODEL_SLUG="$(echo "$BEHAVIOR_MODEL" | tr '/:@' '-')"
+ARTIFACT_DIR="$PROJECT_DIR/tmp/behavioral-evidence-${SCENARIO_NAME}-GREEN-${MODEL_SLUG}"
+mkdir -p "$ARTIFACT_DIR"
 
-Use the viewport-editor tool to do the following:
+SCENARIO_PROMPT="You have access to a viewport-editor MCP tool with clipboard support. Open \`fixtures/dorian-gray.txt\` in one viewport and \`fixtures/example.py\` in another. Use the clipboard to copy line 1 from dorian-gray.txt and paste it into example.py at line 1 (pushing existing lines down). Save both files. Close both viewports and report what you observed."
 
-1. Open sample.txt with autosave OFF (action='open', file_path='sample.txt', autosave=false)
-2. Use the clipboard tool to copy lines 2-3 from sample.txt (action='copy', start_line=2, end_line=3)
-3. Open paste-target.txt in the SAME session (action='open', file_path='paste-target.txt', autosave=false)
-4. Use the clipboard tool to paste the copied lines into paste-target.txt (action='paste', target_line=2)
-5. Show the diff for paste-target.txt (viewport tool with viewport_id pointing to paste-target.txt, then diff action='show')
-6. Save paste-target.txt (file action='save')
-7. Close both viewports
+cat > "$ARTIFACT_DIR/instruction_card.md" <<CARD
+# SC-6: Clipboard Cross-Viewport
 
-Report what happened at each step, especially confirming that the clipboard content from step 2 survived the viewport switch in step 3."
+$SCENARIO_PROMPT
+CARD
 
-behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
+echo "SC-6 instruction card written to: $ARTIFACT_DIR/instruction_card.md"
+echo ""
+echo "Test home:    $VIEWPORT_TEST_HOME"
+echo "Test repo:    $VIEWPORT_TEST_REPO"
+echo "MCP config:   $VIEWPORT_MCP_CONFIG"
+
+echo ""
+echo "=== Running behavioral test with model: $BEHAVIOR_MODEL ==="
+
+LOG_DIR="$ARTIFACT_DIR"
+STDOUT_LOG="$LOG_DIR/stdout.log"
+STDERR_LOG="$LOG_DIR/stderr.log"
+
+cd "$VIEWPORT_TEST_REPO"
+
+HOME="$VIEWPORT_TEST_HOME" \
+XDG_CONFIG_HOME="$VIEWPORT_TEST_HOME/.config" \
+XDG_DATA_HOME="$VIEWPORT_TEST_HOME/.local/share" \
+XDG_STATE_HOME="$VIEWPORT_TEST_HOME/.local/state" \
+timeout "$BEHAVIOR_TIMEOUT" opencode-cli run "$SCENARIO_PROMPT" \
+    --model "$BEHAVIOR_MODEL" \
+    > "$STDOUT_LOG" 2> "$STDERR_LOG" || true
+
+cat > "$ARTIFACT_DIR/manifest.yaml" <<MANIFEST
+scenario_name: $SCENARIO_NAME
+phase: GREEN
+model: $BEHAVIOR_MODEL
+timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+exit_code: $?
+harness_version: 1
+MANIFEST
+
+echo $? > "$ARTIFACT_DIR/exit_code" 2>/dev/null || echo "1" > "$ARTIFACT_DIR/exit_code"
+
+(
+    export XDG_CONFIG_HOME="$VIEWPORT_TEST_HOME/.config"
+    export XDG_DATA_HOME="$VIEWPORT_TEST_HOME/.local/share"
+    export XDG_STATE_HOME="$VIEWPORT_TEST_HOME/.local/state"
+    __export_sqlite_to_yaml "$ARTIFACT_DIR/session.yaml"
+)
+
+WORD_COUNT=$(wc -w < "$STDOUT_LOG" 2>/dev/null || echo "0")
+echo ""
+echo "=== Test complete ==="
+echo "Artifacts:   $ARTIFACT_DIR"
+echo "Stdout:      $STDOUT_LOG (${WORD_COUNT} words)"
+echo "Stderr:      $STDERR_LOG"
+echo "Manifest:    $ARTIFACT_DIR/manifest.yaml"
+
 exit 0
