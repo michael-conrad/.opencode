@@ -131,6 +131,17 @@
       "type": "local",
       "command": [".opencode/tools/run-texted-mcp"],
       "enabled": true
+    },
+    "viewport-editor": {
+      "type": "local",
+      "command": [
+        "uv",
+        "run",
+        "--project",
+        "{env:PWD}",
+        "viewport-editor"
+      ],
+      "enabled": true
     }
   }
 }

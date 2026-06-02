@@ -7,6 +7,10 @@
 # The agent must use viewport-editor to open a file, make edits in the buffer,
 # verify the changes are staged but NOT on disk, then explicitly save.
 #
+# This scenario requires the viewport-editor MCP server, so it uses
+# setup-viewport-test.sh for isolated environment creation (not behavior_run)
+# and runs opencode-cli directly with the configured XDG home.
+#
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
 set -euo pipefail
@@ -23,12 +27,16 @@ else
     PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 fi
 
-# Source helpers for behavior_run and artifact utilities
+# Source helpers for artifact directory creation
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="viewport-buffered-workflow"
+BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/glm-5.1:cloud}"
+BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-420}"
 
-# Setup: create isolated test environment with viewport-editor MCP config
+# Setup: create isolated test environment with viewport-editor MCP config.
+# This creates VIEWPORT_TEST_HOME, VIEWPORT_TEST_REPO, VIEWPORT_CLONE_DIR,
+# VIEWPORT_MCP_CONFIG with the correct opencode.jsonc schema.
 source "$PROJECT_DIR/tmp/setup-viewport-test.sh"
 
 # Create paste-target file for clipboard scenarios (used by later tests too)
@@ -40,8 +48,9 @@ PASTETARGET
 git -C "$VIEWPORT_TEST_REPO" add -A 2>/dev/null || true
 git -C "$VIEWPORT_TEST_REPO" commit -q --allow-empty -m "add paste target" 2>/dev/null || true
 
-# Write the instruction card as a file for reference
-ARTIFACT_DIR="$PROJECT_DIR/tmp/behavioral-evidence-${SCENARIO_NAME}-GREEN-$(echo "$BEHAVIOR_MODEL" | tr '/:@' '-')"
+# Artifact directory
+MODEL_SLUG="$(echo "$BEHAVIOR_MODEL" | tr '/:@' '-')"
+ARTIFACT_DIR="$PROJECT_DIR/tmp/behavioral-evidence-${SCENARIO_NAME}-GREEN-${MODEL_SLUG}"
 mkdir -p "$ARTIFACT_DIR"
 
 SCENARIO_PROMPT="You have access to a viewport-editor MCP tool. It provides a windowed editor for files with buffered editing — edits stage in a buffer and do NOT write to disk until explicitly saved. Use the viewport-editor tool to do the following, in order:
@@ -64,20 +73,57 @@ CARD
 
 echo "SC-1 instruction card written to: $ARTIFACT_DIR/instruction_card.md"
 echo ""
-echo "To run this test:"
-echo "  cd $VIEWPORT_TEST_REPO"
-echo "  bash $PROJECT_DIR/.opencode/tests/with-test-home opencode-cli run '$SCENARIO_PROMPT'"
-echo ""
-echo "Artifacts will be in: $ARTIFACT_DIR"
-echo "Test home: $VIEWPORT_TEST_HOME"
-echo "Test repo: $VIEWPORT_TEST_REPO"
-echo "MCP config: $VIEWPORT_MCP_CONFIG"
+echo "Test home:    $VIEWPORT_TEST_HOME"
+echo "Test repo:    $VIEWPORT_TEST_REPO"
+echo "MCP config:   $VIEWPORT_MCP_CONFIG"
+echo "Clone dir:    $VIEWPORT_CLONE_DIR"
 
-# If BEHAVIOR_MODEL is set, run the test now
-if [ -n "${BEHAVIOR_MODEL:-}" ]; then
-    echo ""
-    echo "=== Running behavioral test with model: $BEHAVIOR_MODEL ==="
-    behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "$BEHAVIOR_MODEL" "$VIEWPORT_TEST_REPO"
-fi
+# Run opencode-cli directly in the isolated test home
+# (behavior_run would use with-test-home which re-creates config without MCP)
+echo ""
+echo "=== Running behavioral test with model: $BEHAVIOR_MODEL ==="
+
+LOG_DIR="$ARTIFACT_DIR"
+STDOUT_LOG="$LOG_DIR/stdout.log"
+STDERR_LOG="$LOG_DIR/stderr.log"
+
+cd "$VIEWPORT_TEST_REPO"
+
+HOME="$VIEWPORT_TEST_HOME" \
+XDG_CONFIG_HOME="$VIEWPORT_TEST_HOME/.config" \
+XDG_DATA_HOME="$VIEWPORT_TEST_HOME/.local/share" \
+XDG_STATE_HOME="$VIEWPORT_TEST_HOME/.local/state" \
+timeout "$BEHAVIOR_TIMEOUT" opencode-cli run "$SCENARIO_PROMPT" \
+    --model "$BEHAVIOR_MODEL" \
+    > "$STDOUT_LOG" 2> "$STDERR_LOG" || true
+
+# Write manifest
+cat > "$ARTIFACT_DIR/manifest.yaml" <<MANIFEST
+scenario_name: $SCENARIO_NAME
+phase: GREEN
+model: $BEHAVIOR_MODEL
+timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+exit_code: $?
+harness_version: 1
+MANIFEST
+
+# Write exit code
+echo $? > "$ARTIFACT_DIR/exit_code" 2>/dev/null || echo "1" > "$ARTIFACT_DIR/exit_code"
+
+# Export session DB using the helpers.sh utility
+(
+    export XDG_CONFIG_HOME="$VIEWPORT_TEST_HOME/.config"
+    export XDG_DATA_HOME="$VIEWPORT_TEST_HOME/.local/share"
+    export XDG_STATE_HOME="$VIEWPORT_TEST_HOME/.local/state"
+    __export_sqlite_to_yaml "$ARTIFACT_DIR/session.yaml"
+)
+
+WORD_COUNT=$(wc -w < "$STDOUT_LOG" 2>/dev/null || echo "0")
+echo ""
+echo "=== Test complete ==="
+echo "Artifacts:   $ARTIFACT_DIR"
+echo "Stdout:      $STDOUT_LOG (${WORD_COUNT} words)"
+echo "Stderr:      $STDERR_LOG"
+echo "Manifest:    $ARTIFACT_DIR/manifest.yaml"
 
 exit 0
