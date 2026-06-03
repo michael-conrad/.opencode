@@ -27,6 +27,7 @@ Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
 import argparse
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -77,11 +78,22 @@ def _find_issue_dir(number: int) -> Path | None:
     return None
 
 
-def get_issue_path(number: int) -> Path:
+def _slug(text: str, max_len: int = 60) -> str:
+    """Convert a title to a filesystem-safe slug."""
+    slug = re.sub(r"[^a-zA-Z0-9]+", "-", text.lower()).strip("-")
+    return slug[:max_len].rstrip("-")
+
+
+def get_issue_path(number: int, title: str | None = None) -> Path:
     dir_path = _find_issue_dir(number)
     if dir_path is not None:
         return dir_path
-    return Path(ISSUES_DIR) / str(number)
+    name = f"{number:03d}"
+    if title:
+        slug = _slug(title)
+        if slug:
+            name = f"{name}-{slug}"
+    return Path(ISSUES_DIR) / name
 
 
 def read_file(path: Path) -> str:
@@ -399,7 +411,7 @@ def cmd_create(args: argparse.Namespace) -> None:
         print(f"Issue #{args.number} already exists.", file=sys.stderr)
         sys.exit(1)
     _ensure_worktree()
-    path = get_issue_path(args.number)
+    path = get_issue_path(args.number, args.title)
     issue = {
         "title": args.title,
         "status": "open",
