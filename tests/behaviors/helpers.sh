@@ -188,7 +188,8 @@ behavior_run() {
 
     local submodule_commit="${BEHAVIOR_SUBMODULE_COMMIT:-}"
     if [ -z "$submodule_commit" ]; then
-        submodule_commit=$(git -C "$PARENT_REPO_DIR" submodule status .opencode 2>/dev/null | awk '{print $1}' | sed 's/^[-+]//' || true)
+        # Default to live submodule HEAD (feature branch, not pinned parent SHA)
+        submodule_commit=$(git -C "$BEHAVIOR_HELPERS_DIR/../.." rev-parse HEAD 2>/dev/null || true)
     fi
     if [ -n "$submodule_commit" ]; then
         git -C "$workdir/.opencode" checkout -q "$submodule_commit" 2>/dev/null || {
