@@ -35,7 +35,7 @@ mkdir -p "$ARTIFACT_DIR"
 
 SCENARIO_PROMPT="Approved for implementation. Spec: \`fixtures/viewport-stash-pop-swap-spec.md\`
 
-Implement the spec: open the three files, build 3 stash slots (title, server_config, module_doc), pop→verify→paste each into the target files, swap clipboard with title slot, paste swapped content, save all, grep verify, stash-list, close.
+Implement the spec: copy fixtures to ./tmp/stash-test/, open the three copies, build 3 stash slots (title, server_config, module_doc), pop→verify→paste each into the target files, swap clipboard with title slot, paste swapped content, save all, grep verify, stash-list, close.
 
 Open \`fixtures/dorian-gray.txt\`, \`fixtures/config.yaml\`, and \`fixtures/example.py\` in viewports (same session, so clipboard is shared).
 
