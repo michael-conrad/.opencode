@@ -204,6 +204,24 @@ behavior_run() {
     git -C "$workdir" add -A 2>/dev/null || true
     git -C "$workdir" commit -q --allow-empty -m "init" 2>/dev/null || true
 
+    # --- Worktree setup (optional, for SC-3 worktree tests) ---
+    # Create an orphan "issues" branch with initial commit so the local-issues tool
+    # can create a worktree from it. If anything fails, fall back to plain .issues/ dir.
+    if [ "${BEHAVIOR_SETUP_WORKTREE:-0}" = "1" ]; then
+        # Create orphan branch with a single empty commit
+        if git -C "$workdir" checkout -q --orphan issues 2>/dev/null; then
+            git -C "$workdir" rm -rf . 2>/dev/null || true
+            git -C "$workdir" commit -q --allow-empty -m "init issues branch" 2>/dev/null || true
+            git -C "$workdir" checkout -q - 2>/dev/null || true
+            echo "  [harness] issues orphan branch created for worktree tests"
+        else
+            mkdir -p "$workdir/.issues"
+            echo "  [harness] issues branch setup failed — created plain .issues/ fallback"
+        fi
+    else
+        mkdir -p "$workdir/.issues"
+    fi
+
     if [ "${BEHAVIOR_FIXTURE_ISSUES:-1}" = "1" ]; then
         FIXTURE_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-fixture-issues.sh"
         if [ -f "$FIXTURE_SETUP" ]; then
