@@ -223,11 +223,11 @@ Helper variables:
 
 **MUST be used for ALL opencode-cli testing.** Never run `opencode-cli run` directly — it causes SQLite session conflicts with the desktop app.
 
-The harness runs `opencode-cli run` with `--log-level DEBUG --print-logs` to capture full tool dispatch traces in stderr for behavioral evidence collection. These flags are set in `helpers.sh behavior_run()` and should be used for any manual testing as well:
+The harness runs `opencode-cli run` with `--log-level INFO --print-logs` to capture tool dispatch traces in stderr for behavioral evidence collection. These flags are set in `helpers.sh behavior_run()` and should be used for any manual testing as well:
 
 ```bash
 # Run a single test message (manual/testing)
-bash .opencode/tests/with-test-home opencode-cli run '<message>' --log-level DEBUG --print-logs
+bash .opencode/tests/with-test-home opencode-cli run '<message>' --log-level INFO --print-logs
 
 # Clean up the most recent test home
 bash .opencode/tests/with-test-home --clean
