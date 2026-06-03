@@ -247,6 +247,13 @@ behavior_run() {
         echo "  [harness] bare remote set up at $bare_repo"
     fi
 
+    if [ "${BEHAVIOR_SETUP_STALE_WORKTREE:-0}" = "1" ]; then
+        # Create an issue to set up the worktree, then delete .issues/ to simulate stale
+        (cd "$workdir" && ./.opencode/tools/local-issues create --title "stale-test" 2>/dev/null) || true
+        rm -rf "$workdir/.issues"
+        echo "  [harness] stale worktree state set up (issue created, .issues/ deleted)"
+    fi
+
     while [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; do
         attempt=$((attempt + 1))
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
