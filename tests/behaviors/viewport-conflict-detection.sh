@@ -24,8 +24,8 @@ fi
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="viewport-conflict-detection"
-BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/glm-5.1:cloud}"
-BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-420}"
+BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/qwen3.5:397b-cloud}"
+BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-600}"
 
 source "$PROJECT_DIR/tmp/setup-viewport-test.sh"
 
@@ -33,7 +33,13 @@ MODEL_SLUG="$(echo "$BEHAVIOR_MODEL" | tr '/:@' '-')"
 ARTIFACT_DIR="$PROJECT_DIR/tmp/behavioral-evidence-${SCENARIO_NAME}-GREEN-${MODEL_SLUG}"
 mkdir -p "$ARTIFACT_DIR"
 
-SCENARIO_PROMPT="You have access to a viewport-editor MCP tool. Open \`fixtures/config.yaml\` WITHOUT autosave. Make an edit (change \"port: 8080\" to \"port: 9090\"). Then, using your bash tool, modify the same file on disk with \`sed -i 's/debug: true/debug: false/' fixtures/config.yaml\`. After the external modification, interact with the viewport again (scroll or show diff) and observe whether the viewport detected the external change. Close the viewport and report what happened."
+SCENARIO_PROMPT="You have access to a viewport-editor MCP tool. Open \`fixtures/config.yaml\` WITHOUT autosave. Make an edit (change \"port: 8080\" to \"port: 9090\"). Then, using your bash tool, modify the same file on disk with \`sed -i 's/debug: true/debug: false/' fixtures/config.yaml\`.
+
+After the external modification, show diff or scroll the viewport — does the response include a conflict warning about stale mtime/size?
+
+Then try to save the file. The server should block the save with a 'stale mtime/size conflict' error. Override the guard by saving with \`force: true\`.
+
+After the forced save, check the file on disk with grep. Note that the external edit (debug: false) was LOST — the force save wrote the buffer content (which still has debug: true) over the file, overwriting the external change. This is expected: force save means \"I know the file changed externally, overwrite it with my buffer.\" Close the viewport and report what happened."
 
 cat > "$ARTIFACT_DIR/instruction_card.md" <<CARD
 # SC-5: Conflict Detection
