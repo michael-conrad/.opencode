@@ -60,23 +60,39 @@ __artifact_dir() {
 
 __export_sqlite_to_yaml() {
     local output_file="$1"
+    local stderr_file="${2:-}"
     local db_found=0
-
-    local db_candidates=(
-        "${XDG_DATA_HOME:-$HOME/.local/share}/opencode/opencode.sqlite3"
-        "${XDG_STATE_HOME:-$HOME/.config}/opencode/opencode.sqlite3"
-        "$HOME/.local/share/opencode/opencode.sqlite3"
-        "$HOME/.config/opencode/opencode.sqlite3"
-    )
-
     local db_path=""
-    for candidate in "${db_candidates[@]}"; do
-        if [ -f "$candidate" ]; then
-            db_path="$candidate"
-            db_found=1
-            break
+
+    # Extract test home path from with-test-home stderr output
+    if [ -n "$stderr_file" ] && [ -f "$stderr_file" ]; then
+        local test_home
+        test_home=$(grep '^Test home: ' "$stderr_file" | head -1 | sed 's/^Test home: //')
+        if [ -n "$test_home" ]; then
+            local candidate="$test_home/.local/share/opencode/opencode.db"
+            if [ -f "$candidate" ]; then
+                db_path="$candidate"
+                db_found=1
+            fi
         fi
-    done
+    fi
+
+    # Fallback: hardcoded paths on caller's host
+    if [ "$db_found" -eq 0 ]; then
+        local db_candidates=(
+            "${XDG_DATA_HOME:-$HOME/.local/share}/opencode/opencode.db"
+            "${XDG_STATE_HOME:-$HOME/.config}/opencode/opencode.db"
+            "$HOME/.local/share/opencode/opencode.db"
+            "$HOME/.config/opencode/opencode.db"
+        )
+        for candidate in "${db_candidates[@]}"; do
+            if [ -f "$candidate" ]; then
+                db_path="$candidate"
+                db_found=1
+                break
+            fi
+        done
+    fi
 
     if [ "$db_found" -eq 0 ]; then
         echo "source_db: null" > "$output_file"
@@ -301,7 +317,9 @@ harness_version: ${BEHAVIOR_HARNESS_VERSION}
 MANIFESTEOF
 
     # Write session.yaml from SQLite export
-    __export_sqlite_to_yaml "$artifact_dir/session.yaml"
+    # Pass stderr file path so the function can extract the isolated test home
+    # (where opencode.db lives) instead of searching the caller's $HOME.
+    __export_sqlite_to_yaml "$artifact_dir/session.yaml" "$err_file"
 
     # Export artifact directory for caller
     BEHAVIOR_ARTIFACT_DIR="$artifact_dir"
