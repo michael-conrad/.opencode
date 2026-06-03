@@ -41,11 +41,11 @@ ______________________________________________________________________
 
 | Step | Action              | Command / Details                                                                                                                                       |
 | ---- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | Verify issue exists | `local-issues read N` — confirm exit 0. If exit non-zero → exit 1 (issue not found).                                                                    |
+| 1    | Verify issue exists | `.opencode/tools/local-issues read N` — confirm exit 0. If exit non-zero → exit 1 (issue not found).                                                                    |
 | 2    | Check remote link   | Read frontmatter for `github_issue` or `remote_url` field. If present and non-empty → remote link exists.                                               |
 | 3    | Apply safety guard  | If remote link exists AND `--force` NOT provided → exit 2 (blocked). Report: "Remote issue R exists at `url`. Use --force to remove local mirror only." |
-| 4    | Delete              | `local-issues delete N [--force]` — removes `.issues/open/NNN-slug/` or `.issues/closed/NNN-slug/`. Auto-commits on issues-data branch.                 |
-| 5    | Verify deletion     | `local-issues read N` — confirm exit non-zero (issue no longer exists). Verify neither `.issues/open/NNN-slug/` nor `.issues/closed/NNN-slug/` exists.  |
+| 4    | Delete              | `.opencode/tools/local-issues delete N [--force]` — removes `.issues/open/NNN-slug/` or `.issues/closed/NNN-slug/`. Auto-commits on issues-data branch.                 |
+| 5    | Verify deletion     | `.opencode/tools/local-issues read N` — confirm exit non-zero (issue no longer exists). Verify neither `.issues/open/NNN-slug/` nor `.issues/closed/NNN-slug/` exists.  |
 | 6    | Report              | Report to orchestrator: issue number, whether remote link existed, whether --force was used, exit code, and whether remote issue is unaffected.         |
 
 ______________________________________________________________________
@@ -65,9 +65,9 @@ ______________________________________________________________________
 
 | Error                                          | Cause                                      | Resolution                                                                                                       |
 | ---------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `local-issues delete N` exits 1                | Issue does not exist                       | HALT. Issue N has no directory. May have been deleted already.                                                   |
-| `local-issues delete N` exits 2                | Remote link exists, `--force` not provided | Safety guard triggered. Report to orchestrator. Orchestrator must decide: retry with `--force` or abort.         |
-| `local-issues delete N` exits non-zero (other) | CLI error, filesystem error, permissions   | HALT. Check directory permissions, filesystem state, CLI tool integrity.                                         |
+| `.opencode/tools/local-issues delete N` exits 1                | Issue does not exist                       | HALT. Issue N has no directory. May have been deleted already.                                                   |
+| `.opencode/tools/local-issues delete N` exits 2                | Remote link exists, `--force` not provided | Safety guard triggered. Report to orchestrator. Orchestrator must decide: retry with `--force` or abort.         |
+| `.opencode/tools/local-issues delete N` exits non-zero (other) | CLI error, filesystem error, permissions   | HALT. Check directory permissions, filesystem state, CLI tool integrity.                                         |
 | Issue N exists but frontmatter is corrupt      | `spec.md` has invalid YAML                 | HALT. Report corrupt issue. Deletion may still proceed with `--force` but orchestrator must decide.              |
 | CLI tool not found                             | `.opencode/tools/local-issues` missing     | HALT. The tool must exist for local platform operations.                                                         |
 | Auto-commit fails                              | Git error on issues-data branch            | HALT. Local deletion has already happened (files removed). Report to orchestrator. Manual git fix may be needed. |
