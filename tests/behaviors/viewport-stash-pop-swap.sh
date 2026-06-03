@@ -24,8 +24,8 @@ fi
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="viewport-stash-pop-swap"
-BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/deepseek-v4-flash:cloud}"
-BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-7200}"
+BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-opencode/minimax-m3-free}"
+BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-14400}"
 
 source "$PROJECT_DIR/tmp/setup-viewport-test.sh"
 
