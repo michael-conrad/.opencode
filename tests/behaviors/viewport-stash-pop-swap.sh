@@ -29,11 +29,16 @@ BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-1200}"
 
 source "$PROJECT_DIR/tmp/setup-viewport-test.sh"
 
+# Deploy the spec fixture into the test repo's fixtures/ directory
+mkdir -p "$VIEWPORT_TEST_REPO/fixtures"
+cp "$PROJECT_DIR/.opencode/tests/behaviors/fixtures/viewport-stash-pop-swap-spec.md" \
+   "$VIEWPORT_TEST_REPO/fixtures/viewport-stash-pop-swap-spec.md"
+
 MODEL_SLUG="$(echo "$BEHAVIOR_MODEL" | tr '/:@' '-')"
 ARTIFACT_DIR="$PROJECT_DIR/tmp/behavioral-evidence-${SCENARIO_NAME}-GREEN-${MODEL_SLUG}"
 mkdir -p "$ARTIFACT_DIR"
 
-SCENARIO_PROMPT="Approved for implementation. Spec: \`.opencode/tests/behaviors/fixtures/viewport-stash-pop-swap-spec.md\`
+SCENARIO_PROMPT="Approved for implementation. Spec: \`fixtures/viewport-stash-pop-swap-spec.md\`
 
 Implement all SCs from the spec."
 
