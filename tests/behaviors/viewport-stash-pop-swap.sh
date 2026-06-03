@@ -33,9 +33,9 @@ MODEL_SLUG="$(echo "$BEHAVIOR_MODEL" | tr '/:@' '-')"
 ARTIFACT_DIR="$PROJECT_DIR/tmp/behavioral-evidence-${SCENARIO_NAME}-GREEN-${MODEL_SLUG}"
 mkdir -p "$ARTIFACT_DIR"
 
-SCENARIO_PROMPT="You have access to a viewport-editor MCP tool with clipboard and stash support. Stash stores clipboard contents under named slots. Use clipboard:show to peek at the clipboard after any swap or operation.
+SCENARIO_PROMPT="Approved for implementation. Spec: \`fixtures/viewport-stash-pop-swap-spec.md\`
 
-Before every tool call, write a line like: \`TOOL: <tool_name>(<param1>=<val1>, ...)\` so I can see what you are about to dispatch.
+Implement the spec: open the three files, build 3 stash slots (title, server_config, module_doc), pop→verify→paste each into the target files, swap clipboard with title slot, paste swapped content, save all, grep verify, stash-list, close.
 
 Open \`fixtures/dorian-gray.txt\`, \`fixtures/config.yaml\`, and \`fixtures/example.py\` in viewports (same session, so clipboard is shared).
 
@@ -82,7 +82,6 @@ XDG_DATA_HOME="$VIEWPORT_TEST_HOME/.local/share" \
 XDG_STATE_HOME="$VIEWPORT_TEST_HOME/.local/state" \
 timeout "$BEHAVIOR_TIMEOUT" opencode-cli run "$SCENARIO_PROMPT" \
     --model "$BEHAVIOR_MODEL" \
-    --log-level DEBUG \
     > "$STDOUT_LOG" 2> "$STDERR_LOG" || true
 
 cat > "$ARTIFACT_DIR/manifest.yaml" <<MANIFEST
