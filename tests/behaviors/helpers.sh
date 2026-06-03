@@ -8,16 +8,9 @@
 # These helpers generate model-run artifacts only — they do NOT evaluate.
 # See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
 #
-# Kept functions:
-#   - behavior_run (with artifact preservation)
-#   - behavior_run_pool
-#   - behavior_get_stdout / behavior_get_stderr
-#   - Helper variables
-#
-# Removed (evaluation is orchestrator's job):
-#   - All assert_* functions
-#   - behavior_adversarial_eval
-#   - __semantic_inspector_prompt
+# All paths are relative to the project root, discovered by walking up from
+# the helper's own location until a directory containing .opencode/ is found.
+# This works identically in isolated test repos and the live repo.
 
 set -euo pipefail
 
@@ -27,12 +20,24 @@ BEHAVIOR_PHASE="${BEHAVIOR_PHASE:-GREEN}"
 BEHAVIOR_TEST_HOME="${BEHAVIOR_TEST_HOME:-.opencode/tests/with-test-home}"
 BEHAVIOR_FIXTURE_ISSUES="${BEHAVIOR_FIXTURE_ISSUES:-1}"
 BEHAVIOR_HARNESS_VERSION="${BEHAVIOR_HARNESS_VERSION:-1}"
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
-    PROJECT_DIR="$(dirname "$PROJECT_DIR")"
-done
-PROJECT_DIR="$(dirname "$PROJECT_DIR")"
-BEHAVIOR_LOG_DIR="${BEHAVIOR_LOG_DIR:-$PROJECT_DIR/tmp/behavior-test-$(date +%Y%m%d-%H%M%S)}"
+
+# Discover project root by walking up from helpers location
+BEHAVIOR_HELPERS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+__find_project_root() {
+    local dir="$1"
+    while [ ! -d "$dir/.opencode" ]; do
+        dir="$(dirname "$dir")"
+        if [ "$dir" = "/" ]; then
+            echo "FATAL: Could not find project root (no .opencode/ directory found)" >&2
+            exit 1
+        fi
+    done
+    echo "$dir"
+}
+
+PARENT_REPO_DIR="$(__find_project_root "$BEHAVIOR_HELPERS_DIR")"
+BEHAVIOR_LOG_DIR="${BEHAVIOR_LOG_DIR:-$PARENT_REPO_DIR/tmp/behavior-test-$(date +%Y%m%d-%H%M%S)}"
 
 BEHAVIOR_MAX_RETRIES="${BEHAVIOR_MAX_RETRIES:-2}"
 BEHAVIOR_RETRY_DELAY="${BEHAVIOR_RETRY_DELAY:-30}"
@@ -48,7 +53,7 @@ __artifact_dir() {
     local phase="${BEHAVIOR_PHASE:-GREEN}"
     local slug
     slug=$(__model_slug "$model")
-    local base="$PROJECT_DIR/tmp/behavioral-evidence-${scenario_name}-${phase}-${slug}"
+    local base="$PARENT_REPO_DIR/tmp/behavioral-evidence-${scenario_name}-${phase}-${slug}"
     local dir="$base"
     local suffix=0
     while [ -d "$dir" ]; do
@@ -64,7 +69,6 @@ __export_sqlite_to_yaml() {
     local db_found=0
     local db_path=""
 
-    # Extract test home path from with-test-home stderr output
     if [ -n "$stderr_file" ] && [ -f "$stderr_file" ]; then
         local test_home
         test_home=$(grep '^Test home: ' "$stderr_file" | head -1 | sed 's/^Test home: //')
@@ -77,7 +81,6 @@ __export_sqlite_to_yaml() {
         fi
     fi
 
-    # Fallback: hardcoded paths on caller's host
     if [ "$db_found" -eq 0 ]; then
         local db_candidates=(
             "${XDG_DATA_HOME:-$HOME/.local/share}/opencode/opencode.db"
@@ -150,9 +153,6 @@ behavior_run() {
     local model="${3:-${BEHAVIOR_MODEL}}"
     local workdir="${4:-}"
     local agent="${5:-}"
-    # NOTE: Agent 5th arg is EXPERIMENTAL. Not all test scripts set it.
-    # When empty, the default agent (build) is used, which is correct for
-    # most behavioral tests that test prompt-response behavior.
     local log_dir="$BEHAVIOR_LOG_DIR/$scenario_name"
     mkdir -p "$log_dir"
 
@@ -162,7 +162,7 @@ behavior_run() {
 
     local did_create_workdir=0
     if [ -z "$workdir" ]; then
-        workdir=$(mktemp -d "$PROJECT_DIR/tmp/behavior-isolated-XXXXXX")
+        workdir=$(mktemp -d "$PARENT_REPO_DIR/tmp/behavior-isolated-XXXXXX")
         git init -q "$workdir"
         git -C "$workdir" config user.email "test@test.dev"
         git -C "$workdir" config user.name "Test"
@@ -170,8 +170,9 @@ behavior_run() {
     fi
 
     local submodule_remote_url=""
-    if [ -f "$PROJECT_DIR/.gitmodules" ]; then
-        submodule_remote_url=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || true)
+    # .gitmodules path is relative to project root
+    if [ -f "$PARENT_REPO_DIR/.gitmodules" ]; then
+        submodule_remote_url=$(git -C "$PARENT_REPO_DIR" config --get submodule..opencode.url 2>/dev/null || true)
     fi
     if [ -z "$submodule_remote_url" ]; then
         submodule_remote_url="https://github.com/michael-conrad/.opencode.git"
@@ -181,14 +182,13 @@ behavior_run() {
     if [ ! -d "$workdir/.opencode" ]; then
         git clone -q "$submodule_remote_url" "$workdir/.opencode" 2>/dev/null || {
             echo "FATAL: git clone failed for .opencode from $submodule_remote_url" >&2
-            echo "Check network connectivity and repository access" >&2
             exit 1
         }
     fi
 
     local submodule_commit="${BEHAVIOR_SUBMODULE_COMMIT:-}"
     if [ -z "$submodule_commit" ]; then
-        submodule_commit=$(git -C "$PROJECT_DIR" submodule status .opencode 2>/dev/null | awk '{print $1}' | sed 's/^[-+]//' || true)
+        submodule_commit=$(git -C "$PARENT_REPO_DIR" submodule status .opencode 2>/dev/null | awk '{print $1}' | sed 's/^[-+]//' || true)
     fi
     if [ -n "$submodule_commit" ]; then
         git -C "$workdir/.opencode" checkout -q "$submodule_commit" 2>/dev/null || {
@@ -204,11 +204,7 @@ behavior_run() {
     git -C "$workdir" add -A 2>/dev/null || true
     git -C "$workdir" commit -q --allow-empty -m "init" 2>/dev/null || true
 
-    # --- Worktree setup (optional, for SC-3 worktree tests) ---
-    # Create an orphan "issues" branch with initial commit so the local-issues tool
-    # can create a worktree from it. If anything fails, fall back to plain .issues/ dir.
     if [ "${BEHAVIOR_SETUP_WORKTREE:-0}" = "1" ]; then
-        # Create orphan branch with a single empty commit
         if git -C "$workdir" checkout -q --orphan issues 2>/dev/null; then
             git -C "$workdir" rm -rf . 2>/dev/null || true
             git -C "$workdir" commit -q --allow-empty -m "init issues branch" 2>/dev/null || true
@@ -236,9 +232,8 @@ behavior_run() {
         setup_story_fixtures "$workdir"
     fi
 
-    # File-based mutex: sequentialize opencode-cli runs to prevent backend overload.
     if [ "${BEHAVIOR_CONCURRENT:-false}" != "true" ]; then
-        LOCK_FILE="$PROJECT_DIR/tmp/.behavior-run.lock"
+        LOCK_FILE="$PARENT_REPO_DIR/tmp/.behavior-run.lock"
         mkdir -p "$(dirname "$LOCK_FILE")"
         exec 200>"$LOCK_FILE"
         flock -x 200
@@ -249,7 +244,7 @@ behavior_run() {
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
 
         TEST_WORKDIR="$workdir" \
-        timeout "$BEHAVIOR_TIMEOUT" bash "$PROJECT_DIR/$BEHAVIOR_TEST_HOME" \
+        timeout "$BEHAVIOR_TIMEOUT" bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" \
             opencode-cli run "$message" \
             --model "$model" \
             --log-level INFO \
@@ -311,19 +306,15 @@ behavior_run() {
     BEHAVIOR_STDERR="$log_dir/stderr.log"
     export BEHAVIOR_DISPATCH_FAILED="${BEHAVIOR_DISPATCH_FAILED:-0}"
 
-    # --- Artifact preservation ---
     local artifact_dir
     artifact_dir=$(__artifact_dir "$scenario_name" "$model")
     mkdir -p "$artifact_dir"
 
-    # Copy stdout and stderr
     cp "$output_file" "$artifact_dir/stdout.log" 2>/dev/null || true
     cp "$err_file" "$artifact_dir/stderr.log" 2>/dev/null || true
 
-    # Write exit_code
     echo "$exit_code" > "$artifact_dir/exit_code"
 
-    # Write manifest.yaml
     local timestamp
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date -u +"%Y-%m-%dT%H:%M:%SZ")
     local phase="${BEHAVIOR_PHASE:-GREEN}"
@@ -336,18 +327,14 @@ exit_code: ${exit_code}
 harness_version: ${BEHAVIOR_HARNESS_VERSION}
 MANIFESTEOF
 
-    # Write session.yaml from SQLite export
-    # Pass stderr file path so the function can extract the isolated test home
-    # (where opencode.db lives) instead of searching the caller's $HOME.
     __export_sqlite_to_yaml "$artifact_dir/session.yaml" "$err_file"
 
-    # Write timeline.yaml from session.yaml (tool call summary)
-    TIMELINE_TOOL="$PROJECT_DIR/tools/session-to-timeline"
-    if [ -f "$TIMELINE_TOOL" ] && [ -f "$artifact_dir/session.yaml" ]; then
-        uv run "$TIMELINE_TOOL" "$artifact_dir/session.yaml" "$artifact_dir/timeline.yaml" 2>/dev/null || true
+    # Timeline: from .opencode submodule tool
+    local timeline_tool="$PARENT_REPO_DIR/.opencode/tools/session-to-timeline"
+    if [ -f "$timeline_tool" ] && [ -f "$artifact_dir/session.yaml" ]; then
+        uv run "$timeline_tool" "$artifact_dir/session.yaml" "$artifact_dir/timeline.yaml" 2>/dev/null || true
     fi
 
-    # Export artifact directory for caller
     BEHAVIOR_ARTIFACT_DIR="$artifact_dir"
     export BEHAVIOR_ARTIFACT_DIR
 }
@@ -360,7 +347,6 @@ behavior_get_stderr() {
     cat "$BEHAVIOR_STDERR"
 }
 
-# Populate from opencode-cli models
 HELPERS_OC_MODELS=$(opencode-cli models 2>/dev/null | grep '^ollama/.*:cloud' | shuf | head -2 || true)
 mapfile -t BEHAVIORAL_MODEL_POOL <<< "$HELPERS_OC_MODELS"
 unset HELPERS_OC_MODELS
@@ -383,7 +369,7 @@ behavior_run_pool() {
 
         local display_name="${model#ollama/}"
         echo "  === Testing with model: $display_name ==="
-        behavior_run "$model_scenario" "$message" "$model" "$PROJECT_DIR"
+        behavior_run "$model_scenario" "$message" "$model" "$PARENT_REPO_DIR"
 
         BEHAVIOR_POOL_OUTPUTS["$model"]="$BEHAVIOR_STDOUT"
         BEHAVIOR_POOL_STDERRS["$model"]="$BEHAVIOR_STDERR"
@@ -396,5 +382,3 @@ behavior_run_pool() {
     export BEHAVIOR_POOL_OUTPUTS BEHAVIOR_POOL_STDERRS
     return $((1 - any_success))
 }
-
-# Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
