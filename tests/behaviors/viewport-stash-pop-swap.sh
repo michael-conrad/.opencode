@@ -35,7 +35,7 @@ mkdir -p "$ARTIFACT_DIR"
 
 SCENARIO_PROMPT="Approved for implementation. Spec: \`.opencode/tests/behaviors/fixtures/viewport-stash-pop-swap-spec.md\`
 
-Implement the spec: copy fixtures to ./tmp/stash-test/, open the three copies, build 3 stash slots (title, server_config, module_doc), pop→verify→paste each into the target files, swap clipboard with title slot, paste swapped content, save all, grep verify, stash-list, close."
+Implement all SCs from the spec."
 
 cat > "$ARTIFACT_DIR/instruction_card.md" <<CARD
 # SC-7: Stash/Pop/Swap
