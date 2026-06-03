@@ -331,9 +331,9 @@ working_tree_clean: true
 ready_for: implementation
 ```
 
-## `investigate/` Scratch Branches
+## `observe/` Scratch Branches
 
-Under `for_analysis` scope, the agent may create `investigate/<topic>` scratch branches for read-only investigation. These are NOT feature branches — they are ephemeral throwaway branches.
+Under `for_analysis` scope, the agent may create `observe/<topic>` scratch branches for read-only investigation. These are NOT feature branches — they are ephemeral throwaway branches.
 
 ### When to Use
 
@@ -345,27 +345,27 @@ Under `for_analysis` scope, the agent may create `investigate/<topic>` scratch b
 ### Naming Convention
 
 ```bash
-git checkout -b investigate/<topic> dev
+git checkout -b observe/<topic> dev
 ```
 
-Examples: `investigate/parsing-bug`, `investigate/missing-env-var`, `investigate/test-failure-root-cause`
+Examples: `observe/parsing-bug`, `observe/missing-env-var`, `observe/test-failure-root-cause`
 
 ### Scope Gate
 
-- `investigate/*` branches are permitted under `for_analysis` scope (self-assigned or explicit)
-- `investigate/*` branches do NOT require `for_implementation` — they are read-only scratch branches
-- The agent MUST NOT make permanent code changes on `investigate/*` branches
+- `observe/*` branches are permitted under `for_analysis` scope (self-assigned or explicit)
+- `observe/*` branches do NOT require `for_implementation` — they are read-only scratch branches
+- The agent MUST NOT make permanent code changes on `observe/*` branches
 - Writes to `./tmp/` and throwaway scripts ARE permitted
 
 ### MUST Discard Before HALT
 
-**🚫 CRITICAL: `investigate/` branches MUST be discarded before the halt message.**
+**🚫 CRITICAL: `observe/` branches MUST be discarded before the halt message.**
 
 ```bash
-git branch -D investigate/<topic>
+git branch -D observe/<topic>
 ```
 
-This is a hard requirement — leaving `investigate/` branches in the repo pollutes branch space. The enforcement in `enforcement/halt-conditions.md` verifies this.
+This is a hard requirement — leaving `observe/` branches in the repo pollutes branch space. The enforcement in `enforcement/halt-conditions.md` verifies this.
 
 ### `feature/` and `spec/` Branch Scope Gate
 
@@ -376,7 +376,7 @@ Creating `feature/*` or `spec/*` branches requires `for_implementation` scope or
 git checkout -b feature/123-xyz dev  # Requires for_implementation+
 
 # ✅ PERMITTED under for_analysis
-git checkout -b investigate/parsing-bug dev  # Read-only scratch branch
+git checkout -b observe/parsing-bug dev  # Read-only scratch branch
 ```
 
 If the agent attempts to create a `feature/` or `spec/` branch under `for_analysis`, the operation MUST be rejected and reported as a scope boundary violation.

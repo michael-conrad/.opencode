@@ -187,7 +187,7 @@ The following actions do NOT require `"approved"` or `"go"` and the agent MUST N
 - Moving issue labels — metadata operation
 - Running lint/typecheck/format commands — read-only verification
 - Creating feature branches — see `git-workflow` skill pre-work (requires `for_implementation` or above)
-- Creating `investigate/*` scratch branches — see `git-workflow --task pre-work` (permitted under `for_analysis`, MUST discard before HALT)
+- Creating `observe/*` scratch branches — see `git-workflow --task pre-work` (permitted under `for_analysis`, MUST discard before HALT)
 
 If the action is in this list, proceed immediately without requesting or deliberating over authorization.
 
@@ -209,13 +209,13 @@ Self-assignment means: operate under the `for_analysis` allowlist/blocklist unti
 Under `for_analysis` scope:
 
 - **`feature/*` and `spec/*` branches are BLOCKED.** Creating these branches requires `for_implementation` or above.
-- **`investigate/*` branches ARE permitted.** Naming convention: `investigate/<topic>` (e.g., `investigate/parsing-bug`).
-- **`investigate/*` branches MUST be discarded before HALT.** Never leave an `investigate/` branch in the repo. Delete it with `git branch -D investigate/<topic>` before the halt message.
+- **`observe/*` branches ARE permitted.** Naming convention: `observe/<topic>` (e.g., `observe/parsing-bug`).
+- **`observe/*` branches MUST be discarded before HALT.** Never leave an `observe/` branch in the repo. Delete it with `git branch -D observe/<topic>` before the halt message.
 - **No commits to `dev` or `main`** (this is always prohibited regardless of scope).
 
-#### Why `investigate/` Branches Exist
+#### Why `observe/` Branches Exist
 
-`investigate/` branches allow the agent to create throwaway scratch branches for read-only investigation work:
+`observe/` branches allow the agent to create throwaway scratch branches for read-only investigation work:
 - Testing a hypothesis about code behavior
 - Running a throwaway script to check data
 - Examining git history or file structure in a clean context
