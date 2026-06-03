@@ -212,7 +212,7 @@ Helper variables:
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `BEHAVIOR_TIMEOUT` | 420s | Max model run duration |
-| `BEHAVIOR_MODEL` | `ollama/glm-5.1:cloud` | Default model |
+| `BEHAVIOR_MODEL` | `ollama/deepseek-v4-flash:cloud` | Default model |
 | `BEHAVIOR_PHASE` | `GREEN` | RED or GREEN phase label |
 | `BEHAVIOR_MAX_RETRIES` | 2 | Retry count on transient errors |
 | `BEHAVIOR_RETRY_DELAY` | 30s | Wait between retries |
