@@ -143,6 +143,9 @@ def read_issue_data(number: int) -> dict:
                     if isinstance(fm, dict):
                         fm["body"] = body
                         result["issue"] = fm
+            else:
+                # Plain markdown with no frontmatter — treat entire file as body
+                result["issue"] = {"body": spec.strip(), "status": "open"}
     return result
 
 
