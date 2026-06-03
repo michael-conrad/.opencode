@@ -44,9 +44,7 @@ github_issue_read(
 ```
 
 **Local platform:**
-```bash
-./.opencode/tools/local-issues read-sub-issues <issue-number>
-```
+Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: N}`. Extract sub-issue data from returned issue metadata.
 
 ### Step 3: Return Sub-Issue Data
 

@@ -36,7 +36,7 @@ Verify that the `pre-creation` task's Step 0.5 title dedup gate was executed. Th
 
 ```
 Check: Title dedup gate for "<proposed title>"
-Tool: `issue-operations → search-issues` / gitbucket-api issues / local-issues search
+Tool: `issue-operations → search-issues` / `platforms/gitbucket-api/` / `platforms/local/tasks/search.md`
 Local: [N candidates found in .issues/open/]
 Remote: [N candidates found, match levels classified]
 Classification: [EXACT-DUPLICATE|NEAR-DUPLICATE|CLOSED-IN-ERROR|RELATED-BUT-DISTINCT|FALSE-POSITIVE]
@@ -47,7 +47,7 @@ Action: [auto-resolved strategy | proceed | HALT]
 
 Before or alongside the remote dedup search, search `.issues/open/` for existing local specs:
 
-1. Run: `local-issues search --status open --query "<significant keywords>"`
+1. Route to `platforms/local/tasks/search.md` via task(). Pass: `{query: "<significant keywords>", status: "open"}`
 2. For each match, compare title keywords against proposed title
 3. Classify match level per `pre-creation.md` Step 0.5 Phase 2 classification table
 4. If a local EXACT-DUPLICATE or NEAR-DUPLICATE exists → report it alongside any remote duplicates
@@ -75,7 +75,7 @@ This fallback catches the scenario where `pre-creation` was not run or its outpu
 
 1. Extract significant keywords from the proposed title (remove stop words, prefixes like `[SPEC]`, `[SPEC-FIX]`, `[Task:]`)
 2. Search `.issues/open/` for local duplicates:
-    - **Local:** `./.opencode/tools/local-issues search --status open --query "<keywords>"`
+    - **Local:** Route to `platforms/local/tasks/search.md` via task(). Pass: `{query: "<keywords>", status: "open"}`
     - Classify any local matches per `pre-creation.md` Step 0.5 Phase 2 classification table
 3. Search for existing issues via platform API:
     - **GitHub:** `issue-operations → search-issues` with keyword query
@@ -89,7 +89,7 @@ This fallback catches the scenario where `pre-creation` was not run or its outpu
 
 ```
 Check: Runtime search fallback for "<proposed title>"
-Tool: local-issues search / `issue-operations → search-issues` / gitbucket-api issues
+Tool: `platforms/local/tasks/search.md` / `issue-operations → search-issues` / gitbucket-api issues
 Local: [N candidates found in .issues/open/]
 Remote: [N candidates found, match levels classified]
 Classification: [EXACT-DUPLICATE|NEAR-DUPLICATE|CLOSED-IN-ERROR|RELATED-BUT-DISTINCT|FALSE-POSITIVE]
@@ -169,9 +169,7 @@ Determine creation order based on `github.platform`:
 
 **Use counter-based numbering. Create local first, no remote promotion:**
 
-```bash
-local-issues create --title "<title>" --labels "needs-approval"
-```
+Route to `platforms/local/tasks/creation.md` via task(). Pass: `{title: "<title>", labels: ["needs-approval"]}`
 
 Then write the spec body to `.issues/open/NNN-slug/spec.md` (preserving YAML frontmatter).
 
@@ -226,14 +224,14 @@ When an issue is created (local or promoted), remind the developer how to review
 **Local platform (local-first):**
 ```
 Local issue #NNN created. Review with:
-  local-issues review NNN
+  platforms/local/tasks/read.md via task()
 ```
 
 **Remote platform (remote-first):**
 ```
 Issue #MMM created on GitHub. Review:
   Remote: <html_url>
-  Local mirror: local-issues review MMM
+  Local mirror: platforms/local/tasks/read.md via task()
 ```
 
 ## Multi-Task Spec Handling

@@ -62,9 +62,7 @@ github_issue_write(
 ```
 
 **Local platform (sub-skill implementation):**
-```bash
-./.opencode/tools/local-issues close <issue-number> --reason "completed"
-```
+Route to `platforms/local/tasks/close.md` via task(). Pass: `{issue_number: N, reason: "completed"}`.
 
 ### Step 4: Post Closure Comment (if substantive)
 

@@ -146,7 +146,6 @@ If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT.** D
 | Commits ahead of dev | `git log dev..HEAD --oneline` | At least one |
 | Tracking branch exists | `git branch -vv` | `[origin/<branch>]` |
 | All commits pushed | `git diff @{u} HEAD` | Empty |
-| issues-data branch pushed | `local-issues push` | Exit code 0 |
 | Branch on correct base | `git merge-base HEAD origin/dev` | Dev-based SHA |
 
 ## Push-Then-URL Enforcement (MANDATORY — Bug #1231)

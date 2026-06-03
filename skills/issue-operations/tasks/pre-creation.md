@@ -59,7 +59,7 @@ For ambiguous matches where match level cannot be determined with confidence: HA
 
 ```
 Check: Title dedup gate for "<proposed title>"
-Tool: `issue-operations → search-issues` / gitbucket-api issues / local-issues search
+Tool: `issue-operations → search-issues` / `platforms/gitbucket-api/` / `platforms/local/tasks/search.md`
 Result: [N candidates found, match levels classified]
 Classification: [EXACT-DUPLICATE|NEAR-DUPLICATE|CLOSED-IN-ERROR|RELATED-BUT-DISTINCT|FALSE-POSITIVE]
 Action: [auto-resolved strategy | proceed | HALT]

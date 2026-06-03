@@ -20,19 +20,7 @@ After any `read-issue` call, automatically mirror the remote issue body to `.iss
 
 ### Step 1: Ensure .issues/ Exists
 
-If `.issues/` directory does not exist, call `local-issues setup`:
-
-```bash
-./.opencode/tools/local-issues setup
-```
-
-**Exit code handling:**
-
-| Exit Code | Meaning | Action |
-|-----------|---------|--------|
-| 0 | Success | Continue |
-| 1 | Fatal error | HALT and report stderr |
-| 2 | Stale worktree detected | Read stale path from stderr, run `git worktree remove <stale_path>`, re-run `local-issues setup` |
+If `.issues/` directory does not exist, route to `platforms/local/tasks/creation.md` via task() with setup action. The local-issues tool handles worktree setup transparently.
 
 ### Step 2: Create or Update Local Issue
 
@@ -40,11 +28,7 @@ Determine whether a local issue already exists for this remote number:
 
 1. Search `.issues/open/` and `.issues/closed/` for an entry matching the remote number
 2. If found: the issue exists locally — proceed to Step 3 (update)
-3. If not found: create a new local issue:
-
-```bash
-./.opencode/tools/local-issues create --title "<remote_title>"
-```
+3. If not found: create a new local issue via task() to `platforms/local/tasks/creation.md`: `{title: "<remote_title>"}`
 
 Capture the returned local issue number.
 
@@ -73,15 +57,11 @@ author: <dev.name>
 
 **Existing issue (update frontmatter only — preserve local body):**
 
-Use `local-issues update NNN` to set `remote_issue`, `remote_url`, and `last_sync` fields. Only overwrite the body if explicitly instructed (see Edge Cases below).
+Use `platforms/local/tasks/update.md` via task() to set `remote_issue`, `remote_url`, and `last_sync` fields. Only overwrite the body if explicitly instructed (see Edge Cases below).
 
 ### Step 4: Link Local to Remote
 
-If a new issue was created, link it to the remote:
-
-```bash
-./.opencode/tools/local-issues link <local_number> --github <remote_number>
-```
+If a new issue was created, route to `platforms/local/tasks/link.md` via task() to link it to the remote. Pass: `{local_number: N, remote_number: N, remote_url: "<url>"}`.
 
 ### Step 5: Verify Mirror
 
@@ -107,7 +87,7 @@ Read back the local spec.md and verify:
 
 - Session values: github.owner, github.repo, github.platform
 - From `read-issue` result: issue_number, issue_body, issue_url
-- Related tasks: `read-issue` (runs before), `local-issues setup` (if .issues/ missing)
+- Related tasks: `read-issue` (runs before), `platforms/local/tasks/creation.md` for setup (if .issues/ missing)
 - Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
 - CLI tool: `.opencode/tools/local-issues`
 
