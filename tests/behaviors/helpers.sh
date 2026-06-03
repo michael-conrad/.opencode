@@ -240,6 +240,13 @@ behavior_run() {
         flock -x 200
     fi
 
+    if [ "${BEHAVIOR_SET_BARE_REMOTE:-0}" = "1" ]; then
+        local bare_repo="$workdir/../origin.git"
+        git init --bare "$bare_repo" 2>/dev/null || true
+        git -C "$workdir" remote add origin "$bare_repo" 2>/dev/null || true
+        echo "  [harness] bare remote set up at $bare_repo"
+    fi
+
     while [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; do
         attempt=$((attempt + 1))
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
