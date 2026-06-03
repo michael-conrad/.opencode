@@ -252,6 +252,8 @@ behavior_run() {
         timeout "$BEHAVIOR_TIMEOUT" bash "$PROJECT_DIR/$BEHAVIOR_TEST_HOME" \
             opencode-cli run "$message" \
             --model "$model" \
+            --log-level DEBUG \
+            --print-logs \
             ${agent:+--agent "$agent"} \
             > "$output_file" 2> "$err_file" \
             || true
