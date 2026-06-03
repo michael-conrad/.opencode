@@ -30,10 +30,10 @@ ______________________________________________________________________
 
 | Step | Action               | Command / Details                                                                                                                                                                         |
 | ---- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | Verify open state    | `local-issues read N` — confirm `status: open`. If already `closed`, exit with code 2 (already closed).                                                                                   |
+| 1    | Verify open state    | `.opencode/tools/local-issues read N` — confirm `status: open`. If already `closed`, exit with code 2 (already closed).                                                                                   |
 | 2    | Pre-read frontmatter | Capture current frontmatter to preserve fields during transition.                                                                                                                         |
-| 3    | Close issue          | `local-issues close N [--reason completed]` — updates frontmatter (status → `closed`, `closed_at` timestamp, `state_reason`), moves `.issues/open/NNN-slug/` → `.issues/closed/NNN-slug/` |
-| 4    | Verify               | `local-issues read N` — confirm exit 0, `status: closed`, `closed_at` timestamp present, `state_reason` matches expected value                                                            |
+| 3    | Close issue          | `.opencode/tools/local-issues close N [--reason completed]` — updates frontmatter (status → `closed`, `closed_at` timestamp, `state_reason`), moves `.issues/open/NNN-slug/` → `.issues/closed/NNN-slug/` |
+| 4    | Verify               | `.opencode/tools/local-issues read N` — confirm exit 0, `status: closed`, `closed_at` timestamp present, `state_reason` matches expected value                                                            |
 | 5    | Auto-commit          | The CLI tool auto-commits the move on the issues-data branch (if configured). Verify the commit succeeded.                                                                                |
 
 ### Reason Values
@@ -62,7 +62,7 @@ ______________________________________________________________________
 - \[ \] CLI tool returned exit code 0
 - \[ \] `.issues/open/<N>/` directory no longer exists
 - \[ \] `.issues/closed/<N>/` directory exists with all files intact
-- \[ \] `local-issues read N` returns exit 0
+- \[ \] `.opencode/tools/local-issues read N` returns exit 0
 - \[ \] Frontmatter `status` is `closed`
 - \[ \] `closed_at` timestamp is present (ISO 8601 format)
 - \[ \] `state_reason` matches expected value (or default `completed`)
@@ -93,8 +93,8 @@ ______________________________________________________________________
 
 | Error                                         | Cause                                             | Resolution                                                                                        |
 | --------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `local-issues close N` exits code 2           | Issue is already closed                           | Report to orchestrator. No action needed — issue is in desired state.                             |
-| `local-issues close N` exits non-zero (non-2) | Issue not found, move failed, frontmatter corrupt | Verify `.issues/open/<N>/` exists. Check frontmatter is valid YAML. Check filesystem permissions. |
+| `.opencode/tools/local-issues close N` exits code 2           | Issue is already closed                           | Report to orchestrator. No action needed — issue is in desired state.                             |
+| `.opencode/tools/local-issues close N` exits non-zero (non-2) | Issue not found, move failed, frontmatter corrupt | Verify `.issues/open/<N>/` exists. Check frontmatter is valid YAML. Check filesystem permissions. |
 | Issue N not found                             | `.issues/open/<N>/` does not exist                | HALT. Verify issue number. Check if issue is already in `.issues/closed/`.                        |
 | Frontmatter missing `status` field            | Corrupted spec.md                                 | HALT. Report corrupt issue data. Orchestrator must repair or delete.                              |
 | Move to closed fails                          | Filesystem error, permissions, destination exists | HALT. `.issues/closed/<N>/` may already exist. Orchestrator must resolve collision.               |
