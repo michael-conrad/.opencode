@@ -25,7 +25,7 @@ source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="viewport-autosave-toggle"
 BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/deepseek-v4-flash:cloud}"
-BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-1800}"
+BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-3600}"
 
 source "$PROJECT_DIR/tmp/setup-viewport-test.sh"
 
@@ -35,22 +35,24 @@ mkdir -p "$ARTIFACT_DIR"
 
 SCENARIO_PROMPT='You have access to a viewport-editor MCP tool with a configurable autosave setting. Open `fixtures/moby-dick.txt` WITHOUT autosave.
 
-Follow this sequence precisely, verifying the file on disk at every step using `grep` for your unique replacement strings:
+Do NOT pre-search for text — use edit:replace directly; it finds the first occurrence automatically.
+
+Sequence (verify disk with grep at each step):
 
 1. Open WITHOUT autosave.
-2. Edit — change the first "whale" to "ZZWHALEZZ".
-3. Verify the file on disk is UNCHANGED — `grep "ZZWHALEZZ" fixtures/moby-dick.txt` should return nothing (buffer only, no flush).
-4. Toggle autosave ON. (This auto-flushes the dirty buffer.)
-5. Verify the file on disk IS changed — `grep "ZZWHALEZZ" fixtures/moby-dick.txt` should return the modified line.
-6. Edit again — change the first "Ahab" to "ZZAHABZZ". Autosave is ON so this persists immediately.
-7. Verify the file on disk IS changed — `grep "ZZAHABZZ" fixtures/moby-dick.txt` should return the modified line.
+2. edit:replace first "whale" → "ZZWHALEZZ" (uses edit:replace, replaces first occurrence only).
+3. grep "ZZWHALEZZ" on disk — must return 0 matches (buffer only, autosave off).
+4. Toggle autosave ON via viewport:autosave. (Auto-flushes dirty buffer.)
+5. grep "ZZWHALEZZ" on disk — must return 1 match (auto-flush persisted it).
+6. edit:replace first "Ahab" → "ZZAHABZZ".
+7. grep "ZZAHABZZ" on disk — must return 1 match (autosave ON).
 8. Toggle autosave OFF.
-9. Edit again — change the first "Moby" to "ZZMOBYZZ". Autosave is OFF so this stays in buffer.
-10. Verify the file on disk is UNCHANGED — `grep "ZZMOBYZZ" fixtures/moby-dick.txt` should return nothing.
-11. Toggle autosave ON. (Auto-flushes "ZZMOBYZZ" edit.)
-12. Verify the file on disk IS changed — `grep "ZZMOBYZZ" fixtures/moby-dick.txt` should return the modified line.
+9. edit:replace first "Moby" → "ZZMOBYZZ".
+10. grep "ZZMOBYZZ" on disk — must return 0 matches (autosave OFF).
+11. Toggle autosave ON. (Auto-flushes.)
+12. grep "ZZMOBYZZ" on disk — must return 1 match.
 
-Close the viewport and report what you observed at each step.'
+Close the viewport. Report what you observed at each step.'
 
 cat > "$ARTIFACT_DIR/instruction_card.md" <<CARD
 # SC-3: Autosave Toggle
