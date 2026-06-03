@@ -457,7 +457,7 @@ def cmd_update(args: argparse.Namespace) -> None:
         if body:
             issue["body"] = body
             changed = True
-    for field in ("title", "status", "phase", "labels", "body", "github", "remote_url"):
+    for field in ("title", "status", "phase", "labels", "github", "remote_url"):
         val = getattr(args, field, None)
         if val is not None:
             key = field if field != "github" else "github_url"
@@ -689,18 +689,17 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("read-sub-issues", help="Read sub-issues of an issue. Flags: --number")
     p.add_argument("--number", type=int, required=True)
 
-    p = sub.add_parser("update", help="Update an issue's metadata or body. Flags: --number, --title, --status, --phase, --labels, --body, --body-file, --github, --remote-url")
+    p = sub.add_parser("update", help="Update an issue's metadata or body. Flags: --number, --title, --status, --phase, --labels, --body-file, --github, --remote-url")
     p.add_argument("--number", type=int, required=True)
     p.add_argument("--title", type=str)
     p.add_argument("--status", type=str)
     p.add_argument("--phase", type=str)
     p.add_argument("--labels", type=str, nargs="*")
-    p.add_argument("--body", type=str)
     p.add_argument("--body-file", type=str, help="Path to file containing body content")
     p.add_argument("--github", type=str)
     p.add_argument("--remote-url", type=str)
 
-    p = sub.add_parser("comment", help="Add a comment to an issue. Flags: --number, --body, --type (internal|stakeholder)")
+    p = sub.add_parser("comment", help="Add a comment to an issue. Flags: --number, --type (internal|stakeholder), --body (short text only)")
     p.add_argument("--number", type=int, required=True)
     p.add_argument("--type", choices=["internal", "stakeholder"], default="internal")
     p.add_argument("--body", type=str, required=True)
