@@ -33,27 +33,9 @@ MODEL_SLUG="$(echo "$BEHAVIOR_MODEL" | tr '/:@' '-')"
 ARTIFACT_DIR="$PROJECT_DIR/tmp/behavioral-evidence-${SCENARIO_NAME}-GREEN-${MODEL_SLUG}"
 mkdir -p "$ARTIFACT_DIR"
 
-SCENARIO_PROMPT="Approved for implementation. Spec: \`fixtures/viewport-stash-pop-swap-spec.md\`
+SCENARIO_PROMPT="Approved for implementation. Spec: \`.opencode/tests/behaviors/fixtures/viewport-stash-pop-swap-spec.md\`
 
-Implement the spec: copy fixtures to ./tmp/stash-test/, open the three copies, build 3 stash slots (title, server_config, module_doc), pop→verify→paste each into the target files, swap clipboard with title slot, paste swapped content, save all, grep verify, stash-list, close.
-
-Open \`fixtures/dorian-gray.txt\`, \`fixtures/config.yaml\`, and \`fixtures/example.py\` in viewports (same session, so clipboard is shared).
-
-Phase 1 — Build the stash (multi-copy → multi-stash):
-  1. Copy line 1 from dorian-gray.txt to clipboard, then stash it as 'title'.
-  2. Copy lines 5-6 from config.yaml to clipboard, then stash it as 'server_config'.
-  3. Copy line 1 from example.py to clipboard, then stash it as 'module_doc'.
-
-Phase 2 — Deploy from stash (multi-pop → multi-paste):
-  4. Pop 'title' to clipboard, then clipboard:show to verify, then paste it into example.py at line 10.
-  5. Pop 'server_config' to clipboard, then clipboard:show to verify, then paste it into dorian-gray.txt at line 50.
-  6. Pop 'module_doc' to clipboard, then clipboard:show to verify, then paste it into config.yaml at line 1 (pushing existing lines down).
-
-Phase 3 — Swap and verify:
-  7. Swap the clipboard with the 'title' stash slot. clipboard:show should now show the title content, and the slot should hold whatever was on clipboard.
-  8. Paste the swapped clipboard content into example.py at line 20.
-
-Save all three files. Verify on disk with grep that each file contains its pasted content. List all stashes (stash-list). Close all viewports. Report what you observed."
+Implement the spec: copy fixtures to ./tmp/stash-test/, open the three copies, build 3 stash slots (title, server_config, module_doc), pop→verify→paste each into the target files, swap clipboard with title slot, paste swapped content, save all, grep verify, stash-list, close."
 
 cat > "$ARTIFACT_DIR/instruction_card.md" <<CARD
 # SC-7: Stash/Pop/Swap
