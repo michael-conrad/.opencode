@@ -24,8 +24,8 @@ fi
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="viewport-stash-pop-swap"
-BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/qwen3.5:397b-cloud}"
-BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-1200}"
+BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/deepseek-v4-flash:cloud}"
+BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-7200}"
 
 source "$PROJECT_DIR/tmp/setup-viewport-test.sh"
 
@@ -38,9 +38,9 @@ MODEL_SLUG="$(echo "$BEHAVIOR_MODEL" | tr '/:@' '-')"
 ARTIFACT_DIR="$PROJECT_DIR/tmp/behavioral-evidence-${SCENARIO_NAME}-GREEN-${MODEL_SLUG}"
 mkdir -p "$ARTIFACT_DIR"
 
-SCENARIO_PROMPT="Approved for implementation. Spec: \`fixtures/viewport-stash-pop-swap-spec.md\`
+SCENARIO_PROMPT="Approved for behavioral testing: spec \`fixtures/viewport-stash-pop-swap-spec.md\`
 
-Implement all SCs from the spec."
+This is a bug hunt — exercise the viewport_editor tools by executing the spec's procedure. Authorized to use disposable branches and ./tmp/ workspace as needed. Execute each step using real tool calls and report what you observe."
 
 cat > "$ARTIFACT_DIR/instruction_card.md" <<CARD
 # SC-7: Stash/Pop/Swap
