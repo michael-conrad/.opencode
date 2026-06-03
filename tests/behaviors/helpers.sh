@@ -341,6 +341,12 @@ MANIFESTEOF
     # (where opencode.db lives) instead of searching the caller's $HOME.
     __export_sqlite_to_yaml "$artifact_dir/session.yaml" "$err_file"
 
+    # Write timeline.yaml from session.yaml (tool call summary)
+    TIMELINE_TOOL="$PROJECT_DIR/tools/session-to-timeline"
+    if [ -f "$TIMELINE_TOOL" ] && [ -f "$artifact_dir/session.yaml" ]; then
+        uv run "$TIMELINE_TOOL" "$artifact_dir/session.yaml" "$artifact_dir/timeline.yaml" 2>/dev/null || true
+    fi
+
     # Export artifact directory for caller
     BEHAVIOR_ARTIFACT_DIR="$artifact_dir"
     export BEHAVIOR_ARTIFACT_DIR
