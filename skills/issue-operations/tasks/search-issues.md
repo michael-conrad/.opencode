@@ -43,9 +43,7 @@ github_search_issues(
 ```
 
 **Local platform:**
-```bash
-./.opencode/tools/local-issues search --query "<search-query>"
-```
+Route to `platforms/local/tasks/search.md` via task(). Pass: `{query: "<search-query>"}`.
 
 ### Step 3: Return Search Results
 

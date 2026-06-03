@@ -44,9 +44,7 @@ github_issue_read(
 ```
 
 **Local platform:**
-```bash
-./.opencode/tools/local-issues read-comments <issue-number>
-```
+Route to `platforms/local/tasks/comment.md` via task() to read comments. Pass: `{issue_number: N, action: "read"}`.
 
 ### Step 3: Return Comment Data
 

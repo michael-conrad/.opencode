@@ -45,9 +45,7 @@ github_list_issues(
 ```
 
 **Local platform:**
-```bash
-./.opencode/tools/local-issues list --status open --label "<label>"
-```
+Route to `platforms/local/tasks/list.md` via task(). Pass: `{status: "open", label: "<label>"}`.
 
 ### Step 3: Return Issue List
 

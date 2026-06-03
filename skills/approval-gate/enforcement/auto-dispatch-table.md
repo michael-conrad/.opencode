@@ -60,5 +60,5 @@ When scope is `for_analysis`, the auto-route chain is read-only:
 - No PRs are created
 - No code is written to `src/`, `test/`, or permanent directories
 - `./tmp/` writes ARE permitted for investigation artifacts
-- `investigate/<topic>` branches MAY be created (scratch only, MUST discard before HALT)
+- `observe/<topic>` branches MAY be created (scratch only, MUST discard before HALT)
 - Issue creation, spec creation, and comments ARE permitted

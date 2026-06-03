@@ -212,7 +212,7 @@ Helper variables:
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `BEHAVIOR_TIMEOUT` | 420s | Max model run duration |
-| `BEHAVIOR_MODEL` | `ollama/glm-5.1:cloud` | Default model |
+| `BEHAVIOR_MODEL` | `ollama/deepseek-v4-flash:cloud` | Default model |
 | `BEHAVIOR_PHASE` | `GREEN` | RED or GREEN phase label |
 | `BEHAVIOR_MAX_RETRIES` | 2 | Retry count on transient errors |
 | `BEHAVIOR_RETRY_DELAY` | 30s | Wait between retries |
@@ -223,9 +223,11 @@ Helper variables:
 
 **MUST be used for ALL opencode-cli testing.** Never run `opencode-cli run` directly — it causes SQLite session conflicts with the desktop app.
 
+The harness runs `opencode-cli run` with `--log-level INFO --print-logs` to capture tool dispatch traces in stderr for behavioral evidence collection. These flags are set in `helpers.sh behavior_run()` and should be used for any manual testing as well:
+
 ```bash
-# Run a single test message
-bash .opencode/tests/with-test-home opencode-cli run '<message>'
+# Run a single test message (manual/testing)
+bash .opencode/tests/with-test-home opencode-cli run '<message>' --log-level INFO --print-logs
 
 # Clean up the most recent test home
 bash .opencode/tests/with-test-home --clean

@@ -65,7 +65,7 @@ for_analysis_allowlist:
   - reads (files, code, issues)
   - writes to ./tmp/
   - issue creation and comments
-  - investigate/<topic> scratch branches (discard before HALT)
+  - observe/<topic> scratch branches (discard before HALT)
   - test and verification execution
 for_analysis_blocklist:
   - writes to src/ or test/
@@ -73,12 +73,12 @@ for_analysis_blocklist:
   - PR creation
   - dev/main commits
   - bug fixes
-  - deleting branches (except investigate/* discard)
+  - deleting branches (except observe/* discard)
 investigate_branches_created: []
 must_discard_before_halt: true
 ```
 
-The `investigate_branches_created` field tracks which `investigate/` branches were created during the session. The orchestrator MUST verify every tracked branch is deleted before yielding or halting.
+The `investigate_branches_created` field tracks which `observe/` branches were created during the session. The orchestrator MUST verify every tracked branch is deleted before yielding or halting.
 
 ## Orchestrator Context Audit
 

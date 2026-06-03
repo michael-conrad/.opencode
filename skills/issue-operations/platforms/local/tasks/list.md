@@ -10,7 +10,7 @@
 
 List local issues in the `.issues/` directory. Simpler than search — no label or text query filters. Returns a YAML array for machine consumption.
 
-**Primary tool:** `.opencode/tools/local-issues list`
+**Primary tool:** `./.opencode/tools/local-issues list`
 
 **Interface:**
 
@@ -35,7 +35,7 @@ ______________________________________________________________________
 ## Entry Criteria
 
 - \[ \] `.issues/` directory exists at repo root
-- \[ \] `.opencode/tools/local-issues` CLI tool is available
+- \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] `--status` argument is one of `open`, `closed`, or `all` (default: `open`)
 
 ______________________________________________________________________
@@ -45,7 +45,7 @@ ______________________________________________________________________
 | Step | Action                | Details                                                                                                                                          |
 | ---- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 1    | Resolve status filter | Default `open` if omitted. `all` = no status filtering.                                                                                          |
-| 2    | Execute list          | `local-issues list` — iterates `.issues/<N>/issue.yaml` files                                                                                    |
+| 2    | Execute list          | `./.opencode/tools/local-issues list` — iterates `.issues/<N>/issue.yaml` files                                                                                    |
 | 3    | Post-filter by status | Apply `--status` filter not supported by current CLI. If tool does not natively filter by status, apply Python-level filtering in the task step. |
 | 4    | Format output         | Transform into YAML result format. Each entry includes `number`, `title`, `status`, `phase` (when set).                                          |
 | 5    | Return YAML           | YAML array piped to orchestrator. Empty array `[]` if no issues match.                                                                           |
@@ -80,7 +80,7 @@ ______________________________________________________________________
 | ------------------------------------------ | -------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `.issues/` directory missing               | No local issues ever created           | Return empty array `[]`. Not an error — no issues to list.                                              |
 | Invalid `--status` value                   | Not `open`, `closed`, or `all`         | HALT. Report valid options.                                                                             |
-| CLI tool not found                         | `.opencode/tools/local-issues` missing | HALT. The tool must exist for local platform operations.                                                |
+| CLI tool not found                         | `./.opencode/tools/local-issues` missing | HALT. The tool must exist for local platform operations.                                                |
 | Issue directory has malformed `issue.yaml` | YAML parse error or missing fields     | Skip the malformed entry. Log warning to stderr: `WARN: issue <N> has malformed issue.yaml — skipping`. |
 
 **General rule:** Structural errors HALT and report. Data-level errors (malformed single issue) skip and warn. Never silently return incomplete results.

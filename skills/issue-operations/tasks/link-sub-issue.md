@@ -42,9 +42,7 @@ if len(phases) == 1:
 ```
 
 **Local platform (sub-skill implementation):**
-```bash
-./.opencode/tools/local-issues read <M>
-```
+Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: M}`.
 
 ### Step 2: Check Existing Sub-Issues
 
@@ -57,9 +55,7 @@ sub_issues = github_issue_read(method="get_sub_issues", issue_number=M)
 Check parent issue comments for structured sub-issue list comments.
 
 **Local platform (sub-skill implementation):**
-```bash
-./.opencode/tools/local-issues sub-issues <M>
-```
+Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: M, type: "links"}`.
 
 ### Step 3: Extract Phase Prose from Plan Body
 
@@ -93,9 +89,7 @@ sub_issue = github_issue_write(
 ```
 
 **Local platform (sub-skill implementation):**
-```bash
-./.opencode/tools/local-issues create --title "[Task: #<M>] <phase_description>" --body "**Parent Plan:** #<M>\n\n<phase_prose>" --labels task
-```
+Route to `platforms/local/tasks/creation.md` via task(). Pass: `{title: "[Task: #<M>] <phase_description>", body: "**Parent Plan:** #<M>\n\n<phase_prose>", labels: ["task"]}`.
 
 ### Step 4.5: EXTRACT URL FROM API RESPONSE
 
@@ -125,9 +119,7 @@ CRITICAL: Use database ID (`.id`), not issue number.
 ```
 
 **Local platform (comment-based fallback via sub-skill):**
-```bash
-./.opencode/tools/local-issues comment <M> --body "**Sub-issue linked:** #<sub_issue_number> — <phase_description>"
-```
+Route to `platforms/local/tasks/comment.md` via task(). Pass: `{issue_number: M, body: "**Sub-issue linked:** #<sub_issue_number> — <phase_description>", action: "post"}`.
 
 The caller records which method was used (formal link vs comment) for later closure operations.
 

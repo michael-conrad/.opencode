@@ -10,9 +10,9 @@
 
 Promote a local issue to a remote issue tracker. Promotion creates a remote issue from the local draft's exec-summary and records the remote metadata in local frontmatter. This is the bridge between local-only and remote-tracked issue lifecycle.
 
-**Primary tool:** `.opencode/tools/local-issues`
+**Primary tool:** `./.opencode/tools/local-issues`
 
-**CLI:** `local-issues promote N --remote-url <url>`
+**CLI:** `./.opencode/tools/local-issues promote N --remote-url <url>`
 
 **Parameters:** `{ number: int }`
 **Returns:** `{ local_path: string, remote_url: string, remote_number: int }`
@@ -27,7 +27,7 @@ ______________________________________________________________________
 - \[ \] `.issues/open/<N>/` directory exists with valid `spec.md`
 - \[ \] Exec-summary is present in spec frontmatter (`exec_summary` field) or can be extracted from body
 - \[ \] Remote platform type is resolved (`github` or `gitbucket`) from task context
-- \[ \] `.opencode/tools/local-issues` CLI tool is available
+- \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] Issue is NOT already promoted (no `github_issue` or `remote_url` in frontmatter)
 - \[ \] Remote API credentials are available (verified by session-enforcement before dispatch)
 
@@ -37,15 +37,15 @@ ______________________________________________________________________
 
 | Step | Action                      | Command / Details                                                                                                                                                   |
 | ---- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | Read local issue            | `local-issues read N --type full` — capture full frontmatter + body                                                                                                 |
+| 1    | Read local issue            | `./.opencode/tools/local-issues read N --type full` — capture full frontmatter + body                                                                                                 |
 | 2    | Extract exec-summary        | Read `exec_summary` from frontmatter. If absent, extract first paragraph of spec body (up to first `---` or 500 chars).                                             |
 | 3    | Verify not already promoted | Check `github_issue` and `remote_url` frontmatter fields for empty/falsy values. If already promoted, exit with code 2 (already promoted).                          |
 | 4    | Construct remote title      | Use spec title from frontmatter. Append `[local #N]` suffix for traceability.                                                                                       |
 | 5    | Construct remote body       | Format: exec-summary + full spec body with local provenance note (`Originally drafted as local issue #N at .issues/open/<N>/`).                                     |
 | 6    | Create remote issue         | Call platform dispatcher (`issue-operations --task creation`) with title, body, labels from local frontmatter                                                       |
 | 7    | Capture remote response     | Record `html_url`, `number`, `node_id` from platform response                                                                                                       |
-| 8    | Run promote CLI             | `local-issues promote N --remote-url <URL> --remote-number <NUM>` — updates frontmatter with `github_issue`, `remote_url`, `remote_number`, `promoted_at` timestamp |
-| 9    | Verify promotion            | `local-issues read N --type full` — confirm `github_issue`, `remote_url`, `remote_number` are populated, `promoted_at` timestamp present                            |
+| 8    | Run promote CLI             | `./.opencode/tools/local-issues promote N --remote-url <URL> --remote-number <NUM>` — updates frontmatter with `github_issue`, `remote_url`, `remote_number`, `promoted_at` timestamp |
+| 9    | Verify promotion            | `./.opencode/tools/local-issues read N --type full` — confirm `github_issue`, `remote_url`, `remote_number` are populated, `promoted_at` timestamp present                            |
 | 10   | Post remote comment         | Add comment on remote issue referencing local path: `🤖 Promoted from local issue #N (.issues/open/<N>/)`                                                           |
 
 ### Remote Body Format
@@ -98,7 +98,7 @@ ______________________________________________________________________
 - \[ \] CLI tool returned exit code 0
 - \[ \] Remote issue was created (confirmed by `html_url` and `number` from platform API)
 - \[ \] Local frontmatter updated with `github_issue`, `remote_url`, `remote_number`, `promoted_at`
-- \[ \] `local-issues read N --type full` confirms all remote metadata fields are populated
+- \[ \] `./.opencode/tools/local-issues read N --type full` confirms all remote metadata fields are populated
 - \[ \] Remote issue body contains the exec-summary and local provenance note
 - \[ \] Remote issue has comment referencing local path
 - \[ \] Labels from local frontmatter were carried forward to remote issue
@@ -109,12 +109,12 @@ ______________________________________________________________________
 
 | Error                                         | Cause                                                                 | Resolution                                                                                                 |
 | --------------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `local-issues promote N` exits code 2         | Issue is already promoted                                             | Report to orchestrator. No action needed — remote linkage exists.                                          |
+| `./.opencode/tools/local-issues promote N` exits code 2         | Issue is already promoted                                             | Report to orchestrator. No action needed — remote linkage exists.                                          |
 | Remote creation fails (auth, 404, rate limit) | Platform API unavailable or credentials expired                       | HALT. Remote issue was NOT created. Local draft preserved. Report auth/availability error to orchestrator. |
 | Local issue N not found                       | `.issues/open/<N>/` does not exist                                    | HALT. Verify issue number. Check if issue is in `.issues/closed/` (closed issues cannot be promoted).      |
 | Exec-summary missing                          | `exec_summary` frontmatter absent and body has no extractable summary | HALT. Report that exec-summary is required. Orchestrator must add `exec_summary` field to frontmatter.     |
 | Remote URL mismatch                           | `remote_url` in frontmatter differs from actual created remote URL    | HALT. Report mismatch. Orchestrator must resolve which remote is canonical.                                |
-| CLI tool not found                            | `.opencode/tools/local-issues` missing                                | HALT. The tool must exist for local platform operations.                                                   |
+| CLI tool not found                            | `./.opencode/tools/local-issues` missing                                | HALT. The tool must exist for local platform operations.                                                   |
 | Frontmatter corrupt after promote             | YAML parse failure on re-read                                         | HALT. CLI command may have partially written frontmatter. Report corrupt state — orchestrator must repair. |
 
 **General rule:** All errors must HALT and report the specific failure to the orchestrator. Never silently skip, fabricate remote data, or inline platform API calls. Already-promoted (exit code 2) is informational only — not an error that halts pipeline.

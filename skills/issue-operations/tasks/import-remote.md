@@ -42,10 +42,7 @@ github_issue_read(
 ```
 
 **Local platform:**
-
-```bash
-./.opencode/tools/local-issues read <issue-number>
-```
+Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: N}`.
 
 Extract: title, body, html_url, state, labels, author, created_at, updated_at.
 
@@ -74,19 +71,7 @@ Collect each comment's author, timestamp, and body text.
 
 ### Step 3: Ensure .issues/ Exists
 
-If `.issues/` directory does not exist, call `local-issues setup`:
-
-```bash
-./.opencode/tools/local-issues setup
-```
-
-**Exit code handling:**
-
-| Exit Code | Meaning | Action |
-|-----------|---------|--------|
-| 0 | Success | Continue |
-| 1 | Fatal error | HALT and report stderr |
-| 2 | Stale worktree detected | Read stale path from stderr, run `git worktree remove <stale_path>`, re-run `local-issues setup` |
+If `.issues/` directory does not exist, route to `platforms/local/tasks/creation.md` via task() with setup action. The local-issues tool handles worktree setup transparently.
 
 ### Step 4: Create Local Issue
 
@@ -165,7 +150,7 @@ Verify the full local mirror:
 
 - Session values: github.owner, github.repo, github.platform
 - Issue number to import
-- Related tasks: `read-issue`, `read-comments` (both called internally), `local-issues setup` (if .issues/ missing)
+- Related tasks: `read-issue`, `read-comments` (both called internally), `platforms/local/tasks/creation.md` for setup (if .issues/ missing)
 - Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
 - No direct `github_*` or `gitbucket-api` calls outside `issue-operations/platforms/`
 

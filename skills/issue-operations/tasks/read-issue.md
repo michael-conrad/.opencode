@@ -44,9 +44,7 @@ github_issue_read(
 ```
 
 **Local platform:**
-```bash
-./.opencode/tools/local-issues read <issue-number>
-```
+Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: N}`.
 
 ### Step 3: Return Issue Data
 

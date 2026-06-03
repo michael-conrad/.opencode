@@ -12,7 +12,7 @@ ______________________________________________________________________
 
 ## Overview
 
-Local issue tracking platform using `.issues/` directories at the repo root. This platform is selected when `github.platform` is `local` or when no remote is configured. All operations go through the `.opencode/tools/local-issues` CLI tool.
+Local issue tracking platform using `.issues/` directories at the repo root. This platform is selected when `github.platform` is `local` or when no remote is configured. All operations go through the `./.opencode/tools/local-issues` CLI tool.
 
 ## Architecture
 
@@ -120,7 +120,7 @@ capabilities:
 
 ## CLI Tool
 
-All operations go through `.opencode/tools/local-issues`:
+All operations go through `./.opencode/tools/local-issues`:
 
 ```bash
 local-issues create [--scenario draft|promote|import-remote] [--title TITLE] [--labels L1,L2]
@@ -162,7 +162,7 @@ When `github.platform` is NOT `local` (remote available), local issues can be pr
 
 1. Create local issue first (working draft)
 1. On authorization event, promote content to GitHub Issue via `issue-operations --task creation`
-1. Link local issue to GitHub issue: `local-issues link NNN --github GITHUB_NUM`
+1. Link local issue to GitHub issue: `./.opencode/tools/local-issues link NNN --github GITHUB_NUM`
 1. Add comment on GitHub Issue referencing local path
 
 ## Worktree Exemption

@@ -196,7 +196,7 @@ Non-substantive GitHub Issue body formatting fixes found during deliberately-inv
 | Read files, search code, browse issues | No |
 | Create spec/plan issues | No |
 | Create feature branch (`feature/*`, `spec/*`) | Yes (requires `for_implementation` or above) |
-| Create investigation branch (`investigate/*`) | No (must discard before HALT under `for_analysis`) |
+| Create investigation branch (`observe/*`) | No (must discard before HALT under `for_analysis`) |
 | Write code, modify files | Yes |
 | Create PR | Yes (except `for_pr`/`for_pr_only` scope) |
 | Merge PR | No — human-only |
@@ -216,7 +216,7 @@ The `for_analysis` scope is the default floor scope when no authorization is giv
 - Create/update GitHub Issues (specs, plans, bug reports)
 - Add labels and comments to GitHub Issues
 - Run tests and verification commands
-- Create `investigate/<topic>` scratch branches (MUST be discarded before HALT)
+- Create `observe/<topic>` scratch branches (MUST be discarded before HALT)
 
 #### 🚫 Blocklist
 
@@ -225,7 +225,7 @@ The `for_analysis` scope is the default floor scope when no authorization is giv
 - Creating pull requests
 - Committing to `dev` or `main`
 - Closing issues after PR merge
-- Deleting branches (except discarding `investigate/*` branches)
+- Deleting branches (except discarding `observe/*` branches)
 - Fixing bugs (requires `for_implementation` or above)
 - Any code modification to production files
 

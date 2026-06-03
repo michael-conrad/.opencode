@@ -33,7 +33,7 @@ After substantiveness, classify comment content before determining type. Classif
 
 | Classification | Definition | Route |
 |---|---|---|
-| **stakeholder** | Information a reviewer/stakeholder needs to act on | Write to `remote.md` → `local-issues sync push N` |
+| **stakeholder** | Information a reviewer/stakeholder needs to act on | Write to `remote.md` → route to `platforms/local/tasks/push-body.md` via task() |
 | **internal** | Agent reasoning, design analysis, corrections, process metadata | `.issues/N/comments.md` only |
 
 **Concrete classification rules:**
@@ -62,7 +62,7 @@ After classification, evaluate: **Does this stakeholder-classified comment revis
 
 1. Update `.issues/N/spec.md` — merge the revision into the canonical spec body
 2. Update `.issues/N/remote.md` — reflect the revision in the exec summary
-3. Run `local-issues sync push N` — push updated spec body to GitHub
+3. Route to `platforms/local/tasks/push-body.md` via task() — push updated spec body to GitHub. Pass: `{issue_number: N}`
 4. Post explanatory comment: "Spec body updated per #683 Phase 3"
 
 **Why this matters:** Without this check, stakeholder corrections sit in comments while the spec body remains stale. The canonical spec body (`.issues/N/spec.md`) is the authoritative source — revisions must propagate to it, not remain stranded in comments.
@@ -175,9 +175,7 @@ github_add_issue_comment(
 ```
 
 **Local platform (sub-skill implementation):**
-```bash
-./.opencode/tools/local-issues comment <issue-number> --body "<formatted_comment>"
-```
+Route to `platforms/local/tasks/comment.md` via task(). Pass: `{issue_number: N, body: "<formatted_comment>", action: "post"}`.
 
 ## Live Verification: Comment Claims (MANDATORY)
 

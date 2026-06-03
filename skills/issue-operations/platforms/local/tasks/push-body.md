@@ -10,7 +10,7 @@
 
 Push local issue body to the remote API. This is a one-direction sync — local spec.md is authoritative. Push-body is a SEPARATE operation from `update --body` (which modifies the local file only). The decision to push happens in the post-update decision gate (see `update.md`).
 
-**Primary tool:** `.opencode/tools/local-issues push-body N`
+**Primary tool:** `./.opencode/tools/local-issues push-body N`
 
 **Architectural role:** Push-body closes the sync loop after a local body update. It reads spec.md, extracts the body content, and sends it to the remote API via the platform's update-issue endpoint. This task does NOT call `update --body` — that is the caller's responsibility.
 
@@ -22,7 +22,7 @@ ______________________________________________________________________
 - \[ \] `.issues/<N>/` directory exists
 - \[ \] `.issues/<N>/spec.md` contains body content to push
 - \[ \] Issue has a remote link in frontmatter (`remote_url` or `github_issue` field)
-- \[ \] `.opencode/tools/local-issues` CLI tool is available
+- \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] Remote API credentials are available (platform-appropriate env vars or MCP tools)
 
 ______________________________________________________________________
@@ -95,11 +95,11 @@ ______________________________________________________________________
 
 | Error                                | Cause                                                          | Resolution                                                                               |
 | ------------------------------------ | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `local-issues read N` exits non-zero | Issue directory missing or malformed                           | HALT. Verify `.issues/<N>/spec.md` exists.                                               |
+| `./.opencode/tools/local-issues read N` exits non-zero | Issue directory missing or malformed                           | HALT. Verify `.issues/<N>/spec.md` exists.                                               |
 | No remote link in frontmatter        | Issue was created locally only, never promoted                 | HALT. Report "Issue #N has no remote link — use promote task first."                     |
 | Remote API call fails                | Network error, auth failure, rate limit                        | HALT. Report the API error message. Do not retry without orchestrator instruction.       |
 | Body-preservation violation          | Body content shortened to \<80% of previous remote body length | HALT. Report body erasure risk per `000-critical-rules.md`.                              |
-| `last_sync` update fails             | `local-issues update` failure                                  | Document that body was pushed but timestamp not recorded. Report to orchestrator.        |
+| `last_sync` update fails             | `./.opencode/tools/local-issues update` failure                                  | Document that body was pushed but timestamp not recorded. Report to orchestrator.        |
 | GitHub owner/repo mismatch           | Frontmatter link targets different repo than session context   | HALT. Report mismatch. The local issue was promoted to a different repo — verify intent. |
 
 **General rule:** All errors must HALT and report the specific failure to the orchestrator. Never silently skip, fabricate remote links, or inline remote platform logic outside the platform sub-skills.

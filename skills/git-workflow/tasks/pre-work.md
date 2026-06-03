@@ -247,7 +247,7 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 
 ### Step 3.5: Submodule Initialization and Sync — Orchestrator Dispatches `submodule-tag-prework`
 
-**If `.gitmodules` does NOT exist:** Skip this step and proceed to Step 3.7.
+**If `.gitmodules` does NOT exist:** Skip this step and proceed to Step 4.
 
 **If `.gitmodules` exists:** The orchestrator dispatches a `submodule-tag-prework` sub-agent with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
 
@@ -274,76 +274,6 @@ gitmodules_path: <path>
 **If on `main` worktree:** The sub-agent uses `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to dev tip. Pass `worktree_type: main` in the task context.
 
 **Do NOT inline the submodule operations.** The orchestrator never runs `git submodule` commands or reads submodule logs directly.
-
-### Step 3.7: Initialize .issues/ Worktree and Issue Directory (MANDATORY)
-
-After branch creation and submodule sync, initialize the `.issues/` worktree and `.issues/<issue_number>/` tracking directory:
-
-1. **Initialize .issues/ worktree (if not already initialized):**
-   ```bash
-   local-issues setup
-   ```
-   This is idempotent — if `.issues/` is already a worktree, it exits cleanly. If a regular `.issues/` directory exists (not a worktree), it renames it to `.issues.bak`, creates the worktree, and migrates content.
-
-   **Exit code handling:**
-   | Exit Code | Meaning | Agent Action |
-   |-----------|---------|--------------|
-   | 0 | Success — worktree ready | Continue to step 2 |
-   | 1 | Fatal error — retry won't help | HALT and report the error from stderr |
-   | 2 | Blocked — stale worktree detected | Remediate: read the stale path from the stderr report, run `git worktree remove <stale_path>`, then retry `local-issues setup` |
-
-   **Exit code 2 remediation flow (STALE worktree):**
-   1. Read the stale path from the stderr report (lines starting with `ERROR: Stale issues-data worktree detected at:`)
-   2. Remove the stale worktree: `git worktree remove <stale_path>`
-   3. Re-run: `local-issues setup` — should succeed
-   4. Verify `.issues/` is now a worktree on `issues-data` at the correct path
-   5. After setup, examine all `.issues/` files on the current branch and ensure they are properly represented on `issues-data`:
-      - Tracked `.issues/` files → copy into the worktree, commit on `issues-data`, then `git rm --cached` from current branch and commit
-      - Untracked `.issues/` directories → copy into the worktree, commit on `issues-data`
-   6. Remove `.issues.bak` if leftover from the setup cycle
-   7. Resume the original calling task
-
-2. **Create issue-specific directory:**
-   ```bash
-   mkdir -p .issues/<issue_number>/
-   ```
-
-3. **Fetch spec from API and mirror to `spec.md`:**
-   - Call `issue-operations -> read-issue (github_issue_read(method="get", owner=<github.owner>, repo=<github.repo>, issue_number=<issue_number>)` <!-- Routes through issue-operations per SPEC #683 -->
-   - If success: write `.issues/<issue_number>/spec.md` with header `# Synced from GitHub Issue #<issue_number> at <ISO8601-timestamp>` followed by the issue body
-   - If API unreachable: skip `spec.md` creation (no fallback since there's nothing to fall back to at initialization)
-   - See `issue-operations/platforms/github-mcp/SKILL.md` → "spec.md Mirror" for the complete mirror procedure
-
-4. **Write initial `state.md`:**
-   ```markdown
-   # State: Issue #<issue_number>
-
-   **Branch:** <branch-name>
-   **Workflow Phase:** pre-work
-   **Created:** <ISO8601-timestamp>
-   **Last Updated:** <ISO8601-timestamp>
-   **Status:** initialized
-
-   ## Current State
-
-   Pre-work initialization complete. Awaiting implementation task().
-
-   ## Blockers
-
-   None.
-   ```
-
-5. **Auto-commit `.issues/<issue_number>/`:**
-   ```bash
-   git add .issues/<issue_number>/spec.md .issues/<issue_number>/state.md
-   git commit -m "docs(issues): <issue_number> - spec: mirrored from GitHub Issue #<issue_number>, state: pre-work initialization"
-   ```
-
-6. **Verify issues-data remote tracking and push if needed:**
-   ```bash
-   local-issues push
-   ```
-   If exit code != 0: HALT and report push failure.
 
 ### Step 4: Verify Branch Environment
 
@@ -401,9 +331,9 @@ working_tree_clean: true
 ready_for: implementation
 ```
 
-## `investigate/` Scratch Branches
+## `observe/` Scratch Branches
 
-Under `for_analysis` scope, the agent may create `investigate/<topic>` scratch branches for read-only investigation. These are NOT feature branches — they are ephemeral throwaway branches.
+Under `for_analysis` scope, the agent may create `observe/<topic>` scratch branches for read-only investigation. These are NOT feature branches — they are ephemeral throwaway branches.
 
 ### When to Use
 
@@ -415,27 +345,27 @@ Under `for_analysis` scope, the agent may create `investigate/<topic>` scratch b
 ### Naming Convention
 
 ```bash
-git checkout -b investigate/<topic> dev
+git checkout -b observe/<topic> dev
 ```
 
-Examples: `investigate/parsing-bug`, `investigate/missing-env-var`, `investigate/test-failure-root-cause`
+Examples: `observe/parsing-bug`, `observe/missing-env-var`, `observe/test-failure-root-cause`
 
 ### Scope Gate
 
-- `investigate/*` branches are permitted under `for_analysis` scope (self-assigned or explicit)
-- `investigate/*` branches do NOT require `for_implementation` — they are read-only scratch branches
-- The agent MUST NOT make permanent code changes on `investigate/*` branches
+- `observe/*` branches are permitted under `for_analysis` scope (self-assigned or explicit)
+- `observe/*` branches do NOT require `for_implementation` — they are read-only scratch branches
+- The agent MUST NOT make permanent code changes on `observe/*` branches
 - Writes to `./tmp/` and throwaway scripts ARE permitted
 
 ### MUST Discard Before HALT
 
-**🚫 CRITICAL: `investigate/` branches MUST be discarded before the halt message.**
+**🚫 CRITICAL: `observe/` branches MUST be discarded before the halt message.**
 
 ```bash
-git branch -D investigate/<topic>
+git branch -D observe/<topic>
 ```
 
-This is a hard requirement — leaving `investigate/` branches in the repo pollutes branch space. The enforcement in `enforcement/halt-conditions.md` verifies this.
+This is a hard requirement — leaving `observe/` branches in the repo pollutes branch space. The enforcement in `enforcement/halt-conditions.md` verifies this.
 
 ### `feature/` and `spec/` Branch Scope Gate
 
@@ -446,7 +376,7 @@ Creating `feature/*` or `spec/*` branches requires `for_implementation` scope or
 git checkout -b feature/123-xyz dev  # Requires for_implementation+
 
 # ✅ PERMITTED under for_analysis
-git checkout -b investigate/parsing-bug dev  # Read-only scratch branch
+git checkout -b observe/parsing-bug dev  # Read-only scratch branch
 ```
 
 If the agent attempts to create a `feature/` or `spec/` branch under `for_analysis`, the operation MUST be rejected and reported as a scope boundary violation.

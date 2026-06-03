@@ -10,7 +10,7 @@
 
 Close a local issue by moving it from `.issues/open/` to `.issues/closed/`. Close is a local file mutation only — remote closure is handled by the sync-pull-to-local workflow. The agent that calls close must also dispatch `push-body` separately if remote sync is needed (see Remote Sync Note below).
 
-**Primary tool:** `.opencode/tools/local-issues`
+**Primary tool:** `./.opencode/tools/local-issues`
 
 **Key architectural rule:** Close is local-only. Remote closure is handled by `push-body` which reads `state.md` and pushes the updated status to the remote API. These are intentionally decoupled — same pattern as update vs push-body (Card-013, Card-015).
 
@@ -20,7 +20,7 @@ ______________________________________________________________________
 
 - \[ \] Issue number N is known (positive integer)
 - \[ \] `.issues/open/<N>/` directory exists
-- \[ \] `.opencode/tools/local-issues` CLI tool is available
+- \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] Issue is currently open (`status: open` in frontmatter)
 - \[ \] Close reason is specified if known: `--reason completed|not_planned|duplicate`
 
@@ -30,10 +30,10 @@ ______________________________________________________________________
 
 | Step | Action               | Command / Details                                                                                                                                                                         |
 | ---- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | Verify open state    | `local-issues read N` — confirm `status: open`. If already `closed`, exit with code 2 (already closed).                                                                                   |
+| 1    | Verify open state    | `./.opencode/tools/local-issues read N` — confirm `status: open`. If already `closed`, exit with code 2 (already closed).                                                                                   |
 | 2    | Pre-read frontmatter | Capture current frontmatter to preserve fields during transition.                                                                                                                         |
-| 3    | Close issue          | `local-issues close N [--reason completed]` — updates frontmatter (status → `closed`, `closed_at` timestamp, `state_reason`), moves `.issues/open/NNN-slug/` → `.issues/closed/NNN-slug/` |
-| 4    | Verify               | `local-issues read N` — confirm exit 0, `status: closed`, `closed_at` timestamp present, `state_reason` matches expected value                                                            |
+| 3    | Close issue          | `./.opencode/tools/local-issues close N [--reason completed]` — updates frontmatter (status → `closed`, `closed_at` timestamp, `state_reason`), moves `.issues/open/NNN-slug/` → `.issues/closed/NNN-slug/` |
+| 4    | Verify               | `./.opencode/tools/local-issues read N` — confirm exit 0, `status: closed`, `closed_at` timestamp present, `state_reason` matches expected value                                                            |
 | 5    | Auto-commit          | The CLI tool auto-commits the move on the issues-data branch (if configured). Verify the commit succeeded.                                                                                |
 
 ### Reason Values
@@ -62,7 +62,7 @@ ______________________________________________________________________
 - \[ \] CLI tool returned exit code 0
 - \[ \] `.issues/open/<N>/` directory no longer exists
 - \[ \] `.issues/closed/<N>/` directory exists with all files intact
-- \[ \] `local-issues read N` returns exit 0
+- \[ \] `./.opencode/tools/local-issues read N` returns exit 0
 - \[ \] Frontmatter `status` is `closed`
 - \[ \] `closed_at` timestamp is present (ISO 8601 format)
 - \[ \] `state_reason` matches expected value (or default `completed`)
@@ -93,12 +93,12 @@ ______________________________________________________________________
 
 | Error                                         | Cause                                             | Resolution                                                                                        |
 | --------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `local-issues close N` exits code 2           | Issue is already closed                           | Report to orchestrator. No action needed — issue is in desired state.                             |
-| `local-issues close N` exits non-zero (non-2) | Issue not found, move failed, frontmatter corrupt | Verify `.issues/open/<N>/` exists. Check frontmatter is valid YAML. Check filesystem permissions. |
+| `./.opencode/tools/local-issues close N` exits code 2           | Issue is already closed                           | Report to orchestrator. No action needed — issue is in desired state.                             |
+| `./.opencode/tools/local-issues close N` exits non-zero (non-2) | Issue not found, move failed, frontmatter corrupt | Verify `.issues/open/<N>/` exists. Check frontmatter is valid YAML. Check filesystem permissions. |
 | Issue N not found                             | `.issues/open/<N>/` does not exist                | HALT. Verify issue number. Check if issue is already in `.issues/closed/`.                        |
 | Frontmatter missing `status` field            | Corrupted spec.md                                 | HALT. Report corrupt issue data. Orchestrator must repair or delete.                              |
 | Move to closed fails                          | Filesystem error, permissions, destination exists | HALT. `.issues/closed/<N>/` may already exist. Orchestrator must resolve collision.               |
-| CLI tool not found                            | `.opencode/tools/local-issues` missing            | HALT. The tool must exist for local platform operations.                                          |
+| CLI tool not found                            | `./.opencode/tools/local-issues` missing            | HALT. The tool must exist for local platform operations.                                          |
 | Push-body after close fails                   | Remote API error (auth, rate limit, 404)          | Report to orchestrator. Local close is already committed — push failure is a separate concern.    |
 
 **General rule:** All errors must HALT and report the specific failure to the orchestrator. Never silently skip, fabricate data, or inline push-body logic. Already-closed (exit code 2) is informational only — not an error that halts pipeline.

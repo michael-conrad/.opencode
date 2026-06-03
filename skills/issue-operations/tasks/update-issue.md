@@ -52,9 +52,7 @@ github_issue_write(
 ```
 
 **Local platform:**
-```bash
-./.opencode/tools/local-issues update <issue-number> --body "<body>" --labels "<labels>"
-```
+Route to `platforms/local/tasks/update.md` via task(). Pass: `{issue_number: N, body: "<body>", labels: ["<label>"]}`.
 
 ### Step 3: Verify Body Preservation
 

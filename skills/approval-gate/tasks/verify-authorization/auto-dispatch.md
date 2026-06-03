@@ -54,7 +54,7 @@ When `authorization_scope == "for_analysis"`:
 - Dispatch is read-only investigation
 - No `writing-plans` or `executing-plans` routing — only `issue-operations` for issue creation/comments
 - No `implementation-pipeline` routing — only `pre-analysis` if needed for context understanding
-- No feature branch creation; `investigate/<topic>` scratch branches permitted
+- No feature branch creation; `observe/<topic>` scratch branches permitted
 - Gap-fill cascade is skipped entirely (gap_fill = none)
 - Pre-implementation setup is skipped entirely
 - HALT after `analysis_complete`
