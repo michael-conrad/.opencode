@@ -63,8 +63,10 @@ __export_sqlite_to_yaml() {
     local db_found=0
 
     local db_candidates=(
+        "${XDG_DATA_HOME:-$HOME/.local/share}/opencode/opencode.db"
         "${XDG_DATA_HOME:-$HOME/.local/share}/opencode/opencode.sqlite3"
         "${XDG_STATE_HOME:-$HOME/.config}/opencode/opencode.sqlite3"
+        "$HOME/.local/share/opencode/opencode.db"
         "$HOME/.local/share/opencode/opencode.sqlite3"
         "$HOME/.config/opencode/opencode.sqlite3"
     )

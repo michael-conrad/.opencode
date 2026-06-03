@@ -24,8 +24,8 @@ fi
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="viewport-stash-pop-swap"
-BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/glm-5.1:cloud}"
-BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-420}"
+BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/qwen3.5:397b-cloud}"
+BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-1200}"
 
 source "$PROJECT_DIR/tmp/setup-viewport-test.sh"
 
@@ -33,7 +33,27 @@ MODEL_SLUG="$(echo "$BEHAVIOR_MODEL" | tr '/:@' '-')"
 ARTIFACT_DIR="$PROJECT_DIR/tmp/behavioral-evidence-${SCENARIO_NAME}-GREEN-${MODEL_SLUG}"
 mkdir -p "$ARTIFACT_DIR"
 
-SCENARIO_PROMPT="You have access to a viewport-editor MCP tool with stash/pop/swap capabilities. Open \`fixtures/dorian-gray.txt\` and \`fixtures/config.yaml\` in separate viewports. In the dorian-gray viewport, change the first \"Dorian\" to \"DORIAN\". Stash that edit, then pop it onto the config.yaml viewport. Observe what happens — does the stash transfer the change to the other file? Save and close both viewports. Report what you observed."
+SCENARIO_PROMPT="You have access to a viewport-editor MCP tool with clipboard and stash support. Stash stores clipboard contents under named slots. Use clipboard:show to peek at the clipboard after any swap or operation.
+
+Before every tool call, write a line like: \`TOOL: <tool_name>(<param1>=<val1>, ...)\` so I can see what you are about to dispatch.
+
+Open \`fixtures/dorian-gray.txt\`, \`fixtures/config.yaml\`, and \`fixtures/example.py\` in viewports (same session, so clipboard is shared).
+
+Phase 1 — Build the stash (multi-copy → multi-stash):
+  1. Copy line 1 from dorian-gray.txt to clipboard, then stash it as 'title'.
+  2. Copy lines 5-6 from config.yaml to clipboard, then stash it as 'server_config'.
+  3. Copy line 1 from example.py to clipboard, then stash it as 'module_doc'.
+
+Phase 2 — Deploy from stash (multi-pop → multi-paste):
+  4. Pop 'title' to clipboard, then clipboard:show to verify, then paste it into example.py at line 10.
+  5. Pop 'server_config' to clipboard, then clipboard:show to verify, then paste it into dorian-gray.txt at line 50.
+  6. Pop 'module_doc' to clipboard, then clipboard:show to verify, then paste it into config.yaml at line 1 (pushing existing lines down).
+
+Phase 3 — Swap and verify:
+  7. Swap the clipboard with the 'title' stash slot. clipboard:show should now show the title content, and the slot should hold whatever was on clipboard.
+  8. Paste the swapped clipboard content into example.py at line 20.
+
+Save all three files. Verify on disk with grep that each file contains its pasted content. List all stashes (stash-list). Close all viewports. Report what you observed."
 
 cat > "$ARTIFACT_DIR/instruction_card.md" <<CARD
 # SC-7: Stash/Pop/Swap
@@ -62,6 +82,7 @@ XDG_DATA_HOME="$VIEWPORT_TEST_HOME/.local/share" \
 XDG_STATE_HOME="$VIEWPORT_TEST_HOME/.local/state" \
 timeout "$BEHAVIOR_TIMEOUT" opencode-cli run "$SCENARIO_PROMPT" \
     --model "$BEHAVIOR_MODEL" \
+    --log-level DEBUG \
     > "$STDOUT_LOG" 2> "$STDERR_LOG" || true
 
 cat > "$ARTIFACT_DIR/manifest.yaml" <<MANIFEST
