@@ -12,7 +12,7 @@ Four-phase pipeline for editing the executive summary (`remote.md`) and syncing 
 
 **Scope:** `remote.md` only. Never touches `spec.md`.
 
-**Primary tool:** `.opencode/tools/local-issues`
+**Primary tool:** `./.opencode/tools/local-issues`
 
 ______________________________________________________________________
 
@@ -21,10 +21,10 @@ ______________________________________________________________________
 - \[ \] Issue number N is known (positive integer)
 - \[ \] `.issues/<N>/` directory exists
 - \[ \] Issue has a remote link (`remote_url` or `github_issue` in frontmatter)
-- \[ \] `.opencode/tools/local-issues` CLI tool is available
-- \[ \] `.opencode/tools/local-issues extract-exec-summary N` is functional (target utility)
-- \[ \] `.opencode/tools/local-issues push-body N` is functional (target utility)
-- \[ \] `.opencode/tools/local-issues pull-body N` is functional (target utility)
+- \[ \] `./.opencode/tools/local-issues` CLI tool is available
+- \[ \] `./.opencode/tools/local-issues extract-exec-summary N` is functional (target utility)
+- \[ \] `./.opencode/tools/local-issues push-body N` is functional (target utility)
+- \[ \] `./.opencode/tools/local-issues pull-body N` is functional (target utility)
 
 ______________________________________________________________________
 
@@ -36,7 +36,7 @@ Extract the executive summary from the local spec body into `remote.md`. This re
 
 | Step | Action                | Command / Details                                                                   |
 | ---- | --------------------- | ----------------------------------------------------------------------------------- |
-| 1.1  | Extract exec-summary  | `.opencode/tools/local-issues extract-exec-summary N`                                               |
+| 1.1  | Extract exec-summary  | `./.opencode/tools/local-issues extract-exec-summary N`                                               |
 | 1.2  | Verify extraction     | Read `.issues/<N>/remote.md` — confirm file exists and is non-empty                 |
 | 1.3  | Capture path and body | Record `{ current_body, remote_md_path: ".issues/<N>/remote.md", issue_number: N }` |
 
@@ -88,9 +88,9 @@ Push the edited `remote.md` to the remote API, then verify sync succeeded by pul
 
 | Step | Action               | Command / Details                                                                                |
 | ---- | -------------------- | ------------------------------------------------------------------------------------------------ |
-| 4.1  | Push to remote       | `.opencode/tools/local-issues push-body N`                                                                       |
+| 4.1  | Push to remote       | `./.opencode/tools/local-issues push-body N`                                                                       |
 | 4.2  | Check push exit code | Confirm exit code 0                                                                              |
-| 4.3  | Pull remote body     | `.opencode/tools/local-issues pull-body N` — fetch the remote issue body                                         |
+| 4.3  | Pull remote body     | `./.opencode/tools/local-issues pull-body N` — fetch the remote issue body                                         |
 | 4.4  | Compare bodies       | Compare pulled body against local `.issues/<N>/remote.md` — must match character-for-character   |
 | 4.5  | Record result        | `{ sync_status: "pushed", url: "<remote_issue_url>" }` or `{ sync_status: "failed", url: null }` |
 
@@ -117,8 +117,8 @@ ______________________________________________________________________
 
 - \[ \] `remote.md` edited per orchestrator-supplied edit script
 - \[ \] Structural integrity check passed (no binary corruption, no YAML frontmatter, non-empty)
-- \[ \] `.opencode/tools/local-issues push-body N` exited 0
-- \[ \] `.opencode/tools/local-issues pull-body N` confirmed remote body matches local `remote.md`
+- \[ \] `./.opencode/tools/local-issues push-body N` exited 0
+- \[ \] `./.opencode/tools/local-issues pull-body N` confirmed remote body matches local `remote.md`
 - \[ \] Result contract returned to orchestrator
 - \[ \] No files outside `.issues/<N>/` were modified
 
@@ -128,12 +128,12 @@ ______________________________________________________________________
 
 | Error                                                | Cause                                                         | Resolution                                                                                                                                              |
 | ---------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.opencode/tools/local-issues extract-exec-summary N` exits non-zero | `remote.md` may not exist, spec body may lack exec-summary    | Verify `.issues/<N>/spec.md` exists and has an exec-summary section. Report to orchestrator.                                                            |
-| `.opencode/tools/local-issues push-body N` exits non-zero            | No remote link configured, API unreachable, permissions error | Check frontmatter for `remote_url` or `github_issue`. If missing, issue is local-only — push is not applicable. Report to orchestrator.                 |
-| `.opencode/tools/local-issues pull-body N` exits non-zero            | Remote doesn't exist yet, network error, API changed          | The push may have succeeded but pull failed. Report partial success to orchestrator — push was committed but sync verification is inconclusive.         |
+| `./.opencode/tools/local-issues extract-exec-summary N` exits non-zero | `remote.md` may not exist, spec body may lack exec-summary    | Verify `.issues/<N>/spec.md` exists and has an exec-summary section. Report to orchestrator.                                                            |
+| `./.opencode/tools/local-issues push-body N` exits non-zero            | No remote link configured, API unreachable, permissions error | Check frontmatter for `remote_url` or `github_issue`. If missing, issue is local-only — push is not applicable. Report to orchestrator.                 |
+| `./.opencode/tools/local-issues pull-body N` exits non-zero            | Remote doesn't exist yet, network error, API changed          | The push may have succeeded but pull failed. Report partial success to orchestrator — push was committed but sync verification is inconclusive.         |
 | Body mismatch after pull                             | Remote body differs from local `remote.md`                    | API may have transformed content (added/removed whitespace, truncated). Read remote body directly via API and compare. Report mismatch to orchestrator. |
 | Integrity check fails                                | Binary corruption, YAML frontmatter, empty body               | HALT. Report specific integrity issue. Do NOT push.                                                                                                     |
 | Edit script malformed                                | Orchestrator-supplied script contains invalid replacements    | HALT. Report that edit script could not be applied. Request corrected script.                                                                           |
-| CLI tool not found                                   | `.opencode/tools/local-issues` missing                        | HALT. The tool must exist for local platform operations.                                                                                                |
+| CLI tool not found                                   | `./.opencode/tools/local-issues` missing                        | HALT. The tool must exist for local platform operations.                                                                                                |
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)

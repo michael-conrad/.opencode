@@ -10,7 +10,7 @@
 
 Pull remote issue body to local mirror. Pull-body brings the remote's current state into a local `remote.md` file — it does NOT overwrite `spec.md`. The local spec.md is the authoritative version; `remote.md` is a reference mirror for diffing, auditing, and conflict detection.
 
-**Primary tool:** `.opencode/tools/local-issues pull-body N`
+**Primary tool:** `./.opencode/tools/local-issues pull-body N`
 
 **Key architectural rule:** Pulls into `remote.md` only. Never overwrites `spec.md` with remote content. The local spec is the canonical source — remote body is a point-in-time reference copy.
 
@@ -22,7 +22,7 @@ ______________________________________________________________________
 - \[ \] `.issues/<N>/` directory exists
 - \[ \] Issue has a remote link in frontmatter (`remote_url` or `github_issue` field)
 - \[ \] Remote API is reachable (platform-appropriate MCP tools or CLI)
-- \[ \] `.opencode/tools/local-issues` CLI tool is available
+- \[ \] `./.opencode/tools/local-issues` CLI tool is available
 
 ______________________________________________________________________
 
@@ -103,11 +103,11 @@ ______________________________________________________________________
 
 | Error                                | Cause                                                              | Resolution                                                                                                          |
 | ------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `.opencode/tools/local-issues read N` exits non-zero | Issue directory missing or malformed                               | HALT. Verify `.issues/<N>/spec.md` exists.                                                                          |
+| `./.opencode/tools/local-issues read N` exits non-zero | Issue directory missing or malformed                               | HALT. Verify `.issues/<N>/spec.md` exists.                                                                          |
 | No remote link in frontmatter        | Issue was created locally only, never promoted                     | HALT. Report "Issue #N has no remote link — no remote to pull from."                                                |
 | Remote API call fails                | Network error, auth failure, rate limit, issue not found on remote | HALT. Report the API error message. Do not retry without orchestrator instruction.                                  |
 | remote.md write fails                | Filesystem permissions, disk full                                  | HALT. Report filesystem error.                                                                                      |
-| `last_sync` update fails             | `.opencode/tools/local-issues update` failure                                      | Document that body was pulled but timestamp not recorded. Report to orchestrator.                                   |
+| `last_sync` update fails             | `./.opencode/tools/local-issues update` failure                                      | Document that body was pulled but timestamp not recorded. Report to orchestrator.                                   |
 | GitHub owner/repo mismatch           | Frontmatter link targets different repo than session context       | HALT. Report mismatch. The local issue was promoted to a different repo — verify intent.                            |
 | Pulled body empty                    | Remote issue has no body content                                   | Report "Remote issue #N has empty body — wrote empty remote.md" and continue. This is informational, not a failure. |
 
