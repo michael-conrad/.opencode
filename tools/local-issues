@@ -332,8 +332,30 @@ def _auto_commit(message: str = "") -> None:
         pass  # Silent fail on auto-commit
 
 
+def _next_number() -> int:
+    """Read next issue number from .counter, increment, and write back.
+
+    Creates .counter at 1 if missing. Corrupt/unreadable counter fails hard.
+    """
+    counter_path = Path(ISSUES_DIR) / ".counter"
+    if not counter_path.exists():
+        _ensure_worktree()
+        counter_path.parent.mkdir(parents=True, exist_ok=True)
+        counter_path.write_text("1\n")
+        return 1
+    raw = counter_path.read_text().strip()
+    if not raw.isdigit():
+        print("FATAL: .counter file is corrupt — expected a number", file=sys.stderr)
+        sys.exit(1)
+    n = int(raw)
+    counter_path.write_text(f"{n + 1}\n")
+    return n
+
+
 def cmd_create(args: argparse.Namespace) -> None:
-    if issue_exists(args.number):
+    if args.number is None:
+        args.number = _next_number()
+    elif issue_exists(args.number):
         print(f"Issue #{args.number} already exists.", file=sys.stderr)
         sys.exit(1)
     _ensure_worktree()
@@ -643,8 +665,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    p = sub.add_parser("create", help="Create a new issue")
-    p.add_argument("--number", type=int, required=True)
+    p = sub.add_parser("create", help="Create a new issue (autonumber when --number omitted)")
+    p.add_argument("--number", type=int, default=None, help="Explicit issue number (autonumber if omitted)")
     p.add_argument("--title", type=str, required=True)
     p.add_argument("--labels", type=str, nargs="*", default=[])
 
