@@ -162,7 +162,7 @@ When `github.platform` is NOT `local` (remote available), local issues can be pr
 
 1. Create local issue first (working draft)
 1. On authorization event, promote content to GitHub Issue via `issue-operations --task creation`
-1. Link local issue to GitHub issue: `local-issues link NNN --github GITHUB_NUM`
+1. Link local issue to GitHub issue: `.opencode/tools/local-issues link NNN --github GITHUB_NUM`
 1. Add comment on GitHub Issue referencing local path
 
 ## Worktree Exemption
