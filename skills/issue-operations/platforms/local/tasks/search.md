@@ -51,7 +51,7 @@ ______________________________________________________________________
 | 1    | Resolve status filter | Default `open` if omitted. `all` = no status filtering.                                                                                                                |
 | 2    | Resolve label filter  | Parse comma-separated `--labels` into list. Omitted = no label filtering.                                                                                              |
 | 3    | Resolve query         | Free text `--query`. Omitted = no text filtering.                                                                                                                      |
-| 4    | Execute search        | `local-issues search --query "<query>"` — the tool iterates `.issues/<N>/issue.yaml` files                                                                             |
+| 4    | Execute search        | `.opencode/tools/local-issues search --query "<query>"` — the tool iterates `.issues/<N>/issue.yaml` files                                                                             |
 | 5    | Post-filter in task   | Apply status + label filters not supported by current CLI arguments. If tool does not natively filter by status/labels, apply Python-level filtering in the task step. |
 | 6    | Format output         | Transform tool output into the YAML result format. Each entry includes `number`, `title`, `status`, `labels`, `phase` (when set).                                      |
 | 7    | Return YAML           | YAML array piped to orchestrator. Empty array `[]` if no results match.                                                                                                |

@@ -103,11 +103,11 @@ ______________________________________________________________________
 
 | Error                                | Cause                                                              | Resolution                                                                                                          |
 | ------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `local-issues read N` exits non-zero | Issue directory missing or malformed                               | HALT. Verify `.issues/<N>/spec.md` exists.                                                                          |
+| `.opencode/tools/local-issues read N` exits non-zero | Issue directory missing or malformed                               | HALT. Verify `.issues/<N>/spec.md` exists.                                                                          |
 | No remote link in frontmatter        | Issue was created locally only, never promoted                     | HALT. Report "Issue #N has no remote link — no remote to pull from."                                                |
 | Remote API call fails                | Network error, auth failure, rate limit, issue not found on remote | HALT. Report the API error message. Do not retry without orchestrator instruction.                                  |
 | remote.md write fails                | Filesystem permissions, disk full                                  | HALT. Report filesystem error.                                                                                      |
-| `last_sync` update fails             | `local-issues update` failure                                      | Document that body was pulled but timestamp not recorded. Report to orchestrator.                                   |
+| `last_sync` update fails             | `.opencode/tools/local-issues update` failure                                      | Document that body was pulled but timestamp not recorded. Report to orchestrator.                                   |
 | GitHub owner/repo mismatch           | Frontmatter link targets different repo than session context       | HALT. Report mismatch. The local issue was promoted to a different repo — verify intent.                            |
 | Pulled body empty                    | Remote issue has no body content                                   | Report "Remote issue #N has empty body — wrote empty remote.md" and continue. This is informational, not a failure. |
 

@@ -95,11 +95,11 @@ ______________________________________________________________________
 
 | Error                                | Cause                                                          | Resolution                                                                               |
 | ------------------------------------ | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `local-issues read N` exits non-zero | Issue directory missing or malformed                           | HALT. Verify `.issues/<N>/spec.md` exists.                                               |
+| `.opencode/tools/local-issues read N` exits non-zero | Issue directory missing or malformed                           | HALT. Verify `.issues/<N>/spec.md` exists.                                               |
 | No remote link in frontmatter        | Issue was created locally only, never promoted                 | HALT. Report "Issue #N has no remote link — use promote task first."                     |
 | Remote API call fails                | Network error, auth failure, rate limit                        | HALT. Report the API error message. Do not retry without orchestrator instruction.       |
 | Body-preservation violation          | Body content shortened to \<80% of previous remote body length | HALT. Report body erasure risk per `000-critical-rules.md`.                              |
-| `last_sync` update fails             | `local-issues update` failure                                  | Document that body was pushed but timestamp not recorded. Report to orchestrator.        |
+| `last_sync` update fails             | `.opencode/tools/local-issues update` failure                                  | Document that body was pushed but timestamp not recorded. Report to orchestrator.        |
 | GitHub owner/repo mismatch           | Frontmatter link targets different repo than session context   | HALT. Report mismatch. The local issue was promoted to a different repo — verify intent. |
 
 **General rule:** All errors must HALT and report the specific failure to the orchestrator. Never silently skip, fabricate remote links, or inline remote platform logic outside the platform sub-skills.

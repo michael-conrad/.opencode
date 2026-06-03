@@ -45,7 +45,7 @@ ______________________________________________________________________
 | Step | Action                | Details                                                                                                                                          |
 | ---- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 1    | Resolve status filter | Default `open` if omitted. `all` = no status filtering.                                                                                          |
-| 2    | Execute list          | `local-issues list` — iterates `.issues/<N>/issue.yaml` files                                                                                    |
+| 2    | Execute list          | `.opencode/tools/local-issues list` — iterates `.issues/<N>/issue.yaml` files                                                                                    |
 | 3    | Post-filter by status | Apply `--status` filter not supported by current CLI. If tool does not natively filter by status, apply Python-level filtering in the task step. |
 | 4    | Format output         | Transform into YAML result format. Each entry includes `number`, `title`, `status`, `phase` (when set).                                          |
 | 5    | Return YAML           | YAML array piped to orchestrator. Empty array `[]` if no issues match.                                                                           |
