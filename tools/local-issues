@@ -295,11 +295,8 @@ def _ensure_worktree() -> bool:
             kind, name = entry[0], entry[1]
             dst = issues_dir / name
             if kind == "dir":
-                dst.mkdir(parents=True, exist_ok=True)
                 src_tmp = Path(entry[2])
-                for f in src_tmp.iterdir():
-                    if f.is_file():
-                        (dst / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
+                shutil.copytree(str(src_tmp), str(dst), dirs_exist_ok=True)
                 shutil.rmtree(src_tmp.parent)
             elif kind == "file":
                 content = entry[2]
