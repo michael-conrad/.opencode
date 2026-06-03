@@ -301,12 +301,41 @@ def _ensure_worktree() -> bool:
         return False
 
 
+def _push_issues_branch() -> None:
+    """
+    Push the issues worktree branch to origin.
+
+    Only pushes if worktree is active and origin remote exists.
+    Silently skips if no origin remote or network unavailable.
+    """
+    if not _worktree_active():
+        return
+    try:
+        # Check if origin remote exists
+        result = subprocess.run(
+            ["git", "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        if result.returncode != 0:
+            return  # No origin remote
+        subprocess.run(
+            ["git", "push", "origin", WORKTREE_BRANCH],
+            capture_output=True,
+            timeout=30,
+        )
+    except Exception:
+        pass  # Silent fail on push
+
+
 def _auto_commit(message: str = "") -> None:
     """
     Auto-commit changes in .issues/ after a mutation.
 
     Only commits if worktree is active and there are changes.
     Silently skips if no changes detected or not in worktree.
+    After commit, pushes the issues branch to origin.
     """
     if not _worktree_active():
         return
@@ -332,6 +361,7 @@ def _auto_commit(message: str = "") -> None:
         )
     except Exception:
         pass  # Silent fail on auto-commit
+    _push_issues_branch()
 
 
 def _next_number() -> int:
