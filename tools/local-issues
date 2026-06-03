@@ -151,20 +151,9 @@ def now_iso() -> str:
 
 
 def _worktree_active() -> bool:
-    """Check if we are inside the issues worktree."""
-    result = subprocess.run(
-        ["git", "rev-parse", "--show-toplevel"],
-        capture_output=True,
-        text=True,
-        timeout=15,
-    )
-    if result.returncode != 0:
-        return False
-    wt_root = result.stdout.strip()
-    # Check if we are inside a worktree by looking for .git file (not directory)
-    git_path = os.path.join(wt_root, ".git")
-    return os.path.isfile(git_path)
-
+    """Check if .issues/ is a linked worktree (orphan issues branch)."""
+    gitlink = Path(ISSUES_DIR) / ".git"
+    return gitlink.is_file()
 
 def _issues_branch_exists() -> bool:
     """Check if the issues branch exists locally."""
@@ -228,45 +217,42 @@ def _ensure_worktree() -> bool:
         issues_dir = Path(ISSUES_DIR)
         has_existing = issues_dir.is_dir() and any(issues_dir.iterdir())
 
-        # Create worktree
+        # Create worktree at .issues/ so all issue data lands on the issues branch
         # First ensure the issues branch exists
         if not _issues_branch_exists():
             # Create orphan branch with initial commit
-            wt_dir = os.path.join(os.getcwd(), ".issues-worktree")
+            wt_tmp = os.path.join(os.getcwd(), ".issues-worktree-tmp")
             subprocess.run(
-                ["git", "worktree", "add", "--detach", wt_dir],
+                ["git", "worktree", "add", "--detach", wt_tmp],
                 capture_output=True,
                 timeout=15,
             )
-            # Init empty branch
             subprocess.run(
                 ["git", "checkout", "--orphan", WORKTREE_BRANCH],
                 capture_output=True,
                 timeout=15,
-                cwd=wt_dir,
+                cwd=wt_tmp,
             )
-            # Create empty commit so branch is real
             subprocess.run(
                 ["git", "commit", "--allow-empty", "-m", "Init issues branch"],
                 capture_output=True,
                 timeout=15,
-                cwd=wt_dir,
+                cwd=wt_tmp,
             )
             subprocess.run(
                 ["git", "branch", WORKTREE_BRANCH, "HEAD"],
                 capture_output=True,
                 timeout=15,
-                cwd=wt_dir,
+                cwd=wt_tmp,
             )
             subprocess.run(
                 ["git", "checkout", "-"],
                 capture_output=True,
                 timeout=15,
-                cwd=wt_dir,
+                cwd=wt_tmp,
             )
-            # Clean up detached worktree
             subprocess.run(
-                ["git", "worktree", "remove", wt_dir],
+                ["git", "worktree", "remove", wt_tmp],
                 capture_output=True,
                 timeout=15,
             )
@@ -276,23 +262,49 @@ def _ensure_worktree() -> bool:
                 timeout=15,
             )
 
-        # Now create proper worktree
-        wt_path = os.path.join(os.getcwd(), ".issues-worktree")
+        # If .issues/ exists with data (plain files from before), save content
+        # before removing it for worktree takeover, then migrate into worktree
+        saved_content: list[tuple[str, str, str]] = []
+        if has_existing:
+            for item in issues_dir.iterdir():
+                if item.name == ".git":
+                    continue
+                if item.is_dir():
+                    import tempfile
+                    tmpdir = tempfile.mkdtemp()
+                    dst = os.path.join(tmpdir, item.name)
+                    shutil.copytree(str(item), dst)
+                    saved_content.append(("dir", item.name, dst))
+                else:
+                    content = item.read_text(encoding="utf-8")
+                    saved_content.append(("file", item.name, content))
+
+        # Remove the parent repo's .issues/ so the worktree can take over
+        if issues_dir.is_dir():
+            shutil.rmtree(str(issues_dir))
+
+        # Create worktree at .issues/ directly — this IS the issues branch
         subprocess.run(
-            ["git", "worktree", "add", wt_path, WORKTREE_BRANCH],
+            ["git", "worktree", "add", str(issues_dir), WORKTREE_BRANCH],
             capture_output=True,
             timeout=15,
         )
 
-        # Migrate existing .issues/ content into worktree
-        if has_existing:
-            for item in issues_dir.iterdir():
-                dst = Path(wt_path) / ISSUES_DIR / item.name
-                if item.is_dir():
-                    shutil.copytree(item, dst, dirs_exist_ok=True)
-                else:
-                    dst.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(item, dst)
+        # Migrate saved content into the worktree
+        for entry in saved_content:
+            kind, name = entry[0], entry[1]
+            dst = issues_dir / name
+            if kind == "dir":
+                dst.mkdir(parents=True, exist_ok=True)
+                src_tmp = Path(entry[2])
+                for f in src_tmp.iterdir():
+                    if f.is_file():
+                        (dst / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
+                shutil.rmtree(src_tmp.parent)
+            elif kind == "file":
+                content = entry[2]
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                dst.write_text(content, encoding="utf-8")
 
         return True
 
@@ -305,18 +317,19 @@ def _push_issues_branch() -> None:
     """
     Push the issues worktree branch to origin.
     Only called from _auto_commit after a mutation commit.
+    Runs git commands from within .issues/ (the linked worktree).
     """
     if not _worktree_active():
         return
     try:
         result = subprocess.run(
-            ["git", "remote", "get-url", "origin"],
+            ["git", "-C", ISSUES_DIR, "remote", "get-url", "origin"],
             capture_output=True, text=True, timeout=15,
         )
         if result.returncode != 0:
             return
         subprocess.run(
-            ["git", "push", "origin", WORKTREE_BRANCH],
+            ["git", "-C", ISSUES_DIR, "push", "origin", WORKTREE_BRANCH],
             capture_output=True, timeout=30,
         )
     except Exception:
@@ -325,17 +338,18 @@ def _push_issues_branch() -> None:
 
 def _auto_commit(message: str = "") -> None:
     """
-    Auto-commit changes in .issues/ after a mutation.
+    Auto-commit changes on the issues worktree branch after a mutation.
 
-    Only commits if worktree is active and there are changes.
-    Silently skips if no changes detected or not in worktree.
+    Runs git commands from within .issues/ (the linked worktree checkout of
+    the orphan issues branch). Only commits if worktree is active and there
+    are changes. Silently skips if no changes or not in worktree.
     After commit, pushes the issues branch to origin.
     """
     if not _worktree_active():
         return
     try:
         result = subprocess.run(
-            ["git", "status", "--porcelain", ISSUES_DIR],
+            ["git", "-C", ISSUES_DIR, "status", "--porcelain"],
             capture_output=True,
             text=True,
             timeout=15,
@@ -343,13 +357,13 @@ def _auto_commit(message: str = "") -> None:
         if not result.stdout.strip():
             return  # No changes
         subprocess.run(
-            ["git", "add", ISSUES_DIR],
+            ["git", "-C", ISSUES_DIR, "add", "-A"],
             capture_output=True,
             timeout=15,
         )
         msg_local = message or "auto: update issue"
         subprocess.run(
-            ["git", "commit", "-m", msg_local, "--allow-empty"],
+            ["git", "-C", ISSUES_DIR, "commit", "-m", msg_local, "--allow-empty"],
             capture_output=True,
             timeout=15,
         )
