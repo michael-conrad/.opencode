@@ -24,8 +24,8 @@ fi
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="viewport-session-isolation"
-BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/glm-5.1:cloud}"
-BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-420}"
+BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/qwen3.5:397b-cloud}"
+BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-600}"
 
 source "$PROJECT_DIR/tmp/setup-viewport-test.sh"
 

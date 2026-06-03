@@ -24,7 +24,7 @@ fi
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="viewport-autosave-toggle"
-BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/deepseek-v4-flash:cloud}"
+BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/qwen3.5:397b-cloud}"
 BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-3600}"
 
 source "$PROJECT_DIR/tmp/setup-viewport-test.sh"
