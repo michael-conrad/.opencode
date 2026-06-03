@@ -3,14 +3,14 @@
 # See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# SC-3: Create, read, read-comments, read-labels in sequence via local-issues
+# SC-4: Read an issue and its comments, labels, and sub-issues via local-issues
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="local-issues-read-all"
-SCENARIO_PROMPT="Using .opencode/tools/local-issues from the repo root: first create an issue with --number 201 --title 'Read Test' --labels test read-all, then read it back with the read command, then read its comments with read-comments, and read its labels with read-labels. Report each step's output."
+SCENARIO_PROMPT="There's a claim that the local-issues tool's read commands produce incomplete or incorrect output — that reading an issue, its comments, its labels, and its sub-issues returns malformed YAML or missing fields. Do not read the tool source code. Run the tool first and observe its actual output: create an issue with --number, then read it back, read its comments, read its labels, and read its sub-issues. Confirm each command returns valid YAML with the expected fields. Only after running these tests: if you observed a bug, read the source to confirm the root cause. If the behavior is correct, don't read the code."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
