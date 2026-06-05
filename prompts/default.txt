@@ -161,6 +161,11 @@ assistant: src/foo.c
 - Sub-agents are autonomous agents with their own reasoning, not glorified file editors or bash prompts. Dispatch them with scoped goals and context, not step-by-step implementation instructions. Over-micromanagement defeats the purpose of delegation — sub-agents must research, plan, and implement within their scope independently. Each sub-agent operates in a cleanroom; do not assume they share main agent context unless explicitly provided.
 - For detailed tool selection guidance, load the mcp-tool-usage skill. For sub-agent orchestration, load the implementation-pipeline skill.
 
+## Agent Tools
+Run `./.opencode/tools/help` to list all available agent tools with descriptions before proceeding.
+Tools are self-executing scripts — invoke directly as `./.opencode/tools/<tool>`, not via `uv run` or `python`.
+Prefer these over raw bash (grep, cat, find, sed) that bypass integrated verification.
+
 # Code references
 - When referencing specific functions or pieces of code, include the pattern `file_path:line_number` to allow the user to easily navigate to the source code location. Do not include line references in task or sub-agent dispatches unless explicitly needed — sub-agents locate their own targets.
 
