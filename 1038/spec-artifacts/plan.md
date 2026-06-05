@@ -6,6 +6,8 @@
 
 ---
 
+> **Pipeline checklist**: See [checklist.md](https://github.com/michael-conrad/.opencode/blob/issues-data/1038/spec-artifacts/checklist.md) for the full 12-phase execution plan (pre-work → PR creation → post-halt). The SC-to-item mapping and item definitions below are the plan content; the checklist provides the procedural execution order.
+
 ## SC-to-Item Mapping
 
 | SC | Evidence Type | Item | Description | Verification |
@@ -81,6 +83,8 @@ VERIFY:
 - SPDX header, cross-reference header, helpers.sh sourced, behavior_run called
 
 ## Execution Order
+
+See the [pipeline checklist](https://github.com/michael-conrad/.opencode/blob/issues-data/1038/spec-artifacts/checklist.md) for the full procedural execution sequence (12 phases from pre-work through post-halt). The item TDD cycles below map to Phase 5 of the checklist:
 
 1. Item A: RED → GREEN → VERIFY (no commit)
 2. Item B: RED → GREEN → VERIFY (no commit)
