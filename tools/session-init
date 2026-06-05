@@ -651,6 +651,22 @@ def _check_credential_files_gitignored() -> list[str]:
     return unprotected
 
 
+def get_tools_help() -> str:
+    """Run help tool and return its output."""
+    tools_dir = Path(__file__).resolve().parent
+    help_script = tools_dir / "help"
+    try:
+        result = subprocess.run(
+            [str(help_script)],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        return result.stdout
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError) as e:
+        return f"Tools help unavailable: {e}"
+
+
 def run_guard_checks() -> list[str]:
     """Run guard checks silently. Returns list of problem descriptions."""
     problems: list[str] = []
@@ -713,6 +729,12 @@ def main() -> int:
         print(f"  repo: {entry['repo']}")
         print(f"  platform: {entry['platform']}")
         print(f"  url: {entry['url']}")
+
+    # Emit ## Agent Tools section with live help output
+    tools_help = get_tools_help()
+    print("## Agent Tools")
+    for line in tools_help.splitlines():
+        print(line)
 
     return 0
 
