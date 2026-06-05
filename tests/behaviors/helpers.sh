@@ -233,12 +233,10 @@ behavior_run() {
         setup_story_fixtures "$workdir"
     fi
 
-    if [ "${BEHAVIOR_CONCURRENT:-false}" != "true" ]; then
-        LOCK_FILE="$PARENT_REPO_DIR/tmp/.behavior-run.lock"
-        mkdir -p "$(dirname "$LOCK_FILE")"
-        exec 200>"$LOCK_FILE"
-        flock -x 200
-    fi
+    LOCK_FILE="$PARENT_REPO_DIR/tmp/.behavior-run.lock"
+    mkdir -p "$(dirname "$LOCK_FILE")"
+    exec 200>"$LOCK_FILE"
+    flock -x 200
 
     if [ "${BEHAVIOR_SET_BARE_REMOTE:-0}" = "1" ]; then
         local bare_repo="$workdir/../origin.git"
