@@ -233,12 +233,10 @@ behavior_run() {
         setup_story_fixtures "$workdir"
     fi
 
-    if [ "${BEHAVIOR_CONCURRENT:-false}" != "true" ]; then
-        LOCK_FILE="$PARENT_REPO_DIR/tmp/.behavior-run.lock"
-        mkdir -p "$(dirname "$LOCK_FILE")"
-        exec 200>"$LOCK_FILE"
-        flock -x 200
-    fi
+    LOCK_FILE="$PARENT_REPO_DIR/tmp/.behavior-run.lock"
+    mkdir -p "$(dirname "$LOCK_FILE")"
+    exec 200>"$LOCK_FILE"
+    flock -x 200
 
     if [ "${BEHAVIOR_SET_BARE_REMOTE:-0}" = "1" ]; then
         local bare_repo="$workdir/../origin.git"
@@ -254,19 +252,49 @@ behavior_run() {
         echo "  [harness] stale worktree state set up (issue created, .issues/ deleted)"
     fi
 
+    # --setup creates test home once before the retry loop
+    local test_home=""
+    local env_file=""
+    local setup_output
+    setup_output=$(bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" --setup "$workdir")
+    test_home=$(echo "$setup_output" | grep '^TEST_HOME=' | cut -d= -f2-)
+    if [ -n "$test_home" ]; then
+        env_file="$test_home/.env"
+        cat > "$env_file" <<ENVEOF
+HOME=$test_home
+XDG_CONFIG_HOME=$test_home/.config
+XDG_CACHE_HOME=$test_home/.cache
+XDG_RUNTIME_DIR=$test_home/.runtime
+XDG_DATA_HOME=$test_home/.local/share
+XDG_STATE_HOME=$test_home/.local/state
+PATH=$PATH
+SHELL=${SHELL:-/bin/bash}
+USER=${USER:-$(id -un)}
+LOGNAME=${LOGNAME:-$(id -un)}
+LANG=${LANG:-en_US.UTF-8}
+TERM=${TERM:-xterm-256color}
+ENVEOF
+        for var in GITHUB_TOKEN GH_TOKEN GH_AUTH_TOKEN SSH_AUTH_SOCK GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL; do
+            if [ -n "${!var:-}" ]; then
+                echo "$var=${!var}" >> "$env_file"
+            fi
+        done
+    fi
+
+    if [ -z "$test_home" ]; then
+        echo "HARNESS_FAILURE: --setup failed to produce TEST_HOME" >&2
+        return 1
+    fi
+
     while [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; do
         attempt=$((attempt + 1))
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
 
-        TEST_WORKDIR="$workdir" \
-        timeout "$BEHAVIOR_TIMEOUT" bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" \
-            opencode-cli run "$message" \
-            --model "$model" \
-            --log-level INFO \
-            --print-logs \
-            ${agent:+--agent "$agent"} \
+        cd "$workdir"
+        env -i /bin/sh -c ". $env_file && exec opencode-cli run \"$message\" --model \"$model\" --log-level INFO --print-logs ${agent:+--agent \"$agent\"}" \
             > "$output_file" 2> "$err_file" \
             || true
+        cd "$PARENT_REPO_DIR"
 
         local output
         output=$(cat "$output_file" 2>/dev/null || true)

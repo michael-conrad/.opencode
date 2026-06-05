@@ -219,6 +219,12 @@ Helper variables:
 | `BEHAVIOR_TEST_HOME` | `.opencode/tests/with-test-home` | XDG-isolated test runner |
 | `BEHAVIOR_HARNESS_VERSION` | 1 | Format version for artifacts |
 
+### Concurrency Lock — `flock`
+
+The harness uses `flock` (file lock) for mutual exclusion when `BEHAVIOR_CONCURRENT` is not `true`. In `helpers.sh` `behavior_run()`, a lock file at `tmp/.behavior-run.lock` is acquired via `flock -x 200` before the model run. This prevents concurrent test invocations from corrupting shared state (SQLite DB, model dispatch).
+
+The lock is released automatically when the subshell exits. No `mkdir`-based locking is used — `flock` is the sole lock mechanism.
+
 ### `with-test-home` — XDG-Isolated Test Runner
 
 **MUST be used for ALL opencode-cli testing.** Never run `opencode-cli run` directly — it causes SQLite session conflicts with the desktop app.
