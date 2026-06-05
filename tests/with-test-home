@@ -48,11 +48,12 @@ PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 TMP_DIR="$PROJECT_DIR/tmp"
 
 usage() {
-    echo "Usage: bash .opencode/tests/with-test-home [--keep|--clean|--clean-all] <command> [args...]" >&2
+    echo "Usage: bash .opencode/tests/with-test-home [--keep|--clean|--clean-all|--setup [workdir]] <command> [args...]" >&2
     echo "" >&2
-    echo "  --keep       Preserve test home after execution (default)" >&2
-    echo "  --clean      Remove the most recent test home directory" >&2
-    echo "  --clean-all  Remove ALL test home directories under tmp/" >&2
+    echo "  --keep            Preserve test home after execution (default)" >&2
+    echo "  --clean           Remove the most recent test home directory" >&2
+    echo "  --clean-all       Remove ALL test home directories under tmp/" >&2
+    echo "  --setup [workdir] Create test home, seed config, print TEST_HOME=<path>, exit 0" >&2
     exit 2
 }
 
@@ -133,11 +134,38 @@ do_clean_all() {
     return 0
 }
 
+do_setup() {
+    local setup_workdir="${1:-}"
+    TEST_HOME="$TMP_DIR/test-home-$(date +%Y%m%d-%H%M%S)"
+    mkdir -p "$TEST_HOME/.config"
+    mkdir -p "$TEST_HOME/.cache"
+    mkdir -p "$TEST_HOME/.runtime"
+    mkdir -p "$TEST_HOME/.local/share"
+    mkdir -p "$TEST_HOME/.local/state"
+    if [ -f "$HOME/.bashrc" ]; then
+        cp "$HOME/.bashrc" "$TEST_HOME/.bashrc"
+    fi
+    seed_model_config
+    if [ -n "$setup_workdir" ] && [ -d "$setup_workdir" ]; then
+        setup_workdir="${setup_workdir%/}"
+        echo "TEST_HOME=$TEST_HOME"
+        echo "Test home: $TEST_HOME" >&2
+        exit 0
+    fi
+    echo "TEST_HOME=$TEST_HOME"
+    echo "Test home: $TEST_HOME" >&2
+    exit 0
+}
+
 if [ $# -eq 0 ]; then
     usage
 fi
 
 case "${1:-}" in
+    --setup)
+        shift
+        do_setup "${1:-}"
+        ;;
     --clean)
         do_clean
         exit $?
