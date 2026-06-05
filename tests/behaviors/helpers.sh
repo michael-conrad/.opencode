@@ -283,6 +283,11 @@ ENVEOF
         done
     fi
 
+    if [ -z "$test_home" ]; then
+        echo "HARNESS_FAILURE: --setup failed to produce TEST_HOME" >&2
+        return 1
+    fi
+
     while [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; do
         attempt=$((attempt + 1))
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
