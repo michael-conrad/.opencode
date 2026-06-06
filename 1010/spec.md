@@ -135,15 +135,15 @@ All research evidence in `spec-artifacts/research/`:
 
 | File | Source | Key Finding |
 |------|--------|-------------|
-| `corrupt-success.md` | Cao et al (Mar 2026) arXiv:2603.03116 | 27-78% agent successes are corrupt successes — procedure violated, output looks fine |
+| `corrupt-success.md` | Cao et al (Mar 2026) arXiv:2603.03116 | 27-78% agent successes are corrupt successes |
+| `corrupt-success-pae.md` | Cao et al PAE framework | Multi-dimensional gating: Utility, Efficiency, Interaction Quality, Procedural Integrity |
 | `format-compliance.md` | McMillan (Feb 2026) arXiv:2602.05447 | Format alone not significant for frontier models; must pair with enforcement |
 | `checklist-format.md` | NeuralBuddies (May 2026) synthesis | Prose = reference data, checklist = obligation to discharge |
-| `context-rot.md` | Chroma (2025) 18-model eval | Performance degrades non-uniformly with input length; distractors compound at longer lengths |
-| `instruction-position.md` | Tian Pan (Apr 2026) | 61.8% compliance variance from position alone; instruction sandwich required; positional sensitivity is CI failure mode |
-| `sub-agent-patterns.md` | Martin Uke (2025) | Sub-agent architecture is proven canonical pattern; non-dispatch is the defect |
-| `orchestration-patterns.md` | Azure Architecture Center (2026) | Sequential pipeline validated for multi-step implementation work |
-| `corrupt-success-pae.md` | Cao et al PAE framework | Multi-dimensional gating (Utility, Efficiency, Interaction Quality, Procedural Integrity) |
-| `self-generated-checklist.md` | Zylos (2026), TDAG (2025) synthesis | Hybrid pattern: pre-authored skeleton + self-generated tmp/ decomposition by sub-agent |
+| `context-rot.md` | Chroma (2025) 18-model eval | Performance degrades non-uniformly with input length; distractors compound |
+| `instruction-position.md` | Tian Pan (Apr 2026) | 61.8% compliance variance from position alone; instruction sandwich; positional sensitivity CI |
+| `sub-agent-patterns.md` | Martin Uke (2025) | Sub-agent is canonical pattern; non-dispatch is the defect |
+| `orchestration-patterns.md` | Azure Architecture Center (2026) | Sequential pipeline validated for multi-step implementation |
+| `self-generated-checklist.md` | Tian Pan (May 2026), Zylos (2026), By AI Team (2025), Confident AI (2026), James Li (2025), Del Rosario et al (2025) | PlanCompiler: 92.67% accuracy at 1/8 cost of ReAct; tiered execution (<2% degradation); hybrid pattern: pre-authored skeleton + self-generated tmp/ decomposition; plan quality + adherence as distinct eval dimensions; 35-min degradation addressed by checkpoint artifacts |
 
 ---
 
@@ -279,14 +279,15 @@ Full 5-part analysis at `spec-artifacts/migration-evaluation.md`:
 │   ├── cards.md                                    ← 12 tracked cards
 │   ├── migration-evaluation.md                     ← Full 5-part research+plan
 │   ├── spec-change-requirements.md                 ← All specs, what to change
-│   ├── research/
-│   │   ├── corrupt-success.md                      ← Cao et al (2026)
-│   │   ├── format-compliance.md                    ← McMillan (2026)
-│   │   ├── checklist-format.md                     ← NeuralBuddies (2026)
-│   │   ├── self-generated-checklist.md             ← Zylos/TDAG (2025-2026)
-│   │   └── (context-rot.md, instruction-position.md, sub-agent-patterns.md,
-│   │        orchestration-patterns.md, corrupt-success-pae.md — synthesized
-│   │        in migration-evaluation.md)
+│   ├── research/ (8 cards)
+│   │   ├── corrupt-success.md                     ← Cao et al (2026) — 27-78% corrupt rate
+│   │   ├── corrupt-success-pae.md                 ← Cao et al — PAE multi-dim gating
+│   │   ├── format-compliance.md                   ← McMillan (2026) — format+enforcement
+│   │   ├── checklist-format.md                    ← NeuralBuddies (2026) — prose vs checklist
+│   │   ├── context-rot.md                         ← Chroma (2025) — input length degradation
+│   │   ├── instruction-position.md                ← Tian Pan (Apr 2026) — position bias
+│   │   ├── sub-agent-patterns.md                  ← Martin Uke + Azure — industry validation
+│   │   └── self-generated-checklist.md            ← Tian Pan + Zylos + By AI Team + Confident AI + James Li + Del Rosario — 92.67% accuracy, 8x cost reduction, tiered execution, plan quality/adherence metrics
 │   └── z3/
 │       ├── dispatch-chain-contract.yaml            ← Z3 constraints (7)
 │       └── dispatch-chain-state.yaml               ← Current state snapshot
