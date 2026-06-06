@@ -93,6 +93,9 @@ Define audit criteria based on spec-auditor task structure:
 | SC-EVIDENCE-TYPE | Evidence type matches declared type | For each SC, the auditor MUST check the declared evidence type and verify using the minimum acceptable method: `structural` → file existence; `string` → grep/pattern; `semantic` → sub-agent read + judgment; `behavioral` → test execution with output inspection. If the declared evidence type is `behavioral` and the auditor provides structural evidence only, the verdict MUST be FAIL with `EVIDENCE_TYPE_MISMATCH`. If the declared type is `semantic` and the auditor provides string-only evidence, the verdict MUST be FAIL with `EVIDENCE_TYPE_MISMATCH`. Default to `string` if no evidence type is declared. |
 | SC-DET | SC Determinism | Each SC produces the same PASS/FAIL from any reasonable auditor |
 | SC-14 | SC Enforcement Gate present and explicit | Spec contains all-or-nothing gate statement with PASS/FAIL/Remediation requirements per gate format |
+| SC-TRACKING-LANG | No tracking/status language in spec | Zero instances of "implemented", "pending", "confirmed", "viable", "completed" used as status markers. Only forward-looking "MUST be" language permitted. |
+| SC-PRESCRIPTIVE-CODE | No prescriptive code content in spec | Spec uses file area references only (agent discovers exact paths). Zero instances of exact file paths with line numbers, exact import strings, or exact assertion code. |
+| SC-PIPELINE-GATES | Pipeline gates embedded per-unit, not shared cross-reference | Pipeline gates stated once as a shared cross-reference at top (instead of embedded per-unit) → VIOLATION. Expect per-unit gate tables. |
 
 <!-- Fragment ID: sc-enforcement-gate -->
 
