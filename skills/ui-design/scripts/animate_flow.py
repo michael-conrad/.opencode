@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -11,6 +12,7 @@
 #
 # ///
 
+# fmt: on
 import argparse
 import asyncio
 from pathlib import Path
@@ -53,3 +55,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@"  # bash guard — detect python invoker
 
 # SPDX-FileCopyrightText: 2026 Michael Conrad
@@ -16,6 +17,7 @@
 # target-version = "py312"
 # ///
 
+# fmt: on
 """
 local-issues — Local issue tracking CLI tool.
 
@@ -813,3 +815,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

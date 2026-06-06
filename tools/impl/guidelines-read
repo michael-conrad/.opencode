@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = []
 # ///
 
+# fmt: on
 __doc__ = """DESCRIPTION: Print the contents of a guideline file from .opencode/guidelines/.
 Usage: ./.opencode/tools/guidelines read <filename>
 Example: ./.opencode/tools/guidelines read 041
@@ -125,3 +127,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

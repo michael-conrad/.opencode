@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = []
 # ///
 
+# fmt: on
 __doc__ = """DESCRIPTION: Check whether one or more file/directory paths exist and report EXISTS or MISSING.
 
 Usage: ./.opencode/tools/file-exists <path> [<path> ...]
@@ -42,3 +44,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

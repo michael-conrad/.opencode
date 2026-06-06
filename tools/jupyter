@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = []
 # ///
 
+# fmt: on
 __doc__ = """DESCRIPTION: Jupyter server tools dispatcher. Usage: ./.opencode/tools/jupyter <action> [args...]
 Actions: start, stop
 Example: ./.opencode/tools/jupyter start
@@ -69,3 +71,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

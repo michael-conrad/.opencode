@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = []
 # ///
 
+# fmt: on
 __doc__ = """DESCRIPTION: Insert a new section (header + body) into a markdown file.
 Usage: ./.opencode/tools/md add <file.md> --header "New Header" --level N (--content <text> | --content-file <path>) [--after "Header" | --before "Header" | --append] [--help]
 Default position: --append (add at end of file).
@@ -128,3 +130,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

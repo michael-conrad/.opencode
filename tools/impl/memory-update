@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = []
 # ///
 
+# fmt: on
 __doc__ = """DESCRIPTION: Update a single key: value line in .opencode/memory.md.
 If the key exists, its line is replaced. If not, it is appended to the matching section.
 Usage: ./.opencode/tools/memory update <section> <key> (<value> | --value-file <path>)
@@ -131,3 +133,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

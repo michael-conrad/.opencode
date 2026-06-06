@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -6,6 +7,7 @@
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+# fmt: on
 """GitBucket API Verification Tests.
 
 This script verifies that the documented GitBucket API endpoints match
@@ -258,3 +260,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

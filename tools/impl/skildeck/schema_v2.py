@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = ["pyyaml>=6.0"]
 # ///
 
+# fmt: on
 """
 DESCRIPTION: Schema v2.0 validation for yaml+symbolic blocks. Supports tasks, decomposition, gates, evidence_artifacts, and sub_agent_dispatch sections.
 Usage: python .opencode/tools/impl/skildeck/schema_v2.py [ Options ]
@@ -396,3 +398,4 @@ def validate_schema(data: dict, source: str = "") -> SchemaValidationResult:
 
     result.valid = len(result.errors) == 0
     return result
+

@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = []
 # ///
 
+# fmt: on
 """Trigger section emitter for AI agent session context.
 
 Purged per spec #426: all branch-status-based triggers that caused
@@ -170,3 +172,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

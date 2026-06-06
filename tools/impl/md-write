@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = []
 # ///
 
+# fmt: on
 __doc__ = """DESCRIPTION: Replace the body of a section in a markdown file, preserving the header line.
 Usage: ./.opencode/tools/md write <file.md> --header "Header Text" (--content <text> | --content-file <path>) [--level N] [--help]
 WARNING: Use --content-file <path> for any content containing newlines or special characters
@@ -101,3 +103,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
