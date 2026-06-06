@@ -8,6 +8,7 @@ Delete merged branches, clean stale references, remove worktrees, sync dev, and 
 
 - PR merge verified (cleanup/verify-merge completed)
 - Issue closure completed (cleanup/issue-closure completed)
+- Closure-verification completed (cleanup/branch-cleanup Step 0)
 
 ## Exit Criteria
 
@@ -18,6 +19,40 @@ Delete merged branches, clean stale references, remove worktrees, sync dev, and 
 - Working tree clean
 
 ## Procedure
+
+### Step 0: Closure-Verification (Adversarial Audit)
+
+**⚠️ Before any branch operations, verify issue closure via adversarial audit.**
+
+Invoke `adversarial-audit --task closure-verification --pr <N>` with `audit_phase: post_merge`. The dual-auditor dispatch must complete with a PASS consensus before any branch operations proceed.
+
+#### Dispatch Procedure (Orchestrator)
+
+The orchestrator dispatches the adversarial audit pipeline:
+
+1. **`skill({name: "adversarial-audit"})`** — load the adversarial-audit skill
+2. **Task `resolve-models`** — dispatch a clean-room sub-agent to resolve two cross-family auditor models via capability probe
+3. **Task `closure-verification`** — dispatch two auditor sub-agents in parallel (each receives `spec_local_dir`, `audit_phase: post_merge`, PR number, and the standard dispatch fields only — no orchestrator reasoning, no pre-loaded findings)
+4. **Task `cross-validate`** — dispatch a sub-agent with the pre-resolved `auditor_artifact_paths` to compute consensus
+5. **Evaluate result contract** — if `status: BLOCKED` (issue not closed, SCs unverified), HALT and report findings. If `status: DONE` with PASS consensus, proceed to Step 1.
+
+#### Result Contract Schema
+
+```yaml
+status: DONE | BLOCKED
+artifact_path: "./tmp/artifacts/pipeline-{issue_number}-audit-closure-verification-{STATUS}-{timestamp}.yaml"
+summary: "N criteria evaluated. X PASS, Y FAIL."
+blocked_reason: "Spec issue #N not closed after PR merge"  # if BLOCKED
+```
+
+#### MUST_RECEIVE / MUST_NOT_RECEIVE
+
+| Element | Value |
+|---------|-------|
+| `must_receive` | `github.owner`, `github.repo`, PR number, `audit_phase: post_merge`, `spec_local_dir`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase` |
+| `must_not_receive` | Orchestrator reasoning, expected verdicts, pre-determined findings, cached git state, inline file paths to task files |
+
+**🚫 CRITICAL: If closure-verification returns BLOCKED (issue not closed or SCs unverified), do NOT proceed to branch deletion. HALT and report findings for remediation.**
 
 ### Step 1: Switch to Dev and Sync (Fast-Forward Only)
 
