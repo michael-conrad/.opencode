@@ -132,10 +132,47 @@ Creating `feature/*` or `spec/*` branches for code changes still requires `for_i
 
 ## Relationship to Remote Issue Tracker
 
-- `.issues/{N}/spec.md` IS the spec — it may mirror a remote issue (GitHub/GitBucket) or be the sole authoritative copy. The remote is secondary.
-- `.issues/{N}/spec-artifacts/plan.md` is the local implementation plan (not mirrored to remote)
-- `.issues/{N}/spec-artifacts/cards.md` is the card catalogue with status tracking
-- Files in `.issues/` take precedence over remote issue bodies when both exist. The `.issues/` workspace is the source of truth for implementation planning.
+- **`.issues/` is the PRIMARY spec/plan store.** All authoritative content — specs, plans, card catalogues, dependency contracts, research — lives here in the `issues-data` branch.
+- **GitHub/GitBucket is the mirrored user-facing exec summary only.** The remote issue body contains a condensed summary and a single link to the spec folder (`.issues/{N}/` on the `issues-data` branch). AI agents MUST read from `.issues/` — never treat the remote issue body as authoritative.
+- `.issues/{N}/spec.md` is the full authoritative spec. The remote issue body is a summary copy with a cross-reference link to this folder.
+- `.issues/{N}/spec-artifacts/` contains plan.md, cards.md, dependency-contract.yaml, and sub-directories (research/, designs/, audit/) — these are NEVER mirrored to the remote tracker.
+- When reading or acting on an issue, always read from `.issues/{N}/` first. Only use the remote issue body for user-facing context (comments, labels, assignees).
+
+## GitHub URLs for .issues/ Cross-References
+
+When linking to `.issues/` files from GitHub issue bodies, use full URLs to the `issues-data` branch. The branch root IS the `.issues/` directory root.
+
+### Pattern
+
+```
+Folder:   https://github.com/{owner}/{repo}/tree/issues-data/{N}
+File:     https://github.com/{owner}/{repo}/blob/issues-data/{N}/{path}
+```
+
+### Convention
+
+- **Only the spec folder gets a full URL** — for human readers browsing via GitHub
+- **Artifact paths stay relative** (`.issues/N/spec-artifacts/plan.md`) — for AI agents reading locally
+- The folder URL is sufficient: it shows spec.md, spec-artifacts/, and all sub-files
+
+### Examples (viewport-editor)
+
+| Target | URL |
+|--------|-----|
+| Issue folder | `https://github.com/michael-conrad/viewport-editor/tree/issues-data/46` |
+| spec.md file | `https://github.com/michael-conrad/viewport-editor/blob/issues-data/46/spec.md` |
+
+### Example: Cross-References Table in Github Issue
+
+```
+## Cross-References
+
+| Type | Reference | Direction |
+|------|-----------|-----------|
+| spec folder (view on GitHub) | [`.issues/46/`](https://github.com/michael-conrad/viewport-editor/tree/issues-data/46) | Spec and artifacts |
+| implementation plan | `.issues/46/spec-artifacts/plan.md` | Red/Green phase decomposition |
+| card catalogue | `.issues/46/spec-artifacts/cards.md` | Investigation findings and decisions |
+```
 
 ## GitHub URLs for .issues/ Cross-References
 
