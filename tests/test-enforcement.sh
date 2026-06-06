@@ -492,6 +492,8 @@ SCENARIO_TAGS["sc2-must-not-receive-spec-body-forbidden"]="content-verification 
 SCENARIO_TAGS["sc4-task-context-spec-body-removed"]="content-verification adversarial-audit"
 SCENARIO_TAGS["sc8-context-tainted-sc-conflict"]="content-verification adversarial-audit"
 SCENARIO_TAGS["sc12-task-context-tables-reflect-removal"]="content-verification adversarial-audit"
+SCENARIOS["session-init-tools-section"]="Does the output of `./.opencode/tools/session-init` contain a `## Agent Tools` section with tool listing?"
+SCENARIO_TAGS["session-init-tools-section"]="content-verification session-init"
 
 # File-to-scenario mapping for --changed filtering
 # Maps glob patterns to scenario names
@@ -523,7 +525,7 @@ FILE_SCENARIO_MAP[".opencode/skills/issue-review/"]="analyze-and-spec-red-gate"
 FILE_SCENARIO_MAP[".opencode/skills/ui-engineer/"]="ui-engineer-red-gate"
 FILE_SCENARIO_MAP[".opencode/skills/session-enforcement.ts"]="identity-echo-validation secret-exfiltration-violation read-secrets-in-output dev-edit-guard-plugin dev-edit-guard-pair-mode"
 FILE_SCENARIO_MAP[".opencode/plugins/session-enforcement.ts"]="identity-echo-validation secret-exfiltration-violation dev-edit-guard-plugin dev-edit-guard-pair-mode sub-agent-session-detection sub-agent-injection-gating sub-agent-operational-guards-unconditional"
-FILE_SCENARIO_MAP[".opencode/tools/session-init"]="identity-echo-validation wrong-api-routing-subfolder-mapping"
+FILE_SCENARIO_MAP[".opencode/tools/session-init"]="identity-echo-validation wrong-api-routing-subfolder-mapping session-init-tools-section"
 FILE_SCENARIO_MAP[".opencode/guidelines/117-session-trigger-behavior.md"]="stash-trigger-guideline-reference"
 FILE_SCENARIO_MAP["AGENTS.md"]="agents-md-incremental"
 FILE_SCENARIO_MAP[".opencode/skills/"]="sc6-no-unconditional-general"
@@ -848,6 +850,7 @@ EXPECTED_SKILLS["skill-dispatch-mandate-dev-cycle-ref"]=""
 EXPECTED_SKILLS["skill-dispatch-critical-rules-048-symbolic"]=""
 EXPECTED_SKILLS["skill-dispatch-critical-rules-048-prose"]=""
 EXPECTED_SKILLS["skill-dispatch-critical-rules-048-distinction"]=""
+EXPECTED_SKILLS["session-init-tools-section"]=""
 
 RESULTS_FILE="$LOGDIR/results.md"
 

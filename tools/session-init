@@ -662,6 +662,27 @@ def run_guard_checks() -> list[str]:
     return problems
 
 
+def get_agent_tools_help() -> str:
+    """Run ./.opencode/tools/help and return tool listing or error message."""
+    try:
+        result = subprocess.run(
+            [".opencode/tools/help"],
+            capture_output=True,
+            text=True,
+            check=False,
+            stdin=subprocess.DEVNULL,
+            timeout=GIT_TIMEOUT,
+            cwd=str(PROJECT_ROOT),
+        )
+        if result.returncode == 0:
+            return result.stdout.rstrip("\n")
+        return f"Error: tools/help exited with code {result.returncode}"
+    except subprocess.TimeoutExpired:
+        return f"Error: tools/help timed out after {GIT_TIMEOUT}s"
+    except (subprocess.SubprocessError, OSError) as e:
+        return f"Error: tools/help failed: {e}"
+
+
 def main() -> int:
     repo_info = collect_repo_info()
     root_entry = repo_info[0] if repo_info else {}
@@ -713,6 +734,11 @@ def main() -> int:
         print(f"  repo: {entry['repo']}")
         print(f"  platform: {entry['platform']}")
         print(f"  url: {entry['url']}")
+
+    # Emit ## Agent Tools section with tool listing
+    tools_help = get_agent_tools_help()
+    print("## Agent Tools")
+    print(tools_help)
 
     return 0
 
