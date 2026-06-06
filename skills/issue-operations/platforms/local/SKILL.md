@@ -96,6 +96,12 @@ capabilities:
     parameters: {number: int}
     returns: {sync_status: string, url?: string}
 
+  push-artifacts:
+    scenario: push spec artifacts to issues-data
+    task: push-artifacts
+    parameters: {issue_number: int}
+    returns: {artifact_url: string}
+
   pull-body:
     task: pull-body
     parameters: {number: int}
@@ -133,6 +139,7 @@ local-issues search [--status S] [--labels L1,L2] [--query TEXT]
 local-issues list [--status S]
 local-issues body-edit NNN [--edit-script SCRIPT]
 local-issues push-body NNN
+local-issues push-artifacts NNN --issue-number ISSUE
 local-issues pull-body NNN
 local-issues link NNN [--github N] [--child N] [--related N] [--blocked-by N]
 local-issues promote NNN [--remote-url URL]
@@ -185,6 +192,7 @@ When `github.platform` is NOT `local` (remote available), local issues can be pr
 | `list`         | When listing local issues                                   | Status filter, .issues/ path                 | Implementation context, agent memory                                | NO           |
 | `body-edit`    | When editing a local issue body                             | Issue number, edit script, .issues/ path     | Implementation context, agent memory                                | NO           |
 | `push-body`    | When pushing local body to remote                           | Issue number, .issues/ path                  | Implementation context, agent memory                                | NO           |
+| `push-artifacts` | When pushing spec artifacts to issues-data               | Issue number                                  | Implementation context, agent memory                                | NO           |
 | `pull-body`    | When pulling remote body to local                           | Issue number, .issues/ path                  | Implementation context, agent memory                                | NO           |
 | `link`         | When linking local issue to other issues                    | Issue number, link targets, .issues/ path    | Implementation context, agent memory                                | NO           |
 | `promote`      | When promoting local issue to remote                        | Issue number, .issues/ path                  | Implementation context, agent memory                                | NO           |

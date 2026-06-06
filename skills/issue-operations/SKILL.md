@@ -41,6 +41,7 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 | `update-issue` | ≈160 | Update issue body/labels/state via dispatcher — body-preservation safeguard enforced |
 | `sync-pull-to-local` | ≈600 | Mirror remote issue body to `.issues/<N>/spec.md` after any `read-issue` — enforces Operating Protocol §3 spec.md mirror mandate |
 | `import-remote` | ≈690 | Retroactively import a pre-existing remote issue into local `.issues/` — full mirror with body, comments, frontmatter, and `promotion_type: retroactive_import` |
+| `push-artifacts` | ≈60 | Push spec artifacts directory to issues-data — produces artifact directory with URL |
 
 ## Invocation
 
@@ -64,6 +65,7 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 | `update-issue` | `task(..., prompt: "execute update-issue task from issue-operations")` |
 | `sync-pull-to-local` | `task(..., prompt: "execute sync-pull-to-local task from issue-operations")` |
 | `import-remote` | `task(..., prompt: "execute import-remote task from issue-operations")` |
+| `push-artifacts` | `task(..., prompt: "execute push-artifacts task from issue-operations")` |
 
 **CLI equivalent (for human TUI use):** `/skill issue-operations --task <task>`
 
