@@ -2,6 +2,8 @@
 
 **STATUS: 0.1 (DRAFT — follow-on to #980)**
 
+**GitHub issue: #1044**
+
 ## Purpose
 
 After #980 ships the working CLI `tools/plan` PEP 723 utility, add an MCP server mode, regenerate-loop enforcement, and fail-closed defaults as a separate MCP wrapper.
