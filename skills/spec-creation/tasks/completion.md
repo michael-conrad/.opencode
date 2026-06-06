@@ -27,6 +27,15 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
    - Verify exec summary was posted to chat with spec URL
    - If missing: generate and post exec summary now
 
+5. **Push artifacts to issues-data** (after spec issue exists):
+   - Dispatch `task(..., prompt: "execute push-artifacts task from issue-operations")` with issue number
+   - Collect `artifact_url` from the result contract
+   - Embed `artifact_url` in the spec issue body by appending a blockquote:
+     ```
+     > **Artifacts:** [spec-artifacts](<artifact_url>)
+     ```
+   - Use `issue-operations --task update-issue` to apply the body update
+
 ## Shared Completion Delegation
 
 Reference `.opencode/skills/completion-core/completion-core.md` for reporting:
