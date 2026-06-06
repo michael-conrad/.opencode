@@ -144,6 +144,7 @@ All research evidence in `spec-artifacts/research/`:
 | `sub-agent-patterns.md` | Martin Uke (2025) | Sub-agent is canonical pattern; non-dispatch is the defect |
 | `orchestration-patterns.md` | Azure Architecture Center (2026) | Sequential pipeline validated for multi-step implementation |
 | `self-generated-checklist.md` | Tian Pan (May 2026), Zylos (2026), By AI Team (2025), Confident AI (2026), James Li (2025), Del Rosario et al (2025) | PlanCompiler: 92.67% accuracy at 1/8 cost of ReAct; tiered execution (<2% degradation); hybrid pattern: pre-authored skeleton + self-generated tmp/ decomposition; plan quality + adherence as distinct eval dimensions; 35-min degradation addressed by checkpoint artifacts |
+| `z3-up-netx-tooling.md` | IRSB/Moat/Scout (2026), z39 (2026), Z3Prover (2026), ProofOfThought (2025), unified-planning (2025), GAP (2025), Zylos DAG (2026), LLM-Sym (2024) | Z3 production-validated as LLM-as-judge replacement; unified-planning (Apache 2.0) for deterministic plan generation; networkx for DAG dependency analysis; three-tool deterministic stack (plan → validate → check) |
 
 ---
 
@@ -278,7 +279,7 @@ Full 5-part analysis at `spec-artifacts/migration-evaluation.md`:
 │   ├── cards.md                                    ← 12 tracked cards
 │   ├── migration-evaluation.md                     ← Full 5-part research+plan
 │   ├── spec-change-requirements.md                 ← All specs, what to change
-│   ├── research/ (8 cards)
+│   ├── research/ (9 cards)
 │   │   ├── corrupt-success.md                     ← Cao et al (2026) — 27-78% corrupt rate
 │   │   ├── corrupt-success-pae.md                 ← Cao et al — PAE multi-dim gating
 │   │   ├── format-compliance.md                   ← McMillan (2026) — format+enforcement
@@ -286,7 +287,8 @@ Full 5-part analysis at `spec-artifacts/migration-evaluation.md`:
 │   │   ├── context-rot.md                         ← Chroma (2025) — input length degradation
 │   │   ├── instruction-position.md                ← Tian Pan (Apr 2026) — position bias
 │   │   ├── sub-agent-patterns.md                  ← Martin Uke + Azure — industry validation
-│   │   └── self-generated-checklist.md            ← Tian Pan + Zylos + By AI Team + Confident AI + James Li + Del Rosario — 92.67% accuracy, 8x cost reduction, tiered execution, plan quality/adherence metrics
+│   │   ├── self-generated-checklist.md            ← Tian Pan + Zylos + By AI Team + Confident AI + James Li + Del Rosario — 92.67% accuracy, 8x cost reduction, tiered execution, plan quality/adherence metrics
+│   │   └── z3-up-netx-tooling.md                  ← IRSB/Moat/Scout + z39 + Z3Prover + ProofOfThought + unified-planning + GAP + Zylos DAG + LLM-Sym — Z3 production-validated, unified-planning deterministic plan gen, networkx DAG analysis, three-tool stack
 │   └── z3/
 │       ├── dispatch-chain-contract.yaml            ← Z3 constraints (7)
 │       └── dispatch-chain-state.yaml               ← Current state snapshot

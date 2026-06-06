@@ -120,3 +120,14 @@
 - **Dependency on #1010**: None (standalone tool). But #1010 benefits: sub-agent plan quality becomes deterministic, tmp/ artifacts become executable YAML, plan caching enabled.
 - **Recommendation**: Implement #980 before or in parallel with Phase 3 (behavioral enforcement) — doesn't block Phases 1-2 but significantly improves sub-agent layer.
 - **Status**: RECOMMENDED
+
+### Card 14: Z3 + unified-planning + networkx tooling ecosystem — Comprehensive research
+
+- **Research card**: `spec-artifacts/research/z3-up-netx-tooling.md` — 11 sources synthesized.
+- **Z3 is production-validated as LLM-as-judge replacement**: IRSB/Moat/Scout (2026) uses Z3 FormalAgentVerifier in production — fail-closed. z39 (2026) single-binary CLI + MCP server. ProofOfThought (2025) generate-verify-regenerate loop.
+- **unified-planning (v1.3.0, Apache 2.0)**: Planner-independent API. Classical, temporal, numeric, multi-agent, hierarchical, scheduling, TAMP. Engine auto-selection from ProblemKind classification.
+- **networkx**: DAG-based dependency analysis — cycle detection, topological sort, parallel branch identification. GAP (2025): 33.4% reduction in interaction turns via dependency-aware graph planning. Zylos (2026): DAG orchestration is dominant production pattern.
+- **Three-tool deterministic stack**: `tools/plan` (generation) + `tools/plan validate` (networkx cycle + goal verification) + `tools/solve` (Z3 invariants). All deterministic — no LLM-as-judge.
+- **Probabilistic step narrows dramatically**: From "LLM generates full execution sequence" to "LLM translates task file to planning-problem definition."
+- **Licensing**: Z3 (MIT), unified-planning (Apache 2.0), networkx (BSD-3-Clause). All well-maintained with active communities and academic backing.
+- **Status**: COMPLETED
