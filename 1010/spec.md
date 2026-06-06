@@ -265,8 +265,7 @@ Full 5-part analysis at `spec-artifacts/migration-evaluation.md`:
 | #911 | .opencode | closed completed | Two-role context cost model — validated |
 | #958 | .opencode | open | Add workflow checklists to all skill cards — Phase 2 |
 | #1008 | .opencode | open bug | review-prep format lost — to close post-Phase 2 |
-| #66 | opencode-config | closed not_planned | Sub-agent dispatch haphazardness — context |
-| #105 | opencode-config | closed not_planned | Pre-response gate carveout removal — context |
+| #980 | .opencode | open | tools/plan — unified-planning PEP 723 tool. **Impact**: Makes sub-agent self-generated tmp/ checklists deterministic. Three-layer verification stack (plan → validate → check). Implement before or in-parallel with Phase 3. See `spec-artifacts/impact-980.md` for full analysis. |
 
 ---
 

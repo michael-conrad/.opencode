@@ -109,3 +109,14 @@
 - **Positional sensitivity test**: Required CI gate after any guideline/skill change. Dispatch mandate compliance must vary <15% across 3 positions. Tian Pan: treat this as structural, not cosmetic.
 - **Full evaluation written**: `spec-artifacts/migration-evaluation.md` (5 parts, 5-phase migration path, risk analysis, architectural diagram)
 - **Status**: COMPLETED
+
+### Card 13: #980 (tools/plan) Impact — Deterministic sub-agent plan generation
+
+- **#980 provides**: PEP 723 tool at `.opencode/tools/plan` wrapping `unified-planning`. Accepts YAML problem schema, generates deterministic action sequence via classical AI planning.
+- **Key impact**: Sub-agent self-generated tmp/ checklists become deterministic instead of probabilistic. The LLM writes a YAML planning-problem definition (simpler cognitive task) and `tools/plan` generates the action sequence — no hallucinated steps, no circular dependencies, no confirmation bias.
+- **Three-layer verification stack**: `tools/plan plan` (generation, deterministic) + `tools/plan validate` (correctness, deterministic) + `tools/solve check` (invariants, deterministic). Full deterministic plan lifecycle.
+- **Where it applies**: Implementation pipeline, git workflow, verification pipeline — any formalizable multi-step work with known actions/preconditions/effects.
+- **Where it does NOT apply**: Open-ended research, brainstorming, bug investigation — actions unknown in advance.
+- **Dependency on #1010**: None (standalone tool). But #1010 benefits: sub-agent plan quality becomes deterministic, tmp/ artifacts become executable YAML, plan caching enabled.
+- **Recommendation**: Implement #980 before or in parallel with Phase 3 (behavioral enforcement) — doesn't block Phases 1-2 but significantly improves sub-agent layer.
+- **Status**: RECOMMENDED
