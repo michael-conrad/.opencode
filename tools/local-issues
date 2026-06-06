@@ -38,7 +38,7 @@ from typing import Any
 import yaml
 
 ISSUES_DIR = ".issues"
-WORKTREE_BRANCH = "issues"
+WORKTREE_BRANCH = "issues-data"
 YAML_INDENT = 2
 YAML_FILES = ("issue.yaml", "comments.yaml", "links.yaml")
 MARKDOWN_FILES = ("spec.md",)
