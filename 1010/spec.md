@@ -1,127 +1,301 @@
-# [SPEC] Checklist Dispatch Architecture — Main Card as `- [ ] N.` Dispatch Queue
+# [MASTER SPEC] Checklist Dispatch Architecture — Orchestrator as Checklist-Driven Blind Dispatcher
 
-## STATUS: 0.5 (DRAFT — migration evaluation complete, awaiting authorization)
+## STATUS: 0.6 (MASTER — research complete, implementation plan defined, awaiting authorization)
 
-## Key Findings from Investigation
+**This is a PARENT TRACKING SPEC.** Sub-issues define each implementation phase. All research, design decisions, Z3 analysis, and migration planning consolidated here for session resume.
 
-### Finding 1: Pre-read cascade (#1003) is the root cause blocker
+---
 
-45,014 words loaded at session start via `opencode.jsonc` instructions array. Model caches all task file content before any `skill()` call. When checklist format arrives at dispatch time, the model already "knows" the steps and inlines. **Z3 proved**: without fixing the pre-read cascade, the checklist format is cosmetic — it cannot prevent inlining because contamination already happened.
+## 1. Problem
 
-### Finding 2: Three prior issue threads converge on this architecture
+The orchestrator agent reads task `.md` files and inlines procedural steps instead of dispatching blind to sub-agents via `task()`. This produces poisoned work that must be discarded. Root cause is a compound defect:
 
-- **#863** (closed): Removed `task()` calls from sub-agent task files — same principle as keeping dispatch out of sub-agent territory
-- **#909** (open): 14-step orchestrator-serial pipeline — same paradigm of orchestrator as pure router
-- **#911** (closed): Two-role cost model formalized — orchestrator holds routing metadata only
-- **#958** (open): Add workflow checklists to all skill cards — same checklist-as-dispatch-queue pattern
-- **#1008** (open): Concrete decomposition failure — content lost when orchestrator stops reading sub-task files
+| Layer | Defect | Evidence |
+|-------|--------|----------|
+| Session start | 45k words pre-loaded, model caches all task file content before skill() call | opencode.jsonc instructions array + 13 Tier 1 guideline files |
+| Dispatch format | Prose table activates "read, interpret, decide" — not "discharge obligation" | NeuralBuddies (2026): checklist vs prose activation |
+| Enforcement | No behavioral test catches when orchestrator reads task files instead of dispatching | Cao et al (2026): 27-78% corrupt-success rate |
+| Tool boundary | skill() call does not flush cached task file knowledge | Z3 counterexample proof |
 
-### Finding 3: Z3 contract analysis — PROVED
+---
 
-**Theorem**: Full chain (pre-read fix + checklist + enforcement + blind tag + self-contained row + no cached knowledge) → correct blind dispatch. **PROVED VALID**.
+## 2. Solution Architecture
 
-**Counterexample found**: Even with pre-read cascade fixed and checklist deployed, if `skill()` does not reset the model's cached knowledge of task files, dispatch still fails. This is an opencode tool implementation requirement.
+### 2.1 Checklist Dispatch Format
 
-### Finding 4: Five-phase migration path recommended (Z3-proved order)
-
-1. Fix pre-read cascade (#1003) — reduce 45k→15k words, instruction sandwich for dispatch mandate
-2. Implement skill() cache flush — opencode tool change (external dependency, Z3-proved required)
-3. Convert one reference skill to checklist format — prove pattern, write behavioral test RED/GREEN
-4. Batch-migrate remaining skills — 38 SKILL.md task tables to checklist format
-5. Full regression verification — corrupt-success test, positional sensitivity test
-
-### Finding 5: Comprehensive migration evaluation completed
-
-See `spec-artifacts/migration-evaluation.md` for the full 5-part analysis:
-- Part 1: Published research constraints (Chroma, Tian Pan, Martin Uke, Cao et al)
-- Part 2: Z3-proved dependency ordering
-- Part 3: Five-phase migration path with detailed actions per phase
-- Part 4: Risk analysis (4 risks, mitigations)
-- Part 5: Architectural diagram from session start to enforcement
-
-**Key research findings informing the strategy**:
-- Chroma "Context Rot" (2025): performance degrades non-uniformly with input length — 45k words is a broken starting point
-- Tian Pan "Instruction Position Problem" (Apr 2026): instruction sandwich pattern (beginning + end) for critical rules; positional sensitivity CI testing mandatory
-- Cao et al "Corrupt Success" (Mar 2026): 27-78% of agent successes are corrupt successes — behavioral tests must detect procedure violation, not just output presence
-- McMillan (Feb 2026): format alone insufficient for frontier models — must pair with enforcement
-- Martin Uke, Azure Architecture Center: sub-agent orchestration is industry-validated; the defect is in the dispatch mechanism, not the architecture
-
-## Problem
-
-The orchestrator agent reads task `.md` files and inlines procedural steps instead of dispatching blind to sub-agents via `task()`. This produces poisoned work that must be discarded.
-
-**Root cause**: Current SKILL.md task tables use prose/table format (`| Task | Words | Call via task() |`). This format activates the model's "read, interpret, decide" behavior — the orchestrator treats the table as reference data, peeks at task files to compose prompts, and inevitably inlines the steps instead of dispatching.
-
-**Research**: Cao et al (2026, arXiv:2603.03116) found 27-78% of agent benchmark-reported successes are *corrupt successes* — the agent appears to complete the task but violates procedure and skips gates. Standard evaluation measures task completion, not procedural compliance. The orchestrator's step-skipping and inlining pattern is a corrupt success: the output "works" but the process was wrong.
-
-## Solution
-
-Replace the prose task table in SKILL.md with a `- [ ] N.` checklist where each row carries the full dispatch instruction inline. The checklist format activates completion/compliance behavior (NeuralBuddies, 2026): prose reads as reference data, checklists read as obligations to discharge.
-
-### Checklist Row Format
+Every SKILL.md task table becomes a `- [ ] N.` checklist where each row carries the full dispatch instruction inline:
 
 ```
-- [ ] N. (blind) task(subagent_type="X", prompt="execute Y from Z")
+- [ ] 1. (blind) task(subagent_type="general", prompt="execute pre-work from git-workflow")
+- [ ] 2. (blind) task(subagent_type="general", prompt="execute Phase-1 from executing-plans")
 ```
 
-**`(blind)` tag**: Signals that the orchestrator MUST NOT read the task file for this dispatch. The dispatch instruction is self-contained in the row. Absence of the tag means the orchestrator MAY read the task file and use judgment.
+| Element | Rule |
+|---------|------|
+| `(blind)` | Present = orchestrator MUST NOT read task file. Absent = orchestrator MAY read |
+| Dispatch instruction | Literal task() syntax in the row — self-contained, no file lookup needed |
+| Max checklists per skill | 2-3. Beyond that, split the skill. Each preceded by 1-2 sentence "when" condition |
+| Sub-agent context | task files are clean-room consumables for (blind) items — no orchestrator-facing preamble |
 
-**Inline dispatch instruction**: The `task()` call is literal tool-call syntax in the checklist row. The orchestrator executes it without needing to leave the checklist. This prevents the peek-and-inline pattern.
+### 2.2 Session Start Architecture (after fix)
 
-### Multi-Checklist Skills
+```
+SESSION START (< 15k words target)
+  │
+  ├─ default.txt (dispatch mandate — INSTRUCTION SANDWICH BEG)
+  ├─ AGENTS.md (identity, build commands)
+  ├─ Tier 1 guidelines only (stubs — safety-critical)
+  ├─ AGENTS.md (dispatch mandate — INSTRUCTION SANDWICH END)
+  │
+  ▼
+SKILL() CALL (cache flush — tool change required)
+  │
+  ├─ Checklist is FIRST content in skill() response
+  ├─ Row: - [ ] N. (blind) task(subagent_type="X", prompt="execute Y")
+  ├─ Orchestrator executes task() from checklist — never reads task file
+  │
+  ▼
+SUB-AGENT EXECUTION (task file = clean-room consumable)
+  │
+  ├─ Sub-agent reads task file, executes steps, writes evidence to disk
+  ├─ Sub-agent may self-generate tmp/ checklist for internal decomposition
+  ├─ Returns frugal result contract: {status, finding_summary, artifact_path}
+  │
+  ▼
+ORCHESTRATOR (receives contract, advances to next checklist row)
+  │
+  ├─ Checks result contract status
+  ├─ Advances to next checklist row
+  ├─ On FINAL row: halts with structured output
+```
 
-A SKILL.md may have multiple checklists for different task compositions. Each checklist is preceded by a "when" condition explaining when the orchestrator should follow that specific checklist.
+### 2.3 Self-Generated tmp/ Checklists (Sub-Agent Layer)
 
-### Behavior During As-Session Instructon Execution:
+Research from Zylos (2026) and TDAG (2025) confirms: explicit task decomposition improves tool-use accuracy from 72% to 94%. The hybrid pattern:
 
-When the AI agent receives instructions including the [SPEC] card, it should not assume anything and merely investigate the issue for discussion and planning purposes, rather than executing any of the actions described in the spec body. The [SPEC] card is for planning and discussion purposes only.
+- **SKILL.md checklist** provides the verified dispatch skeleton (orchestrator layer)
+- **tmp/ checklist** (self-generated in sub-agent context) provides task-specific decomposition (sub-agent layer)
+- Sub-agent loads task file fresh (no pre-read contamination), generates checklists for internal execution
+- tmp/ checklists are ephemeral but serve as checkpoint artifacts for long-running tasks
 
-## Key Design Decisions
+---
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Dispatch instruction location | Inline in checklist row | Once model looks away from checklist at another file, procedural binding is lost |
-| `(blind)` tag presence | Marks dispatches where orchestrator must NOT read task file | Both blind and non-blind dispatches exist; tag must be meaningful |
-| Multiple checklists per skill | Supported, with "when" condition | Different task compositions need different dispatch paths |
-| Behavioral enforcement | Required — tag alone is insufficient | McMillan (2026): format alone not statistically significant for frontier models; needs procedural enforcement backing |
+## 3. Dependencies (Z3-Proved)
 
-## Open Questions (Resolved)
+### 3.1 Contract Summary
 
-The following were resolved during brainstorming:
+7 constraints modeled: pre-read contamination, row self-containment, tag-with-enforcement, tag-without-enforcement, pre-read dependency, clean-context+checklist working, behavioral-test-to-enforcement.
 
-1. **Multiple checklists per skill**: Max 2-3. If a skill needs more distinct dispatch paths, it should be split into smaller skills. Each checklist is preceded by a 1-2 sentence "when" condition.
-2. **Task file role**: For `(blind)` items, task files are 100% sub-agent territory. No orchestrator-facing preamble needed. Clean consumables.
-3. **Migration path**: Phase-based (see Key Findings: Finding 4). One skill first to prove pattern, behavioral test RED/GREEN, batch migrate rest.
-4. **Behavioral test assertion**: Count `read` tool calls on `tasks/*.md` paths during dispatch window. > 0 reads on `(blind)` item = FAIL. Assert `task()` count ≥ checklist item count.
-5. **`(blind)` tag meaning**: Present = orchestrator must NOT read task file. Absent = orchestrator MAY read. Both modes exist, so tag earns its keep.
-6. **Skill() must flush cache**: Z3 proved that even with pre-read cascade fixed, `skill()` must actively reset the model's cached knowledge of task file content. Implementation requirement for opencode tool.
+### 3.2 Theorem Proved
 
-## Research Evidence
+```
+Implies(
+  PRE_READ_FIXED=True,
+  CHECKLIST_DEPLOYED=True,
+  HAS_BEHAVIORAL_TEST=True,
+  HAS_BLIND_TAG=True,
+  ROW_CARRIES_DISPATCH=True,
+  HAS_CACHED_KNOWLEDGE=False,
+  HAS_ENFORCEMENT=True
+) → BLIND_TAG_EFFECTIVE=True
+```
 
-See `spec-artifacts/research/`:
-- `corrupt-success.md` — Cao et al (2026): 27-78% corrupt success rate
-- `format-compliance.md` — McMillan (2026): format effect on procedural compliance
-- `checklist-format.md` — NeuralBuddies (2026): checklist vs prose activation
+**Result: VALID** (proved by Z3 solver)
 
-## Card Catalogue
+### 3.3 Critical Counterexample
 
-See `spec-artifacts/cards.md` for all tracked cards and their status.
+Even with `PRE_READ_FIXED=True` and `CHECKLIST_DEPLOYED=True`:
+- If `HAS_CACHED_KNOWLEDGE=True` and `SKILL_RESETS_CONTAMINATION=False` → dispatch still fails
+- **skill() must actively flush/override cached task file content** — opencode tool implementation requirement
 
-## Related
+### 3.4 Phase Dependency Order
 
-- Issue #148 (closed not_planned, opencode-config) — Orchestrator-Serial Pipeline
-- Issue #622 (closed completed, .opencode) — Confirmshaming weave routing layer
-- Issue #1003 (open approved-for-implementation, .opencode) — Pre-read cascade root cause fix
-- Issue #863 (closed completed, .opencode) — Remove task() from task files
-- Issue #909 (open, .opencode) — 14-step orchestrator-serial pipeline
-- Issue #911 (closed completed, .opencode) — Two-role context cost model
-- Issue #958 (open, .opencode) — Add workflow checklists to all skill cards
-- Issue #1008 (open bug, .opencode) — review-prep format lost from decomposition gap
-- Issue #66 (closed not_planned, opencode-config) — Sub-agent dispatch haphazardness
-- Issue #105 (closed not_planned, opencode-config) — Pre-response gate carveout removal
+```
+Phase 1a: #1003 (pre-read cascade fix)
+         │
+Phase 1b: skill() cache flush (NEW — opencode CLI)
+         │
+         ▼
+Phase 2: #958 (checklist format) + #863 cross-ref + #909 reformat
+         │
+         ▼
+Phase 3: Positional sensitivity CI gate + #1008 close + behavioral tests
+         │
+         ▼
+Phase 4: Full regression verification suite
+```
 
-## Files
+Prerequisite chain is strict: each phase requires all prior phases.
 
-- `.opencode/.issues/1010/spec.md` — This spec
-- `.opencode/.issues/1010/spec-artifacts/cards.md` — Card catalogue
-- `.opencode/.issues/1010/spec-artifacts/research/` — Research evidence cards
+---
+
+## 4. Research Index
+
+All research evidence in `spec-artifacts/research/`:
+
+| File | Source | Key Finding |
+|------|--------|-------------|
+| `corrupt-success.md` | Cao et al (Mar 2026) arXiv:2603.03116 | 27-78% agent successes are corrupt successes — procedure violated, output looks fine |
+| `format-compliance.md` | McMillan (Feb 2026) arXiv:2602.05447 | Format alone not significant for frontier models; must pair with enforcement |
+| `checklist-format.md` | NeuralBuddies (May 2026) synthesis | Prose = reference data, checklist = obligation to discharge |
+| `context-rot.md` | Chroma (2025) 18-model eval | Performance degrades non-uniformly with input length; distractors compound at longer lengths |
+| `instruction-position.md` | Tian Pan (Apr 2026) | 61.8% compliance variance from position alone; instruction sandwich required; positional sensitivity is CI failure mode |
+| `sub-agent-patterns.md` | Martin Uke (2025) | Sub-agent architecture is proven canonical pattern; non-dispatch is the defect |
+| `orchestration-patterns.md` | Azure Architecture Center (2026) | Sequential pipeline validated for multi-step implementation work |
+| `corrupt-success-pae.md` | Cao et al PAE framework | Multi-dimensional gating (Utility, Efficiency, Interaction Quality, Procedural Integrity) |
+| `self-generated-checklist.md` | Zylos (2026), TDAG (2025) synthesis | Hybrid pattern: pre-authored skeleton + self-generated tmp/ decomposition by sub-agent |
+
+---
+
+## 5. Implementation Plan (5 Phases)
+
+### Phase 1a: Fix Pre-Read Cascade (#1003)
+
+| Step | Action | Target |
+|------|--------|--------|
+| 1.1 | Delete default.txt line 146 | Remove pre-read authorization |
+| 1.2 | Add startup mode identity | DISCUSSION vs EXECUTION mode persona |
+| 1.3 | Trim 13 guideline files | Retain Tier 1 safety-critical (<200 words/rule), move Tier 2/3 to skill cards |
+| 1.4 | Rename investigate/ → observe/ | Avoid reverse-engineering reflex |
+| 1.5 | Implement instruction sandwich | Dispatch mandate at BEGIN (default.txt) + END (AGENTS.md) of system prompt |
+| 1.6 | Set word count target | 5k-8k session-start (from 45k) |
+| 1.7 | Add positional sensitivity gate | CI test: dispatch mandate variance <15% across 3 positions |
+
+**Dependency**: Z3-proved prerequisite. **Auth status**: approved-for-implementation.
+
+### Phase 1b: skill() Cache Flush (NEW — opencode CLI)
+
+| Step | Action | Target |
+|------|--------|--------|
+| 2.1 | File SPEC-FIX in anomalyco/opencode | skill() MCP tool response must flush cached task file knowledge |
+| 2.2 | Implement: skill() response checklist FIRST | Checklist content dominates local context over cached task files |
+
+**Dependency**: Z3 counterexample proved required. **Auth status**: Not yet created.
+
+### Phase 2: Checklist Format Conversion
+
+| Step | Action | Spec | Target |
+|------|--------|------|--------|
+| 3.1 | Rewrite #958 with full design | #958 | Row format, (blind) semantics, max 2-3 checklists, behavioral test assertion |
+| 3.2 | Convert one reference skill (pilot) | #958 | Small skill (research or changelog-generator): RED→GREEN behavioral test |
+| 3.3 | Add cross-reference integrity test | #863 | Checklist row target matches task file routing marker |
+| 3.4 | Reform #909 dispatch table | #909 | 14-step prose table → checklist format |
+| 3.5 | Batch migrate remaining 38 skills | #958 | Standardized conversion across all skills |
+
+### Phase 3: Enforcement
+
+| Step | Action | Spec | Target |
+|------|--------|------|--------|
+| 4.1 | Corrupt-success behavioral test | #958 + new | Zero read() calls on tasks/*.md during dispatch window |
+| 4.2 | Positional sensitivity CI gate | NEW | BLOCK on >15% variance after any guideline change |
+| 4.3 | Close #1008 | #1008 | Fixed by checklist format — self-contained row prevents decomposition gap |
+
+### Phase 4: Regression
+
+| Step | Action | Target |
+|------|--------|--------|
+| 5.1 | Run full behavioral suite | Compare checklist vs prose baseline |
+| 5.2 | Verify all prior tests pass | Nothing previously working is broken |
+| 5.3 | Document improvement metrics | Inline violations, skip-step rate, corrupt-success rate |
+
+---
+
+## 6. Spec Change Requirements (All Specs Affected)
+
+See `spec-artifacts/spec-change-requirements.md` for the complete actionable change list.
+
+| Spec | Repo | Status | Change Needed |
+|------|------|--------|---------------|
+| #1003 | .opencode | approved-for-implementation | +3: instruction sandwich, positional sensitivity gate, word count target |
+| #958 | .opencode | open | Full rewrite: row format, (blind) semantics, max 2-3 checklists, task file role, dependency on #1003, behavioral test assertion |
+| #863 | .opencode | completed | +1: cross-reference integrity test |
+| #909 | .opencode | open | Reform 14-step prose table to checklist format with (blind)/non-blind per-step |
+| #911 | .opencode | completed | No change needed |
+| #1008 | .opencode | open bug | Close as fixed-by-checklist-format after Phase 2 |
+| (new) skill() cache flush | anomalyco/opencode | does not exist | SPEC-FIX: skill() response must flush cached task knowledge |
+| (new) Positional sensitivity CI gate | .opencode or opencode-config | does not exist | New spec: CI gate blocks guideline edits pushing dispatch into attention valley |
+| #1010 | .opencode | current (this spec) | Update to master tracking spec (done — this revision) |
+
+---
+
+## 7. Migration Evaluation
+
+Full 5-part analysis at `spec-artifacts/migration-evaluation.md`:
+
+| Part | Content |
+|------|---------|
+| 1 | Published research constraints (6 sources) |
+| 2 | Z3-proved dependency ordering |
+| 3 | Five-phase migration path with detailed actions |
+| 4 | Risk analysis (4 risks with mitigations) |
+| 5 | Architectural diagram (session start → enforcement) |
+
+---
+
+## 8. Card Catalogue
+
+12 tracked cards at `spec-artifacts/cards.md`:
+
+| Card | Status |
+|------|--------|
+| 1: Problem — orchestrator inlines | CONFIRMED |
+| 2: Mechanism — checklist format | CONFIRMED |
+| 3: Design — self-contained row | OPEN (needs behavioral test) |
+| 4: When — applicability conditions | OPEN |
+| 5: Behavioral enforcement | REQUIRED |
+| 6: Card catalogue purpose | AGREED |
+| 7: Local draft spec workflow | AGREED |
+| 8: Pre-read cascade blocks checklist | CONFIRMED (Z3-proved) |
+| 9: Prior issue analysis | CONFIRMED |
+| 10: Migration path | RECOMMENDED |
+| 11: Z3 analysis results | COMPLETED |
+| 12: Holistic migration evaluation | COMPLETED |
+
+---
+
+## 9. Related Issues
+
+| Issue | Repo | State | Relevance |
+|-------|------|-------|-----------|
+| #148 | opencode-config | closed not_planned | Predecessor — orchestrator-serial pipeline |
+| #622 | .opencode | closed completed | Confirmshaming weave routing layer |
+| #1003 | .opencode | open approved-for-implementation | Pre-read cascade root cause fix — Phase 1a |
+| #863 | .opencode | closed completed | Remove task() from task files — Phase 2 component |
+| #909 | .opencode | open | 14-step orchestrator-serial pipeline — Phase 2 conversion |
+| #911 | .opencode | closed completed | Two-role context cost model — validated |
+| #958 | .opencode | open | Add workflow checklists to all skill cards — Phase 2 |
+| #1008 | .opencode | open bug | review-prep format lost — to close post-Phase 2 |
+| #66 | opencode-config | closed not_planned | Sub-agent dispatch haphazardness — context |
+| #105 | opencode-config | closed not_planned | Pre-response gate carveout removal — context |
+
+---
+
+## 10. Files
+
+```
+.opencode/.issues/1010/
+├── spec.md                                         ← This file (master tracking spec)
+├── spec-artifacts/
+│   ├── cards.md                                    ← 12 tracked cards
+│   ├── migration-evaluation.md                     ← Full 5-part research+plan
+│   ├── spec-change-requirements.md                 ← All specs, what to change
+│   ├── research/
+│   │   ├── corrupt-success.md                      ← Cao et al (2026)
+│   │   ├── format-compliance.md                    ← McMillan (2026)
+│   │   ├── checklist-format.md                     ← NeuralBuddies (2026)
+│   │   ├── self-generated-checklist.md             ← Zylos/TDAG (2025-2026)
+│   │   └── (context-rot.md, instruction-position.md, sub-agent-patterns.md,
+│   │        orchestration-patterns.md, corrupt-success-pae.md — synthesized
+│   │        in migration-evaluation.md)
+│   └── z3/
+│       ├── dispatch-chain-contract.yaml            ← Z3 constraints (7)
+│       └── dispatch-chain-state.yaml               ← Current state snapshot
+```
+
+---
+
+## 11. Session Resume
+
+To resume work on this spec in a future session: load this file, read the card catalogue (cards.md) to understand what's been decided and what's open, and check the research index (Section 4 above) for evidence backing. The implementation plan (Section 5) defines the dependency-ordered work queue.
+
+🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
