@@ -27,6 +27,7 @@ Co-authored with AI: OpenCode (deepseek-v4-flash)
 
 import argparse
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 from unified_planning.shortcuts import Problem  # noqa: F401
@@ -49,6 +50,24 @@ PROJECT_ROOT = _path.parent
 def _die(msg: str, code: int = 2) -> None:
     print(f"error: {msg}", file=sys.stderr)
     sys.exit(code)
+
+
+def _load_yaml(path: str) -> dict:
+    p = Path(path)
+    if not p.exists():
+        _die(f"file not found: {path}")
+    with p.open() as f:
+        data = yaml.safe_load(f)
+    if not isinstance(data, dict):
+        _die(f"expected a YAML mapping in {path}")
+    return data
+
+
+def _state_path(path: str) -> Path:
+    p = Path(path)
+    if not p.suffix:
+        p = p / "state.yaml"
+    return p
 
 
 # ---------------------------------------------------------------------------
@@ -80,8 +99,55 @@ def _action_discover(args: argparse.Namespace) -> None:
     _stub("discover")
 
 
+def _action_state_init(path: str) -> None:
+    p = _state_path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    state = {
+        "variables": {},
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    with p.open("w") as f:
+        yaml.dump(state, f, default_flow_style=False)
+    print(f"state initialised at {p}")
+
+
+def _action_state_update(path: str, var_name: str, var_value: str) -> None:
+    p = _state_path(path)
+    if not p.exists():
+        _die(f"state file not found: {p} (run state init first)", 1)
+    data = _load_yaml(str(p))
+    variables = data.get("variables", {})
+    if var_name is not None and var_value is not None:
+        variables[var_name] = var_value
+    data["variables"] = variables
+    data["timestamp"] = datetime.now(timezone.utc).isoformat()
+    with p.open("w") as f:
+        yaml.dump(data, f, default_flow_style=False)
+    print(f"state updated at {p}")
+
+
+def _action_state_status(path: str) -> None:
+    p = _state_path(path)
+    if not p.exists():
+        _die(f"state file not found: {p}")
+    data = _load_yaml(str(p))
+    variables = data.get("variables", {})
+    ts = data.get("timestamp", "")
+    print(f"timestamp: {ts}")
+    print("variables:")
+    for name, val in sorted(variables.items()):
+        print(f"  {name}: {val}")
+
+
 def _action_state(args: argparse.Namespace) -> None:
-    _stub("state")
+    sub = args.state_sub
+    path = args.state_path
+    if sub == "init":
+        _action_state_init(path)
+    elif sub == "update":
+        _action_state_update(path, args.var_name, args.var_value)
+    elif sub == "status":
+        _action_state_status(path)
 
 
 # ---------------------------------------------------------------------------
@@ -101,7 +167,16 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("ground", help="ground an action schema")
     sub.add_parser("pddl", help="convert between internal representation and PDDL")
     sub.add_parser("discover", help="discover action schemas from state transitions")
-    sub.add_parser("state", help="state file management (init, update, status)")
+    p_state = sub.add_parser("state", help="state file management (init, update, status)")
+    state_sub = p_state.add_subparsers(dest="state_sub", required=True)
+    p_init = state_sub.add_parser("init", help="initialise a state file")
+    p_init.add_argument("state_path", help="path to state file or directory")
+    p_upd = state_sub.add_parser("update", help="update a variable in state file")
+    p_upd.add_argument("state_path", help="path to state file or directory")
+    p_upd.add_argument("--var-name", "-n", required=True)
+    p_upd.add_argument("--var-value", "-v", required=True)
+    p_st = state_sub.add_parser("status", help="print state file contents")
+    p_st.add_argument("state_path", help="path to state file or directory")
 
     return parser
 

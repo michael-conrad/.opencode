@@ -100,12 +100,62 @@ fi
 echo ""
 
 # ============================================================
+# SC-5: state init creates YAML state file
+# ============================================================
+echo "--- SC-5: plan state init <dir> exits 1 (not implemented / RED) ---"
+
+TEST_STATE_DIR="$PROJECT_DIR/tmp/plan-skeleton-test-state"
+rm -rf "$TEST_STATE_DIR"
+mkdir -p "$TEST_STATE_DIR"
+
+SC5_OUTPUT=""
+SC5_EXIT=0
+SC5_OUTPUT=$(cd "$PROJECT_DIR" && uv run .opencode/tools/plan state init "$TEST_STATE_DIR" 2>&1) || SC5_EXIT=$?
+
+if [ "$SC5_EXIT" -eq 0 ]; then
+    echo "  UNEXPECTED PASS: state init exited 0 (implementation exists?)"
+    echo "  Output: $(echo "$SC5_OUTPUT" | head -3)"
+    SC5_RESULT=0
+else
+    echo "  FAIL: state init exited $SC5_EXIT (expected RED — state not implemented yet)"
+    echo "  Output: $(echo "$SC5_OUTPUT" | head -3)"
+    SC5_RESULT=1
+    OVERALL_RESULT=1
+fi
+
+echo ""
+
+# ============================================================
+# SC-6: state update writes to state file
+# ============================================================
+echo "--- SC-6: plan state update <dir> --var-name FOO --var-value bar exits 1 (not implemented / RED) ---"
+
+SC6_OUTPUT=""
+SC6_EXIT=0
+SC6_OUTPUT=$(cd "$PROJECT_DIR" && uv run .opencode/tools/plan state update "$TEST_STATE_DIR" --var-name FOO --var-value bar 2>&1) || SC6_EXIT=$?
+
+if [ "$SC6_EXIT" -eq 0 ]; then
+    echo "  UNEXPECTED PASS: state update exited 0 (implementation exists?)"
+    echo "  Output: $(echo "$SC6_OUTPUT" | head -3)"
+    SC6_RESULT=0
+else
+    echo "  FAIL: state update exited $SC6_EXIT (expected RED — state not implemented yet)"
+    echo "  Output: $(echo "$SC6_OUTPUT" | head -3)"
+    SC6_RESULT=1
+    OVERALL_RESULT=1
+fi
+
+echo ""
+
+# ============================================================
 # Write results for orchestrator
 # ============================================================
 mkdir -p "$PROJECT_DIR/tmp"
 cat > "$PROJECT_DIR/tmp/plan-skeleton-red-results.txt" << EOF
 SC-10: $([ "$SC10_RESULT" -eq 0 ] && echo "PASS" || echo "FAIL")
 SC-11: $([ "$SC11_RESULT" -eq 0 ] && echo "PASS" || echo "FAIL")
+SC-5: $([ "$SC5_RESULT" -eq 0 ] && echo "PASS" || echo "FAIL")
+SC-6: $([ "$SC6_RESULT" -eq 0 ] && echo "PASS" || echo "FAIL")
 PHASE: RED
 EOF
 
@@ -115,6 +165,8 @@ EOF
 echo "=== RED Phase Results ==="
 echo "SC-10 (--help exits 0): $([ "$SC10_RESULT" -eq 0 ] && echo 'PASS' || echo 'FAIL')"
 echo "SC-11 (plan --problem exits 0): $([ "$SC11_RESULT" -eq 0 ] && echo 'PASS' || echo 'FAIL')"
+echo "SC-5 (state init exits != 0): $([ "$SC5_RESULT" -eq 0 ] && echo 'PASS' || echo 'FAIL')"
+echo "SC-6 (state update exits != 0): $([ "$SC6_RESULT" -eq 0 ] && echo 'PASS' || echo 'FAIL')"
 echo ""
 
 if [ "$OVERALL_RESULT" -eq 0 ]; then
