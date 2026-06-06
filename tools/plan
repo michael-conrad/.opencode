@@ -4,7 +4,7 @@
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
 # requires-python = "~=3.12"
-# dependencies = ["unified-planning>=1.3.0", "pyyaml>=6.0", "networkx>=3.0"]
+# dependencies = ["unified-planning>=1.3.0", "pyyaml>=6.0", "networkx>=3.0", "up-tamer>=1.1.0"]
 # ///
 
 # SPDX-FileCopyrightText: 2026 Michael Conrad
@@ -26,14 +26,20 @@ Co-authored with AI: OpenCode (deepseek-v4-flash)
 """
 
 import argparse
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from unified_planning.shortcuts import Problem  # noqa: F401
+from collections import OrderedDict
+from unified_planning.model import Problem, InstantaneousAction, Object, Fluent
+from unified_planning.model.types import _UserType
 
-import yaml  # noqa: F401
-import networkx  # noqa: F401
+from unified_planning.shortcuts import OneshotPlanner
+from unified_planning.engines.results import PlanGenerationResultStatus
+
+import yaml
+import networkx as nx
 
 
 _path = Path(__file__).resolve().parent
@@ -71,16 +77,250 @@ def _state_path(path: str) -> Path:
 
 
 # ---------------------------------------------------------------------------
-# Stub actions (not implemented)
+# Expression parser
 # ---------------------------------------------------------------------------
+
+
+_EXPR_RE = re.compile(r'^\s*(not\s+)?([\w-]+)(?:\(\s*([\w,\s-]*)\s*\))?\s*$')
+
+
+def _parse_expression(
+    expr_str: str,
+    problem: Problem,
+    fluent_map: dict[str, Fluent],
+    action: InstantaneousAction | None = None,
+) -> tuple:
+    """Parse expression string → (fluent_atom, is_negated)."""
+    m = _EXPR_RE.match(expr_str)
+    if not m:
+        _die(f"cannot parse expression: {expr_str}")
+    negated = bool(m.group(1))
+    fluent_name = m.group(2)
+    args_str = m.group(3)
+
+    if fluent_name not in fluent_map:
+        # Auto-create undeclared fluent with correct arity from expression
+        ft = problem._env.type_manager.BoolType()
+        if args_str:
+            params = {}
+            for i, arg_name in enumerate((a.strip() for a in args_str.split(",") if a.strip())):
+                params[f"p{i}"] = problem._env.type_manager.UserType("object")
+            fluent = Fluent(fluent_name, ft, **params)
+        else:
+            fluent = Fluent(fluent_name, ft)
+        problem.add_fluent(fluent)
+        fluent_map[fluent_name] = fluent
+    fluent = fluent_map[fluent_name]
+
+    args: list = []
+    if args_str:
+        for arg_name in (a.strip() for a in args_str.split(",") if a.strip()):
+            resolved = None
+            if action is not None:
+                try:
+                    resolved = action.parameter(arg_name)
+                except ValueError:
+                    pass
+            if resolved is None:
+                for obj in problem.all_objects:
+                    if obj.name == arg_name:
+                        resolved = obj
+                        break
+            if resolved is None:
+                _die(
+                    f"cannot resolve argument '{arg_name}' in expression '{expr_str}'"
+                )
+            args.append(resolved)
+
+    return fluent(*args), negated
+
+
+# ---------------------------------------------------------------------------
+# Problem builder from YAML schema
+# ---------------------------------------------------------------------------
+
+
+def _set_all_groundings(
+    problem: Problem,
+    fluent: Fluent,
+    signature: list,
+    args: list[Object],
+    objects: list[Object],
+) -> None:
+    if len(args) == len(signature):
+        problem.set_initial_value(fluent(*args), False)
+        return
+    param_type = signature[len(args)].type
+    for obj in objects:
+        if obj.type == param_type:
+            _set_all_groundings(problem, fluent, signature, args + [obj], objects)
+
+
+def _build_problem(schema: dict) -> Problem:
+    problem = Problem(schema.get("domain", "problem"))
+
+    type_map: dict[str, _UserType] = {}
+    type_defs = schema.get("types", [])
+    if type_defs:
+        for td in type_defs:
+            type_map[td["name"]] = problem._env.type_manager.UserType(td["name"])
+    else:
+        type_map["object"] = problem._env.type_manager.UserType("object")
+
+    for od in schema.get("objects", []):
+        obj_type = type_map.get(od.get("type", "object"), type_map.get("object", problem._env.type_manager.UserType("object")))  # type: ignore[arg-type]
+        problem.add_object(Object(od["name"], obj_type))
+
+    fluent_map: dict[str, Fluent] = {}
+    for fd in schema.get("fluents", []):
+        ft = problem._env.type_manager.BoolType()
+        params: dict[str, _UserType] = {}
+        for pd in fd.get("params", []):
+            params[pd["name"]] = type_map.get(pd["type"], type_map.get("object", problem._env.type_manager.UserType("object")))  # type: ignore[arg-type]
+        fluent = Fluent(fd["name"], ft, **params)
+        problem.add_fluent(fluent)
+        fluent_map[fd["name"]] = fluent
+
+    for ad in schema.get("actions", []):
+        action_params: OrderedDict[str, _UserType] = OrderedDict()
+        for pd in ad.get("params", []):
+            ptype = type_map.get(pd["type"], type_map.get("object", problem._env.type_manager.UserType("object")))  # type: ignore[arg-type]
+            action_params[pd["name"]] = ptype
+        action = InstantaneousAction(ad["name"], _parameters=action_params)
+
+        for pc in ad.get("preconditions", []):
+            expr, negated = _parse_expression(pc, problem, fluent_map, action)
+            if negated:
+                action.add_precondition(problem._env.expression_manager.Not(expr))
+            else:
+                action.add_precondition(expr)
+
+        for eff in ad.get("effects", []):
+            expr, negated = _parse_expression(eff, problem, fluent_map, action)
+            action.add_effect(expr, not negated)
+
+        problem.add_action(action)
+
+    # Set all fluent groundings to False by default (required by some planners)
+    for fluent in problem.fluents:
+        sig = fluent.signature
+        if not sig:
+            problem.set_initial_value(fluent(), False)
+        else:
+            _set_all_groundings(problem, fluent, sig, [], list(problem.all_objects))
+
+    for init_str in schema.get("init", []):
+        expr, _ = _parse_expression(init_str, problem, fluent_map)
+        problem.set_initial_value(expr, True)
+
+    for goal_str in schema.get("goals", []):
+        expr, negated = _parse_expression(goal_str, problem, fluent_map)
+        if negated:
+            problem.add_goal(problem._env.expression_manager.Not(expr))
+        else:
+            problem.add_goal(expr)
+
+    return problem
+
+
+def _check_self_defeating_cycles(schema: dict) -> list[tuple[str, str]]:
+    """Check for actions whose effects negate ALL their preconditions.
+
+    A self-defeating action is one where every precondition fluent is negated
+    by an effect, AND the action has no positive effects on other fluents
+    (i.e., it undoes everything it requires without producing anything useful).
+    Standard STRIPS actions like move() that negate at-robby(r, from) while
+    also producing at-robby(r, to) are NOT self-defeating.
+    """
+    cycles: list[tuple[str, str]] = []
+    for ad in schema.get("actions", []):
+        aname = ad["name"]
+        precond_fluents: set[str] = set()
+        for pc in ad.get("preconditions", []):
+            m = _EXPR_RE.match(pc)
+            if m:
+                precond_fluents.add(m.group(2))
+        negated_fluents: set[str] = set()
+        positive_fluents: set[str] = set()
+        for eff in ad.get("effects", []):
+            m = _EXPR_RE.match(eff)
+            if m:
+                if m.group(1):
+                    negated_fluents.add(m.group(2))
+                else:
+                    positive_fluents.add(m.group(2))
+        if precond_fluents and precond_fluents == negated_fluents and not positive_fluents:
+            cycles.append((aname, aname))
+    return cycles
+
+
+def _action_plan(args: argparse.Namespace) -> None:
+    schema = _load_yaml(args.problem)
+    problem = _build_problem(schema)
+    print(f"problem built: {problem.name}")
+    print(f"  objects: {len(list(problem.all_objects))}")
+    print(f"  fluents: {len(problem.fluents)}")
+    print(f"  actions: {len(problem.actions)}")
+    print(f"  goals:   {len(problem.goals)}")
+
+    # Phase 5: self-defeating cycle detection
+    cycles = _check_self_defeating_cycles(schema)
+    if cycles:
+        for a, _ in cycles:
+            _die(f"cyclic dependency: action '{a}' negates its own precondition", 1)
+
+    # Plan generation
+    engine = args.engine or "tamer"
+    print(f"engine: {engine}", file=sys.stderr)
+    planner = OneshotPlanner(name=engine)
+    result = planner.solve(problem)
+    status = result.status
+    print(f"status: {status.name}", file=sys.stderr)
+
+    if status in (
+        PlanGenerationResultStatus.SOLVED_SATISFICING,
+        PlanGenerationResultStatus.SOLVED_OPTIMALLY,
+    ):
+        plan = result.plan
+        if plan is None:
+            _die("planner returned SOLVED but no plan object", 1)
+        actions = list(plan.actions)
+        print(f"\nplan length: {len(actions)}")
+        print()
+        for i, ai in enumerate(actions, start=1):
+            action = ai.action
+            params = ", ".join(str(p) for p in ai.actual_parameters)
+            print(f"- [ ] {i}. {action.name}({params})")
+        print()
+        plan_data = {
+            "domain": problem.name,
+            "engine": engine,
+            "status": status.name,
+            "plan_length": len(actions),
+            "actions": [
+                {
+                    "name": ai.action.name,
+                    "parameters": [str(p) for p in ai.actual_parameters],
+                }
+                for ai in actions
+            ],
+        }
+        print("---")
+        print(yaml.dump(plan_data, default_flow_style=False).rstrip())
+    elif status == PlanGenerationResultStatus.UNSOLVABLE_PROVEN:
+        _die("problem is unsolvable (proven)", 1)
+    elif status == PlanGenerationResultStatus.UNSOLVABLE_INCOMPLETELY:
+        _die("no plan found (incomplete search)", 1)
+    elif status == PlanGenerationResultStatus.TIMEOUT:
+        _die("planning timed out", 1)
+    elif status == PlanGenerationResultStatus.MEMOUT:
+        _die("planning ran out of memory", 1)
+    else:
+        _die(f"planning failed: {status.name}", 1)
 
 
 def _stub(name: str) -> None:
     _die(f"{name}: not implemented", 1)
-
-
-def _action_plan(args: argparse.Namespace) -> None:
-    _stub("plan")
 
 
 def _action_validate(args: argparse.Namespace) -> None:
@@ -162,7 +402,9 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     sub = parser.add_subparsers(dest="action", required=True)
 
-    sub.add_parser("plan", help="generate a plan from a domain + problem file")
+    p_plan = sub.add_parser("plan", help="generate a plan from a domain + problem file")
+    p_plan.add_argument("--problem", "-p", required=True, help="path to YAML problem file")
+    p_plan.add_argument("--engine", "-e", default="tamer", help="planning engine name (default: tamer)")
     sub.add_parser("validate", help="validate a plan against a domain")
     sub.add_parser("ground", help="ground an action schema")
     sub.add_parser("pddl", help="convert between internal representation and PDDL")
