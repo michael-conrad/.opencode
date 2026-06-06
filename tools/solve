@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@"  # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -6,6 +7,8 @@
 # requires-python = "~=3.12"
 # dependencies = ["z3-solver", "pyyaml>=6.0"]
 # ///
+
+# fmt: on
 
 # SPDX-FileCopyrightText: 2026 Michael Conrad
 # SPDX-License-Identifier: MIT
@@ -41,6 +44,7 @@ PROJECT_ROOT = _path.parent
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _die(msg: str, code: int = 2) -> None:
     print(f"error: {msg}", file=sys.stderr)
@@ -88,6 +92,7 @@ def _make_constants(variables: dict) -> dict[str, z3.ExprRef]:
 # Expression evaluator — eval() with Z3 constants and z3 module
 # ---------------------------------------------------------------------------
 
+
 def _eval_expr(expr: str, consts: dict[str, z3.ExprRef]) -> z3.BoolRef:
     ctx = {**consts, "z3": z3}
     try:
@@ -95,13 +100,16 @@ def _eval_expr(expr: str, consts: dict[str, z3.ExprRef]) -> z3.BoolRef:
     except Exception as exc:
         _die(f"cannot evaluate expression {expr!r}: {exc}")
     if not isinstance(result, z3.BoolRef):
-        _die(f"expression {expr!r} does not evaluate to a BoolRef (got {type(result).__name__})")
+        _die(
+            f"expression {expr!r} does not evaluate to a BoolRef (got {type(result).__name__})"
+        )
     return result
 
 
 # ---------------------------------------------------------------------------
 # Model printer
 # ---------------------------------------------------------------------------
+
 
 def _print_model(model: z3.Model, consts: dict[str, z3.ExprRef]) -> None:
     for name in sorted(consts):
@@ -113,6 +121,7 @@ def _print_model(model: z3.Model, consts: dict[str, z3.ExprRef]) -> None:
 # State helpers
 # ---------------------------------------------------------------------------
 
+
 def _state_path(path: str) -> Path:
     p = Path(path)
     if not p.suffix:
@@ -123,6 +132,7 @@ def _state_path(path: str) -> Path:
 # ---------------------------------------------------------------------------
 # Action: check
 # ---------------------------------------------------------------------------
+
 
 def _action_check(args: argparse.Namespace) -> None:
     state_data = _load_yaml(args.state_path)
@@ -144,7 +154,7 @@ def _action_check(args: argparse.Namespace) -> None:
 
     # Assert preconditions
     pre = contract.get("preconditions", [])
-    for expr in (pre if isinstance(pre, list) else [pre]):
+    for expr in pre if isinstance(pre, list) else [pre]:
         solver.add(_eval_expr(expr, consts))
 
     # Check SAT after preconditions
@@ -162,11 +172,11 @@ def _action_check(args: argparse.Namespace) -> None:
 
     # Add postconditions + invariants, re-check
     post = contract.get("postconditions", [])
-    for expr in (post if isinstance(post, list) else [post]):
+    for expr in post if isinstance(post, list) else [post]:
         solver.add(_eval_expr(expr, consts))
 
     inv = contract.get("invariants", [])
-    for expr in (inv if isinstance(inv, list) else [inv]):
+    for expr in inv if isinstance(inv, list) else [inv]:
         solver.add(_eval_expr(expr, consts))
 
     sat_post = solver.check()
@@ -185,6 +195,7 @@ def _action_check(args: argparse.Namespace) -> None:
 # ---------------------------------------------------------------------------
 # Action: model
 # ---------------------------------------------------------------------------
+
 
 def _action_model(args: argparse.Namespace) -> None:
     contract = _load_yaml(args.contract_path)
@@ -207,6 +218,7 @@ def _action_model(args: argparse.Namespace) -> None:
 # Action: prove
 # ---------------------------------------------------------------------------
 
+
 def _action_prove(args: argparse.Namespace) -> None:
     contract = _load_yaml(args.contract_path)
     variables = contract.get("variables", {})
@@ -216,11 +228,11 @@ def _action_prove(args: argparse.Namespace) -> None:
 
     # Assumptions = preconditions + invariants
     pre = contract.get("preconditions", [])
-    for expr in (pre if isinstance(pre, list) else [pre]):
+    for expr in pre if isinstance(pre, list) else [pre]:
         solver.add(_eval_expr(expr, consts))
 
     inv = contract.get("invariants", [])
-    for expr in (inv if isinstance(inv, list) else [inv]):
+    for expr in inv if isinstance(inv, list) else [inv]:
         solver.add(_eval_expr(expr, consts))
 
     # Negate the theorem
@@ -240,13 +252,16 @@ def _action_prove(args: argparse.Namespace) -> None:
 # Action: state
 # ---------------------------------------------------------------------------
 
+
 def _py_to_z3(val, decl: dict, const: z3.ExprRef) -> z3.ExprRef:
     typ = decl.get("type", "bool")
     nullable = decl.get("nullable", False)
     domain = decl.get("domain")
 
     # handle null / empty for nullable
-    if nullable and (val is None or (isinstance(val, str) and val.strip().lower() in ("", "null"))):
+    if nullable and (
+        val is None or (isinstance(val, str) and val.strip().lower() in ("", "null"))
+    ):
         # no good universal "null" in Z3 sorts; skip constraint
         return const
 
@@ -284,7 +299,9 @@ def _action_state_init(path: str) -> None:
     print(f"state initialised at {p}")
 
 
-def _action_state_update(path: str, contract_path: str | None, var_name: str | None, var_value: str | None) -> None:
+def _action_state_update(
+    path: str, contract_path: str | None, var_name: str | None, var_value: str | None
+) -> None:
     p = _state_path(path)
     if not p.exists():
         _die(f"state file not found: {p} (run state init first)", 1)
@@ -366,6 +383,7 @@ def _action_state(args: argparse.Namespace) -> None:
 # argparse
 # ---------------------------------------------------------------------------
 
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="solve",
@@ -402,6 +420,7 @@ def _build_parser() -> argparse.ArgumentParser:
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def main() -> None:
     parser = _build_parser()
