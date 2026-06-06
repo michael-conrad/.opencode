@@ -45,11 +45,42 @@ Every PEP 723 script MUST include a polyglot bash guard as the second line, imme
 
 The guard prevents catastrophic failure when an agent or user invokes `bash <script>` instead of `uv run --script <script>` — bash sees `"exec" "uv" "run" "--script" "$0" "$@"` and replaces itself with `uv`, forwarding all arguments. Under Python, the guard is a bare string expression and is silently discarded.
 
+### `# fmt: off` / `# fmt: on` Ruff Protection (MANDATORY)
+
+`ruff format` interprets the bash guard line as a Python string expression and will corrupt it by stripping spaces between the quoted tokens, producing `"execuvrun--script$0$@"`. This renders the tool non-functional (cannot execute under bash).
+
+**Every PEP 723 script MUST wrap the bash guard and PEP 723 header in `# fmt: off` / `# fmt: on` guards:**
+
+```python
+#!/usr/bin/env -S uv run --script
+# fmt: off
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
+# /// script
+# requires-python = "~=3.12"
+# dependencies = []
+# ///
+
+# fmt: on
+```
+
+- **`# fmt: off`** MUST be on line 2 (immediately after shebang)
+- **`# fmt: on`** MUST be on the line after `# ///` (closing PEP 723 block), before any imports or code
+- The `# fmt: on` guard MUST NOT be inside the PEP 723 TOML block — it goes AFTER `# ///`, not between `# /// script` and `# ///`
+- Failure to include these guards WILL result in the bash guard being corrupted by `ruff format` during review-prep or any automated formatting pass
+
 **Structure rules:**
 - Line 1: `#!/usr/bin/env -S uv run --script` (only allowed shebang)
-- Line 2: `"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER` (bash guard)
-- Lines 4-8: PEP 723 metadata block (comment line, `# /// script`, metadata, `# ///`)
-- After `# ///`: blank line, then optional `from __future__` or `__doc__ = ` or imports
+- Line 2: `# fmt: off` (ruff protection guard)
+- Line 3: `"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER` (bash guard)
+- Lines 4-5: Comment line, PEP 723 header
+- Lines 6-8: PEP 723 metadata block (`requires-python`, `dependencies`)
+- Line 9: `# ///` (closing PEP 723)
+- Line 10: `# fmt: on` (ruff protection guard off)
+- After: blank line, then optional `from __future__` or `__doc__ = ` or imports
+
+This error was discovered during adversarial audit of issue #980. Both `tools/plan` and `tools/solve` were affected.
 
 Scripts that print `__doc__` at runtime MUST use `__doc__ = """..."""` assignment (not bare `"""..."""`) because the bash guard string captures the first docstring slot.
 

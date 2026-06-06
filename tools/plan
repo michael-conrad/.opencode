@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@"  # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -6,6 +7,8 @@
 # requires-python = "~=3.12"
 # dependencies = ["unified-planning>=1.3.0", "pyyaml>=6.0", "networkx>=3.0", "up-tamer>=1.1.0"]
 # ///
+
+# fmt: on
 
 # SPDX-FileCopyrightText: 2026 Michael Conrad
 # SPDX-License-Identifier: MIT
@@ -38,13 +41,15 @@ from unified_planning.model.types import _UserType
 from unified_planning.io import PDDLReader, PDDLWriter
 
 from unified_planning.shortcuts import OneshotPlanner
-from unified_planning.engines.results import PlanGenerationResultStatus, ValidationResultStatus
+from unified_planning.engines.results import (
+    PlanGenerationResultStatus,
+    ValidationResultStatus,
+)
 from unified_planning.engines import SequentialPlanValidator, CompilationKind
 from unified_planning.engines.compilers import Grounder
 from unified_planning.shortcuts import get_environment
 
 import yaml
-import networkx as nx
 
 
 _path = Path(__file__).resolve().parent
@@ -86,7 +91,7 @@ def _state_path(path: str) -> Path:
 # ---------------------------------------------------------------------------
 
 
-_EXPR_RE = re.compile(r'^\s*(not\s+)?([\w-]+)(?:\(\s*([\w,\s-]*)\s*\))?\s*$')
+_EXPR_RE = re.compile(r"^\s*(not\s+)?([\w-]+)(?:\(\s*([\w,\s-]*)\s*\))?\s*$")
 
 
 def _parse_expression(
@@ -108,7 +113,9 @@ def _parse_expression(
         ft = problem._env.type_manager.BoolType()
         if args_str:
             params = {}
-            for i, arg_name in enumerate((a.strip() for a in args_str.split(",") if a.strip())):
+            for i, arg_name in enumerate(
+                (a.strip() for a in args_str.split(",") if a.strip())
+            ):
                 params[f"p{i}"] = problem._env.type_manager.UserType("object")
             fluent = Fluent(fluent_name, ft, **params)
         else:
@@ -132,9 +139,7 @@ def _parse_expression(
                         resolved = obj
                         break
             if resolved is None:
-                _die(
-                    f"cannot resolve argument '{arg_name}' in expression '{expr_str}'"
-                )
+                _die(f"cannot resolve argument '{arg_name}' in expression '{expr_str}'")
             args.append(resolved)
 
     return fluent(*args), negated
@@ -173,7 +178,10 @@ def _build_problem(schema: dict) -> Problem:
         type_map["object"] = problem._env.type_manager.UserType("object")
 
     for od in schema.get("objects", []):
-        obj_type = type_map.get(od.get("type", "object"), type_map.get("object", problem._env.type_manager.UserType("object")))  # type: ignore[arg-type]
+        obj_type = type_map.get(
+            od.get("type", "object"),
+            type_map.get("object", problem._env.type_manager.UserType("object")),
+        )  # type: ignore[arg-type]
         problem.add_object(Object(od["name"], obj_type))
 
     fluent_map: dict[str, Fluent] = {}
@@ -181,7 +189,10 @@ def _build_problem(schema: dict) -> Problem:
         ft = problem._env.type_manager.BoolType()
         params: dict[str, _UserType] = {}
         for pd in fd.get("params", []):
-            params[pd["name"]] = type_map.get(pd["type"], type_map.get("object", problem._env.type_manager.UserType("object")))  # type: ignore[arg-type]
+            params[pd["name"]] = type_map.get(
+                pd["type"],
+                type_map.get("object", problem._env.type_manager.UserType("object")),
+            )  # type: ignore[arg-type]
         fluent = Fluent(fd["name"], ft, **params)
         problem.add_fluent(fluent)
         fluent_map[fd["name"]] = fluent
@@ -189,7 +200,10 @@ def _build_problem(schema: dict) -> Problem:
     for ad in schema.get("actions", []):
         action_params: OrderedDict[str, _UserType] = OrderedDict()
         for pd in ad.get("params", []):
-            ptype = type_map.get(pd["type"], type_map.get("object", problem._env.type_manager.UserType("object")))  # type: ignore[arg-type]
+            ptype = type_map.get(
+                pd["type"],
+                type_map.get("object", problem._env.type_manager.UserType("object")),
+            )  # type: ignore[arg-type]
             action_params[pd["name"]] = ptype
         action = InstantaneousAction(ad["name"], _parameters=action_params)
 
@@ -254,7 +268,11 @@ def _check_self_defeating_cycles(schema: dict) -> list[tuple[str, str]]:
                     negated_fluents.add(m.group(2))
                 else:
                     positive_fluents.add(m.group(2))
-        if precond_fluents and precond_fluents == negated_fluents and not positive_fluents:
+        if (
+            precond_fluents
+            and precond_fluents == negated_fluents
+            and not positive_fluents
+        ):
             cycles.append((aname, aname))
     return cycles
 
@@ -397,10 +415,12 @@ def _action_ground(args: argparse.Namespace) -> None:
 
     actions_data = []
     for a in grounded.actions:
-        actions_data.append({
-            "name": a.name,
-            "parameters": [],
-        })
+        actions_data.append(
+            {
+                "name": a.name,
+                "parameters": [],
+            }
+        )
 
     output = {
         "domain": problem.name,
@@ -454,7 +474,9 @@ def _action_pddl(args: argparse.Namespace) -> None:
                 _die(f"problem file not found: {problem_file}")
             problem = reader.parse_problem(domain_file, problem_file)
         else:
-            _die("from-pddl requires --input to be a directory with domain.pddl and problem.pddl")
+            _die(
+                "from-pddl requires --input to be a directory with domain.pddl and problem.pddl"
+            )
 
         # Collect all user types from objects and fluent signatures
         type_names: set[str] = set()
@@ -490,12 +512,14 @@ def _action_pddl(args: argparse.Namespace) -> None:
             for e in a.effects:
                 effects_list.append(_effect_to_expr_str(e))
 
-            actions_data.append({
-                "name": a.name,
-                "params": params_data,
-                "preconditions": preconds,
-                "effects": effects_list,
-            })
+            actions_data.append(
+                {
+                    "name": a.name,
+                    "params": params_data,
+                    "preconditions": preconds,
+                    "effects": effects_list,
+                }
+            )
 
         init_data = []
         for fluent_expr, val in problem.initial_values.items():
@@ -644,20 +668,43 @@ def _build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="action", required=True)
 
     p_plan = sub.add_parser("plan", help="generate a plan from a domain + problem file")
-    p_plan.add_argument("--problem", "-p", required=True, help="path to YAML problem file")
-    p_plan.add_argument("--engine", "-e", default="tamer", help="planning engine name (default: tamer)")
+    p_plan.add_argument(
+        "--problem", "-p", required=True, help="path to YAML problem file"
+    )
+    p_plan.add_argument(
+        "--engine", "-e", default="tamer", help="planning engine name (default: tamer)"
+    )
     p_validate = sub.add_parser("validate", help="validate a plan against a domain")
-    p_validate.add_argument("--problem", "-p", required=True, help="path to YAML problem file")
+    p_validate.add_argument(
+        "--problem", "-p", required=True, help="path to YAML problem file"
+    )
     p_validate.add_argument("--plan", required=True, help="path to YAML plan file")
     p_ground = sub.add_parser("ground", help="ground an action schema")
-    p_ground.add_argument("--problem", "-p", required=True, help="path to YAML problem file")
+    p_ground.add_argument(
+        "--problem", "-p", required=True, help="path to YAML problem file"
+    )
     p_ground.add_argument("--output", "-o", help="path to write grounded YAML output")
-    p_pddl = sub.add_parser("pddl", help="convert between internal representation and PDDL")
-    p_pddl.add_argument("--input", "-i", required=True, help="path to YAML problem file (to-pddl) or directory with domain.pddl/problem.pddl (from-pddl)")
-    p_pddl.add_argument("--direction", "-d", required=True, choices=["to-pddl", "from-pddl"], help="conversion direction")
+    p_pddl = sub.add_parser(
+        "pddl", help="convert between internal representation and PDDL"
+    )
+    p_pddl.add_argument(
+        "--input",
+        "-i",
+        required=True,
+        help="path to YAML problem file (to-pddl) or directory with domain.pddl/problem.pddl (from-pddl)",
+    )
+    p_pddl.add_argument(
+        "--direction",
+        "-d",
+        required=True,
+        choices=["to-pddl", "from-pddl"],
+        help="conversion direction",
+    )
     p_pddl.add_argument("--output", "-o", help="output path (file or directory)")
     sub.add_parser("discover", help="discover action schemas from state transitions")
-    p_state = sub.add_parser("state", help="state file management (init, update, status)")
+    p_state = sub.add_parser(
+        "state", help="state file management (init, update, status)"
+    )
     state_sub = p_state.add_subparsers(dest="state_sub", required=True)
     p_init = state_sub.add_parser("init", help="initialise a state file")
     p_init.add_argument("state_path", help="path to state file or directory")
