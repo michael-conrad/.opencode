@@ -82,6 +82,35 @@ A **Documentation Sources** section documents where the spec author verified fac
 
 Simple specs may skip this section. Standard and complex specs SHOULD include it when making factual claims that require verification.
 
+### Step 1a: Forward-Looking Mandate (SC-1/SC-4)
+
+**Every spec is from the point of view "NEEDS TO BE IMPLEMENTED — HERE ARE THE REQUIREMENTS."** Never describe what has been done; describe what must be done.
+
+- **Prohibit status language** — Do not use "implemented", "pending", "confirmed", "viable", "completed" as status markers in spec body content. Status belongs on the GitHub Issue as labels, not in the spec prose.
+- **Use MUST/SHOULD/MAY (RFC 2119)** for all requirements. "The system MUST log errors" not "The system logs errors". This enforces the forward-looking stance of describing what the implementation MUST achieve, not what has been decided.
+- **No tracking dashboards** — The spec is a requirements document, not a project tracker. Decision logs, status badges, and verification annotations belong in `spec-artifacts/`, not in the spec itself.
+
+### Step 1b: Sub-Folder References, No Hardcoded File Lists (SC-9)
+
+Reference artifact directories by sub-folder path (e.g., `spec-artifacts/`) rather than listing individual files. Agents discover content by globbing directories; hardcoded file lists go stale when files are renamed or reorganized.
+
+**Correct:** "See `spec-artifacts/research/` for capability probe results"
+
+**Wrong:** "See `spec-artifacts/research/fastmcp-capabilities.md` for capability probe results"
+
+### Step 1c: No Bare `#N` References (SC-10)
+
+**Never use bare `#N` in any spec content.** Always use the full URL: `https://github.com/{owner}/{repo}/issues/{N}` wrapped in descriptive Markdown link text.
+
+| Pattern | Classification | Action |
+|---------|---------------|--------|
+| `#46` | ❌ WRONG | Replace with full URL + descriptive link text |
+| `https://github.com/owner/repo/issues/46` | ⚠️ Bare URL | Wrap in descriptive Markdown link text |
+| [fastmcp switch issue](https://github.com/owner/repo/issues/46) | ✅ CORRECT | Descriptive link text |
+| [viewport-editor#46](https://github.com/owner/repo/issues/46) | ✅ CORRECT | Link text with repo prefix |
+
+The agent MUST check the entire spec body for bare `#N` patterns before submission and replace any found. This applies to all cross-references regardless of whether they point to the same repo or a different repo.
+
 ### Step 2: Eliminate Ambiguity (Principle #4)
 
 Review every requirement statement:
@@ -237,15 +266,30 @@ Action: [auto-fix|conditional|flag-for-review]
 
 After Step 6 self-review and Step 6.5 evidence verification, invoke `verification-enforcement --task revisit`. This pass scans the spec for any remaining `⚠️ UNVERIFIED` markers and attempts to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The spec must not be submitted as a GitHub Issue while unverified claims remain without developer acknowledgment.
 
+### Step 6.8: Generate Spec Folder URL (SC-6)
+
+Generate the spec folder URL and prepare the blockquote for embedding at the top of the issue body. Follow the `.issues/AGENTS.md` pattern:
+
+```
+> **Full spec and artifacts: [`.issues/{N}/`](https://github.com/{owner}/{repo}/tree/issues-data/{N})** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+>
+> **Local artifacts:** `.issues/{N}/spec-artifacts/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+```
+
+The URL follows the pattern: `{github.html_url}/tree/issues-data/{N}/spec-artifacts/`
+
+Embed this blockquote at the TOP of the issue body (before the spec content), prepended when creating the issue body or updated after creation.
+
 ### Step 7: Create GitHub Issue
 
 Invoke `issue-operations` skill to persist the spec as a GitHub Issue:
 
-1. Invoke `issue-operations --task pre-creation` to validate (check for conflicts, superseded issues, content coverage)
-2. If validation fails → HALT and report. Fix issues and re-validate.
-3. If validation passes → invoke `issue-operations --task single-task-check` to determine sub-issue needs
-4. Invoke `issue-operations --task creation` to create the GitHub Issue
-5. Record the issue number and URL
+1. Generate spec folder URL blockquote (Step 6.8) and prepend it to the issue body
+2. Invoke `issue-operations --task pre-creation` to validate (check for conflicts, superseded issues, content coverage)
+3. If validation fails → HALT and report. Fix issues and re-validate.
+4. If validation passes → invoke `issue-operations --task single-task-check` to determine sub-issue needs
+5. Invoke `issue-operations --task creation` to create the GitHub Issue with the blockquote-prepended body
+6. Record the issue number and URL
 
 **Chat output is ONLY:**
 
