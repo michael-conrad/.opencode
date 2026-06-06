@@ -1,0 +1,132 @@
+#!/usr/bin/env -S uv run --script
+"exec" "uv" "run" "--script" "$0" "$@"  # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
+# /// script
+# requires-python = "~=3.12"
+# dependencies = ["unified-planning>=1.3.0", "pyyaml>=6.0", "networkx>=3.0"]
+# ///
+
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+"""
+plan — AI planning tool wrapping unified-planning with workflow integration.
+
+Subcommands:
+  plan      — generate a plan from a domain + problem file
+  validate  — validate a plan against a domain
+  ground    — ground an action schema
+  pddl      — convert between internal representation and PDDL
+  discover  — discover action schemas from state transitions
+  state     — state file management (init, update, status)
+
+Co-authored with AI: OpenCode (deepseek-v4-flash)
+"""
+
+import argparse
+import sys
+from pathlib import Path
+
+from unified_planning.shortcuts import Problem  # noqa: F401
+
+import yaml  # noqa: F401
+import networkx  # noqa: F401
+
+
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    _path = _path.parent
+PROJECT_ROOT = _path.parent
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _die(msg: str, code: int = 2) -> None:
+    print(f"error: {msg}", file=sys.stderr)
+    sys.exit(code)
+
+
+# ---------------------------------------------------------------------------
+# Stub actions (not implemented)
+# ---------------------------------------------------------------------------
+
+
+def _stub(name: str) -> None:
+    _die(f"{name}: not implemented", 1)
+
+
+def _action_plan(args: argparse.Namespace) -> None:
+    _stub("plan")
+
+
+def _action_validate(args: argparse.Namespace) -> None:
+    _stub("validate")
+
+
+def _action_ground(args: argparse.Namespace) -> None:
+    _stub("ground")
+
+
+def _action_pddl(args: argparse.Namespace) -> None:
+    _stub("pddl")
+
+
+def _action_discover(args: argparse.Namespace) -> None:
+    _stub("discover")
+
+
+def _action_state(args: argparse.Namespace) -> None:
+    _stub("state")
+
+
+# ---------------------------------------------------------------------------
+# argparse
+# ---------------------------------------------------------------------------
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="plan",
+        description="AI planning tool wrapping unified-planning with workflow integration.",
+    )
+    sub = parser.add_subparsers(dest="action", required=True)
+
+    sub.add_parser("plan", help="generate a plan from a domain + problem file")
+    sub.add_parser("validate", help="validate a plan against a domain")
+    sub.add_parser("ground", help="ground an action schema")
+    sub.add_parser("pddl", help="convert between internal representation and PDDL")
+    sub.add_parser("discover", help="discover action schemas from state transitions")
+    sub.add_parser("state", help="state file management (init, update, status)")
+
+    return parser
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+
+def main() -> None:
+    parser = _build_parser()
+    args = parser.parse_args()
+
+    dispatch = {
+        "plan": _action_plan,
+        "validate": _action_validate,
+        "ground": _action_ground,
+        "pddl": _action_pddl,
+        "discover": _action_discover,
+        "state": _action_state,
+    }
+    handler = dispatch.get(args.action)
+    if handler:
+        handler(args)
+
+
+if __name__ == "__main__":
+    main()
