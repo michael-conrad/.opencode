@@ -36,7 +36,8 @@ from unified_planning.model import Problem, InstantaneousAction, Object, Fluent
 from unified_planning.model.types import _UserType
 
 from unified_planning.shortcuts import OneshotPlanner
-from unified_planning.engines.results import PlanGenerationResultStatus
+from unified_planning.engines.results import PlanGenerationResultStatus, ValidationResultStatus
+from unified_planning.engines import SequentialPlanValidator
 
 import yaml
 import networkx as nx
@@ -324,7 +325,62 @@ def _stub(name: str) -> None:
 
 
 def _action_validate(args: argparse.Namespace) -> None:
-    _stub("validate")
+    schema = _load_yaml(args.problem)
+    problem = _build_problem(schema)
+
+    plan_data = _load_yaml(args.plan)
+    actions_data = plan_data.get("actions", [])
+    if not actions_data:
+        actions_data = plan_data.get("plan", {}).get("steps", [])
+    if not actions_data:
+        _die("plan file must contain 'actions' list or 'plan.steps' list")
+
+    from unified_planning.plans import ActionInstance, SequentialPlan
+
+    action_instances: list[ActionInstance] = []
+    for ad in actions_data:
+        action_name = ad.get("name")
+        if not action_name:
+            _die(f"step missing 'name' field: {ad}")
+        if not problem.has_action(action_name):
+            _die(f"unknown action '{action_name}' in problem '{problem.name}'")
+        action = problem.action(action_name)
+
+        params_list = ad.get("parameters", [])
+        action_params = list(action.parameters)
+        if len(params_list) != len(action_params):
+            actual = ", ".join(ao.name for ao in action_params)
+            _die(
+                f"action '{action_name}' expects {len(action_params)} params ({actual}), "
+                f"got {len(params_list)}: {params_list}"
+            )
+
+        from unified_planning.model import Object as UPObject
+
+        params: list[UPObject] = []
+        for obj_name in params_list:
+            if problem.has_object(obj_name):
+                params.append(problem.object(obj_name))
+            else:
+                _die(f"unknown object '{obj_name}' for action '{action_name}'")
+        action_instances.append(ActionInstance(action, params))
+
+    plan = SequentialPlan(action_instances)
+    validator = SequentialPlanValidator()
+    result = validator.validate(problem, plan)
+
+    if result.status == ValidationResultStatus.VALID:
+        print("valid")
+        sys.exit(0)
+    else:
+        print("invalid: not all goals achieved")
+        if result.trace:
+            final_state = result.trace[-1]
+            for g in problem.goals:
+                val = final_state.get_value(g)
+                satisfied = val.is_true() if val is not None else False
+                print(f"  goal {g}: {'satisfied' if satisfied else 'NOT satisfied'}")
+        sys.exit(1)
 
 
 def _action_ground(args: argparse.Namespace) -> None:
@@ -405,7 +461,9 @@ def _build_parser() -> argparse.ArgumentParser:
     p_plan = sub.add_parser("plan", help="generate a plan from a domain + problem file")
     p_plan.add_argument("--problem", "-p", required=True, help="path to YAML problem file")
     p_plan.add_argument("--engine", "-e", default="tamer", help="planning engine name (default: tamer)")
-    sub.add_parser("validate", help="validate a plan against a domain")
+    p_validate = sub.add_parser("validate", help="validate a plan against a domain")
+    p_validate.add_argument("--problem", "-p", required=True, help="path to YAML problem file")
+    p_validate.add_argument("--plan", required=True, help="path to YAML plan file")
     sub.add_parser("ground", help="ground an action schema")
     sub.add_parser("pddl", help="convert between internal representation and PDDL")
     sub.add_parser("discover", help="discover action schemas from state transitions")
