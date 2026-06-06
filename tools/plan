@@ -32,12 +32,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from collections import OrderedDict
-from unified_planning.model import Problem, InstantaneousAction, Object, Fluent
+from unified_planning.model import Problem, InstantaneousAction, Object, Fluent, FNode
 from unified_planning.model.types import _UserType
+
+from unified_planning.io import PDDLReader, PDDLWriter
 
 from unified_planning.shortcuts import OneshotPlanner
 from unified_planning.engines.results import PlanGenerationResultStatus, ValidationResultStatus
-from unified_planning.engines import SequentialPlanValidator
+from unified_planning.engines import SequentialPlanValidator, CompilationKind
+from unified_planning.engines.compilers import Grounder
 
 import yaml
 import networkx as nx
@@ -384,11 +387,186 @@ def _action_validate(args: argparse.Namespace) -> None:
 
 
 def _action_ground(args: argparse.Namespace) -> None:
-    _stub("ground")
+    schema = _load_yaml(args.problem)
+    problem = _build_problem(schema)
+
+    grounder = Grounder()
+    result = grounder.compile(problem, CompilationKind.GROUNDING)
+    grounded = result.problem
+
+    actions_data = []
+    for a in grounded.actions:
+        actions_data.append({
+            "name": a.name,
+            "parameters": [],
+        })
+
+    output = {
+        "domain": problem.name,
+        "grounded_actions": actions_data,
+        "grounded_action_count": len(actions_data),
+    }
+
+    yaml_out = yaml.dump(output, default_flow_style=False).rstrip()
+    if args.output:
+        Path(args.output).write_text(yaml_out + "\n")
+        print(f"grounded actions written to {args.output}")
+    else:
+        print(yaml_out)
 
 
 def _action_pddl(args: argparse.Namespace) -> None:
-    _stub("pddl")
+    direction = args.direction
+    input_path = args.input
+
+    if direction == "to-pddl":
+        schema = _load_yaml(input_path)
+        problem = _build_problem(schema)
+        writer = PDDLWriter(problem)
+
+        domain_str = writer.get_domain()
+        problem_str = writer.get_problem()
+
+        if args.output:
+            out = Path(args.output)
+            if out.is_dir():
+                (out / "domain.pddl").write_text(domain_str)
+                (out / "problem.pddl").write_text(problem_str)
+                print(f"domain written to {out / 'domain.pddl'}")
+                print(f"problem written to {out / 'problem.pddl'}")
+            else:
+                out.write_text(domain_str + "\n" + problem_str)
+                print(f"combined PDDL written to {out}")
+        else:
+            print(domain_str)
+            print(problem_str)
+
+    elif direction == "from-pddl":
+        p_path = Path(input_path)
+        reader = PDDLReader()
+        if p_path.is_dir():
+            domain_file = str(p_path / "domain.pddl")
+            problem_file = str(p_path / "problem.pddl")
+            if not Path(domain_file).exists():
+                _die(f"domain file not found: {domain_file}")
+            if not Path(problem_file).exists():
+                _die(f"problem file not found: {problem_file}")
+            problem = reader.parse_problem(domain_file, problem_file)
+        else:
+            _die("from-pddl requires --input to be a directory with domain.pddl and problem.pddl")
+
+        # Collect all user types from objects and fluent signatures
+        type_names: set[str] = set()
+        for obj in problem.all_objects:
+            type_names.add(obj.type.name)
+        for f in problem.fluents:
+            for st in f.signature:
+                type_names.add(st.type.name)
+        types_data = [{"name": t} for t in sorted(type_names) if t != "object"]
+
+        objects_data = []
+        for obj in problem.all_objects:
+            objects_data.append({"name": obj.name, "type": obj.type.name})
+
+        fluents_data = []
+        for f in problem.fluents:
+            params_data = []
+            for p in f.signature:
+                params_data.append({"name": p.name, "type": p.type.name})
+            entry = {"name": f.name}
+            if params_data:
+                entry["params"] = params_data
+            fluents_data.append(entry)
+
+        actions_data = []
+        for a in problem.actions:
+            params_data = []
+            for p in a.parameters:
+                params_data.append({"name": p.name, "type": p.type.name})
+
+            preconds = _fnode_to_expr_list(a.preconditions)
+            effects_list = []
+            for e in a.effects:
+                effects_list.append(_effect_to_expr_str(e))
+
+            actions_data.append({
+                "name": a.name,
+                "params": params_data,
+                "preconditions": preconds,
+                "effects": effects_list,
+            })
+
+        init_data = []
+        for fluent_expr, val in problem.initial_values.items():
+            if val.is_true():
+                init_data.append(_fnode_to_str(fluent_expr))
+
+        goals_data = _fnode_to_expr_list(problem.goals)
+
+        schema = {
+            "domain": problem.name,
+        }
+        if types_data:
+            schema["types"] = types_data
+        schema["objects"] = objects_data
+        schema["fluents"] = fluents_data
+        schema["actions"] = actions_data
+        schema["init"] = init_data
+        schema["goals"] = goals_data
+
+        yaml_out = yaml.dump(schema, default_flow_style=False).rstrip()
+        if args.output:
+            Path(args.output).write_text(yaml_out + "\n")
+            print(f"YAML schema written to {args.output}")
+        else:
+            print(yaml_out)
+
+
+def _fnode_to_str(fn: FNode) -> str:
+    """Convert an FNode to expression string in YAML schema format."""
+    if fn.is_and():
+        # In the YAML schema, AND expressions are a list
+        parts = []
+        for a in fn.args:
+            parts.append(_fnode_to_str(a))
+        return "(" + " and ".join(parts) + ")"
+    if fn.is_or():
+        parts = []
+        for a in fn.args:
+            parts.append(_fnode_to_str(a))
+        return "(" + " or ".join(parts) + ")"
+    if fn.is_not():
+        inner = _fnode_to_str(fn.arg(0))
+        return f"not {inner}"
+    if fn.is_equals():
+        return f"(= {_fnode_to_str(fn.arg(0))} {_fnode_to_str(fn.arg(1))})"
+    # Leaf: fluent atom (possibly with params)
+    return str(fn)
+
+
+def _fnode_to_expr_list(nodes: list[FNode] | tuple[FNode, ...]) -> list[str]:
+    """Convert a list of FNodes to a flat list of expression strings.
+
+    Top-level AND nodes are unwrapped; NOT nodes become 'not fluent(args)'.
+    """
+    result: list[str] = []
+    for fn in nodes:
+        if fn.is_and():
+            for a in fn.args:
+                result.append(_fnode_to_str(a))
+        else:
+            result.append(_fnode_to_str(fn))
+    return result
+
+
+def _effect_to_expr_str(effect) -> str:
+    """Convert a unified-planning Effect to an expression string."""
+    fluent_str = _fnode_to_str(effect.fluent)
+    val = effect.value
+    is_false = val.is_false() if hasattr(val, "is_false") else str(val) == "false"
+    if is_false:
+        return f"not {fluent_str}"
+    return fluent_str
 
 
 def _action_discover(args: argparse.Namespace) -> None:
@@ -464,8 +642,13 @@ def _build_parser() -> argparse.ArgumentParser:
     p_validate = sub.add_parser("validate", help="validate a plan against a domain")
     p_validate.add_argument("--problem", "-p", required=True, help="path to YAML problem file")
     p_validate.add_argument("--plan", required=True, help="path to YAML plan file")
-    sub.add_parser("ground", help="ground an action schema")
-    sub.add_parser("pddl", help="convert between internal representation and PDDL")
+    p_ground = sub.add_parser("ground", help="ground an action schema")
+    p_ground.add_argument("--problem", "-p", required=True, help="path to YAML problem file")
+    p_ground.add_argument("--output", "-o", help="path to write grounded YAML output")
+    p_pddl = sub.add_parser("pddl", help="convert between internal representation and PDDL")
+    p_pddl.add_argument("--input", "-i", required=True, help="path to YAML problem file (to-pddl) or directory with domain.pddl/problem.pddl (from-pddl)")
+    p_pddl.add_argument("--direction", "-d", required=True, choices=["to-pddl", "from-pddl"], help="conversion direction")
+    p_pddl.add_argument("--output", "-o", help="output path (file or directory)")
     sub.add_parser("discover", help="discover action schemas from state transitions")
     p_state = sub.add_parser("state", help="state file management (init, update, status)")
     state_sub = p_state.add_subparsers(dest="state_sub", required=True)
