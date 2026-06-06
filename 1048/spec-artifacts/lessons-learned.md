@@ -2,7 +2,7 @@
 
 ## Context
 
-Issue https://github.com/michael-conrad/viewport-editor/issues/46 (fastmcp switch) went through an intensive revision cycle where the spec and plan artifacts were corrected multiple times. This document captures the lessons learned for incorporation into spec-creation, writing-plans, and the adversarial-audit workflow.
+Issue [viewport-editor#46](https://github.com/michael-conrad/viewport-editor/issues/46) (fastmcp switch) went through an intensive revision cycle where the spec and plan artifacts were corrected multiple times. This document captures the lessons learned for incorporation into spec-creation, writing-plans, and the adversarial-audit workflow.
 
 ---
 
@@ -79,7 +79,7 @@ These are not a cross-reference — they must be enumerated per-unit in the plan
 
 ---
 
-## Lesson 8: Never Use Bare `#N` — Full URLs Always
+## Lesson 8: Never Use Bare `#N` — Full URLs Always (Markdown Links Welcome)
 
 **Problem:** Bare `#N` issue references assume a repo context that gets lost when content is copied, moved, or consumed by agents in a different repo. Because the organization has multiple cross-linked repos, content from viewport-editor ends up in `.opencode` issues, `.opencode` artifacts get referenced from viewport-editor, etc. Every time bare `#N` is used, it will eventually be read in the wrong repo context and route to the wrong issue.
 
@@ -87,7 +87,18 @@ This is not a theoretical concern — it happened repeatedly during this session
 
 **Correction:** Never use bare `#N` in any spec, plan, card, or artifact content. Always use the full URL: `https://github.com/{owner}/{repo}/issues/{N}`. This applies everywhere — cross-repo, same-repo, GitHub, GitBucket, all issue trackers.
 
-**Rule:** No bare `#N` anywhere in spec or plan content. Full URLs only. Period.
+Markdown links are preferred for readability. The link text should be a natural description of the reference:
+
+```
+Correct: [viewport-editor#46](https://github.com/michael-conrad/viewport-editor/issues/46)
+Also correct: [the fastmcp switch spec](https://github.com/michael-conrad/viewport-editor/issues/46)
+Wrong: #46
+Wrong: https://github.com/michael-conrad/viewport-editor/issues/46 (bare URL, no link text)
+```
+
+The agent should choose descriptive link text that makes the reference readable in context, not just dump the raw URL.
+
+**Rule:** No bare `#N` anywhere in spec or plan content. Full URLs wrapped in descriptive Markdown links. Period.
 
 ---
 
@@ -102,4 +113,4 @@ This is not a theoretical concern — it happened repeatedly during this session
 | Domain-only Z3 model | Pipeline not enforced | 14 pipeline gates per unit |
 | Preconditions in contract | UNSAT on state update | Invariants + postconditions only |
 | Hardcoded file lists | Stale on file changes | Sub-folder refs for agents to glob |
-| Bare `#N` refs | Routes to wrong issue when read in different repo | Full URLs only, always |
+| Bare `#N` refs | Routes to wrong issue when read in different repo | Full URLs in descriptive Markdown links |
