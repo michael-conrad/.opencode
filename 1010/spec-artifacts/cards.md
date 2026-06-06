@@ -94,3 +94,18 @@
 - **Critical edge case (from solver)**: `PRE_READ_FIXED=True` + `CHECKLIST_DEPLOYED=True` + `HAS_CACHED_KNOWLEDGE=True` + `SKILL_RESETS_CONTAMINATION=False` → BLIND_TAG_EFFECTIVE still False. The `skill()` tool call must actively flush/override cached task file content. This is an opencode tool implementation requirement, not just config.
 - **Files**: `tmp/dispatch-chain-contract.yaml` (Z3 constraints), `tmp/dispatch-chain-state.yaml` (current state snapshot).
 - **Status**: COMPLETED
+
+### Card 12: Holistic migration evaluation — Full research synthesis
+
+- **Research sources consumed**: Chroma "Context Rot" (2025, 18-model evaluation), Tian Pan "Instruction Position Problem" (Apr 2026), Martin Uke "Sub-Agents" (2025), Azure Architecture Center "Agent Orchestration Patterns" (2026), McMillan "Structured Context Engineering" (Feb 2026, 9,649 experiments), Cao et al "Beyond Task Completion/Corrupt Success" (Mar 2026), Lucas Valbuena "Why Long System Prompts Hurt" (2025).
+- **Five key constraints identified**:
+  1. Context saturation destroys procedural compliance (Chroma — performance degrades non-uniformly with input length)
+  2. Sub-agent architecture is industry-validated; non-dispatch is the defect (Martin Uke, Azure)
+  3. Format alone insufficient for frontier models — must pair with enforcement (McMillan)
+  4. 27-78% of "successful" agent runs are corrupt successes — output exists but procedure was violated (Cao et al)
+  5. Position sensitivity is a CI failure mode — every guideline edit shifts dispatch mandate position (Tian Pan — up to 61.8% compliance variance from position alone)
+- **Z3-proved dependency order**: PRE_READ_FIXED → CHECKLIST_DEPLOYED → ENFORCEMENT_ADDED
+- **Skill() cache flush is the critical blocker**: Z3 counterexample proved that even with pre-read fix and checklist deployed, without skill() resetting cached knowledge, dispatch still fails. This is an opencode CLI tool change (external dependency).
+- **Positional sensitivity test**: Required CI gate after any guideline/skill change. Dispatch mandate compliance must vary <15% across 3 positions. Tian Pan: treat this as structural, not cosmetic.
+- **Full evaluation written**: `spec-artifacts/migration-evaluation.md` (5 parts, 5-phase migration path, risk analysis, architectural diagram)
+- **Status**: COMPLETED

@@ -18,11 +18,11 @@
 
 ## Dependency Order
 
-Item A first (create the section). Item B second (test that the section exists). Item C last (verify agent uses the section).
+Item A first (emit the section). Item B second (test that the section exists). Item C third (behavioral test script — no file dependency on B, parallelizable after A).
 
 ## Items
 
-### Item A: Add `## Agent Tools` emission to session-init (SC-1, SC-3)
+### Item A: Add `## Agent Tools` emission to session-init (SC-1, prerequisite for SC-3)
 
 **File**: `.opencode/tools/session-init`
 
@@ -64,23 +64,24 @@ GREEN:
 VERIFY:
 - `grep -c 'session-init-tools-section' .opencode/tests/test-enforcement.sh` → 2 (SCENARIOS + FILE_SCENARIO_MAP)
 
-### Item C: Behavioral test for SC-2 (SC-2)
+### Item C: Create behavioral test script for SC-2 (SC-2)
 
 **File**: `.opencode/tests/behaviors/tool-injection-red.sh`
 
-**What must be achieved**: Artifact-only behavioral test with prompt "what tools are preferred to grep, cat, find, sed".
+**What must be achieved**: Behavioral test script that runs agent against prompt "what tools are preferred to grep, cat, find, sed" and produces artifacts for evaluation.
 
 RED:
-- Verify file exists with current prompt
-- If prompt is wrong or file missing: HALT
+- `ls .opencode/tests/behaviors/tool-injection-red.sh` → exit 1 (file must not exist)
+- If file exists: HALT — branch contaminated
 
 GREEN:
-- File already exists with correct prompt — no changes needed to test script
-- The behavioral difference comes from session-init injection (Item A), not test script changes
+- Create behavioral test script following AGENTS.md template (artifact-only generator)
+- Script sources helpers.sh, calls behavior_run, exits 0
 
 VERIFY:
-- `grep 'SCENARIO_PROMPT' .opencode/tests/behaviors/tool-injection-red.sh` → contains correct prompt
-- SPDX header, cross-reference header, helpers.sh sourced, behavior_run called
+- `grep -q 'SCENARIO_PROMPT="what tools are preferred' .opencode/tests/behaviors/tool-injection-red.sh` → exit 0
+- `grep -q 'behavior_run' .opencode/tests/behaviors/tool-injection-red.sh` → exit 0
+- SPDX header, cross-reference header present
 
 ## Execution Order
 
@@ -89,12 +90,13 @@ See the [pipeline checklist](https://github.com/michael-conrad/.opencode/blob/is
 1. Item A: RED → GREEN → VERIFY (no commit)
 2. Item B: RED → GREEN → VERIFY (no commit)
 3. Item C: RED → GREEN → VERIFY (no commit)
-4. Single commit containing all changed files
+4. Single commit containing all changed files (Items A, B, C)
 
 ## Final Verification Checklist
 
 - [ ] SC-1: `grep -q '## Agent Tools' <(./.opencode/tools/session-init 2>/dev/null)` → exit 0
-- [ ] SC-2: Behavioral artifact stdout shows `.opencode/tools/*` names
+- [ ] SC-2 (behavioral): `bash .opencode/tests/behaviors/tool-injection-red.sh` produces artifacts; evaluator reads stdout for `.opencode/tools/*` names
 - [ ] SC-3: `bash .opencode/tests/test-enforcement.sh --scenario session-init-tools-section` → PASS
 - [ ] Lint: `ruff check --fix .opencode/tools/session-init` → clean
 - [ ] Typecheck: `pyright .opencode/tools/session-init` → clean
+- [ ] No default.txt changes (kept as-is per spec)

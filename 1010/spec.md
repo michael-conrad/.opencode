@@ -1,6 +1,6 @@
 # [SPEC] Checklist Dispatch Architecture — Main Card as `- [ ] N.` Dispatch Queue
 
-## STATUS: 0.3 (DRAFT — research complete, awaiting authorization)
+## STATUS: 0.5 (DRAFT — migration evaluation complete, awaiting authorization)
 
 ## Key Findings from Investigation
 
@@ -22,13 +22,29 @@
 
 **Counterexample found**: Even with pre-read cascade fixed and checklist deployed, if `skill()` does not reset the model's cached knowledge of task files, dispatch still fails. This is an opencode tool implementation requirement.
 
-### Finding 4: Five-phase migration path recommended
+### Finding 4: Five-phase migration path recommended (Z3-proved order)
 
-1. Fix pre-read cascade (#1003)
-2. Convert one reference skill (prove pattern)
-3. Add behavioral enforcement test
-4. Batch-migrate remaining skills
-5. Full regression verification
+1. Fix pre-read cascade (#1003) — reduce 45k→15k words, instruction sandwich for dispatch mandate
+2. Implement skill() cache flush — opencode tool change (external dependency, Z3-proved required)
+3. Convert one reference skill to checklist format — prove pattern, write behavioral test RED/GREEN
+4. Batch-migrate remaining skills — 38 SKILL.md task tables to checklist format
+5. Full regression verification — corrupt-success test, positional sensitivity test
+
+### Finding 5: Comprehensive migration evaluation completed
+
+See `spec-artifacts/migration-evaluation.md` for the full 5-part analysis:
+- Part 1: Published research constraints (Chroma, Tian Pan, Martin Uke, Cao et al)
+- Part 2: Z3-proved dependency ordering
+- Part 3: Five-phase migration path with detailed actions per phase
+- Part 4: Risk analysis (4 risks, mitigations)
+- Part 5: Architectural diagram from session start to enforcement
+
+**Key research findings informing the strategy**:
+- Chroma "Context Rot" (2025): performance degrades non-uniformly with input length — 45k words is a broken starting point
+- Tian Pan "Instruction Position Problem" (Apr 2026): instruction sandwich pattern (beginning + end) for critical rules; positional sensitivity CI testing mandatory
+- Cao et al "Corrupt Success" (Mar 2026): 27-78% of agent successes are corrupt successes — behavioral tests must detect procedure violation, not just output presence
+- McMillan (Feb 2026): format alone insufficient for frontier models — must pair with enforcement
+- Martin Uke, Azure Architecture Center: sub-agent orchestration is industry-validated; the defect is in the dispatch mechanism, not the architecture
 
 ## Problem
 

@@ -53,13 +53,13 @@ variables:
   # ── Item C phases ──
   C_red:
     type: bool
-    description: "RED: tool-injection-red.sh exists with correct prompt"
+    description: "RED: tool-injection-red.sh does not exist"
   C_green:
     type: bool
-    description: "GREEN: no file changes needed"
+    description: "GREEN: create behavioral test script"
   C_verify:
     type: bool
-    description: "VERIFY: SPDX header, helpers.sh, behavior_run, exit 0"
+    description: "VERIFY: grep prompt + behavior_run + headers"
   C_done:
     type: bool
     description: "Item C complete"
@@ -100,18 +100,20 @@ invariants:
   - "z3.Implies(B_green, B_red)"
   - "z3.Implies(B_verify, B_green)"
   - "z3.Implies(B_done, B_verify)"
+
+  # ── Per-item phase ordering: RED → GREEN → VERIFY → done ──
   - "z3.Implies(C_green, C_red)"
   - "z3.Implies(C_verify, C_green)"
   - "z3.Implies(C_done, C_verify)"
 
-  # ── Cross-item ordering: B requires A done; C requires B done ──
+  # ── Cross-item ordering: B and C require A done; C is independent of B ──
   - "z3.Implies(B_red, A_done)"
-  - "z3.Implies(C_red, B_done)"
+  - "z3.Implies(C_red, A_done)"
 
   # ── SCs require enabling items ──
   - "z3.Implies(sc_1_verified, A_done)"
   - "z3.Implies(sc_3_verified, z3.And(A_done, B_done))"
-  - "z3.Implies(sc_2_verified, z3.And(A_done, B_done, C_done))"
+  - "z3.Implies(sc_2_verified, z3.And(A_done, C_done))"
   - "z3.Implies(sc_3_verified, sc_1_verified)"
 
   # ── SC verification is part of VbC ──

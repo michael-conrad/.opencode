@@ -1,0 +1,9 @@
+audit_type: concern-separation
+issue_number: 1038
+artifact_path: ".opencode/.issues/1038/spec-artifacts/plan.md"
+auditor: auditor-qwen3.5
+selection: resolve-models
+status: DONE
+findings: []
+verdict: PASS
+action_required: null

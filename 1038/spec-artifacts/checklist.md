@@ -48,15 +48,17 @@
 - [ ] 5.6 GREEN: register SCENARIOS + FILE_SCENARIO_MAP entries
 - [ ] 5.7 VERIFY: `grep -c` → 2+ matches
 
-### Item C: behavioral test (SC-2)
+### Item C: behavioral test script (SC-2)
 
-- [ ] 5.8 RED: verify `tool-injection-red.sh` exists with correct prompt
-- [ ] 5.9 GREEN: confirm no changes needed (behavioral diff from session-init)
-- [ ] 5.10 VERIFY: SPDX header, helpers.sh, behavior_run, exit 0
+- [ ] 5.8 RED: verify `tool-injection-red.sh` does not exist → exit 1
+- [ ] 5.9 GREEN: create artifact-only behavioral test script
+- [ ] 5.10 VERIFY: grep prompt + behavior_run + headers
+
+
 
 ## Phase 6: Completeness Gate
 
-- [ ] 6.1 All 3 items present and verified
+- [ ] 6.1 All 3 items present and verified (A + B + C)
 - [ ] 6.2 All SCs addressed
 - [ ] 6.3 No scope creep (nothing outside spec)
 - [ ] 6.4 File changes match spec's affected files list
@@ -70,7 +72,7 @@
 ## Phase 8: Verification-Before-Completion
 
 - [ ] 8.1 SC-1: `grep -q '## Agent Tools' <(./.opencode/tools/session-init 2>/dev/null)` → exit 0
-- [ ] 8.2 SC-2: Behavioral test artifacts generated; stdout shows `.opencode/tools/*` names
+- [ ] 8.2 SC-2 (behavioral): `bash .opencode/tests/behaviors/tool-injection-red.sh` produces artifacts; evaluator reads stdout for `.opencode/tools/*` names
 - [ ] 8.3 SC-3: `bash .opencode/tests/test-enforcement.sh --scenario session-init-tools-section` → PASS
 - [ ] 8.4 Ruff: `ruff check --fix .opencode/tools/session-init` → clean
 - [ ] 8.5 Pyright: `pyright .opencode/tools/session-init` → clean
