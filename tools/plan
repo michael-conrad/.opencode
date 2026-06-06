@@ -41,6 +41,7 @@ from unified_planning.shortcuts import OneshotPlanner
 from unified_planning.engines.results import PlanGenerationResultStatus, ValidationResultStatus
 from unified_planning.engines import SequentialPlanValidator, CompilationKind
 from unified_planning.engines.compilers import Grounder
+from unified_planning.shortcuts import get_environment
 
 import yaml
 import networkx as nx
@@ -570,7 +571,13 @@ def _effect_to_expr_str(effect) -> str:
 
 
 def _action_discover(args: argparse.Namespace) -> None:
-    _stub("discover")
+    env = get_environment()
+    available = env.factory.engines
+    if not available:
+        print("(none found)", file=sys.stderr)
+        return
+    for name in sorted(available):
+        print(name, file=sys.stderr)
 
 
 def _action_state_init(path: str) -> None:
