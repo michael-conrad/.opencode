@@ -79,7 +79,17 @@ These are not a cross-reference — they must be enumerated per-unit in the plan
 
 ---
 
-## Lesson 7: Cross-References Summary Card
+## Lesson 8: Bare `#N` Refs Are Ambiguous Across Repos
+
+**Problem:** Bare `#N` issue references in local `.issues/` spec files route relative to the reader's repo context. A spec written in `viewport-editor/.issues/46/spec.md` that says "see #38" is correct when read by an agent working in `viewport-editor`. But when the same content appears in `.opencode/.issues/1048/spec.md` as "source: viewport-editor#46", the `#46` is unambiguous because the `owner/repo` prefix pins it.
+
+Short refs like `#46` in a local spec file are safe ONLY if the spec is guaranteed to be consumed in the same repo it was created in. Cross-repo refs (`owner/repo#NNN`) are unambiguous and preferred.
+
+**Rule:** In `.issues/` spec files, use `owner/repo#NNN` for cross-repo refs. Bare `#N` is safe only when the ref targets the same repo where the `.issues/` file lives. When in doubt, use `owner/repo#NNN`.
+
+---
+
+## Summary Card
 
 | Pattern | Problem | Fix |
 |---------|---------|-----|
@@ -90,3 +100,4 @@ These are not a cross-reference — they must be enumerated per-unit in the plan
 | Domain-only Z3 model | Pipeline not enforced | 14 pipeline gates per unit |
 | Preconditions in contract | UNSAT on state update | Invariants + postconditions only |
 | Hardcoded file lists | Stale on file changes | Sub-folder refs for agents to glob |
+| Bare `#N` cross-repo refs | Routes to wrong repo's issue | Use `owner/repo#NNN` when ref targets a different repo |

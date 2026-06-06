@@ -25,6 +25,7 @@ These patterns produced a multi-hour revision cycle for a single issue. Without 
 | SC-7 | `writing-plans` generates Z3 contracts with pipeline gates (not just domain variables) and no preconditions | behavioral |
 | SC-8 | `adversarial-audit` contract-audit step rejects Z3 models missing pipeline gates or containing preconditions | behavioral |
 | SC-9 | `spec-creation` and `writing-plans` use sub-folder references for artifacts, never hardcoded file lists | string |
+| SC-10 | `writing-plans` cross-repo issue refs use `owner/repo#NNN` form, never bare `#N` for external references | string |
 
 ## Cross-References
 
