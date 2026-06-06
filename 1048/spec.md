@@ -2,7 +2,7 @@
 
 ## Problem
 
-The #46 spec/plan revision cycle revealed systematic gaps in how specs and plans are created, structured, and audited. The `spec-creation`, `writing-plans`, and `adversarial-audit` skills produce artifacts that exhibit:
+The https://github.com/michael-conrad/viewport-editor/issues/46 spec/plan revision cycle revealed systematic gaps in how specs and plans are created, structured, and audited. The `spec-creation`, `writing-plans`, and `adversarial-audit` skills produce artifacts that exhibit:
 
 - Tracking language in forward-looking specs ("implemented", "confirmed", "pending")
 - Prescriptive code content in plans (line numbers, exact import strings, assertion code)
@@ -25,14 +25,14 @@ These patterns produced a multi-hour revision cycle for a single issue. Without 
 | SC-7 | `writing-plans` generates Z3 contracts with pipeline gates (not just domain variables) and no preconditions | behavioral |
 | SC-8 | `adversarial-audit` contract-audit step rejects Z3 models missing pipeline gates or containing preconditions | behavioral |
 | SC-9 | `spec-creation` and `writing-plans` use sub-folder references for artifacts, never hardcoded file lists | string |
-| SC-10 | `writing-plans` cross-repo issue refs use `owner/repo#NNN` form, never bare `#N` for external references | string |
+| SC-10 | `writing-plans` and `spec-creation` never use bare `#N` — all issue refs are full URLs | string |
 
 ## Cross-References
 
 | Type | Reference | Direction |
 |------|-----------|-----------|
 | lessons learned | `.opencode/.issues/1048/spec-artifacts/lessons-learned.md` | Full distillation of #46 revision cycle |
-| source issue | michael-conrad/viewport-editor#46 | fastmcp switch — exposed all seven defect categories |
+| source issue | https://github.com/michael-conrad/viewport-editor/issues/46 | fastmcp switch — exposed all seven defect categories |
 
 ## Update Record
 

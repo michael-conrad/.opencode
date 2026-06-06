@@ -2,7 +2,7 @@
 
 ## Context
 
-Issue #46 (fastmcp switch) went through an intensive revision cycle where the spec and plan artifacts were corrected multiple times. This document captures the lessons learned for incorporation into spec-creation, writing-plans, and the adversarial-audit workflow.
+Issue https://github.com/michael-conrad/viewport-editor/issues/46 (fastmcp switch) went through an intensive revision cycle where the spec and plan artifacts were corrected multiple times. This document captures the lessons learned for incorporation into spec-creation, writing-plans, and the adversarial-audit workflow.
 
 ---
 
@@ -79,13 +79,15 @@ These are not a cross-reference — they must be enumerated per-unit in the plan
 
 ---
 
-## Lesson 8: Bare `#N` Refs Are Ambiguous Across Repos
+## Lesson 8: Never Use Bare `#N` — Full URLs Always
 
-**Problem:** Bare `#N` issue references in local `.issues/` spec files route relative to the reader's repo context. A spec written in `viewport-editor/.issues/46/spec.md` that says "see #38" is correct when read by an agent working in `viewport-editor`. But when the same content appears in `.opencode/.issues/1048/spec.md` as "source: viewport-editor#46", the `#46` is unambiguous because the `owner/repo` prefix pins it.
+**Problem:** Bare `#N` issue references assume a repo context that gets lost when content is copied, moved, or consumed by agents in a different repo. Because the organization has multiple cross-linked repos, content from viewport-editor ends up in `.opencode` issues, `.opencode` artifacts get referenced from viewport-editor, etc. Every time bare `#N` is used, it will eventually be read in the wrong repo context and route to the wrong issue.
 
-Short refs like `#46` in a local spec file are safe ONLY if the spec is guaranteed to be consumed in the same repo it was created in. Cross-repo refs (`owner/repo#NNN`) are unambiguous and preferred.
+This is not a theoretical concern — it happened repeatedly during this session when `.issues/` content from one repo was referenced from another.
 
-**Rule:** In `.issues/` spec files, use `owner/repo#NNN` for cross-repo refs. Bare `#N` is safe only when the ref targets the same repo where the `.issues/` file lives. When in doubt, use `owner/repo#NNN`.
+**Correction:** Never use bare `#N` in any spec, plan, card, or artifact content. Always use the full URL: `https://github.com/{owner}/{repo}/issues/{N}`. This applies everywhere — cross-repo, same-repo, GitHub, GitBucket, all issue trackers.
+
+**Rule:** No bare `#N` anywhere in spec or plan content. Full URLs only. Period.
 
 ---
 
@@ -100,4 +102,4 @@ Short refs like `#46` in a local spec file are safe ONLY if the spec is guarante
 | Domain-only Z3 model | Pipeline not enforced | 14 pipeline gates per unit |
 | Preconditions in contract | UNSAT on state update | Invariants + postconditions only |
 | Hardcoded file lists | Stale on file changes | Sub-folder refs for agents to glob |
-| Bare `#N` cross-repo refs | Routes to wrong repo's issue | Use `owner/repo#NNN` when ref targets a different repo |
+| Bare `#N` refs | Routes to wrong issue when read in different repo | Full URLs only, always |
