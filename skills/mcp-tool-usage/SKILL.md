@@ -90,7 +90,7 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 ```
 TIER 1 — PRIMARY: opencode built-in tools (read/write/edit/glob/grep)
 TIER 2 — PRIMARY: Domain MCP (srclight, the-notebook-mcp, GitHub MCP)
-TIER 3 — PRIMARY: .opencode/tools/ (guidelines, md, memory, py ls/mkpkg)
+TIER 3 — PRIMARY: .opencode/tools/ (guidelines, md, py ls/mkpkg)
 TIER 4 — FALLBACK: JetBrains MCP (pycharm_*) — only for unique capabilities
 TIER 5 — LAST RESORT: Direct CLI (bash)
 
@@ -123,7 +123,6 @@ ABSOLUTE EXCEPTION: .ipynb files → the-notebook-mcp MANDATORY (zero tolerance,
 | `md` | Markdown section operations |
 | `py ls` | Python package listing |
 | `py mkpkg` | Python package creation |
-| `memory` | Session memory management |
 
 ### TIER 4: JetBrains MCP (FALLBACK — unique capabilities only)
 
