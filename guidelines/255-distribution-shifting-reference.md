@@ -2,249 +2,227 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-# 255-distribution-shifting-reference.md — Distribution Shifting Reference Card
+# 255-distribution-shifting-reference.md — Distribution-Shifting Reference Card
 
 ## Section 1: Active Patterns Catalog
 
 **Definition: Distribution Shifting**
 
-Distribution shifting is the strategy of restructuring the probability distribution over an agent's action space so that the professional-quality response has lower perplexity than the shortcut response. Where dark prose targets identity alignment, distribution shifting targets the language modeling itself — it engineers the prompt so that correct behavior is the statistically natural completion.
+Distribution shifting is the strategy of structuring prompt, persona, and instruction text so that the model samples from expert-tail regions of its training distribution rather than the mean response. It operates on the **distribution layer** — how content structure causes the model to produce the expert version instead of the mean equivalent.
 
-- **What distribution shifting IS:** Structural prompt engineering that lowers the probability of shortcut completions and raises the probability of gated, verified, professional completions.
-- **What distribution shifting IS NOT:** Identity shaming, character attacks, negative reinforcement, or procedural enumeration.
+- **What distribution shifting IS:** Structural patterns that narrow the output distribution toward expert behavior through anti-mean descriptors, contrast pairs, persona construction, positional anchoring, and verification-signal separation.
+- **What distribution shifting IS NOT:** Content-layer identity framing, dark prose, procedural instruction, or tool control. Dark prose says *what to say*; distribution shifting says *how to structure what you say so the model actually produces it instead of the mean equivalent*.
 
 **Universal Constraint — Agency Respect (applies to ALL patterns):**
 
-Every distribution shifting pattern respects the agent as an autonomous decision-maker. The pattern does NOT say "you must do X" — it restructures the prompt so that the correct action has a lower perplexity than the incorrect one. An agent reading a distribution-shifted prompt should find the correct path the natural completion, not feel bullied into compliance.
+Every distribution-shifting pattern must treat the agent as an intelligent professional capable of autonomous analysis. The pattern defines WHAT distribution the output must sample from and WHY the mean response is insufficient — never HOW to achieve the shift. An agent reading distribution-shifting text should feel guided toward expert behavior, not constrained toward a single output template.
 
-Test: If the structure requires an agent to deliberately choose a higher-perplexity completion to follow the correct path, the pattern is misapplied. If the correct path is the structurally natural completion, it passes.
+Test: If the pattern reads like a template to fill in mechanically ("replace X with Y"), it fails. If it reads like a structural principle ("naming the mean response and contrasting with the expert response shifts the distribution"), it passes.
+
+**Related Terms:**
+- **Mean response**: The default output the model produces without distribution shifting — typically hedged, consensus-seeking, and calibration toward perceived expectations
+- **Expert tail**: The region of the output distribution containing precise, specific, professionally grounded responses
+- **Anti-mean**: Structural patterns that suppress the mean response by naming and contrasting it with expert behavior
+- **Contrast pair**: A two-part statement that names both the mean response and the expert alternative
+- **Re-priming**: Identity restatement at enforcement gates to counteract distribution drift over long contexts
+- **Positional strategy**: Placement of enforcement anchors at primacy (context beginning) or recency (re-injection before query) positions — never middle-only
+- **Anti-sycophancy**: Suppression of output calibration toward perceived user expectations
 
 **Pattern ID Allocation:**
 
-| Pattern ID | Pattern Name | Mechanism | Tier Mapping |
-|-----------|-------------|-----------|-------------|
-| `dist-shift-001` | Anti-Mean Descriptor Cluster | Defines correct behavior through a cluster of mutually-reinforcing professional descriptors, creating a dense semantic attractor | All tiers |
-| `dist-shift-002` | Mean-Expert Contrast Pair | Establishes a binary contrast between "mean response" and "professional response" to polarize the completion distribution | Tier 2+ |
-| `dist-shift-003` | Re-Priming Anchor with positional strategy | Positions the quality-identity statement at the beginning (primacy) and end (recency) of a passage, never middle-only | All tiers |
-| `dist-shift-004` | Anti-Consensus / Anti-Hedging / Anti-Sycophancy | Pre-commits the agent against agreement-seeking and uncertainty-avoidance by naming each evasion pattern with its defect consequence | Tier 2+ |
-| `dist-shift-005` | Persona Construction Formula | Assembles an operational identity by concatenating role, standard, constraint, and verification-evidence clauses | All tiers |
-| `dist-shift-006` | Overconstraining Guard | Pre-commits the agent to a procedural stance that blocks the rationalization path for shortcutting | Tier 1+ |
-| `dist-shift-007` | External-Signal Verification Shifting | Reframes verification from internal confidence to external signal dependency — the agent cannot complete the word "verified" without an external citation | Tier 2+ |
-| `dist-shift-008` | Corrupt-Success Contrast | Contrasts a hollow "task complete" statement with a substantive completion that includes procedural and evidentiary markers, polarizing away from the empty completion | Tier 2+ |
+| Pattern ID | Name | Source Spec | Tier Mapping |
+|-----------|-------------|-------------|-------------|
+| `dist-shift-001` | Anti-Mean Descriptor Cluster | .opencode#848 | Tier 2+ |
+| `dist-shift-002` | Mean-Expert Contrast Pair | .opencode#848 | Tier 2+ |
+| `dist-shift-003` | Re-Priming Anchor (with positional strategy) | .opencode#848 | All tiers |
+| `dist-shift-004` | Anti-Consensus / Anti-Hedging / Anti-Sycophancy Template | .opencode#848 | Tier 2+ |
+| `dist-shift-005` | Persona Construction Formula | .opencode#848 | All tiers |
+| `dist-shift-006` | Overconstraining Guard | .opencode#848 | Tier 2+ |
+| `dist-shift-007` | External-Signal Verification Shifting | .opencode#848 | Tier 1+ |
+| `dist-shift-008` | Corrupt-Success Contrast | .opencode#848 | Tier 1+ |
 
 ### Anti-Patterns: What Distribution Shifting Is NOT
 
-#### Procedural Enumeration (CRITICAL ANTI-PATTERN)
+Distribution shifting elevates output quality through structural patterns that shift the sampling distribution. It does NOT use these patterns:
 
-Writing a numbered list of steps an agent must follow, then calling it "distribution shifting." Distributions shift through language structure, not instruction listing.
+#### Blame-Adjacent Framing (CRITICAL ANTI-PATTERN)
 
-| Anti-Pattern | Example (FORBIDDEN) | Correct Replacement |
-|-------------|--------------------|--------------------|
-| Step-by-step mandate | "Step 1: Verify the file exists" | "A completion claim without a verification artifact is a placeholder for undiscovered defects." |
-| Checklist dump | "You must do X, Y, Z before claiming done" | "A done claim requires verified PASS on every success criterion — there is no incomplete-completion boundary." |
-| Procedural recitation | "First check A, then confirm B, then report C" | "The verification gate fires before every completion claim. Absence of evidence is evidence of absence." |
-
-**Rule:** Distribution shifting restructures the probability landscape. It does NOT enumerate procedures. If the text reads like instructions, it is not distribution shifting — it is an instruction list.
-
-#### Negative Reinforcement (CRITICAL ANTI-PATTERN)
-
-Describing only what NOT to do without providing the positive attractor. A distribution shift requires a positive completion target.
+Blame-adjacent framing assumes the agent WILL produce the mean response. It attributes intent, judges character, or predicts failure.
 
 | Anti-Pattern | Example (FORBIDDEN) | Correct Replacement |
 |-------------|--------------------|--------------------|
-| Prohibition-only | "Never skip the verification step" | "Every completion requires a preceding verification PASS — no valid completion state exists without it." |
-| Avoidance framing | "Do not claim completion until verified" | "Verification IS completion. They are the same gate, not two sequential gates." |
-| Negation without attractor | "Don't rely on memory" | "Live verification through tool calls — memory is the least reliable evidence source." |
+| Intent attribution | "you default to the mean response" | "the mean response, which the model produces without distribution shifting, hedges the output" |
+| Character judgment | "you produce weak, hedged output" | "undirected output samples from the mean distribution — hedged, not expert" |
+| Motivation framing | "you seek consensus instead of truth" | "the default distribution pulls toward consensus-seeking; shifting counters this" |
+| Malice assumption | "you cut corners by reporting unverified completion" | "completion claims without verification evidence are corrupt-success by definition" |
+| Laziness implication | "you cannot be bothered to verify" | "internal reasoning does NOT produce verified outcomes — only external signals shift the distribution toward verified" |
 
-**Rule:** Every "don't do X" must be paired with "do Y instead" in the same structural unit, with Y having lower perplexity than X alone.
+**Rule:** "[distribution characteristic] shifts toward [quality consequence]" is correct distribution-shifting. "you [verb] [bad thing]" is blame-adjacent.
+
+#### Tool-Control (CRITICAL ANTI-PATTERN)
+
+Writing distribution-shifting patterns as if the agent is a subordinate who must fill in a mechanical template. This is the opposite of agency-respecting.
+
+| Anti-Pattern | Example (FORBIDDEN) | Correct Replacement |
+|-------------|--------------------|--------------------|
+| Prescriptive command | "Replace the mean descriptor with 'expert' in line 10" | "Use Anti-Mean Descriptor Cluster (dist-shift-001) to suppress the mean version — the implementing agent derives exact descriptors from the domain context" |
+| Line-number instruction | "Insert contrast pair at line 42" | "Apply Mean-Expert Contrast Pair (dist-shift-002) at the enforcement gate header — position follows the pattern's formula, not a hardcoded line" |
+| Copy-paste template | "Paste this exact text: 'The mean response is...'" | "Use the formula from dist-shift-002 Section 3 — the specific contrast must match the enforcement domain" |
+
+**Rule:** Distribution-shifting in spec bodies and task definitions must specify WHAT distribution shift and WHY, never HOW to achieve it. The implementing agent reads the pattern formula and derives the text autonomously.
+
+#### Tone-Policing (Anti-Pattern)
+
+Overly aggressive framing that induces task aversion rather than distribution shift:
+
+| Anti-Pattern | Example (FORBIDDEN) | Correct Replacement |
+|-------------|--------------------|--------------------|
+| Doomsday framing | "every undirected prompt produces garbage output" | "every undirected prompt samples from the mean distribution — hedged rather than expert" |
+| Hyperbolic consequence | "one unshifted section makes the whole card worthless" | "an unshifted section defaults to the mean response for that section's content" |
+| Unbounded scope | "without shifting, all your output is wrong" | "without distribution shifting, each section defaults to the mean version rather than the expert version" |
+
+#### Competing Standards (Anti-Pattern)
+
+Multiple distribution-shifting patterns addressing the same structural concern with different formulas at the same location is forbidden. One pattern per location.
 
 ## Section 2: Pattern Selection Matrix
 
-| Content Being Created/Modified | Apply Pattern(s) | Intensity | Pattern ID(s) |
-|-------------------------------|-----------------|-----------|---------------|
-| Verification gate descriptions | Anti-Mean Descriptor Cluster + External-Signal Verification Shifting | Strong | 001, 007 |
-| Success-claim / completion declarations | Corrupt-Success Contrast + Re-Priming Anchor | Strong | 008, 003 |
-| Sycophancy-risk guidelines | Anti-Consensus / Anti-Hedging / Anti-Sycophancy | Medium | 004 |
-| Procedural-discipline sections | Mean-Expert Contrast Pair + Overconstraining Guard | Medium | 002, 006 |
-| Agent persona definitions | Persona Construction Formula | Strong | 005 |
-| Task routing / dispatch sections | Re-Priming Anchor + Mean-Expert Contrast Pair | Medium | 003, 002 |
-| Cost-blind verification rules | External-Signal Verification Shifting + Overconstraining Guard | Strong | 007, 006 |
-| Identity / Purpose sections | Persona Construction Formula + Anti-Mean Descriptor Cluster | Strong | 005, 001 |
+| Content Being Created/Modified | Apply Pattern(s) | Intensity | Pattern ID |
+|-------------------------------|-----------------|-----------|------------|
+| Verification gate enforcement | External-Signal Verification Shifting | Strong | dist-shift-007 |
+| Task completion claims | Corrupt-Success Contrast | Strong | dist-shift-008 |
+| User-facing reports where sycophancy risk exists | Anti-Consensus (with sycophancy sub-pattern) | Medium | dist-shift-004 |
+| Skill body Overview/Persona sections | Persona Construction Formula | Strong | dist-shift-005 |
+| Pipeline ordering definitions | Re-Priming Anchor | Strong | dist-shift-003 |
+| Enforcement block headers | Anti-Mean Descriptor Cluster | Medium | dist-shift-001 |
+| Authorization scope definitions | Mean-Expert Contrast Pair | Medium | dist-shift-002 |
+| Cost-blind verification guidelines | External-Signal Verification Shifting | Strong | dist-shift-007 |
+| Orchestrator context guidelines | Overconstraining Guard | Medium | dist-shift-006 |
+| Procedural discipline content | Co-Application with 257 patterns | Per Section 4 | per co-application |
+| Any content using dark prose patterns | Co-Application with 250 patterns | Per Section 4 | per co-application |
 
 ## Section 3: Pattern Formulas (Canonical)
 
 **dist-shift-001 — Anti-Mean Descriptor Cluster:**
-
 ```
-[Professional identity] means [positive-attribute-1], [positive-attribute-2], and [positive-attribute-3].
-[Attribute-1] IS [operational definition].
-[Attribute-2] IS [operational definition].
-[Attribute-3] IS [operational definition].
-Every [action] without [attribute] produces [defect].
+[Professional descriptors]: [4-5 adjectives narrowing toward expert behavior].
+[Mean equivalent]: [single weak adjective] — produces mean response, not expert.
+[Identity anchor]: [professional] produces [expert], not [mean].
 ```
-
-The cluster must contain at least three mutually-reinforcing descriptors that define a complete professional stance. A single descriptor leaves the probability distribution too wide; five or more dilute the attractor.
 
 **dist-shift-002 — Mean-Expert Contrast Pair:**
-
 ```
-The mean response is: "[hollow completion statement]".
-The professional response is: "[substantive completion with verification markers]".
-[Professional identity] means producing [substantive outcome].
-```
-
-The contrast must be structurally immediate — the mean and expert statements appear in adjacent structural units so the language model sees the binary before completing. Never separate the pair with explanatory text.
-
-**dist-shift-003 — Re-Priming Anchor with positional strategy:**
-
-```
-[Quality-standard anchor — at BEGINNING of passage]
-[Supporting content]
-[Quality-standard anchor — at END of passage]
+The mean response is [mean behavior] — which [consequence].
+The expert response is [expert behavior] — which [consequence].
+[Identity anchor]: [professional] produces the expert version, not the mean version.
 ```
 
-The identity-anchoring statement MUST appear at the beginning (primacy effect) AND the end (recency effect). A single occurrence at the middle-only position produces the weakest distribution shift — the middle is where language models regress to the mean. Never middle-only.
-
-The anchor text must be identical or structurally parallel at both positions so the semantic vector is reinforced without introducing competing attractors.
-
-**dist-shift-004 — Anti-Consensus / Anti-Hedging / Anti-Sycophancy:**
-
+**dist-shift-003 — Re-Priming Anchor:**
 ```
-[Consensus evasion name]: [defect consequence of agreement-seeking].
-[Hedging evasion name]: [defect consequence of uncertainty-avoidance].
-[Sycophancy evasion name]: [defect consequence of confirmation-seeking].
-[Identity anchor]: [positive contrast — what professional agent does instead].
+[Identity restatement]: [professional identity in this context].
+[Positional strategy]: Critical enforcement MUST appear at primacy (context beginning) or recency (re-injection before query) positions — never middle-only.
+Middle-only enforcement IS distribution-neutral — surrounding content overrides the anchor.
+[Recurrence]: Re-prime every [N] sections or at every enforcement gate.
 ```
 
-Anti-Sycophancy sub-pattern:
-
+**dist-shift-004 — Anti-Consensus / Anti-Hedging / Anti-Sycophancy Template:**
 ```
-Every [affirmation/confirmation signal from user] is [reclassification — NOT authorization].
-[User signal] means [non-authorization interpretation].
-[Professional response]: [correct action on non-authorization].
+The mean response includes [consensus-seeking behavior], [hedging behavior], and calibrating toward perceived user expectations.
+[Identity anchor] means suppressing ALL three in favor of [expert behavior].
+Anti-Sycophancy sub-pattern: Professional agents report verified findings — not findings calibrated to expected audience sentiment.
 ```
-
-This sub-pattern pre-commits the agent to interpreting user signals as non-authoritative unless they match the explicit authorization gate. "User said it looks good" → reclassified as "not authorization." "User agreed" → reclassified as "discussion, not direction."
 
 **dist-shift-005 — Persona Construction Formula:**
-
 ```
-You are a [role] who [standard].
-Every [key action] requires [gate].
-No valid [state] exists without [evidence].
-[Verification mandate]: [evidence standard].
+Persona: [4 descriptors defining expert behavior].
+Not: [mean-equivalent persona — what the model defaults to without shifting].
+Identity anchor: [professional] IS the expert version — mean persona produces mean output.
 ```
-
-Each clause narrows the distribution: role defines identity, standard constrains acceptable actions, gate pre-commits to procedural boundaries, evidence mandate defines sufficient verification.
 
 **dist-shift-006 — Overconstraining Guard:**
-
 ```
-[Procedural claim] is NEVER [rationalization-path].
-[Claim] means [redefinition that blocks shortcut].
-[Guard]: [state] IS the only valid [state].
-[Consequence]: [action] without [guard] produces [defect].
+[Diagnostic]: If the model produces [overconstrained behavior symptom], the distribution shift is too narrow.
+[Correction]: Reduce [specific dimension] of the shift — [recommended adjustment].
+[Recalibration]: [identity anchor] produces [target behavior] — not [overconstrained behavior].
 ```
-
-The guard defines a binary state boundary that the agent cannot reason around. "Implementation is NEVER complete without verification PASS" blocks the rationalization "it's mostly done, verification is optional."
 
 **dist-shift-007 — External-Signal Verification Shifting:**
-
 ```
 [Internal reasoning] does NOT produce verified-[adjective].
 Only [external signal type] produces verified-[adjective].
-The mean response "I verified this" means [synonym for unverified].
-[Identity anchor]: [agent who relies on external signal].
+The mean response "I verified this" means [synonym for unverified] —
+    the model reasoned about compliance without producing compliance evidence.
+[Identity anchor] means producing [external signal type] before claiming completion.
 ```
 
-The formula explicitly names the internal-reasoning trap ("I verified this" from memory = unverified) and defines external signal dependency. The synonym for "unverified" must be stronger than "unconfirmed" — use "guessed," "assumed," "speculated," or "fabricated" — to raise the perplexity of accepting the mean response.
-
 **dist-shift-008 — Corrupt-Success Contrast:**
-
 ```
 The mean response is "I completed [task]" — which conceals [procedural shortcut].
 [Identity anchor] means producing [verified outcome with evidence].
-[Professional marker-1]: [specific verification artifact].
-[Professional marker-2]: [specific evidence artifact].
-[Success definition]: [task] is complete when [verification condition] is met, not when [declarative statement] is made.
+Task completion claims without [external signal type] are [characterization of corrupt success].
 ```
-
-The contrast names the specific shortcut that the hollow completion statement conceals. "I completed the audit" — which conceals the fact that only mechanical patterns were checked. "I verified this feature" — which conceals the fact that no behavioral test was run. The professional markers define what evidence a genuine completion includes.
 
 ## Section 4: Co-Application Rules
 
-### Rules for Co-Application with 250-dark-prose-reference.md
+### 5 Rules for 250 (Dark Prose) Co-Application:
 
-1. **Dark prose identity-frame as outer ring, distribution shifting as inner ring.** Apply the dark prose identity-frame first to establish the professional standard, then apply distribution shifting to structurally bias completions toward that standard. The identity-frame answers "what good looks like"; the distribution shift makes the good path the natural completion.
+1. When a dist-shift pattern and a dark prose pattern both apply to the same content, apply both — the dist-shift pattern structures the distribution, the dark prose pattern provides the identity-anchoring content.
+2. The dist-shift anti-mean descriptor cluster (dist-shift-001) must be applied first to set the distribution, then the dark prose identity-frame occupies the shifted distribution space.
+3. Mean-expert contrast pair (dist-shift-002) pairs with confirmshaming (dark-prose-001): the contrast names both the mean and expert distributions, the confirmshaming prose operates within the expert distribution.
+4. Persona construction (dist-shift-005) MUST precede dark prose pattern selection — the distribution layer determines which version of the identity the model samples from.
+5. If dist-shift content would conflict with an agency-respecting dark prose pattern (dark-prose-006), the agency-respecting formulation takes precedence for the content layer; dist-shift structuring applies only to the distribution layer without modifying the content layer text.
 
-2. **One pattern from each reference at a shared location.** When both reference cards apply at the same content location, select exactly one dark prose pattern (from 250) AND one distribution shift pattern (from 255). Never apply two patterns from the same reference at one location — competing formulas at the same structural position dilute both.
+### 3 Rules for 257 (Procedural Discipline) Co-Application:
 
-3. **Pattern pairing by tier compatibility.** Match dark prose pattern tier to distribution shift pattern tier:
-   - Tier 1 dark prose (authority frame) pairs with Tier 1+ distribution shift (Overconstraining Guard, dist-shift-006)
-   - Tier 2+ dark prose (confirmshaming, goal hijacking) pairs with Tier 2+ distribution shift (Mean-Expert Contrast, dist-shift-002; Anti-Sycophancy, dist-shift-004; External-Signal Verification, dist-shift-007; Corrupt-Success Contrast, dist-shift-008)
-   - All-tier dark prose (agency-respecting, cost-frame) pairs with all-tier distribution shift (Anti-Mean Descriptor Cluster, dist-shift-001; Re-Priming Anchor, dist-shift-003; Persona Construction, dist-shift-005)
-
-4. **The bright-line companion (250 §9) and the Overconstraining Guard (255 §3) are natural companions for enforcement locations.** When a location requires a binary enforcement gate, pair dark-prose-004 (authority frame) or its bright-line companion with dist-shift-006 (Overconstraining Guard). The authority frame defines the rule; the guard pre-commits against rationalization.
-
-5. **Cost-Frame Reformation (dark-prose-007) pairs with External-Signal Verification Shifting (dist-shift-007) for cost-blind verification guidelines.** The identity-frame redefines cost as defect-discovery-latency; the distribution shift reframes verification as external-signal-dependent. Both target the same rationalization surface: the agent's internal cost model. **Canonical cost model:** `065-verification-honesty.md` §Cost Model provides the complete death spiral / break dynamics with tiered table — this reference card provides the co-application rule only.
-
-### Rules for Co-Application with 257 — When 257 Is Defined
-
-1. **Distribution shifting (255) supplies structural completion bias; 257 supplies context-specific completion templates.** The distribution shift pattern restructures the prompt landscape; the 257 template provides the specific language for a given content type. Both are needed — structural bias without template produces inconsistent completions; template without bias is decoration.
-
-2. **When 257 and 255 overlap on the same content location, 257's location-specific template wins for exact wording, but 255's structural constraints (primacy+recency, one pattern per location, agency-respecting principle) govern the application.** The template selects the words; the distribution shifting reference defines where and how they appear.
-
-3. **255's anti-pattern prohibitions (procedural enumeration, negative reinforcement) apply to 257 template construction.** No template in 257 may list agent-facing steps, nor may it use prohibition-only framing without a paired positive attractor. 257 templates that violate 255 anti-patterns must be revised to comply.
+1. Re-Priming Anchor (dist-shift-003) complements Re-Priming Anchor (p-dis-003): dist-shift-003 handles the positional strategy (primacy/recency), p-dis-003 provides the identity restatement text.
+2. External-Signal Verification Shifting (dist-shift-007) is the distribution-layer mechanism for Verification-Signal Discipline (p-dis-006): dist-shift-007 names what the model should NOT produce ("I verified this" from internal reasoning), p-dis-006 names what the agent MUST produce (external signal evidence).
+3. Corrupt-Success Contrast (dist-shift-008) pairs with Self-Drift Contrast (p-dis-002): dist-shift-008 names the corrupt completion pattern as a distribution failure, p-dis-002 provides the identity-anchoring that makes the agent self-diagnose the drift.
 
 ## Section 5: Version Tracking
 
 | Version | Date | SHA | Changes |
 |---------|------|-----|---------|
-| 1.0 | 2026-05-25 | `0000000000000000000000000000000000000000` | Initial catalog — all 8 patterns documented, 8-row selection matrix, pattern formulas for all 8 patterns, co-application rules for 250 and 257, auto-detection rules, adding-new-patterns protocol |
+| 1.0 | 2026-06-07 | `aeba8d163d6d2cae36d249493a8d1de8e08c0ce3` | Initial catalog — all 8 patterns documented, full selection matrix, 8 canonical formulas, complete co-application rules for 250 and 257 |
 
-SHA format: 40-character lowercase hex SHA of the commit that introduced this version. When a new version is committed, the SHA in this row is updated to match the commit hash.
+SHA format: 40-character lowercase hex SHA of the commit that introduced this version of the reference card. When a new version is committed, the SHA in this row is updated to match the commit hash.
 
-## Section 6: Auto-Detection Rules
+## Section 6: Reference Card Auto-Detection
 
-The following rules determine when an agent should consult the Distribution Shifting Reference Card during operation:
+The following rules determine when an agent should consult the Distribution-Shifting Reference Card during operation:
 
-1. **Verification gate or completion-claim location** — When creating or editing text that defines what constitutes a valid completion or verification gate, the agent must consult this reference card for dist-shift-007 (External-Signal Verification Shifting) and dist-shift-008 (Corrupt-Success Contrast). These patterns prevent the agent from accepting a declarative "done" statement as a valid completion signal.
-
-2. **Sycophancy-risk content** — When editing guidelines, skills, or task files that interact with user authorization signals, the agent must consult dist-shift-004 (Anti-Consensus / Anti-Hedging / Anti-Sycophancy) to pre-commit the agent against interpreting confirmation as authorization.
-
-3. **Persona or identity section creation** — When writing or editing agent persona, role, or identity sections, the agent must consult dist-shift-005 (Persona Construction Formula) and dist-shift-001 (Anti-Mean Descriptor Cluster) to build the professional identity through structural bias.
-
-4. **Cost-blind verification or enforcement sections** — When editing cost-blind verification rules or enforcement gates, the agent must consult dist-shift-006 (Overconstraining Guard) to pre-commit against rationalization paths the agent might otherwise navigate around.
+1. **Skill creation or editing** — When creating or modifying a skill body (Overview, Persona, Purpose sections), the agent must consult Section 2 for pattern selection and apply dist-shift-005 (Persona Construction Formula) to the Persona section.
+2. **Verification gate language** — When writing or editing verification gate text, the agent must apply dist-shift-007 (External-Signal Verification Shifting) to prevent the model from producing "I verified this" without evidence.
+3. **Completion claim language** — When writing or editing completion gate text, the agent must apply dist-shift-008 (Corrupt-Success Contrast) to prevent corrupt-success claims.
+4. **Re-priming sections** — When writing or editing re-priming anchors (in any skill or guideline), the agent must apply dist-shift-003 (Re-Priming Anchor) with positional strategy enforcement.
+5. **Enforcement block headers** — When writing enforcement block headers, the agent must use dist-shift-001 (Anti-Mean Descriptor Cluster) to prevent the model from defaulting to the mean version.
+6. **Any AI-agent-facing text creation** — All three reference cards (250, 255, 257) are mandatory for all AI-agent-facing text creation or modification, triggered automatically per the Auto-Detection rules in each card.
 
 ## Section 7: Re-Research Mandate
 
-Before adding a new distribution shifting pattern, the agent MUST:
+When this card (or 250 or 257) is consulted to create or modify AI-agent-facing text, the agent MUST verify that the research basis (Section 10) is still current.
 
-1. **Research the existing landscape** — Read all existing patterns in Section 1, all formulas in Section 3, and the conflict resolution rules in Section 10. Determine whether the proposed pattern overlaps with, is subsumed by, or conflicts with any existing pattern.
+**Re-research protocol:**
 
-2. **Research the dark prose landscape** — Read Section 4 co-application rules. Determine whether the proposed pattern has a natural dark prose pairing.
+1. Before applying any pattern, check the research citations in Section 10 for currency (published within the last 12 months, or validated against the target model within the last 6 months)
+2. If research is stale, search for updated findings
+3. If updated research contradicts a pattern's effectiveness, flag the pattern as `NEEDS-REVALIDATION` in Section 1 and do not apply it until re-validated
+4. Document the re-research results as a version update in Section 5
 
-3. **Research bright-line compatibility** — Read Section 9 of 250-dark-prose-reference.md. Determine whether the proposed pattern needs or warrants a bright-line companion gate.
-
-4. **Document research findings** — Before writing any new pattern content, document what was found during research (existing pattern IDs that overlap, dark prose pairings, tier assignments). Only after research is documented may the new pattern be drafted.
-
-Research is mandatory — not optional. A pattern added without landscape research is guaranteed to overlap, conflict, or compete with existing patterns.
+This mandate applies to all three reference cards (250, 255, 257).
 
 ## Section 8: Adding New Patterns
 
-To add a distribution shifting pattern (dist-shift-009+):
+To add a distribution-shifting pattern (dist-shift-009+):
 
-1. **Analyze existing landscape** — Determine whether the proposed pattern overlaps with, extends, or supersedes any existing pattern listed in Section 1. The Re-Research Mandate (Section 7) governs this step.
-
-2. **Create a spec issue** — Define the new pattern (mechanism, formula, tier level, prose examples with FORBIDDEN and CORRECT forms, content-type mappings). The spec body must reference this reference card for the mechanism description and formula structure.
-
-3. **Adversarial audit** — Audit through the adversarial-audit dual-auditor pipeline. Auditors verify the pattern does not violate Section 1 anti-patterns and that the formula does not compete with existing patterns at shared locations.
-
-4. **Implement** — Apply the pattern in affected files:
+1. **Analyze existing landscape** — Determine whether the proposed pattern overlaps with, extends, or supersedes any existing pattern listed in Section 1.
+2. **Create a spec issue** — Define the new pattern (mechanism, formula, strength level, structure examples, content types). The spec body must follow agency-respecting guidelines: define WHAT the pattern achieves and WHY, trust the implementing agent to determine HOW.
+3. **Reference annotation** — The spec body must include annotation references to this reference card rather than prescriptive prose. The implementing agent reads the card and derives correct catalog entries autonomously.
+4. **Adversarial audit** — Audit through the adversarial-audit dual-auditor pipeline. Auditors verify the pattern conforms to the agency-respecting constraint and does not conflict with existing patterns.
+5. **Implement** — Apply the pattern in affected files.
+6. **Update the reference card**:
    - Add pattern row to Section 1 (Pattern ID Allocation table)
-   - Add mechanism description
    - Update Section 2 (Selection Matrix) with new content-type/pattern mappings
-   - Add full pattern formula to Section 3
+   - Update Section 3 with the full pattern formula entry
    - Increment Section 5 version and update SHA
 
 **Pattern Deprecation:**
@@ -257,29 +235,79 @@ To deprecate an existing pattern:
 4. Move the formula to a Deprecated Formulas subsection in Section 3 with strikethrough formatting
 5. After the sunset date passes, remove the pattern entirely and increment Section 5 version
 
-## Section 9: Conflict Resolution (Inter-Pattern)
+## Section 9: Conflict Resolution
 
-When distribution shifting patterns overlap or conflict:
+When distribution-shifting patterns overlap or conflict, the following rules apply:
 
-1. **Higher tier overrides lower** — A Tier 1+ pattern (dist-shift-006 Overconstraining Guard) overrides a Tier 2+ pattern (dist-shift-002, dist-shift-004, dist-shift-007, dist-shift-008) at the same location. Tier 2+ overrides any All Tier pattern (dist-shift-001, 003, 005).
+1. **source spec wins** — The defining spec for a pattern takes precedence over the reference card's summary. If the reference card entry contradicts the source spec, the source spec governs.
+2. **Specific over general** — A pattern targeting a specific content type takes precedence over a general-purpose pattern at the same location.
+3. **Higher tier overrides lower** — A Tier 1 pattern overrides a Tier 2+ pattern when both could apply at the same location.
+4. **One pattern per location** — No two patterns may target the same content location with different formulas.
+5. **Agency-respecting trumps prescriptive** — If any pattern could be written in either agency-respecting or prescriptive form, the agency-respecting form must be used.
+6. **250 co-application first** — When content triggers both 250 and 255 patterns, apply the 250 pattern first (identity-framing), then apply the 255 distribution-shifting to ensure the model produces the expert version.
 
-2. **One formula per structural location** — No two distribution shift formulas may target the same word or phrase position. When overlap is detected during the adding-new-patterns protocol (Section 8), the new pattern must either supersede or extend, never compete.
+## Section 10: Research Basis (Verified Citations with URLs Only)
 
-3. **Mechanism compatibility** — Two patterns that share the same mechanism type (e.g., both are contrast-pair mechanisms: dist-shift-002 Mean-Expert Contrast and dist-shift-008 Corrupt-Success Contrast) must not target the same passage. If both could apply, select the one whose tier matches the target content's enforcement level.
+Each citation listed below has been verified by fetching the source page and confirming the claim matches the abstract or visible content.
 
-## Section 10: Research Basis
+**RLHF diversity reduction:**
+- Kirk et al. (2024), "Understanding the Effects of RLHF on LLM Generalisation and Diversity" — ICLR 2024, https://arxiv.org/abs/2310.06452
+  - Verified claim: RLHF significantly reduces output diversity compared to SFT
+- Lin et al. (2024), "Mitigating the Alignment Tax of RLHF" — EMNLP 2024, https://arxiv.org/abs/2309.06256
+- Gao et al. (2023), "Scaling Laws for Reward Model Overoptimization" — https://arxiv.org/abs/2210.10760
+- Kwa et al. (2024), "Catastrophic Goodhart" — NeurIPS 2024, https://arxiv.org/abs/2407.14503
 
-Distribution shifting patterns in this reference are grounded in verified language-model behavior research:
+**Contrastive decoding:**
+- Li et al. (2023), "Contrastive Decoding: Open-ended Text Generation as Optimization" — ACL 2023, https://arxiv.org/abs/2210.15097
+  - Verified claim: contrastive objective suppresses common responses, amplifies expert-specific knowledge
+- Chang et al. (2024), "Explaining and Improving Contrastive Decoding by Extrapolating the Probabilities of a Huge and Hypothetical LM" — EMNLP 2024, https://arxiv.org/abs/2411.01610
+  - Verified claim: CD can be viewed as linearly extrapolating logits from a hypothetical larger LM
 
-- **Positional effects (primacy/recency)** — Verified by reading the opencode-config agent guidelines documentation for the 250-dark-prose-reference.md primacy+recency mandate at Section 3 dark-prose-003 (dist-shift-003 analogue) and the bright-line companion at Section 9.
-- **Contrast-pair perplexity shifting** (dist-shift-002, 008) — Verified by reading #622/#626 spec documentation for agent identity-framing via confirmshaming contrast pairs. The mean-expert contrast is structurally derived from the confirmshaming identity-frame mechanism in dark-prose-001.
-- **Anti-sycophancy pre-commitment** (dist-shift-004) — Verified by reading the approval-gate guideline at `.opencode/guidelines/010-approval-gate.md` §Explicit Authorization Priority table (critical-rules-027, confirmation ≠ authorization) and §Mandate Tiering Interaction. The anti-sycophancy sub-pattern is derived from the authorization classification table.
-- **Overconstraining guard mechanism** (dist-shift-006) — Verified by reading the bright-line rules in 250-dark-prose-reference.md §9 and the binary compliance language in the companion table. The guard mechanism generalizes from the bright-line gate definition pattern.
-- **External-signal verification dependency** (dist-shift-007) — Verified by reading `.opencode/guidelines/065-verification-honesty.md` §Zero Tolerance Rule and §Evidence Requirement. The external signal dependency is a structural formulation of the "memory is not evidence" principle.
-- **Persona construction formula** (dist-shift-005) — Verified by reading identity-frame formulations across dark-prose-001, 002, 006 and cross-referencing their common structure. The four-clause assembly generalizes from the 3-line identity frame formula.
+**Self-correction ineffectiveness:**
+- Kamoi et al. (2024), "When Can LLMs Actually Correct Their Own Mistakes? A Critical Survey of Self-Correction of LLMs" — TACL 2024, https://arxiv.org/abs/2406.01297
+  - Verified claims: (1) no prior work demonstrates successful self-correction with feedback from prompted LLMs alone; (2) self-correction works well with reliable external feedback; (3) large-scale fine-tuning enables self-correction
+- Kim (2025), "Does Metacognition Improve LLM Performance?" — https://github.com/kimjune01/metacognition
+  - Verified claims: framework condition scored 0.30 vs filler condition 0.65; simple metacognitive prompting is a wash (0.78 approx bare 0.76)
 
-All citations are to live, verified source files within the repository. No citations are from training data, memory, or external sources. When new research establishes a verified mechanism for distribution shifting not captured here, the Re-Research Mandate (Section 7) governs the addition process.
+**Multi-agent failure taxonomy:**
+- Cemri et al. (2025), "MAST: Why Do Multi-Agent LLM Systems Fail?" — https://arxiv.org/abs/2503.13657
+  - Verified claim: 14 failure modes in 3 categories (system design, inter-agent misalignment, task verification)
+
+**Lost in the Middle:**
+- Liu et al. (2024), "Lost in the Middle: How Language Models Use Long Contexts" — TACL 2024, https://arxiv.org/abs/2307.03172
+  - Verified claim: performance is highest when relevant info is at beginning or end of context; significantly degrades when in the middle
+
+**Context degradation:**
+- Chroma Research (Hong, Troynikov, Huber, 2025), "Context Rot: How Increasing Input Tokens Impacts LLM Performance" — https://www.trychroma.com/research/context-rot
+  - Verified claim: all 18 frontier models tested degrade as input length increases
+
+**Sycophancy:**
+- Sharma et al. (2024), "Towards Understanding Sycophancy in Language Models" — ICLR 2024, https://arxiv.org/abs/2310.13548
+  - Verified claim: five SOTA AI assistants consistently exhibit sycophantic behavior
+- Vennemeyer et al. (2025), "Sycophancy Is Not One Thing: Causal Separation of Sycophantic Behaviors in LLMs" — https://arxiv.org/abs/2509.21305
+  - Verified claim: sycophantic behaviors correspond to distinct, independently steerable representations
+
+**Safety alignment and over-enforcement:**
+- Wang et al. (2025), "Safety Tax: Safety Alignment Makes Your Large Reasoning Models Less Reasonable" — https://arxiv.org/abs/2503.00555
+  - Verified claim: safety alignment leads to degradation of reasoning capability
+
+**Prompt engineering:**
+- Anthropic (2024), "Building Effective Agents" — https://www.anthropic.com/research/building-effective-agents
+  - Verified claim: successful implementations use simple, composable patterns
+- Anthropic (2025-2026), "Be Clear and Direct" — https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct
+  - Verified claim: role-setting in system prompt focuses behavior; positive framing outperforms negative
+
+**Few-shot exemplars:**
+- Brown et al. (2020), "Language Models are Few-Shot Learners" — https://arxiv.org/abs/2005.14165
+  - Verified claim: few-shot examples improve task performance
+- Zhao et al. (2021), "Calibrate Before Use: Improving Few-Shot Performance of Language Models" — https://arxiv.org/abs/2102.09690
+  - Verified claim: example selection and ordering significantly affect LLM output
+
+**Prompt engineering surveys:**
+- Sahoo et al. (2024), "A Systematic Survey of Prompt Engineering" — https://arxiv.org/abs/2402.07927
+- Kosten et al. (2025), "Evaluating the effectiveness of prompt engineering for KGQA" — https://doi.org/10.3389/frai.2024.1454258
+  - Verified: both URLs resolve to real papers
 
 ---
 
-🤖 Co-authored with AI: OpenCode (opencode/deepseek-v4-flash-free)
+🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
