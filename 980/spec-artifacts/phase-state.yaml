@@ -2,13 +2,13 @@
 schema_version: "1.0"
 created: "2026-06-06"
 variables:
-  SKELETON_DONE: false
-  STATE_DONE: false
-  PARSER_DONE: false
-  PLAN_GEN_DONE: false
-  CYCLE_DET_DONE: false
-  VALIDATE_DONE: false
-  GROUND_DONE: false
-  PDDL_DONE: false
-  DISCOVER_DONE: false
-  INTEGRATION_DONE: false
+  SKELETON_DONE: true
+  STATE_DONE: true
+PARSER_DONE: true
+PLAN_GEN_DONE: true
+CYCLE_DET_DONE: true
+VALIDATE_DONE: true
+GROUND_DONE: true
+PDDL_DONE: true
+DISCOVER_DONE: true
+  INTEGRATION_DONE: true

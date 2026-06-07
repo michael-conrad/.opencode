@@ -93,6 +93,17 @@ Batch implementation of 4 `.opencode` issues plus PR creation. Multiple correcti
 | **Root Cause** | The orchestrator initially violated the DISPATCH_GATE protocol by preloading too much context into a single sub-agent dispatch. |
 | **Systemic?** | Positive — the DISPATCH_GATE protocol worked as designed. The sub-agent correctly enforced the clean-room constraint. No remediation needed for this one; it's a success story for the protocol. |
 
+### 10. "Wait for human to merge" Instruction Language in PR Bodies and Task Files
+
+| Field | Detail |
+|-------|--------|
+| **What happened** | PR body contained "Wait for human to merge." as a footer line. The user described this as "beyond lame" and "unprofessional." Task file `create-pr.md` mandated this as a required format element (`MUST include "Wait for human to merge"`). |
+| **Correction given** | User described the pattern as "beyond lame" in PR bodies, issue tickets, chat messages. Replaced with silent HALT — no instruction language, no prompting, no forward-looking references. |
+| **Root Cause** | The task file treated the PR body as an instruction channel to the developer. PR bodies are professional deliverables — they state what was done and provide evidence. Instructional language ("Wait for human to merge") treats the reader as a bot in a workflow rather than a professional reviewing work. |
+| **Systemic?** | Yes — also present in `pr-creation.md` Operating Protocol ("4. HALT after PR creation: Wait for human to merge") and Exit Criteria. |
+| **Remediation target** | `skills/git-workflow/tasks/pr-creation/create-pr.md` Step 7.5 — remove "Wait for human to merge" from mandated format and format requirements. Remove MUST requirement. `skills/git-workflow/tasks/pr-creation.md` Operating Protocol — replace "Wait for human to merge" with "No prompting for next steps." Exit Criteria — replace "Agent HALTs waiting for human merge" with "Agent HALTs — no prompting for next steps." |
+| **Broader principle** | No instructional or prompting language in any professional deliverable (PR bodies, issue comments, spec bodies, plan documents). These are artifacts of record — they describe what was done and provide evidence. Instructional language is for chat/instructor context only. A halt produces a status message; a status message does not contain instructions, suggestions, or forward-looking guidance. |
+
 ## Systemic vs. One-Off Classification
 
 | # | Issue | Systemic? | Action Required |
@@ -106,3 +117,4 @@ Batch implementation of 4 `.opencode` issues plus PR creation. Multiple correcti
 | 7 | Executed plan without approval | ✅ Systemic | Plans are proposals, not mandates — present + confirm before execution |
 | 8 | Worthless issue comments | ✅ Systemic | Better audience-separation enforcement; load correspondence skill before issue comments |
 | 9 | DISPATCH_GATE correct rejection | ❌ One-off (positive) | None — protocol works as designed |
+| 10 | "Wait for human to merge" instruction language | ✅ Systemic | Removed from create-pr.md and pr-creation.md mandated formats |

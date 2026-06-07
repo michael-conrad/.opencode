@@ -11,19 +11,59 @@ variables:
   BRANCHES_CLEANED: false
   DEV_SYNCED: false
   PRUNE_DONE: false
-  P1_p1: false  P1_p2: false  P1_p3: false  P1_p4: false
-  P1_p5: false  P1_p6: false  P1_p7: false  P1_p8: false
-  P1_p9: false  P1_p10: false P1_p11: false P1_p12: false
-  P1_p13: false P1_p14: false
-  P2_p1: false  P2_p2: false  P2_p3: false  P2_p4: false
-  P2_p5: false  P2_p6: false  P2_p7: false  P2_p8: false
-  P2_p9: false  P2_p10: false P2_p11: false P2_p12: false
-  P2_p13: false P2_p14: false
-  P3_p1: false  P3_p2: false  P3_p3: false  P3_p4: false
-  P3_p5: false  P3_p6: false  P3_p7: false  P3_p8: false
-  P3_p9: false  P3_p10: false P3_p11: false P3_p12: false
-  P3_p13: false P3_p14: false
-  P4_p1: false  P4_p2: false  P4_p3: false  P4_p4: false
-  P4_p5: false  P4_p6: false  P4_p7: false  P4_p8: false
-  P4_p9: false  P4_p10: false P4_p11: false P4_p12: false
-  P4_p13: false P4_p14: false
+  P1_p1: false
+  P1_p2: false
+  P1_p3: false
+  P1_p4: false
+  P1_p5: false
+  P1_p6: false
+  P1_p7: false
+  P1_p8: false
+  P1_p9: false
+  P1_p10: false
+  P1_p11: false
+  P1_p12: false
+  P1_p13: false
+  P1_p14: false
+  P2_p1: false
+  P2_p2: false
+  P2_p3: false
+  P2_p4: false
+  P2_p5: false
+  P2_p6: false
+  P2_p7: false
+  P2_p8: false
+  P2_p9: false
+  P2_p10: false
+  P2_p11: false
+  P2_p12: false
+  P2_p13: false
+  P2_p14: false
+  P3_p1: false
+  P3_p2: false
+  P3_p3: false
+  P3_p4: false
+  P3_p5: false
+  P3_p6: false
+  P3_p7: false
+  P3_p8: false
+  P3_p9: false
+  P3_p10: false
+  P3_p11: false
+  P3_p12: false
+  P3_p13: false
+  P3_p14: false
+  P4_p1: false
+  P4_p2: false
+  P4_p3: false
+  P4_p4: false
+  P4_p5: false
+  P4_p6: false
+  P4_p7: false
+  P4_p8: false
+  P4_p9: false
+  P4_p10: false
+  P4_p11: false
+  P4_p12: false
+  P4_p13: false
+  P4_p14: false
