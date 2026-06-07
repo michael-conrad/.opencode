@@ -95,6 +95,8 @@ git -C .issues pull --rebase origin issues-data
 
 This is the ONLY manual `git -C .issues` command needed.
 
+> **Cross-reference:** [`lessons-learned/`](lessons-learned/) — per-session correction catalogs for systemic defect patterns. Agents read this at session start per §When to Read below.
+
 ## Directory Layout
 
 ```

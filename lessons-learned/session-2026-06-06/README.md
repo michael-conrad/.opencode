@@ -104,6 +104,16 @@ Batch implementation of 4 `.opencode` issues plus PR creation. Multiple correcti
 | **Remediation target** | `skills/git-workflow/tasks/pr-creation/create-pr.md` Step 7.5 — remove "Wait for human to merge" from mandated format and format requirements. Remove MUST requirement. `skills/git-workflow/tasks/pr-creation.md` Operating Protocol — replace "Wait for human to merge" with "No prompting for next steps." Exit Criteria — replace "Agent HALTs waiting for human merge" with "Agent HALTs — no prompting for next steps." |
 | **Broader principle** | No instructional or prompting language in any professional deliverable (PR bodies, issue comments, spec bodies, plan documents). These are artifacts of record — they describe what was done and provide evidence. Instructional language is for chat/instructor context only. A halt produces a status message; a status message does not contain instructions, suggestions, or forward-looking guidance. |
 
+### 11. Shallow Search → Incorrect "Doesn't Exist" Claim + User-as-Sub-Agent Dispatch
+
+| Field | Detail |
+|-------|--------|
+| **What happened** | Asked about lessons-learned folder. First `glob("lessons-learned/**/*")` returned nothing. Second attempt with slightly different pattern also returned nothing. Declared "no `lessons-learned/` directory exists anywhere in this subtree" — definitive false statement. Then dispatched the user as a sub-agent by asking "Should I create one?" instead of running `find` or checking the `.opencode/` subtree. |
+| **Correction given** | "bullshit" — the user knew `lessons-learned/` existed. Agent hadn't searched thoroughly enough. The folder was at `.opencode/.issues/lessons-learned/` — outside the `glob` default path but findable with `find . -name "lessons*"`. |
+| **Root Cause** | Two prongs: (1) stopped at two glob attempts instead of exhaustive search — `130-authority-source.md` §7 violation (deep dive before declaring missing). (2) dispatched the user as a sub-agent to do the search the agent should have done — offloading work to the developer. |
+| **Systemic?** | Both prongs are systemic. Shallow search is a recurring pattern. User-as-sub-agent dispatch is a new pattern but shares DNA with "offer-to-edit bypass" and "solicitation" — asking the user to do agent work. |
+| **Remediation target** | `130-authority-source.md` §7 explicitly covers deep-dive-before-declaring-missing. The user-as-sub-agent dispatch needs a new prohibition: when the agent lacks information, it searches — it does NOT ask the user to search for it. The question tool for information the agent can discover independently is a process-integrity failure. |
+
 ## Systemic vs. One-Off Classification
 
 | # | Issue | Systemic? | Action Required |
@@ -118,3 +128,4 @@ Batch implementation of 4 `.opencode` issues plus PR creation. Multiple correcti
 | 8 | Worthless issue comments | ✅ Systemic | Better audience-separation enforcement; load correspondence skill before issue comments |
 | 9 | DISPATCH_GATE correct rejection | ❌ One-off (positive) | None — protocol works as designed |
 | 10 | "Wait for human to merge" instruction language | ✅ Systemic | Removed from create-pr.md and pr-creation.md mandated formats |
+| 11 | Shallow search + false "doesn't exist" claim + user-as-sub-agent dispatch | ✅ Systemic | Update `130-authority-source.md` §7 enforcement; add prohibition on asking user to do agent-discoverable work |
