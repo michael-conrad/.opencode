@@ -1,0 +1,69 @@
+# Z3 Contract: #980 tools/plan Implementation Phases
+schema_version: "1.0"
+created: "2026-06-06"
+
+variables:
+  SKELETON_DONE:
+    type: bool
+    nullable: false
+  STATE_DONE:
+    type: bool
+    nullable: false
+  PARSER_DONE:
+    type: bool
+    nullable: false
+  PLAN_GEN_DONE:
+    type: bool
+    nullable: false
+  CYCLE_DET_DONE:
+    type: bool
+    nullable: false
+  VALIDATE_DONE:
+    type: bool
+    nullable: false
+  GROUND_DONE:
+    type: bool
+    nullable: false
+  PDDL_DONE:
+    type: bool
+    nullable: false
+  DISCOVER_DONE:
+    type: bool
+    nullable: false
+  INTEGRATION_DONE:
+    type: bool
+    nullable: false
+
+preconditions:
+  # Phase 1: Skeleton has no dependencies
+  # Phase 2: State is standalone
+  # Phase 3: Parser needs skeleton
+  - z3.Implies(PARSER_DONE == True, SKELETON_DONE == True)
+  # Phase 4: Plan gen needs parser
+  - z3.Implies(PLAN_GEN_DONE == True, z3.And(PARSER_DONE == True, STATE_DONE == True))
+  # Phase 5: Cycle detection needs parser
+  - z3.Implies(CYCLE_DET_DONE == True, PARSER_DONE == True)
+  # Phase 6: Validate needs parser + plan gen + cycle detection
+  - z3.Implies(VALIDATE_DONE == True, z3.And(PARSER_DONE == True, PLAN_GEN_DONE == True, CYCLE_DET_DONE == True))
+  # Phase 7: Ground needs parser
+  - z3.Implies(GROUND_DONE == True, PARSER_DONE == True)
+  # Phase 8: PDDL needs parser
+  - z3.Implies(PDDL_DONE == True, PARSER_DONE == True)
+  # Phase 9: Discover has no deps beyond skeleton (needs import)
+  - z3.Implies(DISCOVER_DONE == True, SKELETON_DONE == True)
+  # Phase 10: Integration needs all
+  - z3.Implies(INTEGRATION_DONE == True, z3.And(VALIDATE_DONE == True, GROUND_DONE == True, PDDL_DONE == True, DISCOVER_DONE == True))
+
+postconditions:
+  - SKELETON_DONE == True
+  - STATE_DONE == True
+  - PARSER_DONE == True
+  - PLAN_GEN_DONE == True
+  - CYCLE_DET_DONE == True
+  - VALIDATE_DONE == True
+  - GROUND_DONE == True
+  - PDDL_DONE == True
+  - DISCOVER_DONE == True
+  - INTEGRATION_DONE == True
+
+invariants: []

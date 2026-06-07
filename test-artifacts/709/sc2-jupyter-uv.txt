@@ -1,8 +1,0 @@
-DESCRIPTION: Jupyter server tools dispatcher. Usage: ./.opencode/tools/jupyter <action> [args...]
-Actions: start, stop
-Example: ./.opencode/tools/jupyter start
-
-Available actions:
-  start                — Start Jupyter server on port 18888 (XSRF disabled, no token) for notebook editing.
-  stop                 — Stop the Jupyter server running on port 18888.
-CWD: /home/muksihs/git/opencode-config

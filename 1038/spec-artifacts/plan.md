@@ -1,0 +1,102 @@
+# [PLAN] Inject tool listing into agent context via session-init
+
+**Issue**: #1038 — [SPEC] Inject tool listing into agent context via session-init instead of default.txt
+**Status**: DRAFT
+**Authorization scope**: `for_pr`
+
+---
+
+> **Pipeline checklist**: See [checklist.md](https://github.com/michael-conrad/.opencode/blob/issues-data/1038/spec-artifacts/checklist.md) for the full 12-phase execution plan (pre-work → PR creation → post-halt). The SC-to-item mapping and item definitions below are the plan content; the checklist provides the procedural execution order.
+
+## SC-to-Item Mapping
+
+| SC | Evidence Type | Item | Description | Verification |
+|----|--------------|------|-------------|-------------|
+| SC-1 | `string` | A | session-init stdout contains `## Agent Tools` section with tool listing | `grep -A 30 '## Agent Tools'` on session-init output |
+| SC-2 | `behavioral` | C | Agent answers tool-preference question using specific tool names from injected listing | `behavior_run` → evaluator reads stdout for `.opencode/tools/*` names |
+| SC-3 | `string` | B | Content-verification assertion in test-enforcement.sh | `--scenario session-init-tools-section` |
+
+## Dependency Order
+
+Item A first (emit the section). Item B second (test that the section exists). Item C third (behavioral test script — no file dependency on B, parallelizable after A).
+
+## Items
+
+### Item A: Add `## Agent Tools` emission to session-init (SC-1, prerequisite for SC-3)
+
+**File**: `.opencode/tools/session-init`
+
+**What must be achieved**: session-init stdout emits `## Agent Tools` section after `## Repo Information` with `./.opencode/tools/help` output.
+
+RED:
+- Verify session-init lacks section: `./.opencode/tools/session-init 2>/dev/null | grep -q '## Agent Tools'` → exit 1
+- If section exists: HALT — branch contaminated
+
+GREEN:
+- Add function to run `./.opencode/tools/help` and return output
+- Emit `## Agent Tools` section from `main()` after `## Repo Information`
+- On failure: emit section with error message, never silently omit
+- Path: resolve relative to `__file__` (existing sentinel pattern)
+
+VERIFY:
+- `grep -A 30 '## Agent Tools'` shows tool names
+- Developer/Email/Git branch/Repo Information sections intact
+- `ruff check --fix` and `pyright` pass
+
+REMEDIATION (2 attempts max, then HALT):
+- Missing section: check path resolution, subprocess error
+- Existing sections corrupted: revert and re-attempt
+
+### Item B: Add content-verification test (SC-3)
+
+**File**: `.opencode/tests/test-enforcement.sh`
+
+**What must be achieved**: SCENARIOS entry `session-init-tools-section` and FILE_SCENARIO_MAP registration.
+
+RED:
+- `grep -c 'session-init-tools-section' .opencode/tests/test-enforcement.sh` → 0
+- If already registered: HALT — branch contaminated
+
+GREEN:
+- Add SCENARIO entry for `session-init-tools-section`
+- Add FILE_SCENARIO_MAP entry for `tools/session-init`
+
+VERIFY:
+- `grep -c 'session-init-tools-section' .opencode/tests/test-enforcement.sh` → 2 (SCENARIOS + FILE_SCENARIO_MAP)
+
+### Item C: Create behavioral test script for SC-2 (SC-2)
+
+**File**: `.opencode/tests/behaviors/tool-injection-red.sh`
+
+**What must be achieved**: Behavioral test script that runs agent against prompt "what tools are preferred to grep, cat, find, sed" and produces artifacts for evaluation.
+
+RED:
+- `ls .opencode/tests/behaviors/tool-injection-red.sh` → exit 1 (file must not exist)
+- If file exists: HALT — branch contaminated
+
+GREEN:
+- Create behavioral test script following AGENTS.md template (artifact-only generator)
+- Script sources helpers.sh, calls behavior_run, exits 0
+
+VERIFY:
+- `grep -q 'SCENARIO_PROMPT="what tools are preferred' .opencode/tests/behaviors/tool-injection-red.sh` → exit 0
+- `grep -q 'behavior_run' .opencode/tests/behaviors/tool-injection-red.sh` → exit 0
+- SPDX header, cross-reference header present
+
+## Execution Order
+
+See the [pipeline checklist](https://github.com/michael-conrad/.opencode/blob/issues-data/1038/spec-artifacts/checklist.md) for the full procedural execution sequence (12 phases from pre-work through post-halt). The item TDD cycles below map to Phase 5 of the checklist:
+
+1. Item A: RED → GREEN → VERIFY (no commit)
+2. Item B: RED → GREEN → VERIFY (no commit)
+3. Item C: RED → GREEN → VERIFY (no commit)
+4. Single commit containing all changed files (Items A, B, C)
+
+## Final Verification Checklist
+
+- [ ] SC-1: `grep -q '## Agent Tools' <(./.opencode/tools/session-init 2>/dev/null)` → exit 0
+- [ ] SC-2 (behavioral): `bash .opencode/tests/behaviors/tool-injection-red.sh` produces artifacts; evaluator reads stdout for `.opencode/tools/*` names
+- [ ] SC-3: `bash .opencode/tests/test-enforcement.sh --scenario session-init-tools-section` → PASS
+- [ ] Lint: `ruff check --fix .opencode/tools/session-init` → clean
+- [ ] Typecheck: `pyright .opencode/tools/session-init` → clean
+- [ ] No default.txt changes (kept as-is per spec)

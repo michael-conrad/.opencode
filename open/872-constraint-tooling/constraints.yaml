@@ -1,0 +1,123 @@
+# Self-validation constraints for #872
+# This file validates the spec's own internal consistency.
+# The `solve` tool, once implemented, can verify this file is SAT.
+# These constraints encode the spec's Phase 1 requirements.
+
+constraints:
+  # === Engine migration ===
+  - name: engine_unified
+    expr: "Implies(rules_dispatchers_created, sympy_migrated_to_z3)"
+
+  # === Two dispatchers must be created ===
+  - name: rules_dispatcher_needed
+    expr: "rules_dispatchers_created"
+
+  - name: solve_tool_needed
+    expr: "solve_tool_created"
+
+  - name: both_dispatchers_or_neither
+    expr: "Eq(rules_dispatchers_created, solve_tool_created)"
+    scope: global
+
+  # === Dispatcher guards ===
+  - name: dispatcher_guard_needed
+    expr: "Implies(And(rules_dispatchers_created, solve_tool_created), dispatcher_guard_exists)"
+
+  # === Clean removal of old dispatcher ===
+  - name: symbolic_removed
+    expr: "Not(symbolic_dispatcher_exists)"
+    scope: global
+
+  - name: symbolic_removed_if_replaced
+    expr: "Implies(rules_dispatchers_created, Not(symbolic_dispatcher_exists))"
+
+  # === SymPy migration ===
+  - name: sympy_removed_if_migrated
+    expr: "Implies(sympy_migrated_to_z3, Not(sympy_engine_used))"
+
+  - name: z3_engine_active
+    expr: "Implies(sympy_migrated_to_z3, z3_engine_used)"
+    scope: global
+
+  # === Guideline must ship with tools ===
+  - name: guideline_with_tools
+    expr: "Eq(And(rules_dispatchers_created, solve_tool_created), guideline_created)"
+    scope: global
+
+  - name: guideline_has_triggers
+    expr: "Implies(guideline_created, guideline_triggers_exist)"
+
+  - name: guideline_covers_rules
+    expr: "Implies(guideline_created, guideline_has_rules_triggers)"
+
+  - name: guideline_covers_solve
+    expr: "Implies(guideline_created, guideline_has_solve_triggers)"
+
+  - name: no_dead_tooling
+    expr: "Implies(rules_dispatchers_created, guideline_created)"
+    scope: global
+
+  # === SC coverage — each SC has at least one item ===
+  - name: sc1_covered
+    expr: "Implies(sc1_item_done, And(sympy_migrated_to_z3, sym_scripts_renamed_to_rules))"
+
+  - name: sc2_covered
+    expr: "Implies(sc2_item_done, rules_dispatchers_created)"
+
+  - name: sc3_covered
+    expr: "Implies(sc3_item_done, solve_tool_created)"
+
+  - name: sc4_covered
+    expr: "Implies(sc4_item_done, solve_sat_output_valid)"
+
+  - name: sc5_covered
+    expr: "Implies(sc5_item_done, solve_unsat_output_valid)"
+
+  - name: sc6_covered
+    expr: "Implies(sc6_item_done, solve_timeout_works)"
+
+  - name: sc7_covered
+    expr: "Implies(sc7_item_done, Not(dispatcher_bypass_possible))"
+
+  - name: sc8_covered
+    expr: "Implies(sc8_item_done, And(solve_auto_loads_global, Or(no_global_skip, no_global_flag_active)))"
+
+  - name: sc9_covered
+    expr: "Implies(sc9_item_done, guideline_created)"
+
+  - name: sc10_covered
+    expr: "Implies(sc10_item_done, solve_parses_multi_constraint)"
+
+  - name: sc11_covered
+    expr: "Implies(sc11_item_done, rules_conflicts_z3_matches_sympy)"
+
+  - name: sc12_covered
+    expr: "Implies(sc12_item_done, behavioral_test_passes)"
+
+  # === Phase ordering — Phase 2 requires Phase 1 ===
+  - name: phase_ordering
+    expr: "Implies(phase_2_started, phase_1_complete)"
+    scope: global
+
+  # === All SCs for Phase 1 must be satisfiable together ===
+  - name: all_scs_satisfiable
+    expr: "And(sc1_item_done, sc2_item_done, sc3_item_done, sc4_item_done, sc5_item_done, sc6_item_done, sc7_item_done, sc8_item_done, sc9_item_done, sc10_item_done, sc11_item_done, sc12_item_done)"
+
+  # === Global invariants (scope: global) ===
+  - name: no_backwards_compat
+    expr: "Not(symbolic_dispatcher_exists)"
+
+  - name: z3_is_single_engine
+    expr: "Implies(z3_engine_used, Not(And(sympy_engine_used, pysat_engine_used, cvc5_engine_used)))"
+
+  - name: all_deps_in_pep723
+    expr: "Not(project_pyproject_changed)"
+
+  - name: artifacts_dir_exists
+    expr: "artifacts_dir_created"
+
+  - name: constraints_yaml_per_issue
+    expr: "Implies(constraints_yaml_schema_defined, constraints_yaml_alongside_spec_md)"
+
+track_unsat: true
+timeout_ms: 15000

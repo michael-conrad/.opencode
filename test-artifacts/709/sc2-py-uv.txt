@@ -1,9 +1,0 @@
-DESCRIPTION: Python source tools dispatcher. Usage: ./.opencode/tools/py <action> [args...]
-Actions: ls, mkpkg
-Example: ./.opencode/tools/py ls src/commons
-         ./.opencode/tools/py mkpkg src/commons/query
-
-Available actions:
-  ls                   — List packages and modules under a path (replaces `ls` for Python source trees).
-  mkpkg                — Create a Python package (directory + __init__.py). Creates all intermediate packages too.
-CWD: /home/muksihs/git/opencode-config

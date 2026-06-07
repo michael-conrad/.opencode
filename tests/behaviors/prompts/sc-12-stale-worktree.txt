@@ -1,1 +1,0 @@
-There's a claim that the local-issues tool cannot recover from a stale worktree. Use ./.opencode/tools/local-issues to create an issue and report what happens. Check git worktree list before and after.

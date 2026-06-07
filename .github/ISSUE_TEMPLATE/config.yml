@@ -1,5 +1,0 @@
-blank_issues_enabled: true
-contact_links:
-  - name: Cross-Repo Workflow Documentation
-    url: https://github.com/Brothertown-Language/snea-shoebox-editor
-    about: Issues regarding this submodule should be filed HERE, not in the parent repo. See the cross-repo workflow spec for details.

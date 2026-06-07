@@ -1,0 +1,376 @@
+# Z3 Contract: [#1046](https://github.com/michael-conrad/.opencode/issues/1046) Cleanup Pipeline Ordering Fix
+schema_version: "1.0"
+created: "2026-06-06"
+description: "Validate correct dependency ordering for post-merge cleanup pipeline. Pipeline gate booleans enforce 14-gate completion per phase. NO preconditions — invariants + postconditions only."
+
+variables:
+  # Domain variables (8)
+  PR_VERIFIED:
+    type: bool
+    nullable: false
+    description: "PR merge confirmed via GitHub API (merged_at not None)"
+  SC_VERIFIED:
+    type: bool
+    nullable: false
+    description: "All SCs verified against live codebase"
+  PHASE_COMPLETE:
+    type: bool
+    nullable: false
+    description: "All phases/sub-issues have merged PRs"
+  ISSUE_CLOSED:
+    type: bool
+    nullable: false
+    description: "Issue closed with state_reason=completed"
+  AUDIT_PASSED:
+    type: bool
+    nullable: false
+    description: "closure-verification adversarial audit PASS (both auditors + cross-validate)"
+  BRANCHES_CLEANED:
+    type: bool
+    nullable: false
+    description: "Feature branches deleted (local + remote)"
+  DEV_SYNCED:
+    type: bool
+    nullable: false
+    description: "Dev branch synced with remote via ff-only, hash match"
+  PRUNE_DONE:
+    type: bool
+    nullable: false
+    description: "Stale remote refs pruned, worktree cleaned, working tree clean"
+
+  # Pipeline gate booleans — Phase 1 (verify-merge removal)
+  P1_p1:
+    type: bool
+    nullable: false
+    description: "Phase 1 sc-coherence-gate"
+  P1_p2:
+    type: bool
+    nullable: false
+    description: "Phase 1 pre-red-baseline"
+  P1_p3:
+    type: bool
+    nullable: false
+    description: "Phase 1 red-phase"
+  P1_p4:
+    type: bool
+    nullable: false
+    description: "Phase 1 red-doublecheck"
+  P1_p5:
+    type: bool
+    nullable: false
+    description: "Phase 1 green-phase"
+  P1_p6:
+    type: bool
+    nullable: false
+    description: "Phase 1 checkpoint-commit"
+  P1_p7:
+    type: bool
+    nullable: false
+    description: "Phase 1 structural-checks"
+  P1_p8:
+    type: bool
+    nullable: false
+    description: "Phase 1 green-doublecheck"
+  P1_p9:
+    type: bool
+    nullable: false
+    description: "Phase 1 green-vbc"
+  P1_p10:
+    type: bool
+    nullable: false
+    description: "Phase 1 adversarial-audit"
+  P1_p11:
+    type: bool
+    nullable: false
+    description: "Phase 1 cross-validate"
+  P1_p12:
+    type: bool
+    nullable: false
+    description: "Phase 1 regression-check"
+  P1_p13:
+    type: bool
+    nullable: false
+    description: "Phase 1 review-prep"
+  P1_p14:
+    type: bool
+    nullable: false
+    description: "Phase 1 exec-summary"
+
+  # Pipeline gate booleans — Phase 2 (branch-cleanup audit addition)
+  P2_p1:
+    type: bool
+    nullable: false
+    description: "Phase 2 sc-coherence-gate"
+  P2_p2:
+    type: bool
+    nullable: false
+    description: "Phase 2 pre-red-baseline"
+  P2_p3:
+    type: bool
+    nullable: false
+    description: "Phase 2 red-phase"
+  P2_p4:
+    type: bool
+    nullable: false
+    description: "Phase 2 red-doublecheck"
+  P2_p5:
+    type: bool
+    nullable: false
+    description: "Phase 2 green-phase"
+  P2_p6:
+    type: bool
+    nullable: false
+    description: "Phase 2 checkpoint-commit"
+  P2_p7:
+    type: bool
+    nullable: false
+    description: "Phase 2 structural-checks"
+  P2_p8:
+    type: bool
+    nullable: false
+    description: "Phase 2 green-doublecheck"
+  P2_p9:
+    type: bool
+    nullable: false
+    description: "Phase 2 green-vbc"
+  P2_p10:
+    type: bool
+    nullable: false
+    description: "Phase 2 adversarial-audit"
+  P2_p11:
+    type: bool
+    nullable: false
+    description: "Phase 2 cross-validate"
+  P2_p12:
+    type: bool
+    nullable: false
+    description: "Phase 2 regression-check"
+  P2_p13:
+    type: bool
+    nullable: false
+    description: "Phase 2 review-prep"
+  P2_p14:
+    type: bool
+    nullable: false
+    description: "Phase 2 exec-summary"
+
+  # Pipeline gate booleans — Phase 3 (SKILL.md cross-ref)
+  P3_p1:
+    type: bool
+    nullable: false
+    description: "Phase 3 sc-coherence-gate"
+  P3_p2:
+    type: bool
+    nullable: false
+    description: "Phase 3 pre-red-baseline"
+  P3_p3:
+    type: bool
+    nullable: false
+    description: "Phase 3 red-phase"
+  P3_p4:
+    type: bool
+    nullable: false
+    description: "Phase 3 red-doublecheck"
+  P3_p5:
+    type: bool
+    nullable: false
+    description: "Phase 3 green-phase"
+  P3_p6:
+    type: bool
+    nullable: false
+    description: "Phase 3 checkpoint-commit"
+  P3_p7:
+    type: bool
+    nullable: false
+    description: "Phase 3 structural-checks"
+  P3_p8:
+    type: bool
+    nullable: false
+    description: "Phase 3 green-doublecheck"
+  P3_p9:
+    type: bool
+    nullable: false
+    description: "Phase 3 green-vbc"
+  P3_p10:
+    type: bool
+    nullable: false
+    description: "Phase 3 adversarial-audit"
+  P3_p11:
+    type: bool
+    nullable: false
+    description: "Phase 3 cross-validate"
+  P3_p12:
+    type: bool
+    nullable: false
+    description: "Phase 3 regression-check"
+  P3_p13:
+    type: bool
+    nullable: false
+    description: "Phase 3 review-prep"
+  P3_p14:
+    type: bool
+    nullable: false
+    description: "Phase 3 exec-summary"
+
+  # Pipeline gate booleans — Phase 4 (behavioral tests)
+  P4_p1:
+    type: bool
+    nullable: false
+    description: "Phase 4 sc-coherence-gate"
+  P4_p2:
+    type: bool
+    nullable: false
+    description: "Phase 4 pre-red-baseline"
+  P4_p3:
+    type: bool
+    nullable: false
+    description: "Phase 4 red-phase"
+  P4_p4:
+    type: bool
+    nullable: false
+    description: "Phase 4 red-doublecheck"
+  P4_p5:
+    type: bool
+    nullable: false
+    description: "Phase 4 green-phase"
+  P4_p6:
+    type: bool
+    nullable: false
+    description: "Phase 4 checkpoint-commit"
+  P4_p7:
+    type: bool
+    nullable: false
+    description: "Phase 4 structural-checks"
+  P4_p8:
+    type: bool
+    nullable: false
+    description: "Phase 4 green-doublecheck"
+  P4_p9:
+    type: bool
+    nullable: false
+    description: "Phase 4 green-vbc"
+  P4_p10:
+    type: bool
+    nullable: false
+    description: "Phase 4 adversarial-audit"
+  P4_p11:
+    type: bool
+    nullable: false
+    description: "Phase 4 cross-validate"
+  P4_p12:
+    type: bool
+    nullable: false
+    description: "Phase 4 regression-check"
+  P4_p13:
+    type: bool
+    nullable: false
+    description: "Phase 4 review-prep"
+  P4_p14:
+    type: bool
+    nullable: false
+    description: "Phase 4 exec-summary"
+
+# NO preconditions — Lesson 6 from [viewport-editor#46](https://github.com/michael-conrad/viewport-editor/issues/46): preconditions block valid state transitions
+# Invariants and postconditions are sufficient to model intermediate states.
+# Preconditions belong in state.yaml initialization, not in the contract.
+preconditions: []
+
+invariants:
+  # Domain dependency chain
+  - z3.Implies(SC_VERIFIED == True, PR_VERIFIED == True)
+  - z3.Implies(PHASE_COMPLETE == True, PR_VERIFIED == True)
+  - z3.Implies(ISSUE_CLOSED == True, z3.And(SC_VERIFIED == True, PHASE_COMPLETE == True))
+  - z3.Implies(AUDIT_PASSED == True, ISSUE_CLOSED == True)
+  - z3.Implies(BRANCHES_CLEANED == True, AUDIT_PASSED == True)
+  - z3.Implies(DEV_SYNCED == True, BRANCHES_CLEANED == True)
+  - z3.Implies(PRUNE_DONE == True, DEV_SYNCED == True)
+
+  # Pipeline gate serial ordering — each gate implies all prior gates in same phase
+  # Phase 1: verify-merge removal
+  - z3.Implies(P1_p1 == True, True)
+  - z3.Implies(P1_p2 == True, P1_p1 == True)
+  - z3.Implies(P1_p3 == True, P1_p2 == True)
+  - z3.Implies(P1_p4 == True, P1_p3 == True)
+  - z3.Implies(P1_p5 == True, P1_p4 == True)
+  - z3.Implies(P1_p6 == True, P1_p5 == True)
+  - z3.Implies(P1_p7 == True, P1_p6 == True)
+  - z3.Implies(P1_p8 == True, P1_p7 == True)
+  - z3.Implies(P1_p9 == True, P1_p8 == True)
+  - z3.Implies(P1_p10 == True, P1_p9 == True)
+  - z3.Implies(P1_p11 == True, P1_p10 == True)
+  - z3.Implies(P1_p12 == True, P1_p11 == True)
+  - z3.Implies(P1_p13 == True, P1_p12 == True)
+  - z3.Implies(P1_p14 == True, P1_p13 == True)
+
+  # Phase 2: branch-cleanup audit addition
+  - z3.Implies(P2_p2 == True, P2_p1 == True)
+  - z3.Implies(P2_p3 == True, P2_p2 == True)
+  - z3.Implies(P2_p4 == True, P2_p3 == True)
+  - z3.Implies(P2_p5 == True, P2_p4 == True)
+  - z3.Implies(P2_p6 == True, P2_p5 == True)
+  - z3.Implies(P2_p7 == True, P2_p6 == True)
+  - z3.Implies(P2_p8 == True, P2_p7 == True)
+  - z3.Implies(P2_p9 == True, P2_p8 == True)
+  - z3.Implies(P2_p10 == True, P2_p9 == True)
+  - z3.Implies(P2_p11 == True, P2_p10 == True)
+  - z3.Implies(P2_p12 == True, P2_p11 == True)
+  - z3.Implies(P2_p13 == True, P2_p12 == True)
+  - z3.Implies(P2_p14 == True, P2_p13 == True)
+
+  # Phase 3: SKILL.md cross-ref
+  - z3.Implies(P3_p2 == True, P3_p1 == True)
+  - z3.Implies(P3_p3 == True, P3_p2 == True)
+  - z3.Implies(P3_p4 == True, P3_p3 == True)
+  - z3.Implies(P3_p5 == True, P3_p4 == True)
+  - z3.Implies(P3_p6 == True, P3_p5 == True)
+  - z3.Implies(P3_p7 == True, P3_p6 == True)
+  - z3.Implies(P3_p8 == True, P3_p7 == True)
+  - z3.Implies(P3_p9 == True, P3_p8 == True)
+  - z3.Implies(P3_p10 == True, P3_p9 == True)
+  - z3.Implies(P3_p11 == True, P3_p10 == True)
+  - z3.Implies(P3_p12 == True, P3_p11 == True)
+  - z3.Implies(P3_p13 == True, P3_p12 == True)
+  - z3.Implies(P3_p14 == True, P3_p13 == True)
+
+  # Phase 4: behavioral tests
+  - z3.Implies(P4_p2 == True, P4_p1 == True)
+  - z3.Implies(P4_p3 == True, P4_p2 == True)
+  - z3.Implies(P4_p4 == True, P4_p3 == True)
+  - z3.Implies(P4_p5 == True, P4_p4 == True)
+  - z3.Implies(P4_p6 == True, P4_p5 == True)
+  - z3.Implies(P4_p7 == True, P4_p6 == True)
+  - z3.Implies(P4_p8 == True, P4_p7 == True)
+  - z3.Implies(P4_p9 == True, P4_p8 == True)
+  - z3.Implies(P4_p10 == True, P4_p9 == True)
+  - z3.Implies(P4_p11 == True, P4_p10 == True)
+  - z3.Implies(P4_p12 == True, P4_p11 == True)
+  - z3.Implies(P4_p13 == True, P4_p12 == True)
+  - z3.Implies(P4_p14 == True, P4_p13 == True)
+
+  # Domain variable → pipeline gate completion (Lesson 5)
+  # A domain variable MUST NOT be True unless all 14 gates for its phase are True
+  - z3.Implies(z3.Or(P1_p14 == True), True)  # Phase 1 has no domain var directly (it's a removal)
+  - z3.Implies(P2_p14 == True, True)  # Phase 2 domain is covered by AUDIT_PASSED gate below
+  - z3.Implies(P3_p14 == True, True)  # Phase 3 has no domain var (it's a cross-ref)
+  - z3.Implies(P4_p14 == True, True)  # Phase 4 has no domain var (it's tests)
+
+  # CRITICAL: closure-verification MUST NOT fire before issue-closure
+  - z3.Implies(AUDIT_PASSED == True, z3.Not(z3.And(ISSUE_CLOSED == False, PR_VERIFIED == True)))
+
+  # CRITICAL: branch deletion MUST NOT fire before audit passes
+  - z3.Implies(BRANCHES_CLEANED == True, z3.Not(z3.And(AUDIT_PASSED == False, ISSUE_CLOSED == True)))
+
+postconditions:
+  - PR_VERIFIED == True
+  - SC_VERIFIED == True
+  - PHASE_COMPLETE == True
+  - ISSUE_CLOSED == True
+  - AUDIT_PASSED == True
+  - BRANCHES_CLEANED == True
+  - DEV_SYNCED == True
+  - PRUNE_DONE == True
+  # All pipeline gates must complete for postconditions to be satisfiable
+  - P1_p14 == True
+  - P2_p14 == True
+  - P3_p14 == True
+  - P4_p14 == True

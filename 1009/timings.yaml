@@ -1,0 +1,28 @@
+# RED test timings
+# Generated 2026-06-04
+# All times in seconds (wall clock from dispatch to artifact completion)
+
+tests:
+  - sc: 1
+    type: string
+    duration: 1
+    result: RED
+    notes: grep check, no model needed
+
+  - sc: 2
+    type: behavioral
+    duration: 378
+    result: RED
+    notes: first run completed at 378s; second run also completed (both exit_code 0, 0 diff-audit refs)
+
+  - sc: 3
+    type: behavioral
+    duration: 307
+    result: RED
+    notes: first run completed; second run completed (0 diff-audit, 0 solve refs total)
+
+  - sc: 4
+    type: behavioral
+    duration: 660
+    result: RED
+    notes: first run timed out at 600s; retry at 900s completed at ~660s (0 diff-audit refs)
