@@ -43,17 +43,104 @@ Valid behavioral enforcement tests use **stderr-based assertion helpers** (`asse
 
 When creating the behavioral test success criterion, ensure it mandates real-domain prompts and stderr-based assertions, not prose-recall prompts.
 
+### Pre-Step 0.8: Remote Stub Creation (SC-22)
+
+After the card catalogue is complete but before requirements extraction begins, dispatch a routed `local-issues create` call with a minimal exec summary:
+
+1. Dispatch: `.opencode/tools/local-issues create --title "<spec-title>" --labels SPEC`
+2. Capture the returned issue number `N` — this number is used for all subsequent:
+   - Local paths (`.issues/{N}/`)
+   - Spec body cross-references
+   - Artifact directories (`spec-artifacts/`)
+3. The stub body MUST be minimal: title + dependency list + "Full spec forthcoming at `.issues/{N}/`"
+4. The stub body is later replaced with the full exec summary in Step 7b
+
+**Rationale:** Creating the remote stub early establishes the issue number that all downstream paths depend on. Waiting until Step 7 means artifact directories, cross-references, and spec folder URLs cannot reference the final issue number during spec creation. The stub body is explicitly temporary — Step 7b replaces it with the final exec summary.
+
 ### Step 1: Assemble Spec
 
 Combine outputs from prerequisite tasks into a coherent spec. The spec should address the following content areas — the agent decides which sections to use and how to organize them:
 
 - **Objectives and goals** — What this spec achieves
+- **Explicit Non-Goals** — MUST be present (mandatory, not optional). Template header followed by bullet list of exclusions.
+- **Regression Invariants** — MUST be present (mandatory, not optional), appearing directly after Explicit Non-Goals. Numbered list of things that MUST NOT change.
 - **Constraints and scope** — What's in and out of scope
 - **Success criteria** — Testable, binary pass/fail conditions
 - **Risk and edge cases** — What could go wrong and boundary conditions
 - **Implementation approach** — For the reader's understanding, not prescribing HOW (see Step 5.5)
 
-Skip areas that don't apply to simple specs; add areas that do. The spec should be self-contained and clear, regardless of structure.
+Skip areas that don't apply to simple specs; add areas that do. **Exception:** Explicit Non-Goals and Regression Invariants are mandatory for ALL specs regardless of complexity. The spec should be self-contained and clear, regardless of structure.
+
+### Preamble Section: Decision Ledger (SC-8)
+
+Records architectural decisions with stable identifiers and explicit requirement obligation levels. Each decision MUST carry a DEC-ID and a table mapping requirement keys (MUST/SHOULD/MAY per RFC 2119) to their functional areas.
+
+```markdown
+### Decision Ledger
+
+| DEC-ID | Decision | Rationale | MUST | SHOULD | MAY |
+|--------|----------|-----------|------|--------|-----|
+| DEC-1 | Use polling over webhooks | Simpler deployment, no external endpoint requirement | Poll interval ≤ 30s | Configurable poll interval | Dynamic interval adjustment |
+| DEC-2 | Single-process architecture | Avoid distributed complexity for v1 | All state in memory | WAL for crash recovery | Cluster mode |
+```
+
+### Preamble Section: Risk Traceability Table (SC-9)
+
+Maps identified risks to specific success criteria. Each risk MUST carry a RISK-ID and a Verifying SC column that binds the risk to exactly one SC.
+
+```markdown
+### Risk Traceability
+
+| RISK-ID | Risk Description | Likelihood | Impact | Mitigation | Verifying SC |
+|---------|-----------------|------------|--------|------------|--------------|
+| RISK-1 | Upstream API rate limit exceeded | Medium | High | Implement backoff + circuit breaker | SC-3 |
+| RISK-2 | State corruption on partial write | Low | Critical | Atomic batch operations + rollback | SC-7 |
+```
+
+### Preamble Section: Revision Policy (SC-10)
+
+Declares which dependent artifacts MUST be revised when this spec is revised. When a parent spec is revised, the cascade defines which downstream artifacts are affected and what action is required.
+
+```markdown
+### Revision Policy
+
+| Artifact | Cascade Action | Trigger |
+|----------|---------------|---------|
+| Implementation plan | MUST be revised | Any SC change |
+| Sub-issues | MUST be revised | Phase structure change |
+| Behavioral enforcement tests | MUST be revised | SC verification method change |
+| Dependency contracts | MUST be revised | Integration mode or gate change |
+```
+
+### Preamble Section: Decomposition Classification (SC-18)
+
+Distinguishes single-task specs from multi-phase specs. The classification determines sub-issue requirements, PR strategy, and authorization scope behavior.
+
+| Criterion | Single-Task | Multi-Phase |
+|-----------|-------------|-------------|
+| Number of phases | 1 | 2+ |
+| Sub-issues required | No | Yes — one per phase |
+| PR strategy | One commit, one PR | Stacked PR or sequential PRs per phase |
+| Authorization scope | Single scope covers all work | Cascade to all sub-issues |
+| Phase dependency | None — all work independent | Sequential — phase N depends on phase N-1 |
+
+Include the applicable classification as a `**Classification:** single-task` or `**Classification:** multi-phase` line in the spec preamble.
+
+### Preamble Section: Spec Family Annotation (SC-19)
+
+Optional annotation for specs that reuse the same structure across multiple related issues. Allows selecting a subset of preamble sections via a selector syntax rather than duplicating content.
+
+```markdown
+**Spec Family:** `spec-family/http-handler`
+**Selector syntax:** `<preamble-section>:[include|exclude]`
+**Selected sections:**
+- `decision-ledger: include`
+- `risk-traceability: include`
+- `revision-policy: exclude`
+- `decomposition-classification: include`
+```
+
+When a spec family is declared, the spec author MUST include at least one preamble section. The selector syntax controls per-issue inclusion without modifying the shared spec family template. If `Spec Family Annotation` is absent, all preamble sections present in the spec apply normally.
 
 A **Documentation Sources** section documents where the spec author verified factual claims. This is especially important for specs making claims about code behavior, config schemas, or API signatures. Place it before the AI byline section.
 
@@ -81,6 +168,36 @@ A **Documentation Sources** section documents where the spec author verified fac
 ```
 
 Simple specs may skip this section. Standard and complex specs SHOULD include it when making factual claims that require verification.
+
+### Preamble Section: Explicit Non-Goals (SC-11) — MANDATORY
+
+**Every spec MUST include an `## Explicit Non-Goals` section.** This is not optional. Non-goals are what the spec explicitly WILL NOT address, distinguished from out-of-scope items (which are merely unaddressed) by being deliberately excluded.
+
+```markdown
+## Explicit Non-Goals
+
+- **High availability:** This implementation does not include HA/failover. Single-node only.
+- **Multi-tenancy:** User isolation and tenant-specific configuration are not addressed.
+- **Audit logging:** Operational audit trails are excluded from this scope.
+- **Internationalization:** All user-facing text is English-only.
+```
+
+Non-goals protect against scope creep by making exclusions explicit. They also frame validation expectations — reviewers know what NOT to expect.
+
+### Preamble Section: Regression Invariants (SC-12) — MANDATORY
+
+**Every spec MUST include a `## Regression Invariants` section appearing directly after Explicit Non-Goals.** Numbered list of things that MUST NOT change under any implementation of this spec.
+
+```markdown
+## Regression Invariants
+
+1. **Public API signatures MUST NOT change** — All exported function signatures, method names, and parameter contracts remain stable.
+2. **Storage schema MUST remain backward-compatible** — No column removals, data type changes, or constraint relaxations that would break existing readers.
+3. **Default behavior for unconfigured systems MUST NOT change** — An unconfigured deployment behaves identically before and after the change.
+4. **Error exit codes MUST NOT be reassigned** — Exit code 2 means "feature removed", not "validation failure".
+```
+
+Each invariant carries a use-case rationale explaining why it cannot change. Invariants are verified during the Regression Gate of the verification pipeline.
 
 ### Step 1a: Forward-Looking Mandate (SC-1/SC-4)
 
@@ -133,11 +250,28 @@ Review every requirement statement:
 | Remediated SC | Re-verified independently — same PASS/FAIL gate applies; no carryover credit from prior passes |
 | Re-verification | Repeat the verification command/assertion; confirm PASS before claiming remediation complete |
 
-**SC Table Format (4-column):**
+**SC Table Format (12-column):**
 
-| ID | Criterion | Verification Method | Remediation |
-|----|-----------|-------------------|-------------|
-| SC-1 | ... | Executable command/assertion producing deterministic PASS/FAIL | What corrective action is required on FAIL, including re-verification procedure |
+| ID | Criterion | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step |
+|----|-----------|-------------------|-------------|-----------------------|---------------|--------------------------|---------------|-------------------|-----------------|----------------|---------------|
+| SC-1 | ... | Executable command/assertion producing deterministic PASS/FAIL | What corrective action is required on FAIL, including re-verification procedure | Step where SC is verified (e.g., write, requirements, diagram) | `./tmp/{issue-N}/` — verification artifact path | RFC 2119 key: MUST/SHOULD/MAY — **mandatory ALL tiers** | Phase ID (multi-phase only; absent for single-task) | Gate tier: red-green, pre-commit, ci | Required when Gate=ci; optional otherwise | Optional; SCs sharing test fixture | **Mandatory ALL tiers** — re-entry semantics |
+
+**Column Conditions:**
+
+| Column | Condition | Details |
+|--------|-----------|---------|
+| ID | Mandatory | Sequential SC identifier |
+| Criterion | Mandatory | Binary pass/fail requirement statement |
+| Verification Method | Mandatory | Executable command/assertion producing deterministic PASS/FAIL |
+| Remediation | Mandatory | Corrective action on FAIL, including re-verification procedure |
+| Pipeline Step Binding | Mandatory | Binds SC to the pipeline step that produces or verifies it (write, requirements, diagram, etc.) |
+| Artifact Path | Mandatory | Path to the verification artifact using `./tmp/{issue-N}/` convention |
+| Requirement Traceability | **MUST** (RFC 2119) | Requirement key declaring implementation obligation — mandatory for ALL tiers |
+| Phase Binding | Conditional | Multi-phase specs only; absent for single-task specs |
+| Verification Gate | Mandatory | 3 tiers: **red-green** (per-item unit test), **pre-commit** (integration check), **ci** (full pipeline) |
+| Integration Mode | Conditional | Required when Gate=ci; optional for red-green and pre-commit |
+| Affinity Group | Optional | Groups SCs sharing a verification setup (e.g., same test fixture) |
+| Re-Entry Step | **MUST** (RFC 2119) | Documents re-entry semantics on FAIL — mandatory for ALL tiers; specifies which pipeline step to re-enter on remediation |
 
 **The Verification Method column MUST specify an executable command or assertion producing deterministic PASS/FAIL. The Remediation column MUST specify what corrective action is required on FAIL and how re-verification is performed.**
 
@@ -157,6 +291,26 @@ The declared evidence type in the SC table MUST reflect the classification quest
 **Remediation:** If the agent classifies an SC as structural/string for a runtime-behavioral change, the VbC pre-flight classification gate will uplift it to behavioral anyway. Classifying correctly at authorship time prevents downstream rework.
 
 **Authority:** `guidelines/000-critical-rules.md` §critical-rules-BEH-EV, `guidelines/080-code-standards.md` §Evidence Type Taxonomy
+
+### Cross-cutting / Common SC Designation (SC-15)
+
+When a success criterion applies across multiple phases or components, annotate it with a `[COMMON]` prefix in the Criterion column. Common SCs share a verification budget — they MUST pass once for all phases, and a single verification artifact suffices regardless of phase count.
+
+```markdown
+| ID | Criterion | Verification Method | ... |
+|----|-----------|-------------------|-----|
+| SC-3 | [COMMON] API rate limit backoff MUST activate within configured threshold | ... |
+```
+
+**Semantics:**
+- **Single PASS suffices** — ONE verification run covers ALL phases. Do not re-verify per phase.
+- **Shared verification budget** — Cost of a single behavioral test is split across all phases.
+- **FAIL blocks all phases** — A [COMMON] SC that fails blocks the entire pipeline, not just the current phase.
+- **Preamble annotation alternative:** For specs where many SCs are cross-cutting, use a preamble block listing all common SCs by ID instead of per-row annotations:
+
+```markdown
+**Cross-cutting SCs:** SC-3, SC-7, SC-11 — verified once, apply to all phases.
+```
 
 <!-- Fragment ID: sc-enforcement-gate -->
 
@@ -193,7 +347,7 @@ If the answer is "no", the SC must be rewritten.
 
 **Content coverage matters more than section structure.** The agent chooses the optimal structure for the spec's complexity:
 
-- **Minimal specs** (bug fixes, one-file changes): May use a minimal format — Problem, Context, Fix, Criteria, Edge Cases — all in flowing prose without section headers. Preamble is optional.
+- **Minimal specs** (bug fixes, one-file changes): May use a minimal format — Problem, Context, Non-Goals, Invariants, Fix, Criteria, Edge Cases — all in flowing prose without section headers. Preamble is optional except Explicit Non-Goals and Regression Invariants (mandatory).
 - **Standard specs** (multi-file changes): May use typical sections — Intent and Executive Summary (mandatory), Objective, Problem, Context, Fix Approach, Success Criteria, Edge Cases. Include a `## Intent and Executive Summary` preamble with the 5 fields (Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions) before the Objective section.
 - **Complex specs** (cross-cutting, multi-phase): May use full structure — Intent and Executive Summary (mandatory), Objective, Problem, Context, Affected Files, Fix Approach, Success Criteria, Edge Cases, Dependencies, Risk, Decision Rationale, Phases. Preamble is mandatory.
 
@@ -223,6 +377,8 @@ After writing the spec, review with fresh eyes:
 2. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
 3. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
 4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
+5. **SC-to-SC coherence check (SC-13):** Verify that no two SCs contradict each other (e.g., SC-A says "MUST reject X" and SC-B says "MUST accept X"). Perform a pairwise comparison scan across all SCs in the success criteria table.
+6. **Verification-Method-to-Artifact-Path consistency check (SC-14):** Verify that each SC's Artifact Path column value is consistent with its Verification Method column (e.g., if Verification Method references a tool, Artifact Path references the same file or directory). Perform a cross-column comparison across all SCs.
 
 Fix any issues inline. No need to re-review — just fix and move on.
 
@@ -240,6 +396,8 @@ Fix any issues inline. No need to re-review — just fix and move on.
 | Internal consistency | Cross-reference requirement IDs between sections; verify no contradictions | `issue-operations -> read-issue (github_issue_read(method=get)` → parse section anchors vs referenced IDs | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
 | Scope check evidence | Verify scope is appropriate for single plan or flagged for decomposition | `issue-operations -> read-issue (github_issue_read(method=get)` → count affected files, check for phase markers | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
 | Ambiguity resolved | Verify no requirement can be interpreted two ways | `issue-operations -> read-issue (github_issue_read(method=get)` → scan for "should", "etc.", vague terms | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
+| SC-to-SC coherence (SC-13) | Pairwise comparison of all SCs for contradictions | `issue-operations -> read-issue (github_issue_read(method=get)` → parse SC table rows, compare requirement statements pairwise for conflict | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
+| Verification-Method-to-Artifact-Path consistency (SC-14) | Cross-column consistency check per SC | `issue-operations -> read-issue (github_issue_read(method=get)` → parse Verification Method vs Artifact Path columns, match tool/file references across each row | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
 
 **Evidence format:**
 
@@ -259,6 +417,8 @@ Action: [auto-fix|conditional|flag-for-review]
 | Contradictory requirements across sections | CONFLICTING | flag-for-review | Report, do not auto-resolve |
 | Scope too large for single plan | VERIFICATION-GAP | conditional | Flag decomposition, then apply if confirmed |
 | Vague/ambiguous terms present | STRUCTURE-VIOLATION | auto-fix | Replace with measurable terms |
+| Contradictory SC requirements (SC-13) | CONFLICTING | flag-for-review | Report both SCs with contradiction summary |
+| Verification-Method/Artifact-Path mismatch (SC-14) | VERIFICATION-GAP | conditional | Flag mismatch, apply fix if path is clearly wrong |
 
 **These verifications are MANDATORY after self-review. Skipping them is a CRITICAL GUIDELINE VIOLATION.**
 
@@ -306,6 +466,41 @@ Invoke `issue-operations` skill to persist the spec as a GitHub Issue:
 - Dump full spec content to chat as the "review" step
 - Claim spec is "written" without a GitHub Issue URL
 - Ask the user to review the spec in chat
+
+### Step 7a: Exec Summary Format Rules (SC-20)
+
+The exec summary pushed to the remote platform MUST conform to the following format rules. These constraints ensure the summary remains a concise user-facing document, not a project tracker.
+
+**Format constraints:**
+
+- **No checkboxes** — the exec summary is a narrative summary, not a task tracker
+- **No status markers** — no `[DONE]`, `[PENDING]`, `[BLOCKED]`, or completion flags in the summary body. Status belongs on the issue labels, not in prose
+- **No completion flags** — do not declare items as "complete", "implemented", or "verified" in the summary
+- **Cards listed in dependency order** — reference each card from the card catalogue in dependency sequence, with SC count + evidence type breakdown per card
+- **Key Decisions section** — present and stable, capturing architectural decisions with DEC-IDs
+- **Risk Callouts section** — present and stable, capturing RISK-IDs and their mitigation status
+
+**Rules table:**
+
+| Rule | Description | Rationale | Violation |
+|------|-------------|-----------|-----------|
+| No checkboxes | Exec summary uses prose, not task lists | Checkboxes imply trackable sub-tasks that belong on the issue tracker, not the summary | STRUCTURE-VIOLATION |
+| No status markers | No `[DONE]`/`[PENDING]`/`[BLOCKED]` in body | Status markers fragment narrative flow and create a false sense of tracking. Labels and issue state handle status | STRUCTURE-VIOLATION |
+| No completion flags | No "completed", "implemented", "verified" in summary | Completion assertions in the summary body contradict the spec's forward-looking mandate. Verification status belongs in pipeline artifacts | STRUCTURE-VIOLATION |
+| Dependency-ordered cards | Cards listed in spec-artifact dependency order | Dependency order preserves the implementation sequence — reviewers see what depends on what | STRUCTURE-VIOLATION |
+| SC count + type breakdown | Per card: how many SCs, each with evidence type | Evidence type determines verification cost and gate position — exposing it per card enables reviewer risk assessment | STRUCTURE-VIOLATION |
+| Key Decisions present | DEC-ID section with MUST/SHOULD/MAY mappings | Architectural decisions documented in the preamble must be visible in the summary for reviewer context | STRUCTURE-VIOLATION |
+| Risk Callouts present | RISK-ID section with mitigation status | Risks identified in the preamble carry through to the summary so reviewers can assess residual exposure | STRUCTURE-VIOLATION |
+
+### Step 7b: Local Mirror Persistence (SC-21)
+
+After the exec summary is pushed to the remote platform, save a local mirror at `.issues/{N}/remote-exec-summary.md`:
+
+1. Copy the final exec summary (from Step 7 chat output format) to `.issues/{N}/remote-exec-summary.md`
+2. The mirror is updated whenever the remote body is updated (re-run this step after any revision)
+3. The mirror is NEVER the authoritative spec — it is a maintenance convenience copy
+
+**Authoritative spec location:** `.issues/{N}/spec.md` is ALWAYS the authoritative spec. The `remote-exec-summary.md` mirror exists for offline reference and diff tracking between versions. Never edit the remote body alone — always update `.issues/{N}/spec.md` first, then sync to the remote issue body, then update the mirror.
 
 ### Step 8: User Review on Issue
 
