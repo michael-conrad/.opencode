@@ -29,6 +29,7 @@ Co-authored with AI: OpenCode (deepseek-v4-flash)
 """
 
 import argparse
+import difflib
 import re
 import sys
 from datetime import datetime, timezone
@@ -148,6 +149,226 @@ def _parse_expression(
 # ---------------------------------------------------------------------------
 # Problem builder from YAML schema
 # ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# Schema validation
+# ---------------------------------------------------------------------------
+
+
+_KNOWN_TOP_LEVEL_KEYS = {"domain", "types", "objects", "fluents", "actions", "init", "goals"}
+_KNOWN_ACTION_KEYS = {"name", "params", "preconditions", "effects"}
+_KNOWN_FLUENT_KEYS = {"name", "params", "type"}
+_KNOWN_OBJECT_KEYS = {"name", "type"}
+_KNOWN_TYPE_KEYS = {"name"}
+
+
+def _section_snippet(section: str) -> str:
+    """Return a 3-5 line YAML snippet showing correct structure for a section."""
+    snippets = {
+        "actions": (
+            "actions:\n"
+            "  - name: <action-name>\n"
+            "    params:\n"
+            "      - name: <param>\n"
+            "        type: <type>\n"
+            "    preconditions:\n"
+            "      - <fluent-expr>\n"
+            "    effects:\n"
+            "      - <fluent-expr>"
+        ),
+        "fluents": (
+            "fluents:\n"
+            "  - name: <fluent-name>\n"
+            "    params:\n"
+            "      - name: <param>\n"
+            "        type: <type>"
+        ),
+        "objects": (
+            "objects:\n"
+            "  - name: <object-name>\n"
+            "    type: <type>"
+        ),
+        "types": (
+            "types:\n"
+            "  - name: <type-name>"
+        ),
+    }
+    return snippets.get(section, f"{section}:\n  # ... entries ...")
+
+
+def _validate_schema(schema: dict) -> None:
+    errors: list[str] = []
+
+    # 1. Top-level keys
+    top_keys = set(schema.keys())
+    unknown_top = top_keys - _KNOWN_TOP_LEVEL_KEYS
+    for k in sorted(unknown_top):
+        suggestions = difflib.get_close_matches(k, _KNOWN_TOP_LEVEL_KEYS, n=1, cutoff=0.6)
+        hint = f" Did you mean '{suggestions[0]}'?" if suggestions else ""
+        errors.append(f"ERROR: unknown top-level key '{k}'.{hint}")
+
+    # 2. Action keys
+    for ad in schema.get("actions", []):
+        aname = ad.get("name", "<unnamed>")
+        akeys = set(ad.keys())
+        unknown_akeys = akeys - _KNOWN_ACTION_KEYS
+        for k in sorted(unknown_akeys):
+            suggestions = difflib.get_close_matches(k, _KNOWN_ACTION_KEYS, n=1, cutoff=0.6)
+            hint = f" Did you mean '{suggestions[0]}'?" if suggestions else ""
+            errors.append(
+                f"ERROR: action '{aname}' has unknown key '{k}'.{hint}"
+            )
+            errors.append(_section_snippet("actions"))
+
+    # 3. Fluent keys
+    for fd in schema.get("fluents", []):
+        fname = fd.get("name", "<unnamed>")
+        fkeys = set(fd.keys())
+        unknown_fkeys = fkeys - _KNOWN_FLUENT_KEYS
+        for k in sorted(unknown_fkeys):
+            suggestions = difflib.get_close_matches(k, _KNOWN_FLUENT_KEYS, n=1, cutoff=0.6)
+            hint = f" Did you mean '{suggestions[0]}'?" if suggestions else ""
+            errors.append(
+                f"ERROR: fluent '{fname}' has unknown key '{k}'.{hint}"
+            )
+            errors.append(_section_snippet("fluents"))
+
+    # 4. Object keys
+    for od in schema.get("objects", []):
+        oname = od.get("name", "<unnamed>")
+        okeys = set(od.keys())
+        unknown_okeys = okeys - _KNOWN_OBJECT_KEYS
+        for k in sorted(unknown_okeys):
+            suggestions = difflib.get_close_matches(k, _KNOWN_OBJECT_KEYS, n=1, cutoff=0.6)
+            hint = f" Did you mean '{suggestions[0]}'?" if suggestions else ""
+            errors.append(
+                f"ERROR: object '{oname}' has unknown key '{k}'.{hint}"
+            )
+            errors.append(_section_snippet("objects"))
+
+    # 5. Type keys
+    for td in schema.get("types", []):
+        tname = td.get("name", "<unnamed>")
+        tkeys = set(td.keys())
+        unknown_tkeys = tkeys - _KNOWN_TYPE_KEYS
+        for k in sorted(unknown_tkeys):
+            suggestions = difflib.get_close_matches(k, _KNOWN_TYPE_KEYS, n=1, cutoff=0.6)
+            hint = f" Did you mean '{suggestions[0]}'?" if suggestions else ""
+            errors.append(
+                f"ERROR: type '{tname}' has unknown key '{k}'.{hint}"
+            )
+            errors.append(_section_snippet("types"))
+
+    if errors:
+        for err in errors:
+            print(err, file=sys.stderr)
+        sys.exit(1)
+
+
+# ---------------------------------------------------------------------------
+# Help subcommand
+# ---------------------------------------------------------------------------
+
+
+def _action_help(args: argparse.Namespace | None = None) -> None:
+    print(
+        """plan — AI planning tool
+
+== TOP-LEVEL KEYS ==
+
+  domain   — Problem domain name (string)
+  types    — List of type definitions [{name: <str>}]
+  objects  — List of problem objects [{name: <str>, type: <str>}]
+  fluents  — List of predicate/fluent definitions [{name, params?, type?}]
+  actions  — List of action schemas [{name, params, preconditions?, effects?}]
+  init     — Initial state: list of fluent expressions that are TRUE
+  goals    — Goal conditions: list of fluent expressions to satisfy
+
+== ACTION STRUCTURE ==
+
+  - name: <action-name>
+    params:                         # optional
+      - name: <param>
+        type: <type>
+    preconditions:                  # optional, list of fluent expressions
+      - fluent-name(arg1, arg2)
+    effects:                        # optional, list of fluent expressions
+      - fluent-name(arg1)
+      - not fluent-name(arg1)
+
+  Example:
+  - name: go
+    params:
+      - name: from
+        type: location
+      - name: to
+        type: location
+    preconditions:
+      - at(from)
+    effects:
+      - at(to)
+      - not at(from)
+
+== EXPRESSION SYNTAX ==
+
+  Boolean expressions over fluents:
+
+    fluent-name              — bare fluent (proposition)
+    fluent-name(arg1, arg2)  — fluent with object/parameter arguments
+    not fluent-name(...)     — negation
+
+== OBJECT AND TYPE RESOLUTION ==
+
+  Action parameter names are resolved first when they appear in
+  preconditions/effects. If a name does not match an action parameter,
+  it is resolved against the problem's declared objects.
+
+== INIT STATE DEFAULTS ==
+
+  All fluent groundings default to False. Only fluents listed in the
+  'init' section are set to True. This is the closed-world assumption.
+
+== VALIDATION CONSTRAINTS ==
+
+  - Every action referenced in a plan must exist in the action schema
+  - Parameter counts must match action definitions
+  - All objects referenced in expressions must exist in the problem
+  - Goal satisfaction is checked by the planner; unsolvable problems
+    are detected during plan generation
+
+== COMPLETE EXAMPLE ==
+
+  domain: robot-move
+  types:
+    - name: location
+  objects:
+    - name: home
+      type: location
+    - name: work
+      type: location
+  fluents:
+    - name: at
+      params:
+        - name: x
+          type: location
+  actions:
+    - name: go
+      params:
+        - name: from
+          type: location
+        - name: to
+          type: location
+      preconditions:
+        - at(from)
+      effects:
+        - at(to)
+        - not at(from)
+  init:
+    - at(home)
+  goals:
+    - at(work)"""
+    )
 
 
 def _set_all_groundings(
@@ -279,6 +500,7 @@ def _check_self_defeating_cycles(schema: dict) -> list[tuple[str, str]]:
 
 def _action_plan(args: argparse.Namespace) -> None:
     schema = _load_yaml(args.problem)
+    _validate_schema(schema)
     problem = _build_problem(schema)
     print(f"problem built: {problem.name}")
     print(f"  objects: {len(list(problem.all_objects))}")
@@ -701,6 +923,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help="conversion direction",
     )
     p_pddl.add_argument("--output", "-o", help="output path (file or directory)")
+    sub.add_parser("help", help="show detailed help and examples")
     sub.add_parser("discover", help="discover action schemas from state transitions")
     p_state = sub.add_parser(
         "state", help="state file management (init, update, status)"
@@ -734,6 +957,7 @@ def main() -> None:
         "pddl": _action_pddl,
         "discover": _action_discover,
         "state": _action_state,
+        "help": _action_help,
     }
     handler = dispatch.get(args.action)
     if handler:

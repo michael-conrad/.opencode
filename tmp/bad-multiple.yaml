@@ -1,0 +1,29 @@
+domain: bad-multiple
+types:
+  - name: location
+objects:
+  - name: home
+    type: location
+  - name: work
+    type: location
+fluents:
+  - name: at
+    params:
+      - name: x
+        type: location
+actions:
+  - name: go
+    params:
+      - name: from
+        type: location
+      - name: to
+        type: location
+    precondition:
+      - at(from)
+    effect:
+      - at(to)
+      - not at(from)
+init:
+  - at(home)
+goals:
+  - at(work)
