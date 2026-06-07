@@ -111,6 +111,10 @@ This is the ONLY manual `git -C .issues` command needed.
   AGENTS.md                    — This file
   open/                        — Symlinks or references to open issues
   closed/                      — Archived issues
+  lessons-learned/             — Per-session corrections and defect patterns for clean-room review
+    session-YYYY-MM-DD/
+      README.md                — Correction catalog with root cause analysis
+      artifacts/               — Evidence (problem files, stderr, tool outputs)
 ```
 
 ### Example: Spec-Artifact Placement
@@ -123,6 +127,7 @@ This is the ONLY manual `git -C .issues` command needed.
 | FastMCP capability probe results | `.issues/46/spec-artifacts/research/fastmcp-capabilities.md` |
 | In-memory client migration design | `.issues/46/spec-artifacts/designs/in-memory-fixture.md` |
 | Adversarial audit consensus verdict | `.issues/46/spec-artifacts/audit/consensus.yaml` |
+| Session 2026-06-06 corrections | `.issues/lessons-learned/session-2026-06-06/README.md` |
 
 ## Authorization
 
@@ -167,3 +172,23 @@ The remote issue body is a human-facing exec summary. It must include two blockq
 >
 > **Local artifacts:** `.issues/46/spec-artifacts/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 ```
+
+## Lessons Learned Registry
+
+`lessons-learned/` captures per-session correction catalogs for clean-room agent review. Each session subdirectory contains:
+
+| File | Purpose |
+|------|---------|
+| `README.md` | Correction catalog with root cause analysis, systemic vs. one-off classification, remediation targets |
+| `artifacts/` | Evidence: problem files, stderr output, tool results |
+
+### When to Read
+
+At the START of every session, a clean-room agent MUST:
+
+1. List `lessons-learned/` subdirectories
+2. Read each `README.md` that has not been marked `consumed`
+3. For each systemic lesson, file a bug/SPEC-FIX issue targeting the identified remediation file
+4. After filing, add a `consumed: YYYY-MM-DD` marker to the lesson's frontmatter
+
+A lesson is "consumed" when a bug-fix issue or PR has been created for it. The lesson stays in the directory for audit trail — do not delete it.
