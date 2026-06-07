@@ -1,0 +1,216 @@
+# Z3 Contract for Issue #1050 — Per-Unit Pipeline Gate Invariants
+schema_version: "1.0"
+last_updated: "2026-06-07T00:00:00Z"
+variables:
+  A_p1: { type: bool }
+  A_p2: { type: bool }
+  A_p3: { type: bool }
+  A_p4: { type: bool }
+  A_p5: { type: bool }
+  A_p6: { type: bool }
+  A_p7: { type: bool }
+  A_p8: { type: bool }
+  A_p9: { type: bool }
+  A_p10: { type: bool }
+  A_p11: { type: bool }
+  A_p12: { type: bool }
+  A_p13: { type: bool }
+  A_p14: { type: bool }
+  D_A: { type: bool }
+  B_p1: { type: bool }
+  B_p2: { type: bool }
+  B_p3: { type: bool }
+  B_p4: { type: bool }
+  B_p5: { type: bool }
+  B_p6: { type: bool }
+  B_p7: { type: bool }
+  B_p8: { type: bool }
+  B_p9: { type: bool }
+  B_p10: { type: bool }
+  B_p11: { type: bool }
+  B_p12: { type: bool }
+  B_p13: { type: bool }
+  B_p14: { type: bool }
+  D_B: { type: bool }
+  C_p1: { type: bool }
+  C_p2: { type: bool }
+  C_p3: { type: bool }
+  C_p4: { type: bool }
+  C_p5: { type: bool }
+  C_p6: { type: bool }
+  C_p7: { type: bool }
+  C_p8: { type: bool }
+  C_p9: { type: bool }
+  C_p10: { type: bool }
+  C_p11: { type: bool }
+  C_p12: { type: bool }
+  C_p13: { type: bool }
+  C_p14: { type: bool }
+  D_C: { type: bool }
+  D_p1: { type: bool }
+  D_p2: { type: bool }
+  D_p3: { type: bool }
+  D_p4: { type: bool }
+  D_p5: { type: bool }
+  D_p6: { type: bool }
+  D_p7: { type: bool }
+  D_p8: { type: bool }
+  D_p9: { type: bool }
+  D_p10: { type: bool }
+  D_p11: { type: bool }
+  D_p12: { type: bool }
+  D_p13: { type: bool }
+  D_p14: { type: bool }
+  D_D: { type: bool }
+  E_p1: { type: bool }
+  E_p2: { type: bool }
+  E_p3: { type: bool }
+  E_p4: { type: bool }
+  E_p5: { type: bool }
+  E_p6: { type: bool }
+  E_p7: { type: bool }
+  E_p8: { type: bool }
+  E_p9: { type: bool }
+  E_p10: { type: bool }
+  E_p11: { type: bool }
+  E_p12: { type: bool }
+  E_p13: { type: bool }
+  E_p14: { type: bool }
+  D_E: { type: bool }
+  F_p1: { type: bool }
+  F_p2: { type: bool }
+  F_p3: { type: bool }
+  F_p4: { type: bool }
+  F_p5: { type: bool }
+  F_p6: { type: bool }
+  F_p7: { type: bool }
+  F_p8: { type: bool }
+  F_p9: { type: bool }
+  F_p10: { type: bool }
+  F_p11: { type: bool }
+  F_p12: { type: bool }
+  F_p13: { type: bool }
+  F_p14: { type: bool }
+  D_F: { type: bool }
+  G_p1: { type: bool }
+  G_p2: { type: bool }
+  G_p3: { type: bool }
+  G_p4: { type: bool }
+  G_p5: { type: bool }
+  G_p6: { type: bool }
+  G_p7: { type: bool }
+  G_p8: { type: bool }
+  G_p9: { type: bool }
+  G_p10: { type: bool }
+  G_p11: { type: bool }
+  G_p12: { type: bool }
+  G_p13: { type: bool }
+  G_p14: { type: bool }
+  D_G: { type: bool }
+preconditions:
+  - "z3.Implies(A_p2, A_p1)"
+  - "z3.Implies(A_p3, A_p2)"
+  - "z3.Implies(A_p4, A_p3)"
+  - "z3.Implies(A_p5, A_p4)"
+  - "z3.Implies(A_p6, A_p5)"
+  - "z3.Implies(A_p7, A_p6)"
+  - "z3.Implies(A_p8, A_p7)"
+  - "z3.Implies(A_p9, A_p8)"
+  - "z3.Implies(A_p10, A_p9)"
+  - "z3.Implies(A_p11, A_p10)"
+  - "z3.Implies(A_p12, A_p11)"
+  - "z3.Implies(A_p13, A_p12)"
+  - "z3.Implies(A_p14, A_p13)"
+  - "z3.Implies(B_p2, B_p1)"
+  - "z3.Implies(B_p3, B_p2)"
+  - "z3.Implies(B_p4, B_p3)"
+  - "z3.Implies(B_p5, B_p4)"
+  - "z3.Implies(B_p6, B_p5)"
+  - "z3.Implies(B_p7, B_p6)"
+  - "z3.Implies(B_p8, B_p7)"
+  - "z3.Implies(B_p9, B_p8)"
+  - "z3.Implies(B_p10, B_p9)"
+  - "z3.Implies(B_p11, B_p10)"
+  - "z3.Implies(B_p12, B_p11)"
+  - "z3.Implies(B_p13, B_p12)"
+  - "z3.Implies(B_p14, B_p13)"
+  - "z3.Implies(C_p2, C_p1)"
+  - "z3.Implies(C_p3, C_p2)"
+  - "z3.Implies(C_p4, C_p3)"
+  - "z3.Implies(C_p5, C_p4)"
+  - "z3.Implies(C_p6, C_p5)"
+  - "z3.Implies(C_p7, C_p6)"
+  - "z3.Implies(C_p8, C_p7)"
+  - "z3.Implies(C_p9, C_p8)"
+  - "z3.Implies(C_p10, C_p9)"
+  - "z3.Implies(C_p11, C_p10)"
+  - "z3.Implies(C_p12, C_p11)"
+  - "z3.Implies(C_p13, C_p12)"
+  - "z3.Implies(C_p14, C_p13)"
+  - "z3.Implies(D_p2, D_p1)"
+  - "z3.Implies(D_p3, D_p2)"
+  - "z3.Implies(D_p4, D_p3)"
+  - "z3.Implies(D_p5, D_p4)"
+  - "z3.Implies(D_p6, D_p5)"
+  - "z3.Implies(D_p7, D_p6)"
+  - "z3.Implies(D_p8, D_p7)"
+  - "z3.Implies(D_p9, D_p8)"
+  - "z3.Implies(D_p10, D_p9)"
+  - "z3.Implies(D_p11, D_p10)"
+  - "z3.Implies(D_p12, D_p11)"
+  - "z3.Implies(D_p13, D_p12)"
+  - "z3.Implies(D_p14, D_p13)"
+  - "z3.Implies(E_p2, E_p1)"
+  - "z3.Implies(E_p3, E_p2)"
+  - "z3.Implies(E_p4, E_p3)"
+  - "z3.Implies(E_p5, E_p4)"
+  - "z3.Implies(E_p6, E_p5)"
+  - "z3.Implies(E_p7, E_p6)"
+  - "z3.Implies(E_p8, E_p7)"
+  - "z3.Implies(E_p9, E_p8)"
+  - "z3.Implies(E_p10, E_p9)"
+  - "z3.Implies(E_p11, E_p10)"
+  - "z3.Implies(E_p12, E_p11)"
+  - "z3.Implies(E_p13, E_p12)"
+  - "z3.Implies(E_p14, E_p13)"
+  - "z3.Implies(F_p2, F_p1)"
+  - "z3.Implies(F_p3, F_p2)"
+  - "z3.Implies(F_p4, F_p3)"
+  - "z3.Implies(F_p5, F_p4)"
+  - "z3.Implies(F_p6, F_p5)"
+  - "z3.Implies(F_p7, F_p6)"
+  - "z3.Implies(F_p8, F_p7)"
+  - "z3.Implies(F_p9, F_p8)"
+  - "z3.Implies(F_p10, F_p9)"
+  - "z3.Implies(F_p11, F_p10)"
+  - "z3.Implies(F_p12, F_p11)"
+  - "z3.Implies(F_p13, F_p12)"
+  - "z3.Implies(F_p14, F_p13)"
+  - "z3.Implies(G_p2, G_p1)"
+  - "z3.Implies(G_p3, G_p2)"
+  - "z3.Implies(G_p4, G_p3)"
+  - "z3.Implies(G_p5, G_p4)"
+  - "z3.Implies(G_p6, G_p5)"
+  - "z3.Implies(G_p7, G_p6)"
+  - "z3.Implies(G_p8, G_p7)"
+  - "z3.Implies(G_p9, G_p8)"
+  - "z3.Implies(G_p10, G_p9)"
+  - "z3.Implies(G_p11, G_p10)"
+  - "z3.Implies(G_p12, G_p11)"
+  - "z3.Implies(G_p13, G_p12)"
+  - "z3.Implies(G_p14, G_p13)"
+  - "z3.Implies(D_A, z3.And(A_p1, A_p2, A_p3, A_p4, A_p5, A_p6, A_p7, A_p8, A_p9, A_p10, A_p11, A_p12, A_p13, A_p14))"
+  - "z3.Implies(z3.Not(z3.And(A_p1, A_p2, A_p3, A_p4, A_p5, A_p6, A_p7, A_p8, A_p9, A_p10, A_p11, A_p12, A_p13, A_p14)), z3.Not(D_A))"
+  - "z3.Implies(D_B, z3.And(B_p1, B_p2, B_p3, B_p4, B_p5, B_p6, B_p7, B_p8, B_p9, B_p10, B_p11, B_p12, B_p13, B_p14))"
+  - "z3.Implies(z3.Not(z3.And(B_p1, B_p2, B_p3, B_p4, B_p5, B_p6, B_p7, B_p8, B_p9, B_p10, B_p11, B_p12, B_p13, B_p14)), z3.Not(D_B))"
+  - "z3.Implies(D_C, z3.And(C_p1, C_p2, C_p3, C_p4, C_p5, C_p6, C_p7, C_p8, C_p9, C_p10, C_p11, C_p12, C_p13, C_p14))"
+  - "z3.Implies(z3.Not(z3.And(C_p1, C_p2, C_p3, C_p4, C_p5, C_p6, C_p7, C_p8, C_p9, C_p10, C_p11, C_p12, C_p13, C_p14)), z3.Not(D_C))"
+  - "z3.Implies(D_D, z3.And(D_p1, D_p2, D_p3, D_p4, D_p5, D_p6, D_p7, D_p8, D_p9, D_p10, D_p11, D_p12, D_p13, D_p14))"
+  - "z3.Implies(z3.Not(z3.And(D_p1, D_p2, D_p3, D_p4, D_p5, D_p6, D_p7, D_p8, D_p9, D_p10, D_p11, D_p12, D_p13, D_p14)), z3.Not(D_D))"
+  - "z3.Implies(D_E, z3.And(E_p1, E_p2, E_p3, E_p4, E_p5, E_p6, E_p7, E_p8, E_p9, E_p10, E_p11, E_p12, E_p13, E_p14))"
+  - "z3.Implies(z3.Not(z3.And(E_p1, E_p2, E_p3, E_p4, E_p5, E_p6, E_p7, E_p8, E_p9, E_p10, E_p11, E_p12, E_p13, E_p14)), z3.Not(D_E))"
+  - "z3.Implies(D_F, z3.And(F_p1, F_p2, F_p3, F_p4, F_p5, F_p6, F_p7, F_p8, F_p9, F_p10, F_p11, F_p12, F_p13, F_p14))"
+  - "z3.Implies(z3.Not(z3.And(F_p1, F_p2, F_p3, F_p4, F_p5, F_p6, F_p7, F_p8, F_p9, F_p10, F_p11, F_p12, F_p13, F_p14)), z3.Not(D_F))"
+  - "z3.Implies(D_G, z3.And(G_p1, G_p2, G_p3, G_p4, G_p5, G_p6, G_p7, G_p8, G_p9, G_p10, G_p11, G_p12, G_p13, G_p14))"
+  - "z3.Implies(z3.Not(z3.And(G_p1, G_p2, G_p3, G_p4, G_p5, G_p6, G_p7, G_p8, G_p9, G_p10, G_p11, G_p12, G_p13, G_p14)), z3.Not(D_G))"
+postconditions: []

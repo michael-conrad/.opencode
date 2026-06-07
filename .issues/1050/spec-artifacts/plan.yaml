@@ -1,0 +1,54 @@
+# Plan artifact for issue #1050
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+issue: 1050
+type: plan
+repo: michael-conrad/.opencode
+generated_at: '2026-06-07T05:30:00Z'
+plan_generated_by: opencode-cli (plan tool)
+plan_validated: true
+plan_status: SOLVED_SATISFICING
+plan_length: 7
+z3_invariants: VALID
+units:
+  - id: A
+    name: help_subcommand
+    chain: help
+    red: plan help fails (no subcommand)
+    green: plan help exits 0, prints schema
+  - id: B
+    name: help_content
+    chain: help
+    depends_on: [A]
+    red: output is empty or placeholder
+    green: all 7 topics present
+  - id: C
+    name: top_val
+    chain: validation
+    red: precondition silently accepted
+    green: precondition -> error with 'Did you mean preconditions?'
+  - id: D
+    name: section_val
+    chain: validation
+    depends_on: [C]
+    red: parameters on fluent -> UP stack trace
+    green: parameters on fluent -> 'Did you mean params?'
+  - id: E
+    name: error_snippets
+    chain: validation
+    depends_on: [D]
+    red: validation errors are one-line only
+    green: each error includes YAML format snippet
+  - id: F
+    name: help_tests
+    chain: help
+    depends_on: [B]
+    red: plan-help.sh fails
+    green: plan-help.sh passes
+  - id: G
+    name: val_tests
+    chain: validation
+    depends_on: [E]
+    red: plan-validation.sh fails
+    green: plan-validation.sh passes

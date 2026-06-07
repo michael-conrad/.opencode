@@ -1,0 +1,19 @@
+actions:
+- name: add_top_level_validation
+  parameters: []
+- name: implement_help_subcommand
+  parameters: []
+- name: add_section_validation
+  parameters: []
+- name: write_help_content
+  parameters: []
+- name: add_error_snippets
+  parameters: []
+- name: write_help_tests
+  parameters: []
+- name: write_val_tests
+  parameters: []
+domain: issue-1050
+engine: tamer
+plan_length: 7
+status: SOLVED_SATISFICING
