@@ -133,13 +133,15 @@ Review every requirement statement:
 | Remediated SC | Re-verified independently — same PASS/FAIL gate applies; no carryover credit from prior passes |
 | Re-verification | Repeat the verification command/assertion; confirm PASS before claiming remediation complete |
 
-**SC Table Format (4-column):**
+**SC Table Format (12-column):**
 
-| ID | Criterion | Verification Method | Remediation |
-|----|-----------|-------------------|-------------|
-| SC-1 | ... | Executable command/assertion producing deterministic PASS/FAIL | What corrective action is required on FAIL, including re-verification procedure |
+| ID | Criterion | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step |
+|----|-----------|-------------------|-------------|----------------------|--------------|------------------------|-------------|-----------------|----------------|--------------|-------------|
+| SC-1 | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
 **The Verification Method column MUST specify an executable command or assertion producing deterministic PASS/FAIL. The Remediation column MUST specify what corrective action is required on FAIL and how re-verification is performed.**
+
+See `reference/sc-table-columns.md` for column definitions, rendering note, and per-column conditionality. See the Evidence Type Classification Gate section below for classification rules when applying these columns.
 
 ### Evidence Type Classification Gate (MANDATORY)
 
