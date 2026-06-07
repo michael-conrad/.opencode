@@ -182,7 +182,7 @@ Task completion claims without [external signal type] are [characterization of c
 
 | Version | Date | SHA | Changes |
 |---------|------|-----|---------|
-| 1.0 | 2026-06-07 | `6a10959e23f788575fa5751fd1279b6d2a70a51e` | Initial catalog — all 8 patterns documented, full selection matrix, 8 canonical formulas, complete co-application rules for 250 and 257 |
+| 1.0 | 2026-06-07 | `aeba8d163d6d2cae36d249493a8d1de8e08c0ce3` | Initial catalog — all 8 patterns documented, full selection matrix, 8 canonical formulas, complete co-application rules for 250 and 257 |
 
 SHA format: 40-character lowercase hex SHA of the commit that introduced this version of the reference card. When a new version is committed, the SHA in this row is updated to match the commit hash.
 
