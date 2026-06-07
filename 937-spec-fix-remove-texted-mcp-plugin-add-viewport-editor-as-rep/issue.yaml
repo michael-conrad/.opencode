@@ -2,6 +2,49 @@ title: '[SPEC-FIX] Remove texted MCP plugin, add viewport-editor as replacement'
 status: open
 labels:
 - SPEC-FIX
-body: ''
+body: "# [SPEC-FIX] Remove texted MCP plugin, add viewport-editor as replacement\n\
+  \n**Status:** DRAFT\n\n## Summary\n\nReplace the `texted` MCP plugin in `opencode.jsonc`\
+  \ with the `viewport-editor` MCP server. The texted plugin duplicates functionality\
+  \ already available through opencode's built-in tool suite (`edit`, `write`, `read`)\
+  \ and its `tools/run-texted-mcp` script is unused. The `viewport-editor` plugin\
+  \ provides a superior windowed editing experience that opencode's built-in tools\
+  \ do not offer — viewports, staged buffers, diff review, and session isolation.\n\
+  \nAlso remove the `tools/run-texted-mcp` script which is no longer referenced.\n\
+  \n## Problem\n\nThe `texted` MCP plugin in `opencode.jsonc` provides MCP tools (`texted_edit_file`,\
+  \ `texted_texted_doc`, `texted_texted_eval`) that duplicate functionality already\
+  \ available through opencode's built-in tool suite. The `tools/run-texted-mcp` script\
+  \ is not referenced anywhere else in the configuration.\n\nHowever, there is a genuine\
+  \ need for an advanced editing MCP server that provides:\n\n- **Viewport-based editing**:\
+  \ Focused windows into files with scoped replaces (unlike blind whole-file string\
+  \ matching)\n- **Staged buffers**: Edit without writing to disk, review diff before\
+  \ save\n- **Session isolation**: Multiple agent sessions editing the same file without\
+  \ collision\n- **Delta diffs**: Compare against original file on disk, not last\
+  \ save\n\nThe `viewport-editor` MCP server fills this gap. It was designed precisely\
+  \ for complex editing workflows where the simplicity of opencode's built-in tools\
+  \ falls short.\n\n## Change\n\nTwo operations:\n\n1. **`opencode.jsonc`** — Replace\
+  \ the `\"texted\"` MCP plugin block with a `\"viewport-editor\"` MCP plugin block\
+  \ using `uvx` from the GitHub release tag.\n\n2. **`tools/run-texted-mcp`** — Delete\
+  \ this file entirely (unused script).\n\n### Current texted Block\n\n```jsonc\n\"\
+  texted\": {\n  \"type\": \"local\",\n  \"command\": [\".opencode/tools/run-texted-mcp\"\
+  ],\n  \"enabled\": true\n}\n```\n\n### New viewport-editor Block\n\n```jsonc\n\"\
+  viewport-editor\": {\n  \"type\": \"local\",\n  \"command\": [\"uvx\", \"--from\"\
+  , \"git+https://github.com/michael-conrad/viewport-editor@v0.2.0\", \"viewport-editor\"\
+  ],\n  \"enabled\": true\n}\n```\n\n## Success Criteria\n\n| ID | Criterion | Evidence\
+  \ Type |\n|----|-----------|---------------|\n| SC-1 | The `\"texted\"` block is\
+  \ removed from the `mcp` section of `opencode.jsonc` | `string` |\n| SC-2 | A `\"\
+  viewport-editor\"` block exists in the `mcp` section of `opencode.jsonc` with the\
+  \ correct `uvx` command | `string` |\n| SC-3 | The file `.opencode/tools/run-texted-mcp`\
+  \ does not exist after implementation | `structural` |\n| SC-4 | `opencode.jsonc`\
+  \ remains valid JSONC syntax after the change | `string` |\n\n## Affected Files\n\
+  \n- `opencode.jsonc` — Replace `\"texted\"` MCP plugin block with `\"viewport-editor\"\
+  ` MCP plugin block\n- `.opencode/tools/run-texted-mcp` — Delete this unused script\n\
+  \n## Relationship to Existing Tools\n\nThe `viewport-editor` complements the built-in\
+  \ Read/Edit/Write tools — it does not replace them. As documented in its README:\n\
+  \n> **Built-in Read/Edit/Write**: Coexist. Use for simple whole-file operations.\
+  \ Use viewport-editor for complex editing.\n\nThis is consistent with the MCP tool\
+  \ usage hierarchy (see `mcp-tool-usage` skill): built-in tools remain Tier 1 for\
+  \ simple operations, while `viewport-editor` provides Tier 2+ capability for complex,\
+  \ windowed editing workflows.\n\n---\n\n\U0001F916 Co-authored with AI: OpenCode\
+  \ (ollama-cloud/deepseek-v4-flash)\n"
 created_at: '2026-06-07T22:59:34+00:00'
-updated_at: '2026-06-07T22:59:34+00:00'
+updated_at: '2026-06-07T23:01:52+00:00'
