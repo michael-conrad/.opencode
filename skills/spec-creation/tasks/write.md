@@ -23,6 +23,10 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
 Before assembling the spec, invoke `verification-enforcement --task verify`. This gate task()s section-based sub-agents to collect evidence artifacts for the factual claims the spec will make — file references, API signatures, configuration fields, code behavior, and environment details. Evidence artifacts collected here ensure that the spec's claims are grounded in live sources. Claims that cannot be verified at this stage are marked with `⚠️ UNVERIFIED` for resolution in the post-generation revisit pass.
 
+### Pre-Step 0.8: Stub Creation (SC-22 — behavioral)
+
+Invoke `local-issues create` to create a stub issue. Include a minimal exec summary (problem statement, affected files, success criteria outline). Check platform availability before invocation — if the platform is unavailable, HALT and report.
+
 ### Step 0.5: Behavioral Test Mandate in Success Criteria (MANDATORY)
 
 **Behavioral enforcement tests are NOT written during spec creation.** They are written during implementation, per the post-approval spec mandate. However, the spec MUST include a Success Criterion mandating behavioral test creation before implementation.
@@ -54,6 +58,84 @@ Combine outputs from prerequisite tasks into a coherent spec. The spec should ad
 - **Implementation approach** — For the reader's understanding, not prescribing HOW (see Step 5.5)
 
 Skip areas that don't apply to simple specs; add areas that do. The spec should be self-contained and clear, regardless of structure.
+
+### Decision Ledger
+
+Captures design decisions with stable DEC-IDs and RFC 2119 requirement keys (MUST/SHOULD/MAY) for traceability across spec revisions.
+
+```markdown
+| DEC-ID | Decision | Rationale | Requirement Key | Affected SCs |
+|--------|----------|-----------|-----------------|--------------|
+| DEC-1 | Use async API | Non-blocking I/O required for throughput | MUST | SC-3, SC-4 |
+```
+
+### Risk Traceability Table
+
+Maps RISK-IDs to Verifying SC binding, ensuring each identified risk has a corresponding success criterion that validates its mitigation.
+
+```markdown
+| RISK-ID | Risk Description | Likelihood | Impact | Mitigation | Verifying SC |
+|---------|-----------------|------------|--------|------------|--------------|
+| RISK-1 | Rate limit exceeded | Medium | High | Implement retry with backoff | SC-7 |
+```
+
+### Revision Policy
+
+Declares artifact cascade: when a parent spec is revised, which dependent artifacts MUST also be revised. Uses declarative table format.
+
+```markdown
+| Artifact | Cascade Trigger | Action on Parent Revision |
+|----------|----------------|---------------------------|
+| Implementation plan | MUST | Revise to match revised spec |
+| Behavioral tests | SHOULD | Review for continued validity |
+| Risk traceability | MAY | Update if new risks introduced |
+```
+
+### Decomposition Classification
+
+Distinguishes single-task specs from multi-phase specs using distinguishing criteria.
+
+| Classification | Number of Phases | Sub-Issue Requirements | PR Strategy |
+|---------------|-----------------|----------------------|-------------|
+| single-task | 1 | None | single PR |
+| multi-phase | 2+ | One sub-issue per phase | stacked PRs per phase |
+
+### Spec Family Annotation (optional)
+
+Punch-list annotation for specs that belong to a family. Selector syntax documents which specs share a common concern.
+
+```markdown
+family: performance-optimization
+selectors:
+  - spec: #42
+  - spec: glob(pattern: "specs/performance/*.md")
+```
+
+## Explicit Non-Goals
+
+Lists what the spec explicitly does NOT address. Each non-goal is a bullet item with rationale.
+
+```markdown
+- **Internationalization** — Out of scope for this release; will be addressed in a follow-up spec.
+- **Backward compatibility with v1 API** — Breaking changes are accepted per the deprecation policy.
+```
+
+## Regression Invariants
+
+Numbered list of behaviors or properties that MUST NOT change as a result of this implementation.
+
+1. Existing authentication flows MUST continue to accept current tokens.
+2. All existing public API signatures MUST remain unchanged.
+3. Database schema migration MUST NOT drop existing columns.
+
+### Cross-Cutting / Common SC Designation
+
+When a success criterion applies across multiple phases, designate it as cross-cutting using a preamble section marker. Cross-cutting SCs share a verification budget: a single PASS verifies the SC for all phases. MUST pass once for all phases.
+
+```markdown
+**Cross-Cutting SCs:** SC-1, SC-5, SC-9
+— Verified once in Phase 1, applies to all subsequent phases.
+```
 
 A **Documentation Sources** section documents where the spec author verified factual claims. This is especially important for specs making claims about code behavior, config schemas, or API signatures. Place it before the AI byline section.
 
@@ -232,6 +314,10 @@ Fix any issues inline. No need to re-review — just fix and move on.
 
 **SC Verification Column Precision Sub-Check:** Scan the Verification column of every SC table for vague verification methods (describes what to check without specifying exact expected value). Flag each vague entry as a STRUCTURE-VIOLATION requiring rewrite with an executable verification command per `140-planning-spec-creation.md` Executable Verification Commands mandate. The spec should read as a coherent narrative document, not as a mechanical checklist.
 
+6. **SC-to-SC coherence check**: Scan SC table for contradictions between interdependent criteria. Cross-reference Pipeline Step Binding and Verification Gate columns — verify that an SC gated at 'red-green' does not require a 'ci' tool. Cross-reference Re-Entry Step with Phase Binding — verify re-entry point is valid for the bound phase. Cross-reference Affinity Group members — verify shared SCs have compatible verification methods.
+
+7. **Verification-Method-to-Artifact-Path consistency check**: Cross-reference Artifact Path and Verification Method columns — verify that the Verification Method's tool references align with the Artifact Path's storage convention. An SC whose Verification Method references 'pytest' should have an Artifact Path matching '{issue-N}/pytest/' convention. An SC whose Verification Method references 'opencode-cli run' should have an Artifact Path matching '{issue-N}/behavioral/' convention.
+
 ### Step 6.5: Evidence Artifact Verification (MANDATORY)
 
 **🚫 CRITICAL: Each self-review checkpoint MUST produce a tool-call artifact demonstrating the verification was performed. Assertions without tool-call evidence are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
@@ -308,6 +394,59 @@ Invoke `issue-operations` skill to persist the spec as a GitHub Issue:
 - Dump full spec content to chat as the "review" step
 - Claim spec is "written" without a GitHub Issue URL
 - Ask the user to review the spec in chat
+
+### Step 7a: Exec-Summary Format Rules
+
+The exec summary embedded in the GitHub Issue body MUST follow these formatting constraints:
+
+- **No checkboxes, no status markers, no completion flags** — the issue body is a requirements document, not a project tracker
+- **Cards listed in dependency order** — implementable sequence, not alphabetical or priority order
+- **Include `Key Decisions` section** — document trade-offs and rationale from the card catalogue
+- **Include `Risk Callouts` section** — surface risks that affect implementation approach or timeline
+
+**Rules table:**
+
+| Rule | Rationale |
+|------|-----------|
+| No checkboxes/status markers | Issue body is a requirements document, not a tracker. Status belongs on GitHub labels and sub-issue state. |
+| Dependency-ordered cards | Implementation follows dependency order; the exec summary must reflect the sequence the implementer will follow. |
+| Key Decisions section | Design decisions made during spec creation must be visible to the implementer without reading the full card catalogue. |
+| Risk Callouts section | Risks that affect implementation approach or timeline must be surfaced at the top of the issue, not buried in appendix content. |
+
+**Example format:**
+
+```
+> **Full spec and artifacts: `.issues/{N}/`**
+
+## Exec Summary
+
+Implements fast-path model routing for common capability queries by adding
+a cache layer between the capability probe and the dispatch orchestrator.
+
+### Cards (dependency order)
+1. **Cache schema** — Define the in-memory cache key schema
+2. **Write-through cache** — Implement write-through cache in capability probe
+3. **Cache invalidation** — Add TTL-based invalidation with configurable expiry
+4. **Fallback on miss** — Route through full probe on cache miss
+
+### Key Decisions
+- **In-memory over Redis**: No persistence needed; restart rebuilds cache in < 1s
+- **TTL-based over LRU**: Predictable expiry for capability metadata; LRU adds complexity without benefit
+
+### Risk Callouts
+- **Stale cache on model update**: If a model is updated externally, cached capability data may be stale until TTL expiry
+- **Memory ceiling**: Long-lived processes with high model churn may exhaust heap; mitigation: configurable max entries
+```
+
+### Step 7b: Remote Push + Local Mirror
+
+After creating the GitHub Issue in Step 7, save a local mirror of the exec summary:
+
+1. Remote push happens first (Step 7 creates the issue on GitHub)
+2. Save `.issues/{N}/remote-exec-summary.md` with the exec summary content that was posted to the remote
+3. Verify the `.issues/` directory pattern is followed (`.issues/{N}/remote-exec-summary.md`)
+
+This ensures the local workspace mirrors the remote state for off-network reference and diff-based drift detection.
 
 ### Step 8: User Review on Issue
 
