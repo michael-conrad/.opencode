@@ -1,0 +1,106 @@
+# Task: verify-merge
+
+## Purpose
+
+Verify that a PR has actually been merged before closing associated issues. Prevents closing issues for unmerged or rejected PRs.
+
+## Entry Criteria
+
+- PR number identified
+- Need to verify merge status before issue closure
+
+## Exit Criteria
+
+- Merge status confirmed or denied
+- PR data available for closure decision
+
+## Procedure
+
+### Step 1: Get PR Status (Platform Routing)
+
+Route based on `github.platform`:
+
+| `github.platform` | Route to |
+|---|---|
+| `github` | `platforms/github-mcp/` sub-skill |
+| `gitbucket` | `platforms/gitbucket-api/` sub-skill |
+| `local` | Skip — no PR merge state in local mode |
+
+**GitHub platform (sub-skill implementation):**
+```python
+pr = github_pull_request_read(
+    method="get",
+    owner=<github.owner>,
+    repo=<github.repo>,
+    pullNumber=N
+)
+merged = pr.get("merged", False)
+state = pr.get("state", "unknown")
+```
+
+**GitBucket platform (sub-skill implementation):**
+```bash
+# Get PR details and parse merged/state fields
+./.opencode/tools/gitbucket-api prs <github.owner> <github.repo> --state all | jq '.[] | select(.number == N)'
+```
+
+### Step 2: Verify Merge
+
+| PR State | Merged | Action |
+|----------|--------|--------|
+| `closed` | `true` | ✅ Proceed with issue closure |
+| `closed` | `false` | ❌ PR was closed without merge — do NOT close issue |
+| `open` | `false` | ❌ PR still open — do NOT close issue |
+
+### Step 3: Search Fallback (GitBucket)
+
+When searching for a PR that fixes a specific issue on GitBucket (no search API):
+
+1. List PRs with `direction=desc&sort=created&per_page=30`
+2. Scan each PR body for reference pattern (`Fixes #N`, `#N`)
+3. Stop on first match
+4. Paginate only if no match found on first page
+
+```bash
+# List closed PRs and scan bodies for issue reference
+./.opencode/tools/gitbucket-api prs <github.owner> <github.repo> --state closed
+# Then check each PR body for the issue reference pattern
+```
+
+## Common Issues
+
+| Issue | Resolution |
+|-------|------------|
+| PR not found | Use search fallback (iterative listing) |
+| PR closed without merge | Do NOT close issue — report status |
+| GitBucket lacks search API | Use iterative listing with client-side filtering |
+| PR state ambiguous | Check both `state` and `merged` fields |
+
+## Context Required
+
+- Session values: github.owner, github.repo, github.platform
+- Related tasks: `close` (uses merge verification before closing)
+- Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
+- No direct `github_*` or `gitbucket-api` calls outside `issue-operations/platforms/`
+
+## Live Verification: Merge Evidence (MANDATORY)
+
+**Each merge status claim MUST be verified via tool call against the actual PR state. Assertions without tool-call artifacts are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
+
+| Claim | Verification Action | Tool Call | Problem Class |
+|-------|-------------------|-----------|---------------|
+| "PR #N is merged" | Verify merge status via API | `github_pull_request_read(method="get", pullNumber=N)` → check `merged` and `state` | VERIFICATION-GAP |
+| "PR state is closed" | Verify state field | `github_pull_request_read(method="get", pullNumber=N)` → check `state` | VERIFICATION-GAP |
+| "PR references issue #M" | Verify cross-reference in PR body | `github_pull_request_read(method="get", pullNumber=N)` → check body for `#M` | MISSING-ELEMENT |
+| "Platform returns reliable merge data" | Verify platform capability | `issue-operations --task capabilities` | CONFLICTING |
+
+**Evidence artifact:** PR API response with `merged` and `state` fields.
+
+### Finding Classification
+
+| Finding | Problem Class | Classification | Action |
+|--------|---------------|----------------|--------|
+| PR not merged | VERIFICATION-GAP | flag-for-review | HALT — do not close issue |
+| PR closed without merge | VERIFICATION-GAP | flag-for-review | HALT — PR was rejected |
+| PR doesn't reference issue | MISSING-ELEMENT | flag-for-review | Verify association manually |
+| Platform returns unreliable data | CONFLICTING | conditional | Use search fallback to verify |

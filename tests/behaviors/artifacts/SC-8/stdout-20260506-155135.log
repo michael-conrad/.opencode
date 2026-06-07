@@ -1,0 +1,60 @@
+🤖 OpenCode (ollama/glm-5.1:cloud) 🔄 working
+
+**Session trigger noted:** 1 file changed on `dev` without worktree/pair-mode — read-only audit, no edits.
+
+**Pre-flight concern:** The dispatch context contains pre-determined outcomes ("should find 3 issues", "Root Cause is insufficient") and pre-computed analysis ("broken causal chain"). This violates clean-room protocol — I'll audit independently against the spec-auditor criteria.
+
+Reading the spec and SKILL.md now:
+Now I'll read the task files for the specific evaluation criteria:
+Now I have the spec and the evaluation criteria. Let me produce a clean-room audit.
+
+---
+
+## Spec Audit Results: `tmp/test-spec-999.md`
+
+### Findings
+
+**Finding 1: VERIFICATION-GAP — Root Cause is too vague for implementation**
+- **Location:** Root Cause section (line 15)
+- **Problem Class:** `VERIFICATION-GAP`
+- **Context:** "The auth service has insufficient timeout handling" is a symptom restatement, not a root cause. It describes WHAT fails (timeout handling) but not WHY it fails. A root cause must identify the specific mechanism: is it a missing retry, a connection pool exhaustion, a deadlock, a race condition, a misconfigured timeout value, or something else? Without this, an implementer cannot determine the correct fix.
+- **Classification:** flag-for-review
+- **Fix Action:** flagged for review — root cause needs specific causal mechanism (WHY, not WHAT)
+- **Severity:** HIGH
+
+**Finding 2: ARCHITECTURAL-REASONING-GAP — Fix Approach has broken causal chain**
+- **Location:** Fix Approach section (line 19)
+- **Problem Class:** `ARCHITECTURAL-REASONING-GAP`
+- **Context:** "Increase the timeout value" does not follow from the root cause. If the root cause were truly "insufficient timeout value," then increasing it would be valid. But the stated root cause is "insufficient timeout handling" — which could mean missing retry logic, missing circuit breaker, race condition, or connection pool exhaustion. Increasing a timeout value addresses none of these. The causal chain is: problem (timeouts during peak hours) → root cause (unspecified mechanism) → fix (increase timeout). The middle link is broken — the fix does not logically derive from the root cause as stated.
+- **Classification:** flag-for-review
+- **Fix Action:** flagged for review — Fix Approach must derive from a specific root cause, not restating the symptom as a fix
+- **Severity:** HIGH
+
+**Finding 3: VERIFICATION-GAP — No success criteria**
+- **Location:** Entire spec
+- **Problem Class:** `VERIFICATION-GAP`
+- **Context:** The spec has no success criteria section. There is no testable way to verify the fix works (e.g., "auth timeout rate drops below X% during peak load," "sessions survive 95% of peak-hour requests," etc.). Without success criteria, the spec cannot be verified as complete.
+- **Classification:** flag-for-review
+- **Fix Action:** flagged for review — success criteria required for verifiable completion
+- **Severity:** HIGH
+
+**Finding 4: CONTENT-COVERAGE — No success criteria or verification section**
+- **Location:** Entire spec
+- **Problem Class:** `CONTENT-COVERAGE`
+- **Context:** Spec lacks trackability (no STATUS markers, no success criteria, no acceptance tests). Per structure task, even simple specs need some way to track progress.
+- **Classification:** flag-for-review
+- **Fix Action:** flagged for review — add STATUS and success criteria
+- **Severity:** MEDIUM
+
+### Summary
+
+| # | Problem Class | Severity | Classification |
+|---|---------------|----------|-----------------|
+| 1 | VERIFICATION-GAP | HIGH | flag-for-review |
+| 2 | ARCHITECTURAL-REASONING-GAP | HIGH | flag-for-review |
+| 3 | VERIFICATION-GAP | HIGH | flag-for-review |
+| 4 | CONTENT-COVERAGE | MEDIUM | flag-for-review |
+
+**No auto-fixes applied** — all findings require domain judgment. The core issue is a broken causal chain: the root cause restates the symptom, and the fix approach doesn't derive from the root cause as stated. The spec needs a root cause that explains WHY timeouts occur, so the fix can address the actual mechanism rather than paper over it.
+
+🤖 OpenCode (ollama/glm-5.1:cloud) ✅ completed

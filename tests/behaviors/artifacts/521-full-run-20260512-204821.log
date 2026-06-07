@@ -1,0 +1,15 @@
+=== Behavioral Test: texted-mcp-isolated ===
+Test repo at /home/muksihs/git/opencode-config/tmp/texted-test-repo-CrnAZY
+  .opencode/tools/run-texted-mcp: -rwxrwxr-x 1 muksihs muksihs 2689 May 12 20:48 .opencode/tools/run-texted-mcp
+  .opencode/opencode.jsonc: -rw-rw-r-- 1 muksihs muksihs 454 May 12 20:48 .opencode/opencode.jsonc
+--- Running agent prompt ---
+  [attempt 1/2]
+  retry in 15s (empty/short output)...
+  [attempt 2/2]
+--- Assertions ---
+FAIL: assert_required_pattern_present — texted edit_file tool not found in agent output
+FAIL: assert_required_pattern_present — texted texted_eval tool not found in agent output
+FAIL: assert_required_pattern_present — texted texted_doc tool not found in agent output
+FAIL: assert_required_pattern_present — texted MCP server name not found in agent output
+
+FAIL: texted-mcp-isolated

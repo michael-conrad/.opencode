@@ -1,0 +1,6 @@
+scenario_name: fixture-evidence
+phase: GREEN
+model: fixture-model
+timestamp: "2026-01-01T00:00:00Z"
+exit_code: 0
+harness_version: 1

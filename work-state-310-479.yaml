@@ -1,6 +1,0 @@
-authorization_scope: for_pr
-halt_at: pr_created
-pr_strategy: stacked
-gap_fill_actions: [auto-create-spec, auto-create-plan, auto-approve, auto-PR]
-approved_by: michael-conrad (human)
-approved_at: "2026-05-11"

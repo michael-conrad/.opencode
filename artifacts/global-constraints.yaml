@@ -1,6 +1,0 @@
-# Project-wide global constraints
-# Auto-loaded by `solve` on every run. Managed by the toolset — do not edit manually.
-# Constraints with scope: global in issue constraints.yaml are extracted here automatically.
-
-constraints: []
-track_unsat: true

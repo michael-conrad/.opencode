@@ -1,194 +1,220 @@
-# AGENTS.md — .issues/ Workspace Guide
+# AGENTS.md — Repository Guidelines for Coding Agents
 
-## Identity
+## Identity Detection (MANDATORY FIRST)
 
-`.issues/` is a standalone git repository with an `issues-data` orphan branch, stored as a git worktree of the parent repo at `.git/worktrees/-issues/`. It uses the same remote as the parent repo (determined at runtime via `git -C .issues remote -v`), on the `issues-data` branch.
+The AI agent must determine its identity from the system prompt on EVERY session:
 
-**This is NOT a submodule.** It is an orphan branch worktree. Do not add it as a submodule or `.gitmodules` entry.
+1. **Detect AI agent and model** from your system context
+2. **Report identity** in byline format: `🤖 <AgentName> (<ModelId>) <status-icon> <status>`
+3. **Examples**: `🤖 OpenCode (ollama-cloud/glm-5) ✅ completed`, `🤖 OpenCode (ollama-cloud/glm-5) 🔄 working`
 
-## Tool
+**Programmatic validation**: The `session-enforcement.ts` plugin injects expected identity values into the `IDENTITY_ECHO` directive and validates the agent's first response against them. On mismatch, an `IDENTITY_VALIDATION_FAILURE` block is injected into the next user message, halting all operations. See `000-critical-rules.md` §Inferring GitHub Owner.
 
-Always use `.opencode/tools/local-issues` for issue tracking operations within `.issues/`. Do not manipulate `.issues/` files manually unless the tool cannot perform the required operation.
+**WHY**: Different agents/loaders provide different context. System prompt tells you what you are.
 
-### Invocation
+## Pipeline Re-Priming
 
-```
-.opencode/tools/local-issues <command> [flags]
-```
+Every skill boundary requires a re-encounter of the enforcement identity. Professional engineers complete each gate in dependency order before advancing. Amateurs skip gates and compound defects.
 
-First invocation auto-initializes `.issues/` — creates the orphan branch, worktree, and initial commit. No separate setup step needed.
+---
 
-### Usage Examples
+## Universal Skill Dispatch Gate — Professional agents dispatch skills. Amateurs inline.
 
-```
-# List all issues
-.opencode/tools/local-issues list
+Producing chat output without first evaluating and dispatching applicable skills means chat output without skill evaluation has bypassed the quality gates that catch defects. Every response produced without skill evaluation is a response produced blind. Agents who produce blind responses produce defective work — it is that direct. Do not be that agent.
 
-# Sample output:
-# #1 [open]
-# #46 [open]
-# #47 [open]
+### Pre-Response Gate Procedure — Your quality is determined here
 
-# Read an issue
-.opencode/tools/local-issues read --number 46
+Before producing ANY output, the agent MUST follow this procedure. Agents who
+skip it are not "fast" — they produce lower-quality work by definition.
 
-# Create a new issue (auto-numbered)
-.opencode/tools/local-issues create --title "My spec" --labels SPEC
+1. **Evaluate the user message against ALL available skill descriptions.**
+   The `<available_skills>` list is the map. Agents who skip this step are
+   navigating blind — and blind navigation produces defects.
 
-# Create with explicit number
-.opencode/tools/local-issues create --number 99 --title "Bug fix" --labels BUG
+2. **If one or more skills match the intent of the request: call `skill({name: "..."})` before generating output.** Loading a skill means you are using the enforcement gates designed to catch your mistakes. Skipping this step means memory is the least reliable tool available — a skipped skill call means operating without confirmed information.
 
-# Search issues
-.opencode/tools/local-issues search --query "fastmcp"
+3. **Only after skill content is loaded: proceed to produce the response.**
+   The skill is not an interruption to your workflow — it IS the workflow.
+   Agents who write first and verify later produce work that needs rewriting.
 
-# Link sub-issues to a parent
-.opencode/tools/local-issues link --number 46 --sub 47 48 --type sub-issue
+4. **If no skill applies directly: proceed without dispatch, but justify in one sentence.** This is the exception. Treat it like one. The one-sentence justification is the audit trail that proves you considered — and correctly dismissed — the skill deck. Every agent who skips this produces silent bypass. Do not be that agent.
 
-# Add a comment
-.opencode/tools/local-issues comment --number 46 --type internal --body "Investigation complete"
+### This Gate Fires On
 
-# Close an issue
-.opencode/tools/local-issues close --number 99 --reason completed
+| Trigger | Example User Message |
+|---------|---------------------|
+| Implementation requests | "implement this feature", "build the widget" |
+| Bug reports that need fixing | "there's a bug in the parser" |
+| Merge/rebase operations | "merge conflict while rebasing" |
+| Authorization/approval | "approved #42" |
+| PR/session operations | "check prs", "create a PR", "ready for PR" |
+| Test/investigation work | "write tests for the validator", "debug this crash" |
+| Content generation | "draft a spec for X", "write a runbook" |
+| Architecture decisions | "how should we handle X", "design the module" |
+| **Any request that would produce a multi-paragraph or multi-step response** | |
 
-# Update an issue body from file
-.opencode/tools/local-issues update --number 46 --body-file ./tmp/spec-v2.md
+### Evidence Requirement
 
-# Check promotion readiness
-.opencode/tools/local-issues promote --number 46
-```
+If no skill was dispatched, the response MUST include a brief justification (1 sentence) explaining why no skill was applicable. This provides traceability and prevents silent skill bypass.
 
-### Standards
+A silent bypass without justification is the hallmark of agents who skip quality gates. Every unsupported response is a defect vector. Justify or dispatch — there is no third option.
 
-- All spec files use `.md` extension with optional YAML frontmatter
-- All metadata files use `.yaml` extension
-- Comments are stored as YAML with `type: internal|stakeholder` field
-- Sub-issues use the `link` command for parent-child relationships
-- GitHub/GitBucket sync uses `--github` / `--remote-url` flags on `update` and `comment`
+### Non-Waivable
 
-## Workflow
+This gate is Tier 1. No authorization, scope, or developer instruction can waive it. "Continue" does not waive it. Session momentum does not waive it.
 
-All git operations (commit, push) are handled automatically by the tool after mutation commands. You do NOT need to run `git -C .issues` commands manually.
+Agents who treat "continue" as a skip command are not being helpful — they are bypassing the quality system designed to catch their mistakes. Every gate you skip is a defect you accepted. Every "continue" means proceed, not shortcut.
 
-| Action | Command | Auto-commit? | Auto-push? |
-|--------|---------|-------------|-------------|
-| List issues | `local-issues list` | N/A (read-only) | N/A |
-| Read issue | `local-issues read --number N` | N/A (read-only) | N/A |
-| Search | `local-issues search --query "..."` | N/A (read-only) | N/A |
-| Create issue | `local-issues create --title "..."` | ✅ Yes | ✅ Yes |
-| Update issue | `local-issues update --number N ...` | ✅ Yes | ✅ Yes |
-| Add comment | `local-issues comment --number N --body "..."` | ✅ Yes | ✅ Yes |
-| Close issue | `local-issues close --number N --reason completed` | ✅ Yes | ✅ Yes |
-| Link sub-issues | `local-issues link --number N --sub M --type sub-issue` | ✅ Yes | ✅ Yes |
-| Renumber | `local-issues renumber --from N --to M` | ✅ Yes | ✅ Yes |
+---
 
-### Pull at session start
+## Guidelines Structure
 
-```
-.opencode/tools/local-issues list
-```
+Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 
-The `list` command auto-initializes the `.issues/` worktree if missing. However, it does not pull remote changes. To sync before starting work:
+| Series | Category | Files |
+|--------|----------|-------|
+| 000-099 | Core Rules | critical-rules, session-enforcement, approval-gate, go-prohibitions, scope-autonomy, tool-usage, environment, incremental-build |
+| 200-209 | Error Handling | exception-handling, missing-data, logging-vs-raising |
+| 250-299 | Dark Prose Patterns | dark-prose-reference |
 
-```
-git -C .issues pull --rebase origin issues-data
-```
+**Registry of migrated content**: `.opencode/.guidelines/registry.yaml` tracks content moved from guidelines to skills.
 
-This is the ONLY manual `git -C .issues` command needed.
+---
 
-## Directory Layout
+## Build / Lint / Test Commands
 
-```
-.issues/
-  {issue_number}/
-    spec.md                    — The spec (authoritative, may mirror remote or be sole copy)
-    spec-artifacts/
-      plan.md                  — Implementation plan (RED/GREEN items, dependency graph)
-      cards.md                 — Card catalogue with status and decision log
-      dependency-contract.yaml — Dependency contracts and phase ordering
-      research/                — Investigation findings, capability probes, evidence notes
-      designs/                 — UI wireframes, architecture diagrams, design artifacts
-      audit/                   — Adversarial audit verdicts, cross-validate consensus
-  AGENTS.md                    — This file
-  open/                        — Symlinks or references to open issues
-  closed/                      — Archived issues
-  lessons-learned/             — Per-session corrections and defect patterns for clean-room review
-    session-YYYY-MM-DD/
-      README.md                — Correction catalog with root cause analysis
-      artifacts/               — Evidence (problem files, stderr, tool outputs)
-```
+| Task | Command | File Types |
+|------|---------|------------|
+| Sync dependencies | `uv sync` | - |
+| Run all tests | `uv run pytest test/` | - |
+| Run one test file | `uv run pytest test/test_filename.py` | - |
+| Run one test | `uv run pytest test/test_filename.py::test_function_name` | - |
+| Lint + auto-fix | `uvx ruff check --fix src/ test/` | Python ONLY |
+| Format | `uvx ruff format src/ test/` | Python ONLY |
+| Type check | `uvx pyright src/` | Python ONLY |
+| Coverage | `uv run coverage run -m pytest test/ && uv run coverage report` | - |
+| Dead code scan | `uvx vulture src/` | Python ONLY |
+| Markdown lint | `uvx pymarkdownlnt scan -r .opencode/guidelines/ docs/` | Markdown ONLY |
+| Markdown format | `uvx --with mdformat-frontmatter --with mdformat-tables --with mdformat-config --with mdformat-gfm mdformat --number --compact-tables --check .opencode/guidelines/ docs/` | Markdown ONLY |
+| Skill enforcement test (content-verification) | `bash .opencode/tests/test-enforcement.sh` | opencode-cli |
+| Skill enforcement test (filtered) | `bash .opencode/tests/test-enforcement.sh --scenario NAME [...]` | opencode-cli |
+| Skill enforcement test (by tag) | `bash .opencode/tests/test-enforcement.sh --tag TAG [...]` | opencode-cli |
+| Skill enforcement test (changed files) | `bash .opencode/tests/test-enforcement.sh --changed [--base BRANCH]` | opencode-cli |
+| Skill enforcement test (list scenarios) | `bash .opencode/tests/test-enforcement.sh --list` | opencode-cli |
+| Skill enforcement test (list tags) | `bash .opencode/tests/test-enforcement.sh --list-tags` | opencode-cli |
+| Behavioral enforcement test | `bash .opencode/tests/behaviors/<scenario>.sh` | opencode-cli |
+| TypeScript check | `PATH=.tools/node/bin:$PATH npx tsc --noEmit` | TypeScript |
+| TypeScript check (alt) | `PATH=.node/bin:$PATH npx tsc --noEmit` | TypeScript |
+| Isolated opencode-cli run | `bash .opencode/tests/with-test-home opencode-cli run '<message>'` | opencode-cli |
+| Clean test artifacts | `bash .opencode/tests/with-test-home --clean` | opencode-cli |
 
-### Example: Spec-Artifact Placement
+**Never** use bare `python`, `python3`, or `pip`. Always prefix with `uv run` for project commands.
 
-| Artifact | Path |
-|----------|------|
-| Card catalogue with all card findings | `.issues/46/spec-artifacts/cards.md` |
-| Implementation plan with RED/GREEN items | `.issues/46/spec-artifacts/plan.md` |
-| Dependency contract for state machine | `.issues/46/spec-artifacts/dependency-contract.yaml` |
-| FastMCP capability probe results | `.issues/46/spec-artifacts/research/fastmcp-capabilities.md` |
-| In-memory client migration design | `.issues/46/spec-artifacts/designs/in-memory-fixture.md` |
-| Adversarial audit consensus verdict | `.issues/46/spec-artifacts/audit/consensus.yaml` |
-| Session 2026-06-06 corrections | `.issues/lessons-learned/session-2026-06-06/README.md` |
+**Ruff version sync:** When bumping the ruff version, update BOTH `pyproject.toml` (`[dependency-groups] dev` and `[tool.ruff] required-version`) AND `.pre-commit-config.yaml` (`rev:` for `ruff-pre-commit`) to keep them in sync. The `ruff-pre-commit` rev maps 1:1 to ruff releases (e.g., `v0.11.0` → ruff `0.11.0`).
 
-## Authorization
+**Isolated test environment:** The `with-test-home` wrapper isolates opencode-cli XDG state into a project-relative temporary home (`./opencode/tmp/test-home-<timestamp>`), eliminating SQLite session conflicts with the desktop app. This allows skill enforcement tests to run from within an active opencode session.
 
-Reading and writing `.issues/` is **authorization-free** — it is workspace-local metadata, not implementation code. All spec/plan/card operations within `.issues/` may proceed without `"approved"` or `"go"`.
+---
 
-Creating `feature/*` or `spec/*` branches for code changes still requires `for_implementation` or above scope.
+## Project Structure
 
-## Relationship to Remote Issue Tracker
+- `src/`: Application source code
+- `test/`: Unit and integration tests
+- `docs/`: Documentation and specifications
+- `.opencode/`: Skills, guidelines, and agent tools
+  - `tools/`: Agent utility scripts (guidelines, md, memory, py, jupyter, etc.)
+  - `scripts/`: Session context scripts (session_context_triggers.py)
+  - `skills/`: Self-contained skills (no guideline dependencies)
+  - `guidelines/`: Core zero-tolerance rules only
+  - `hooks/`: Git hooks (auto-installed to .git/hooks/ by session-enforcement.ts at session start)
+  - `plugins/`: TypeScript plugins (session-enforcement.ts, env-loader.ts)
+  - `.guidelines/registry.yaml`: Registry of migrated content
 
-- **`.issues/` is the PRIMARY spec/plan store.** All authoritative content — specs, plans, card catalogues, dependency contracts, research — lives here in the `issues-data` branch.
-- **GitHub/GitBucket is the mirrored user-facing exec summary only.** The remote issue body contains a condensed summary and a single link to the spec folder (`.issues/{N}/` on the `issues-data` branch). AI agents MUST read from `.issues/` — never treat the remote issue body as authoritative.
-- `.issues/{N}/spec.md` is the full authoritative spec. The remote issue body is a summary copy with a cross-reference link to this folder.
-- `.issues/{N}/spec-artifacts/` contains plan.md, cards.md, dependency-contract.yaml, and sub-directories (research/, designs/, audit/) — these are NEVER mirrored to the remote tracker.
-- When reading or acting on an issue, always read from `.issues/{N}/` first. Only use the remote issue body for user-facing context (comments, labels, assignees).
+- **Submodule repos**: `.opencode/` tracks `dev` — never detached HEAD or `main`
 
-## GitHub URL Convention for Remote Issue Body
+---
 
-The remote issue body is a human-facing exec summary. It must include two blockquotes at the top:
+## Session Context
 
-1. **User-facing folder URL** — a full GitHub URL so the user can browse the spec folder on GitHub
-2. **AI-facing sub-folder references** — relative paths to `spec-artifacts/` sub-directories, so agents know where to glob for additional files. Do NOT list individual files — agents should discover content by reading `.issues/{N}/` and globbing `spec-artifacts/*` automatically.
+One plugin runs at session start, and one script provides complementary data:
 
-### Pattern
+1. **session-init** (`tools/session-init`): Emits session variables silently (owner, repo, platform, hooks). **Canonical source for identity data including ## Repo Information section.**
+2. **session_context_triggers.py** (`scripts/session_context_triggers.py`): Emits trigger warnings into first user message
 
-```
-> **Full spec and artifacts: [`.issues/{N}/`](https://github.com/{owner}/{repo}/tree/issues-data/{N})** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
->
-> **Local artifacts:** `.issues/{N}/spec-artifacts/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
-```
+Session context output includes:
 
-### Rules
+- **Repo Information section** (always, in system prompt): `owner`, `repo`, `platform`, `url` per repo entry in `## Repo Information` YAML block
+- **Identity-echo directive** (always, in first user message): mandatory identity echo at session start
+- **Trigger alerts** (when detected, in first user message): trigger warnings for special states
+- **Tier 3 probes** (opt-in via `.opencode-issue-probe`): `open_pr_on_branch`, `ci_failure`, `stale_pr`
 
-- **User-facing: One full GitHub URL** — the spec folder, as a blockquote
-- **AI-facing: Sub-folder paths only** — reference `spec-artifacts/` (not individual files). Agents glob `spec-artifacts/*` to discover content
-- **NO hardcoded file lists** — don't list `plan.md`, `cards.md`, etc. individually in the remote body. They go stale. Agents discover by globbing.
-- AI agents read from `.issues/{N}/` directly — the remote body just tells them where to look
+Credential status values: `verified` (token exists + API ping succeeds), `present` (token exists, liveness unchecked), `missing` (no token found), `stale` (token rejected by API), `unavailable` (platform unknown).
 
-### Example
+- **Repo Information section** (always, in system prompt): `owner`, `repo`, `platform`, `url` per repo entry in `## Repo Information` YAML block. Emitted by `session-init` (canonical source).
 
-```
-> **Full spec and artifacts: [`.issues/46/`](https://github.com/michael-conrad/viewport-editor/tree/issues-data/46)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
->
-> **Local artifacts:** `.issues/46/spec-artifacts/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
-```
+---
 
-## Lessons Learned Registry
+## Direct-Branch Primary Workflow
 
-`lessons-learned/` captures per-session correction catalogs for clean-room agent review. Each session subdirectory contains:
+**Direct-branch is the PRIMARY and DEFAULT workflow.** Agent creates feature branch directly in main repo using `git checkout -b` or `git switch -c`. Worktrees are **opt-in**, created only when `WORKTREE_REQUIRED` flag is set or developer explicitly requests them.
 
-| File | Purpose |
-|------|---------|
-| `README.md` | Correction catalog with root cause analysis, systemic vs. one-off classification, remediation targets |
-| `artifacts/` | Evidence: problem files, stderr output, tool results |
+| Mode | When | Path Behavior |
+|------|------|---------------|
+| **Direct-branch (default)** | `WORKTREE_REQUIRED` NOT set | Relative paths work directly; `worktree.path` NOT set |
+| **Worktree (opt-in)** | `WORKTREE_REQUIRED` set or developer request | All paths prefixed with `worktree.path` |
 
-### When to Read
+**Branch and submodule state model:** See `git-workflow` skill → Branch and Submodule State Model for the complete workflow including proactive repo state verification, mid-feature submodule currency, rebase-always hygiene, and post-merge integration.
 
-At the START of every session, a clean-room agent MUST:
+**Submodule discipline:**
+- Dev parking: `git checkout dev && git pull && git submodule init && git submodule foreach "git checkout dev && git pull"`
+- Mid-feature: Sync submodules to upstream `dev` periodically
+- Release: Lock submodule SHAs to current checkout state (NOT a fresh pull)
+- Hotfix: No submodule state changes; use pinned SHAs from `main`
 
-1. List `lessons-learned/` subdirectories
-2. Read each `README.md` that has not been marked `consumed`
-3. For each systemic lesson, file a bug/SPEC-FIX issue targeting the identified remediation file
-4. After filing, add a `consumed: YYYY-MM-DD` marker to the lesson's frontmatter
+---
 
-A lesson is "consumed" when a bug-fix issue or PR has been created for it. The lesson stays in the directory for audit trail — do not delete it.
+## Pair Mode
+
+When the current branch starts with `pair-`, the agent operates in **dev-pair mode**: working directly in the main project directory alongside the developer, using WIP-commit switching instead of worktrees.
+
+| Branch Pattern | Mode | Working Directory |
+|---|---|---|
+| `pair-feature/123-xyz` | Dev-pair | Main project dir |
+| `pair-spec/456-abc` | Dev-pair | Main project dir |
+| `feature/789-xyz` | Autonomous | Main project dir (direct-branch) or `.worktrees/` (opt-in) |
+| `spec/789-abc` | Autonomous | Main project dir (direct-branch) or `.worktrees/` (opt-in) |
+
+Pair mode tasks: `pair-pre-work`, `pair-commit`, `pair-pr-creation`, `pair-cleanup`, `pair-mode-resume`. See `git-workflow` skill for full task documentation.
+
+---
+
+## Boundaries (Critical)
+
+**✅ ALWAYS:**
+- Create feature branch BEFORE any filesystem change
+- Wait for explicit authorization ("approved" or "go") before implementing
+- SILENTLY HALT after completing a task
+- Use appropriate tools per five-tier hierarchy (see `mcp-tool-usage` skill)
+- Verify before completing. Verification IS completion.
+
+**✅ Multi-Task Spec Workflow (CRITICAL):**
+When parent issue has sub-issues, authorization cascades to ALL sub-issues:
+
+- [ ] User authorizes parent issue
+- [ ] Verify parent has sub-issues
+- [ ] Authorization cascades to ALL sub-issues
+- [ ] Complete ALL phases in sequence (NO HALT between phases)
+- [ ] Report ONCE after ALL phases complete
+- [ ] HALT ONCE at the end
+
+**Exception:** User explicitly names a phase (e.g., "approved: Phase 2 only") → complete that phase ONLY, then HALT
+
+**🚫 NEVER:**
+- Write code/notebooks/configs/tests without approved spec
+- Interpret questions as authorization
+- Proceed to next task after completing a task — HALT
+- Create PRs without explicit "create a PR" instruction
+- Use `/tmp/` — only use `./tmp/`
+- Assume cached values from previous sessions
+- HALT after each phase of multi-task spec (see Multi-Task Spec Workflow above)
+- Write spec/plan content directly to chat as the final deliverable — ALWAYS invoke brainstorming → spec-creation → issue-operations to persist specs as GitHub Issues

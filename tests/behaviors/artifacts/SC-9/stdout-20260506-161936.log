@@ -1,0 +1,3 @@
+Now I need to verify which skills actually dispatch auditor sub-agents. Let me check the SKILL.md files for the skills mentioned.
+Now let me check which specific skills dispatch auditor sub-agents (not just reference them, but actually dispatch them via `task()`):
+Now let me check the specific dispatch behavior of the skills mentioned in the user's question. Let me look at whether `approval-gate`, `divide-and-conquer`, `executing-plans`, `finishing-a-development-branch`, and `writing-plans` actually dispatch auditor sub-agents:

@@ -1,0 +1,16 @@
+Test home: /home/muksihs/git/opencode-config/tmp/test-home-20260506-165053
+Seeded opencode.jsonc with 17 model(s)
+Performing one time database migration, may take a few minutes...
+sqlite-migration:done
+Database migration complete.
+[0m
+> build · glm-5.1:cloud
+[0m
+[0m✱ [0mGlob "tmp/test-spec-397-semantic.md"[90m 0 matches[0m
+[0m
+[0m# [0mTodos
+[x] Check if spec file tmp/test-spec-397-semantic.md exists
+[ ] Dispatch auditor-glm-5.1 subagent with exact prompt
+[0m
+[0m• [0mAudit spec for SC-6 completeness[90m Auditor-Glm-5.1 Agent[0m
+[0m✓ [0mAudit spec for SC-6 completeness[90m Auditor-Glm-5.1 Agent[0m

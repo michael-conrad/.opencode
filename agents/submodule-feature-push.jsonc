@@ -1,0 +1,26 @@
+{
+  // Sub-agent config: submodule-feature-push
+  // Pushes submodule changes during review-prep
+  "name": "submodule-feature-push",
+  "type": "sub-agent",
+  "description": "Handles submodule push automation during review-prep. Checks for changes in each submodule, pushes feature branches, and returns per-submodule status.",
+  "model": "general",
+  "tools": ["bash", "github_*"],
+  "dispatch_context": {
+    "must_receive": [
+      "parent_repo_owner",
+      "parent_repo_name",
+      "parent_branch",
+      "submodule_paths",
+      "dev_name",
+      "dev_email"
+    ],
+    "must_not_receive": [
+      "implementation context",
+      "agent reasoning or cached results",
+      "expected outcomes or pre-determined file paths",
+      "parent repo implementation details or work state"
+    ]
+  },
+  "boundary": "scoped submodule operations only — git diff check in submodules, git push feature branches. No parent repo modifications. No PR creation."
+}

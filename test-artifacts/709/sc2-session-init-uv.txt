@@ -1,0 +1,11 @@
+Developer: Michael Conrad
+Email: m.conrad.202@gmail.com
+Git branch: feature/batch-715-704-pr-batch
+Git hooks: /path/to/hooks
+Code index: opencode-config
+## Sub-folder Repo Mappings
+submodules:
+  - path: .opencode
+    owner: michael-conrad
+    repo: .opencode
+    platform: github

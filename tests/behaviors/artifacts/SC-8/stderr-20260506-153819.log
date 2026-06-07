@@ -1,0 +1,17 @@
+Test home: /home/muksihs/git/opencode-config/tmp/test-home-20260506-153819
+Seeded opencode.jsonc with 17 model(s)
+Performing one time database migration, may take a few minutes...
+sqlite-migration:done
+Database migration complete.
+[0m
+> build · glm-5.1:cloud
+[0m
+[0m→ [0mRead .opencode/skills/spec-auditor/SKILL.md
+[0m
+[0m$ [0mgh issue view 999 2>&1 || echo "gh not available or no auth"
+To get started with GitHub CLI, please run:  gh auth login
+Alternatively, populate the GH_TOKEN environment variable with a GitHub API authentication token.
+gh not available or no auth
+[0m
+Test home preserved at: /home/muksihs/git/opencode-config/tmp/test-home-20260506-153819
+Use 'bash .opencode/tests/with-test-home --clean' to remove.
