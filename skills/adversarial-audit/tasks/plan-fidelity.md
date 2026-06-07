@@ -64,6 +64,8 @@ Read the existing plan from `spec_local_dir/`:
 | PF-7a | Cost-frame prose + runtime execution in instructions | Each phase's implementation instructions carry cost-frame reformation prose and require real test execution with saved artifacts |
 | PF-7 | SC gate language preserved in plan tasks | Plan task structure references the all-or-nothing gate from spec; each TDD RED checkpoint is a sub-gate in the chain |
 | PF-STRUCTURAL-FAIL | Structural evidence rejected for behavioral SCs in plan instructions | If a plan phase's verification instructions accept structural evidence (grep/read/file-exists) for a behavioral SC, return FAIL with `STRUCTURAL_EVIDENCE` classification. **PF-STRUCTURAL-FAIL uplift:** When checking plan fidelity, if an implementation change affects runtime behavior, uplift the SC evidence type to `behavioral`. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV. Verification instructions MUST require behavioral test execution — structural checks do not verify behavior. |
+| PF-Z3-CONTRACT | Z3 contract completeness and correctness | Check: (1) Pipeline gate booleans exist (14 per unit, e.g., P1_p1..P1_p14). (2) NO preconditions declared (preconditions block valid state transitions). (3) Invariants enforce serial ordering (implies pN, pN-1). Any check fails → PF-BLOCKED. |
+| PF-PRESCRIPTIVE-CODE | No prescriptive code in RED/GREEN conditions | RED/GREEN conditions contain NO line numbers, exact code, or file paths. RED describes "what fails". GREEN describes "what must be true". Prescriptive content → flag if present. |
 
 <!-- Fragment ID: sc-enforcement-gate -->
 

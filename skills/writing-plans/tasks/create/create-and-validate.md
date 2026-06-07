@@ -36,7 +36,7 @@ Write plan document, store as combined section or separate issue, validate struc
 - Create GitHub Issue:
   - Title: `[PLAN] <Feature Name>`
   - Labels: `plan`, `needs-approval`
-  - Body: `Spec: #<N>` prose reference, then plan (header, file structure, phases with TDD tasks)
+  - Body: `Spec: [issue #<N>](https://github.com/<owner>/<repo>/issues/<N>)` prose reference, then plan (header, file structure, phases with TDD tasks)
   - STATUS: prose-driven format: `STATUS: in progress — {first concern}, Step 1`
   - Do NOT link plan as sub-issue of spec — reference only via body text
 
@@ -78,19 +78,17 @@ Scans for `⚠️ UNVERIFIED` markers. Resolves if possible; escalates unresolva
 
 ### Step 11: Report Plan Creation in Chat (MANDATORY)
 
-**Format (separate plan):**
+**Format (separate plan) — SC-10: full URLs, never bare #N:**
 ```
-Created separate implementation plan for #<N> (<description>). <N> tasks across <N> files.
+Created separate implementation plan for [<owner>/<repo>#<N>](https://github.com/<owner>/<repo>/issues/<N>) (<description>). <N> tasks across <N> files.
 
-https://github.com/<owner>/<repo>/issues/<N>
 🤖 <AgentName> (<ModelId>)
 ```
 
-**Format (combined spec+plan):**
+**Format (combined spec+plan) — SC-10: full URLs, never bare #N:**
 ```
-Created combined spec+plan for #<N> (<description>). Plan appended under `## Implementation Plan`.
+Created combined spec+plan for [<owner>/<repo>#<N>](https://github.com/<owner>/<repo>/issues/<N>) (<description>). Plan appended under `## Implementation Plan`.
 
-https://github.com/<owner>/<repo>/issues/<N>
 🤖 <AgentName> (<ModelId>)
 ```
 
@@ -132,9 +130,9 @@ SCOPE_LEVELS = {
 
 if scope_level >= SCOPE_LEVELS["for_plan"]:
     # Pipeline authorization covers plan approval
-    issue-operations -> update-issue (github_issue_write(method="update", issue_number=<plan>, <!-- Routes through issue-operations per SPEC #683 -->
+    issue-operations -> update-issue (github_issue_write(method="update", issue_number=<plan>, <!-- Routes through issue-operations per [spec #683](https://github.com/michael-conrad/opencode-config/issues/683) -->
                       labels=[l for l in plan_labels if l != "needs-approval"])
-    issue-operations -> comment (github_add_issue_comment( <!-- Routes through issue-operations per SPEC #683 -->
+    issue-operations -> comment (github_add_issue_comment( <!-- Routes through issue-operations per [spec #683](https://github.com/michael-conrad/opencode-config/issues/683) -->
         issue_number=<plan>,
         body=f"Plan auto-approved via pipeline scope (authorization_scope={scope})."
     )

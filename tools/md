@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = []
 # ///
 
+# fmt: on
 __doc__ = """DESCRIPTION: Markdown tools dispatcher. Usage: ./.opencode/tools/md <action> [args...]
 Actions: read, write, add, delete, new
 Example: ./.opencode/tools/md read <file.md> [--section <header>]
@@ -78,3 +80,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

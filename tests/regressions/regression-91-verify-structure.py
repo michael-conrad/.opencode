@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = ["pyyaml>=6.0"]
 # ///
 
+# fmt: on
 """
 DESCRIPTION: Regression test for spec #91 SC-12. Runs skildeck verify-structure against known-incomplete SKILL.md files from issues #41-#45 to verify ABSENT-FAIL is reported for missing structural components that were added in later commits.
 Usage: uv run .opencode/tests/regressions/regression-91-verify-structure.py
@@ -120,3 +122,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

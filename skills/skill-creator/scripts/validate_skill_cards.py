@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = []
 # ///
 
+# fmt: on
 """
 Skill card validation only (sensor mode). Corrections are agent-driven.
 
@@ -360,3 +362,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

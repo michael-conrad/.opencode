@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = []
 # ///
 
+# fmt: on
 __doc__ = """DESCRIPTION: List packages and modules under a path (replaces `ls` for Python source trees).
 Usage: ./.opencode/tools/py ls [<path>] [--all]
 Example: ./.opencode/tools/py ls src/commons
@@ -78,3 +80,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

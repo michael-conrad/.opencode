@@ -54,36 +54,7 @@ verify_merge_output:
 
 The `merged_in_repo` and `submodule_context` fields are REQUIRED inputs to `issue-closure` Step 8.5 for correct submodule routing. If these are missing, issue-closure MUST flag as VERIFICATION-GAP and HALT.
 
-### Step 2: Adversarial-Audit Closure Verification
-
-Invoke `adversarial-audit --task closure-verification` to verify merge evidence:
-
-```python
-task(
-    subagent_type="general",
-    prompt=f"""Use adversarial-audit skill --task closure-verification with:
-
-pr_number: {pullNumber}
-audit_phase: post_merge
-
-worktree.path: {worktree.path}
-github.owner: {github.owner}
-github.repo: {github.repo}
-
-Mandatory gates:
-1. Verify PR merge status via GitHub API
-2. Verify success criteria have evidence
-3. Verify spec issue closed with proper resolution
-4. Return structured result contract
-"""
-)
-```
-
-**Evidence artifacts:**
-- EVIDENCE: closure-verification result consensus = PASS
-- EVIDENCE: All success criteria verified
-
-### Step 3: Rebase Pending PRs
+### Step 2: Rebase Pending PRs
 
 After verifying the PR merge and before switching to dev, rebase all other open PRs onto the updated `dev` branch.
 

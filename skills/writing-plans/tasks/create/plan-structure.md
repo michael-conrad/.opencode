@@ -31,7 +31,8 @@ Collects evidence artifacts for factual claims. Unverified claims marked with `�
 - Query GitHub Issue for spec content
 - Extract objectives, constraints, success criteria
 - Extract the all-or-nothing gate statement from the spec's SC section. The plan MUST preserve this gate language in its task structure — each TDD RED checkpoint is a sub-gate in the all-or-nothing chain. If the spec lacks the gate statement, flag as `SPEC_GAP`: the spec must be revised to include the gate before the plan proceeds.
-- Identify affected files and dependencies
+- Identify affected sub-folders (not individual file paths — agents glob to discover content)
+- Extract the spec's repo owner and repo from the issue URL for use in full-URL references
 
 <!-- Fragment ID: sc-enforcement-gate -->
 
@@ -63,18 +64,20 @@ Reason: <justification referencing evaluation criteria>
 
 Search for existing plans referencing the same spec:
 ```python
-plans = issue-operations -> search-issues (github_search_issues(query="label:plan", owner=<owner>, repo=<repo>, state="open") <!-- Routes through issue-operations per SPEC #683 -->
+plans = issue-operations -> search-issues (github_search_issues(query="label:plan", owner=<owner>, repo=<repo>, state="open") <!-- Routes through issue-operations per [spec #683](https://github.com/michael-conrad/opencode-config/issues/683) -->
 ```
 
 For each plan found with `Spec: #<spec_number>`, present choice:
-- Proceed with new plan (reference existing: `Supersedes #N` or `Parallel track to #N`)
+- Proceed with new plan (reference existing as full URL: `[Supersedes #N](https://github.com/<owner>/<repo>/issues/<N>)`)
 - HALT and review existing plan
 
-### Step 2: Map File Structure
+### Step 2: Map File Structure (Sub-Folder References — SC-9)
 
-- List all files to create or modify
-- Define each file's responsibility
-- Ensure decomposition has clear boundaries
+- List sub-folders to create or modify (e.g., `skills/writing-plans/tasks/create/`), not individual files
+- Agents glob `spec-artifacts/*` or `tasks/create/*` to discover content
+- Define each sub-folder's responsibility and concern boundary
+- Ensure decomposition has clear boundaries across sub-folders
+- **NO hardcoded file lists** — stale on every edit; agents discover by globbing
 
 ### Step 3: Item Decomposition (per `091-incremental-build.md`)
 
@@ -88,20 +91,19 @@ For each plan found with `Spec: #<spec_number>`, present choice:
 
 **Failure:** Plan will fail `approval-gate --task verify-authorization` Step 4.5
 
-### Step 3.5: Preserve Semantic Intent from Spec
+### Step 3.5: RED/GREEN Condition Language (SC-2, SC-4 — Forward-Looking Stance)
 
-When referencing spec success criteria:
-- **TDD step guidance:** Explain WHY the test checks for a specific exact value, not just what it checks
-- **RED verification checkpoint (MANDATORY):** Each TDD step MUST include explicit Step 2 checkpoint
+Each item's RED/GREEN conditions MUST describe requirements, not implementation:
 
-Example task structure:
+**RED** = "what must be false before this item starts" — the failure condition that would exist if this item were not implemented. NO line numbers, NO exact import strings, NO exact assertion code, NO file paths.
+
+**GREEN** = "what must be true when done" — the condition that proves completion. Uses "must be true" language. NO "implemented", "complete", or past-tense status language.
+
 ```
-Task N: [Component Name]
-  Step 1: Write the failing test
-  Step 2: Run test, verify RED ← CHECKPOINT: must produce tool-call evidence of failure
-  Step 3: Write minimal implementation
-  Step 4: Run test, verify GREEN
-  Step 5: Commit
+✅ CORRECT RED: "The agent produces a plan with RED/GREEN conditions instead of prescriptive code"
+✅ CORRECT GREEN: "Plans must describe what must be true, not how to achieve it"
+❌ WRONG: "Replace line 42 with from mcp.server.fastmcp import FastMCP"
+❌ WRONG: "Implemented RED/GREEN conditions for all items"
 ```
 
 **Behavioral RED/GREEN for rule-changing items:**
@@ -116,11 +118,66 @@ Organize by concern flow:
 - Write prose for phase descriptions
 - Prose-driven, not template-driven
 
-### Step 5: Define Tasks Within Each Phase
+### Step 5: Define Tasks Within Each Phase (Per-Unit Gates — SC-3)
 
 - Each step is one action (2-5 minutes)
-- Exact code, exact commands, exact file paths
-- **Step 2 checkpoint is MANDATORY** — plans without it fail validation
+- RED/GREEN condition descriptions per Step 3.5 — NO exact code, commands, or file paths
+- **Step 2 RED checkpoint is MANDATORY** — plans without it fail validation
+
+#### Per-Unit Pipeline Gate Table (SC-3 — MUST be embedded in EACH unit)
+
+Every unit gets its own 14-row pipeline gate table with unit-specific exit criteria. NOT a single shared cross-reference. Each table MUST have:
+
+```
+| Gate | Name | Exit Criterion (unit-specific) |
+|------|------|-------------------------------|
+| 1 | sc-coherence-gate | <what must pass for THIS unit> |
+| 2 | pre-red-baseline | <what must pass for THIS unit> |
+| 3 | red-phase | <what must pass for THIS unit> |
+| 4 | red-doublecheck | <what must pass for THIS unit> |
+| 5 | green-phase | <what must pass for THIS unit> |
+| 6 | checkpoint-commit | <what must pass for THIS unit> |
+| 7 | structural-checks | <what must pass for THIS unit> |
+| 8 | green-doublecheck | <what must pass for THIS unit> |
+| 9 | green-vbc | <what must pass for THIS unit> |
+| 10 | adversarial-audit | <what must pass for THIS unit> |
+| 11 | cross-validate | <what must pass for THIS unit> |
+| 12 | regression-check | <what must pass for THIS unit> |
+| 13 | review-prep | <what must pass for THIS unit> |
+| 14 | exec-summary | <what must pass for THIS unit> |
+```
+
+#### Z3 Contract Generation (SC-7 — Per-Unit, No Preconditions)
+
+Each unit's Z3 contract declares:
+- 14 boolean variables per unit representing pipeline gate states (e.g., `P1_p1..p14`)
+- 1 domain variable per unit (e.g., `D_P1`) that MUST be `False` unless all 14 gates are `True`
+- 13 serial-ordering invariants: `Implies(pN, pN-1)` for N = 2..14
+- NO preconditions — invariants + postconditions only
+
+Contract structure:
+```
+(declare-const P1_p1 Bool) ... (declare-const P1_p14 Bool)
+(declare-const D_P1 Bool)
+
+; Serial ordering: each gate implies the prior gate passed
+(assert (=> P1_p2 P1_p1))
+...
+(assert (=> P1_p14 P1_p13))
+
+; Domain variable is True only when all 14 gates pass
+(assert (=> D_P1 (and P1_p1 ... P1_p14)))
+
+; Domain variable is False when any gate is false
+(assert (=> (not (and P1_p1 ... P1_p14)) (not D_P1)))
+
+; Verification: initial state (all false) → SAT expected
+; Verification: defective state (D_P1=true, p1=false) → UNSAT expected
+```
+
+Verification steps after contract generation:
+1. Assert all-false state: run Z3 solver — MUST return SAT
+2. Assert D_P1=True but p1=False: run Z3 solver — MUST return UNSAT
 
 ## Context Required
 

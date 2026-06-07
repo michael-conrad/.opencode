@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -6,6 +7,7 @@
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+# fmt: on
 import json
 import tempfile
 from pathlib import Path
@@ -133,3 +135,4 @@ def test_list_pull_requests_head_param_sent_to_api():
     call = api._request.call_args
     params = call[1].get("params") or {}
     assert params.get("head") == "feature/Z"
+

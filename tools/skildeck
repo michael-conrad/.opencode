@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = ["pyyaml>=6.0"]
 # ///
 
+# fmt: on
 __doc__ = """DESCRIPTION: Skill deck formal analysis CLI. Lint, analyze, and export symbolic models from guidelines and skills.
 Usage: ./.opencode/tools/skildeck <action> [options]
 Actions: lint, analyze, gates, export, watch, extract, verify-structure, verify-acceptance, verify-issue, exhaustive, entailment, guards, enforcement, triggers, decomposition, help
@@ -135,3 +137,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
