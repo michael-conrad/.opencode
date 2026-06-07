@@ -232,11 +232,14 @@ All AI-authored PR bodies MUST contain one of the following byline patterns:
 **Outcome:** <What changed for stakeholders>
 
 **PR URL:** <html_url from API response>
+
+Wait for human to merge.
 ```
 
 **Format requirements:**
 - Executive summary FIRST
 - PR URL LAST (before byline)
+- MUST include "Wait for human to merge"
 - Label MUST be "PR URL" (post-creation context)
 
 ### Agent Merge Prohibition

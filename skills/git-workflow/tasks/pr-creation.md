@@ -9,7 +9,7 @@ Create pull request after explicit user instruction. Squash commits to single co
 1. **User-initiated only:** "create a PR", "make a PR", "push and create PR"
 2. **Squash to single commit:** ALL implementation commits combined into ONE clean commit
 3. **Target `dev` branch:** Feature PRs merge to `dev` (not `main`)
-4. **HALT after PR creation:** No prompting for next steps
+4. **HALT after PR creation:** Wait for human to merge
 
 ## Entry Criteria
 
@@ -21,7 +21,7 @@ Create pull request after explicit user instruction. Squash commits to single co
 
 - PR created via GitHub API or GitBucket CLI
 - PR URL extracted from API response and reported in chat
-- Agent reports PR URL and HALTs — no prompting for next steps
+- Agent HALTs waiting for human merge
 
 ## Procedure
 
