@@ -1,0 +1,73 @@
+# Z3 Contract: [#1052](https://github.com/michael-conrad/.opencode/issues/1052) — Remove instructional language from PR body format
+schema_version: "1.0"
+created: "2026-06-07"
+description: "Single-phase fix: 4 exact string changes across 2 files to remove instructional language from PR body format. CRITICAL invariant: no scope creep beyond the 4 specified changes."
+
+variables:
+  # Domain variables — one per file change
+  CHANGE_1_EXAMPLE_FIXED:
+    type: bool
+    nullable: false
+    description: "create-pr.md Step 7.5 example no longer contains 'Wait for human to merge.'"
+  CHANGE_2_REQUIREMENT_FIXED:
+    type: bool
+    nullable: false
+    description: "create-pr.md Step 7.5 requirements no longer include 'MUST include Wait for human to merge'"
+  CHANGE_3_PROTOCOL_FIXED:
+    type: bool
+    nullable: false
+    description: "pr-creation.md Operating Protocol step 4 says 'No prompting for next steps'"
+  CHANGE_4_EXIT_FIXED:
+    type: bool
+    nullable: false
+    description: "pr-creation.md Exit Criteria says 'Agent reports PR URL and HALTs — no prompting for next steps'"
+
+  # Pipeline gate booleans — Phase 1 (single phase)
+  P1_p1:  {type: bool, nullable: false, description: "Phase 1 sc-coherence-gate"}
+  P1_p2:  {type: bool, nullable: false, description: "Phase 1 pre-red-baseline"}
+  P1_p3:  {type: bool, nullable: false, description: "Phase 1 red-phase"}
+  P1_p4:  {type: bool, nullable: false, description: "Phase 1 red-doublecheck"}
+  P1_p5:  {type: bool, nullable: false, description: "Phase 1 green-phase"}
+  P1_p6:  {type: bool, nullable: false, description: "Phase 1 checkpoint-commit"}
+  P1_p7:  {type: bool, nullable: false, description: "Phase 1 structural-checks"}
+  P1_p8:  {type: bool, nullable: false, description: "Phase 1 green-doublecheck"}
+  P1_p9:  {type: bool, nullable: false, description: "Phase 1 green-vbc"}
+  P1_p10: {type: bool, nullable: false, description: "Phase 1 adversarial-audit"}
+  P1_p11: {type: bool, nullable: false, description: "Phase 1 cross-validate"}
+  P1_p12: {type: bool, nullable: false, description: "Phase 1 regression-check"}
+  P1_p13: {type: bool, nullable: false, description: "Phase 1 review-prep"}
+  P1_p14: {type: bool, nullable: false, description: "Phase 1 exec-summary"}
+
+preconditions: []
+
+invariants:
+  # Domain dependency chain — all changes are independent
+  - z3.Implies(CHANGE_1_EXAMPLE_FIXED == True, P1_p14 == True)
+  - z3.Implies(CHANGE_2_REQUIREMENT_FIXED == True, P1_p14 == True)
+  - z3.Implies(CHANGE_3_PROTOCOL_FIXED == True, P1_p14 == True)
+  - z3.Implies(CHANGE_4_EXIT_FIXED == True, P1_p14 == True)
+
+  # Pipeline gate serial ordering — Phase 1
+  - z3.Implies(P1_p2 == True, P1_p1 == True)
+  - z3.Implies(P1_p3 == True, P1_p2 == True)
+  - z3.Implies(P1_p4 == True, P1_p3 == True)
+  - z3.Implies(P1_p5 == True, P1_p4 == True)
+  - z3.Implies(P1_p6 == True, P1_p5 == True)
+  - z3.Implies(P1_p7 == True, P1_p6 == True)
+  - z3.Implies(P1_p8 == True, P1_p7 == True)
+  - z3.Implies(P1_p9 == True, P1_p8 == True)
+  - z3.Implies(P1_p10 == True, P1_p9 == True)
+  - z3.Implies(P1_p11 == True, P1_p10 == True)
+  - z3.Implies(P1_p12 == True, P1_p11 == True)
+  - z3.Implies(P1_p13 == True, P1_p12 == True)
+  - z3.Implies(P1_p14 == True, P1_p13 == True)
+
+  # CRITICAL no-scope-creep invariant: no changes beyond the 4 specified
+  # (enforced at adversarial audit gate P1_p10)
+
+postconditions:
+  - CHANGE_1_EXAMPLE_FIXED == True
+  - CHANGE_2_REQUIREMENT_FIXED == True
+  - CHANGE_3_PROTOCOL_FIXED == True
+  - CHANGE_4_EXIT_FIXED == True
+  - P1_p14 == True
