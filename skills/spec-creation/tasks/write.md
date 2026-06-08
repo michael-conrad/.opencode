@@ -397,7 +397,7 @@ Invoke `issue-operations` skill to persist the spec as a GitHub Issue:
 
 ### Step 7a: Exec-Summary Format Rules
 
-The exec summary embedded in the GitHub Issue body MUST follow these formatting constraints:
+The exec summary embedded in the remote issue body MUST follow these formatting constraints:
 
 - **No checkboxes, no status markers, no completion flags** — the issue body is a requirements document, not a project tracker
 - **Cards listed in dependency order** — implementable sequence, not alphabetical or priority order
@@ -408,7 +408,7 @@ The exec summary embedded in the GitHub Issue body MUST follow these formatting 
 
 | Rule | Rationale |
 |------|-----------|
-| No checkboxes/status markers | Issue body is a requirements document, not a tracker. Status belongs on GitHub labels and sub-issue state. |
+| No checkboxes/status markers | Issue body is a requirements document, not a tracker. Status belongs on platform labels and sub-issue state. |
 | Dependency-ordered cards | Implementation follows dependency order; the exec summary must reflect the sequence the implementer will follow. |
 | Key Decisions section | Design decisions made during spec creation must be visible to the implementer without reading the full card catalogue. |
 | Risk Callouts section | Risks that affect implementation approach or timeline must be surfaced at the top of the issue, not buried in appendix content. |
