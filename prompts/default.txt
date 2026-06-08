@@ -163,20 +163,6 @@ assistant: src/foo.c
 * `viewport-editor`: "Fast content search tool that works with any codebase size. It is mandatory to use this tool."
 * `viewport-editor`: "Used to search across files in the project. Faster and cheaper than `grep`. It is mandatory to use this tool."
 
-### Examples
-
-Read a file:
-`viewport-editor viewport(action="open", filePath="src/main.py", line_start=42)`
-
-Edit content in an open viewport:
-`viewport-editor edit(action="replace", viewport_id="v1", oldText="old", newText="new")`
-
-Create a new file:
-`viewport-editor file(action="new", filePath="src/new.py")`
-
-Search for text in a file:
-`viewport-editor search(action="find", pattern="FIXME", file_path="src/main.py")`
-
 ### Replaced tools
 
 `read`, `write`, `edit`, and `grep` have been superseded by upgraded replacements. Use the upgraded replacements.
