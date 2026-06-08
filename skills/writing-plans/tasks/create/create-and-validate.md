@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Write plan document, store as combined section or separate issue, validate structure, and handle approval cascade with scope-aware auto-approval.
+Write plan document, store locally in `.issues/{N}/spec-artifacts/plan.md`, validate structure, and handle approval cascade with scope-aware auto-approval.
 
 ## Entry Criteria
 
@@ -12,10 +12,10 @@ Write plan document, store as combined section or separate issue, validate struc
 
 ## Exit Criteria
 
-- Plan document written and stored (combined or separate)
+- Plan document written and stored locally at `.issues/{N}/spec-artifacts/plan.md`
 - Self-review and validation complete
 - Verification revisit passed
-- Plan reported in chat with URL
+- Plan reported in chat with local artifact path
 - Approval cascade applied (auto-approval for pipeline scope)
 
 ## Procedure
@@ -27,18 +27,10 @@ Write plan document, store as combined section or separate issue, validate struc
 
 ### Step 7: Store Plan Document
 
-**If COMBINED (from Step 1.5):**
-- Append `## Implementation Plan` section to spec issue body
-- Retain `[SPEC]` title prefix
+**All paths (combined and separate):**
+- Write plan to `.issues/{N}/spec-artifacts/plan.md`
+- No remote API calls for plan storage — plans are local artifacts per architecture
 - Proceed to Step 8
-
-**If SEPARATE:**
-- Create GitHub Issue:
-  - Title: `[PLAN] <Feature Name>`
-  - Labels: `plan`, `needs-approval`
-  - Body: `Spec: [issue #<N>](https://github.com/<owner>/<repo>/issues/<N>)` prose reference, then plan (header, file structure, phases with TDD tasks)
-  - STATUS: prose-driven format: `STATUS: in progress — {first concern}, Step 1`
-  - Do NOT link plan as sub-issue of spec — reference only via body text
 
 **Phase body requirements (each phase MUST include):**
 - Why this phase exists (concern it addresses)
@@ -49,12 +41,6 @@ Write plan document, store as combined section or separate issue, validate struc
 
 **Concern boundary annotations (prose-driven):**
 When transitioning concerns: describe what is being left, what is being entered, what information is needed for handoff.
-
-### Step 6a: Create Sub-Issues (SEPARATE only)
-
-After plan issue created:
-- Create sub-issue for each phase via `issue-operations --task link-sub-issue`
-- Sub-issues are children of the plan, NOT the spec
 
 ### Step 8: Self-Review
 
@@ -78,26 +64,19 @@ Scans for `⚠️ UNVERIFIED` markers. Resolves if possible; escalates unresolva
 
 ### Step 11: Report Plan Creation in Chat (MANDATORY)
 
-**Format (separate plan) — SC-10: full URLs, never bare #N:**
+**Format — local artifact path, SC-10: full URLs for spec reference, local path for plan:**
 ```
-Created separate implementation plan for [<owner>/<repo>#<N>](https://github.com/<owner>/<repo>/issues/<N>) (<description>). <N> tasks across <N> files.
-
-🤖 <AgentName> (<ModelId>)
-```
-
-**Format (combined spec+plan) — SC-10: full URLs, never bare #N:**
-```
-Created combined spec+plan for [<owner>/<repo>#<N>](https://github.com/<owner>/<repo>/issues/<N>) (<description>). Plan appended under `## Implementation Plan`.
+Created plan stored at `.issues/{N}/spec-artifacts/plan.md` for [<owner>/<repo>#<N>](https://github.com/<owner>/<repo>/issues/<N>) (<description>). <N> phases across <N> items.
 
 🤖 <AgentName> (<ModelId>)
 ```
 
 ### Step 12: Cross-Reference Verification (MANDATORY)
 
-Verify referenced skills exist:
+Verify referenced skills and tasks exist:
 ```bash
 ls .opencode/skills/approval-gate/SKILL.md && grep -c "verify-authorization" .opencode/skills/approval-gate/SKILL.md
-ls .opencode/skills/issue-operations/SKILL.md && grep -c "link-sub-issue" .opencode/skills/issue-operations/SKILL.md
+ls .opencode/skills/writing-plans/tasks/create/plan-structure.md && grep -c "Step.*RED" .opencode/skills/writing-plans/tasks/create/plan-structure.md
 ```
 
 If any verification fails: flag as MISSING-TRACEABILITY.
@@ -119,7 +98,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ### Step 13: Approval Cascade Check (MANDATORY)
 
-**Scope-aware auto-approval:**
+**Scope-aware auto-approval (local only — no remote API calls):**
 
 ```python
 SCOPE_LEVELS = {
@@ -129,16 +108,13 @@ SCOPE_LEVELS = {
 }
 
 if scope_level >= SCOPE_LEVELS["for_plan"]:
-    # Pipeline authorization covers plan approval
-    issue-operations -> update-issue (github_issue_write(method="update", issue_number=<plan>, <!-- Routes through issue-operations per [spec #683](https://github.com/michael-conrad/opencode-config/issues/683) -->
-                      labels=[l for l in plan_labels if l != "needs-approval"])
-    issue-operations -> comment (github_add_issue_comment( <!-- Routes through issue-operations per [spec #683](https://github.com/michael-conrad/opencode-config/issues/683) -->
-        issue_number=<plan>,
-        body=f"Plan auto-approved via pipeline scope (authorization_scope={scope})."
-    )
+    # Plan is local — approval is on the spec, not the plan
+    # No remote label removal or comment posting needed
+    # Record: "Plan auto-approved via pipeline scope (authorization_scope={scope})"
+    pass  # Auto-approval recorded in chat report only
 ```
 
-**For combined spec+plan:** Only auto-remove `needs-approval` if `scope_level >= for_plan`.
+**For combined spec+plan:** Same as above — no remote operations. Approval is on the spec.
 
 **If `halt_at == plan_created`:** HALT after plan creation. Do NOT proceed to implementation.
 
@@ -150,11 +126,11 @@ if scope_level >= SCOPE_LEVELS["for_plan"]:
 | C2 | File structure lists all files with responsibilities |
 | C3 | TDD tasks include mandatory Step 2 RED checkpoint |
 | C4 | Phase descriptions include concern boundary annotations |
-| C5 | Sub-issues linked only under plan (not spec) for separate plans |
+| C5 | Plan stored locally at `.issues/{N}/spec-artifacts/plan.md` — no remote plan issue |
 | C6 | No TBD/TODO placeholders remain |
-| C7 | Combined plans retain `[SPEC]` prefix; separate plans use `[PLAN]` |
+| C7 | No `[PLAN]` GitHub Issue created — plan is a local artifact |
 | C8 | Status marker uses prose-driven format |
-| C9 | Approval cascade honors `authorization_scope` |
+| C9 | Approval cascade honors `authorization_scope` (local-only, no remote ops) |
 
 ## Context Required
 
