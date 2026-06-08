@@ -1,6 +1,6 @@
 ---
 name: mcp-tool-usage
-description: Use when selecting tools for file operations, code search, or any task that could use multiple tool options. Triggers on: which tool, tool priority, MCP, PyCharm, JetBrains, read file, write file, search code, tool selection. Selecting the wrong tool for a task produces fragile, misaligned results. Tool-awareness is what separates reliable agents from guessers.
+description: Use when selecting tools for file operations, code search, or any task that could use multiple tool options. Triggers on: which tool, tool priority, MCP, PyCharm, JetBrains, read, write, edit, grep, read file, write file, edit file, search code, search file, tool selection. Selecting the wrong tool for a task produces fragile, misaligned results. Tool-awareness is what separates reliable agents from guessers.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
@@ -87,6 +87,7 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Tool Reference
 
+* viewport-editor: Read, write, edit, and search files. Default tool for all file operations. Mandatory to use for reading, writing, editing, and searching files.
 * srclight: Python code analysis (search symbols, callers, callees, type hierarchy, tests)
 * GitHub MCP: Issue/PR operations, branch management, file contents
 * .opencode/tools/guidelines: Guideline search/read
