@@ -11,7 +11,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
 ## Exit Criteria
 
-- GitHub Issue created with `[SPEC]` prefix and `needs-approval` label
+- Issue created with `[SPEC]` prefix and `needs-approval` label
 - Self-review completed (placeholder scan, consistency, scope, ambiguity)
 - Chat output is ONLY: `<exec summary>` + `<issue URL>` + `<byline>` (no full spec dump)
 - User reviews spec ON THE ISSUE (not in chat)
@@ -168,7 +168,7 @@ Simple specs may skip this section. Standard and complex specs SHOULD include it
 
 **Every spec is from the point of view "NEEDS TO BE IMPLEMENTED — HERE ARE THE REQUIREMENTS."** Never describe what has been done; describe what must be done.
 
-- **Prohibit status language** — Do not use "implemented", "pending", "confirmed", "viable", "completed" as status markers in spec body content. Status belongs on the GitHub Issue as labels, not in the spec prose.
+- **Prohibit status language** — Do not use "implemented", "pending", "confirmed", "viable", "completed" as status markers in spec body content. Status belongs on the issue as labels, not in the spec prose.
 - **Use MUST/SHOULD/MAY (RFC 2119)** for all requirements. "The system MUST log errors" not "The system logs errors". This enforces the forward-looking stance of describing what the implementation MUST achieve, not what has been decided.
 - **No tracking dashboards** — The spec is a requirements document, not a project tracker. Decision logs, status badges, and verification annotations belong in `spec-artifacts/`, not in the spec itself.
 
@@ -352,7 +352,7 @@ Action: [auto-fix|conditional|flag-for-review]
 
 ### Post-Review: Verification Revisit (MANDATORY)
 
-After Step 6 self-review and Step 6.5 evidence verification, invoke `verification-enforcement --task revisit`. This pass scans the spec for any remaining `⚠️ UNVERIFIED` markers and attempts to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The spec must not be submitted as a GitHub Issue while unverified claims remain without developer acknowledgment.
+After Step 6 self-review and Step 6.5 evidence verification, invoke `verification-enforcement --task revisit`. This pass scans the spec for any remaining `⚠️ UNVERIFIED` markers and attempts to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The spec must not be submitted to the remote platform while unverified claims remain without developer acknowledgment.
 
 ### Step 6.8: Generate Spec Folder URL (SC-6)
 
@@ -368,15 +368,15 @@ The URL follows the pattern: `{github.html_url}/tree/issues-data/{N}/spec-artifa
 
 Embed this blockquote at the TOP of the issue body (before the spec content), prepended when creating the issue body or updated after creation.
 
-### Step 7: Create GitHub Issue
+### Step 7: Create Issue
 
-Invoke `issue-operations` skill to persist the spec as a GitHub Issue:
+Invoke `issue-operations` skill to persist the spec as an issue:
 
 1. Generate spec folder URL blockquote (Step 6.8) and prepend it to the issue body
 2. Invoke `issue-operations --task pre-creation` to validate (check for conflicts, superseded issues, content coverage)
 3. If validation fails → HALT and report. Fix issues and re-validate.
 4. If validation passes → invoke `issue-operations --task single-task-check` to determine sub-issue needs
-5. Invoke `issue-operations --task creation` to create the GitHub Issue with the blockquote-prepended body
+5. Invoke `issue-operations --task creation` to create the issue with the blockquote-prepended body
 6. Record the issue number and URL
 
 **Chat output is ONLY:**
@@ -392,7 +392,7 @@ Invoke `issue-operations` skill to persist the spec as a GitHub Issue:
 **🚫 NEVER:**
 
 - Dump full spec content to chat as the "review" step
-- Claim spec is "written" without a GitHub Issue URL
+- Claim spec is "written" without an issue URL
 - Ask the user to review the spec in chat
 
 ### Step 7a: Exec-Summary Format Rules
@@ -440,9 +440,9 @@ on the problem and the chosen approach.
 
 ### Step 7b: Remote Push + Local Mirror
 
-After creating the GitHub Issue in Step 7, save a local mirror of the exec summary:
+After creating the issue in Step 7, save a local mirror of the exec summary:
 
-1. Remote push happens first (Step 7 creates the issue on GitHub)
+1. Remote push happens first (Step 7 creates the issue on the remote platform via `issue-operations --task creation`)
 2. Save `.issues/{N}/remote-exec-summary.md` with the exec summary content that was posted to the remote
 3. Verify the `.issues/` directory pattern is followed (`.issues/{N}/remote-exec-summary.md`)
 
@@ -458,7 +458,7 @@ The user reviews the spec ON THE GITHUB ISSUE, not in chat.
 
 ### Step 9: Transition
 
-After user approval of the spec on the GitHub Issue:
+After user approval of the spec on the issue:
 
 - Invoke `spec-auditor` for quality audit
 
