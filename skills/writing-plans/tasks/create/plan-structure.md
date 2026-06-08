@@ -42,9 +42,9 @@ Collects evidence artifacts for factual claims. Unverified claims marked with `�
 
 | Condition | Outcome |
 | -- | -- |
-| Multi-task spec (mixed concerns or independence) | **Always separate** — create [PLAN] issue with sub-issues |
+| Multi-task spec (mixed concerns or independence) | **Always separate** — separate phase sections in `.issues/{N}/spec-artifacts/plan.md` |
 | Single-task spec AND spec body can absorb plan content | **Candidate for combined** — agent evaluates readability |
-| Single-task AND combining makes document hard to read | **Separate** — create [PLAN] issue |
+| Single-task AND combining makes document hard to read | **Separate** — stand-alone sections in `.issues/{N}/spec-artifacts/plan.md` |
 
 **Decision output (MANDATORY):**
 ```
@@ -53,22 +53,23 @@ Reason: <justification referencing evaluation criteria>
 ```
 
 **If COMBINED:**
-- Append `## Implementation Plan` section to spec issue body
+- Write to `.issues/{N}/spec-artifacts/plan.md`, referencing spec content inline
 - Retain `[SPEC]` title prefix (not changed to `[PLAN]`)
-- Proceed to Step 2 — plan content appended to spec body
+- Proceed to Step 2
 
 **If SEPARATE:**
-- Proceed to Step 2 — plan content stored in separate [PLAN] issue
+- Write to `.issues/{N}/spec-artifacts/plan.md` with separate phase sections
+- Proceed to Step 2
 
 ### Step 1.6: Duplicate Plan Check
 
-Search for existing plans referencing the same spec:
-```python
-plans = issue-operations -> search-issues (github_search_issues(query="label:plan", owner=<owner>, repo=<repo>, state="open") <!-- Routes through issue-operations per [spec #683](https://github.com/michael-conrad/opencode-config/issues/683) -->
+Search for existing local plans in `.issues/` workspace:
+```bash
+ls .issues/*/spec-artifacts/plan.md 2>/dev/null
 ```
 
-For each plan found with `Spec: #<spec_number>`, present choice:
-- Proceed with new plan (reference existing as full URL: `[Supersedes #N](https://github.com/<owner>/<repo>/issues/<N>)`)
+For each plan found, check if it references the current spec. Present choice:
+- Proceed with new plan (override existing local artifact)
 - HALT and review existing plan
 
 ### Step 2: Map File Structure (Sub-Folder References — SC-9)
