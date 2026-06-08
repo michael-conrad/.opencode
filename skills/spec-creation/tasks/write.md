@@ -420,22 +420,22 @@ The exec summary embedded in the GitHub Issue body MUST follow these formatting 
 
 ## Exec Summary
 
-Implements fast-path model routing for common capability queries by adding
-a cache layer between the capability probe and the dispatch orchestrator.
+Describes what this spec achieves at a high level — one to two sentences
+on the problem and the chosen approach.
 
 ### Cards (dependency order)
-1. **Cache schema** — Define the in-memory cache key schema
-2. **Write-through cache** — Implement write-through cache in capability probe
-3. **Cache invalidation** — Add TTL-based invalidation with configurable expiry
-4. **Fallback on miss** — Route through full probe on cache miss
+1. **First dependency** — What must be built before anything else
+2. **Core implementation** — The primary change this spec requires
+3. **Follow-up work** — What depends on the core change
+4. **Verification and cleanup** — Tests, migration, documentation
 
 ### Key Decisions
-- **In-memory over Redis**: No persistence needed; restart rebuilds cache in < 1s
-- **TTL-based over LRU**: Predictable expiry for capability metadata; LRU adds complexity without benefit
+- **Decision A**: Why this approach over the alternatives
+- **Decision B**: Trade-off accepted and why
 
 ### Risk Callouts
-- **Stale cache on model update**: If a model is updated externally, cached capability data may be stale until TTL expiry
-- **Memory ceiling**: Long-lived processes with high model churn may exhaust heap; mitigation: configurable max entries
+- **Risk A**: What could go wrong and what mitigates it
+- **Risk B**: Known unknowns that affect timeline or approach
 ```
 
 ### Step 7b: Remote Push + Local Mirror
