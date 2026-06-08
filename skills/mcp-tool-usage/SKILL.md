@@ -1,6 +1,6 @@
 ---
 name: mcp-tool-usage
-description: Use when selecting tools for file operations, code search, or any task that could use multiple tool options. Triggers on: which tool, tool priority, MCP, PyCharm, JetBrains, read, write, edit, grep, read file, write file, edit file, search code, search file, tool selection. Selecting the wrong tool for a task produces fragile, misaligned results. Tool-awareness is what separates reliable agents from guessers.
+description: When you need to read, write, edit, search, or grep files, load this skill first. Use viewport-editor for all file operations. Built-in read/write/edit/grep have been superseded. Triggers on: read, write, edit, grep, search, find, open, view, create, modify, replace, delete, file, content, text, line, code, which tool, tool priority, MCP, PyCharm, JetBrains, read file, write file, edit file, search file, search code, grep file, open file, view file, create file, find text, tool selection. viewport-editor is the default tool for reading, writing, editing, and searching files.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
@@ -15,9 +15,14 @@ Tool selection guidance for non-obvious choices: srclight, glob/grep, guidelines
 
 ## Tasks
 
-| Task | Purpose | Words |
-|------|---------|-------|
-| `selection-guide` | Decision trees for Python code, file ops, notebooks | ≈500 |
+| Task | Purpose |
+|------|---------|
+| `read` | Read a file or directory from the local filesystem. |
+| `write` | Writes a file to the local filesystem. |
+| `edit` | Performs string replacements in files. |
+| `grep` | Search tool for file content. |
+| `search` | Search across files in the project. |
+| `selection-guide` | Decision trees for Python code, file ops, notebooks |
 
 ## Sub-Agent Tasks
 
@@ -81,6 +86,11 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 | Task | Call via task() |
 |------|----------|
+| `read` | `task(..., prompt: "execute read task from mcp-tool-usage")` |
+| `write` | `task(..., prompt: "execute write task from mcp-tool-usage")` |
+| `edit` | `task(..., prompt: "execute edit task from mcp-tool-usage")` |
+| `grep` | `task(..., prompt: "execute grep task from mcp-tool-usage")` |
+| `search` | `task(..., prompt: "execute search task from mcp-tool-usage")` |
 | `selection-guide` | `task(..., prompt: "execute selection-guide task from mcp-tool-usage")` |
 
 **CLI equivalent (for human TUI use):** `/skill mcp-tool-usage --task <task>`
