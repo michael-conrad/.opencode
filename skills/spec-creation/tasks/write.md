@@ -25,7 +25,7 @@ Before assembling the spec, invoke `verification-enforcement --task verify`. Thi
 
 ### Pre-Step 0.8: Stub Creation (SC-22 — behavioral)
 
-Invoke `local-issues create` to create a stub issue. Include a minimal exec summary (problem statement, affected files, success criteria outline). Check platform availability before invocation — if the platform is unavailable, HALT and report.
+Invoke `issue-operations --task creation` with a minimal exec summary body to establish the remote issue number. Include the spec title, brief problem statement, and `needs-approval` label. Record the returned issue number for all subsequent artifact paths. The full spec body will be populated in Step 7 via `issue-operations --task body-edit`.
 
 ### Step 0.5: Behavioral Test Mandate in Success Criteria (MANDATORY)
 
@@ -452,7 +452,7 @@ This ensures the local workspace mirrors the remote state for off-network refere
 
 The user reviews the spec ON THE GITHUB ISSUE, not in chat.
 
-- If user requests revisions via issue comments: update the issue body, then post update summary + URL + byline to chat
+- If user requests revisions via issue comments: invoke `issue-operations --task body-edit` to update the issue body, then post update summary + URL + byline to chat
 - If user approves the spec on the issue: proceed to Step 9
 - Do NOT re-dump the spec to chat for any reason
 
@@ -461,12 +461,11 @@ The user reviews the spec ON THE GITHUB ISSUE, not in chat.
 After user approval of the spec on the GitHub Issue:
 
 - Invoke `spec-auditor` for quality audit
-- Then proceed to `approval-gate` for authorization
-- Then `writing-plans` for implementation planning
+- The approval-gate and writing-plans cascade is handled outside the write task by the approval workflow — not invoked here.
 
 ## Context Required
 
 - Preceded by: `requirements` (mandatory), `decompose`, `traceability`, `risk` (or explicitly skipped)
 - Extends: brainstorming Steps 7-9 (adapted, not verbatim move)
-- Calls: `issue-operations` (pre-creation → single-task-check → creation)
-- Followed by: `spec-auditor`, then `approval-gate`
+- Calls: `issue-operations` (pre-creation → single-task-check → creation → body-edit)
+- Followed by: `spec-auditor`, then user review on the issue
