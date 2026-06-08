@@ -2,13 +2,12 @@
 
 ## Purpose
 
-Invoke auditors after spec creation, ensuring spec quality before approval. Plan creation is handled by the approval-gate cascade post-user-approval — not invoked here.
+Invoke auditors after spec creation, ensuring spec quality before approval.
 
 ## Operating Protocol
 
 1. **Run after issue is created.**
 2. **Invoke auditors BEFORE approval.**
-3. **Do NOT trigger plan creation** — plans are created by the approval-gate cascade after user approval.
 
 ## Entry Criteria
 
@@ -20,7 +19,6 @@ Invoke auditors after spec creation, ensuring spec quality before approval. Plan
 
 - Auditors invoked (spec-auditor orchestrator — determines subtasks automatically)
 - Issue ready for approval workflow
-- Plan creation NOT triggered — handled by approval-gate cascade post-approval
 
 ## Procedure
 
@@ -65,7 +63,6 @@ Before proceeding, verify ALL:
 - Related tasks: `creation` (runs first)
 - Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
 - No direct `github_*` or `gitbucket-api` calls outside `issue-operations/platforms/`
-- Plan creation NOT handled here — handled by approval-gate cascade post-user-approval
 
 ## Live Verification: Post-Creation Evidence (MANDATORY)
 
