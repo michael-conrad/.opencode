@@ -132,21 +132,10 @@ Determine creation order based on `github.platform`:
 1. Promote to remote platform FIRST. Route based on `github.platform`:
 
    **GitHub:**
-   ```python
-   github_issue_write(
-       method="create",
-       owner=owner,
-       repo=repo,
-       title=title,
-       body=<exec-summary body>,
-       labels=["needs-approval"]
-   )
-   ```
+   Route to `platforms/github-mcp/` sub-skill via task(). Pass issue parameters (title, body, labels). The platform sub-skill handles the `github_issue_write` call.
 
    **GitBucket:**
-   ```bash
-   ./.opencode/tools/gitbucket-api create-issue <github.owner> <github.repo> "<title>" --body "<exec-summary-body>" --labels needs-approval
-   ```
+   Route to `platforms/gitbucket-api/` sub-skill via task(). Pass issue parameters (title, body, labels). The platform sub-skill handles the `gitbucket-api` call.
 
    **Note (GitBucket):** Labels can ONLY be set during creation. Post-creation label changes do not work.
 
