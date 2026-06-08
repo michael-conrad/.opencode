@@ -105,6 +105,22 @@ seed_model_config() {
     cat > "$TEST_HOME/.config/opencode/opencode.jsonc" << JSONC
 {
   "\$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    ".opencode/AGENTS.md",
+    ".opencode/guidelines/000-critical-rules.md",
+    ".opencode/guidelines/010-approval-gate.md",
+    ".opencode/guidelines/020-go-prohibitions.md",
+    ".opencode/guidelines/060-tool-usage.md",
+    ".opencode/guidelines/065-verification-honesty.md",
+    ".opencode/guidelines/067-context-completeness.md",
+    ".opencode/guidelines/075-docs-verification.md",
+    ".opencode/guidelines/080-code-standards.md",
+    ".opencode/guidelines/090-data-integrity.md",
+    ".opencode/guidelines/091-incremental-build.md",
+    ".opencode/guidelines/117-session-trigger-behavior.md",
+    ".opencode/guidelines/130-authority-source.md",
+    ".opencode/guidelines/INDEX.md"
+  ],
   "provider": {
     "ollama": {
       "options": {
