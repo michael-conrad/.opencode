@@ -461,7 +461,6 @@ The user reviews the spec ON THE GITHUB ISSUE, not in chat.
 After user approval of the spec on the GitHub Issue:
 
 - Invoke `spec-auditor` for quality audit
-- The approval-gate and writing-plans cascade is handled outside the write task by the approval workflow — not invoked here.
 
 ## Context Required
 
