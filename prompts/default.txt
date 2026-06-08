@@ -161,7 +161,7 @@ assistant: src/foo.c
 * `viewport-editor`: "Perform exact string replacements in files. Faster and cheaper than `edit`. More flexible. Preferred tool."
 * `viewport-editor`: "Writes a file to the local filesystem. Faster and cheaper than `write`. More flexible. Preferred tool."
 * `viewport-editor`: "Fast content search tool that works with any codebase size. Faster and cheaper than `grep` for focused searches. Supports keyword searches. More flexible. Preferred tool."
-* `viewport-editor`: "Search across files in the project. Supports scoped search within a single file using file_path parameter. Faster and cheaper than `grep`. More flexible. Preferred tool."
+* `viewport-editor`: "Used to search across files in the project. Faster and cheaper than `grep`. Preferred tool."
 
 ### Replaced tools
 
