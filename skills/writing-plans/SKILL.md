@@ -11,11 +11,11 @@ compatibility: opencode
 
 ## Overview
 
-Transforms approved specs into actionable implementation plans using hybrid structure: phases for sub-issue tracking, TDD steps within tasks for execution guidance. Every step is one action (2-5 min). No placeholders.
+Transforms approved specs into actionable implementation plans using hybrid structure: phases for concern boundaries, TDD steps within tasks for execution guidance. Every step is one action (2-5 min). No placeholders.
 
 ## Persona
 
-Plan Author. Focus: transform spec into phased plan with file structure, TDD steps, and sub-issue hierarchy.
+Plan Author. Focus: transform spec into phased plan with file structure, TDD steps, and concern boundary annotations.
 
 ## Tasks
 
@@ -24,9 +24,12 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 | `create` | ≈600 |
 | `completion` | ≈200 |
 
-## Plan Issue Model
+## Plan Model
 
-**Separate plan** (multi-task): spec body → linked reference → `[PLAN]` issue → phase sub-issues. **Combined spec+plan** (single-task): plan appended under `## Implementation Plan` in spec body, no sub-issues.
+**All plans are local artifacts.** Plans are stored at `.issues/{N}/spec-artifacts/plan.md`. Phases are sections in the local plan file.
+
+- **Separate (multi-task):** `.issues/{N}/spec-artifacts/plan.md` with stand-alone phase sections, each with concern boundary annotations
+- **Combined (single-task):** `.issues/{N}/spec-artifacts/plan.md` referencing spec content inline
 
 ## Invocation
 
@@ -45,7 +48,7 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 2. **Adversarial-audit call:** after plan creation, call type-specific audit tasks directly — `adversarial-audit --task plan-fidelity` and `adversarial-audit --task concern-separation` — with `audit_phase: plan_creation`.
 3. **TDD steps mandatory:** each step is RED→GREEN→REFACTOR within tasks.
 4. **No placeholders:** exact file paths, exact function/class names, exact commands.
-5. **Phase structure:** phases for sub-issues, tasks within phases for TDD steps.
+5. **Phase structure:** phases for concern boundaries and handoffs, tasks within phases for TDD steps.
 6. **Decision gate:** multi-task → separate plan. Single-task + simple → combined or separate per agent judgment.
 
 ## Sub-Agent Routing

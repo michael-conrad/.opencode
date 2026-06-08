@@ -2,34 +2,34 @@
 
 ## Purpose
 
-Create an implementation plan from an approved spec. For single-task specs the agent may combine the plan into the spec issue body instead of creating a separate [PLAN] issue.
+Create an implementation plan from an approved spec. Plans are stored at `.issues/{N}/spec-artifacts/plan.md`.
 
 ## Prerequisites
 
 1. Approved spec (verified by approval-gate)
-2. Spec stored as GitHub Issue
+2. Spec stored in `.issues/{N}/spec.md`
 3. Spec has explicit approval (`approved` or `go`)
 4. (Optional) `authorization_scope` from verify-authorization — if scope >= `for_plan`, plan auto-approval triggers
 
 ## Operating Protocol
 
 1. **Verification first:** Must run verification-enforcement --task verify before reading spec
-2. **Combined or separate decision:** Early evaluation whether to append to spec or create separate issue
+2. **Combined or separate decision:** Early evaluation whether plan content references spec content inline (combined) or stands alone with separate phase sections (separate)
 3. **Item decomposition mandatory:** Plan must enumerate items, order dependencies, specify acceptance criteria
 4. **RED checkpoint mandatory:** Every TDD task must include explicit Step 2 checkpoint
 5. **Approval cascade auto-approve:** Pipeline scope (`for_plan+`) auto-approves plan
 
 ## Entry Criteria
 
-- Spec is approved and stored as GitHub Issue
+- Spec is approved and stored in `.issues/{N}/spec.md`
 - `authorization_scope` received from approval-gate (for cascade)
 
 ## Exit Criteria
 
-- Plan created (combined into spec issue OR separate [PLAN] issue)
+- Plan stored at `.issues/{N}/spec-artifacts/plan.md`
 - All validation passed
-- Plan reported in chat with URL
-- Approval cascade applied (or `needs-approval` retained)
+- Plan reported in chat with `.issues/{N}/spec-artifacts/plan.md` path
+- Approval cascade applied (auto-approval for pipeline scope)
 
 ## Procedure
 
@@ -43,14 +43,14 @@ Runs verification gate, makes combined/separate decision, checks for duplicate p
 
 **Route to:** `create/create-and-validate`
 
-Writes plan header, stores as combined section or separate issue, creates sub-issues (for separate), runs self-review and validation, revisits verification, cross-references skills, and applies approval cascade with scope-aware auto-approval.
+Writes plan header, stores at `.issues/{N}/spec-artifacts/plan.md`, runs self-review and validation, revisits verification, cross-references skills, and applies approval cascade with scope-aware auto-approval.
 
 ## Sub-Task Files
 
 | Sub-Task | Purpose | Words |
 | -- | -- | -- |
 | `create/plan-structure` | Verification, combined/separate decision, file mapping, TDD definition | ≈750 |
-| `create/create-and-validate` | Document writing, issue creation, validation, approval cascade | ≈650 |
+| `create/create-and-validate` | Document writing, local storage, validation, approval cascade | ≈650 |
 
 ## Plan Phase Structure Requirements
 
@@ -68,32 +68,29 @@ When transitioning between architectural concerns, describe:
 - What concern being entered (new scope)
 - What information the new concern needs from prior (handoff point)
 
-## Combined Plan Format
+## Plan Format
 
-When combined into spec:
-- Append under `## Implementation Plan` section
-- Retain `[SPEC]` title prefix
-- **Do NOT link sub-issues** — single-task by definition
+Plan is stored at `.issues/{N}/spec-artifacts/plan.md`. Combined and separate affect which sections the plan document includes but not where it is stored.
 
-## Separate Plan Format
+**Combined (single-task):**
+- Write to `.issues/{N}/spec-artifacts/plan.md`, reference spec content inline
+- Retain `[SPEC]` title prefix on spec
 
-When separate [PLAN] issue:
-- Title: `[PLAN] <Feature Name>`
-- Labels: `plan`, `needs-approval` (unless auto-approved)
-- Body: `Spec: #<N>` reference, then plan header, file structure, phases
-- Sub-issues linked under the plan (not the spec)
+**Separate (multi-task):**
+- Write to `.issues/{N}/spec-artifacts/plan.md` with separate phase sections
+- Phases are sections in the local plan file — no sub-issues
 
 ## Approval Cascade Matrix
 
-| Scope | Plan Creation | Plan Approval | Implementation |
-| -- | -- | -- | -- |
-| `for_review_prep` | Yes | Separate approval required | Separate approval required |
-| `for_spec` | No | N/A | N/A |
-| `for_analysis` | Yes | N/A (analysis-only) | N/A |
-| `for_plan` | Yes | Auto-approved | Separate approval required |
-| `for_implementation` | Yes | Auto-approved | Auto-approved |
-| `for_pr` | Yes | Auto-approved | Auto-approved |
-| `for_pr_only` | N/A (skip) | N/A | N/A |
+| Scope | Plan Approval | Implementation |
+| -- | -- | -- |
+| `for_review_prep` | Separate approval required | Separate approval required |
+| `for_spec` | N/A | N/A |
+| `for_analysis` | N/A (analysis-only) | N/A |
+| `for_plan` | Auto-approved | Separate approval required |
+| `for_implementation` | Auto-approved | Auto-approved |
+| `for_pr` | Auto-approved | Auto-approved |
+| `for_pr_only` | N/A (skip) | N/A |
 
 ## Authorization Context
 
