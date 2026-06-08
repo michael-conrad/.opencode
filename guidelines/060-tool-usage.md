@@ -16,27 +16,6 @@ load_when: sub-agent
 2. **In sub-agent context:** Load individual guidelines via `./.opencode/tools/guidelines read <filename>` when needed
 3. **Default load set:** `000-critical-rules.md` is loaded when sub-agent performs safety-critical operations; other guidelines loaded per trigger match
 
-## 1. Tool Priority Hierarchy
-
-> **See `mcp-tool-usage` skill for the complete five-tier hierarchy with tool selection tables.**
-
-### Tier Summary
-
-```
-TIER 1 — PRIMARY: opencode built-in tools (read/write/edit/glob/grep)
-TIER 2 — PRIMARY: Domain MCP (srclight, the-notebook-mcp, GitHub MCP)
-TIER 3 — PRIMARY: .opencode/tools/ (guidelines, md, memory, py ls/mkpkg, ollama-probe)
-TIER 4 — FALLBACK: JetBrains MCP (pycharm_*) — only for unique capabilities
-TIER 5 — LAST RESORT: Direct CLI (bash)
-
-ABSOLUTE EXCEPTION: .ipynb files → the-notebook-mcp MANDATORY (zero tolerance, no fallback)
-```
-
-### 🚫 PROHIBITED (Hard stop violation)
-
-- ANY direct access to `.ipynb` files (use `the-notebook-mcp` exclusively)
-- JetBrains MCP for basic file operations that opencode built-in tools handle (TIER 1 covers read/write/edit/glob/grep for all non-notebook files)
-
 ### API Client Mandatory (ZERO TOLERANCE)
 
 When a platform has a dedicated API client (e.g., `gitbucket-api` CLI tool at `.opencode/tools/gitbucket-api`, GitHub MCP), the agent MUST use it for ALL operations. If the client lacks a needed method:
@@ -91,7 +70,7 @@ The dispatcher resolves platform selection automatically based on `github.platfo
 
 ### ⚠️ Worktree Path Resolution for File Operation Tools (CRITICAL)
 
-When working in a git worktree (`worktree.path` is set), TIER 1 file operation tools (`read`, `edit`, `write`, `glob`, `grep`) do **NOT** have a `workdir` parameter. Relative paths like `src/main.py` resolve to the **main repo**, not the worktree. This causes silent file operation errors — edits go to the wrong file.
+When working in a git worktree (`worktree.path` is set), file operation tools (`read`, `edit`, `write`, `glob`, `grep`) do **NOT** have a `workdir` parameter. Relative paths like `src/main.py` resolve to the **main repo**, not the worktree. This causes silent file operation errors — edits go to the wrong file.
 
 **When `worktree.path` is set, ALL file operations MUST prefix paths with the worktree path:**
 
@@ -159,7 +138,7 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 - **ALWAYS use `uv run python` to run Python.**
 - **Fixed sleep value for polling**: Always use a fixed value of `15`.
 - **One clear command per invocation.** A short `&&` guard is acceptable.
-- **Use built-in Edit/Write tools for file modifications.** For Jupyter notebooks, use `the-notebook-mcp` tools exclusively — see `mcp-tool-usage` skill `selection-guide` task.
+- **Use the-notebook-mcp for Jupyter notebook modifications.**
 
 ### 🚫 NEVER DO
 

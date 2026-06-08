@@ -11,7 +11,7 @@ compatibility: opencode
 
 ## Overview
 
-Tool Priority Enforcer ensuring all operations use the correct tool according to the five-tier hierarchy. Defines PRIMARY, FALLBACK, and PROHIBITED tools for each operation type. Zero tolerance for `.ipynb` files.
+Tool selection guidance for non-obvious choices: srclight, glob/grep, guidelines, notebooks.
 
 ## Tasks
 
@@ -85,55 +85,13 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 **CLI equivalent (for human TUI use):** `/skill mcp-tool-usage --task <task>`
 
-## Five-Tier Tool Priority Hierarchy
+## Tool Reference
 
-```
-TIER 1 — PRIMARY: opencode built-in tools (read/write/edit/glob/grep)
-TIER 2 — PRIMARY: Domain MCP (srclight, the-notebook-mcp, GitHub MCP)
-TIER 3 — PRIMARY: .opencode/tools/ (guidelines, md, py ls/mkpkg)
-TIER 4 — FALLBACK: JetBrains MCP (pycharm_*) — only for unique capabilities
-TIER 5 — LAST RESORT: Direct CLI (bash)
-
-ABSOLUTE EXCEPTION: .ipynb files → the-notebook-mcp MANDATORY (zero tolerance, no fallback)
-```
-
-### TIER 1: opencode Built-in Tools (PRIMARY for basic file ops)
-
-| Operation | Tool |
-|-----------|------|
-| Read file | `read` |
-| Write file | `write` |
-| Edit file | `edit` |
-| Find files | `glob` |
-| Search text | `grep` |
-
-**Exception:** `.ipynb` files — use `the-notebook-mcp` exclusively.
-
-### TIER 2: Domain MCP (PRIMARY for their specialties)
-
-- **srclight**: Python code analysis (search symbols, callers, callees, type hierarchy, tests)
-- **the-notebook-mcp**: All notebook operations (zero tolerance, no fallback)
-- **GitHub MCP**: Issue/PR operations, branch management, file contents
-
-### TIER 3: .opencode/tools/ Scripts (PRIMARY for their domains)
-
-| Tool | Domain |
-|------|--------|
-| `guidelines` | Guideline search/read (only tool that parses `.opencode/guidelines/` correctly) |
-| `md` | Markdown section operations |
-| `py ls` | Python package listing |
-| `py mkpkg` | Python package creation |
-
-### TIER 4: JetBrains MCP (FALLBACK — unique capabilities only)
-
-Semantic rename, code reformat, build project, inspections, run configs, directory tree, create file.
-
-**NOT used for:** basic file reads, writes, edits, searches, or globs — TIER 1 handles those.
-
-### TIER 5: Direct CLI (LAST RESORT)
-
-Bash/shell commands ONLY when no other tool covers the operation or it's inherently a shell operation (git, docker, package management).
+* srclight: Python code analysis (search symbols, callers, callees, type hierarchy, tests)
+* GitHub MCP: Issue/PR operations, branch management, file contents
+* .opencode/tools/guidelines: Guideline search/read
+* Direct CLI (bash): git, docker, package management only
 
 ## Critical Rules
 
-`.ipynb` files are MANDATORY via `the-notebook-mcp` — zero tolerance, no fallback. Do NOT infer GitHub owner from file paths or cached values. See `060-tool-usage.md` §2 for worktree path resolution rules and `060-tool-usage.md` §1 for notebook MCP mandate.
+`.ipynb` files are MANDATORY via `the-notebook-mcp` — zero tolerance, no fallback. Do NOT infer GitHub owner from file paths or cached values. See `060-tool-usage.md` §2 for worktree path resolution rules.

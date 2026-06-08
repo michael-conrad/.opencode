@@ -26,25 +26,9 @@ Languages: python (117 files, 1139 symbols)
 Config options: --db PATH, --embed TEXT (no include/exclude)
 ```
 
-## Tool Selection Decision Tree
+## Srclight (Python Code Analysis)
 
-```
-Is the task about Python code?
-│
-├─ YES → Is it semantic analysis/search?
-│         │
-│         ├─ YES → Use srclight_* tools
-│         │
-│         └─ NO (edit, create, format) → Use opencode built-in tools
-│              (or pycharm_* for unique capabilities like rename)
-│
-└─ NO (docs, configs, .md files) → Use opencode built-in tools
-                                       (or .opencode/tools/guidelines for .opencode/guidelines/)
-```
-
-## Tier 1: Srclight MCP (Python Code Analysis ONLY)
-
-Use srclight tools PREFERENTIALLY for all Python semantic/code analysis tasks:
+Use srclight tools for Python semantic/code analysis tasks:
 
 | Task | Tool | Why |
 | -- | -- | -- |
