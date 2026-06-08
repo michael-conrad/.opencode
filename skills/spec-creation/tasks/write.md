@@ -11,7 +11,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
 ## Exit Criteria
 
-- GitHub Issue created with `[SPEC]` prefix and `needs-approval` label
+- Issue created with `[SPEC]` prefix and `needs-approval` label
 - Self-review completed (placeholder scan, consistency, scope, ambiguity)
 - Chat output is ONLY: `<exec summary>` + `<issue URL>` + `<byline>` (no full spec dump)
 - User reviews spec ON THE ISSUE (not in chat)
@@ -22,6 +22,10 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 ### Pre-Step: Verification Gate (MANDATORY FIRST)
 
 Before assembling the spec, invoke `verification-enforcement --task verify`. This gate task()s section-based sub-agents to collect evidence artifacts for the factual claims the spec will make — file references, API signatures, configuration fields, code behavior, and environment details. Evidence artifacts collected here ensure that the spec's claims are grounded in live sources. Claims that cannot be verified at this stage are marked with `⚠️ UNVERIFIED` for resolution in the post-generation revisit pass.
+
+### Pre-Step 0.8: Stub Creation (SC-22 — behavioral)
+
+Invoke `issue-operations --task creation` with a minimal exec summary body to establish the remote issue number. Include the spec title, brief problem statement, and `needs-approval` label. Record the returned issue number for all subsequent artifact paths. The full spec body will be populated in Step 7 via `issue-operations --task body-edit`.
 
 ### Step 0.5: Behavioral Test Mandate in Success Criteria (MANDATORY)
 
@@ -55,6 +59,84 @@ Combine outputs from prerequisite tasks into a coherent spec. The spec should ad
 
 Skip areas that don't apply to simple specs; add areas that do. The spec should be self-contained and clear, regardless of structure.
 
+### Decision Ledger
+
+Captures design decisions with stable DEC-IDs and RFC 2119 requirement keys (MUST/SHOULD/MAY) for traceability across spec revisions.
+
+```markdown
+| DEC-ID | Decision | Rationale | Requirement Key | Affected SCs |
+|--------|----------|-----------|-----------------|--------------|
+| DEC-1 | Use async API | Non-blocking I/O required for throughput | MUST | SC-3, SC-4 |
+```
+
+### Risk Traceability Table
+
+Maps RISK-IDs to Verifying SC binding, ensuring each identified risk has a corresponding success criterion that validates its mitigation.
+
+```markdown
+| RISK-ID | Risk Description | Likelihood | Impact | Mitigation | Verifying SC |
+|---------|-----------------|------------|--------|------------|--------------|
+| RISK-1 | Rate limit exceeded | Medium | High | Implement retry with backoff | SC-7 |
+```
+
+### Revision Policy
+
+Declares artifact cascade: when a parent spec is revised, which dependent artifacts MUST also be revised. Uses declarative table format.
+
+```markdown
+| Artifact | Cascade Trigger | Action on Parent Revision |
+|----------|----------------|---------------------------|
+| Implementation plan | MUST | Revise to match revised spec |
+| Behavioral tests | SHOULD | Review for continued validity |
+| Risk traceability | MAY | Update if new risks introduced |
+```
+
+### Decomposition Classification
+
+Distinguishes single-task specs from multi-phase specs using distinguishing criteria.
+
+| Classification | Number of Phases | Sub-Issue Requirements | PR Strategy |
+|---------------|-----------------|----------------------|-------------|
+| single-task | 1 | None | single PR |
+| multi-phase | 2+ | One sub-issue per phase | stacked PRs per phase |
+
+### Spec Family Annotation (optional)
+
+Punch-list annotation for specs that belong to a family. Selector syntax documents which specs share a common concern.
+
+```markdown
+family: performance-optimization
+selectors:
+  - spec: #42
+  - spec: glob(pattern: "specs/performance/*.md")
+```
+
+## Explicit Non-Goals
+
+Lists what the spec explicitly does NOT address. Each non-goal is a bullet item with rationale.
+
+```markdown
+- **Internationalization** — Out of scope for this release; will be addressed in a follow-up spec.
+- **Backward compatibility with v1 API** — Breaking changes are accepted per the deprecation policy.
+```
+
+## Regression Invariants
+
+Numbered list of behaviors or properties that MUST NOT change as a result of this implementation.
+
+1. Existing authentication flows MUST continue to accept current tokens.
+2. All existing public API signatures MUST remain unchanged.
+3. Database schema migration MUST NOT drop existing columns.
+
+### Cross-Cutting / Common SC Designation
+
+When a success criterion applies across multiple phases, designate it as cross-cutting using a preamble section marker. Cross-cutting SCs share a verification budget: a single PASS verifies the SC for all phases. MUST pass once for all phases.
+
+```markdown
+**Cross-Cutting SCs:** SC-1, SC-5, SC-9
+— Verified once in Phase 1, applies to all subsequent phases.
+```
+
 A **Documentation Sources** section documents where the spec author verified factual claims. This is especially important for specs making claims about code behavior, config schemas, or API signatures. Place it before the AI byline section.
 
 **Source Categories:**
@@ -86,7 +168,7 @@ Simple specs may skip this section. Standard and complex specs SHOULD include it
 
 **Every spec is from the point of view "NEEDS TO BE IMPLEMENTED — HERE ARE THE REQUIREMENTS."** Never describe what has been done; describe what must be done.
 
-- **Prohibit status language** — Do not use "implemented", "pending", "confirmed", "viable", "completed" as status markers in spec body content. Status belongs on the GitHub Issue as labels, not in the spec prose.
+- **Prohibit status language** — Do not use "implemented", "pending", "confirmed", "viable", "completed" as status markers in spec body content. Status belongs on the issue as labels, not in the spec prose.
 - **Use MUST/SHOULD/MAY (RFC 2119)** for all requirements. "The system MUST log errors" not "The system logs errors". This enforces the forward-looking stance of describing what the implementation MUST achieve, not what has been decided.
 - **No tracking dashboards** — The spec is a requirements document, not a project tracker. Decision logs, status badges, and verification annotations belong in `spec-artifacts/`, not in the spec itself.
 
@@ -133,13 +215,15 @@ Review every requirement statement:
 | Remediated SC | Re-verified independently — same PASS/FAIL gate applies; no carryover credit from prior passes |
 | Re-verification | Repeat the verification command/assertion; confirm PASS before claiming remediation complete |
 
-**SC Table Format (4-column):**
+**SC Table Format (12-column):**
 
-| ID | Criterion | Verification Method | Remediation |
-|----|-----------|-------------------|-------------|
-| SC-1 | ... | Executable command/assertion producing deterministic PASS/FAIL | What corrective action is required on FAIL, including re-verification procedure |
+| ID | Criterion | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step |
+|----|-----------|-------------------|-------------|----------------------|--------------|------------------------|-------------|-----------------|----------------|--------------|-------------|
+| SC-1 | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
 **The Verification Method column MUST specify an executable command or assertion producing deterministic PASS/FAIL. The Remediation column MUST specify what corrective action is required on FAIL and how re-verification is performed.**
+
+See `reference/sc-table-columns.md` for column definitions, rendering note, and per-column conditionality. See the Evidence Type Classification Gate section below for classification rules when applying these columns.
 
 ### Evidence Type Classification Gate (MANDATORY)
 
@@ -230,6 +314,10 @@ Fix any issues inline. No need to re-review — just fix and move on.
 
 **SC Verification Column Precision Sub-Check:** Scan the Verification column of every SC table for vague verification methods (describes what to check without specifying exact expected value). Flag each vague entry as a STRUCTURE-VIOLATION requiring rewrite with an executable verification command per `140-planning-spec-creation.md` Executable Verification Commands mandate. The spec should read as a coherent narrative document, not as a mechanical checklist.
 
+6. **SC-to-SC coherence check**: Scan SC table for contradictions between interdependent criteria. Cross-reference Pipeline Step Binding and Verification Gate columns — verify that an SC gated at 'red-green' does not require a 'ci' tool. Cross-reference Re-Entry Step with Phase Binding — verify re-entry point is valid for the bound phase. Cross-reference Affinity Group members — verify shared SCs have compatible verification methods.
+
+7. **Verification-Method-to-Artifact-Path consistency check**: Cross-reference Artifact Path and Verification Method columns — verify that the Verification Method's tool references align with the Artifact Path's storage convention. An SC whose Verification Method references 'pytest' should have an Artifact Path matching '{issue-N}/pytest/' convention. An SC whose Verification Method references 'opencode-cli run' should have an Artifact Path matching '{issue-N}/behavioral/' convention.
+
 ### Step 6.5: Evidence Artifact Verification (MANDATORY)
 
 **🚫 CRITICAL: Each self-review checkpoint MUST produce a tool-call artifact demonstrating the verification was performed. Assertions without tool-call evidence are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
@@ -264,7 +352,7 @@ Action: [auto-fix|conditional|flag-for-review]
 
 ### Post-Review: Verification Revisit (MANDATORY)
 
-After Step 6 self-review and Step 6.5 evidence verification, invoke `verification-enforcement --task revisit`. This pass scans the spec for any remaining `⚠️ UNVERIFIED` markers and attempts to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The spec must not be submitted as a GitHub Issue while unverified claims remain without developer acknowledgment.
+After Step 6 self-review and Step 6.5 evidence verification, invoke `verification-enforcement --task revisit`. This pass scans the spec for any remaining `⚠️ UNVERIFIED` markers and attempts to resolve them using domain-appropriate tools. Claims that cannot be resolved are escalated to the developer. The spec must not be submitted to the remote platform while unverified claims remain without developer acknowledgment.
 
 ### Step 6.8: Generate Spec Folder URL (SC-6)
 
@@ -280,15 +368,15 @@ The URL follows the pattern: `{github.html_url}/tree/issues-data/{N}/spec-artifa
 
 Embed this blockquote at the TOP of the issue body (before the spec content), prepended when creating the issue body or updated after creation.
 
-### Step 7: Create GitHub Issue
+### Step 7: Create Issue
 
-Invoke `issue-operations` skill to persist the spec as a GitHub Issue:
+Invoke `issue-operations` skill to persist the spec as an issue:
 
 1. Generate spec folder URL blockquote (Step 6.8) and prepend it to the issue body
 2. Invoke `issue-operations --task pre-creation` to validate (check for conflicts, superseded issues, content coverage)
 3. If validation fails → HALT and report. Fix issues and re-validate.
 4. If validation passes → invoke `issue-operations --task single-task-check` to determine sub-issue needs
-5. Invoke `issue-operations --task creation` to create the GitHub Issue with the blockquote-prepended body
+5. Invoke `issue-operations --task creation` to create the issue with the blockquote-prepended body
 6. Record the issue number and URL
 
 **Chat output is ONLY:**
@@ -304,28 +392,79 @@ Invoke `issue-operations` skill to persist the spec as a GitHub Issue:
 **🚫 NEVER:**
 
 - Dump full spec content to chat as the "review" step
-- Claim spec is "written" without a GitHub Issue URL
+- Claim spec is "written" without an issue URL
 - Ask the user to review the spec in chat
+
+### Step 7a: Exec-Summary Format Rules
+
+The exec summary embedded in the remote issue body MUST follow these formatting constraints:
+
+- **No checkboxes, no status markers, no completion flags** — the issue body is a requirements document, not a project tracker
+- **Cards listed in dependency order** — implementable sequence, not alphabetical or priority order
+- **Include `Key Decisions` section** — document trade-offs and rationale from the card catalogue
+- **Include `Risk Callouts` section** — surface risks that affect implementation approach or timeline
+
+**Rules table:**
+
+| Rule | Rationale |
+|------|-----------|
+| No checkboxes/status markers | Issue body is a requirements document, not a tracker. Status belongs on platform labels and sub-issue state. |
+| Dependency-ordered cards | Implementation follows dependency order; the exec summary must reflect the sequence the implementer will follow. |
+| Key Decisions section | Design decisions made during spec creation must be visible to the implementer without reading the full card catalogue. |
+| Risk Callouts section | Risks that affect implementation approach or timeline must be surfaced at the top of the issue, not buried in appendix content. |
+
+**Example format:**
+
+```
+> **Full spec and artifacts: `.issues/{N}/`**
+
+## Exec Summary
+
+Describes what this spec achieves at a high level — one to two sentences
+on the problem and the chosen approach.
+
+### Cards (dependency order)
+1. **First dependency** — What must be built before anything else
+2. **Core implementation** — The primary change this spec requires
+3. **Follow-up work** — What depends on the core change
+4. **Verification and cleanup** — Tests, migration, documentation
+
+### Key Decisions
+- **Decision A**: Why this approach over the alternatives
+- **Decision B**: Trade-off accepted and why
+
+### Risk Callouts
+- **Risk A**: What could go wrong and what mitigates it
+- **Risk B**: Known unknowns that affect timeline or approach
+```
+
+### Step 7b: Remote Push + Local Mirror
+
+After creating the issue in Step 7, save a local mirror of the exec summary:
+
+1. Remote push happens first (Step 7 creates the issue on the remote platform via `issue-operations --task creation`)
+2. Save `.issues/{N}/remote-exec-summary.md` with the exec summary content that was posted to the remote
+3. Verify the `.issues/` directory pattern is followed (`.issues/{N}/remote-exec-summary.md`)
+
+This ensures the local workspace mirrors the remote state for off-network reference and diff-based drift detection.
 
 ### Step 8: User Review on Issue
 
 The user reviews the spec ON THE GITHUB ISSUE, not in chat.
 
-- If user requests revisions via issue comments: update the issue body, then post update summary + URL + byline to chat
+- If user requests revisions via issue comments: invoke `issue-operations --task body-edit` to update the issue body, then post update summary + URL + byline to chat
 - If user approves the spec on the issue: proceed to Step 9
 - Do NOT re-dump the spec to chat for any reason
 
 ### Step 9: Transition
 
-After user approval of the spec on the GitHub Issue:
+After user approval of the spec on the issue:
 
 - Invoke `spec-auditor` for quality audit
-- Then proceed to `approval-gate` for authorization
-- Then `writing-plans` for implementation planning
 
 ## Context Required
 
 - Preceded by: `requirements` (mandatory), `decompose`, `traceability`, `risk` (or explicitly skipped)
 - Extends: brainstorming Steps 7-9 (adapted, not verbatim move)
-- Calls: `issue-operations` (pre-creation → single-task-check → creation)
-- Followed by: `spec-auditor`, then `approval-gate`
+- Calls: `issue-operations` (pre-creation → single-task-check → creation → body-edit)
+- Followed by: `spec-auditor`, then user review on the issue
