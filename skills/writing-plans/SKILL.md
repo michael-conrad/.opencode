@@ -1,6 +1,6 @@
 ---
 name: writing-plans
-description: Use when creating an implementation plan from an approved spec. Plans are stored locally in `.issues/{N}/spec-artifacts/plan.md`. Triggers on: write plan, create plan, implementation plan, plan spec, approved plan, plan creation. Implementing without a plan is wandering. Plans are the map — agents who skip them get lost.
+description: Use when creating an implementation plan from an approved spec. Triggers on: write plan, create plan, implementation plan, plan spec, approved plan, plan creation. Implementing without a plan is wandering. Plans are the map — agents who skip them get lost.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
@@ -24,12 +24,12 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 | `create` | ≈600 |
 | `completion` | ≈200 |
 
-## Plan Issue Model
+## Plan Model
 
-**All plans are local artifacts.** Plans are stored at `.issues/{N}/spec-artifacts/plan.md`. No remote `[PLAN]` issue is created. No sub-issues are linked — phases are sections in the local plan file.
+**All plans are local artifacts.** Plans are stored at `.issues/{N}/spec-artifacts/plan.md`. Phases are sections in the local plan file.
 
-- **Separate plan** (multi-task): `.issues/{N}/spec-artifacts/plan.md` with separate phase sections, each with concern boundary annotations
-- **Combined spec+plan** (single-task): `.issues/{N}/spec-artifacts/plan.md` referencing spec content inline
+- **Separate (multi-task):** `.issues/{N}/spec-artifacts/plan.md` with stand-alone phase sections, each with concern boundary annotations
+- **Combined (single-task):** `.issues/{N}/spec-artifacts/plan.md` referencing spec content inline
 
 ## Invocation
 

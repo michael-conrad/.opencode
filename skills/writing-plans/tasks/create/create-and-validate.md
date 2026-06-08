@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Write plan document, store locally in `.issues/{N}/spec-artifacts/plan.md`, validate structure, and handle approval cascade with scope-aware auto-approval.
+Write plan document to `.issues/{N}/spec-artifacts/plan.md`, validate structure, and handle approval cascade with scope-aware auto-approval.
 
 ## Entry Criteria
 
@@ -12,10 +12,10 @@ Write plan document, store locally in `.issues/{N}/spec-artifacts/plan.md`, vali
 
 ## Exit Criteria
 
-- Plan document written and stored locally at `.issues/{N}/spec-artifacts/plan.md`
+- Plan document written to `.issues/{N}/spec-artifacts/plan.md`
 - Self-review and validation complete
 - Verification revisit passed
-- Plan reported in chat with local artifact path
+- Plan reported in chat with `.issues/{N}/spec-artifacts/plan.md` path
 - Approval cascade applied (auto-approval for pipeline scope)
 
 ## Procedure
@@ -29,10 +29,9 @@ Write plan document, store locally in `.issues/{N}/spec-artifacts/plan.md`, vali
 
 **All paths (combined and separate):**
 - Write plan to `.issues/{N}/spec-artifacts/plan.md`
-- No remote API calls for plan storage — plans are local artifacts per architecture
 - Proceed to Step 8
 
-**Phase body requirements (each phase MUST include):**
+### Phase body requirements (each phase MUST include):
 - Why this phase exists (concern it addresses)
 - What it must accomplish (tasks, deliverables, behavioral requirements)
 - How to verify completion (success criteria)
@@ -64,9 +63,9 @@ Scans for `⚠️ UNVERIFIED` markers. Resolves if possible; escalates unresolva
 
 ### Step 11: Report Plan Creation in Chat (MANDATORY)
 
-**Format — local artifact path, SC-10: full URLs for spec reference, local path for plan:**
+**Format — reference spec via full URL, plan via local artifact path:**
 ```
-Created plan stored at `.issues/{N}/spec-artifacts/plan.md` for [<owner>/<repo>#<N>](https://github.com/<owner>/<repo>/issues/<N>) (<description>). <N> phases across <N> items.
+Created plan at `.issues/{N}/spec-artifacts/plan.md` for [<owner>/<repo>#<N>](https://github.com/<owner>/<repo>/issues/<N>) (<description>). <N> phases across <N> items.
 
 🤖 <AgentName> (<ModelId>)
 ```
@@ -96,9 +95,9 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 - The `pipeline_phase` field is used to track which phase of a multi-phase plan is being executed
 
-### Step 13: Approval Cascade Check (MANDATORY)
+### Step 13: Plan Approval
 
-**Scope-aware auto-approval (local only — no remote API calls):**
+**Scope-aware auto-approval — approval is on the spec, plan is a local artifact:**
 
 ```python
 SCOPE_LEVELS = {
@@ -108,13 +107,10 @@ SCOPE_LEVELS = {
 }
 
 if scope_level >= SCOPE_LEVELS["for_plan"]:
-    # Plan is local — approval is on the spec, not the plan
-    # No remote label removal or comment posting needed
-    # Record: "Plan auto-approved via pipeline scope (authorization_scope={scope})"
-    pass  # Auto-approval recorded in chat report only
+    # Pipeline authorization covers plan approval
+    # Plan is local — record approval in chat report
+    pass
 ```
-
-**For combined spec+plan:** Same as above — no remote operations. Approval is on the spec.
 
 **If `halt_at == plan_created`:** HALT after plan creation. Do NOT proceed to implementation.
 
@@ -126,14 +122,14 @@ if scope_level >= SCOPE_LEVELS["for_plan"]:
 | C2 | File structure lists all files with responsibilities |
 | C3 | TDD tasks include mandatory Step 2 RED checkpoint |
 | C4 | Phase descriptions include concern boundary annotations |
-| C5 | Plan stored locally at `.issues/{N}/spec-artifacts/plan.md` — no remote plan issue |
+| C5 | Plan stored at `.issues/{N}/spec-artifacts/plan.md` |
 | C6 | No TBD/TODO placeholders remain |
-| C7 | No `[PLAN]` GitHub Issue created — plan is a local artifact |
+| C7 | Plan artifact created locally in `.issues/{N}/spec-artifacts/` |
 | C8 | Status marker uses prose-driven format |
-| C9 | Approval cascade honors `authorization_scope` (local-only, no remote ops) |
+| C9 | Approval cascade honors `authorization_scope` |
 
 ## Context Required
 
 - Related tasks: `create/plan-structure`
-- Related skills: `verification-enforcement`, `issue-operations`
-- Related guidelines: `000-critical-rules.md` (URL sourcing, chat format)
+- Related skills: `verification-enforcement`
+- Related guidelines: `000-critical-rules.md` (chat format)

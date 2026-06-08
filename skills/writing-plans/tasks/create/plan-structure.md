@@ -53,8 +53,8 @@ Reason: <justification referencing evaluation criteria>
 ```
 
 **If COMBINED:**
-- Write to `.issues/{N}/spec-artifacts/plan.md`, referencing spec content inline
-- Retain `[SPEC]` title prefix (not changed to `[PLAN]`)
+- Write to `.issues/{N}/spec-artifacts/plan.md`, reference spec content inline
+- Retain `[SPEC]` title prefix
 - Proceed to Step 2
 
 **If SEPARATE:**
@@ -63,12 +63,12 @@ Reason: <justification referencing evaluation criteria>
 
 ### Step 1.6: Duplicate Plan Check
 
-Search for existing local plans in `.issues/` workspace:
+Look for existing plan artifacts in `.issues/` workspace:
 ```bash
 ls .issues/*/spec-artifacts/plan.md 2>/dev/null
 ```
 
-For each plan found, check if it references the current spec. Present choice:
+For each plan found referencing the same spec, present choice:
 - Proceed with new plan (override existing local artifact)
 - HALT and review existing plan
 

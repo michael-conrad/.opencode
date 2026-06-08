@@ -2,19 +2,19 @@
 
 ## Purpose
 
-Create an implementation plan from an approved spec. Plans are stored locally in `.issues/{N}/spec-artifacts/plan.md` — no remote API calls for plan storage.
+Create an implementation plan from an approved spec. Plans are stored at `.issues/{N}/spec-artifacts/plan.md`.
 
 ## Prerequisites
 
 1. Approved spec (verified by approval-gate)
-2. Spec stored locally at `.issues/{N}/spec.md`
+2. Spec stored in `.issues/{N}/spec.md`
 3. Spec has explicit approval (`approved` or `go`)
 4. (Optional) `authorization_scope` from verify-authorization — if scope >= `for_plan`, plan auto-approval triggers
 
 ## Operating Protocol
 
 1. **Verification first:** Must run verification-enforcement --task verify before reading spec
-2. **Combined or separate decision:** Early evaluation whether plan content is stored combined with spec (`spec-artifacts/`) or separate from spec
+2. **Combined or separate decision:** Early evaluation whether plan content references spec content inline (combined) or stands alone with separate phase sections (separate)
 3. **Item decomposition mandatory:** Plan must enumerate items, order dependencies, specify acceptance criteria
 4. **RED checkpoint mandatory:** Every TDD task must include explicit Step 2 checkpoint
 5. **Approval cascade auto-approve:** Pipeline scope (`for_plan+`) auto-approves plan
@@ -26,10 +26,10 @@ Create an implementation plan from an approved spec. Plans are stored locally in
 
 ## Exit Criteria
 
-- Plan stored locally at `.issues/{N}/spec-artifacts/plan.md`
+- Plan stored at `.issues/{N}/spec-artifacts/plan.md`
 - All validation passed
-- Plan reported in chat with local artifact path
-- Approval cascade applied (local-only auto-approval)
+- Plan reported in chat with `.issues/{N}/spec-artifacts/plan.md` path
+- Approval cascade applied (auto-approval for pipeline scope)
 
 ## Procedure
 
@@ -43,14 +43,14 @@ Runs verification gate, makes combined/separate decision, checks for duplicate p
 
 **Route to:** `create/create-and-validate`
 
-Writes plan header, stores locally in `.issues/{N}/spec-artifacts/plan.md`, runs self-review and validation, revisits verification, cross-references skills, and applies approval cascade with scope-aware auto-approval.
+Writes plan header, stores at `.issues/{N}/spec-artifacts/plan.md`, runs self-review and validation, revisits verification, cross-references skills, and applies approval cascade with scope-aware auto-approval.
 
 ## Sub-Task Files
 
 | Sub-Task | Purpose | Words |
 | -- | -- | -- |
 | `create/plan-structure` | Verification, combined/separate decision, file mapping, TDD definition | ≈750 |
-| `create/create-and-validate` | Document writing, local storage, validation, approval cascade | ≈651 |
+| `create/create-and-validate` | Document writing, local storage, validation, approval cascade | ≈650 |
 
 ## Plan Phase Structure Requirements
 
@@ -70,21 +70,17 @@ When transitioning between architectural concerns, describe:
 
 ## Plan Format
 
-Plan stored at `.issues/{N}/spec-artifacts/plan.md`. Combined and separate decisions affect which sections the plan document includes but not where it is stored — all plans are local.
+Plan is stored at `.issues/{N}/spec-artifacts/plan.md`. Combined and separate affect which sections the plan document includes but not where it is stored.
 
 **Combined (single-task):**
-- Write to `.issues/{N}/spec-artifacts/plan.md` and reference spec content inline
+- Write to `.issues/{N}/spec-artifacts/plan.md`, reference spec content inline
 - Retain `[SPEC]` title prefix on spec
-- Do NOT create a remote issue for the plan
 
 **Separate (multi-task):**
-- Write to `.issues/{N}/spec-artifacts/plan.md` with phase sections
-- No GitHub Issue created — plan is a local artifact
-- Sub-issues concept does not apply: phases are sections in the local plan file
+- Write to `.issues/{N}/spec-artifacts/plan.md` with separate phase sections
+- Phases are sections in the local plan file — no sub-issues
 
 ## Approval Cascade Matrix
-
-Plan approval is on the spec, not the plan artifact. No remote plan issue exists. No `needs-approval` label or comment posting needed for plan approval.
 
 | Scope | Plan Approval | Implementation |
 | -- | -- | -- |
