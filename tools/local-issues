@@ -599,9 +599,22 @@ def cmd_create(args: argparse.Namespace) -> None:
         print("  action: no auto-merge — compare data above and resolve manually", file=sys.stderr)
     if args.number is None:
         args.number = _next_number()
-    elif issue_exists(args.number):
-        print(f"Issue #{args.number} already exists.", file=sys.stderr)
-        sys.exit(1)
+    else:
+        current_repo_name = _resolve_repo_name()
+        current_cwd = Path(os.getcwd()).resolve()
+        child_repos = _discover_repos()
+
+        if issue_exists(args.number):
+            print(f"Issue #{args.number} already exists in {current_repo_name}.", file=sys.stderr)
+            sys.exit(1)
+
+        for child in child_repos:
+            child_issues_dir = child / ISSUES_DIR
+            if child_issues_dir.is_dir():
+                child_issue_path = _find_issue_dir_in_repo(args.number, child)
+                if child_issue_path is not None:
+                    print(f"Issue #{args.number} already exists in {child.name}. Use qualified form {child.name}#{args.number}.", file=sys.stderr)
+                    sys.exit(1)
     _ensure_all_worktrees()
     path = get_issue_path(args.number, args.title)
     issue = {
