@@ -18,7 +18,7 @@ Search local issues in the `.issues/` directory with label and text filters. Ret
 local-issues search [--status open|closed|all] [--labels L1,L2] [--query TEXT]
 ```
 
-**Cross-repo default:** `search --query "text"` defaults to scanning ALL repos (`./.issues/` and `.opencode/.issues/`). Each result includes `repo` and `spec_path` fields identifying the source repo.
+**Cross-repo default:** `search --query "text"` defaults to scanning ALL repos (`./.issues/` and `<child-repo>/.issues/`). Each result includes `repo` and `spec_path` fields identifying the source repo.
 
 **Returns:** YAML array of issue summaries. Empty array `[]` if no matches.
 
@@ -31,11 +31,11 @@ local-issues search [--status open|closed|all] [--labels L1,L2] [--query TEXT]
     spec_path: .issues
     phase: spec-design
   - number: 7
-    repo: .opencode
+    repo: <child-repo>
     title: '[SPEC] Another issue'
     status: open
     labels: [SPEC]
-    spec_path: .opencode/.issues
+    spec_path: <child-repo>/.issues
     phase: draft
 ```
 

@@ -22,7 +22,7 @@ The `local-issues` tool supports cross-repo reads with two modes:
 
 | Mode | Syntax | Behavior |
 | ---- | ------ | -------- |
-| **Bare** | `read --number N` | Scans ALL repos (`.issues/` and `.opencode/.issues/`). Returns ALL matches with `repo` field. If multiple repos have issue #N, all are returned. |
+| **Bare** | `read --number N` | Scans ALL repos (`.issues/` and `<child-repo>/.issues/`). Returns ALL matches with `repo` field. If multiple repos have issue #N, all are returned. |
 | **Qualified** | `read --number <repo>#<N>` | Targets a specific repo only. The qualified form uses `{repo}#{N}` where `repo` matches the repo name from the issue's `spec_path` parent directory. |
 
 Output format for both modes includes `repo`, `number`, `spec_path`, and `issue` data.
@@ -32,8 +32,8 @@ ______________________________________________________________________
 ## Entry Criteria
 
 - \[ \] Issue number N is known (integer, valid), optionally qualified as `{repo}#{N}`
-- \[ \] For bare N: `.issues/<N>/` or `.opencode/.issues/<N>/` directory exists
-- \[ \] For qualified `{repo}#{N}`: the specific repo's `.issues/` or `.opencode/.issues/` directory contains the issue
+- \[ \] For bare N: `.issues/<N>/` or `<child-repo>/.issues/<N>/` directory exists
+- \[ \] For qualified `{repo}#{N}`: the specific repo's `.issues/` or `<child-repo>/.issues/` directory contains the issue
 - \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] Read type is one of: `full`, `comments`, `labels`, `links`, `all`
 

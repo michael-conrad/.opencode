@@ -28,10 +28,10 @@ local-issues list [--status open|closed|all]
     spec_path: .issues
     phase: spec-design
   - number: 7
-    repo: .opencode
+    repo: <child-repo>
     title: '[SPEC] Another issue'
     status: open
-    spec_path: .opencode/.issues
+    spec_path: <child-repo>/.issues
 ```
 
 ______________________________________________________________________

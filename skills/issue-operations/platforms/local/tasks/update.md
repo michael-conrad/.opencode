@@ -19,7 +19,7 @@ ______________________________________________________________________
 ## Entry Criteria
 
 - \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `<repo>#<N>`)
-- \[ \] `.issues/<N>/` or `.opencode/.issues/<N>/` directory exists (open or closed)
+- \[ \] `.issues/<N>/` or `<child-repo>/.issues/<N>/` directory exists (open or closed)
 - \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] At least one update field is specified: `--title`, `--status`, `--phase`, `--labels`, or `--body`
 - \[ \] For `--body` updates: body content is non-empty
@@ -117,7 +117,7 @@ ______________________________________________________________________
 | No update flags provided               | `./.opencode/tools/local-issues update N` called with no `--title`, `--status`, `--phase`, `--labels`, or `--body` | HALT. At least one field must be specified. Report to orchestrator.                                            |
 | Invalid field value                    | Status not `open`/`closed`, phase not recognized, labels malformed                               | HALT. Use valid values only.                                                                                   |
 | Body content empty                     | `--body ""` or whitespace-only                                                                   | HALT. Body must be non-empty.                                                                                  |
-| Issue N not found                      | `.issues/<N>/` or `.opencode/.issues/<N>/` directory missing                                     | HALT. Verify issue identifier. Use qualified `{repo}#{N}` form if ambiguous. Cannot update a non-existent issue. |
+| Issue N not found                      | `.issues/<N>/` or `<child-repo>/.issues/<N>/` directory missing                                     | HALT. Verify issue identifier. Use qualified `{repo}#{N}` form if ambiguous. Cannot update a non-existent issue. |
 | CLI tool not found                     | `./.opencode/tools/local-issues` missing                                                           | HALT. The tool must exist for local platform operations.                                                       |
 | Push body after update fails           | See push-body task for error codes                                                               | Report failure to orchestrator. The local update is already committed — push failure is a separate concern.    |
 

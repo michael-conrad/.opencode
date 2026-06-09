@@ -669,6 +669,32 @@ def _require_qualified(number_str: str) -> tuple[str, int]:
     return repo_name, num
 
 
+def _resolve_repo_path(repo_name: str) -> Path | None:
+    """Resolve repo name to its filesystem Path.
+    
+    Checks current repo first, then discovered child repos.
+    Returns None if not found.
+    """
+    current = Path(os.getcwd()).resolve()
+    current_name = _resolve_repo_name()
+    if repo_name == current_name:
+        return current
+    for child in _discover_repos():
+        if child.name == repo_name:
+            return child.resolve()
+    return None
+
+
+def _ensure_repo(repo_name: str) -> Path:
+    """Resolve repo name and chdir into it. Returns the resolved path."""
+    repo_path = _resolve_repo_path(repo_name)
+    if repo_path is None:
+        print(f"Error: repo '{repo_name}' not found.", file=sys.stderr)
+        sys.exit(1)
+    os.chdir(str(repo_path))
+    return repo_path
+
+
 def _resolve_qualified(qualified_str: str) -> list[tuple[Path, str, str]]:
     """Resolve qualified 'repo#N' or bare 'N' to list of (repo_path, repo_name, number_str).
 
@@ -857,6 +883,7 @@ def cmd_read_sub_issues(args: argparse.Namespace) -> None:
 
 def cmd_update(args: argparse.Namespace) -> None:
     _repo_name, args.number = _require_qualified(args.number)
+    _ensure_repo(_repo_name)
     if not issue_exists(args.number):
         _not_found(args.number)
     path = get_issue_path(args.number) / "issue.yaml"
@@ -881,6 +908,9 @@ def cmd_update(args: argparse.Namespace) -> None:
 
 
 def cmd_comment(args: argparse.Namespace) -> None:
+    _repo_name, args.number = _parse_qualified(str(args.number))
+    if _repo_name is not None:
+        _ensure_repo(_repo_name)
     if not issue_exists(args.number):
         _not_found(args.number)
     path = get_issue_path(args.number) / "comments.yaml"
@@ -902,6 +932,7 @@ def cmd_comment(args: argparse.Namespace) -> None:
 
 def cmd_close(args: argparse.Namespace) -> None:
     _repo_name, args.number = _require_qualified(args.number)
+    _ensure_repo(_repo_name)
     if not issue_exists(args.number):
         _not_found(args.number)
     path = get_issue_path(args.number) / "issue.yaml"
@@ -919,6 +950,7 @@ def cmd_close(args: argparse.Namespace) -> None:
 
 def cmd_delete(args: argparse.Namespace) -> None:
     _repo_name, args.number = _require_qualified(args.number)
+    _ensure_repo(_repo_name)
     if not issue_exists(args.number):
         _not_found(args.number)
     links = yaml_load(read_file(get_issue_path(args.number) / "links.yaml"))
@@ -1129,6 +1161,7 @@ def cmd_renumber(args: argparse.Namespace) -> None:
 
 def cmd_promote(args: argparse.Namespace) -> None:
     _repo_name, args.number = _require_qualified(args.number)
+    _ensure_repo(_repo_name)
     if not issue_exists(args.number):
         _not_found(args.number)
     data = read_issue_data(args.number)
@@ -1182,8 +1215,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--github", type=str)
     p.add_argument("--remote-url", type=str)
 
-    p = sub.add_parser("comment", help="Add a comment to an issue. Flags: --number, --type (internal|stakeholder), --body (short text only)")
-    p.add_argument("--number", type=int, required=True)
+    p = sub.add_parser("comment", help="Add a comment to an issue. Flags: --number (N or repo#N), --type (internal|stakeholder), --body (short text only)")
+    p.add_argument("--number", type=str, required=True, help="Issue number or qualified repo#N form")
     p.add_argument("--type", choices=["internal", "stakeholder"], default="internal")
     p.add_argument("--body", type=str, required=True)
 
