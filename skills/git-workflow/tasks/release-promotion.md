@@ -219,26 +219,20 @@ git push origin "$RELEASE_BRANCH"
 
 ### Step N4: Create PR Targeting $DEFAULT_BRANCH
 
-Create a release PR targeting `$DEFAULT_BRANCH`.
+Create a release PR targeting `$DEFAULT_BRANCH`. The PR body MUST summarize what changed, why, and the functional impact — not just dump raw commit messages.
 
-**Capture the delta between dev and $DEFAULT_BRANCH** — both commands below reference the same scope (what changed in dev since diverging from $DEFAULT_BRANCH). They are complementary views:
+**Synthesize the PR body from issue context:**
 
-- `RELEASE_COMMITS` — commit log shows individual commits (from `git log`)
-- `RELEASE_FILES` — file diff shows aggregate changes (from `git diff`)
+1. Capture the commit log: `git log "$DEFAULT_BRANCH"..dev --oneline`
+2. For each commit, extract the issue number from the commit message and read the corresponding issue body to determine the change's intent and impact
+3. Categorize changes by type: new features, bug fixes, refactors, maintenance
+4. Generate a structured PR body with:
+   - Summary paragraph: what this release encompasses (1-3 sentences synthesizing intent across all changes)
+   - Changes section: per-category breakdown with issue references and functional impact descriptions
+   - Files changed: `git diff "$DEFAULT_BRANCH"...dev --stat`
+5. If no unreleased changes exist (`git log` output is empty), state that explicitly
 
 **For GitHub:**
-
-```bash
-RELEASE_COMMITS=$(git log "$DEFAULT_BRANCH"..dev --oneline)
-RELEASE_FILES=$(git diff "$DEFAULT_BRANCH"...dev --stat)
-
-if [ -z "$RELEASE_COMMITS" ]; then
-    RELEASE_COMMITS="No unreleased changes found — this release may be a dependency-sync or infrastructure update."
-    RELEASE_FILES=""
-fi
-```
-
-Then create the PR:
 
 ```
 github_create_pull_request(
@@ -247,9 +241,7 @@ github_create_pull_request(
     title="Release $NEXT_TAG: promote dev → $DEFAULT_BRANCH",
     head="$RELEASE_BRANCH",
     base="$DEFAULT_BRANCH",
-    body=$(printf "Release $NEXT_TAG\n\n## Changes\n\n%s\n\n## Files Changed\n\n%s" \
-        "$RELEASE_COMMITS" \
-        "$RELEASE_FILES")
+    body=<synthesized body per above>
 )
 ```
 
@@ -277,33 +269,21 @@ git push origin "$DEFAULT_BRANCH" --tags
 
 ### Step N8: (Post-merge) Create Platform Release
 
-The release body is generated dynamically from git history to capture a snapshot of the release content at the time of creation — it does not rely on the PR description, which may be stale or edited after merge.
+Generate the release body by summarizing what changed since the last release, organized by category with functional impact. Do not dump raw commit messages — synthesize intent from commit messages and any linked issue context.
 
-**Capture release content from git:**
+**Capture release context:**
 
 ```bash
 RELEASE_DATE=$(date +%Y-%m-%d)
-RELEASE_COMMITS=$(git log "$(git tag --sort=-v:refname | head -1)..$DEFAULT_BRANCH" --oneline 2>/dev/null)
-RELEASE_FILES=$(git diff "$(git tag --sort=-v:refname | head -1)..$DEFAULT_BRANCH" --stat 2>/dev/null)
-
-RELEASE_BODY="Release $NEXT_TAG ($RELEASE_DATE)
-
-## Changes Since Last Release
-
-$RELEASE_COMMITS
-
-## Files Changed
-
-$RELEASE_FILES
-
----
-
-*Release snapshot created at $RELEASE_DATE.*"
+LAST_TAG=$(git tag --sort=-v:refname | head -1)
+RELEASE_COMMITS=$(git log "$LAST_TAG..$DEFAULT_BRANCH" --oneline 2>/dev/null)
 ```
 
-**For GitHub:**
-
-Use GitHub MCP to create release:
+Then synthesize a release body with:
+- Release version and date
+- Summary paragraph of what this release encompasses
+- Changes section: category grouping by feature/fix/maintenance with per-item descriptions
+- No boilerplate, no raw commit dumps, no disclaimers
 
 ```
 github_get_latest_release(owner=<github.owner>, repo=<github.repo>)
