@@ -1,0 +1,95 @@
+# Z3 contract for #1059 pipeline validation — 14-step serial chain
+# Each step has done/not-done state; serial unlock chain enforces order.
+# Generated via: .opencode/tools/plan plan
+# Validated via: .opencode/tools/solve check
+#
+# Pipeline: sc-coherence-gate → pre-red-baseline → red-phase → red-doublecheck →
+#           green-phase → checkpoint-commit → structural-checks → green-doublecheck →
+#           green-vbc → adversarial-audit → cross-validate → regression-check →
+#           review-prep → exec-summary
+#
+# Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+domain: local-issues-worktree-pipeline-v1
+variables:
+  done_sc_coherence_gate:
+    type: bool
+  done_pre_red_baseline:
+    type: bool
+  done_red_phase:
+    type: bool
+  done_red_doublecheck:
+    type: bool
+  done_green_phase:
+    type: bool
+  done_checkpoint_commit:
+    type: bool
+  done_structural_checks:
+    type: bool
+  done_green_doublecheck:
+    type: bool
+  done_green_vbc:
+    type: bool
+  done_adversarial_audit:
+    type: bool
+  done_cross_validate:
+    type: bool
+  done_regression_check:
+    type: bool
+  done_review_prep:
+    type: bool
+  done_exec_summary:
+    type: bool
+
+preconditions:
+  # Each step requires all prior steps done (serial chain)
+  - "z3.Implies(done_pre_red_baseline, done_sc_coherence_gate)"
+  - "z3.Implies(done_red_phase, done_pre_red_baseline)"
+  - "z3.Implies(done_red_doublecheck, done_red_phase)"
+  - "z3.Implies(done_green_phase, done_red_doublecheck)"
+  - "z3.Implies(done_checkpoint_commit, done_green_phase)"
+  - "z3.Implies(done_structural_checks, done_checkpoint_commit)"
+  - "z3.Implies(done_green_doublecheck, done_structural_checks)"
+  - "z3.Implies(done_green_vbc, done_green_doublecheck)"
+  - "z3.Implies(done_adversarial_audit, done_green_vbc)"
+  - "z3.Implies(done_cross_validate, done_adversarial_audit)"
+  - "z3.Implies(done_regression_check, done_cross_validate)"
+  - "z3.Implies(done_review_prep, done_regression_check)"
+  - "z3.Implies(done_exec_summary, done_review_prep)"
+
+  # Step cannot be done before prior step (reinforces above with forward guard)
+  - "z3.Not(z3.And(z3.Not(done_sc_coherence_gate), done_pre_red_baseline))"
+  - "z3.Not(z3.And(z3.Not(done_pre_red_baseline), done_red_phase))"
+  - "z3.Not(z3.And(z3.Not(done_red_phase), done_red_doublecheck))"
+  - "z3.Not(z3.And(z3.Not(done_red_doublecheck), done_green_phase))"
+  - "z3.Not(z3.And(z3.Not(done_green_phase), done_checkpoint_commit))"
+  - "z3.Not(z3.And(z3.Not(done_checkpoint_commit), done_structural_checks))"
+  - "z3.Not(z3.And(z3.Not(done_structural_checks), done_green_doublecheck))"
+  - "z3.Not(z3.And(z3.Not(done_green_doublecheck), done_green_vbc))"
+  - "z3.Not(z3.And(z3.Not(done_green_vbc), done_adversarial_audit))"
+  - "z3.Not(z3.And(z3.Not(done_adversarial_audit), done_cross_validate))"
+  - "z3.Not(z3.And(z3.Not(done_cross_validate), done_regression_check))"
+  - "z3.Not(z3.And(z3.Not(done_regression_check), done_review_prep))"
+  - "z3.Not(z3.And(z3.Not(done_review_prep), done_exec_summary))"
+
+postconditions:
+  - done_sc_coherence_gate
+  - done_pre_red_baseline
+  - done_red_phase
+  - done_red_doublecheck
+  - done_green_phase
+  - done_checkpoint_commit
+  - done_structural_checks
+  - done_green_doublecheck
+  - done_green_vbc
+  - done_adversarial_audit
+  - done_cross_validate
+  - done_regression_check
+  - done_review_prep
+  - done_exec_summary
+
+invariants:
+  # No step can be done without prior step (forward-only monotonic)
+  - "z3.Not(z3.And(done_red_phase, z3.Not(done_pre_red_baseline)))"
+  - "z3.Not(z3.And(done_green_phase, z3.Not(done_red_doublecheck)))"
+  - "z3.Not(z3.And(done_exec_summary, z3.Not(done_review_prep)))"

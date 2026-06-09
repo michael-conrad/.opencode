@@ -1,0 +1,160 @@
+# Plan domain model for #1059 — local-issues multi-repo worktree auto-discovery
+# Single phase with 14-step implementation-pipeline serial chain
+# Generated via: .opencode/tools/plan plan
+# Validated via: .opencode/tools/solve check
+#
+# Pipeline: sc-coherence-gate → pre-red-baseline → red-phase → red-doublecheck →
+#           green-phase → checkpoint-commit → structural-checks → green-doublecheck →
+#           green-vbc → adversarial-audit → cross-validate → regression-check →
+#           review-prep → exec-summary
+#
+# Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+domain: local-issues-worktree-pipeline-v1
+types:
+  - name: step
+objects:
+  - name: sc-coherence-gate
+    type: step
+  - name: pre-red-baseline
+    type: step
+  - name: red-phase
+    type: step
+  - name: red-doublecheck
+    type: step
+  - name: green-phase
+    type: step
+  - name: checkpoint-commit
+    type: step
+  - name: structural-checks
+    type: step
+  - name: green-doublecheck
+    type: step
+  - name: green-vbc
+    type: step
+  - name: adversarial-audit
+    type: step
+  - name: cross-validate
+    type: step
+  - name: regression-check
+    type: step
+  - name: review-prep
+    type: step
+  - name: exec-summary
+    type: step
+fluents:
+  - name: done
+    params:
+      - name: s
+        type: step
+  - name: ready
+    params:
+      - name: s
+        type: step
+actions:
+  - name: execute
+    params:
+      - name: s
+        type: step
+    preconditions:
+      - ready(s)
+    effects:
+      - done(s)
+
+  # Unlock chain: each step unlocks the next
+  - name: unlock-pre-red-baseline
+    preconditions:
+      - done(sc-coherence-gate)
+    effects:
+      - ready(pre-red-baseline)
+
+  - name: unlock-red-phase
+    preconditions:
+      - done(pre-red-baseline)
+    effects:
+      - ready(red-phase)
+
+  - name: unlock-red-doublecheck
+    preconditions:
+      - done(red-phase)
+    effects:
+      - ready(red-doublecheck)
+
+  - name: unlock-green-phase
+    preconditions:
+      - done(red-doublecheck)
+    effects:
+      - ready(green-phase)
+
+  - name: unlock-checkpoint-commit
+    preconditions:
+      - done(green-phase)
+    effects:
+      - ready(checkpoint-commit)
+
+  - name: unlock-structural-checks
+    preconditions:
+      - done(checkpoint-commit)
+    effects:
+      - ready(structural-checks)
+
+  - name: unlock-green-doublecheck
+    preconditions:
+      - done(structural-checks)
+    effects:
+      - ready(green-doublecheck)
+
+  - name: unlock-green-vbc
+    preconditions:
+      - done(green-doublecheck)
+    effects:
+      - ready(green-vbc)
+
+  - name: unlock-adversarial-audit
+    preconditions:
+      - done(green-vbc)
+    effects:
+      - ready(adversarial-audit)
+
+  - name: unlock-cross-validate
+    preconditions:
+      - done(adversarial-audit)
+    effects:
+      - ready(cross-validate)
+
+  - name: unlock-regression-check
+    preconditions:
+      - done(cross-validate)
+    effects:
+      - ready(regression-check)
+
+  - name: unlock-review-prep
+    preconditions:
+      - done(regression-check)
+    effects:
+      - ready(review-prep)
+
+  - name: unlock-exec-summary
+    preconditions:
+      - done(review-prep)
+    effects:
+      - ready(exec-summary)
+
+init:
+  - ready(sc-coherence-gate)
+
+goals:
+  - done(sc-coherence-gate)
+  - done(pre-red-baseline)
+  - done(red-phase)
+  - done(red-doublecheck)
+  - done(green-phase)
+  - done(checkpoint-commit)
+  - done(structural-checks)
+  - done(green-doublecheck)
+  - done(green-vbc)
+  - done(adversarial-audit)
+  - done(cross-validate)
+  - done(regression-check)
+  - done(review-prep)
+  - done(exec-summary)
