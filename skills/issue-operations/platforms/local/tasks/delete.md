@@ -18,8 +18,8 @@ ______________________________________________________________________
 
 ## Entry Criteria
 
-- \[ \] Issue number N is known (positive integer)
-- \[ \] Issue N exists in `.issues/open/` or `.issues/closed/`
+- \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `opencode-config#7`)
+- \[ \] Issue N exists in `.issues/open/` or `.issues/closed/` (or `.opencode/.issues/` for qualified)
 - \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] Intent is confirmed — delete is ONLY for cleanup (orphaned drafts, test artifacts, duplicates). Delete is NOT for closing issues in normal workflow. Use `close` instead.
 - \[ \] Orchestrator has explicitly requested deletion — delete is never self-initiated by a sub-agent
@@ -41,11 +41,11 @@ ______________________________________________________________________
 
 | Step | Action              | Command / Details                                                                                                                                       |
 | ---- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | Verify issue exists | `./.opencode/tools/local-issues read N` — confirm exit 0. If exit non-zero → exit 1 (issue not found).                                                                    |
+| 1    | Verify issue exists | `./.opencode/tools/local-issues read opencode-config#7` — confirm exit 0. If exit non-zero → exit 1 (issue not found).                                                                    |
 | 2    | Check remote link   | Read frontmatter for `github_issue` or `remote_url` field. If present and non-empty → remote link exists.                                               |
 | 3    | Apply safety guard  | If remote link exists AND `--force` NOT provided → exit 2 (blocked). Report: "Remote issue R exists at `url`. Use --force to remove local mirror only." |
-| 4    | Delete              | `./.opencode/tools/local-issues delete N [--force]` — removes `.issues/open/NNN-slug/` or `.issues/closed/NNN-slug/`. Auto-commits on issues-data branch.                 |
-| 5    | Verify deletion     | `./.opencode/tools/local-issues read N` — confirm exit non-zero (issue no longer exists). Verify neither `.issues/open/NNN-slug/` nor `.issues/closed/NNN-slug/` exists.  |
+| 4    | Delete              | `./.opencode/tools/local-issues delete opencode-config#7 [--force]` — removes `.issues/open/NNN-slug/` or `.issues/closed/NNN-slug/`. Auto-commits on issues-data branch.                 |
+| 5    | Verify deletion     | `./.opencode/tools/local-issues read opencode-config#7` — confirm exit non-zero (issue no longer exists). Verify neither `.issues/open/NNN-slug/` nor `.issues/closed/NNN-slug/` exists.    |
 | 6    | Report              | Report to orchestrator: issue number, whether remote link existed, whether --force was used, exit code, and whether remote issue is unaffected.         |
 
 ______________________________________________________________________

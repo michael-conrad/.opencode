@@ -18,8 +18,8 @@ ______________________________________________________________________
 
 ## Entry Criteria
 
-- \[ \] Issue number N is known (positive integer)
-- \[ \] `.issues/<N>/` directory exists
+- \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `opencode-config#7`)
+- \[ \] `.issues/<N>/` or `.opencode/.issues/<N>/` directory exists
 - \[ \] Issue has a remote link (`remote_url` or `github_issue` in frontmatter)
 - \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] `./.opencode/tools/local-issues extract-exec-summary N` is functional (target utility)
@@ -36,8 +36,8 @@ Extract the executive summary from the local spec body into `remote.md`. This re
 
 | Step | Action                | Command / Details                                                                   |
 | ---- | --------------------- | ----------------------------------------------------------------------------------- |
-| 1.1  | Extract exec-summary  | `./.opencode/tools/local-issues extract-exec-summary N`                                               |
-| 1.2  | Verify extraction     | Read `.issues/<N>/remote.md` — confirm file exists and is non-empty                 |
+| 1.1  | Extract exec-summary  | `./.opencode/tools/local-issues extract-exec-summary opencode-config#7`                                                                               |
+| 1.2  | Verify extraction     | Read `.issues/<N>/remote.md` (or `.opencode/.issues/<N>/remote.md` for qualified) — confirm file exists and is non-empty                 |
 | 1.3  | Capture path and body | Record `{ current_body, remote_md_path: ".issues/<N>/remote.md", issue_number: N }` |
 
 **Exit from Phase 1:** `remote.md` exists with extracted exec-summary content.
