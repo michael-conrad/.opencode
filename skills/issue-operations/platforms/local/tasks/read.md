@@ -23,7 +23,7 @@ The `local-issues` tool supports cross-repo reads with two modes:
 | Mode | Syntax | Behavior |
 | ---- | ------ | -------- |
 | **Bare** | `read --number N` | Scans ALL repos (`.issues/` and `.opencode/.issues/`). Returns ALL matches with `repo` field. If multiple repos have issue #N, all are returned. |
-| **Qualified** | `read --number opencode-config#7` | Targets a specific repo only. The qualified form uses `{repo}#{N}` where `repo` matches the repo name from the issue's `spec_path` parent directory. |
+| **Qualified** | `read --number <repo>#<N>` | Targets a specific repo only. The qualified form uses `{repo}#{N}` where `repo` matches the repo name from the issue's `spec_path` parent directory. |
 
 Output format for both modes includes `repo`, `number`, `spec_path`, and `issue` data.
 
@@ -187,11 +187,11 @@ ______________________________________________________________________
 
 | Operation | Command                                                         |
 | --------- | --------------------------------------------------------------- |
-| Full read | `./.opencode/tools/local-issues read <N>` (bare) or `read --number opencode-config#7` (qualified) |
+| Full read | `./.opencode/tools/local-issues read <N>` (bare) or `read --number <repo>#<N>` (qualified) |
 | Comments  | `./.opencode/tools/local-issues read-comments <N>`              |
 | Labels    | `./.opencode/tools/local-issues read-labels <N>`                |
 | Links     | `./.opencode/tools/local-issues read-sub-issues <N>`            |
-| Bundle    | `./.opencode/tools/local-issues read <N> --all` (bare) or `read <N> --all --number opencode-config#7` (qualified) |
+| Bundle    | `./.opencode/tools/local-issues read <N> --all` (bare) or `read <N> --all --number <repo>#<N>` (qualified) |
 
 All commands output YAML. Always check exit code before parsing output.
 

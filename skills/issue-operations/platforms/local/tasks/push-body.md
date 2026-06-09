@@ -10,7 +10,7 @@
 
 Push local issue body to the remote API. This is a one-direction sync — local spec.md is authoritative. Push-body is a SEPARATE operation from `update --body` (which modifies the local file only). The decision to push happens in the post-update decision gate (see `update.md`).
 
-**Primary tool:** `./.opencode/tools/local-issues push-body N` (or `push-body opencode-config#7` for qualified)
+**Primary tool:** `./.opencode/tools/local-issues push-body N` (or `push-body <repo>#<N>` for qualified)
 
 **Architectural role:** Push-body closes the sync loop after a local body update. It reads spec.md, extracts the body content, and sends it to the remote API via the platform's update-issue endpoint. This task does NOT call `update --body` — that is the caller's responsibility.
 
@@ -18,7 +18,7 @@ ______________________________________________________________________
 
 ## Entry Criteria
 
-- \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `opencode-config#7`)
+- \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `<repo>#<N>`)
 - \[ \] `.issues/<N>/` or `.opencode/.issues/<N>/` directory exists
 - \[ \] `.issues/<N>/spec.md` (or `.opencode/.issues/<N>/spec.md`) contains body content to push
 - \[ \] Issue has a remote link in frontmatter (`remote_url` or `github_issue` field)
@@ -34,7 +34,7 @@ ______________________________________________________________________
 Read the issue's frontmatter to confirm a remote link exists:
 
 ```bash
-local-issues read opencode-config#7 --type full | grep -E '(remote_url|github_issue):'
+local-issues read <repo>#<N> --type full | grep -E '(remote_url|github_issue):'
 ```
 
 Expected output: a non-empty `remote_url` or `github_issue: <owner>/<repo>#<number>` value.
@@ -46,7 +46,7 @@ If no remote link exists: HALT. Report "Issue #N has no remote link. Cannot push
 Read the issue body content from `spec.md`. The body is all content after the frontmatter:
 
 ```bash
-local-issues read opencode-config#7 --type full
+local-issues read <repo>#<N> --type full
 ```
 
 Extract body portion (everything after the closing `---` of the YAML frontmatter).

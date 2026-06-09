@@ -24,7 +24,7 @@ local-issues search [--status open|closed|all] [--labels L1,L2] [--query TEXT]
 
 ```yaml
   - number: 979
-    repo: opencode-config
+    repo: <main-repo>
     title: '[SPEC] Example issue title'
     status: open
     labels: [SPEC, needs-approval]
