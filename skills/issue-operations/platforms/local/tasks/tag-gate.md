@@ -14,9 +14,9 @@ Reusable task for creating gate tags on the `.opencode` submodule at key pipelin
 
 **Tag naming convention:**
 
-- `opencode-config/<issue>/phase-<N>-opencode` — GREEN VbC pass checkpoint
-- `opencode-config/<issue>/audit-pass-opencode` — Adversarial audit PASS
-- `opencode-config/<issue>/code-review-opencode` — Code review ready
+- `<parent-repo>/<issue>/phase-<N>-opencode` — GREEN VbC pass checkpoint
+- `<parent-repo>/<issue>/audit-pass-opencode` — Adversarial audit PASS
+- `<parent-repo>/<issue>/code-review-opencode` — Code review ready
 
 ______________________________________________________________________
 
@@ -35,14 +35,14 @@ ______________________________________________________________________
 ## Tag Name Construction
 
 ```bash
-tag_name = "opencode-config/${issue}/${gate_name}"
+tag_name = "<parent-repo>/${issue}/${gate_name}"
 ```
 
 Examples:
 
-- `opencode-config/979/phase-1-opencode`
-- `opencode-config/979/audit-pass-opencode`
-- `opencode-config/979/code-review-opencode`
+- `<parent-repo>/979/phase-1-opencode`
+- `<parent-repo>/979/audit-pass-opencode`
+- `<parent-repo>/979/code-review-opencode`
 
 ______________________________________________________________________
 
@@ -65,7 +65,7 @@ ______________________________________________________________________
 Construct the full tag name from the issue number and gate name:
 
 ```bash
-TAG_NAME="opencode-config/${ISSUE}/${GATE_NAME}"
+TAG_NAME="<parent-repo>/${ISSUE}/${GATE_NAME}"
 ```
 
 ### Step 2: Verify tag does not exist
@@ -98,7 +98,7 @@ Confirm the tag appears in the tag list. If missing, HALT and report creation fa
 
 ```json
 {
-  "tag": "opencode-config/<issue>/<gate_name>",
+  "tag": "<parent-repo>/<issue>/<gate_name>",
   "created": true
 }
 ```
@@ -107,7 +107,7 @@ ______________________________________________________________________
 
 ## Exit Criteria
 
-- \[ \] Tag name constructed correctly: `opencode-config/<issue>/<gate_name>`
+- \[ \] Tag name constructed correctly: `<parent-repo>/<issue>/<gate_name>`
 - \[ \] Pre-existing tag verified absent before creation (no overwrites)
 - \[ \] Tag created via `git tag <name> -m "<message>"` in `.opencode/`
 - \[ \] Tag verified present via `git tag -l` in `.opencode/`
@@ -124,7 +124,7 @@ ______________________________________________________________________
 | Detached HEAD in `.opencode/`            | Submodule on detached HEAD, cannot tag reliably            | HALT. Checkout dev branch in submodule first. Report to orchestrator.                                                   |
 | Uncommitted changes in `.opencode/`      | Dirty working tree — tag would reference uncommitted state | HALT. Commit or stash changes in `.opencode/` first. Clean state required before tagging.                               |
 | Tag already exists                       | Tag overwrite attempted (tags are permanent)               | HALT. Report existing tag name. Do NOT force or overwrite. The calling task should verify whether re-tagging is needed. |
-| `git tag` fails                          | Invalid tag name (spaces, special chars), filesystem error | HALT. Verify tag name format: `opencode-config/<integer>/<alphanumeric-plus-hyphen>`. Report to orchestrator.           |
+| `git tag` fails                          | Invalid tag name (spaces, special chars), filesystem error | HALT. Verify tag name format: `<parent-repo>/<integer>/<alphanumeric-plus-hyphen>`. Report to orchestrator.           |
 | Parameters missing                       | `gate_name`, `issue`, or `message` not provided            | HALT. All three parameters are required. Report missing fields.                                                         |
 | Invalid issue number                     | `issue` not a positive integer                             | HALT. Issue must be a positive integer. Report to orchestrator.                                                         |
 

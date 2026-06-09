@@ -18,7 +18,7 @@ ______________________________________________________________________
 
 ## Entry Criteria
 
-- \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `opencode-config#7`)
+- \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `<repo>#<N>`)
 - \[ \] `.issues/<N>/` or `.opencode/.issues/<N>/` directory exists (open or closed)
 - \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] At least one update field is specified: `--title`, `--status`, `--phase`, `--labels`, or `--body`
@@ -44,10 +44,10 @@ Update frontmatter fields. Title, status, phase, and labels are independent — 
 
 | Step | Action               | Command / Details                                                                                                                                              |
 | ---- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | Pre-read             | `./.opencode/tools/local-issues read opencode-config#7` — capture current frontmatter to verify fields exist                                                                                     |
+| 1    | Pre-read             | `./.opencode/tools/local-issues read <repo>#<N>` — capture current frontmatter to verify fields exist                                                                                     |
 | 2    | Validate fields      | Confirm each specified field is a valid frontmatter key (title, status, phase, labels). Status values: `open`, `closed`. Phase values: per project convention. |
-| 3    | Update               | `./.opencode/tools/local-issues update opencode-config#7 --title "T" --status S --phase P --labels L1,L2` — only include flags that have values                                                  |
-| 4    | Verify               | `./.opencode/tools/local-issues read opencode-config#7` — confirm each field matches the expected value                                                                                          |
+| 3    | Update               | `./.opencode/tools/local-issues update <repo>#<N> --title "T" --status S --phase P --labels L1,L2` — only include flags that have values                                                  |
+| 4    | Verify               | `./.opencode/tools/local-issues read <repo>#<N>` — confirm each field matches the expected value                                                                                          |
 | 5    | Post-update decision | See Post-Update Decision Gate below                                                                                                                            |
 
 **Field scope (per Card-013):**

@@ -10,7 +10,7 @@
 
 Pull remote issue body to local mirror. Pull-body brings the remote's current state into a local `remote.md` file — it does NOT overwrite `spec.md`. The local spec.md is the authoritative version; `remote.md` is a reference mirror for diffing, auditing, and conflict detection.
 
-**Primary tool:** `./.opencode/tools/local-issues pull-body N` (or `pull-body opencode-config#7` for qualified)
+**Primary tool:** `./.opencode/tools/local-issues pull-body N` (or `pull-body <repo>#<N>` for qualified)
 
 **Key architectural rule:** Pulls into `remote.md` only. Never overwrites `spec.md` with remote content. The local spec is the canonical source — remote body is a point-in-time reference copy.
 
@@ -18,7 +18,7 @@ ______________________________________________________________________
 
 ## Entry Criteria
 
-- \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `opencode-config#7`)
+- \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `<repo>#<N>`)
 - \[ \] `.issues/<N>/` or `.opencode/.issues/<N>/` directory exists
 - \[ \] Issue has a remote link in frontmatter (`remote_url` or `github_issue` field)
 - \[ \] Remote API is reachable (platform-appropriate MCP tools or CLI)
@@ -33,7 +33,7 @@ ______________________________________________________________________
 Read the issue's frontmatter to confirm a remote link exists:
 
 ```bash
-local-issues read opencode-config#7 --type full | grep -E '(remote_url|github_issue):'
+local-issues read <repo>#<N> --type full | grep -E '(remote_url|github_issue):'
 ```
 
 Expected output: a non-empty `remote_url` or `github_issue: <owner>/<repo>#<number>` value.

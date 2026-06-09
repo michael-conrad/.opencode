@@ -22,7 +22,7 @@ local-issues list [--status open|closed|all]
 
 ```yaml
   - number: 979
-    repo: opencode-config
+    repo: <main-repo>
     title: '[SPEC] Example issue title'
     status: open
     spec_path: .issues
