@@ -100,6 +100,8 @@ Each item's RED/GREEN conditions MUST describe requirements, not implementation:
 
 **GREEN** = "what must be true when done" — the condition that proves completion. Uses "must be true" language. NO "implemented", "complete", or past-tense status language.
 
+**RED/GREEN MUST be defined as separate phases.** RED and GREEN may NEVER be combined into a single phase or step. RED describes the failure condition (what must be false), and GREEN describes the satisfaction condition (what must be true). They are separate concerns and MUST appear as separate entries in the plan structure.
+
 ```
 ✅ CORRECT RED: "The agent produces a plan with RED/GREEN conditions instead of prescriptive code"
 ✅ CORRECT GREEN: "Plans must describe what must be true, not how to achieve it"

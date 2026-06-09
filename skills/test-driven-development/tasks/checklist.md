@@ -25,6 +25,7 @@ Before starting a TDD cycle:
 - [ ] One assertion per test concept
 - [ ] Test makes no assumptions about implementation
 - [ ] Test correctly expresses the spec (not the implementation)
+- [ ] RED is a separate phase — no GREEN work started
 - [ ] **RUN THE TEST — confirm FAIL or ERROR**
 - [ ] Evidence of failure captured (tool call output)
 
@@ -34,6 +35,7 @@ Before starting a TDD cycle:
 - [ ] No speculative code (no "we might need this later")
 - [ ] No premature optimization
 - [ ] No new features beyond what the test requires
+- [ ] GREEN is a separate phase — RED was completed and confirmed FAIL before GREEN began
 - [ ] **RUN THE TEST — confirm PASS**
 - [ ] All previously passing tests still pass (`uv run pytest test/ -v`)
 
