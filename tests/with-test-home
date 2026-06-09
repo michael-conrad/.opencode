@@ -114,7 +114,8 @@ seed_model_config() {
         $model_entries
       }
     }
-  }
+  },
+  "mcp": {}
 }
 JSONC
 
@@ -225,8 +226,12 @@ for var in GITHUB_TOKEN GH_TOKEN GH_AUTH_TOKEN SSH_AUTH_SOCK GIT_AUTHOR_NAME GIT
     fi
 done
 
+PWD_VALUE="$(pwd)"
+OPENCODE_CONFIG_CONTENT_VALUE='{"mcp":{"the-notebook-mcp":{"enabled":false}}}'
+
 env -i \
     HOME="$TEST_HOME" \
+    PWD="$PWD_VALUE" \
     XDG_CONFIG_HOME="$TEST_HOME/.config" \
     XDG_CACHE_HOME="$TEST_HOME/.cache" \
     XDG_RUNTIME_DIR="$TEST_HOME/.runtime" \
@@ -238,6 +243,7 @@ env -i \
     LOGNAME="${LOGNAME:-$(id -un)}" \
     LANG="${LANG:-en_US.UTF-8}" \
     TERM="${TERM:-xterm-256color}" \
+    OPENCODE_CONFIG_CONTENT="$OPENCODE_CONFIG_CONTENT_VALUE" \
     "${pass_through_env[@]}" \
     "$@"
 
