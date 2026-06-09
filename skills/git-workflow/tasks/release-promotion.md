@@ -190,7 +190,7 @@ fi
 ### Step N2: Create Release Branch from Dev
 
 ```bash
-RELEASE_BRANCH="release/dev-to-master-v${NEXT_TAG#v}"
+RELEASE_BRANCH="release/dev-to-main-v${NEXT_TAG#v}"
 git checkout dev
 git checkout -b "$RELEASE_BRANCH"
 ```
@@ -201,11 +201,25 @@ git checkout -b "$RELEASE_BRANCH"
 git push origin "$RELEASE_BRANCH"
 ```
 
-### Step N4: Create PR Targeting Master
+### Step N4: Create PR Targeting Main
 
-Create a release PR targeting `master` (or `main`):
+Create a release PR targeting `main`:
 
 **For GitHub:**
+
+First capture the log output with a fallback for empty results:
+
+```bash
+RELEASE_COMMITS=$(git log main..dev --oneline)
+RELEASE_FILES=$(git diff main...dev --stat)
+
+if [ -z "$RELEASE_COMMITS" ]; then
+    RELEASE_COMMITS="No unreleased changes found — this release may be a dependency-sync or infrastructure update."
+    RELEASE_FILES=""
+fi
+```
+
+Then create the PR:
 
 ```
 github_create_pull_request(
@@ -213,10 +227,10 @@ github_create_pull_request(
     repo=<github.repo>,
     title="Release $NEXT_TAG: promote dev → main",
     head="$RELEASE_BRANCH",
-    base="master",
+    base="main",
     body=$(printf "Release $NEXT_TAG\n\n## Changes\n\n%s\n\n## Files Changed\n\n%s\n\n⚠️ This PR was prepared by an AI agent. Human review required before merge." \
-        "$(git log main..dev --oneline)" \
-        "$(git diff main...dev --stat)")
+        "$RELEASE_COMMITS" \
+        "$RELEASE_FILES")
 )
 ```
 
@@ -228,18 +242,18 @@ Report the PR URL to chat. HALT and wait for the human to merge the PR.
 
 After human merges the PR, proceed to post-merge steps (N6-N8). These may be run in a subsequent session using `--task release-promotion --post-merge`.
 
-### Step N6: (Post-merge) Tag Master with Semver Tag
+### Step N6: (Post-merge) Tag Main with Semver Tag
 
 ```bash
-git checkout master
-git pull origin master
+git checkout main
+git pull origin main
 git tag -a "$NEXT_TAG" -m "Release $NEXT_TAG"
 ```
 
 ### Step N7: (Post-merge) Push Tags
 
 ```bash
-git push origin master --tags
+git push origin main --tags
 ```
 
 ### Step N8: (Post-merge) Create Platform Release
