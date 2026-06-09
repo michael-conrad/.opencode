@@ -214,7 +214,9 @@ github_create_pull_request(
     title="Release $NEXT_TAG: promote dev → main",
     head="$RELEASE_BRANCH",
     base="master",
-    body="Release $NEXT_TAG\n\nAutomated dev → main promotion.\n\n⚠️ This PR was prepared by an AI agent. Human review required before merge."
+    body=$(printf "Release $NEXT_TAG\n\n## Changes\n\n%s\n\n## Files Changed\n\n%s\n\n⚠️ This PR was prepared by an AI agent. Human review required before merge." \
+        "$(git log main..dev --oneline)" \
+        "$(git diff main...dev --stat)")
 )
 ```
 
@@ -255,7 +257,7 @@ Then create release via GitHub API with:
 ```markdown
 Release $NEXT_TAG
 
-Automated dev → main promotion.
+See PR description for changelog.
 ```
 
 **For GitBucket:** Use GitBucket API per `gitbucket-api` skill.
@@ -265,7 +267,7 @@ Automated dev → main promotion.
 ```markdown
 Release $NEXT_TAG
 
-Automated dev → main promotion.
+See PR description for changelog.
 ```
 
 ---
