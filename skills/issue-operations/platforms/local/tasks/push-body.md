@@ -19,8 +19,8 @@ ______________________________________________________________________
 ## Entry Criteria
 
 - \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `<repo>#<N>`)
-- \[ \] `.issues/<N>/` or `.opencode/.issues/<N>/` directory exists
-- \[ \] `.issues/<N>/spec.md` (or `.opencode/.issues/<N>/spec.md`) contains body content to push
+- \[ \] `.issues/<N>/` or `<child-repo>/.issues/<N>/` directory exists
+- \[ \] `.issues/<N>/spec.md` (or `<child-repo>/.issues/<N>/spec.md`) contains body content to push
 - \[ \] Issue has a remote link in frontmatter (`remote_url` or `github_issue` field)
 - \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] Remote API credentials are available (platform-appropriate env vars or MCP tools)

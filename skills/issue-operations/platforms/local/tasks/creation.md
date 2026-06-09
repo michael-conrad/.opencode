@@ -12,7 +12,7 @@ Create issues in the local `.issues/` directory. Three scenarios cover the full 
 
 **Primary tool:** `./.opencode/tools/local-issues`
 
-**Cross-repo collision check:** When creating with `--number`, the tool checks if `{repo}#{N}` exists in ANY repo (both `.issues/` and `.opencode/.issues/`). If a collision is detected, creation is blocked.
+**Cross-repo collision check:** When creating with `--number`, the tool checks if `{repo}#{N}` exists in ANY repo (both `.issues/` and `<child-repo>/.issues/`). If a collision is detected, creation is blocked.
 
 ______________________________________________________________________
 
@@ -118,7 +118,7 @@ ______________________________________________________________________
 | Promote: phase is not `draft`         | Issue already promoted or not created via draft flow | HALT. Report current phase. Only `draft` or `ready-to-promote` are promotable.                |
 | Promote: remote creation fails        | API error (auth, rate limit, 422)                    | HALT. Report API error from platform-specific response.                                       |
 | Import-remote: remote fetch fails     | Remote issue does not exist, API error               | HALT. Verify remote issue number is correct.                                                  |
-| Import-remote: local number collision | `.issues/R/` or `.opencode/.issues/R/` already exists                          | HALT. Report collision. Orchestrator must resolve (archive, delete, or use different number). The `--number` flag checks ALL tracked repos for collisions. |
+| Import-remote: local number collision | `.issues/R/` or `<child-repo>/.issues/R/` already exists                          | HALT. Report collision. Orchestrator must resolve (archive, delete, or use different number). The `--number` flag checks ALL tracked repos for collisions. |
 | Renumber fails during promote         | Target directory `.issues/R/` already exists         | HALT. Target dir must be empty. Manually resolve collision.                                   |
 | CLI tool not found                    | `./.opencode/tools/local-issues` missing               | HALT. The tool must exist for local platform operations.                                      |
 

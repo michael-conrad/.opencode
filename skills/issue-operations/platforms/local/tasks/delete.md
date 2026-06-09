@@ -19,7 +19,7 @@ ______________________________________________________________________
 ## Entry Criteria
 
 - \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `<repo>#<N>`)
-- \[ \] Issue N exists in `.issues/open/` or `.issues/closed/` (or `.opencode/.issues/` for qualified)
+- \[ \] Issue N exists in `.issues/open/` or `.issues/closed/` (or `<child-repo>/.issues/` for qualified)
 - \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] Intent is confirmed — delete is ONLY for cleanup (orphaned drafts, test artifacts, duplicates). Delete is NOT for closing issues in normal workflow. Use `close` instead.
 - \[ \] Orchestrator has explicitly requested deletion — delete is never self-initiated by a sub-agent

@@ -19,7 +19,7 @@ ______________________________________________________________________
 ## Entry Criteria
 
 - \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `<repo>#<N>`)
-- \[ \] `.issues/open/<N>/` or `.opencode/.issues/open/<N>/` directory exists
+- \[ \] `.issues/open/<N>/` or `<child-repo>/.issues/open/<N>/` directory exists
 - \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] Issue is currently open (`status: open` in frontmatter)
 - \[ \] Close reason is specified if known: `--reason completed|not_planned|duplicate`

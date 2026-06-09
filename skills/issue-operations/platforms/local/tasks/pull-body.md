@@ -19,7 +19,7 @@ ______________________________________________________________________
 ## Entry Criteria
 
 - \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `<repo>#<N>`)
-- \[ \] `.issues/<N>/` or `.opencode/.issues/<N>/` directory exists
+- \[ \] `.issues/<N>/` or `<child-repo>/.issues/<N>/` directory exists
 - \[ \] Issue has a remote link in frontmatter (`remote_url` or `github_issue` field)
 - \[ \] Remote API is reachable (platform-appropriate MCP tools or CLI)
 - \[ \] `./.opencode/tools/local-issues` CLI tool is available
