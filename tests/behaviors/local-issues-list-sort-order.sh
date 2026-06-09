@@ -1,63 +1,107 @@
 #!/bin/bash
-# RED phase: local-issues-list-sort-order
-# This script is a direct verification test — it evaluates tool output behavior.
+# Behavioral test: local-issues-list-sort-order
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 #
 # SC-3: list sorts: main repo first, submodules alpha, issue number descending.
-# MUST FAIL in RED phase — current cmd_list outputs flat unsorted #N [status] title.
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TOOL_REAL="$(cd "$SCRIPT_DIR/../.." && pwd)/tools/local-issues"
 
 TEST_DIR=$(mktemp -d)
 trap 'rm -rf "$TEST_DIR"' EXIT
 
-for n in 1 42 50; do
+# --- Main repo issues (various numbers) ---
+for n in 7 100 42; do
   mkdir -p "$TEST_DIR/.issues/$n"
-  printf 'title: Test %d\nstatus: open\nlabels: []\nbody: ""\ncreated_at: "2026-06-09T12:00:00Z"\nupdated_at: "2026-06-09T12:00:00Z"\n' "$n" > "$TEST_DIR/.issues/$n/issue.yaml"
+  cat > "$TEST_DIR/.issues/$n/issue.yaml" << YAML
+title: Main issue $n
+status: open
+labels: []
+body: ""
+created_at: "2026-06-09T12:00:00Z"
+updated_at: "2026-06-09T12:00:00Z"
+YAML
   echo "comments: []" > "$TEST_DIR/.issues/$n/comments.yaml"
   echo "links: []" > "$TEST_DIR/.issues/$n/links.yaml"
 done
 
+# --- Child repo A (should sort before B) ---
+mkdir -p "$TEST_DIR/achildrepo/.git"
+pushd "$TEST_DIR/achildrepo" >/dev/null
+git init --quiet
+git config user.email "test@test.com"
+git config user.name "Test"
+git commit --allow-empty --quiet -m "init"
+popd >/dev/null
+
+for n in 3 99; do
+  mkdir -p "$TEST_DIR/achildrepo/.issues/$n"
+  cat > "$TEST_DIR/achildrepo/.issues/$n/issue.yaml" << YAML
+title: A child issue $n
+status: open
+labels: []
+body: ""
+created_at: "2026-06-09T12:00:00Z"
+updated_at: "2026-06-09T12:00:00Z"
+YAML
+  echo "comments: []" > "$TEST_DIR/achildrepo/.issues/$n/comments.yaml"
+  echo "links: []" > "$TEST_DIR/achildrepo/.issues/$n/links.yaml"
+done
+
+# --- Child repo B (should sort after A) ---
+mkdir -p "$TEST_DIR/bchildrepo/.git"
+pushd "$TEST_DIR/bchildrepo" >/dev/null
+git init --quiet
+git config user.email "test@test.com"
+git config user.name "Test"
+git commit --allow-empty --quiet -m "init"
+popd >/dev/null
+
+for n in 5 1; do
+  mkdir -p "$TEST_DIR/bchildrepo/.issues/$n"
+  cat > "$TEST_DIR/bchildrepo/.issues/$n/issue.yaml" << YAML
+title: B child issue $n
+status: open
+labels: []
+body: ""
+created_at: "2026-06-09T12:00:00Z"
+updated_at: "2026-06-09T12:00:00Z"
+YAML
+  echo "comments: []" > "$TEST_DIR/bchildrepo/.issues/$n/comments.yaml"
+  echo "links: []" > "$TEST_DIR/bchildrepo/.issues/$n/links.yaml"
+done
+
+cd "$TEST_DIR" && git init --quiet
+git config user.email "test@test.com"
+git config user.name "Test"
+git add .
+git commit --allow-empty --quiet -m "initial" 2>/dev/null || true
+
+# --- Run tool ---
+TOOL_REAL="$(cd "$SCRIPT_DIR/../.." && pwd)/tools/local-issues"
 cd "$TEST_DIR"
 output=$(uv run --python 3.12 --script "$TOOL_REAL" list 2>&1 || true)
+echo "$output"
 
-# Current output is bare "#N [status] title" — no {repo}#{N} format.
-# Expected (post-GREEN): repo-grouped, repo prefix, desc by issue number.
-# RED phase MUST FAIL because format is wrong.
-if ! echo "$output" | grep -qE '[a-zA-Z0-9_.-]+#[0-9]+'; then
-  echo "FAIL (RED expected): No qualified {repo}#{N} format — sort order unverifiable"
-  echo "$output"
-  exit 1
-fi
+# Expected order:
+# Main repo first: #100, #42, #7 (desc order)
+# achildrepo: achildrepo#99, achildrepo#3
+# bchildrepo: bchildrepo#5, bchildrepo#1
 
-# Verify main repo group appears first
-first_line=$(echo "$output" | head -1)
-if ! echo "$first_line" | grep -qE '^opencode-config#'; then
-  echo "FAIL (RED expected): Main repo not first in sort order"
-  echo "First line: $first_line"
-  echo "$output"
-  exit 1
-fi
+# Extract just the display_num (first token)
+lines=$(echo "$output" | grep -oE '^[^ ]+')
+expected=("#100" "#42" "#7" "achildrepo#99" "achildrepo#3" "bchildrepo#5" "bchildrepo#1")
 
-# Within each repo group, verify descending issue number
-last_num=999999
-sort_errors=0
-while IFS= read -r line; do
-  if echo "$line" | grep -qE '^([a-zA-Z0-9_.-]+)#([0-9]+)'; then
-    num=$(echo "$line" | sed -nE 's/^[a-zA-Z0-9_.-]+#([0-9]+).*/\1/p')
-    if [ "$num" -gt "$last_num" ]; then
-      sort_errors=$((sort_errors + 1))
-    fi
-    last_num=$num
+idx=0
+for expected_token in "${expected[@]}"; do
+  actual=$(echo "$lines" | sed -n "$((idx+1))p")
+  if [ "$actual" != "$expected_token" ]; then
+    echo "FAIL: Line $((idx+1)) expected '$expected_token' but got '$actual'"
+    exit 1
   fi
-done <<< "$output"
+  idx=$((idx+1))
+done
 
-if [ "$sort_errors" -gt 0 ]; then
-  echo "FAIL (RED expected): $sort_errors descending-order violations"
-  echo "$output"
-  exit 1
-fi
-
-echo "PASS: Sort order verified"
+echo "PASS: Sort order verified (main repo first, child repos alpha, numbers desc)"
 exit 0
