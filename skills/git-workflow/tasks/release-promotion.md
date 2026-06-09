@@ -50,11 +50,21 @@ test -f .gitmodules
 - If `.gitmodules` EXISTS: Proceed to **Submodule Path** (Step 1)
 - If `.gitmodules` does NOT exist: Proceed to **Non-Submodule Path** (Step N1)
 
----
+______________________________________________________________________
 
 ## Submodule Path
 
-### Step 0.5: Detect Semver Tags on Each Submodule
+### Step 0.5: Detect Default Branch for Submodules
+
+For each submodule `<path>`:
+
+```bash
+cd <path>
+DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's|refs/remotes/origin/||')
+cd ..
+```
+
+### Step 0.75: Detect Semver Tags on Each Submodule
 
 For each submodule listed in `.gitmodules`:
 
@@ -163,9 +173,15 @@ After all submodules are tagged:
 
 After Step 3 passes, the parent repository may proceed with its own dev → main promotion via the Non-Submodule Path below. Submodule SHAs are already tagged and reachable — no submodule PR dependencies block parent promotion.
 
----
+______________________________________________________________________
 
 ## Non-Submodule Path
+
+### Step N0: Detect Default Branch
+
+```bash
+DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's|refs/remotes/origin/||')
+```
 
 ### Step N1: Determine Next Semver Tag
 
@@ -190,7 +206,7 @@ fi
 ### Step N2: Create Release Branch from Dev
 
 ```bash
-RELEASE_BRANCH="release/dev-to-master-v${NEXT_TAG#v}"
+RELEASE_BRANCH="release/dev-to-${DEFAULT_BRANCH}-v${NEXT_TAG#v}"
 git checkout dev
 git checkout -b "$RELEASE_BRANCH"
 ```
@@ -201,9 +217,20 @@ git checkout -b "$RELEASE_BRANCH"
 git push origin "$RELEASE_BRANCH"
 ```
 
-### Step N4: Create PR Targeting Master
+### Step N4: Create PR Targeting $DEFAULT_BRANCH
 
-Create a release PR targeting `master` (or `main`):
+Create a release PR targeting `$DEFAULT_BRANCH`. The PR body MUST summarize what changed, why, and the functional impact — not just dump raw commit messages.
+
+**Synthesize the PR body from issue context:**
+
+1. Capture the commit log: `git log "$DEFAULT_BRANCH"..dev --oneline`
+2. For each commit, extract the issue number from the commit message and read the corresponding issue body to determine the change's intent and impact
+3. Categorize changes by type: new features, bug fixes, refactors, maintenance
+4. Generate a structured PR body with:
+   - Summary paragraph: what this release encompasses (1-3 sentences synthesizing intent across all changes)
+   - Changes section: per-category breakdown with issue references and functional impact descriptions
+   - Files changed: `git diff "$DEFAULT_BRANCH"...dev --stat`
+5. If no unreleased changes exist (`git log` output is empty), state that explicitly
 
 **For GitHub:**
 
@@ -211,10 +238,10 @@ Create a release PR targeting `master` (or `main`):
 github_create_pull_request(
     owner=<github.owner>,
     repo=<github.repo>,
-    title="Release $NEXT_TAG: promote dev → main",
+    title="Release $NEXT_TAG: promote dev → $DEFAULT_BRANCH",
     head="$RELEASE_BRANCH",
-    base="master",
-    body="Release $NEXT_TAG\n\nAutomated dev → main promotion.\n\n⚠️ This PR was prepared by an AI agent. Human review required before merge."
+    base="$DEFAULT_BRANCH",
+    body=<synthesized body per above>
 )
 ```
 
@@ -226,49 +253,47 @@ Report the PR URL to chat. HALT and wait for the human to merge the PR.
 
 After human merges the PR, proceed to post-merge steps (N6-N8). These may be run in a subsequent session using `--task release-promotion --post-merge`.
 
-### Step N6: (Post-merge) Tag Master with Semver Tag
+### Step N6: (Post-merge) Tag $DEFAULT_BRANCH with Semver Tag
 
 ```bash
-git checkout master
-git pull origin master
+git checkout "$DEFAULT_BRANCH"
+git pull origin "$DEFAULT_BRANCH"
 git tag -a "$NEXT_TAG" -m "Release $NEXT_TAG"
 ```
 
 ### Step N7: (Post-merge) Push Tags
 
 ```bash
-git push origin master --tags
+git push origin "$DEFAULT_BRANCH" --tags
 ```
 
 ### Step N8: (Post-merge) Create Platform Release
 
-**For GitHub:**
+Generate the release body by summarizing what changed since the last release, organized by category with functional impact. Do not dump raw commit messages — synthesize intent from commit messages and any linked issue context.
 
-Use GitHub MCP to create release:
+**Capture release context:**
+
+```bash
+RELEASE_DATE=$(date +%Y-%m-%d)
+LAST_TAG=$(git tag --sort=-v:refname | head -1)
+RELEASE_COMMITS=$(git log "$LAST_TAG..$DEFAULT_BRANCH" --oneline 2>/dev/null)
+```
+
+Then synthesize a release body with:
+- Release version and date
+- Summary paragraph of what this release encompasses
+- Changes section: category grouping by feature/fix/maintenance with per-item descriptions
+- No boilerplate, no raw commit dumps, no disclaimers
 
 ```
 github_get_latest_release(owner=<github.owner>, repo=<github.repo>)
 ```
 
-Then create release via GitHub API with:
-
-```markdown
-Release $NEXT_TAG
-
-Automated dev → main promotion.
-```
+Then create release via GitHub API with the `$RELEASE_BODY` content above.
 
 **For GitBucket:** Use GitBucket API per `gitbucket-api` skill.
 
-**Release body template:**
-
-```markdown
-Release $NEXT_TAG
-
-Automated dev → main promotion.
-```
-
----
+______________________________________________________________________
 
 ## Acceptance Criteria
 
