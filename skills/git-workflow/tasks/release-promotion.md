@@ -247,7 +247,7 @@ github_create_pull_request(
     title="Release $NEXT_TAG: promote dev → $DEFAULT_BRANCH",
     head="$RELEASE_BRANCH",
     base="$DEFAULT_BRANCH",
-    body=$(printf "Release $NEXT_TAG\n\n## Changes\n\n%s\n\n## Files Changed\n\n%s\n\n⚠️ This PR was prepared by an AI agent. Human review required before merge." \
+    body=$(printf "Release $NEXT_TAG\n\n## Changes\n\n%s\n\n## Files Changed\n\n%s" \
         "$RELEASE_COMMITS" \
         "$RELEASE_FILES")
 )
@@ -298,7 +298,7 @@ $RELEASE_FILES
 
 ---
 
-*This release was prepared by an AI agent. Release snapshot created at $RELEASE_DATE.*"
+*Release snapshot created at $RELEASE_DATE.*"
 ```
 
 **For GitHub:**
