@@ -828,23 +828,8 @@ def cmd_list(args: argparse.Namespace) -> None:
                 title = ""
                 status = "open"
 
-            display_num = f"{repo_name}#{num}"
-            all_entries.append((sort_prio, repo_name, display_num, status, title, spec_path, num))
-
-        open_dir = repo_issues_dir / "open"
-        if open_dir.is_dir():
-            for entry in sorted(open_dir.iterdir()):
-                num = _parse_number(entry)
-                if num is None or num in seen:
-                    continue
-                seen.add(num)
-                issue_file = entry / "issue.yaml"
-                if not issue_file.exists():
-                    continue
-                issue_data = yaml_load(read_file(issue_file))
-                title = issue_data.get("title", "") if isinstance(issue_data, dict) else ""
-                display_num = f"{repo_name}#{num}"
-                all_entries.append((sort_prio, repo_name, display_num, "open", title, spec_path, num))
+            display_num = f"{repo_name}#{num}" if repo_name != current_repo_name else f"#{num}"
+            all_entries.append((sort_prio, repo_name, display_num, "open", title, spec_path, num))
 
     if not all_entries:
         return
