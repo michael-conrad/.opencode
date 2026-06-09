@@ -203,11 +203,14 @@ git push origin "$RELEASE_BRANCH"
 
 ### Step N4: Create PR Targeting Main
 
-Create a release PR targeting `main`:
+Create a release PR targeting `main`.
+
+**Capture the delta between dev and main** — both commands below reference the same scope (what changed in dev since diverging from main). They are complementary views:
+
+- `RELEASE_COMMITS` — commit log shows individual commits (from `git log`)
+- `RELEASE_FILES` — file diff shows aggregate changes (from `git diff`)
 
 **For GitHub:**
-
-First capture the log output with a fallback for empty results:
 
 ```bash
 RELEASE_COMMITS=$(git log main..dev --oneline)
@@ -258,6 +261,33 @@ git push origin main --tags
 
 ### Step N8: (Post-merge) Create Platform Release
 
+The release body is generated dynamically from git history to capture a snapshot of the release content at the time of creation — it does not rely on the PR description, which may be stale or edited after merge.
+
+**Capture release content from git:**
+
+```bash
+RELEASE_DATE=$(date +%Y-%m-%d)
+RELEASE_COMMITS=$(git log "$(git tag --sort=-v:refname | head -1)..main" --oneline 2>/dev/null || echo "No previous tag found — listing recent commits:")
+if [ "$RELEASE_COMMITS" = "No previous tag found — listing recent commits:" ]; then
+    RELEASE_COMMITS+=$'\n'"$(git log --oneline -20 main)"
+fi
+RELEASE_FILES=$(git diff "$(git tag --sort=-v:refname | head -1)..main" --stat 2>/dev/null || echo "Full release — no prior tag to diff against.")
+
+RELEASE_BODY="Release $NEXT_TAG ($RELEASE_DATE)
+
+## Changes Since Last Release
+
+$RELEASE_COMMITS
+
+## Files Changed
+
+$RELEASE_FILES
+
+---
+
+*This release was prepared by an AI agent. Release snapshot created at $RELEASE_DATE.*"
+```
+
 **For GitHub:**
 
 Use GitHub MCP to create release:
@@ -266,23 +296,9 @@ Use GitHub MCP to create release:
 github_get_latest_release(owner=<github.owner>, repo=<github.repo>)
 ```
 
-Then create release via GitHub API with:
-
-```markdown
-Release $NEXT_TAG
-
-See PR description for changelog.
-```
+Then create release via GitHub API with the `$RELEASE_BODY` content above.
 
 **For GitBucket:** Use GitBucket API per `gitbucket-api` skill.
-
-**Release body template:**
-
-```markdown
-Release $NEXT_TAG
-
-See PR description for changelog.
-```
 
 ______________________________________________________________________
 
