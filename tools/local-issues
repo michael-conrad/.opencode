@@ -937,21 +937,52 @@ def _parse_number(entry: Path) -> int | None:
 
 def cmd_search(args: argparse.Namespace) -> None:
     query = args.query.lower()
-    issues_dir = Path(ISSUES_DIR)
-    if not issues_dir.is_dir():
-        return
-    found = []
-    for entry in sorted(issues_dir.iterdir()):
-        num = _parse_number(entry)
-        if num is None:
+    current_repo_name = _resolve_repo_name()
+    current_cwd = Path(os.getcwd()).resolve()
+
+    child_repos = _discover_repos()
+
+    repo_infos: list[tuple[Path, str]] = [(current_cwd, current_repo_name)]
+    for child in child_repos:
+        repo_infos.append((child, child.name))
+
+    found: list[tuple[str, str, str, str, str]] = []
+    for repo_path, repo_name in repo_infos:
+        repo_issues_dir = repo_path / ISSUES_DIR
+        if not repo_issues_dir.is_dir():
             continue
-        data = read_issue_data(num)
-        issue = data.get("issue", {})
-        haystack = yaml_dump(data).lower()
-        if query in haystack:
-            found.append((num, issue.get("title", ""), issue.get("status", "")))
-    for num, title, status in found:
-        print(f"#{num} [{status}] {title}")
+
+        try:
+            spec_path = str(repo_issues_dir.relative_to(current_cwd))
+        except ValueError:
+            spec_path = str(repo_issues_dir)
+
+        seen: set[int] = set()
+        for entry in sorted(repo_issues_dir.iterdir()):
+            num = _parse_number(entry)
+            if num is None or num in seen:
+                continue
+            seen.add(num)
+
+            data = _read_issue_data_in_repo(num, repo_path)
+            if not data:
+                continue
+
+            issue = data.get("issue", {})
+            if not isinstance(issue, dict):
+                continue
+
+            haystack = yaml_dump(data).lower()
+            if query not in haystack:
+                continue
+
+            title = issue.get("title", "")
+            status = issue.get("status", "open")
+            display_num = f"{repo_name}#{num}" if repo_name != current_repo_name else f"#{num}"
+            found.append((repo_name, display_num, status, title, spec_path))
+
+    for repo_name, display_num, status, title, spec_path in found:
+        print(f"{display_num} [{status}] {title} spec_path={spec_path}")
 
 
 def _resolve_repo_name() -> str:
