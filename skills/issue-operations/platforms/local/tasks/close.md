@@ -18,8 +18,8 @@ ______________________________________________________________________
 
 ## Entry Criteria
 
-- \[ \] Issue number N is known (positive integer)
-- \[ \] `.issues/open/<N>/` directory exists
+- \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `opencode-config#7`)
+- \[ \] `.issues/open/<N>/` or `.opencode/.issues/open/<N>/` directory exists
 - \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] Issue is currently open (`status: open` in frontmatter)
 - \[ \] Close reason is specified if known: `--reason completed|not_planned|duplicate`
@@ -30,10 +30,10 @@ ______________________________________________________________________
 
 | Step | Action               | Command / Details                                                                                                                                                                         |
 | ---- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | Verify open state    | `./.opencode/tools/local-issues read N` — confirm `status: open`. If already `closed`, exit with code 2 (already closed).                                                                                   |
+| 1    | Verify open state    | `./.opencode/tools/local-issues read opencode-config#7` — confirm `status: open`. If already `closed`, exit with code 2 (already closed).                                                                                   |
 | 2    | Pre-read frontmatter | Capture current frontmatter to preserve fields during transition.                                                                                                                         |
-| 3    | Close issue          | `./.opencode/tools/local-issues close N [--reason completed]` — updates frontmatter (status → `closed`, `closed_at` timestamp, `state_reason`), moves `.issues/open/NNN-slug/` → `.issues/closed/NNN-slug/` |
-| 4    | Verify               | `./.opencode/tools/local-issues read N` — confirm exit 0, `status: closed`, `closed_at` timestamp present, `state_reason` matches expected value                                                            |
+| 3    | Close issue          | `./.opencode/tools/local-issues close opencode-config#7 [--reason completed]` — updates frontmatter (status → `closed`, `closed_at` timestamp, `state_reason`), moves `.issues/open/NNN-slug/` → `.issues/closed/NNN-slug/` |
+| 4    | Verify               | `./.opencode/tools/local-issues read opencode-config#7` — confirm exit 0, `status: closed`, `closed_at` timestamp present, `state_reason` matches expected value                                                            |
 | 5    | Auto-commit          | The CLI tool auto-commits the move on the issues-data branch (if configured). Verify the commit succeeded.                                                                                |
 
 ### Reason Values
