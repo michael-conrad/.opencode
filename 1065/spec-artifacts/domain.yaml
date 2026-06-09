@@ -1,0 +1,122 @@
+# Plan domain model for #1065 — local-issues output format + cross-repo ops
+# Generated via: .opencode/tools/plan plan
+# Validated via: .opencode/tools/solve check
+#
+# 7 phases, strict RED/GREEN/MERGE per phase, dependency chain:
+#   p1 → p2 → p3 ─┐
+#   p1 → p4 ──────┼→ p5 → p6 → p7
+#                  ┘
+#
+# Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+domain: local-issues-plan-v5
+types:
+  - name: phase
+objects:
+  - name: p1-output-format
+    type: phase
+  - name: p2-cross-repo-read
+    type: phase
+  - name: p3-mutation-qualified
+    type: phase
+  - name: p4-cross-repo-search
+    type: phase
+  - name: p5-create-collision
+    type: phase
+  - name: p6-task-cards
+    type: phase
+  - name: p7-behavioral-tests
+    type: phase
+fluents:
+  - name: red-done
+    params:
+      - name: p
+        type: phase
+  - name: green-done
+    params:
+      - name: p
+        type: phase
+  - name: pr-merged
+    params:
+      - name: p
+        type: phase
+  - name: ready
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: red
+    params:
+      - name: p
+        type: phase
+    preconditions:
+      - ready(p)
+    effects:
+      - red-done(p)
+
+  - name: green
+    params:
+      - name: p
+        type: phase
+    preconditions:
+      - red-done(p)
+    effects:
+      - green-done(p)
+
+  - name: merge
+    params:
+      - name: p
+        type: phase
+    preconditions:
+      - green-done(p)
+    effects:
+      - pr-merged(p)
+
+  - name: unlock-p2
+    preconditions:
+      - pr-merged(p1-output-format)
+    effects:
+      - ready(p2-cross-repo-read)
+
+  - name: unlock-p3
+    preconditions:
+      - pr-merged(p2-cross-repo-read)
+    effects:
+      - ready(p3-mutation-qualified)
+
+  - name: unlock-p4
+    preconditions:
+      - pr-merged(p1-output-format)
+    effects:
+      - ready(p4-cross-repo-search)
+
+  - name: unlock-p5
+    preconditions:
+      - pr-merged(p3-mutation-qualified)
+      - pr-merged(p4-cross-repo-search)
+    effects:
+      - ready(p5-create-collision)
+
+  - name: unlock-p6
+    preconditions:
+      - pr-merged(p5-create-collision)
+    effects:
+      - ready(p6-task-cards)
+
+  - name: unlock-p7
+    preconditions:
+      - pr-merged(p6-task-cards)
+    effects:
+      - ready(p7-behavioral-tests)
+
+init:
+  - ready(p1-output-format)
+
+goals:
+  - pr-merged(p1-output-format)
+  - pr-merged(p2-cross-repo-read)
+  - pr-merged(p3-mutation-qualified)
+  - pr-merged(p4-cross-repo-search)
+  - pr-merged(p5-create-collision)
+  - pr-merged(p6-task-cards)
+  - pr-merged(p7-behavioral-tests)

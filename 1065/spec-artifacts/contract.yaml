@@ -1,0 +1,103 @@
+# Z3 contract for #1065 plan validation — verifies dependency chain consistency
+# Generated via: .opencode/tools/solve check --state-path ... --contract-path ...
+#
+# Validated: SAT (+ postconditions + invariants)
+# All 21 variables satisfy preconditions, postconditions, and invariants.
+#
+# Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+domain: local-issues-plan-v5
+variables:
+  p1_red:
+    type: bool
+  p1_green:
+    type: bool
+  p1_merged:
+    type: bool
+  p2_red:
+    type: bool
+  p2_green:
+    type: bool
+  p2_merged:
+    type: bool
+  p3_red:
+    type: bool
+  p3_green:
+    type: bool
+  p3_merged:
+    type: bool
+  p4_red:
+    type: bool
+  p4_green:
+    type: bool
+  p4_merged:
+    type: bool
+  p5_red:
+    type: bool
+  p5_green:
+    type: bool
+  p5_merged:
+    type: bool
+  p6_red:
+    type: bool
+  p6_green:
+    type: bool
+  p6_merged:
+    type: bool
+  p7_red:
+    type: bool
+  p7_green:
+    type: bool
+  p7_merged:
+    type: bool
+
+preconditions:
+  # Phase ordering: p1 → p2 → p3
+  - "z3.Implies(p2_red, p1_merged)"
+  - "z3.Implies(p2_green, p2_red)"
+  - "z3.Implies(p2_merged, p2_green)"
+  - "z3.Implies(p3_red, p2_merged)"
+  - "z3.Implies(p3_green, p3_red)"
+  - "z3.Implies(p3_merged, p3_green)"
+
+  # p4 runs parallel to p2/p3, depends on p1 only
+  - "z3.Implies(p4_red, p1_merged)"
+  - "z3.Implies(p4_green, p4_red)"
+  - "z3.Implies(p4_merged, p4_green)"
+
+  # p5 requires both p3 AND p4
+  - "z3.Implies(p5_red, p3_merged)"
+  - "z3.Implies(p5_red, p4_merged)"
+  - "z3.Implies(p5_green, p5_red)"
+  - "z3.Implies(p5_merged, p5_green)"
+
+  # p6 → p7 linear
+  - "z3.Implies(p6_red, p5_merged)"
+  - "z3.Implies(p6_green, p6_red)"
+  - "z3.Implies(p6_merged, p6_green)"
+  - "z3.Implies(p7_red, p6_merged)"
+  - "z3.Implies(p7_green, p7_red)"
+  - "z3.Implies(p7_merged, p7_green)"
+
+  # RED before GREEN before MERGE invariant (per phase)
+  - "z3.Implies(p1_green, p1_red)"
+  - "z3.Implies(p1_merged, p1_green)"
+  - "z3.Implies(p3_green, p3_red)"
+  - "z3.Implies(p3_merged, p3_green)"
+  - "z3.Implies(p4_green, p4_red)"
+  - "z3.Implies(p4_merged, p4_green)"
+  - "z3.Implies(p5_green, p5_red)"
+  - "z3.Implies(p5_merged, p5_green)"
+  - "z3.Implies(p6_green, p6_red)"
+  - "z3.Implies(p6_merged, p6_green)"
+  - "z3.Implies(p7_green, p7_red)"
+  - "z3.Implies(p7_merged, p7_green)"
+
+postconditions:
+  - p1_merged
+  - p2_merged
+  - p3_merged
+  - p4_merged
+  - p5_merged
+  - p6_merged
+  - p7_merged
