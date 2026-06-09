@@ -50,7 +50,7 @@ test -f .gitmodules
 - If `.gitmodules` EXISTS: Proceed to **Submodule Path** (Step 1)
 - If `.gitmodules` does NOT exist: Proceed to **Non-Submodule Path** (Step N1)
 
----
+______________________________________________________________________
 
 ## Submodule Path
 
@@ -163,7 +163,7 @@ After all submodules are tagged:
 
 After Step 3 passes, the parent repository may proceed with its own dev → main promotion via the Non-Submodule Path below. Submodule SHAs are already tagged and reachable — no submodule PR dependencies block parent promotion.
 
----
+______________________________________________________________________
 
 ## Non-Submodule Path
 
@@ -270,7 +270,7 @@ Release $NEXT_TAG
 See PR description for changelog.
 ```
 
----
+______________________________________________________________________
 
 ## Acceptance Criteria
 
