@@ -14,11 +14,11 @@ Release PR #56 in viewport-editor shipped with empty boilerplate — reviewers g
 
 ## Fix
 
-Replace static boilerplate with dynamically generated content at three levels:
+Replace static boilerplate with a semantic synthesis approach at three levels:
 
-1. **Step N4 (PR body):** Capture `git log $DEFAULT_BRANCH..dev --oneline` and `git diff $DEFAULT_BRANCH...dev --stat` at PR creation time. Include empty-output fallback for when no unreleased changes exist.
+1. **Step N4 (PR body):** The agent reads issue bodies linked from commit messages, categorizes changes by type (feature/fix/maintenance/refactor), and synthesizes a structured PR body summarizing intent and functional impact — not a raw `git log` dump.
 
-2. **Step N8 (release body):** Capture `git log <last-tag>..$DEFAULT_BRANCH` and `git diff <last-tag>..$DEFAULT_BRANCH --stat` at release-creation time, with release date.
+2. **Step N8 (release body):** The agent synthesizes the release body from categorized changes, same approach as the PR body but against the tag-to-main delta.
 
 3. **$DEFAULT_BRANCH:** Detect dynamically via `git symbolic-ref refs/remotes/origin/HEAD` to support both `main` and `master` repos.
 
@@ -26,40 +26,41 @@ Replace static boilerplate with dynamically generated content at three levels:
 
 | ID | Criterion | Evidence Type |
 |----|-----------|---------------|
-| SC-1 | Step N4 PR body is dynamically generated from `git log` and `git diff` instead of static boilerplate | `string` |
-| SC-2 | Step N4 includes empty-output fallback for when no unreleased changes exist | `string` |
-| SC-3 | Step N8 release body is dynamically generated from git history with release date, not static text | `string` |
+| SC-1 | Step N4 instructs agent to read issue bodies and synthesize categorized PR body summary, not dump raw git output | `string` |
+| SC-2 | Step N4 includes empty-output handling when no unreleased changes exist | `string` |
+| SC-3 | Step N8 release body is synthesized from categorized changes, not static text or raw dump | `string` |
 | SC-4 | Default branch is detected dynamically (`$DEFAULT_BRANCH`), not hardcoded to `main` or `master` | `string` |
-| SC-5 | Clarifying comment explains `git log` and `git diff` are complementary views of the same delta | `string` |
+| SC-5 | No AI-disclaimer, noise, or boilerplate text in PR/release body templates (byline indicates AI authorship) | `string` |
 
 ## Files Changed
 
-- `skills/git-workflow/tasks/release-promotion.md` — +96/-28 across 5 commits
+- `skills/git-workflow/tasks/release-promotion.md` — ~96 lines net changes across 6 commits
 - `tests/behaviors/test-release-pr-body-desired.sh` — new content-verification test
 - `tests/behaviors/test-release-pr-body-behavioral.sh` — new behavioral test
 
 ## Implementation Details
 
-### Step N4 (PR body generation)
+### Step N4 (PR body — semantic synthesis)
 
-```bash
-RELEASE_COMMITS=$(git log "$DEFAULT_BRANCH"..dev --oneline)
-RELEASE_FILES=$(git diff "$DEFAULT_BRANCH"...dev --stat)
+The agent reads each commit's issue body (via `git log "$DEFAULT_BRANCH"..dev`), categorizes by type, and builds a structured PR body:
 
-if [ -z "$RELEASE_COMMITS" ]; then
-    RELEASE_COMMITS="No unreleased changes found — this release may be a dependency-sync or infrastructure update."
-    RELEASE_FILES=""
-fi
+```
+- Summary paragraph: 1-3 sentences synthesizing intent
+- Changes section: categorized (features, fixes, maintenance) with issue refs and impact
+- Files changed: via git diff --stat
 ```
 
-PR body built via `printf` with `$RELEASE_COMMITS` and `$RELEASE_FILES` as format arguments.
+No boilerplate, no disclaimers, no raw commit dump.
 
-### Step N8 (release body)
+### Step N8 (release body — semantic synthesis)
 
-```bash
-RELEASE_DATE=$(date +%Y-%m-%d)
-RELEASE_COMMITS=$(git log "$(git tag --sort=-v:refname | head -1)..$DEFAULT_BRANCH" --oneline 2>/dev/null)
-RELEASE_FILES=$(git diff "$(git tag --sort=-v:refname | head -1)..$DEFAULT_BRANCH" --stat 2>/dev/null)
+The agent applies the same categorization approach against commits since the last tag:
+
+```
+- Release version and date
+- Summary paragraph
+- Changes section: categorized with descriptions
+- No boilerplate or disclaimers
 ```
 
 ### Default branch detection
@@ -67,6 +68,12 @@ RELEASE_FILES=$(git diff "$(git tag --sort=-v:refname | head -1)..$DEFAULT_BRANC
 ```bash
 DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's|refs/remotes/origin/||')
 ```
+
+### Removed artifacts
+
+- AI-disclaimer warnings ("This PR was prepared by an AI agent") — byline serves this purpose
+- Dead-code fallback block in N8 (unreachable conditional)
+- Raw `printf`-based body construction
 
 ## PR
 
