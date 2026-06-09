@@ -558,7 +558,7 @@ def cmd_create(args: argparse.Namespace) -> None:
         print(f"  branches: {', '.join(dual['branches'])}", file=sys.stderr)
         print(f"  divergence (left/right count): {dual['divergence']}", file=sys.stderr)
         if dual['timestamps']:
-            print(f"  commit history:", file=sys.stderr)
+            print("  commit history:", file=sys.stderr)
             for line in dual['timestamps'].split('\n'):
                 if line.strip():
                     print(f"    {line}", file=sys.stderr)
@@ -763,42 +763,81 @@ def cmd_search(args: argparse.Namespace) -> None:
         print(f"#{num} [{status}] {title}")
 
 
+def _resolve_repo_name() -> str:
+    tool_script = Path(__file__).resolve()
+    for parent in tool_script.parents:
+        if (parent / ".gitmodules").exists():
+            return parent.name
+    for parent in tool_script.parents:
+        git_ref = parent / ".git"
+        if git_ref.is_dir():
+            return parent.name
+        if git_ref.is_file():
+            contents = git_ref.read_text().strip()
+            if "gitdir:" not in contents:
+                return parent.name
+    return Path(os.getcwd()).name
+
+
 def cmd_list(args: argparse.Namespace) -> None:
-    issues_dir = Path(ISSUES_DIR)
-    if not issues_dir.is_dir():
-        return
-    entries = []
-    seen: set[int] = set()
-    for entry in sorted(issues_dir.iterdir()):
-        num = _parse_number(entry)
-        if num is None:
+    current_repo_name = _resolve_repo_name()
+    current_cwd = Path(os.getcwd()).resolve()
+
+    child_repos = _discover_repos()
+
+    repo_infos: list[tuple[Path, str, int]] = [(current_cwd, current_repo_name, 0)]
+    for idx, child in enumerate(child_repos):
+        repo_infos.append((child, child.name, idx + 1))
+
+    all_entries: list[tuple[int, str, str, str, str]] = []
+
+    for repo_path, repo_name, sort_prio in repo_infos:
+        repo_issues_dir = repo_path / ISSUES_DIR
+        if not repo_issues_dir.is_dir():
             continue
-        if num in seen:
-            continue
-        seen.add(num)
-        if not issue_exists(num):
-            continue
-        issue = yaml_load(read_file(get_issue_path(num) / "issue.yaml"))
-        title = issue.get("title", "")
-        status = issue.get("status", "open")
-        entries.append((num, status, title))
-    # Also check open/ directory
-    open_dir = issues_dir / "open"
-    if open_dir.is_dir():
-        for entry in sorted(open_dir.iterdir()):
+
+        try:
+            spec_path = str(repo_issues_dir.relative_to(current_cwd))
+        except ValueError:
+            spec_path = str(repo_issues_dir)
+
+        seen: set[int] = set()
+
+        for entry in sorted(repo_issues_dir.iterdir()):
             num = _parse_number(entry)
             if num is None or num in seen:
                 continue
             seen.add(num)
-            if not issue_exists(num):
+
+            issue_file = entry / "issue.yaml"
+            spec_file = entry / "spec.md"
+            has_yaml = issue_file.exists()
+            has_spec = spec_file.exists()
+            if not has_yaml and not has_spec:
                 continue
-            issue = yaml_load(read_file(get_issue_path(num) / "issue.yaml"))
-            title = issue.get("title", "")
-            entries.append((num, "open", title))
-    if not entries:
+
+            if has_yaml:
+                issue_data = yaml_load(read_file(issue_file))
+                if isinstance(issue_data, dict):
+                    title = issue_data.get("title", "")
+                    status = issue_data.get("status", "open")
+                else:
+                    title = ""
+                    status = "open"
+            else:
+                title = ""
+                status = "open"
+
+            display_num = f"{repo_name}#{num}" if repo_name != current_repo_name else f"#{num}"
+            all_entries.append((sort_prio, repo_name, display_num, status, title, spec_path, num))
+
+    if not all_entries:
         return
-    for num, status, title in entries:
-        print(f"#{num} [{status}] {title}")
+
+    all_entries.sort(key=lambda e: (e[0], e[1], -e[6]))
+
+    for _, _, display_num, status, title, spec_path, _ in all_entries:
+        print(f"{display_num} [{status}] {title} spec_path={spec_path}")
 
 
 def cmd_link(args: argparse.Namespace) -> None:
