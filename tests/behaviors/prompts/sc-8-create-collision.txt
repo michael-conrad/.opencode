@@ -1,0 +1,1 @@
+Test that local-issues create --number N blocks if issue exists in ANY repo, not just the current one. Set up: check if any issue #1 or #7 exists in a child repo. Then run 'local-issues create --number 7 --title "Collision Test"' and verify it gives a specific error about the issue already existing in another repo. Report the exact error message.
