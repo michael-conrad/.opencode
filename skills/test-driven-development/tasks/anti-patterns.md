@@ -15,8 +15,9 @@ Five common TDD anti-patterns with correct alternatives. Language-agnostic — a
 | 1 | **Too-Big Step** | RED→GREEN cycle takes >5 min, multiple asserts in one test | Writing too much implementation at once | Smaller test, one assertion per concept |
 | 2 | **Forgotten Red** | Test passes on first run | Test was written after implementation (or tests greenfield code) | Write test first, confirm FAIL before GREEN |
 | 3 | **Over-Mocking** | Tests pass but production breaks | Mocked interface doesn't match real behavior | Use real objects or contract tests; mock only external I/O |
-| 4 | **Green-Worship** | Code never refactored, accumulating technical debt | Fear of breaking passing tests | REFACTOR is mandatory, not optional. Tests protect you. |
-| 5 | **Test-Once** | Single test covers one happy-path only | Edge cases unaddressed, regressions slip through | Add edge-case tests in RED phase; triangulate |
+| 4 | **Combined-Phase** | RED and GREEN happen in the same step — test is written and implementation is written together without intermediate FAIL confirmation | Impatience or false efficiency | Always separate RED then GREEN. Write the test, confirm FAIL, then implement. RED and GREEN may NEVER be combined into one step. |
+| 5 | **Green-Worship** | Code never refactored, accumulating technical debt | Fear of breaking passing tests | REFACTOR is mandatory, not optional. Tests protect you. |
+| 6 | **Test-Once** | Single test covers one happy-path only | Edge cases unaddressed, regressions slip through | Add edge-case tests in RED phase; triangulate |
 
 ## Pattern Details
 
@@ -90,7 +91,33 @@ result = processor.process(validator)
 mock_post.assert_called_once()
 ```
 
-### 4. Green-Worship
+### 4. Combined-Phase
+
+**Symptom:** RED and GREEN happen in the same step — the test is written and the implementation is written together without confirming the test fails first.
+
+**Root cause:** Impatience (wanting to "save time" by doing both at once) or false efficiency (believing combined work is faster).
+
+**Fix:** Separate RED and GREEN into distinct phases. Write the test first, confirm it FAILs, then write the minimal implementation, confirm it PASSes. RED and GREEN may NEVER be combined into a single step.
+
+```python
+# WRONG — Combined-Phase (test and impl written together)
+def test_is_positive():
+    assert is_positive(5) is True
+# No RED confirmation — test might pass vacuously
+
+# RIGHT — separate RED then GREEN
+# RED: write test, confirm FAIL
+def test_is_positive():
+    assert is_positive(5) is True
+# Run → FAIL (is_positive doesn't exist yet)
+
+# GREEN: implement, confirm PASS
+def is_positive(n: int) -> bool:
+    return n > 0
+# Run → PASS
+```
+
+### 5. Green-Worship
 
 **Symptom:** Code smells accumulate. No one refactors because "tests pass."
 
@@ -118,7 +145,7 @@ def calc(a, b, op):
     return OPERATIONS[op](a, b)
 ```
 
-### 5. Test-Once
+### 6. Test-Once
 
 **Symptom:** Single happy-path test. Regressions appear in edge cases that "were never tested."
 

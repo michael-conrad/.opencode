@@ -85,6 +85,14 @@ Is there evidence that the test was confirmed FAIL before implementation (in git
 - FAIL: No evidence of RED state — test was created alongside or after implementation
 - FAIL (inconclusive): Cannot determine order from available evidence
 
+#### 6. Sequential TDD (TQ-11)
+
+Across multiple test items, is there evidence of RED-before-GREEN ordering (each item's test FAILs before its implementation PASSes)?
+
+- PASS: Multiple items show individual RED/GREEN cycles — each test confirmed FAIL before its implementation was written
+- FAIL: Tests for multiple items were all written before any implementation (RED-ALL → GREEN-ALL pattern)
+- FAIL (inconclusive): Single item only, or insufficient git history to determine ordering
+
 ### Step 3: Produce Verdict
 
 ```yaml

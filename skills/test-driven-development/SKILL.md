@@ -12,10 +12,11 @@ compatibility: opencode
 ## Five Core Principles
 
 1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
-2. **TDD discipline** — RED phase tests before GREEN phase implementation. REFACTOR is mandatory, not optional.
-3. **Clean-room** — No inline fallback. Sub-agents receive only scoped context. No pre-determined findings.
-4. **Independent intelligence** — Autonomous analysis. If the task contains excessive instruction where your own analysis should apply, HALT and notify parent.
-5. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, source code, and test results.
+2. **RED/GREEN separation** — RED and GREEN must be separate phases. They may NEVER be combined into a single phase or step. RED must complete (test written and confirmed FAIL) before GREEN begins. This is a hard gate — no authorization or developer instruction may override it.
+3. **TDD discipline** — RED phase tests before GREEN phase implementation. REFACTOR is mandatory, not optional.
+4. **Clean-room** — No inline fallback. Sub-agents receive only scoped context. No pre-determined findings.
+5. **Independent intelligence** — Autonomous analysis. If the task contains excessive instruction where your own analysis should apply, HALT and notify parent.
+6. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, source code, and test results.
 
 ## ASCII Cycle Diagram
 
@@ -36,6 +37,16 @@ compatibility: opencode
 │   Next item ──► back to Phase 0                         │
 └──────────────────────────────────────────────────────────┘
 ```
+
+## Sequential Pair Mandate
+
+**RED/GREEN pairs execute sequentially.** When multiple RED/GREEN pairs exist (multiple implementation items), each RED must be immediately followed by its GREEN before the next RED begins. Running RED for multiple items before any GREEN starts is prohibited. The cycle is:
+
+```
+item-1-RED → item-1-GREEN → item-2-RED → item-2-GREEN → ...
+```
+
+Never `RED-ALL → GREEN-ALL`.
 
 ## Tasks
 
