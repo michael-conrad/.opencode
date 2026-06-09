@@ -829,7 +829,7 @@ def cmd_list(args: argparse.Namespace) -> None:
                 status = "open"
 
             display_num = f"{repo_name}#{num}" if repo_name != current_repo_name else f"#{num}"
-            all_entries.append((sort_prio, repo_name, display_num, "open", title, spec_path, num))
+            all_entries.append((sort_prio, repo_name, display_num, status, title, spec_path, num))
 
     if not all_entries:
         return
