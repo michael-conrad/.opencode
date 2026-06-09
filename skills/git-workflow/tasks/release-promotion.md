@@ -54,7 +54,17 @@ ______________________________________________________________________
 
 ## Submodule Path
 
-### Step 0.5: Detect Semver Tags on Each Submodule
+### Step 0.5: Detect Default Branch for Submodules
+
+For each submodule `<path>`:
+
+```bash
+cd <path>
+DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's|refs/remotes/origin/||')
+cd ..
+```
+
+### Step 0.75: Detect Semver Tags on Each Submodule
 
 For each submodule listed in `.gitmodules`:
 
@@ -167,6 +177,12 @@ ______________________________________________________________________
 
 ## Non-Submodule Path
 
+### Step N0: Detect Default Branch
+
+```bash
+DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's|refs/remotes/origin/||')
+```
+
 ### Step N1: Determine Next Semver Tag
 
 **Auto-increment patch version:**
@@ -190,7 +206,7 @@ fi
 ### Step N2: Create Release Branch from Dev
 
 ```bash
-RELEASE_BRANCH="release/dev-to-main-v${NEXT_TAG#v}"
+RELEASE_BRANCH="release/dev-to-${DEFAULT_BRANCH}-v${NEXT_TAG#v}"
 git checkout dev
 git checkout -b "$RELEASE_BRANCH"
 ```
@@ -201,11 +217,11 @@ git checkout -b "$RELEASE_BRANCH"
 git push origin "$RELEASE_BRANCH"
 ```
 
-### Step N4: Create PR Targeting Main
+### Step N4: Create PR Targeting $DEFAULT_BRANCH
 
-Create a release PR targeting `main`.
+Create a release PR targeting `$DEFAULT_BRANCH`.
 
-**Capture the delta between dev and main** — both commands below reference the same scope (what changed in dev since diverging from main). They are complementary views:
+**Capture the delta between dev and $DEFAULT_BRANCH** — both commands below reference the same scope (what changed in dev since diverging from $DEFAULT_BRANCH). They are complementary views:
 
 - `RELEASE_COMMITS` — commit log shows individual commits (from `git log`)
 - `RELEASE_FILES` — file diff shows aggregate changes (from `git diff`)
@@ -213,8 +229,8 @@ Create a release PR targeting `main`.
 **For GitHub:**
 
 ```bash
-RELEASE_COMMITS=$(git log main..dev --oneline)
-RELEASE_FILES=$(git diff main...dev --stat)
+RELEASE_COMMITS=$(git log "$DEFAULT_BRANCH"..dev --oneline)
+RELEASE_FILES=$(git diff "$DEFAULT_BRANCH"...dev --stat)
 
 if [ -z "$RELEASE_COMMITS" ]; then
     RELEASE_COMMITS="No unreleased changes found — this release may be a dependency-sync or infrastructure update."
@@ -228,9 +244,9 @@ Then create the PR:
 github_create_pull_request(
     owner=<github.owner>,
     repo=<github.repo>,
-    title="Release $NEXT_TAG: promote dev → main",
+    title="Release $NEXT_TAG: promote dev → $DEFAULT_BRANCH",
     head="$RELEASE_BRANCH",
-    base="main",
+    base="$DEFAULT_BRANCH",
     body=$(printf "Release $NEXT_TAG\n\n## Changes\n\n%s\n\n## Files Changed\n\n%s\n\n⚠️ This PR was prepared by an AI agent. Human review required before merge." \
         "$RELEASE_COMMITS" \
         "$RELEASE_FILES")
@@ -245,18 +261,18 @@ Report the PR URL to chat. HALT and wait for the human to merge the PR.
 
 After human merges the PR, proceed to post-merge steps (N6-N8). These may be run in a subsequent session using `--task release-promotion --post-merge`.
 
-### Step N6: (Post-merge) Tag Main with Semver Tag
+### Step N6: (Post-merge) Tag $DEFAULT_BRANCH with Semver Tag
 
 ```bash
-git checkout main
-git pull origin main
+git checkout "$DEFAULT_BRANCH"
+git pull origin "$DEFAULT_BRANCH"
 git tag -a "$NEXT_TAG" -m "Release $NEXT_TAG"
 ```
 
 ### Step N7: (Post-merge) Push Tags
 
 ```bash
-git push origin main --tags
+git push origin "$DEFAULT_BRANCH" --tags
 ```
 
 ### Step N8: (Post-merge) Create Platform Release
@@ -267,11 +283,8 @@ The release body is generated dynamically from git history to capture a snapshot
 
 ```bash
 RELEASE_DATE=$(date +%Y-%m-%d)
-RELEASE_COMMITS=$(git log "$(git tag --sort=-v:refname | head -1)..main" --oneline 2>/dev/null || echo "No previous tag found — listing recent commits:")
-if [ "$RELEASE_COMMITS" = "No previous tag found — listing recent commits:" ]; then
-    RELEASE_COMMITS+=$'\n'"$(git log --oneline -20 main)"
-fi
-RELEASE_FILES=$(git diff "$(git tag --sort=-v:refname | head -1)..main" --stat 2>/dev/null || echo "Full release — no prior tag to diff against.")
+RELEASE_COMMITS=$(git log "$(git tag --sort=-v:refname | head -1)..$DEFAULT_BRANCH" --oneline 2>/dev/null)
+RELEASE_FILES=$(git diff "$(git tag --sort=-v:refname | head -1)..$DEFAULT_BRANCH" --stat 2>/dev/null)
 
 RELEASE_BODY="Release $NEXT_TAG ($RELEASE_DATE)
 
