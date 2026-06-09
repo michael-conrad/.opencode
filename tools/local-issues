@@ -80,6 +80,40 @@ def _find_issue_dir(number: int) -> Path | None:
     return None
 
 
+def _find_issue_dir_in_repo(number: int, repo_path: Path) -> Path | None:
+    """Find issue directory by number within a specific repo path."""
+    prefix = str(number)
+    issues_dir = repo_path / ISSUES_DIR
+
+    exact = issues_dir / prefix
+    if exact.is_dir():
+        return exact
+
+    open_dir = issues_dir / "open"
+    if open_dir.is_dir():
+        for entry in sorted(open_dir.iterdir()):
+            if entry.is_dir() and entry.name.startswith(prefix + "-"):
+                return entry
+
+    if issues_dir.is_dir():
+        for entry in sorted(issues_dir.iterdir()):
+            if not entry.is_dir():
+                continue
+            if entry.name == prefix:
+                return entry
+            if entry.name.startswith(prefix + "-"):
+                return entry
+
+    return None
+
+
+def _repo_has_issue(number: int, repo_path: Path) -> bool:
+    path = _find_issue_dir_in_repo(number, repo_path)
+    if not path or not path.is_dir():
+        return False
+    return (path / "issue.yaml").exists() or (path / "spec.md").exists()
+
+
 def _slug(text: str, max_len: int = 60) -> str:
     """Convert a title to a filesystem-safe slug."""
     slug = re.sub(r"[^a-zA-Z0-9]+", "-", text.lower()).strip("-")
@@ -565,9 +599,22 @@ def cmd_create(args: argparse.Namespace) -> None:
         print("  action: no auto-merge — compare data above and resolve manually", file=sys.stderr)
     if args.number is None:
         args.number = _next_number()
-    elif issue_exists(args.number):
-        print(f"Issue #{args.number} already exists.", file=sys.stderr)
-        sys.exit(1)
+    else:
+        current_repo_name = _resolve_repo_name()
+        current_cwd = Path(os.getcwd()).resolve()
+        child_repos = _discover_repos()
+
+        if issue_exists(args.number):
+            print(f"Issue #{args.number} already exists in {current_repo_name}.", file=sys.stderr)
+            sys.exit(1)
+
+        for child in child_repos:
+            child_issues_dir = child / ISSUES_DIR
+            if child_issues_dir.is_dir():
+                child_issue_path = _find_issue_dir_in_repo(args.number, child)
+                if child_issue_path is not None:
+                    print(f"Issue #{args.number} already exists in {child.name}. Use qualified form {child.name}#{args.number}.", file=sys.stderr)
+                    sys.exit(1)
     _ensure_all_worktrees()
     path = get_issue_path(args.number, args.title)
     issue = {
@@ -605,6 +652,140 @@ def _recent_issue_numbers() -> list[int]:
     return sorted_nums[:5]
 
 
+def _parse_qualified(value: str) -> tuple[str | None, int]:
+    """Parse 'repo#N' format. Returns (repo_name, number) or (None, number) for bare."""
+    match = re.match(r"^(.+?)#(\d+)$", value.strip())
+    if match:
+        return (match.group(1), int(match.group(2)))
+    return (None, int(value.strip()))
+
+
+def _require_qualified(number_str: str) -> tuple[str, int]:
+    """Parse qualified form, error on bare numbers."""
+    repo_name, num = _parse_qualified(number_str.strip())
+    if repo_name is None:
+        print("Error: Use qualified form {repo}#{N} for mutations.", file=sys.stderr)
+        sys.exit(1)
+    return repo_name, num
+
+
+def _resolve_repo_path(repo_name: str) -> Path | None:
+    """Resolve repo name to its filesystem Path.
+    
+    Checks current repo first, then discovered child repos.
+    Returns None if not found.
+    """
+    current = Path(os.getcwd()).resolve()
+    current_name = _resolve_repo_name()
+    if repo_name == current_name:
+        return current
+    for child in _discover_repos():
+        if child.name == repo_name:
+            return child.resolve()
+    return None
+
+
+def _ensure_repo(repo_name: str) -> Path:
+    """Resolve repo name and chdir into it. Returns the resolved path."""
+    repo_path = _resolve_repo_path(repo_name)
+    if repo_path is None:
+        print(f"Error: repo '{repo_name}' not found.", file=sys.stderr)
+        sys.exit(1)
+    os.chdir(str(repo_path))
+    return repo_path
+
+
+def _resolve_qualified(qualified_str: str) -> list[tuple[Path, str, str]]:
+    """Resolve qualified 'repo#N' or bare 'N' to list of (repo_path, repo_name, number_str).
+
+    For bare N: returns all repos (current first, children alphabetically per SC-13).
+    For qualified: returns single matching repo. Exits with error if not found.
+    """
+    repo_name_val, number = _parse_qualified(qualified_str)
+    number_str = str(number)
+    current = Path(os.getcwd()).resolve()
+    current_name = _resolve_repo_name()
+
+    if repo_name_val is not None:
+        if repo_name_val == current_name:
+            return [(current, current_name, number_str)]
+        for child in _discover_repos():
+            if child.name == repo_name_val:
+                return [(child.resolve(), child.name, number_str)]
+        print(f"error: repo '{repo_name_val}' not found", file=sys.stderr)
+        sys.exit(1)
+
+    results: list[tuple[Path, str, str]] = [(current, current_name, number_str)]
+    seen: set[str] = set()
+    for child in _discover_repos():
+        if child.name not in seen:
+            seen.add(child.name)
+            results.append((child.resolve(), child.name, number_str))
+    return results
+
+
+def _read_issue_data_in_repo(number: int, repo_path: Path) -> dict:
+    path = _find_issue_dir_in_repo(number, repo_path)
+    if not path:
+        return {}
+    result = {}
+    has_yaml = False
+    for name in YAML_FILES:
+        f = path / name
+        if f.exists():
+            has_yaml = True
+            content = read_file(f)
+        else:
+            content = ""
+        result[name.removesuffix(".yaml")] = yaml_load(content)
+    if not has_yaml:
+        spec = read_file(path / "spec.md")
+        if spec:
+            if spec.startswith("---"):
+                parts = spec.split("---", 2)
+                if len(parts) >= 3:
+                    fm = yaml_load(parts[1])
+                    body = parts[2].strip()
+                    if isinstance(fm, dict):
+                        fm["body"] = body
+                        result["issue"] = fm
+            else:
+                result["issue"] = {"body": spec.strip(), "status": "open"}
+    return result
+
+
+def _spec_path_for_issue(number: int, repo_path: Path) -> str:
+    current = Path(os.getcwd()).resolve()
+    issue_dir = _find_issue_dir_in_repo(number, repo_path)
+    if issue_dir:
+        try:
+            return str(issue_dir.relative_to(current))
+        except ValueError:
+            return str(issue_dir)
+    return ""
+
+
+def _read_issue_entry(number: int, repo_path: Path, repo_name: str) -> dict:
+    data = _read_issue_data_in_repo(number, repo_path)
+    return {
+        "repo": repo_name,
+        "number": number,
+        "spec_path": _spec_path_for_issue(number, repo_path),
+        "issue": data.get("issue", {}),
+    }
+
+
+def _collect_read_results(
+    targets: list[tuple[Path, str, str]],
+) -> list[dict]:
+    matches: list[dict] = []
+    for repo_path, repo_name, number_str in targets:
+        number = int(number_str)
+        if _repo_has_issue(number, repo_path):
+            matches.append(_read_issue_entry(number, repo_path, repo_name))
+    return matches
+
+
 def _not_found(number: int) -> None:
     recent = _recent_issue_numbers()
     msg = f"Issue #{number} not found."
@@ -615,46 +796,94 @@ def _not_found(number: int) -> None:
 
 
 def cmd_read(args: argparse.Namespace) -> None:
-    if not issue_exists(args.number):
-        _not_found(args.number)
-    data = read_issue_data(args.number)
-    if args.type == "full":
-        print(yaml_dump(data["issue"]))
-    elif args.type == "comments":
-        print(yaml_dump(data["comments"]))
-    elif args.type == "labels":
-        labels = data["issue"].get("labels", [])
-        print(yaml_dump({"labels": labels}))
-    elif args.type == "links":
-        print(yaml_dump(data["links"]))
+    targets = _resolve_qualified(args.number)
+    matches = _collect_read_results(targets)
+    if not matches:
+        _, number = _parse_qualified(args.number)
+        _not_found(number)
+    if len(targets) == 1 and targets[0][1] != _resolve_repo_name():
+        repo_path, repo_name, number_str = targets[0]
+        number = int(number_str)
+        print(yaml_dump(_read_issue_entry(number, repo_path, repo_name)))
+    elif len(matches) <= 1:
+        print(yaml_dump(matches[0] if matches else {}))
     else:
-        print(yaml_dump(data))
+        print(yaml_dump({"matches": matches}))
 
 
 def cmd_read_comments(args: argparse.Namespace) -> None:
-    if not issue_exists(args.number):
-        _not_found(args.number)
-    content = read_file(get_issue_path(args.number) / "comments.yaml")
-    print(content.strip() or "comments:")
+    targets = _resolve_qualified(args.number)
+    matches = []
+    for repo_path, repo_name, number_str in targets:
+        number = int(number_str)
+        issue_dir = _find_issue_dir_in_repo(number, repo_path)
+        if issue_dir:
+            content = read_file(issue_dir / "comments.yaml")
+            matches.append({
+                "repo": repo_name,
+                "number": number,
+                "spec_path": _spec_path_for_issue(number, repo_path),
+                "comments": yaml_load(content) if content.strip() else {},
+            })
+    if not matches:
+        _, number = _parse_qualified(args.number)
+        _not_found(number)
+    if len(matches) == 1:
+        print(yaml_dump(matches[0]))
+    else:
+        print(yaml_dump({"matches": matches}))
 
 
 def cmd_read_labels(args: argparse.Namespace) -> None:
-    if not issue_exists(args.number):
-        _not_found(args.number)
-    path = get_issue_path(args.number) / "issue.yaml"
-    issue = yaml_load(read_file(path))
-    labels = issue.get("labels", [])
-    print(yaml_dump({"labels": labels}))
+    targets = _resolve_qualified(args.number)
+    matches = []
+    for repo_path, repo_name, number_str in targets:
+        number = int(number_str)
+        issue_dir = _find_issue_dir_in_repo(number, repo_path)
+        if issue_dir:
+            issue = yaml_load(read_file(issue_dir / "issue.yaml"))
+            labels = issue.get("labels", []) if isinstance(issue, dict) else []
+            matches.append({
+                "repo": repo_name,
+                "number": number,
+                "spec_path": _spec_path_for_issue(number, repo_path),
+                "labels": labels,
+            })
+    if not matches:
+        _, number = _parse_qualified(args.number)
+        _not_found(number)
+    if len(matches) == 1:
+        print(yaml_dump(matches[0]))
+    else:
+        print(yaml_dump({"matches": matches}))
 
 
 def cmd_read_sub_issues(args: argparse.Namespace) -> None:
-    if not issue_exists(args.number):
-        _not_found(args.number)
-    content = read_file(get_issue_path(args.number) / "links.yaml")
-    print(content.strip() or "links:")
+    targets = _resolve_qualified(args.number)
+    matches = []
+    for repo_path, repo_name, number_str in targets:
+        number = int(number_str)
+        issue_dir = _find_issue_dir_in_repo(number, repo_path)
+        if issue_dir:
+            content = read_file(issue_dir / "links.yaml")
+            matches.append({
+                "repo": repo_name,
+                "number": number,
+                "spec_path": _spec_path_for_issue(number, repo_path),
+                "links": yaml_load(content) if content.strip() else {},
+            })
+    if not matches:
+        _, number = _parse_qualified(args.number)
+        _not_found(number)
+    if len(matches) == 1:
+        print(yaml_dump(matches[0]))
+    else:
+        print(yaml_dump({"matches": matches}))
 
 
 def cmd_update(args: argparse.Namespace) -> None:
+    _repo_name, args.number = _require_qualified(args.number)
+    _ensure_repo(_repo_name)
     if not issue_exists(args.number):
         _not_found(args.number)
     path = get_issue_path(args.number) / "issue.yaml"
@@ -679,6 +908,9 @@ def cmd_update(args: argparse.Namespace) -> None:
 
 
 def cmd_comment(args: argparse.Namespace) -> None:
+    _repo_name, args.number = _parse_qualified(str(args.number))
+    if _repo_name is not None:
+        _ensure_repo(_repo_name)
     if not issue_exists(args.number):
         _not_found(args.number)
     path = get_issue_path(args.number) / "comments.yaml"
@@ -699,6 +931,8 @@ def cmd_comment(args: argparse.Namespace) -> None:
 
 
 def cmd_close(args: argparse.Namespace) -> None:
+    _repo_name, args.number = _require_qualified(args.number)
+    _ensure_repo(_repo_name)
     if not issue_exists(args.number):
         _not_found(args.number)
     path = get_issue_path(args.number) / "issue.yaml"
@@ -715,6 +949,8 @@ def cmd_close(args: argparse.Namespace) -> None:
 
 
 def cmd_delete(args: argparse.Namespace) -> None:
+    _repo_name, args.number = _require_qualified(args.number)
+    _ensure_repo(_repo_name)
     if not issue_exists(args.number):
         _not_found(args.number)
     links = yaml_load(read_file(get_issue_path(args.number) / "links.yaml"))
@@ -746,21 +982,52 @@ def _parse_number(entry: Path) -> int | None:
 
 def cmd_search(args: argparse.Namespace) -> None:
     query = args.query.lower()
-    issues_dir = Path(ISSUES_DIR)
-    if not issues_dir.is_dir():
-        return
-    found = []
-    for entry in sorted(issues_dir.iterdir()):
-        num = _parse_number(entry)
-        if num is None:
+    current_repo_name = _resolve_repo_name()
+    current_cwd = Path(os.getcwd()).resolve()
+
+    child_repos = _discover_repos()
+
+    repo_infos: list[tuple[Path, str]] = [(current_cwd, current_repo_name)]
+    for child in child_repos:
+        repo_infos.append((child, child.name))
+
+    found: list[tuple[str, str, str, str, str]] = []
+    for repo_path, repo_name in repo_infos:
+        repo_issues_dir = repo_path / ISSUES_DIR
+        if not repo_issues_dir.is_dir():
             continue
-        data = read_issue_data(num)
-        issue = data.get("issue", {})
-        haystack = yaml_dump(data).lower()
-        if query in haystack:
-            found.append((num, issue.get("title", ""), issue.get("status", "")))
-    for num, title, status in found:
-        print(f"#{num} [{status}] {title}")
+
+        try:
+            spec_path = str(repo_issues_dir.relative_to(current_cwd))
+        except ValueError:
+            spec_path = str(repo_issues_dir)
+
+        seen: set[int] = set()
+        for entry in sorted(repo_issues_dir.iterdir()):
+            num = _parse_number(entry)
+            if num is None or num in seen:
+                continue
+            seen.add(num)
+
+            data = _read_issue_data_in_repo(num, repo_path)
+            if not data:
+                continue
+
+            issue = data.get("issue", {})
+            if not isinstance(issue, dict):
+                continue
+
+            haystack = yaml_dump(data).lower()
+            if query not in haystack:
+                continue
+
+            title = issue.get("title", "")
+            status = issue.get("status", "open")
+            display_num = f"{repo_name}#{num}" if repo_name != current_repo_name else f"#{num}"
+            found.append((repo_name, display_num, status, title, spec_path))
+
+    for repo_name, display_num, status, title, spec_path in found:
+        print(f"{display_num} [{status}] {title} spec_path={spec_path}")
 
 
 def _resolve_repo_name() -> str:
@@ -893,6 +1160,8 @@ def cmd_renumber(args: argparse.Namespace) -> None:
 
 
 def cmd_promote(args: argparse.Namespace) -> None:
+    _repo_name, args.number = _require_qualified(args.number)
+    _ensure_repo(_repo_name)
     if not issue_exists(args.number):
         _not_found(args.number)
     data = read_issue_data(args.number)
@@ -919,25 +1188,25 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--title", type=str, required=True)
     p.add_argument("--labels", type=str, nargs="*", default=[])
 
-    p = sub.add_parser("read", help="Read an issue as YAML. Flags: --number, --type (full|comments|labels|links|all)")
-    p.add_argument("--number", type=int, required=True)
+    p = sub.add_parser("read", help="Read an issue as YAML. Flags: --number (N or repo#N), --type (full|comments|labels|links|all)")
+    p.add_argument("--number", type=str, required=True)
     p.add_argument(
         "--type",
         choices=["full", "comments", "labels", "links", "all"],
         default="full",
     )
 
-    p = sub.add_parser("read-comments", help="Read comments for an issue. Flags: --number")
-    p.add_argument("--number", type=int, required=True)
+    p = sub.add_parser("read-comments", help="Read comments for an issue. Flags: --number (N or repo#N)")
+    p.add_argument("--number", type=str, required=True)
 
-    p = sub.add_parser("read-labels", help="Read labels for an issue. Flags: --number")
-    p.add_argument("--number", type=int, required=True)
+    p = sub.add_parser("read-labels", help="Read labels for an issue. Flags: --number (N or repo#N)")
+    p.add_argument("--number", type=str, required=True)
 
-    p = sub.add_parser("read-sub-issues", help="Read sub-issues of an issue. Flags: --number")
-    p.add_argument("--number", type=int, required=True)
+    p = sub.add_parser("read-sub-issues", help="Read sub-issues of an issue. Flags: --number (N or repo#N)")
+    p.add_argument("--number", type=str, required=True)
 
     p = sub.add_parser("update", help="Update an issue's metadata or body. Flags: --number, --title, --status, --phase, --labels, --body-file, --github, --remote-url")
-    p.add_argument("--number", type=int, required=True)
+    p.add_argument("--number", type=str, required=True)
     p.add_argument("--title", type=str)
     p.add_argument("--status", type=str)
     p.add_argument("--phase", type=str)
@@ -946,13 +1215,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--github", type=str)
     p.add_argument("--remote-url", type=str)
 
-    p = sub.add_parser("comment", help="Add a comment to an issue. Flags: --number, --type (internal|stakeholder), --body (short text only)")
-    p.add_argument("--number", type=int, required=True)
+    p = sub.add_parser("comment", help="Add a comment to an issue. Flags: --number (N or repo#N), --type (internal|stakeholder), --body (short text only)")
+    p.add_argument("--number", type=str, required=True, help="Issue number or qualified repo#N form")
     p.add_argument("--type", choices=["internal", "stakeholder"], default="internal")
     p.add_argument("--body", type=str, required=True)
 
     p = sub.add_parser("close", help="Close an issue. Flags: --number, --reason (completed|not_planned|duplicate)")
-    p.add_argument("--number", type=int, required=True)
+    p.add_argument("--number", type=str, required=True)
     p.add_argument(
         "--reason",
         choices=["completed", "not_planned", "duplicate"],
@@ -961,7 +1230,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--duplicate-of", type=int)
 
     p = sub.add_parser("delete", help="Delete an issue")
-    p.add_argument("--number", type=int, required=True)
+    p.add_argument("--number", type=str, required=True)
     p.add_argument("--force", action="store_true")
 
     p = sub.add_parser("search", help="Search issues")
@@ -979,7 +1248,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--to", type=int, required=True, dest="to_num")
 
     p = sub.add_parser("promote", help="Check promotion readiness")
-    p.add_argument("--number", type=int, required=True)
+    p.add_argument("--number", type=str, required=True)
     p.add_argument("--dry-run", action="store_true")
 
     return parser

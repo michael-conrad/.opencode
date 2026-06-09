@@ -16,10 +16,24 @@ All read commands output YAML for direct LLM consumption without special parsing
 
 ______________________________________________________________________
 
+## Cross-Repo Read Behavior
+
+The `local-issues` tool supports cross-repo reads with two modes:
+
+| Mode | Syntax | Behavior |
+| ---- | ------ | -------- |
+| **Bare** | `read --number N` | Scans ALL repos (`.issues/` and `<child-repo>/.issues/`). Returns ALL matches with `repo` field. If multiple repos have issue #N, all are returned. |
+| **Qualified** | `read --number <repo>#<N>` | Targets a specific repo only. The qualified form uses `{repo}#{N}` where `repo` matches the repo name from the issue's `spec_path` parent directory. |
+
+Output format for both modes includes `repo`, `number`, `spec_path`, and `issue` data.
+
+______________________________________________________________________
+
 ## Entry Criteria
 
-- \[ \] Issue number N is known (integer, valid)
-- \[ \] `.issues/<N>/` directory exists
+- \[ \] Issue number N is known (integer, valid), optionally qualified as `{repo}#{N}`
+- \[ \] For bare N: `.issues/<N>/` or `<child-repo>/.issues/<N>/` directory exists
+- \[ \] For qualified `{repo}#{N}`: the specific repo's `.issues/` or `<child-repo>/.issues/` directory contains the issue
 - \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] Read type is one of: `full`, `comments`, `labels`, `links`, `all`
 
@@ -50,7 +64,7 @@ Read the complete issue spec and metadata.
 | 3    | Parse output | YAML document with all frontmatter fields + body        |
 | 4    | Verify       | Exit code 0, YAML is parseable, required fields present |
 
-**Output fields:** `number`, `title`, `status`, `labels`, `phase`, `created`, `updated`, `github_issue` (if promoted), `remote_url` (if promoted), `body`
+**Output fields:** `number`, `repo`, `spec_path`, `title`, `status`, `labels`, `phase`, `created`, `updated`, `github_issue` (if promoted), `remote_url` (if promoted), `body`
 
 ______________________________________________________________________
 
@@ -171,13 +185,13 @@ ______________________________________________________________________
 
 ## CLI Tool Reference
 
-| Operation | Command                            |
-| --------- | ---------------------------------- |
-| Full read | `./.opencode/tools/local-issues read <N>`            |
-| Comments  | `./.opencode/tools/local-issues read-comments <N>`   |
-| Labels    | `./.opencode/tools/local-issues read-labels <N>`     |
-| Links     | `./.opencode/tools/local-issues read-sub-issues <N>` |
-| Bundle    | `./.opencode/tools/local-issues read <N> --all`      |
+| Operation | Command                                                         |
+| --------- | --------------------------------------------------------------- |
+| Full read | `./.opencode/tools/local-issues read <N>` (bare) or `read --number <repo>#<N>` (qualified) |
+| Comments  | `./.opencode/tools/local-issues read-comments <N>`              |
+| Labels    | `./.opencode/tools/local-issues read-labels <N>`                |
+| Links     | `./.opencode/tools/local-issues read-sub-issues <N>`            |
+| Bundle    | `./.opencode/tools/local-issues read <N> --all` (bare) or `read <N> --all --number <repo>#<N>` (qualified) |
 
 All commands output YAML. Always check exit code before parsing output.
 

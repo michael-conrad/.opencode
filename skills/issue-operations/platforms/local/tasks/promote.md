@@ -14,7 +14,7 @@ Promote a local issue to a remote issue tracker. Promotion creates a remote issu
 
 **CLI:** `./.opencode/tools/local-issues promote N --remote-url <url>`
 
-**Parameters:** `{ number: int }`
+**Parameters:** `{ number: int }` (local issue number, or qualified `{repo}#{N}` for cross-repo)
 **Returns:** `{ local_path: string, remote_url: string, remote_number: int }`
 
 Per Card-020, promote is a core local platform capability — without it, local drafts are permanently isolated from the remote tracker.
@@ -37,15 +37,15 @@ ______________________________________________________________________
 
 | Step | Action                      | Command / Details                                                                                                                                                   |
 | ---- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | Read local issue            | `./.opencode/tools/local-issues read N --type full` — capture full frontmatter + body                                                                                                 |
+| 1    | Read local issue            | `./.opencode/tools/local-issues read <repo>#<N> --type full` — capture full frontmatter + body                                                                                                 |
 | 2    | Extract exec-summary        | Read `exec_summary` from frontmatter. If absent, extract first paragraph of spec body (up to first `---` or 500 chars).                                             |
 | 3    | Verify not already promoted | Check `github_issue` and `remote_url` frontmatter fields for empty/falsy values. If already promoted, exit with code 2 (already promoted).                          |
 | 4    | Construct remote title      | Use spec title from frontmatter. Append `[local #N]` suffix for traceability.                                                                                       |
 | 5    | Construct remote body       | Format: exec-summary + full spec body with local provenance note (`Originally drafted as local issue #N at .issues/open/<N>/`).                                     |
 | 6    | Create remote issue         | Call platform dispatcher (`issue-operations --task creation`) with title, body, labels from local frontmatter                                                       |
 | 7    | Capture remote response     | Record `html_url`, `number`, `node_id` from platform response                                                                                                       |
-| 8    | Run promote CLI             | `./.opencode/tools/local-issues promote N --remote-url <URL> --remote-number <NUM>` — updates frontmatter with `github_issue`, `remote_url`, `remote_number`, `promoted_at` timestamp |
-| 9    | Verify promotion            | `./.opencode/tools/local-issues read N --type full` — confirm `github_issue`, `remote_url`, `remote_number` are populated, `promoted_at` timestamp present                            |
+| 8    | Run promote CLI             | `./.opencode/tools/local-issues promote <repo>#<N> --remote-url <URL> --remote-number <NUM>` — updates frontmatter with `github_issue`, `remote_url`, `remote_number`, `promoted_at` timestamp |
+| 9    | Verify promotion            | `./.opencode/tools/local-issues read <repo>#<N> --type full` — confirm `github_issue`, `remote_url`, `remote_number` are populated, `promoted_at` timestamp present                            |
 | 10   | Post remote comment         | Add comment on remote issue referencing local path: `🤖 Promoted from local issue #N (.issues/open/<N>/)`                                                           |
 
 ### Remote Body Format

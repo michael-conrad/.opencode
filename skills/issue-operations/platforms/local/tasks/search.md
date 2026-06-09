@@ -18,18 +18,24 @@ Search local issues in the `.issues/` directory with label and text filters. Ret
 local-issues search [--status open|closed|all] [--labels L1,L2] [--query TEXT]
 ```
 
+**Cross-repo default:** `search --query "text"` defaults to scanning ALL repos (`./.issues/` and `<child-repo>/.issues/`). Each result includes `repo` and `spec_path` fields identifying the source repo.
+
 **Returns:** YAML array of issue summaries. Empty array `[]` if no matches.
 
 ```yaml
   - number: 979
+    repo: <main-repo>
     title: '[SPEC] Example issue title'
     status: open
     labels: [SPEC, needs-approval]
+    spec_path: .issues
     phase: spec-design
-  - number: 40
+  - number: 7
+    repo: <child-repo>
     title: '[SPEC] Another issue'
     status: open
     labels: [SPEC]
+    spec_path: <child-repo>/.issues
     phase: draft
 ```
 
@@ -53,7 +59,7 @@ ______________________________________________________________________
 | 3    | Resolve query         | Free text `--query`. Omitted = no text filtering.                                                                                                                      |
 | 4    | Execute search        | `./.opencode/tools/local-issues search --query "<query>"` — the tool iterates `.issues/<N>/issue.yaml` files                                                                             |
 | 5    | Post-filter in task   | Apply status + label filters not supported by current CLI arguments. If tool does not natively filter by status/labels, apply Python-level filtering in the task step. |
-| 6    | Format output         | Transform tool output into the YAML result format. Each entry includes `number`, `title`, `status`, `labels`, `phase` (when set).                                      |
+| 6    | Format output         | Transform tool output into the YAML result format. Each entry includes `number`, `repo`, `title`, `status`, `labels`, `spec_path`, `phase` (when set). |
 | 7    | Return YAML           | YAML array piped to orchestrator. Empty array `[]` if no results match.                                                                                                |
 
 ### Filter Semantics
@@ -77,7 +83,7 @@ ______________________________________________________________________
 ## Exit Criteria
 
 - \[ \] YAML array returned (even if empty)
-- \[ \] Every entry has `number`, `title`, `status`, `labels`
+- \[ \] Every entry has `number`, `repo`, `title`, `status`, `labels`, `spec_path`
 - \[ \] `phase` included only when present in source data
 - \[ \] Status filter applied correctly (open/closed/all)
 - \[ \] Label filter applied correctly (AND within labels)

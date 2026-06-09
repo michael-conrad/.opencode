@@ -18,8 +18,8 @@ ______________________________________________________________________
 
 ## Entry Criteria
 
-- \[ \] Issue number N is known (positive integer)
-- \[ \] `.issues/<N>/` directory exists (open or closed)
+- \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `<repo>#<N>`)
+- \[ \] `.issues/<N>/` or `<child-repo>/.issues/<N>/` directory exists (open or closed)
 - \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] At least one update field is specified: `--title`, `--status`, `--phase`, `--labels`, or `--body`
 - \[ \] For `--body` updates: body content is non-empty
@@ -44,10 +44,10 @@ Update frontmatter fields. Title, status, phase, and labels are independent — 
 
 | Step | Action               | Command / Details                                                                                                                                              |
 | ---- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | Pre-read             | `./.opencode/tools/local-issues read N` — capture current frontmatter to verify fields exist                                                                                     |
+| 1    | Pre-read             | `./.opencode/tools/local-issues read <repo>#<N>` — capture current frontmatter to verify fields exist                                                                                     |
 | 2    | Validate fields      | Confirm each specified field is a valid frontmatter key (title, status, phase, labels). Status values: `open`, `closed`. Phase values: per project convention. |
-| 3    | Update               | `./.opencode/tools/local-issues update N --title "T" --status S --phase P --labels L1,L2` — only include flags that have values                                                  |
-| 4    | Verify               | `./.opencode/tools/local-issues read N` — confirm each field matches the expected value                                                                                          |
+| 3    | Update               | `./.opencode/tools/local-issues update <repo>#<N> --title "T" --status S --phase P --labels L1,L2` — only include flags that have values                                                  |
+| 4    | Verify               | `./.opencode/tools/local-issues read <repo>#<N>` — confirm each field matches the expected value                                                                                          |
 | 5    | Post-update decision | See Post-Update Decision Gate below                                                                                                                            |
 
 **Field scope (per Card-013):**
@@ -117,7 +117,7 @@ ______________________________________________________________________
 | No update flags provided               | `./.opencode/tools/local-issues update N` called with no `--title`, `--status`, `--phase`, `--labels`, or `--body` | HALT. At least one field must be specified. Report to orchestrator.                                            |
 | Invalid field value                    | Status not `open`/`closed`, phase not recognized, labels malformed                               | HALT. Use valid values only.                                                                                   |
 | Body content empty                     | `--body ""` or whitespace-only                                                                   | HALT. Body must be non-empty.                                                                                  |
-| Issue N does not exist                 | `.issues/<N>/` directory missing                                                                 | HALT. Verify issue number. Cannot update a non-existent issue.                                                 |
+| Issue N not found                      | `.issues/<N>/` or `<child-repo>/.issues/<N>/` directory missing                                     | HALT. Verify issue identifier. Use qualified `{repo}#{N}` form if ambiguous. Cannot update a non-existent issue. |
 | CLI tool not found                     | `./.opencode/tools/local-issues` missing                                                           | HALT. The tool must exist for local platform operations.                                                       |
 | Push body after update fails           | See push-body task for error codes                                                               | Report failure to orchestrator. The local update is already committed — push failure is a separate concern.    |
 
