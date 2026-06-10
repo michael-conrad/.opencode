@@ -24,7 +24,7 @@ For each missing criterion:
 | Need | Tier | Collection Method |
 |------|------|-------------------|
 | Test output? | 1 — REQUIRED | Run test, capture output |
-| Test artifact output? | 1 — REQUIRED | Run test with `--junitxml` or equivalent, save to `./tmp/artifacts/` |
+| Test artifact output? | 1 — REQUIRED | Run test with `--junitxml` or equivalent, save to `./tmp/{issue-N}/artifacts/` |
 | File creation? | 2 — OPT-IN ONLY | Show file path and content hash |
 | Code change? | 2 — OPT-IN ONLY | Show `git diff` output |
 | API response? | 1 — REQUIRED | Show status code and body |
@@ -32,13 +32,13 @@ For each missing criterion:
 ### 2. Collect Evidence
 
 - Run required verification commands
-- Store output in `./tmp/artifacts/` or post to issue
+- Store output in `./tmp/{issue-N}/artifacts/` or post to issue
 - Verify evidence is complete and accurate
 
 ### 3. Update Verification Status
 
 - Mark criterion as verified
-- Store evidence in `./tmp/artifacts/`
+- Store evidence in `./tmp/{issue-N}/artifacts/`
 - Proceed to next missing criterion
 
 ## Common Verification Commands
@@ -94,7 +94,7 @@ md5sum path/to/file
 
 ## Evidence Storage
 
-- Store artifacts in `./tmp/artifacts/` (primary for all outputs)
+- Store artifacts in `./tmp/{issue-N}/artifacts/` (primary for all outputs)
 - Report verification results to chat
 
 ## Integration
@@ -107,7 +107,7 @@ executing-plans → verification-before-completion → (completion claim allowed
 
 ### GitBucket Platform Adaptations
 
-- Store verification reports in `./tmp/artifacts/`
+- Store verification reports in `./tmp/{issue-N}/artifacts/`
 - Report results to chat
 
 ### Git-Workflow Integration
@@ -123,7 +123,7 @@ executing-plans → verification-before-completion → (completion claim allowed
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
 | "Evidence collected" | Verify tool-call artifacts exist for each criterion | Check tool-call records in collection output | MISSING-ELEMENT |
-| "Verification report exists" | Verify report file in `./tmp/artifacts/` | `glob(pattern="./tmp/artifacts/verification-*")` | MISSING-ELEMENT |
+| "Verification report exists" | Verify report file in `./tmp/{issue-N}/artifacts/` | `glob(pattern="./tmp/{issue-N}/artifacts/verification-*")` | MISSING-ELEMENT |
 | "All criteria have evidence" | Verify no criterion lacks tool-call proof | Cross-reference criteria list with evidence list | VERIFICATION-GAP |
 
 **Evidence artifact:** Tool call results confirming each evidence item is genuine and complete.

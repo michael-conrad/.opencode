@@ -303,7 +303,7 @@ Before finalizing the result contract, scan ALL auditor verdicts, explanations, 
 
 ### Step 6.5: Write Findings YAML to Disk
 
-Write the full cross-validate findings YAML to `./tmp/artifacts/pipeline-{issue_number}-cross-validate-{STATUS}-{timestamp}.yaml`:
+Write the full cross-validate findings YAML to `./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
 phase: cross-validate
@@ -344,7 +344,7 @@ dark_pattern_violations: []
 warnings: []
 ```
 
-Create `./tmp/artifacts/` if needed (write tool creates implicitly). Use the `write` tool to persist the full YAML document.
+Create `./tmp/{issue-N}/artifacts/` if needed (write tool creates implicitly). Use the `write` tool to persist the full YAML document.
 
 ### Step 7: Return Frugal YAML Result Contract
 
@@ -354,7 +354,7 @@ Return ONLY this YAML as the final response — no preamble, no commentary, no m
 status: DONE
 overall_consensus: PASS|FAIL
 next_step: "proceed|remediate then re-audit"
-artifact_path: "./tmp/artifacts/pipeline-{issue_number}-cross-validate-{STATUS}-{timestamp}.yaml"
+artifact_path: "./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml"
 summary: "N SCs: X agreed, Y disagreed, Z evidence_type_mismatch"
 ```
 

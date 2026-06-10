@@ -19,7 +19,7 @@ Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies p
 - All guideline files scanned
 - Problems identified with LLM compliance check
 - PASS/FAIL consensus for each problem class
-- Findings written to `./tmp/artifacts/audit-guideline-<issue>.md`
+- Findings written to `./tmp/{issue-N}/artifacts/audit-guideline.md`
 
 ## Procedure
 
@@ -167,7 +167,7 @@ github.repo: {github.repo}
 
 ### Step 6: Write Audit Report
 
-Append findings to `./tmp/artifacts/audit-guideline-<issue>.md`:
+Append findings to `./tmp/{issue-N}/artifacts/audit-guideline.md`:
 
 ```markdown
 # Guideline Audit Report - <YYYY-MM-DD>
@@ -195,7 +195,7 @@ Fix: <fix_action>
 
 ### Step 7: Write Verdict Artifact to Disk
 
-Write the full YAML verdict artifact to `./tmp/artifacts/pipeline-{issue_number}-audit-guideline-audit-{STATUS}-{timestamp}.yaml`:
+Write the full YAML verdict artifact to `./tmp/{issue-N}/artifacts/pipeline-audit-guideline-audit-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
 audit_phase: guideline_update
@@ -220,7 +220,7 @@ per_criterion:
     explanation: "<reasoning>"
     remediation: ""
     next_step: "proceed"
-report_path: "./tmp/artifacts/audit-guideline-<issue>.md"
+report_path: "./tmp/{issue-N}/artifacts/audit-guideline.md"
 exec_summary: "Guideline audit: N files, M problems. Consensus: PASS|FAIL."
 ```
 
@@ -228,7 +228,7 @@ exec_summary: "Guideline audit: N files, M problems. Consensus: PASS|FAIL."
 
 ```yaml
 status: DONE
-artifact_path: "./tmp/artifacts/pipeline-{issue_number}-audit-guideline-audit-PASS-{timestamp}.yaml"
+artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-guideline-audit-PASS-{timestamp}.yaml"
 summary: "N files audited, M problems found. X/Y criteria PASS."
 ```
 

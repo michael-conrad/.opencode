@@ -140,7 +140,7 @@ For each FAIL criterion, produce a finding with evidence reference:
 
 ### Step 8: Write Verdict Artifact to Disk
 
-Write the full YAML verdict artifact to `./tmp/artifacts/pipeline-{issue_number}-audit-verification-audit-{STATUS}-{timestamp}.yaml`:
+Write the full YAML verdict artifact to `./tmp/{issue-N}/artifacts/pipeline-audit-verification-audit-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
 audit_phase: verification
@@ -167,7 +167,7 @@ per_criterion:
 
 ```yaml
 status: DONE
-artifact_path: "./tmp/artifacts/pipeline-{issue_number}-audit-verification-audit-PASS-{timestamp}.yaml"
+artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-verification-audit-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
 ```
 

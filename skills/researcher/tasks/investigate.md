@@ -11,7 +11,7 @@ Execute an exhaustive investigation of a FAIL artifact from any pipeline step to
 ## Entry Criteria
 
 - FAIL artifact path provided (written by the failing pipeline step)
-- Prior pipeline artifacts available for consultation (`./tmp/artifacts/pipeline-{issue}-*`)
+- Prior pipeline artifacts available for consultation (`./tmp/{issue-N}/artifacts/pipeline-*`)
 - `github.owner`, `github.repo` available
 
 ## Exit Criteria
@@ -35,7 +35,7 @@ escalation_required: <true/false>
 
 ### Step 2: Consult prior pipeline artifacts
 
-Glob `./tmp/artifacts/pipeline-{issue}-*` and read only YAML frontmatter of each to understand pipeline progress.
+Glob `./tmp/{issue-N}/artifacts/pipeline-*` and read only YAML frontmatter of each to understand pipeline progress.
 
 ### Step 3: Determine failure nature
 
@@ -59,7 +59,7 @@ solve prove --expr "..."
 
 ### Step 5: Check prior remediation history
 
-Glob `./tmp/artifacts/pipeline-{issue}-researcher-*`. If prior researcher artifacts exist, inspect `remediation_steps` to avoid repeating failed approaches.
+Glob `./tmp/{issue-N}/artifacts/pipeline-researcher-*`. If prior researcher artifacts exist, inspect `remediation_steps` to avoid repeating failed approaches.
 
 ### Step 6: Determine remediation steps
 
@@ -72,7 +72,7 @@ Glob `./tmp/artifacts/pipeline-{issue}-researcher-*`. If prior researcher artifa
 
 ### Step 7: Write remediation artifact
 
-Write to `./tmp/artifacts/pipeline-{issue}-researcher-{topic}-{STATUS}-{timestamp}.md`:
+Write to `./tmp/{issue-N}/artifacts/pipeline-researcher-{topic}-{STATUS}-{timestamp}.md`:
 
 ```yaml
 ---
