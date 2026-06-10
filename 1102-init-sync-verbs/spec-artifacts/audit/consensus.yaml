@@ -1,0 +1,105 @@
+# Adversarial Audit: Issue 1102 — init + sync verbs, fully qualified mutations + output, sync-from-remote task
+# Auditors: mistral-large (auditor-mistral-large), qwen3.5 (auditor-qwen3.5)
+# Evidence: live source code inspection via read/grep at 2026-06-10T12:00:00Z
+
+dual_verdict:
+  SC-1:
+    verdict: PASS
+    evidence_type: behavioral
+    evidence: |
+      cmd_init() at local-issues:1276 calls _ensure_all_worktrees() which iterates
+      _discover_repos() and creates orphan issues-data branch + worktree at .issues/
+      via _ensure_worktree() (lines 325-339, 342-487). Child repos included via loop
+      at line 333. Verified by live code inspection.
+    finding: null
+
+  SC-2:
+    verdict: FAIL
+    evidence_type: behavioral
+    evidence: |
+      cmd_init() at local-issues:1276-1296 calls _ensure_all_worktrees() then
+      _pull_and_report() per repo. When worktree exists, _ensure_worktree() returns
+      True immediately (line 361). _pull_and_report() does git pull --rebase only
+      (line 522). No commit step, no push step. The spec requires init to "delegate
+      to sync" (commit + pull-rebase + push) when worktree exists. Only pull
+      occurs — commit and push are absent.
+    finding: |
+      Root cause: cmd_init() lacks commit + push steps that cmd_sync() has
+      (lines 1314-1331). Fix: cmd_init() should delegate to cmd_sync() or
+      inline the commit+push when worktree already exists.
+
+  SC-3:
+    verdict: PASS
+    evidence_type: string
+    evidence: |
+      cmd_init() outputs YAML with keys: repo, qualifier, path, status, issues_count,
+      pull_result (lines 1283-1295). _pull_and_report() returns conflict_hint and
+      conflict_stderr on pull failure (lines 527-531). Verified by live code inspection.
+    finding: null
+
+  SC-4:
+    verdict: PASS
+    evidence_type: behavioral
+    evidence: |
+      cmd_sync() at local-issues:1299-1342: git add -A (1314-1317), git commit
+      --allow-empty (1318-1321), _pull_and_report() does git pull --rebase (522),
+      git push origin issues-data (1327-1331). Full commit→pull-rebase→push chain
+      verified by live code inspection.
+    finding: null
+
+  SC-5:
+    verdict: PASS
+    evidence_type: string
+    evidence: |
+      cmd_sync() output includes qualifier, path, status from _pull_and_report()
+      (lines 1333-1341). Status values: ok, conflict, no_worktree, timeout
+      (lines 526, 528, 519, 534). Verified by live code inspection.
+    finding: null
+
+  SC-6:
+    verdict: PASS
+    evidence_type: string
+    evidence: |
+      Output format: cmd_list() uses f"{repo_name}#{num}" (line 1181),
+      cmd_search() uses same (line 1096). All mutation output uses qualified
+      form (e.g. line 973 f"{_repo_name}#{args.number}").
+      Mutation --number args all type=str (lines 1353, 1358, 1366, 1369, 1372,
+      1375, 1385, 1390, 1399, 1408, 1417). link --sub type=str (1409),
+      renumber --from/--to type=str (1413-1414). _require_qualified() rejects
+      bare numbers for all mutations (lines 727-734). Verified by grep across
+      local-issues source.
+    finding: null
+
+  SC-7:
+    verdict: PASS
+    evidence_type: behavioral
+    evidence: |
+      sync-from-remote task file exists at
+      .opencode/skills/issue-operations/tasks/sync-from-remote.md (42 lines).
+      Contains correct procedure: call local-issues sync → list remote → diff →
+      import missing → report staleness direction (lines 1-42).
+      SKILL.md task table lists sync-from-remote with ~500 word estimate and
+      description (line 41). Trigger keywords include sync-from-remote (line 3).
+      Verified by live file read.
+    finding: null
+
+  SC-8:
+    verdict: PASS
+    evidence_type: behavioral
+    evidence: |
+      All mutation commands call _auto_commit() after write: create (696),
+      update (974), comment (997), close (1016), delete (1038), link (1216),
+      renumber (1237). _auto_commit() does git add -A → git commit --allow-empty
+      → git push origin issues-data (lines 592-625). Unchanged from prior
+      implementation. Verified by live code inspection.
+    finding: null
+
+summary:
+  passed: 7
+  failed: 1
+  total: 8
+  blocker: false  # SC-2 is a behavioral defect but not a pipeline blocker
+  note: |
+    SC-2 FAIL: init does not delegate to sync when worktree exists.
+    cmd_init() only pulls — missing commit + push that cmd_sync() performs.
+    All other SCs PASS with behavioral or string evidence from live source code.
