@@ -263,9 +263,9 @@ Bright-line rules are companions to dark prose patterns, not replacements. The d
 | p-dis-006 (Verification-Signal Discipline) | Verification-signal binary — "Internal reasoning IS NOT verification. Tool-call evidence IS required before completion claims." | IS NOT, IS required, tool-call evidence |
 | Over-enforcement guard | Safety-tax guard — "HALT when condition met IS the correct response. HALT as default IS over-enforcement and degrades reasoning capability." | IS the correct response, IS over-enforcement |
 
-### Dependency-Order Companion
+### Dependency-Order Bright-Line Companion (SC-10: p-dis-001)
 
-The dependency-order bright-line (p-dis-001 companion) establishes that pipeline stage N CANNOT execute before stage N-1 produces a verified PASS. This binary eliminates the rationalization surface where an agent might claim "almost done" or "functionally complete" at an intermediate gate. Dependency ordering is structural — each gate produces a deterministic PASS/FAIL that gates the next stage. There is no "proceed with caveats" path through a dependency chain.
+This companion row was added per spec #853. The dependency-order bright-line (p-dis-001 companion) establishes that pipeline stage N CANNOT execute before stage N-1 produces a verified PASS. This binary eliminates the rationalization surface where an agent might claim "almost done" or "functionally complete" at an intermediate gate. Dependency ordering is structural — each gate produces a deterministic PASS/FAIL that gates the next stage. There is no "proceed with caveats" path through a dependency chain.
 
 ### Non-Paired Patterns
 
