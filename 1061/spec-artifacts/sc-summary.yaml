@@ -1,0 +1,28 @@
+sc_coverage:
+  total: 8
+  single_task: false
+  spec_url: "https://github.com/michael-conrad/opencode-config/issues/1061"
+  evidence_types:
+    - behavioral
+    - string
+    - structural
+  phases:
+    - id: phase_1
+      label: "Permanent Artifact Creation"
+      sc_ids: [SC-1, SC-2, SC-4, SC-5, SC-8]
+      evidence_types:
+        - behavioral
+        - string
+    - id: phase_2
+      label: "Plan-Level Artifact Consumption"
+      sc_ids: [SC-3]
+      evidence_types:
+        - behavioral
+    - id: phase_3
+      label: "Pipeline Integration"
+      sc_ids: [SC-7]
+      evidence_types:
+        - structural
+  cross_cutting:
+    sc_ids: [SC-6]
+    verified_in_phase: "phase_1"

@@ -1,0 +1,64 @@
+spec: "https://github.com/michael-conrad/opencode-config/issues/1061"
+verification_consistency:
+  sc_entries:
+    - id: SC-1
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: spec-creation Step 5.5
+      re_entry_step: spec-creation
+      phase_binding: phase_1
+      artifact_path: .opencode/.issues/1061/spec-artifacts/dependency-ordering-verification/
+    - id: SC-2
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      pipeline_step_binding: spec-creation Step 5.5
+      re_entry_step: spec-creation
+      phase_binding: phase_1
+      artifact_path: ./tmp/{issue-N}/artifacts/constraints-contract.yaml
+    - id: SC-3
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      pipeline_step_binding: writing-plans Step 5
+      re_entry_step: writing-plans
+      phase_binding: phase_2
+      artifact_path: ./tmp/{issue-N}/artifacts/phase-plan-validated.yaml
+    - id: SC-4
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: spec-creation Step 1
+      re_entry_step: spec-creation
+      phase_binding: phase_1
+      artifact_path: .opencode/.issues/1061/spec-artifacts/sc-summary.yaml
+    - id: SC-5
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: spec-creation Step 1
+      re_entry_step: spec-creation
+      phase_binding: phase_1
+      artifact_path: .opencode/.issues/1061/spec-artifacts/revision-re-entry-contract.yaml
+    - id: SC-6
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: spec-creation Step 1
+      re_entry_step: spec-creation
+      phase_binding: cross_cutting
+      artifact_path: .opencode/.issues/1061/spec-artifacts/lifecycle.yaml
+    - id: SC-7
+      evidence_type: structural
+      verification_gate: pre-commit
+      pipeline_step_binding: implementation-pipeline
+      re_entry_step: spec-creation
+      phase_binding: phase_3
+      artifact_path: "(structural — no artifact)"
+    - id: SC-8
+      evidence_type: string
+      verification_gate: pre-approval-gate
+      pipeline_step_binding: spec-creation Step 1
+      re_entry_step: spec-creation
+      phase_binding: phase_1
+      artifact_path: .opencode/.issues/1061/spec-artifacts/verification-consistency-contract.yaml
+  constraints:
+    - "for_every_sc: evidence_type_matches_declared_type_in_spec"
+    - "for_every_sc: verification_gate_is_compatible_with_evidence_type"
+    - "for_every_sc: pipeline_step_binding_exists_in_pipeline"
+    - "for_every_sc: re_entry_step_is_valid_remediation_point"

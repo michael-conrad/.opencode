@@ -1,0 +1,22 @@
+# Dependency-ordering verification contract for issue #1061
+# Generated: 2026-06-09
+# Three phases: Phase 1 (spec-creation), Phase 2 (writing-plans), Phase 3 (pipeline-integration)
+# Constraints:
+#   Phase(1) < Phase(2) — Phase 1 produces artifacts consumed by Phase 2
+#   Phase(1) < Phase(3) — Phase 1 produces artifacts consumed by Phase 3
+#   Phase(2) and Phase(3) are independent (no ordering constraint between them)
+
+variables:
+  phase_1: {type: int, domain: [1, 2, 3], description: "Phase 1 position in ordering"}
+  phase_2: {type: int, domain: [1, 2, 3], description: "Phase 2 position in ordering"}
+  phase_3: {type: int, domain: [1, 2, 3], description: "Phase 3 position in ordering"}
+
+preconditions:
+  - "phase_1 >= 1"
+  - "phase_2 >= 1"
+  - "phase_3 >= 1"
+
+invariants:
+  - "z3.And(phase_1 != phase_2, phase_1 != phase_3, phase_2 != phase_3)"
+  - "phase_1 < phase_2"
+  - "phase_1 < phase_3"

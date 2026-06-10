@@ -1,0 +1,6 @@
+events:
+  - event: spec_created
+    timestamp: "2026-06-09T00:00:00Z"
+    issuer: sub-agent (ollama-cloud/deepseek-v4-flash)
+    description: "Spec #1061 created — artifact infrastructure for spec-creation and pipeline"
+    severity: info

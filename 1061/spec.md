@@ -4,7 +4,7 @@
 
 ## Intent and Executive Summary
 
-**Problem Statement:** The artifact infrastructure layer — solve contracts, plan validations, SC coverage YAML, lifecycle manifests, blocker documentation, and verification consistency checks — currently exists as disconnected recommendations in the requirements analysis (#850). These capabilities must be codified as spec-level infrastructure: machine-parseable, permanent, append-only, and integrated into spec-creation and writing-plans at invocation time, not deferred to downstream verification gates.
+**Problem Statement:** The artifact infrastructure layer — solve contracts, plan validations, SC coverage YAML, lifecycle manifests, blocker documentation, and verification consistency checks — currently exists as disconnected recommendations in the [requirements analysis for parent issue #850](https://github.com/michael-conrad/.opencode/issues/850). These capabilities must be codified as spec-level infrastructure: machine-parseable, permanent, append-only, and integrated into spec-creation and writing-plans at invocation time, not deferred to downstream verification gates.
 
 **Root Cause / Motivation:** Spec artifacts are currently ad-hoc. Solve contracts are hand-written when needed. SC tables are prose-only. Lifecycle state is uncaptured. Blocker events vanish into chat logs. Without structured artifact infrastructure, downstream consumers (pipeline verification dispatchers, spec-auditors, plan authors) must re-parse prose on every invocation, introducing interpretation variance and EVIDENCE_TYPE_MISMATCH risk.
 
@@ -91,43 +91,62 @@ This spec depends on the artifact underlay defined in [parent coordination issue
 
 ## Decision Ledger
 
-| ID | Decision | Rationale | RFC 2119 Key |
-|----|----------|-----------|-------------|
-| DEC-1 | Permanent artifacts under `spec-artifacts/`, ephemeral under `./tmp/{issue-N}/` | PR merge cleanup removes `./tmp/`; `spec-artifacts/` survives pipeline restarts and branch switches | MUST |
-| DEC-2 | Lifecycle manifest is append-only | Full audit trail for post-hoc inspection; no overwrite risk | MUST |
-| DEC-3 | Solve contracts are spec-level, not plan-level | Dependency ordering is a spec concern; plan reads the contract, does not create it | MUST |
-| DEC-4 | Utility invocations at artifact creation time, not downstream | Catches defects before pipeline commits; downstream gates only check, do not create | MUST |
-| DEC-5 | SC coverage YAML is generated during spec assembly (Step 1), validated during self-review (Step 6) | Early generation allows downstream consumers to reference it throughout the lifecycle | MUST |
-| DEC-6 | Blocker events are append-only entries in the lifecycle manifest, not separate files | Avoids artifact proliferation; single source of truth for all lifecycle state | MUST |
-| DEC-7 | Verification consistency contract is a solve contract, not a prose table | Allows automated gate validation at spec-approval time without re-parsing | MUST |
-| DEC-8 | Revision re-entry protocol is a solve contract | `solve check` returns SAT for valid re-entry plans, UNSAT for insufficient replay scope | MUST |
+| ID | Decision | Rationale | RFC 2119 Key | Affected SCs |
+|----|----------|-----------|-------------|--------------|
+| DEC-1 | Permanent artifacts under `spec-artifacts/`, ephemeral under `./tmp/{issue-N}/` | PR merge cleanup removes `./tmp/`; `spec-artifacts/` survives pipeline restarts and branch switches | MUST | SC-7 |
+| DEC-2 | Lifecycle manifest is append-only | Full audit trail for post-hoc inspection; no overwrite risk | MUST | SC-6 |
+| DEC-3 | Solve contracts are spec-level, not plan-level | Dependency ordering is a spec concern; plan reads the contract, does not create it | MUST | SC-1, SC-2 |
+| DEC-4 | Utility invocations at artifact creation time, not downstream | Catches defects before pipeline commits; downstream gates only check, do not create | MUST | SC-2, SC-3 |
+| DEC-5 | SC coverage YAML is generated during spec assembly (Step 1), validated during self-review (Step 6) | Early generation allows downstream consumers to reference it throughout the lifecycle | MUST | SC-4 |
+| DEC-6 | Blocker events are append-only entries in the lifecycle manifest, not separate files | Avoids artifact proliferation; single source of truth for all lifecycle state | MUST | SC-6 |
+| DEC-7 | Verification consistency contract is a solve contract, not a prose table | Allows automated gate validation at spec-approval time without re-parsing | MUST | SC-8 |
+| DEC-8 | Revision re-entry protocol is a solve contract | `solve check` returns SAT for valid re-entry plans, UNSAT for insufficient replay scope | MUST | SC-5 |
 
 ## Risk Traceability
 
-| ID | Risk | Likelihood | Impact | Mitigation | Verifying SC | Pipeline Step |
-|----|------|-----------|--------|------------|-------------|---------------|
-| RISK-1 | Solve contract domain error (Z3 model mismatch with actual phase structure) | Medium | High | Pre-approval gate validates contract against SC table Phase Binding column | SC-1 | pre-approval-gate |
-| RISK-2 | Lifecycle manifest drift (events not appended at correct pipeline stages) | Medium | Medium | Manifest append is a mandatory substep in each emitting pipeline stage's exit criteria | SC-6 | post-implementation-gate |
-| RISK-3 | SC coverage YAML desync from prose SC table | Low | High | Self-review validation (Step 6) compares YAML vs prose; pre-approval gate re-checks | SC-4 | self-review, pre-approval-gate |
-| RISK-4 | Revision re-entry protocol not consulted on spec revision | Low | High | approval-gate reads the contract before applying label; pre-approval gate re-runs on re-approval | SC-5 | approval-gate |
-| RISK-5 | `solve` utility not installed or not runnable in agent environment | Medium | High | Fallback: agent models constraints manually and emits a WARNING in lifecycle manifest | SC-2, SC-3 | spec-creation, writing-plans |
-| RISK-6 | Verification consistency contract not updated when SC evidence type changes | Low | Medium | Pre-approval gate re-reads the contract on every spec revision; mismatch = BLOCK | SC-8 | pre-approval-gate |
-| RISK-7 | Ephemeral artifacts cleaned before pipeline completes | Low | High | Retention policy is documented and enforced by `implementation-pipeline` step preconditions | SC-7 | implementation-pipeline |
+| ID | Risk | Likelihood | Impact | Mitigation | Verifying SC | Phase Binding | Pipeline Step |
+|----|------|-----------|--------|------------|-------------|--------------|---------------|
+| RISK-1 | Solve contract domain error (Z3 model mismatch with actual phase structure) | Medium | High | Pre-approval gate validates contract against SC table Phase Binding column | SC-1 | Phase 1 | pre-approval-gate |
+| RISK-2 | Lifecycle manifest drift (events not appended at correct pipeline stages) | Medium | Medium | Manifest append is a mandatory substep in each emitting pipeline stage's exit criteria | SC-6 | Phase 1, Phase 3 | post-implementation-gate |
+| RISK-3 | SC coverage YAML desync from prose SC table | Low | High | Self-review validation (Step 6) compares YAML vs prose; pre-approval gate re-checks | SC-4 | Phase 1 | self-review, pre-approval-gate |
+| RISK-4 | Revision re-entry protocol not consulted on spec revision | Low | High | approval-gate reads the contract before applying label; pre-approval gate re-runs on re-approval | SC-5 | Phase 1 | approval-gate |
+| RISK-5 | `solve` utility not installed or not runnable in agent environment | Medium | High | Fallback: agent models constraints manually and emits a WARNING in lifecycle manifest | SC-2, SC-3 | Phase 1, Phase 2 | spec-creation, writing-plans |
+| RISK-6 | Verification consistency contract not updated when SC evidence type changes | Low | Medium | Pre-approval gate re-reads the contract on every spec revision; mismatch = BLOCK | SC-8 | Phase 1 | pre-approval-gate |
+| RISK-7 | Ephemeral artifacts cleaned before pipeline completes | Low | High | Retention policy is documented and enforced by `implementation-pipeline` step preconditions | SC-7 | Phase 3 | implementation-pipeline |
 
 ## Success Criteria
 
 **All-or-nothing gate: ALL success criteria MUST pass for implementation to be considered complete. Behavioral verification IS completion — there is no valid state called "implemented but unverified." A verification step that runs a structural check (file exists, grep match) instead of a behavioral test is accepting the death spiral — behavioral testing is the break, structural-only is compounding exponential cost. Any SKIPPED SC is treated as FAIL. Any FAILED SC triggers autonomous remediation before proceeding.**
 
-| ID | Criterion | Evidence Type | Verification Method | Artifact Path | Pipeline Step | Re-Entry Step | Remediation |
-|----|-----------|---------------|-------------------|--------------|--------------|---------------|-------------|
-| SC-1 | Dependency-ordering solve contract created and stored at `spec-artifacts/dependency-ordering-verification/` for multi-phase specs | `string` | `ls .issues/{issue-N}/spec-artifacts/dependency-ordering-verification/*.yaml` — confirm at least one YAML contract file exists | `.issues/{issue-N}/spec-artifacts/dependency-ordering-verification/` | spec-creation Step 5.5 | spec-creation | If missing: regenerate from phase structure during spec-creation. Re-verify with `ls`. |
-| SC-2 | `solve` utility invoked during spec-creation after Step 5.5, producing constraints contract at `./tmp/{issue-N}/artifacts/constraints-contract.yaml` | `behavioral` | `./.opencode/tools/solve check --state-path ./tmp/{issue-N}/artifacts/constraints-contract.yaml --contract-path .issues/{issue-N}/spec-artifacts/pre-approval-gate-contract.yaml` — confirm SAT or documented UNSAT with WARNING in lifecycle manifest | `./tmp/{issue-N}/artifacts/constraints-contract.yaml` | spec-creation Step 5.5 | spec-creation | If solve check returns error: verify `solve` utility is installed. If utility unavailable: log WARNING in lifecycle manifest, model constraints manually in spec prose. |
-| SC-3 | `plan` utility invoked during writing-plans after phase structure defined, validating phase solvability | `behavioral` | `./.opencode/tools/plan plan --problem ./tmp/{issue-N}/artifacts/phase-plan-problem.yaml` — confirm planner returns SOLVED_SATISFICING or SOLVED_OPTIMALLY | `./tmp/{issue-N}/artifacts/phase-plan-validated.yaml` | writing-plans Step 5 | writing-plans | If planner returns UNSOLVABLE: re-examine phase ordering, add missing action/precondition, re-run. If utility unavailable: log WARNING in lifecycle manifest. |
-| SC-4 | Machine-parseable SC coverage summary YAML generated at `.issues/{issue-N}/spec-artifacts/sc-summary.yaml` during spec assembly, with all required fields per schema | `string` | `./.opencode/tools/solve check --state-path .issues/{issue-N}/spec-artifacts/sc-summary.yaml --contract-path .issues/{issue-N}/spec-artifacts/sc-summary-schema.yaml` — confirm valid parse; cross-reference `sc_coverage.total` against prose SC table row count | `.issues/{issue-N}/spec-artifacts/sc-summary.yaml` | spec-creation Step 1 | spec-creation | If YAML parse fails or total mismatch: regenerate from prose SC table during self-review. Re-verify. |
-| SC-5 | Revision re-entry protocol solve contract created at `.issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml` with cascade variables for each revision scope | `string` | `./.opencode/tools/solve model --contract-path .issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml --query "revision_sc_mandates_rerun_pre_approval_gate == pre_approval_gate_required"` — confirm query is satisfiable | `.issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml` | spec-creation Step 1 | spec-creation | If UNSAT: fix variable declarations or cascade constraints. Re-generate from Revision Policy prose section. |
-| SC-6 | Lifecycle manifest created at `.issues/{issue-N}/spec-artifacts/lifecycle.yaml` with `spec_created` event; each pipeline stage appends its event. Blocker events appended on FAIL with severity, reason, and resolution | `string` | `grep -c "event: spec_created" .issues/{issue-N}/spec-artifacts/lifecycle.yaml` — confirm ≥1; `grep -c "event: blocker" .issues/{issue-N}/spec-artifacts/lifecycle.yaml` — confirm present if any pipeline gate returned FAIL | `.issues/{issue-N}/spec-artifacts/lifecycle.yaml` | spec-creation Step 1, post-implementation-gate | spec-creation | If missing: create initial manifest with `spec_created` event. If blocker events absent on FAIL: re-run emitting stage to append. |
-| SC-7 | Artifact retention policy documented in `implementation-pipeline` SKILL.md: `./tmp/{issue-N}/` cleaned at PR merge, step-specific pre-cleanup at each pipeline step, `spec-artifacts/` never cleaned | `structural` | `grep "Artifact Retention" .opencode/skills/implementation-pipeline/SKILL.md` — confirm section exists with all three rules | (structural — no artifact) | implementation-pipeline | spec-creation | If section missing: add retention policy prose to SKILL.md. Re-verify with grep. |
-| SC-8 | Verification consistency contract created at `.issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml` with compliance matrix as solve variables. Pre-approval gate validates every SC's Verification Gate against its Evidence Type. | `string` | `./.opencode/tools/solve check --state-path .issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml --contract-path .issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml` — confirm SAT for compliant specs, UNSAT with unsat_core for non-compliant | `.issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml` | spec-creation Step 1, pre-approval-gate | spec-creation | If UNSAT: identify non-compliant SC, fix Verification Gate or Evidence Type, re-run solve check. |
+**Cost-frame mandate:** Each SC carries a reformation — the implementing agent derives exact prose based on the SC's verification method. A `behavioral` SC's additional behavioral test cost (minutes) is a break that catches defects before they reach downstream consumers — zero downstream cost. A `string` SC's structural/grep cost (~1s) defers discovery to CI or production — death spiral cost when the behavioral gap is missed. Structural-only verification is NEVER a valid substitute: a skipped runtime equals a defect undiscovered.
+
+> **Rendering note:** SC table split into core + metadata due to 13-column width. Cross-reference by SC ID.
+
+**Core Table:**
+
+| ID | Criterion | Evidence Type | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Re-Entry Step |
+|----|-----------|---------------|-------------------|-------------|----------------------|--------------|---------------|
+| SC-1 | Dependency-ordering solve contract created and stored at `spec-artifacts/dependency-ordering-verification/` for multi-phase specs | `string` | `ls .issues/{issue-N}/spec-artifacts/dependency-ordering-verification/*.yaml` — confirm ≥1 YAML contract exists | If missing: regenerate from phase structure during spec-creation. Re-verify with `ls`. | spec-creation Step 5.5 | `.issues/{issue-N}/spec-artifacts/dependency-ordering-verification/` | spec-creation |
+| SC-2 | `solve` utility invoked during spec-creation after Step 5.5, producing constraints contract at `./tmp/{issue-N}/artifacts/constraints-contract.yaml` | `behavioral` | `./.opencode/tools/solve check --state-path ./tmp/{issue-N}/artifacts/constraints-contract.yaml --contract-path .issues/{issue-N}/spec-artifacts/pre-approval-gate-contract.yaml` — confirm SAT or documented UNSAT with WARNING in lifecycle manifest | If solve check returns error: verify `solve` utility installed. If unavailable: log WARNING in lifecycle manifest, model constraints manually in spec prose. | spec-creation Step 5.5 | `./tmp/{issue-N}/artifacts/constraints-contract.yaml` | spec-creation |
+| SC-3 | `plan` utility invoked during writing-plans after phase structure defined, validating phase solvability | `behavioral` | `./.opencode/tools/plan plan --problem ./tmp/{issue-N}/artifacts/phase-plan-problem.yaml` — confirm planner returns SOLVED_SATISFICING or SOLVED_OPTIMALLY | If UNSOLVABLE: re-examine phase ordering, add missing action/precondition, re-run. If utility unavailable: log WARNING in lifecycle manifest. | writing-plans Step 5 | `./tmp/{issue-N}/artifacts/phase-plan-validated.yaml` | writing-plans |
+| SC-4 | Machine-parseable SC coverage summary YAML generated at `.issues/{issue-N}/spec-artifacts/sc-summary.yaml` during spec assembly, with all required fields per schema | `string` | `./.opencode/tools/solve check --state-path .issues/{issue-N}/spec-artifacts/sc-summary.yaml --contract-path .issues/{issue-N}/spec-artifacts/sc-summary-schema.yaml` — confirm valid parse; cross-reference `sc_coverage.total` against prose SC table row count | If YAML parse fails or total mismatch: regenerate from prose SC table during self-review. Re-verify. | spec-creation Step 1 | `.issues/{issue-N}/spec-artifacts/sc-summary.yaml` | spec-creation |
+| SC-5 | Revision re-entry protocol solve contract created at `.issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml` with cascade variables for each revision scope | `string` | `./.opencode/tools/solve model --contract-path .issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml` — confirm query is satisfiable | If UNSAT: fix variable declarations or cascade constraints. Re-generate from Revision Policy prose section. | spec-creation Step 1 | `.issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml` | spec-creation |
+| SC-6 | Lifecycle manifest created at `.issues/{issue-N}/spec-artifacts/lifecycle.yaml` with `spec_created` event; each pipeline stage appends its event. Blocker events appended on FAIL with severity, reason, resolution | `string` | `grep -c "event: spec_created" .issues/{issue-N}/spec-artifacts/lifecycle.yaml` — confirm ≥1; `grep -c "event: blocker" .issues/{issue-N}/spec-artifacts/lifecycle.yaml` — confirm present if any pipeline gate returned FAIL | If missing: create initial manifest with `spec_created` event. If blocker events absent on FAIL: re-run emitting stage to append. | spec-creation Step 1, post-implementation-gate | `.issues/{issue-N}/spec-artifacts/lifecycle.yaml` | spec-creation |
+| SC-7 | Artifact retention policy documented in `implementation-pipeline` SKILL.md: `./tmp/{issue-N}/` cleaned at PR merge, step-specific pre-cleanup, `spec-artifacts/` never cleaned | `structural` | `grep "Artifact Retention" .opencode/skills/implementation-pipeline/SKILL.md` — confirm section exists with all three rules | If section missing: add retention policy prose to SKILL.md. Re-verify with grep. | implementation-pipeline | (structural — no artifact) | spec-creation |
+| SC-8 | Verification consistency contract created at `.issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml` with compliance matrix as solve variables. Pre-approval gate validates every SC's Verification Gate against its Evidence Type. | `string` | `./.opencode/tools/solve check --state-path .issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml --contract-path .issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml` — confirm SAT for compliant specs, UNSAT with unsat_core for non-compliant | If UNSAT: identify non-compliant SC, fix Verification Gate or Evidence Type, re-run solve check. | spec-creation Step 1, pre-approval-gate | `.issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml` | spec-creation |
+
+**Metadata Table (cross-reference by SC ID):**
+
+| ID | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group |
+|----|------------------------|-------------|-----------------|----------------|--------------|
+| SC-1 | MUST produce machine-parseable dependency model | Phase 1 | pre-commit | standard | phase-ordering |
+| SC-2 | MUST invoke `solve` during spec assembly | Phase 1 | pre-commit | standard | solve-integration |
+| SC-3 | MUST invoke `plan` during plan creation | Phase 2 | pre-commit | standard | plan-integration |
+| SC-4 | MUST produce machine-parseable SC coverage | Phase 1 | pre-commit | standard | yaml-generation |
+| SC-5 | MUST provide revision-safe re-entry contract | Phase 1 | pre-commit | standard | solve-integration |
+| SC-6 | MUST maintain append-only lifecycle audit trail | Phase 1, Phase 3 | pre-commit | standard | lifecycle |
+| SC-7 | MUST document and enforce artifact retention | Phase 3 | pre-commit | standard | documentation |
+| SC-8 | MUST validate evidence type × gate consistency | Phase 1 | pre-approval-gate | standard | solve-integration |
 
 ## Edge Cases
 
@@ -151,6 +170,13 @@ This spec depends on the artifact underlay defined in [parent coordination issue
 - `.opencode/tools/plan` — MUST be installed and runnable (unified-planning)
 - `spec-creation/tasks/write.md` — MUST exist and support Step 5.5 insertion point
 - `writing-plans/tasks/create.md` — MUST exist and support phase structure definition substeps
+
+## Regression Invariants
+
+1. Existing spec issue bodies MUST NOT lose content — all spec artifacts are additive, not substitutive. Per `000-critical-rules.md` §critical-rules-022, `len(new_body) >= 0.8 * len(original_body)` safeguard applies.
+2. Existing `solve` and `plan` utility signatures MUST NOT change — downstream consumers depend on `check`, `model`, `prove`, `state` and `plan`, `validate`, `ground`, `pddl`, `discover`, `state` signatures.
+3. Existing `spec-creation/tasks/write.md` Step 1 through Step 9 structure MUST remain intact — utility invocations are additive insertions, not replacements.
+4. Existing `writing-plans/tasks/create.md` Step 0-5 routing structure MUST remain intact — artifact consumption is additive.
 
 ## Risk
 
