@@ -159,7 +159,7 @@ Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all su
 After merger confirmation (Step 2.8), remove behavioral evidence artifacts that were preserved for cross-validation:
 
 ```bash
-rm -f ./tmp/behavioral-evidence-*.{log,json}
+rm -f ./tmp/{issue-N}/behavioral-evidence-*.{log,json} ./tmp/behavioral-evidence-*.{log,json}
 ```
 
 This is the ONLY authorized cleanup point for behavioral evidence artifacts. They MUST NOT be removed during VbC, verification, or audit stages.

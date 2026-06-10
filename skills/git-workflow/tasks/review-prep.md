@@ -58,7 +58,7 @@ Tasks `submodule-feature-push` sub-agent for submodule changes (if `.gitmodules`
 git log origin/dev..HEAD --oneline
 
 # Detect branch type
-ls ./tmp/work-*.md 2>/dev/null
+ls ./tmp/{issue-N}/work.md 2>/dev/null
 ```
 
 | Branch Type | Expected Commits | On Mismatch |

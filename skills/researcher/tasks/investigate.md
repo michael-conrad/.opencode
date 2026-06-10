@@ -50,7 +50,7 @@ Classify into one of:
 
 For constraint violations:
 ```
-solve model --state-path ./tmp/state/{ISSUE}/pipeline/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
+solve model --state-path ./tmp/{issue-N}/state/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
 ```
 For general constraint analysis:
 ```
