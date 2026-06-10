@@ -28,7 +28,7 @@ This is the core dispatch routing table for the 14-step serial implementation pi
 | Step # | Step Label | Dispatches To | Artifact Produced | YAML Contract Schema |
 |--------|------------|---------------|-------------------|---------------------|
 | 1 | `sc-coherence-gate` | `adversarial-audit --task coherence-extraction` | `./tmp/{issue-N}/artifacts/pipeline-sc-coherence-gate-{STATUS}-{timestamp}.yaml` | `per_criterion[]` from #932 |
-| 2 | `pre-red-baseline` | `implementation-pipeline --task pre-red-baseline` (simple bash) | `./tmp/state/{issue}/pipeline/state.yaml` + `./tmp/{issue-N}/artifacts/` YAML | pipeline state file |
+| 2 | `pre-red-baseline` | `implementation-pipeline --task pre-red-baseline` (simple bash) | `./tmp/{issue-N}/state/state.yaml` + `./tmp/{issue-N}/artifacts/` YAML | pipeline state file |
 | 3 | `red-phase` | `test-driven-development --task red` | `./tmp/{issue-N}/artifacts/pipeline-red-phase-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
 | 4 | `red-doublecheck` | `verification-before-completion --task verify` | `./tmp/{issue-N}/artifacts/pipeline-red-doublecheck-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
 | 5 | `green-phase` | `test-driven-development --task green` | `./tmp/{issue-N}/artifacts/pipeline-green-phase-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
@@ -82,7 +82,7 @@ git reset --hard "$CONSUMER_REPO/checkpoint/$ISSUE_NUM/phase-$LAST_PASS_PHASE$SU
 git submodule update --init
 ```
 
-Read restored pipeline state from `./tmp/state/{ISSUE}/pipeline/`. Re-dispatch the failed step with original dispatch parameters.
+Read restored pipeline state from `./tmp/{issue-N}/state/`. Re-dispatch the failed step with original dispatch parameters.
 
 **First-step failure (no checkpoint):** Run `git checkout .` to clean working tree. Re-dispatch from current state without rollback.
 
@@ -134,21 +134,21 @@ Where `{step_label}` values are defined above.
 
 ### pre-red-baseline Step
 ```
-solve state init ./tmp/state/{ISSUE}/pipeline/
+solve state init ./tmp/{issue-N}/state/
 ```
 Creates state file with `current_step: pre-red-baseline`, `pipeline_state: init`.
 
 ### Every Subsequent Step (after artifact write)
 Three sequential per-variable calls:
 ```
-solve state update ./tmp/state/{ISSUE}/pipeline/ --var-name previous_step --var-value <current-step-label> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
-solve state update ./tmp/state/{ISSUE}/pipeline/ --var-name current_step --var-value <next-step-label> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
-solve state update ./tmp/state/{ISSUE}/pipeline/ --var-name pipeline_state --var-value running --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
+solve state update ./tmp/{issue-N}/state/ --var-name previous_step --var-value <current-step-label> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
+solve state update ./tmp/{issue-N}/state/ --var-name current_step --var-value <next-step-label> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
+solve state update ./tmp/{issue-N}/state/ --var-name pipeline_state --var-value running --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
 ```
 
 ### Coherence Gate Validation
 ```
-solve check --state-path ./tmp/state/{ISSUE}/pipeline/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
+solve check --state-path ./tmp/{issue-N}/state/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
 ```
 
 Step results (PASS/FAIL, evidence paths) go into YAML disk artifact — never into solve state. Solve state tracks pipeline **position** only.

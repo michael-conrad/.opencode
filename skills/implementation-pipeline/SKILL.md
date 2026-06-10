@@ -117,9 +117,11 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## State Management
 
-- `solve state init ./tmp/state/ISSUE_NUM/pipeline/` at `pre-red-baseline` step — creates state file with `current_step: pre-red-baseline`, `pipeline_state: init`
-- `solve state update ./tmp/state/ISSUE_NUM/pipeline/ --var-name <name> --var-value <value> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — 3 calls per step: previous_step, current_step, pipeline_state
-- `solve check --state-path ./tmp/state/ISSUE_NUM/pipeline/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — validates step transitions
+- `solve state init ./tmp/{issue-N}/state/` at `pre-red-baseline` step — creates state file with `current_step: pre-red-baseline`, `pipeline_state: init`
+- `solve state update ./tmp/{issue-N}/state/ --var-name <name> --var-value <value> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — 3 calls per step: previous_step, current_step, pipeline_state
+- `solve check --state-path ./tmp/{issue-N}/state/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — validates step transitions
+
+Step results go to YAML disk artifact — never into solve state. Solve state tracks pipeline **position** only.
 
 Step results go to YAML disk artifact — never into solve state. Solve state tracks pipeline **position** only.
 

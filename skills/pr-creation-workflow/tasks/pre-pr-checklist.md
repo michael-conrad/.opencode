@@ -24,7 +24,7 @@ Mandatory checks that must pass before creating ANY PR. No exceptions.
 
 ```bash
 # Check if this is a work branch (assembly by assemble-work)
-ls tmp/work-*.md 2>/dev/null
+ls ./tmp/{issue-N}/work.md 2>/dev/null
 
 # Read scope fields from work state file if present
 # authorization_scope, halt_at, pr_strategy

@@ -71,7 +71,7 @@ evidence_artifacts:
 ### Step 1: Temp File Cleanup (MANDATORY)
 
 ```bash
-rm ./tmp/temp_*.py ./tmp/test_*.py 2>/dev/null
+rm -f ./tmp/{issue-N}/temp_*.py ./tmp/{issue-N}/test_*.py 2>/dev/null
 rm ./tmp/*.json ./tmp/*.csv ./tmp/*.html 2>/dev/null
 ls ./tmp/
 ```

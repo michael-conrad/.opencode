@@ -15,7 +15,7 @@ Collect evidence for incomplete success criteria when verification identifies ga
 
 **Evidence type uplift defaults:** When collecting evidence, if a change affects runtime behavior, default the SC evidence type to `behavioral` regardless of declaration. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
 
-**Preservation protocol:** Behavioral evidence artifacts written to `./tmp/behavioral-evidence-*.{log,json}` are NOT cleaned up until PR merge cleanup (`git-workflow --task cleanup`). See `guidelines/060-tool-usage.md`.
+**Preservation protocol:** Behavioral evidence artifacts written to `./tmp/{issue-N}/behavioral-evidence-*.{log,json}` are NOT cleaned up until PR merge cleanup (`git-workflow --task cleanup`). See `guidelines/060-tool-usage.md`.
 
 For each missing criterion:
 
@@ -130,14 +130,14 @@ executing-plans → verification-before-completion → (completion claim allowed
 
 ### Behavioral Artifact Preservation (MANDATORY)
 
-When collecting behavioral evidence, artifacts MUST be written to `./tmp/behavioral-evidence-<sc-id>.{log,json}` with the naming convention:
+When collecting behavioral evidence, artifacts MUST be written to `./tmp/{issue-N}/behavioral-evidence-<sc-id>.{log,json}` with the naming convention:
 
 - `behavioral-evidence-SC-N.log` — Full behavioral test output
 - `behavioral-evidence-SC-N.json` — Structured test result summary
 
 These files are **exempt from mandatory cleanup** per `060-tool-usage.md` and MUST survive until PR merge cleanup (`git-workflow --task cleanup`). Deleting them before the auditor inspects them produces a false "no behavioral evidence found" verdict.
 
-**🚫 FORBIDDEN:** Deleting `./tmp/behavioral-evidence-*` files at any pipeline stage before merger confirmation. The ONLY authorized cleanup point is `git-workflow --task cleanup` after PR merge.
+**🚫 FORBIDDEN:** Deleting `./tmp/{issue-N}/behavioral-evidence-*` files at any pipeline stage before merger confirmation. The ONLY authorized cleanup point is `git-workflow --task cleanup` after PR merge.
 
 **Authority:** `guidelines/060-tool-usage.md` §Temp Files & Cleanliness, Issue #836
 

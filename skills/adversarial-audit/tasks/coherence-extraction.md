@@ -134,7 +134,7 @@ Run the Z3 solve check against the pipeline state machine to validate structural
 
 ```bash
 tools/solve check \
-  --state-path ./tmp/state/pipeline/ \
+  --state-path ./tmp/{issue-N}/state/ \
   --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
 ```
 
