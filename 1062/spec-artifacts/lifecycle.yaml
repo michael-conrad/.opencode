@@ -1,0 +1,11 @@
+events:
+  - event: spec_created
+    timestamp: "2026-06-07T19:09:52Z"
+    issuer: sub-agent (ollama-cloud/deepseek-v4-flash)
+    description: "Spec #1062 created — handoff gates for spec-to-plan, plan-to-pipeline, SC close-out, revision re-entry"
+    severity: info
+  - event: spec_updated
+    timestamp: "2026-06-09T00:00:00Z"
+    issuer: sub-agent (ollama-cloud/deepseek-v4-flash)
+    description: "Spec #1062 updated to modern format — exec summary blockquotes, Decision Ledger, Risk Traceability, two-table SC structure, Documentation Sources, Phases"
+    severity: info

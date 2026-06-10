@@ -4,17 +4,36 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-> **Spec folder:** `.opencode/.issues/1062/`
+> **Full spec and artifacts: [`.issues/1062/`](https://github.com/michael-conrad/.opencode/tree/issues-data/1062)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+>
+> **Local artifacts:** `.opencode/.issues/1062/spec-artifacts/` — card catalogue, SC coverage summary, lifecycle manifest, verification consistency contract, revision re-entry contract
 
 ## Intent and Executive Summary
 
 Add four mandatory verification gates to the plan-writing and pipeline-execution workflow that validate handoff integrity between pipeline stages. Each gate reads structured artifacts from the previous stage and validates completeness, consistency, and traceability before the next stage begins. The gates catch structural defects — missing artifacts, SC-ID mismatches, decomposition inconsistencies, unverified success criteria — at the handoff boundary instead of at pipeline step 10 (adversarial audit) or step 14 (exec-summary).
 
+**Problem Statement:** The current pipeline has no structural integrity verification at three critical handoff boundaries — spec-to-plan, plan-to-pipeline, and implementation-to-close-out. A spec with missing artifacts reaches the plan author; a plan with untracked SC-IDs reaches the pipeline; an implementation with unverified SCs reaches exec-summary and is closed as "done." Each handoff gate catches the defect at the boundary, returning BLOCKED + a structured manifest documenting what was missing, instead of letting the defect surface 5-14 pipeline steps later.
+
+**Root Cause / Motivation:** Handoff integrity was not specified as entry criteria in the original pipeline design. The `writing-plans` skill accepted any spec without verifying structural completeness. The `implementation-pipeline` dispatcher accepted any plan without verifying TDD task coverage, SC-ID traceability, or phase dependency validity. The exec-summary step posted completion comments without confirming every SC received a PASS verdict.
+
+**Approach Chosen:** Four coordinated changes: (1) spec-to-plan handoff verification as `writing-plans` entry criterion, (2) plan-to-pipeline handoff verification as `implementation-pipeline` pre-flight step, (3) handoff-consistency check comparing both manifests for shared-variable agreement, (4) SC close-out verification at pipeline completion that blocks issue closure on UNVERIFIED SCs.
+
+**Alternatives Considered & Why Discarded:**
+- Single monolithic gate at pipeline entry instead of per-boundary gates — discarded: per-boundary gates catch defects at the earliest possible boundary, preventing wasted work in plan-writing or pipeline execution
+- No machine-parseable manifests, keep chat-based handoff — discarded: chat is not machine-readable; manifests at well-known paths enable automated cross-verification
+- Deferring to adversarial audit (pipeline step 10) — discarded: auditing a structurally defective spec/plan costs more than catching the defect at the handoff boundary
+
+**Key Design Decisions:**
+- DEC-1: Handoff manifests are ephemeral `./tmp/{issue-N}/artifacts/` — cleaned at PR merge, not permanent
+- DEC-2: Handoff consistency check reads both manifests and compares SC count, decomposition type, and phase count — BLOCKs on mismatch
+- DEC-3: SC close-out runs at pipeline exec-summary step before issue closure — blocks closure until all SCs verified PASS
+- DEC-4: Spec-to-plan and plan-to-pipeline are separate task files — single concern per file prevents 3,000-word overflow
+
 **Decomposition Classification:** single-task (one spec, one concern: handoff integrity verification)
 
 ## Objective
 
-Prevent structural handoff defects from propagating silently through the pipeline. A spec with missing artifacts reaches the plan author; a plan with untracked SC-IDs reaches the pipeline; an implementation with unverified SCs reaches exec-summary and is closed as "done." Each handoff gate catches the defect at the boundary, returning BLOCKED + a structured manifest documenting what was missing, instead of letting the defect surface 5-14 pipeline steps later.
+Prevent structural handoff defects from propagating silently through the pipeline. Every handoff between spec creation, plan writing, pipeline execution, and issue closure SHALL pass a structural integrity gate before the downstream stage begins. Each gate produces a machine-parseable manifest documenting PASS or BLOCKED status with specific findings.
 
 ## Problem
 
@@ -28,64 +47,116 @@ The current pipeline has no structural integrity verification at three critical 
 
 4. **Cross-handoff consistency:** There is no check that the spec-to-plan and plan-to-pipeline handoffs agree on shared variables (SC count, decomposition type, phase count). If one handoff used an outdated spec version, the inconsistency is invisible.
 
-## Context
+## Scope
 
-Items 26, 27, 28, and 38 from the requirements analysis (`tmp/spec-output-requirements-analysis.md`) define four handoff gates. Items 26 and 38 affect `writing-plans` entry criteria; items 27 and 38 affect `implementation-pipeline` pre-flight. Items 26, 27, and 38 are structural/gate checks — they verify artifact completeness and consistency without model calls. Item 28 is a post-hoc verification that runs at pipeline completion.
+### In Scope
 
-These gates depend on:
-- #1060: SC Coverage Summary infrastructure (`sc-summary.yaml`, `spec-artifacts/` directory convention)
-- #1061: Solve contract infrastructure (`dependency-ordering-verification/`, `solve check` integration)
+- Spec-to-plan handoff verification as `writing-plans` entry criterion (item 26)
+- Plan-to-pipeline handoff verification as `implementation-pipeline` pre-flight step (item 27)
+- Handoff-consistency check comparing both manifests (item 38)
+- SC close-out verification at pipeline exec-summary (item 28)
+- Three new task files: `writing-plans/tasks/handoffs/spec-to-plan.md`, `implementation-pipeline/tasks/pre-flight-handoff.md`, `implementation-pipeline/tasks/sc-closeout.md`
 
-Without #1060, the spec-to-plan handoff cannot verify SC-ID coverage (check 2, 5, 7). Without #1061, the plan-to-pipeline handoff cannot verify phase dependency ordering (check 5).
-
-## Affected Files
-
-### Writing-plans
-
-| File | Change |
-|------|--------|
-| `writing-plans/tasks/create.md` | Add spec-to-plan handoff verification as entry criterion (precondition before `create/plan-structure`); add handoff-consistency check as substep in `create/create-and-validate` |
-
-### Implementation-pipeline
-
-| File | Change |
-|------|--------|
-| `implementation-pipeline/SKILL.md` | Add plan-to-pipeline handoff verification as pre-flight step before `sc-coherence-gate` dispatcher; add handoff-consistency check as pre-flight substep |
-
-### New Artifacts
-
-| File | Purpose |
-|------|---------|
-| `.opencode/skills/writing-plans/tasks/handoffs/spec-to-plan.md` | Spec-to-plan handoff verification task file |
-| `.opencode/skills/implementation-pipeline/tasks/pre-flight-handoff.md` | Plan-to-pipeline handoff + handoff-consistency check task file |
-| `.opencode/skills/implementation-pipeline/tasks/sc-closeout.md` | SC close-out verification task file (referenced by exec-summary step) |
-
-## Non-Goals
+### Non-Goals
 
 - Not modifying the SC table format, evidence-type taxonomy, or verification-gate definitions — those are spec-level concerns covered by #1060
 - Not adding new pipeline steps to the 14-step routing table — handoff gates integrate as pre-flight substeps or entry criteria, not as new dispatch entries
 - Not implementing revision re-entry protocol (item 29) — that is a separate dependency
 
+## Context
+
+Items 26, 27, 28, and 38 from the requirements analysis (`tmp/spec-output-requirements-analysis.md`) define four handoff gates. Items 26 and 38 affect `writing-plans` entry criteria; items 27 and 38 affect `implementation-pipeline` pre-flight. Items 26, 27, and 38 are structural/gate checks — they verify artifact completeness and consistency without model calls. Item 28 is a post-hoc verification that runs at pipeline completion.
+
+These gates depend on:
+- [Parent coordination issue #850](https://github.com/michael-conrad/.opencode/issues/850) — Spec/Plan Writer Injection
+- [#1060](https://github.com/michael-conrad/.opencode/issues/1060) — SC Coverage Summary infrastructure
+- [#1061](https://github.com/michael-conrad/.opencode/issues/1061) — Solve contract infrastructure
+
+Without #1060, the spec-to-plan handoff cannot verify SC-ID coverage. Without #1061, the plan-to-pipeline handoff cannot verify phase dependency ordering.
+
+## Affected Files
+
+| File | Change | Anchor |
+|------|--------|--------|
+| `writing-plans/tasks/create.md` | Add spec-to-plan handoff verification as entry criterion; add handoff-consistency check as substep in create-and-validate | `writing-plans/tasks/create.md` §Entry Criteria |
+| `implementation-pipeline/SKILL.md` | Add plan-to-pipeline handoff verification as pre-flight step before sc-coherence-gate; add handoff-consistency check as pre-flight substep | `implementation-pipeline/SKILL.md` §Pre-Flight |
+
+## Affected Artifacts
+
+| Artifact | Path | Type |
+|----------|------|------|
+| Spec-to-plan handoff manifest | `./tmp/{issue-N}/artifacts/spec-to-plan-handoff-*.yaml` | YAML manifest |
+| Plan-to-pipeline handoff manifest | `./tmp/{issue-N}/artifacts/plan-to-pipeline-handoff-*.yaml` | YAML manifest |
+| Handoff consistency result | `./tmp/{issue-N}/artifacts/handoff-consistency-*.yaml` | YAML manifest |
+| Handoff gate task file | `.opencode/skills/writing-plans/tasks/handoffs/spec-to-plan.md` | Task file |
+| Pre-flight handoff task file | `.opencode/skills/implementation-pipeline/tasks/pre-flight-handoff.md` | Task file |
+| SC close-out task file | `.opencode/skills/implementation-pipeline/tasks/sc-closeout.md` | Task file |
+
+## Decision Ledger
+
+| ID | Decision | Rationale | RFC 2119 Key | Affected SCs |
+|----|----------|-----------|--------------|--------------|
+| DEC-1 | Handoff manifests are ephemeral `./tmp/{issue-N}/artifacts/` — cleaned at PR merge, not permanent | Prevents `./tmp/{issue-N}/` from accumulating manifests across pipeline runs; cleanup at PR merge is the standard ephemeral artifact lifecycle | MUST | SC-4, SC-6, SC-7 |
+| DEC-2 | Handoff consistency check reads both manifests and compares SC count, decomposition type, phase count — BLOCKs on mismatch | Catches spec revision between handoffs; silent handoff inconsistency causes unverified work to reach the pipeline | MUST | SC-7 |
+| DEC-3 | SC close-out runs at pipeline exec-summary step before issue closure — blocks closure until all SCs verified PASS | Prevents issue closure with UNVERIFIED SCs; post-hoc check is the last gate before completion | MUST | SC-8 |
+| DEC-4 | Spec-to-plan and plan-to-pipeline are separate task files — single concern per file | Prevents 3,000-word overflow per `091-incremental-build.md` | MUST | SC-3, SC-5 |
+
+## Risk Traceability
+
+| ID | Risk | Likelihood | Impact | Mitigation | Verifying SC | Phase Binding | Pipeline Step |
+|----|------|-----------|--------|------------|-------------|--------------|---------------|
+| RISK-1 | Handoff manifests reference outdated SC-IDs after spec revision | Medium | High | Lifecycle manifest tracks spec revision; handoff checks fail when `spec-artifacts/` has newer timestamps than handoff manifest | SC-9, SC-13 | 1 | pre-flight |
+| RISK-2 | SC close-out cannot find artifact files (deleted by prior cleanup) | Low | High | Artifact retention policy exempts `./tmp/{issue-N}/` from pre-cleanup until PR merge; SC close-out runs before git-workflow cleanup | SC-8 | 1 | exec-summary |
+| RISK-3 | Handoff task files grow beyond 3,000 word limit | Medium | Low | Each handoff is a separate task file with single concern; split if exceeded | — | 1 | — |
+| RISK-4 | Plan-to-pipeline handoff blocks on false-positive | Low | Medium | Handoff manifest includes `blocked_reason` with exact parsing failure | SC-5, SC-6 | 1 | pre-flight |
+
 ## Success Criteria
 
-| ID | Criterion | Evidence Type | Verification Method | Remediation | Re-Entry Step |
-|----|-----------|---------------|---------------------|-------------|---------------|
-| SC-1 | writing-plans entry criteria includes spec-to-plan handoff with PASS condition | `structural` | Read `writing-plans/tasks/create.md`; confirm entry criteria section includes spec-to-plan handoff as precondition | Add precondition line to entry criteria | rewrite-entry-criteria |
-| SC-2 | writing-plans create-and-validate includes handoff-consistency substep | `structural` | Read `writing-plans/tasks/create.md`; confirm create-and-validate procedure references handoff-consistency check | Add substep reference to create-and-validate procedure | rewrite-entry-criteria |
-| SC-3 | Spec-to-plan handoff enumerates expected artifacts and validates SC summary YAML | `string` | Grep `writing-plans/tasks/handoffs/spec-to-plan.md` for artifact enumeration key (`sc-summary`) and YAML validation key (`parse`, `valid`) | Add missing artifact or validation check | rewrite-task |
-| SC-4 | Spec-to-plan handoff writes manifest at `./tmp/{issue-N}/artifacts/spec-to-plan-handoff-*.yaml` with PASS/BLOCKED status | `string` | Grep `writing-plans/tasks/handoffs/spec-to-plan.md` for manifest path pattern (`spec-to-plan-handoff`) and status field pattern (`status:` or `PASS`|`BLOCKED`) | Add manifest write step with status field | rewrite-task |
-| SC-5 | Plan-to-pipeline handoff validates every TDD task has RED checkpoint with failure condition | `string` | Grep `implementation-pipeline/tasks/pre-flight-handoff.md` for RED checkpoint validation key (`red_checkpoint`, `failure_condition`, `MISSING-CHECKPOINT`) and SC-ID traceability key (`sc_ids_in_plan`, `sc_ids_in_summary`, `MISSING-TRACEABILITY`) | Add RED checkpoint validation substep; add SC-ID traceability substep | rewrite-task |
-| SC-6 | Plan-to-pipeline handoff writes manifest at `./tmp/{issue-N}/artifacts/plan-to-pipeline-handoff-*.yaml` with PASS/BLOCKED status | `string` | Grep `implementation-pipeline/tasks/pre-flight-handoff.md` for manifest path pattern (`plan-to-pipeline-handoff`) and status field pattern | Add manifest write step with status field | rewrite-task |
-| SC-7 | Implementation-pipeline pre-flight includes handoff-consistency check that reads both manifests and compares shared variables | `string` | Grep `implementation-pipeline/tasks/pre-flight-handoff.md` for cross-manifest comparison patterns: (`sc_coverage_total` OR `sc_coverage`) AND (`decomposition_classification` OR `decomposition`) AND (`phase_count` OR `phases`) AND `BLOCK` | Add cross-manifest comparison substep for each shared variable | rewrite-task |
-| SC-8 | SC close-out verification runs at exec-summary step and blocks issue closure on UNVERIFIED SCs | `string` | Grep `implementation-pipeline/tasks/sc-closeout.md` for patterns: (`exec-summary` or `exec_summary`) AND (`UNVERIFIED` or `blocker` or `BLOCK`) AND (`sc-summary` or `sc_summary` or `pipeline-*.yaml` or `Pipeline Step`) | Add SC close-out procedure; ensure it blocks on UNVERIFIED | rewrite-task |
-| SC-9 | Spec-to-plan handoff preconditions exist: (a) spec is approved, (b) `spec-artifacts/` directory exists, (c) `sc-summary.yaml` exists and parses | `string` | Grep `writing-plans/tasks/handoffs/spec-to-plan.md` for precondition patterns: (`spec approved` or `approved spec`) AND (`spec-artifacts` or `spec_artifacts`) AND (`sc-summary.yaml` or `sc_summary` or `valid YAML` or `parse`) | Add missing precondition check to entry criteria | rewrite-task |
-| SC-10 | Spec-to-plan handoff validates every RISK-ID with Verifying SC maps to existing SC-ID in `sc-summary.yaml` | `string` | Grep `writing-plans/tasks/handoffs/spec-to-plan.md` for risk cross-reference patterns: (`RISK` or `risk_cross_refs` or `risk.*SC` or `Verifying SC`) AND (`sc-summary` or `sc_summary` or `SC-ID` or `scs[].id`) | Add risk traceability cross-ref substep | rewrite-task |
-| SC-11 | Spec-to-plan handoff validates decision ledger has no detected contradictions from spec-auditor | `string` | Grep `writing-plans/tasks/handoffs/spec-to-plan.md` for decision ledger patterns: (`decision_ledger` or `decision.*contradict` or `DEC-ID`) AND (`none` or `detected` or `auditor`) | Add decision ledger contradiction check substep | rewrite-task |
-| SC-12 | Spec-to-plan handoff validates decomposition classification is consistent with SC-to-phase bindings | `string` | Grep `writing-plans/tasks/handoffs/spec-to-plan.md` for decomposition consistency patterns: (`decomposition_consistent` or `decomposition.*classification` or `single-task` or `multi-phase`) AND (`phase bind` or `scs[].phase` or `all SCs in phase` or `SCs distributed`) | Add decomposition consistency substep | rewrite-task |
-| SC-13 | Plan-to-pipeline handoff validates approval cascade state matches authorization scope | `string` | Grep `implementation-pipeline/tasks/pre-flight-handoff.md` for approval validation patterns: (`approval_cascade` or `approval.*match` or `APPROVAL-MISMATCH`) AND (`authorization_scope` or `authorization context` or `halt_at`) | Add approval cascade validation substep | rewrite-task |
-| SC-14 | Plan-to-pipeline handoff validates every Verification Gate from spec is preserved in plan TDD steps | `string` | Grep `implementation-pipeline/tasks/pre-flight-handoff.md` for verification gate preservation patterns: (`Verification Gate` or `verification_gate` or `GATE-DEVIATION`) AND (`preserved` or `preserv` or `match` or `deviation`) | Add verification gate preservation check substep | rewrite-task |
-| SC-15 | writing-plans entry criteria includes handoff-consistency check reference | `structural` | Read `writing-plans/tasks/create.md`; confirm create-and-validate references handoff-consistency check | Add substep reference to create-and-validate | rewrite-entry-criteria |
-| SC-16 | Implementation-pipeline SKILL.md pre-flight section references plan-to-pipeline handoff before sc-coherence-gate | `structural` | Read `implementation-pipeline/SKILL.md`; confirm pre-flight procedures reference plan-to-pipeline handoff AND handoff-consistency check | Add pre-flight section to SKILL.md or update dispatch routing table notes | rewrite-skill |
+**All-or-nothing gate: ALL success criteria MUST pass for implementation to be considered complete. Behavioral verification IS completion — there is no valid state called "implemented but unverified." Any SKIPPED SC is treated as FAIL. Any FAILED SC triggers autonomous remediation before proceeding.**
+
+> **Rendering note:** SC table split into core + metadata due to 13-column width. Cross-reference by SC ID.
+
+**Core Table:**
+
+| ID | Criterion | Evidence Type | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Re-Entry Step |
+|----|-----------|---------------|---------------------|-------------|----------------------|--------------|---------------|
+| SC-1 | writing-plans entry criteria includes spec-to-plan handoff with PASS condition | `structural` | Read `writing-plans/tasks/create.md`; confirm entry criteria section includes spec-to-plan handoff as precondition | Add precondition line to entry criteria | writing-plans entry | `writing-plans/tasks/create.md` | rewrite-entry-criteria |
+| SC-2 | writing-plans create-and-validate includes handoff-consistency substep | `structural` | Read `writing-plans/tasks/create.md`; confirm create-and-validate procedure references handoff-consistency check | Add substep reference to create-and-validate | writing-plans create-and-validate | `writing-plans/tasks/create.md` | rewrite-entry-criteria |
+| SC-3 | Spec-to-plan handoff enumerates expected artifacts and validates SC summary YAML | `string` | Grep `writing-plans/tasks/handoffs/spec-to-plan.md` for artifact enumeration key (`sc-summary`) and YAML validation key (`parse`, `valid`) | Add missing artifact or validation check | writing-plans entry | `writing-plans/tasks/handoffs/spec-to-plan.md` | rewrite-task |
+| SC-4 | Spec-to-plan handoff writes manifest at `./tmp/{issue-N}/artifacts/spec-to-plan-handoff-*.yaml` with PASS/BLOCKED status | `string` | Grep `writing-plans/tasks/handoffs/spec-to-plan.md` for manifest path pattern (`spec-to-plan-handoff`) and status field pattern | Add manifest write step with status field | writing-plans entry | `./tmp/{issue-N}/artifacts/` | rewrite-task |
+| SC-5 | Plan-to-pipeline handoff validates every TDD task has RED checkpoint with failure condition | `string` | Grep `implementation-pipeline/tasks/pre-flight-handoff.md` for RED checkpoint validation key (`red_checkpoint`, `failure_condition`, `MISSING-CHECKPOINT`) and SC-ID traceability key (`sc_ids_in_plan`, `sc_ids_in_summary`, `MISSING-TRACEABILITY`) | Add RED checkpoint validation substep; add SC-ID traceability substep | implementation-pipeline pre-flight | `implementation-pipeline/tasks/pre-flight-handoff.md` | rewrite-task |
+| SC-6 | Plan-to-pipeline handoff writes manifest at `./tmp/{issue-N}/artifacts/plan-to-pipeline-handoff-*.yaml` with PASS/BLOCKED status | `string` | Grep `implementation-pipeline/tasks/pre-flight-handoff.md` for manifest path pattern (`plan-to-pipeline-handoff`) and status field pattern | Add manifest write step with status field | implementation-pipeline pre-flight | `./tmp/{issue-N}/artifacts/` | rewrite-task |
+| SC-7 | Implementation-pipeline pre-flight includes handoff-consistency check that reads both manifests and compares shared variables | `string` | Grep `implementation-pipeline/tasks/pre-flight-handoff.md` for cross-manifest comparison patterns: (`sc_coverage_total` OR `sc_coverage`) AND (`decomposition_classification` OR `decomposition`) AND (`phase_count` OR `phases`) AND `BLOCK` | Add cross-manifest comparison substep | implementation-pipeline pre-flight | `implementation-pipeline/tasks/pre-flight-handoff.md` | rewrite-task |
+| SC-8 | SC close-out verification runs at exec-summary step and blocks issue closure on UNVERIFIED SCs | `string` | Grep `implementation-pipeline/tasks/sc-closeout.md` for patterns: (`exec-summary` or `exec_summary`) AND (`UNVERIFIED` or `blocker` or `BLOCK`) AND (`sc-summary` or `sc_summary` or `pipeline-*.yaml` or `Pipeline Step`) | Add SC close-out procedure; ensure it blocks on UNVERIFIED | implementation-pipeline exec-summary | `implementation-pipeline/tasks/sc-closeout.md` | rewrite-task |
+| SC-9 | Spec-to-plan handoff preconditions exist: (a) spec is approved, (b) `spec-artifacts/` directory exists, (c) `sc-summary.yaml` exists and parses | `string` | Grep `writing-plans/tasks/handoffs/spec-to-plan.md` for precondition patterns: (`spec approved` or `approved spec`) AND (`spec-artifacts` or `spec_artifacts`) AND (`sc-summary.yaml` or `sc_summary` or `valid YAML` or `parse`) | Add missing precondition check to entry criteria | writing-plans entry | `writing-plans/tasks/handoffs/spec-to-plan.md` | rewrite-task |
+| SC-10 | Spec-to-plan handoff validates every RISK-ID with Verifying SC maps to existing SC-ID in `sc-summary.yaml` | `string` | Grep `writing-plans/tasks/handoffs/spec-to-plan.md` for risk cross-reference patterns: (`RISK` or `risk_cross_refs` or `risk.*SC` or `Verifying SC`) AND (`sc-summary` or `sc_summary` or `SC-ID` or `scs[].id`) | Add risk traceability cross-ref substep | writing-plans entry | `writing-plans/tasks/handoffs/spec-to-plan.md` | rewrite-task |
+| SC-11 | Spec-to-plan handoff validates decision ledger has no detected contradictions from spec-auditor | `string` | Grep `writing-plans/tasks/handoffs/spec-to-plan.md` for decision ledger patterns: (`decision_ledger` or `decision.*contradict` or `DEC-ID`) AND (`none` or `detected` or `auditor`) | Add decision ledger contradiction check substep | writing-plans entry | `writing-plans/tasks/handoffs/spec-to-plan.md` | rewrite-task |
+| SC-12 | Spec-to-plan handoff validates decomposition classification is consistent with SC-to-phase bindings | `string` | Grep `writing-plans/tasks/handoffs/spec-to-plan.md` for decomposition consistency patterns: (`decomposition_consistent` or `decomposition.*classification` or `single-task` or `multi-phase`) AND (`phase bind` or `scs[].phase` or `all SCs in phase` or `SCs distributed`) | Add decomposition consistency substep | writing-plans entry | `writing-plans/tasks/handoffs/spec-to-plan.md` | rewrite-task |
+| SC-13 | Plan-to-pipeline handoff validates approval cascade state matches authorization scope | `string` | Grep `implementation-pipeline/tasks/pre-flight-handoff.md` for approval validation patterns: (`approval_cascade` or `approval.*match` or `APPROVAL-MISMATCH`) AND (`authorization_scope` or `authorization context` or `halt_at`) | Add approval cascade validation substep | implementation-pipeline pre-flight | `implementation-pipeline/tasks/pre-flight-handoff.md` | rewrite-task |
+| SC-14 | Plan-to-pipeline handoff validates every Verification Gate from spec is preserved in plan TDD steps | `string` | Grep `implementation-pipeline/tasks/pre-flight-handoff.md` for verification gate preservation patterns: (`Verification Gate` or `verification_gate` or `GATE-DEVIATION`) AND (`preserved` or `preserv` or `match` or `deviation`) | Add verification gate preservation check substep | implementation-pipeline pre-flight | `implementation-pipeline/tasks/pre-flight-handoff.md` | rewrite-task |
+| SC-15 | writing-plans entry criteria includes handoff-consistency check reference | `structural` | Read `writing-plans/tasks/create.md`; confirm create-and-validate references handoff-consistency check | Add substep reference to create-and-validate | writing-plans create-and-validate | `writing-plans/tasks/create.md` | rewrite-entry-criteria |
+| SC-16 | Implementation-pipeline SKILL.md pre-flight section references plan-to-pipeline handoff before sc-coherence-gate | `structural` | Read `implementation-pipeline/SKILL.md`; confirm pre-flight procedures reference plan-to-pipeline handoff AND handoff-consistency check | Add pre-flight section to SKILL.md | implementation-pipeline SKILL.md | `implementation-pipeline/SKILL.md` | rewrite-skill |
+
+**Metadata Table (cross-reference by SC ID):**
+
+| ID | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group |
+|----|------------------------|-------------|-----------------|----------------|--------------|
+| SC-1 | REQ-ITEM-26: spec-to-plan entry criterion | 1 | pre-commit | standard | entry-criteria |
+| SC-2 | REQ-ITEM-26, REQ-ITEM-38: handoff-consistency in create-and-validate | 1 | pre-commit | standard | entry-criteria |
+| SC-3 | REQ-ITEM-26: artifact enumeration and YAML validation | 1 | pre-commit | standard | handoff-gate |
+| SC-4 | REQ-ITEM-26: manifest write with status | 1 | pre-commit | standard | handoff-gate |
+| SC-5 | REQ-ITEM-27: RED checkpoint and SC-ID traceability | 1 | pre-commit | standard | handoff-gate |
+| SC-6 | REQ-ITEM-27: manifest write with status | 1 | pre-commit | standard | handoff-gate |
+| SC-7 | REQ-ITEM-38: cross-manifest comparison | 1 | pre-commit | standard | consistency |
+| SC-8 | REQ-ITEM-28: SC close-out block on UNVERIFIED | 1 | pre-commit | standard | close-out |
+| SC-9 | REQ-ITEM-26: preconditions (approval, artifacts, YAML) | 1 | pre-commit | standard | handoff-gate |
+| SC-10 | REQ-ITEM-26: risk cross-reference validation | 1 | pre-commit | standard | handoff-gate |
+| SC-11 | REQ-ITEM-26: decision ledger contradiction check | 1 | pre-commit | standard | handoff-gate |
+| SC-12 | REQ-ITEM-26: decomposition consistency | 1 | pre-commit | standard | handoff-gate |
+| SC-13 | REQ-ITEM-27: approval cascade validation | 1 | pre-commit | standard | handoff-gate |
+| SC-14 | REQ-ITEM-27: verification gate preservation | 1 | pre-commit | standard | handoff-gate |
+| SC-15 | REQ-ITEM-26, REQ-ITEM-38: handoff-consistency reference | 1 | pre-commit | standard | entry-criteria |
+| SC-16 | REQ-ITEM-27, REQ-ITEM-38: pre-flight section in SKILL.md | 1 | pre-commit | standard | skill-doc |
 
 ## Dependencies
 
@@ -109,25 +180,35 @@ Both #1060 and #1061 must be merged before the handoff gate task files can be wr
 | SC close-out finds UNVERIFIED SCs at exec-summary | Blocks issue closure. Pipeline executor posts BLOCKER finding in the issue comment; remediation required before cleanup |
 | Handoff-consistency check shows mismatch (e.g., spec-to-plan says 8 SCs, plan-to-pipeline says 6) | BLOCK the pipeline. The spec or plan was revised between handoffs; orchestrator must re-run spec-to-plan handoff and/or plan-to-pipeline handoff |
 
-## Risk
+## Regression Invariants
 
-| ID | Risk | Likelihood | Impact | Mitigation | Verifying SC | Pipeline Step |
-|----|------|-----------|--------|------------|-------------|---------------|
-| RISK-1 | Handoff manifests reference outdated SC-IDs after spec revision | Medium | High | Lifecycle manifest tracks spec revision; handoff checks fail when `spec-artifacts/` has newer timestamps than handoff manifest | SC-9, SC-13 | pre-flight (plan-to-pipeline) |
-| RISK-2 | SC close-out at exec-summary cannot find artifact files (deleted by prior cleanup) | Low | High | Artifact retention policy exempts `./tmp/{issue-N}/` from pre-cleanup until PR merge; SC close-out runs before git-workflow cleanup | SC-8 | exec-summary |
-| RISK-3 | Handoff task files grow beyond 3,000 word limit | Medium | Low | Each handoff is a separate task file with single concern; if any exceeds 3,000 words, split into substep task files | — | — |
-| RISK-4 | Plan-to-pipeline handoff blocks on false-positive (plan structurally correct but handoff parsing fails) | Low | Medium | Handoff manifest format includes `blocked_reason` field with exact parsing failure; orchestrator can inspect and remediate | SC-5, SC-6 | pre-flight (plan-to-pipeline) |
+1. Existing `writing-plans/tasks/create.md` entry criteria section structure MUST NOT be altered — handoff checks are additive, not substitutive
+2. Existing `implementation-pipeline/SKILL.md` routing table MUST NOT lose existing dispatch entries — pre-flight step is additive
+3. `./tmp/{issue-N}/` artifact cleanup MUST NOT happen before SC close-out verification runs — retention policy exempts until PR merge
+4. Handoff manifest format MUST include `status`, `blocked_reason`, and `timestamp` fields — downstream consumers depend on these
+
+## Phases
+
+### Phase 1: Handoff Gate Task Creation (writing-plans + implementation-pipeline)
+
+- Create `writing-plans/tasks/handoffs/spec-to-plan.md` — spec-to-plan handoff verification task
+- Create `implementation-pipeline/tasks/pre-flight-handoff.md` — plan-to-pipeline handoff + handoff-consistency check task
+- Create `implementation-pipeline/tasks/sc-closeout.md` — SC close-out verification task
+- Update `writing-plans/tasks/create.md` entry criteria to reference spec-to-plan handoff as precondition
+- Update `implementation-pipeline/SKILL.md` pre-flight section to reference plan-to-pipeline handoff
+- Ensure handoff-consistency check is referenced in both create-and-validate and pre-flight
+
+All SCs (SC-1 through SC-16) are bound to Phase 1.
 
 ## Documentation Sources
 
-| Source | Content | Verified |
-|--------|---------|----------|
-| `tmp/spec-output-requirements-analysis.md` Lines 341-382 | Item 26: Spec-to-Plan Handoff Integrity Verification | Read |
-| `tmp/spec-output-requirements-analysis.md` Lines 384-416 | Item 27: Plan-to-Pipeline Handoff Integrity Verification | Read |
-| `tmp/spec-output-requirements-analysis.md` Lines 418-442 | Item 28: Post-Implementation SC Close-Out Verification | Read |
-| `tmp/spec-output-requirements-analysis.md` Lines 708-717 | Item 38: Handoff-Consistency Check | Read |
-| `.opencode/skills/writing-plans/tasks/create.md` | Entry criteria section — current preconditions | Read |
-| `.opencode/skills/implementation-pipeline/SKILL.md` | Dispatch routing table — pre-flight is implicit before step 1 | Read |
-| `.opencode/skills/implementation-pipeline/tasks/` | Task directory — contains only `pipeline-executor.md` | Read |
+| Source Category | What Was Consulted | Purpose |
+|----------------|-------------------|---------|
+| Direct source search | `srclight_search_symbols("create.md")` in `writing-plans/tasks/create.md` | Verify entry criteria section exists |
+| Direct source search | `srclight_search_symbols("SKILL.md")` in `implementation-pipeline` | Verify pre-flight section exists |
+| Local docs | `writing-plans/tasks/create.md` §Entry Criteria | Verify insertion point for spec-to-plan precondition |
+| Local docs | `implementation-pipeline/SKILL.md` §Routing | Verify pre-flight step insertion point |
+| Local docs | `implementation-pipeline/tasks/` | Verify task directory structure for new files |
+| Requirements analysis | `tmp/spec-output-requirements-analysis.md` items 26, 27, 28, 38 | Source requirements for success criteria |
 
-Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+**Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)**

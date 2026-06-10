@@ -1,0 +1,120 @@
+spec: "https://github.com/michael-conrad/.opencode/issues/1062"
+verification_consistency:
+  sc_entries:
+    - id: SC-1
+      evidence_type: structural
+      verification_gate: pre-commit
+      pipeline_step_binding: writing-plans entry
+      re_entry_step: rewrite-entry-criteria
+      phase_binding: phase_1
+      artifact_path: ".opencode/skills/writing-plans/tasks/create.md"
+    - id: SC-2
+      evidence_type: structural
+      verification_gate: pre-commit
+      pipeline_step_binding: writing-plans create-and-validate
+      re_entry_step: rewrite-entry-criteria
+      phase_binding: phase_1
+      artifact_path: ".opencode/skills/writing-plans/tasks/create.md"
+    - id: SC-3
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: writing-plans entry
+      re_entry_step: rewrite-task
+      phase_binding: phase_1
+      artifact_path: ".opencode/skills/writing-plans/tasks/handoffs/spec-to-plan.md"
+    - id: SC-4
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: writing-plans entry
+      re_entry_step: rewrite-task
+      phase_binding: phase_1
+      artifact_path: "./tmp/{issue-N}/artifacts/"
+    - id: SC-5
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: implementation-pipeline pre-flight
+      re_entry_step: rewrite-task
+      phase_binding: phase_1
+      artifact_path: ".opencode/skills/implementation-pipeline/tasks/pre-flight-handoff.md"
+    - id: SC-6
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: implementation-pipeline pre-flight
+      re_entry_step: rewrite-task
+      phase_binding: phase_1
+      artifact_path: "./tmp/{issue-N}/artifacts/"
+    - id: SC-7
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: implementation-pipeline pre-flight
+      re_entry_step: rewrite-task
+      phase_binding: phase_1
+      artifact_path: ".opencode/skills/implementation-pipeline/tasks/pre-flight-handoff.md"
+    - id: SC-8
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: implementation-pipeline exec-summary
+      re_entry_step: rewrite-task
+      phase_binding: phase_1
+      artifact_path: ".opencode/skills/implementation-pipeline/tasks/sc-closeout.md"
+    - id: SC-9
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: writing-plans entry
+      re_entry_step: rewrite-task
+      phase_binding: phase_1
+      artifact_path: ".opencode/skills/writing-plans/tasks/handoffs/spec-to-plan.md"
+    - id: SC-10
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: writing-plans entry
+      re_entry_step: rewrite-task
+      phase_binding: phase_1
+      artifact_path: ".opencode/skills/writing-plans/tasks/handoffs/spec-to-plan.md"
+    - id: SC-11
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: writing-plans entry
+      re_entry_step: rewrite-task
+      phase_binding: phase_1
+      artifact_path: ".opencode/skills/writing-plans/tasks/handoffs/spec-to-plan.md"
+    - id: SC-12
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: writing-plans entry
+      re_entry_step: rewrite-task
+      phase_binding: phase_1
+      artifact_path: ".opencode/skills/writing-plans/tasks/handoffs/spec-to-plan.md"
+    - id: SC-13
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: implementation-pipeline pre-flight
+      re_entry_step: rewrite-task
+      phase_binding: phase_1
+      artifact_path: ".opencode/skills/implementation-pipeline/tasks/pre-flight-handoff.md"
+    - id: SC-14
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: implementation-pipeline pre-flight
+      re_entry_step: rewrite-task
+      phase_binding: phase_1
+      artifact_path: ".opencode/skills/implementation-pipeline/tasks/pre-flight-handoff.md"
+    - id: SC-15
+      evidence_type: structural
+      verification_gate: pre-commit
+      pipeline_step_binding: writing-plans create-and-validate
+      re_entry_step: rewrite-entry-criteria
+      phase_binding: phase_1
+      artifact_path: ".opencode/skills/writing-plans/tasks/create.md"
+    - id: SC-16
+      evidence_type: structural
+      verification_gate: pre-commit
+      pipeline_step_binding: implementation-pipeline SKILL.md
+      re_entry_step: rewrite-skill
+      phase_binding: phase_1
+      artifact_path: ".opencode/skills/implementation-pipeline/SKILL.md"
+  constraints:
+    - "for_every_sc: evidence_type_matches_declared_type_in_spec"
+    - "for_every_sc: verification_gate_is_compatible_with_evidence_type"
+    - "for_every_sc: pipeline_step_binding_exists_in_pipeline"
+    - "for_every_sc: re_entry_step_is_valid_remediation_point"
