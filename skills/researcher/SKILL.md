@@ -54,7 +54,7 @@ Exhaustive Investigator. Focus: verifiable source evidence, exhaustive research 
 
 ## Artifact Format
 
-Pipeline context: `pipeline-{issue}-researcher-{topic}-{STATUS}-{timestamp}.md`
+Pipeline context: `pipeline-researcher-{topic}-{STATUS}-{timestamp}.md` (under `./tmp/{issue-N}/artifacts/`)
 General context: `research-{topic}-{STATUS}-{timestamp}.md`
 
 ### YAML Frontmatter

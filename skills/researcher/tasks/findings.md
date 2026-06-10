@@ -19,9 +19,9 @@ ISSUE_NUMBER="${3:-}"
 TIMESTAMP=$(date -u +"%Y%m%dT%H%M%SZ")
 
 if [ -n "$ISSUE_NUMBER" ]; then
-    FILENAME="./tmp/artifacts/pipeline-${ISSUE_NUMBER}-researcher-${TOPIC}-${STATUS}-${TIMESTAMP}.md"
+    FILENAME="./tmp/{issue-N}/artifacts/pipeline-researcher-${TOPIC}-${STATUS}-${TIMESTAMP}.md"
 else
-    FILENAME="./tmp/artifacts/research-${TOPIC}-${STATUS}-${TIMESTAMP}.md"
+    FILENAME="./tmp/{issue-N}/artifacts/research-${TOPIC}-${STATUS}-${TIMESTAMP}.md"
 fi
 
 mkdir -p "$(dirname "$FILENAME")"

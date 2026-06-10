@@ -10,7 +10,7 @@ Detect drift between baseline coherence state and current guidelines/skills. Ide
 
 ## Entry Criteria
 
-- Baseline file exists at `./tmp/artifacts/baseline-*.json`
+- Baseline file exists at `./tmp/{issue-N}/artifacts/baseline-*.json`
 - `audit_phase: coherence_gate`
 - `github.owner`, `github.repo` available
 
@@ -38,7 +38,7 @@ Detect drift between baseline coherence state and current guidelines/skills. Ide
 
 Find latest baseline:
 ```python
-baseline_files = glob("./tmp/artifacts/baseline-*.json")
+baseline_files = glob("./tmp/{issue-N}/artifacts/baseline-*.json")
 latest_baseline = max(baseline_files, key=lambda f: extract_date(f))
 baseline = json.loads(read(latest_baseline))
 ```

@@ -157,7 +157,7 @@ summary: "<1-3 sentence summary>"
 
 Write the result contract to:
 ```
-./tmp/artifacts/pipeline-{issue_number}-exec-summary-{STATUS}-{timestamp}.yaml
+./tmp/{issue-N}/artifacts/pipeline-exec-summary-{STATUS}-{timestamp}.yaml
 ```
 
 Following the #932 naming convention per `implementation-pipeline` pipeline-executor dispatch table.

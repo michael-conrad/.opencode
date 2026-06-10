@@ -377,10 +377,10 @@ methodology_independence:
 Use the `write` tool to write the full YAML document to:
 
 ```
-./tmp/artifacts/pipeline-{issue_number}-audit-{auditor_type}-{STATUS}-{timestamp}.yaml
+./tmp/{issue-N}/artifacts/pipeline-audit-{auditor_type}-{STATUS}-{timestamp}.yaml
 ```
 
-Create the directory if needed (the orchestrator ensures `./tmp/artifacts/` exists; if not, the write tool creates it implicitly).
+Create the directory if needed (the orchestrator ensures `./tmp/{issue-N}/artifacts/` exists; if not, the write tool creates it implicitly).
 
 ### C3: Return Frugal YAML Result Contract
 
@@ -388,7 +388,7 @@ Return ONLY this YAML as your final sub-agent response — no preamble, no comme
 
 ```yaml
 status: DONE
-artifact_path: "./tmp/artifacts/pipeline-{issue_number}-audit-{auditor_type}-{STATUS}-{timestamp}.yaml"
+artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-{auditor_type}-{STATUS}-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL, Z blocked."
 ```
 

@@ -122,7 +122,7 @@ Present revision options.
 
 ### Step 7: Write Verdict Artifact to Disk
 
-Write the full YAML verdict artifact to `./tmp/artifacts/pipeline-{issue_number}-audit-plan-fidelity-{STATUS}-{timestamp}.yaml`:
+Write the full YAML verdict artifact to `./tmp/{issue-N}/artifacts/pipeline-audit-plan-fidelity-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
 audit_phase: plan_creation
@@ -152,7 +152,7 @@ exec_summary: "Plan fidelity: X/Y criteria. N discrepancies found."
 
 ```yaml
 status: DONE
-artifact_path: "./tmp/artifacts/pipeline-{issue_number}-audit-plan-fidelity-PASS-{timestamp}.yaml"
+artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-plan-fidelity-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL. Z discrepancies found."
 ```
 

@@ -12,7 +12,7 @@ Generate a clean-room implementation plan from a problem statement only, using p
 
 ## Entry Criteria
 
-- Problem statement input file exists at `./tmp/artifacts/clean-room-<issue>-N.md`
+- Problem statement input file exists at `./tmp/{issue-N}/artifacts/clean-room-N.md`
 - Problem statement contains: Objective, Problem Statement, Context, Constraints, Success Criteria
 - The writing-plans skill is available
 
@@ -41,7 +41,7 @@ Generate a clean-room implementation plan from a problem statement only, using p
 **Read the clean-room input file:**
 
 ```
-Read: ./tmp/artifacts/clean-room-<issue>-N.md
+Read: ./tmp/{issue-N}/artifacts/clean-room-N.md
 ```
 
 **Extract what's available:**
@@ -139,7 +139,7 @@ affected_files_count: K
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Problem statement exists at path" | Verify file exists and is non-empty | `ls ./tmp/artifacts/clean-room-<issue>-N.md` | MISSING-ELEMENT |
+| "Problem statement exists at path" | Verify file exists and is non-empty | `ls ./tmp/{issue-N}/artifacts/clean-room-N.md` | MISSING-ELEMENT |
 | "Affected file X exists" | Verify file in codebase | `srclight_search_symbols(query="X")` or `glob(pattern="**/X")` | VERIFICATION-GAP |
 | "Function Y has signature Z" | Verify signature against live code | `srclight_get_signature(name="Y")` | VERIFICATION-GAP |
 | "Pattern follows existing code" | Verify the referenced pattern exists | `grep(pattern="pattern_text")` | CONFLICTING |

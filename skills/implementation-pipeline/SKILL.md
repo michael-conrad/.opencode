@@ -17,7 +17,7 @@ Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
 ## Overview
 
-Pure orchestrator routing table with 14 serial dispatch steps. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`. YAML contract artifacts at `./tmp/artifacts/pipeline-{issue}-{step_label}-{STATUS}-{timestamp}.yaml`.
+Pure orchestrator routing table with 14 serial dispatch steps. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`. YAML contract artifacts at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml`.
 
 The orchestrator is a pure router — never reads task file content, never performs inline analysis. Sub-agents do the work.
 
@@ -155,16 +155,16 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 
 | Step Label | Pre-Cleanup Action |
 |------------|-------------------|
-| `pre-red-baseline` | `rm -f ./tmp/artifacts/pipeline-{issue}-pre-red-baseline-*` |
-| `red-phase` | `rm -f ./tmp/artifacts/pipeline-{issue}-red-phase-*` |
-| `green-phase` | `rm -f ./tmp/artifacts/pipeline-{issue}-green-phase-*` |
-| `checkpoint-commit` | `rm -f ./tmp/artifacts/pipeline-{issue}-checkpoint-commit-*` |
-| `structural-checks` | `rm -f ./tmp/artifacts/pipeline-{issue}-structural-checks-*` |
-| `green-doublecheck` | `rm -f ./tmp/artifacts/pipeline-{issue}-green-doublecheck-*` |
-| `green-vbc` | `rm -f ./tmp/artifacts/pipeline-{issue}-green-vbc-*` |
-| `adversarial-audit` | `rm -f ./tmp/artifacts/pipeline-{issue}-adversarial-audit-*` |
-| `cross-validate` | `rm -f ./tmp/artifacts/pipeline-{issue}-cross-validate-*` |
-| `regression-check` | `rm -f ./tmp/artifacts/pipeline-{issue}-regression-check-*` |
+| `pre-red-baseline` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-pre-red-baseline-*` |
+| `red-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-red-phase-*` |
+| `green-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-phase-*` |
+| `checkpoint-commit` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-*` |
+| `structural-checks` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-structural-checks-*` |
+| `green-doublecheck` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-doublecheck-*` |
+| `green-vbc` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-vbc-*` |
+| `adversarial-audit` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-adversarial-audit-*` |
+| `cross-validate` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-cross-validate-*` |
+| `regression-check` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-regression-check-*` |
 
 ## Lifecycle Manifest Event Emission
 
