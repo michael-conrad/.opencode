@@ -15,7 +15,7 @@ Currently, worktree initialization is an implicit side effect of the first `list
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
 | SC-1 | `local-issues init` bootstraps orphan `issues-data` branch + worktree at `.issues/` when none exists, cascading to all discovered child repos | `behavioral` | Run in empty repo, verify `.issues/.git` exists + `issues-data` branch + per-repo worktree files |
-| SC-2 | `local-issues init` delegates to `sync` (pull + push) when worktree already exists | `behavioral` | Run on already-initialized repo, verify stderr shows sync result |
+| SC-2 | `local-issues init` delegates to `sync` (pull + push) when worktree already exists | `behavioral` | Run on already-initialized repo, verify output shows sync result |
 | SC-3 | `local-issues init` reports per-repo YAML with `qualifier`, `status`, and conflict hint when pull fails | `string` | Stale remote causing merge conflict → verify output contains `conflict` + qualifier string |
 | SC-4 | `local-issues sync` commits pending changes, pulls remote with rebase, pushes merged result | `behavioral` | Direct `.issues/` write → `sync` → verify commit on issues-data + remote updated |
 | SC-5 | `local-issues sync` reports `ok` or `conflict` with qualifier per repo | `string` | grep output for `status: ok\|status: conflict` |
@@ -59,15 +59,15 @@ Already enforced: `update`, `close`, `delete`, `promote` (all call `_require_qua
 
 Output changes: `list`, `search`, and any other command producing bare `#N` output use `dirname#N` format for all entries.
 
-Update `.issues/AGENTS.md` to reflect qualifier pattern throughout.
+Update `.opencode/.issues/AGENTS.md` to reflect qualifier pattern throughout.
 
 ### Phase 4: `sync-from-remote` skill task in issue-operations
 
-- New task file: `issue-operations/tasks/sync-from-remote.md`
+- New task file: `.opencode/skills/issue-operations/tasks/sync-from-remote.md`
 - Trigger keywords: `sync-from-remote`, `post-sync reconcile`, `reconcile remote issues`
 - Procedure:
   1. Call `local-issues sync` (ensure local git state is current)
-  2. List open issues from remote via platform dispatch (`github_list_issues` / GitBucket equivalent)
+  2. List open issues from remote via platform dispatch
   3. Call `local-issues list` and parse issue numbers
   4. Diff: for each remote issue not in local → call `import-remote` task
   5. For issues in both: compare `updated_at` timestamps
@@ -75,7 +75,7 @@ Update `.issues/AGENTS.md` to reflect qualifier pattern throughout.
      - local newer → flag for agent action ("local ahead — run save or push")
   6. Report structured YAML: `{imported: [...], stale_remote: [...], stale_local: [...]}`
 - Platform dispatch per standard `issue-operations` routing
-- `.issues/AGENTS.md` workflow table updated: "After `local-issues sync` → call `issue-operations --task sync-from-remote`"
+- `.opencode/.issues/AGENTS.md` workflow table updated: "After `local-issues sync` → call `issue-operations --task sync-from-remote`"
 
 ## Relationships
 
@@ -83,11 +83,6 @@ Update `.issues/AGENTS.md` to reflect qualifier pattern throughout.
 - `sync-from-remote` calls `local-issues sync` as first step
 - Mutation auto-commit + push unchanged from current behavior
 - No git jargon in agent-facing interface
-
-## Open Questions
-
-- Should `init` have a `--no-pull` flag for offline bootstrap? (likely not — `init` without network should still bootstrap)
-- Should `sync-from-remote` run automatically after `init`, or is it a separate agent step? (separate step, more explicit)
 
 ## Approval Gate
 
