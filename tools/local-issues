@@ -509,31 +509,6 @@ def _count_issues(repo_path: Path) -> int:
     return count
 
 
-def _pull_and_report(repo_path: Path, qualifier: str) -> dict:
-    """Pull remote issues-data branch with rebase, return structured result.
-
-    Returns dict with status: ok|conflict|no_worktree|timeout.
-    """
-    issues_path = repo_path / ISSUES_DIR
-    if not (issues_path / ".git").is_file():
-        return {"status": "no_worktree", "pull_result": ""}
-    try:
-        result = subprocess.run(
-            ["git", "-C", str(issues_path), "pull", "--rebase", "origin", WORKTREE_BRANCH],
-            capture_output=True, text=True, timeout=30,
-        )
-        if result.returncode == 0:
-            return {"status": "ok", "pull_result": result.stdout.strip()}
-        return {
-            "status": "conflict",
-            "pull_result": result.stdout.strip(),
-            "conflict_hint": f"git -C {repo_path}/{ISSUES_DIR} rebase --abort && git -C {repo_path}/{ISSUES_DIR} pull origin {WORKTREE_BRANCH}",
-            "conflict_stderr": result.stderr.strip(),
-        }
-    except subprocess.TimeoutExpired:
-        return {"status": "timeout", "pull_result": ""}
-
-
 def _collect_repos() -> list[tuple[Path, str]]:
     """Collect (repo_path, qualifier) for current repo and all child repos."""
     current = Path(os.getcwd()).resolve()
@@ -1273,72 +1248,66 @@ def cmd_promote(args: argparse.Namespace) -> None:
     print(f"  github_url: {gh_url or '(not set)'}")
 
 
+def _sync_repo(repo_path: Path, qualifier: str, issues_dir: Path | None = None) -> dict:
+    """Core sync logic for a single repo. Returns status dict."""
+    if issues_dir is None:
+        issues_dir = repo_path / ISSUES_DIR
+    entry: dict = {"qualifier": qualifier, "path": str(repo_path)}
+
+    if not (issues_dir / ".git").is_file():
+        entry["status"] = "no_worktree"
+        return entry
+
+    try:
+        subprocess.run(
+            ["git", "-C", str(issues_dir), "add", "-A"],
+            capture_output=True, timeout=15,
+        )
+        subprocess.run(
+            ["git", "-C", str(issues_dir), "commit", "--allow-empty", "-m", "auto: sync"],
+            capture_output=True, timeout=15,
+        )
+        pull = subprocess.run(
+            ["git", "-C", str(issues_dir), "pull", "--rebase", "origin", WORKTREE_BRANCH],
+            capture_output=True, text=True, timeout=30,
+        )
+        if pull.returncode != 0:
+            entry["status"] = "conflict"
+            entry["pull_result"] = pull.stderr.strip()
+            entry["conflict_hint"] = f"git -C {issues_dir} pull --rebase origin {WORKTREE_BRANCH}"
+            return entry
+        push = subprocess.run(
+            ["git", "-C", str(issues_dir), "push", "origin", WORKTREE_BRANCH],
+            capture_output=True, text=True, timeout=30,
+        )
+        if push.returncode == 0:
+            entry["status"] = "ok"
+            entry["pull_result"] = pull.stdout.strip() or "up_to_date"
+        else:
+            entry["status"] = "push_failed"
+            entry["push_result"] = push.stderr.strip()
+    except subprocess.TimeoutExpired:
+        entry["status"] = "timeout"
+    return entry
+
+
 def cmd_init(args: argparse.Namespace) -> None:
-    """Initialize worktrees and pull remote issues-data for all repos."""
+    """Bootstrap worktrees and sync for all repos. Delegates to _sync_repo()."""
     _ensure_all_worktrees()
     repos_info: list[dict] = []
     for repo_path, qualifier in _collect_repos():
         issues_count = _count_issues(repo_path)
-        pull_result = _pull_and_report(repo_path, qualifier)
-        entry = {
-            "repo": qualifier,
-            "qualifier": qualifier,
-            "path": str(repo_path),
-            "status": pull_result["status"],
-            "issues_count": issues_count,
-            "pull_result": pull_result["pull_result"],
-        }
-        if "conflict_hint" in pull_result:
-            entry["conflict_hint"] = pull_result["conflict_hint"]
-        if "conflict_stderr" in pull_result:
-            entry["conflict_stderr"] = pull_result["conflict_stderr"]
-        repos_info.append(entry)
+        result = _sync_repo(repo_path, qualifier)
+        result["issues_count"] = issues_count
+        repos_info.append(result)
     print(yaml_dump({"init": True, "repos": repos_info}))
 
 
 def cmd_sync(args: argparse.Namespace) -> None:
-    """Commit pending changes, pull-rebase, then push for all repos."""
+    """Commit, pull-rebase, and push for all repos."""
     repos_info: list[dict] = []
     for repo_path, qualifier in _collect_repos():
-        issues_path = repo_path / ISSUES_DIR
-        has_worktree = (issues_path / ".git").is_file()
-        if not has_worktree:
-            repos_info.append({
-                "qualifier": qualifier,
-                "path": str(repo_path),
-                "status": "no_worktree",
-                "pull_result": "",
-            })
-            continue
-        try:
-            subprocess.run(
-                ["git", "-C", str(issues_path), "add", "-A"],
-                capture_output=True, timeout=15,
-            )
-            subprocess.run(
-                ["git", "-C", str(issues_path), "commit", "--allow-empty", "-m", "auto: sync"],
-                capture_output=True, timeout=15,
-            )
-        except Exception:
-            pass
-        pull_result = _pull_and_report(repo_path, qualifier)
-        if pull_result["status"] in ("ok", "conflict"):
-            try:
-                subprocess.run(
-                    ["git", "-C", str(issues_path), "push", "origin", WORKTREE_BRANCH],
-                    capture_output=True, timeout=30,
-                )
-            except Exception:
-                pass
-        entry = {
-            "qualifier": qualifier,
-            "path": str(repo_path),
-            "status": pull_result["status"],
-            "pull_result": pull_result["pull_result"],
-        }
-        if "conflict_hint" in pull_result:
-            entry["conflict_hint"] = pull_result["conflict_hint"]
-        repos_info.append(entry)
+        repos_info.append(_sync_repo(repo_path, qualifier))
     print(yaml_dump({"sync": True, "repos": repos_info}))
 
 
