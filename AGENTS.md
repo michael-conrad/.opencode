@@ -85,19 +85,25 @@ All git operations (commit, push) are handled automatically by the tool after mu
 
 ### Session start
 
-```bash
-.opencode/tools/local-issues init
-```
+Session start comprises three sequential steps:
 
-`init` bootstraps `.issues/` worktrees in all repos (if missing) and pulls the latest remote `issues-data` changes. If the pull encounters a merge conflict, it reports the qualifier and a `git -C` command for manual resolution.
+1. **init** — Bootstrap `.issues/` worktrees in all repos and pull latest remote `issues-data`:
+   ```bash
+   .opencode/tools/local-issues init
+   ```
+   If the pull encounters a merge conflict, it reports the qualifier and a `git -C` command for manual resolution.
 
-After `init`, call `issue-operations --task sync-from-remote` to reconcile remote issue content against local `.issues/`:
+2. **sync** — Commit any local changes, pull-rebase, and push to ensure bidirectional currency:
+   ```bash
+   .opencode/tools/local-issues sync
+   ```
 
-```bash
-# Via skill invocation:
-skill({name: "issue-operations"})
-task(..., prompt: "execute sync-from-remote task from issue-operations")
-```
+3. **sync-from-remote** — Reconcile remote issue content against local `.issues/`:
+   ```bash
+   # Via skill invocation:
+   skill({name: "issue-operations"})
+   task(..., prompt: "execute sync-from-remote task from issue-operations")
+   ```
 
 > **Cross-reference:** [`lessons-learned/`](lessons-learned/) — per-session correction catalogs for systemic defect patterns. Agents read this at session start per §When to Read below.
 
