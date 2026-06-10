@@ -84,6 +84,29 @@ This error was discovered during adversarial audit of issue #980. Both `tools/pl
 
 Scripts that print `__doc__` at runtime MUST use `__doc__ = """..."""` assignment (not bare `"""..."""`) because the bash guard string captures the first docstring slot.
 
+### --description Flag (MANDATORY)
+
+Every tool in `tools/` MUST implement a `--description` flag that prints a one-line description of the tool's purpose to stdout and exits 0. This allows the `help` tool and other aggregators to discover tool descriptions without parsing source code.
+
+For PEP 723 Python scripts (top of `main()`):
+
+```python
+if len(sys.argv) == 2 and sys.argv[1] == "--description":
+    print("One-line description of the tool's purpose.")
+    return 0
+```
+
+For bash scripts (top of script, before substantive logic):
+
+```bash
+if [[ "${1:-}" == "--description" ]]; then
+    echo "One-line description of the tool's purpose."
+    exit 0
+fi
+```
+
+The description should be a single sentence stating what the tool does from the caller's perspective ("does X") rather than describing its implementation ("uses Y to do X").
+
 ## Isolated Tool Environments
 
 When developing local tools that need their own dependencies (separate from the main project), use isolated tool environments to keep the main project's `pyproject.toml` clean.

@@ -23,6 +23,11 @@
 
 set -euo pipefail
 
+if [[ "${1:-}" == "--description" ]]; then
+    echo "Select 2 auditors from different families for adversarial audit."
+    exit 0
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AGENTS_DIR="$SCRIPT_DIR/../agents"
 POOL_SCRIPT="$SCRIPT_DIR/../tests/qualification/qualified-auditor-pool.sh"
