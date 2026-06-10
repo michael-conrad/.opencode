@@ -83,6 +83,9 @@ def _run_action(script: Path, forwarded_args: list[str], summary: str) -> int:
 
 def main() -> None:
     args = sys.argv[1:]
+    if len(sys.argv) == 2 and sys.argv[1] == "--description":
+        print("Skill deck formal analysis CLI.")
+        return
     if not args or args[0] in ("-h", "--help", "help"):
         print(__doc__)
         print("\nAvailable actions:")
@@ -134,6 +137,7 @@ def main() -> None:
             script, args[1:], f"OK: ./.opencode/tools/skildeck {action} completed."
         )
     )
+
 
 if __name__ == "__main__":
     main()

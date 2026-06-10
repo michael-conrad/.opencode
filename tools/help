@@ -13,8 +13,8 @@ __doc__ = """DESCRIPTION: List all agent tools in .opencode/tools/ with their de
 
 Usage: ./.opencode/tools/help
 """
-import ast
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -25,20 +25,32 @@ PROJECT_ROOT = _path.parent
 TOOLS_DIR = Path(__file__).resolve().parent
 
 def get_description(script: Path) -> str:
-    """Extract DESCRIPTION from the module docstring."""
+    """Get tool description by calling <tool> --description."""
+    for attempt in range(3):
+        try:
+            result = subprocess.run(
+                [str(script.absolute()), "--description"],
+                capture_output=True, text=True, check=False,
+                stdin=subprocess.DEVNULL, timeout=30,
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                return result.stdout.strip()
+        except (subprocess.SubprocessError, OSError, TimeoutError):
+            pass
     try:
         text = script.read_text(encoding="utf-8")
-        tree = ast.parse(text)
-        docstring = ast.get_docstring(tree) or ""
-        for line in docstring.splitlines():
+        for line in text.splitlines():
             stripped = line.strip()
             if stripped.startswith("DESCRIPTION:"):
                 return stripped[len("DESCRIPTION:"):].strip()
     except Exception:
         pass
-    return "(no description)"
+    return "(no description available)"
 
 def main() -> None:
+    if len(sys.argv) == 2 and sys.argv[1] == "--description":
+        print("List all agent tools in tools/ with their descriptions.")
+        return
     if "--help" in sys.argv or "-h" in sys.argv:
         print(__doc__)
         return

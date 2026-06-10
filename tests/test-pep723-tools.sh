@@ -85,6 +85,22 @@ check_python_script() {
     check_python_version_pinned "$file"
 }
 
+check_description_flag() {
+    local tool_path="$TOOLS_DIR/$1"
+    local desc
+    desc=$("$tool_path" --description 2>/dev/null) || {
+        echo "FAIL: $tool_path --description exited non-zero"
+        FAIL=$((FAIL + 1))
+        return 0
+    }
+    if [[ -z "$desc" ]]; then
+        echo "FAIL: $tool_path --description produced empty output"
+        FAIL=$((FAIL + 1))
+        return 0
+    fi
+    PASS=$((PASS + 1))
+}
+
 ENTRY_POINTS=(
     guidelines memory md py jupyter help file-exists
     schema-version jupyter-start jupyter-stop symbolic session-init
@@ -97,6 +113,11 @@ for tool in "${ENTRY_POINTS[@]}"; do
     check_pep723_metadata "$file"
     check_execute "$file"
     check_python_version_pinned "$file"
+done
+
+echo "--- check_description_flag ---"
+for tool in "${ENTRY_POINTS[@]}"; do
+    check_description_flag "$tool"
 done
 
 IMPL_DIR=".opencode/tools/impl"

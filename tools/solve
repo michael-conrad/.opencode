@@ -15,7 +15,7 @@
 # Provenance: AI-generated
 
 """
-solve — Z3 constraint solver for workflow correctness via contract/state files.
+DESCRIPTION: Z3 constraint solver for workflow correctness via contract/state files.
 
 Actions:
   check   — validate state.yaml satisfies contract.yaml constraints
@@ -423,6 +423,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
+    if len(sys.argv) == 2 and sys.argv[1] == "--description":
+        print("Z3 constraint solver for workflow correctness.")
+        return
     parser = _build_parser()
     args = parser.parse_args()
 

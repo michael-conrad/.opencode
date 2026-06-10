@@ -9,7 +9,7 @@
 # ///
 
 # fmt: on
-__doc__ = """Session initialization script for AI agents.
+__doc__ = """DESCRIPTION: Session initialization script for AI agents.
 
 Outputs key:value pairs + repo identity YAML for LLM consumption on stdout.
 Developer/workspace identity (dev.name, dev.email) uses dotted key format.
@@ -686,6 +686,9 @@ def get_agent_tools_help() -> str:
 
 
 def main() -> int:
+    if len(sys.argv) == 2 and sys.argv[1] == "--description":
+        print("Session initialization script for AI agents.")
+        return 0
     repo_info = collect_repo_info()
     root_entry = repo_info[0] if repo_info else {}
 
