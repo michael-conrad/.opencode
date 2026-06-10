@@ -139,6 +139,60 @@ When a step returns FAIL, the orchestrator:
 | `enforcement/overflow-signal.md` | OVERFLOW contract and re-routing strategies |
 | `enforcement/work-state-verification.md` | Verification table and work state format |
 
+## Artifact Retention
+
+### Rule 1: Permanent Artifacts Never Cleaned
+
+Artifacts under `.issues/{issue-N}/spec-artifacts/` are permanent — they survive pipeline restarts, branch switches, and PR merges. Never delete or clean these files. They serve as the authoritative audit trail for spec lifecycle, SC coverage, verification consistency, and revision re-entry protocols.
+
+### Rule 2: Ephemeral Artifacts Cleaned at PR Merge
+
+Artifacts under `./tmp/{issue-N}/` are ephemeral — they are cleaned at PR merge cleanup (`git-workflow --task cleanup`). These include constraints contracts, decomposition validations, phase exit contracts, and phase-plan-validated files. Before PR merge, all permanent artifacts must be finalized and no unresolved references to ephemeral paths may remain in the lifecycle manifest.
+
+### Rule 3: Step-Specific Pre-Cleanup
+
+At the start of each pipeline step, clean previous-run artifacts for that step to prevent stale state contamination:
+
+| Step Label | Pre-Cleanup Action |
+|------------|-------------------|
+| `pre-red-baseline` | `rm -f ./tmp/artifacts/pipeline-{issue}-pre-red-baseline-*` |
+| `red-phase` | `rm -f ./tmp/artifacts/pipeline-{issue}-red-phase-*` |
+| `green-phase` | `rm -f ./tmp/artifacts/pipeline-{issue}-green-phase-*` |
+| `checkpoint-commit` | `rm -f ./tmp/artifacts/pipeline-{issue}-checkpoint-commit-*` |
+| `structural-checks` | `rm -f ./tmp/artifacts/pipeline-{issue}-structural-checks-*` |
+| `green-doublecheck` | `rm -f ./tmp/artifacts/pipeline-{issue}-green-doublecheck-*` |
+| `green-vbc` | `rm -f ./tmp/artifacts/pipeline-{issue}-green-vbc-*` |
+| `adversarial-audit` | `rm -f ./tmp/artifacts/pipeline-{issue}-adversarial-audit-*` |
+| `cross-validate` | `rm -f ./tmp/artifacts/pipeline-{issue}-cross-validate-*` |
+| `regression-check` | `rm -f ./tmp/artifacts/pipeline-{issue}-regression-check-*` |
+
+## Lifecycle Manifest Event Emission
+
+Each pipeline step SHOULD append an event to the lifecycle manifest at `.issues/{issue-N}/spec-artifacts/lifecycle.yaml` on completion. Events are appended, not overwritten:
+
+```yaml
+  - event: step_completed
+    timestamp: <YYYY-MM-DDTHH:MM:SSZ>
+    issuer: <AgentName> (<ModelId>)
+    step: <step_label>
+    status: <PASS|FAIL>
+    description: "<brief summary>"
+    severity: <info|warning|error>
+```
+
+Blocker events (on FAIL) MUST include:
+```yaml
+  - event: blocker
+    timestamp: <YYYY-MM-DDTHH:MM:SSZ>
+    issuer: <AgentName> (<ModelId>)
+    step: <step_label>
+    severity: error
+    reason: "<root cause description>"
+    resolution: "<applied remediation or UNRESOLVED>"
+```
+
+The lifecycle manifest is append-only. Never delete or edit existing entries — only append new ones. Validation: `grep -c "event:" lifecycle.yaml` MUST increase monotonically across pipeline steps.
+
 ## Cross-References
 
 Skills: `approval-gate`, `git-workflow`, `test-driven-development`, `verification-before-completion`, `finishing-a-development-branch`, `adversarial-audit`, `completion-core`, `pre-analysis`, `completeness-gate`, `researcher`. Guidelines: `091-incremental-build.md`, `000-critical-rules.md`.
