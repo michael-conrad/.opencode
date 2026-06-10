@@ -226,15 +226,15 @@ The combined primacy-and-recency strategy anchors enforcement at both the beginn
 
 When this card (or 250 or 255) is consulted to create or modify AI-agent-facing text, the agent MUST verify that the research basis (Section 13) is still current.
 
-**Re-research protocol:**
+**Re-research protocol (4 sequential steps):**
 
-1. **Check research citations for currency** — Verify each citation was published within the last 12 months, or validated against the target model within the last 6 months. Publication date is the arXiv submission date or conference proceedings date, whichever is earlier.
+**Step 1 — Check research citations for currency:** Verify each citation was published within the last 12 months, or validated against the target model within the last 6 months. Publication date is the arXiv submission date or conference proceedings date, whichever is earlier.
 
-1. **Search for updated findings if stale** — If any citation exceeds the currency window, search for updated findings on context degradation, constraint erosion, and directive effectiveness. Use available research tools (arXiv search, web search) to find more recent publications on the same topic.
+**Step 2 — Search for updated findings if stale:** If any citation exceeds the currency window, search for updated findings on context degradation, constraint erosion, and directive effectiveness. Use available research tools (arXiv search, web search) to find more recent publications on the same topic.
 
-1. **Flag as NEEDS-REVALIDATION if contradicted** — If updated research contradicts a pattern's basis or shows that the original finding has been superseded, flag the pattern as `NEEDS-REVALIDATION` in the version tracking table (Section 9). A flagged pattern should not be applied to new content until revalidated.
+**Step 3 — Flag as NEEDS-REVALIDATION if contradicted:** If updated research contradicts a pattern's basis or shows that the original finding has been superseded, flag the pattern as `NEEDS-REVALIDATION` in the version tracking table (Section 9). A flagged pattern should not be applied to new content until revalidated.
 
-1. **Document results as a version update** — Record the re-research date, findings, and any pattern status changes in Section 9 (Version Tracking). Each re-research cycle produces a new version row.
+**Step 4 — Document results as a version update:** Record the re-research date, findings, and any pattern status changes in Section 9 (Version Tracking). Each re-research cycle produces a new version row.
 
 ## Section 9: Version Tracking
 
@@ -357,6 +357,8 @@ Each citation listed below has been verified by fetching the source page and con
 **Failure analysis taxonomies:**
 
 - ErrorMap/ErrorAtlas (Ashury-Tahan et al., 2026), "ErrorMap and ErrorAtlas: Charting the Failure Landscape of Large Language Models" — https://arxiv.org/abs/2601.15812
+
+*Section 13 contains 13 externally verified citations from academic sources (arxiv.org, anthopic.com, trychroma.com, github.com), each verified by fetching the source page and confirming the claim matches the published content.*
 
 ______________________________________________________________________
 
