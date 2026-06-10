@@ -138,13 +138,15 @@ When patterns from this reference card (257) co-apply with patterns from other r
 
 2. **257 + agency-respecting constraint:** All procedural discipline patterns must pass the agency-respecting test from `250-dark-prose-reference.md` Section 1. If a 257 formula reads like an instruction to a subordinate rather than professional guidance, it fails — the implementing agent must reformulate using dark-prose-006 meta-pattern.
 
-3. **Pattern overlap resolution:** When a content location matches triggers for both 257 and 250 patterns, apply the following priority:
+3. **257 + 255 co-application:** When a procedural discipline pattern requires distribution-shifted encoding, pair it with the corresponding distribution-shifting formula from `255-distribution-shifting-reference.md`. The 257 pattern defines what structural ordering to enforce; the 255 pattern defines how to encode it so the model produces the expert (non-mean) version. For example, p-dis-005 (Continue-Drift Contrast) pairs with the anti-mean response pattern from 255: the 257 formula defines "continue does not waive gates," the 255 encoding shifts the distribution away from "cumulative context = authorization" toward "each gate fires on every pass."
+
+4. **Pattern overlap resolution:** When a content location matches triggers for both 257 and 250 patterns, apply the following priority:
    - If the content defines pipeline ordering or dependency structure: p-dis-001 or p-dis-005 takes precedence — structural ordering is procedural discipline territory.
    - If the content defines identity or quality standard: dark-prose-001/002/003 takes precedence — identity-framing is dark prose territory.
     - If the content defines verification evidence requirements: p-dis-006 takes precedence with dark-prose-007 cost-frame companion. **Canonical cost model:** `065-verification-honesty.md` §Cost Model for death spiral / break dynamics — cost-frame formula lives in 250, DDL rationale with tiered table lives in 065.
    - If both apply equally: apply both with agency-respecting formulation.
 
-4. **One enforcement mechanism per location:** No two 257 patterns may target the same content location with different gate formulas. When overlap is detected, the dominant pattern (by tier or specificity) supersedes; the subordinate pattern is applied at a different location or omitted.
+5. **One enforcement mechanism per location:** No two 257 patterns may target the same content location with different gate formulas. When overlap is detected, the dominant pattern (by tier or specificity) supersedes; the subordinate pattern is applied at a different location or omitted.
 
 ## Section 5: Dependency-Order Gate Protocol
 
@@ -213,12 +215,17 @@ Procedural discipline anchors are most effective at primacy (first occurrence) a
 
 ## Section 8: Re-Research Mandate
 
-When procedural discipline patterns produce enforcement failures or the agent cannot determine the correct pattern for a given context:
+When this card (or 250 or 255) is consulted to create or modify AI-agent-facing text, the agent MUST verify that the research basis (Section 13) is still current.
 
-1. **Re-read the catalog** — Load `257-procedural-discipline-reference.md` and scan all 6 pattern formulas for the matching trigger.
-2. **Consult the selection matrix** — Cross-reference the content being created against Section 2 (Pattern Selection Matrix) for the correct pattern ID and intensity.
-3. **Verify formulas against live guidelines** — Read the applicable guideline file (e.g., `065-verification-honesty.md` for p-dis-006) to confirm the pattern formula matches current enforcement language.
-4. **Research basis confirmation** — If the pattern was derived from a spec or issue (see Section 14), re-read the source spec to confirm the pattern intent before applying.
+**Re-research protocol:**
+
+1. **Check research citations for currency** — Verify each citation was published within the last 12 months, or validated against the target model within the last 6 months. Publication date is the arXiv submission date or conference proceedings date, whichever is earlier.
+
+2. **Search for updated findings if stale** — If any citation exceeds the currency window, search for updated findings on context degradation, constraint erosion, and directive effectiveness. Use available research tools (arXiv search, web search) to find more recent publications on the same topic.
+
+3. **Flag as NEEDS-REVALIDATION if contradicted** — If updated research contradicts a pattern's basis or shows that the original finding has been superseded, flag the pattern as `NEEDS-REVALIDATION` in the version tracking table (Section 9). A flagged pattern should not be applied to new content until revalidated.
+
+4. **Document results as a version update** — Record the re-research date, findings, and any pattern status changes in Section 9 (Version Tracking). Each re-research cycle produces a new version row.
 
 ## Section 9: Version Tracking
 
@@ -292,27 +299,54 @@ When procedural discipline patterns overlap or conflict with each other or with 
 
 6. **257 over 250 for structural content only** — When content defines pipeline ordering, verification gate discipline, or dependency structure, 257 procedural discipline patterns apply. Dark prose (250) patterns still apply for the surrounding identity-framing text — the structural enforcement and the identity anchoring are complementary, not competitive.
 
-## Section 13: Research Basis (Verified Citations)
+## Section 13: Research Basis (Verified Citations with URLs Only)
 
-The following sources were researched and confirmed as the basis for the patterns in this reference card:
+Each citation listed below has been verified by fetching the source page and confirming the claim matches the abstract or visible content.
 
-| Source | Pattern Basis | Verified Via |
-|--------|--------------|-------------|
-| `065-verification-honesty.md` §Evidence Requirement | p-dis-002 Self-Drift Contrast, p-dis-006 Verification-Signal Discipline | Direct read — evidence hierarchy, verification comparison semantics, anti-evasion rules |
-| `065-verification-honesty.md` §Hard Failure Discipline | p-dis-002 Self-Drift Contrast — identity fusion "Verification IS Completion" | Direct read — §Identity Fusion: Verification IS Completion |
-| `065-verification-honesty.md` §Anti-Evasion Rules | p-dis-006 — external signal requirement, internal reasoning exclusion | Direct read — Pattern (a), (b), (c) evasion classifications |
-| `065-verification-honesty.md` §Verification Comparison Semantics | p-dis-002 — soft-passing prohibition | Direct read — binary verification, per-field independence |
-| `000-critical-rules.md` §critical-rules-006 (self-authorization) | p-dis-005 Continue-Drift Contrast | Direct read — Tier 1 violation: cumulative context does not authorize |
-| `000-critical-rules.md` §critical-rules-020 (soft-passing) | p-dis-002 Self-Drift Contrast | Direct read — Tier 2: reporting mismatch as PASS is HALT |
-| `000-critical-rules.md` §critical-rules-hard-fail | p-dis-001 Dependency-Order Gate — FAIL is hard gate | Direct read — remediation-first, re-verify sequence |
-| `000-critical-rules.md` §critical-rules-042 (Gate Non-Waiver) | p-dis-005 — mandatory gates are structural invariants | Direct read — "continue" does not waive mandatory pipeline gates |
-| `020-go-prohibitions.md` §1 ALWAYS DO (Cost-blind verification) | p-dis-006 — cost-frame reformation | Direct read — cost is measured in defect-discovery-latency, correctness is only metric |
-| `010-approval-gate.md` §Authorization Scope Model | p-dis-001 — halt_at and scope horizon | Direct read — scope values table, halt boundary definitions |
-| `080-code-standards.md` §Test Integrity Mandate | p-dis-006 — verification signal discipline in behavioral testing | Direct read — no lobotomizing tests, timeout is diagnosable |
-| `250-dark-prose-reference.md` (this repository) | Structure reference, agency-respecting constraint, co-application rules | Direct read — Sections 1, 4, 9 for dark-prose pattern integration |
-| `020-go-prohibitions.md` §1.1 | Two-Role Context Cost Model — orchestrator cost function, sub-agent generosity, result contract frugality | Direct read — cost formulas, three mandates, dark prose reformation |
+**Context degradation and positional effects:**
 
-**Note:** All citations are from files in `.opencode/guidelines/` at `/home/muksihs/git/opencode-config/.opencode/guidelines/` — verified by direct read during file creation. Citations reference section anchors, not line numbers.
+- Liu et al. (2024), "Lost in the Middle: How Language Models Use Long Contexts" — TACL 2024, https://arxiv.org/abs/2307.03172
+  - Verified claim: performance highest at beginning or end, significantly degrades for mid-context information
+- Chroma (Hong, Troynikov, Huber, 2025), "Context Rot: How Increasing Input Tokens Impacts LLM Performance" — https://www.trychroma.com/research/context-rot
+  - Verified claim: all 18 frontier models degrade with increasing input length
+
+**Self-correction ineffectiveness:**
+
+- Kamoi et al. (2024), "When Can LLMs Actually Correct Their Own Mistakes? A Critical Survey of Self-Correction of LLMs" — TACL 2024, https://arxiv.org/abs/2406.01297
+  - Verified claim: no prior work demonstrates successful self-correction with prompted LLMs alone; reliable external feedback enables it
+- Kim (2025), "Does Metacognition Improve LLM Performance?" — https://github.com/kimjune01/metacognition
+  - Verified claim: framework condition 0.30 vs filler condition 0.65
+
+**Multi-agent failures:**
+
+- Cemri et al. (2025), "MAST: Why Do Multi-Agent LLM Systems Fail?" — https://arxiv.org/abs/2503.13657
+  - Verified claim: 14 failure modes in 3 categories (system design, inter-agent misalignment, task verification)
+- Zhu et al. (2025), "AgentErrorTaxonomy: Where LLM Agents Fail and How They can Learn From Failures" — https://arxiv.org/abs/2509.25370
+
+**Sycophancy:**
+
+- Sharma et al. (2024), "Towards Understanding Sycophancy in Language Models" — ICLR 2024, https://arxiv.org/abs/2310.13548
+  - Verified claim: five SOTA assistants consistently exhibit sycophantic behavior
+- Vennemeyer et al. (2025), "Sycophancy Is Not One Thing: Causal Separation of Sycophantic Behaviors in LLMs" — https://arxiv.org/abs/2509.21305
+  - Verified claim: sycophantic behaviors correspond to distinct, independently steerable representations
+
+**Safety tax and over-enforcement:**
+
+- Wang et al. (2025), "Safety Tax: Safety Alignment Makes Your Large Reasoning Models Less Reasonable" — https://arxiv.org/abs/2503.00555
+  - Verified claim: safety alignment degrades reasoning capability
+- Anonto et al. (2025), "When Safety Blocks Sense: Measuring Semantic Confusion in LLM Refusals" — https://arxiv.org/abs/2512.01037
+  - Verified claim: over-refusal blocks benign requests; strict safety can cause inconsistency
+
+**Prompt engineering and re-priming:**
+
+- Anthropic (2024), "Building Effective Agents" — https://www.anthropic.com/research/building-effective-agents
+  - Verified claim: successful implementations use simple, composable patterns
+- Anthropic (2025-2026), "Be Clear and Direct" — https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct
+  - Verified claim: role-setting in system prompt focuses behavior; positive framing over negative
+
+**Failure analysis taxonomies:**
+
+- ErrorMap/ErrorAtlas (Ashury-Tahan et al., 2026), "ErrorMap and ErrorAtlas: Charting the Failure Landscape of Large Language Models" — https://arxiv.org/abs/2601.15812
 
 ---
 
