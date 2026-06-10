@@ -197,7 +197,7 @@ Dependency ordering is structural, not advisory.
 
 **Positional Enforcement Strategy:**
 
-Procedural discipline anchors are most effective at primacy (first occurrence) and recency (last occurrence) positions. A middle-only placement — an anchor embedded in the body of a section but absent from both the opening and closing positions — means the anchor is surrounded by competing content and will be overridden before it fires.
+The combined primacy-and-recency strategy anchors enforcement at both the beginning (primacy) and end (recency) of each pipeline stage transition. This dual-anchored approach provides maximum enforcement effectiveness — the identity anchor is set at entry and reinforced at exit, leaving no mid-context degradation window. Primacy alone is insufficient without recency reinforcement, and recency alone lacks the initial frame-setting that primacy provides. Only when both positions carry the identity anchor does the positional enforcement achieve double-anchored coverage.
 
 | Position          | Effectiveness                            | Rule                                     |
 | ----------------- | ---------------------------------------- | ---------------------------------------- |
