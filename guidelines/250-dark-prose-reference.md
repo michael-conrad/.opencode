@@ -257,15 +257,13 @@ Bright-line rules are companions to dark prose patterns, not replacements. The d
 | dark-prose-002 (goal hijacking identity) | Binary compliance — "[state] IS [definition]. [state] IS NOT [anti-definition]. Period." | IS, IS NOT, Period |
 | dark-prose-003 (consequence assertion) | Rejection/termination — "REJECTED — [pattern]. [violation] produces [defect]. [artifact] carries unrecoverable failure." | REJECTED, unrecoverable |
 | dark-prose-006 (agency-respecting) | Trust but verify — "The implementing agent determines the HOW. The verification gate confirms the WHAT. [Evidence type] evidence required." | Trust but verify, evidence required |
-| dark-prose-001 (confirmshaming) with p-dis-001 | Dependency-order binary — "Step N CANNOT execute before step N-1 produces verified PASS. Dependency ordering is structural, not advisory." | IS REQUIRED, structural, verified PASS |
+| dark-prose-001 (confirmshaming) with p-dis-001 — dependency-order bright-line companion | Dependency-order binary — "Step N CANNOT execute before step N-1 produces verified PASS. Dependency ordering is structural, not advisory." | IS REQUIRED, structural, verified PASS |
 | dist-shift-007 (External-Signal Verification) | External-signal verification — "Internal reasoning does NOT produce verified outcomes. Only external tool-call evidence produces verified outcomes." | external signal, tool-call evidence, verified |
 | dist-shift-008 (Corrupt-Success Contrast) | Corrupt-success binary — "Claiming completion without verification evidence IS concealing an unverified state. Verified PASS IS the only valid completion state." | IS concealing, IS the only, verified PASS |
 | p-dis-006 (Verification-Signal Discipline) | Verification-signal binary — "Internal reasoning IS NOT verification. Tool-call evidence IS required before completion claims." | IS NOT, IS required, tool-call evidence |
 | Over-enforcement guard | Safety-tax guard — "HALT when condition met IS the correct response. HALT as default IS over-enforcement and degrades reasoning capability." | IS the correct response, IS over-enforcement |
 
-### Dependency-Order Companion
-
-The dependency-order bright-line (p-dis-001 companion) establishes that pipeline stage N CANNOT execute before stage N-1 produces a verified PASS. This binary eliminates the rationalization surface where an agent might claim "almost done" or "functionally complete" at an intermediate gate. Dependency ordering is structural — each gate produces a deterministic PASS/FAIL that gates the next stage. There is no "proceed with caveats" path through a dependency chain.
+### Dependency-Order Companion dependency-order bright-line (p-dis-001 companion) establishes that pipeline stage N CANNOT execute before stage N-1 produces a verified PASS. This binary eliminates the rationalization surface where an agent might claim "almost done" or "functionally complete" at an intermediate gate. Dependency ordering is structural — each gate produces a deterministic PASS/FAIL that gates the next stage. There is no "proceed with caveats" path through a dependency chain.
 
 ### Non-Paired Patterns
 
