@@ -144,18 +144,18 @@ When patterns from this reference card (257) co-apply with patterns from other r
 
 1. **257 + 250 co-application:** When a procedural discipline pattern requires enforcement language, pair it with the corresponding dark prose identity-frame from `250-dark-prose-reference.md`. The 257 pattern defines the structural constraint; the 250 pattern provides the identity-anchoring that closes the rationalization gap. For example, p-dis-001 (Dependency-Order Gate) pairs with dark-prose-002 (goal hijacking identity-frame variant): the gate formula defines the ordering, the identity-frame fuses "verification IS completion" into the agent's operational model.
 
-1. **257 + agency-respecting constraint:** All procedural discipline patterns must pass the agency-respecting test from `250-dark-prose-reference.md` Section 1. If a 257 formula reads like an instruction to a subordinate rather than professional guidance, it fails — the implementing agent must reformulate using dark-prose-006 meta-pattern.
+2. **257 + agency-respecting constraint:** All procedural discipline patterns must pass the agency-respecting test from `250-dark-prose-reference.md` Section 1. If a 257 formula reads like an instruction to a subordinate rather than professional guidance, it fails — the implementing agent must reformulate using dark-prose-006 meta-pattern.
 
-1. **257 + 255 co-application:** When a procedural discipline pattern requires distribution-shifted encoding, pair it with the corresponding distribution-shifting formula from `255-distribution-shifting-reference.md`. The 257 pattern defines what structural ordering to enforce; the 255 pattern defines how to encode it so the model produces the expert (non-mean) version. For example, p-dis-005 (Continue-Drift Contrast) pairs with the anti-mean response pattern from 255: the 257 formula defines "continue does not waive gates," the 255 encoding shifts the distribution away from "cumulative context = authorization" toward "each gate fires on every pass."
+3. **257 + 255 co-application:** When a procedural discipline pattern requires distribution-shifted encoding, pair it with the corresponding distribution-shifting formula from `255-distribution-shifting-reference.md`. The 257 pattern defines what structural ordering to enforce; the 255 pattern defines how to encode it so the model produces the expert (non-mean) version. For example, p-dis-005 (Continue-Drift Contrast) pairs with the anti-mean response pattern from 255: the 257 formula defines "continue does not waive gates," the 255 encoding shifts the distribution away from "cumulative context = authorization" toward "each gate fires on every pass."
 
-1. **Pattern overlap resolution:** When a content location matches triggers for both 257 and 250 patterns, apply the following priority:
+4. **Pattern overlap resolution:** When a content location matches triggers for both 257 and 250 patterns, apply the following priority:
 
    - If the content defines pipeline ordering or dependency structure: p-dis-001 or p-dis-005 takes precedence — structural ordering is procedural discipline territory.
    - If the content defines identity or quality standard: dark-prose-001/002/003 takes precedence — identity-framing is dark prose territory.
    - If the content defines verification evidence requirements: p-dis-006 takes precedence with dark-prose-007 cost-frame companion. **Canonical cost model:** `065-verification-honesty.md` §Cost Model for death spiral / break dynamics — cost-frame formula lives in 250, DDL rationale with tiered table lives in 065.
    - If both apply equally: apply both with agency-respecting formulation.
 
-1. **One enforcement mechanism per location:** No two 257 patterns may target the same content location with different gate formulas. When overlap is detected, the dominant pattern (by tier or specificity) supersedes; the subordinate pattern is applied at a different location or omitted.
+5. **One enforcement mechanism per location:** No two 257 patterns may target the same content location with different gate formulas. When overlap is detected, the dominant pattern (by tier or specificity) supersedes; the subordinate pattern is applied at a different location or omitted.
 
 ## Section 5: Dependency-Order Gate Protocol
 
@@ -170,13 +170,13 @@ Dependency ordering is structural, not advisory.
 **Protocol rules:**
 
 1. Every pipeline stage that depends on a preceding stage MUST declare the dependency explicitly using the gate formula.
-1. The dependency MUST name the specific preceding stage — "preceding stage" is not an acceptable substitute for the stage name.
-1. The "amateur alternative" clause MUST characterize the specific defect that results from reversing or skipping the ordering — generic "this breaks things" is not sufficient.
-1. Dependency ordering applies transitively: if stage C requires stage B, and stage B requires stage A, then stage C implicitly requires stage A. If both A and B must be verified before C, both must be declared in the gate formula as: "C REQUIRES verified PASS from \[A\] and \[B\]."
-1. Partial verification of a dependency is equivalent to no verification. A stage with N dependencies requires N PASS results — any unverified dependency blocks the stage.
-1. The gate formula is not advisory. An agent that proceeds to a stage without verified PASS from all declared dependencies has violated the structural ordering.
-1. When a dependency fails verification (FAIL, not PASS), the agent MUST NOT proceed. The gate does not allow conditional pass-through.
-1. Cross-pipeline dependencies: when stage C in pipeline 2 requires verified PASS from stage B in pipeline 1, the dependency MUST be declared with full pipeline qualification: "\[pipeline_2/stage_C\] REQUIRES verified PASS from \[pipeline_1/stage_B\]."
+2. The dependency MUST name the specific preceding stage — "preceding stage" is not an acceptable substitute for the stage name.
+3. The "amateur alternative" clause MUST characterize the specific defect that results from reversing or skipping the ordering — generic "this breaks things" is not sufficient.
+4. Dependency ordering applies transitively: if stage C requires stage B, and stage B requires stage A, then stage C implicitly requires stage A. If both A and B must be verified before C, both must be declared in the gate formula as: "C REQUIRES verified PASS from \[A\] and \[B\]."
+5. Partial verification of a dependency is equivalent to no verification. A stage with N dependencies requires N PASS results — any unverified dependency blocks the stage.
+6. The gate formula is not advisory. An agent that proceeds to a stage without verified PASS from all declared dependencies has violated the structural ordering.
+7. When a dependency fails verification (FAIL, not PASS), the agent MUST NOT proceed. The gate does not allow conditional pass-through.
+8. Cross-pipeline dependencies: when stage C in pipeline 2 requires verified PASS from stage B in pipeline 1, the dependency MUST be declared with full pipeline qualification: "\[pipeline_2/stage_C\] REQUIRES verified PASS from \[pipeline_1/stage_B\]."
 
 **Canonical examples:**
 
@@ -250,15 +250,15 @@ The following rules determine when an agent should consult the Procedural Discip
 
 1. **Verification gate creation or editing** — When creating or modifying verification gate language in guidelines, skill bodies, or task definitions, the agent must consult Section 2 for pattern selection and Section 3 for gate formula derivation.
 
-1. **Pipeline ordering documentation** — When documenting any multi-stage pipeline (authorization → implementation → verification → PR), the agent must consult Section 5 Dependency-Order Gate Protocol for correct ordering declarations.
+2. **Pipeline ordering documentation** — When documenting any multi-stage pipeline (authorization → implementation → verification → PR), the agent must consult Section 5 Dependency-Order Gate Protocol for correct ordering declarations.
 
-1. **Authorization scope definitions** — When defining authorization scopes, halt boundaries, or pipeline-scoped authorization language, the agent must consult Section 7 for controlled vocabulary and Section 5 for scope chain ordering.
+3. **Authorization scope definitions** — When defining authorization scopes, halt boundaries, or pipeline-scoped authorization language, the agent must consult Section 7 for controlled vocabulary and Section 5 for scope chain ordering.
 
-1. **Completion gate language** — When defining what constitutes a valid completion, the agent must consult p-dis-002 (Self-Drift Contrast) and p-dis-006 (Verification-Signal Discipline) formulas.
+4. **Completion gate language** — When defining what constitutes a valid completion, the agent must consult p-dis-002 (Self-Drift Contrast) and p-dis-006 (Verification-Signal Discipline) formulas.
 
-1. **Cost-blind verification enforcement** — When writing enforcement language for cost-blind verification (e.g., `020-go-prohibitions.md` Section 1), the agent must apply p-dis-006 with the cost-frame component.
+5. **Cost-blind verification enforcement** — When writing enforcement language for cost-blind verification (e.g., `020-go-prohibitions.md` Section 1), the agent must apply p-dis-006 with the cost-frame component.
 
-1. **Continue vs authorization clarification** — When drafting language to distinguish "continue" from authorization, the agent must use p-dis-005 (Continue-Drift Contrast) formula.
+6. **Continue vs authorization clarification** — When drafting language to distinguish "continue" from authorization, the agent must use p-dis-005 (Continue-Drift Contrast) formula.
 
 ## Section 11: Adding New Patterns
 
@@ -266,15 +266,15 @@ To add a procedural discipline pattern (p-dis-007+):
 
 1. **Analyze existing landscape** — Determine whether the proposed pattern overlaps with, extends, or supersedes any existing pattern listed in Section 1. Check both the name coverage and the formula coverage — a pattern with a different name may produce the same enforcement effect as an existing pattern.
 
-1. **Create a spec issue** — Define the new pattern (mechanism, formula, strength level, prose examples, content types). The spec body must follow the agency-respecting constraint: define WHAT the pattern achieves and WHY, trust the implementing agent to determine HOW by reading the reference card.
+2. **Create a spec issue** — Define the new pattern (mechanism, formula, strength level, prose examples, content types). The spec body must follow the agency-respecting constraint: define WHAT the pattern achieves and WHY, trust the implementing agent to determine HOW by reading the reference card.
 
-1. **Reference annotation** — The spec body must include annotation references to this reference card rather than prescriptive prose. The implementing agent reads the reference card and derives correct catalog entries autonomously.
+3. **Reference annotation** — The spec body must include annotation references to this reference card rather than prescriptive prose. The implementing agent reads the reference card and derives correct catalog entries autonomously.
 
-1. **Adversarial audit** — Audit through the adversarial-audit dual-auditor pipeline. Auditors verify (a) the pattern does not overlap with any existing pattern, (b) the formula produces deterministic enforcement, and (c) the prose passes the agency-respecting test from `250-dark-prose-reference.md`.
+4. **Adversarial audit** — Audit through the adversarial-audit dual-auditor pipeline. Auditors verify (a) the pattern does not overlap with any existing pattern, (b) the formula produces deterministic enforcement, and (c) the prose passes the agency-respecting test from `250-dark-prose-reference.md`.
 
-1. **Implement** — Apply the pattern in affected files.
+5. **Implement** — Apply the pattern in affected files.
 
-1. **Update the reference card**:
+6. **Update the reference card**:
 
    - Add pattern row to Section 1 (Pattern ID Allocation table)
    - Update Section 2 (Selection Matrix) with new content-type/pattern mappings
@@ -287,11 +287,11 @@ To add a procedural discipline pattern (p-dis-007+):
 To deprecate an existing pattern:
 
 1. Mark the pattern as `DEPRECATED` in Section 1 with a sunset date
-1. Document the replacement pattern or removal rationale
-1. Remove all rows referencing the deprecated pattern from Section 2
-1. Move the formula to a Deprecated Formulas subsection in Section 3 with strikethrough formatting
-1. Remove controlled vocabulary entries specific to the deprecated pattern from Section 7
-1. After the sunset date passes, remove the pattern entirely and increment Section 9 version
+2. Document the replacement pattern or removal rationale
+3. Remove all rows referencing the deprecated pattern from Section 2
+4. Move the formula to a Deprecated Formulas subsection in Section 3 with strikethrough formatting
+5. Remove controlled vocabulary entries specific to the deprecated pattern from Section 7
+6. After the sunset date passes, remove the pattern entirely and increment Section 9 version
 
 ## Section 12: Conflict Resolution
 
@@ -299,15 +299,15 @@ When procedural discipline patterns overlap or conflict with each other or with 
 
 1. **Structural over prose** — A pattern defining structural ordering (p-dis-001, p-dis-005) takes precedence over a pattern defining identity alignment (dark-prose-001/002/003) when the content defines pipeline ordering. Structural ordering is architecture; identity alignment complements but does not override ordering.
 
-1. **Specific over general** — A pattern targeting a specific content type (e.g., verification gate descriptions) takes precedence over a general-purpose pattern (e.g., p-dis-001) at the same location.
+2. **Specific over general** — A pattern targeting a specific content type (e.g., verification gate descriptions) takes precedence over a general-purpose pattern (e.g., p-dis-001) at the same location.
 
-1. **Higher tier overrides lower** — A Tier 1 pattern (p-dis-006) overrides a Tier 2+ pattern (p-dis-002, p-dis-004) when both could apply at the same location.
+3. **Higher tier overrides lower** — A Tier 1 pattern (p-dis-006) overrides a Tier 2+ pattern (p-dis-002, p-dis-004) when both could apply at the same location.
 
-1. **One pattern per location** — No two procedural discipline patterns may target the same content location with different gate formulas. When overlap is detected during the adding-new-patterns protocol (Section 11), the new pattern must either supersede or extend, never compete.
+4. **One pattern per location** — No two procedural discipline patterns may target the same content location with different gate formulas. When overlap is detected during the adding-new-patterns protocol (Section 11), the new pattern must either supersede or extend, never compete.
 
-1. **Source spec wins** — The defining spec for a pattern takes precedence over the reference card's summary. If the reference card entry contradicts the source spec, the source spec governs.
+5. **Source spec wins** — The defining spec for a pattern takes precedence over the reference card's summary. If the reference card entry contradicts the source spec, the source spec governs.
 
-1. **257 over 250 for structural content only** — When content defines pipeline ordering, verification gate discipline, or dependency structure, 257 procedural discipline patterns apply. Dark prose (250) patterns still apply for the surrounding identity-framing text — the structural enforcement and the identity anchoring are complementary, not competitive.
+6. **257 over 250 for structural content only** — When content defines pipeline ordering, verification gate discipline, or dependency structure, 257 procedural discipline patterns apply. Dark prose (250) patterns still apply for the surrounding identity-framing text — the structural enforcement and the identity anchoring are complementary, not competitive.
 
 ## Section 13: Research Basis (Verified Citations with URLs Only)
 
