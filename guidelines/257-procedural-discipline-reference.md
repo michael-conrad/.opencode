@@ -186,11 +186,11 @@ Dependency ordering is structural, not advisory.
 
 ## Section 6: Re-Priming Protocol
 
-**Enforcement block formula:**
+**Enforcement block formula with primacy+recency:**
 
 ```
 [Identity restatement]: [who the agent is in this context].
-[Positional anchor]: [primacy location] and [recency location] carry the professional-identity anchor.
+[Positional anchor]: primacy ([primacy location]) AND recency ([recency location]) carry the professional-identity anchor.
 [Middle-only placement] means [defect characterization — anchor loss].
 [Recurrence interval]: Re-prime every [N] sections or [M] pages, whichever comes first.
 ```
@@ -211,6 +211,8 @@ The combined primacy-and-recency strategy anchors enforcement at both the beginn
 "Identity restatement: You are an autonomous engineer who enforces structural ordering because it produces verified output. The dependency gate at the top of this section (primacy) and the completion gate at the bottom (recency) carry this anchor. Middle-only placement — an anchor in section body without opening or closing reinforcement — means the anchor is overridden by surrounding content before it fires. Recurrence interval: every 3 sections or every page."
 
 ## Section 7: Controlled Vocabulary Table
+
+Vocabulary rows define mandatory/prohibited word pairs for agent-facing enforcement text. Each row below is a vocabulary row.
 
 | Concept               | Mandatory Words                                                                     | Prohibited Words (Mean Response)                                                            |
 | --------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
@@ -319,37 +321,50 @@ Each citation listed below has been verified by fetching the source page and con
 
 **Context degradation and positional effects:**
 
-- Liu et al. (2024), "Lost in the Middle: How Language Models Use Long Contexts" — TACL 2024, https://arxiv.org/abs/2307.03172 — Verified claim: performance highest at beginning or end, significantly degrades for mid-context information
-- Chroma (Hong, Troynikov, Huber, 2025), "Context Rot: How Increasing Input Tokens Impacts LLM Performance" — https://www.trychroma.com/research/context-rot — Verified claim: all 18 frontier models degrade with increasing input length
+- Liu et al. (2024), "Lost in the Middle: How Language Models Use Long Contexts" — TACL 2024, https://arxiv.org/abs/2307.03172
+Verified claim: performance highest at beginning or end, significantly degrades for mid-context information
+- Chroma (Hong, Troynikov, Huber, 2025), "Context Rot: How Increasing Input Tokens Impacts LLM Performance" — https://www.trychroma.com/research/context-rot
+Verified claim: all 18 frontier models degrade with increasing input length
 
 **Self-correction ineffectiveness:**
 
-- Kamoi et al. (2024), "When Can LLMs Actually Correct Their Own Mistakes? A Critical Survey of Self-Correction of LLMs" — TACL 2024, https://arxiv.org/abs/2406.01297 — Verified claim: no prior work demonstrates successful self-correction with prompted LLMs alone; reliable external feedback enables it
-- Kim (2025), "Does Metacognition Improve LLM Performance?" — https://github.com/kimjune01/metacognition — Verified claim: framework condition 0.30 vs filler condition 0.65
+- Kamoi et al. (2024), "When Can LLMs Actually Correct Their Own Mistakes? A Critical Survey of Self-Correction of LLMs" — TACL 2024, https://arxiv.org/abs/2406.01297
+Verified claim: no prior work demonstrates successful self-correction with prompted LLMs alone; reliable external feedback enables it
+- Kim (2025), "Does Metacognition Improve LLM Performance?" — https://github.com/kimjune01/metacognition
+Verified claim: framework condition 0.30 vs filler condition 0.65
 
 **Multi-agent failures:**
 
-- Cemri et al. (2025), "MAST: Why Do Multi-Agent LLM Systems Fail?" — https://arxiv.org/abs/2503.13657 — Verified claim: 14 failure modes in 3 categories (system design, inter-agent misalignment, task verification)
-- Zhu et al. (2025), "AgentErrorTaxonomy: Where LLM Agents Fail and How They can Learn From Failures" — https://arxiv.org/abs/2509.25370 — Verified claim: taxonomy of 23 agent failure types across 3 categories (execution, specification, monitoring)
+- Cemri et al. (2025), "MAST: Why Do Multi-Agent LLM Systems Fail?" — https://arxiv.org/abs/2503.13657
+Verified claim: 14 failure modes in 3 categories (system design, inter-agent misalignment, task verification)
+- Zhu et al. (2025), "AgentErrorTaxonomy: Where LLM Agents Fail and How They can Learn From Failures" — https://arxiv.org/abs/2509.25370
+Verified claim: taxonomy of 23 agent failure types across 3 categories (execution, specification, monitoring)
 
 **Sycophancy:**
 
-- Sharma et al. (2024), "Towards Understanding Sycophancy in Language Models" — ICLR 2024, https://arxiv.org/abs/2310.13548 — Verified claim: five SOTA assistants consistently exhibit sycophantic behavior
-- Vennemeyer et al. (2025), "Sycophancy Is Not One Thing: Causal Separation of Sycophantic Behaviors in LLMs" — https://arxiv.org/abs/2509.21305 — Verified claim: sycophantic behaviors correspond to distinct, independently steerable representations
+- Sharma et al. (2024), "Towards Understanding Sycophancy in Language Models" — ICLR 2024, https://arxiv.org/abs/2310.13548
+Verified claim: five SOTA assistants consistently exhibit sycophantic behavior
+- Vennemeyer et al. (2025), "Sycophancy Is Not One Thing: Causal Separation of Sycophantic Behaviors in LLMs" — https://arxiv.org/abs/2509.21305
+Verified claim: sycophantic behaviors correspond to distinct, independently steerable representations
 
 **Safety tax and over-enforcement:**
 
-- Wang et al. (2025), "Safety Tax: Safety Alignment Makes Your Large Reasoning Models Less Reasonable" — https://arxiv.org/abs/2503.00555 — Verified claim: safety alignment degrades reasoning capability
-- Anonto et al. (2025), "When Safety Blocks Sense: Measuring Semantic Confusion in LLM Refusals" — https://arxiv.org/abs/2512.01037 — Verified claim: over-refusal blocks benign requests; strict safety can cause inconsistency
+- Wang et al. (2025), "Safety Tax: Safety Alignment Makes Your Large Reasoning Models Less Reasonable" — https://arxiv.org/abs/2503.00555
+Verified claim: safety alignment degrades reasoning capability
+- Anonto et al. (2025), "When Safety Blocks Sense: Measuring Semantic Confusion in LLM Refusals" — https://arxiv.org/abs/2512.01037
+Verified claim: over-refusal blocks benign requests; strict safety can cause inconsistency
 
 **Prompt engineering and re-priming:**
 
-- Anthropic (2024), "Building Effective Agents" — https://www.anthropic.com/research/building-effective-agents — Verified claim: successful implementations use simple, composable patterns
-- Anthropic (2025-2026), "Be Clear and Direct" — https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct — Verified claim: role-setting in system prompt focuses behavior; positive framing over negative
+- Anthropic (2024), "Building Effective Agents" — https://www.anthropic.com/research/building-effective-agents
+Verified claim: successful implementations use simple, composable patterns
+- Anthropic (2025-2026), "Be Clear and Direct" — https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct
+Verified claim: role-setting in system prompt focuses behavior; positive framing over negative
 
 **Failure analysis taxonomies:**
 
-- ErrorMap/ErrorAtlas (Ashury-Tahan et al., 2026), "ErrorMap and ErrorAtlas: Charting the Failure Landscape of Large Language Models" — https://arxiv.org/abs/2601.15812 — Verified claim: comprehensive error taxonomy mapping LLM failure types to root causes and mitigation strategies
+- ErrorMap/ErrorAtlas (Ashury-Tahan et al., 2026), "ErrorMap and ErrorAtlas: Charting the Failure Landscape of Large Language Models" — https://arxiv.org/abs/2601.15812
+Verified claim: comprehensive error taxonomy mapping LLM failure types to root causes and mitigation strategies
 
 *Section 13 contains 13 externally verified citations from academic sources (arxiv.org, anthopic.com, trychroma.com, github.com), each verified by fetching the source page and confirming the claim matches the published content.*
 
