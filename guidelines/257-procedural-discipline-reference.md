@@ -157,8 +157,6 @@ When patterns from this reference card (257) co-apply with patterns from other r
 
 5. **One enforcement mechanism per location:** No two 257 patterns may target the same content location with different gate formulas. When overlap is detected, the dominant pattern (by tier or specificity) supersedes; the subordinate pattern is applied at a different location or omitted.
 
-<!-- SC-7 AUDIT ANCHOR: Section 4 co-application rules reference both 250-dark-prose-reference.md (rules 1, 2) and 255-distribution-shifting-reference.md (rule 3) -->
-
 ## Section 5: Dependency-Order Gate Protocol
 
 **Gate formula:**

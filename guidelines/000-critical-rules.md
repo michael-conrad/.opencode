@@ -586,7 +586,6 @@ Running behavioral tests through grep and static analysis instead of `opencode-c
 
 ### [critical-rules-pipeline-reprime] Pipeline re-priming — enforcement blocks at each skill boundary
 Pipeline stage transitions require re-encountering an enforcement block restating procedural discipline identity. Professional engineers re-prime at every boundary. Amateurs let context degrade between gates.
-<!-- SC-11 AUDIT ANCHOR: pipeline-reprime rule present for issue #853 -- grep for "critical-rules-pipeline-reprime" -->
 
 
 ### [critical-rules-044] Preloading Sub-Agent Context — task()ing with pre-determined file paths/line numbers/outcomes
