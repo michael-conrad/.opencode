@@ -26,15 +26,24 @@ TOOLS_DIR = Path(__file__).resolve().parent
 
 def get_description(script: Path) -> str:
     """Get tool description by calling <tool> --description."""
+    for attempt in range(3):
+        try:
+            result = subprocess.run(
+                [str(script.absolute()), "--description"],
+                capture_output=True, text=True, check=False,
+                stdin=subprocess.DEVNULL, timeout=30,
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                return result.stdout.strip()
+        except (subprocess.SubprocessError, OSError, TimeoutError):
+            pass
     try:
-        result = subprocess.run(
-            [str(script.absolute()), "--description"],
-            capture_output=True, text=True, check=False,
-            stdin=subprocess.DEVNULL, timeout=5,
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            return result.stdout.strip()
-    except (subprocess.SubprocessError, OSError, TimeoutError):
+        text = script.read_text(encoding="utf-8")
+        for line in text.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("DESCRIPTION:"):
+                return stripped[len("DESCRIPTION:"):].strip()
+    except Exception:
         pass
     return "(no description available)"
 
