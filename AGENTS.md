@@ -71,6 +71,8 @@ All git operations (commit, push) are handled automatically by the tool after mu
 
 | Action | Command | Auto-commit? | Auto-push? |
 |--------|---------|-------------|-------------|
+| Init worktrees + pull remote | `local-issues init` | N/A (bootstrap) | N/A |
+| Sync (commit + pull-rebase + push) | `local-issues sync` | ✅ Yes | ✅ Yes |
 | List issues | `local-issues list` | N/A (read-only) | N/A |
 | Read issue | `local-issues read --number N` | N/A (read-only) | N/A |
 | Search | `local-issues search --query "..."` | N/A (read-only) | N/A |
@@ -81,19 +83,21 @@ All git operations (commit, push) are handled automatically by the tool after mu
 | Link sub-issues | `local-issues link --number N --sub M --type sub-issue` | ✅ Yes | ✅ Yes |
 | Renumber | `local-issues renumber --from N --to M` | ✅ Yes | ✅ Yes |
 
-### Pull at session start
+### Session start
 
-```
-.opencode/tools/local-issues list
-```
-
-The `list` command auto-initializes the `.issues/` worktree if missing. However, it does not pull remote changes. To sync before starting work:
-
-```
-git -C .issues pull --rebase origin issues-data
+```bash
+.opencode/tools/local-issues init
 ```
 
-This is the ONLY manual `git -C .issues` command needed.
+`init` bootstraps `.issues/` worktrees in all repos (if missing) and pulls the latest remote `issues-data` changes. If the pull encounters a merge conflict, it reports the qualifier and a `git -C` command for manual resolution.
+
+After `init`, call `issue-operations --task sync-from-remote` to reconcile remote issue content against local `.issues/`:
+
+```bash
+# Via skill invocation:
+skill({name: "issue-operations"})
+task(..., prompt: "execute sync-from-remote task from issue-operations")
+```
 
 > **Cross-reference:** [`lessons-learned/`](lessons-learned/) — per-session correction catalogs for systemic defect patterns. Agents read this at session start per §When to Read below.
 
