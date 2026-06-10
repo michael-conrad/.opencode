@@ -4,6 +4,10 @@
 
 Every behavioral test script generates model-run artifacts and exits 0. Evaluation is the orchestrator's job — scripts NEVER evaluate model output.
 
+> **MANDATORY: Bash tool timeout MUST be >= 600 seconds when running behavioral tests.**
+> No `timeout` command inside scripts (nested timeouts create orphaned processes).
+> See §Infrastructure Details — Bash Tool Timeout Mandate.
+
 ## Table of Contents
 
 1. [Paradigm: Artifact-Only Generators](#1-paradigm-artifact-only-generators)
@@ -244,7 +248,35 @@ bash .opencode/tests/with-test-home --clean-all
 
 The wrapper creates an isolated temporary home directory (`tmp/test-home-<timestamp>`) with clean XDG state.
 
+### Bash Tool Timeout Mandate — ZERO TOLERANCE
+
+**The bash tool's `timeout` parameter is the ONLY kill signal that may be used when running behavioral tests.** Any use of the `timeout` command (or timer-equivalent utilities) inside a bash script invoked by the bash tool is FORBIDDEN.
+
+**Reason:** When the bash tool kills a script via its outer `timeout` mechanism, SIGTERM hits the script's shell process. If that shell has spawned a child process wrapped in `timeout`, GNU `timeout` does NOT forward SIGTERM to its child — it only kills its own `wait()`. The inner `opencode-cli run` becomes orphaned, still holding resources (the `flock` lock, test home directory handles, possibly the model connection). Every subsequent test invocation hangs on the orphaned lock. Recovery requires `kill -9` on the orphan process.
+
+The prohibition covers ALL timer commands and constructs — not just `timeout(1)` but also `alarm()`, `SIGALRM` traps, timer-based `sleep N && kill $$` patterns, and any other mechanism that delivers a timed kill signal inside the bash script. The bash tool's single outer timeout is the ONLY allowed kill mechanism.
+
+**Allowed — NOT a timer:**
+- `opencode-cli run` session resumption: on SSE read timeout or transient model error, use `opencode-cli run "continue" --task_id <prior-task_id>` to resume the session. This is a model-level retry, not a process-level kill. Multi-turn sessions are the correct way to retry after SSE timeouts.
+- `sleep` between retry attempts (sleep is not a kill mechanism)
+- Pattern-matching stderr for `sse.*timeout` to trigger session resumption
+
+**Mandated bash tool invocation:**
+```
+# timeout=600000 (600 seconds, milliseconds). NEVER omit.
+```
+
+**Existing violations:** `test-enforcement.sh:886` and `test-verification-honesty.sh:83` use `timeout` wrapping `opencode-cli run`. These MUST be refactored to remove the inner `timeout` and use session resumption for transient errors.
+
+No exceptions. No justifications. No "it worked in testing." Every nested `timeout` will eventually orphan a child and hang the test suite.
+
 ### Isolated Test Repo Construction
+
+**MANDATORY: Behavioral tests MUST NOT touch the main project root or its .issues/ directory.**
+
+The test repo created by `behavior_run` is a fully isolated git repository. It clones `.opencode` from remote, checks out the feature branch commit, seeds fixture data, and runs `opencode-cli` inside itself. The main project's `.issues/`, `.opencode/` state, SQLite database, and any other mutable state MUST never be read, written, or otherwise touched by a behavioral test.
+
+The `with-test-home` wrapper, combined with `behavior_run`'s isolated repo construction, enforces this: the test runs in `$TEST_HOME` with `$TEST_WORKDIR` pointing to the isolated repo. No path in the test chain resolves to the main project.
 
 When `behavior_run` does not receive an explicit workdir, it creates an isolated git repository:
 

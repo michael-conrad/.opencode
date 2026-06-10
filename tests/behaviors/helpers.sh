@@ -11,10 +11,32 @@
 # All paths are relative to the project root, discovered by walking up from
 # the helper's own location until a directory containing .opencode/ is found.
 # This works identically in isolated test repos and the live repo.
+#
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  MANDATORY: BASH TOOL TIMEOUT MUST BE >= 600 SECONDS (timeout: 600000ms)   ║
+# ║                                                                              ║
+# ║  DO NOT omit the bash tool `timeout` parameter — NEVER use default 120s.     ║
+# ║  This script spawns `opencode-cli run` which can take 5+ minutes. Default    ║
+# ║  bash tool timeout (120s) WILL kill this script mid-execution, leaving        ║
+# ║  orphaned processes, orphaned test homes, corrupted lock files, and zombie    ║
+# ║  opencode-cli processes.                                                      ║
+# ║                                                                              ║
+# ║  Always pass `timeout: 600000` (600 seconds, milliseconds) to the bash tool  ║
+# ║  when invoking any script in tests/behaviors/.                               ║
+# ║                                                                              ║
+# ║  NO NESTED TIMEOUTS — the bash tool timeout is the ONLY kill signal.         ║
+# ║  Do NOT use the `timeout` command or any timer utility inside this script.   ║
+# ║  GNU timeout does NOT forward SIGTERM to its children — orphaned opencode-   ║
+# ║  cli processes hold the flock lock and hang all subsequent test runs.        ║
+# ║                                                                              ║
+# ║  On SSE read timeout or transient model error: resume the session via        ║
+# ║  `opencode-cli run "continue" --task_id <id>` — NEVER kill and restart.      ║
+# ║                                                                              ║
+# ║  Violation = orphaned processes = hang = manual kill -9 required.            ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
 
 set -euo pipefail
 
-BEHAVIOR_TIMEOUT="${BEHAVIOR_TIMEOUT:-420}"
 BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/deepseek-v4-flash:cloud}"
 BEHAVIOR_PHASE="${BEHAVIOR_PHASE:-GREEN}"
 BEHAVIOR_TEST_HOME="${BEHAVIOR_TEST_HOME:-.opencode/tests/with-test-home}"
