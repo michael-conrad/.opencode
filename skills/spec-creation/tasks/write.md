@@ -61,6 +61,17 @@ Combine outputs from prerequisite tasks into a coherent spec. The spec should ad
 
 Skip areas that don't apply to simple specs; add areas that do. The spec should be self-contained and clear, regardless of structure.
 
+### Step 1a: Generate Spec Artifacts (MANDATORY for standard/complex specs)
+
+For standard and complex specs, generate the following permanent artifacts:
+
+1. **SC coverage summary YAML** — Create `.issues/{issue-N}/spec-artifacts/sc-summary.yaml` with machine-parseable coverage data including SC IDs, evidence types, phase bindings, and verification gates.
+2. **Verification consistency contract** — Create `.issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml` as a solve contract with compliance matrix variables.
+3. **Lifecycle manifest** — Create `.issues/{issue-N}/spec-artifacts/lifecycle.yaml` with initial `spec_created` event. Append-only format; never overwrite.
+4. **Revision re-entry protocol contract** — Create `.issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml` as a solve contract with cascade variables for each revision scope.
+
+Artifact generation occurs during Step 1 assembly. Self-review (Step 6) validates YAML-vs-prose consistency.
+
 ### Decision Ledger
 
 Captures design decisions with stable DEC-IDs and RFC 2119 requirement keys (MUST/SHOULD/MAY) for traceability across spec revisions.
@@ -165,6 +176,91 @@ A **Documentation Sources** section documents where the spec author verified fac
 ```
 
 Simple specs may skip this section. Standard and complex specs SHOULD include it when making factual claims that require verification.
+
+### Step 1.1: SC Coverage YAML Generation (SC-4)
+
+After assembling the spec content, generate a machine-parseable SC coverage summary at `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`:
+
+```yaml
+sc_coverage:
+  total: <integer>
+  single_task: <true|false>
+  spec_url: "https://github.com/{owner}/{repo}/issues/{N}"
+  evidence_types:
+    - behavioral
+    - semantic
+    - string
+    - structural
+  phases:
+    - id: <phase_name>
+      sc_ids: [SC-N, SC-M]
+      evidence_types: [behavioral, string]
+  cross_cutting:
+    sc_ids: [SC-N]
+    verified_in_phase: <phase_name>
+```
+
+Required validation: cross-reference `sc_coverage.total` against the prose SC table row count. Mismatch MUST be flagged as a STRUCTURE-VIOLATION.
+
+### Step 1.2: Verification Consistency Contract Generation (SC-8)
+
+Generate a verification consistency solve contract at `.issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml` with a compliance matrix as solve variables:
+
+```yaml
+spec: "https://github.com/{owner}/{repo}/issues/{N}"
+verification_consistency:
+  sc_entries:
+    - id: SC-N
+      evidence_type: < behavioral | semantic | string | structural >
+      verification_gate: < pre-commit | pre-approval-gate | ci | post-implementation >
+      pipeline_step_binding: < step_name >
+      re_entry_step: < step_name | null >
+      phase_binding: < phase_name | common >
+      artifact_path: < path >
+  constraints:
+    - "for_every_sc: evidence_type_is_consistent_with_verification_gate"
+    - "for_every_sc: pipeline_step_binding_is_valid_for_phase"
+```
+
+The pre-approval gate validates every SC's Verification Gate against its Evidence Type. SAT for compliant specs, UNSAT with unsat_core for non-compliant.
+
+### Step 1.3: Lifecycle Manifest Initialization (SC-6)
+
+Initialize the append-only lifecycle manifest at `.issues/{issue-N}/spec-artifacts/lifecycle.yaml` with a `spec_created` event:
+
+```yaml
+events:
+  - event: spec_created
+    timestamp: <YYYY-MM-DDTHH:MM:SSZ>
+    issuer: <AgentName> (<ModelId>)
+    description: "Spec #N created"
+    severity: info
+```
+
+Each pipeline stage appends its event. Blocker events appended on FAIL with severity, reason, and resolution fields.
+
+### Step 1.4: Revision Re-Entry Protocol Contract Generation (SC-5)
+
+Generate a revision re-entry solve contract at `.issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml` with cascade variables for each revision scope:
+
+```yaml
+spec: "https://github.com/{owner}/{repo}/issues/{N}"
+revision_re_entry:
+  revision_scopes:
+    - scope: < full | partial >
+      cascade_artifacts:
+        - plan.md
+        - sc-summary.yaml
+        - verification-consistency-contract.yaml
+      requires_re_approval: < true | false >
+      valid_re_entry_steps:
+        - step: < step_name >
+      constraints:
+        - "on_partial_revision: cascade_is_limited_to_affected_scs"
+        - "on_full_revision: all_artifacts_must_be_regenerated"
+```
+
+`solve check` returns SAT for valid re-entry plans, UNSAT for insufficient replay scope.
 
 ### Step 1a: Forward-Looking Mandate (SC-1/SC-4)
 
@@ -301,6 +397,30 @@ Review the assembled spec for plan-level content that belongs in the implementat
 
 **Self-review question:** "Could two developers produce valid but different implementations from this spec?" If yes, the spec is at the right level. If no — if the spec only allows one implementation — it contains plan-level detail that should be removed.
 
+### Step 5.6: `solve` Utility Invocation (SC-2)
+
+After the spec/plan boundary check, invoke the `solve` utility to produce a dependency-ordering constraints contract:
+
+```bash
+./.opencode/tools/solve model \
+  --contract-path .issues/{issue-N}/spec-artifacts/pre-approval-gate-contract.yaml \
+  --output ./tmp/{issue-N}/artifacts/constraints-contract.yaml
+```
+
+On success: constraints contract written to `./tmp/{issue-N}/artifacts/constraints-contract.yaml`.
+On UNSAT: model constraints manually, log WARNING in lifecycle manifest.
+On utility unavailable: same fallback — manual constraints + WARNING in lifecycle manifest.
+
+Post-invocation verification via `solve check`:
+
+```bash
+./.opencode/tools/solve check \
+  --state-path ./tmp/{issue-N}/artifacts/constraints-contract.yaml \
+  --contract-path .issues/{issue-N}/spec-artifacts/pre-approval-gate-contract.yaml
+```
+
+MUST return SAT (or UNSAT with documented WARNING in lifecycle manifest).
+
 ### Step 6: Self-Review
 
 After writing the spec, review with fresh eyes:
@@ -319,6 +439,12 @@ Fix any issues inline. No need to re-review — just fix and move on.
 6. **SC-to-SC coherence check**: Scan SC table for contradictions between interdependent criteria. Cross-reference Pipeline Step Binding and Verification Gate columns — verify that an SC gated at 'red-green' does not require a 'ci' tool. Cross-reference Re-Entry Step with Phase Binding — verify re-entry point is valid for the bound phase. Cross-reference Affinity Group members — verify shared SCs have compatible verification methods.
 
 7. **Verification-Method-to-Artifact-Path consistency check**: Cross-reference Artifact Path and Verification Method columns — verify that the Verification Method's tool references align with the Artifact Path's storage convention. An SC whose Verification Method references 'pytest' should have an Artifact Path matching '{issue-N}/pytest/' convention. An SC whose Verification Method references 'opencode-cli run' should have an Artifact Path matching '{issue-N}/behavioral/' convention.
+
+8. **YAML-vs-prose SC coverage validation**: Cross-reference `sc-summary.yaml` (from Step 1.1) against the prose SC table. Verify:
+   - `sc_coverage.total` matches the number of SC rows in the prose table
+   - Every SC ID in the prose table appears in `sc_coverage.phases[].sc_ids` or `sc_coverage.cross_cutting.sc_ids`
+   - Every SC ID in `sc-summary.yaml` appears in the prose table
+   - Mismatch in any direction → STRUCTURE-VIOLATION requiring YAML regeneration
 
 ### Step 6.5: Evidence Artifact Verification (MANDATORY)
 

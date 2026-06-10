@@ -117,7 +117,7 @@ URL is ALWAYS last per `000-critical-rules.md`.
 Record completion position in the pipeline state machine:
 
 ```bash
-solve state update ./tmp/state/{ISSUE}/pipeline/ \
+solve state update ./tmp/{issue-N}/state/ \
     --var-name pipeline_state \
     --var-value complete \
     --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
@@ -157,7 +157,7 @@ summary: "<1-3 sentence summary>"
 
 Write the result contract to:
 ```
-./tmp/artifacts/pipeline-{issue_number}-exec-summary-{STATUS}-{timestamp}.yaml
+./tmp/{issue-N}/artifacts/pipeline-exec-summary-{STATUS}-{timestamp}.yaml
 ```
 
 Following the #932 naming convention per `implementation-pipeline` pipeline-executor dispatch table.

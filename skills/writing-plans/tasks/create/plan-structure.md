@@ -20,6 +20,34 @@ Structure the implementation plan from approved spec: verification gate, combine
 
 ## Procedure
 
+### Phase Dependency Solve Contract (SC-1)
+
+After defining the phase structure, create a dependency-ordering solve contract:
+
+1. Create `.issues/{issue-N}/spec-artifacts/dependency-ordering-verification/` directory
+2. Write `phase-order.yaml` with Z3 variables for each phase position and ordering constraints
+3. Run `solve model --contract-path ... --query "phase_1 < phase_2 and phase_1 < phase_3"`
+4. Confirm SAT — the phase ordering is valid
+
+### Plan Utility Validation (SC-3)
+
+After phase dependency contract is confirmed SAT, validate phase solvability:
+
+1. Create `./tmp/{issue-N}/artifacts/phase-plan-problem.yaml` with phase structure as planning problem
+2. Run `.opencode/tools/plan plan --problem ./tmp/{issue-N}/artifacts/phase-plan-problem.yaml`
+3. Confirm planner returns SOLVED_SATISFICING or SOLVED_OPTIMALLY
+4. Save result to `./tmp/{issue-N}/artifacts/phase-plan-validated.yaml`
+5. If utility unavailable: log WARNING in lifecycle manifest, validate manually (acyclic check)
+
+### SC-ID Mapping (SC-4)
+
+After phase structure validated, consume `sc-summary.yaml`:
+
+1. Read `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`
+2. Map each SC to its corresponding plan item by SC-ID
+3. Verify all SCs from the spec are covered
+4. Flag orphan SCs (in YAML but not mapped) and missing SCs (in spec but not in YAML)
+
 ### Pre-Step: Verification Gate (MANDATORY FIRST)
 
 Before reading approved spec: `/skill verification-enforcement --task verify`
@@ -91,6 +119,37 @@ For each plan found referencing the same spec, present choice:
 | Concern boundary annotations | Cross-architectural items flagged |
 
 **Failure:** Plan will fail `approval-gate --task verify-authorization` Step 4.5
+
+### Step 3.3: Phase Dependency-Ordering Solve Contract Creation (SC-1)
+
+For multi-phase specs, create a dependency-ordering solve contract from the phase structure:
+
+```bash
+./.opencode/tools/solve model \
+  --contract-path .issues/{issue-N}/spec-artifacts/dependency-ordering-verification/ \
+  --state phase_dependencies
+```
+
+The contract declares phase-ordering constraints as Z3 variables, where each phase's start depends on its dependencies being satisfied:
+
+```yaml
+# .issues/{issue-N}/spec-artifacts/dependency-ordering-verification/ordering.yaml
+phase_dependencies:
+  - phase: <phase_name>
+    depends_on: [<phase_name>, ...]
+    constraints:
+      - "phase_N_starts_after_phase_M_completes"
+```
+
+### Step 3.4: SC-ID Mapping Substep (SC-4 Consumption)
+
+After defining phase structure, consume the `sc-summary.yaml` from spec artifacts to map SCs to plan items:
+
+1. Read `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`
+2. For each phase in the plan, verify its SC assignments match `sc_summary.phases[].sc_ids`
+3. For each plANNED item, annotate with the corresponding SC-ID(s)
+4. Flag orphan SCs (in YAML but not mapped to any plan item) as MISSING-TRACEABILITY
+5. Flag extra SCs (in plan but not in YAML) as SCOPE-CREEP
 
 ### Step 3.5: RED/GREEN Condition Language (SC-2, SC-4 — Forward-Looking Stance)
 
@@ -177,6 +236,20 @@ Contract structure:
 ; Verification: initial state (all false) → SAT expected
 ; Verification: defective state (D_P1=true, p1=false) → UNSAT expected
 ```
+
+### Step 5.5: `plan` Utility Invocation for Phase Solvability (SC-3)
+
+After Z3 contract generation, invoke the `plan` utility to validate phase solvability:
+
+```bash
+./.opencode/tools/plan plan \
+  --problem ./tmp/{issue-N}/artifacts/phase-plan-problem.yaml \
+  --output ./tmp/{issue-N}/artifacts/phase-plan-validated.yaml
+```
+
+On success: planner returns `SOLVED_SATISFICING` or `SOLVED_OPTIMALLY` in `phase-plan-validated.yaml`.
+On UNSOLVABLE: re-examine phase ordering, add missing action/precondition, re-run.
+On utility unavailable: validate phase solvability manually (acyclic check on phase ordering), write manual validation result to `phase-plan-validated.yaml` with WARNING in lifecycle manifest.
 
 Verification steps after contract generation:
 1. Assert all-false state: run Z3 solver — MUST return SAT

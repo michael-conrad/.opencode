@@ -40,7 +40,7 @@ The orchestrator dispatches the adversarial audit pipeline:
 
 ```yaml
 status: DONE | BLOCKED
-artifact_path: "./tmp/artifacts/pipeline-{issue_number}-audit-closure-verification-{STATUS}-{timestamp}.yaml"
+artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-{STATUS}-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
 blocked_reason: "Spec issue #N not closed after PR merge"  # if BLOCKED
 ```

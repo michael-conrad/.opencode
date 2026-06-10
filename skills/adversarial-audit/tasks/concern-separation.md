@@ -123,7 +123,7 @@ Each boundary claim must be verified:
 
 ### Step 7: Write Verdict Artifact to Disk
 
-Write the full YAML verdict artifact to `./tmp/artifacts/pipeline-{issue_number}-audit-concern-separation-{STATUS}-{timestamp}.yaml`:
+Write the full YAML verdict artifact to `./tmp/{issue-N}/artifacts/pipeline-audit-concern-separation-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
 audit_phase: concern_separation
@@ -158,7 +158,7 @@ exec_summary: "Concern separation: X/Y criteria. N phases need review."
 
 ```yaml
 status: DONE
-artifact_path: "./tmp/artifacts/pipeline-{issue_number}-audit-concern-separation-PASS-{timestamp}.yaml"
+artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-concern-separation-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
 ```
 

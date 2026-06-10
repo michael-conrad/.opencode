@@ -120,7 +120,7 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
 ### 2. Check for Evidence
 
 - Review issue comments for evidence
-- Check `./tmp/artifacts/` for verification artifacts
+- Check `./tmp/{issue-N}/artifacts/` for verification artifacts
 - Verify evidence matches criteria
 
 ### 2a. Todowrite Cleanup Verification
@@ -183,7 +183,7 @@ Grep/pattern-match verification is FORBIDDEN even for prose content. The agent m
 
 | Change Type | Evidence Requirement | Method |
 |-------------|---------------------|--------|
-| Testable code (logic, behavior, runtime) | Behavioral/functional/regression test execution | `pytest`, `opencode-cli run`, lint, typecheck — all with saved artifacts in `./tmp/artifacts/` |
+| Testable code (logic, behavior, runtime) | Behavioral/functional/regression test execution | `pytest`, `opencode-cli run`, lint, typecheck — all with saved artifacts in `./tmp/{issue-N}/artifacts/` |
 | Non-testable prose (docs, runbooks, guidelines) | Semantic intent verification by direct AI agent read | Read the file, understand the prose, verify semantic intent against spec — NOT grep/pattern matching |
 | | | |
 | Structural-only evidence (grep/read/file-exists) for testable code | **TOTAL FAIL** — entire verification gate returns FAIL | No exceptions. No metadata exemption. |

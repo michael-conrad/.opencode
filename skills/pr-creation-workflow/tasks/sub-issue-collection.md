@@ -12,7 +12,7 @@ First, detect whether this is a single-issue or work PR:
 
 ```bash
 # Check if work state file exists
-ls tmp/work-*.md 2>/dev/null
+ls ./tmp/{issue-N}/work.md 2>/dev/null
 
 # If exists → work PR format
 # If not exists → single/multi-task PR format
@@ -56,7 +56,7 @@ Fixes #<parent>
 
 For work PRs (assembled from multiple issues via `assemble-work`):
 
-1. **Read work state file** (`tmp/work-*.md`) to get list of all issues in the work
+1. **Read work state file** (`./tmp/{issue-N}/work.md`) to get list of all issues in the work
 2. **Build both sections:**
    - `## Work Issues` section listing each issue with its description
    - `Fixes #N` annotations for all issues at the bottom

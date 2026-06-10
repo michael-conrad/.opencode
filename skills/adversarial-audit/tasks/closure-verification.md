@@ -185,7 +185,7 @@ if follow_up_issues:
 
 ### Step 12: Write Verdict Artifact to Disk
 
-Write the full YAML verdict artifact to `./tmp/artifacts/pipeline-{issue_number}-audit-closure-verification-{STATUS}-{timestamp}.yaml`:
+Write the full YAML verdict artifact to `./tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
 audit_phase: post_merge
@@ -219,7 +219,7 @@ exec_summary: "Closure verification: X/Y criteria. Consensus: PASS|FAIL."
 
 ```yaml
 status: DONE
-artifact_path: "./tmp/artifacts/pipeline-{issue_number}-audit-closure-verification-PASS-{timestamp}.yaml"
+artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
 ```
 

@@ -41,6 +41,39 @@ Write plan document to `.issues/{N}/spec-artifacts/plan.md`, validate structure,
 **Concern boundary annotations (prose-driven):**
 When transitioning concerns: describe what is being left, what is being entered, what information is needed for handoff.
 
+### Step 7.5: Spec-to-Plan Handoff Artifact Check
+
+Before writing the plan document, enumerate and validate spec artifacts that must be consumed by the plan:
+
+```bash
+ls .issues/{issue-N}/spec-artifacts/sc-summary.yaml
+ls .issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml
+ls .issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml
+ls .issues/{issue-N}/spec-artifacts/lifecycle.yaml
+```
+
+Every expected spec artifact MUST exist. Missing artifacts are flagged as MISSING-TRACEABILITY.
+
+### Step 7.6: SC Coverage YAML Cross-Reference Validation
+
+Cross-reference the SC coverage YAML against the plan structure:
+
+1. Read `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`
+2. Verify every SC ID in the YAML is mapped to at least one plan item
+3. Verify every plan item's SC-ID references exist in the YAML
+4. Flag orphan SCs (unmapped) as MISSING-TRACEABILITY
+5. Flag undefined SC references (in plan but not in YAML) as SCOPE-CREEP
+6. Record the cross-reference result as an evidence artifact
+
+### Step 7.7: Spec-to-Plan Handoff Artifact Check
+
+Before finalizing the plan, verify spec-to-plan handoff artifacts:
+
+1. Enumerate all expected artifacts from `spec-artifacts/`
+2. Verify SC coverage YAML cross-reference: each SC in the spec has a corresponding plan item
+3. Verify lifecycle manifest indicates `plan_created` event
+4. Generate spec-to-plan handoff manifest at `./tmp/{issue-N}/artifacts/spec-to-plan-manifest.yaml`
+
 ### Step 8: Self-Review
 
 - Spec coverage check

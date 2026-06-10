@@ -17,7 +17,7 @@ Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
 ## Overview
 
-Pure orchestrator routing table with 14 serial dispatch steps. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`. YAML contract artifacts at `./tmp/artifacts/pipeline-{issue}-{step_label}-{STATUS}-{timestamp}.yaml`.
+Pure orchestrator routing table with 14 serial dispatch steps. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`. YAML contract artifacts at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml`.
 
 The orchestrator is a pure router — never reads task file content, never performs inline analysis. Sub-agents do the work.
 
@@ -117,9 +117,11 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## State Management
 
-- `solve state init ./tmp/state/ISSUE_NUM/pipeline/` at `pre-red-baseline` step — creates state file with `current_step: pre-red-baseline`, `pipeline_state: init`
-- `solve state update ./tmp/state/ISSUE_NUM/pipeline/ --var-name <name> --var-value <value> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — 3 calls per step: previous_step, current_step, pipeline_state
-- `solve check --state-path ./tmp/state/ISSUE_NUM/pipeline/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — validates step transitions
+- `solve state init ./tmp/{issue-N}/state/` at `pre-red-baseline` step — creates state file with `current_step: pre-red-baseline`, `pipeline_state: init`
+- `solve state update ./tmp/{issue-N}/state/ --var-name <name> --var-value <value> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — 3 calls per step: previous_step, current_step, pipeline_state
+- `solve check --state-path ./tmp/{issue-N}/state/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — validates step transitions
+
+Step results go to YAML disk artifact — never into solve state. Solve state tracks pipeline **position** only.
 
 Step results go to YAML disk artifact — never into solve state. Solve state tracks pipeline **position** only.
 
@@ -138,6 +140,60 @@ When a step returns FAIL, the orchestrator:
 | Sub-agent context shape | Context shape and exclusions for task() routing |
 | `enforcement/overflow-signal.md` | OVERFLOW contract and re-routing strategies |
 | `enforcement/work-state-verification.md` | Verification table and work state format |
+
+## Artifact Retention
+
+### Rule 1: Permanent Artifacts Never Cleaned
+
+Artifacts under `.issues/{issue-N}/spec-artifacts/` are permanent — they survive pipeline restarts, branch switches, and PR merges. Never delete or clean these files. They serve as the authoritative audit trail for spec lifecycle, SC coverage, verification consistency, and revision re-entry protocols.
+
+### Rule 2: Ephemeral Artifacts Cleaned at PR Merge
+
+Artifacts under `./tmp/{issue-N}/` are ephemeral — they are cleaned at PR merge cleanup (`git-workflow --task cleanup`). These include constraints contracts, decomposition validations, phase exit contracts, and phase-plan-validated files. Before PR merge, all permanent artifacts must be finalized and no unresolved references to ephemeral paths may remain in the lifecycle manifest.
+
+### Rule 3: Step-Specific Pre-Cleanup
+
+At the start of each pipeline step, clean previous-run artifacts for that step to prevent stale state contamination:
+
+| Step Label | Pre-Cleanup Action |
+|------------|-------------------|
+| `pre-red-baseline` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-pre-red-baseline-*` |
+| `red-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-red-phase-*` |
+| `green-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-phase-*` |
+| `checkpoint-commit` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-*` |
+| `structural-checks` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-structural-checks-*` |
+| `green-doublecheck` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-doublecheck-*` |
+| `green-vbc` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-vbc-*` |
+| `adversarial-audit` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-adversarial-audit-*` |
+| `cross-validate` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-cross-validate-*` |
+| `regression-check` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-regression-check-*` |
+
+## Lifecycle Manifest Event Emission
+
+Each pipeline step SHOULD append an event to the lifecycle manifest at `.issues/{issue-N}/spec-artifacts/lifecycle.yaml` on completion. Events are appended, not overwritten:
+
+```yaml
+  - event: step_completed
+    timestamp: <YYYY-MM-DDTHH:MM:SSZ>
+    issuer: <AgentName> (<ModelId>)
+    step: <step_label>
+    status: <PASS|FAIL>
+    description: "<brief summary>"
+    severity: <info|warning|error>
+```
+
+Blocker events (on FAIL) MUST include:
+```yaml
+  - event: blocker
+    timestamp: <YYYY-MM-DDTHH:MM:SSZ>
+    issuer: <AgentName> (<ModelId>)
+    step: <step_label>
+    severity: error
+    reason: "<root cause description>"
+    resolution: "<applied remediation or UNRESOLVED>"
+```
+
+The lifecycle manifest is append-only. Never delete or edit existing entries — only append new ones. Validation: `grep -c "event:" lifecycle.yaml` MUST increase monotonically across pipeline steps.
 
 ## Cross-References
 
