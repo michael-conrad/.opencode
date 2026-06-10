@@ -32,6 +32,9 @@ def is_port_listening(port: int) -> bool:
     return f":{port}" in result.stdout
 
 def main() -> None:
+    if len(sys.argv) == 2 and sys.argv[1] == "--description":
+        print("Stop the Jupyter server running on port 18888.")
+        return
     if "--help" in sys.argv or "-h" in sys.argv:
         print(__doc__)
         return

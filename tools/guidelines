@@ -73,6 +73,9 @@ def _get_description(script_path: Path) -> str:
 
 def main() -> None:
     args = sys.argv[1:]
+    if len(sys.argv) == 2 and sys.argv[1] == "--description":
+        print("Guidelines tools dispatcher.")
+        return
     if not args or args[0] in ("-h", "--help", "help"):
         print(__doc__)
         print("Available actions:")

@@ -18,7 +18,12 @@ this script at the time you create the migration to get the correct value.
 ONLY run this script when the user has explicitly instructed you to create a new
 migration. NEVER run it for analysis, exploration, or as a side-effect of any other task.
 """
+import sys
 from datetime import datetime, timezone
+
+if len(sys.argv) == 2 and sys.argv[1] == "--description":
+    print("Print current UTC datetime as YYYYMMDDHHMMSS.")
+    sys.exit(0)
 
 print(datetime.now(tz=timezone.utc).strftime("%Y%m%d%H%M%S"))
 

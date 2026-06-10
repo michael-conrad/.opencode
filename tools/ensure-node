@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [[ "${1:-}" == "--description" ]]; then
+    echo "Ensure Node.js toolchain is available in .opencode/.node/."
+    exit 0
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$SCRIPT_DIR"
 while [ "$(basename "$REPO_ROOT")" != ".opencode" ]; do
