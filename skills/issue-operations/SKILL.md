@@ -1,6 +1,6 @@
 ---
 name: issue-operations
-description: Use when creating, commenting on, or closing GitHub Issues. Routes to GitHub MCP or GitBucket API based on github.platform. Triggers on: create issue, new issue, spec creation, submit issue, issue, bug report, comment, progress update, issue comment, PR comment, post to GitHub, byline, status indicator, sub-issue, phase issue, multi-task, create sub issue, link issue, task breakdown, subtask, parent issue, close issue, verify merge. Bypassing issue tracking produces untracked work that gets lost. Tracked work is the only work that matters.
+description: Use when creating, commenting on, or closing GitHub Issues. Routes to GitHub MCP or GitBucket API based on github.platform. Triggers on: create issue, new issue, spec creation, submit issue, issue, bug report, comment, progress update, issue comment, PR comment, post to GitHub, byline, status indicator, sub-issue, phase issue, multi-task, create sub issue, link issue, task breakdown, subtask, parent issue, close issue, verify merge, sync-from-remote, post-sync reconcile, reconcile remote issues. Bypassing issue tracking produces untracked work that gets lost. Tracked work is the only work that matters.
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
@@ -38,6 +38,7 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 | `read-sub-issues` | ≈120 | Read sub-issues via dispatcher — authorization cascade and closure order verification |
 | `list-issues` | ≈130 | List issues with filters via dispatcher — dedup checks, label search, overlap detection |
 | `search-issues` | ≈130 | Search issues via dispatcher — title dedup, spec/plan overlap detection |
+| `sync-from-remote` | ≈500 | Reconcile remote issues against local `.issues/` after `local-issues sync` — detect staleness in both directions, auto-import missing remote issues |
 | `update-issue` | ≈160 | Update issue body/labels/state via dispatcher — body-preservation safeguard enforced |
 | `sync-pull-to-local` | ≈600 | Mirror remote issue body to `.issues/<N>/spec.md` after any `read-issue` — enforces Operating Protocol §3 spec.md mirror mandate |
 | `import-remote` | ≈690 | Retroactively import a pre-existing remote issue into local `.issues/` — full mirror with body, comments, frontmatter, and `promotion_type: retroactive_import` |
@@ -64,6 +65,7 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 | `search-issues` | `task(..., prompt: "execute search-issues task from issue-operations")` |
 | `update-issue` | `task(..., prompt: "execute update-issue task from issue-operations")` |
 | `sync-pull-to-local` | `task(..., prompt: "execute sync-pull-to-local task from issue-operations")` |
+| `sync-from-remote` | `task(..., prompt: "execute sync-from-remote task from issue-operations")` |
 | `import-remote` | `task(..., prompt: "execute import-remote task from issue-operations")` |
 | `push-artifacts` | `task(..., prompt: "execute push-artifacts task from issue-operations")` |
 
