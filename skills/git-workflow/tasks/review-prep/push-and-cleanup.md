@@ -70,13 +70,12 @@ evidence_artifacts:
 
 ### Step 1: Temp File Cleanup (MANDATORY)
 
-```bash
-rm -f ./tmp/{issue-N}/temp_*.py ./tmp/{issue-N}/test_*.py 2>/dev/null
-rm ./tmp/*.json ./tmp/*.csv ./tmp/*.html 2>/dev/null
-ls ./tmp/
-```
+Clean scoped issue temp files. Pipeline artifacts under `./tmp/{issue-N}/artifacts/` are NOT cleaned here — they are cleaned by the step-specific pre-cleanup table in implementation-pipeline SKILL.md and at PR merge by the cleanup task.
 
-**Preserve:** `./tmp/*.db`, `./tmp/*.log`, `./tmp/.*`
+```bash
+rm -rf ./tmp/{issue-N}/temp_*.py ./tmp/{issue-N}/test_*.py ./tmp/{issue-N}/design-*.md 2>/dev/null
+rm -rf ./tmp/{issue-N}/.cache 2>/dev/null
+```
 
 ### Step 1.5: Rebase on Current Dev (MANDATORY)
 
