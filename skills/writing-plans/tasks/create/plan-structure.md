@@ -25,28 +25,28 @@ Structure the implementation plan from approved spec: verification gate, combine
 After defining the phase structure, create a dependency-ordering solve contract:
 
 1. Create `.issues/{issue-N}/spec-artifacts/dependency-ordering-verification/` directory
-2. Write `phase-order.yaml` with Z3 variables for each phase position and ordering constraints
-3. Run `solve model --contract-path ... --query "phase_1 < phase_2 and phase_1 < phase_3"`
-4. Confirm SAT — the phase ordering is valid
+1. Write `phase-order.yaml` with Z3 variables for each phase position and ordering constraints
+1. Run `solve model --contract-path ... --query "phase_1 < phase_2 and phase_1 < phase_3"`
+1. Confirm SAT — the phase ordering is valid
 
 ### Plan Utility Validation (SC-3)
 
 After phase dependency contract is confirmed SAT, validate phase solvability:
 
 1. Create `./tmp/{issue-N}/artifacts/phase-plan-problem.yaml` with phase structure as planning problem
-2. Run `.opencode/tools/plan plan --problem ./tmp/{issue-N}/artifacts/phase-plan-problem.yaml`
-3. Confirm planner returns SOLVED_SATISFICING or SOLVED_OPTIMALLY
-4. Save result to `./tmp/{issue-N}/artifacts/phase-plan-validated.yaml`
-5. If utility unavailable: log WARNING in lifecycle manifest, validate manually (acyclic check)
+1. Run `.opencode/tools/plan plan --problem ./tmp/{issue-N}/artifacts/phase-plan-problem.yaml`
+1. Confirm planner returns SOLVED_SATISFICING or SOLVED_OPTIMALLY
+1. Save result to `./tmp/{issue-N}/artifacts/phase-plan-validated.yaml`
+1. If utility unavailable: log WARNING in lifecycle manifest, validate manually (acyclic check)
 
 ### SC-ID Mapping (SC-4)
 
 After phase structure validated, consume `sc-summary.yaml`:
 
 1. Read `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`
-2. Map each SC to its corresponding plan item by SC-ID
-3. Verify all SCs from the spec are covered
-4. Flag orphan SCs (in YAML but not mapped) and missing SCs (in spec but not in YAML)
+1. Map each SC to its corresponding plan item by SC-ID
+1. Verify all SCs from the spec are covered
+1. Flag orphan SCs (in YAML but not mapped) and missing SCs (in spec but not in YAML)
 
 ### Pre-Step: Verification Gate (MANDATORY FIRST)
 
@@ -59,9 +59,9 @@ Collects evidence artifacts for factual claims. Unverified claims marked with `�
 Before any plan content is written, verify that the spec has passed pipeline-readiness validation:
 
 1. Read `.issues/{issue-N}/spec-artifacts/sc-pipeline-readiness.yaml`
-2. Assert `status: PASS`
-3. If status is FAIL or file does not exist: **HALT** with `SPEC_NOT_READY_FOR_PIPELINE` — the spec must pass the pipeline-readiness gate before plan creation
-4. If PASS: extract `sc_summary` (total_scs, atomic, with_dependencies, single_concern) and phase dependency declarations for use in plan generation
+1. Assert `status: PASS`
+1. If status is FAIL or file does not exist: **HALT** with `SPEC_NOT_READY_FOR_PIPELINE` — the spec must pass the pipeline-readiness gate before plan creation
+1. If PASS: extract `sc_summary` (total_scs, atomic, with_dependencies, single_concern) and phase dependency declarations for use in plan generation
 
 This is a hard gate — the plan-writer MUST NOT proceed without a PASS from the pipeline-readiness gate. No exceptions, no "proceed anyway" path.
 
@@ -86,28 +86,33 @@ This is a hard gate — the plan-writer MUST NOT proceed without a PASS from the
 | Single-task AND combining makes document hard to read | **Separate** — stand-alone sections in `.issues/{N}/spec-artifacts/plan.md` |
 
 **Decision output (MANDATORY):**
+
 ```
 Plan structure decision: combined/separate
 Reason: <justification referencing evaluation criteria>
 ```
 
 **If COMBINED:**
+
 - Write to `.issues/{N}/spec-artifacts/plan.md`, reference spec content inline
 - Retain `[SPEC]` title prefix
 - Proceed to Step 2
 
 **If SEPARATE:**
+
 - Write to `.issues/{N}/spec-artifacts/plan.md` with separate phase sections
 - Proceed to Step 2
 
 ### Step 1.6: Duplicate Plan Check
 
 Look for existing plan artifacts in `.issues/` workspace:
+
 ```bash
 ls .issues/*/spec-artifacts/plan.md 2>/dev/null
 ```
 
 For each plan found referencing the same spec, present choice:
+
 - Proceed with new plan (override existing local artifact)
 - HALT and review existing plan
 
@@ -157,10 +162,10 @@ phase_dependencies:
 After defining phase structure, consume the `sc-summary.yaml` from spec artifacts to map SCs to plan items:
 
 1. Read `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`
-2. For each phase in the plan, verify its SC assignments match `sc_summary.phases[].sc_ids`
-3. For each plANNED item, annotate with the corresponding SC-ID(s)
-4. Flag orphan SCs (in YAML but not mapped to any plan item) as MISSING-TRACEABILITY
-5. Flag extra SCs (in plan but not in YAML) as SCOPE-CREEP
+1. For each phase in the plan, verify its SC assignments match `sc_summary.phases[].sc_ids`
+1. For each plANNED item, annotate with the corresponding SC-ID(s)
+1. Flag orphan SCs (in YAML but not mapped to any plan item) as MISSING-TRACEABILITY
+1. Flag extra SCs (in plan but not in YAML) as SCOPE-CREEP
 
 ### Step 3.5: RED/GREEN Condition Language (SC-2, SC-4 — Forward-Looking Stance)
 
@@ -181,12 +186,14 @@ Each item's RED/GREEN conditions MUST describe requirements, not implementation:
 
 **Behavioral RED/GREEN for rule-changing items:**
 When changing guidelines or skills, use behavioral TDD:
+
 1. **Behavioral RED:** Write test sending agent prompt, verify agent does NOT follow new rule yet
-2. **Behavioral GREEN:** Make change, re-run test — now agent follows rule
+1. **Behavioral GREEN:** Make change, re-run test — now agent follows rule
 
 ### Step 4: Plan Phase Structure
 
 Organize by concern flow:
+
 - Determine phases needed
 - Write prose for phase descriptions
 - Prose-driven, not template-driven
@@ -223,12 +230,14 @@ Every unit gets its own 14-row pipeline gate table with unit-specific exit crite
 #### Z3 Contract Generation (SC-7 — Per-Unit, No Preconditions)
 
 Each unit's Z3 contract declares:
+
 - 14 boolean variables per unit representing pipeline gate states (e.g., `P1_p1..p14`)
 - 1 domain variable per unit (e.g., `D_P1`) that MUST be `False` unless all 14 gates are `True`
 - 13 serial-ordering invariants: `Implies(pN, pN-1)` for N = 2..14
 - NO preconditions — invariants + postconditions only
 
 Contract structure:
+
 ```
 (declare-const P1_p1 Bool) ... (declare-const P1_p14 Bool)
 (declare-const D_P1 Bool)
@@ -263,8 +272,9 @@ On UNSOLVABLE: re-examine phase ordering, add missing action/precondition, re-ru
 On utility unavailable: validate phase solvability manually (acyclic check on phase ordering), write manual validation result to `phase-plan-validated.yaml` with WARNING in lifecycle manifest.
 
 Verification steps after contract generation:
+
 1. Assert all-false state: run Z3 solver — MUST return SAT
-2. Assert D_P1=True but p1=False: run Z3 solver — MUST return UNSAT
+1. Assert D_P1=True but p1=False: run Z3 solver — MUST return UNSAT
 
 ## Context Required
 
