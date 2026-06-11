@@ -18,6 +18,7 @@
 # ///
 
 # fmt: on
+# ruff: noqa: E402
 """
 DESCRIPTION: Local issue tracking CLI tool for .issues/ directory.
 
@@ -52,7 +53,8 @@ def _find_issue_dir(number: int) -> Path | None:
     Matches `.issues/<number>` or `.issues/<number>-<slug>` or
     `.issues/open/<number>-<slug>`. Returns None if no match.
     """
-    prefix = str(number)
+    prefix = str(number).lstrip("0") or "0"
+    padded_prefix = f"{number:03d}"
     issues_dir = Path(ISSUES_DIR)
 
     # Check exact match first
@@ -64,7 +66,10 @@ def _find_issue_dir(number: int) -> Path | None:
     open_dir = issues_dir / "open"
     if open_dir.is_dir():
         for entry in sorted(open_dir.iterdir()):
-            if entry.is_dir() and entry.name.startswith(prefix + "-"):
+            if entry.is_dir() and (
+                entry.name.startswith(prefix + "-")
+                or entry.name.startswith(padded_prefix + "-")
+            ):
                 return entry
 
     # Check all top-level dirs for prefix match
@@ -74,7 +79,9 @@ def _find_issue_dir(number: int) -> Path | None:
                 continue
             if entry.name == prefix:
                 return entry
-            if entry.name.startswith(prefix + "-"):
+            if entry.name.startswith(prefix + "-") or entry.name.startswith(
+                padded_prefix + "-"
+            ):
                 return entry
 
     return None
@@ -82,7 +89,8 @@ def _find_issue_dir(number: int) -> Path | None:
 
 def _find_issue_dir_in_repo(number: int, repo_path: Path) -> Path | None:
     """Find issue directory by number within a specific repo path."""
-    prefix = str(number)
+    prefix = str(number).lstrip("0") or "0"
+    padded_prefix = f"{number:03d}"
     issues_dir = repo_path / ISSUES_DIR
 
     exact = issues_dir / prefix
@@ -92,7 +100,10 @@ def _find_issue_dir_in_repo(number: int, repo_path: Path) -> Path | None:
     open_dir = issues_dir / "open"
     if open_dir.is_dir():
         for entry in sorted(open_dir.iterdir()):
-            if entry.is_dir() and entry.name.startswith(prefix + "-"):
+            if entry.is_dir() and (
+                entry.name.startswith(prefix + "-")
+                or entry.name.startswith(padded_prefix + "-")
+            ):
                 return entry
 
     if issues_dir.is_dir():
@@ -101,7 +112,9 @@ def _find_issue_dir_in_repo(number: int, repo_path: Path) -> Path | None:
                 continue
             if entry.name == prefix:
                 return entry
-            if entry.name.startswith(prefix + "-"):
+            if entry.name.startswith(prefix + "-") or entry.name.startswith(
+                padded_prefix + "-"
+            ):
                 return entry
 
     return None
@@ -124,7 +137,7 @@ def get_issue_path(number: int, title: str | None = None) -> Path:
     dir_path = _find_issue_dir(number)
     if dir_path is not None:
         return dir_path
-    name = f"{number:03d}"
+    name = f"{number}"
     if title:
         slug = _slug(title)
         if slug:
@@ -207,11 +220,20 @@ def _worktree_active(repo_path: Path | None = None) -> bool:
     gitlink = root / ISSUES_DIR / ".git"
     return gitlink.is_file()
 
+
 def _issues_branch_exists(repo_path: Path | None = None) -> bool:
     """Check if the issues branch exists locally."""
     git_dir = str(repo_path) if repo_path else os.getcwd()
     result = subprocess.run(
-        ["git", "-C", git_dir, "rev-parse", "--verify", "--quiet", f"refs/heads/{WORKTREE_BRANCH}"],
+        [
+            "git",
+            "-C",
+            git_dir,
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            f"refs/heads/{WORKTREE_BRANCH}",
+        ],
         capture_output=True,
         timeout=15,
     )
@@ -238,6 +260,7 @@ def _discover_repos() -> list[Path]:
     if gitmodules.exists():
         try:
             import configparser
+
             cfg = configparser.ConfigParser()
             cfg.read(str(gitmodules))
             for section in cfg.sections():
@@ -247,10 +270,21 @@ def _discover_repos() -> list[Path]:
                         sub_path = root / path_val
                         if sub_path.is_dir() and (sub_path / ".git").exists():
                             result = subprocess.run(
-                                ["git", "-C", str(sub_path), "rev-parse", "--is-bare-repository"],
-                                capture_output=True, text=True, timeout=15,
+                                [
+                                    "git",
+                                    "-C",
+                                    str(sub_path),
+                                    "rev-parse",
+                                    "--is-bare-repository",
+                                ],
+                                capture_output=True,
+                                text=True,
+                                timeout=15,
                             )
-                            if result.returncode == 0 and result.stdout.strip() == "false":
+                            if (
+                                result.returncode == 0
+                                and result.stdout.strip() == "false"
+                            ):
                                 repos.append(sub_path.resolve())
         except (configparser.Error, Exception):
             pass
@@ -267,7 +301,9 @@ def _discover_repos() -> list[Path]:
             if resolved not in repos:
                 result = subprocess.run(
                     ["git", "-C", str(resolved), "rev-parse", "--is-bare-repository"],
-                    capture_output=True, text=True, timeout=15,
+                    capture_output=True,
+                    text=True,
+                    timeout=15,
                 )
                 if result.returncode == 0 and result.stdout.strip() == "false":
                     repos.append(resolved)
@@ -290,7 +326,9 @@ def _detect_dual_branch() -> dict | None:
         has_issues_data = False
         result = subprocess.run(
             ["git", "-C", str(repo), "branch", "--list", "issues", "issues-data"],
-            capture_output=True, text=True, timeout=15,
+            capture_output=True,
+            text=True,
+            timeout=15,
         )
         for line in result.stdout.split("\n"):
             stripped = line.strip()
@@ -305,12 +343,33 @@ def _detect_dual_branch() -> dict | None:
 
         if has_issues and has_issues_data:
             ts_result = subprocess.run(
-                ["git", "-C", str(repo), "log", "--oneline", "--format=%ci %s", "issues", "issues-data"],
-                capture_output=True, text=True, timeout=15,
+                [
+                    "git",
+                    "-C",
+                    str(repo),
+                    "log",
+                    "--oneline",
+                    "--format=%ci %s",
+                    "issues",
+                    "issues-data",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=15,
             )
             diverge = subprocess.run(
-                ["git", "-C", str(repo), "rev-list", "--left-right", "--count", "issues...issues-data"],
-                capture_output=True, text=True, timeout=15,
+                [
+                    "git",
+                    "-C",
+                    str(repo),
+                    "rev-list",
+                    "--left-right",
+                    "--count",
+                    "issues...issues-data",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=15,
             )
             return {
                 "repo": str(repo),
@@ -409,7 +468,15 @@ def _ensure_worktree(repo_path: Path | None = None) -> bool:
                 cwd=wt_tmp,
             )
             subprocess.run(
-                ["git", "-C", git_dir, "commit", "--allow-empty", "-m", "Init issues branch"],
+                [
+                    "git",
+                    "-C",
+                    git_dir,
+                    "commit",
+                    "--allow-empty",
+                    "-m",
+                    "Init issues branch",
+                ],
                 capture_output=True,
                 timeout=15,
                 cwd=wt_tmp,
@@ -446,6 +513,7 @@ def _ensure_worktree(repo_path: Path | None = None) -> bool:
                     continue
                 if item.is_dir():
                     import tempfile
+
                     tmpdir = tempfile.mkdtemp()
                     dst = os.path.join(tmpdir, item.name)
                     shutil.copytree(str(item), dst)
@@ -528,14 +596,17 @@ def _push_orphan_if_needed(repo_path: Path | None = None) -> None:
     try:
         result = subprocess.run(
             ["git", "-C", git_dir, "remote", "get-url", "origin"],
-            capture_output=True, text=True, timeout=15,
+            capture_output=True,
+            text=True,
+            timeout=15,
         )
         if result.returncode != 0:
             return
         branch = WORKTREE_BRANCH
         subprocess.run(
             ["git", "-C", git_dir, "push", "-u", "origin", branch],
-            capture_output=True, timeout=30,
+            capture_output=True,
+            timeout=30,
         )
     except Exception:
         pass
@@ -552,13 +623,16 @@ def _push_issues_branch() -> None:
     try:
         result = subprocess.run(
             ["git", "-C", ISSUES_DIR, "remote", "get-url", "origin"],
-            capture_output=True, text=True, timeout=15,
+            capture_output=True,
+            text=True,
+            timeout=15,
         )
         if result.returncode != 0:
             return
         subprocess.run(
             ["git", "-C", ISSUES_DIR, "push", "origin", WORKTREE_BRANCH],
-            capture_output=True, timeout=30,
+            capture_output=True,
+            timeout=30,
         )
     except Exception:
         pass
@@ -626,12 +700,15 @@ def cmd_create(args: argparse.Namespace) -> None:
         print(f"warn: dual-branch detected in {dual['repo']}", file=sys.stderr)
         print(f"  branches: {', '.join(dual['branches'])}", file=sys.stderr)
         print(f"  divergence (left/right count): {dual['divergence']}", file=sys.stderr)
-        if dual['timestamps']:
+        if dual["timestamps"]:
             print("  commit history:", file=sys.stderr)
-            for line in dual['timestamps'].split('\n'):
+            for line in dual["timestamps"].split("\n"):
                 if line.strip():
                     print(f"    {line}", file=sys.stderr)
-        print("  action: no auto-merge — compare data above and resolve manually", file=sys.stderr)
+        print(
+            "  action: no auto-merge — compare data above and resolve manually",
+            file=sys.stderr,
+        )
     current_repo_name = _resolve_repo_name()
     if args.number is None:
         args.number = _next_number()
@@ -645,14 +722,20 @@ def cmd_create(args: argparse.Namespace) -> None:
         qualified = f"{current_repo_name}#{args.number}"
         child_repos = _discover_repos()
         if issue_exists(args.number):
-            print(f"Issue #{args.number} already exists in {current_repo_name}.", file=sys.stderr)
+            print(
+                f"Issue #{args.number} already exists in {current_repo_name}.",
+                file=sys.stderr,
+            )
             sys.exit(1)
         for child in child_repos:
             child_issues_dir = child / ISSUES_DIR
             if child_issues_dir.is_dir():
                 child_issue_path = _find_issue_dir_in_repo(args.number, child)
                 if child_issue_path is not None:
-                    print(f"Issue #{args.number} already exists in {child.name}. Use qualified form {child.name}#{args.number}.", file=sys.stderr)
+                    print(
+                        f"Issue #{args.number} already exists in {child.name}. Use qualified form {child.name}#{args.number}.",
+                        file=sys.stderr,
+                    )
                     sys.exit(1)
     _ensure_all_worktrees()
     path = get_issue_path(args.number, args.title)
@@ -711,7 +794,7 @@ def _require_qualified(number_str: str) -> tuple[str, int]:
 
 def _resolve_repo_path(repo_name: str) -> Path | None:
     """Resolve repo name to its filesystem Path.
-    
+
     Checks current repo first, then discovered child repos.
     Returns None if not found.
     """
@@ -861,12 +944,14 @@ def cmd_read_comments(args: argparse.Namespace) -> None:
         issue_dir = _find_issue_dir_in_repo(number, repo_path)
         if issue_dir:
             content = read_file(issue_dir / "comments.yaml")
-            matches.append({
-                "repo": repo_name,
-                "number": number,
-                "spec_path": _spec_path_for_issue(number, repo_path),
-                "comments": yaml_load(content) if content.strip() else {},
-            })
+            matches.append(
+                {
+                    "repo": repo_name,
+                    "number": number,
+                    "spec_path": _spec_path_for_issue(number, repo_path),
+                    "comments": yaml_load(content) if content.strip() else {},
+                }
+            )
     if not matches:
         _, number = _parse_qualified(args.number)
         _not_found(number)
@@ -885,12 +970,14 @@ def cmd_read_labels(args: argparse.Namespace) -> None:
         if issue_dir:
             issue = yaml_load(read_file(issue_dir / "issue.yaml"))
             labels = issue.get("labels", []) if isinstance(issue, dict) else []
-            matches.append({
-                "repo": repo_name,
-                "number": number,
-                "spec_path": _spec_path_for_issue(number, repo_path),
-                "labels": labels,
-            })
+            matches.append(
+                {
+                    "repo": repo_name,
+                    "number": number,
+                    "spec_path": _spec_path_for_issue(number, repo_path),
+                    "labels": labels,
+                }
+            )
     if not matches:
         _, number = _parse_qualified(args.number)
         _not_found(number)
@@ -908,12 +995,14 @@ def cmd_read_sub_issues(args: argparse.Namespace) -> None:
         issue_dir = _find_issue_dir_in_repo(number, repo_path)
         if issue_dir:
             content = read_file(issue_dir / "links.yaml")
-            matches.append({
-                "repo": repo_name,
-                "number": number,
-                "spec_path": _spec_path_for_issue(number, repo_path),
-                "links": yaml_load(content) if content.strip() else {},
-            })
+            matches.append(
+                {
+                    "repo": repo_name,
+                    "number": number,
+                    "spec_path": _spec_path_for_issue(number, repo_path),
+                    "links": yaml_load(content) if content.strip() else {},
+                }
+            )
     if not matches:
         _, number = _parse_qualified(args.number)
         _not_found(number)
@@ -1154,7 +1243,9 @@ def cmd_list(args: argparse.Namespace) -> None:
                 status = "open"
 
             display_num = f"{repo_name}#{num}"
-            all_entries.append((sort_prio, repo_name, display_num, status, title, spec_path, num))
+            all_entries.append(
+                (sort_prio, repo_name, display_num, status, title, spec_path, num)
+            )
 
     if not all_entries:
         return
@@ -1261,24 +1352,48 @@ def _sync_repo(repo_path: Path, qualifier: str, issues_dir: Path | None = None) 
     try:
         subprocess.run(
             ["git", "-C", str(issues_dir), "add", "-A"],
-            capture_output=True, timeout=15,
+            capture_output=True,
+            timeout=15,
         )
         subprocess.run(
-            ["git", "-C", str(issues_dir), "commit", "--allow-empty", "-m", "auto: sync"],
-            capture_output=True, timeout=15,
+            [
+                "git",
+                "-C",
+                str(issues_dir),
+                "commit",
+                "--allow-empty",
+                "-m",
+                "auto: sync",
+            ],
+            capture_output=True,
+            timeout=15,
         )
         pull = subprocess.run(
-            ["git", "-C", str(issues_dir), "pull", "--rebase", "origin", WORKTREE_BRANCH],
-            capture_output=True, text=True, timeout=30,
+            [
+                "git",
+                "-C",
+                str(issues_dir),
+                "pull",
+                "--rebase",
+                "origin",
+                WORKTREE_BRANCH,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
         )
         if pull.returncode != 0:
             entry["status"] = "conflict"
             entry["pull_result"] = pull.stderr.strip()
-            entry["conflict_hint"] = f"git -C {issues_dir} pull --rebase origin {WORKTREE_BRANCH}"
+            entry["conflict_hint"] = (
+                f"git -C {issues_dir} pull --rebase origin {WORKTREE_BRANCH}"
+            )
             return entry
         push = subprocess.run(
             ["git", "-C", str(issues_dir), "push", "origin", WORKTREE_BRANCH],
-            capture_output=True, text=True, timeout=30,
+            capture_output=True,
+            text=True,
+            timeout=30,
         )
         if push.returncode == 0:
             entry["status"] = "ok"
@@ -1318,12 +1433,23 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    p = sub.add_parser("create", help="Create a new issue (autonumber when --number omitted). Flags: --number, --title, --labels")
-    p.add_argument("--number", type=str, default=None, help="Explicit issue number or qualified repo#N form (autonumber if omitted)")
+    p = sub.add_parser(
+        "create",
+        help="Create a new issue (autonumber when --number omitted). Flags: --number, --title, --labels",
+    )
+    p.add_argument(
+        "--number",
+        type=str,
+        default=None,
+        help="Explicit issue number or qualified repo#N form (autonumber if omitted)",
+    )
     p.add_argument("--title", type=str, required=True)
     p.add_argument("--labels", type=str, nargs="*", default=[])
 
-    p = sub.add_parser("read", help="Read an issue as YAML. Flags: --number (N or repo#N), --type (full|comments|labels|links|all)")
+    p = sub.add_parser(
+        "read",
+        help="Read an issue as YAML. Flags: --number (N or repo#N), --type (full|comments|labels|links|all)",
+    )
     p.add_argument("--number", type=str, required=True)
     p.add_argument(
         "--type",
@@ -1331,16 +1457,27 @@ def build_parser() -> argparse.ArgumentParser:
         default="full",
     )
 
-    p = sub.add_parser("read-comments", help="Read comments for an issue. Flags: --number (N or repo#N)")
+    p = sub.add_parser(
+        "read-comments",
+        help="Read comments for an issue. Flags: --number (N or repo#N)",
+    )
     p.add_argument("--number", type=str, required=True)
 
-    p = sub.add_parser("read-labels", help="Read labels for an issue. Flags: --number (N or repo#N)")
+    p = sub.add_parser(
+        "read-labels", help="Read labels for an issue. Flags: --number (N or repo#N)"
+    )
     p.add_argument("--number", type=str, required=True)
 
-    p = sub.add_parser("read-sub-issues", help="Read sub-issues of an issue. Flags: --number (N or repo#N)")
+    p = sub.add_parser(
+        "read-sub-issues",
+        help="Read sub-issues of an issue. Flags: --number (N or repo#N)",
+    )
     p.add_argument("--number", type=str, required=True)
 
-    p = sub.add_parser("update", help="Update an issue's metadata or body. Flags: --number, --title, --status, --phase, --labels, --body-file, --github, --remote-url")
+    p = sub.add_parser(
+        "update",
+        help="Update an issue's metadata or body. Flags: --number, --title, --status, --phase, --labels, --body-file, --github, --remote-url",
+    )
     p.add_argument("--number", type=str, required=True)
     p.add_argument("--title", type=str)
     p.add_argument("--status", type=str)
@@ -1350,12 +1487,23 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--github", type=str)
     p.add_argument("--remote-url", type=str)
 
-    p = sub.add_parser("comment", help="Add a comment to an issue. Flags: --number (N or repo#N), --type (internal|stakeholder), --body (short text only)")
-    p.add_argument("--number", type=str, required=True, help="Issue number or qualified repo#N form")
+    p = sub.add_parser(
+        "comment",
+        help="Add a comment to an issue. Flags: --number (N or repo#N), --type (internal|stakeholder), --body (short text only)",
+    )
+    p.add_argument(
+        "--number",
+        type=str,
+        required=True,
+        help="Issue number or qualified repo#N form",
+    )
     p.add_argument("--type", choices=["internal", "stakeholder"], default="internal")
     p.add_argument("--body", type=str, required=True)
 
-    p = sub.add_parser("close", help="Close an issue. Flags: --number, --reason (completed|not_planned|duplicate)")
+    p = sub.add_parser(
+        "close",
+        help="Close an issue. Flags: --number, --reason (completed|not_planned|duplicate)",
+    )
     p.add_argument("--number", type=str, required=True)
     p.add_argument(
         "--reason",
@@ -1386,8 +1534,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--number", type=str, required=True)
     p.add_argument("--dry-run", action="store_true")
 
-    sub.add_parser("init", help="Initialize worktrees and pull remote issues-data for all repos")
-    sub.add_parser("sync", help="Commit pending changes, pull-rebase, and push for all repos")
+    sub.add_parser(
+        "init", help="Initialize worktrees and pull remote issues-data for all repos"
+    )
+    sub.add_parser(
+        "sync", help="Commit pending changes, pull-rebase, and push for all repos"
+    )
 
     return parser
 
@@ -1422,4 +1574,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
