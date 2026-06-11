@@ -15,20 +15,19 @@ Intelligently synchronizes guidelines, skills, and tools between repos via GitHu
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `classify` | ≈250 |
-| `sync-push` | ≈300 |
-| `sync-pull` | ≈300 |
-| `issue-format` | ≈350 |
-| `completion` | ≈200 |
+
+| `classify` |
+| `sync-push` |
+| `sync-pull` |
+| `issue-format` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "sync-guidelines"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `classify` | `task(..., prompt: "execute classify task from sync-guidelines")` |
 | `sync-push` | `task(..., prompt: "execute sync-push task from sync-guidelines")` |
 | `sync-pull` | `task(..., prompt: "execute sync-pull task from sync-guidelines")` |

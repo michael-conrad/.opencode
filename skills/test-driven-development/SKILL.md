@@ -50,23 +50,22 @@ Never `RED-ALL → GREEN-ALL`.
 
 ## Tasks
 
-| Task | Words | Purpose |
 |------|-------|---------|
-| `red` | ≈80 | Execution-only: write failing test |
-| `green` | ≈80 | Execution-only: minimal impl |
-| `refactor` | ≈120 | Execution-only: clean while green |
-| `patterns` | ≈400 | 4-pattern decision matrix |
-| `anti-patterns` | ≈500 | 5 anti-patterns with alternatives |
-| `checklist` | ≈350 | Quality checklists, timing, step-size |
-| `phase-0` | ≈400 | Pre-regression baseline gate |
-| `phase-4` | ≈400 | Post-regression verification gate |
+| `red` | Execution-only: write failing test |
+| `green` | Execution-only: minimal impl |
+| `refactor` | Execution-only: clean while green |
+| `patterns` | 4-pattern decision matrix |
+| `anti-patterns` | 5 anti-patterns with alternatives |
+| `checklist` | Quality checklists, timing, step-size |
+| `phase-0` | Pre-regression baseline gate |
+| `phase-4` | Post-regression verification gate |
 
 ## Invocation
 
 `skill({name: "test-driven-development"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | (use task name) | `task(..., prompt: "execute <task> task from test-driven-development")` |
 
 **CLI equivalent (for human TUI use):** `/skill test-driven-development --task <name>`

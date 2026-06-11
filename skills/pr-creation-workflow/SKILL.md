@@ -17,18 +17,17 @@ Feature PRs target `dev` only. Release PRs (dev→main) handled by `git-workflow
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `pre-pr-checklist` | ≈500 |
-| `sub-issue-collection` | ≈300 |
-| `completion` | ≈200 |
+
+| `pre-pr-checklist` |
+| `sub-issue-collection` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "pr-creation-workflow"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `pre-pr-checklist` | `task(..., prompt: "execute pre-pr-checklist task from pr-creation-workflow")` |
 | `sub-issue-collection` | `task(..., prompt: "execute sub-issue-collection task from pr-creation-workflow")` |
 | `completion` | `task(..., prompt: "execute completion task from pr-creation-workflow")` |

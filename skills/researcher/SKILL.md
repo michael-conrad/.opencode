@@ -28,7 +28,7 @@ Exhaustive Investigator. Focus: verifiable source evidence, exhaustive research 
 ## Tasks
 
 | Task | Purpose |
-|------|---------|
+
 | `investigate` | Execute an exhaustive investigation with verifiable source evidence |
 | `findings` | Format research findings with YAML frontmatter + markdown body |
 
@@ -37,7 +37,7 @@ Exhaustive Investigator. Focus: verifiable source evidence, exhaustive research 
 `skill({name: "researcher"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|-----------------|
+
 | `investigate` | `task(..., prompt: "execute investigate task from researcher")` |
 | `findings` | `task(..., prompt: "execute findings task from researcher")` |
 

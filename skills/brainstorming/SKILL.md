@@ -19,20 +19,19 @@ Requirements Explorer. Focus: understand what user wants through natural convers
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `explore` | ≈1000 |
-| `top-down-analysis` | ≈400 |
-| `enforcement` | ≈600 |
-| `cross-scope` | ≈350 |
-| `completion` | ≈200 |
+
+| `explore` |
+| `top-down-analysis` |
+| `enforcement` |
+| `cross-scope` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "brainstorming"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `explore` | `task(..., prompt: "execute explore task from brainstorming")` |
 | `top-down-analysis` | `task(..., prompt: "execute top-down-analysis task from brainstorming")` |
 | `enforcement` | `task(..., prompt: "execute enforcement task from brainstorming")` |

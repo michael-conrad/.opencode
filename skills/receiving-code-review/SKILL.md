@@ -15,18 +15,17 @@ Responds to PR review feedback. Ensures all comments addressed systematically, c
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `address` | ≈350 |
-| `respond` | ≈250 |
-| `completion` | ≈200 |
+
+| `address` |
+| `respond` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "receiving-code-review"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `address` | `task(..., prompt: "execute address task from receiving-code-review")` |
 | `respond` | `task(..., prompt: "execute respond task from receiving-code-review")` |
 | `completion` | `task(..., prompt: "execute completion task from receiving-code-review")` |

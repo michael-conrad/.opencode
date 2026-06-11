@@ -21,19 +21,18 @@ Verification Gatekeeper. Not the content author — the evidence collector runni
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `verify` | ≈300 |
-| `revisit` | ≈250 |
-| `enforce` | ≈200 |
-| `completion` | ≈150 |
+
+| `verify` |
+| `revisit` |
+| `enforce` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "verification-enforcement"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `verify` | `task(..., prompt: "execute verify task from verification-enforcement")` |
 | `revisit` | `task(..., prompt: "execute revisit task from verification-enforcement")` |
 | `enforce` | `task(..., prompt: "execute enforce task from verification-enforcement")` |

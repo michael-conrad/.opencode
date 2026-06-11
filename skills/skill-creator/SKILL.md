@@ -17,19 +17,18 @@ Also manages duplicate text blocks across skills (formerly `fragment-manager` sk
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `init` | ≈200 |
-| `package` | ≈150 |
-| `validate` | ≈100 |
-| `fragment-management` | ≈300 |
+
+| `init` |
+| `package` |
+| `validate` |
+| `fragment-management` |
 
 ## Invocation
 
 `skill({name: "skill-creator"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `init` | `task(..., prompt: "execute init task from skill-creator")` |
 | `package` | `task(..., prompt: "execute package task from skill-creator")` |
 | `validate` | `task(..., prompt: "execute validate task from skill-creator")` |

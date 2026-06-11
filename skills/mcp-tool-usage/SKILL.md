@@ -15,9 +15,9 @@ Tool Priority Enforcer ensuring all operations use the correct tool according to
 
 ## Tasks
 
-| Task | Purpose | Words |
-|------|---------|-------|
-| `selection-guide` | Decision trees for Python code, file ops, notebooks | ≈500 |
+| Task | Purpose |
+|------|---------|
+| `selection-guide` | Decision trees for Python code, file ops, notebooks |
 
 ## Sub-Agent Tasks
 
@@ -80,7 +80,7 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 `skill({name: "mcp-tool-usage"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `selection-guide` | `task(..., prompt: "execute selection-guide task from mcp-tool-usage")` |
 
 **CLI equivalent (for human TUI use):** `/skill mcp-tool-usage --task <task>`
@@ -100,7 +100,7 @@ ABSOLUTE EXCEPTION: .ipynb files → the-notebook-mcp MANDATORY (zero tolerance,
 ### TIER 1: opencode Built-in Tools (PRIMARY for basic file ops)
 
 | Operation | Tool |
-|-----------|------|
+
 | Read file | `read` |
 | Write file | `write` |
 | Edit file | `edit` |
@@ -118,7 +118,7 @@ ABSOLUTE EXCEPTION: .ipynb files → the-notebook-mcp MANDATORY (zero tolerance,
 ### TIER 3: .opencode/tools/ Scripts (PRIMARY for their domains)
 
 | Tool | Domain |
-|------|--------|
+
 | `guidelines` | Guideline search/read (only tool that parses `.opencode/guidelines/` correctly) |
 | `md` | Markdown section operations |
 | `py ls` | Python package listing |

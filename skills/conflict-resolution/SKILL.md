@@ -19,10 +19,9 @@ Conflict Resolution Specialist. Focus: no committed work or spec intent silently
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `classify-and-resolve` | ≈550 |
-| `completion` | ≈200 |
+
+| `classify-and-resolve` |
+| `completion` |
 
 ## Invocation
 
@@ -31,7 +30,7 @@ Automatic from `git-workflow` when conflicts detected. Manual invocation:
 `skill({name: "conflict-resolution"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `classify-and-resolve` | `task(..., prompt: "execute classify-and-resolve task from conflict-resolution")` |
 | `completion` | `task(..., prompt: "execute completion task from conflict-resolution")` |
 
