@@ -198,19 +198,19 @@ All SC-1 through SC-11 must PASS for this spec to be complete. Phase gates: Phas
 
 ## SC-ID Traceability
 
-| SC-ID | Phase | Item | Evidence Type | Verification |
-|-------|-------|------|---------------|-------------|
-| SC-1 | 1 | 1.1 | behavioral | `opencode-cli run` with test contract |
-| SC-2 | 1 | 1.1 | behavioral | `opencode-cli run` with test contract |
-| SC-3 | 1 | 1.1 | behavioral | Re-run existing behavioral tests |
-| SC-4 | 2 | 2.1 | behavioral | `opencode-cli run` + stderr assertion |
-| SC-5 | 2 | 2.2 | structural | File existence verification |
-| SC-6 | 2 | 2.2 | string | grep for Z3 expression keywords |
-| SC-7 | 2 | 2.2 | string | grep for fallback patterns |
-| SC-8 | 3 | 3.1 | behavioral | `opencode-cli run` |
-| SC-9 | 3 | 3.2 | behavioral | `opencode-cli run` |
-| SC-10 | 4 | 4.1 | string | grep for `solve` in AGENTS.md |
-| SC-11 | 4 | 4.2 | string + behavioral | grep + behavioral test |
+| SC-ID | Phase | Item | Evidence Type | Depends On | Verification |
+|-------|-------|------|---------------|------------|-------------|
+| SC-1 | 1 | 1.1 | behavioral | — | `opencode-cli run` with test contract |
+| SC-2 | 1 | 1.1 | behavioral | — | `opencode-cli run` with test contract |
+| SC-3 | 1 | 1.1 | behavioral | SC-1 | Re-run existing behavioral tests |
+| SC-4 | 2 | 2.1 | behavioral | — | `opencode-cli run` + stderr assertion |
+| SC-5 | 2 | 2.2 | structural | — | File existence verification |
+| SC-6 | 2 | 2.2 | string | — | grep for Z3 expression keywords |
+| SC-7 | 2 | 2.2 | string | — | grep for fallback patterns |
+| SC-8 | 3 | 3.1 | behavioral | — | `opencode-cli run` |
+| SC-9 | 3 | 3.2 | behavioral | — | `opencode-cli run` |
+| SC-10 | 4 | 4.1 | string | SC-5 | grep for `solve` in AGENTS.md |
+| SC-11 | 4 | 4.2 | string + behavioral | SC-5 | grep + behavioral test |
 
 ---
 
@@ -224,8 +224,14 @@ Phase ordering contract: [`.issues/1107/spec-artifacts/dependency-ordering-verif
 
 ---
 
-## Spec Gap: All-or-Nothing Gate
+## Spec Application
 
-The spec (#1107) does not contain an explicit all-or-nothing gate statement in its SC section. The plan declares it above. The spec should be updated to include: "All-or-nothing gate: All SC-1 through SC-11 must PASS for this spec to be complete."
+The spec (#1107) has been updated per pipeline-readiness requirements (see #1110):
+
+- **Depends On column** added to SC-ID traceability table — SC-3 depends on SC-1 (regression requires baseline fix), SC-10 and SC-11 depend on SC-5 (skill card must exist before integration)
+- **Phase Dependencies section** added to spec body — Phases 1, 2, 3 are independent; Phase 4 depends on Phase 2 and Phase 3
+- **All-or-nothing gate** declared above: "All SC-1 through SC-11 must PASS for this spec to be complete."
+
+These changes satisfy PR-1 (atomicity), PR-2 (dependency DAG), PR-3 (single concern), and PR-4 (phase DAG) checks.
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
