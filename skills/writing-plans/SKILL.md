@@ -1,11 +1,6 @@
----
-name: writing-plans
-description: Use when creating an implementation plan from an approved spec. Triggers on: write plan, create plan, implementation plan, plan spec, approved plan, plan creation. Implementing without a plan is wandering. Plans are the map — agents who skip them get lost.
-type: discipline-enforcing
-license: MIT
-provenance: AI-generated
-compatibility: opencode
----
+______________________________________________________________________
+
+## name: writing-plans description: Use when creating an implementation plan from an approved spec. Triggers on: write plan, create plan, implementation plan, plan spec, approved plan, plan creation. Implementing without a plan is wandering. Plans are the map — agents who skip them get lost. type: discipline-enforcing license: MIT provenance: AI-generated compatibility: opencode
 
 # Skill: writing-plans
 
@@ -45,11 +40,12 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 ## Operating Protocol
 
 1. **Plan from approved spec only.** No plan without approved spec.
-2. **Adversarial-audit call:** after plan creation, call type-specific audit tasks directly — `adversarial-audit --task plan-fidelity` and `adversarial-audit --task concern-separation` — with `audit_phase: plan_creation`.
-3. **TDD steps mandatory:** each step is RED→GREEN→REFACTOR within tasks.
-4. **No placeholders:** exact file paths, exact function/class names, exact commands.
-5. **Phase structure:** phases for concern boundaries and handoffs, tasks within phases for TDD steps.
-6. **Decision gate:** multi-task → separate plan. Single-task + simple → combined or separate per agent judgment.
+1. **Adversarial-audit call:** after plan creation, call type-specific audit tasks directly — `adversarial-audit --task plan-fidelity` and `adversarial-audit --task concern-separation` — with `audit_phase: plan_creation`.
+1. **TDD steps mandatory:** each step is RED→GREEN→REFACTOR within tasks.
+1. **No placeholders:** exact file paths, exact function/class names, exact commands.
+1. **Phase structure:** phases for concern boundaries and handoffs, tasks within phases for TDD steps.
+1. **Decision gate:** multi-task → separate plan. Single-task + simple → combined or separate per agent judgment.
+1. **Pipeline-readiness gate check (Step 0.5) + mandatory checklist generation (Step 6) required.** Plan creation must verify `sc-pipeline-readiness.yaml` PASS before proceeding, and generate `implementation-checklist.md` after plan content is finalized.
 
 ## Sub-Agent Routing
 
@@ -86,6 +82,7 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
+
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -95,6 +92,7 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
@@ -116,3 +114,13 @@ rules:
       all: ["plan_creation_attempted == true", "spec_approved == false"]
     actions: [HALT]
     source: "writing-plans/SKILL.md"
+
+  - id: writing-plans-pipeline-readiness
+    title: "Pipeline-readiness artifact required before plan creation"
+    conditions:
+      all:
+        - "plan_creation_pending == true"
+        - "sc_pipeline_readiness_exists == false"
+    actions: [HALT, REPORT(SPEC_NOT_READY_FOR_PIPELINE)]
+    source: "writing-plans/SKILL.md"
+```
