@@ -162,17 +162,80 @@ Rules that prevent **quality defects**: skipped verification, inline work, skill
 ### [critical-rules-007] Worktree Bypass — using stash+checkout instead of worktrees when WORKTREE_REQUIRED
 Using stash+checkout means contaminating your workspace state. Professional engineers isolate work in worktrees — amateurs juggle stashes and risk losing uncommitted context.
 
+#### 🚫 FORBIDDEN
+
+- Using stash+checkout instead of worktrees when `WORKTREE_REQUIRED` is set
+
+#### ✅ REQUIRED
+
+- Always use `git worktree add` when `WORKTREE_REQUIRED` is set
+- Isolate each feature branch in its own worktree to prevent workspace contamination
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Using stash+checkout when WORKTREE_REQUIRED set | Contaminates workspace state; risk of losing uncommitted context via stash juggling |
+
 
 ### [critical-rules-007] Relative File Paths in Worktree Context — using relative paths when worktree.path is set
 Relative paths in worktree mode silently target the wrong repo. Every edit you make goes to the main repo instead of the worktree — your changes land in the wrong place. Professional agents prefix ALL paths with `worktree.path`.
+
+#### 🚫 FORBIDDEN
+
+- Using relative paths when `worktree.path` is set
+
+#### ✅ REQUIRED
+
+- Always prefix file operation paths with `worktree.path` when operating in a worktree
+- Use `workdir` parameter in bash tool calls to target the worktree
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Using relative paths when worktree.path set | Edits silently target the main repo instead of the worktree |
 
 
 ### [critical-rules-030] Sub-Agents Ignoring Worktree Context — sub-agents modifying main repo instead of worktree
 Sub-agents that modify the main repo instead of the worktree are contaminating the wrong workspace. Every file they write goes to the wrong directory. Professional orchestrators always pass `worktree.path` in task context.
 
+#### 🚫 FORBIDDEN
+
+- Sub-agents modifying the main repo when operating in a worktree
+
+#### ✅ REQUIRED
+
+- Always pass `worktree.path` in task context to sub-agents
+- Sub-agents must prefix all file paths with the received `worktree.path`
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Sub-agents modifying main repo instead of worktree | Every file they write goes to the wrong directory |
+
 
 ### [critical-rules-008] Implementing Without Verifying Against Live Documentation
 Implementing from memory means implementing from training data — always stale, always partially wrong. Professional engineers verify API signatures, env vars, and function parameters against live documentation before writing a single line of code.
+
+#### 🚫 FORBIDDEN
+
+- Implementing code based on memory or training data without live verification
+- Claiming API parameter names, method signatures, or config field names from assumption
+
+#### ✅ REQUIRED
+
+- Verify API signatures against official docs or source before calling
+- Check environment variable names against `.env.example` or config documentation
+- Verify function signatures via `srclight_get_signature` or source code inspection
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Implementing from memory | Uses stale training data, produces incorrect API calls |
+| Claiming signatures without verification | Defects discovered at runtime instead of design time |
 
 
 ### [critical-rules-009] Schema/API/Code Verification — claiming knowledge without verification
@@ -201,6 +264,17 @@ A plan is a map, not a destination. Treating plan completion as implementation c
 
 ### [critical-rules-009] Audience Separation — leaking internal artifacts to stakeholders
 Leaking internal audit findings and raw status into stakeholder communications damages trust. Drafting tools and delivery channels are separate concerns — professional communicators maintain audience separation. See `correspondence` skill → "Audience Separation Principle".
+
+
+### [critical-rules-XXX] Posting Spec-Audit Findings as Issue Comments
+
+**⚠️ Posting spec-audit findings as GitHub comments is FORBIDDEN.**
+
+Audit findings from spec-auditor are internal agent guidance — equivalent to linter output. They must be posted to chat only.
+
+- 🚫 FORBIDDEN: Posting audit findings (spec audits, plan fidelity checks, cross-validate results) as GitHub Issue comments
+- 🚫 FORBIDDEN: Treating audit output as stakeholder-facing content
+- ✅ REQUIRED: Audit findings go to chat only. Spec revisions (not audit results) go to issue comments when substantive.
 
 
 ### [critical-rules-012] Acting on Resources Without Reading All Comments
@@ -673,6 +747,24 @@ Default: `git checkout -b feature/X` in main repo. Worktree opt-in when `WORKTRE
 ### [critical-rules-005] Skipping Git Pre-Check — working without feature branch
 Must verify git state and create feature branch before any file modification. Creating `feature/*` or `spec/*` branches additionally requires `for_implementation` or above authorization scope.
 
+#### 🚫 FORBIDDEN
+
+- Working without a feature branch
+- Creating `feature/*` or `spec/*` branches without `for_implementation` or above authorization scope
+
+#### ✅ REQUIRED
+
+- Verify git state before any file modification
+- Create feature branch before starting work
+- Ensure `for_implementation` or above scope before creating `feature/*` or `spec/*` branches
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Working without feature branch | Changes land directly on dev/main, breaking branch discipline |
+| Creating branches without authorization | Feature/spec branches created without proper scope approval |
+
 
 ### [critical-rules-024] Uncommitted/Unpushed Changes After Implementation
 See `finishing-a-development-branch --task checklist`.
@@ -819,6 +911,23 @@ All failures are agent-owned. Remediation is the default action. Escalation is o
 ### [critical-rules-066] Terminology Standardization — all context cost references must use standardized vocabulary
 All references to "context budget", "context cost", and "context awareness" must use the standardized vocabulary: "orchestrator context", "sub-agent context", and "orchestrator context discipline". See `020-go-prohibitions.md` §1.1 Terminology Standardization. CHANGELOG entries and historical references are exempt.
 
+
+### Channel-Routing Table — Issue Comments vs. Chat Output
+
+**Progress executive summaries go to chat ONLY, not GitHub Issue comments.**
+
+| Action | Channel |
+|--------|---------|
+| Progress executive summaries | Chat only |
+| Review-prep / verification status | Chat only |
+| Substantive spec revision | Chat + Issue comment |
+| PR created | Issue comment |
+| Issue blocked | Issue comment |
+| Bug discovered during implementation | Issue comment |
+| User question response | Issue comment |
+| Issue closure | Issue comment |
+| Agent completes implementation task | Chat only |
+| Spec-audit findings | Internal only |
 
 ---
 

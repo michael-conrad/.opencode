@@ -33,7 +33,7 @@ pipeline_phase: <current_phase_name>
 
 - Changes pushed to remote (if `halt_at >= pr_created`)
 - Compare URL generated with correct base branch
-- Issue/PR comments posted with summary
+- Completion comment routed through substantive gate
 - Executive summary output produced
 - Byline verified in all posted content
 
@@ -68,31 +68,15 @@ Construct from session-init values with character-match verification:
 COMPARE_URL="https://github.com/${GIT_OWNER}/${GIT_REPO}/compare/dev...$(git branch --show-current)"
 ```
 
-### Step 3: Post Completion Comment
+### Step 3: Route Completion Comment Through Substantive Gate
 
-Post a progress comment to the issue summarizing:
-- What was implemented
-- What passed verification
-- What remains (if anything)
-
-Use the `issue-operations` skill to route through the platform dispatcher:
+Route the completion comment through the `issue-operations` → `comment` → substantive gate:
 
 ```
-task(subagent_type="general", prompt: "post completion comment to issue #{issue_number} via issue-operations")
+task(subagent_type="general", prompt: "route completion comment for issue #{issue_number} through issue-operations -> comment -> substantive gate")
 ```
 
-Comment body format:
-```
-Phase <phase_name> complete.
-
-**Implemented:** <what was implemented>
-**Verified:** <verification result summary>
-**Remaining:** <what remains, if anything>
-
-🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
-```
-
-Byline verification: Before posting, verify the byline is present in the comment body. The byline MUST be the last substantive line of the comment.
+The substantive gate decides whether posting a comment to the issue is warranted based on content significance.
 
 ### Step 4: Executive Summary Output
 
@@ -129,7 +113,7 @@ solve state update ./tmp/{issue-N}/state/ \
 |-----------|----------------------|
 | Push branch | Check `git log origin/..HEAD` before pushing |
 | Generate URL | Construct from session-init values — deterministic |
-| Post status comment | Substantiveness gate (per `issue-operations` skill `comment` task) |
+| Route completion comment | Substantive gate (per `issue-operations` skill `comment` task) |
 | Report executive summary | Always run; idempotent by nature |
 | Z3 state update | `--var-value complete` is idempotent |
 
@@ -141,7 +125,7 @@ solve state update ./tmp/{issue-N}/state/ \
 | Push fails (auth error) | Report auth failure, ask developer |
 | No changes to push | Skip push step |
 | URL generation fails | Report manually |
-| Comment post fails | Report post failure, include summary in chat only |
+| Comment routing fails | Report routing failure, include summary in chat only |
 
 ## Result Contract
 
@@ -149,7 +133,7 @@ solve state update ./tmp/{issue-N}/state/ \
 status: DONE | BLOCKED
 pushed: true | false
 compare_url: "<url>" | null
-comment_posted: true | false
+comment_routed: true | false
 summary: "<1-3 sentence summary>"
 ```
 
@@ -168,7 +152,7 @@ Following the #932 naming convention per `implementation-pipeline` pipeline-exec
 |-------|-------------------|-----------|
 | "Changes pushed" | Verify remote tracking branch exists | `git status` / `git log origin/HEAD..HEAD` |
 | "Compare URL valid" | Verify owner and repo character-match | Compare against session-init values |
-| "Comment posted" | Verify comment exists on issue | `issue-operations -> read-comments` |
+| "Comment routed" | Verify routing completed via substantive gate | `issue-operations -> read-comments` |
 | "Byline present" | Verify byline is last substantive line | Read posted comment text |
 
 ## Cross-References

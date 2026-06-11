@@ -14,7 +14,7 @@ Handle non-bug, non-spec issues by asking clarifying questions one at a time in 
 
 - Clarifying questions asked one at a time in chat
 - Resolution reached OR user ends Q/A
-- Exec summary posted to issue (durable outcomes only)
+- Exec summary routed through `issue-operations -> comment` substantive gate (durable outcomes only). Gate decides posting.
 - HALT after posting summary
 
 ## Q/A Depth Selection

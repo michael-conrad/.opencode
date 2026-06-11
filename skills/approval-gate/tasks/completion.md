@@ -11,7 +11,7 @@ Idempotent completion subtask for approval-gate. Ensures mandatory steps run reg
 
 1. **Post authorization result comment** (if not already posted):
    - Check issue comments for existing authorization result (byline pattern)
-   - If missing: post result comment with authorization status and scope
+   - If missing: route through `issue-operations -> comment` substantive gate for authorization result. Gate decides posting.
 
 ## Shared Completion Delegation
 
@@ -147,7 +147,7 @@ This format is verified by behavioral enforcement tests in `.opencode/tests/beha
 
 ### Verification Checklist
 
-- **Authorization result comment posted:** Search issue comments via `issue-operations -> read-comments (github_issue_read(method=get_comments)` for the authorization result (byline pattern). If missing → MISSING-ELEMENT (auto-fix: post now). <!-- Routes through issue-operations per SPEC #683 -->
+- **Authorization result routed through substantive gate:** Search issue comments via `issue-operations -> read-comments (github_issue_read(method=get_comments)` for the authorization result (byline pattern). If missing → MISSING-ELEMENT (auto-fix: route through substantive gate now). <!-- Routes through issue-operations per SPEC #683 -->
 - **Label state matches authorization:** Check labels via `issue-operations -> read-labels (github_issue_read(method=get_labels)`. If `needs-approval` present AND authorization granted → STRUCTURE-VIOLATION (auto-fix: remove label). If `needs-approval` absent AND no authorization found → VERIFICATION-GAP (flag-for-review). <!-- Routes through issue-operations per SPEC #683 -->
 - **Status report matches workflow outcome:** If completion claims "approved" but no authorization comment found → CONFLICTING (flag-for-review). If claims "blocked" but blocker issue is closed → VERIFICATION-GAP (flag-for-review).
 

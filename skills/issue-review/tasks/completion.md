@@ -25,7 +25,7 @@ Idempotent completion subtask for issue-review. Ensures mandatory steps ran rega
 
 4. **Executive summary channel verification** (if not already performed):
    - Audit path: summary went to chat only (not GitHub comments)
-   - QA path: durable outcomes posted to issue
+   - QA path: durable outcomes routed through substantive gate before posting to issue
    - If wrong channel: repost to correct channel
 
 ## Shared Completion Delegation

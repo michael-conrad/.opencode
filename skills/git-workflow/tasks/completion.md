@@ -28,7 +28,7 @@ Reference `.opencode/skills/completion-core/completion-core.md` for steps 3-6:
 
 1. Push branch (with idempotency check)
 2. Generate compare URL (dev...branch)
-3. Post status comment on issue (with idempotency check, if issue context available)
+3. Route status comment through `issue-operations -> comment` substantive gate. Gate decides whether to post to issue or output to chat only.
 4. Report executive summary in chat (always runs)
 
 ## Report Phase

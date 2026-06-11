@@ -41,18 +41,7 @@ COMPARE_URL="${GITBUCKET_HTML_URL:-https://github.com/}${GIT_OWNER}/${GIT_REPO}/
 - **Issue URL:** Extract from `github_issue_write` API response `html_url` field — NEVER construct from template <!-- Routes through issue-operations per SPEC #683 -->
 - **PR URL:** Extract from `github_create_pull_request` API response `html_url` field — NEVER construct from template
 
-### 3. Post Status Comment (Substantive Only)
-
-Before posting, evaluate whether the comment is substantive per the `issue-operations` `comment` task Substantive Comment Gate:
-
-```python
-# ONLY post if the comment conveys stakeholder-meaningful information
-if is_substantive:
-    issue-operations -> comment (github_add_issue_comment(owner=<github.owner>, repo=<github.repo>, issue_number=N, body="...") <!-- Routes through issue-operations per SPEC #683 -->
-else:
-    # Skip posting — progress goes to chat only
-    pass
-```
+### 3. Route Status Comment Through Substantive Gate — route through `issue-operations -> comment` substantive gate. Gate decides whether to post.
 
 ### 4. Report Executive Summary in Chat (Always Runs)
 

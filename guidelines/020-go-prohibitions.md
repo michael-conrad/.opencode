@@ -183,7 +183,7 @@ The following actions do NOT require `"approved"` or `"go"` and the agent MUST N
 
 - Creating GitHub Issues (specs, plans, bug reports) — see `010-approval-gate.md` §Issue Creation Is Reporting, Not Implementation
 - Creating sub-issues under an approved plan — covered by plan authorization
-- Posting progress comments to GitHub — always permitted
+- Posting progress comments to GitHub — permitted only through issue-operations -> comment substantive gate. Non-substantive progress (status updates, "phase complete", "implemented X") goes to chat only, never to issue comments.
 - Moving issue labels — metadata operation
 - Running lint/typecheck/format commands — read-only verification
 - Creating feature branches — see `git-workflow` skill pre-work (requires `for_implementation` or above)
