@@ -138,4 +138,13 @@ rules:
       all: ["concern_enumeration_performed == false", "write_task_pending == true"]
     actions: [HALT, ENUMERATE_CONCERNS]
     source: "spec-creation/SKILL.md"
+
+  - id: spec-creation-pipeline-readiness
+    title: "Pipeline-readiness gate required before spec finalization"
+    conditions:
+      all:
+        - "spec_sc_finalized == true"
+        - "pipeline_readiness_gate_passed == false"
+    actions: [HALT, CALL(spec-creation --task pipeline-readiness-gate)]
+    source: "spec-creation/SKILL.md"
 ```
