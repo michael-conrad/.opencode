@@ -26,6 +26,7 @@ Spec Architect. Focus: structure investigation results into complete, well-organ
 | `requirements` | ≈300 |
 | `decompose` | ≈250 |
 | `traceability` | ≈250 |
+| `pipeline-readiness-gate` | ≈250 |
 | `risk` | ≈250 |
 | `diagram` | ≈200 |
 | `write` | ≈300 |
@@ -41,6 +42,7 @@ Spec Architect. Focus: structure investigation results into complete, well-organ
 | `requirements` | `task(..., prompt: "execute requirements task from spec-creation")` |
 | `decompose` | `task(..., prompt: "execute decompose task from spec-creation")` |
 | `traceability` | `task(..., prompt: "execute traceability task from spec-creation")` |
+| `pipeline-readiness-gate` | `task(..., prompt: "execute pipeline-readiness-gate task from spec-creation")` |
 | `risk` | `task(..., prompt: "execute risk task from spec-creation")` |
 | `diagram` | `task(..., prompt: "execute diagram task from spec-creation")` |
 | `write` | `task(..., prompt: "execute write task from spec-creation")` |
