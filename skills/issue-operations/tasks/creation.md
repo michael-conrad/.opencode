@@ -223,6 +223,43 @@ Issue #MMM created on GitHub. Review:
   Local mirror: platforms/local/tasks/read.md via task()
 ```
 
+### Step 5: Enforce Exec Summary Body Format
+
+**The created issue body MUST include the exec summary body format below.** If the body was constructed without these sections, update it immediately via the platform sub-skill (`issue-operations → update-issue`) before proceeding to Step 4.
+
+The body must contain the following 6 sections in order:
+
+1. **Spec Reference Blockquote** (mandatory — top of body, before all other content):
+   ```
+   > Full spec and plan artifacts: {{REMOTE_BROWSER_URL}}/{{OWNER}}/{{REPO}}/tree/issues-data/.issues/N/
+   ```
+   - `{{REMOTE_BROWSER_URL}}` from session-init (platform-agnostic — use `github.html_url` or `gitbucket.html_url` as appropriate)
+   - `{{OWNER}}` / `{{REPO}}` from session-init, verified against target issue's repository
+   - `{{SPEC_BRANCH}}` always `issues-data`
+   - `{{SPEC_PATH}}` always `.issues/N/` (where N is the created issue number)
+   - **Repo-awareness guard:** Confirm owner/repo from session-init matches the target issue's repository. If the issue resides in a submodule/sub-folder repo (different owner/repo from root), use that repo's owner/repo. Do NOT route a cross-repo URL with the wrong owner/repo pair.
+   - All links MUST be full resolved URLs — no platform shortcuts (`#NNN`, relative paths)
+
+2. **Problem** (mandatory) — What problem this solves, why now, BLUF (Bottom Line Up Front) format. 1-3 sentences.
+
+3. **Scope** (mandatory) — 3-5 bullets describing what is in-scope, followed by an explicit `**Out of scope:**` list describing what is NOT covered.
+
+4. **Approach** (mandatory) — High-level solution description, 3-5 sentences. Focus on architectural choices and rationale, not implementation details.
+
+5. **Impact** (mandatory) — Top 3 risks with one-line mitigation each, key dependencies, and a call to action.
+
+6. **AI Agent Instructions** (mandatory):
+   ```
+   ## AI Agent Instructions
+
+   This issue is an executive summary for human stakeholders.
+   The authoritative spec and plan artifacts are at .issues/N/.
+   AI agents MUST read the local spec/plan files for implementation
+   and MUST NOT base implementation on this summary.
+   ```
+
+**Post-creation enforcement:** Run this check after Step 2 (issue created) and before Step 4 (report). If any section is missing, call `issue-operations → update-issue` to amend the body with the missing section(s). Do NOT proceed to report until all 6 sections are verified present.
+
 ## Multi-Task Spec Handling
 
 **If spec has multiple phases:**
