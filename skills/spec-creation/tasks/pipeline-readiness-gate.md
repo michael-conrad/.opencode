@@ -43,8 +43,26 @@ Extract the SC dependency graph from `depends_on` fields:
 
 1. Collect all SC-ID → `depends_on: [SC-IDs]` mappings
 1. Verify every referenced SC-ID in `depends_on` is defined in the SC table
-1. Generate a Z3 ordering contract at `.issues/{N}/spec-artifacts/sc-dependency-contract.yaml`
-1. Run `solve prove --contract-path ... --ordering-assertion` to validate the DAG
+1. Generate a Z3 ordering contract at `.issues/{issue-N}/spec-artifacts/sc-dependency-contract.yaml`
+
+   Contract schema (SC DAG ordering):
+
+   ```yaml
+   variables:
+     SC-1_DONE: {type: bool, nullable: false}
+     SC-2_DONE: {type: bool, nullable: false}
+     ...
+   invariants:
+     # Each SC's truth implies all its dependencies are true
+     - "z3.Implies(SC-2_DONE == True, SC-1_DONE == True)"
+     - "z3.Implies(SC-3_DONE == True, z3.And(SC-1_DONE == True, SC-2_DONE == True))"
+     # Theorem: all SCs can be satisfied without violating dependency order
+     - "sc_dag_is_valid"
+   ```
+
+   The theorem `sc_dag_is_valid` is a Z3 assertion that the conjunction of all implication invariants is SAT (the dependency graph has no contradictions). If Z3 returns UNSAT, the dependency graph is invalid.
+
+1. Run `solve prove --contract-path .issues/{issue-N}/spec-artifacts/sc-dependency-contract.yaml --theorem "sc_dag_is_valid"` to validate the DAG
 1. If any cycle or missing dependency is found: PR-2 = FAIL
 
 ### Step 3: Validate Single Concern (PR-3)
@@ -61,8 +79,23 @@ An SC that spans multiple file categories or multiple verification domains is a 
 Extract the phase dependency graph:
 
 1. Collect all phase → `depends_on: [phase-names]` mappings
-1. Generate a Z3 ordering contract at `.issues/{N}/spec-artifacts/dependency-ordering-verification/ordering.yaml`
-1. Run `solve prove --contract-path ... --theorem "phase_dag_is_acyclic"` to validate
+1. Generate a Z3 ordering contract at `.issues/{issue-N}/spec-artifacts/dependency-ordering-verification/ordering.yaml`
+
+   Contract schema (phase DAG ordering) — same structure as Step 2:
+
+   ```yaml
+   variables:
+     PHASE-1_DONE: {type: bool, nullable: false}
+     PHASE-2_DONE: {type: bool, nullable: false}
+     ...
+   invariants:
+     - "z3.Implies(PHASE-2_DONE == True, PHASE-1_DONE == True)"
+     - "z3.Implies(PHASE-3_DONE == True, PHASE-1_DONE == True)"
+     # Theorem: all phases can be satisfied without violating ordering
+     - "phase_dag_is_acyclic"
+   ```
+
+1. Run `solve prove --contract-path .issues/{issue-N}/spec-artifacts/dependency-ordering-verification/ordering.yaml --theorem "phase_dag_is_acyclic"` to validate
 1. If any cycle is found: PR-4 = FAIL
 
 ### Step 5: Write Artifact
@@ -81,7 +114,7 @@ checks:
     detail: "..."
   - check_id: PR-2
     result: PASS | FAIL
-    solve_contract_path: ".issues/{N}/spec-artifacts/sc-dependency-contract.yaml"
+    solve_contract_path: ".issues/{issue-N}/spec-artifacts/sc-dependency-contract.yaml"
     prove_results:
       - theorem: "sc_dag_is_valid"
         result: VALID | INVALID
@@ -90,7 +123,7 @@ checks:
     detail: "..."
   - check_id: PR-4
     result: PASS | FAIL
-    solve_contract_path: ".issues/{N}/spec-artifacts/dependency-ordering-verification/ordering.yaml"
+    solve_contract_path: ".issues/{issue-N}/spec-artifacts/dependency-ordering-verification/ordering.yaml"
     prove_results:
       - theorem: "phase_dag_is_acyclic"
         result: VALID | INVALID
