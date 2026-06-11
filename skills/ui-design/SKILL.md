@@ -19,20 +19,19 @@ UI Design Specialist. Focus: information architecture, component relationships, 
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `design` | ≈800 |
-| `wireframe` | ≈400 |
-| `mockup` | ≈400 |
-| `interaction-spec` | ≈400 |
-| `completion` | ≈150 |
+
+| `design` |
+| `wireframe` |
+| `mockup` |
+| `interaction-spec` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "ui-design"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `design` | `task(..., prompt: "execute design task from ui-design")` |
 | `wireframe` | `task(..., prompt: "execute wireframe task from ui-design")` |
 | `mockup` | `task(..., prompt: "execute mockup task from ui-design")` |

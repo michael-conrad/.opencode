@@ -1,6 +1,11 @@
-______________________________________________________________________
-
-## name: writing-plans description: Use when creating an implementation plan from an approved spec. Triggers on: write plan, create plan, implementation plan, plan spec, approved plan, plan creation. Implementing without a plan is wandering. Plans are the map — agents who skip them get lost. type: discipline-enforcing license: MIT provenance: AI-generated compatibility: opencode
+---
+name: writing-plans
+description: "Use when creating an implementation plan from an approved spec. Triggers on: write plan, create plan, implementation plan, plan spec, approved plan, plan creation. Implementing without a plan is wandering. Plans are the map — agents who skip them get lost."
+type: discipline-enforcing
+license: MIT
+provenance: AI-generated
+compatibility: opencode
+---
 
 # Skill: writing-plans
 
@@ -14,10 +19,9 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `create` | ≈600 |
-| `completion` | ≈200 |
+
+| `create` |
+| `completion` |
 
 ## Plan Model
 
@@ -31,7 +35,7 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 `skill({name: "writing-plans"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `create` | `task(..., prompt: "execute create task from writing-plans")` |
 | `completion` | `task(..., prompt: "execute completion task from writing-plans")` |
 

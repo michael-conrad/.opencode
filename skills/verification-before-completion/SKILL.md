@@ -23,19 +23,18 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `verify` | ≈700 |
-| `collect` | ≈500 |
-| `structural-verify` | ≈500 |
-| `completion` | ≈150 |
+
+| `verify` |
+| `collect` |
+| `structural-verify` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "verification-before-completion"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `verify` | `task(..., prompt: "execute verify task from verification-before-completion")` |
 | `structural-verify` | `task(..., prompt: "execute structural-verify task from verification-before-completion")` |
 | `collect` | `task(..., prompt: "execute collect task from verification-before-completion")` |

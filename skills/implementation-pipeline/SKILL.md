@@ -49,7 +49,7 @@ The orchestrator is a pure router — never reads task file content, never perfo
 `skill({name: "implementation-pipeline"})` — call the skill, then dispatch each step via task():
 
 | Step | Call via task() |
-|------|-----------------|
+
 | Any dispatch step | `task(..., prompt: "execute <step_label> from implementation-pipeline")` |
 
 Every task context MUST include the authorization context block:
@@ -136,7 +136,7 @@ When a step returns FAIL, the orchestrator:
 ## Enforcement Reference
 
 | Document | Purpose |
-|----------|---------|
+
 | Sub-agent context shape | Context shape and exclusions for task() routing |
 | `enforcement/overflow-signal.md` | OVERFLOW contract and re-routing strategies |
 | `enforcement/work-state-verification.md` | Verification table and work state format |
@@ -156,7 +156,7 @@ Artifacts under `./tmp/{issue-N}/` are ephemeral — they are cleaned at PR merg
 At the start of each pipeline step, clean previous-run artifacts for that step to prevent stale state contamination:
 
 | Step Label | Pre-Cleanup Action |
-|------------|-------------------|
+
 | `pre-red-baseline` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-pre-red-baseline-*` |
 | `red-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-red-phase-*` |
 | `green-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-phase-*` |

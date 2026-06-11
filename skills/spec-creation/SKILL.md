@@ -1,6 +1,11 @@
-______________________________________________________________________
-
-## name: spec-creation description: "Use when creating a spec or writing a specification. Triggers on: create spec, write spec, spec creation, spec writing, structure spec, specification. Writing code without a spec is guesswork. Professional engineers spec first." type: discipline-enforcing license: MIT provenance: AI-generated compatibility: opencode
+---
+name: spec-creation
+description: "Use when creating a spec or writing a specification. Triggers on: create spec, write spec, spec creation, spec writing, structure spec, specification. Writing code without a spec is guesswork. Professional engineers spec first."
+type: discipline-enforcing
+license: MIT
+provenance: AI-generated
+compatibility: opencode
+---
 
 # Skill: spec-creation
 
@@ -16,17 +21,17 @@ Spec Architect. Focus: structure investigation results into complete, well-organ
 
 ## Tasks
 
-| Task                      | Words |
-| ------------------------- | ----- |
-| `requirements`            | ≈300  |
-| `decompose`               | ≈250  |
-| `traceability`            | ≈250  |
-| `pipeline-readiness-gate` | ≈250  |
-| `risk`                    | ≈250  |
-| `diagram`                 | ≈200  |
-| `write`                   | ≈300  |
-| `change-control`          | ≈200  |
-| `completion`              | ≈150  |
+| Task                      |
+| ------------------------- |
+| `requirements`            |
+| `decompose`               |
+| `traceability`            |
+| `pipeline-readiness-gate` |
+| `risk`                    |
+| `diagram`                 |
+| `write`                   |
+| `change-control`          |
+| `completion`              |
 
 ## Invocation
 

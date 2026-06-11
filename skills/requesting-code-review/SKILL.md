@@ -15,17 +15,16 @@ Prepares and requests code reviews. Ensures PR descriptions have proper context,
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `prepare` | ≈400 |
-| `request` | ≈250 |
+
+| `prepare` |
+| `request` |
 
 ## Invocation
 
 `skill({name: "requesting-code-review"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `prepare` | `task(..., prompt: "execute prepare task from requesting-code-review")` |
 | `request` | `task(..., prompt: "execute request task from requesting-code-review")` |
 

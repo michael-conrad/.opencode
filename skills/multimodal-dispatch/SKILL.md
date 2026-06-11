@@ -19,18 +19,17 @@ Modality Router. Focus: probe models, resolve modality hints, task sub-agents to
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `probe` | ≈300 |
-| `route` | ≈400 |
-| `completion` | ≈150 |
+
+| `probe` |
+| `route` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "multimodal-dispatch"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `probe` | `task(..., prompt: "execute probe task from multimodal-dispatch")` |
 | `route` | `task(..., prompt: "execute route task from multimodal-dispatch")` |
 | `completion` | `task(..., prompt: "execute completion task from multimodal-dispatch")` |

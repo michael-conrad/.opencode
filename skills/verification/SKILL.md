@@ -19,10 +19,9 @@ Claim Verifier. Focus: verify each claim against evidence, produce PASS/FAIL/UNV
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `verify` | ≈300 |
-| `completion` | ≈150 |
+
+| `verify` |
+| `completion` |
 
 ## ClaimResult Schema
 
@@ -33,7 +32,7 @@ Claim Verifier. Focus: verify each claim against evidence, produce PASS/FAIL/UNV
 `skill({name: "verification"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `verify` | `task(..., prompt: "execute verify task from verification")` |
 | `completion` | `task(..., prompt: "execute completion task from verification")` |
 

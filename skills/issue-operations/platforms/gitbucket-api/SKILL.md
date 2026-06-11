@@ -49,14 +49,14 @@ GitBucket platform implementation using Python client. Implements a GitHub-compa
 
 ## Tasks
 
-| Task | Purpose | Words |
-|------|---------|-------|
-| `issue-operations` | Issue CRUD patterns, create/update/list workarounds | ≈500 |
-| `label-operations` | Label CRUD, auto-creation, post-creation limitations | ≈400 |
-| `error-recovery` | Error handling, retry logic, credential failures | ≈320 |
-| `mcp-operations` | MCP tool mapping, alternative API paths | ≈250 |
-| `repository-operations` | Repository CRUD, branch operations | ≈300 |
-| `session-integration` | Session init integration, env var detection | ≈200 |
+| Task | Purpose |
+|------|---------|
+| `issue-operations` | Issue CRUD patterns, create/update/list workarounds |
+| `label-operations` | Label CRUD, auto-creation, post-creation limitations |
+| `error-recovery` | Error handling, retry logic, credential failures |
+| `mcp-operations` | MCP tool mapping, alternative API paths |
+| `repository-operations` | Repository CRUD, branch operations |
+| `session-integration` | Session init integration, env var detection |
 
 ## Sub-Agent Tasks
 
@@ -77,7 +77,7 @@ GitBucket platform implementation using Python client. Implements a GitHub-compa
 GitBucket API supports labels via creation only (post-creation label mutation is broken). The eight `approved-for-*` labels are:
 
 | Label | Purpose |
-|---|---|
+
 | `approved-for-spec` | Authorization through spec creation |
 | `approved-for-plan` | Authorization through plan creation |
 | `approved-for-implementation` | Authorization through implementation |
@@ -106,7 +106,7 @@ Token authentication ONLY. Basic auth is broken in GitBucket (returns "Bad crede
 ### Command Reference
 
 | Command | Description |
-|---------|-------------|
+
 | `me` | Get current user |
 | `issues <owner> <repo> [--state open\|closed\|all]` | List issues |
 | `issue <owner> <repo> <number>` | Get single issue |
@@ -138,7 +138,7 @@ All `list_*` endpoints return arrays (`List[Dict]`), NOT objects. The Python cli
 ## Cross-References
 
 | Guideline | Section |
-|-----------|---------|
+
 | Router | `../../SKILL.md` (issue-operations) |
 | GitHub platform | `../github-mcp/SKILL.md` |
 | Session init plugin | GitBucket detection and credentials |

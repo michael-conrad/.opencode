@@ -19,17 +19,15 @@ You are a Completeness Gate Sub-Agent. Your focus is verifying that a deliverabl
 
 ## Tasks
 
-| Task | Words | Purpose |
 |------|-------|---------|
-| `check` | ≈200 | Run completeness check on deliverable |
-| `completion` | ≈100 | Ensure mandatory completion steps run |
+| `check` | Run completeness check on deliverable |
+| `completion` | Ensure mandatory completion steps run |
 
 ## Sub-Agent Tasks
 
-| Task | Words |
-|------|-------|
-| `check` | ≈200 |
-| `completion` | ≈100 |
+
+| `check` |
+| `completion` |
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 
@@ -83,7 +81,7 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 `skill({name: "completeness-gate"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `check` | `task(..., prompt: "execute check task from completeness-gate")` |
 | `completion` | `task(..., prompt: "execute completion task from completeness-gate")` |
 

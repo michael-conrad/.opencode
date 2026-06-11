@@ -15,17 +15,16 @@ Enforces multipart/alternative format (text/plain + text/html) for email, stakeh
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `draft` | ≈800 |
-| `completion` | ≈200 |
+
+| `draft` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "correspondence"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `draft` | `task(..., prompt: "execute draft task from correspondence")` |
 | `completion` | `task(..., prompt: "execute completion task from correspondence")` |
 

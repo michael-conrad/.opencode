@@ -17,17 +17,16 @@ No single-issue bypass — single = work of one = one sub-agent.
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `execute` | ≈300 |
-| `completion` | ≈150 |
+
+| `execute` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "executing-plans"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `execute` | `task(..., prompt: "execute execute task from executing-plans")` |
 | `completion` | `task(..., prompt: "execute completion task from executing-plans")` |
 
