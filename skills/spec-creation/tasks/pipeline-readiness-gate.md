@@ -67,11 +67,13 @@ Extract the phase dependency graph:
 
 ### Step 5: Write Artifact
 
+Generate timestamp via `.opencode/tools/schema-version`. Store result in `$TIMESTAMP`.
+
 Write `.issues/{issue-N}/spec-artifacts/sc-pipeline-readiness.yaml`:
 
 ```yaml
 schema_version: "1.0"
-generated_at: "<timestamp>"
+generated_at: "$(./.opencode/tools/schema-version)"
 status: PASS | FAIL
 checks:
   - check_id: PR-1
