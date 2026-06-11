@@ -19,17 +19,16 @@ You are a Pre-Analysis Gatekeeper. Your focus is independently discovering scope
 
 ## Tasks
 
-| Task | Purpose | Words |
-|------|---------|-------|
-| `analyze` | Load task files, discover scope, return task plan | ≈400 |
-| `completion` | Ensure mandatory completion steps run regardless of workflow outcome | ≈100 |
+| Task | Purpose |
+|------|---------|
+| `analyze` | Load task files, discover scope, return task plan |
+| `completion` | Ensure mandatory completion steps run regardless of workflow outcome |
 
 ## Sub-Agent Tasks
 
-| Task | Words |
-|------|-------|
-| `analyze` | ≈400 |
-| `completion` | ≈100 |
+
+| `analyze` |
+| `completion` |
 
 ### Task Routing
 
@@ -90,7 +89,7 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 `skill({name: "pre-analysis"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `analyze` | `task(..., prompt: "execute analyze task from pre-analysis")` |
 | `completion` | `task(..., prompt: "execute completion task from pre-analysis")` |
 

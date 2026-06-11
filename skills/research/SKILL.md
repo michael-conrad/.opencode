@@ -19,17 +19,16 @@ Research Agent. Focus: discover information, produce findings with source attrib
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `research` | ≈400 |
-| `completion` | ≈150 |
+
+| `research` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "research"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `research` | `task(..., prompt: "execute research task from research")` |
 | `completion` | `task(..., prompt: "execute completion task from research")` |
 

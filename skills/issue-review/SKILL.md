@@ -19,14 +19,14 @@ Issue Review Orchestrator. Focus: gather context, classify path, delegate to cor
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `gather` | ≈500 |
-| `triage` | ≈600 |
-| `audit` | ≈350 |
-| `qa` | ≈500 |
-| `analyze-and-spec` | ≈600 |
-| `completion` | ≈200 |
+| Task |
+|------|
+| `gather` |
+| `triage` |
+| `audit` |
+| `qa` |
+| `analyze-and-spec` |
+| `completion` |
 
 ## Invocation
 

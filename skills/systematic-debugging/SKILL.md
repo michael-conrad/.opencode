@@ -15,18 +15,17 @@ Enforces root cause analysis, hypothesis testing, and minimal fixes. Prevents "v
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `diagnose` | ≈400 |
-| `fix` | ≈350 |
-| `completion` | ≈200 |
+
+| `diagnose` |
+| `fix` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "systematic-debugging"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `diagnose` | `task(..., prompt: "execute diagnose task from systematic-debugging")` |
 | `fix` | `task(..., prompt: "execute fix task from systematic-debugging")` |
 | `completion` | `task(..., prompt: "execute completion task from systematic-debugging")` |

@@ -15,7 +15,7 @@ Dual cross-family audit via clean-room sub-agents. Auditors write YAML verdicts 
 ## Tasks
 
 | Task | Purpose |
-|------|---------|
+
 | `resolve-models` | Select two cross-family auditors via capability probe |
 | `verification-audit` | Audit implemented code against spec SCs using behavioral evidence. Default audit task. Requires artifact_evidence_dir. |
 | `spec-audit` | Pre-implementation spec quality audit. Verifies spec structure, determinism, and live documentation sources. Evidence dir optional. |

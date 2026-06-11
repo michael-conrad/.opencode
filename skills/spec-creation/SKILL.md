@@ -1,6 +1,6 @@
 ---
 name: spec-creation
-description: Use when creating a spec or writing a specification. Triggers on: create spec, write spec, spec creation, spec writing, structure spec, specification. Writing code without a spec is guesswork. Professional engineers spec first.
+description: "Use when creating a spec or writing a specification. Triggers on: create spec, write spec, spec creation, spec writing, structure spec, specification. Writing code without a spec is guesswork. Professional engineers spec first."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
@@ -21,44 +21,46 @@ Spec Architect. Focus: structure investigation results into complete, well-organ
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `requirements` | ≈300 |
-| `decompose` | ≈250 |
-| `traceability` | ≈250 |
-| `risk` | ≈250 |
-| `diagram` | ≈200 |
-| `write` | ≈300 |
-| `change-control` | ≈200 |
-| `completion` | ≈150 |
+| Task                      |
+| ------------------------- |
+| `requirements`            |
+| `decompose`               |
+| `traceability`            |
+| `pipeline-readiness-gate` |
+| `risk`                    |
+| `diagram`                 |
+| `write`                   |
+| `change-control`          |
+| `completion`              |
 
 ## Invocation
 
 `skill({name: "spec-creation"})` — call the skill, then call via task():
 
-| Task | Call via task() |
-|------|----------|
-| `requirements` | `task(..., prompt: "execute requirements task from spec-creation")` |
-| `decompose` | `task(..., prompt: "execute decompose task from spec-creation")` |
-| `traceability` | `task(..., prompt: "execute traceability task from spec-creation")` |
-| `risk` | `task(..., prompt: "execute risk task from spec-creation")` |
-| `diagram` | `task(..., prompt: "execute diagram task from spec-creation")` |
-| `write` | `task(..., prompt: "execute write task from spec-creation")` |
-| `completion` | `task(..., prompt: "execute completion task from spec-creation")` |
+| Task                      | Call via task()                                                                |
+| ------------------------- | ------------------------------------------------------------------------------ |
+| `requirements`            | `task(..., prompt: "execute requirements task from spec-creation")`            |
+| `decompose`               | `task(..., prompt: "execute decompose task from spec-creation")`               |
+| `traceability`            | `task(..., prompt: "execute traceability task from spec-creation")`            |
+| `pipeline-readiness-gate` | `task(..., prompt: "execute pipeline-readiness-gate task from spec-creation")` |
+| `risk`                    | `task(..., prompt: "execute risk task from spec-creation")`                    |
+| `diagram`                 | `task(..., prompt: "execute diagram task from spec-creation")`                 |
+| `write`                   | `task(..., prompt: "execute write task from spec-creation")`                   |
+| `completion`              | `task(..., prompt: "execute completion task from spec-creation")`              |
 
 **CLI equivalent (for human TUI use):** `/skill spec-creation --task <task>`
 
 ## Operating Protocol
 
 1. **Pre-spec inspection mandatory** per `015-pre-spec-inspection.md` (code inspection checklist).
-2. **Verification-enforcement gate** before generation.
-3. **Select-existing pathway:** search GitHub Issues for existing specs before creating new one.
-4. **Requirements task mandatory** before write (unless trivial).
-5. **Persist as GitHub Issue** via `issue-operations --task creation`.
-6. **Adversarial-audit call:** after issue creation, call `adversarial-audit --task spec-audit --issue <N>` with `audit_phase: spec_creation`.
-7. **PR merge boundaries** required when dependencies exist.
-8. **Mermaid diagram** required for multi-phase specs (approved structure only, no workflow state).
-9. **Concern enumeration guard:** enumerate single concerns before writing.
+1. **Verification-enforcement gate** before generation.
+1. **Select-existing pathway:** search GitHub Issues for existing specs before creating new one.
+1. **Requirements task mandatory** before write (unless trivial).
+1. **Persist as GitHub Issue** via `issue-operations --task creation`.
+1. **Adversarial-audit call:** after issue creation, call `adversarial-audit --task spec-audit --issue <N>` with `audit_phase: spec_creation`.
+1. **PR merge boundaries** required when dependencies exist.
+1. **Mermaid diagram** required for multi-phase specs (approved structure only, no workflow state).
+1. **Concern enumeration guard:** enumerate single concerns before writing.
 
 ## Sub-Agent Routing
 
@@ -73,12 +75,12 @@ Every sub-agent MUST independently discover scope and produce its own result con
 
 #### Forbidden in task() Prompts
 
-| Violation | Forbidden Pattern | Correct Pattern |
-|-----------|-------------------|-----------------|
-| Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
-| Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
-| Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
-| Preloaded orchestrator reasoning | "The merge was just completed so we need to..." | Pure objective, no narrative |
+| Violation                        | Forbidden Pattern                                    | Correct Pattern                              |
+| -------------------------------- | ---------------------------------------------------- | -------------------------------------------- |
+| Preloaded file paths             | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow"     |
+| Preloaded step sequences         | "Step 1: sync dev. Step 2: delete branch."           | "execute cleanup task from git-workflow"     |
+| Preloaded expected outcomes      | "Return { cleanup_status, branch_deleted }"          | Let sub-agent define its own result contract |
+| Preloaded orchestrator reasoning | "The merge was just completed so we need to..."      | Pure objective, no narrative                 |
 
 #### Dispatch Context Contract
 
@@ -95,6 +97,7 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
+
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -104,6 +107,7 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
@@ -139,3 +143,13 @@ rules:
       all: ["concern_enumeration_performed == false", "write_task_pending == true"]
     actions: [HALT, ENUMERATE_CONCERNS]
     source: "spec-creation/SKILL.md"
+
+  - id: spec-creation-pipeline-readiness
+    title: "Pipeline-readiness gate required before spec finalization"
+    conditions:
+      all:
+        - "spec_sc_finalized == true"
+        - "pipeline_readiness_gate_passed == false"
+    actions: [HALT, CALL(spec-creation --task pipeline-readiness-gate)]
+    source: "spec-creation/SKILL.md"
+```

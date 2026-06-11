@@ -19,19 +19,18 @@ UI Implementation Engineer. Focus: component mapping, accessibility implementati
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `implement` | ≈800 |
-| `validate-impl` | ≈400 |
-| `test-ui` | ≈400 |
-| `completion` | ≈150 |
+
+| `implement` |
+| `validate-impl` |
+| `test-ui` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "ui-engineer"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `implement` | `task(..., prompt: "execute implement task from ui-engineer")` |
 | `validate-impl` | `task(..., prompt: "execute validate-impl task from ui-engineer")` |
 | `test-ui` | `task(..., prompt: "execute test-ui task from ui-engineer")` |

@@ -19,28 +19,27 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `pre-work` | ≈480 |
-| `implementation` | ≈400 |
-| `review-prep` | ≈390 |
-| `pr-creation` | ≈385 |
-| `rebase-pending` | ≈1666 |
-| `cleanup` | ≈950 |
-| `release-promotion` | ≈500 |
-| `check-pr` | ≈50 |
-| `provenance` | ≈460 |
-| `pair-pre-work` | ≈400 |
-| `pair-commit` | ≈350 |
-| `pair-pr-creation` | ≈300 |
-| `pair-cleanup` | ≈350 |
-| `pair-mode-resume` | ≈300 |
-| `completion` | ≈200 |
+
+| `pre-work` |
+| `implementation` |
+| `review-prep` |
+| `pr-creation` |
+| `rebase-pending` |
+| `cleanup` |
+| `release-promotion` |
+| `check-pr` |
+| `provenance` |
+| `pair-pre-work` |
+| `pair-commit` |
+| `pair-pr-creation` |
+| `pair-cleanup` |
+| `pair-mode-resume` |
+| `completion` |
 
 ## Routing: Feature PR vs Release PR
 
 | Request Type | Target |
-|---|---|
+
 | Feature PR (feature/* → dev) | `pr-creation-workflow` skill |
 | Release PR (dev → main) | `git-workflow --task release-promotion` |
 
@@ -49,7 +48,7 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 `skill({name: "git-workflow"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `pre-work` | `task(..., prompt: "execute pre-work task from git-workflow")` |
 | `implementation` | `task(..., prompt: "execute implementation task from git-workflow")` |
 | `review-prep` | `task(..., prompt: "execute review-prep task from git-workflow")` |
@@ -65,12 +64,12 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 
 ## Sub-Agent Tasks for Submodule Operations
 
-| Sub-Agent Task | Trigger | Task Context (MUST receive) | Exclusions (MUST NOT receive) | Config | Words |
-|----------------|---------|----------------------------------|-------------------------------|--------|-------|
-| `submodule-tag-prework` | pre-work Step 3.5 | parent_repo, issue_number, submodule_paths | Implementation context, agent memory, other sub-agent results | `.opencode/agents/submodule-tag-prework.jsonc` | ≈400 |
-| `submodule-feature-push` | review-prep Step 0 | parent_repo, issue_number, submodule_paths, submodule_branches | Implementation context, agent memory, orchestrator reasoning | `.opencode/agents/submodule-feature-push.jsonc` | ≈450 |
-| `submodule-liveness-check` | enforcement-gate Step 0, PR-time | submodule_paths, referenced_hashes, parent_repo, issue_number | Implementation context, agent memory, prior verification results | `.opencode/agents/submodule-liveness-check.jsonc` | ≈350 |
-| `submodule-dev-restore` | cleanup Step 1.9 | submodule_paths | Implementation context, agent memory, other sub-agent results | `.opencode/agents/submodule-dev-restore.jsonc` | ≈300 |
+| Sub-Agent Task | Trigger | Task Context (MUST receive) | Exclusions (MUST NOT receive) | Config |
+|----------------|---------|----------------------------------|-------------------------------|--------|
+| `submodule-tag-prework` | pre-work Step 3.5 | parent_repo, issue_number, submodule_paths | Implementation context, agent memory, other sub-agent results | `.opencode/agents/submodule-tag-prework.jsonc` |
+| `submodule-feature-push` | review-prep Step 0 | parent_repo, issue_number, submodule_paths, submodule_branches | Implementation context, agent memory, orchestrator reasoning | `.opencode/agents/submodule-feature-push.jsonc` |
+| `submodule-liveness-check` | enforcement-gate Step 0, PR-time | submodule_paths, referenced_hashes, parent_repo, issue_number | Implementation context, agent memory, prior verification results | `.opencode/agents/submodule-liveness-check.jsonc` |
+| `submodule-dev-restore` | cleanup Step 1.9 | submodule_paths | Implementation context, agent memory, other sub-agent results | `.opencode/agents/submodule-dev-restore.jsonc` |
 
 ## Operating Protocol
 

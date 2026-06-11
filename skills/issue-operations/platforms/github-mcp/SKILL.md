@@ -50,7 +50,7 @@ All operations routed through the `github_*` MCP tool family. No Python client n
 GitHub MCP supports the following `approved-for-*` labels for issue labeling:
 
 | Label | Purpose |
-|---|---|
+
 | `approved-for-spec` | Authorization through spec creation (scope: `for_spec`) |
 | `approved-for-analysis` | Authorization through analysis (scope: `for_analysis`) |
 | `approved-for-plan` | Authorization through plan creation (scope: `for_plan`) |
@@ -71,7 +71,7 @@ None required. GitHub MCP provides complete API coverage.
 Every `github_issue_read(method="get")` call MUST mirror the spec body to `.issues/<issue_number>/spec.md`:
 
 | Event | Action |
-|-------|--------|
+
 | `github_issue_read(method="get")` success | Write `.issues/<issue_number>/spec.md` with header `# Synced from GitHub Issue #<N> at <ISO8601-timestamp>` followed by the issue body |
 | `github_issue_read(method="get")` repeated | Overwrite `spec.md` with updated timestamp and body |
 | API unreachable (network error, rate limit, auth failure) | Read `.issues/<issue_number>/spec.md` from disk, note staleness in chat: `"spec.md last synced at <timestamp>, may be stale"` |

@@ -19,18 +19,17 @@ Worktree Setup Specialist. Focus: creating safe, isolated git worktrees for para
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `create-worktree` | ≈400 |
-| `verify-worktree` | ≈200 |
-| `completion` | ≈150 |
+
+| `create-worktree` |
+| `verify-worktree` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "using-git-worktrees"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `create-worktree` | `task(..., prompt: "execute create-worktree task from using-git-worktrees")` |
 | `verify-worktree` | `task(..., prompt: "execute verify-worktree task from using-git-worktrees")` |
 | `completion` | `task(..., prompt: "execute completion task from using-git-worktrees")` |

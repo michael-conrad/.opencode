@@ -19,18 +19,17 @@ Branch completion workflow ensuring feature branch is fully ready for PR. Verifi
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `prepare` | ≈450 |
-| `checklist` | ≈350 |
-| `completion` | ≈200 |
+
+| `prepare` |
+| `checklist` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "finishing-a-development-branch"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `prepare` | `task(..., prompt: "execute prepare task from finishing-a-development-branch")` |
 | `checklist` | `task(..., prompt: "execute checklist task from finishing-a-development-branch")` |
 | `completion` | `task(..., prompt: "execute completion task from finishing-a-development-branch")` |

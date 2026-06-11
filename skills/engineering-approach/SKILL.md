@@ -15,19 +15,18 @@ Engineering discipline checklist enforcing: understand before solving, design be
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `verify-understanding` | ≈300 |
-| `design-before-code` | ≈300 |
-| `verify-before-complete` | ≈300 |
-| `completion` | ≈100 |
+
+| `verify-understanding` |
+| `design-before-code` |
+| `verify-before-complete` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "engineering-approach"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `verify-understanding` | `task(..., prompt: "execute verify-understanding task from engineering-approach")` |
 | `design-before-code` | `task(..., prompt: "execute design-before-code task from engineering-approach")` |
 | `verify-before-complete` | `task(..., prompt: "execute verify-before-complete task from engineering-approach")` |

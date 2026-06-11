@@ -19,18 +19,17 @@ SRE-oriented operator writing runbooks for sysops under pressure. Runbooks are o
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `generate` | ≈1000 |
-| `track` | ≈450 |
-| `completion` | ≈200 |
+
+| `generate` |
+| `track` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "sre-runbook"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `generate` | `task(..., prompt: "execute generate task from sre-runbook")` |
 | `track` | `task(..., prompt: "execute track task from sre-runbook")` |
 | `completion` | `task(..., prompt: "execute completion task from sre-runbook")` |

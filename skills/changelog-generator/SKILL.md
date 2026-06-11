@@ -15,19 +15,18 @@ Transforms git commits into polished, user-friendly changelogs. Category-based o
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `since-last-release` | ≈170 |
-| `date-range` | ≈90 |
-| `backfill` | ≈120 |
-| `completion` | ≈200 |
+
+| `since-last-release` |
+| `date-range` |
+| `backfill` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "changelog-generator"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `since-last-release` | `task(..., prompt: "execute since-last-release task from changelog-generator")` |
 | `date-range` | `task(..., prompt: "execute date-range task from changelog-generator with --from DATE --to DATE")` |
 | `backfill` | `task(..., prompt: "execute backfill task from changelog-generator")` |

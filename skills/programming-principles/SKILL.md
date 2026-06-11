@@ -15,18 +15,17 @@ compatibility: opencode
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `principles` | ≈2200 |
-| `check-limits` | ≈300 |
-| `decompose` | ≈400 |
+
+| `principles` |
+| `check-limits` |
+| `decompose` |
 
 ## Invocation
 
 `skill({name: "programming-principles"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `principles` | `task(..., prompt: "execute principles task from programming-principles")` |
 | `check-limits` | `task(..., prompt: "execute check-limits task from programming-principles")` |
 | `decompose` | `task(..., prompt: "execute decompose task from programming-principles")` |

@@ -19,37 +19,36 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 
 ## Tasks
 
-| Task | Words | Description |
 |------|-------|-------------|
-| `pre-creation` | ≈240 | |
-| `single-task-check` | ≈160 | |
-| `creation` | ≈200 | |
-| `post-creation` | ≈180 | |
-| `comment` | ≈400 | |
-| `close` | ≈250 | |
-| `link-sub-issue` | ≈200 | |
-| `verify-merge` | ≈200 | |
-| `capabilities` | ≈150 | |
-| `completion` | ≈200 | |
-| `body-edit` | ≈200 | Edit remote.md body via 4-agent dispatch (fetch → transform → verify → post) — body edits without structural verification propagate corruption upstream; every remote edit requires verified integrity before propagation |
-| `read-issue` | ≈120 | Read single issue via dispatcher — routes to platform sub-skill, no direct `github_*` calls |
-| `read-comments` | ≈130 | Read issue comments via dispatcher — context completeness, all comments before action |
-| `read-labels` | ≈100 | Read issue labels via dispatcher — authorization scope verification |
-| `read-sub-issues` | ≈120 | Read sub-issues via dispatcher — authorization cascade and closure order verification |
-| `list-issues` | ≈130 | List issues with filters via dispatcher — dedup checks, label search, overlap detection |
-| `search-issues` | ≈130 | Search issues via dispatcher — title dedup, spec/plan overlap detection |
-| `sync-from-remote` | ≈500 | Reconcile remote issues against local `.issues/` after `local-issues sync` — detect staleness in both directions, auto-import missing remote issues |
-| `update-issue` | ≈160 | Update issue body/labels/state via dispatcher — body-preservation safeguard enforced |
-| `sync-pull-to-local` | ≈600 | Mirror remote issue body to `.issues/<N>/spec.md` after any `read-issue` — enforces Operating Protocol §3 spec.md mirror mandate |
-| `import-remote` | ≈690 | Retroactively import a pre-existing remote issue into local `.issues/` — full mirror with body, comments, frontmatter, and `promotion_type: retroactive_import` |
-| `push-artifacts` | ≈60 | Push spec artifacts directory to issues-data — produces artifact directory with URL |
+| `pre-creation` | |
+| `single-task-check` | |
+| `creation` | |
+| `post-creation` | |
+| `comment` | |
+| `close` | |
+| `link-sub-issue` | |
+| `verify-merge` | |
+| `capabilities` | |
+| `completion` | |
+| `body-edit` | Edit remote.md body via 4-agent dispatch (fetch → transform → verify → post) — body edits without structural verification propagate corruption upstream; every remote edit requires verified integrity before propagation |
+| `read-issue` | Read single issue via dispatcher — routes to platform sub-skill, no direct `github_*` calls |
+| `read-comments` | Read issue comments via dispatcher — context completeness, all comments before action |
+| `read-labels` | Read issue labels via dispatcher — authorization scope verification |
+| `read-sub-issues` | Read sub-issues via dispatcher — authorization cascade and closure order verification |
+| `list-issues` | List issues with filters via dispatcher — dedup checks, label search, overlap detection |
+| `search-issues` | Search issues via dispatcher — title dedup, spec/plan overlap detection |
+| `sync-from-remote` | Reconcile remote issues against local `.issues/` after `local-issues sync` — detect staleness in both directions, auto-import missing remote issues |
+| `update-issue` | Update issue body/labels/state via dispatcher — body-preservation safeguard enforced |
+| `sync-pull-to-local` | Mirror remote issue body to `.issues/<N>/spec.md` after any `read-issue` — enforces Operating Protocol §3 spec.md mirror mandate |
+| `import-remote` | Retroactively import a pre-existing remote issue into local `.issues/` — full mirror with body, comments, frontmatter, and `promotion_type: retroactive_import` |
+| `push-artifacts` | Push spec artifacts directory to issues-data — produces artifact directory with URL |
 
 ## Invocation
 
 `skill({name: "issue-operations"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `pre-creation` | `task(..., prompt: "execute pre-creation task from issue-operations")` |
 | `creation` | `task(..., prompt: "execute creation task from issue-operations")` |
 | `comment` | `task(..., prompt: "execute comment task from issue-operations")` |
