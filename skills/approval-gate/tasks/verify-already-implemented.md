@@ -114,7 +114,7 @@ After autoclosing the current issue (Step 5), check if the parent plan issue sho
 
 3. **If ALL sub-issues are legitimately closed:**
    - Close the parent plan issue with `issue-operations -> update-issue (github_issue_write(method="update", state="closed", state_reason="completed")` <!-- Routes through issue-operations per SPEC #683 -->
-   - Post a verification comment on the plan issue documenting per-SC evidence:
+   - Route verification results through `issue-operations -> comment` substantive gate. Gate decides whether to post to the plan issue.
      ```
      All sub-issues verified complete. Closing parent plan.
 

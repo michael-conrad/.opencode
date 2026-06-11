@@ -17,6 +17,17 @@ Post comments to issues/PRs following the substantive comment gate and byline fo
 
 ## Procedure
 
+### Step 0: Caller Guidance — Evaluate Gate Before Committing
+
+**This substantiveness gate MUST be evaluated by callers BEFORE the caller commits to posting.**
+Callers must not assume posting is the default outcome. The gate determines whether posting is warranted:
+
+1. Caller routes comment content through this gate first (before any posting action)
+2. Gate evaluates: Is this substantive? If yes → post. If no → output to chat only
+3. Caller respects the gate's decision — never post content the gate classified as non-substantive
+
+Non-substantive progress (status updates, "phase complete", "implemented X") goes to chat only, never to issue comments.
+
 ### Step 1: Substantiveness Gate
 
 Before posting, evaluate: Does this comment convey information a stakeholder needs to understand what changed or why?

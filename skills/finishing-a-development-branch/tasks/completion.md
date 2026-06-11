@@ -22,7 +22,7 @@ Reference `.opencode/skills/completion-core/completion-core.md` for steps 3-6:
 
 1. Push branch (with idempotency check)
 2. Generate compare URL (dev...branch)
-3. Post status comment on issue (with idempotency check)
+3. Route status comment through `issue-operations -> comment` substantive gate. Gate decides whether to post to issue or output to chat only.
 4. Report executive summary in chat (always runs)
 
 ## Completion Guarantee
@@ -59,7 +59,7 @@ URL is ALWAYS last per `000-critical-rules.md`.
 |-------|-------------------|-----------|---------------|
 | "All commits pushed" | Verify no unpushed commits | `git diff @{u} HEAD` → check empty | VERIFICATION-GAP |
 | "Compare URL correct" | Verify URL uses correct base (dev) and session values | Verify URL string format | STRUCTURE-VIOLATION |
-| "Status comment posted" | Verify comment exists on issue | `issue-operations -> read-comments (github_issue_read(method=get_comments)` → search for byline | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
+| "Comment routed through substantive gate" | Verify routing completed via substantive gate | `issue-operations -> read-comments` | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
 
 **Evidence artifact:** Git command output and/or GitHub MCP response confirming each claim.
 
@@ -69,7 +69,7 @@ URL is ALWAYS last per `000-critical-rules.md`.
 |--------|---------------|----------------|--------|
 | Unpushed commits found | VERIFICATION-GAP | auto-fix | Push immediately |
 | Compare URL uses wrong base | STRUCTURE-VIOLATION | auto-fix | Regenerate URL |
-| Status comment missing | MISSING-ELEMENT | auto-fix | Post comment now |
+| Comment routing incomplete | MISSING-ELEMENT | auto-fix | Route through substantive gate |
 
 ## Pipeline Signal
 

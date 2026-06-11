@@ -97,7 +97,7 @@ For each SC:
 | `PARTIAL_FAIL` (some SCs failed) | Do NOT close. Add progress comment with per-SC table. Leave open. |
 | `SKIP` (no SCs found) | Proceed — issue has no structured success criteria |
 
-**Evidence requirement (MANDATORY):** The per-SC pass/fail table MUST be posted as a comment on the issue before closure.
+**Evidence requirement:** Route per-SC pass/fail table through `issue-operations -> comment` substantive gate before closure. Gate decides whether posting to issue is warranted.
 
 ```markdown
 **SC Verification Evidence**
