@@ -1,5 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+
 <!-- SPDX-License-Identifier: MIT -->
+
 <!-- Provenance: AI-generated -->
 
 # Task: pipeline-readiness-gate
@@ -28,10 +30,10 @@ Validate that spec success criteria are structurally fit for the implementation 
 
 For each SC, verify it maps to exactly one RED→GREEN→COMMIT cycle:
 
-| Pass Condition | Fail Condition |
-|----------------|----------------|
-| SC asserts exactly one independently testable claim | SC bundles multiple assertions (e.g., "X is correct AND Y is correct AND Z passes") |
-| PASS/FAIL of the SC cannot be split across two claims | SC references multiple files or verification domains in the same criterion |
+| Pass Condition                                        | Fail Condition                                                                      |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| SC asserts exactly one independently testable claim   | SC bundles multiple assertions (e.g., "X is correct AND Y is correct AND Z passes") |
+| PASS/FAIL of the SC cannot be split across two claims | SC references multiple files or verification domains in the same criterion          |
 
 Record each SC as `atomic: true | false`.
 
@@ -40,10 +42,10 @@ Record each SC as `atomic: true | false`.
 Extract the SC dependency graph from `depends_on` fields:
 
 1. Collect all SC-ID → `depends_on: [SC-IDs]` mappings
-2. Verify every referenced SC-ID in `depends_on` is defined in the SC table
-3. Generate a Z3 ordering contract at `.issues/{N}/spec-artifacts/sc-dependency-contract.yaml`
-4. Run `solve prove --contract-path ... --ordering-assertion` to validate the DAG
-5. If any cycle or missing dependency is found: PR-2 = FAIL
+1. Verify every referenced SC-ID in `depends_on` is defined in the SC table
+1. Generate a Z3 ordering contract at `.issues/{N}/spec-artifacts/sc-dependency-contract.yaml`
+1. Run `solve prove --contract-path ... --ordering-assertion` to validate the DAG
+1. If any cycle or missing dependency is found: PR-2 = FAIL
 
 ### Step 3: Validate Single Concern (PR-3)
 
@@ -59,9 +61,9 @@ An SC that spans multiple file categories or multiple verification domains is a 
 Extract the phase dependency graph:
 
 1. Collect all phase → `depends_on: [phase-names]` mappings
-2. Generate a Z3 ordering contract at `.issues/{N}/spec-artifacts/dependency-ordering-verification/ordering.yaml`
-3. Run `solve prove --contract-path ... --theorem "phase_dag_is_acyclic"` to validate
-4. If any cycle is found: PR-4 = FAIL
+1. Generate a Z3 ordering contract at `.issues/{N}/spec-artifacts/dependency-ordering-verification/ordering.yaml`
+1. Run `solve prove --contract-path ... --theorem "phase_dag_is_acyclic"` to validate
+1. If any cycle is found: PR-4 = FAIL
 
 ### Step 5: Write Artifact
 
