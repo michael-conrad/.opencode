@@ -54,6 +54,17 @@ Before reading approved spec: `/skill verification-enforcement --task verify`
 
 Collects evidence artifacts for factual claims. Unverified claims marked with `⚠️ UNVERIFIED`.
 
+### Step 0.5: Pipeline-Readiness Gate Check (HARD GATE)
+
+Before any plan content is written, verify that the spec has passed pipeline-readiness validation:
+
+1. Read `.issues/{issue-N}/spec-artifacts/sc-pipeline-readiness.yaml`
+2. Assert `status: PASS`
+3. If status is FAIL or file does not exist: **HALT** with `SPEC_NOT_READY_FOR_PIPELINE` — the spec must pass the pipeline-readiness gate before plan creation
+4. If PASS: extract `sc_summary` (total_scs, atomic, with_dependencies, single_concern) and phase dependency declarations for use in plan generation
+
+This is a hard gate — the plan-writer MUST NOT proceed without a PASS from the pipeline-readiness gate. No exceptions, no "proceed anyway" path.
+
 ### Step 1: Read Approved Spec
 
 - Query GitHub Issue for spec content
