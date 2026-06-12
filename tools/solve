@@ -203,6 +203,17 @@ def _action_model(args: argparse.Namespace) -> None:
     consts = _make_constants(variables)
 
     solver = z3.Solver()
+
+    # Contract constraints: preconditions + invariants
+    pre = contract.get("preconditions", [])
+    for expr in pre if isinstance(pre, list) else [pre]:
+        solver.add(_eval_expr(expr, consts))
+
+    inv = contract.get("invariants", [])
+    for expr in inv if isinstance(inv, list) else [inv]:
+        solver.add(_eval_expr(expr, consts))
+
+    # Query constraint
     solver.add(_eval_expr(args.query, consts))
 
     sat = solver.check()
