@@ -64,7 +64,7 @@ def _find_issue_dir(number: int, repo_path: Path | None = None) -> Path | None:
     """
     prefix = str(number).lstrip("0") or "0"
     padded_prefix = f"{number:03d}"
-    issues_dir = (repo_path or PROJECT_DIR) / ".issues"
+    issues_dir = (repo_path or PROJECT_DIR) / ISSUES_DIR
 
     # Check exact match first
     exact = issues_dir / prefix
@@ -153,7 +153,7 @@ def get_issue_path(
         slug = _slug(title)
         if slug:
             name = f"{name}-{slug}"
-    return (repo_path or PROJECT_DIR) / ".issues" / name
+    return (repo_path or PROJECT_DIR) / ISSUES_DIR / name
 
 
 def read_file(path: Path) -> str:
@@ -221,6 +221,19 @@ def read_issue_data(number: int, repo_path: Path | None = None) -> dict:
     return result
 
 
+def _read_issue_title_status(entry: Path) -> tuple[str, str]:
+    """Read title and status from an issue directory entry."""
+    issue_file = entry / "issue.yaml"
+    spec_file = entry / "spec.md"
+    if issue_file.exists():
+        data = yaml_load(read_file(issue_file))
+        if isinstance(data, dict):
+            return data.get("title", ""), data.get("status", "open")
+    elif spec_file.exists():
+        return "", "open"
+    return "", "open"
+
+
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
@@ -228,7 +241,7 @@ def now_iso() -> str:
 def _worktree_active(repo_path: Path | None = None) -> bool:
     """Check if .issues/ is a linked worktree (orphan issues branch)."""
     root = repo_path or Path(os.getcwd())
-    gitlink = root / ".issues" / ".git"
+    gitlink = root / ISSUES_DIR / ".git"
     return gitlink.is_file()
 
 
@@ -251,60 +264,47 @@ def _issues_branch_exists(repo_path: Path | None = None) -> bool:
     return result.returncode == 0
 
 
-def _discover_repos() -> list[Path]:
-    """
-    Discover immediate child repos (submodules + sub-repos) from project root.
-
-    - Submodules: parsed from .gitmodules
-    - Sub-repos: directories containing .git (file or directory) at one level
-    - Immediate children only: no recursion into nested submodules
-    - Bare repos (.git dirs without a working tree) excluded
-    - Returns list of Paths sorted by name, project root first
-
-    Returns [] if no .gitmodules and no sub-repos found.
-    """
+def _discover_submodules(root: Path) -> list[Path]:
+    """Parse .gitmodules for submodule paths, returning non-bare submodule directories."""
     repos: list[Path] = []
-    root = Path(os.getcwd())
-
-    # 1. Submodules from .gitmodules
     gitmodules = root / ".gitmodules"
-    if gitmodules.exists():
-        try:
-            import configparser
+    if not gitmodules.exists():
+        return repos
+    try:
+        import configparser
 
-            cfg = configparser.ConfigParser()
-            cfg.read(str(gitmodules))
-            for section in cfg.sections():
-                if section.startswith("submodule "):
-                    path_val = cfg.get(section, "path", fallback=None)
-                    if path_val:
-                        sub_path = root / path_val
-                        if sub_path.is_dir() and (sub_path / ".git").exists():
-                            result = subprocess.run(
-                                [
-                                    "git",
-                                    "-C",
-                                    str(sub_path),
-                                    "rev-parse",
-                                    "--is-bare-repository",
-                                ],
-                                capture_output=True,
-                                text=True,
-                                timeout=15,
-                            )
-                            if (
-                                result.returncode == 0
-                                and result.stdout.strip() == "false"
-                            ):
-                                repos.append(sub_path.resolve())
-        except configparser.Error as e:
-            print(f"warn: skipping submodule config parsing: {e}", file=sys.stderr)
+        cfg = configparser.ConfigParser()
+        cfg.read(str(gitmodules))
+        for section in cfg.sections():
+            if section.startswith("submodule "):
+                path_val = cfg.get(section, "path", fallback=None)
+                if path_val:
+                    sub_path = root / path_val
+                    if sub_path.is_dir() and (sub_path / ".git").exists():
+                        result = subprocess.run(
+                            [
+                                "git",
+                                "-C",
+                                str(sub_path),
+                                "rev-parse",
+                                "--is-bare-repository",
+                            ],
+                            capture_output=True,
+                            text=True,
+                            timeout=15,
+                        )
+                        if result.returncode == 0 and result.stdout.strip() == "false":
+                            repos.append(sub_path.resolve())
+    except configparser.Error as e:
+        print(f"warn: skipping submodule config parsing: {e}", file=sys.stderr)
+    return repos
 
-    # 2. Sub-repos (non-submodule .git dirs at immediate child level)
+
+def _discover_subrepos(root: Path) -> list[Path]:
+    """Find immediate child directories containing .git (file or dir), excluding bare repos."""
+    repos: list[Path] = []
     for entry in sorted(root.iterdir()):
-        if not entry.is_dir():
-            continue
-        if entry.name.startswith("."):
+        if not entry.is_dir() or entry.name.startswith("."):
             continue
         git_ref = entry / ".git"
         if git_ref.exists():
@@ -318,93 +318,122 @@ def _discover_repos() -> list[Path]:
                 )
                 if result.returncode == 0 and result.stdout.strip() == "false":
                     repos.append(resolved)
+    return repos
 
+
+def _discover_repos() -> list[Path]:
+    """Discover immediate child repos (submodules + sub-repos) from project root."""
+    root = Path(os.getcwd())
+    repos: list[Path] = []
+    repos.extend(_discover_submodules(root))
+    repos.extend(_discover_subrepos(root))
     repos.sort(key=lambda p: str(p))
     return repos
 
 
+def _get_local_branches(repo_path: str, *names: str) -> list[str]:
+    """Return list of branch names that exist locally from the given names."""
+    result = subprocess.run(
+        ["git", "-C", repo_path, "branch", "--list", *names],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if result.returncode != 0:
+        print(f"warn: branch list failed: {result.stderr.strip()}", file=sys.stderr)
+        return []
+    found: list[str] = []
+    for line in result.stdout.split("\n"):
+        stripped = line.strip()
+        if stripped.startswith("* ") or stripped.startswith("+ "):
+            branch = stripped[2:]
+        else:
+            branch = stripped
+        if branch:
+            found.append(branch)
+    return found
+
+
+def _get_branch_divergence(repo_path: str, branch_a: str, branch_b: str) -> str:
+    """Return ahead/behind counts between two branches."""
+    result = subprocess.run(
+        [
+            "git",
+            "-C",
+            repo_path,
+            "rev-list",
+            "--left-right",
+            "--count",
+            f"{branch_a}...{branch_b}",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if result.returncode != 0:
+        print(
+            f"warn: branch divergence check failed: {result.stderr.strip()}",
+            file=sys.stderr,
+        )
+    return result.stdout.strip()
+
+
+def _get_branch_timestamps(repo_path: str, *branches: str) -> str:
+    """Return commit timestamps for one or more branches."""
+    result = subprocess.run(
+        [
+            "git",
+            "-C",
+            repo_path,
+            "log",
+            "--oneline",
+            "--format=%ci %s",
+            *branches,
+        ],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if result.returncode != 0:
+        print(f"warn: branch log failed: {result.stderr.strip()}", file=sys.stderr)
+    return result.stdout.strip()
+
+
+def _get_branch_info(repo: Path) -> dict | None:
+    """Check if repo has both 'issues' and 'issues-data' branches; return info dict or None."""
+    repo_path = str(repo)
+    branches = _get_local_branches(repo_path, "issues", "issues-data")
+    if "issues" not in branches or "issues-data" not in branches:
+        return None
+    return {
+        "repo": repo_path,
+        "branches": ["issues", "issues-data"],
+        "timestamps": _get_branch_timestamps(repo_path, "issues", "issues-data"),
+        "divergence": _get_branch_divergence(repo_path, "issues", "issues-data"),
+        "auto_merge": False,
+    }
+
+
+def _format_dual_branch_output(dual: dict) -> str:
+    """Format dual-branch info dict into a human-readable string."""
+    return (
+        f"repo: {dual['repo']}\n"
+        f"branches: {', '.join(dual['branches'])}\n"
+        f"timestamps:\n{dual['timestamps']}\n"
+        f"divergence: {dual['divergence']}"
+    )
+
+
 def _detect_dual_branch() -> dict | None:
-    """
-    Check if both 'issues' and 'issues-data' branches exist in any repo.
-    Includes current repo and all discovered child repos.
-    """
+    """Check if both 'issues' and 'issues-data' branches exist in any repo."""
     repos = _discover_repos()
     current = Path(os.getcwd()).resolve()
     if current not in repos:
         repos.insert(0, current)
     for repo in repos:
-        has_issues = False
-        has_issues_data = False
-        result = subprocess.run(
-            ["git", "-C", str(repo), "branch", "--list", "issues", "issues-data"],
-            capture_output=True,
-            text=True,
-            timeout=15,
-        )
-        if result.returncode != 0:
-            print(
-                f"warn: branch list failed for {repo}: {result.stderr.strip()}",
-                file=sys.stderr,
-            )
-            continue
-        for line in result.stdout.split("\n"):
-            stripped = line.strip()
-            if stripped.startswith("* ") or stripped.startswith("+ "):
-                branch = stripped[2:]
-            else:
-                branch = stripped
-            if branch == "issues":
-                has_issues = True
-            elif branch == "issues-data":
-                has_issues_data = True
-
-        if has_issues and has_issues_data:
-            ts_result = subprocess.run(
-                [
-                    "git",
-                    "-C",
-                    str(repo),
-                    "log",
-                    "--oneline",
-                    "--format=%ci %s",
-                    "issues",
-                    "issues-data",
-                ],
-                capture_output=True,
-                text=True,
-                timeout=15,
-            )
-            if ts_result.returncode != 0:
-                print(
-                    f"warn: branch log failed: {ts_result.stderr.strip()}",
-                    file=sys.stderr,
-                )
-            diverge = subprocess.run(
-                [
-                    "git",
-                    "-C",
-                    str(repo),
-                    "rev-list",
-                    "--left-right",
-                    "--count",
-                    "issues...issues-data",
-                ],
-                capture_output=True,
-                text=True,
-                timeout=15,
-            )
-            if diverge.returncode != 0:
-                print(
-                    f"warn: branch divergence check failed: {diverge.stderr.strip()}",
-                    file=sys.stderr,
-                )
-            return {
-                "repo": str(repo),
-                "branches": ["issues", "issues-data"],
-                "timestamps": ts_result.stdout.strip(),
-                "divergence": diverge.stdout.strip(),
-                "auto_merge": False,
-            }
+        info = _get_branch_info(repo)
+        if info is not None:
+            return info
     return None
 
 
@@ -426,6 +455,229 @@ def _ensure_all_worktrees() -> bool:
     return all_ok
 
 
+def _init_orphan_branch(root: Path) -> str | None:
+    """Create a temp worktree and orphan branch. Returns temp worktree path or None."""
+    git_dir = str(root)
+    wt_tmp = str(root / ".issues-worktree-tmp")
+
+    r1 = subprocess.run(
+        ["git", "-C", git_dir, "worktree", "add", "--detach", wt_tmp],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if r1.returncode != 0:
+        print(
+            f"warn: worktree add --detach failed: {r1.stderr.strip()}", file=sys.stderr
+        )
+        return None
+
+    r2 = subprocess.run(
+        ["git", "-C", git_dir, "checkout", "--orphan", WORKTREE_BRANCH],
+        capture_output=True,
+        text=True,
+        timeout=15,
+        cwd=wt_tmp,
+    )
+    if r2.returncode != 0:
+        print(f"warn: checkout --orphan failed: {r2.stderr.strip()}", file=sys.stderr)
+        return None
+
+    return wt_tmp
+
+
+def _commit_orphan_init(git_dir: str, wt_tmp: str) -> bool:
+    """Create the initial empty commit on the orphan branch."""
+    r = subprocess.run(
+        ["git", "-C", git_dir, "commit", "--allow-empty", "-m", "Init issues branch"],
+        capture_output=True,
+        text=True,
+        timeout=15,
+        cwd=wt_tmp,
+    )
+    if r.returncode != 0:
+        print(f"warn: empty commit failed: {r.stderr.strip()}", file=sys.stderr)
+        return False
+    return True
+
+
+def _name_orphan_branch(git_dir: str, wt_tmp: str) -> bool:
+    """Create a named branch at the orphan commit's HEAD."""
+    r = subprocess.run(
+        ["git", "-C", git_dir, "branch", WORKTREE_BRANCH, "HEAD"],
+        capture_output=True,
+        text=True,
+        timeout=15,
+        cwd=wt_tmp,
+    )
+    if r.returncode != 0:
+        print(f"warn: branch create failed: {r.stderr.strip()}", file=sys.stderr)
+    return r.returncode == 0
+
+
+def _remove_temp_worktree(git_dir: str, wt_tmp: str) -> bool:
+    """Return to previous branch and remove the temporary worktree."""
+    r5 = subprocess.run(
+        ["git", "-C", git_dir, "checkout", "-"],
+        capture_output=True,
+        text=True,
+        timeout=15,
+        cwd=wt_tmp,
+    )
+    if r5.returncode != 0:
+        print(f"warn: checkout - failed: {r5.stderr.strip()}", file=sys.stderr)
+
+    r6 = subprocess.run(
+        ["git", "-C", git_dir, "worktree", "remove", wt_tmp],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if r6.returncode != 0:
+        print(f"warn: worktree remove failed: {r6.stderr.strip()}", file=sys.stderr)
+
+    r7 = subprocess.run(
+        ["git", "-C", git_dir, "worktree", "prune"],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if r7.returncode != 0:
+        print(f"warn: final prune failed: {r7.stderr.strip()}", file=sys.stderr)
+
+    return True
+
+
+def _populate_orphan_branch(root: Path, wt_tmp: str) -> bool:
+    """Add initial content to the orphan branch and clean up temp worktree."""
+    git_dir = str(root)
+    if not _commit_orphan_init(git_dir, wt_tmp):
+        return False
+    _name_orphan_branch(git_dir, wt_tmp)
+    _remove_temp_worktree(git_dir, wt_tmp)
+    return True
+
+
+def _create_orphan_branch(root: Path) -> None:
+    """Create an orphan issues-data branch with an initial empty commit."""
+    wt_tmp = _init_orphan_branch(root)
+    if wt_tmp is None:
+        return
+    _populate_orphan_branch(root, wt_tmp)
+
+
+def _migrate_existing_issues(root: Path) -> list[tuple[str, str, str]]:
+    """Save existing .issues/ content before worktree takeover.
+
+    Returns list of (kind, name, content_or_path) tuples.
+    """
+    issues_dir = root / ISSUES_DIR
+    saved: list[tuple[str, str, str]] = []
+    if not issues_dir.is_dir():
+        return saved
+    if not any(issues_dir.iterdir()):
+        return saved
+
+    for item in issues_dir.iterdir():
+        if item.name == ".git":
+            continue
+        if item.is_dir():
+            import tempfile
+
+            tmpdir = tempfile.mkdtemp()
+            dst = os.path.join(tmpdir, item.name)
+            shutil.copytree(str(item), dst)
+            saved.append(("dir", item.name, dst))
+        else:
+            content = item.read_text(encoding="utf-8")
+            saved.append(("file", item.name, content))
+    return saved
+
+
+def _restore_migrated_content(root: Path, saved: list[tuple[str, str, str]]) -> None:
+    """Restore previously saved .issues/ content into the worktree."""
+    issues_dir = root / ISSUES_DIR
+    for kind, name, payload in saved:
+        dst = issues_dir / name
+        if kind == "dir":
+            src_tmp = Path(payload)
+            shutil.copytree(str(src_tmp), str(dst), dirs_exist_ok=True)
+            shutil.rmtree(src_tmp.parent)
+        elif kind == "file":
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            dst.write_text(payload, encoding="utf-8")
+
+
+def _setup_worktree(root: Path) -> bool:
+    """Create the .issues/ worktree from the issues-data branch.
+
+    Returns True on success, False on failure.
+    """
+    git_dir = str(root)
+    issues_dir = root / ISSUES_DIR
+
+    # Remove the parent repo's .issues/ so the worktree can take over
+    if issues_dir.is_dir():
+        shutil.rmtree(str(issues_dir))
+
+    wt_add_result = subprocess.run(
+        ["git", "-C", git_dir, "worktree", "add", str(issues_dir), WORKTREE_BRANCH],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if wt_add_result.returncode != 0:
+        print(
+            f"warn: worktree add failed: {wt_add_result.stderr.strip()}",
+            file=sys.stderr,
+        )
+        return False
+    return True
+
+
+def _find_issues_worktree(git_dir: str) -> str | None:
+    """Return the path of the issues worktree if listed, else None."""
+    result = subprocess.run(
+        ["git", "-C", git_dir, "worktree", "list"],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if result.returncode != 0:
+        return None
+    for line in result.stdout.strip().split("\n"):
+        parts = line.split()
+        if len(parts) >= 2 and parts[1] == f"[{WORKTREE_BRANCH}]":
+            return parts[0]
+    return None
+
+
+def _prune_stale_worktree(git_dir: str, wt_path: str) -> None:
+    """Prune a stale worktree entry whose directory no longer exists."""
+    if os.path.isdir(wt_path):
+        return
+    r = subprocess.run(
+        ["git", "-C", git_dir, "worktree", "prune"],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if r.returncode != 0:
+        print(f"warn: worktree prune failed: {r.stderr.strip()}", file=sys.stderr)
+
+
+def _create_issues_worktree(root: Path) -> bool:
+    """Create the issues worktree: migrate, branch, setup, restore, push."""
+    saved = _migrate_existing_issues(root)
+    if not _issues_branch_exists(repo_path=root):
+        _create_orphan_branch(root)
+    if not _setup_worktree(root):
+        return False
+    _restore_migrated_content(root, saved)
+    _push_orphan_if_needed(repo_path=root)
+    return True
+
+
 def _ensure_worktree(repo_path: Path | None = None) -> bool:
     """
     Ensure a git worktree is available for issue tracking.
@@ -433,7 +685,7 @@ def _ensure_worktree(repo_path: Path | None = None) -> bool:
     Detection logic:
     1. Check if already inside a worktree (_worktree_active returns True)
     2. Check if worktree already exists via git worktree list
-    3. Check if stale worktree (listed but directory missing) → prune + recreate
+    3. Check if stale worktree (listed but directory missing) -> prune + recreate
     4. If no worktree exists on 'issues' branch:
        a. If 'issues' branch exists, create worktree from it
        b. If 'issues' branch doesn't exist, create orphan branch + worktree
@@ -444,186 +696,19 @@ def _ensure_worktree(repo_path: Path | None = None) -> bool:
     root = repo_path or Path(os.getcwd())
     git_dir = str(root)
 
-    # Already in worktree
     if _worktree_active(repo_path=root):
         return True
 
     try:
-        # Check existing worktrees
-        result = subprocess.run(
-            ["git", "-C", git_dir, "worktree", "list"],
-            capture_output=True,
-            text=True,
-            timeout=15,
-        )
-        if result.returncode != 0:
-            return False
+        issues_wt_path = _find_issues_worktree(git_dir)
+        if issues_wt_path is None:
+            return _create_issues_worktree(root)
 
-        worktrees = result.stdout.strip().split("\n")
-        issues_wt_path = None
-        for line in worktrees:
-            parts = line.split()
-            if len(parts) >= 2 and parts[1] == f"[{WORKTREE_BRANCH}]":
-                issues_wt_path = parts[0]
+        if os.path.isdir(issues_wt_path):
+            return True
 
-        if issues_wt_path:
-            if os.path.isdir(issues_wt_path):
-                return True
-            # Stale worktree — prune it
-            prune_result = subprocess.run(
-                ["git", "-C", git_dir, "worktree", "prune"],
-                capture_output=True,
-                text=True,
-                timeout=15,
-            )
-            if prune_result.returncode != 0:
-                print(
-                    f"warn: worktree prune failed: {prune_result.stderr.strip()}",
-                    file=sys.stderr,
-                )
-
-        # Migrate existing .issues/ from main repo
-        issues_dir = root / ".issues"
-        has_existing = issues_dir.is_dir() and any(issues_dir.iterdir())
-
-        # Create worktree at .issues/ so all issue data lands on the issues branch
-        if not _issues_branch_exists(repo_path=root):
-            # Create orphan branch with initial commit
-            wt_tmp = str(root / ".issues-worktree-tmp")
-            r1 = subprocess.run(
-                ["git", "-C", git_dir, "worktree", "add", "--detach", wt_tmp],
-                capture_output=True,
-                text=True,
-                timeout=15,
-            )
-            if r1.returncode != 0:
-                print(
-                    f"warn: worktree add --detach failed: {r1.stderr.strip()}",
-                    file=sys.stderr,
-                )
-            r2 = subprocess.run(
-                ["git", "-C", git_dir, "checkout", "--orphan", WORKTREE_BRANCH],
-                capture_output=True,
-                text=True,
-                timeout=15,
-                cwd=wt_tmp,
-            )
-            if r2.returncode != 0:
-                print(
-                    f"warn: checkout --orphan failed: {r2.stderr.strip()}",
-                    file=sys.stderr,
-                )
-            r3 = subprocess.run(
-                [
-                    "git",
-                    "-C",
-                    git_dir,
-                    "commit",
-                    "--allow-empty",
-                    "-m",
-                    "Init issues branch",
-                ],
-                capture_output=True,
-                text=True,
-                timeout=15,
-                cwd=wt_tmp,
-            )
-            if r3.returncode != 0:
-                print(
-                    f"warn: empty commit failed: {r3.stderr.strip()}", file=sys.stderr
-                )
-            r4 = subprocess.run(
-                ["git", "-C", git_dir, "branch", WORKTREE_BRANCH, "HEAD"],
-                capture_output=True,
-                text=True,
-                timeout=15,
-                cwd=wt_tmp,
-            )
-            if r4.returncode != 0:
-                print(
-                    f"warn: branch create failed: {r4.stderr.strip()}", file=sys.stderr
-                )
-            r5 = subprocess.run(
-                ["git", "-C", git_dir, "checkout", "-"],
-                capture_output=True,
-                text=True,
-                timeout=15,
-                cwd=wt_tmp,
-            )
-            if r5.returncode != 0:
-                print(f"warn: checkout - failed: {r5.stderr.strip()}", file=sys.stderr)
-            r6 = subprocess.run(
-                ["git", "-C", git_dir, "worktree", "remove", wt_tmp],
-                capture_output=True,
-                text=True,
-                timeout=15,
-            )
-            if r6.returncode != 0:
-                print(
-                    f"warn: worktree remove failed: {r6.stderr.strip()}",
-                    file=sys.stderr,
-                )
-            r7 = subprocess.run(
-                ["git", "-C", git_dir, "worktree", "prune"],
-                capture_output=True,
-                text=True,
-                timeout=15,
-            )
-            if r7.returncode != 0:
-                print(f"warn: final prune failed: {r7.stderr.strip()}", file=sys.stderr)
-
-        # If .issues/ exists with data (plain files from before), save content
-        # before removing it for worktree takeover, then migrate into worktree
-        saved_content: list[tuple[str, str, str]] = []
-        if has_existing:
-            for item in issues_dir.iterdir():
-                if item.name == ".git":
-                    continue
-                if item.is_dir():
-                    import tempfile
-
-                    tmpdir = tempfile.mkdtemp()
-                    dst = os.path.join(tmpdir, item.name)
-                    shutil.copytree(str(item), dst)
-                    saved_content.append(("dir", item.name, dst))
-                else:
-                    content = item.read_text(encoding="utf-8")
-                    saved_content.append(("file", item.name, content))
-
-        # Remove the parent repo's .issues/ so the worktree can take over
-        if issues_dir.is_dir():
-            shutil.rmtree(str(issues_dir))
-
-        # Create worktree at .issues/ directly — this IS the issues branch
-        wt_add_result = subprocess.run(
-            ["git", "-C", git_dir, "worktree", "add", str(issues_dir), WORKTREE_BRANCH],
-            capture_output=True,
-            text=True,
-            timeout=15,
-        )
-        if wt_add_result.returncode != 0:
-            print(
-                f"warn: worktree add failed: {wt_add_result.stderr.strip()}",
-                file=sys.stderr,
-            )
-
-        # Migrate saved content into the worktree
-        for entry in saved_content:
-            kind, name = entry[0], entry[1]
-            dst = issues_dir / name
-            if kind == "dir":
-                src_tmp = Path(entry[2])
-                shutil.copytree(str(src_tmp), str(dst), dirs_exist_ok=True)
-                shutil.rmtree(src_tmp.parent)
-            elif kind == "file":
-                content = entry[2]
-                dst.parent.mkdir(parents=True, exist_ok=True)
-                dst.write_text(content, encoding="utf-8")
-
-        # Push orphan branch if remote exists
-        _push_orphan_if_needed(repo_path=root)
-
-        return True
+        _prune_stale_worktree(git_dir, issues_wt_path)
+        return _create_issues_worktree(root)
 
     except Exception as e:
         print(f"warn: worktree setup failed for {root}: {e}", file=sys.stderr)
@@ -632,7 +717,7 @@ def _ensure_worktree(repo_path: Path | None = None) -> bool:
 
 def _count_issues(repo_path: Path) -> int:
     """Count issue directories by _parse_number() in a repo's .issues/ dir."""
-    issues_dir = repo_path / ".issues"
+    issues_dir = repo_path / ISSUES_DIR
     if not issues_dir.is_dir():
         return 0
     count = 0
@@ -702,7 +787,72 @@ def _push_issues_branch(repo_path: Path | None = None) -> None:
     root = repo_path or Path(os.getcwd())
     if not _worktree_active(repo_path=root):
         return
-    issues_git_dir = str(root / ".issues")
+    issues_git_dir = str(root / ISSUES_DIR)
+    try:
+        result = subprocess.run(
+            ["git", "-C", issues_git_dir, "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        if result.returncode != 0:
+            return
+        push_result = subprocess.run(
+            ["git", "-C", issues_git_dir, "push", "origin", WORKTREE_BRANCH],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if push_result.returncode != 0:
+            print(
+                f"warn: push issues branch failed: {push_result.stderr.strip()}",
+                file=sys.stderr,
+            )
+    except Exception as e:
+        print(f"warn: failed to push issues branch: {e}", file=sys.stderr)
+
+
+def _stage_issues_changes(root: Path) -> bool:
+    """Stage all changes in the issues worktree. Returns True if there were changes."""
+    issues_git_dir = str(root / ISSUES_DIR)
+    result = subprocess.run(
+        ["git", "-C", issues_git_dir, "status", "--porcelain"],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if not result.stdout.strip():
+        return False
+    add_result = subprocess.run(
+        ["git", "-C", issues_git_dir, "add", "-A"],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if add_result.returncode != 0:
+        print(f"warn: git add failed: {add_result.stderr.strip()}", file=sys.stderr)
+    return True
+
+
+def _commit_issues_changes(root: Path, msg: str) -> None:
+    """Commit staged changes in the issues worktree."""
+    issues_git_dir = str(root / ISSUES_DIR)
+    commit_result = subprocess.run(
+        ["git", "-C", issues_git_dir, "commit", "-m", msg, "--allow-empty"],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if commit_result.returncode != 0:
+        print(
+            f"warn: git commit failed: {commit_result.stderr.strip()}",
+            file=sys.stderr,
+        )
+
+
+def _push_issues_changes(root: Path) -> None:
+    """Push the issues worktree branch to origin."""
+    issues_git_dir = str(root / ISSUES_DIR)
     try:
         result = subprocess.run(
             ["git", "-C", issues_git_dir, "remote", "get-url", "origin"],
@@ -739,39 +889,14 @@ def _auto_commit(message: str = "", repo_path: Path | None = None) -> None:
     root = repo_path or Path(os.getcwd())
     if not _worktree_active(repo_path=root):
         return
-    issues_git_dir = str(root / ".issues")
     try:
-        result = subprocess.run(
-            ["git", "-C", issues_git_dir, "status", "--porcelain"],
-            capture_output=True,
-            text=True,
-            timeout=15,
-        )
-        if not result.stdout.strip():
-            return  # No changes
-        add_result = subprocess.run(
-            ["git", "-C", issues_git_dir, "add", "-A"],
-            capture_output=True,
-            text=True,
-            timeout=15,
-        )
-        if add_result.returncode != 0:
-            print(f"warn: git add failed: {add_result.stderr.strip()}", file=sys.stderr)
+        if not _stage_issues_changes(root):
+            return
         msg_local = message or "auto: update issue"
-        commit_result = subprocess.run(
-            ["git", "-C", issues_git_dir, "commit", "-m", msg_local, "--allow-empty"],
-            capture_output=True,
-            text=True,
-            timeout=15,
-        )
-        if commit_result.returncode != 0:
-            print(
-                f"warn: git commit failed: {commit_result.stderr.strip()}",
-                file=sys.stderr,
-            )
+        _commit_issues_changes(root, msg_local)
     except Exception as e:
         print(f"warn: auto-commit failed: {e}", file=sys.stderr)
-    _push_issues_branch(repo_path=root)
+    _push_issues_changes(root)
 
 
 def _next_number(repo_path: Path | None = None) -> int:
@@ -780,7 +905,7 @@ def _next_number(repo_path: Path | None = None) -> int:
     Creates .counter at 1 if missing. Corrupt/unreadable counter fails hard.
     """
     root = repo_path or PROJECT_DIR
-    counter_path = root / ".issues" / ".counter"
+    counter_path = root / ISSUES_DIR / ".counter"
     if not counter_path.exists():
         _ensure_worktree()
         counter_path.parent.mkdir(parents=True, exist_ok=True)
@@ -793,6 +918,50 @@ def _next_number(repo_path: Path | None = None) -> int:
     n = int(raw)
     counter_path.write_text(f"{n + 1}\n")
     return n
+
+
+def _check_duplicate_issue(
+    number: int,
+    repo_path: Path,
+    repo_name: str,
+    child_repos: list[Path],
+) -> None:
+    """Exit with error if issue number already exists in any repo."""
+    if issue_exists(number, repo_path):
+        print(
+            f"Issue #{number} already exists in {repo_name}.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    for child in child_repos:
+        child_issues_dir = child / ISSUES_DIR
+        if child_issues_dir.is_dir():
+            child_issue_path = _find_issue_dir_in_repo(number, child)
+            if child_issue_path is not None:
+                print(
+                    f"Issue #{number} already exists in {child.name}. Use qualified form {child.name}#{number}.",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+
+
+def _create_issue_files(
+    number: int, title: str, labels: list[str], repo_path: Path, qualified: str
+) -> None:
+    path = get_issue_path(number, title, repo_path)
+    issue = {
+        "title": title,
+        "status": "open",
+        "labels": labels,
+        "body": "",
+        "created_at": now_iso(),
+        "updated_at": now_iso(),
+    }
+    write_file(path / "issue.yaml", yaml_dump(issue))
+    write_file(path / "comments.yaml", "comments: []\n")
+    write_file(path / "links.yaml", "links: []\n")
+    print(yaml_dump({"created": True, "number": qualified, "title": title}))
+    _auto_commit(f"auto: create #{qualified}", repo_path)
 
 
 def cmd_create(args: argparse.Namespace) -> None:
@@ -825,42 +994,14 @@ def cmd_create(args: argparse.Namespace) -> None:
         args.number = num
         qualified = f"{current_repo_name}#{args.number}"
         child_repos = _discover_repos()
-        if issue_exists(args.number, repo_path):
-            print(
-                f"Issue #{args.number} already exists in {current_repo_name}.",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-        for child in child_repos:
-            child_issues_dir = child / ".issues"
-            if child_issues_dir.is_dir():
-                child_issue_path = _find_issue_dir_in_repo(args.number, child)
-                if child_issue_path is not None:
-                    print(
-                        f"Issue #{args.number} already exists in {child.name}. Use qualified form {child.name}#{args.number}.",
-                        file=sys.stderr,
-                    )
-                    sys.exit(1)
+        _check_duplicate_issue(args.number, repo_path, current_repo_name, child_repos)
     _ensure_all_worktrees()
-    path = get_issue_path(args.number, args.title, repo_path)
-    issue = {
-        "title": args.title,
-        "status": "open",
-        "labels": args.labels,
-        "body": "",
-        "created_at": now_iso(),
-        "updated_at": now_iso(),
-    }
-    write_file(path / "issue.yaml", yaml_dump(issue))
-    write_file(path / "comments.yaml", "comments: []\n")
-    write_file(path / "links.yaml", "links: []\n")
-    print(yaml_dump({"created": True, "number": qualified, "title": args.title}))
-    _auto_commit(f"auto: create #{qualified}", repo_path)
+    _create_issue_files(args.number, args.title, args.labels, repo_path, qualified)
 
 
 def _recent_issue_numbers(repo_path: Path | None = None) -> list[int]:
     """Return up to 5 most recent issue numbers from .issues/ dirs."""
-    issues_dir = (repo_path or PROJECT_DIR) / ".issues"
+    issues_dir = (repo_path or PROJECT_DIR) / ISSUES_DIR
     if not issues_dir.is_dir():
         return []
     nums: set[int] = set()
@@ -1219,6 +1360,45 @@ def _parse_number(entry: Path) -> int | None:
         return None
 
 
+def _search_in_repo(
+    repo_path: Path, repo_name: str, query: str, current_cwd: Path
+) -> list[tuple[str, str, str, str, str]]:
+    """Search one repo's .issues/ for matching issues."""
+    repo_issues_dir = repo_path / ISSUES_DIR
+    if not repo_issues_dir.is_dir():
+        return []
+    try:
+        spec_path = str(repo_issues_dir.relative_to(current_cwd))
+    except ValueError:
+        spec_path = str(repo_issues_dir)
+    results: list[tuple[str, str, str, str, str]] = []
+    seen: set[int] = set()
+    for entry in sorted(repo_issues_dir.iterdir()):
+        num = _parse_number(entry)
+        if num is None or num in seen:
+            continue
+        seen.add(num)
+        data = _read_issue_data_in_repo(num, repo_path)
+        if not data:
+            continue
+        issue = data.get("issue", {})
+        if not isinstance(issue, dict):
+            continue
+        haystack = yaml_dump(data).lower()
+        if query not in haystack:
+            continue
+        title = issue.get("title", "")
+        status = issue.get("status", "open")
+        results.append((repo_name, f"{repo_name}#{num}", status, title, spec_path))
+    return results
+
+
+def _format_search_results(results: list[tuple[str, str, str, str, str]]) -> None:
+    """Print formatted search results."""
+    for repo_name, display_num, status, title, spec_path in results:
+        print(f"{display_num} [{status}] {title} spec_path={spec_path}")
+
+
 def cmd_search(args: argparse.Namespace) -> None:
     query = args.query.lower()
     current_repo_name = _resolve_repo_name()
@@ -1232,41 +1412,9 @@ def cmd_search(args: argparse.Namespace) -> None:
 
     found: list[tuple[str, str, str, str, str]] = []
     for repo_path, repo_name in repo_infos:
-        repo_issues_dir = repo_path / ISSUES_DIR
-        if not repo_issues_dir.is_dir():
-            continue
+        found.extend(_search_in_repo(repo_path, repo_name, query, current_cwd))
 
-        try:
-            spec_path = str(repo_issues_dir.relative_to(current_cwd))
-        except ValueError:
-            spec_path = str(repo_issues_dir)
-
-        seen: set[int] = set()
-        for entry in sorted(repo_issues_dir.iterdir()):
-            num = _parse_number(entry)
-            if num is None or num in seen:
-                continue
-            seen.add(num)
-
-            data = _read_issue_data_in_repo(num, repo_path)
-            if not data:
-                continue
-
-            issue = data.get("issue", {})
-            if not isinstance(issue, dict):
-                continue
-
-            haystack = yaml_dump(data).lower()
-            if query not in haystack:
-                continue
-
-            title = issue.get("title", "")
-            status = issue.get("status", "open")
-            display_num = f"{repo_name}#{num}"
-            found.append((repo_name, display_num, status, title, spec_path))
-
-    for repo_name, display_num, status, title, spec_path in found:
-        print(f"{display_num} [{status}] {title} spec_path={spec_path}")
+    _format_search_results(found)
 
 
 def _resolve_repo_name() -> str:
@@ -1286,67 +1434,53 @@ def _print_available_repos() -> None:
         print(f"  {child.name:<{max_name_len}}     {child}", file=sys.stderr)
 
 
+def _list_issues_in_repo(
+    repo_path: Path, repo_name: str, sort_prio: int, cwd: Path
+) -> list[tuple[int, str, str, str, str, str, int]]:
+    repo_issues_dir = repo_path / ISSUES_DIR
+    if not repo_issues_dir.is_dir():
+        return []
+    try:
+        spec_path = str(repo_issues_dir.relative_to(cwd))
+    except ValueError:
+        spec_path = str(repo_issues_dir)
+    seen: set[int] = set()
+    entries: list[tuple[int, str, str, str, str, str, int]] = []
+    for entry in sorted(repo_issues_dir.iterdir()):
+        num = _parse_number(entry)
+        if num is None or num in seen:
+            continue
+        seen.add(num)
+        title, status = _read_issue_title_status(entry)
+        entries.append(
+            (sort_prio, repo_name, f"{repo_name}#{num}", status, title, spec_path, num)
+        )
+    return entries
+
+
+def _format_list_output(
+    entries: list[tuple[int, str, str, str, str, str, int]],
+) -> None:
+    if not entries:
+        return
+    entries.sort(key=lambda e: (e[0], e[1], -e[6]))
+    for _, _, display_num, status, title, spec_path, _ in entries:
+        print(f"{display_num} [{status}] {title} spec_path={spec_path}")
+
+
 def cmd_list(args: argparse.Namespace) -> None:
     current_repo_name = _resolve_repo_name()
     current_cwd = Path(os.getcwd()).resolve()
-
     child_repos = _discover_repos()
-
-    repo_infos: list[tuple[Path, str, int]] = [(current_cwd, current_repo_name, 0)]
+    all_entries: list[tuple[int, str, str, str, str, str, int]] = []
+    all_entries.extend(
+        _list_issues_in_repo(current_cwd, current_repo_name, 0, current_cwd)
+    )
     for idx, child in enumerate(child_repos):
-        repo_infos.append((child, child.name, idx + 1))
-
-    all_entries: list[tuple[int, str, str, str, str]] = []
-
-    for repo_path, repo_name, sort_prio in repo_infos:
-        repo_issues_dir = repo_path / ISSUES_DIR
-        if not repo_issues_dir.is_dir():
-            continue
-
-        try:
-            spec_path = str(repo_issues_dir.relative_to(current_cwd))
-        except ValueError:
-            spec_path = str(repo_issues_dir)
-
-        seen: set[int] = set()
-
-        for entry in sorted(repo_issues_dir.iterdir()):
-            num = _parse_number(entry)
-            if num is None or num in seen:
-                continue
-            seen.add(num)
-
-            issue_file = entry / "issue.yaml"
-            spec_file = entry / "spec.md"
-            has_yaml = issue_file.exists()
-            has_spec = spec_file.exists()
-            if not has_yaml and not has_spec:
-                continue
-
-            if has_yaml:
-                issue_data = yaml_load(read_file(issue_file))
-                if isinstance(issue_data, dict):
-                    title = issue_data.get("title", "")
-                    status = issue_data.get("status", "open")
-                else:
-                    title = ""
-                    status = "open"
-            else:
-                title = ""
-                status = "open"
-
-            display_num = f"{repo_name}#{num}"
-            all_entries.append(
-                (sort_prio, repo_name, display_num, status, title, spec_path, num)
-            )
-
-    if not all_entries:
-        return
-
-    all_entries.sort(key=lambda e: (e[0], e[1], -e[6]))
-
-    for _, _, display_num, status, title, spec_path, _ in all_entries:
-        print(f"{display_num} [{status}] {title} spec_path={spec_path}")
+        all_entries.extend(
+            _list_issues_in_repo(child, child.name, idx + 1, current_cwd)
+        )
+    _format_list_output(all_entries)
 
 
 def cmd_link(args: argparse.Namespace) -> None:
@@ -1396,7 +1530,7 @@ def cmd_renumber(args: argparse.Namespace) -> None:
     qualified_to = f"{from_repo}#{to_num}"
     _auto_commit(f"auto: renumber {qualified_from} -> {qualified_to}", repo_path)
     print(yaml_dump({"renumbered": True, "from": qualified_from, "to": qualified_to}))
-    issues_dir = repo_path / ".issues"
+    issues_dir = repo_path / ISSUES_DIR
     for entry in issues_dir.iterdir():
         if not entry.is_dir():
             continue
@@ -1433,81 +1567,77 @@ def cmd_promote(args: argparse.Namespace) -> None:
     print(f"  github_url: {gh_url or '(not set)'}")
 
 
+def _fetch_issues_branch(issues_dir: Path) -> dict | None:
+    """Git add + commit. Returns entry dict on failure, None on success."""
+    add = subprocess.run(
+        ["git", "-C", str(issues_dir), "add", "-A"],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if add.returncode != 0:
+        return {"status": "add_failed", "add_result": add.stderr.strip()}
+    commit = subprocess.run(
+        ["git", "-C", str(issues_dir), "commit", "--allow-empty", "-m", "auto: sync"],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if commit.returncode != 0 and "nothing to commit" not in commit.stderr:
+        return {"status": "commit_failed", "commit_result": commit.stderr.strip()}
+    return None
+
+
+def _rebase_issues_branch(issues_dir: Path) -> dict | None:
+    """Git pull --rebase. Returns entry dict on failure, None on success."""
+    pull = subprocess.run(
+        ["git", "-C", str(issues_dir), "pull", "--rebase", "origin", WORKTREE_BRANCH],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    if pull.returncode != 0:
+        return {
+            "status": "conflict",
+            "pull_result": pull.stderr.strip(),
+            "conflict_hint": f"git -C {issues_dir} pull --rebase origin {WORKTREE_BRANCH}",
+        }
+    return None
+
+
+def _push_issues_branch_safe(issues_dir: Path) -> dict | None:
+    """Git push. Returns entry dict on failure, None on success."""
+    push = subprocess.run(
+        ["git", "-C", str(issues_dir), "push", "origin", WORKTREE_BRANCH],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    if push.returncode != 0:
+        return {"status": "push_failed", "push_result": push.stderr.strip()}
+    return None
+
+
 def _sync_repo(repo_path: Path, qualifier: str, issues_dir: Path | None = None) -> dict:
     """Core sync logic for a single repo. Returns status dict."""
     if issues_dir is None:
         issues_dir = repo_path / ISSUES_DIR
     entry: dict = {"qualifier": qualifier, "path": str(repo_path)}
-
     if not (issues_dir / ".git").is_file():
         entry["status"] = "no_worktree"
         return entry
-
     try:
-        add_result = subprocess.run(
-            ["git", "-C", str(issues_dir), "add", "-A"],
-            capture_output=True,
-            text=True,
-            timeout=15,
-        )
-        if add_result.returncode != 0:
-            entry["status"] = "add_failed"
-            entry["add_result"] = add_result.stderr.strip()
-            return entry
-        commit_result = subprocess.run(
-            [
-                "git",
-                "-C",
-                str(issues_dir),
-                "commit",
-                "--allow-empty",
-                "-m",
-                "auto: sync",
-            ],
-            capture_output=True,
-            text=True,
-            timeout=15,
-        )
-        if (
-            commit_result.returncode != 0
-            and "nothing to commit" not in commit_result.stderr
-        ):
-            entry["status"] = "commit_failed"
-            entry["commit_result"] = commit_result.stderr.strip()
-            return entry
-        pull = subprocess.run(
-            [
-                "git",
-                "-C",
-                str(issues_dir),
-                "pull",
-                "--rebase",
-                "origin",
-                WORKTREE_BRANCH,
-            ],
-            capture_output=True,
-            text=True,
-            timeout=30,
-        )
-        if pull.returncode != 0:
-            entry["status"] = "conflict"
-            entry["pull_result"] = pull.stderr.strip()
-            entry["conflict_hint"] = (
-                f"git -C {issues_dir} pull --rebase origin {WORKTREE_BRANCH}"
-            )
-            return entry
-        push = subprocess.run(
-            ["git", "-C", str(issues_dir), "push", "origin", WORKTREE_BRANCH],
-            capture_output=True,
-            text=True,
-            timeout=30,
-        )
-        if push.returncode == 0:
-            entry["status"] = "ok"
-            entry["pull_result"] = pull.stdout.strip() or "up_to_date"
-        else:
-            entry["status"] = "push_failed"
-            entry["push_result"] = push.stderr.strip()
+        fail = _fetch_issues_branch(issues_dir)
+        if fail:
+            return {**entry, **fail}
+        fail = _rebase_issues_branch(issues_dir)
+        if fail:
+            return {**entry, **fail}
+        fail = _push_issues_branch_safe(issues_dir)
+        if fail:
+            return {**entry, **fail}
+        entry["status"] = "ok"
+        entry["pull_result"] = "up_to_date"
     except subprocess.TimeoutExpired:
         entry["status"] = "timeout"
     return entry
@@ -1533,14 +1663,8 @@ def cmd_sync(args: argparse.Namespace) -> None:
     print(yaml_dump({"sync": True, "repos": repos_info}))
 
 
-def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        prog="local-issues",
-        description="Local issue tracking CLI tool for .issues/ directories.",
-    )
-    sub = parser.add_subparsers(dest="command", required=True)
-
-    p = sub.add_parser(
+def _add_create_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser(
         "create",
         help="Create a new issue (autonumber when --number omitted). Flags: --number, --title, --labels",
     )
@@ -1553,7 +1677,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--title", type=str, required=True)
     p.add_argument("--labels", type=str, nargs="*", default=[])
 
-    p = sub.add_parser(
+
+def _add_read_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser(
         "read",
         help="Read an issue as YAML. Flags: --number (N or repo#N), --type (full|comments|labels|links|all)",
     )
@@ -1564,24 +1690,32 @@ def build_parser() -> argparse.ArgumentParser:
         default="full",
     )
 
-    p = sub.add_parser(
+
+def _add_read_comments_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser(
         "read-comments",
         help="Read comments for an issue. Flags: --number (N or repo#N)",
     )
     p.add_argument("--number", type=str, required=True)
 
-    p = sub.add_parser(
+
+def _add_read_labels_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser(
         "read-labels", help="Read labels for an issue. Flags: --number (N or repo#N)"
     )
     p.add_argument("--number", type=str, required=True)
 
-    p = sub.add_parser(
+
+def _add_read_sub_issues_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser(
         "read-sub-issues",
         help="Read sub-issues of an issue. Flags: --number (N or repo#N)",
     )
     p.add_argument("--number", type=str, required=True)
 
-    p = sub.add_parser(
+
+def _add_update_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser(
         "update",
         help="Update an issue's metadata or body. Flags: --number, --title, --status, --phase, --labels, --body-file, --github, --remote-url",
     )
@@ -1594,7 +1728,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--github", type=str)
     p.add_argument("--remote-url", type=str)
 
-    p = sub.add_parser(
+
+def _add_comment_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser(
         "comment",
         help="Add a comment to an issue. Flags: --number (N or repo#N), --type (internal|stakeholder), --body (short text only)",
     )
@@ -1607,7 +1743,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--type", choices=["internal", "stakeholder"], default="internal")
     p.add_argument("--body", type=str, required=True)
 
-    p = sub.add_parser(
+
+def _add_close_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser(
         "close",
         help="Close an issue. Flags: --number, --reason (completed|not_planned|duplicate)",
     )
@@ -1619,34 +1757,76 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--duplicate-of", type=int)
 
-    p = sub.add_parser("delete", help="Delete an issue")
+
+def _add_delete_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser("delete", help="Delete an issue")
     p.add_argument("--number", type=str, required=True)
     p.add_argument("--force", action="store_true")
 
-    p = sub.add_parser("search", help="Search issues")
+
+def _add_search_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser("search", help="Search issues")
     p.add_argument("--query", type=str, required=True)
 
-    sub.add_parser("list", help="List all issues")
 
-    p = sub.add_parser("link", help="Link sub-issues to a parent")
+def _add_list_parser(subparsers: argparse._SubParsersAction) -> None:
+    subparsers.add_parser("list", help="List all issues")
+
+
+def _add_link_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser("link", help="Link sub-issues to a parent")
     p.add_argument("--number", type=str, required=True)
     p.add_argument("--sub", type=str, nargs="+", required=True)
     p.add_argument("--type", type=str, default="sub-issue")
 
-    p = sub.add_parser("renumber", help="Renumber an issue")
+
+def _add_renumber_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser("renumber", help="Renumber an issue")
     p.add_argument("--from", type=str, required=True, dest="from_num")
     p.add_argument("--to", type=str, required=True, dest="to_num")
 
-    p = sub.add_parser("promote", help="Check promotion readiness")
+
+def _add_promote_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser("promote", help="Check promotion readiness")
     p.add_argument("--number", type=str, required=True)
     p.add_argument("--dry-run", action="store_true")
 
-    sub.add_parser(
+
+def _add_init_parser(subparsers: argparse._SubParsersAction) -> None:
+    subparsers.add_parser(
         "init", help="Initialize worktrees and pull remote issues-data for all repos"
     )
-    sub.add_parser(
+
+
+def _add_sync_parser(subparsers: argparse._SubParsersAction) -> None:
+    subparsers.add_parser(
         "sync", help="Commit pending changes, pull-rebase, and push for all repos"
     )
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="local-issues",
+        description="Local issue tracking CLI tool for .issues/ directories.",
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    _add_create_parser(sub)
+    _add_read_parser(sub)
+    _add_read_comments_parser(sub)
+    _add_read_labels_parser(sub)
+    _add_read_sub_issues_parser(sub)
+    _add_update_parser(sub)
+    _add_comment_parser(sub)
+    _add_close_parser(sub)
+    _add_delete_parser(sub)
+    _add_search_parser(sub)
+    _add_list_parser(sub)
+    _add_link_parser(sub)
+    _add_renumber_parser(sub)
+    _add_promote_parser(sub)
+    _add_init_parser(sub)
+    _add_sync_parser(sub)
 
     return parser
 
