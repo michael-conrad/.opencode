@@ -823,7 +823,7 @@ def _action_discover(args: argparse.Namespace) -> None:
         print("(none found)", file=sys.stderr)
         return
     for name in sorted(available):
-        print(name, file=sys.stderr)
+        print(name)
 
 
 def _action_state_init(path: str) -> None:
@@ -838,16 +838,69 @@ def _action_state_init(path: str) -> None:
     print(f"state initialised at {p}")
 
 
-def _action_state_update(path: str, var_name: str, var_value: str) -> None:
+def _action_state_update(path: str, contract_path: str | None, var_name: str, var_value: str, var_type: str | None = None) -> None:
     p = _state_path(path)
     if not p.exists():
         _die(f"state file not found: {p} (run state init first)", 1)
+
     data = _load_yaml(str(p))
     variables = data.get("variables", {})
+
+    # Load contract for validation
+    contract = None
+    schema = None
+    if contract_path:
+        contract = _load_yaml(contract_path)
+        schema = contract.get("variables", {})
+
     if var_name is not None and var_value is not None:
-        variables[var_name] = var_value
+        if schema and var_name in schema:
+            decl = schema[var_name]
+            typ = decl.get("type", "bool")
+            nullable = decl.get("nullable", False)
+            domain = decl.get("domain")
+
+            if nullable and var_value.strip().lower() in ("", "null"):
+                variables[var_name] = None
+            elif typ == "bool":
+                sv = var_value.strip().lower()
+                if sv in ("true", "1", "yes"):
+                    variables[var_name] = True
+                elif sv in ("false", "0", "no"):
+                    variables[var_name] = False
+                else:
+                    _die(f"invalid bool value {var_value!r} for {var_name}")
+            elif typ == "int":
+                variables[var_name] = int(var_value)
+            elif typ == "real":
+                variables[var_name] = float(var_value)
+            elif typ == "string":
+                sv = var_value.strip()
+                if domain is not None and sv not in domain:
+                    _die(f"value {sv!r} not in domain {domain} for {var_name}")
+                variables[var_name] = sv
+        elif var_type:
+            typ = var_type
+            if typ == "bool":
+                sv = var_value.strip().lower()
+                if sv in ("true", "1", "yes"):
+                    variables[var_name] = True
+                elif sv in ("false", "0", "no"):
+                    variables[var_name] = False
+                else:
+                    _die(f"invalid bool value {var_value!r} for {var_name}")
+            elif typ == "int":
+                variables[var_name] = int(var_value)
+            elif typ == "real":
+                variables[var_name] = float(var_value)
+            else:
+                variables[var_name] = var_value
+        else:
+            variables[var_name] = var_value
+
     data["variables"] = variables
     data["timestamp"] = datetime.now(timezone.utc).isoformat()
+
     with p.open("w") as f:
         yaml.dump(data, f, default_flow_style=False)
     print(f"state updated at {p}")
@@ -872,7 +925,7 @@ def _action_state(args: argparse.Namespace) -> None:
     if sub == "init":
         _action_state_init(path)
     elif sub == "update":
-        _action_state_update(path, args.var_name, args.var_value)
+        _action_state_update(path, args.contract_path, args.var_name, args.var_value, args.var_type)
     elif sub == "status":
         _action_state_status(path)
 
@@ -935,6 +988,8 @@ def _build_parser() -> argparse.ArgumentParser:
     p_upd.add_argument("state_path", help="path to state file or directory")
     p_upd.add_argument("--var-name", "-n", required=True)
     p_upd.add_argument("--var-value", "-v", required=True)
+    p_upd.add_argument("--contract-path", "-c", default=None, help="path to contract YAML for type/domain validation")
+    p_upd.add_argument("--var-type", "-t", default=None, choices=["bool", "int", "real", "string"], help="variable type (used when no contract available)")
     p_st = state_sub.add_parser("status", help="print state file contents")
     p_st.add_argument("state_path", help="path to state file or directory")
 
