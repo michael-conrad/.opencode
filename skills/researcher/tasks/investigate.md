@@ -117,5 +117,5 @@ summary: "<1-3 sentence summary>"
 
 - `implementation-pipeline/pipeline-executor.md` — step labels and remediation routing
 - `implementation-pipeline/pipeline-state-machine.yaml` — Z3 contract
-- `.opencode/tools/solve` — Z3 constraint tool
+- `skills/solve/` — Solve skill card (constraint solving, Z3, contracts)
 - `adversarial-audit/tasks/coherence-extraction.md` — SC evidence type analysis
