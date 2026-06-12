@@ -314,11 +314,11 @@ Review every requirement statement:
 | Remediated SC   | Re-verified independently — same PASS/FAIL gate applies; no carryover credit from prior passes                                                                                                                                                                 |
 | Re-verification | Repeat the verification command/assertion; confirm PASS before claiming remediation complete                                                                                                                                                                   |
 
-**SC Table Format (12-column):**
+**SC Table Format (14-column):**
 
-| ID   | Criterion | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step |
-| ---- | --------- | ------------------- | ----------- | --------------------- | ------------- | ------------------------ | ------------- | ----------------- | ---------------- | -------------- | ------------- |
-| SC-1 | ...       | ...                 | ...         | ...                   | ...           | ...                      | ...           | ...               | ...              | ...            | ...           |
+| ID | Criterion | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step | Test File | Phase Mapping |
+|----|-----------|-------------------|-------------|----------------------|--------------|-------------------------|--------------|-----------------|----------------|--------------|-------------|-----------|--------------|
+| SC-1 | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
 **The Verification Method column MUST specify an executable command or assertion producing deterministic PASS/FAIL. The Remediation column MUST specify what corrective action is required on FAIL and how re-verification is performed.**
 
@@ -398,7 +398,7 @@ Review the assembled spec for plan-level content that belongs in the implementat
 
 **Self-review question:** "Could two developers produce valid but different implementations from this spec?" If yes, the spec is at the right level. If no — if the spec only allows one implementation — it contains plan-level detail that should be removed.
 
-### Step 5.6: `solve` Utility Invocation (SC-2)
+### Step 5.6: `solve` and `plan` Utility Invocation (SC-2)
 
 After the spec/plan boundary check, invoke the `solve` utility to produce a dependency-ordering constraints contract:
 
@@ -409,8 +409,8 @@ After the spec/plan boundary check, invoke the `solve` utility to produce a depe
 ```
 
 On success: constraints contract written to `./tmp/{issue-N}/artifacts/constraints-contract.yaml`.
-On UNSAT: model constraints manually, log WARNING in lifecycle manifest.
-On utility unavailable: same fallback — manual constraints + WARNING in lifecycle manifest.
+On UNSAT: **HALT** with blocker report — do NOT proceed with manual fallback.
+On utility unavailable: **HALT** with blocker report — do NOT proceed without solve verification.
 
 Post-invocation verification via `solve check`:
 
@@ -420,7 +420,18 @@ Post-invocation verification via `solve check`:
   --contract-path .issues/{issue-N}/spec-artifacts/pre-approval-gate-contract.yaml
 ```
 
-MUST return SAT (or UNSAT with documented WARNING in lifecycle manifest).
+MUST return SAT. UNSAT → HALT with blocker report. No fallback paths.
+
+Then invoke the `plan` utility to validate spec phase structure for solvability:
+
+```bash
+./.opencode/tools/plan plan \
+  --problem ./tmp/{issue-N}/artifacts/phase-plan-problem.yaml \
+  --output ./tmp/{issue-N}/artifacts/phase-plan-validated.yaml
+```
+
+On success: planner returns SOLVED_SATISFICING or SOLVED_OPTIMALLY.
+On UNSOLVABLE or utility unavailable: **HALT** with blocker report. No fallback paths.
 
 ### Step 6: Self-Review
 
