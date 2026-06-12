@@ -11,7 +11,7 @@
 **Concern:** The `buildSkillIndex()` function truncates skill descriptions to the first sentence only, silently removing routing mandates and procedural instructions from the Skill Index table in the system prompt.
 
 **Files:** `plugins/session-enforcement.ts`
-**SCs covered:** SC-1, SC-3
+**SCs covered:** SC-1, SC-2, SC-3
 
 **Routing key:** Orchestrator tasks sub-agents via task(). Pre-analysis sub-agents discover scope independently.
 
