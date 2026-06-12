@@ -1,10 +1,4 @@
 #!/usr/bin/env -S uv run --script
-# fmt: off
-"exec" "uv" "run" "--script" "$0" "$@"  # bash guard — detect python invoker
-
-# SPDX-FileCopyrightText: 2026 Michael Conrad
-# SPDX-License-Identifier: MIT
-# Provenance: AI-generated
 # /// pyproject.toml
 # [project]
 # name = "local-issues"
@@ -16,6 +10,12 @@
 # line-length = 100
 # target-version = "py312"
 # ///
+# fmt: off
+"exec" "uv" "run" "--script" "$0" "$@"  # bash guard — detect python invoker
+
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
 
 # fmt: on
 # ruff: noqa: E402
