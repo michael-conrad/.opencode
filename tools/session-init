@@ -14,6 +14,7 @@ __doc__ = """DESCRIPTION: Session initialization script for AI agents.
 Outputs key:value pairs + repo identity YAML for LLM consumption on stdout.
 Developer/workspace identity (dev.name, dev.email) uses dotted key format.
 Repo identity is in the ## Repo Information YAML section with path/owner/repo/platform/url entries.
+The ## Local Issue Artifacts section maps each repo to its .issues/ directory.
 
 Match file path (.) for root repo; subdirectory paths for submodule repos.
 Agents use repo identity values for MCP API routing (github_issue_read etc.).
@@ -651,6 +652,40 @@ def run_guard_checks() -> list[str]:
     return problems
 
 
+def collect_issue_artifact_paths(repo_info: list[dict[str, str]]) -> list[dict[str, str]]:
+    """Collect local .issues/ artifact paths for each repo entry.
+
+    Returns a list of dicts with keys: path, issues.
+    If .issues/ directory does not exist, includes a 'setup' key with
+    worktree creation instructions referencing the submodule's orphaned branch.
+    """
+    cwd = os.getcwd()
+    entries: list[dict[str, str]] = []
+    for repo in repo_info:
+        repo_path = repo["path"]
+        # Skip .issues worktrees — they are the issue store, not repos
+        # with their own issue artifacts
+        if repo_path == ".issues" or repo_path.endswith("/.issues"):
+            continue
+        if repo_path == ".":
+            issues_rel = ".issues/"
+            issues_abs = os.path.join(cwd, ".issues")
+        else:
+            issues_rel = f"{repo_path}/.issues/"
+            issues_abs = os.path.join(cwd, repo_path, ".issues")
+        entry: dict[str, str] = {
+            "path": repo_path,
+            "issues": issues_rel,
+        }
+        if not os.path.isdir(issues_abs):
+            entry["setup"] = (
+                f"create worktree {issues_rel} from orphaned branch "
+                f"issues-data in repo {repo['repo']}"
+            )
+        entries.append(entry)
+    return entries
+
+
 def get_agent_tools_help() -> str:
     """Run ./.opencode/tools/help and return tool listing or error message."""
     try:
@@ -726,6 +761,15 @@ def main() -> int:
         print(f"  repo: {entry['repo']}")
         print(f"  platform: {entry['platform']}")
         print(f"  url: {entry['url']}")
+
+    # Emit ## Local Issue Artifacts section
+    issue_artifacts = collect_issue_artifact_paths(repo_info)
+    print("## Local Issue Artifacts")
+    for entry in issue_artifacts:
+        print(f"- path: {entry['path']}")
+        print(f"  issues: {entry['issues']}")
+        if "setup" in entry:
+            print(f"  setup: {entry['setup']}")
 
     # Emit ## Agent Tools section with tool listing
     tools_help = get_agent_tools_help()
