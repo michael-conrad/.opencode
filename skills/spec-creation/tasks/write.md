@@ -523,6 +523,64 @@ Invoke `issue-operations` skill to persist the spec as an issue:
 - Claim spec is "written" without an issue URL
 - Ask the user to review the spec in chat
 
+### Step 7r: Remote Issue Body Format
+
+The remote issue body is the stakeholder-facing representation of the spec. It MUST use a standardized 6-part exec summary structure that is readable without clicking any link and carries full resolved URLs.
+
+#### 1. Spec Reference Blockquote (mandatory — top of body, before all other content)
+
+```
+> Full spec and plan artifacts: {{REMOTE_BROWSER_URL}}/{{OWNER}}/{{REPO}}/tree/{{SPEC_BRANCH}}/{{SPEC_PATH}}
+```
+
+**Resolution rules:**
+- `{{REMOTE_BROWSER_URL}}` — resolved from session-init (platform-agnostic: GitHub or GitBucket)
+- `{{OWNER}}` / `{{REPO}}` — resolved from session-init, verified against the target issue's repo context
+- `{{SPEC_BRANCH}}` — always `issues-data`
+- `{{SPEC_PATH}}` — always `.issues/N/`
+- **Repo-awareness guard**: before resolving, confirm owner/repo matches the target issue's repository. All links MUST be full resolved URLs — no platform-specific shortcuts (`#NNN`, `owner/repo#NNN`).
+
+#### 2. Problem (mandatory)
+
+What problem this solves, why now, business/user impact. BLUF — lead with outcome, not mechanism.
+
+#### 3. Scope (mandatory)
+
+3-5 bullets in-scope. Explicit out-of-scope list. Stakeholder-facing outcomes, not implementation details.
+
+#### 4. Approach (mandatory)
+
+High-level solution in 3-5 sentences. Names the approach, not the implementation.
+
+#### 5. Impact (mandatory)
+
+Top 3 risks with one-line mitigation. Key dependencies. Call to action.
+
+#### 6. AI Agent Instructions (mandatory)
+
+```
+## AI Agent Instructions
+
+This issue is an executive summary for human stakeholders.
+The authoritative spec and plan artifacts are at {{SPEC_PATH}}.
+AI agents MUST read the local spec/plan files for implementation
+and MUST NOT base implementation on this summary.
+```
+
+**Constraints table:**
+
+| Constraint | Value |
+|------------|-------|
+| Length | 150-300 words, 1 page max |
+| Structure | BLUF — conclusion/action first, context second, evidence third |
+| Tone | Assertive, decision-oriented, jargon-free, third-person |
+| Independence | Fully readable without clicking any link |
+| Links | All links MUST be full resolved URLs from session-init — no platform-specific shortcuts. Repo-awareness guard required. |
+| Exclusions | No implementation details, file paths, algorithms, methodology, unreferenced acronyms |
+| Platform | Platform-agnostic — no hardcoded GitHub/GitBucket tool names |
+
+**Clarification:** The Intent and Executive Summary 5-field table (Problem, Root Cause/Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions) from Step 5 goes in the LOCAL spec (`.issues/N/spec.md`), NOT the remote issue body.
+
 ### Step 7a: Exec-Summary Format Rules
 
 The exec summary embedded in the remote issue body MUST follow these formatting constraints:
