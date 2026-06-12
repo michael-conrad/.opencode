@@ -37,7 +37,7 @@ After phase dependency contract is confirmed SAT, validate phase solvability:
 1. Run `.opencode/tools/plan plan --problem ./tmp/{issue-N}/artifacts/phase-plan-problem.yaml`
 1. Confirm planner returns SOLVED_SATISFICING or SOLVED_OPTIMALLY
 1. Save result to `./tmp/{issue-N}/artifacts/phase-plan-validated.yaml`
-1. If utility unavailable: log WARNING in lifecycle manifest, validate manually (acyclic check)
+1. If utility unavailable: **HALT** with blocker report — no manual fallback
 
 ### SC-ID Mapping (SC-4)
 
@@ -269,7 +269,7 @@ After Z3 contract generation, invoke the `plan` utility to validate phase solvab
 
 On success: planner returns `SOLVED_SATISFICING` or `SOLVED_OPTIMALLY` in `phase-plan-validated.yaml`.
 On UNSOLVABLE: re-examine phase ordering, add missing action/precondition, re-run.
-On utility unavailable: validate phase solvability manually (acyclic check on phase ordering), write manual validation result to `phase-plan-validated.yaml` with WARNING in lifecycle manifest.
+On utility unavailable: **HALT** with blocker report — no manual fallback.
 
 Verification steps after contract generation:
 

@@ -52,16 +52,55 @@ Writes plan header, stores at `.issues/{N}/spec-artifacts/plan.md`, runs self-re
 | `create/plan-structure` | Verification, combined/separate decision, file mapping, TDD definition | ≈750 |
 | `create/create-and-validate` | Document writing, local storage, validation, approval cascade | ≈650 |
 
-## Plan Phase Structure Requirements
+## Plan Phase Structure Requirements — Mandatory Enumerated Checklist with Routing Annotations
 
-Each phase MUST include (prose-driven, not rigid headers):
-- **Why this phase exists** — concern it addresses and place in overall design
-- **What it must accomplish** — tasks, deliverables, behavioral requirements
-- **How to verify completion** — success criteria and testable outcomes. Each phase's verification guidance MUST carry cost-frame identity prose that reframes verification cost using the dark-prose-007 formula from `250-dark-prose-reference.md` §Section 3. Verification MUST require real test execution commands that produce saved artifact files in `./tmp/{issue-N}/artifacts/`. Structural checks (file exists, grep match) are NEVER acceptable substitutes for behavioral runtime evidence — a skipped execution is a defect accepted at the point of verification. The death spiral / break dynamics are formalized in `065-verification-honesty.md` §Cost Model — behavioral verification is a break (bounded cost, zero downstream), structural-only verification is a death spiral (compounding exponential cost).
-- **What could go wrong** — edge cases, known risks, failure modes
-- **What must be done first** — dependencies on prior phases or external prerequisites
+Every plan phase MUST use EXACTLY the following 14-item enumerated checklist with routing annotations. No free-form prose outside the Concern/Files/SCs header block. No deviations.
 
-## Concern Boundary Annotations
+Each checklist item MUST include a routing annotation specifying which agent role executes it:
+- **orchestrator routes to [sub-agent-type]** — orchestrator tasks a clean-room sub-agent
+- **orchestrator inline** — orchestrator performs the action directly (only for git commits, file reads, artifact verification)
+
+The 14 gates with routing annotations:
+
+- [ ] 1. SC-COHERENCE-GATE — **orchestrator routes to pre-analysis**: verify spec SCs are internally consistent and complete for this phase
+- [ ] 2. PRE-RED-BASELINE — **orchestrator routes to exploration**: run full test suite, confirm all existing tests PASS before any changes
+- [ ] 3. RED-PHASE — **orchestrator routes to RED sub-agent**: write enforcement test at permanent path → run → capture output to `./tmp/{issue-N}/artifacts/{phase}-test-output.log` → expected FAIL (exit non-zero)
+- [ ] 4. RED-DOUBLECHECK — **orchestrator inline**: confirm RED evidence artifact exists and shows non-zero exit
+- [ ] 5. GREEN-PHASE — **orchestrator routes to GREEN sub-agent (clean-room, receives spec + test path only)**: implement change → run test → capture output → expected PASS (exit 0)
+- [ ] 6. CHECKPOINT-COMMIT — **orchestrator inline**: git commit -m "phase N checkpoint" with test + change
+- [ ] 7. STRUCTURAL-CHECKS — **orchestrator routes to structural sub-agent**: lint, format, typecheck on changed files
+- [ ] 8. GREEN-DOUBLECHECK — **orchestrator inline**: confirm GREEN evidence artifact exists and shows exit 0
+- [ ] 9. GREEN-VBC — **orchestrator routes to VbC sub-agent**: verification-before-completion against this phase's SCs
+- [ ] 10. ADVERSARIAL-AUDIT — **orchestrator routes to resolve-models**: dispatches 2 auditors for plan-fidelity + concern-separation
+- [ ] 11. CROSS-VALIDATE — **orchestrator inline**: verify dual-auditor consensus on all phase SCs
+- [ ] 12. REGRESSION-CHECK — **orchestrator routes to regression sub-agent**: full test suite, confirm nothing previously passing is now broken
+- [ ] 13. REVIEW-PREP — **orchestrator routes to review-prep sub-agent**: compare URL (verified from session-init), PR body draft for the phase
+- [ ] 14. EXEC-SUMMARY — **orchestrator inline**: read all sub-agent result contracts, produce phase completion report with SC status, artifact paths, byline
+
+### Inter-Phase Handoff
+
+Between gate 14 of phase N and gate 1 of phase N+1:
+
+- Update Z3 state file: `solve state update` with phase N's gate states
+- Run `solve check`: confirm phase N dependency contract still SAT
+- Verify checkpoint tag exists for phase N
+- Append lifecycle manifest event for phase N completion
+
+### Post-All-Phases Sweep
+
+After the last phase's gate 14:
+
+- [ ] FINISHING CHECKLIST — **orchestrator routes to finishing sub-agent**: git status clean, lint/typecheck from scratch, coverage sweep
+- [ ] PR CREATION — **orchestrator routes to git-workflow pr-creation**: via `github_create_pull_request`, extract `html_url` from response
+- [ ] POST-MERGE CLEANUP — **orchestrator routes to git-workflow cleanup**: delete merged branches, close issues, sync dev
+
+### Solve and Plan Mandatory
+
+- `solve check` on dependency contract: MUST return SAT. If UNSAT, HALT.
+- `plan plan` on phase problem: MUST return SOLVED_SATISFICING or SOLVED_OPTIMALLY. If UNSOLVABLE, HALT.
+- No fallback paths. No "If utility unavailable, validate manually." HALT on unavailability.
+
+### Concern Boundary Annotations
 
 When transitioning between architectural concerns, describe:
 - What concern being left (prior scope)

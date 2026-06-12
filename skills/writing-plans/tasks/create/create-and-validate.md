@@ -31,12 +31,32 @@ Write plan document to `.issues/{N}/spec-artifacts/plan.md`, validate structure,
 - Write plan to `.issues/{N}/spec-artifacts/plan.md`
 - Proceed to Step 8
 
-### Phase body requirements (each phase MUST include):
-- Why this phase exists (concern it addresses)
-- What it must accomplish (tasks, deliverables, behavioral requirements)
-- How to verify completion (success criteria)
-- What could go wrong (edge cases, risks)
-- What must be done first (dependencies)
+### Phase body requirements — Mandatory 14-Item Checklist Template with Routing Annotations
+
+Each phase MUST use the following template. No prose alternative. No deviations.
+
+```
+### Phase N: title
+
+**Concern:** concern boundary
+**Files:** exact paths or glob patterns
+**SCs covered:** SC-1, SC-3
+
+- [ ] 1. SC-COHERENCE-GATE — **orchestrator routes to pre-analysis**: verify spec SCs internally consistent
+- [ ] 2. PRE-RED-BASELINE — **orchestrator routes to exploration**: full test suite PASS
+- [ ] 3. RED-PHASE — **orchestrator routes to RED sub-agent**: write test at path → run → FAIL → output to ./tmp/{issue-N}/artifacts/{phase}-test-output.log
+- [ ] 4. RED-DOUBLECHECK — **orchestrator inline**: confirm non-zero exit in artifact
+- [ ] 5. GREEN-PHASE — **orchestrator routes to GREEN sub-agent (clean-room)**: implement → run test → PASS → output to same artifact path
+- [ ] 6. CHECKPOINT-COMMIT — **orchestrator inline**: git commit -m "phase N checkpoint"
+- [ ] 7. STRUCTURAL-CHECKS — **orchestrator routes to structural sub-agent**: ruff/pyright/tsc as appropriate
+- [ ] 8. GREEN-DOUBLECHECK — **orchestrator inline**: confirm exit 0 in artifact
+- [ ] 9. GREEN-VBC — **orchestrator routes to VbC sub-agent**: verification-before-completion against phase SCs
+- [ ] 10. ADVERSARIAL-AUDIT — **orchestrator routes to resolve-models**: plan-fidelity + concern-separation
+- [ ] 11. CROSS-VALIDATE — **orchestrator inline**: dual-auditor consensus
+- [ ] 12. REGRESSION-CHECK — **orchestrator routes to regression sub-agent**: full test suite PASS
+- [ ] 13. REVIEW-PREP — **orchestrator routes to review-prep sub-agent**: compare URL, PR body draft
+- [ ] 14. EXEC-SUMMARY — **orchestrator inline**: SC status, artifact paths, byline
+```
 
 **Concern boundary annotations (prose-driven):**
 When transitioning concerns: describe what is being left, what is being entered, what information is needed for handoff.
@@ -87,6 +107,9 @@ Before finalizing the plan, verify spec-to-plan handoff artifacts:
 - Verify all steps are actionable
 - Verify success criteria are testable
 - Prose-structure check: phase descriptions remain prose
+- **Verify each phase declares test output artifact paths** using `./tmp/{issue-N}/artifacts/` convention (not bare `./tmp/`)
+- **Verify `solve check` returns SAT** — if UNSAT, HALT with blocker report
+- **Verify `plan plan` returns SOLVED_SATISFICING or SOLVED_OPTIMALLY** — if UNSOLVABLE or unavailable, HALT with blocker report
 
 ### Step 10: Verification Revisit (MANDATORY)
 
