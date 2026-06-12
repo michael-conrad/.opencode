@@ -186,9 +186,7 @@ def yaml_load(content: str) -> Any:
 
 def issue_exists(number: int, repo_path: Path | None = None) -> bool:
     path = get_issue_path(number, repo_path=repo_path)
-    if not path.is_dir():
-        return False
-    return (path / "issue.yaml").exists() or (path / "spec.md").exists()
+    return path.is_dir()
 
 
 def read_issue_data(number: int, repo_path: Path | None = None) -> dict:
