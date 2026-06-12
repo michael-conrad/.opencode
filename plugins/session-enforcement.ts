@@ -564,10 +564,8 @@ function buildSkillIndex(skillsDir: string): string {
   // Build a compact skill index table (name, description, trigger patterns)
   const skillRows = skills.map(s => {
     const triggers = extractTriggerPatterns(s.description);
-    // Shorten description to first sentence only for index
-    const shortDesc = s.description.split(".")[0].trim() + ".";
     const triggersStr = triggers.length > 0 ? triggers.slice(0, 5).join(", ") : "—";
-    return `| \`${s.name}\` | ${shortDesc} | ${triggersStr} |`;
+    return `| \`${s.name}\` | ${s.description} | ${triggersStr} |`;
   }).join("\n");
 
   if (skillRows.length === 0) return "";
