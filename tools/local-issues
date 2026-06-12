@@ -1165,17 +1165,19 @@ def cmd_search(args: argparse.Namespace) -> None:
 
 
 def _resolve_repo_name() -> str:
-    """Resolve repo name from CWD by checking for */.git dirs and */.git submodule files."""
-    cwd = Path(os.getcwd()).resolve()
-    for parent in [cwd] + list(cwd.parents):
+    tool_script = Path(__file__).resolve()
+    for parent in tool_script.parents:
+        if (parent / ".gitmodules").exists():
+            return parent.name
+    for parent in tool_script.parents:
         git_ref = parent / ".git"
         if git_ref.is_dir():
             return parent.name
         if git_ref.is_file():
             contents = git_ref.read_text().strip()
-            if "gitdir:" in contents:
+            if "gitdir:" not in contents:
                 return parent.name
-    return cwd.name
+    return Path(os.getcwd()).name
 
 
 def _print_available_repos() -> None:
