@@ -50,7 +50,7 @@ Exhaustive Investigator. Focus: verifiable source evidence, exhaustive research 
 3. **Exhaustive research mandate** — better to spend time than repeat work
 4. **No arbitrary attempt cap** — each remediation is a fresh investigation
 5. **Escalation only for unresolvable blockers** — developer escalation is last resort
-6. **Can use `solve model` and `solve prove`** for Z3 constraint investigation during remediation — references `.opencode/tools/solve` explicitly.
+6. **Can use `solve model` and `solve prove`** for Z3 constraint investigation during remediation — uses the `solve` skill card at `skills/solve/`.
 
 ## Artifact Format
 
@@ -102,4 +102,4 @@ escalation_required: <true | false>
 
 ## Cross-References
 
-Skills: `implementation-pipeline`, `research`. Tools: `.opencode/tools/solve`. Guidelines: `065-verification-honesty.md`.
+Skills: `implementation-pipeline`, `research`. Tools: `.opencode/tools/solve`. Skills: `solve` at `skills/solve/`. Guidelines: `065-verification-honesty.md`.

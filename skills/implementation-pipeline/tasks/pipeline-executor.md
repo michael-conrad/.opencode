@@ -209,4 +209,4 @@ Example: `./tmp/928/artifacts/pipeline-red-phase-PASS-20260527T030000Z.yaml`
 - `skills/researcher/tasks/findings.md` — researcher findings formatting
 - `skills/completion-core/tasks/completion.md` — exec-summary pipeline step target
 - `skills/adversarial-audit/tasks/coherence-extraction.md` — SC coherence gate with Z3 + evidence type checks
-- `.opencode/tools/solve` — Z3 constraint tool
+- `skills/solve/` — Solve skill card (Z3 constraint solving, contracts, state)
