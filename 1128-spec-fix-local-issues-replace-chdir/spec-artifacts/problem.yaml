@@ -1,0 +1,76 @@
+domain: local-issues-chdir-fix
+types:
+  - name: phase
+objects:
+  - name: p1_add_project_dir
+    type: phase
+  - name: p2_replace_resolve_repo_name
+    type: phase
+  - name: p3_remove_chdir
+    type: phase
+  - name: p4_replace_relative_issues_dir
+    type: phase
+  - name: p5_eliminate_bare_except
+    type: phase
+  - name: p6_worktree_error_handling
+    type: phase
+  - name: p7_integration_verification
+    type: phase
+fluents:
+  - name: red
+    params:
+      - name: x
+        type: phase
+  - name: green
+    params:
+      - name: x
+        type: phase
+  - name: merged
+    params:
+      - name: x
+        type: phase
+  - name: predecessor_merged
+    params:
+      - name: x
+        type: phase
+      - name: y
+        type: phase
+actions:
+  - name: implement
+    params:
+      - name: x
+        type: phase
+    preconditions:
+      - red(x)
+    effects:
+      - green(x)
+      - not red(x)
+  - name: verify
+    params:
+      - name: x
+        type: phase
+    preconditions:
+      - green(x)
+    effects:
+      - merged(x)
+      - not green(x)
+  - name: start
+    params:
+      - name: x
+        type: phase
+      - name: prev
+        type: phase
+    preconditions:
+      - merged(prev)
+    effects:
+      - red(x)
+init:
+  - red(p1_add_project_dir)
+goals:
+  - merged(p1_add_project_dir)
+  - merged(p2_replace_resolve_repo_name)
+  - merged(p3_remove_chdir)
+  - merged(p4_replace_relative_issues_dir)
+  - merged(p5_eliminate_bare_except)
+  - merged(p6_worktree_error_handling)
+  - merged(p7_integration_verification)
