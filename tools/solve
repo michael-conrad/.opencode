@@ -51,6 +51,31 @@ def _die(msg: str, code: int = 2) -> None:
     sys.exit(code)
 
 
+def _normalize_exprs(items) -> list[str]:
+    """Normalize precondition/postcondition/invariant items to list of strings.
+
+    Accepts: None, a single string, a list of strings.
+    Dict items are rejected with _die() as schema violations.
+    """
+    if items is None:
+        return []
+    if not isinstance(items, list):
+        items = [items]
+    result = []
+    for item in items:
+        if isinstance(item, dict):
+            name = item.get("name", "<unnamed>")
+            _die(
+                f"contract expression must be a string, got dict "
+                f"(name={name!r}). "
+                f"Use flat format: '- <z3-expr>'"
+            )
+        if not isinstance(item, str):
+            _die(f"contract expression must be a string, got {type(item).__name__}")
+        result.append(item)
+    return result
+
+
 def _load_yaml(path: str) -> dict:
     p = Path(path)
     if not p.exists():
@@ -153,8 +178,7 @@ def _action_check(args: argparse.Namespace) -> None:
             solver.add(consts[name] == z3val)
 
     # Assert preconditions
-    pre = contract.get("preconditions", [])
-    for expr in pre if isinstance(pre, list) else [pre]:
+    for expr in _normalize_exprs(contract.get("preconditions")):
         solver.add(_eval_expr(expr, consts))
 
     # Check SAT after preconditions
@@ -171,12 +195,10 @@ def _action_check(args: argparse.Namespace) -> None:
         return
 
     # Add postconditions + invariants, re-check
-    post = contract.get("postconditions", [])
-    for expr in post if isinstance(post, list) else [post]:
+    for expr in _normalize_exprs(contract.get("postconditions")):
         solver.add(_eval_expr(expr, consts))
 
-    inv = contract.get("invariants", [])
-    for expr in inv if isinstance(inv, list) else [inv]:
+    for expr in _normalize_exprs(contract.get("invariants")):
         solver.add(_eval_expr(expr, consts))
 
     sat_post = solver.check()
@@ -205,12 +227,10 @@ def _action_model(args: argparse.Namespace) -> None:
     solver = z3.Solver()
 
     # Contract constraints: preconditions + invariants
-    pre = contract.get("preconditions", [])
-    for expr in pre if isinstance(pre, list) else [pre]:
+    for expr in _normalize_exprs(contract.get("preconditions")):
         solver.add(_eval_expr(expr, consts))
 
-    inv = contract.get("invariants", [])
-    for expr in inv if isinstance(inv, list) else [inv]:
+    for expr in _normalize_exprs(contract.get("invariants")):
         solver.add(_eval_expr(expr, consts))
 
     # Query constraint
@@ -238,12 +258,10 @@ def _action_prove(args: argparse.Namespace) -> None:
     solver = z3.Solver()
 
     # Assumptions = preconditions + invariants
-    pre = contract.get("preconditions", [])
-    for expr in pre if isinstance(pre, list) else [pre]:
+    for expr in _normalize_exprs(contract.get("preconditions")):
         solver.add(_eval_expr(expr, consts))
 
-    inv = contract.get("invariants", [])
-    for expr in inv if isinstance(inv, list) else [inv]:
+    for expr in _normalize_exprs(contract.get("invariants")):
         solver.add(_eval_expr(expr, consts))
 
     # Negate the theorem
