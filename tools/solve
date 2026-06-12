@@ -203,6 +203,20 @@ def _action_model(args: argparse.Namespace) -> None:
     consts = _make_constants(variables)
 
     solver = z3.Solver()
+
+    # Assert preconditions
+    pre = contract.get("preconditions", [])
+    for expr in pre if isinstance(pre, list) else [pre]:
+        e = expr["expr"] if isinstance(expr, dict) else expr
+        solver.add(_eval_expr(e, consts))
+
+    # Assert invariants
+    inv = contract.get("invariants", [])
+    for expr in inv if isinstance(inv, list) else [inv]:
+        e = expr["expr"] if isinstance(expr, dict) else expr
+        solver.add(_eval_expr(e, consts))
+
+    # Assert query
     solver.add(_eval_expr(args.query, consts))
 
     sat = solver.check()
