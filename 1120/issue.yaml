@@ -1,0 +1,100 @@
+title: Replace .issues/ worktree with sibling peer repos
+status: open
+labels:
+- SPEC
+body: "# Spec: Replace .issues/ Worktree with Sibling Peer Repos\n\n**Status:** DRAFT\n\
+  **Date:** 2026-06-11\n**Issue:** https://github.com/michael-conrad/.opencode/issues/1120\n\
+  \n## Problem\n\nThe AI agent is repeatedly confused by git worktrees checked out\
+  \ as `.issues/`. Specific failure patterns:\n\n1. **Worktree path resolution split-brain**:\
+  \ The `worktree.path` context variable fires for ALL worktrees including `.issues/`.\
+  \ An explicit exemption in `060-tool-usage.md` says `.issues/` does NOT need the\
+  \ prefix — but the agent applies or skips the prefix inconsistently, writing to\
+  \ the wrong repo.\n\n2. **Orphan branch in main repo's ref namespace**: The `issues-data`\
+  \ orphan branch lives in the code repo's ref list. During `git-workflow cleanup`,\
+  \ the agent scans branches, sees `issues-data`, and attempts to delete it — losing\
+  \ data.\n\n3. **`.opencode/.issues/` nested worktree**: Same split-brain problem\
+  \ compounded by being nested inside the submodule.\n\n## Solution\n\nReplace ALL\
+  \ `.issues/` worktrees with standalone sibling peer repos at the workspace root\
+  \ level. Each sibling is a standalone `git clone` of its parent repo, checked out\
+  \ on the `issues-data` branch — no worktrees, no orphan branches in the code repo's\
+  \ ref list.\n\n### Target Directory Layout\n\n```\n~/git/\n  opencode-config/  \
+  \                        # code repo (project root)\n    .opencode/            \
+  \                  # submodule (mandatory nesting, ONLY nesting)\n  opencode-config.issues-data/\
+  \              # code repo's issue data (standalone clone)\n  .opencode.issues-data/\
+  \                    # .opencode repo's issue data (standalone clone)\n```\n\n###\
+  \ Characteristics\n\n| Property | Value |\n|---|---|\n| Branch name in sibling repos\
+  \ | `issues-data` (always, never \"issues\") |\n| Sibling directory naming | `{REPO}.issues-data/`\
+  \ |\n| Path resolution | `{PROJECT_ROOT}/../{REPO}.issues-data/{N}/spec-artifacts/`\
+  \ |\n| Worktrees | Zero. Every issue-data repo is a standalone clone. |\n| `.issues/`\
+  \ directories | Zero everywhere including `.opencode/.issues/`. |\n| Orphan branches\
+  \ in code repo | Zero. All orphan branches live in sibling repos only. |\n| Session-init\
+  \ reporting | Does NOT report siblings. Sibling discovery by `local-issues` tool.\
+  \ |\n| Wiki | Out of scope for this spec. |\n\n## Success Criteria\n\n| ID | Criterion\
+  \ | Evidence Type |\n|---|---|---|\n| SC-1 | `local-issues init` clones sibling\
+  \ repo instead of creating worktree | `behavioral` |\n| SC-2 | `local-issues` tool\
+  \ validates sibling repo exists on every command call | `behavioral` |\n| SC-3 |\
+  \ Zero `.issues/` directories exist in any repo after migration | `structural` |\n\
+  | SC-4 | Session-init does NOT report sibling repo paths | `string` |\n| SC-5 |\
+  \ `060-tool-usage.md` `.issues/` Worktree Exemption section deleted | `string` |\n\
+  | SC-6 | All skill task card `.issues/{N}` paths converted to `{PROJECT_ROOT}/../{REPO}.issues-data/{N}/`\
+  \ | `string` |\n| SC-7 | `.opencode/.issues/` worktree eliminated — replaced by\
+  \ `.opencode.issues-data/` sibling | `structural` |\n| SC-8 | Agent cannot see `issues-data`\
+  \ branch in code repo's ref list | `behavioral` |\n| SC-9 | `local-issues init`\
+  \ auto-migrates existing `.issues/` worktree content to sibling | `behavioral` |\n\
+  \n## Phases\n\n### Phase 1: `local-issues` Tool Rewrite\n\nReplace all worktree\
+  \ management in `tools/local-issues` with sibling repo operations.\n\n**Functions\
+  \ to rewrite:**\n\n| Current Function | Replacement |\n|---|---|\n| `_worktree_active()`\
+  \ | `_sibling_valid()` — check `{REPO}.issues-data/.git/HEAD` exists |\n| `_ensure_worktree()`\
+  \ | `_ensure_sibling()` — `git clone -b issues-data <remote-url> ../{REPO}.issues-data/`\
+  \ |\n| `_ensure_all_worktrees()` | `_ensure_all_siblings()` — iterate repos, clone\
+  \ each |\n| `_push_worktree()` | `git -C ../{REPO}.issues-data/ push origin issues-data`\
+  \ |\n| `_auto_commit()` | `git -C ../{REPO}.issues-data/ add -A && commit -m \"\
+  ...\" && push` |\n| `_migrate_existing_data()` | Part of auto-remediation |\n| `_detect_dual_branch()`\
+  \ | Removed |\n| `_push_orphan_if_needed()` | Removed |\n| `init` command | Detect\
+  \ `.issues/` → auto-remediate → clone sibling |\n\n**New functions:**\n\n| Function\
+  \ | Purpose |\n|---|---|\n| `_sibling_repo_path(repo_path)` | Resolve `{PROJECT_ROOT}/../{REPO}.issues-data/`\
+  \ |\n| `_sibling_remote_url(repo_path)` | Resolve clone URL from repo's remote |\n\
+  | `_sibling_valid(repo_path)` | Verify sibling repo exists and has correct branch\
+  \ |\n| `_validate_sibling_on_call()` | Called on every mutation command — verify\
+  \ or auto-clone |\n\n**Auto-commit/push unchanged** — target changes from `-C .issues`\
+  \ to `-C ../{REPO}.issues-data/`.\n\n**Removed entirely:** `_worktree_active()`,\
+  \ `_ensure_worktree()`, all `git worktree` commands, `.issues/` fallback, `_detect_dual_branch()`.\n\
+  \n**Auto-remediation (`init` command):**\n\nWhen `local-issues init` runs, it checks\
+  \ each repo for existing `.issues/` worktrees:\n\n1. Snapshot ALL content from `.issues/`\
+  \ (committed, uncommitted, unpushed)\n2. `git worktree remove .issues` (force if\
+  \ dirty: `--force`)\n3. `git worktree prune` — remove stale entries\n4. Delete `.issues/`\
+  \ directory from repo root\n5. Clone sibling from same remote, issues-data branch\n\
+  6. For each item in snapshot not present in clone: copy it in\n7. Auto-commit restored\
+  \ content to sibling\n8. `git branch -D issues-data` (local only, not remote)\n\
+  9. Report: \"Migrated from worktree to sibling at ../{REPO}.issues-data/\"\n\n###\
+  \ Phase 2: AGENTS.md per Sibling\n\nEach `{REPO}.issues-data/` clone gets an AGENTS.md\
+  \ restricting operations.\n\n### Phase 3: Path Updates\n\n~194 references to `.issues/{N}/`\
+  \ across skill task files and guidelines. All converted to `{PROJECT_ROOT}/../{REPO}.issues-data/{N}/`.\n\
+  \n| Group | Files | Ref Count |\n|---|---|---|\n| issue-operations local platform\
+  \ | `platforms/local/SKILL.md`, `platforms/local/tasks/*.md`, `tasks/creation.md`,\
+  \ `tasks/comment.md`, `tasks/sync-from-remote.md` | ~115 |\n| writing-plans | `SKILL.md`,\
+  \ `tasks/create.md`, `tasks/create/plan-structure.md`, `tasks/create/create-and-validate.md`\
+  \ | 36 |\n| spec-creation | `tasks/write.md`, `tasks/pipeline-readiness-gate.md`\
+  \ | 27 |\n| guidelines | `060-tool-usage.md`, `000-critical-rules.md` | 8 |\n| implementation-pipeline\
+  \ | `SKILL.md`, `enforcement/context-passing.md` | 5 |\n| tests | `tests/AGENTS.md`\
+  \ | 3 |\n\n### Phase 4: Guideline Updates\n\n- **`060-tool-usage.md`**: Delete `.issues/`\
+  \ Worktree Exemption section. Update Identity Source Semantics.\n- **`000-critical-rules.md`**:\
+  \ Update inline issue content creation rule.\n\n### Phase 5: Test Updates\n\n~30\
+  \ behavioral test files updated. New behavioral tests:\n\n- `local-issues-init-clones-sibling.sh`\
+  \ — SC-1\n- `local-issues-validate-sibling.sh` — SC-2\n- `local-issues-auto-clone.sh`\
+  \ — SC-3\n- `local-issues-auto-remediate.sh` — SC-9\n- `local-issues-agent-no-issues-data-branch.sh`\
+  \ — SC-8\n\n### Phase 6: Final Cleanup\n\n1. Run `local-issues init` — triggers\
+  \ auto-remediation of any lingering `.issues/`\n2. Verify zero `.issues/` directories:\
+  \ `find ~/git -name \".issues\" -type d`\n3. Verify code repo `git branch` shows\
+  \ no `issues-data`\n4. Close spec issue\n\n## Items (Dependency Order)\n\n| Item\
+  \ | Phase | Description | Depends On |\n|---|---|---|---|\n| 1 | 1 | Rewrite `local-issues`\
+  \ tool — replace worktree with sibling clone, add auto-remediation | — |\n| 2 |\
+  \ 2 | Create AGENTS.md per sibling | 1 |\n| 3 | 3 | Update issue-operations local\
+  \ platform paths | 1 |\n| 4 | 3 | Update writing-plans paths | 1 |\n| 5 | 3 | Update\
+  \ spec-creation paths | 1 |\n| 6 | 3 | Update implementation-pipeline paths | 1\
+  \ |\n| 7 | 4 | Update guidelines | — |\n| 8 | 5 | Update test harness, behavioral\
+  \ tests, Python tests | 1 |\n| 9 | 6 | Run `local-issues init`; verify zero `.issues/`\
+  \ | 1,8 |"
+created_at: '2026-06-12T02:56:25+00:00'
+updated_at: '2026-06-12T02:57:40+00:00'
+github_url: '1120'
