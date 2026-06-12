@@ -37,7 +37,7 @@ After phase dependency contract is confirmed SAT, validate phase solvability:
 1. Run `.opencode/tools/plan plan --problem ./tmp/{issue-N}/artifacts/phase-plan-problem.yaml`
 1. Confirm planner returns SOLVED_SATISFICING or SOLVED_OPTIMALLY
 1. Save result to `./tmp/{issue-N}/artifacts/phase-plan-validated.yaml`
-1. If utility unavailable: **HALT** with blocker report — no manual fallback
+1. If utility unavailable: **HALT** with blocker report — refer to `plan` skill → `fallback.md` task for manual acyclic check procedure
 
 ### SC-ID Mapping (SC-4)
 
@@ -257,9 +257,15 @@ Contract structure:
 ; Verification: defective state (D_P1=true, p1=false) → UNSAT expected
 ```
 
-### Step 5.5: `plan` Utility Invocation for Phase Solvability (SC-3)
+### Step 5.5: `plan` Utility Invocation for Phase Solvability
 
-After Z3 contract generation, invoke the `plan` utility to validate phase solvability:
+After Z3 contract generation, invoke the `plan` utility to validate phase solvability. Load the `plan` skill for subcommand details and status code interpretation:
+
+```bash
+skill({name: "plan"})   # load reference for plan subcommands, status codes, and fallback procedures
+```
+
+Then run the phase solvability check:
 
 ```bash
 ./.opencode/tools/plan plan \
@@ -267,9 +273,7 @@ After Z3 contract generation, invoke the `plan` utility to validate phase solvab
   --output ./tmp/{issue-N}/artifacts/phase-plan-validated.yaml
 ```
 
-On success: planner returns `SOLVED_SATISFICING` or `SOLVED_OPTIMALLY` in `phase-plan-validated.yaml`.
-On UNSOLVABLE: re-examine phase ordering, add missing action/precondition, re-run.
-On utility unavailable: **HALT** with blocker report — no manual fallback.
+Refer to `plan` skill → `plan.md` task for SOLVED_SATISFICING/OPTIMALLY/UNSOLVABLE interpretation. Refer to `fallback.md` task when planner is unavailable.
 
 Verification steps after contract generation:
 

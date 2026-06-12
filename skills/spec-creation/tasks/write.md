@@ -422,7 +422,13 @@ Post-invocation verification via `solve check`:
 
 MUST return SAT. UNSAT → HALT with blocker report. No fallback paths.
 
-Then invoke the `plan` utility to validate spec phase structure for solvability:
+Then invoke the `plan` utility to validate spec phase structure for solvability. Load the `plan` skill for subcommand reference:
+
+```bash
+skill({name: "plan"})   # load reference for plan subcommands and status codes
+```
+
+Proceed with phase solvability check:
 
 ```bash
 ./.opencode/tools/plan plan \
@@ -430,8 +436,8 @@ Then invoke the `plan` utility to validate spec phase structure for solvability:
   --output ./tmp/{issue-N}/artifacts/phase-plan-validated.yaml
 ```
 
-On success: planner returns SOLVED_SATISFICING or SOLVED_OPTIMALLY.
-On UNSOLVABLE or utility unavailable: **HALT** with blocker report. No fallback paths.
+On success: planner returns SOLVED_SATISFICING or SOLVED_OPTIMALLY per `plan` skill → `plan.md` task.
+On UNSOLVABLE or utility unavailable: **HALT** with blocker report. Refer to `plan` skill → `fallback.md` task for manual acyclic check when planner is unavailable.
 
 ### Step 6: Self-Review
 
