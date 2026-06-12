@@ -66,9 +66,9 @@ Skip areas that don't apply to simple specs; add areas that do. The spec should 
 For standard and complex specs, generate the following permanent artifacts:
 
 1. **SC coverage summary YAML** — Create `.issues/{issue-N}/spec-artifacts/sc-summary.yaml` with machine-parseable coverage data including SC IDs, evidence types, phase bindings, and verification gates.
-2. **Verification consistency contract** — Create `.issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml` as a solve contract with compliance matrix variables.
-3. **Lifecycle manifest** — Create `.issues/{issue-N}/spec-artifacts/lifecycle.yaml` with initial `spec_created` event. Append-only format; never overwrite.
-4. **Revision re-entry protocol contract** — Create `.issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml` as a solve contract with cascade variables for each revision scope.
+1. **Verification consistency contract** — Create `.issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml` as a solve contract with compliance matrix variables.
+1. **Lifecycle manifest** — Create `.issues/{issue-N}/spec-artifacts/lifecycle.yaml` with initial `spec_created` event. Append-only format; never overwrite.
+1. **Revision re-entry protocol contract** — Create `.issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml` as a solve contract with cascade variables for each revision scope.
 
 Artifact generation occurs during Step 1 assembly. Self-review (Step 6) validates YAML-vs-prose consistency.
 
@@ -108,10 +108,10 @@ Declares artifact cascade: when a parent spec is revised, which dependent artifa
 
 Distinguishes single-task specs from multi-phase specs using distinguishing criteria.
 
-| Classification | Number of Phases | Sub-Issue Requirements | PR Strategy |
-|---------------|-----------------|----------------------|-------------|
-| single-task | 1 | None | single PR |
-| multi-phase | 2+ | One sub-issue per phase | stacked PRs per phase |
+| Classification | Number of Phases | Sub-Issue Requirements  | PR Strategy           |
+| -------------- | ---------------- | ----------------------- | --------------------- |
+| single-task    | 1                | None                    | single PR             |
+| multi-phase    | 2+               | One sub-issue per phase | stacked PRs per phase |
 
 ### Spec Family Annotation (optional)
 
@@ -138,8 +138,8 @@ Lists what the spec explicitly does NOT address. Each non-goal is a bullet item 
 Numbered list of behaviors or properties that MUST NOT change as a result of this implementation.
 
 1. Existing authentication flows MUST continue to accept current tokens.
-2. All existing public API signatures MUST remain unchanged.
-3. Database schema migration MUST NOT drop existing columns.
+1. All existing public API signatures MUST remain unchanged.
+1. Database schema migration MUST NOT drop existing columns.
 
 ### Cross-Cutting / Common SC Designation
 
@@ -154,13 +154,13 @@ A **Documentation Sources** section documents where the spec author verified fac
 
 **Source Categories:**
 
-| Category | Description | Examples |
-|----------|-------------|----------|
-| Local docs | Project documentation, README, design docs | `docs/architecture.md`, `README.md` |
+| Category             | Description                                 | Examples                                                   |
+| -------------------- | ------------------------------------------- | ---------------------------------------------------------- |
+| Local docs           | Project documentation, README, design docs  | `docs/architecture.md`, `README.md`                        |
 | Direct source search | Codebase search via grep, srclight, or glob | `srclight_search_symbols("cache")`, `grep -r "redis" src/` |
-| Documentation URLs | External documentation or API references | Language docs, library docs, framework guides |
-| MCP search | Tool-based code analysis | `srclight_get_signature()`, `srclight_get_symbol()` |
-| Live verification | Test execution or runtime checks | `uv run pytest test/test_*.py`, config validation |
+| Documentation URLs   | External documentation or API references    | Language docs, library docs, framework guides              |
+| MCP search           | Tool-based code analysis                    | `srclight_get_signature()`, `srclight_get_symbol()`        |
+| Live verification    | Test execution or runtime checks            | `uv run pytest test/test_*.py`, config validation          |
 
 **Format:**
 
@@ -185,7 +185,7 @@ After assembling the spec content, generate a machine-parseable SC coverage summ
 sc_coverage:
   total: <integer>
   single_task: <true|false>
-  spec_url: "https://github.com/{owner}/{repo}/issues/{N}"
+  spec_url: https://github.com/{owner}/{repo}/issues/{N}
   evidence_types:
     - behavioral
     - semantic
@@ -207,19 +207,20 @@ Required validation: cross-reference `sc_coverage.total` against the prose SC ta
 Generate a verification consistency solve contract at `.issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml` with a compliance matrix as solve variables:
 
 ```yaml
-spec: "https://github.com/{owner}/{repo}/issues/{N}"
+spec: https://github.com/{owner}/{repo}/issues/{N}
 verification_consistency:
   sc_entries:
     - id: SC-N
       evidence_type: < behavioral | semantic | string | structural >
-      verification_gate: < pre-commit | pre-approval-gate | ci | post-implementation >
+      verification_gate: < pre-commit | pre-approval-gate | ci | 
+        post-implementation >
       pipeline_step_binding: < step_name >
       re_entry_step: < step_name | null >
       phase_binding: < phase_name | common >
       artifact_path: < path >
   constraints:
-    - "for_every_sc: evidence_type_is_consistent_with_verification_gate"
-    - "for_every_sc: pipeline_step_binding_is_valid_for_phase"
+    - 'for_every_sc: evidence_type_is_consistent_with_verification_gate'
+    - 'for_every_sc: pipeline_step_binding_is_valid_for_phase'
 ```
 
 The pre-approval gate validates every SC's Verification Gate against its Evidence Type. SAT for compliant specs, UNSAT with unsat_core for non-compliant.
@@ -233,7 +234,7 @@ events:
   - event: spec_created
     timestamp: <YYYY-MM-DDTHH:MM:SSZ>
     issuer: <AgentName> (<ModelId>)
-    description: "Spec #N created"
+    description: 'Spec #N created'
     severity: info
 ```
 
@@ -244,7 +245,7 @@ Each pipeline stage appends its event. Blocker events appended on FAIL with seve
 Generate a revision re-entry solve contract at `.issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml` with cascade variables for each revision scope:
 
 ```yaml
-spec: "https://github.com/{owner}/{repo}/issues/{N}"
+spec: https://github.com/{owner}/{repo}/issues/{N}
 revision_re_entry:
   revision_scopes:
     - scope: < full | partial >
@@ -256,8 +257,8 @@ revision_re_entry:
       valid_re_entry_steps:
         - step: < step_name >
       constraints:
-        - "on_partial_revision: cascade_is_limited_to_affected_scs"
-        - "on_full_revision: all_artifacts_must_be_regenerated"
+        - 'on_partial_revision: cascade_is_limited_to_affected_scs'
+        - 'on_full_revision: all_artifacts_must_be_regenerated'
 ```
 
 `solve check` returns SAT for valid re-entry plans, UNSAT for insufficient replay scope.
@@ -282,12 +283,12 @@ Reference artifact directories by sub-folder path (e.g., `spec-artifacts/`) rath
 
 **Never use bare `#N` in any spec content.** Always use the full URL: `https://github.com/{owner}/{repo}/issues/{N}` wrapped in descriptive Markdown link text.
 
-| Pattern | Classification | Action |
-|---------|---------------|--------|
-| `#46` | ❌ WRONG | Replace with full URL + descriptive link text |
-| `https://github.com/owner/repo/issues/46` | ⚠️ Bare URL | Wrap in descriptive Markdown link text |
-| [fastmcp switch issue](https://github.com/owner/repo/issues/46) | ✅ CORRECT | Descriptive link text |
-| [viewport-editor#46](https://github.com/owner/repo/issues/46) | ✅ CORRECT | Link text with repo prefix |
+| Pattern                                                         | Classification | Action                                        |
+| --------------------------------------------------------------- | -------------- | --------------------------------------------- |
+| `#46`                                                           | ❌ WRONG       | Replace with full URL + descriptive link text |
+| `https://github.com/owner/repo/issues/46`                       | ⚠️ Bare URL    | Wrap in descriptive Markdown link text        |
+| [fastmcp switch issue](https://github.com/owner/repo/issues/46) | ✅ CORRECT     | Descriptive link text                         |
+| [viewport-editor#46](https://github.com/owner/repo/issues/46)   | ✅ CORRECT     | Link text with repo prefix                    |
 
 The agent MUST check the entire spec body for bare `#N` patterns before submission and replace any found. This applies to all cross-references regardless of whether they point to the same repo or a different repo.
 
@@ -305,19 +306,19 @@ Review every requirement statement:
 
 **🚫 ALL-OR-NOTHING GATE: ALL success criteria MUST pass for implementation to be considered complete.**
 
-| Rule | Description |
-|------|-------------|
-| ALL pass | Implementation is complete — proceed to next pipeline step |
-| Any SKIPPED | Treated as FAIL — skipped SCs must be explicitly documented as superseded or out of scope with rationale |
-| Any FAILED | Triggers autonomous remediation by the producing agent. Gate holds position (does not pass) until remediation is verified. If re-verification also fails (double-failure), HALT with blocker report. The agent MUST attempt remediation before any escalation. |
-| Remediated SC | Re-verified independently — same PASS/FAIL gate applies; no carryover credit from prior passes |
-| Re-verification | Repeat the verification command/assertion; confirm PASS before claiming remediation complete |
+| Rule            | Description                                                                                                                                                                                                                                                    |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ALL pass        | Implementation is complete — proceed to next pipeline step                                                                                                                                                                                                     |
+| Any SKIPPED     | Treated as FAIL — skipped SCs must be explicitly documented as superseded or out of scope with rationale                                                                                                                                                       |
+| Any FAILED      | Triggers autonomous remediation by the producing agent. Gate holds position (does not pass) until remediation is verified. If re-verification also fails (double-failure), HALT with blocker report. The agent MUST attempt remediation before any escalation. |
+| Remediated SC   | Re-verified independently — same PASS/FAIL gate applies; no carryover credit from prior passes                                                                                                                                                                 |
+| Re-verification | Repeat the verification command/assertion; confirm PASS before claiming remediation complete                                                                                                                                                                   |
 
 **SC Table Format (12-column):**
 
-| ID | Criterion | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step |
-|----|-----------|-------------------|-------------|----------------------|--------------|------------------------|-------------|-----------------|----------------|--------------|-------------|
-| SC-1 | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+| ID   | Criterion | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step |
+| ---- | --------- | ------------------- | ----------- | --------------------- | ------------- | ------------------------ | ------------- | ----------------- | ---------------- | -------------- | ------------- |
+| SC-1 | ...       | ...                 | ...         | ...                   | ...           | ...                      | ...           | ...               | ...              | ...            | ...           |
 
 **The Verification Method column MUST specify an executable command or assertion producing deterministic PASS/FAIL. The Remediation column MUST specify what corrective action is required on FAIL and how re-verification is performed.**
 
@@ -329,10 +330,10 @@ See `reference/sc-table-columns.md` for column definitions, rendering note, and 
 
 The declared evidence type in the SC table MUST reflect the classification question's answer:
 
-| Change Affects Runtime Behavior? | Required Evidence Type | Minimum Verification |
-|----------------------------------|----------------------|---------------------|
-| YES | `behavioral` | Test execution with output inspection |
-| NO | Per declared type | Per Evidence Type Taxonomy |
+| Change Affects Runtime Behavior? | Required Evidence Type | Minimum Verification                  |
+| -------------------------------- | ---------------------- | ------------------------------------- |
+| YES                              | `behavioral`           | Test execution with output inspection |
+| NO                               | Per declared type      | Per Evidence Type Taxonomy            |
 
 **🚫 FORBIDDEN:** Declaring a runtime-behavioral change as `structural` or `string` evidence type. The classification question is substrate-determined — the code path either executes at runtime or it does not.
 
@@ -359,13 +360,13 @@ If the answer is "no", the SC must be rewritten.
 
 **Fail patterns (SC must be rewritten if any match):**
 
-| Pattern | Example | Problem |
-|---------|---------|---------|
-| Adverbs without thresholds | "efficiently", "gracefully", "quickly" | Subjective — different auditors assign different thresholds |
-| Comparatives without baselines | "faster than before", "more robust" | Unknown reference point — cannot be evaluated without historical data |
-| Open-ended quality requirements | "handle edge cases", "be resilient" | No enumerated cases or failure modes specified |
-| Missing expected values | "returns the correct result", "validates input" | No concrete expected value to compare against |
-| Implicit behavior | "should not crash", "works normally" | No negative criterion — what constitutes "not crashing" is undefined |
+| Pattern                         | Example                                         | Problem                                                               |
+| ------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------- |
+| Adverbs without thresholds      | "efficiently", "gracefully", "quickly"          | Subjective — different auditors assign different thresholds           |
+| Comparatives without baselines  | "faster than before", "more robust"             | Unknown reference point — cannot be evaluated without historical data |
+| Open-ended quality requirements | "handle edge cases", "be resilient"             | No enumerated cases or failure modes specified                        |
+| Missing expected values         | "returns the correct result", "validates input" | No concrete expected value to compare against                         |
+| Implicit behavior               | "should not crash", "works normally"            | No negative criterion — what constitutes "not crashing" is undefined  |
 
 **Verification:** For each SC, attempt to write an executable verification command (`uv run pytest test_X.py::test_Y`, `bash verify.sh arg`, `issue-operations -> read-issue (github_issue_read())` with specific field check). If no executable command can be written, the SC is not deterministic. <!-- Routes through issue-operations per SPEC #683 -->
 
@@ -387,13 +388,13 @@ Review the assembled spec for plan-level content that belongs in the implementat
 
 **Replacement rules:**
 
-| Plan-Level Content (remove) | Spec-Level Replacement |
-| -- | -- |
-| Function/class definitions with code | Function names + responsibilities table |
-| SQL DDL statements (`CREATE TABLE...`) | Table names + constraints table |
-| Implementation algorithms with step-by-step logic | Input/output contract (what goes in, what comes out) |
-| File paths with "what to change" language | Affected files + anchors table (what exists, not what to write) |
-| Architecture decisions without constraints | Architecture requirements table (what the system MUST satisfy) |
+| Plan-Level Content (remove)                       | Spec-Level Replacement                                          |
+| ------------------------------------------------- | --------------------------------------------------------------- |
+| Function/class definitions with code              | Function names + responsibilities table                         |
+| SQL DDL statements (`CREATE TABLE...`)            | Table names + constraints table                                 |
+| Implementation algorithms with step-by-step logic | Input/output contract (what goes in, what comes out)            |
+| File paths with "what to change" language         | Affected files + anchors table (what exists, not what to write) |
+| Architecture decisions without constraints        | Architecture requirements table (what the system MUST satisfy)  |
 
 **Self-review question:** "Could two developers produce valid but different implementations from this spec?" If yes, the spec is at the right level. If no — if the spec only allows one implementation — it contains plan-level detail that should be removed.
 
@@ -426,9 +427,9 @@ MUST return SAT (or UNSAT with documented WARNING in lifecycle manifest).
 After writing the spec, review with fresh eyes:
 
 1. **Placeholder scan:** Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.
-2. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
-3. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
-4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
+1. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
+1. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
+1. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
 
 Fix any issues inline. No need to re-review — just fix and move on.
 
@@ -438,9 +439,10 @@ Fix any issues inline. No need to re-review — just fix and move on.
 
 6. **SC-to-SC coherence check**: Scan SC table for contradictions between interdependent criteria. Cross-reference Pipeline Step Binding and Verification Gate columns — verify that an SC gated at 'red-green' does not require a 'ci' tool. Cross-reference Re-Entry Step with Phase Binding — verify re-entry point is valid for the bound phase. Cross-reference Affinity Group members — verify shared SCs have compatible verification methods.
 
-7. **Verification-Method-to-Artifact-Path consistency check**: Cross-reference Artifact Path and Verification Method columns — verify that the Verification Method's tool references align with the Artifact Path's storage convention. An SC whose Verification Method references 'pytest' should have an Artifact Path matching '{issue-N}/pytest/' convention. An SC whose Verification Method references 'opencode-cli run' should have an Artifact Path matching '{issue-N}/behavioral/' convention.
+1. **Verification-Method-to-Artifact-Path consistency check**: Cross-reference Artifact Path and Verification Method columns — verify that the Verification Method's tool references align with the Artifact Path's storage convention. An SC whose Verification Method references 'pytest' should have an Artifact Path matching '{issue-N}/pytest/' convention. An SC whose Verification Method references 'opencode-cli run' should have an Artifact Path matching '{issue-N}/behavioral/' convention.
 
-8. **YAML-vs-prose SC coverage validation**: Cross-reference `sc-summary.yaml` (from Step 1.1) against the prose SC table. Verify:
+1. **YAML-vs-prose SC coverage validation**: Cross-reference `sc-summary.yaml` (from Step 1.1) against the prose SC table. Verify:
+
    - `sc_coverage.total` matches the number of SC rows in the prose table
    - Every SC ID in the prose table appears in `sc_coverage.phases[].sc_ids` or `sc_coverage.cross_cutting.sc_ids`
    - Every SC ID in `sc-summary.yaml` appears in the prose table
@@ -450,12 +452,12 @@ Fix any issues inline. No need to re-review — just fix and move on.
 
 **🚫 CRITICAL: Each self-review checkpoint MUST produce a tool-call artifact demonstrating the verification was performed. Assertions without tool-call evidence are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
 
-| Checkpoint | Verification Action | Tool Call | Problem Class |
-| -- | -- | -- | -- |
-| No placeholders remain | Verify spec body contains no "TBD", "TODO", "FIXME", or incomplete section markers | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → search body for `/TBD\|TODO\|FIXME/` | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
-| Internal consistency | Cross-reference requirement IDs between sections; verify no contradictions | `issue-operations -> read-issue (github_issue_read(method=get)` → parse section anchors vs referenced IDs | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
-| Scope check evidence | Verify scope is appropriate for single plan or flagged for decomposition | `issue-operations -> read-issue (github_issue_read(method=get)` → count affected files, check for phase markers | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
-| Ambiguity resolved | Verify no requirement can be interpreted two ways | `issue-operations -> read-issue (github_issue_read(method=get)` → scan for "should", "etc.", vague terms | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
+| Checkpoint             | Verification Action                                                                | Tool Call                                                                                                              | Problem Class       |
+| ---------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| No placeholders remain | Verify spec body contains no "TBD", "TODO", "FIXME", or incomplete section markers | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → search body for `/TBD\|TODO\|FIXME/` | STRUCTURE-VIOLATION |
+| Internal consistency   | Cross-reference requirement IDs between sections; verify no contradictions         | `issue-operations -> read-issue (github_issue_read(method=get)` → parse section anchors vs referenced IDs              | CONFLICTING         |
+| Scope check evidence   | Verify scope is appropriate for single plan or flagged for decomposition           | `issue-operations -> read-issue (github_issue_read(method=get)` → count affected files, check for phase markers        | VERIFICATION-GAP    |
+| Ambiguity resolved     | Verify no requirement can be interpreted two ways                                  | `issue-operations -> read-issue (github_issue_read(method=get)` → scan for "should", "etc.", vague terms               | STRUCTURE-VIOLATION |
 
 **Evidence format:**
 
@@ -469,12 +471,12 @@ Action: [auto-fix|conditional|flag-for-review]
 
 **Classification on failure:**
 
-| Failure | Problem Class | Classification | Action |
-| -- | -- | -- | -- |
-| Placeholders found in spec body | STRUCTURE-VIOLATION | auto-fix | Replace with concrete content |
-| Contradictory requirements across sections | CONFLICTING | flag-for-review | Report, do not auto-resolve |
-| Scope too large for single plan | VERIFICATION-GAP | conditional | Flag decomposition, then apply if confirmed |
-| Vague/ambiguous terms present | STRUCTURE-VIOLATION | auto-fix | Replace with measurable terms |
+| Failure                                    | Problem Class       | Classification  | Action                                      |
+| ------------------------------------------ | ------------------- | --------------- | ------------------------------------------- |
+| Placeholders found in spec body            | STRUCTURE-VIOLATION | auto-fix        | Replace with concrete content               |
+| Contradictory requirements across sections | CONFLICTING         | flag-for-review | Report, do not auto-resolve                 |
+| Scope too large for single plan            | VERIFICATION-GAP    | conditional     | Flag decomposition, then apply if confirmed |
+| Vague/ambiguous terms present              | STRUCTURE-VIOLATION | auto-fix        | Replace with measurable terms               |
 
 **These verifications are MANDATORY after self-review. Skipping them is a CRITICAL GUIDELINE VIOLATION.**
 
@@ -501,11 +503,11 @@ Embed this blockquote at the TOP of the issue body (before the spec content), pr
 Invoke `issue-operations` skill to persist the spec as an issue:
 
 1. Generate spec folder URL blockquote (Step 6.8) and prepend it to the issue body
-2. Invoke `issue-operations --task pre-creation` to validate (check for conflicts, superseded issues, content coverage)
-3. If validation fails → HALT and report. Fix issues and re-validate.
-4. If validation passes → invoke `issue-operations --task single-task-check` to determine sub-issue needs
-5. Invoke `issue-operations --task creation` to create the issue with the blockquote-prepended body
-6. Record the issue number and URL
+1. Invoke `issue-operations --task pre-creation` to validate (check for conflicts, superseded issues, content coverage)
+1. If validation fails → HALT and report. Fix issues and re-validate.
+1. If validation passes → invoke `issue-operations --task single-task-check` to determine sub-issue needs
+1. Invoke `issue-operations --task creation` to create the issue with the blockquote-prepended body
+1. Record the issue number and URL
 
 **Chat output is ONLY:**
 
@@ -530,15 +532,17 @@ The remote issue body is the stakeholder-facing representation of the spec. It M
 #### 1. Spec Reference Blockquote (mandatory — top of body, before all other content)
 
 ```
-> Full spec and plan artifacts: {{REMOTE_BROWSER_URL}}/{{OWNER}}/{{REPO}}/tree/{{SPEC_BRANCH}}/{{SPEC_PATH}}
+> Full spec and plan artifacts: {github.html_url}/{owner}/{repo}/tree/issues-data/.issues/{N}/
 ```
 
-**Resolution rules:**
-- `{{REMOTE_BROWSER_URL}}` — resolved from session-init (platform-agnostic: GitHub or GitBucket)
-- `{{OWNER}}` / `{{REPO}}` — resolved from session-init, verified against the target issue's repo context
-- `{{SPEC_BRANCH}}` — always `issues-data`
-- `{{SPEC_PATH}}` — always `.issues/N/`
-- **Repo-awareness guard**: before resolving, confirm owner/repo matches the target issue's repository. All links MUST be full resolved URLs — no platform-specific shortcuts (`#NNN`, `owner/repo#NNN`).
+**Construction rules (mandatory — pre-creation URL per URL Sourcing Rule 2):**
+
+1. Extract `github.html_url` (or `gitbucket.html_url`) from session-init — this is the platform-agnostic browser URL
+2. Extract `github.owner` and `github.repo` from session-init
+3. Construct the URL: `{github.html_url}/{owner}/{repo}/tree/issues-data/.issues/{N}/`
+4. **Character-match verification**: Confirm the constructed URL contains the exact `{owner}` and `{repo}` strings from session-init (character-for-character match, no typos)
+5. **Repo-awareness guard**: Confirm owner/repo matches the target issue's repository before URL construction. If the issue resides in a submodule repo with different owner/repo, use that repo's session-init values
+6. All links MUST be full resolved URLs — no platform-specific shortcuts (`#NNN`, `owner/repo#NNN`)
 
 #### 2. Problem (mandatory)
 
@@ -569,15 +573,15 @@ and MUST NOT base implementation on this summary.
 
 **Constraints table:**
 
-| Constraint | Value |
-|------------|-------|
-| Length | 150-300 words, 1 page max |
-| Structure | BLUF — conclusion/action first, context second, evidence third |
-| Tone | Assertive, decision-oriented, jargon-free, third-person |
-| Independence | Fully readable without clicking any link |
-| Links | All links MUST be full resolved URLs from session-init — no platform-specific shortcuts. Repo-awareness guard required. |
-| Exclusions | No implementation details, file paths, algorithms, methodology, unreferenced acronyms |
-| Platform | Platform-agnostic — no hardcoded GitHub/GitBucket tool names |
+| Constraint   | Value                                                                                                                   |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| Length       | 150-300 words, 1 page max                                                                                               |
+| Structure    | BLUF — conclusion/action first, context second, evidence third                                                          |
+| Tone         | Assertive, decision-oriented, jargon-free, third-person                                                                 |
+| Independence | Fully readable without clicking any link                                                                                |
+| Links        | All links MUST be full resolved URLs from session-init — no platform-specific shortcuts. Repo-awareness guard required. |
+| Exclusions   | No implementation details, file paths, algorithms, methodology, unreferenced acronyms                                   |
+| Platform     | Platform-agnostic — no hardcoded GitHub/GitBucket tool names                                                            |
 
 **Clarification:** The Intent and Executive Summary 5-field table (Problem, Root Cause/Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions) from Step 5 goes in the LOCAL spec (`.issues/N/spec.md`), NOT the remote issue body.
 
@@ -592,12 +596,12 @@ The exec summary embedded in the remote issue body MUST follow these formatting 
 
 **Rules table:**
 
-| Rule | Rationale |
-|------|-----------|
-| No checkboxes/status markers | Issue body is a requirements document, not a tracker. Status belongs on platform labels and sub-issue state. |
-| Dependency-ordered cards | Implementation follows dependency order; the exec summary must reflect the sequence the implementer will follow. |
-| Key Decisions section | Design decisions made during spec creation must be visible to the implementer without reading the full card catalogue. |
-| Risk Callouts section | Risks that affect implementation approach or timeline must be surfaced at the top of the issue, not buried in appendix content. |
+| Rule                         | Rationale                                                                                                                       |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| No checkboxes/status markers | Issue body is a requirements document, not a tracker. Status belongs on platform labels and sub-issue state.                    |
+| Dependency-ordered cards     | Implementation follows dependency order; the exec summary must reflect the sequence the implementer will follow.                |
+| Key Decisions section        | Design decisions made during spec creation must be visible to the implementer without reading the full card catalogue.          |
+| Risk Callouts section        | Risks that affect implementation approach or timeline must be surfaced at the top of the issue, not buried in appendix content. |
 
 **Example format:**
 
@@ -629,8 +633,8 @@ on the problem and the chosen approach.
 After creating the issue in Step 7, save a local mirror of the exec summary:
 
 1. Remote push happens first (Step 7 creates the issue on the remote platform via `issue-operations --task creation`)
-2. Save `.issues/{N}/remote-exec-summary.md` with the exec summary content that was posted to the remote
-3. Verify the `.issues/` directory pattern is followed (`.issues/{N}/remote-exec-summary.md`)
+1. Save `.issues/{N}/remote-exec-summary.md` with the exec summary content that was posted to the remote
+1. Verify the `.issues/` directory pattern is followed (`.issues/{N}/remote-exec-summary.md`)
 
 This ensures the local workspace mirrors the remote state for off-network reference and diff-based drift detection.
 
