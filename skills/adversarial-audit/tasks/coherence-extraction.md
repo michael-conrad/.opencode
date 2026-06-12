@@ -248,7 +248,7 @@ write(baseline_path, json.dumps(baseline, indent=2))
 - `000-critical-rules.md` — baseline requirement
 - `skills/implementation-pipeline/pipeline-state-machine.yaml` — Z3 contract for pipeline step validation
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
-- `.opencode/tools/solve` — Z3 constraint tool for solve check
+- `skills/solve/` — Solve skill card (Z3 constraint solving, solve check, state)
 
 ```yaml+symbolic
 schema_version: "2.0"
