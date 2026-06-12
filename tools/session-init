@@ -377,30 +377,17 @@ def install_hooks() -> None:
 
         dir_git_path = os.path.join(os.getcwd(), dir_name, ".git")
 
+        # .git is a file (worktree/submodule ref) — skip; hooks belong to parent repo
         if os.path.isfile(dir_git_path):
-            try:
-                with open(dir_git_path) as f:
-                    gitdir_ref = f.read().strip()
-                if gitdir_ref.startswith("gitdir: "):
-                    resolved = gitdir_ref[8:]
-                    if not os.path.isabs(resolved):
-                        resolved = os.path.join(os.getcwd(), dir_name, resolved)
-                    hooks_target = os.path.join(resolved, "hooks")
-                else:
-                    continue
-            except OSError:
-                continue
-        elif os.path.isdir(dir_git_path):
-            hooks_target = os.path.join(dir_git_path, "hooks")
-        else:
             continue
 
+        # .git is absent — skip
+        if not os.path.isdir(dir_git_path):
+            continue
+
+        # .git is a directory but has no hooks/ subdirectory — skip silently
+        hooks_target = os.path.join(dir_git_path, "hooks")
         if not os.path.isdir(hooks_target):
-            print(
-                f"Could not resolve hooks dir for linked repo: {dir_name}",
-                file=sys.stderr,
-            )
-            failed_count += 1
             continue
 
         for hook_name in source_hooks:
