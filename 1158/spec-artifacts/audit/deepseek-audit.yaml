@@ -1,0 +1,36 @@
+audit_phase: implementation_verification
+auditor_type: implementation-verification
+family: leaf
+issue_number: 1158
+generated_at: "2026-06-13T14:00:00Z"
+orchestrator_model: deepseek-v4-flash
+summary:
+  total_criteria: 6
+  pass: 0
+  fail: 0
+  blocked: 1
+  limited_evidence: 0
+per_criterion:
+  - criterion_id: SC-1160-1
+    discovered: false
+    status: BLOCKED
+    evidence: ""
+    explanation: "Behavioral SC (SC-1159-1: solve state update preserves multiple variables) requires evidence artifact in artifact_evidence_dir. No corresponding test result file found in /home/muksihs/git/opencode-config/.opencode/.issues/1158/spec-artifacts/. The behavioral test file 'solve-state-merge.sh' does not exist in .opencode/tests/behaviors/."
+    remediation: SPEC_GAP
+    fail_reason: "Behavioral evidence artifact missing for SC-1159-1. The behavioral test script was never created or its output never captured to artifact_evidence_dir."
+    next_step: "implementer remediation → create behavioral test solve-state-merge.sh → execute and capture output to artifact_evidence_dir → re-audit"
+clean_room:
+  verified: true
+  violations_detected: []
+methodology_independence:
+  phases_followed:
+    - "A1: Input validation"
+    - "A1a: Validate Behavioral Evidence"
+    - "SC_CONFLICT detection"
+    - "Prompt Integrity Scan"
+    - "Context Taint Detection"
+  criteria_loaded_floor: true
+  criteria_discovered: 6
+  criteria_evaluated: 0
+  discovery_pass_ran: false
+  semantic_depth_applied: true

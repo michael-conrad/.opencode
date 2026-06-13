@@ -1,1 +1,6 @@
-comments: []
+comments:
+- type: internal
+  body: 'Superseded by #1144. The fix for rejecting dict-format preconditions with
+    a clear error message was already delivered by #1144 (merged dev). No code change
+    needed for this issue.'
+  timestamp: '2026-06-13T19:06:57+00:00'
