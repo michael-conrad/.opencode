@@ -13,7 +13,7 @@ Retroactively import a pre-existing remote issue into the local `.issues/` direc
 
 ## Exit Criteria
 
-- Full local mirror created at `.issues/open/<remote_number>-<slug>/spec.md`
+- Full local mirror created at `.issues/open/<remote_number>-<slug>/remote.md` (remote body) and `spec.md` (local frontmatter)
 - Comments imported to `.issues/open/<remote_number>-<slug>/comments.md`
 - Frontmatter written with remote metadata and `promotion_type: retroactive_import`
 - `.counter` advanced if `counter <= remote_number`
@@ -79,7 +79,20 @@ Create the local issue directory manually (not via `local-issues create`, becaus
 
 1. Determine slug from title: first 5 words, kebab-cased
 2. Create directory: `.issues/open/<remote_number:03d>-<slug>/`
-3. Write `spec.md` with:
+3. Write `remote.md` with minimal frontmatter + full remote body:
+
+```yaml
+---
+remote_issue: <remote_number>
+remote_url: "<html_url>"
+last_sync: <import_timestamp>
+source: <github.platform>
+---
+
+<full_remote_issue_body>
+```
+
+4. Write `spec.md` with local frontmatter only (no remote body):
 
 ```yaml
 ---
@@ -96,8 +109,6 @@ promotion_type: retroactive_import
 last_sync: <import_timestamp>
 author: <remote_author>
 ---
-
-<full_remote_issue_body>
 ```
 
 ### Step 5: Import Comments
@@ -130,7 +141,7 @@ If `counter > remote_number`, leave the counter unchanged (local issues already 
 
 Verify the full local mirror:
 
-1. Read spec.md: body matches remote, frontmatter has all required fields
+1. Read remote.md: body matches remote; Read spec.md: frontmatter has all required fields (verify no remote body content)
 2. Read comments.md: all comments present, ordered chronologically
 3. Verify counter: `cat .issues/.counter` shows `remote_number + 1` or greater
 
@@ -158,10 +169,12 @@ Verify the full local mirror:
 
 | Claim | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |
-| "spec.md exists" | Verify file at `.issues/open/NNN-slug/spec.md` | `local-issues read <number>` | MISSING-ELEMENT |
+| "remote.md exists (body)" | Verify file at `.issues/open/NNN-slug/remote.md` | `local-issues read <number>` | MISSING-ELEMENT |
+| "spec.md exists (frontmatter only)" | Verify file at `.issues/open/NNN-slug/spec.md` | `local-issues read <number>` | MISSING-ELEMENT |
 | "comments.md exists with all comments" | Verify file and comment count matches remote | `cat .issues/open/NNN-slug/comments.md \| wc -l` | MISSING-ELEMENT |
 | "promotion_type in frontmatter" | Verify `promotion_type: retroactive_import` present | `local-issues read <number>` → parse frontmatter | STRUCTURE-VIOLATION |
 | "Counter advanced correctly" | Verify `.counter` value >= remote_number + 1 | `cat .issues/.counter` | VERIFICATION-GAP |
-| "Body matches remote" | Compare local body against remote issue body | `local-issues read <number>` | VERIFICATION-GAP |
+| "Body matches remote (remote.md)" | Compare remote.md body against remote issue body | `local-issues read <number>` | VERIFICATION-GAP |
+| "spec.md has no remote body" | Verify spec.md has no body content below frontmatter | `local-issues read <number>` → check body is empty after frontmatter | VERIFICATION-GAP |
 
-**Evidence artifact:** spec.md readback showing body + frontmatter, comments.md showing imported comments, .counter value.
+**Evidence artifact:** remote.md readback showing body, spec.md readback showing frontmatter only, comments.md showing imported comments, .counter value.
