@@ -78,8 +78,8 @@ If `.issues/` directory does not exist, route to `platforms/local/tasks/creation
 Create the local issue directory manually (not via `local-issues create`, because we need to set the number to match the remote):
 
 1. Determine slug from title: first 5 words, kebab-cased
-2. Create directory: `.issues/open/<remote_number:03d>-<slug>/`
-3. Write `remote.md` with minimal frontmatter + full remote body:
+1. Create directory: `.issues/open/<remote_number:03d>-<slug>/`
+1. Write `remote.md` with minimal frontmatter + full remote body:
 
 ```yaml
 ---
@@ -92,7 +92,7 @@ source: <github.platform>
 <full_remote_issue_body>
 ```
 
-4. Write `spec.md` with local frontmatter only (no remote body):
+4. Write `spec.md` with local frontmatter only — the remote body is NEVER written to spec.md, only to remote.md above:
 
 ```yaml
 ---
@@ -142,8 +142,8 @@ If `counter > remote_number`, leave the counter unchanged (local issues already 
 Verify the full local mirror:
 
 1. Read remote.md: body matches remote; Read spec.md: frontmatter has all required fields (verify no remote body content)
-2. Read comments.md: all comments present, ordered chronologically
-3. Verify counter: `cat .issues/.counter` shows `remote_number + 1` or greater
+1. Read comments.md: all comments present, ordered chronologically
+1. Verify counter: `cat .issues/.counter` shows `remote_number + 1` or greater
 
 ## Edge Cases
 
