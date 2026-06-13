@@ -106,6 +106,20 @@ def _eval_expr(expr: str, consts: dict[str, z3.ExprRef]) -> z3.BoolRef:
     return result
 
 
+def _normalize_expr(
+    entry: str | dict,
+) -> str:
+    """Normalize a precondition/postcondition/invariant entry to a string expression.
+
+    Handles both formats:
+      - bare string: ``"x > 0"`` → ``"x > 0"``
+      - dict: ``{name: "a", expr: "a == True"}`` → ``"a == True"``
+    """
+    if isinstance(entry, dict):
+        return entry["expr"]
+    return entry
+
+
 # ---------------------------------------------------------------------------
 # Model printer
 # ---------------------------------------------------------------------------
@@ -155,7 +169,7 @@ def _action_check(args: argparse.Namespace) -> None:
     # Assert preconditions
     pre = contract.get("preconditions", [])
     for expr in pre if isinstance(pre, list) else [pre]:
-        solver.add(_eval_expr(expr, consts))
+        solver.add(_eval_expr(_normalize_expr(expr), consts))
 
     # Check SAT after preconditions
     sat_pre = solver.check()
@@ -173,11 +187,11 @@ def _action_check(args: argparse.Namespace) -> None:
     # Add postconditions + invariants, re-check
     post = contract.get("postconditions", [])
     for expr in post if isinstance(post, list) else [post]:
-        solver.add(_eval_expr(expr, consts))
+        solver.add(_eval_expr(_normalize_expr(expr), consts))
 
     inv = contract.get("invariants", [])
     for expr in inv if isinstance(inv, list) else [inv]:
-        solver.add(_eval_expr(expr, consts))
+        solver.add(_eval_expr(_normalize_expr(expr), consts))
 
     sat_post = solver.check()
     if sat_post == z3.sat:
@@ -229,11 +243,11 @@ def _action_prove(args: argparse.Namespace) -> None:
     # Assumptions = preconditions + invariants
     pre = contract.get("preconditions", [])
     for expr in pre if isinstance(pre, list) else [pre]:
-        solver.add(_eval_expr(expr, consts))
+        solver.add(_eval_expr(_normalize_expr(expr), consts))
 
     inv = contract.get("invariants", [])
     for expr in inv if isinstance(inv, list) else [inv]:
-        solver.add(_eval_expr(expr, consts))
+        solver.add(_eval_expr(_normalize_expr(expr), consts))
 
     # Negate the theorem
     theorem = _eval_expr(args.theorem, consts)
