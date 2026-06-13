@@ -1,0 +1,125 @@
+engine: tamer
+status: SOLVED_SATISFICING
+problem built: slug-removal-pipeline
+  objects: 23
+  fluents: 7
+  actions: 6
+  goals:   21
+[96m[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`
+[0m[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 520 of `/home/muksihs/git/opencode-config/.opencode/tools/plan`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Tamer
+  * Developers:  FBK Tamer Development Team
+[0m[96m  * Description: [0m[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.
+  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.[0m[96m
+[0m[96m
+[0m
+plan length: 20
+
+- [ ] 1. execute-step(sc-coherence-gate, exec-summary)
+- [ ] 2. execute-step(exec-summary, pre-red-baseline)
+- [ ] 3. execute-step(pre-red-baseline, red-doublecheck)
+- [ ] 4. execute-step(red-doublecheck, red-phase)
+- [ ] 5. execute-step(red-phase, regression-check)
+- [ ] 6. execute-step(regression-check, adversarial-audit)
+- [ ] 7. execute-step(adversarial-audit, checkpoint-commit)
+- [ ] 8. execute-step(checkpoint-commit, review-prep)
+- [ ] 9. execute-step(review-prep, structural-checks)
+- [ ] 10. execute-step(structural-checks, cross-validate)
+- [ ] 11. execute-step(cross-validate, green-doublecheck)
+- [ ] 12. execute-step(green-doublecheck, green-phase)
+- [ ] 13. execute-step(green-phase, green-vbc)
+- [ ] 14. complete-phase(phase-6, checkpoint-commit)
+- [ ] 15. execute-step(green-vbc, pre-red-baseline)
+- [ ] 16. complete-phase(phase-3, cross-validate)
+- [ ] 17. complete-phase(phase-1, adversarial-audit)
+- [ ] 18. complete-phase(phase-5, checkpoint-commit)
+- [ ] 19. complete-phase(phase-4, cross-validate)
+- [ ] 20. complete-phase(phase-2, adversarial-audit)
+
+---
+actions:
+- name: execute-step
+  parameters:
+  - sc-coherence-gate
+  - exec-summary
+- name: execute-step
+  parameters:
+  - exec-summary
+  - pre-red-baseline
+- name: execute-step
+  parameters:
+  - pre-red-baseline
+  - red-doublecheck
+- name: execute-step
+  parameters:
+  - red-doublecheck
+  - red-phase
+- name: execute-step
+  parameters:
+  - red-phase
+  - regression-check
+- name: execute-step
+  parameters:
+  - regression-check
+  - adversarial-audit
+- name: execute-step
+  parameters:
+  - adversarial-audit
+  - checkpoint-commit
+- name: execute-step
+  parameters:
+  - checkpoint-commit
+  - review-prep
+- name: execute-step
+  parameters:
+  - review-prep
+  - structural-checks
+- name: execute-step
+  parameters:
+  - structural-checks
+  - cross-validate
+- name: execute-step
+  parameters:
+  - cross-validate
+  - green-doublecheck
+- name: execute-step
+  parameters:
+  - green-doublecheck
+  - green-phase
+- name: execute-step
+  parameters:
+  - green-phase
+  - green-vbc
+- name: complete-phase
+  parameters:
+  - phase-6
+  - checkpoint-commit
+- name: execute-step
+  parameters:
+  - green-vbc
+  - pre-red-baseline
+- name: complete-phase
+  parameters:
+  - phase-3
+  - cross-validate
+- name: complete-phase
+  parameters:
+  - phase-1
+  - adversarial-audit
+- name: complete-phase
+  parameters:
+  - phase-5
+  - checkpoint-commit
+- name: complete-phase
+  parameters:
+  - phase-4
+  - cross-validate
+- name: complete-phase
+  parameters:
+  - phase-2
+  - adversarial-audit
+domain: slug-removal-pipeline
+engine: tamer
+plan_length: 20
+status: SOLVED_SATISFICING

@@ -1,0 +1,54 @@
+# VbC Artifact — spec #1156 (Remove slug padding)
+# Generated: Phase 4 Step 9 (green-vbc)
+
+per_sc_evidence:
+  SC-1:
+    criterion: "get_issue_path() creates `.issues/NNN/` without slug"
+    status: PASS
+    evidence: "get_issue_path() at tools/local-issues:138-139 uses `name = str(number)` — no _slug() call"
+  SC-2:
+    criterion: "_find_issue_dir() matches bare `str(number)` prefix"
+    status: PASS
+    evidence: "prefix = str(number) — no .lstrip('0') or :03d padding"
+  SC-3:
+    criterion: "_parse_number() extracts integer from bare NNN directory name"
+    status: PASS
+    evidence: "split('-',1)[0] → int() works for bare '42' and '42-slug'"
+  SC-4:
+    criterion: "Skill task files use `.issues/NNN/` not `.issues/NNN-slug/`"
+    status: PASS
+    evidence: "grep -rn 'NNN-slug' skills/ → zero matches"
+  SC-5:
+    criterion: "Guidelines use `.issues/NNN/` not `.issues/NNN-slug/`"
+    status: PASS
+    evidence: "grep -rn 'NNN-slug' guidelines/ → zero matches"
+  SC-6:
+    criterion: "import-remote.md no longer uses `:03d`"
+    status: PASS
+    evidence: "grep ':03d' skills/issue-operations/tasks/import-remote.md → zero matches"
+  SC-7:
+    criterion: "Existing local-issue behavioral tests pass"
+    status: FAIL
+    evidence: "Pre-existing infrastructure issue: PROJECT_DIR resolves from __file__, not test cwd. Not caused by slug-padding change."
+  SC-8:
+    criterion: "Content-verification tests pass"
+    status: PASS
+    evidence: "test-enforcement.sh --changed — no unmatched scenarios"
+  SC-9:
+    criterion: "_find_issue_dir() resolves BOTH `.issues/NNN/` AND `.issues/NNN-slug/`"
+    status: PASS
+    evidence: "entry.name == prefix (bare) AND entry.name.startswith(prefix + '-') (slug compat)"
+  SC-10:
+    criterion: "All behavioral test fixtures use `NNN/` format"
+    status: PASS
+    evidence: "grep -rn 'NNN-slug\|:03d' tests/ (excluding helpers.sh) → zero matches"
+  SC-11:
+    criterion: "get_issue_path() creates `.issues/NNN/` without slug"
+    status: PASS
+    evidence: "Same as SC-1 — name = str(number), no slug"
+
+final_verdict:
+  passing_sc_count: 10
+  failing_sc_count: 1
+  sc_7_fail_cause: "Pre-existing test infrastructure — PROJECT_DIR resolution ignores test cwd. NOT caused by slug-padding change."
+  overall: "Proceeding to adversarial audit per remediation routing: SC-7 is pre-existing, not caused by this change."

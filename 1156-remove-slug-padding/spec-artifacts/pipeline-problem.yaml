@@ -1,0 +1,72 @@
+domain: slug-removal-pipeline
+objects:
+  - name: sc-coherence-gate
+    type: pipeline_step
+  - name: pre-red-baseline
+    type: pipeline_step
+  - name: red-phase
+    type: pipeline_step
+  - name: red-doublecheck
+    type: pipeline_step
+  - name: green-phase
+    type: pipeline_step
+  - name: checkpoint-commit
+    type: pipeline_step
+  - name: structural-checks
+    type: pipeline_step
+  - name: green-doublecheck
+    type: pipeline_step
+  - name: green-vbc
+    type: pipeline_step
+  - name: adversarial-audit
+    type: pipeline_step
+  - name: cross-validate
+    type: pipeline_step
+  - name: regression-check
+    type: pipeline_step
+  - name: review-prep
+    type: pipeline_step
+  - name: exec-summary
+    type: pipeline_step
+  - name: phase-1
+    type: pipeline_phase
+  - name: phase-2
+    type: pipeline_phase
+  - name: phase-3
+    type: pipeline_phase
+  - name: phase-4
+    type: pipeline_phase
+  - name: phase-5
+    type: pipeline_phase
+  - name: phase-6
+    type: pipeline_phase
+  - name: pass
+    type: verification_status
+  - name: fail
+    type: verification_status
+  - name: pending
+    type: verification_status
+init:
+  - at-step(sc-coherence-gate)
+goals:
+  - at-step(exec-summary)
+  - step-completed(sc-coherence-gate)
+  - step-completed(pre-red-baseline)
+  - step-completed(red-phase)
+  - step-completed(red-doublecheck)
+  - step-completed(green-phase)
+  - step-completed(checkpoint-commit)
+  - step-completed(structural-checks)
+  - step-completed(green-doublecheck)
+  - step-completed(green-vbc)
+  - step-completed(adversarial-audit)
+  - step-completed(cross-validate)
+  - step-completed(regression-check)
+  - step-completed(review-prep)
+  - step-completed(exec-summary)
+  - phase-completed(phase-1)
+  - phase-completed(phase-2)
+  - phase-completed(phase-3)
+  - phase-completed(phase-4)
+  - phase-completed(phase-5)
+  - phase-completed(phase-6)

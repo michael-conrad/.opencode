@@ -1,0 +1,106 @@
+audit_phase: verification-audit
+auditor_type: gemma4:31b-cloud
+family: gemma
+issue_number: 1156
+generated_at: "2026-06-13T12:00:00Z"
+orchestrator_model: "gemma4:31b-cloud"
+summary:
+  total_criteria: 11
+  pass: 10
+  fail: 1
+  blocked: 0
+  limited_evidence: 0
+per_criterion:
+  - criterion_id: "SC-1"
+    discovered: false
+    status: PASS
+    evidence: "tools/local-issues:138-139"
+    explanation: "get_issue_path() uses `name = str(number)` and returns `ISSUES_DIR / name`, removing the call to `_slug()` and the associated padding."
+    remediation: none
+    next_step: proceed
+  - criterion_id: "SC-2"
+    discovered: false
+    status: PASS
+    evidence: "tools/local-issues:64, 84, 111"
+    explanation: "All prefix matches in _find_issue_dir and _find_issue_dir_in_repo now use `prefix = str(number)` without :03d padding."
+    remediation: none
+    next_step: proceed
+  - criterion_id: "SC-3"
+    discovered: false
+    status: PASS
+    evidence: "tools/local-issues:1334-1341"
+    explanation: "_parse_number() splits by '-' and converts the first part to int, which correctly handles both bare numbers ('42') and slugged directories ('42-slug')."
+    remediation: none
+    next_step: proceed
+  - criterion_id: "SC-4"
+    discovered: false
+    status: PASS
+    evidence: "grep result (skills/)"
+    explanation: "Grep for 'NNN-slug' across .opencode/skills/ returned zero matches, confirming the update to the N-slug format."
+    remediation: none
+    next_step: proceed
+  - criterion_id: "SC-5"
+    discovered: false
+    status: PASS
+    evidence: "grep result (guidelines/)"
+    explanation: "Grep for 'NNN-slug' across .opencode/guidelines/ returned zero matches, confirming the update to the N-slug format."
+    remediation: none
+    next_step: proceed
+  - criterion_id: "SC-6"
+    discovered: false
+    status: PASS
+    evidence: "grep result (import-remote.md)"
+    explanation: "Grep for ':03d' in import-remote.md returned zero matches, confirming removal of padding logic in that task."
+    remediation: none
+    next_step: proceed
+  - criterion_id: "SC-7"
+    discovered: false
+    status: FAIL
+    evidence: "vbc-artifact.yaml:31-32"
+    explanation: "Existing local-issue behavioral tests failed. While noted as a pre-existing infrastructure issue (PROJECT_DIR resolution), the SC requires tests to pass. A FAIL is a hard gate."
+    remediation: FIX_TEST
+    next_step: "implementer remediation → VbC → re-audit"
+  - criterion_id: "SC-8"
+    discovered: false
+    status: PASS
+    evidence: "vbc-artifact.yaml:34-36"
+    explanation: "Content-verification tests passed via `test-enforcement.sh --changed`."
+    remediation: none
+    next_step: proceed
+  - criterion_id: "SC-9"
+    discovered: false
+    status: PASS
+    evidence: "tools/local-issues:84-87"
+    explanation: "_find_issue_dir() checks for exact match (bare number) and then checks if entry.name.startswith(prefix + '-'), ensuring backward compatibility with slugged directories."
+    remediation: none
+    next_step: proceed
+  - criterion_id: "SC-10"
+    discovered: false
+    status: PASS
+    evidence: "grep result (tests/)"
+    explanation: "Grep for 'NNN-slug' and ':03d' in tests/ (excluding helpers.sh) returned zero matches, confirming fixtures are updated to the bare N format."
+    remediation: none
+    next_step: proceed
+  - criterion_id: "SC-11"
+    discovered: false
+    status: PASS
+    evidence: "tools/local-issues:138-139"
+    explanation: "Confirmed identical to SC-1; get_issue_path uses bare string conversion of the issue number."
+    remediation: none
+    next_step: proceed
+clean_room:
+  verified: true
+  violations_detected: []
+methodology_independence:
+  phases_followed:
+    - "A1: Input validation"
+    - "A2: Floor-not-ceiling criteria loading"
+    - "A3-A6: Evidence collection"
+    - "A7: Criterion discovery (if applicable)"
+    - "B1-B8: Per-criterion evaluation"
+    - "C: Artifact write + frugal contract"
+  criteria_loaded_floor: true
+  criteria_discovered: 0
+  criteria_evaluated: 11
+  discovery_pass_ran: true
+  semantic_depth_applied: true
