@@ -65,7 +65,7 @@ Read the current state of `.issues/N/remote.md` and platform metadata.
      "current_body": "<content of remote.md, or null if not found>",
      "issue_number": N,
      "platform": "github|gitbucket|local",
-     "remote_md_path": ".issues/open/N-slug/remote.md"
+     "remote_md_path": ".issues/open/N/remote.md"
    }
    ```
 

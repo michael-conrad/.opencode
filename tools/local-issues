@@ -59,11 +59,9 @@ MARKDOWN_FILES = ("spec.md",)
 def _find_issue_dir(number: int, repo_path: Path | None = None) -> Path | None:
     """Find issue directory by NNN prefix match or exact number.
 
-    Matches `.issues/<number>` or `.issues/<number>-<slug>` or
-    `.issues/open/<number>-<slug>`. Returns None if no match.
+    Matches `.issues/<number>` or `.issues/<number>-<slug>`. Returns None if no match.
     """
-    prefix = str(number).lstrip("0") or "0"
-    padded_prefix = f"{number:03d}"
+    prefix = str(number)
     issues_dir = (repo_path or PROJECT_DIR) / ISSUES_DIR
 
     # Check exact match first
@@ -75,10 +73,7 @@ def _find_issue_dir(number: int, repo_path: Path | None = None) -> Path | None:
     open_dir = issues_dir / "open"
     if open_dir.is_dir():
         for entry in sorted(open_dir.iterdir()):
-            if entry.is_dir() and (
-                entry.name.startswith(prefix + "-")
-                or entry.name.startswith(padded_prefix + "-")
-            ):
+            if entry.is_dir() and entry.name.startswith(prefix + "-"):
                 return entry
 
     # Check all top-level dirs for prefix match
@@ -88,9 +83,7 @@ def _find_issue_dir(number: int, repo_path: Path | None = None) -> Path | None:
                 continue
             if entry.name == prefix:
                 return entry
-            if entry.name.startswith(prefix + "-") or entry.name.startswith(
-                padded_prefix + "-"
-            ):
+            if entry.name.startswith(prefix + "-"):
                 return entry
 
     return None
@@ -98,8 +91,7 @@ def _find_issue_dir(number: int, repo_path: Path | None = None) -> Path | None:
 
 def _find_issue_dir_in_repo(number: int, repo_path: Path) -> Path | None:
     """Find issue directory by number within a specific repo path."""
-    prefix = str(number).lstrip("0") or "0"
-    padded_prefix = f"{number:03d}"
+    prefix = str(number)
     issues_dir = repo_path / ISSUES_DIR
 
     exact = issues_dir / prefix
@@ -109,10 +101,7 @@ def _find_issue_dir_in_repo(number: int, repo_path: Path) -> Path | None:
     open_dir = issues_dir / "open"
     if open_dir.is_dir():
         for entry in sorted(open_dir.iterdir()):
-            if entry.is_dir() and (
-                entry.name.startswith(prefix + "-")
-                or entry.name.startswith(padded_prefix + "-")
-            ):
+            if entry.is_dir() and entry.name.startswith(prefix + "-"):
                 return entry
 
     if issues_dir.is_dir():
@@ -121,9 +110,7 @@ def _find_issue_dir_in_repo(number: int, repo_path: Path) -> Path | None:
                 continue
             if entry.name == prefix:
                 return entry
-            if entry.name.startswith(prefix + "-") or entry.name.startswith(
-                padded_prefix + "-"
-            ):
+            if entry.name.startswith(prefix + "-"):
                 return entry
 
     return None
@@ -148,11 +135,7 @@ def get_issue_path(
     dir_path = _find_issue_dir(number, repo_path)
     if dir_path is not None:
         return dir_path
-    name = f"{number}"
-    if title:
-        slug = _slug(title)
-        if slug:
-            name = f"{name}-{slug}"
+    name = str(number)
     return (repo_path or PROJECT_DIR) / ISSUES_DIR / name
 
 

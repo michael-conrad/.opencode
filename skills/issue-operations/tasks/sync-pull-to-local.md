@@ -86,7 +86,7 @@ Read back the local remote.md and verify:
 
 | Claim | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |
-| "Local remote.md exists" | Verify file exists at `.issues/open/NNN-slug/remote.md` | `ls .issues/open/*/remote.md` | MISSING-ELEMENT |
+| "Local remote.md exists" | Verify file exists at `.issues/open/NNN/remote.md` | `ls .issues/open/*/remote.md` | MISSING-ELEMENT |
 | "Body matches remote" | Compare local remote.md body vs remote issue body | `local-issues read NNN` (reads remote.md) | VERIFICATION-GAP |
 | "Frontmatter has remote_issue" | Verify YAML frontmatter contains `remote_issue` field | `local-issues read NNN` → parse frontmatter | STRUCTURE-VIOLATION |
 | "last_sync is recent" | Verify timestamp is within current session window | `local-issues read NNN` → parse frontmatter | VERIFICATION-GAP |

@@ -39,7 +39,7 @@ def _read_frontmatter(tmpdir, number, status="open"):
     import yaml
     open_dir = os.path.join(tmpdir, ".issues", status)
     for entry in os.listdir(open_dir):
-        if entry.startswith(f"{number:03d}-"):
+        if entry == str(number) or entry.startswith(f"{number}-"):
             spec_path = os.path.join(open_dir, entry, "spec.md")
             with open(spec_path) as f:
                 content = f.read()
@@ -160,6 +160,17 @@ def test_link_read_roundtrip(issues_dir):
     assert "42" in result.stdout
 
 
+def test_parse_number_bare_nnn(issues_dir):
+    """SC-3: _parse_number extracts integer from bare NNN directory name."""
+    bare_dir = os.path.join(issues_dir, ".issues", "open", "42")
+    os.makedirs(bare_dir, exist_ok=True)
+    result = subprocess.run(
+        LOCAL_ISSUES + ["read", "--number", "42"],
+        cwd=issues_dir, capture_output=True, text=True,
+    )
+    assert result.returncode == 0, f"read failed for bare NNN dir: {result.stderr}"
+
+
 # --- H1: yaml.dump instead of _format_frontmatter ---
 
 def test_record_remote_serialization_consistency(issues_dir):
@@ -172,7 +183,7 @@ def test_record_remote_serialization_consistency(issues_dir):
     assert result.returncode == 0, f"record-remote crashed: {result.stderr}"
     open_dir = os.path.join(issues_dir, ".issues", "open")
     for entry in os.listdir(open_dir):
-        if entry.startswith("001-"):
+        if entry.startswith("1") and os.path.isdir(os.path.join(open_dir, entry)):
             spec_path = os.path.join(open_dir, entry, "spec.md")
             with open(spec_path) as f:
                 content = f.read()
@@ -307,13 +318,13 @@ def test_empty_title_fails(issues_dir):
 def test_state_consistency_after_close(issues_dir):
     """SC-14: after close, directory is under closed/ and frontmatter says 'closed'."""
     _create_test_issue(issues_dir)
-    assert os.path.isdir(os.path.join(issues_dir, ".issues", "open", "001-test-issue"))
+    assert os.path.isdir(os.path.join(issues_dir, ".issues", "open", "1"))
     result = subprocess.run(
         LOCAL_ISSUES + ["close", "1"],
         cwd=issues_dir, capture_output=True, text=True,
     )
     assert result.returncode == 0
-    assert not os.path.isdir(os.path.join(issues_dir, ".issues", "open", "001-test-issue"))
-    assert os.path.isdir(os.path.join(issues_dir, ".issues", "closed", "001-test-issue"))
+    assert not os.path.isdir(os.path.join(issues_dir, ".issues", "open", "1"))
+    assert os.path.isdir(os.path.join(issues_dir, ".issues", "closed", "1"))
     meta = _read_frontmatter(issues_dir, 1, status="closed")
     assert meta.get("status") == "closed", f"Expected status=closed, got {meta.get('status')}"

@@ -44,8 +44,8 @@ ______________________________________________________________________
 | 1    | Verify issue exists | `./.opencode/tools/local-issues read <repo>#<N>` — confirm exit 0. If exit non-zero → exit 1 (issue not found).                                                                    |
 | 2    | Check remote link   | Read frontmatter for `github_issue` or `remote_url` field. If present and non-empty → remote link exists.                                               |
 | 3    | Apply safety guard  | If remote link exists AND `--force` NOT provided → exit 2 (blocked). Report: "Remote issue R exists at `url`. Use --force to remove local mirror only." |
-| 4    | Delete              | `./.opencode/tools/local-issues delete <repo>#<N> [--force]` — removes `.issues/open/NNN-slug/` or `.issues/closed/NNN-slug/`. Auto-commits on issues-data branch.                 |
-| 5    | Verify deletion     | `./.opencode/tools/local-issues read <repo>#<N>` — confirm exit non-zero (issue no longer exists). Verify neither `.issues/open/NNN-slug/` nor `.issues/closed/NNN-slug/` exists.    |
+| 4    | Delete              | `./.opencode/tools/local-issues delete <repo>#<N> [--force]` — removes `.issues/open/NNN/` or `.issues/closed/NNN/`. Auto-commits on issues-data branch.                 |
+| 5    | Verify deletion     | `./.opencode/tools/local-issues read <repo>#<N>` — confirm exit non-zero (issue no longer exists). Verify neither `.issues/open/NNN/` nor `.issues/closed/NNN/` exists.    |
 | 6    | Report              | Report to orchestrator: issue number, whether remote link existed, whether --force was used, exit code, and whether remote issue is unaffected.         |
 
 ______________________________________________________________________

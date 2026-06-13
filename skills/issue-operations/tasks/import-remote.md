@@ -78,7 +78,7 @@ If `.issues/` directory does not exist, route to `platforms/local/tasks/creation
 Create the local issue directory manually (not via `local-issues create`, because we need to set the number to match the remote):
 
 1. Determine slug from title: first 5 words, kebab-cased
-1. Create directory: `.issues/open/<remote_number:03d>-<slug>/`
+1. Create directory: `.issues/open/<remote_number>/`
 1. Write `remote.md` with minimal frontmatter + full remote body:
 
 ```yaml
@@ -169,9 +169,9 @@ Verify the full local mirror:
 
 | Claim | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |
-| "remote.md exists (body)" | Verify file at `.issues/open/NNN-slug/remote.md` | `local-issues read <number>` | MISSING-ELEMENT |
-| "spec.md exists (frontmatter only)" | Verify file at `.issues/open/NNN-slug/spec.md` | `local-issues read <number>` | MISSING-ELEMENT |
-| "comments.md exists with all comments" | Verify file and comment count matches remote | `cat .issues/open/NNN-slug/comments.md \| wc -l` | MISSING-ELEMENT |
+| "remote.md exists (body)" | Verify file at `.issues/open/NNN/remote.md` | `local-issues read <number>` | MISSING-ELEMENT |
+| "spec.md exists (frontmatter only)" | Verify file at `.issues/open/NNN/spec.md` | `local-issues read <number>` | MISSING-ELEMENT |
+| "comments.md exists with all comments" | Verify file and comment count matches remote | `cat .issues/open/NNN/comments.md \| wc -l` | MISSING-ELEMENT |
 | "promotion_type in frontmatter" | Verify `promotion_type: retroactive_import` present | `local-issues read <number>` → parse frontmatter | STRUCTURE-VIOLATION |
 | "Counter advanced correctly" | Verify `.counter` value >= remote_number + 1 | `cat .issues/.counter` | VERIFICATION-GAP |
 | "Body matches remote (remote.md)" | Compare remote.md body against remote issue body | `local-issues read <number>` | VERIFICATION-GAP |

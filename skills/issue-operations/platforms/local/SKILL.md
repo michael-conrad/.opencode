@@ -24,12 +24,12 @@ Local issue tracking platform using `.issues/` directories at the repo root. Thi
 ```text
 .issues/
   .counter                  # Next issue number (auto-incremented)
-  open/
-    001-slug/spec.md         # Issue body (markdown + YAML frontmatter)
-    001-slug/comments.md     # Comments/updates (append-only)
-  closed/
-    002-slug/spec.md
-    002-slug/comments.md
+open/
+     001/spec.md         # Issue body (markdown + YAML frontmatter)
+     001/comments.md     # Comments/updates (append-only)
+   closed/
+     002/spec.md
+     002/comments.md
 ```
 
 ## Capability Contract

@@ -163,7 +163,7 @@ Determine creation order based on `github.platform`:
 
 Route to `platforms/local/tasks/creation.md` via task(). Pass: `{title: "<title>", labels: ["needs-approval"]}`
 
-Then write the spec body to `.issues/open/NNN-slug/spec.md` (preserving YAML frontmatter).
+Then write the spec body to `.issues/open/NNN/spec.md` (preserving YAML frontmatter).
 
 **Local copy retains full-fidelity detail** — extra metadata, reasoning, and agent notes that stakeholders don't need.
 
@@ -172,7 +172,7 @@ Then write the spec body to `.issues/open/NNN-slug/spec.md` (preserving YAML fro
 **Response includes:**
 
 - Local issue number (counter-based)
-- Local path: `.issues/open/NNN-slug/spec.md`
+- Local path: `.issues/open/NNN/spec.md`
 
 **Post-Creation URL Extraction (MANDATORY — per `000-critical-rules.md` §URL Sourcing):**
 
@@ -201,13 +201,13 @@ Report based on creation flow:
 
 ```
 Created remote issue #MMM at <html_url>
-Local mirror: .issues/open/MMM-slug/spec.md
+Local mirror: .issues/open/MMM/spec.md
 ```
 
 **Local-first flow (local platform only):**
 
 ```
-Created local issue #NNN at `.issues/open/NNN-slug/spec.md`
+Created local issue #NNN at `.issues/open/NNN/spec.md`
 ```
 
 ### Step 4.5: Developer Review Signal
