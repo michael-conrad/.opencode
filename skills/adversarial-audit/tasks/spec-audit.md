@@ -2,6 +2,8 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
+
 # Task: spec-audit
 
 ## Purpose
@@ -30,7 +32,7 @@ Audit a spec for quality, structure, and completeness using dual-adversarial cro
 - [ ] 1. Load Spec Content — glob spec_local_dir for .md files, read all
 - [ ] 2. Verify Documentation Sources — research each cited URL, API reference, or documentation claim against live sources
 - [ ] 3. Build Evaluation Criteria — define SC table with evidence types
-- [ ] 4. Cross-Validate with Pre-Resolved Verdicts — invoke cross-validate task
+- [ ] 4. Cross-Validate with Pre-Resolved Verdicts — cross-validate will be called by the orchestrator
 - [ ] 5. Process Verdicts — per-criterion PASS/FAIL consensus
 - [ ] 6. Evaluate SC Determinism (SC-DET) — check each SC for determinism
 - [ ] 7. Generate Bidirectional Findings — FAIL/DISAGREE criteria with revision options
@@ -101,33 +103,11 @@ Define audit criteria based on spec-auditor task structure:
 
 ### Step 3: Cross-Validate with Pre-Resolved Verdicts
 
-This task does NOT dispatch auditors. The orchestrator dispatches auditors and passes pre-resolved `auditor_artifact_paths` to this task. Invoke `cross-validate` with artifact paths already available:
+This task does NOT dispatch auditors. The orchestrator dispatches auditors and passes pre-resolved `auditor_artifact_paths` to this task. Cross-validate will be called by the orchestrator.
 
 When dispatching auditors, the `evaluation_criteria` array MUST include each SC's `evidence_type` field. Auditors MUST use the declared evidence type to determine their verification method. For `behavioral` SCs, auditors MUST require execution evidence (test output, stderr) — not file existence. This is enforced by the cross-validate evidence type gate (per `cross-validate.md` §Evidence Type Gate). Each auditor writes its full YAML verdict to disk and returns a frugal contract. The orchestrator collects artifact paths and passes them to cross-validate.
 
-```python
-task(
-    subagent_type="general",
-    prompt="""Use adversarial-audit skill --task cross-validate with:
-
-spec_issue_number: <spec_issue_number>
-audit_phase: spec_creation
-auditor_artifact_paths: <auditor_artifact_paths>
-authorization_scope: <authorization_scope>
-halt_at: <halt_at>
-pr_strategy: <pr_strategy>
-pipeline_phase: <pipeline_phase>
-
-worktree.path: <worktree.path>
-github.owner: <github.owner>
-github.repo: <github.repo>
-
-failure_description: <failure_description>  # Optional — provided when routed from remediation loop
-
-Mandatory: cross-validate receives pre-resolved artifact paths and reads YAMLs from disk — it does NOT dispatch auditors.
-"""
-)
-```
+Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
 
 **When `failure_description` is provided:** The spec auditor must evaluate whether the SCs are deterministic and testable specifically in light of the failure evidence. The evaluation should answer: "Would this SC have prevented the observed failure if it were properly deterministic?" or "Is the failure attributable to a non-deterministic SC?" If yes, return SPEC_GAP with revision recommendation. If no (SCs are deterministic but the implementer failed), return confirmation that implementation failure is the root cause.
 
@@ -219,15 +199,6 @@ status: DONE
 artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-spec-audit-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
 ```
-
-## Dispatch Mandate (CRITICAL — per critical-rules-048)
-
-This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
-1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
-2. Dispatching auditor sub-agents in parallel
-3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_artifact_paths`
-
-This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
 
 ## Completion Dependency Chain
 

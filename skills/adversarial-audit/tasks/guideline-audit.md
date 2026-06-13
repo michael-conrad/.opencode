@@ -2,6 +2,8 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
+
 # Task: guideline-audit
 
 ## Purpose
@@ -29,7 +31,7 @@ Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies p
 - [ ] 2. Build Evaluation Criteria — define GA table with evidence types
 - [ ] 3. Scan for Problem Classes — per-file ambiguous/conflicting/unenforceable/redundant/missing/overflow
 - [ ] 4. One Problem At a Time — present single findings per interaction
-- [ ] 5. Cross-Validate via task() — invoke cross-validate with pre-resolved verdicts
+- [ ] 5. Cross-Validate — cross-validate will be called by the orchestrator with pre-resolved verdicts
 - [ ] 6. Write Audit Report — markdown report to artifacts directory
 - [ ] 7. Write Verdict Artifact to Disk — YAML output
 - [ ] 8. Return Frugal Result Contract
@@ -138,32 +140,9 @@ Fix? (fix/skip/stop)
 
 Do NOT batch multiple problems in one message.
 
-### Step 5: Cross-Validate via task()
+### Step 5: Cross-Validate
 
-For each problem class:
-
-```python
-task(
-    subagent_type="general",
-    prompt=f"""Use adversarial-audit skill --task cross-validate with:
-
-target_file_path: {file}
-audit_phase: {audit_phase}
-authorization_scope: {authorization_scope}
-halt_at: {halt_at}
-pr_strategy: {pr_strategy}
-pipeline_phase: {pipeline_phase}
-
-# NOTE: cross-validate does NOT dispatch auditors — it receives
-# pre-resolved auditor_artifact_paths and reads YAMLs from disk.
-auditor_artifact_paths: {auditor_artifact_paths}
-
-worktree.path: {worktree.path}
-github.owner: {github.owner}
-github.repo: {github.repo}
-"""
-)
-```
+Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
 
 ### Step 6: Write Audit Report
 
@@ -239,15 +218,6 @@ summary: "N files audited, M problems found. X/Y criteria PASS."
 | Target file not found | Return BLOCKED with file path |
 | Unable to parse rule | Skip rule, log warning |
 | Token limit exceeded | Report as CONTEXT-OVERFLOW |
-
-## Dispatch Mandate (CRITICAL — per critical-rules-048)
-
-This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
-1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
-2. Dispatching auditor sub-agents in parallel
-3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_artifact_paths`
-
-This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
 
 ## Completion Dependency Chain
 

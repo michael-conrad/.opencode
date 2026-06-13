@@ -2,6 +2,8 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
+
 # Task: concern-separation
 
 ## Purpose
@@ -28,7 +30,7 @@ Audit spec phase structure for concern separation quality using dual-adversarial
 - [ ] 1. Load Spec — glob spec_local_dir for .md files, read all, extract phases
 - [ ] 2. Build Evaluation Criteria — define CS table with evidence types
 - [ ] 3. Analyze Phase Structure — per-phase concern/risk/independence/blast radius
-- [ ] 4. Cross-Validate via task() — invoke cross-validate with pre-resolved verdicts
+- [ ] 4. Cross-Validate — cross-validate will be called by the orchestrator with pre-resolved verdicts
 - [ ] 5. Classify Findings — map to finding types
 - [ ] 6. Verify Boundary Claims — live tool-call verification per claim
 - [ ] 7. Write Verdict Artifact to Disk — YAML output
@@ -78,28 +80,9 @@ Concern inference:
 - Keywords: API, service, handler → Business logic concern
 - Keywords: UI, component, template → Presentation concern
 
-### Step 4: Cross-Validate via task()
+### Step 4: Cross-Validate
 
-```python
-task(
-    subagent_type="general",
-    prompt=f"""Use adversarial-audit skill --task cross-validate with:
-
-spec_local_dir: {spec_local_dir}
-audit_phase: {audit_phase}
-authorization_scope: {authorization_scope}
-halt_at: {halt_at}
-pr_strategy: {pr_strategy}
-pipeline_phase: {pipeline_phase}
-
-# NOTE: cross-validate does NOT dispatch auditors — it receives
-# pre-resolved auditor_artifact_paths and reads YAMLs from disk.
-auditor_artifact_paths: {auditor_artifact_paths}
-
-worktree.path: {worktree.path}
-"""
-)
-```
+Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
 
 ### Step 5: Classify Findings
 
@@ -169,15 +152,6 @@ summary: "N criteria evaluated. X PASS, Y FAIL."
 | Infrastructure | Crosses all layers by design → report as intentional |
 | Testing | Validates all layers → report as intentional |
 | Single-step | Already atomic → no split needed |
-
-## Dispatch Mandate (CRITICAL — per critical-rules-048)
-
-This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
-1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
-2. Dispatching auditor sub-agents in parallel
-3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_artifact_paths`
-
-This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
 
 ## Completion Dependency Chain
 

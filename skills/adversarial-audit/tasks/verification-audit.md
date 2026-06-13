@@ -2,6 +2,8 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
+
 # Task: verification-audit
 
 ## Purpose
@@ -30,7 +32,7 @@ Verify implementation against spec success criteria using dual-adversarial cross
 - [ ] 1. Load Spec Content — glob spec_local_dir, read spec SCs and evidence type declarations
 - [ ] 2. Load Behavioral Evidence — read artifact_evidence_dir for per-SC evidence files
 - [ ] 3. Build Evaluation Criteria — map spec SCs to evidence artifacts
-- [ ] 4. Cross-Validate with Pre-Resolved Verdicts — invoke cross-validate task
+- [ ] 4. Cross-Validate with Pre-Resolved Verdicts — cross-validate will be called by the orchestrator
 - [ ] 5. Verify Implementation Completeness — does implemented code satisfy each SC?
 - [ ] 6. Verify Evidence Type Compliance — each SC verified using minimum acceptable method per declared type
 - [ ] 7. Generate Findings — per-SC PASS/FAIL with evidence references
@@ -78,29 +80,9 @@ Map spec SCs to evidence artifacts. For each SC:
 
 ### Step 4: Cross-Validate with Pre-Resolved Verdicts
 
-Same pattern as spec-audit Step 3 — invoke `cross-validate` with pre-resolved auditor artifact paths:
+Same pattern as spec-audit Step 3 — cross-validate will be called by the orchestrator with pre-resolved auditor artifact paths:
 
-```python
-task(
-    subagent_type="general",
-    prompt="""Use adversarial-audit skill --task cross-validate with:
-
-spec_issue_number: <spec_issue_number>
-audit_phase: verification
-auditor_artifact_paths: <auditor_artifact_paths>
-authorization_scope: <authorization_scope>
-halt_at: <halt_at>
-pr_strategy: <pr_strategy>
-pipeline_phase: <pipeline_phase>
-
-worktree.path: <worktree.path>
-github.owner: <github.owner>
-github.repo: <github.repo>
-
-Mandatory: cross-validate receives pre-resolved artifact paths and reads YAMLs from disk — it does NOT dispatch auditors.
-"""
-)
-```
+Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
 
 ### Step 5: Verify Implementation Completeness
 
@@ -170,15 +152,6 @@ status: DONE
 artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-verification-audit-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
 ```
-
-## Dispatch Mandate (CRITICAL — per critical-rules-048)
-
-This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
-1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
-2. Dispatching auditor sub-agents in parallel
-3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_artifact_paths`
-
-This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
 
 ## Completion Dependency Chain
 
