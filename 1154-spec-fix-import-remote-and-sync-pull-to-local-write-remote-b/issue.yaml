@@ -1,0 +1,8 @@
+title: '[SPEC-FIX] import-remote and sync-pull-to-local write remote body to spec.md
+  instead of remote.md'
+status: open
+labels:
+- SPEC-FIX
+body: ''
+created_at: '2026-06-13T03:51:10+00:00'
+updated_at: '2026-06-13T03:51:10+00:00'
