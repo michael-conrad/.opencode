@@ -18,11 +18,13 @@ Create an implementation plan from an approved spec. Plans are stored at `.issue
 3. **Item decomposition mandatory:** Plan must enumerate items, order dependencies, specify acceptance criteria
 4. **RED checkpoint mandatory:** Every TDD task must include explicit Step 2 checkpoint
 5. **Approval cascade auto-approve:** Pipeline scope (`for_plan+`) auto-approves plan
+6. **Handoff verification pre-PASS:** Before any plan content is written, spec-to-plan handoff MUST return PASS. This is a non-waivable hard gate — no exceptions, no "proceed anyway."
 
 ## Entry Criteria
 
 - Spec is approved and stored in `.issues/{N}/spec.md`
 - `authorization_scope` received from approval-gate (for cascade)
+- Spec-to-plan handoff PASS (verified by handoffs/spec-to-plan task artifact at `./tmp/{issue-N}/artifacts/spec-to-plan-handoff-*.yaml` with `status: PASS`)
 
 ## Exit Criteria
 
@@ -43,7 +45,7 @@ Runs verification gate, makes combined/separate decision, checks for duplicate p
 
 **Route to:** `create/create-and-validate`
 
-Writes plan header, stores at `.issues/{N}/spec-artifacts/plan.md`, runs self-review and validation, revisits verification, cross-references skills, and applies approval cascade with scope-aware auto-approval.
+Writes plan header, stores at `.issues/{N}/spec-artifacts/plan.md`, runs self-review and validation, revisits verification, cross-references skills, runs handoff-consistency check against the spec-to-plan manifest, and applies approval cascade with scope-aware auto-approval.
 
 ## Sub-Task Files
 
