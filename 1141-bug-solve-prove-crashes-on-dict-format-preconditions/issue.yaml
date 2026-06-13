@@ -1,8 +1,10 @@
 title: '[BUG] solve prove crashes on dict-format preconditions'
-status: open
+status: closed
 labels:
 - bug
 body: ''
 created_at: '2026-06-13T03:15:12+00:00'
-updated_at: '2026-06-13T03:18:44+00:00'
+updated_at: '2026-06-13T19:07:08+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/1141
+closed_at: '2026-06-13T19:07:08+00:00'
+close_reason: completed
