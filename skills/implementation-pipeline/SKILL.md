@@ -17,7 +17,7 @@ Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
 ## Overview
 
-Pure orchestrator routing table with 14 serial dispatch steps. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`. YAML contract artifacts at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml`.
+Pure orchestrator routing table with 16 serial dispatch steps. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`. YAML contract artifacts at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml`.
 
 The orchestrator is a pure router — never reads task file content, never performs inline analysis. Sub-agents do the work.
 
@@ -25,14 +25,16 @@ The orchestrator is a pure router — never reads task file content, never perfo
 
 | Step Label | Dispatches To | Artifact Produced |
 |------------|---------------|-------------------|
-| `sc-coherence-gate` | `adversarial-audit --task coherence-extraction` | coherence check results |
-| `pre-red-baseline` | `implementation-pipeline --task pre-red-baseline` (simple bash) | solution state file |
+| `sc-coherence-gate` | `adversarial-audit --task coherence-extraction` (evidence-type uplift + substrate classification) | coherence check results + uplift verdict |
+| `pre-red-baseline` | `implementation-pipeline --task pre-red-baseline` (doc-source-currency + SC-ID cross-ref traceability) | solution state file + source currency report |
 | `red-phase` | `test-driven-development --task red` | test code + execution result |
 | `red-doublecheck` | `verification-before-completion --task verify` | RED-side SC evidence |
+| `post-red-enforcement` | `implementation-pipeline --task post-red-enforcement` (git diff --name-only -- src/ \| wc -l) | git diff structural gate result |
 | `green-phase` | `test-driven-development --task green` | implementation code + test pass |
+| `post-green-enforcement` | `implementation-pipeline --task post-green-enforcement` (git diff --name-only -- test/ \| wc -l) | git diff structural gate result |
 | `checkpoint-commit` | `git-workflow --task commit-prep` | commit status |
 | `structural-checks` | `finishing-a-development-branch --task checklist` | lint/typecheck/format results |
-| `green-doublecheck` | `verification-before-completion --task verify` | GREEN-side SC evidence |
+| `green-doublecheck` | `verification-before-completion --task verify` (semantic-intent verification) | GREEN-side SC evidence + intent verdict |
 | `green-vbc` | `verification-before-completion --task completion` | VbC completion artifact |
 | `adversarial-audit` | `adversarial-audit --task verification-audit` | dual-auditor YAML verdicts |
 | `cross-validate` | `adversarial-audit --task cross-validate` | cross-validate findings YAML |
@@ -52,7 +54,7 @@ Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run
 
 ## Step Labels (for #932 naming convention)
 
-`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `red-doublecheck`, `green-phase`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
+`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `red-doublecheck`, `post-red-enforcement`, `green-phase`, `post-green-enforcement`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
 
 ## Invocation
 
@@ -168,8 +170,10 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 | Step Label | Pre-Cleanup Action |
 
 | `pre-red-baseline` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-pre-red-baseline-*` |
+| `post-red-enforcement` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-post-red-enforcement-*` |
 | `red-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-red-phase-*` |
 | `green-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-phase-*` |
+| `post-green-enforcement` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-post-green-enforcement-*` |
 | `checkpoint-commit` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-*` |
 | `structural-checks` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-structural-checks-*` |
 | `green-doublecheck` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-doublecheck-*` |
