@@ -51,3 +51,25 @@ Test output artifacts (exit code, stdout, stderr) go to `./tmp/{issue-N}/artifac
   "github.repo": "<from session>"
 }
 ```
+
+## RED Persona Enforcement
+
+RED-phase sub-agents write tests only — they MUST NOT modify `src/` or any implementation files.
+
+### 🚫 FORBIDDEN
+
+- Modifying any file under `src/`
+- Writing implementation code of any kind
+- Editing configuration files that change program behavior
+- Creating or modifying files outside the designated test path
+
+### ✅ PERMITTED
+
+- Writing test files in the designated test path
+- Modifying existing test files
+- Creating test fixture files in `test/` or designated test directories
+- Reading any source file for test design
+
+### Violation Handling
+
+The `post-red-enforcement` gate executes `git diff --name-only -- src/ | wc -l` and FAILs if the count > 0. If this gate fires, the orchestrator re-dispatches the RED-phase from clean-room state — no inline fallback.
