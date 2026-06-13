@@ -18,6 +18,44 @@ compatibility: opencode
 5. **Independent intelligence** — Autonomous analysis. If the task contains excessive instruction where your own analysis should apply, HALT and notify parent.
 6. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, source code, and test results.
 
+## TDD Heading Format Requirement
+
+All TDD task headings in plan documents MUST use the SC-ID parenthetical format:
+
+```text
+### TDD-<N>: <description> (SC-<ID>, SC-<ID>, ...)
+```
+
+### Examples
+
+**✅ CORRECT:**
+
+```text
+### TDD-1: Update sc-coherence-gate with evidence-type uplift scan (SC-6)
+### TDD-4: Add post-red-enforcement to routing table (SC-1, SC-5)
+```
+
+**🚫 INCORRECT:**
+
+```text
+### TDD-1: Update sc-coherence-gate with evidence-type uplift scan  ← missing SC-ID
+### TDD-4: Add post-red-enforcement: SC-1, SC-5  ← wrong format
+```
+
+### Enforcement
+
+The `pre-red-baseline` sub-agent parses plan TDD headings, extracts SC-IDs, and cross-references against the spec SC table. If any TDD heading references an SC-ID that does not exist in the spec, the gate returns BLOCKED with `MISSING-TRACEABILITY`.
+
+### SC-ID Extraction Contract
+
+| Field | Format | Required |
+|-------|--------|----------|
+| Prefix | `### TDD-<N>:` | Yes |
+| Description | Any text | Yes |
+| SC-ID reference | `(SC-<ID>, SC-<ID>, ...)` | Yes — must match spec SC table |
+| Multiple SC-IDs | Comma-separated | Optional |
+| Whitespace | Space after comma | Recommended |
+
 ## ASCII Cycle Diagram
 
 ```
