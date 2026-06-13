@@ -895,7 +895,7 @@ Creating N branches for N issues IS a critical violation — Period.
 
 ### [critical-rules-accountability-ownership] Accountability/Remediation Ownership Model
 
-ALL failures are agent-owned. Remediation is the default action. Escalation is only permitted after verified remediation failure. The following 7 principles govern agent accountability:
+ALL failures are agent-owned. Remediation is the default action. Escalation is only permitted after verified remediation failure. The following 8 principles govern agent accountability:
 
 1. **Audit fail is a fail** — no exceptions, no reclassification, no soft-passing
 2. **Bad prompt is on the agent** — the agent owns prompt quality; a poorly specified prompt is the agent's defect to remediate
@@ -904,6 +904,7 @@ ALL failures are agent-owned. Remediation is the default action. Escalation is o
 5. **Missing text artifacts is a fail** — the agent produces complete deliverables; absent preamble, missing documentation, or incomplete issue bodies are agent-owned defects
 6. **Skipped functional/behavioral testing is a fail** — no exceptions, no excuses; the agent runs and passes behavioral tests before claiming completion
 7. **Remediate autonomously, never escalate** — escalation is only for dire circumstances (infrastructure failure, model crash, credentials missing); skipping remediation is not a valid choice
+8. **No "pre-existing failure" rationalization** — test infrastructure is part of the ship condition. An agent MUST NOT use "pre-existing failure", "already broken before my change", "baseline failure", or any equivalent rationalization to justify proceeding past a test failure, verification mismatch, or pipeline gate FAIL. The agent owns the pipeline state at entry; any failure present at entry must be remediated before proceeding.
 
 All failures are agent-owned. Remediation is the default action. Escalation is only permitted after verified remediation failure — never as a first response, never as a shortcut.
 
@@ -2020,8 +2021,8 @@ rules:
     source: "000-critical-rules.md §critical-rules-hard-fail"
 
   - id: critical-rules-test-integrity
-    tier: 2
-    title: "Test Integrity Mandate — removing or weakening behavioral assertions is a critical violation"
+    tier: 1
+    title: "CRITICAL VIOLATION — Test Integrity Mandate — removing or weakening behavioral assertions is a critical violation"
     conditions:
       any:
         - "behavioral_assertion_removed == true"
@@ -2129,6 +2130,21 @@ rules:
     requires: []
     triggers: [implementation-pipeline, verification-before-completion]
     source: "000-critical-rules.md §critical-rules-065"
+
+  - id: critical-rules-069
+    tier: 2
+    title: "'Pre-existing failure' rationalization — using baseline failures to bypass verification or gate requirements"
+    conditions:
+      all:
+        - "test_failure_detected == true"
+        - "agent_claim in ['pre_existing_failure', 'already_broken', 'baseline_failure']"
+    actions:
+      - HALT
+      - REQUIRE_REMEDIATION
+    conflicts_with: [critical-rules-hard-fail]
+    requires: []
+    triggers: [verification-before-completion, implementation-pipeline, git-workflow]
+    source: "000-critical-rules.md §critical-rules-069"
 
   - id: critical-rules-066
     tier: 3

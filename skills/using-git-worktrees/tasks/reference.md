@@ -32,7 +32,7 @@ If NOT ignored:
 |---------|---------|-----|
 | Skipping ignore verification | Worktree contents tracked, pollute git status | Always use `git check-ignore` before creating |
 | Creating worktree from `main` | Based on wrong branch | Always `git checkout dev && git pull origin dev` first |
-| Proceeding with failing tests | Can't distinguish new bugs from pre-existing | Report failures, get explicit permission |
+| Proceeding with failing tests | Can't distinguish new bugs from pre-existing. See critical-rules-069 — "pre-existing failure" rationalization is a CRITICAL VIOLATION | Report failures, get explicit permission, remediate before proceeding |
 | Not announcing worktree creation | Other agents unaware of parallel workspace | Always announce at start |
 
 ## Fatal Error Protocol
