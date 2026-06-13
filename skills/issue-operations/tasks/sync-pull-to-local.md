@@ -2,7 +2,7 @@
 
 ## Purpose
 
-After any `read-issue` call, automatically mirror the remote issue body to `.issues/<issue-number>/spec.md`. This enforces the Operating Protocol §3 spec.md mirror mandate — every remote read produces a local mirror.
+After any `read-issue` call, automatically mirror the remote issue body to `.issues/<issue-number>/remote.md` alongside the local `spec.md`. This enforces the Operating Protocol §3 remote mirror mandate — every remote read produces a local mirror.
 
 ## Entry Criteria
 
@@ -12,7 +12,7 @@ After any `read-issue` call, automatically mirror the remote issue body to `.iss
 
 ## Exit Criteria
 
-- Local mirror exists at `.issues/open/<number>-<slug>/spec.md`
+- Local mirror exists at `.issues/open/<number>-<slug>/remote.md` (remote body) alongside `spec.md` (local spec)
 - YAML frontmatter written with `remote_issue`, `remote_url`, `last_sync`
 - Local mirror is up to date with remote body
 
@@ -32,32 +32,26 @@ Determine whether a local issue already exists for this remote number:
 
 Capture the returned local issue number.
 
-### Step 3: Write Issue Body to spec.md
+### Step 3: Write Issue Body to remote.md
 
-Read the remote issue body from the `read-issue` result. Write it to the local spec.md, preserving the existing YAML frontmatter and adding remote metadata:
+Read the remote issue body from the `read-issue` result. Write it to `remote.md` alongside the local `spec.md`:
 
-**New issue (no prior frontmatter):**
+**New issue (no prior remote mirror):**
 
 ```yaml
 ---
-number: <local_number>
-title: "<remote_title>"
-status: open
-labels: [imported]
-created: <timestamp>
-updated: <timestamp>
 remote_issue: <remote_number>
 remote_url: "<remote_html_url>"
 last_sync: <timestamp>
-author: <dev.name>
+source: <github.platform>
 ---
 
 <remote_issue_body>
 ```
 
-**Existing issue (update frontmatter only — preserve local body):**
+**Existing issue (update frontmatter only — preserve local spec body):**
 
-Use `platforms/local/tasks/update.md` via task() to set `remote_issue`, `remote_url`, and `last_sync` fields. Only overwrite the body if explicitly instructed (see Edge Cases below).
+Use `platforms/local/tasks/update.md` via task() to update `remote.md` fields (`remote_issue`, `remote_url`, `last_sync`) and body. The local `spec.md` is never touched by this task — only `remote.md` is updated.
 
 ### Step 4: Link Local to Remote
 
@@ -65,12 +59,9 @@ If a new issue was created, route to `platforms/local/tasks/link.md` via task() 
 
 ### Step 5: Verify Mirror
 
-Read back the local spec.md and verify:
+Read back the local remote.md and verify:
 
 - Body content matches the remote issue body
-- `remote_issue` field matches the remote number
-- `remote_url` field matches the remote issue URL
-- `last_sync` timestamp is recent
 
 ## Edge Cases
 
@@ -95,9 +86,9 @@ Read back the local spec.md and verify:
 
 | Claim | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |
-| "Local spec.md exists" | Verify file exists at `.issues/open/NNN-slug/spec.md` | `ls .issues/open/*/spec.md` | MISSING-ELEMENT |
-| "Body matches remote" | Compare local spec.md body vs remote issue body | `local-issues read NNN` | VERIFICATION-GAP |
+| "Local remote.md exists" | Verify file exists at `.issues/open/NNN-slug/remote.md` | `ls .issues/open/*/remote.md` | MISSING-ELEMENT |
+| "Body matches remote" | Compare local remote.md body vs remote issue body | `local-issues read NNN` (reads remote.md) | VERIFICATION-GAP |
 | "Frontmatter has remote_issue" | Verify YAML frontmatter contains `remote_issue` field | `local-issues read NNN` → parse frontmatter | STRUCTURE-VIOLATION |
 | "last_sync is recent" | Verify timestamp is within current session window | `local-issues read NNN` → parse frontmatter | VERIFICATION-GAP |
 
-**Evidence artifact:** Local spec.md readback showing body content and frontmatter fields.
+**Evidence artifact:** Local remote.md readback showing body content and frontmatter fields.
