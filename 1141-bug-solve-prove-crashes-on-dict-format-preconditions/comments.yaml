@@ -4,3 +4,8 @@ comments:
     a clear error message was already delivered by #1144 (merged dev). No code change
     needed for this issue.'
   timestamp: '2026-06-13T19:06:57+00:00'
+- type: internal
+  body: 'Verification: fix from #1144 (merge 18d097d0) confirmed on dev. All 3 actions
+    reject dict-format with clear error. Flat format regression check passes (VALID).
+    Behavioral test exists at tests/behaviors/1144-sc4-dict-format-rejected.sh.'
+  timestamp: '2026-06-13T19:23:57+00:00'
