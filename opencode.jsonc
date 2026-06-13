@@ -129,7 +129,7 @@
     },
     "viewport-editor": {
       "type": "local",
-      "command": ["uvx", "--from", "git+https://github.com/michael-conrad/viewport-editor@v0.2.0", "viewport-editor"],
+      "command": ["uvx", "--from", "git+https://github.com/michael-conrad/viewport-editor@v0.3.3", "viewport-editor"],
       "enabled": true
     }
   }
