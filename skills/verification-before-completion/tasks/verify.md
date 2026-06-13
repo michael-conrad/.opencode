@@ -233,6 +233,16 @@ The only valid outcomes for a behavioral SC are:
 
 There is NO valid path from "test cannot run" to "PASS" or "UNVERIFIED with structural substitute."
 
+### Pre-Existing Failure Prohibition (See critical-rules-069)
+
+**CRITICAL: The agent MUST NOT rationalize any test failure as "pre-existing", "already broken", or "baseline failure".** All pipeline state at entry is owned by the agent. If a baseline test fails, the agent must remediate it before proceeding.
+
+When a baseline test failure is detected:
+1. **Record the failure evidence** — capture stdout/stderr
+2. **Attempt remediation** — diagnose root cause, fix, re-run
+3. **If remediation fails after 2+ attempts** — report as BLOCKED with all failure evidence
+4. **NEVER proceed past a FAIL** — regardless of whether the failure was "pre-existing"
+
 ## Verification Report Format
 
 ```markdown
