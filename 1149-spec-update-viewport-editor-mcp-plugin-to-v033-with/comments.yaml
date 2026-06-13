@@ -1,1 +1,6 @@
-comments: []
+comments:
+- type: internal
+  body: 'Implementation complete and merged. SC-1 (opencode.jsonc @v0.3.3): PASS.
+    SC-2 (AGENTS.md 11-tool table): PASS. SC-3 (AGENTS.md behavior section): PASS.
+    PR #1150 merged into dev. Closing issue.'
+  timestamp: '2026-06-13T19:35:25+00:00'
