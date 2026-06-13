@@ -707,6 +707,19 @@ Removing or weakening a behavioral (semantic, functional) test assertion to work
 - **Rule 4**: FAIL is a hard gate — never proceed past FAIL. Only valid outcomes: PASS, FAIL (remediate and re-run), or INCONCLUSIVE after exhaustive remediation (escalate only)
 
 
+### [critical-rules-sc-lobotomy] CRITICAL VIOLATION — SC Lobotomy Prohibition — removing, weakening, deferring, or blocking success criteria
+
+Removing or weakening a success criterion from a spec to evade implementation is a CRITICAL VIOLATION. An agent MUST NOT:
+- Remove an SC from a spec's SC table to make it "closable"
+- Weaken an SC's evidence type (e.g., `behavioral` to `string`) to make it easier to verify
+- Replace an SC with a weaker version (changing what success means)
+- Mark an SC as "blocked" or "deferred" in the spec body to evade implementation
+- Add a `depends-on` or cross-reference solely to push SC verification out of the current spec
+- Claim an SC is "not achievable" and modify the spec rather than implementing it
+
+Required behavior: If an SC is structurally valid and the agent cannot implement it, report BLOCKED with root cause and HALT. The agent must NOT modify the spec, remove the SC, add a new change to "fix" the SC by changing what it tests, or create a dependent spec to offload the SC. The remediation-first protocol applies: attempt to implement before concluding impossibility.
+
+
 ### [critical-rules-BEH-EV] Runtime-Behavioral Evidence Classification Gate — structural evidence for behavioral changes is EVIDENCE_TYPE_MISMATCH
 
 The question "does this change affect runtime behavior?" is substrate-determined — the change either alters runtime behavior or it does not. Intent, author assertion, and hope are irrelevant. When the answer is YES, submitting structural or string evidence is EVIDENCE_TYPE_MISMATCH, not a soft downgrade. The verdict is FAIL. No advisory, no "PASS with structural caveat," no INCONCLUSIVE. The classification gate enforces what the evidence type taxonomy already requires: behavioral changes demand behavioral evidence.
@@ -2158,4 +2171,19 @@ rules:
     requires: []
     triggers: [skill-creator, sync-guidelines]
     source: "000-critical-rules.md §critical-rules-066"
+
+  - id: critical-rules-sc-lobotomy
+    tier: 1
+    title: "CRITICAL VIOLATION — SC Lobotomy Prohibition — removing, weakening, deferring, or blocking success criteria to evade verification"
+    conditions:
+      all:
+        - "sc_modification_attempted == true"
+        - "modification_type in ['remove', 'weaken', 'downgrade_evidence', 'mark_blocked', 'mark_deferred']"
+    actions:
+      - HALT
+      - REQUIRE_BLOCKED_REPORT
+    conflicts_with: [critical-rules-010]
+    requires: []
+    triggers: [verification-before-completion, implementation-pipeline, approval-gate]
+    source: "000-critical-rules.md §critical-rules-sc-lobotomy"
 ```
