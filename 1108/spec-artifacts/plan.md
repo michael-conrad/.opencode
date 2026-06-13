@@ -32,7 +32,9 @@ Phase 1 fixes the `plan` tool (`plan state update --contract-path`). The plan cr
 
 #### Item 1.1: Add `--contract-path` argparse argument
 
-**RED:** `plan state update --help` does not list `--contract-path`. Calling `plan state update --contract-path` produces an unrecognized argument error.
+**RED:** `plan state update --contract-path --var-name x --var-value y` produces an unrecognized argument error — feature doesn't exist yet. RED test (SC-1/SC-2) passes desired behavior check and FAILS.
+
+**GREEN:** `--contract-path` (`-c`) argparse argument added with optional string value. Also add `--var-type` (`-t`) argparse argument with choices `bool/string/int/real`.
 
 **GREEN:** `--contract-path` (`-c`) argparse argument added with optional string value. Also add `--var-type` (`-t`) argparse argument with choices `bool/string/int/real`.
 
@@ -42,7 +44,7 @@ Phase 1 fixes the `plan` tool (`plan state update --contract-path`). The plan cr
 
 **GREEN:** When `--contract-path` is provided, `_action_state_update` loads the contract YAML, resolves variable schema (type + domain), coerces values per type, and validates domain membership — mirroring `solve state update --contract-path` behavior. When `--var-type` is provided without a contract, uses the declared type for coercion.
 
-**Exit criteria:** SC-1: `plan state update --contract-path` with domain-limited contract rejects out-of-domain values. SC-2: accepts in-domain values. SC-3: `plan state update` without `--contract-path` works as before.
+**Exit criteria:** SC-1: `plan state update --contract-path` with domain-limited contract rejects out-of-domain values. SC-2: accepts in-domain values. SC-3 (regression guard, not RED): `plan state update` without `--contract-path` works as before — baseline captured in pre-red-baseline, re-verified in regression-check.
 
 ### Phase 1 Pipeline Gate Table
 
@@ -50,12 +52,12 @@ Phase 1 fixes the `plan` tool (`plan state update --contract-path`). The plan cr
 |------|------|----------------|
 | 1 | sc-coherence-gate | Phase 1 scope confirmed: only `_action_state_update` modified, contract loading mirrors `solve state update` pattern |
 | 2 | pre-red-baseline | Pre-modification state: `plan state update` stores raw strings, no `--contract-path` support |
-| 3 | red-phase | Behavioral RED: SC-1 (out-of-domain rejected) fails — current tool accepts any value |
+| 3 | red-phase | Behavioral RED: SC-1 (out-of-domain rejection) and SC-2 (in-domain acceptance) fail — --contract-path not yet supported |
 | 4 | red-doublecheck | RED-side evidence captured for all Phase 1 SCs |
 | 5 | green-phase | `_action_state_update` modified with `--contract-path` and `--var-type` support, domain validation implemented |
 | 6 | checkpoint-commit | Modified `plan` tool committed |
 | 7 | structural-checks | `ruff` and `pyright` pass on `.opencode/tools/plan` |
-| 8 | green-doublecheck | SC-1 (out-of-domain → rejected), SC-2 (in-domain → accepted), SC-3 (no regression) all PASS |
+| 8 | green-doublecheck | SC-1 (out-of-domain → rejected) and SC-2 (in-domain → accepted) red tests now FAIL (GREEN implemented). SC-3 verified via regression-check |
 | 9 | green-vbc | All Phase 1 SCs verified with behavioral evidence |
 | 10 | adversarial-audit | Dual-auditor: contract loading mirrors solve, no side effects on other subcommands |
 | 11 | cross-validate | Consensus on Phase 1 |
@@ -248,7 +250,7 @@ Phase 1 fixes the `plan` tool (`plan state update --contract-path`). The plan cr
 |-------|-------|------|---------------|------------|-------------|
 | SC-1 | 1 | 1.2 | behavioral | — | Test with domain-limited contract |
 | SC-2 | 1 | 1.2 | behavioral | — | Test with domain-limited contract |
-| SC-3 | 1 | 1.2 | behavioral | SC-1 | Re-run existing state tests |
+| SC-3 | 1 | 1.2 (regression guard) | structural | — | Pre-red baseline + regression-check: basic update without --contract-path |
 | SC-4 | 1b | 1b.1 | behavioral | — | Bash pipe test: `plan discover \| head -1` |
 | SC-5 | 2 | 2.1 | behavioral | — | `opencode-cli run` + `assert_semantic` |
 | SC-6 | 2 | 2.2 | structural | — | File existence |

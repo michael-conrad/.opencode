@@ -24,7 +24,7 @@ All SC-1 through SC-13 must PASS for this spec to be complete.
 |----|-----------|---------------|------------|---------------------|
 | SC-1 | `plan state update --contract-path` rejects out-of-domain values | `behavioral` | — | Test with domain-limited contract |
 | SC-2 | `plan state update --contract-path` accepts in-domain values | `behavioral` | — | Test with domain-limited contract |
-| SC-3 | `plan state update` without `--contract-path` works as before | `behavioral` | SC-1 | Re-run existing state tests |
+| SC-3 | `plan state update` without `--contract-path` works as before (regression guard) | `structural` | — | Re-run basic state update without --contract-path |
 | SC-4 | `plan discover` output can be piped | `behavioral` | — | Bash pipe test |
 | SC-5 | Skill dispatch gate routes to `plan` skill | `behavioral` | — | `opencode-cli run` + `assert_semantic` |
 | SC-6 | Each task file has entry criteria, procedure, exit criteria | `structural` | — | File existence |
