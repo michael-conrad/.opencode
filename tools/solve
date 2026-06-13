@@ -54,8 +54,8 @@ def _die(msg: str, code: int = 2) -> None:
 def _normalize_exprs(items) -> list[str]:
     """Normalize precondition/postcondition/invariant items to list of strings.
 
-    Accepts: None, a single string, a list of strings.
-    Dict items are rejected with _die() as schema violations.
+    Accepts: None, a single string, a list of strings, or dict items
+    with an 'expr' key containing the expression string.
     """
     if items is None:
         return []
@@ -64,12 +64,13 @@ def _normalize_exprs(items) -> list[str]:
     result = []
     for item in items:
         if isinstance(item, dict):
-            name = item.get("name", "<unnamed>")
-            _die(
-                f"contract expression must be a string, got dict "
-                f"(name={name!r}). "
-                f"Use flat format: '- <z3-expr>'"
-            )
+            expr_val = item.get("expr")
+            if expr_val is None:
+                _die(f"dict-format precondition missing 'expr' key: {item}")
+            if not isinstance(expr_val, str):
+                _die(f"dict-format 'expr' must be a string, got {type(expr_val).__name__}")
+            result.append(expr_val)
+            continue
         if not isinstance(item, str):
             _die(f"contract expression must be a string, got {type(item).__name__}")
         result.append(item)
