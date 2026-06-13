@@ -1,0 +1,66 @@
+# Z3 Pipeline State Machine Contract
+# Spec: .opencode/.issues/1063
+# Purpose: Enforce strict adjacency, state lifecycle, and no-re-entry
+
+schema_version: "1.0"
+contract_type: pipeline_state_machine
+source_spec: ".opencode/.issues/1063/spec.md"
+
+variables:
+  current_step:
+    type: string
+    domain:
+      - sc-coherence-gate
+      - pre-red-baseline
+      - red-phase
+      - red-doublecheck
+      - post-red-enforcement
+      - green-phase
+      - post-green-enforcement
+      - checkpoint-commit
+      - structural-checks
+      - green-doublecheck
+      - green-vbc
+      - adversarial-audit
+      - cross-validate
+      - regression-check
+      - review-prep
+      - exec-summary
+    initial: sc-coherence-gate
+  pipeline_state:
+    type: string
+    domain: [init, running, blocked, passed, failed, completed]
+    initial: init
+  last_step:
+    type: string
+    domain:
+      - sc-coherence-gate
+      - pre-red-baseline
+      - red-phase
+      - red-doublecheck
+      - post-red-enforcement
+      - green-phase
+      - post-green-enforcement
+      - checkpoint-commit
+      - structural-checks
+      - green-doublecheck
+      - green-vbc
+      - adversarial-audit
+      - cross-validate
+      - regression-check
+      - review-prep
+      - exec-summary
+    nullable: true
+    initial: null
+
+preconditions:
+  - "current_step != z3.StringVal('')"
+  - "pipeline_state != z3.StringVal('')"
+
+invariants:
+  - "z3.Not(z3.And(current_step == last_step, z3.Not(last_step == z3.StringVal('null'))))"
+  - "pipeline_state != z3.StringVal('failed')"
+  - "z3.Implies(pipeline_state == z3.StringVal('passed'), z3.Or(current_step != z3.StringVal('null'), last_step != z3.StringVal('null')))"
+
+postconditions:
+  - "pipeline_state != z3.StringVal('init')"
