@@ -42,9 +42,9 @@ Each phase MUST use the implementation pipeline checklist from the canonical sou
 **Files:** exact paths or glob patterns
 **SCs covered:** SC-N, SC-M
 
-- [ ] 1. SC-COHERENCE-GATE — **orchestrator routes to pre-analysis**
+- [ ] 1. <FIRST-STEP-LABEL> — **<dispatch mode>**
 - [ ] ... (remaining steps per `implementation-pipeline/SKILL.md` §Dispatch Routing Table)
-- [ ] N. EXEC-SUMMARY — **orchestrator inline**
+- [ ] N. <LAST-STEP-LABEL> — **<dispatch mode>**
 ```
 
 The full dispatch routing table with execution targets lives at `implementation-pipeline/SKILL.md`. This file is the single source of truth — every step label, dispatch target, and artifact produced is defined there. Do NOT duplicate routing details here.
