@@ -37,7 +37,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 | -- | -- | -- |
 | **Spec approval** | Issue title contains `[SPEC` or has `spec` label | `writing-plans --task create` (or `brainstorming --task explore` if gap-fill) |
 | **Plan approval** | Issue has `plan` label or `[PLAN]` prefix in title | `executing-plans --task start` |
-| **Already implemented** | `verify-already-implemented` returns positive (after closed-issue verification in Step 5.4 confirms legitimate closure) | No dispatch — auto-close instead |
+| **Already implemented** | Step 5d.4 (`verify-already-implemented`) returns positive | No dispatch — auto-close instead (execution path: Step 0 of auto-route procedure) |
 | **Reconciled during verification** | reconcile-issue-graph returned auto-closed or reopened tickets | Include reconciled tickets in chat output; proceed with dispatch |
 | **Closed but NOT verified** | Step 5.4 closed-issue verification finds closure without merged PR evidence | flag-for-review — do NOT autoclose |
 
@@ -60,6 +60,13 @@ When `authorization_scope == "for_analysis"`:
 - HALT after `analysis_complete`
 
 ## Auto-Route Procedure
+
+0. Check pre-implementation readiness results from Step 5d:
+   - If verify-already-implemented returned positive → auto-close issue, check parent plan, HALT
+   - If verify-codebase found staleness → HALT, report staleness
+   - If verify-blockers found blockers → HALT, report blockers
+   - If verify-closed-issue-main found VERIFICATION_GAP → flag-for-review, HALT
+   - Otherwise → proceed to spec/plan routing
 
 1. Determine approval context (spec vs plan) by checking:
    - Issue title format: `[SPEC` prefix = spec approval
