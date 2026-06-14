@@ -1,0 +1,42 @@
+title: '[SPEC-FIX] solve model preconditions as permanent constraints blocks forward-state queries'
+status: open
+labels:
+- SPEC-FIX
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/1169
+
+
+## Exec Summary
+
+
+solve model includes preconditions as permanent solver constraints, blocking forward-state queries. A contract with current_step == "pre-red-baseline" as precondition makes the solver treat this as invariant — solve model --query "(exec_summary == "done")" returns UNSAT because current_step can never change.
+
+
+### Fix
+
+
+1. In _action_model(), only assert invariants (not preconditions) as permanent constraints
+2. Add query constraint, check SAT
+3. Preconditions only used in solve check for current-state validation
+4. solve check keeps current behavior (preconditions + invariants + postconditions)
+
+
+### Success Criteria
+
+
+| ID | Criterion | Evidence Type |
+|----|-----------|---------------|
+| SC-1 | solve model with preconditions in contract returns SAT for reachable future states | string |
+| SC-2 | solve model --query (exec_summary == "done") returns SAT when invariants allow transition to done | string |
+| SC-3 | solve check still validates current state against preconditions + invariants + postconditions | string |
+| SC-4 | Preconditions in contract do not constrain future states in model queries | string |
+
+
+## AI Agent Instructions
+
+
+This issue is an executive summary for human stakeholders. The authoritative spec and plan artifacts are at 1169. AI agents MUST read the local spec/plan files for implementation and MUST NOT base implementation on this summary.
+
+
+'
+created_at: '2026-06-14T00:00:00+00:00'
+updated_at: '2026-06-14T00:00:00+00:00'

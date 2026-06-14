@@ -113,13 +113,12 @@ Session start comprises three sequential steps:
 .issues/
   {issue_number}/
     spec.md                    — The spec (authoritative, may mirror remote or be sole copy)
-    spec-artifacts/
-      plan.md                  — Implementation plan (RED/GREEN items, dependency graph)
-      cards.md                 — Card catalogue with status and decision log
-      dependency-contract.yaml — Dependency contracts and phase ordering
-      research/                — Investigation findings, capability probes, evidence notes
-      designs/                 — UI wireframes, architecture diagrams, design artifacts
-      audit/                   — Adversarial audit verdicts, cross-validate consensus
+    plan.md                    — Implementation plan (RED/GREEN items, dependency graph)
+    cards.md                   — Card catalogue with status and decision log
+    dependency-contract.yaml   — Dependency contracts and phase ordering
+    research/                  — Investigation findings, capability probes, evidence notes
+    designs/                   — UI wireframes, architecture diagrams, design artifacts
+    audit/                     — Adversarial audit verdicts, cross-validate consensus
   AGENTS.md                    — This file
   open/                        — Symlinks or references to open issues
   closed/                      — Archived issues
@@ -133,12 +132,12 @@ Session start comprises three sequential steps:
 
 | Artifact | Path |
 |----------|------|
-| Card catalogue with all card findings | `.issues/46/spec-artifacts/cards.md` |
-| Implementation plan with RED/GREEN items | `.issues/46/spec-artifacts/plan.md` |
-| Dependency contract for state machine | `.issues/46/spec-artifacts/dependency-contract.yaml` |
-| FastMCP capability probe results | `.issues/46/spec-artifacts/research/fastmcp-capabilities.md` |
-| In-memory client migration design | `.issues/46/spec-artifacts/designs/in-memory-fixture.md` |
-| Adversarial audit consensus verdict | `.issues/46/spec-artifacts/audit/consensus.yaml` |
+| Card catalogue with all card findings | `.issues/46/cards.md` |
+| Implementation plan with RED/GREEN items | `.issues/46/plan.md` |
+| Dependency contract for state machine | `.issues/46/dependency-contract.yaml` |
+| FastMCP capability probe results | `.issues/46/research/fastmcp-capabilities.md` |
+| In-memory client migration design | `.issues/46/designs/in-memory-fixture.md` |
+| Adversarial audit consensus verdict | `.issues/46/audit/consensus.yaml` |
 | Session 2026-06-06 corrections | `.issues/lessons-learned/session-2026-06-06/README.md` |
 
 ## Authorization
@@ -152,7 +151,7 @@ Creating `feature/*` or `spec/*` branches for code changes still requires `for_i
 - **`.issues/` is the PRIMARY spec/plan store.** All authoritative content — specs, plans, card catalogues, dependency contracts, research — lives here in the `issues-data` branch.
 - **GitHub/GitBucket is the mirrored user-facing exec summary only.** The remote issue body contains a condensed summary and a single link to the spec folder (`.issues/{N}/` on the `issues-data` branch). AI agents MUST read from `.issues/` — never treat the remote issue body as authoritative.
 - `.issues/{N}/spec.md` is the full authoritative spec. The remote issue body is a summary copy with a cross-reference link to this folder.
-- `.issues/{N}/spec-artifacts/` contains plan.md, cards.md, dependency-contract.yaml, and sub-directories (research/, designs/, audit/) — these are NEVER mirrored to the remote tracker.
+- `.issues/{N}/` contains plan.md, cards.md, dependency-contract.yaml, and sub-directories (research/, designs/, audit/) — these are NEVER mirrored to the remote tracker.
 - When reading or acting on an issue, always read from `.issues/{N}/` first. Only use the remote issue body for user-facing context (comments, labels, assignees).
 
 ## GitHub URL Convention for Remote Issue Body
@@ -160,20 +159,20 @@ Creating `feature/*` or `spec/*` branches for code changes still requires `for_i
 The remote issue body is a human-facing exec summary. It must include two blockquotes at the top:
 
 1. **User-facing folder URL** — a full GitHub URL so the user can browse the spec folder on GitHub
-2. **AI-facing sub-folder references** — relative paths to `spec-artifacts/` sub-directories, so agents know where to glob for additional files. Do NOT list individual files — agents should discover content by reading `.issues/{N}/` and globbing `spec-artifacts/*` automatically.
+2. **AI-facing sub-folder references** — relative paths to the issue directory, so agents know where to glob for additional files. Do NOT list individual files — agents should discover content by reading `.issues/{N}/` and globbing `*` automatically.
 
 ### Pattern
 
 ```
 > **Full spec and artifacts: [`.issues/{N}/`](https://github.com/{owner}/{repo}/tree/issues-data/{N})** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 >
-> **Local artifacts:** `.issues/{N}/spec-artifacts/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+> **Local artifacts:** `.issues/{N}/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 ```
 
 ### Rules
 
 - **User-facing: One full GitHub URL** — the spec folder, as a blockquote
-- **AI-facing: Sub-folder paths only** — reference `spec-artifacts/` (not individual files). Agents glob `spec-artifacts/*` to discover content
+- **AI-facing: Sub-folder paths only** — reference the issue directory (not individual files). Agents glob `*` to discover content
 - **NO hardcoded file lists** — don't list `plan.md`, `cards.md`, etc. individually in the remote body. They go stale. Agents discover by globbing.
 - AI agents read from `.issues/{N}/` directly — the remote body just tells them where to look
 
@@ -182,7 +181,7 @@ The remote issue body is a human-facing exec summary. It must include two blockq
 ```
 > **Full spec and artifacts: [`.issues/46/`](https://github.com/michael-conrad/viewport-editor/tree/issues-data/46)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 >
-> **Local artifacts:** `.issues/46/spec-artifacts/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+> **Local artifacts:** `.issues/46/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 ```
 
 ## Lessons Learned Registry

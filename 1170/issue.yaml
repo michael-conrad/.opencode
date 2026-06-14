@@ -1,0 +1,43 @@
+title: '[SPEC-FIX] Auto-select fast-downward for classical problems — Tamer bounded search insufficient'
+status: open
+labels:
+- SPEC-FIX
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/1170
+
+
+## Exec Summary
+
+
+Tamer planner returns UNSOLVABLE_INCOMPLETELY for a simple 14-step fully-serial chain (13 next links). The bounded search depth is insufficient for chain length > ~8 steps.
+
+
+### Fix
+
+
+1. In _action_plan(), inspect problem.kind after building problem
+2. Classical problems (no temporal/numeric) → use fast-downward (lama-first)
+3. Temporal/numeric problems → use tamer
+4. Explicit --engine flag overrides auto-selection
+
+
+### Success Criteria
+
+
+| ID | Criterion | Evidence Type |
+|----|-----------|---------------|
+| SC-1 | Classical problems (no temporal/numeric) use fast-downward by default | string |
+| SC-2 | Temporal problems use tamer by default | string |
+| SC-3 | Numeric problems with bounded types use tamer by default | string |
+| SC-4 | Explicit --engine flag overrides auto-selection | string |
+| SC-5 | 14-step serial chain solves successfully with default engine | behavioral |
+
+
+## AI Agent Instructions
+
+
+This issue is an executive summary for human stakeholders. The authoritative spec and plan artifacts are at 1170. AI agents MUST read the local spec/plan files for implementation and MUST NOT base implementation on this summary.
+
+
+'
+created_at: '2026-06-14T00:00:00+00:00'
+updated_at: '2026-06-14T00:00:00+00:00'
