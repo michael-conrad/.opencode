@@ -70,6 +70,16 @@ For standard and complex specs, generate the following permanent artifacts:
 1. **Lifecycle manifest** — Create `.issues/{issue-N}/spec-artifacts/lifecycle.yaml` with initial `spec_created` event. Append-only format; never overwrite.
 1. **Revision re-entry protocol contract** — Create `.issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml` as a solve contract with cascade variables for each revision scope.
 
+### Step 1b: Plan Creation Mandate in Spec Body (MANDATORY)
+
+The generated spec body MUST include a paragraph in the preamble or before the Success Criteria section that mandates plan creation via `writing-plans`:
+
+```markdown
+After this spec is approved, invoke `writing-plans` to create `.issues/{N}/spec-artifacts/plan.md` before implementation begins.
+```
+
+Where `{N}` is the actual issue number, substituted at generation time. This mandate is in the spec content (what the writer generates), not just the task procedure.
+
 Artifact generation occurs during Step 1 assembly. Self-review (Step 6) validates YAML-vs-prose consistency.
 
 ### Decision Ledger
@@ -525,6 +535,7 @@ Invoke `issue-operations` skill to persist the spec as an issue:
 1. If validation passes → invoke `issue-operations --task single-task-check` to determine sub-issue needs
 1. Invoke `issue-operations --task creation` to create the issue with the blockquote-prepended body
 1. Record the issue number and URL
+1. **Invoke `local-issues sync` and commit the resulting local `.issues/{N}/` directory** — this runs at spec creation time, not deferred to approval
 
 **Chat output is ONLY:**
 
@@ -584,6 +595,8 @@ Top 3 risks with one-line mitigation. Key dependencies. Call to action.
 
 This issue is an executive summary for human stakeholders.
 The authoritative spec and plan artifacts are at {{SPEC_PATH}}.
+After creation, `local-issues sync {N}` MUST be run and the result committed to create the local `.issues/{N}/` entry.
+The implementation plan will be created in `.issues/{N}/spec-artifacts/plan.md` after approval.
 AI agents MUST read the local spec/plan files for implementation
 and MUST NOT base implementation on this summary.
 ```
