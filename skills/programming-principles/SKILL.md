@@ -1,6 +1,6 @@
 ---
 name: programming-principles
-description: Use when designing functions, classes, or modules; writing or reviewing implementation code; making architecture decisions; evaluating tradeoffs, or enforcing code size limits. Triggers on: design, implement, refactor, architecture, tradeoff, principle, KISS, DRY, SRP, coupling, cohesion, YAGNI, code size, function length, file size. Ignoring design principles produces unmaintainable code. Every violated principle is technical debt incurred, not saved.
+description: "Use when designing functions, classes, or modules; writing or reviewing implementation code; making architecture decisions; evaluating tradeoffs, or enforcing code size limits. Triggers on: design, implement, refactor, architecture, tradeoff, principle, KISS, DRY, SRP, coupling, cohesion, YAGNI, code size, function length, file size. Ignoring design principles produces unmaintainable code. Every violated principle is technical debt incurred, not saved."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

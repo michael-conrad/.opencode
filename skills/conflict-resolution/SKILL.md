@@ -1,6 +1,6 @@
 ---
 name: conflict-resolution
-description: Use when resolving git conflicts during rebase, merge, or cherry-pick operations. Triggers on: conflict, merge conflict, rebase conflict, resolve conflict, cherry-pick conflict, conflict resolution, intent conflict, conflict classification. Resolving conflicts blindly produces broken merges. Intent analysis before resolution separates correct merges from silent corruption.
+description: "Use when resolving git conflicts during rebase, merge, or cherry-pick operations. Triggers on: conflict, merge conflict, rebase conflict, resolve conflict, cherry-pick conflict, conflict resolution, intent conflict, conflict classification. Resolving conflicts blindly produces broken merges. Intent analysis before resolution separates correct merges from silent corruption."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

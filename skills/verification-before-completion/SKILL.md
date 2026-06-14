@@ -1,6 +1,6 @@
 ---
 name: verification-before-completion
-description: Use when claiming a task is complete, marking a step done, or closing an issue. Triggers on: task complete, done, finished, step complete, mark done, verify completion, success criteria. A completion claim without verification is not a completion — it is a placeholder for undiscovered defects.
+description: "Use when claiming a task is complete, marking a step done, or closing an issue. Triggers on: task complete, done, finished, step complete, mark done, verify completion, success criteria. A completion claim without verification is not a completion — it is a placeholder for undiscovered defects."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

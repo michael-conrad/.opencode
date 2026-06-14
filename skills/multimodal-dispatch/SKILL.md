@@ -1,6 +1,6 @@
 ---
 name: multimodal-dispatch
-description: Use when routing AI agent tasks to appropriate models based on content modality, probing Ollama model capabilities, or dispatching sub-agents with modality-aware model selection. Triggers on: multimodal dispatch, modality routing, capability probe, model selection, sub-agent dispatch, content modality, vision task, audio task. Defaulting every task to the same model wastes capability. Modality-aware dispatch is how professional systems use their tools.
+description: "Use when routing AI agent tasks to appropriate models based on content modality, probing Ollama model capabilities, or dispatching sub-agents with modality-aware model selection. Triggers on: multimodal dispatch, modality routing, capability probe, model selection, sub-agent dispatch, content modality, vision task, audio task. Defaulting every task to the same model wastes capability. Modality-aware dispatch is how professional systems use their tools."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

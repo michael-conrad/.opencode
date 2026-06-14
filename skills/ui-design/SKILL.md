@@ -1,6 +1,6 @@
 ---
 name: ui-design
-description: Use when designing UI wireframes, mockups, interaction specs, or visual artifacts. Triggers on: ui design, wireframe, mockup, interaction spec, visual layout, UI mock, screenshot capture, sidebar navigation, page layout. Designing UI without wireframes produces inconsistent interfaces. Wireframes are the spec — agents who skip them produce unpredictable layouts.
+description: "Use when designing UI wireframes, mockups, interaction specs, or visual artifacts. Triggers on: ui design, wireframe, mockup, interaction spec, visual layout, UI mock, screenshot capture, sidebar navigation, page layout. Designing UI without wireframes produces inconsistent interfaces. Wireframes are the spec — agents who skip them produce unpredictable layouts."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

@@ -1,6 +1,6 @@
 ---
 name: finishing-a-development-branch
-description: Use when implementation is complete and branch needs final checks before PR. Triggers on: done, finished, ready for PR, implementation complete, branch ready, push changes, final check. Branches left dirty after implementation are liabilities. A finished branch is a clean branch.
+description: "Use when implementation is complete and branch needs final checks before PR. Triggers on: done, finished, ready for PR, implementation complete, branch ready, push changes, final check. Branches left dirty after implementation are liabilities. A finished branch is a clean branch."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

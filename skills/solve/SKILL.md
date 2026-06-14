@@ -1,6 +1,6 @@
 ---
 name: solve
-description: Use when validating workflow constraints, verifying state against contracts, proving theorems, or checking dependency ordering. Triggers on: solve, contract, constraint, Z3, verify state, check workflow, prove, SAT, dependency cycle, acyclic, dependency chain, state validation, unsat core. Workflow constraints validated without Z3 are unchecked — every unverified constraint is a defect.
+description: "Use when validating workflow constraints, verifying state against contracts, proving theorems, or checking dependency ordering. Triggers on: solve, contract, constraint, Z3, verify state, check workflow, prove, SAT, dependency cycle, acyclic, dependency chain, state validation, unsat core. Workflow constraints validated without Z3 are unchecked — every unverified constraint is a defect."
 type: tool
 license: MIT
 provenance: AI-generated

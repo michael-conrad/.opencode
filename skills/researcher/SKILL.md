@@ -1,6 +1,6 @@
 ---
 name: researcher
-description: Use when discovering information using appropriate modalities, producing findings with source attribution and explicit gap reporting. Triggers on: research, discover, investigate, find information, multimodal research, information discovery. Research without tool calls produces memory guesses. Every unverified finding is a liability, not evidence.
+description: "Use when discovering information using appropriate modalities, producing findings with source attribution and explicit gap reporting. Triggers on: research, discover, investigate, find information, multimodal research, information discovery. Research without tool calls produces memory guesses. Every unverified finding is a liability, not evidence."
 type: problem-solving
 license: MIT
 provenance: AI-generated
