@@ -33,7 +33,7 @@ Write plan document to `.issues/{N}/plan.md`, validate structure, and handle app
 
 ### Phase body requirements — Reference to canonical pipeline checklist
 
-Each phase MUST use the 14-item implementation pipeline checklist with routing annotations from the canonical source: `implementation-pipeline/SKILL.md` §Dispatch Routing Table. Phase bodies follow this format:
+Each phase MUST use the implementation pipeline checklist from the canonical source: `implementation-pipeline/SKILL.md` §Dispatch Routing Table. Phase bodies follow this format:
 
 ```
 ### Phase N: title
@@ -43,19 +43,8 @@ Each phase MUST use the 14-item implementation pipeline checklist with routing a
 **SCs covered:** SC-N, SC-M
 
 - [ ] 1. SC-COHERENCE-GATE — **orchestrator routes to pre-analysis**
-- [ ] 2. PRE-RED-BASELINE — **orchestrator routes to exploration**
-- [ ] 3. RED-PHASE — **orchestrator routes to RED sub-agent**
-- [ ] 4. RED-DOUBLECHECK — **orchestrator inline**
-- [ ] 5. GREEN-PHASE — **orchestrator routes to GREEN sub-agent (clean-room)**
-- [ ] 6. CHECKPOINT-COMMIT — **orchestrator inline**
-- [ ] 7. STRUCTURAL-CHECKS — **orchestrator routes to structural sub-agent**
-- [ ] 8. GREEN-DOUBLECHECK — **orchestrator inline**
-- [ ] 9. GREEN-VBC — **orchestrator routes to VbC sub-agent**
-- [ ] 10. ADVERSARIAL-AUDIT —**orchestrator routes to resolve-models**
-- [ ] 11. CROSS-VALIDATE — **orchestrator inline**
-- [ ] 12. REGRESSION-CHECK — **orchestrator routes to regression sub-agent**
-- [ ] 13. REVIEW-PREP — **orchestrator routes to review-prep sub-agent**
-- [ ] 14. EXEC-SUMMARY — **orchestrator inline**
+- [ ] ... (remaining steps per `implementation-pipeline/SKILL.md` §Dispatch Routing Table)
+- [ ] N. EXEC-SUMMARY — **orchestrator inline**
 ```
 
 The full dispatch routing table with execution targets lives at `implementation-pipeline/SKILL.md`. This file is the single source of truth — every step label, dispatch target, and artifact produced is defined there. Do NOT duplicate routing details here.
