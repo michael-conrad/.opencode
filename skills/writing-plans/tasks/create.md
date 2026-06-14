@@ -54,34 +54,48 @@ Writes plan header, stores at `.issues/{N}/plan.md`, runs self-review and valida
 | `create/plan-structure` | Verification, combined/separate decision, file mapping, TDD definition | ≈750 |
 | `create/create-and-validate` | Document writing, local storage, validation, approval cascade | ≈650 |
 
-## Plan Phase Structure Requirements — Mandatory Enumerated Checklist with Routing Annotations
+## Orchestrator Execution Protocol
 
-Every plan phase MUST use EXACTLY the following 14-item enumerated checklist with routing annotations. No free-form prose outside the Concern/Files/SCs header block. No deviations.
+1. Read the dispatch tables in the plan to determine the gate sequence for the current phase
+2. Execute every gate in every phase in numeric order (G1, G2, G3, ...)
+3. Do NOT skip any gate — every row is mandatory
+4. Do NOT reorder gates — the sequence is defined by the plan
+5. For `sub-task` gates: call `task()` with the exact `Receives Context` JSON object as the prompt, using the specified `Sub-Agent Type`
+6. For `inline` gates: execute the described operation directly (no sub-agent)
+7. After each gate completes, verify the SCs listed in that gate's SCs column
+8. Report progress via chat output only — zero GitHub Issue comments during implementation unless absolutely warranted
+9. After each phase completes, run the Inter-Phase Handoff steps before advancing to the next phase
+10. Do NOT modify the plan — it is a static definitional artifact. Only mutate for remediation or scope revision
 
-Each checklist item MUST include a routing annotation specifying which agent role executes it:
-- **orchestrator routes to [sub-agent-type]** — orchestrator tasks a clean-room sub-agent
-- **orchestrator inline** — orchestrator performs the action directly (only for git commits, file reads, artifact verification)
+## Dispatch Table
 
-The 14 gates with routing annotations:
+Every plan phase MUST include a dispatch table using EXACTLY the following 6-column format. No deviations.
 
-- [ ] 1. SC-COHERENCE-GATE — **orchestrator routes to pre-analysis**: verify spec SCs are internally consistent and complete for this phase
-- [ ] 2. PRE-RED-BASELINE — **orchestrator routes to exploration**: run full test suite, confirm all existing tests PASS before any changes
-- [ ] 3. RED-PHASE — **orchestrator routes to RED sub-agent**: write enforcement test at permanent path → run → capture output to `./tmp/{issue-N}/artifacts/{phase}-test-output.log` → expected FAIL (exit non-zero)
-- [ ] 4. RED-DOUBLECHECK — **orchestrator inline**: confirm RED evidence artifact exists and shows non-zero exit
-- [ ] 5. GREEN-PHASE — **orchestrator routes to GREEN sub-agent (clean-room, receives spec + test path only)**: implement change → run test → capture output → expected PASS (exit 0)
-- [ ] 6. CHECKPOINT-COMMIT — **orchestrator inline**: git commit -m "phase N checkpoint" with test + change
-- [ ] 7. STRUCTURAL-CHECKS — **orchestrator routes to structural sub-agent**: lint, format, typecheck on changed files
-- [ ] 8. GREEN-DOUBLECHECK — **orchestrator inline**: confirm GREEN evidence artifact exists and shows exit 0
-- [ ] 9. GREEN-VBC — **orchestrator routes to VbC sub-agent**: verification-before-completion against this phase's SCs
-- [ ] 10. ADVERSARIAL-AUDIT — **orchestrator routes to resolve-models**: dispatches 2 auditors for plan-fidelity + concern-separation
-- [ ] 11. CROSS-VALIDATE — **orchestrator inline**: verify dual-auditor consensus on all phase SCs
-- [ ] 12. REGRESSION-CHECK — **orchestrator routes to regression sub-agent**: full test suite, confirm nothing previously passing is now broken
-- [ ] 13. REVIEW-PREP — **orchestrator routes to review-prep sub-agent**: compare URL (verified from session-init), PR body draft for the phase
-- [ ] 14. EXEC-SUMMARY — **orchestrator inline**: read all sub-agent result contracts, produce phase completion report with SC status, artifact paths, byline
+| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
+|------|--------------|--------|----------------|-----------------|-----|
+| G{N}: {step-label} | sub-task or inline | yes (blind) or N/A | general or N/A | JSON context or — | SC-N |
+
+### Dispatch Table Rules
+
+1. **One row per gate.** Every gate in the sequence must have exactly one row. No merged cells, no multi-step rows.
+2. **Dispatch Type is binary:** `sub-task` (orchestrator tasks a clean-room sub-agent) or `inline` (orchestrator executes directly — restricted to CHECKPOINT-COMMIT only).
+3. **Blind? column:** `yes (blind)` means the sub-agent receives only the Receives Context JSON — no other context from prior gates. `N/A` for inline gates.
+4. **Sub-Agent Type:** Use `general` for sub-task gates. Use `N/A` for inline gates.
+5. **Receives Context:** A JSON object with task instruction, issue number, phase number. For sub-task gates this is the EXACT prompt passed to `task()`. For inline gates this is `—` (em dash, no context).
+6. **SCs column:** Lists the SCs this gate verifies (e.g., `SC-1, SC-2`). Must match SC IDs from the spec.
+7. **Standard gate set is dynamic.** The gate labels and step sequence MUST be pulled from `implementation-pipeline/SKILL.md` §Dispatch Routing Table at the time of plan creation. Do NOT hardcode gate names — reference the canonical source. The current standard set is: `sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `red-doublecheck`, `post-red-enforcement`, `green-phase`, `post-green-enforcement`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`. Any deviation from this set must be justified.
+
+### Dynamic Standard Gate Set Mandate
+
+The dispatch table for every phase MUST pull the list of gate step labels from `implementation-pipeline/SKILL.md` §Dispatch Routing Table. This is a MANDATORY dynamic reference — gate names are NOT hardcoded in `create.md`. The gate labels, their dispatch targets, and artifact requirements are defined in the implementation-pipeline skill and may evolve independently. If a gate is added or removed from the implementation-pipeline Dispatch Routing Table, plans follow automatically without updating `create.md`.
+
+### Inline Gates Restriction
+
+Only `checkpoint-commit` may be an inline gate. All other gates MUST be `sub-task`. This restriction ensures every pipeline step is executed by a clean-room sub-agent except the git commit, which is a mechanical operation.
 
 ### Inter-Phase Handoff
 
-Between gate 14 of phase N and gate 1 of phase N+1:
+Between the last gate of phase N and gate 1 of phase N+1:
 
 - Update Z3 state file: `solve state update` with phase N's gate states
 - Run `solve check`: confirm phase N dependency contract still SAT
@@ -90,17 +104,11 @@ Between gate 14 of phase N and gate 1 of phase N+1:
 
 ### Post-All-Phases Sweep
 
-After the last phase's gate 14:
+After the last phase's final gate:
 
 - [ ] FINISHING CHECKLIST — **orchestrator routes to finishing sub-agent**: git status clean, lint/typecheck from scratch, coverage sweep
 - [ ] PR CREATION — **orchestrator routes to git-workflow pr-creation**: via `github_create_pull_request`, extract `html_url` from response
 - [ ] POST-MERGE CLEANUP — **orchestrator routes to git-workflow cleanup**: delete merged branches, close issues, sync dev
-
-### Solve and Plan Mandatory
-
-- `solve check` on dependency contract: MUST return SAT. If UNSAT, HALT.
-- `plan plan` on phase problem: MUST return SOLVED_SATISFICING or SOLVED_OPTIMALLY. If UNSOLVABLE, HALT.
-- No fallback paths. No "If utility unavailable, validate manually." HALT on unavailability.
 
 ### Concern Boundary Annotations
 
