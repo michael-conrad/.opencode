@@ -19,6 +19,7 @@
         "qwen3.6:35b": {
           "name": "Qwen 3.6 35b"
         },
+        
         "qwen3.5:27b": {
           "name": "Qwen 3.5 27b"
         },

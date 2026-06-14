@@ -1,9 +1,8 @@
 ---
 name: writing-plans
-description: "Use when creating an implementation plan from an approved spec. Triggers on: write plan, create plan, implementation plan, plan spec, approved plan, plan creation. Implementing without a plan is wandering. Plans are the map — agents who skip them get lost."
+description: "Use when creating an implementation plan from an approved spec. Plans are the map — agents who skip them get lost."
 type: discipline-enforcing
 license: MIT
-provenance: AI-generated
 compatibility: opencode
 ---
 

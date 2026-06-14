@@ -1,9 +1,8 @@
 ---
 name: changelog-generator
-description: "Use when creating release notes, documenting changes between versions, or preparing a changelog. Triggers on: changelog, release notes, what changed, version history, commit summary, release. Unrecorded changes become untracked regressions. Changelogs are the memory of the project — agents who skip them produce amnesiac workflows."
+description: "Use when creating release notes, documenting changes between versions, or preparing a changelog. Changelogs are the memory of the project — agents who skip them produce amnesiac workflows."
 type: discipline-enforcing
 license: MIT
-provenance: "🤖 Co-authored with AI: OpenCode (nemotron-3-ultra-free)"
 compatibility: opencode
 ---
 

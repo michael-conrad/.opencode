@@ -1,9 +1,8 @@
 ---
 name: pr-creation-workflow
-description: "Use when asking about when to create a PR or whether PR creation is authorized. Triggers on: create PR, make PR, pull request, PR timing, when to PR, PR authorized. Feature branch PRs targeting dev only. Release PRs handled by git-workflow --task release-promotion. PRs created without workflow authorization are untracked changes entering the codebase. Every PR must be an authorized, intentional delivery."
+description: "Use when asking about when to create a PR or whether PR creation is authorized. Every PR must be an authorized, intentional delivery."
 type: discipline-enforcing
 license: MIT
-provenance: "🤖 Co-authored with AI: OpenCode (nemotron-3-ultra-free)"
 compatibility: opencode
 ---
 
