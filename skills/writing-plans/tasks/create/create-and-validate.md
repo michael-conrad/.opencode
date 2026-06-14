@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Write plan document to `.issues/{N}/spec-artifacts/plan.md`, validate structure, and handle approval cascade with scope-aware auto-approval.
+Write plan document to `.issues/{N}/plan.md`, validate structure, and handle approval cascade with scope-aware auto-approval.
 
 ## Entry Criteria
 
@@ -12,10 +12,10 @@ Write plan document to `.issues/{N}/spec-artifacts/plan.md`, validate structure,
 
 ## Exit Criteria
 
-- Plan document written to `.issues/{N}/spec-artifacts/plan.md`
+- Plan document written to `.issues/{N}/plan.md`
 - Self-review and validation complete
 - Verification revisit passed
-- Plan reported in chat with `.issues/{N}/spec-artifacts/plan.md` path
+- Plan reported in chat with `.issues/{N}/plan.md` path
 - Approval cascade applied (auto-approval for pipeline scope)
 
 ## Procedure
@@ -28,35 +28,26 @@ Write plan document to `.issues/{N}/spec-artifacts/plan.md`, validate structure,
 ### Step 7: Store Plan Document
 
 **All paths (combined and separate):**
-- Write plan to `.issues/{N}/spec-artifacts/plan.md`
+- Write plan to `.issues/{N}/plan.md`
 - Proceed to Step 8
 
-### Phase body requirements — Mandatory 14-Item Checklist Template with Routing Annotations
+### Phase body requirements — Reference to canonical pipeline checklist
 
-Each phase MUST use the following template. No prose alternative. No deviations.
+Each phase MUST use the implementation pipeline checklist from the canonical source: `implementation-pipeline/SKILL.md` §Dispatch Routing Table. Phase bodies follow this format:
 
 ```
 ### Phase N: title
 
 **Concern:** concern boundary
 **Files:** exact paths or glob patterns
-**SCs covered:** SC-1, SC-3
+**SCs covered:** SC-N, SC-M
 
-- [ ] 1. SC-COHERENCE-GATE — **orchestrator routes to pre-analysis**: verify spec SCs internally consistent
-- [ ] 2. PRE-RED-BASELINE — **orchestrator routes to exploration**: full test suite PASS
-- [ ] 3. RED-PHASE — **orchestrator routes to RED sub-agent**: write test at path → run → FAIL → output to ./tmp/{issue-N}/artifacts/{phase}-test-output.log
-- [ ] 4. RED-DOUBLECHECK — **orchestrator inline**: confirm non-zero exit in artifact
-- [ ] 5. GREEN-PHASE — **orchestrator routes to GREEN sub-agent (clean-room)**: implement → run test → PASS → output to same artifact path
-- [ ] 6. CHECKPOINT-COMMIT — **orchestrator inline**: git commit -m "phase N checkpoint"
-- [ ] 7. STRUCTURAL-CHECKS — **orchestrator routes to structural sub-agent**: ruff/pyright/tsc as appropriate
-- [ ] 8. GREEN-DOUBLECHECK — **orchestrator inline**: confirm exit 0 in artifact
-- [ ] 9. GREEN-VBC — **orchestrator routes to VbC sub-agent**: verification-before-completion against phase SCs
-- [ ] 10. ADVERSARIAL-AUDIT — **orchestrator routes to resolve-models**: plan-fidelity + concern-separation
-- [ ] 11. CROSS-VALIDATE — **orchestrator inline**: dual-auditor consensus
-- [ ] 12. REGRESSION-CHECK — **orchestrator routes to regression sub-agent**: full test suite PASS
-- [ ] 13. REVIEW-PREP — **orchestrator routes to review-prep sub-agent**: compare URL, PR body draft
-- [ ] 14. EXEC-SUMMARY — **orchestrator inline**: SC status, artifact paths, byline
+- [ ] 1. <FIRST-STEP-LABEL> — **<dispatch mode>**
+- [ ] ... (remaining steps per `implementation-pipeline/SKILL.md` §Dispatch Routing Table)
+- [ ] N. <LAST-STEP-LABEL> — **<dispatch mode>**
 ```
+
+The full dispatch routing table with execution targets lives at `implementation-pipeline/SKILL.md`. This file is the single source of truth — every step label, dispatch target, and artifact produced is defined there. Do NOT duplicate routing details here.
 
 **Concern boundary annotations (prose-driven):**
 When transitioning concerns: describe what is being left, what is being entered, what information is needed for handoff.
@@ -66,10 +57,10 @@ When transitioning concerns: describe what is being left, what is being entered,
 Before writing the plan document, enumerate and validate spec artifacts that must be consumed by the plan:
 
 ```bash
-ls .issues/{issue-N}/spec-artifacts/sc-summary.yaml
-ls .issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml
-ls .issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml
-ls .issues/{issue-N}/spec-artifacts/lifecycle.yaml
+ls .issues/{issue-N}/sc-summary.yaml
+ls .issues/{issue-N}/verification-consistency-contract.yaml
+ls .issues/{issue-N}/revision-re-entry-contract.yaml
+ls .issues/{issue-N}/lifecycle.yaml
 ```
 
 Every expected spec artifact MUST exist. Missing artifacts are flagged as MISSING-TRACEABILITY.
@@ -78,7 +69,7 @@ Every expected spec artifact MUST exist. Missing artifacts are flagged as MISSIN
 
 Cross-reference the SC coverage YAML against the plan structure:
 
-1. Read `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`
+1. Read `.issues/{issue-N}/sc-summary.yaml`
 2. Verify every SC ID in the YAML is mapped to at least one plan item
 3. Verify every plan item's SC-ID references exist in the YAML
 4. Flag orphan SCs (unmapped) as MISSING-TRACEABILITY
@@ -89,7 +80,7 @@ Cross-reference the SC coverage YAML against the plan structure:
 
 Before finalizing the plan, verify spec-to-plan handoff artifacts:
 
-1. Enumerate all expected artifacts from `spec-artifacts/`
+1. Enumerate all expected artifacts from ``
 2. Verify SC coverage YAML cross-reference: each SC in the spec has a corresponding plan item
 3. Verify lifecycle manifest indicates `plan_created` event
 4. Generate spec-to-plan handoff manifest at `./tmp/{issue-N}/artifacts/spec-to-plan-manifest.yaml`
@@ -110,6 +101,7 @@ Before finalizing the plan, verify spec-to-plan handoff artifacts:
 - **Verify each phase declares test output artifact paths** using `./tmp/{issue-N}/artifacts/` convention (not bare `./tmp/`)
 - **Verify `solve check` returns SAT** — if UNSAT, HALT with blocker report
 - **Verify `plan plan` returns SOLVED_SATISFICING or SOLVED_OPTIMALLY** — if UNSOLVABLE or unavailable, HALT with blocker report
+- **Verify each referenced pipeline step label exists in `implementation-pipeline/SKILL.md`'s dispatch routing table** — if any label is undefined, HALT with MISSING-TRACEABILITY
 
 ### Step 10: Verification Revisit (MANDATORY)
 
@@ -121,7 +113,7 @@ Scans for `⚠️ UNVERIFIED` markers. Resolves if possible; escalates unresolva
 
 **Format — reference spec via full URL, plan via local artifact path:**
 ```
-Created plan at `.issues/{N}/spec-artifacts/plan.md` for [<owner>/<repo>#<N>](https://github.com/<owner>/<repo>/issues/<N>) (<description>). <N> phases across <N> items.
+Created plan at `.issues/{N}/plan.md` for [<owner>/<repo>#<N>](https://github.com/<owner>/<repo>/issues/<N>) (<description>). <N> phases across <N> items.
 
 🤖 <AgentName> (<ModelId>)
 ```
@@ -178,9 +170,9 @@ if scope_level >= SCOPE_LEVELS["for_plan"]:
 | C2 | File structure lists all files with responsibilities |
 | C3 | TDD tasks include mandatory Step 2 RED checkpoint |
 | C4 | Phase descriptions include concern boundary annotations |
-| C5 | Plan stored at `.issues/{N}/spec-artifacts/plan.md` |
+| C5 | Plan stored at `.issues/{N}/plan.md` |
 | C6 | No TBD/TODO placeholders remain |
-| C7 | Plan artifact created locally in `.issues/{N}/spec-artifacts/` |
+| C7 | Plan artifact created locally in `.issues/{N}/` |
 | C8 | Status marker uses prose-driven format |
 | C9 | Approval cascade honors `authorization_scope` |
 

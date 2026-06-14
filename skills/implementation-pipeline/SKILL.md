@@ -157,7 +157,7 @@ When a step returns FAIL, the orchestrator:
 
 ### Rule 1: Permanent Artifacts Never Cleaned
 
-Artifacts under `.issues/{issue-N}/spec-artifacts/` are permanent — they survive pipeline restarts, branch switches, and PR merges. Never delete or clean these files. They serve as the authoritative audit trail for spec lifecycle, SC coverage, verification consistency, and revision re-entry protocols.
+Artifacts under `.issues/{issue-N}/` are permanent — they survive pipeline restarts, branch switches, and PR merges. Never delete or clean these files. They serve as the authoritative audit trail for spec lifecycle, SC coverage, verification consistency, and revision re-entry protocols.
 
 ### Rule 2: Ephemeral Artifacts Cleaned at PR Merge
 
@@ -184,7 +184,7 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 
 ## Lifecycle Manifest Event Emission
 
-Each pipeline step SHOULD append an event to the lifecycle manifest at `.issues/{issue-N}/spec-artifacts/lifecycle.yaml` on completion. Events are appended, not overwritten:
+Each pipeline step SHOULD append an event to the lifecycle manifest at `.issues/{issue-N}/lifecycle.yaml` on completion. Events are appended, not overwritten:
 
 ```yaml
   - event: step_completed

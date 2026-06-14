@@ -132,6 +132,21 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 
 - **Submodule repos**: `.opencode/` tracks `dev` — never detached HEAD or `main`
 
+## Issues Path Resolution
+
+The `*/.issues/` path for a given issue is determined by the issue's repo. Use the `## Repo Information` section from session-init to resolve:
+
+| Repo Path Prefix | Issues Directory | Example |
+|-----------------|-----------------|---------|
+| `.` (root) | `.issues/{N}/` | `.issues/1175/` |
+| `.opencode` | `.opencode/.issues/{N}/` | `.opencode/.issues/1175/` |
+
+**Resolution rule:** For any issue `#N`, find the repo entry whose `path` matches the issue's repo. The issues directory is `{path}/.issues/{N}/`. When `path` is `.`, the issues directory is `.issues/{N}/`.
+
+When a skill task file references `.issues/{N}/` as a hard-coded path, the agent MUST resolve it to the correct `*/.issues/{N}/` by prepending the repo path prefix from session-init. If the issue belongs to the `.opencode` submodule, the path is `.opencode/.issues/{N}/`. If the issue belongs to the root repo, the path is `.issues/{N}/`.
+
+The `local-issues` tool handles this resolution automatically via qualified names (`.opencode#N` → `.opencode/.issues/`, `opencode-config#N` → `.issues/`). When using the tool, always use qualified names for mutations. When reading files directly, resolve the path manually using the session-init repo information.
+
 ---
 
 ## Session Context

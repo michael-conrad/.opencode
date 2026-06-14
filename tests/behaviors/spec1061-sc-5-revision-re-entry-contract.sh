@@ -10,8 +10,8 @@ cd "$SCRIPT_DIR/../../.."
 OVERALL_RESULT=0
 echo "SC-5: Revision re-entry protocol contract"
 
-# SC-5 requires revision-re-entry-contract.yaml at spec-artifacts/
-ARTIFACT=".opencode/.issues/1061/spec-artifacts/revision-re-entry-contract.yaml"
+# SC-5 requires revision-re-entry-contract.yaml at 
+ARTIFACT=".opencode/.issues/1061/revision-re-entry-contract.yaml"
 if [ -f "$ARTIFACT" ]; then
     echo "  FAIL: $ARTIFACT already exists (GREEN would be no-op)" >&2
     OVERALL_RESULT=1

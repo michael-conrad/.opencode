@@ -8,8 +8,8 @@ Verify spec structural completeness before plan creation begins. Runs as an entr
 
 - Spec is approved (verified by approval-gate)
 - `.issues/{issue-N}/spec.md` exists
-- `.issues/{issue-N}/spec-artifacts/` directory exists
-- `.issues/{issue-N}/spec-artifacts/sc-summary.yaml` exists and is valid YAML
+- `.issues/{issue-N}/` directory exists
+- `.issues/{issue-N}/sc-summary.yaml` exists and is valid YAML
 
 ## Exit Criteria
 
@@ -22,13 +22,13 @@ Verify spec structural completeness before plan creation begins. Runs as an entr
 ### Step 1: Validate Preconditions
 
 1. Verify spec is approved — check for `approved-for-*` label on the issue or authorization context from approval-gate
-2. Verify `.issues/{issue-N}/spec-artifacts/` directory exists
-3. Read and parse `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`
+2. Verify `.issues/{issue-N}/` directory exists
+3. Read and parse `.issues/{issue-N}/sc-summary.yaml`
 4. If any precondition fails: write BLOCKED manifest and return
 
 ### Step 2: Enumerate Expected Artifacts
 
-1. Read `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`
+1. Read `.issues/{issue-N}/sc-summary.yaml`
 2. Extract `sc_coverage.total`, `sc_coverage.evidence_types`, `sc_coverage.phases`
 3. Verify `sc-summary.yaml` contains all required fields: `sc_coverage.total`, `sc_coverage.phases[].sc_ids`
 4. Flag missing or malformed fields
@@ -99,4 +99,4 @@ sc_summary:
 
 - Preceded by: spec approval (approval-gate)
 - Feeds into: `writing-plans/tasks/create.md` entry criteria
-- Related artifacts: `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`
+- Related artifacts: `.issues/{issue-N}/sc-summary.yaml`

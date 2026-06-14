@@ -28,7 +28,7 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
    - If missing: generate and post exec summary now
 
 5. **Spec folder URL blockquote** (if not already present in issue body):
-   - Generate the spec folder URL: `{github.html_url}/tree/issues-data/{N}/spec-artifacts/`
+   - Generate the spec folder URL: `{github.html_url}/tree/issues-data/{N}/`
    - Check if the issue body already contains the `.issues/{N}/` blockquote
    - If missing: prepend the blockquote (per Step 6.8 of write.md) and update the issue body
 

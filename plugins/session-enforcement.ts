@@ -183,12 +183,6 @@ ${dispatchNote}
 The orchestrator MUST be a pure router — all file modifications MUST be dispatched through implementation-pipeline sub-agents. See 000-critical-rules.md Inline Work. Exemptions: pair- branches, .issues/ file edits, simple-work single-file changes. If this is an exempt case, disregard this warning.`;
 }
 
-function buildEvidenceGateBlock(): string {
-  return `### Evidence Gate
-
-**Warning:** Issue closure attempted without verification evidence. A github_issue_write call with state=closed was detected, but no per-SC verification evidence table exists in recent assistant messages. Every issue closure requires a verification evidence table confirming each success criterion was met with a tool-call artifact. See 000-critical-rules.md Verification Dishonesty and verification-before-completion skill. If the closure is exempt (not_planned, duplicate, rollback-reopen), disregard this warning.`;
-}
-
 const MODE_SWITCH_ANCHOR = [
   'skill() + task() gate every action. Both skill() and task() are mandatory \u2014 every workflow.',
   'Inline work poisons your output \u2014 unrecoverable.',
@@ -1032,20 +1026,20 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
             echoParts.push(triggerBlock);
           }
           if (echoParts.length > 0 && firstUser.parts?.length) {
-            firstUser.parts.unshift({ type: "text", text: echoParts.join("\n\n") });
+            firstUser.parts.unshift({ id: crypto.randomUUID(), sessionID: firstUser.info.sessionID, messageID: firstUser.info.id, type: "text", text: echoParts.join("\n\n") });
           }
 
           // Per spec #426 SC-10: Inject NESTED_OPENCODE_FATAL as a separate block
           // AFTER all other content in the first user message (not inside Session Triggers)
           if (nestedOpencodeBlock && firstUser.parts?.length) {
-            firstUser.parts.push({ type: "text", text: nestedOpencodeBlock });
+            firstUser.parts.push({ id: crypto.randomUUID(), sessionID: firstUser.info.sessionID, messageID: firstUser.info.id, type: "text", text: nestedOpencodeBlock });
           }
 
           // --- First-turn-only: Plugin diagnostics injection ---
           const diagnostics = collectDiagnostics(projectDir);
           const diagnosticBlock = buildDiagnosticBlock(diagnostics);
           if (diagnosticBlock && firstUser.parts?.length) {
-            firstUser.parts.push({ type: "text", text: diagnosticBlock });
+            firstUser.parts.push({ id: crypto.randomUUID(), sessionID: firstUser.info.sessionID, messageID: firstUser.info.id, type: "text", text: diagnosticBlock });
           }
 
         }
@@ -1055,7 +1049,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         // part injected into their first user message. No identity echo, no triggers.
         if (isFirstTurn && isSubAgent && firstUser.parts?.length) {
           const subAgentPrinciplesBlock = buildSubAgentPrinciplesBlock();
-          firstUser.parts.unshift({ type: "text", text: subAgentPrinciplesBlock });
+          firstUser.parts.unshift({ id: crypto.randomUUID(), sessionID: firstUser.info.sessionID, messageID: firstUser.info.id, type: "text", text: subAgentPrinciplesBlock });
         }
 
       // --- Per-turn: Mode switch anchor replacement ---
@@ -1100,7 +1094,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
                 const mutationBlock = buildGitConfigMutationBlock(changedKeys);
                 const nextUser = userMessages[userMessages.length - 1];
                 if (nextUser?.parts?.length) {
-                  nextUser.parts.push({ type: "text", text: mutationBlock });
+                  nextUser.parts.push({ id: crypto.randomUUID(), sessionID: nextUser.info.sessionID, messageID: nextUser.info.id, type: "text", text: mutationBlock });
                 }
                 gitConfigBaseline = currentBaseline;
                 baselineLocalConfig = currentLocalConfig;
@@ -1177,49 +1171,14 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
               const block = buildInlineWorkDetectedBlock(editToolNames, dispatchFound);
               const nextUser = userMessages[userMessages.length - 1];
               if (nextUser?.parts?.length) {
-                nextUser.parts.push({ type: "text", text: block });
+                nextUser.parts.push({ id: crypto.randomUUID(), sessionID: nextUser.info.sessionID, messageID: nextUser.info.id, type: "text", text: block });
               }
             }
           }
         }
       }
 
-      // --- Per-turn: Evidence gate (Gate 4) ---
-      // Detect issue closure attempts without verification evidence table.
-      // Exemptions: not_planned, duplicate, rollback-reopen state reasons.
-      for (const msg of assistantMessages) {
-        if (!msg.parts?.length) continue;
-        for (const part of msg.parts) {
-          if (part.type === "text" && part.text) {
-            // Detect github_issue_write with state=closed
-            const closureMatch = part.text.match(/state.*closed|state.*:.*"closed"/i);
-            if (closureMatch) {
-              // Check for exempt state reasons
-              const exemptReason = part.text.match(/state_reason.*(?:not_planned|duplicate)/i);
-              if (!exemptReason) {
-                // Check if a verification evidence table exists in recent messages
-                const allAssistantText = assistantMessages
-                  .map(m => m.parts?.filter(p => p.type === "text" && p.text).map(p => p.text).join(" ") || "")
-                  .join(" ");
-                const hasEvidence = allAssistantText.includes("PASS") &&
-                  (allAssistantText.includes("Success Criteria") || allAssistantText.includes("verification") || allAssistantText.includes("evidence"));
-
-                if (!hasEvidence) {
-                  // Also check for rollback-reopen marker
-                  const rollbackReopen = part.text.match(/\[ROLLBACK-REOPEN\]/i);
-                  if (!rollbackReopen) {
-                    const block = buildEvidenceGateBlock();
-                    const nextUser = userMessages[userMessages.length - 1];
-                    if (nextUser?.parts?.length) {
-                      nextUser.parts.push({ type: "text", text: block });
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+      
 
 
     },

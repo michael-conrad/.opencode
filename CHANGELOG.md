@@ -82,3 +82,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - **Submodule Pointer PR Block** (#519) - Strengthened cleanup task prohibition against standalone submodule-only PR creation. Explicitly forbids committing `.opencode/` during cleanup; submodule pointer updates must occur on feature branches during pre-work, never on `dev` during cleanup.
+
+### Removed
+
+- **Evidence Gate 4 (Noise Gate)** (#1178) - Removed Gate 4 from `session-enforcement.ts` pre-commit hook. The noise gate that blocked commits with only submodule-pointer changes has been removed. Submodule pointer hygiene is now managed through the tag-based hash permanence system and pre-work cycle, not a pre-commit gate.
+
+### Fixed
+
+- **Local-issues repo resolution for submodule context** (#1177) - Fixed `local-issues` tool repo resolution when operating inside a submodule (`.opencode/`). Added qualifier enforcement to ensure issue operations route to the correct repository owner/repo instead of defaulting to the parent repo.
+
+### Changed
+
+- **Writing-plans pipeline checklist** (#1175) - Removed embedded pipeline checklist from `writing-plans` task files. The checklist now references `implementation-pipeline/SKILL.md` as the single source of truth for pipeline step definitions, eliminating duplication and drift between the two sources.
+- **Spec-creation mandates** (#1175) - `spec-creation` now mandates `writing-plans` for plan creation and requires local-issues sync at creation time. Specs created without a corresponding plan or local mirror are flagged as incomplete.
+- **.issues/{N}/ directory layout flattened** (#1176) - Removed the `spec-artifacts/` wrapper directory from `.issues/{N}/` paths. Issue artifacts (spec.md, plan.md, comments/) now live directly under `.issues/{N}/` instead of `.issues/{N}/spec-artifacts/`.

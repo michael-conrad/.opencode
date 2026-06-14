@@ -988,7 +988,10 @@ def cmd_create(args: argparse.Namespace) -> None:
             repo_path = _resolve_and_validate_repo(repo_name)
             current_repo_name = repo_path.name
         else:
-            repo_path = PROJECT_DIR
+            print(f"Error: bare number '{args.number}' requires a repo qualifier ({repo_name}#{args.number}).", file=sys.stderr)
+            _print_available_repos()
+            sys.exit(1)
+            repo_path = PROJECT_DIR  # unreachable
         args.number = num
         qualified = f"{current_repo_name}#{args.number}"
         child_repos = _discover_repos()

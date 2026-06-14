@@ -37,7 +37,7 @@ These are FALSE — they describe the absence of a feature, not the event of a t
 | Expected on FAIL | Exit code N (non-zero) |
 | Artifact output | `./tmp/{issue-N}/artifacts/{phase}-test-output.log` |
 
-Test files go to permanent storage (`.opencode/tests/` or `.issues/{N}/spec-artifacts/tests/`).
+Test files go to permanent storage (`.opencode/tests/` or `.issues/{N}/tests/`).
 Test output artifacts (exit code, stdout, stderr) go to `./tmp/{issue-N}/artifacts/` for auditor consumption. Auditors inspect artifacts, they do NOT re-run tests.
 
 ## Task Context Schema

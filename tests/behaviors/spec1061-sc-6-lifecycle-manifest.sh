@@ -11,8 +11,8 @@ cd "$SCRIPT_DIR/../../.."
 OVERALL_RESULT=0
 echo "SC-6: Lifecycle manifest created"
 
-# SC-6 requires lifecycle.yaml at spec-artifacts/ with spec_created event
-ARTIFACT=".opencode/.issues/1061/spec-artifacts/lifecycle.yaml"
+# SC-6 requires lifecycle.yaml at  with spec_created event
+ARTIFACT=".opencode/.issues/1061/lifecycle.yaml"
 if [ -f "$ARTIFACT" ]; then
     echo "  FAIL: $ARTIFACT already exists (GREEN would be no-op)" >&2
     OVERALL_RESULT=1
