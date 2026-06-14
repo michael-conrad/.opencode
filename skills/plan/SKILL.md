@@ -3,7 +3,7 @@ name: plan
 description: "Use when generating, validating, or managing plans for phase solvability, converting between YAML and PDDL, grounding action schemas, discovering action schemas, or managing state files. Triggers on: plan plan, plan validate, plan ground, plan pddl, plan discover, plan state, PDDL, phase solvability. Agents who skip planning produce unverified phase orderings — every unplanned phase is a risk."
 type: domain
 license: MIT
-provenance: AI-generated
+provenance: "🤖 Co-authored with AI: OpenCode (nemotron-3-ultra-free)"
 compatibility: opencode
 ---
 

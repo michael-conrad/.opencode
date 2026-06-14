@@ -3,7 +3,7 @@ name: requesting-code-review
 description: "Use when preparing a PR for code review, or when reviewer context and documentation are needed. Triggers on: request review, code review, review request, ready for review, review preparation. Submitting unreviewed code is submitting unverified code. Every review request is a quality gate, not a formality."
 type: discipline-enforcing
 license: MIT
-provenance: AI-generated
+provenance: "🤖 Co-authored with AI: OpenCode (nemotron-3-ultra-free)"
 compatibility: opencode
 ---
 

@@ -3,7 +3,7 @@ name: issue-review
 description: "Use when reviewing a GitHub issue for comments, audits, or Q/A. Triggers on: review issue, review spec, check issue, issue review, audit issue. Reviewing an issue without reading all its comments means you are acting on partial context. Every unread comment is a defect risk."
 type: discipline-enforcing
 license: MIT
-provenance: AI-generated
+provenance: "🤖 Co-authored with AI: OpenCode (nemotron-3-ultra-free)"
 compatibility: opencode
 ---
 

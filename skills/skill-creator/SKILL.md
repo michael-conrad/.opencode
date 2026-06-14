@@ -3,7 +3,7 @@ name: skill-creator
 description: "Use when creating a new skill, updating an existing skill, validating skill cards, or managing duplicate content blocks (fragments) across guidelines or skills. Triggers on: new skill, update skill, create skill, skill template, skill structure, SKILL.md, validate skill cards, review skills, skill card review, fragment, duplicate content, sync content, content block, shared content, master copy, synchronize. Creating skills without validation produces broken enforcement gates. Every unvalidated skill is a gap in your quality system."
 type: discipline-enforcing
 license: MIT
-provenance: AI-generated
+provenance: "🤖 Co-authored with AI: OpenCode (nemotron-3-ultra-free)"
 compatibility: opencode
 ---
 
