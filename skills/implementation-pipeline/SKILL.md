@@ -1,9 +1,9 @@
 ---
 name: implementation-pipeline
-description: Use when orchestrating multi-item implementation through a serial 14-step pipeline with per-step dispatch routing, Z3-verified step transitions, and YAML contract artifact tracking. Triggers on: orchestrate, pipeline, multi-item, implementation pipeline, assemble work, dispatch table. Skipping pipeline steps produces undiscovered defects in every downstream consumer. Professional engineers route each step through clean-room sub-agents.
+description: "Use when orchestrating multi-item implementation through a serial 14-step pipeline with per-step dispatch routing, Z3-verified step transitions, and YAML contract artifact tracking. Triggers on: orchestrate, pipeline, multi-item, implementation pipeline, assemble work, dispatch table. Skipping pipeline steps produces undiscovered defects in every downstream consumer. Professional engineers route each step through clean-room sub-agents."
 type: discipline-enforcing
 license: MIT
-provenance: AI-generated
+provenance: "🤖 Co-authored with AI: OpenCode (nemotron-3-ultra-free)"
 compatibility: opencode
 ---
 

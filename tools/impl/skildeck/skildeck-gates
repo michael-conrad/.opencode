@@ -38,7 +38,7 @@ if SKILLS_DIR is None:
 DEFAULT_SCAN_DIR = SKILLS_DIR
 
 def _load_module(module_file: str):
-    target = IMPL_DIR.parent / module_file
+    target = IMPL_DIR / module_file
     source = target.read_text()
     mod = types.ModuleType(module_file.replace("-", "_"))
     mod.__file__ = str(target)
@@ -75,7 +75,7 @@ def main() -> None:
         print(f"Error: directory not found: {scan_dir}", file=sys.stderr)
         sys.exit(1)
 
-    extract_mod = _load_module("sym-extract")
+    extract_mod = _load_module("sym_extract_lib.py")
     result = extract_mod.extract_yaml_blocks(scan_dir)
 
     gates = result.gates

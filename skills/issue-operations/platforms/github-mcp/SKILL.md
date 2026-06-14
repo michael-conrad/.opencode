@@ -1,9 +1,9 @@
 ---
 name: github-mcp
-description: Use when GitHub MCP platform operations are needed. GitHub MCP platform sub-skill for issue-operations. Provides capability manifest and thin wrappers around github_* MCP tools. API calls without owner/repo verification target the wrong repository. Every misrouted call is wasted effort.
+description: "Use when GitHub MCP platform operations are needed. GitHub MCP platform sub-skill for issue-operations. Provides capability manifest and thin wrappers around github_* MCP tools. API calls without owner/repo verification target the wrong repository. Every misrouted call is wasted effort."
 type: discipline-enforcing
 license: MIT
-provenance: AI-generated
+provenance: "🤖 Co-authored with AI: OpenCode (nemotron-3-ultra-free)"
 compatibility: opencode
 ---
 

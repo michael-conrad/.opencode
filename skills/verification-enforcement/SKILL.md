@@ -1,9 +1,9 @@
 ---
 name: verification-enforcement
-description: Use when generating content that makes factual claims — specs, plans, runbooks, docs, or correspondence — to enforce live-source verification before generation. Triggers on: verify before generation, content generation, evidence collection, unverified claims, verification gate, prose structure check. Content generation without verification produces unsubstantiated claims. Every unverified claim in generated content is a trust deficit.
+description: "Use when generating content that makes factual claims — specs, plans, runbooks, docs, or correspondence — to enforce live-source verification before generation. Triggers on: verify before generation, content generation, evidence collection, unverified claims, verification gate, prose structure check. Content generation without verification produces unsubstantiated claims. Every unverified claim in generated content is a trust deficit."
 type: discipline-enforcing
 license: MIT
-provenance: AI-generated
+provenance: "🤖 Co-authored with AI: OpenCode (nemotron-3-ultra-free)"
 compatibility: opencode
 ---
 

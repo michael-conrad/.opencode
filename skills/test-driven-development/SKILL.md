@@ -1,9 +1,9 @@
 ---
 name: test-driven-development
-description: Use when writing tests before implementation, or when adopting a test-first development approach. Triggers on: TDD, test first, red green refactor, write test, test-driven, unit test, regression. Writing code before tests is the oldest shortcut in engineering. TDD produces testable, correct code.
+description: "Use when writing tests before implementation, or when adopting a test-first development approach. Triggers on: TDD, test first, red green refactor, write test, test-driven, unit test, regression. Writing code before tests is the oldest shortcut in engineering. TDD produces testable, correct code."
 type: discipline-enforcing
 license: MIT
-provenance: Derived from majiayu000/claude-skill-registry (MIT)
+provenance: "🤖 Co-authored with AI: OpenCode (nemotron-3-ultra-free)"
 compatibility: opencode
 ---
 

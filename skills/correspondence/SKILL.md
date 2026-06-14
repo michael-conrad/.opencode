@@ -1,9 +1,9 @@
 ---
 name: correspondence
-description: Use when drafting stakeholder emails, status updates, or external communications. Triggers on: email, correspondence, stakeholder email, status update, communication, draft email, reply, notification. Internal artifacts in stakeholder communications damage trust. Audience separation preserves professional credibility.
+description: "Use when drafting stakeholder emails, status updates, or external communications. Triggers on: email, correspondence, stakeholder email, status update, communication, draft email, reply, notification. Internal artifacts in stakeholder communications damage trust. Audience separation preserves professional credibility."
 type: discipline-enforcing
 license: MIT
-provenance: AI-generated
+provenance: "🤖 Co-authored with AI: OpenCode (nemotron-3-ultra-free)"
 compatibility: opencode
 ---
 
