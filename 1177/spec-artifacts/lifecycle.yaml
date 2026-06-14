@@ -1,0 +1,11 @@
+events:
+  - event: spec_created
+    timestamp: "2026-06-13T23:41:11Z"
+    issuer: "OpenCode (deepseek-v4-flash)"
+    description: "Spec #1177 created for local-issues repo resolution bug"
+    severity: info
+  - event: plan_created
+    timestamp: "2026-06-13T23:59:59Z"
+    issuer: "OpenCode (deepseek-v4-flash)"
+    description: "Plan #1177 created with Phase 2 (14-step implementation pipeline)"
+    severity: info

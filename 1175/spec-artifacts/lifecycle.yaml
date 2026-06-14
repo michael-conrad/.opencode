@@ -1,0 +1,11 @@
+events:
+  - event: spec_created
+    timestamp: "2026-06-13T23:07:40Z"
+    issuer: "OpenCode (deepseek-v4-flash)"
+    description: "Spec #1175 created for pipeline checklist single source of truth"
+    severity: info
+  - event: plan_created
+    timestamp: "2026-06-13T23:59:59Z"
+    issuer: "OpenCode (deepseek-v4-flash)"
+    description: "Plan #1175 created with Phase 3 (14-step implementation pipeline)"
+    severity: info

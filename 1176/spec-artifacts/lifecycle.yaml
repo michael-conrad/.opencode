@@ -1,0 +1,11 @@
+events:
+  - event: spec_created
+    timestamp: "2026-06-13T23:36:39Z"
+    issuer: "OpenCode (deepseek-v4-flash)"
+    description: "Spec #1176 created for directory layout flatten"
+    severity: info
+  - event: plan_created
+    timestamp: "2026-06-13T23:59:59Z"
+    issuer: "OpenCode (deepseek-v4-flash)"
+    description: "Plan #1176 created with Phase 4 (14-step implementation pipeline)"
+    severity: info

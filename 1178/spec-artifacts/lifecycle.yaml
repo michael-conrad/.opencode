@@ -1,0 +1,11 @@
+events:
+  - event: spec_created
+    timestamp: "2026-06-13T23:43:29Z"
+    issuer: "OpenCode (deepseek-v4-flash)"
+    description: "Spec #1178 created for Evidence Gate removal"
+    severity: info
+  - event: plan_created
+    timestamp: "2026-06-13T23:59:59Z"
+    issuer: "OpenCode (deepseek-v4-flash)"
+    description: "Plan #1178 created with Phase 1 (14-step implementation pipeline)"
+    severity: info
