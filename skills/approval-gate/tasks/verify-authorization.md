@@ -32,6 +32,10 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 | 5 | `verify-authorization/sub-issue-verification` | Sub-issue phase count, adversarial verification, closed-issue check |
 | 5b | `verify-authorization/spec-to-plan-cascade` | Spec-to-plan approval cascade |
 | 5b.5+5c | `verify-authorization/gap-fill-cascade` | Gap-fill precedence and cascade execution |
+| 5d.1 | `verify-authorization/verify-codebase` | Staleness detection, superseding issue check |
+| 5d.2 | `verify-authorization/verify-blockers` | Blocking dependency check |
+| 5d.3 | `verify-authorization/verify-closed-issue-main` | Main issue prior-closure verification |
+| 5d.4 | `verify-authorization/verify-already-implemented` | Terminal gate: auto-close or proceed |
 | 6 | `verify-authorization/auto-dispatch` | Scope-aware auto-dispatch + output lineage |
 
 
@@ -40,9 +44,9 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 | Condition | Path |
 |-----------|------|
 | 1 issue + `for_review_prep` scope + 0 sub-issues + explicit auth | fast-path (skip 2, 4.5, 4.6, 5, 5b, 5b.5+5c) |
-| 1 issue + scope ∈ {for_pr, for_implementation, for_plan, for_analysis} + 0 sub-issues | gap-fill-path (0.5, 1, 5b.5+5c, then 6) |
-| 1 issue + sub-issues OR plan with phases | medium-path (0.5, 1, 4.5, 4.6, 5, then 6) |
-| Multi-issue authorization set | full-path (all steps) |
+| 1 issue + scope ∈ {for_pr, for_implementation, for_plan, for_analysis} + 0 sub-issues | gap-fill-path (0.5, 1, 5b.5+5c, 5d, then 6) |
+| 1 issue + sub-issues OR plan with phases | medium-path (0.5, 1, 4.5, 4.6, 5, 5d, then 6) |
+| Multi-issue authorization set | full-path (all steps + 5d) |
 
 ## Sub-Agent Result Guard
 

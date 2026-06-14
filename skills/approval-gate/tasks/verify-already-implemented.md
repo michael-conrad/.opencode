@@ -21,6 +21,21 @@ Check whether a spec is already fully implemented before starting work. When all
 
 ## Procedure
 
+### Step 0: Main Issue Closure Check
+
+Before extracting success criteria, check the main issue's own closure state:
+
+1. Read the main issue via `github_issue_read(method=get, issue_number=N)`
+2. If issue is closed with `state_reason: "completed"`:
+   - Search for merged PR referencing the issue via `github_search_pull_requests`
+   - Verify PR merge via `github_pull_request_read(method=get)` confirming `merged == true`
+   - If merged PR found AND all SCs pass → auto-close (existing Step 5 handles this)
+   - If merged PR found AND some SCs fail → downgrade to PARTIALLY_IMPLEMENTED
+3. If issue is open:
+   - Check for merged PRs referencing the issue (issue may be open but work already done)
+   - If merged PR found → proceed to Step 1 with PARTIALLY_IMPLEMENTED flag
+   - If no merged PR → proceed to standard SC verification (existing Steps 1-4)
+
 ### Step 1: Extract Success Criteria
 
 From the spec issue, extract every success criterion:
