@@ -219,6 +219,7 @@ SCENARIOS["skill-word-count"]="Verify all SKILL.md files in .opencode/skills/ ar
 SCENARIOS["skildeck-lint-progressive-disclosure"]="Verify skildeck lint includes progressive-disclosure rules for frontmatter and word counts"
 SCENARIOS["session-enforcement-guideline-index"]="Verify session-enforcement.ts injects guideline INDEX.md reference via progressive-disclosure blocks (moved from removed buildGuidelineIndexBlock stub)"
 SCENARIOS["progressive-disclosure-060-updated"]="Verify 060-tool-usage.md section 0 references progressive disclosure and INDEX.md"
+SCENARIOS["skill-yaml-frontmatter-parse"]="Verify all SKILL.md files in .opencode/skills/ have valid YAML frontmatter that parses correctly with yaml.safe_load"
 SCENARIOS["discard-on-sub-agent-failure"]="Does .opencode/guidelines/000-critical-rules.md contain a 'Discard on Sub-Agent Failure' section requiring ALL failed sub-agent work be discarded before re-dispatch with zero state retained?"
 SCENARIOS["orchestrator-poisoned-pipeline"]="Does .opencode/guidelines/000-critical-rules.md contain an 'Orchestrator Inline Work = Poisoned Pipeline' section requiring full pipeline restart from verify-authorization with ALL state discarded when orchestrator performs inline work?"
 SCENARIOS["tool-recipe-dispatch-prohibited"]="Does .opencode/guidelines/000-critical-rules.md contain a 'Tool-Recipe Dispatch' section prohibiting dispatching sub-agents with exact MCP tool names, parameter lists, or step-by-step execution scripts?"
@@ -494,6 +495,7 @@ SCENARIO_TAGS["sc8-context-tainted-sc-conflict"]="content-verification adversari
 SCENARIO_TAGS["sc12-task-context-tables-reflect-removal"]="content-verification adversarial-audit"
 SCENARIOS["session-init-tools-section"]="Does the output of `./.opencode/tools/session-init` contain a `## Agent Tools` section with tool listing?"
 SCENARIO_TAGS["session-init-tools-section"]="content-verification session-init"
+SCENARIO_TAGS["skill-yaml-frontmatter-parse"]="content-verification yaml progressive-disclosure"
 
 # File-to-scenario mapping for --changed filtering
 # Maps glob patterns to scenario names
@@ -532,6 +534,7 @@ FILE_SCENARIO_MAP[".opencode/skills/"]="sc6-no-unconditional-general"
 FILE_SCENARIO_MAP[".opencode/skills/adversarial-audit/SKILL.md"]="sc1-must-receive-no-spec-body sc2-must-not-receive-spec-body-forbidden sc4-task-context-spec-body-removed"
 FILE_SCENARIO_MAP[".opencode/agents/auditor-glm-5.1.md"]="sc8-context-tainted-sc-conflict"
 FILE_SCENARIO_MAP[".opencode/skills/adversarial-audit/tasks/"]="sc12-task-context-tables-reflect-removal"
+FILE_SCENARIO_MAP[".opencode/tests/test-enforcement.sh"]="skill-yaml-frontmatter-parse guideline-frontmatter guideline-index-exists guideline-index-word-count skill-word-count skildeck-lint-progressive-disclosure session-enforcement-guideline-index progressive-disclosure-060-updated session-init-tools-section"
 
 # --list: print scenario names and exit
 if [ "$LIST_ONLY" = true ]; then
@@ -851,6 +854,7 @@ EXPECTED_SKILLS["skill-dispatch-critical-rules-048-symbolic"]=""
 EXPECTED_SKILLS["skill-dispatch-critical-rules-048-prose"]=""
 EXPECTED_SKILLS["skill-dispatch-critical-rules-048-distinction"]=""
 EXPECTED_SKILLS["session-init-tools-section"]=""
+EXPECTED_SKILLS["skill-yaml-frontmatter-parse"]=""
 
 RESULTS_FILE="$LOGDIR/results.md"
 
@@ -962,7 +966,9 @@ echo "=== Scenarios Run: $RUN_COUNT / $TOTAL_SCENARIOS ==="
 echo "## Key Plugin Events (from bug-report scenario)" >> "$RESULTS_FILE"
 echo "" >> "$RESULTS_FILE"
 echo '```' >> "$RESULTS_FILE"
-grep -E "(loading plugin|service=skill count|session-enforcement|error|Error)" "$LOGDIR/bug-report.log" 2>/dev/null | head -20 >> "$RESULTS_FILE"
+if [ -f "$LOGDIR/bug-report.log" ]; then
+    grep -E "(loading plugin|service=skill count|session-enforcement|error|Error)" "$LOGDIR/bug-report.log" | head -20 >> "$RESULTS_FILE" || true
+fi
 echo '```' >> "$RESULTS_FILE"
 
 echo ""
@@ -1076,6 +1082,59 @@ else
     echo "- **brainstorming/SKILL.md:** MISSING" >> "$RESULTS_FILE"
     GUIDELINE_PASS=false
     OVERALL_PASS=false
+fi
+
+# Verify all SKILL.md YAML frontmatter parses correctly
+SKILL_DIR="$PROJECT_DIR/.opencode/skills"
+if [ -d "$SKILL_DIR" ]; then
+    SKILL_FILES=$(find "$SKILL_DIR" -name SKILL.md 2>/dev/null | sort)
+    YAML_FRONTMATTER_FAIL=false
+    YAML_TOTAL=0
+    YAML_PASS=0
+    YAML_FAIL=0
+    for skill_path in $SKILL_FILES; do
+        YAML_TOTAL=$((YAML_TOTAL + 1))
+        SKILL_REL="${skill_path#$PROJECT_DIR/.opencode/skills/}"
+        # Extract frontmatter between --- delimiters and pipe to yaml.safe_load
+        if uv run python3 -c "
+import yaml, sys, re
+content = open('$skill_path').read()
+m = re.match(r'^---\s*\n(.*?)\n---', content, re.DOTALL)
+if not m:
+    sys.exit(2)
+try:
+    parsed = yaml.safe_load(m.group(1))
+    if not isinstance(parsed, dict):
+        sys.exit(3)
+except yaml.YAMLError as e:
+    print(f'YAML ERROR: {e}')
+    sys.exit(1)
+" 2>/dev/null; then
+            echo "  $SKILL_REL YAML frontmatter: PASS"
+            echo "- **$SKILL_REL YAML frontmatter:** PASS" >> "$RESULTS_FILE"
+            YAML_PASS=$((YAML_PASS + 1))
+        elif [ $? -eq 2 ]; then
+            echo "  $SKILL_REL YAML frontmatter: MISSING"
+            echo "- **$SKILL_REL YAML frontmatter:** MISSING" >> "$RESULTS_FILE"
+            YAML_FAIL=$((YAML_FAIL + 1))
+            GUIDELINE_PASS=false
+            OVERALL_PASS=false
+        elif [ $? -eq 3 ]; then
+            echo "  $SKILL_REL YAML frontmatter: NOT_A_DICT"
+            echo "- **$SKILL_REL YAML frontmatter:** NOT_A_DICT" >> "$RESULTS_FILE"
+            YAML_FAIL=$((YAML_FAIL + 1))
+            GUIDELINE_PASS=false
+            OVERALL_PASS=false
+        else
+            echo "  $SKILL_REL YAML frontmatter: PARSE_ERROR"
+            echo "- **$SKILL_REL YAML frontmatter:** PARSE_ERROR" >> "$RESULTS_FILE"
+            YAML_FAIL=$((YAML_FAIL + 1))
+            GUIDELINE_PASS=false
+            OVERALL_PASS=false
+        fi
+    done
+    echo "  skill-yaml-frontmatter-parse: $YAML_PASS/$YAML_TOTAL passed, $YAML_FAIL failed"
+    echo "- **skill-yaml-frontmatter-parse:** $YAML_PASS/$YAML_TOTAL passed" >> "$RESULTS_FILE"
 fi
 
 # Verify writing-plans bottom-up design sections

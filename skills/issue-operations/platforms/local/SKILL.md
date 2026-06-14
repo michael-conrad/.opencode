@@ -1,9 +1,3 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-
-<!-- SPDX-License-Identifier: MIT -->
-
-<!-- Provenance: AI-generated -->
-
 ---
 name: local
 description: "Use when local .issues/ tracking is needed. Local .issues/ directory platform for issue tracking. Used when github.platform is local or unset. Routes all issue operations to .issues/ directory with YAML frontmatter and markdown files. Untracked work is work that can be lost. Even local issues deserve structured tracking."
