@@ -190,13 +190,31 @@ When changing guidelines or skills, use behavioral TDD:
 1. **Behavioral RED:** Write test sending agent prompt, verify agent does NOT follow new rule yet
 1. **Behavioral GREEN:** Make change, re-run test — now agent follows rule
 
-### Step 4: Plan Phase Structure
+### Step 4: Plan Phase Structure — Dispatch Table as Primary Section
 
 Organize by concern flow:
 
 - Determine phases needed
 - Write prose for phase descriptions
-- Prose-driven, not template-driven
+
+Every phase MUST follow this template with the dispatch table as the primary section. Concern boundary annotations, files, and SCs come after the table:
+
+```
+## Phase N: <title>
+
+### Phase N — Dispatch Table
+
+| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
+|------|--------------|--------|----------------|-----------------|-----|
+
+**Concern boundary:** ...
+**Files:** ...
+**SCs covered:** ...
+
+### Phase N — GREEN Implementation Details
+
+...
+```
 
 ### Step 5: Define Tasks Within Each Phase (Per-Unit Gates — SC-3)
 
@@ -280,24 +298,9 @@ Verification steps after contract generation:
 1. Assert all-false state: run Z3 solver — MUST return SAT
 1. Assert D_P1=True but p1=False: run Z3 solver — MUST return UNSAT
 
-### Step 6: Generate Implementation Checklist (MANDATORY)
+### Step 6: [REMOVED — No Separate Checklist File]
 
-After plan content is finalized, generate `implementation-checklist.md` as a sibling of `plan.md`:
-
-1. Read plan phases, SC-ID traceability table, and pipeline gate tables from plan.md
-1. For each phase, emit the 14-gate checklist with sub-steps:
-   - Pre-cleanup (remove stale artifacts per Rule 3)
-   - Dispatch via task()
-   - Post-step Z3 state update (3 sequential calls to `solve state update`)
-   - Checkpoint tag creation and verification (`git tag -l` confirmation)
-   - Lifecycle manifest event append
-1. Emit remediation routing section (R.1-R.10) — rollback procedure, researcher dispatch, max 3 attempts
-1. Emit phase completion section (PC.1-PC.6) — all gates PASS, all SCs verified, manifest complete
-1. Emit overall completion section (OC.1-OC.7) — all phases complete, full regression suite, final push
-1. Emit key constraints section referencing implementation-pipeline-\* rules
-1. Verify the checklist covers every SC from the SC-ID traceability table — flag any uncovered SCs
-
-The checklist generation is a mechanical transformation of plan structure — no creative decisions. Reference the pipeline-readiness `sc_summary` from sc-pipeline-readiness.yaml for SC count verification.
+The dispatch tables ARE the checklist. No separate `implementation-checklist.md` is generated. This step has been removed per the dispatch table mandate — the dispatch tables in the plan serve as both the checklist and the executable gate sequence.
 
 ## Context Required
 

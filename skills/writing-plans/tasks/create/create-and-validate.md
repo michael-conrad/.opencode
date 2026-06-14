@@ -103,6 +103,20 @@ Before finalizing the plan, verify spec-to-plan handoff artifacts:
 - **Verify `plan plan` returns SOLVED_SATISFICING or SOLVED_OPTIMALLY** — if UNSOLVABLE or unavailable, HALT with blocker report
 - **Verify each referenced pipeline step label exists in `implementation-pipeline/SKILL.md`'s dispatch routing table** — if any label is undefined, HALT with MISSING-TRACEABILITY
 
+#### Dispatch Table Validation (MANDATORY)
+
+Validate the dispatch table for each phase:
+
+1. Every phase has a dispatch table
+2. All required columns (Gate, Dispatch Type, Blind?, Sub-Agent Type, Receives Context, SCs) are present
+3. Every SC from the SC-ID traceability table appears in at least one gate
+4. No inline gate has a Blind? value other than `N/A`
+5. All sub-task gates have Blind? = `yes (blind)` unless explicitly justified in the plan
+6. Gates are in numeric order (G1, G2, G3, ...) with no gaps
+7. Every Receives Context value is parseable as JSON — use `python3 -c "import json; json.loads('...')"` to verify
+
+If any validation fails: HALT with DISPATCH_TABLE_VALIDATION_FAILED and report which rule(s) failed.
+
 ### Step 10: Verification Revisit (MANDATORY)
 
 Invoke: `/skill verification-enforcement --task revisit`
@@ -161,6 +175,19 @@ if scope_level >= SCOPE_LEVELS["for_plan"]:
 ```
 
 **If `halt_at == plan_created`:** HALT after plan creation. Do NOT proceed to implementation.
+
+
+### Step 13.5: Plan-Reference Sync (MANDATORY)
+
+After plan creation and approval, sync the plan reference to both the local spec and the remote issue body:
+
+1. Update the local spec file (`.issues/{N}/spec.md`) to include a `**Plan:** .issues/{N}/plan.md` reference in the header or metadata section
+2. Update the remote GitHub Issue body to include a `**Plan:** .issues/{N}/plan.md` reference — use `github_issue_write(method="update", ...)` with the full body content, preserving the existing body and appending the plan reference
+3. Verify both references are present after update
+
+This ensures any AI agent reading the spec (locally or remotely) can discover the plan.
+
+**Authorization note:** Syncing spec metadata (plan reference) is an administrative action, not an implementation action — it is authorized under the existing `for_plan` or higher scope. No separate authorization needed.
 
 ## Acceptance Criteria
 

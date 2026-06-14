@@ -54,34 +54,54 @@ Writes plan header, stores at `.issues/{N}/plan.md`, runs self-review and valida
 | `create/plan-structure` | Verification, combined/separate decision, file mapping, TDD definition | ≈750 |
 | `create/create-and-validate` | Document writing, local storage, validation, approval cascade | ≈650 |
 
-## Plan Phase Structure Requirements — Mandatory Enumerated Checklist with Routing Annotations
+## Plan Phase Structure Requirements — Dispatch Table Mandate
 
-Every plan phase MUST use EXACTLY the following 14-item enumerated checklist with routing annotations. No free-form prose outside the Concern/Files/SCs header block. No deviations.
+Every plan phase MUST include a dispatch table. The table is the executable checklist for the orchestrator. Each row is one gate. The orchestrator executes rows in numeric order.
 
-Each checklist item MUST include a routing annotation specifying which agent role executes it:
-- **orchestrator routes to [sub-agent-type]** — orchestrator tasks a clean-room sub-agent
-- **orchestrator inline** — orchestrator performs the action directly (only for git commits, file reads, artifact verification)
+**No separate checklist file.** The dispatch tables ARE the checklist. A separate `implementation-checklist.md` that mirrors the same rows is duplication and creates a sync hazard.
 
-The 14 gates with routing annotations:
+### Orchestrator Execution Protocol (MANDATORY — top of every plan)
 
-- [ ] 1. SC-COHERENCE-GATE — **orchestrator routes to pre-analysis**: verify spec SCs are internally consistent and complete for this phase
-- [ ] 2. PRE-RED-BASELINE — **orchestrator routes to exploration**: run full test suite, confirm all existing tests PASS before any changes
-- [ ] 3. RED-PHASE — **orchestrator routes to RED sub-agent**: write enforcement test at permanent path → run → capture output to `./tmp/{issue-N}/artifacts/{phase}-test-output.log` → expected FAIL (exit non-zero)
-- [ ] 4. RED-DOUBLECHECK — **orchestrator inline**: confirm RED evidence artifact exists and shows non-zero exit
-- [ ] 5. GREEN-PHASE — **orchestrator routes to GREEN sub-agent (clean-room, receives spec + test path only)**: implement change → run test → capture output → expected PASS (exit 0)
-- [ ] 6. CHECKPOINT-COMMIT — **orchestrator inline**: git commit -m "phase N checkpoint" with test + change
-- [ ] 7. STRUCTURAL-CHECKS — **orchestrator routes to structural sub-agent**: lint, format, typecheck on changed files
-- [ ] 8. GREEN-DOUBLECHECK — **orchestrator inline**: confirm GREEN evidence artifact exists and shows exit 0
-- [ ] 9. GREEN-VBC — **orchestrator routes to VbC sub-agent**: verification-before-completion against this phase's SCs
-- [ ] 10. ADVERSARIAL-AUDIT — **orchestrator routes to resolve-models**: dispatches 2 auditors for plan-fidelity + concern-separation
-- [ ] 11. CROSS-VALIDATE — **orchestrator inline**: verify dual-auditor consensus on all phase SCs
-- [ ] 12. REGRESSION-CHECK — **orchestrator routes to regression sub-agent**: full test suite, confirm nothing previously passing is now broken
-- [ ] 13. REVIEW-PREP — **orchestrator routes to review-prep sub-agent**: compare URL (verified from session-init), PR body draft for the phase
-- [ ] 14. EXEC-SUMMARY — **orchestrator inline**: read all sub-agent result contracts, produce phase completion report with SC status, artifact paths, byline
+Every plan MUST begin with an execution protocol that the orchestrator follows:
+
+1. Read the dispatch tables in this plan to determine the gate sequence
+2. Execute every gate in every phase in numeric order (G1, G2, G3, ...)
+3. NOT skip any gate — every row is mandatory
+4. NOT reorder gates — the sequence is the plan
+5. For `sub-task` gates: call `task()` with the exact `Receives Context` JSON object as the prompt, using the specified `Sub-Agent Type`
+6. For `inline` gates: execute the described operation directly (no sub-agent)
+7. After each gate completes, verify the SCs listed in that gate's SCs column
+8. Report progress via chat output only — zero GitHub Issue comments during implementation unless absolutely warranted (blocker requiring developer input, spec revision changing scope). Issue bodies and plan files are revised directly and synced as needed — comments are not a revision mechanism
+9. After each phase completes, run the Inter-Phase Handoff steps before advancing to the next phase
+10. Do NOT modify this plan — it is a static definitional artifact. Only mutate for remediation or scope revision
+
+### Dispatch Table (MANDATORY per phase — this IS the plan)
+
+Every phase MUST include a dispatch table. The table is the executable checklist for the orchestrator. Each row is one gate. The orchestrator executes rows in order.
+
+| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
+|------|--------------|--------|----------------|-----------------|-----|
+
+**Column definitions:**
+- **Gate**: Gate identifier (e.g., `G1: SC-Coherence-Gate`, `G5: GREEN-Phase`). The orchestrator executes gates in numeric order.
+- **Dispatch Type**: `sub-task` (via task()) or `inline` (orchestrator does it directly without a sub-agent)
+- **Blind?**: `yes (blind)` for clean-room sub-agents (no context beyond what's in Receives Context), `no` for context-aware, `N/A` for inline
+- **Sub-Agent Type**: The subagent_type parameter (e.g., `general`, `pre-analysis`, `resolve-models`). Only meaningful when Dispatch Type is `sub-task`.
+- **Receives Context**: The exact context object to pass in the task() prompt. Must be a valid JSON object — not prose description. The orchestrator passes this verbatim.
+- **SCs**: Which success criteria this gate verifies. The orchestrator checks these SCs after the gate completes.
+
+**Rules:**
+- All sub-task dispatches MUST be blind (clean-room) by default unless explicitly justified
+- Inline gates are limited to: RED-doublecheck, GREEN-doublecheck, Checkpoint-Commit, Cross-Validate, Exec-Summary
+- Every SC must appear in at least one gate's SCs column
+- The Receives Context column must be a valid JSON object (not prose description)
+- Gates are executed in numeric order — the orchestrator does NOT reorder
+- The orchestrator MUST NOT skip a gate — every row is mandatory
+- No separate checklist file — the dispatch table IS the checklist
 
 ### Inter-Phase Handoff
 
-Between gate 14 of phase N and gate 1 of phase N+1:
+Between the last gate of phase N and gate G1 of phase N+1:
 
 - Update Z3 state file: `solve state update` with phase N's gate states
 - Run `solve check`: confirm phase N dependency contract still SAT
@@ -90,7 +110,7 @@ Between gate 14 of phase N and gate 1 of phase N+1:
 
 ### Post-All-Phases Sweep
 
-After the last phase's gate 14:
+After the last phase's final gate:
 
 - [ ] FINISHING CHECKLIST — **orchestrator routes to finishing sub-agent**: git status clean, lint/typecheck from scratch, coverage sweep
 - [ ] PR CREATION — **orchestrator routes to git-workflow pr-creation**: via `github_create_pull_request`, extract `html_url` from response
