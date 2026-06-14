@@ -190,13 +190,38 @@ When changing guidelines or skills, use behavioral TDD:
 1. **Behavioral RED:** Write test sending agent prompt, verify agent does NOT follow new rule yet
 1. **Behavioral GREEN:** Make change, re-run test — now agent follows rule
 
-### Step 4: Plan Phase Structure
+### Step 4: Plan Phase Structure — Dispatch Table Template (PRIMARY)
 
-Organize by concern flow:
+Every plan phase MUST include a dispatch table using EXACTLY the following 6-column format. The dispatch table is the PRIMARY section template — it MUST appear FIRST in each phase section, before concern boundaries, file references, and SC references.
 
-- Determine phases needed
-- Write prose for phase descriptions
-- Prose-driven, not template-driven
+| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
+|------|--------------|--------|----------------|-----------------|-----|
+| G{N}: {step-label} | sub-task or inline | yes (blind) or N/A | general or N/A | JSON context or — | SC-N |
+
+#### Dispatch Table Rules
+
+1. **One row per gate.** Every gate in the sequence must have exactly one row. No merged cells, no multi-step rows.
+2. **Dispatch Type is binary:** `sub-task` (orchestrator tasks a clean-room sub-agent) or `inline` (orchestrator executes directly — restricted to CHECKPOINT-COMMIT only).
+3. **Blind? column:** `yes (blind)` means the sub-agent receives only the Receives Context JSON — no other context from prior gates. `N/A` for inline gates.
+4. **Sub-Agent Type:** Use `general` for sub-task gates. Use `N/A` for inline gates.
+5. **Receives Context:** A JSON object with task instruction, issue number, phase number. For sub-task gates this is the EXACT prompt passed to `task()`. For inline gates this is `—` (em dash, no context).
+6. **SCs column:** Lists the SCs this gate verifies (e.g., `SC-1, SC-2`). Must match SC IDs from the spec.
+7. **Standard gate set is dynamic.** The gate labels and step sequence MUST be pulled from `implementation-pipeline/SKILL.md` §Dispatch Routing Table at the time of plan creation. Do NOT hardcode gate names — reference the canonical source.
+
+#### Concern Boundary Annotations
+
+When transitioning between architectural concerns, describe:
+- What concern being left (prior scope)
+- What concern being entered (new scope)
+- What information the new concern needs from prior (handoff point)
+
+#### File References
+
+List the files affected by this phase. Agents glob to discover content — use sub-folder references, not individual file paths.
+
+#### SC References
+
+List the SCs covered by this phase. Each SC must be traceable to a spec success criterion.
 
 ### Step 5: Define Tasks Within Each Phase (Per-Unit Gates — SC-3)
 
@@ -280,24 +305,9 @@ Verification steps after contract generation:
 1. Assert all-false state: run Z3 solver — MUST return SAT
 1. Assert D_P1=True but p1=False: run Z3 solver — MUST return UNSAT
 
-### Step 6: Generate Implementation Checklist (MANDATORY)
+### Step 6: Generate Implementation Checklist — REMOVED
 
-After plan content is finalized, generate `implementation-checklist.md` as a sibling of `plan.md`:
-
-1. Read plan phases, SC-ID traceability table, and pipeline gate tables from plan.md
-1. For each phase, emit the 14-gate checklist with sub-steps:
-   - Pre-cleanup (remove stale artifacts per Rule 3)
-   - Dispatch via task()
-   - Post-step Z3 state update (3 sequential calls to `solve state update`)
-   - Checkpoint tag creation and verification (`git tag -l` confirmation)
-   - Lifecycle manifest event append
-1. Emit remediation routing section (R.1-R.10) — rollback procedure, researcher dispatch, max 3 attempts
-1. Emit phase completion section (PC.1-PC.6) — all gates PASS, all SCs verified, manifest complete
-1. Emit overall completion section (OC.1-OC.7) — all phases complete, full regression suite, final push
-1. Emit key constraints section referencing implementation-pipeline-\* rules
-1. Verify the checklist covers every SC from the SC-ID traceability table — flag any uncovered SCs
-
-The checklist generation is a mechanical transformation of plan structure — no creative decisions. Reference the pipeline-readiness `sc_summary` from sc-pipeline-readiness.yaml for SC count verification.
+Implementation checklist generation has been removed. The dispatch table template (Step 4) and per-unit pipeline gate tables (Step 5) provide sufficient execution guidance. No separate checklist artifact is needed.
 
 ## Context Required
 
