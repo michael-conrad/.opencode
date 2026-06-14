@@ -11,8 +11,8 @@ cd "$SCRIPT_DIR/../../.."
 OVERALL_RESULT=0
 echo "SC-8: Verification consistency contract created"
 
-# SC-8 requires verification-consistency-contract.yaml at spec-artifacts/
-ARTIFACT=".opencode/.issues/1061/spec-artifacts/verification-consistency-contract.yaml"
+# SC-8 requires verification-consistency-contract.yaml at 
+ARTIFACT=".opencode/.issues/1061/verification-consistency-contract.yaml"
 if [ -f "$ARTIFACT" ]; then
     echo "  FAIL: $ARTIFACT already exists (GREEN would be no-op)" >&2
     OVERALL_RESULT=1

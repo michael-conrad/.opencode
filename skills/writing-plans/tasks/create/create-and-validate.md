@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Write plan document to `.issues/{N}/spec-artifacts/plan.md`, validate structure, and handle approval cascade with scope-aware auto-approval.
+Write plan document to `.issues/{N}/plan.md`, validate structure, and handle approval cascade with scope-aware auto-approval.
 
 ## Entry Criteria
 
@@ -12,10 +12,10 @@ Write plan document to `.issues/{N}/spec-artifacts/plan.md`, validate structure,
 
 ## Exit Criteria
 
-- Plan document written to `.issues/{N}/spec-artifacts/plan.md`
+- Plan document written to `.issues/{N}/plan.md`
 - Self-review and validation complete
 - Verification revisit passed
-- Plan reported in chat with `.issues/{N}/spec-artifacts/plan.md` path
+- Plan reported in chat with `.issues/{N}/plan.md` path
 - Approval cascade applied (auto-approval for pipeline scope)
 
 ## Procedure
@@ -28,7 +28,7 @@ Write plan document to `.issues/{N}/spec-artifacts/plan.md`, validate structure,
 ### Step 7: Store Plan Document
 
 **All paths (combined and separate):**
-- Write plan to `.issues/{N}/spec-artifacts/plan.md`
+- Write plan to `.issues/{N}/plan.md`
 - Proceed to Step 8
 
 ### Phase body requirements — Reference to canonical pipeline checklist
@@ -68,10 +68,10 @@ When transitioning concerns: describe what is being left, what is being entered,
 Before writing the plan document, enumerate and validate spec artifacts that must be consumed by the plan:
 
 ```bash
-ls .issues/{issue-N}/spec-artifacts/sc-summary.yaml
-ls .issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml
-ls .issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml
-ls .issues/{issue-N}/spec-artifacts/lifecycle.yaml
+ls .issues/{issue-N}/sc-summary.yaml
+ls .issues/{issue-N}/verification-consistency-contract.yaml
+ls .issues/{issue-N}/revision-re-entry-contract.yaml
+ls .issues/{issue-N}/lifecycle.yaml
 ```
 
 Every expected spec artifact MUST exist. Missing artifacts are flagged as MISSING-TRACEABILITY.
@@ -80,7 +80,7 @@ Every expected spec artifact MUST exist. Missing artifacts are flagged as MISSIN
 
 Cross-reference the SC coverage YAML against the plan structure:
 
-1. Read `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`
+1. Read `.issues/{issue-N}/sc-summary.yaml`
 2. Verify every SC ID in the YAML is mapped to at least one plan item
 3. Verify every plan item's SC-ID references exist in the YAML
 4. Flag orphan SCs (unmapped) as MISSING-TRACEABILITY
@@ -91,7 +91,7 @@ Cross-reference the SC coverage YAML against the plan structure:
 
 Before finalizing the plan, verify spec-to-plan handoff artifacts:
 
-1. Enumerate all expected artifacts from `spec-artifacts/`
+1. Enumerate all expected artifacts from ``
 2. Verify SC coverage YAML cross-reference: each SC in the spec has a corresponding plan item
 3. Verify lifecycle manifest indicates `plan_created` event
 4. Generate spec-to-plan handoff manifest at `./tmp/{issue-N}/artifacts/spec-to-plan-manifest.yaml`
@@ -124,7 +124,7 @@ Scans for `⚠️ UNVERIFIED` markers. Resolves if possible; escalates unresolva
 
 **Format — reference spec via full URL, plan via local artifact path:**
 ```
-Created plan at `.issues/{N}/spec-artifacts/plan.md` for [<owner>/<repo>#<N>](https://github.com/<owner>/<repo>/issues/<N>) (<description>). <N> phases across <N> items.
+Created plan at `.issues/{N}/plan.md` for [<owner>/<repo>#<N>](https://github.com/<owner>/<repo>/issues/<N>) (<description>). <N> phases across <N> items.
 
 🤖 <AgentName> (<ModelId>)
 ```
@@ -181,9 +181,9 @@ if scope_level >= SCOPE_LEVELS["for_plan"]:
 | C2 | File structure lists all files with responsibilities |
 | C3 | TDD tasks include mandatory Step 2 RED checkpoint |
 | C4 | Phase descriptions include concern boundary annotations |
-| C5 | Plan stored at `.issues/{N}/spec-artifacts/plan.md` |
+| C5 | Plan stored at `.issues/{N}/plan.md` |
 | C6 | No TBD/TODO placeholders remain |
-| C7 | Plan artifact created locally in `.issues/{N}/spec-artifacts/` |
+| C7 | Plan artifact created locally in `.issues/{N}/` |
 | C8 | Status marker uses prose-driven format |
 | C9 | Approval cascade honors `authorization_scope` |
 

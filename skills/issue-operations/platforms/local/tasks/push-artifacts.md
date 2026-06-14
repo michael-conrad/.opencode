@@ -95,20 +95,20 @@ Expected: Fetch succeeds. `FETCH_HEAD` now points to the latest commit on `issue
 
 ### Step 6: Verify Blobs with git ls-tree
 
-Verify that the pushed artifacts exist as blobs in the remote branch tree. Check for the spec-artifacts directory structure:
+Verify that the pushed artifacts exist as blobs in the remote branch tree. Check for the issue directory structure:
 
 ```bash
-git ls-tree origin/issues-data -- <N>/spec-artifacts/
+git ls-tree origin/issues-data -- <N>/
 ```
 
-Expected output: one or more lines with blob mode, type, hash, and path under `<N>/spec-artifacts/`. For example:
+Expected output: one or more lines with blob mode, type, hash, and path under `<N>/`. For example:
 
 ```
-100644 blob abcdef1234567890abcdef1234567890abcdef12	<N>/spec-artifacts/spec.md
-100644 blob 1234567890abcdef1234567890abcdef12345678	<N>/spec-artifacts/state.md
+100644 blob abcdef1234567890abcdef1234567890abcdef12	<N>/spec.md
+100644 blob 1234567890abcdef1234567890abcdef12345678	<N>/state.md
 ```
 
-If the output is empty (no blobs found under `<N>/spec-artifacts/`), attempt a broader check:
+If the output is empty (no blobs found under `<N>/`), attempt a broader check:
 
 ```bash
 git ls-tree origin/issues-data -- <N>/
@@ -136,7 +136,7 @@ Parse the remote URL to extract the base HTML URL. For common Git hosting:
 Construct the artifact URL:
 
 ```
-artifact_url = <html_url>/tree/issues-data/<N>/spec-artifacts/
+artifact_url = <html_url>/tree/issues-data/<N>/
 ```
 
 Return the `artifact_url` value to the caller.
@@ -147,7 +147,7 @@ ______________________________________________________________________
 
 - \[ \] `.issues/<N>/` artifacts committed to `issues-data` branch (or confirmed noop with no changes)
 - \[ \] Push to `origin issues-data` succeeded (verified by fetch + exit code)
-- \[ \] `git ls-tree origin/issues-data -- <N>/spec-artifacts/` returns at least one blob — confirms artifacts landed
+- \[ \] `git ls-tree origin/issues-data -- <N>/` returns at least one blob — confirms artifacts landed
 - \[ \] `artifact_url` constructed from remote URL
 - \[ \] No `curl`, `github_*` API calls, or platform credentials used — pure git only
 - \[ \] No files outside `.issues/<N>/` were included in the commit

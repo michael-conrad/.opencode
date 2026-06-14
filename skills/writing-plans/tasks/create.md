@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Create an implementation plan from an approved spec. Plans are stored at `.issues/{N}/spec-artifacts/plan.md`.
+Create an implementation plan from an approved spec. Plans are stored at `.issues/{N}/plan.md`.
 
 ## Prerequisites
 
@@ -28,9 +28,9 @@ Create an implementation plan from an approved spec. Plans are stored at `.issue
 
 ## Exit Criteria
 
-- Plan stored at `.issues/{N}/spec-artifacts/plan.md`
+- Plan stored at `.issues/{N}/plan.md`
 - All validation passed
-- Plan reported in chat with `.issues/{N}/spec-artifacts/plan.md` path
+- Plan reported in chat with `.issues/{N}/plan.md` path
 - Approval cascade applied (auto-approval for pipeline scope)
 
 ## Procedure
@@ -45,7 +45,7 @@ Runs verification gate, makes combined/separate decision, checks for duplicate p
 
 **Route to:** `create/create-and-validate`
 
-Writes plan header, stores at `.issues/{N}/spec-artifacts/plan.md`, runs self-review and validation, revisits verification, cross-references skills, runs handoff-consistency check against the spec-to-plan manifest, and applies approval cascade with scope-aware auto-approval.
+Writes plan header, stores at `.issues/{N}/plan.md`, runs self-review and validation, revisits verification, cross-references skills, runs handoff-consistency check against the spec-to-plan manifest, and applies approval cascade with scope-aware auto-approval.
 
 ## Sub-Task Files
 
@@ -111,14 +111,14 @@ When transitioning between architectural concerns, describe:
 
 ## Plan Format
 
-Plan is stored at `.issues/{N}/spec-artifacts/plan.md`. Combined and separate affect which sections the plan document includes but not where it is stored.
+Plan is stored at `.issues/{N}/plan.md`. Combined and separate affect which sections the plan document includes but not where it is stored.
 
 **Combined (single-task):**
-- Write to `.issues/{N}/spec-artifacts/plan.md`, reference spec content inline
+- Write to `.issues/{N}/plan.md`, reference spec content inline
 - Retain `[SPEC]` title prefix on spec
 
 **Separate (multi-task):**
-- Write to `.issues/{N}/spec-artifacts/plan.md` with separate phase sections
+- Write to `.issues/{N}/plan.md` with separate phase sections
 - Phases are sections in the local plan file — no sub-issues
 
 ## Approval Cascade Matrix

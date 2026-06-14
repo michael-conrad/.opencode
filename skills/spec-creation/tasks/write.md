@@ -65,17 +65,17 @@ Skip areas that don't apply to simple specs; add areas that do. The spec should 
 
 For standard and complex specs, generate the following permanent artifacts:
 
-1. **SC coverage summary YAML** — Create `.issues/{issue-N}/spec-artifacts/sc-summary.yaml` with machine-parseable coverage data including SC IDs, evidence types, phase bindings, and verification gates.
-1. **Verification consistency contract** — Create `.issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml` as a solve contract with compliance matrix variables.
-1. **Lifecycle manifest** — Create `.issues/{issue-N}/spec-artifacts/lifecycle.yaml` with initial `spec_created` event. Append-only format; never overwrite.
-1. **Revision re-entry protocol contract** — Create `.issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml` as a solve contract with cascade variables for each revision scope.
+1. **SC coverage summary YAML** — Create `.issues/{issue-N}/sc-summary.yaml` with machine-parseable coverage data including SC IDs, evidence types, phase bindings, and verification gates.
+1. **Verification consistency contract** — Create `.issues/{issue-N}/verification-consistency-contract.yaml` as a solve contract with compliance matrix variables.
+1. **Lifecycle manifest** — Create `.issues/{issue-N}/lifecycle.yaml` with initial `spec_created` event. Append-only format; never overwrite.
+1. **Revision re-entry protocol contract** — Create `.issues/{issue-N}/revision-re-entry-contract.yaml` as a solve contract with cascade variables for each revision scope.
 
 ### Step 1b: Plan Creation Mandate in Spec Body (MANDATORY)
 
 The generated spec body MUST include a paragraph in the preamble or before the Success Criteria section that mandates plan creation via `writing-plans`:
 
 ```markdown
-After this spec is approved, invoke `writing-plans` to create `.issues/{N}/spec-artifacts/plan.md` before implementation begins.
+After this spec is approved, invoke `writing-plans` to create `.issues/{N}/plan.md` before implementation begins.
 ```
 
 Where `{N}` is the actual issue number, substituted at generation time. This mandate is in the spec content (what the writer generates), not just the task procedure.
@@ -189,7 +189,7 @@ Simple specs may skip this section. Standard and complex specs SHOULD include it
 
 ### Step 1.1: SC Coverage YAML Generation (SC-4)
 
-After assembling the spec content, generate a machine-parseable SC coverage summary at `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`:
+After assembling the spec content, generate a machine-parseable SC coverage summary at `.issues/{issue-N}/sc-summary.yaml`:
 
 ```yaml
 sc_coverage:
@@ -214,7 +214,7 @@ Required validation: cross-reference `sc_coverage.total` against the prose SC ta
 
 ### Step 1.2: Verification Consistency Contract Generation (SC-8)
 
-Generate a verification consistency solve contract at `.issues/{issue-N}/spec-artifacts/verification-consistency-contract.yaml` with a compliance matrix as solve variables:
+Generate a verification consistency solve contract at `.issues/{issue-N}/verification-consistency-contract.yaml` with a compliance matrix as solve variables:
 
 ```yaml
 spec: https://github.com/{owner}/{repo}/issues/{N}
@@ -237,7 +237,7 @@ The pre-approval gate validates every SC's Verification Gate against its Evidenc
 
 ### Step 1.3: Lifecycle Manifest Initialization (SC-6)
 
-Initialize the append-only lifecycle manifest at `.issues/{issue-N}/spec-artifacts/lifecycle.yaml` with a `spec_created` event:
+Initialize the append-only lifecycle manifest at `.issues/{issue-N}/lifecycle.yaml` with a `spec_created` event:
 
 ```yaml
 events:
@@ -252,7 +252,7 @@ Each pipeline stage appends its event. Blocker events appended on FAIL with seve
 
 ### Step 1.4: Revision Re-Entry Protocol Contract Generation (SC-5)
 
-Generate a revision re-entry solve contract at `.issues/{issue-N}/spec-artifacts/revision-re-entry-contract.yaml` with cascade variables for each revision scope:
+Generate a revision re-entry solve contract at `.issues/{issue-N}/revision-re-entry-contract.yaml` with cascade variables for each revision scope:
 
 ```yaml
 spec: https://github.com/{owner}/{repo}/issues/{N}
@@ -279,15 +279,15 @@ revision_re_entry:
 
 - **Prohibit status language** — Do not use "implemented", "pending", "confirmed", "viable", "completed" as status markers in spec body content. Status belongs on the issue as labels, not in the spec prose.
 - **Use MUST/SHOULD/MAY (RFC 2119)** for all requirements. "The system MUST log errors" not "The system logs errors". This enforces the forward-looking stance of describing what the implementation MUST achieve, not what has been decided.
-- **No tracking dashboards** — The spec is a requirements document, not a project tracker. Decision logs, status badges, and verification annotations belong in `spec-artifacts/`, not in the spec itself.
+- **No tracking dashboards** — The spec is a requirements document, not a project tracker. Decision logs, status badges, and verification annotations belong in ``, not in the spec itself.
 
 ### Step 1b: Sub-Folder References, No Hardcoded File Lists (SC-9)
 
-Reference artifact directories by sub-folder path (e.g., `spec-artifacts/`) rather than listing individual files. Agents discover content by globbing directories; hardcoded file lists go stale when files are renamed or reorganized.
+Reference artifact directories by sub-folder path (e.g., ``) rather than listing individual files. Agents discover content by globbing directories; hardcoded file lists go stale when files are renamed or reorganized.
 
-**Correct:** "See `spec-artifacts/research/` for capability probe results"
+**Correct:** "See `research/` for capability probe results"
 
-**Wrong:** "See `spec-artifacts/research/fastmcp-capabilities.md` for capability probe results"
+**Wrong:** "See `research/fastmcp-capabilities.md` for capability probe results"
 
 ### Step 1c: No Bare `#N` References (SC-10)
 
@@ -414,7 +414,7 @@ After the spec/plan boundary check, invoke the `solve` utility to produce a depe
 
 ```bash
 ./.opencode/tools/solve model \
-  --contract-path .issues/{issue-N}/spec-artifacts/pre-approval-gate-contract.yaml \
+  --contract-path .issues/{issue-N}/pre-approval-gate-contract.yaml \
   --output ./tmp/{issue-N}/artifacts/constraints-contract.yaml
 ```
 
@@ -427,7 +427,7 @@ Post-invocation verification via `solve check`:
 ```bash
 ./.opencode/tools/solve check \
   --state-path ./tmp/{issue-N}/artifacts/constraints-contract.yaml \
-  --contract-path .issues/{issue-N}/spec-artifacts/pre-approval-gate-contract.yaml
+  --contract-path .issues/{issue-N}/pre-approval-gate-contract.yaml
 ```
 
 MUST return SAT. UNSAT → HALT with blocker report. No fallback paths.
@@ -518,10 +518,10 @@ Generate the spec folder URL and prepare the blockquote for embedding at the top
 ```
 > **Full spec and artifacts: [`.issues/{N}/`](https://github.com/{owner}/{repo}/tree/issues-data/{N})** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 >
-> **Local artifacts:** `.issues/{N}/spec-artifacts/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+> **Local artifacts:** `.issues/{N}/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 ```
 
-The URL follows the pattern: `{github.html_url}/tree/issues-data/{N}/spec-artifacts/`
+The URL follows the pattern: `{github.html_url}/tree/issues-data/{N}/`
 
 Embed this blockquote at the TOP of the issue body (before the spec content), prepended when creating the issue body or updated after creation.
 
@@ -596,7 +596,7 @@ Top 3 risks with one-line mitigation. Key dependencies. Call to action.
 This issue is an executive summary for human stakeholders.
 The authoritative spec and plan artifacts are at {{SPEC_PATH}}.
 After creation, `local-issues sync {N}` MUST be run and the result committed to create the local `.issues/{N}/` entry.
-The implementation plan will be created in `.issues/{N}/spec-artifacts/plan.md` after approval.
+The implementation plan will be created in `.issues/{N}/plan.md` after approval.
 AI agents MUST read the local spec/plan files for implementation
 and MUST NOT base implementation on this summary.
 ```

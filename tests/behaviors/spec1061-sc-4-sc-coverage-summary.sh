@@ -10,9 +10,9 @@ cd "$SCRIPT_DIR/../../.."
 OVERALL_RESULT=0
 echo "SC-4: SC coverage summary YAML generated"
 
-# SC-4 requires sc-summary.yaml at .issues/{issue-N}/spec-artifacts/sc-summary.yaml
+# SC-4 requires sc-summary.yaml at .issues/{issue-N}/sc-summary.yaml
 # Check the artifact does NOT exist yet (RED phase)
-ARTIFACT=".opencode/.issues/1061/spec-artifacts/sc-summary.yaml"
+ARTIFACT=".opencode/.issues/1061/sc-summary.yaml"
 if [ -f "$ARTIFACT" ]; then
     echo "  FAIL: $ARTIFACT already exists (GREEN would be no-op)" >&2
     OVERALL_RESULT=1

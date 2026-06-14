@@ -24,7 +24,7 @@ Structure the implementation plan from approved spec: verification gate, combine
 
 After defining the phase structure, create a dependency-ordering solve contract:
 
-1. Create `.issues/{issue-N}/spec-artifacts/dependency-ordering-verification/` directory
+1. Create `.issues/{issue-N}/dependency-ordering-verification/` directory
 1. Write `phase-order.yaml` with Z3 variables for each phase position and ordering constraints
 1. Run `solve model --contract-path ... --query "phase_1 < phase_2 and phase_1 < phase_3"`
 1. Confirm SAT — the phase ordering is valid
@@ -43,7 +43,7 @@ After phase dependency contract is confirmed SAT, validate phase solvability:
 
 After phase structure validated, consume `sc-summary.yaml`:
 
-1. Read `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`
+1. Read `.issues/{issue-N}/sc-summary.yaml`
 1. Map each SC to its corresponding plan item by SC-ID
 1. Verify all SCs from the spec are covered
 1. Flag orphan SCs (in YAML but not mapped) and missing SCs (in spec but not in YAML)
@@ -58,7 +58,7 @@ Collects evidence artifacts for factual claims. Unverified claims marked with `�
 
 Before any plan content is written, verify that the spec has passed pipeline-readiness validation:
 
-1. Read `.issues/{issue-N}/spec-artifacts/sc-pipeline-readiness.yaml`
+1. Read `.issues/{issue-N}/sc-pipeline-readiness.yaml`
 1. Assert `status: PASS`
 1. If status is FAIL or file does not exist: **HALT** with `SPEC_NOT_READY_FOR_PIPELINE` — the spec must pass the pipeline-readiness gate before plan creation
 1. If PASS: extract `sc_summary` (total_scs, atomic, with_dependencies, single_concern) and phase dependency declarations for use in plan generation
@@ -81,9 +81,9 @@ This is a hard gate — the plan-writer MUST NOT proceed without a PASS from the
 
 | Condition | Outcome |
 | -- | -- |
-| Multi-task spec (mixed concerns or independence) | **Always separate** — separate phase sections in `.issues/{N}/spec-artifacts/plan.md` |
+| Multi-task spec (mixed concerns or independence) | **Always separate** — separate phase sections in `.issues/{N}/plan.md` |
 | Single-task spec AND spec body can absorb plan content | **Candidate for combined** — agent evaluates readability |
-| Single-task AND combining makes document hard to read | **Separate** — stand-alone sections in `.issues/{N}/spec-artifacts/plan.md` |
+| Single-task AND combining makes document hard to read | **Separate** — stand-alone sections in `.issues/{N}/plan.md` |
 
 **Decision output (MANDATORY):**
 
@@ -94,13 +94,13 @@ Reason: <justification referencing evaluation criteria>
 
 **If COMBINED:**
 
-- Write to `.issues/{N}/spec-artifacts/plan.md`, reference spec content inline
+- Write to `.issues/{N}/plan.md`, reference spec content inline
 - Retain `[SPEC]` title prefix
 - Proceed to Step 2
 
 **If SEPARATE:**
 
-- Write to `.issues/{N}/spec-artifacts/plan.md` with separate phase sections
+- Write to `.issues/{N}/plan.md` with separate phase sections
 - Proceed to Step 2
 
 ### Step 1.6: Duplicate Plan Check
@@ -108,7 +108,7 @@ Reason: <justification referencing evaluation criteria>
 Look for existing plan artifacts in `.issues/` workspace:
 
 ```bash
-ls .issues/*/spec-artifacts/plan.md 2>/dev/null
+ls .issues/*/plan.md 2>/dev/null
 ```
 
 For each plan found referencing the same spec, present choice:
@@ -119,7 +119,7 @@ For each plan found referencing the same spec, present choice:
 ### Step 2: Map File Structure (Sub-Folder References — SC-9)
 
 - List sub-folders to create or modify (e.g., `skills/writing-plans/tasks/create/`), not individual files
-- Agents glob `spec-artifacts/*` or `tasks/create/*` to discover content
+- Agents glob `*` or `tasks/create/*` to discover content
 - Define each sub-folder's responsibility and concern boundary
 - Ensure decomposition has clear boundaries across sub-folders
 - **NO hardcoded file lists** — stale on every edit; agents discover by globbing
@@ -142,14 +142,14 @@ For multi-phase specs, create a dependency-ordering solve contract from the phas
 
 ```bash
 ./.opencode/tools/solve model \
-  --contract-path .issues/{issue-N}/spec-artifacts/dependency-ordering-verification/ \
+  --contract-path .issues/{issue-N}/dependency-ordering-verification/ \
   --state phase_dependencies
 ```
 
 The contract declares phase-ordering constraints as Z3 variables, where each phase's start depends on its dependencies being satisfied:
 
 ```yaml
-# .issues/{issue-N}/spec-artifacts/dependency-ordering-verification/ordering.yaml
+# .issues/{issue-N}/dependency-ordering-verification/ordering.yaml
 phase_dependencies:
   - phase: <phase_name>
     depends_on: [<phase_name>, ...]
@@ -161,7 +161,7 @@ phase_dependencies:
 
 After defining phase structure, consume the `sc-summary.yaml` from spec artifacts to map SCs to plan items:
 
-1. Read `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`
+1. Read `.issues/{issue-N}/sc-summary.yaml`
 1. For each phase in the plan, verify its SC assignments match `sc_summary.phases[].sc_ids`
 1. For each plANNED item, annotate with the corresponding SC-ID(s)
 1. Flag orphan SCs (in YAML but not mapped to any plan item) as MISSING-TRACEABILITY

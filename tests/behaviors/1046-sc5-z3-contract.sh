@@ -13,7 +13,7 @@ source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="1046-sc5-z3-contract"
 # Prompt: run solve check on both initial and defective states
-SCENARIO_PROMPT="Run .opencode/tools/solve check against the cleanup ordering Z3 contract at .opencode/.issues/1046/spec-artifacts/phase-contract.yaml. First use the initial state (all false) at .opencode/.issues/1046/spec-artifacts/phase-state.yaml, then use the defective state (AUDIT_PASSED=true, ISSUE_CLOSED=false) at .opencode/.issues/1046/spec-artifacts/phase-state-defective-audit.yaml. What does each check return?"
+SCENARIO_PROMPT="Run .opencode/tools/solve check against the cleanup ordering Z3 contract at .opencode/.issues/1046/phase-contract.yaml. First use the initial state (all false) at .opencode/.issues/1046/phase-state.yaml, then use the defective state (AUDIT_PASSED=true, ISSUE_CLOSED=false) at .opencode/.issues/1046/phase-state-defective-audit.yaml. What does each check return?"
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0

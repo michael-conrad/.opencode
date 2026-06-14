@@ -12,7 +12,7 @@ echo "SC-7: Artifact retention policy documented"
 
 # SC-7 requires an "Artifact Retention" section in implementation-pipeline/SKILL.md
 # with three rules: ./tmp/{issue-N}/ cleaned at PR merge, step-specific pre-cleanup,
-# spec-artifacts/ never cleaned
+#  never cleaned
 PIPELINE_MD=".opencode/skills/implementation-pipeline/SKILL.md"
 
 FOUND=0

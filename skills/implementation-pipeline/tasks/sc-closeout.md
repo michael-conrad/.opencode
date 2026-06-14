@@ -10,7 +10,7 @@ Verify every SC from the spec received at least one PASS verdict before issue cl
 
 - Pipeline execution complete (all 14 steps finished)
 - Pipeline artifacts exist at `./tmp/{issue-N}/artifacts/pipeline-*.yaml`
-- `sc-summary.yaml` exists at `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`
+- `sc-summary.yaml` exists at `.issues/{issue-N}/sc-summary.yaml`
 - Issue closure pending
 
 ## Exit Criteria
@@ -29,7 +29,7 @@ Verify every SC from the spec received at least one PASS verdict before issue cl
 
 ### Step 2: Read SC Summary
 
-1. Read `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`
+1. Read `.issues/{issue-N}/sc-summary.yaml`
 2. Extract `sc_coverage.total` and all SC-IDs
 3. Verify every SC-ID from the summary has at least one verdict in the pipeline artifacts
 
@@ -79,4 +79,4 @@ summary:
 
 - Preceded by: pipeline exec-summary step
 - Feeds into: issue closure (git-workflow cleanup)
-- Related artifacts: `./tmp/{issue-N}/artifacts/pipeline-*.yaml`, `.issues/{issue-N}/spec-artifacts/sc-summary.yaml`
+- Related artifacts: `./tmp/{issue-N}/artifacts/pipeline-*.yaml`, `.issues/{issue-N}/sc-summary.yaml`
