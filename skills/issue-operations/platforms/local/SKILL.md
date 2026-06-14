@@ -3,7 +3,6 @@ name: local
 description: "Use when local .issues/ tracking is needed. Local .issues/ directory platform for issue tracking. Used when github.platform is local or unset. Routes all issue operations to .issues/ directory with YAML frontmatter and markdown files. Untracked work is work that can be lost. Even local issues deserve structured tracking."
 type: discipline-enforcing
 license: MIT
-provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -257,4 +256,3 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 | Critical rules     | `000-critical-rules.md` §Creating .opencode/.opencode/ Nested Directories |
 | Card-020           | `.issues/979/cards/card-020-local-skill-capability-contract.md`           |
 
-Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)

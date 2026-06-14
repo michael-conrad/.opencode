@@ -1,6 +1,6 @@
 ---
 name: approval-gate
-description: "Use when checking or enforcing authorization scope, approval cascade, and pipeline halt boundaries. Triggers on: approved, go, authorization, approve, approval-gate, spec-before-code. Implementing without authorization produces unreviewed, unapproved code — the fastest path to rework."
+description: "Use when checking or enforcing authorization scope, approval cascade, and pipeline halt boundaries. Implementing without authorization produces unreviewed, unapproved code — the fastest path to rework."
 license: MIT
 compatibility: opencode
 ---

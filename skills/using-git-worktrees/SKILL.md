@@ -1,9 +1,8 @@
 ---
 name: using-git-worktrees
-description: "Use when creating a feature branch or worktree for implementation. Always invoke before git-workflow pre-work. Triggers on: branch, worktree, feature branch, create worktree, pre-work, worktree.path. Working in the main repo without isolation risks untracked state contamination. Worktrees are how professionals isolate work."
+description: "Use when creating a feature branch or worktree for implementation. Always invoke before git-workflow pre-work. Worktrees are how professionals isolate work."
 type: discipline-enforcing
 license: MIT
-provenance: AI-generated
 compatibility: opencode
 ---
 

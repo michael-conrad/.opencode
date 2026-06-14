@@ -1,9 +1,8 @@
 ---
 name: git-workflow
-description: "Use when creating a branch, committing, pushing, or creating a PR. Also for rebase/merge conflicts (invoke conflict-resolution). Also for \"check pr\"/\"check prs\"/\"check merged prs\"/\"pr merged\" (PR state verification + cleanup). Also for \"release PR\"/\"promote to main\"/\"dev to main\" (release-promotion). Triggers on: branch, commit, push, PR, pull request, pre-work, review-prep, feature branch, dev branch, squash, conflict, merge conflict, rebase conflict, check pr, check prs, check merged prs, check merged pr, check pull request, check pull requests, release PR, release pr, promote to main, dev to main, release promotion, pr merged, cleanup, clean up, sync submodules, update submodules, submodule update. Branch-and-PR discipline is not bureaucracy — it is what separates maintainable projects from chaos."
+description: "Use when creating a branch, committing, pushing, or creating a PR, rebase/merge conflicts (invoke conflict-resolution), \"check pr\"/\"check prs\"/\"check merged prs\"/\"pr merged\" (PR state verification + cleanup), \"release PR\"/\"promote to main\"/\"dev to main\" (release-promotion). Branch-and-PR discipline is not bureaucracy — it is what separates maintainable projects from chaos."
 type: discipline-enforcing
 license: MIT
-provenance: "🤖 Co-authored with AI: OpenCode (nemotron-3-ultra-free)"
 compatibility: opencode
 ---
 

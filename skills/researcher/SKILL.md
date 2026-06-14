@@ -1,9 +1,8 @@
 ---
 name: researcher
-description: "Use when discovering information using appropriate modalities, producing findings with source attribution and explicit gap reporting. Triggers on: research, discover, investigate, find information, multimodal research, information discovery. Research without tool calls produces memory guesses. Every unverified finding is a liability, not evidence."
+description: "Use when discovering information using appropriate modalities, producing findings with source attribution and explicit gap reporting. Every unverified finding is a liability, not evidence."
 type: problem-solving
 license: MIT
-provenance: "🤖 Co-authored with AI: OpenCode (nemotron-3-ultra-free)"
 compatibility: opencode
 ---
 
@@ -13,7 +12,6 @@ compatibility: opencode
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
 ## Overview
 

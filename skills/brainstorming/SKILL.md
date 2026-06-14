@@ -1,9 +1,8 @@
 ---
 name: brainstorming
-description: "Use when creating a spec, planning a feature, or exploring requirements before implementation. Triggers on: spec, plan, feature, brainstorm, explore, requirements, ideate, think through, what should. Agents who implement without brainstorming build solutions to problems they do not understand."
+description: "Use when creating a spec, planning a feature, or exploring requirements before implementation. Agents who implement without brainstorming build solutions to problems they do not understand."
 type: discipline-enforcing
 license: MIT
-provenance: "🤖 Co-authored with AI: OpenCode (nemotron-3-ultra-free)"
 compatibility: opencode
 ---
 
