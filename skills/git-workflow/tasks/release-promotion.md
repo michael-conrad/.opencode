@@ -13,9 +13,9 @@ Prepare dev → main promotion, semver tagging, and release creation via PR-base
 
 ## Operating Protocol
 
-1. **Submodule repos:** Tag submodule SHAs with `<parent>/v<version>` tags — no dev → main PRs needed for submodules
-2. **Non-submodule repos:** Create release PR from dev targeting main, HALT for human merge, then tag and release
-3. **Tag validation:** All semver tags must pass `validate-release-tags.sh --semver` before parent promotion proceeds
+- [ ] 1. **Submodule repos:** Tag submodule SHAs with `<parent>/v<version>` tags — no dev → main PRs needed for submodules
+- [ ] 2. **Non-submodule repos:** Create release PR from dev targeting main, HALT for human merge, then tag and release
+- [ ] 3. **Tag validation:** All semver tags must pass `validate-release-tags.sh --semver` before parent promotion proceeds
 
 ## Entry Criteria
 
@@ -165,9 +165,9 @@ After all submodules are tagged:
 
 **MUST exit 0.** If it exits non-zero:
 
-1. Report which submodule failed validation
-2. HALT — do not proceed with parent promotion
-3. Developer must resolve the tag issue before retrying
+- [ ] 1. Report which submodule failed validation
+- [ ] 2. HALT — do not proceed with parent promotion
+- [ ] 3. Developer must resolve the tag issue before retrying
 
 ### Step 4: Proceed with Parent Promotion
 
@@ -223,14 +223,14 @@ Create a release PR targeting `$DEFAULT_BRANCH`. The PR body MUST summarize what
 
 **Synthesize the PR body from issue context:**
 
-1. Capture the commit log: `git log "$DEFAULT_BRANCH"..dev --oneline`
-2. For each commit, extract the issue number from the commit message and read the corresponding issue body to determine the change's intent and impact
-3. Categorize changes by type: new features, bug fixes, refactors, maintenance
-4. Generate a structured PR body with:
+- [ ] 1. Capture the commit log: `git log "$DEFAULT_BRANCH"..dev --oneline`
+- [ ] 2. For each commit, extract the issue number from the commit message and read the corresponding issue body to determine the change's intent and impact
+- [ ] 3. Categorize changes by type: new features, bug fixes, refactors, maintenance
+- [ ] 4. Generate a structured PR body with:
    - Summary paragraph: what this release encompasses (1-3 sentences synthesizing intent across all changes)
    - Changes section: per-category breakdown with issue references and functional impact descriptions
    - Files changed: `git diff "$DEFAULT_BRANCH"...dev --stat`
-5. If no unreleased changes exist (`git log` output is empty), state that explicitly
+- [ ] 5. If no unreleased changes exist (`git log` output is empty), state that explicitly
 
 **For GitHub:**
 

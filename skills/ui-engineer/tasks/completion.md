@@ -17,12 +17,12 @@ Idempotent cleanup of temporary resources and production of a final summary afte
 
 ## Procedure
 
-1. List temporary files in `./tmp/` related to ui-engineer tasks (intermediate renders, build artifacts, etc.).
-2. Remove temporary files that are not referenced by any final artifact.
-3. Verify all final implementation files, test specs, and config files still exist and are valid.
-4. Produce a final summary of all artifacts created, their locations, and any concerns.
-5. Return result contract.
-6. HALT — no further action after completion.
+- [ ] 1. List temporary files in `./tmp/` related to ui-engineer tasks (intermediate renders, build artifacts, etc.).
+- [ ] 2. Remove temporary files that are not referenced by any final artifact.
+- [ ] 3. Verify all final implementation files, test specs, and config files still exist and are valid.
+- [ ] 4. Produce a final summary of all artifacts created, their locations, and any concerns.
+- [ ] 5. Return result contract.
+- [ ] 6. HALT — no further action after completion.
 
 ## Pipeline Signal
 

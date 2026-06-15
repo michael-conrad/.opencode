@@ -26,9 +26,9 @@ If `.issues/` directory does not exist, route to `platforms/local/tasks/creation
 
 Determine whether a local issue already exists for this remote number:
 
-1. Search `.issues/open/` and `.issues/closed/` for an entry matching the remote number
-2. If found: the issue exists locally — proceed to Step 3 (update)
-3. If not found: create a new local issue via task() to `platforms/local/tasks/creation.md`: `{title: "<remote_title>"}`
+- [ ] 1. Search `.issues/open/` and `.issues/closed/` for an entry matching the remote number
+- [ ] 2. If found: the issue exists locally — proceed to Step 3 (update)
+- [ ] 3. If not found: create a new local issue via task() to `platforms/local/tasks/creation.md`: `{title: "<remote_title>"}`
 
 Capture the returned local issue number.
 

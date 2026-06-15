@@ -6,10 +6,10 @@ Create pull request after explicit user instruction. Squash commits to single co
 
 ## Operating Protocol
 
-1. **User-initiated only:** "create a PR", "make a PR", "push and create PR"
-2. **Squash to single commit:** ALL implementation commits combined into ONE clean commit
-3. **Target `dev` branch:** Feature PRs merge to `dev` (not `main`)
-4. **HALT after PR creation:** No prompting for next steps
+- [ ] 1. **User-initiated only:** "create a PR", "make a PR", "push and create PR"
+- [ ] 2. **Squash to single commit:** ALL implementation commits combined into ONE clean commit
+- [ ] 3. **Target `dev` branch:** Feature PRs merge to `dev` (not `main`)
+- [ ] 4. **HALT after PR creation:** No prompting for next steps
 
 ## Entry Criteria
 
@@ -54,19 +54,19 @@ Collects sub-issues from parent spec, creates PR with executive summary body, ex
 ## Co-Author Trailers (MANDATORY)
 
 Every squash commit MUST include:
-1. AI Trailer: `Co-authored-by: <AgentName> (<ModelId>) <noreply@example.com>`
-2. Human Trailer: `Co-authored-by: <dev.name> <dev.email>`
+- [ ] 1. AI Trailer: `Co-authored-by: <AgentName> (<ModelId>) <noreply@example.com>`
+- [ ] 2. Human Trailer: `Co-authored-by: <dev.name> <dev.email>`
 
 ## Review Phase (Mandatory)
 
 After implementation and BEFORE PR creation:
 
-1. Agent pushes feature branch to remote
-2. Agent reports compare URL in CHAT ONLY (NEVER to GitHub Issues)
-3. Developer reviews changes via GitHub diff viewer
-4. Developer decides whether to create PR or request changes
-5. If satisfied, developer says "create a PR"
-6. Agent creates PR (squash, push, create PR, HALT)
+- [ ] 1. Agent pushes feature branch to remote
+- [ ] 2. Agent reports compare URL in CHAT ONLY (NEVER to GitHub Issues)
+- [ ] 3. Developer reviews changes via GitHub diff viewer
+- [ ] 4. Developer decides whether to create PR or request changes
+- [ ] 5. If satisfied, developer says "create a PR"
+- [ ] 6. Agent creates PR (squash, push, create PR, HALT)
 
 ## Context Required
 

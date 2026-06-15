@@ -67,15 +67,15 @@ Spec Architect. Focus: structure investigation results into complete, well-organ
 
 ## Operating Protocol
 
-1. **Pre-spec inspection mandatory** per `015-pre-spec-inspection.md` (code inspection checklist).
-1. **Verification-enforcement gate** before generation.
-1. **Select-existing pathway:** search GitHub Issues for existing specs before creating new one.
-1. **Requirements task mandatory** before write (unless trivial).
-1. **Persist as GitHub Issue** via `issue-operations --task creation`.
-1. **Adversarial-audit call:** after issue creation, call `adversarial-audit --task spec-audit --issue <N>` with `audit_phase: spec_creation`.
-1. **PR merge boundaries** required when dependencies exist.
-1. **Mermaid diagram** required for multi-phase specs (approved structure only, no workflow state).
-1. **Concern enumeration guard:** enumerate single concerns before writing.
+- [ ] 1. **Pre-spec inspection mandatory** per `015-pre-spec-inspection.md` (code inspection checklist).
+- [ ] 2. **Verification-enforcement gate** before generation.
+- [ ] 3. **Select-existing pathway:** search GitHub Issues for existing specs before creating new one.
+- [ ] 4. **Requirements task mandatory** before write (unless trivial).
+- [ ] 5. **Persist as GitHub Issue** via `issue-operations --task creation`.
+- [ ] 6. **Adversarial-audit call:** after issue creation, call `adversarial-audit --task spec-audit --issue <N>` with `audit_phase: spec_creation`.
+- [ ] 7. **PR merge boundaries** required when dependencies exist.
+- [ ] 8. **Mermaid diagram** required for multi-phase specs (approved structure only, no workflow state).
+- [ ] 9. **Concern enumeration guard:** enumerate single concerns before writing.
 
 ## Sub-Agent Routing
 

@@ -92,8 +92,8 @@ After a body update, the agent MUST decide whether to push the updated content t
 
 When push is needed, the orchestrator dispatches:
 
-1. `extract-exec-summary` task — reads spec.md, writes/updates remote.md
-1. `push-body` task — pushes remote.md to remote API
+- [ ] 1. `extract-exec-summary` task — reads spec.md, writes/updates remote.md
+- [ ] 1. `push-body` task — pushes remote.md to remote API
 
 These are separate task dispatches — this task file does NOT inline them.
 

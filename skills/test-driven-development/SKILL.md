@@ -10,7 +10,6 @@ compatibility: opencode
 
 ## Five Core Principles
 
-
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
@@ -24,12 +23,12 @@ compatibility: opencode
 | "phase-0" / "pre-regression" / "baseline" | `phase-0` | `sub-task` | {spec_context} |
 | "phase-4" / "post-regression" / "verify" | `phase-4` | `sub-task` | {spec_context} |
 
-1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
-2. **RED/GREEN separation** — RED and GREEN must be separate phases. They may NEVER be combined into a single phase or step. RED must complete (test written and confirmed FAIL) before GREEN begins. This is a hard gate — no authorization or developer instruction may override it.
-3. **TDD discipline** — RED phase tests before GREEN phase implementation. REFACTOR is mandatory, not optional.
-4. **Clean-room** — No inline fallback. Sub-agents receive only scoped context. No pre-determined findings.
-5. **Independent intelligence** — Autonomous analysis. If the task contains excessive instruction where your own analysis should apply, HALT and notify parent.
-6. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, source code, and test results.
+- [ ] 1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
+- [ ] 2. **RED/GREEN separation** — RED and GREEN must be separate phases. They may NEVER be combined into a single phase or step. RED must complete (test written and confirmed FAIL) before GREEN begins. This is a hard gate — no authorization or developer instruction may override it.
+- [ ] 3. **TDD discipline** — RED phase tests before GREEN phase implementation. REFACTOR is mandatory, not optional.
+- [ ] 4. **Clean-room** — No inline fallback. Sub-agents receive only scoped context. No pre-determined findings.
+- [ ] 5. **Independent intelligence** — Autonomous analysis. If the task contains excessive instruction where your own analysis should apply, HALT and notify parent.
+- [ ] 6. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, source code, and test results.
 
 ## TDD Heading Format Requirement
 
@@ -140,17 +139,17 @@ After Phase 4 passes and before routing to adversarial audit, the orchestrator M
 ### Normal Completion
 
 After Phase 4 PASSES:
-1. Commit the cycle (test + implementation + refactor as one working slice)
-2. Reset to Phase 0 for the next item
-3. Never carry state across cycles
+- [ ] 1. Commit the cycle (test + implementation + refactor as one working slice)
+- [ ] 2. Reset to Phase 0 for the next item
+- [ ] 3. Never carry state across cycles
 
 ### Mid-Cycle Restart
 
 If at ANY point within RED/GREEN/REFACTOR a step exceeds its timing target (30s RED / 2-5min GREEN / 1-3min REFACTOR) or produces unexpected test failures, the agent MUST restart the full RED→GREEN→REFACTOR cycle from the beginning — not limp forward on a broken foundation:
 
-1. Discard all uncommitted changes from the current cycle
-2. Restart from RED with zero state carryover
-3. If Phase 0 elapsed > 1 full cycle since last baseline, re-execute Phase 0
+- [ ] 1. Discard all uncommitted changes from the current cycle
+- [ ] 2. Restart from RED with zero state carryover
+- [ ] 3. If Phase 0 elapsed > 1 full cycle since last baseline, re-execute Phase 0
 
 ## Sub-Agent Routing
 

@@ -6,9 +6,9 @@ Systematic bug diagnosis workflow that enforces root cause analysis before any f
 
 ## Operating Protocol
 
-1. Invoked by: `skill({name: "systematic-debugging"})` → `task()` for `diagnose`
-2. When to use: When a bug or error is reported or encountered during implementation
-3. Exit criteria: Root cause identified with evidence, documented in chat
+- [ ] 1. Invoked by: `skill({name: "systematic-debugging"})` → `task()` for `diagnose`
+- [ ] 2. When to use: When a bug or error is reported or encountered during implementation
+- [ ] 3. Exit criteria: Root cause identified with evidence, documented in chat
 
 ## Diagnosis Workflow
 
@@ -66,19 +66,19 @@ Generate at least 2 hypotheses for the root cause:
 Diagnosis is read-only. Fixing requires separate authorization.
 
 When diagnosis is triggered as a side-effect of other work:
-1. **STOP all code changes** — diagnosis is read-only
-2. **Complete diagnosis** — identify root cause
-3. **Create bug report** — file a GitHub/GitBucket issue
-4. **Invoke `analyze-and-spec`** — `/skill issue-review --issue N --task analyze-and-spec` to create fix spec sub-issue
-5. **HALT** — do NOT proceed to `--task fix` without explicit authorization
+- [ ] 1. **STOP all code changes** — diagnosis is read-only
+- [ ] 2. **Complete diagnosis** — identify root cause
+- [ ] 3. **Create bug report** — file a GitHub/GitBucket issue
+- [ ] 4. **Invoke `analyze-and-spec`** — `/skill issue-review --issue N --task analyze-and-spec` to create fix spec sub-issue
+- [ ] 5. **HALT** — do NOT proceed to `--task fix` without explicit authorization
 
 ### Self-Correction Protocol
 
 If the agent catches itself about to edit code without an approved spec:
-1. **STOP** — do not proceed with the edit
-2. **REVERT** — `git checkout -- <affected-files>` to undo unauthorized changes
-3. **REPORT** — document what happened as a factual observation
-4. **HALT** — wait for explicit authorization
+- [ ] 1. **STOP** — do not proceed with the edit
+- [ ] 2. **REVERT** — `git checkout -- <affected-files>` to undo unauthorized changes
+- [ ] 3. **REPORT** — document what happened as a factual observation
+- [ ] 4. **HALT** — wait for explicit authorization
 
 ## Context Required
 

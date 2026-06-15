@@ -10,25 +10,25 @@ BRANCH=$(git branch --show-current)
 
 If `$BRANCH` starts with `pair-`:
 
-1. **Identify issue number from branch name:**
+- [ ] 1. **Identify issue number from branch name:**
    Extract numeric issue reference from branch: `pair-feature/123-xyz` → issue #123
 
-2. **Show diff summary:**
+- [ ] 2. **Show diff summary:**
    ```bash
    git diff --stat origin/dev..HEAD
    ```
 
-3. **Check for uncommitted changes:**
+- [ ] 3. **Check for uncommitted changes:**
    ```bash
    git status --porcelain
    ```
 
-4. **Check for unpushed commits:**
+- [ ] 4. **Check for unpushed commits:**
    ```bash
    git rev-list --count origin/<pair-branch>..HEAD
    ```
 
-5. **Report to developer:**
+- [ ] 5. **Report to developer:**
    ```
    Pair mode resumed on `<branch>`
    - Related issue: #123

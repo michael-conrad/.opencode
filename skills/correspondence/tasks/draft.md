@@ -99,9 +99,9 @@ Apply stakeholder content rules based on audience classification:
 
 If replying to an existing email thread:
 
-1. Read the original email's Content-Type header
-2. If `multipart/alternative` or `text/html` → Reply MUST be multipart/alternative
-3. If `text/plain` only → Reply MAY be text/plain only (but multipart is still preferred)
+- [ ] 1. Read the original email's Content-Type header
+- [ ] 2. If `multipart/alternative` or `text/html` → Reply MUST be multipart/alternative
+- [ ] 3. If `text/plain` only → Reply MAY be text/plain only (but multipart is still preferred)
 
 #### Multipart/Alternative Template
 
@@ -175,10 +175,10 @@ Invoke `verification-enforcement --task revisit` after self-review.
 
 Present the completed email draft to the calling context with:
 
-1. Audience classification and rationale
-2. Content filtering decisions (what was included/excluded and why)
-3. Verification results (verified claims, unresolved markers)
-4. The complete multipart/alternative email
+- [ ] 1. Audience classification and rationale
+- [ ] 2. Content filtering decisions (what was included/excluded and why)
+- [ ] 3. Verification results (verified claims, unresolved markers)
+- [ ] 4. The complete multipart/alternative email
 
 ## Common Issues
 

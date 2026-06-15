@@ -6,9 +6,9 @@ Handle work-in-progress commits during implementation. Multiple commits during i
 
 ## Operating Protocol
 
-1. **User-driven work:** The agent performs approved implementation tasks
-2. **Checkpoint commits allowed:** Commits during implementation serve to stage changes and prevent accidental loss
-3. **Squashing is deferred:** Squashing to single commit happens during PR creation, not during implementation
+- [ ] 1. **User-driven work:** The agent performs approved implementation tasks
+- [ ] 2. **Checkpoint commits allowed:** Commits during implementation serve to stage changes and prevent accidental loss
+- [ ] 3. **Squashing is deferred:** Squashing to single commit happens during PR creation, not during implementation
 
 ## Entry Criteria
 
@@ -150,10 +150,10 @@ Commit when:
 
 ## After Implementation Completes
 
-1. **Commit all changes** (`git add -A && git commit`)
-2. **Push to remote** (`git push -u origin <branch-name>`)
-3. **Report completion** (executive summary to issue AND chat)
-4. **HALT** — do NOT create PR
-5. **WAIT** for explicit "create a PR" instruction
+- [ ] 1. **Commit all changes** (`git add -A && git commit`)
+- [ ] 2. **Push to remote** (`git push -u origin <branch-name>`)
+- [ ] 3. **Report completion** (executive summary to issue AND chat)
+- [ ] 4. **HALT** — do NOT create PR
+- [ ] 5. **WAIT** for explicit "create a PR" instruction
 
 **See:** `pr-creation-workflow` skill for complete PR workflow.

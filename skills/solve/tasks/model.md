@@ -22,11 +22,11 @@ Query the Z3 solver for satisfiability of a user-provided expression under the c
 
 The tool enforces preconditions and invariants before the query:
 
-1. Load contract variables as Z3 constants
-2. Assert all preconditions from the contract
-3. Assert all invariants from the contract
-4. Assert the user's query expression
-5. Check satisfiability
+- [ ] 1. Load contract variables as Z3 constants
+- [ ] 2. Assert all preconditions from the contract
+- [ ] 3. Assert all invariants from the contract
+- [ ] 4. Assert the user's query expression
+- [ ] 5. Check satisfiability
 
 This ordering ensures the query is evaluated only in valid contexts — preconditions establish validity, invariants enforce consistency.
 

@@ -18,9 +18,9 @@ Prepare commit message for squash commit during PR creation. This is a read-only
 
 The developer will say "commit" or "create a PR" when they want git operations. Until then, do nothing:
 
-1. **After completing implementation**: Report completion concisely, then STOP and wait silently
-2. **Do NOT ask**: "Commit?", "Ready to commit?", "Should I commit?", "Ready for a PR?", "Create a PR?", "Push and PR?"
-3. **Do NOT automatically create PRs**: PR creation requires the same explicit instruction as commits
+- [ ] 1. **After completing implementation**: Report completion concisely, then STOP and wait silently
+- [ ] 2. **Do NOT ask**: "Commit?", "Ready to commit?", "Should I commit?", "Ready for a PR?", "Create a PR?", "Push and PR?"
+- [ ] 3. **Do NOT automatically create PRs**: PR creation requires the same explicit instruction as commits
 
 ### ✅ ALWAYS DO
 
@@ -32,9 +32,9 @@ The developer will say "commit" or "create a PR" when they want git operations. 
 
 ## Operating Protocol
 
-1. **User-initiated only:** This task runs when user says "commit" or "prepare a commit"
-2. **Read-only analysis:** Discover changes but DO NOT execute commits
-3. **HALT after analysis:** Wait for user to review and approve
+- [ ] 1. **User-initiated only:** This task runs when user says "commit" or "prepare a commit"
+- [ ] 2. **Read-only analysis:** Discover changes but DO NOT execute commits
+- [ ] 3. **HALT after analysis:** Wait for user to review and approve
 
 ## Entry Criteria
 
@@ -134,10 +134,10 @@ git commit -m "feat: Add user authentication" \
 
 Commits occur during the PR creation workflow, not as a separate step:
 
-1. **Implementation completes** → review-prep task pushes branch
-2. **Developer reviews** → Developer says "create a PR"
-3. **PR creation** → Squash commit is executed as part of PR creation
-4. **No intermediate scripts** → No `./tmp/{issue-N}/commit.sh` or manual steps
+- [ ] 1. **Implementation completes** → review-prep task pushes branch
+- [ ] 2. **Developer reviews** → Developer says "create a PR"
+- [ ] 3. **PR creation** → Squash commit is executed as part of PR creation
+- [ ] 4. **No intermediate scripts** → No `./tmp/{issue-N}/commit.sh` or manual steps
 
 ## Reading Historical Content
 

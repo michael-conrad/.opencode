@@ -56,10 +56,10 @@ state = pr.get("state", "unknown")
 
 When searching for a PR that fixes a specific issue on GitBucket (no search API):
 
-1. List PRs with `direction=desc&sort=created&per_page=30`
-2. Scan each PR body for reference pattern (`Fixes #N`, `#N`)
-3. Stop on first match
-4. Paginate only if no match found on first page
+- [ ] 1. List PRs with `direction=desc&sort=created&per_page=30`
+- [ ] 2. Scan each PR body for reference pattern (`Fixes #N`, `#N`)
+- [ ] 3. Stop on first match
+- [ ] 4. Paginate only if no match found on first page
 
 ```bash
 # List closed PRs and scan bodies for issue reference

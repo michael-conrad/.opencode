@@ -49,17 +49,17 @@ Read the current state of `.issues/N/remote.md` and platform metadata.
 
 **Actions:**
 
-1. Resolve the `.issues/` root directory:
+- [ ] 1. Resolve the `.issues/` root directory:
    ```bash
    git rev-parse --show-toplevel  # find repo root
    ```
    Then locate `.issues/open/N-*` or `.issues/closed/N-*` matching the issue number.
 
-2. Read `.issues/N/remote.md` via `read` tool. If the file does not exist, report `remote_md_path: null` — the transform agent will create it.
+- [ ] 2. Read `.issues/N/remote.md` via `read` tool. If the file does not exist, report `remote_md_path: null` — the transform agent will create it.
 
-3. Determine platform from `github.platform` session value.
+- [ ] 3. Determine platform from `github.platform` session value.
 
-4. Return result contract:
+- [ ] 4. Return result contract:
    ```json
    {
      "current_body": "<content of remote.md, or null if not found>",
@@ -79,9 +79,9 @@ Apply the caller's texted edit script to `remote.md`.
 
 **Actions:**
 
-1. Receive `{ remote_md_path, edit_script }` from orchestrator dispatch context.
+- [ ] 1. Receive `{ remote_md_path, edit_script }` from orchestrator dispatch context.
 
-2. If `remote_md_path` exists, apply the texted script:
+- [ ] 2. If `remote_md_path` exists, apply the texted script:
    ```
    texted_edit_file(
      files=[remote_md_path],
@@ -89,9 +89,9 @@ Apply the caller's texted edit script to `remote.md`.
    )
    ```
 
-3. If `remote_md_path` is null (file does not exist), this is an error condition — `remote.md` must exist before editing or be created by a separate sync-pull operation first. Return `{ success: false, summary_of_changes: "remote.md not found — run sync pull first" }`.
+- [ ] 3. If `remote_md_path` is null (file does not exist), this is an error condition — `remote.md` must exist before editing or be created by a separate sync-pull operation first. Return `{ success: false, summary_of_changes: "remote.md not found — run sync pull first" }`.
 
-4. Return result contract:
+- [ ] 4. Return result contract:
    ```json
    {
      "success": true|false,
@@ -107,9 +107,9 @@ Post-edit structural integrity check. This agent checks STRUCTURE only — it do
 
 **Actions:**
 
-1. Read the edited `remote.md` file via `read` tool.
+- [ ] 1. Read the edited `remote.md` file via `read` tool.
 
-2. Verify structural integrity:
+- [ ] 2. Verify structural integrity:
 
    | Check | Pass Condition | Failure Classification |
    |-------|---------------|----------------------|
@@ -118,7 +118,7 @@ Post-edit structural integrity check. This agent checks STRUCTURE only — it do
    | Body content non-empty | At least one non-whitespace line | EMPTY-BODY |
    | No frontmatter present | File does NOT start with `---` (remote.md is pure markdown) | STRUCTURE-DAMAGE |
 
-3. Return result contract:
+- [ ] 3. Return result contract:
    ```json
    {
      "pass": true|false,
@@ -140,15 +140,15 @@ Commit `.issues/` changes and sync push to remote.
 
 **Actions:**
 
-1. Stage and commit `.issues/` changes:
+- [ ] 1. Stage and commit `.issues/` changes:
    ```bash
    git add .issues/
    git commit -m "body-edit: update remote.md for issue #N"
    ```
 
-2. Route to `platforms/local/tasks/push-body.md` via task() to sync local changes. Pass: `{issue_number: N}`
+- [ ] 2. Route to `platforms/local/tasks/push-body.md` via task() to sync local changes. Pass: `{issue_number: N}`
 
-3. For GitHub platform, also update the remote issue body (routed via platform sub-skill):
+- [ ] 3. For GitHub platform, also update the remote issue body (routed via platform sub-skill):
 
 Route based on `github.platform`:
 
@@ -175,7 +175,7 @@ github_issue_write(
 ./.opencode/tools/gitbucket-api update-issue <github.owner> <github.repo> <issue-number> --body "<remote_md_body_content>"
 ```
 
-4. Return result contract:
+- [ ] 4. Return result contract:
    ```json
    {
      "sync_status": "pushed|local_only|failed",

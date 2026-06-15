@@ -6,16 +6,16 @@ Check an existing plan for placeholders and completeness.
 
 ## Validation Checks
 
-01. **Placeholder detection** — Zero TBD/TODO tolerance
-02. **Completeness** — Plan addresses the stated problem
-03. **Actionability** — Steps are concrete, not abstract goals
-04. **Testability** — Success criteria include executable verification commands with exact expected values (not just "measurable" — each SC must specify a command that produces a deterministic pass/fail result)
-05. **TDD structure** — Each task has failing test → implement → passing test steps
-06. **File structure** — All files are listed with responsibilities
-07. **Self-review evidence** — Agent has performed spec coverage, placeholder, and type consistency checks
-08. **Spec reference** — Plan body contains a spec reference (search for `Spec: #N` pattern)
-09. **Sub-issue parent** — If plan has sub-issues, they link to the plan (not the spec)
-10. **Plan label** — Plan issue has `plan` label
+- [ ] 01. **Placeholder detection** — Zero TBD/TODO tolerance
+- [ ] 02. **Completeness** — Plan addresses the stated problem
+- [ ] 03. **Actionability** — Steps are concrete, not abstract goals
+- [ ] 04. **Testability** — Success criteria include executable verification commands with exact expected values (not just "measurable" — each SC must specify a command that produces a deterministic pass/fail result)
+- [ ] 05. **TDD structure** — Each task has failing test → implement → passing test steps
+- [ ] 06. **File structure** — All files are listed with responsibilities
+- [ ] 07. **Self-review evidence** — Agent has performed spec coverage, placeholder, and type consistency checks
+- [ ] 08. **Spec reference** — Plan body contains a spec reference (search for `Spec: #N` pattern)
+- [ ] 09. **Sub-issue parent** — If plan has sub-issues, they link to the plan (not the spec)
+- [ ] 10. **Plan label** — Plan issue has `plan` label
 
 ## No-Placeholders Rule
 

@@ -6,20 +6,20 @@ Create an implementation plan from an approved spec. Plans are stored at `.issue
 
 ## Prerequisites
 
-1. Approved spec (verified by approval-gate)
-2. Spec stored in `.issues/{N}/spec.md`
-3. Spec has explicit approval (`approved` or `go`)
-4. (Optional) `authorization_scope` from verify-authorization — if scope >= `for_plan`, plan auto-approval triggers
+- [ ] 1. Approved spec (verified by approval-gate)
+- [ ] 2. Spec stored in `.issues/{N}/spec.md`
+- [ ] 3. Spec has explicit approval (`approved` or `go`)
+- [ ] 4. (Optional) `authorization_scope` from verify-authorization — if scope >= `for_plan`, plan auto-approval triggers
 
 ## Operating Protocol
 
-1. **Verification first:** Must run verification-enforcement --task verify before reading spec
-2. **Combined or separate decision:** Early evaluation whether plan content references spec content inline (combined) or stands alone with separate phase sections (separate)
-3. **Item decomposition mandatory:** Plan must enumerate items, order dependencies, specify acceptance criteria
-4. **RED checkpoint mandatory:** Every TDD task must include explicit Step 2 checkpoint
-5. **Approval cascade auto-approve:** Pipeline scope (`for_plan+`) auto-approves plan
-6. **Handoff verification pre-PASS:** Before any plan content is written, spec-to-plan handoff MUST return PASS. This is a non-waivable hard gate — no exceptions, no "proceed anyway."
-7. **16-gate dispatch table format mandatory:** All plan phases MUST use the 16-gate implementation pipeline dispatch table format defined below in §Dispatch Table and §Dynamic Standard Gate Set Mandate. The gate labels, step sequence, and dispatch targets MUST reference the canonical source at `implementation-pipeline/SKILL.md` §Dispatch Routing Table. This is the default format for every phase — no exceptions, no simplified alternatives.
+- [ ] 1. **Verification first:** Must run verification-enforcement --task verify before reading spec
+- [ ] 2. **Combined or separate decision:** Early evaluation whether plan content references spec content inline (combined) or stands alone with separate phase sections (separate)
+- [ ] 3. **Item decomposition mandatory:** Plan must enumerate items, order dependencies, specify acceptance criteria
+- [ ] 4. **RED checkpoint mandatory:** Every TDD task must include explicit Step 2 checkpoint
+- [ ] 5. **Approval cascade auto-approve:** Pipeline scope (`for_plan+`) auto-approves plan
+- [ ] 6. **Handoff verification pre-PASS:** Before any plan content is written, spec-to-plan handoff MUST return PASS. This is a non-waivable hard gate — no exceptions, no "proceed anyway."
+- [ ] 7. **16-gate dispatch table format mandatory:** All plan phases MUST use the 16-gate implementation pipeline dispatch table format defined below in §Dispatch Table and §Dynamic Standard Gate Set Mandate. The gate labels, step sequence, and dispatch targets MUST reference the canonical source at `implementation-pipeline/SKILL.md` §Dispatch Routing Table. This is the default format for every phase — no exceptions, no simplified alternatives.
 
 ## Entry Criteria
 
@@ -57,16 +57,16 @@ Writes plan header, stores at `.issues/{N}/plan.md`, runs self-review and valida
 
 ## Orchestrator Execution Protocol
 
-1. Read the dispatch tables in the plan to determine the gate sequence for the current phase
-2. Execute every gate in every phase in numeric order (G1, G2, G3, ...)
-3. Do NOT skip any gate — every row is mandatory
-4. Do NOT reorder gates — the sequence is defined by the plan
-5. For `sub-task` gates: call `task()` with the exact `Receives Context` JSON object as the prompt, using the specified `Sub-Agent Type`
-6. For `inline` gates: execute the described operation directly (no sub-agent)
-7. After each gate completes, verify the SCs listed in that gate's SCs column
-8. Report progress via chat output only — zero GitHub Issue comments during implementation unless absolutely warranted
-9. After each phase completes, run the Inter-Phase Handoff steps before advancing to the next phase
-10. Do NOT modify the plan — it is a static definitional artifact. Only mutate for remediation or scope revision
+- [ ] 1. Read the dispatch tables in the plan to determine the gate sequence for the current phase
+- [ ] 2. Execute every gate in every phase in numeric order (G1, G2, G3, ...)
+- [ ] 3. Do NOT skip any gate — every row is mandatory
+- [ ] 4. Do NOT reorder gates — the sequence is defined by the plan
+- [ ] 5. For `sub-task` gates: call `task()` with the exact `Receives Context` JSON object as the prompt, using the specified `Sub-Agent Type`
+- [ ] 6. For `inline` gates: execute the described operation directly (no sub-agent)
+- [ ] 7. After each gate completes, verify the SCs listed in that gate's SCs column
+- [ ] 8. Report progress via chat output only — zero GitHub Issue comments during implementation unless absolutely warranted
+- [ ] 9. After each phase completes, run the Inter-Phase Handoff steps before advancing to the next phase
+- [ ] 10. Do NOT modify the plan — it is a static definitional artifact. Only mutate for remediation or scope revision
 
 ## Dispatch Table
 
@@ -78,13 +78,13 @@ Every plan phase MUST include a dispatch table using EXACTLY the following 6-col
 
 ### Dispatch Table Rules
 
-1. **One row per gate.** Every gate in the sequence must have exactly one row. No merged cells, no multi-step rows.
-2. **Dispatch Type is binary:** `sub-task` (orchestrator tasks a clean-room sub-agent) or `inline` (orchestrator executes directly — restricted to CHECKPOINT-COMMIT only).
-3. **Blind? column:** `yes (blind)` means the sub-agent receives only the Receives Context JSON — no other context from prior gates. `N/A` for inline gates.
-4. **Sub-Agent Type:** Use `general` for sub-task gates. Use `N/A` for inline gates.
-5. **Receives Context:** A JSON object with task instruction, issue number, phase number. For sub-task gates this is the EXACT prompt passed to `task()`. For inline gates this is `—` (em dash, no context).
-6. **SCs column:** Lists the SCs this gate verifies (e.g., `SC-1, SC-2`). Must match SC IDs from the spec.
-7. **Standard gate set is dynamic.** The gate labels and step sequence MUST be pulled from `implementation-pipeline/SKILL.md` §Dispatch Routing Table at the time of plan creation. Do NOT hardcode gate names — reference the canonical source. The current standard set is: `sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `red-doublecheck`, `post-red-enforcement`, `green-phase`, `post-green-enforcement`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`. Any deviation from this set must be justified.
+- [ ] 1. **One row per gate.** Every gate in the sequence must have exactly one row. No merged cells, no multi-step rows.
+- [ ] 2. **Dispatch Type is binary:** `sub-task` (orchestrator tasks a clean-room sub-agent) or `inline` (orchestrator executes directly — restricted to CHECKPOINT-COMMIT only).
+- [ ] 3. **Blind? column:** `yes (blind)` means the sub-agent receives only the Receives Context JSON — no other context from prior gates. `N/A` for inline gates.
+- [ ] 4. **Sub-Agent Type:** Use `general` for sub-task gates. Use `N/A` for inline gates.
+- [ ] 5. **Receives Context:** A JSON object with task instruction, issue number, phase number. For sub-task gates this is the EXACT prompt passed to `task()`. For inline gates this is `—` (em dash, no context).
+- [ ] 6. **SCs column:** Lists the SCs this gate verifies (e.g., `SC-1, SC-2`). Must match SC IDs from the spec.
+- [ ] 7. **Standard gate set is dynamic.** The gate labels and step sequence MUST be pulled from `implementation-pipeline/SKILL.md` §Dispatch Routing Table at the time of plan creation. Do NOT hardcode gate names — reference the canonical source. The current standard set is: `sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `red-doublecheck`, `post-red-enforcement`, `green-phase`, `post-green-enforcement`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`. Any deviation from this set must be justified.
 
 ### Dynamic Standard Gate Set Mandate
 

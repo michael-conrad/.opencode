@@ -6,9 +6,9 @@ Ensure mandatory completion steps run regardless of workflow outcome. Idempotent
 
 ## Procedure
 
-1. Verify task marker still exists: `ls ./tmp/{issue-N}/task-*.marker`
-2. Report completion status to work state file
-3. Return compact completion result
+- [ ] 1. Verify task marker still exists: `ls ./tmp/{issue-N}/task-*.marker`
+- [ ] 2. Report completion status to work state file
+- [ ] 3. Return compact completion result
 
 ## Result Contract
 

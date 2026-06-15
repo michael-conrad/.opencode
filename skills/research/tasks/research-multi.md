@@ -21,9 +21,9 @@ A `ResearchResult` is produced with combined findings from all modalities, sourc
 
 For each modality in the requested list:
 
-1. Invoke `multimodal-dispatch --task resolve` with the modality hint and content payload
-2. Collect the resolved model for that modality
-3. If no model is available, mark the modality as `(unverified)`
+- [ ] 1. Invoke `multimodal-dispatch --task resolve` with the modality hint and content payload
+- [ ] 2. Collect the resolved model for that modality
+- [ ] 3. If no model is available, mark the modality as `(unverified)`
 
 ### Step 2: Run Per-Modality Research
 
@@ -63,11 +63,11 @@ Return the combined `ResearchResult` with all findings, source attributions, and
 
 Researching a document that includes both text and an image:
 
-1. User provides `content = { text: "document text", image_paths: ["figure.png"] }` and `modalities = ["text", "vision"]`
-2. `research-multi` resolves text model for text content, vision model for image content
-3. Text sub-agent analyzes the document text and produces findings about content
-4. Vision sub-agent analyzes the image and produces findings about visual content
-5. Findings are combined with source attribution for each modality
+- [ ] 1. User provides `content = { text: "document text", image_paths: ["figure.png"] }` and `modalities = ["text", "vision"]`
+- [ ] 2. `research-multi` resolves text model for text content, vision model for image content
+- [ ] 3. Text sub-agent analyzes the document text and produces findings about content
+- [ ] 4. Vision sub-agent analyzes the image and produces findings about visual content
+- [ ] 5. Findings are combined with source attribution for each modality
 
 ## Graceful Degradation (REQ-5)
 

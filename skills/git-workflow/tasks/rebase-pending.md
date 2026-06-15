@@ -6,11 +6,11 @@ After a PR merge is verified, automatically rebase all other pending PRs from th
 
 ## Operating Protocol
 
-1. **After merge verification:** Run immediately after Step 2 (verify PR merge) in cleanup
-2. **Before dev sync:** Must complete before Step 3 (switch to dev and sync)
-3. **Sequential processing:** Rebase one PR at a time to avoid collisions
-4. **Force-push after rebase:** Rebased branches must be force-pushed to update remote PRs
-5. **Submodule re-sync after rebase:** Every rebase against `dev` MUST be followed by submodule sync — this is always-on hygiene
+- [ ] 1. **After merge verification:** Run immediately after Step 2 (verify PR merge) in cleanup
+- [ ] 2. **Before dev sync:** Must complete before Step 3 (switch to dev and sync)
+- [ ] 3. **Sequential processing:** Rebase one PR at a time to avoid collisions
+- [ ] 4. **Force-push after rebase:** Rebased branches must be force-pushed to update remote PRs
+- [ ] 5. **Submodule re-sync after rebase:** Every rebase against `dev` MUST be followed by submodule sync — this is always-on hygiene
 
 ## Entry Criteria
 
@@ -222,9 +222,9 @@ PR #<N> (<title>): Rebased and force-pushed successfully.
 
 After all pending PRs are processed (rebased, auto-resolved, or blocked for developer):
 
-1. Clean up any temporary rebase worktrees
-2. Report summary to developer
-3. Continue with existing cleanup: Step 3 (switch to dev and sync), Step 4+ (delete branch, close issues, etc.)
+- [ ] 1. Clean up any temporary rebase worktrees
+- [ ] 2. Report summary to developer
+- [ ] 3. Continue with existing cleanup: Step 3 (switch to dev and sync), Step 4+ (delete branch, close issues, etc.)
 
 **If any Tier 3 conflicts blocked a rebase:**
 

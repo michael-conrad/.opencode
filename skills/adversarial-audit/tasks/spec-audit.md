@@ -45,9 +45,9 @@ Audit a spec for quality, structure, and completeness using dual-adversarial cro
 
 Read spec from `spec_local_dir/`:
 
-1. Glob `**/*.md` in `<spec_local_dir>/` via `glob` tool, read all discovered files
-2. Extract spec body and metadata from each
-3. If `spec_local_dir` is a list, glob each entry's `**/*.md`, extract SCs from each, perform interdependency analysis (overlaps, conflicts, independences)
+- [ ] 1. Glob `**/*.md` in `<spec_local_dir>/` via `glob` tool, read all discovered files
+- [ ] 2. Extract spec body and metadata from each
+- [ ] 3. If `spec_local_dir` is a list, glob each entry's `**/*.md`, extract SCs from each, perform interdependency analysis (overlaps, conflicts, independences)
 
 Auditors return BLOCKED with `SPEC_NOT_FOUND` if `spec_local_dir` is absent.
 
@@ -55,10 +55,10 @@ Auditors return BLOCKED with `SPEC_NOT_FOUND` if `spec_local_dir` is absent.
 
 For each URL, API reference, or documentation claim in the spec (including any `Documentation Sources` section), verify against live sources:
 
-1. Fetch each URL using `webfetch` — verify the page exists and contains the referenced content
-2. For API documentation claims: use `srclight_get_signature` or official docs to verify function signatures, parameter names, and behavior
-3. For environment variables: check `.env.example` or config schema
-4. For library/framework patterns: verify against official release docs or changelogs
+- [ ] 1. Fetch each URL using `webfetch` — verify the page exists and contains the referenced content
+- [ ] 2. For API documentation claims: use `srclight_get_signature` or official docs to verify function signatures, parameter names, and behavior
+- [ ] 3. For environment variables: check `.env.example` or config schema
+- [ ] 4. For library/framework patterns: verify against official release docs or changelogs
 
 Record per-reference results:
 
@@ -127,9 +127,9 @@ For each success criterion in the spec, evaluate determinism:
 - Can an executable verification command be written for this SC?
 
 **If any SC would produce INCONCLUSIVE from any reasonable auditor**, flag that SC as `SPEC_GAP` and include a revision recommendation that specifies:
-1. Which fail pattern(s) the SC contains
-2. What a deterministic rewrite would look like
-3. An example executable verification command
+- [ ] 1. Which fail pattern(s) the SC contains
+- [ ] 2. What a deterministic rewrite would look like
+- [ ] 3. An example executable verification command
 
 **Result format:**
 
@@ -204,14 +204,14 @@ summary: "N criteria evaluated. X PASS, Y FAIL."
 
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
 
-1. Load spec content → INVALID if skipped
-2. Verify documentation sources → INVALID if skipped
-3. Build evaluation criteria → INVALID if skipped
-4. Cross-validate with verdicts → INVALID if skipped
-5. Process verdicts → INVALID if skipped
-6. Evaluate SC determinism → INVALID if skipped
-7. Generate bidirectional findings → INVALID if skipped
-8. Build result contract → INVALID if skipped
+- [ ] 1. Load spec content → INVALID if skipped
+- [ ] 2. Verify documentation sources → INVALID if skipped
+- [ ] 3. Build evaluation criteria → INVALID if skipped
+- [ ] 4. Cross-validate with verdicts → INVALID if skipped
+- [ ] 5. Process verdicts → INVALID if skipped
+- [ ] 6. Evaluate SC determinism → INVALID if skipped
+- [ ] 7. Generate bidirectional findings → INVALID if skipped
+- [ ] 8. Build result contract → INVALID if skipped
 
 ## Next Pipeline Step (MANDATORY CONTINUATION)
 

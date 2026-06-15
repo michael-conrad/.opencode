@@ -23,28 +23,28 @@ Verify every SC from the spec received at least one PASS verdict before issue cl
 
 ### Step 1: Collect Pipeline Artifacts
 
-1. Glob `./tmp/{issue-N}/artifacts/pipeline-*.yaml` for all pipeline step artifacts
-2. Read each artifact and extract SC verdicts (PASS/FAIL per SC)
-3. Collect all SC verdicts into a unified SC status table
+- [ ] 1. Glob `./tmp/{issue-N}/artifacts/pipeline-*.yaml` for all pipeline step artifacts
+- [ ] 2. Read each artifact and extract SC verdicts (PASS/FAIL per SC)
+- [ ] 3. Collect all SC verdicts into a unified SC status table
 
 ### Step 2: Read SC Summary
 
-1. Read `.issues/{issue-N}/sc-summary.yaml`
-2. Extract `sc_coverage.total` and all SC-IDs
-3. Verify every SC-ID from the summary has at least one verdict in the pipeline artifacts
+- [ ] 1. Read `.issues/{issue-N}/sc-summary.yaml`
+- [ ] 2. Extract `sc_coverage.total` and all SC-IDs
+- [ ] 3. Verify every SC-ID from the summary has at least one verdict in the pipeline artifacts
 
 ### Step 3: Verify All SCs Have PASS Verdicts
 
-1. For each SC-ID from `sc-summary.yaml`:
+- [ ] 1. For each SC-ID from `sc-summary.yaml`:
    - Check if at least one pipeline artifact contains a PASS verdict for this SC
    - If no PASS verdict found: mark as UNVERIFIED
    - If FAIL verdict found without subsequent PASS: mark as FAILED
-2. If any SC is UNVERIFIED or FAILED: status = BLOCKED
+- [ ] 2. If any SC is UNVERIFIED or FAILED: status = BLOCKED
 
 ### Step 4: Report and Block
 
-1. If all SCs PASS: write PASS manifest, proceed to issue closure
-2. If any SC is UNVERIFIED or FAILED:
+- [ ] 1. If all SCs PASS: write PASS manifest, proceed to issue closure
+- [ ] 2. If any SC is UNVERIFIED or FAILED:
    - Write BLOCKED manifest with list of UNVERIFIED/FAILED SCs
    - Post a BLOCKER finding to the issue comment
    - Block issue closure

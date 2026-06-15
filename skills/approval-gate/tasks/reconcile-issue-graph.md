@@ -38,19 +38,19 @@ For each finding from the traversal list, classify into one of six categories:
 
 For each sub-issue finding in the traversal list:
 
-1. **Identify the parent plan** — call `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues, owner=<github.owner>, repo=<github.repo>, issue_number=<N>)` on each finding's parent to confirm the plan relationship. Record the parent plan issue number. <!-- Routes through issue-operations per SPEC #683 -->
-2. **Read the parent plan body** — call `issue-operations -> read-issue (github_issue_read(method=get, owner=<github.owner>, repo=<github.repo>, issue_number=<plan_N>)` and extract the spec reference using the pattern `Spec: #N`. <!-- Routes through issue-operations per SPEC #683 -->
-3. **Search for other plans referencing the same spec** — call `issue-operations -> search-issues (github_search_issues(query="label:plan \"Spec: #<spec_N>\" in:body repo:<github.owner>/<github.repo>", owner=<github.owner>, repo=<github.repo>)`. Collect all plan issue numbers returned. <!-- Routes through issue-operations per SPEC #683 -->
-4. **Compare plan scopes for overlap** — for each additional plan found, call `issue-operations -> read-issue (github_issue_read(method=get)` to read its body. Extract phase titles and compare with the current plan's phases. Record overlapping phase titles. <!-- Routes through issue-operations per SPEC #683 -->
-5. **If overlap exists**: Add a finding to the `uncertain` classification with reason `"duplicate plan track — requires dev action to determine which plan owns deliverables"`. Record: spec number, all plan numbers referencing that spec, and the overlapping phase titles.
+- [ ] 1. **Identify the parent plan** — call `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues, owner=<github.owner>, repo=<github.repo>, issue_number=<N>)` on each finding's parent to confirm the plan relationship. Record the parent plan issue number. <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 2. **Read the parent plan body** — call `issue-operations -> read-issue (github_issue_read(method=get, owner=<github.owner>, repo=<github.repo>, issue_number=<plan_N>)` and extract the spec reference using the pattern `Spec: #N`. <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 3. **Search for other plans referencing the same spec** — call `issue-operations -> search-issues (github_search_issues(query="label:plan \"Spec: #<spec_N>\" in:body repo:<github.owner>/<github.repo>", owner=<github.owner>, repo=<github.repo>)`. Collect all plan issue numbers returned. <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 4. **Compare plan scopes for overlap** — for each additional plan found, call `issue-operations -> read-issue (github_issue_read(method=get)` to read its body. Extract phase titles and compare with the current plan's phases. Record overlapping phase titles. <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 5. **If overlap exists**: Add a finding to the `uncertain` classification with reason `"duplicate plan track — requires dev action to determine which plan owns deliverables"`. Record: spec number, all plan numbers referencing that spec, and the overlapping phase titles.
 
 ### Step 2: Verify Auto-Close Candidates
 
 For each auto-close candidate:
 
-1. **Merged PR path**: Call `github_pull_request_read(method=get)` on any associated PR. Confirm `merged_at` is not null. Record PR number and `merged_at` timestamp as evidence.
-2. **Code-in-repo path**: Use `read`, `grep`, or `srclight_get_symbol` to confirm success criteria are met in the live codebase. Record specific file paths and symbol names as evidence.
-3. **If evidence is ambiguous**: Reclassify as `uncertain` and move to `requires_dev_action`.
+- [ ] 1. **Merged PR path**: Call `github_pull_request_read(method=get)` on any associated PR. Confirm `merged_at` is not null. Record PR number and `merged_at` timestamp as evidence.
+- [ ] 2. **Code-in-repo path**: Use `read`, `grep`, or `srclight_get_symbol` to confirm success criteria are met in the live codebase. Record specific file paths and symbol names as evidence.
+- [ ] 3. **If evidence is ambiguous**: Reclassify as `uncertain` and move to `requires_dev_action`.
 
 ### Step 2.5: Evidence Gate
 
@@ -65,20 +65,20 @@ Candidates without evidence artifacts are reclassified as `uncertain` with reaso
 
 For each `auto-close` candidate, scan all comments on the issue for conflicting signals that would prevent confident auto-closure.
 
-1. Call `issue-operations -> read-comments (github_issue_read(method=get_comments, owner=<github.owner>, repo=<github.repo>, issue_number=<N>)` for each candidate. <!-- Routes through issue-operations per SPEC #683 -->
-2. For each comment, check for conflict phrases within 24 hours of the reconciliation run timestamp: `"needs work"`, `"verification gap"`, `"not complete"`, `"partial"`, `"⚠️"`.
-3. If any comment posted within the 24-hour window contains a conflict phrase, reclassify the candidate from `auto-close` to `uncertain` with reason `"comment-content conflict: issue comments flag incomplete work"`. Record the conflicting comment ID and phrase.
-4. If no conflicting comments are found within the 24-hour window, the candidate passes this gate.
+- [ ] 1. Call `issue-operations -> read-comments (github_issue_read(method=get_comments, owner=<github.owner>, repo=<github.repo>, issue_number=<N>)` for each candidate. <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 2. For each comment, check for conflict phrases within 24 hours of the reconciliation run timestamp: `"needs work"`, `"verification gap"`, `"not complete"`, `"partial"`, `"⚠️"`.
+- [ ] 3. If any comment posted within the 24-hour window contains a conflict phrase, reclassify the candidate from `auto-close` to `uncertain` with reason `"comment-content conflict: issue comments flag incomplete work"`. Record the conflicting comment ID and phrase.
+- [ ] 4. If no conflicting comments are found within the 24-hour window, the candidate passes this gate.
 
 ### Step 3: Verify Reopen Candidates
 
 For each reopen candidate:
 
-1. Call `github_search_pull_requests` for the issue number — confirm no merged PR exists.
-2. Use `read`/`grep`/`srclight_get_symbol` to confirm the code is NOT present in the repo.
-3. Call `issue-operations -> read-issue (github_issue_read(method=get)` to confirm `state_reason` is not `not_planned` or `duplicate`. <!-- Routes through issue-operations per SPEC #683 -->
-4. **If a merged PR is found**: Reclassify as `no-action` — the closure may have been legitimate via a PR the traversal missed.
-5. **If code IS found in repo**: Reclassify as `uncertain` — conflicting signals require dev judgment.
+- [ ] 1. Call `github_search_pull_requests` for the issue number — confirm no merged PR exists.
+- [ ] 2. Use `read`/`grep`/`srclight_get_symbol` to confirm the code is NOT present in the repo.
+- [ ] 3. Call `issue-operations -> read-issue (github_issue_read(method=get)` to confirm `state_reason` is not `not_planned` or `duplicate`. <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 4. **If a merged PR is found**: Reclassify as `no-action` — the closure may have been legitimate via a PR the traversal missed.
+- [ ] 5. **If code IS found in repo**: Reclassify as `uncertain` — conflicting signals require dev judgment.
 
 ### Step 4: Process No-Action Findings
 
@@ -101,18 +101,18 @@ Add to `requires_dev_action` list in the result contract.
 
 For each verified auto-close candidate:
 
-1. Call `issue-operations -> update-issue (github_issue_write(method=update, state=closed, state_reason=completed)` on the issue. <!-- Routes through issue-operations per SPEC #683 -->
-2. Call `issue-operations -> comment (github_add_issue_comment` with evidence (including Step 2.5 artifact reference): <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 1. Call `issue-operations -> update-issue (github_issue_write(method=update, state=closed, state_reason=completed)` on the issue. <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 2. Call `issue-operations -> comment (github_add_issue_comment` with evidence (including Step 2.5 artifact reference): <!-- Routes through issue-operations per SPEC #683 -->
    - Merged PR: "Auto-closing: merged PR #N confirmed (merged_at: TIMESTAMP) (evidence: merged_at via github_pull_request_read). Issue graph reconciliation via `reconcile-issue-graph`."
    - Code verified: "Auto-closing: success criteria verified against live code (files: [...], symbols: [...]) (evidence: <artifact description from Step 2.5>). Issue graph reconciliation via `reconcile-issue-graph`."
-3. Remove `needs-approval` label if present.
+- [ ] 3. Remove `needs-approval` label if present.
 
 ### Step 7: Execute Reopen Actions
 
 For each verified reopen candidate:
 
-1. Call `issue-operations -> update-issue (github_issue_write(method=update, state=open)` on the issue. <!-- Routes through issue-operations per SPEC #683 -->
-2. Call `issue-operations -> comment (github_add_issue_comment`: "Reopening: no merged PR found and code not present in repo. Previous closure may have been premature. Issue graph reconciliation via `reconcile-issue-graph`." <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 1. Call `issue-operations -> update-issue (github_issue_write(method=update, state=open)` on the issue. <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 2. Call `issue-operations -> comment (github_add_issue_comment`: "Reopening: no merged PR found and code not present in repo. Previous closure may have been premature. Issue graph reconciliation via `reconcile-issue-graph`." <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Step 8: Output Reconciliation Report
 

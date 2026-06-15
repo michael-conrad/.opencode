@@ -6,9 +6,9 @@ Generate an operational runbook for a given domain and scenario type. The runboo
 
 ## Operating Protocol
 
-1. Invoked by: `skill({name: "sre-runbook"})` → `task()` for `generate`
-2. When to use: When an operational runbook is needed for a system, service, or infrastructure domain
-3. Exit criteria: Runbook generated with environment-verified instructions at every step, validated against all enforcement rules
+- [ ] 1. Invoked by: `skill({name: "sre-runbook"})` → `task()` for `generate`
+- [ ] 2. When to use: When an operational runbook is needed for a system, service, or infrastructure domain
+- [ ] 3. Exit criteria: Runbook generated with environment-verified instructions at every step, validated against all enforcement rules
 
 ## Pre-Conditions
 
@@ -81,7 +81,7 @@ For configuration changes and scheduled procedures, the operator needs "just do 
 
 **Steps-only output contract:**
 
-1. **Metadata header** — Plain text header (NOT YAML):
+- [ ] 1. **Metadata header** — Plain text header (NOT YAML):
    ```
    Domain: <domain>
    Provider: <provider>
@@ -91,11 +91,11 @@ For configuration changes and scheduled procedures, the operator needs "just do 
    Last verified: Verified against <product> <version> on <date>
    ```
 
-2. **Prerequisites** — Log in, navigate, open elevated session.
+- [ ] 2. **Prerequisites** — Log in, navigate, open elevated session.
 
-3. **Numbered steps with verification** — Each step includes exact field values and a verify command:
+- [ ] 3. **Numbered steps with verification** — Each step includes exact field values and a verify command:
    ```
-   3. Add A record:
+   - [ ] 3. Add A record:
       - Type: A
       - Name: @
       - Value: 192.0.2.1
@@ -103,14 +103,14 @@ For configuration changes and scheduled procedures, the operator needs "just do 
       Verify: dig @ns1.directnic.com videoconcerthall.com A +short
    ```
 
-4. **Reference table** — All records/fields consolidated in one place for quick lookup.
+- [ ] 4. **Reference table** — All records/fields consolidated in one place for quick lookup.
 
-5. **Verification script** — One command to check everything:
+- [ ] 5. **Verification script** — One command to check everything:
    ```
    dig @ns1.directnic.com videoconcerthall.com ANY +noall +answer
    ```
 
-6. **Troubleshooting table** — If X fails, do Y:
+- [ ] 6. **Troubleshooting table** — If X fails, do Y:
    ```
    | Symptom | Likely Cause | Fix |
    |---------|-------------|-----|
@@ -130,13 +130,13 @@ The dual-pattern search MUST be run. Do NOT run only one pattern and assume the 
 
 After collecting results:
 
-1. If sibling repos are accessible, search those too
-2. If existing runbooks exist, examine their format:
+- [ ] 1. If sibling repos are accessible, search those too
+- [ ] 2. If existing runbooks exist, examine their format:
    - Do they use YAML enforcement blocks? → match dual-output format
    - Do they use steps-only numbered format? → match steps-only format
    - Is there a proven format from operator feedback? → match that format
-3. If existing runbooks use steps-only format and the runbook_type is `one-off-config` or `periodic-procedure`, use steps-only format
-4. If no existing runbooks exist, use the format dictated by `runbook_type`
+- [ ] 3. If existing runbooks use steps-only format and the runbook_type is `one-off-config` or `periodic-procedure`, use steps-only format
+- [ ] 4. If no existing runbooks exist, use the format dictated by `runbook_type`
 
 **The format-matching rule OVERRIDES the type-based default when existing proven formats exist.**
 
@@ -452,10 +452,10 @@ For each GUI path in the runbook:
 
 **If the agent cannot verify a command or path against a live source:**
 
-1. Do NOT include the unverified command/path in the runbook
-2. Do NOT annotate it as "(unverified)" — unverified information is excluded
-3. HALT and inform the user: "I cannot verify [command/path] against live documentation. Please run `[command] --help` and supply the output, or confirm the correct syntax."
-4. Do NOT silently fall back to training knowledge — this is the worst-case scenario that produces confident-sounding wrong instructions
+- [ ] 1. Do NOT include the unverified command/path in the runbook
+- [ ] 2. Do NOT annotate it as "(unverified)" — unverified information is excluded
+- [ ] 3. HALT and inform the user: "I cannot verify [command/path] against live documentation. Please run `[command] --help` and supply the output, or confirm the correct syntax."
+- [ ] 4. Do NOT silently fall back to training knowledge — this is the worst-case scenario that produces confident-sounding wrong instructions
 
 ## HALT Conditions
 
@@ -489,12 +489,12 @@ The cadence value comes from the Cadence Registry in SKILL.md. Only registered c
 
 The generated runbook is saved as a Markdown file with:
 
-1. **Metadata header** — plain text (domain, provider, date, source, runbook type, last verified)
-2. **Prerequisites** — log in, navigate, open elevated session
-3. **Numbered steps with verification** — each step has exact field values and a verify command after each step
-4. **Reference table** — all records/fields in one place for quick lookup
-5. **Verification script** — one command to check everything at once
-6. **Troubleshooting table** — if X fails, do Y
+- [ ] 1. **Metadata header** — plain text (domain, provider, date, source, runbook type, last verified)
+- [ ] 2. **Prerequisites** — log in, navigate, open elevated session
+- [ ] 3. **Numbered steps with verification** — each step has exact field values and a verify command after each step
+- [ ] 4. **Reference table** — all records/fields in one place for quick lookup
+- [ ] 5. **Verification script** — one command to check everything at once
+- [ ] 6. **Troubleshooting table** — if X fails, do Y
 
 **No YAML enforcement blocks.** No symptom catalog. No diagnosis map. No postmortem template. The operator needs to "just do the job."
 
@@ -504,7 +504,7 @@ File naming convention: `<RB_PATH>/<domain>-<scenario_type>_<YYYY-MM-DD>_issue-<
 
 The generated runbook is saved as a Markdown file with:
 
-1. **Environment header** — verified environment context block:
+- [ ] 1. **Environment header** — verified environment context block:
    ```yaml
    environment:
      os: "<os and version>"
@@ -514,12 +514,12 @@ The generated runbook is saved as a Markdown file with:
      last_verified: "Verified against <product> <version> on <date>"
    ```
 
-2. **Current state baseline** — evidence anchoring with actual outputs
-3. **AI-parseable yaml+symbolic enforcement blocks** (structured data for automation)
-4. **Operational procedures** — numbered steps with copy-paste commands
-5. **Restore defaults** — rollback commands
-6. **Verification commands** — confirm fix applied
-7. **Postmortem template** (incident-response only) — timeline and action items
+- [ ] 2. **Current state baseline** — evidence anchoring with actual outputs
+- [ ] 3. **AI-parseable yaml+symbolic enforcement blocks** (structured data for automation)
+- [ ] 4. **Operational procedures** — numbered steps with copy-paste commands
+- [ ] 5. **Restore defaults** — rollback commands
+- [ ] 6. **Verification commands** — confirm fix applied
+- [ ] 7. **Postmortem template** (incident-response only) — timeline and action items
 
 File naming convention: `docs/runbooks/<domain>-<scenario_type>.md`
 
@@ -529,38 +529,38 @@ After generating the runbook, the agent MUST validate the output against ALL enf
 
 ### Validation Checklist
 
-1. ✅ Runbook type classified (one-off-config, periodic-procedure, troubleshooting, incident-response)?
-2. ✅ Format-matching rule applied (existing runbooks in repo checked for format)?
-3. ✅ For one-off-config/periodic-procedure: steps-only format with NO YAML blocks?
-4. ✅ For troubleshooting/incident-response: dual-output format with YAML enforcement blocks?
-5. ✅ Environment context collected and documented?
-6. ✅ Single path per operation (no "or via CLI" alternatives)?
-7. ✅ Only confirmed-available tools referenced?
-8. ✅ Real values from environment (zero generic placeholders)?
-9. ✅ Prerequisites (elevation) before privileged commands?
-10. ✅ Steps only — no explanations, no conditional flows?
-11. ✅ Minimum-necessary settings only?
-12. ✅ Set-and-restore pattern (two command blocks)?
-13. ✅ No content re-added after removal?
-14. ✅ Every CLI command verified against `--help`/`man`/live docs?
-15. ✅ Every GUI path verified against vendor docs?
-16. ✅ Evidence anchoring with baseline outputs?
-17. ✅ Version/environment pinning included?
-18. ✅ "Last verified" timestamp included?
-19. ✅ Existing repo documentation checked for hostnames/IPs/domains?
-20. ✅ No training-knowledge commands presented as verified?
-21. ✅ Evidence collection failure handled (HALT, not fallback)?
-22. ✅ Verification-failure gate passed for EVERY section with operational steps? (If ALL sources failed for any section, was the section blocked and user prompted?)
-23. ✅ DNS record types validated against RFC constraints and provider capabilities? (If DNS runbook: no CNAME at apex, no unsupported record types)
-24. ✅ VERIFICATION-GAP annotations explicit (provider name, claims unconfirmed, sources attempted)?
-25. ✅ For steps-only: reference table and troubleshooting table included?
-26. ✅ For steps-only: each step has exact field values and verify command?
-27. ✅ For steps-only: metadata header is plain text, NOT YAML?
-28. ✅ Communication scope correct? Status communications include full narrative context (cause, attribution, what was wrong, what was corrected, before/after for each affected component, current state, references) — NOT steps-only format applied outside operational procedures?
-29. ✅ AI byline present on all agent-generated communications (email replies, notifications, stakeholder updates)?
-30. ✅ Byline present in BOTH plain-text and HTML sections of dual-format communications?
-31. ✅ Byline not removed on subsequent edits of agent-generated communications?
-32. ✅ Byline semantics correct? "on behalf of <dev.name>" or "copy editor for <dev.name>" when user provided direct message/instructions; bare `<AgentName> (<ModelId>)` when agent authored the communication?
+- [ ] 1. ✅ Runbook type classified (one-off-config, periodic-procedure, troubleshooting, incident-response)?
+- [ ] 2. ✅ Format-matching rule applied (existing runbooks in repo checked for format)?
+- [ ] 3. ✅ For one-off-config/periodic-procedure: steps-only format with NO YAML blocks?
+- [ ] 4. ✅ For troubleshooting/incident-response: dual-output format with YAML enforcement blocks?
+- [ ] 5. ✅ Environment context collected and documented?
+- [ ] 6. ✅ Single path per operation (no "or via CLI" alternatives)?
+- [ ] 7. ✅ Only confirmed-available tools referenced?
+- [ ] 8. ✅ Real values from environment (zero generic placeholders)?
+- [ ] 9. ✅ Prerequisites (elevation) before privileged commands?
+- [ ] 10. ✅ Steps only — no explanations, no conditional flows?
+- [ ] 11. ✅ Minimum-necessary settings only?
+- [ ] 12. ✅ Set-and-restore pattern (two command blocks)?
+- [ ] 13. ✅ No content re-added after removal?
+- [ ] 14. ✅ Every CLI command verified against `--help`/`man`/live docs?
+- [ ] 15. ✅ Every GUI path verified against vendor docs?
+- [ ] 16. ✅ Evidence anchoring with baseline outputs?
+- [ ] 17. ✅ Version/environment pinning included?
+- [ ] 18. ✅ "Last verified" timestamp included?
+- [ ] 19. ✅ Existing repo documentation checked for hostnames/IPs/domains?
+- [ ] 20. ✅ No training-knowledge commands presented as verified?
+- [ ] 21. ✅ Evidence collection failure handled (HALT, not fallback)?
+- [ ] 22. ✅ Verification-failure gate passed for EVERY section with operational steps? (If ALL sources failed for any section, was the section blocked and user prompted?)
+- [ ] 23. ✅ DNS record types validated against RFC constraints and provider capabilities? (If DNS runbook: no CNAME at apex, no unsupported record types)
+- [ ] 24. ✅ VERIFICATION-GAP annotations explicit (provider name, claims unconfirmed, sources attempted)?
+- [ ] 25. ✅ For steps-only: reference table and troubleshooting table included?
+- [ ] 26. ✅ For steps-only: each step has exact field values and verify command?
+- [ ] 27. ✅ For steps-only: metadata header is plain text, NOT YAML?
+- [ ] 28. ✅ Communication scope correct? Status communications include full narrative context (cause, attribution, what was wrong, what was corrected, before/after for each affected component, current state, references) — NOT steps-only format applied outside operational procedures?
+- [ ] 29. ✅ AI byline present on all agent-generated communications (email replies, notifications, stakeholder updates)?
+- [ ] 30. ✅ Byline present in BOTH plain-text and HTML sections of dual-format communications?
+- [ ] 31. ✅ Byline not removed on subsequent edits of agent-generated communications?
+- [ ] 32. ✅ Byline semantics correct? "on behalf of <dev.name>" or "copy editor for <dev.name>" when user provided direct message/instructions; bare `<AgentName> (<ModelId>)` when agent authored the communication?
 
 If ANY check fails, fix the runbook before presenting. The user should never need to correct the same issue twice.
 

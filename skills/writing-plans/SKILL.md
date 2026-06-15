@@ -51,13 +51,13 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 
 ## Operating Protocol
 
-1. **Plan from approved spec only.** No plan without approved spec.
-1. **Adversarial-audit call:** after plan creation, call type-specific audit tasks directly — `adversarial-audit --task plan-fidelity` and `adversarial-audit --task concern-separation` — with `audit_phase: plan_creation`.
-1. **TDD steps mandatory:** each step is RED→GREEN→REFACTOR within tasks.
-1. **No placeholders:** exact file paths, exact function/class names, exact commands.
-1. **Phase structure:** phases for concern boundaries and handoffs, tasks within phases for TDD steps.
-1. **Decision gate:** multi-task → separate plan. Single-task + simple → combined or separate per agent judgment.
-1. **Pipeline-readiness gate check (Step 0.5) + mandatory checklist generation (Step 6) required.** Plan creation must verify `sc-pipeline-readiness.yaml` PASS before proceeding, and generate `implementation-checklist.md` after plan content is finalized.
+- [ ] 1. **Plan from approved spec only.** No plan without approved spec.
+- [ ] 2. **Adversarial-audit call:** after plan creation, call type-specific audit tasks directly — `adversarial-audit --task plan-fidelity` and `adversarial-audit --task concern-separation` — with `audit_phase: plan_creation`.
+- [ ] 3. **TDD steps mandatory:** each step is RED→GREEN→REFACTOR within tasks.
+- [ ] 4. **No placeholders:** exact file paths, exact function/class names, exact commands.
+- [ ] 5. **Phase structure:** phases for concern boundaries and handoffs, tasks within phases for TDD steps.
+- [ ] 6. **Decision gate:** multi-task → separate plan. Single-task + simple → combined or separate per agent judgment.
+- [ ] 7. **Pipeline-readiness gate check (Step 0.5) + mandatory checklist generation (Step 6) required.** Plan creation must verify `sc-pipeline-readiness.yaml` PASS before proceeding, and generate `implementation-checklist.md` after plan content is finalized.
 
 ## Sub-Agent Routing
 

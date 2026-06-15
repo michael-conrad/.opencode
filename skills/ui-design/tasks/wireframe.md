@@ -20,11 +20,11 @@ Produce a low-fidelity wireframe SVG from a spec or design context.
 
 ## Procedure
 
-1. Read the spec or context for the screen/layout being wireframed.
-2. Copy `templates/wireframe_template.svg` as the starting point.
-3. Modify named groups (`header`, `content`, `footer`, `sidebar`) to reflect the spec layout.
-4. Add placeholder text elements for labels, headings, and data fields.
-5. Validate the wireframe SVG with `uv run --script scripts/validate_svg.py`.
-6. Ensure no framework-specific content (Streamlit, React, Vue, etc.).
-7. Invoke `completion` subtask.
-8. Return result contract.
+- [ ] 1. Read the spec or context for the screen/layout being wireframed.
+- [ ] 2. Copy `templates/wireframe_template.svg` as the starting point.
+- [ ] 3. Modify named groups (`header`, `content`, `footer`, `sidebar`) to reflect the spec layout.
+- [ ] 4. Add placeholder text elements for labels, headings, and data fields.
+- [ ] 5. Validate the wireframe SVG with `uv run --script scripts/validate_svg.py`.
+- [ ] 6. Ensure no framework-specific content (Streamlit, React, Vue, etc.).
+- [ ] 7. Invoke `completion` subtask.
+- [ ] 8. Return result contract.

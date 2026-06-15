@@ -20,11 +20,11 @@ Prove a theorem (logical expression) follows from the contract's preconditions a
 
 ### 2. Proving Sequence
 
-1. Load contract variables as Z3 constants
-2. Assert all preconditions as assumptions
-3. Assert all invariants as assumptions
-4. Assert the negation of the theorem: `z3.Not(theorem_expression)`
-5. Check satisfiability
+- [ ] 1. Load contract variables as Z3 constants
+- [ ] 2. Assert all preconditions as assumptions
+- [ ] 3. Assert all invariants as assumptions
+- [ ] 4. Assert the negation of the theorem: `z3.Not(theorem_expression)`
+- [ ] 5. Check satisfiability
 
 This is the standard refutation-based proof technique: assume the axioms (preconditions + invariants) and check that the negated theorem cannot be satisfied.
 

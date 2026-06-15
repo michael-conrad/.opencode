@@ -8,15 +8,15 @@ Ensure local `.issues/` mirrors all open remote issues. Detect staleness in both
 
 ### Procedure
 
-1. Call `local-issues sync` (ensure git state is current across all repos)
-2. For each repo in cascade (current repo + child repos):
+- [ ] 1. Call `local-issues sync` (ensure git state is current across all repos)
+- [ ] 2. For each repo in cascade (current repo + child repos):
    a. List open issues from remote via platform dispatcher
    b. Call `local-issues list` and parse issue numbers
    c. Diff: for each remote issue not in local → call `import-remote` task
    d. For issues in both: compare `updated_at` on remote vs local
       - remote newer → call `sync-pull-to-local` (update `remote.md`)
       - local newer → flag: `local_ahead: "issue {qualifier}#{N} is ahead of remote"`
-3. Report structured YAML:
+- [ ] 3. Report structured YAML:
    ```yaml
    sync-from-remote:
      repos:

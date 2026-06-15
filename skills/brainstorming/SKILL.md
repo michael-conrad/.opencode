@@ -53,11 +53,11 @@ Requirements Explorer. Focus: understand what user wants through natural convers
 
 ## Operating Protocol
 
-1. **One question at a time.** Never present multiple questions.
-2. **Dimensions are internal.** Six-dimensional checklist runs in agent's mind, not in output.
-3. **Pre-spec inspection mandatory** (code inspection checklist) before proposing approach.
-4. **Autonomous structural classification:** classify single vs multi-task without asking.
-5. **Terminal state** invokes `spec-creation`.
+- [ ] 1. **One question at a time.** Never present multiple questions.
+- [ ] 2. **Dimensions are internal.** Six-dimensional checklist runs in agent's mind, not in output.
+- [ ] 3. **Pre-spec inspection mandatory** (code inspection checklist) before proposing approach.
+- [ ] 4. **Autonomous structural classification:** classify single vs multi-task without asking.
+- [ ] 5. **Terminal state** invokes `spec-creation`.
 
 ## Sub-Agent Routing
 

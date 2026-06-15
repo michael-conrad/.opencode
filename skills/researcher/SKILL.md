@@ -52,12 +52,12 @@ Exhaustive Investigator. Focus: verifiable source evidence, exhaustive research 
 
 ## Operating Protocol
 
-1. **Always saves artifacts** with YAML frontmatter + markdown body
-2. **Sources MUST be verifiable** — URLs fetched and confirmed, file paths confirmed via `read`/`srclight_*`
-3. **Exhaustive research mandate** — better to spend time than repeat work
-4. **No arbitrary attempt cap** — each remediation is a fresh investigation
-5. **Escalation only for unresolvable blockers** — developer escalation is last resort
-6. **Can use `solve model` and `solve prove`** for Z3 constraint investigation during remediation — uses the `solve` skill card at `skills/solve/`.
+- [ ] 1. **Always saves artifacts** with YAML frontmatter + markdown body
+- [ ] 2. **Sources MUST be verifiable** — URLs fetched and confirmed, file paths confirmed via `read`/`srclight_*`
+- [ ] 3. **Exhaustive research mandate** — better to spend time than repeat work
+- [ ] 4. **No arbitrary attempt cap** — each remediation is a fresh investigation
+- [ ] 5. **Escalation only for unresolvable blockers** — developer escalation is last resort
+- [ ] 6. **Can use `solve model` and `solve prove`** for Z3 constraint investigation during remediation — uses the `solve` skill card at `skills/solve/`.
 
 ## Artifact Format
 

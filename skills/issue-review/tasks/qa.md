@@ -60,10 +60,10 @@ Based on depth, prepare questions. **Ask ONE question at a time in chat.** Do NO
 ### Step 3: Ask Questions One at a Time
 
 For each question:
-1. Ask in chat
-2. Wait for user response
-3. Follow up if the answer is unclear
-4. Move to next question when satisfied
+- [ ] 1. Ask in chat
+- [ ] 2. Wait for user response
+- [ ] 3. Follow up if the answer is unclear
+- [ ] 4. Move to next question when satisfied
 
 ### Step 4: On Resolution, Compose Exec Summary
 

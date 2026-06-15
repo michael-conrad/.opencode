@@ -51,10 +51,10 @@ Use the loaded spec SCs as the sole authoritative baseline for evidence type che
 
 For each success criterion in the audit scope:
 
-1. Read the implementation diff for the files the SC covers
-2. Ask: "Does this change affect runtime behavior?" — this is a substrate-determined question, not intent-determined
-3. If YES → the SC's evidence type is UPLIFTED to `behavioral` regardless of how it was declared
-4. If NO → the declared type stands
+- [ ] 1. Read the implementation diff for the files the SC covers
+- [ ] 2. Ask: "Does this change affect runtime behavior?" — this is a substrate-determined question, not intent-determined
+- [ ] 3. If YES → the SC's evidence type is UPLIFTED to `behavioral` regardless of how it was declared
+- [ ] 4. If NO → the declared type stands
 
 ### What Affects Runtime Behavior
 
@@ -72,10 +72,10 @@ For each success criterion in the audit scope:
 ### Uplift Protocol
 
 When an SC is uplifted:
-1. Record the uplift in the audit report: `SC-N: uplifted from [declared_type] to behavioral (change affects runtime behavior: [reason])`
-2. Evaluate ALL evidence against the `behavioral` tier
-3. Structural or string evidence for an uplifted SC is classified as `EVIDENCE_TYPE_MISMATCH` with a FAIL verdict
-4. The uplift is MANDATORY — no opt-out, no "close enough" exception
+- [ ] 1. Record the uplift in the audit report: `SC-N: uplifted from [declared_type] to behavioral (change affects runtime behavior: [reason])`
+- [ ] 2. Evaluate ALL evidence against the `behavioral` tier
+- [ ] 3. Structural or string evidence for an uplifted SC is classified as `EVIDENCE_TYPE_MISMATCH` with a FAIL verdict
+- [ ] 4. The uplift is MANDATORY — no opt-out, no "close enough" exception
 
 **🚫 FORBIDDEN:** Accepting structural evidence for an uplifted SC. The uplift is automatic and non-negotiable.
 
@@ -209,14 +209,14 @@ Before computing consensus for each criterion, cross-validate MUST check the dec
 
 **For each criterion (from the loaded spec SCs in Step 0):**
 
-1. Read the criterion's declared `evidence_type` from the loaded spec (spec_scs from Step 0 — NOT from inline evaluation_criteria)
-2. For each auditor's verdict on that criterion, check the evidence type used:
+- [ ] 1. Read the criterion's declared `evidence_type` from the loaded spec (spec_scs from Step 0 — NOT from inline evaluation_criteria)
+- [ ] 2. For each auditor's verdict on that criterion, check the evidence type used:
    - If `evidence_type` is not declared in the criterion, default to `string`
    - If the auditor used structural evidence (file existence, grep, read) for a criterion declared as `behavioral`, downgrade that auditor's verdict from PASS to FAIL with `EVIDENCE_TYPE_MISMATCH` classification
    - If the auditor used structural or string-only evidence for a criterion declared as `semantic`, downgrade that auditor's verdict from PASS to FAIL with `EVIDENCE_TYPE_MISMATCH` classification
-3. If both auditors used wrong evidence types for a behavioral SC: consensus is FAIL with `EVIDENCE_TYPE_MISMATCH`
-4. If one auditor used correct evidence type (PASS) and the other used wrong evidence type (PASS → downgraded to FAIL): consensus is DISAGREE — resolve by re-dispatching the wrong-evidence-type auditor with explicit evidence type classification
-5. The evidence type gate applies BEFORE the consensus computation — it modifies auditor verdicts before they enter the consensus matrix
+- [ ] 3. If both auditors used wrong evidence types for a behavioral SC: consensus is FAIL with `EVIDENCE_TYPE_MISMATCH`
+- [ ] 4. If one auditor used correct evidence type (PASS) and the other used wrong evidence type (PASS → downgraded to FAIL): consensus is DISAGREE — resolve by re-dispatching the wrong-evidence-type auditor with explicit evidence type classification
+- [ ] 5. The evidence type gate applies BEFORE the consensus computation — it modifies auditor verdicts before they enter the consensus matrix
 
 **EVIDENCE_TYPE_MISMATCH is not a soft-pass condition.** It is a hard FAIL that prevents structural evidence from passing as behavioral evidence — the exact defect exposed by spec #804.
 
@@ -224,9 +224,9 @@ Before computing consensus for each criterion, cross-validate MUST check the dec
 
 When auditors disagree on a criterion (one PASS, one FAIL), the consensus is FAIL. The cross-validate sub-agent MUST NOT:
 
-1. **Reclassify FAIL as PASS** — reasoning that one auditor's pattern was "more correct" or "over-broad" is soft-passing per `000-critical-rules.md` §critical-rules-020. FAIL is never reclassifiable as PASS.
-2. **Resolve disagreements through reasoning** — the cross-validate sub-agent does not have authority to determine which auditor is correct. DISAGREE means the evidence is contested, and contested evidence is FAIL.
-3. **Annotate PASS on a FAIL criterion** — any annotation, footnote, caveat, or "resolved as PASS" qualifier on a FAIL criterion is a soft-pass violation.
+- [ ] 1. **Reclassify FAIL as PASS** — reasoning that one auditor's pattern was "more correct" or "over-broad" is soft-passing per `000-critical-rules.md` §critical-rules-020. FAIL is never reclassifiable as PASS.
+- [ ] 2. **Resolve disagreements through reasoning** — the cross-validate sub-agent does not have authority to determine which auditor is correct. DISAGREE means the evidence is contested, and contested evidence is FAIL.
+- [ ] 3. **Annotate PASS on a FAIL criterion** — any annotation, footnote, caveat, or "resolved as PASS" qualifier on a FAIL criterion is a soft-pass violation.
 
 Disagreements MUST be surfaced to the developer for resolution. The `disagreements` list in the result contract MUST contain every SC where auditors diverged, with both auditors' evidence. The developer decides whether to remediate the underlying issue or accept the contested SC — the cross-validate sub-agent does not make this decision.
 
@@ -253,9 +253,9 @@ The cross-validate result contract MUST use the following finding type classific
 
 Before dark pattern enforcement, every verdict must pass a self-consistency check:
 
-1. **PASS with finding language**: If `result: "PASS"` while `explanation`, `evidence`, or `remediation` field contains finding/critique language (e.g., "should be", "needs", "missing", "could improve"), the PASS is contradictory — downgrade to FAIL. PASS must be strictly confirmatory with no critique.
-2. **clean_room.verified constraint**: When `violations_detected` is non-empty, `clean_room.verified` MUST be `false`. If violations exist but verified is true, flag as `SELF_CONSISTENCY_FAIL`.
-3. **Evidence-verdict alignment**: If `result: "PASS"` but `evidence` references "minor concerns", "some issues", or other hedging language, downgrade to FAIL. A PASS verdict must have PASS-level evidence (confirmatory only).
+- [ ] 1. **PASS with finding language**: If `result: "PASS"` while `explanation`, `evidence`, or `remediation` field contains finding/critique language (e.g., "should be", "needs", "missing", "could improve"), the PASS is contradictory — downgrade to FAIL. PASS must be strictly confirmatory with no critique.
+- [ ] 2. **clean_room.verified constraint**: When `violations_detected` is non-empty, `clean_room.verified` MUST be `false`. If violations exist but verified is true, flag as `SELF_CONSISTENCY_FAIL`.
+- [ ] 3. **Evidence-verdict alignment**: If `result: "PASS"` but `evidence` references "minor concerns", "some issues", or other hedging language, downgrade to FAIL. A PASS verdict must have PASS-level evidence (confirmatory only).
 
 | Self-Consistency Rule | Trigger | Action |
 |---|---|---|
@@ -278,10 +278,10 @@ Before dark pattern enforcement (Step 6) and before returning the result contrac
 #### Self-Correction Protocol
 
 When self-check finds violations:
-1. Self-correct those criteria to FAIL
-2. Add `self_corrections` array to the result contract documenting each correction and its detection signal
-3. Recompute aggregate — any self-corrected FAIL cascades to `overall_consensus = FAIL`
-4. Set `next_step = "remediate then re-audit"`
+- [ ] 1. Self-correct those criteria to FAIL
+- [ ] 2. Add `self_corrections` array to the result contract documenting each correction and its detection signal
+- [ ] 3. Recompute aggregate — any self-corrected FAIL cascades to `overall_consensus = FAIL`
+- [ ] 4. Set `next_step = "remediate then re-audit"`
 
 Self-correction means the cross-validate sub-agent caught itself in a protocol violation. This is documented, not hidden.
 

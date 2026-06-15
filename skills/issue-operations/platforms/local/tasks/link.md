@@ -91,9 +91,9 @@ github_links:
 
 Before adding a `--child` link, the agent MUST verify that the proposed child is not already N's ancestor:
 
-1. Read child target T's links (`./.opencode/tools/local-issues read T --type links`)
-1. If T has `parent: { number: N }`, the link would create a cycle — HALT
-1. If T already has record of N as a parent in `parent` field, the link would duplicate — warn but allow (caller may want explicit re-linking)
+- [ ] 1. Read child target T's links (`./.opencode/tools/local-issues read T --type links`)
+- [ ] 1. If T has `parent: { number: N }`, the link would create a cycle — HALT
+- [ ] 1. If T already has record of N as a parent in `parent` field, the link would duplicate — warn but allow (caller may want explicit re-linking)
 
 This prevents infinite traversal in the issue graph. The same check applies to `--blocked-by` links that would create a dependency loop.
 
@@ -110,9 +110,9 @@ This ensures bidirectional navigation: reading N shows its children; reading T s
 
 For `--github GITHUB_NUM`, the CLI:
 
-1. Constructs the remote URL from session-init values (`github.owner`, `github.repo`, `github.platform`)
-1. Stores `{ url: string, number: int }` in `github_links[]`
-1. Does NOT verify remote issue existence (remote API call is out of scope for a local-link operation)
+- [ ] 1. Constructs the remote URL from session-init values (`github.owner`, `github.repo`, `github.platform`)
+- [ ] 1. Stores `{ url: string, number: int }` in `github_links[]`
+- [ ] 1. Does NOT verify remote issue existence (remote API call is out of scope for a local-link operation)
 
 ______________________________________________________________________
 

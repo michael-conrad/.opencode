@@ -101,10 +101,10 @@ Return the `ResearchResult`. The calling skill uses this to build its own findin
 
 When a modality has no available model:
 
-1. Add the modality to `unverified_modalities`
-2. Add a gap description to `gaps`: `(unverified: <modality> — <reason>)`
-3. Set `status` to `partial` if other modalities succeeded, or `inconclusive` if no modalities succeeded
-4. Do NOT block execution — the research continues with available modalities
+- [ ] 1. Add the modality to `unverified_modalities`
+- [ ] 2. Add a gap description to `gaps`: `(unverified: <modality> — <reason>)`
+- [ ] 3. Set `status` to `partial` if other modalities succeeded, or `inconclusive` if no modalities succeeded
+- [ ] 4. Do NOT block execution — the research continues with available modalities
 
 This implements REQ-5: unavailable modalities produce `(unverified)` results, never block.
 

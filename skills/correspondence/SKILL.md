@@ -40,14 +40,14 @@ Enforces multipart/alternative format (text/plain + text/html) for email, stakeh
 
 ## Operating Protocol
 
-1. **Verification gate before drafting** (`verification-enforcement --task verify`).
-2. **Multipart/alternative mandatory** for email output.
-3. **Audience separation:** stakeholder tier MUST NOT include internal artifacts (runbook paths, step numbers, internal IPs, file paths, CLI commands).
-4. **Audience classification before drafting.** Default to stakeholder tier when unclear.
-5. **Revisit after self-review** (`verification-enforcement --task revisit`).
-6. **AI byline mandatory** in all correspondence.
-7. **Content-type propagation:** match source email format (inspect Content-Type header).
-8. **Attribution verification:** no role-proximity inference — only evidence-backed attribution.
+- [ ] 1. **Verification gate before drafting** (`verification-enforcement --task verify`).
+- [ ] 2. **Multipart/alternative mandatory** for email output.
+- [ ] 3. **Audience separation:** stakeholder tier MUST NOT include internal artifacts (runbook paths, step numbers, internal IPs, file paths, CLI commands).
+- [ ] 4. **Audience classification before drafting.** Default to stakeholder tier when unclear.
+- [ ] 5. **Revisit after self-review** (`verification-enforcement --task revisit`).
+- [ ] 6. **AI byline mandatory** in all correspondence.
+- [ ] 7. **Content-type propagation:** match source email format (inspect Content-Type header).
+- [ ] 8. **Attribution verification:** no role-proximity inference — only evidence-backed attribution.
 
 ## Sub-Agent Routing
 

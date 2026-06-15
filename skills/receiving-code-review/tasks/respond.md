@@ -6,9 +6,9 @@ Reply to review comments after changes have been made, providing clear documenta
 
 ## Operating Protocol
 
-1. Invoked by: `skill({name: "receiving-code-review"})` → `task()` for `respond`
-2. When to use: After `--task address` has been completed — replying to reviewer comments
-3. Exit criteria: All comments replied to, HALT and wait for next review round
+- [ ] 1. Invoked by: `skill({name: "receiving-code-review"})` → `task()` for `respond`
+- [ ] 2. When to use: After `--task address` has been completed — replying to reviewer comments
+- [ ] 3. Exit criteria: All comments replied to, HALT and wait for next review round
 
 ## Reply Formats
 

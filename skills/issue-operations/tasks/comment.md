@@ -22,9 +22,9 @@ Post comments to issues/PRs following the substantive comment gate and byline fo
 **This substantiveness gate MUST be evaluated by callers BEFORE the caller commits to posting.**
 Callers must not assume posting is the default outcome. The gate determines whether posting is warranted:
 
-1. Caller routes comment content through this gate first (before any posting action)
-2. Gate evaluates: Is this substantive? If yes → post. If no → output to chat only
-3. Caller respects the gate's decision — never post content the gate classified as non-substantive
+- [ ] 1. Caller routes comment content through this gate first (before any posting action)
+- [ ] 2. Gate evaluates: Is this substantive? If yes → post. If no → output to chat only
+- [ ] 3. Caller respects the gate's decision — never post content the gate classified as non-substantive
 
 Non-substantive progress (status updates, "phase complete", "implemented X") goes to chat only, never to issue comments.
 
@@ -71,10 +71,10 @@ After classification, evaluate: **Does this stakeholder-classified comment revis
 
 **Update spec body flow** (when comment revises/corrects/supersedes spec body):
 
-1. Update `.issues/N/spec.md` — merge the revision into the canonical spec body
-2. Update `.issues/N/remote.md` — reflect the revision in the exec summary
-3. Route to `platforms/local/tasks/push-body.md` via task() — push updated spec body to GitHub. Pass: `{issue_number: N}`
-4. Post explanatory comment: "Spec body updated per #683 Phase 3"
+- [ ] 1. Update `.issues/N/spec.md` — merge the revision into the canonical spec body
+- [ ] 2. Update `.issues/N/remote.md` — reflect the revision in the exec summary
+- [ ] 3. Route to `platforms/local/tasks/push-body.md` via task() — push updated spec body to GitHub. Pass: `{issue_number: N}`
+- [ ] 4. Post explanatory comment: "Spec body updated per #683 Phase 3"
 
 **Why this matters:** Without this check, stakeholder corrections sit in comments while the spec body remains stale. The canonical spec body (`.issues/N/spec.md`) is the authoritative source — revisions must propagate to it, not remain stranded in comments.
 

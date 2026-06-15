@@ -77,15 +77,15 @@ GATE 3: Is current branch a feature branch (not main/dev/master)?
 
 **Search Procedure:**
 
-1. **Label search:** Search GitHub Issues with labels `[SPEC]`, `[PLAN]`, `[SPEC-FIX]` in the repository
-2. **Keyword search:** Search GitHub Issues using keywords from the implementation request (e.g., feature name, component, module, bug area)
-3. **Evaluate candidates:** For each result, assess relevance to the request target
-4. **Present candidates:** If candidates found, list them with:
+- [ ] 1. **Label search:** Search GitHub Issues with labels `[SPEC]`, `[PLAN]`, `[SPEC-FIX]` in the repository
+- [ ] 2. **Keyword search:** Search GitHub Issues using keywords from the implementation request (e.g., feature name, component, module, bug area)
+- [ ] 3. **Evaluate candidates:** For each result, assess relevance to the request target
+- [ ] 4. **Present candidates:** If candidates found, list them with:
    - Issue number and title
    - URL
    - Brief relevance assessment (why it matches)
-5. **Offer create-or-select:** Present user with options: select an existing candidate OR create a new spec
-6. **Report failure if no candidates:** If search yields no relevant candidates, explicitly state "No existing spec/plan found for [topic]" before offering spec creation
+- [ ] 5. **Offer create-or-select:** Present user with options: select an existing candidate OR create a new spec
+- [ ] 6. **Report failure if no candidates:** If search yields no relevant candidates, explicitly state "No existing spec/plan found for [topic]" before offering spec creation
 
 **This step is MANDATORY.** Skipping it and going straight to Q/A mode is a critical violation.
 

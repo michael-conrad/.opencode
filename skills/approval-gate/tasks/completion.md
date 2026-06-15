@@ -4,12 +4,12 @@ Idempotent completion subtask for approval-gate. Ensures mandatory steps run reg
 
 ## State Check Phase
 
-1. **Authorization result determined:** Was a yes/no decision reached?
-2. **Existing comments:** Check if authorization result comment already posted on issue
+- [ ] 1. **Authorization result determined:** Was a yes/no decision reached?
+- [ ] 2. **Existing comments:** Check if authorization result comment already posted on issue
 
 ## Skill-Specific Completion
 
-1. **Post authorization result comment** (if not already posted):
+- [ ] 1. **Post authorization result comment** (if not already posted):
    - Check issue comments for existing authorization result (byline pattern)
    - If missing: route through `issue-operations -> comment` substantive gate for authorization result. Gate decides posting.
 
@@ -17,8 +17,8 @@ Idempotent completion subtask for approval-gate. Ensures mandatory steps run reg
 
 Reference `.opencode/skills/completion-core/completion-core.md` for reporting:
 
-1. Report executive summary in chat (always runs)
-2. Action URL (issue URL) as the URL (ALWAYS last)
+- [ ] 1. Report executive summary in chat (always runs)
+- [ ] 2. Action URL (issue URL) as the URL (ALWAYS last)
 
 ## Label State Machine
 
@@ -27,11 +27,11 @@ Before adding or removing labels in completion, consult `141-planning-status-tra
 ## Completion Guarantee
 
 **MANDATORY:** Regardless of authorization outcome (approved, rejected, blocked, error), produce a status message containing:
-1. Authorization decision (approved/rejected/blocked)
-2. Issue number and branch (if applicable)
-3. What happens next (workflow forward, HALT, or error)
-4. **Blocker state** — what constraint caused the halt (authorization/spec/plan/context/error/none)
-5. **Developer action required** — exact phrase or step the developer must provide to continue (empty string when no blocker)
+- [ ] 1. Authorization decision (approved/rejected/blocked)
+- [ ] 2. Issue number and branch (if applicable)
+- [ ] 3. What happens next (workflow forward, HALT, or error)
+- [ ] 4. **Blocker state** — what constraint caused the halt (authorization/spec/plan/context/error/none)
+- [ ] 5. **Developer action required** — exact phrase or step the developer must provide to continue (empty string when no blocker)
 
 When `status == blocked`, fields 4 and 5 MUST be non-empty and specific. Vague phrasing like "needs approval" is STRUCTURE-VIOLATION — the blocker state must name the specific constraint and the developer action must specify the exact phrase or step.
 
@@ -59,10 +59,10 @@ Issue URL: <html_url from github_issue_write or issue-operations -> read-issue (
 
 The Issue URL MUST be extracted from the API response `html_url` field — NEVER constructed from template variables:
 
-1. If the issue was created in this session: Extract `html_url` from the `github_issue_write` creation response <!-- Routes through issue-operations per SPEC #683 -->
-2. If the issue was read (not created): Extract `html_url` from the `issue-operations -> read-issue (github_issue_read` response <!-- Routes through issue-operations per SPEC #683 -->
-3. **Template construction is FORBIDDEN for post-creation URLs** — do NOT assemble from `<gitbucket.html_url>`, `<github.owner>`, `<github.repo>`, or issue number
-4. If `html_url` is not available in the API response: HALT and report
+- [ ] 1. If the issue was created in this session: Extract `html_url` from the `github_issue_write` creation response <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 2. If the issue was read (not created): Extract `html_url` from the `issue-operations -> read-issue (github_issue_read` response <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 3. **Template construction is FORBIDDEN for post-creation URLs** — do NOT assemble from `<gitbucket.html_url>`, `<github.owner>`, `<github.repo>`, or issue number
+- [ ] 4. If `html_url` is not available in the API response: HALT and report
 
 URL is ALWAYS last per `000-critical-rules.md`.
 
@@ -156,9 +156,9 @@ This format is verified by behavioral enforcement tests in `.opencode/tests/beha
 The `--task completion` subtask is for cleanup-state reporting (labels, comments, verification), NOT for generating the agent's primary visible output.
 
 The agent's visible output is generated:
-1. AFTER tool execution
-2. BEFORE invoking `--task completion`
-3. By the main agent reasoning context, not delegated to completion subtask
+- [ ] 1. AFTER tool execution
+- [ ] 2. BEFORE invoking `--task completion`
+- [ ] 3. By the main agent reasoning context, not delegated to completion subtask
 
 **Rule:** If the agent has produced zero chat messages in the current user-turn, invoking `--task completion` does NOT satisfy the output guarantee. Completion runs AFTER output is produced, not INSTEAD of output.
 

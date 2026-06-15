@@ -41,9 +41,9 @@ Record each SC as `atomic: true | false`.
 
 Extract the SC dependency graph from `depends_on` fields:
 
-1. Collect all SC-ID → `depends_on: [SC-IDs]` mappings
-1. Verify every referenced SC-ID in `depends_on` is defined in the SC table
-1. Generate a Z3 ordering contract at `.issues/{issue-N}/sc-dependency-contract.yaml`
+- [ ] 1. Collect all SC-ID → `depends_on: [SC-IDs]` mappings
+- [ ] 1. Verify every referenced SC-ID in `depends_on` is defined in the SC table
+- [ ] 1. Generate a Z3 ordering contract at `.issues/{issue-N}/sc-dependency-contract.yaml`
 
    Contract schema (SC DAG ordering):
 
@@ -62,8 +62,8 @@ Extract the SC dependency graph from `depends_on` fields:
 
    The theorem `sc_dag_is_valid` is a Z3 assertion that the conjunction of all implication invariants is SAT (the dependency graph has no contradictions). If Z3 returns UNSAT, the dependency graph is invalid.
 
-1. Run `solve prove --contract-path .issues/{issue-N}/sc-dependency-contract.yaml --theorem "sc_dag_is_valid"` to validate the DAG
-1. If any cycle or missing dependency is found: PR-2 = FAIL
+- [ ] 1. Run `solve prove --contract-path .issues/{issue-N}/sc-dependency-contract.yaml --theorem "sc_dag_is_valid"` to validate the DAG
+- [ ] 1. If any cycle or missing dependency is found: PR-2 = FAIL
 
 ### Step 3: Validate Single Concern (PR-3)
 
@@ -78,8 +78,8 @@ An SC that spans multiple file categories or multiple verification domains is a 
 
 Extract the phase dependency graph:
 
-1. Collect all phase → `depends_on: [phase-names]` mappings
-1. Generate a Z3 ordering contract at `.issues/{issue-N}/dependency-ordering-verification/ordering.yaml`
+- [ ] 1. Collect all phase → `depends_on: [phase-names]` mappings
+- [ ] 1. Generate a Z3 ordering contract at `.issues/{issue-N}/dependency-ordering-verification/ordering.yaml`
 
    Contract schema (phase DAG ordering) — same structure as Step 2:
 
@@ -95,8 +95,8 @@ Extract the phase dependency graph:
      - "phase_dag_is_acyclic"
    ```
 
-1. Run `solve prove --contract-path .issues/{issue-N}/dependency-ordering-verification/ordering.yaml --theorem "phase_dag_is_acyclic"` to validate
-1. If any cycle is found: PR-4 = FAIL
+- [ ] 1. Run `solve prove --contract-path .issues/{issue-N}/dependency-ordering-verification/ordering.yaml --theorem "phase_dag_is_acyclic"` to validate
+- [ ] 1. If any cycle is found: PR-4 = FAIL
 
 ### Step 5: Write Artifact
 

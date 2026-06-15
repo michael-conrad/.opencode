@@ -43,9 +43,9 @@ Verify implementation against spec success criteria using dual-adversarial cross
 
 Read spec from `spec_local_dir/`:
 
-1. Glob `**/*.md` in `<spec_local_dir>/` via `glob` tool, read all discovered files
-2. Extract SC table with evidence type declarations
-3. Identify behavioral SCs requiring execution evidence
+- [ ] 1. Glob `**/*.md` in `<spec_local_dir>/` via `glob` tool, read all discovered files
+- [ ] 2. Extract SC table with evidence type declarations
+- [ ] 3. Identify behavioral SCs requiring execution evidence
 
 ### Step 2: Load Behavioral Evidence
 
@@ -157,14 +157,14 @@ summary: "N criteria evaluated. X PASS, Y FAIL."
 
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
 
-1. Load spec content → INVALID if skipped
-2. Load behavioral evidence → INVALID if skipped
-3. Build evaluation criteria → INVALID if skipped
-4. Cross-validate with verdicts → INVALID if skipped
-5. Verify implementation completeness → INVALID if skipped
-6. Verify evidence type compliance → INVALID if skipped
-7. Generate findings → INVALID if skipped
-8. Build result contract → INVALID if skipped
+- [ ] 1. Load spec content → INVALID if skipped
+- [ ] 2. Load behavioral evidence → INVALID if skipped
+- [ ] 3. Build evaluation criteria → INVALID if skipped
+- [ ] 4. Cross-validate with verdicts → INVALID if skipped
+- [ ] 5. Verify implementation completeness → INVALID if skipped
+- [ ] 6. Verify evidence type compliance → INVALID if skipped
+- [ ] 7. Generate findings → INVALID if skipped
+- [ ] 8. Build result contract → INVALID if skipped
 
 ## Next Pipeline Step (MANDATORY CONTINUATION)
 

@@ -231,10 +231,10 @@ Evidence requirements and downgrade rules: see `enforcement/closed-issue-verific
 
 **Extraction procedure using `skildeck verify-acceptance`:**
 
-1. Run `skildeck verify-acceptance --spec-file <issue-body-path>` against the closed issue
-2. Parse the output for per-SC PASS/FAIL/MANUAL-REVIEW results
-3. For any MANUAL-REVIEW results, perform manual tool-call verification (read, grep, srclight_get_symbol, test execution)
-4. Downgrade the result type based on the aggregate findings:
+- [ ] 1. Run `skildeck verify-acceptance --spec-file <issue-body-path>` against the closed issue
+- [ ] 2. Parse the output for per-SC PASS/FAIL/MANUAL-REVIEW results
+- [ ] 3. For any MANUAL-REVIEW results, perform manual tool-call verification (read, grep, srclight_get_symbol, test execution)
+- [ ] 4. Downgrade the result type based on the aggregate findings:
    - All PASS → VERIFIED_CLOSED
    - Some PASS, some FAIL → PARTIALLY_IMPLEMENTED
    - All FAIL → NOT_IMPLEMENTED_DESPITE_CLOSURE
@@ -376,13 +376,13 @@ Classification tiers (auto-fix, conditional, flag-for-review) and evidence forma
 
 This task is invoked by:
 
-1. **`verify-authorization` Step 5.4** — Before skipping closed issues in auto-dispatch
-2. **`verify-already-implemented`** — Before autoclosing as "already implemented"
-3. **`pre-implementation-analysis` Step 0** — Before excluding "already implemented" issues from work set
-4. **`cleanup` pre-closure gate** — Before closing parent issues in post-merge workflow
-5. **`verify-fix-spec`** — Before skipping closed bug reports
-6. **`reconcile-issue-graph`** — Acts on findings from graph traversal (auto-close, reopen, flag uncertain)
-7. **`screen-issue` Gate 2** — Before classifying issues as "already-implemented" in screening
+- [ ] 1. **`verify-authorization` Step 5.4** — Before skipping closed issues in auto-dispatch
+- [ ] 2. **`verify-already-implemented`** — Before autoclosing as "already implemented"
+- [ ] 3. **`pre-implementation-analysis` Step 0** — Before excluding "already implemented" issues from work set
+- [ ] 4. **`cleanup` pre-closure gate** — Before closing parent issues in post-merge workflow
+- [ ] 5. **`verify-fix-spec`** — Before skipping closed bug reports
+- [ ] 6. **`reconcile-issue-graph`** — Acts on findings from graph traversal (auto-close, reopen, flag uncertain)
+- [ ] 7. **`screen-issue` Gate 2** — Before classifying issues as "already-implemented" in screening
 
 This task now performs transitive graph traversal (Step 8). Callers should handle `GRAPH_HAS_FLAGS` and `GRAPH_CONSISTENT` result types in addition to the single-issue result types.
 

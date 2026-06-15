@@ -75,9 +75,9 @@ Sort models within each modality tier using the following ordering rules:
 **Cloud-first (REQ-8):** For modalities where cloud models exist (text, vision), cloud models are ALWAYS preferred over local models. Local models within the same modality are used only when no cloud model is available, or as explicit fallback when cloud is unreachable.
 
 **Newer/larger preference (REQ-4):** Within the same source tier (cloud or local), prefer newer and larger models. Sort by:
-1. Source tier: `ollama-cloud` before `ollama-local`
-2. Parameter count: larger models first (when determinable)
-3. Recency: newer model versions first
+- [ ] 1. Source tier: `ollama-cloud` before `ollama-local`
+- [ ] 2. Parameter count: larger models first (when determinable)
+- [ ] 3. Recency: newer model versions first
 
 **Preferred flag assignment:** Set `preferred: true` on the highest-ranked model in each modality. This is exactly one model per modality.
 

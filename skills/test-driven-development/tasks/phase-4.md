@@ -32,11 +32,11 @@ Compare against the Phase 0 blast radius. If new dependents appeared (code was a
 
 If any Phase 4 verification fails (tests broken, blast radius regressions, uncovered dependents):
 
-1. **First failure:** Return to GREEN phase — fix the defect. Then re-run Phase 4.
-2. **Second consecutive failure:** HALT and report BLOCKED status.
-3. **Report:** `{ status: "BLOCKED", reason: "2 consecutive Phase 4 failures", cycle: "<cycle-id>" }`
-4. The orchestrator must NOT re-task() — this is a genuine blockage requiring human intervention.
-5. Return contract: `{ status: "BLOCKED", reason: "<failure details>", cycle: "<cycle-id>" }`
+- [ ] 1. **First failure:** Return to GREEN phase — fix the defect. Then re-run Phase 4.
+- [ ] 2. **Second consecutive failure:** HALT and report BLOCKED status.
+- [ ] 3. **Report:** `{ status: "BLOCKED", reason: "2 consecutive Phase 4 failures", cycle: "<cycle-id>" }`
+- [ ] 4. The orchestrator must NOT re-task() — this is a genuine blockage requiring human intervention.
+- [ ] 5. Return contract: `{ status: "BLOCKED", reason: "<failure details>", cycle: "<cycle-id>" }`
 
 ### Step 3: Full Suite Verification
 
@@ -74,9 +74,9 @@ uv run pytest test/ -v
 
 After Phase 4 PASSES, the cycle is complete. The agent MUST:
 
-1. Commit the cycle (test + implementation + refactor as one working slice)
-2. Reset to Phase 0 for the next item
-3. Never carry state across cycles
+- [ ] 1. Commit the cycle (test + implementation + refactor as one working slice)
+- [ ] 2. Reset to Phase 0 for the next item
+- [ ] 3. Never carry state across cycles
 
 ## Context Required
 

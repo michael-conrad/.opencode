@@ -19,9 +19,9 @@ Create feature branch BEFORE any implementation work begins. Verify authorizatio
 
 This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any file, creating any file, or making ANY change to the project:
 
-1. **Verify on a feature branch** (NOT `main` or `dev`) — either direct-branch or worktree
-2. **All work happens on the feature branch** — never on `main` or `dev`
-3. **ONLY THEN**: Proceed with file changes
+- [ ] 1. **Verify on a feature branch** (NOT `main` or `dev`) — either direct-branch or worktree
+- [ ] 2. **All work happens on the feature branch** — never on `main` or `dev`
+- [ ] 3. **ONLY THEN**: Proceed with file changes
 
 **What Counts as a "Change"?**
 
@@ -49,7 +49,7 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 
 ## Operating Protocol
 
-1. **Mandatory call (no decision point):** The agent MUST call this task when:
+- [ ] 1. **Mandatory call (no decision point):** The agent MUST call this task when:
    - User says `approved`, `go`, or similar authorization to begin implementation
     - DO NOT prompt — call the skill directly
 
@@ -145,10 +145,10 @@ fi
 ### Step 2.5: Proactive Repo State Verification
 
 **Before creating any feature branch, verify repo state:**
-1. **Submodule initialization check:** Check if `.gitmodules` exists. If it does, note that submodule sync will be handled by the `submodule-tag-prework` sub-agent task() in Steps 2.7/3.5 — do NOT run submodule commands inline.
+- [ ] 1. **Submodule initialization check:** Check if `.gitmodules` exists. If it does, note that submodule sync will be handled by the `submodule-tag-prework` sub-agent task() in Steps 2.7/3.5 — do NOT run submodule commands inline.
 
-2. **Submodule currency check:** Deferred to the `submodule-tag-prework` sub-agent task() (Steps 2.7/3.5).
-3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be task()ed to `submodule-tag-prework` — do NOT run `git submodule init` or `git submodule foreach` inline.
+- [ ] 2. **Submodule currency check:** Deferred to the `submodule-tag-prework` sub-agent task() (Steps 2.7/3.5).
+- [ ] 3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be task()ed to `submodule-tag-prework` — do NOT run `git submodule init` or `git submodule foreach` inline.
 
 ### Step 2.7: Automatic Prerequisite Operations
 
@@ -166,10 +166,10 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 
 **Automatic classification conditions (ALL must be true):**
 
-1. Authorization has been verified — `approval-gate --task verify-authorization` passed
-2. The operation is a Tier 1 mandate or a deterministic prerequisite for authorized work
-3. The operation requires no judgment — it is a deterministic, mechanical step
-4. The scope covers the pipeline stage containing the operation (`for_pr`, `for_implementation`, `for_review_prep`)
+- [ ] 1. Authorization has been verified — `approval-gate --task verify-authorization` passed
+- [ ] 2. The operation is a Tier 1 mandate or a deterministic prerequisite for authorized work
+- [ ] 3. The operation requires no judgment — it is a deterministic, mechanical step
+- [ ] 4. The scope covers the pipeline stage containing the operation (`for_pr`, `for_implementation`, `for_review_prep`)
 
 **🚫 FORBIDDEN: Soliciting developer confirmation for automatic prerequisites:**
 
@@ -233,10 +233,10 @@ git status --porcelain
 
 Invoke `using-git-worktrees` skill to create an isolated worktree:
 
-1. Invoke `using-git-worktrees` skill
-2. The skill creates the worktree: `git worktree add .worktrees/<sanitized-name> -b <branch-name> dev`
-3. The skill exports `worktree.path`, `branch`, `DEV_BASE_HASH` as environment variables
-4. If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT**
+- [ ] 1. Invoke `using-git-worktrees` skill
+- [ ] 2. The skill creates the worktree: `git worktree add .worktrees/<sanitized-name> -b <branch-name> dev`
+- [ ] 3. The skill exports `worktree.path`, `branch`, `DEV_BASE_HASH` as environment variables
+- [ ] 4. If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT**
 
 **If worktree creation fails or `worktree.fatal=1` is detected:**
 
@@ -251,14 +251,14 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 
 **If `.gitmodules` exists:** The orchestrator dispatches a `submodule-tag-prework` sub-agent with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
 
-1. Checks `.gitmodules` existence
-2. Initializes submodules if needed (`git submodule init`)
-3. Checks out each submodule to its `dev` tip (`git submodule foreach "git checkout dev && git pull"`)
-4. Logs submodule status (`git submodule status`)
-5. Tags each submodule at dev tip with `<parent-repo>/<issue-number>` format (`git tag -a`)
-6. Pushes tags to submodule remote (`git push origin <tag>`)
-7. Verifies tags exist on remote (`git ls-remote --tags origin <tag>`)
-8. Reports results in its result contract
+- [ ] 1. Checks `.gitmodules` existence
+- [ ] 2. Initializes submodules if needed (`git submodule init`)
+- [ ] 3. Checks out each submodule to its `dev` tip (`git submodule foreach "git checkout dev && git pull"`)
+- [ ] 4. Logs submodule status (`git submodule status`)
+- [ ] 5. Tags each submodule at dev tip with `<parent-repo>/<issue-number>` format (`git tag -a`)
+- [ ] 6. Pushes tags to submodule remote (`git push origin <tag>`)
+- [ ] 7. Verifies tags exist on remote (`git ls-remote --tags origin <tag>`)
+- [ ] 8. Reports results in its result contract
 
 **The orchestrator receives a result contract containing:**
 
@@ -426,19 +426,19 @@ The orchestration layer (`implementation-pipeline`) receives this yield and pass
 
 **When investigation reveals spec is already implemented:**
 
-1. **Detect before branch creation:**
+- [ ] 1. **Detect before branch creation:**
 
    - After reading files, verify all proposed changes are already present
    - Confirm no modifications needed
    - Document verification in issue comment
 
-2. **Skip branch creation entirely:**
+- [ ] 2. **Skip branch creation entirely:**
 
    - Do NOT create feature branch
    - Do NOT push anything
    - Do NOT create PR
 
-3. **Close issue directly:**
+- [ ] 3. **Close issue directly:**
 
    - Post verification comment explaining what was checked
    - Close issue with `state_reason: "completed"`
@@ -461,7 +461,7 @@ Verified all proposed changes were already implemented. No modifications needed.
 **Outcome:** Spec requirements verified complete without additional changes.
 ```
 
-4. **HALT after closing:**
+- [ ] 4. **HALT after closing:**
    - No further steps needed
    - No worktree cleanup (no worktree was created)
 
@@ -494,10 +494,10 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 
 **There is NO emergency bypass.** If you need to make an urgent fix:
 
-1. Create a feature branch: `git checkout -b hotfix/urgent-fix dev`
-2. Make your changes and commit
-3. Push and create PR with `hotfix` label
-4. Request expedited review
+- [ ] 1. Create a feature branch: `git checkout -b hotfix/urgent-fix dev`
+- [ ] 2. Make your changes and commit
+- [ ] 3. Push and create PR with `hotfix` label
+- [ ] 4. Request expedited review
 
 ## Live Verification (MANDATORY)
 

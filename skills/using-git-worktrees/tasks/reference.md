@@ -11,9 +11,9 @@ git check-ignore -q .worktrees 2>/dev/null
 ```
 
 If NOT ignored:
-1. Add `.worktrees/` to `.gitignore`
-2. Commit the change with message: "chore: add .worktrees/ to gitignore for worktree isolation"
-3. Proceed with worktree creation
+- [ ] 1. Add `.worktrees/` to `.gitignore`
+- [ ] 2. Commit the change with message: "chore: add .worktrees/ to gitignore for worktree isolation"
+- [ ] 3. Proceed with worktree creation
 
 ## Quick Reference
 
@@ -39,10 +39,10 @@ If NOT ignored:
 
 If `worktree.fatal=1` appears in session init output or worktree creation fails:
 
-1. HALT immediately — do NOT proceed with any implementation
-2. Report the fatal error to the developer
-3. Worktrees are the ONLY method for feature branches — stash+checkout is FORBIDDEN
-4. The developer must fix the worktree infrastructure before any work can proceed
+- [ ] 1. HALT immediately — do NOT proceed with any implementation
+- [ ] 2. Report the fatal error to the developer
+- [ ] 3. Worktrees are the ONLY method for feature branches — stash+checkout is FORBIDDEN
+- [ ] 4. The developer must fix the worktree infrastructure before any work can proceed
 
 Worktree setup failure means the repository infrastructure is broken. Proceeding without worktrees risks:
 - Parallel agent conflicts

@@ -6,11 +6,11 @@ Backfill CHANGELOG.md with entries from historical commits that were missing cha
 
 ## Operating Protocol
 
-1. **Find last changelog entry**: Identify the version/date of last changelog entry
-2. **Scan historical commits**: Analyze all commits from project start to last changelog
-3. **Categorize and write**: Generate entries for missing PRs/commits
-4. **Preserve existing**: Keep existing changelog entries intact
-5. **Stage changes**: `git add CHANGELOG.md`
+- [ ] 1. **Find last changelog entry**: Identify the version/date of last changelog entry
+- [ ] 2. **Scan historical commits**: Analyze all commits from project start to last changelog
+- [ ] 3. **Categorize and write**: Generate entries for missing PRs/commits
+- [ ] 4. **Preserve existing**: Keep existing changelog entries intact
+- [ ] 5. **Stage changes**: `git add CHANGELOG.md`
 
 ## When to Use
 
@@ -55,10 +55,10 @@ Generate changelog for the entire history from project start to last changelog c
 
 ### Step 3: Merge with Existing
 
-1. Read existing CHANGELOG.md content
-2. Extract version sections ([Unreleased], [0.1.0], etc.)
-3. Insert backfilled entries into appropriate version sections based on commit dates
-4. Preserve all existing entries
+- [ ] 1. Read existing CHANGELOG.md content
+- [ ] 2. Extract version sections ([Unreleased], [0.1.0], etc.)
+- [ ] 3. Insert backfilled entries into appropriate version sections based on commit dates
+- [ ] 4. Preserve all existing entries
 
 ### Step 4: Categorization by Version
 
@@ -75,9 +75,9 @@ git tag --sort=-creatordate
 
 ### Step 5: Write and Stage
 
-1. Write merged changelog maintaining all existing content
-2. Stage: `git add CHANGELOG.md`
-3. Report: Number of backfilled entries by category
+- [ ] 1. Write merged changelog maintaining all existing content
+- [ ] 2. Stage: `git add CHANGELOG.md`
+- [ ] 3. Report: Number of backfilled entries by category
 
 ## Example
 

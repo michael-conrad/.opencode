@@ -6,10 +6,10 @@ Create provenance tracking issues and PRs in submodule repositories after push o
 
 ## Operating Protocol
 
-1. **Triggered after push or promotion** — submodule push/merge triggers provenance attempt
-2. **Three-tier fallback** — if full API access unavailable, fall back silently to next tier
-3. **Platform detection** — determine submodule's issue system from remote URL before API calls
-4. **Never HALT** — all fallbacks are silent; git workflow continues regardless
+- [ ] 1. **Triggered after push or promotion** — submodule push/merge triggers provenance attempt
+- [ ] 2. **Three-tier fallback** — if full API access unavailable, fall back silently to next tier
+- [ ] 3. **Platform detection** — determine submodule's issue system from remote URL before API calls
+- [ ] 4. **Never HALT** — all fallbacks are silent; git workflow continues regardless
 
 ## Entry Criteria
 
