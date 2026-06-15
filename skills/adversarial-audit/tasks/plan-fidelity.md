@@ -142,13 +142,13 @@ summary: "N criteria evaluated. X PASS, Y FAIL. Z discrepancies found."
 
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
 
-1. Validate `clean_room_plan` source → INVALID if skipped
-2. Fetch existing plan → INVALID if skipped
-3. Build evaluation criteria → INVALID if skipped
-4. Cross-validate with verdicts → INVALID if skipped
-5. Classify discrepancies → INVALID if skipped
-6. Generate bidirectional findings → INVALID if skipped
-7. Build result contract → INVALID if skipped
+- [ ] 1. Validate `clean_room_plan` source → INVALID if skipped
+- [ ] 2. Fetch existing plan → INVALID if skipped
+- [ ] 3. Build evaluation criteria → INVALID if skipped
+- [ ] 4. Cross-validate with verdicts → INVALID if skipped
+- [ ] 5. Classify discrepancies → INVALID if skipped
+- [ ] 6. Generate bidirectional findings → INVALID if skipped
+- [ ] 7. Build result contract → INVALID if skipped
 
 ## Next Pipeline Step (MANDATORY CONTINUATION)
 
@@ -161,8 +161,8 @@ This step is MANDATORY — the pipeline does not terminate early.
 ## Failure Recovery
 
 If the orchestrator-provided `clean_room_plan` is missing:
-1. Return `{ status: "BLOCKED", error: "MISSING_CLEAN_ROOM_PLAN", reason: "Orchestrator did not provide clean_room_plan" }`
-2. Do NOT attempt inline generation — this task does not have clean-room authority
+- [ ] 1. Return `{ status: "BLOCKED", error: "MISSING_CLEAN_ROOM_PLAN", reason: "Orchestrator did not provide clean_room_plan" }`
+- [ ] 2. Do NOT attempt inline generation — this task does not have clean-room authority
 
 ## Cross-References
 

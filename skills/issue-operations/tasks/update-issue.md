@@ -57,9 +57,9 @@ Route to `platforms/local/tasks/update.md` via task(). Pass: `{issue_number: N, 
 ### Step 3: Verify Body Preservation
 
 If the update includes a body change, verify:
-1. `len(new_body) >= 0.8 * len(original_body)` — body erasure safeguard per `000-critical-rules.md`
-2. No content sections were removed without replacement
-3. Original byline is preserved (if present)
+- [ ] 1. `len(new_body) >= 0.8 * len(original_body)` — body erasure safeguard per `000-critical-rules.md`
+- [ ] 2. No content sections were removed without replacement
+- [ ] 3. Original byline is preserved (if present)
 
 ### Step 4: Return Update Result
 

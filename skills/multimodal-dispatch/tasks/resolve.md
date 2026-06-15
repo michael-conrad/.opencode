@@ -52,10 +52,10 @@ This log entry is included in the `TaskResult.findings` field for traceability.
 
 From the capability snapshot, select the model for each resolved modality:
 
-1. Filter models by modality match
-2. Sort by source tier (cloud first, local second)
-3. Within tier, prefer newer/larger models
-4. Select the top-ranked model (which has `preferred: true`)
+- [ ] 1. Filter models by modality match
+- [ ] 2. Sort by source tier (cloud first, local second)
+- [ ] 3. Within tier, prefer newer/larger models
+- [ ] 4. Select the top-ranked model (which has `preferred: true`)
 
 For the primary resolved modality, use the `preferred: true` model from the snapshot.
 

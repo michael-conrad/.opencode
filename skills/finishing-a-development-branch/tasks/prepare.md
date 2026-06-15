@@ -6,9 +6,9 @@ Prepare a feature branch for PR creation by ensuring all changes are committed, 
 
 ## Operating Protocol
 
-1. Invoked by: `skill({name: "finishing-a-development-branch"})` → `task()` for `prepare`
-2. When to use: When implementation is complete and branch needs final preparation
-3. Exit criteria: Working tree clean, all quality checks pass, branch pushed, compare URL generated
+- [ ] 1. Invoked by: `skill({name: "finishing-a-development-branch"})` → `task()` for `prepare`
+- [ ] 2. When to use: When implementation is complete and branch needs final preparation
+- [ ] 3. Exit criteria: Working tree clean, all quality checks pass, branch pushed, compare URL generated
 
 ## Branch Mode (Conditional — Based on WORKTREE_REQUIRED)
 
@@ -22,11 +22,11 @@ Prepare a feature branch for PR creation by ensuring all changes are committed, 
 
 If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT.** Do not proceed without a valid worktree path.
 
-1. All `bash` tool calls MUST use `workdir="{{worktree.path}}"`
-2. All `read`/`edit`/`write`/`glob`/`grep` tool calls MUST prefix `filePath`/`path` with `{{worktree.path}}/`
-3. Before any push/squash/rebase: `git branch --show-current` MUST match branch
-4. `git rev-parse --show-toplevel` MUST return the worktree path
-5. NEVER operate in the main working directory when in worktree mode
+- [ ] 1. All `bash` tool calls MUST use `workdir="{{worktree.path}}"`
+- [ ] 2. All `read`/`edit`/`write`/`glob`/`grep` tool calls MUST prefix `filePath`/`path` with `{{worktree.path}}/`
+- [ ] 3. Before any push/squash/rebase: `git branch --show-current` MUST match branch
+- [ ] 4. `git rev-parse --show-toplevel` MUST return the worktree path
+- [ ] 5. NEVER operate in the main working directory when in worktree mode
 
 ## Step 0: Sync Dev Branch (Fast-Forward Only)
 
@@ -108,10 +108,10 @@ git branch -vv
 
 ### Step 5: Generate Compare URL
 
-1. Read `<github.owner>`, `<github.repo>`, `<gitbucket.html_url>` from session init
-2. Construct the Compare URL using those exact values
-3. **Character-match verification:** Confirm the constructed URL contains the exact `<github.owner>` and `<github.repo>` strings from session init (character-for-character match)
-4. If any mismatch: HALT and report
+- [ ] 1. Read `<github.owner>`, `<github.repo>`, `<gitbucket.html_url>` from session init
+- [ ] 2. Construct the Compare URL using those exact values
+- [ ] 3. **Character-match verification:** Confirm the constructed URL contains the exact `<github.owner>` and `<github.repo>` strings from session init (character-for-character match)
+- [ ] 4. If any mismatch: HALT and report
 
 ## Enforcement Matrix
 

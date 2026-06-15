@@ -19,15 +19,15 @@ Generate UI test specifications from interaction spec requirements, covering nav
 
 ## Procedure
 
-1. Read the interaction spec YAML file from the worktree.
-2. Read the implementation files for context on actual component mapping.
-3. Generate test specifications covering:
+- [ ] 1. Read the interaction spec YAML file from the worktree.
+- [ ] 2. Read the implementation files for context on actual component mapping.
+- [ ] 3. Generate test specifications covering:
    - **Route tests**: Each route in `navigation.routes` is reachable and renders expected content.
    - **Transition tests**: Each transition in `navigation.transitions` triggers correctly.
    - **Guard tests**: Each guard in `navigation.guards` enforces access control (authorized roles pass, unauthorized roles are blocked).
    - **Component state tests**: Each component in `components` renders in its default state and any defined alternate states.
    - **Accessibility tests**: ARIA labels, keyboard navigation, and screen reader announcements match `accessibility` section.
-4. Structure test specs as pytest-compatible test function descriptions with setup, action, and assertion steps.
-5. Write test specification to a file in the worktree (e.g., `test_ui_<feature>.py` or `test_specs/<feature>_test_spec.yaml`).
-6. Invoke `completion` subtask.
-7. Return result contract.
+- [ ] 4. Structure test specs as pytest-compatible test function descriptions with setup, action, and assertion steps.
+- [ ] 5. Write test specification to a file in the worktree (e.g., `test_ui_<feature>.py` or `test_specs/<feature>_test_spec.yaml`).
+- [ ] 6. Invoke `completion` subtask.
+- [ ] 7. Return result contract.

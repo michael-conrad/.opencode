@@ -99,10 +99,10 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Operating Protocol
 
-1. **Mandatory call:** The orchestrator MUST call this skill after every RED/GREEN sub-agent result and before routing to the adversarial auditor
-2. **Single pass:** The check runs once per handoff — no internal loop, no re-checking
-3. **Read-only:** No remediation, no routing advice, no fix suggestions
-4. **Evidence-based:** All findings require tool-call evidence from live sources
+- [ ] 1. **Mandatory call:** The orchestrator MUST call this skill after every RED/GREEN sub-agent result and before routing to the adversarial auditor
+- [ ] 2. **Single pass:** The check runs once per handoff — no internal loop, no re-checking
+- [ ] 3. **Read-only:** No remediation, no routing advice, no fix suggestions
+- [ ] 4. **Evidence-based:** All findings require tool-call evidence from live sources
 
 ## Routing Decision
 

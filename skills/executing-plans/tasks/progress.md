@@ -6,19 +6,19 @@ Report current progress and track execution state.
 
 ### Standard Verifications
 
-1. **Code verification:**
+- [ ] 1. **Code verification:**
    ```bash
    uv run ruff check --fix src/ test/
    uv run ruff format src/ test/
    uv run pyright src/
    ```
 
-2. **Test verification:**
+- [ ] 2. **Test verification:**
    ```bash
    uv run pytest test/test_file.py::test_function_name
    ```
 
-3. **File verification:**
+- [ ] 3. **File verification:**
    ```bash
    ls -la path/to/file
    head -20 path/to/file

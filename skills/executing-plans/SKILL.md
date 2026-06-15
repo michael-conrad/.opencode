@@ -42,10 +42,10 @@ No single-issue bypass — single = work of one = one sub-agent.
 
 ## Operating Protocol
 
-1. **Requires plan_issue** in task context. HALT if absent.
-2. **Route to implementation-pipeline** with full context.
-3. **Track phase progress** against plan sub-issues.
-4. **Unified path:** no single-task exemption.
+- [ ] 1. **Requires plan_issue** in task context. HALT if absent.
+- [ ] 2. **Route to implementation-pipeline** with full context.
+- [ ] 3. **Track phase progress** against plan sub-issues.
+- [ ] 4. **Unified path:** no single-task exemption.
 
 ## Received Context
 

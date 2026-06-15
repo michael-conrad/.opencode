@@ -19,9 +19,9 @@ Capture a screenshot of a rendered design artifact (HTML mockup or SVG wireframe
 
 ## Procedure
 
-1. Identify the source artifact (HTML mockup or SVG wireframe) to capture.
-2. For HTML mockups: run `uv run --script scripts/render_html_screenshot.py` with the mockup path, output path, and viewport dimensions.
-3. For SVG wireframes: first render to PNG with `uv run --script scripts/render_svg_to_png.py`, then optionally capture a screenshot of the rendered output.
-4. Verify the screenshot file was created and is non-empty.
-5. Invoke `completion` subtask.
-6. Return result contract.
+- [ ] 1. Identify the source artifact (HTML mockup or SVG wireframe) to capture.
+- [ ] 2. For HTML mockups: run `uv run --script scripts/render_html_screenshot.py` with the mockup path, output path, and viewport dimensions.
+- [ ] 3. For SVG wireframes: first render to PNG with `uv run --script scripts/render_svg_to_png.py`, then optionally capture a screenshot of the rendered output.
+- [ ] 4. Verify the screenshot file was created and is non-empty.
+- [ ] 5. Invoke `completion` subtask.
+- [ ] 6. Return result contract.

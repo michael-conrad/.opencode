@@ -35,9 +35,9 @@ headers = {"Authorization": f"token {token}"}  # ✅ WORKS
 **Cause**: Token missing, empty, or invalid.
 
 **Solution**:
-1. Check `GITBUCKET_TOKEN` is set: `echo $GITBUCKET_TOKEN`
-2. Verify token has correct scopes
-3. Regenerate token in GitBucket UI if corrupted
+- [ ] 1. Check `GITBUCKET_TOKEN` is set: `echo $GITBUCKET_TOKEN`
+- [ ] 2. Verify token has correct scopes
+- [ ] 3. Regenerate token in GitBucket UI if corrupted
 
 ## Endpoint Errors
 
@@ -92,7 +92,7 @@ gitbucket.has_credentials: true
 ## Fallback Strategy
 
 If GitBucket API fails:
-1. Check authentication (token present and valid)
-2. Verify URL format
-3. Check repository exists and is accessible
-4. Fall back to GitBucket web UI for operations not supported by API
+- [ ] 1. Check authentication (token present and valid)
+- [ ] 2. Verify URL format
+- [ ] 3. Check repository exists and is accessible
+- [ ] 4. Fall back to GitBucket web UI for operations not supported by API

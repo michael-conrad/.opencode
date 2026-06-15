@@ -65,10 +65,10 @@ Skip areas that don't apply to simple specs; add areas that do. The spec should 
 
 For standard and complex specs, generate the following permanent artifacts:
 
-1. **SC coverage summary YAML** — Create `.issues/{issue-N}/sc-summary.yaml` with machine-parseable coverage data including SC IDs, evidence types, phase bindings, and verification gates.
-1. **Verification consistency contract** — Create `.issues/{issue-N}/verification-consistency-contract.yaml` as a solve contract with compliance matrix variables.
-1. **Lifecycle manifest** — Create `.issues/{issue-N}/lifecycle.yaml` with initial `spec_created` event. Append-only format; never overwrite.
-1. **Revision re-entry protocol contract** — Create `.issues/{issue-N}/revision-re-entry-contract.yaml` as a solve contract with cascade variables for each revision scope.
+- [ ] 1. **SC coverage summary YAML** — Create `.issues/{issue-N}/sc-summary.yaml` with machine-parseable coverage data including SC IDs, evidence types, phase bindings, and verification gates.
+- [ ] 1. **Verification consistency contract** — Create `.issues/{issue-N}/verification-consistency-contract.yaml` as a solve contract with compliance matrix variables.
+- [ ] 1. **Lifecycle manifest** — Create `.issues/{issue-N}/lifecycle.yaml` with initial `spec_created` event. Append-only format; never overwrite.
+- [ ] 1. **Revision re-entry protocol contract** — Create `.issues/{issue-N}/revision-re-entry-contract.yaml` as a solve contract with cascade variables for each revision scope.
 
 ### Step 1b: Plan Creation Mandate in Spec Body (MANDATORY)
 
@@ -147,9 +147,9 @@ Lists what the spec explicitly does NOT address. Each non-goal is a bullet item 
 
 Numbered list of behaviors or properties that MUST NOT change as a result of this implementation.
 
-1. Existing authentication flows MUST continue to accept current tokens.
-1. All existing public API signatures MUST remain unchanged.
-1. Database schema migration MUST NOT drop existing columns.
+- [ ] 1. Existing authentication flows MUST continue to accept current tokens.
+- [ ] 1. All existing public API signatures MUST remain unchanged.
+- [ ] 1. Database schema migration MUST NOT drop existing columns.
 
 ### Cross-Cutting / Common SC Designation
 
@@ -453,10 +453,10 @@ On UNSOLVABLE or utility unavailable: **HALT** with blocker report. Refer to `pl
 
 After writing the spec, review with fresh eyes:
 
-1. **Placeholder scan:** Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.
-1. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
-1. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
-1. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
+- [ ] 1. **Placeholder scan:** Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.
+- [ ] 1. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
+- [ ] 1. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
+- [ ] 1. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
 
 Fix any issues inline. No need to re-review — just fix and move on.
 
@@ -464,11 +464,11 @@ Fix any issues inline. No need to re-review — just fix and move on.
 
 **SC Verification Column Precision Sub-Check:** Scan the Verification column of every SC table for vague verification methods (describes what to check without specifying exact expected value). Flag each vague entry as a STRUCTURE-VIOLATION requiring rewrite with an executable verification command per `140-planning-spec-creation.md` Executable Verification Commands mandate. The spec should read as a coherent narrative document, not as a mechanical checklist.
 
-6. **SC-to-SC coherence check**: Scan SC table for contradictions between interdependent criteria. Cross-reference Pipeline Step Binding and Verification Gate columns — verify that an SC gated at 'red-green' does not require a 'ci' tool. Cross-reference Re-Entry Step with Phase Binding — verify re-entry point is valid for the bound phase. Cross-reference Affinity Group members — verify shared SCs have compatible verification methods.
+- [ ] 6. **SC-to-SC coherence check**: Scan SC table for contradictions between interdependent criteria. Cross-reference Pipeline Step Binding and Verification Gate columns — verify that an SC gated at 'red-green' does not require a 'ci' tool. Cross-reference Re-Entry Step with Phase Binding — verify re-entry point is valid for the bound phase. Cross-reference Affinity Group members — verify shared SCs have compatible verification methods.
 
-1. **Verification-Method-to-Artifact-Path consistency check**: Cross-reference Artifact Path and Verification Method columns — verify that the Verification Method's tool references align with the Artifact Path's storage convention. An SC whose Verification Method references 'pytest' should have an Artifact Path matching '{issue-N}/pytest/' convention. An SC whose Verification Method references 'opencode-cli run' should have an Artifact Path matching '{issue-N}/behavioral/' convention.
+- [ ] 1. **Verification-Method-to-Artifact-Path consistency check**: Cross-reference Artifact Path and Verification Method columns — verify that the Verification Method's tool references align with the Artifact Path's storage convention. An SC whose Verification Method references 'pytest' should have an Artifact Path matching '{issue-N}/pytest/' convention. An SC whose Verification Method references 'opencode-cli run' should have an Artifact Path matching '{issue-N}/behavioral/' convention.
 
-1. **YAML-vs-prose SC coverage validation**: Cross-reference `sc-summary.yaml` (from Step 1.1) against the prose SC table. Verify:
+- [ ] 1. **YAML-vs-prose SC coverage validation**: Cross-reference `sc-summary.yaml` (from Step 1.1) against the prose SC table. Verify:
 
    - `sc_coverage.total` matches the number of SC rows in the prose table
    - Every SC ID in the prose table appears in `sc_coverage.phases[].sc_ids` or `sc_coverage.cross_cutting.sc_ids`
@@ -529,13 +529,13 @@ Embed this blockquote at the TOP of the issue body (before the spec content), pr
 
 Invoke `issue-operations` skill to persist the spec as an issue:
 
-1. Generate spec folder URL blockquote (Step 6.8) and prepend it to the issue body
-1. Invoke `issue-operations --task pre-creation` to validate (check for conflicts, superseded issues, content coverage)
-1. If validation fails → HALT and report. Fix issues and re-validate.
-1. If validation passes → invoke `issue-operations --task single-task-check` to determine sub-issue needs
-1. Invoke `issue-operations --task creation` to create the issue with the blockquote-prepended body
-1. Record the issue number and URL
-1. **Invoke `local-issues sync` and commit the resulting local `.issues/{N}/` directory** — this runs at spec creation time, not deferred to approval
+- [ ] 1. Generate spec folder URL blockquote (Step 6.8) and prepend it to the issue body
+- [ ] 1. Invoke `issue-operations --task pre-creation` to validate (check for conflicts, superseded issues, content coverage)
+- [ ] 1. If validation fails → HALT and report. Fix issues and re-validate.
+- [ ] 1. If validation passes → invoke `issue-operations --task single-task-check` to determine sub-issue needs
+- [ ] 1. Invoke `issue-operations --task creation` to create the issue with the blockquote-prepended body
+- [ ] 1. Record the issue number and URL
+- [ ] 1. **Invoke `local-issues sync` and commit the resulting local `.issues/{N}/` directory** — this runs at spec creation time, not deferred to approval
 
 **Chat output is ONLY:**
 
@@ -565,12 +565,12 @@ The remote issue body is the stakeholder-facing representation of the spec. It M
 
 **Construction rules (mandatory — pre-creation URL per URL Sourcing Rule 2):**
 
-1. Extract `github.html_url` (or `gitbucket.html_url`) from session-init — this is the platform-agnostic browser URL
-2. Extract `github.owner` and `github.repo` from session-init
-3. Construct the URL: `{github.html_url}/{owner}/{repo}/tree/issues-data/.issues/{N}/`
-4. **Character-match verification**: Confirm the constructed URL contains the exact `{owner}` and `{repo}` strings from session-init (character-for-character match, no typos)
-5. **Repo-awareness guard**: Confirm owner/repo matches the target issue's repository before URL construction. If the issue resides in a submodule repo with different owner/repo, use that repo's session-init values
-6. All links MUST be full resolved URLs — no platform-specific shortcuts (`#NNN`, `owner/repo#NNN`)
+- [ ] 1. Extract `github.html_url` (or `gitbucket.html_url`) from session-init — this is the platform-agnostic browser URL
+- [ ] 2. Extract `github.owner` and `github.repo` from session-init
+- [ ] 3. Construct the URL: `{github.html_url}/{owner}/{repo}/tree/issues-data/.issues/{N}/`
+- [ ] 4. **Character-match verification**: Confirm the constructed URL contains the exact `{owner}` and `{repo}` strings from session-init (character-for-character match, no typos)
+- [ ] 5. **Repo-awareness guard**: Confirm owner/repo matches the target issue's repository before URL construction. If the issue resides in a submodule repo with different owner/repo, use that repo's session-init values
+- [ ] 6. All links MUST be full resolved URLs — no platform-specific shortcuts (`#NNN`, `owner/repo#NNN`)
 
 #### 2. Problem (mandatory)
 
@@ -662,9 +662,9 @@ on the problem and the chosen approach.
 
 After creating the issue in Step 7, save a local mirror of the exec summary:
 
-1. Remote push happens first (Step 7 creates the issue on the remote platform via `issue-operations --task creation`)
-1. Save `.issues/{N}/remote-exec-summary.md` with the exec summary content that was posted to the remote
-1. Verify the `.issues/` directory pattern is followed (`.issues/{N}/remote-exec-summary.md`)
+- [ ] 1. Remote push happens first (Step 7 creates the issue on the remote platform via `issue-operations --task creation`)
+- [ ] 1. Save `.issues/{N}/remote-exec-summary.md` with the exec summary content that was posted to the remote
+- [ ] 1. Verify the `.issues/` directory pattern is followed (`.issues/{N}/remote-exec-summary.md`)
 
 This ensures the local workspace mirrors the remote state for off-network reference and diff-based drift detection.
 

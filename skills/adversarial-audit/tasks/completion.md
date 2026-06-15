@@ -8,36 +8,36 @@ Idempotent completion subtask for adversarial-audit. Ensures mandatory steps ran
 
 ## State Check Phase
 
-1. **Auditor models resolved:** Check whether `resolve-models` successfully returned two cross-family auditor selections
-2. **Auditors tasked:** Check whether orchestrator dispatched `task(subagent_type="auditor-*")` for both auditor-1 and auditor-2
-3. **Verdict artifacts written:** Check whether auditor YAML verdict artifacts exist on disk at the reported `artifact_path` locations
-4. **Cross-validation computed:** Check whether cross-validate produced a definitive PASS or FAIL result with `next_step` field
+- [ ] 1. **Auditor models resolved:** Check whether `resolve-models` successfully returned two cross-family auditor selections
+- [ ] 2. **Auditors tasked:** Check whether orchestrator dispatched `task(subagent_type="auditor-*")` for both auditor-1 and auditor-2
+- [ ] 3. **Verdict artifacts written:** Check whether auditor YAML verdict artifacts exist on disk at the reported `artifact_path` locations
+- [ ] 4. **Cross-validation computed:** Check whether cross-validate produced a definitive PASS or FAIL result with `next_step` field
 
 ## Orchestrator-Driven Dispatch Chain
 
 The dispatch chain is orchestrated by the main agent (orchestrator), NOT by individual sub-tasks. The flow is:
 
-1. **Orchestrator dispatches** `task(general)` ← resolve-models → receives `{ auditor_1, auditor_2 }` pair
-2. **Orchestrator dispatches** `task(auditor-1)` and `task(auditor-2)` in parallel → receives frugal contracts with `artifact_path` from both auditors
-3. **Orchestrator dispatches** `task(general)` ← cross-validate with `auditor_artifact_paths` (pre-resolved artifact path array, NOT auditor model names) → receives cross-validation result
-4. **Orchestrator routes** based on `next_step` field: `"proceed"` for PASS, `"remediate then re-audit"` for FAIL
+- [ ] 1. **Orchestrator dispatches** `task(general)` ← resolve-models → receives `{ auditor_1, auditor_2 }` pair
+- [ ] 2. **Orchestrator dispatches** `task(auditor-1)` and `task(auditor-2)` in parallel → receives frugal contracts with `artifact_path` from both auditors
+- [ ] 3. **Orchestrator dispatches** `task(general)` ← cross-validate with `auditor_artifact_paths` (pre-resolved artifact path array, NOT auditor model names) → receives cross-validation result
+- [ ] 4. **Orchestrator routes** based on `next_step` field: `"proceed"` for PASS, `"remediate then re-audit"` for FAIL
 
 cross-validate does NOT dispatch auditors — it receives pre-resolved artifact paths from the orchestrator and reads YAMLs from disk. resolve-models does NOT dispatch auditors — it returns model pairs for the orchestrator to dispatch.
 
 ## Skill-Specific Completion
 
-1. **Auditor model resolution verification** (if not already performed):
+- [ ] 1. **Auditor model resolution verification** (if not already performed):
    - Confirm that `resolve-models` returned two different-family auditor selections
    - Confirm neither auditor shares the orchestrator's model family
    - If incorrect: flag STRUCTURE-VIOLATION for orchestrator retry via `resolve-models`
 
-2. **Verdict artifact integrity check** (if not already performed):
+- [ ] 2. **Verdict artifact integrity check** (if not already performed):
    - Each auditor YAML verdict artifact MUST exist at the reported `artifact_path` location on disk
    - Each artifact MUST contain parseable YAML with `per_criterion` entries including `criterion_id`, `result`, `evidence`, `explanation`
    - Both artifacts MUST be present (no single-auditor fallback)
    - If missing, unreadable, or malformed: report VERDICT-INTEGRITY failure, do NOT fabricate results
 
-3. **Consensus enforcement** (if not already performed):
+- [ ] 3. **Consensus enforcement** (if not already performed):
    - PASS iff both auditors independently agree PASS
    - Any disagreement, partial result, or missing artifact = FAIL
    - If consensus not evaluated: compute from collected verdicts (read from YAML artifacts on disk)
@@ -59,15 +59,15 @@ cross-validate does NOT dispatch auditors — it receives pre-resolved artifact 
 
 Reference `skills/completion-core/completion-core.md` for reporting:
 
-1. Report executive summary in chat (always runs)
-2. Action URL (issue URL) as the URL (ALWAYS last)
+- [ ] 1. Report executive summary in chat (always runs)
+- [ ] 2. Action URL (issue URL) as the URL (ALWAYS last)
 
 ## Completion Guarantee
 
 **MANDATORY:** Regardless of workflow outcome (success, partial, error), produce a status message containing:
-1. What was completed
-2. What was attempted but not completed
-3. Why the halt occurred
+- [ ] 1. What was completed
+- [ ] 2. What was attempted but not completed
+- [ ] 3. Why the halt occurred
 
 This is the completion guarantee: NO adversarial-audit workflow ends without a status message.
 

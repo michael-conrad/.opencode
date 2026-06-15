@@ -43,13 +43,13 @@ sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_
 
 **For multi-task plans with sub-issues:**
 
-1. Extract subtask from authorization:
+- [ ] 1. Extract subtask from authorization:
     - "approved: 1.2" → subtask 1.2 (numeric format, backward-compatible)
     - "approved: X.Y" → subtask X.Y (numeric format, backward-compatible)
     - "approved: {concern}" → find phase matching concern name (prose format)
     - "approved" (no number) → check STATUS for current phase
 
-2. Get plan issue STATUS:
+- [ ] 2. Get plan issue STATUS:
     ```python
     plan = issue-operations -> read-issue (github_issue_read(method="get", issue_number=plan_issue) <!-- Routes through issue-operations per SPEC #683 -->
     # Parse STATUS from body
@@ -63,17 +63,17 @@ sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_
     # If STATUS not found, default to first concern's first step
     ```
 
-3. Determine which subtask to implement:
+- [ ] 3. Determine which subtask to implement:
     - If authorized for concern name or X.Y → use that subtask (explicit override)
     - If "approved" (no number) AND STATUS found → use STATUS value
     - If "approved" (no number) AND STATUS missing → use first concern, first step
     - POST COMMENT explaining which subtask is being implemented
 
-4. Verify subtask exists:
+- [ ] 4. Verify subtask exists:
    - If subtask X.Y or concern name exists in sub-issues → PROCEED
    - If subtask X.Y or concern name NOT in sub-issues → HALT and report: "Subtask not found. Available subtasks: [list]"
 
-5. Report to user (MANDATORY - no silent halts):
+- [ ] 5. Report to user (MANDATORY - no silent halts):
 ```markdown
 Proceeding to implement subtask for {concern} (or X.Y).
 
@@ -84,7 +84,7 @@ Sub-issue: #NNN
 Starting implementation now.
 ```
 
-6. **Why STATUS Gate Matters:**
+- [ ] 6. **Why STATUS Gate Matters:**
    - Prevents parallel execution of subtasks
    - Ensures sequential workflow
    - Avoids git branch conflicts
@@ -146,9 +146,9 @@ Auto-creating sub-issues for an approved multi-task plan does NOT require separa
 
 **Every STATUS gate check MUST report status to user:**
 
-1. Which subtask is being implemented
-2. Why that subtask was selected (STATUS value or default)
-3. Link to the sub-issue
+- [ ] 1. Which subtask is being implemented
+- [ ] 2. Why that subtask was selected (STATUS value or default)
+- [ ] 3. Link to the sub-issue
 
 **Example report:**
 ```markdown

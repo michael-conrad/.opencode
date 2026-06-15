@@ -92,11 +92,11 @@ Read restored pipeline state from `./tmp/{issue-N}/state/`. Re-dispatch the fail
 
 For each step:
 
-1. The orchestrator calls `task(subagent_type="general", prompt: "execute <step_label> from implementation-pipeline")`
-2. The sub-agent executes the step, produces a YAML artifact at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml`
-3. The sub-agent returns frugal result contract: `{status, artifact_path, summary}`
-4. The orchestrator reads the YAML from disk only on FAIL (for remediation routing)
-5. After each step, pipeline position is recorded via `solve state update` (3 per-variable calls)
+- [ ] 1. The orchestrator calls `task(subagent_type="general", prompt: "execute <step_label> from implementation-pipeline")`
+- [ ] 2. The sub-agent executes the step, produces a YAML artifact at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml`
+- [ ] 3. The sub-agent returns frugal result contract: `{status, artifact_path, summary}`
+- [ ] 4. The orchestrator reads the YAML from disk only on FAIL (for remediation routing)
+- [ ] 5. After each step, pipeline position is recorded via `solve state update` (3 per-variable calls)
 
 ## YAML Contract Schema
 
@@ -159,21 +159,21 @@ Step results (PASS/FAIL, evidence paths) go into YAML disk artifact — never in
 
 When a step returns FAIL:
 
-1. **Read FAIL artifact YAML frontmatter** — the orchestrator reads only the YAML frontmatter from the FAIL artifact at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-FAIL-{timestamp}.yaml`:
+- [ ] 1. **Read FAIL artifact YAML frontmatter** — the orchestrator reads only the YAML frontmatter from the FAIL artifact at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-FAIL-{timestamp}.yaml`:
    - `status`, `next_step`, `escalation_required`, `step_label`
-2. **Dispatch researcher** — the orchestrator dispatches the `researcher` skill with:
+- [ ] 2. **Dispatch researcher** — the orchestrator dispatches the `researcher` skill with:
    - FAIL artifact path
     - ALL prior pipeline artifacts (glob `./tmp/{issue-N}/artifacts/pipeline-*`)
     - Spec issue number (#912)
     - Plan issue number (if applicable)
-3. **Researcher determines scope** — the researcher produces a remediation artifact at `./tmp/{issue-N}/artifacts/pipeline-researcher-{topic}-{STATUS}-{timestamp}.md` containing:
+- [ ] 3. **Researcher determines scope** — the researcher produces a remediation artifact at `./tmp/{issue-N}/artifacts/pipeline-researcher-{topic}-{STATUS}-{timestamp}.md` containing:
    - `remediation_scope`: `full` | `partial` | `spec_plan_and_implementation` | `none`
    - `remediation_steps[]`: list of `{target_step, action}` pairs
    - `escalation_required`: `true` | `false`
-4. **Orchestrator routes** — the orchestrator reads the researcher artifact's YAML frontmatter, extracts `remediation_steps[0].target_step`, and re-dispatches to that pipeline step via the dispatch routing table
-5. **Re-run pipeline** — the pipeline re-executes from the target remediation step
-6. **No arbitrary attempt caps** — each remediation is fresh research with full context. The researcher consults prior remediation artifacts to avoid repeating failed approaches. Max 3 attempts before escalation is guidance, not a hard gate — genuine progress extends the cap.
-7. **Escalate on `escalation_required: true`** — if the researcher artifact sets `escalation_required: true`, the orchestrator halts and reports the blocker to the developer. No further dispatch occurs.
+- [ ] 4. **Orchestrator routes** — the orchestrator reads the researcher artifact's YAML frontmatter, extracts `remediation_steps[0].target_step`, and re-dispatches to that pipeline step via the dispatch routing table
+- [ ] 5. **Re-run pipeline** — the pipeline re-executes from the target remediation step
+- [ ] 6. **No arbitrary attempt caps** — each remediation is fresh research with full context. The researcher consults prior remediation artifacts to avoid repeating failed approaches. Max 3 attempts before escalation is guidance, not a hard gate — genuine progress extends the cap.
+- [ ] 7. **Escalate on `escalation_required: true`** — if the researcher artifact sets `escalation_required: true`, the orchestrator halts and reports the blocker to the developer. No further dispatch occurs.
 
 ### Session Resume Rule
 

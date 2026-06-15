@@ -6,9 +6,9 @@ Detect, classify, and resolve git conflicts according to a tiered system that pr
 
 ## Operating Protocol
 
-1. Invoked by: `skill({name: "conflict-resolution"})` → `task()` for `classify-and-resolve`
-2. When to use: When a git rebase/merge/cherry-pick operation produces conflicts
-3. Exit criteria: All conflicts classified and resolved, post-resolution verification passes
+- [ ] 1. Invoked by: `skill({name: "conflict-resolution"})` → `task()` for `classify-and-resolve`
+- [ ] 2. When to use: When a git rebase/merge/cherry-pick operation produces conflicts
+- [ ] 3. Exit criteria: All conflicts classified and resolved, post-resolution verification passes
 
 ## Procedure
 
@@ -82,12 +82,12 @@ Notify in chat:
 
 **Tier 3 — Intent conflict:**
 
-1. **HALT** — do NOT resolve the conflict
-2. **Read both sides carefully** — understand what each branch intended
-3. **Assess complexity:**
+- [ ] 1. **HALT** — do NOT resolve the conflict
+- [ ] 2. **Read both sides carefully** — understand what each branch intended
+- [ ] 3. **Assess complexity:**
    - **Minor (devil in the details):** Few files, narrow scope, no architectural impact
    - **Complex (architectural):** Multiple files, architectural decisions, spec compliance at risk
-4. **Report to developer in chat:**
+- [ ] 4. **Report to developer in chat:**
 
 ```
 **⚠️ Intent Conflict Detected (Tier 3):**
@@ -98,7 +98,7 @@ Notify in chat:
 - Agent recommendation: <which side to prefer and why, or flag for developer decision>
 ```
 
-5. **For complex intent conflicts**, also create a GitHub Issue:
+- [ ] 5. **For complex intent conflicts**, also create a GitHub Issue:
 
 ```python
 issue-operations -> creation/update (github_issue_write( <!-- Routes through issue-operations per SPEC #683 -->
@@ -109,26 +109,26 @@ issue-operations -> creation/update (github_issue_write( <!-- Routes through iss
 )
 ```
 
-6. **WAIT** for developer guidance before resolving Tier 3 conflicts
-7. After developer provides guidance, resolve the conflict and continue
+- [ ] 6. **WAIT** for developer guidance before resolving Tier 3 conflicts
+- [ ] 7. After developer provides guidance, resolve the conflict and continue
 
 ### Step 4: Post-Resolution Verification
 
 After ALL conflicts are resolved and before continuing the rebase/merge:
 
-1. **Verify spec compliance:** Read resolved files and check they still satisfy the original spec
+- [ ] 1. **Verify spec compliance:** Read resolved files and check they still satisfy the original spec
 
 ```bash
 grep -c "<spec-key-term>" <resolved-file>
 ```
 
-2. **Verify no dropped changes:** Check that no committed work was silently erased
+- [ ] 2. **Verify no dropped changes:** Check that no committed work was silently erased
 
 ```bash
 git diff <feature-branch-original>...HEAD -- <resolved-file>
 ```
 
-3. **Report verification results in chat:**
+- [ ] 3. **Report verification results in chat:**
 
 ```
 **Post-Resolution Verification:**

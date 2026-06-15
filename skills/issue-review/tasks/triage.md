@@ -105,9 +105,9 @@ Each sub-issue gets its own independent triage decision. A parent may be `audit`
 
 **Before classifying any closed issue as `already-handled`, verify:**
 
-1. **Sub-issues resolved:** `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=N)` — all sub-issues must be closed <!-- Routes through issue-operations per SPEC #683 -->
-2. **Cross-references resolved:** Spec → plan chain must be complete (plan closed, all sub-issues under plan closed)
-3. **Closure correctness:** `state_reason == "completed"` AND merged PR exists (search PRs referencing the issue)
+- [ ] 1. **Sub-issues resolved:** `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=N)` — all sub-issues must be closed <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 2. **Cross-references resolved:** Spec → plan chain must be complete (plan closed, all sub-issues under plan closed)
+- [ ] 3. **Closure correctness:** `state_reason == "completed"` AND merged PR exists (search PRs referencing the issue)
 
 If any verification fails, do NOT classify as `already-handled`. Instead:
 - Route to `analyze-and-spec` (if bug report with open fix spec)

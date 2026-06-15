@@ -32,17 +32,17 @@ Fixes #<parent>
 
 ### Multi-Task Spec with Sub-Issues
 
-1. **Fetch sub-issues:**
+- [ ] 1. **Fetch sub-issues:**
    ```python
    sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=<parent>) <!-- Routes through issue-operations per SPEC #683 -->
    ```
 
-2. **Build autoclose list:** parent + all sub-issues
+- [ ] 2. **Build autoclose list:** parent + all sub-issues
    ```python
    autoclose_issues = [<parent>] + [sub["number"] for sub in sub_issues]
    ```
 
-3. **Include ALL issues in PR body:**
+- [ ] 3. **Include ALL issues in PR body:**
    ```markdown
    ## Summary
    <description of what changed>
@@ -56,8 +56,8 @@ Fixes #<parent>
 
 For work PRs (assembled from multiple issues via `assemble-work`):
 
-1. **Read work state file** (`./tmp/{issue-N}/work.md`) to get list of all issues in the work
-2. **Build both sections:**
+- [ ] 1. **Read work state file** (`./tmp/{issue-N}/work.md`) to get list of all issues in the work
+- [ ] 2. **Build both sections:**
    - `## Work Issues` section listing each issue with its description
    - `Fixes #N` annotations for all issues at the bottom
 

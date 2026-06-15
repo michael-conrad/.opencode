@@ -6,9 +6,9 @@ Create issue with proper title format, labels, and byline after validation passe
 
 ## Operating Protocol
 
-1. **Run after `pre-creation` validation passes.**
-1. **DO NOT skip validation.**
-1. **HALT if Step 0.5 dedup gate evidence is missing.**
+- [ ] 1. **Run after `pre-creation` validation passes.**
+- [ ] 1. **DO NOT skip validation.**
+- [ ] 1. **HALT if Step 0.5 dedup gate evidence is missing.**
 
 ## Entry Criteria
 
@@ -47,11 +47,11 @@ Action: [auto-resolved strategy | proceed | HALT]
 
 Before or alongside the remote dedup search, search `.issues/open/` for existing local specs:
 
-1. Route to `platforms/local/tasks/search.md` via task(). Pass: `{query: "<significant keywords>", status: "open"}`
-1. For each match, compare title keywords against proposed title
-1. Classify match level per `pre-creation.md` Step 0.5 Phase 2 classification table
-1. If a local EXACT-DUPLICATE or NEAR-DUPLICATE exists → report it alongside any remote duplicates
-1. Include local results in the dedup evidence artifact
+- [ ] 1. Route to `platforms/local/tasks/search.md` via task(). Pass: `{query: "<significant keywords>", status: "open"}`
+- [ ] 1. For each match, compare title keywords against proposed title
+- [ ] 1. Classify match level per `pre-creation.md` Step 0.5 Phase 2 classification table
+- [ ] 1. If a local EXACT-DUPLICATE or NEAR-DUPLICATE exists → report it alongside any remote duplicates
+- [ ] 1. Include local results in the dedup evidence artifact
 
 **Gate logic:**
 
@@ -73,17 +73,17 @@ Cannot create issue: Step 0.5 dedup gate evidence missing. Run pre-creation task
 
 This fallback catches the scenario where `pre-creation` was not run or its output is not in the current session context.
 
-1. Extract significant keywords from the proposed title (remove stop words, prefixes like `[SPEC]`, `[SPEC-FIX]`, `[Task:]`)
-1. Search `.issues/open/` for local duplicates:
+- [ ] 1. Extract significant keywords from the proposed title (remove stop words, prefixes like `[SPEC]`, `[SPEC-FIX]`, `[Task:]`)
+- [ ] 1. Search `.issues/open/` for local duplicates:
    - **Local:** Route to `platforms/local/tasks/search.md` via task(). Pass: `{query: "<keywords>", status: "open"}`
    - Classify any local matches per `pre-creation.md` Step 0.5 Phase 2 classification table
-1. Search for existing issues via platform API:
+- [ ] 1. Search for existing issues via platform API:
    - **GitHub:** `issue-operations → search-issues` with keyword query
    - **GitBucket:** `./.opencode/tools/gitbucket-api issues --state open` + `--state closed` (filter client-side by keyword match)
-1. Collect candidate matches from both local and remote (issues whose titles share ≥2 significant keywords with proposed title)
-1. For each candidate, classify match level per `pre-creation.md` Step 0.5 Phase 2 classification table
-1. If any EXACT-DUPLICATE or NEAR-DUPLICATE found (local or remote) → HALT, report conflict
-1. If all candidates are RELATED-BUT-DISTINCT or FALSE-POSITIVE → generate runtime search evidence artifact, proceed to Step 1
+- [ ] 1. Collect candidate matches from both local and remote (issues whose titles share ≥2 significant keywords with proposed title)
+- [ ] 1. For each candidate, classify match level per `pre-creation.md` Step 0.5 Phase 2 classification table
+- [ ] 1. If any EXACT-DUPLICATE or NEAR-DUPLICATE found (local or remote) → HALT, report conflict
+- [ ] 1. If all candidates are RELATED-BUT-DISTINCT or FALSE-POSITIVE → generate runtime search evidence artifact, proceed to Step 1
 
 **Evidence artifact (MANDATORY):**
 
@@ -129,7 +129,7 @@ Determine creation order based on `github.platform`:
 
 #### Step 2.1: Remote-First Flow (when `github.platform != local`)
 
-1. Promote to remote platform FIRST. Route based on `github.platform`:
+- [ ] 1. Promote to remote platform FIRST. Route based on `github.platform`:
 
    **GitHub:**
    Route to `platforms/github-mcp/` sub-skill via task(). Pass issue parameters (title, body, labels). The platform sub-skill handles the `github_issue_write` call.
@@ -139,13 +139,13 @@ Determine creation order based on `github.platform`:
 
    **Note (GitBucket):** Labels can ONLY be set during creation. Post-creation label changes do not work.
 
-1. **Extract remote issue number** from API response `number` field
+- [ ] 1. **Extract remote issue number** from API response `number` field
 
-1. **Create local `.issues/open/<remote-number>-<slug>/`** — the remote number IS the local directory name (no local counter needed)
+- [ ] 1. **Create local `.issues/open/<remote-number>-<slug>/`** — the remote number IS the local directory name (no local counter needed)
 
-1. Write spec body to `.issues/open/<remote-number>-<slug>/spec.md` (preserving YAML frontmatter)
+- [ ] 1. Write spec body to `.issues/open/<remote-number>-<slug>/spec.md` (preserving YAML frontmatter)
 
-1. Record remote metadata in YAML frontmatter:
+- [ ] 1. Record remote metadata in YAML frontmatter:
 
    ```yaml
    remote_issue: <remote-number>
@@ -153,7 +153,7 @@ Determine creation order based on `github.platform`:
    promoted_at: <timestamp>
    ```
 
-1. **Counter advancement:** Read `.counter`. If `counter <= remote_number`, write `remote_number + 1` to `.counter` to prevent future local-first issues from colliding with this remote number.
+- [ ] 1. **Counter advancement:** Read `.counter`. If `counter <= remote_number`, write `remote_number + 1` to `.counter` to prevent future local-first issues from colliding with this remote number.
 
 **Local copy retains full-fidelity detail** — extra metadata, reasoning, and agent notes that stakeholders don't need.
 
@@ -178,10 +178,10 @@ Then write the spec body to `.issues/open/NNN-slug/spec.md` (preserving YAML fro
 
 The Issue URL MUST be extracted from the API response `html_url` field — NEVER constructed from template variables:
 
-1. After the creation API call, extract the `html_url` field from the response
-1. Use this exact value as the Issue URL for all subsequent references (chat output, cross-references, sub-issue linking reports)
-1. **Template construction is FORBIDDEN for post-creation URLs** — do NOT assemble from `<gitbucket.html_url>`, `<github.owner>`, `<github.repo>`, or issue number
-1. If `html_url` is not available in the API response: HALT and report
+- [ ] 1. After the creation API call, extract the `html_url` field from the response
+- [ ] 1. Use this exact value as the Issue URL for all subsequent references (chat output, cross-references, sub-issue linking reports)
+- [ ] 1. **Template construction is FORBIDDEN for post-creation URLs** — do NOT assemble from `<gitbucket.html_url>`, `<github.owner>`, `<github.repo>`, or issue number
+- [ ] 1. If `html_url` is not available in the API response: HALT and report
 
 ### Step 3: Verify Byline in Issue Body
 
@@ -235,7 +235,7 @@ Issue #MMM created on GitHub. Review:
 
 The body must contain the following 6 sections in order:
 
-1. **Spec Reference Blockquote** (mandatory — top of body, before all other content):
+- [ ] 1. **Spec Reference Blockquote** (mandatory — top of body, before all other content):
 
    ```
    > Full spec and plan artifacts: {{REMOTE_BROWSER_URL}}/{{OWNER}}/{{REPO}}/tree/issues-data/.issues/N/
@@ -248,15 +248,15 @@ The body must contain the following 6 sections in order:
    - **Repo-awareness guard:** Confirm owner/repo from session-init matches the target issue's repository. If the issue resides in a submodule/sub-folder repo (different owner/repo from root), use that repo's owner/repo. Do NOT route a cross-repo URL with the wrong owner/repo pair.
    - All links MUST be full resolved URLs — no platform shortcuts (`#NNN`, relative paths)
 
-1. **Problem** (mandatory) — What problem this solves, why now, BLUF (Bottom Line Up Front) format. 1-3 sentences.
+- [ ] 1. **Problem** (mandatory) — What problem this solves, why now, BLUF (Bottom Line Up Front) format. 1-3 sentences.
 
-1. **Scope** (mandatory) — 3-5 bullets describing what is in-scope, followed by an explicit `**Out of scope:**` list describing what is NOT covered.
+- [ ] 1. **Scope** (mandatory) — 3-5 bullets describing what is in-scope, followed by an explicit `**Out of scope:**` list describing what is NOT covered.
 
-1. **Approach** (mandatory) — High-level solution description, 3-5 sentences. Focus on architectural choices and rationale, not implementation details.
+- [ ] 1. **Approach** (mandatory) — High-level solution description, 3-5 sentences. Focus on architectural choices and rationale, not implementation details.
 
-1. **Impact** (mandatory) — Top 3 risks with one-line mitigation each, key dependencies, and a call to action.
+- [ ] 1. **Impact** (mandatory) — Top 3 risks with one-line mitigation each, key dependencies, and a call to action.
 
-1. **AI Agent Instructions** (mandatory):
+- [ ] 1. **AI Agent Instructions** (mandatory):
 
    ```
    ## AI Agent Instructions
@@ -275,10 +275,10 @@ The body must contain the following 6 sections in order:
 
 **If spec has multiple phases:**
 
-1. After creating parent issue
-1. Invoke `issue-operations --task link-sub-issue`
-1. Create phase-level sub-issues
-1. Link each via platform sub-skill (GitHub: `github_sub_issue_write(method="add")`; GitBucket: comment-based linking)
+- [ ] 1. After creating parent issue
+- [ ] 1. Invoke `issue-operations --task link-sub-issue`
+- [ ] 1. Create phase-level sub-issues
+- [ ] 1. Link each via platform sub-skill (GitHub: `github_sub_issue_write(method="add")`; GitBucket: comment-based linking)
 
 **Single-task exemption:**
 

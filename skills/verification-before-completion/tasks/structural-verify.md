@@ -22,9 +22,9 @@ Verify that ALL structural components required by the spec are present in the im
 
 This task MUST be task()'d as a sub-agent receiving ONLY:
 
-1. **spec_local_dir** — REQUIRED path(s) to local issue directories containing spec.md. If absent: BLOCKED with MISSING_INPUT_DIR.
-2. **Target files** — list of files that were modified during implementation
-3. **Required structural components** — list derived from parent spec's requirements
+- [ ] 1. **spec_local_dir** — REQUIRED path(s) to local issue directories containing spec.md. If absent: BLOCKED with MISSING_INPUT_DIR.
+- [ ] 2. **Target files** — list of files that were modified during implementation
+- [ ] 3. **Required structural components** — list derived from parent spec's requirements
 
 The sub-agent MUST NOT receive:
 - Implementation context (what was done, how it was done)
@@ -56,9 +56,9 @@ From the spec issue, extract the list of required structural components. Use `vb
 
 For each file path in the task context:
 
-1. Read the file using the `read` tool (NOT from cache or memory)
-2. Extract the yaml+symbolic block
-3. Parse YAML structure
+- [ ] 1. Read the file using the `read` tool (NOT from cache or memory)
+- [ ] 2. Extract the yaml+symbolic block
+- [ ] 3. Parse YAML structure
 
 ### Step 3: Component-by-Component Verification
 

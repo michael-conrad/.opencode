@@ -51,9 +51,9 @@ Worktree Setup Specialist. Focus: creating safe, isolated git worktrees for para
 
 ## Operating Protocol
 
-1. **Opt-in only** — created when `WORKTREE_REQUIRED` or developer requests.
-2. **Safety verification:** confirm git worktree add succeeded, verify path is writable.
-3. **Path resolution:** `worktree.path` set; all file ops prefix paths.
+- [ ] 1. **Opt-in only** — created when `WORKTREE_REQUIRED` or developer requests.
+- [ ] 2. **Safety verification:** confirm git worktree add succeeded, verify path is writable.
+- [ ] 3. **Path resolution:** `worktree.path` set; all file ops prefix paths.
 
 ## Sub-Agent Routing
 

@@ -4,16 +4,16 @@ Idempotent completion subtask for brainstorming. Ensures mandatory steps ran reg
 
 ## State Check Phase
 
-1. **Terminal-state routing:** Verify spec-creation/writing-plans call occurred (Path A or Path B), or FAILURE documented (Path C)
-2. **Chat output format:** Verify chat output follows exec summary format (summary → outcome → URL → byline)
+- [ ] 1. **Terminal-state routing:** Verify spec-creation/writing-plans call occurred (Path A or Path B), or FAILURE documented (Path C)
+- [ ] 2. **Chat output format:** Verify chat output follows exec summary format (summary → outcome → URL → byline)
 
 ## Skill-Specific Completion
 
-1. **Terminal-state routing** (if not already performed):
+- [ ] 1. **Terminal-state routing** (if not already performed):
    - Check evidence for spec-creation or writing-plans call
     - If missing: call appropriate skill as remediation (spec-creation for Path A, writing-plans for Path B), or document FAILURE for Path C
 
-2. **Chat output** (if not already produced):
+- [ ] 2. **Chat output** (if not already produced):
    - Verify exec summary was posted to chat
    - If missing: generate and post exec summary now
 
@@ -21,15 +21,15 @@ Idempotent completion subtask for brainstorming. Ensures mandatory steps ran reg
 
 Reference `.opencode/skills/completion-core/completion-core.md` for reporting:
 
-1. Report executive summary in chat (always runs)
-2. Action URL (issue URL) as the URL (ALWAYS last)
+- [ ] 1. Report executive summary in chat (always runs)
+- [ ] 2. Action URL (issue URL) as the URL (ALWAYS last)
 
 ## Completion Guarantee
 
 **MANDATORY:** Regardless of workflow outcome (success, partial, error), produce a status message containing:
-1. What was completed
-2. What was attempted but not completed
-3. Why the halt occurred
+- [ ] 1. What was completed
+- [ ] 2. What was attempted but not completed
+- [ ] 3. Why the halt occurred
 
 This is the completion guarantee: NO brainstorming workflow ends without a status message.
 

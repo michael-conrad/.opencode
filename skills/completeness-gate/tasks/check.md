@@ -68,22 +68,22 @@ findings:
 
 For each deliverable path in the input contract:
 
-1. Use `glob` or `read` to verify the file/directory exists
-2. If the deliverable is a PR or branch, verify via GitHub API
-3. Record evidence of existence (file listing, API response)
+- [ ] 1. Use `glob` or `read` to verify the file/directory exists
+- [ ] 2. If the deliverable is a PR or branch, verify via GitHub API
+- [ ] 3. Record evidence of existence (file listing, API response)
 
 ### Step 2: Verify Spec SC Coverage
 
 For each success criterion in the input:
 
-1. Read `spec_local_dir` for the spec's success criteria definitions
-2. Read the deliverable content relevant to the criterion
-3. Inspect whether the criterion is addressed:
+- [ ] 1. Read `spec_local_dir` for the spec's success criteria definitions
+- [ ] 2. Read the deliverable content relevant to the criterion
+- [ ] 3. Inspect whether the criterion is addressed:
    - **present**: Deliverable includes content addressing this SC
    - **partial**: Some aspects covered, some missing
    - **missing**: No content found addressing this SC
    - **incorrect**: Content exists but does not match the SC requirement
-3. Record evidence for each finding (code snippet, file path, line range)
+- [ ] 3. Record evidence for each finding (code snippet, file path, line range)
 
 ### Step 3: Classify Completeness
 

@@ -23,18 +23,18 @@ Validate a state YAML file against a contract YAML file using Z3. Determines whe
 The tool performs a two-phase check:
 
 **Phase 1 — Preconditions only:**
-1. Load state variables as equality assertions (e.g., `step_completed == BoolVal(true)`)
-2. Assert all preconditions from the contract
-3. Check satisfiability
+- [ ] 1. Load state variables as equality assertions (e.g., `step_completed == BoolVal(true)`)
+- [ ] 2. Assert all preconditions from the contract
+- [ ] 3. Check satisfiability
 
 Result:
 - **SAT**: Preconditions are satisfiable. Print the model (variable assignments).
 - **UNSAT**: Preconditions conflict with state. Print unsat core labels. HALT — state is invalid.
 
 **Phase 2 — Postconditions + Invariants:**
-4. Keep all assertions from Phase 1
-5. Assert all postconditions and invariants
-6. Check satisfiability
+- [ ] 4. Keep all assertions from Phase 1
+- [ ] 5. Assert all postconditions and invariants
+- [ ] 6. Check satisfiability
 
 Result:
 - **SAT**: All constraints satisfiable. Print model. State is valid.

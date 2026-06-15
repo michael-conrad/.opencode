@@ -100,12 +100,12 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 
 ## Operating Protocol
 
-1. **Platform routing:** `github.platform` → appropriate sub-skill (github-mcp / gitbucket-api / local).
-2. **Substantive comment gate:** only meaningful updates posted as issue comments. No status spam.
-3. **spec.md mirror:** every `issue-operations -> read-issue` MUST be followed by `sync-pull-to-local` to mirror the body to `.issues/<N>/spec.md`. <!-- Enforced by sync-pull-to-local task per issue #764 -->
-4. **Byline mandatory:** AI-authored comments must include `🤖 Co-authored with AI: <AgentName> (<ModelId>)`.
-5. **Issue creation = no auth needed** per `010-approval-gate.md`.
-6. **Adversarial-audit call:** after sub-issue creation, call `adversarial-audit --task concern-separation --issue <N>` with `audit_phase: sub_issue_creation`.
+- [ ] 1. **Platform routing:** `github.platform` → appropriate sub-skill (github-mcp / gitbucket-api / local).
+- [ ] 2. **Substantive comment gate:** only meaningful updates posted as issue comments. No status spam.
+- [ ] 3. **spec.md mirror:** every `issue-operations -> read-issue` MUST be followed by `sync-pull-to-local` to mirror the body to `.issues/<N>/spec.md`. <!-- Enforced by sync-pull-to-local task per issue #764 -->
+- [ ] 4. **Byline mandatory:** AI-authored comments must include `🤖 Co-authored with AI: <AgentName> (<ModelId>)`.
+- [ ] 5. **Issue creation = no auth needed** per `010-approval-gate.md`.
+- [ ] 6. **Adversarial-audit call:** after sub-issue creation, call `adversarial-audit --task concern-separation --issue <N>` with `audit_phase: sub_issue_creation`.
 
 ## Sub-Agent Routing
 

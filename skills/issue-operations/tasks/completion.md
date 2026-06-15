@@ -18,20 +18,20 @@ Idempotent completion subtask for issue-operations. Ensures mandatory steps run 
 
 ## State Check Phase
 
-1. **Issue created:** Check if the issue already exists
+- [ ] 1. **Issue created:** Check if the issue already exists
    - Search by title or check recent issue list (via platform sub-skill)
-2. **Labels applied:** Check if `needs-approval` label is present (via `issue-operations → read-labels`)
-3. **Sub-issues created:** Check if multi-task spec has sub-issues (via `issue-operations → read-sub-issues` or comment-based tracking)
-4. **Auditor invoked:** Check if spec-auditor has been run on the issue (via session records or `./tmp/` files)
+- [ ] 2. **Labels applied:** Check if `needs-approval` label is present (via `issue-operations → read-labels`)
+- [ ] 3. **Sub-issues created:** Check if multi-task spec has sub-issues (via `issue-operations → read-sub-issues` or comment-based tracking)
+- [ ] 4. **Auditor invoked:** Check if spec-auditor has been run on the issue (via session records or `./tmp/` files)
 
 ## Skill-Specific Completion
 
-1. **Apply `needs-approval` label** (if not already present, routed via `issue-operations → read-labels`):
+- [ ] 1. **Apply `needs-approval` label** (if not already present, routed via `issue-operations → read-labels`):
     - If label not present, add it via `issue-operations → update-issue`
-2. **Invoke spec-auditor** (if not already run):
+- [ ] 2. **Invoke spec-auditor** (if not already run):
     - Check session records or `./tmp/` files for auditor results
     - If missing: invoke spec-auditor
-3. **Create sub-issues** (if multi-task and not already created):
+- [ ] 3. **Create sub-issues** (if multi-task and not already created):
     - Check `get_sub_issues` result
     - If empty and spec is multi-task: invoke `issue-operations --task link-sub-issue`
 
@@ -39,8 +39,8 @@ Idempotent completion subtask for issue-operations. Ensures mandatory steps run 
 
 Reference `.opencode/skills/completion-core/completion-core.md` for reporting:
 
-1. Report executive summary in chat (always runs)
-2. Issue URL as the action URL (ALWAYS last)
+- [ ] 1. Report executive summary in chat (always runs)
+- [ ] 2. Issue URL as the action URL (ALWAYS last)
 
 ## Label State Machine
 
@@ -50,10 +50,10 @@ Before adding or removing labels in completion, consult `141-planning-status-tra
 
 ### Step N: EXTRACT URL FROM API RESPONSE
 
-1. The Issue URL MUST be copied verbatim from the `github_issue_write` API response's `html_url` field.
-2. Do NOT retype, reconstruct, or assemble the URL from known values (org, repo, number).
-3. Paste the URL exactly as returned. If the API response is `{ "html_url": "https://github.com/Org/Repo/issues/42" }`, the output URL is `https://github.com/Org/Repo/issues/42` — character for character.
-4. Verification checkpoint: Compare the pasted URL character-by-character against the `html_url` field in the API response before sending.
+- [ ] 1. The Issue URL MUST be copied verbatim from the `github_issue_write` API response's `html_url` field.
+- [ ] 2. Do NOT retype, reconstruct, or assemble the URL from known values (org, repo, number).
+- [ ] 3. Paste the URL exactly as returned. If the API response is `{ "html_url": "https://github.com/Org/Repo/issues/42" }`, the output URL is `https://github.com/Org/Repo/issues/42` — character for character.
+- [ ] 4. Verification checkpoint: Compare the pasted URL character-by-character against the `html_url` field in the API response before sending.
 
 Generate executive summary in chat:
 

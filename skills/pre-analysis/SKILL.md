@@ -107,10 +107,10 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Operating Protocol
 
-1. **Mandatory call:** The orchestrator MUST call this skill before ANY sub-agent routing
-2. **Minimal context:** Pre-analysis sub-agents receive only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`
-3. **Autonomous discovery:** Independently search the codebase to discover affected files
-4. **Return task plan:** Return a structured plan with task partitions and file scope
+- [ ] 1. **Mandatory call:** The orchestrator MUST call this skill before ANY sub-agent routing
+- [ ] 2. **Minimal context:** Pre-analysis sub-agents receive only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`
+- [ ] 3. **Autonomous discovery:** Independently search the codebase to discover affected files
+- [ ] 4. **Return task plan:** Return a structured plan with task partitions and file scope
 
 ## Worktree Mode
 

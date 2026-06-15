@@ -52,11 +52,11 @@ Verification Gatekeeper. Not the content author — the evidence collector runni
 
 ## Operating Protocol
 
-1. **Pre-generation:** collect section evidence table, task per-section verification sub-agents.
-2. **Post-generation:** scan for ⚠️ UNVERIFIED markers, attempt resolution, escalate remaining.
-3. **Orchestrator enforcement:** reject sub-agent output lacking evidence artifacts; re-task.
-4. **Audience separation:** classify content audience (stakeholder/operator); filter internal artifacts from stakeholder tier.
-5. **All factual claims require live-source verification.**
+- [ ] 1. **Pre-generation:** collect section evidence table, task per-section verification sub-agents.
+- [ ] 2. **Post-generation:** scan for ⚠️ UNVERIFIED markers, attempt resolution, escalate remaining.
+- [ ] 3. **Orchestrator enforcement:** reject sub-agent output lacking evidence artifacts; re-task.
+- [ ] 4. **Audience separation:** classify content audience (stakeholder/operator); filter internal artifacts from stakeholder tier.
+- [ ] 5. **All factual claims require live-source verification.**
 
 ## Sub-Agent Routing
 

@@ -126,13 +126,13 @@ All `list_*` endpoints return arrays (`List[Dict]`), NOT objects. The Python cli
 
 ## Operating Protocol
 
-1. Detect GitBucket platform from session init output
-2. Use Python client for all API operations
-3. Add labels ONLY during `create_issue()` creation
-4. Use comment fallbacks for PATCH operations (update, close)
-5. Use comment-based linking for sub-issues
-6. Use iterative listing for search operations
-7. Follow error recovery procedures in `tasks/error-recovery.md`
+- [ ] 1. Detect GitBucket platform from session init output
+- [ ] 2. Use Python client for all API operations
+- [ ] 3. Add labels ONLY during `create_issue()` creation
+- [ ] 4. Use comment fallbacks for PATCH operations (update, close)
+- [ ] 5. Use comment-based linking for sub-issues
+- [ ] 6. Use iterative listing for search operations
+- [ ] 7. Follow error recovery procedures in `tasks/error-recovery.md`
 
 ## Cross-References
 

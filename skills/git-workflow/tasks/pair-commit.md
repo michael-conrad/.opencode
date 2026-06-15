@@ -19,9 +19,9 @@ Co-authored-by: AI: <AGENT_NAME> (<MODEL_ID>) [pair-mode]
 
 When the pair branch contains an issue number (e.g., `pair-feature/123-xyz`):
 
-1. Extract issue number from branch name
-2. Include issue reference in commit footer: `Refs #123`
-3. Use `Implements #123` (not `Fixes #123`) to avoid premature closure
+- [ ] 1. Extract issue number from branch name
+- [ ] 2. Include issue reference in commit footer: `Refs #123`
+- [ ] 3. Use `Implements #123` (not `Fixes #123`) to avoid premature closure
 
 When branch has no issue number or ambiguous:
 - Ask developer: "Which issue is this commit for?"
@@ -29,12 +29,12 @@ When branch has no issue number or ambiguous:
 
 ## Steps
 
-1. **Stage changes:**
+- [ ] 1. **Stage changes:**
    ```bash
    git add -A
    ```
 
-2. **Create commit with pair-mode trailers:**
+- [ ] 2. **Create commit with pair-mode trailers:**
    ```bash
    git commit -m "<subject>
 
@@ -54,7 +54,7 @@ When branch has no issue number or ambiguous:
    Co-authored-by: AI: <AGENT_NAME> (<MODEL_ID>) [pair-mode]"
    ```
 
-3. **Verify commit:**
+- [ ] 3. **Verify commit:**
    ```bash
    git log -1 --format="%B"
    ```

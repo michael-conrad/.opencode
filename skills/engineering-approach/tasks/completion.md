@@ -13,9 +13,9 @@ Ensure mandatory completion steps run regardless of workflow outcome. Idempotent
 
 ## Procedure
 
-1. Verify no stale design artifacts remain: `ls ./tmp/{issue-N}/design-*.md`
-2. Report completion status
-3. Return compact completion result
+- [ ] 1. Verify no stale design artifacts remain: `ls ./tmp/{issue-N}/design-*.md`
+- [ ] 2. Report completion status
+- [ ] 3. Return compact completion result
 
 ## Result Contract
 

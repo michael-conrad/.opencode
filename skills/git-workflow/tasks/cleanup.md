@@ -6,9 +6,9 @@ Delete merged branches after PR merge, clean stale references, and verify reposi
 
 ## Operating Protocol
 
-1. **After PR merge:** Run when human confirms "PR merged" or similar
-2. **Automatic detection:** Can also run when invoked to check for merged branches
-3. **Mandatory cleanup:** ALL merged branches must be deleted (local and remote)
+- [ ] 1. **After PR merge:** Run when human confirms "PR merged" or similar
+- [ ] 2. **Automatic detection:** Can also run when invoked to check for merged branches
+- [ ] 3. **Mandatory cleanup:** ALL merged branches must be deleted (local and remote)
 
 ## Entry Criteria
 
@@ -29,25 +29,25 @@ Delete merged branches after PR merge, clean stale references, and verify reposi
 
 Before any cleanup operations, detect and build routing context for submodules.
 
-1. **Check for `.gitmodules` at project root:**
+- [ ] 1. **Check for `.gitmodules` at project root:**
 
    - Run `test -f .gitmodules && echo "EXISTS" || echo "NOT_FOUND"`
    - If NOT_FOUND: skip submodule detection, proceed normally (no submodule routing context)
 
-2. **Parse `.gitmodules` if it exists:**
+- [ ] 2. **Parse `.gitmodules` if it exists:**
 
    - Extract all `[submodule "..."]` entries using `git config --file .gitmodules --list`
    - For each submodule entry, extract:
      - `submodule.<path>.path` — the submodule path
      - `submodule.<path>.url` — the remote URL
 
-3. **Resolve owner/repo from each remote URL:**
+- [ ] 3. **Resolve owner/repo from each remote URL:**
 
    - SSH URLs (`git@github.com:owner/repo.git`): extract owner/repo
    - HTTPS URLs (`https://github.com/owner/repo.git`): extract owner/repo
    - If URL format is unexpected: mark as UNKNOWN, proceed with remaining submodules
 
-4. **Build routing context dictionary:**
+- [ ] 4. **Build routing context dictionary:**
 
    ```yaml
    submodule_paths:
@@ -61,12 +61,12 @@ Before any cleanup operations, detect and build routing context for submodules.
        platform: github
    ```
 
-5. **Pass routing context to sub-tasks:**
+- [ ] 5. **Pass routing context to sub-tasks:**
 
    - Include `submodule_paths` in task context for `issue-closure` and `branch-cleanup` sub-tasks
    - Each sub-task uses the routing context to route API calls to the correct owner/repo for files under a submodule path
 
-6. **If `.gitmodules` exists but is empty** (no submodule entries): proceed normally, no routing context needed.
+- [ ] 6. **If `.gitmodules` exists but is empty** (no submodule entries): proceed normally, no routing context needed.
 
 ### Step 1: Verify PR Merge and Run Gates
 
@@ -90,13 +90,13 @@ Switches to dev, syncs with remote, removes feature worktree, deletes merged bra
 
 Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all submodule iterations are complete. This is the final verification gate — nothing runs after it.
 
-1. **Determine the parent repo path:**
+- [ ] 1. **Determine the parent repo path:**
 
    - Run `git rev-parse --show-superproject-working-tree 2>/dev/null` to detect parent repo
    - If output is non-empty: this is the parent repo path (we are inside a submodule)
    - If output is empty: we are in the parent repo (standalone or no superproject)
 
-2. **Build repo list for verification:**
+- [ ] 2. **Build repo list for verification:**
 
    ```
    repos_to_check:
@@ -112,7 +112,7 @@ Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all su
    - Include the parent (or current) repo at index 0
    - Append each submodule path from `submodule_paths` (resolved relative to parent repo)
 
-3. **For each repo in the list:**
+- [ ] 3. **For each repo in the list:**
 
    a. Get local dev HEAD:
       ```bash
@@ -133,7 +133,7 @@ Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all su
       - If hashes match → repo is at dev tip
       - If hashes differ → repo has diverged
 
-4. **Report results as a comparison table:**
+- [ ] 4. **Report results as a comparison table:**
 
    ```
    | Repo | Local dev HEAD | Remote dev HEAD | Status |
@@ -142,7 +142,7 @@ Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all su
    | .opencode | def5678 | def5678 | ✅ At tip |
    ```
 
-5. **Outcome:**
+- [ ] 5. **Outcome:**
 
    - **All repos at dev tip:** Report "All repos at dev tip — ready for next dev cycle"
    - **Any repo diverged:** Report which repo, the local vs remote hashes, and flag for human review:
@@ -172,12 +172,12 @@ After EVERY merged PR, cleanup is MANDATORY — no exceptions.
 
 ### ✅ ALWAYS DO — IMMEDIATELY After Merge Confirmation
 
-1. Switch to dev and sync: `git checkout dev && git pull origin dev`
-2. Verify dev sync: `git log --oneline -5` must show the merge commit
-3. Delete local feature branch: `git branch -d <branch-name>`
-4. Delete remote branch: `git push origin --delete <branch-name>`
-5. Verify cleanup: `git branch -vv`
-6. Prune remote references: `git fetch --prune && git remote prune origin`
+- [ ] 1. Switch to dev and sync: `git checkout dev && git pull origin dev`
+- [ ] 2. Verify dev sync: `git log --oneline -5` must show the merge commit
+- [ ] 3. Delete local feature branch: `git branch -d <branch-name>`
+- [ ] 4. Delete remote branch: `git push origin --delete <branch-name>`
+- [ ] 5. Verify cleanup: `git branch -vv`
+- [ ] 6. Prune remote references: `git fetch --prune && git remote prune origin`
 
 ## Branch Status Categories
 
@@ -194,10 +194,10 @@ After EVERY merged PR, cleanup is MANDATORY — no exceptions.
 
 ### "Check PR" Workflow
 
-1. List all PRs (open and merged) using `github_list_pull_requests`
-2. For each merged PR with local branch still existing → activate full cleanup
-3. For each open PR → report PR number, title, and status
-4. If only open PRs exist → report and HALT
+- [ ] 1. List all PRs (open and merged) using `github_list_pull_requests`
+- [ ] 2. For each merged PR with local branch still existing → activate full cleanup
+- [ ] 3. For each open PR → report PR number, title, and status
+- [ ] 4. If only open PRs exist → report and HALT
 
 ### Safety Checks Before Deletion
 
@@ -257,18 +257,18 @@ Plan #50 (parent)
 
 After closing sub-issues (Step 2), check whether the parent plan issue should be closed:
 
-1. **Identify the parent plan issue:**
+- [ ] 1. **Identify the parent plan issue:**
 
    - Use `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues")` on the plan to list all sub-issues <!-- Routes through issue-operations per SPEC #683 -->
    - If the current closure context came from a PR body referencing a plan, use that plan issue number
 
-2. **Verify ALL sub-issues are closed with legitimate completion evidence:**
+- [ ] 2. **Verify ALL sub-issues are closed with legitimate completion evidence:**
 
    - Each sub-issue must have `state == "closed"` and `state_reason == "completed"` (not `"not_planned"` or `"duplicate"` without merged PR evidence)
    - Closed sub-issues with `state_reason == "completed"` must have merged PR evidence (verified via `github_pull_request_read` or `github_search_pull_requests`)
    - If any sub-issue has `state_reason == "not_planned"` without explicit developer justification → flag for review, do NOT auto-close parent
 
-3. **If ALL sub-issues are legitimately closed:**
+- [ ] 3. **If ALL sub-issues are legitimately closed:**
 
    - Close the parent plan issue with `issue-operations -> update-issue (github_issue_write(method="update", state="closed", state_reason="completed")` <!-- Routes through issue-operations per SPEC #683 -->
    - Post a verification comment documenting per-sub-issue evidence:
@@ -283,7 +283,7 @@ After closing sub-issues (Step 2), check whether the parent plan issue should be
      Parent plan closure is legitimate because all child issues are verified complete.
      ```
 
-4. **If ANY sub-issue is NOT closed or NOT legitimately completed:**
+- [ ] 4. **If ANY sub-issue is NOT closed or NOT legitimately completed:**
 
    - Do NOT close the parent plan
    - Report in cleanup output: "Parent plan #\<plan_number> remains open — sub-issue #\<open_num> is not yet complete"

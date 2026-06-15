@@ -101,11 +101,11 @@ Return the assembled result. The calling skill (`verification`, `research`, etc.
 
 When no model is available for the requested modality:
 
-1. Set `status` to `unverified`
-2. Add the modality to `unverified_modalities`
-3. Set `findings` to `(unverified: <modality> — <reason for unavailability>)`
-4. Set `model_used` to `null`
-5. Do NOT block execution — return the unverified result and let the calling skill handle it
+- [ ] 1. Set `status` to `unverified`
+- [ ] 2. Add the modality to `unverified_modalities`
+- [ ] 3. Set `findings` to `(unverified: <modality> — <reason for unavailability>)`
+- [ ] 4. Set `model_used` to `null`
+- [ ] 5. Do NOT block execution — return the unverified result and let the calling skill handle it
 
 This implements REQ-5: unavailable modalities produce `(unverified)` results, never block.
 

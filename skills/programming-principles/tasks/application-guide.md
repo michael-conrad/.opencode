@@ -18,24 +18,24 @@ How to apply the 20 principles during design, implementation, and review. Includ
 
 ### During Design (Pre-Implementation)
 
-1. Scan the 20 principles before designing a new module, function, or API
-2. Identify which principles apply strongly to the current context
-3. Document deliberate relaxations as tradeoff notes in the spec or design doc
-4. Don't over-apply — not every function needs all 20 principles considered
+- [ ] 1. Scan the 20 principles before designing a new module, function, or API
+- [ ] 2. Identify which principles apply strongly to the current context
+- [ ] 3. Document deliberate relaxations as tradeoff notes in the spec or design doc
+- [ ] 4. Don't over-apply — not every function needs all 20 principles considered
 
 ### During Implementation (Active Coding)
 
-1. When writing a function or class, check principles 1–3 (KISS, DRY, SRP) as a fast triage
-2. When designing interfaces or module boundaries, check principles 4–8 (SoC, cohesion, information hiding, Demeter, composition)
-3. When considering "should I add this?", check YAGNI first
-4. When encountering a bug or edge case, check Fail Fast and Defensive Programming
-5. When the code feels fragile, check Deterministic Behavior, Idempotence, and Blast Radius
+- [ ] 1. When writing a function or class, check principles 1–3 (KISS, DRY, SRP) as a fast triage
+- [ ] 2. When designing interfaces or module boundaries, check principles 4–8 (SoC, cohesion, information hiding, Demeter, composition)
+- [ ] 3. When considering "should I add this?", check YAGNI first
+- [ ] 4. When encountering a bug or edge case, check Fail Fast and Defensive Programming
+- [ ] 5. When the code feels fragile, check Deterministic Behavior, Idempotence, and Blast Radius
 
 ### During Review
 
-1. Look for principles violated without documented tradeoff notes — these are the real issues
-2. Don't flag well-documented tradeoffs — the author already made a conscious decision
-3. Focus on principles that apply strongly in the current context — not all 20 every time
+- [ ] 1. Look for principles violated without documented tradeoff notes — these are the real issues
+- [ ] 2. Don't flag well-documented tradeoffs — the author already made a conscious decision
+- [ ] 3. Focus on principles that apply strongly in the current context — not all 20 every time
 
 ### Quick Reference: Principles by Context
 

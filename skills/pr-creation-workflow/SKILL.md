@@ -45,14 +45,14 @@ Feature PRs target `dev` only. Release PRs (dev→main) handled by `git-workflow
 
 ## Operating Protocol
 
-1. **Explicit instruction required** unless `authorization_scope >= for_pr`.
-2. **Base branch = dev** for feature PRs.
-3. **Squash verified** before PR (single commit for single-issue).
-4. **Changelog generated** before PR.
-5. **Adversarial-audit call:** after pre-pr-checklist, call `adversarial-audit --task spec-summary --pr <N>` with `audit_phase: pr_creation`.
-6. **No agent merge** — human-only operation.
-7. **Work branch guard:** no individual PRs during work execution (single stacked PR).
-8. **Submodule-bump-only PR block (MANDATORY — parent repo context):** Before creating any PR, check whether the diff contains changes outside `.opencode/`. In a parent repo with `.gitmodules`, a PR that only changes `.opencode/` (submodule pointer bump) is BLOCKED by enforcement gate `pr-workflow-003`. The agent MUST NOT create, propose, or assist in creating a submodule-bump-only PR. This is a CRITICAL GUIDELINE VIOLATION — bypassing this gate results in a HALT.
+- [ ] 1. **Explicit instruction required** unless `authorization_scope >= for_pr`.
+- [ ] 2. **Base branch = dev** for feature PRs.
+- [ ] 3. **Squash verified** before PR (single commit for single-issue).
+- [ ] 4. **Changelog generated** before PR.
+- [ ] 5. **Adversarial-audit call:** after pre-pr-checklist, call `adversarial-audit --task spec-summary --pr <N>` with `audit_phase: pr_creation`.
+- [ ] 6. **No agent merge** — human-only operation.
+- [ ] 7. **Work branch guard:** no individual PRs during work execution (single stacked PR).
+- [ ] 8. **Submodule-bump-only PR block (MANDATORY — parent repo context):** Before creating any PR, check whether the diff contains changes outside `.opencode/`. In a parent repo with `.gitmodules`, a PR that only changes `.opencode/` (submodule pointer bump) is BLOCKED by enforcement gate `pr-workflow-003`. The agent MUST NOT create, propose, or assist in creating a submodule-bump-only PR. This is a CRITICAL GUIDELINE VIOLATION — bypassing this gate results in a HALT.
 
 ## Sub-Agent Routing
 

@@ -8,13 +8,13 @@ Session init script (`.opencode/tools/session-init`) provides GitBucket credenti
 
 Credentials are loaded in this order:
 
-1. **Environment variables**
+- [ ] 1. **Environment variables**
    ```bash
    export GITBUCKET_HTML_URL=https://gitbucket.example.com/gitbucket/
    export GITBUCKET_TOKEN=your-token
    ```
 
-2. **Project .env file** (`<project>/.env`)
+- [ ] 2. **Project .env file** (`<project>/.env`)
    ```bash
    # .env
    GITBUCKET_HTML_URL=https://gitbucket.example.com/gitbucket/
@@ -24,7 +24,7 @@ Credentials are loaded in this order:
    # GITBUCKET_PASSWORD=password
    ```
 
-3. **User config file** (platform-specific)
+- [ ] 3. **User config file** (platform-specific)
    - **Linux/macOS**: `~/.config/gitbucket/secrets.toml`
    - **Windows**: `%APPDATA%/gitbucket/secrets.toml`
 
@@ -107,7 +107,7 @@ GITBUCKET_TOKEN=your-personal-access-token
 
 ## Best Practices
 
-1. **Use config file** - Run `init-config` to create `secrets.toml` for persistent credentials
-2. **Token auth ONLY** - Basic auth is broken in GitBucket, use token for all operations
-3. **Error handling** - Check `check-auth` output for specific error types
-4. **Cross-platform** - Config locations work on Linux, macOS, Windows
+- [ ] 1. **Use config file** - Run `init-config` to create `secrets.toml` for persistent credentials
+- [ ] 2. **Token auth ONLY** - Basic auth is broken in GitBucket, use token for all operations
+- [ ] 3. **Error handling** - Check `check-auth` output for specific error types
+- [ ] 4. **Cross-platform** - Config locations work on Linux, macOS, Windows

@@ -6,9 +6,9 @@ Address all review comments on a PR systematically, making only requested change
 
 ## Operating Protocol
 
-1. Invoked by: `skill({name: "receiving-code-review"})` → `task()` for `address`
-2. When to use: When PR has received review feedback that needs to be addressed
-3. Exit criteria: All reviewer comments addressed, replies posted, tests pass, branch pushed
+- [ ] 1. Invoked by: `skill({name: "receiving-code-review"})` → `task()` for `address`
+- [ ] 2. When to use: When PR has received review feedback that needs to be addressed
+- [ ] 3. Exit criteria: All reviewer comments addressed, replies posted, tests pass, branch pushed
 
 ## Address Review Workflow
 
@@ -38,9 +38,9 @@ For each comment:
 **Change:** [What was changed, if fixing]
 ```
 
-1. **Fix:** Make the minimal change addressing the feedback
-2. **Explain:** If not fixing, explain why in a comment
-3. **Decline:** If disagreeing, explain reasoning respectfully
+- [ ] 1. **Fix:** Make the minimal change addressing the feedback
+- [ ] 2. **Explain:** If not fixing, explain why in a comment
+- [ ] 3. **Decline:** If disagreeing, explain reasoning respectfully
 
 ### Step 4: Verify Changes
 

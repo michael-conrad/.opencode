@@ -162,9 +162,9 @@ for sc in sc_table:
 On PASS (SAT + no contradictions): proceed to Step 5c.
 
 On FAIL (UNSAT or any contradiction found):
-1. Write FAIL artifact to `./tmp/{issue-N}/artifacts/coherence-z3-fail.json`
-2. Include: solve output, per-SC contradictions, spec source reference
-3. Return: `{"status": "BLOCKED", "reason": "Z3 solve check failed", "details": "<output>"}`
+- [ ] 1. Write FAIL artifact to `./tmp/{issue-N}/artifacts/coherence-z3-fail.json`
+- [ ] 2. Include: solve output, per-SC contradictions, spec source reference
+- [ ] 3. Return: `{"status": "BLOCKED", "reason": "Z3 solve check failed", "details": "<output>"}`
 
 ### Step 5c: Evaluate Prose vs Evidence Type Mismatch
 
@@ -200,9 +200,9 @@ Mismatch classification:
 On PASS (no mismatches): proceed to Step 6.
 
 On FAIL (any mismatch):
-1. Write FAIL artifact to `./tmp/{issue-N}/artifacts/coherence-evidence-mismatch.json`
-2. Include: per-SC mismatch details with prose excerpts and evidence type declaration
-3. Return: `{"status": "BLOCKED", "reason": "Evidence type mismatch detected", "details": "<per-SC mismatches>"}`
+- [ ] 1. Write FAIL artifact to `./tmp/{issue-N}/artifacts/coherence-evidence-mismatch.json`
+- [ ] 2. Include: per-SC mismatch details with prose excerpts and evidence type declaration
+- [ ] 3. Return: `{"status": "BLOCKED", "reason": "Evidence type mismatch detected", "details": "<per-SC mismatches>"}`
 
 ### Step 6: Write Baseline File
 

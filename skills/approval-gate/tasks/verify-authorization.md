@@ -52,15 +52,15 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 
 When `verify-authorization` is dispatched as a sub-agent and returns empty or whitespace-only:
 
-1. Report: `"Sub-agent for verify-authorization returned empty result, re-dispatching (retry {N}/2)"`
-2. Re-dispatch with original scoped context only (no expanded context, no orchestrator reasoning)
-3. If re-dispatch returns empty and retry count < 2, go to step 1 (increment retry counter)
-4. If re-dispatch returns empty after 2 retries, fall through to double-failure protocol
+- [ ] 1. Report: `"Sub-agent for verify-authorization returned empty result, re-dispatching (retry {N}/2)"`
+- [ ] 2. Re-dispatch with original scoped context only (no expanded context, no orchestrator reasoning)
+- [ ] 3. If re-dispatch returns empty and retry count < 2, go to step 1 (increment retry counter)
+- [ ] 4. If re-dispatch returns empty after 2 retries, fall through to double-failure protocol
 
 **Double-failure protocol (exhaustion handler):** After 2 failed re-dispatch attempts:
-1. Report: `"verify-authorization sub-agent failed after 2 re-dispatch attempts"`
-2. Invoke `--task completion` on the `approval-gate` skill
-3. HALT with status message + byline
+- [ ] 1. Report: `"verify-authorization sub-agent failed after 2 re-dispatch attempts"`
+- [ ] 2. Invoke `--task completion` on the `approval-gate` skill
+- [ ] 3. HALT with status message + byline
 
 ## Enforcement References
 

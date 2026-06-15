@@ -36,10 +36,10 @@ Before writing any implementation code, enforcement test assertions for UI behav
 
 **Procedure:**
 
-1. **Run `test-ui` task** — If UI test specifications do not yet exist in the worktree, task() the `test-ui` sub-agent to generate them. The `test-ui` task produces test specification files that define expected UI behavior
-2. **Write enforcement test assertions** — For each success criterion in the spec that applies to UI behavior, write an enforcement test assertion in `test-enforcement.sh` that verifies the UI meets the SC's requirement. Use the format: `# SC-N: <brief UI description>` as a comment above the assertion
-3. **Verify RED state** — Run the newly written assertions and confirm they are in RED state (failing). The assertions MUST fail because the UI implementation does not exist yet
-4. **Produce tool-call evidence** — Record the RED state verification output as a tool-call artifact showing:
+- [ ] 1. **Run `test-ui` task** — If UI test specifications do not yet exist in the worktree, task() the `test-ui` sub-agent to generate them. The `test-ui` task produces test specification files that define expected UI behavior
+- [ ] 2. **Write enforcement test assertions** — For each success criterion in the spec that applies to UI behavior, write an enforcement test assertion in `test-enforcement.sh` that verifies the UI meets the SC's requirement. Use the format: `# SC-N: <brief UI description>` as a comment above the assertion
+- [ ] 3. **Verify RED state** — Run the newly written assertions and confirm they are in RED state (failing). The assertions MUST fail because the UI implementation does not exist yet
+- [ ] 4. **Produce tool-call evidence** — Record the RED state verification output as a tool-call artifact showing:
    - The test assertions written (with SC ID comments)
    - The test run output showing failure (RED state)
    - The timestamp of when the RED verification was performed
@@ -60,30 +60,30 @@ Timestamp: [ISO 8601]
 
 ### Step 1: Read Design Artifacts
 
-1. Read the interaction spec YAML file from the worktree.
-2. Read the mockup HTML and/or wireframe SVG for layout reference.
-3. Read `docs/ui-guidelines.md` for project UI conventions.
+- [ ] 1. Read the interaction spec YAML file from the worktree.
+- [ ] 2. Read the mockup HTML and/or wireframe SVG for layout reference.
+- [ ] 3. Read `docs/ui-guidelines.md` for project UI conventions.
 
 ### Step 2: Map Components and Implement
 
-4. Copy `templates/streamlit_template.py` as the starting point for each page/view.
-5. Map interaction spec components to Streamlit widgets:
+- [ ] 4. Copy `templates/streamlit_template.py` as the starting point for each page/view.
+- [ ] 5. Map interaction spec components to Streamlit widgets:
    - `navigation_list` → `st.sidebar` navigation with `st.radio` or `st.sidebar.selectbox`
    - `content_container` → main panel with `st.container`
    - `banner` → `st.header` in sidebar
    - Data sources → `st.session_state` or API calls via `ui_utils`
-6. Implement RBAC guards from interaction spec `guards` section:
+- [ ] 6. Implement RBAC guards from interaction spec `guards` section:
    - Check `st.session_state.get("user_role")` against required roles.
    - Redirect or show error for unauthorized access.
-7. Implement navigation transitions from interaction spec `transitions` section.
-8. Implement accessibility features from interaction spec `accessibility` section:
+- [ ] 7. Implement navigation transitions from interaction spec `transitions` section.
+- [ ] 8. Implement accessibility features from interaction spec `accessibility` section:
    - ARIA labels via `st.markdown` with accessible HTML.
    - Keyboard navigation patterns.
    - Screen reader announcements via `st.status` or `st.toast`.
-9. Implement per-record controls inline with data, not in global toolbars.
-10. Use `st.status()` or `st.toast()` for feedback — no `st.error()` for advisory validation.
+- [ ] 9. Implement per-record controls inline with data, not in global toolbars.
+- [ ] 10. Use `st.status()` or `st.toast()` for feedback — no `st.error()` for advisory validation.
 
 ### Step 3: Completion
 
-11. Invoke `completion` subtask.
-12. Return result contract.
+- [ ] 11. Invoke `completion` subtask.
+- [ ] 12. Return result contract.

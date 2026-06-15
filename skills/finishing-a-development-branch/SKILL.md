@@ -47,12 +47,12 @@ Branch completion workflow ensuring feature branch is fully ready for PR. Verifi
 
 ## Operating Protocol
 
-1. **All changes committed:** `git status` shows clean.
-2. **All tests pass:** `uv run pytest` green.
-3. **Lint clean:** `uvx ruff check` zero errors.
-4. **Type check:** `uvx pyright` clean.
-5. **Branch pushed:** up to date with remote.
-6. **Plan sub-issue closure verification:** matched against implementation.
+- [ ] 1. **All changes committed:** `git status` shows clean.
+- [ ] 2. **All tests pass:** `uv run pytest` green.
+- [ ] 3. **Lint clean:** `uvx ruff check` zero errors.
+- [ ] 4. **Type check:** `uvx pyright` clean.
+- [ ] 5. **Branch pushed:** up to date with remote.
+- [ ] 6. **Plan sub-issue closure verification:** matched against implementation.
 
 ## Sub-Agent Routing
 

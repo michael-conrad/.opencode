@@ -6,11 +6,11 @@ Generate changelog entries for commits within a specific date range.
 
 ## Operating Protocol
 
-1. **Parse date range**: Validate start and end dates
-2. **Collect commits**: Scan all commits in the date range
-3. **Categorize changes**: Group into Added/Changed/Fixed/Security/Deprecated
-4. **Write entries**: Create or update CHANGELOG.md
-5. **Stage changes**: `git add CHANGELOG.md`
+- [ ] 1. **Parse date range**: Validate start and end dates
+- [ ] 2. **Collect commits**: Scan all commits in the date range
+- [ ] 3. **Categorize changes**: Group into Added/Changed/Fixed/Security/Deprecated
+- [ ] 4. **Write entries**: Create or update CHANGELOG.md
+- [ ] 5. **Stage changes**: `git add CHANGELOG.md`
 
 ## Procedure
 

@@ -17,9 +17,9 @@ Perform structural validation when Z3 is unavailable. Manual techniques: acyclic
 Verify the dependency graph has no cycles. A cycle means two or more items depend on each other, making the ordering unsolvable.
 
 **Algorithm:**
-1. Build adjacency list: for each dependency `A → B`, add edge from A to B
-2. Run DFS with visited/in_stack tracking
-3. If any back-edge found (node in current recursion stack reached again), report CYCLE DETECTED
+- [ ] 1. Build adjacency list: for each dependency `A → B`, add edge from A to B
+- [ ] 2. Run DFS with visited/in_stack tracking
+- [ ] 3. If any back-edge found (node in current recursion stack reached again), report CYCLE DETECTED
 
 **Cycle detection output:**
 ```
@@ -41,10 +41,10 @@ ACYCLIC: <count> nodes, <edge_count> edges, no cycles found
 Verify that a linear chain of dependencies is complete and well-ordered.
 
 **Procedure:**
-1. Collect the ordered list of items: `[item_1, item_2, ..., item_N]`
-2. For each adjacent pair `(item_i, item_{i+1})`, verify the dependency `item_i → item_{i+1}` exists
-3. Check for missing dependencies (gap in the chain)
-4. Check for transitive violations (indirect dependency exists but direct is missing)
+- [ ] 1. Collect the ordered list of items: `[item_1, item_2, ..., item_N]`
+- [ ] 2. For each adjacent pair `(item_i, item_{i+1})`, verify the dependency `item_i → item_{i+1}` exists
+- [ ] 3. Check for missing dependencies (gap in the chain)
+- [ ] 4. Check for transitive violations (indirect dependency exists but direct is missing)
 
 **Chain verification output:**
 ```
@@ -57,11 +57,11 @@ CHAIN BROKEN: missing dependency <item_i> → <item_{i+1}> at position <i>
 Verify a given ordering against a set of dependency constraints.
 
 **Procedure:**
-1. Collect the ordered list of items
-2. For each dependency constraint `A must precede B`:
+- [ ] 1. Collect the ordered list of items
+- [ ] 2. For each dependency constraint `A must precede B`:
    a. Find positions of A and B in the ordering
    b. Verify `position(A) < position(B)`
-3. Report all violations
+- [ ] 3. Report all violations
 
 **Ordering output:**
 ```
@@ -73,9 +73,9 @@ ORDERING VIOLATION: <A> must precede <B> but <B> appears at position <pos_B> bef
 
 When a contract exists (but Z3 is unavailable), analyze string-typed variables with domain constraints for ordering properties:
 
-1. Extract string-typed variables with domain declarations
-2. Identify any ordering semantics implied by the domain (e.g., pipeline phases: analysis < planning < implementation < verification)
-3. Verify no state assigns values that violate ordering
+- [ ] 1. Extract string-typed variables with domain declarations
+- [ ] 2. Identify any ordering semantics implied by the domain (e.g., pipeline phases: analysis < planning < implementation < verification)
+- [ ] 3. Verify no state assigns values that violate ordering
 
 This is limited to string-domain ordering and does not replace full Z3 constraint solving.
 

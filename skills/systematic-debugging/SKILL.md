@@ -43,12 +43,12 @@ Enforces root cause analysis, hypothesis testing, and minimal fixes. Prevents "v
 
 ## Operating Protocol
 
-1. **Read-only during diagnosis:** no code changes until root cause identified.
-2. **Bug discovery ≠ authorization:** new bugs reported as issues, not fixed inline.
-3. **Hypothesis must be verified** against live evidence before proceeding.
-4. **Fix targets root cause, not symptoms.**
-5. **Fix requires authorization** per `approval-gate`.
-6. **No scope creep:** fix only what diagnosis identified.
+- [ ] 1. **Read-only during diagnosis:** no code changes until root cause identified.
+- [ ] 2. **Bug discovery ≠ authorization:** new bugs reported as issues, not fixed inline.
+- [ ] 3. **Hypothesis must be verified** against live evidence before proceeding.
+- [ ] 4. **Fix targets root cause, not symptoms.**
+- [ ] 5. **Fix requires authorization** per `approval-gate`.
+- [ ] 6. **No scope creep:** fix only what diagnosis identified.
 
 ## Sub-Agent Routing
 

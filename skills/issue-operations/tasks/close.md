@@ -26,9 +26,9 @@ Invoke `verify-merge` task to confirm PR is actually merged before closing any i
 
 **CRITICAL: Only close the child corresponding to the merged PR. Parent stays open until ALL children are closed.**
 
-1. If issue has sub-issues: check all sub-issues are closed before closing parent
-2. If issue is a sub-issue: verify parent has no other open sub-issues before closing parent
-3. Plan-bridge hierarchy: close sub-issues under the plan first, then the plan, then the spec
+- [ ] 1. If issue has sub-issues: check all sub-issues are closed before closing parent
+- [ ] 2. If issue is a sub-issue: verify parent has no other open sub-issues before closing parent
+- [ ] 3. Plan-bridge hierarchy: close sub-issues under the plan first, then the plan, then the spec
 
 ### Step 3: Close Issue (Platform Routing)
 

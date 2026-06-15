@@ -19,10 +19,10 @@ Confirm the spec has been approved before proceeding to design.
 
 ### Step 2: Document Approach
 
-1. Identify the components affected by the change
-2. Document the design approach with alternatives considered
-3. Surface edge cases and trade-offs
-4. Present design for approval
+- [ ] 1. Identify the components affected by the change
+- [ ] 2. Document the design approach with alternatives considered
+- [ ] 3. Surface edge cases and trade-offs
+- [ ] 4. Present design for approval
 
 ### Step 3: Obtain Approval
 

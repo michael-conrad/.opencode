@@ -66,34 +66,34 @@ For each sub-issue, repeat Steps 1-4:
 
 From all gathered data, extract prose descriptions of:
 
-1. **Issue type classification hints:**
+- [ ] 1. **Issue type classification hints:**
    - Phases/steps present in body (e.g., "Phase 1:", "Phase 2:")
    - Success criteria section present
    - Bug report language patterns ("crash", "error", "broken", "steps to reproduce")
 
-2. **Comment themes:**
+- [ ] 2. **Comment themes:**
    - Questions asked by commenters
    - Revisions or spec changes noted
    - Blockers reported
    - Audit findings (comments containing finding-class patterns like "finding:", "violation:", "CRITICAL")
    - Authorization comments ("approved", "go")
 
-3. **Last audit timestamp:**
+- [ ] 3. **Last audit timestamp:**
    - Most recent comment containing audit finding patterns
    - Used by `just-review` path to assess staleness
 
-4. **Authorization status:**
+- [ ] 4. **Authorization status:**
    - Explicit approval comments found (quote them)
    - `needs-approval` label present or absent
 
-5. **Spec structure signals:**
+- [ ] 5. **Spec structure signals:**
    - Has phases? (count them)
    - Has success criteria?
    - Has edge cases?
    - Has affected files table?
    - Has risk assessment?
 
-6. **Fix spec sub-issue check (for bug reports):**
+- [ ] 6. **Fix spec sub-issue check (for bug reports):**
    - Do any sub-issues have titles starting with `[SPEC] Fix:`?
    - Do any sub-issues have the `spec` label?
    - If bug report has existing fix spec sub-issues, note their numbers and status

@@ -65,9 +65,9 @@ Findings inform the agent's behavior but are NOT stakeholder communication. Post
 
 Write a prose exec summary of the audit results for chat output. Include:
 
-1. What was audited (issue number, spec type)
-2. Key findings (grouped by severity if multiple)
-3. Recommended actions (without prescribing implementation)
+- [ ] 1. What was audited (issue number, spec type)
+- [ ] 2. Key findings (grouped by severity if multiple)
+- [ ] 3. Recommended actions (without prescribing implementation)
 
 Format per `000-critical-rules.md`:
 

@@ -6,8 +6,8 @@ Invoke auditors after spec creation, ensuring spec quality before approval.
 
 ## Operating Protocol
 
-1. **Run after issue is created.**
-2. **Invoke auditors BEFORE approval.**
+- [ ] 1. **Run after issue is created.**
+- [ ] 2. **Invoke auditors BEFORE approval.**
 
 ## Entry Criteria
 
@@ -37,9 +37,9 @@ Invoke auditors after spec creation, ensuring spec quality before approval.
 **The orchestrator replaces the old three-auditor chain.**
 Previous workflow (DEPRECATED):
 ~~~
-1. plan-fidelity-auditor --issue <number>
-2. concern-separation-auditor --issue <number>
-3. spec-auditor --issue <number>
+- [ ] 1. plan-fidelity-auditor --issue <number>
+- [ ] 2. concern-separation-auditor --issue <number>
+- [ ] 3. spec-auditor --issue <number>
 ~~~
 
 **New workflow:**
