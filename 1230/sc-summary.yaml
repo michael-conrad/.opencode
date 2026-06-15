@@ -10,10 +10,14 @@ scs:
     evidence_type: behavioral
     phase_binding: 1
   - id: SC-3
-    criterion: Gate 0 permits pushes to master in .wiki repos
+    criterion: Gate 0 permits pushes to default branch in wiki repos with .wiki.git URLs
     evidence_type: behavioral
     phase_binding: 1
   - id: SC-4
+    criterion: Gate 0 permits pushes to default branch in wiki repos with /wiki URLs (Bitbucket)
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-5
     criterion: Behavioral enforcement test verifies agent behavior
     evidence_type: behavioral
     phase_binding: 1
