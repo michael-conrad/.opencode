@@ -80,6 +80,12 @@ Verifies PR merge via GitHub API, runs SC-verification gate, phase-completion ga
 
 Collects all referenced issues from PR body, classifies each (plan/spec/other), closes hierarchically, and runs transitive graph reconciliation.
 
+### Step 2.5: Post-Merge Issue-Closure Sweep
+
+**Route to:** `cleanup/issue-closure-sweep`
+
+Scans all open repository issues, checks each for linked merged PRs, and closes qualified candidates. Parent issues with open children are skipped.
+
 ### Step 3: Branch Cleanup and Sync
 
 **Route to:** `cleanup/branch-cleanup`
