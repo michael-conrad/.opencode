@@ -11,6 +11,13 @@ Reference this file from per-skill `tasks/completion.md` files for common comple
 
 ## Entry Gate
 
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "push branch" / "generate URL" / "post comment" / "exec summary" | `completion` | `sub-task` | {workflow_state, issue_number} |
+
 **Entry gate: verification-before-completion PASS required before any completion operation.**
 
 Verification IS completion — the concept is fused. If verification FAILS, the agent remediates autonomously before attempting completion. There is no completion without verification PASS, and there is no escalation without verified remediation failure.

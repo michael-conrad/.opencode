@@ -12,6 +12,15 @@ compatibility: opencode
 
 Prepares and requests code reviews. Ensures PR descriptions have proper context, reviewers understand changes, requests are targeted.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "prepare" / "prepare review" / "PR context" | `prepare` | `sub-task` | {pr_number} |
+| "request" / "request review" / "assign reviewer" | `request` | `sub-task` | {pr_number} |
+
 ## Tasks
 
 

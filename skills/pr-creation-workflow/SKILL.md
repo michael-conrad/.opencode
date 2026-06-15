@@ -14,6 +14,16 @@ PR creation is a DISTINCT phase requiring EXPLICIT instruction — NOT automatic
 
 Feature PRs target `dev` only. Release PRs (dev→main) handled by `git-workflow --task release-promotion`.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "pre-pr-checklist" / "PR checklist" | `pre-pr-checklist` | `sub-task` | {branch_name} |
+| "sub-issue-collection" / "collect sub-issues" | `sub-issue-collection` | `sub-task` | {issue_number} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Tasks
 
 

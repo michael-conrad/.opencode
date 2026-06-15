@@ -12,6 +12,16 @@ compatibility: opencode
 
 Responds to PR review feedback. Ensures all comments addressed systematically, changes are minimal, no scope creep.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "address" / "address review" / "fix review" | `address` | `sub-task` | {pr_number, review_comments} |
+| "respond" / "respond to review" | `respond` | `sub-task` | {pr_number, review_comments} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Tasks
 
 

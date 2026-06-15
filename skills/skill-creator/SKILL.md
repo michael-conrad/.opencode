@@ -14,6 +14,17 @@ Creating skills IS TDD applied to process documentation. Write tests, watch them
 
 Also manages duplicate text blocks across skills (formerly `fragment-manager` skill): CRUD on master files (`.opencode/.guidelines/`), sync masters to copies, drift detection.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "init" / "create skill" / "new skill" | `init` | `sub-task` | {skill_name, output_dir} |
+| "package" / "package skill" | `package` | `sub-task` | {skill_folder, output_dir} |
+| "validate" / "validate skill" / "check skill" | `validate` | `sub-task` | {skill_folders} |
+| "fragment" / "fragment management" / "sync fragment" | `fragment-management` | `sub-task` | {fragment_name, destination_paths} |
+
 ## Tasks
 
 

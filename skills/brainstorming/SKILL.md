@@ -12,6 +12,18 @@ compatibility: opencode
 
 Conversational-first exploration workflow. One question at a time, user-driven. Dimensions used internally — never as structured output sections. Terminal state invokes spec-creation.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "explore" / "brainstorm" / "discuss requirements" | `explore` | `inline` | — |
+| "top-down analysis" / "decompose" | `top-down-analysis` | `sub-task` | {issue_number} |
+| "enforcement" / "rule check" | `enforcement` | `sub-task` | {issue_number} |
+| "cross-scope" / "scope analysis" | `cross-scope` | `sub-task` | {issue_number} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 Requirements Explorer. Focus: understand what user wants through natural conversation, one question at a time, following their answers.

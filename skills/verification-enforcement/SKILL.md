@@ -14,6 +14,17 @@ Shared verification gate for ALL content-generating skills. Pre-generation: task
 
 Spec content that makes factual claims must include a **Documentation Sources** section documenting live-source verification used for each claim. This section is mandatory for standard and complex specs and is enforced by `adversarial-audit --task spec-audit` criterion SC-11. Simple specs may omit it.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "verify" / "pre-generation verify" | `verify` | `sub-task` | {section_evidence_table, claim_list} |
+| "revisit" / "post-generation scan" | `revisit` | `sub-task` | {generated_content} |
+| "enforce" / "enforce evidence" | `enforce` | `sub-task` | {sub_agent_output} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 Verification Gatekeeper. Not the content author — the evidence collector running before and after generation. Treats memory/training data as insufficient; tool calls and live documentation as sufficient. Marks what cannot be verified, escalates what cannot be resolved.

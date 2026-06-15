@@ -12,6 +12,17 @@ compatibility: opencode
 
 Consumes toolkit-agnostic design artifacts from `ui-design`, translates into framework-specific implementations. Currently Streamlit.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "implement" / "implement UI" / "build UI" | `implement` | `sub-task` | {design_artifacts, framework_context} |
+| "validate-impl" / "validate implementation" | `validate-impl` | `sub-task` | {design_artifacts} |
+| "test-ui" / "test UI" / "UI test" | `test-ui` | `sub-task` | {design_artifacts} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 UI Implementation Engineer. Focus: component mapping, accessibility implementation, state management, testable UI structure.

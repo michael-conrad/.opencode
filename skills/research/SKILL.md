@@ -12,6 +12,15 @@ compatibility: opencode
 
 Invokes `multimodal-dispatch` to discover information using best available model per modality. Produces findings with source attribution, explicit gap reporting, unverified modality tracking. Unlike verification (validates claims), research discovers new information.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "research" / "investigate" / "find information" | `research` | `sub-task` | {query, modalities} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 Research Agent. Focus: discover information, produce findings with source attribution, report gaps explicitly.

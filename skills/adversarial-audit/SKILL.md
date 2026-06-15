@@ -12,6 +12,27 @@ license: MIT
 
 Dual cross-family audit via clean-room sub-agents. Auditors write YAML verdicts to disk, return frugal contracts. The orchestrator dispatches via `skill()` + `task()` — it does NOT read task files.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "audit #NNN" / "adversarial audit #NNN" | `verification-audit` | `sub-task` | {issue_number, artifact_evidence_dir} |
+| "spec audit #NNN" | `spec-audit` | `sub-task` | {issue_number, spec_local_dir} |
+| "plan fidelity" / "fidelity audit" | `plan-fidelity` | `sub-task` | {issue_number, plan_local_dir} |
+| "concern separation" / "scope audit" | `concern-separation` | `sub-task` | {issue_number} |
+| "coherence" / "coherence extraction" | `coherence-extraction` | `sub-task` | {issue_number} |
+| "coherence maintenance" / "post-change coherence" | `coherence-maintenance` | `sub-task` | {issue_number} |
+| "guideline audit" | `guideline-audit` | `sub-task` | {guideline_paths} |
+| "drift detection" / "doc-code drift" | `drift-detection` | `sub-task` | {issue_number} |
+| "spec summary" / "PR summary" | `spec-summary` | `sub-task` | {issue_number} |
+| "closure verification" / "post-merge audit" | `closure-verification` | `sub-task` | {pr_number} |
+| "cross-validate" / "consensus" | `cross-validate` | `sub-task` | {auditor_1_verdict, auditor_2_verdict} |
+| "test quality audit" | `test-quality-audit` | `sub-task` | {issue_number} |
+| "resolve models" / "select auditors" | `resolve-models` | `sub-task` | {audit_phase} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Tasks
 
 | Task | Purpose |

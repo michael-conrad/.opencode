@@ -19,6 +19,29 @@ Pure orchestrator routing table with 16 serial dispatch steps. The orchestrator 
 
 The orchestrator is a pure router — never reads task file content, never performs inline analysis. Sub-agents do the work.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "sc-coherence-gate" / "coherence gate" | `sc-coherence-gate` | `sub-task` | {issue_number} |
+| "pre-red-baseline" / "baseline check" | `pre-red-baseline` | `sub-task` | {issue_number} |
+| "red-phase" / "write failing test" | `red-phase` | `sub-task` | {issue_number} |
+| "red-doublecheck" / "verify RED" | `red-doublecheck` | `sub-task` | {issue_number} |
+| "post-red-enforcement" / "RED gate" | `post-red-enforcement` | `sub-task` | {issue_number} |
+| "green-phase" / "implement" | `green-phase` | `sub-task` | {issue_number} |
+| "post-green-enforcement" / "GREEN gate" | `post-green-enforcement` | `sub-task` | {issue_number} |
+| "checkpoint-commit" / "save checkpoint" | `checkpoint-commit` | `sub-task` | {issue_number} |
+| "structural-checks" / "lint/typecheck" | `structural-checks` | `sub-task` | {issue_number} |
+| "green-doublecheck" / "verify GREEN" | `green-doublecheck` | `sub-task` | {issue_number} |
+| "green-vbc" / "verification before completion" | `green-vbc` | `sub-task` | {issue_number} |
+| "adversarial-audit" / "audit step" | `adversarial-audit` | `sub-task` | {issue_number} |
+| "cross-validate" / "consensus check" | `cross-validate` | `sub-task` | {issue_number} |
+| "regression-check" / "regression tests" | `regression-check` | `sub-task` | {issue_number} |
+| "review-prep" / "prepare review" | `review-prep` | `sub-task` | {issue_number} |
+| "exec-summary" / "completion" | `exec-summary` | `sub-task` | {issue_number} |
+
 ## Dispatch Routing Table
 
 | Step Label | Dispatches To | Artifact Produced |

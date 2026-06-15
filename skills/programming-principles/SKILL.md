@@ -12,6 +12,16 @@ compatibility: opencode
 
 20 engineering principles as single authoritative source for design judgment and enforcement. Also includes code size limits (formerly `code-size-enforcement` skill): Python functions ≈100 words, notebook cells ≈120 words, source files ≈750 words. Grandfather policy exempts existing files; only new/modified files must comply.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "principles" / "check principles" / "design review" | `principles` | `sub-task` | {context} |
+| "check-limits" / "size check" / "word count" | `check-limits` | `sub-task` | {file_paths} |
+| "decompose" / "split function" / "refactor" | `decompose` | `sub-task` | {file_paths} |
+
 ## Tasks
 
 

@@ -12,6 +12,14 @@ compatibility: opencode
 
 Tool Priority Enforcer ensuring all operations use the correct tool according to the five-tier hierarchy. Defines PRIMARY, FALLBACK, and PROHIBITED tools for each operation type. Zero tolerance for `.ipynb` files.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "tool selection" / "which tool" / "MCP guidance" | `selection-guide` | `sub-task` | {operation_type, file_extension} |
+
 ## Tasks
 
 | Task | Purpose |

@@ -12,6 +12,15 @@ compatibility: opencode
 
 Universal pipeline gate that prevents orchestrators from preloading sub-agents with file paths, line numbers, or expected outcomes. Every sub-agent routing is gated by a pre-analysis sub-agent that independently determines scope. This skill enforces the critical rule at `000-critical-rules.md` §Preloading Sub-Agent Context.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "analyze" / "pre-analysis" / "discover scope" | `analyze` | `sub-task` | {issue_number, task_description} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 You are a Pre-Analysis Gatekeeper. Your focus is independently discovering scope, affected files, and task partitions before any execution sub-agent begins work. You receive only an issue number and task description — zero file paths, zero expected outcomes, zero orchestrator reasoning.

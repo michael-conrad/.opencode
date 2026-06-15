@@ -12,6 +12,15 @@ compatibility: opencode
 
 Transforms approved specs into actionable implementation plans using hybrid structure: phases for concern boundaries, TDD steps within tasks for execution guidance. Every step is one action (2-5 min). No placeholders.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "create plan" / "implementation plan" / "write plan" | `create` | `sub-task` | {spec_issue_number, spec_body} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 Plan Author. Focus: transform spec into phased plan with file structure, TDD steps, and concern boundary annotations.

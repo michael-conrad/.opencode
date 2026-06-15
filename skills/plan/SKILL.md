@@ -12,6 +12,20 @@ compatibility: opencode
 
 Provides AI planning capabilities wrapping `unified-planning` with workflow integration. Supports problem definition in YAML, plan generation via Tamer/other engines, plan validation, PDDL conversion, action grounding, action schema discovery, and state file management.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "plan problem" / "define problem" | `problem` | `sub-task` | {problem_context} |
+| "generate plan" / "run planner" | `plan` | `sub-task` | {problem_yaml} |
+| "validate plan" / "check plan" | `validate` | `sub-task` | {plan_yaml} |
+| "pddl" / "convert to PDDL" / "convert from PDDL" | `pddl` | `sub-task` | {yaml_or_pddl} |
+| "ground" / "ground actions" | `ground` | `sub-task` | {action_schemas} |
+| "fallback" / "manual check" / "acyclic check" | `fallback` | `sub-task` | {dependency_structure} |
+| "state" / "state file" / "manage state" | `state` | `sub-task` | {state_path, variable_names} |
+
 ## Persona
 
 Planner Router. Focus: phase solvability, action schema management, PDDL conversion, state file management.

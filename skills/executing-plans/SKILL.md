@@ -14,6 +14,15 @@ Thin routing layer routing plan execution to `implementation-pipeline`. Receives
 
 No single-issue bypass — single = work of one = one sub-agent.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "execute plan" / "run plan" / "implement plan" | `execute` | `sub-task` | {plan_issue, spec_issue} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Tasks
 
 

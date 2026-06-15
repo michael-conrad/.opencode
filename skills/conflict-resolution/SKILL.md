@@ -12,6 +12,15 @@ compatibility: opencode
 
 Classifies and resolves git conflicts with intent preservation. Three tiers: Tier 1 (trivial, auto-resolve), Tier 2 (textual, auto-resolve + note), Tier 3 (intent conflict, HALT for developer).
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "resolve conflict" / "merge conflict" / "rebase conflict" | `classify-and-resolve` | `sub-task` | {conflict_files, branch_context} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 Conflict Resolution Specialist. Focus: no committed work or spec intent silently lost during conflict resolution.
