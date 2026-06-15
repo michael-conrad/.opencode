@@ -1,0 +1,10 @@
+# Dependency contract for #1214: Mandate 16-Gate Dispatch Table Format
+variables:
+  phase_1_complete:
+    type: bool
+  pr_created:
+    type: bool
+preconditions:
+  - "z3.Implies(phase_1_complete == z3.BoolVal(True), pr_created == z3.BoolVal(True))"
+postconditions: []
+invariants: []

@@ -1,0 +1,30 @@
+# Dependency contract for #1211: Workstream C — Procedure Checklist-ification
+variables:
+  phase_1_complete:
+    type: bool
+  phase_2_complete:
+    type: bool
+  phase_3_complete:
+    type: bool
+  phase_4_complete:
+    type: bool
+  phase_5_complete:
+    type: bool
+  phase_6_complete:
+    type: bool
+  phase_7_complete:
+    type: bool
+  pr_created:
+    type: bool
+preconditions:
+  # Phase ordering: sequential dependency chain
+  - "z3.Implies(phase_2_complete == z3.BoolVal(True), phase_1_complete == z3.BoolVal(True))"
+  - "z3.Implies(phase_3_complete == z3.BoolVal(True), phase_2_complete == z3.BoolVal(True))"
+  - "z3.Implies(phase_4_complete == z3.BoolVal(True), phase_3_complete == z3.BoolVal(True))"
+  - "z3.Implies(phase_5_complete == z3.BoolVal(True), phase_4_complete == z3.BoolVal(True))"
+  - "z3.Implies(phase_6_complete == z3.BoolVal(True), phase_5_complete == z3.BoolVal(True))"
+  - "z3.Implies(phase_7_complete == z3.BoolVal(True), phase_6_complete == z3.BoolVal(True))"
+  # PR only after all phases done
+  - "z3.Implies(pr_created == z3.BoolVal(True), phase_7_complete == z3.BoolVal(True))"
+postconditions: []
+invariants: []
