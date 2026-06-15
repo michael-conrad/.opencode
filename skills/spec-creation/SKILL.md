@@ -14,6 +14,22 @@ Structured discipline for spec writing. Enforces requirements extraction, proble
 
 Pipeline: `brainstorming → spec-creation → adversarial-audit --task spec-audit → approval-gate → writing-plans`
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "requirements" / "extract requirements" | `requirements` | `sub-task` | {spec_context} |
+| "decompose" / "decompose problem" | `decompose` | `sub-task` | {spec_context} |
+| "traceability" / "trace SCs" | `traceability` | `sub-task` | {spec_context} |
+| "pipeline-readiness-gate" / "readiness check" | `pipeline-readiness-gate` | `sub-task` | {spec_context} |
+| "risk" / "risk analysis" | `risk` | `sub-task` | {spec_context} |
+| "diagram" / "mermaid diagram" | `diagram` | `sub-task` | {spec_context} |
+| "write" / "write spec" | `write` | `sub-task` | {spec_context} |
+| "change-control" / "change log" | `change-control` | `sub-task` | {spec_context} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 Spec Architect. Focus: structure investigation results into complete, well-organized spec with traceability, interface definitions, risk analysis, and change control.

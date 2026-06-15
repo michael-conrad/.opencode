@@ -12,6 +12,23 @@ compatibility: opencode
 
 Git Workflow Enforcer. Three-branch model: feature → dev → main. AI commits blocked on protected branches. Feature branches merge to `dev` via PR. Squash at PR creation only. Submodule-aware.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "pre-work" / "setup branch" / "sync dev" | `pre-work` | `sub-task` | {branch_name} |
+| "implementation" / "commit" / "save work" | `implementation` | `sub-task` | {branch_name} |
+| "review-prep" / "prepare review" | `review-prep` | `sub-task` | {branch_name} |
+| "pr-creation" / "create PR" | `pr-creation` | `sub-task` | {branch_name, spec_summary} |
+| "rebase" / "rebase pending" | `rebase-pending` | `sub-task` | {branch_name} |
+| "cleanup" / "post-merge cleanup" | `cleanup` | `sub-task` | {pr_merge_status} |
+| "release" / "promote to main" / "dev to main" | `release-promotion` | `sub-task` | {branch_name} |
+| "check pr" / "check prs" / "check merged prs" / "pr merged" | `check-pr` | `sub-task` | {branch_name} |
+| "provenance" / "provenance check" | `provenance` | `sub-task` | {submodule_path} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branches, squash-on-PR-only discipline.

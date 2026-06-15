@@ -16,6 +16,16 @@ Remediation of failed verification IS agent-owned — the producing agent owns e
 
 Branch completion workflow ensuring feature branch is fully ready for PR. Verifies all changes committed, tested, pushed, and reviewed. Tracks against plan sub-issues.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "finish branch" / "prepare branch" / "branch ready" | `prepare` | `sub-task` | {branch_name} |
+| "checklist" / "branch checklist" / "readiness check" | `checklist` | `sub-task` | {branch_name} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Tasks
 
 

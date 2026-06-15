@@ -98,6 +98,22 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 ## Cross-References
 
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "verify authorization" / "check approval" | `verify-authorization` | `sub-task` | {issue_number, authorization_scope} |
+| "screen issue" / "triage" | `screen-issue` | `sub-task` | {issue_number} |
+| "pre-implementation analysis" | `pre-implementation-analysis` | `sub-task` | {issue_numbers} |
+| "verify blockers" | `verify-blockers` | `sub-task` | {issue_number} |
+| "verify closed issue" | `verify-closed-issue` | `sub-task` | {issue_number} |
+| "spec-to-plan cascade" | `spec-to-plan-cascade` | `sub-task` | {spec_issue, plan_issue} |
+| "item decomposition check" | `item-decomposition-check` | `sub-task` | {plan_issue} |
+| "auto-dispatch" | `auto-dispatch` | `sub-task` | {authorization_scope} |
+| "verify already implemented" | `verify-already-implemented` | `sub-task` | {issue_number} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 Skills: `git-workflow`, `pr-creation-workflow`, `issue-review`, `implementation-pipeline`, `writing-plans`, `executing-plans`, `pre-analysis`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`.
 
 ```yaml+symbolic

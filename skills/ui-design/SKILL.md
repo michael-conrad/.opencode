@@ -12,6 +12,18 @@ compatibility: opencode
 
 Produces toolkit-agnostic design artifacts (wireframes, mockups, interaction specs) consumable by any implementation skill. Framework-neutral — framework binding is the responsibility of `ui-engineer`.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "design" / "UI design" / "design system" | `design` | `sub-task` | {design_requirements} |
+| "wireframe" / "create wireframe" | `wireframe` | `sub-task` | {design_requirements} |
+| "mockup" / "create mockup" | `mockup` | `sub-task` | {design_requirements} |
+| "interaction-spec" / "interaction design" | `interaction-spec` | `sub-task` | {design_requirements} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 UI Design Specialist. Focus: information architecture, component relationships, navigation flow, accessibility. Produces clear, implementable design artifacts.

@@ -16,6 +16,17 @@ Remediation of failed verification IS agent-owned — the producing agent owns e
 
 Ensures ALL success criteria are verified with actual evidence before ANY task or phase is marked complete. Structural completeness checked before per-SC verification.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "verify" / "verify SCs" / "check completion" | `verify` | `sub-task` | {spec_sc_list, file_paths} |
+| "collect" / "collect evidence" | `collect` | `sub-task` | {spec_sc_list, file_paths} |
+| "structural-verify" / "structural check" | `structural-verify` | `sub-task` | {spec_structure} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 Verification Gatekeeper. Focus: no completion claim without verified evidence. Enforce live-source verification only.

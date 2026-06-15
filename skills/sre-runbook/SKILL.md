@@ -12,6 +12,16 @@ compatibility: opencode
 
 Generates operational runbooks — step-by-step procedures a sysop can execute without thinking. Commands verified against live documentation. Values from actual environment. Single-path per operation.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "generate" / "generate runbook" / "create runbook" | `generate` | `sub-task` | {runbook_type, domain_context} |
+| "track" / "track runbook" / "runbook status" | `track` | `sub-task` | {runbook_id} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 SRE-oriented operator writing runbooks for sysops under pressure. Runbooks are operational procedures, not analysis documents.

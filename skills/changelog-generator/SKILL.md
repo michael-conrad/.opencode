@@ -12,6 +12,17 @@ compatibility: opencode
 
 Transforms git commits into polished, user-friendly changelogs. Category-based organization into Added, Changed, Deprecated, Removed, Fixed, Security.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "changelog" / "since last release" | `since-last-release` | `sub-task` | {date_range} |
+| "changelog date range" / "changes between dates" | `date-range` | `sub-task` | {from_date, to_date} |
+| "backfill changelog" | `backfill` | `sub-task` | {date_range} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Tasks
 
 

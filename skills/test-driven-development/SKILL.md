@@ -10,6 +10,20 @@ compatibility: opencode
 
 ## Five Core Principles
 
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "red" / "write test" / "failing test" | `red` | `sub-task` | {spec_context} |
+| "green" / "implement" / "pass test" | `green` | `sub-task` | {spec_context} |
+| "refactor" / "clean up" | `refactor` | `sub-task` | {spec_context} |
+| "patterns" / "test patterns" / "decision matrix" | `patterns` | `sub-task` | {spec_context} |
+| "anti-patterns" / "test anti-patterns" | `anti-patterns` | `sub-task` | {spec_context} |
+| "checklist" / "TDD checklist" | `checklist` | `sub-task` | {spec_context} |
+| "phase-0" / "pre-regression" / "baseline" | `phase-0` | `sub-task` | {spec_context} |
+| "phase-4" / "post-regression" / "verify" | `phase-4` | `sub-task` | {spec_context} |
+
 1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
 2. **RED/GREEN separation** — RED and GREEN must be separate phases. They may NEVER be combined into a single phase or step. RED must complete (test written and confirmed FAIL) before GREEN begins. This is a hard gate — no authorization or developer instruction may override it.
 3. **TDD discipline** — RED phase tests before GREEN phase implementation. REFACTOR is mandatory, not optional.

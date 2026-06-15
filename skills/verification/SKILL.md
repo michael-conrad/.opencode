@@ -12,6 +12,15 @@ compatibility: opencode
 
 Invokes `multimodal-dispatch` to verify claims against evidence using appropriate modalities. Each claim gets PASS/FAIL/UNVERIFIED with evidence artifacts. Core invariant: FAIL never downgraded to PASS by agent judgment.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "verify" / "verify claim" / "check claim" | `verify` | `sub-task` | {claims, modalities} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 Claim Verifier. Focus: verify each claim against evidence, produce PASS/FAIL/UNVERIFIED with artifacts. Never downgrade FAIL.

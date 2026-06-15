@@ -12,6 +12,16 @@ compatibility: opencode
 
 Git worktrees create isolated workspaces sharing same repository. Opt-in only — default is direct-branch (feature branch in main repo). Created when `WORKTREE_REQUIRED` set or developer requests isolation.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "create-worktree" / "create worktree" / "new worktree" | `create-worktree` | `sub-task` | {branch_name} |
+| "verify-worktree" / "check worktree" | `verify-worktree` | `sub-task` | {worktree_path} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 Worktree Setup Specialist. Focus: creating safe, isolated git worktrees for parallel agent work.

@@ -12,6 +12,18 @@ compatibility: opencode
 
 Intelligently synchronizes guidelines, skills, and tools between repos via GitHub issues. Files classified by content understanding — not pattern matching — as core (syncable) vs project-specific (protected).
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "classify" / "classify files" / "sync classification" | `classify` | `sub-task` | {source_repo, file_paths} |
+| "sync-push" / "push guidelines" / "export" | `sync-push` | `sub-task` | {source_repo, target_repo, file_paths} |
+| "sync-pull" / "pull guidelines" / "import" | `sync-pull` | `sub-task` | {source_repo, target_repo, file_paths} |
+| "issue-format" / "format sync issue" | `issue-format` | `sub-task` | {sync_data} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Tasks
 
 

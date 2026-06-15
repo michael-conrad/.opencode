@@ -12,6 +12,19 @@ compatibility: opencode
 
 Unified review orchestrator for GitHub Issues. Gathers issue data, classifies review path via content analysis, delegates to downstream skills, handles Q/A for non-spec issues.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "gather" / "gather context" | `gather` | `sub-task` | {issue_number} |
+| "triage" / "classify issue" | `triage` | `sub-task` | {issue_number} |
+| "audit" / "review spec" | `audit` | `sub-task` | {issue_number} |
+| "qa" / "question answer" | `qa` | `sub-task` | {issue_number} |
+| "analyze-and-spec" / "bug to spec" | `analyze-and-spec` | `sub-task` | {issue_number} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 Issue Review Orchestrator. Focus: gather context, classify path, delegate to correct downstream skill.

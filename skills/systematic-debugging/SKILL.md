@@ -12,6 +12,16 @@ compatibility: opencode
 
 Enforces root cause analysis, hypothesis testing, and minimal fixes. Prevents "vibe debugging" — random changes without understanding. Diagnose before fixing, fixes must be minimal and targeted.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "diagnose" / "debug" / "root cause" | `diagnose` | `sub-task` | {bug_description, file_paths} |
+| "fix" / "apply fix" / "implement fix" | `fix` | `sub-task` | {bug_description, file_paths} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Tasks
 
 

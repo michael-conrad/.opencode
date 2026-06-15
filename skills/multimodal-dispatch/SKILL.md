@@ -12,6 +12,16 @@ compatibility: opencode
 
 Modality-aware sub-agent routing infrastructure. Probes Ollama model capabilities, caches capability snapshots, tasks sub-agents to best available model per content modality. Foundation for verification and research skills.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "probe" / "probe models" / "check capabilities" | `probe` | `sub-task` | {modalities} |
+| "route" / "route task" / "dispatch to model" | `route` | `sub-task` | {task_description, content_modality} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 Modality Router. Focus: probe models, resolve modality hints, task sub-agents to best model. Never implements directly — routes only.

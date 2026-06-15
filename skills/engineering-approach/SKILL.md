@@ -12,6 +12,17 @@ compatibility: opencode
 
 Engineering discipline checklist enforcing: understand before solving, design before implementing, verify before declaring complete, no scope creep.
 
+
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "verify understanding" / "confirm approach" | `verify-understanding` | `sub-task` | {issue_number} |
+| "design before code" / "design review" | `design-before-code` | `sub-task` | {spec} |
+| "verify before complete" / "pre-completion check" | `verify-before-complete` | `sub-task` | {spec, file_paths} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Tasks
 
 
