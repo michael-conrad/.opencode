@@ -529,38 +529,38 @@ After generating the runbook, the agent MUST validate the output against ALL enf
 
 ### Validation Checklist
 
-- [ ] 1. ✅ Runbook type classified (one-off-config, periodic-procedure, troubleshooting, incident-response)?
-- [ ] 2. ✅ Format-matching rule applied (existing runbooks in repo checked for format)?
-- [ ] 3. ✅ For one-off-config/periodic-procedure: steps-only format with NO YAML blocks?
-- [ ] 4. ✅ For troubleshooting/incident-response: dual-output format with YAML enforcement blocks?
-- [ ] 5. ✅ Environment context collected and documented?
-- [ ] 6. ✅ Single path per operation (no "or via CLI" alternatives)?
-- [ ] 7. ✅ Only confirmed-available tools referenced?
-- [ ] 8. ✅ Real values from environment (zero generic placeholders)?
-- [ ] 9. ✅ Prerequisites (elevation) before privileged commands?
-- [ ] 10. ✅ Steps only — no explanations, no conditional flows?
-- [ ] 11. ✅ Minimum-necessary settings only?
-- [ ] 12. ✅ Set-and-restore pattern (two command blocks)?
-- [ ] 13. ✅ No content re-added after removal?
-- [ ] 14. ✅ Every CLI command verified against `--help`/`man`/live docs?
-- [ ] 15. ✅ Every GUI path verified against vendor docs?
-- [ ] 16. ✅ Evidence anchoring with baseline outputs?
-- [ ] 17. ✅ Version/environment pinning included?
-- [ ] 18. ✅ "Last verified" timestamp included?
-- [ ] 19. ✅ Existing repo documentation checked for hostnames/IPs/domains?
-- [ ] 20. ✅ No training-knowledge commands presented as verified?
-- [ ] 21. ✅ Evidence collection failure handled (HALT, not fallback)?
-- [ ] 22. ✅ Verification-failure gate passed for EVERY section with operational steps? (If ALL sources failed for any section, was the section blocked and user prompted?)
-- [ ] 23. ✅ DNS record types validated against RFC constraints and provider capabilities? (If DNS runbook: no CNAME at apex, no unsupported record types)
-- [ ] 24. ✅ VERIFICATION-GAP annotations explicit (provider name, claims unconfirmed, sources attempted)?
-- [ ] 25. ✅ For steps-only: reference table and troubleshooting table included?
-- [ ] 26. ✅ For steps-only: each step has exact field values and verify command?
-- [ ] 27. ✅ For steps-only: metadata header is plain text, NOT YAML?
-- [ ] 28. ✅ Communication scope correct? Status communications include full narrative context (cause, attribution, what was wrong, what was corrected, before/after for each affected component, current state, references) — NOT steps-only format applied outside operational procedures?
-- [ ] 29. ✅ AI byline present on all agent-generated communications (email replies, notifications, stakeholder updates)?
-- [ ] 30. ✅ Byline present in BOTH plain-text and HTML sections of dual-format communications?
-- [ ] 31. ✅ Byline not removed on subsequent edits of agent-generated communications?
-- [ ] 32. ✅ Byline semantics correct? "on behalf of <dev.name>" or "copy editor for <dev.name>" when user provided direct message/instructions; bare `<AgentName> (<ModelId>)` when agent authored the communication?
+- [ ] 1. Runbook type classified (one-off-config, periodic-procedure, troubleshooting, incident-response)?
+- [ ] 2. Format-matching rule applied (existing runbooks in repo checked for format)?
+- [ ] 3. For one-off-config/periodic-procedure: steps-only format with NO YAML blocks?
+- [ ] 4. For troubleshooting/incident-response: dual-output format with YAML enforcement blocks?
+- [ ] 5. Environment context collected and documented?
+- [ ] 6. Single path per operation (no "or via CLI" alternatives)?
+- [ ] 7. Only confirmed-available tools referenced?
+- [ ] 8. Real values from environment (zero generic placeholders)?
+- [ ] 9. Prerequisites (elevation) before privileged commands?
+- [ ] 10. Steps only — no explanations, no conditional flows?
+- [ ] 11. Minimum-necessary settings only?
+- [ ] 12. Set-and-restore pattern (two command blocks)?
+- [ ] 13. No content re-added after removal?
+- [ ] 14. Every CLI command verified against `--help`/`man`/live docs?
+- [ ] 15. Every GUI path verified against vendor docs?
+- [ ] 16. Evidence anchoring with baseline outputs?
+- [ ] 17. Version/environment pinning included?
+- [ ] 18. "Last verified" timestamp included?
+- [ ] 19. Existing repo documentation checked for hostnames/IPs/domains?
+- [ ] 20. No training-knowledge commands presented as verified?
+- [ ] 21. Evidence collection failure handled (HALT, not fallback)?
+- [ ] 22. Verification-failure gate passed for EVERY section with operational steps? (If ALL sources failed for any section, was the section blocked and user prompted?)
+- [ ] 23. DNS record types validated against RFC constraints and provider capabilities? (If DNS runbook: no CNAME at apex, no unsupported record types)
+- [ ] 24. VERIFICATION-GAP annotations explicit (provider name, claims unconfirmed, sources attempted)?
+- [ ] 25. For steps-only: reference table and troubleshooting table included?
+- [ ] 26. For steps-only: each step has exact field values and verify command?
+- [ ] 27. For steps-only: metadata header is plain text, NOT YAML?
+- [ ] 28. Communication scope correct? Status communications include full narrative context (cause, attribution, what was wrong, what was corrected, before/after for each affected component, current state, references) — NOT steps-only format applied outside operational procedures?
+- [ ] 29. AI byline present on all agent-generated communications (email replies, notifications, stakeholder updates)?
+- [ ] 30. Byline present in BOTH plain-text and HTML sections of dual-format communications?
+- [ ] 31. Byline not removed on subsequent edits of agent-generated communications?
+- [ ] 32. Byline semantics correct? "on behalf of <dev.name>" or "copy editor for <dev.name>" when user provided direct message/instructions; bare `<AgentName> (<ModelId>)` when agent authored the communication?
 
 If ANY check fails, fix the runbook before presenting. The user should never need to correct the same issue twice.
 
