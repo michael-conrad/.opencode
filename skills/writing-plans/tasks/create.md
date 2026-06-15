@@ -19,6 +19,7 @@ Create an implementation plan from an approved spec. Plans are stored at `.issue
 4. **RED checkpoint mandatory:** Every TDD task must include explicit Step 2 checkpoint
 5. **Approval cascade auto-approve:** Pipeline scope (`for_plan+`) auto-approves plan
 6. **Handoff verification pre-PASS:** Before any plan content is written, spec-to-plan handoff MUST return PASS. This is a non-waivable hard gate — no exceptions, no "proceed anyway."
+7. **16-gate dispatch table format mandatory:** All plan phases MUST use the 16-gate implementation pipeline dispatch table format defined below in §Dispatch Table and §Dynamic Standard Gate Set Mandate. The gate labels, step sequence, and dispatch targets MUST reference the canonical source at `implementation-pipeline/SKILL.md` §Dispatch Routing Table. This is the default format for every phase — no exceptions, no simplified alternatives.
 
 ## Entry Criteria
 
