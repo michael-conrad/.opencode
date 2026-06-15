@@ -1,0 +1,27 @@
+spec: 1228
+title: "[SPEC-FIX] Mandate compliance statement in every spec and plan body"
+scs:
+  - id: SC-1
+    criterion: spec-creation/tasks/write.md Step 1 mandates compliance statement at top and bottom of spec body
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-2
+    criterion: writing-plans/tasks/create/create-and-validate.md Step 7 mandates compliance statement at top and bottom of plan body
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-3
+    criterion: Behavioral test exists at .opencode/tests/behaviors/compliance-statement-spec.sh and passes after GREEN
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-4
+    criterion: Behavioral test exists at .opencode/tests/behaviors/compliance-statement-plan.sh and passes after GREEN
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-5
+    criterion: The compliance statement uses the exact wording specified in this spec
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-6
+    criterion: Compliance statement appears at both top and bottom of generated artifacts
+    evidence_type: behavioral
+    phase_binding: 1

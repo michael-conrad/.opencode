@@ -1,0 +1,19 @@
+spec: 1223
+title: "[SPEC-FIX] local-issues: no-remote push/pull guard"
+scs:
+  - id: SC-1
+    criterion: Repo with no remote: _rebase_issues_branch() returns None (skips) instead of attempting git pull
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-2
+    criterion: Repo with no remote: _push_issues_branch_safe() returns None (skips) instead of attempting git push
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-3
+    criterion: Repo with no remote: _sync_repo() returns {"status": "no_remote"} rather than "conflict" or "push_failed"
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-4
+    criterion: Repo with remote: existing push/pull behavior is completely unaffected
+    evidence_type: behavioral
+    phase_binding: 1

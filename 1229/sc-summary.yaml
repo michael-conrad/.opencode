@@ -1,0 +1,39 @@
+spec: 1229
+title: "[SPEC-FIX] spec-creation/write: post-SC uplift check after initial creation with remediation and recheck"
+scs:
+  - id: SC-1
+    criterion: Post-SC uplift check substep exists in write.md between Step 6 and Step 6.5
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-2
+    criterion: Uplift check performs SC evidence type re-check against BEH-EV substrate question
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-3
+    criterion: Auto-uplift structural/string SCs to behavioral when runtime-behavioral change detected
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-4
+    criterion: Downgrade flag path exists for behavioral→structural false positives (flag-for-review, no auto-change)
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-5
+    criterion: Remediation guidance provided for each uplifted SC
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-6
+    criterion: Re-check step runs after remediation to confirm no remaining misclassifications
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-7
+    criterion: Findings written to .issues/{N}/post-sc-uplift-check.yaml
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-8
+    criterion: completion.md verifies post-SC uplift check step ran before spec completion
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-9
+    criterion: write.md Operating Protocol checklist includes the new step
+    evidence_type: string
+    phase_binding: 1

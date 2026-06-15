@@ -1,0 +1,19 @@
+spec: 1213
+title: "[SPEC] Workstream E — skildeck dispatch table + contract schema linter"
+scs:
+  - id: SC-E1
+    criterion: skildeck validate checks dispatch table presence in SKILL.md
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-E2
+    criterion: skildeck validate reports MISSING_DISPATCH_TABLE for SKILL.md without a dispatch table
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-E3
+    criterion: skildeck validate checks column correctness in found dispatch tables
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-E4
+    criterion: skildeck validate exits non-zero when at least one SKILL.md fails validation
+    evidence_type: behavioral
+    phase_binding: 1

@@ -1,0 +1,19 @@
+spec: 1225
+title: "[SPEC-FIX] cleanup: add post-merge issue closure check"
+scs:
+  - id: SC-1
+    criterion: cleanup task checks open issues for closable candidates after PR merge
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-2
+    criterion: Only closes issues whose linked PRs are confirmed merged
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-3
+    criterion: Parent issues with open children are NOT closed
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-4
+    criterion: Reports findings to chat before closing
+    evidence_type: behavioral
+    phase_binding: 1

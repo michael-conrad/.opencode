@@ -1,0 +1,39 @@
+spec: 1217
+title: "[SPEC] Replace .gitmodules-based submodule detection with filesystem glob scan in git-workflow tasks"
+scs:
+  - id: SC-1
+    criterion: All 10 files replace `.gitmodules` references with filesystem glob scan
+    evidence_type: string
+    phase_binding: common
+  - id: SC-2
+    criterion: check-pr queries all discovered repos for PRs
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-3
+    criterion: cleanup Step 0 builds submodule_paths from glob scan
+    evidence_type: string
+    phase_binding: 2
+  - id: SC-4
+    criterion: branch-cleanup Step 1.9 iterates all glob-discovered repos
+    evidence_type: string
+    phase_binding: 2
+  - id: SC-5
+    criterion: release-promotion iterates all glob-discovered repos
+    evidence_type: string
+    phase_binding: 3
+  - id: SC-6
+    criterion: pre-work dispatches sub-agents per glob-discovered repo
+    evidence_type: string
+    phase_binding: 3
+  - id: SC-7
+    criterion: provenance.md entry criterion uses glob scan
+    evidence_type: string
+    phase_binding: 3
+  - id: SC-8
+    criterion: SKILL.md tag suffix uses discovered repo directory name
+    evidence_type: string
+    phase_binding: 4
+  - id: SC-9
+    criterion: No recursion — single-level scan only
+    evidence_type: string
+    phase_binding: common

@@ -1,0 +1,8 @@
+---
+number: 1230
+title: "[SPEC-FIX] pre-push Gate 0 must allow .wiki submodule pushes to master"
+state: open
+labels: [SPEC-FIX]
+created: 2026-06-15
+remote_url: "https://github.com/michael-conrad/.opencode/issues/1230"
+---

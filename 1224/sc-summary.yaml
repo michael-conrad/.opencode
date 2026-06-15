@@ -1,0 +1,27 @@
+spec: 1224
+title: "[SPEC-FIX] Replace .gitmodules-based repo discovery in local-issues tool with filesystem glob scan including parent repo"
+scs:
+  - id: SC-1
+    criterion: _discover_submodules() function removed
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-2
+    criterion: _discover_subrepos() function removed
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-3
+    criterion: _discover_repos() replaced by _discover_all_repos() inclusive of parent repo
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-4
+    criterion: All repos.insert(0, current) workarounds removed
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-5
+    criterion: No .gitmodules references remain in tools/
+    evidence_type: string
+    phase_binding: 1
+  - id: SC-6
+    criterion: _discover_all_repos() scans all three glob patterns (.git/, */.git/, */.git)
+    evidence_type: structural
+    phase_binding: 1

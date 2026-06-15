@@ -1,0 +1,8 @@
+number: 1225
+title: "[SPEC-FIX] cleanup: add post-merge issue closure check"
+status: draft
+created: 2026-06-15
+remote_url: "https://github.com/michael-conrad/.opencode/issues/1225"
+labels:
+  - spec-fix
+  - cleanup

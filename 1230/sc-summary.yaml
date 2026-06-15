@@ -1,0 +1,19 @@
+spec: 1230
+title: "[SPEC-FIX] pre-push Gate 0 must allow .wiki submodule pushes to master"
+scs:
+  - id: SC-1
+    criterion: Gate 0 blocks pushes to main|master|dev in the main repo (unchanged)
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-2
+    criterion: Gate 0 blocks pushes to main|master|dev in non-wiki submodules (unchanged)
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-3
+    criterion: Gate 0 permits pushes to master in .wiki repos
+    evidence_type: behavioral
+    phase_binding: 1
+  - id: SC-4
+    criterion: Behavioral enforcement test verifies agent behavior
+    evidence_type: behavioral
+    phase_binding: 1
