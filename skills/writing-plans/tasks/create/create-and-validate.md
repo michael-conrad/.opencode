@@ -27,9 +27,15 @@ Write plan document to `.issues/{N}/plan.md`, validate structure, and handle app
 
 ### Step 7: Store Plan Document
 
+> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+
+The generated plan body MUST include this compliance statement blockquote at the top (after the preamble) and at the bottom (before the exit criteria section).
+
 **All paths (combined and separate):**
 - Write plan to `.issues/{N}/plan.md`
 - Proceed to Step 8
+
+> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
 ### Phase body requirements — Reference to canonical pipeline checklist
 

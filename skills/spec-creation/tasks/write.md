@@ -51,6 +51,10 @@ When creating the behavioral test success criterion, ensure it mandates real-dom
 
 ### Step 1: Assemble Spec
 
+> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+
+The generated spec body MUST include this compliance statement blockquote at the top (after the preamble/user greeting) and at the bottom (before the success criteria table).
+
 Combine outputs from prerequisite tasks into a coherent spec. The spec should address the following content areas — the agent decides which sections to use and how to organize them:
 
 - **Objectives and goals** — What this spec achieves
@@ -311,6 +315,8 @@ Review every requirement statement:
 - Replace "fast" with specific thresholds
 - Replace "user-friendly" with specific UX criteria
 - Every "etc." must become an explicit list
+
+> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
 ### Step 3: Define Acceptance Criteria (Principle #6)
 
