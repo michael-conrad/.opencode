@@ -77,7 +77,7 @@ For each reviewer, ensure:
 
 ```bash
 uv run pytest test/test_module.py -v
-uv run ruff check --fix src/
+uv run ruff check src/
 uv run pyright src/
 ```
 

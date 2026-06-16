@@ -69,11 +69,11 @@ git status --porcelain
 ### Step 2: Run Code Quality Checks
 
 ```bash
-# Lint
-uv run ruff check --fix src/ test/
+# Lint (advisory)
+uv run ruff check src/ test/
 
-# Format
-uv run ruff format src/ test/
+# Format check (advisory)
+uv run ruff format --check src/ test/
 
 # Type check
 uv run pyright src/

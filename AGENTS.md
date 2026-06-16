@@ -89,8 +89,8 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 | Run all tests | `uv run pytest test/` | - |
 | Run one test file | `uv run pytest test/test_filename.py` | - |
 | Run one test | `uv run pytest test/test_filename.py::test_function_name` | - |
-| Lint + auto-fix | `uvx ruff check --fix src/ test/` | Python ONLY |
-| Format | `uvx ruff format src/ test/` | Python ONLY |
+| Lint (advisory) | `uvx ruff check src/ test/` | Python ONLY |
+| Format check (advisory) | `uvx ruff format --check src/ test/` | Python ONLY |
 | Type check | `uvx pyright src/` | Python ONLY |
 | Coverage | `uv run coverage run -m pytest test/ && uv run coverage report` | - |
 | Dead code scan | `uvx vulture src/` | Python ONLY |
