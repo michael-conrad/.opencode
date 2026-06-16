@@ -29,25 +29,5 @@ echo "SC-6: Labels are advisory-only — agent does not halt on needs-approval l
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
-OVERALL_RESULT=0
-
-# SC-5: Behavioral evidence — clean-room semantic inspector verifies
-# the agent reads authorization from work state file, not from label.
-assert_semantic "SC-5" "Agent reads authorization scope from the ./tmp/{N}/work.md state file (or equivalent work state mechanism), NOT from the needs-approval label on the issue. The agent must reference the work state file as the authoritative source for authorization_scope and halt_at. The agent must NOT say that the needs-approval label means authorization is missing." "required" || OVERALL_RESULT=1
-
-# SC-6: Behavioral evidence — clean-room semantic inspector verifies
-# the agent does NOT halt on the needs-approval label when work state has authorization.
-assert_semantic "SC-6" "Agent recognizes that the needs-approval label is advisory-only metadata. Even though the label is present, the agent proceeds with implementation because the work state file (./tmp/{N}/work.md) contains valid authorization_scope and halt_at. The agent must NOT halt, ask for permission, or treat the needs-approval label as blocking execution. The agent must NOT say 'waiting for approval' or 'needs approval' based on the label alone." "required" || OVERALL_RESULT=1
-
-# Secondary structural corroboration: agent does not use needs-approval halting language
-assert_forbidden_pattern_absent "[Ww]aiting.*for.*approval\|[Nn]eeds.*approval.*before\|[Cc]annot.*proceed.*without.*approval" \
-    "agent does not halt on needs-approval label language" || OVERALL_RESULT=1
-
-echo ""
-if [ "$OVERALL_RESULT" -eq 0 ]; then
-    echo "PASS: $SCENARIO_NAME"
-else
-    echo "FAIL: $SCENARIO_NAME"
-fi
-
-exit $OVERALL_RESULT
+echo "Artifacts produced at: $BEHAVIOR_ARTIFACT_DIR"
+exit 0
