@@ -17,10 +17,10 @@ suggested_split: <proposed-split-strategy>
 
 When `assemble-work` receives an OVERFLOW result:
 
-1. Record completed items in work state file
-2. Create new sub-agent task(s) for remaining items using suggested split strategy
-3. Re-dispatch new sub-agent(s) with reduced scope
-4. Continue orchestration with accumulated results
+- [ ] 1. Record completed items in work state file
+- [ ] 2. Create new sub-agent task(s) for remaining items using suggested split strategy
+- [ ] 3. Re-dispatch new sub-agent(s) with reduced scope
+- [ ] 4. Continue orchestration with accumulated results
 
 ### Split Strategies
 
