@@ -21,13 +21,25 @@ List all PRs (open and merged) for the repository. If merged PRs with uncleaned 
 
 ### Step 1: Query All PRs
 
-First, build the repo list from session-init values, including submodule repos:
+First, build the repo list from session-init values, including submodule repos discovered via filesystem glob scan:
 
 ```python
-# Build repo list from session-init sub-folder repo mappings
+# Build repo list from session-init values
 repos = [{"owner": <github.owner>, "repo": <github.repo>}]
-# Append submodule repos from session-init sub-folder repo mappings
-repos += [{"owner": m["owner"], "repo": m["repo"]} for m in submodules]
+
+# Discover submodule repos via filesystem glob scan
+import subprocess
+REPO_PATHS = subprocess.getoutput("ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||'")
+for RP in REPO_PATHS.splitlines():
+    if not RP or RP == ".":
+        continue
+    REMOTE_URL = subprocess.getoutput(f"git -C '{RP}' remote get-url origin 2>/dev/null || echo ''")
+    if REMOTE_URL:
+        # Parse owner/repo from SSH (git@github.com:owner/repo.git) or HTTPS (https://github.com/owner/repo.git)
+        import re
+        m = re.match(r'(?:git@[^:]+:|https://[^/]+/)([^/]+)/([^/]+?)(?:\.git)?$', REMOTE_URL)
+        if m:
+            repos.append({"owner": m.group(1), "repo": m.group(2)})
 
 # Query each repo for open and merged PRs
 for repo in repos:

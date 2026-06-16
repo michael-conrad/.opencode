@@ -47,7 +47,7 @@ fi
 
 **Route to:** `review-prep/push-and-cleanup`
 
-Tasks `submodule-feature-push` sub-agent for submodule changes (if `.gitmodules` exists), then handles temp file cleanup, rebase on current dev, worktree handoff, and branch push verification.
+Tasks `submodule-feature-push` sub-agent for submodule changes (if a submodule `.git` file or directory is discovered), then handles temp file cleanup, rebase on current dev, worktree handoff, and branch push verification.
 
 ### Step 2.5: Squash Verification (MANDATORY GATE)
 

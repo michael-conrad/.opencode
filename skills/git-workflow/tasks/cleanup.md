@@ -27,27 +27,36 @@ Delete merged branches after PR merge, clean stale references, and verify reposi
 
 ### Step 0: Detect Submodules and Build Routing Context
 
-Before any cleanup operations, detect and build routing context for submodules.
+Before any cleanup operations, detect and build routing context for submodules using filesystem glob scan.
 
-- [ ] 1. **Check for `.gitmodules` at project root:**
+- [ ] 1. **Glob scan for git repos at project root:**
 
-   - Run `test -f .gitmodules && echo "EXISTS" || echo "NOT_FOUND"`
-   - If NOT_FOUND: skip submodule detection, proceed normally (no submodule routing context)
+   ```bash
+   REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')
+   ```
 
-- [ ] 2. **Parse `.gitmodules` if it exists:**
+   Filter out `.` (self) and collect only submodule paths (non-root repos):
+   ```bash
+   SUBMODULE_PATHS=""
+   for RP in $REPO_PATHS; do
+       [ "$RP" = "." ] && continue
+       SUBMODULE_PATHS="$SUBMODULE_PATHS $RP"
+   done
+   ```
 
-   - Extract all `[submodule "..."]` entries using `git config --file .gitmodules --list`
-   - For each submodule entry, extract:
-     - `submodule.<path>.path` — the submodule path
-     - `submodule.<path>.url` — the remote URL
+   If `SUBMODULE_PATHS` is empty: no submodules detected, proceed normally (no submodule routing context).
 
-- [ ] 3. **Resolve owner/repo from each remote URL:**
+- [ ] 2. **Resolve owner/repo for each discovered repo:**
 
-   - SSH URLs (`git@github.com:owner/repo.git`): extract owner/repo
-   - HTTPS URLs (`https://github.com/owner/repo.git`): extract owner/repo
-   - If URL format is unexpected: mark as UNKNOWN, proceed with remaining submodules
+   For each repo path in `SUBMODULE_PATHS`:
+   ```bash
+   REMOTE_URL=$(git -C "$RP" remote get-url origin 2>/dev/null || echo "")
+   # Parse owner/repo from SSH (git@github.com:owner/repo.git) or HTTPS (https://github.com/owner/repo.git)
+   # sed extraction pattern for SSH: s|.*:\(.*\)/\(.*\)\.git|\1 \2|
+   # sed extraction pattern for HTTPS: s|.*/[^/]*/\([^/]*\)/\([^/]*\)\.git|\1 \2|
+   ```
 
-- [ ] 4. **Build routing context dictionary:**
+- [ ] 3. **Build routing context dictionary:**
 
    ```yaml
    submodule_paths:
@@ -61,12 +70,12 @@ Before any cleanup operations, detect and build routing context for submodules.
        platform: github
    ```
 
-- [ ] 5. **Pass routing context to sub-tasks:**
+- [ ] 4. **Pass routing context to sub-tasks:**
 
    - Include `submodule_paths` in task context for `issue-closure` and `branch-cleanup` sub-tasks
    - Each sub-task uses the routing context to route API calls to the correct owner/repo for files under a submodule path
 
-- [ ] 6. **If `.gitmodules` exists but is empty** (no submodule entries): proceed normally, no routing context needed.
+- [ ] 5. **If no submodules detected** (glob scan returned only root repo): proceed normally, no routing context needed.
 
 ### Step 1: Verify PR Merge and Run Gates
 

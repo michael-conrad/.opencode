@@ -175,11 +175,15 @@ fi
 
 After parent repo dev parking (Step 1.7), descend into each submodule to clean merged branches while preserving the dirty submodule pointer.
 
-**Detect submodules:**
+**Detect submodules via filesystem glob scan:**
 
 ```bash
-# Collect submodule paths from .gitmodules
-SUBMODULE_PATHS=$(git config --list --file .gitmodules 2>/dev/null | grep '^submodule\..*\.path=' | sed 's/^submodule\.\(.*\)\.path=/\1:/' | while IFS=: read -r _ path; do echo "$path"; done || echo "")
+REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')
+SUBMODULE_PATHS=""
+for RP in $REPO_PATHS; do
+    [ "$RP" = "." ] && continue
+    SUBMODULE_PATHS="$SUBMODULE_PATHS $RP"
+done
 ```
 
 If no submodules exist (`SUBMODULE_PATHS` is empty), skip this step.

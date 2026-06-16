@@ -103,7 +103,7 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 
 All git tags in this project follow a unified naming convention. The suffix rule is defined in spec #950 and applies to ALL tag types.
 
-**Suffix Rule:** Tag suffix MUST be derived from the submodule directory name in `.gitmodules` (e.g., `.opencode` → `-opencode`). DO NOT use issue title, phase name, or any ad-hoc string.
+**Suffix Rule:** Tag suffix MUST be derived from the discovered repo's directory name (e.g., `.opencode` → `-opencode`). Use glob scan to discover repo directories: `REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')`. For each non-root path, use the directory name as the suffix. DO NOT use issue title, phase name, or any ad-hoc string.
 
 | Tag Type | Format | Example | Purpose |
 |----------|--------|---------|---------|

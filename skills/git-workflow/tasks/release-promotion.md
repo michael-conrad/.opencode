@@ -44,11 +44,17 @@ Prepare dev → main promotion, semver tagging, and release creation via PR-base
 ### Step 0: Route to Release Path
 
 ```bash
-test -f .gitmodules
+REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')
+HAS_SUBMODULES=false
+for RP in $REPO_PATHS; do
+    [ "$RP" = "." ] && continue
+    HAS_SUBMODULES=true
+    break
+done
 ```
 
-- If `.gitmodules` EXISTS: Proceed to **Submodule Path** (Step 1)
-- If `.gitmodules` does NOT exist: Proceed to **Non-Submodule Path** (Step N1)
+- If submodules detected (`HAS_SUBMODULES=true`): Proceed to **Submodule Path** (Step 1)
+- If no submodules detected: Proceed to **Non-Submodule Path** (Step N1)
 
 ______________________________________________________________________
 
@@ -56,20 +62,27 @@ ______________________________________________________________________
 
 ### Step 0.5: Detect Default Branch for Submodules
 
-For each submodule `<path>`:
+For each submodule discovered via glob scan:
 
 ```bash
-cd <path>
-DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's|refs/remotes/origin/||')
-cd ..
+REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')
+for RP in $REPO_PATHS; do
+    [ "$RP" = "." ] && continue
+    DEFAULT_BRANCH=$(git -C "$RP" symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||' || echo "main")
+done
 ```
 
 ### Step 0.75: Detect Semver Tags on Each Submodule
 
-For each submodule listed in `.gitmodules`:
+For each submodule discovered via glob scan:
 
 ```bash
-git config --file .gitmodules --get-regexp path | awk '{print $2}'
+REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')
+SUBMODULE_PATHS=""
+for RP in $REPO_PATHS; do
+    [ "$RP" = "." ] && continue
+    SUBMODULE_PATHS="$SUBMODULE_PATHS $RP"
+done
 ```
 
 For each submodule `<path>`, extract parent repo prefix for tag namespace:
@@ -96,62 +109,46 @@ git submodule update --init
 
 ### Step 2: Tag Each Submodule SHA with Release Tag
 
-For each submodule listed in `.gitmodules`:
+For each submodule discovered via glob scan, use `RP` as the submodule path:
 
 ```bash
-git config --file .gitmodules --get-regexp path | awk '{print $2}'
-```
+REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')
+for RP in $REPO_PATHS; do
+    [ "$RP" = "." ] && continue
 
-For each submodule `<path>`:
+    # 2a: Determine Parent-Prefixed Semver Tag
+    PARENT_PREFIX=$(basename $(git rev-parse --show-toplevel))
+    SUB_SHA=$(git -C "$RP" rev-parse HEAD)
+    LATEST_TAG=$(git -C "$RP" tag --sort=-v:refname | grep "^${PARENT_PREFIX}/v" | head -1)
 
-#### 2a: Determine Parent-Prefixed Semver Tag
+    if [ -z "$LATEST_TAG" ]; then
+        NEXT_TAG="${PARENT_PREFIX}/v0.1.0"
+    else
+        VERSION=${LATEST_TAG#${PARENT_PREFIX}/v}
+        MAJOR=$(echo "$VERSION" | cut -d. -f1)
+        MINOR=$(echo "$VERSION" | cut -d. -f2)
+        PATCH=$(echo "$VERSION" | cut -d. -f3)
+        NEXT_TAG="${PARENT_PREFIX}/v${MAJOR}.${MINOR}.$((PATCH + 1))"
+    fi
 
-```bash
-PARENT_PREFIX=$(basename $(git rev-parse --show-toplevel))
-cd <path>
-SUB_SHA=$(git rev-parse HEAD)
-LATEST_TAG=$(git tag --sort=-v:refname | grep "^${PARENT_PREFIX}/v" | head -1)
-cd ..
+    # Tag-if-untagged check
+    EXISTING_TAG=$(git -C "$RP" tag --points-at "$SUB_SHA" | grep "^${PARENT_PREFIX}/v" | head -1)
+    if [ -z "$EXISTING_TAG" ]; then
+        git -C "$RP" tag -a "$NEXT_TAG" -m "Release $NEXT_TAG: promoted from dev"
+        git -C "$RP" push origin "$NEXT_TAG"
+    else
+        echo "SHA $SUB_SHA already tagged as $EXISTING_TAG — skipping"
+    fi
 
-if [ -z "$LATEST_TAG" ]; then
-    NEXT_TAG="${PARENT_PREFIX}/v0.1.0"
-else
-    VERSION=${LATEST_TAG#${PARENT_PREFIX}/v}
-    MAJOR=$(echo "$VERSION" | cut -d. -f1)
-    MINOR=$(echo "$VERSION" | cut -d. -f2)
-    PATCH=$(echo "$VERSION" | cut -d. -f3)
-    NEXT_TAG="${PARENT_PREFIX}/v${MAJOR}.${MINOR}.$((PATCH + 1))"
-fi
+    # 2c: Verify reachability
+    git -C "$RP" tag -l "$NEXT_TAG" | grep -q "$NEXT_TAG"
+
+    # 2d: Return to parent and update ref
+    git add "$RP"
+done
 ```
 
 **Developer-specified version:** If developer provided an explicit version (e.g., "promote submodule X as v2.0.0"), use `{PARENT_PREFIX}/v2.0.0`.
-
-#### 2b: Tag and Push the Submodule SHA
-
-```bash
-cd <path>
-git tag -a "$NEXT_TAG" -m "Release $NEXT_TAG: promoted from dev"
-git push origin "$NEXT_TAG"
-cd ..
-```
-
-**Tag-if-untagged check:** Before tagging, verify the SHA is not already tagged with a parent-prefixed tag. If it is, skip — idempotent operation.
-
-#### 2c: Verify Reachability
-
-```bash
-cd <path>
-git tag -l "$NEXT_TAG" | grep -q "$NEXT_TAG"
-cd ..
-```
-
-Tag MUST be reachable. If not, HALT and report failure.
-
-#### 2d: Return to Parent and Update Ref
-
-```bash
-git add <path>
-```
 
 The parent repo now records the tagged submodule SHA. No submodule PR needed.
 
