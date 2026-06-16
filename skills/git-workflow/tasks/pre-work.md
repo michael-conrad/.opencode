@@ -145,7 +145,7 @@ fi
 ### Step 2.5: Proactive Repo State Verification
 
 **Before creating any feature branch, verify repo state:**
-- [ ] 1. **Submodule initialization check:** Check if `.gitmodules` exists. If it does, note that submodule sync will be handled by the `submodule-tag-prework` sub-agent task() in Steps 2.7/3.5 — do NOT run submodule commands inline.
+- [ ] 1. **Submodule initialization check:** Run glob scan to detect git repos: `REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')`. If non-root repos found, note that submodule sync will be handled by the `submodule-tag-prework` sub-agent task() in Steps 2.7/3.5 — do NOT run submodule commands inline.
 
 - [ ] 2. **Submodule currency check:** Deferred to the `submodule-tag-prework` sub-agent task() (Steps 2.7/3.5).
 - [ ] 3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be task()ed to `submodule-tag-prework` — do NOT run `git submodule init` or `git submodule foreach` inline.
@@ -160,7 +160,7 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 |-----------|------|----------------|-----------|
 | `git fetch origin` | Step 1.5/2 | Pipeline prerequisite | Remote exists |
 | `git checkout dev && git pull origin dev` | Step 2 | Tier 1 mandate prerequisite | Always when remote exists |
-| Task() `submodule-tag-prework` sub-agent | Step 2.5/3.5 | Tier 1 mandate prerequisite | `.gitmodules` exists |
+| Task() `submodule-tag-prework` sub-agent | Step 2.5/3.5 | Tier 1 mandate prerequisite | Submodules detected via glob scan |
 | `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 3 | Tier 1 mandate — required by `000-critical-rules.md` §Skipping Git Pre-Check | Always |
 | `git push -u origin feature/N-xyz` | Post-Step 5 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
 
@@ -187,11 +187,11 @@ The agent MUST NOT ask for confirmation, permission, or readiness before perform
 
 ### Sub-Agent Boundary: `submodule-tag-prework` — Orchestrator Dispatch
 
-When `.gitmodules` exists, the orchestrator dispatches a `submodule-tag-prework` sub-agent for submodule initialization, sync, and status operations. The sub-agent receives only:
+When submodules are detected via glob scan, the orchestrator dispatches a `submodule-tag-prework` sub-agent for submodule initialization, sync, and status operations. The sub-agent receives only:
 
 **`must_receive`:**
 - `worktree.path` (if in worktree mode; null otherwise)
-- `.gitmodules` file path
+- `submodule_paths` — list of discovered repo paths
 - `github.owner` and `github.repo` (for context, NOT for API calls into the parent repo)
 
 **`must_not_receive`:**
@@ -247,11 +247,11 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 
 ### Step 3.5: Submodule Initialization and Sync — Orchestrator Dispatches `submodule-tag-prework`
 
-**If `.gitmodules` does NOT exist:** Skip this step and proceed to Step 4.
+**If no submodules detected via glob scan:** Skip this step and proceed to Step 4.
 
-**If `.gitmodules` exists:** The orchestrator dispatches a `submodule-tag-prework` sub-agent with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
+**If submodules detected:** The orchestrator dispatches a `submodule-tag-prework` sub-agent with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
 
-- [ ] 1. Checks `.gitmodules` existence
+- [ ] 1. Detects the submodule path(s)
 - [ ] 2. Initializes submodules if needed (`git submodule init`)
 - [ ] 3. Checks out each submodule to its `dev` tip (`git submodule foreach "git checkout dev && git pull"`)
 - [ ] 4. Logs submodule status (`git submodule status`)
@@ -266,10 +266,9 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 status: DONE | BLOCKED
 submodules_found: <count>
 submodules_updated: <list of (path, old_sha, new_sha, commit_count)>
-gitmodules_path: <path>
 ```
 
-**If `status: BLOCKED`** (e.g., submodule checkout fails, `.gitmodules` malformed): Re-task() with original scoped context. If second task() also fails, report the double-failure and HALT.
+**If `status: BLOCKED`** (e.g., submodule checkout fails): Re-task() with original scoped context. If second task() also fails, report the double-failure and HALT.
 
 **If on `main` worktree:** The sub-agent uses `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to dev tip. Pass `worktree_type: main` in the task context.
 

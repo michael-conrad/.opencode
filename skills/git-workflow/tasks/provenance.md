@@ -14,7 +14,7 @@ Create provenance tracking issues and PRs in submodule repositories after push o
 ## Entry Criteria
 
 - A submodule has been pushed or promoted
-- `.gitmodules` exists in the worktree
+- Glob scan detects non-root git repos at project root (`ls -d .git/ */.git/ */.git`)
 - Submodule remote URL is available
 
 ## Exit Criteria

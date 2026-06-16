@@ -20,9 +20,9 @@ Clean temp files, handle submodule push automation, rebase on current dev, and v
 
 ### Step 0: Submodule Feature Push via Sub-Agent Orchestrator Dispatch (CONDITIONAL)
 
-**If `.gitmodules` does NOT exist:** Skip entirely.
+**If no submodules detected via glob scan:** Skip entirely.
 
-**If `.gitmodules` exists:** The orchestrator dispatches a `submodule-feature-push` sub-agent to handle submodule push automation instead of executing inline bash.
+**If submodules detected:** The orchestrator dispatches a `submodule-feature-push` sub-agent to handle submodule push automation instead of executing inline bash.
 
 #### Task Context Schema
 
@@ -33,7 +33,7 @@ must_receive:
   - parent_repo_owner: string   # github.owner of parent repo
   - parent_repo_name: string    # github.repo of parent repo
   - parent_branch: string       # feature branch name in parent
-  - submodule_paths: string[]   # list of submodule paths from `.gitmodules`
+  - submodule_paths: string[]   # list of submodule paths from glob scan
   - dev_name: string            # developer name for commit authorship
   - dev_email: string           # developer email for commit authorship
 

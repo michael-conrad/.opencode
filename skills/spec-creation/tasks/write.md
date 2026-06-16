@@ -51,6 +51,10 @@ When creating the behavioral test success criterion, ensure it mandates real-dom
 
 ### Step 1: Assemble Spec
 
+> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+
+The generated spec body MUST include this compliance statement blockquote at the top (after the preamble/user greeting) and at the bottom (before the success criteria table).
+
 Combine outputs from prerequisite tasks into a coherent spec. The spec should address the following content areas — the agent decides which sections to use and how to organize them:
 
 - **Objectives and goals** — What this spec achieves
@@ -312,6 +316,8 @@ Review every requirement statement:
 - Replace "user-friendly" with specific UX criteria
 - Every "etc." must become an explicit list
 
+> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+
 ### Step 3: Define Acceptance Criteria (Principle #6)
 
 **🚫 ALL-OR-NOTHING GATE: ALL success criteria MUST pass for implementation to be considered complete.**
@@ -474,6 +480,19 @@ Fix any issues inline. No need to re-review — just fix and move on.
    - Every SC ID in the prose table appears in `sc_coverage.phases[].sc_ids` or `sc_coverage.cross_cutting.sc_ids`
    - Every SC ID in `sc-summary.yaml` appears in the prose table
    - Mismatch in any direction → STRUCTURE-VIOLATION requiring YAML regeneration
+
+### Step 6.2: Post-SC Uplift Check (MANDATORY)
+
+After self-review, before evidence artifact verification, perform a post-creation SC evidence type uplift check:
+
+1. **SC evidence type re-check**: For each SC in the spec body, evaluate the substrate question: "Does this change affect runtime behavior?"
+2. **Uplift misclassified SCs**: If runtime-behavioral YES but evidence type is NOT behavioral → auto-uplift to `behavioral`. Log the uplift action as a finding.
+3. **Downgrade flag (conditional)**: If runtime-behavioral NO but evidence type IS behavioral → flag for review. The writer may have intended a behavioral test for structural reasons, but this mismatch warrants human review.
+4. **Remediation guidance**: For each uplifted SC, provide guidance on what changes the verification method needs:
+   - `structural` → `behavioral`: Must add a real test execution command (e.g., `opencode-cli run`, `pytest`, `bash test.sh`)
+   - `string` → `behavioral`: Must replace grep assertion with test execution + semantic inspection
+5. **Re-check**: After remediation, re-run the classification check. Confirm no remaining misclassifications.
+6. **Evidence artifact**: Write findings to `.issues/{N}/post-sc-uplift-check.yaml`
 
 ### Step 6.5: Evidence Artifact Verification (MANDATORY)
 

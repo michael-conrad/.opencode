@@ -18,9 +18,9 @@ Enforce mandatory pre-conditions before PR creation. Verify explicit PR instruct
 
 ### Step 0: Submodule PR Dependency Check (MANDATORY GATE)
 
-**If `.gitmodules` does NOT exist:** Skip entirely.
+**If no submodules detected via glob scan:** Skip entirely.
 
-**If `.gitmodules` EXISTS:**
+**If submodules detected:**
 
 The orchestrator dispatches a `submodule-liveness-check` sub-agent. The sub-agent performs a report-only liveness verification — it compares committed SHAs against remote `dev` HEAD SHAs and returns PASS/FAIL per submodule. **NO auto-remediation. NO SHA bumps. NO commits.**
 
@@ -58,9 +58,9 @@ summary: <text>
 
 ### Step 0.5: Submodule-Bump-Only PR Gate (MANDATORY — parent repo only)
 
-**If `identity_source` is NOT `root` or `.gitmodules` does NOT exist:** Skip entirely.
+**If `identity_source` is NOT `root` or no submodules detected via glob scan:** Skip entirely.
 
-**If parent repo context (`identity_source == "root"` AND `.gitmodules` exists):**
+**If parent repo context (`identity_source == "root"` AND submodules detected):**
 
 Check if the PR diff is submodule-pointer-only:
 

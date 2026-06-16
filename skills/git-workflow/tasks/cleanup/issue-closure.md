@@ -289,7 +289,15 @@ for issue_num, classification in closure_candidates.items():
 
 If `submodule_paths` is not provided, resolve sub-folder repo mappings from session-init context:
 - `issue-operations -> read-issue (github_issue_read(method="get", issue_number=N)` with resolved `owner`/`repo` per submodule <!-- Routes through issue-operations per SPEC #683 -->
-- `.gitmodules` entries parsed for `path → owner/repo` mapping
+- Glob scan discovered repos used for `path → owner/repo` mapping:
+  ```bash
+  REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')
+  for RP in $REPO_PATHS; do
+      [ "$RP" = "." ] && continue
+      REMOTE_URL=$(git -C "$RP" remote get-url origin 2>/dev/null || echo "")
+      # Parse owner/repo and build fallback submodule_paths
+  done
+  ```
 - Reject any hardcoded owner/repo values — always use live resolution
 
 ## Context Required

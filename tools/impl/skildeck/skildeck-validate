@@ -1,0 +1,143 @@
+#!/usr/bin/env -S uv run --script
+# fmt: off
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
+# /// script
+# requires-python = "~=3.12"
+# dependencies = []
+# ///
+
+# fmt: on
+"""
+DESCRIPTION: Validate dispatch tables in all SKILL.md files.
+Usage: ./.opencode/tools/skildeck validate [--all]
+"""
+
+import os
+import sys
+from pathlib import Path
+
+IMPL_DIR = Path(__file__).resolve().parent
+
+SKILLS_DIR = None
+for parent in [IMPL_DIR] + list(IMPL_DIR.parents):
+    candidate = parent / "skills"
+    if candidate.exists() and candidate.is_dir():
+        SKILLS_DIR = candidate
+        break
+
+if SKILLS_DIR is None:
+    print("Error: cannot find skills/ directory.", file=sys.stderr)
+    sys.exit(1)
+
+REQUIRED_HEADING = "## Trigger Dispatch Table"
+REQUIRED_COLUMNS = ["User says / Context", "Task", "Dispatch", "Context passed"]
+
+RESULT_PASS = "PASS"
+RESULT_MISSING_TABLE = "MISSING_DISPATCH_TABLE"
+RESULT_INVALID_COLUMNS = "INVALID_DISPATCH_TABLE_COLUMNS"
+RESULT_EMPTY_TABLE = "EMPTY_DISPATCH_TABLE"
+
+
+def find_dispatch_table(lines: list[str]) -> int | None:
+    for i, line in enumerate(lines):
+        if line.strip() == REQUIRED_HEADING:
+            return i
+    return None
+
+
+def parse_table(lines: list[str], heading_idx: int) -> list[list[str]]:
+    table_lines = []
+    for line in lines[heading_idx + 1:]:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("|"):
+            table_lines.append(stripped)
+        elif stripped.startswith("---") or stripped.startswith("| ---"):
+            continue
+        else:
+            break
+    return table_lines
+
+
+def parse_header_columns(table_lines: list[list[str]]) -> list[str]:
+    if not table_lines:
+        return []
+    header = table_lines[0]
+    cols = [c.strip() for c in header.strip("|").split("|")]
+    return cols
+
+
+def parse_data_rows(table_lines: list[list[str]]) -> int:
+    if len(table_lines) <= 1:
+        return 0
+    return len(table_lines) - 1
+
+
+def validate_one(path: Path) -> tuple[str, str]:
+    try:
+        text = path.read_text()
+    except Exception as e:
+        return RESULT_INVALID_COLUMNS, f"cannot read: {e}"
+
+    lines = text.split("\n")
+    heading_idx = find_dispatch_table(lines)
+    if heading_idx is None:
+        return RESULT_MISSING_TABLE, ""
+
+    table_lines_raw = parse_table(lines, heading_idx)
+    if not table_lines_raw:
+        return RESULT_EMPTY_TABLE, ""
+
+    header_cols = parse_header_columns(table_lines_raw)
+    if len(header_cols) < len(REQUIRED_COLUMNS):
+        return RESULT_INVALID_COLUMNS, f"expected {len(REQUIRED_COLUMNS)} columns ({', '.join(REQUIRED_COLUMNS)}), got {len(header_cols)}: {header_cols}"
+
+    missing = [c for c in REQUIRED_COLUMNS if c not in header_cols]
+    if missing:
+        return RESULT_INVALID_COLUMNS, f"missing columns: {', '.join(missing)}"
+
+    data_rows = parse_data_rows(table_lines_raw)
+    if data_rows < 1:
+        return RESULT_EMPTY_TABLE, ""
+
+    return RESULT_PASS, ""
+
+
+def main() -> None:
+    if os.environ.get("OPENCODE_TOOLS_DISPATCHER") != "1":
+        print(
+            "ERROR: This script must be run via its dispatcher. Direct invocation is not permitted.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    skill_dirs = sorted(SKILLS_DIR.iterdir())
+    results: list[dict] = []
+    all_pass = True
+
+    for skill_dir in skill_dirs:
+        if not skill_dir.is_dir():
+            continue
+        skmd = skill_dir / "SKILL.md"
+        if not skmd.exists():
+            continue
+
+        rel = str(skmd.relative_to(SKILLS_DIR.parent.parent))
+        result, detail = validate_one(skmd)
+        results.append({"file": rel, "result": result, "detail": detail})
+        if result != RESULT_PASS:
+            all_pass = False
+
+    for r in results:
+        detail_str = f" — {r['detail']}" if r['detail'] else ""
+        print(f"  {r['file']:<60} {r['result']}{detail_str}")
+
+    print(f"\n{'All dispatch tables valid.' if all_pass else 'Some files failed validation.'}")
+    sys.exit(0 if all_pass else 1)
+
+
+if __name__ == "__main__":
+    main()

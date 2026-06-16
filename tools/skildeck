@@ -42,6 +42,7 @@ ACTIONS = {
     "export": "skildeck-export",
     "watch": "skildeck-watch",
     "extract": "skildeck-extract",
+    "validate": "skildeck-validate",
     "verify-structure": "skildeck-verify-structure",
     "verify-acceptance": "skildeck-verify-acceptance",
     "verify-issue": "skildeck-verify-issue",

@@ -262,45 +262,23 @@ def _issues_branch_exists(repo_path: Path | None = None) -> bool:
     return result.returncode == 0
 
 
-def _discover_submodules(root: Path) -> list[Path]:
-    """Parse .gitmodules for submodule paths, returning non-bare submodule directories."""
+def _discover_all_repos() -> list[Path]:
+    """Discover parent repo + immediate child repos via filesystem glob.
+
+    Scans three patterns from project root:
+    - `.git/` -- parent repo
+    - `*/.git/` -- submodule/git-repo directories
+    - `*/.git` -- submodule gitlink files (non-bare check)
+
+    No recursion. No .gitmodules parsing.
+    """
+    root = Path(os.getcwd()).resolve()
     repos: list[Path] = []
-    gitmodules = root / ".gitmodules"
-    if not gitmodules.exists():
-        return repos
-    try:
-        import configparser
 
-        cfg = configparser.ConfigParser()
-        cfg.read(str(gitmodules))
-        for section in cfg.sections():
-            if section.startswith("submodule "):
-                path_val = cfg.get(section, "path", fallback=None)
-                if path_val:
-                    sub_path = root / path_val
-                    if sub_path.is_dir() and (sub_path / ".git").exists():
-                        result = subprocess.run(
-                            [
-                                "git",
-                                "-C",
-                                str(sub_path),
-                                "rev-parse",
-                                "--is-bare-repository",
-                            ],
-                            capture_output=True,
-                            text=True,
-                            timeout=15,
-                        )
-                        if result.returncode == 0 and result.stdout.strip() == "false":
-                            repos.append(sub_path.resolve())
-    except configparser.Error as e:
-        print(f"warn: skipping submodule config parsing: {e}", file=sys.stderr)
-    return repos
+    # 1. Parent repo
+    repos.append(root)
 
-
-def _discover_subrepos(root: Path) -> list[Path]:
-    """Find immediate child directories containing .git (file or dir), excluding bare repos."""
-    repos: list[Path] = []
+    # 2. Child repos via glob
     for entry in sorted(root.iterdir()):
         if not entry.is_dir() or entry.name.startswith("."):
             continue
@@ -310,23 +288,24 @@ def _discover_subrepos(root: Path) -> list[Path]:
             if resolved not in repos:
                 result = subprocess.run(
                     ["git", "-C", str(resolved), "rev-parse", "--is-bare-repository"],
-                    capture_output=True,
-                    text=True,
-                    timeout=15,
+                    capture_output=True, text=True, timeout=15,
                 )
                 if result.returncode == 0 and result.stdout.strip() == "false":
                     repos.append(resolved)
-    return repos
 
-
-def _discover_repos() -> list[Path]:
-    """Discover immediate child repos (submodules + sub-repos) from project root."""
-    root = Path(os.getcwd())
-    repos: list[Path] = []
-    repos.extend(_discover_submodules(root))
-    repos.extend(_discover_subrepos(root))
     repos.sort(key=lambda p: str(p))
     return repos
+
+
+def _has_remote(repo_path: Path | None = None) -> bool:
+    """Check if any git remote is configured for this repo."""
+    if repo_path is None:
+        repo_path = Path.cwd()
+    result = subprocess.run(
+        ["git", "-C", str(repo_path), "remote", "get-url", "origin"],
+        capture_output=True, text=True, timeout=15,
+    )
+    return result.returncode == 0 and bool(result.stdout.strip())
 
 
 def _get_local_branches(repo_path: str, *names: str) -> list[str]:
@@ -424,10 +403,7 @@ def _format_dual_branch_output(dual: dict) -> str:
 
 def _detect_dual_branch() -> dict | None:
     """Check if both 'issues' and 'issues-data' branches exist in any repo."""
-    repos = _discover_repos()
-    current = Path(os.getcwd()).resolve()
-    if current not in repos:
-        repos.insert(0, current)
+    repos = _discover_all_repos()
     for repo in repos:
         info = _get_branch_info(repo)
         if info is not None:
@@ -437,11 +413,7 @@ def _detect_dual_branch() -> dict | None:
 
 def _ensure_all_worktrees() -> bool:
     """Ensure worktrees exist in current repo and all discovered child repos."""
-    repos = _discover_repos()
-    # Always include current repo first
-    current = Path(os.getcwd()).resolve()
-    if current not in repos:
-        repos.insert(0, current)
+    repos = _discover_all_repos()
     all_ok = True
     for repo in repos:
         try:
@@ -741,7 +713,7 @@ def _collect_repos() -> list[tuple[Path, str]]:
     current_name = _resolve_repo_name()
     repos: list[tuple[Path, str]] = [(current, current_name)]
     seen: set[str] = {current_name}
-    for child in _discover_repos():
+    for child in _discover_all_repos():
         if child.name not in seen:
             seen.add(child.name)
             repos.append((child.resolve(), child.name))
@@ -994,7 +966,7 @@ def cmd_create(args: argparse.Namespace) -> None:
             repo_path = PROJECT_DIR  # unreachable
         args.number = num
         qualified = f"{current_repo_name}#{args.number}"
-        child_repos = _discover_repos()
+        child_repos = _discover_all_repos()
         _check_duplicate_issue(args.number, repo_path, current_repo_name, child_repos)
     _ensure_all_worktrees()
     _create_issue_files(args.number, args.title, args.labels, repo_path, qualified)
@@ -1048,7 +1020,7 @@ def _resolve_repo_path(repo_name: str) -> Path | None:
     current_name = _resolve_repo_name()
     if repo_name == current_name:
         return current
-    for child in _discover_repos():
+    for child in _discover_all_repos():
         if child.name == repo_name:
             return child.resolve()
     return None
@@ -1078,7 +1050,7 @@ def _resolve_qualified(qualified_str: str) -> list[tuple[Path, str, str]]:
     if repo_name_val is not None:
         if repo_name_val == current_name:
             return [(current, current_name, number_str)]
-        for child in _discover_repos():
+        for child in _discover_all_repos():
             if child.name == repo_name_val:
                 return [(child.resolve(), child.name, number_str)]
         print(f"error: repo '{repo_name_val}' not found", file=sys.stderr)
@@ -1087,7 +1059,7 @@ def _resolve_qualified(qualified_str: str) -> list[tuple[Path, str, str]]:
 
     results: list[tuple[Path, str, str]] = [(current, current_name, number_str)]
     seen: set[str] = set()
-    for child in _discover_repos():
+    for child in _discover_all_repos():
         if child.name not in seen:
             seen.add(child.name)
             results.append((child.resolve(), child.name, number_str))
@@ -1405,7 +1377,7 @@ def cmd_search(args: argparse.Namespace) -> None:
     current_repo_name = _resolve_repo_name()
     current_cwd = Path(os.getcwd()).resolve()
 
-    child_repos = _discover_repos()
+    child_repos = _discover_all_repos()
 
     repo_infos: list[tuple[Path, str]] = [(current_cwd, current_repo_name)]
     for child in child_repos:
@@ -1426,7 +1398,7 @@ def _print_available_repos() -> None:
     """Print current repo and all discovered child repos with qualifiers and paths."""
     current = Path(os.getcwd()).resolve()
     current_name = _resolve_repo_name()
-    repos = _discover_repos()
+    repos = _discover_all_repos()
     names = [current_name] + [r.name for r in repos]
     max_name_len = max(len(n) for n in names) if names else 0
     print("Available qualifiers (use name#N format):", file=sys.stderr)
@@ -1472,7 +1444,7 @@ def _format_list_output(
 def cmd_list(args: argparse.Namespace) -> None:
     current_repo_name = _resolve_repo_name()
     current_cwd = Path(os.getcwd()).resolve()
-    child_repos = _discover_repos()
+    child_repos = _discover_all_repos()
     all_entries: list[tuple[int, str, str, str, str, str, int]] = []
     all_entries.extend(
         _list_issues_in_repo(current_cwd, current_repo_name, 0, current_cwd)
@@ -1591,6 +1563,8 @@ def _fetch_issues_branch(issues_dir: Path) -> dict | None:
 
 def _rebase_issues_branch(issues_dir: Path) -> dict | None:
     """Git pull --rebase. Returns entry dict on failure, None on success."""
+    if not _has_remote(issues_dir.parent):
+        return None
     pull = subprocess.run(
         ["git", "-C", str(issues_dir), "pull", "--rebase", "origin", WORKTREE_BRANCH],
         capture_output=True,
@@ -1608,6 +1582,8 @@ def _rebase_issues_branch(issues_dir: Path) -> dict | None:
 
 def _push_issues_branch_safe(issues_dir: Path) -> dict | None:
     """Git push. Returns entry dict on failure, None on success."""
+    if not _has_remote(issues_dir.parent):
+        return None
     push = subprocess.run(
         ["git", "-C", str(issues_dir), "push", "origin", WORKTREE_BRANCH],
         capture_output=True,
@@ -1626,6 +1602,9 @@ def _sync_repo(repo_path: Path, qualifier: str, issues_dir: Path | None = None) 
     entry: dict = {"qualifier": qualifier, "path": str(repo_path)}
     if not (issues_dir / ".git").is_file():
         entry["status"] = "no_worktree"
+        return entry
+    if not _has_remote(repo_path):
+        entry["status"] = "no_remote"
         return entry
     try:
         fail = _fetch_issues_branch(issues_dir)
