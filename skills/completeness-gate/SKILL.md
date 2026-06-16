@@ -12,12 +12,10 @@ compatibility: opencode
 
 Non-adversarial completeness check that runs after a RED/GREEN sub-agent returns and before the adversarial audit. Verifies the deliverable against the spec's success criteria — checking that the deliverable exists, is structurally sound, and addresses each criterion. This is a completeness gate, not an adversarial audit: it verifies presence and coverage, not correctness depth.
 
-
-
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
+| -- | -- | -- | -- |
 | "completeness check" / "gate check" | `check` | `sub-task` | {spec, deliverable} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
@@ -27,12 +25,11 @@ You are a Completeness Gate Sub-Agent. Your focus is verifying that a deliverabl
 
 ## Tasks
 
-|------|-------|---------|
+|\------|-------|---------|
 | `check` | Run completeness check on deliverable |
 | `completion` | Ensure mandatory completion steps run |
 
 ## Sub-Agent Tasks
-
 
 | `check` |
 | `completion` |
@@ -47,7 +44,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-|-----------|-------------------|-----------------|
+| -- | -- | -- |
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -68,6 +65,7 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
+
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -77,12 +75,22 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
 - Pre-loaded evidence or orchestrator-derived conclusions
 
 Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
 ## Invocation
 
@@ -107,6 +115,7 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 ## Routing Decision
 
 After the completeness gate returns:
+
 - **PASS** → proceed to adversarial auditor
 - **FAIL + remediable only** → re-task RED/GREEN with completeness findings
 - **FAIL + structural** → route to `writing-plans` or `spec-creation`

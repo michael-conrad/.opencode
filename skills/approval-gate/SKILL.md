@@ -10,6 +10,7 @@ Sub-Agent Task Context Audit
 All tasks run via `task(subagent_type="general")`. Standard context: `{ issue_number, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. `screen-issue` receives issue body + authorization context + pipeline_phase. `pre-implementation-analysis` receives all issue numbers + authorization context + pipeline_phase. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }` with zero file paths. No inline work — all tasks use sub-agents. If a sub-agent returns empty, re-task with original scoped context only (max 2 retries). Result contracts return `status` (DONE/BLOCKED/DONE_WITH_CONCERNS/OVERFLOW) + task-specific fields per `enforcement/` result contract schemas.
 
 ### Authorization Context Template
+
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
@@ -19,6 +20,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
 ### Routing Rules
+
 - Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 - The `pipeline_phase` field is NEW — it tracks which phase of a multi-phase plan is currently executing
@@ -28,7 +30,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 The pre-approval gate validates the following columns in the spec's SC table. Each rule produces PASS or BLOCK with reason.
 
 | Column | Validation Rule | Block On | Apply To |
-|--------|----------------|----------|----------|
+| -- | -- | -- | -- |
 | Pipeline Step Binding | Every SC MUST have a valid pipeline step binding matching a step in `implementation-pipeline` dispatch table | Missing, invalid, or misspelled step name | All specs |
 | Re-Entry Step | Every SC MUST declare a re-entry step. For single-task specs, may be `null`. For multi-phase, MUST reference a valid step within the bound phase | Missing for multi-phase, or references step outside phase scope | All specs |
 | Verification Gate | Every SC's Verification Gate MUST be consistent with its Evidence Type per the Evidence Type Taxonomy: `behavioral` → pre-commit, `semantic` → pre-PR, `string` → CI, `structural` → none | EVIDENCE_TYPE_MISMATCH — behavioral SC with CI gate, etc. | All specs |
@@ -40,7 +42,7 @@ The pre-approval gate validates the following columns in the spec's SC table. Ea
 When running the pre-approval gate for standard/complex specs, validate the following columns in the SC table:
 
 | Column | Validation Rule | Error on Violation |
-|--------|----------------|---------------------|
+| -- | -- | -- |
 | Pipeline Step Binding | MUST specify which pipeline step validates this SC | BLOCK |
 | Re-Entry Step | MUST specify re-entry point on verification failure | BLOCK |
 | Verification Gate | MUST be one of: red-green, pre-commit, ci | BLOCK |
@@ -59,7 +61,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-|-----------|-------------------|-----------------|
+| -- | -- | -- |
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -80,6 +82,7 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
+
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -89,6 +92,7 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
@@ -96,13 +100,21 @@ A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
 
 Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
-## Cross-References
+#### Orchestrator Entry Criteria
 
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
+
+## Cross-References
 
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
+| -- | -- | -- | -- |
 | "verify authorization" / "check approval" | `verify-authorization` | `sub-task` | {issue_number, authorization_scope} |
 | "screen issue" / "triage" | `screen-issue` | `sub-task` | {issue_number} |
 | "pre-implementation analysis" | `pre-implementation-analysis` | `sub-task` | {issue_numbers} |
@@ -151,3 +163,4 @@ rules:
     actions: [HALT, REPORT(CRITICAL: required PR not merged)]
     triggers: [implementation-pipeline, git-workflow]
     source: "approval-gate/SKILL.md"
+```

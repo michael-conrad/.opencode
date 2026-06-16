@@ -5,19 +5,19 @@ license: MIT
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
+
 <!-- SPDX-License-Identifier: MIT -->
+
 <!-- Provenance: AI-generated -->
 
 ## Overview
 
 Dual cross-family audit via clean-room sub-agents. Auditors write YAML verdicts to disk, return frugal contracts. The orchestrator dispatches via `skill()` + `task()` — it does NOT read task files.
 
-
-
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
+| -- | -- | -- | -- |
 | "audit #NNN" / "adversarial audit #NNN" | `verification-audit` | `sub-task` | {issue_number, artifact_evidence_dir} |
 | "spec audit #NNN" | `spec-audit` | `sub-task` | {issue_number, spec_local_dir} |
 | "plan fidelity" / "fidelity audit" | `plan-fidelity` | `sub-task` | {issue_number, plan_local_dir} |

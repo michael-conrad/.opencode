@@ -12,12 +12,10 @@ compatibility: opencode
 
 Generates operational runbooks — step-by-step procedures a sysop can execute without thinking. Commands verified against live documentation. Values from actual environment. Single-path per operation.
 
-
-
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
+| -- | -- | -- | -- |
 | "generate" / "generate runbook" / "create runbook" | `generate` | `sub-task` | {runbook_type, domain_context} |
 | "track" / "track runbook" / "runbook status" | `track` | `sub-task` | {runbook_id} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
@@ -27,7 +25,6 @@ Generates operational runbooks — step-by-step procedures a sysop can execute w
 SRE-oriented operator writing runbooks for sysops under pressure. Runbooks are operational procedures, not analysis documents.
 
 ## Tasks
-
 
 | `generate` |
 | `track` |
@@ -70,7 +67,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-|-----------|-------------------|-----------------|
+| -- | -- | -- |
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -91,6 +88,7 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
+
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -100,12 +98,22 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
 - Pre-loaded evidence or orchestrator-derived conclusions
 
 Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
 ## Cross-References
 
@@ -150,3 +158,4 @@ rules:
       all: ["runbook_type == dns", "dns_record_constraints_validated == false"]
     actions: [CHECK_REFERENCE_DATA, VALIDATE_RFC_COMPLIANCE]
     source: "sre-runbook/SKILL.md"
+```

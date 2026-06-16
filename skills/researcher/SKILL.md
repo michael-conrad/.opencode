@@ -9,9 +9,10 @@ compatibility: opencode
 # Researcher
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-generated -->
 
+<!-- SPDX-License-Identifier: MIT -->
+
+<!-- Provenance: AI-generated -->
 
 ## Overview
 
@@ -19,12 +20,10 @@ Dedicated research skill for exhaustive investigation with verifiable source evi
 
 Research without tool calls produces memory guesses. Every unverified finding is a liability, not evidence.
 
-
-
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
+| -- | -- | -- | -- |
 | "investigate" / "exhaustive research" / "deep dive" | `investigate` | `sub-task` | {query, modalities} |
 | "findings" / "format findings" / "research report" | `findings` | `sub-task` | {research_results} |
 

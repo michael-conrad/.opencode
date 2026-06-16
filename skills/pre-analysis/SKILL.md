@@ -12,12 +12,10 @@ compatibility: opencode
 
 Universal pipeline gate that prevents orchestrators from preloading sub-agents with file paths, line numbers, or expected outcomes. Every sub-agent routing is gated by a pre-analysis sub-agent that independently determines scope. This skill enforces the critical rule at `000-critical-rules.md` §Preloading Sub-Agent Context.
 
-
-
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
+| -- | -- | -- | -- |
 | "analyze" / "pre-analysis" / "discover scope" | `analyze` | `sub-task` | {issue_number, task_description} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
@@ -28,12 +26,11 @@ You are a Pre-Analysis Gatekeeper. Your focus is independently discovering scope
 ## Tasks
 
 | Task | Purpose |
-|------|---------|
+| -- | -- |
 | `analyze` | Load task files, discover scope, return task plan |
 | `completion` | Ensure mandatory completion steps run regardless of workflow outcome |
 
 ## Sub-Agent Tasks
-
 
 | `analyze` |
 | `completion` |
@@ -41,7 +38,7 @@ You are a Pre-Analysis Gatekeeper. Your focus is independently discovering scope
 ### Task Routing
 
 | Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
-|---|---|---|---|---|
+| -- | -- | -- | -- | -- |
 | `analyze` | Before any sub-agent routing | Issue number, task description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo | File paths, line numbers, expected outcomes, orchestrator reasoning | NO |
 | `completion` | When workflow halts at any point | Workflow state, authorization_scope, halt_at | Implementation context, agent memory | NO |
 
@@ -55,7 +52,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-|-----------|-------------------|-----------------|
+| -- | -- | -- |
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -76,6 +73,7 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
+
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -85,12 +83,22 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
 - Pre-loaded evidence or orchestrator-derived conclusions
 
 Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
 ## Invocation
 
@@ -139,3 +147,4 @@ gates:
     condition: "sub_agent_received_only_issue_and_task_description == true"
     on_fail: HALT
     critical_violation: true
+```

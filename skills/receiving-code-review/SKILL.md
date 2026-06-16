@@ -12,18 +12,15 @@ compatibility: opencode
 
 Responds to PR review feedback. Ensures all comments addressed systematically, changes are minimal, no scope creep.
 
-
-
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
+| -- | -- | -- | -- |
 | "address" / "address review" / "fix review" | `address` | `sub-task` | {pr_number, review_comments} |
 | "respond" / "respond to review" | `respond` | `sub-task` | {pr_number, review_comments} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Tasks
-
 
 | `address` |
 | `respond` |
@@ -46,6 +43,7 @@ Responds to PR review feedback. Ensures all comments addressed systematically, c
 Sub-agents run via `task(subagent_type="general")` with `{ pr_number, review_comments, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
 
 ### Authorization Context
+
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
@@ -55,6 +53,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
 ### Routing Rules
+
 - Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
@@ -68,7 +67,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-|-----------|-------------------|-----------------|
+| -- | -- | -- |
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -89,6 +88,7 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
+
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -98,12 +98,22 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
 - Pre-loaded evidence or orchestrator-derived conclusions
 
 Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -115,3 +125,4 @@ rules:
       all: ["fix_includes_unrelated_changes == true"]
     actions: [REVERT_UNRELATED]
     source: "receiving-code-review/SKILL.md"
+```

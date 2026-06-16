@@ -12,12 +12,10 @@ compatibility: opencode
 
 Intelligently synchronizes guidelines, skills, and tools between repos via GitHub issues. Files classified by content understanding — not pattern matching — as core (syncable) vs project-specific (protected).
 
-
-
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
+| -- | -- | -- | -- |
 | "classify" / "classify files" / "sync classification" | `classify` | `sub-task` | {source_repo, file_paths} |
 | "sync-push" / "push guidelines" / "export" | `sync-push` | `sub-task` | {source_repo, target_repo, file_paths} |
 | "sync-pull" / "pull guidelines" / "import" | `sync-pull` | `sub-task` | {source_repo, target_repo, file_paths} |
@@ -25,7 +23,6 @@ Intelligently synchronizes guidelines, skills, and tools between repos via GitHu
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Tasks
-
 
 | `classify` |
 | `sync-push` |
@@ -61,7 +58,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-|-----------|-------------------|-----------------|
+| -- | -- | -- |
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -82,6 +79,7 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
+
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -91,12 +89,22 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
 - Pre-loaded evidence or orchestrator-derived conclusions
 
 Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -108,3 +116,4 @@ rules:
       all: ["classification_by_pattern_only == true"]
     actions: [RE_CLASSIFY_BY_CONTENT]
     source: "sync-guidelines/SKILL.md"
+```

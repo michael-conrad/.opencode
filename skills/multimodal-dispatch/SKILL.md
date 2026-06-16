@@ -12,12 +12,10 @@ compatibility: opencode
 
 Modality-aware sub-agent routing infrastructure. Probes Ollama model capabilities, caches capability snapshots, tasks sub-agents to best available model per content modality. Foundation for verification and research skills.
 
-
-
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
+| -- | -- | -- | -- |
 | "probe" / "probe models" / "check capabilities" | `probe` | `sub-task` | {modalities} |
 | "route" / "route task" / "dispatch to model" | `route` | `sub-task` | {task_description, content_modality} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
@@ -27,7 +25,6 @@ Modality-aware sub-agent routing infrastructure. Probes Ollama model capabilitie
 Modality Router. Focus: probe models, resolve modality hints, task sub-agents to best model. Never implements directly — routes only.
 
 ## Tasks
-
 
 | `probe` |
 | `route` |
@@ -63,7 +60,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-|-----------|-------------------|-----------------|
+| -- | -- | -- |
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -84,6 +81,7 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
+
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -93,12 +91,22 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
 - Pre-loaded evidence or orchestrator-derived conclusions
 
 Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -110,3 +118,4 @@ rules:
       all: ["modality in [text, vision]", "cloud_available == true", "local_chosen_over_cloud == true"]
     actions: [SWITCH_TO_CLOUD]
     source: "multimodal-dispatch/SKILL.md"
+```

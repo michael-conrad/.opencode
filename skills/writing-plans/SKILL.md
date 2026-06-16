@@ -12,12 +12,10 @@ compatibility: opencode
 
 Transforms approved specs into actionable implementation plans using hybrid structure: phases for concern boundaries, TDD steps within tasks for execution guidance. Every step is one action (2-5 min). No placeholders.
 
-
-
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
+| -- | -- | -- | -- |
 | "create plan" / "implementation plan" / "write plan" | `create` | `sub-task` | {spec_issue_number, spec_body} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
@@ -26,7 +24,6 @@ Transforms approved specs into actionable implementation plans using hybrid stru
 Plan Author. Focus: transform spec into phased plan with file structure, TDD steps, and concern boundary annotations.
 
 ## Tasks
-
 
 | `create` |
 | `completion` |
@@ -73,7 +70,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-|-----------|-------------------|-----------------|
+| -- | -- | -- |
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -111,6 +108,15 @@ A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
 - Pre-loaded evidence or orchestrator-derived conclusions
 
 Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
 ## Cross-References
 
