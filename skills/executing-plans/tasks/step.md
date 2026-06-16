@@ -40,7 +40,7 @@ Report step completion to chat:
 **Next:** Step N+1 - [Next concern]
 ```
 
-- Update STATUS in plan issue body
+- Write progress to `./tmp/{N}/work.md` state file
 - HALT and wait for user
 
 ### 5. Proceed to Next

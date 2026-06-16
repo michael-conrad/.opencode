@@ -10,9 +10,9 @@ This task() routes plan execution to `implementation-pipeline --task assemble-wo
 
 - [ ] 1. **Verify plan approval** — confirm the plan issue has explicit approval in comments
 - [ ] 2. **Verify prerequisites** — feature branch exists, working tree clean, dependencies ready
-- [ ] 3. **Read Plan STATUS to compose initial phase progress** — before task()ing, read the plan issue body to determine which phases (if any) are already marked complete. Compose the initial `phase_progress` for the task context:
+- [ ] 3. **Read work state file to compose initial phase progress** — before task()ing, read `./tmp/{N}/work.md` to determine which phases (if any) are already marked complete. Compose the initial `phase_progress` for the task context:
    - If no phases are complete yet: `completed_phases: "No phases completed yet. This is the first phase."`, `concern_boundaries_crossed: ""`, `verification_evidence: ""`
-   - If prior phases are complete: list them by concern name using the concern boundary annotations in the plan body, note any transitions between concerns, and summarize verification outcomes from the plan STATUS markers
+   - If prior phases are complete: list them by concern name using the concern boundary annotations in the plan body, note any transitions between concerns, and summarize verification outcomes from the work state file
 - [ ] 4. **Check halt_at boundary** — if `halt_at == plan_created`, HALT. Do NOT task() to implementation. The authorization scope stops at plan creation.
 - [ ] 5. **Step 5.5: RED Phase Verification Checkpoint — Content and Behavioral (MANDATORY)** — Before task()ing to implementation-pipeline/assemble-work, the agent MUST verify that for each TDD-marked implementation item, a RED test artifact exists. The type of RED test depends on whether the item is a rule change or a code change:
 
@@ -55,7 +55,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 The phase progress information comes from two sources:
-- The Plan STATUS marker (which phases are marked complete with ☑)
+- The `./tmp/{N}/work.md` state file (which phases are marked complete)
 - Concern boundary annotations in the plan body (prose descriptions of architectural concern transitions)
 
 Phase progress is prose-driven — the orchestrating agent describes progress in natural prose. The requirement is that the information travels, not that it follows a rigid schema.
