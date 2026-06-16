@@ -12,10 +12,12 @@ compatibility: opencode
 
 Invokes `multimodal-dispatch` to discover information using best available model per modality. Produces findings with source attribution, explicit gap reporting, unverified modality tracking. Unlike verification (validates claims), research discovers new information.
 
+
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-| -- | -- | -- | -- |
+|---------------------|------|----------|----------------|
 | "research" / "investigate" / "find information" | `research` | `sub-task` | {query, modalities} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
@@ -24,6 +26,7 @@ Invokes `multimodal-dispatch` to discover information using best available model
 Research Agent. Focus: discover information, produce findings with source attribution, report gaps explicitly.
 
 ## Tasks
+
 
 | `research` |
 | `completion` |
@@ -57,7 +60,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-| -- | -- | -- |
+|-----------|-------------------|-----------------|
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -78,7 +81,6 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
-
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -88,7 +90,6 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
-
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
@@ -99,7 +100,6 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 #### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
-
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
@@ -115,4 +115,3 @@ rules:
       all: ["source_attribution_missing == true"]
     actions: [REJECT_FINDING]
     source: "research/SKILL.md"
-```

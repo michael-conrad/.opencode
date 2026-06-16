@@ -9,10 +9,9 @@ compatibility: opencode
 # Implementation Pipeline
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-
 <!-- SPDX-License-Identifier: MIT -->
-
 <!-- Provenance: AI-generated -->
+
 
 ## Overview
 
@@ -20,10 +19,12 @@ Pure orchestrator routing table with 16 serial dispatch steps. The orchestrator 
 
 The orchestrator is a pure router — never reads task file content, never performs inline analysis. Sub-agents do the work.
 
+
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-| -- | -- | -- | -- |
+|---------------------|------|----------|----------------|
 | "sc-coherence-gate" / "coherence gate" | `sc-coherence-gate` | `sub-task` | {issue_number} |
 | "pre-red-baseline" / "baseline check" | `pre-red-baseline` | `sub-task` | {issue_number} |
 | "red-phase" / "write failing test" | `red-phase` | `sub-task` | {issue_number} |
@@ -44,7 +45,7 @@ The orchestrator is a pure router — never reads task file content, never perfo
 ## Dispatch Routing Table
 
 | Step Label | Dispatches To | Artifact Produced |
-| -- | -- | -- |
+|------------|---------------|-------------------|
 | `sc-coherence-gate` | `adversarial-audit --task coherence-extraction` (evidence-type uplift + substrate classification) | coherence check results + uplift verdict |
 | `pre-red-baseline` | `implementation-pipeline --task pre-red-baseline` (doc-source-currency + SC-ID cross-ref traceability) | solution state file + source currency report |
 | `red-phase` | `test-driven-development --task red` | test code + execution result |
@@ -87,13 +88,11 @@ Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run
 Every task context MUST include the authorization context block:
 
 ```yaml
-authorization_scope: 
-  <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
-halt_at: 
-  <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
+authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
+halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
 pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
-authorization_source: 'User approved #N on YYYY-MM-DD'
+authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
 ## Sub-Agent Routing
@@ -112,7 +111,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-| -- | -- | -- |
+|-----------|-------------------|-----------------|
 | Preloaded file paths | "Read pipeline-executor.md then execute step 1" | "execute red-phase from implementation-pipeline" |
 | Preloaded step sequences | "Step 1: red. Step 2: green." | "execute green-phase from implementation-pipeline" |
 | Preloaded expected outcomes | "Return { test_count, pass_count }" | Let sub-agent define its own result contract |
@@ -133,7 +132,6 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
-
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -143,7 +141,6 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
-
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
@@ -154,7 +151,6 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 #### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
-
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
@@ -173,7 +169,6 @@ Step results go to YAML disk artifact — never into solve state. Solve state tr
 ## Remediation Routing
 
 When a step returns FAIL, the orchestrator:
-
 1. Reads the FAIL artifact's YAML frontmatter from disk
 2. Dispatches the `researcher` skill to determine remediation scope
 3. Routes to `remediation_steps[0].target_step` based on researcher findings
@@ -226,20 +221,19 @@ Each pipeline step SHOULD append an event to the lifecycle manifest at `.issues/
     issuer: <AgentName> (<ModelId>)
     step: <step_label>
     status: <PASS|FAIL>
-    description: <brief summary>
+    description: "<brief summary>"
     severity: <info|warning|error>
 ```
 
 Blocker events (on FAIL) MUST include:
-
 ```yaml
   - event: blocker
     timestamp: <YYYY-MM-DDTHH:MM:SSZ>
     issuer: <AgentName> (<ModelId>)
     step: <step_label>
     severity: error
-    reason: <root cause description>
-    resolution: <applied remediation or UNRESOLVED>
+    reason: "<root cause description>"
+    resolution: "<applied remediation or UNRESOLVED>"
 ```
 
 The lifecycle manifest is append-only. Never delete or edit existing entries — only append new ones. Validation: `grep -c "event:" lifecycle.yaml` MUST increase monotonically across pipeline steps.

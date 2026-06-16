@@ -12,10 +12,12 @@ compatibility: opencode
 
 The `solve` tool is a Z3 constraint solver for workflow correctness. It operates on contract YAML files (variable declarations + logical constraints) and state YAML files (variable assignments). Four subcommands: `check`, `model`, `prove`, and `state`. When Z3 is unavailable, `fallback` provides manual validation procedures.
 
+
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-| -- | -- | -- | -- |
+|---------------------|------|----------|----------------|
 | "contract" / "contract schema" / "Z3 syntax" | `contract` | `sub-task` | {contract_file_path} |
 | "state" / "state init" / "state update" / "state status" | `state` | `sub-task` | {state_path, variable_names} |
 | "check" / "validate state" / "Z3 check" | `check` | `sub-task` | {contract_path, state_path} |
@@ -34,7 +36,7 @@ See `tasks/contract.md` for the full schema reference — variables section (typ
 ## Tasks
 
 | Task | Purpose |
-| -- | -- |
+|------|---------|
 | `contract` | Contract YAML schema reference and Z3 expression syntax |
 | `state` | State file lifecycle management (init, update, status) |
 | `check` | Validate state against contract constraints with unsat core extraction |
@@ -49,7 +51,7 @@ See `tasks/contract.md` for the full schema reference — variables section (typ
 ### Task Routing
 
 | Sub-Agent Task | Trigger Condition | Scope of Context | Exclusions | Inline Work? |
-| -- | -- | -- | -- | -- |
+|---|---|---|---|---|
 | `contract` | Contract creation or review | Contract file path, task description | Orchestrator reasoning | NO |
 | `state` | State file operations needed | State path, variable names, contract path | Orchestrator reasoning | NO |
 | `check` | State validation against contract | Contract path, state path, task description | Pre-determined unsat labels | NO |
@@ -63,21 +65,20 @@ See `tasks/contract.md` for the full schema reference — variables section (typ
 
 The orchestrator MUST NOT preload expected outcomes, file paths, or reasoning into task() prompts. Sub-agents independently discover scope and return result contracts.
 
+
 #### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
-
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
-
 ## Invocation
 
 `skill({name: "solve"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-| -- | -- |
+|------|-----------------|
 | `contract` | `task(..., prompt: "execute contract task from solve")` |
 | `state` | `task(..., prompt: "execute state task from solve")` |
 | `check` | `task(..., prompt: "execute check task from solve")` |
@@ -99,7 +100,6 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 When `worktree.path` is set, all file operations MUST use it as the base directory.
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-
 <!-- SPDX-License-Identifier: MIT -->
-
 <!-- Provenance: AI-generated -->
+

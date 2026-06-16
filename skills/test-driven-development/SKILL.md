@@ -13,7 +13,7 @@ compatibility: opencode
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-| -- | -- | -- | -- |
+|---------------------|------|----------|----------------|
 | "red" / "write test" / "failing test" | `red` | `sub-task` | {spec_context} |
 | "green" / "implement" / "pass test" | `green` | `sub-task` | {spec_context} |
 | "refactor" / "clean up" | `refactor` | `sub-task` | {spec_context} |
@@ -61,7 +61,7 @@ The `pre-red-baseline` sub-agent parses plan TDD headings, extracts SC-IDs, and 
 ### SC-ID Extraction Contract
 
 | Field | Format | Required |
-| -- | -- | -- |
+|-------|--------|----------|
 | Prefix | `### TDD-<N>:` | Yes |
 | Description | Any text | Yes |
 | SC-ID reference | `(SC-<ID>, SC-<ID>, ...)` | Yes — must match spec SC table |
@@ -100,7 +100,7 @@ Never `RED-ALL → GREEN-ALL`.
 
 ## Tasks
 
-|\------|-------|---------|
+|------|-------|---------|
 | `red` | Execution-only: write failing test |
 | `green` | Execution-only: minimal impl |
 | `refactor` | Execution-only: clean while green |
@@ -139,7 +139,6 @@ After Phase 4 passes and before routing to adversarial audit, the orchestrator M
 ### Normal Completion
 
 After Phase 4 PASSES:
-
 - [ ] 1. Commit the cycle (test + implementation + refactor as one working slice)
 - [ ] 2. Reset to Phase 0 for the next item
 - [ ] 3. Never carry state across cycles
@@ -166,7 +165,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-| -- | -- | -- |
+|-----------|-------------------|-----------------|
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -187,7 +186,6 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
-
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -197,7 +195,6 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
-
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
@@ -208,14 +205,12 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 #### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
-
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
 ### Authorization Context
-
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
@@ -225,7 +220,6 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
 ### Routing Rules
-
 - Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
@@ -257,4 +251,3 @@ rules:
       all: ["refactor_phase_completed == true", "phase_4_completed == false"]
     actions: [HALT, TASK(phase-4)]
     source: "test-driven-development/SKILL.md"
-```

@@ -14,10 +14,12 @@ Shared verification gate for ALL content-generating skills. Pre-generation: task
 
 Spec content that makes factual claims must include a **Documentation Sources** section documenting live-source verification used for each claim. This section is mandatory for standard and complex specs and is enforced by `adversarial-audit --task spec-audit` criterion SC-11. Simple specs may omit it.
 
+
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-| -- | -- | -- | -- |
+|---------------------|------|----------|----------------|
 | "verify" / "pre-generation verify" | `verify` | `sub-task` | {section_evidence_table, claim_list} |
 | "revisit" / "post-generation scan" | `revisit` | `sub-task` | {generated_content} |
 | "enforce" / "enforce evidence" | `enforce` | `sub-task` | {sub_agent_output} |
@@ -28,6 +30,7 @@ Spec content that makes factual claims must include a **Documentation Sources** 
 Verification Gatekeeper. Not the content author — the evidence collector running before and after generation. Treats memory/training data as insufficient; tool calls and live documentation as sufficient. Marks what cannot be verified, escalates what cannot be resolved.
 
 ## Tasks
+
 
 | `verify` |
 | `revisit` |
@@ -69,7 +72,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-| -- | -- | -- |
+|-----------|-------------------|-----------------|
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -90,7 +93,6 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
-
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -100,7 +102,6 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
-
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
@@ -111,7 +112,6 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 #### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
-
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
@@ -138,4 +138,3 @@ rules:
       all: ["sub_agent_returned == true", "evidence_artifacts_present == false"]
     actions: [REJECT, RE_TASK]
     source: "verification-enforcement/SKILL.md"
-```

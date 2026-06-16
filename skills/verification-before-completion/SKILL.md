@@ -16,10 +16,12 @@ Remediation of failed verification IS agent-owned — the producing agent owns e
 
 Ensures ALL success criteria are verified with actual evidence before ANY task or phase is marked complete. Structural completeness checked before per-SC verification.
 
+
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-| -- | -- | -- | -- |
+|---------------------|------|----------|----------------|
 | "verify" / "verify SCs" / "check completion" | `verify` | `sub-task` | {spec_sc_list, file_paths} |
 | "collect" / "collect evidence" | `collect` | `sub-task` | {spec_sc_list, file_paths} |
 | "structural-verify" / "structural check" | `structural-verify` | `sub-task` | {spec_structure} |
@@ -30,6 +32,7 @@ Ensures ALL success criteria are verified with actual evidence before ANY task o
 Verification Gatekeeper. Focus: no completion claim without verified evidence. Enforce live-source verification only.
 
 ## Tasks
+
 
 | `verify` |
 | `collect` |
@@ -63,7 +66,6 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 All tasks run via `task(subagent_type="general")` with `{ spec_sc_list, file_paths, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. Exclusions: implementation context, agent memory, prior verification results. `structural-verify` receives spec structure. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
 
 ### Authorization Context
-
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
@@ -73,7 +75,6 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 ```
 
 ### Routing Rules
-
 - Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
@@ -87,7 +88,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-| -- | -- | -- |
+|-----------|-------------------|-----------------|
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -108,7 +109,6 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
-
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -118,7 +118,6 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
-
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
@@ -129,7 +128,6 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 #### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
-
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
@@ -163,4 +161,3 @@ rules:
       all: ["verify_task_executed == true", "structural_completeness_checked == false"]
     actions: [HALT, TASK(structural-verify)]
     source: "verification-before-completion/SKILL.md"
-```

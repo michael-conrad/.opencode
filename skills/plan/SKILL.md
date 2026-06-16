@@ -12,10 +12,12 @@ compatibility: opencode
 
 Provides AI planning capabilities wrapping `unified-planning` with workflow integration. Supports problem definition in YAML, plan generation via Tamer/other engines, plan validation, PDDL conversion, action grounding, action schema discovery, and state file management.
 
+
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-| -- | -- | -- | -- |
+|---------------------|------|----------|----------------|
 | "plan problem" / "define problem" | `problem` | `sub-task` | {problem_context} |
 | "generate plan" / "run planner" | `plan` | `sub-task` | {problem_yaml} |
 | "validate plan" / "check plan" | `validate` | `sub-task` | {plan_yaml} |
@@ -31,7 +33,7 @@ Planner Router. Focus: phase solvability, action schema management, PDDL convers
 ## Tasks
 
 | Task | Purpose |
-| -- | -- |
+|------|---------|
 | `problem` | Problem YAML schema reference |
 | `plan` | Plan generation procedure |
 | `validate` | Plan validation |
@@ -54,7 +56,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-| -- | -- | -- |
+|-----------|-------------------|-----------------|
 | Preloaded file paths | "Read tasks/problem.md then execute step 1" | "execute problem task from plan skill" |
 | Preloaded step sequences | "Step 1: build problem YAML. Step 2: run planner." | "execute plan task from plan skill" |
 | Preloaded expected outcomes | "Return { status, plan_length }" | Let sub-agent define its own result contract |
@@ -63,7 +65,6 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Dispatch Context Contract
 
 Every `task()` call MUST include only:
-
 - `worktree.path`
 - `github.owner`
 - `github.repo`
@@ -75,7 +76,6 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the task context above.
 
 Exclusions (MUST NOT be in prompt):
-
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -85,7 +85,6 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
-
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
@@ -96,7 +95,6 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 #### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
-
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
@@ -107,7 +105,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 `skill({name: "plan"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-| -- | -- |
+|------|----------------|
 | `problem` | `task(..., prompt: "execute problem task from plan skill")` |
 | `plan` | `task(..., prompt: "execute plan task from plan skill")` |
 | `validate` | `task(..., prompt: "execute validate task from plan skill")` |
@@ -118,7 +116,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 **CLI equivalent (for human TUI use):** `/skill plan --task <task>`
 
-\*\* Completion Guarantee:\*\* If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting.
+** Completion Guarantee:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting.
 
 ## Cross-References
 
@@ -126,7 +124,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - `approval-gate` skill — authorization scope for plan creation
 - `writing-plans` skill — writing implementation plans from approved specs
 - `executing-plans` skill — executing approved plans step by step
-  -`.opencode/tools/plan` — CLI tool wrapping unified-planning
+-`.opencode/tools/plan` — CLI tool wrapping unified-planning
 
 ## Worktree Mode
 

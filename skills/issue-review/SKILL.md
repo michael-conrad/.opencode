@@ -12,10 +12,12 @@ compatibility: opencode
 
 Unified review orchestrator for GitHub Issues. Gathers issue data, classifies review path via content analysis, delegates to downstream skills, handles Q/A for non-spec issues.
 
+
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-| -- | -- | -- | -- |
+|---------------------|------|----------|----------------|
 | "gather" / "gather context" | `gather` | `sub-task` | {issue_number} |
 | "triage" / "classify issue" | `triage` | `sub-task` | {issue_number} |
 | "audit" / "review spec" | `audit` | `sub-task` | {issue_number} |
@@ -30,7 +32,7 @@ Issue Review Orchestrator. Focus: gather context, classify path, delegate to cor
 ## Tasks
 
 | Task |
-| -- |
+|------|
 | `gather` |
 | `triage` |
 | `audit` |
@@ -43,7 +45,7 @@ Issue Review Orchestrator. Focus: gather context, classify path, delegate to cor
 `skill({name: "issue-review"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-| -- | -- |
+|------|----------|
 | `gather` | `task(..., prompt: "execute gather task from issue-review")` |
 | `triage` | `task(..., prompt: "execute triage task from issue-review")` |
 | `analyze-and-spec` | `task(..., prompt: "execute analyze-and-spec task from issue-review")` |
@@ -75,7 +77,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-| -- | -- | -- |
+|-----------|-------------------|-----------------|
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -96,7 +98,6 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
-
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -106,7 +107,6 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
-
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
@@ -117,7 +117,6 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 #### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
-
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
@@ -144,4 +143,3 @@ rules:
       all: ["fix_spec_created == true", "fix_approach_targets_root_cause == false"]
     actions: [REJECT, HALT]
     source: "issue-review/SKILL.md"
-```

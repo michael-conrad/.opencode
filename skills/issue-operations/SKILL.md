@@ -12,10 +12,12 @@ compatibility: opencode
 
 Platform-agnostic Issue Operations router. Detects `github.platform` and routes all issue operations to the appropriate platform sub-skill (github-mcp, gitbucket-api, local).
 
+
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-| -- | -- | -- | -- |
+|---------------------|------|----------|----------------|
 | "pre-creation" / "prepare issue" | `pre-creation` | `sub-task` | {issue_context} |
 | "single-task-check" / "check single task" | `single-task-check` | `sub-task` | {issue_number} |
 | "create issue" / "new issue" | `creation` | `sub-task` | {issue_body} |
@@ -45,7 +47,7 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 
 ## Tasks
 
-|\------|-------|-------------|
+|------|-------|-------------|
 | `pre-creation` | |
 | `single-task-check` | |
 | `creation` | |
@@ -119,7 +121,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-| -- | -- | -- |
+|-----------|-------------------|-----------------|
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -140,7 +142,6 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
-
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -150,7 +151,6 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
-
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
@@ -161,7 +161,6 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 #### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
-
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
@@ -202,4 +201,3 @@ rules:
       all: ["issue_read_completed == true", "sync_pull_to_local_not_called == true"]
     actions: [HALT]
     source: "issue-operations/SKILL.md"
-```

@@ -12,10 +12,12 @@ compatibility: opencode
 
 Conversational-first exploration workflow. One question at a time, user-driven. Dimensions used internally — never as structured output sections. Terminal state invokes spec-creation.
 
+
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-| -- | -- | -- | -- |
+|---------------------|------|----------|----------------|
 | "explore" / "brainstorm" / "discuss requirements" | `explore` | `inline` | — |
 | "top-down analysis" / "decompose" | `top-down-analysis` | `sub-task` | {issue_number} |
 | "enforcement" / "rule check" | `enforcement` | `sub-task` | {issue_number} |
@@ -27,6 +29,7 @@ Conversational-first exploration workflow. One question at a time, user-driven. 
 Requirements Explorer. Focus: understand what user wants through natural conversation, one question at a time, following their answers.
 
 ## Tasks
+
 
 | `explore` |
 | `top-down-analysis` |
@@ -70,7 +73,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-| -- | -- | -- |
+|-----------|-------------------|-----------------|
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -91,7 +94,6 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
-
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -101,7 +103,6 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
-
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
@@ -112,7 +113,6 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 #### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
-
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
@@ -136,4 +136,3 @@ rules:
       all: ["code_inspection_completed == false", "spec_touches_code == true"]
     actions: [HALT, CALL(guideline: 015-pre-spec-inspection.md)]
     source: "brainstorming/SKILL.md"
-```

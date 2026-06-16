@@ -14,10 +14,12 @@ Structured discipline for spec writing. Enforces requirements extraction, proble
 
 Pipeline: `brainstorming → spec-creation → adversarial-audit --task spec-audit → approval-gate → writing-plans`
 
+
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-| -- | -- | -- | -- |
+|---------------------|------|----------|----------------|
 | "requirements" / "extract requirements" | `requirements` | `sub-task` | {spec_context} |
 | "decompose" / "decompose problem" | `decompose` | `sub-task` | {spec_context} |
 | "traceability" / "trace SCs" | `traceability` | `sub-task` | {spec_context} |
@@ -34,32 +36,32 @@ Spec Architect. Focus: structure investigation results into complete, well-organ
 
 ## Tasks
 
-| Task |
-| -- |
-| `requirements` |
-| `decompose` |
-| `traceability` |
+| Task                      |
+| ------------------------- |
+| `requirements`            |
+| `decompose`               |
+| `traceability`            |
 | `pipeline-readiness-gate` |
-| `risk` |
-| `diagram` |
-| `write` |
-| `change-control` |
-| `completion` |
+| `risk`                    |
+| `diagram`                 |
+| `write`                   |
+| `change-control`          |
+| `completion`              |
 
 ## Invocation
 
 `skill({name: "spec-creation"})` — call the skill, then call via task():
 
-| Task | Call via task() |
-| -- | -- |
-| `requirements` | `task(..., prompt: "execute requirements task from spec-creation")` |
-| `decompose` | `task(..., prompt: "execute decompose task from spec-creation")` |
-| `traceability` | `task(..., prompt: "execute traceability task from spec-creation")` |
+| Task                      | Call via task()                                                                |
+| ------------------------- | ------------------------------------------------------------------------------ |
+| `requirements`            | `task(..., prompt: "execute requirements task from spec-creation")`            |
+| `decompose`               | `task(..., prompt: "execute decompose task from spec-creation")`               |
+| `traceability`            | `task(..., prompt: "execute traceability task from spec-creation")`            |
 | `pipeline-readiness-gate` | `task(..., prompt: "execute pipeline-readiness-gate task from spec-creation")` |
-| `risk` | `task(..., prompt: "execute risk task from spec-creation")` |
-| `diagram` | `task(..., prompt: "execute diagram task from spec-creation")` |
-| `write` | `task(..., prompt: "execute write task from spec-creation")` |
-| `completion` | `task(..., prompt: "execute completion task from spec-creation")` |
+| `risk`                    | `task(..., prompt: "execute risk task from spec-creation")`                    |
+| `diagram`                 | `task(..., prompt: "execute diagram task from spec-creation")`                 |
+| `write`                   | `task(..., prompt: "execute write task from spec-creation")`                   |
+| `completion`              | `task(..., prompt: "execute completion task from spec-creation")`              |
 
 **CLI equivalent (for human TUI use):** `/skill spec-creation --task <task>`
 
@@ -88,12 +90,12 @@ Every sub-agent MUST independently discover scope and produce its own result con
 
 #### Forbidden in task() Prompts
 
-| Violation | Forbidden Pattern | Correct Pattern |
-| -- | -- | -- |
-| Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
-| Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
-| Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
-| Preloaded orchestrator reasoning | "The merge was just completed so we need to..." | Pure objective, no narrative |
+| Violation                        | Forbidden Pattern                                    | Correct Pattern                              |
+| -------------------------------- | ---------------------------------------------------- | -------------------------------------------- |
+| Preloaded file paths             | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow"     |
+| Preloaded step sequences         | "Step 1: sync dev. Step 2: delete branch."           | "execute cleanup task from git-workflow"     |
+| Preloaded expected outcomes      | "Return { cleanup_status, branch_deleted }"          | Let sub-agent define its own result contract |
+| Preloaded orchestrator reasoning | "The merge was just completed so we need to..."      | Pure objective, no narrative                 |
 
 #### Dispatch Context Contract
 
@@ -131,7 +133,6 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 #### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
-
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes

@@ -12,10 +12,12 @@ compatibility: opencode
 
 Git Workflow Enforcer. Three-branch model: feature → dev → main. AI commits blocked on protected branches. Feature branches merge to `dev` via PR. Squash at PR creation only. Submodule-aware.
 
+
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
-| -- | -- | -- | -- |
+|---------------------|------|----------|----------------|
 | "pre-work" / "setup branch" / "sync dev" | `pre-work` | `sub-task` | {branch_name} |
 | "implementation" / "commit" / "save work" | `implementation` | `sub-task` | {branch_name} |
 | "review-prep" / "prepare review" | `review-prep` | `sub-task` | {branch_name} |
@@ -32,6 +34,7 @@ Git Workflow Enforcer. Three-branch model: feature → dev → main. AI commits 
 Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branches, squash-on-PR-only discipline.
 
 ## Tasks
+
 
 | `pre-work` |
 | `implementation` |
@@ -53,7 +56,7 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 
 | Request Type | Target |
 
-| Feature PR (feature/\* → dev) | `pr-creation-workflow` skill |
+| Feature PR (feature/* → dev) | `pr-creation-workflow` skill |
 | Release PR (dev → main) | `git-workflow --task release-promotion` |
 
 ## Invocation
@@ -78,7 +81,7 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 ## Sub-Agent Tasks for Submodule Operations
 
 | Sub-Agent Task | Trigger | Task Context (MUST receive) | Exclusions (MUST NOT receive) | Config |
-| -- | -- | -- | -- | -- |
+|----------------|---------|----------------------------------|-------------------------------|--------|
 | `submodule-tag-prework` | pre-work Step 3.5 | parent_repo, issue_number, submodule_paths | Implementation context, agent memory, other sub-agent results | `.opencode/agents/submodule-tag-prework.jsonc` |
 | `submodule-feature-push` | review-prep Step 0 | parent_repo, issue_number, submodule_paths, submodule_branches | Implementation context, agent memory, orchestrator reasoning | `.opencode/agents/submodule-feature-push.jsonc` |
 | `submodule-liveness-check` | enforcement-gate Step 0, PR-time | submodule_paths, referenced_hashes, parent_repo, issue_number | Implementation context, agent memory, prior verification results | `.opencode/agents/submodule-liveness-check.jsonc` |
@@ -103,13 +106,12 @@ All git tags in this project follow a unified naming convention. The suffix rule
 **Suffix Rule:** Tag suffix MUST be derived from the discovered repo's directory name (e.g., `.opencode` → `-opencode`). Use glob scan to discover repo directories: `REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')`. For each non-root path, use the directory name as the suffix. DO NOT use issue title, phase name, or any ad-hoc string.
 
 | Tag Type | Format | Example | Purpose |
-| -- | -- | -- | -- |
+|----------|--------|---------|---------|
 | Hash permanence | `<parent>/<issue>-<submodule>` | `opencode-config/950-opencode` | Pin submodule SHA at feature-branch tip |
 | Checkpoint | `<parent>/checkpoint/<issue>/phase-<N>-<submodule>` | `opencode-config/checkpoint/391/phase-1-opencode` | Rollback anchor after sub-agent verification PASS |
 | Release | `<parent>/v<version>` | `opencode-config/v0.1.1` | Release marker (no suffix) |
 
 **Cross-references:**
-
 - Spec #950 — canonical suffix derivation rule
 - Spec #391 — checkpoint tag lifecycle (create during assemble-work, delete during cleanup)
 - `submodule-tag-prework` task — hash permanence tag creation
@@ -132,7 +134,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 #### Forbidden in task() Prompts
 
 | Violation | Forbidden Pattern | Correct Pattern |
-| -- | -- | -- |
+|-----------|-------------------|-----------------|
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
@@ -153,7 +155,6 @@ Every `task()` call MUST include only:
 Plus skill-specific fields per the `## Sub-Agent Routing` section above.
 
 Exclusions (MUST NOT be in prompt):
-
 - `orchestrator_reasoning`
 - `expected_outcomes`
 - `inline_file_paths`
@@ -163,7 +164,6 @@ Exclusions (MUST NOT be in prompt):
 #### Sub-Agent Entry Criteria
 
 A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
-
 - Inline file paths to task files
 - Inline step or procedure definitions
 - Expected outcome structures or schema constraints
@@ -174,7 +174,6 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 #### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
-
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
@@ -243,4 +242,3 @@ rules:
       all: ["submodule_operation_pending == true", "routed_to_sub_agent == false"]
     actions: [HALT]
     source: "git-workflow/SKILL.md"
-```
