@@ -73,9 +73,9 @@ exec_summary: string (markdown, human-readable)
 When the orchestrator task()s a sub-agent for a phase that follows a prior phase, the task context MUST carry phase progress information composed from prior sub-agent results and the work state file at `./tmp/{N}/work.md`. This information ensures each phase knows what has already been accomplished and can act accordingly.
 
 The orchestrator builds phase_progress incrementally. Before each sub-agent task():
-1. Read the work state file (`./tmp/{N}/work.md`) to identify which phases are already complete
-2. Accumulate `completed_phases`, `concern_boundaries_crossed`, and `verification_evidence` from each prior sub-agent's result
-3. If this sub-agent's work crosses a concern boundary, note the transition in `concern_boundaries_crossed`
+- [ ] 1. Read the work state file (`./tmp/{N}/work.md`) to identify which phases are already complete
+- [ ] 2. Accumulate `completed_phases`, `concern_boundaries_crossed`, and `verification_evidence` from each prior sub-agent's result
+- [ ] 3. If this sub-agent's work crosses a concern boundary, note the transition in `concern_boundaries_crossed`
 
 **How it is NOT composed:**
 
@@ -103,9 +103,9 @@ Decision log entries are classified as `internal` content per the content classi
 
 If a yield-back produces empty or missing fields:
 
-1. HALT orchestration
-2. Report which context field is missing
-3. Wait for manual intervention
+- [ ] 1. HALT orchestration
+- [ ] 2. Report which context field is missing
+- [ ] 3. Wait for manual intervention
 
 ### Phase Progress with No Prior Phases
 

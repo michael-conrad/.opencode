@@ -57,25 +57,31 @@ The orchestrator is a pure router — never reads task file content, never perfo
 | `structural-checks` | `finishing-a-development-branch --task checklist` | lint/typecheck/format results |
 | `green-doublecheck` | `verification-before-completion --task verify` (semantic-intent verification) | GREEN-side SC evidence + intent verdict |
 | `green-vbc` | `verification-before-completion --task completion` | VbC completion artifact |
-| `adversarial-audit` | `adversarial-audit --task verification-audit` | dual-auditor YAML verdicts |
-| `cross-validate` | `adversarial-audit --task cross-validate` | cross-validate findings YAML |
+| `adversarial-audit` | Resolve models → dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) with auditor_1 (remediate + restart on non-clean-pass) → same audit task with auditor_2 (remediate + restart on non-clean-pass) | dual-auditor YAML verdicts per auditor |
+| `cross-validate` | `adversarial-audit --task cross-validate` (receives `auditor_artifact_paths` from adversarial-audit step) | cross-validate findings YAML |
 | `regression-check` | `test-driven-development --task patterns` (regression) | regression test results |
 | `review-prep` | `git-workflow --task review-prep` | review-prep status |
 | `exec-summary` | `completion-core --task completion` | push status + issue comment |
+
+**Note:** The `adversarial-audit` step is a multi-dispatch sequence with remediation loop-back. The audit task dispatched depends on pipeline phase (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation):
+- [ ] 1. Run `.opencode/tools/resolve-models` to select cross-family auditors
+- [ ] 2. Dispatch the appropriate audit task with `subagent_type` from `auditor_1`
+- [ ] 3. If auditor 1 returned non-clean-pass (FAIL or DONE_WITH_CONCERNS): remediate the root cause, then restart from step 1 (re-run resolve-models). Do NOT dispatch auditor 2.
+- [ ] 4. Dispatch the same audit task with `subagent_type` from `auditor_2`
+- [ ] 5. If auditor 2 returned non-clean-pass: remediate the root cause, then restart from step 1 (re-run resolve-models).
+- [ ] 6. Both auditors clean PASS. Collect both `artifact_path` values and pass as `auditor_artifact_paths` context to `cross-validate`.
 
 ## Pre-Flight
 
 Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run plan-to-pipeline handoff verification:
 
-1. **Plan-to-pipeline handoff:** Execute `implementation-pipeline --task pre-flight-handoff` — validates RED checkpoints, SC-ID traceability, approval cascade state, verification gate preservation, and manifest writes at `./tmp/{issue-N}/artifacts/plan-to-pipeline-handoff-*.yaml`
-
-2. **Handoff-consistency check:** Reads both `spec-to-plan-handoff-*.yaml` and `plan-to-pipeline-handoff-*.yaml` manifests and compares shared variables (SC coverage total, decomposition classification, phase count). BLOCKs on mismatch.
-
-3. **Pre-flight PASS required:** The pipeline MUST NOT proceed to `sc-coherence-gate` (step 1) if pre-flight returns BLOCKED. This is a hard gate — no bypass path.
+- [ ] 1. **Plan-to-pipeline handoff:** Execute `implementation-pipeline --task pre-flight-handoff` — validates RED checkpoints, SC-ID traceability, approval cascade state, verification gate preservation, and manifest writes at `./tmp/{issue-N}/artifacts/plan-to-pipeline-handoff-*.yaml`
+- [ ] 2. **Handoff-consistency check:** Reads both `spec-to-plan-handoff-*.yaml` and `plan-to-pipeline-handoff-*.yaml` manifests and compares shared variables (SC coverage total, decomposition classification, phase count). BLOCKs on mismatch.
+- [ ] 3. **Pre-flight PASS required:** The pipeline MUST NOT proceed to `sc-coherence-gate` (step 1) if pre-flight returns BLOCKED. This is a hard gate — no bypass path.
 
 ## Step Labels (for #932 naming convention)
 
-`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `red-doublecheck`, `post-red-enforcement`, `green-phase`, `post-green-enforcement`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
+`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `red-doublecheck`, `post-red-enforcement`, `green-phase`, `post-green-enforcement`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `resolve-models`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
 
 ## Invocation
 
@@ -169,10 +175,10 @@ Step results go to YAML disk artifact — never into solve state. Solve state tr
 ## Remediation Routing
 
 When a step returns FAIL, the orchestrator:
-1. Reads the FAIL artifact's YAML frontmatter from disk
-2. Dispatches the `researcher` skill to determine remediation scope
-3. Routes to `remediation_steps[0].target_step` based on researcher findings
-4. Re-runs the pipeline from the target remediation step
+- [ ] 1. Reads the FAIL artifact's YAML frontmatter from disk
+- [ ] 2. Dispatches the `researcher` skill to determine remediation scope
+- [ ] 3. Routes to `remediation_steps[0].target_step` based on researcher findings
+- [ ] 4. Re-runs the pipeline from the target remediation step
 
 ## Enforcement Reference
 
