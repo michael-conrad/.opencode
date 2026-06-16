@@ -7,6 +7,7 @@ Idempotent completion subtask for spec-creation. Ensures mandatory steps ran reg
 - [ ] 1. **Spec issue created:** Verify spec issue exists with [SPEC] prefix and `needs-approval` label
 - [ ] 2. **spec-auditor invoked:** Verify spec-auditor was invoked after spec creation
 - [ ] 3. **Self-review evidence:** Verify self-review was performed (placeholder scan, consistency check, ambiguity check)
+- [ ] 3a. **Post-SC uplift check:** Verify post-SC uplift check (Step 6.2) was performed after self-review
 - [ ] 4. **Chat exec summary + URL:** Verify chat output includes exec summary format with spec URL
 
 ## Skill-Specific Completion

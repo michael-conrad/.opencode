@@ -481,6 +481,19 @@ Fix any issues inline. No need to re-review — just fix and move on.
    - Every SC ID in `sc-summary.yaml` appears in the prose table
    - Mismatch in any direction → STRUCTURE-VIOLATION requiring YAML regeneration
 
+### Step 6.2: Post-SC Uplift Check (MANDATORY)
+
+After self-review, before evidence artifact verification, perform a post-creation SC evidence type uplift check:
+
+1. **SC evidence type re-check**: For each SC in the spec body, evaluate the substrate question: "Does this change affect runtime behavior?"
+2. **Uplift misclassified SCs**: If runtime-behavioral YES but evidence type is NOT behavioral → auto-uplift to `behavioral`. Log the uplift action as a finding.
+3. **Downgrade flag (conditional)**: If runtime-behavioral NO but evidence type IS behavioral → flag for review. The writer may have intended a behavioral test for structural reasons, but this mismatch warrants human review.
+4. **Remediation guidance**: For each uplifted SC, provide guidance on what changes the verification method needs:
+   - `structural` → `behavioral`: Must add a real test execution command (e.g., `opencode-cli run`, `pytest`, `bash test.sh`)
+   - `string` → `behavioral`: Must replace grep assertion with test execution + semantic inspection
+5. **Re-check**: After remediation, re-run the classification check. Confirm no remaining misclassifications.
+6. **Evidence artifact**: Write findings to `.issues/{N}/post-sc-uplift-check.yaml`
+
 ### Step 6.5: Evidence Artifact Verification (MANDATORY)
 
 **🚫 CRITICAL: Each self-review checkpoint MUST produce a tool-call artifact demonstrating the verification was performed. Assertions without tool-call evidence are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
