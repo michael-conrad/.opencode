@@ -749,6 +749,29 @@ The orchestrator's context is the most expensive resource in the pipeline. Every
 ### [critical-rules-065] Result Contract Frugality — result contracts limited to routing-significant data
 The only thing that returns from a sub-agent enters the orchestrator's cost function. Every byte in the result contract costs `byte × (remaining_dispatches - 1)`. Result contracts carry only routing-significant data (status, finding_summary, artifact_path, blocker_reason). Full evidence artifacts go to disk. See `020-go-prohibitions.md` §1.1.
 
+### [critical-rules-dispatch-gate-canonical] Canonical Dispatch String Violation — orchestrator uses custom prompt after reading canonical dispatch string
+
+**After loading a skill and reading its Trigger Dispatch Table, the orchestrator MUST use the canonical dispatch string verbatim from the skill's Invocation section. Writing a custom prompt with preloaded context — file paths, step sequences, expected outcomes, or orchestrator reasoning — is a DISPATCH_GATE violation.**
+
+The pattern to enforce:
+1. Load skill → read dispatch table + Invocation section → see canonical string
+2. Use that exact string as the `prompt` parameter
+3. Do NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+4. If canonical dispatch produces empty result: re-task clean-room (max 2 retries)
+
+This rule is the orchestrator-side counterpart to the Sub-Agent Entry Criteria already defined in every SKILL.md's DISPATCH_GATE section. The sub-agent rejects preloaded context with `PRELOADED_CONTEXT_REJECTED` — but the orchestrator must never send it in the first place.
+
+#### 🚫 FORBIDDEN
+
+- Writing a custom `task()` prompt with preloaded file paths, step sequences, expected outcomes, or orchestrator reasoning after reading the canonical dispatch string
+- Treating the dispatch table as "reference material" rather than a binding protocol
+- Inlining orchestrator reasoning into the prompt
+
+#### ✅ REQUIRED
+
+- Use the exact canonical dispatch string verbatim from the skill's Trigger Dispatch Table
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
+- All 37 skill SKILL.md files with DISPATCH_GATE sections contain an Orchestrator Entry Criteria block documenting this rule. 1 platform sub-skill (issue-operations/platforms/local/SKILL.md) also has a DISPATCH_GATE section with Orchestrator Entry Criteria.
 
 ### Tier 3 — Workflow-Standard (FLAG — Convention/Consistency)
 
@@ -2186,4 +2209,18 @@ rules:
     requires: []
     triggers: [verification-before-completion, implementation-pipeline, approval-gate]
     source: "000-critical-rules.md §critical-rules-sc-lobotomy"
+
+  - id: critical-rules-dispatch-gate-canonical
+    tier: 2
+    title: "Canonical dispatch string violation — orchestrator MUST use canonical dispatch string verbatim after loading skill dispatch table"
+    conditions:
+      all:
+        - "skill_dispatch_table_loaded == true"
+        - "custom_prompt_with_preloaded_context_written == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [implementation-pipeline, approval-gate, git-workflow]
+    source: "000-critical-rules.md §critical-rules-dispatch-gate-canonical"
 ```

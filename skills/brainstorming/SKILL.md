@@ -110,6 +110,14 @@ A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
 
 Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
+
 ## Ideation-Time Classification
 
 When brainstorming specs, if a proposed change affects runtime behavior, its SCs MUST declare `behavioral` evidence type. The classification question ("Does this change affect runtime behavior?") is substrate-determined — not intent-determined. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.

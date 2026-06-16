@@ -65,6 +65,14 @@ See `tasks/contract.md` for the full schema reference — variables section (typ
 
 The orchestrator MUST NOT preload expected outcomes, file paths, or reasoning into task() prompts. Sub-agents independently discover scope and return result contracts.
 
+
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 ## Invocation
 
 `skill({name: "solve"})` — call the skill, then call via task():

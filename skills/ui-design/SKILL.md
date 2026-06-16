@@ -102,6 +102,14 @@ A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
 
 Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
+
 ```yaml+symbolic
 schema_version: "2.0"
 last_updated: "2026-05-01T00:00:00Z"
