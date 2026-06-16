@@ -69,11 +69,11 @@ uv run pytest --cov=src/module test/
 ### Code Quality
 
 ```bash
-# Lint check
-uv run ruff check --fix src/ test/
+# Lint check (advisory)
+uv run ruff check src/ test/
 
-# Format check
-uv run ruff format src/ test/
+# Format check (advisory)
+uv run ruff format --check src/ test/
 
 # Type check
 uv run pyright src/

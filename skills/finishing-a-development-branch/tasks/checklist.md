@@ -23,7 +23,7 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 
 ### Code Quality
 - [ ] `ruff check` passes (zero errors)
-- [ ] `ruff format` applied
+- [ ] `ruff format --check` passes (advisory)
 - [ ] `pyright` passes (zero errors)
 - [ ] No dead code detected
 

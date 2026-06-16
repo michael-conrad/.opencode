@@ -10,8 +10,8 @@ Run appropriate verifications based on step type:
 
 **Code verification:**
 ```bash
-uv run ruff check --fix src/ test/
-uv run ruff format src/ test/
+uv run ruff check src/ test/
+uv run ruff format --check src/ test/
 uv run pyright src/
 ```
 

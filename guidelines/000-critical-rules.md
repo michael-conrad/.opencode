@@ -743,6 +743,17 @@ The uplift is automatic. Declaring an SC as `structural` or `string` does not ex
 Authority sources: `080-code-standards.md` §Evidence Type Taxonomy, `080-code-standards.md` §Test Integrity Mandate, `020-go-prohibitions.md` §1 ALWAYS DO — Cost-blind verification. See `065-verification-honesty.md` §Cost Model for the death-spiral cost rationale underlying this classification gate — automatic uplift from structural→behavioral prevents the death spiral at the earliest possible gate.
 
 
+### [critical-rules-linters-advisory] All linters are advisory only — no auto-modify
+
+All linters (current and future) MUST run in read-only/report-only mode. No linter may auto-modify files. A linter that modifies files is not advisory — it is destructive.
+
+| Linter | Forbidden | Required |
+|--------|-----------|----------|
+| `ruff check` | `ruff check --fix` (auto-fixes) | `ruff check` (report only) |
+| `ruff format` | `ruff format` (auto-formats) | `ruff format --check` (report what would change) |
+| `mdformat` | `mdformat` (without `--check`) | `mdformat --check` (report what would change) |
+| Any future linter | Auto-modify mode | Read-only/report-only mode |
+
 ### [critical-rules-063] Orchestrator Context Lean — orchestrator holds routing metadata only
 The orchestrator's context is the most expensive resource in the pipeline. Every byte held costs `byte × remaining_dispatches²` — and context is monotonic, never shrinking. Professional orchestrators hold routing metadata only (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase, pipeline_history). See `020-go-prohibitions.md` §1.1.
 

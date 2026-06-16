@@ -33,7 +33,7 @@ This is the core dispatch routing table for the 14-step serial implementation pi
 | 4 | `red-doublecheck` | `verification-before-completion --task verify` | `./tmp/{issue-N}/artifacts/pipeline-red-doublecheck-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
 | 5 | `green-phase` | `test-driven-development --task green` | `./tmp/{issue-N}/artifacts/pipeline-green-phase-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
 | 6 | `checkpoint-commit` | `git-workflow --task commit-prep` | `./tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 7 | `structural-checks` | `finishing-a-development-branch --task checklist` | `./tmp/{issue-N}/artifacts/pipeline-structural-checks-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 7 | `structural-checks` | `finishing-a-development-branch --task checklist` (enforces advisory-only mode: all linters run with `--check`/report-only flags, never auto-modify) | `./tmp/{issue-N}/artifacts/pipeline-structural-checks-{STATUS}-{timestamp}.yaml` | single-criterion |
 | 8 | `green-doublecheck` | `verification-before-completion --task verify` | `./tmp/{issue-N}/artifacts/pipeline-green-doublecheck-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
 | 9 | `green-vbc` | `verification-before-completion --task completion` | `./tmp/{issue-N}/artifacts/pipeline-green-vbc-{STATUS}-{timestamp}.yaml` | single-criterion |
 | 10 | `adversarial-audit` | `adversarial-audit --task verification-audit` | `./tmp/{issue-N}/artifacts/pipeline-audit-{auditor_type}-{STATUS}-{timestamp}.yaml` | `per_criterion[]` (#932 schema) |

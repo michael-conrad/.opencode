@@ -106,17 +106,17 @@ Running `ruff check` or `ruff format` on `.md` files is prohibited — Python to
 **Python files (`.py`):**
 
 ```bash
-uvx ruff check --fix src/ test/   # Lint + auto-fix
-uvx ruff format src/ test/        # Format
-uvx pyright src/                  # Type check
-uvx vulture src/                  # Dead code scan
+uvx ruff check src/ test/              # Lint (advisory)
+uvx ruff format --check src/ test/     # Format check (advisory)
+uvx pyright src/                       # Type check
+uvx vulture src/                       # Dead code scan
 ```
 
 **Markdown files (`.md`):**
 
 ```bash
 uvx pymarkdownlnt scan -r .opencode/guidelines/ docs/   # Lint
-uvx mdformat .opencode/guidelines/ docs/                # Format
+uvx mdformat --check .opencode/guidelines/ docs/        # Format check (advisory)
 ```
 
 **Rationale:** Python linters (`ruff`, `pyright`, `vulture`) are designed for Python syntax and will produce incorrect or useless results when run on markdown files. Use markdown-specific tools (`pymarkdownlnt`, `mdformat`) for markdown files.
