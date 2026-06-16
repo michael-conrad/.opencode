@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Check for explicit authorization and apply the correct `approved-for-*` label before implementation. This task orchestrates the atomized sub-tasks in `verify-authorization/` for fine-grained, low-context verification.
+Check for explicit authorization and record in work state file before proceeding. This task orchestrates the atomized sub-tasks in `verify-authorization/` for fine-grained, low-context verification.
 
 ## Entry Criteria
 
@@ -11,8 +11,9 @@ Check for explicit authorization and apply the correct `approved-for-*` label be
 
 ## Exit Criteria
 
-- Authorization verified as explicit and for correct issue
-- `approved-for-*` label applied per mapping table; deprecated `needs-approval` label removed
+- Authorization verified as explicit and for correct issue — recorded in work state file (`./tmp/{N}/work.md`)
+- Advisory scope-marker written as GitHub label after work state file is updated; deprecated `needs-approval` label removed asynchronously
+- Labels are visibility markers — they do NOT gate execution
 - Git state verified (worktree environment ready)
 - Authorization recorded for scope tracking
 
@@ -25,7 +26,7 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 | 0 | Re-task guard | If sub-agent returns empty, re-task with original scoped context (max 2 retries); on exhaustion, fall through to double-failure protocol |
 | 0.5 | `verify-authorization/scope-auto-resolve` | Parse authorization text, resolve scope/halt_at/pr_strategy/gap_fill |
 | 1 | `verify-authorization/verify-explicit-authorization` | Check for "approved"/"go" + author identity + currency |
-| 2 | Label application (inline) | Apply `approved-for-*` label per mapping table; remove prior `approved-for-*` and `needs-approval` labels |
+| 2 | Label write (advisory-only, asynchronous) | Write authorization-scope label after work state file is written; labels are visibility markers, not gates. Remove prior scope and `needs-approval` labels as advisory cleanup. |
 | 3 | Authorization decision (inline) | Route based on authorization result |
 | 4.5 | `verify-authorization/item-decomposition-check` | Verify item enumeration, dependency ordering, TDD steps |
 | 4.6 | `verify-authorization/sc-traceability-check` | Verify SC-to-test traceability, RED-phase ordering |

@@ -71,7 +71,7 @@ For standard and complex specs, generate the following permanent artifacts:
 
 - [ ] 1. **SC coverage summary YAML** — Create `.issues/{issue-N}/sc-summary.yaml` with machine-parseable coverage data including SC IDs, evidence types, phase bindings, and verification gates.
 - [ ] 1. **Verification consistency contract** — Create `.issues/{issue-N}/verification-consistency-contract.yaml` as a solve contract with compliance matrix variables.
-- [ ] 1. **Lifecycle manifest** — Create `.issues/{issue-N}/lifecycle.yaml` with initial `spec_created` event. Append-only format; never overwrite.
+- [ ] 1. **Lifecycle manifest** — Create `./tmp/{issue-N}/lifecycle.yaml` with initial `spec_created` event. Append-only format; never overwrite.
 - [ ] 1. **Revision re-entry protocol contract** — Create `.issues/{issue-N}/revision-re-entry-contract.yaml` as a solve contract with cascade variables for each revision scope.
 
 ### Step 1b: Plan Creation Mandate in Spec Body (MANDATORY)
@@ -241,7 +241,7 @@ The pre-approval gate validates every SC's Verification Gate against its Evidenc
 
 ### Step 1.3: Lifecycle Manifest Initialization (SC-6)
 
-Initialize the append-only lifecycle manifest at `.issues/{issue-N}/lifecycle.yaml` with a `spec_created` event:
+Initialize the append-only lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with a `spec_created` event:
 
 ```yaml
 events:

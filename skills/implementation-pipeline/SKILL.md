@@ -213,7 +213,7 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 
 ## Lifecycle Manifest Event Emission
 
-Each pipeline step SHOULD append an event to the lifecycle manifest at `.issues/{issue-N}/lifecycle.yaml` on completion. Events are appended, not overwritten:
+Each pipeline step SHOULD append an event to the lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` on completion. Events are appended, not overwritten:
 
 ```yaml
   - event: step_completed

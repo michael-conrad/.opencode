@@ -66,7 +66,7 @@ Before writing the plan document, enumerate and validate spec artifacts that mus
 ls .issues/{issue-N}/sc-summary.yaml
 ls .issues/{issue-N}/verification-consistency-contract.yaml
 ls .issues/{issue-N}/revision-re-entry-contract.yaml
-ls .issues/{issue-N}/lifecycle.yaml
+ls ./tmp/{issue-N}/lifecycle.yaml
 ```
 
 Every expected spec artifact MUST exist. Missing artifacts are flagged as MISSING-TRACEABILITY.
@@ -91,14 +91,35 @@ Before finalizing the plan, verify spec-to-plan handoff artifacts:
 3. Verify lifecycle manifest indicates `plan_created` event
 4. Generate spec-to-plan handoff manifest at `./tmp/{issue-N}/artifacts/spec-to-plan-manifest.yaml`
 
-### Step 8: Self-Review
+### Step 8: Generate Implementation Checklist
+
+Generate `./tmp/{N}/checklist.md` from the finalized plan phases. The checklist tracks implementation progress per phase, unit, and file.
+
+**Format:**
+```markdown
+# Implementation Checklist — #{N}
+
+## Phase {P}: {title}
+### Unit {U}: {unit-title}
+- [ ] {file-path} — {description}
+```
+
+**Procedure:**
+1. Read the plan at `.issues/{N}/plan.md`
+2. Extract every phase → unit → file path
+3. Write each as a checkbox item with `pending` default status
+4. Save to `./tmp/{N}/checklist.md`
+
+**Exit criterion:** `./tmp/{N}/checklist.md` exists and contains all phases, units, and file paths from the plan.
+
+### Step 9: Self-Review
 
 - Spec coverage check
 - Placeholder scan
 - Type consistency check
 - Fix any issues found
 
-### Step 9: Validate Plan
+### Step 10: Validate Plan
 
 - Check for TBD/TODO placeholders
 - Verify all steps are actionable
@@ -124,13 +145,13 @@ Every plan phase dispatch table MUST pass the following 8 validation rules:
 
 If any rule fails: HALT with MISSING-TRACEABILITY and report which rule(s) failed.
 
-### Step 10: Verification Revisit (MANDATORY)
+### Step 11: Verification Revisit (MANDATORY)
 
 Invoke: `/skill verification-enforcement --task revisit`
 
 Scans for `⚠️ UNVERIFIED` markers. Resolves if possible; escalates unresolvable claims.
 
-### Step 11: Report Plan Creation in Chat (MANDATORY)
+### Step 12: Report Plan Creation in Chat (MANDATORY)
 
 **Format — reference spec via full URL, plan via local artifact path:**
 ```
@@ -139,7 +160,7 @@ Created plan at `.issues/{N}/plan.md` for [<owner>/<repo>#<N>](https://github.co
 🤖 <AgentName> (<ModelId>)
 ```
 
-### Step 12: Cross-Reference Verification (MANDATORY)
+### Step 13: Cross-Reference Verification (MANDATORY)
 
 Verify referenced skills and tasks exist:
 ```bash
@@ -164,7 +185,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 - The `pipeline_phase` field is used to track which phase of a multi-phase plan is being executed
 
-### Step 13: Plan Approval
+### Step 14: Plan Approval
 
 **Scope-aware auto-approval — approval is on the spec, plan is a local artifact:**
 
@@ -183,7 +204,7 @@ if scope_level >= SCOPE_LEVELS["for_plan"]:
 
 **If `halt_at == plan_created`:** HALT after plan creation. Do NOT proceed to implementation.
 
-### Step 14: Plan-Reference Sync
+### Step 15: Plan-Reference Sync
 
 After the plan is approved and before the procedure exits, sync a cross-reference from the spec issue to the plan:
 

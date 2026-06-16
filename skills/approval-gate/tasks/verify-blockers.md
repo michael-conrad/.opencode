@@ -12,22 +12,23 @@ Check for blocking issues or dependencies that prevent implementation.
 
 ## Exit Criteria
 
-- No `needs-approval` label present (or explicit authorization received)
+- Authorization confirmed in work state file (`./tmp/{N}/work.md`)
 - No blocking issues superseding spec
 - No unresolved dependencies
 
 ## Procedure
 
-### Step 1: Check needs-approval Label
+### Step 1: Check Authorization via Work State File
 
 ```python
-issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
-has_label = "needs-approval" in [l["name"] for l in issue["labels"]]
+work_state = read_work_state(f"./tmp/{N}/work.md")  # reads from ## verify-authorization section
+auth_info = work_state.get("authorization", {})
 
-if has_label and explicit_authorization:
-    # Label is informational, proceed
-elif has_label and not explicit_authorization:
-    HALT("needs-approval label present, awaiting authorization")
+if auth_info.get("authorized") == True:
+    # Authorization confirmed via work state — proceed
+    pass
+else:
+    HALT(f"Authorization not confirmed in work state for #{N}")
 ```
 
 ### Step 2: Check for Superseding Issues
@@ -51,7 +52,7 @@ For each dependency listed in spec:
 
 | Blocker | Action |
 |---------|--------|
-| needs-approval label (no auth) | HALT and wait |
+| No authorization in work state | HALT and report |
 | Superseding issue | HALT and report |
 | Conflicting spec | HALT and identify conflict |
 | Missing dependency | HALT and ask about alternatives |
@@ -105,22 +106,24 @@ For each dependency listed in spec:
 
 **Evidence artifact:** Tool call results confirming dependency existence and availability.
 
-### Verify needs-approval Label Against Actual Auth State
+### Verify Authorization State Against Work State File
 
 ```
-issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
-comments = issue-operations -> read-comments (github_issue_read(method="get_comments", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+work_state = read_work_state(f"./tmp/{N}/work.md")
+auth_info = work_state.get("authorization", {})
 
-has_label = "needs-approval" in [l["name"] for l in issue["labels"]]
-has_auth = any comment from developer (MEMBER/OWNER/COLLABORATOR) saying "approved"/"go"
+has_auth = auth_info.get("authorized") == True
+has_scope = auth_info.get("authorization_scope") is not None
 
-- has_label AND has_auth → STRUCTURE-VIOLATION (auto-fix: label is stale, remove it)
-- no label AND no auth → VERIFICATION-GAP (may need label added)
-- has_label AND no auth → Correct state, proceed to HALT
-- no label AND has_auth → Correct state, proceed with implementation
+- has_auth AND has_scope → Correct state, proceed with implementation
+- has_auth AND no scope → STRUCTURE-VIOLATION (auto-fix: write default scope `for_analysis`)
+- no auth AND has scope → VERIFICATION-GAP (authorization not recorded despite scope)
+- no auth AND no scope → Correct state, proceed to HALT
 ```
 
-**Evidence artifact:** Label list and comment search results showing actual auth state.
+**Evidence artifact:** Work state file content showing `authorization.authorized` and `authorization.authorization_scope` values.
+
+Labels are advisory visibility markers only — they do NOT gate execution. If the `needs-approval` label is present but work state confirms authorization, the label is stale and should be cleaned up asynchronously.
 
 ### Task-Specific Findings
 
@@ -129,7 +132,7 @@ See `enforcement/adversarial-verification.md` for the three-tier classification 
 ## Context Required
 
 - Related tasks: `verify-authorization`, `verify-open-questions`
-- Label state machine: `141-planning-status-tracking.md §10` (remove `needs-approval` on explicit auth, add `needs-revision` on revision required)
+- Authorization state: `./tmp/{N}/work.md` is the canonical source. Labels are advisory visibility markers only — they do NOT gate execution.
 
 ## Enforcement References
 
