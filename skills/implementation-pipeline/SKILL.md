@@ -36,7 +36,7 @@ The orchestrator is a pure router — never reads task file content, never perfo
 | "structural-checks" / "lint/typecheck" | `structural-checks` | `sub-task` | {issue_number} |
 | "green-doublecheck" / "verify GREEN" | `green-doublecheck` | `sub-task` | {issue_number} |
 | "green-vbc" / "verification before completion" | `green-vbc` | `sub-task` | {issue_number} |
-| "adversarial-audit" / "audit step" | `adversarial-audit` | `sub-task` | {issue_number} |
+| "adversarial-audit" / "audit step" | `adversarial-audit` | `orchestrator` | {issue_number} |
 | "cross-validate" / "consensus check" | `cross-validate` | `sub-task` | {issue_number} |
 | "regression-check" / "regression tests" | `regression-check` | `sub-task` | {issue_number} |
 | "review-prep" / "prepare review" | `review-prep` | `sub-task` | {issue_number} |
@@ -57,7 +57,7 @@ The orchestrator is a pure router — never reads task file content, never perfo
 | `structural-checks` | `finishing-a-development-branch --task checklist` | lint/typecheck/format results |
 | `green-doublecheck` | `verification-before-completion --task verify` (semantic-intent verification) | GREEN-side SC evidence + intent verdict |
 | `green-vbc` | `verification-before-completion --task completion` | VbC completion artifact |
-| `adversarial-audit` | Resolve models → dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) with auditor_1 (remediate + restart on non-clean-pass) → same audit task with auditor_2 (remediate + restart on non-clean-pass) | dual-auditor YAML verdicts per auditor |
+| `adversarial-audit` | **Orchestrator multi-dispatch:** resolve-models → dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) with auditor_1 (remediate + restart on non-clean-pass) → same audit task with auditor_2 (remediate + restart on non-clean-pass) | dual-auditor YAML verdicts per auditor |
 | `cross-validate` | `adversarial-audit --task cross-validate` (receives `auditor_artifact_paths` from adversarial-audit step) | cross-validate findings YAML |
 | `regression-check` | `test-driven-development --task patterns` (regression) | regression test results |
 | `review-prep` | `git-workflow --task review-prep` | review-prep status |
@@ -91,6 +91,8 @@ Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run
 
 | Any dispatch step | `task(..., prompt: "execute <step_label> from implementation-pipeline")` |
 
+**Exception:** The `adversarial-audit` step uses orchestrator multi-dispatch (resolve-models → auditor_1 → remediate → auditor_2 → cross-validate), not `sub-task` dispatch. The orchestrator manages the full multi-dispatch sequence inline — see Dispatch Routing Table for the complete sequence.
+
 Every task context MUST include the authorization context block:
 
 ```yaml
@@ -104,6 +106,8 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 ## Sub-Agent Routing
 
 All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include `audit_phase` in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
+
+**Exception — adversarial-audit:** The `adversarial-audit` step bypasses the `task()` protocol because it requires orchestrator-managed multi-dispatch (resolve-models → auditor_1 → remediate → auditor_2 → cross-validate). The orchestrator runs the full sequence inline, dispatching each auditor via `task()` with `subagent_type` from resolve-models, remediating between auditors, and collecting artifact paths for cross-validate.
 
 Exclusions: implementation context, agent memory, cached verification results.
 

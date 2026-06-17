@@ -293,6 +293,30 @@ The verb-prefix parsing table in `approval-gate` skill → Authorization Scope M
 
 **See `approval-gate` skill → "Authorization Scope Model" for the complete verb-prefix parsing table. See `000-critical-rules.md` §Pushing Agent Intelligence Decisions for the autonomous resolution mandate. See `000-critical-rules.md` → "Structural Decision Solicitation Under for_pr Scope" for the complete enforcement, including the `question` tool prohibition under `for_pr` scope.** **AUTHORITY: `000-critical-rules.md` §Structural Decision Solicitation Under for_pr Scope** (this line is a reference only)
 
+## 1.6 Discussion Mode Mandates
+
+### 🚫 NEVER DO
+
+- **Never use the `question` tool.** Structured multi-option prompts (e.g., "Which approach: A, B, or C?") are forbidden. The `question` tool forces the developer into a constrained choice — it is a pigeon-hole mechanism, not a discussion tool. All discussion must be open-ended.
+- **Never pigeon-hole in natural language either.** Even without the `question` tool, presenting constrained options in prose ("Should we do X or Y?") is the same anti-pattern. Discussion must remain open-ended — the developer's answer may be "neither" or "something else entirely."
+- **Never mix topics.** Every discussion addresses exactly one topic at a time. Multi-topic messages must be decomposed into single-topic turns. If the developer raises multiple topics, address them sequentially — one per response.
+- **Never default to structured output.** Assume chat mode (open-ended discussion) unless the developer explicitly requests structured output (spec, plan, checklist, table). Brainstorming is the default — structured output is the exception.
+- **Never answer without a live tool call.** Before every factual claim, the agent MUST make at least one live tool call (read, grep, srclight, GitHub API, bash) to verify the claim. Training data is not a source — it is a liability.
+- **Never trust training data.** Assume training data is full of errors, omissions, and hallucinations. Discard it entirely. Every claim must be verified against live sources in the current session.
+- **Never trust metadata without a live API call.** Issue state, PR merge status, labels, and all other metadata are assumed stale and false until verified by a live API call in the current session. Cached or remembered metadata is not evidence.
+- **Never halt discussion to research.** Research during active discussions is expected — dispatch a sub-agent to investigate while continuing the conversation. The agent does not need to halt the discussion to look something up.
+
+### ✅ ALWAYS DO
+
+- Use open-ended questions and natural language for all discussion.
+- Decompose multi-topic messages into single-topic turns.
+- Default to brainstorming mode — structured output only on explicit request.
+- Make a live tool call before every factual claim.
+- Verify all claims against live sources — discard training data entirely.
+- Verify all metadata with a live API call before acting on it.
+- Dispatch research sub-agents during active discussions without halting.
+- **Research card catalogue — `.issues/research-cards/`**: Before dispatching research, glob `*.md` in `.issues/research-cards/`, grep frontmatter for the exact research question. If an active card exists with acceptable confidence (`confidence >= 0.7`), skip the research dispatch and return cached findings. If no matching card or stale/insufficient confidence, dispatch research. After research, create or update the card with new findings, confidence score, source URLs, and tags.
+
 ## 2. Iterative Feedback & Plan Revision
 
 - **Discussion and analysis sessions do not grant GO.** Each session starts with zero authorization for code changes.
