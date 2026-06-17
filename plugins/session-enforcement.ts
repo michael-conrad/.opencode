@@ -316,6 +316,21 @@ Review these diagnostics. For errors, investigate the source script. For warning
  */
 const subAgentSessions = new Set<string>();
 
+/**
+ * In-memory cache mapping sessionID → parentID, populated by the
+ * session.created event handler. Used as the PRIMARY detection source
+ * in messages.transform because input.client is unavailable in that
+ * hook context. The session.created event fires synchronously before
+ * messages.transform and carries parentID directly in its payload.
+ *
+ * Fallback: subAgentSessions Set (populated via input.client.session.get()
+ * in system.transform) is used when the cache misses.
+ *
+ * SC-1: Cache populated before messages.transform fires.
+ * SC-2: Cache is primary source, API fallback on cache miss.
+ */
+const sessionParentCache = new Map<string, string>();
+
 function resolveGitDir(projectDir: string): string | null {
   try {
     const result = execSync("git rev-parse --git-dir", {
@@ -888,6 +903,20 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
   }
 
   return {
+    // --- Sub-agent detection via session.created event cache (SC-1) ---
+    // The session.created event fires synchronously before messages.transform
+    // and carries parentID directly in its payload. This populates the
+    // sessionParentCache Map so messages.transform can detect sub-agents
+    // without relying on input.client (which is unavailable in that hook).
+    "session.created": async (eventInput) => {
+      const sessionID = eventInput?.payload?.id;
+      const parentID = eventInput?.payload?.parentID;
+      if (sessionID && parentID) {
+        sessionParentCache.set(sessionID, parentID);
+        subAgentSessions.add(sessionID);
+      }
+    },
+
     // Inject session context into system prompt (from session-init + PluginInput augmentations)
     "experimental.chat.system.transform": async (sysInput, output) => {
       // --- Sub-agent session detection (REQ-1/REQ-5) ---
@@ -967,15 +996,27 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         const firstUser = userMessages[0];
         const isFirstTurn = userMessages.length === 1;
 
-        // --- Sub-agent detection (REQ-1) ---
+        // --- Sub-agent detection (SC-1, SC-2) ---
         // Determine if this session has a parentID (is a sub-agent session).
-        // Extract sessionID from the first user message's info to look up
-        // in the subAgentSessions Set populated by system.transform.
-        // REQ-5: No disk persistence — subAgentSessions is process-scoped only.
+        // Uses a two-tier detection strategy:
+        //   1. PRIMARY: sessionParentCache (populated by session.created event handler)
+        //   2. FALLBACK: subAgentSessions Set (populated by system.transform API call)
+        // REQ-5: No disk persistence — both caches are process-scoped only.
         // REQ-4: Graceful degradation — if sessionID is unavailable, assume
         // primary session (isSubAgent = false) so full injections are applied.
         const sessionID = firstUser?.info?.sessionID;
-        const isSubAgent = sessionID ? subAgentSessions.has(sessionID) : false;
+        let detectionSource = "none";
+        let isSubAgent = false;
+        if (sessionID) {
+          if (sessionParentCache.has(sessionID)) {
+            isSubAgent = true;
+            detectionSource = "event-cache";
+          } else if (subAgentSessions.has(sessionID)) {
+            isSubAgent = true;
+            detectionSource = "api-fallback";
+          }
+        }
+        console.error(`[session-enforcement-diag] isSubAgent=${isSubAgent} detectionSource=${detectionSource} sessionID=${sessionID}`);
 
         // --- First-turn-only PRIMARY sessions: Skip all first-turn injections
         //     for sub-agent sessions (isFirstTurn && !isSubAgent required) ---
