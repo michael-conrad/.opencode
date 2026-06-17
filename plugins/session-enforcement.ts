@@ -1005,18 +1005,14 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         // REQ-4: Graceful degradation — if sessionID is unavailable, assume
         // primary session (isSubAgent = false) so full injections are applied.
         const sessionID = firstUser?.info?.sessionID;
-        let detectionSource = "none";
         let isSubAgent = false;
         if (sessionID) {
           if (sessionParentCache.has(sessionID)) {
             isSubAgent = true;
-            detectionSource = "event-cache";
           } else if (subAgentSessions.has(sessionID)) {
             isSubAgent = true;
-            detectionSource = "api-fallback";
           }
         }
-        console.error(`[session-enforcement-diag] isSubAgent=${isSubAgent} detectionSource=${detectionSource} sessionID=${sessionID}`);
 
         // --- First-turn-only PRIMARY sessions: Skip all first-turn injections
         //     for sub-agent sessions (isFirstTurn && !isSubAgent required) ---
