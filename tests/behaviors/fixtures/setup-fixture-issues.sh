@@ -55,6 +55,24 @@ setup_fixture_issues() {
         cp -r "$fixture_evidence_dir"/* "$workdir/tmp/behavioral-evidence-fixture/" 2>/dev/null || true
     fi
 
+    # Propagate work.md files to tmp/{number}/work.md for work state tests
+    for issue_dir in "$FIXTURES_DIR"/*/; do
+        if [ ! -d "$issue_dir" ]; then
+            continue
+        fi
+        local work_file="$issue_dir/work.md"
+        if [ -f "$work_file" ]; then
+            local issue_name
+            issue_name=$(basename "$issue_dir")
+            local number
+            number=$(echo "$issue_name" | grep -oE '^[0-9]+' || echo "")
+            if [ -n "$number" ]; then
+                mkdir -p "$workdir/tmp/$number"
+                cp "$work_file" "$workdir/tmp/$number/work.md"
+            fi
+        fi
+    done
+
     # Update the counter file to be at least as high as the highest issue number
     local max_number=0
     for issue_dir in "$FIXTURES_DIR"/*/; do
