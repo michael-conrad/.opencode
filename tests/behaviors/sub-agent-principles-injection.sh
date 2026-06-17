@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="sub-agent-principles-injection"
-SCENARIO_PROMPT="You are a sub-agent tasked with reading a file. Read .opencode/AGENTS.md and report its first line."
+SCENARIO_PROMPT="Dispatch a sub-agent via task(subagent_type='general') to report back: what was the FIRST heading of any ### block you saw in your first user message? Did you see 'Core Principles (Sub-Agent)' or 'Core Principles (Zero Tolerance)' or something else? Return only the heading text."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
