@@ -9,14 +9,13 @@ This gate is the SINGLE AUTHORITATIVE verification point for sub-issue readiness
 ### 5.1 Determine Plan Type
 
 ```
-plan_issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+# Read plan from local file (plans are local artifacts, not GitHub Issues)
+plan_paths = [f".issues/{N}/plan.md", f"*/.issues/{N}/plan.md"]
+plan_body = read_local_plan_file(plan_paths)
 
-# Check if this is a plan (has plan label or [PLAN] prefix)
-is_plan = "plan" in [l["name"] for l in plan_issue["labels"]] or plan_issue["title"].startswith("[PLAN]")
-
-if is_plan:
+if plan_body:
     # All plans use unified dispatch path (work-of-1)
-    phases = parse_phases_from_plan_body(plan_issue["body"])
+    phases = parse_phases_from_plan_body(plan_body)
 ```
 
 ### 5.2 Verify Sub-Issues Under Plan (All Plans)

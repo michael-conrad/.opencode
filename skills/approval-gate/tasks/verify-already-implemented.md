@@ -115,23 +115,23 @@ When ALL success criteria are verified as already met:
 
 ### Step 6: Parent Plan Closure Check
 
-After autoclosing the current issue (Step 5), check if the parent plan issue should also be closed:
+After autoclosing the current issue (Step 5), check if the parent plan's sub-issues are all complete:
 
-- [ ] 1. **Determine parent issue context:**
-   - If this issue is a sub-issue of a plan, retrieve the parent plan issue via `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues")` on the plan <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 1. **Determine parent plan context:**
+   - If this issue is a sub-issue of a plan, identify the plan number from the sub-issue relationship
    - If this issue references a plan via body text (`Plan: #N`), use that reference
    - If no parent plan exists, Skip Step 6 — this is a standalone issue
 
 - [ ] 2. **Check if ALL sub-issues of the plan are closed:**
    - Use `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=<plan_number>)` to list all sub-issues <!-- Routes through issue-operations per SPEC #683 -->
    - Verify each sub-issue has `state == "closed"` with `state_reason == "completed"` (not `"not_planned"` or `"duplicate"` without merged PR evidence)
-   - If ANY sub-issue is still open or closed without legitimate completion evidence → do NOT close the parent plan
+   - If ANY sub-issue is still open or closed without legitimate completion evidence → do NOT close the parent spec
 
 - [ ] 3. **If ALL sub-issues are legitimately closed:**
-   - Close the parent plan issue with `issue-operations -> update-issue (github_issue_write(method="update", state="closed", state_reason="completed")` <!-- Routes through issue-operations per SPEC #683 -->
-   - Route verification results through `issue-operations -> comment` substantive gate. Gate decides whether to post to the plan issue.
+   - Plans are local artifacts — no GitHub Issue closure needed. The plan file remains as a record.
+   - Route verification results through `issue-operations -> comment` substantive gate. Gate decides whether to post to the parent spec issue.
      ```
-     All sub-issues verified complete. Closing parent plan.
+     All sub-issues verified complete.
 
      Sub-issue closure evidence:
      - #<N1>: Verified via [merged PR / already-implemented autoclose] — <brief evidence>

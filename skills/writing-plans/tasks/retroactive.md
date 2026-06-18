@@ -9,15 +9,14 @@ Create a plan for an existing spec that does not yet have one.
 - [ ] 1. **Query existing spec:**
 
     - Get spec from GitHub Issue
-    - Search for linked plans (GitHub Issues with `plan` label and body text matching `Spec: #N`)
+    - Search for existing plan files at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` that reference the spec
 
 - [ ] 2. **If no plan exists:**
 
-    - Create `[PLAN]` GitHub Issue with `plan` + `needs-approval` labels
+    - Create local plan file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
     - Include spec reference as prose in body (e.g., `Spec: #N`)
     - Plan content uses hybrid approach (phases + TDD steps)
     - Include header, file structure, self-review
-    - Create sub-issues under the plan (not the spec)
     - HALT and wait for plan approval
 
 - [ ] 3. **If plan exists:**
@@ -33,7 +32,7 @@ Create a plan for an existing spec that does not yet have one.
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
 | "Spec #N exists" | Verify issue exists and has spec label | `issue-operations -> read-issue (github_issue_read(method="get", issue_number=N)` | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
-| "No plan exists for spec #N" | Query for linked plans | `issue-operations -> search-issues (github_search_issues(query="label:plan Spec: #N")` or iterate recent issues | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
+| "No plan exists for spec #N" | Check for local plan file | `ls .issues/{N}/plan.md */.issues/{N}/plan.md 2>/dev/null` | VERIFICATION-GAP |
 | "Plan is valid" | Run `validate` task checks | `validate` task inline | VERIFICATION-GAP |
 | "Plan has sub-issues" | Check sub-issue state | `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=plan_number)` | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
 

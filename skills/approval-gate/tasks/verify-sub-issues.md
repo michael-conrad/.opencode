@@ -8,7 +8,7 @@ Verify sub-issue structure and phase tracking gate for multi-task plans before i
 
 ## Entry Criteria
 
-- Plan exists as GitHub Issue (with `plan` label or `[PLAN]` prefix)
+- Plan exists as local file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
 - Authorization received for specific subtask (e.g., "approved: 1.2")
 - Subtask number provided or extracted from authorization
 - Authorization received for plan (covers sub-issue creation)

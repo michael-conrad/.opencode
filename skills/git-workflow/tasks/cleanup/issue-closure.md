@@ -61,19 +61,19 @@ for pattern_name, pattern in patterns.items():
 
 | Classification | Detection | Closure Path |
 | -- | -- | -- |
-| Plan | Has `[PLAN]` label or `[PLAN]` title prefix | Plan closure path (Step 3) |
+| Plan | Local plan file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` | Plan closure path (Step 3) |
 | Spec / Spec-Fix | Has `[SPEC]` or `[SPEC-FIX]` label or title prefix | Spec closure path (Step 4) |
 | Other | No plan/spec labels | Direct close |
 
 ### Step 3: Plan Closure Path
 
-1. Parse plan body for spec reference: `Spec:\s*#(\d+)` or `For spec:\s*#(\d+)`
+1. Read plan body from local file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` for spec reference: `Spec:\s*#(\d+)` or `For spec:\s*#(\d+)`
 2. Add referenced spec to closure candidates
 3. Get sub-issues via `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues")` <!-- Routes through issue-operations per SPEC #683 -->
 4. For each sub-issue:
    - If open and deliverables covered by PR files → close with evidence comment
    - If open and deliverables NOT in PR → flag for developer review, do NOT auto-close
-5. Close the plan issue after sub-issues are resolved
+5. Plans are local artifacts — no GitHub Issue closure needed. The plan file remains as a record.
 
 **Deliverable check:** Verify each sub-issue's deliverables (file paths, descriptions) against the merged PR's file list.
 
