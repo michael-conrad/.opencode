@@ -280,7 +280,7 @@ def _discover_all_repos() -> list[Path]:
 
     # 2. Child repos via glob
     for entry in sorted(root.iterdir()):
-        if not entry.is_dir() or entry.name.startswith("."):
+        if not entry.is_dir():
             continue
         git_ref = entry / ".git"
         if git_ref.exists():
