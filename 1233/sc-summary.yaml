@@ -1,0 +1,56 @@
+# SC-ID Traceability Summary for .opencode#1233
+# Generated: 2026-06-17
+schema_version: "1.0"
+issue: 1233
+owner: michael-conrad
+repo: .opencode
+
+scs:
+  - id: SC-1
+    evidence_type: string
+    phase: 1
+    description: "Card uses - [ ] checklist format throughout (no prose numbered sections)"
+  - id: SC-2
+    evidence_type: string
+    phase: 1
+    description: "Phase 1 scans all repos via ls -d .git/ */.git/ */.git/"
+  - id: SC-3
+    evidence_type: string
+    phase: 1
+    description: "Phase 2 confirms merge state is merged (not just closed)"
+  - id: SC-4
+    evidence_type: string
+    phase: 1
+    description: "Phase 3 deletes local and remote branches for each merged PR"
+  - id: SC-5
+    evidence_type: string
+    phase: 1
+    description: "Phase 3 preserves hash-permanence tags (only deletes checkpoint tags)"
+  - id: SC-6
+    evidence_type: string
+    phase: 1
+    description: "Phase 4 investigates open issues actively (not regex-hunting body text)"
+  - id: SC-7
+    evidence_type: string
+    phase: 1
+    description: "Phase 4 closes depth-first: sub-repos first, children before parents"
+  - id: SC-8
+    evidence_type: string
+    phase: 1
+    description: "Phase 4 only comments on closure if substantively necessary"
+  - id: SC-9
+    evidence_type: string
+    phase: 1
+    description: "Phase 5 cleans up submodule feature branches, restores to dev tip"
+  - id: SC-10
+    evidence_type: string
+    phase: 1
+    description: "Phase 6 parks each repo based on current branch type"
+  - id: SC-11
+    evidence_type: behavioral
+    phase: 2
+    description: "Phase ordering is serial — each phase requires prior phase complete"
+  - id: SC-12
+    evidence_type: behavioral
+    phase: 2
+    description: "Sub-agent executing the card produces correct cleanup for merged PRs"

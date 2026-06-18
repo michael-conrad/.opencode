@@ -1,0 +1,73 @@
+variables:
+  step_1_completed:
+    type: bool
+    nullable: false
+  step_2_completed:
+    type: bool
+    nullable: false
+  step_3_completed:
+    type: bool
+    nullable: false
+  step_4_completed:
+    type: bool
+    nullable: false
+  step_5_completed:
+    type: bool
+    nullable: false
+  step_6_completed:
+    type: bool
+    nullable: false
+  chain_1_ready:
+    type: bool
+    nullable: false
+  chain_2_ready:
+    type: bool
+    nullable: false
+  chain_3_ready:
+    type: bool
+    nullable: false
+  chain_4_ready:
+    type: bool
+    nullable: false
+  chain_5_ready:
+    type: bool
+    nullable: false
+  chain_6_ready:
+    type: bool
+    nullable: false
+  template_create_input_exists:
+    type: bool
+    nullable: false
+  template_create_output_exists:
+    type: bool
+    nullable: false
+preconditions:
+  - "template_create_input_exists"
+  - "template_create_output_exists"
+invariants:
+  - "z3.Implies(step_1_completed, chain_1_ready)"
+  - "z3.Implies(step_2_completed, chain_2_ready)"
+  - "z3.Implies(step_3_completed, chain_3_ready)"
+  - "z3.Implies(step_4_completed, chain_4_ready)"
+  - "z3.Implies(step_5_completed, chain_5_ready)"
+  - "z3.Implies(step_6_completed, chain_6_ready)"
+  - "z3.Implies(step_2_completed, step_1_completed)"
+  - "z3.Implies(step_3_completed, step_2_completed)"
+  - "z3.Implies(step_4_completed, step_3_completed)"
+  - "z3.Implies(step_5_completed, step_4_completed)"
+  - "z3.Implies(step_6_completed, step_5_completed)"
+postconditions:
+  - "step_1_completed"
+  - "step_2_completed"
+  - "step_3_completed"
+  - "step_4_completed"
+  - "step_5_completed"
+  - "step_6_completed"
+  - "chain_1_ready"
+  - "chain_2_ready"
+  - "chain_3_ready"
+  - "chain_4_ready"
+  - "chain_5_ready"
+  - "chain_6_ready"
+theorem:
+  - "z3.Implies(z3.And(step_6_completed, chain_6_ready), z3.And(step_1_completed, chain_1_ready))"

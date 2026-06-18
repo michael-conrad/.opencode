@@ -1,0 +1,9 @@
+phase: 4
+scs:
+  - id: SC-4
+    criterion: buildSubAgentPrinciplesBlock() output includes "PRELOADED_CONTEXT_REJECTED" or "multi-step"
+    evidence_type: behavioral
+    verification_method: assert_semantic with clean-room AI inspector — verifies buildSubAgentPrinciplesBlock output includes PRELOADED_CONTEXT_REJECTED or multi-step language
+    file: .opencode/plugins/session-enforcement.ts
+    function: buildSubAgentPrinciplesBlock
+    line: 849

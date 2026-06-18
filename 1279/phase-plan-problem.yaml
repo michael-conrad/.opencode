@@ -1,0 +1,44 @@
+domain: skill-card-change-types
+types:
+  - name: phase
+objects:
+  - name: phase-1
+    type: phase
+  - name: phase-2
+    type: phase
+  - name: phase-3
+    type: phase
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: create-taxonomy-document
+    params: []
+    preconditions:
+      - not completed(phase-1)
+    effects:
+      - completed(phase-1)
+  - name: add-cross-references
+    params: []
+    preconditions:
+      - completed(phase-1)
+      - not completed(phase-2)
+    effects:
+      - completed(phase-2)
+  - name: validate-with-solve-and-plan
+    params: []
+    preconditions:
+      - completed(phase-2)
+      - not completed(phase-3)
+    effects:
+      - completed(phase-3)
+init:
+  - not completed(phase-1)
+  - not completed(phase-2)
+  - not completed(phase-3)
+goals:
+  - completed(phase-1)
+  - completed(phase-2)
+  - completed(phase-3)

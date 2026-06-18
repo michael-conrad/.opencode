@@ -1,0 +1,117 @@
+variables:
+  step_1_completed:
+    type: bool
+    nullable: false
+  step_2_completed:
+    type: bool
+    nullable: false
+  step_3_completed:
+    type: bool
+    nullable: false
+  step_4_completed:
+    type: bool
+    nullable: false
+  step_5_completed:
+    type: bool
+    nullable: false
+  step_6_completed:
+    type: bool
+    nullable: false
+  step_7_completed:
+    type: bool
+    nullable: false
+  step_8_completed:
+    type: bool
+    nullable: false
+  step_9_completed:
+    type: bool
+    nullable: false
+  step_10_completed:
+    type: bool
+    nullable: false
+  chain_1_ready:
+    type: bool
+    nullable: false
+  chain_2_ready:
+    type: bool
+    nullable: false
+  chain_3_ready:
+    type: bool
+    nullable: false
+  chain_4_ready:
+    type: bool
+    nullable: false
+  chain_5_ready:
+    type: bool
+    nullable: false
+  chain_6_ready:
+    type: bool
+    nullable: false
+  chain_7_ready:
+    type: bool
+    nullable: false
+  chain_8_ready:
+    type: bool
+    nullable: false
+  chain_9_ready:
+    type: bool
+    nullable: false
+  chain_10_ready:
+    type: bool
+    nullable: false
+  template_requirements_input_exists:
+    type: bool
+    nullable: false
+  template_write_input_exists:
+    type: bool
+    nullable: false
+  template_write_output_exists:
+    type: bool
+    nullable: false
+preconditions:
+  - "template_requirements_input_exists"
+  - "template_write_input_exists"
+  - "template_write_output_exists"
+invariants:
+  - "z3.Implies(step_1_completed, chain_1_ready)"
+  - "z3.Implies(step_2_completed, chain_2_ready)"
+  - "z3.Implies(step_3_completed, chain_3_ready)"
+  - "z3.Implies(step_4_completed, chain_4_ready)"
+  - "z3.Implies(step_5_completed, chain_5_ready)"
+  - "z3.Implies(step_6_completed, chain_6_ready)"
+  - "z3.Implies(step_7_completed, chain_7_ready)"
+  - "z3.Implies(step_8_completed, chain_8_ready)"
+  - "z3.Implies(step_9_completed, chain_9_ready)"
+  - "z3.Implies(step_10_completed, chain_10_ready)"
+  - "z3.Implies(step_2_completed, step_1_completed)"
+  - "z3.Implies(step_3_completed, step_2_completed)"
+  - "z3.Implies(step_4_completed, step_3_completed)"
+  - "z3.Implies(step_5_completed, step_4_completed)"
+  - "z3.Implies(step_6_completed, step_5_completed)"
+  - "z3.Implies(step_7_completed, step_6_completed)"
+  - "z3.Implies(step_8_completed, step_7_completed)"
+  - "z3.Implies(step_9_completed, step_8_completed)"
+  - "z3.Implies(step_10_completed, step_9_completed)"
+postconditions:
+  - "step_1_completed"
+  - "step_2_completed"
+  - "step_3_completed"
+  - "step_4_completed"
+  - "step_5_completed"
+  - "step_6_completed"
+  - "step_7_completed"
+  - "step_8_completed"
+  - "step_9_completed"
+  - "step_10_completed"
+  - "chain_1_ready"
+  - "chain_2_ready"
+  - "chain_3_ready"
+  - "chain_4_ready"
+  - "chain_5_ready"
+  - "chain_6_ready"
+  - "chain_7_ready"
+  - "chain_8_ready"
+  - "chain_9_ready"
+  - "chain_10_ready"
+theorem:
+  - "z3.Implies(z3.And(step_10_completed, chain_10_ready), z3.And(step_1_completed, chain_1_ready))"

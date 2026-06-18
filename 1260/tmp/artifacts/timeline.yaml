@@ -1,0 +1,53 @@
+# Behavioral Test Timeline
+# Entries: 8
+
+--- Step 1 ---
+type: response
+  preview: "Dispatch a sub-agent via task() and ask it to self-detect which Core Principles block it received. Report whether it received 'Core Principles (Sub-Agent)' or 'Core Principles (Zero Tolerance)'."
+
+  length: 197
+
+--- Step 2 ---
+type: reasoning
+  summary: The user wants me to dispatch a sub-agent via task() and ask it to self-detect which Core Principles block it received. Let me dothat.
+  length: 134
+
+--- Step 3 ---
+type: tool_call
+  tool: task
+  status: completed
+  duration_ms: 9556
+  call_id: call_w7onwe4b
+  input:
+    subagent_type: general
+    description: Self-detect Core Principles block
+
+--- Step 4 ---
+type: response
+  preview: Read the system prompt you received at session start. Look for a section titled "Core Principles" — it may be titled "Core Principles (Sub-Agent)" or "Core Principles (Zero Tolerance)".
+
+Report back with EXACTLY ONE of these two answers:
+- "Core Principles (Sub-Agent)" — if that's the exact title yo...
+  length: 524
+
+--- Step 5 ---
+type: reasoning
+  summary: The user wants me to check my system prompt for a specific section title. Let me look at what I received at session start.
+
+Looking at the system prompt I received, I can see there's a section at the ...
+  length: 1534
+
+--- Step 6 ---
+type: response
+  preview: Core Principles (Sub-Agent)
+  length: 27
+
+--- Step 7 ---
+type: reasoning
+  summary: The sub-agent reported receiving "Core Principles (Sub-Agent)" as the title of its Core Principles block. This is the sub-agent variant, not the "Core Principles (Zero Tolerance)" block that the main ...
+  length: 222
+
+--- Step 8 ---
+type: response
+  preview: The sub-agent received **"Core Principles (Sub-Agent)"** — the sub-agent variant, not the orchestrator's "Core Principles (Zero Tolerance)" block.
+  length: 146

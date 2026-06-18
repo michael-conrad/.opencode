@@ -1,0 +1,222 @@
+audit_phase: spec_creation
+auditor_type: spec-audit
+family: general
+issue_number: 1279
+generated_at: "2026-06-18T16:12:00Z"
+orchestrator_model: deepseek-v4-flash
+summary:
+  total_criteria: 16
+  pass: 16
+  fail: 0
+per_criterion:
+  - criterion_id: "SC-1"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "Read spec body — ## Problem section present with 5 bullet points"
+    explanation: "Problem statement is clearly defined with enumerated issues (inconsistent spec writing, no remediation reference, no audit classification, no impact analysis, no workflow validation mandate)"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+
+  - criterion_id: "SC-2"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "Read spec body — Success Criteria table present with ID, Criterion, Evidence Type, Verification Method columns"
+    explanation: "All 10 SCs have measurable verification methods (grep, test -f, tool execution)"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+
+  - criterion_id: "SC-3"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "Read spec body — 3 phases defined: Phase 1 (create taxonomy doc), Phase 2 (add cross-references), Phase 3 (Z3 SAT and plan tool validation)"
+    explanation: "Phase boundaries are clear and sequential. Phase-plan-problem.yaml confirms the dependency structure."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+      - read
+
+  - criterion_id: "SC-4"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "Each phase has explicit file paths and actions: Phase 1 → .opencode/skills/reference/skill-card-change-types.md, Phase 2 → spec-creation/SKILL.md and writing-plans/SKILL.md Cross-References, Phase 3 → solve/plan tool invocations"
+    explanation: "All steps reference concrete file paths or tool invocations"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+
+  - criterion_id: "SC-5"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "Phase dependencies encoded in phase-plan-problem.yaml: Phase 1 → Phase 2 → Phase 3. Solve check returns SAT."
+    explanation: "Dependencies are explicitly documented in the phase plan problem file and validated by Z3"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - read
+      - bash
+
+  - criterion_id: "SC-6"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "Phase 1 = create document only, Phase 2 = add cross-references only, Phase 3 = validate only"
+    explanation: "Each phase addresses exactly one concern with no overlap"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+
+  - criterion_id: "SC-8"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "Edge Cases section present with 8 documented edge cases including: new change types, existing specs unaffected, taxonomy is reference not enforcement, blast radius determines priority, workflow validation mandatory for ALL types"
+    explanation: "Edge cases and error recovery are well-documented"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+
+  - criterion_id: "SC-9"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "All SCs use deterministic verification methods (grep patterns, file existence checks, tool execution with expected return values)"
+    explanation: "Every SC produces the same PASS/FAIL from any reasonable auditor"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+
+  - criterion_id: "SC-10"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "Headers (##, ###), tables (| Field | Value |), lists (- [ ]) properly formatted throughout"
+    explanation: "Prose structure is valid and consistent"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+
+  - criterion_id: "SC-11"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "## Documentation Sources section present with 6 sources, all verified against live sources via github_issue_read, test -f, and bash"
+    explanation: "Documentation Sources section is present and populated. All 6 sources verified: .opencode#1278 exists as valid SPEC-FIX, 250-dark-prose-reference.md exists, .opencode/tools/solve exists and executable, .opencode/tools/plan exists and executable, spec-creation/SKILL.md exists, writing-plans/SKILL.md exists."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+      - bash
+      - webfetch
+
+  - criterion_id: "SC-12"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "## Intent and Executive Summary section present with all 5 fields: Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions"
+    explanation: "Preamble is complete. Problem Statement matches the ## Problem section. Root Cause identifies lack of shared vocabulary. Approach Chosen defines 10-type taxonomy. Alternatives Considered lists 3 options with discard rationale. Key Design Decisions documents 3 decisions."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+
+  - criterion_id: "SC-13"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "Cost-frame rationale paragraph present after SC table: 'Cost-frame rationale for evidence type choices: String evidence (SC-1 through SC-8) is sufficient because these criteria verify file existence and text patterns... Behavioral evidence (SC-9, SC-10) is required because tool execution produces runtime output that cannot be verified by static analysis alone... death spiral cost of a false PASS on tool validation is exponential'"
+    explanation: "Cost-frame reformation language is present. Explains why string evidence is sufficient for SC-1 through SC-8 (deterministic checks) and why behavioral evidence is required for SC-9 and SC-10 (runtime output, death spiral prevention). References EVIDENCE_TYPE_MISMATCH and exponential cost of false PASS."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+
+  - criterion_id: "SC-14"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "## SC Enforcement Gate section present with all-or-nothing gate statement, PASS/FAIL/BLOCKED table with definitions and actions, and remediation protocol"
+    explanation: "SC Enforcement Gate is present and explicit. All-or-nothing statement: 'implementation is considered complete ONLY when ALL SCs pass verification. Partial completion is not valid.' PASS/FAIL/BLOCKED table defines each outcome with action. Remediation protocol: 'On FAIL, diagnose root cause, fix, re-verify. On double-failure, report blocker with both failure artifacts.'"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+
+  - criterion_id: "SC-TRACKING-LANG"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "Spec uses forward-looking language: 'MUST be', 'MUST reference', 'MUST pass'. No instances of 'implemented', 'pending', 'confirmed', 'viable', 'completed' used as status markers."
+    explanation: "No tracking/status language detected"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+
+  - criterion_id: "SC-PRESCRIPTIVE-CODE"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "Spec references file areas (`.opencode/skills/reference/skill-card-change-types.md`, `.opencode/skills/spec-creation/SKILL.md`) but no exact line numbers, import strings, or assertion code"
+    explanation: "No prescriptive code content detected"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+
+  - criterion_id: "SC-DET"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "All SCs use deterministic verification: grep patterns (SC-1 through SC-8), file existence checks (SC-1), tool execution with expected return values (SC-9, SC-10)"
+    explanation: "Every SC produces the same PASS/FAIL from any reasonable auditor. No fail patterns detected (no adverbs without thresholds, no comparatives without baselines, no open-ended quality terms, no missing expected values, no implicit behavior)."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+
+  - criterion_id: "SC-EVIDENCE-TYPE"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "All SCs declare evidence type (string or behavioral) and verification methods match: string SCs use grep/file-existence, behavioral SCs use tool execution"
+    explanation: "Evidence types match declared types. No EVIDENCE_TYPE_MISMATCH detected."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+
+  - criterion_id: "SC-STRUCTURAL-FAIL"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "Behavioral SCs (SC-9, SC-10) use tool execution verification, not structural checks. No structural evidence submitted for behavioral SCs."
+    explanation: "No STRUCTURAL_EVIDENCE classification needed"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - github_issue_read
+
+documentation_verification:
+  - source: ".opencode#1278 (example spec reference)"
+    verified: true
+    method: "github_issue_read"
+    finding: "Issue #1278 exists and is a valid SPEC-FIX issue with matching content"
+  - source: "250-dark-prose-reference.md"
+    verified: true
+    method: "bash test -f"
+    finding: "File exists at .opencode/guidelines/250-dark-prose-reference.md"
+  - source: ".opencode/tools/solve"
+    verified: true
+    method: "bash test -f"
+    finding: "Tool exists and is executable"
+  - source: ".opencode/tools/plan"
+    verified: true
+    method: "bash test -f"
+    finding: "Tool exists and is executable"
+  - source: ".opencode/skills/spec-creation/SKILL.md"
+    verified: true
+    method: "bash test -f"
+    finding: "File exists. Cross-References section does NOT yet reference skill-card-change-types (expected — not implemented yet)"
+  - source: ".opencode/skills/writing-plans/SKILL.md"
+    verified: true
+    method: "bash test -f"
+    finding: "File exists. Cross-References section does NOT yet reference skill-card-change-types (expected — not implemented yet)"
+
+bidirectional_findings: []

@@ -1,0 +1,80 @@
+domain: step-discreteness-enforcement
+types:
+  - name: function
+  - name: phase
+objects:
+  - name: buildPreImplementationGate
+    type: function
+  - name: buildCorePrinciplesBlock
+    type: function
+  - name: buildTier1EnforcementBlock
+    type: function
+  - name: buildSubAgentPrinciplesBlock
+    type: function
+  - name: Phase1
+    type: phase
+  - name: Phase2
+    type: phase
+  - name: Phase3
+    type: phase
+  - name: Phase4
+    type: phase
+  - name: Phase5
+    type: phase
+fluents:
+  - name: modified
+    params:
+      - name: f
+        type: function
+  - name: sc_verified
+    params:
+      - name: p
+        type: phase
+  - name: sc_summary_created
+    params:
+      - name: p
+        type: phase
+  - name: behavioral_test_passed
+actions:
+  - name: modify_buildPreImplementationGate
+    preconditions: []
+    effects:
+      - modified(buildPreImplementationGate)
+      - sc_verified(Phase1)
+      - sc_summary_created(Phase1)
+  - name: modify_buildCorePrinciplesBlock
+    preconditions: []
+    effects:
+      - modified(buildCorePrinciplesBlock)
+      - sc_verified(Phase2)
+      - sc_summary_created(Phase2)
+  - name: modify_buildTier1EnforcementBlock
+    preconditions: []
+    effects:
+      - modified(buildTier1EnforcementBlock)
+      - sc_verified(Phase3)
+      - sc_summary_created(Phase3)
+  - name: modify_buildSubAgentPrinciplesBlock
+    preconditions: []
+    effects:
+      - modified(buildSubAgentPrinciplesBlock)
+      - sc_verified(Phase4)
+      - sc_summary_created(Phase4)
+  - name: run_behavioral_test
+    preconditions:
+      - sc_verified(Phase1)
+      - sc_verified(Phase2)
+      - sc_verified(Phase3)
+      - sc_verified(Phase4)
+    effects:
+      - behavioral_test_passed
+      - sc_verified(Phase5)
+      - sc_summary_created(Phase5)
+init: []
+goals:
+  - sc_verified(Phase1)
+  - sc_verified(Phase2)
+  - sc_verified(Phase3)
+  - sc_verified(Phase4)
+  - sc_verified(Phase5)
+  - behavioral_test_passed

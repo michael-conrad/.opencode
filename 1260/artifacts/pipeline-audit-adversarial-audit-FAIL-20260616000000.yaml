@@ -1,0 +1,59 @@
+---
+audit_phase: adversarial_audit
+auditor_type: adversarial-audit
+family: LEAF
+issue_number: 1260
+generated_at: "2026-06-16T00:00:00Z"
+orchestrator_model: "mistral-large-3:675b-cloud"
+summary:
+  total_criteria: 4
+  pass: 0
+  fail: 4
+  blocked: 0
+  limited_evidence: 0
+per_criterion:
+  - criterion_id: "SC-1"
+    discovered: false
+    status: FAIL
+    evidence: "No behavioral evidence artifacts exist in ./tmp/1260/behavioral/ or .opencode/.issues/1260/artifacts/"
+    explanation: "No behavioral evidence was generated to verify that the `session.created` event handler captures `parentID` into the cache before `messages.transform` fires."
+    remediation: "Run behavioral test to generate evidence artifacts."
+    next_step: "Remediate → Re-audit"
+  - criterion_id: "SC-2"
+    discovered: false
+    status: FAIL
+    evidence: "No behavioral evidence artifacts exist in ./tmp/1260/behavioral/ or .opencode/.issues/1260/artifacts/"
+    explanation: "No behavioral evidence was generated to verify that `isSubAgent` detection uses the event cache as primary source with API fallback."
+    remediation: "Run behavioral test to generate evidence artifacts."
+    next_step: "Remediate → Re-audit"
+  - criterion_id: "SC-3"
+    discovered: false
+    status: FAIL
+    evidence: "No behavioral evidence artifacts exist in ./tmp/1260/behavioral/ or .opencode/.issues/1260/artifacts/"
+    explanation: "No behavioral evidence was generated to verify that sub-agents receive the `### Core Principles (Sub-Agent)` block on first turn."
+    remediation: "Run behavioral test to generate evidence artifacts."
+    next_step: "Remediate → Re-audit"
+  - criterion_id: "SC-4"
+    discovered: false
+    status: FAIL
+    explanation: "The behavioral enforcement test was not run, so no evidence exists to verify it passes."
+    evidence: "No behavioral evidence artifacts exist in ./tmp/behavioral-evidence-sub-agent-principles-injection-GREEN-*/"
+    remediation: "Run behavioral test to generate evidence artifacts."
+    next_step: "Remediate → Re-audit"
+clean_room:
+  verified: true
+  violations_detected: []
+methodology_independence:
+  phases_followed:
+    - "A1: Input validation"
+    - "A2: Floor-not-ceiling criteria loading"
+    - "A3-A6: Evidence collection"
+    - "A7: Criterion discovery"
+    - "B1-B8: Per-criterion evaluation"
+    - "C1: Write verdict artifact"
+    - "C2-C3: Return frugal contract"
+  criteria_loaded_floor: true
+  criteria_discovered: 0
+  criteria_evaluated: 4
+  discovery_pass_ran: true
+  semantic_depth_applied: true

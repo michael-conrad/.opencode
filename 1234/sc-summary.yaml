@@ -1,0 +1,45 @@
+# SC Summary for .opencode#1234
+# Generated: 2026-06-16
+schema_version: "1.0"
+issue_number: 1234
+spec_title: "[SPEC-FIX] orchestrator DISPATCH_GATE violation: skill loaded but custom prompt written instead of canonical dispatch"
+success_criteria:
+  - id: SC-1
+    description: "After loading a skill, orchestrator uses canonical dispatch string verbatim"
+    evidence_type: behavioral
+    verification_gate: pre-commit
+    pipeline_step: green-phase
+    reentry_step: green-phase
+    artifact_path: .opencode/tests/behaviors/dispatch-gate-canonical.sh
+    phase_binding: phase-2
+    coverage: full
+  - id: SC-2
+    description: "Custom prompt with preloaded context after reading canonical string is a violation"
+    evidence_type: behavioral
+    verification_gate: pre-commit
+    pipeline_step: green-phase
+    reentry_step: green-phase
+    artifact_path: .opencode/tests/behaviors/dispatch-gate-canonical.sh
+    phase_binding: phase-2
+    coverage: weak
+    note: "Test is instructional (tells agent to use canonical string) rather than behavioral (observes independent choice). Structural enforcement via Phase 1 critical rule + Orchestrator Entry Criteria blocks."
+  - id: SC-3
+    description: "Empty sub-agent result triggers clean-room re-task (not inline fallback)"
+    evidence_type: behavioral
+    verification_gate: pre-commit
+    pipeline_step: green-phase
+    reentry_step: green-phase
+    artifact_path: direct_coverage_missing
+    phase_binding: phase-2
+    coverage: structural_only
+    note: "No dedicated behavioral test. Enforced structurally via critical-rules-043 (universal re-task mandate) and critical-rules-dispatch-gate-canonical (step 4: re-task clean-room with same canonical string max 2 retries)."
+  - id: SC-4
+    description: "Sub-agent receiving preloaded context returns PRELOADED_CONTEXT_REJECTED"
+    evidence_type: behavioral
+    verification_gate: pre-commit
+    pipeline_step: red-phase
+    reentry_step: red-phase
+    artifact_path: .opencode/tests/behaviors/dispatch-gate-rejection.sh
+    phase_binding: phase-2
+    coverage: external
+    note: "Covered by dispatch-gate-rejection.sh (issue #864). Sub-agent rejection protocol documented in 020-go-prohibitions.md and all 37 SKILL.md DISPATCH_GATE sections plus 1 platform sub-skill."

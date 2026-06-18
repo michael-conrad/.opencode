@@ -1,0 +1,14 @@
+phase_dependencies:
+  - phase: "Phase 1: Create Taxonomy Reference Document"
+    depends_on: []
+    constraints:
+      - "phase_1_starts_independently"
+  - phase: "Phase 2: Add Cross-References"
+    depends_on: ["Phase 1: Create Taxonomy Reference Document"]
+    constraints:
+      - "phase_2_starts_after_phase_1_completes"
+  - phase: "Phase 3: Z3 SAT and Plan Tool Validation"
+    depends_on: ["Phase 1: Create Taxonomy Reference Document", "Phase 2: Add Cross-References"]
+    constraints:
+      - "phase_3_starts_after_phase_1_completes"
+      - "phase_3_starts_after_phase_2_completes"

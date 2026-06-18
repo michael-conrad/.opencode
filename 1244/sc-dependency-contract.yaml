@@ -1,0 +1,16 @@
+schema_version: "1.0"
+generated_at: "20260616141500"
+variables:
+  SC1_DONE: {type: bool, nullable: false}
+  SC2_DONE: {type: bool, nullable: false}
+  SC3_DONE: {type: bool, nullable: false}
+  SC4_DONE: {type: bool, nullable: false}
+  SC5_DONE: {type: bool, nullable: false}
+  SC6_DONE: {type: bool, nullable: false}
+  SC7_DONE: {type: bool, nullable: false}
+  SC8_DONE: {type: bool, nullable: false}
+  SC9_DONE: {type: bool, nullable: false}
+invariants:
+  # SC-7 (checklist generation) must precede SC-8 (checklist format) and SC-9 (agent uses checklist)
+  - "z3.Implies(SC8_DONE == True, SC7_DONE == True)"
+  - "z3.Implies(SC9_DONE == True, SC7_DONE == True)"

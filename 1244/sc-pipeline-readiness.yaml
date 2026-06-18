@@ -1,0 +1,31 @@
+schema_version: "1.0"
+generated_at: "20260616144517"
+status: PASS
+checks:
+  - check_id: PR-1
+    result: PASS
+    detail: "All 9 SCs assert exactly one independently testable claim each. None bundle multiple assertions or span multiple RED-GREEN-COMMIT cycles."
+  - check_id: PR-2
+    result: PASS
+    solve_contract_path: ".opencode/.issues/1244/sc-dependency-contract.yaml"
+    prove_results:
+      - theorem: "z3.Implies(SC8_DONE == True, SC7_DONE == True)"
+        result: VALID
+      - theorem: "z3.Implies(SC9_DONE == True, SC7_DONE == True)"
+        result: VALID
+      - theorem: "All SCs simultaneously satisfiable"
+        result: SAT (no contradictions)
+  - check_id: PR-3
+    result: PASS
+    detail: "All 9 SCs target exactly one file category and one verification domain. SC-1 through SC-4 (string/task-file), SC-5 (behavioral/task-file), SC-6 (behavioral/task-file), SC-7 (behavioral/writing-plans), SC-8 (structural/file-existence), SC-9 (behavioral/test). No multi-domain or multi-category violations."
+  - check_id: PR-4
+    result: PASS
+    solve_contract_path: ".opencode/.issues/1244/dependency-ordering-verification/ordering.yaml"
+    prove_results:
+      - theorem: "All phases simultaneously satisfiable"
+        result: SAT (no cycles; all 4 phases independent)
+sc_summary:
+  total_scs: 9
+  atomic: 9
+  with_dependencies: 2
+  single_concern: 9

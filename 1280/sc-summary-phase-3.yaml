@@ -1,0 +1,9 @@
+phase: 3
+scs:
+  - id: SC-3
+    criterion: buildTier1EnforcementBlock() output includes "discrete"
+    evidence_type: behavioral
+    verification_method: assert_semantic with clean-room AI inspector — verifies buildTier1EnforcementBlock output includes mandate discreteness language
+    file: .opencode/plugins/session-enforcement.ts
+    function: buildTier1EnforcementBlock
+    line: 860

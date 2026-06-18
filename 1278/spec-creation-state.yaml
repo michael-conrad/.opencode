@@ -1,0 +1,24 @@
+variables:
+  step_1_completed: true
+  step_2_completed: true
+  step_3_completed: true
+  step_4_completed: true
+  step_5_completed: true
+  step_6_completed: true
+  step_7_completed: true
+  step_8_completed: true
+  step_9_completed: true
+  step_10_completed: true
+  chain_1_ready: true
+  chain_2_ready: true
+  chain_3_ready: true
+  chain_4_ready: true
+  chain_5_ready: true
+  chain_6_ready: true
+  chain_7_ready: true
+  chain_8_ready: true
+  chain_9_ready: true
+  chain_10_ready: true
+  template_requirements_input_exists: true
+  template_write_input_exists: true
+  template_write_output_exists: true

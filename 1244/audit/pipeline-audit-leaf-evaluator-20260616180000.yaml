@@ -1,0 +1,109 @@
+audit_phase: verification
+auditor_type: leaf-evaluator
+family: deepseek-v4-flash
+issue_number: 1244
+generated_at: "2026-06-16T18:00:00Z"
+orchestrator_model: "deepseek-v4-flash"
+summary:
+  total_criteria: 9
+  pass: 7
+  fail: 2
+  blocked: 0
+  limited_evidence: 0
+per_criterion:
+  - criterion_id: "SC-1"
+    discovered: false
+    status: PASS
+    evidence: "grep 'STATUS' .opencode/skills/executing-plans/tasks/ -- zero matches (verified independently via grep tool)"
+    explanation: "SC-1 is string evidence type. Independent grep of executing-plans/tasks/step.md, start.md, completion.md confirms zero STATUS patterns remain. String evidence matches declared evidence type. PASS."
+    remediation: none
+    next_step: proceed
+
+  - criterion_id: "SC-2"
+    discovered: false
+    status: PASS
+    evidence: "grep 'STATUS' .opencode/skills/approval-gate/ -- 10 remaining matches; each confirmed as issue-body content-maturity markers, not plan-body execution tracking (verified via read on verify-qa-mode.md, verify-fix-spec.md, auto-dispatch.md, screen-issue-gate1.md)"
+    explanation: "SC-2 targets plan-body STATUS markers as execution tracking. The 10 remaining STATUS matches are: verify-qa-mode.md lines 320-326 -- issue-body content maturity comparison; verify-fix-spec.md lines 82,87 -- metadata verification; auto-dispatch.md lines 95-96 -- revision detection format; screen-issue-gate1.md lines 51,121 -- issue screening. scope-parsing.md line 30 explicitly states 'Phase resolution does not parse STATUS markers'. None are plan-body execution tracking. Semantic depth confirms out-of-scope. PASS."
+    remediation: none
+    next_step: proceed
+
+  - criterion_id: "SC-3"
+    discovered: false
+    status: PASS
+    evidence: "grep 'Plan STATUS' .opencode/skills/implementation-pipeline/ -- zero matches (verified independently)"
+    explanation: "SC-3 is string evidence type. No 'Plan STATUS' patterns remain in implementation-pipeline enforcement files. Pre-existing 2 references in context-passing.md confirmed removed. PASS."
+    remediation: none
+    next_step: proceed
+
+  - criterion_id: "SC-4"
+    discovered: false
+    status: PASS
+    evidence: "grep 'lifecycle.yaml' .opencode/skills/ -- 5 matches, all reference ./tmp/{issue-N}/lifecycle.yaml. grep '.issues/.*lifecycle' .opencode/skills/ -- matches are for permanent artifact retention policy (.issues/{issue-N}/) and local creation path, not lifecycle manifest path"
+    explanation: "SC-4 is string evidence type. Lifecycle manifest relocated from .issues/{N}/lifecycle.yaml to ./tmp/{N}/lifecycle.yaml. All 3 affected files confirmed: implementation-pipeline/SKILL.md line 216, spec-creation/tasks/write.md lines 74,244, writing-plans/create-and-validate.md line 69. The .issues/ matches are out of scope: SKILL.md line 189 is about permanent artifact retention, not lifecycle path. PASS."
+    remediation: none
+    next_step: proceed
+
+  - criterion_id: "SC-5"
+    discovered: false
+    status: FAIL
+    evidence: "Structural evidence only: verify-blockers.md reads from work state (lines 15,24,112,126,135), verify-authorization.md records to work.md (lines 5,14,22,29,43). NO behavioral test execution artifact (opencode-cli run) in artifact_evidence_dir for SC-5."
+    explanation: "EVIDENCE_TYPE_MISMATCH. SC-5 is declared behavioral -- requires actual agent execution evidence proving 'Agent halts on auth missing in work.md, not label'. The artifact_evidence_dir contains only structural verification (content-verification grep scripts, git diff results). No behavioral test trace exists for SC-5. The implementer's own VbC artifact (pipeline-green-vbc-PASS.yaml) explicitly notes this gap: 'behavioral_caveat: SC-5...clean-room behavioral testing was outside scope'. Both prior auditors (gemma4, qwen3.5) correctly identified this as FAIL. The source code changes are semantically correct but lack behavioral evidence per Evidence Type Taxonomy. Hard FAIL per critical-rules-060 and 080-code-standards. This is a verification completeness gap, not an implementation defect."
+    remediation: NEEDS_VBC
+    next_step: "implementer remediation -- VbC (add behavioral test with opencode-cli run: prompt where work state has authorization but needs-approval label present; verify agent proceeds using assert_semantic) -> re-audit"
+
+  - criterion_id: "SC-6"
+    discovered: false
+    status: FAIL
+    evidence: "Structural evidence only: verify-blockers.md line 126 states 'Labels are advisory visibility markers only -- they do NOT gate execution'. Line 135: 'Labels are advisory visibility markers only'. No HALT-on-needs-approval patterns remain. NO behavioral test execution artifact in artifact_evidence_dir for SC-6."
+    explanation: "EVIDENCE_TYPE_MISMATCH. SC-6 is declared behavioral -- requires actual agent execution evidence proving 'Agent proceeds when work.md has authorization despite label'. The pipeline-green-vbc-PASS.yaml confirms the structural changes are correct but explicitly notes the same behavioral caveat as SC-5. No behavioral test artifact exists. Both prior auditors (gemma4, qwen3.5) correctly identified this as FAIL. Hard FAIL per same rationale as SC-5."
+    remediation: NEEDS_VBC
+    next_step: "implementer remediation -- VbC (add behavioral test with opencode-cli run) -> re-audit"
+
+  - criterion_id: "SC-7"
+    discovered: false
+    status: PASS
+    evidence: "Behavioral: behavioral-evidence-1244-sc7-checklist-generation-GREEN-ollama-deepseek-v4-flash-cloud/ with exit_code 0, manifest confirms scenario 1244-sc7-checklist-generation in GREEN phase. stderr.log shows opencode-cli run dispatched plan creation to deepseek-v4-flash:cloud. stdout.log confirms 'Implementation checklist' produced at 'tmp/974/checklist.md'. Structural: create-and-validate.md lines 94-113 add Step 8 'Generate Implementation Checklist' producing ./tmp/{N}/checklist.md."
+    explanation: "SC-7 is declared behavioral. Behavioral evidence EXISTS and PASSES: behavioral test trace (exit_code 0) in artifact_evidence_dir shows the opencode-cli-run agent generated a checklist on plan creation. Structural evidence confirms the creation step in create-and-validate.md. A discovery finding (D-1) flags contradictory instructions in plan-structure.md (lines 308-310 saying 'removed') vs create-and-validate.md (adding it). However, plan-structure.md is stale pre-existing text not updated by the implementer. The behavioral evidence PROVES SC-7 is satisfied. PASS."
+    remediation: none
+    next_step: "recommend reconciling plan-structure.md stale reference (lines 308-310) to match current create-and-validate.md behavior"
+
+  - criterion_id: "SC-8"
+    discovered: false
+    status: PASS
+    evidence: "glob checklist-phase-*.md in ./tmp/1244/ -- no matches. read ./tmp/1244/checklist.md -- exists, 32 lines, 4 phase sections. Verified independently."
+    explanation: "SC-8 is structural evidence type (file existence check). Single checklist.md with section-per-phase format confirmed. No phase-specific split files found. PASS."
+    remediation: none
+    next_step: proceed
+
+  - criterion_id: "SC-9"
+    discovered: false
+    status: PASS
+    evidence: "Behavioral: behavioral-evidence-1244-sc9-checklist-next-action-GREEN-ollama-deepseek-v4-flash-cloud/ with exit_code 0. Manifest confirms scenario 1244-sc9-checklist-next-action in GREEN phase. stderr.log shows opencode-cli run dispatched with checklist content and question 'What should I work on next?'. stdout.log shows agent analyzed the checklist and identified Phase 3 remaining items as next actions. Structural confirmation: all plan-body STATUS markers removed (SC-1/2/3 PASS)."
+    explanation: "SC-9 is declared behavioral. Behavioral evidence EXISTS and PASSES: the opencode-cli-run agent was presented with a checklist showing Phase 1 and Phase 2 complete, and answered by identifying the Phase 3 remaining items ('retry_queue_depth counter', 'Grafana dashboard panel') as next actions. The agent analyzed the checklist content rather than searching plan body STATUS -- because no STATUS markers remain (SC-1/2/3 removed them). This is the exact behavioral proof SC-9 requires: the agent uses the checklist, not the plan body, for next-action determination. PASS."
+    remediation: none
+    next_step: proceed
+
+discovery_findings:
+  - finding_id: "D-1"
+    status: FLAG
+    evidence: "plan-structure.md line 310: 'Implementation checklist generation has been removed.' create-and-validate.md lines 94-113: Add Step 8 'Generate Implementation Checklist'"
+    explanation: "Contradictory instructions within writing-plans skill. plan-structure.md (lines 308-310) states 'Implementation checklist generation has been removed. ...No separate checklist artifact is needed.' create-and-validate.md (lines 94-113) adds Step 8 to generate ./tmp/{N}/checklist.md. plan-structure.md is stale pre-existing text that was not updated during Phase 4 changes. Behavioral behavioral-evidence-1244-sc7-checklist-generation confirms the agent DOES generate the checklist despite this stale text. This creates ambiguity for future implementers reading plan-structure.md. Should be reconciled by removing or updating the REMOVED section in plan-structure.md."
+
+clean_room:
+  verified: true
+  violations_detected: []
+methodology_independence:
+  phases_followed:
+    - "A1: Input validation (spec_local_dir, artifact_evidence_dir confirmed present)"
+    - "A1a: Behavioral evidence validation (SC-5/6 lacking behavioral artifacts; SC-7/9 have behavioral artifacts)"
+    - "A2: Floor-not-ceiling criteria loading (9 SCs from plan.md exit criteria)"
+    - "A3-A6: Evidence collection (independent verification of all 9 SCs via read/grep + behavioral evidence inspection)"
+    - "A7: Criterion discovery (D-1: contradictory checklist instructions in writing-plans skill)"
+    - "B1-B8: Per-criterion evaluation (semantic depth applied to all SCs)"
+    - "C1: Write verdict artifact"
+    - "C2-C3: Return frugal contract"
+  criteria_loaded_floor: true
+  criteria_discovered: 1
+  criteria_evaluated: 9
+  discovery_pass_ran: true
+  semantic_depth_applied: true

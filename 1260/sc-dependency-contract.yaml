@@ -1,0 +1,8 @@
+variables:
+  SC_1_DONE: {type: bool, nullable: false}
+  SC_2_DONE: {type: bool, nullable: false}
+  SC_3_DONE: {type: bool, nullable: false}
+  SC_4_DONE: {type: bool, nullable: false}
+  sc_dag_is_valid: {type: bool, nullable: false}
+invariants:
+  - "sc_dag_is_valid == True"

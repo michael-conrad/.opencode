@@ -1,0 +1,13 @@
+sc_coverage:
+  total: 4
+  single_task: true
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1260
+  evidence_types:
+    - behavioral
+  phases:
+    - id: Phase 1
+      sc_ids: [SC-1, SC-2, SC-3, SC-4]
+      evidence_types: [behavioral]
+  cross_cutting:
+    sc_ids: []
+    verified_in_phase: null

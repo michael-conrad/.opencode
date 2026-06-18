@@ -1,0 +1,3 @@
+variables:
+  PHASE1_DONE: {type: bool, nullable: false}
+invariants: []

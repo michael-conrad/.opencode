@@ -1,0 +1,9 @@
+schema_version: "1.0"
+generated_at: "20260617"
+status: PASS
+sc_summary:
+  total_scs: 8
+  atomic: true
+  with_dependencies: false
+  single_concern: true
+phase_dependencies: []

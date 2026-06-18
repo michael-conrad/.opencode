@@ -1,0 +1,9 @@
+phase: 2
+scs:
+  - id: SC-2
+    criterion: buildCorePrinciplesBlock() output includes "discrete"
+    evidence_type: behavioral
+    verification_method: assert_semantic with clean-room AI inspector — verifies buildCorePrinciplesBlock output includes principle discreteness language
+    file: .opencode/plugins/session-enforcement.ts
+    function: buildCorePrinciplesBlock
+    line: 836

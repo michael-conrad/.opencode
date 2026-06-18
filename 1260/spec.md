@@ -3,6 +3,8 @@
 STATUS: 1.1
 CREATED: 2026-06-17
 
+> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+
 ## Intent and Executive Summary
 
 **Problem Statement:** Sub-agent detection in `session-enforcement.ts` always returns `false` because `input.client` is `null`/`undefined` in the `messages.transform` hook context. Sub-agents never receive the `### Core Principles (Sub-Agent)` enforcement block, causing them to operate without sub-agent-specific enforcement rules (inline work detection, evidence gate, etc.).
@@ -44,6 +46,8 @@ CREATED: 2026-06-17
 
 ### Success Criteria
 
+> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
 | SC-1 | `session.created` event handler captures `parentID` into in-memory cache before `messages.transform` fires | `behavioral` | `opencode-cli run` with sub-agent task → verify diagnostic stderr shows `isSubAgent: true` and `detectionSource: "event-cache"` |
@@ -70,10 +74,6 @@ CREATED: 2026-06-17
 
 - Changing what the Core Principles (Sub-Agent) block contains — out of scope; this fix only ensures it is delivered
 - Adding new enforcement rules for sub-agents — out of scope; delivery mechanism only
-
----
-
-> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
 ---
 

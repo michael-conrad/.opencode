@@ -1,0 +1,41 @@
+events:
+  - event: spec_created
+    timestamp: 2026-06-16T00:00:00Z
+    issuer: OpenCode (ollama-cloud/deepseek-v4-pro)
+    description: 'Spec #1260 created'
+    severity: info
+  - event: step_completed
+    timestamp: 2026-06-17T03:21:00Z
+    issuer: OpenCode (ollama-cloud/deepseek-v4-pro)
+    step: green-doublecheck
+    status: PASS
+    description: "GREEN-side SC evidence: SC-1 (event cache captures parentID), SC-2 (cache primary, API fallback), SC-3 (sub-agent receives block), SC-4 (behavioral test PASS) all verified with behavioral evidence"
+    severity: info
+  - event: step_completed
+    timestamp: "2026-06-17T05:34:00Z"
+    issuer: "OpenCode (ollama-cloud/deepseek-v4-flash)"
+    step: pre-red-baseline
+    status: PASS
+    description: "Source currency verified: session-enforcement.ts matches spec (no session.created handler exists, system.transform uses input.client.session.get(), messages.transform uses subAgentSessions Set). SC-ID traceability confirmed: all 4 SCs behavioral, plan maps SC-4 to red-phase, SC-1/2/3 to green-phase."
+    severity: info
+  - event: step_completed
+    timestamp: "2026-06-17T06:34:52Z"
+    issuer: "OpenCode (ollama-cloud/deepseek-v4-flash)"
+    step: sc-coherence-gate
+    status: PASS
+    description: "All 4 SCs (SC-1, SC-2, SC-3, SC-4) classified as behavioral evidence type. No EVIDENCE_TYPE_MISMATCH. No uplift needed. Z3 SAT: all independently testable behavioral criteria."
+    severity: info
+  - event: step_completed
+    timestamp: "2026-06-17T05:42:00Z"
+    issuer: "OpenCode (ollama-cloud/deepseek-v4-flash)"
+    step: red-phase
+    status: PASS
+    description: "RED behavioral test sub-agent-principles-injection.sh executed. Artifact confirms: stderr shows session.created published but no isSubAgent:true diagnostic, 0 occurrences of Core Principles or Sub-Agent enforcement block. SC-4 gap confirmed — sub-agents do NOT receive Core Principles block before fix."
+    severity: info
+  - event: step_completed
+    timestamp: "2026-06-17T06:05:00Z"
+    issuer: "OpenCode (ollama-cloud/deepseek-v4-flash)"
+    step: cross-validate
+    status: FAIL
+    description: "Cross-validate: overall_consensus=FAIL. All 4 SCs non-PASS. Auditor 1 (LEAF-evaluator, mistral): FAIL on all SCs — session.created handler missing, no behavioral test exists. Auditor 2 (LEAF, adversarial-audit): BLOCKED on all SCs — no behavioral evidence artifacts found. Next step: remediate then re-audit."
+    severity: error

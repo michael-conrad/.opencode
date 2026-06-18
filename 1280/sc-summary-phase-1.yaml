@@ -1,0 +1,9 @@
+phase: 1
+scs:
+  - id: SC-1
+    criterion: buildPreImplementationGate() output includes "discrete" or "must not be combined"
+    evidence_type: behavioral
+    verification_method: assert_semantic with clean-room AI inspector — verifies buildPreImplementationGate output includes step discreteness language
+    file: .opencode/plugins/session-enforcement.ts
+    function: buildPreImplementationGate
+    line: 821

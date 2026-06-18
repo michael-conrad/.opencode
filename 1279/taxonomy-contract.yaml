@@ -1,0 +1,21 @@
+domain: skill-card-change-types
+constraints:
+  - name: phase-1-before-phase-2
+    type: precedence
+    from: phase-1
+    to: phase-2
+  - name: phase-2-before-phase-3
+    type: precedence
+    from: phase-2
+    to: phase-3
+  - name: no-circular-dependencies
+    type: acyclic
+    nodes:
+      - phase-1
+      - phase-2
+      - phase-3
+    edges:
+      - from: phase-1
+        to: phase-2
+      - from: phase-2
+        to: phase-3

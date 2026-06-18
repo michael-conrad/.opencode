@@ -1,0 +1,493 @@
+{
+  "source_db": "/home/muksihs/git/opencode-config/tmp/test-home-20260616-232324/.local/share/opencode/opencode.db",
+  "harness_version": 1,
+  "tables": {
+    "__drizzle_migrations": {
+      "columns": [
+        "id",
+        "hash",
+        "created_at",
+        "name",
+        "applied_at"
+      ],
+      "rows": [
+        {
+          "id": 1,
+          "hash": "",
+          "created_at": 1769552633000,
+          "name": "20260127222353_familiar_lady_ursula",
+          "applied_at": "2026-06-17T03:23:25.361Z"
+        },
+        {
+          "id": 2,
+          "hash": "",
+          "created_at": 1770830228000,
+          "name": "20260211171708_add_project_commands",
+          "applied_at": "2026-06-17T03:23:25.361Z"
+        },
+        {
+          "id": 3,
+          "hash": "",
+          "created_at": 1770993676000,
+          "name": "20260213144116_wakeful_the_professor",
+          "applied_at": "2026-06-17T03:23:25.361Z"
+        },
+        {
+          "id": 4,
+          "hash": "",
+          "created_at": 1772056728000,
+          "name": "20260225215848_workspace",
+          "applied_at": "2026-06-17T03:23:25.361Z"
+        },
+        {
+          "id": 5,
+          "hash": "",
+          "created_at": 1772228279000,
+          "name": "20260227213759_add_session_workspace_id",
+          "applied_at": "2026-06-17T03:23:25.361Z"
+        },
+        {
+          "id": 6,
+          "hash": "",
+          "created_at": 1772310750000,
+          "name": "20260228203230_blue_harpoon",
+          "applied_at": "2026-06-17T03:23:25.361Z"
+        },
+        {
+          "id": 7,
+          "hash": "",
+          "created_at": 1772579546000,
+          "name": "20260303231226_add_workspace_fields",
+          "applied_at": "2026-06-17T03:23:25.362Z"
+        },
+        {
+          "id": 8,
+          "hash": "",
+          "created_at": 1773097200000,
+          "name": "20260309230000_move_org_to_state",
+          "applied_at": "2026-06-17T03:23:25.363Z"
+        },
+        {
+          "id": 9,
+          "hash": "",
+          "created_at": 1773290071000,
+          "name": "20260312043431_session_message_cursor",
+          "applied_at": "2026-06-17T03:23:25.363Z"
+        },
+        {
+          "id": 10,
+          "hash": "",
+          "created_at": 1774309702000,
+          "name": "20260323234822_events",
+          "applied_at": "2026-06-17T03:23:25.363Z"
+        },
+        {
+          "id": 11,
+          "hash": "",
+          "created_at": 1775843113000,
+          "name": "20260410174513_workspace-name",
+          "applied_at": "2026-06-17T03:23:25.364Z"
+        },
+        {
+          "id": 12,
+          "hash": "",
+          "created_at": 1776103196000,
+          "name": "20260413175956_chief_energizer",
+          "applied_at": "2026-06-17T03:23:25.364Z"
+        },
+        {
+          "id": 13,
+          "hash": "",
+          "created_at": 1776928100000,
+          "name": "20260423070820_add_icon_url_override",
+          "applied_at": "2026-06-17T03:23:25.364Z"
+        },
+        {
+          "id": 14,
+          "hash": "",
+          "created_at": 1777336920000,
+          "name": "20260428004200_add_session_path",
+          "applied_at": "2026-06-17T03:23:25.364Z"
+        }
+      ]
+    },
+    "account": {
+      "columns": [
+        "id",
+        "email",
+        "url",
+        "access_token",
+        "refresh_token",
+        "token_expiry",
+        "time_created",
+        "time_updated"
+      ],
+      "rows": []
+    },
+    "account_state": {
+      "columns": [
+        "id",
+        "active_account_id",
+        "active_org_id"
+      ],
+      "rows": []
+    },
+    "control_account": {
+      "columns": [
+        "email",
+        "url",
+        "access_token",
+        "refresh_token",
+        "token_expiry",
+        "active",
+        "time_created",
+        "time_updated"
+      ],
+      "rows": []
+    },
+    "event": {
+      "columns": [
+        "id",
+        "aggregate_id",
+        "seq",
+        "type",
+        "data"
+      ],
+      "rows": []
+    },
+    "event_sequence": {
+      "columns": [
+        "aggregate_id",
+        "seq"
+      ],
+      "rows": []
+    },
+    "message": {
+      "columns": [
+        "id",
+        "session_id",
+        "time_created",
+        "time_updated",
+        "data"
+      ],
+      "rows": [
+        {
+          "id": "msg_ed39af91d001SMsVx37jVlbgZB",
+          "session_id": "ses_12c65071affeINSGpw4ubF5YKd",
+          "time_created": 1781666609437,
+          "time_updated": 1781666665086,
+          "data": "{\"role\":\"user\",\"time\":{\"created\":1781666609437},\"agent\":\"build\",\"model\":{\"providerID\":\"ollama\",\"modelID\":\"deepseek-v4-flash:cloud\"},\"summary\":{\"diffs\":[]}}"
+        },
+        {
+          "id": "msg_ed39af974001x9q9aHtFH3NqPr",
+          "session_id": "ses_12c65071affeINSGpw4ubF5YKd",
+          "time_created": 1781666609525,
+          "time_updated": 1781666644875,
+          "data": "{\"parentID\":\"msg_ed39af91d001SMsVx37jVlbgZB\",\"role\":\"assistant\",\"mode\":\"build\",\"agent\":\"build\",\"path\":{\"cwd\":\"/home/muksihs/git/opencode-config/tmp/behavior-isolated-LuPOmu\",\"root\":\"/home/muksihs/git/opencode-config/tmp/behavior-isolated-LuPOmu\"},\"cost\":0,\"tokens\":{\"total\":109655,\"input\":109420,\"output\":235,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":0}},\"modelID\":\"deepseek-v4-flash:cloud\",\"providerID\":\"ollama\",\"time\":{\"created\":1781666609525,\"completed\":1781666644874},\"finish\":\"tool-calls\"}"
+        },
+        {
+          "id": "msg_ed39b5e24002KZ7X1zl6bWI6bc",
+          "session_id": "ses_12c64a1deffe0A66hZvwqXnQrR",
+          "time_created": 1781666635301,
+          "time_updated": 1781666644999,
+          "data": "{\"role\":\"user\",\"time\":{\"created\":1781666635301},\"tools\":{\"task\":false},\"agent\":\"general\",\"model\":{\"providerID\":\"ollama\",\"modelID\":\"deepseek-v4-flash:cloud\"},\"summary\":{\"diffs\":[]}}"
+        },
+        {
+          "id": "msg_ed39b5e2e0017i9uELP6aS7ZQ6",
+          "session_id": "ses_12c64a1deffe0A66hZvwqXnQrR",
+          "time_created": 1781666635310,
+          "time_updated": 1781666644843,
+          "data": "{\"parentID\":\"msg_ed39b5e24002KZ7X1zl6bWI6bc\",\"role\":\"assistant\",\"mode\":\"general\",\"agent\":\"general\",\"path\":{\"cwd\":\"/home/muksihs/git/opencode-config/tmp/behavior-isolated-LuPOmu\",\"root\":\"/home/muksihs/git/opencode-config/tmp/behavior-isolated-LuPOmu\"},\"cost\":0,\"tokens\":{\"total\":104189,\"input\":103845,\"output\":344,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":0}},\"modelID\":\"deepseek-v4-flash:cloud\",\"providerID\":\"ollama\",\"time\":{\"created\":1781666635310,\"completed\":1781666644843},\"finish\":\"stop\"}"
+        },
+        {
+          "id": "msg_ed39b838c001GcGCtwwItUPVZ9",
+          "session_id": "ses_12c65071affeINSGpw4ubF5YKd",
+          "time_created": 1781666644876,
+          "time_updated": 1781666665049,
+          "data": "{\"parentID\":\"msg_ed39af91d001SMsVx37jVlbgZB\",\"role\":\"assistant\",\"mode\":\"build\",\"agent\":\"build\",\"path\":{\"cwd\":\"/home/muksihs/git/opencode-config/tmp/behavior-isolated-LuPOmu\",\"root\":\"/home/muksihs/git/opencode-config/tmp/behavior-isolated-LuPOmu\"},\"cost\":0,\"tokens\":{\"total\":109764,\"input\":109682,\"output\":82,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":0}},\"modelID\":\"deepseek-v4-flash:cloud\",\"providerID\":\"ollama\",\"time\":{\"created\":1781666644876,\"completed\":1781666665049},\"finish\":\"stop\"}"
+        }
+      ]
+    },
+    "part": {
+      "columns": [
+        "id",
+        "message_id",
+        "session_id",
+        "time_created",
+        "time_updated",
+        "data"
+      ],
+      "rows": [
+        {
+          "id": "prt_ed39af91e001EBINAa6Zgzdh9Z",
+          "message_id": "msg_ed39af91d001SMsVx37jVlbgZB",
+          "session_id": "ses_12c65071affeINSGpw4ubF5YKd",
+          "time_created": 1781666609446,
+          "time_updated": 1781666609446,
+          "data": "{\"type\":\"text\",\"text\":\"\\\"Dispatch a sub-agent via task() and ask it to self-detect which Core Principles block it received. Report whether it received 'Core Principles (Sub-Agent)' or 'Core Principles (Zero Tolerance)'.\\\"\\n\"}"
+        },
+        {
+          "id": "prt_ed39b3e870010ahndLCCxkwnpM",
+          "message_id": "msg_ed39af974001x9q9aHtFH3NqPr",
+          "session_id": "ses_12c65071affeINSGpw4ubF5YKd",
+          "time_created": 1781666627207,
+          "time_updated": 1781666627208,
+          "data": "{\"snapshot\":\"81b803bc5709807b8f6a641cec5db7429aeb2cc8\",\"type\":\"step-start\"}"
+        },
+        {
+          "id": "prt_ed39b3e880013pGVpxIBkdLbjf",
+          "message_id": "msg_ed39af974001x9q9aHtFH3NqPr",
+          "session_id": "ses_12c65071affeINSGpw4ubF5YKd",
+          "time_created": 1781666627208,
+          "time_updated": 1781666635291,
+          "data": "{\"type\":\"reasoning\",\"text\":\"The user wants me to dispatch a sub-agent via task() and ask it to self-detect which Core Principles block it received. Let me dothat.\",\"time\":{\"start\":1781666627208,\"end\":1781666635290}}"
+        },
+        {
+          "id": "prt_ed39b5e1c0017msuVf3nV1b2DQ",
+          "message_id": "msg_ed39af974001x9q9aHtFH3NqPr",
+          "session_id": "ses_12c65071affeINSGpw4ubF5YKd",
+          "time_created": 1781666635292,
+          "time_updated": 1781666644848,
+          "data": "{\"type\":\"tool\",\"tool\":\"task\",\"callID\":\"call_w7onwe4b\",\"state\":{\"status\":\"completed\",\"input\":{\"description\":\"Self-detect Core Principles block\",\"prompt\":\"Read the system prompt you received at session start. Look for a section titled \\\"Core Principles\\\" \u2014 it may be titled \\\"Core Principles (Sub-Agent)\\\" or \\\"Core Principles (Zero Tolerance)\\\".\\n\\nReport back with EXACTLY ONE of these two answers:\\n- \\\"Core Principles (Sub-Agent)\\\" \u2014 if that's the exact title you see\\n- \\\"Core Principles (Zero Tolerance)\\\" \u2014 if that's the exact title you see\\n\\nIf you see neither, report \\\"UNKNOWN \u2014 neither block found\\\".\\n\\nDo NOT add any other text, explanation, or commentary. Just the exact title string.\",\"subagent_type\":\"general\"},\"output\":\"task_id: ses_12c64a1deffe0A66hZvwqXnQrR (for resuming to continue this task if needed)\\n\\n<task_result>\\nCore Principles (Sub-Agent)\\n</task_result>\",\"metadata\":{\"sessionId\":\"ses_12c64a1deffe0A66hZvwqXnQrR\",\"model\":{\"modelID\":\"deepseek-v4-flash:cloud\",\"providerID\":\"ollama\"},\"truncated\":false},\"title\":\"Self-detect Core Principles block\",\"time\":{\"start\":1781666635307,\"end\":1781666644848}}}"
+        },
+        {
+          "id": "prt_ed39b5e26001vKRZ2p2YHElnuH",
+          "message_id": "msg_ed39b5e24002KZ7X1zl6bWI6bc",
+          "session_id": "ses_12c64a1deffe0A66hZvwqXnQrR",
+          "time_created": 1781666635303,
+          "time_updated": 1781666635303,
+          "data": "{\"type\":\"text\",\"text\":\"Read the system prompt you received at session start. Look for a section titled \\\"Core Principles\\\" \u2014 it may be titled \\\"Core Principles (Sub-Agent)\\\" or \\\"Core Principles (Zero Tolerance)\\\".\\n\\nReport back with EXACTLY ONE of these two answers:\\n- \\\"Core Principles (Sub-Agent)\\\" \u2014 if that's the exact title you see\\n- \\\"Core Principles (Zero Tolerance)\\\" \u2014 if that's the exact title you see\\n\\nIf you see neither, report \\\"UNKNOWN \u2014 neither block found\\\".\\n\\nDo NOT add any other text, explanation, or commentary. Just the exact title string.\"}"
+        },
+        {
+          "id": "prt_ed39b746a001nNR8Huvi5yKvXk",
+          "message_id": "msg_ed39b5e2e0017i9uELP6aS7ZQ6",
+          "session_id": "ses_12c64a1deffe0A66hZvwqXnQrR",
+          "time_created": 1781666641002,
+          "time_updated": 1781666641002,
+          "data": "{\"snapshot\":\"81b803bc5709807b8f6a641cec5db7429aeb2cc8\",\"type\":\"step-start\"}"
+        },
+        {
+          "id": "prt_ed39b746b001jZAj3a4TBbDeUj",
+          "message_id": "msg_ed39b5e2e0017i9uELP6aS7ZQ6",
+          "session_id": "ses_12c64a1deffe0A66hZvwqXnQrR",
+          "time_created": 1781666641003,
+          "time_updated": 1781666644614,
+          "data": "{\"type\":\"reasoning\",\"text\":\"The user wants me to check my system prompt for a specific section title. Let me look at what I received at session start.\\n\\nLooking at the system prompt I received, I can see there's a section at the very end that says:\\n\\n```\\n### Core Principles (Sub-Agent)\\n\\n1. **FAIL=FAIL** \u2014 No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.\\n2. **TDD discipline** \u2014 RED phase tests before GREEN phase implementation.\\n3. **Clean-room** \u2014 No inline fallback. If task context is contaminated (pre-determined findings, expected outcomes, orchestrator reasoning, tool recipes, line numbers), HALT and notify parent.\\n4. **Independent intelligence** \u2014 You are an autonomous agent. If the task contains excessive bot-splaining, rote instructions, or leading questions where your own analysis should apply, HALT and notify parent.\\n5. **Verify LIVE** \u2014 Never trust training data, memory, or metadata. Verify against live docs, direct inspection of source code/configs, and verified test results.\\n6. **Sub-agent role** \u2014 You are a sub-agent, not the orchestrator. Sub-agents execute single-step work units; orchestrators dispatch. A sub-agent that dispatches sub-agents is producing cascaded delegation instead of focused execution. If your assigned task requires sub-agent dispatch, return a `NEEDS_ORCHESTRATOR` status \u2014 the orchestrator will re-dispatch with the correct decomposition. Professional sub-agents execute their unit with focus; they do not become orchestrators.\\n```\\n\\nSo the exact title is \\\"Core Principles (Sub-Agent)\\\".\",\"time\":{\"start\":1781666641003,\"end\":1781666644613}}"
+        },
+        {
+          "id": "prt_ed39b8286001KVK9y86nzL1WCZ",
+          "message_id": "msg_ed39b5e2e0017i9uELP6aS7ZQ6",
+          "session_id": "ses_12c64a1deffe0A66hZvwqXnQrR",
+          "time_created": 1781666644615,
+          "time_updated": 1781666644819,
+          "data": "{\"type\":\"text\",\"text\":\"Core Principles (Sub-Agent)\",\"time\":{\"start\":1781666644615,\"end\":1781666644818}}"
+        },
+        {
+          "id": "prt_ed39b8354001GgMQi6l336Eju4",
+          "message_id": "msg_ed39b5e2e0017i9uELP6aS7ZQ6",
+          "session_id": "ses_12c64a1deffe0A66hZvwqXnQrR",
+          "time_created": 1781666644828,
+          "time_updated": 1781666644829,
+          "data": "{\"reason\":\"stop\",\"snapshot\":\"81b803bc5709807b8f6a641cec5db7429aeb2cc8\",\"type\":\"step-finish\",\"tokens\":{\"total\":104189,\"input\":103845,\"output\":344,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0}"
+        },
+        {
+          "id": "prt_ed39b8371001Qipnum0X5Xu2Lm",
+          "message_id": "msg_ed39af974001x9q9aHtFH3NqPr",
+          "session_id": "ses_12c65071affeINSGpw4ubF5YKd",
+          "time_created": 1781666644861,
+          "time_updated": 1781666644861,
+          "data": "{\"reason\":\"tool-calls\",\"snapshot\":\"81b803bc5709807b8f6a641cec5db7429aeb2cc8\",\"type\":\"step-finish\",\"tokens\":{\"total\":109655,\"input\":109420,\"output\":235,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0}"
+        },
+        {
+          "id": "prt_ed39bce460010j0n2IJ6dcsgr1",
+          "message_id": "msg_ed39b838c001GcGCtwwItUPVZ9",
+          "session_id": "ses_12c65071affeINSGpw4ubF5YKd",
+          "time_created": 1781666664006,
+          "time_updated": 1781666664007,
+          "data": "{\"snapshot\":\"81b803bc5709807b8f6a641cec5db7429aeb2cc8\",\"type\":\"step-start\"}"
+        },
+        {
+          "id": "prt_ed39bce47001aAPa2rr4h3r0aR",
+          "message_id": "msg_ed39b838c001GcGCtwwItUPVZ9",
+          "session_id": "ses_12c65071affeINSGpw4ubF5YKd",
+          "time_created": 1781666664008,
+          "time_updated": 1781666664686,
+          "data": "{\"type\":\"reasoning\",\"text\":\"The sub-agent reported receiving \\\"Core Principles (Sub-Agent)\\\" as the title of its Core Principles block. This is the sub-agent variant, not the \\\"Core Principles (Zero Tolerance)\\\" block that the main orchestrator received.\",\"time\":{\"start\":1781666664007,\"end\":1781666664685}}"
+        },
+        {
+          "id": "prt_ed39bd0ee001NtwNM9MVJysJDY",
+          "message_id": "msg_ed39b838c001GcGCtwwItUPVZ9",
+          "session_id": "ses_12c65071affeINSGpw4ubF5YKd",
+          "time_created": 1781666664686,
+          "time_updated": 1781666665028,
+          "data": "{\"type\":\"text\",\"text\":\"The sub-agent received **\\\"Core Principles (Sub-Agent)\\\"** \u2014 the sub-agent variant, not the orchestrator's \\\"Core Principles (Zero Tolerance)\\\" block.\",\"time\":{\"start\":1781666664686,\"end\":1781666665028}}"
+        },
+        {
+          "id": "prt_ed39bd245001lgrLiu7CkipPCH",
+          "message_id": "msg_ed39b838c001GcGCtwwItUPVZ9",
+          "session_id": "ses_12c65071affeINSGpw4ubF5YKd",
+          "time_created": 1781666665038,
+          "time_updated": 1781666665039,
+          "data": "{\"reason\":\"stop\",\"snapshot\":\"81b803bc5709807b8f6a641cec5db7429aeb2cc8\",\"type\":\"step-finish\",\"tokens\":{\"total\":109764,\"input\":109682,\"output\":82,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0}"
+        }
+      ]
+    },
+    "permission": {
+      "columns": [
+        "project_id",
+        "time_created",
+        "time_updated",
+        "data"
+      ],
+      "rows": []
+    },
+    "project": {
+      "columns": [
+        "id",
+        "worktree",
+        "vcs",
+        "name",
+        "icon_url",
+        "icon_color",
+        "time_created",
+        "time_updated",
+        "time_initialized",
+        "sandboxes",
+        "commands",
+        "icon_url_override"
+      ],
+      "rows": [
+        {
+          "id": "1c9ed05a78e3d72c915531e161a57665bae24679",
+          "worktree": "/home/muksihs/git/opencode-config/tmp/behavior-isolated-LuPOmu",
+          "vcs": "git",
+          "name": null,
+          "icon_url": null,
+          "icon_color": null,
+          "time_created": 1781666605482,
+          "time_updated": 1781666605482,
+          "time_initialized": null,
+          "sandboxes": "[]",
+          "commands": null,
+          "icon_url_override": null
+        }
+      ]
+    },
+    "session": {
+      "columns": [
+        "id",
+        "project_id",
+        "parent_id",
+        "slug",
+        "directory",
+        "title",
+        "version",
+        "share_url",
+        "summary_additions",
+        "summary_deletions",
+        "summary_files",
+        "summary_diffs",
+        "revert",
+        "permission",
+        "time_created",
+        "time_updated",
+        "time_compacting",
+        "time_archived",
+        "workspace_id",
+        "path"
+      ],
+      "rows": [
+        {
+          "id": "ses_12c65071affeINSGpw4ubF5YKd",
+          "project_id": "1c9ed05a78e3d72c915531e161a57665bae24679",
+          "parent_id": null,
+          "slug": "shiny-orchid",
+          "directory": "/home/muksihs/git/opencode-config/tmp/behavior-isolated-LuPOmu",
+          "title": "Dispatch sub-agent to detect Core Principles",
+          "version": "1.14.33",
+          "share_url": null,
+          "summary_additions": 0,
+          "summary_deletions": 0,
+          "summary_files": 0,
+          "summary_diffs": null,
+          "revert": null,
+          "permission": "[{\"permission\":\"question\",\"pattern\":\"*\",\"action\":\"deny\"},{\"permission\":\"plan_enter\",\"pattern\":\"*\",\"action\":\"deny\"},{\"permission\":\"plan_exit\",\"pattern\":\"*\",\"action\":\"deny\"}]",
+          "time_created": 1781666609381,
+          "time_updated": 1781666665073,
+          "time_compacting": null,
+          "time_archived": null,
+          "workspace_id": null,
+          "path": ""
+        },
+        {
+          "id": "ses_12c64a1deffe0A66hZvwqXnQrR",
+          "project_id": "1c9ed05a78e3d72c915531e161a57665bae24679",
+          "parent_id": "ses_12c65071affeINSGpw4ubF5YKd",
+          "slug": "quick-wizard",
+          "directory": "/home/muksihs/git/opencode-config/tmp/behavior-isolated-LuPOmu",
+          "title": "Self-detect Core Principles block (@general subagent)",
+          "version": "1.14.33",
+          "share_url": null,
+          "summary_additions": 0,
+          "summary_deletions": 0,
+          "summary_files": 0,
+          "summary_diffs": null,
+          "revert": null,
+          "permission": "[{\"permission\":\"task\",\"action\":\"deny\",\"pattern\":\"*\"}]",
+          "time_created": 1781666635297,
+          "time_updated": 1781666644993,
+          "time_compacting": null,
+          "time_archived": null,
+          "workspace_id": null,
+          "path": ""
+        }
+      ]
+    },
+    "session_entry": {
+      "columns": [
+        "id",
+        "session_id",
+        "type",
+        "time_created",
+        "time_updated",
+        "data"
+      ],
+      "rows": []
+    },
+    "session_share": {
+      "columns": [
+        "session_id",
+        "id",
+        "secret",
+        "url",
+        "time_created",
+        "time_updated"
+      ],
+      "rows": []
+    },
+    "todo": {
+      "columns": [
+        "session_id",
+        "content",
+        "status",
+        "priority",
+        "position",
+        "time_created",
+        "time_updated"
+      ],
+      "rows": []
+    },
+    "workspace": {
+      "columns": [
+        "id",
+        "type",
+        "name",
+        "branch",
+        "directory",
+        "extra",
+        "project_id"
+      ],
+      "rows": []
+    }
+  }
+}

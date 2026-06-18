@@ -1,0 +1,12 @@
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+values:
+  - fluent: completed(phase-1)
+    value: false
+  - fluent: completed(phase-2)
+    value: false
+  - fluent: completed(phase-3)
+    value: false

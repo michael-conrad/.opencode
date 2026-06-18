@@ -1,0 +1,56 @@
+domain: opencode-1278-phase-plan
+types:
+  - name: phase
+objects:
+  - name: phase1
+    type: phase
+  - name: phase2
+    type: phase
+  - name: phase3
+    type: phase
+  - name: phase4
+    type: phase
+  - name: phase5
+    type: phase
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: execute-phase1
+    params: []
+    preconditions: []
+    effects:
+      - completed(phase1)
+  - name: execute-phase2
+    params: []
+    preconditions:
+      - completed(phase1)
+    effects:
+      - completed(phase2)
+  - name: execute-phase3
+    params: []
+    preconditions:
+      - completed(phase2)
+    effects:
+      - completed(phase3)
+  - name: execute-phase4
+    params: []
+    preconditions:
+      - completed(phase3)
+    effects:
+      - completed(phase4)
+  - name: execute-phase5
+    params: []
+    preconditions:
+      - completed(phase4)
+    effects:
+      - completed(phase5)
+init: []
+goals:
+  - completed(phase1)
+  - completed(phase2)
+  - completed(phase3)
+  - completed(phase4)
+  - completed(phase5)

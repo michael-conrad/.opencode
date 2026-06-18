@@ -1,0 +1,23 @@
+schema_version: "1.0"
+generated_at: "20260617051159"
+sc_coverage:
+  total: 3
+  atomic: 3
+  with_dependencies: 2
+  single_concern: 3
+  scs:
+    - id: SC-1
+      description: "Compliance requirement blockquote appears at top of generated spec body (after STATUS/CREATED header)"
+      evidence_type: string
+      phase: 1
+      item: 1
+    - id: SC-2
+      description: "Compliance requirement blockquote appears before success criteria table in generated spec body"
+      evidence_type: string
+      phase: 1
+      item: 2
+    - id: SC-3
+      description: "Only write.md changed"
+      evidence_type: structural
+      phase: 1
+      item: 3

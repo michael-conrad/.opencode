@@ -1,0 +1,11 @@
+phase: 5
+scs:
+  - id: SC-5
+    criterion: Behavioral test verifies agent treats each step as discrete
+    evidence_type: behavioral
+    verification_method: opencode-cli run with prompt that triggers enforcement blocks → verify agent dispatches discrete steps
+    depends_on:
+      - Phase 1 (SC-1)
+      - Phase 2 (SC-2)
+      - Phase 3 (SC-3)
+      - Phase 4 (SC-4)

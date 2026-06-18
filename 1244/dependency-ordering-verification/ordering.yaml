@@ -1,0 +1,8 @@
+schema_version: "1.0"
+generated_at: "20260616141500"
+variables:
+  PHASE_A_DONE: {type: bool, nullable: false}
+  PHASE_B_DONE: {type: bool, nullable: false}
+  PHASE_C_DONE: {type: bool, nullable: false}
+  PHASE_D_DONE: {type: bool, nullable: false}
+invariants: []
