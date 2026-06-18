@@ -27,6 +27,7 @@ Git Workflow Enforcer. Three-branch model: feature → dev → main. AI commits 
 | "release" / "promote to main" / "dev to main" | `release-promotion` | `sub-task` | {branch_name} |
 | "check pr" / "check prs" / "check merged prs" / "pr merged" | `check-pr` | `sub-task` | {branch_name} |
 | "provenance" / "provenance check" | `provenance` | `sub-task` | {submodule_path} |
+| "sync submodules" / "update submodules" | `submodule-sync` | `sub-task` | {submodule_paths} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Persona
@@ -50,6 +51,7 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 | `pair-pr-creation` |
 | `pair-cleanup` |
 | `pair-mode-resume` |
+| `submodule-sync` |
 | `completion` |
 
 ## Routing: Feature PR vs Release PR
@@ -74,6 +76,7 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 | `release-promotion` | `task(..., prompt: "execute release-promotion task from git-workflow")` |
 | `check-pr` | `task(..., prompt: "execute check-pr task from git-workflow")` |
 | `provenance` | `task(..., prompt: "execute provenance task from git-workflow")` |
+| `submodule-sync` | `task(..., prompt: "execute submodule-sync task from git-workflow")` |
 | `completion` | `task(..., prompt: "execute completion task from git-workflow")` |
 
 **CLI equivalent (for human TUI use):** `/skill git-workflow --task <task>`
@@ -86,6 +89,7 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 | `submodule-feature-push` | review-prep Step 0 | parent_repo, issue_number, submodule_paths, submodule_branches | Implementation context, agent memory, orchestrator reasoning | `.opencode/agents/submodule-feature-push.jsonc` |
 | `submodule-liveness-check` | enforcement-gate Step 0, PR-time | submodule_paths, referenced_hashes, parent_repo, issue_number | Implementation context, agent memory, prior verification results | `.opencode/agents/submodule-liveness-check.jsonc` |
 | `submodule-dev-restore` | cleanup Step 1.9 | submodule_paths | Implementation context, agent memory, other sub-agent results | `.opencode/agents/submodule-dev-restore.jsonc` |
+| `submodule-sync` | user "sync submodules" / mid-feature currency | submodule_paths | Implementation context, agent memory, orchestrator reasoning | `.opencode/agents/submodule-sync.jsonc` |
 
 ## Operating Protocol
 
@@ -139,6 +143,19 @@ Every sub-agent MUST independently discover scope and produce its own result con
 | Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
 | Preloaded orchestrator reasoning | "The merge was just completed so we need to..." | Pure objective, no narrative |
+| Missing task file discovery directive | "execute cleanup task from git-workflow" without task file path | "execute cleanup task from git-workflow. Read `git-workflow/tasks/cleanup.md` first" |
+
+## Required: Sub-agent Task File Discovery Directive
+
+Every `task()` prompt that dispatches a named task MUST include a discovery directive in the format:
+
+```
+execute <task> from <skill>. Read `<skill>/tasks/<task>.md` first
+```
+
+This directive tells the sub-agent which task file to load independently — it is NOT preloading the file content. The sub-agent opens and reads the task file in its own clean-room context, discovers the procedure, and executes autonomously. Without this directive, the sub-agent must search for the correct task file, which is wasted context and routing ambiguity.
+
+This is NOT a violation of the preloading prohibition. The task file path is routing metadata (which file to load), not execution context (what the file contains). The sub-agent still reads the file independently and discovers scope on its own.
 
 #### Dispatch Context Contract
 
