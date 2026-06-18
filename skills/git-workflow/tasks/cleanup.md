@@ -257,25 +257,16 @@ SPEC #100 (parent)
 └── Task #103: Phase 3 → PR merges → Close #103 AND #100
 ```
 
-**Parent issues MUST be closed after ALL child issues are verified complete.** Leaving a parent plan issue open after all sub-issues are closed and verified is a process gap that must be treated as a bug requiring a fix.
+**Parent spec issues MUST be closed after ALL child issues are verified complete.** Plans are local artifacts — they are not closed as GitHub Issues.
 
-Example:
+### Step 2.8: Parent Spec Closure After Sub-Issues
 
-```
-Plan #50 (parent)
-├── Task #51: Phase 1 → closed, verified complete → OK
-├── Task #52: Phase 2 → closed, verified complete → OK
-└── ALL children closed → Close #50 with verification comment
-```
+After closing sub-issues (Step 2), check whether the parent spec issue should be closed:
 
-### Step 2.8: Parent Plan Closure After Sub-Issues
+- [ ] 1. **Identify the parent spec issue:**
 
-After closing sub-issues (Step 2), check whether the parent plan issue should be closed:
-
-- [ ] 1. **Identify the parent plan issue:**
-
-   - Use `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues")` on the plan to list all sub-issues <!-- Routes through issue-operations per SPEC #683 -->
-   - If the current closure context came from a PR body referencing a plan, use that plan issue number
+   - Use `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues")` on the spec to list all sub-issues <!-- Routes through issue-operations per SPEC #683 -->
+   - If the current closure context came from a PR body referencing a spec, use that spec issue number
 
 - [ ] 2. **Verify ALL sub-issues are closed with legitimate completion evidence:**
 
@@ -285,23 +276,23 @@ After closing sub-issues (Step 2), check whether the parent plan issue should be
 
 - [ ] 3. **If ALL sub-issues are legitimately closed:**
 
-   - Close the parent plan issue with `issue-operations -> update-issue (github_issue_write(method="update", state="closed", state_reason="completed")` <!-- Routes through issue-operations per SPEC #683 -->
+   - Close the parent spec issue with `issue-operations -> update-issue (github_issue_write(method="update", state="closed", state_reason="completed")` <!-- Routes through issue-operations per SPEC #683 -->
    - Post a verification comment documenting per-sub-issue evidence:
      ```
-     All sub-issues verified complete. Closing parent plan.
+     All sub-issues verified complete. Closing parent spec.
 
      Sub-issue closure evidence:
      - #<N1>: Merged PR #<P1> — <brief description>
      - #<N2>: Verified already implemented via autoclose — <brief description>
      - ...
 
-     Parent plan closure is legitimate because all child issues are verified complete.
+     Parent spec closure is legitimate because all child issues are verified complete.
      ```
 
 - [ ] 4. **If ANY sub-issue is NOT closed or NOT legitimately completed:**
 
-   - Do NOT close the parent plan
-   - Report in cleanup output: "Parent plan #\<plan_number> remains open — sub-issue #\<open_num> is not yet complete"
+   - Do NOT close the parent spec
+   - Report in cleanup output: "Parent spec #\<spec_number> remains open — sub-issue #\<open_num> is not yet complete"
 
 ## Closing Summary (Conditional)
 

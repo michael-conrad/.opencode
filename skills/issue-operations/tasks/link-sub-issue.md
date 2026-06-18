@@ -29,8 +29,10 @@ Route based on `github.platform`:
 
 **GitHub platform (sub-skill implementation):**
 ```python
-plan = github_issue_read(method="get", issue_number=M)
-phases = extract_phases(plan["body"])
+# Read plan from local file (plans are local artifacts, not GitHub Issues)
+plan_paths = [f".issues/{M}/plan.md", f"*/.issues/{M}/plan.md"]
+plan_body = read_local_plan_file(plan_paths)
+phases = extract_phases(plan_body)
 if len(phases) == 1:
     # Single-task exemption - no sub-issue needed
     return

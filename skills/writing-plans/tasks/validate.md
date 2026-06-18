@@ -15,7 +15,7 @@ Check an existing plan for placeholders and completeness.
 - [ ] 07. **Self-review evidence** — Agent has performed spec coverage, placeholder, and type consistency checks
 - [ ] 08. **Spec reference** — Plan body contains a spec reference (search for `Spec: #N` pattern)
 - [ ] 09. **Sub-issue parent** — If plan has sub-issues, they link to the plan (not the spec)
-- [ ] 10. **Plan label** — Plan issue has `plan` label
+- [ ] 10. **Plan file exists** — Plan file exists at `*/.issues/{N}/plan.md`
 
 ## No-Placeholders Rule
 
@@ -73,7 +73,7 @@ Does NOT enforce a specific section order. A plan without "Risks" is valid if ri
 | "No placeholders present" | Search for placeholder patterns in plan body | \`grep(pattern="TBD | TODO |
 | "Spec reference exists in plan" | Search for `Spec: #N` pattern | `grep(pattern="Spec: #")` on plan body | MISSING-ELEMENT |
 | "Sub-issues link to plan (not spec)" | Verify sub-issue parent | `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=plan_number)` | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
-| "Plan has `plan` label" | Verify label on plan issue | `issue-operations -> read-issue (github_issue_read(method="get", issue_number=plan_number)` → check labels | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
+| "Plan file exists" | Verify plan file at `*/.issues/{N}/plan.md` | `ls */.issues/{N}/plan.md 2>/dev/null` | MISSING-ELEMENT |
 | "Steps are actionable" | Verify each step has concrete action | Manual parse — flag abstract goals | VERIFICATION-GAP |
 
 **Evidence artifact:** Tool call results for automated checks; manual review log for actionable-step verification.

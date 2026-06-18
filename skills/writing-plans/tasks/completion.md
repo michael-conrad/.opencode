@@ -4,7 +4,7 @@ Idempotent completion subtask for writing-plans. Ensures mandatory steps ran reg
 
 ## State Check Phase
 
-- [ ] 1. **Plan issue created:** Verify plan issue exists with [PLAN] prefix and `needs-approval` label (separate), or combined spec+plan has `## Implementation Plan` section
+- [ ] 1. **Plan file created:** Verify plan file exists at `*/.issues/{N}/plan.md` (separate), or combined spec+plan has `## Implementation Plan` section
 - [ ] 2. **Sub-issues created:** For multi-task plans, verify sub-issues created under the plan
 - [ ] 3. **Self-review completed:** Verify self-review checklist was run (coverage, placeholders, type consistency)
 - [ ] 4. **Chat exec summary + URL:** Verify chat output includes exec summary format with plan URL

@@ -77,7 +77,7 @@ GATE 3: Is current branch a feature branch (not main/dev/master)?
 
 **Search Procedure:**
 
-- [ ] 1. **Label search:** Search GitHub Issues with labels `[SPEC]`, `[PLAN]`, `[SPEC-FIX]` in the repository
+- [ ] 1. **Label search:** Search GitHub Issues with labels `[SPEC]`, `[SPEC-FIX]` in the repository
 - [ ] 2. **Keyword search:** Search GitHub Issues using keywords from the implementation request (e.g., feature name, component, module, bug area)
 - [ ] 3. **Evaluate candidates:** For each result, assess relevance to the request target
 - [ ] 4. **Present candidates:** If candidates found, list them with:
@@ -127,7 +127,7 @@ I see you'd like me to implement [X], but I need clarification first.
 [If search found candidates:]
 I found the following existing specs/plans that may be relevant:
 1. #123 [SPEC] Feature X implementation — <URL>
-2. #456 [PLAN] Feature X rollout — <URL>
+2. #456 [SPEC] Feature X rollout — <URL>
 
 Would you like me to work with one of these, or create a new spec?
 

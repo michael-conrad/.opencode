@@ -20,58 +20,31 @@ if not is_spec:
     # Skip cascade — only applies to spec approvals
     proceed to Step 6
 
-# Search for plans referencing this spec
+# Search for local plan files referencing this spec
 spec_number = issue["number"]
-plan_issues = issue-operations -> search-issues (github_search_issues( <!-- Routes through issue-operations per SPEC #683 -->
-    query=f"open label:plan Spec: #{spec_number} repo:{<github.owner>}/{<github.repo>}"
-)
+plan_files = glob_plan_files_for_spec(spec_number)  # Searches */.issues/*/plan.md for "Spec: #N"
 ```
 
 ## 5b.2 Process Cascade Approval
 
-If one or more plans reference the approved spec:
+If one or more plan files reference the approved spec:
 
 ```python
-if plan_issues:
-    # Multiple plans: approve the most recent, supersede the rest
-    if len(plan_issues) > 1:
-        # Sort by creation date, most recent first
-        plan_issues.sort(key=lambda p: p["created_at"], reverse=True)
-        most_recent = plan_issues[0]
-        older_plans = plan_issues[1:]
+if plan_files:
+    # Plans are local artifacts — cascade approval means the plan is considered approved
+    # No GitHub Issue labels or comments needed (plans are not GitHub Issues)
+    most_recent = plan_files[-1]  # Most recent by file modification time
+    older_plans = plan_files[:-1]
 
-        # Cascade-approve the most recent plan
-        issue-operations -> creation/update (github_issue_write( <!-- Routes through issue-operations per SPEC #683 -->
-            method="update",
-            issue_number=most_recent["number"],
-            labels=[l for l in most_recent["labels"] if l != "needs-approval"],
-        )
-        issue-operations -> comment (github_add_issue_comment( <!-- Routes through issue-operations per SPEC #683 -->
-            issue_number=most_recent["number"],
-            body="Approval cascaded from spec #{spec_number}. Plan approved automatically because spec is already approved and this is the most recent plan referencing it.",
-        )
+    # Cascade-approve the most recent plan
+    # (No GitHub Issue mutation — plans are local files)
+    log_cascade(spec_number, most_recent)
 
-        # Supersede older plans
-        for old_plan in older_plans:
-            issue-operations -> comment (github_add_issue_comment( <!-- Routes through issue-operations per SPEC #683 -->
-                issue_number=old_plan["number"],
-                body="Superseded by #{most_recent_number} — cascade approval applies to the most recent plan only.",
-            )
+    # Supersede older plans
+    for old_plan in older_plans:
+        log_supersede(old_plan, most_recent)
 
-    else:
-        # Single plan: cascade-approve it
-        plan_issue = plan_issues[0]
-        issue-operations -> creation/update (github_issue_write( <!-- Routes through issue-operations per SPEC #683 -->
-            method="update",
-            issue_number=plan_issue["number"],
-            labels=[l for l in plan_issue["labels"] if l != "needs-approval"],
-        )
-        issue-operations -> comment (github_add_issue_comment( <!-- Routes through issue-operations per SPEC #683 -->
-            issue_number=plan_issue["number"],
-            body="Approval cascaded from spec #{spec_number}. Plan approved automatically because spec is already approved.",
-        )
-
-elif not plan_issues:
+elif not plan_files:
     # No plan exists — cascade does NOT apply
     # Current flow is correct: spec approval → writing-plans create → plan needs approval
     proceed to Step 6 (auto-dispatch to writing-plans)
@@ -96,7 +69,7 @@ elif not plan_issues:
 | No plan exists | Cascade does NOT apply; current flow (spec approval → writing-plans) is correct |
 | Plan already approved (no `needs-approval` label) | No action needed — plan is already approved |
 
-**Evidence artifact:** `issue-operations -> search-issues (github_search_issues` response showing plan issues referencing the spec, and `github_issue_write` response confirming label removal and comment posting. <!-- Routes through issue-operations per SPEC #683 -->
+**Evidence artifact:** `glob */.issues/*/plan.md` + grep for `Spec: #N` showing plan files referencing the spec. Plans are local artifacts — no GitHub Issue mutation needed.
 
 ## Work State I/O
 

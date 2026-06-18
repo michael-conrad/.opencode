@@ -128,7 +128,7 @@ Verify ALL phases/sub-issues have merged PRs before allowing closure of a multi-
 | `ALL_COMPLETE` | Proceed to close the issue |
 | `PARTIAL_COMPLETE` | Do NOT close. Add progress comment listing completed and remaining phases. |
 
-**Safety rule: NEVER close a multi-phase spec or plan until ALL sub-issues are closed with verified merged PRs.**
+**Safety rule: NEVER close a multi-phase spec until ALL sub-issues are closed with verified merged PRs. Plans are local artifacts and are not closed as GitHub Issues.**
 
 ### Finding Classification
 
