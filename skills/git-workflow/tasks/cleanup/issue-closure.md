@@ -61,13 +61,13 @@ for pattern_name, pattern in patterns.items():
 
 | Classification | Detection | Closure Path |
 | -- | -- | -- |
-| Plan | Local plan file at `*/.issues/{N}/plan.md` | Plan closure path (Step 3) |
+| Plan | Local plan file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` | Plan closure path (Step 3) |
 | Spec / Spec-Fix | Has `[SPEC]` or `[SPEC-FIX]` label or title prefix | Spec closure path (Step 4) |
 | Other | No plan/spec labels | Direct close |
 
 ### Step 3: Plan Closure Path
 
-1. Read plan body from local file at `*/.issues/{N}/plan.md` for spec reference: `Spec:\s*#(\d+)` or `For spec:\s*#(\d+)`
+1. Read plan body from local file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` for spec reference: `Spec:\s*#(\d+)` or `For spec:\s*#(\d+)`
 2. Add referenced spec to closure candidates
 3. Get sub-issues via `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues")` <!-- Routes through issue-operations per SPEC #683 -->
 4. For each sub-issue:

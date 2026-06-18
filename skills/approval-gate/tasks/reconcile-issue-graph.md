@@ -38,9 +38,9 @@ For each finding from the traversal list, classify into one of six categories:
 
 For each sub-issue finding in the traversal list:
 
-- [ ] 1. **Identify the parent plan** — read the local plan file at `*/.issues/{N}/plan.md` to confirm the plan relationship. Record the parent plan number. Plans are local artifacts, not GitHub Issues.
-- [ ] 2. **Read the parent plan body** — read the local plan file at `*/.issues/{plan_N}/plan.md` and extract the spec reference using the pattern `Spec: #N`.
-- [ ] 3. **Search for other plans referencing the same spec** — glob `*/.issues/*/plan.md` and grep for `"Spec: #<spec_N>"` in each file. Collect all plan numbers found.
+- [ ] 1. **Identify the parent plan** — read the local plan file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` to confirm the plan relationship. Record the parent plan number. Plans are local artifacts, not GitHub Issues.
+- [ ] 2. **Read the parent plan body** — read the local plan file at `.issues/{plan_N}/plan.md` or `*/.issues/{plan_N}/plan.md` and extract the spec reference using the pattern `Spec: #N`.
+- [ ] 3. **Search for other plans referencing the same spec** — glob `.issues/*/plan.md` and `*/.issues/*/plan.md`, grep for `"Spec: #<spec_N>"` in each file. Collect all plan numbers found.
 - [ ] 4. **Compare plan scopes for overlap** — for each additional plan found, read its local plan file. Extract phase titles and compare with the current plan's phases. Record overlapping phase titles.
 - [ ] 5. **If overlap exists**: Add a finding to the `uncertain` classification with reason `"duplicate plan track — requires dev action to determine which plan owns deliverables"`. Record: spec number, all plan numbers referencing that spec, and the overlapping phase titles.
 
@@ -157,7 +157,7 @@ Every action MUST produce a live tool-call artifact:
 | Uncertain | Conflicting tool-call results that prevent confident classification |
 | Evidence gate | `read`/`grep`/`srclight_get_symbol` output for auto-close candidates (mandatory — candidates without artifacts reclassified as `uncertain`) |
 | Comment conflict scan | `issue-operations -> read-comments (github_issue_read(method=get_comments)` output confirming no contradicting comments within 24-hour window | <!-- Routes through issue-operations per SPEC #683 -->
-| Cross-reference check | `glob */.issues/*/plan.md` + grep for `Spec: #N` showing plans referencing the same spec + local file read confirming scope overlap |
+| Cross-reference check | `glob .issues/*/plan.md */.issues/*/plan.md` + grep for `Spec: #N` showing plans referencing the same spec + local file read confirming scope overlap |
 
 ## Context Required
 

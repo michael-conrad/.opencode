@@ -22,7 +22,7 @@ if not is_spec:
 
 # Search for local plan files referencing this spec
 spec_number = issue["number"]
-plan_files = glob_plan_files_for_spec(spec_number)  # Searches */.issues/*/plan.md for "Spec: #N"
+plan_files = glob_plan_files_for_spec(spec_number)  # Searches .issues/*/plan.md and */.issues/*/plan.md for "Spec: #N"
 ```
 
 ## 5b.2 Process Cascade Approval
@@ -69,7 +69,7 @@ elif not plan_files:
 | No plan exists | Cascade does NOT apply; current flow (spec approval → writing-plans) is correct |
 | Plan already approved (no `needs-approval` label) | No action needed — plan is already approved |
 
-**Evidence artifact:** `glob */.issues/*/plan.md` + grep for `Spec: #N` showing plan files referencing the spec. Plans are local artifacts — no GitHub Issue mutation needed.
+**Evidence artifact:** `glob .issues/*/plan.md */.issues/*/plan.md` + grep for `Spec: #N` showing plan files referencing the spec. Plans are local artifacts — no GitHub Issue mutation needed.
 
 ## Work State I/O
 
