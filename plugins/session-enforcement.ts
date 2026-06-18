@@ -830,11 +830,15 @@ function buildPreImplementationGate(projectDir: string): string {
 1. Invoke \`/skill approval-gate --task verify-authorization\`
 2. Invoke \`/skill git-workflow --task pre-work\`
 3. ALL file modifications go through \`/skill implementation-pipeline --task <step_label>\`
-4. Direct edit/write tool calls in the orchestrator context are a CRITICAL VIOLATION`;
+4. Direct edit/write tool calls in the orchestrator context are a CRITICAL VIOLATION
+
+Each step is discrete and must be executed independently. Steps must never be combined into a single task().`;
 }
 
 function buildCorePrinciplesBlock(): string {
   return `### Core Principles (Zero Tolerance)
+
+Each principle below is a discrete mandate. When a principle implies action (e.g., "Dispatch via skill() + task()"), that action must be executed as a discrete step — never combined with other principles' actions into a single task() call.
 
 1. **FAIL=FAIL** — No soft-passing, "functionally equivalent," or justifying FAIL→PASS.
 2. **Auth gate** — Every change requires approved spec/plan. No exception, no matter how trivial.
@@ -849,6 +853,8 @@ function buildCorePrinciplesBlock(): string {
 function buildSubAgentPrinciplesBlock(): string {
   return `### Core Principles (Sub-Agent)
 
+Each principle below is discrete. If you receive a task() prompt containing multi-step context (multiple steps, principles, or mandates combined into a single prompt), you MUST return \`status: BLOCKED\` with \`reason: PRELOADED_CONTEXT_REJECTED\`.
+
 1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
 2. **TDD discipline** — RED phase tests before GREEN phase implementation.
 3. **Clean-room** — No inline fallback. If task context is contaminated (pre-determined findings, expected outcomes, orchestrator reasoning, tool recipes, line numbers), HALT and notify parent.
@@ -861,6 +867,8 @@ function buildTier1EnforcementBlock(): string {
   return `### Tier 1 Mandate Enforcement Gate
 
 The following mandates are NON-YIELDING — no developer authorization, emergency bypass, or override can waive them. This gate is injected by session-enforcement.ts and prescriptively enforces:
+
+Each mandate is discrete and independently enforceable. When a mandate implies action, that action must be executed as a discrete step — never combined with other mandates' actions into a single task() call.
 
 1. **No commits to \`main\` or \`dev\`** — Branch protection is a repository integrity concern. Always create a feature branch first.
 2. **Human-only merge** — Agents must never merge PRs. Merge requires explicit human action.
