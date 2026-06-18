@@ -37,9 +37,65 @@ Execute a 6-phase serial chain to scan for merged PRs, verify each merge, close 
 
 ## Phase 3: Close Linked Issues
 
-- [ ] Search open issues: for each merged PR, query the platform's issue tracker for open issues referencing the PR number or commit SHAs (via PR body, comments, commit messages, or linked PR references)
-- [ ] Check sub-issues, siblings, parents, and cross-repo issues for closure eligibility
-- [ ] Close depth-first: sub-repos first, children before parents, cross-repo
+### Step 3.1: Extract Issue References from PR Body
+
+- [ ] For each merged PR, read the PR body and extract ALL `#N` references
+- [ ] Do NOT assume `Fixes`/`Closes`/`Implements` prefixes — any `#N` in the body is a candidate
+- [ ] Collect into a candidate list per PR
+
+### Step 3.2: Extract Issue References from Commit Messages
+
+- [ ] For each merged PR, read all commits via `github_pull_request_read(method=get_commits)`
+- [ ] For each commit, extract ALL `#N` references from the commit message
+- [ ] Add to the candidate list
+
+### Step 3.3: Extract Issue References from Verification/Audit Artifacts
+
+- [ ] Search `./tmp/`, `./issues/`, and `./*/.issues/` for verification and audit artifacts (YAML files, log files, evidence files) that map success criteria to issue numbers
+- [ ] Extract any issue references found
+- [ ] Add to the candidate list
+
+### Step 3.4: Deduplicate Candidate List
+
+- [ ] Merge all candidate lists across all merged PRs
+- [ ] Deduplicate by issue number
+- [ ] The result is the full set of issues potentially affected by the merged work
+
+### Step 3.5: Live-Verify Each Candidate Issue
+
+- [ ] For each candidate issue, perform a live API call (`github_issue_read(method=get)`) to read:
+  - Issue state (open/closed)
+  - Issue body
+  - All comments
+  - Labels
+  - Sub-issues (if any)
+  - Parent issue (if any)
+- [ ] Determine if the issue is truly completed:
+  - If the issue body or comments indicate completion AND the issue is still open → eligible for closure
+  - If the issue is not 100% completed but appears it should have been (e.g., referenced in a merged PR's body but still open with no pending work) → **alert the developer**, do NOT close
+  - If the issue is already closed → skip
+
+### Step 3.6: Cross-Cutting Interdependency Scan
+
+- [ ] For each directly referenced issue, find indirectly related issues that may also need cleanup:
+  - **Sub-issues**: If the issue has sub-issues, check each sub-issue's state. Sub-issues of a completed parent may also be completable.
+  - **Siblings**: If the issue is a sub-issue of a parent, check sibling sub-issues. Siblings that were part of the same plan may also be completable.
+  - **Parent**: If the issue is a sub-issue and all siblings are complete, the parent may be closable.
+  - **Shared concern**: Search for other open issues that share affected files, symbols, or concern boundaries with the merged PR's changes. These may have been implicitly resolved by the merged work.
+
+### Step 3.7: Supersession Check
+
+- [ ] For each candidate issue that appears completed, check if the issue itself supersedes other issues
+- [ ] An issue that says "Supersedes #N" or "Replaces #N" means those superseded issues should also be closed
+- [ ] Check the issue body and comments for supersession language
+- [ ] For each superseded issue found, add to the candidate list and live-verify
+- [ ] Do NOT check for issues that supersede the candidate issue — that is a pre-implementation concern, not a cleanup concern
+
+### Step 3.8: Close Eligible Issues Depth-First
+
+- [ ] Close eligible issues in depth-first order: sub-repos first, then parent repo
+- [ ] Children before parents
+- [ ] Cross-repo issues handled per their repo
 - [ ] Close silently — no comment churn unless substantively necessary
 
 ## Phase 4: Submodule Branch Cleanup
