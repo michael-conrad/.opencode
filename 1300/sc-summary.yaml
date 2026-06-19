@@ -1,0 +1,34 @@
+schema_version: "1.0"
+spec_issue: 1300
+spec_url: "https://github.com/michael-conrad/.opencode/issues/1300"
+generated_at: "2026-06-19T19:00:00Z"
+decomposition:
+  classification: single-task
+  total_phases: 1
+sc_coverage:
+  total: 3
+  evidence_types:
+    - behavioral
+    - string
+  phases:
+    - phase_number: 1
+      phase_label: "Add worktree filter to _discover_all_repos()"
+      concern: "Core fix — add guard clause to skip git worktrees in repo discovery"
+      sc_ids:
+        - SC-1
+        - SC-2
+        - SC-3
+  cross_cutting: null
+scs:
+  - id: SC-1
+    description: "_discover_all_repos() no longer returns .issues/ as a child repo"
+    evidence_type: behavioral
+    phase: 1
+  - id: SC-2
+    description: "Submodule repos (.opencode/) are still discovered correctly"
+    evidence_type: behavioral
+    phase: 1
+  - id: SC-3
+    description: "_sync_repo() no longer probes .issues/.issues/.git"
+    evidence_type: string
+    phase: 1

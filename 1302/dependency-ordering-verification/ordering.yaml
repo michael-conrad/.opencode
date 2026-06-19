@@ -1,0 +1,10 @@
+# Phase dependency ordering contract
+# Single phase — ordering is implicit
+phase_dependencies:
+  - phase: "Phase 1"
+    depends_on: []
+    constraints:
+      - "Item_A_precedes_Item_B"
+      - "Item_A_precedes_Item_C"
+      - "Item_B_precedes_Item_D"
+      - "Item_C_precedes_Item_D"
