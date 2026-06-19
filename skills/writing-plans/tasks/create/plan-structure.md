@@ -190,23 +190,9 @@ When changing guidelines or skills, use behavioral TDD:
 1. **Behavioral RED:** Write test sending agent prompt, verify agent does NOT follow new rule yet
 1. **Behavioral GREEN:** Make change, re-run test — now agent follows rule
 
-### Step 4: Plan Phase Structure — Dispatch Table Template (PRIMARY)
+### Step 4: Plan Phase Structure (PRIMARY)
 
-Every plan phase MUST include a dispatch table using EXACTLY the following 6-column format. The dispatch table is the PRIMARY section template — it MUST appear FIRST in each phase section, before concern boundaries, file references, and SC references.
-
-| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
-|------|--------------|--------|----------------|-----------------|-----|
-| G{N}: {step-label} | sub-task or inline | yes (blind) or N/A | general or N/A | JSON context or — | SC-N |
-
-#### Dispatch Table Rules
-
-1. **One row per gate.** Every gate in the sequence must have exactly one row. No merged cells, no multi-step rows.
-2. **Dispatch Type is binary:** `sub-task` (orchestrator tasks a clean-room sub-agent) or `inline` (orchestrator executes directly — restricted to CHECKPOINT-COMMIT only).
-3. **Blind? column:** `yes (blind)` means the sub-agent receives only the Receives Context JSON — no other context from prior gates. `N/A` for inline gates.
-4. **Sub-Agent Type:** Use `general` for sub-task gates. Use `N/A` for inline gates.
-5. **Receives Context:** A JSON object with task instruction, issue number, phase number. For sub-task gates this is the EXACT prompt passed to `task()`. For inline gates this is `—` (em dash, no context).
-6. **SCs column:** Lists the SCs this gate verifies (e.g., `SC-1, SC-2`). Must match SC IDs from the spec.
-7. **Standard gate set is dynamic.** The gate labels and step sequence MUST be pulled from `implementation-pipeline/SKILL.md` §Dispatch Routing Table at the time of plan creation. Do NOT hardcode gate names — reference the canonical source.
+Every plan phase MUST define a dispatch structure. The gate labels and step sequence MUST be pulled from `implementation-pipeline/SKILL.md` §Dispatch Routing Table at the time of plan creation. Do NOT hardcode gate names — reference the canonical source.
 
 #### Concern Boundary Annotations
 
@@ -229,62 +215,31 @@ List the SCs covered by this phase. Each SC must be traceable to a spec success 
 - RED/GREEN condition descriptions per Step 3.5 — NO exact code, commands, or file paths
 - **Step 2 RED checkpoint is MANDATORY** — plans without it fail validation
 
-#### Per-Unit Pipeline Gate Table (SC-3 — MUST be embedded in EACH unit)
+#### Per-Unit Output Format (SC-3 — MUST be embedded in EACH unit)
 
-Every unit gets its own 14-row pipeline gate table with unit-specific exit criteria. NOT a single shared cross-reference. Each table MUST have:
+Every unit gets its own numbered checklist with dispatch indicators. NOT a single shared cross-reference. Each unit MUST use this output format:
 
-```
-| Gate | Name | Exit Criterion (unit-specific) |
-|------|------|-------------------------------|
-| 1 | sc-coherence-gate | <what must pass for THIS unit> |
-| 2 | pre-red-baseline | <what must pass for THIS unit> |
-| 3 | red-phase | <what must pass for THIS unit> |
-| 4 | red-doublecheck | <what must pass for THIS unit> |
-| 5 | green-phase | <what must pass for THIS unit> |
-| 6 | checkpoint-commit | <what must pass for THIS unit> |
-| 7 | structural-checks | <what must pass for THIS unit> |
-| 8 | green-doublecheck | <what must pass for THIS unit> |
-| 9 | green-vbc | <what must pass for THIS unit> |
-| 10 | adversarial-audit | <what must pass for THIS unit> |
-| 11 | cross-validate | <what must pass for THIS unit> |
-| 12 | regression-check | <what must pass for THIS unit> |
-| 13 | review-prep | <what must pass for THIS unit> |
-| 14 | exec-summary | <what must pass for THIS unit> |
-```
+**Dispatch mode mapping:**
+- `sub-task` → `(**clean-room**)`
+- Everything else (orchestrator, inline) → `(**inline**)`
 
-#### Z3 Contract Generation (SC-7 — Per-Unit, No Preconditions)
+**Discovery directive:** Read `implementation-pipeline/SKILL.md` §Dispatch Routing Table for the canonical gate sequence and dispatch types. Do NOT hardcode gate names — reference the canonical source at plan-creation time.
 
-Each unit's Z3 contract declares:
+**Sub-step expansion directive:** Gates with sub-steps (e.g., `adversarial-audit` with resolve-models → auditor_1 → remediate → auditor_2 → cross-validate) MUST be expanded into multiple `- [ ] N.` entries. Prohibit collapsing sub-steps into prose.
 
-- 14 boolean variables per unit representing pipeline gate states (e.g., `P1_p1..p14`)
-- 1 domain variable per unit (e.g., `D_P1`) that MUST be `False` unless all 14 gates are `True`
-- 13 serial-ordering invariants: `Implies(pN, pN-1)` for N = 2..14
-- NO preconditions — invariants + postconditions only
-
-Contract structure:
+**Output format:**
 
 ```
-(declare-const P1_p1 Bool) ... (declare-const P1_p14 Bool)
-(declare-const D_P1 Bool)
-
-; Serial ordering: each gate implies the prior gate passed
-(assert (=> P1_p2 P1_p1))
+- [ ] 1. <gate-label> (**<dispatch-mode>**) — <unit-specific exit criterion>
+  - <sub-step description> (**<dispatch-mode>**)
+  - <sub-step description> (**<dispatch-mode>**)
+- [ ] 2. <gate-label> (**<dispatch-mode>**) — <unit-specific exit criterion>
 ...
-(assert (=> P1_p14 P1_p13))
-
-; Domain variable is True only when all 14 gates pass
-(assert (=> D_P1 (and P1_p1 ... P1_p14)))
-
-; Domain variable is False when any gate is false
-(assert (=> (not (and P1_p1 ... P1_p14)) (not D_P1)))
-
-; Verification: initial state (all false) → SAT expected
-; Verification: defective state (D_P1=true, p1=false) → UNSAT expected
 ```
 
 ### Step 5.5: `plan` Utility Invocation for Phase Solvability
 
-After Z3 contract generation, invoke the `plan` utility to validate phase solvability. Load the `plan` skill for subcommand details and status code interpretation:
+Invoke the `plan` utility to validate phase solvability. Load the `plan` skill for subcommand details and status code interpretation:
 
 ```bash
 skill({name: "plan"})   # load reference for plan subcommands, status codes, and fallback procedures
@@ -299,11 +254,6 @@ Then run the phase solvability check:
 ```
 
 Refer to `plan` skill → `plan.md` task for SOLVED_SATISFICING/OPTIMALLY/UNSOLVABLE interpretation. Refer to `fallback.md` task when planner is unavailable.
-
-Verification steps after contract generation:
-
-1. Assert all-false state: run Z3 solver — MUST return SAT
-1. Assert D_P1=True but p1=False: run Z3 solver — MUST return UNSAT
 
 ### Step 6: Generate Implementation Checklist — REMOVED
 

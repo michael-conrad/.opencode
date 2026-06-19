@@ -97,7 +97,8 @@ Define audit criteria based on spec-auditor task structure:
 | SC-14 | SC Enforcement Gate present and explicit | Spec contains all-or-nothing gate statement with PASS/FAIL/Remediation requirements per gate format |
 | SC-TRACKING-LANG | No tracking/status language in spec | Zero instances of "implemented", "pending", "confirmed", "viable", "completed" used as status markers. Only forward-looking "MUST be" language permitted. |
 | SC-PRESCRIPTIVE-CODE | No prescriptive code content in spec | Spec uses file area references only (agent discovers exact paths). Zero instances of exact file paths with line numbers, exact import strings, or exact assertion code. |
-| SC-PIPELINE-GATES | Pipeline gates embedded per-unit, not shared cross-reference | Pipeline gates stated once as a shared cross-reference at top (instead of embedded per-unit) → VIOLATION. Expect per-unit gate tables. |
+| SC-PIPELINE-GATES | Pipeline gates use canonical checklist format, not gate tables | Spec requires numbered `- [ ] N.` checklist steps with dispatch mode indicators (`(**clean-room**)` or `(**inline**)`). Gate tables (per-unit or shared cross-reference) → VIOLATION. Expect dispatch indicators in every step title. |
+| SC-CANONICAL-PLAN-FORM | Plan output format uses canonical checklist format | If the spec defines plan output format requirements, validate they use the canonical checklist format: numbered `- [ ] N.` with sub-bullet metadata, dispatch mode indicators, no dispatch tables, no shared cross-references. |
 
 <!-- Fragment ID: sc-enforcement-gate -->
 

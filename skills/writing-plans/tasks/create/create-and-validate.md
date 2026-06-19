@@ -37,9 +37,9 @@ The generated plan body MUST include this compliance statement blockquote at the
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
-### Phase body requirements — Reference to canonical pipeline checklist
+### Phase body requirements — Checklist format with dispatch indicators
 
-Each phase MUST use the implementation pipeline checklist from the canonical source: `implementation-pipeline/SKILL.md` §Dispatch Routing Table. Phase bodies follow this format:
+Each phase MUST use the implementation pipeline checklist format. Gate sequence and dispatch types are discovered from `implementation-pipeline/SKILL.md` §Dispatch Routing Table — never hardcoded. Phase bodies follow this format:
 
 ```
 ### Phase N: title
@@ -48,12 +48,16 @@ Each phase MUST use the implementation pipeline checklist from the canonical sou
 **Files:** exact paths or glob patterns
 **SCs covered:** SC-N, SC-M
 
-- [ ] 1. <FIRST-STEP-LABEL> — **<dispatch mode>**
-- [ ] ... (remaining steps per `implementation-pipeline/SKILL.md` §Dispatch Routing Table)
-- [ ] N. <LAST-STEP-LABEL> — **<dispatch mode>**
+- [ ] 1. <STEP-LABEL> (**<clean-room|inline>**). <description> → SC-N
+- [ ] N. <STEP-LABEL> (**<clean-room|inline>**). <description> → SC-N
 ```
 
-The full dispatch routing table with execution targets lives at `implementation-pipeline/SKILL.md`. This file is the single source of truth — every step label, dispatch target, and artifact produced is defined there. Do NOT duplicate routing details here.
+**Format rules:**
+- Every step is `- [ ] N.` with at least one sub-bullet — no prose-only steps
+- Every step title contains `(**clean-room**)` or `(**inline**)` dispatch indicator
+- Every step that maps to a success criterion has a `→ SC-N` annotation
+- No step describes more than one atomic action — sub-operations get their own `- [ ] N.` entries
+- Gate sequence is discovered from `implementation-pipeline/SKILL.md` §Dispatch Routing Table — never hardcoded
 
 **Concern boundary annotations (prose-driven):**
 When transitioning concerns: describe what is being left, what is being entered, what information is needed for handoff.
@@ -130,18 +134,18 @@ Generate `./tmp/{N}/checklist.md` from the finalized plan phases. The checklist 
 - **Verify `plan plan` returns SOLVED_SATISFICING or SOLVED_OPTIMALLY** — if UNSOLVABLE or unavailable, HALT with blocker report
 - **Verify each referenced pipeline step label exists in `implementation-pipeline/SKILL.md`'s dispatch routing table** — if any label is undefined, HALT with MISSING-TRACEABILITY
 
-#### Dispatch Table Validation
+#### Checklist Validation
 
-Every plan phase dispatch table MUST pass the following 8 validation rules:
+Every plan phase checklist MUST pass the following 8 validation rules:
 
-1. **6-column requirement:** Every dispatch table must have exactly 6 columns: `Gate`, `Dispatch Type`, `Blind?`, `Sub-Agent Type`, `Receives Context`, `SCs`
-2. **One row per gate:** Every gate must have exactly one row — no merged cells, no multi-step rows
-3. **Dispatch Type constraint:** Dispatch Type must be `sub-task` for all gates except `CHECKPOINT-COMMIT` which may be `inline`
-4. **Blind? column:** `yes (blind)` for sub-task gates, `N/A` for inline gates
-5. **Receives Context validity:** Must be a valid JSON object for sub-task gates, `—` (em dash) for inline gates
-6. **SCs column validity:** SCs column must reference valid SC IDs from the spec
-7. **Standard gate set check:** Verify all 16 step labels exist in `implementation-pipeline/SKILL.md` §Dispatch Routing Table — if any are undefined or missing, HALT with MISSING-TRACEABILITY
-8. **No hardcoded gate labels:** Gate labels MUST reference the canonical source (`implementation-pipeline/SKILL.md` §Dispatch Routing Table) — never hardcode
+1. **Checklist format:** Every step is `- [ ] N.` with at least one sub-bullet — no prose-only steps, no collapsed multi-operation steps
+2. **Dispatch indicator:** Every step title contains `(**clean-room**)` or `(**inline**)` — no step is missing a dispatch mode marker
+3. **Gate sequence match:** Gate sequence matches `implementation-pipeline/SKILL.md` §Dispatch Routing Table — every step label must exist in the canonical source
+4. **Atomic action:** No step describes more than one atomic action — every sub-operation from pipeline task files is expanded into its own `- [ ] N.` entry
+5. **SC annotations:** All SCs referenced via `→ SC-N` annotations — every step that maps to a success criterion has a visible SC reference
+6. **No TBD/TODO:** No TBD/TODO placeholders — all steps are actionable
+7. **Admonishment present:** Compliance admonishment blockquote present at top and bottom of plan body
+8. **Phase dependency ordering:** Phase dependency ordering matches spec architecture — no phase references a dependency that does not exist
 
 If any rule fails: HALT with MISSING-TRACEABILITY and report which rule(s) failed.
 
