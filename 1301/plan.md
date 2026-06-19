@@ -27,27 +27,60 @@
 - [ ] 1. **Coherence gate (**clean-room**).** Read all three files. Verify SC-1 through SC-6 are consistent with the codebase. Capture current state of each file.
 - [ ] 2. **Pre-RED baseline (**clean-room**).** Capture current line counts and all dispatch table patterns in all three files.
 
-#### RED+green — Fix all three files
+#### RED+green P1-I1 — Fix SKILL.md trigger keywords
 
-- [ ] 3. **RED (**clean-room**).** Write tests for all 6 SCs:
-  - SC-1: grep for `"plan"` and `"draft plan"` in SKILL.md Trigger Dispatch Table — expects present, must FAIL
-  - SC-2: grep for `| Gate | Dispatch Type | Blind? |` in create.md — expects present, must FAIL
-  - SC-3: grep for `16-gate dispatch table format mandatory` in create.md — expects present, must FAIL
-  - SC-4: grep for `dispatch tables in the plan` in create.md — expects present, must FAIL
-  - SC-5: grep for `clean-room`, `discovery directive`, `sub-step expansion` in create.md — expects absent, must FAIL
-  - SC-6: grep for `dispatch table template (Step 4)` in plan-structure.md — expects present, must FAIL
-- [ ] 4. **RED doublecheck (**clean-room**).** Confirm all 6 tests fail as expected.
+- [ ] 3. **RED (**clean-room**).** Write test grepping for `"plan"` and `"draft plan"` in SKILL.md Trigger Dispatch Table row — expects present, must FAIL. **→ SC-1**
+- [ ] 4. **RED doublecheck (**clean-room**).** Confirm Step 3 fails as expected.
 - [ ] 5. **Post-RED enforcement (**clean-room**).** Verify FAIL artifacts.
-- [ ] 6. **GREEN (**clean-room**).** Make all changes:
-  - **SKILL.md line 21:** Add `"plan" / "draft plan"` to Trigger Dispatch Table row
-  - **create.md line 22:** Replace "16-gate dispatch table format mandatory" with "Checklist format mandatory — numbered `- [ ] N.` steps with dispatch indicators"
-  - **create.md lines 52-61:** Replace "Read the dispatch tables in the plan" with "Read the numbered checklist steps in the plan". Remove "Receives Context", "Sub-Agent Type", "SCs column". Keep sequential execution intent.
-  - **create.md lines 63-87:** Replace Dispatch Table section with: dispatch mode mapping (`sub-task` → `(**clean-room**)`, else → `(**inline**)`), discovery directive (read `implementation-pipeline/SKILL.md` §Dispatch Routing Table), sub-step expansion directive, output format (numbered `- [ ] N.` checklists with dispatch indicators). Keep Inter-Phase Handoff, Post-All-Phases Sweep, Concern Boundary Annotations.
-  - **plan-structure.md line 260:** Replace "dispatch table template (Step 4) and per-unit pipeline gate tables (Step 5)" with "checklist format (Step 4) and per-unit output format (Step 5)"
-- [ ] 7. **Post-GREEN enforcement (**clean-room**).** Verify all 5 files modified.
-- [ ] 8. **Structural checks (**clean-room**).** `wc -w` on each file — all under limits.
-- [ ] 9. **GREEN doublecheck (**clean-room**).** Run all 6 RED tests again — all must PASS now. **→ SC-1 through SC-6**
-- [ ] 10. **Checkpoint commit (**inline**).** `git commit -m "fix(#1301): remove dispatch table references from writing-plans SKILL.md, create.md, plan-structure.md"`
+- [ ] 6. **GREEN (**clean-room**).** Add `"plan" / "draft plan"` to Trigger Dispatch Table row in SKILL.md. **→ SC-1**
+- [ ] 7. **Post-GREEN enforcement (**clean-room**).** Verify file modified.
+- [ ] 8. **Structural checks (**clean-room**).** `wc -w` — under 4,000 words.
+- [ ] 9. **GREEN doublecheck (**clean-room**).** grep for `"plan"` and `"draft plan"` in Trigger Dispatch Table row — both present. **→ SC-1**
+- [ ] 10. **Checkpoint commit (**inline**).** `git commit -m "fix(#1301): add plan/draft plan trigger keywords to writing-plans SKILL.md"`
+
+#### RED+green P1-I2 — Fix create.md Operating Protocol step 7
+
+- [ ] 11. **RED (**clean-room**).** Write test grepping for `16-gate dispatch table format mandatory` in create.md — expects present, must FAIL. **→ SC-3**
+- [ ] 12. **RED doublecheck (**clean-room**).** Confirm Step 11 fails.
+- [ ] 13. **Post-RED enforcement (**clean-room**).** Verify FAIL artifacts.
+- [ ] 14. **GREEN (**clean-room**).** Replace line 22: `"16-gate dispatch table format mandatory"` → `"Checklist format mandatory — numbered \`- [ ] N.\` steps with dispatch indicators"`. **→ SC-3**
+- [ ] 15. **Post-GREEN enforcement (**clean-room**).** Verify changed.
+- [ ] 16. **Structural checks (**clean-room**).** `wc -w` — under 3,000 words.
+- [ ] 17. **GREEN doublecheck (**clean-room**).** grep for `16-gate` — absent. **→ SC-3**
+- [ ] 18. **Checkpoint commit (**inline**).** `git commit -m "fix(#1301): fix create.md Operating Protocol step 7 to checklist format"`
+
+#### RED+green P1-I3 — Fix create.md Orchestrator Execution Protocol
+
+- [ ] 19. **RED (**clean-room**).** Write test grepping for `dispatch tables in the plan` in create.md — expects present, must FAIL. **→ SC-4**
+- [ ] 20. **RED doublecheck (**clean-room**).** Confirm Step 19 fails.
+- [ ] 21. **Post-RED enforcement (**clean-room**).** Verify FAIL artifacts.
+- [ ] 22. **GREEN (**clean-room**).** Replace lines 52-61: change "Read the dispatch tables in the plan" to "Read the numbered checklist steps in the plan". Remove "Receives Context", "Sub-Agent Type", "SCs column". Keep sequential execution intent. **→ SC-4**
+- [ ] 23. **Post-GREEN enforcement (**clean-room**).** Verify changed.
+- [ ] 24. **Structural checks (**clean-room**).** `wc -w` — under 3,000 words.
+- [ ] 25. **GREEN doublecheck (**clean-room**).** grep for `dispatch tables in the plan` — absent. **→ SC-4**
+- [ ] 26. **Checkpoint commit (**inline**).** `git commit -m "fix(#1301): fix create.md Orchestrator Execution Protocol to checklist steps"`
+
+#### RED+green P1-I4 — Replace create.md Dispatch Table section
+
+- [ ] 27. **RED (**clean-room**).** Write test grepping for `| Gate | Dispatch Type | Blind? |` in create.md — expects present, must FAIL. **→ SC-2**
+- [ ] 28. **RED doublecheck (**clean-room**).** Confirm Step 27 fails.
+- [ ] 29. **Post-RED enforcement (**clean-room**).** Verify FAIL artifacts.
+- [ ] 30. **GREEN (**clean-room**).** Replace lines 63-87 (Dispatch Table section) with: dispatch mode mapping (`sub-task` → `(**clean-room**)`, else → `(**inline**)`), discovery directive (read `implementation-pipeline/SKILL.md` §Dispatch Routing Table), sub-step expansion directive, output format (numbered `- [ ] N.` checklists with dispatch indicators). Keep Inter-Phase Handoff, Post-All-Phases Sweep, Concern Boundary Annotations. **→ SC-2, SC-5**
+- [ ] 31. **Post-GREEN enforcement (**clean-room**).** Verify dispatch table section replaced.
+- [ ] 32. **Structural checks (**clean-room**).** `wc -w` — under 3,000 words.
+- [ ] 33. **GREEN doublecheck (**clean-room**).** grep for `| Gate | Dispatch Type | Blind? |` — 0 matches. grep for `clean-room`, `discovery directive`, `sub-step expansion` — all present. **→ SC-2, SC-5**
+- [ ] 34. **Checkpoint commit (**inline**).** `git commit -m "fix(#1301): replace create.md Dispatch Table section with checklist format spec"`
+
+#### RED+green P1-I5 — Fix plan-structure.md line 260
+
+- [ ] 35. **RED (**clean-room**).** Write test grepping for `dispatch table template (Step 4)` in plan-structure.md — expects present, must FAIL. **→ SC-6**
+- [ ] 36. **RED doublecheck (**clean-room**).** Confirm Step 35 fails.
+- [ ] 37. **Post-RED enforcement (**clean-room**).** Verify FAIL artifacts.
+- [ ] 38. **GREEN (**clean-room**).** Replace line 260: "dispatch table template (Step 4) and per-unit pipeline gate tables (Step 5)" → "checklist format (Step 4) and per-unit output format (Step 5)". **→ SC-6**
+- [ ] 39. **Post-GREEN enforcement (**clean-room**).** Verify changed.
+- [ ] 40. **Structural checks (**clean-room**).** `wc -w` — under 3,000 words.
+- [ ] 41. **GREEN doublecheck (**clean-room**).** grep for `dispatch table template (Step 4)` — absent. **→ SC-6**
+- [ ] 42. **Checkpoint commit (**inline**).** `git commit -m "fix(#1301): fix plan-structure.md stale historical note to reference checklist format"`
 
 #### Phase 1 completion
 
@@ -114,12 +147,10 @@
 - [ ] 32. **Structural checks (**clean-room**).** `python3 -c "import yaml; yaml.safe_load(open('.opencode/skills/plan-creation-pipeline/pipeline-state-machine.yaml'))"`.
 - [ ] 33. **GREEN doublecheck (**clean-room**).** grep for all 6 step labels in domain — all present. **→ SC-9**
 
-#### RED+green — Verify implementation-pipeline has no plan-creation steps
+#### Verification — implementation-pipeline has no plan-creation steps
 
-- [ ] 34. **RED (**clean-room**).** Write test grepping for `plan-creation` in implementation-pipeline SKILL.md — expects absent, must PASS (already absent). **→ SC-12**
-- [ ] 35. **GREEN (**clean-room**).** No changes needed — verify implementation-pipeline has no plan-creation references. **→ SC-12**
-- [ ] 36. **GREEN doublecheck (**clean-room**).** grep for `plan-creation` in implementation-pipeline — absent. **→ SC-12**
-- [ ] 37. **Checkpoint commit (**inline**).** `git commit -m "feat(#1301): create plan-creation-pipeline skill with 6-step pipeline and Z3 state machine"`
+- [ ] 34. **Verify (**clean-room**).** grep for `plan-creation` in implementation-pipeline SKILL.md — must be absent. **→ SC-12**
+- [ ] 35. **Checkpoint commit (**inline**).** `git commit -m "feat(#1301): create plan-creation-pipeline skill with 6-step pipeline and Z3 state machine"`
 
 #### Phase 2 completion
 
