@@ -284,6 +284,10 @@ def _discover_all_repos() -> list[Path]:
             continue
         git_ref = entry / ".git"
         if git_ref.exists():
+            if git_ref.is_file():
+                content = git_ref.read_text(encoding="utf-8")
+                if "worktrees" in content:
+                    continue
             resolved = entry.resolve()
             if resolved not in repos:
                 result = subprocess.run(
