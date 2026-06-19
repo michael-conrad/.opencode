@@ -1,0 +1,93 @@
+# SC-ID Traceability Summary for .opencode#1297
+# Generated: 2026-06-19
+# Plan: plan.md (4 phases, 7 RED+green items)
+
+scs:
+  - id: SC-1
+    description: No dispatch tables in writing-plans task files — output format uses numbered checklists with dispatch indicators
+    phases: [1, 2, 3]
+    evidence_type: string
+    verification_gate: green-doublecheck
+
+  - id: SC-2
+    description: (Not explicitly referenced in plan — covered by exit criteria C5)
+    phases: [common]
+    evidence_type: string
+    verification_gate: green-vbc
+
+  - id: SC-3
+    description: No hardcoded gate names in plan-structure.md — gate sequence discovered from implementation-pipeline/SKILL.md
+    phases: [1]
+    evidence_type: string
+    verification_gate: green-doublecheck
+
+  - id: SC-4
+    description: Contract template updated with checklist validation fields (checklist_step_count, phase_count, sc_coverage, etc.)
+    phases: [3]
+    evidence_type: structural
+    verification_gate: green-doublecheck
+
+  - id: SC-5
+    description: (Not explicitly referenced in plan — covered by exit criteria C5)
+    phases: [common]
+    evidence_type: string
+    verification_gate: green-vbc
+
+  - id: SC-6
+    description: Dispatch indicator rules present — every step has (**clean-room**) or (**inline**) marker
+    phases: [2, 3]
+    evidence_type: string
+    verification_gate: green-doublecheck
+
+  - id: SC-7
+    description: Sub-step expansion directive — gates with sub-steps become multiple - [ ] N. entries, no collapsed prose
+    phases: [1, 2, 3]
+    evidence_type: string
+    verification_gate: green-doublecheck
+
+  - id: SC-8
+    description: Phase body format updated to reference checklist format with dispatch indicators
+    phases: [2]
+    evidence_type: string
+    verification_gate: green-doublecheck
+
+  - id: SC-9
+    description: (Not explicitly referenced in plan — covered by exit criteria C5)
+    phases: [common]
+    evidence_type: string
+    verification_gate: green-vbc
+
+  - id: SC-10
+    description: (Not explicitly referenced in plan — covered by exit criteria C5)
+    phases: [common]
+    evidence_type: string
+    verification_gate: green-vbc
+
+  - id: SC-11
+    description: spec-audit.md SC-PIPELINE-GATES validates checklist format (not per-unit gate tables). SC-CANONICAL-PLAN-FORM added.
+    phases: [4]
+    evidence_type: string
+    verification_gate: green-doublecheck
+
+  - id: SC-12
+    description: plan-fidelity.md PF-Z3-CONTRACT references hierarchical phase→item→gate booleans (not 14-boolean per-unit)
+    phases: [4]
+    evidence_type: string
+    verification_gate: green-doublecheck
+
+  - id: SC-13
+    description: plan-fidelity.md PF-6 updated with dispatch indicator check
+    phases: [4]
+    evidence_type: string
+    verification_gate: green-doublecheck
+
+  - id: SC-14
+    description: plan-fidelity.md has 5 new criteria (PF-CHECKLIST-FORMAT, PF-DISPATCH-MODE, PF-SUBSTEP-EXPAND, PF-ADMONISHMENT, PF-SEQUENCE-MATCHES)
+    phases: [4]
+    evidence_type: string
+    verification_gate: green-doublecheck
+
+sc_coverage_total: 14
+scs_with_explicit_plan_annotations: 10
+scs_missing_plan_annotations: 4
+scs_missing_annotations_list: [SC-2, SC-5, SC-9, SC-10]

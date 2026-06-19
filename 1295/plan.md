@@ -1,172 +1,238 @@
-# Implementation Plan — #1295
+# Implementation Plan — [`.opencode#1295`](https://github.com/michael-conrad/.opencode/issues/1295) — local-issues PEP 723 header
 
-**Goal:** Fix `local-issues` PEP 723 header from deprecated `# /// pyproject.toml` to `# /// script`, update `070-environment.md` with canonical reference and version pinning standards, and expand `test-pep723-tools.sh` with lint checks for PEP 723 compliance.
-
-**Architecture:** Three independent concern areas — executable tool file (`.opencode/tools/local-issues`), documentation guideline (`.opencode/guidelines/070-environment.md`), enforcement test script (`.opencode/tests/test-pep723-tools.sh`). No shared code or coupling between phases.
-
-**Tech Stack:** Python (PEP 723 scripts via `uv run --script`), Bash (test script), Markdown (guidelines).
-
-## File Structure
-
-| File | Phase | Responsibility |
-|------|-------|----------------|
-| `.opencode/tools/local-issues` | 1 | Tool file — PEP 723 header rewrite from `# /// pyproject.toml` to `# /// script` |
-| `.opencode/guidelines/070-environment.md` | 2 | Documentation — PEP 723 reference link, correct marker spec, version pinning standards |
-| `.opencode/tests/test-pep723-tools.sh` | 3 | Enforcement tests — check functions for `requires-python` pinning, dependency pinning, pyproject.toml marker absence |
-
-> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+- [ ] **Goal:** Fix `local-issues` PEP 723 header from deprecated `# /// pyproject.toml` to `# /// script`, update `070-environment.md` with canonical reference and version pinning standards, expand `test-pep723-tools.sh` with lint checks for PEP 723 compliance.
+- [ ] **Architecture:** Phase 1 → Phase 2 (docs) and Phase 3 (tests). Phases 2 and 3 require Phase 1 complete; they are independent of each other.
+- [ ] **Files:**
+  - `.opencode/tools/local-issues` — Phase 1
+  - `.opencode/guidelines/070-environment.md` — Phase 2
+  - `.opencode/tests/test-pep723-tools.sh` — Phase 3
 
 ---
 
-### Phase 1: Fix local-issues
+## Phase 1 — Fix local-issues
 
-**Concern:** Executable tool file — PEP 723 metadata block header rewrite
-**Files:** `.opencode/tools/local-issues` (lines 1-12)
-**SCs covered:** SC-1, SC-2, SC-3, SC-4, SC-5
-**Entry condition:** Current header uses deprecated `# /// pyproject.toml` with `[project]` section, unversioned `pyyaml`, and bare `>=3.12`
-**Exit condition:** Header uses `# /// script` with `requires-python = "~=3.12.0"` and `dependencies = ["pyyaml~=6.0"]`; `init` exits 0
+**SCs:** SC-1, SC-2, SC-3, SC-4, SC-5
+**File:** `.opencode/tools/local-issues`
 
-**Concern boundary (entry):** Starting from the tool file's current defective header — entering header rewrite. No external dependencies.
+- [ ] 1. **Coherence gate.**
+  - Verify SC-1 through SC-5 are internally consistent and match codebase.
+  - Dispatches: `sc-coherence-gate` for phase 1.
+- [ ] 2. **Pre-RED baseline.**
+  - Capture current state of `.opencode/tools/local-issues` lines 1-12.
+  - Record exit code of `./.opencode/tools/local-issues init`.
 
-#### Item: P1-I1 — Replace inline metadata block
+### RED+green P1-I1 — Replace header
 
-**SCs:** SC-2 (script marker), SC-3 (no [project]), SC-4 (~=3.12.0), SC-5 (pyyaml~=6.0)
+- [ ] 3. **RED.**
+  - Write test grepping for `# /// pyproject.toml` and `# [project]` — expects them to exist.
+  - Must FAIL.
+- [ ] 4. **RED doublecheck.**
+  - Confirm Step 3 fails as expected.
+- [ ] 5. **Post-RED enforcement.**
+  - Verify RED artifacts exist with correct FAIL state.
+- [ ] 6. **GREEN.**
+  - `# /// pyproject.toml` → `# /// script`
+  - Remove `[project]` wrapping
+  - `requires-python = "~=3.12.0"`
+  - `dependencies = ["pyyaml~=6.0"]`
+  - Add bash guard before PEP 723 header
+  - Remove `[tool.ruff]` from metadata
+  - **SC-2, SC-3, SC-4, SC-5**
+- [ ] 7. **Post-GREEN enforcement.**
+  - Verify header uses `# /// script` not `# /// pyproject.toml`.
+- [ ] 8. **Structural checks.**
+  - `ruff check --diff` on `.opencode/tools/`.
+- [ ] 9. **GREEN doublecheck.**
+  - `# /// pyproject.toml` absent → SC-2
+  - `# [project]` absent → SC-3
+  - `requires-python = "~=3.12.0"` present → SC-4
+  - `pyyaml~=6.0` present → SC-5
+- [ ] 10. **Checkpoint commit.**
+  - `git commit -m "fix local-issues PEP 723 header"`
 
-| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
-|------|---------------|--------|----------------|-------------------|-----|
-| sc-coherence-gate | sub-task | yes (blind) | general | `{"task": "execute sc-coherence-gate coherence-extraction from adversarial-audit", "issue_number": 1295, "phase": 1}` | SC-2, SC-3, SC-4, SC-5 |
-| pre-red-baseline | sub-task | yes (blind) | general | `{"task": "execute pre-red-baseline from implementation-pipeline", "issue_number": 1295, "phase": 1, "item": "P1-I1"}` | SC-2, SC-3, SC-4, SC-5 |
-| red-phase | sub-task | yes (blind) | general | `{"task": "execute red-phase from test-driven-development", "issue_number": 1295, "phase": 1, "item": "P1-I1"}` | SC-2, SC-3, SC-4, SC-5 |
-| red-doublecheck | sub-task | yes (blind) | general | `{"task": "execute verify from verification-before-completion", "issue_number": 1295, "phase": 1, "item": "P1-I1"}` | SC-2, SC-3, SC-4, SC-5 |
-| post-red-enforcement | sub-task | yes (blind) | general | `{"task": "execute post-red-enforcement from implementation-pipeline", "issue_number": 1295, "phase": 1, "item": "P1-I1"}` | SC-2, SC-3, SC-4, SC-5 |
-| green-phase | sub-task | yes (blind) | general | `{"task": "execute green-phase from test-driven-development", "issue_number": 1295, "phase": 1, "item": "P1-I1"}` | SC-2, SC-3, SC-4, SC-5 |
-| post-green-enforcement | sub-task | yes (blind) | general | `{"task": "execute post-green-enforcement from implementation-pipeline", "issue_number": 1295, "phase": 1, "item": "P1-I1"}` | SC-2, SC-3, SC-4, SC-5 |
-| checkpoint-commit | inline | N/A | N/A | — | SC-2, SC-3, SC-4, SC-5 |
-| structural-checks | sub-task | yes (blind) | general | `{"task": "execute checklist from finishing-a-development-branch", "issue_number": 1295, "phase": 1}` | SC-2, SC-3, SC-4, SC-5 |
-| green-doublecheck | sub-task | yes (blind) | general | `{"task": "execute verify from verification-before-completion", "issue_number": 1295, "phase": 1, "item": "P1-I1"}` | SC-2, SC-3, SC-4, SC-5 |
-| adversarial-audit | multi-dispatch | N/A | resolve-models | Orchestrator manages: resolve-models → auditor_1 → remediate → auditor_2 → cross-validate | SC-2, SC-3, SC-4, SC-5 |
-| cross-validate | sub-task | yes (blind) | general | `{"task": "execute cross-validate from adversarial-audit", "auditor_artifact_paths": "<from resolve-models>", "issue_number": 1295}` | SC-2, SC-3, SC-4, SC-5 |
-| regression-check | sub-task | yes (blind) | general | `{"task": "execute patterns from test-driven-development", "issue_number": 1295}` | SC-2, SC-3, SC-4, SC-5 |
-| review-prep | sub-task | yes (blind) | general | `{"task": "execute review-prep from git-workflow", "issue_number": 1295}` | SC-2, SC-3, SC-4, SC-5 |
+### RED+green P1-I2 — Verify init
 
-#### Item: P1-I2 — Verify init works
+- [ ] 11. **RED.**
+  - Write test running `./.opencode/tools/local-issues init` — expects exit 0.
+  - Must FAIL (non-zero exit).
+- [ ] 12. **RED doublecheck.**
+  - Confirm test fails.
+- [ ] 13. **Post-RED enforcement.**
+  - Verify RED artifacts with FAIL state.
+- [ ] 14. **GREEN.**
+  - Ensure `init` exits 0 with corrected header.
+  - **SC-1**
+- [ ] 15. **Post-GREEN enforcement.**
+  - Verify `init` now works.
+- [ ] 16. **Structural checks.**
+  - `ruff check --diff`.
+- [ ] 17. **GREEN doublecheck.**
+  - Run `init` — confirm exit 0 → SC-1
+- [ ] 18. **Checkpoint commit.**
+  - `git commit -m "fix local-issues init"`
 
-**SCs:** SC-1 (init exits 0)
+### Phase 1 completion
 
-| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
-|------|---------------|--------|----------------|-------------------|-----|
-| sc-coherence-gate | sub-task | yes (blind) | general | `{"task": "execute sc-coherence-gate coherence-extraction from adversarial-audit", "issue_number": 1295, "phase": 1}` | SC-1 |
-| pre-red-baseline | sub-task | yes (blind) | general | `{"task": "execute pre-red-baseline from implementation-pipeline", "issue_number": 1295, "phase": 1, "item": "P1-I2"}` | SC-1 |
-| red-phase | sub-task | yes (blind) | general | `{"task": "execute red-phase from test-driven-development", "issue_number": 1295, "phase": 1, "item": "P1-I2"}` | SC-1 |
-| green-phase | sub-task | yes (blind) | general | `{"task": "execute green-phase from test-driven-development", "issue_number": 1295, "phase": 1, "item": "P1-I2"}` | SC-1 |
-| checkpoint-commit | inline | N/A | N/A | — | SC-1 |
-| green-vbc | sub-task | yes (blind) | general | `{"task": "execute completion from verification-before-completion", "issue_number": 1295, "phase": 1}` | SC-1 |
-
-**Concern boundary (exit):** Leaving the tool file fix — documentation phase requires the corrected pattern as reference.
+- [ ] 19. **VbC.**
+  - SC-1: `init` exits 0
+  - SC-2: `# /// script` present, `# /// pyproject.toml` absent
+  - SC-3: `# [project]` absent
+  - SC-4: `requires-python = "~=3.12.0"` present
+  - SC-5: `pyyaml~=6.0` present
+- [ ] 20. **Adversarial audit.**
+  - resolve-models → auditor_1 → remediate → auditor_2 → cross-validate.
+- [ ] 21. **Cross-validate.**
+  - Both PASS or DISAGREE with remediation.
+- [ ] 22. **Regression check.**
+  - `bash .opencode/tests/test-enforcement.sh --changed` — must pass.
+- [ ] 23. **Review prep.**
+  - `git-workflow review-prep`.
 
 ---
 
-### Phase 2: Update 070-environment.md PEP 723 documentation
+## Phase 2 — Update 070-environment.md
 
-**Concern:** Documentation guideline — PEP 723 canonical reference, correct marker, version pinning standards
-**Files:** `.opencode/guidelines/070-environment.md`
-**SCs covered:** SC-6, SC-7
-**Entry condition:** 070-environment.md lacks PEP 723 link, uses incorrect marker, has no pinning standards
-**Exit condition:** Contains PEP 723 URL, specifies `# /// script` as only standardized marker, mandates `~=` for both requires-python and dependencies
+**SCs:** SC-6, SC-7
+**File:** `.opencode/guidelines/070-environment.md`
 
-**Concern boundary (entry):** Entering documentation — requires Phases 1 corrected pattern as reference content (pedagogical dependency). Phase 2 starts after Phase 1 checkpoint-commit.
+- [ ] 24. **Coherence gate.**
+  - Verify SC-6, SC-7 consistent with codebase.
+- [ ] 25. **Pre-RED baseline.**
+  - Capture current PEP 723 section in `070-environment.md`.
+  - Note: missing PEP 723 URL, wrong marker, no pinning standards.
 
-#### Item: P2-I1 — Add PEP 723 canonical reference and correct conventions
+### RED+green P2-I1 — Update docs
 
-**SCs:** SC-6 (PEP 723 URL), SC-7 (~= pinning prose)
+- [ ] 26. **RED.**
+  - Write test grepping for `peps.python.org/pep-0723` — expects present.
+  - Must FAIL.
+- [ ] 27. **RED doublecheck.**
+  - Confirm Step 26 fails.
+- [ ] 28. **Post-RED enforcement.**
+  - Verify FAIL artifacts.
+- [ ] 29. **GREEN.**
+  - Add `https://peps.python.org/pep-0723/` reference link → SC-6
+  - Specify `# /// script` as only standardized marker
+  - Add `~=` pinning standards for `requires-python` and `dependencies` → SC-7
+  - Update example block
+- [ ] 30. **Post-GREEN enforcement.**
+  - Verify file modified.
+- [ ] 31. **Structural checks.**
+  - `pymarkdownlnt` scan on modified file.
+- [ ] 32. **GREEN doublecheck.**
+  - `peps.python.org/pep-0723` present → SC-6
+  - `~=` present in pinning prose for both fields → SC-7
+- [ ] 33. **Checkpoint commit.**
+  - `git commit -m "update PEP 723 documentation"`
 
-| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
-|------|---------------|--------|----------------|-------------------|-----|
-| sc-coherence-gate | sub-task | yes (blind) | general | `{"task": "execute sc-coherence-gate coherence-extraction from adversarial-audit", "issue_number": 1295, "phase": 2}` | SC-6, SC-7 |
-| pre-red-baseline | sub-task | yes (blind) | general | `{"task": "execute pre-red-baseline from implementation-pipeline", "issue_number": 1295, "phase": 2, "item": "P2-I1"}` | SC-6, SC-7 |
-| red-phase | sub-task | yes (blind) | general | `{"task": "execute red-phase from test-driven-development", "issue_number": 1295, "phase": 2, "item": "P2-I1"}` | SC-6, SC-7 |
-| green-phase | sub-task | yes (blind) | general | `{"task": "execute green-phase from test-driven-development", "issue_number": 1295, "phase": 2, "item": "P2-I1"}` | SC-6, SC-7 |
-| checkpoint-commit | inline | N/A | N/A | — | SC-6, SC-7 |
-| green-doublecheck | sub-task | yes (blind) | general | `{"task": "execute verify from verification-before-completion", "issue_number": 1295, "phase": 2}` | SC-6, SC-7 |
-| green-vbc | sub-task | yes (blind) | general | `{"task": "execute completion from verification-before-completion", "issue_number": 1295, "phase": 2}` | SC-6, SC-7 |
-| adversarial-audit | multi-dispatch | N/A | resolve-models | Orchestrator manages: resolve-models → auditor_1 → remediate → auditor_2 → cross-validate | SC-6, SC-7 |
-| cross-validate | sub-task | yes (blind) | general | `{"task": "execute cross-validate from adversarial-audit", "auditor_artifact_paths": "<from resolve-models>", "issue_number": 1295}` | SC-6, SC-7 |
-| exec-summary | sub-task | yes (blind) | general | `{"task": "execute completion from completion-core", "issue_number": 1295}` | SC-6, SC-7 |
+### Phase 2 completion
 
-**Concern boundary (exit):** Leaving documentation — linting phase also requires the corrected pattern as reference.
+- [ ] 34. **VbC.**
+  - SC-6, SC-7 pass.
+- [ ] 35. **Adversarial audit.**
+  - resolve-models → 2 auditors.
+- [ ] 36. **Cross-validate.**
+  - Consensus.
+- [ ] 37. **Regression check.**
+  - Enforcement tests — no regressions.
+- [ ] 38. **Review prep.**
+  - `git-workflow review-prep`.
 
 ---
 
-### Phase 3: Expand test-pep723-tools.sh linting
+## Phase 3 — Expand test-pep723-tools.sh linting
 
-**Concern:** Enforcement test — automated linting for PEP 723 violations in `.opencode/tools/`
-**Files:** `.opencode/tests/test-pep723-tools.sh`
-**SCs covered:** SC-8, SC-9, SC-10, SC-11
-**Entry condition:** test-pep723-tools.sh lacks `check_requires_python_pinned` and `check_dependencies_pinned` functions
-**Exit condition:** Both functions exist; running the script on post-fix repo exits 0
+**SCs:** SC-8, SC-9, SC-10, SC-11
+**File:** `.opencode/tests/test-pep723-tools.sh`
 
-**Concern boundary (entry):** Entering test expansion — requires Phase 1 corrected local-issues as the target of linting checks.
+- [ ] 39. **Coherence gate.**
+  - Verify SC-8 through SC-11 consistent with codebase.
+- [ ] 40. **Pre-RED baseline.**
+  - Capture current `test-pep723-tools.sh`.
+  - Note: missing `check_requires_python_pinned` and `check_dependencies_pinned`.
 
-#### Item: P3-I1 — Add check_requires_python_pinned function
+### RED+green P3-I1 — Add check_requires_python_pinned
 
-**SCs:** SC-8 (check_requires_python_pinned exists)
+- [ ] 41. **RED.**
+  - Write test grepping for `check_requires_python_pinned` — expects present.
+  - Must FAIL.
+- [ ] 42. **RED doublecheck.**
+  - Confirm fails.
+- [ ] 43. **Post-RED enforcement.**
+  - Verify FAIL artifacts.
+- [ ] 44. **GREEN.**
+  - Add `check_requires_python_pinned`: greps `requires-python = "~=X.Y.0"` in PEP 723 scripts, exits non-zero on violation.
+  - **SC-8**
+- [ ] 45. **Post-GREEN enforcement.**
+  - Verify function added.
+- [ ] 46. **Structural checks.**
+  - `bash -n` syntax check.
+- [ ] 47. **GREEN doublecheck.**
+  - `check_requires_python_pinned` present via grep → SC-8
+- [ ] 48. **Checkpoint commit.**
+  - `git commit -m "add check_requires_python_pinned"`
 
-| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
-|------|---------------|--------|----------------|-------------------|-----|
-| sc-coherence-gate | sub-task | yes (blind) | general | `{"task": "execute sc-coherence-gate coherence-extraction from adversarial-audit", "issue_number": 1295, "phase": 3}` | SC-8 |
-| pre-red-baseline | sub-task | yes (blind) | general | `{"task": "execute pre-red-baseline from implementation-pipeline", "issue_number": 1295, "phase": 3, "item": "P3-I1"}` | SC-8 |
-| red-phase | sub-task | yes (blind) | general | `{"task": "execute red-phase from test-driven-development", "issue_number": 1295, "phase": 3, "item": "P3-I1"}` | SC-8 |
-| green-phase | sub-task | yes (blind) | general | `{"task": "execute green-phase from test-driven-development", "issue_number": 1295, "phase": 3, "item": "P3-I1"}` | SC-8 |
-| checkpoint-commit | inline | N/A | N/A | — | SC-8 |
-| green-doublecheck | sub-task | yes (blind) | general | `{"task": "execute verify from verification-before-completion", "issue_number": 1295, "phase": 3}` | SC-8 |
+### RED+green P3-I2 — Add check_dependencies_pinned
 
-#### Item: P3-I2 — Add check_dependencies_pinned function
+- [ ] 49. **RED.**
+  - Write test grepping for `check_dependencies_pinned` — expects present.
+  - Must FAIL.
+- [ ] 50. **RED doublecheck.**
+  - Confirm fails.
+- [ ] 51. **Post-RED enforcement.**
+  - Verify FAIL artifacts.
+- [ ] 52. **GREEN.**
+  - Add `check_dependencies_pinned`: greps `~=` in dependency entries of PEP 723 scripts, exits non-zero on violation.
+  - **SC-9**
+- [ ] 53. **Post-GREEN enforcement.**
+  - Verify function added.
+- [ ] 54. **Structural checks.**
+  - `bash -n`.
+- [ ] 55. **GREEN doublecheck.**
+  - `check_dependencies_pinned` present via grep → SC-9
+- [ ] 56. **Checkpoint commit.**
+  - `git commit -m "add check_dependencies_pinned"`
 
-**SCs:** SC-9 (check_dependencies_pinned exists)
+### RED+green P3-I3 — Clean repo pass
 
-| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
-|------|---------------|--------|----------------|-------------------|-----|
-| sc-coherence-gate | sub-task | yes (blind) | general | `{"task": "execute sc-coherence-gate coherence-extraction from adversarial-audit", "issue_number": 1295, "phase": 3}` | SC-9 |
-| pre-red-baseline | sub-task | yes (blind) | general | `{"task": "execute pre-red-baseline from implementation-pipeline", "issue_number": 1295, "phase": 3, "item": "P3-I2"}` | SC-9 |
-| red-phase | sub-task | yes (blind) | general | `{"task": "execute red-phase from test-driven-development", "issue_number": 1295, "phase": 3, "item": "P3-I2"}` | SC-9 |
-| green-phase | sub-task | yes (blind) | general | `{"task": "execute green-phase from test-driven-development", "issue_number": 1295, "phase": 3, "item": "P3-I2"}` | SC-9 |
-| checkpoint-commit | inline | N/A | N/A | — | SC-9 |
-| green-doublecheck | sub-task | yes (blind) | general | `{"task": "execute verify from verification-before-completion", "issue_number": 1295, "phase": 3}` | SC-9 |
+- [ ] 57. **RED.**
+  - Run `./.opencode/tests/test-pep723-tools.sh` — expect non-zero exit.
+- [ ] 58. **RED doublecheck.**
+  - Confirm non-zero exit.
+- [ ] 59. **Post-RED enforcement.**
+  - Verify FAIL artifacts.
+- [ ] 60. **GREEN.**
+  - Ensure test script exits 0 on clean post-fix repo.
+  - **SC-10**
+- [ ] 61. **Post-GREEN enforcement.**
+  - Verify script passes.
+- [ ] 62. **Structural checks.**
+  - `bash -n`.
+- [ ] 63. **GREEN doublecheck.**
+  - Run script — exit 0 → SC-10
+  - `# /// pyproject.toml` absent from `.opencode/tools/` → SC-11
+- [ ] 64. **Checkpoint commit.**
+  - `git commit -m "fix test script for clean repo"`
 
-#### Item: P3-I3 — Verify test script exits 0 on clean repo
+### Phase 3 completion
 
-**SCs:** SC-10 (exit 0), SC-11 (no pyproject.toml marker)
-
-| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
-|------|---------------|--------|----------------|-------------------|-----|
-| sc-coherence-gate | sub-task | yes (blind) | general | `{"task": "execute sc-coherence-gate coherence-extraction from adversarial-audit", "issue_number": 1295, "phase": 3}` | SC-10, SC-11 |
-| pre-red-baseline | sub-task | yes (blind) | general | `{"task": "execute pre-red-baseline from implementation-pipeline", "issue_number": 1295, "phase": 3, "item": "P3-I3"}` | SC-10, SC-11 |
-| red-phase | sub-task | yes (blind) | general | `{"task": "execute red-phase from test-driven-development", "issue_number": 1295, "phase": 3, "item": "P3-I3"}` | SC-10, SC-11 |
-| green-phase | sub-task | yes (blind) | general | `{"task": "execute green-phase from test-driven-development", "issue_number": 1295, "phase": 3, "item": "P3-I3"}` | SC-10, SC-11 |
-| checkpoint-commit | inline | N/A | N/A | — | SC-10, SC-11 |
-| green-vbc | sub-task | yes (blind) | general | `{"task": "execute completion from verification-before-completion", "issue_number": 1295, "phase": 3}` | SC-10, SC-11 |
-| adversarial-audit | multi-dispatch | N/A | resolve-models | Orchestrator manages: resolve-models → auditor_1 → remediate → auditor_2 → cross-validate | SC-10, SC-11 |
-| cross-validate | sub-task | yes (blind) | general | `{"task": "execute cross-validate from adversarial-audit", "auditor_artifact_paths": "<from resolve-models>", "issue_number": 1295}` | SC-10, SC-11 |
-| regression-check | sub-task | yes (blind) | general | `{"task": "execute patterns from test-driven-development", "issue_number": 1295}` | SC-10, SC-11 |
-| review-prep | sub-task | yes (blind) | general | `{"task": "execute review-prep from git-workflow", "issue_number": 1295}` | SC-10, SC-11 |
-| exec-summary | sub-task | yes (blind) | general | `{"task": "execute completion from completion-core", "issue_number": 1295}` | SC-10, SC-11 |
-
-> **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+- [ ] 65. **VbC.**
+  - SC-8 through SC-11 pass.
+- [ ] 66. **Adversarial audit.**
+  - resolve-models → 2 auditors.
+- [ ] 67. **Cross-validate.**
+  - Consensus.
+- [ ] 68. **Regression check.**
+  - `bash .opencode/tests/test-enforcement.sh --changed` — pass.
+- [ ] 69. **Review prep.**
+  - `git-workflow review-prep`.
 
 ---
 
 ## Exit Criteria
 
-| ID | Criterion |
-|----|-----------|
-| C1 | Plan header includes Goal, Architecture, Tech Stack |
-| C2 | File structure lists all files with responsibilities |
-| C3 | TDD tasks include mandatory Step 2 RED checkpoint |
-| C4 | Phase descriptions include concern boundary annotations |
-| C5 | Plan stored at `.opencode/.issues/1295/plan.md` |
-| C6 | No TBD/TODO placeholders remain |
-| C7 | Plan artifact created locally in `.opencode/.issues/1295/` |
-| C8 | Status marker uses prose-driven format |
-| C9 | Approval cascade honors `for_plan` scope — halt at `plan_created` |
-
-**Authorization context:** `for_plan` scope, `halt_at: plan_created`, `pr_strategy: none` — plan is a local artifact. Pipeline authorization covers plan approval. HALT after plan creation.
+- [ ] C1: All 11 SCs pass (SC-1 through SC-11)
+- [ ] C2: All phases complete in order (1 → 2 → 3)
+- [ ] C3: No regressions in existing enforcement tests
+- [ ] C4: Review prep completed for all phases
+- [ ] C5: Plan stored at `.opencode/.issues/1295/plan.md`
