@@ -1,0 +1,45 @@
+# Pipeline State Machine Contract for Z3 Validation
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+# Co-authored with AI: OpenCode (deepseek-v4-flash)
+schema_version: "1.0"
+last_updated: "2026-06-19T00:00:00Z"
+
+variables:
+  current_step:
+    type: string
+    domain:
+      - spec-to-plan-handoff
+      - plan-create
+      - solve-model
+      - solve-check
+      - plan-plan
+      - plan-completion
+  previous_step:
+    type: string
+    domain:
+      - init
+      - spec-to-plan-handoff
+      - plan-create
+      - solve-model
+      - solve-check
+      - plan-plan
+  pipeline_state:
+    type: string
+    domain: [init, running, complete, failed]
+
+preconditions:
+  - "z3.Implies(previous_step == z3.StringVal('init'), current_step == z3.StringVal('spec-to-plan-handoff'))"
+  - "z3.Implies(previous_step == z3.StringVal('spec-to-plan-handoff'), current_step == z3.StringVal('plan-create'))"
+  - "z3.Implies(previous_step == z3.StringVal('plan-create'), current_step == z3.StringVal('solve-model'))"
+  - "z3.Implies(previous_step == z3.StringVal('solve-model'), current_step == z3.StringVal('solve-check'))"
+  - "z3.Implies(previous_step == z3.StringVal('solve-check'), current_step == z3.StringVal('plan-plan'))"
+  - "z3.Implies(previous_step == z3.StringVal('plan-plan'), current_step == z3.StringVal('plan-completion'))"
+  - "z3.Or(pipeline_state == z3.StringVal('init'), pipeline_state == z3.StringVal('running'), pipeline_state == z3.StringVal('failed'))"
+
+postconditions:
+  - "z3.Implies(current_step == z3.StringVal('plan-completion'), pipeline_state == z3.StringVal('complete'))"
+  - "z3.Not(previous_step == current_step)"
+  - "z3.Not(z3.And(pipeline_state == z3.StringVal('complete'), z3.Not(current_step == z3.StringVal('plan-completion'))))"
+  - "z3.Implies(z3.Not(previous_step == z3.StringVal('init')), pipeline_state == z3.StringVal('running'))"
