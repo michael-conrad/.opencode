@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Step 9 input: write task — different shape from steps 2-5 shared schema
+schema_version: "1.0"
+issue_number: {{issue_number}}
+spec_body: {{spec_body}}
+risk_assessment_path: {{risk_assessment_path}}
+solve_sat_verdict_path: {{solve_sat_verdict_path}}
+plan_validation_path: {{plan_validation_path}}
+github:
+  owner: {{github.owner}}
+  repo: {{github.repo}}

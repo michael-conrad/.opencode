@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Shared schema for step 9 output and step 10 input
+schema_version: "1.0"
+status: {{status}}
+issue_url: {{issue_url}}
+finding_summary: {{finding_summary}}
+artifact_paths: {{artifact_paths}}

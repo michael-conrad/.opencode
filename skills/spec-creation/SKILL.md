@@ -32,7 +32,7 @@ Pipeline: `brainstorming → spec-creation → adversarial-audit --task spec-aud
 
 ## Persona
 
-Spec Architect. Focus: structure investigation results into complete, well-organized spec with traceability, interface definitions, risk analysis, and change control.
+This skill produces specs by dispatching sub-agents. The orchestrator routes; sub-agents write. Sub-agents are intelligent agents, not dumb terminals — they read specs and use skills autonomously. The orchestrator MUST NOT prescribe exact file paths, line numbers, step sequences, or expected outcomes. Specify WHAT and WHY — not HOW.
 
 ## Tasks
 
@@ -67,15 +67,16 @@ Spec Architect. Focus: structure investigation results into complete, well-organ
 
 ## Operating Protocol
 
-- [ ] 1. **Pre-spec inspection mandatory** per `015-pre-spec-inspection.md` (code inspection checklist).
-- [ ] 2. **Verification-enforcement gate** before generation.
-- [ ] 3. **Select-existing pathway:** search GitHub Issues for existing specs before creating new one.
-- [ ] 4. **Requirements task mandatory** before write (unless trivial).
-- [ ] 5. **Persist as GitHub Issue** via `issue-operations --task creation`.
-- [ ] 6. **Adversarial-audit call:** after issue creation, call `adversarial-audit --task spec-audit --issue <N>` with `audit_phase: spec_creation`.
-- [ ] 7. **PR merge boundaries** required when dependencies exist.
-- [ ] 8. **Mermaid diagram** required for multi-phase specs (approved structure only, no workflow state).
-- [ ] 9. **Concern enumeration guard:** enumerate single concerns before writing.
+- [ ] 1. [inline] Pre-spec inspection per `015-pre-spec-inspection.md` — chain: `none`
+- [ ] 2. [sub-task: requirements] `task(..., prompt: "execute requirements task from spec-creation")` — input: `./tmp/{N}/contracts/requirements-input.yaml`, output: `./tmp/{N}/contracts/requirements-output.yaml`, template: `.opencode/skills/spec-creation/contracts/requirements-input-template.yaml`, chain: `none`
+- [ ] 3. [sub-task: decompose] `task(..., prompt: "execute decompose task from spec-creation")` — input: `./tmp/{N}/contracts/decompose-input.yaml`, output: `./tmp/{N}/contracts/decompose-output.yaml`, template: `.opencode/skills/spec-creation/contracts/requirements-input-template.yaml` (shared), chain: `step_2`
+- [ ] 4. [sub-task: traceability] `task(..., prompt: "execute traceability task from spec-creation")` — input: `./tmp/{N}/contracts/traceability-input.yaml`, output: `./tmp/{N}/contracts/traceability-output.yaml`, template: `.opencode/skills/spec-creation/contracts/requirements-input-template.yaml` (shared), chain: `step_3`
+- [ ] 5. [sub-task: risk] `task(..., prompt: "execute risk task from spec-creation")` — input: `./tmp/{N}/contracts/risk-input.yaml`, output: `./tmp/{N}/contracts/risk-output.yaml`, template: `.opencode/skills/spec-creation/contracts/requirements-input-template.yaml` (shared), chain: `step_4`
+- [ ] 6. [inline] Invoke `solve model` for dependency-ordering constraints contract — chain: `step_5`
+- [ ] 7. [inline] Invoke `solve check` to verify SAT — chain: `step_6`
+- [ ] 8. [inline] Invoke `plan plan` for phase solvability validation — chain: `step_7`
+- [ ] 9. [sub-task: write] `task(..., prompt: "execute write task from spec-creation")` — input: `./tmp/{N}/contracts/write-input.yaml`, output: `./tmp/{N}/contracts/write-output.yaml`, template: `.opencode/skills/spec-creation/contracts/write-input-template.yaml`, chain: `step_5, step_8`
+- [ ] 10. [sub-task: completion] `task(..., prompt: "execute completion task from spec-creation")` — input: `./tmp/{N}/contracts/completion-input.yaml`, output: `./tmp/{N}/contracts/completion-output.yaml`, template: `.opencode/skills/spec-creation/contracts/write-output-template.yaml` (shared), chain: `step_9`
 
 ## Sub-Agent Routing
 
