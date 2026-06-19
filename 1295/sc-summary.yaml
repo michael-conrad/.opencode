@@ -1,0 +1,56 @@
+success_criteria:
+  - id: SC-1
+    criterion: ./.opencode/tools/local-issues init installs pyyaml and exits 0
+    evidence_type: behavioral
+    verification_method: Execute, verify exit code 0
+    phase: 1
+  - id: SC-2
+    criterion: Header uses # /// script not # /// pyproject.toml
+    evidence_type: string
+    verification_method: grep confirms absence of pyproject.toml marker
+    phase: 1
+  - id: SC-3
+    criterion: No [project] section in the script metadata
+    evidence_type: string
+    verification_method: grep confirms absence of # \[project\]
+    phase: 1
+  - id: SC-4
+    criterion: requires-python = "~=3.12.0" in local-issues
+    evidence_type: string
+    verification_method: grep confirms exact value
+    phase: 1
+  - id: SC-5
+    criterion: dependencies uses pyyaml~=6.0 not bare pyyaml
+    evidence_type: string
+    verification_method: grep confirms pyyaml~=
+    phase: 1
+  - id: SC-6
+    criterion: 070-environment.md includes link to https://peps.python.org/pep-0723/
+    evidence_type: string
+    verification_method: grep confirms URL present
+    phase: 2
+  - id: SC-7
+    criterion: 070-environment.md mandates ~= for both requires-python and dependencies
+    evidence_type: string
+    verification_method: grep confirms ~= in version pinning prose
+    phase: 2
+  - id: SC-8
+    criterion: test-pep723-tools.sh has check_requires_python_pinned
+    evidence_type: string
+    verification_method: grep confirms check function exists
+    phase: 3
+  - id: SC-9
+    criterion: test-pep723-tools.sh has check_dependencies_pinned
+    evidence_type: string
+    verification_method: grep confirms check function exists
+    phase: 3
+  - id: SC-10
+    criterion: test-pep723-tools.sh exits 0 on clean repo
+    evidence_type: behavioral
+    verification_method: Execute, verify exit code 0
+    phase: 3
+  - id: SC-11
+    criterion: # /// pyproject.toml not found in .opencode/tools/
+    evidence_type: string
+    verification_method: grep returns 0
+    phase: 3

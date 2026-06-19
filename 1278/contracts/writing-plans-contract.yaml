@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+# Solve contract: writing-plans workflow step ordering
+schema_version: "1.0"
+steps:
+  - id: inline_1_verify_approved
+    label: "Verify spec approved"
+    depends_on: []
+  - id: sub_task_2_create
+    label: "Create plan"
+    depends_on: [inline_1_verify_approved]
+  - id: inline_3_solve_model
+    label: "Solve model"
+    depends_on: [sub_task_2_create]
+  - id: inline_4_solve_check
+    label: "Solve check"
+    depends_on: [inline_3_solve_model]
+  - id: inline_5_plan_plan
+    label: "Plan plan"
+    depends_on: [inline_4_solve_check]
+  - id: sub_task_6_completion
+    label: "Completion"
+    depends_on: [inline_5_plan_plan]
+constraints:
+  - "for_all_steps: no_cycles"
+  - "for_all_steps: all_dependencies_met"

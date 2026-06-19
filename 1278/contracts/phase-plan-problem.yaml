@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+# Phase plan problem for skill-card workflow validation
+# All phases are independent — each just needs to be executed
+domain: skill-card-workflow
+types:
+  - name: phase
+objects:
+  - name: phase1_persona_fix
+    type: phase
+  - name: phase2_dispatch_checklist
+    type: phase
+  - name: phase3_contract_templates
+    type: phase
+  - name: phase4_task_reformat
+    type: phase
+  - name: phase5_z3_plan_validate
+    type: phase
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: execute_phase
+    params:
+      - name: p
+        type: phase
+    preconditions: []
+    effects:
+      - completed(p)
+init: []
+goals:
+  - completed(phase1_persona_fix)
+  - completed(phase2_dispatch_checklist)
+  - completed(phase3_contract_templates)
+  - completed(phase4_task_reformat)
+  - completed(phase5_z3_plan_validate)

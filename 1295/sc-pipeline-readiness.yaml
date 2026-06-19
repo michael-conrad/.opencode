@@ -1,0 +1,92 @@
+status: PASS
+sc_validation:
+  - id: SC-1
+    pipeline_step_binding: verification-before-completion (execution-based)
+    re_entry_step: assemble-work
+    verification_gate: pre-commit
+    artifact_path: ./tmp/1295/evidence/SC-1/
+    phase_binding: 1
+    result: PASS
+    reason: null
+  - id: SC-2
+    pipeline_step_binding: verification-before-completion (grep-based)
+    re_entry_step: assemble-work
+    verification_gate: ci
+    artifact_path: ./tmp/1295/evidence/SC-2/
+    phase_binding: 1
+    result: PASS
+    reason: null
+  - id: SC-3
+    pipeline_step_binding: verification-before-completion (grep-based)
+    re_entry_step: assemble-work
+    verification_gate: ci
+    artifact_path: ./tmp/1295/evidence/SC-3/
+    phase_binding: 1
+    result: PASS
+    reason: null
+  - id: SC-4
+    pipeline_step_binding: verification-before-completion (grep-based)
+    re_entry_step: assemble-work
+    verification_gate: ci
+    artifact_path: ./tmp/1295/evidence/SC-4/
+    phase_binding: 1
+    result: PASS
+    reason: null
+  - id: SC-5
+    pipeline_step_binding: verification-before-completion (grep-based)
+    re_entry_step: assemble-work
+    verification_gate: ci
+    artifact_path: ./tmp/1295/evidence/SC-5/
+    phase_binding: 1
+    result: PASS
+    reason: null
+  - id: SC-6
+    pipeline_step_binding: verification-before-completion (grep-based)
+    re_entry_step: assemble-work
+    verification_gate: ci
+    artifact_path: ./tmp/1295/evidence/SC-6/
+    phase_binding: 2
+    result: PASS
+    reason: null
+  - id: SC-7
+    pipeline_step_binding: verification-before-completion (grep-based)
+    re_entry_step: assemble-work
+    verification_gate: ci
+    artifact_path: ./tmp/1295/evidence/SC-7/
+    phase_binding: 2
+    result: PASS
+    reason: null
+  - id: SC-8
+    pipeline_step_binding: verification-before-completion (grep-based)
+    re_entry_step: assemble-work
+    verification_gate: ci
+    artifact_path: ./tmp/1295/evidence/SC-8/
+    phase_binding: 3
+    result: PASS
+    reason: null
+  - id: SC-9
+    pipeline_step_binding: verification-before-completion (grep-based)
+    re_entry_step: assemble-work
+    verification_gate: ci
+    artifact_path: ./tmp/1295/evidence/SC-9/
+    phase_binding: 3
+    result: PASS
+    reason: null
+  - id: SC-10
+    pipeline_step_binding: verification-before-completion (execution-based)
+    re_entry_step: assemble-work
+    verification_gate: pre-commit
+    artifact_path: ./tmp/1295/evidence/SC-10/
+    phase_binding: 3
+    result: PASS
+    reason: null
+  - id: SC-11
+    pipeline_step_binding: verification-before-completion (grep-based)
+    re_entry_step: assemble-work
+    verification_gate: ci
+    artifact_path: ./tmp/1295/evidence/SC-11/
+    phase_binding: 3
+    result: PASS
+    reason: null
+blocked_scs: []
+blocked_reason: null

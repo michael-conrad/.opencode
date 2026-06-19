@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+# Solve contract: spec-creation workflow step ordering
+schema_version: "1.0"
+steps:
+  - id: inline_1_pre_spec_inspection
+    label: "Pre-spec inspection"
+    depends_on: []
+  - id: sub_task_2_requirements
+    label: "Requirements"
+    depends_on: [inline_1_pre_spec_inspection]
+  - id: sub_task_3_decompose
+    label: "Decompose"
+    depends_on: [sub_task_2_requirements]
+  - id: sub_task_4_traceability
+    label: "Traceability"
+    depends_on: [sub_task_3_decompose]
+  - id: sub_task_5_risk
+    label: "Risk"
+    depends_on: [sub_task_4_traceability]
+  - id: inline_6_solve_model
+    label: "Solve model"
+    depends_on: [sub_task_5_risk]
+  - id: inline_7_solve_check
+    label: "Solve check"
+    depends_on: [inline_6_solve_model]
+  - id: inline_8_plan_plan
+    label: "Plan plan"
+    depends_on: [inline_7_solve_check]
+  - id: sub_task_9_write
+    label: "Write"
+    depends_on: [sub_task_5_risk, inline_8_plan_plan]
+  - id: sub_task_10_completion
+    label: "Completion"
+    depends_on: [sub_task_9_write]
+constraints:
+  - "for_all_steps: no_cycles"
+  - "for_all_steps: all_dependencies_met"

@@ -1,0 +1,713 @@
+# Plan Structure — Issue #1295
+# local-issues PEP 723 header fix, docs update, linting expansion
+
+plan_structure_decision: separate
+reason: >
+  Three distinct concern areas (tool file, documentation, test script) with
+  independent file locations and no shared code. Multi-task spec mandates
+  separate phase sections in plan.md.
+
+pipeline_readiness: PASS
+sc_count: 11
+phase_count: 3
+
+duplicate_plan_check:
+  status: no_conflicts
+  existing_plans: []
+
+## Phase Structure
+
+phases:
+  - number: 1
+    name: Fix local-issues
+    concern_boundary: Executable tool file — PEP 723 metadata block
+    entry_condition: local-issues current header uses deprecated pyproject.toml marker
+    exit_condition: local-issues header uses # /// script with pinned requires-python and dependencies
+    sub_folder: .opencode/tools/
+    files_affected_single: [.opencode/tools/local-issues]
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5]
+    dependencies: []
+    items:
+      - id: P1-I1
+        name: Replace inline metadata block
+        scope: Rewrite the PEP 723 header from pyproject.toml format to script format
+        scs: [SC-2, SC-3, SC-4, SC-5]
+        red: The agent's local-issues header still uses # /// pyproject.toml or [project] section or unversioned dependencies
+        green: The header must use # /// script with ~=3.12.0 and pyyaml~=6.0
+        deliverable: Modified .opencode/tools/local-issues header lines 1-12
+      - id: P1-I2
+        name: Verify init works
+        scope: Execute local-issues init, confirm exit 0
+        scs: [SC-1]
+        red: Running ./.opencode/tools/local-issues init fails or pyyaml not found
+        green: ./.opencode/tools/local-issues init must exit 0 and pyyaml must be importable
+        deliverable: Verified execution evidence
+
+  - number: 2
+    name: Update 070-environment.md PEP 723 documentation
+    concern_boundary: Documentation guideline — PEP 723 reference and conventions
+    entry_condition: 070-environment.md lacks canonical PEP 723 link and uses incorrect marker pattern
+    exit_condition: 070-environment.md specifies # /// script as the only standardized marker with ~= pinning standards
+    sub_folder: .opencode/guidelines/
+    files_affected_single: [.opencode/guidelines/070-environment.md]
+    scs: [SC-6, SC-7]
+    dependencies: []
+    items:
+      - id: P2-I1
+        name: Add PEP 723 canonical reference and correct conventions
+        scope: Add link, correct marker spec, version pinning standards, updated example block
+        scs: [SC-6, SC-7]
+        red: 070-environment.md does not link to PEP 723 or mentions deprecated pyproject.toml marker or lacks ~= pinning rules
+        green: 070-environment.md must contain the PEP 723 URL and mandate ~= for both requires-python and dependencies
+        deliverable: Modified .opencode/guidelines/070-environment.md
+
+  - number: 3
+    name: Expand test-pep723-tools.sh linting
+    concern_boundary: Enforcement test — automated linting for PEP 723 violations
+    entry_condition: test-pep723-tools.sh lacks check_requires_python_pinned and check_dependencies_pinned
+    exit_condition: test-pep723-tools.sh includes both new checks and exits 0 on clean repo
+    sub_folder: .opencode/tests/
+    files_affected_single: [.opencode/tests/test-pep723-tools.sh]
+    scs: [SC-8, SC-9, SC-10, SC-11]
+    dependencies: []
+    items:
+      - id: P3-I1
+        name: Add check_requires_python_pinned function
+        scope: Add shell function that verifies requires-python uses ~=X.Y.0
+        scs: [SC-8]
+        red: check_requires_python_pinned function does not exist in test-pep723-tools.sh
+        green: check_requires_python_pinned function must exist in test-pep723-tools.sh
+        deliverable: Modified .opencode/tests/test-pep723-tools.sh
+      - id: P3-I2
+        name: Add check_dependencies_pinned function
+        scope: Add shell function that verifies dependency entries use ~=
+        scs: [SC-9]
+        red: check_dependencies_pinned function does not exist in test-pep723-tools.sh
+        green: check_dependencies_pinned function must exist in test-pep723-tools.sh
+        deliverable: Modified .opencode/tests/test-pep723-tools.sh
+      - id: P3-I3
+        name: Verify test script exits 0 on clean repo
+        scope: Execute test-pep723-tools.sh on the post-fix repo state
+        scs: [SC-10, SC-11]
+        red: Running test-pep723-tools.sh exits non-zero or finds pyproject.toml markers
+        green: test-pep723-tools.sh must exit 0 and grep for pyproject.toml marker must return 0
+        deliverable: Verified execution evidence
+
+dependency_ordering:
+  phases:
+    - phase: 1
+      depends_on: []
+      constraints:
+        - "phase_1_starts_independently"
+    - phase: 2
+      depends_on: [1]
+      constraints:
+        - "phase_2_starts_after_phase_1_completes"
+      rationale: >
+        Documentation should reference the corrected pattern. Technically
+        independent, but documenting the correct format after the fix is
+        pedagogically coherent.
+    - phase: 3
+      depends_on: [1]
+      constraints:
+        - "phase_3_starts_after_phase_1_completes"
+      rationale: >
+        Test script checks the correct header pattern. Should run against
+        the post-fix state of local-issues to avoid false positives.
+
+## Dispatch Tables
+
+dispatch_tables:
+  phase_1:
+    title: Phase 1 — Fix local-issues
+    table:
+      - gate: G1
+        label: sc-coherence-gate
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "sc-coherence-gate coherence-extraction for Phase 1 (SC-1..SC-5)", "issue_number": 1295, "phase": 1}'
+        scs: SC-1, SC-2, SC-3, SC-4, SC-5
+      - gate: G2
+        label: pre-red-baseline
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "pre-red-baseline for Phase 1 item P1-I1", "issue_number": 1295, "phase": 1, "item": "P1-I1"}'
+        scs: SC-2, SC-3, SC-4, SC-5
+      - gate: G3
+        label: red-phase
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "red-phase for Phase 1 item P1-I1 — write test that FAILS on pyproject.toml marker", "issue_number": 1295, "phase": 1, "item": "P1-I1"}'
+        scs: SC-2, SC-3, SC-4, SC-5
+      - gate: G4
+        label: red-doublecheck
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "red-doublecheck for Phase 1 item P1-I1 — verify grep for pyproject.toml fails", "issue_number": 1295, "phase": 1, "item": "P1-I1"}'
+        scs: SC-2, SC-3, SC-4, SC-5
+      - gate: G5
+        label: post-red-enforcement
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "post-red-enforcement for Phase 1 item P1-I1", "issue_number": 1295, "phase": 1, "item": "P1-I1"}'
+        scs: SC-2, SC-3, SC-4, SC-5
+      - gate: G6
+        label: green-phase
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "green-phase for Phase 1 item P1-I1 — replace pyproject.toml header with script header", "issue_number": 1295, "phase": 1, "item": "P1-I1"}'
+        scs: SC-2, SC-3, SC-4, SC-5
+      - gate: G7
+        label: post-green-enforcement
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "post-green-enforcement for Phase 1 item P1-I1", "issue_number": 1295, "phase": 1, "item": "P1-I1"}'
+        scs: SC-2, SC-3, SC-4, SC-5
+      - gate: G8
+        label: checkpoint-commit
+        dispatch_type: inline
+        blind: N/A
+        sub_agent_type: N/A
+        receives_context: "—"
+        scs: SC-2, SC-3, SC-4, SC-5
+      - gate: G9
+        label: structural-checks
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "structural-checks (lint/typecheck) for Phase 1", "issue_number": 1295, "phase": 1}'
+        scs: SC-2, SC-3, SC-4, SC-5
+      - gate: G10
+        label: green-doublecheck
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "green-doublecheck for Phase 1 item P1-I1 — verify header pattern", "issue_number": 1295, "phase": 1, "item": "P1-I1"}'
+        scs: SC-2, SC-3, SC-4, SC-5
+      - gate: G11
+        label: red-phase
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "red-phase for Phase 1 item P1-I2 — write test that FAILS when local-issues init crashes", "issue_number": 1295, "phase": 1, "item": "P1-I2"}'
+        scs: SC-1
+      - gate: G12
+        label: green-phase
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "green-phase for Phase 1 item P1-I2 — fix local-issues init to exit 0", "issue_number": 1295, "phase": 1, "item": "P1-I2"}'
+        scs: SC-1
+      - gate: G13
+        label: checkpoint-commit
+        dispatch_type: inline
+        blind: N/A
+        sub_agent_type: N/A
+        receives_context: "—"
+        scs: SC-1
+      - gate: G14
+        label: green-vbc
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "green-vbc for Phase 1 (SC-1..SC-5)", "issue_number": 1295, "phase": 1}'
+        scs: SC-1, SC-2, SC-3, SC-4, SC-5
+
+  phase_2:
+    title: Phase 2 — Update 070-environment.md PEP 723 documentation
+    table:
+      - gate: G1
+        label: sc-coherence-gate
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "sc-coherence-gate coherence-extraction for Phase 2 (SC-6, SC-7)", "issue_number": 1295, "phase": 2}'
+        scs: SC-6, SC-7
+      - gate: G2
+        label: pre-red-baseline
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "pre-red-baseline for Phase 2 item P2-I1", "issue_number": 1295, "phase": 2, "item": "P2-I1"}'
+        scs: SC-6, SC-7
+      - gate: G3
+        label: red-phase
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "red-phase for Phase 2 item P2-I1 — test fails when PEP 723 link absent", "issue_number": 1295, "phase": 2, "item": "P2-I1"}'
+        scs: SC-6, SC-7
+      - gate: G4
+        label: green-phase
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "green-phase for Phase 2 item P2-I1 — add link, fix marker spec, add pinning standards", "issue_number": 1295, "phase": 2, "item": "P2-I1"}'
+        scs: SC-6, SC-7
+      - gate: G5
+        label: checkpoint-commit
+        dispatch_type: inline
+        blind: N/A
+        sub_agent_type: N/A
+        receives_context: "—"
+        scs: SC-6, SC-7
+      - gate: G6
+        label: green-doublecheck
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "green-doublecheck for Phase 2 — verify URL and ~= prose", "issue_number": 1295, "phase": 2}'
+        scs: SC-6, SC-7
+      - gate: G7
+        label: green-vbc
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "green-vbc for Phase 2 (SC-6, SC-7)", "issue_number": 1295, "phase": 2}'
+        scs: SC-6, SC-7
+
+  phase_3:
+    title: Phase 3 — Expand test-pep723-tools.sh linting
+    table:
+      - gate: G1
+        label: sc-coherence-gate
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "sc-coherence-gate coherence-extraction for Phase 3 (SC-8..SC-11)", "issue_number": 1295, "phase": 3}'
+        scs: SC-8, SC-9, SC-10, SC-11
+      - gate: G2
+        label: pre-red-baseline
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "pre-red-baseline for Phase 3", "issue_number": 1295, "phase": 3}'
+        scs: SC-8, SC-9, SC-10, SC-11
+      - gate: G3
+        label: red-phase
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "red-phase for Phase 3 item P3-I1 — test fails when check_requires_python_pinned absent", "issue_number": 1295, "phase": 3, "item": "P3-I1"}'
+        scs: SC-8
+      - gate: G4
+        label: green-phase
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "green-phase for Phase 3 item P3-I1 — add check_requires_python_pinned function", "issue_number": 1295, "phase": 3, "item": "P3-I1"}'
+        scs: SC-8
+      - gate: G5
+        label: checkpoint-commit
+        dispatch_type: inline
+        blind: N/A
+        sub_agent_type: N/A
+        receives_context: "—"
+        scs: SC-8
+      - gate: G6
+        label: red-phase
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "red-phase for Phase 3 item P3-I2 — test fails when check_dependencies_pinned absent", "issue_number": 1295, "phase": 3, "item": "P3-I2"}'
+        scs: SC-9
+      - gate: G7
+        label: green-phase
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "green-phase for Phase 3 item P3-I2 — add check_dependencies_pinned function", "issue_number": 1295, "phase": 3, "item": "P3-I2"}'
+        scs: SC-9
+      - gate: G8
+        label: checkpoint-commit
+        dispatch_type: inline
+        blind: N/A
+        sub_agent_type: N/A
+        receives_context: "—"
+        scs: SC-9
+      - gate: G9
+        label: green-doublecheck
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "green-doublecheck for Phase 3 — verify check functions exist", "issue_number": 1295, "phase": 3}'
+        scs: SC-8, SC-9
+      - gate: G10
+        label: red-phase
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "red-phase for Phase 3 item P3-I3 — test fails when test-pep723 exits non-zero", "issue_number": 1295, "phase": 3, "item": "P3-I3"}'
+        scs: SC-10, SC-11
+      - gate: G11
+        label: green-phase
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "green-phase for Phase 3 item P3-I3 — ensure clean repo passes test script", "issue_number": 1295, "phase": 3, "item": "P3-I3"}'
+        scs: SC-10, SC-11
+      - gate: G12
+        label: checkpoint-commit
+        dispatch_type: inline
+        blind: N/A
+        sub_agent_type: N/A
+        receives_context: "—"
+        scs: SC-10, SC-11
+      - gate: G13
+        label: green-vbc
+        dispatch_type: sub-task
+        blind: "yes (blind)"
+        sub_agent_type: general
+        receives_context: '{"task": "green-vbc for Phase 3 (SC-8..SC-11)", "issue_number": 1295, "phase": 3}'
+        scs: SC-8, SC-9, SC-10, SC-11
+
+## Per-Unit Pipeline Gate Tables
+
+per_unit_gates:
+  - unit: P1-I1
+    phase: 1
+    title: Replace inline metadata block
+    gates:
+      - gate: 1
+        name: sc-coherence-gate
+        exit_criterion: Spec and codebase coherence confirmed for local-issues header replacement
+      - gate: 2
+        name: pre-red-baseline
+        exit_criterion: Current header state documented as baseline
+      - gate: 3
+        name: red-phase
+        exit_criterion: Grep for pyproject.toml marker returns 0 (marker still present)
+      - gate: 4
+        name: red-doublecheck
+        exit_criterion: RED-side grep evidence verified
+      - gate: 5
+        name: post-red-enforcement
+        exit_criterion: No source code modified during RED phase
+      - gate: 6
+        name: green-phase
+        exit_criterion: Header written with # /// script, ~=3.12.0, pyyaml~=6.0
+      - gate: 7
+        name: post-green-enforcement
+        exit_criterion: Test file unchanged during GREEN phase
+      - gate: 8
+        name: checkpoint-commit
+        exit_criterion: Committed with message referencing SC-2, SC-3, SC-4, SC-5
+      - gate: 9
+        name: structural-checks
+        exit_criterion: Ruff passes, no syntax errors
+      - gate: 10
+        name: green-doublecheck
+        exit_criterion: Grep confirms no pyproject.toml marker, no [project], correct version strings
+      - gate: 11
+        name: adversarial-audit
+        exit_criterion: Dual auditor PASS on header structure
+      - gate: 12
+        name: cross-validate
+        exit_criterion: Consensus PASS
+      - gate: 13
+        name: regression-check
+        exit_criterion: Existing tests still pass
+      - gate: 14
+        name: review-prep
+        exit_criterion: Diff reviewed, summary prepared
+
+  - unit: P1-I2
+    phase: 1
+    title: Verify init works
+    gates:
+      - gate: 1
+        name: sc-coherence-gate
+        exit_criterion: Spec confirms behavioral SC-1 requires execution
+      - gate: 2
+        name: pre-red-baseline
+        exit_criterion: Current local-issues init behavior documented
+      - gate: 3
+        name: red-phase
+        exit_criterion: Running local-issues init exits non-zero (fails before fix)
+      - gate: 4
+        name: green-phase
+        exit_criterion: local-issues init exits 0 with pyyaml installed
+      - gate: 5
+        name: checkpoint-commit
+        exit_criterion: Committed with message referencing SC-1
+      - gate: 6
+        name: green-vbc
+        exit_criterion: Behavioral verification — execution evidence collected
+
+  - unit: P2-I1
+    phase: 2
+    title: Add PEP 723 canonical reference and correct conventions
+    gates:
+      - gate: 1
+        name: sc-coherence-gate
+        exit_criterion: Spec and current 070-environment.md content coherence confirmed
+      - gate: 2
+        name: pre-red-baseline
+        exit_criterion: Current 070-environment.md PEP 723 section documented as baseline
+      - gate: 3
+        name: red-phase
+        exit_criterion: Grep for PEP 723 URL returns 0 (URL absent)
+      - gate: 4
+        name: green-phase
+        exit_criterion: 070-environment.md contains PEP 723 URL and ~= pinning mandates
+      - gate: 5
+        name: checkpoint-commit
+        exit_criterion: Committed with message referencing SC-6, SC-7
+      - gate: 6
+        name: green-doublecheck
+        exit_criterion: Grep confirms URL present and ~= prose present
+      - gate: 7
+        name: green-vbc
+        exit_criterion: All string SCs verified
+
+  - unit: P3-I1
+    phase: 3
+    title: Add check_requires_python_pinned function
+    gates:
+      - gate: 1
+        name: sc-coherence-gate
+        exit_criterion: Current test-pep723-tools.sh content surveyed
+      - gate: 2
+        name: pre-red-baseline
+        exit_criterion: Current test script scope documented
+      - gate: 3
+        name: red-phase
+        exit_criterion: Grep for check_requires_python_pinned returns 0 (function absent)
+      - gate: 4
+        name: green-phase
+        exit_criterion: check_requires_python_pinned function present in test-pep723-tools.sh
+      - gate: 5
+        name: checkpoint-commit
+        exit_criterion: Committed with message referencing SC-8
+      - gate: 6
+        name: green-doublecheck
+        exit_criterion: Grep confirms function exists
+
+  - unit: P3-I2
+    phase: 3
+    title: Add check_dependencies_pinned function
+    gates:
+      - gate: 1
+        name: sc-coherence-gate
+        exit_criterion: Existing test functions surveyed
+      - gate: 2
+        name: pre-red-baseline
+        exit_criterion: Current function list documented
+      - gate: 3
+        name: red-phase
+        exit_criterion: Grep for check_dependencies_pinned returns 0 (function absent)
+      - gate: 4
+        name: green-phase
+        exit_criterion: check_dependencies_pinned function present in test-pep723-tools.sh
+      - gate: 5
+        name: checkpoint-commit
+        exit_criterion: Committed with message referencing SC-9
+      - gate: 6
+        name: green-doublecheck
+        exit_criterion: Grep confirms function exists
+
+  - unit: P3-I3
+    phase: 3
+    title: Verify test script exits 0 on clean repo
+    gates:
+      - gate: 1
+        name: sc-coherence-gate
+        exit_criterion: Behavioral SCs identified as requiring execution
+      - gate: 2
+        name: pre-red-baseline
+        exit_criterion: Current test exit behavior documented
+      - gate: 3
+        name: red-phase
+        exit_criterion: Running test-pep723-tools.sh exits non-zero (pyproject.toml markers still present in tools/)
+      - gate: 4
+        name: green-phase
+        exit_criterion: test-pep723-tools.sh exits 0 and grep for pyproject.toml returns 0
+      - gate: 5
+        name: checkpoint-commit
+        exit_criterion: Committed with message referencing SC-10, SC-11
+      - gate: 6
+        name: green-vbc
+        exit_criterion: Behavioral verification — execution evidence collected for SC-10, string grep for SC-11
+
+## Z3 Contract Notes
+
+z3_contracts:
+  phase_1_unit_P1_I1:
+    variables:
+      - P1_P1_I1_p1  # sc-coherence-gate
+      - P1_P1_I1_p2  # pre-red-baseline
+      - P1_P1_I1_p3  # red-phase
+      - P1_P1_I1_p4  # red-doublecheck
+      - P1_P1_I1_p5  # post-red-enforcement
+      - P1_P1_I1_p6  # green-phase
+      - P1_P1_I1_p7  # post-green-enforcement
+      - P1_P1_I1_p8  # checkpoint-commit
+      - P1_P1_I1_p9  # structural-checks
+      - P1_P1_I1_p10 # green-doublecheck
+      - P1_P1_I1_p11 # adversarial-audit
+      - P1_P1_I1_p12 # cross-validate
+      - P1_P1_I1_p13 # regression-check
+      - P1_P1_I1_p14 # review-prep
+    domain_var: D_P1_P1_I1
+    invariants:
+      - "=> P1_P1_I1_p2 P1_P1_I1_p1"
+      - "=> P1_P1_I1_p3 P1_P1_I1_p2"
+      - "=> P1_P1_I1_p4 P1_P1_I1_p3"
+      - "=> P1_P1_I1_p5 P1_P1_I1_p4"
+      - "=> P1_P1_I1_p6 P1_P1_I1_p5"
+      - "=> P1_P1_I1_p7 P1_P1_I1_p6"
+      - "=> P1_P1_I1_p8 P1_P1_I1_p7"
+      - "=> P1_P1_I1_p9 P1_P1_I1_p8"
+      - "=> P1_P1_I1_p10 P1_P1_I1_p9"
+      - "=> P1_P1_I1_p11 P1_P1_I1_p10"
+      - "=> P1_P1_I1_p12 P1_P1_I1_p11"
+      - "=> P1_P1_I1_p13 P1_P1_I1_p12"
+      - "=> P1_P1_I1_p14 P1_P1_I1_p13"
+    postcondition: "D_P1_P1_I1 <=> (and P1_P1_I1_p1 P1_P1_I1_p2 P1_P1_I1_p3 P1_P1_I1_p4 P1_P1_I1_p5 P1_P1_I1_p6 P1_P1_I1_p7 P1_P1_I1_p8 P1_P1_I1_p9 P1_P1_I1_p10 P1_P1_I1_p11 P1_P1_I1_p12 P1_P1_I1_p13 P1_P1_I1_p14)"
+
+  phase_1_unit_P1_I2:
+    variables:
+      - P1_P1_I2_p1  # sc-coherence-gate
+      - P1_P1_I2_p2  # pre-red-baseline
+      - P1_P1_I2_p3  # red-phase
+      - P1_P1_I2_p4  # green-phase
+      - P1_P1_I2_p5  # checkpoint-commit
+      - P1_P1_I2_p6  # green-vbc
+    domain_var: D_P1_P1_I2
+    invariants:
+      - "=> P1_P1_I2_p2 P1_P1_I2_p1"
+      - "=> P1_P1_I2_p3 P1_P1_I2_p2"
+      - "=> P1_P1_I2_p4 P1_P1_I2_p3"
+      - "=> P1_P1_I2_p5 P1_P1_I2_p4"
+      - "=> P1_P1_I2_p6 P1_P1_I2_p5"
+    postcondition: "D_P1_P1_I2 <=> (and P1_P1_I2_p1 P1_P1_I2_p2 P1_P1_I2_p3 P1_P1_I2_p4 P1_P1_I2_p5 P1_P1_I2_p6)"
+
+  phase_2_unit_P2_I1:
+    variables:
+      - P2_P2_I1_p1  # sc-coherence-gate
+      - P2_P2_I1_p2  # pre-red-baseline
+      - P2_P2_I1_p3  # red-phase
+      - P2_P2_I1_p4  # green-phase
+      - P2_P2_I1_p5  # checkpoint-commit
+      - P2_P2_I1_p6  # green-doublecheck
+      - P2_P2_I1_p7  # green-vbc
+    domain_var: D_P2_P2_I1
+    invariants:
+      - "=> P2_P2_I1_p2 P2_P2_I1_p1"
+      - "=> P2_P2_I1_p3 P2_P2_I1_p2"
+      - "=> P2_P2_I1_p4 P2_P2_I1_p3"
+      - "=> P2_P2_I1_p5 P2_P2_I1_p4"
+      - "=> P2_P2_I1_p6 P2_P2_I1_p5"
+      - "=> P2_P2_I1_p7 P2_P2_I1_p6"
+    postcondition: "D_P2_P2_I1 <=> (and P2_P2_I1_p1 P2_P2_I1_p2 P2_P2_I1_p3 P2_P2_I1_p4 P2_P2_I1_p5 P2_P2_I1_p6 P2_P2_I1_p7)"
+
+  phase_3_unit_P3_I1:
+    variables:
+      - P3_P3_I1_p1  # sc-coherence-gate
+      - P3_P3_I1_p2  # pre-red-baseline
+      - P3_P3_I1_p3  # red-phase
+      - P3_P3_I1_p4  # green-phase
+      - P3_P3_I1_p5  # checkpoint-commit
+      - P3_P3_I1_p6  # green-doublecheck
+    domain_var: D_P3_P3_I1
+    invariants:
+      - "=> P3_P3_I1_p2 P3_P3_I1_p1"
+      - "=> P3_P3_I1_p3 P3_P3_I1_p2"
+      - "=> P3_P3_I1_p4 P3_P3_I1_p3"
+      - "=> P3_P3_I1_p5 P3_P3_I1_p4"
+      - "=> P3_P3_I1_p6 P3_P3_I1_p5"
+    postcondition: "D_P3_P3_I1 <=> (and P3_P3_I1_p1 P3_P3_I1_p2 P3_P3_I1_p3 P3_P3_I1_p4 P3_P3_I1_p5 P3_P3_I1_p6)"
+
+  phase_3_unit_P3_I2:
+    variables:
+      - P3_P3_I2_p1  # sc-coherence-gate
+      - P3_P3_I2_p2  # pre-red-baseline
+      - P3_P3_I2_p3  # red-phase
+      - P3_P3_I2_p4  # green-phase
+      - P3_P3_I2_p5  # checkpoint-commit
+      - P3_P3_I2_p6  # green-doublecheck
+    domain_var: D_P3_P3_I2
+    invariants:
+      - "=> P3_P3_I2_p2 P3_P3_I2_p1"
+      - "=> P3_P3_I2_p3 P3_P3_I2_p2"
+      - "=> P3_P3_I2_p4 P3_P3_I2_p3"
+      - "=> P3_P3_I2_p5 P3_P3_I2_p4"
+      - "=> P3_P3_I2_p6 P3_P3_I2_p5"
+    postcondition: "D_P3_P3_I2 <=> (and P3_P3_I2_p1 P3_P3_I2_p2 P3_P3_I2_p3 P3_P3_I2_p4 P3_P3_I2_p5 P3_P3_I2_p6)"
+
+  phase_3_unit_P3_I3:
+    variables:
+      - P3_P3_I3_p1  # sc-coherence-gate
+      - P3_P3_I3_p2  # pre-red-baseline
+      - P3_P3_I3_p3  # red-phase
+      - P3_P3_I3_p4  # green-phase
+      - P3_P3_I3_p5  # checkpoint-commit
+      - P3_P3_I3_p6  # green-vbc
+    domain_var: D_P3_P3_I3
+    invariants:
+      - "=> P3_P3_I3_p2 P3_P3_I3_p1"
+      - "=> P3_P3_I3_p3 P3_P3_I3_p2"
+      - "=> P3_P3_I3_p4 P3_P3_I3_p3"
+      - "=> P3_P3_I3_p5 P3_P3_I3_p4"
+      - "=> P3_P3_I3_p6 P3_P3_I3_p5"
+    postcondition: "D_P3_P3_I3 <=> (and P3_P3_I1_p1 P3_P3_I1_p2 P3_P3_I1_p3 P3_P3_I1_p4 P3_P3_I1_p5 P3_P3_I1_p6)"
+
+## SC-ID Mapping
+
+sc_mapping:
+  - sc_id: SC-1
+    phase: 1
+    plan_items: [P1-I2]
+    evidence_type: behavioral
+  - sc_id: SC-2
+    phase: 1
+    plan_items: [P1-I1]
+    evidence_type: string
+  - sc_id: SC-3
+    phase: 1
+    plan_items: [P1-I1]
+    evidence_type: string
+  - sc_id: SC-4
+    phase: 1
+    plan_items: [P1-I1]
+    evidence_type: string
+  - sc_id: SC-5
+    phase: 1
+    plan_items: [P1-I1]
+    evidence_type: string
+  - sc_id: SC-6
+    phase: 2
+    plan_items: [P2-I1]
+    evidence_type: string
+  - sc_id: SC-7
+    phase: 2
+    plan_items: [P2-I1]
+    evidence_type: string
+  - sc_id: SC-8
+    phase: 3
+    plan_items: [P3-I1]
+    evidence_type: string
+  - sc_id: SC-9
+    phase: 3
+    plan_items: [P3-I2]
+    evidence_type: string
+  - sc_id: SC-10
+    phase: 3
+    plan_items: [P3-I3]
+    evidence_type: behavioral
+  - sc_id: SC-11
+    phase: 3
+    plan_items: [P3-I3]
+    evidence_type: string
+
+sc_mapping_summary:
+  orphans: []
+  scope_creep: []
+  missing: []
