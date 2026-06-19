@@ -192,22 +192,64 @@ When changing guidelines or skills, use behavioral TDD:
 
 ### Step 4: Plan Phase Structure (PRIMARY)
 
-Every plan phase MUST define a dispatch structure. The gate labels and step sequence MUST be pulled from `implementation-pipeline/SKILL.md` §Dispatch Routing Table at the time of plan creation. Do NOT hardcode gate names — reference the canonical source.
+Every plan phase MUST define a three-part structure using three discrete sections within ONE phase. This is the single-phase rule (SC-8): Pre-RED Common, Per-Item RED+green Chains, Post-RED/green. These three sections are part of the same phase — never split into separate phases.
 
-#### Concern Boundary Annotations
+The gate labels and step sequence MUST be pulled from `implementation-pipeline/SKILL.md` §Dispatch Routing Table at the time of plan creation. Do NOT hardcode gate names — reference the canonical source.
+
+#### Pre-RED Common
+
+Shared pre-work that runs once per phase before any RED/GREEN chains begin. This section contains:
+- Verification gate invocation
+- Reading approved spec
+- Combined/separate decision
+- Concern boundary annotations (see below)
+- File references (see below)
+- SC references (see below)
+
+##### Concern Boundary Annotations
 
 When transitioning between architectural concerns, describe:
 - What concern being left (prior scope)
 - What concern being entered (new scope)
 - What information the new concern needs from prior (handoff point)
 
-#### File References
+##### File References
 
 List the files affected by this phase. Agents glob to discover content — use sub-folder references, not individual file paths.
 
-#### SC References
+##### SC References
 
 List the SCs covered by this phase. Each SC must be traceable to a spec success criterion.
+
+#### Per-Item RED+green Chains
+
+This section contains one RED/GREEN pair per implementation item. Each pair is a sequential chain — RED then immediately GREEN — before the next item's RED begins. RED and GREEN MUST be separate steps (SC-6); they may NEVER be combined.
+
+```
+- [ ] TDD-1: <description> (SC-ID)
+  - [ ] 1. RED: <failure condition>
+  - [ ] 2. GREEN: <satisfaction condition>
+- [ ] TDD-2: <description> (SC-ID)
+  - [ ] 1. RED: <failure condition>
+  - [ ] 2. GREEN: <satisfaction condition>
+```
+
+#### Post-RED/green
+
+Post-cycle validation that runs once per phase after all RED/GREEN chains complete. This section contains:
+- Phase 4 regression verification
+- Completeness gate
+- Adversarial audit routing
+
+#### Validation Rules
+
+| Rule | Description |
+|------|-------------|
+| Pre-RED once per phase | Pre-RED Common section appears exactly once per phase |
+| Post-RED once per phase | Post-RED/green section appears exactly once per phase |
+| Chains sequential | Per-Item RED+green Chains execute in order, one pair at a time |
+| No section mixing | Content from one section MUST NOT appear in another section |
+| RED/GREEN separate | RED and GREEN are always separate steps — never combined |
 
 ### Step 5: Define Tasks Within Each Phase (Per-Unit Gates — SC-3)
 
