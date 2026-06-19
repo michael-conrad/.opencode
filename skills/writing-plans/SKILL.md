@@ -18,7 +18,7 @@ Transforms approved specs into actionable implementation plans using hybrid stru
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "create plan" / "implementation plan" / "write plan" | `create` | `sub-task` | {spec_issue_number, spec_body} |
+| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" | `create` | `sub-task` | {spec_issue_number, spec_body} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Persona

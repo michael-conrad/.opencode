@@ -257,7 +257,7 @@ Refer to `plan` skill → `plan.md` task for SOLVED_SATISFICING/OPTIMALLY/UNSOLV
 
 ### Step 6: Generate Implementation Checklist — REMOVED
 
-Implementation checklist generation has been removed. The dispatch table template (Step 4) and per-unit pipeline gate tables (Step 5) provide sufficient execution guidance. No separate checklist artifact is needed.
+Implementation checklist generation has been removed. The checklist format (Step 4) and per-unit output format (Step 5) provide sufficient execution guidance. No separate checklist artifact is needed.
 
 ## Context Required
 

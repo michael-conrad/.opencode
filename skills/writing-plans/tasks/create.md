@@ -19,7 +19,7 @@ Create an implementation plan from an approved spec. Plans are stored at `.issue
 - [ ] 4. **RED checkpoint mandatory** — Procedure: every TDD task must include explicit Step 2 checkpoint
 - [ ] 5. **Approval cascade auto-approve** — Procedure: pipeline scope (`for_plan+`) auto-approves plan
 - [ ] 6. **Handoff verification pre-PASS** — **orchestrator routes to**: `handoffs/spec-to-plan` via sub-agent — Before any plan content is written, spec-to-plan handoff MUST return PASS. This is a non-waivable hard gate — no exceptions, no "proceed anyway."
-- [ ] 7. **16-gate dispatch table format mandatory** — Procedure: all plan phases MUST use the 16-gate implementation pipeline dispatch table format defined below in §Dispatch Table and §Dynamic Standard Gate Set Mandate. The gate labels, step sequence, and dispatch targets MUST reference the canonical source at `implementation-pipeline/SKILL.md` §Dispatch Routing Table. This is the default format for every phase — no exceptions, no simplified alternatives.
+- [ ] 7. **Checklist format mandatory** — Procedure: all plan phases MUST use the numbered checklist format with dispatch indicators. Steps are `- [ ] N.` with `(**clean-room**)` or `(**inline**)` dispatch mode indicators. The gate labels, step sequence, and dispatch targets MUST reference the canonical source at `implementation-pipeline/SKILL.md` §Dispatch Routing Table. This is the default format for every phase — no exceptions, no simplified alternatives.
 
 ## Entry Criteria
 
@@ -49,42 +49,43 @@ Create an implementation plan from an approved spec. Plans are stored at `.issue
 
 ## Orchestrator Execution Protocol
 
-- [ ] 1. Read the dispatch tables in the plan to determine the gate sequence for the current phase
-- [ ] 2. Execute every gate in every phase in numeric order (G1, G2, G3, ...)
-- [ ] 3. Do NOT skip any gate — every row is mandatory
-- [ ] 4. Do NOT reorder gates — the sequence is defined by the plan
-- [ ] 5. For `sub-task` gates: call `task()` with the exact `Receives Context` JSON object as the prompt, using the specified `Sub-Agent Type`
-- [ ] 6. For `inline` gates: execute the described operation directly (no sub-agent)
-- [ ] 7. After each gate completes, verify the SCs listed in that gate's SCs column
+- [ ] 1. Read the numbered checklist steps in the plan to determine the gate sequence for the current phase
+- [ ] 2. Execute every step in every phase in numeric order (1, 2, 3, ...)
+- [ ] 3. Do NOT skip any step — every entry is mandatory
+- [ ] 4. Do NOT reorder steps — the sequence is defined by the plan
+- [ ] 5. For `(**clean-room**)` steps: dispatch a clean-room sub-agent via `task()` with scoped context
+- [ ] 6. For `(**inline**)` steps: execute the described operation directly (no sub-agent)
+- [ ] 7. After each step completes, verify the SCs referenced in that step's `→ SC-N` annotation
 - [ ] 8. Report progress via chat output only — zero GitHub Issue comments during implementation unless absolutely warranted
 - [ ] 9. After each phase completes, run the Inter-Phase Handoff steps before advancing to the next phase
 - [ ] 10. Do NOT modify the plan — it is a static definitional artifact. Only mutate for remediation or scope revision
 
-## Dispatch Table
+## Checklist Format Specification
 
-Every plan phase MUST include a dispatch table using EXACTLY the following 6-column format. No deviations.
+Every plan phase MUST use the numbered checklist format with dispatch indicators. No deviations.
 
-| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
-|------|--------------|--------|----------------|-----------------|-----|
-| G{N}: {step-label} | sub-task or inline | yes (blind) or N/A | general or N/A | JSON context or — | SC-N |
+### Dispatch Mode Mapping
 
-### Dispatch Table Rules
+- `sub-task` → `(**clean-room**)`
+- Everything else (orchestrator, inline) → `(**inline**)`
 
-- [ ] 1. **One row per gate.** Every gate in the sequence must have exactly one row. No merged cells, no multi-step rows.
-- [ ] 2. **Dispatch Type is binary:** `sub-task` (orchestrator tasks a clean-room sub-agent) or `inline` (orchestrator executes directly — restricted to CHECKPOINT-COMMIT only).
-- [ ] 3. **Blind? column:** `yes (blind)` means the sub-agent receives only the Receives Context JSON — no other context from prior gates. `N/A` for inline gates.
-- [ ] 4. **Sub-Agent Type:** Use `general` for sub-task gates. Use `N/A` for inline gates.
-- [ ] 5. **Receives Context:** A JSON object with task instruction, issue number, phase number. For sub-task gates this is the EXACT prompt passed to `task()`. For inline gates this is `—` (em dash, no context).
-- [ ] 6. **SCs column:** Lists the SCs this gate verifies (e.g., `SC-1, SC-2`). Must match SC IDs from the spec.
-- [ ] 7. **Standard gate set is dynamic.** The gate labels and step sequence MUST be pulled from `implementation-pipeline/SKILL.md` §Dispatch Routing Table at the time of plan creation. Do NOT hardcode gate names — reference the canonical source. The current standard set is: `sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `red-doublecheck`, `post-red-enforcement`, `green-phase`, `post-green-enforcement`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`. Any deviation from this set must be justified.
+### Discovery Directive
 
-### Dynamic Standard Gate Set Mandate
+Read `implementation-pipeline/SKILL.md` §Dispatch Routing Table for the canonical gate sequence and dispatch types. Do NOT hardcode gate names — reference the canonical source at plan-creation time.
 
-The dispatch table for every phase MUST pull the list of gate step labels from `implementation-pipeline/SKILL.md` §Dispatch Routing Table. This is a MANDATORY dynamic reference — gate names are NOT hardcoded in `create.md`. The gate labels, their dispatch targets, and artifact requirements are defined in the implementation-pipeline skill and may evolve independently. If a gate is added or removed from the implementation-pipeline Dispatch Routing Table, plans follow automatically without updating `create.md`.
+### Sub-Step Expansion Directive
 
-### Inline Gates Restriction
+Gates with sub-steps (e.g., `adversarial-audit` with resolve-models → auditor_1 → remediate → auditor_2 → cross-validate) MUST be expanded into multiple `- [ ] N.` entries. Prohibit collapsing sub-steps into prose.
 
-Only `checkpoint-commit` may be an inline gate. All other gates MUST be `sub-task`. This restriction ensures every pipeline step is executed by a clean-room sub-agent except the git commit, which is a mechanical operation.
+### Output Format
+
+```
+- [ ] 1. <gate-label> (**<dispatch-mode>**) — <unit-specific exit criterion>
+  - <sub-step description> (**<dispatch-mode>**)
+  - <sub-step description> (**<dispatch-mode>**)
+- [ ] 2. <gate-label> (**<dispatch-mode>**) — <unit-specific exit criterion>
+...
+```
 
 ### Inter-Phase Handoff
 
