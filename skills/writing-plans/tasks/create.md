@@ -13,13 +13,13 @@ Create an implementation plan from an approved spec. Plans are stored at `.issue
 
 ## Operating Protocol
 
-- [ ] 1. **Verification first:** Must run verification-enforcement --task verify before reading spec
-- [ ] 2. **Combined or separate decision:** Early evaluation whether plan content references spec content inline (combined) or stands alone with separate phase sections (separate)
-- [ ] 3. **Item decomposition mandatory:** Plan must enumerate items, order dependencies, specify acceptance criteria
-- [ ] 4. **RED checkpoint mandatory:** Every TDD task must include explicit Step 2 checkpoint
-- [ ] 5. **Approval cascade auto-approve:** Pipeline scope (`for_plan+`) auto-approves plan
-- [ ] 6. **Handoff verification pre-PASS:** Before any plan content is written, spec-to-plan handoff MUST return PASS. This is a non-waivable hard gate — no exceptions, no "proceed anyway."
-- [ ] 7. **16-gate dispatch table format mandatory:** All plan phases MUST use the 16-gate implementation pipeline dispatch table format defined below in §Dispatch Table and §Dynamic Standard Gate Set Mandate. The gate labels, step sequence, and dispatch targets MUST reference the canonical source at `implementation-pipeline/SKILL.md` §Dispatch Routing Table. This is the default format for every phase — no exceptions, no simplified alternatives.
+- [ ] 1. **Verification first** — **orchestrator routes to**: `verification-enforcement --task verify` via sub-agent — Must run verification-enforcement --task verify before reading spec content
+- [ ] 2. **Combined or separate decision** — Procedure: early evaluation whether plan content references spec content inline (combined) or stands alone with separate phase sections (separate)
+- [ ] 3. **Item decomposition mandatory** — Procedure: plan must enumerate items, order dependencies, specify acceptance criteria
+- [ ] 4. **RED checkpoint mandatory** — Procedure: every TDD task must include explicit Step 2 checkpoint
+- [ ] 5. **Approval cascade auto-approve** — Procedure: pipeline scope (`for_plan+`) auto-approves plan
+- [ ] 6. **Handoff verification pre-PASS** — **orchestrator routes to**: `handoffs/spec-to-plan` via sub-agent — Before any plan content is written, spec-to-plan handoff MUST return PASS. This is a non-waivable hard gate — no exceptions, no "proceed anyway."
+- [ ] 7. **16-gate dispatch table format mandatory** — Procedure: all plan phases MUST use the 16-gate implementation pipeline dispatch table format defined below in §Dispatch Table and §Dynamic Standard Gate Set Mandate. The gate labels, step sequence, and dispatch targets MUST reference the canonical source at `implementation-pipeline/SKILL.md` §Dispatch Routing Table. This is the default format for every phase — no exceptions, no simplified alternatives.
 
 ## Entry Criteria
 
@@ -36,17 +36,9 @@ Create an implementation plan from an approved spec. Plans are stored at `.issue
 
 ## Procedure
 
-### Steps 0-5: Plan Structure Definition
+- [ ] 8. **Plan Structure Definition** — **orchestrator routes to**: `create/plan-structure` via sub-agent — Runs verification gate, makes combined/separate decision, checks for duplicate plans, maps file structure, defines phase structure, and creates TDD tasks with mandatory RED checkpoints.
 
-**Route to:** `create/plan-structure`
-
-Runs verification gate, makes combined/separate decision, checks for duplicate plans, maps file structure, defines phase structure, and creates TDD tasks with mandatory RED checkpoints.
-
-### Steps 6-13: Plan Creation and Approval Cascade
-
-**Route to:** `create/create-and-validate`
-
-Writes plan header, stores at `.issues/{N}/plan.md`, runs self-review and validation, revisits verification, cross-references skills, runs handoff-consistency check against the spec-to-plan manifest, and applies approval cascade with scope-aware auto-approval.
+- [ ] 9. **Plan Creation and Approval Cascade** — **orchestrator routes to**: `create/create-and-validate` via sub-agent — Writes plan header, stores at `.issues/{N}/plan.md`, runs self-review and validation, revisits verification, cross-references skills, runs handoff-consistency check against the spec-to-plan manifest, and applies approval cascade with scope-aware auto-approval.
 
 ## Sub-Task Files
 

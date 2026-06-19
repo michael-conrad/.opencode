@@ -23,7 +23,7 @@ Transforms approved specs into actionable implementation plans using hybrid stru
 
 ## Persona
 
-Plan Author. Focus: transform spec into phased plan with file structure, TDD steps, and concern boundary annotations.
+This skill produces plans by dispatching sub-agents. The orchestrator routes; sub-agents author. Sub-agents are intelligent agents, not dumb terminals — they read specs and use skills autonomously. The orchestrator MUST NOT prescribe exact file paths, line numbers, step sequences, or expected outcomes. Specify WHAT and WHY — not HOW.
 
 ## Tasks
 
@@ -51,13 +51,12 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 
 ## Operating Protocol
 
-- [ ] 1. **Plan from approved spec only.** No plan without approved spec.
-- [ ] 2. **Adversarial-audit call:** after plan creation, call type-specific audit tasks directly — `adversarial-audit --task plan-fidelity` and `adversarial-audit --task concern-separation` — with `audit_phase: plan_creation`.
-- [ ] 3. **TDD steps mandatory:** each step is RED→GREEN→REFACTOR within tasks.
-- [ ] 4. **No placeholders:** exact file paths, exact function/class names, exact commands.
-- [ ] 5. **Phase structure:** phases for concern boundaries and handoffs, tasks within phases for TDD steps.
-- [ ] 6. **Decision gate:** multi-task → separate plan. Single-task + simple → combined or separate per agent judgment.
-- [ ] 7. **Pipeline-readiness gate check (Step 0.5) + mandatory checklist generation (Step 6) required.** Plan creation must verify `sc-pipeline-readiness.yaml` PASS before proceeding, and generate `implementation-checklist.md` after plan content is finalized.
+- [ ] 1. [inline] Verify spec is approved (check `approved-for-*` label) — chain: `none`
+- [ ] 2. [sub-task: create] `task(..., prompt: "execute create task from writing-plans")` — input: `./tmp/{N}/contracts/create-input.yaml`, output: `./tmp/{N}/contracts/create-output.yaml`, template: `.opencode/skills/writing-plans/contracts/create-input-template.yaml`, chain: `none`
+- [ ] 3. [inline] Invoke `solve model` for dependency-ordering constraints contract — chain: `step_2`
+- [ ] 4. [inline] Invoke `solve check` to verify SAT — chain: `step_3`
+- [ ] 5. [inline] Invoke `plan plan` for phase solvability validation — chain: `step_4`
+- [ ] 6. [sub-task: completion] `task(..., prompt: "execute completion task from writing-plans")` — input: `./tmp/{N}/contracts/completion-input.yaml`, output: `./tmp/{N}/contracts/completion-output.yaml`, template: `.opencode/skills/writing-plans/contracts/create-output-template.yaml` (shared), chain: `step_5`
 
 ## Sub-Agent Routing
 
