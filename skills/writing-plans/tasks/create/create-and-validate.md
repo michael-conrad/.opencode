@@ -134,9 +134,20 @@ Generate `./tmp/{N}/checklist.md` from the finalized plan phases. The checklist 
 - **Verify `plan plan` returns SOLVED_SATISFICING or SOLVED_OPTIMALLY** — if UNSOLVABLE or unavailable, HALT with blocker report
 - **Verify each referenced pipeline step label exists in `implementation-pipeline/SKILL.md`'s dispatch routing table** — if any label is undefined, HALT with MISSING-TRACEABILITY
 
+#### Phase Structure Validation (three-part structure)
+
+Every phase checklist MUST pass the following three-part structure validation rules:
+
+1. **Pre-RED section exists:** Every phase has exactly one Pre-RED Common section containing shared pre-work (coherence gate, baseline) → SC-4
+2. **Post-RED section exists:** Every phase has exactly one Post-RED/green section containing post-cycle validation (VbC, audit, regression, review) → SC-4
+3. **Chain ordering:** RED+green chains execute between Pre-RED and Post-RED sections — never before Pre-RED or after Post-RED → SC-4
+4. **Pre-RED not duplicated:** Pre-RED steps appear exactly once per phase — never duplicated across items → SC-4
+5. **Post-RED not duplicated:** Post-RED steps appear exactly once per phase — never duplicated across items → SC-4
+6. **RED/GREEN step separation:** RED and GREEN are separate (not combined) steps within each chain → SC-7
+
 #### Checklist Validation
 
-Every plan phase checklist MUST pass the following 8 validation rules:
+Every plan phase checklist MUST pass the following 8 validation rules in addition to the phase structure rules above:
 
 1. **Checklist format:** Every step is `- [ ] N.` with at least one sub-bullet — no prose-only steps, no collapsed multi-operation steps
 2. **Dispatch indicator:** Every step title contains `(**clean-room**)` or `(**inline**)` — no step is missing a dispatch mode marker
