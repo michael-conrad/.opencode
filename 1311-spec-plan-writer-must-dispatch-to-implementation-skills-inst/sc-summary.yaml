@@ -1,0 +1,69 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# SC Summary for Issue #1311
+schema_version: "1.0"
+total_scs: 12
+scs:
+  - id: SC-1
+    phase: 1
+    evidence_type: string + behavioral
+    description: Plan step dispatch markers include skill name
+  - id: SC-2
+    phase: 1
+    evidence_type: behavioral
+    description: Step bodies describe dispatch targets, not implementation detail
+  - id: SC-3
+    phase: 1
+    evidence_type: behavioral
+    description: Skill name maps to an existing skill in the skill deck
+  - id: SC-4
+    phase: 2
+    evidence_type: string
+    description: plan-structure sub-agent produces phase-to-skill-mapping.yaml artifact
+  - id: SC-5
+    phase: 2
+    evidence_type: behavioral
+    description: Mapping is exhaustive per the dispatch routing table
+  - id: SC-6
+    phase: 2
+    evidence_type: string
+    description: Concern categories include engineering-process skills
+  - id: SC-7
+    phase: 3
+    evidence_type: string
+    description: Post-RED/green sections include adversarial-audit
+  - id: SC-8
+    phase: 3
+    evidence_type: string
+    description: Post-RED/green sections include completeness-gate bridge
+  - id: SC-9
+    phase: 3
+    evidence_type: string
+    description: Post-RED/green sections include completion-core for exec summary
+  - id: SC-10
+    phase: 4
+    evidence_type: behavioral
+    description: create-and-validate.md Step 10 validation checks skill names exist
+  - id: SC-11
+    phase: 4
+    evidence_type: string
+    description: create-and-validate.md format template requires skill-dispatch format
+  - id: SC-12
+    phase: 4
+    evidence_type: string
+    description: plan-structure.md Step 5 output format requires skill-dispatch markers
+phases:
+  - phase: 1
+    name: Dispatch Format Change
+    sc_ids: [SC-1, SC-2, SC-3]
+  - phase: 2
+    name: Concern-to-Skill Mapping
+    sc_ids: [SC-4, SC-5, SC-6]
+  - phase: 3
+    name: Post-RED/green Pipeline Gate Coverage
+    sc_ids: [SC-7, SC-8, SC-9]
+  - phase: 4
+    name: Plan Format Template Updates
+    sc_ids: [SC-10, SC-11, SC-12]

@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Phase Dependency Ordering Contract for Issue #1311
+schema_version: "1.0"
+variables:
+  phase_1: {type: int, min: 0, max: 10}
+  phase_2: {type: int, min: 0, max: 10}
+  phase_3: {type: int, min: 0, max: 10}
+  phase_4: {type: int, min: 0, max: 10}
+preconditions:
+  - "phase_1 == 0"
+invariants:
+  - "phase_1 < phase_2"
+  - "phase_1 < phase_3"
+  - "phase_1 < phase_4"
+  - "phase_3 < phase_4"

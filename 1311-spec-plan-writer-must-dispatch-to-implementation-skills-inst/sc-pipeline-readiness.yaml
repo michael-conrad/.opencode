@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Pipeline Readiness for Issue #1311
+# Spec: https://github.com/michael-conrad/.opencode/issues/1311
+schema_version: "1.0"
+status: PASS
+sc_summary:
+  total_scs: 12
+  atomic: true
+  with_dependencies: true
+  single_concern: true
+phase_dependencies:
+  - phase: 1
+    name: Dispatch Format Change
+    depends_on: []
+    constraints:
+      - "phase_1_is_first"
+  - phase: 2
+    name: Concern-to-Skill Mapping
+    depends_on:
+      - phase: 1
+    constraints:
+      - "phase_2_starts_after_phase_1_completes"
+  - phase: 3
+    name: Post-RED/green Pipeline Gate Coverage
+    depends_on:
+      - phase: 1
+    constraints:
+      - "phase_3_starts_after_phase_1_completes"
+  - phase: 4
+    name: Plan Format Template Updates
+    depends_on:
+      - phase: 1
+      - phase: 3
+    constraints:
+      - "phase_4_starts_after_phase_1_completes"
+      - "phase_4_starts_after_phase_3_completes"

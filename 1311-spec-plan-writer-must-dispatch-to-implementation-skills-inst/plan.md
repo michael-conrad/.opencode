@@ -1,166 +1,273 @@
-# Plan — Plan Writer Must Dispatch to Implementation Skills Instead of Emitting Inline Prose
+# Implementation Plan — #1311
 
-**Spec:** [michael-conrad/.opencode#1311](https://github.com/michael-conrad/.opencode/issues/1311)
-**Goal:** Replace the plan writer's `(**clean-room**)`/`(**inline**)` two-mode dispatch with skill-name dispatch markers, phase-to-skill mapping at plan-creation time, and mandatory pipeline gates in post-RED sections.
-**Architecture:** 4-phase sequential: format change → mapping generation → gate coverage → template updates.
-**Tech Stack:** Markdown (skill task files).
+**Goal:** Update the writing-plans skill's plan output format so that plan steps dispatch to named implementation skills instead of emitting inline implementation prose, eliminating the `PRELOADED_CONTEXT_REJECTED` pattern.
+
+**Architecture:** The plan writer (`writing-plans/tasks/create/`) produces plan documents with phase sections containing TDD steps. The output format changes from bare `(**clean-room**)` markers to `— <skill-name> for <concern> (**clean-room**)` with dispatch directives. A new `phase-to-skill-mapping.yaml` artifact is produced at plan-creation time. Post-RED/green sections gain three mandatory pipeline skills.
+
+**Tech Stack:** Markdown task files (`.md`), YAML artifacts, skill deck at `.opencode/skills/`, `implementation-pipeline/SKILL.md` §Dispatch Routing Table as canonical gate source.
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
-## Dependency Order
-
-**Phase 1 → Phase 2 → Phase 3 → Phase 4.** Sequential — each phase builds on the previous. Phase 1 establishes the new dispatch format. Phase 2 adds mapping generation. Phase 3 adds the gate template. Phase 4 updates templates and validation rules.
-
-## SC-ID Mapping
-
-| SC-ID | Plan Phase | TDD Item | Evidence Type |
-|-------|-----------|----------|---------------|
-| SC-1 | Phase 1 | TDD-1 | `string + behavioral` |
-| SC-2 | Phase 1 | TDD-2 | `behavioral` |
-| SC-3 | Phase 1 | TDD-3 | `behavioral` |
-| SC-4 | Phase 2 | TDD-4 | `string` |
-| SC-5 | Phase 2 | TDD-5 | `behavioral` |
-| SC-6 | Phase 2 | TDD-6 | `string` |
-| SC-7 | Phase 3 | TDD-7 | `string` |
-| SC-8 | Phase 3 | TDD-8 | `string` |
-| SC-9 | Phase 3 | TDD-9 | `string` |
-| SC-10 | Phase 4 | TDD-10 | `behavioral` |
-| SC-11 | Phase 4 | TDD-11 | `string` |
-| SC-12 | Phase 4 | TDD-12 | `string` |
-
 ---
 
-## Phase 1: Dispatch Format Change
+## Phase 1 — Dispatch Format Change
 
-**Concern:** Update format templates and validation in plan-writer task files to require skill-name dispatch markers.
-**Files:** `tasks/create/create-and-validate.md`, `tasks/create/plan-structure.md`, `tasks/create.md`
+**Concern:** Skill task file format updates — updating the plan output format template and validation rules in `plan-structure.md` and `create-and-validate.md` to require skill-dispatch markers.
+**Files:** `.opencode/skills/writing-plans/tasks/create/plan-structure.md`, `.opencode/skills/writing-plans/tasks/create/create-and-validate.md`, `.opencode/skills/writing-plans/tasks/create.md`
 **SCs covered:** SC-1, SC-2, SC-3
 
 ### Pre-RED Common
 
-- [ ] 1. Read approved spec — `skill-creator` for task file update (**inline**). Read spec at [michael-conrad/.opencode#1311](https://github.com/michael-conrad/.opencode/issues/1311) Phase 1 SCs. Confirm all 3 SCs before implementation. → SC-1, SC-2, SC-3
-- [ ] 2. Read target files — `skill-creator` for task file update (**inline**). Read the format template in `create-and-validate.md` §Phase body requirements and the output format spec in `plan-structure.md` Step 5. Confirm current bare `(**clean-room**)` pattern exists for RED-phase evidence. → SC-1
+- [ ] 1. Verification gate — `verification-enforcement` for spec content verification (**inline**)
+    - [ ] 1a. Verify spec claims against live source files → SC-1, SC-2, SC-3
+- [ ] 2. Read approved spec — `issue-review` for spec content (**inline**)
+    - [ ] 2a. Extract objectives, constraints, success criteria, affected sub-folders → SC-1, SC-2, SC-3
+- [ ] 3. Read `implementation-pipeline/SKILL.md` §Dispatch Routing Table — `pre-analysis` for canonical gate discovery (**inline**)
+    - [ ] 3a. Confirm gate labels and dispatch types → SC-1, SC-3
 
 ### Per-Item RED+green Chains
 
-- [ ] 3. TDD-1: Update dispatch format template in `create-and-validate.md` — `skill-creator` for task file update (SC-1)
-  - [ ] 3a. RED: Format template uses bare `(**<clean-room|inline>**)` with no skill name — `test-driven-development` for behavioral test (**clean-room**). → SC-1
-  - [ ] 3b. GREEN: Update format template to require `<skill-name>` in dispatch marker — `skill-creator` for task file update (**clean-room**). → SC-1
-
-- [ ] 4. TDD-2: Prohibit implementation prose in clean-room step bodies — `skill-creator` for task file update (SC-2)
-  - [ ] 4a. RED: Plan step body contains inline implementation prose instead of dispatch target — `test-driven-development` for behavioral test (**clean-room**). → SC-2
-  - [ ] 4b. GREEN: Update output format spec to require dispatch-target-only prose — `skill-creator` for task file update (**clean-room**). → SC-2
-
-- [ ] 5. TDD-3: Update output format in `plan-structure.md` Step 5 — `skill-creator` for task file update (SC-1, SC-12)
-  - [ ] 5a. RED: Per-unit output format lacks skill name — `test-driven-development` for behavioral test (**clean-room**). → SC-1, SC-12
-  - [ ] 5b. GREEN: Update per-unit output format to include `<skill-name>` and `→ dispatch` instruction — `skill-creator` for task file update (**clean-room**). → SC-1, SC-12
+- [ ] TDD-1: Update `plan-structure.md` Step 5 output format to require skill-dispatch markers (SC-1, SC-12)
+    - [ ] 1. RED: The `plan-structure.md` Step 5 output format section shows bare `(**clean-room**)` markers without skill names — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-1, SC-12
+    - [ ] 2. GREEN: The `plan-structure.md` Step 5 output format section requires `— <skill-name> for <concern> (**<dispatch-mode>**)` with dispatch directive — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-1, SC-12
+- [ ] TDD-2: Update `create-and-validate.md` format template to require skill-dispatch format (SC-1, SC-11)
+    - [ ] 1. RED: The `create-and-validate.md` Phase body requirements section shows bare `(**clean-room**)` markers without skill names — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-1, SC-11
+    - [ ] 2. GREEN: The `create-and-validate.md` Phase body requirements section requires `— <skill-name> for <concern> (**<dispatch-mode>**)` with dispatch directive — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-1, SC-11
+- [ ] TDD-3: Update `create-and-validate.md` Step 10 validation to reject bare `(**clean-room**)` without skill name (SC-3)
+    - [ ] 1. RED: Step 10 validation passes plans with bare `(**clean-room**)` markers — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-3
+    - [ ] 2. GREEN: Step 10 validation rejects plans with bare `(**clean-room**)` markers that lack a skill name — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-3
+- [ ] TDD-4: Update `create-and-validate.md` Step 10 validation to verify skill names exist in skill deck (SC-3)
+    - [ ] 1. RED: Step 10 validation accepts dispatch markers referencing non-existent skill names — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-3
+    - [ ] 2. GREEN: Step 10 validation HALT with `SKILL_NOT_FOUND` when dispatch marker references a non-existent skill directory — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-3
+- [ ] TDD-5: Update `create.md` operating protocol Step 7 to reference skill-dispatch format (SC-1)
+    - [ ] 1. RED: The `create.md` Step 7 checklist format section references bare `(**clean-room**)` markers — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-1
+    - [ ] 2. GREEN: The `create.md` Step 7 checklist format section references skill-dispatch markers — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-1
 
 ### Post-RED/green
 
-- [ ] 6. COMPLETENESS GATE — `completeness-gate` (**clean-room**). Verify all 3 Phase 1 SCs have TDD items with RED/GREEN separation. → SC-all
-- [ ] 7. ADVERSARIAL AUDIT — `adversarial-audit` (**orchestrator**). resolve-models → auditor 1 (spec-audit) → remediate → auditor 2 (spec-audit) → cross-validate. → SC-all
-- [ ] 8. EXEC SUMMARY — `completion-core` (**clean-room**). Push, URL extraction, phase-complete issue comment, byline. → SC-all
+- [ ] 6. COMPLETENESS GATE — `completeness-gate` for SC coverage verification (**clean-room**)
+    - [ ] 6a. Verify all SCs (SC-1, SC-2, SC-3) covered before audit → SC-all
+- [ ] 7. ADVERSARIAL AUDIT — `adversarial-audit` for plan-fidelity audit (**orchestrator**)
+    - [ ] 7a. Run resolve-models to select cross-family auditors → SC-all
+    - [ ] 7b. Dispatch audit task with auditor_1 → SC-all
+    - [ ] 7c. If auditor_1 returned non-clean-pass: remediate root cause, restart from 7a → SC-all
+    - [ ] 7d. Dispatch audit task with auditor_2 → SC-all
+    - [ ] 7e. If auditor_2 returned non-clean-pass: remediate root cause, restart from 7a → SC-all
+    - [ ] 7f. Both auditors clean PASS. Collect artifact_path values, pass as auditor_artifact_paths to cross-validate → SC-all
+- [ ] 8. EXEC SUMMARY — `completion-core` for push and report (**clean-room**)
+    - [ ] 8a. Push changes → SC-all
+    - [ ] 8b. Extract URL from API response (never construct from template) → SC-all
+    - [ ] 8c. Post phase-complete issue comment with byline → SC-all
 
 ---
 
-## Phase 2: Concern-to-Skill Mapping at Plan-Creation Time
+## Phase 2 — Concern-to-Skill Mapping
 
-**Concern:** Add phase-to-skill-mapping.yaml generation to plan-structure sub-agent.
-**Files:** `tasks/create/plan-structure.md`
+**Concern:** Skill task file format updates — adding phase-to-skill-mapping.yaml generation to `plan-structure.md`.
+**Files:** `.opencode/skills/writing-plans/tasks/create/plan-structure.md`
 **SCs covered:** SC-4, SC-5, SC-6
 
 ### Pre-RED Common
 
-- [ ] 1. Read approved spec — `skill-creator` for task file update (**inline**). Read spec Phase 2 SCs. Confirm all 3 SCs. → SC-4, SC-5, SC-6
-- [ ] 2. Read target file — `skill-creator` for task file update (**inline**). Read `plan-structure.md` Step 3.3 (phase dependency solve contract) and Step 2 (file structure mapping). Identify where to insert mapping generation step. → SC-4
+- [ ] 1. Verification gate — `verification-enforcement` for spec content verification (**inline**)
+    - [ ] 1a. Verify spec claims against live source files → SC-4, SC-5, SC-6
+- [ ] 2. Read approved spec — `issue-review` for spec content (**inline**)
+    - [ ] 2a. Extract objectives, constraints, success criteria, affected sub-folders → SC-4, SC-5, SC-6
+- [ ] 3. Read `implementation-pipeline/SKILL.md` §Dispatch Routing Table — `pre-analysis` for canonical gate discovery (**inline**)
+    - [ ] 3a. Confirm concern categories and skill mappings → SC-4, SC-5
 
 ### Per-Item RED+green Chains
 
-- [ ] 3. TDD-4: Add mapping generation step to plan-structure — `skill-creator` for task file update (SC-4)
-  - [ ] 3a. RED: No `phase-to-skill-mapping.yaml` artifact produced by plan-structure — `test-driven-development` for behavioral test (**clean-room**). → SC-4
-  - [ ] 3b. GREEN: Add mapping generation step to `plan-structure.md` procedure — `skill-creator` for task file update (**clean-room**). Step reads Dispatch Routing Table, builds mapping, writes artifact. → SC-4
-
-- [ ] 4. TDD-5: Mapping covers all concern types per Dispatch Routing Table — `skill-creator` for task file update (SC-5)
-  - [ ] 4a. RED: Plan with mixed concerns produces bare `(**clean-room**)` without skill name — `test-driven-development` for behavioral test (**clean-room**). → SC-5
-  - [ ] 4b. GREEN: Ensure mapping generation step covers all concern types in the spec's phases — `skill-creator` for task file update (**clean-room**). → SC-5
-
-- [ ] 5. TDD-6: Mapping includes engineering-approach for code-implementation concerns — `skill-creator` for task file update (SC-6)
-  - [ ] 5a. RED: Mapping file lacks `engineering-approach` for code concerns — `test-driven-development` for behavioral test (**clean-room**). → SC-6
-  - [ ] 5b. GREEN: Ensure mapping generation includes `engineering-approach` for any code-implementation concern — `skill-creator` for task file update (**clean-room**). → SC-6
+- [ ] TDD-1: Add phase-to-skill-mapping.yaml generation step to `plan-structure.md` (SC-4)
+    - [ ] 1. RED: The `plan-structure.md` procedure does not produce a `phase-to-skill-mapping.yaml` artifact — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-4
+    - [ ] 2. GREEN: The `plan-structure.md` procedure includes a step to read `implementation-pipeline/SKILL.md` §Dispatch Routing Table and write `.issues/{N}/phase-to-skill-mapping.yaml` — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-4
+- [ ] TDD-2: Add validation that mapping is exhaustive per dispatch routing table (SC-5)
+    - [ ] 1. RED: Step 10 validation does not check that all concern types have a named skill — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-5
+    - [ ] 2. GREEN: Step 10 validation verifies no phase step is assigned bare `(**clean-room**)` without a named skill — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-5
+- [ ] TDD-3: Ensure mapping includes `engineering-approach` for code-implementation concerns (SC-6)
+    - [ ] 1. RED: The mapping does not include `engineering-approach` for code-implementation concerns — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-6
+    - [ ] 2. GREEN: The mapping includes `engineering-approach` for code-implementation concerns regardless of language — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-6
 
 ### Post-RED/green
 
-- [ ] 6. COMPLETENESS GATE — `completeness-gate` (**clean-room**). Verify all 3 Phase 2 SCs covered. → SC-all
-- [ ] 7. ADVERSARIAL AUDIT — `adversarial-audit` (**orchestrator**). resolve-models → auditor 1 (plan-fidelity) → remediate → auditor 2 (plan-fidelity) → cross-validate. → SC-all
-- [ ] 8. EXEC SUMMARY — `completion-core` (**clean-room**). Push, URL extraction, phase-complete issue comment, byline. → SC-all
+- [ ] 4. COMPLETENESS GATE — `completeness-gate` for SC coverage verification (**clean-room**)
+    - [ ] 4a. Verify all SCs (SC-4, SC-5, SC-6) covered before audit → SC-all
+- [ ] 5. ADVERSARIAL AUDIT — `adversarial-audit` for plan-fidelity audit (**orchestrator**)
+    - [ ] 5a. Run resolve-models to select cross-family auditors → SC-all
+    - [ ] 5b. Dispatch audit task with auditor_1 → SC-all
+    - [ ] 5c. If auditor_1 returned non-clean-pass: remediate root cause, restart from 5a → SC-all
+    - [ ] 5d. Dispatch audit task with auditor_2 → SC-all
+    - [ ] 5e. If auditor_2 returned non-clean-pass: remediate root cause, restart from 5a → SC-all
+    - [ ] 5f. Both auditors clean PASS. Collect artifact_path values, pass as auditor_artifact_paths to cross-validate → SC-all
+- [ ] 6. EXEC SUMMARY — `completion-core` for push and report (**clean-room**)
+    - [ ] 6a. Push changes → SC-all
+    - [ ] 6b. Extract URL from API response (never construct from template) → SC-all
+    - [ ] 6c. Post phase-complete issue comment with byline → SC-all
 
 ---
 
-## Phase 3: Post-RED/green Pipeline Gate Coverage
+## Phase 3 — Post-RED/green Pipeline Gate Coverage
 
-**Concern:** Add mandatory adversarial-audit, completeness-gate, and completion-core to post-RED template.
-**Files:** `tasks/create/create-and-validate.md`, `tasks/create/plan-structure.md`
+**Concern:** Skill task file format updates — adding adversarial-audit, completeness-gate, and completion-core steps to post-RED sections in `plan-structure.md` and `create-and-validate.md`.
+**Files:** `.opencode/skills/writing-plans/tasks/create/plan-structure.md`, `.opencode/skills/writing-plans/tasks/create/create-and-validate.md`
 **SCs covered:** SC-7, SC-8, SC-9
 
 ### Pre-RED Common
 
-- [ ] 1. Read approved spec — `skill-creator` for task file update (**inline**). Read spec Phase 3 SCs. Confirm all 3 SCs. → SC-7, SC-8, SC-9
+- [ ] 1. Verification gate — `verification-enforcement` for spec content verification (**inline**)
+    - [ ] 1a. Verify spec claims against live source files → SC-7, SC-8, SC-9
+- [ ] 2. Read approved spec — `issue-review` for spec content (**inline**)
+    - [ ] 2a. Extract objectives, constraints, success criteria, affected sub-folders → SC-7, SC-8, SC-9
+- [ ] 3. Read `implementation-pipeline/SKILL.md` §Dispatch Routing Table — `pre-analysis` for canonical gate discovery (**inline**)
+    - [ ] 3a. Confirm post-RED gate sequence → SC-7, SC-8, SC-9
 
 ### Per-Item RED+green Chains
 
-- [ ] 2. TDD-7: Add adversarial-audit step to post-RED template — `skill-creator` for task file update (SC-7)
-  - [ ] 2a. RED: Post-RED section lacks adversarial-audit step — `test-driven-development` for behavioral test (**clean-room**). → SC-7
-  - [ ] 2b. GREEN: Add adversarial-audit step with expanded multi-dispatch format to post-RED template — `skill-creator` for task file update (**clean-room**). → SC-7
-
-- [ ] 3. TDD-8: Add completeness-gate bridge to post-RED template — `skill-creator` for task file update (SC-8)
-  - [ ] 3a. RED: Post-RED section lacks completeness-gate step — `test-driven-development` for behavioral test (**clean-room**). → SC-8
-  - [ ] 3b. GREEN: Add completeness-gate step between last GREEN and adversarial audit — `skill-creator` for task file update (**clean-room**). → SC-8
-
-- [ ] 4. TDD-9: Add completion-core exec summary to post-RED template — `skill-creator` for task file update (SC-9)
-  - [ ] 4a. RED: Post-RED section lacks completion-core step — `test-driven-development` for behavioral test (**clean-room**). → SC-9
-  - [ ] 4b. GREEN: Add completion-core step to end of post-RED template — `skill-creator` for task file update (**clean-room**). → SC-9
+- [ ] TDD-1: Add adversarial-audit step to post-RED sections in `plan-structure.md` (SC-7)
+    - [ ] 1. RED: The `plan-structure.md` Post-RED/green section does not include an adversarial-audit step — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-7
+    - [ ] 2. GREEN: The `plan-structure.md` Post-RED/green section includes an adversarial-audit step with multi-dispatch format — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-7
+- [ ] TDD-2: Add completeness-gate bridge step to post-RED sections in `plan-structure.md` (SC-8)
+    - [ ] 1. RED: The `plan-structure.md` Post-RED/green section does not include a completeness-gate step between GREEN and audit — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-8
+    - [ ] 2. GREEN: The `plan-structure.md` Post-RED/green section includes a completeness-gate step between the last GREEN and adversarial audit — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-8
+- [ ] TDD-3: Add completion-core step to post-RED sections in `plan-structure.md` (SC-9)
+    - [ ] 1. RED: The `plan-structure.md` Post-RED/green section does not include a completion-core step — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-9
+    - [ ] 2. GREEN: The `plan-structure.md` Post-RED/green section includes a completion-core step at the end — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-9
+- [ ] TDD-4: Update `create-and-validate.md` Step 10 validation to require post-RED pipeline gates (SC-7, SC-8, SC-9)
+    - [ ] 1. RED: Step 10 validation does not require adversarial-audit, completeness-gate, or completion-core in post-RED sections — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-7, SC-8, SC-9
+    - [ ] 2. GREEN: Step 10 validation requires all three post-RED pipeline gates (adversarial-audit, completeness-gate, completion-core) — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-7, SC-8, SC-9
 
 ### Post-RED/green
 
-- [ ] 5. COMPLETENESS GATE — `completeness-gate` (**clean-room**). Verify all 3 Phase 3 SCs covered. → SC-all
-- [ ] 6. ADVERSARIAL AUDIT — `adversarial-audit` (**orchestrator**). resolve-models → auditor 1 (verification-audit) → remediate → auditor 2 (verification-audit) → cross-validate. → SC-all
-- [ ] 7. EXEC SUMMARY — `completion-core` (**clean-room**). Push, URL extraction, phase-complete issue comment, byline. → SC-all
+- [ ] 5. COMPLETENESS GATE — `completeness-gate` for SC coverage verification (**clean-room**)
+    - [ ] 5a. Verify all SCs (SC-7, SC-8, SC-9) covered before audit → SC-all
+- [ ] 6. ADVERSARIAL AUDIT — `adversarial-audit` for plan-fidelity audit (**orchestrator**)
+    - [ ] 6a. Run resolve-models to select cross-family auditors → SC-all
+    - [ ] 6b. Dispatch audit task with auditor_1 → SC-all
+    - [ ] 6c. If auditor_1 returned non-clean-pass: remediate root cause, restart from 6a → SC-all
+    - [ ] 6d. Dispatch audit task with auditor_2 → SC-all
+    - [ ] 6e. If auditor_2 returned non-clean-pass: remediate root cause, restart from 6a → SC-all
+    - [ ] 6f. Both auditors clean PASS. Collect artifact_path values, pass as auditor_artifact_paths to cross-validate → SC-all
+- [ ] 7. EXEC SUMMARY — `completion-core` for push and report (**clean-room**)
+    - [ ] 7a. Push changes → SC-all
+    - [ ] 7b. Extract URL from API response (never construct from template) → SC-all
+    - [ ] 7c. Post phase-complete issue comment with byline → SC-all
 
 ---
 
-## Phase 4: Plan Format Template Updates
+## Phase 4 — Plan Format Template Updates
 
-**Concern:** Add skill-name existence validation rule and sync all format templates.
-**Files:** `tasks/create/create-and-validate.md`, `tasks/create/plan-structure.md`
+**Concern:** Skill task file format updates — updating validation rules and format templates in `create-and-validate.md` and `plan-structure.md`.
+**Files:** `.opencode/skills/writing-plans/tasks/create/create-and-validate.md`, `.opencode/skills/writing-plans/tasks/create/plan-structure.md`
 **SCs covered:** SC-10, SC-11, SC-12
 
 ### Pre-RED Common
 
-- [ ] 1. Read approved spec — `skill-creator` for task file update (**inline**). Read spec Phase 4 SCs. Confirm all 3 SCs. → SC-10, SC-11, SC-12
-- [ ] 2. Read target files — `skill-creator` for task file update (**inline**). Read `create-and-validate.md` Step 10 validation rules and `plan-structure.md` Step 5 per-unit output format. → SC-10, SC-12
+- [ ] 1. Verification gate — `verification-enforcement` for spec content verification (**inline**)
+    - [ ] 1a. Verify spec claims against live source files → SC-10, SC-11, SC-12
+- [ ] 2. Read approved spec — `issue-review` for spec content (**inline**)
+    - [ ] 2a. Extract objectives, constraints, success criteria, affected sub-folders → SC-10, SC-11, SC-12
+- [ ] 3. Read `implementation-pipeline/SKILL.md` §Dispatch Routing Table — `pre-analysis` for canonical gate discovery (**inline**)
+    - [ ] 3a. Confirm validation rule format → SC-10
 
 ### Per-Item RED+green Chains
 
-- [ ] 3. TDD-10: Add skill-name existence validation to Step 10 — `skill-creator` for task file update (SC-10)
-  - [ ] 3a. RED: Validation passes plan with non-existent skill name — `test-driven-development` for behavioral test (**clean-room**). → SC-10
-  - [ ] 3b. GREEN: Add rule 9 to Step 10 validation rule set — `skill-creator` for task file update (**clean-room**). Check `.opencode/skills/<name>` exists. HALT with `SKILL_NOT_FOUND`. → SC-10
-
-- [ ] 4. TDD-11: Update Phase body requirements template — `skill-creator` for task file update (SC-11)
-  - [ ] 4a. RED: Phase body format template still uses bare `(**<clean-room|inline>**)` — `test-driven-development` for behavioral test (**clean-room**). → SC-11
-  - [ ] 4b. GREEN: Update template to require skill name and dispatch directive — `skill-creator` for task file update (**clean-room**). → SC-11
-
-- [ ] 5. TDD-12: Update per-unit output format — `skill-creator` for task file update (SC-12)
-  - [ ] 5a. RED: Per-unit output format lacks skill name — `test-driven-development` for behavioral test (**clean-room**). → SC-12
-  - [ ] 5b. GREEN: Update Step 5 output format to include `<skill-name>` and dispatch instruction — `skill-creator` for task file update (**clean-room**). → SC-12
+- [ ] TDD-1: Add skill-name-exists validation rule to `create-and-validate.md` Step 10 (SC-10)
+    - [ ] 1. RED: Step 10 validation does not check that dispatch marker skill names reference existing skill directories — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-10
+    - [ ] 2. GREEN: Step 10 validation includes rule 9: every dispatch marker skill name must reference a directory under `.opencode/skills/` — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-10
+- [ ] TDD-2: Update `create-and-validate.md` Phase body requirements format template (SC-11)
+    - [ ] 1. RED: The Phase body requirements template shows `- [ ] 1. <STEP-LABEL> (**<clean-room|inline>**). <description> → SC-N` — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-11
+    - [ ] 2. GREEN: The Phase body requirements template shows `- [ ] 1. <STEP-LABEL> — <skill-name> for <concern> (**<clean-room|inline>**)\n    → dispatch: "execute <task> from <skill-name>"\n    → SC-N` — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-11
+- [ ] TDD-3: Update `plan-structure.md` Step 5 per-unit output format (SC-12)
+    - [ ] 1. RED: The `plan-structure.md` Step 5 per-unit output format shows bare `(**clean-room**)` markers — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-12
+    - [ ] 2. GREEN: The `plan-structure.md` Step 5 per-unit output format includes skill name and dispatch directive alongside the dispatch mode marker — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-12
 
 ### Post-RED/green
 
-- [ ] 6. COMPLETENESS GATE — `completeness-gate` (**clean-room**). Verify all 3 Phase 4 SCs covered. → SC-all
-- [ ] 7. ADVERSARIAL AUDIT — `adversarial-audit` (**orchestrator**). resolve-models → auditor 1 (spec-audit) → remediate → auditor 2 (spec-audit) → cross-validate. → SC-all
-- [ ] 8. EXEC SUMMARY — `completion-core` (**clean-room**). Push, URL extraction, issue comment (PR created, close issue), byline. → SC-all
+- [ ] 4. COMPLETENESS GATE — `completeness-gate` for SC coverage verification (**clean-room**)
+    - [ ] 4a. Verify all SCs (SC-10, SC-11, SC-12) covered before audit → SC-all
+- [ ] 5. ADVERSARIAL AUDIT — `adversarial-audit` for plan-fidelity audit (**orchestrator**)
+    - [ ] 5a. Run resolve-models to select cross-family auditors → SC-all
+    - [ ] 5b. Dispatch audit task with auditor_1 → SC-all
+    - [ ] 5c. If auditor_1 returned non-clean-pass: remediate root cause, restart from 5a → SC-all
+    - [ ] 5d. Dispatch audit task with auditor_2 → SC-all
+    - [ ] 5e. If auditor_2 returned non-clean-pass: remediate root cause, restart from 5a → SC-all
+    - [ ] 5f. Both auditors clean PASS. Collect artifact_path values, pass as auditor_artifact_paths to cross-validate → SC-all
+- [ ] 6. EXEC SUMMARY — `completion-core` for push and report (**clean-room**)
+    - [ ] 6a. Push changes → SC-all
+    - [ ] 6b. Extract URL from API response (never construct from template) → SC-all
+    - [ ] 6c. Post phase-complete issue comment with byline → SC-all
 
 ---
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
-**Plan:** See [plan.md](.opencode/.issues/1311-spec-plan-writer-must-dispatch-to-implementation-skills-inst/plan.md) for the implementation plan.
+---
+
+## Exit Criteria
+
+- Plan stored at `.opencode/.issues/1311-spec-plan-writer-must-dispatch-to-implementation-skills-inst/plan.md`
+- All 12 SCs mapped across 4 phases
+- Phase dependency ordering SAT-verified
+- Phase solvability SOLVED_SATISFICING
+- Approval cascade: `for_plan` scope → auto-approved
+- Halt at: `plan_created`
