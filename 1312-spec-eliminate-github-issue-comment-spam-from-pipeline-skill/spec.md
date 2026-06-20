@@ -4,9 +4,9 @@
 
 ## Problem
 
-96 references to issue comments across the skill deck. The majority are read-only (reading comments for context/authorization — legitimate). But ~15 files hardcode posting comments to GitHub issues as a standard pipeline step: phase-complete signals, exec summaries, verification results, blocker reports, authorization confirmations, closure comments.
+96 references to issue comments across the skill deck. The majority are read-only (reading comments for context — legitimate). But ~15 files hardcode posting comments to GitHub issues as a standard pipeline step: phase-complete signals, exec summaries, verification results, blocker reports, authorization confirmations, closure comments. Additionally, audit verdicts posted to comments create a clean-room contamination vector — future auditors reading the thread see prior verdicts, biasing analysis and defeating cross-family adversarial auditing.
 
-Each post is a network round-trip, a notification to all watchers, and permanent noise in the issue's comment thread. The issue tracker is not a job queue or a build log.
+Each post is a network round-trip, a notification to all watchers, and permanent noise in the issue's comment thread. The issue tracker is not a job queue, a build log, or an audit artifact store.
 
 ## Principles
 
@@ -26,6 +26,8 @@ Each post is a network round-trip, a notification to all watchers, and permanent
 
 4. **Status, progress, phase-complete, verification results go to lifecycle manifest + chat.** `./tmp/{N}/lifecycle.yaml` for machine-readable audit trail. Chat output for the developer's current session. GitHub issue comments are not a build pipeline dashboard.
 
+5. **Audit verdicts posted to issue comments are a clean-room contamination vector.** Posting creates a permanent record that future auditors read — biasing their analysis and defeating cross-family adversarial isolation. Audit verdicts go to `.issues/{N}/audit/` local artifacts only. Reading past audit verdicts from comment history is also prohibited; read from local audit artifacts instead.
+
 ## Affected Files
 
 | Priority | File | What It Posts |
@@ -43,7 +45,7 @@ Each post is a network round-trip, a notification to all watchers, and permanent
 
 ## Non-Goals
 
-- No changes to read-only comment operations (`github_issue_read(method=get_comments)`) — reading comments for context and audit is legitimate and unchanged. Reading comments for authorization evidence is removed per Phase 4.
+- No changes to read-only comment operations (`github_issue_read(method=get_comments)`) — reading comments for context completeness and general review is legitimate and unchanged. Reading comments for authorization evidence (Phase 4) or audit history (Phase 5) is removed.
 - No changes to `issue-operations/tasks/comment.md` — the substantive comment gate remains for legitimate stakeholder posting.
 - No changes to blocker reporting via comments *if* the blocker genuinely requires stakeholder attention (e.g., infrastructure failure, authorization gap). The gate decides; the default is NO.
 
@@ -128,6 +130,37 @@ Evidence type: `behavioral` — completion sub-agent reads local state files, no
 
 Evidence type: `behavioral` — verify-qa-mode sub-agent checks local state files, not comments or labels.
 
+## Phase 5 — Audit Contamination (Clean-Room Violation)
+
+Audit verdicts posted to issue comments create a clean-room contamination vector. Future auditors reading the same issue thread see previous verdicts, biasing their analysis. This defeats the purpose of adversarial cross-family auditing.
+
+`issue-review/tasks/audit.md` already says posting audit findings is FORBIDDEN — but has no enforcement SC or behavioral test. `issue-review/tasks/triage.md` and `issue-review/tasks/gather.md` read comment history looking for "audit patterns" to determine if an audit has already occurred — this is the read-side of the same contamination, and must instead read local `.issues/{N}/audit/` artifacts.
+
+### SC-12: `issue-review` audit task enforcement — behavioral test verifies no comment posting
+
+`issue-review/tasks/audit.md` Step 5 prohibition ("Do NOT Post Findings to GitHub") must have a corresponding behavioral enforcement test that verifies the agent does not post audit findings as GitHub issue comments. The text prohibition already exists — the enforcement test is missing.
+
+Evidence type: `behavioral` — behavioral enforcement test verifies agent routes audit findings to chat and lifecycle manifest, not to `github_add_issue_comment`.
+
+### SC-13: `issue-review` triage and gather use local audit artifacts, not comment scanning
+
+`issue-review/tasks/triage.md` and `issue-review/tasks/gather.md` replace all `github_issue_read(method=get_comments)` calls searching for "audit patterns" with local file reads from `.issues/{N}/audit/` directory. Reading audit artifacts from local disk preserves clean-room isolation — the reader sees only the artifact, not the discussion thread that produced it.
+
+Specifically:
+- `triage.md` "Search for audit patterns in comments" → glob `.issues/{N}/audit/*.yaml`
+- `gather.md` "Most recent comment containing audit finding patterns" → read newest `.yaml` timestamp in `.issues/{N}/audit/`
+- `gather.md` "Verify comment containing audit pattern exists" → check `ls .issues/{N}/audit/*.yaml`
+
+Evidence type: `behavioral` — triage/gather sub-agents read local audit artifacts, not comments.
+
+### SC-14: `adversarial-audit` tasks write verdicts to local audit artifacts, never post to comments
+
+All `adversarial-audit` task files that produce verdict output must write `consensus.yaml` and per-auditor verdict files to `.issues/{N}/audit/` — never route through `github_add_issue_comment`. The local audit artifact directory is the single source of truth for audit history.
+
+This is already partially true (`.issues/{N}/audit/` files exist in the codebase), but any task that also posts to comments must be cleaned up.
+
+Evidence type: `behavioral` — adversarial-audit sub-agents write to audit artifact directory, never call `github_add_issue_comment`.
+
 ## SC-ID Summary
 
 | ID | Phase | Evidence Type | Verification Method |
@@ -141,8 +174,11 @@ Evidence type: `behavioral` — verify-qa-mode sub-agent checks local state file
 | SC-7 | 3 | `behavioral` | approval-gate completion applies label only, no comment |
 | SC-8 | 3 | `behavioral` | reconcile-issue-graph produces lifecycle event + state update, not comment |
 | SC-9 | 3 | `behavioral` | verify-already-implemented produces lifecycle event + chat, not comment |
-| SC-10 | 4 | `behavioral` | approval-gate completion reads local state + labels, not comments for auth |
-| SC-11 | 4 | `behavioral` | verify-qa-mode checks local state + labels, not comments for auth |
+| SC-10 | 4 | `behavioral` | approval-gate completion reads local state, not comments for auth |
+| SC-11 | 4 | `behavioral` | verify-qa-mode checks local state, not comments for auth |
+| SC-12 | 5 | `behavioral` | Enforcement test verifies audit findings go to chat + lifecycle, not comment |
+| SC-13 | 5 | `behavioral` | triage/gather read local audit artifacts, not comment patterns |
+| SC-14 | 5 | `behavioral` | adversarial-audit writes verdicts to local audit dir, not comment |
 
 ## Non-Goals
 
