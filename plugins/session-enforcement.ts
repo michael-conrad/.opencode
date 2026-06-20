@@ -317,6 +317,18 @@ Review these diagnostics. For errors, investigate the source script. For warning
 const subAgentSessions = new Set<string>();
 
 /**
+ * Process-scoped set of session IDs that have already received their
+ * first-turn injections. Survives context reload (new process = empty
+ * Set = fires again correctly). Keyed by sessionID from the user
+ * message info in messages.transform.
+ *
+ * SC-1: Replaces userMessages.length === 1 heuristic.
+ * SC-2: session.created event fires before messages.transform,
+ *       so sessionID is available for Set-based detection.
+ */
+const injectedFirstTurnSessions = new Set<string>();
+
+/**
  * In-memory cache mapping sessionID → parentID, populated by the
  * session.created event handler. Used as the PRIMARY detection source
  * in messages.transform because input.client is unavailable in that
@@ -1002,7 +1014,8 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         if (!userMessages.length) return;
 
         const firstUser = userMessages[0];
-        const isFirstTurn = userMessages.length === 1;
+        const firstUserSessionID = firstUser?.info?.sessionID;
+        const isFirstTurn = firstUserSessionID ? !injectedFirstTurnSessions.has(firstUserSessionID) : (userMessages.length === 1);
 
         // --- Sub-agent detection (SC-1, SC-2) ---
         // Determine if this session has a parentID (is a sub-agent session).
@@ -1095,6 +1108,14 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         if (isFirstTurn && isSubAgent && firstUser.parts?.length) {
           const subAgentPrinciplesBlock = buildSubAgentPrinciplesBlock();
           firstUser.parts.unshift({ id: crypto.randomUUID(), sessionID: firstUser.info.sessionID, messageID: firstUser.info.id, type: "text", text: subAgentPrinciplesBlock });
+        }
+
+        // --- Mark session as injected for first-turn detection ---
+        // After all first-turn injections are applied, register the sessionID
+        // so the Set-based isFirstTurn check returns false on subsequent turns.
+        // Survives context reload because each new process starts with an empty Set.
+        if (firstUserSessionID && isFirstTurn) {
+          injectedFirstTurnSessions.add(firstUserSessionID);
         }
 
       // --- Per-turn: Mode switch anchor replacement ---
