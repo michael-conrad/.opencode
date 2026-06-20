@@ -10,7 +10,7 @@ Each post is a network round-trip, a notification to all watchers, and permanent
 
 ## Principles
 
-1. **GitHub issue comments are for stakeholder communication only.** Platform (platform engineering), spec revision, scope change, question/answer — substantive content that a human stakeholder needs to see. Nothing else.
+1. **GitHub issue comments are for stakeholder communication only.** Platform (platform engineering), spec revision, scope change, question/answer — substantive content that a human stakeholder needs to see. Nothing else. PR bodies are merge artifacts and are exempt (see principle 6).
 
 2. **Remote issue labels are advisory for stakeholders only.** The `approved-for-*` label on a GitHub issue is a human-readable signal — not a state tracking mechanism. Actual authorization state lives in local `.issues/{N}/` files (issue.yaml metadata, lifecycle manifests, state files). No "authorization confirmed" comment, no "approved by" post, no state encoded exclusively on the remote ticket.
 
@@ -27,6 +27,8 @@ Each post is a network round-trip, a notification to all watchers, and permanent
 4. **Status, progress, phase-complete, verification results go to lifecycle manifest + chat.** `./tmp/{N}/lifecycle.yaml` for machine-readable audit trail. Chat output for the developer's current session. GitHub issue comments are not a build pipeline dashboard.
 
 5. **Audit verdicts posted to issue comments are a clean-room contamination vector.** Posting creates a permanent record that future auditors read — biasing their analysis and defeating cross-family adversarial isolation. Audit verdicts go to `.issues/{N}/audit/` local artifacts only. Reading past audit verdicts from comment history is also prohibited; read from local audit artifacts instead.
+
+6. **PR bodies are merge artifacts — not issue comment spam.** VbC result tables, audit result tables proving clean PASS for all SCs, intent section, and exec summary belong in the PR body. This is a merge-time artifact that documents verification state at merge — it is not a running discussion thread. The PR body is exempt from all comment-spam prohibitions. This does NOT extend to PR comments or review threads (those are discussion channels subject to the same rules as issue comments).
 
 ## Affected Files
 
