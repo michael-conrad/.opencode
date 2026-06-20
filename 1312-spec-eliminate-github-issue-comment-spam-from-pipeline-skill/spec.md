@@ -43,7 +43,7 @@ Each post is a network round-trip, a notification to all watchers, and permanent
 
 ## Non-Goals
 
-- No changes to read-only comment operations (`github_issue_read(method=get_comments)`) — reading comments for context, authorization, and audit is legitimate and unchanged.
+- No changes to read-only comment operations (`github_issue_read(method=get_comments)`) — reading comments for context and audit is legitimate and unchanged. Reading comments for authorization evidence is removed per Phase 4.
 - No changes to `issue-operations/tasks/comment.md` — the substantive comment gate remains for legitimate stakeholder posting.
 - No changes to blocker reporting via comments *if* the blocker genuinely requires stakeholder attention (e.g., infrastructure failure, authorization gap). The gate decides; the default is NO.
 
