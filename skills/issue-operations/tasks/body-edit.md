@@ -53,7 +53,7 @@ Read the current state of `.issues/N/remote.md` and platform metadata.
    ```bash
    git rev-parse --show-toplevel  # find repo root
    ```
-   Then locate `.issues/open/N-*` or `.issues/closed/N-*` matching the issue number.
+   Then locate `.issues/N/` matching the issue number.
 
 - [ ] 2. Read `.issues/N/remote.md` via `read` tool. If the file does not exist, report `remote_md_path: null` — the transform agent will create it.
 
@@ -65,11 +65,11 @@ Read the current state of `.issues/N/remote.md` and platform metadata.
      "current_body": "<content of remote.md, or null if not found>",
      "issue_number": N,
      "platform": "github|gitbucket|local",
-     "remote_md_path": ".issues/open/N-slug/remote.md"
+     "remote_md_path": ".issues/{N}/remote.md"
    }
    ```
 
-**Error handling:** If the issue directory does not exist (no `.issues/open/N-*` or `.issues/closed/N-*`), return `{ error: "issue_directory_not_found", issue_number: N }`. The orchestrator HALTs — do not create directories inline.
+**Error handling:** If the issue directory does not exist (no `.issues/N/`), return `{ error: "issue_directory_not_found", issue_number: N }`. The orchestrator HALTs — do not create directories inline.
 
 ### Phase 2: Transform Agent
 
