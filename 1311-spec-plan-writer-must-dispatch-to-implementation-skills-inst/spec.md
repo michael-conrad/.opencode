@@ -102,42 +102,47 @@ Evidence type: `string` — mapping file includes `engineering-approach` for cod
 
 ### SC-7: Post-RED/green sections include adversarial-audit
 
-Every phase's Post-RED/green section must include a step for adversarial audit using the expanded multi-dispatch format from `implementation-pipeline/SKILL.md` §Dispatch Routing Table:
+Every phase's Post-RED/green section must include a step for adversarial audit with expanded sub-steps (no collapsed arrow-chain prose):
 
 ```
-- [ ] N. ADVSARIAL AUDIT — `adversarial-audit` (**orchestrator**)
-    → resolve-models → auditor 1 → remediate → auditor 2 → cross-validate
-    → SC-all
+- [ ] N. ADVERSARIAL AUDIT — `adversarial-audit` (**orchestrator**)
+    - [ ] Na. Run resolve-models to select cross-family auditors → SC-all
+    - [ ] Nb. Dispatch audit task with auditor_1 → SC-all
+    - [ ] Nc. If auditor_1 returned non-clean-pass: remediate root cause, restart from Na → SC-all
+    - [ ] Nd. Dispatch audit task with auditor_2 → SC-all
+    - [ ] Ne. If auditor_2 returned non-clean-pass: remediate root cause, restart from Na → SC-all
+    - [ ] Nf. Both auditors clean PASS. Collect artifact_path values, pass to cross-validate → SC-all
 ```
 
-This replaces the current pattern where post-RED sections list only `verification-before-completion` and `finishing-a-development-branch`.
+The multi-dispatch sub-steps are expanded from `implementation-pipeline/SKILL.md` §Dispatch Routing Table. Arrow-chain prose (`→ resolve-models → auditor 1 → remediate → auditor 2 → cross-validate`) is prohibited — each sub-step is its own indented checkbox.
 
-Evidence type: `string` — grep for adversarial-audit step in plan post-RED sections.
+Evidence type: `string` — grep for adversarial-audit step with expanded sub-step checkboxes in plan post-RED sections.
 
 ### SC-8: Post-RED/green sections include completeness-gate bridge
 
-Between the last GREEN step and the adversarial audit step, a completeness gate step must exist:
+Between the last GREEN step and the adversarial audit step, a completeness gate step with expanded sub-steps:
 
 ```
 - [ ] N. COMPLETENESS GATE — `completeness-gate` (**clean-room**)
-    → verify all SCs covered before audit
-    → SC-all
+    - [ ] Na. Verify all SCs in this phase covered before audit → SC-all
 ```
 
-Evidence type: `string` — grep for completeness-gate in plan post-RED sections.
+Evidence type: `string` — grep for completeness-gate with checkbox sub-step in plan post-RED sections.
 
 ### SC-9: Post-RED/green sections include completion-core for exec summary
 
-At the end of each phase (and at the final phase end), a step for `completion-core`:
+At the end of each phase (and at the final phase end), a step for `completion-core` with expanded sub-steps:
 
 ```
 - [ ] N. EXEC SUMMARY — `completion-core` (**clean-room**)
-    → push, URL extraction, issue comment, byline
+    - [ ] Na. Push changes → SC-all
+    - [ ] Nb. Extract URL from API response (never construct from template) → SC-all
+    - [ ] Nc. Post phase-complete issue comment with byline → SC-all
 ```
 
-Evidence type: `string` — grep for completion-core in plan post-RED sections.
+Evidence type: `string` — grep for completion-core with checkbox sub-steps in plan post-RED sections.
 
-## Phase 4 — Plan Format Template Updates
+## Phase 4 — Plan Format Template and Validation Updates
 
 ### SC-10: `create-and-validate.md` Step 10 validation checks skill names exist
 
@@ -171,6 +176,24 @@ The per-unit output format in `plan-structure.md` Step 5 must include the skill 
 
 Evidence type: `string` — output format spec updated.
 
+### SC-13: Pre-RED common sub-steps use indented checkbox format
+
+Every sub-step in Pre-RED Common sections uses the `- [ ] N.` indented checkbox format — never `→` prose continuation lines. This applies to verification gate, read-spec, read-routing-table, and all other pre-RED sub-steps across every phase.
+
+Evidence type: `behavioral` — generated plan's pre-RED sections contain `- [ ] Na.` sub-steps instead of `→ prose` lines.
+
+### SC-14: Post-RED gate sub-steps are expanded into indented checkboxes
+
+Every post-RED gate with sub-steps (adversarial-audit multi-dispatch sequence, completeness-gate, completion-core) MUST expand sub-steps into indented `- [ ] N.` checkboxes per `plan-structure.md` Step 5 sub-step expansion directive. Arrow-chain prose (e.g., `→ resolve-models → auditor 1 → remediate → ...`) is prohibited.
+
+Evidence type: `string` — grep for `^\s+→ [^d]` (arrow lines that are not `→ dispatch:`) in plan post-RED sections returns zero.
+
+### SC-15: Step 10 validation rejects prose-format sub-steps
+
+The Step 10 validation rule set gains a rule verifying that no plan step body contains prose-format sub-steps (matched by `^\s+→ [^d]` pattern — arrow continuations that are not `→ dispatch:` or `→ SC-N`). Any prose-format sub-step causes HALT with `PROSE_SUBSTEPS_DETECTED`.
+
+Evidence type: `behavioral` — plan with prose sub-steps fails validation; plan with checkbox sub-steps passes.
+
 ## SC-ID Summary
 
 | ID | Phase | Evidence Type | Verification Method |
@@ -187,6 +210,9 @@ Evidence type: `string` — output format spec updated.
 | SC-10 | 4 | `behavioral` | Validation rejects non-existent skill name |
 | SC-11 | 4 | `string` | Format template updated to require skill-dispatch |
 | SC-12 | 4 | `string` | Output format spec updated to require skill-dispatch |
+| SC-13 | 4 | `behavioral` | Pre-RED common sub-steps are indented checkboxes, not `→ prose` |
+| SC-14 | 4 | `string` | Post-RED gate sub-steps are expanded indented checkboxes, no arrow-chains |
+| SC-15 | 4 | `behavioral` | Step 10 validation rejects prose-format sub-steps with `PROSE_SUBSTEPS_DETECTED` |
 
 ## Non-Goals
 

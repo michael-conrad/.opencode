@@ -1,6 +1,6 @@
 # Implementation Plan — #1311
 
-**Goal:** Update the writing-plans skill's plan output format so that plan steps dispatch to named implementation skills instead of emitting inline implementation prose, eliminating the `PRELOADED_CONTEXT_REJECTED` pattern.
+**Goal:** Update the writing-plans skill's plan output format so that plan steps dispatch to named implementation skills instead of emitting inline implementation prose, eliminating the `PRELOADED_CONTEXT_REJECTED` pattern. 15 SCs across 4 phases: dispatch format change, concern-to-skill mapping, post-RED gate coverage, and format template/validation updates (including indented checkbox sub-step enforcement).
 
 **Architecture:** The plan writer (`writing-plans/tasks/create/`) produces plan documents with phase sections containing TDD steps. The output format changes from bare `(**clean-room**)` markers to `— <skill-name> for <concern> (**clean-room**)` with dispatch directives. A new `phase-to-skill-mapping.yaml` artifact is produced at plan-creation time. Post-RED/green sections gain three mandatory pipeline skills.
 
@@ -202,20 +202,20 @@
 
 ---
 
-## Phase 4 — Plan Format Template Updates
+## Phase 4 — Plan Format Template and Validation Updates
 
-**Concern:** Skill task file format updates — updating validation rules and format templates in `create-and-validate.md` and `plan-structure.md`.
+**Concern:** Skill task file format updates — updating validation rules, format templates, and adding prose-sub-step rejection.
 **Files:** `.opencode/skills/writing-plans/tasks/create/create-and-validate.md`, `.opencode/skills/writing-plans/tasks/create/plan-structure.md`
-**SCs covered:** SC-10, SC-11, SC-12
+**SCs covered:** SC-10, SC-11, SC-12, SC-13, SC-14, SC-15
 
 ### Pre-RED Common
 
 - [ ] 1. Verification gate — `verification-enforcement` for spec content verification (**inline**)
-    - [ ] 1a. Verify spec claims against live source files → SC-10, SC-11, SC-12
+    - [ ] 1a. Verify spec claims against live source files → SC-10, SC-11, SC-12, SC-13, SC-14, SC-15
 - [ ] 2. Read approved spec — `issue-review` for spec content (**inline**)
-    - [ ] 2a. Extract objectives, constraints, success criteria, affected sub-folders → SC-10, SC-11, SC-12
+    - [ ] 2a. Extract objectives, constraints, success criteria, affected sub-folders → SC-10, SC-11, SC-12, SC-13, SC-14, SC-15
 - [ ] 3. Read `implementation-pipeline/SKILL.md` §Dispatch Routing Table — `pre-analysis` for canonical gate discovery (**inline**)
-    - [ ] 3a. Confirm validation rule format → SC-10
+    - [ ] 3a. Confirm validation rule format and sub-step expansion requirements → SC-10, SC-15
 
 ### Per-Item RED+green Chains
 
@@ -240,12 +240,33 @@
     - [ ] 2. GREEN: The `plan-structure.md` Step 5 per-unit output format includes skill name and dispatch directive alongside the dispatch mode marker — `skill-creator` for task file format updates (**clean-room**)
         → dispatch: "execute validate task from skill-creator"
         → SC-12
+- [ ] TDD-4: Update `create-and-validate.md` format template to require indented checkbox sub-steps for Pre-RED common (SC-13)
+    - [ ] 1. RED: Pre-RED common format template shows `→ prose` continuation lines — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-13
+    - [ ] 2. GREEN: Pre-RED common format template shows `- [ ] Na.` indented checkbox sub-steps — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-13
+- [ ] TDD-5: Update `plan-structure.md` Post-RED/green format template to expand gate sub-steps into indented checkboxes (SC-14)
+    - [ ] 1. RED: Post-RED gate steps show collapsed arrow-chain prose (`→ step → step → step`) — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-14
+    - [ ] 2. GREEN: Post-RED adversarial-audit, completeness-gate, and completion-core steps show expanded indented checkbox sub-steps — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-14
+- [ ] TDD-6: Add prose-sub-step rejection rule to `create-and-validate.md` Step 10 validation (SC-15)
+    - [ ] 1. RED: Step 10 validation passes plans with prose-format sub-steps (`→ verify spec claims...`) — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-15
+    - [ ] 2. GREEN: Step 10 validation includes rule 10: reject any plan step with prose-format sub-steps (matched by `^\s+→ [^d]` — arrow continuations that are not `→ dispatch:` or `→ SC-N`). HALT with `PROSE_SUBSTEPS_DETECTED` — `skill-creator` for task file format updates (**clean-room**)
+        → dispatch: "execute validate task from skill-creator"
+        → SC-15
 
 ### Post-RED/green
 
 - [ ] 4. COMPLETENESS GATE — `completeness-gate` for SC coverage verification (**clean-room**)
-    - [ ] 4a. Verify all SCs (SC-10, SC-11, SC-12) covered before audit → SC-all
-- [ ] 5. ADVERSARIAL AUDIT — `adversarial-audit` for plan-fidelity audit (**orchestrator**)
+    - [ ] 4a. Verify all SCs (SC-10, SC-11, SC-12, SC-13, SC-14, SC-15) covered before audit → SC-all
+- [ ] 5. ADVERSARIAL AUDIT — `adversarial-audit` for spec-audit (**orchestrator**)
     - [ ] 5a. Run resolve-models to select cross-family auditors → SC-all
     - [ ] 5b. Dispatch audit task with auditor_1 → SC-all
     - [ ] 5c. If auditor_1 returned non-clean-pass: remediate root cause, restart from 5a → SC-all
@@ -255,7 +276,7 @@
 - [ ] 6. EXEC SUMMARY — `completion-core` for push and report (**clean-room**)
     - [ ] 6a. Push changes → SC-all
     - [ ] 6b. Extract URL from API response (never construct from template) → SC-all
-    - [ ] 6c. Post phase-complete issue comment with byline → SC-all
+    - [ ] 6c. Post PR-created issue comment with byline → SC-all
 
 ---
 
@@ -266,7 +287,7 @@
 ## Exit Criteria
 
 - Plan stored at `.opencode/.issues/1311-spec-plan-writer-must-dispatch-to-implementation-skills-inst/plan.md`
-- All 12 SCs mapped across 4 phases
+- All 15 SCs mapped across 4 phases
 - Phase dependency ordering SAT-verified
 - Phase solvability SOLVED_SATISFICING
 - Approval cascade: `for_plan` scope → auto-approved

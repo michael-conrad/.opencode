@@ -4,7 +4,7 @@
 #
 # SC Summary for Issue #1311
 schema_version: "1.0"
-total_scs: 12
+total_scs: 15
 scs:
   - id: SC-1
     phase: 1
@@ -54,6 +54,18 @@ scs:
     phase: 4
     evidence_type: string
     description: plan-structure.md Step 5 output format requires skill-dispatch markers
+  - id: SC-13
+    phase: 4
+    evidence_type: behavioral
+    description: Pre-RED common sub-steps use indented checkbox format
+  - id: SC-14
+    phase: 4
+    evidence_type: string
+    description: Post-RED gate sub-steps are expanded into indented checkboxes
+  - id: SC-15
+    phase: 4
+    evidence_type: behavioral
+    description: Step 10 validation rejects prose-format sub-steps
 phases:
   - phase: 1
     name: Dispatch Format Change
@@ -65,5 +77,5 @@ phases:
     name: Post-RED/green Pipeline Gate Coverage
     sc_ids: [SC-7, SC-8, SC-9]
   - phase: 4
-    name: Plan Format Template Updates
-    sc_ids: [SC-10, SC-11, SC-12]
+    name: Plan Format Template and Validation Updates
+    sc_ids: [SC-10, SC-11, SC-12, SC-13, SC-14, SC-15]
