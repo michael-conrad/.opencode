@@ -1,0 +1,58 @@
+# Phase-to-Skill Mapping for Issue #1311
+schema_version: "1.0"
+phases:
+  - phase: 1
+    name: Dispatch Format Change
+    concern: Skill task file format templates and validation
+    concern_category: skill_file_update
+    skill: skill-creator
+    validation_skill: skill-creator --task validate
+    test_skill: test-driven-development
+    dispatch_targets:
+      - concern: behavioral_test
+        skill: test-driven-development
+        task: red
+      - concern: task_file_update
+        skill: skill-creator
+      - concern: validation_rule
+        skill: skill-creator
+  - phase: 2
+    name: Concern-to-Skill Mapping at Plan-Creation Time
+    concern: Add phase-to-skill-mapping.yaml generation to plan-structure
+    concern_category: skill_file_update
+    skill: skill-creator
+    test_skill: test-driven-development
+    dispatch_targets:
+      - concern: behavioral_test
+        skill: test-driven-development
+        task: red
+      - concern: task_file_update
+        skill: skill-creator
+      - concern: mapping_generation
+        skill: skill-creator
+  - phase: 3
+    name: Post-RED/green Pipeline Gate Coverage
+    concern: Add mandatory pipeline gates to post-RED template
+    concern_category: skill_file_update
+    skill: skill-creator
+    test_skill: test-driven-development
+    dispatch_targets:
+      - concern: behavioral_test
+        skill: test-driven-development
+        task: red
+      - concern: task_file_update
+        skill: skill-creator
+  - phase: 4
+    name: Plan Format Template Updates
+    concern: Validation rule for skill name existence; format template changes
+    concern_category: skill_file_update
+    skill: skill-creator
+    test_skill: test-driven-development
+    dispatch_targets:
+      - concern: behavioral_test
+        skill: test-driven-development
+        task: red
+      - concern: task_file_update
+        skill: skill-creator
+      - concern: validation_rule
+        skill: skill-creator
