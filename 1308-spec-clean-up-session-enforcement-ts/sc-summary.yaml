@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+schema_version: "1.0"
+issue_number: 1308
+sc_coverage:
+  total: 11
+  evidence_types:
+    - string
+    - behavioral
+  phases:
+    - phase_id: 1
+      phase_name: "Clean up session-enforcement.ts"
+      sc_ids:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-5
+        - SC-6
+        - SC-7
+        - SC-8
+        - SC-9
+        - SC-10
+        - SC-11
