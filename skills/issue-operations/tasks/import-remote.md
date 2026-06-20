@@ -13,8 +13,8 @@ Retroactively import a pre-existing remote issue into the local `.issues/` direc
 
 ## Exit Criteria
 
-- Full local mirror created at `.issues/open/<remote_number>-<slug>/remote.md` (remote body) and `spec.md` (local frontmatter)
-- Comments imported to `.issues/open/<remote_number>-<slug>/comments.md`
+- Full local mirror created at `.issues/{remote_number}/remote.md` (remote body) and `spec.md` (local frontmatter)
+- Comments imported to `.issues/{remote_number}/comments.md`
 - Frontmatter written with remote metadata and `promotion_type: retroactive_import`
 - `.counter` advanced if `counter <= remote_number`
 
@@ -77,8 +77,7 @@ If `.issues/` directory does not exist, route to `platforms/local/tasks/creation
 
 Create the local issue directory manually (not via `local-issues create`, because we need to set the number to match the remote):
 
-- [ ] 1. Determine slug from title: first 5 words, kebab-cased
-- [ ] 1. Create directory: `.issues/open/<remote_number:03d>-<slug>/`
+- [ ] 1. Create directory: `.issues/{remote_number}/`
 - [ ] 1. Write `remote.md` with minimal frontmatter + full remote body:
 
 ```yaml
@@ -113,7 +112,7 @@ author: <remote_author>
 
 ### Step 5: Import Comments
 
-Write all fetched comments to `.issues/open/<remote_number>-<slug>/comments.md`:
+Write all fetched comments to `.issues/{remote_number}/comments.md`:
 
 ```markdown
 ---
@@ -151,7 +150,7 @@ Verify the full local mirror:
 | -- | -- |
 | Issue already imported (matching `remote_issue` found) | HALT — report already imported, provide path |
 | Issue number conflicts with existing local issue | Use next available number, record remote_number in frontmatter |
-| Remote issue is closed | Import as closed: create in `.issues/closed/` with `status: closed` |
+| Remote issue is closed | Import as closed: create at `.issues/{N}/` with `status: closed` |
 | Remote has zero comments | Write empty `comments.md` |
 | Remote body is empty | Write "*(No body content)*" placeholder |
 | Platform API returns error | HALT — report the error, do not create partial import |
@@ -169,9 +168,9 @@ Verify the full local mirror:
 
 | Claim | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |
-| "remote.md exists (body)" | Verify file at `.issues/open/NNN-slug/remote.md` | `local-issues read <number>` | MISSING-ELEMENT |
-| "spec.md exists (frontmatter only)" | Verify file at `.issues/open/NNN-slug/spec.md` | `local-issues read <number>` | MISSING-ELEMENT |
-| "comments.md exists with all comments" | Verify file and comment count matches remote | `cat .issues/open/NNN-slug/comments.md \| wc -l` | MISSING-ELEMENT |
+| "remote.md exists (body)" | Verify file at `.issues/{N}/remote.md` | `local-issues read <number>` | MISSING-ELEMENT |
+| "spec.md exists (frontmatter only)" | Verify file at `.issues/{N}/spec.md` | `local-issues read <number>` | MISSING-ELEMENT |
+| "comments.md exists with all comments" | Verify file and comment count matches remote | `ls .issues/{N}/comments.md` | MISSING-ELEMENT |
 | "promotion_type in frontmatter" | Verify `promotion_type: retroactive_import` present | `local-issues read <number>` → parse frontmatter | STRUCTURE-VIOLATION |
 | "Counter advanced correctly" | Verify `.counter` value >= remote_number + 1 | `cat .issues/.counter` | VERIFICATION-GAP |
 | "Body matches remote (remote.md)" | Compare remote.md body against remote issue body | `local-issues read <number>` | VERIFICATION-GAP |

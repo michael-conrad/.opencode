@@ -12,7 +12,7 @@ After any `read-issue` call, automatically mirror the remote issue body to `.iss
 
 ## Exit Criteria
 
-- Local mirror exists at `.issues/open/<number>-<slug>/remote.md` (remote body) alongside `spec.md` (local spec)
+- Local mirror exists at `.issues/{number}/remote.md` (remote body) alongside `spec.md` (local spec)
 - YAML frontmatter written with `remote_issue`, `remote_url`, `last_sync`
 - Local mirror is up to date with remote body
 
@@ -26,7 +26,7 @@ If `.issues/` directory does not exist, route to `platforms/local/tasks/creation
 
 Determine whether a local issue already exists for this remote number:
 
-- [ ] 1. Search `.issues/open/` and `.issues/closed/` for an entry matching the remote number
+- [ ] 1. Search `.issues/` for an entry matching the remote number
 - [ ] 2. If found: the issue exists locally — proceed to Step 3 (update)
 - [ ] 3. If not found: create a new local issue via task() to `platforms/local/tasks/creation.md`: `{title: "<remote_title>"}`
 
@@ -86,7 +86,7 @@ Read back the local remote.md and verify:
 
 | Claim | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |
-| "Local remote.md exists" | Verify file exists at `.issues/open/NNN-slug/remote.md` | `ls .issues/open/*/remote.md` | MISSING-ELEMENT |
+| "Local remote.md exists" | Verify file exists at `.issues/{N}/remote.md` | `ls .issues/{N}/remote.md` | MISSING-ELEMENT |
 | "Body matches remote" | Compare local remote.md body vs remote issue body | `local-issues read NNN` (reads remote.md) | VERIFICATION-GAP |
 | "Frontmatter has remote_issue" | Verify YAML frontmatter contains `remote_issue` field | `local-issues read NNN` → parse frontmatter | STRUCTURE-VIOLATION |
 | "last_sync is recent" | Verify timestamp is within current session window | `local-issues read NNN` → parse frontmatter | VERIFICATION-GAP |

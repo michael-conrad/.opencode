@@ -19,7 +19,7 @@ ______________________________________________________________________
 ## Entry Criteria
 
 - \[ \] Issue identifier is known — bare `N` (integer) or qualified `{repo}#{N}` (e.g. `<repo>#<N>`)
-- \[ \] Issue N exists in `.issues/open/` or `.issues/closed/` (or `<child-repo>/.issues/` for qualified)
+- \[ \] Issue N exists in `.issues/{N}/` (or `<child-repo>/.issues/{N}/` for qualified)
 - \[ \] `./.opencode/tools/local-issues` CLI tool is available
 - \[ \] Intent is confirmed — delete is ONLY for cleanup (orphaned drafts, test artifacts, duplicates). Delete is NOT for closing issues in normal workflow. Use `close` instead.
 - \[ \] Orchestrator has explicitly requested deletion — delete is never self-initiated by a sub-agent
@@ -44,8 +44,8 @@ ______________________________________________________________________
 | 1    | Verify issue exists | `./.opencode/tools/local-issues read <repo>#<N>` — confirm exit 0. If exit non-zero → exit 1 (issue not found).                                                                    |
 | 2    | Check remote link   | Read frontmatter for `github_issue` or `remote_url` field. If present and non-empty → remote link exists.                                               |
 | 3    | Apply safety guard  | If remote link exists AND `--force` NOT provided → exit 2 (blocked). Report: "Remote issue R exists at `url`. Use --force to remove local mirror only." |
-| 4    | Delete              | `./.opencode/tools/local-issues delete <repo>#<N> [--force]` — removes `.issues/open/NNN-slug/` or `.issues/closed/NNN-slug/`. Auto-commits on issues-data branch.                 |
-| 5    | Verify deletion     | `./.opencode/tools/local-issues read <repo>#<N>` — confirm exit non-zero (issue no longer exists). Verify neither `.issues/open/NNN-slug/` nor `.issues/closed/NNN-slug/` exists.    |
+| 4    | Delete              | `./.opencode/tools/local-issues delete <repo>#<N> [--force]` — removes `.issues/{N}/` directory. Auto-commits on issues-data branch.                 |
+| 5    | Verify deletion     | `./.opencode/tools/local-issues read <repo>#<N>` — confirm exit non-zero (issue no longer exists). Verify `.issues/{N}/` no longer exists.    |
 | 6    | Report              | Report to orchestrator: issue number, whether remote link existed, whether --force was used, exit code, and whether remote issue is unaffected.         |
 
 ______________________________________________________________________
@@ -53,7 +53,7 @@ ______________________________________________________________________
 ## Exit Criteria
 
 - \[ \] CLI tool returned exit code 0
-- \[ \] `.issues/open/<N>/` and `.issues/closed/<N>/` both absent — issue fully removed
+- \[ \] `.issues/{N}/` absent — issue directory fully removed
 - \[ \] Remote issue is confirmed untouched (if remote link existed, `--force` removes only the local mirror)
 - \[ \] For exit 2: warning was printed, no files were modified
 - \[ \] For exit 1: issue was not found, no files were modified

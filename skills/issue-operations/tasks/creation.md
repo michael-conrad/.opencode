@@ -30,14 +30,14 @@ Create issue with proper title format, labels, and byline after validation passe
 
 **MANDATORY before proceeding to any creation step.**
 
-Verify that the `pre-creation` task's Step 0.5 title dedup gate was executed. This step MUST produce evidence that dedup was performed before the creation API call is allowed. **For both local and remote platforms, dedup checks MUST cover local `.issues/open/` directory AND the platform's remote issue search.**
+Verify that the `pre-creation` task's Step 0.5 title dedup gate was executed. This step MUST produce evidence that dedup was performed before the creation API call is allowed. **For both local and remote platforms, dedup checks MUST cover local `.issues/` directory AND the platform's remote issue search.**
 
 **Required evidence (from `pre-creation` Step 0.5 output):**
 
 ```
 Check: Title dedup gate for "<proposed title>"
 Tool: `issue-operations → search-issues` / `platforms/gitbucket-api/` / `platforms/local/tasks/search.md`
-Local: [N candidates found in .issues/open/]
+Local: [N candidates found in .issues/]
 Remote: [N candidates found, match levels classified]
 Classification: [EXACT-DUPLICATE|NEAR-DUPLICATE|CLOSED-IN-ERROR|RELATED-BUT-DISTINCT|FALSE-POSITIVE]
 Action: [auto-resolved strategy | proceed | HALT]
@@ -45,7 +45,7 @@ Action: [auto-resolved strategy | proceed | HALT]
 
 **Local dedup search (MANDATORY):**
 
-Before or alongside the remote dedup search, search `.issues/open/` for existing local specs:
+Before or alongside the remote dedup search, search `.issues/` for existing local specs:
 
 - [ ] 1. Route to `platforms/local/tasks/search.md` via task(). Pass: `{query: "<significant keywords>", status: "open"}`
 - [ ] 1. For each match, compare title keywords against proposed title
@@ -74,7 +74,7 @@ Cannot create issue: Step 0.5 dedup gate evidence missing. Run pre-creation task
 This fallback catches the scenario where `pre-creation` was not run or its output is not in the current session context.
 
 - [ ] 1. Extract significant keywords from the proposed title (remove stop words, prefixes like `[SPEC]`, `[SPEC-FIX]`, `[Task:]`)
-- [ ] 1. Search `.issues/open/` for local duplicates:
+- [ ] 1. Search `.issues/` for local duplicates:
    - **Local:** Route to `platforms/local/tasks/search.md` via task(). Pass: `{query: "<keywords>", status: "open"}`
    - Classify any local matches per `pre-creation.md` Step 0.5 Phase 2 classification table
 - [ ] 1. Search for existing issues via platform API:
@@ -90,7 +90,7 @@ This fallback catches the scenario where `pre-creation` was not run or its outpu
 ```
 Check: Runtime search fallback for "<proposed title>"
 Tool: `platforms/local/tasks/search.md` / `issue-operations → search-issues` / gitbucket-api issues
-Local: [N candidates found in .issues/open/]
+Local: [N candidates found in .issues/]
 Remote: [N candidates found, match levels classified]
 Classification: [EXACT-DUPLICATE|NEAR-DUPLICATE|CLOSED-IN-ERROR|RELATED-BUT-DISTINCT|FALSE-POSITIVE]
 Action: [HALT | proceed with runtime evidence]
@@ -141,9 +141,9 @@ Determine creation order based on `github.platform`:
 
 - [ ] 1. **Extract remote issue number** from API response `number` field
 
-- [ ] 1. **Create local `.issues/open/<remote-number>-<slug>/`** — the remote number IS the local directory name (no local counter needed)
+- [ ] 1. **Create local `.issues/{remote-number}/`** — the remote number IS the local directory name (no local counter needed)
 
-- [ ] 1. Write spec body to `.issues/open/<remote-number>-<slug>/spec.md` (preserving YAML frontmatter)
+- [ ] 1. Write spec body to `.issues/{remote-number}/spec.md` (preserving YAML frontmatter)
 
 - [ ] 1. Record remote metadata in YAML frontmatter:
 
@@ -163,16 +163,16 @@ Determine creation order based on `github.platform`:
 
 Route to `platforms/local/tasks/creation.md` via task(). Pass: `{title: "<title>", labels: ["needs-approval"]}`
 
-Then write the spec body to `.issues/open/NNN-slug/spec.md` (preserving YAML frontmatter).
+Then write the spec body to `.issues/{N}/spec.md` (preserving YAML frontmatter).
 
 **Local copy retains full-fidelity detail** — extra metadata, reasoning, and agent notes that stakeholders don't need.
 
-**No remote promotion possible.** Issue exists only in `.issues/open/`.
+**No remote promotion possible.** Issue exists only in `.issues/{N}/`.
 
 **Response includes:**
 
 - Local issue number (counter-based)
-- Local path: `.issues/open/NNN-slug/spec.md`
+- Local path: `.issues/{N}/spec.md`
 
 **Post-Creation URL Extraction (MANDATORY — per `000-critical-rules.md` §URL Sourcing):**
 
@@ -201,13 +201,13 @@ Report based on creation flow:
 
 ```
 Created remote issue #MMM at <html_url>
-Local mirror: .issues/open/MMM-slug/spec.md
+Local mirror: .issues/{N}/spec.md
 ```
 
 **Local-first flow (local platform only):**
 
 ```
-Created local issue #NNN at `.issues/open/NNN-slug/spec.md`
+Created local issue #NNN at `.issues/{N}/spec.md`
 ```
 
 ### Step 4.5: Developer Review Signal
