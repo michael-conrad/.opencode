@@ -75,9 +75,8 @@
     - [ ] 7e. If auditor_2 returned non-clean-pass: remediate root cause, restart from 7a → SC-all
     - [ ] 7f. Both auditors clean PASS. Collect artifact_path values, pass as auditor_artifact_paths to cross-validate → SC-all
 - [ ] 8. EXEC SUMMARY — `completion-core` for push and report (**clean-room**)
-    - [ ] 8a. Push changes → SC-all
-    - [ ] 8b. Extract URL from API response (never construct from template) → SC-all
-    - [ ] 8c. Post phase-complete issue comment with byline → SC-all
+    - [ ] 8a. Write phase-complete event to lifecycle manifest at `./tmp/1311/lifecycle.yaml` → SC-all
+    - [ ] 8b. Report completion in chat with byline → SC-all
 
 ---
 
@@ -132,9 +131,8 @@
     - [ ] 5e. If auditor_2 returned non-clean-pass: remediate root cause, restart from 5a → SC-all
     - [ ] 5f. Both auditors clean PASS. Collect artifact_path values, pass as auditor_artifact_paths to cross-validate → SC-all
 - [ ] 6. EXEC SUMMARY — `completion-core` for push and report (**clean-room**)
-    - [ ] 6a. Push changes → SC-all
-    - [ ] 6b. Extract URL from API response (never construct from template) → SC-all
-    - [ ] 6c. Post phase-complete issue comment with byline → SC-all
+    - [ ] 6a. Write phase-complete event to lifecycle manifest at `./tmp/1311/lifecycle.yaml` → SC-all
+    - [ ] 6b. Report completion in chat with byline → SC-all
 
 ---
 
@@ -196,9 +194,8 @@
     - [ ] 6e. If auditor_2 returned non-clean-pass: remediate root cause, restart from 6a → SC-all
     - [ ] 6f. Both auditors clean PASS. Collect artifact_path values, pass as auditor_artifact_paths to cross-validate → SC-all
 - [ ] 7. EXEC SUMMARY — `completion-core` for push and report (**clean-room**)
-    - [ ] 7a. Push changes → SC-all
-    - [ ] 7b. Extract URL from API response (never construct from template) → SC-all
-    - [ ] 7c. Post phase-complete issue comment with byline → SC-all
+    - [ ] 7a. Write phase-complete event to lifecycle manifest at `./tmp/1311/lifecycle.yaml` → SC-all
+    - [ ] 7b. Report completion in chat with byline → SC-all
 
 ---
 
@@ -274,9 +271,8 @@
     - [ ] 5e. If auditor_2 returned non-clean-pass: remediate root cause, restart from 5a → SC-all
     - [ ] 5f. Both auditors clean PASS. Collect artifact_path values, pass as auditor_artifact_paths to cross-validate → SC-all
 - [ ] 6. EXEC SUMMARY — `completion-core` for push and report (**clean-room**)
-    - [ ] 6a. Push changes → SC-all
-    - [ ] 6b. Extract URL from API response (never construct from template) → SC-all
-    - [ ] 6c. Post PR-created issue comment with byline → SC-all
+    - [ ] 6a. Write completion event to lifecycle manifest at `./tmp/1311/lifecycle.yaml` → SC-all
+    - [ ] 6b. Report completion in chat with byline → SC-all
 
 ---
 

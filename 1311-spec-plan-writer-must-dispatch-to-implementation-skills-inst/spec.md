@@ -27,7 +27,7 @@ The plan writer's output format uses only two dispatch modes: `(**clean-room**)`
 | Lint/typecheck/format | `finishing-a-development-branch` | Structural checks | Referenced |
 | Review prep | `git-workflow --task review-prep` | PR readiness | Referenced |
 | PR creation | `git-workflow` | Pull request creation | Referenced |
-| Completion / exec summary | `completion-core` | Push, URL extraction, comment posting, byline | Not referenced |
+| Completion / exec summary | `completion-core` | Push, URL extraction, lifecycle event, byline | Not referenced |
 | Dependency ordering | `solve` + `plan` | Z3-verified phase ordering, SAT-check, phase solvability | Handled (plan-structure Step 3.3/5.5) |
 | Pipeline handoff | `implementation-pipeline` `pre-flight-handoff` | Validates plan-to-pipeline contract | Not referenced |
 | Conflict resolution | `conflict-resolution` | Intent classification, rebase safety | N/A at plan time |
@@ -135,9 +135,8 @@ At the end of each phase (and at the final phase end), a step for `completion-co
 
 ```
 - [ ] N. EXEC SUMMARY — `completion-core` (**clean-room**)
-    - [ ] Na. Push changes → SC-all
-    - [ ] Nb. Extract URL from API response (never construct from template) → SC-all
-    - [ ] Nc. Post phase-complete issue comment with byline → SC-all
+    - [ ] Na. Write completion event to lifecycle manifest at `./tmp/{N}/lifecycle.yaml` → SC-all
+    - [ ] Nb. Report completion in chat with byline → SC-all
 ```
 
 Evidence type: `string` — grep for completion-core with checkbox sub-steps in plan post-RED sections.
