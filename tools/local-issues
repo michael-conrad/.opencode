@@ -81,7 +81,7 @@ def _repo_has_issue(number: int, repo_path: Path) -> bool:
     path = _find_issue_dir_in_repo(number, repo_path)
     if not path or not path.is_dir():
         return False
-    return (path / "issue.yaml").exists() or (path / "spec.md").exists()
+    return True
 
 
 def _slug(text: str, max_len: int = 60) -> str:
