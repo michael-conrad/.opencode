@@ -14,10 +14,11 @@ Each post is a network round-trip, a notification to all watchers, and permanent
 
 2. **Remote issue labels are advisory for stakeholders only.** The `approved-for-*` label on a GitHub issue is a human-readable signal — not a state tracking mechanism. Actual authorization state lives in local `.issues/{N}/` files (issue.yaml metadata, lifecycle manifests, state files). No "authorization confirmed" comment, no "approved by" post, no state encoded exclusively on the remote ticket.
 
-3. **GitHub issue comments are never a valid authorization source — they can be spoofed.** Any bot, agent, or collaborator with API access can post "approved" or "go" in a comment. Comments carry no cryptographic provenance. Authorization MUST come from one of:
+3. **GitHub issue comments are never a valid authorization source — they can be spoofed.** Any bot, agent, or collaborator with API access can post "approved" or "go" in a comment. Comments carry no cryptographic provenance. Authorization comes from exactly two sources:
    - The user's explicit command in the current chat session
    - Local state files (`.issues/{N}/issue.yaml` with authorization scope markers)
-   - Advisory `approved-for-*` labels on the remote issue (for session resumption context only — verified against local state)
+   
+   Advisory `approved-for-*` labels on the remote issue exist for stakeholder awareness only. They are never a valid authorization source and must not be used as one. If a label and local state disagree, local state wins.
    
    The `approval-gate` skill MUST NOT read GitHub issue comments as authorization evidence. All `github_issue_read(method=get_comments)` calls used to detect "approved" patterns must be removed or replaced with local state file reads.
 
@@ -88,13 +89,13 @@ Evidence type: `behavioral` — issue-closure sub-agent produces lifecycle event
 
 ## Phase 3 — Approval Gate (P1)
 
-### SC-7: `approval-gate` completion uses labels only — no authorization comments of any kind
+### SC-7: `approval-gate` completion applies advisory label only — no authorization comments
 
-`approval-gate/tasks/completion.md` replaces "post authorization result comment" with "apply `approved-for-*` label via `github_issue_write(method=update, labels=[...])`". The label is the **sole** authorization signal. No "Approved by" comment. No verification-result comment. No "authorization confirmed" post. No byline post. Zero `github_add_issue_comment` calls for authorization-related output.
+`approval-gate/tasks/completion.md` replaces "post authorization result comment" with "apply `approved-for-*` label via `github_issue_write(method=update, labels=[...])` and record authorization in local state file `.issues/{N}/issue.yaml`". The label is stakeholder advisory only — **not an authorization signal**. The local state file is the single source of truth for authorization state. No "Approved by" comment. No verification-result comment. No "authorization confirmed" post. Zero `github_add_issue_comment` calls for authorization-related output.
 
-This is a hard rule: approvals are advisory labels only. Any task that currently posts an authorization-related comment to a GitHub issue must be rewritten to produce a lifecycle event + chat output instead.
+This is a hard rule: approvals are advisory labels + local state. Any task that currently posts an authorization-related comment to a GitHub issue must be rewritten to produce a lifecycle event + local state update + chat output instead.
 
-Evidence type: `behavioral` — approval-gate completion applies label but does not post any comment.
+Evidence type: `behavioral` — completion applies label and writes local state, does not post any comment.
 
 ### SC-8: `approval-gate` reconcile-issue-graph uses labels, not evidence comments
 
@@ -115,17 +116,17 @@ Evidence type: `behavioral`.
 `approval-gate/tasks/completion.md` removes all `github_issue_read(method=get_comments)` calls that search for authorization patterns ("approved", "go", byline pattern). Authorization is determined from:
 - Current session authorization scope (if in active session)
 - Local `.issues/{N}/issue.yaml` authorization scope markers
-- Advisory `approved-for-*` label on the remote issue (for session resumption context only)
+- **Never** from advisory labels or issue comments
 
 The "Existing comments: Check if authorization result comment already posted" step and the authorization-result substantive gate check are removed entirely.
 
-Evidence type: `behavioral` — completion sub-agent reads label state and local files, not comments.
+Evidence type: `behavioral` — completion sub-agent reads local state files, not comments or labels.
 
 ### SC-11: `approval-gate` verify-qa-mode no longer reads comments for authorization
 
-`approval-gate/tasks/verify-qa-mode.md` Gate 2 ("Is authorization documented (explicit 'approved'/'go' comment)?") is replaced with a check against local state files and advisory labels. All `github_issue_read(method=get_comments)` calls searching for approval patterns are removed. The "author_association" filter for bot/agent detection is removed — comments are never a valid authorization source regardless of who posted them.
+`approval-gate/tasks/verify-qa-mode.md` Gate 2 ("Is authorization documented (explicit 'approved'/'go' comment)?") is replaced with a check against local state files only. All `github_issue_read(method=get_comments)` calls searching for approval patterns are removed. The "author_association" filter for bot/agent detection is removed — comments are never a valid authorization source regardless of who posted them.
 
-Evidence type: `behavioral` — verify-qa-mode sub-agent checks local state + labels, not comments.
+Evidence type: `behavioral` — verify-qa-mode sub-agent checks local state files, not comments or labels.
 
 ## SC-ID Summary
 
