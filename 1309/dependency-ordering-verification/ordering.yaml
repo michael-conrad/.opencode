@@ -1,0 +1,12 @@
+# Dependency ordering solve contract for Issue #1309
+schema_version: "1.0"
+variables:
+  phase_1:
+    type: int
+  phase_2:
+    type: int
+preconditions:
+  - "phase_1 >= 1"
+  - "phase_2 >= 1"
+invariants:
+  - "phase_1 != phase_2"

@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Pipeline Readiness for Issue #1309
+# Spec: https://github.com/michael-conrad/.opencode/issues/1309
+# Verified by: verification-enforcement --task verify (all claims PASS)
+schema_version: "1.0"
+status: PASS
+sc_summary:
+  total_scs: 14
+  atomic: true
+  with_dependencies: true
+  single_concern: true
+phase_dependencies:
+  - phase: 1
+    name: Tool Detection + Strict Lookup
+    depends_on: []
+    constraints:
+      - "phase_1_is_first"
+  - phase: 2
+    name: Skill Task File Remediation
+    depends_on:
+      - phase: 1
+    constraints:
+      - "phase_2_starts_after_phase_1_completes"
