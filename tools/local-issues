@@ -57,75 +57,23 @@ MARKDOWN_FILES = ("spec.md",)
 
 
 def _find_issue_dir(number: int, repo_path: Path | None = None) -> Path | None:
-    """Find issue directory by NNN prefix match or exact number.
+    """Find issue directory by exact number match.
 
-    Matches `.issues/<number>` or `.issues/<number>-<slug>` or
-    `.issues/open/<number>-<slug>`. Returns None if no match.
+    Matches `.issues/<number>` only. Returns None if no match.
     """
-    prefix = str(number).lstrip("0") or "0"
-    padded_prefix = f"{number:03d}"
     issues_dir = (repo_path or PROJECT_DIR) / ISSUES_DIR
-
-    # Check exact match first
-    exact = issues_dir / prefix
+    exact = issues_dir / str(number)
     if exact.is_dir():
         return exact
-
-    # Check open/ first (active issues)
-    open_dir = issues_dir / "open"
-    if open_dir.is_dir():
-        for entry in sorted(open_dir.iterdir()):
-            if entry.is_dir() and (
-                entry.name.startswith(prefix + "-")
-                or entry.name.startswith(padded_prefix + "-")
-            ):
-                return entry
-
-    # Check all top-level dirs for prefix match
-    if issues_dir.is_dir():
-        for entry in sorted(issues_dir.iterdir()):
-            if not entry.is_dir():
-                continue
-            if entry.name == prefix:
-                return entry
-            if entry.name.startswith(prefix + "-") or entry.name.startswith(
-                padded_prefix + "-"
-            ):
-                return entry
-
     return None
 
 
 def _find_issue_dir_in_repo(number: int, repo_path: Path) -> Path | None:
-    """Find issue directory by number within a specific repo path."""
-    prefix = str(number).lstrip("0") or "0"
-    padded_prefix = f"{number:03d}"
+    """Find issue directory by exact number within a specific repo path."""
     issues_dir = repo_path / ISSUES_DIR
-
-    exact = issues_dir / prefix
+    exact = issues_dir / str(number)
     if exact.is_dir():
         return exact
-
-    open_dir = issues_dir / "open"
-    if open_dir.is_dir():
-        for entry in sorted(open_dir.iterdir()):
-            if entry.is_dir() and (
-                entry.name.startswith(prefix + "-")
-                or entry.name.startswith(padded_prefix + "-")
-            ):
-                return entry
-
-    if issues_dir.is_dir():
-        for entry in sorted(issues_dir.iterdir()):
-            if not entry.is_dir():
-                continue
-            if entry.name == prefix:
-                return entry
-            if entry.name.startswith(prefix + "-") or entry.name.startswith(
-                padded_prefix + "-"
-            ):
-                return entry
-
     return None
 
 
@@ -725,13 +673,6 @@ def _count_issues(repo_path: Path) -> int:
         if num is not None and num not in seen:
             seen.add(num)
             count += 1
-    open_dir = issues_dir / "open"
-    if open_dir.is_dir():
-        for entry in sorted(open_dir.iterdir()):
-            num = _parse_number(entry)
-            if num is not None and num not in seen:
-                seen.add(num)
-                count += 1
     return count
 
 
@@ -1010,12 +951,6 @@ def _recent_issue_numbers(repo_path: Path | None = None) -> list[int]:
         num = _parse_number(entry)
         if num is not None:
             nums.add(num)
-    open_dir = issues_dir / "open"
-    if open_dir.is_dir():
-        for entry in open_dir.iterdir():
-            num = _parse_number(entry)
-            if num is not None:
-                nums.add(num)
     sorted_nums = sorted(nums, reverse=True)
     return sorted_nums[:5]
 
@@ -1832,12 +1767,54 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _check_legacy_formats(issues_dir: Path) -> None:
+    """Emit a warning if legacy issue directory formats are detected.
+
+    Checks for:
+    1. .issues/open/ or .issues/closed/ subdirectories
+    2. Directories matching legacy slug format {N}-{slug} (regex: ^\\d+-.+)
+
+    Fires at most once per session via .issues/.legacy-warned sentinel.
+    """
+    sentinel = issues_dir / ".legacy-warned"
+    if sentinel.exists():
+        return
+
+    legacy_found = False
+
+    # Check for open/ or closed/ subdirectories
+    for legacy_sub in ("open", "closed"):
+        if (issues_dir / legacy_sub).is_dir():
+            legacy_found = True
+            break
+
+    # Check for legacy slug-format directories (^\d+-.+)
+    if not legacy_found and issues_dir.is_dir():
+        for entry in issues_dir.iterdir():
+            if not entry.is_dir():
+                continue
+            if re.match(r"^\d+-.+", entry.name):  # noqa: SIM114
+                legacy_found = True
+                break
+
+    if legacy_found:
+        print(
+            "Warning: Legacy issue directory format detected in .issues/. "
+            "AI agent must inspect and remediate manually.",
+            file=sys.stderr,
+        )
+        sentinel.parent.mkdir(parents=True, exist_ok=True)
+        sentinel.touch()
+
+
 def main() -> None:
     if len(sys.argv) == 2 and sys.argv[1] == "--description":
         print("Local issue tracking CLI tool for .issues/ directory.")
         return
     parser = build_parser()
     args = parser.parse_args()
+
+    _check_legacy_formats(Path(ISSUES_DIR))
 
     command_map = {
         "create": cmd_create,
