@@ -114,4 +114,4 @@ If both are set, `BEHAVIOR_SUBMODULE_COMMIT` wins.
 | SC-4 | `behavior_run` checks out specified submodule branch | Behavioral | Test execution: set BEHAVIOR_SUBMODULE_BRANCH, verify git status in .opencode/ |
 | SC-5 | `test-enforcement.sh` flags raw `with-test-home opencode-cli run` | String | Content-verification: grep for pattern in test-enforcement.sh |
 | SC-6 | `template.sh` contains DO NOT call warning | String | Content-verification: grep for warning text |
-| SC-7 | All 330 existing tests produce identical artifacts (same dir structure, same files) | Structural | Pre/post change diff artifact manifest |
+| SC-7 | All 330 existing tests produce identical artifacts (same dir structure, same files) | Semantic | Pre/post change artifact comparison: run all scenarios; generate manifest of tree structure and file set from before/after states; verify layout equivalence by manual inspection or automated `tree --noreport` diff |
