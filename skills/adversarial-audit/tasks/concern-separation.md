@@ -27,6 +27,7 @@ Audit spec phase structure for concern separation quality using dual-adversarial
 
 ## Concern Separation Checklist
 
+- [ ] 0. Pre-Flight Validation Gate — validate required inputs before proceeding
 - [ ] 1. Load Spec — glob spec_local_dir for .md files, read all, extract phases
 - [ ] 2. Build Evaluation Criteria — define CS table with evidence types
 - [ ] 3. Analyze Phase Structure — per-phase concern/risk/independence/blast radius
@@ -35,6 +36,22 @@ Audit spec phase structure for concern separation quality using dual-adversarial
 - [ ] 6. Verify Boundary Claims — live tool-call verification per claim
 - [ ] 7. Write Verdict Artifact to Disk — YAML output
 - [ ] 8. Return Frugal Result Contract
+
+### Step 0: Pre-Flight Validation Gate
+
+Validate that all required inputs are present before proceeding with the audit:
+
+- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 2. If `spec_local_dir` is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "spec_local_dir"
+remediation: "spec_local_dir is required for concern-separation. The orchestrator must provide a valid local directory containing spec Markdown files."
+```
+
+**This gate fires BEFORE any other step.** If any criterion fails, the task returns BLOCKED immediately — no globbing, no reading, no analysis.
 
 ### Step 1: Load Spec
 
@@ -156,6 +173,7 @@ summary: "N criteria evaluated. X PASS, Y FAIL."
 ## Completion Dependency Chain
 
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
+- Step 0 (Pre-Flight Validation Gate) → INVALID if skipped
 - Step 1 (Load Spec) → INVALID if skipped
 - Step 2 (Build Evaluation Criteria) → INVALID if skipped
 - Step 3 (Analyze Phase Structure) → INVALID if skipped

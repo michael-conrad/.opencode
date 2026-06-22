@@ -25,6 +25,32 @@ Verify merge evidence after PR merge. Ensures spec issue properly closed, succes
 
 ## Procedure
 
+### Step 0: Pre-Flight Validation Gate
+
+Validate that all required inputs are present before proceeding with the audit:
+
+- [ ] 1. Verify PR number is provided and non-empty
+- [ ] 2. Verify spec issue number is provided and non-empty
+- [ ] 3. If PR number is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "PR number"
+remediation: "PR number is required for closure-verification. The orchestrator must provide the merged PR number."
+```
+
+- [ ] 4. If spec issue number is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "spec issue number"
+remediation: "Spec issue number is required for closure-verification. The orchestrator must provide the spec issue number linked to the PR."
+```
+
+**This gate fires BEFORE any other step.** If any criterion fails, the task returns BLOCKED immediately — no globbing, no reading, no analysis.
+
 ### Step 1: Fetch Merged PR
 
 ```python
@@ -217,6 +243,7 @@ summary: "N criteria evaluated. X PASS, Y FAIL."
 ## Completion Dependency Chain
 
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
+- Step 0 (Pre-Flight Validation Gate) → INVALID if skipped
 - Step 1 (Fetch Merged PR) → INVALID if skipped
 - Step 2 (Identify Linked Spec) → INVALID if skipped
 - Step 3 (Fetch Spec Issue) → INVALID if skipped

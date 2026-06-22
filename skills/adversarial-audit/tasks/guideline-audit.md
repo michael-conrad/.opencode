@@ -27,6 +27,7 @@ Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies p
 
 ## Guideline Audit Checklist
 
+- [ ] 0. Pre-Flight Validation Gate — validate required inputs before proceeding
 - [ ] 1. Identify Target Files — specific files or full glob of guidelines/
 - [ ] 2. Build Evaluation Criteria — define GA table with evidence types
 - [ ] 3. Scan for Problem Classes — per-file ambiguous/conflicting/unenforceable/redundant/missing/overflow
@@ -35,6 +36,22 @@ Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies p
 - [ ] 6. Write Audit Report — markdown report to artifacts directory
 - [ ] 7. Write Verdict Artifact to Disk — YAML output
 - [ ] 8. Return Frugal Result Contract
+
+### Step 0: Pre-Flight Validation Gate
+
+Validate that all required inputs are present before proceeding with the audit:
+
+- [ ] 1. Verify target file paths are provided and non-empty
+- [ ] 2. If target file paths are missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "target file paths"
+remediation: "Target file paths are required for guideline-audit. The orchestrator must specify which guideline files to audit."
+```
+
+**This gate fires BEFORE any other step.** If any criterion fails, the task returns BLOCKED immediately — no globbing, no reading, no analysis.
 
 ### Step 1: Identify Target Files
 
@@ -222,6 +239,7 @@ summary: "N files audited, M problems found. X/Y criteria PASS."
 ## Completion Dependency Chain
 
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
+- Step 0 (Pre-Flight Validation Gate) → INVALID if skipped
 - Step 1 (Identify Target Files) → INVALID if skipped
 - Step 2 (Build Evaluation Criteria) → INVALID if skipped
 - Step 3 (Scan for Problem Classes) → INVALID if skipped
