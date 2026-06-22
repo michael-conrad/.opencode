@@ -1,0 +1,53 @@
+# SC Dependency Ordering Contract — .opencode#1324
+# Each SC's truth implies all its dependencies are true
+
+variables:
+  SC_1_DONE:
+    type: bool
+    nullable: false
+  SC_2_DONE:
+    type: bool
+    nullable: false
+  SC_3_DONE:
+    type: bool
+    nullable: false
+  SC_4_DONE:
+    type: bool
+    nullable: false
+  SC_5_DONE:
+    type: bool
+    nullable: false
+  SC_6_DONE:
+    type: bool
+    nullable: false
+  SC_7_DONE:
+    type: bool
+    nullable: false
+  SC_8_DONE:
+    type: bool
+    nullable: false
+  SC_9_DONE:
+    type: bool
+    nullable: false
+  SC_10_DONE:
+    type: bool
+    nullable: false
+
+invariants:
+  # SC-2 (platform rewrite) depends on SC-1 (delete bespoke tooling)
+  - "z3.Implies(SC_2_DONE, SC_1_DONE)"
+  # SC-3 (dispatchers) depends on SC-2 (platform commands must exist)
+  - "z3.Implies(SC_3_DONE, SC_2_DONE)"
+  # SC-4 (git-workflow) depends on SC-2
+  - "z3.Implies(SC_4_DONE, SC_2_DONE)"
+  # SC-5 (local platform) depends on SC-2
+  - "z3.Implies(SC_5_DONE, SC_2_DONE)"
+  # SC-6 (AGENTS.md) depends on SC-2 (gb commands documented)
+  - "z3.Implies(SC_6_DONE, SC_2_DONE)"
+  # SC-7 (TOOL_MISSING) depends on SC-2 (skill references gb)
+  - "z3.Implies(SC_7_DONE, SC_2_DONE)"
+  # SC-8 (behavioral test) depends on SC-2 (gb commands defined)
+  - "z3.Implies(SC_8_DONE, SC_2_DONE)"
+  # SC-9 (issue-closure fix) depends on SC-4 (part of git-workflow)
+  - "z3.Implies(SC_9_DONE, SC_4_DONE)"
+  # SC-10 (no deletions) — independent, no dependencies

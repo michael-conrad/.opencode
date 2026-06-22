@@ -1,0 +1,41 @@
+# Phase Dependency Ordering Contract — .opencode#1324
+# Each phase's truth implies all its dependencies are true
+
+variables:
+  PHASE_1_DONE:
+    type: bool
+    nullable: false
+  PHASE_2_DONE:
+    type: bool
+    nullable: false
+  PHASE_3_DONE:
+    type: bool
+    nullable: false
+  PHASE_4_DONE:
+    type: bool
+    nullable: false
+  PHASE_5_DONE:
+    type: bool
+    nullable: false
+  PHASE_6_DONE:
+    type: bool
+    nullable: false
+  PHASE_7_DONE:
+    type: bool
+    nullable: false
+
+invariants:
+  # Phase 2 depends on Phase 1
+  - "z3.Implies(PHASE_2_DONE, PHASE_1_DONE)"
+  # Phase 3 depends on Phase 2
+  - "z3.Implies(PHASE_3_DONE, PHASE_2_DONE)"
+  # Phase 4 depends on Phase 2
+  - "z3.Implies(PHASE_4_DONE, PHASE_2_DONE)"
+  # Phase 5 depends on Phase 2
+  - "z3.Implies(PHASE_5_DONE, PHASE_2_DONE)"
+  # Phase 6 depends on Phase 2
+  - "z3.Implies(PHASE_6_DONE, PHASE_2_DONE)"
+  # Phase 7 depends on Phase 1
+  - "z3.Implies(PHASE_7_DONE, PHASE_1_DONE)"
+  # Phases 3-6 are parallel (no cross-dependencies)
+  # Phase 7 is parallel with Phases 2-6 (no cross-dependency)

@@ -1,0 +1,27 @@
+schema_version: "1.0"
+generated_at: "20260622161335"
+status: PASS
+checks:
+  - check_id: PR-1
+    result: PASS
+    detail: "All 10 SCs are atomic — each maps to exactly one RED→GREEN→COMMIT cycle. No SC bundles multiple independent assertions."
+  - check_id: PR-2
+    result: PASS
+    solve_contract_path: ".opencode/.issues/1324-spec-replace-bespoke-gitbucket-api-python-tool-with-gb-cli/sc-dependency-contract.yaml"
+    prove_results:
+      - theorem: "all SCs satisfiable"
+        result: VALID
+  - check_id: PR-3
+    result: PASS
+    detail: "All 10 SCs target exactly one file category and one verification domain. No single-concern violations."
+  - check_id: PR-4
+    result: PASS
+    solve_contract_path: ".opencode/.issues/1324-spec-replace-bespoke-gitbucket-api-python-tool-with-gb-cli/dependency-ordering-verification/ordering.yaml"
+    prove_results:
+      - theorem: "all phases satisfiable"
+        result: VALID
+sc_summary:
+  total_scs: 10
+  atomic: 10
+  with_dependencies: 8
+  single_concern: 10
