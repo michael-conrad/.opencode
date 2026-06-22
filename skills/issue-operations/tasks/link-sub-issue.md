@@ -40,7 +40,7 @@ if len(phases) == 1:
 
 **GitBucket platform (sub-skill implementation):**
 ```bash
-./.opencode/tools/gitbucket-api get-issue <github.owner> <github.repo> <M>
+gb issue view <M> -R <github.owner>/<github.repo>
 ```
 
 **Local platform (sub-skill implementation):**
@@ -87,7 +87,7 @@ sub_issue = github_issue_write(
 
 **GitBucket platform (sub-skill implementation):**
 ```bash
-./.opencode/tools/gitbucket-api create-issue <github.owner> <github.repo> "[Task: #<M>] <phase_description>" --body "**Parent Plan:** #<M>\n\n<phase_prose>" --labels task
+gb issue create -t "[Task: #<M>] <phase_description>" -R <github.owner>/<github.repo> --body "**Parent Plan:** #<M>\n\n<phase_prose>" --label task
 ```
 
 **Local platform (sub-skill implementation):**
@@ -117,7 +117,7 @@ CRITICAL: Use database ID (`.id`), not issue number.
 
 **GitBucket platform (comment-based fallback via sub-skill):**
 ```bash
-./.opencode/tools/gitbucket-api add-comment <github.owner> <github.repo> <M> "**Sub-issue linked:** #<sub_issue_number> — <phase_description>"
+gb issue comment <M> -b "**Sub-issue linked:** #<sub_issue_number> — <phase_description>" -R <github.owner>/<github.repo>
 ```
 
 **Local platform (comment-based fallback via sub-skill):**

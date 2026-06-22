@@ -40,7 +40,7 @@ github_issue_read(
 
 **GitBucket platform:**
 ```bash
-./.opencode/tools/gitbucket-api get-issue <github.owner> <github.repo> <issue-number>
+gb issue view <issue-number> -R <github.owner>/<github.repo>
 ```
 
 **Local platform:**

@@ -2,24 +2,66 @@
 
 ## Overview
 
-GitBucket operations use the `gitbucket-api` CLI tool located at `.opencode/tools/gitbucket-api`. This replaces both MCP tools and the Python client for all operations.
+GitBucket operations use the `gb` CLI tool. This replaces both MCP tools and the old `gitbucket-api` Python tool for all operations.
 
-## CLI Tool Availability
+## TOOL_MISSING Detection
 
-| Operation | CLI Command | Status |
+Before any `gb` command, verify the tool is available:
+
+```bash
+if ! command -v gb &>/dev/null; then
+  echo "TOOL_MISSING: gb CLI not found. Install from https://github.com/Masahiro-Obuchi/gitbucket-cli-rs"
+  return 1
+fi
+```
+
+## Version Check
+
+Verify `gb` version >= 0.6.1 before proceeding:
+
+```bash
+GB_VERSION=$(gb --version 2>/dev/null | grep -oP '[\d]+\.[\d]+\.[\d]+' | head -1)
+if [ -z "$GB_VERSION" ]; then
+  echo "VERSION_CHECK_FAILED: Could not determine gb version"
+  return 1
+fi
+if ! printf '%s\n' "0.6.1" "$GB_VERSION" | sort -V | head -1 | grep -q "^0.6.1$"; then
+  echo "VERSION_CHECK_FAILED: gb $GB_VERSION < required 0.6.1"
+  return 1
+fi
+```
+
+## CLI Command Reference
+
+| Operation | gb Command | Status |
 |-----------|------------|--------|
-| Get issue | `gitbucket-api issue <owner> <repo> <number>` | ✅ |
-| Create issue | `gitbucket-api create-issue <owner> <repo> <title> [--body ...] [--labels ...]` | ✅ |
-| Add comment | `gitbucket-api add-comment <owner> <repo> <number> <body>` | ✅ |
-| List issues | `gitbucket-api issues <owner> <repo> [--state open\|closed\|all]` | ✅ |
-| Get repository | `gitbucket-api repo <owner> <repo>` | ✅ |
-| List branches | `gitbucket-api branches <owner> <repo>` | ✅ |
-| List PRs | `gitbucket-api prs <owner> <repo> [--state ...] [--head ...]` | ✅ |
-| Create PR | `gitbucket-api create-pr <owner> <repo> <title> <head> <base> [--body ...]` | ✅ |
-| List labels | `gitbucket-api labels <owner> <repo>` | ✅ |
-| Get current user | `gitbucket-api me` | ✅ |
-| Validate auth | `gitbucket-api check-auth` | ✅ |
-| Init config | `gitbucket-api init-config [--path ...]` | ✅ |
+| Get issue | `gb issue view <number> -R owner/repo` | ✅ |
+| Create issue | `gb issue create -t "<title>" -R owner/repo [--body "..."] [--label l1,l2]` | ✅ |
+| Edit issue | `gb issue edit <number> -R owner/repo [--title ...] [--add-label ...] [--remove-label ...]` | ✅ (web fallback) |
+| Close issue | `gb issue close <number> -R owner/repo` | ✅ |
+| Reopen issue | `gb issue reopen <number> -R owner/repo` | ✅ |
+| Add comment | `gb issue comment <number> -b "<body>" -R owner/repo` | ✅ |
+| List issues | `gb issue list -R owner/repo [--state open\|closed\|all]` | ✅ |
+| Get repository | `gb repo view owner/repo` | ✅ |
+| List repos | `gb repo list [owner]` | ✅ |
+| Create repo | `gb repo create <name> [-g group]` | ✅ |
+| List branches | `gb api repos/owner/repo/branches -R owner/repo` | ✅ (passthrough) |
+| List PRs | `gb pr list -R owner/repo [--state open\|closed\|all]` | ✅ |
+| Get PR | `gb pr view <number> -R owner/repo` | ✅ |
+| Create PR | `gb pr create -t "<title>" --head <branch> -B <base> -R owner/repo` | ✅ |
+| Edit PR | `gb pr edit <number> -R owner/repo [--add-assignee ...]` | ✅ |
+| Merge PR | `gb pr merge <number> -R owner/repo` | ✅ |
+| Close PR | `gb pr close <number> -R owner/repo` | ✅ |
+| PR diff | `gb pr diff <number> -R owner/repo` | ✅ |
+| PR comment | `gb pr comment <number> -b "<body>" -R owner/repo` | ✅ |
+| List labels | `gb label list -R owner/repo` | ✅ |
+| Create label | `gb label create <name> --color <hex> [--description "..."] -R owner/repo` | ✅ |
+| View label | `gb label view <name> -R owner/repo` | ✅ |
+| Edit label | `gb label edit <name> -R owner/repo [--name ...] [--color ...] [--description ...]` | ✅ |
+| Delete label | `gb label delete <name> --yes -R owner/repo` | ✅ |
+| Get current user | `gb auth status` | ✅ |
+| Validate auth | `gb auth status` | ✅ |
+| API passthrough | `gb api <endpoint> [-X method] [--input ...]` | ✅ |
 
 ## CLI-First Workflow
 
@@ -27,23 +69,25 @@ GitBucket operations use the `gitbucket-api` CLI tool located at `.opencode/tool
 
 ```bash
 # Create issue
-./.opencode/tools/gitbucket-api create-issue org project "Bug fix" --body "Description" --labels bug,enhancement
+gb issue create -t "Bug fix" -R org/project --body "Description" --label bug,enhancement
 
 # Get issue
-./.opencode/tools/gitbucket-api issue org project 14
+gb issue view 14 -R org/project
 
 # List issues
-./.opencode/tools/gitbucket-api issues org project --state open
+gb issue list -R org/project --state open
 ```
 
 ## Tool Selection Decision Tree
 
 ```
-Is operation in CLI command table?
-    ├─ YES → Use CLI command
+Is operation in gb command table?
+    ├─ YES → Use gb subcommand
     │         ├─ Success → Return result
-    │         └─ Failure → Log error, check credentials with check-auth
-    └─ NO → Report missing command, HALT — do NOT fall back to inline scripts
+    │         └─ Failure → Log error, check auth with gb auth status
+    └─ NO → Use gb api passthrough
+              ├─ Success → Return result
+              └─ Failure → Report missing command, HALT
 ```
 
 ## Error Classification
@@ -51,35 +95,33 @@ Is operation in CLI command table?
 ### CLI Error (Retry or Check Credentials)
 
 ```bash
-./.opencode/tools/gitbucket-api check-auth
-# If auth fails, check .env for GITBUCKET_TOKEN and GITBUCKET_HTML_URL
+gb auth status
+# If auth fails, check GB_TOKEN and GB_HOST environment variables
 ```
 
 ### API Error (Classified)
 
-The CLI tool outputs structured error information:
-
 ```bash
-./.opencode/tools/gitbucket-api create-issue org nonexistent "Test"
+gb issue view 999 -R org/nonexistent
 # Error: 404 Not Found - Check owner/repo names
 
-./.opencode/tools/gitbucket-api create-issue org project "Test"
-# Error: 401 Unauthorized - Check GITBUCKET_TOKEN
+gb issue list -R org/project
+# Error: 401 Unauthorized - Check GB_TOKEN
 
-./.opencode/tools/gitbucket-api create-issue org project "Test"
+gb issue create -t "Test" -R org/project
 # Error: 422 Unprocessable Entity - Check request body format
 ```
 
 ## Label Operations (Labels Can ONLY Be Set During Creation)
 
-GitBucket does **not** support adding labels after issue creation. Use `--labels` during creation:
+GitBucket does **not** support adding labels after issue creation. Use `--label` during creation:
 
 ```bash
 # ✅ WORKS: Set labels during issue creation
-./.opencode/tools/gitbucket-api create-issue org project "Bug report" --body "Description" --labels bug,enhancement
+gb issue create -t "Bug report" -R org/project --body "Description" --label bug,enhancement
 
 # ❌ BROKEN: Cannot change labels after creation
-# No CLI command for post-creation label operations — they return empty arrays
+# gb issue edit supports --add-label/--remove-label but GitBucket REST may not apply them
 ```
 
 ## Admin Operations (Basic Auth Required)
@@ -87,11 +129,11 @@ GitBucket does **not** support adding labels after issue creation. Use `--labels
 Admin operations require Basic authentication, not token:
 
 ```bash
-# Admin operations are not available via CLI
-# Uses Python API client directly for admin tasks
+# Admin operations are not available via gb CLI
+# Use gb api passthrough with GB_USER/GB_PASSWORD env vars for admin tasks
 ```
 
 ## Source Code
 
-- `.opencode/tools/gitbucket-api` - CLI tool (entry point)
-- `.opencode/skills/issue-operations/platforms/gitbucket-api/tools/impl/` - Python implementation
+- `gb` CLI tool — install from https://github.com/Masahiro-Obuchi/gitbucket-cli-rs
+- Environment: `GB_TOKEN`, `GB_HOST`, `GB_REPO`, `GB_USER`, `GB_PASSWORD`

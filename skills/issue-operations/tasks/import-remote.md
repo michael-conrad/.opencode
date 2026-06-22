@@ -38,7 +38,7 @@ github_issue_read(
 **GitBucket platform:**
 
 ```bash
-./.opencode/tools/gitbucket-api get-issue <github.owner> <github.repo> <issue-number>
+gb issue view <issue-number> -R <github.owner>/<github.repo>
 ```
 
 **Local platform:**
@@ -64,7 +64,9 @@ github_issue_read(
 **GitBucket platform:**
 
 ```bash
-./.opencode/tools/gitbucket-api list-comments <github.owner> <github.repo> <issue-number>
+# Note: gb CLI does not have a dedicated list-comments command.
+# Use gb issue view to get issue details including comments.
+gb issue view <issue-number> -R <github.owner>/<github.repo>
 ```
 
 Collect each comment's author, timestamp, and body text.

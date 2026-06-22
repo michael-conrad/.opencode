@@ -270,9 +270,10 @@ for issue_num, classification in closure_candidates.items():
                 body=f"Closed via parent PR #{parent_pr_number}."
             )
         elif sub_info["platform"] == "gitbucket":
-            gitbucket_api_post(endpoint=f"/issues/{issue_num}", payload={
-                "state": "closed"
-            })
+            # Use gb CLI for GitBucket closure
+            # gb issue close <N> -R owner/repo
+            # gb issue comment <N> -b "Closed via parent PR #N." -R owner/repo
+            pass  # Handled by platform sub-skill dispatch
     else:
         # Standard parent-repo closure (existing logic applies)
         close_in_parent_repo(issue_num, classification)

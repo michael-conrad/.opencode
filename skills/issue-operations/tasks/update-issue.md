@@ -48,7 +48,9 @@ github_issue_write(
 
 **GitBucket platform:**
 ```bash
-./.opencode/tools/gitbucket-api update-issue <github.owner> <github.repo> <issue-number> --body "<body>" --labels "<labels>"
+gb issue edit <issue-number> -R <github.owner>/<github.repo> --body "<body>"
+# Note: GitBucket labels can ONLY be set during creation (gb issue create --label).
+# Post-creation label changes do not work.
 ```
 
 **Local platform:**

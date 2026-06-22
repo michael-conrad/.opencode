@@ -48,7 +48,7 @@ github_get_file_contents(owner=<owner>, repo=<repo>, path="")
 
 **GitBucket:**
 ```python
-./.opencode/tools/gitbucket-api get-repo <owner> <repo>
+gb repo view <owner>/<repo>
 # Map errors similarly
 ```
 

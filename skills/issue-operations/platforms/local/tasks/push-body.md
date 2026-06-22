@@ -12,7 +12,7 @@ Push local issue body to the remote API. This is a one-direction sync — local 
 
 **Primary tool:** `./.opencode/tools/local-issues push-body N` (or `push-body <repo>#<N>` for qualified)
 
-**Architectural role:** Push-body closes the sync loop after a local body update. It reads spec.md, extracts the body content, and sends it to the remote API via the platform's update-issue endpoint. This task does NOT call `update --body` — that is the caller's responsibility.
+**Architectural role:** Push-body closes the sync loop after a local body update. It reads spec.md, extracts the body content, and sends it to the remote API via the platform's issue edit endpoint. This task does NOT call `update --body` — that is the caller's responsibility.
 
 ______________________________________________________________________
 
@@ -59,7 +59,7 @@ Route to the appropriate remote platform based on the link type:
 | -------------------------------------- | --------- | ------------------------------------------------------------------------------------------------ |
 | `github_issue: <owner>/<repo>#<N>`     | GitHub    | `github_issue_write(method="update", owner=<owner>, repo=<repo>, issue_number=<N>, body=<body>)` |
 | `remote_url` containing `github.com`   | GitHub    | `github_issue_write(...)`                                                                        |
-| `remote_url` containing GitBucket host | GitBucket | `./.opencode/tools/gitbucket-api update-issue <owner> <repo> <N> --body "<body>"`                |
+| `remote_url` containing GitBucket host | GitBucket | `gb issue edit <owner> <repo> <N> --body "<body>"`                |
 
 **CRITICAL:** Body-preservation safeguard applies. If the remote body would be erased or shortened to \<80% of original length, HALT per `000-critical-rules.md`.
 

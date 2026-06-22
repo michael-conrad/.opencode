@@ -79,7 +79,7 @@ This fallback catches the scenario where `pre-creation` was not run or its outpu
    - Classify any local matches per `pre-creation.md` Step 0.5 Phase 2 classification table
 - [ ] 1. Search for existing issues via platform API:
    - **GitHub:** `issue-operations → search-issues` with keyword query
-   - **GitBucket:** `./.opencode/tools/gitbucket-api issues --state open` + `--state closed` (filter client-side by keyword match)
+   - **GitBucket:** `gb issue list -R <github.owner>/<github.repo> --state open` + `--state closed` (filter client-side by keyword match)
 - [ ] 1. Collect candidate matches from both local and remote (issues whose titles share ≥2 significant keywords with proposed title)
 - [ ] 1. For each candidate, classify match level per `pre-creation.md` Step 0.5 Phase 2 classification table
 - [ ] 1. If any EXACT-DUPLICATE or NEAR-DUPLICATE found (local or remote) → HALT, report conflict
@@ -89,7 +89,7 @@ This fallback catches the scenario where `pre-creation` was not run or its outpu
 
 ```
 Check: Runtime search fallback for "<proposed title>"
-Tool: `platforms/local/tasks/search.md` / `issue-operations → search-issues` / gitbucket-api issues
+Tool: `platforms/local/tasks/search.md` / `issue-operations → search-issues` / gb issue list
 Local: [N candidates found in .issues/]
 Remote: [N candidates found, match levels classified]
 Classification: [EXACT-DUPLICATE|NEAR-DUPLICATE|CLOSED-IN-ERROR|RELATED-BUT-DISTINCT|FALSE-POSITIVE]

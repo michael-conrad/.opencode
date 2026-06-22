@@ -48,7 +48,7 @@ Route to the appropriate remote platform based on the link type:
 | -------------------------------------- | --------- | ------------------------------------------------------------------------------- |
 | `github_issue: <owner>/<repo>#<N>`     | GitHub    | `github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<N>)` |
 | `remote_url` containing `github.com`   | GitHub    | `github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<N>)` |
-| `remote_url` containing GitBucket host | GitBucket | `./.opencode/tools/gitbucket-api get-issue <owner> <repo> <N>`                  |
+| `remote_url` containing GitBucket host | GitBucket | `gb issue view <owner> <repo> <N>`                  |
 
 Extract the issue body from the API response. The body field is the raw markdown content of the remote issue.
 
