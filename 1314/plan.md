@@ -1,186 +1,195 @@
-# Implementation Plan: Playwright CLI as First-Class Browser Automation Entry Point
-
-> **Spec:** [#1314](https://github.com/michael-conrad/.opencode/issues/1314) — Playwright CLI as First-Class Browser Automation Entry Point
-> **Authorization:** `for_implementation` | **halt_at:** `verification_complete` | **pr_strategy:** `stacked`
-> **Plan structure:** SEPARATE (multi-phase)
-
-## Plan Structure Decision
-
-**Decision:** SEPARATE
-**Reason:** 5 distinct phases with different concerns (deletion, creation, reference cleanup, gitignore, verification). Each phase has independent deliverables and concern boundaries. Combined would produce a hard-to-read monolith.
-
+---
+issue: 1314
+spec: .opencode/.issues/1314/spec.md
+plan_structure: separate
+authorization_scope: for_pr
+halt_at: pr_created
+pr_strategy: stacked
+generated_at: "20260622015732"
 ---
 
-## Phase 1: Delete `ui-design` and `ui-engineer` Skills
+# Plan: Playwright CLI as First-Class Browser Automation Entry Point
 
-**Concern boundary:** Leaving no prior scope. Entering skill deletion. Handoff: empty skill directories and zero references enable Phase 2 (creation) and Phase 3 (reference cleanup).
+## Phase 1: Deletion
 
-**Files affected:** `skills/ui-design/`, `skills/ui-engineer/`, guidelines referencing these skills
+**Concern:** Remove `ui-design` and `ui-engineer` skill directories and all contents.
 
-**SC References:** SC-1
+**SCs:** SC-1
 
-### Pre-RED Common
+**Affected Files:**
+- `.opencode/skills/ui-design/SKILL.md`
+- `.opencode/skills/ui-design/` (entire directory)
+- `.opencode/skills/ui-engineer/SKILL.md`
+- `.opencode/skills/ui-engineer/` (entire directory)
 
-- [ ] 1. Verification gate — read approved spec, confirm `approved-for-implementation` label (**inline**)
-- [ ] 2. Combined/separate decision — SEPARATE confirmed (**inline**)
+### Dispatch Table — Phase 1
 
-### Per-Item RED+green Chains
+| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
+|------|--------------|--------|---------------|-----------------|-----|
+| sc-coherence-gate | task() | Yes | coherence-auditor | spec SC-1 + phase files | SC-1 |
+| pre-red-baseline | task() | Yes | baseline-checker | phase files current state | SC-1 |
+| red-phase | task() | Yes | RED-impl | spec SC-1 + baseline | SC-1 |
+| red-doublecheck | task() | Yes | RED-verifier | RED artifact + spec | SC-1 |
+| post-red-enforcement | task() | Yes | enforcement-checker | RED evidence | SC-1 |
+| green-phase | task() | Yes | GREEN-impl | RED gap + spec SC-1 | SC-1 |
+| post-green-enforcement | task() | Yes | enforcement-checker | GREEN evidence | SC-1 |
+| checkpoint-commit | bash | No | — | git operations | — |
+| structural-checks | bash | No | — | ruff, pyright, mdformat | — |
+| green-doublecheck | task() | Yes | GREEN-verifier | GREEN artifact + spec | SC-1 |
+| green-vbc | task() | Yes | VbC-auditor | GREEN artifact + spec SC-1 | SC-1 |
+| adversarial-audit | task() | Yes | dual-auditor | full artifact + spec | SC-1 |
+| cross-validate | task() | Yes | cross-validator | audit findings | SC-1 |
+| regression-check | bash | No | — | existing tests | — |
+| review-prep | task() | Yes | review-prep | full artifact | SC-1 |
+| exec-summary | task() | Yes | completion-reporter | all evidence | SC-1 |
 
-- [ ] TDD-1: Delete `ui-design` skill directory (SC-1)
-  - [ ] 1. RED: `skills/ui-design/` directory must exist before deletion (**inline**)
-  - [ ] 2. GREEN: `skills/ui-design/` directory must not exist; `ls skills/ui-design/` returns error (**clean-room**)
+## Phase 2: Creation
 
-- [ ] TDD-2: Delete `ui-engineer` skill directory (SC-1)
-  - [ ] 1. RED: `skills/ui-engineer/` directory must exist before deletion (**inline**)
-  - [ ] 2. GREEN: `skills/ui-engineer/` directory must not exist; `ls skills/ui-engineer/` returns error (**clean-room**)
+**Concern:** Create `playwright-cli` skill directory adapted from upstream `viewport-editor` repo.
 
-- [ ] TDD-3: Remove skill entries from `skill-registry-v2-skills.json` (SC-1)
-  - [ ] 1. RED: Registry file must contain `ui-design` and `ui-engineer` entries (**inline**)
-  - [ ] 2. GREEN: Registry file must not contain `ui-design` or `ui-engineer` entries (**clean-room**)
+**SCs:** SC-2
 
-### Post-RED/green
+**Affected Files:**
+- `.opencode/skills/playwright-cli/SKILL.md` (new)
+- `.opencode/skills/playwright-cli/` (new directory)
 
-- [ ] 3. Phase 1 regression verification — confirm deleted directories absent, registry updated (**clean-room**)
-- [ ] 4. Completeness gate — SC-1 fully satisfied (**inline**)
+### Dispatch Table — Phase 2
 
----
+| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
+|------|--------------|--------|---------------|-----------------|-----|
+| sc-coherence-gate | task() | Yes | coherence-auditor | spec SC-2 + upstream reference | SC-2 |
+| pre-red-baseline | task() | Yes | baseline-checker | upstream skill files | SC-2 |
+| red-phase | task() | Yes | RED-impl | spec SC-2 + upstream + baseline | SC-2 |
+| red-doublecheck | task() | Yes | RED-verifier | RED artifact + spec | SC-2 |
+| post-red-enforcement | task() | Yes | enforcement-checker | RED evidence | SC-2 |
+| green-phase | task() | Yes | GREEN-impl | RED gap + spec SC-2 + upstream | SC-2 |
+| post-green-enforcement | task() | Yes | enforcement-checker | GREEN evidence | SC-2 |
+| checkpoint-commit | bash | No | — | git operations | — |
+| structural-checks | bash | No | — | ruff, pyright, mdformat | — |
+| green-doublecheck | task() | Yes | GREEN-verifier | GREEN artifact + spec | SC-2 |
+| green-vbc | task() | Yes | VbC-auditor | GREEN artifact + spec SC-2 | SC-2 |
+| adversarial-audit | task() | Yes | dual-auditor | full artifact + spec | SC-2 |
+| cross-validate | task() | Yes | cross-validator | audit findings | SC-2 |
+| regression-check | bash | No | — | existing tests | — |
+| review-prep | task() | Yes | review-prep | full artifact | SC-2 |
+| exec-summary | task() | Yes | completion-reporter | all evidence | SC-2 |
 
-## Phase 2: Create `playwright-cli` Skill
+## Phase 3: Reference Cleanup
 
-**Concern boundary:** Leaving deletion scope. Entering skill creation. Handoff: deleted directories create space for new skill; upstream skill cards provide source material.
+**Concern:** Remove all references to deleted skills from guidelines, tests, and registry files.
 
-**Files affected:** `skills/playwright-cli/` (new directory)
+**SCs:** SC-3
 
-**SC References:** SC-2
+**Affected Files:**
+- `.opencode/guidelines/INDEX.md`
+- `.opencode/tests/` (all test files referencing ui-design or ui-engineer)
+- `.opencode/AGENTS.md`
+- Any other files referencing deleted skills
 
-### Pre-RED Common
+### Dispatch Table — Phase 3
 
-- [ ] 1. Verification gate — confirm Phase 1 complete (**inline**)
-- [ ] 2. Read upstream skill cards from `microsoft/playwright-cli` `skills/playwright-cli/` (**clean-room**)
+| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
+|------|--------------|--------|---------------|-----------------|-----|
+| sc-coherence-gate | task() | Yes | coherence-auditor | spec SC-3 + affected files | SC-3 |
+| pre-red-baseline | task() | Yes | baseline-checker | reference files current state | SC-3 |
+| red-phase | task() | Yes | RED-impl | spec SC-3 + baseline + reference list | SC-3 |
+| red-doublecheck | task() | Yes | RED-verifier | RED artifact + spec | SC-3 |
+| post-red-enforcement | task() | Yes | enforcement-checker | RED evidence | SC-3 |
+| green-phase | task() | Yes | GREEN-impl | RED gap + spec SC-3 | SC-3 |
+| post-green-enforcement | task() | Yes | enforcement-checker | GREEN evidence | SC-3 |
+| checkpoint-commit | bash | No | — | git operations | — |
+| structural-checks | bash | No | — | ruff, pyright, mdformat | — |
+| green-doublecheck | task() | Yes | GREEN-verifier | GREEN artifact + spec | SC-3 |
+| green-vbc | task() | Yes | VbC-auditor | GREEN artifact + spec SC-3 | SC-3 |
+| adversarial-audit | task() | Yes | dual-auditor | full artifact + spec | SC-3 |
+| cross-validate | task() | Yes | cross-validator | audit findings | SC-3 |
+| regression-check | bash | No | — | existing tests | — |
+| review-prep | task() | Yes | review-prep | full artifact | SC-3 |
+| exec-summary | task() | Yes | completion-reporter | all evidence | SC-3 |
 
-### Per-Item RED+green Chains
+## Phase 4: Gitignore
 
-- [ ] TDD-4: Create `skills/playwright-cli/SKILL.md` with YAML frontmatter (SC-2)
-  - [ ] 1. RED: `skills/playwright-cli/SKILL.md` must not exist (**inline**)
-  - [ ] 2. GREEN: `skills/playwright-cli/SKILL.md` must exist with `name:`, `description:`, `Triggers on:`, `provenance:` frontmatter fields; content adapted from upstream (**clean-room**)
+**Concern:** Add `.tools/` entry to `.gitignore` to prevent tracking project-local tool installations.
 
-- [ ] TDD-5: Create `skills/playwright-cli/references/` with upstream reference files (SC-2)
-  - [ ] 1. RED: `skills/playwright-cli/references/` must not exist (**inline**)
-  - [ ] 2. GREEN: `skills/playwright-cli/references/` must contain upstream reference files with Apache-2.0 provenance preserved (**clean-room**)
+**SCs:** SC-4
 
-- [ ] TDD-6: Verify skill card structure matches `.opencode/` format (SC-2)
-  - [ ] 1. RED: Skill must lack YAML frontmatter or dispatch table (**inline**)
-  - [ ] 2. GREEN: Skill must have valid YAML frontmatter, dispatch table, and provenance attribution (**clean-room**)
+**Affected Files:**
+- `.gitignore`
 
-### Post-RED/green
+### Dispatch Table — Phase 4
 
-- [ ] 5. Phase 2 regression verification — confirm new skill exists with correct structure (**clean-room**)
-- [ ] 6. Completeness gate — SC-2 fully satisfied (**inline**)
-
----
-
-## Phase 3: Update References
-
-**Concern boundary:** Leaving skill creation. Entering reference cleanup. Handoff: new skill exists; now remove stale references from guidelines, tests, and registry.
-
-**Files affected:** `000-critical-rules.md`, `README.md`, `tests/test-enforcement.sh`, `skill-registry-v2-skills.json`
-
-**SC References:** SC-3
-
-### Pre-RED Common
-
-- [ ] 1. Verification gate — confirm Phase 1 and Phase 2 complete (**inline**)
-- [ ] 2. Search for all references to `ui-design` and `ui-engineer` across repo (**clean-room**)
-
-### Per-Item RED+green Chains
-
-- [ ] TDD-7: Remove `ui-design`/`ui-engineer` from `000-critical-rules.md` triggers list (SC-3)
-  - [ ] 1. RED: `000-critical-rules.md` must contain `ui-design` or `ui-engineer` references (**inline**)
-  - [ ] 2. GREEN: `000-critical-rules.md` must not contain `ui-design` or `ui-engineer` references (**clean-room**)
-
-- [ ] TDD-8: Remove `ui-design`/`ui-engineer` from `README.md` skill table (SC-3)
-  - [ ] 1. RED: `README.md` must contain `ui-design` or `ui-engineer` in skill table (**inline**)
-  - [ ] 2. GREEN: `README.md` must not contain `ui-design` or `ui-engineer` in skill table (**clean-room**)
-
-- [ ] TDD-9: Remove `ui-engineer-red-gate` scenario from `tests/test-enforcement.sh` (SC-3)
-  - [ ] 1. RED: `tests/test-enforcement.sh` must contain `ui-engineer-red-gate` scenario (**inline**)
-  - [ ] 2. GREEN: `tests/test-enforcement.sh` must not contain `ui-engineer-red-gate` scenario (**clean-room**)
-
-- [ ] TDD-10: Add `playwright-cli` to skill registry (SC-3)
-  - [ ] 1. RED: `skill-registry-v2-skills.json` must not contain `playwright-cli` entry (**inline**)
-  - [ ] 2. GREEN: `skill-registry-v2-skills.json` must contain `playwright-cli` entry with correct metadata (**clean-room**)
-
-### Post-RED/green
-
-- [ ] 7. Phase 3 regression verification — grep confirms zero deleted-skill references (**clean-room**)
-- [ ] 8. Completeness gate — SC-3 fully satisfied (**inline**)
-
----
-
-## Phase 4: Add `.tools/` to `.gitignore`
-
-**Concern boundary:** Leaving reference cleanup. Entering gitignore configuration. Handoff: references clean; now add lazy install target.
-
-**Files affected:** `.gitignore`
-
-**SC References:** SC-4
-
-### Pre-RED Common
-
-- [ ] 1. Verification gate — confirm prior phases complete (**inline**)
-
-### Per-Item RED+green Chains
-
-- [ ] TDD-11: Add `.tools/` entry to `.gitignore` (SC-4)
-  - [ ] 1. RED: `.gitignore` must not contain `.tools/` entry (**inline**)
-  - [ ] 2. GREEN: `.gitignore` must contain `.tools/` entry (**clean-room**)
-
-### Post-RED/green
-
-- [ ] 9. Phase 4 regression verification — `.tools/` is gitignored (**clean-room**)
-- [ ] 10. Completeness gate — SC-4 fully satisfied (**inline**)
-
----
+| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
+|------|--------------|--------|---------------|-----------------|-----|
+| sc-coherence-gate | task() | Yes | coherence-auditor | spec SC-4 + .gitignore | SC-4 |
+| pre-red-baseline | task() | Yes | baseline-checker | .gitignore current state | SC-4 |
+| red-phase | task() | Yes | RED-impl | spec SC-4 + baseline | SC-4 |
+| red-doublecheck | task() | Yes | RED-verifier | RED artifact + spec | SC-4 |
+| post-red-enforcement | task() | Yes | enforcement-checker | RED evidence | SC-4 |
+| green-phase | task() | Yes | GREEN-impl | RED gap + spec SC-4 | SC-4 |
+| post-green-enforcement | task() | Yes | enforcement-checker | GREEN evidence | SC-4 |
+| checkpoint-commit | bash | No | — | git operations | — |
+| structural-checks | bash | No | — | ruff, pyright, mdformat | — |
+| green-doublecheck | task() | Yes | GREEN-verifier | GREEN artifact + spec | SC-4 |
+| green-vbc | task() | Yes | VbC-auditor | GREEN artifact + spec SC-4 | SC-4 |
+| adversarial-audit | task() | Yes | dual-auditor | full artifact + spec | SC-4 |
+| cross-validate | task() | Yes | cross-validator | audit findings | SC-4 |
+| regression-check | bash | No | — | existing tests | — |
+| review-prep | task() | Yes | review-prep | full artifact | SC-4 |
+| exec-summary | task() | Yes | completion-reporter | all evidence | SC-4 |
 
 ## Phase 5: Verification
 
-**Concern boundary:** Leaving all implementation phases. Entering final verification. Handoff: all phases complete; now confirm zero残留 references and correct new skill.
+**Concern:** Confirm zero references to deleted skills, directories absent, new skill exists with correct content.
 
-**Files affected:** All files touched by prior phases
+**SCs:** SC-5
 
-**SC References:** SC-5
+**Affected Files:** None (verification phase — reads all modified files)
 
-### Pre-RED Common
+### Dispatch Table — Phase 5
 
-- [ ] 1. Verification gate — confirm all prior phases complete (**inline**)
+| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
+|------|--------------|--------|---------------|-----------------|-----|
+| sc-coherence-gate | task() | Yes | coherence-auditor | spec SC-5 + all phase artifacts | SC-5 |
+| pre-red-baseline | task() | Yes | baseline-checker | post-phase-1-4 state | SC-5 |
+| red-phase | task() | Yes | RED-impl | spec SC-5 + baseline | SC-5 |
+| red-doublecheck | task() | Yes | RED-verifier | RED artifact + spec | SC-5 |
+| post-red-enforcement | task() | Yes | enforcement-checker | RED evidence | SC-5 |
+| green-phase | task() | Yes | GREEN-impl | RED gap + spec SC-5 | SC-5 |
+| post-green-enforcement | task() | Yes | enforcement-checker | GREEN evidence | SC-5 |
+| checkpoint-commit | bash | No | — | git operations | — |
+| structural-checks | bash | No | — | grep, ls verification | — |
+| green-doublecheck | task() | Yes | GREEN-verifier | GREEN artifact + spec | SC-5 |
+| green-vbc | task() | Yes | VbC-auditor | GREEN artifact + spec SC-5 | SC-5 |
+| adversarial-audit | task() | Yes | dual-auditor | full artifact + spec | SC-5 |
+| cross-validate | task() | Yes | cross-validator | audit findings | SC-5 |
+| regression-check | bash | No | — | existing tests | — |
+| review-prep | task() | Yes | review-prep | full artifact | SC-5 |
+| exec-summary | task() | Yes | completion-reporter | all evidence | SC-5 |
 
-### Per-Item RED+green Chains
+## Dependency Graph
 
-- [ ] TDD-12: Verify zero Python `playwright` references (SC-5)
-  - [ ] 1. RED: Repo must contain Python `playwright` import references (**inline**)
-  - [ ] 2. GREEN: Repo must contain zero Python `playwright` import references (**clean-room**)
+```
+Phase 1 (deletion) ─────┬──→ Phase 2 (creation)
+                        ├──→ Phase 3 (reference-cleanup)
+Phase 4 (gitignore) ────┤
+                        └──→ Phase 5 (verification) ←── all phases
+```
 
-- [ ] TDD-13: Verify zero deleted-skill references (SC-5)
-  - [ ] 1. RED: Repo must contain references to `ui-design` or `ui-engineer` (**inline**)
-  - [ ] 2. GREEN: Repo must contain zero references to `ui-design` or `ui-engineer` (**clean-room**)
+- Phase 1 → Phase 2: creation depends on deletion completing (directories must be gone before new skill is created)
+- Phase 1 → Phase 3: reference cleanup depends on deletion (references point to deleted files)
+- Phase 4: independent (can run in parallel with Phase 1-3)
+- Phase 5: depends on all prior phases (final verification)
 
-- [ ] TDD-14: Verify both directories absent (SC-5)
-  - [ ] 1. RED: `skills/ui-design/` or `skills/ui-engineer/` must exist (**inline**)
-  - [ ] 2. GREEN: Neither `skills/ui-design/` nor `skills/ui-engineer/` exists (**clean-room**)
+## Dependency Ordering Contract
 
-- [ ] TDD-15: Verify `playwright-cli` skill exists with correct content (SC-5)
-  - [ ] 1. RED: `skills/playwright-cli/SKILL.md` must not exist or must lack frontmatter (**inline**)
-  - [ ] 2. GREEN: `skills/playwright-cli/SKILL.md` must exist with valid frontmatter, dispatch table, and provenance (**clean-room**)
+See `.opencode/.issues/1314/dependency-ordering-verification/ordering.yaml` for Z3-verified ordering.
 
-### Post-RED/green
+## SC-ID Mapping
 
-- [ ] 11. Final regression verification — all SCs satisfied (**clean-room**)
-- [ ] 12. Completeness gate — SC-5 fully satisfied; all SCs PASS (**inline**)
-
----
-
-## Post-All-Phases Sweep
-
-- [ ] 13. FINISHING CHECKLIST — git status clean, lint/typecheck from scratch (**clean-room**)
-- [ ] 14. PR CREATION — create PR via `github_create_pull_request`, extract `html_url` from response (**clean-room**)
-- [ ] 15. POST-MERGE CLEANUP — delete merged branches, close issues, sync dev (**clean-room**)
+| SC-ID | Phase | Concern | Evidence Type |
+|-------|-------|---------|---------------|
+| SC-1 | 1 (deletion) | Delete ui-design and ui-engineer directories | structural |
+| SC-2 | 2 (creation) | Create playwright-cli skill from upstream | behavioral |
+| SC-3 | 3 (reference-cleanup) | Remove deleted skill references | string |
+| SC-4 | 4 (gitignore) | Add .tools/ to .gitignore | structural |
+| SC-5 | 5 (verification) | Confirm zero references, directories absent | behavioral |

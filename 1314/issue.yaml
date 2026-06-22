@@ -1,4 +1,4 @@
-body: '> Full spec and plan artifacts: [`.issues/1314/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/1314/)
+body: '> Full spec and plan artifacts: [`.issues/1314/`](https://github.com/michael-conrad/.opencode/tree/issues-data/1314/)
 
 
   > **Local artifacts:** `.issues/1314/` — implementation plan, card catalogue, dependency
@@ -148,7 +148,7 @@ body: '> Full spec and plan artifacts: [`.issues/1314/`](https://github.com/mich
 
   This issue is an executive summary for human stakeholders.
 
-  The authoritative spec and plan artifacts are at [`.issues/1314/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/1314/).
+  The authoritative spec and plan artifacts are at [`.issues/1314/`](https://github.com/michael-conrad/.opencode/tree/issues-data/1314/).
 
   After creation, `local-issues sync 1314` MUST be run and the result committed to
   create the local `.issues/1314/` entry.
