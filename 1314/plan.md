@@ -381,8 +381,8 @@ See `.opencode/.issues/1314/dependency-ordering-verification/ordering.yaml` for 
 
 | SC-ID | Phase | Concern | Evidence Type |
 |-------|-------|---------|---------------|
-| SC-1 | 1 (deletion) | Delete ui-design and ui-engineer directories | structural |
+| SC-1 | 1 (deletion) | Delete ui-design and ui-engineer directories | behavioral + structural + string |
 | SC-2 | 2 (creation) | Create playwright-cli skill from upstream | behavioral |
 | SC-3 | 3 (reference-cleanup) | Remove deleted skill references | string |
-| SC-4 | 4 (gitignore) | Add .tools/ to .gitignore | structural |
-| SC-5 | 5 (verification) | Confirm zero references, directories absent | behavioral |
+| SC-4 | 4 (gitignore) | Add .tools/ to .gitignore | behavioral |
+| SC-5 | 5 (verification) | Confirm zero references, directories absent | behavioral + structural + string |
