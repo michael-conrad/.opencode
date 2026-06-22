@@ -873,6 +873,10 @@ Single issue = work-of-1. See `assemble-work`.
 See `verify-already-implemented` → Auto-Close Procedure.
 
 
+### [critical-rules-070] Issue Closure Outside Cleanup Workflow — agent MUST NOT close GitHub Issues through direct API calls
+The agent MUST NOT call `github_issue_write(method=update, state=closed)` or equivalent on any GitHub Issue outside the `git-workflow --task cleanup` workflow. The cleanup workflow is the sole authorized closure path, and it enforces PR merge verification, body-preservation safeguards, and parent/child ordering before closure. Issues created by the agent in a session MUST survive at least one session boundary before closure. See `git-workflow --task cleanup` for the authorized closure path. See `issue-operations/tasks/close.md` for the structured close workflow (only callable from within cleanup).
+
+
 ### [critical-rules-018] Sub-issue Linkage Verification — phase count mismatch
 See `approval-gate --task verify-authorization` Step 5.
 
@@ -2192,6 +2196,21 @@ rules:
     requires: []
     triggers: [verification-before-completion, implementation-pipeline, git-workflow]
     source: "000-critical-rules.md §critical-rules-069"
+
+  - id: critical-rules-070
+    tier: 2
+    title: "Issue Closure Outside Cleanup Workflow — agent MUST NOT close GitHub Issues through direct API calls"
+    conditions:
+      all:
+        - "issue_closure_attempted == true"
+        - "closure_path != 'git-workflow --task cleanup'"
+    actions:
+      - HALT
+      - REQUIRE_CLEANUP_WORKFLOW
+    conflicts_with: [critical-rules-013]
+    requires: []
+    triggers: [git-workflow, issue-operations]
+    source: "000-critical-rules.md §critical-rules-070"
 
   - id: critical-rules-066
     tier: 3
