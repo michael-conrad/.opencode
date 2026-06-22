@@ -484,7 +484,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     > **Local artifacts:** `.issues/{N}/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
     ```
 
-    The URL follows the pattern: `{github.html_url}/tree/issues-data/{N}/`
+    The URL follows the pattern: `{html_url}/{owner}/{repo}/tree/issues-data/{N}` where `{html_url}`, `{owner}`, and `{repo}` are resolved from the session-init repo entry whose `path` matches the issue's repo. See `.issues/AGENTS.md` for the canonical URL convention.
 
     Embed this blockquote at the TOP of the issue body (before the spec content), prepended when creating the issue body or updated after creation.
 
@@ -519,15 +519,15 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     **1. Spec Reference Blockquote (mandatory — top of body, before all other content)**
 
     ```
-    > Full spec and plan artifacts: {github.html_url}/{owner}/{repo}/tree/issues-data/.issues/{N}/
+    > Full spec and plan artifacts: {html_url}/{owner}/{repo}/tree/issues-data/{N}/
     ```
 
     **Construction rules (mandatory — pre-creation URL per URL Sourcing Rule 2):**
 
-    - [ ] Extract `github.html_url` (or `gitbucket.html_url`) from session-init — this is the platform-agnostic browser URL
-    - [ ] Extract `github.owner` and `github.repo` from session-init
-    - [ ] Construct the URL: `{github.html_url}/{owner}/{repo}/tree/issues-data/.issues/{N}/`
+    - [ ] Resolve `html_url`, `owner`, `repo` from the session-init `## Repo Information` entry whose `path` matches the issue's repo. The session-init section provides per-repo values — do NOT use hardcoded `github.html_url` or root repo values.
+    - [ ] Construct the URL: `{html_url}/{owner}/{repo}/tree/issues-data/{N}/`
     - [ ] **Character-match verification**: Confirm the constructed URL contains the exact `{owner}` and `{repo}` strings from session-init (character-for-character match, no typos)
+    - [ ] **Substitution verification**: After URL construction, verify `{html_url}` was substituted (not left as a literal placeholder). If `{html_url}` remains in the constructed URL, HALT with blocker — the placeholder was not resolved.
     - [ ] **Repo-awareness guard**: Confirm owner/repo matches the target issue's repository before URL construction. If the issue resides in a submodule repo with different owner/repo, use that repo's session-init values
     - [ ] All links MUST be full resolved URLs — no platform-specific shortcuts (`#NNN`, `owner/repo#NNN`)
 
