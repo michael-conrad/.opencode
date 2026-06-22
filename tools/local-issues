@@ -1582,6 +1582,131 @@ def cmd_sync(args: argparse.Namespace) -> None:
     print(yaml_dump({"sync": True, "repos": repos_info}))
 
 
+def _resolve_worktree_from_path(file_path: str) -> tuple[Path, str, str] | None:
+    """Resolve the correct repo worktree from a file path prefix.
+
+    Returns (repo_path, repo_name, relative_file_path) or None if no match.
+    """
+    abs_path = Path(file_path).resolve()
+    current = Path(os.getcwd()).resolve()
+
+    # Check .opencode/.issues/ prefix → .opencode repo
+    opencode_issues = current / ".opencode" / ".issues"
+    try:
+        abs_path.relative_to(opencode_issues)
+        opencode_repo = current / ".opencode"
+        if opencode_repo.is_dir():
+            rel = str(abs_path.relative_to(opencode_repo))
+            return (opencode_repo, ".opencode", rel)
+    except ValueError:
+        pass
+
+    # Check .issues/ prefix → root repo
+    root_issues = current / ".issues"
+    try:
+        abs_path.relative_to(root_issues)
+        rel = str(abs_path.relative_to(current))
+        return (current, current.name, rel)
+    except ValueError:
+        pass
+
+    return None
+
+
+def _sync_file_in_worktree(
+    repo_path: Path, rel_path: str, message: str | None
+) -> dict:
+    """Git add, commit, push a single file in the repo's issues worktree.
+
+    Returns dict with status, commit_sha, and file_url.
+    """
+    issues_dir = repo_path / ".issues"
+    if not (issues_dir / ".git").is_file():
+        return {"status": "no_worktree", "file": rel_path}
+
+    git_dir = str(issues_dir)
+
+    # git add
+    add = subprocess.run(
+        ["git", "-C", git_dir, "add", rel_path],
+        capture_output=True, text=True, timeout=15,
+    )
+    if add.returncode != 0:
+        return {"status": "add_failed", "stderr": add.stderr.strip(), "file": rel_path}
+
+    # git commit
+    msg = message or f"auto: sync {rel_path}"
+    commit = subprocess.run(
+        ["git", "-C", git_dir, "commit", "-m", msg, "--allow-empty"],
+        capture_output=True, text=True, timeout=15,
+    )
+    if commit.returncode != 0 and "nothing to commit" not in commit.stderr:
+        return {"status": "commit_failed", "stderr": commit.stderr.strip(), "file": rel_path}
+
+    # Extract commit SHA
+    sha_result = subprocess.run(
+        ["git", "-C", git_dir, "rev-parse", "HEAD"],
+        capture_output=True, text=True, timeout=15,
+    )
+    commit_sha = sha_result.stdout.strip() if sha_result.returncode == 0 else ""
+
+    # git push
+    push_result = None
+    remote_check = subprocess.run(
+        ["git", "-C", git_dir, "remote", "get-url", "origin"],
+        capture_output=True, text=True, timeout=15,
+    )
+    has_remote = remote_check.returncode == 0 and bool(remote_check.stdout.strip())
+    if has_remote:
+        push = subprocess.run(
+            ["git", "-C", git_dir, "push", "origin", "issues-data"],
+            capture_output=True, text=True, timeout=30,
+        )
+        if push.returncode != 0:
+            push_result = push.stderr.strip()
+
+    # Build file URL
+    owner = ""
+    repo_name = repo_path.name
+    remote_url = remote_check.stdout.strip() if has_remote else ""
+    if "github.com" in remote_url or "git@github.com" in remote_url:
+        # Extract owner from remote URL
+        import re as _re
+        m = _re.search(r"(?:github\.com[/:])([^/]+)/([^/.]+)", remote_url)
+        if m:
+            owner = m.group(1)
+            repo_name = m.group(2)
+    file_url = f"https://github.com/{owner}/{repo_name}/tree/issues-data/{rel_path}" if owner else ""
+
+    result: dict = {
+        "status": "ok" if not push_result else "push_failed",
+        "commit_sha": commit_sha,
+        "file_url": file_url,
+        "file": rel_path,
+    }
+    if push_result:
+        result["push_stderr"] = push_result
+    return result
+
+
+def cmd_sync_file(args: argparse.Namespace) -> None:
+    """Commit and push a single file in the correct repo's issues worktree."""
+    resolved = _resolve_worktree_from_path(args.file)
+    if resolved is None:
+        print(
+            f"Error: file path '{args.file}' does not match any known issues worktree "
+            f"(.issues/ or .opencode/.issues/)",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    repo_path, repo_name, rel_path = resolved
+    result = _sync_file_in_worktree(repo_path, rel_path, args.message)
+    result["repo"] = repo_name
+    print(yaml_dump(result))
+    if result.get("status") not in ("ok", "push_failed"):
+        sys.exit(1)
+
+
 def _add_create_parser(subparsers: argparse._SubParsersAction) -> None:
     p = subparsers.add_parser(
         "create",
@@ -1717,6 +1842,15 @@ def _add_init_parser(subparsers: argparse._SubParsersAction) -> None:
     )
 
 
+def _add_sync_file_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser(
+        "sync-file",
+        help="Commit and push a single file in the correct repo's issues worktree. Flags: --file, --message",
+    )
+    p.add_argument("--file", type=str, required=True, help="Path to the file to sync")
+    p.add_argument("--message", type=str, default=None, help="Commit message (auto-generated if omitted)")
+
+
 def _add_sync_parser(subparsers: argparse._SubParsersAction) -> None:
     subparsers.add_parser(
         "sync", help="Commit pending changes, pull-rebase, and push for all repos"
@@ -1746,6 +1880,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_promote_parser(sub)
     _add_init_parser(sub)
     _add_sync_parser(sub)
+    _add_sync_file_parser(sub)
 
     return parser
 
@@ -1816,6 +1951,7 @@ def main() -> None:
         "promote": cmd_promote,
         "init": cmd_init,
         "sync": cmd_sync,
+        "sync-file": cmd_sync_file,
     }
     command_map[args.command](args)
 
