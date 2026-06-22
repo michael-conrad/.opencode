@@ -1,0 +1,105 @@
+# SC-ID Traceability Summary — Issue 1321
+# Generated: 2026-06-22T13:51:33Z
+# Source spec: michael-conrad/.opencode#1321
+# Source plan: .opencode/.issues/1321/plan.md
+
+sc_summary:
+  spec_url: "https://github.com/michael-conrad/.opencode/issues/1321"
+  plan_path: ".opencode/.issues/1321/plan.md"
+  total_scs: 7
+
+scs:
+  - id: SC-1
+    title: "Step 7r URL pattern uses {html_url}/{owner}/{repo}/tree/issues-data/{N}"
+    evidence_type: string
+    verification_gate:
+      - verification-enforcement (pre-RED common, Phase 1)
+      - completeness-gate (Phase 1 post-RED/green)
+      - adversarial-audit (Phase 1 post-RED/green)
+      - regression-check (Phase 1 post-RED/green)
+    plan_phase: 1
+    plan_phase_name: "Fix URL Patterns in spec-creation/tasks/write.md"
+    plan_items:
+      - "TDD-1: Fix Step 7r URL pattern"
+    verification_method: "grep for tree/issues-data/.issues/ absent; grep for {html_url} present; grep for github.html_url absent from URL construction lines"
+
+  - id: SC-2
+    title: "Step 6.8 URL pattern matches Step 7r (both use {html_url}/{owner}/{repo}/tree/issues-data/{N})"
+    evidence_type: string
+    verification_gate:
+      - verification-enforcement (pre-RED common, Phase 1)
+      - completeness-gate (Phase 1 post-RED/green)
+      - adversarial-audit (Phase 1 post-RED/green)
+      - regression-check (Phase 1 post-RED/green)
+    plan_phase: 1
+    plan_phase_name: "Fix URL Patterns in spec-creation/tasks/write.md"
+    plan_items:
+      - "TDD-2: Fix Step 6.8 URL pattern to match Step 7r"
+    verification_method: "grep for {html_url} in both Step 6.8 and Step 7r; verify no .issues/ prefix in either"
+
+  - id: SC-3
+    title: "URL construction includes per-repo resolution: html_url, owner, repo from session-init repo entry"
+    evidence_type: string
+    verification_gate:
+      - verification-enforcement (pre-RED common, Phase 1)
+      - completeness-gate (Phase 1 post-RED/green)
+      - adversarial-audit (Phase 1 post-RED/green)
+    plan_phase: 1
+    plan_phase_name: "Fix URL Patterns in spec-creation/tasks/write.md"
+    plan_items:
+      - "TDD-3: Add per-repo resolution rule"
+    verification_method: "grep for session-init or Repo Information in URL construction instructions; grep for per-repo resolution rule"
+
+  - id: SC-4
+    title: "Only one .issues/AGENTS.md defines canonical directory layout; the other references it"
+    evidence_type: string
+    verification_gate:
+      - verification-enforcement (pre-RED common, Phase 2)
+      - completeness-gate (Phase 2 post-RED/green)
+      - adversarial-audit (Phase 2 post-RED/green)
+    plan_phase: 2
+    plan_phase_name: "Reconcile .issues/AGENTS.md Directory Layouts"
+    plan_items:
+      - "TDD-5: Make .opencode/.issues/AGENTS.md canonical with flat layout"
+      - "TDD-6: Update .issues/AGENTS.md to reference canonical"
+    verification_method: "grep for canonical or see cross-reference in the non-canonical AGENTS.md"
+
+  - id: SC-5
+    title: "local-issues sync-file exists and handles commit+push in correct worktree"
+    evidence_type: behavioral
+    verification_gate:
+      - verification-enforcement (pre-RED common, Phase 3)
+      - completeness-gate (Phase 3 post-RED/green)
+      - adversarial-audit (Phase 3 post-RED/green)
+    plan_phase: 3
+    plan_phase_name: "Add local-issues sync-file Subcommand"
+    plan_items:
+      - "TDD-7: Add local-issues sync-file subcommand"
+    verification_method: "opencode-cli run -> agent creates plan file -> stderr shows local-issues sync-file call -> file appears on correct repo's issues-data branch"
+
+  - id: SC-6
+    title: "Plan-creation workflow includes repo-routing step using session-init repo resolution"
+    evidence_type: string
+    verification_gate:
+      - verification-enforcement (pre-RED common, Phase 4)
+      - completeness-gate (Phase 4 post-RED/green)
+      - adversarial-audit (Phase 4 post-RED/green)
+    plan_phase: 4
+    plan_phase_name: "Add Repo-Routing Rule to Writing-Plans"
+    plan_items:
+      - "TDD-8: Add repo-routing rule to writing-plans/tasks/write.md"
+      - "TDD-9: Add repo-routing to writing-plans/SKILL.md Operating Protocol"
+    verification_method: "grep for repo-routing rule in writing-plans/tasks/write.md; grep for session-init repo resolution"
+
+  - id: SC-7
+    title: "Constructed URL resolves to valid page (not 404) for any platform"
+    evidence_type: behavioral
+    verification_gate:
+      - verification-enforcement (pre-RED common, Phase 1)
+      - completeness-gate (Phase 1 post-RED/green)
+      - adversarial-audit (Phase 1 post-RED/green)
+    plan_phase: 1
+    plan_phase_name: "Fix URL Patterns in spec-creation/tasks/write.md"
+    plan_items:
+      - "TDD-4: URL resolves to valid page"
+    verification_method: "webfetch on constructed URL returns 200, not 404; test with both GitHub and GitBucket URL patterns"
