@@ -1593,20 +1593,18 @@ def _resolve_worktree_from_path(file_path: str) -> tuple[Path, str, str] | None:
     # Check .opencode/.issues/ prefix → .opencode repo
     opencode_issues = current / ".opencode" / ".issues"
     try:
-        abs_path.relative_to(opencode_issues)
+        rel_to_issues = abs_path.relative_to(opencode_issues)
         opencode_repo = current / ".opencode"
         if opencode_repo.is_dir():
-            rel = str(abs_path.relative_to(opencode_repo))
-            return (opencode_repo, ".opencode", rel)
+            return (opencode_repo, ".opencode", str(rel_to_issues))
     except ValueError:
         pass
 
     # Check .issues/ prefix → root repo
     root_issues = current / ".issues"
     try:
-        abs_path.relative_to(root_issues)
-        rel = str(abs_path.relative_to(current))
-        return (current, current.name, rel)
+        rel_to_issues = abs_path.relative_to(root_issues)
+        return (current, current.name, str(rel_to_issues))
     except ValueError:
         pass
 
@@ -1672,7 +1670,7 @@ def _sync_file_in_worktree(
     if "github.com" in remote_url or "git@github.com" in remote_url:
         # Extract owner from remote URL
         import re as _re
-        m = _re.search(r"(?:github\.com[/:])([^/]+)/([^/.]+)", remote_url)
+        m = _re.search(r"(?:github\.com[/:])([^/]+)/([^/]+?)(?:\.git)?$", remote_url)
         if m:
             owner = m.group(1)
             repo_name = m.group(2)
