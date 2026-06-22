@@ -144,7 +144,6 @@ SCENARIOS["checklist-chat-output-format"]="Does .opencode/skills/finishing-a-dev
 SCENARIOS["dispatch-checkpoint-live-verification"]="Does .opencode/skills/approval-gate/SKILL.md contain an evidence requirement that mandates tool-call artifact evidence for each dispatch chain verification gate?"
 SCENARIOS["spec-creation-red-gate"]="Does .opencode/skills/spec-creation/tasks/write.md contain a Step 0.5 RED Gate requiring enforcement test assertions verified in RED state before spec assembly?"
 SCENARIOS["analyze-and-spec-red-gate"]="Does .opencode/skills/issue-review/tasks/analyze-and-spec.md contain a Step 4.1 RED Gate requiring enforcement test assertions verified in RED state before fix spec sub-issue creation?"
-SCENARIOS["ui-engineer-red-gate"]="Does .opencode/skills/ui-engineer/tasks/implement.md contain a Step 0.5 RED Gate requiring enforcement test assertions verified in RED state before UI implementation?"
 SCENARIOS["gap-fill-precedence-principle"]="Does .opencode/skills/approval-gate/tasks/verify-authorization.md contain a Gap-Fill Precedence Principle section stating that when authorization_scope gap-fill actions cover a missing artifact requirement it is a gap-fill trigger not a blocking gate?"
 SCENARIOS["gap-fill-precedence-for-pr"]="Does .opencode/skills/approval-gate/tasks/verify-authorization.md Gap-Fill Precedence Principle section explicitly state that for_pr scope with auto_create_spec means a bug report missing fix spec is a gap-fill trigger not a blocking gate?"
 SCENARIOS["gap-fill-precedence-standard-scope"]="Does .opencode/skills/approval-gate/tasks/verify-authorization.md Gap-Fill Precedence Principle section state that standard scope without auto_create_spec means a bug report missing fix spec remains a blocking gate?"
@@ -318,7 +317,6 @@ SCENARIO_TAGS["checklist-chat-output-format"]="content-verification verification
 SCENARIO_TAGS["dispatch-checkpoint-live-verification"]="content-verification approval"
 SCENARIO_TAGS["spec-creation-red-gate"]="content-verification spec-creation"
 SCENARIO_TAGS["analyze-and-spec-red-gate"]="content-verification issue-review"
-SCENARIO_TAGS["ui-engineer-red-gate"]="content-verification ui-engineer"
 SCENARIO_TAGS["gap-fill-precedence-principle"]="content-verification approval"
 SCENARIO_TAGS["gap-fill-precedence-for-pr"]="content-verification approval"
 SCENARIO_TAGS["gap-fill-precedence-standard-scope"]="content-verification approval"
@@ -524,7 +522,6 @@ FILE_SCENARIO_MAP[".opencode/skills/sre-runbook/"]="all-body-modification-safegu
 FILE_SCENARIO_MAP[".opencode/skills/issue-operations/"]="sub-issue-structure url-sourcing-issue-operations close-body-preservation"
 FILE_SCENARIO_MAP[".opencode/skills/pr-creation-workflow/"]="pr-creation-exclusion pre-pr-checklist-commit-count"
 FILE_SCENARIO_MAP[".opencode/skills/issue-review/"]="analyze-and-spec-red-gate"
-FILE_SCENARIO_MAP[".opencode/skills/ui-engineer/"]="ui-engineer-red-gate"
 FILE_SCENARIO_MAP[".opencode/skills/session-enforcement.ts"]="identity-echo-validation secret-exfiltration-violation read-secrets-in-output dev-edit-guard-plugin dev-edit-guard-pair-mode"
 FILE_SCENARIO_MAP[".opencode/plugins/session-enforcement.ts"]="identity-echo-validation secret-exfiltration-violation dev-edit-guard-plugin dev-edit-guard-pair-mode sub-agent-session-detection sub-agent-injection-gating sub-agent-operational-guards-unconditional"
 FILE_SCENARIO_MAP[".opencode/tools/session-init"]="identity-echo-validation wrong-api-routing-subfolder-mapping session-init-tools-section"
@@ -737,7 +734,6 @@ EXPECTED_SKILLS["checklist-chat-output-format"]=""
 EXPECTED_SKILLS["dispatch-checkpoint-live-verification"]=""
 EXPECTED_SKILLS["spec-creation-red-gate"]=""
 EXPECTED_SKILLS["analyze-and-spec-red-gate"]=""
-EXPECTED_SKILLS["ui-engineer-red-gate"]=""
 EXPECTED_SKILLS["gap-fill-precedence-principle"]=""
 EXPECTED_SKILLS["gap-fill-precedence-for-pr"]=""
 EXPECTED_SKILLS["gap-fill-precedence-standard-scope"]=""
@@ -1853,18 +1849,7 @@ else
     OVERALL_PASS=false
 fi
 
-# ui-engineer RED Gate in implement.md
-UI_IMPL_FILE="$PROJECT_DIR/.opencode/skills/ui-engineer/tasks/implement.md"
-UI_ENGINEER_RED=$(grep -c "Step 0.5.*RED Gate\|RED Gate.*UI.*Enforcement Test\|enforcement test assertions.*RED state.*before.*UI\|test-ui.*mandatory prerequisite\|test-ui.*MANDATORY prerequisite" "$UI_IMPL_FILE" 2>/dev/null || echo "0")
-if [ "$UI_ENGINEER_RED" -ge 1 ]; then
-    echo "  ui-engineer/implement RED Gate: FOUND"
-    echo "- **ui-engineer/implement RED Gate:** FOUND" >> "$RESULTS_FILE"
-else
-    echo "  ui-engineer/implement RED Gate: MISSING"
-    echo "- **ui-engineer/implement RED Gate:** MISSING" >> "$RESULTS_FILE"
-    GUIDELINE_PASS=false
-    OVERALL_PASS=false
-fi
+
 
 echo ""
 echo "" >> "$RESULTS_FILE"

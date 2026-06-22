@@ -2312,82 +2312,6 @@
       "raw_conditions": {}
     },
     {
-      "id": "ui-design-001",
-      "title": "Design artifacts MUST be verified against spec requirements",
-      "conditions_all": [
-        "design_artifact_produced == true",
-        "spec_requirements_verified == false"
-      ],
-      "conditions_any": [],
-      "actions": [
-        "INVOKE(review)"
-      ],
-      "conflicts_with": [],
-      "requires": [],
-      "triggers": [
-        "verification-before-completion"
-      ],
-      "source": "ui-design/SKILL.md \u00a7Operating Protocol",
-      "raw_conditions": {}
-    },
-    {
-      "id": "ui-design-002",
-      "title": "Design artifacts MUST be toolkit-agnostic \u2014 no framework-specific markup",
-      "conditions_all": [
-        "design_artifact_produced == true",
-        "contains_framework_specific_markup == true"
-      ],
-      "conditions_any": [],
-      "actions": [
-        "REMOVE_FRAMEWORK_MARKUP"
-      ],
-      "conflicts_with": [],
-      "requires": [],
-      "triggers": [],
-      "source": "ui-design/SKILL.md \u00a7Operating Protocol",
-      "raw_conditions": {}
-    },
-    {
-      "id": "ui-engineer-001",
-      "title": "Implementation MUST match design artifacts from ui-design",
-      "conditions_all": [
-        "implementation_produced == true",
-        "interaction_spec_requirements_satisfied == false"
-      ],
-      "conditions_any": [],
-      "actions": [
-        "HALT",
-        "INVOKE(validate-impl)"
-      ],
-      "conflicts_with": [],
-      "requires": [],
-      "triggers": [
-        "verification-before-completion"
-      ],
-      "source": "ui-engineer/SKILL.md \u00a7Operating Protocol",
-      "raw_conditions": {}
-    },
-    {
-      "id": "ui-engineer-002",
-      "title": "Interaction spec is REQUIRED input \u2014 cannot implement without it",
-      "conditions_all": [
-        "implementation_requested == true",
-        "interaction_spec_available == false"
-      ],
-      "conditions_any": [],
-      "actions": [
-        "HALT",
-        "REPORT(\"interaction-spec.yaml required from ui-design\")"
-      ],
-      "conflicts_with": [],
-      "requires": [
-        "ui-design"
-      ],
-      "triggers": [],
-      "source": "ui-engineer/SKILL.md \u00a7Design Artifact Consumption",
-      "raw_conditions": {}
-    },
-    {
       "id": "worktree-001",
       "title": "Worktree MUST be created before file modification when WORKTREE_REQUIRED is set",
       "conditions_all": [
@@ -4645,81 +4569,6 @@
       "source": "test-driven-development/SKILL.md"
     },
     {
-      "id": "wireframe",
-      "skill": "ui-design",
-      "preconditions": [
-        "spec_or_context_loaded == true"
-      ],
-      "postconditions": [
-        "svg_wireframe_produced == true",
-        "framework_agnostic == true"
-      ],
-      "mandatory": false,
-      "bypass_violation": "wireframe contains framework-specific markup",
-      "source": "ui-design/SKILL.md"
-    },
-    {
-      "id": "mockup",
-      "skill": "ui-design",
-      "preconditions": [
-        "spec_or_context_loaded == true"
-      ],
-      "postconditions": [
-        "html_css_mockup_produced == true",
-        "framework_agnostic == true"
-      ],
-      "mandatory": false,
-      "bypass_violation": "mockup contains framework-specific markup",
-      "source": "ui-design/SKILL.md"
-    },
-    {
-      "id": "interaction-spec",
-      "skill": "ui-design",
-      "preconditions": [
-        "spec_or_context_loaded == true"
-      ],
-      "postconditions": [
-        "yaml_interaction_spec_produced == true",
-        "navigation_routes_defined == true",
-        "component_states_defined == true",
-        "accessibility_requirements_defined == true"
-      ],
-      "mandatory": false,
-      "bypass_violation": "interaction spec missing required sections",
-      "source": "ui-design/SKILL.md"
-    },
-    {
-      "id": "implement",
-      "skill": "ui-engineer",
-      "preconditions": [
-        "interaction_spec_available == true",
-        "framework_configured == true"
-      ],
-      "postconditions": [
-        "framework_specific_code_generated == true",
-        "interaction_spec_requirements_satisfied == true",
-        "accessibility_requirements_implemented == true"
-      ],
-      "mandatory": true,
-      "bypass_violation": "implementation does not satisfy interaction spec",
-      "source": "ui-engineer/SKILL.md"
-    },
-    {
-      "id": "validate-impl",
-      "skill": "ui-engineer",
-      "preconditions": [
-        "implementation_produced == true"
-      ],
-      "postconditions": [
-        "all_routes_present == true",
-        "all_component_states_present == true",
-        "all_accessibility_reqs_present == true"
-      ],
-      "mandatory": true,
-      "bypass_violation": "implementation fails validation against interaction spec",
-      "source": "ui-engineer/SKILL.md"
-    },
-    {
       "id": "create-worktree",
       "skill": "using-git-worktrees",
       "preconditions": [
@@ -6316,7 +6165,7 @@
     }
   ],
   "files_scanned": 297,
-  "blocks_found": 46,
+  "blocks_found": 476,
   "warnings": [
     "changelog-generator/SKILL.md: gate missing required fields {'condition'}: changelog-source-gate",
     "code-size-enforcement/SKILL.md: gate missing required fields {'condition'}: function-size-gate",
@@ -6330,9 +6179,6 @@
     "sre-runbook/reference/proxmox-cluster-quorum-loss.md: schema_version '' != '1.0' or '2.0', skipping",
     "sre-runbook/reference/proxmox-node-failure-recovery.md: schema_version '' != '1.0' or '2.0', skipping",
     "test-driven-development/SKILL.md: gate missing required fields {'condition'}: red-before-green",
-    "ui-design/SKILL.md: gate missing required fields {'condition'}: spec-verification-gate",
-    "ui-engineer/SKILL.md: gate missing required fields {'condition'}: interaction-spec-gate",
-    "ui-engineer/SKILL.md: gate missing required fields {'condition'}: impl-verification-gate",
     "using-git-worktrees/SKILL.md: gate missing required fields {'condition'}: worktree-path-gate",
     "using-git-worktrees/SKILL.md: gate missing required fields {'condition'}: toplevel-verification-gate"
   ]
