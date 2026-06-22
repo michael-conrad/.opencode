@@ -262,7 +262,7 @@ The body must contain the following 6 sections in order:
    ## AI Agent Instructions
 
    This issue is an executive summary for human stakeholders.
-   The authoritative spec and plan artifacts are at {github.html_url}/{owner}/{repo}/tree/issues-data/.issues/{N}/.
+   The authoritative spec and plan artifacts are at {html_url}/{owner}/{repo}/tree/issues-data/{N}/.
    AI agents MUST read the local spec/plan files for implementation
    and MUST NOT base implementation on this summary.
    ```
