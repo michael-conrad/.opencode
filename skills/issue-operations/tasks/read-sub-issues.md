@@ -40,7 +40,9 @@ github_issue_read(
 
 **GitBucket platform:**
 ```bash
-./.opencode/tools/gitbucket-api get-sub-issues <github.owner> <github.repo> <issue-number>
+# Sub-issues are not supported by the GitBucket API.
+# Use comment-based linking instead. See link-sub-issue.md for the fallback pattern.
+echo "Sub-issues not supported by GitBucket API. Use comment-based linking."
 ```
 
 **Local platform:**

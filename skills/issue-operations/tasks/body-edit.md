@@ -172,7 +172,7 @@ github_issue_write(
 
 **GitBucket platform (sub-skill implementation):**
 ```bash
-./.opencode/tools/gitbucket-api update-issue <github.owner> <github.repo> <issue-number> --body "<remote_md_body_content>"
+gb issue edit <issue-number> -R <github.owner>/<github.repo> --body "<remote_md_body_content>"
 ```
 
 - [ ] 4. Return result contract:

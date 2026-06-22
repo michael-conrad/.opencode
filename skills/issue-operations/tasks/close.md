@@ -58,7 +58,8 @@ github_issue_write(
 ```bash
 # PATCH /issues/:number returns 404 on GitBucket
 # Post closure comment instead
-./.opencode/tools/gitbucket-api add-comment <github.owner> <github.repo> <issue-number> "Closing: PR merged and implementation verified."
+gb issue close <issue-number> -R <github.owner>/<github.repo>
+gb issue comment <issue-number> -b "Closing: PR merged and implementation verified." -R <github.owner>/<github.repo>
 ```
 
 **Local platform (sub-skill implementation):**

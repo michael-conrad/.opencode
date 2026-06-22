@@ -104,7 +104,6 @@ check_description_flag() {
 ENTRY_POINTS=(
     guidelines memory md py jupyter help file-exists
     schema-version jupyter-start jupyter-stop symbolic session-init
-    gitbucket-api
 )
 
 for tool in "${ENTRY_POINTS[@]}"; do

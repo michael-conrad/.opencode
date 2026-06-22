@@ -25,13 +25,13 @@ Execute a 6-phase serial chain to scan for merged PRs, verify each merge, close 
 ## Phase 1: Scan for Merged PRs
 
 - [ ] Build repo list from session-init values plus filesystem glob scan: `ls -d .git/ */.git/ */.git/`
-- [ ] For each repo, query merged PRs via the platform-appropriate API (use `github.platform` from session-init: `github` → `github_list_pull_requests` filtered by `merged_at`, `gitbucket` → `gitbucket-api list-pull-requests` filtered by `merged`, `local` → no PRs exist, skip)
+- [ ] For each repo, query merged PRs via the platform-appropriate API (use `github.platform` from session-init: `github` → `github_list_pull_requests` filtered by `merged_at`, `gitbucket` → `gb pr list` filtered by `merged`, `local` → no PRs exist, skip)
 - [ ] Report all merged PRs found with PR number, title, branch, and merged_at timestamp
 - [ ] If no merged PRs found: report and HALT
 
 ## Phase 2: Verify Each Merge
 
-- [ ] For each merged PR, confirm merge state via the platform-appropriate API (use `github.platform` from session-init: `github` → `github_pull_request_read(method=get)` check `merged_at`, `gitbucket` → `gitbucket-api get-pull-request` check `merged`, `local` → N/A)
+- [ ] For each merged PR, confirm merge state via the platform-appropriate API (use `github.platform` from session-init: `github` → `github_pull_request_read(method=get)` check `merged_at`, `gitbucket` → `gb pr view` check `merged`, `local` → N/A)
 - [ ] Verify the merge commit exists in local dev history: `git log --oneline dev | grep <merge_sha>`
 - [ ] Report PASS/FAIL per PR with evidence artifact
 

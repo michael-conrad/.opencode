@@ -116,6 +116,45 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 
 ---
 
+## `gb` CLI Tool — GitBucket Operations
+
+This repo uses the [`gb` CLI](https://github.com/Masahiro-Obuchi/gitbucket-cli-rs) (v0.6.1) for all GitBucket API operations. The `gb` tool replaces the previous bespoke `gitbucket-api` Python tool.
+
+### Install by Platform
+
+| Platform | Download URL | Install Commands |
+|----------|-------------|------------------|
+| Linux x86_64 | `https://github.com/Masahiro-Obuchi/gitbucket-cli-rs/releases/download/v0.6.1/gb-v0.6.1-x86_64-unknown-linux-gnu.tar.gz` | `curl -L <url> \| tar xz && sudo mv gb /usr/local/bin/` |
+| macOS x86_64 | `https://github.com/Masahiro-Obuchi/gitbucket-cli-rs/releases/download/v0.6.1/gb-v0.6.1-x86_64-apple-darwin.tar.gz` | `curl -L <url> \| tar xz && sudo mv gb /usr/local/bin/` |
+| macOS arm64 | `https://github.com/Masahiro-Obuchi/gitbucket-cli-rs/releases/download/v0.6.1/gb-v0.6.1-aarch64-apple-darwin.tar.gz` | `curl -L <url> \| tar xz && sudo mv gb /usr/local/bin/` |
+| Windows x86_64 | `https://github.com/Masahiro-Obuchi/gitbucket-cli-rs/releases/download/v0.6.1/gb-v0.6.1-x86_64-pc-windows-msvc.zip` | Expand archive and add to PATH |
+
+### Version Pinning
+
+Pin to `v0.6.1`. Verify with `gb --version` before use. The version check is enforced at skill entry — agents MUST NOT proceed if `gb --version` reports `< 0.6.1`.
+
+### TOOL_MISSING Detection
+
+When `gb` is not found, skill task files return `BLOCKED` with `reason: TOOL_MISSING`. The retry pattern:
+
+```bash
+if ! command -v gb &>/dev/null; then
+  echo "TOOL_MISSING: gb CLI not found. Install from https://github.com/Masahiro-Obuchi/gitbucket-cli-rs"
+  return 1
+fi
+```
+
+### Environment Variables
+
+| Variable | Purpose |
+|----------|---------|
+| `GB_TOKEN` | GitBucket personal access token |
+| `GB_HOST` | GitBucket host URL |
+| `GB_USER` | GitBucket username (web fallback) |
+| `GB_PASSWORD` | GitBucket password (web fallback) |
+
+---
+
 ## Project Structure
 
 - `src/`: Application source code

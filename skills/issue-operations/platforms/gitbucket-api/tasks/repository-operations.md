@@ -2,125 +2,124 @@
 
 ## Overview
 
-Repository management operations using the `gitbucket-api` CLI tool at `.opencode/tools/gitbucket-api`.
+Repository management operations using the `gb` CLI tool.
 
-**Primary Tool: CLI tool at `.opencode/tools/gitbucket-api`**
+**Primary Tool: `gb` CLI**
 
-**CRITICAL: The `gitbucket_*` MCP tools have been REMOVED. The Python import pattern has been REPLACED by the CLI tool. Use `./.opencode/tools/gitbucket-api <command>` for all operations.**
+**CRITICAL: The old `gitbucket-api` Python tool has been REMOVED. Use `gb` for all operations.**
+
+## TOOL_MISSING Detection
+
+```bash
+if ! command -v gb &>/dev/null; then
+  echo "TOOL_MISSING: gb CLI not found"
+  return 1
+fi
+```
 
 ## Basic Operations
 
 ### Get Repository
 
 ```bash
-./.opencode/tools/gitbucket-api repo org project
+gb repo view org/project
 ```
 
 ### List User's Repositories
 
 ```bash
 # List own repositories
-./.opencode/tools/gitbucket-api repos
+gb repo list
 
 # List repositories for a specific user
-./.opencode/tools/gitbucket-api repos --user username
+gb repo list username
 ```
 
 ### List Branches
 
 ```bash
-./.opencode/tools/gitbucket-api branches org project
+gb api repos/org/project/branches -R org/project
 ```
 
 ### List Pull Requests
 
 ```bash
-./.opencode/tools/gitbucket-api prs org project --state open
+gb pr list -R org/project --state open
 ```
 
 ### Get Pull Request
 
 ```bash
-# List PRs and filter by number
-./.opencode/tools/gitbucket-api prs org project --state all | jq '.[] | select(.number == 42)'
+gb pr view 42 -R org/project
 ```
 
 ## Chained Operations
 
 ### Workflow 1: Check Branch Status Before Creating PR
 
-**Scenario:** Verify branch exists, check for open PRs, create PR if none exists.
-
 ```bash
 # Step 1: Check if branch exists
-./.opencode/tools/gitbucket-api branches org project
+gb api repos/org/project/branches -R org/project
 
 # Step 2: Check for existing PRs for this branch
-./.opencode/tools/gitbucket-api prs org project --state open
+gb pr list -R org/project --state open
 
 # Step 3: Create new PR (if no existing PR found)
-./.opencode/tools/gitbucket-api create-pr org project "Feature: feature/oauth2" feature/oauth2 dev --body "## Description\n\nImplements OAuth2 authentication."
+gb pr create -t "Feature: feature/oauth2" --head feature/oauth2 -B dev -R org/project --body "## Description\n\nImplements OAuth2 authentication."
 ```
 
 ### Workflow 2: Find Stale Branches
 
-**Scenario:** Find branches that haven't been updated recently.
-
 ```bash
 # List all branches
-./.opencode/tools/gitbucket-api branches org project
+gb api repos/org/project/branches -R org/project
 # Then filter out protected branches (main, master, dev) and identify stale ones
 ```
 
 ### Workflow 3: Repository Health Check
 
-**Scenario:** Check repository for CI compliance, labels, milestones.
-
 ```bash
 # Check for required labels
-./.opencode/tools/gitbucket-api labels org project
+gb label list -R org/project
 
 # Check for open PRs
-./.opencode/tools/gitbucket-api prs org project --state open
+gb pr list -R org/project --state open
 
 # Get repository info
-./.opencode/tools/gitbucket-api repo org project
+gb repo view org/project
 
 # Check branches
-./.opencode/tools/gitbucket-api branches org project
+gb api repos/org/project/branches -R org/project
 ```
 
 ### Workflow 4: Sync Fork with Upstream
 
-**Scenario:** Check if fork is behind upstream and needs sync.
-
 ```bash
 # Get repository info
-./.opencode/tools/gitbucket-api repo org fork-repo
+gb repo view org/fork-repo
 # Check if it's a fork and get upstream info from response
 ```
 
 ### Workflow 5: Create Release from Milestone
 
-**Scenario:** Create release when milestone is completed.
-
 ```bash
-# Note: Release/milestone operations require direct Python API usage
-# Contact maintainers for milestone/release CLI commands if needed
+# Note: Release/milestone operations require gb api passthrough
+# gb api repos/org/project/releases -X POST --input body.json
 ```
 
 ## Complete API Reference
 
-| Operation | CLI Command | Returns |
+| Operation | gb Command | Returns |
 |-----------|------------|---------|
-| Get repository | `gitbucket-api repo <owner> <repo>` | JSON |
-| List own repos | `gitbucket-api repos` | JSON array |
-| List user repos | `gitbucket-api repos --user <user>` | JSON array |
-| List branches | `gitbucket-api branches <owner> <repo>` | JSON array |
-| List PRs | `gitbucket-api prs <owner> <repo> [--state ...] [--head ...]` | JSON array |
-| Create PR | `gitbucket-api create-pr <owner> <repo> <title> <head> <base> [--body ...]` | JSON |
+| Get repository | `gb repo view O/R` | JSON |
+| List own repos | `gb repo list` | JSON array |
+| List user repos | `gb repo list <user>` | JSON array |
+| List branches | `gb api repos/O/R/branches -R O/R` | JSON array |
+| List PRs | `gb pr list -R O/R [--state ...]` | JSON array |
+| Get PR | `gb pr view <N> -R O/R` | JSON |
+| Create PR | `gb pr create -t "<title>" --head <b> -B <b> -R O/R [--body ...]` | JSON |
 
 ## Source Code
 
-- `.opencode/tools/gitbucket-api` - CLI entry point
-- `.opencode/skills/issue-operations/platforms/gitbucket-api/tools/impl/` - Python implementation
+- `gb` CLI — install from https://github.com/Masahiro-Obuchi/gitbucket-cli-rs
+- Environment: `GB_TOKEN`, `GB_HOST`, `GB_REPO`

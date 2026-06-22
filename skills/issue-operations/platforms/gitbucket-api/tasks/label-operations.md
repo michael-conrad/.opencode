@@ -2,7 +2,16 @@
 
 ## Overview
 
-GitBucket label operations using the `gitbucket-api` CLI tool at `.opencode/tools/gitbucket-api`.
+GitBucket label operations using the `gb` CLI tool.
+
+## TOOL_MISSING Detection
+
+```bash
+if ! command -v gb &>/dev/null; then
+  echo "TOOL_MISSING: gb CLI not found"
+  return 1
+fi
+```
 
 ## Add Labels to Issue
 
@@ -10,15 +19,15 @@ GitBucket label operations using the `gitbucket-api` CLI tool at `.opencode/tool
 
 The GitBucket API endpoint `POST /repos/{owner}/{repo}/issues/{number}/labels` returns HTTP 200 with an empty array but does NOT add labels to the issue.
 
-**Workaround:** Add labels during issue creation with `create-issue --labels`.
+**Workaround:** Add labels during issue creation with `gb issue create --label`.
 
 ### CLI (Only Option)
 
 ```bash
-# ❌ BROKEN: No CLI command for post-creation label addition
+# ❌ BROKEN: gb issue edit --add-label may not apply via REST
 
 # ✅ WORKAROUND: Add labels during issue creation
-./.opencode/tools/gitbucket-api create-issue org project "Bug report" --body "Description" --labels bug,enhancement
+gb issue create -t "Bug report" -R org/project --body "Description" --label bug,enhancement
 ```
 
 ## Replace All Labels
@@ -27,63 +36,80 @@ The GitBucket API endpoint `POST /repos/{owner}/{repo}/issues/{number}/labels` r
 
 The GitBucket API endpoint `PUT /repos/{owner}/{repo}/issues/{number}/labels` returns HTTP 200 with an empty array but does NOT set labels on the issue.
 
-**Workaround:** Add labels during issue creation with `create-issue --labels`.
+**Workaround:** Add labels during issue creation with `gb issue create --label`.
 
 ### CLI (Only Option)
 
 ```bash
-# ❌ BROKEN: No CLI command for label replacement
+# ❌ BROKEN: No gb command for label replacement
 
 # ✅ WORKAROUND: Add labels during issue creation
-./.opencode/tools/gitbucket-api create-issue org project "Bug report" --body "Description" --labels priority,review
+gb issue create -t "Bug report" -R org/project --body "Description" --label priority,review
 ```
 
 ## Remove Specific Label
 
-### Python API (Only Option — not available via CLI)
-
-Post-creation label removal is available via the Python API but not exposed as a CLI command.
+**⚠️ BROKEN: No gb command for post-creation label removal.**
 
 ## Remove All Labels
 
-### Python API (Only Option — not available via CLI)
-
-All-labels removal is available via the Python API but not exposed as a CLI command.
+**⚠️ BROKEN: No gb command for post-creation label removal.**
 
 ## Repository Labels
 
 ### List Labels
 
 ```bash
-./.opencode/tools/gitbucket-api labels org project
+gb label list -R org/project
 ```
 
 ### Create Label
 
-Label creation happens automatically when labels are specified during `create-issue`. For explicit label creation, use the Python API directly.
+```bash
+gb label create bug --color fc2929 --description "Broken behavior" -R org/project
+```
+
+### View Label
+
+```bash
+gb label view bug -R org/project
+```
+
+### Edit Label
+
+```bash
+gb label edit bug --name defect --color cc0000 --description "Confirmed defect" -R org/project
+```
+
+### Delete Label
+
+```bash
+gb label delete bug --yes -R org/project
+```
 
 ## Tool Selection
 
-| Operation | CLI Command | Status |
+| Operation | gb Command | Status |
 |-----------|------------|--------|
 | Add labels | N/A | ⚠️ BROKEN (returns `[]`) |
 | Replace labels | N/A | ⚠️ BROKEN (returns `[]`) |
-| Remove label | N/A | Python API only |
-| Remove all labels | N/A | Python API only |
-| List labels | `gitbucket-api labels <owner> <repo>` | ✅ |
-| Create label | N/A | Auto-created via create-issue |
-
-**Note:** The `gitbucket-api` CLI tool is the primary tool for label operations that work. Broken operations are not exposed via CLI.
+| Remove label | N/A | ⚠️ BROKEN |
+| Remove all labels | N/A | ⚠️ BROKEN |
+| List labels | `gb label list -R O/R` | ✅ |
+| Create label | `gb label create <name> --color <hex> -R O/R` | ✅ |
+| View label | `gb label view <name> -R O/R` | ✅ |
+| Edit label | `gb label edit <name> -R O/R` | ✅ |
+| Delete label | `gb label delete <name> --yes -R O/R` | ✅ |
 
 ## Error Handling
 
 ```bash
 # 422 - Invalid label name or format
-./.opencode/tools/gitbucket-api create-issue org project "Test" --labels "invalid label!"
+gb issue create -t "Test" -R org/project --label "invalid label!"
 # Error output will indicate validation failure
 ```
 
 ## Source Code
 
-- `.opencode/tools/gitbucket-api` - CLI entry point
-- `.opencode/skills/issue-operations/platforms/gitbucket-api/tools/impl/` - Python implementation
+- `gb` CLI — install from https://github.com/Masahiro-Obuchi/gitbucket-cli-rs
+- Environment: `GB_TOKEN`, `GB_HOST`, `GB_REPO`

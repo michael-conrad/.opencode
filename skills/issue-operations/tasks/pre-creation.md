@@ -31,7 +31,7 @@ Validate spec before creating GitHub Issue to prevent conflicts, superseded issu
 - [ ] 1. Extract significant keywords from proposed title (remove stop words, prefixes like `[SPEC]`, `[SPEC-FIX]`, `[Task:]`)
 - [ ] 2. Search for existing issues:
    - **GitHub:** Use `issue-operations → search-issues` with keyword query for both open and closed states
-   - **GitBucket:** `./.opencode/tools/gitbucket-api issues --state open` + `--state closed` (filter client-side by keyword match + recency)
+   - **GitBucket:** `gb issue list -R <github.owner>/<github.repo> --state open` + `--state closed` (filter client-side by keyword match + recency)
 - [ ] 3. Determine recency window for closed issues based on context (issue type, topic stability, org activity)
 - [ ] 4. Collect candidate matches (issues whose titles share ≥2 significant keywords with proposed title)
 

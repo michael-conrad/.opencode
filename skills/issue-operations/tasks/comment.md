@@ -182,7 +182,7 @@ github_add_issue_comment(
 
 **GitBucket platform (sub-skill implementation):**
 ```bash
-./.opencode/tools/gitbucket-api add-comment <github.owner> <github.repo> <issue-number> "<formatted_comment>"
+gb issue comment <issue-number> -b "<formatted_comment>" -R <github.owner>/<github.repo>
 ```
 
 **Local platform (sub-skill implementation):**

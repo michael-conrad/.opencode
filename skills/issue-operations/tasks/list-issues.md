@@ -41,7 +41,8 @@ github_list_issues(
 
 **GitBucket platform:**
 ```bash
-./.opencode/tools/gitbucket-api list-issues <github.owner> <github.repo> --state open --labels "<label>"
+gb issue list -R <github.owner>/<github.repo> --state open
+# Note: gb CLI does not support --labels filter on list. Filter client-side.
 ```
 
 **Local platform:**
