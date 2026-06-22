@@ -56,7 +56,8 @@ This skill produces plans by dispatching sub-agents. The orchestrator routes; su
 - [ ] 3. [inline] Invoke `solve model` for dependency-ordering constraints contract — chain: `step_2`
 - [ ] 4. [inline] Invoke `solve check` to verify SAT — chain: `step_3`
 - [ ] 5. [inline] Invoke `plan plan` for phase solvability validation — chain: `step_4`
-- [ ] 6. [sub-task: completion] `task(..., prompt: "execute completion task from writing-plans")` — input: `./tmp/{N}/contracts/completion-input.yaml`, output: `./tmp/{N}/contracts/completion-output.yaml`, template: `.opencode/skills/writing-plans/contracts/create-output-template.yaml` (shared), chain: `step_5`
+- [ ] 6. [sub-task: write] `task(..., prompt: "execute write task from writing-plans")` — Write plan file to correct repo's `.issues/` worktree. Resolve target repo from session-init `## Repo Information` by matching issue's repo path prefix. Use `local-issues sync-file` for commit+push. URL uses resolved repo's `html_url`, `owner`, `repo`. chain: `step_5`
+- [ ] 7. [sub-task: completion] `task(..., prompt: "execute completion task from writing-plans")` — input: `./tmp/{N}/contracts/completion-input.yaml`, output: `./tmp/{N}/contracts/completion-output.yaml`, template: `.opencode/skills/writing-plans/contracts/create-output-template.yaml` (shared), chain: `step_6`
 
 ## Sub-Agent Routing
 
