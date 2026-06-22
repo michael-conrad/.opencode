@@ -27,6 +27,38 @@ Verify implementation against spec success criteria using dual-adversarial cross
 
 ## Procedure
 
+### Step 0: Pre-Flight Validation Gate
+
+Validate that all required inputs are present before proceeding with the audit:
+
+- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 2. Verify `artifact_evidence_dir` is present and contains at least 2 YAML files — if fewer than 2, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: INSUFFICIENT_ARTIFACTS
+missing: "artifact_evidence_dir"
+remediation: "At least 2 YAML evidence files are required in artifact_evidence_dir. Ensure both auditors have written their verdict artifacts before dispatching verification-audit."
+```
+
+- [ ] 3. If `spec_local_dir` is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "spec_local_dir"
+remediation: "spec_local_dir is required for verification-audit. The orchestrator must provide a valid local directory containing spec Markdown files."
+```
+
+- [ ] 4. If `artifact_evidence_dir` is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "artifact_evidence_dir"
+remediation: "artifact_evidence_dir is required for verification-audit. The orchestrator must provide a directory containing auditor YAML verdict artifacts."
+```
+
 ## Verification Audit Checklist
 
 - [ ] 1. Load Spec Content — glob spec_local_dir, read spec SCs and evidence type declarations
@@ -157,6 +189,7 @@ summary: "N criteria evaluated. X PASS, Y FAIL."
 
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
 
+- [ ] 0. Pre-Flight Validation Gate → INVALID if skipped
 - [ ] 1. Load spec content → INVALID if skipped
 - [ ] 2. Load behavioral evidence → INVALID if skipped
 - [ ] 3. Build evaluation criteria → INVALID if skipped

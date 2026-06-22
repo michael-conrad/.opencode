@@ -37,6 +37,42 @@ Structural test quality audit — reader-only checks on test files. Evaluates te
 
 ## Procedure
 
+### Step 0: Pre-Flight Validation Gate
+
+Validate that all required inputs are present before proceeding with the audit:
+
+- [ ] 1. Verify VbC artifact path is provided and non-empty
+- [ ] 2. Verify `file_paths_changed` is provided and non-empty
+- [ ] 3. Verify `spec_success_criteria` is provided and non-empty
+- [ ] 4. If VbC artifact path is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "VbC artifact path"
+remediation: "VbC artifact path is required for test-quality-audit. The orchestrator must run verification-before-completion first and provide the artifact path."
+```
+
+- [ ] 5. If `file_paths_changed` is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "file_paths_changed"
+remediation: "Changed file paths are required for test-quality-audit. The orchestrator must pass file_paths_changed from the implementation diff."
+```
+
+- [ ] 6. If `spec_success_criteria` is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "spec_success_criteria"
+remediation: "Spec success criteria are required for test-quality-audit. The orchestrator must provide the SC list from the spec."
+```
+
+**This gate fires BEFORE any other step.** If any criterion fails, the task returns BLOCKED immediately — no globbing, no reading, no analysis.
+
 ### Step 1: Load Test Files
 
 Read the test files referenced in `file_paths_changed` and the VbC artifact.
@@ -155,6 +191,16 @@ status: DONE
 artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-test-quality-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
 ```
+
+## Completion Dependency Chain
+
+Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
+- Step 0 (Pre-Flight Validation Gate) → INVALID if skipped
+- Step 1 (Load Test Files) → INVALID if skipped
+- Step 2 (Evaluate Checklist Criteria) → INVALID if skipped
+- Step 3 (Produce Verdict) → INVALID if skipped
+- Step 4 (Write Verdict Artifact to Disk) → INVALID if skipped
+- Step 5 (Return Frugal Result Contract) → INVALID if skipped
 
 ## Error Handling
 

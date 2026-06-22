@@ -28,6 +28,7 @@ Detect drift between spec/code reality and expected state. Identifies cases wher
 
 ## Drift Detection Checklist
 
+- [ ] 0. Pre-Flight Validation Gate — validate required inputs before proceeding
 - [ ] 1. Load Spec Requirements — glob spec_local_dir, extract problem, SCs, phases, files
 - [ ] 2. Identify Target Files — specific files or full scan from spec
 - [ ] 3. Build Evaluation Criteria — define DD table with evidence types
@@ -37,6 +38,22 @@ Detect drift between spec/code reality and expected state. Identifies cases wher
 - [ ] 7. Classify Drift Severity — map drift to HIGH/MEDIUM/LOW
 - [ ] 8. Generate Bidirectional Findings — SPEC_DRIFT/CODE_DRIFT with revision options
 - [ ] 9. Build Result Contract — YAML verdict with drift summary
+
+### Step 0: Pre-Flight Validation Gate
+
+Validate that all required inputs are present before proceeding with the audit:
+
+- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 2. If `spec_local_dir` is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "spec_local_dir"
+remediation: "spec_local_dir is required for drift-detection. The orchestrator must provide a valid local directory containing spec Markdown files."
+```
+
+**This gate fires BEFORE any other step.** If any criterion fails, the task returns BLOCKED immediately — no globbing, no reading, no analysis.
 
 ### Step 1: Load Spec Requirements
 
@@ -212,6 +229,7 @@ Present options for developer decision.
 ## Completion Dependency Chain
 
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
+- Step 0 (Pre-Flight Validation Gate) → INVALID if skipped
 - Step 1 (Load Spec Requirements) → INVALID if skipped
 - Step 2 (Identify Target Files) → INVALID if skipped
 - Step 3 (Build Evaluation Criteria) → INVALID if skipped

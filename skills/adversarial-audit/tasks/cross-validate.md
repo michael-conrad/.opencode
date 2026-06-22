@@ -105,15 +105,47 @@ These gates are **non-recovery** per adversarial-audit-017. Do NOT attempt to re
 
 ## Procedure
 
-### Step 0: Context Contamination Detection
+### Step 0: Pre-Flight Validation Gate
+
+Validate that all required inputs are present before proceeding with cross-validation:
+
+- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 2. Verify `artifact_evidence_dir` is present and contains at least 2 YAML files — if fewer than 2, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: INSUFFICIENT_ARTIFACTS
+missing: "artifact_evidence_dir"
+remediation: "At least 2 YAML evidence files are required in artifact_evidence_dir. Ensure both auditors have written their verdict artifacts before dispatching cross-validate."
+```
+
+- [ ] 3. If `spec_local_dir` is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "spec_local_dir"
+remediation: "spec_local_dir is required for cross-validate. The orchestrator must provide a valid local directory containing spec Markdown files."
+```
+
+- [ ] 4. If `artifact_evidence_dir` is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "artifact_evidence_dir"
+remediation: "artifact_evidence_dir is required for cross-validate. The orchestrator must provide a directory containing auditor YAML verdict artifacts."
+```
+
+### Step 1: Context Contamination Detection
 
 This section is obsolete with binary PASS/FAIL verdicts. Auditors now return only PASS or FAIL — non-binary verdicts indicate a defective auditor card, not a contaminated dispatch. If an auditor returns anything other than PASS or FAIL, flag it as an auditor card defect and BLOCK pipeline.
 
-### Step 1: Validate Input
+### Step 2: Validate Input
 
 Confirm `spec_local_dir` is present and non-empty. Glob `**/*.md` in `<spec_local_dir>/`, read all discovered files via `read` tool. If `spec_local_dir` is missing, empty, or no .md files can be read: return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }`.
 
-### Step 2: Validate Evidence Directory
+### Step 3: Validate Evidence Directory
 
 Confirm `artifact_evidence_dir` is present, non-null, and non-empty. The sub-agent reads auditor YAML verdict artifacts from files discovered in the evidence directory via `glob`/`read`. Each discovered YAML file MUST contain `{ criterion_id, result, evidence, explanation, remediation, next_step }`.
 
@@ -122,7 +154,7 @@ Confirm `artifact_evidence_dir` is present, non-null, and non-empty. The sub-age
 - If artifact file cannot be read: return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }`.
 - If both files share the same `family`: return `{ status: "BLOCKED", error: "INSUFFICIENT_FAMILIES" }`.
 
-### Step 3: Read and Parse Auditor Verdicts from Disk
+### Step 4: Read and Parse Auditor Verdicts from Disk
 
 For each YAML file discovered via glob/read in `artifact_evidence_dir`, read the verdict file from disk using the `read` tool. Each file contains the full YAML verdict artifact. Expected format per verdict file:
 
@@ -159,7 +191,7 @@ If an auditor's YAML artifact has extra criterion ids not in `evaluation_criteri
 
 If an auditor's YAML artifact is missing a criterion id from `evaluation_criteria`: treat that criterion as `FAIL` for that auditor with explanation `"MISSING_VERDICT"`.
 
-### Step 4: Cross-Reference Verdicts — Monotonic Non-Increasing Invariant
+### Step 5: Cross-Reference Verdicts — Monotonic Non-Increasing Invariant
 
 **Cross-validate verdicts are monotonic non-increasing in PASSness.** Verdicts must never increase in PASSness at the cross-validate stage. Cross-validate is a rejection filter, not a remediation gate.
 
@@ -245,11 +277,11 @@ The cross-validate result contract MUST use the following finding type classific
 
 **Authority:** `guidelines/000-critical-rules.md` §critical-rules-BEH-EV, §critical-rules-hard-fail, §critical-rules-060
 
-### Step 5: Compute Aggregate Consensus
+### Step 6: Compute Aggregate Consensus
 
 `overall_consensus = PASS` iff `consensus == PASS` for ALL criteria. Any single `FAIL` in the table cascades to `overall_consensus = FAIL`.
 
-### Step 5.5: Verdict Self-Consistency Gate
+### Step 6.5: Verdict Self-Consistency Gate
 
 Before dark pattern enforcement, every verdict must pass a self-consistency check:
 
@@ -263,7 +295,7 @@ Before dark pattern enforcement, every verdict must pass a self-consistency chec
 | violations_detected + verified=true | Non-empty violations with verified=true | flag `SELF_CONSISTENCY_FAIL` |
 | PASS + hedging evidence | Evidence contains concern/minor/issue qualifiers | Downgrade to FAIL |
 
-### Step 5.7: Output-Integrity Self-Check (MANDATORY)
+### Step 6.7: Output-Integrity Self-Check (MANDATORY)
 
 Before dark pattern enforcement (Step 6) and before returning the result contract, cross-validate MUST scan its own output for violations of the monotonic invariant. If ANY of the following are detected, self-correct the affected criterion to FAIL:
 
@@ -285,7 +317,7 @@ When self-check finds violations:
 
 Self-correction means the cross-validate sub-agent caught itself in a protocol violation. This is documented, not hidden.
 
-### Step 6: Dark Pattern Enforcement (MANDATORY — NO BYPASS)
+### Step 7: Dark Pattern Enforcement (MANDATORY — NO BYPASS)
 
 Step 6 IS the completion step of cross-validation — it IS the definition of a valid result contract. An evaluation that skips dark pattern enforcement is INVALID without Step 6 enforcement. WE have determined that dark pattern detection is repository policy — it MANDATES enforcement for every verdict.
 

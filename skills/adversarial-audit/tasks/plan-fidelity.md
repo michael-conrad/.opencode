@@ -32,6 +32,7 @@ Audit a plan for fidelity against its spec using clean-room comparison and dual-
 
 ## Plan Fidelity Checklist
 
+- [ ] 0. Pre-Flight Validation Gate — validate required inputs before proceeding
 - [ ] 1. Validate Clean-Room Plan Source — confirm sub-agent dispatch origin
 - [ ] 2. Fetch Existing Plan — read from spec_local_dir or spec body
 - [ ] 3. Build Evaluation Criteria — define PF table with evidence types
@@ -40,6 +41,32 @@ Audit a plan for fidelity against its spec using clean-room comparison and dual-
 - [ ] 6. Generate Bidirectional Findings — FAIL/DISAGREE with revision options
 - [ ] 7. Write Verdict Artifact to Disk — YAML output
 - [ ] 8. Return Frugal Result Contract
+
+### Step 0: Pre-Flight Validation Gate
+
+Validate that all required inputs are present before proceeding with the audit:
+
+- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 2. Verify `clean_room_plan` is present and non-empty
+- [ ] 3. If `spec_local_dir` is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "spec_local_dir"
+remediation: "spec_local_dir is required for plan-fidelity. The orchestrator must provide a valid local directory containing spec Markdown files."
+```
+
+- [ ] 4. If `clean_room_plan` is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "clean_room_plan"
+remediation: "clean_room_plan is required for plan-fidelity. The orchestrator must generate a clean-room plan via writing-plans sub-agent before dispatch."
+```
+
+**This gate fires BEFORE any other step.** If any criterion fails, the task returns BLOCKED immediately — no globbing, no reading, no analysis.
 
 ### Step 1: Validate Clean-Room Plan Source
 
@@ -147,6 +174,7 @@ summary: "N criteria evaluated. X PASS, Y FAIL. Z discrepancies found."
 
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
 
+- [ ] 0. Pre-Flight Validation Gate → INVALID if skipped
 - [ ] 1. Validate `clean_room_plan` source → INVALID if skipped
 - [ ] 2. Fetch existing plan → INVALID if skipped
 - [ ] 3. Build evaluation criteria → INVALID if skipped
