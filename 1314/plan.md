@@ -5,7 +5,7 @@ plan_structure: separate
 authorization_scope: for_pr
 halt_at: pr_created
 pr_strategy: stacked
-generated_at: "20260622015732"
+generated_at: "20260622020000"
 ---
 
 # Plan: Playwright CLI as First-Class Browser Automation Entry Point
@@ -17,31 +17,68 @@ generated_at: "20260622015732"
 **SCs:** SC-1
 
 **Affected Files:**
-- `.opencode/skills/ui-design/SKILL.md`
 - `.opencode/skills/ui-design/` (entire directory)
-- `.opencode/skills/ui-engineer/SKILL.md`
 - `.opencode/skills/ui-engineer/` (entire directory)
 
-### Dispatch Table — Phase 1
-
-| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
-|------|--------------|--------|---------------|-----------------|-----|
-| sc-coherence-gate | task() | Yes | coherence-auditor | spec SC-1 + phase files | SC-1 |
-| pre-red-baseline | task() | Yes | baseline-checker | phase files current state | SC-1 |
-| red-phase | task() | Yes | RED-impl | spec SC-1 + baseline | SC-1 |
-| red-doublecheck | task() | Yes | RED-verifier | RED artifact + spec | SC-1 |
-| post-red-enforcement | task() | Yes | enforcement-checker | RED evidence | SC-1 |
-| green-phase | task() | Yes | GREEN-impl | RED gap + spec SC-1 | SC-1 |
-| post-green-enforcement | task() | Yes | enforcement-checker | GREEN evidence | SC-1 |
-| checkpoint-commit | bash | No | — | git operations | — |
-| structural-checks | bash | No | — | ruff, pyright, mdformat | — |
-| green-doublecheck | task() | Yes | GREEN-verifier | GREEN artifact + spec | SC-1 |
-| green-vbc | task() | Yes | VbC-auditor | GREEN artifact + spec SC-1 | SC-1 |
-| adversarial-audit | task() | Yes | dual-auditor | full artifact + spec | SC-1 |
-| cross-validate | task() | Yes | cross-validator | audit findings | SC-1 |
-| regression-check | bash | No | — | existing tests | — |
-| review-prep | task() | Yes | review-prep | full artifact | SC-1 |
-| exec-summary | task() | Yes | completion-reporter | all evidence | SC-1 |
+- [ ] 1. sc-coherence-gate — **sub-task**
+  - [ ] Verify SC-1 maps to deletion concern
+  - [ ] Confirm affected files listed correctly
+  - [ ] Validate phase entry criteria met
+- [ ] 2. pre-red-baseline — **sub-task**
+  - [ ] Snapshot current state of deletion targets
+  - [ ] Record baseline evidence artifact
+  - [ ] Confirm no blocking dependencies
+- [ ] 3. red-phase — **sub-task**
+  - [ ] Implement RED conditions per SC-1
+  - [ ] Verify failure condition exists
+  - [ ] Record RED artifact to disk
+- [ ] 4. red-doublecheck — **sub-task**
+  - [ ] Independent verification of RED artifact
+  - [ ] Confirm RED matches spec requirements
+  - [ ] Flag discrepancies
+- [ ] 5. post-red-enforcement — **sub-task**
+  - [ ] Enforce RED quality gates
+  - [ ] Verify artifact format compliance
+  - [ ] Record enforcement evidence
+- [ ] 6. green-phase — **sub-task**
+  - [ ] Implement GREEN conditions per SC-1
+  - [ ] Delete target directories
+  - [ ] Record GREEN artifact to disk
+- [ ] 7. post-green-enforcement — **sub-task**
+  - [ ] Enforce GREEN quality gates
+  - [ ] Verify artifact format compliance
+  - [ ] Record enforcement evidence
+- [ ] 8. checkpoint-commit — **inline**
+  - [ ] Git commit deletion changes
+  - [ ] Tag checkpoint
+- [ ] 9. structural-checks — **inline**
+  - [ ] Run ruff, pyright, mdformat
+  - [ ] Record check results
+- [ ] 10. green-doublecheck — **sub-task**
+  - [ ] Independent verification of GREEN artifact
+  - [ ] Confirm deletion complete
+  - [ ] Flag discrepancies
+- [ ] 11. green-vbc — **sub-task**
+  - [ ] Verify behavioral correctness
+  - [ ] Confirm SC-1 satisfied
+  - [ ] Record VbC evidence
+- [ ] 12. adversarial-audit — **sub-task**
+  - [ ] Dual-auditor cross-validation
+  - [ ] Independent SC-1 verification
+  - [ ] Record audit findings
+- [ ] 13. cross-validate — **sub-task**
+  - [ ] Cross-validate audit findings
+  - [ ] Confirm consensus
+  - [ ] Record cross-validation evidence
+- [ ] 14. regression-check — **inline**
+  - [ ] Run existing tests
+  - [ ] Verify no regressions
+- [ ] 15. review-prep — **sub-task**
+  - [ ] Prepare review artifacts
+  - [ ] Generate review summary
+- [ ] 16. exec-summary — **sub-task**
+  - [ ] Generate executive summary
+  - [ ] Post completion report
 
 ## Phase 2: Creation
 
@@ -50,29 +87,68 @@ generated_at: "20260622015732"
 **SCs:** SC-2
 
 **Affected Files:**
-- `.opencode/skills/playwright-cli/SKILL.md` (new)
 - `.opencode/skills/playwright-cli/` (new directory)
+- `.opencode/skills/playwright-cli/SKILL.md` (new)
 
-### Dispatch Table — Phase 2
-
-| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
-|------|--------------|--------|---------------|-----------------|-----|
-| sc-coherence-gate | task() | Yes | coherence-auditor | spec SC-2 + upstream reference | SC-2 |
-| pre-red-baseline | task() | Yes | baseline-checker | upstream skill files | SC-2 |
-| red-phase | task() | Yes | RED-impl | spec SC-2 + upstream + baseline | SC-2 |
-| red-doublecheck | task() | Yes | RED-verifier | RED artifact + spec | SC-2 |
-| post-red-enforcement | task() | Yes | enforcement-checker | RED evidence | SC-2 |
-| green-phase | task() | Yes | GREEN-impl | RED gap + spec SC-2 + upstream | SC-2 |
-| post-green-enforcement | task() | Yes | enforcement-checker | GREEN evidence | SC-2 |
-| checkpoint-commit | bash | No | — | git operations | — |
-| structural-checks | bash | No | — | ruff, pyright, mdformat | — |
-| green-doublecheck | task() | Yes | GREEN-verifier | GREEN artifact + spec | SC-2 |
-| green-vbc | task() | Yes | VbC-auditor | GREEN artifact + spec SC-2 | SC-2 |
-| adversarial-audit | task() | Yes | dual-auditor | full artifact + spec | SC-2 |
-| cross-validate | task() | Yes | cross-validator | audit findings | SC-2 |
-| regression-check | bash | No | — | existing tests | — |
-| review-prep | task() | Yes | review-prep | full artifact | SC-2 |
-| exec-summary | task() | Yes | completion-reporter | all evidence | SC-2 |
+- [ ] 1. sc-coherence-gate — **sub-task**
+  - [ ] Verify SC-2 maps to creation concern
+  - [ ] Confirm upstream reference identified
+  - [ ] Validate phase entry criteria met
+- [ ] 2. pre-red-baseline — **sub-task**
+  - [ ] Snapshot upstream skill files
+  - [ ] Record baseline evidence artifact
+  - [ ] Confirm no blocking dependencies
+- [ ] 3. red-phase — **sub-task**
+  - [ ] Implement RED conditions per SC-2
+  - [ ] Verify failure condition exists
+  - [ ] Record RED artifact to disk
+- [ ] 4. red-doublecheck — **sub-task**
+  - [ ] Independent verification of RED artifact
+  - [ ] Confirm RED matches spec requirements
+  - [ ] Flag discrepancies
+- [ ] 5. post-red-enforcement — **sub-task**
+  - [ ] Enforce RED quality gates
+  - [ ] Verify artifact format compliance
+  - [ ] Record enforcement evidence
+- [ ] 6. green-phase — **sub-task**
+  - [ ] Implement GREEN conditions per SC-2
+  - [ ] Create skill directory from upstream
+  - [ ] Record GREEN artifact to disk
+- [ ] 7. post-green-enforcement — **sub-task**
+  - [ ] Enforce GREEN quality gates
+  - [ ] Verify artifact format compliance
+  - [ ] Record enforcement evidence
+- [ ] 8. checkpoint-commit — **inline**
+  - [ ] Git commit creation changes
+  - [ ] Tag checkpoint
+- [ ] 9. structural-checks — **inline**
+  - [ ] Run ruff, pyright, mdformat
+  - [ ] Record check results
+- [ ] 10. green-doublecheck — **sub-task**
+  - [ ] Independent verification of GREEN artifact
+  - [ ] Confirm creation complete
+  - [ ] Flag discrepancies
+- [ ] 11. green-vbc — **sub-task**
+  - [ ] Verify behavioral correctness
+  - [ ] Confirm SC-2 satisfied
+  - [ ] Record VbC evidence
+- [ ] 12. adversarial-audit — **sub-task**
+  - [ ] Dual-auditor cross-validation
+  - [ ] Independent SC-2 verification
+  - [ ] Record audit findings
+- [ ] 13. cross-validate — **sub-task**
+  - [ ] Cross-validate audit findings
+  - [ ] Confirm consensus
+  - [ ] Record cross-validation evidence
+- [ ] 14. regression-check — **inline**
+  - [ ] Run existing tests
+  - [ ] Verify no regressions
+- [ ] 15. review-prep — **sub-task**
+  - [ ] Prepare review artifacts
+  - [ ] Generate review summary
+- [ ] 16. exec-summary — **sub-task**
+  - [ ] Generate executive summary
+  - [ ] Post completion report
 
 ## Phase 3: Reference Cleanup
 
@@ -86,26 +162,65 @@ generated_at: "20260622015732"
 - `.opencode/AGENTS.md`
 - Any other files referencing deleted skills
 
-### Dispatch Table — Phase 3
-
-| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
-|------|--------------|--------|---------------|-----------------|-----|
-| sc-coherence-gate | task() | Yes | coherence-auditor | spec SC-3 + affected files | SC-3 |
-| pre-red-baseline | task() | Yes | baseline-checker | reference files current state | SC-3 |
-| red-phase | task() | Yes | RED-impl | spec SC-3 + baseline + reference list | SC-3 |
-| red-doublecheck | task() | Yes | RED-verifier | RED artifact + spec | SC-3 |
-| post-red-enforcement | task() | Yes | enforcement-checker | RED evidence | SC-3 |
-| green-phase | task() | Yes | GREEN-impl | RED gap + spec SC-3 | SC-3 |
-| post-green-enforcement | task() | Yes | enforcement-checker | GREEN evidence | SC-3 |
-| checkpoint-commit | bash | No | — | git operations | — |
-| structural-checks | bash | No | — | ruff, pyright, mdformat | — |
-| green-doublecheck | task() | Yes | GREEN-verifier | GREEN artifact + spec | SC-3 |
-| green-vbc | task() | Yes | VbC-auditor | GREEN artifact + spec SC-3 | SC-3 |
-| adversarial-audit | task() | Yes | dual-auditor | full artifact + spec | SC-3 |
-| cross-validate | task() | Yes | cross-validator | audit findings | SC-3 |
-| regression-check | bash | No | — | existing tests | — |
-| review-prep | task() | Yes | review-prep | full artifact | SC-3 |
-| exec-summary | task() | Yes | completion-reporter | all evidence | SC-3 |
+- [ ] 1. sc-coherence-gate — **sub-task**
+  - [ ] Verify SC-3 maps to reference-cleanup concern
+  - [ ] Confirm affected files listed correctly
+  - [ ] Validate phase entry criteria met
+- [ ] 2. pre-red-baseline — **sub-task**
+  - [ ] Snapshot current state of reference files
+  - [ ] Record baseline evidence artifact
+  - [ ] Confirm no blocking dependencies
+- [ ] 3. red-phase — **sub-task**
+  - [ ] Implement RED conditions per SC-3
+  - [ ] Verify failure condition exists
+  - [ ] Record RED artifact to disk
+- [ ] 4. red-doublecheck — **sub-task**
+  - [ ] Independent verification of RED artifact
+  - [ ] Confirm RED matches spec requirements
+  - [ ] Flag discrepancies
+- [ ] 5. post-red-enforcement — **sub-task**
+  - [ ] Enforce RED quality gates
+  - [ ] Verify artifact format compliance
+  - [ ] Record enforcement evidence
+- [ ] 6. green-phase — **sub-task**
+  - [ ] Implement GREEN conditions per SC-3
+  - [ ] Remove deleted skill references
+  - [ ] Record GREEN artifact to disk
+- [ ] 7. post-green-enforcement — **sub-task**
+  - [ ] Enforce GREEN quality gates
+  - [ ] Verify artifact format compliance
+  - [ ] Record enforcement evidence
+- [ ] 8. checkpoint-commit — **inline**
+  - [ ] Git commit reference cleanup changes
+  - [ ] Tag checkpoint
+- [ ] 9. structural-checks — **inline**
+  - [ ] Run ruff, pyright, mdformat
+  - [ ] Record check results
+- [ ] 10. green-doublecheck — **sub-task**
+  - [ ] Independent verification of GREEN artifact
+  - [ ] Confirm reference cleanup complete
+  - [ ] Flag discrepancies
+- [ ] 11. green-vbc — **sub-task**
+  - [ ] Verify behavioral correctness
+  - [ ] Confirm SC-3 satisfied
+  - [ ] Record VbC evidence
+- [ ] 12. adversarial-audit — **sub-task**
+  - [ ] Dual-auditor cross-validation
+  - [ ] Independent SC-3 verification
+  - [ ] Record audit findings
+- [ ] 13. cross-validate — **sub-task**
+  - [ ] Cross-validate audit findings
+  - [ ] Confirm consensus
+  - [ ] Record cross-validation evidence
+- [ ] 14. regression-check — **inline**
+  - [ ] Run existing tests
+  - [ ] Verify no regressions
+- [ ] 15. review-prep — **sub-task**
+  - [ ] Prepare review artifacts
+  - [ ] Generate review summary
+- [ ] 16. exec-summary — **sub-task**
+  - [ ] Generate executive summary
+  - [ ] Post completion report
 
 ## Phase 4: Gitignore
 
@@ -116,26 +231,65 @@ generated_at: "20260622015732"
 **Affected Files:**
 - `.gitignore`
 
-### Dispatch Table — Phase 4
-
-| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
-|------|--------------|--------|---------------|-----------------|-----|
-| sc-coherence-gate | task() | Yes | coherence-auditor | spec SC-4 + .gitignore | SC-4 |
-| pre-red-baseline | task() | Yes | baseline-checker | .gitignore current state | SC-4 |
-| red-phase | task() | Yes | RED-impl | spec SC-4 + baseline | SC-4 |
-| red-doublecheck | task() | Yes | RED-verifier | RED artifact + spec | SC-4 |
-| post-red-enforcement | task() | Yes | enforcement-checker | RED evidence | SC-4 |
-| green-phase | task() | Yes | GREEN-impl | RED gap + spec SC-4 | SC-4 |
-| post-green-enforcement | task() | Yes | enforcement-checker | GREEN evidence | SC-4 |
-| checkpoint-commit | bash | No | — | git operations | — |
-| structural-checks | bash | No | — | ruff, pyright, mdformat | — |
-| green-doublecheck | task() | Yes | GREEN-verifier | GREEN artifact + spec | SC-4 |
-| green-vbc | task() | Yes | VbC-auditor | GREEN artifact + spec SC-4 | SC-4 |
-| adversarial-audit | task() | Yes | dual-auditor | full artifact + spec | SC-4 |
-| cross-validate | task() | Yes | cross-validator | audit findings | SC-4 |
-| regression-check | bash | No | — | existing tests | — |
-| review-prep | task() | Yes | review-prep | full artifact | SC-4 |
-| exec-summary | task() | Yes | completion-reporter | all evidence | SC-4 |
+- [ ] 1. sc-coherence-gate — **sub-task**
+  - [ ] Verify SC-4 maps to gitignore concern
+  - [ ] Confirm .gitignore affected
+  - [ ] Validate phase entry criteria met
+- [ ] 2. pre-red-baseline — **sub-task**
+  - [ ] Snapshot current .gitignore state
+  - [ ] Record baseline evidence artifact
+  - [ ] Confirm no blocking dependencies
+- [ ] 3. red-phase — **sub-task**
+  - [ ] Implement RED conditions per SC-4
+  - [ ] Verify failure condition exists
+  - [ ] Record RED artifact to disk
+- [ ] 4. red-doublecheck — **sub-task**
+  - [ ] Independent verification of RED artifact
+  - [ ] Confirm RED matches spec requirements
+  - [ ] Flag discrepancies
+- [ ] 5. post-red-enforcement — **sub-task**
+  - [ ] Enforce RED quality gates
+  - [ ] Verify artifact format compliance
+  - [ ] Record enforcement evidence
+- [ ] 6. green-phase — **sub-task**
+  - [ ] Implement GREEN conditions per SC-4
+  - [ ] Add .tools/ to .gitignore
+  - [ ] Record GREEN artifact to disk
+- [ ] 7. post-green-enforcement — **sub-task**
+  - [ ] Enforce GREEN quality gates
+  - [ ] Verify artifact format compliance
+  - [ ] Record enforcement evidence
+- [ ] 8. checkpoint-commit — **inline**
+  - [ ] Git commit gitignore changes
+  - [ ] Tag checkpoint
+- [ ] 9. structural-checks — **inline**
+  - [ ] Run ruff, pyright, mdformat
+  - [ ] Record check results
+- [ ] 10. green-doublecheck — **sub-task**
+  - [ ] Independent verification of GREEN artifact
+  - [ ] Confirm gitignore update complete
+  - [ ] Flag discrepancies
+- [ ] 11. green-vbc — **sub-task**
+  - [ ] Verify behavioral correctness
+  - [ ] Confirm SC-4 satisfied
+  - [ ] Record VbC evidence
+- [ ] 12. adversarial-audit — **sub-task**
+  - [ ] Dual-auditor cross-validation
+  - [ ] Independent SC-4 verification
+  - [ ] Record audit findings
+- [ ] 13. cross-validate — **sub-task**
+  - [ ] Cross-validate audit findings
+  - [ ] Confirm consensus
+  - [ ] Record cross-validation evidence
+- [ ] 14. regression-check — **inline**
+  - [ ] Run existing tests
+  - [ ] Verify no regressions
+- [ ] 15. review-prep — **sub-task**
+  - [ ] Prepare review artifacts
+  - [ ] Generate review summary
+- [ ] 16. exec-summary — **sub-task**
+  - [ ] Generate executive summary
+  - [ ] Post completion report
 
 ## Phase 5: Verification
 
@@ -145,26 +299,65 @@ generated_at: "20260622015732"
 
 **Affected Files:** None (verification phase — reads all modified files)
 
-### Dispatch Table — Phase 5
-
-| Gate | Dispatch Type | Blind? | Sub-Agent Type | Receives Context | SCs |
-|------|--------------|--------|---------------|-----------------|-----|
-| sc-coherence-gate | task() | Yes | coherence-auditor | spec SC-5 + all phase artifacts | SC-5 |
-| pre-red-baseline | task() | Yes | baseline-checker | post-phase-1-4 state | SC-5 |
-| red-phase | task() | Yes | RED-impl | spec SC-5 + baseline | SC-5 |
-| red-doublecheck | task() | Yes | RED-verifier | RED artifact + spec | SC-5 |
-| post-red-enforcement | task() | Yes | enforcement-checker | RED evidence | SC-5 |
-| green-phase | task() | Yes | GREEN-impl | RED gap + spec SC-5 | SC-5 |
-| post-green-enforcement | task() | Yes | enforcement-checker | GREEN evidence | SC-5 |
-| checkpoint-commit | bash | No | — | git operations | — |
-| structural-checks | bash | No | — | grep, ls verification | — |
-| green-doublecheck | task() | Yes | GREEN-verifier | GREEN artifact + spec | SC-5 |
-| green-vbc | task() | Yes | VbC-auditor | GREEN artifact + spec SC-5 | SC-5 |
-| adversarial-audit | task() | Yes | dual-auditor | full artifact + spec | SC-5 |
-| cross-validate | task() | Yes | cross-validator | audit findings | SC-5 |
-| regression-check | bash | No | — | existing tests | — |
-| review-prep | task() | Yes | review-prep | full artifact | SC-5 |
-| exec-summary | task() | Yes | completion-reporter | all evidence | SC-5 |
+- [ ] 1. sc-coherence-gate — **sub-task**
+  - [ ] Verify SC-5 maps to verification concern
+  - [ ] Confirm all phase artifacts available
+  - [ ] Validate phase entry criteria met
+- [ ] 2. pre-red-baseline — **sub-task**
+  - [ ] Snapshot post-phase-1-4 state
+  - [ ] Record baseline evidence artifact
+  - [ ] Confirm no blocking dependencies
+- [ ] 3. red-phase — **sub-task**
+  - [ ] Implement RED conditions per SC-5
+  - [ ] Verify failure condition exists
+  - [ ] Record RED artifact to disk
+- [ ] 4. red-doublecheck — **sub-task**
+  - [ ] Independent verification of RED artifact
+  - [ ] Confirm RED matches spec requirements
+  - [ ] Flag discrepancies
+- [ ] 5. post-red-enforcement — **sub-task**
+  - [ ] Enforce RED quality gates
+  - [ ] Verify artifact format compliance
+  - [ ] Record enforcement evidence
+- [ ] 6. green-phase — **sub-task**
+  - [ ] Implement GREEN conditions per SC-5
+  - [ ] Verify zero references, directories absent, new skill exists
+  - [ ] Record GREEN artifact to disk
+- [ ] 7. post-green-enforcement — **sub-task**
+  - [ ] Enforce GREEN quality gates
+  - [ ] Verify artifact format compliance
+  - [ ] Record enforcement evidence
+- [ ] 8. checkpoint-commit — **inline**
+  - [ ] Git commit verification changes
+  - [ ] Tag checkpoint
+- [ ] 9. structural-checks — **inline**
+  - [ ] Run grep, ls verification
+  - [ ] Record check results
+- [ ] 10. green-doublecheck — **sub-task**
+  - [ ] Independent verification of GREEN artifact
+  - [ ] Confirm verification complete
+  - [ ] Flag discrepancies
+- [ ] 11. green-vbc — **sub-task**
+  - [ ] Verify behavioral correctness
+  - [ ] Confirm SC-5 satisfied
+  - [ ] Record VbC evidence
+- [ ] 12. adversarial-audit — **sub-task**
+  - [ ] Dual-auditor cross-validation
+  - [ ] Independent SC-5 verification
+  - [ ] Record audit findings
+- [ ] 13. cross-validate — **sub-task**
+  - [ ] Cross-validate audit findings
+  - [ ] Confirm consensus
+  - [ ] Record cross-validation evidence
+- [ ] 14. regression-check — **inline**
+  - [ ] Run existing tests
+  - [ ] Verify no regressions
+- [ ] 15. review-prep — **sub-task**
+  - [ ] Prepare review artifacts
+  - [ ] Generate review summary
+- [ ] 16. exec-summary — **sub-task**
+  - [ ] Generate executive summary
+  - [ ] Post completion report
 
 ## Dependency Graph
 
