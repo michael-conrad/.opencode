@@ -2,6 +2,235 @@ title: '[SPEC] Replace bespoke gitbucket-api Python tool with gb CLI'
 status: open
 labels:
 - spec
-body: ''
+body: |
+  ## Problem
+
+  The `.opencode/tools/gitbucket-api` tool is a 955-line bespoke Python script (`gitbucket_api.py`) with no tests, using `urllib.request` for raw HTTP calls. It has 13 subcommands, several of which are broken or never implemented:
+
+  - `update-issue` — referenced in 3 task files but does not exist (GitBucket PATCH endpoint returns 404)
+  - `get-sub-issues` — referenced but does not exist (GitBucket has no sub-issues API)
+  - `get-pull-request` / `list-pull-requests` — referenced but CLI has `prs`
+  - `get-issue` / `list-issues` / `get-repo` — referenced with wrong names (CLI has `issue`, `issues`, `repo`)
+  - `--labels` flag on `issues` — not supported by CLI
+  - Raw `gitbucket_api_post()` Python call in `issue-closure.md` bypasses CLI entirely
+
+  The `gb` CLI (Masahiro-Obuchi/gitbucket-cli-rs) is a maintained, tested alternative that covers all needed operations and handles GitBucket API quirks (e.g., web fallback for issue edits when REST PATCH fails).
+
+  ## Scope
+
+  1. Delete the custom Python tool files
+  2. Rewrite `issue-operations/platforms/gitbucket-api/` task files to call `gb`
+  3. Fix mismatched command names in dispatcher task files (GitBucket code paths only — GitHub MCP paths untouched)
+  4. Add `gb` install procedure to AGENTS.md
+  5. Add `TOOL_MISSING` detection in the skill — returns BLOCKED when `gb` not found, agent installs and retries
+  6. Add agent instructions for local GitBucket test environment bootstrap
+
+  ## Out of Scope
+
+  - Replacing the GitHub MCP or local platform backends
+  - Adding new API operations not currently supported
+  - Changing the issue-operations dispatcher routing logic
+  - Deleting any dispatcher task files — all dispatcher files remain; only GitBucket-specific command references are updated
+
+  ## Success Criteria
+
+  | ID | Criterion | Evidence Type | Verification Method |
+  |----|-----------|---------------|---------------------|
+  | SC-1 | `.opencode/tools/gitbucket-api` and `.opencode/tools/impl/gitbucket_api.py` deleted | `structural` | File existence check |
+  | SC-2 | All `issue-operations/platforms/gitbucket-api/` task files use `gb` commands instead of `gitbucket-api` | `string` | grep for `gitbucket-api` in platform task files returns 0 matches |
+  | SC-3 | All dispatcher task files (`issue-operations/tasks/`) use correct `gb` command names in GitBucket code paths (no `update-issue`, `get-issue`, `list-issues`, `get-sub-issues`, `get-pull-request`, `list-pull-requests`, `get-repo`) | `string` | grep for incorrect command names in dispatcher task files returns 0 matches |
+  | SC-4 | `git-workflow/tasks/` files use correct `gb` commands | `string` | grep for incorrect command names in git-workflow task files returns 0 matches |
+  | SC-5 | `issue-operations/platforms/local/tasks/push-body.md` and `pull-body.md` use correct `gb` commands | `string` | grep for incorrect command names returns 0 matches |
+  | SC-6 | AGENTS.md documents `gb` install procedure (platform detection, download URL, binary path) | `structural` | File contains install instructions |
+  | SC-7 | Skill returns `BLOCKED` with `TOOL_MISSING` when `gb` not found | `behavioral` | Agent dispatch test |
+  | SC-8 | `gb` can list issues, view issue, create issue, add comment, list PRs, create PR, list labels, list repos, get repo, check auth | `behavioral` | Live `gb` command execution against local GitBucket test instance (see Agent Instructions below) |
+  | SC-9 | `issue-closure.md` no longer uses raw `gitbucket_api_post()` Python call | `string` | grep for `gitbucket_api_post` returns 0 matches |
+  | SC-10 | No dispatcher task files are deleted — all remain with their GitHub MCP code paths intact | `structural` | File existence check for each dispatcher task file |
+
+  ## Agent Instructions — Local GitBucket Test Environment
+
+  SC-8 requires a live GitBucket instance. The agent MUST bootstrap a local test instance before executing SC-8 commands. Follow this procedure:
+
+  ### Prerequisites
+
+  - `gb` CLI installed (per AGENTS.md install procedure)
+  - `curl` available on the system
+
+  ### Step 1: Ensure Java
+
+  Check for `java` on the system. If not found, install a project-local JDK to `.tools/jdk/`. Download a JDK distribution (e.g., Eclipse Temurin or Adoptium) for the current platform, extract to `.tools/jdk/`, and use `PATH=.tools/jdk/bin:$PATH` for all subsequent Java commands.
+
+  ### Step 2: Download GitBucket
+
+  Fetch the latest GitBucket release `.war` from `https://github.com/gitbucket/gitbucket/releases`. Identify the latest release tag and download the `.war` asset. Place it at `./tmp/gitbucket-test/gitbucket.war`.
+
+  ### Step 3: Start GitBucket
+
+  Create the test directory and start GitBucket on port 18080:
+
+  ```
+  mkdir -p ./tmp/gitbucket-test
+  cd ./tmp/gitbucket-test
+  java -jar gitbucket.war --port=18080
+  ```
+
+  Run in background (use `&` and capture PID). GitBucket takes ~60-90 seconds to start on first launch (creates H2 database, initializes schema).
+
+  ### Step 4: Wait for Readiness
+
+  Poll `http://127.0.0.1:18080/signin` until it returns HTTP 200. Use a loop with 2-second intervals, up to 90 attempts.
+
+  ### Step 5: Create Test User
+
+  GitBucket ships with default admin credentials `root:root`. Create a dedicated test user via the admin API:
+
+  ```bash
+  curl -u "root:root" \
+    -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -X POST \
+    -d '{"login":"gb-test-user","password":"gb-test-pass","email":"gb-test-user@example.test","fullName":"gb-test-user","isAdmin":false,"description":"gb behavioral test user","url":null}' \
+    "http://127.0.0.1:18080/api/v3/admin/users"
+  ```
+
+  ### Step 6: Create Personal Access Token
+
+  GitBucket creates personal access tokens via a web form POST. Authenticate as the test user, then POST to `/{user}/_personalToken`:
+
+  ```bash
+  # Sign in to get session cookie
+  curl -sS -L -c ./tmp/gitbucket-test/cookies.txt \
+    --data-urlencode "userName=gb-test-user" \
+    --data-urlencode "password=gb-test-pass" \
+    --data-urlencode "hash=" \
+    -o /dev/null \
+    "http://127.0.0.1:18080/signin"
+
+  # Create token and capture the response page
+  curl -sS -L -c ./tmp/gitbucket-test/cookies.txt \
+    -b ./tmp/gitbucket-test/cookies.txt \
+    --data-urlencode "note=gb-behavioral-test" \
+    -o ./tmp/gitbucket-test/token-page.html \
+    "http://127.0.0.1:18080/gb-test-user/_personalToken"
+
+  # Extract the 40-char hex token from data-clipboard-text attribute
+  GB_TEST_TOKEN=$(python3 -c "
+  import re, pathlib
+  body = pathlib.Path('./tmp/gitbucket-test/token-page.html').read_text(encoding='utf-8')
+  match = re.search(r'data-clipboard-text=\"([0-9a-f]{40})\"', body)
+  print(match.group(1) if match else '')
+  ")
+  ```
+
+  ### Step 7: Create Test Repository
+
+  Create a test repository for the test user:
+
+  ```bash
+  curl -H "Accept: application/json" \
+    -H "Authorization: token ${GB_TEST_TOKEN}" \
+    -H "Content-Type: application/json" \
+    -X POST \
+    -d '{"name":"gb-test-repo","private":false}' \
+    "http://127.0.0.1:18080/api/v3/user/repos"
+  ```
+
+  ### Step 8: Authenticate gb CLI
+
+  ```bash
+  gb auth login -H http://127.0.0.1:18080 -t "${GB_TEST_TOKEN}"
+  ```
+
+  ### Step 9: Execute SC-8 Behavioral Tests
+
+  Run each `gb` command against the local instance with `-R gb-test-user/gb-test-repo`:
+
+  ```bash
+  gb -H http://127.0.0.1:18080 -R gb-test-user/gb-test-repo issue list
+  gb -H http://127.0.0.1:18080 -R gb-test-user/gb-test-repo issue create -t "Test issue"
+  gb -H http://127.0.0.1:18080 -R gb-test-user/gb-test-repo issue view 1
+  gb -H http://127.0.0.1:18080 -R gb-test-user/gb-test-repo issue comment 1 -b "Test comment"
+  gb -H http://127.0.0.1:18080 -R gb-test-user/gb-test-repo pr list
+  gb -H http://127.0.0.1:18080 -R gb-test-user/gb-test-repo label list
+  gb -H http://127.0.0.1:18080 repo list
+  gb -H http://127.0.0.1:18080 repo view gb-test-user/gb-test-repo
+  gb auth status
+  ```
+
+  All commands MUST exit 0. Record stdout/stderr for each.
+
+  ### Step 10: Cleanup
+
+  Stop the GitBucket process and clean up:
+
+  ```bash
+  kill <gitbucket-pid> 2>/dev/null || true
+  rm -rf ./tmp/gitbucket-test/
+  ```
+
+  ## Phases
+
+  ### Phase 1: Delete bespoke tooling
+  - Delete `.opencode/tools/gitbucket-api` (51-line wrapper)
+  - Delete `.opencode/tools/impl/gitbucket_api.py` (955-line implementation)
+  - Remove from test infrastructure references
+
+  ### Phase 2: Rewrite gitbucket-api platform sub-skill
+  - Rewrite `issue-operations/platforms/gitbucket-api/tasks/mcp-operations.md` — canonical command reference
+  - Rewrite `issue-operations/platforms/gitbucket-api/tasks/issue-operations.md`
+  - Rewrite `issue-operations/platforms/gitbucket-api/tasks/repository-operations.md`
+  - Rewrite `issue-operations/platforms/gitbucket-api/tasks/label-operations.md`
+  - Rewrite `issue-operations/platforms/gitbucket-api/tasks/session-integration.md`
+  - Rewrite `issue-operations/platforms/gitbucket-api/tasks/error-recovery.md`
+  - Update `issue-operations/platforms/gitbucket-api/SKILL.md`
+  - Add `TOOL_MISSING` detection
+
+  ### Phase 3: Fix dispatcher task files (GitBucket code paths only)
+  - `issue-operations/tasks/update-issue.md` — `update-issue` → `gb issue edit`
+  - `issue-operations/tasks/body-edit.md` — `update-issue` → `gb issue edit`
+  - `issue-operations/tasks/list-issues.md` — `list-issues` → `gb issue list`
+  - `issue-operations/tasks/read-issue.md` — `get-issue` → `gb issue view`
+  - `issue-operations/tasks/read-sub-issues.md` — `get-sub-issues` → replace with "not supported by GitBucket API" note (file stays, GitHub MCP path unchanged)
+  - `issue-operations/tasks/import-remote.md` — `get-issue` → `gb issue view`
+  - `issue-operations/tasks/link-sub-issue.md` — `get-issue` → `gb issue view`
+  - `issue-operations/tasks/close.md` — verify uses `gb issue comment`
+  - `issue-operations/tasks/comment.md` — verify uses `gb issue comment`
+  - `issue-operations/tasks/verify-merge.md` — verify uses `gb pr list`
+  - `issue-operations/tasks/creation.md` — verify references
+  - `issue-operations/tasks/pre-creation.md` — verify references
+
+  ### Phase 4: Fix git-workflow task files
+  - `git-workflow/tasks/check-pr.md` — `list-pull-requests` → `gb pr list`, `get-pull-request` → `gb pr view`
+  - `git-workflow/tasks/pr-creation/create-pr.md` — verify uses `gb pr create`
+  - `git-workflow/tasks/provenance/platform-detection.md` — `get-repo` → `gb repo view`
+  - `git-workflow/tasks/cleanup/issue-closure.md` — remove raw `gitbucket_api_post()` call
+
+  ### Phase 5: Fix local platform sub-skill
+  - `issue-operations/platforms/local/tasks/push-body.md` — `update-issue` → `gb issue edit`
+  - `issue-operations/platforms/local/tasks/pull-body.md` — `get-issue` → `gb issue view`
+
+  ### Phase 6: Update AGENTS.md
+  - Add `gb` install procedure (platform detection, download URL, binary path)
+  - Document `TOOL_MISSING` retry pattern
+
+  ### Phase 7: Update test infrastructure
+  - Update `test-pep723-tools.sh` — remove `gitbucket-api` from validation list
+  - Update any other test references
+
+  ## Risks
+
+  - `gb` auto-resolves repo from `git remote get-url origin` — SSH URL format (`ssh://git@tomcat-0002.newsrx.com:29418/...`) may not be recognized. Mitigation: use explicit `-R owner/repo` flag in all skill commands.
+  - `gb issue edit` uses web fallback for title/body/assignee/milestone/state — may prompt for password. Mitigation: set `GB_USER`/`GB_PASSWORD` env vars or accept non-interactive failure.
+  - Label edits via `gb issue edit --add-label` still require REST support — if GitBucket doesn't support it, label operations may fail. Mitigation: use `gb api` passthrough as fallback.
+  - Local GitBucket test instance uses H2 database (default) — data is ephemeral. No persistence needed.
+  - Port 18080 may be in use. Mitigation: agent should try alternative port (18081, 18082) if 18080 fails.
+
+  ## Dependencies
+
+  - `gb` v0.6.1 installed at `~/.local/bin/gb` (already done)
+  - `gb auth login` completed for `https://gitbucket.newsrx.com/gitbucket/` (already done)
+  - Java runtime (JDK 17+) — install to `.tools/jdk/` if not on system
+  - `curl` — assumed available on system
+  - GitBucket latest release `.war` — downloaded at test time from GitHub releases
 created_at: '2026-06-22T15:45:19+00:00'
 updated_at: '2026-06-22T15:45:19+00:00'
