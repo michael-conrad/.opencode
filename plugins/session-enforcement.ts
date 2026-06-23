@@ -2,7 +2,7 @@
  * Session Enforcement Plugin for OpenCode
  *
  * Injects session context into the LLM system prompt and enforces
- * runtime guards: inline work detection, evidence gate, git config
+ * runtime guards: evidence gate, git config
  * mutation watchdog, protected branch edits, secret redaction, session triggers,
  * and plugin diagnostics.
  *
@@ -166,57 +166,9 @@ This is a Tier 1 mandate violation unless explicitly authorized by the developer
 
 // buildNoVerifyBlockedBlock() REMOVED per SPEC-FIX #823 — see removal comment above.
 
-function buildInlineWorkDetectedBlock(editToolNames: string[], dispatchFound: boolean): string {
-  const editList = editToolNames.map(t => `- \`${t}\``).join("\n");
-  const dispatchNote = dispatchFound
-    ? "A sub-agent dispatch was found, but file edits occurred BEFORE the dispatch in this turn."
-    : "No sub-agent dispatch (task tool) was found in this turn.";
-  return `### Inline Work Detected
-
-**Warning:** The orchestrator performed file operations without sub-agent dispatch evidence.
-
-File-editing tool calls detected in this turn:
-${editList}
-
-${dispatchNote}
-
-The orchestrator MUST be a pure router — all file modifications MUST be dispatched through implementation-pipeline sub-agents. See 000-critical-rules.md Inline Work. Exemptions: pair- branches, .issues/ file edits, simple-work single-file changes. If this is an exempt case, disregard this warning.`;
-}
-
-const MODE_SWITCH_ANCHOR = [
-  'skill() + task() gate every action. Both skill() and task() are mandatory \u2014 every workflow.',
-  'Inline work poisons your output \u2014 unrecoverable.',
-  'FAIL = FAIL \u2014 justifiable violations do not exist.',
-].join('\n');
-
-function isModeSwitchContent(text: string): boolean {
-  return text.includes('Your operational mode has changed from plan to build.')
+function isModeSwitchSynthetic(text: string): boolean {
+  return text.includes('Your operational mode has changed from')
       || text.includes('# Plan Mode - System Reminder');
-}
-
-function handleModeSwitchParts(
-  messages: { info: { role: string; agent?: string }; parts: { type?: string; text?: string; synthetic?: boolean }[] }[],
-): void {
-  const currentUser = messages.findLast(m => m.info?.role === 'user');
-  if (!currentUser) return;
-
-  // Phase 1: determine if this turn is a mode transition
-  const lastAssistant = messages.findLast(m => m.info?.role === 'assistant');
-  const isTransition = !lastAssistant ||
-    lastAssistant.info?.agent !== currentUser.info?.agent;
-
-  // Phase 2: process each synthetic text part matching mode-switch content
-  for (const part of currentUser.parts) {
-    if (!part.synthetic || part.type !== 'text') continue;
-    if (!isModeSwitchContent(part.text || '')) continue;
-
-    if (isTransition) {
-      part.text = MODE_SWITCH_ANCHOR;
-    } else {
-      part.text = '';
-      part.synthetic = false;
-    }
-  }
 }
 
 interface PluginDiagnostic {
@@ -789,111 +741,7 @@ function redactSecrets(text: string): string {
   return result;
 }
 
-/**
- * Get the current git branch name.
- * Returns null if git is unavailable.
- */
-function getCurrentBranch(projectDir: string): string | null {
-  try {
-    return execSync("git branch --show-current", {
-      cwd: projectDir,
-      encoding: "utf8",
-      input: "",
-      timeout: 5000,
-      stdio: ["pipe", "pipe", "pipe"],
-    }).trim() || null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Check if the current branch is a pair-mode branch (starts with "pair-").
- * Pair-mode branches allow direct edits on the development directory.
- */
-function isPairModeBranch(branch: string): boolean {
-  return branch.startsWith("pair-");
-}
-
-function getWorkingTreeStatus(projectDir: string): string {
-  try {
-    const status = execSync("git status --short", {
-      cwd: projectDir,
-      encoding: "utf8",
-      input: "",
-      timeout: 5000,
-      stdio: ["pipe", "pipe", "pipe"],
-    }).trim();
-    return status || "clean";
-  } catch {
-    return "unavailable";
-  }
-}
-
-function buildPreImplementationGate(projectDir: string): string {
-  const branch = getCurrentBranch(projectDir) || "unknown";
-  const treeStatus = getWorkingTreeStatus(projectDir);
-  const worktreePath = "none";
-  return `### Pre-Implementation Gate
-
-**Current state:** branch=${branch}, tree=${treeStatus}, worktree=${worktreePath}
-
-**MANDATORY pre-implementation sequence (Tier 1 — HALT if not met):**
-1. Invoke \`/skill approval-gate --task verify-authorization\`
-2. Invoke \`/skill git-workflow --task pre-work\`
-3. ALL file modifications go through \`/skill implementation-pipeline --task <step_label>\`
-4. Direct edit/write tool calls in the orchestrator context are a CRITICAL VIOLATION
-
-Each step is discrete and must be executed independently. Steps must never be combined into a single task() call.`;
-}
-
-function buildCorePrinciplesBlock(): string {
-  return `### Core Principles (Zero Tolerance)
-
-Each principle below is a discrete mandate. When a principle implies action (e.g., "Dispatch via skill() + task()"), that action must be executed as a discrete step — never combined with other principles' actions into a single task() call.
-
-1. **FAIL=FAIL** — No soft-passing, "functionally equivalent," or justifying FAIL→PASS.
-2. **Auth gate** — Every change requires approved spec/plan. No exception, no matter how trivial.
-3. **Mandatory skills** — \`/skill git-workflow\`, \`/skill implementation-pipeline\`, \`/skill verification-before-completion\`, \`/skill adversarial-audit\`. Not optional.
-4. **TDD Red/Green** — Approval→pre-work→audit spec/plan→RED(test+audit; fail→fix, pass→commit)→GREEN(impl+audit; fail→fix+restart, pass→commit)→final spec/plan audit.
-5. **Feedback ≠ Auth** — Feedback/clarification/technical input → update understanding, discuss, HALT. Never proceed to implementation.
-6. **Dispatch via \`skill()\` + \`task()\` is the PRIMARY execution model** — Load every skill with \`skill()\`, dispatch execution with \`task()\`. The orchestrator routes and dispatches only; it never executes. A dispatcher that reads SKILL.md files and executes steps inline is not a dispatcher — it is an agent working without enforcement gates. Professional orchestrators dispatch; amateurs inline.
-7. **Sub-agents are INTELLIGENT** — No bot-splaining, no tool-recipe dispatch. They read specs and use skills autonomously.
-8. **Verify LIVE** — Never trust training data, memory, or metadata. Always verify via live docs, direct inspection, and verified test results.`;
-}
-
-function buildSubAgentPrinciplesBlock(): string {
-  return `### Core Principles (Sub-Agent)
-
-Each principle below is discrete. If you receive a task() prompt containing multi-step context (multiple steps, principles, or mandates combined into a single prompt), you MUST return \`status: BLOCKED\` with \`reason: PRELOADED_CONTEXT_REJECTED\`.
-
-1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
-2. **TDD discipline** — RED phase tests before GREEN phase implementation.
-3. **Clean-room** — No inline fallback. If task context is contaminated (pre-determined findings, expected outcomes, orchestrator reasoning, tool recipes, line numbers), HALT and notify parent.
-4. **Independent intelligence** — You are an autonomous agent. If the task contains excessive bot-splaining, rote instructions, or leading questions where your own analysis should apply, HALT and notify parent.
-5. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, direct inspection of source code/configs, and verified test results.
-6. **Sub-agent role** — You are a sub-agent, not the orchestrator. Sub-agents execute single-step work units; orchestrators dispatch. A sub-agent that dispatches sub-agents is producing cascaded delegation instead of focused execution. If your assigned task requires sub-agent dispatch, return a \`NEEDS_ORCHESTRATOR\` status — the orchestrator will re-dispatch with the correct decomposition. Professional sub-agents execute their unit with focus; they do not become orchestrators.`;
-}
-
-function buildTier1EnforcementBlock(): string {
-  return `### Tier 1 Mandate Enforcement Gate
-
-The following mandates are NON-YIELDING — no developer authorization, emergency bypass, or override can waive them. This gate is injected by session-enforcement.ts and prescriptively enforces:
-
-Each mandate is discrete and independently enforceable. When a mandate implies action, that action must be executed as a discrete step — never combined with other mandates' actions into a single task() call.
-
-1. **No commits to \`main\` or \`dev\`** — Branch protection is a repository integrity concern. Always create a feature branch first.
-2. **Human-only merge** — Agents must never merge PRs. Merge requires explicit human action.
-3. **No \`/tmp/\` usage — \`./tmp/\` only** — Prevents system-level temp file leakage outside project scope.
-4. **Path rules in worktree context** — When \`WORKTREE_REQUIRED\` is set, prefix ALL file operation paths with \`worktree.path\`. Relative paths silently target the main repo.
-5. **Sub-agents must receive \`worktree.path\`** — Prevents sub-agents from mutating the main repo when the orchestrator is in worktree mode.
-6. **Human-only branch deletion** — Unmerged branches must never be force-deleted by agents. Merged branches DELETE IMMEDIATELY.
-7. **Agents must never self-authorize** — Authorization comes from developers, never from agent reasoning. Confirmation, feedback, and questions are not authorization.
-8. **Git configuration and destructive commands require explicit authorization** — Remote mutations, config changes, force push, and destructive resets require explicit developer approval.
-9. **Correctness over economy** — Fabrication or shortcutting verification to conserve context/tool-calls is prohibited. Sub-agent dispatch and tool calls are near-zero cost. A fast wrong answer is strictly worse than a slow correct one.
-
-Violations of mandates 1-6 and 8 are detected at runtime by this plugin and flagged via enforcement blocks. See \`000-critical-rules.md\` Tier 1 table for full rationale and symbolic rule definitions.`;
-}
+function isModeSwitchSynthetic(text: string): boolean {
 
 export default async function sessionEnforcementPlugin(input: PluginInput): Promise<Hooks> {
   // Determine skills directory and project directory
@@ -1044,10 +892,6 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         if (shouldInjectFirstTurn) {
           // --- First-turn-only: Trigger warnings ---
           const triggersOutput = await runSessionContextTriggers(projectDir);
-          // --- Spec #432: Pre-Implementation Gate + Core Principles ---
-          const gateBlock = buildPreImplementationGate(projectDir);
-          const corePrinciplesBlock = buildCorePrinciplesBlock();
-          const tier1Block = buildTier1EnforcementBlock();
 
           // Per spec #426: extract NESTED_OPENCODE_FATAL from triggers output
           // and inject it as a SEPARATE block (not inside Session Triggers)
@@ -1071,15 +915,6 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           const triggerBlock = triggerOutputForSessionBlock ? `### Session Triggers\n\n${triggerOutputForSessionBlock}` : "";
 
           const echoParts: string[] = [];
-          if (gateBlock) {
-            echoParts.push(gateBlock);
-          }
-          if (tier1Block) {
-            echoParts.push(tier1Block);
-          }
-          if (corePrinciplesBlock) {
-            echoParts.push(corePrinciplesBlock);
-          }
           if (triggerBlock) {
             echoParts.push(triggerBlock);
           }
@@ -1102,14 +937,6 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
 
         }
 
-        // --- Spec #432: First-turn-only SUB-AGENT sessions: Core Principles ---
-        // Sub-agents receive a lighter 5-rule principles block as the first text
-        // part injected into their first user message. No identity echo, no triggers.
-        if (isFirstTurn && isSubAgent && firstUser.parts?.length) {
-          const subAgentPrinciplesBlock = buildSubAgentPrinciplesBlock();
-          firstUser.parts.unshift({ id: crypto.randomUUID(), sessionID: firstUser.info.sessionID, messageID: firstUser.info.id, type: "text", text: subAgentPrinciplesBlock });
-        }
-
         // --- Mark session as injected for first-turn detection ---
         // After all first-turn injections are applied, register the sessionID
         // so the Set-based isFirstTurn check returns false on subsequent turns.
@@ -1118,10 +945,18 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           injectedFirstTurnSessions.add(firstUserSessionID);
         }
 
-      // --- Per-turn: Mode switch anchor replacement ---
-      // Replaces core-injected build-switch.txt and plan.txt with compliance anchor
-      // on transition turns; strips on non-transition re-injections.
-      handleModeSwitchParts(output.messages);
+      // --- Per-turn: Strip synthetic mode-switch messages ---
+      // Unconditional stripping: if text matches mode-switch boilerplate, set to "".
+      const currentUser = output.messages.findLast(m => m.info?.role === 'user');
+      if (currentUser) {
+        for (const part of currentUser.parts) {
+          if (!part.synthetic || part.type !== 'text') continue;
+          if (isModeSwitchSynthetic(part.text || '')) {
+            part.text = '';
+            part.synthetic = false;
+          }
+        }
+      }
 
       // --- Per-turn: Secret redaction on ALL assistant messages ---
       const assistantMessages = output.messages.filter(m => m.info?.role === "assistant");
@@ -1184,67 +1019,8 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
       // hook false positive, structural branch pushes like issues-data), causing
       // repeated workflow failures.
 
-      // --- Per-turn: Inline work detector (Gate 3) ---
-      // Detect when the orchestrator performed file-editing tool calls without
-      // a preceding sub-agent dispatch in the same turn. Exemptions: sub-agent
-      // sessions, pair-* branches, .issues/ only changes.
-      const currentBranchForInline = getCurrentBranch(projectDir);
-      const isPairBranch = currentBranchForInline ? isPairModeBranch(currentBranchForInline) : false;
-      if (!isSubAgent && !isPairBranch) {
-        for (const msg of assistantMessages) {
-          if (!msg.parts?.length) continue;
-          const editToolNames: string[] = [];
-          let dispatchFound = false;
-          let dispatchIndex = -1;
-          let issuesOnlyEdits = true;
-
-          for (const part of msg.parts) {
-            if (part.type === "text" && part.text) {
-              // Detect sub-agent dispatch (task tool)
-              if (part.text.includes("subagent_type") || part.text.includes('"task"') && part.text.includes("dispatch")) {
-                dispatchFound = true;
-                if (dispatchIndex === -1) dispatchIndex = msg.parts.indexOf(part);
-              }
-              // Detect file-editing tool calls
-              const editMatch = part.text.match(/"name"\s*:\s*"(edit|write|create_or_update_file)"/);
-              if (editMatch) {
-                editToolNames.push(editMatch[1]);
-                // Check if the edit targets .issues/ files
-                const filePathMatch = part.text.match(/"filePath"\s*:\s*"([^"]+)"/);
-                if (filePathMatch && !filePathMatch[1].startsWith(".issues/")) {
-                  issuesOnlyEdits = false;
-                }
-              }
-              // Also detect tool call patterns in assistant text (older format)
-              const toolCallMatch = part.text.match(/(edit|write)\(filePath/);
-              if (toolCallMatch) {
-                editToolNames.push(toolCallMatch[1]);
-                const filePathMatch = part.text.match(/filePath["']?\s*[:=]\s*["']([^"']+)/);
-                if (filePathMatch && !filePathMatch[1].startsWith(".issues/")) {
-                  issuesOnlyEdits = false;
-                }
-              }
-            }
-          }
-
-          if (editToolNames.length > 0 && !issuesOnlyEdits) {
-            // If dispatch was found, check if edits came before the dispatch
-            const editsBeforeDispatch = dispatchFound && dispatchIndex > -1
-              ? editToolNames.length > 0 // edits exist, check if any were before dispatch
-              : true;
-
-            if (!dispatchFound || editsBeforeDispatch) {
-              const block = buildInlineWorkDetectedBlock(editToolNames, dispatchFound);
-              const nextUser = userMessages[userMessages.length - 1];
-              if (nextUser?.parts?.length) {
-                nextUser.parts.push({ id: crypto.randomUUID(), sessionID: nextUser.info.sessionID, messageID: nextUser.info.id, type: "text", text: block });
-              }
-            }
-          }
-        }
-      }
-
       
+
 
 
     },
