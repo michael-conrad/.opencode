@@ -8,7 +8,7 @@ Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
 ## Purpose
 
-Push changes, generate issue/PR URLs, post completion comments, and produce executive summary output for the orchestrator pipeline.
+Push changes, generate issue/PR URLs, append lifecycle event, and produce executive summary output for the orchestrator pipeline.
 
 ## Authorization Context
 
@@ -33,7 +33,7 @@ pipeline_phase: <current_phase_name>
 
 - Changes pushed to remote (if `halt_at >= pr_created`)
 - Compare URL generated with correct base branch
-- Completion comment routed through substantive gate
+- Lifecycle event appended to `./tmp/{issue-N}/lifecycle.yaml`
 - Executive summary output produced
 - Byline verified in all posted content
 
@@ -68,15 +68,21 @@ Construct from session-init values with character-match verification:
 COMPARE_URL="https://github.com/${GIT_OWNER}/${GIT_REPO}/compare/dev...$(git branch --show-current)"
 ```
 
-### Step 3: Route Completion Comment Through Substantive Gate
+### Step 3: Append Lifecycle Event
 
-Route the completion comment through the `issue-operations` → `comment` → substantive gate:
+Append a completion event to the lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml`:
 
+```yaml
+  - event: step_completed
+    timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    issuer: <AgentName> (<ModelId>)
+    step: exec-summary
+    status: PASS
+    description: "<brief summary of what was completed>"
+    severity: info
 ```
-task(subagent_type="general", prompt: "route completion comment for issue #{issue_number} through issue-operations -> comment -> substantive gate")
-```
 
-The substantive gate decides whether posting a comment to the issue is warranted based on content significance.
+The lifecycle manifest is append-only. Never delete or edit existing entries.
 
 ### Step 4: Executive Summary Output
 
@@ -113,7 +119,7 @@ solve state update ./tmp/{issue-N}/state/ \
 |-----------|----------------------|
 | Push branch | Check `git log origin/..HEAD` before pushing |
 | Generate URL | Construct from session-init values — deterministic |
-| Route completion comment | Substantive gate (per `issue-operations` skill `comment` task) |
+| Append lifecycle event | Append-only — always adds new entry |
 | Report executive summary | Always run; idempotent by nature |
 | Z3 state update | `--var-value complete` is idempotent |
 
@@ -125,7 +131,7 @@ solve state update ./tmp/{issue-N}/state/ \
 | Push fails (auth error) | Report auth failure, ask developer |
 | No changes to push | Skip push step |
 | URL generation fails | Report manually |
-| Comment routing fails | Report routing failure, include summary in chat only |
+| Lifecycle event append fails | Report failure, include summary in chat only |
 
 ## Result Contract
 
@@ -133,7 +139,7 @@ solve state update ./tmp/{issue-N}/state/ \
 status: DONE | BLOCKED
 pushed: true | false
 compare_url: "<url>" | null
-comment_routed: true | false
+lifecycle_event_appended: true | false
 summary: "<1-3 sentence summary>"
 ```
 
@@ -152,7 +158,7 @@ Following the #932 naming convention per `implementation-pipeline` pipeline-exec
 |-------|-------------------|-----------|
 | "Changes pushed" | Verify remote tracking branch exists | `git status` / `git log origin/HEAD..HEAD` |
 | "Compare URL valid" | Verify owner and repo character-match | Compare against session-init values |
-| "Comment routed" | Verify routing completed via substantive gate | `issue-operations -> read-comments` |
+| "Comment routed" | Verify lifecycle event appended | `grep -c "event:" ./tmp/{issue-N}/lifecycle.yaml` |
 | "Byline present" | Verify byline is last substantive line | Read posted comment text |
 
 ## Cross-References
