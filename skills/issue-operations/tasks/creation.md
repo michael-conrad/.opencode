@@ -238,7 +238,7 @@ The body must contain the following 6 sections in order:
 - [ ] 1. **Spec Reference Blockquote** (mandatory — top of body, before all other content):
 
    ```
-   > Full spec and plan artifacts: {{REMOTE_BROWSER_URL}}/{{OWNER}}/{{REPO}}/tree/issues-data/.issues/N/
+   > Full spec and plan artifacts: {{REMOTE_BROWSER_URL}}/{{OWNER}}/{{REPO}}/tree/issues-data/N/
    ```
 
    - `{{REMOTE_BROWSER_URL}}` from session-init (platform-agnostic — use `github.html_url` or `gitbucket.html_url` as appropriate)
