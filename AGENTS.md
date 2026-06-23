@@ -158,23 +158,25 @@ Creating `feature/*` or `spec/*` branches for code changes still requires `for_i
 
 The remote issue body is a human-facing exec summary. It must include two blockquotes at the top:
 
-1. **User-facing folder URL** — a full GitHub URL so the user can browse the spec folder on GitHub
-2. **AI-facing sub-folder references** — relative paths to the issue directory, so agents know where to glob for additional files. Do NOT list individual files — agents should discover content by reading `.issues/{N}/` and globbing `*` automatically.
+1. **User-facing folder URL** — a full browser URL so the user can browse the spec folder on the remote platform
+2. **AI-facing sub-folder references** — relative paths to the issue directory, so agents know where to glob for additional files. Do NOT list individual files — agents should discover content by reading `{issues_prefix}{N}/` and globbing `*` automatically.
 
 ### Pattern
 
 ```
-> **Full spec and artifacts: [`.issues/{N}/`](https://github.com/{owner}/{repo}/tree/issues-data/{N})** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+> **Full spec and artifacts: [`{issues_prefix}{N}/`]({browser_url}/{owner}/{repo}/tree/issues-data/{N})** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 >
-> **Local artifacts:** `.issues/{N}/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+> **Local artifacts:** `{issues_prefix}{N}/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 ```
+
+The `{browser_url}` is derived from the repo entry's `url` field in the session-init `## Repo Information` table (SSH-to-HTTPS conversion, strip `.git`). The `{issues_prefix}` is the repo entry's `issues:` field — NOT a hardcoded value. The submodule folder name is not known until checkout, so the prefix must never be hardcoded.
 
 ### Rules
 
-- **User-facing: One full GitHub URL** — the spec folder, as a blockquote
+- **User-facing: One full browser URL** — the spec folder, as a blockquote
 - **AI-facing: Sub-folder paths only** — reference the issue directory (not individual files). Agents glob `*` to discover content
 - **NO hardcoded file lists** — don't list `plan.md`, `cards.md`, etc. individually in the remote body. They go stale. Agents discover by globbing.
-- AI agents read from `.issues/{N}/` directly — the remote body just tells them where to look
+- AI agents read from `{issues_prefix}{N}/` directly — the remote body just tells them where to look
 
 ### Example
 

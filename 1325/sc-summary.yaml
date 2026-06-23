@@ -1,0 +1,74 @@
+# SC Summary for .opencode#1325
+# Adversarial Audit Pre-Flight Validation Gate
+# Generated: 2026-06-22
+
+spec_issue_number: 1325
+spec_title: "[SPEC] Adversarial audit pre-flight validation gate — BLOCKED with remediation on missing inputs"
+spec_status: DRAFT
+authorization_scope: for_pr
+halt_at: pr_created
+pr_strategy: stacked
+
+success_criteria:
+  - id: SC-1
+    description: Every audit task file has a Step 0 Pre-Flight Validation Gate before any other step
+    evidence_type: string
+    verification_method: grep for "### Step 0: Pre-Flight Validation Gate" in each of the 10 task files
+    pipeline_step_binding: green-phase
+    re_entry_step: null
+    verification_gate: pre-commit
+    artifact_path: .opencode/skills/adversarial-audit/tasks/*.md
+    phase_binding: phase-1
+
+  - id: SC-2
+    description: Pre-flight gate validates only the task's own required inputs
+    evidence_type: semantic
+    verification_method: sub-agent reads each file, confirms Step 0 checks match the task's Entry Criteria section
+    pipeline_step_binding: green-doublecheck
+    re_entry_step: null
+    verification_gate: pre-PR
+    artifact_path: .opencode/skills/adversarial-audit/tasks/*.md
+    phase_binding: phase-1
+
+  - id: SC-3
+    description: BLOCKED responses include context-specific remediation message
+    evidence_type: string
+    verification_method: grep for "remediation:" in each file's Step 0 section
+    pipeline_step_binding: green-phase
+    re_entry_step: null
+    verification_gate: pre-commit
+    artifact_path: .opencode/skills/adversarial-audit/tasks/*.md
+    phase_binding: phase-1
+
+  - id: SC-4
+    description: Cross-validate and verification-audit check for >=2 YAML files in artifact_evidence_dir
+    evidence_type: string
+    verification_method: grep for "INSUFFICIENT_ARTIFACTS" in both files
+    pipeline_step_binding: green-phase
+    re_entry_step: null
+    verification_gate: pre-commit
+    artifact_path: .opencode/skills/adversarial-audit/tasks/verification-audit.md, cross-validate.md
+    phase_binding: phase-1
+
+  - id: SC-5
+    description: Completion dependency chains updated to include Step 0 as first mandatory dependency
+    evidence_type: string
+    verification_method: grep for "Step 0" in each file's dependency chain section
+    pipeline_step_binding: green-phase
+    re_entry_step: null
+    verification_gate: pre-commit
+    artifact_path: .opencode/skills/adversarial-audit/tasks/*.md
+    phase_binding: phase-1
+
+  - id: SC-6
+    description: Existing BLOCKED error codes preserved alongside new Step 0 codes
+    evidence_type: semantic
+    verification_method: sub-agent reads each file, confirms existing error codes still present
+    pipeline_step_binding: green-doublecheck
+    re_entry_step: null
+    verification_gate: pre-PR
+    artifact_path: .opencode/skills/adversarial-audit/tasks/*.md
+    phase_binding: phase-1
+
+phase_count: 1
+decomposition_classification: single-task
