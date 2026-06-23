@@ -15,6 +15,7 @@ variables:
       - red-phase
       - red-doublecheck
       - green-phase
+      - checkpoint-tag-create
       - checkpoint-commit
       - structural-checks
       - green-doublecheck
@@ -33,6 +34,7 @@ variables:
       - red-phase
       - red-doublecheck
       - green-phase
+      - checkpoint-tag-create
       - checkpoint-commit
       - structural-checks
       - green-doublecheck
@@ -51,7 +53,8 @@ preconditions:
   - "z3.Implies(previous_step == z3.StringVal('sc-coherence-gate'), z3.Or(current_step == z3.StringVal('red-phase'), current_step == z3.StringVal('pre-red-baseline')))"
   - "z3.Implies(previous_step == z3.StringVal('red-phase'), current_step == z3.StringVal('red-doublecheck'))"
   - "z3.Implies(previous_step == z3.StringVal('red-doublecheck'), z3.Or(current_step == z3.StringVal('green-phase'), current_step == z3.StringVal('red-phase')))"
-  - "z3.Implies(previous_step == z3.StringVal('green-phase'), current_step == z3.StringVal('checkpoint-commit'))"
+  - "z3.Implies(previous_step == z3.StringVal('green-phase'), current_step == z3.StringVal('checkpoint-tag-create'))"
+  - "z3.Implies(previous_step == z3.StringVal('checkpoint-tag-create'), current_step == z3.StringVal('checkpoint-commit'))"
   - "z3.Implies(previous_step == z3.StringVal('checkpoint-commit'), z3.Or(current_step == z3.StringVal('structural-checks'), current_step == z3.StringVal('green-phase')))"
   - "z3.Implies(previous_step == z3.StringVal('structural-checks'), z3.Or(current_step == z3.StringVal('green-doublecheck'), current_step == z3.StringVal('green-phase')))"
   - "z3.Implies(previous_step == z3.StringVal('green-doublecheck'), z3.Or(current_step == z3.StringVal('green-vbc'), current_step == z3.StringVal('green-phase')))"

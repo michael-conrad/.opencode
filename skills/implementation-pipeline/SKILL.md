@@ -32,6 +32,7 @@ The orchestrator is a pure router — never reads task file content, never perfo
 | "post-red-enforcement" / "RED gate" | `post-red-enforcement` | `sub-task` | {issue_number} |
 | "green-phase" / "implement" | `green-phase` | `sub-task` | {issue_number} |
 | "post-green-enforcement" / "GREEN gate" | `post-green-enforcement` | `sub-task` | {issue_number} |
+| "checkpoint-tag-create" / "create checkpoint tag" | `checkpoint-tag-create` | `sub-task` | {issue_number} |
 | "checkpoint-commit" / "save checkpoint" | `checkpoint-commit` | `sub-task` | {issue_number} |
 | "structural-checks" / "lint/typecheck" | `structural-checks` | `sub-task` | {issue_number} |
 | "green-doublecheck" / "verify GREEN" | `green-doublecheck` | `sub-task` | {issue_number} |
@@ -53,6 +54,7 @@ The orchestrator is a pure router — never reads task file content, never perfo
 | `post-red-enforcement` | `implementation-pipeline --task post-red-enforcement` (git diff --name-only -- src/ \| wc -l) | git diff structural gate result |
 | `green-phase` | `test-driven-development --task green` | implementation code + test pass |
 | `post-green-enforcement` | `implementation-pipeline --task post-green-enforcement` (git diff --name-only -- test/ \| wc -l) | git diff structural gate result |
+| `checkpoint-tag-create` | `git-workflow --task commit-prep` (git tag `<parent>/checkpoint/<issue>/phase-<N>-<submodule>`) | checkpoint tag created |
 | `checkpoint-commit` | `git-workflow --task commit-prep` | commit status |
 | `structural-checks` | `finishing-a-development-branch --task checklist` | lint/typecheck/format results |
 | `green-doublecheck` | `verification-before-completion --task verify` (semantic-intent verification) | GREEN-side SC evidence + intent verdict |
@@ -75,7 +77,7 @@ Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run
 
 ## Step Labels (for #932 naming convention)
 
-`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `red-doublecheck`, `post-red-enforcement`, `green-phase`, `post-green-enforcement`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
+`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `red-doublecheck`, `post-red-enforcement`, `green-phase`, `post-green-enforcement`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
 
 ## Invocation
 
@@ -208,6 +210,7 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 | `red-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-red-phase-*` |
 | `green-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-phase-*` |
 | `post-green-enforcement` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-post-green-enforcement-*` |
+| `checkpoint-tag-create` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-checkpoint-tag-create-*` |
 | `checkpoint-commit` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-*` |
 | `structural-checks` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-structural-checks-*` |
 | `green-doublecheck` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-doublecheck-*` |

@@ -33,10 +33,10 @@ Plan Author. Focus: transform spec into phased plan with file structure, TDD ste
 
 ## Plan Model
 
-**All plans are local artifacts.** Plans are stored at `.issues/{N}/plan.md`. Phases are sections in the local plan file.
+**All plans are local artifacts.** Plans use the multi-file format: master ToC + per-phase sub-plans.
 
-- **Separate (multi-task):** `.issues/{N}/plan.md` with stand-alone phase sections, each with concern boundary annotations
-- **Combined (single-task):** `.issues/{N}/plan.md` referencing spec content inline
+- **Separate (multi-task):** Multi-file format — master ToC at `.issues/{N}/plan.md` (≤50 lines, phase list table with Depends On and Exit Criteria columns) + per-phase sub-plans at `.issues/{N}/plan-phase-{N}.md` (one per phase, each with YAML header, three-section structure, dispatch contracts, commits:true, and explicit checkpoint tag creation step)
+- **Combined (single-task):** Single-file format — `.issues/{N}/plan.md` referencing spec content inline
 
 ## Invocation
 

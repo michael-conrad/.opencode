@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Write plan document to `.issues/{N}/plan.md`, validate structure, and handle approval cascade with scope-aware auto-approval.
+Write plan document(s) to `.issues/{N}/` (master ToC `plan.md` + per-phase sub-plans `plan-phase-N.md`), validate structure, and handle approval cascade with scope-aware auto-approval. Produces the new multi-file format with dispatch contracts, commit boundaries, and explicit checkpoint tag creation steps.
 
 ## Entry Criteria
 

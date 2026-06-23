@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Structure the implementation plan from approved spec: verification gate, combined/separate decision, file structure mapping, and TDD task definition with RED verification checkpoints.
+Structure the implementation plan from approved spec: verification gate, combined/separate decision, file structure mapping, and TDD task definition with RED verification checkpoints. Produces the new multi-file format: master ToC (`plan.md`) + per-phase sub-plans (`plan-phase-N.md`) with dispatch contracts, commit boundaries, and explicit checkpoint tag creation steps.
 
 ## Entry Criteria
 
@@ -81,26 +81,29 @@ This is a hard gate — the plan-writer MUST NOT proceed without a PASS from the
 
 | Condition | Outcome |
 | -- | -- |
-| Multi-task spec (mixed concerns or independence) | **Always separate** — separate phase sections in `.issues/{N}/plan.md` |
+| Multi-task spec (mixed concerns or independence) | **Always separate** — multi-file format: master ToC (`plan.md`) + per-phase sub-plans (`plan-phase-N.md`) |
 | Single-task spec AND spec body can absorb plan content | **Candidate for combined** — agent evaluates readability |
-| Single-task AND combining makes document hard to read | **Separate** — stand-alone sections in `.issues/{N}/plan.md` |
+| Single-task AND combining makes document hard to read | **Separate** — multi-file format |
 
 **Decision output (MANDATORY):**
 
 ```
 Plan structure decision: combined/separate
+Format: multi-file (master ToC + sub-plans) / single-file
 Reason: <justification referencing evaluation criteria>
 ```
 
-**If COMBINED:**
+**If COMBINED (single-file):**
 
 - Write to `.issues/{N}/plan.md`, reference spec content inline
 - Retain `[SPEC]` title prefix
 - Proceed to Step 2
 
-**If SEPARATE:**
+**If SEPARATE (multi-file):**
 
-- Write to `.issues/{N}/plan.md` with separate phase sections
+- Write master ToC to `.issues/{N}/plan.md` (≤50 lines, phase list table with Depends On and Exit Criteria columns)
+- Write per-phase sub-plans to `.issues/{N}/plan-phase-{N}.md` (one per phase)
+- Each sub-plan includes: YAML header (phase, concern, depends_on, scs, checkpoint_tag), three-section structure (Pre-RED Common, Per-Item RED/GREEN Chains, Post-RED/green), dispatch contract fields (must_receive/must_not_receive), commits:true declarations, and explicit checkpoint tag creation step
 - Proceed to Step 2
 
 ### Step 1.6: Duplicate Plan Check
