@@ -75,7 +75,7 @@ Route based on `github.platform`:
 
 **GitHub platform (sub-skill implementation):**
 ```python
-sub_issue = issue-operations -> update-issue (platform_issue_write(
+sub_issue = issue-operations -> update-issue (
     method="create",
     owner=<github.owner>,
     repo=<github.repo>,
@@ -95,7 +95,7 @@ Route to `platforms/local/tasks/creation.md` via task(). Pass: `{title: "[Task: 
 
 ### Step 4.5: EXTRACT URL FROM API RESPONSE
 
-- [ ] 1. The sub-issue URL MUST be copied verbatim from the `issue-operations -> update-issue (platform_issue_write` API response's `html_url` field.
+- [ ] 1. The sub-issue URL MUST be copied verbatim from the `issue-operations -> update-issue` API response's `html_url` field.
 - [ ] 2. Do NOT retype, reconstruct, or assemble the URL from known values (org, repo, number).
 - [ ] 3. Paste the URL exactly as returned. If the API response is `{ "html_url": "{browser_url}/Org/Repo/issues/42" }`, the output URL is `{browser_url}/Org/Repo/issues/42` — character for character.
 - [ ] 4. Verification checkpoint: Compare the pasted URL character-by-character against the `html_url` field in the API response before sending.

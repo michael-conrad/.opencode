@@ -255,7 +255,7 @@ for issue_num, classification in closure_candidates.items():
     if sub_info:
         # Route closure to submodule's owner/repo
         if sub_info["platform"] == "github":
-            issue-operations -> creation/update (platform_issue_write( <!-- Routes through issue-operations per SPEC #683 -->
+            issue-operations -> creation/update ( <!-- Routes through issue-operations per SPEC #683 -->
                 method="update",
                 owner=sub_info["owner"],
                 repo=sub_info["repo"],

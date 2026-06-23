@@ -21,7 +21,7 @@ Reference `.opencode/skills/completion-core/completion-core.md` for reporting:
 
 ### Step N: EXTRACT URL FROM API RESPONSE
 
-- [ ] 1. The Issue URL MUST be copied verbatim from the `issue-operations -> update-issue (platform_issue_write` API response's `html_url` field. <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 1. The Issue URL MUST be copied verbatim from the `issue-operations -> update-issue` API response's `html_url` field. <!-- Routes through issue-operations per SPEC #683 -->
 - [ ] 2. Do NOT retype, reconstruct, or assemble the URL from known values (org, repo, number).
 - [ ] 3. Paste the URL exactly as returned. If the API response is `{ "html_url": "{browser_url}/Org/Repo/issues/42" }`, the output URL is `{browser_url}/Org/Repo/issues/42` — character for character.
 - [ ] 4. Verification checkpoint: Compare the pasted URL character-by-character against the `html_url` field in the API response before sending.
@@ -52,7 +52,7 @@ This checkpoint catches direct API calls that bypassed the `issue-operations` sk
 |---------|-------------------|-----------|
 | Issue body/comment created via `issue-operations -> update-issue` on created issue | <!-- Routes through issue-operations per SPEC #683 -->
 | PR created via `github_create_pull_request` | Review PR body for byline | `github_pull_request_read(method="get")` on PR |
-| Issue comment via `issue-operations -> comment (platform_add_issue_comment` | Review comment for byline | Review issue comments | <!-- Routes through issue-operations per SPEC #683 -->
+| Issue comment via `issue-operations -> comment` | Review comment for byline | Review issue comments | <!-- Routes through issue-operations per SPEC #683 -->
 
 **Failure:** If any AI-authored content is missing a byline → `STRUCTURE-VIOLATION`. Add missing byline via `issue-operations -> update-issue` (only if `len(new_body) >= 0.8 * len(original_body)` per body-preservation rule) or append a follow-up comment with the proper byline. <!-- Routes through issue-operations per SPEC #683 -->
 

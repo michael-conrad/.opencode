@@ -14,7 +14,7 @@ Idempotent completion subtask for approval-gate. Ensures mandatory steps run reg
    - Record authorization in local state file `.issues/{N}/issue.yaml`
    - The label is stakeholder advisory only — not an authorization signal
    - The local state file is the single source of truth for authorization state
-   - No `issue-operations -> comment (platform_add_issue_comment` calls for authorization-related output
+   - No `issue-operations -> comment` calls for authorization-related output
 
 ## Shared Completion Delegation
 
@@ -62,8 +62,8 @@ Issue URL: <html_url from issue-operations -> update-issue or issue-operations -
 
 The Issue URL MUST be extracted from the API response `html_url` field — NEVER constructed from template variables:
 
-- [ ] 1. If the issue was created in this session: Extract `html_url` from the `issue-operations -> update-issue (platform_issue_write` creation response <!-- Routes through issue-operations per SPEC #683 -->
-- [ ] 2. If the issue was read (not created): Extract `html_url` from the `issue-operations -> read-issue (platform_issue_read` response <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 1. If the issue was created in this session: Extract `html_url` from the `issue-operations -> update-issue` creation response <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 2. If the issue was read (not created): Extract `html_url` from the `issue-operations -> read-issue` response <!-- Routes through issue-operations per SPEC #683 -->
 - [ ] 3. **Template construction is FORBIDDEN for post-creation URLs** — do NOT assemble from `<gitbucket.html_url>`, `<github.owner>`, `<github.repo>`, or issue number
 - [ ] 4. If `html_url` is not available in the API response: HALT and report
 

@@ -151,7 +151,7 @@ Every action MUST produce a live tool-call artifact:
 | Auto-close (merged PR) | `github_pull_request_read` response showing `merged_at` |
 | Auto-close (code verified) | `read`/`grep`/`srclight` output confirming code in repo |
 | Reopen | `github_search_pull_requests` showing no merged PR + codebase read showing code NOT present |
-| No-action (not_planned/duplicate) | `issue-operations -> read-issue (platform_issue_read` response showing `state_reason` | <!-- Routes through issue-operations per SPEC #683 -->
+| No-action (not_planned/duplicate) | `issue-operations -> read-issue` response showing `state_reason` | <!-- Routes through issue-operations per SPEC #683 -->
 | Uncertain | Conflicting tool-call results that prevent confident classification |
 | Evidence gate | `read`/`grep`/`srclight_get_symbol` output for auto-close candidates (mandatory — candidates without artifacts reclassified as `uncertain`) |
 | Comment conflict scan | `issue-operations -> read-comments` output confirming no contradicting comments within 24-hour window | <!-- Routes through issue-operations per SPEC #683 -->
