@@ -167,6 +167,18 @@ After defining phase structure, consume the `sc-summary.yaml` from spec artifact
 1. Flag orphan SCs (in YAML but not mapped to any plan item) as MISSING-TRACEABILITY
 1. Flag extra SCs (in plan but not in YAML) as SCOPE-CREEP
 
+### Step 3.5: Phase-to-Skill Mapping Artifact (SC-4, SC-5, SC-6)
+
+Before defining TDD items, produce a phase-to-skill-mapping artifact:
+
+1. Read `implementation-pipeline/SKILL.md` §Dispatch Routing Table
+2. Build a mapping of concern category → skill name per phase
+3. Write `.issues/{issue-N}/phase-to-skill-mapping.yaml`
+
+The mapping controls which dispatch markers appear in the generated plan. A phase that produces Python code gets `engineering-approach` markers. A phase that updates skill task files gets `skill-creator` markers. A phase with RED/GREEN cycles gets `test-driven-development` markers for the test steps.
+
+The mapping MUST be exhaustive — no phase step is assigned bare `(**clean-room**)` without a named skill. The mapping MUST include `engineering-approach` for code-implementation concerns regardless of language.
+
 ### Step 3.5: RED/GREEN Condition Language (SC-2, SC-4 — Forward-Looking Stance)
 
 Each item's RED/GREEN conditions MUST describe requirements, not implementation:
@@ -236,10 +248,19 @@ This section contains one RED/GREEN pair per implementation item. Each pair is a
 
 #### Post-RED/green
 
-Post-cycle validation that runs once per phase after all RED/GREEN chains complete. This section contains:
-- Phase 4 regression verification
-- Completeness gate
-- Adversarial audit routing
+Post-cycle validation that runs once per phase after all RED/GREEN chains complete. This section MUST contain the following three mandatory pipeline gates in order:
+
+1. **COMPLETENESS GATE** — `completeness-gate` (**clean-room**) — Verify all SCs in this phase are covered before audit
+2. **ADVERSARIAL AUDIT** — `adversarial-audit` (**orchestrator**) — Cross-family audit with expanded sub-steps:
+   - Run resolve-models to select cross-family auditors
+   - Dispatch audit task with auditor_1
+   - If auditor_1 returned non-clean-pass: remediate root cause, restart
+   - Dispatch audit task with auditor_2
+   - If auditor_2 returned non-clean-pass: remediate root cause, restart
+   - Both auditors clean PASS. Collect artifact_path values, pass to cross-validate
+3. **EXEC SUMMARY** — `completion-core` (**clean-room**) — Write phase-complete event to lifecycle manifest, report completion in chat with byline
+
+Each gate MUST be expanded into indented checkbox sub-steps. Arrow-chain prose is prohibited.
 
 #### Validation Rules
 
@@ -272,12 +293,18 @@ Every unit gets its own numbered checklist with dispatch indicators. NOT a singl
 **Output format:**
 
 ```
-- [ ] 1. <gate-label> (**<dispatch-mode>**) — <unit-specific exit criterion>
+- [ ] 1. <gate-label> — `<skill-name>` for <concern> (**<dispatch-mode>**)
+    → dispatch: "execute <task> from <skill-name>"
+    → SC-N
   - <sub-step description> (**<dispatch-mode>**)
   - <sub-step description> (**<dispatch-mode>**)
-- [ ] 2. <gate-label> (**<dispatch-mode>**) — <unit-specific exit criterion>
+- [ ] 2. <gate-label> — `<skill-name>` for <concern> (**<dispatch-mode>**)
+    → dispatch: "execute <task> from <skill-name>"
+    → SC-N
 ...
 ```
+
+Every step MUST include a skill name in the dispatch marker. Bare `(**clean-room**)` or `(**inline**)` without a preceding `— <skill-name> for <concern>` is invalid. The skill name MUST reference an existing directory under `.opencode/skills/`.
 
 ### Step 5.5: `plan` Utility Invocation for Phase Solvability
 

@@ -1,0 +1,5 @@
+spec_issue_number: int
+phase_definitions: list[dict]
+solve_status: string
+plan_status: string
+authorization_scope: string

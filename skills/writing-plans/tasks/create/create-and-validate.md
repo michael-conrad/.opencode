@@ -48,19 +48,26 @@ Each phase MUST use the implementation pipeline checklist format. Gate sequence 
 **Files:** exact paths or glob patterns
 **SCs covered:** SC-N, SC-M
 
-- [ ] 1. <STEP-LABEL> (**<clean-room|inline>**). <description> → SC-N
-- [ ] N. <STEP-LABEL> (**<clean-room|inline>**). <description> → SC-N
+- [ ] 1. <STEP-LABEL> — `<skill-name>` for <concern> (**<clean-room|inline>**)
+    → dispatch: "execute <task> from <skill-name>"
+    → SC-N
+- [ ] N. <STEP-LABEL> — `<skill-name>` for <concern> (**<clean-room|inline>**)
+    → dispatch: "execute <task> from <skill-name>"
+    → SC-N
 ```
 
 **Format rules:**
 - Every step is `- [ ] N.` with at least one sub-bullet — no prose-only steps
-- Every step title contains `(**clean-room**)` or `(**inline**)` dispatch indicator
+- Every step title contains `— <skill-name> for <concern> (**<clean-room|inline>**)` with a skill name in the dispatch marker
 - Every step that maps to a success criterion has a `→ SC-N` annotation
 - No step describes more than one atomic action — sub-operations get their own `- [ ] N.` entries
 - Gate sequence is discovered from `implementation-pipeline/SKILL.md` §Dispatch Routing Table — never hardcoded
+- Bare `(**clean-room**)` or `(**inline**)` without a preceding skill name is invalid
 
 **Concern boundary annotations (prose-driven):**
 When transitioning concerns: describe what is being left, what is being entered, what information is needed for handoff.
+
+**Pre-RED common sub-step format:** Every sub-step in Pre-RED Common sections MUST use the `- [ ] N.` indented checkbox format — never `→` prose continuation lines. This applies to verification gate, read-spec, read-routing-table, and all other pre-RED sub-steps.
 
 ### Step 7.5: Spec-to-Plan Handoff Artifact Check
 
@@ -150,13 +157,17 @@ Every phase checklist MUST pass the following three-part structure validation ru
 Every plan phase checklist MUST pass the following 8 validation rules in addition to the phase structure rules above:
 
 1. **Checklist format:** Every step is `- [ ] N.` with at least one sub-bullet — no prose-only steps, no collapsed multi-operation steps
-2. **Dispatch indicator:** Every step title contains `(**clean-room**)` or `(**inline**)` — no step is missing a dispatch mode marker
+2. **Dispatch indicator:** Every step title contains `— <skill-name> for <concern> (**<clean-room|inline>**)` — no step is missing a skill name in the dispatch marker. Bare `(**clean-room**)` or `(**inline**)` without a preceding skill name is rejected
 3. **Gate sequence match:** Gate sequence matches `implementation-pipeline/SKILL.md` §Dispatch Routing Table — every step label must exist in the canonical source
 4. **Atomic action:** No step describes more than one atomic action — every sub-operation from pipeline task files is expanded into its own `- [ ] N.` entry
 5. **SC annotations:** All SCs referenced via `→ SC-N` annotations — every step that maps to a success criterion has a visible SC reference
 6. **No TBD/TODO:** No TBD/TODO placeholders — all steps are actionable
 7. **Admonishment present:** Compliance admonishment blockquote present at top and bottom of plan body
 8. **Phase dependency ordering:** Phase dependency ordering matches spec architecture — no phase references a dependency that does not exist
+
+9. **Skill name exists:** Every dispatch marker with a skill name (`— <skill-name> for`) must reference an existing directory under `.opencode/skills/`. HALT with `SKILL_NOT_FOUND` if any marker references a non-existent skill.
+10. **Exhaustive mapping:** Every phase step MUST have a named skill in its dispatch marker. No step may use bare `(**clean-room**)` or `(**inline**)` without a preceding `— <skill-name> for <concern>`. HALT with `MISSING_SKILL_NAME` if any step lacks a skill name.
+11. **Post-RED pipeline gates:** Every phase's Post-RED/green section MUST contain all three mandatory pipeline gates: `completeness-gate`, `adversarial-audit`, and `completion-core`. Each gate MUST be expanded into indented checkbox sub-steps. HALT with `MISSING_POST_RED_GATE` if any gate is absent or collapsed into prose.
 
 If any rule fails: HALT with MISSING-TRACEABILITY and report which rule(s) failed.
 
