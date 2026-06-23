@@ -23,24 +23,26 @@ This is the core dispatch routing table for the 14-step serial implementation pi
 - `github.repo`
 - `issue_number`
 
-## 14-Step Dispatch Table
+## 16-Step Dispatch Table
 
 | Step # | Step Label | Dispatches To | Artifact Produced | YAML Contract Schema |
 |--------|------------|---------------|-------------------|---------------------|
-| 1 | `sc-coherence-gate` | `adversarial-audit --task coherence-extraction` | `./tmp/{issue-N}/artifacts/pipeline-sc-coherence-gate-{STATUS}-{timestamp}.yaml` | `per_criterion[]` from #932 |
-| 2 | `pre-red-baseline` | `implementation-pipeline --task pre-red-baseline` (simple bash) | `./tmp/{issue-N}/state/state.yaml` + `./tmp/{issue-N}/artifacts/` YAML | pipeline state file |
+| 1 | `sc-coherence-gate` | `adversarial-audit --task coherence-extraction` (evidence-type uplift + substrate classification) | `./tmp/{issue-N}/artifacts/pipeline-sc-coherence-gate-{STATUS}-{timestamp}.yaml` | `per_criterion[]` from #932 |
+| 2 | `pre-red-baseline` | `implementation-pipeline --task pre-red-baseline` (doc-source-currency + SC-ID cross-ref traceability) | `./tmp/{issue-N}/state/state.yaml` + `./tmp/{issue-N}/artifacts/` YAML | pipeline state file |
 | 3 | `red-phase` | `test-driven-development --task red` | `./tmp/{issue-N}/artifacts/pipeline-red-phase-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
 | 4 | `red-doublecheck` | `verification-before-completion --task verify` | `./tmp/{issue-N}/artifacts/pipeline-red-doublecheck-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
-| 5 | `green-phase` | `test-driven-development --task green` | `./tmp/{issue-N}/artifacts/pipeline-green-phase-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
-| 6 | `checkpoint-commit` | `git-workflow --task commit-prep` | `./tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 7 | `structural-checks` | `finishing-a-development-branch --task checklist` (enforces advisory-only mode: all linters run with `--check`/report-only flags, never auto-modify) | `./tmp/{issue-N}/artifacts/pipeline-structural-checks-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 8 | `green-doublecheck` | `verification-before-completion --task verify` | `./tmp/{issue-N}/artifacts/pipeline-green-doublecheck-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
-| 9 | `green-vbc` | `verification-before-completion --task completion` | `./tmp/{issue-N}/artifacts/pipeline-green-vbc-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 10 | `adversarial-audit` | `adversarial-audit --task verification-audit` | `./tmp/{issue-N}/artifacts/pipeline-audit-{auditor_type}-{STATUS}-{timestamp}.yaml` | `per_criterion[]` (#932 schema) |
-| 11 | `cross-validate` | `adversarial-audit --task cross-validate` | `./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml` | cross-validate YAML (#932 schema) |
-| 12 | `regression-check` | `test-driven-development --task patterns` (regression) | `./tmp/{issue-N}/artifacts/pipeline-regression-check-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
-| 13 | `review-prep` | `git-workflow --task review-prep` | review-prep status | single-criterion |
-| 14 | `exec-summary` | `completion-core --task completion` | append lifecycle event + chat exec summary | single-criterion |
+| 5 | `post-red-enforcement` | `implementation-pipeline --task post-red-enforcement` (git diff --name-only -- src/ \| wc -l) | `./tmp/{issue-N}/artifacts/pipeline-post-red-enforcement-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 6 | `green-phase` | `test-driven-development --task green` | `./tmp/{issue-N}/artifacts/pipeline-green-phase-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
+| 7 | `post-green-enforcement` | `implementation-pipeline --task post-green-enforcement` (git diff --name-only -- test/ \| wc -l) | `./tmp/{issue-N}/artifacts/pipeline-post-green-enforcement-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 8 | `checkpoint-commit` | `git-workflow --task commit-prep` | `./tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 9 | `structural-checks` | `finishing-a-development-branch --task checklist` (enforces advisory-only mode: all linters run with `--check`/report-only flags, never auto-modify) | `./tmp/{issue-N}/artifacts/pipeline-structural-checks-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 10 | `green-doublecheck` | `verification-before-completion --task verify` (semantic-intent verification) | `./tmp/{issue-N}/artifacts/pipeline-green-doublecheck-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
+| 11 | `green-vbc` | `verification-before-completion --task completion` | `./tmp/{issue-N}/artifacts/pipeline-green-vbc-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 12 | `adversarial-audit` | `adversarial-audit --task verification-audit` | `./tmp/{issue-N}/artifacts/pipeline-audit-{auditor_type}-{STATUS}-{timestamp}.yaml` | `per_criterion[]` (#932 schema) |
+| 13 | `cross-validate` | `adversarial-audit --task cross-validate` | `./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml` | cross-validate YAML (#932 schema) |
+| 14 | `regression-check` | `test-driven-development --task patterns` (regression) | `./tmp/{issue-N}/artifacts/pipeline-regression-check-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
+| 15 | `review-prep` | `git-workflow --task review-prep` | review-prep status | single-criterion |
+| 16 | `exec-summary` | `completion-core --task completion` | append lifecycle event + chat exec summary | single-criterion |
 
 ## Post-Step Checkpoint Creation
 
