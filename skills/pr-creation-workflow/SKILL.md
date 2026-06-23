@@ -14,7 +14,13 @@ PR creation is a DISTINCT phase requiring EXPLICIT instruction — NOT automatic
 
 Feature PRs target `dev` only. Release PRs (dev→main) handled by `git-workflow --task release-promotion`.
 
+## Mandatory Task Discipline
 
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 4. Sub-agents must not dispatch sub-agents
+- [ ] 5. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Trigger Dispatch Table
 

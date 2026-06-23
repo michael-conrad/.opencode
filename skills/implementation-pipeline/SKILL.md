@@ -15,11 +15,17 @@ compatibility: opencode
 
 ## Overview
 
-Pure orchestrator routing table with 16 serial dispatch steps. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`. YAML contract artifacts at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml`.
+Pure orchestrator routing table with 17 serial dispatch steps. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`. YAML contract artifacts at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml`.
 
 The orchestrator is a pure router — never reads task file content, never performs inline analysis. Sub-agents do the work.
 
+## Mandatory Task Discipline
 
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 4. Sub-agents must not dispatch sub-agents
+- [ ] 5. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Trigger Dispatch Table
 
@@ -32,6 +38,7 @@ The orchestrator is a pure router — never reads task file content, never perfo
 | "post-red-enforcement" / "RED gate" | `post-red-enforcement` | `sub-task` | {issue_number} |
 | "green-phase" / "implement" | `green-phase` | `sub-task` | {issue_number} |
 | "post-green-enforcement" / "GREEN gate" | `post-green-enforcement` | `sub-task` | {issue_number} |
+| "checkpoint-tag-create" / "create checkpoint tag" | `checkpoint-tag-create` | `sub-task` | {issue_number} |
 | "checkpoint-commit" / "save checkpoint" | `checkpoint-commit` | `sub-task` | {issue_number} |
 | "structural-checks" / "lint/typecheck" | `structural-checks` | `sub-task` | {issue_number} |
 | "green-doublecheck" / "verify GREEN" | `green-doublecheck` | `sub-task` | {issue_number} |
@@ -53,6 +60,7 @@ The orchestrator is a pure router — never reads task file content, never perfo
 | `post-red-enforcement` | `implementation-pipeline --task post-red-enforcement` (git diff --name-only -- src/ \| wc -l) | git diff structural gate result |
 | `green-phase` | `test-driven-development --task green` | implementation code + test pass |
 | `post-green-enforcement` | `implementation-pipeline --task post-green-enforcement` (git diff --name-only -- test/ \| wc -l) | git diff structural gate result |
+| `checkpoint-tag-create` | `implementation-pipeline --task checkpoint-tag-create` (creates git tag per `000-critical-rules.md` §Checkpoint Rollback Exception) | checkpoint tag created |
 | `checkpoint-commit` | `git-workflow --task commit-prep` | commit status |
 | `structural-checks` | `finishing-a-development-branch --task checklist` | lint/typecheck/format results |
 | `green-doublecheck` | `verification-before-completion --task verify` (semantic-intent verification) | GREEN-side SC evidence + intent verdict |
@@ -66,7 +74,7 @@ The orchestrator is a pure router — never reads task file content, never perfo
 **Note:** The `adversarial-audit` step is a multi-dispatch sequence with remediation loop-back. The audit task dispatched depends on pipeline phase (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation):
 - [ ] 1. Run `.opencode/tools/resolve-models` to select cross-family auditors
 - [ ] 2. Dispatch the appropriate audit task with `subagent_type` from `auditor_1`
-- [ ] 3. If auditor 1 returned non-clean-pass (FAIL or DONE_WITH_CONCERNS): remediate the root cause, then restart from step 1 (re-run resolve-models). Do NOT dispatch auditor 2.
+- [ ] 3. If auditor 1 returned non-clean-pass (FAIL): remediate the root cause, then restart from step 1 (re-run resolve-models). Do NOT dispatch auditor 2. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in `pipeline-executor.md`.
 - [ ] 4. Dispatch the same audit task with `subagent_type` from `auditor_2`
 - [ ] 5. If auditor 2 returned non-clean-pass: remediate the root cause, then restart from step 1 (re-run resolve-models).
 - [ ] 6. Both auditors clean PASS. Collect both `artifact_path` values and pass as `auditor_artifact_paths` context to `cross-validate`.
@@ -81,7 +89,7 @@ Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run
 
 ## Step Labels (for #932 naming convention)
 
-`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `red-doublecheck`, `post-red-enforcement`, `green-phase`, `post-green-enforcement`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `resolve-models`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
+`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `red-doublecheck`, `post-red-enforcement`, `green-phase`, `post-green-enforcement`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `resolve-models`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
 
 ## Invocation
 
@@ -226,6 +234,7 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 | `red-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-red-phase-*` |
 | `green-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-phase-*` |
 | `post-green-enforcement` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-post-green-enforcement-*` |
+| `checkpoint-tag-create` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-checkpoint-tag-create-*` |
 | `checkpoint-commit` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-*` |
 | `structural-checks` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-structural-checks-*` |
 | `green-doublecheck` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-doublecheck-*` |

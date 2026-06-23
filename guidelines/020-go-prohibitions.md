@@ -148,7 +148,7 @@ The sub-agent returns only:
 
 | Field | Required | Purpose |
 |-------|----------|---------|
-| `status` | Yes | DONE / BLOCKED / DONE_WITH_CONCERNS |
+| `status` | Yes | DONE / BLOCKED / OVERFLOW |
 | `finding_summary` | Yes | 1-3 sentences of routing-significant output |
 | `artifact_path` | Yes | Path to full evidence on disk |
 | `blocker_reason` | If BLOCKED | Why blocked |

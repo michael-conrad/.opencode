@@ -680,7 +680,7 @@ See `approval-gate` skill → Authorization Scope Model.
 
 ### [critical-rules-hard-fail] Hard Failure Discipline — FAIL is a hard gate, never reclassifiable
 
-A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup gate, SC-verification gate, phase-completion gate) is a **hard gate** — it must be remediated, not sidestepped.
+A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup gate, SC-verification gate, phase-completion gate) is a **hard gate** — it must be remediated, not sidestepped. `DONE_WITH_CONCERNS` is coerced to FAIL — caveats are defects, not completions. The bright-line coercion rule in `implementation-pipeline/tasks/pipeline-executor.md` governs this coercion.
 
 **Remediation-first sequence (mandated by #763):**
 1. **Remediate** the root cause — diagnose what produced the FAIL
@@ -2058,10 +2058,9 @@ rules:
     tier: 2
     title: "Hard Failure Discipline — FAIL is a hard gate, never reclassifiable"
     conditions:
-      all:
-        - "pipeline_stage in ['verdict','sub_agent_result','cleanup_gate','sc_verification_gate','phase_completion_gate']"
-        - "gate_result == 'FAIL'"
-        - "action_taken in ['reclassify','inconclusive_verdict','halt_no_remediate']"
+      any:
+        - "pipeline_stage in ['verdict','sub_agent_result','cleanup_gate','sc_verification_gate','phase_completion_gate'] and gate_result == 'FAIL' and action_taken in ['reclassify','inconclusive_verdict','halt_no_remediate']"
+        - "gate_result == 'DONE_WITH_CONCERNS'"
     actions:
       - HALT
       - REMEDIATE
