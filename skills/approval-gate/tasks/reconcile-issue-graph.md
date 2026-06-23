@@ -102,9 +102,7 @@ Add to `requires_dev_action` list in the result contract.
 For each verified auto-close candidate:
 
 - [ ] 1. Call `issue-operations -> update-issue (github_issue_write(method=update, state=closed, state_reason=completed)` on the issue. <!-- Routes through issue-operations per SPEC #683 -->
-- [ ] 2. Call `issue-operations -> comment (github_add_issue_comment` with evidence (including Step 2.5 artifact reference): <!-- Routes through issue-operations per SPEC #683 -->
-   - Merged PR: "Auto-closing: merged PR #N confirmed (merged_at: TIMESTAMP) (evidence: merged_at via github_pull_request_read). Issue graph reconciliation via `reconcile-issue-graph`."
-   - Code verified: "Auto-closing: success criteria verified against live code (files: [...], symbols: [...]) (evidence: <artifact description from Step 2.5>). Issue graph reconciliation via `reconcile-issue-graph`."
+- [ ] 2. Append closure event to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with evidence references (merged PR number or code verification details).
 - [ ] 3. Remove `needs-approval` label if present.
 
 ### Step 7: Execute Reopen Actions
@@ -112,7 +110,7 @@ For each verified auto-close candidate:
 For each verified reopen candidate:
 
 - [ ] 1. Call `issue-operations -> update-issue (github_issue_write(method=update, state=open)` on the issue. <!-- Routes through issue-operations per SPEC #683 -->
-- [ ] 2. Call `issue-operations -> comment (github_add_issue_comment`: "Reopening: no merged PR found and code not present in repo. Previous closure may have been premature. Issue graph reconciliation via `reconcile-issue-graph`." <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 2. Append reopen event to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with reason: "no merged PR found and code not present in repo".
 
 ### Step 8: Output Reconciliation Report
 

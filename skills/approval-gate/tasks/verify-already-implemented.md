@@ -94,17 +94,11 @@ For each success criterion:
 
 When ALL success criteria are verified as already met:
 
-- [ ] 1. **Post close comment** on the GitHub Issue:
+- [ ] 1. **Remove `needs-approval` label** from the issue (if present)
 
-   All success criteria verified as already implemented. No file modifications required.
+- [ ] 2. **Close the issue** with state `closed` and state_reason `completed`
 
-   <criterion-by-criterion evidence summary>
-
-   Closing as already implemented.
-
-- [ ] 2. **Remove `needs-approval` label** from the issue (if present)
-
-- [ ] 3. **Close the issue** with state `closed` and state_reason `completed`
+- [ ] 3. **Append closure event** to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with criterion-by-criterion evidence summary
 
 - [ ] 4. **Post chat output** with executive summary:
    - What happened: Spec #N approved but all success criteria already met
@@ -129,17 +123,7 @@ After autoclosing the current issue (Step 5), check if the parent plan's sub-iss
 
 - [ ] 3. **If ALL sub-issues are legitimately closed:**
    - Plans are local artifacts — no GitHub Issue closure needed. The plan file remains as a record.
-   - Route verification results through `issue-operations -> comment` substantive gate. Gate decides whether to post to the parent spec issue.
-     ```
-     All sub-issues verified complete.
-
-     Sub-issue closure evidence:
-     - #<N1>: Verified via [merged PR / already-implemented autoclose] — <brief evidence>
-     - #<N2>: Verified via [merged PR / already-implemented autoclose] — <brief evidence>
-     - ...
-
-     Parent plan closure is legitimate because all child issues are verified complete.
-     ```
+   - Append parent closure event to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with sub-issue closure evidence.
    - Report in chat output: "Parent plan #<plan_number> closed — all sub-issues verified complete"
 
 - [ ] 4. **If ANY sub-issue is NOT closed or NOT legitimately completed:**
@@ -168,9 +152,9 @@ When `verify-already-implemented` identifies issues that were already implemente
 
 - [ ] 1. **Verify PR merge via GitHub API** — Use `github_pull_request_read(method=get)` on the referenced PR. Confirm `merged == true` and `state == "closed"`. Do NOT rely on visual inspection or memory.
 
-- [ ] 2. **Close each verified-already-implemented issue** with a comment referencing the merged PR:
+- [ ] 2. **Close each verified-already-implemented issue** with a lifecycle event referencing the merged PR:
    - Use `issue-operations -> update-issue (github_issue_write(method=update, state="closed", state_reason="completed")` <!-- Routes through issue-operations per SPEC #683 -->
-   - Use `issue-operations -> comment (github_add_issue_comment` with a reference to the merged PR (e.g., `Closing: implementation verified via merged PR #N`) <!-- Routes through issue-operations per SPEC #683 -->
+   - Append closure event to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with merged PR reference
 
 - [ ] 3. **Remove `needs-approval` label** if present — Use `issue-operations -> read-labels (github_issue_read(method=get_labels)` to check, then remove via label update if found. <!-- Routes through issue-operations per SPEC #683 -->
 

@@ -5,13 +5,16 @@ Idempotent completion subtask for approval-gate. Ensures mandatory steps run reg
 ## State Check Phase
 
 - [ ] 1. **Authorization result determined:** Was a yes/no decision reached?
-- [ ] 2. **Existing comments:** Check if authorization result comment already posted on issue
+- [ ] 2. **Label state:** Check if `approved-for-*` label is already applied
 
 ## Skill-Specific Completion
 
-- [ ] 1. **Post authorization result comment** (if not already posted):
-   - Check issue comments for existing authorization result (byline pattern)
-   - If missing: route through `issue-operations -> comment` substantive gate for authorization result. Gate decides posting.
+- [ ] 1. **Apply `approved-for-*` label** (if authorization granted):
+   - Use `github_issue_write(method=update, labels=[...])` to apply the `approved-for-<scope>` label
+   - Record authorization in local state file `.issues/{N}/issue.yaml`
+   - The label is stakeholder advisory only — not an authorization signal
+   - The local state file is the single source of truth for authorization state
+   - No `github_add_issue_comment` calls for authorization-related output
 
 ## Shared Completion Delegation
 
@@ -147,9 +150,9 @@ This format is verified by behavioral enforcement tests in `.opencode/tests/beha
 
 ### Verification Checklist
 
-- **Authorization result routed through substantive gate:** Search issue comments via `issue-operations -> read-comments (github_issue_read(method=get_comments)` for the authorization result (byline pattern). If missing → MISSING-ELEMENT (auto-fix: route through substantive gate now). <!-- Routes through issue-operations per SPEC #683 -->
 - **Label state matches authorization:** Check labels via `issue-operations -> read-labels (github_issue_read(method=get_labels)`. If `needs-approval` present AND authorization granted → STRUCTURE-VIOLATION (auto-fix: remove label). If `needs-approval` absent AND no authorization found → VERIFICATION-GAP (flag-for-review). <!-- Routes through issue-operations per SPEC #683 -->
-- **Status report matches workflow outcome:** If completion claims "approved" but no authorization comment found → CONFLICTING (flag-for-review). If claims "blocked" but blocker issue is closed → VERIFICATION-GAP (flag-for-review).
+- **Local state file matches authorization:** Read `.issues/{N}/issue.yaml` and verify authorization scope marker matches the current session authorization. If mismatch → VERIFICATION-GAP (flag-for-review).
+- **Status report matches workflow outcome:** If completion claims "approved" but no local state file authorization found → CONFLICTING (flag-for-review). If claims "blocked" but blocker issue is closed → VERIFICATION-GAP (flag-for-review).
 
 ### Completion Task Scope Clarification
 
