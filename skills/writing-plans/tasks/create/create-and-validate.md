@@ -168,6 +168,7 @@ Every plan phase checklist MUST pass the following 8 validation rules in additio
 9. **Skill name exists:** Every dispatch marker with a skill name (`— <skill-name> for`) must reference an existing directory under `.opencode/skills/`. HALT with `SKILL_NOT_FOUND` if any marker references a non-existent skill.
 10. **Exhaustive mapping:** Every phase step MUST have a named skill in its dispatch marker. No step may use bare `(**clean-room**)` or `(**inline**)` without a preceding `— <skill-name> for <concern>`. HALT with `MISSING_SKILL_NAME` if any step lacks a skill name.
 11. **Post-RED pipeline gates:** Every phase's Post-RED/green section MUST contain all three mandatory pipeline gates: `completeness-gate`, `adversarial-audit`, and `completion-core`. Each gate MUST be expanded into indented checkbox sub-steps. HALT with `MISSING_POST_RED_GATE` if any gate is absent or collapsed into prose.
+12. **Prose sub-step rejection:** No plan step body may contain prose-format sub-steps (matched by `^\s+→ [^d]` — arrow continuations that are not `→ dispatch:` or `→ SC-N`). Any prose-format sub-step causes HALT with `PROSE_SUBSTEPS_DETECTED`.
 
 If any rule fails: HALT with MISSING-TRACEABILITY and report which rule(s) failed.
 

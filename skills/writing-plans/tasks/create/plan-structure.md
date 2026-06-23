@@ -210,13 +210,16 @@ The gate labels and step sequence MUST be pulled from `implementation-pipeline/S
 
 #### Pre-RED Common
 
-Shared pre-work that runs once per phase before any RED/GREEN chains begin. This section contains:
-- Verification gate invocation
-- Reading approved spec
-- Combined/separate decision
-- Concern boundary annotations (see below)
-- File references (see below)
-- SC references (see below)
+Shared pre-work that runs once per phase before any RED/GREEN chains begin. Every sub-step MUST use the `- [ ] N.` indented checkbox format — never `→` prose continuation lines:
+
+```
+- [ ] 1. Verification gate — `verification-enforcement` for spec content verification (**inline**)
+    - [ ] 1a. Verify spec claims against live source files → SC-N
+- [ ] 2. Read approved spec — `issue-review` for spec content (**inline**)
+    - [ ] 2a. Extract objectives, constraints, success criteria, affected sub-folders → SC-N
+- [ ] 3. Read routing table — `pre-analysis` for canonical gate discovery (**inline**)
+    - [ ] 3a. Confirm gate labels and dispatch types → SC-N
+```
 
 ##### Concern Boundary Annotations
 
@@ -248,19 +251,24 @@ This section contains one RED/GREEN pair per implementation item. Each pair is a
 
 #### Post-RED/green
 
-Post-cycle validation that runs once per phase after all RED/GREEN chains complete. This section MUST contain the following three mandatory pipeline gates in order:
+Post-cycle validation that runs once per phase after all RED/GREEN chains complete. This section MUST contain the following three mandatory pipeline gates in order, each expanded into indented checkbox sub-steps:
 
-1. **COMPLETENESS GATE** — `completeness-gate` (**clean-room**) — Verify all SCs in this phase are covered before audit
-2. **ADVERSARIAL AUDIT** — `adversarial-audit` (**orchestrator**) — Cross-family audit with expanded sub-steps:
-   - Run resolve-models to select cross-family auditors
-   - Dispatch audit task with auditor_1
-   - If auditor_1 returned non-clean-pass: remediate root cause, restart
-   - Dispatch audit task with auditor_2
-   - If auditor_2 returned non-clean-pass: remediate root cause, restart
-   - Both auditors clean PASS. Collect artifact_path values, pass to cross-validate
-3. **EXEC SUMMARY** — `completion-core` (**clean-room**) — Write phase-complete event to lifecycle manifest, report completion in chat with byline
+```
+- [ ] N. COMPLETENESS GATE — `completeness-gate` (**clean-room**)
+    - [ ] Na. Verify all SCs in this phase covered before audit → SC-all
+- [ ] N. ADVERSARIAL AUDIT — `adversarial-audit` (**orchestrator**)
+    - [ ] Na. Run resolve-models to select cross-family auditors → SC-all
+    - [ ] Nb. Dispatch audit task with auditor_1 → SC-all
+    - [ ] Nc. If auditor_1 returned non-clean-pass: remediate root cause, restart from Na → SC-all
+    - [ ] Nd. Dispatch audit task with auditor_2 → SC-all
+    - [ ] Ne. If auditor_2 returned non-clean-pass: remediate root cause, restart from Na → SC-all
+    - [ ] Nf. Both auditors clean PASS. Collect artifact_path values, pass to cross-validate → SC-all
+- [ ] N. EXEC SUMMARY — `completion-core` (**clean-room**)
+    - [ ] Na. Write completion event to lifecycle manifest at `./tmp/{N}/lifecycle.yaml` → SC-all
+    - [ ] Nb. Report completion in chat with byline → SC-all
+```
 
-Each gate MUST be expanded into indented checkbox sub-steps. Arrow-chain prose is prohibited.
+Arrow-chain prose is prohibited — every sub-step is its own indented checkbox.
 
 #### Validation Rules
 
