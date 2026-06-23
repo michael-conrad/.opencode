@@ -25,7 +25,7 @@ Check whether a spec is already fully implemented before starting work. When all
 
 Before extracting success criteria, check the main issue's own closure state:
 
-- [ ] 1. Read the main issue via `github_issue_read(method=get, issue_number=N)`
+- [ ] 1. Read the main issue via `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)`
 - [ ] 2. If issue is closed with `state_reason: "completed"`:
    - Search for merged PR referencing the issue via `github_search_pull_requests`
    - Verify PR merge via `github_pull_request_read(method=get)` confirming `merged == true`

@@ -127,7 +127,7 @@ Prose summary of all gathered data, organized by the five categories above. Incl
 | "Authorization comment exists" | Verify comment author is developer, not bot/agent | `issue-operations -> read-comments (github_issue_read(method=get_comments)` → check `author_association` | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
 | "Sub-issues exist" | Verify sub-issues are accessible and not 404 | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues)` → check each child exists | MISSING-TRACEABILITY | <!-- Routes through issue-operations per SPEC #683 -->
 | "`needs-approval` label present/absent" | Verify label list matches claimed state | `issue-operations -> read-labels (github_issue_read(method=get_labels)` → check label array | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
-| "Bug report has fix spec" | Verify sub-issue exists with correct prefix | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues)` + `github_issue_read(method=get)` per child | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
+| "Bug report has fix spec" | Verify sub-issue exists with correct prefix | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues)` + `issue-operations -> read-issue (github_issue_read(method=get)` per child | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
 | "Last audit timestamp" | Verify comment containing audit pattern actually exists | `issue-operations -> read-comments (github_issue_read(method=get_comments)` → search for audit patterns | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
 
 **Evidence artifact:** Tool call results for each claim category.
