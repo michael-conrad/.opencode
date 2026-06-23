@@ -93,7 +93,7 @@ Before closing any spec, verify ALL phases in the spec body are marked complete.
 3. Extract all phases and their completion status
 4. **If ANY phase is incomplete (☐, ⬜ Not Done, or - [ ]):**
    - Do NOT close this issue
-   - Post a comment: `Partially implemented by PR #N. Remaining phases: [list of incomplete phases]. Next phase continuation pending.`
+   - Append a blocker event to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with the incomplete phases listed
    - Skip to next closure candidate
 5. **If ALL phases are complete (☑, ✅ Done, or - [x]) OR no phase markers exist:**
    - Proceed to Step 4b (plan reference check)
@@ -263,16 +263,10 @@ for issue_num, classification in closure_candidates.items():
                 state="closed",
                 state_reason="completed"
             )
-            issue-operations -> comment (github_add_issue_comment( <!-- Routes through issue-operations per SPEC #683 -->
-                owner=sub_info["owner"],
-                repo=sub_info["repo"],
-                issue_number=issue_num,
-                body=f"Closed via parent PR #{parent_pr_number}."
-            )
+            # No closure comment — the state change is the signal
         elif sub_info["platform"] == "gitbucket":
             # Use gb CLI for GitBucket closure
             # gb issue close <N> -R owner/repo
-            # gb issue comment <N> -b "Closed via parent PR #N." -R owner/repo
             pass  # Handled by platform sub-skill dispatch
     else:
         # Standard parent-repo closure (existing logic applies)
