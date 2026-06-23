@@ -75,11 +75,11 @@ From all gathered data, extract prose descriptions of:
    - Questions asked by commenters
    - Revisions or spec changes noted
    - Blockers reported
-   - Audit findings (comments containing finding-class patterns like "finding:", "violation:", "CRITICAL")
+   - Audit findings (check local audit artifacts at `.issues/{N}/audit/*.yaml` for existing verdicts)
    - Authorization comments ("approved", "go")
 
 - [ ] 3. **Last audit timestamp:**
-   - Most recent comment containing audit finding patterns
+   - Most recent `.yaml` file timestamp in `.issues/{N}/audit/`
    - Used by `just-review` path to assess staleness
 
 - [ ] 4. **Authorization status:**
