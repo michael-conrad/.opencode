@@ -10,11 +10,11 @@ Idempotent completion subtask for approval-gate. Ensures mandatory steps run reg
 ## Skill-Specific Completion
 
 - [ ] 1. **Apply `approved-for-*` label** (if authorization granted):
-   - Use `issue-operations -> update-issue (github_issue_write(method=update, labels=[...])` to apply the `approved-for-<scope>` label
+   - Use `issue-operations -> update-issue (via platform sub-skill)` to apply the `approved-for-<scope>` label
    - Record authorization in local state file `.issues/{N}/issue.yaml`
    - The label is stakeholder advisory only — not an authorization signal
    - The local state file is the single source of truth for authorization state
-   - No `issue-operations -> comment (github_add_issue_comment` calls for authorization-related output
+   - No `issue-operations -> comment (platform_add_issue_comment` calls for authorization-related output
 
 ## Shared Completion Delegation
 
@@ -53,7 +53,7 @@ Generate executive summary in chat:
 
 **Blockers:** <Why stopped + required developer action> (omit when workflow complete)
 
-Issue URL: <html_url from issue-operations -> update-issue (github_issue_write or issue-operations -> read-issue (github_issue_read API response — NEVER construct from template> <!-- Routes through issue-operations per SPEC #683 -->
+Issue URL: <html_url from issue-operations -> update-issue (via platform sub-skill or issue-operations -> read-issue (via platform sub-skill API response — NEVER construct from template> <!-- Routes through issue-operations per SPEC #683 -->
 
 🤖 <AgentName> (<ModelId>) <status>
 ```
@@ -62,8 +62,8 @@ Issue URL: <html_url from issue-operations -> update-issue (github_issue_write o
 
 The Issue URL MUST be extracted from the API response `html_url` field — NEVER constructed from template variables:
 
-- [ ] 1. If the issue was created in this session: Extract `html_url` from the `issue-operations -> update-issue (github_issue_write` creation response <!-- Routes through issue-operations per SPEC #683 -->
-- [ ] 2. If the issue was read (not created): Extract `html_url` from the `issue-operations -> read-issue (github_issue_read` response <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 1. If the issue was created in this session: Extract `html_url` from the `issue-operations -> update-issue (platform_issue_write` creation response <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 2. If the issue was read (not created): Extract `html_url` from the `issue-operations -> read-issue (platform_issue_read` response <!-- Routes through issue-operations per SPEC #683 -->
 - [ ] 3. **Template construction is FORBIDDEN for post-creation URLs** — do NOT assemble from `<gitbucket.html_url>`, `<github.owner>`, `<github.repo>`, or issue number
 - [ ] 4. If `html_url` is not available in the API response: HALT and report
 
@@ -150,7 +150,7 @@ This format is verified by behavioral enforcement tests in `.opencode/tests/beha
 
 ### Verification Checklist
 
-- **Label state matches authorization:** Check labels via `issue-operations -> read-labels (github_issue_read(method=get_labels)`. If `needs-approval` present AND authorization granted → STRUCTURE-VIOLATION (auto-fix: remove label). If `needs-approval` absent AND no authorization found → VERIFICATION-GAP (flag-for-review). <!-- Routes through issue-operations per SPEC #683 -->
+- **Label state matches authorization:** Check labels via `issue-operations -> read-labels (via platform sub-skill)`. If `needs-approval` present AND authorization granted → STRUCTURE-VIOLATION (auto-fix: remove label). If `needs-approval` absent AND no authorization found → VERIFICATION-GAP (flag-for-review). <!-- Routes through issue-operations per SPEC #683 -->
 - **Local state file matches authorization:** Read `.issues/{N}/issue.yaml` and verify authorization scope marker matches the current session authorization. If mismatch → VERIFICATION-GAP (flag-for-review).
 - **Status report matches workflow outcome:** If completion claims "approved" but no local state file authorization found → CONFLICTING (flag-for-review). If claims "blocked" but blocker issue is closed → VERIFICATION-GAP (flag-for-review).
 

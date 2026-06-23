@@ -105,7 +105,7 @@ Each sub-issue gets its own independent triage decision. A parent may be `audit`
 
 **Before classifying any closed issue as `already-handled`, verify:**
 
-- [ ] 1. **Sub-issues resolved:** `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=N)` — all sub-issues must be closed <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 1. **Sub-issues resolved:** `issue-operations -> read-sub-issues (via platform sub-skill)` — all sub-issues must be closed <!-- Routes through issue-operations per SPEC #683 -->
 - [ ] 2. **Cross-references resolved:** Spec → plan chain must be complete (plan closed, all sub-issues under plan closed)
 - [ ] 3. **Closure correctness:** `state_reason == "completed"` AND merged PR exists (search PRs referencing the issue)
 
@@ -140,12 +140,12 @@ If any verification fails, do NOT classify as `already-handled`. Instead:
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Issue is a bug report" | Verify bug language in body | `issue-operations -> read-issue (github_issue_read(method=get)` → scan for bug patterns | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
-| "Issue is already handled" | Verify sub-issues closed + merged PR | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues)` + PR search | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
+| "Issue is a bug report" | Verify bug language in body | `issue-operations -> read-issue (via platform sub-skill)` → scan for bug patterns | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
+| "Issue is already handled" | Verify sub-issues closed + merged PR | `issue-operations -> read-sub-issues (via platform sub-skill)` + PR search | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
 | "Issue has been audited before" | Verify audit artifacts exist locally | `ls .issues/{N}/audit/*.yaml` → check for existing audit verdict files | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
-| "Authorization exists" | Verify auth comment from developer | `issue-operations -> read-comments (github_issue_read(method=get_comments)` → check `author_association` | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
-| "`[SPEC]` prefix is accurate" | Verify content matches prefix (content over label) | `issue-operations -> read-issue (github_issue_read(method=get)` → body analysis vs title | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
-| "Sub-issues are all closed" | Verify each sub-issue state via API | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` per child | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
+| "Authorization exists" | Verify auth comment from developer | `issue-operations -> read-comments (via platform sub-skill)` → check `author_association` | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
+| "`[SPEC]` prefix is accurate" | Verify content matches prefix (content over label) | `issue-operations -> read-issue (via platform sub-skill)` → body analysis vs title | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
+| "Sub-issues are all closed" | Verify each sub-issue state via API | `issue-operations -> read-issue (via platform sub-skill)` per child | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
 
 **Evidence artifact:** Tool call results for each claim verified during triage.
 

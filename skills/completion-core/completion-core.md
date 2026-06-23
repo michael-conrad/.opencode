@@ -38,7 +38,7 @@ COMPARE_URL="${GITBUCKET_HTML_URL:-${GITHUB_HTML_URL}}/${GIT_OWNER}/${GIT_REPO}/
 
 **Action URL** (for creation workflows — issue creation, approval gate):
 
-- **Issue URL:** Extract from `issue-operations -> update-issue (github_issue_write` API response `html_url` field — NEVER construct from template <!-- Routes through issue-operations per SPEC #683 -->
+- **Issue URL:** Extract from `issue-operations -> update-issue (platform_issue_write` API response `html_url` field — NEVER construct from template <!-- Routes through issue-operations per SPEC #683 -->
 - **PR URL:** Extract from `github_create_pull_request` API response `html_url` field — NEVER construct from template
 
 ### 3. Route Status Comment Through Substantive Gate — route through `issue-operations -> comment` substantive gate. Gate decides whether to post.

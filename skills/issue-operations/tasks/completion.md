@@ -50,7 +50,7 @@ Before adding or removing labels in completion, consult `141-planning-status-tra
 
 ### Step N: EXTRACT URL FROM API RESPONSE
 
-- [ ] 1. The Issue URL MUST be copied verbatim from the `issue-operations -> update-issue (github_issue_write` API response's `html_url` field.
+- [ ] 1. The Issue URL MUST be copied verbatim from the `issue-operations -> update-issue (platform_issue_write` API response's `html_url` field.
 - [ ] 2. Do NOT retype, reconstruct, or assemble the URL from known values (org, repo, number).
 - [ ] 3. Paste the URL exactly as returned. If the API response is `{ "html_url": "{browser_url}/Org/Repo/issues/42" }`, the output URL is `{browser_url}/Org/Repo/issues/42` — character for character.
 - [ ] 4. Verification checkpoint: Compare the pasted URL character-by-character against the `html_url` field in the API response before sending.
@@ -64,7 +64,7 @@ Generate executive summary in chat:
 
 **Outcome:** <What stakeholders get from the new issue>
 
-Issue URL: <html_url from issue-operations -> update-issue (github_issue_write API response — NEVER construct from template>
+Issue URL: <html_url from issue-operations -> update-issue (via platform sub-skill API response — NEVER construct from template>
 ```
 
 URL is ALWAYS last per `000-critical-rules.md`.

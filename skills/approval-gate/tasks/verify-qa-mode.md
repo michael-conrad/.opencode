@@ -312,7 +312,7 @@ Adversarial verification model (evidence format, classification tiers, tier acti
 
 ```
 If user references an issue number:
-  issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+  issue = issue-operations -> read-issue (via platform sub-skill) <!-- Routes through issue-operations per SPEC #683 -->
   body = issue["body"]
   
   - Verify issue actually exists (404 = no issue → Gate 1 FAILS)
@@ -323,7 +323,7 @@ If user references an issue number:
   - If body is empty or placeholder → Gate 1 FAILS (no real spec)
 ```
 
-**Evidence artifact:** `issue-operations -> read-issue (github_issue_read(method=get)` response showing issue body content and STATUS marker. <!-- Routes through issue-operations per SPEC #683 -->
+**Evidence artifact:** `issue-operations -> read-issue (via platform sub-skill)` response showing issue body content and STATUS marker. <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Verify Authorization Against Local State
 

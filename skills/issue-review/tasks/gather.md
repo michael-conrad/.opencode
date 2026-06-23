@@ -24,13 +24,13 @@ Collect all issue data needed by downstream tasks. This is a pure data-collectio
 ### Step 1: Read Issue Body
 
 ```
-issue-operations -> read-issue (github_issue_read(method="get", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+issue-operations -> read-issue (via platform sub-skill) <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 ### Step 2: Read All Comments
 
 ```
-issue-operations -> read-comments (github_issue_read(method="get_comments", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+issue-operations -> read-comments (via platform sub-skill) <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 Record comment count for evidence. Note: per `067-context-completeness.md`, ALL comments MUST be read before any triage decision.
@@ -38,7 +38,7 @@ Record comment count for evidence. Note: per `067-context-completeness.md`, ALL 
 ### Step 3: Read Labels and Authorization Status
 
 ```
-issue-operations -> read-labels (github_issue_read(method="get_labels", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+issue-operations -> read-labels (via platform sub-skill) <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 Extract:
@@ -49,7 +49,7 @@ Extract:
 ### Step 4: Detect Sub-issues
 
 ```
-issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+issue-operations -> read-sub-issues (via platform sub-skill) <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 If sub-issues exist, store their issue numbers for recursive gathering.
@@ -123,12 +123,12 @@ Prose summary of all gathered data, organized by the five categories above. Incl
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Issue has N comments" | Re-count via `get_comments` response | `issue-operations -> read-comments (github_issue_read(method=get_comments)` → count items | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
-| "Authorization comment exists" | Verify comment author is developer, not bot/agent | `issue-operations -> read-comments (github_issue_read(method=get_comments)` → check `author_association` | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
-| "Sub-issues exist" | Verify sub-issues are accessible and not 404 | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues)` → check each child exists | MISSING-TRACEABILITY | <!-- Routes through issue-operations per SPEC #683 -->
-| "`needs-approval` label present/absent" | Verify label list matches claimed state | `issue-operations -> read-labels (github_issue_read(method=get_labels)` → check label array | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
-| "Bug report has fix spec" | Verify sub-issue exists with correct prefix | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues)` + `issue-operations -> read-issue (github_issue_read(method=get)` per child | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
-| "Last audit timestamp" | Verify comment containing audit pattern actually exists | `issue-operations -> read-comments (github_issue_read(method=get_comments)` → search for audit patterns | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
+| "Issue has N comments" | Re-count via `get_comments` response | `issue-operations -> read-comments (via platform sub-skill)` → count items | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
+| "Authorization comment exists" | Verify comment author is developer, not bot/agent | `issue-operations -> read-comments (via platform sub-skill)` → check `author_association` | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
+| "Sub-issues exist" | Verify sub-issues are accessible and not 404 | `issue-operations -> read-sub-issues (via platform sub-skill)` → check each child exists | MISSING-TRACEABILITY | <!-- Routes through issue-operations per SPEC #683 -->
+| "`needs-approval` label present/absent" | Verify label list matches claimed state | `issue-operations -> read-labels (via platform sub-skill)` → check label array | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
+| "Bug report has fix spec" | Verify sub-issue exists with correct prefix | `issue-operations -> read-sub-issues (via platform sub-skill)` + `issue-operations -> read-issue (via platform sub-skill)` per child | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
+| "Last audit timestamp" | Verify comment containing audit pattern actually exists | `issue-operations -> read-comments (via platform sub-skill)` → search for audit patterns | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
 
 **Evidence artifact:** Tool call results for each claim category.
 
