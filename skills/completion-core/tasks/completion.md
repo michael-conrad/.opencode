@@ -59,13 +59,13 @@ fi
 
 Construct from session-init values with character-match verification:
 
-- [ ] 1. Read `<github.owner>`, `<github.repo>` from session context
-- [ ] 2. Construct: `https://github.com/<github.owner>/<github.repo>/compare/dev...<branch>`
+- [ ] 1. Read `<github.owner>`, `<github.repo>`, `<github.html_url>` (or `<gitbucket.html_url>`) from session context
+- [ ] 2. Construct: `<html_url>/<owner>/<repo>/compare/dev...<branch>` using the platform's base URL from session-init
 - [ ] 3. **Character-match verification:** Confirm `<github.owner>` and `<github.repo>` in the constructed URL match session-init values exactly (character-for-character, no typos, no cached values)
 - [ ] 4. If any mismatch: HALT and report
 
 ```bash
-COMPARE_URL="https://github.com/${GIT_OWNER}/${GIT_REPO}/compare/dev...$(git branch --show-current)"
+COMPARE_URL="${GITBUCKET_HTML_URL:-${GITHUB_HTML_URL}}/${GIT_OWNER}/${GIT_REPO}/compare/dev...$(git branch --show-current)"
 ```
 
 ### Step 3: Append Lifecycle Event

@@ -179,7 +179,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     sc_coverage:
       total: <integer>
       single_task: <true|false>
-      spec_url: https://github.com/{owner}/{repo}/issues/{N}
+      spec_url: {browser_url}/{owner}/{repo}/issues/{N}
       evidence_types:
         - behavioral
         - semantic
@@ -199,7 +199,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 - [ ] 17. **Step 1.2: Verification Consistency Contract Generation (SC-8)** — Generate a verification consistency solve contract at `.issues/{issue-N}/verification-consistency-contract.yaml` with a compliance matrix as solve variables:
 
     ```yaml
-    spec: https://github.com/{owner}/{repo}/issues/{N}
+    spec: {browser_url}/{owner}/{repo}/issues/{N}
     verification_consistency:
       sc_entries:
         - id: SC-N
@@ -233,7 +233,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 - [ ] 19. **Step 1.4: Revision Re-Entry Protocol Contract Generation (SC-5)** — Generate a revision re-entry solve contract at `.issues/{issue-N}/revision-re-entry-contract.yaml` with cascade variables for each revision scope:
 
     ```yaml
-    spec: https://github.com/{owner}/{repo}/issues/{N}
+    spec: {browser_url}/{owner}/{repo}/issues/{N}
     revision_re_entry:
       revision_scopes:
         - scope: < full | partial >
@@ -263,14 +263,14 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     **Wrong:** "See `research/fastmcp-capabilities.md` for capability probe results"
 
-- [ ] 22. **Step 1c: No Bare #N References (SC-10)** — Never use bare `#N` in any spec content. Always use the full URL: `https://github.com/{owner}/{repo}/issues/{N}` wrapped in descriptive Markdown link text.
+- [ ] 22. **Step 1c: No Bare #N References (SC-10)** — Never use bare `#N` in any spec content. Always use the full URL: `{browser_url}/{owner}/{repo}/issues/{N}` wrapped in descriptive Markdown link text.
 
     | Pattern | Classification | Action |
     | ------- | -------------- | --------------------------------------------- |
     | `#46` | ❌ WRONG | Replace with full URL + descriptive link text |
-    | `https://github.com/owner/repo/issues/46` | ⚠️ Bare URL | Wrap in descriptive Markdown link text |
-    | [fastmcp switch issue](https://github.com/owner/repo/issues/46) | ✅ CORRECT | Descriptive link text |
-    | [viewport-editor#46](https://github.com/owner/repo/issues/46) | ✅ CORRECT | Link text with repo prefix |
+    | `{browser_url}/owner/repo/issues/46` | ⚠️ Bare URL | Wrap in descriptive Markdown link text |
+    | [fastmcp switch issue]({browser_url}/owner/repo/issues/46) | ✅ CORRECT | Descriptive link text |
+    | [viewport-editor#46]({browser_url}/owner/repo/issues/46) | ✅ CORRECT | Link text with repo prefix |
 
     The agent MUST check the entire spec body for bare `#N` patterns before submission and replace any found. This applies to all cross-references regardless of whether they point to the same repo or a different repo.
 

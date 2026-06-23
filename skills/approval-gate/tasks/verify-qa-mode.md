@@ -181,8 +181,8 @@ I see you'd like me to fix an authentication bug, but there's no GitHub Issue
 tracking this work.
 
 I found these existing issues that may be relevant:
-1. #42 [SPEC] Authentication flow improvements — https://github.com/owner/repo/issues/42
-2. #87 [SPEC-FIX] Login timeout bug — https://github.com/owner/repo/issues/87
+1. #42 [SPEC] Authentication flow improvements — {browser_url}/owner/repo/issues/42
+2. #87 [SPEC-FIX] Login timeout bug — {browser_url}/owner/repo/issues/87
 
 Would you like me to work with one of these, or create a new spec/bug report?
 
