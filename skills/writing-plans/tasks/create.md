@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Create an implementation plan from an approved spec. Plans are stored at `.issues/{N}/plan.md`.
+Create an implementation plan from an approved spec. This is a routing-only task file — it points to the 10 decomposed sub-task files in the 21-step pipeline. The orchestrator dispatches each step via `task()`; sub-agents execute tools directly.
 
 ## Prerequisites
 
@@ -13,19 +13,37 @@ Create an implementation plan from an approved spec. Plans are stored at `.issue
 
 ## Operating Protocol
 
-- [ ] 1. **Verification first** — **orchestrator routes to**: `verification-enforcement --task verify` via sub-agent — Must run verification-enforcement --task verify before reading spec content
-- [ ] 2. **Combined or separate decision** — Procedure: early evaluation whether plan content references spec content inline (combined) or stands alone with separate phase sections (separate)
-- [ ] 3. **Item decomposition mandatory** — Procedure: plan must enumerate items, order dependencies, specify acceptance criteria
-- [ ] 4. **RED checkpoint mandatory** — Procedure: every TDD task must include explicit Step 2 checkpoint
-- [ ] 5. **Approval cascade auto-approve** — Procedure: pipeline scope (`for_plan+`) auto-approves plan
-- [ ] 6. **Handoff verification pre-PASS** — **orchestrator routes to**: `handoffs/spec-to-plan` via sub-agent — Before any plan content is written, spec-to-plan handoff MUST return PASS. This is a non-waivable hard gate — no exceptions, no "proceed anyway."
-- [ ] 7. **Checklist format mandatory** — Procedure: all plan phases MUST use the numbered checklist format with dispatch indicators. Steps are `- [ ] N.` with `(**clean-room**)` or `(**inline**)` dispatch mode indicators. The gate labels, step sequence, and dispatch targets MUST reference the canonical source at `implementation-pipeline/SKILL.md` §Dispatch Routing Table. This is the default format for every phase — no exceptions, no simplified alternatives.
+- [ ] 1. **Verification first** — **orchestrator routes to**: `research` via sub-agent — Loads `verification-enforcement --task verify` inline, collects evidence artifacts
+- [ ] 2. **Readiness gate** — **orchestrator routes to**: `readiness` via sub-agent — Pipeline-readiness gate check + spec-to-plan handoff verification
+- [ ] 3. **Structure definition** — **orchestrator routes to**: `structure` via sub-agent — Combined/separate decision, file mapping, phase structure, TDD definition, dependency contract, phase-to-skill mapping
+- [ ] 4. **Solve validation** — **orchestrator routes to**: `solve` via sub-agent — Runs `solve model`, `solve check`, `plan plan` as direct CLI
+- [ ] 5. **Plan writing** — **orchestrator routes to**: `write` via sub-agent — Writes plan file, validates dispatch markers, applies approval cascade
+- [ ] 6. **Verification revisit** — **orchestrator routes to**: `revisit` via sub-agent — Loads `verification-enforcement --task revisit` inline, resolves unverified markers
+- [ ] 7. **Validation** — **orchestrator routes to**: `validate` via sub-agent — Plan structure and checklist validation
+- [ ] 8. **Audit fidelity** — **orchestrator routes to**: `audit-fidelity` via sub-agent — Plan-fidelity audit with auditor sub-agent type
+- [ ] 9. **Audit concern** — **orchestrator routes to**: `audit-concern` via sub-agent — Concern-separation audit with auditor sub-agent type
+- [ ] 10. **Completion** — **orchestrator routes to**: `completion` via sub-agent — Lifecycle event, push, report
+
+## Sub-Task Files
+
+| Sub-Task | Purpose |
+| -- | -- |
+| `research` | Live-source verification gate |
+| `readiness` | Pipeline-readiness gate check |
+| `structure` | Phase structure and TDD definition |
+| `solve` | Z3 constraint solving and plan validation |
+| `write` | Plan document writing and dispatch validation |
+| `revisit` | Verification revisit and unverified marker resolution |
+| `validate` | Plan structure and checklist validation |
+| `audit-fidelity` | Plan-fidelity adversarial audit |
+| `audit-concern` | Concern-separation adversarial audit |
+| `completion` | Lifecycle event, push, report |
 
 ## Entry Criteria
 
 - Spec is approved and stored in `.issues/{N}/spec.md`
 - `authorization_scope` received from approval-gate (for cascade)
-- Spec-to-plan handoff PASS (verified by handoffs/spec-to-plan task artifact at `./tmp/{issue-N}/artifacts/spec-to-plan-handoff-*.yaml` with `status: PASS`)
+- Spec-to-plan handoff PASS
 
 ## Exit Criteria
 
@@ -33,83 +51,6 @@ Create an implementation plan from an approved spec. Plans are stored at `.issue
 - All validation passed
 - Plan reported in chat with `.issues/{N}/plan.md` path
 - Approval cascade applied (auto-approval for pipeline scope)
-
-## Procedure
-
-- [ ] 8. **Plan Structure Definition** — **orchestrator routes to**: `create/plan-structure` via sub-agent — Runs verification gate, makes combined/separate decision, checks for duplicate plans, maps file structure, defines phase structure, and creates TDD tasks with mandatory RED checkpoints.
-
-- [ ] 9. **Plan Creation and Approval Cascade** — **orchestrator routes to**: `create/create-and-validate` via sub-agent — Writes plan header, stores at `.issues/{N}/plan.md`, runs self-review and validation, revisits verification, cross-references skills, runs handoff-consistency check against the spec-to-plan manifest, and applies approval cascade with scope-aware auto-approval.
-
-## Sub-Task Files
-
-| Sub-Task | Purpose | Words |
-| -- | -- | -- |
-| `create/plan-structure` | Verification, combined/separate decision, file mapping, TDD definition | ≈750 |
-| `create/create-and-validate` | Document writing, local storage, validation, approval cascade | ≈650 |
-
-## Orchestrator Execution Protocol
-
-- [ ] 1. Read the numbered checklist steps in the plan to determine the gate sequence for the current phase
-- [ ] 2. Execute every step in every phase in numeric order (1, 2, 3, ...)
-- [ ] 3. Do NOT skip any step — every entry is mandatory
-- [ ] 4. Do NOT reorder steps — the sequence is defined by the plan
-- [ ] 5. For `(**clean-room**)` steps: dispatch a clean-room sub-agent via `task()` with scoped context
-- [ ] 6. For `(**inline**)` steps: execute the described operation directly (no sub-agent)
-- [ ] 7. After each step completes, verify the SCs referenced in that step's `→ SC-N` annotation
-- [ ] 8. Report progress via chat output only — zero GitHub Issue comments during implementation unless absolutely warranted
-- [ ] 9. After each phase completes, run the Inter-Phase Handoff steps before advancing to the next phase
-- [ ] 10. Do NOT modify the plan — it is a static definitional artifact. Only mutate for remediation or scope revision
-
-## Checklist Format Specification
-
-Every plan phase MUST use the numbered checklist format with dispatch indicators. No deviations.
-
-### Dispatch Mode Mapping
-
-- `sub-task` → `(**clean-room**)`
-- Everything else (orchestrator, inline) → `(**inline**)`
-
-### Discovery Directive
-
-Read `implementation-pipeline/SKILL.md` §Dispatch Routing Table for the canonical gate sequence and dispatch types. Do NOT hardcode gate names — reference the canonical source at plan-creation time.
-
-### Sub-Step Expansion Directive
-
-Gates with sub-steps (e.g., `adversarial-audit` with resolve-models → auditor_1 → remediate → auditor_2 → cross-validate) MUST be expanded into multiple `- [ ] N.` entries. Prohibit collapsing sub-steps into prose.
-
-### Output Format
-
-```
-- [ ] 1. <gate-label> (**<dispatch-mode>**) — <unit-specific exit criterion>
-  - <sub-step description> (**<dispatch-mode>**)
-  - <sub-step description> (**<dispatch-mode>**)
-- [ ] 2. <gate-label> (**<dispatch-mode>**) — <unit-specific exit criterion>
-...
-```
-
-### Inter-Phase Handoff
-
-Between the last gate of phase N and gate 1 of phase N+1:
-
-- Update Z3 state file: `solve state update` with phase N's gate states
-- Run `solve check`: confirm phase N dependency contract still SAT
-- Verify checkpoint tag exists for phase N
-- Append lifecycle manifest event for phase N completion
-
-### Post-All-Phases Sweep
-
-After the last phase's final gate:
-
-- [ ] FINISHING CHECKLIST — **orchestrator routes to finishing sub-agent**: git status clean, lint/typecheck from scratch, coverage sweep
-- [ ] PR CREATION — **orchestrator routes to git-workflow pr-creation**: via `github_create_pull_request`, extract `html_url` from response
-- [ ] POST-MERGE CLEANUP — **orchestrator routes to git-workflow cleanup**: delete merged branches, close issues, sync dev
-
-### Concern Boundary Annotations
-
-When transitioning between architectural concerns, describe:
-- What concern being left (prior scope)
-- What concern being entered (new scope)
-- What information the new concern needs from prior (handoff point)
 
 ## Plan Format
 
@@ -151,5 +92,5 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ## Context Required
 
-- Related skills: `verification-enforcement`, `issue-operations`, `spec-creation`
-- Related tasks: `create/plan-structure`, `create/create-and-validate`
+- Related skills: `verification-enforcement`, `issue-operations`, `spec-creation`, `adversarial-audit`, `solve`, `plan`
+- Related tasks: `research`, `readiness`, `structure`, `solve`, `write`, `revisit`, `validate`, `audit-fidelity`, `audit-concern`, `completion`

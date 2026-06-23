@@ -1,0 +1,2 @@
+dependency_contract_path: string
+phase_definitions: list[dict]

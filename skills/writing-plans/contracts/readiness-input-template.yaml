@@ -1,0 +1,3 @@
+spec_issue_number: int
+research_status: string
+evidence_artifacts: list[str]

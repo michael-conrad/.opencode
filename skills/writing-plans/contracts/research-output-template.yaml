@@ -1,0 +1,3 @@
+status: string  # PASS | BLOCKED
+evidence_artifacts: list[str]
+blocker_reason: string

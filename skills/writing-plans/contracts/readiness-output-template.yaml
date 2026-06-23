@@ -1,0 +1,4 @@
+status: string  # PASS | BLOCKED
+sc_summary: dict
+phase_dependencies: list[dict]
+blocker_reason: string

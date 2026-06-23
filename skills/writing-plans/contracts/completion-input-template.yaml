@@ -1,0 +1,3 @@
+plan_file_path: string
+spec_issue_number: int
+all_audit_status: string
