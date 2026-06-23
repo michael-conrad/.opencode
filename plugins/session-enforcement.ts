@@ -741,8 +741,6 @@ function redactSecrets(text: string): string {
   return result;
 }
 
-function isModeSwitchSynthetic(text: string): boolean {
-
 export default async function sessionEnforcementPlugin(input: PluginInput): Promise<Hooks> {
   // Determine skills directory and project directory
   const projectDir = input?.directory || process.cwd();
