@@ -50,7 +50,7 @@ Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: M}`.
 
 **GitHub platform (sub-skill implementation):**
 ```python
-sub_issues = issue-operations -> read-issue (via platform sub-skill)
+sub_issues = issue-operations -> read-issue
 ```
 
 **GitBucket platform (sub-skill implementation):**

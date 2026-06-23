@@ -65,7 +65,7 @@ Candidates without evidence artifacts are reclassified as `uncertain` with reaso
 
 For each `auto-close` candidate, scan all comments on the issue for conflicting signals that would prevent confident auto-closure.
 
-- [ ] 1. Call `issue-operations -> read-comments (via platform sub-skill)` for each candidate. <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 1. Call `issue-operations -> read-comments` for each candidate. <!-- Routes through issue-operations per SPEC #683 -->
 - [ ] 2. For each comment, check for conflict phrases within 24 hours of the reconciliation run timestamp: `"needs work"`, `"verification gap"`, `"not complete"`, `"partial"`, `"⚠️"`.
 - [ ] 3. If any comment posted within the 24-hour window contains a conflict phrase, reclassify the candidate from `auto-close` to `uncertain` with reason `"comment-content conflict: issue comments flag incomplete work"`. Record the conflicting comment ID and phrase.
 - [ ] 4. If no conflicting comments are found within the 24-hour window, the candidate passes this gate.
@@ -76,7 +76,7 @@ For each reopen candidate:
 
 - [ ] 1. Call `github_search_pull_requests` for the issue number — confirm no merged PR exists.
 - [ ] 2. Use `read`/`grep`/`srclight_get_symbol` to confirm the code is NOT present in the repo.
-- [ ] 3. Call `issue-operations -> read-issue (via platform sub-skill)` to confirm `state_reason` is not `not_planned` or `duplicate`. <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 3. Call `issue-operations -> read-issue` to confirm `state_reason` is not `not_planned` or `duplicate`. <!-- Routes through issue-operations per SPEC #683 -->
 - [ ] 4. **If a merged PR is found**: Reclassify as `no-action` — the closure may have been legitimate via a PR the traversal missed.
 - [ ] 5. **If code IS found in repo**: Reclassify as `uncertain` — conflicting signals require dev judgment.
 
@@ -101,7 +101,7 @@ Add to `requires_dev_action` list in the result contract.
 
 For each verified auto-close candidate:
 
-- [ ] 1. Call `issue-operations -> update-issue (via platform sub-skill)` on the issue. <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 1. Call `issue-operations -> update-issue` on the issue. <!-- Routes through issue-operations per SPEC #683 -->
 - [ ] 2. Append closure event to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with evidence references (merged PR number or code verification details).
 - [ ] 3. Remove `needs-approval` label if present.
 
@@ -109,7 +109,7 @@ For each verified auto-close candidate:
 
 For each verified reopen candidate:
 
-- [ ] 1. Call `issue-operations -> update-issue (via platform sub-skill)` on the issue. <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 1. Call `issue-operations -> update-issue` on the issue. <!-- Routes through issue-operations per SPEC #683 -->
 - [ ] 2. Append reopen event to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with reason: "no merged PR found and code not present in repo".
 
 ### Step 8: Output Reconciliation Report
@@ -154,7 +154,7 @@ Every action MUST produce a live tool-call artifact:
 | No-action (not_planned/duplicate) | `issue-operations -> read-issue (platform_issue_read` response showing `state_reason` | <!-- Routes through issue-operations per SPEC #683 -->
 | Uncertain | Conflicting tool-call results that prevent confident classification |
 | Evidence gate | `read`/`grep`/`srclight_get_symbol` output for auto-close candidates (mandatory — candidates without artifacts reclassified as `uncertain`) |
-| Comment conflict scan | `issue-operations -> read-comments (via platform sub-skill)` output confirming no contradicting comments within 24-hour window | <!-- Routes through issue-operations per SPEC #683 -->
+| Comment conflict scan | `issue-operations -> read-comments` output confirming no contradicting comments within 24-hour window | <!-- Routes through issue-operations per SPEC #683 -->
 | Cross-reference check | `glob .issues/*/plan.md */.issues/*/plan.md` + grep for `Spec: #N` showing plans referencing the same spec + local file read confirming scope overlap |
 
 ## Context Required

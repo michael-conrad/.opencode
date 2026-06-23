@@ -19,7 +19,7 @@ Idempotent completion subtask for issue-operations. Ensures mandatory steps run 
 ## State Check Phase
 
 - [ ] 1. **Issue created:** Check if the issue already exists
-   - Search by title or check recent issue list (via platform sub-skill)
+   - Search by title or check recent issue list
 - [ ] 2. **Labels applied:** Check if `needs-approval` label is present (via `issue-operations → read-labels`)
 - [ ] 3. **Sub-issues created:** Check if multi-task spec has sub-issues (via `issue-operations → read-sub-issues` or comment-based tracking)
 - [ ] 4. **Auditor invoked:** Check if spec-auditor has been run on the issue (via session records or `./tmp/` files)
@@ -64,7 +64,7 @@ Generate executive summary in chat:
 
 **Outcome:** <What stakeholders get from the new issue>
 
-Issue URL: <html_url from issue-operations -> update-issue (via platform sub-skill API response — NEVER construct from template>
+Issue URL: <html_url from issue-operations -> update-issue API response — NEVER construct from template>
 ```
 
 URL is ALWAYS last per `000-critical-rules.md`.
