@@ -138,6 +138,66 @@ done
 
 check_no_old_references
 
+# --- PEP 723 marker and pinning checks (#1295) ---
+
+check_no_pyproject_toml_marker() {
+    local file="$1"
+    if grep -q '# /// pyproject.toml' "$file"; then
+        echo "FAIL: $file uses deprecated # /// pyproject.toml marker"
+        FAIL=$((FAIL + 1))
+    else
+        PASS=$((PASS + 1))
+    fi
+}
+
+check_no_project_section() {
+    local file="$1"
+    if grep -q '# \[project\]' "$file"; then
+        echo "FAIL: $file has [project] section in script metadata"
+        FAIL=$((FAIL + 1))
+    else
+        PASS=$((PASS + 1))
+    fi
+}
+
+check_requires_python_pinned() {
+    local file="$1"
+    if grep -q '^# requires-python = "~=[0-9]\+\.[0-9]\+\.[0-9]\+"' "$file"; then
+        PASS=$((PASS + 1))
+    else
+        echo "FAIL: $file requires-python not pinned with ~=X.Y.0"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+check_dependencies_pinned() {
+    local file="$1"
+    local deps_line
+    deps_line=$(grep '^# dependencies' "$file" || true)
+    if [ -z "$deps_line" ]; then
+        echo "FAIL: $file has no dependencies line"
+        FAIL=$((FAIL + 1))
+        return 0
+    fi
+    local unversioned
+    unversioned=$(echo "$deps_line" | grep -o '"[^"]*"' | grep -v '~=' || true)
+    if [ -n "$unversioned" ]; then
+        echo "FAIL: $file has unversioned or non-~= dependencies: $unversioned"
+        FAIL=$((FAIL + 1))
+    else
+        PASS=$((PASS + 1))
+    fi
+}
+
+# Run PEP 723 marker and pinning checks on all tools
+for tool in "${ENTRY_POINTS[@]}"; do
+    file="$TOOLS_DIR/$tool"
+    check_no_pyproject_toml_marker "$file"
+    check_no_project_section "$file"
+    check_requires_python_pinned "$file"
+    check_dependencies_pinned "$file"
+done
+
 check_plugin_invocations() {
     local plugin_failures=0
     local plugin_files
