@@ -335,7 +335,7 @@ When reporting verification results for external values:
 
 ## Hard Failure Discipline — Universal Invariant
 
-**Failure is not debatable.** PASS means clean PASS — no findings, no caveats, no "minor issues," no "functionally equivalent" rationalizations. FAIL means FAIL — never INCONCLUSIVE, never "PASS with concerns," never "PASS with notes."
+**Non-clean-DONE is not debatable.** PASS means clean PASS — no findings, no caveats, no "minor issues," no "functionally equivalent" rationalizations. Any non-clean-DONE result (FAIL, BLOCKED, DONE_WITH_CONCERNS, OVERFLOW, or DONE with non-empty concerns) means FAIL — never INCONCLUSIVE, never "PASS with concerns," never "PASS with notes."
 
 ### Identity Fusion: Verification IS Completion
 
@@ -391,7 +391,7 @@ A break occurs when behavioral verification catches a defect at the earliest pos
 
 ### Remediation-First Protocol
 
-When a FAIL signal is received at any pipeline stage, the agent MUST remediate before halting. See `000-critical-rules.md` §critical-rules-hard-fail for the complete protocol.
+When any non-clean-DONE result is received at any pipeline stage (FAIL, BLOCKED, DONE_WITH_CONCERNS, OVERFLOW, or DONE with non-empty concerns), the agent MUST remediate before halting. See `000-critical-rules.md` §critical-rules-hard-fail for the complete protocol.
 
 ## Anti-Evasion Rules — Cost, Availability, and Necessity Are Not Excuses
 

@@ -8,7 +8,7 @@ Verify plan structural completeness before pipeline execution begins. Runs as a 
 
 ## Entry Criteria
 
-- Plan exists at `.issues/{issue-N}/plan.md`
+- Plan exists at `.issues/{issue-N}/plan.md` (routing index) with sub-plans at `.issues/{issue-N}/plan-phase-<N>.md`
 - Spec-to-plan handoff manifest exists at `./tmp/{issue-N}/artifacts/spec-to-plan-handoff-*.yaml` with status PASS
 - `sc-summary.yaml` exists at `.issues/{issue-N}/sc-summary.yaml`
 - Authorization context available (authorization_scope, halt_at)
@@ -21,9 +21,17 @@ Verify plan structural completeness before pipeline execution begins. Runs as a 
 
 ## Procedure
 
+### Step 0: Resolve Multi-File Plan Structure
+
+- [ ] 1. Read `.issues/{issue-N}/plan.md` (routing index)
+- [ ] 2. Extract all `plan-phase-<N>.md` references from the routing index
+- [ ] 3. For each referenced sub-plan, read `.issues/{issue-N}/plan-phase-<N>.md`
+- [ ] 4. Collect all TDD tasks across all sub-plans into a unified list
+- [ ] 5. If no sub-plan references found, treat `plan.md` as the single plan file (legacy format)
+
 ### Step 1: Validate RED Checkpoints
 
-- [ ] 1. Read `.issues/{issue-N}/plan.md`
+- [ ] 1. For each sub-plan (or single plan.md), read the file
 - [ ] 2. For each TDD task in the plan, verify it has a RED checkpoint with explicit failure condition
 - [ ] 3. Search for patterns: `red_checkpoint`, `failure_condition`, `MISSING-CHECKPOINT`
 - [ ] 4. Flag any TDD task missing a RED checkpoint as `MISSING-CHECKPOINT`
@@ -31,12 +39,11 @@ Verify plan structural completeness before pipeline execution begins. Runs as a 
 ### Step 2: Validate SC-ID Traceability
 
 - [ ] 1. Read `.issues/{issue-N}/sc-summary.yaml`
-- [ ] 2. Read `.issues/{issue-N}/plan.md`
-- [ ] 3. Extract all SC-IDs referenced in the plan — collect as `sc_ids_in_plan`
-- [ ] 4. Extract all SC-IDs from `sc-summary.yaml` — collect as `sc_ids_in_summary`
-- [ ] 5. Compare `sc_ids_in_plan` against `sc_ids_in_summary`
-- [ ] 6. Flag SC-IDs in plan but not in summary as `SCOPE-CREEP`
-- [ ] 7. Flag SC-IDs in summary but not in plan as `MISSING-TRACEABILITY`
+- [ ] 2. Read all sub-plans (or single plan.md) — collect all SC-IDs referenced across all plan files as `sc_ids_in_plan`
+- [ ] 3. Extract all SC-IDs from `sc-summary.yaml` — collect as `sc_ids_in_summary`
+- [ ] 4. Compare `sc_ids_in_plan` against `sc_ids_in_summary`
+- [ ] 5. Flag SC-IDs in plan but not in summary as `SCOPE-CREEP`
+- [ ] 6. Flag SC-IDs in summary but not in plan as `MISSING-TRACEABILITY`
 
 ### Step 3: Validate Approval Cascade
 

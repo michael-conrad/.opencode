@@ -19,6 +19,7 @@ variables:
       - structural-checks
       - green-doublecheck
       - green-vbc
+      - checkpoint-tag-create
       - adversarial-audit
       - cross-validate
       - regression-check
@@ -37,6 +38,7 @@ variables:
       - structural-checks
       - green-doublecheck
       - green-vbc
+      - checkpoint-tag-create
       - adversarial-audit
       - cross-validate
       - regression-check
@@ -55,7 +57,8 @@ preconditions:
   - "z3.Implies(previous_step == z3.StringVal('checkpoint-commit'), z3.Or(current_step == z3.StringVal('structural-checks'), current_step == z3.StringVal('green-phase')))"
   - "z3.Implies(previous_step == z3.StringVal('structural-checks'), z3.Or(current_step == z3.StringVal('green-doublecheck'), current_step == z3.StringVal('green-phase')))"
   - "z3.Implies(previous_step == z3.StringVal('green-doublecheck'), z3.Or(current_step == z3.StringVal('green-vbc'), current_step == z3.StringVal('green-phase')))"
-  - "z3.Implies(previous_step == z3.StringVal('green-vbc'), z3.Or(current_step == z3.StringVal('adversarial-audit'), current_step == z3.StringVal('green-phase')))"
+  - "z3.Implies(previous_step == z3.StringVal('green-vbc'), current_step == z3.StringVal('checkpoint-tag-create'))"
+  - "z3.Implies(previous_step == z3.StringVal('checkpoint-tag-create'), z3.Or(current_step == z3.StringVal('adversarial-audit'), current_step == z3.StringVal('green-phase')))"
   - "z3.Implies(previous_step == z3.StringVal('adversarial-audit'), z3.Or(current_step == z3.StringVal('cross-validate'), current_step == z3.StringVal('green-phase')))"
   - "z3.Implies(previous_step == z3.StringVal('cross-validate'), z3.Or(current_step == z3.StringVal('regression-check'), current_step == z3.StringVal('green-phase')))"
   - "z3.Implies(previous_step == z3.StringVal('regression-check'), z3.Or(current_step == z3.StringVal('review-prep'), current_step == z3.StringVal('green-phase')))"

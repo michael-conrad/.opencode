@@ -4,7 +4,7 @@ Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
 ## Purpose
 
-This is the core dispatch routing table for the 14-step serial implementation pipeline. Each step dispatches to an existing skill's task file via `task()` using clean-room sub-agents. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`.
+This is the core dispatch routing table for the 20-step serial implementation pipeline. Each step dispatches to an existing skill's task file via `task()` using clean-room sub-agents. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`.
 
 ## Entry Criteria
 
@@ -23,7 +23,7 @@ This is the core dispatch routing table for the 14-step serial implementation pi
 - `github.repo`
 - `issue_number`
 
-## 16-Step Dispatch Table
+## 20-Step Dispatch Table
 
 | Step # | Step Label | Dispatches To | Artifact Produced | YAML Contract Schema |
 |--------|------------|---------------|-------------------|---------------------|
@@ -38,11 +38,15 @@ This is the core dispatch routing table for the 14-step serial implementation pi
 | 9 | `structural-checks` | `finishing-a-development-branch --task checklist` (enforces advisory-only mode: all linters run with `--check`/report-only flags, never auto-modify) | `./tmp/{issue-N}/artifacts/pipeline-structural-checks-{STATUS}-{timestamp}.yaml` | single-criterion |
 | 10 | `green-doublecheck` | `verification-before-completion --task verify` (semantic-intent verification) | `./tmp/{issue-N}/artifacts/pipeline-green-doublecheck-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
 | 11 | `green-vbc` | `verification-before-completion --task completion` | `./tmp/{issue-N}/artifacts/pipeline-green-vbc-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 12 | `adversarial-audit` | `adversarial-audit --task verification-audit` | `./tmp/{issue-N}/artifacts/pipeline-audit-{auditor_type}-{STATUS}-{timestamp}.yaml` | `per_criterion[]` (#932 schema) |
-| 13 | `cross-validate` | `adversarial-audit --task cross-validate` | `./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml` | cross-validate YAML (#932 schema) |
-| 14 | `regression-check` | `test-driven-development --task patterns` (regression) | `./tmp/{issue-N}/artifacts/pipeline-regression-check-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
-| 15 | `review-prep` | `git-workflow --task review-prep` | review-prep status | single-criterion |
-| 16 | `exec-summary` | `completion-core --task completion` | append lifecycle event + chat exec summary | single-criterion |
+| 12 | `checkpoint-tag-create` | `git tag` (**inline**) — creates checkpoint tag after verification, before audit. Tag format: `<parent>/checkpoint/<issue>/phase-<N>-<submodule>` per `000-critical-rules.md` §Checkpoint Rollback Exception | `./tmp/{issue-N}/artifacts/pipeline-checkpoint-tag-create-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 13 | `adversarial-audit` | `adversarial-audit --task verification-audit` | `./tmp/{issue-N}/artifacts/pipeline-audit-{auditor_type}-{STATUS}-{timestamp}.yaml` | `per_criterion[]` (#932 schema) |
+| 14 | `cross-validate` | `adversarial-audit --task cross-validate` | `./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml` | cross-validate YAML (#932 schema) |
+| 15 | `regression-check` | `test-driven-development --task patterns` (regression) | `./tmp/{issue-N}/artifacts/pipeline-regression-check-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
+| 16 | `review-prep` | `git-workflow --task review-prep` | review-prep status | single-criterion |
+| 17 | `exec-summary` | `completion-core --task completion` | append lifecycle event + chat exec summary | single-criterion |
+| 18 | `post-step-checkpoint` | `git tag` (**inline**) — creates checkpoint tag after each step, reaps prior tag for re-dispatch. Tag format: `<parent>/checkpoint/<issue>/phase-<N>-<submodule>` | `./tmp/{issue-N}/artifacts/pipeline-post-step-checkpoint-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 19 | `z3-state-update` | `solve --task state` (3 per-variable calls: previous_step, current_step, pipeline_state) | `./tmp/{issue-N}/artifacts/pipeline-z3-state-update-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 20 | `phase-rollback` | `git-workflow --task implementation` (checkpoint-based rollback on FAIL: `git reset --hard <checkpoint-tag>`, `git submodule update --init`; `git checkout .` on first-step failure) | `./tmp/{issue-N}/artifacts/pipeline-phase-rollback-{STATUS}-{timestamp}.yaml` | single-criterion |
 
 ## Post-Step Checkpoint Creation
 
@@ -121,7 +125,7 @@ per_criterion:
     next_step: proceed | re-evaluate
 ```
 
-Simple steps (checkpoint-commit, structural-checks, green-vbc, exec-summary) use a single-criterion list.
+Simple steps (checkpoint-commit, structural-checks, green-vbc, checkpoint-tag-create, exec-summary) use a single-criterion list.
 
 ## Naming Convention
 
@@ -157,12 +161,13 @@ Step results (PASS/FAIL, evidence paths) go into YAML disk artifact — never in
 
 ## Remediation Routing
 
-### FAIL → Researcher → Remediate Protocol
+### Non-DONE → Researcher → Remediate Protocol
 
-When a step returns FAIL:
+When a step returns a non-DONE status (status != DONE OR (status == DONE AND concerns != empty)):
 
 - [ ] 1. **Read FAIL artifact YAML frontmatter** — the orchestrator reads only the YAML frontmatter from the FAIL artifact at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-FAIL-{timestamp}.yaml`:
-   - `status`, `next_step`, `escalation_required`, `step_label`
+   - `status`, `next_step`, `escalation_required`, `step_label`, `concerns`
+- [ ] 1a. **DONE-with-concerns coercion** — if `status == DONE AND concerns != empty`, coerce to FAIL: rewrite the artifact's `status` field to `FAIL` and append a `coerced_from: DONE_WITH_CONCERNS` field. Then proceed with the FAIL protocol from step 2.
 - [ ] 2. **Dispatch researcher** — the orchestrator dispatches the `researcher` skill with:
    - FAIL artifact path
     - ALL prior pipeline artifacts (glob `./tmp/{issue-N}/artifacts/pipeline-*`)
@@ -192,7 +197,10 @@ Every step returns a YAML contract (never JSON) with only routing-significant da
 status: DONE | BLOCKED | DONE_WITH_CONCERNS | OVERFLOW
 artifact_path: "./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml"
 summary: "<1-3 sentence summary>"
+concerns: "<optional; present only when status == DONE but concerns exist>"
 ```
+
+**Clean-DONE rule:** Only `status == DONE AND concerns == empty` is a valid completion. `DONE_WITH_CONCERNS` and `DONE` with non-empty `concerns` both trigger remediation routing.
 
 Full evidence artifacts go to disk — never into result contracts.
 

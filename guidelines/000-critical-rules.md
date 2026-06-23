@@ -678,20 +678,23 @@ Skipping submodule tagging means the starting SHA becomes unreachable after squa
 See `approval-gate` skill → Authorization Scope Model.
 
 
-### [critical-rules-hard-fail] Hard Failure Discipline — FAIL is a hard gate, never reclassifiable
+### [critical-rules-hard-fail] Hard Failure Discipline — Only clean DONE passes — everything else halts
 
-A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup gate, SC-verification gate, phase-completion gate) is a **hard gate** — it must be remediated, not sidestepped.
+A signal at any pipeline stage (auditor verdict, sub-agent result, cleanup gate, SC-verification gate, phase-completion gate) is a **hard gate** — only a clean `DONE` (status: DONE, concerns: empty) passes. Everything else — FAIL, DONE_WITH_CONCERNS, BLOCKED, ERROR, empty result — halts the pipeline.
+
+**DONE-with-concerns coercion:** A sub-agent returning `status: DONE` with non-empty `concerns` is coerced to FAIL. The concerns are treated as unresolved defects — the sub-agent's own output proves the work is incomplete. Remediation proceeds as if the verdict were FAIL.
 
 **Remediation-first sequence (mandated by #763):**
-1. **Remediate** the root cause — diagnose what produced the FAIL
-2. **Re-verify** — repeat the verification command/assertion that produced the FAIL
-3. **Proceed** only on confirmed PASS from re-verification
+1. **Remediate** the root cause — diagnose what produced the non-DONE signal
+2. **Re-verify** — repeat the verification command/assertion that produced the signal
+3. **Proceed** only on confirmed clean DONE from re-verification
 4. **HALT only on double-failure** — if re-verification also fails, report blocker with both failure artifacts
 
 **Prohibited patterns:**
 - **Reclassification** — turning a FAIL into "PASS with caveats" or "functionally equivalent" is soft-passing by another name (see `000-critical-rules.md` §critical-rules-020)
-- **INCONCLUSIVE** — a verdict of INCONCLUSIVE for a gate that produces deterministic PASS/FAIL is a reclassification, not a finding. INCONCLUSIVE is prohibited as a gate verdict at all pipeline stages. The auditor files have been updated to remove INCONCLUSIVE — see `adversarial-audit` task files
-- **HALT without remediation attempt** — a FAIL that halts the pipeline without any remediation attempt is abandoning the root cause instead of fixing it. Professional engineers always attempt remediation before escalation. See `763-remediation-first`
+- **INCONCLUSIVE** — a verdict of INCONCLUSIVE for a gate that produces deterministic DONE/FAIL is a reclassification, not a finding. INCONCLUSIVE is prohibited as a gate verdict at all pipeline stages. The auditor files have been updated to remove INCONCLUSIVE — see `adversarial-audit` task files
+- **HALT without remediation attempt** — a non-DONE signal that halts the pipeline without any remediation attempt is abandoning the root cause instead of fixing it. Professional engineers always attempt remediation before escalation. See `763-remediation-first`
+- **DONE-with-concerns bypass** — accepting a DONE verdict with non-empty concerns as a pass. The concerns are defects — treat them as FAIL.
 
 Professional engineers remediate then re-verify — amateurs reclassify, soft-pass, or INCONCLUSIVE to avoid doing the work. See `065-verification-honesty.md` → "Hard Failure Discipline".
 
@@ -2056,14 +2059,39 @@ rules:
 
   - id: critical-rules-hard-fail
     tier: 2
-    title: "Hard Failure Discipline — FAIL is a hard gate, never reclassifiable"
+    title: "Hard Failure Discipline — Only clean DONE passes — everything else halts"
+    conditions:
+      any:
+        - all:
+            - "pipeline_stage in ['verdict','sub_agent_result','cleanup_gate','sc_verification_gate','phase_completion_gate']"
+            - "gate_result != 'DONE'"
+            - "action_taken in ['reclassify','inconclusive_verdict','halt_no_remediate']"
+        - all:
+            - "pipeline_stage in ['verdict','sub_agent_result','cleanup_gate','sc_verification_gate','phase_completion_gate']"
+            - "gate_result == 'DONE'"
+            - "gate_concerns != empty"
+            - "action_taken in ['reclassify','inconclusive_verdict','halt_no_remediate']"
+    actions:
+      - HALT
+      - REMEDIATE
+      - RE_VERIFY
+    conflicts_with: [critical-rules-020]
+    requires: []
+    triggers: [adversarial-audit, implementation-pipeline, verification-before-completion, git-workflow, approval-gate]
+    source: "000-critical-rules.md §critical-rules-hard-fail"
+
+  - id: critical-rules-done-with-concerns
+    tier: 2
+    title: "DONE-with-concerns coercion — DONE with non-empty concerns is coerced to FAIL"
     conditions:
       all:
         - "pipeline_stage in ['verdict','sub_agent_result','cleanup_gate','sc_verification_gate','phase_completion_gate']"
-        - "gate_result == 'FAIL'"
-        - "action_taken in ['reclassify','inconclusive_verdict','halt_no_remediate']"
+        - "gate_result == 'DONE'"
+        - "gate_concerns != empty"
+        - "action_taken == 'accept_as_pass'"
     actions:
       - HALT
+      - COERCE_TO_FAIL
       - REMEDIATE
       - RE_VERIFY
     conflicts_with: [critical-rules-020]

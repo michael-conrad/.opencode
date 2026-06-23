@@ -78,8 +78,8 @@ After phase structure validated, consume `sc-summary.yaml`:
     - [ ] 1b. Single-task + absorbable → **Candidate for combined**
     - [ ] 1c. Single-task + hard to read → **Separate**
 - [ ] 2. Document decision output: `Plan structure decision: combined/separate` with reason
-- [ ] 3. If COMBINED: write to `.issues/{N}/plan.md`, retain `[SPEC]` title prefix
-- [ ] 4. If SEPARATE: write to `.issues/{N}/plan.md` with separate phase sections
+- [ ] 3. If COMBINED: write to `.issues/{N}/plan.md` (routing index) + `.issues/{N}/plan-phase-1.md` (single phase), retain `[SPEC]` title prefix
+- [ ] 4. If SEPARATE: write to `.issues/{N}/plan.md` (routing index with phase list table) + `.issues/{N}/plan-phase-N.md` (one per phase with dispatch contracts, commit boundaries, checkpoint tag creation step)
 
 ### Step 1.6: Duplicate Plan Check
 
@@ -131,7 +131,9 @@ After phase structure validated, consume `sc-summary.yaml`:
 
 ### Step 4: Plan Phase Structure (PRIMARY)
 
-Every plan phase MUST define a three-part structure using three discrete sections within ONE phase. This is the single-phase rule (SC-8): Pre-RED Common, Per-Item RED+green Chains, Post-RED/green. These three sections are part of the same phase — never split into separate phases.
+Every plan phase MUST define a three-part structure using three discrete sections within ONE phase. This is the single-phase rule (SC-8): Pre-RED Common, Per-Item RED/GREEN Chains, Post-RED/green. These three sections are part of the same phase — never split into separate phases.
+
+**Multi-file format:** Plans use a master ToC (`plan.md`) as routing index + per-phase sub-plans (`plan-phase-N.md`). The master ToC contains the phase list table, dependency ordering, and exit criteria. Each sub-plan is self-contained with its own Pre-RED Common, Per-Item RED/GREEN Chains, and Post-RED/green sections. Sub-plans include dispatch contract fields (`must_receive`/`must_not_receive`), per-step `commits: true` declarations, and a checkpoint tag creation step in Post-RED/green.
 
 The gate labels and step sequence MUST be pulled from `implementation-pipeline/SKILL.md` §Dispatch Routing Table at the time of plan creation. Do NOT hardcode gate names — reference the canonical source.
 
@@ -163,18 +165,25 @@ List the files affected by this phase. Agents glob to discover content — use s
 
 List the SCs covered by this phase. Each SC must be traceable to a spec success criterion.
 
-#### Per-Item RED+green Chains
+#### Per-Item RED/GREEN Chains
 
 This section contains one RED/GREEN pair per implementation item. Each pair is a sequential chain — RED then immediately GREEN — before the next item's RED begins. RED and GREEN MUST be separate steps (SC-6); they may NEVER be combined.
 
+Each step in the Per-Item RED/GREEN Chains section follows this dispatch contract format:
+
 ```
-- [ ] TDD-1: <description> (SC-ID)
-  - [ ] 1. RED: <failure condition>
-  - [ ] 2. GREEN: <satisfaction condition>
-- [ ] TDD-2: <description> (SC-ID)
-  - [ ] 1. RED: <failure condition>
-  - [ ] 2. GREEN: <satisfaction condition>
+- [ ] N. <STEP-LABEL>: <description> — `<skill-name>` (**<clean-room|inline>**)
+    → dispatch: "execute <task> from <skill-name>"
+    → must_receive: [<field_name>, ...]
+    → must_not_receive: [<field_name>, ...]
+    → commits: true
+    → SC-<N>
 ```
+
+Where:
+- `must_receive` values are field names (e.g., `sc_ids`, `affected_files`, `spec_body`), not concrete values
+- `must_not_receive` always includes `orchestrator_reasoning` and `expected_outcomes` at minimum
+- `commits: true` means this step produces a commit before the next step starts
 
 #### Post-RED/green
 

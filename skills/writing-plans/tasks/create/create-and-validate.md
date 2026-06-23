@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Write plan document to `.issues/{N}/plan.md`, validate structure, and handle approval cascade with scope-aware auto-approval.
+Write plan document as multi-file format (master ToC at `.issues/{N}/plan.md` + per-phase sub-plans at `.issues/{N}/plan-phase-N.md` + work state file at `.tmp/work-state-NNN.yaml`), validate structure, and handle approval cascade with scope-aware auto-approval.
 
 ## Entry Criteria
 
@@ -12,7 +12,9 @@ Write plan document to `.issues/{N}/plan.md`, validate structure, and handle app
 
 ## Exit Criteria
 
-- Plan document written to `.issues/{N}/plan.md`
+- Master ToC written to `.issues/{N}/plan.md` (routing index, ≤50 lines)
+- Per-phase sub-plans written to `.issues/{N}/plan-phase-N.md` (one per phase, self-contained with dispatch contracts)
+- Work state file written to `.tmp/work-state-NNN.yaml` (Z3-verifiable contract fields)
 - Self-review and validation complete
 - Verification revisit passed
 - Plan reported in chat with `.issues/{N}/plan.md` path
@@ -24,41 +26,123 @@ Write plan document to `.issues/{N}/plan.md`, validate structure, and handle app
 
 - [ ] 1. Write Goal, Architecture, Tech Stack
 - [ ] 2. Write file structure with clear responsibilities
+- [ ] 3. Write master ToC (`plan.md`) with phase list table, dependency ordering, exit criteria
+- [ ] 4. Write per-phase sub-plans (`plan-phase-N.md`) with dispatch contracts, commit boundaries, checkpoint tag creation step
 
 ### Step 7: Store Plan Document
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
 - [ ] 1. Include compliance statement blockquote at top (after preamble) and bottom (before exit criteria)
-- [ ] 2. Write plan to `.issues/{N}/plan.md`
-- [ ] 3. Proceed to Step 8
+- [ ] 2. Write master ToC to `.issues/{N}/plan.md` (routing index with phase list table, dependency ordering, exit criteria)
+- [ ] 3. Write per-phase sub-plans to `.issues/{N}/plan-phase-N.md` (one per phase, self-contained with Pre-RED Common, Per-Item RED/GREEN Chains, Post-RED/green sections)
+- [ ] 4. Write work state file to `.tmp/work-state-NNN.yaml` (Z3-verifiable contract fields)
+- [ ] 5. Proceed to Step 8
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
-### Phase body requirements — Checklist format with dispatch indicators
+### Phase body requirements — Multi-file format with dispatch contracts
 
-Each phase MUST use the implementation pipeline checklist format. Gate sequence and dispatch types are discovered from `implementation-pipeline/SKILL.md` §Dispatch Routing Table — never hardcoded. Phase bodies follow this format:
+Each phase uses the multi-file format: master ToC (`plan.md`) as routing index + per-phase sub-plans (`plan-phase-N.md`). Gate sequence and dispatch types are discovered from `implementation-pipeline/SKILL.md` §Dispatch Routing Table — never hardcoded.
+
+**Master ToC format (`plan.md`):**
 
 ```
-### Phase N: title
+# Plan: <title>
 
-**Concern:** concern boundary
-**Files:** exact paths or glob patterns
-**SCs covered:** SC-N, SC-M
+Spec: #<N>
 
-- [ ] 1. <STEP-LABEL> — `<skill-name>` for <concern> (**<clean-room|inline>**)
+## Phase List
+
+| Phase | Concern | Depends On | SCs | Exit Criteria |
+|-------|---------|------------|-----|---------------|
+| 1 | <concern> | (none) | SC-N | <verifiable criteria> |
+| 2 | <concern> | Phase 1 | SC-M | <verifiable criteria> |
+
+## Dependency Ordering
+
+```
+Phase 1 (no deps)
+├── Phase 2 (depends on Phase 1)
+└── Phase 3 (depends on Phase 1)
+```
+
+## Exit Criteria
+
+All SCs PASS with declared evidence type.
+
+## Sub-Plan Files
+
+| Phase | File |
+|-------|------|
+| 1 | `plan-phase-1.md` |
+| 2 | `plan-phase-2.md` |
+```
+
+**Sub-plan format (`plan-phase-N.md`):**
+
+Each sub-plan begins with a YAML frontmatter header:
+
+```yaml
+---
+phase: <N>
+concern: <concern description>
+depends_on: [<phase-ID>, ...]
+scs: [SC-<N>, ...]
+checkpoint_tag: <parent>/checkpoint/<issue>/phase-<N>-<submodule>
+---
+```
+
+Then follows the three-section structure:
+
+```
+## Pre-RED Common
+
+- [ ] 1. <STEP-LABEL>: <description> — `<skill-name>` (**inline**)
     → dispatch: "execute <task> from <skill-name>"
-    → SC-N
-- [ ] N. <STEP-LABEL> — `<skill-name>` for <concern> (**<clean-room|inline>**)
-    → dispatch: "execute <task> from <skill-name>"
-    → SC-N
+    → must_receive: [<field_name>, ...]
+    → must_not_receive: [orchestrator_reasoning, expected_outcomes]
+    → commits: false
+    → SC-<N>
+
+## Per-Item RED/GREEN Chains
+
+### Item <N>.<M> — <item description>
+
+- [ ] <N>. RED: <description> — `<skill-name>` (**behavioral**)
+    → dispatch: "execute RED from test-driven-development"
+    → must_receive: [sc_ids, spec_body]
+    → must_not_receive: [orchestrator_reasoning, expected_outcomes]
+    → commits: true
+    → SC-<N>
+
+- [ ] <N>. GREEN: <description> — `<skill-name>` (**inline**)
+    → dispatch: "execute GREEN from test-driven-development"
+    → must_receive: [sc_ids, <affected_files>]
+    → must_not_receive: [orchestrator_reasoning, expected_outcomes]
+    → commits: true
+    → SC-<N>
+
+## Post-RED/green
+
+- [ ] <N>. Verify all SCs for Phase <N> — `verification-before-completion` (**sub-agent**)
+    → dispatch: "execute verify from verification-before-completion"
+    → must_receive: [sc_ids, <affected_files>, spec_body]
+    → must_not_receive: [orchestrator_reasoning, expected_outcomes]
+    → commits: false
+    → SC-<N>
+
+- [ ] <N>. Create checkpoint tag — `git tag` (**inline**)
+    → tag: <parent>/checkpoint/<issue>/phase-<N>-<submodule>
+    → commits: false
 ```
 
 **Format rules:**
-- Every step is `- [ ] N.` with at least one sub-bullet — no prose-only steps
-- Every step title contains `— <skill-name> for <concern> (**<clean-room|inline>**)` with a skill name in the dispatch marker
-- Every step that maps to a success criterion has a `→ SC-N` annotation
-- No step describes more than one atomic action — sub-operations get their own `- [ ] N.` entries
+- Every step is `- [ ] N.` with dispatch contract fields — no prose-only steps
+- Every step has `must_receive` and `must_not_receive` fields
+- Every step in Per-Item RED/GREEN Chains declares `commits: true`
+- Every sub-plan has a `checkpoint_tag` in its header and a checkpoint tag creation step in Post-RED/green
+- Sub-plans are self-contained — no cross-file references
 - Gate sequence is discovered from `implementation-pipeline/SKILL.md` §Dispatch Routing Table — never hardcoded
 - Bare `(**clean-room**)` or `(**inline**)` without a preceding skill name is invalid
 

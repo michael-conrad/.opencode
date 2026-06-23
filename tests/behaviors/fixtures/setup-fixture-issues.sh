@@ -42,9 +42,7 @@ setup_fixture_issues() {
         number=$(echo "$issue_name" | grep -oE '^[0-9]+' || echo "")
         if [ -n "$number" ]; then
             mkdir -p "$workdir/.issues/$number"
-            if [ -f "$workdir/.issues/open/$issue_name/spec.md" ]; then
-                cp "$workdir/.issues/open/$issue_name/spec.md" "$workdir/.issues/$number/spec.md"
-            fi
+            cp -r "$workdir/.issues/open/$issue_name/"* "$workdir/.issues/$number/" 2>/dev/null || true
         fi
     done
 

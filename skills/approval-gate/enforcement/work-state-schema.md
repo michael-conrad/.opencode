@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the work state file schema extension for chain-of-responsibility orchestration. Each atomic task in the `verify-authorization/`, `pre-impl/`, and `screen/` chains writes results as a dedicated section in the work state file (`./tmp/{issue-N}/work.md`).
+Define the work state file schema extension for chain-of-responsibility orchestration. Each atomic task in the `verify-authorization/`, `pre-impl/`, and `screen/` chains writes results as a dedicated section in the work state file (`.tmp/work-state-{issue-N}.yaml`). The canonical format is defined in `implementation-pipeline/enforcement/work-state-verification.md`.
 
 ## Header Section
 

@@ -15,7 +15,7 @@ compatibility: opencode
 
 ## Overview
 
-Pure orchestrator routing table with 16 serial dispatch steps. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`. YAML contract artifacts at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml`.
+Pure orchestrator routing table with 20 serial dispatch steps. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`. YAML contract artifacts at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml`.
 
 The orchestrator is a pure router — never reads task file content, never performs inline analysis. Sub-agents do the work.
 
@@ -36,11 +36,15 @@ The orchestrator is a pure router — never reads task file content, never perfo
 | "structural-checks" / "lint/typecheck" | `structural-checks` | `sub-task` | {issue_number} |
 | "green-doublecheck" / "verify GREEN" | `green-doublecheck` | `sub-task` | {issue_number} |
 | "green-vbc" / "verification before completion" | `green-vbc` | `sub-task` | {issue_number} |
+| "checkpoint-tag-create" / "create checkpoint tag" | `checkpoint-tag-create` | `sub-task` | {issue_number} |
 | "adversarial-audit" / "audit step" | `adversarial-audit` | `orchestrator` | {issue_number} |
 | "cross-validate" / "consensus check" | `cross-validate` | `sub-task` | {issue_number} |
 | "regression-check" / "regression tests" | `regression-check` | `sub-task` | {issue_number} |
 | "review-prep" / "prepare review" | `review-prep` | `sub-task` | {issue_number} |
 | "exec-summary" / "completion" | `exec-summary` | `sub-task` | {issue_number} |
+| "post-step-checkpoint" / "checkpoint tag after step" | `post-step-checkpoint` | `sub-task` | {issue_number} |
+| "z3-state-update" / "update solve state" | `z3-state-update` | `sub-task` | {issue_number} |
+| "phase-rollback" / "rollback on FAIL" | `phase-rollback` | `sub-task` | {issue_number} |
 
 ## Dispatch Routing Table
 
@@ -57,11 +61,15 @@ The orchestrator is a pure router — never reads task file content, never perfo
 | `structural-checks` | `finishing-a-development-branch --task checklist` | lint/typecheck/format results |
 | `green-doublecheck` | `verification-before-completion --task verify` (semantic-intent verification) | GREEN-side SC evidence + intent verdict |
 | `green-vbc` | `verification-before-completion --task completion` | VbC completion artifact |
+| `checkpoint-tag-create` | `git-workflow --task commit-prep` (creates checkpoint tag after verification, before audit) | checkpoint tag status |
 | `adversarial-audit` | **Orchestrator multi-dispatch:** resolve-models → dispatch audit task (phase-appropriate: verification-audit/spec-audit/plan-fidelity/etc.) with auditor_1 (remediate + restart on non-clean-pass) → same audit task with auditor_2 (remediate + restart on non-clean-pass) | dual-auditor YAML verdicts per auditor |
 | `cross-validate` | `adversarial-audit --task cross-validate` (receives `auditor_artifact_paths` from adversarial-audit step) | cross-validate findings YAML |
 | `regression-check` | `test-driven-development --task patterns` (regression) | regression test results |
 | `review-prep` | `git-workflow --task review-prep` | review-prep status |
 | `exec-summary` | `completion-core --task completion` | append lifecycle event + chat exec summary |
+| `post-step-checkpoint` | `git-workflow --task commit-prep` (creates checkpoint tag after each step, reaps prior tag for re-dispatch) | checkpoint tag status |
+| `z3-state-update` | `solve state update` (3 per-variable calls: previous_step, current_step, pipeline_state) | Z3 state update status |
+| `phase-rollback` | `git-workflow --task rollback` (checkpoint-based rollback on FAIL, git checkout . on first-step failure) | rollback status |
 
 **Note:** The `adversarial-audit` step is a multi-dispatch sequence with remediation loop-back. The audit task dispatched depends on pipeline phase (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation):
 - [ ] 1. Run `.opencode/tools/resolve-models` to select cross-family auditors
@@ -81,7 +89,7 @@ Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run
 
 ## Step Labels (for #932 naming convention)
 
-`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `red-doublecheck`, `post-red-enforcement`, `green-phase`, `post-green-enforcement`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `resolve-models`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
+`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `red-doublecheck`, `post-red-enforcement`, `green-phase`, `post-green-enforcement`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `checkpoint-tag-create`, `resolve-models`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`, `post-step-checkpoint`, `z3-state-update`, `phase-rollback`
 
 ## Invocation
 
@@ -181,13 +189,37 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ## State Management
 
+### Solve State (Pipeline Position)
+
 - `solve state init ./tmp/{issue-N}/state/` at `pre-red-baseline` step — creates state file with `current_step: pre-red-baseline`, `pipeline_state: init`
 - `solve state update ./tmp/{issue-N}/state/ --var-name <name> --var-value <value> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — 3 calls per step: previous_step, current_step, pipeline_state
 - `solve check --state-path ./tmp/{issue-N}/state/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — validates step transitions
 
-Step results go to YAML disk artifact — never into solve state. Solve state tracks pipeline **position** only.
+Solve state tracks pipeline **position** only. Step results go to YAML disk artifact — never into solve state.
 
-Step results go to YAML disk artifact — never into solve state. Solve state tracks pipeline **position** only.
+### Work State File (Session-Persistent)
+
+The work state file at `.tmp/work-state-{issue-N}.yaml` tracks pipeline phase execution state across session boundaries. It is the canonical source for phase completion, SC results, and checkpoint tags. See `enforcement/work-state-verification.md` for the full format definition.
+
+```yaml
+# .tmp/work-state-{issue-N}.yaml
+schema_version: "1.0"
+issue_number: <N>
+current_phase: <phase-N>
+completed_phases: [<phase-1>, <phase-2>, ...]
+current_step: <step_label>
+pipeline_state: init | running | complete | failed
+sc_results:
+  SC-<N>:
+    status: pending | pass | fail
+    evidence_type: behavioral | semantic | string | structural
+    evidence_path: <path>
+    verified_at: <ISO8601>
+checkpoint_tags:
+  phase-<N>: <tag-name>
+started_at: <ISO8601>
+updated_at: <ISO8601>
+```
 
 ## Remediation Routing
 
@@ -230,6 +262,7 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 | `structural-checks` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-structural-checks-*` |
 | `green-doublecheck` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-doublecheck-*` |
 | `green-vbc` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-vbc-*` |
+| `checkpoint-tag-create` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-checkpoint-tag-create-*` |
 | `adversarial-audit` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-adversarial-audit-*` |
 | `cross-validate` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-cross-validate-*` |
 | `regression-check` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-regression-check-*` |
