@@ -179,7 +179,7 @@ For each file path or symbol mentioned in the issue:
 The result contract MUST be YAML-structured, compact (≈100-500 words):
 
 ```yaml
-status: DONE | DONE_WITH_CONCERNS | BLOCKED | OVERFLOW
+status: DONE | BLOCKED | OVERFLOW
 task: screen-issue
 issue_number: <N>
 classification: included | excluded | scope-reduced

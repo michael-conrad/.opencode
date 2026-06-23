@@ -12,7 +12,13 @@ compatibility: opencode
 
 Modality-aware sub-agent routing infrastructure. Probes Ollama model capabilities, caches capability snapshots, tasks sub-agents to best available model per content modality. Foundation for verification and research skills.
 
+## Mandatory Task Discipline
 
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 4. Sub-agents must not dispatch sub-agents
+- [ ] 5. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Trigger Dispatch Table
 

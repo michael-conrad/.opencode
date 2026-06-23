@@ -12,6 +12,14 @@ compatibility: opencode
 
 Transforms approved specs into actionable implementation plans using a 21-step Z3-enforced pipeline: 10 discrete sub-agent dispatches interleaved with 10 z3-check transitions and 1 inline verification step. Every step is one atomic concern. No placeholders. Sub-agents are leaf nodes — only the orchestrator dispatches via `task()`.
 
+## Mandatory Task Discipline
+
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 4. Sub-agents must not dispatch sub-agents
+- [ ] 5. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |

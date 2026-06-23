@@ -389,6 +389,10 @@ A break occurs when behavioral verification catches a defect at the earliest pos
 - `080-code-standards.md` §Evidence Type Taxonomy — cost and gate-position columns for each evidence type
 - `080-code-standards.md` §Test Integrity Mandate — behavioral tests as the only sufficient evidence for behavioral SCs
 
+### DONE_WITH_CONCERNS Coercion Trigger
+
+`DONE_WITH_CONCERNS` is a coercion trigger at the verification honesty gate. When a sub-agent returns `DONE_WITH_CONCERNS`, the orchestrator MUST coerce it to FAIL per the bright-line coercion rule in `implementation-pipeline/tasks/pipeline-executor.md`. Caveats are defects, not completions — a `DONE` status with a non-empty `caveat_summary` is also coerced to FAIL.
+
 ### Remediation-First Protocol
 
 When a FAIL signal is received at any pipeline stage, the agent MUST remediate before halting. See `000-critical-rules.md` §critical-rules-hard-fail for the complete protocol.

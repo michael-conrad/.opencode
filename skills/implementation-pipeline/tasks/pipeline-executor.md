@@ -12,6 +12,17 @@ This is the core dispatch routing table for the 14-step serial implementation pi
 - Feature branch exists (created by pre-work)
 - Authorization context available
 
+## Pre-Dispatch Gate: Coercion Rule
+
+Before dispatching any step, the orchestrator MUST apply the bright-line coercion rule to all incoming result contracts:
+
+```
+status != DONE → FAIL
+status == DONE with non-empty caveat_summary → FAIL
+```
+
+A status of `DONE_WITH_CONCERNS` is coerced to FAIL — caveats are defects, not completions. The orchestrator routes to remediation per the Remediation Routing section below.
+
 ## Context Required
 
 - `authorization_scope`
@@ -23,7 +34,7 @@ This is the core dispatch routing table for the 14-step serial implementation pi
 - `github.repo`
 - `issue_number`
 
-## 16-Step Dispatch Table
+## 17-Step Dispatch Table
 
 | Step # | Step Label | Dispatches To | Artifact Produced | YAML Contract Schema |
 |--------|------------|---------------|-------------------|---------------------|
@@ -34,15 +45,16 @@ This is the core dispatch routing table for the 14-step serial implementation pi
 | 5 | `post-red-enforcement` | `implementation-pipeline --task post-red-enforcement` (git diff --name-only -- src/ \| wc -l) | `./tmp/{issue-N}/artifacts/pipeline-post-red-enforcement-{STATUS}-{timestamp}.yaml` | single-criterion |
 | 6 | `green-phase` | `test-driven-development --task green` | `./tmp/{issue-N}/artifacts/pipeline-green-phase-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
 | 7 | `post-green-enforcement` | `implementation-pipeline --task post-green-enforcement` (git diff --name-only -- test/ \| wc -l) | `./tmp/{issue-N}/artifacts/pipeline-post-green-enforcement-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 8 | `checkpoint-commit` | `git-workflow --task commit-prep` | `./tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 9 | `structural-checks` | `finishing-a-development-branch --task checklist` (enforces advisory-only mode: all linters run with `--check`/report-only flags, never auto-modify) | `./tmp/{issue-N}/artifacts/pipeline-structural-checks-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 10 | `green-doublecheck` | `verification-before-completion --task verify` (semantic-intent verification) | `./tmp/{issue-N}/artifacts/pipeline-green-doublecheck-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
-| 11 | `green-vbc` | `verification-before-completion --task completion` | `./tmp/{issue-N}/artifacts/pipeline-green-vbc-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 12 | `adversarial-audit` | `adversarial-audit --task verification-audit` | `./tmp/{issue-N}/artifacts/pipeline-audit-{auditor_type}-{STATUS}-{timestamp}.yaml` | `per_criterion[]` (#932 schema) |
-| 13 | `cross-validate` | `adversarial-audit --task cross-validate` | `./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml` | cross-validate YAML (#932 schema) |
-| 14 | `regression-check` | `test-driven-development --task patterns` (regression) | `./tmp/{issue-N}/artifacts/pipeline-regression-check-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
-| 15 | `review-prep` | `git-workflow --task review-prep` | review-prep status | single-criterion |
-| 16 | `exec-summary` | `completion-core --task completion` | append lifecycle event + chat exec summary | single-criterion |
+| 8 | `checkpoint-tag-create` | `implementation-pipeline --task checkpoint-tag-create` (creates git tag per `000-critical-rules.md` §Checkpoint Rollback Exception) | `./tmp/{issue-N}/artifacts/pipeline-checkpoint-tag-create-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 9 | `checkpoint-commit` | `git-workflow --task commit-prep` | `./tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 10 | `structural-checks` | `finishing-a-development-branch --task checklist` (enforces advisory-only mode: all linters run with `--check`/report-only flags, never auto-modify) | `./tmp/{issue-N}/artifacts/pipeline-structural-checks-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 11 | `green-doublecheck` | `verification-before-completion --task verify` (semantic-intent verification) | `./tmp/{issue-N}/artifacts/pipeline-green-doublecheck-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
+| 12 | `green-vbc` | `verification-before-completion --task completion` | `./tmp/{issue-N}/artifacts/pipeline-green-vbc-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 13 | `adversarial-audit` | `adversarial-audit --task verification-audit` | `./tmp/{issue-N}/artifacts/pipeline-audit-{auditor_type}-{STATUS}-{timestamp}.yaml` | `per_criterion[]` (#932 schema) |
+| 14 | `cross-validate` | `adversarial-audit --task cross-validate` | `./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml` | cross-validate YAML (#932 schema) |
+| 15 | `regression-check` | `test-driven-development --task patterns` (regression) | `./tmp/{issue-N}/artifacts/pipeline-regression-check-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
+| 16 | `review-prep` | `git-workflow --task review-prep` | review-prep status | single-criterion |
+| 17 | `exec-summary` | `completion-core --task completion` | append lifecycle event + chat exec summary | single-criterion |
 
 ## Post-Step Checkpoint Creation
 
@@ -189,7 +201,7 @@ When resuming a session with existing artifacts:
 Every step returns a YAML contract (never JSON) with only routing-significant data:
 
 ```yaml
-status: DONE | BLOCKED | DONE_WITH_CONCERNS | OVERFLOW
+status: DONE | BLOCKED | OVERFLOW
 artifact_path: "./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml"
 summary: "<1-3 sentence summary>"
 ```

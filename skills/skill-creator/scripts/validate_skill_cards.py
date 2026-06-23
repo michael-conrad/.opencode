@@ -17,6 +17,7 @@ Validates SKILL.md files per spec #1124:
   REQ-2: Placeholder enforcement (no hardcoded identity values)
   REQ-3: Worktree Mode section requirement for skills with bash/git/file ops
   REQ-4: Provenance field validation
+  REQ-5: Mandatory Task Discipline admonishment presence (5-item checklist)
 
 Usage:
     uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py           # validate
@@ -244,6 +245,22 @@ def validate_req3(name: str, body: str, file_path: str) -> list[Violation]:
         )
     return violations
 
+ADMONISHMENT_HEADING_RE = re.compile(r"^##\s+Mandatory\s+Task\s+Discipline", re.MULTILINE)
+
+def validate_req5(name: str, body: str, file_path: str) -> list[Violation]:
+    violations: list[Violation] = []
+    if not ADMONISHMENT_HEADING_RE.search(body):
+        violations.append(
+            Violation(
+                "REQ-5",
+                name,
+                "admonishment",
+                "Missing 'Mandatory Task Discipline' section",
+                file_path=file_path,
+            )
+        )
+    return violations
+
 def validate_req4(name: str, fields: dict[str, str], file_path: str) -> list[Violation]:
     violations: list[Violation] = []
     if "provenance" not in fields:
@@ -301,6 +318,7 @@ def validate_card(card_path: Path, root: Path) -> list[Violation]:
     violations.extend(validate_req2(name, content, rel_path))
     violations.extend(validate_req3(name, body, rel_path))
     violations.extend(validate_req4(name, fields, rel_path))
+    violations.extend(validate_req5(name, body, rel_path))
     return violations
 
 def violation_to_dict(v: Violation) -> dict:
