@@ -18,11 +18,11 @@ Run Z3 constraint solving and plan utility validation as direct CLI invocations.
 
 ## Procedure
 
-1. Run `./.opencode/tools/solve model --contract-path <path> --query <query>` — confirm SAT
-2. Run `./.opencode/tools/solve check --state-path <path> --contract-path <path>` — confirm SAT
-3. Run `./.opencode/tools/plan plan --problem <path> --output <path>` — confirm SOLVED
-4. If any returns UNSAT or UNSOLVABLE: return BLOCKED with status
-5. Return PASS with solve_status and plan_status
+- [ ] 1. Run `./.opencode/tools/solve model --contract-path <path> --query <query>` — confirm SAT
+- [ ] 2. Run `./.opencode/tools/solve check --state-path <path> --contract-path <path>` — confirm SAT
+- [ ] 3. Run `./.opencode/tools/plan plan --problem <path> --output <path>` — confirm SOLVED
+- [ ] 4. If any returns UNSAT or UNSOLVABLE: return BLOCKED with status
+- [ ] 5. Return PASS with solve_status and plan_status
 
 ## Context Required
 

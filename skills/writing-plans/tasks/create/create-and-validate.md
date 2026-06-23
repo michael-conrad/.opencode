@@ -22,18 +22,16 @@ Write plan document to `.issues/{N}/plan.md`, validate structure, and handle app
 
 ### Step 6: Write Plan Document Header
 
-- Goal, Architecture, Tech Stack
-- File structure with clear responsibilities
+- [ ] 1. Write Goal, Architecture, Tech Stack
+- [ ] 2. Write file structure with clear responsibilities
 
 ### Step 7: Store Plan Document
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
-The generated plan body MUST include this compliance statement blockquote at the top (after the preamble) and at the bottom (before the exit criteria section).
-
-**All paths (combined and separate):**
-- Write plan to `.issues/{N}/plan.md`
-- Proceed to Step 8
+- [ ] 1. Include compliance statement blockquote at top (after preamble) and bottom (before exit criteria)
+- [ ] 2. Write plan to `.issues/{N}/plan.md`
+- [ ] 3. Proceed to Step 8
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
@@ -71,131 +69,91 @@ When transitioning concerns: describe what is being left, what is being entered,
 
 ### Step 7.5: Spec-to-Plan Handoff Artifact Check
 
-Before writing the plan document, enumerate and validate spec artifacts that must be consumed by the plan:
-
-```bash
-ls .issues/{issue-N}/sc-summary.yaml
-ls .issues/{issue-N}/verification-consistency-contract.yaml
-ls .issues/{issue-N}/revision-re-entry-contract.yaml
-ls ./tmp/{issue-N}/lifecycle.yaml
-```
-
-Every expected spec artifact MUST exist. Missing artifacts are flagged as MISSING-TRACEABILITY.
+- [ ] 1. Enumerate expected spec artifacts: `sc-summary.yaml`, `verification-consistency-contract.yaml`, `revision-re-entry-contract.yaml`, `lifecycle.yaml`
+- [ ] 2. Verify every expected artifact exists — missing artifacts flagged as MISSING-TRACEABILITY
 
 ### Step 7.6: SC Coverage YAML Cross-Reference Validation
 
-Cross-reference the SC coverage YAML against the plan structure:
-
-1. Read `.issues/{issue-N}/sc-summary.yaml`
-2. Verify every SC ID in the YAML is mapped to at least one plan item
-3. Verify every plan item's SC-ID references exist in the YAML
-4. Flag orphan SCs (unmapped) as MISSING-TRACEABILITY
-5. Flag undefined SC references (in plan but not in YAML) as SCOPE-CREEP
-6. Record the cross-reference result as an evidence artifact
+- [ ] 1. Read `.issues/{issue-N}/sc-summary.yaml`
+- [ ] 2. Verify every SC ID in YAML is mapped to at least one plan item
+- [ ] 3. Verify every plan item's SC-ID references exist in YAML
+- [ ] 4. Flag orphan SCs (unmapped) as MISSING-TRACEABILITY
+- [ ] 5. Flag undefined SC references as SCOPE-CREEP
+- [ ] 6. Record cross-reference result as evidence artifact
 
 ### Step 7.7: Spec-to-Plan Handoff Artifact Check
 
-Before finalizing the plan, verify spec-to-plan handoff artifacts:
-
-1. Enumerate all expected artifacts from ``
-2. Verify SC coverage YAML cross-reference: each SC in the spec has a corresponding plan item
-3. Verify lifecycle manifest indicates `plan_created` event
-4. Generate spec-to-plan handoff manifest at `./tmp/{issue-N}/artifacts/spec-to-plan-manifest.yaml`
+- [ ] 1. Enumerate all expected artifacts
+- [ ] 2. Verify SC coverage YAML cross-reference
+- [ ] 3. Verify lifecycle manifest indicates `plan_created` event
+- [ ] 4. Generate spec-to-plan handoff manifest at `./tmp/{issue-N}/artifacts/spec-to-plan-manifest.yaml`
 
 ### Step 8: Generate Implementation Checklist
 
-Generate `./tmp/{N}/checklist.md` from the finalized plan phases. The checklist tracks implementation progress per phase, unit, and file.
-
-**Format:**
-```markdown
-# Implementation Checklist — #{N}
-
-## Phase {P}: {title}
-### Unit {U}: {unit-title}
-- [ ] {file-path} — {description}
-```
-
-**Procedure:**
-1. Read the plan at `.issues/{N}/plan.md`
-2. Extract every phase → unit → file path
-3. Write each as a checkbox item with `pending` default status
-4. Save to `./tmp/{N}/checklist.md`
-
-**Exit criterion:** `./tmp/{N}/checklist.md` exists and contains all phases, units, and file paths from the plan.
+- [ ] 1. Read the plan at `.issues/{N}/plan.md`
+- [ ] 2. Extract every phase → unit → file path
+- [ ] 3. Write each as a checkbox item with `pending` default status
+- [ ] 4. Save to `./tmp/{N}/checklist.md`
+- [ ] 5. Verify `./tmp/{N}/checklist.md` exists and contains all phases, units, and file paths
 
 ### Step 9: Self-Review
 
-- Spec coverage check
-- Placeholder scan
-- Type consistency check
-- Fix any issues found
+- [ ] 1. Spec coverage check
+- [ ] 2. Placeholder scan
+- [ ] 3. Type consistency check
+- [ ] 4. Fix any issues found
 
 ### Step 10: Validate Plan
 
-- Check for TBD/TODO placeholders
-- Verify all steps are actionable
-- Verify success criteria are testable
-- Prose-structure check: phase descriptions remain prose
-- **Verify each phase declares test output artifact paths** using `./tmp/{issue-N}/artifacts/` convention (not bare `./tmp/`)
-- **Verify `solve check` returns SAT** — if UNSAT, HALT with blocker report
-- **Verify `plan plan` returns SOLVED_SATISFICING or SOLVED_OPTIMALLY** — if UNSOLVABLE or unavailable, HALT with blocker report
-- **Verify each referenced pipeline step label exists in `implementation-pipeline/SKILL.md`'s dispatch routing table** — if any label is undefined, HALT with MISSING-TRACEABILITY
+- [ ] 1. Check for TBD/TODO placeholders
+- [ ] 2. Verify all steps are actionable
+- [ ] 3. Verify success criteria are testable
+- [ ] 4. Prose-structure check: phase descriptions remain prose
+- [ ] 5. Verify each phase declares test output artifact paths using `./tmp/{issue-N}/artifacts/` convention
+- [ ] 6. Verify `solve check` returns SAT — if UNSAT, HALT with blocker report
+- [ ] 7. Verify `plan plan` returns SOLVED_SATISFICING or SOLVED_OPTIMALLY — if UNSOLVABLE, HALT
+- [ ] 8. Verify each referenced pipeline step label exists in `implementation-pipeline/SKILL.md` dispatch routing table — if undefined, HALT with MISSING-TRACEABILITY
 
 #### Phase Structure Validation (three-part structure)
 
-Every phase checklist MUST pass the following three-part structure validation rules:
-
-1. **Pre-RED section exists:** Every phase has exactly one Pre-RED Common section containing shared pre-work (coherence gate, baseline) → SC-4
-2. **Post-RED section exists:** Every phase has exactly one Post-RED/green section containing post-cycle validation (VbC, audit, regression, review) → SC-4
-3. **Chain ordering:** RED+green chains execute between Pre-RED and Post-RED sections — never before Pre-RED or after Post-RED → SC-4
-4. **Pre-RED not duplicated:** Pre-RED steps appear exactly once per phase — never duplicated across items → SC-4
-5. **Post-RED not duplicated:** Post-RED steps appear exactly once per phase — never duplicated across items → SC-4
-6. **RED/GREEN step separation:** RED and GREEN are separate (not combined) steps within each chain → SC-7
+- [ ] 1. **Pre-RED section exists:** Every phase has exactly one Pre-RED Common section → SC-4
+- [ ] 2. **Post-RED section exists:** Every phase has exactly one Post-RED/green section → SC-4
+- [ ] 3. **Chain ordering:** RED+green chains execute between Pre-RED and Post-RED sections → SC-4
+- [ ] 4. **Pre-RED not duplicated:** Pre-RED steps appear exactly once per phase → SC-4
+- [ ] 5. **Post-RED not duplicated:** Post-RED steps appear exactly once per phase → SC-4
+- [ ] 6. **RED/GREEN step separation:** RED and GREEN are separate (not combined) steps → SC-7
 
 #### Checklist Validation
 
-Every plan phase checklist MUST pass the following 8 validation rules in addition to the phase structure rules above:
-
-1. **Checklist format:** Every step is `- [ ] N.` with at least one sub-bullet — no prose-only steps, no collapsed multi-operation steps
-2. **Dispatch indicator:** Every step title contains `— <skill-name> for <concern> (**<clean-room|inline>**)` — no step is missing a skill name in the dispatch marker. Bare `(**clean-room**)` or `(**inline**)` without a preceding skill name is rejected
-3. **Gate sequence match:** Gate sequence matches `implementation-pipeline/SKILL.md` §Dispatch Routing Table — every step label must exist in the canonical source
-4. **Atomic action:** No step describes more than one atomic action — every sub-operation from pipeline task files is expanded into its own `- [ ] N.` entry
-5. **SC annotations:** All SCs referenced via `→ SC-N` annotations — every step that maps to a success criterion has a visible SC reference
-6. **No TBD/TODO:** No TBD/TODO placeholders — all steps are actionable
-7. **Admonishment present:** Compliance admonishment blockquote present at top and bottom of plan body
-8. **Phase dependency ordering:** Phase dependency ordering matches spec architecture — no phase references a dependency that does not exist
-
-9. **Skill name exists:** Every dispatch marker with a skill name (`— <skill-name> for`) must reference an existing directory under `.opencode/skills/`. HALT with `SKILL_NOT_FOUND` if any marker references a non-existent skill.
-10. **Exhaustive mapping:** Every phase step MUST have a named skill in its dispatch marker. No step may use bare `(**clean-room**)` or `(**inline**)` without a preceding `— <skill-name> for <concern>`. HALT with `MISSING_SKILL_NAME` if any step lacks a skill name.
-11. **Post-RED pipeline gates:** Every phase's Post-RED/green section MUST contain all three mandatory pipeline gates: `completeness-gate`, `adversarial-audit`, and `completion-core`. Each gate MUST be expanded into indented checkbox sub-steps. HALT with `MISSING_POST_RED_GATE` if any gate is absent or collapsed into prose.
-12. **Prose sub-step rejection:** No plan step body may contain prose-format sub-steps (matched by `^\s+→ [^d]` — arrow continuations that are not `→ dispatch:` or `→ SC-N`). Any prose-format sub-step causes HALT with `PROSE_SUBSTEPS_DETECTED`.
+- [ ] 1. **Checklist format:** Every step is `- [ ] N.` with at least one sub-bullet — no prose-only steps
+- [ ] 2. **Dispatch indicator:** Every step title contains `— <skill-name> for <concern> (**<clean-room|inline>**)` — bare `(**clean-room**)` without skill name is rejected
+- [ ] 3. **Gate sequence match:** Every step label exists in `implementation-pipeline/SKILL.md` §Dispatch Routing Table
+- [ ] 4. **Atomic action:** No step describes more than one atomic action — sub-operations expanded into own `- [ ] N.` entries
+- [ ] 5. **SC annotations:** All SCs referenced via `→ SC-N` annotations
+- [ ] 6. **No TBD/TODO:** No TBD/TODO placeholders — all steps are actionable
+- [ ] 7. **Admonishment present:** Compliance admonishment blockquote at top and bottom of plan body
+- [ ] 8. **Phase dependency ordering:** No phase references a dependency that does not exist
+- [ ] 9. **Skill name exists:** Every dispatch marker skill name references existing directory under `.opencode/skills/`. HALT with `SKILL_NOT_FOUND` if non-existent
+- [ ] 10. **Exhaustive mapping:** No step uses bare `(**clean-room**)` without preceding skill name. HALT with `MISSING_SKILL_NAME`
+- [ ] 11. **Post-RED pipeline gates:** Every phase has completeness-gate, adversarial-audit, completion-core with expanded checkbox sub-steps. HALT with `MISSING_POST_RED_GATE`
+- [ ] 12. **Prose sub-step rejection:** No `→` arrow continuations that aren't `→ dispatch:` or `→ SC-N`. HALT with `PROSE_SUBSTEPS_DETECTED`
 
 If any rule fails: HALT with MISSING-TRACEABILITY and report which rule(s) failed.
 
 ### Step 11: Verification Revisit (MANDATORY)
 
-Invoke: `/skill verification-enforcement --task revisit`
-
-Scans for `⚠️ UNVERIFIED` markers. Resolves if possible; escalates unresolvable claims.
+- [ ] 1. Invoke `/skill verification-enforcement --task revisit`
+- [ ] 2. Scan for `⚠️ UNVERIFIED` markers — resolve if possible, escalate unresolvable claims
 
 ### Step 12: Report Plan Creation in Chat (MANDATORY)
 
-**Format — reference spec via full URL, plan via local artifact path:**
-```
-Created plan at `.issues/{N}/plan.md` for [<owner>/<repo>#<N>](https://github.com/<owner>/<repo>/issues/<N>) (<description>). <N> phases across <N> items.
-
-🤖 <AgentName> (<ModelId>)
-```
+- [ ] 1. Report in format: `Created plan at .issues/{N}/plan.md for [owner/repo#N](url) (description). N phases across N items.`
+- [ ] 2. Append byline: `🤖 <AgentName> (<ModelId>)`
 
 ### Step 13: Cross-Reference Verification (MANDATORY)
 
-Verify referenced skills and tasks exist:
-```bash
-ls .opencode/skills/approval-gate/SKILL.md && grep -c "verify-authorization" .opencode/skills/approval-gate/SKILL.md
-ls .opencode/skills/writing-plans/tasks/create/plan-structure.md && grep -c "Step.*RED" .opencode/skills/writing-plans/tasks/create/plan-structure.md
-```
-
-If any verification fails: flag as MISSING-TRACEABILITY.
+- [ ] 1. Verify referenced skills and tasks exist via `ls` and `grep`
+- [ ] 2. If any verification fails: flag as MISSING-TRACEABILITY
 
 ### Authorization Context for Task()
 
@@ -214,33 +172,14 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ### Step 14: Plan Approval
 
-**Scope-aware auto-approval — approval is on the spec, plan is a local artifact:**
-
-```python
-SCOPE_LEVELS = {
-    "for_review_prep": 0, "for_spec": 1, "for_analysis": 2,
-    "for_plan": 3, "for_implementation": 4,
-    "for_pr": 5, "for_pr_only": 5, "for_review_only": 4
-}
-
-if scope_level >= SCOPE_LEVELS["for_plan"]:
-    # Pipeline authorization covers plan approval
-    # Plan is local — record approval in chat report
-    pass
-```
-
-**If `halt_at == plan_created`:** HALT after plan creation. Do NOT proceed to implementation.
+- [ ] 1. Apply scope-aware auto-approval: if scope >= `for_plan`, record approval in chat report
+- [ ] 2. If `halt_at == plan_created`: HALT after plan creation — do NOT proceed to implementation
 
 ### Step 15: Plan-Reference Sync
 
-After the plan is approved and before the procedure exits, sync a cross-reference from the spec issue to the plan:
-
-1. Read the plan file from `.issues/{N}/plan.md` to confirm it exists
-2. Call `github_issue_write(method='update', owner='<owner>', repo='<repo>', issue_number=<N>)` with the existing issue body preserved and a plan cross-reference appended:
-   - If the issue body does not already contain a plan reference, append:
-     `---\n**Plan:** See [plan.md](.issues/{N}/plan.md) for the implementation plan.\n`
-   - If the issue body already contains a plan reference, skip (no duplicate)
-3. Verify the update succeeded by reading back the issue body
+- [ ] 1. Read plan file from `.issues/{N}/plan.md` to confirm it exists
+- [ ] 2. Call `github_issue_write` to append plan cross-reference to spec issue body (skip if already present)
+- [ ] 3. Verify update succeeded by reading back the issue body
 
 ## Acceptance Criteria
 

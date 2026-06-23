@@ -18,12 +18,12 @@ Write the plan document to `.issues/{N}/plan.md`, validate dispatch table refere
 
 ## Procedure
 
-1. Write plan document header (Goal, Architecture, Tech Stack)
-2. Write each phase section with Pre-RED Common, Per-Item RED+green Chains, Post-RED/green
-3. Validate every dispatch marker skill name exists under `.opencode/skills/`
-4. Apply approval cascade per authorization_scope
-5. Sync cross-reference to spec issue body
-6. Return PASS with plan file path
+- [ ] 1. Write plan document header (Goal, Architecture, Tech Stack)
+- [ ] 2. Write each phase section with Pre-RED Common, Per-Item RED+green Chains, Post-RED/green
+- [ ] 3. Validate every dispatch marker skill name exists under `.opencode/skills/`
+- [ ] 4. Apply approval cascade per authorization_scope
+- [ ] 5. Sync cross-reference to spec issue body
+- [ ] 6. Return PASS with plan file path
 
 ## Context Required
 

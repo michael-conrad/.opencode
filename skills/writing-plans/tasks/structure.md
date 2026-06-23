@@ -19,14 +19,14 @@ Define the plan phase structure: combined/separate decision, file mapping, phase
 
 ## Procedure
 
-1. Read approved spec content
-2. Make combined/separate decision per plan-structure.md Step 1.5
-3. Map file structure (sub-folder references, not individual files)
-4. Define phase structure with concern boundary annotations
-5. Define TDD tasks with RED/GREEN conditions
-6. Generate dependency-ordering solve contract
-7. Write phase-to-skill-mapping.yaml per #1311 format
-8. Return structure output with phase definitions
+- [ ] 1. Read approved spec content
+- [ ] 2. Make combined/separate decision per plan-structure.md Step 1.5
+- [ ] 3. Map file structure (sub-folder references, not individual files)
+- [ ] 4. Define phase structure with concern boundary annotations
+- [ ] 5. Define TDD tasks with RED/GREEN conditions
+- [ ] 6. Generate dependency-ordering solve contract
+- [ ] 7. Write phase-to-skill-mapping.yaml per #1311 format
+- [ ] 8. Return structure output with phase definitions
 
 ## Context Required
 

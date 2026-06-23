@@ -17,11 +17,11 @@ Load the `adversarial-audit` skill and execute `--task plan-fidelity` inline wit
 
 ## Procedure
 
-1. Load `adversarial-audit` skill: `skill({name: "adversarial-audit"})`
-2. Execute `--task plan-fidelity` inline with auditor sub-agent type context
-3. Collect audit artifact path
-4. If PASS: return PASS with artifact_path
-5. If FAIL: return BLOCKED with findings
+- [ ] 1. Load `adversarial-audit` skill: `skill({name: "adversarial-audit"})`
+- [ ] 2. Execute `--task plan-fidelity` inline with auditor sub-agent type context
+- [ ] 3. Collect audit artifact path
+- [ ] 4. If PASS: return PASS with artifact_path
+- [ ] 5. If FAIL: return BLOCKED with findings
 
 ## Context Required
 

@@ -24,183 +24,110 @@ Structure the implementation plan from approved spec: verification gate, combine
 
 After defining the phase structure, create a dependency-ordering solve contract:
 
-1. Create `.issues/{issue-N}/dependency-ordering-verification/` directory
-1. Write `phase-order.yaml` with Z3 variables for each phase position and ordering constraints
-1. Run `solve model --contract-path ... --query "phase_1 < phase_2 and phase_1 < phase_3"`
-1. Confirm SAT — the phase ordering is valid
+- [ ] 1. Create `.issues/{issue-N}/dependency-ordering-verification/` directory
+- [ ] 2. Write `phase-order.yaml` with Z3 variables for each phase position and ordering constraints
+- [ ] 3. Run `solve model --contract-path ... --query "phase_1 < phase_2 and phase_1 < phase_3"`
+- [ ] 4. Confirm SAT — the phase ordering is valid
 
 ### Plan Utility Validation (SC-3)
 
 After phase dependency contract is confirmed SAT, validate phase solvability:
 
-1. Create `./tmp/{issue-N}/artifacts/phase-plan-problem.yaml` with phase structure as planning problem
-1. Run `.opencode/tools/plan plan --problem ./tmp/{issue-N}/artifacts/phase-plan-problem.yaml`
-1. Confirm planner returns SOLVED_SATISFICING or SOLVED_OPTIMALLY
-1. Save result to `./tmp/{issue-N}/artifacts/phase-plan-validated.yaml`
-1. If utility unavailable: **HALT** with blocker report — refer to `plan` skill → `fallback.md` task for manual acyclic check procedure
+- [ ] 1. Create `./tmp/{issue-N}/artifacts/phase-plan-problem.yaml` with phase structure as planning problem
+- [ ] 2. Run `.opencode/tools/plan plan --problem ./tmp/{issue-N}/artifacts/phase-plan-problem.yaml`
+- [ ] 3. Confirm planner returns SOLVED_SATISFICING or SOLVED_OPTIMALLY
+- [ ] 4. Save result to `./tmp/{issue-N}/artifacts/phase-plan-validated.yaml`
+- [ ] 5. If utility unavailable: **HALT** with blocker report — refer to `plan` skill → `fallback.md` task for manual acyclic check procedure
 
 ### SC-ID Mapping (SC-4)
 
 After phase structure validated, consume `sc-summary.yaml`:
 
-1. Read `.issues/{issue-N}/sc-summary.yaml`
-1. Map each SC to its corresponding plan item by SC-ID
-1. Verify all SCs from the spec are covered
-1. Flag orphan SCs (in YAML but not mapped) and missing SCs (in spec but not in YAML)
+- [ ] 1. Read `.issues/{issue-N}/sc-summary.yaml`
+- [ ] 2. Map each SC to its corresponding plan item by SC-ID
+- [ ] 3. Verify all SCs from the spec are covered
+- [ ] 4. Flag orphan SCs (in YAML but not mapped) and missing SCs (in spec but not in YAML)
 
 ### Pre-Step: Verification Gate (MANDATORY FIRST)
 
-Before reading approved spec: `/skill verification-enforcement --task verify`
-
-Collects evidence artifacts for factual claims. Unverified claims marked with `⚠️ UNVERIFIED`.
+- [ ] 1. Invoke `/skill verification-enforcement --task verify` — collect evidence artifacts for factual claims
+    - [ ] 1a. Mark unverified claims with `⚠️ UNVERIFIED`
 
 ### Step 0.5: Pipeline-Readiness Gate Check (HARD GATE)
 
-Before any plan content is written, verify that the spec has passed pipeline-readiness validation:
-
-1. Read `.issues/{issue-N}/sc-pipeline-readiness.yaml`
-1. Assert `status: PASS`
-1. If status is FAIL or file does not exist: **HALT** with `SPEC_NOT_READY_FOR_PIPELINE` — the spec must pass the pipeline-readiness gate before plan creation
-1. If PASS: extract `sc_summary` (total_scs, atomic, with_dependencies, single_concern) and phase dependency declarations for use in plan generation
-
-This is a hard gate — the plan-writer MUST NOT proceed without a PASS from the pipeline-readiness gate. No exceptions, no "proceed anyway" path.
+- [ ] 1. Read `.issues/{issue-N}/sc-pipeline-readiness.yaml`
+- [ ] 2. Assert `status: PASS`
+    - [ ] 2a. If status is FAIL or file does not exist: **HALT** with `SPEC_NOT_READY_FOR_PIPELINE`
+    - [ ] 2b. If PASS: extract `sc_summary` and phase dependency declarations
 
 ### Step 1: Read Approved Spec
 
-- Query GitHub Issue for spec content
-- Extract objectives, constraints, success criteria
-- Extract the all-or-nothing gate statement from the spec's SC section. The plan MUST preserve this gate language in its task structure — each TDD RED checkpoint is a sub-gate in the all-or-nothing chain. If the spec lacks the gate statement, flag as `SPEC_GAP`: the spec must be revised to include the gate before the plan proceeds.
-- Identify affected sub-folders (not individual file paths — agents glob to discover content)
-- Extract the spec's repo owner and repo from the issue URL for use in full-URL references
+- [ ] 1. Query GitHub Issue for spec content
+- [ ] 2. Extract objectives, constraints, success criteria
+- [ ] 3. Extract all-or-nothing gate statement from spec's SC section
+    - [ ] 3a. If spec lacks gate statement: flag as `SPEC_GAP`
+- [ ] 4. Identify affected sub-folders (not individual file paths)
+- [ ] 5. Extract spec's repo owner and repo from issue URL
 
 <!-- Fragment ID: sc-enforcement-gate -->
 
 ### Step 1.5: Combined vs Separate Plan Decision Gate
 
-**Evaluate:** `single_task_determination` passed from post-creation (single-task/multi-task)
-
-| Condition | Outcome |
-| -- | -- |
-| Multi-task spec (mixed concerns or independence) | **Always separate** — separate phase sections in `.issues/{N}/plan.md` |
-| Single-task spec AND spec body can absorb plan content | **Candidate for combined** — agent evaluates readability |
-| Single-task AND combining makes document hard to read | **Separate** — stand-alone sections in `.issues/{N}/plan.md` |
-
-**Decision output (MANDATORY):**
-
-```
-Plan structure decision: combined/separate
-Reason: <justification referencing evaluation criteria>
-```
-
-**If COMBINED:**
-
-- Write to `.issues/{N}/plan.md`, reference spec content inline
-- Retain `[SPEC]` title prefix
-- Proceed to Step 2
-
-**If SEPARATE:**
-
-- Write to `.issues/{N}/plan.md` with separate phase sections
-- Proceed to Step 2
+- [ ] 1. Evaluate `single_task_determination` from post-creation
+    - [ ] 1a. Multi-task spec → **Always separate**
+    - [ ] 1b. Single-task + absorbable → **Candidate for combined**
+    - [ ] 1c. Single-task + hard to read → **Separate**
+- [ ] 2. Document decision output: `Plan structure decision: combined/separate` with reason
+- [ ] 3. If COMBINED: write to `.issues/{N}/plan.md`, retain `[SPEC]` title prefix
+- [ ] 4. If SEPARATE: write to `.issues/{N}/plan.md` with separate phase sections
 
 ### Step 1.6: Duplicate Plan Check
 
-Look for existing plan artifacts in `.issues/` workspace:
-
-```bash
-ls .issues/*/plan.md 2>/dev/null
-```
-
-For each plan found referencing the same spec, present choice:
-
-- Proceed with new plan (override existing local artifact)
-- HALT and review existing plan
+- [ ] 1. Run `ls .issues/*/plan.md 2>/dev/null` to find existing plans
+- [ ] 2. For each plan referencing same spec: present choice to proceed or HALT
 
 ### Step 2: Map File Structure (Sub-Folder References — SC-9)
 
-- List sub-folders to create or modify (e.g., `skills/writing-plans/tasks/create/`), not individual files
-- Agents glob `*` or `tasks/create/*` to discover content
-- Define each sub-folder's responsibility and concern boundary
-- Ensure decomposition has clear boundaries across sub-folders
-- **NO hardcoded file lists** — stale on every edit; agents discover by globbing
+- [ ] 1. List sub-folders to create or modify (not individual files)
+- [ ] 2. Define each sub-folder's responsibility and concern boundary
+- [ ] 3. Ensure decomposition has clear boundaries across sub-folders
+- [ ] 4. **NO hardcoded file lists** — agents discover by globbing
 
 ### Step 3: Item Decomposition (per `091-incremental-build.md`)
 
-**Verify before writing:**
-| Requirement | Verification |
-| -- | -- |
-| Item enumeration | Every unit listed with name, scope, deliverable |
-| Dependency ordering | Items ordered so dependencies satisfied |
-| Acceptance criteria per item | Each has testable criteria |
-| Concern boundary annotations | Cross-architectural items flagged |
-
-**Failure:** Plan will fail `approval-gate --task verify-authorization` Step 4.5
+- [ ] 1. Verify item enumeration — every unit listed with name, scope, deliverable
+- [ ] 2. Verify dependency ordering — items ordered so dependencies satisfied
+- [ ] 3. Verify acceptance criteria per item — each has testable criteria
+- [ ] 4. Verify concern boundary annotations — cross-architectural items flagged
 
 ### Step 3.3: Phase Dependency-Ordering Solve Contract Creation (SC-1)
 
-For multi-phase specs, create a dependency-ordering solve contract from the phase structure:
-
-```bash
-./.opencode/tools/solve model \
-  --contract-path .issues/{issue-N}/dependency-ordering-verification/ \
-  --state phase_dependencies
-```
-
-The contract declares phase-ordering constraints as Z3 variables, where each phase's start depends on its dependencies being satisfied:
-
-```yaml
-# .issues/{issue-N}/dependency-ordering-verification/ordering.yaml
-phase_dependencies:
-  - phase: <phase_name>
-    depends_on: [<phase_name>, ...]
-    constraints:
-      - "phase_N_starts_after_phase_M_completes"
-```
+- [ ] 1. Run `./.opencode/tools/solve model` with phase dependency constraints
+- [ ] 2. Write ordering contract to `.issues/{issue-N}/dependency-ordering-verification/ordering.yaml`
+- [ ] 3. Confirm SAT — the phase ordering is valid
 
 ### Step 3.4: SC-ID Mapping Substep (SC-4 Consumption)
 
-After defining phase structure, consume the `sc-summary.yaml` from spec artifacts to map SCs to plan items:
-
-1. Read `.issues/{issue-N}/sc-summary.yaml`
-1. For each phase in the plan, verify its SC assignments match `sc_summary.phases[].sc_ids`
-1. For each plANNED item, annotate with the corresponding SC-ID(s)
-1. Flag orphan SCs (in YAML but not mapped to any plan item) as MISSING-TRACEABILITY
-1. Flag extra SCs (in plan but not in YAML) as SCOPE-CREEP
+- [ ] 1. Read `.issues/{issue-N}/sc-summary.yaml`
+- [ ] 2. For each phase, verify SC assignments match `sc_summary.phases[].sc_ids`
+- [ ] 3. Annotate each plan item with corresponding SC-ID(s)
+- [ ] 4. Flag orphan SCs (in YAML but not mapped) as MISSING-TRACEABILITY
+- [ ] 5. Flag extra SCs (in plan but not in YAML) as SCOPE-CREEP
 
 ### Step 3.5: Phase-to-Skill Mapping Artifact (SC-4, SC-5, SC-6)
 
-Before defining TDD items, produce a phase-to-skill-mapping artifact:
+- [ ] 1. Read `implementation-pipeline/SKILL.md` §Dispatch Routing Table
+- [ ] 2. Build mapping of concern category → skill name per phase
+- [ ] 3. Write `.issues/{issue-N}/phase-to-skill-mapping.yaml`
+- [ ] 4. Verify mapping is exhaustive — no phase step assigned bare `(**clean-room**)`
+- [ ] 5. Verify mapping includes `engineering-approach` for code-implementation concerns
 
-1. Read `implementation-pipeline/SKILL.md` §Dispatch Routing Table
-2. Build a mapping of concern category → skill name per phase
-3. Write `.issues/{issue-N}/phase-to-skill-mapping.yaml`
+### Step 3.6: RED/GREEN Condition Language (SC-2, SC-4 — Forward-Looking Stance)
 
-The mapping controls which dispatch markers appear in the generated plan. A phase that produces Python code gets `engineering-approach` markers. A phase that updates skill task files gets `skill-creator` markers. A phase with RED/GREEN cycles gets `test-driven-development` markers for the test steps.
-
-The mapping MUST be exhaustive — no phase step is assigned bare `(**clean-room**)` without a named skill. The mapping MUST include `engineering-approach` for code-implementation concerns regardless of language.
-
-### Step 3.5: RED/GREEN Condition Language (SC-2, SC-4 — Forward-Looking Stance)
-
-Each item's RED/GREEN conditions MUST describe requirements, not implementation:
-
-**RED** = "what must be false before this item starts" — the failure condition that would exist if this item were not implemented. NO line numbers, NO exact import strings, NO exact assertion code, NO file paths.
-
-**GREEN** = "what must be true when done" — the condition that proves completion. Uses "must be true" language. NO "implemented", "complete", or past-tense status language.
-
-**RED/GREEN MUST be defined as separate phases.** RED and GREEN may NEVER be combined into a single phase or step. RED describes the failure condition (what must be false), and GREEN describes the satisfaction condition (what must be true). They are separate concerns and MUST appear as separate entries in the plan structure.
-
-```
-✅ CORRECT RED: "The agent produces a plan with RED/GREEN conditions instead of prescriptive code"
-✅ CORRECT GREEN: "Plans must describe what must be true, not how to achieve it"
-❌ WRONG: "Replace line 42 with from mcp.server.fastmcp import FastMCP"
-❌ WRONG: "Implemented RED/GREEN conditions for all items"
-```
-
-**Behavioral RED/GREEN for rule-changing items:**
-When changing guidelines or skills, use behavioral TDD:
-
-1. **Behavioral RED:** Write test sending agent prompt, verify agent does NOT follow new rule yet
-1. **Behavioral GREEN:** Make change, re-run test — now agent follows rule
+- [ ] 1. Write RED conditions as failure state descriptions — NO line numbers, NO exact code, NO file paths
+- [ ] 2. Write GREEN conditions as satisfaction state descriptions — "must be true" language
+- [ ] 3. Keep RED and GREEN as separate steps — NEVER combined
+- [ ] 4. For rule-changing items: use behavioral TDD (write test first, then implement)
 
 ### Step 4: Plan Phase Structure (PRIMARY)
 

@@ -17,11 +17,11 @@ Load the `verification-enforcement` skill and execute `--task verify` inline, co
 
 ## Procedure
 
-1. Load `verification-enforcement` skill: `skill({name: "verification-enforcement"})`
-2. Execute `--task verify` inline within this context
-3. Collect evidence artifact paths from verification output
-4. If all claims verified: return PASS with evidence_artifacts
-5. If any claim unverifiable: return BLOCKED with empty evidence_artifacts — pipeline halts
+- [ ] 1. Load `verification-enforcement` skill: `skill({name: "verification-enforcement"})`
+- [ ] 2. Execute `--task verify` inline within this context
+- [ ] 3. Collect evidence artifact paths from verification output
+- [ ] 4. If all claims verified: return PASS with evidence_artifacts
+- [ ] 5. If any claim unverifiable: return BLOCKED with empty evidence_artifacts — pipeline halts
 
 ## Context Required
 
