@@ -38,10 +38,10 @@ This skill produces plans by dispatching sub-agents. The orchestrator routes; su
 
 ## Plan Model
 
-**All plans are local artifacts.** Plans are stored at `.issues/{N}/plan.md`. Phases are sections in the local plan file.
+**All plans are local artifacts.** Plans use the multi-file format: master ToC + per-phase sub-plans.
 
-- **Separate (multi-task):** `.issues/{N}/plan.md` with stand-alone phase sections, each with concern boundary annotations
-- **Combined (single-task):** `.issues/{N}/plan.md` referencing spec content inline
+- **Separate (multi-task):** Multi-file format — master ToC at `.issues/{N}/plan.md` (≤50 lines, phase list table with Depends On and Exit Criteria columns) + per-phase sub-plans at `.issues/{N}/plan-phase-{N}.md` (one per phase, each with YAML header, flat step sequence using `dispatch:`/`check:`/`inline:` prefixes, and explicit checkpoint tag creation step)
+- **Combined (single-task):** Single-file format — `.issues/{N}/plan.md` referencing spec content inline
 
 ## Invocation
 
@@ -69,7 +69,7 @@ Each item is tagged with dispatch scope, chain dependency, and contract paths.
 - [ ] 7. [z3-check] `solve check` — verify structure output has phase definitions and dependency contract — chain: `step_6`
 - [ ] 8. [sub-task: solve] `task(..., prompt: "execute solve task from writing-plans")` — input: `contracts/solve-input-template.yaml`, output: `contracts/solve-output-template.yaml`, template: `contracts/solve-input-template.yaml`, chain: `step_7`
 - [ ] 9. [z3-check] `solve check` — verify solve output has SAT and SOLVED status — chain: `step_8`
-- [ ] 10. [sub-task: write] `task(..., prompt: "execute write task from writing-plans")` — input: `contracts/write-input-template.yaml`, output: `contracts/write-output-template.yaml`, template: `contracts/write-input-template.yaml`, chain: `step_9`
+- [ ] 10. [sub-task: write] `task(..., prompt: "execute write task from writing-plans")` — input: `contracts/write-input-template.yaml`, output: `contracts/write-output-template.yaml`, template: `contracts/write-input-template.yaml`, chain: `step_9` — writes multi-file output: master ToC at `.issues/{N}/plan.md` + per-phase sub-plans at `.issues/{N}/plan-phase-{N}.md`
 - [ ] 11. [z3-check] `solve check` — verify write output has plan file path — chain: `step_10`
 - [ ] 12. [sub-task: revisit] `task(..., prompt: "execute revisit task from writing-plans")` — input: `contracts/revisit-input-template.yaml`, output: `contracts/revisit-output-template.yaml`, template: `contracts/revisit-input-template.yaml`, chain: `step_11`
 - [ ] 13. [z3-check] `solve check` — verify revisit output has resolution_status — chain: `step_12`

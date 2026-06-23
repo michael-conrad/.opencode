@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Structure the implementation plan from approved spec: verification gate, combined/separate decision, file structure mapping, and TDD task definition with RED verification checkpoints.
+Structure the implementation plan from approved spec: verification gate, combined/separate decision, file structure mapping, and flat step sequence definition with multi-file format (master ToC + per-phase sub-plans).
 
 ## Entry Criteria
 
@@ -16,7 +16,7 @@ Structure the implementation plan from approved spec: verification gate, combine
 - Duplicate plan check completed
 - File structure mapped with clear boundaries
 - Item decomposition verified with dependency ordering
-- TDD tasks defined with mandatory RED checkpoints
+- Flat step sequence defined with dispatch/check/inline prefixes
 
 ## Procedure
 
@@ -74,12 +74,12 @@ After phase structure validated, consume `sc-summary.yaml`:
 ### Step 1.5: Combined vs Separate Plan Decision Gate
 
 - [ ] 1. Evaluate `single_task_determination` from post-creation
-    - [ ] 1a. Multi-task spec → **Always separate**
-    - [ ] 1b. Single-task + absorbable → **Candidate for combined**
-    - [ ] 1c. Single-task + hard to read → **Separate**
-- [ ] 2. Document decision output: `Plan structure decision: combined/separate` with reason
-- [ ] 3. If COMBINED: write to `.issues/{N}/plan.md`, retain `[SPEC]` title prefix
-- [ ] 4. If SEPARATE: write to `.issues/{N}/plan.md` with separate phase sections
+    - [ ] 1a. Multi-task spec → **Multi-file format** (master ToC + sub-plans)
+    - [ ] 1b. Single-task + absorbable → **Single-file format**
+    - [ ] 1c. Single-task + hard to read → **Multi-file format**
+- [ ] 2. Document decision output: `Format: multi-file (master ToC + sub-plans) / single-file` with reason
+- [ ] 3. If multi-file: write master ToC to `.issues/{N}/plan.md` (≤50 lines, phase table with Depends On and Exit Criteria columns) + per-phase sub-plans to `.issues/{N}/plan-phase-{N}.md`
+- [ ] 4. If single-file: write to `.issues/{N}/plan.md`, retain `[SPEC]` title prefix
 
 ### Step 1.6: Duplicate Plan Check
 
@@ -122,126 +122,130 @@ After phase structure validated, consume `sc-summary.yaml`:
 - [ ] 4. Verify mapping is exhaustive — no phase step assigned bare `(**clean-room**)`
 - [ ] 5. Verify mapping includes `engineering-approach` for code-implementation concerns
 
-### Step 3.6: RED/GREEN Condition Language (SC-2, SC-4 — Forward-Looking Stance)
+### Step 3.6: RED/GREEN Condition Discovery (SC-2, SC-4)
 
-- [ ] 1. Write RED conditions as failure state descriptions — NO line numbers, NO exact code, NO file paths
-- [ ] 2. Write GREEN conditions as satisfaction state descriptions — "must be true" language
-- [ ] 3. Keep RED and GREEN as separate steps — NEVER combined
-- [ ] 4. For rule-changing items: use behavioral TDD (write test first, then implement)
+RED/GREEN conditions are NOT written into the plan. Sub-agents discover failure/satisfaction conditions from the spec during execution. The plan records only the step sequence — conditions are derived at dispatch time.
+
+- [ ] 1. Verify spec SCs are sufficient for sub-agents to derive RED/GREEN conditions
+- [ ] 2. Flag any SC that is too vague for condition derivation as `SC_UNDERSPECIFIED`
 
 ### Step 4: Plan Phase Structure (PRIMARY)
 
-Every plan phase MUST define a three-part structure using three discrete sections within ONE phase. This is the single-phase rule (SC-8): Pre-RED Common, Per-Item RED+green Chains, Post-RED/green. These three sections are part of the same phase — never split into separate phases.
+Every plan phase defines a flat step sequence using three prefix types. Section headers (`#### Pre-RED Common`, `#### Per-Item RED/GREEN Chains`, `#### Post-RED/green`) are human-readable markers only — they carry no semantic meaning for execution. Steps are enumerated in a single flat sequence across the entire plan (no restarting per phase).
 
 The gate labels and step sequence MUST be pulled from `implementation-pipeline/SKILL.md` §Dispatch Routing Table at the time of plan creation. Do NOT hardcode gate names — reference the canonical source.
 
-#### Pre-RED Common
+#### Step Prefix Types
 
-Shared pre-work that runs once per phase before any RED/GREEN chains begin. Every sub-step MUST use the `- [ ] N.` indented checkbox format — never `→` prose continuation lines:
+| Prefix | Meaning | Example |
+|--------|---------|---------|
+| `dispatch:` | Orchestrator calls `task()` with skill + task + context fields | `dispatch: engineering-approach implement { phase: 1, scs: [SC-1, SC-2] }` |
+| `check:` | Orchestrator runs Z3 verification | `check: solve check --state-path ... --contract-path ...` |
+| `inline:` | Orchestrator executes directly | `inline: git tag <parent>/checkpoint/<issue>/phase-<N>-<submodule>` |
+
+#### Flat Step Sequence Format
 
 ```
-- [ ] 1. Verification gate — `verification-enforcement` for spec content verification (**inline**)
-    - [ ] 1a. Verify spec claims against live source files → SC-N
-- [ ] 2. Read approved spec — `issue-review` for spec content (**inline**)
-    - [ ] 2a. Extract objectives, constraints, success criteria, affected sub-folders → SC-N
-- [ ] 3. Read routing table — `pre-analysis` for canonical gate discovery (**inline**)
-    - [ ] 3a. Confirm gate labels and dispatch types → SC-N
+- [ ] N. dispatch: <skill> <task> { <context_fields> }
+- [ ] N. check: solve check --state-path <path> --contract-path <path>
+- [ ] N. inline: <command>
+- [ ] N. dispatch: adversarial-audit <task> { <context_fields>, auditor: <N> }
 ```
 
-##### Concern Boundary Annotations
+No SC tables, no output descriptions, no RED/GREEN condition text in the plan. Sub-agents discover conditions from the spec at dispatch time.
+
+#### Concern Boundary Annotations
 
 When transitioning between architectural concerns, describe:
 - What concern being left (prior scope)
 - What concern being entered (new scope)
 - What information the new concern needs from prior (handoff point)
 
-##### File References
+#### File References
 
 List the files affected by this phase. Agents glob to discover content — use sub-folder references, not individual file paths.
 
-##### SC References
+#### SC References
 
 List the SCs covered by this phase. Each SC must be traceable to a spec success criterion.
-
-#### Per-Item RED+green Chains
-
-This section contains one RED/GREEN pair per implementation item. Each pair is a sequential chain — RED then immediately GREEN — before the next item's RED begins. RED and GREEN MUST be separate steps (SC-6); they may NEVER be combined.
-
-```
-- [ ] TDD-1: <description> (SC-ID)
-  - [ ] 1. RED: <failure condition>
-  - [ ] 2. GREEN: <satisfaction condition>
-- [ ] TDD-2: <description> (SC-ID)
-  - [ ] 1. RED: <failure condition>
-  - [ ] 2. GREEN: <satisfaction condition>
-```
-
-#### Post-RED/green
-
-Post-cycle validation that runs once per phase after all RED/GREEN chains complete. This section MUST contain the following three mandatory pipeline gates in order, each expanded into indented checkbox sub-steps:
-
-```
-- [ ] N. COMPLETENESS GATE — `completeness-gate` (**clean-room**)
-    - [ ] Na. Verify all SCs in this phase covered before audit → SC-all
-- [ ] N. ADVERSARIAL AUDIT — `adversarial-audit` (**orchestrator**)
-    - [ ] Na. Run resolve-models to select cross-family auditors → SC-all
-    - [ ] Nb. Dispatch audit task with auditor_1 → SC-all
-    - [ ] Nc. If auditor_1 returned non-clean-pass: remediate root cause, restart from Na → SC-all
-    - [ ] Nd. Dispatch audit task with auditor_2 → SC-all
-    - [ ] Ne. If auditor_2 returned non-clean-pass: remediate root cause, restart from Na → SC-all
-    - [ ] Nf. Both auditors clean PASS. Collect artifact_path values, pass to cross-validate → SC-all
-- [ ] N. EXEC SUMMARY — `completion-core` (**clean-room**)
-    - [ ] Na. Write completion event to lifecycle manifest at `./tmp/{N}/lifecycle.yaml` → SC-all
-    - [ ] Nb. Report completion in chat with byline → SC-all
-```
-
-Arrow-chain prose is prohibited — every sub-step is its own indented checkbox.
 
 #### Validation Rules
 
 | Rule | Description |
 |------|-------------|
-| Pre-RED once per phase | Pre-RED Common section appears exactly once per phase |
-| Post-RED once per phase | Post-RED/green section appears exactly once per phase |
-| Chains sequential | Per-Item RED+green Chains execute in order, one pair at a time |
-| No section mixing | Content from one section MUST NOT appear in another section |
-| RED/GREEN separate | RED and GREEN are always separate steps — never combined |
+| Flat enumeration | Steps are numbered in a single sequence — no restarting per section |
+| Prefix required | Every step MUST use one of `dispatch:`, `check:`, `inline:` |
+| No RED/GREEN text | Conditions are NOT written in the plan — sub-agents derive from spec |
+| No SC tables | SC references are listed in the phase header, not inline in steps |
+| No output descriptions | Steps describe what to dispatch, not what the sub-agent produces |
 
 ### Step 5: Define Tasks Within Each Phase (Per-Unit Gates — SC-3)
 
 - Each step is one action (2-5 minutes)
-- RED/GREEN condition descriptions per Step 3.5 — NO exact code, commands, or file paths
-- **Step 2 RED checkpoint is MANDATORY** — plans without it fail validation
+- Steps use the three-prefix format — no RED/GREEN condition descriptions in the plan
 
-#### Per-Unit Output Format (SC-3 — MUST be embedded in EACH unit)
+#### Step Type Format
 
-Every unit gets its own numbered checklist with dispatch indicators. NOT a single shared cross-reference. Each unit MUST use this output format:
+Every step MUST use one of these three formats:
 
-**Dispatch mode mapping:**
-- `sub-task` → `(**clean-room**)`
-- Everything else (orchestrator, inline) → `(**inline**)`
+```
+- [ ] N. dispatch: <skill> <task> { <context_fields> }
+- [ ] N. check: solve check --state-path <path> --contract-path <path>
+- [ ] N. inline: <command>
+```
+
+**dispatch:** — Routes to a sub-agent via `task()`. The skill name MUST reference an existing directory under `.opencode/skills/`. Context fields are passed as a JSON-like object in curly braces.
+
+**check:** — Runs Z3 verification against a state contract. The state path points to the current pipeline state file; the contract path points to the expected post-condition contract.
+
+**inline:** — Executes directly in the orchestrator context. Used for git operations, file writes, and other non-dispatch actions.
+
+**Adversarial audit dispatch** uses the same `dispatch:` prefix with the adversarial-audit skill and an `auditor` context field:
+
+```
+- [ ] N. dispatch: adversarial-audit <task> { <context_fields>, auditor: <N> }
+```
 
 **Discovery directive:** Read `implementation-pipeline/SKILL.md` §Dispatch Routing Table for the canonical gate sequence and dispatch types. Do NOT hardcode gate names — reference the canonical source at plan-creation time.
 
 **Sub-step expansion directive:** Gates with sub-steps (e.g., `adversarial-audit` with resolve-models → auditor_1 → remediate → auditor_2 → cross-validate) MUST be expanded into multiple `- [ ] N.` entries. Prohibit collapsing sub-steps into prose.
 
-**Output format:**
+### Step 5.5: Sub-Plan YAML Header Format
+
+Each sub-plan file (`.issues/{N}/plan-phase-{N}.md`) MUST begin with a YAML frontmatter header:
+
+```yaml
+---
+phase: <N>
+concern: <description>
+depends_on: [<phase-N>, ...]
+scs: [SC-<N>, ...]
+checkpoint_tag: <parent>/checkpoint/<issue>/phase-<N>-<submodule>
+---
+```
+
+| Field | Description |
+|-------|-------------|
+| `phase` | Phase number (1-indexed) |
+| `concern` | One-line description of what this phase addresses |
+| `depends_on` | List of phase numbers this phase depends on (empty for first phase) |
+| `scs` | List of SC-IDs covered by this phase |
+| `checkpoint_tag` | Git tag to create on PASS for rollback recovery. Format: `<parent>/checkpoint/<issue>/phase-<N>-<submodule>` |
+
+The master ToC file (`.issues/{N}/plan.md`) does NOT use a YAML header — it is a phase table with Depends On and Exit Criteria columns, ≤50 lines.
+
+### Step 5.6: Post-RED/green Checkpoint Tag Creation
+
+After each phase completes successfully (all steps PASS), create a checkpoint tag for rollback recovery:
 
 ```
-- [ ] 1. <gate-label> — `<skill-name>` for <concern> (**<dispatch-mode>**)
-    → dispatch: "execute <task> from <skill-name>"
-    → SC-N
-  - <sub-step description> (**<dispatch-mode>**)
-  - <sub-step description> (**<dispatch-mode>**)
-- [ ] 2. <gate-label> — `<skill-name>` for <concern> (**<dispatch-mode>**)
-    → dispatch: "execute <task> from <skill-name>"
-    → SC-N
-...
+- [ ] N. inline: git tag <parent>/checkpoint/<issue>/phase-<N>-<submodule>
+    → commits: false
 ```
 
-Every step MUST include a skill name in the dispatch marker. Bare `(**clean-room**)` or `(**inline**)` without a preceding `— <skill-name> for <concern>` is invalid. The skill name MUST reference an existing directory under `.opencode/skills/`.
+The `commits: false` annotation means this step does NOT create a commit — it only creates a lightweight git tag. The tag format matches the `checkpoint_tag` field in the sub-plan YAML header.
 
-### Step 5.5: `plan` Utility Invocation for Phase Solvability
+### Step 5.7: `plan` Utility Invocation for Phase Solvability
 
 Invoke the `plan` utility to validate phase solvability. Load the `plan` skill for subcommand details and status code interpretation:
 
@@ -261,7 +265,7 @@ Refer to `plan` skill → `plan.md` task for SOLVED_SATISFICING/OPTIMALLY/UNSOLV
 
 ### Step 6: Generate Implementation Checklist — REMOVED
 
-Implementation checklist generation has been removed. The checklist format (Step 4) and per-unit output format (Step 5) provide sufficient execution guidance. No separate checklist artifact is needed.
+Implementation checklist generation has been removed. The flat step sequence format (Step 4) and step type format (Step 5) provide sufficient execution guidance. No separate checklist artifact is needed.
 
 ## Context Required
 

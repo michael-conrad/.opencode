@@ -2,13 +2,12 @@
 
 ## Purpose
 
-Write plan document to `.issues/{N}/plan.md`, validate structure, and handle approval cascade with scope-aware auto-approval.
+Write plan document as multi-file format (master ToC + sub-plans) to `.issues/{N}/plan.md`, validate structure, and handle approval cascade with scope-aware auto-approval.
 
 ## Entry Criteria
 
 - Plan structure completed (plan-structure sub-task)
 - Combined/separate decision made
-- TDD tasks defined with checkpoints
 
 ## Exit Criteria
 
@@ -35,9 +34,18 @@ Write plan document to `.issues/{N}/plan.md`, validate structure, and handle app
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
-### Phase body requirements — Checklist format with dispatch indicators
+### Phase body requirements — Flat step sequence format
 
-Each phase MUST use the implementation pipeline checklist format. Gate sequence and dispatch types are discovered from `implementation-pipeline/SKILL.md` §Dispatch Routing Table — never hardcoded. Phase bodies follow this format:
+Each phase MUST use the flat step sequence format. Step types are:
+
+```
+- [ ] N. dispatch: <skill> <task> { <context_fields> }
+- [ ] N. check: solve check --state-path <path> --contract-path <path>
+- [ ] N. inline: <command>
+- [ ] N. dispatch: adversarial-audit <task> { <context_fields>, auditor: <N> }
+```
+
+Phase bodies follow this format:
 
 ```
 ### Phase N: title
@@ -46,26 +54,26 @@ Each phase MUST use the implementation pipeline checklist format. Gate sequence 
 **Files:** exact paths or glob patterns
 **SCs covered:** SC-N, SC-M
 
-- [ ] 1. <STEP-LABEL> — `<skill-name>` for <concern> (**<clean-room|inline>**)
-    → dispatch: "execute <task> from <skill-name>"
-    → SC-N
-- [ ] N. <STEP-LABEL> — `<skill-name>` for <concern> (**<clean-room|inline>**)
-    → dispatch: "execute <task> from <skill-name>"
-    → SC-N
+- [ ] 1. dispatch: <skill> <task> { <context_fields> }
+- [ ] 2. check: solve check --state-path <path> --contract-path <path>
+- [ ] 3. inline: <command>
+- [ ] 4. dispatch: adversarial-audit <task> { <context_fields>, auditor: <N> }
 ```
 
 **Format rules:**
-- Every step is `- [ ] N.` with at least one sub-bullet — no prose-only steps
-- Every step title contains `— <skill-name> for <concern> (**<clean-room|inline>**)` with a skill name in the dispatch marker
-- Every step that maps to a success criterion has a `→ SC-N` annotation
-- No step describes more than one atomic action — sub-operations get their own `- [ ] N.` entries
-- Gate sequence is discovered from `implementation-pipeline/SKILL.md` §Dispatch Routing Table — never hardcoded
-- Bare `(**clean-room**)` or `(**inline**)` without a preceding skill name is invalid
+- Every step uses `dispatch:`, `check:`, or `inline:` prefix — no bare checkbox descriptions
+- Checkboxes numbered sequentially across entire plan (no restarting per phase)
+- No SC tables or output descriptions in plan — SC coverage declared in phase header
+- Each sub-plan has YAML header with required fields
+- Post-RED/green has checkpoint tag creation step
+- No TBD/TODO placeholders
+- `dispatch:` steps map to `task()` calls — orchestrator routes to sub-agent
+- `check:` steps run Z3 verification via `solve check`
+- `inline:` steps execute directly in orchestrator context
+- `dispatch: adversarial-audit` includes `auditor: <N>` field for auditor selection
 
 **Concern boundary annotations (prose-driven):**
 When transitioning concerns: describe what is being left, what is being entered, what information is needed for handoff.
-
-**Pre-RED common sub-step format:** Every sub-step in Pre-RED Common sections MUST use the `- [ ] N.` indented checkbox format — never `→` prose continuation lines. This applies to verification gate, read-spec, read-routing-table, and all other pre-RED sub-steps.
 
 ### Step 7.5: Spec-to-Plan Handoff Artifact Check
 
@@ -125,18 +133,18 @@ When transitioning concerns: describe what is being left, what is being entered,
 
 #### Checklist Validation
 
-- [ ] 1. **Checklist format:** Every step is `- [ ] N.` with at least one sub-bullet — no prose-only steps
-- [ ] 2. **Dispatch indicator:** Every step title contains `— <skill-name> for <concern> (**<clean-room|inline>**)` — bare `(**clean-room**)` without skill name is rejected
-- [ ] 3. **Gate sequence match:** Every step label exists in `implementation-pipeline/SKILL.md` §Dispatch Routing Table
-- [ ] 4. **Atomic action:** No step describes more than one atomic action — sub-operations expanded into own `- [ ] N.` entries
-- [ ] 5. **SC annotations:** All SCs referenced via `→ SC-N` annotations
+- [ ] 1. **Prefix requirement:** Every step uses `dispatch:`, `check:`, or `inline:` prefix — no bare checkbox descriptions without a prefix
+- [ ] 2. **Sequential numbering:** Checkboxes numbered sequentially across entire plan (no restarting per phase)
+- [ ] 3. **No SC tables:** No SC tables or output descriptions in plan — SC coverage declared in phase header only
+- [ ] 4. **Sub-plan YAML header:** Each sub-plan has YAML header with required fields
+- [ ] 5. **Checkpoint tag step:** Post-RED/green has checkpoint tag creation step
 - [ ] 6. **No TBD/TODO:** No TBD/TODO placeholders — all steps are actionable
 - [ ] 7. **Admonishment present:** Compliance admonishment blockquote at top and bottom of plan body
 - [ ] 8. **Phase dependency ordering:** No phase references a dependency that does not exist
-- [ ] 9. **Skill name exists:** Every dispatch marker skill name references existing directory under `.opencode/skills/`. HALT with `SKILL_NOT_FOUND` if non-existent
-- [ ] 10. **Exhaustive mapping:** No step uses bare `(**clean-room**)` without preceding skill name. HALT with `MISSING_SKILL_NAME`
+- [ ] 9. **Skill name exists:** Every `dispatch:` skill name references existing directory under `.opencode/skills/`. HALT with `SKILL_NOT_FOUND` if non-existent
+- [ ] 10. **Auditor field present:** Every `dispatch: adversarial-audit` includes `auditor: <N>` field. HALT with `MISSING_AUDITOR_FIELD`
 - [ ] 11. **Post-RED pipeline gates:** Every phase has completeness-gate, adversarial-audit, completion-core with expanded checkbox sub-steps. HALT with `MISSING_POST_RED_GATE`
-- [ ] 12. **Prose sub-step rejection:** No `→` arrow continuations that aren't `→ dispatch:` or `→ SC-N`. HALT with `PROSE_SUBSTEPS_DETECTED`
+- [ ] 12. **Dispatch context fields:** Every `dispatch:` step includes `{ <context_fields> }` with at minimum `issue_number` and `authorization_scope`. HALT with `MISSING_DISPATCH_CONTEXT`
 
 If any rule fails: HALT with MISSING-TRACEABILITY and report which rule(s) failed.
 
@@ -187,12 +195,12 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 | -- | -- |
 | C1 | Plan header includes Goal, Architecture, Tech Stack |
 | C2 | File structure lists all files with responsibilities |
-| C3 | TDD tasks include mandatory Step 2 RED checkpoint |
-| C4 | Phase descriptions include concern boundary annotations |
+| C3 | Every step uses `dispatch:`, `check:`, or `inline:` prefix — no bare checkbox descriptions |
+| C4 | Checkboxes numbered sequentially across entire plan (no restarting per phase) |
 | C5 | Plan stored at `.issues/{N}/plan.md` |
 | C6 | No TBD/TODO placeholders remain |
 | C7 | Plan artifact created locally in `.issues/{N}/` |
-| C8 | Status marker uses prose-driven format |
+| C8 | Each sub-plan has YAML header with required fields |
 | C9 | Approval cascade honors `authorization_scope` |
 
 ## Context Required
