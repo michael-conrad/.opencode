@@ -1,5 +1,7 @@
 # Plan: Plan File Format — Master ToC + Per-Phase Sub-Plans
 
+Spec: #1346
+
 ## Phase List
 
 | Phase | Concern | Depends On | SCs | Exit Criteria |
