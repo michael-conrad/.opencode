@@ -105,7 +105,7 @@ Return to orchestrator:
 ```json
 {
   "sync_status": "pushed|failed",
-  "url": "https://github.com/owner/repo/issues/N",
+  "url": "{browser_url}/owner/repo/issues/N",
   "summary_of_changes": "Brief description of edits applied",
   "integrity_pass": true
 }

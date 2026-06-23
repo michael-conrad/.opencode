@@ -27,18 +27,18 @@ Two URL patterns depending on workflow type:
 
 Construct from session-init values with character-match verification:
 
-1. Read `<github.owner>`, `<github.repo>`, `<gitbucket.html_url>` from session init
-2. Construct: `${GITBUCKET_HTML_URL:-https://github.com/}${GIT_OWNER}/${GIT_REPO}/compare/dev...$(git branch --show-current)`
+1. Read `<github.owner>`, `<github.repo>`, `<github.html_url>` (or `<gitbucket.html_url>`) from session init
+2. Construct: `<html_url>/<owner>/<repo>/compare/dev...<branch>` using the platform's base URL from session-init
 3. **Character-match verification:** Confirm `GIT_OWNER` and `GIT_REPO` in the constructed URL match session-init values exactly (character-for-character, no typos, no cached values)
 4. If any mismatch: HALT and report
 
 ```bash
-COMPARE_URL="${GITBUCKET_HTML_URL:-https://github.com/}${GIT_OWNER}/${GIT_REPO}/compare/dev...$(git branch --show-current)"
+COMPARE_URL="${GITBUCKET_HTML_URL:-${GITHUB_HTML_URL}}/${GIT_OWNER}/${GIT_REPO}/compare/dev...$(git branch --show-current)"
 ```
 
 **Action URL** (for creation workflows — issue creation, approval gate):
 
-- **Issue URL:** Extract from `github_issue_write` API response `html_url` field — NEVER construct from template <!-- Routes through issue-operations per SPEC #683 -->
+- **Issue URL:** Extract from `issue-operations -> update-issue` API response `html_url` field — NEVER construct from template <!-- Routes through issue-operations per SPEC #683 -->
 - **PR URL:** Extract from `github_create_pull_request` API response `html_url` field — NEVER construct from template
 
 ### 3. Route Status Comment Through Substantive Gate — route through `issue-operations -> comment` substantive gate. Gate decides whether to post.

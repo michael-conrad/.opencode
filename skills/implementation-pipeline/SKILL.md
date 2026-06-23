@@ -61,7 +61,7 @@ The orchestrator is a pure router — never reads task file content, never perfo
 | `cross-validate` | `adversarial-audit --task cross-validate` (receives `auditor_artifact_paths` from adversarial-audit step) | cross-validate findings YAML |
 | `regression-check` | `test-driven-development --task patterns` (regression) | regression test results |
 | `review-prep` | `git-workflow --task review-prep` | review-prep status |
-| `exec-summary` | `completion-core --task completion` | push status + issue comment |
+| `exec-summary` | `completion-core --task completion` | append lifecycle event + chat exec summary |
 
 **Note:** The `adversarial-audit` step is a multi-dispatch sequence with remediation loop-back. The audit task dispatched depends on pipeline phase (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation):
 - [ ] 1. Run `.opencode/tools/resolve-models` to select cross-family auditors

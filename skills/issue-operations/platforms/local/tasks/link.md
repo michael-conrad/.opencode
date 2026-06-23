@@ -68,15 +68,15 @@ children:
 related:
   - number: 5
     title: Related issue title
-  - url: https://github.com/owner/repo/issues/42
+  - url: {browser_url}/owner/repo/issues/42
     number: 42
-  - url: https://github.com/owner/repo/issues/99
+  - url: {browser_url}/owner/repo/issues/99
     number: 99
 blocked_by:
   - number: 7
     title: Blocking issue title
 github_links:
-  - url: https://github.com/owner/repo/issues/123
+  - url: {browser_url}/owner/repo/issues/123
     number: 123
 ```
 

@@ -50,7 +50,7 @@ Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: M}`.
 
 **GitHub platform (sub-skill implementation):**
 ```python
-sub_issues = github_issue_read(method="get_sub_issues", issue_number=M)
+sub_issues = issue-operations -> read-issue
 ```
 
 **GitBucket platform (sub-skill implementation):**
@@ -75,7 +75,7 @@ Route based on `github.platform`:
 
 **GitHub platform (sub-skill implementation):**
 ```python
-sub_issue = github_issue_write(
+sub_issue = issue-operations -> update-issue (
     method="create",
     owner=<github.owner>,
     repo=<github.repo>,
@@ -95,9 +95,9 @@ Route to `platforms/local/tasks/creation.md` via task(). Pass: `{title: "[Task: 
 
 ### Step 4.5: EXTRACT URL FROM API RESPONSE
 
-- [ ] 1. The sub-issue URL MUST be copied verbatim from the `github_issue_write` API response's `html_url` field.
+- [ ] 1. The sub-issue URL MUST be copied verbatim from the `issue-operations -> update-issue` API response's `html_url` field.
 - [ ] 2. Do NOT retype, reconstruct, or assemble the URL from known values (org, repo, number).
-- [ ] 3. Paste the URL exactly as returned. If the API response is `{ "html_url": "https://github.com/Org/Repo/issues/42" }`, the output URL is `https://github.com/Org/Repo/issues/42` — character for character.
+- [ ] 3. Paste the URL exactly as returned. If the API response is `{ "html_url": "{browser_url}/Org/Repo/issues/42" }`, the output URL is `{browser_url}/Org/Repo/issues/42` — character for character.
 - [ ] 4. Verification checkpoint: Compare the pasted URL character-by-character against the `html_url` field in the API response before sending.
 
 ### Step 5: Link Sub-Issue to Parent

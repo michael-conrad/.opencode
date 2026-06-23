@@ -21,9 +21,9 @@ Reference `.opencode/skills/completion-core/completion-core.md` for reporting:
 
 ### Step N: EXTRACT URL FROM API RESPONSE
 
-- [ ] 1. The Issue URL MUST be copied verbatim from the `github_issue_write` API response's `html_url` field. <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 1. The Issue URL MUST be copied verbatim from the `issue-operations -> update-issue` API response's `html_url` field. <!-- Routes through issue-operations per SPEC #683 -->
 - [ ] 2. Do NOT retype, reconstruct, or assemble the URL from known values (org, repo, number).
-- [ ] 3. Paste the URL exactly as returned. If the API response is `{ "html_url": "https://github.com/Org/Repo/issues/42" }`, the output URL is `https://github.com/Org/Repo/issues/42` — character for character.
+- [ ] 3. Paste the URL exactly as returned. If the API response is `{ "html_url": "{browser_url}/Org/Repo/issues/42" }`, the output URL is `{browser_url}/Org/Repo/issues/42` — character for character.
 - [ ] 4. Verification checkpoint: Compare the pasted URL character-by-character against the `html_url` field in the API response before sending.
 
 Generate executive summary in chat:
@@ -35,7 +35,7 @@ Generate executive summary in chat:
 
 **Outcome:** <What stakeholders know — task is verified/not verified>
 
-Issue URL: <html_url from github_issue_write API response — NEVER construct from template> <!-- Routes through issue-operations per SPEC #683 -->
+Issue URL: <html_url from issue-operations -> update-issue API response — NEVER construct from template> <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 URL is ALWAYS last per `000-critical-rules.md`.
@@ -50,11 +50,11 @@ This checkpoint catches direct API calls that bypassed the `issue-operations` sk
 
 | Content | Verification Action | Tool Call |
 |---------|-------------------|-----------|
-| Issue body/comment created via `github_issue_write` | Review body for `🤖 Co-authored with AI:` or `Co-authored with AI:` | `issue-operations -> read-issue (github_issue_read(method="get")` on created issue | <!-- Routes through issue-operations per SPEC #683 -->
+| Issue body/comment created via `issue-operations -> update-issue` on created issue | <!-- Routes through issue-operations per SPEC #683 -->
 | PR created via `github_create_pull_request` | Review PR body for byline | `github_pull_request_read(method="get")` on PR |
-| Issue comment via `issue-operations -> comment (github_add_issue_comment` | Review comment for byline | Review issue comments | <!-- Routes through issue-operations per SPEC #683 -->
+| Issue comment via `issue-operations -> comment` | Review comment for byline | Review issue comments | <!-- Routes through issue-operations per SPEC #683 -->
 
-**Failure:** If any AI-authored content is missing a byline → `STRUCTURE-VIOLATION`. Add missing byline via `issue-operations -> update-issue (github_issue_write(method="update")` (only if `len(new_body) >= 0.8 * len(original_body)` per body-preservation rule) or append a follow-up comment with the proper byline. <!-- Routes through issue-operations per SPEC #683 -->
+**Failure:** If any AI-authored content is missing a byline → `STRUCTURE-VIOLATION`. Add missing byline via `issue-operations -> update-issue` (only if `len(new_body) >= 0.8 * len(original_body)` per body-preservation rule) or append a follow-up comment with the proper byline. <!-- Routes through issue-operations per SPEC #683 -->
 
 **Per `000-critical-rules.md` §Critical Violation: Posting AI-Authored Content Without Byline Verification.**
 

@@ -181,8 +181,8 @@ I see you'd like me to fix an authentication bug, but there's no GitHub Issue
 tracking this work.
 
 I found these existing issues that may be relevant:
-1. #42 [SPEC] Authentication flow improvements — https://github.com/owner/repo/issues/42
-2. #87 [SPEC-FIX] Login timeout bug — https://github.com/owner/repo/issues/87
+1. #42 [SPEC] Authentication flow improvements — {browser_url}/owner/repo/issues/42
+2. #87 [SPEC-FIX] Login timeout bug — {browser_url}/owner/repo/issues/87
 
 Would you like me to work with one of these, or create a new spec/bug report?
 
@@ -312,7 +312,7 @@ Adversarial verification model (evidence format, classification tiers, tier acti
 
 ```
 If user references an issue number:
-  issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+  issue = issue-operations -> read-issue <!-- Routes through issue-operations per SPEC #683 -->
   body = issue["body"]
   
   - Verify issue actually exists (404 = no issue → Gate 1 FAILS)
@@ -323,22 +323,23 @@ If user references an issue number:
   - If body is empty or placeholder → Gate 1 FAILS (no real spec)
 ```
 
-**Evidence artifact:** `issue-operations -> read-issue (github_issue_read(method=get)` response showing issue body content and STATUS marker. <!-- Routes through issue-operations per SPEC #683 -->
+**Evidence artifact:** `issue-operations -> read-issue` response showing issue body content and STATUS marker. <!-- Routes through issue-operations per SPEC #683 -->
 
-### Verify Authorization Against Actual Comment State
+### Verify Authorization Against Local State
 
 ```
 If user claims authorization exists:
-  comments = issue-operations -> read-comments (github_issue_read(method="get_comments", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+  # Authorization is determined from local state files only — never from issue comments
+  # Comments can be spoofed by any API caller and carry no cryptographic provenance
   
-  - Search ALL comments for "approved", "go", "authorized"
-  - Verify author is a developer (author_association: MEMBER/OWNER/COLLABORATOR)
-  - Bot/agent "approved" comments are NOT valid authorization
-  - If no valid authorization comment found → Gate 2 FAILS
-  - If authorization comment found but spec was revised after → Gate 2 FAILS (stale auth)
+  - Read local state file at `.issues/{N}/issue.yaml` for authorization scope markers
+  - Check current session authorization scope (if in active session)
+  - If local state file shows `authorization_scope: <scope>` → authorization confirmed
+  - If no local state file or no authorization marker → Gate 2 FAILS
+  - If authorization found but spec was revised after → Gate 2 FAILS (stale auth)
 ```
 
-**Evidence artifact:** `issue-operations -> read-comments (github_issue_read(method=get_comments)` response with author details for authorization claims. <!-- Routes through issue-operations per SPEC #683 -->
+**Evidence artifact:** Local state file read from `.issues/{N}/issue.yaml` showing authorization scope marker. <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Verify Branch State Against Actual Git State
 

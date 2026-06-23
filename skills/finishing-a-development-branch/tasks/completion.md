@@ -9,7 +9,7 @@ Idempotent completion subtask for finishing-a-development-branch. Ensures mandat
    git log origin/$(git branch --show-current)..HEAD --oneline 2>/dev/null
    ```
 - [ ] 2. **Compare URL generated:** Check if compare URL was already produced
-- [ ] 3. **Existing comments:** Check if completion comment already posted on issue
+- [ ] 3. **Lifecycle event:** Check if lifecycle event was already appended to `./tmp/{issue-N}/lifecycle.yaml`
 
 ## Skill-Specific Completion
 
@@ -22,7 +22,7 @@ Reference `.opencode/skills/completion-core/completion-core.md` for steps 3-6:
 
 - [ ] 1. Push branch (with idempotency check)
 - [ ] 2. Generate compare URL (dev...branch)
-- [ ] 3. Route status comment through `issue-operations -> comment` substantive gate. Gate decides whether to post to issue or output to chat only.
+- [ ] 3. Append completion event to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml`
 - [ ] 4. Report executive summary in chat (always runs)
 
 ## Completion Guarantee
@@ -59,7 +59,7 @@ URL is ALWAYS last per `000-critical-rules.md`.
 |-------|-------------------|-----------|---------------|
 | "All commits pushed" | Verify no unpushed commits | `git diff @{u} HEAD` → check empty | VERIFICATION-GAP |
 | "Compare URL correct" | Verify URL uses correct base (dev) and session values | Verify URL string format | STRUCTURE-VIOLATION |
-| "Comment routed through substantive gate" | Verify routing completed via substantive gate | `issue-operations -> read-comments` | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
+| "Lifecycle event appended" | Verify lifecycle event exists | `grep -c "event:" ./tmp/{issue-N}/lifecycle.yaml` | MISSING-ELEMENT |
 
 **Evidence artifact:** Git command output and/or GitHub MCP response confirming each claim.
 
@@ -69,7 +69,7 @@ URL is ALWAYS last per `000-critical-rules.md`.
 |--------|---------------|----------------|--------|
 | Unpushed commits found | VERIFICATION-GAP | auto-fix | Push immediately |
 | Compare URL uses wrong base | STRUCTURE-VIOLATION | auto-fix | Regenerate URL |
-| Comment routing incomplete | MISSING-ELEMENT | auto-fix | Route through substantive gate |
+| Lifecycle event append incomplete | MISSING-ELEMENT | auto-fix | Append lifecycle event |
 
 ## Pipeline Signal
 

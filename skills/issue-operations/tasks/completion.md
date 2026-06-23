@@ -19,7 +19,7 @@ Idempotent completion subtask for issue-operations. Ensures mandatory steps run 
 ## State Check Phase
 
 - [ ] 1. **Issue created:** Check if the issue already exists
-   - Search by title or check recent issue list (via platform sub-skill)
+   - Search by title or check recent issue list
 - [ ] 2. **Labels applied:** Check if `needs-approval` label is present (via `issue-operations → read-labels`)
 - [ ] 3. **Sub-issues created:** Check if multi-task spec has sub-issues (via `issue-operations → read-sub-issues` or comment-based tracking)
 - [ ] 4. **Auditor invoked:** Check if spec-auditor has been run on the issue (via session records or `./tmp/` files)
@@ -50,9 +50,9 @@ Before adding or removing labels in completion, consult `141-planning-status-tra
 
 ### Step N: EXTRACT URL FROM API RESPONSE
 
-- [ ] 1. The Issue URL MUST be copied verbatim from the `github_issue_write` API response's `html_url` field.
+- [ ] 1. The Issue URL MUST be copied verbatim from the `issue-operations -> update-issue` API response's `html_url` field.
 - [ ] 2. Do NOT retype, reconstruct, or assemble the URL from known values (org, repo, number).
-- [ ] 3. Paste the URL exactly as returned. If the API response is `{ "html_url": "https://github.com/Org/Repo/issues/42" }`, the output URL is `https://github.com/Org/Repo/issues/42` — character for character.
+- [ ] 3. Paste the URL exactly as returned. If the API response is `{ "html_url": "{browser_url}/Org/Repo/issues/42" }`, the output URL is `{browser_url}/Org/Repo/issues/42` — character for character.
 - [ ] 4. Verification checkpoint: Compare the pasted URL character-by-character against the `html_url` field in the API response before sending.
 
 Generate executive summary in chat:
@@ -64,7 +64,7 @@ Generate executive summary in chat:
 
 **Outcome:** <What stakeholders get from the new issue>
 
-Issue URL: <html_url from github_issue_write API response — NEVER construct from template>
+Issue URL: <html_url from issue-operations -> update-issue API response — NEVER construct from template>
 ```
 
 URL is ALWAYS last per `000-critical-rules.md`.

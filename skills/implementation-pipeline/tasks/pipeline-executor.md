@@ -40,7 +40,7 @@ This is the core dispatch routing table for the 14-step serial implementation pi
 | 11 | `cross-validate` | `adversarial-audit --task cross-validate` | `./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml` | cross-validate YAML (#932 schema) |
 | 12 | `regression-check` | `test-driven-development --task patterns` (regression) | `./tmp/{issue-N}/artifacts/pipeline-regression-check-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
 | 13 | `review-prep` | `git-workflow --task review-prep` | review-prep status | single-criterion |
-| 14 | `exec-summary` | `completion-core --task completion` | push status + issue comment | single-criterion |
+| 14 | `exec-summary` | `completion-core --task completion` | append lifecycle event + chat exec summary | single-criterion |
 
 ## Post-Step Checkpoint Creation
 

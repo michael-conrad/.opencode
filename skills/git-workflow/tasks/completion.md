@@ -12,7 +12,7 @@ Idempotent completion subtask for git-workflow. Ensures mandatory steps run rega
    ```bash
    git log origin/$(git branch --show-current)..HEAD --oneline 2>/dev/null
    ```
-- [ ] 3. **Existing comments:** Check if completion comment already posted on issue (if applicable)
+- [ ] 3. **Lifecycle event:** Check if lifecycle event already appended to `./tmp/{issue-N}/lifecycle.yaml` (if applicable)
 
 ## Skill-Specific Completion
 
@@ -28,7 +28,7 @@ Reference `.opencode/skills/completion-core/completion-core.md` for steps 3-6:
 
 - [ ] 1. Push branch (with idempotency check)
 - [ ] 2. Generate compare URL (dev...branch)
-- [ ] 3. Route status comment through `issue-operations -> comment` substantive gate. Gate decides whether to post to issue or output to chat only.
+- [ ] 3. Append completion event to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml`
 - [ ] 4. Report executive summary in chat (always runs)
 
 ## Report Phase

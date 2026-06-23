@@ -179,7 +179,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     sc_coverage:
       total: <integer>
       single_task: <true|false>
-      spec_url: https://github.com/{owner}/{repo}/issues/{N}
+      spec_url: {browser_url}/{owner}/{repo}/issues/{N}
       evidence_types:
         - behavioral
         - semantic
@@ -199,7 +199,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 - [ ] 17. **Step 1.2: Verification Consistency Contract Generation (SC-8)** — Generate a verification consistency solve contract at `.issues/{issue-N}/verification-consistency-contract.yaml` with a compliance matrix as solve variables:
 
     ```yaml
-    spec: https://github.com/{owner}/{repo}/issues/{N}
+    spec: {browser_url}/{owner}/{repo}/issues/{N}
     verification_consistency:
       sc_entries:
         - id: SC-N
@@ -233,7 +233,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 - [ ] 19. **Step 1.4: Revision Re-Entry Protocol Contract Generation (SC-5)** — Generate a revision re-entry solve contract at `.issues/{issue-N}/revision-re-entry-contract.yaml` with cascade variables for each revision scope:
 
     ```yaml
-    spec: https://github.com/{owner}/{repo}/issues/{N}
+    spec: {browser_url}/{owner}/{repo}/issues/{N}
     revision_re_entry:
       revision_scopes:
         - scope: < full | partial >
@@ -263,14 +263,14 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     **Wrong:** "See `research/fastmcp-capabilities.md` for capability probe results"
 
-- [ ] 22. **Step 1c: No Bare #N References (SC-10)** — Never use bare `#N` in any spec content. Always use the full URL: `https://github.com/{owner}/{repo}/issues/{N}` wrapped in descriptive Markdown link text.
+- [ ] 22. **Step 1c: No Bare #N References (SC-10)** — Never use bare `#N` in any spec content. Always use the full URL: `{browser_url}/{owner}/{repo}/issues/{N}` wrapped in descriptive Markdown link text.
 
     | Pattern | Classification | Action |
     | ------- | -------------- | --------------------------------------------- |
     | `#46` | ❌ WRONG | Replace with full URL + descriptive link text |
-    | `https://github.com/owner/repo/issues/46` | ⚠️ Bare URL | Wrap in descriptive Markdown link text |
-    | [fastmcp switch issue](https://github.com/owner/repo/issues/46) | ✅ CORRECT | Descriptive link text |
-    | [viewport-editor#46](https://github.com/owner/repo/issues/46) | ✅ CORRECT | Link text with repo prefix |
+    | `{browser_url}/owner/repo/issues/46` | ⚠️ Bare URL | Wrap in descriptive Markdown link text |
+    | [fastmcp switch issue]({browser_url}/owner/repo/issues/46) | ✅ CORRECT | Descriptive link text |
+    | [viewport-editor#46]({browser_url}/owner/repo/issues/46) | ✅ CORRECT | Link text with repo prefix |
 
     The agent MUST check the entire spec body for bare `#N` patterns before submission and replace any found. This applies to all cross-references regardless of whether they point to the same repo or a different repo.
 
@@ -344,7 +344,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     | Missing expected values | "returns the correct result", "validates input" | No concrete expected value to compare against |
     | Implicit behavior | "should not crash", "works normally" | No negative criterion — what constitutes "not crashing" is undefined |
 
-    **Verification:** For each SC, attempt to write an executable verification command (`uv run pytest test_X.py::test_Y`, `bash verify.sh arg`, `issue-operations -> read-issue (github_issue_read())` with specific field check). If no executable command can be written, the SC is not deterministic.
+    **Verification:** For each SC, attempt to write an executable verification command (`uv run pytest test_X.py::test_Y`, `bash verify.sh arg`, `issue-operations -> read-issue)` with specific field check). If no executable command can be written, the SC is not deterministic.
 
     ✅ **Gate presence verification:** Verify the all-or-nothing gate statement is present in the assembled spec body. If absent → `STRUCTURE-VIOLATION` requiring rewrite before submission.
 
@@ -448,10 +448,10 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     | Checkpoint | Verification Action | Tool Call | Problem Class |
     | ---------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------- |
-    | No placeholders remain | Verify spec body contains no "TBD", "TODO", "FIXME", or incomplete section markers | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → search body for `/TBD\|TODO\|FIXME/` | STRUCTURE-VIOLATION |
-    | Internal consistency | Cross-reference requirement IDs between sections; verify no contradictions | `issue-operations -> read-issue (github_issue_read(method=get)` → parse section anchors vs referenced IDs | CONFLICTING |
-    | Scope check evidence | Verify scope is appropriate for single plan or flagged for decomposition | `issue-operations -> read-issue (github_issue_read(method=get)` → count affected files, check for phase markers | VERIFICATION-GAP |
-    | Ambiguity resolved | Verify no requirement can be interpreted two ways | `issue-operations -> read-issue (github_issue_read(method=get)` → scan for "should", "etc.", vague terms | STRUCTURE-VIOLATION |
+    | No placeholders remain | Verify spec body contains no "TBD", "TODO", "FIXME", or incomplete section markers | `issue-operations -> read-issue` → search body for `/TBD\|TODO\|FIXME/` | STRUCTURE-VIOLATION |
+    | Internal consistency | Cross-reference requirement IDs between sections; verify no contradictions | `issue-operations -> read-issue` → parse section anchors vs referenced IDs | CONFLICTING |
+    | Scope check evidence | Verify scope is appropriate for single plan or flagged for decomposition | `issue-operations -> read-issue` → count affected files, check for phase markers | VERIFICATION-GAP |
+    | Ambiguity resolved | Verify no requirement can be interpreted two ways | `issue-operations -> read-issue` → scan for "should", "etc.", vague terms | STRUCTURE-VIOLATION |
 
     **Evidence format:**
 
