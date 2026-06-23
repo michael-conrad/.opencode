@@ -1,23 +1,18 @@
 #!/usr/bin/env -S uv run --script
-# /// pyproject.toml
-# [project]
-# name = "local-issues"
-# version = "2.0.0"
-# requires-python = ">=3.12"
-# dependencies = ["pyyaml"]
-#
-# [tool.ruff]
-# line-length = 100
-# target-version = "py312"
-# ///
 # fmt: off
 "exec" "uv" "run" "--script" "$0" "$@"  # bash guard — detect python invoker
+
+# /// script
+# requires-python = "~=3.12.0"
+# dependencies = ["pyyaml~=6.0"]
+# ///
+
+# fmt: on
 
 # SPDX-FileCopyrightText: 2026 Michael Conrad
 # SPDX-License-Identifier: MIT
 # Provenance: AI-generated
 
-# fmt: on
 # ruff: noqa: E402
 """
 DESCRIPTION: Local issue tracking CLI tool for .issues/ directory.
@@ -471,11 +466,14 @@ def _remove_temp_worktree(git_dir: str, wt_tmp: str) -> bool:
 
 
 def _populate_orphan_branch(root: Path, wt_tmp: str) -> bool:
-    """Add initial content to the orphan branch and clean up temp worktree."""
+    """Add initial content to the orphan branch and clean up temp worktree.
+
+    The initial commit already creates the branch ref — _name_orphan_branch()
+    is redundant and removed per #1299.
+    """
     git_dir = str(root)
     if not _commit_orphan_init(git_dir, wt_tmp):
         return False
-    _name_orphan_branch(git_dir, wt_tmp)
     _remove_temp_worktree(git_dir, wt_tmp)
     return True
 
@@ -665,9 +663,39 @@ def _collect_repos() -> list[tuple[Path, str]]:
     return repos
 
 
+def _is_https_without_creds(git_dir: str) -> bool:
+    """Check if the remote is HTTPS and no credential helper is configured.
+
+    Returns True when push would trigger an interactive auth prompt.
+    """
+    try:
+        url_result = subprocess.run(
+            ["git", "-C", git_dir, "remote", "get-url", "origin"],
+            capture_output=True, text=True, timeout=15,
+        )
+        if url_result.returncode != 0:
+            return False
+        remote_url = url_result.stdout.strip()
+        if not remote_url.startswith("https://"):
+            return False
+        cred_result = subprocess.run(
+            ["git", "-C", git_dir, "config", "--get-all", "credential.helper"],
+            capture_output=True, text=True, timeout=15,
+        )
+        return cred_result.returncode != 0 or not cred_result.stdout.strip()
+    except Exception:
+        return False
+
+
 def _push_orphan_if_needed(repo_path: Path | None = None) -> None:
-    """Push the worktree branch to origin if a remote exists."""
+    """Push the worktree branch to origin if a remote exists.
+
+    Skips push when remote is HTTPS without credential helper to avoid
+    hanging on interactive auth prompts in non-interactive environments (#1299).
+    """
     git_dir = str(repo_path) if repo_path else os.getcwd()
+    if _is_https_without_creds(git_dir):
+        return
     try:
         result = subprocess.run(
             ["git", "-C", git_dir, "remote", "get-url", "origin"],
@@ -698,11 +726,15 @@ def _push_issues_branch(repo_path: Path | None = None) -> None:
     Push the issues worktree branch to origin.
     Only called from _auto_commit after a mutation commit.
     Runs git commands from within .issues/ (the linked worktree).
+
+    Skips push when remote is HTTPS without credential helper (#1299).
     """
     root = repo_path or Path(os.getcwd())
     if not _worktree_active(repo_path=root):
         return
     issues_git_dir = str(root / ISSUES_DIR)
+    if _is_https_without_creds(issues_git_dir):
+        return
     try:
         result = subprocess.run(
             ["git", "-C", issues_git_dir, "remote", "get-url", "origin"],
@@ -766,8 +798,13 @@ def _commit_issues_changes(root: Path, msg: str) -> None:
 
 
 def _push_issues_changes(root: Path) -> None:
-    """Push the issues worktree branch to origin."""
+    """Push the issues worktree branch to origin.
+
+    Skips push when remote is HTTPS without credential helper (#1299).
+    """
     issues_git_dir = str(root / ISSUES_DIR)
+    if _is_https_without_creds(issues_git_dir):
+        return
     try:
         result = subprocess.run(
             ["git", "-C", issues_git_dir, "remote", "get-url", "origin"],

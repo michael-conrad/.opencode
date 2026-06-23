@@ -20,6 +20,8 @@ load_when: sub-agent
 
 ## PEP 723 Self-Contained Scripts (MANDATORY)
 
+Reference: [PEP 723 — Inline script metadata](https://peps.python.org/pep-0723/)
+
 All Python entry points in `.opencode/tools/` MUST be self-contained PEP 723 scripts with:
 - Shebang: `#!/usr/bin/env -S uv run --script`
 - PEP 723 `# /// script` metadata block with `requires-python` and `dependencies`
@@ -27,6 +29,17 @@ All Python entry points in `.opencode/tools/` MUST be self-contained PEP 723 scr
 - Execute permission (`chmod +x`)
 
 New tools MUST follow this pattern. Do NOT use `uv run python .opencode/tools/X`.
+
+### Version Pinning (MANDATORY)
+
+Every PEP 723 script MUST pin both `requires-python` and all `dependencies` using the `~=` compatible release operator:
+
+- `requires-python`: MUST use `~=X.Y.0` (three-part version, e.g., `~=3.12.0`). Bare `>=` is prohibited (permits untested future Python versions). Bare `X.Y` is rejected by `uv`.
+- `dependencies`: Each entry MUST use `~=` to constrain to a compatible release window (e.g., `pyyaml~=6.0`). Bare unversioned packages and `>=` are prohibited (permit untested major upgrades).
+
+### Marker Validation
+
+The ONLY standardized PEP 723 marker is `# /// script`. The deprecated `# /// pyproject.toml` marker is INVALID — tools MUST NOT read metadata blocks with non-standardized types. `uv` ignores blocks with the wrong marker, causing dependency installation to silently fail.
 
 ### Polyglot Bash Guard (MANDATORY)
 
@@ -38,8 +51,8 @@ Every PEP 723 script MUST include a polyglot bash guard as the second line, imme
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
-# requires-python = "~=3.12"
-# dependencies = []
+# requires-python = "~=3.12.0"
+# dependencies = ["pyyaml~=6.0"]
 # ///
 ```
 
@@ -58,8 +71,8 @@ The guard prevents catastrophic failure when an agent or user invokes `bash <scr
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
-# requires-python = "~=3.12"
-# dependencies = []
+# requires-python = "~=3.12.0"
+# dependencies = ["pyyaml~=6.0"]
 # ///
 
 # fmt: on
@@ -75,7 +88,7 @@ The guard prevents catastrophic failure when an agent or user invokes `bash <scr
 - Line 2: `# fmt: off` (ruff protection guard)
 - Line 3: `"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER` (bash guard)
 - Lines 4-5: Comment line, PEP 723 header
-- Lines 6-8: PEP 723 metadata block (`requires-python`, `dependencies`)
+- Lines 6-8: PEP 723 metadata block (`requires-python` with `~=X.Y.0`, `dependencies` with `~=` pins)
 - Line 9: `# ///` (closing PEP 723)
 - Line 10: `# fmt: on` (ruff protection guard off)
 - After: blank line, then optional `from __future__` or `__doc__ = ` or imports
