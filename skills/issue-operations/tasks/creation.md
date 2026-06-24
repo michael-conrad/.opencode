@@ -112,6 +112,38 @@ Cannot create issue: Step 0.5 dedup gate evidence missing and runtime search fal
 | Enhancement  | `[SPEC-ENHANCEMENT] <Enhancement>`     | `[SPEC-ENHANCEMENT] Add Rate Limiting` |
 | Task         | `[Task: #<parent>] <Task Description>` | `[Task: #100] Create user tables`      |
 
+### Step 1.5: Repo Ownership Gate
+
+**MANDATORY before proceeding to platform routing.** Prevents routing issues to the wrong repository when affected files belong to a different repo (e.g., `.opencode/` files routed to parent repo).
+
+- [ ] 1. **Extract affected file paths** from the issue body or context:
+   - Look for file paths in the Problem, Scope, Approach, or Fix sections
+   - Look for explicit `file_references` or `affected_files` sections
+   - If no file paths found, check the issue title and description for repo-specific keywords (e.g., `.opencode/`, `guidelines/`, `skills/`)
+- [ ] 2. **Resolve repo ownership** for each affected file path using session-init path→repo mappings:
+   - Paths starting with `.opencode/` → `.opencode` sub-repo (use `.opencode` entry's owner/repo from session-init)
+   - Paths starting with `.issues/` → root repo
+   - All other paths → root repo
+- [ ] 3. **Verify target repo matches resolved repo:**
+   - If any affected file path resolves to a different repo than the current target (`github.owner`/`github.repo`):
+     - BLOCK with `WRONG_REPO`
+     - Report: "Affected files belong to {resolved_owner}/{resolved_repo}, not {current_owner}/{current_repo}. Route to {resolved_owner}/{resolved_repo} instead."
+     - HALT — do not proceed with creation
+   - If all affected file paths match the current target repo: proceed to Step 2
+- [ ] 4. **No file paths found fallback:** If no file paths can be extracted, proceed to Step 2 (cannot determine repo ownership from empty context)
+
+**Evidence artifact (MANDATORY):**
+
+```
+Check: Repo Ownership Gate for "<proposed title>"
+Tool: session-init path→repo mappings
+Affected files: [list of extracted file paths]
+Resolved repo: {resolved_owner}/{resolved_repo}
+Current target: {current_owner}/{current_repo}
+Result: [MATCH | WRONG_REPO]
+Action: [proceed | HALT]
+```
+
 ### Step 2: Create Issue (Platform-Aware Ordering)
 
 #### Step 2.0: Platform Check
