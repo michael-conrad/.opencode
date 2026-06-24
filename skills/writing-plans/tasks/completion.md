@@ -11,34 +11,25 @@ Idempotent completion subtask for writing-plans. Ensures mandatory steps ran reg
 
 ## Skill-Specific Completion
 
-- [ ] 1. **Plan issue** (if not already created):
-   - Check evidence for plan issue creation (separate or combined)
-   - If missing: invoke `writing-plans --task create` as remediation
+- [ ] 1. **Plan file** (if not already created):
+   - Check evidence for plan file at `.issues/{N}/plan.md`
+   - If missing: report as blocker — plan file must exist before completion
 
 - [ ] 2. **Sub-issues** (if multi-task and not already created):
    - Check evidence for sub-issue creation under the plan
-   - If missing: invoke `issue-operations --task link-sub-issue` as remediation
+   - If missing: report as blocker — sub-issues must exist before completion
 
 - [ ] 3. **Self-review** (if not already performed):
    - Check evidence for self-review checklist completion
-   - If missing: invoke `writing-plans --task validate` as remediation
+   - If missing: report as blocker — self-review must be performed before completion
 
 - [ ] 4. **Chat executive summary** (if not already produced):
    - Verify exec summary was posted to chat with plan URL
    - If missing: generate and post exec summary now
 
-- [ ] 5. **Push artifacts to issues-data** (after plan issue exists):
-   - Dispatch `task(..., prompt: "execute push-artifacts task from issue-operations")` with issue number
-   - Collect `artifact_url` from the result contract
-   - Embed `artifact_url` in the plan issue body by appending a blockquote:
-     ```
-     > **Artifacts:** [plan-artifacts](<artifact_url>)
-     ```
-   - Use `issue-operations --task update-issue` to apply the body update
-
 ## Shared Completion Delegation
 
-Reference `.opencode/skills/completion-core/completion-core.md` for reporting:
+Reference `.opencode/skills/completion-core/SKILL.md` for reporting:
 
 - [ ] 1. Report executive summary in chat (always runs)
 - [ ] 2. Action URL (plan issue URL) as the URL (ALWAYS last)
