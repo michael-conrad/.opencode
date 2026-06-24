@@ -6,18 +6,34 @@ Check an existing plan for placeholders and completeness.
 
 ## Validation Checks
 
-- [ ] 01. **Placeholder detection** — Zero TBD/TODO tolerance
-- [ ] 02. **Completeness** — Plan addresses the stated problem
-- [ ] 03. **Actionability** — Steps are concrete, not abstract goals
-- [ ] 04. **Testability** — Success criteria include executable verification commands with exact expected values (not just "measurable" — each SC must specify a command that produces a deterministic pass/fail result)
-- [ ] 05. **TDD structure** — Each task has failing test → implement → passing test steps
-- [ ] 06. **File structure** — All files are listed with responsibilities
-- [ ] 07. **Self-review evidence** — Agent has performed spec coverage, placeholder, and type consistency checks
-- [ ] 08. **Spec reference** — Plan body contains a spec reference (search for `Spec: #N` pattern)
-- [ ] 09. **Sub-issue parent** — If plan has sub-issues, they link to the plan (not the spec)
-- [ ] 10. **Plan file exists** — Plan file exists at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
-- [ ] 11. **Pipeline-gate completeness** — All implementation-pipeline gate steps from `implementation-pipeline/SKILL.md` dispatch routing table are present in the plan's exit criteria or phase structure
-- [ ] 12. **Global sequential numbering** — Step numbering is globally sequential across the entire plan file, not restarted per phase
+- [ ] 01. **[sub-task] Placeholder detection** — Zero TBD/TODO tolerance
+- [ ] 02. **[sub-task] Completeness** — Plan addresses the stated problem
+- [ ] 03. **[sub-task] Actionability** — Steps are concrete, not abstract goals
+- [ ] 04. **[sub-task] Testability** — Success criteria include executable verification commands with exact expected values (not just "measurable" — each SC must specify a command that produces a deterministic pass/fail result)
+- [ ] 05. **[sub-task] TDD structure** — Each task has failing test → implement → passing test steps
+- [ ] 06. **[sub-task] File structure** — All files are listed with responsibilities
+- [ ] 07. **[sub-task] Self-review evidence** — Agent has performed spec coverage, placeholder, and type consistency checks
+- [ ] 08. **[sub-task] Spec reference** — Plan body contains a spec reference (search for `Spec: #N` pattern)
+- [ ] 09. **[sub-task] Sub-issue parent** — If plan has sub-issues, they link to the plan (not the spec)
+- [ ] 10. **[sub-task] Plan file exists** — Plan file exists at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
+- [ ] 11. **[sub-task] Pipeline-gate completeness** — All implementation-pipeline gate steps from `implementation-pipeline/SKILL.md` dispatch routing table are present in the plan's exit criteria or phase structure
+- [ ] 12. **[sub-task] Global sequential numbering** — Step numbering is globally sequential across the entire plan file, not restarted per phase
+- [ ] 13. **[sub-task] Checkbox format** — All implementation steps use `- [ ] N.` checkbox format
+- [ ] 14. **[sub-task] Phase workflow completeness** — Every phase contains the full implementation workflow step sequence from `implementation-pipeline/SKILL.md` §Dispatch Routing Table
+- [ ] 15. **[sub-task] No duplicate global steps** — Global pre/post steps are not duplicated across per-file phases
+
+## Result Contract Schema
+
+Before returning, load the output contract from `contracts/validate-output-template.yaml` and validate the result against it. The contract defines the expected output structure:
+
+```yaml
+status: string  # PASS | BLOCKED
+per_check_results: list[dict]  # per-check PASS/FAIL with check_id, check_name, status, evidence_type, finding_classification, action
+artifact_path: string  # path to full evidence on disk
+summary: string  # 1-3 sentence summary
+```
+
+Each z3-check step runs `solve check` against the previous step's output contract to validate state transitions.
 
 ## No-Placeholders Rule
 
