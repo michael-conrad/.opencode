@@ -24,9 +24,9 @@ Transforms approved specs into actionable implementation plans using a 21-step Z
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" | `create` | `sub-task` | {spec_issue_number, spec_body} |
-| "retroactive" / "retroactive plan" / "backfill plan" | `retroactive` | `sub-task` | {spec_issue_number} |
-| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" | `create` | `orchestrator` | {spec_issue_number, spec_body} |
+| "retroactive" / "retroactive plan" / "backfill plan" | `retroactive` | `orchestrator` | {spec_issue_number} |
+| completion / workflow end | `completion` | `orchestrator` | {workflow_state} |
 
 ## Persona
 
