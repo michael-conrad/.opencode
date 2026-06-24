@@ -1,6 +1,6 @@
 ---
 name: playwright-cli
-description: Automate browser interactions, test web pages and work with Playwright tests using @playwright/cli from microsoft/playwright-cli.
+description: Use when automating browser interactions, navigating pages, filling forms, capturing snapshots, evaluating JavaScript, mocking network requests, managing storage/cookies/tabs, recording traces or video, running or generating Playwright tests, managing browser sessions, or installing/setting up Playwright. REQUIRED: dispatch via skill() before any browser automation — do not skip this skill.
 allowed-tools: Bash(playwright-cli:*) Bash(npx:*) Bash(npm:*)
 license: Apache-2.0
 provenance: AI-generated
