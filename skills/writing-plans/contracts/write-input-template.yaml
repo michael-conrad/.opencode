@@ -3,3 +3,4 @@ phase_definitions: list[dict]
 solve_status: string
 plan_status: string
 authorization_scope: string
+plan_format_reference: string  # default: "writing-plans/tasks/write.md"
