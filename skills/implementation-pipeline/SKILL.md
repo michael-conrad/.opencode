@@ -1,6 +1,6 @@
 ---
 name: implementation-pipeline
-description: "Use when orchestrating multi-item implementation through a serial 14-step pipeline with per-step dispatch routing, Z3-verified step transitions, and YAML contract artifact tracking. Professional engineers route each step through clean-room sub-agents."
+description: "Use when executing an approved plan through the implementation pipeline. MUST dispatch here after plan approval, before any file modification. Professional engineers route each step through clean-room sub-agents."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode
@@ -15,9 +15,9 @@ compatibility: opencode
 
 ## Overview
 
-Pure orchestrator routing table with 17 serial dispatch steps. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`. YAML contract artifacts at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml`.
+Orchestrator-facing dispatch router for the implementation pipeline. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. The orchestrator is a pure router — never reads task file content, never performs inline analysis. Sub-agents do the work.
 
-The orchestrator is a pure router — never reads task file content, never performs inline analysis. Sub-agents do the work.
+**MUST dispatch here after plan approval, before any file modification.** This is the mandatory entry point for all implementation work.
 
 ## Mandatory Task Discipline
 
@@ -31,6 +31,7 @@ The orchestrator is a pure router — never reads task file content, never perfo
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
+| "execute plan" / "implement spec" / "run pipeline" / "assemble work" | `assemble-work` | `orchestrator` | {issue_number, plan_path, authorization_scope, halt_at, pr_strategy} |
 | "sc-coherence-gate" / "coherence gate" | `sc-coherence-gate` | `sub-task` | {issue_number} |
 | "pre-red-baseline" / "baseline check" | `pre-red-baseline` | `sub-task` | {issue_number} |
 | "red-phase" / "write failing test" | `red-phase` | `sub-task` | {issue_number} |
@@ -96,10 +97,17 @@ Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run
 `skill({name: "implementation-pipeline"})` — call the skill, then dispatch each step via task():
 
 | Step | Call via task() |
-
+|------|----------------|
+| `assemble-work` (orchestrator entry) | `task(..., prompt: "execute assemble-work from implementation-pipeline")` |
 | Any dispatch step | `task(..., prompt: "execute <step_label> from implementation-pipeline")` |
 
-**Exception:** The `adversarial-audit` step uses orchestrator multi-dispatch (resolve-models → auditor_1 → remediate → auditor_2 → cross-validate), not `sub-task` dispatch. The orchestrator manages the full multi-dispatch sequence inline — see Dispatch Routing Table for the complete sequence.
+**Exception — adversarial-audit sequence:** The adversarial audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item:
+1. `resolve-models` (inline) — run `.opencode/tools/resolve-models`
+2. `auditor-1 dispatch` (sub-agent) — dispatch audit task with auditor_1
+3. `auditor-1 remediate` (inline) — if non-clean-pass, remediate and restart
+4. `auditor-2 dispatch` (sub-agent) — dispatch audit task with auditor_2
+5. `auditor-2 remediate` (inline) — if non-clean-pass, remediate and restart
+6. `cross-validate` (clean-room) — produce cross-validate findings
 
 Every task context MUST include the authorization context block:
 
@@ -113,9 +121,11 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ## Sub-Agent Routing
 
+**Orchestrator entry point:** `assemble-work` is the mandatory entry point. The orchestrator dispatches here after plan approval via `task(..., prompt: "execute assemble-work from implementation-pipeline")`. `assemble-work` reads the plan, creates branches, dispatches sub-agents, and routes to `pipeline-executor` for the internal step dispatch sequence.
+
 All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include `audit_phase` in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
 
-**Exception — adversarial-audit:** The `adversarial-audit` step bypasses the `task()` protocol because it requires orchestrator-managed multi-dispatch (resolve-models → auditor_1 → remediate → auditor_2 → cross-validate). The orchestrator runs the full sequence inline, dispatching each auditor via `task()` with `subagent_type` from resolve-models, remediating between auditors, and collecting artifact paths for cross-validate.
+**Exception — adversarial-audit sequence:** The adversarial audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item (resolve-models inline, auditor-1 sub-agent, auditor-1 remediate inline, auditor-2 sub-agent, auditor-2 remediate inline, cross-validate clean-room). See Invocation section for the complete sequence.
 
 Exclusions: implementation context, agent memory, cached verification results.
 
