@@ -16,6 +16,8 @@ Check an existing plan for placeholders and completeness.
 - [ ] 08. **Spec reference** — Plan body contains a spec reference (search for `Spec: #N` pattern)
 - [ ] 09. **Sub-issue parent** — If plan has sub-issues, they link to the plan (not the spec)
 - [ ] 10. **Plan file exists** — Plan file exists at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
+- [ ] 11. **Pipeline-gate completeness** — All implementation-pipeline gate steps from `implementation-pipeline/SKILL.md` dispatch routing table are present in the plan's exit criteria or phase structure
+- [ ] 12. **Global sequential numbering** — Step numbering is globally sequential across the entire plan file, not restarted per phase
 
 ## No-Placeholders Rule
 

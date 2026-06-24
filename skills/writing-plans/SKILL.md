@@ -19,6 +19,7 @@ Transforms approved specs into actionable implementation plans using a 21-step Z
 - [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
 - [ ] 4. Sub-agents must not dispatch sub-agents
 - [ ] 5. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+- [ ] 6. **No optimizing out mandatory steps** — All implementation-pipeline gate steps are mandatory regardless of perceived simplicity. Optimizing out steps because they appear "not needed" is defective behavior and produces plans that must be discarded as incomplete and error-ridden.
 
 ## Trigger Dispatch Table
 
