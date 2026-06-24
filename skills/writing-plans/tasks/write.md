@@ -27,5 +27,5 @@ Write the plan document to `.issues/{N}/plan.md`, validate dispatch table refere
 
 ## Context Required
 
-- Related tasks: `create/create-and-validate`
+- Related tasks: `create` (21-step pipeline)
 - Related skills: `issue-operations`
