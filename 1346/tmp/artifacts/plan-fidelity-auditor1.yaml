@@ -1,0 +1,67 @@
+status: DONE
+per_sc_verdicts:
+  - sc_id: SC-1
+    verdict: PASS
+    reason: "Plan specifies output plan.md as routing index with ≤50 line limit, phase list table, and exit criteria per phase. Phase dependency graph and table with Depends On column and Exit Criteria column present in plan.md itself."
+  - sc_id: SC-2
+    verdict: PASS
+    reason: "Phase dependency graph (lines 9-15) and table (lines 17-23) include Depends On column. Graph is acyclic: Phase 1 has no deps, Phase 2/3 depend on Phase 1, Phase 4 depends on Phase 2, Phase 5 depends on Phase 2."
+  - sc_id: SC-3
+    verdict: PASS
+    reason: "Exit criteria per phase are specific and verifiable (e.g., 'plan-structure.md defines plan.md routing index with phase table (including Depends On column), exit criteria per phase, ≤50 line limit'). Not subjective."
+  - sc_id: SC-4
+    verdict: PASS
+    reason: "Plan specifies that output plan.md contains all routing metadata (phase list, dependencies, exit criteria) needed for orchestrator dispatch without opening sub-plan files. TDD-2 GREEN explicitly states this."
+  - sc_id: SC-5
+    verdict: PASS
+    reason: "Plan specifies three-section structure (Pre-RED Common, Per-Item RED/GREEN Chains, Post-RED/green) for each plan-phase-N.md. The plan's own phase sections follow this structure."
+  - sc_id: SC-6
+    verdict: PASS
+    reason: "Plan specifies must_receive (field names only) and must_not_receive (at minimum orchestrator_reasoning, expected_outcomes) in every TDD item step. TDD-2 GREEN documents this."
+  - sc_id: SC-7
+    verdict: PASS
+    reason: "Plan mandates - [ ] N. / - [x] checkbox format for all step lines. The plan itself uses this format throughout."
+  - sc_id: SC-8
+    verdict: PASS
+    reason: "Plan specifies that each plan-phase-N.md is self-contained with no cross-file references. Pre-RED/Post-RED sections duplicated per sub-plan. TDD-4 GREEN documents this."
+  - sc_id: SC-9
+    verdict: PASS
+    reason: "Plan defines .tmp/work-state-NNN.yaml format with required fields: issue, phase, phase_status, completed_steps, current_step, last_checkpoint_tag, z3_state. TDD-1 GREEN documents this."
+  - sc_id: SC-10
+    verdict: PASS
+    reason: "Plan specifies that state transition rules are documented as Z3-verifiable contract fields. TDD-2 GREEN documents this."
+  - sc_id: SC-11
+    verdict: PASS
+    reason: "Plan specifies that work state file is written to disk (.tmp/work-state-NNN.yaml) and survives session resets. TDD-3 GREEN documents this."
+  - sc_id: SC-12
+    verdict: PASS
+    reason: "Plan specifies that writing-plans skill produces plan.md (master ToC) + plan-phase-N.md files (one per phase). TDD-1 GREEN documents this."
+  - sc_id: SC-13
+    verdict: PASS
+    reason: "Plan specifies that generated sub-plans include must_receive (field names) and must_not_receive (orchestrator_reasoning, expected_outcomes) in every TDD item step. TDD-2 GREEN documents this."
+  - sc_id: SC-14
+    verdict: PASS
+    reason: "Plan specifies that writing-plans skill creates .tmp/work-state-NNN.yaml with all required fields. TDD-3 GREEN documents this."
+  - sc_id: SC-15
+    verdict: PASS
+    reason: "Plan specifies that both plan-structure.md and create-and-validate.md reference multi-file format, dispatch contracts, commit boundaries, and checkpoint tag creation step. TDD-4 GREEN documents this."
+  - sc_id: SC-16
+    verdict: PASS
+    reason: "Plan requires every step in Per-Item RED/GREEN Chains to declare commits: true. TDD-5 GREEN documents this. No step lacks this declaration."
+  - sc_id: SC-17
+    verdict: PASS
+    reason: "Plan specifies YAML frontmatter header with checkpoint_tag: field using placeholder format <parent>/checkpoint/<issue>/phase-<N>-<submodule>. TDD-6 GREEN documents this."
+  - sc_id: SC-18
+    verdict: PASS
+    reason: "Plan specifies explicit checkbox step in Post-RED/green that creates the checkpoint tag, referencing the tag format from the sub-plan header. TDD-7 GREEN documents this."
+  - sc_id: SC-19
+    verdict: PASS
+    reason: "Plan specifies that implementation-pipeline/SKILL.md dispatch routing table includes a step entry with label checkpoint-tag-create between last TDD item step and Post-RED/green gates. TDD-1 GREEN documents this."
+  - sc_id: SC-20
+    verdict: PASS
+    reason: "Plan specifies that Z3 state machine YAML includes checkpoint-tag-create step with valid transitions: from last TDD step to checkpoint-tag-create, from checkpoint-tag-create to next gate step. TDD-2 GREEN documents this."
+  - sc_id: SC-21
+    verdict: PASS
+    reason: "Plan specifies that every operation the pipeline performs has a corresponding entry in the dispatch routing table. TDD-3 GREEN documents audit evidence requirement. No implicit steps remain."
+finding_summary: "All 21 SCs are faithfully represented in the plan. The plan correctly decomposes into 5 phases with acyclic dependency ordering, specifies the multi-file output format with dispatch contracts, commit boundaries, checkpoint tag creation, work state file persistence, and pipeline dispatch table updates. Each SC has a corresponding TDD item with RED/GREEN phases. The plan is a faithful implementation of the spec."
+artifact_path: ".opencode/.issues/1346/tmp/artifacts/plan-fidelity-auditor1.yaml"

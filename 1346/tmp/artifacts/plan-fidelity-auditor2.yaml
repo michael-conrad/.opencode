@@ -1,0 +1,89 @@
+---
+audit_type: plan-fidelity
+issue_number: 1346
+auditor: plan-fidelity-auditor2
+generated_at: "2026-06-23T00:00:00Z"
+spec_path: ".opencode/.issues/1346/spec.md"
+plan_path: ".opencode/.issues/1346/plan.md"
+status: DONE
+per_sc_verdicts:
+  - sc_id: SC-1
+    verdict: PASS
+    reason: "Plan correctly identifies requirement in Phase 1 TDD-1 GREEN step: plan-structure.md defines plan.md as routing index with ≤50 line limit, phase list table, and exit criteria. Plan targets correct file for format definition."
+  - sc_id: SC-2
+    verdict: PASS
+    reason: "Plan includes Phase Dependency Graph (lines 9-15) and phase table (lines 18-23) with 'Depends On' column. Phase 1 has 'None' as depends on. Graph is acyclic. TDD-1 Phase 1 correctly specifies acyclic dependency graph requirement."
+  - sc_id: SC-3
+    verdict: FAIL
+    reason: "Plan's phase table (lines 18-23) has columns: Phase, Concern, Depends On, SCs. Missing required 'Exit Criteria' column. TDD steps do not mention defining exit criteria per phase. Spec requires exit criteria per phase to be verifiable (not subjective). Plan does not faithfully implement this requirement."
+  - sc_id: SC-4
+    verdict: PASS
+    reason: "Phase 1 TDD-2 correctly identifies requirement. GREEN step specifies plan-structure.md contains all routing metadata (phase list, dependencies, exit criteria) needed for orchestrator dispatch without sub-plan file reads."
+  - sc_id: SC-5
+    verdict: PASS
+    reason: "Phase 2 TDD-1 correctly identifies three-section structure requirement. GREEN step specifies plan-structure.md defines each plan-phase-N.md with three mandatory sections in order: Pre-RED Common, Per-Item RED/GREEN Chains, Post-RED/green."
+  - sc_id: SC-6
+    verdict: PASS
+    reason: "Phase 2 TDD-2 correctly identifies dispatch contract fields requirement. GREEN step specifies must_receive (field names only) and must_not_receive (at minimum orchestrator_reasoning, expected_outcomes) in each TDD item step."
+  - sc_id: SC-7
+    verdict: PASS
+    reason: "Phase 2 TDD-3 correctly identifies checkbox format requirement. GREEN step mandates '- [ ] N.' / '- [x]' checkbox format for all step lines. No prose-only steps permitted."
+  - sc_id: SC-8
+    verdict: PASS
+    reason: "Phase 2 TDD-4 correctly identifies self-contained constraint. GREEN step specifies each plan-phase-N.md is self-contained with no cross-file references. Pre-RED/Post-RED sections duplicated per sub-plan."
+  - sc_id: SC-9
+    verdict: PASS
+    reason: "Phase 3 TDD-1 correctly identifies work state file format requirement. GREEN step defines .tmp/work-state-NNN.yaml format with required fields: issue, phase, phase_status, completed_steps, current_step, last_checkpoint_tag, z3_state."
+  - sc_id: SC-10
+    verdict: PASS
+    reason: "Phase 3 TDD-2 correctly identifies Z3-verifiable contract requirement. GREEN step documents state transition rules as Z3-verifiable contract fields. Z3 can load contract and verify valid transitions."
+  - sc_id: SC-11
+    verdict: PASS
+    reason: "Phase 3 TDD-3 correctly identifies disk persistence requirement. GREEN step specifies work state file written to disk (.tmp/work-state-NNN.yaml) survives session resets. Orchestrator can resume from disk state."
+  - sc_id: SC-12
+    verdict: PASS
+    reason: "Phase 5 TDD-1 correctly identifies multi-file output requirement. GREEN step specifies writing-plans skill produces plan.md (master ToC) + plan-phase-N.md files (one per phase). For 3-phase spec: plan.md + 3 sub-plan files."
+  - sc_id: SC-13
+    verdict: PASS
+    reason: "Phase 5 TDD-2 correctly identifies dispatch contracts in generated sub-plans. GREEN step specifies generated sub-plans include must_receive and must_not_receive in every TDD item step."
+  - sc_id: SC-14
+    verdict: PASS
+    reason: "Phase 5 TDD-3 correctly identifies work state file creation requirement. GREEN step specifies writing-plans skill creates .tmp/work-state-NNN.yaml with all required fields."
+  - sc_id: SC-15
+    verdict: PASS
+    reason: "Phase 5 TDD-4 correctly identifies reference doc update requirement. GREEN step specifies both plan-structure.md and create-and-validate.md reference multi-file format, dispatch contracts, commit boundaries, and checkpoint tag creation step."
+  - sc_id: SC-16
+    verdict: PASS
+    reason: "Phase 2 TDD-5 correctly identifies commits declaration requirement. GREEN step requires every step in Per-Item RED/GREEN Chains to declare 'commits: true'. No step lacks this declaration."
+  - sc_id: SC-17
+    verdict: PASS
+    reason: "Phase 2 TDD-6 correctly identifies checkpoint_tag header requirement. GREEN step specifies YAML frontmatter header with checkpoint_tag: field using placeholder format '<parent>/checkpoint/<issue>/phase-<N>-<submodule>'. Values are placeholders, not resolved."
+  - sc_id: SC-18
+    verdict: PASS
+    reason: "Phase 2 TDD-7 correctly identifies checkpoint tag creation step requirement. GREEN step includes explicit checkbox step in Post-RED/green that creates the checkpoint tag, referencing tag format from sub-plan header."
+  - sc_id: SC-19
+    verdict: PASS
+    reason: "Phase 4 TDD-1 correctly identifies dispatch table checkpoint step requirement. GREEN step specifies implementation-pipeline/SKILL.md §Dispatch Routing Table includes step entry with label 'checkpoint-tag-create' (or equivalent) between last TDD item step and Post-RED/green gates."
+  - sc_id: SC-20
+    verdict: PASS
+    reason: "Phase 4 TDD-2 correctly identifies Z3 state machine update requirement. GREEN step specifies Z3 state machine YAML includes checkpoint-tag-create step with valid transitions: from last TDD step → checkpoint-tag-create → next gate step."
+  - sc_id: SC-21
+    verdict: PASS
+    reason: "Phase 4 TDD-3 correctly identifies implicit step audit requirement. GREEN step specifies every operation the pipeline performs has corresponding entry in dispatch routing table. No mandatory step exists only as inline bash without dispatch table entry."
+finding_summary:
+  total_scs: 21
+  pass: 20
+  fail: 1
+  blocked: 0
+  critical_gaps:
+    - "SC-3: Plan phase table lacks 'Exit Criteria' column required by spec. TDD steps do not address exit criteria definition."
+recommendation: "Plan requires revision to add Exit Criteria column to phase table (lines 18-23) and corresponding TDD step in Phase 1 defining verifiable exit criteria per phase. All other 20 SCs are faithfully represented in the plan."
+clean_room:
+  verified: true
+  violations_detected: []
+methodology_independence:
+  spec_read: true
+  plan_read: true
+  per_sc_evaluation: true
+  semantic_depth_applied: true
+---

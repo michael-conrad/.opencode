@@ -1,0 +1,76 @@
+domain: writing-plans-fix
+types:
+  - name: phase
+  - name: fix
+objects:
+  - name: phase1
+    type: phase
+  - name: phase2
+    type: phase
+  - name: fix_dispatch
+    type: fix
+  - name: fix_create_md
+    type: fix
+  - name: fix_completion_md
+    type: fix
+  - name: fix_retroactive_md
+    type: fix
+  - name: fix_skill_md
+    type: fix
+  - name: fix_audit_files
+    type: fix
+  - name: purge_create_subdir
+    type: fix
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+  - name: applied
+    params:
+      - name: f
+        type: fix
+  - name: belongs_to
+    params:
+      - name: f
+        type: fix
+      - name: p
+        type: phase
+actions:
+  - name: apply_fix
+    params:
+      - name: f
+        type: fix
+      - name: p
+        type: phase
+    preconditions:
+      - belongs_to(f, p)
+      - not applied(f)
+    effects:
+      - applied(f)
+  - name: complete_phase
+    params:
+      - name: p
+        type: phase
+    preconditions:
+      - not completed(p)
+    effects:
+      - completed(p)
+init:
+  - belongs_to(fix_dispatch, phase1)
+  - belongs_to(fix_create_md, phase1)
+  - belongs_to(fix_completion_md, phase1)
+  - belongs_to(fix_retroactive_md, phase1)
+  - belongs_to(fix_skill_md, phase1)
+  - belongs_to(fix_audit_files, phase1)
+  - belongs_to(purge_create_subdir, phase2)
+goals:
+  - completed(phase1)
+  - completed(phase2)
+  - applied(fix_dispatch)
+  - applied(fix_create_md)
+  - applied(fix_completion_md)
+  - applied(fix_retroactive_md)
+  - applied(fix_skill_md)
+  - applied(fix_audit_files)
+  - applied(purge_create_subdir)

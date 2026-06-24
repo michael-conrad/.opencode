@@ -1,0 +1,39 @@
+actions:
+- name: complete_phase
+  parameters:
+  - phase1
+- name: apply_fix
+  parameters:
+  - fix_audit_files
+  - phase1
+- name: complete_phase
+  parameters:
+  - phase2
+- name: apply_fix
+  parameters:
+  - fix_completion_md
+  - phase1
+- name: apply_fix
+  parameters:
+  - purge_create_subdir
+  - phase2
+- name: apply_fix
+  parameters:
+  - fix_skill_md
+  - phase1
+- name: apply_fix
+  parameters:
+  - fix_retroactive_md
+  - phase1
+- name: apply_fix
+  parameters:
+  - fix_dispatch
+  - phase1
+- name: apply_fix
+  parameters:
+  - fix_create_md
+  - phase1
+domain: writing-plans-fix
+engine: tamer
+plan_length: 9
+status: SOLVED_SATISFICING

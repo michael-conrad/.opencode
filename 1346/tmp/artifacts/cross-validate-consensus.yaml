@@ -1,0 +1,95 @@
+---
+cross_validate:
+  issue_number: 1346
+  auditor1: plan-fidelity-auditor1 (gemma4)
+  auditor2: plan-fidelity-auditor2 (qwen3.5)
+  generated_at: "2026-06-23T00:00:00Z"
+status: DONE
+consensus: PASS
+per_sc_consensus:
+  - sc_id: SC-1
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-2
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-3
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-4
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-5
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-6
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-7
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-8
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-9
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-10
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-11
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-12
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-13
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-14
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-15
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-16
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-17
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-18
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-19
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-20
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+  - sc_id: SC-21
+    verdict_1: PASS
+    verdict_2: PASS
+    consensus: PASS
+finding_summary: "21/21 SCs reach PASS consensus. SC-3 resolved: both auditors now PASS. auditor1 (gemma4) and auditor2 (qwen3.5) both confirm all 21 SCs pass. Plan-fidelity audit consensus: PASS."
+artifact_path: ".opencode/.issues/1346/tmp/artifacts/cross-validate-consensus.yaml"

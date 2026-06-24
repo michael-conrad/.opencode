@@ -1,4 +1,4 @@
-# [SPEC] Plan file format: master ToC + per-phase sub-plans with dispatch contracts
+# [SPEC] Plan file format: master ToC + per-phase sub-plans with flat step sequence
 
 ## Problem
 
@@ -14,11 +14,12 @@ Replace the single-file plan format with a multi-file format:
 
 1. **Master ToC** (`plan.md`): A ~50-line routing index containing the phase list table, dependency ordering, and exit criteria. The orchestrator holds this in context as routing metadata.
 
-2. **Per-phase sub-plans** (`plan-phase-N.md`): One self-contained file per phase with the full checkbox sequence (Pre-RED Common → Per-Item RED/GREEN Chains → Post-RED/green). Each sub-plan includes:
-   - A phase-level checkpoint tag format in the header
-   - An explicit checkbox step in Post-RED/green that creates the checkpoint tag
-   - Per-TDD-item-step dispatch contract fields (`must_receive` by name, `must_not_receive`)
-   - Per-step `commits: true` declaration
+2. **Per-phase sub-plans** (`plan-phase-N.md`): One self-contained file per phase with a flat step sequence. Each sub-plan includes:
+   - A YAML header with phase, concern, depends_on, scs, checkpoint_tag
+   - A flat sequence of checkboxes numbered sequentially across the entire plan (no restarting per phase)
+   - Steps use `dispatch:`, `check:`, `inline:` prefixes
+   - Section headers (`#### Pre-RED Common`, `#### Per-Item RED/GREEN Chains`, `#### Post-RED/green`) are human-readable markers only — orchestrator ignores them
+   - No SC tables or output descriptions (SCs live in spec only)
 
 3. **Work state file** (`.tmp/work-state-NNN.yaml`): Disk-persistent phase tracking with Z3-verifiable state transitions. Survives session resets.
 
@@ -40,9 +41,9 @@ Define the `plan.md` routing index file.
 
 ### Phase 2 — Sub-Plan File Format
 
-Define the `plan-phase-N.md` structure with dispatch contracts, commit boundaries, and explicit checkpoint tag creation step.
+Define the `plan-phase-N.md` structure with flat step sequence, dispatch/check/inline prefixes, and explicit checkpoint tag creation step.
 
-**SCs:** SC-5, SC-6, SC-7, SC-8, SC-16, SC-17, SC-18
+**SCs:** SC-5, SC-6, SC-7, SC-8, SC-16, SC-17, SC-18, SC-22, SC-23, SC-24
 
 ### Phase 3 — Work State File
 
@@ -70,9 +71,9 @@ Update the writing-plans skill to produce the new format.
 | SC-2 | Phase list table includes `Depends On` column, acyclic dependency graph | `string` | Extract Depends On values, verify acyclic, Phase 1 has no deps |
 | SC-3 | Exit criteria per phase are verifiable (not subjective) | `string` | Grep for Exit Criteria column, verify non-empty, verifiable language |
 | SC-4 | ToC is orchestrator-loadable without opening sub-plan files | `behavioral` | Agent reads only plan.md to list phases (stderr evidence) |
-| SC-5 | `plan-phase-N.md` files follow three-section structure (Pre-RED, RED/GREEN, Post-RED) | `string` | Verify file naming, section headers present and in order |
-| SC-6 | Dispatch contract fields (`must_receive` by name, `must_not_receive`) in each TDD item step | `string` | Grep for must_receive/must_not_receive, verify field names not values |
-| SC-7 | Markdown checkbox format preserved (`- [ ]` / `- [x]`) | `string` | Verify all step lines use checkbox format |
+| SC-5 | `plan-phase-N.md` files have YAML header with phase, concern, depends_on, scs, checkpoint_tag fields | `string` | Verify YAML frontmatter present with all required fields |
+| SC-6 | Plan steps use `dispatch:`, `check:`, `inline:` prefixes with correct syntax | `string` | Grep for step prefix patterns, verify no bare checkbox descriptions without prefix |
+| SC-7 | Checkboxes numbered sequentially across entire plan (no restarting per phase) | `string` | Extract checkbox numbers, verify monotonic increasing sequence across all phases |
 | SC-8 | Sub-plan files are self-contained, no cross-file references | `string` | Grep for cross-file reference patterns, zero matches |
 | SC-9 | Work state file format defined with required fields | `structural` | File path pattern match, YAML parse, required fields present |
 | SC-10 | Z3-verifiable contract fields for state transitions | `string` | State transition rules documented, Z3 can load contract |
@@ -81,52 +82,57 @@ Update the writing-plans skill to produce the new format.
 | SC-13 | Dispatch contract fields included in generated sub-plans | `behavioral` | Invoke skill, verify must_receive/must_not_receive in generated files |
 | SC-14 | Work state file contract created by writing-plans | `behavioral` | Invoke skill, verify .tmp/work-state-NNN.yaml created with required fields |
 | SC-15 | plan-structure.md and create-and-validate.md updated for new format | `string` | Verify both files reference multi-file format, dispatch contracts, commit boundaries, and checkpoint tag creation step |
-| SC-16 | Every TDD item step declares `commits: true` | `string` | Grep for `commits: true` on every step in Per-Item RED/GREEN Chains. Verify no step lacks this declaration |
-| SC-17 | Each sub-plan declares a phase-level `checkpoint_tag` in its header | `string` | Grep for `checkpoint_tag:` in sub-plan header. Verify tag format: `/checkpoint/<parent>/<issue>/phase-<N>-<submodule>`. Verify values are placeholders (e.g., `<parent>`, `<issue>`), not resolved values |
+| SC-16 | Every step declares `commits: true` | `string` | Grep for `commits: true` on every step. Verify no step lacks this declaration |
+| SC-17 | Each sub-plan declares a phase-level `checkpoint_tag` in its header | `string` | Grep for `checkpoint_tag:` in sub-plan header. Verify tag format: `<parent>/checkpoint/<issue>/phase-<N>-<submodule>`. Verify values are placeholders (e.g., `<parent>`, `<issue>`), not resolved values |
 | SC-18 | Each sub-plan has an explicit checkbox step in Post-RED/green that creates the checkpoint tag | `string` | Grep for a checkbox in the Post-RED/green section containing `checkpoint_tag` creation. Verify the step references the tag format from the sub-plan header |
 | SC-19 | implementation-pipeline dispatch routing table includes checkpoint tag creation as an explicit step | `string` | Grep the dispatch routing table for a step entry with label `checkpoint-tag-create` or equivalent. Verify it appears between the last TDD item step and the Post-RED/green gates |
 | SC-20 | Pipeline state machine (Z3 contract) includes the new checkpoint-tag-create step with valid transitions | `string` | Verify the Z3 state machine YAML includes the new step. Verify transitions: from last TDD step → checkpoint-tag-create, from checkpoint-tag-create → next gate step |
 | SC-21 | All mandatory steps are explicit entries in the dispatch routing table — no implicit steps | `behavioral` | Audit the dispatch routing table in `pipeline-executor.md`. For every operation the pipeline performs (including post-step checkpoint tag creation, Z3 state updates, phase-level tag creation, and any inline bash procedures), verify it has a corresponding entry in the dispatch routing table. If any mandatory step exists only as inline bash in pipeline-executor.md without a dispatch table entry, it is a violation. The dispatch table is the single source of truth for what the plan writer generates. Implicit steps produce defective work that must be discarded |
+| SC-22 | Plan steps use `dispatch:`, `check:`, `inline:` prefixes — no other step prefix formats are used | `string` | Grep for step prefixes, verify only `dispatch:`, `check:`, `inline:` appear |
+| SC-23 | Plan has single flat enumeration across all phases (no restarting per phase) | `string` | Extract checkbox numbers from all sub-plans, verify monotonic increasing sequence with no resets |
+| SC-24 | Plan contains no SC tables or output descriptions (SCs in spec only) | `string` | Grep for table patterns and output description patterns, zero matches in sub-plan files |
 
-## Per-TDD-Item Step Format
+## Step Type Format
 
-Each step in the Per-Item RED/GREEN Chains section follows this structure:
+Each step in the sub-plan body uses one of three prefixes:
 
 ```
-- [ ] N. <step_label>: <description> — `<dispatch_string>` (<dispatch_type>)
-    → dispatch: "<dispatch_string>"
-    → must_receive: [<field_name>, ...]
-    → must_not_receive: [<field_name>, ...]
-    → commits: true
-    → SC-<id>
+- [ ] N. dispatch: <skill> <task> { <context_fields> }
+- [ ] N. check: solve check --state-path <path> --contract-path <path>
+- [ ] N. inline: <command>
+- [ ] N. dispatch: adversarial-audit <task> { <context_fields>, auditor: <N> }
 ```
 
 Where:
-- `must_receive` values are field names (e.g., `sc_ids`, `affected_files`, `spec_body`), not concrete values
-- `must_not_receive` always includes `orchestrator_reasoning` and `expected_outcomes` at minimum
-- `commits: true` means this step produces a commit before the next step starts
+- `dispatch:` — orchestrator calls `task()` with the specified skill and task, passing the listed context fields
+- `check:` — orchestrator runs Z3 verification against the work state file
+- `inline:` — orchestrator executes the command directly (bash, git, etc.)
+- `dispatch: adversarial-audit` — auditor dispatch with specific model selection
+
+Context fields are field names (e.g., `sc_ids`, `affected_files`, `spec_body`), not concrete values. The `must_receive`/`must_not_receive` contract is not in the plan — sub-agents discover required context from the spec independently.
 
 ## Sub-Plan Header Format
 
-Each `plan-phase-N.md` begins with a header block:
+Each `plan-phase-N.md` begins with a YAML header block:
 
 ```yaml
 ---
 phase: <N>
 concern: <description>
-depends_on: [<phase>, ...]
-scs: [SC-<id>, ...]
-checkpoint_tag: <parent>/checkpoint/<issue>/phase-<N>-<submodule>
+depends_on: [<phase-N>, ...]
+scs: [SC-<N>, ...]
+checkpoint_tag: /checkpoint/<issue>/phase-<N>-<submodule>
 ---
 ```
+
+The body is a flat sequence of checkboxes numbered sequentially across the entire plan (no restarting per phase). Section headers (`#### Pre-RED Common`, `#### Per-Item RED/GREEN Chains`, `#### Post-RED/green`) are human-readable markers only — the orchestrator ignores them and follows the flat enumeration.
 
 ## Post-RED/green Section — Checkpoint Tag Creation Step
 
 The Post-RED/green section of each sub-plan MUST include an explicit checkbox for creating the checkpoint tag:
 
 ```
-- [ ] N. Create checkpoint tag — `git tag <parent>/checkpoint/<issue>/phase-<N>-<submodule>` (**inline**)
-    → tag: <parent>/checkpoint/<issue>/phase-<N>-<submodule>
+- [ ] N. inline: git tag <parent>/checkpoint/<issue>/phase-<N>-<submodule>
     → commits: false
 ```
 
@@ -142,10 +148,14 @@ Tag convention per `000-critical-rules.md` §Checkpoint Rollback Exception: `<pa
 
 ## Constraints
 
+- Steps use `dispatch:`, `check:`, `inline:` prefixes — no other prefix formats
+- Single flat enumeration across entire plan (no restarting per phase)
+- No SC tables in plan — SCs live in spec only
+- Plan describes steps, not outputs
 - Markdown checkbox format preserved (`- [ ] N. ...`)
 - Master ToC ≤ 50 lines (orchestrator context discipline)
 - Pre-RED/Post-RED sections duplicated per sub-plan (no shared/abstracted sections)
-- Every TDD item step must declare `commits: true` — this is not optional
+- Every step must declare `commits: true` — this is not optional
 - Checkpoint tag creation must be an explicit checkbox in Post-RED/green — the orchestrator only follows the checklist
 - The implementation-pipeline dispatch routing table must include all mandatory steps as explicit entries — no implicit steps. Implicit steps produce defective work that must be discarded
 - Steps must never be combined — each checkbox is exactly one step, one commit

@@ -1,0 +1,29 @@
+# Phase ordering contract for #1346
+# Phase 1: No deps
+# Phase 2: Depends on Phase 1
+# Phase 3: Depends on Phase 1
+# Phase 4: Depends on Phase 2
+# Phase 5: Depends on Phase 2
+schema_version: "1.0"
+variables:
+  phase_1:
+    type: int
+    domain: [1, 2, 3, 4, 5]
+  phase_2:
+    type: int
+    domain: [1, 2, 3, 4, 5]
+  phase_3:
+    type: int
+    domain: [1, 2, 3, 4, 5]
+  phase_4:
+    type: int
+    domain: [1, 2, 3, 4, 5]
+  phase_5:
+    type: int
+    domain: [1, 2, 3, 4, 5]
+preconditions:
+  - "phase_1 < phase_2"
+  - "phase_1 < phase_3"
+  - "phase_2 < phase_4"
+  - "phase_2 < phase_5"
+  - "z3.Distinct(phase_1, phase_2, phase_3, phase_4, phase_5)"

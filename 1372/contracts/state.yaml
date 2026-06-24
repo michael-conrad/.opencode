@@ -1,0 +1,6 @@
+schema_version: "1.0"
+variables:
+  phase_1_complete: false
+  phase_2_complete: false
+  create_dispatch_fixed: false
+  create_subdir_purged: false

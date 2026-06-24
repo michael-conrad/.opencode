@@ -1,0 +1,28 @@
+schema_version: "1.0"
+variables:
+  phase_1_complete:
+    type: bool
+    nullable: false
+  phase_2_complete:
+    type: bool
+    nullable: false
+  create_dispatch_fixed:
+    type: bool
+    nullable: false
+  create_subdir_purged:
+    type: bool
+    nullable: false
+
+preconditions:
+  - "z3.Not(create_dispatch_fixed)"
+  - "z3.Not(create_subdir_purged)"
+
+invariants:
+  - "z3.Implies(phase_2_complete, phase_1_complete)"
+  - "z3.Implies(create_subdir_purged, create_dispatch_fixed)"
+
+postconditions:
+  - "create_dispatch_fixed"
+  - "create_subdir_purged"
+  - "phase_1_complete"
+  - "phase_2_complete"
