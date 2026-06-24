@@ -2,47 +2,30 @@
 
 ## Purpose
 
-Create a plan for an existing spec that does not yet have one.
+Create a plan for an existing spec that does not yet have one. Uses the same 21-step pipeline as `create` but with the research step loading the existing spec body as its evidence source.
 
-## Procedure
+## Operating Protocol — 21-Step Pipeline
 
-- [ ] 1. **Query existing spec:**
+Each item is tagged with dispatch scope, chain dependency, and contract paths.
 
-    - Get spec from GitHub Issue
-    - Search for existing plan files at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` that reference the spec
-
-- [ ] 2. **If no plan exists:**
-
-    - Create local plan file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
-    - Include spec reference as prose in body (e.g., `Spec: #N`)
-    - Plan content uses hybrid approach (phases + TDD steps)
-    - Include header, file structure, self-review
-    - HALT and wait for plan approval
-
-- [ ] 3. **If plan exists:**
-
-    - Validate plan (check for placeholders, TDD structure)
-    - If invalid → Report issues
-    - If valid → Proceed to implementation
-
-## Live Verification: Retroactive Plan Evidence (MANDATORY)
-
-**Each factual claim about existing specs and plans MUST be verified via tool call. Assertions without tool-call artifacts are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
-
-| Claim | Verification Action | Tool Call | Problem Class |
-|-------|-------------------|-----------|---------------|
-| "Spec #N exists" | Verify issue exists and has spec label | `issue-operations -> read-issue (github_issue_read(method="get", issue_number=N)` | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
-| "No plan exists for spec #N" | Check for local plan file | `ls .issues/{N}/plan.md */.issues/{N}/plan.md 2>/dev/null` | VERIFICATION-GAP |
-| "Plan is valid" | Run `validate` task checks | `validate` task inline | VERIFICATION-GAP |
-| "Plan has sub-issues" | Check sub-issue state | `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=plan_number)` | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
-
-**Evidence artifact:** Tool call results confirming spec exists, plan state, and validation outcome.
-
-### Finding Classification
-
-| Finding | Problem Class | Classification | Action |
-|--------|---------------|----------------|--------|
-| Spec not found | MISSING-ELEMENT | flag-for-review | HALT — cannot create plan for missing spec |
-| Plan actually exists (missed) | VERIFICATION-GAP | auto-fix | Use existing plan instead of creating duplicate |
-| Plan invalid | VERIFICATION-GAP | flag-for-review | Report issues, do not proceed to implementation |
-| Spec not approved | CONFLICTING | flag-for-review | HALT — plan requires approved spec |
+- [ ] 1. [inline] Verify spec exists in `.issues/{N}/spec.md` — chain: `none`
+- [ ] 2. [sub-task: research] Load existing spec body as evidence source — chain: `step_1`
+- [ ] 3. [z3-check] `solve check` — verify research output contains evidence_artifacts — chain: `step_2`
+- [ ] 4. [sub-task: readiness] `task(..., prompt: "execute readiness task from writing-plans")` — input: `contracts/readiness-input-template.yaml`, output: `contracts/readiness-output-template.yaml`, template: `contracts/readiness-input-template.yaml`, chain: `step_3`
+- [ ] 5. [z3-check] `solve check` — verify readiness output has status PASS — chain: `step_4`
+- [ ] 6. [sub-task: structure] `task(..., prompt: "execute structure task from writing-plans")` — input: `contracts/structure-input-template.yaml`, output: `contracts/structure-output-template.yaml`, template: `contracts/structure-input-template.yaml`, chain: `step_5`
+- [ ] 7. [z3-check] `solve check` — verify structure output has phase definitions and dependency contract — chain: `step_6`
+- [ ] 8. [sub-task: solve] `task(..., prompt: "execute solve task from writing-plans")` — input: `contracts/solve-input-template.yaml`, output: `contracts/solve-output-template.yaml`, template: `contracts/solve-input-template.yaml`, chain: `step_7`
+- [ ] 9. [z3-check] `solve check` — verify solve output has SAT and SOLVED status — chain: `step_8`
+- [ ] 10. [sub-task: write] `task(..., prompt: "execute write task from writing-plans")` — input: `contracts/write-input-template.yaml`, output: `contracts/write-output-template.yaml`, template: `contracts/write-input-template.yaml`, chain: `step_9`
+- [ ] 11. [z3-check] `solve check` — verify write output has plan file path — chain: `step_10`
+- [ ] 12. [sub-task: revisit] `task(..., prompt: "execute revisit task from writing-plans")` — input: `contracts/revisit-input-template.yaml`, output: `contracts/revisit-output-template.yaml`, template: `contracts/revisit-input-template.yaml`, chain: `step_11`
+- [ ] 13. [z3-check] `solve check` — verify revisit output has resolution_status — chain: `step_12`
+- [ ] 14. [sub-task: validate] `task(..., prompt: "execute validate task from writing-plans")` — input: `contracts/validate-input-template.yaml`, output: `contracts/validate-output-template.yaml`, template: `contracts/validate-input-template.yaml`, chain: `step_13`
+- [ ] 15. [z3-check] `solve check` — verify validate output has PASS status — chain: `step_14`
+- [ ] 16. [sub-task: audit-fidelity] `task(..., prompt: "execute audit-fidelity task from writing-plans")` — input: `contracts/audit-fidelity-input-template.yaml`, output: `contracts/audit-fidelity-output-template.yaml`, template: `contracts/audit-fidelity-input-template.yaml`, chain: `step_15`
+- [ ] 17. [z3-check] `solve check` — verify audit-fidelity output has PASS — chain: `step_16`
+- [ ] 18. [sub-task: audit-concern] `task(..., prompt: "execute audit-concern task from writing-plans")` — input: `contracts/audit-concern-input-template.yaml`, output: `contracts/audit-concern-output-template.yaml`, template: `contracts/audit-concern-input-template.yaml`, chain: `step_17`
+- [ ] 19. [z3-check] `solve check` — verify audit-concern output has PASS — chain: `step_18`
+- [ ] 20. [sub-task: completion] `task(..., prompt: "execute completion task from writing-plans")` — input: `contracts/completion-input-template.yaml`, output: `contracts/completion-output-template.yaml`, template: `contracts/completion-input-template.yaml`, chain: `step_19`
+- [ ] 21. [z3-check] `solve check` — verify completion output has lifecycle event — chain: `step_20`
