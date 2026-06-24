@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Create an implementation plan from an approved spec. This is a routing-only task file — it points to the 10 decomposed sub-task files in the 21-step pipeline. The orchestrator dispatches each step via `task()`; sub-agents execute tools directly.
+Create an implementation plan from an approved spec. The orchestrator reads this task file and executes the 21-step pipeline, dispatching sub-agents for sub-task steps and running z3-check steps inline.
 
 ## Prerequisites
 
@@ -36,21 +36,6 @@ Each item is tagged with dispatch scope, chain dependency, and contract paths.
 - [ ] 19. [z3-check] `solve check` — verify audit-concern output has PASS — chain: `step_18`
 - [ ] 20. [sub-task: completion] `task(..., prompt: "execute completion task from writing-plans")` — input: `contracts/completion-input-template.yaml`, output: `contracts/completion-output-template.yaml`, template: `contracts/completion-input-template.yaml`, chain: `step_19`
 - [ ] 21. [z3-check] `solve check` — verify completion output has lifecycle event — chain: `step_20`
-
-## Sub-Task Files
-
-| Sub-Task | Purpose |
-| -- | -- |
-| `research` | Live-source verification gate |
-| `readiness` | Pipeline-readiness gate check |
-| `structure` | Phase structure and TDD definition |
-| `solve` | Z3 constraint solving and plan validation |
-| `write` | Plan document writing and dispatch validation |
-| `revisit` | Verification revisit and unverified marker resolution |
-| `validate` | Plan structure and checklist validation |
-| `audit-fidelity` | Plan-fidelity adversarial audit |
-| `audit-concern` | Concern-separation adversarial audit |
-| `completion` | Lifecycle event, push, report |
 
 ## Entry Criteria
 
