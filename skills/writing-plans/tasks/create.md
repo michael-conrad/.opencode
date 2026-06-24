@@ -56,7 +56,6 @@ Each item is tagged with dispatch scope, chain dependency, and contract paths.
 
 - Spec is approved and stored in `.issues/{N}/spec.md`
 - `authorization_scope` received from approval-gate (for cascade)
-- Spec-to-plan handoff PASS
 
 ## Exit Criteria
 
