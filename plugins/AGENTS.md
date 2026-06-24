@@ -48,6 +48,36 @@ Import types from `@opencode-ai/plugin`:
 import type { Plugin } from "@opencode-ai/plugin";
 ```
 
+### Part Type (Union)
+
+The `Part` type (from `@opencode-ai/sdk`) is a **discriminated union** — not a single interface. Each variant has a `type` field:
+
+| Variant | `type` | Key Properties |
+|---------|--------|----------------|
+| `TextPart` | `"text"` | `text`, `synthetic?`, `ignored?` |
+| `ReasoningPart` | `"reasoning"` | `reasoning`, `signature?` |
+| `FilePart` | `"file"` | `source`, `attachments?` |
+| `ToolPart` | `"tool"` | `tool`, `result` |
+| `StepStartPart` | `"step_start"` | `step` |
+| `StepFinishPart` | `"step_finish"` | `step` |
+| `SnapshotPart` | `"snapshot"` | `snapshot` |
+| `PatchPart` | `"patch"` | `patch` |
+| `AgentPart` | `"agent"` | `agent` |
+| `RetryPart` | `"retry"` | `retry` |
+| `CompactionPart` | `"compaction"` | `compaction` |
+
+**The `synthetic` property exists ONLY on `TextPart`.** Accessing `part.synthetic` on a non-`TextPart` variant causes a TypeScript error. Always narrow the type before accessing variant-specific properties:
+
+```typescript
+// ✅ CORRECT — narrow type first
+if (part.type === "text") {
+  if (part.synthetic) { /* ... */ }
+}
+
+// ❌ WRONG — accessing variant-specific property without narrowing
+if (!part.synthetic) continue; // TS error on non-TextPart variants
+```
+
 ## Available Hooks
 
 ### Shell Hooks
@@ -98,8 +128,19 @@ import type { Plugin } from "@opencode-ai/plugin";
 
 | Hook | Input | Purpose |
 |------|-------|---------|
-| `event` | `{ event }` | Subscribe to lifecycle events |
+| `event` | `{ event: Event }` (single input, no output) | Subscribe to lifecycle events. Use `event.type` to discriminate (e.g., `"session.created"`, `"session.idle"`, `"session.compacted"`). The `Event` type is from `@opencode-ai/sdk`. |
 | `config` | `Config` | Intercept config loading |
+
+**Important:** The `event` hook receives a single `{ event }` input object with NO output parameter. This differs from all other hooks which use `(input, output)` pairs. The `Event` type is imported from `@opencode-ai/sdk`, not from `@opencode-ai/plugin`. To subscribe to a specific event type, discriminate on `event.type`:
+
+```typescript
+event: async ({ event }) => {
+  if (event.type === "session.created") {
+    const sessionID = (event as any).payload?.id;
+    // handle session.created
+  }
+},
+```
 
 ### Auth/Provider Hooks
 
