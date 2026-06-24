@@ -6,7 +6,7 @@ Load the `verification-enforcement` skill and execute `--task revisit` inline, s
 
 ## Entry Criteria
 
-- Plan document written to `.issues/{N}/plan.md`
+- Plan document written to `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
 - Plan content contains potential unverified claims
 
 ## Exit Criteria

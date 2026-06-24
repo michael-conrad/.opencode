@@ -20,7 +20,7 @@ Define the plan phase structure: combined/separate decision, file mapping, phase
 ## Procedure
 
 - [ ] 1. Read approved spec content
-- [ ] 2. Make combined/separate decision per plan-structure.md Step 1.5
+- [ ] 2. Make combined/separate decision
 - [ ] 3. Map file structure (sub-folder references, not individual files)
 - [ ] 4. Define phase structure with concern boundary annotations
 - [ ] 5. Define TDD tasks with RED/GREEN conditions
@@ -30,5 +30,5 @@ Define the plan phase structure: combined/separate decision, file mapping, phase
 
 ## Context Required
 
-- Related tasks: `create/plan-structure`
+- Related tasks: `create` (21-step pipeline)
 - Related skills: `solve`, `plan`

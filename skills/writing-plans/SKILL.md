@@ -24,9 +24,9 @@ Transforms approved specs into actionable implementation plans using a 21-step Z
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" | `create` | `sub-task` | {spec_issue_number, spec_body} |
-| "retroactive" / "retroactive plan" / "backfill plan" | `retroactive` | `sub-task` | {spec_issue_number} |
-| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" | `create` | `orchestrator` | {spec_issue_number, spec_body} |
+| "retroactive" / "retroactive plan" / "backfill plan" | `retroactive` | `orchestrator` | {spec_issue_number} |
+| completion / workflow end | `completion` | `orchestrator` | {workflow_state} |
 
 ## Persona
 
@@ -38,19 +38,20 @@ This skill produces plans by dispatching sub-agents. The orchestrator routes; su
 
 ## Plan Model
 
-**All plans are local artifacts.** Plans are stored at `.issues/{N}/plan.md`. Phases are sections in the local plan file.
+**All plans are local artifacts.** Plans are stored at `.issues/{N}/plan.md` (root repo) or `*/.issues/{N}/plan.md` (submodule/sub-repo). Phases are sections in the local plan file.
 
-- **Separate (multi-task):** `.issues/{N}/plan.md` with stand-alone phase sections, each with concern boundary annotations
-- **Combined (single-task):** `.issues/{N}/plan.md` referencing spec content inline
+- **Separate (multi-task):** `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` with stand-alone phase sections, each with concern boundary annotations
+- **Combined (single-task):** `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` referencing spec content inline
 
 ## Invocation
 
-`skill({name: "writing-plans"})` — call the skill, then call via task():
+`skill({name: "writing-plans"})` — orchestrator reads task file and executes steps inline:
 
-| Task | Call via task() |
-| `create` | `task(..., prompt: "execute create task from writing-plans")` |
-| `completion` | `task(..., prompt: "execute completion task from writing-plans")` |
-| `retroactive` | `task(..., prompt: "execute retroactive task from writing-plans")` |
+| Task | Execution |
+|------|-----------|
+| `create` | Orchestrator reads `tasks/create.md` and executes steps inline |
+| `retroactive` | Orchestrator reads `tasks/retroactive.md` and executes steps inline |
+| `completion` | Orchestrator reads `tasks/completion.md` and executes steps inline |
 
 **CLI equivalent (for human TUI use):** `/skill writing-plans --task <task>`
 
@@ -86,13 +87,13 @@ Each item is tagged with dispatch scope, chain dependency, and contract paths.
 
 When the `retroactive` task is dispatched, the pipeline is the same 21-step sequence but with the research step loading the existing spec body as its evidence source rather than performing live-source verification:
 
-- [ ] 1. [inline] Verify spec exists in `.issues/{N}/spec.md` — chain: `none`
+- [ ] 1. [inline] Verify spec exists in `.issues/{N}/spec.md` or `*/.issues/{N}/spec.md` — chain: `none`
 - [ ] 2. [sub-task: research] Load existing spec body as evidence source — chain: `step_1`
 - [ ] 3-21. Same as standard pipeline above — chain: `step_2`
 
 ## Sub-Agent Routing
 
-All tasks run via `task(subagent_type="general")` with `{ spec_issue_number, spec_body, worktree.path, github.owner, github.repo }`, excluding implementation context. Auditor tasks (`audit-fidelity`, `audit-concern`) use subagent_type from `resolve-models` result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+Orchestrator tasks (`create`, `retroactive`, `completion`) are executed inline by the orchestrator — the orchestrator reads the task file and executes steps directly. Sub-task dispatches within the 21-step pipeline (research, readiness, structure, solve, write, revisit, validate, audit-fidelity, audit-concern, completion) use `task(subagent_type="general")` with `{ spec_issue_number, spec_body, worktree.path, github.owner, github.repo }`, excluding implementation context. Auditor tasks (`audit-fidelity`, `audit-concern`) use subagent_type from `resolve-models` result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
 
 ## Cross-References
 

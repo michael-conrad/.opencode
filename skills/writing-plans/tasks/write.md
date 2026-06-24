@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Write the plan document to `.issues/{N}/plan.md`, validate dispatch table references, apply approval cascade, and sync cross-references.
+Write the plan document to `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`, validate dispatch table references, apply approval cascade, and sync cross-references.
 
 ## Entry Criteria
 
@@ -11,7 +11,7 @@ Write the plan document to `.issues/{N}/plan.md`, validate dispatch table refere
 
 ## Exit Criteria
 
-- Plan document written to `.issues/{N}/plan.md`
+- Plan document written to `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
 - Dispatch table validation passed
 - Approval cascade applied
 - Cross-reference synced to spec issue
@@ -27,5 +27,5 @@ Write the plan document to `.issues/{N}/plan.md`, validate dispatch table refere
 
 ## Context Required
 
-- Related tasks: `create/create-and-validate`
+- Related tasks: `create` (21-step pipeline)
 - Related skills: `issue-operations`

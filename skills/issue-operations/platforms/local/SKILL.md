@@ -10,7 +10,7 @@ compatibility: opencode
 
 ## Overview
 
-Local issue tracking platform using `.issues/` directories at the repo root. This platform is selected when `github.platform` is `local` or when no remote is configured. All operations go through the `./.opencode/tools/local-issues` CLI tool.
+Local issue tracking platform using `.issues/` directories at the repo root (root repo: `.issues/`; submodule/sub-repo: `*/.issues/`). This platform is selected when `github.platform` is `local` or when no remote is configured. All operations go through the `./.opencode/tools/local-issues` CLI tool.
 
 ## Mandatory Task Discipline
 
@@ -176,7 +176,7 @@ When `github.platform` is NOT `local` (remote available), local issues can be pr
 
 ## Worktree Exemption
 
-`.issues/` files are non-behavioral metadata. Exempt from worktree requirement per `060-tool-usage.md` §Worktree Exemption, but NOT exempt from branching requirement (no direct commits to `dev`/`main`).
+`.issues/` (root repo) or `*/.issues/` (submodule/sub-repo) files are non-behavioral metadata. Exempt from worktree requirement per `060-tool-usage.md` §Worktree Exemption, but NOT exempt from branching requirement (no direct commits to `dev`/`main`).
 
 ## Sub-Agent Tasks
 
