@@ -4,7 +4,9 @@ Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
 ## Purpose
 
-This is the core dispatch routing table for the 14-step serial implementation pipeline. Each step dispatches to an existing skill's task file via `task()` using clean-room sub-agents. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`.
+Internal step dispatch table for a single implementation item within the pipeline. Each step dispatches to an existing skill's task file via `task()` using clean-room sub-agents. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`.
+
+This is NOT the orchestrator entry point. The orchestrator entry point is `assemble-work` — this task runs after `assemble-work` routes to it for the internal step dispatch sequence.
 
 ## Entry Criteria
 
@@ -34,7 +36,7 @@ A status of `DONE_WITH_CONCERNS` is coerced to FAIL — caveats are defects, not
 - `github.repo`
 - `issue_number`
 
-## 17-Step Dispatch Table
+## Dispatch Table
 
 | Step # | Step Label | Dispatches To | Artifact Produced | YAML Contract Schema |
 |--------|------------|---------------|-------------------|---------------------|
