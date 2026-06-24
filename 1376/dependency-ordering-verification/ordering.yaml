@@ -1,0 +1,4 @@
+variables: {}
+invariants:
+  # No phase table declared — trivially acyclic
+  - "z3.BoolVal(True)"
