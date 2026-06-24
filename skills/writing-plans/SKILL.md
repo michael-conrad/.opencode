@@ -45,12 +45,13 @@ This skill produces plans by dispatching sub-agents. The orchestrator routes; su
 
 ## Invocation
 
-`skill({name: "writing-plans"})` — call the skill, then call via task():
+`skill({name: "writing-plans"})` — orchestrator reads task file and executes steps inline:
 
-| Task | Call via task() |
-| `create` | `task(..., prompt: "execute create task from writing-plans")` |
-| `completion` | `task(..., prompt: "execute completion task from writing-plans")` |
-| `retroactive` | `task(..., prompt: "execute retroactive task from writing-plans")` |
+| Task | Execution |
+|------|-----------|
+| `create` | Orchestrator reads `tasks/create.md` and executes steps inline |
+| `retroactive` | Orchestrator reads `tasks/retroactive.md` and executes steps inline |
+| `completion` | Orchestrator reads `tasks/completion.md` and executes steps inline |
 
 **CLI equivalent (for human TUI use):** `/skill writing-plans --task <task>`
 
