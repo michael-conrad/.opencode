@@ -1,0 +1,21 @@
+status: PASS
+spec_issue_number: 1370
+sc_summary:
+  total_scs: 5
+  behavioral: 2
+  structural: 3
+  semantic: 0
+  string: 0
+phase_dependency_declarations:
+  - phase: 1
+    concern: "Plugin export fix — env-loader.ts"
+    scs: [SC-1, SC-2, SC-3, SC-4]
+    dependencies: []
+  - phase: 2
+    concern: "session-enforcement.ts TypeScript fixes"
+    scs: [SC-4]
+    dependencies: [Phase 1]
+  - phase: 3
+    concern: "AGENTS.md documentation"
+    scs: [SC-5]
+    dependencies: [Phase 1, Phase 2]

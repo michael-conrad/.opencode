@@ -1,0 +1,36 @@
+domain: issue-1370-phase-ordering
+types:
+  - name: phase
+objects:
+  - name: phase-1
+    type: phase
+  - name: phase-2
+    type: phase
+  - name: phase-3
+    type: phase
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: execute-phase-1
+    preconditions: []
+    effects:
+      - completed(phase-1)
+  - name: execute-phase-2
+    preconditions:
+      - completed(phase-1)
+    effects:
+      - completed(phase-2)
+  - name: execute-phase-3
+    preconditions:
+      - completed(phase-1)
+      - completed(phase-2)
+    effects:
+      - completed(phase-3)
+init: []
+goals:
+  - completed(phase-1)
+  - completed(phase-2)
+  - completed(phase-3)

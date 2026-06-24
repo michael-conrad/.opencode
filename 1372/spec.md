@@ -184,6 +184,7 @@ Every plan MUST pass these validation checks:
 11. Update `create.md` line 5: remove claim of "10 decomposed sub-task files" — the sub-task files are at the top level, not in `create/`
 12. Remove `create.md` §Sub-Task Files table (lines 28-40) — references to `create-and-validate` and `plan-structure` are stale
 13. **Add `## Plan Format Requirements` section to `create.md`** — the canonical plan format specification defined in this spec's §Plan Format Requirements must be embedded in `create.md` as a referenceable section. This ensures the plan format is defined in the skill itself, not just in this spec.
+14. **Update all 6 SKILL.md files that reference `.issues/` paths** to use the dual pattern `.issues/{N}/` (root repo) or `*/.issues/{N}/` (submodule/sub-repo) with a brief parenthetical explanation. Affected files: `writing-plans/SKILL.md`, `plan-creation-pipeline/SKILL.md`, `issue-operations/SKILL.md`, `issue-operations/platforms/github-mcp/SKILL.md`, `issue-operations/platforms/local/SKILL.md`, `implementation-pipeline/SKILL.md`
 
 ## Success Criteria
 
@@ -215,6 +216,12 @@ Every plan MUST pass these validation checks:
 | SC-24 | `create.md` Plan Format Requirements section includes phase completion block specification | structural | `grep` for "Phase completion" in create.md returns match |
 | SC-25 | `create.md` Plan Format Requirements section includes concern transition specification | structural | `grep` for "Concern transition" in create.md returns match |
 | SC-26 | `create.md` Plan Format Requirements section includes exit criteria specification | structural | `grep` for "Exit Criteria" in create.md returns match |
+| SC-27 | `writing-plans/SKILL.md` `.issues/` references use dual pattern with parenthetical explanation | structural | `grep` for "root repo.*submodule" or "root repo.*sub-repo" in writing-plans/SKILL.md — all `.issues/` refs have explanation |
+| SC-28 | `plan-creation-pipeline/SKILL.md` `.issues/` references use dual pattern with parenthetical explanation | structural | `grep` for "root repo.*submodule" or "root repo.*sub-repo" in plan-creation-pipeline/SKILL.md — all `.issues/` refs have explanation |
+| SC-29 | `issue-operations/SKILL.md` `.issues/` references use dual pattern with parenthetical explanation | structural | `grep` for "root repo.*submodule" or "root repo.*sub-repo" in issue-operations/SKILL.md — all `.issues/` refs have explanation |
+| SC-30 | `issue-operations/platforms/github-mcp/SKILL.md` `.issues/` references use dual pattern with parenthetical explanation | structural | `grep` for "root repo.*submodule" or "root repo.*sub-repo" in github-mcp/SKILL.md — all `.issues/` refs have explanation |
+| SC-31 | `issue-operations/platforms/local/SKILL.md` `.issues/` references use dual pattern with parenthetical explanation | structural | `grep` for "root repo.*submodule" or "root repo.*sub-repo" in local/SKILL.md — all `.issues/` refs have explanation |
+| SC-32 | `implementation-pipeline/SKILL.md` `.issues/` references use dual pattern with parenthetical explanation | structural | `grep` for "root repo.*submodule" or "root repo.*sub-repo" in implementation-pipeline/SKILL.md — all `.issues/` refs have explanation |
 
 ## Labels
 

@@ -1,0 +1,12 @@
+
+actions:
+- name: execute-phase-1
+  parameters: []
+- name: execute-phase-2
+  parameters: []
+- name: execute-phase-3
+  parameters: []
+domain: issue-1370-phase-ordering
+engine: tamer
+plan_length: 3
+status: SOLVED_SATISFICING
