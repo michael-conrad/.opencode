@@ -93,7 +93,7 @@ When the `retroactive` task is dispatched, the pipeline is the same 21-step sequ
 
 ## Sub-Agent Routing
 
-All tasks run via `task(subagent_type="general")` with `{ spec_issue_number, spec_body, worktree.path, github.owner, github.repo }`, excluding implementation context. Auditor tasks (`audit-fidelity`, `audit-concern`) use subagent_type from `resolve-models` result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
+Orchestrator tasks (`create`, `retroactive`, `completion`) are executed inline by the orchestrator — the orchestrator reads the task file and executes steps directly. Sub-task dispatches within the 21-step pipeline (research, readiness, structure, solve, write, revisit, validate, audit-fidelity, audit-concern, completion) use `task(subagent_type="general")` with `{ spec_issue_number, spec_body, worktree.path, github.owner, github.repo }`, excluding implementation context. Auditor tasks (`audit-fidelity`, `audit-concern`) use subagent_type from `resolve-models` result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
 
 ## Cross-References
 
