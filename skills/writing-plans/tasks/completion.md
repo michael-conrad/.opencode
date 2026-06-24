@@ -12,7 +12,7 @@ Idempotent completion subtask for writing-plans. Ensures mandatory steps ran reg
 ## Skill-Specific Completion
 
 - [ ] 1. **Plan file** (if not already created):
-   - Check evidence for plan file at `.issues/{N}/plan.md`
+   - Check evidence for plan file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
    - If missing: report as blocker — plan file must exist before completion
 
 - [ ] 2. **Sub-issues** (if multi-task and not already created):

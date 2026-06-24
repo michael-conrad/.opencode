@@ -7,7 +7,7 @@ Create an implementation plan from an approved spec. The orchestrator reads this
 ## Prerequisites
 
 - [ ] 1. Approved spec (verified by approval-gate)
-- [ ] 2. Spec stored in `.issues/{N}/spec.md`
+- [ ] 2. Spec stored in `.issues/{N}/spec.md` or `*/.issues/{N}/spec.md`
 - [ ] 3. Spec has explicit approval (`approved` or `go`)
 - [ ] 4. (Optional) `authorization_scope` from verify-authorization — if scope >= `for_plan`, plan auto-approval triggers
 
@@ -39,26 +39,26 @@ Each item is tagged with dispatch scope, chain dependency, and contract paths.
 
 ## Entry Criteria
 
-- Spec is approved and stored in `.issues/{N}/spec.md`
+- Spec is approved and stored in `.issues/{N}/spec.md` or `*/.issues/{N}/spec.md`
 - `authorization_scope` received from approval-gate (for cascade)
 
 ## Exit Criteria
 
-- Plan stored at `.issues/{N}/plan.md`
+- Plan stored at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
 - All validation passed
-- Plan reported in chat with `.issues/{N}/plan.md` path
+- Plan reported in chat with `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` path
 - Approval cascade applied (auto-approval for pipeline scope)
 
 ## Plan Format
 
-Plan is stored at `.issues/{N}/plan.md`. Combined and separate affect which sections the plan document includes but not where it is stored.
+Plan is stored at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`. Combined and separate affect which sections the plan document includes but not where it is stored.
 
 **Combined (single-task):**
-- Write to `.issues/{N}/plan.md`, reference spec content inline
+- Write to `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`, reference spec content inline
 - Retain `[SPEC]` title prefix on spec
 
 **Separate (multi-task):**
-- Write to `.issues/{N}/plan.md` with separate phase sections
+- Write to `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` with separate phase sections
 - Phases are sections in the local plan file — no sub-issues
 
 ## Plan Format Requirements

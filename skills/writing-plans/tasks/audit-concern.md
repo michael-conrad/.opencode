@@ -7,7 +7,7 @@ Load the `adversarial-audit` skill and execute `--task concern-separation` inlin
 ## Entry Criteria
 
 - Audit-fidelity step completed with PASS
-- Plan document exists at `.issues/{N}/plan.md`
+- Plan document exists at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
 
 ## Exit Criteria
 

@@ -17,7 +17,7 @@ Pipeline-readiness gate check and spec-to-plan handoff verification. Ensures the
 
 ## Procedure
 
-- [ ] 1. Read `.issues/{issue-N}/sc-pipeline-readiness.yaml`
+- [ ] 1. Read `.issues/{issue-N}/sc-pipeline-readiness.yaml` or `*/.issues/{issue-N}/sc-pipeline-readiness.yaml`
 - [ ] 2. Assert `status: PASS`
 - [ ] 3. If status is FAIL or file does not exist: return BLOCKED with `SPEC_NOT_READY_FOR_PIPELINE`
 - [ ] 4. If PASS: extract `sc_summary` and phase dependency declarations
