@@ -8,6 +8,8 @@
 
 Accept an evidence payload, evaluation criteria, and pre-resolved auditor verdicts — then cross-reference those verdicts per criterion — producing PASS only when both auditors independently returned PASS. This task does NOT dispatch auditors; the orchestrator task()s auditors before invoking cross-validate and passes the verdicts as entry criteria.
 
+> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
+
 ## Entry Criteria
 
 - `spec_local_dir`: Local directory containing Markdown spec files
@@ -374,6 +376,7 @@ self_corrections:
 disagreements: []
 dark_pattern_violations: []
 warnings: []
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
 Create `./tmp/{issue-N}/artifacts/` if needed (write tool creates implicitly). Use the `write` tool to persist the full YAML document.
@@ -388,6 +391,7 @@ overall_consensus: PASS|FAIL
 next_step: "proceed|remediate then re-audit"
 artifact_path: "./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml"
 summary: "N SCs: X agreed, Y disagreed, Z evidence_type_mismatch"
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
 When self-corrections are present, `overall_consensus` MUST be FAIL. Any single self-correction in any criterion cascades to overall FAIL.

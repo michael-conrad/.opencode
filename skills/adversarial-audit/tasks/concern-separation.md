@@ -10,6 +10,8 @@
 
 Audit spec phase structure for concern separation quality using dual-adversarial verification. Checks deployment independence, risk profile, and blast radius per phase.
 
+> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
+
 ## Entry Criteria
 
 - Spec issue number provided
@@ -152,6 +154,7 @@ findings:
     classification: "flag-for-review"
     recommendation: "<recommendation>"
 exec_summary: "Concern separation: X/Y criteria. N phases need review."
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
 ### Step 8: Return Frugal Result Contract
@@ -160,6 +163,7 @@ exec_summary: "Concern separation: X/Y criteria. N phases need review."
 status: DONE
 artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-concern-separation-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
 ## Edge Cases
