@@ -38,7 +38,7 @@ This skill produces plans by dispatching sub-agents. The orchestrator routes; su
 
 ## Plan Model
 
-**All plans are local artifacts.** Plans are stored at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`. Phases are sections in the local plan file.
+**All plans are local artifacts.** Plans are stored at `.issues/{N}/plan.md` (root repo) or `*/.issues/{N}/plan.md` (submodule/sub-repo). Phases are sections in the local plan file.
 
 - **Separate (multi-task):** `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` with stand-alone phase sections, each with concern boundary annotations
 - **Combined (single-task):** `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` referencing spec content inline

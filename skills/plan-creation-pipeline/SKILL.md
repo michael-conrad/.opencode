@@ -38,11 +38,11 @@ The orchestrator is a pure router — never reads task file content, never perfo
 | Step Label | Dispatches To | Artifact Produced |
 |------------|---------------|-------------------|
 | `spec-to-plan-handoff` | `approval-gate --task verify-authorization` | handoff artifact at `./tmp/{issue-N}/artifacts/plan-pipeline-handoff-{STATUS}-{timestamp}.yaml` |
-| `plan-create` | `writing-plans --task create` | plan artifact at `.issues/{N}/plan.md` |
+| `plan-create` | `writing-plans --task create` | plan artifact at `.issues/{N}/plan.md` (root repo) or `*/.issues/{N}/plan.md` (submodule/sub-repo) |
 | `solve-model` | `solve model` | dependency-ordering constraints contract at `./tmp/{issue-N}/artifacts/plan-pipeline-solve-model-{STATUS}-{timestamp}.yaml` |
 | `solve-check` | `solve check` | SAT verification at `./tmp/{issue-N}/artifacts/plan-pipeline-solve-check-{STATUS}-{timestamp}.yaml` |
 | `plan-plan` | `plan plan` | phase solvability validation at `./tmp/{issue-N}/artifacts/plan-pipeline-plan-plan-{STATUS}-{timestamp}.yaml` |
-| `plan-completion` | `local-issues sync` | commits plan to `.issues/` worktree. Then produce chat output: detailed and formatted exec summary + URL to blob for spec folder on remote API (if remote API exists) + AI byline. No push, no issue comment, no approval cascade. |
+| `plan-completion` | `local-issues sync` | commits plan to `.issues/` worktree (root repo) or `*/.issues/` worktree (submodule/sub-repo). Then produce chat output: detailed and formatted exec summary + URL to blob for spec folder on remote API (if remote API exists) + AI byline. No push, no issue comment, no approval cascade. |
 
 ## Step Labels
 
