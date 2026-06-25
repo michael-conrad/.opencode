@@ -49,15 +49,7 @@ The orchestrator holds only routing metadata — it never decides what to do. Th
 
 ### Gap-Fill Cascade Dispatcher (`gap-fill-cascade.md`)
 
-Single task file that reads `authorization_scope` from context and loads the corresponding per-scope checklist:
-
-```python
-SCOPE_CHECKLIST = {
-    "for_pr": "gap-fill-cascade/for-pr.md",
-    "for_implementation": "gap-fill-cascade/for-implementation.md",
-    "for_plan": "gap-fill-cascade/for-plan.md",
-}
-```
+Single task file that reads `authorization_scope` from context and loads the corresponding per-scope checklist file. Scopes with gap-fill (`for_pr`, `for_implementation`, `for_plan`) each have a dedicated checklist. Scopes without gap-fill (`for_spec`, `for_analysis`, `for_review_prep`) return DONE immediately.
 
 The sub-agent loads the checklist file, walks items sequentially, and returns the first BLOCKED result or DONE.
 
