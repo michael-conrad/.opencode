@@ -104,12 +104,20 @@ Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run
 
 ## Invocation
 
-`skill({name: "implementation-pipeline"})` — call the skill, then dispatch each step via task():
+`skill({name: "implementation-pipeline"})` — call the skill, then:
 
-| Step | Call via task() |
-|------|----------------|
-| `assemble-work` (orchestrator entry) | `task(..., prompt: "execute assemble-work from implementation-pipeline")` |
-| Any dispatch step | `task(..., prompt: "execute <step_label> from implementation-pipeline")` |
+### Orchestrator-Level Tasks (read and execute directly, no task() call)
+
+| Task | Action |
+|------|--------|
+| `assemble-work` (orchestrator entry) | Orchestrator reads `implementation-pipeline/tasks/assemble-work.md` directly and executes its steps |
+| `pipeline-executor` (step dispatch loop) | Orchestrator reads `implementation-pipeline/tasks/pipeline-executor.md` directly and dispatches each step's sub-agent via task() |
+
+### Sub-Agent Tasks (dispatch via task())
+
+All other steps in the Trigger Dispatch Table with `sub-task` dispatch are called via:
+
+`task(..., prompt: "execute <step_label> from implementation-pipeline. Read \`implementation-pipeline/tasks/<step_label>.md\` first")`
 
 **Exception — adversarial-audit sequence:** The adversarial audit is a multi-step sequence, not a single dispatch. Each step is a separate numbered item:
 1. `resolve-models` (inline) — run `.opencode/tools/resolve-models`
@@ -131,7 +139,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ## Sub-Agent Routing
 
-**Orchestrator entry point:** `assemble-work` is the mandatory entry point. The orchestrator dispatches here after plan approval via `task(..., prompt: "execute assemble-work from implementation-pipeline")`. `assemble-work` reads the plan, creates branches, dispatches sub-agents, and routes to `pipeline-executor` for the internal step dispatch sequence.
+**Orchestrator entry point:** `assemble-work` is the mandatory entry point. The orchestrator reads `implementation-pipeline/tasks/assemble-work.md` directly and executes its steps after plan approval. `assemble-work` reads the plan, creates branches, dispatches sub-agents, and routes to `pipeline-executor` for the internal step dispatch sequence. The orchestrator reads `pipeline-executor.md` directly and dispatches each step's sub-agent via task() — `pipeline-executor` is NOT dispatched as a sub-agent.
 
 All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include `audit_phase` in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
 
