@@ -225,7 +225,7 @@ Helper variables:
 
 ### Concurrency Lock — `flock`
 
-The harness uses `flock` (file lock) for mutual exclusion when `BEHAVIOR_CONCURRENT` is not `true`. In `helpers.sh` `behavior_run()`, a lock file at `tmp/.behavior-run.lock` is acquired via `flock -x 200` before the model run. This prevents concurrent test invocations from corrupting shared state (SQLite DB, model dispatch).
+The harness uses `flock` (file lock) for mutual exclusion. In `helpers.sh` `behavior_run()`, a lock file at `tmp/.behavior-run.lock` is acquired via `flock -x -w 30` before the model run. If the lock cannot be acquired within 30 seconds, the script exits with `HARNESS_FAILURE: lock contention`. This prevents concurrent test invocations from corrupting shared state (SQLite DB, model dispatch).
 
 The lock is released automatically when the subshell exits. No `mkdir`-based locking is used — `flock` is the sole lock mechanism.
 
