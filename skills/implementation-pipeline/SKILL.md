@@ -35,10 +35,15 @@ Orchestrator-facing dispatch router for the implementation pipeline. The orchest
 | "sc-coherence-gate" / "coherence gate" | `sc-coherence-gate` | `sub-task` | {issue_number} |
 | "pre-red-baseline" / "baseline check" | `pre-red-baseline` | `sub-task` | {issue_number} |
 | "red-phase" / "write failing test" | `red-phase` | `sub-task` | {issue_number} |
+| "z3-check-red" / "solve check RED" | `z3-check-red` | `inline` | {issue_number, contract_path} |
 | "red-doublecheck" / "verify RED" | `red-doublecheck` | `sub-task` | {issue_number} |
+| "z3-check-red-doublecheck" / "solve check RED doublecheck" | `z3-check-red-doublecheck` | `inline` | {issue_number, contract_path} |
 | "post-red-enforcement" / "RED gate" | `post-red-enforcement` | `sub-task` | {issue_number} |
+| "z3-check-post-red" / "solve check post-RED" | `z3-check-post-red` | `inline` | {issue_number, contract_path} |
 | "green-phase" / "implement" | `green-phase` | `sub-task` | {issue_number} |
+| "z3-check-green" / "solve check GREEN" | `z3-check-green` | `inline` | {issue_number, contract_path} |
 | "post-green-enforcement" / "GREEN gate" | `post-green-enforcement` | `sub-task` | {issue_number} |
+| "z3-check-post-green" / "solve check post-GREEN" | `z3-check-post-green` | `inline` | {issue_number, contract_path} |
 | "checkpoint-tag-create" / "create checkpoint tag" | `checkpoint-tag-create` | `sub-task` | {issue_number} |
 | "checkpoint-commit" / "save checkpoint" | `checkpoint-commit` | `sub-task` | {issue_number} |
 | "structural-checks" / "lint/typecheck" | `structural-checks` | `sub-task` | {issue_number} |
@@ -57,10 +62,15 @@ Orchestrator-facing dispatch router for the implementation pipeline. The orchest
 | `sc-coherence-gate` | `adversarial-audit --task coherence-extraction` (evidence-type uplift + substrate classification) | coherence check results + uplift verdict |
 | `pre-red-baseline` | `implementation-pipeline --task pre-red-baseline` (doc-source-currency + SC-ID cross-ref traceability) | solution state file + source currency report |
 | `red-phase` | `test-driven-development --task red` | test code + execution result |
+| `z3-check-red` | `solve check` against red-phase output contract (`contracts/red-phase-output-template.yaml`) | SAT/UNSAT result |
 | `red-doublecheck` | `verification-before-completion --task verify` | RED-side SC evidence |
+| `z3-check-red-doublecheck` | `solve check` against red-doublecheck output contract (`contracts/red-doublecheck-output-template.yaml`) | SAT/UNSAT result |
 | `post-red-enforcement` | `implementation-pipeline --task post-red-enforcement` (git diff --name-only -- src/ \| wc -l) | git diff structural gate result |
+| `z3-check-post-red` | `solve check` against post-red-enforcement output contract (`contracts/post-red-enforcement-output-template.yaml`) | SAT/UNSAT result |
 | `green-phase` | `test-driven-development --task green` | implementation code + test pass |
+| `z3-check-green` | `solve check` against green-phase output contract (`contracts/green-phase-output-template.yaml`) | SAT/UNSAT result |
 | `post-green-enforcement` | `implementation-pipeline --task post-green-enforcement` (git diff --name-only -- test/ \| wc -l) | git diff structural gate result |
+| `z3-check-post-green` | `solve check` against post-green-enforcement output contract (`contracts/post-green-enforcement-output-template.yaml`) | SAT/UNSAT result |
 | `checkpoint-tag-create` | `implementation-pipeline --task checkpoint-tag-create` (creates git tag per `000-critical-rules.md` §Checkpoint Rollback Exception) | checkpoint tag created |
 | `checkpoint-commit` | `git-workflow --task commit-prep` | commit status |
 | `structural-checks` | `finishing-a-development-branch --task checklist` | lint/typecheck/format results |
@@ -90,7 +100,7 @@ Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run
 
 ## Step Labels (for #932 naming convention)
 
-`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `red-doublecheck`, `post-red-enforcement`, `green-phase`, `post-green-enforcement`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `resolve-models`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
+`sc-coherence-gate`, `pre-red-baseline`, `red-phase`, `z3-check-red`, `red-doublecheck`, `z3-check-red-doublecheck`, `post-red-enforcement`, `z3-check-post-red`, `green-phase`, `z3-check-green`, `post-green-enforcement`, `z3-check-post-green`, `checkpoint-tag-create`, `checkpoint-commit`, `structural-checks`, `green-doublecheck`, `green-vbc`, `resolve-models`, `adversarial-audit`, `cross-validate`, `regression-check`, `review-prep`, `exec-summary`
 
 ## Invocation
 
@@ -242,7 +252,9 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 | `pre-red-baseline` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-pre-red-baseline-*` |
 | `post-red-enforcement` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-post-red-enforcement-*` |
 | `red-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-red-phase-*` |
+| `z3-check-red` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-z3-check-red-*` |
 | `green-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-phase-*` |
+| `z3-check-green` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-z3-check-green-*` |
 | `post-green-enforcement` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-post-green-enforcement-*` |
 | `checkpoint-tag-create` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-checkpoint-tag-create-*` |
 | `checkpoint-commit` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-*` |

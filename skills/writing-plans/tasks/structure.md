@@ -14,6 +14,7 @@ Define the plan phase structure: combined/separate decision, file mapping, phase
 - Combined/separate decision made and documented
 - File structure mapped with clear boundaries
 - Phase structure defined with concern boundary annotations
+- Phase structure uses three-tier organization: global pre-phase (once), per-file RED/GREEN phases (one chain each), global post-phase (once)
 - TDD tasks defined with mandatory RED checkpoints
 - Dependency contract generated
 
