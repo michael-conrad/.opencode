@@ -1,0 +1,8 @@
+status: PASS
+sc_summary: |
+  Spec #1414 is a standalone format change with 3 additive modifications:
+  1. Add one-step-at-a-time protocol admonishment to write.md Plan Format Requirements
+  2. Add PF-ONE-STEP criterion to plan-fidelity.md evaluation criteria table
+  3. Behavioral tests for plan-fidelity auditor
+  All changes are additive (no existing text removed). No dependencies.
+phase_dependencies: []

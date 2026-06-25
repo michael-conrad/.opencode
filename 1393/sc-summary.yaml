@@ -1,0 +1,170 @@
+schema_version: "1.0"
+issue_number: 1393
+spec_path: ".opencode/.issues/1393/spec.md"
+plan_path: ".opencode/.issues/1393/plan.md"
+scs:
+  - id: SC-1
+    description: "create.md has a formal Trigger Dispatch Table covering all 10 sub-steps"
+    evidence_type: structural
+    verification_gate: pre-commit
+    plan_phase: 2
+  - id: SC-2
+    description: "Every - [ ] N. step in create.md, write.md, validate.md uses nested sub-bullets for data"
+    evidence_type: semantic
+    verification_gate: pre-PR
+    plan_phase: 2
+  - id: SC-3
+    description: "Dead template references removed or made actionable"
+    evidence_type: semantic
+    verification_gate: pre-PR
+    plan_phase: 2, 5
+  - id: SC-4
+    description: "Write, validate, and revisit sub-agents have explicit result contract schemas"
+    evidence_type: structural
+    verification_gate: pre-commit
+    plan_phase: 4
+  - id: SC-5
+    description: "Every step in create.md, write.md, validate.md, and SKILL.md has a dispatch marker"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 2, 3, 4, 5
+  - id: SC-6
+    description: "write.md dispatch indicator examples use - [ ] N. format"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 3
+  - id: SC-7
+    description: "write.md phase sections format explicitly says checkbox steps"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 3
+  - id: SC-8
+    description: "write.md validation rule 6 explicitly says checkbox steps"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 3
+  - id: SC-9
+    description: "validate.md has check 13 for checkbox format"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 4
+  - id: SC-10
+    description: "plan-fidelity.md PF-CHECKLIST-FORMAT unchanged"
+    evidence_type: structural
+    verification_gate: pre-commit
+    plan_phase: 6
+  - id: SC-11
+    description: "write.md does not hard-code RED/GREEN chain"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 3
+  - id: SC-12
+    description: "write.md line 65 removed"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 3
+  - id: SC-13
+    description: "validate.md has check 14 for full workflow sequence"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 4
+  - id: SC-14
+    description: "write.md specifies three-tier plan structure"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 3
+  - id: SC-15
+    description: "validate.md has check 15 for no duplicated global steps"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 4
+  - id: SC-16
+    description: "Sub-agent task files instruct loading output contract"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 2, 3, 4
+  - id: SC-17
+    description: "z3-check steps run solve check against output contract"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 2, 3, 4, 5
+  - id: SC-18
+    description: "write-output-template.yaml expanded with compliance fields"
+    evidence_type: structural
+    verification_gate: pre-commit
+    plan_phase: 3
+  - id: SC-19
+    description: "validate-output-template.yaml expanded with validation_results schema"
+    evidence_type: structural
+    verification_gate: pre-commit
+    plan_phase: 4
+  - id: SC-20
+    description: "Orchestrator runs solve check against create-output-template.yaml after write"
+    evidence_type: behavioral
+    verification_gate: pre-commit
+    plan_phase: 2
+  - id: SC-21
+    description: "write.md specifies dynamic sub-step metadata derived from spec and step purpose"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 3
+  - id: SC-22
+    description: "implementation-pipeline dispatch routing table includes z3-check entries between RED/GREEN gate pairs"
+    evidence_type: structural
+    verification_gate: pre-commit
+    plan_phase: 7
+  - id: SC-23
+    description: "write.md requires failure conditions on RED phase steps, derived from step purpose"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 3
+  - id: SC-24
+    description: "validate.md has check 17 for failure conditions on RED steps"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 4
+  - id: SC-25
+    description: "solve.md instructs sub-agent to validate against output contract for z3-check steps"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 4
+  - id: SC-26
+    description: "structure.md exit criteria specify three-tier structure"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 4
+  - id: SC-27
+    description: "spec-creation/tasks/write.md produces spec-to-plan-handoff.yaml manifest"
+    evidence_type: structural
+    verification_gate: pre-commit
+    plan_phase: 7
+  - id: SC-28
+    description: "spec-creation/tasks/write.md sc-summary.yaml schema includes flat scs list"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 7
+  - id: SC-29
+    description: "spec-creation/tasks/write.md saves full spec to .issues/{N}/spec.md"
+    evidence_type: structural
+    verification_gate: pre-commit
+    plan_phase: 7
+  - id: SC-30
+    description: "spec-creation/tasks/decompose.md defines three-tier phase structure"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 7
+  - id: SC-31
+    description: "spec-creation/tasks/pipeline-readiness-gate.md has PR-5 check for three-tier validation"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 7
+  - id: SC-32
+    description: "spec-creation/tasks/traceability.md verifies every SC has a phase binding"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 7
+  - id: SC-33
+    description: "spec-creation/tasks/write.md instructs agent to run local-issues sync after spec folder changes"
+    evidence_type: string
+    verification_gate: CI
+    plan_phase: 7

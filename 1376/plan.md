@@ -62,11 +62,15 @@
 
 ### Phase 1 Completion
 
-- [ ] 27. **adversarial-audit (**orchestrator**).** Multi-dispatch: resolve-models → dispatch verification-audit with auditor_1 (remediate on FAIL) → same with auditor_2 → collect artifact paths.
-- [ ] 28. **cross-validate (**clean-room**).** Run `adversarial-audit --task cross-validate` — receive `auditor_artifact_paths` from step 27, produce cross-validate findings YAML.
-- [ ] 29. **regression-check (**clean-room**).** Run `test-driven-development --task patterns` — regression test results.
-- [ ] 30. **review-prep (**clean-room**).** Run `git-workflow --task review-prep` — review-prep status.
-- [ ] 31. **exec-summary (**clean-room**).** Run `completion-core --task completion` — append lifecycle event + chat exec summary.
+- [ ] 27. **resolve-models (**inline**).** Run `.opencode/tools/resolve-models` to select cross-family auditors. Record `auditor_1` and `auditor_2` subagent types.
+- [ ] 28. **auditor-1 dispatch (**sub-agent**).** Dispatch `adversarial-audit --task verification-audit` with `subagent_type` from `auditor_1`. Collect artifact path.
+- [ ] 29. **auditor-1 remediate (**inline**).** If auditor_1 returned non-clean-pass (FAIL or DONE_WITH_CONCERNS): remediate root cause, re-run resolve-models (step 27), re-dispatch auditor_1 (step 28). Do NOT proceed to auditor_2 until auditor_1 returns clean PASS.
+- [ ] 30. **auditor-2 dispatch (**sub-agent**).** Dispatch `adversarial-audit --task verification-audit` with `subagent_type` from `auditor_2`. Collect artifact path.
+- [ ] 31. **auditor-2 remediate (**inline**).** If auditor_2 returned non-clean-pass: remediate root cause, re-run resolve-models (step 27), re-dispatch auditor_1 (step 28) and auditor_2 (step 30). Both must return clean PASS.
+- [ ] 32. **cross-validate (**clean-room**).** Run `adversarial-audit --task cross-validate` — receive `auditor_artifact_paths` from steps 28 and 30, produce cross-validate findings YAML.
+- [ ] 33. **regression-check (**clean-room**).** Run `test-driven-development --task patterns` — regression test results.
+- [ ] 34. **review-prep (**clean-room**).** Run `git-workflow --task review-prep` — review-prep status.
+- [ ] 35. **exec-summary (**clean-room**).** Run `completion-core --task completion` — append lifecycle event + chat exec summary.
 
 **Concern transition:** Leaving Concern B+C (assemble-work + pipeline-executor) → entering Concern A (SKILL.md rewrite). Phase 2 depends on Phase 1 — SKILL.md references `assemble-work` by name.
 
@@ -86,35 +90,39 @@
 
 ### Pre-Flight
 
-- [ ] 32. **Pre-flight handoff (**clean-room**).** Execute `implementation-pipeline --task pre-flight-handoff` — validates RED checkpoints, SC-ID traceability, approval cascade state.
-- [ ] 33. **Handoff-consistency check (**clean-room**).** Read manifests, compare SC coverage total, decomposition classification, phase count. BLOCK on mismatch.
+- [ ] 36. **Pre-flight handoff (**clean-room**).** Execute `implementation-pipeline --task pre-flight-handoff` — validates RED checkpoints, SC-ID traceability, approval cascade state.
+- [ ] 37. **Handoff-consistency check (**clean-room**).** Read manifests, compare SC coverage total, decomposition classification, phase count. BLOCK on mismatch.
 
 ### Concern A — Rewrite SKILL.md
 
-- [ ] 34. **sc-coherence-gate (**clean-room**).** Run `adversarial-audit --task coherence-extraction` — verify SKILL.md SCs are coherent.
-- [ ] 35. **pre-red-baseline (**clean-room**).** Run `implementation-pipeline --task pre-red-baseline` — doc-source-currency check. Write solution state file.
-- [ ] 36. **RED (**clean-room**).** Verify description contains "17 serial dispatch steps" — `grep` returns match. **→ SC-1**
-- [ ] 37. **red-doublecheck (**clean-room**).** Run `verification-before-completion --task verify` — confirm RED-side SC evidence. **→ SC-1**
-- [ ] 38. **post-red-enforcement (**clean-room**).** Run `git diff --name-only -- .opencode/skills/implementation-pipeline/SKILL.md | wc -l` — verify no changes yet. **→ SC-1**
-- [ ] 39. **GREEN — description (**clean-room**).** Remove "17 serial dispatch steps", "Z3-verified", "YAML contract". Add orchestrator-facing trigger description with mandatory signal ("MUST dispatch here"). **→ SC-1, SC-2**
-- [ ] 40. **GREEN — Overview (**clean-room**).** Remove step count, Z3, YAML contract details. Replace with orchestrator-facing purpose statement. **→ SC-8**
-- [ ] 41. **GREEN — Trigger Dispatch Table (**clean-room**).** Add row: `"execute plan" / "implement spec" / "run pipeline" / "assemble work"` → `assemble-work` with dispatch `orchestrator` and context `{issue_number, plan_path, authorization_scope, halt_at, pr_strategy}`. **→ SC-3**
-- [ ] 42. **GREEN — Invocation (**clean-room**).** Add `assemble-work` as the entry point task in the invocation table. **→ SC-9**
-- [ ] 43. **GREEN — Sub-Agent Routing (**clean-room**).** Add `assemble-work` as the orchestrator entry point that routes to `pipeline-executor`. **→ SC-10**
-- [ ] 44. **post-green-enforcement (**clean-room**).** Run `git diff --name-only -- .opencode/skills/implementation-pipeline/SKILL.md | wc -l` — verify changes made.
-- [ ] 45. **checkpoint-tag-create (**clean-room**).** Create git tag: `opencode-config/checkpoint/1376/phase-2-skill-rewrite-opencode`.
-- [ ] 46. **checkpoint-commit (**inline**).** `git add .opencode/skills/implementation-pipeline/SKILL.md && git commit -m "fix: rewrite SKILL.md with orchestrator-facing entry point"`
-- [ ] 47. **structural-checks (**clean-room**).** Run `finishing-a-development-branch --task checklist` — lint/typecheck/format results.
-- [ ] 48. **GREEN doublecheck (**clean-room**).** Run `verification-before-completion --task verify` — semantic-intent verification of all 6 SCs: SC-1 (no internal details), SC-2 (MUST signal), SC-3 (orchestrator entry), SC-8 (no internal details in Overview), SC-9 (assemble-work in Invocation), SC-10 (assemble-work in Sub-Agent Routing).
-- [ ] 49. **green-vbc (**clean-room**).** Run `verification-before-completion --task completion` — VbC completion artifact.
+- [ ] 38. **sc-coherence-gate (**clean-room**).** Run `adversarial-audit --task coherence-extraction` — verify SKILL.md SCs are coherent.
+- [ ] 39. **pre-red-baseline (**clean-room**).** Run `implementation-pipeline --task pre-red-baseline` — doc-source-currency check. Write solution state file.
+- [ ] 40. **RED (**clean-room**).** Verify description contains "17 serial dispatch steps" — `grep` returns match. **→ SC-1**
+- [ ] 41. **red-doublecheck (**clean-room**).** Run `verification-before-completion --task verify` — confirm RED-side SC evidence. **→ SC-1**
+- [ ] 42. **post-red-enforcement (**clean-room**).** Run `git diff --name-only -- .opencode/skills/implementation-pipeline/SKILL.md | wc -l` — verify no changes yet. **→ SC-1**
+- [ ] 43. **GREEN — description (**clean-room**).** Remove "17 serial dispatch steps", "Z3-verified", "YAML contract". Add orchestrator-facing trigger description with mandatory signal ("MUST dispatch here"). **→ SC-1, SC-2**
+- [ ] 44. **GREEN — Overview (**clean-room**).** Remove step count, Z3, YAML contract details. Replace with orchestrator-facing purpose statement. **→ SC-8**
+- [ ] 45. **GREEN — Trigger Dispatch Table (**clean-room**).** Add row: `"execute plan" / "implement spec" / "run pipeline" / "assemble work"` → `assemble-work` with dispatch `orchestrator` and context `{issue_number, plan_path, authorization_scope, halt_at, pr_strategy}`. **→ SC-3**
+- [ ] 46. **GREEN — Invocation (**clean-room**).** Add `assemble-work` as the entry point task in the invocation table. **→ SC-9**
+- [ ] 47. **GREEN — Sub-Agent Routing (**clean-room**).** Add `assemble-work` as the orchestrator entry point that routes to `pipeline-executor`. **→ SC-10**
+- [ ] 48. **post-green-enforcement (**clean-room**).** Run `git diff --name-only -- .opencode/skills/implementation-pipeline/SKILL.md | wc -l` — verify changes made.
+- [ ] 49. **checkpoint-tag-create (**clean-room**).** Create git tag: `opencode-config/checkpoint/1376/phase-2-skill-rewrite-opencode`.
+- [ ] 50. **checkpoint-commit (**inline**).** `git add .opencode/skills/implementation-pipeline/SKILL.md && git commit -m "fix: rewrite SKILL.md with orchestrator-facing entry point"`
+- [ ] 51. **structural-checks (**clean-room**).** Run `finishing-a-development-branch --task checklist` — lint/typecheck/format results.
+- [ ] 52. **GREEN doublecheck (**clean-room**).** Run `verification-before-completion --task verify` — semantic-intent verification of all 6 SCs: SC-1 (no internal details), SC-2 (MUST signal), SC-3 (orchestrator entry), SC-8 (no internal details in Overview), SC-9 (assemble-work in Invocation), SC-10 (assemble-work in Sub-Agent Routing).
+- [ ] 53. **green-vbc (**clean-room**).** Run `verification-before-completion --task completion` — VbC completion artifact.
 
 ### Phase 2 Completion
 
-- [ ] 50. **adversarial-audit (**orchestrator**).** Multi-dispatch: resolve-models → dispatch verification-audit with auditor_1 (remediate on FAIL) → same with auditor_2 → collect artifact paths.
-- [ ] 51. **cross-validate (**clean-room**).** Run `adversarial-audit --task cross-validate` — produce cross-validate findings YAML.
-- [ ] 52. **regression-check (**clean-room**).** Run `test-driven-development --task patterns` — regression test results.
-- [ ] 53. **review-prep (**clean-room**).** Run `git-workflow --task review-prep` — review-prep status.
-- [ ] 54. **exec-summary (**clean-room**).** Run `completion-core --task completion` — append lifecycle event + chat exec summary.
+- [ ] 54. **resolve-models (**inline**).** Run `.opencode/tools/resolve-models` to select cross-family auditors. Record `auditor_1` and `auditor_2` subagent types.
+- [ ] 55. **auditor-1 dispatch (**sub-agent**).** Dispatch `adversarial-audit --task verification-audit` with `subagent_type` from `auditor_1`. Collect artifact path.
+- [ ] 56. **auditor-1 remediate (**inline**).** If auditor_1 returned non-clean-pass: remediate root cause, re-run resolve-models (step 54), re-dispatch auditor_1 (step 55). Do NOT proceed to auditor_2 until auditor_1 returns clean PASS.
+- [ ] 57. **auditor-2 dispatch (**sub-agent**).** Dispatch `adversarial-audit --task verification-audit` with `subagent_type` from `auditor_2`. Collect artifact path.
+- [ ] 58. **auditor-2 remediate (**inline**).** If auditor_2 returned non-clean-pass: remediate root cause, re-run resolve-models (step 54), re-dispatch auditor_1 (step 55) and auditor_2 (step 57). Both must return clean PASS.
+- [ ] 59. **cross-validate (**clean-room**).** Run `adversarial-audit --task cross-validate` — produce cross-validate findings YAML.
+- [ ] 60. **regression-check (**clean-room**).** Run `test-driven-development --task patterns` — regression test results.
+- [ ] 61. **review-prep (**clean-room**).** Run `git-workflow --task review-prep` — review-prep status.
+- [ ] 62. **exec-summary (**clean-room**).** Run `completion-core --task completion` — append lifecycle event + chat exec summary.
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 

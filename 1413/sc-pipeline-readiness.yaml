@@ -1,0 +1,22 @@
+status: PASS
+issue_number: 1413
+sc_summary:
+  total_scs: 5
+  behavioral_scs: 1
+  structural_scs: 4
+  sc_ids:
+    - SC-1
+    - SC-2
+    - SC-3
+    - SC-4
+    - SC-5
+phase_dependencies:
+  - phase: 1
+    name: "Fix validate.md dispatch markers"
+    depends_on: []
+  - phase: 2
+    name: "Add clean-room plan step to create.md"
+    depends_on: []
+  - phase: 3
+    name: "Update audit-fidelity.md to pass clean_room_plan"
+    depends_on: [2]

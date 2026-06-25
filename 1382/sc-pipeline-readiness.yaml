@@ -1,0 +1,12 @@
+status: PASS
+spec_issue_number: 1382
+sc_count: 5
+sc_evidence_types:
+  - structural
+  - structural
+  - structural
+  - structural
+  - behavioral
+sc_summary: "5 SCs — 4 structural (grep-verifiable), 1 behavioral (dispatch write sub-agent, verify output format). Fix moves format spec from create.md to write.md."
+phase_dependencies: []
+created_at: "2026-06-24T15:40:00Z"

@@ -1,0 +1,12 @@
+status: PASS
+spec_issue_number: 1390
+spec_type: spec-fix
+task_count: 1
+sc_summary:
+  total: 6
+  structural: 2
+  semantic: 3
+  string: 1
+  behavioral: 0
+phase_dependencies: []
+notes: "Single-task spec. Prior feature branch (commit 2fbe2f96) is poisoned — must re-implement from scratch on fresh branch from submodule dev."

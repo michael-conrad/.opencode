@@ -1,0 +1,53 @@
+domain: phase-ordering
+types:
+  - name: phase
+objects:
+  - name: phase_1
+    type: phase
+  - name: phase_2
+    type: phase
+  - name: phase_3
+    type: phase
+  - name: post
+    type: phase
+fluents:
+  - name: done
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: complete_phase_1
+    params: []
+    preconditions:
+      - not done(phase_1)
+    effects:
+      - done(phase_1)
+  - name: complete_phase_2
+    params: []
+    preconditions:
+      - done(phase_1)
+      - not done(phase_2)
+    effects:
+      - done(phase_2)
+  - name: complete_phase_3
+    params: []
+    preconditions:
+      - done(phase_2)
+      - not done(phase_3)
+    effects:
+      - done(phase_3)
+  - name: complete_post
+    params: []
+    preconditions:
+      - done(phase_1)
+      - done(phase_2)
+      - done(phase_3)
+      - not done(post)
+    effects:
+      - done(post)
+init: []
+goals:
+  - done(phase_1)
+  - done(phase_2)
+  - done(phase_3)
+  - done(post)

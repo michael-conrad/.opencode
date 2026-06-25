@@ -1,0 +1,18 @@
+status: PASS
+sc_summary:
+  total_sc: 4
+  sc_ids:
+    - SC-1: "All 8 descriptions contain mandatory language"
+    - SC-2: "All 8 descriptions have no narrative-only sentences"
+    - SC-3: "All 8 descriptions still pass D2 (correctness against dispatch table)"
+    - SC-4: "All 8 descriptions still pass D3 (completeness against dispatch table)"
+  evidence_types:
+    - SC-1: string
+    - SC-2: semantic
+    - SC-3: semantic
+    - SC-4: semantic
+phase_dependencies:
+  - phase: 1
+    name: "Fix descriptions"
+    scs: [SC-1, SC-2, SC-3, SC-4]
+    depends_on: []

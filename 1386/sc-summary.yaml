@@ -1,0 +1,30 @@
+issue_number: 1386
+scs:
+  - id: SC-1
+    description: "All 8 descriptions contain mandatory language"
+    evidence_type: string
+    verification_gate: ci
+    pipeline_step_binding: green-doublecheck
+    re_entry_step: green-phase
+    artifact_path: ./tmp/1386/sc-1-evidence.txt
+  - id: SC-2
+    description: "All 8 descriptions have no narrative-only sentences"
+    evidence_type: semantic
+    verification_gate: pre-pr
+    pipeline_step_binding: green-doublecheck
+    re_entry_step: green-phase
+    artifact_path: ./tmp/1386/sc-2-evidence.yaml
+  - id: SC-3
+    description: "All 8 descriptions still pass D2 (correctness against dispatch table)"
+    evidence_type: semantic
+    verification_gate: pre-pr
+    pipeline_step_binding: green-doublecheck
+    re_entry_step: green-phase
+    artifact_path: ./tmp/1386/sc-3-evidence.yaml
+  - id: SC-4
+    description: "All 8 descriptions still pass D3 (completeness against dispatch table)"
+    evidence_type: semantic
+    verification_gate: pre-pr
+    pipeline_step_binding: green-doublecheck
+    re_entry_step: green-phase
+    artifact_path: ./tmp/1386/sc-4-evidence.yaml

@@ -1,0 +1,22 @@
+variables:
+  phase_1_done:
+    type: bool
+  phase_2_done:
+    type: bool
+  phase_3_done:
+    type: bool
+  post_done:
+    type: bool
+
+preconditions:
+  - z3.Implies(phase_2_done, phase_1_done)
+  - z3.Implies(phase_3_done, phase_2_done)
+  - z3.Implies(post_done, z3.And(phase_1_done, phase_2_done, phase_3_done))
+
+postconditions:
+  - z3.And(phase_1_done, phase_2_done, phase_3_done, post_done)
+
+invariants:
+  - z3.Or(z3.Not(phase_2_done), phase_1_done)
+  - z3.Or(z3.Not(phase_3_done), phase_2_done)
+  - z3.Or(z3.Not(post_done), z3.And(phase_1_done, phase_2_done, phase_3_done))

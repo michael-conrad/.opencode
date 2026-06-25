@@ -1,0 +1,15 @@
+status: PASS
+spec_issue_number: 1379
+sc_count: 8
+sc_evidence_types:
+  - structural
+  - structural
+  - structural
+  - structural
+  - structural
+  - structural
+  - structural
+  - structural
+sc_summary: "8 structural SCs — all grep-based verification. No behavioral or semantic SCs. Spec is a [SPEC-FIX] for dispatch table convention violations."
+phase_dependencies: []
+created_at: "2026-06-24T14:30:00Z"
