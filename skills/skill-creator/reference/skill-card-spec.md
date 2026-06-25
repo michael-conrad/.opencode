@@ -68,3 +68,11 @@ Insert after Purpose, before Operating Protocol:
 | `sub-task` (sub-agent dispatched) | Non-inline | 4 items (includes "do not dispatch sub-agents") |
 | `inline` / `orchestrator` | Inline | 3 items (omits "do not dispatch sub-agents") |
 | SKILL.md (orchestrator-facing) | SKILL.md | 5 items (includes dispatch discipline) |
+
+## Routing-Only SKILL.md Template
+
+For the canonical SKILL.md structure (routing-only, no procedure text), see:
+
+- **`routing-only-template.md`** — The canonical routing-only SKILL.md template
+
+All new skills MUST use the routing-only template. The SKILL.md variant of the Mandatory Task Discipline block (5 items) is included in the template. Task cards (`tasks/*.md`) continue to use the task card variants defined above.
