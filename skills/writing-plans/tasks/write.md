@@ -61,7 +61,11 @@ Every plan document MUST follow this structure. Plans that deviate from this for
    ```
    > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
    ```
-4. **Phase sections** — One `## Phase N — <name>` per phase, each with:
+4. **One-step-at-a-time protocol admonishment** — Verbatim blockquote:
+   ```
+   > **One-step-at-a-time protocol:** Each numbered step is exactly one sub-agent dispatch. The orchestrator completes step N, reports completion to chat, then proceeds to step N+1. Steps MUST NOT be combined, batched, or executed in parallel. The RED→GREEN transition is a zero-tolerance gate: the RED test's artifact output MUST be read and confirmed as FAILING before any GREEN implementation begins. If the RED test artifact is not read, or if it shows PASS when FAIL was expected, the phase is poisoned — all work in it MUST be discarded and the phase restarted from RED.
+   ```
+5. **Phase sections** — One `## Phase N — <name>` per phase, each with:
    - Phase metadata (Concern, Files, SCs, Dependencies, Entry/Exit conditions)
    - Checkbox steps (`- [ ] N.`) with dispatch indicators
    - Sub-steps indented under parent steps
@@ -69,15 +73,15 @@ Every plan document MUST follow this structure. Plans that deviate from this for
    - SC annotations on each step
    - Phase completion block
    - Concern transition to next phase
-5. **Bottom admonishment** — Verbatim compliance requirement blockquote
-6. **Self-remediation protocol admonishment** — Verbatim blockquote:
+6. **Bottom admonishment** — Verbatim compliance requirement blockquote
+7. **Self-remediation protocol admonishment** — Verbatim blockquote:
    ```
    > **One step at a time protocol:** Each numbered step is a single unit of work. The orchestrator completes exactly one step, reports the result, and proceeds to the next step without asking for permission. "Combining steps" means performing work that spans multiple plan step numbers in a single operation — regardless of how many tool calls, dispatches, or response turns it takes. The self-check is: "does the work I just completed correspond to exactly one plan step number?" If the work touches files or concerns from step N and step N+1, it is combined. The RED→GREEN transition is a zero-tolerance gate: the RED test MUST be verified as FAILING (by reading its artifact output) before any GREEN implementation begins. Skipping this verification invalidates the entire phase and all work in it.
    >
    > **Self-remediation protocol:** If the orchestrator combines steps or skips a gate, it MUST self-remediate by reverting only the work belonging to the incorrectly-combined step and re-dispatching from the failed step. Do NOT revert work from correctly-executed prior steps. No halting, no asking for permission, no "should I?" — the answer is always revert the offending step and re-dispatch.
    ```
-7. **Exit Criteria** — Numbered checklist `C1` through `C{N}`
-7. **Global sequential numbering** — Steps are numbered sequentially across the entire plan file. Each phase does NOT restart at 1. The first step of Phase 2 continues from the last step of Phase 1.
+8. **Exit Criteria** — Numbered checklist `C1` through `C{N}`
+9. **Global sequential numbering** — Steps are numbered sequentially across the entire plan file. Each phase does NOT restart at 1. The first step of Phase 2 continues from the last step of Phase 1.
 
 ### Three-Tier Plan Structure
 
@@ -130,6 +134,7 @@ Every step MUST use one of three dispatch indicators:
 10. Phase completion block present after last step
 11. Concern transition present between phases
 12. Exit criteria present and numbered C1-C{N}
+13. One-step-at-a-time protocol admonishment present verbatim after the compliance admonishment
 
 ### RED+green Item Chain Specification
 
