@@ -102,6 +102,7 @@ Read the existing plan from `spec_local_dir/`:
 | PF-SUBSTEP-EXPAND | No collapsed multi-operation steps | Every sub-operation from pipeline task files gets its own `- [ ] N.` entry. No step describes more than one atomic action |
 | PF-ADMONISHMENT | Compliance admonishment present at top and bottom | Full canonical text blockquote: "rework from scratch and loss of all prior work" — present at both prologue and epilogue |
 | PF-GLOBAL-NUMBERING | Steps numbered globally across all phases | No per-phase restart — step N+1 follows step N across phase boundaries |
+| PF-ONE-STEP | One-step-at-a-time protocol admonishment present at top of plan | FAIL if missing |
 | PF-SEQUENCE-MATCHES | Gate sequence matches pipeline source — missing gates are automatic FAIL with no remediation path | Gate sequence matches `implementation-pipeline/SKILL.md` dispatch routing table — read dynamically, not hardcoded. Any missing gate is automatic FAIL — the plan MUST be regenerated, not patched. |
 
 <!-- Fragment ID: sc-enforcement-gate -->
