@@ -26,7 +26,7 @@ from pathlib import Path
 
 SKILL_TEMPLATE = """---
 name: {skill_name}
-description: [TODO: Complete and informative explanation of what the skill does and when to use it. Include WHEN to use this skill - specific scenarios, file types, or tasks that trigger it.]
+description: "[TODO: Use when ...]"
 license: MIT
 provenance: AI-generated
 ---
@@ -35,106 +35,46 @@ provenance: AI-generated
 
 ## Overview
 
-[TODO: 1-2 sentences explaining what this skill enables]
+[TODO: 1-2 sentences explaining what this skill enables. No procedure text.]
 
-## Structuring This Skill
+## Mandatory Task Discipline
 
-[TODO: Choose the structure that best fits this skill's purpose. Common patterns:
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work
+     that should be delegated to a sub-agent produces defective
+     deliverables that must be discarded
+- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless
+     explicitly marked as inline/orchestrator in this skill
+- [ ] 4. Sub-agents must not dispatch sub-agents
+- [ ] 5. Return only routing-significant data: `status`, `finding_summary`,
+     `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
-**1. Workflow-Based** (best for sequential processes)
-- Works well when there are clear step-by-step procedures
-- Example: DOCX skill with "Workflow Decision Tree" → "Reading" → "Creating" → "Editing"
-- Structure: ## Overview → ## Workflow Decision Tree → ## Step 1 → ## Step 2...
+## Trigger Dispatch Table
 
-**2. Task-Based** (best for tool collections)
-- Works well when the skill offers different operations/capabilities
-- Example: PDF skill with "Quick Start" → "Merge PDFs" → "Split PDFs" → "Extract Text"
-- Structure: ## Overview → ## Quick Start → ## Task Category 1 → ## Task Category 2...
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "[TODO: trigger phrase]" | `[TODO: task-name]` | `sub-task` | {field1, field2} |
 
-**3. Reference/Guidelines** (best for standards or specifications)
-- Works well for brand guidelines, coding standards, or requirements
-- Example: Brand styling with "Brand Guidelines" → "Colors" → "Typography" → "Features"
-- Structure: ## Overview → ## Guidelines → ## Specifications → ## Usage...
+## Invocation
 
-**4. Capabilities-Based** (best for integrated systems)
-- Works well when the skill provides multiple interrelated features
-- Example: Product Management with "Core Capabilities" → numbered capability list
-- Structure: ## Overview → ## Core Capabilities → ### 1. Feature → ### 2. Feature...
+`skill({name: "{skill_name}"})` — call the skill, then call via task():
 
-Patterns can be mixed and matched as needed. Most skills combine patterns (e.g., start with task-based, add workflow for complex operations).
+| Task | Call via task() |
+|------|-----------------|
+| `[TODO: task-name]` | `task(..., prompt: "execute [TODO: task-name] task from {skill_name}")` |
 
-Delete this entire "Structuring This Skill" section when done - it's just guidance.]
+**CLI equivalent (for human TUI use):** `/skill {skill_name} --task <task>`
 
-## [TODO: Replace with the first main section based on chosen structure]
+## Sub-Agent Routing
 
-[TODO: Add content here. See examples in existing skills:
-- Code samples for technical skills
-- Decision trees for complex workflows
-- Concrete examples with realistic user requests
-- References to scripts/templates/references as needed]
+- Standard context: `{{worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase}}`
+- Exclusions: orchestrator reasoning, expected outcomes, inline file paths, agent memory, cached verification results
+- Auditor tasks use subagent_type from `resolve-models` result contract — NOT `general`
+- `pre-analysis` receives only `{{issue_number, task_description, github.owner, github.repo}}`
 
-## Measurement Standard
+## Cross-References
 
-Word count is the universal unit for skill size measurement. Use `wc -w` as the canonical measurement method.
-
-- **Why words, not tokens:** Token counts vary by tokenizer, model, and encoding. Word counts are stable, reproducible, and model-agnostic.
-- **Why words, not lines:** Line length varies by formatting conventions. Words measure semantic density.
-- **Measurement command:** `wc -w <file>`
-- **Size targets:** getting-started <150 words, frequently-loaded <200 words, other skills <500 words.
-
-## Context Window Hygiene
-
-Strongly encourage sub-agents and sub-tasks for skill operations that risk consuming significant context.
-
-- **Sub-task isolation:** Dispatch analysis, audits, or multi-step workflows to sub-tasks. Main session receives minimal result, not intermediate reasoning.
-- **When to use sub-tasks:** Any skill task producing output, any multi-file analysis, any workflow with 3+ sequential operations. Sub-agent-first dispatch is mandatory — all task dispatches go through sub-agents, no inline exceptions.
-
-## Correctness-First Economics
-
-GPU/CPU billing is flat-rate per inference, not per word. Correctness > conciseness.
-
-- **No per-token cost pressure:** Writing more words does not cost more. Writing wrong words costs human time to fix.
-- **Redundancy for enforcement:** Repetition of critical rules across sections is enforcement insurance.
-- **Anti-pattern:** Cutting a rule to "save tokens" when the rule exists because agents violated it.
-
-## Resources
-
-This skill includes example resource directories that demonstrate how to organize different types of bundled resources:
-
-### scripts/
-Executable code (Python/Bash/etc.) that can be run directly to perform specific operations.
-
-**Examples from other skills:**
-- PDF skill: `fill_fillable_fields.py`, `extract_form_field_info.py` - utilities for PDF manipulation
-- DOCX skill: `document.py`, `utilities.py` - Python modules for document processing
-
-**Appropriate for:** Python scripts, shell scripts, or any executable code that performs automation, data processing, or specific operations.
-
-**Note:** Scripts may be executed without loading into context, but can still be read by <AgentName> for patching or environment adjustments.
-
-### references/
-Documentation and reference material intended to be loaded into context to inform <AgentName>'s process and thinking.
-
-**Examples from other skills:**
-- Product management: `communication.md`, `context_building.md` - detailed workflow guides
-- BigQuery: API reference documentation and query examples
-- Finance: Schema documentation, company policies
-
-**Appropriate for:** In-depth documentation, API references, database schemas, comprehensive guides, or any detailed information that <AgentName> should reference while working.
-
-### assets/
-Files not intended to be loaded into context, but rather used within the output <AgentName> produces.
-
-**Examples from other skills:**
-- Brand styling: PowerPoint template files (.pptx), logo files
-- Frontend builder: HTML/React boilerplate project directories
-- Typography: Font files (.ttf, .woff2)
-
-**Appropriate for:** Templates, boilerplate code, document templates, images, icons, fonts, or any files meant to be copied or used in the final output.
-
----
-
-**Any unneeded directories can be deleted.** Not every skill requires all three types of resources.
+Skills: [TODO: related skills]. Guidelines: [TODO: related guidelines].
 """
 
 EXAMPLE_SCRIPT = '''#!/usr/bin/env python3
