@@ -6,22 +6,85 @@ Check an existing plan for placeholders and completeness.
 
 ## Validation Checks
 
-- [ ] 01. **(**sub-agent**) Placeholder detection** — Zero TBD/TODO tolerance
-- [ ] 02. **(**sub-agent**) Completeness** — Plan addresses the stated problem
-- [ ] 03. **(**sub-agent**) Actionability** — Steps are concrete, not abstract goals
-- [ ] 04. **(**sub-agent**) Testability** — Success criteria include executable verification commands with exact expected values (not just "measurable" — each SC must specify a command that produces a deterministic pass/fail result)
-- [ ] 05. **(**sub-agent**) TDD structure** — Each task has failing test → implement → passing test steps
-- [ ] 06. **(**sub-agent**) File structure** — All files are listed with responsibilities
-- [ ] 07. **(**sub-agent**) Self-review evidence** — Agent has performed spec coverage, placeholder, and type consistency checks
-- [ ] 08. **(**sub-agent**) Spec reference** — Plan body contains a spec reference (search for `Spec: #N` pattern)
-- [ ] 09. **(**sub-agent**) Sub-issue parent** — If plan has sub-issues, they link to the plan (not the spec)
-- [ ] 10. **(**sub-agent**) Plan file exists** — Plan file exists at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
-- [ ] 11. **(**sub-agent**) Pipeline-gate completeness** — All implementation-pipeline gate steps from `implementation-pipeline/SKILL.md` dispatch routing table are present in the plan's exit criteria or phase structure
-- [ ] 12. **(**sub-agent**) Global sequential numbering** — Step numbering is globally sequential across the entire plan file, not restarted per phase
-- [ ] 13. **(**sub-agent**) Checkbox format** — All implementation steps use `- [ ] N.` checkbox format
-- [ ] 14. **(**sub-agent**) Phase workflow completeness** — Every phase contains the full implementation workflow step sequence from `implementation-pipeline/SKILL.md` §Dispatch Routing Table
-- [ ] 15. **(**sub-agent**) No duplicate global steps** — Global pre/post steps are not duplicated across per-file phases
-- [ ] 16. **(**sub-agent**) Canonical format compliance** — Plan matches the canonical reference at `.opencode/.issues/1393/plan.md`: three-tier structure, dispatch context on every step, contract path references on z3-check steps, failure conditions on RED phases
+- [ ] 01. (**sub-agent**) Placeholder detection — Zero TBD/TODO tolerance
+  - Command: `grep(pattern="TBD|TODO|tbd|todo")` on plan body
+  - SC: All
+  - Expected: zero matches
+
+- [ ] 02. (**sub-agent**) Completeness — Plan addresses the stated problem
+  - Command: read plan body, compare against spec problem statement
+  - SC: All
+  - Expected: plan covers all spec requirements
+
+- [ ] 03. (**sub-agent**) Actionability — Steps are concrete, not abstract goals
+  - Command: manual parse — flag abstract goals
+  - SC: All
+  - Expected: each step has concrete action
+
+- [ ] 04. (**sub-agent**) Testability — Success criteria include executable verification commands with exact expected values
+  - Command: read each SC in plan, verify it has a verification command
+  - SC: All
+  - Expected: each SC specifies command that produces deterministic pass/fail
+
+- [ ] 05. (**sub-agent**) TDD structure — Each task has failing test → implement → passing test steps
+  - Command: verify RED/GREEN chain present for each item
+  - SC: All
+  - Expected: RED → GREEN → doublecheck → commit structure
+
+- [ ] 06. (**sub-agent**) File structure — All files are listed with responsibilities
+  - Command: read plan Files section, verify against spec
+  - SC: All
+  - Expected: all files listed with clear responsibilities
+
+- [ ] 07. (**sub-agent**) Self-review evidence — Agent has performed spec coverage, placeholder, and type consistency checks
+  - Command: check for self-review evidence in plan
+  - SC: All
+  - Expected: self-review evidence present
+
+- [ ] 08. (**sub-agent**) Spec reference — Plan body contains a spec reference
+  - Command: `grep(pattern="Spec: #")` on plan body
+  - SC: All
+  - Expected: spec reference present
+
+- [ ] 09. (**sub-agent**) Sub-issue parent — If plan has sub-issues, they link to the plan (not the spec)
+  - Command: `github_issue_read(method=get_sub_issues, issue_number=plan_number)`
+  - SC: All
+  - Expected: sub-issues linked to plan, not spec
+
+- [ ] 10. (**sub-agent**) Plan file exists — Plan file exists at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
+  - Command: `ls .issues/{N}/plan.md */.issues/{N}/plan.md 2>/dev/null`
+  - SC: All
+  - Expected: file exists
+
+- [ ] 11. (**sub-agent**) Pipeline-gate completeness — All implementation-pipeline gate steps present
+  - Command: read `implementation-pipeline/SKILL.md` §Dispatch Routing Table, compare against plan
+  - SC: SC-13
+  - Expected: all gate steps present in plan's exit criteria or phase structure
+
+- [ ] 12. (**sub-agent**) Global sequential numbering — Step numbering is globally sequential across all phases
+  - Command: parse plan step numbers, verify no per-phase restart
+  - SC: All
+  - Expected: step N+1 follows step N across phase boundaries
+
+- [ ] 13. (**sub-agent**) Checkbox format — All implementation steps use `- [ ] N.` checkbox format
+  - Command: `grep(pattern="- \\[ \\] \\d+\\.")` on plan body
+  - SC: SC-9
+  - Expected: all steps use checkbox format
+
+- [ ] 14. (**sub-agent**) Phase workflow completeness — Every phase contains full implementation workflow step sequence
+  - Command: read `implementation-pipeline/SKILL.md` §Dispatch Routing Table, compare each phase
+  - SC: SC-13
+  - Expected: each phase has complete RED/GREEN chain
+
+- [ ] 15. (**sub-agent**) No duplicate global steps — Global pre/post steps not duplicated across per-file phases
+  - Command: check Phase 1 (global pre) and Phase 7-8 (global post) steps against per-file phases
+  - SC: SC-15
+  - Expected: no global steps duplicated in per-file phases
+
+- [ ] 16. (**sub-agent**) Canonical format compliance — Plan matches canonical reference
+  - Command: read `.opencode/.issues/1393/plan.md`, compare against plan
+  - SC: SC-22
+  - Expected: three-tier structure, dispatch context, contract paths, failure conditions match
 
 ## Result Contract Schema
 

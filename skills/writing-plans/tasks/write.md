@@ -19,12 +19,35 @@ Write the plan document to `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`, val
 
 ## Procedure
 
-- [ ] 1. **Write plan document header (**sub-agent**).** Goal, Architecture, Tech Stack
-- [ ] 2. **Write each phase section (**sub-agent**).** Pre-RED Common, Per-Item RED+green Chains, Post-RED/green
-- [ ] 3. **Validate dispatch markers (**sub-agent**).** Every dispatch marker skill name exists under `.opencode/skills/`
-- [ ] 4. **Apply approval cascade (**sub-agent**).** Per authorization_scope
-- [ ] 5. **Sync cross-reference (**sub-agent**).** To spec issue body
-- [ ] 6. **Return PASS with plan file path (**inline**).** Load output contract from `contracts/write-output-template.yaml`, validate compliance fields, and return
+- [ ] 1. (**sub-agent**) Write plan document header — Goal, Architecture, Tech Stack
+  - Command: write plan header to `.issues/{N}/plan.md`
+  - SC: All
+  - Expected: header with issue ref, goal, architecture, files list
+
+- [ ] 2. (**sub-agent**) Write each phase section — Pre-RED Common, Per-Item RED+green Chains, Post-RED/green
+  - Command: write phase sections per Plan Format Requirements
+  - SC: All
+  - Expected: each phase has Concern, Files, SCs, Dependencies, Entry/Exit conditions
+
+- [ ] 3. (**sub-agent**) Validate dispatch markers — every dispatch marker skill name exists under `.opencode/skills/`
+  - Command: `ls .opencode/skills/<skill-name>/SKILL.md` for each dispatch marker
+  - SC: SC-5
+  - Expected: all referenced skills exist
+
+- [ ] 4. (**sub-agent**) Apply approval cascade — per authorization_scope
+  - Command: apply approval cascade matrix from spec
+  - SC: All
+  - Expected: approval cascade applied correctly
+
+- [ ] 5. (**sub-agent**) Sync cross-reference — to spec issue body
+  - Command: update spec issue with plan reference
+  - SC: All
+  - Expected: spec issue body updated
+
+- [ ] 6. (**inline**) Return PASS with plan file path — load output contract from `contracts/write-output-template.yaml`, validate compliance fields, and return
+  - Command: validate against `contracts/write-output-template.yaml`
+  - SC: SC-16, SC-18
+  - Expected: all compliance fields populated, PASS returned
 
 ## Plan Format Requirements
 
