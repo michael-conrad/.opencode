@@ -40,13 +40,6 @@ provenance: AI-generated
 
 ## Trigger Dispatch Table
 
-| User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
-| "trigger phrase" | `task-name` | `sub-task` | {field1, field2} |
-| "another trigger" | `other-task` | `orchestrator` | {field3} |
-
-### Checkbox List Format (Alternative)
-
 - [ ] **"trigger phrase"** → `task-name` (dispatch-type)
   - Context: `{field1, field2}`
   - Task file: `skill-name/tasks/task-name.md`
@@ -62,10 +55,8 @@ provenance: AI-generated
 
 `skill({name: "skill-name"})` — call the skill, then call via task():
 
-| Task | Call via task() |
-|------|-----------------|
-| `task-name` | `task(..., prompt: "execute task-name task from skill-name")` |
-| `other-task` | `task(..., prompt: "execute other-task task from skill-name")` |
+- [ ] **`task-name`** → `task(..., prompt: "execute task-name task from skill-name")`
+- [ ] **`other-task`** → `task(..., prompt: "execute other-task task from skill-name")`
 
 **CLI equivalent (for human TUI use):** `/skill skill-name --task <task>`
 

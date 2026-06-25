@@ -51,17 +51,15 @@ provenance: AI-generated
 
 ## Trigger Dispatch Table
 
-| User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
-| "[TODO: trigger phrase]" | `[TODO: task-name]` | `sub-task` | {field1, field2} |
+- [ ] **"[TODO: trigger phrase]"** → `[TODO: task-name]` (dispatch-type)
+  - Context: `{field1, field2}`
+  - Task file: `{skill_name}/tasks/[TODO: task-name].md`
 
 ## Invocation
 
 `skill({name: "{skill_name}"})` — call the skill, then call via task():
 
-| Task | Call via task() |
-|------|-----------------|
-| `[TODO: task-name]` | `task(..., prompt: "execute [TODO: task-name] task from {skill_name}")` |
+- [ ] **`[TODO: task-name]`** → `task(..., prompt: "execute [TODO: task-name] task from {skill_name}")`
 
 **CLI equivalent (for human TUI use):** `/skill {skill_name} --task <task>`
 
