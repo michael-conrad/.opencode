@@ -8,7 +8,7 @@ This was demonstrated in session `ses_0ffeba217ffeyz4dmcrgle5cLK` (and previousl
 
 ## Scope
 
-Replace the gap-fill cascade with a state-verification checklist model. The cascade becomes a routing-only dispatcher that loads per-scope checklist files. Each checklist item verifies a state and, if missing, returns a `BLOCKED` result with a `next_action` routing to the appropriate skill. The orchestrator loops: dispatch cascade → if BLOCKED, dispatch `next_action` → re-dispatch cascade → repeat until DONE.
+Replace the gap-fill cascade with a state-verification checklist model. The cascade becomes a routing-only dispatcher that loads per-scope checklist files. Each checklist item verifies a state and, if missing, reports what action to take next. The orchestrator loops: dispatch cascade → if blocked, dispatch the reported next action → re-dispatch cascade → repeat until all states are verified.
 
 ## Files Affected
 
@@ -24,7 +24,7 @@ Replace the gap-fill cascade with a state-verification checklist model. The casc
 
 | File | Change |
 |------|--------|
-| `skills/approval-gate/tasks/gap-fill-cascade.md` | Rewrite as routing dispatcher — reads scope from context, loads per-scope checklist, returns result contract |
+| `skills/approval-gate/tasks/gap-fill-cascade.md` | Rewrite as routing dispatcher — reads scope from context, loads per-scope checklist, reports state |
 | `guidelines/010-approval-gate.md` | Remove gap-fill column from scope table; simplify or remove scope enumeration table entirely |
 | `skills/approval-gate/enforcement/scope-parsing.md` | Remove `for_pr_only` and `for_review_only` scope definitions |
 | `skills/approval-gate/enforcement/auto-dispatch-table.md` | Remove `for_pr_only` and `for_review_only` entries |
@@ -37,71 +37,59 @@ Replace the gap-fill cascade with a state-verification checklist model. The casc
 
 ### Orchestrator Loop
 
-After `verify-authorization` returns `{authorization_scope, halt_at}`, the orchestrator enters a dispatch loop:
+After `verify-authorization` returns the scope and halt boundary, the orchestrator enters a dispatch loop:
 
-1. Dispatch `gap-fill-cascade` sub-agent with `{authorization_scope, issue_number}`
-2. Receive result contract:
-   - `{status: DONE}` → proceed to `halt_at` boundary
-   - `{status: BLOCKED, next_action: "...", reason: "..."}` → dispatch `next_action`, then loop back to step 1
-   - `{status: BLOCKED}` (no `next_action`) → HALT with blocker report
+1. Dispatch `gap-fill-cascade` sub-agent with the authorization scope and issue number
+2. The sub-agent reports either that all states are verified, or that a state is missing and what action to take next
+3. If all states verified: proceed to the halt boundary
+4. If a state is missing with a next action specified: dispatch that action, then loop back to step 1
+5. If a state is missing with no next action available: HALT with blocker report
 
 The orchestrator holds only routing metadata — it never decides what to do. The cascade file determines the next action.
 
 ### Gap-Fill Cascade Dispatcher (`gap-fill-cascade.md`)
 
-Single task file that reads `authorization_scope` from context and loads the corresponding per-scope checklist:
+Single task file that reads `authorization_scope` from context and loads the corresponding per-scope checklist file. Scopes with gap-fill (`for_pr`, `for_implementation`, `for_plan`) each have a dedicated checklist. Scopes without gap-fill (`for_spec`, `for_analysis`, `for_review_prep`) return DONE immediately.
 
-```python
-SCOPE_CHECKLIST = {
-    "for_pr": "gap-fill-cascade/for-pr.md",
-    "for_implementation": "gap-fill-cascade/for-implementation.md",
-    "for_plan": "gap-fill-cascade/for-plan.md",
-}
-```
-
-The sub-agent loads the checklist file, walks items sequentially, and returns the first BLOCKED result or DONE.
+The sub-agent loads the checklist file, walks items sequentially, and reports the first missing state or that all states are verified.
 
 ### Per-Scope Checklist Format
 
 Each checklist item follows this structure:
 
-```
-- [ ] **State description**
-      Verify: how to check this state (file exists, label present, etc.)
-      If PASS: proceed to next item
-      If FAIL: return `{status: BLOCKED, next_action: "<skill> --task <task>", reason: "<reason>"}`
-```
+- A state description (what is being verified)
+- A verification method (how to check the state)
+- A PASS outcome (proceed to next item)
+- A FAIL outcome (report which action should be dispatched next and why)
 
-Items are sequential — the sub-agent processes them in order and returns on the first FAIL.
+Items are sequential — the sub-agent processes them in order and reports the first missing state.
 
 ### `for-pr.md` Checklist (Draft)
 
-```
 - [ ] **Spec exists and is approved**
       Verify: issue has `spec` label
       If PASS: proceed
-      If FAIL: return `{next_action: "dispatch spec-creation --task create", reason: "spec_missing"}`
+      If FAIL: report spec-creation should be dispatched
 
 - [ ] **Plan exists and is faithful to spec**
       Verify: `*/.issues/{N}/plan.md` exists
       If PASS: proceed
-      If FAIL: return `{next_action: "dispatch writing-plans --task create", reason: "plan_missing"}`
+      If FAIL: report writing-plans should be dispatched
 
 - [ ] **Plan is approved**
       Verify: issue has `approved-for-plan` label (or scope >= for_plan auto-approves)
       If PASS: proceed
-      If FAIL: return `{next_action: "apply approved-for-plan label", reason: "plan_not_approved"}`
+      If FAIL: report the approved-for-plan label should be applied
 
 - [ ] **Implementation complete (all SCs verified PASS)**
       Verify: verification artifacts exist for all SCs in spec
       If PASS: proceed
-      If FAIL: return `{next_action: "dispatch implementation-pipeline", reason: "implementation_incomplete"}`
+      If FAIL: report implementation-pipeline should be dispatched
 
 - [ ] **PR exists**
       Verify: open PR for this branch exists
-      If PASS: return `{status: DONE}`
-      If FAIL: return `{next_action: "dispatch git-workflow --task pr-creation", reason: "pr_missing"}`
-```
+      If PASS: report all states verified
+      If FAIL: report git-workflow should be dispatched for PR creation
 
 ### `for-implementation.md` Checklist (Draft)
 
@@ -109,17 +97,15 @@ Same as `for-pr.md` but without the PR item — halts after implementation compl
 
 ### `for-plan.md` Checklist (Draft)
 
-```
 - [ ] **Spec exists and is approved**
       Verify: issue has `spec` label
       If PASS: proceed
-      If FAIL: return `{next_action: "dispatch spec-creation --task create", reason: "spec_missing"}`
+      If FAIL: report spec-creation should be dispatched
 
 - [ ] **Plan exists and is faithful to spec**
       Verify: `*/.issues/{N}/plan.md` exists
-      If PASS: return `{status: DONE}`
-      If FAIL: return `{next_action: "dispatch writing-plans --task create", reason: "plan_missing"}`
-```
+      If PASS: report all states verified
+      If FAIL: report writing-plans should be dispatched
 
 ### Scope Removal
 
@@ -137,7 +123,7 @@ The scope table is reduced to declarative properties only — no gap-fill column
 | SC-2 | `gap-fill-cascade/for-pr.md` exists with state-verification checklist (spec → plan → approval → implementation → PR) | `string` |
 | SC-3 | `gap-fill-cascade/for-implementation.md` exists with state-verification checklist (spec → plan → approval → implementation) | `string` |
 | SC-4 | `gap-fill-cascade/for-plan.md` exists with state-verification checklist (spec → plan) | `string` |
-| SC-5 | Each checklist item follows verify/create pair format: verify state, if PASS proceed, if FAIL return `BLOCKED` with `next_action` | `string` |
+| SC-5 | Each checklist item follows verify/create pair format: verify state, if PASS proceed, if FAIL report which action to dispatch next | `string` |
 | SC-6 | `for_pr_only` and `for_review_only` removed from all scope-parsing, auto-dispatch, and template files | `string` |
 | SC-7 | `010-approval-gate.md` scope table has no gap-fill column | `string` |
 | SC-8 | **BEHAVIORAL**: agent with `for_pr` scope and existing spec+plan dispatches `gap-fill-cascade`, routes through `implementation-pipeline` — does NOT skip to PR creation | `behavioral` |
@@ -148,7 +134,7 @@ The scope table is reduced to declarative properties only — no gap-fill column
 
 | Risk | Mitigation |
 |------|------------|
-| Orchestrator loop creates infinite dispatch loop if cascade always returns BLOCKED | Cascade returns `{status: BLOCKED}` without `next_action` on unrecoverable state — orchestrator halts. Loop counter in orchestrator context (max 10 iterations) as safety net |
+| Orchestrator loop creates infinite dispatch loop if cascade always returns BLOCKED | Cascade reports BLOCKED without a next action on unrecoverable state — orchestrator halts |
 | Per-scope checklist files drift from skill task structure | Each checklist item routes to a skill's public entry point — it never duplicates procedural logic. Skill changes don't affect the routing reference |
 | Removing `for_pr_only` breaks existing workflows that depend on it | `for_pr` with existing artifacts behaves identically. No behavioral change for any real use case |
 | `010-approval-gate.md` loses too much information | The guideline states principles. Enforcement files (`scope-parsing.md`, `auto-dispatch-table.md`, `gap-fill-cascade/`) define mechanics. This is the correct separation — guidelines are for agents, enforcement files are for execution |
