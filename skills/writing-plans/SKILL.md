@@ -88,8 +88,8 @@ Each item is tagged with dispatch scope, chain dependency, and contract paths.
 
 When the `retroactive` task is dispatched, the pipeline is the same 21-step sequence but with the research step loading the existing spec body as its evidence source rather than performing live-source verification:
 
-- [ ] 1. [inline] Verify spec exists in `.issues/{N}/spec.md` or `*/.issues/{N}/spec.md` — chain: `none`
-- [ ] 2. [sub-task: research] Load existing spec body as evidence source — chain: `step_1`
+- [ ] 1. (**inline**) Verify spec exists in `.issues/{N}/spec.md` or `*/.issues/{N}/spec.md` — chain: `none`
+- [ ] 2. (**sub-agent**) Research — Load existing spec body as evidence source — chain: `step_1`
 - [ ] 3-21. Same as standard pipeline above — chain: `step_2`
 
 ## Sub-Agent Routing
