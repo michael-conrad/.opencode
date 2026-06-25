@@ -15,6 +15,7 @@ Map every requirement to spec section, test, and implementation step. Ensure not
 - Every spec section maps to at least one requirement
 - Test scenarios identified for each requirement
 - Implementation steps traceable to requirements
+- Every SC has a phase binding — no orphan SCs (SC-32)
 
 ## Procedure
 
@@ -38,6 +39,19 @@ Map each requirement to:
 - Spec sections without requirements (scope creep)
 - Requirements without test scenarios (untestable)
 - Requirements without implementation steps (orphan)
+
+### Step 4: Verify SC-to-Phase Binding (SC-32 — MANDATORY for multi-phase specs)
+
+For multi-phase specs, verify every SC has a phase binding:
+
+- [ ] 1. Extract all SC IDs from the spec's SC table
+- [ ] 1. Extract all phase names from the spec's Phase section
+- [ ] 1. For each SC, verify it has a `Phase Binding` column value that matches a phase name in the Phase section
+- [ ] 1. Cross-cutting SCs (apply across all phases) MUST be designated as `common` in the Phase Binding column
+- [ ] 1. Any SC without a valid phase binding → MISSING-TRACEABILITY finding
+- [ ] 1. Any phase with zero SCs assigned → STRUCTURE-VIOLATION finding (orphan phase)
+
+**Single-task exemption:** Specs with exactly one phase are exempt from Step 4 — all SCs implicitly bind to the single phase.
 
 ## Content Coverage
 
