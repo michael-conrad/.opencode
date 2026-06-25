@@ -46,6 +46,8 @@ provenance: AI-generated
 - [ ] **"another trigger"** → `other-task` (dispatch-type)
   - Context: `{field3}`
   - Task file: `skill-name/tasks/other-task.md`
+  - [ ] Sub-step that must be performed (e.g., verify pre-condition)
+  - [ ] Another required sub-step (e.g., validate output)
 
 **Sub-item semantics:**
 - **Sub-bullets** (`-`): Parameter metadata — context fields, task file paths, dispatch type. Informational, not actionable.
