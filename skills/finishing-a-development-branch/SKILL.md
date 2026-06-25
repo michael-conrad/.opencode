@@ -1,6 +1,6 @@
 ---
 name: finishing-a-development-branch
-description: "Use when implementation is complete and branch needs final checks before PR. A finished branch is a clean branch."
+description: "Use when implementation is complete and branch needs final checks before PR. Dispatch is MANDATORY — the prepare, checklist, and completion tasks are REQUIRED gates, not optional steps."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode
