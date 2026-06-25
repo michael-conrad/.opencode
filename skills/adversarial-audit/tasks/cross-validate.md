@@ -283,6 +283,8 @@ The cross-validate result contract MUST use the following finding type classific
 
 `overall_consensus = PASS` iff `consensus == PASS` for ALL criteria. Any single `FAIL` in the table cascades to `overall_consensus = FAIL`.
 
+**Severity-based exception for SC-SEM criteria:** SC-SEM criteria carry a `severity` field (`ERROR` or `WARNING`). A FAIL on a WARNING-severity criterion does NOT cascade to `overall_consensus = FAIL` — it is recorded as a warning in the findings but does not block the pipeline. A FAIL on an ERROR-severity criterion DOES cascade to `overall_consensus = FAIL` and blocks the pipeline. Non-SC-SEM criteria (without a `severity` field) are treated as ERROR-severity by default — any FAIL blocks the pipeline.
+
 ### Step 6.5: Verdict Self-Consistency Gate
 
 Before dark pattern enforcement, every verdict must pass a self-consistency check:
@@ -363,6 +365,7 @@ summary:
 findings:
   - criterion_id: "SC-1"
     declared_evidence_type: "structural|string|semantic|behavioral"
+    severity: "ERROR|WARNING"  # Only present for SC-SEM criteria; ERROR blocks pipeline, WARNING flags but does not block
     auditor_1_result: PASS
     auditor_2_result: PASS
     consensus: PASS

@@ -258,7 +258,10 @@ behavior_run() {
     LOCK_FILE="$PARENT_REPO_DIR/tmp/.behavior-run.lock"
     mkdir -p "$(dirname "$LOCK_FILE")"
     exec 200>"$LOCK_FILE"
-    flock -x 200
+    flock -x -w 30 200 || {
+        echo "HARNESS_FAILURE: lock contention — another test is running (waited 30s)" >&2
+        return 1
+    }
 
     if [ "${BEHAVIOR_SET_BARE_REMOTE:-0}" = "1" ]; then
         local bare_repo="$workdir/../origin.git"

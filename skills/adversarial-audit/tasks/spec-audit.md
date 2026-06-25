@@ -35,6 +35,7 @@ Audit a spec for quality, structure, and completeness using dual-adversarial cro
 - [ ] 1. Load Spec Content — glob spec_local_dir for .md files, read all
 - [ ] 2. Verify Documentation Sources — research each cited URL, API reference, or documentation claim against live sources
 - [ ] 3. Build Evaluation Criteria — define SC table with evidence types
+- [ ] 3a. Evaluate Semantic Auditor Criteria (SC-SEM) — evaluate skill card description quality (skip if not a skill card audit)
 - [ ] 4. Cross-Validate with Pre-Resolved Verdicts — cross-validate will be called by the orchestrator
 - [ ] 5. Process Verdicts — per-criterion PASS/FAIL consensus
 - [ ] 6. Evaluate SC Determinism (SC-DET) — check each SC for determinism
@@ -119,8 +120,76 @@ Define audit criteria based on spec-auditor task structure:
 | SC-PIPELINE-GATES | Pipeline gates use canonical checklist format, not gate tables | Spec requires numbered `- [ ] N.` checklist steps with dispatch mode indicators (`(**clean-room**)` or `(**inline**)`). Gate tables (per-unit or shared cross-reference) → VIOLATION. Expect dispatch indicators in every step title. |
 | SC-CANONICAL-PLAN-FORM | Plan output format uses canonical checklist format | If the spec defines plan output format requirements, validate they use the canonical checklist format: numbered `- [ ] N.` with sub-bullet metadata, dispatch mode indicators, no dispatch tables, no shared cross-references. |
 | SC-ADMONISHMENT | Mandatory Task Discipline admonishment present in SKILL.md | For skill card audits, verify the SKILL.md contains the 5-item Mandatory Task Discipline admonishment after Overview and before Trigger Dispatch Table. For task card audits, verify the 4-item (non-inline) or 3-item (inline) Task Discipline admonishment after Purpose and before Operating Protocol. |
+| SC-SEM-001 | Unambiguous dispatch condition | Does the description unambiguously tell an agent when to invoke this skill? Sub-agent reads the description and the Trigger Dispatch Table, judges whether the description provides clear dispatch conditions. **Severity: ERROR.** Failure: description is ambiguous about when to invoke (e.g., "Use when working with data" is too vague). |
+| SC-SEM-002 | Mandatory invocation signal | Does the description signal that invocation is mandatory (not optional)? Sub-agent reads the description and judges whether an agent would understand that this skill MUST be invoked when conditions match. **Severity: WARNING.** Failure: description reads as optional or discretionary (e.g., "Use when you want to..." implies choice). |
+| SC-SEM-003 | Dispatch table alignment | Does the description match the Trigger Dispatch Table's intent? Sub-agent compares the description against the table's trigger conditions and judges alignment. **Severity: ERROR.** Failure: description describes use cases the table does not cover, or table has triggers the description omits. |
+| SC-SEM-004 | Full coverage of dispatch conditions | Would an agent reading only the description know to invoke this skill in all conditions listed in the dispatch table? Sub-agent reads the description, then reads the table, and judges whether every table trigger is represented in the description. **Severity: WARNING.** Failure: one or more table triggers are not reflected in the description. |
+| SC-SEM-005 | No optional/discretionary language | Does the description contain any language that could be interpreted as making dispatch optional or discretionary? Sub-agent reads the description and identifies phrases that imply choice ("you can", "you may", "optionally", "if desired", "consider using"). **Severity: WARNING.** Failure: description contains optional/discretionary language. |
+| SC-SEM-006 | Dispatch table sub-item type correctness | Do dispatch table sub-items use the correct semantic type — sub-bullets for parameter metadata, sub-checkboxes for actionable sub-steps? Sub-agent reads the Trigger Dispatch Table and classifies each sub-item as parameter metadata (context fields, task file paths, dispatch type) or actionable sub-step (must be performed). Verifies sub-bullets used for metadata, sub-checkboxes used for actions. **Severity: WARNING.** Failure: sub-bullet used for an actionable sub-step, or sub-checkbox used for parameter metadata. |
 
 <!-- Fragment ID: sc-enforcement-gate -->
+
+### Step 3a: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
+
+When the spec being audited is a skill card (SKILL.md file), evaluate the SC-SEM criteria. These criteria assess the semantic quality of the skill's `description` field in YAML frontmatter and its Trigger Dispatch Table.
+
+- [ ] 1. Determine if the spec is a skill card audit — check if the spec references a SKILL.md file or if `spec_local_dir` contains a SKILL.md
+- [ ] 2. If NOT a skill card audit: skip SC-SEM criteria entirely (mark as N/A)
+- [ ] 3. If YES: load the SKILL.md file from `spec_local_dir/`
+- [ ] 4. Extract the `description` field from YAML frontmatter
+- [ ] 5. Extract the Trigger Dispatch Table (markdown table under `## Trigger Dispatch Table`)
+- [ ] 6. For each SC-SEM criterion, evaluate using the method described in the criteria table:
+
+**SC-SEM-001 (Unambiguous dispatch condition):**
+- Read the description and the Trigger Dispatch Table
+- Judge: does the description provide clear, unambiguous conditions for when to invoke?
+- PASS: description clearly states when to invoke (e.g., "Use when creating a branch, committing, pushing, or creating a PR")
+- FAIL: description is vague or ambiguous (e.g., "Use when working with data")
+
+**SC-SEM-002 (Mandatory invocation signal):**
+- Read the description
+- Judge: would an agent understand that invocation is mandatory, not optional?
+- PASS: description uses mandatory language (MUST, REQUIRED, always, not optional, mandatory)
+- FAIL: description reads as optional or discretionary
+
+**SC-SEM-003 (Dispatch table alignment):**
+- Compare the description against the Trigger Dispatch Table's trigger conditions
+- Judge: does the description match the table's intent?
+- PASS: description covers the same use cases as the table
+- FAIL: description describes use cases the table does not cover, or table has triggers the description omits
+
+**SC-SEM-004 (Full coverage of dispatch conditions):**
+- Read the description, then read every trigger condition in the table
+- Judge: is every table trigger represented in the description?
+- PASS: all table triggers are reflected in the description
+- FAIL: one or more table triggers are not reflected
+
+**SC-SEM-005 (No optional/discretionary language):**
+- Read the description and identify phrases that imply choice
+- PASS: no optional/discretionary language found
+- FAIL: description contains "you can", "you may", "optionally", "if desired", "consider using", or similar
+
+**SC-SEM-006 (Dispatch table sub-item type correctness):**
+- Read the Trigger Dispatch Table and classify each sub-item:
+  - Parameter metadata: context fields, task file paths, dispatch type → should use sub-bullets (`- field: value`)
+  - Actionable sub-step: must be performed by the agent → should use sub-checkboxes (`- [ ] action`)
+- PASS: all sub-items use the correct semantic type
+- FAIL: sub-bullet used for an actionable sub-step, or sub-checkbox used for parameter metadata
+
+Record each SC-SEM criterion result in the per_criterion array with the same format as other criteria, adding a `severity` field:
+
+```yaml
+  - criterion_id: "SC-SEM-001"
+    declared_evidence_type: "semantic"
+    severity: "ERROR"
+    result: "PASS|FAIL"
+    evidence: "<tool-call reference>"
+    explanation: "<reasoning>"
+    remediation: "<if FAIL, what to fix>"
+    next_step: "proceed|re-evaluate"
+    tool_calls_made:
+      - read
+```
 
 ### Step 3: Cross-Validate with Pre-Resolved Verdicts
 
@@ -203,6 +272,7 @@ summary:
 per_criterion:
   - criterion_id: "SC-1"
     declared_evidence_type: "string"
+    severity: "ERROR"  # ERROR or WARNING; only present for SC-SEM criteria
     result: "PASS"
     evidence: "<tool-call reference>"
     explanation: "<reasoning>"
@@ -231,6 +301,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 1. Load spec content → INVALID if skipped
 - [ ] 2. Verify documentation sources → INVALID if skipped
 - [ ] 3. Build evaluation criteria → INVALID if skipped
+- [ ] 3a. Evaluate semantic auditor criteria (SC-SEM) → INVALID if skipped for skill card audits; N/A for non-skill-card audits
 - [ ] 4. Cross-validate with verdicts → INVALID if skipped
 - [ ] 5. Process verdicts → INVALID if skipped
 - [ ] 6. Evaluate SC determinism → INVALID if skipped
