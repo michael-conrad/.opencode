@@ -86,6 +86,11 @@ Check an existing plan for placeholders and completeness.
   - SC: SC-14
   - Expected: global pre-phase (once), per-file RED/GREEN phases (one chain each), global post-phase (once)
 
+- [ ] 17. (**inline**) Self-remediation protocol admonishment present — Plan includes the one-step-at-a-time protocol and self-remediation protocol blockquote
+  - Command: `grep(pattern="One step at a time protocol|Self-remediation protocol")` on plan body
+  - SC: SC-6
+  - Expected: both protocol admonishments present
+
 ## Result Contract Schema
 
 Before returning, load the output contract from `contracts/validate-output-template.yaml` and validate the result against it. The contract defines the expected output structure:
