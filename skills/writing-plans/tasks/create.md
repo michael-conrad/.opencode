@@ -67,43 +67,47 @@ Each item is tagged with dispatch scope and chain dependency.
   - Chain: `step_9`
   - Expected: plan file path in write output
 
-- [ ] 11. (**inline**) Z3 check — `solve check` verify write output has plan file path per `contracts/create-output-template.yaml:write`
+- [ ] 11. (**sub-agent**) Clean-room plan generation — `task(..., prompt: "execute write task from writing-plans")` with spec body only, no existing plan context
   - Chain: `step_10`
+  - Expected: clean_room_plan in output
 
-- [ ] 12. (**sub-agent**) Revisit — `task(..., prompt: "execute revisit task from writing-plans")`
+- [ ] 12. (**inline**) Z3 check — `solve check` verify clean-room plan output contains clean_room_plan per `contracts/create-output-template.yaml:write`
   - Chain: `step_11`
+
+- [ ] 13. (**sub-agent**) Revisit — `task(..., prompt: "execute revisit task from writing-plans")`
+  - Chain: `step_12`
   - Expected: resolution_status in revisit output
 
-- [ ] 13. (**inline**) Z3 check — `solve check` verify revisit output has resolution_status per `contracts/create-output-template.yaml:revisit`
-  - Chain: `step_12`
-
-- [ ] 14. (**sub-agent**) Validate — `task(..., prompt: "execute validate task from writing-plans")`
+- [ ] 14. (**inline**) Z3 check — `solve check` verify revisit output has resolution_status per `contracts/create-output-template.yaml:revisit`
   - Chain: `step_13`
+
+- [ ] 15. (**sub-agent**) Validate — `task(..., prompt: "execute validate task from writing-plans")`
+  - Chain: `step_14`
   - Expected: PASS status in validate output
 
-- [ ] 15. (**inline**) Z3 check — `solve check` verify validate output has PASS status per `contracts/create-output-template.yaml:validate`
-  - Chain: `step_14`
-
-- [ ] 16. (**sub-agent**) Audit fidelity — `task(..., prompt: "execute audit-fidelity task from writing-plans")`
+- [ ] 16. (**inline**) Z3 check — `solve check` verify validate output has PASS status per `contracts/create-output-template.yaml:validate`
   - Chain: `step_15`
+
+- [ ] 17. (**sub-agent**) Audit fidelity — `task(..., prompt: "execute audit-fidelity task from writing-plans")`
+  - Chain: `step_16`
   - Expected: PASS in audit-fidelity output
 
-- [ ] 17. (**inline**) Z3 check — `solve check` verify audit-fidelity output has PASS per `contracts/create-output-template.yaml:audit-fidelity`
-  - Chain: `step_16`
-
-- [ ] 18. (**sub-agent**) Audit concern — `task(..., prompt: "execute audit-concern task from writing-plans")`
+- [ ] 18. (**inline**) Z3 check — `solve check` verify audit-fidelity output has PASS per `contracts/create-output-template.yaml:audit-fidelity`
   - Chain: `step_17`
+
+- [ ] 19. (**sub-agent**) Audit concern — `task(..., prompt: "execute audit-concern task from writing-plans")`
+  - Chain: `step_18`
   - Expected: PASS in audit-concern output
 
-- [ ] 19. (**inline**) Z3 check — `solve check` verify audit-concern output has PASS per `contracts/create-output-template.yaml:audit-concern`
-  - Chain: `step_18`
-
-- [ ] 20. (**sub-agent**) Completion — `task(..., prompt: "execute completion task from writing-plans")`
+- [ ] 20. (**inline**) Z3 check — `solve check` verify audit-concern output has PASS per `contracts/create-output-template.yaml:audit-concern`
   - Chain: `step_19`
+
+- [ ] 21. (**sub-agent**) Completion — `task(..., prompt: "execute completion task from writing-plans")`
+  - Chain: `step_20`
   - Expected: lifecycle event in completion output
 
-- [ ] 21. (**inline**) Z3 check — `solve check` verify completion output has lifecycle event
-  - Chain: `step_20`
+- [ ] 22. (**inline**) Z3 check — `solve check` verify completion output has lifecycle event
+  - Chain: `step_21`
 
 ## Entry Criteria
 

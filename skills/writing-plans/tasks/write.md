@@ -65,7 +65,7 @@ Every plan document MUST follow this structure. Plans that deviate from this for
    - Phase metadata (Concern, Files, SCs, Dependencies, Entry/Exit conditions)
    - Checkbox steps (`- [ ] N.`) with dispatch indicators
    - Sub-steps indented under parent steps
-   - RED+green item chains with interleaved ordering
+   - RED+green item chains with interleaved ordering, including ALL mandatory implementation-pipeline gate steps from `implementation-pipeline/SKILL.md` §Dispatch Routing Table (sc-coherence-gate, pre-red-baseline, red-phase, z3-check-red, red-doublecheck, z3-check-red-doublecheck, post-red-enforcement, z3-check-post-red, green-phase, z3-check-green, post-green-enforcement, z3-check-post-green, checkpoint-tag-create, checkpoint-commit, structural-checks, green-doublecheck, green-vbc, adversarial-audit, cross-validate, regression-check, review-prep, exec-summary)
    - SC annotations on each step
    - Phase completion block
    - Concern transition to next phase

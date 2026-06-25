@@ -72,17 +72,18 @@ Each item is tagged with dispatch scope, chain dependency, and contract paths.
 - [ ] 8. (**sub-agent**) Solve — `task(..., prompt: "execute solve task from writing-plans")` — chain: `step_7`
 - [ ] 9. (**inline**) Z3 check — `solve check` — verify solve output has SAT and SOLVED status — chain: `step_8`
 - [ ] 10. (**sub-agent**) Write — `task(..., prompt: "execute write task from writing-plans")` — chain: `step_9`
-- [ ] 11. (**inline**) Z3 check — `solve check` — verify write output has plan file path — chain: `step_10`
-- [ ] 12. (**sub-agent**) Revisit — `task(..., prompt: "execute revisit task from writing-plans")` — chain: `step_11`
-- [ ] 13. (**inline**) Z3 check — `solve check` — verify revisit output has resolution_status — chain: `step_12`
-- [ ] 14. (**sub-agent**) Validate — `task(..., prompt: "execute validate task from writing-plans")` — chain: `step_13`
-- [ ] 15. (**inline**) Z3 check — `solve check` — verify validate output has PASS status — chain: `step_14`
-- [ ] 16. (**sub-agent**) Audit fidelity — `task(..., prompt: "execute audit-fidelity task from writing-plans")` — chain: `step_15`
-- [ ] 17. (**inline**) Z3 check — `solve check` — verify audit-fidelity output has PASS — chain: `step_16`
-- [ ] 18. (**sub-agent**) Audit concern — `task(..., prompt: "execute audit-concern task from writing-plans")` — chain: `step_17`
-- [ ] 19. (**inline**) Z3 check — `solve check` — verify audit-concern output has PASS — chain: `step_18`
-- [ ] 20. (**sub-agent**) Completion — `task(..., prompt: "execute completion task from writing-plans")` — chain: `step_19`
-- [ ] 21. (**inline**) Z3 check — `solve check` — verify completion output has lifecycle event — chain: `step_20`
+- [ ] 11. (**sub-agent**) Clean-room plan generation — `task(..., prompt: "execute write task from writing-plans")` with spec body only, no existing plan context — chain: `step_10`
+- [ ] 12. (**inline**) Z3 check — `solve check` — verify clean-room plan output contains clean_room_plan — chain: `step_11`
+- [ ] 13. (**sub-agent**) Revisit — `task(..., prompt: "execute revisit task from writing-plans")` — chain: `step_12`
+- [ ] 14. (**inline**) Z3 check — `solve check` — verify revisit output has resolution_status — chain: `step_13`
+- [ ] 15. (**sub-agent**) Validate — `task(..., prompt: "execute validate task from writing-plans")` — chain: `step_14`
+- [ ] 16. (**inline**) Z3 check — `solve check` — verify validate output has PASS status — chain: `step_15`
+- [ ] 17. (**sub-agent**) Audit fidelity — `task(..., prompt: "execute audit-fidelity task from writing-plans")` — chain: `step_16`
+- [ ] 18. (**inline**) Z3 check — `solve check` — verify audit-fidelity output has PASS — chain: `step_17`
+- [ ] 19. (**sub-agent**) Audit concern — `task(..., prompt: "execute audit-concern task from writing-plans")` — chain: `step_18`
+- [ ] 20. (**inline**) Z3 check — `solve check` — verify audit-concern output has PASS — chain: `step_19`
+- [ ] 21. (**sub-agent**) Completion — `task(..., prompt: "execute completion task from writing-plans")` — chain: `step_20`
+- [ ] 22. (**inline**) Z3 check — `solve check` — verify completion output has lifecycle event — chain: `step_21`
 
 ### Retroactive Operating Protocol
 
