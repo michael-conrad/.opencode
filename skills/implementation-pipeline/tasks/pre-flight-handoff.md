@@ -25,8 +25,9 @@ Verify plan structural completeness before pipeline execution begins. Runs as a 
 
 - [ ] 1. Read `.issues/{issue-N}/plan.md`
 - [ ] 2. For each TDD task in the plan, verify it has a RED checkpoint with explicit failure condition
-- [ ] 3. Search for patterns: `red_checkpoint`, `failure_condition`, `MISSING-CHECKPOINT`
+- [ ] 3. Search for patterns: `Failure condition:` (canonical format from `.opencode/.issues/1393/plan.md`), `red_checkpoint`, `failure_condition`, `MISSING-CHECKPOINT`
 - [ ] 4. Flag any TDD task missing a RED checkpoint as `MISSING-CHECKPOINT`
+- [ ] 5. Verify failure conditions match the canonical pattern from `.opencode/.issues/1393/plan.md`: a sub-bullet under the RED phase step with `Failure condition:` prefix describing what blocks the pipeline if the RED test does not fail
 
 ### Step 2: Validate SC-ID Traceability
 

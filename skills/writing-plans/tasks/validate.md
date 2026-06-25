@@ -21,6 +21,7 @@ Check an existing plan for placeholders and completeness.
 - [ ] 13. **[sub-task] Checkbox format** — All implementation steps use `- [ ] N.` checkbox format
 - [ ] 14. **[sub-task] Phase workflow completeness** — Every phase contains the full implementation workflow step sequence from `implementation-pipeline/SKILL.md` §Dispatch Routing Table
 - [ ] 15. **[sub-task] No duplicate global steps** — Global pre/post steps are not duplicated across per-file phases
+- [ ] 16. **[sub-task] Canonical format compliance** — Plan matches the canonical reference at `.opencode/.issues/1393/plan.md`: three-tier structure, dispatch context on every step, contract path references on z3-check steps, failure conditions on RED phases
 
 ## Result Contract Schema
 

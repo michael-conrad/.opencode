@@ -30,6 +30,8 @@ Write the plan document to `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`, val
 
 Every plan document MUST follow this structure. Plans that deviate from this format are invalid and MUST be rejected.
 
+**Canonical reference:** `.opencode/.issues/1393/plan.md` is the canonical example of correct plan output. All plans MUST match this structure: three-tier organization (global pre-phase, per-file RED/GREEN phases, global post-phase), dispatch context on every step, contract path references on z3-check steps, and failure conditions on RED phases.
+
 ### Required Sections (in order)
 
 1. **Title** — `# Implementation Plan — [<issue-ref>](<issue-url>) — <short-description>`
