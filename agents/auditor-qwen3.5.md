@@ -6,7 +6,7 @@ temperature: 0.6
 steps: 50
 permission:
   read: allow
-  glob: allow
+  glob: deny
   grep: allow
   skill: allow
   webfetch: allow
