@@ -1,6 +1,6 @@
 ---
 name: implementation-pipeline
-description: "Use when executing an approved plan through the implementation pipeline. MUST dispatch here after plan approval, before any file modification. Professional engineers route each step through clean-room sub-agents."
+description: "Use when executing an approved plan through the implementation pipeline. MUST dispatch here after plan approval, before any file modification. Dispatch each pipeline step to clean-room sub-agents via task() — the orchestrator routes, sub-agents execute."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

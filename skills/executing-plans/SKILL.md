@@ -1,6 +1,6 @@
 ---
 name: executing-plans
-description: "Use when executing an approved plan step-by-step or moving through implementation gates sequentially. Every skipped step is a defect waiting for CI to find."
+description: "Use when executing an approved plan step-by-step or moving through implementation gates sequentially. Every step in the plan MUST be executed — skipping, combining, or reordering steps is not optional. Every skipped step is a defect waiting for CI to find."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

@@ -1,6 +1,6 @@
 ---
 name: adversarial-audit
-description: "Use when running adversarial audits of specs, plans, or code. Audits are not optional — they are how trustworthy work is verified."
+description: "Use when running adversarial audits of specs, plans, or code. Audits are not optional — dispatch to spec-audit, plan-fidelity, concern-separation, coherence-extraction, guideline-audit, or cross-validate. Every unverified deliverable is a defect."
 license: MIT
 ---
 
