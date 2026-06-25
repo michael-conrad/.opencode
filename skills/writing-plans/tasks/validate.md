@@ -81,10 +81,10 @@ Check an existing plan for placeholders and completeness.
   - SC: SC-15
   - Expected: no global steps duplicated in per-file phases
 
-- [ ] 16. (**sub-agent**) Canonical format compliance — Plan matches canonical reference
-  - Command: read `.opencode/.issues/1393/plan.md`, compare against plan
-  - SC: SC-22
-  - Expected: three-tier structure, dispatch context, contract paths, failure conditions match
+- [ ] 16. (**sub-agent**) Three-tier structure compliance — Plan uses global pre-phase, per-file RED/GREEN phases, global post-phase
+  - Command: read plan, verify three-tier structure
+  - SC: SC-14
+  - Expected: global pre-phase (once), per-file RED/GREEN phases (one chain each), global post-phase (once)
 
 ## Result Contract Schema
 
