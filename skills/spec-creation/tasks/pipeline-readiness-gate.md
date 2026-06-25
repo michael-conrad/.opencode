@@ -22,6 +22,7 @@ Validate that spec success criteria are structurally fit for the implementation 
 - PR-2 (dependency ordering): PASS — `solve prove` confirms SC dependency DAG is valid
 - PR-3 (single concern): PASS — every SC targets one file category and one verification domain
 - PR-4 (phase dependency): PASS — `solve prove` confirms phase dependency graph is acyclic
+- PR-5 (three-tier structure): PASS — multi-phase specs have three-tier phase structure (SC-31)
 - Artifact `.issues/{issue-N}/sc-pipeline-readiness.yaml` written with status PASS/FAIL
 
 ## Procedure
@@ -98,6 +99,24 @@ Extract the phase dependency graph:
 - [ ] 1. Run `solve prove --contract-path .issues/{issue-N}/dependency-ordering-verification/ordering.yaml --theorem "phase_dag_is_acyclic"` to validate
 - [ ] 1. If any cycle is found: PR-4 = FAIL
 
+### Step 4.5: Validate Three-Tier Phase Structure (PR-5 — SC-31)
+
+For multi-phase specs (2+ phases), validate that the phase structure follows the three-tier pattern:
+
+| Check | Pass Condition | Fail Condition |
+|-------|---------------|----------------|
+| PR-5a: Pre-phase exists | First phase is a global pre-phase (setup, pre-flight, coherence) | No pre-phase, or pre-phase contains per-file implementation steps |
+| PR-5b: Per-file phases exist | Middle phases each target a specific file or concern | A phase targets multiple unrelated files, or a phase has no file/concern target |
+| PR-5c: Post-phase exists | Last phase is a global post-phase (audit, cross-validate, review) | No post-phase, or post-phase contains per-file implementation steps |
+| PR-5d: No step duplication | Global pre/post steps are NOT duplicated in per-file phases | Pre-flight, coherence, audit, or review steps appear in per-file phases |
+| PR-5e: Phase count matches | Phase count = (number of per-file phases) + 2 | Phase count does not account for pre and post phases |
+
+- [ ] 1. If the spec is single-task (1 phase): PR-5 = SKIP (three-tier not required)
+- [ ] 1. If the spec is multi-phase: run all 5 checks
+- [ ] 1. If any check fails: PR-5 = FAIL — the spec's phase structure must be revised before this gate passes
+
+**Single-task exemption:** Specs with exactly one phase are exempt from PR-5. The three-tier structure is only required for multi-phase specs where the plan writer needs to organize per-file RED/GREEN cycles.
+
 ### Step 5: Write Artifact
 
 Generate timestamp via `.opencode/tools/schema-version`. Store result in `$TIMESTAMP`.
@@ -127,6 +146,20 @@ checks:
     prove_results:
       - theorem: "phase_dag_is_acyclic"
         result: VALID | INVALID
+  - check_id: PR-5
+    result: PASS | FAIL | SKIP
+    detail: "..."
+    sub_checks:
+      - check_id: PR-5a
+        result: PASS | FAIL
+      - check_id: PR-5b
+        result: PASS | FAIL
+      - check_id: PR-5c
+        result: PASS | FAIL
+      - check_id: PR-5d
+        result: PASS | FAIL
+      - check_id: PR-5e
+        result: PASS | FAIL
 sc_summary:
   total_scs: <count>
   atomic: <count>

@@ -1,6 +1,6 @@
 ---
 name: approval-gate
-description: "Use when checking or enforcing authorization scope, approval cascade, and pipeline halt boundaries. Implementing without authorization produces unreviewed, unapproved code — the fastest path to rework."
+description: "Use when checking or enforcing: authorization scope, approval cascade, pipeline halt boundaries, label application, spec-to-plan cascade, revision revocation, and bug discovery protocol. All conditions are mandatory — no implementation without authorization."
 license: MIT
 compatibility: opencode
 ---
@@ -141,6 +141,11 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 | "item decomposition check" | `item-decomposition-check` | `sub-task` | {plan_issue} |
 | "auto-dispatch" | `auto-dispatch` | `sub-task` | {authorization_scope} |
 | "verify already implemented" | `verify-already-implemented` | `sub-task` | {issue_number} |
+| "approval cascade" / "cascade authorization" | `approval-cascade` | `sub-task` | {parent_issue, sub_issues} |
+| "pipeline halt boundary" / "check halt_at" | `check-halt-boundary` | `sub-task` | {authorization_scope, halt_at, pipeline_phase} |
+| "apply label" / "set approval label" | `apply-label` | `sub-task` | {issue_number, authorization_scope} |
+| "revision revocation" / "spec revised" | `revision-revocation` | `sub-task` | {spec_issue, plan_issue} |
+| "bug discovery" / "bug found during implementation" | `bug-discovery-protocol` | `sub-task` | {issue_number, bug_description} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 Skills: `git-workflow`, `pr-creation-workflow`, `issue-review`, `implementation-pipeline`, `writing-plans`, `executing-plans`, `pre-analysis`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`.

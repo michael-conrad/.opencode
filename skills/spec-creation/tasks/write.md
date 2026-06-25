@@ -16,6 +16,10 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 - Chat output is ONLY: `<exec summary>` + `<issue URL>` + `<byline>` (no full spec dump)
 - User reviews spec ON THE ISSUE (not in chat)
 - Ready for spec-auditor and approval-gate
+- `.issues/{N}/spec-to-plan-handoff.yaml` generated with artifact manifest (SC-27)
+- `.issues/{N}/sc-summary.yaml` includes flat `scs` list with `id`, `description`, `evidence_type`, `verification_gate`, `plan_phase` per SC (SC-28)
+- `.issues/{N}/spec.md` saved with full spec content (SC-29)
+- `.opencode/tools/local-issues sync` run after all `.issues/{N}/` file changes (SC-33)
 
 ## Procedure
 
@@ -173,7 +177,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     Simple specs may skip this section. Standard and complex specs SHOULD include it when making factual claims that require verification.
 
-- [ ] 16. **Step 1.1: SC Coverage YAML Generation (SC-4)** — After assembling the spec content, generate a machine-parseable SC coverage summary at `.issues/{issue-N}/sc-summary.yaml`:
+- [ ] 16. **Step 1.1: SC Coverage YAML Generation (SC-4, SC-28)** — After assembling the spec content, generate a machine-parseable SC coverage summary at `.issues/{issue-N}/sc-summary.yaml`:
 
     ```yaml
     sc_coverage:
@@ -192,7 +196,15 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
       cross_cutting:
         sc_ids: [SC-N]
         verified_in_phase: <phase_name>
+      scs:
+        - id: SC-N
+          description: "<brief description>"
+          evidence_type: <behavioral|semantic|string|structural>
+          verification_gate: <pre-commit|pre-approval-gate|ci|post-implementation>
+          plan_phase: <phase_name>
     ```
+
+    The `scs` flat list is REQUIRED — the plan writer and pre-flight handoff read from this list to verify SC coverage and assign SCs to plan phases. Each SC MUST have `id`, `description`, `evidence_type`, `verification_gate`, and `plan_phase` fields. The nested `phases[].sc_ids` structure is retained for backward compatibility but the flat `scs` list is the authoritative source for plan writer consumption.
 
     Required validation: cross-reference `sc_coverage.total` against the prose SC table row count. Mismatch MUST be flagged as a STRUCTURE-VIOLATION.
 
@@ -230,7 +242,31 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     Each pipeline stage appends its event. Blocker events appended on FAIL with severity, reason, and resolution fields.
 
-- [ ] 19. **Step 1.4: Revision Re-Entry Protocol Contract Generation (SC-5)** — Generate a revision re-entry solve contract at `.issues/{issue-N}/revision-re-entry-contract.yaml` with cascade variables for each revision scope:
+- [ ] 19. **Step 1.35: Spec-to-Plan Handoff Manifest Generation (SC-27)** — Generate a spec-to-plan handoff manifest at `.issues/{issue-N}/spec-to-plan-handoff.yaml` that the plan writer and pre-flight handoff use to verify artifact completeness:
+
+    ```yaml
+    spec: {browser_url}/{owner}/{repo}/issues/{N}
+    generated_at: <YYYY-MM-DDTHH:MM:SSZ>
+    sc_coverage_total: <integer>
+    decomposition_classification: <single-task | multi-phase>
+    phase_count: <integer>
+    status: <complete | partial>
+    artifacts:
+      - path: .issues/{N}/spec.md
+        required: true
+      - path: .issues/{N}/sc-summary.yaml
+        required: true
+      - path: .issues/{N}/verification-consistency-contract.yaml
+        required: true
+      - path: .issues/{N}/revision-re-entry-contract.yaml
+        required: true
+      - path: .issues/{N}/spec-to-plan-handoff.yaml
+        required: true
+    ```
+
+    The handoff manifest is consumed by `implementation-pipeline/tasks/pre-flight-handoff.md` which validates that all required artifacts exist before the pipeline proceeds. If any required artifact is missing, pre-flight returns BLOCKED.
+
+- [ ] 19a. **Step 1.4: Revision Re-Entry Protocol Contract Generation (SC-5)** — Generate a revision re-entry solve contract at `.issues/{issue-N}/revision-re-entry-contract.yaml` with cascade variables for each revision scope:
 
     ```yaml
     spec: {browser_url}/{owner}/{repo}/issues/{N}
@@ -623,6 +659,20 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     This ensures the local workspace mirrors the remote state for off-network reference and diff-based drift detection.
 
+- [ ] 38a. **Step 7c: Save Full Spec Locally (SC-29)** — After creating the remote issue, save the full spec content to the local `.issues/{N}/spec.md` file:
+
+    - [ ] Write the complete spec body (including all sections, SC table, compliance blocks, preamble, and byline) to `.issues/{N}/spec.md`
+    - [ ] The local spec.md is the authoritative spec — the remote issue body is a condensed exec summary
+    - [ ] The plan writer reads from `.issues/{N}/spec.md`, not from the remote issue body
+    - [ ] Verify the file was written: `ls .issues/{N}/spec.md`
+
+- [ ] 38b. **Step 7d: Sync Local Artifacts to issues-data Branch (SC-33)** — After creating or modifying any files in `.issues/{N}/`, run `local-issues sync` to commit and push the local artifacts to the `issues-data` branch:
+
+    - [ ] Run `.opencode/tools/local-issues sync` to commit all local `.issues/{N}/` files and push to the `issues-data` branch
+    - [ ] This ensures links in the remote issue body that refer to the spec folder (`.issues/{N}/`) resolve correctly
+    - [ ] The `issues-data` branch is the canonical store for all spec artifacts — without sync, downstream consumers (plan writer, auditors) cannot access the local files
+    - [ ] Run `local-issues sync` after EVERY change to files in `.issues/{N}/` — not just at creation time
+
 - [ ] 39. **Step 8: User Review on Issue** — The user reviews the spec ON THE GITHUB ISSUE, not in chat.
 
     - If user requests revisions via issue comments: invoke `issue-operations --task body-edit` to update the issue body, then post update summary + URL + byline to chat
@@ -636,4 +686,5 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 - Preceded by: `requirements` (mandatory), `decompose`, `traceability`, `risk` (or explicitly skipped)
 - Extends: brainstorming Steps 7-9 (adapted, not verbatim move)
 - Calls: `issue-operations` (pre-creation → single-task-check → creation → body-edit)
+- Calls: `.opencode/tools/local-issues sync` (after all `.issues/{N}/` file changes)
 - Followed by: `spec-auditor`, then user review on the issue

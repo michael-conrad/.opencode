@@ -15,15 +15,39 @@ Write the plan document to `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`, val
 - Dispatch table validation passed
 - Approval cascade applied
 - Cross-reference synced to spec issue
+- Output contract loaded from `contracts/write-output-template.yaml` and validated — all compliance fields populated
 
 ## Procedure
 
-- [ ] 1. Write plan document header (Goal, Architecture, Tech Stack)
-- [ ] 2. Write each phase section with Pre-RED Common, Per-Item RED+green Chains, Post-RED/green
-- [ ] 3. Validate every dispatch marker skill name exists under `.opencode/skills/`
-- [ ] 4. Apply approval cascade per authorization_scope
-- [ ] 5. Sync cross-reference to spec issue body
-- [ ] 6. Return PASS with plan file path
+- [ ] 1. (**sub-agent**) Write plan document header — Goal, Architecture, Tech Stack
+  - Command: write plan header to `.issues/{N}/plan.md`
+  - SC: All
+  - Expected: header with issue ref, goal, architecture, files list
+
+- [ ] 2. (**sub-agent**) Write each phase section — Pre-RED Common, Per-Item RED+green Chains, Post-RED/green
+  - Command: write phase sections per Plan Format Requirements
+  - SC: All
+  - Expected: each phase has Concern, Files, SCs, Dependencies, Entry/Exit conditions
+
+- [ ] 3. (**sub-agent**) Validate dispatch markers — every dispatch marker skill name exists under `.opencode/skills/`
+  - Command: `ls .opencode/skills/<skill-name>/SKILL.md` for each dispatch marker
+  - SC: SC-5
+  - Expected: all referenced skills exist
+
+- [ ] 4. (**sub-agent**) Apply approval cascade — per authorization_scope
+  - Command: apply approval cascade matrix from spec
+  - SC: All
+  - Expected: approval cascade applied correctly
+
+- [ ] 5. (**sub-agent**) Sync cross-reference — to spec issue body
+  - Command: update spec issue with plan reference
+  - SC: All
+  - Expected: spec issue body updated
+
+- [ ] 6. (**inline**) Return PASS with plan file path — load output contract from `contracts/write-output-template.yaml`, validate compliance fields, and return
+  - Command: validate against `contracts/write-output-template.yaml`
+  - SC: SC-16, SC-18
+  - Expected: all compliance fields populated, PASS returned
 
 ## Plan Format Requirements
 
@@ -39,7 +63,7 @@ Every plan document MUST follow this structure. Plans that deviate from this for
    ```
 4. **Phase sections** — One `## Phase N — <name>` per phase, each with:
    - Phase metadata (Concern, Files, SCs, Dependencies, Entry/Exit conditions)
-   - Sequential numbered steps with dispatch indicators
+   - Checkbox steps (`- [ ] N.`) with dispatch indicators
    - Sub-steps indented under parent steps
    - RED+green item chains with interleaved ordering
    - SC annotations on each step
@@ -49,20 +73,35 @@ Every plan document MUST follow this structure. Plans that deviate from this for
 6. **Exit Criteria** — Numbered checklist `C1` through `C{N}`
 7. **Global sequential numbering** — Steps are numbered sequentially across the entire plan file. Each phase does NOT restart at 1. The first step of Phase 2 continues from the last step of Phase 1.
 
+### Three-Tier Plan Structure
+
+Every plan document MUST use a three-tier structure:
+
+| Tier | Level | Format | Purpose |
+|------|-------|--------|---------|
+| 1 — Global | Plan-wide | `- [ ] N.` (sequential across all phases) | Pre-RED common steps, global post-steps |
+| 2 — Per-Phase | Phase sections | `## Phase N — <name>` | Phase metadata + per-file RED+green chains |
+| 3 — Per-Item | Item chains | `- [ ] N.M.` (sub-steps) | RED → GREEN → doublecheck → commit per item |
+
+**Tier 1 (Global):** Steps numbered sequentially across the entire plan. Includes global pre-steps (coherence gate, pre-red-baseline) and global post-steps (adversarial audit, cross-validate, regression check, review-prep, exec-summary).
+
+**Tier 2 (Per-Phase):** Each phase section contains phase metadata and per-file RED+green item chains. Phase steps continue the global sequence number.
+
+**Tier 3 (Per-Item):** Each implementation item within a phase follows RED → GREEN → GREEN doublecheck → Checkpoint commit. Sub-steps are indented under the parent step.
+
 ### Dispatch Indicators
 
 Every step MUST use one of three dispatch indicators:
 
 | Indicator | Meaning | Example |
 |-----------|---------|---------|
-| `(**sub-agent**)` | Orchestrator dispatches a clean-room sub-agent via `task()` | `3. **RED (**sub-agent**).**` |
-| `(**clean-room**)` | Orchestrator dispatches a clean-room sub-agent (same as sub-agent) | `1. **Coherence gate (**clean-room**).**` |
-| `(**inline**)` | Orchestrator executes directly (no sub-agent) | `6. **Checkpoint commit (**inline**).**` |
+| `(**sub-agent**)` | Orchestrator dispatches a clean-room sub-agent via `task()` | `- [ ] 3. **RED (**sub-agent**).**` |
+| `(**clean-room**)` | Orchestrator dispatches a clean-room sub-agent (same as sub-agent) | `- [ ] 1. **Coherence gate (**clean-room**).**` |
+| `(**inline**)` | Orchestrator executes directly (no sub-agent) | `- [ ] 6. **Checkpoint commit (**inline**).**` |
 
 ### Prohibited Patterns
 
 - **No dispatch tables** — do not include implementation-pipeline dispatch tables in plan files. The plan defines WHAT to do; the orchestrator determines HOW to dispatch.
-- **No hardcoded gate sequences** — do not copy gate labels from implementation-pipeline. Reference them by name only.
 - **No TBD/TODO** — all file paths, function names, and commands must be exact.
 - **No shared cross-references** — each phase is self-contained. Do not reference steps from other phases.
 - **No zero-indexed numbering** — phases start at 1, steps start at 1.
@@ -78,7 +117,7 @@ Every step MUST use one of three dispatch indicators:
 3. Admonishment present verbatim at top and bottom
 4. At least one phase section
 5. Each phase has Concern, Files, SCs, Dependencies metadata
-6. Each phase has sequential numbered steps
+6. Each phase has checkbox steps (`- [ ] N.`)
 7. Each step has a dispatch indicator
 8. RED+green items have interleaved ordering (RED → GREEN → doublecheck → commit)
 9. SC annotations reference valid SC IDs from the spec
@@ -88,7 +127,7 @@ Every step MUST use one of three dispatch indicators:
 
 ### RED+green Item Chain Specification
 
-Each implementation item follows the chain: RED → GREEN → GREEN doublecheck → Checkpoint commit. Steps are interleaved — all 4 sub-steps for one item complete before the next item begins.
+Refer to `implementation-pipeline/SKILL.md` §Dispatch Routing Table for the canonical gate sequence. The plan references gate labels by name only — the dispatch routing table defines the chain.
 
 ### Phase Completion Block
 
