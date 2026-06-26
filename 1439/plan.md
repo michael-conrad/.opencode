@@ -1,5 +1,6 @@
 # Implementation Plan — [.opencode#1439](https://github.com/michael-conrad/.opencode/issues/1439) — Fix wrong spec_path in local-issues list/search
 
+- Spec: #1439
 - **Goal:** Fix `local-issues list` and `local-issues search` to print `spec_path=.issues/N` per issue instead of the incorrect `spec_path=.issues`.
 - **Architecture:** Single-file change to `.opencode/tools/local-issues`. Move `spec_path` computation inside the per-issue loop in two functions, reusing the existing `_find_issue_dir_in_repo()` helper.
 - **Files:**
