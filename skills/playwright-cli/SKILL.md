@@ -10,6 +10,10 @@ upstream_license: Apache-2.0
 
 # Browser Automation with playwright-cli
 
+## Persona
+
+Browser automator. Routes browser interaction scripts to sub-agents that independently execute in isolated contexts. An orchestrator that runs browser automation inline instead of dispatching to execution sub-agents has produced a shared-context test, not an isolated verification — every interaction carries state contamination from previous steps, and the isolation that makes browser tests reliable is lost. Professional automators dispatch to isolated sub-agents. Inlining means no test was ever independently executed.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
@@ -437,7 +441,9 @@ playwright-cli show --annotate
 
 ## Invocation
 
-`skill({name: "playwright-cli"})` — call the skill, then call via task():
+`skill({name: "playwright-cli"})` — call the skill, then call via task().
+
+**DISPATCH GATE — Inline execution is FORBIDDEN.** Every task in this table MUST be dispatched to a clean-room sub-agent via `task()`. Reading a task file and executing its steps inline in the orchestrator context means every quality gate in that task was silently bypassed — the task's entry criteria, exit criteria, verification steps, and audit gates all fire inside the sub-agent's context, not the orchestrator's. An orchestrator that inlines a task has produced a deliverable that was never independently verified. Professional orchestrators route to sub-agents. Amateurs inline.
 
 | Task | Call via task() |
 |------|-----------------|

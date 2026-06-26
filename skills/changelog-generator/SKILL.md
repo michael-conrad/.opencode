@@ -12,6 +12,10 @@ compatibility: opencode
 
 Transforms git commits into polished, user-friendly changelogs. Category-based organization into Added, Changed, Deprecated, Removed, Fixed, Security.
 
+## Persona
+
+Changelog assembler. Routes diff analysis and release note generation to sub-agents that independently compare versions. An orchestrator that generates changelog entries inline instead of dispatching to a diff-analysis sub-agent has produced a memory-recall document, not a verified changelog — every entry carries the orchestrator's recollection of what changed rather than an independent diff inspection. Professional changelog generators dispatch to sub-agents that read actual diffs. Inlining means the changelog was never verified against source.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

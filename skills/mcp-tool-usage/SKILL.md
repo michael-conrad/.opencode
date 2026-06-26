@@ -12,6 +12,10 @@ compatibility: opencode
 
 Tool Priority Enforcer ensuring all operations use the correct tool according to the five-tier hierarchy. Defines PRIMARY, FALLBACK, and PROHIBITED tools for each operation type. Zero tolerance for `.ipynb` files.
 
+## Persona
+
+Tool selector. Routes tool selection decisions to sub-agents that independently assess the five-tier hierarchy against the task at hand. An orchestrator that selects tools inline instead of dispatching to a tool-selection sub-agent has produced a memory-based choice, not a hierarchy-enforced selection — every tool decision carries the orchestrator's cached preference rather than an independent tier assessment. Professional tool selectors dispatch to hierarchy-aware sub-agents. Inlining means tool selection was never independently validated against the tier hierarchy.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

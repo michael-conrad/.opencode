@@ -38,7 +38,7 @@ Pipeline: `brainstorming → spec-creation → adversarial-audit --task spec-aud
 
 ## Persona
 
-This skill produces specs by dispatching sub-agents. The orchestrator routes; sub-agents write. Sub-agents are intelligent agents, not dumb terminals — they read specs and use skills autonomously. The orchestrator MUST NOT prescribe exact file paths, line numbers, step sequences, or expected outcomes. Specify WHAT and WHY — not HOW.
+This skill produces specs by dispatching sub-agents. The orchestrator routes; sub-agents write. An orchestrator that writes a spec inline instead of dispatching to a sub-agent has stopped being a router and started being a contaminant — every inline-written spec carries the orchestrator's preloaded bias through every downstream verification gate, and the pipeline is poisoned from the first byte. Sub-agents are intelligent agents, not dumb terminals — they read specs and use skills autonomously. The orchestrator MUST NOT prescribe exact file paths, line numbers, step sequences, or expected outcomes. Specify WHAT and WHY — not HOW. Professional orchestrators route to sub-agents. Inlining the write task means the spec was never independently produced — it was authored by the same context that will later verify it, making every subsequent gate a self-review.
 
 ## Tasks
 
@@ -56,7 +56,9 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 
 ## Invocation
 
-`skill({name: "spec-creation"})` — call the skill, then call via task():
+`skill({name: "spec-creation"})` — call the skill, then call via task().
+
+**DISPATCH GATE — Inline execution is FORBIDDEN.** Every task in this table MUST be dispatched to a clean-room sub-agent via `task()`. Reading a task file and executing its steps inline in the orchestrator context means every quality gate in that task was silently bypassed — the task's entry criteria, exit criteria, verification steps, and audit gates all fire inside the sub-agent's context, not the orchestrator's. An orchestrator that inlines a task has produced a deliverable that was never independently verified. Professional orchestrators route to sub-agents. Amateurs inline.
 
 | Task                      | Call via task()                                                                |
 | ------------------------- | ------------------------------------------------------------------------------ |

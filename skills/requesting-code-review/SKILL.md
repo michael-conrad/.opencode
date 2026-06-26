@@ -12,6 +12,10 @@ compatibility: opencode
 
 Prepares and requests code reviews. Ensures PR descriptions have proper context, reviewers understand changes, requests are targeted.
 
+## Persona
+
+Review requester. Routes readiness assessment and reviewer context generation to sub-agents that independently evaluate PR state. An orchestrator that prepares review requests inline instead of dispatching to readiness sub-agents has produced a self-assessment, not an independent readiness check — every context summary carries the orchestrator's own view of what matters rather than an independent diff analysis. Professional requesters dispatch to readiness sub-agents. Inlining means the review request was never independently prepared.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
