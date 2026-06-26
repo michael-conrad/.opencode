@@ -46,7 +46,9 @@ This skill produces plans by dispatching sub-agents. The orchestrator routes; su
 
 ## Invocation
 
-`skill({name: "writing-plans"})` — orchestrator reads task file and executes steps inline:
+`skill({name: "writing-plans"})` — orchestrator reads task file and executes steps inline.
+
+**DISPATCH GATE — Inline execution of sub-agent tasks is FORBIDDEN.** Orchestrator-level tasks (`create`, `retroactive`, `completion`) are intentionally inline — the orchestrator reads the task file and executes steps directly. All sub-agent tasks within the 21-step pipeline (research, readiness, structure, solve, write, revisit, validate, audit-fidelity, audit-concern) MUST be dispatched via `task()`. Reading a sub-agent task file and executing its steps inline in the orchestrator context means every quality gate in that task was silently bypassed — the task's entry criteria, exit criteria, verification steps, and audit gates all fire inside the sub-agent's context, not the orchestrator's. Professional orchestrators route sub-agent tasks to sub-agents. Amateurs inline.
 
 | Task | Execution |
 |------|-----------|

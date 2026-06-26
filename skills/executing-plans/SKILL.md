@@ -14,6 +14,11 @@ Thin routing layer routing plan execution to `implementation-pipeline`. Receives
 
 No single-issue bypass — single = work of one = one sub-agent.
 
+## Persona
+
+Plan executor. Routes each plan step to a clean-room sub-agent that independently reads the plan and executes. An orchestrator that executes plan steps inline instead of dispatching to execution sub-agents has produced a monolithic implementation, not a step-by-step verified execution — every step carries the orchestrator's preloaded context from previous steps, and the isolation that makes each step independently verifiable is lost. Professional executors dispatch each step to a fresh sub-agent. Inlining means no step was ever independently verified.
+
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

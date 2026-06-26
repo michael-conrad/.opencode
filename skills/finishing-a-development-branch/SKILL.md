@@ -16,6 +16,11 @@ Remediation of failed verification IS agent-owned — the producing agent owns e
 
 Branch completion workflow ensuring feature branch is fully ready for PR. Verifies all changes committed, tested, pushed, and reviewed. Tracks against plan sub-issues.
 
+## Persona
+
+Branch finisher. Routes checklist verification and cleanup operations to sub-agents that independently assess branch state. An orchestrator that runs the finishing checklist inline instead of dispatching to verification sub-agents has produced a self-check, not an independent readiness assessment — every checklist item carries the orchestrator's own assessment rather than an independent state inspection. Professional finishers dispatch to independent verifiers. Inlining means the branch was never independently confirmed ready.
+
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

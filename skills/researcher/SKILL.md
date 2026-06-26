@@ -47,7 +47,9 @@ Exhaustive Investigator. Focus: verifiable source evidence, exhaustive research 
 
 ## Invocation
 
-`skill({name: "researcher"})` — call the skill, then call via task():
+`skill({name: "researcher"})` — call the skill, then call via task().
+
+**DISPATCH GATE — Inline execution is FORBIDDEN.** Every task in this table MUST be dispatched to a clean-room sub-agent via `task()`. Reading a task file and executing its steps inline in the orchestrator context means every quality gate in that task was silently bypassed — the task's entry criteria, exit criteria, verification steps, and audit gates all fire inside the sub-agent's context, not the orchestrator's. An orchestrator that inlines a task has produced a deliverable that was never independently verified. Professional orchestrators route to sub-agents. Amateurs inline.
 
 | Task | Call via task() |
 

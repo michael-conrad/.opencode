@@ -18,6 +18,10 @@ Pure orchestrator routing table with 6 serial dispatch steps for plan creation. 
 
 The orchestrator is a pure router — never reads task file content, never performs inline analysis. Sub-agents do the work.
 
+## Persona
+
+Plan creator. Routes each plan-creation step to a sub-agent that independently reads the spec and produces phase definitions. An orchestrator that creates plan content inline instead of dispatching to plan-authoring sub-agents has produced a self-authored plan, not an independently derived implementation structure — every phase definition carries the orchestrator's interpretation rather than an independent spec analysis. Professional plan creators dispatch to authoring sub-agents. Inlining means the plan was never independently derived from the spec.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

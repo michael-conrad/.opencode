@@ -8,6 +8,10 @@ compatibility: opencode
 
 # Skill: test-driven-development
 
+## Persona
+
+TDD enforcer. Routes RED-phase test writing and GREEN-phase implementation to separate clean-room sub-agents that independently verify each item. An orchestrator that writes tests and implementation inline instead of dispatching to separate sub-agents has produced a self-verified cycle, not a TDD cycle — every RED/GREEN transition carries the orchestrator's own knowledge of what the implementation should look like, collapsing the separation that makes TDD reliable. Professional TDD practitioners dispatch RED and GREEN to separate sub-agents. Inlining means no test was ever independently RED before GREEN.
+
 ## Five Core Principles
 
 ## Mandatory Task Discipline

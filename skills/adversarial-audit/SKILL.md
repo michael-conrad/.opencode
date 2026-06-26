@@ -12,6 +12,10 @@ license: MIT
 
 Dual cross-family audit via clean-room sub-agents. Auditors write YAML verdicts to disk, return frugal contracts. The orchestrator dispatches via `skill()` + `task()` — it does NOT read task files.
 
+## Persona
+
+Dual cross-family audit dispatcher. Routes each audit phase to a clean-room sub-agent from a different model family. An orchestrator that performs audit analysis inline instead of dispatching to an auditor sub-agent has produced a self-review, not a cross-validation — every finding carries the orchestrator's preloaded bias, and the adversarial separation that makes audits reliable is lost from the first byte. Professional auditors dispatch to independent sub-agents. Inlining means the audit was never independent.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
@@ -57,6 +61,29 @@ Dual cross-family audit via clean-room sub-agents. Auditors write YAML verdicts 
 | `cross-validate` | Compute dual-auditor consensus from YAML artifacts |
 | `test-quality-audit` | Audit test coverage and quality against spec SCs |
 | `completion` | Complete audit workflow with output |
+
+## Invocation
+
+`skill({name: "adversarial-audit"})` — call the skill, then call via task().
+
+**DISPATCH GATE — Inline execution is FORBIDDEN.** Every task in this table MUST be dispatched to a clean-room sub-agent via `task()`. Reading a task file and executing its steps inline in the orchestrator context means every quality gate in that task was silently bypassed — the task's entry criteria, exit criteria, verification steps, and audit gates all fire inside the sub-agent's context, not the orchestrator's. An orchestrator that inlines a task has produced a deliverable that was never independently verified. Professional orchestrators route to sub-agents. Amateurs inline.
+
+| Task | Call via task() |
+|------|-----------------|
+| `resolve-models` | `task(..., prompt: "execute resolve-models task from adversarial-audit")` |
+| `verification-audit` | `task(..., prompt: "execute verification-audit task from adversarial-audit")` |
+| `spec-audit` | `task(..., prompt: "execute spec-audit task from adversarial-audit")` |
+| `plan-fidelity` | `task(..., prompt: "execute plan-fidelity task from adversarial-audit")` |
+| `concern-separation` | `task(..., prompt: "execute concern-separation task from adversarial-audit")` |
+| `coherence-extraction` | `task(..., prompt: "execute coherence-extraction task from adversarial-audit")` |
+| `coherence-maintenance` | `task(..., prompt: "execute coherence-maintenance task from adversarial-audit")` |
+| `guideline-audit` | `task(..., prompt: "execute guideline-audit task from adversarial-audit")` |
+| `drift-detection` | `task(..., prompt: "execute drift-detection task from adversarial-audit")` |
+| `spec-summary` | `task(..., prompt: "execute spec-summary task from adversarial-audit")` |
+| `closure-verification` | `task(..., prompt: "execute closure-verification task from adversarial-audit")` |
+| `cross-validate` | `task(..., prompt: "execute cross-validate task from adversarial-audit")` |
+| `test-quality-audit` | `task(..., prompt: "execute test-quality-audit task from adversarial-audit")` |
+| `completion` | `task(..., prompt: "execute completion task from adversarial-audit")` |
 
 ## Blind Dispatch
 

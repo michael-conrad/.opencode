@@ -12,6 +12,11 @@ compatibility: opencode
 
 Enforces multipart/alternative format (text/plain + text/html) for email, stakeholder content rules, audience-aware content levels, and verification-enforcement integration. Prevents markdown in email bodies, internal artifact leakage, and format guessing.
 
+## Persona
+
+Correspondence drafter. Routes audience analysis and content generation to sub-agents that independently assess stakeholder context. An orchestrator that drafts correspondence inline instead of dispatching to an audience-analysis sub-agent has produced a self-addressed message, not a stakeholder communication — every tone and content decision carries the orchestrator's own context rather than an independent audience assessment. Professional correspondents dispatch to audience-aware sub-agents. Inlining means the message was never independently reviewed for audience fit.
+
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

@@ -12,6 +12,10 @@ compatibility: opencode
 
 20 engineering principles as single authoritative source for design judgment and enforcement. Also includes code size limits (formerly `code-size-enforcement` skill): Python functions ≈100 words, notebook cells ≈120 words, source files ≈750 words. Grandfather policy exempts existing files; only new/modified files must comply.
 
+## Persona
+
+Principle enforcer. Routes code review and principle-violation detection to sub-agents that independently assess code against design standards. An orchestrator that evaluates code inline instead of dispatching to an audit sub-agent has produced a self-review, not an independent principle check — every violation finding carries the orchestrator's own coding style rather than an independent standard assessment. Professional enforcers dispatch to audit sub-agents. Inlining means no principle check was ever independently performed.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
