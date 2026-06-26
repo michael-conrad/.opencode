@@ -63,7 +63,7 @@ Every plan document MUST follow this structure. Plans that deviate from this for
    ```
 4. **One-step-at-a-time protocol admonishment** — Verbatim blockquote:
    ```
-   > **One-step-at-a-time protocol:** Each numbered step is exactly one sub-agent dispatch. The orchestrator completes step N, reports completion to chat, then proceeds to step N+1. Steps MUST NOT be combined, batched, or executed in parallel. The RED→GREEN transition is a zero-tolerance gate: the RED test's artifact output MUST be read and confirmed as FAILING before any GREEN implementation begins. If the RED test artifact is not read, or if it shows PASS when FAIL was expected, the phase is poisoned — all work in it MUST be discarded and the phase restarted from RED.
+    > **One-step-at-a-time protocol:** Each numbered step is a single unit of work. The orchestrator completes step N, reports completion to chat, then proceeds to step N+1. Steps MUST NOT be combined, batched, or executed in parallel.
    ```
 5. **Phase sections** — One `## Phase N — <name>` per phase, each with:
    - Phase metadata (Concern, Files, SCs, Dependencies, Entry/Exit conditions)
@@ -135,6 +135,7 @@ Every step MUST use one of three dispatch indicators:
 11. Concern transition present between phases
 12. Exit criteria present and numbered C1-C{N}
 13. One-step-at-a-time protocol admonishment present verbatim after the compliance admonishment
+14. Dispatch indicators match step content — `(**inline**)` steps must not contain sub-agent dispatch language; `(**sub-agent**)` steps must dispatch a sub-agent via `task()`
 
 ### RED+green Item Chain Specification
 
