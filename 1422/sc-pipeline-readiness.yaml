@@ -1,0 +1,19 @@
+status: PASS
+sc_summary: "5 SCs across 4 phases. SC-1 through SC-4 are string evidence type (text modifications to default.txt, 020-go-prohibitions.md, 34 SKILL.md files). SC-5 is behavioral evidence type (opencode-cli run with clean-room semantic inspector)."
+phase_dependencies:
+  - phase: 1
+    name: "default.txt Tone section fix"
+    depends_on: []
+    scs: ["SC-1", "SC-2"]
+  - phase: 2
+    name: "020-go-prohibitions.md cost-blind rules"
+    depends_on: [1]
+    scs: ["SC-3"]
+  - phase: 3
+    name: "Context cost frame in SKILL.md files"
+    depends_on: [2]
+    scs: ["SC-4"]
+  - phase: 4
+    name: "Behavioral enforcement test"
+    depends_on: [1, 2, 3]
+    scs: ["SC-5"]
