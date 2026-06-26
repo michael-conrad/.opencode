@@ -1,6 +1,6 @@
 ---
 name: correspondence
-description: "Use when drafting stakeholder emails, status updates, or external communications. Audience separation preserves professional credibility."
+description: "Use when drafting stakeholder emails, status updates, or external communications. Audience separation MUST be maintained — always required for professional credibility."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

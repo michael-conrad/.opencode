@@ -1,6 +1,6 @@
 ---
 name: completeness-gate
-description: "Use when running a non-adversarial completeness check on a deliverable after RED/GREEN sub-agent returns, before routing to adversarial auditor. Completeness is the bridge between implementation and adversarial audit — skip this gate and defects leak through."
+description: "Use when running a non-adversarial completeness check on a deliverable after RED/GREEN sub-agent returns, before routing to adversarial auditor. Completeness check is MANDATORY before routing to adversarial audit — not optional."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode
