@@ -1,6 +1,6 @@
 ---
 name: researcher
-description: "Use when discovering information using appropriate modalities, producing findings with source attribution and explicit gap reporting. Every unverified finding is a liability, not evidence."
+description: "Use when discovering information using appropriate modalities, producing findings with source attribution and explicit gap reporting. All findings MUST be verified against live sources — every unverified finding is a liability, not evidence."
 type: problem-solving
 license: MIT
 compatibility: opencode

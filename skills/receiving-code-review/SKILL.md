@@ -1,6 +1,6 @@
 ---
 name: receiving-code-review
-description: "Use when receiving code review feedback on a PR, or when addressing review comments. Every unresolved comment is a regression waiting to surface."
+description: "Use when receiving code review feedback on a PR, or when addressing review comments. All review comments MUST be addressed — every unresolved comment is a regression waiting to surface."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

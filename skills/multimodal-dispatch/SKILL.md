@@ -1,6 +1,6 @@
 ---
 name: multimodal-dispatch
-description: "Use when routing AI agent tasks to appropriate models based on content modality, probing Ollama model capabilities, or dispatching sub-agents with modality-aware model selection. Modality-aware dispatch is how professional systems use their tools."
+description: "Use when routing AI agent tasks to appropriate models based on content modality, probing Ollama model capabilities, or dispatching sub-agents with modality-aware model selection. Modality-aware dispatch is REQUIRED for professional systems — always use the correct model for each modality."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

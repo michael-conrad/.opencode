@@ -1,6 +1,6 @@
 ---
 name: pr-creation-workflow
-description: "Use when asking about when to create a PR or whether PR creation is authorized. Every PR must be an authorized, intentional delivery."
+description: "Use when asking about when to create a PR or whether PR creation is authorized. Every PR MUST be an authorized, intentional delivery."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

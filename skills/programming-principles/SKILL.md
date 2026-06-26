@@ -1,6 +1,6 @@
 ---
 name: programming-principles
-description: "Use when designing functions, classes, or modules; writing or reviewing implementation code; making architecture decisions; evaluating tradeoffs, or enforcing code size limits. Every violated principle is technical debt incurred, not saved."
+description: "Use when designing functions, classes, or modules; writing or reviewing implementation code; making architecture decisions; evaluating tradeoffs, or enforcing code size limits. Programming principles MUST be followed — every violated principle is technical debt incurred, not saved."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode
