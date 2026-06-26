@@ -1,6 +1,6 @@
 ---
 name: pre-analysis
-description: "Use when task()ing any execution sub-agent to independently determine scope. Pre-analysis before dispatch is what reliable orchestrators do."
+description: "Use when task()ing any execution sub-agent to independently determine scope. Pre-analysis MUST be performed before dispatch — always required."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

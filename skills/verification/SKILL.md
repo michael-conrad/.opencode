@@ -1,6 +1,6 @@
 ---
 name: verification
-description: "Use when verifying claims against evidence using appropriate modalities. Produces PASS/FAIL/UNVERIFIED per claim with evidence artifacts. Verification turns guesses into facts."
+description: "Use when verifying claims against evidence using appropriate modalities. Produces PASS/FAIL/UNVERIFIED per claim with evidence artifacts. Verification is REQUIRED — turns guesses into facts."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

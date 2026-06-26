@@ -1,6 +1,6 @@
 ---
 name: systematic-debugging
-description: "Use when encountering a bug, error, or unexpected behavior, or before making code changes to fix an issue. Systematic debugging finds root causes."
+description: "Use when encountering a bug, error, or unexpected behavior, or before making code changes to fix an issue. Systematic debugging is REQUIRED — it finds root causes."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

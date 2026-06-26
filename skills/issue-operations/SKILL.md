@@ -1,6 +1,6 @@
 ---
 name: issue-operations
-description: "Use when creating, commenting on, or closing GitHub Issues. Routes to GitHub MCP or GitBucket API based on github.platform. Tracked work is the only work that matters."
+description: "Use when creating, commenting on, or closing GitHub Issues. Routes to GitHub MCP or GitBucket API based on github.platform. Issue tracking is REQUIRED — untracked work is lost work."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

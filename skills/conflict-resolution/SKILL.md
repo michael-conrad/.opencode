@@ -1,6 +1,6 @@
 ---
 name: conflict-resolution
-description: "Use when resolving git conflicts during rebase, merge, or cherry-pick operations. Intent analysis before resolution separates correct merges from silent corruption."
+description: "Use when resolving git conflicts during rebase, merge, or cherry-pick operations. Intent analysis MUST be performed before resolution — always required."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

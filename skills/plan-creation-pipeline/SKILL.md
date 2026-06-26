@@ -1,6 +1,6 @@
 ---
 name: plan-creation-pipeline
-description: "Use when creating a plan from an approved spec through a formal 6-step pipeline with Z3-verified state transitions. Plan creation without a structured pipeline produces inconsistent plans."
+description: "Use when creating a plan from an approved spec through a formal 6-step pipeline with Z3-verified state transitions. Plan creation MUST use the structured pipeline — always required."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

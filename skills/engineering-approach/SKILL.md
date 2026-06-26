@@ -1,6 +1,6 @@
 ---
 name: engineering-approach
-description: "Use when implementing a spec, or when design, verification, and scope discipline are needed. Agents who skip this produce fragile systems."
+description: "Use when implementing a spec, or when design, verification, and scope discipline are needed. Design, verification, and scope discipline are REQUIRED — not optional."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode
