@@ -1,0 +1,43 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+schema_version: "2.0"
+variables:
+  P0:
+    type: bool
+    nullable: false
+  P1:
+    type: bool
+    nullable: false
+  P2:
+    type: bool
+    nullable: false
+  P3:
+    type: bool
+    nullable: false
+  P4:
+    type: bool
+    nullable: false
+  P5:
+    type: bool
+    nullable: false
+  P6:
+    type: bool
+    nullable: false
+preconditions:
+  - "z3.Not(P0)"
+  - "z3.Not(P1)"
+  - "z3.Not(P2)"
+  - "z3.Not(P3)"
+  - "z3.Not(P4)"
+  - "z3.Not(P5)"
+  - "z3.Not(P6)"
+invariants:
+  - "z3.Implies(P1, P0)"
+  - "z3.Implies(P2, P1)"
+  - "z3.Implies(P3, P2)"
+  - "z3.Implies(P4, P3)"
+  - "z3.Implies(P5, P4)"
+  - "z3.Implies(P6, P5)"
+postconditions:
+  - "P6"

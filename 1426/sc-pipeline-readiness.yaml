@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+schema_version: "2.0"
+status: PASS
+sc_summary: "4 SCs: 3 string (SC-1, SC-2, SC-3) + 1 behavioral (SC-4). All SCs are self-contained edits to 020-go-prohibitions.md."
+phase_dependencies: []
+phase_count: 1
+sc_coverage:
+  - id: SC-1
+    evidence_type: string
+    phase: 1
+  - id: SC-2
+    evidence_type: string
+    phase: 1
+  - id: SC-3
+    evidence_type: string
+    phase: 1
+  - id: SC-4
+    evidence_type: behavioral
+    phase: 1
