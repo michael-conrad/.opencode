@@ -1,0 +1,13 @@
+# Solve contract for spec #1437 dependency ordering
+variables:
+  p1_dispatch_gate_done:
+    type: bool
+  p2_persona_done:
+    type: bool
+  p3_behavioral_tests_ready:
+    type: bool
+preconditions:
+  - "p3_behavioral_tests_ready == z3.And(p1_dispatch_gate_done, p2_persona_done)"
+invariants:
+  - "z3.Not(z3.And(p3_behavioral_tests_ready, z3.Not(p1_dispatch_gate_done)))"
+  - "z3.Not(z3.And(p3_behavioral_tests_ready, z3.Not(p2_persona_done)))"

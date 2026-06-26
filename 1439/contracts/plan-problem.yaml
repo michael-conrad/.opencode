@@ -1,0 +1,17 @@
+domain: local-issues-fix
+types:
+  - name: issue
+fluents:
+  - name: spec_path_fixed
+  - name: spec_path_broken
+actions:
+  - name: move_spec_path_inside_loop
+    preconditions:
+      - spec_path_broken
+    effects:
+      - spec_path_fixed
+      - not spec_path_broken
+init:
+  - spec_path_broken
+goals:
+  - spec_path_fixed

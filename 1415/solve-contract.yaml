@@ -1,0 +1,10 @@
+# Solve contract for spec #1415 dependency ordering
+variables:
+  p1_file_change_done:
+    type: bool
+  p2_behavioral_tests_ready:
+    type: bool
+preconditions:
+  - "p2_behavioral_tests_ready == p1_file_change_done"
+invariants:
+  - "z3.Not(z3.And(p2_behavioral_tests_ready, z3.Not(p1_file_change_done)))"

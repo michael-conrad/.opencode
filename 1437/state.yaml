@@ -1,0 +1,5 @@
+timestamp: '2026-06-26T15:34:01.113931+00:00'
+variables:
+  p1_dispatch_gate_done: true
+  p2_persona_done: true
+  p3_behavioral_tests_ready: true

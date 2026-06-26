@@ -1,0 +1,59 @@
+# Dependency-ordering solve contract for spec #1437
+contract:
+  id: "1437-dependency-contract"
+  spec: "1437"
+  phases:
+    - id: p1-dispatch-gate
+      depends_on: []
+      concern: "Add DISPATCH_GATE blocks to 4 skills"
+      items:
+        - adversarial-audit/SKILL.md
+        - writing-plans/SKILL.md
+        - researcher/SKILL.md
+        - playwright-cli/SKILL.md
+    - id: p2-persona
+      depends_on: []
+      concern: "Add Persona sections to 20 skills"
+      items:
+        - adversarial-audit/SKILL.md
+        - playwright-cli/SKILL.md
+        - approval-gate/SKILL.md
+        - changelog-generator/SKILL.md
+        - completion-core/SKILL.md
+        - correspondence/SKILL.md
+        - engineering-approach/SKILL.md
+        - executing-plans/SKILL.md
+        - finishing-a-development-branch/SKILL.md
+        - implementation-pipeline/SKILL.md
+        - mcp-tool-usage/SKILL.md
+        - plan-creation-pipeline/SKILL.md
+        - pr-creation-workflow/SKILL.md
+        - programming-principles/SKILL.md
+        - receiving-code-review/SKILL.md
+        - requesting-code-review/SKILL.md
+        - skill-creator/SKILL.md
+        - sync-guidelines/SKILL.md
+        - systematic-debugging/SKILL.md
+        - test-driven-development/SKILL.md
+    - id: p3-behavioral-tests
+      depends_on:
+        - p1-dispatch-gate
+        - p2-persona
+      concern: "Behavioral enforcement tests for all changes"
+      items:
+        - .opencode/tests/behaviors/1437-sc1-dispatch-gate-adversarial-audit.sh
+        - .opencode/tests/behaviors/1437-sc2-dispatch-gate-writing-plans.sh
+        - .opencode/tests/behaviors/1437-sc3-dispatch-gate-researcher.sh
+        - .opencode/tests/behaviors/1437-sc4-dispatch-gate-playwright-cli.sh
+        - .opencode/tests/behaviors/1437-sc5-persona-all-20.sh
+        - .opencode/tests/behaviors/1437-sc6-persona-domain-specific.sh
+        - .opencode/tests/behaviors/1437-sc7-persona-inline-consequence.sh
+        - .opencode/tests/behaviors/1437-sc8-behavioral-dispatch-vs-inline.sh
+        - .opencode/tests/behaviors/1437-sc9-behavioral-spec-creation.sh
+        - .opencode/tests/behaviors/1437-sc10-dispatch-gate-regression.sh
+  ordering:
+    - p1-dispatch-gate and p2-persona are independent (parallel)
+    - p3-behavioral-tests requires both p1 and p2 complete
+    - Within p1: all 4 items are independent (parallel)
+    - Within p2: all 20 items are independent (parallel)
+    - Within p3: all 10 items are independent (parallel)

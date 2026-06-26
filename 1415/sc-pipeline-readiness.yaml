@@ -1,0 +1,18 @@
+# Pipeline-readiness gate for spec #1415
+# Created retroactively — spec was created manually, not through spec-creation pipeline
+status: PASS
+sc_summary:
+  total: 3
+  evidence_types:
+    - behavioral
+    - string
+  phases:
+    - id: p1-file-change
+      sc_ids: [SC-1]
+      evidence_types: [string]
+    - id: p2-behavioral-tests
+      sc_ids: [SC-2, SC-3]
+      evidence_types: [behavioral]
+phase_dependencies:
+  p2-behavioral-tests:
+    requires: [p1-file-change]

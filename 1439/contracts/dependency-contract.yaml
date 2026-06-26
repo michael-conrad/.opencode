@@ -1,0 +1,25 @@
+variables:
+  phase_1_done:
+    type: bool
+  all_phases_done:
+    type: bool
+
+preconditions:
+  - "z3.Not(phase_1_done)"
+
+postconditions:
+  - "phase_1_done"
+
+invariants:
+  - "z3.Implies(phase_1_done, all_phases_done)"
+
+phases:
+  - phase: 1
+    name: "Fix spec_path in list and search commands"
+    concern: "Fix spec_path computation in _search_in_repo() and _list_issues_in_repo()"
+    depends_on: []
+    scs:
+      - SC-1: "local-issues list prints spec_path=.issues/N for each issue"
+      - SC-2: "local-issues search prints spec_path=.issues/N for each result"
+      - SC-3: "local-issues read continues to print correct spec_path=.issues/N"
+      - SC-4: "No regression in other commands using _spec_path_for_issue()"

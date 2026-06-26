@@ -1,0 +1,66 @@
+# Phase-to-skill mapping per #1311 format
+mapping:
+  - phase: p1-dispatch-gate
+    skill: writing-plans
+    task: create
+    sub_agent: general
+    files:
+      - .opencode/skills/adversarial-audit/SKILL.md
+      - .opencode/skills/writing-plans/SKILL.md
+      - .opencode/skills/researcher/SKILL.md
+      - .opencode/skills/playwright-cli/SKILL.md
+    sc_coverage:
+      - SC-1: adversarial-audit DISPATCH_GATE present
+      - SC-2: writing-plans DISPATCH_GATE present
+      - SC-3: researcher DISPATCH_GATE present
+      - SC-4: playwright-cli DISPATCH_GATE present
+
+  - phase: p2-persona
+    skill: writing-plans
+    task: create
+    sub_agent: general
+    files:
+      - .opencode/skills/adversarial-audit/SKILL.md
+      - .opencode/skills/approval-gate/SKILL.md
+      - .opencode/skills/changelog-generator/SKILL.md
+      - .opencode/skills/completion-core/SKILL.md
+      - .opencode/skills/correspondence/SKILL.md
+      - .opencode/skills/engineering-approach/SKILL.md
+      - .opencode/skills/executing-plans/SKILL.md
+      - .opencode/skills/finishing-a-development-branch/SKILL.md
+      - .opencode/skills/implementation-pipeline/SKILL.md
+      - .opencode/skills/mcp-tool-usage/SKILL.md
+      - .opencode/skills/plan-creation-pipeline/SKILL.md
+      - .opencode/skills/playwright-cli/SKILL.md
+      - .opencode/skills/pr-creation-workflow/SKILL.md
+      - .opencode/skills/programming-principles/SKILL.md
+      - .opencode/skills/receiving-code-review/SKILL.md
+      - .opencode/skills/requesting-code-review/SKILL.md
+      - .opencode/skills/skill-creator/SKILL.md
+      - .opencode/skills/sync-guidelines/SKILL.md
+      - .opencode/skills/systematic-debugging/SKILL.md
+      - .opencode/skills/test-driven-development/SKILL.md
+    sc_coverage:
+      - SC-5: All 20 skills have Persona
+      - SC-6: Each Persona is domain-specific
+      - SC-7: Each Persona includes inline consequence
+
+  - phase: p3-behavioral-tests
+    skill: writing-plans
+    task: create
+    sub_agent: general
+    files:
+      - .opencode/tests/behaviors/1437-sc1-dispatch-gate-adversarial-audit.sh
+      - .opencode/tests/behaviors/1437-sc2-dispatch-gate-writing-plans.sh
+      - .opencode/tests/behaviors/1437-sc3-dispatch-gate-researcher.sh
+      - .opencode/tests/behaviors/1437-sc4-dispatch-gate-playwright-cli.sh
+      - .opencode/tests/behaviors/1437-sc5-persona-all-20.sh
+      - .opencode/tests/behaviors/1437-sc6-persona-domain-specific.sh
+      - .opencode/tests/behaviors/1437-sc7-persona-inline-consequence.sh
+      - .opencode/tests/behaviors/1437-sc8-behavioral-dispatch-vs-inline.sh
+      - .opencode/tests/behaviors/1437-sc9-behavioral-spec-creation.sh
+      - .opencode/tests/behaviors/1437-sc10-dispatch-gate-regression.sh
+    sc_coverage:
+      - SC-8: Behavioral test for task() dispatch
+      - SC-9: Behavioral test for spec-creation
+      - SC-10: Regression check — 36+ skills retain DISPATCH_GATE

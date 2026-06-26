@@ -1,0 +1,26 @@
+# Phase-to-Skill Mapping for Issue #1415
+schema_version: "1.0"
+mappings:
+  - phase: p1-file-change
+    name: Auto-dispatch table routing update
+    concern: file_edit
+    skill: writing-plans
+    task: create
+    sub_agent: general
+    files:
+      - .opencode/skills/approval-gate/enforcement/auto-dispatch-table.md
+    sc_coverage:
+      - SC-1: for_pr row includes verify-already-implemented dispatch
+
+  - phase: p2-behavioral-tests
+    name: Behavioral enforcement tests
+    concern: behavioral_test
+    skill: writing-plans
+    task: create
+    sub_agent: general
+    files:
+      - .opencode/tests/behaviors/1415-sc2-autoclose-already-implemented.sh
+      - .opencode/tests/behaviors/1415-sc3-gapfill-unimplemented.sh
+    sc_coverage:
+      - SC-2: for_pr on already-implemented → autoclose, no PR
+      - SC-3: for_pr on unimplemented → gap-fill + PR
