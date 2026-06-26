@@ -76,6 +76,7 @@ All tasks run via `task(subagent_type="general")` with `{ issue_number, worktree
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 
 > **Context cost frame:** The orchestrator's context is the most expensive resource in the pipeline — sub-agents do the work, not the orchestrator. Every byte held by the orchestrator costs `byte × remaining_dispatches²`. See `020-go-prohibitions.md` §1.1.
+> This cost frame applies to orchestrator context only — it does NOT mean the agent should minimize message count, pipeline steps, or user-facing output.
 
 The orchestrator MUST NOT preload execution context into `task()` prompts.
 Every sub-agent MUST independently discover scope and produce its own result contract.

@@ -68,6 +68,7 @@ See `tasks/contract.md` for the full schema reference — variables section (typ
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 
 > **Context cost frame:** The orchestrator's context is the most expensive resource in the pipeline — sub-agents do the work, not the orchestrator.
+> This cost frame applies to orchestrator context only — it does NOT mean the agent should minimize message count, pipeline steps, or user-facing output.
 
 The orchestrator MUST NOT preload expected outcomes, file paths, or reasoning into task() prompts. Sub-agents independently discover scope and return result contracts.
 
