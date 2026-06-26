@@ -1,0 +1,33 @@
+status: PASS
+sc_summary:
+  total_scs: 5
+  evidence_types:
+    - string: 4
+    - behavioral: 1
+  sc_ids:
+    - SC-1: "Top admonishment wording fix"
+    - SC-2: "Remove RED→GREEN from top admonishment"
+    - SC-3: "Bottom admonishment unchanged"
+    - SC-4: "Validation rule 14 in write.md"
+    - SC-5: "validate.md dispatch indicator check (behavioral)"
+phase_dependency_declarations:
+  - phase: 1
+    name: "Fix top admonishment wording"
+    files:
+      - .opencode/skills/writing-plans/tasks/write.md
+    scs: [SC-1, SC-2]
+  - phase: 2
+    name: "Add validation rule 14"
+    files:
+      - .opencode/skills/writing-plans/tasks/write.md
+    scs: [SC-4]
+  - phase: 3
+    name: "Add dispatch indicator validation check"
+    files:
+      - .opencode/skills/writing-plans/tasks/validate.md
+    scs: [SC-5]
+  - phase: 4
+    name: "Verify bottom admonishment unchanged"
+    files:
+      - .opencode/skills/writing-plans/tasks/write.md
+    scs: [SC-3]
