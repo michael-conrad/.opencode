@@ -1,0 +1,25 @@
+phases:
+  - id: 1
+    name: "default.txt Tone section fix"
+    files:
+      - ".opencode/prompts/default.txt"
+    scs: ["SC-1", "SC-2"]
+    depends_on: []
+  - id: 2
+    name: "020-go-prohibitions.md cost-blind rules"
+    files:
+      - ".opencode/guidelines/020-go-prohibitions.md"
+    scs: ["SC-3"]
+    depends_on: [1]
+  - id: 3
+    name: "SKILL.md context cost frame scoping"
+    files:
+      - ".opencode/skills/*/SKILL.md"
+    scs: ["SC-4"]
+    depends_on: [2]
+  - id: 4
+    name: "Behavioral enforcement test"
+    files:
+      - ".opencode/tests/behaviors/1422-no-efficiency-rationalization.sh"
+    scs: ["SC-5"]
+    depends_on: [1, 2, 3]

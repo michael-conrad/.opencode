@@ -1,0 +1,92 @@
+# Problem — .opencode#1387
+# Generated: 2026-06-26
+domain: skill-card-lint
+types:
+  - name: phase
+  - name: sub_phase
+  - name: rule
+objects:
+  - name: p1
+    type: phase
+  - name: sp1_1
+    type: sub_phase
+  - name: sp1_2
+    type: sub_phase
+  - name: sp1_3
+    type: sub_phase
+  - name: r1
+    type: rule
+  - name: r2
+    type: rule
+  - name: r3
+    type: rule
+  - name: r4
+    type: rule
+  - name: r5
+    type: rule
+  - name: r6
+    type: rule
+fluents:
+  - name: sub_phase_complete
+    params:
+      - name: sp
+        type: sub_phase
+  - name: rule_implemented
+    params:
+      - name: r
+        type: rule
+  - name: all_rules_implemented
+  - name: verification_passed
+  - name: phase_complete
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: complete_pre_phase_analysis
+    preconditions: []
+    effects:
+      - sub_phase_complete(sp1_1)
+  - name: implement_rule
+    params:
+      - name: r
+        type: rule
+    preconditions:
+      - sub_phase_complete(sp1_1)
+    effects:
+      - rule_implemented(r)
+  - name: complete_per_rule_sub_phase
+    preconditions:
+      - rule_implemented(r1)
+      - rule_implemented(r2)
+      - rule_implemented(r3)
+      - rule_implemented(r4)
+      - rule_implemented(r5)
+      - rule_implemented(r6)
+    effects:
+      - sub_phase_complete(sp1_2)
+  - name: complete_all_rules
+    preconditions:
+      - sub_phase_complete(sp1_2)
+    effects:
+      - all_rules_implemented
+  - name: pass_verification
+    preconditions:
+      - all_rules_implemented
+    effects:
+      - verification_passed
+  - name: complete_post_phase_verification
+    preconditions:
+      - verification_passed
+    effects:
+      - sub_phase_complete(sp1_3)
+  - name: complete_phase
+    params:
+      - name: p
+        type: phase
+    preconditions:
+      - sub_phase_complete(sp1_3)
+    effects:
+      - phase_complete(p)
+init: []
+goals:
+  - phase_complete(p1)

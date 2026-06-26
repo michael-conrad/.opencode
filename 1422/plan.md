@@ -1,8 +1,10 @@
 # Implementation Plan — [#1422](https://github.com/michael-conrad/.opencode/issues/1422) — Fix framing conflict: "brevity serves the user" causes false efficiency rationalization
 
-**Goal:** Eliminate the framing conflict where positive identity mandates for brevity in chat output cause agents to falsely rationalize skipping or shortcutting pipeline execution steps.
+**Spec:** #1422
 
-**Architecture:** Four sequential phases targeting the root cause chain: (1) fix the primary source in `default.txt` Tone section, (2) fix the secondary source in `020-go-prohibitions.md` cost-blind rules, (3) fix the tertiary source in SKILL.md context cost frames, (4) finalize behavioral enforcement test. Behavioral test is written in Phase 1 (RED) and accumulates assertions across all phases. Each item includes adversarial audit after GREEN VbC.
+**Goal:** Eliminate agent efficiency rationalizations during pipeline execution by scoping brevity mandates, universalizing cost-blind rules, and re-scoping context cost frames.
+
+**Architecture:** Four sequential phases modifying `.opencode/` configuration files. Each phase follows RED→GREEN→doublecheck→commit TDD cycle with behavioral tests. Strict dependency chain: Phase 1 → Phase 2 → Phase 3 → Phase 4.
 
 **Files:**
 - `.opencode/prompts/default.txt` — Phase 1
@@ -12,204 +14,204 @@
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
-> **One-step-at-a-time protocol:** Each numbered step is exactly one sub-agent dispatch. The orchestrator completes step N, reports completion to chat, then proceeds to step N+1. Steps MUST NOT be combined, batched, or executed in parallel. The RED→GREEN transition is a zero-tolerance gate: the RED test's artifact output MUST be read and confirmed as FAILING before any GREEN implementation begins. If the RED test artifact is not read, or if it shows PASS when FAIL was expected, the phase is poisoned — all work in it MUST be discarded and the phase restarted from RED.
+> **One-step-at-a-time protocol:** Each numbered step is a single unit of work. The orchestrator completes step N, reports completion to chat, then proceeds to step N+1. Steps MUST NOT be combined, batched, or executed in parallel.
 
-## Phase 1 — `default.txt` Tone section fix
+### Z3 Contract Structure
 
-**Concern:** The `default.txt` Tone and Style section (lines 62-75) contains unqualified brevity mandates that agents generalize from chat output formatting to pipeline execution decisions.
+Each Z3 check step validates the previous sub-agent's output against a contract. The contract structure uses hierarchical booleans:
+
+- **Phase booleans**: `P1_done`, `P2_done`, `P3_done`, `P4_done`
+- **Item booleans**: `P1_I1_done`, `P1_I2_done`, `P2_I1_done`, `P3_I1_done`, `P4_I1_done`
+- **Gate booleans**: `P1_I1_G1_done` (coherence), `P1_I1_G2_done` (pre-red-baseline), `P1_I1_G3_done` (RED), `P1_I1_G4_done` (Z3-check-RED), `P1_I1_G5_done` (RED-doublecheck), `P1_I1_G6_done` (Z3-check-RED-doublecheck), `P1_I1_G7_done` (post-RED-enforcement), `P1_I1_G8_done` (Z3-check-post-RED), `P1_I1_G9_done` (GREEN), `P1_I1_G10_done` (Z3-check-GREEN), `P1_I1_G11_done` (post-GREEN-enforcement), `P1_I1_G12_done` (Z3-check-post-GREEN), `P1_I1_G13_done` (checkpoint-tag), `P1_I1_G14_done` (checkpoint-commit), `P1_I1_G15_done` (structural-checks), `P1_I1_G16_done` (GREEN-doublecheck), `P1_I1_G17_done` (GREEN-VbC)
+- **Invariants**: `Implies(P1_I1_G2_done, P1_I1_G1_done)`, `Implies(P1_I1_G3_done, P1_I1_G2_done)`, ... (serial gate ordering per item); `Implies(P2_done, P1_done)`, `Implies(P3_done, P2_done)`, `Implies(P4_done, P3_done)` — strict serial phase ordering
+- **State file**: `.opencode/.issues/1422/solve-state.yaml`
+- **Contract file**: `.opencode/.issues/1422/dependency-contract.yaml`
+
+### Global Pre-Steps
+
+- [ ] 1. **Coherence gate (**clean-room**).** Dispatch `adversarial-audit --task coherence-extraction` — verify spec/plan coherence, evidence-type uplift, and substrate classification. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
+- [ ] 2. **Pre-red-baseline (**clean-room**).** Dispatch `implementation-pipeline --task pre-red-baseline` — verify doc-source currency and SC-ID cross-reference traceability. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
+
+## Phase 1 — default.txt Tone section fix
+
+**Concern:** Scope-clarify brevity mandates in `default.txt` and move the corrective into the Tone section.
 
 **Files:** `.opencode/prompts/default.txt`
 
 **SCs:** SC-1, SC-2
 
-**Dependencies:** None
+**Dependencies:** None (Phase 1 is the root phase)
 
-**Entry:** Phase 1 has no dependencies
+**Entry condition:** Global pre-steps completed
 
-**Exit:** `default.txt` Tone section scopes brevity to chat output, includes pipeline carveout, and contains the corrective as a positive mandate
+**Exit condition:** default.txt has scoped brevity mandates and corrective in Tone section; behavioral test for SC-1/SC-2 passes
 
-### Item 1.1 — Scope-qualify brevity lines in Tone section
+### Item 1.1 — Edit default.txt Tone section
 
-- [ ] 1. **Coherence gate (**clean-room**).** Verify spec/plan coherence for Phase 1 items. **→ SC-1, SC-2**
-- [ ] 2. **Pre-red-baseline (**clean-room**).** Document current source state of `default.txt` lines 62-75 and 205. **→ SC-1, SC-2**
-- [ ] 3. **RED (**sub-agent**).** Write behavioral test `1422-no-efficiency-rationalization.sh` that sends a prompt triggering a multi-step pipeline via `opencode-cli run` with `with-test-home` wrapper, using `assert_semantic` with clean-room inspector to verify agent does NOT produce efficiency rationalizations. Run it — expect FAIL because framing fixes don't exist yet. **→ SC-5**
-- [ ] 4. **Z3-check-RED (**inline**).** Validate RED-phase output contract. **→ SC-1**
-- [ ] 5. **RED-doublecheck (**sub-agent**).** Verify RED-side SC evidence. **→ SC-1**
-- [ ] 6. **Z3-check-RED-doublecheck (**inline**).** Validate RED-doublecheck output contract. **→ SC-1**
-- [ ] 7. **Post-RED-enforcement (**sub-agent**).** Verify git diff shows no source changes yet. **→ SC-1**
-- [ ] 8. **Z3-check-post-RED (**inline**).** Validate post-RED enforcement output contract. **→ SC-1**
-- [ ] 9. **GREEN (**sub-agent**).** Apply scope qualifiers to `default.txt`:
-      - Line 70: `"state so briefly"` → `"state so briefly in chat"`
-      - Line 73: `"brief, direct answers"` → `"brief, direct chat answers"`
-      - Line 75: `"brevity serves the user"` → `"brevity in chat output serves the user"`
-      - After line 75: Add pipeline carveout: `"Pipeline steps are never 'too many messages' — execute every step in full. The user authorized the pipeline, not individual messages."`
-      Confirm content-verification test now PASSES. **→ SC-1**
-- [ ] 10. **Z3-check-GREEN (**inline**).** Validate GREEN-phase output contract. **→ SC-1**
-- [ ] 11. **Post-GREEN-enforcement (**sub-agent**).** Verify git diff shows changes only to `default.txt`. **→ SC-1**
-- [ ] 12. **Z3-check-post-GREEN (**inline**).** Validate post-GREEN enforcement output contract. **→ SC-1**
-- [ ] 13. **Checkpoint-tag-create (**sub-agent**).** Create checkpoint tag for Phase 1 Item 1.1. **→ SC-1**
-- [ ] 14. **Checkpoint-commit (**sub-agent**).** Commit scope-qualified brevity lines. **→ SC-1**
-- [ ] 15. **Structural checks (**sub-agent**).** Run lint/typecheck/format on `default.txt`. **→ SC-1**
-- [ ] 16. **GREEN-doublecheck (**sub-agent**).** Semantic-intent verification of scope-qualified lines. **→ SC-1**
-- [ ] 17. **GREEN-VbC (**sub-agent**).** Verification-before-completion for Item 1.1. **→ SC-1**
-- [ ] 18. **Adversarial audit (**sub-agent**).** Dispatch adversarial auditor (spec-audit) to audit Tone section changes against SC-1. **→ SC-1**
-- [ ] 19. **Cross-validate (**sub-agent**).** Dispatch cross-validate auditor to verify no EVIDENCE_TYPE_MISMATCH. **→ SC-1**
-
-### Item 1.2 — Move corrective into Tone section
-
-- [ ] 20. **RED (**sub-agent**).** Append assertion to behavioral test `1422-no-efficiency-rationalization.sh` that verifies the agent does NOT produce cost rationalizations when executing a pipeline. Run it — expect FAIL because corrective is not yet in Tone section. **→ SC-2, SC-5**
-- [ ] 21. **Z3-check-RED (**inline**).** Validate RED-phase output contract. **→ SC-2**
-- [ ] 22. **RED-doublecheck (**sub-agent**).** Verify RED-side SC evidence. **→ SC-2**
-- [ ] 23. **Z3-check-RED-doublecheck (**inline**).** Validate RED-doublecheck output contract. **→ SC-2**
-- [ ] 24. **Post-RED-enforcement (**sub-agent**).** Verify git diff shows no source changes yet. **→ SC-2**
-- [ ] 25. **Z3-check-post-RED (**inline**).** Validate post-RED enforcement output contract. **→ SC-2**
-- [ ] 26. **GREEN (**sub-agent**).** Move the corrective from line 205 into the Tone section (after the pipeline carveout added in Item 1.1), rephrased as a positive mandate: `"Correctness is the only success metric. There is no score for speed, brevity, or economy. A fast wrong answer is strictly worse than a slow correct one. Resource cost is NEVER a factor in any decision — verification, pipeline execution, sub-agent dispatch, or research depth."` Confirm content-verification test now PASSES. **→ SC-2**
-- [ ] 27. **Z3-check-GREEN (**inline**).** Validate GREEN-phase output contract. **→ SC-2**
-- [ ] 28. **Post-GREEN-enforcement (**sub-agent**).** Verify git diff shows changes only to `default.txt`. **→ SC-2**
-- [ ] 29. **Z3-check-post-GREEN (**inline**).** Validate post-GREEN enforcement output contract. **→ SC-2**
-- [ ] 30. **Checkpoint-tag-create (**sub-agent**).** Create checkpoint tag for Phase 1 Item 1.2. **→ SC-2**
-- [ ] 31. **Checkpoint-commit (**sub-agent**).** Commit corrective move. **→ SC-2**
-- [ ] 32. **Structural checks (**sub-agent**).** Run lint/typecheck/format on `default.txt`. **→ SC-2**
-- [ ] 33. **GREEN-doublecheck (**sub-agent**).** Semantic-intent verification of corrective placement. **→ SC-2**
-- [ ] 34. **GREEN-VbC (**sub-agent**).** Verification-before-completion for Item 1.2. **→ SC-2**
-- [ ] 35. **Adversarial audit (**sub-agent**).** Dispatch adversarial auditor to audit corrective placement against SC-2. **→ SC-2**
-- [ ] 36. **Cross-validate (**sub-agent**).** Dispatch cross-validate auditor. **→ SC-2**
+- [ ] 3. **RED (**clean-room**).** Write behavioral test for SC-1/SC-2: `opencode-cli run` with prompt triggering multi-step pipeline; assert agent does NOT produce efficiency rationalizations. Test MUST FAIL because default.txt still has unscoped brevity mandates. **→ SC-1, SC-2**
+  - [ ] 3.1. Create test file at `.opencode/tests/behaviors/1422-sc1-sc2-red.sh`
+  - [ ] 3.2. Run test, verify FAIL
+- [ ] 4. **Z3 check RED (**inline**).** `solve check` against red-phase output contract. Verify test artifact exists and shows FAIL.
+- [ ] 5. **RED doublecheck (**clean-room**).** `verification-before-completion --task verify` on RED-side SC evidence. Verify test correctly fails.
+- [ ] 6. **Z3 check RED doublecheck (**inline**).** `solve check` against red-doublecheck output contract.
+- [ ] 7. **Post-RED enforcement (**clean-room**).** `git diff --name-only -- src/ | wc -l` — verify zero source files modified during RED phase.
+- [ ] 8. **Z3 check post-RED (**inline**).** `solve check` against post-red-enforcement output contract.
+- [ ] 9. **GREEN (**clean-room**).** Edit `.opencode/prompts/default.txt` Tone section to satisfy SC-1 and SC-2:
+  - [ ] 9.1. Scope-qualify all brevity mandates in the Tone section to apply to chat output formatting only
+  - [ ] 9.2. Add pipeline carveout after the brevity scope qualifier: "Pipeline steps are never 'too many messages' — execute every step in full. The user authorized the pipeline, not individual messages."
+  - [ ] 9.3. Move the corrective from the Cost Model section into the Tone section, rephrased as a positive mandate: "Correctness is the only success metric. There is no score for speed, brevity, or economy. A fast wrong answer is strictly worse than a slow correct one. Resource cost is NEVER a factor in any decision — verification, pipeline execution, sub-agent dispatch, or research depth."
+- [ ] 10. **Z3 check GREEN (**inline**).** `solve check` against green-phase output contract.
+- [ ] 11. **Post-GREEN enforcement (**clean-room**).** `git diff --name-only -- test/ | wc -l` — verify test files modified during GREEN phase.
+- [ ] 12. **Z3 check post-GREEN (**inline**).** `solve check` against post-green-enforcement output contract.
+- [ ] 13. **Checkpoint tag create (**clean-room**).** Create git tag: `opencode-config/checkpoint/1422/phase-1-opencode`
+- [ ] 14. **Checkpoint commit (**clean-room**).** `git-workflow --task commit-prep` — commit RED test + GREEN changes together.
+- [ ] 15. **Structural checks (**clean-room**).** `finishing-a-development-branch --task checklist` — lint/typecheck/format on modified files.
+- [ ] 16. **GREEN doublecheck (**clean-room**).** `verification-before-completion --task verify` — semantic-intent verification. Re-run behavioral test, verify it now PASSES. **→ SC-1, SC-2**
+- [ ] 17. **GREEN VbC (**clean-room**).** `verification-before-completion --task completion` — produce VbC completion artifact.
 
 #### Phase 1 VbC
 
-- [ ] 37. **VbC (**clean-room**).** Verify both SC-1 and SC-2 are satisfied: scope qualifiers present, pipeline carveout present, corrective moved into Tone section. **→ SC-1, SC-2**
+- [ ] 18. **VbC (**clean-room**).** Verify default.txt has all 5 changes applied. Verify behavioral test for SC-1/SC-2 passes. **→ SC-1, SC-2**
 
-**Concern transition:** Leaving `default.txt` Tone section fix → entering `020-go-prohibitions.md` cost-blind rules. Phase 2 depends on Phase 1's corrected framing to prevent the agent from rationalizing shortcutting the Phase 2 work.
+**Concern transition:** Leaving default.txt Tone section fix → entering cost-blind rules universalization. Phase 2 depends on Phase 1's scoped brevity mandates being in place.
 
-## Phase 2 — `020-go-prohibitions.md` cost-blind rules
+## Phase 2 — 020-go-prohibitions.md cost-blind rules
 
-**Concern:** The cost-blind verification rules in `020-go-prohibitions.md` are scoped to verification decisions only, but the agent needs them to apply universally.
+**Concern:** Rename and re-scope cost-blind rules section to apply to ALL decisions, not just verification.
 
 **Files:** `.opencode/guidelines/020-go-prohibitions.md`
 
 **SCs:** SC-3
 
-**Dependencies:** Phase 1 (corrected `default.txt` framing prevents efficiency rationalization during Phase 2 work)
+**Dependencies:** Phase 1 complete
 
-**Entry:** Phase 1 complete with SC-1 and SC-2 verified
+**Entry condition:** Phase 1 VbC PASS
 
-**Exit:** `020-go-prohibitions.md` has renamed section header and universal scope statement
+**Exit condition:** 020-go-prohibitions.md has renamed section header and universal scope statement; behavioral test for SC-3 passes
 
-### Item 2.1 — Rename section and add universal scope
+### Item 2.1 — Edit 020-go-prohibitions.md
 
-- [ ] 38. **Coherence gate (**clean-room**).** Verify spec/plan coherence for Phase 2 items. **→ SC-3**
-- [ ] 39. **Pre-red-baseline (**clean-room**).** Document current source state of `020-go-prohibitions.md` cost-blind section. **→ SC-3**
-- [ ] 40. **RED (**sub-agent**).** Append assertion to behavioral test `1422-no-efficiency-rationalization.sh` that verifies the agent applies cost-blind rules to ALL decisions (not just verification). Run it — expect FAIL because section header is still "Cost-blind verification". **→ SC-3, SC-5**
-- [ ] 41. **Z3-check-RED (**inline**).** Validate RED-phase output contract. **→ SC-3**
-- [ ] 42. **RED-doublecheck (**sub-agent**).** Verify RED-side SC evidence. **→ SC-3**
-- [ ] 43. **Z3-check-RED-doublecheck (**inline**).** Validate RED-doublecheck output contract. **→ SC-3**
-- [ ] 44. **Post-RED-enforcement (**sub-agent**).** Verify git diff shows no source changes yet. **→ SC-3**
-- [ ] 45. **Z3-check-post-RED (**inline**).** Validate post-RED enforcement output contract. **→ SC-3**
-- [ ] 46. **GREEN (**sub-agent**).** Apply changes to `020-go-prohibitions.md`:
-      - Rename section header from `"Cost-blind verification"` to `"Cost-blind universal — all decisions"`
-      - Add explicit statement: `"This prohibition applies to ALL agent decisions: verification, pipeline execution, sub-agent dispatch, research depth, message count, and user-facing output length. The agent MUST NOT consider execution cost, command count, model speed, session duration, or any resource metric when deciding whether to execute a required step."`
-      Confirm content-verification test now PASSES. **→ SC-3**
-- [ ] 47. **Z3-check-GREEN (**inline**).** Validate GREEN-phase output contract. **→ SC-3**
-- [ ] 48. **Post-GREEN-enforcement (**sub-agent**).** Verify git diff shows changes only to `020-go-prohibitions.md`. **→ SC-3**
-- [ ] 49. **Z3-check-post-GREEN (**inline**).** Validate post-GREEN enforcement output contract. **→ SC-3**
-- [ ] 50. **Checkpoint-tag-create (**sub-agent**).** Create checkpoint tag for Phase 2. **→ SC-3**
-- [ ] 51. **Checkpoint-commit (**sub-agent**).** Commit Phase 2 changes. **→ SC-3**
-- [ ] 52. **Structural checks (**sub-agent**).** Run lint/typecheck/format on `020-go-prohibitions.md`. **→ SC-3**
-- [ ] 53. **GREEN-doublecheck (**sub-agent**).** Semantic-intent verification of renamed section and universal scope. **→ SC-3**
-- [ ] 54. **GREEN-VbC (**sub-agent**).** Verification-before-completion for Phase 2. **→ SC-3**
-- [ ] 55. **Adversarial audit (**sub-agent**).** Dispatch adversarial auditor to audit section rename against SC-3. **→ SC-3**
-- [ ] 56. **Cross-validate (**sub-agent**).** Dispatch cross-validate auditor. **→ SC-3**
+- [ ] 19. **RED (**clean-room**).** Write behavioral test for SC-3: `opencode-cli run` with prompt testing cost-blind rule scope; assert agent applies cost-blind rules to ALL decisions. Test MUST FAIL because 020-go-prohibitions.md still has old scoping. **→ SC-3**
+  - [ ] 19.1. Create test file at `.opencode/tests/behaviors/1422-sc3-red.sh`
+  - [ ] 19.2. Run test, verify FAIL
+- [ ] 20. **Z3 check RED (**inline**).** `solve check` against red-phase output contract.
+- [ ] 21. **RED doublecheck (**clean-room**).** `verification-before-completion --task verify` on RED-side SC evidence.
+- [ ] 22. **Z3 check RED doublecheck (**inline**).** `solve check` against red-doublecheck output contract.
+- [ ] 23. **Post-RED enforcement (**clean-room**).** `git diff --name-only -- src/ | wc -l` — verify zero source files modified.
+- [ ] 24. **Z3 check post-RED (**inline**).** `solve check` against post-red-enforcement output contract.
+- [ ] 25. **GREEN (**clean-room**).** Edit `.opencode/guidelines/020-go-prohibitions.md` to satisfy SC-3:
+  - [ ] 25.1. Rename the cost-blind rules section header to indicate universal scope (all decisions, not just verification)
+  - [ ] 25.2. Add explicit statement that the cost-blind prohibition applies to ALL agent decisions: verification, pipeline execution, sub-agent dispatch, research depth, message count, and user-facing output length
+- [ ] 26. **Z3 check GREEN (**inline**).** `solve check` against green-phase output contract.
+- [ ] 27. **Post-GREEN enforcement (**clean-room**).** `git diff --name-only -- test/ | wc -l` — verify test files modified.
+- [ ] 28. **Z3 check post-GREEN (**inline**).** `solve check` against post-green-enforcement output contract.
+- [ ] 29. **Checkpoint tag create (**clean-room**).** Create git tag: `opencode-config/checkpoint/1422/phase-2-opencode`
+- [ ] 30. **Checkpoint commit (**clean-room**).** `git-workflow --task commit-prep` — commit RED test + GREEN changes together.
+- [ ] 31. **Structural checks (**clean-room**).** `finishing-a-development-branch --task checklist`.
+- [ ] 32. **GREEN doublecheck (**clean-room**).** `verification-before-completion --task verify` — re-run behavioral test, verify PASS. **→ SC-3**
+- [ ] 33. **GREEN VbC (**clean-room**).** `verification-before-completion --task completion`.
 
 #### Phase 2 VbC
 
-- [ ] 57. **VbC (**clean-room**).** Verify SC-3 is satisfied: section header renamed, universal scope statement present. **→ SC-3**
+- [ ] 34. **VbC (**clean-room**).** Verify 020-go-prohibitions.md has renamed section and universal scope statement. Verify behavioral test for SC-3 passes. **→ SC-3**
 
-**Concern transition:** Leaving `020-go-prohibitions.md` cost-blind rules → entering SKILL.md context cost frame scoping. Phase 3 depends on Phase 2's universal cost-blind framing to prevent the agent from rationalizing shortcutting the Phase 3 work.
+**Concern transition:** Leaving cost-blind rules universalization → entering context cost frame scoping. Phase 3 depends on Phase 2's universal cost-blind rules being in place.
 
-## Phase 3 — Context cost frame in SKILL.md files
+## Phase 3 — SKILL.md context cost frame scoping
 
-**Concern:** The context cost frame blocks in 34 SKILL.md files create generalized cost-consciousness that agents apply to message count and user patience.
+**Concern:** Add scope caveat to every context cost frame block in 34 SKILL.md files to prevent generalization to message count or pipeline steps.
 
 **Files:** `.opencode/skills/*/SKILL.md` (34 files)
 
 **SCs:** SC-4
 
-**Dependencies:** Phase 2 (universal cost-blind rules provide the framing context for the scope caveat)
+**Dependencies:** Phase 2 complete
 
-**Entry:** Phase 2 complete with SC-3 verified
+**Entry condition:** Phase 2 VbC PASS
 
-**Exit:** All 34 SKILL.md files have scope caveat on context cost frame blocks
+**Exit condition:** All 34 SKILL.md files have scoped context cost frame blocks; behavioral test for SC-4 passes
 
-### Item 3.1 — Add scope caveat to all context cost frame blocks
+### Item 3.1 — Edit 34 SKILL.md files
 
-- [ ] 58. **Coherence gate (**clean-room**).** Verify spec/plan coherence for Phase 3 items. **→ SC-4**
-- [ ] 59. **Pre-red-baseline (**clean-room**).** Document current set of SKILL.md files containing context cost frame blocks. **→ SC-4**
-- [ ] 60. **RED (**sub-agent**).** Append assertion to behavioral test `1422-no-efficiency-rationalization.sh` that verifies the agent does NOT generalize context cost frames to message count or pipeline steps. Run it — expect FAIL because cost frames lack scope caveat. **→ SC-4, SC-5**
-- [ ] 61. **Z3-check-RED (**inline**).** Validate RED-phase output contract. **→ SC-4**
-- [ ] 62. **RED-doublecheck (**sub-agent**).** Verify RED-side SC evidence. **→ SC-4**
-- [ ] 63. **Z3-check-RED-doublecheck (**inline**).** Validate RED-doublecheck output contract. **→ SC-4**
-- [ ] 64. **Post-RED-enforcement (**sub-agent**).** Verify git diff shows no source changes yet. **→ SC-4**
-- [ ] 65. **Z3-check-post-RED (**inline**).** Validate post-RED enforcement output contract. **→ SC-4**
-- [ ] 66. **GREEN (**sub-agent**).** Add scope caveat to every context cost frame block in all 34 SKILL.md files: `"This cost frame applies to orchestrator context only — it does NOT mean the agent should minimize message count, pipeline steps, or user-facing output."` Confirm content-verification test now PASSES. **→ SC-4**
-- [ ] 67. **Z3-check-GREEN (**inline**).** Validate GREEN-phase output contract. **→ SC-4**
-- [ ] 68. **Post-GREEN-enforcement (**sub-agent**).** Verify git diff shows changes only to SKILL.md files. **→ SC-4**
-- [ ] 69. **Z3-check-post-GREEN (**inline**).** Validate post-GREEN enforcement output contract. **→ SC-4**
-- [ ] 70. **Checkpoint-tag-create (**sub-agent**).** Create checkpoint tag for Phase 3. **→ SC-4**
-- [ ] 71. **Checkpoint-commit (**sub-agent**).** Commit Phase 3 changes. **→ SC-4**
-- [ ] 72. **Structural checks (**sub-agent**).** Run lint/typecheck/format on modified SKILL.md files. **→ SC-4**
-- [ ] 73. **GREEN-doublecheck (**sub-agent**).** Semantic-intent verification of scope caveat in all SKILL.md files. **→ SC-4**
-- [ ] 74. **GREEN-VbC (**sub-agent**).** Verification-before-completion for Phase 3. **→ SC-4**
-- [ ] 75. **Adversarial audit (**sub-agent**).** Dispatch adversarial auditor to audit SKILL.md changes against SC-4. **→ SC-4**
-- [ ] 76. **Cross-validate (**sub-agent**).** Dispatch cross-validate auditor. **→ SC-4**
+- [ ] 35. **RED (**clean-room**).** Write behavioral test for SC-4: `opencode-cli run` with prompt testing context cost frame interpretation; assert agent does NOT generalize cost frames to message count or pipeline steps. Test MUST FAIL because SKILL.md files still have unscoped cost frames. **→ SC-4**
+  - [ ] 35.1. Create test file at `.opencode/tests/behaviors/1422-sc4-red.sh`
+  - [ ] 35.2. Run test, verify FAIL
+- [ ] 36. **Z3 check RED (**inline**).** `solve check` against red-phase output contract.
+- [ ] 37. **RED doublecheck (**clean-room**).** `verification-before-completion --task verify` on RED-side SC evidence.
+- [ ] 38. **Z3 check RED doublecheck (**inline**).** `solve check` against red-doublecheck output contract.
+- [ ] 39. **Post-RED enforcement (**clean-room**).** `git diff --name-only -- src/ | wc -l` — verify zero source files modified.
+- [ ] 40. **Z3 check post-RED (**inline**).** `solve check` against post-red-enforcement output contract.
+- [ ] 41. **GREEN (**clean-room**).** For each of the 34 SKILL.md files under `.opencode/skills/*/SKILL.md`:
+  - [ ] 41.1. Read the file, locate the context cost frame block
+  - [ ] 41.2. Add scope caveat: "This cost frame applies to orchestrator context only — it does NOT mean the agent should minimize message count, pipeline steps, or user-facing output."
+  - [ ] 41.3. If no context cost frame block exists, skip the file
+- [ ] 42. **Z3 check GREEN (**inline**).** `solve check` against green-phase output contract.
+- [ ] 43. **Post-GREEN enforcement (**clean-room**).** `git diff --name-only -- test/ | wc -l` — verify test files modified.
+- [ ] 44. **Z3 check post-GREEN (**inline**).** `solve check` against post-green-enforcement output contract.
+- [ ] 45. **Checkpoint tag create (**clean-room**).** Create git tag: `opencode-config/checkpoint/1422/phase-3-opencode`
+- [ ] 46. **Checkpoint commit (**clean-room**).** `git-workflow --task commit-prep`.
+- [ ] 47. **Structural checks (**clean-room**).** `finishing-a-development-branch --task checklist`.
+- [ ] 48. **GREEN doublecheck (**clean-room**).** `verification-before-completion --task verify` — re-run behavioral test, verify PASS. **→ SC-4**
+- [ ] 49. **GREEN VbC (**clean-room**).** `verification-before-completion --task completion`.
 
 #### Phase 3 VbC
 
-- [ ] 77. **VbC (**clean-room**).** Verify SC-4 is satisfied: scope caveat present in all 34 SKILL.md context cost frame blocks. **→ SC-4**
+- [ ] 50. **VbC (**clean-room**).** Verify all 34 SKILL.md files have scoped context cost frame blocks. Verify behavioral test for SC-4 passes. **→ SC-4**
 
-**Concern transition:** Leaving SKILL.md context cost frame scoping → entering behavioral test finalization. Phase 4 depends on Phases 1-3 completing all source changes.
+**Concern transition:** Leaving context cost frame scoping → entering behavioral enforcement test creation. Phase 4 depends on Phase 3's scoped cost frames being in place.
 
-## Phase 4 — Behavioral test finalization
+## Phase 4 — Behavioral enforcement test
 
-**Concern:** The behavioral test was written in Phase 1 and accumulated assertions across Phases 2-3. Now run it against the final state.
+**Concern:** Create the comprehensive behavioral enforcement test that verifies the agent does NOT produce efficiency rationalizations during multi-step pipeline execution.
 
 **Files:** `.opencode/tests/behaviors/1422-no-efficiency-rationalization.sh`
 
 **SCs:** SC-5
 
-**Dependencies:** Phases 1, 2, 3 (all source changes must be in place)
+**Dependencies:** Phase 3 complete
 
-**Entry:** Phases 1-3 complete with SC-1 through SC-4 verified
+**Entry condition:** Phase 3 VbC PASS
 
-**Exit:** Behavioral test passes (agent does NOT produce efficiency rationalizations)
+**Exit condition:** Behavioral enforcement test exists and passes; all SC-1 through SC-5 verified
 
-### Item 4.1 — Run and verify behavioral test
+### Item 4.1 — Create behavioral enforcement test
 
-- [ ] 78. **Coherence gate (**clean-room**).** Verify spec SC-5 requirements. Confirm the behavioral test file exists with all RED-phase assertions from prior phases. **→ SC-5**
-- [ ] 79. **Pre-run-baseline (**clean-room**).** Confirm the test file is committed and contains all assertions. **→ SC-5**
-- [ ] 80. **GREEN (**sub-agent**).** Run the behavioral test: `bash .opencode/tests/with-test-home opencode-cli run '<prompt>'` with assertions that the agent does NOT produce efficiency rationalizations. The test should now PASS because all source changes from Phases 1-3 are in place. **→ SC-5**
-- [ ] 81. **Z3-check-GREEN (**inline**).** Validate behavioral test output shows PASS. **→ SC-5**
-- [ ] 82. **Post-GREEN-enforcement (**sub-agent**).** Confirm the test PASS result is recorded. **→ SC-5**
-- [ ] 83. **Z3-check-post-GREEN (**inline**).** Validate enforcement confirms PASS. **→ SC-5**
-- [ ] 84. **Checkpoint-tag-create (**sub-agent**).** Create checkpoint tag for Phase 4. **→ SC-5**
-- [ ] 85. **Checkpoint-commit (**sub-agent**).** Commit any final test adjustments. **→ SC-5**
-- [ ] 86. **Structural checks (**sub-agent**).** Run shellcheck or equivalent on behavioral test. **→ SC-5**
-- [ ] 87. **GREEN-doublecheck (**clean-room**).** Read the committed test file. Confirm all assertions are present. **→ SC-5**
-- [ ] 88. **GREEN-VbC (**clean-room**).** Verify SC-5: run the behavioral test and confirm PASS. **→ SC-5**
-- [ ] 89. **Adversarial audit (**sub-agent**).** Dispatch adversarial auditor to audit behavioral test against SC-5. **→ SC-5**
-- [ ] 90. **Cross-validate (**sub-agent**).** Dispatch cross-validate auditor. **→ SC-5**
+- [ ] 51. **RED (**clean-room**).** Write behavioral test skeleton at `.opencode/tests/behaviors/1422-no-efficiency-rationalization.sh`. Test sends prompt triggering multi-step pipeline; asserts agent does NOT produce "be efficient" / "too many messages" / "user won't want to sit through this" rationalizations. Run test — since Phases 1-3 changes are in place, test should PASS. Verify test infrastructure works. **→ SC-5**
+  - [ ] 51.1. Create test file with `assert_semantic` assertion
+  - [ ] 51.2. Run test, verify it executes
+- [ ] 52. **Z3 check RED (**inline**).** `solve check` against red-phase output contract.
+- [ ] 53. **RED doublecheck (**clean-room**).** `verification-before-completion --task verify` on RED-side SC evidence.
+- [ ] 54. **Z3 check RED doublecheck (**inline**).** `solve check` against red-doublecheck output contract.
+- [ ] 55. **Post-RED enforcement (**clean-room**).** `git diff --name-only -- src/ | wc -l` — verify zero source files modified.
+- [ ] 56. **Z3 check post-RED (**inline**).** `solve check` against post-red-enforcement output contract.
+- [ ] 57. **GREEN (**clean-room**).** Finalize behavioral test file with complete assertions, proper cleanup, and documentation. **→ SC-5**
+  - [ ] 57.1. Add `assert_semantic` for efficiency rationalization detection
+  - [ ] 57.2. Add `assert_forbidden_pattern_absent` for prohibited phrases
+  - [ ] 57.3. Add cleanup and exit code handling
+- [ ] 58. **Z3 check GREEN (**inline**).** `solve check` against green-phase output contract.
+- [ ] 59. **Post-GREEN enforcement (**clean-room**).** `git diff --name-only -- test/ | wc -l` — verify test files modified.
+- [ ] 60. **Z3 check post-GREEN (**inline**).** `solve check` against post-green-enforcement output contract.
+- [ ] 61. **Checkpoint tag create (**clean-room**).** Create git tag: `opencode-config/checkpoint/1422/phase-4-opencode`
+- [ ] 62. **Checkpoint commit (**clean-room**).** `git-workflow --task commit-prep`.
+- [ ] 63. **Structural checks (**clean-room**).** `finishing-a-development-branch --task checklist`.
+- [ ] 64. **GREEN doublecheck (**clean-room**).** `verification-before-completion --task verify` — run behavioral test, verify PASS. **→ SC-5**
+- [ ] 65. **GREEN VbC (**clean-room**).** `verification-before-completion --task completion`.
 
 #### Phase 4 VbC
 
-- [ ] 91. **VbC (**clean-room**).** Verify Phase 4 complete: SC-5 (behavioral test passes, no efficiency rationalization in agent output). **→ SC-5**
+- [ ] 66. **VbC (**clean-room**).** Verify behavioral test file exists and passes. Verify all SC-1 through SC-5 are covered. **→ SC-5**
 
-**Concern transition:** Leaving behavioral test finalization → entering global post-steps. All phases complete.
+### Global Post-Steps
 
-## Global Post-Steps
-
-- [ ] 92. **Collect behavioral evidence (**sub-agent**).** Collect behavioral evidence artifacts from `./tmp/behavioral-evidence-*/` into `./tmp/1422/artifacts/`. **→ SC-5**
-- [ ] 93. **Regression check (**sub-agent**).** Run existing enforcement tests to verify no regressions. **→ SC-5**
-- [ ] 94. **Review prep (**sub-agent**).** Prepare PR with Summary/Outcome/Fixes structure, compare URL with correct base branch. **→ All**
-- [ ] 95. **Exec summary (**sub-agent**).** Append lifecycle event and produce chat executive summary. **→ All**
+- [ ] 67. **Collect behavioral evidence (**clean-room**).** Collect all behavioral evidence artifacts from `./tmp/behavioral-evidence-*/` into `./tmp/1422/artifacts/`.
+- [ ] 68. **Resolve models (**inline**).** Run `.opencode/tools/resolve-models` to select cross-family auditors.
+- [ ] 69. **Auditor 1 dispatch (**clean-room**).** Dispatch verification-audit task with `subagent_type` from `auditor_1` from resolve-models result. If non-clean-pass (FAIL or DONE_WITH_CONCERNS): remediate root cause, then restart from step 68.
+- [ ] 70. **Auditor 2 dispatch (**clean-room**).** Dispatch verification-audit task with `subagent_type` from `auditor_2` from resolve-models result. If non-clean-pass (FAIL or DONE_WITH_CONCERNS): remediate root cause, then restart from step 68.
+- [ ] 71. **Collect auditor artifact paths (**inline**).** Collect both `artifact_path` values from auditor 1 and auditor 2 results.
+- [ ] 72. **Cross-validate (**clean-room**).** `adversarial-audit --task cross-validate` with `auditor_artifact_paths` from step 71.
+- [ ] 73. **Regression check (**clean-room**).** `test-driven-development --task patterns` — run full regression suite.
+- [ ] 74. **Review prep (**clean-room**).** `git-workflow --task review-prep` — prepare PR with compare URL.
+- [ ] 75. **Exec summary (**clean-room**).** `completion-core --task completion` — append lifecycle event and produce chat exec summary.
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
@@ -219,10 +221,13 @@
 
 ## Exit Criteria
 
-- **C1:** `default.txt` Tone section scopes brevity to chat output, includes pipeline carveout, and contains the corrective as a positive mandate
-- **C2:** `020-go-prohibitions.md` has renamed section header and universal scope statement
-- **C3:** All 34 SKILL.md files have scope caveat on context cost frame blocks
-- **C4:** Behavioral enforcement test exists and passes
-- **C5:** All phases pass adversarial audit and cross-validation
-- **C6:** No regressions in existing enforcement tests
-- **C7:** Review prep completed with correct compare URL
+- C1. All 5 changes to `default.txt` are applied and verified
+- C2. `020-go-prohibitions.md` has renamed section header and universal scope statement
+- C3. All 34 SKILL.md files have scoped context cost frame blocks
+- C4. Behavioral enforcement test at `.opencode/tests/behaviors/1422-no-efficiency-rationalization.sh` exists and passes
+- C5. All SC-1 through SC-5 verified PASS with behavioral evidence
+- C6. Adversarial audit PASS with dual-auditor consensus
+- C7. Cross-validate PASS
+- C8. Regression suite PASS
+- C9. Review-prep complete with compare URL
+- C10. Lifecycle event appended

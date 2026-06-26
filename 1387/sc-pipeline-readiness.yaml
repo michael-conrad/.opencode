@@ -1,0 +1,11 @@
+# Pipeline Readiness — .opencode#1387
+# Generated: 2026-06-26
+status: PASS
+sc_summary: |
+  Spec defines 6 linting rules (SC-LINT-001 through 006) for skill card description compliance
+  and SKILL.md body structure. 8 success criteria: 7 behavioral, 1 structural.
+  Single-phase implementation: add lint rules to skill-creator validation script.
+phase_dependencies:
+  - phase: 1
+    name: "Implement lint rules in validation script"
+    depends_on: []

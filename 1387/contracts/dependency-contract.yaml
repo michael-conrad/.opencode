@@ -1,0 +1,39 @@
+# Dependency Contract — .opencode#1387
+# Generated: 2026-06-26
+contract_version: "1.0"
+domain: skill-card-lint
+variables:
+  sub_phase_complete_sp1_1:
+    type: bool
+  sub_phase_complete_sp1_2:
+    type: bool
+  sub_phase_complete_sp1_3:
+    type: bool
+  rule_implemented_r1:
+    type: bool
+  rule_implemented_r2:
+    type: bool
+  rule_implemented_r3:
+    type: bool
+  rule_implemented_r4:
+    type: bool
+  rule_implemented_r5:
+    type: bool
+  rule_implemented_r6:
+    type: bool
+  all_rules_implemented:
+    type: bool
+  verification_passed:
+    type: bool
+  phase_complete_p1:
+    type: bool
+preconditions: []
+invariants:
+  - z3.Implies(sub_phase_complete_sp1_2, sub_phase_complete_sp1_1)
+  - z3.Implies(sub_phase_complete_sp1_3, sub_phase_complete_sp1_2)
+  - z3.Implies(all_rules_implemented,
+    z3.And(rule_implemented_r1, rule_implemented_r2, rule_implemented_r3,
+    rule_implemented_r4, rule_implemented_r5, rule_implemented_r6))
+  - z3.Implies(verification_passed, all_rules_implemented)
+  - z3.Implies(phase_complete_p1,
+    z3.And(all_rules_implemented, verification_passed, sub_phase_complete_sp1_3))

@@ -1,0 +1,3 @@
+status: PASS
+sc_summary: "Spec-fix for 28 skill descriptions: add mandatory language (MUST/REQUIRED/always/not optional/mandatory) and remove narrative-only sentences. 4 success criteria: SC-1 (string), SC-2 (semantic), SC-3 (semantic), SC-4 (semantic). Single-phase task — edit SKILL.md description fields across 28 files."
+phase_dependencies: []
