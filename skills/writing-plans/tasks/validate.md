@@ -91,6 +91,11 @@ Check an existing plan for placeholders and completeness.
   - SC: SC-6
   - Expected: both protocol admonishments present
 
+- [ ] 18. (**inline**) Dispatch indicator validation — Verify each step's dispatch indicator matches its content. `(**inline**)` steps must not contain sub-agent dispatch language; `(**sub-agent**)` steps must dispatch a sub-agent via `task()`
+  - Command: parse plan body, extract dispatch indicators, verify semantic match against step content
+  - SC: SC-5
+  - Expected: all dispatch indicators match step content; FAIL on mismatch
+
 ## Result Contract Schema
 
 Before returning, load the output contract from `contracts/validate-output-template.yaml` and validate the result against it. The contract defines the expected output structure:
