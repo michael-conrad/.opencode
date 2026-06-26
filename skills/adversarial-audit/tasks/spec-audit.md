@@ -277,10 +277,11 @@ per_criterion:
     evidence: "<tool-call reference>"
     explanation: "<reasoning>"
     remediation: ""
-    next_step: "proceed"
+    next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
     tool_calls_made:
       - read
       - grep
+all_criteria_pass: false
 mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
@@ -290,6 +291,7 @@ mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires
 status: DONE
 artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-spec-audit-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
+all_criteria_pass: false
 mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
@@ -364,4 +366,22 @@ rules:
       all: ["doc_sources_missing_or_empty == true"]
     actions: [FAIL_CRITERION(SC-11)]
     source: "spec-audit.md §Step 2"
+
+  - id: spec-audit-005
+    title: "next_step MUST be 'remediate' when result is 'FAIL', 'proceed' when result is 'PASS'"
+    conditions:
+      any:
+        - "per_criterion[].result == 'FAIL' AND per_criterion[].next_step != 'remediate'"
+        - "per_criterion[].result == 'PASS' AND per_criterion[].next_step != 'proceed'"
+    actions: [HALT, REQUIRE_CORRECT_NEXT_STEP]
+    source: "spec-audit.md §Step 6 — conditional next_step enforcement"
+
+  - id: spec-audit-006
+    title: "all_criteria_pass MUST be true when every criterion result is 'PASS', false otherwise"
+    conditions:
+      any:
+        - "all(criterion.result == 'PASS' for criterion in per_criterion) AND all_criteria_pass != true"
+        - "any(criterion.result == 'FAIL' for criterion in per_criterion) AND all_criteria_pass != false"
+    actions: [HALT, REQUIRE_CORRECT_ALL_CRITERIA_PASS]
+    source: "spec-audit.md §Step 6 — all_criteria_pass enforcement"
 ```
