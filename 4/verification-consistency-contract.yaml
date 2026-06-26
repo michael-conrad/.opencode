@@ -1,0 +1,83 @@
+spec: https://github.com/michael-conrad/.opencode/issues/4
+verification_consistency:
+  sc_entries:
+    - id: SC-1
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create-checklist-files
+      re_entry_step: null
+      phase_binding: phase-1-checklist-dispatcher
+      artifact_path: .opencode/.issues/4/
+    - id: SC-2
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create-checklist-files
+      re_entry_step: null
+      phase_binding: phase-1-checklist-dispatcher
+      artifact_path: .opencode/.issues/4/
+    - id: SC-3
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create-checklist-files
+      re_entry_step: null
+      phase_binding: phase-1-checklist-dispatcher
+      artifact_path: .opencode/.issues/4/
+    - id: SC-4
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create-checklist-files
+      re_entry_step: null
+      phase_binding: phase-1-checklist-dispatcher
+      artifact_path: .opencode/.issues/4/
+    - id: SC-5
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: create-checklist-files
+      re_entry_step: null
+      phase_binding: phase-1-checklist-dispatcher
+      artifact_path: .opencode/.issues/4/
+    - id: SC-6
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: remove-scopes
+      re_entry_step: null
+      phase_binding: phase-2-scope-removal-guidelines
+      artifact_path: .opencode/.issues/4/
+    - id: SC-7
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: update-guidelines
+      re_entry_step: null
+      phase_binding: phase-2-scope-removal-guidelines
+      artifact_path: .opencode/.issues/4/
+    - id: SC-8
+      evidence_type: behavioral
+      verification_gate: post-implementation
+      pipeline_step_binding: behavioral-tests
+      re_entry_step: null
+      phase_binding: phase-3-behavioral-tests
+      artifact_path: .opencode/.issues/4/behavioral/
+    - id: SC-9
+      evidence_type: behavioral
+      verification_gate: post-implementation
+      pipeline_step_binding: behavioral-tests
+      re_entry_step: null
+      phase_binding: phase-3-behavioral-tests
+      artifact_path: .opencode/.issues/4/behavioral/
+    - id: SC-10
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: remove-scopes
+      re_entry_step: null
+      phase_binding: phase-2-scope-removal-guidelines
+      artifact_path: .opencode/.issues/4/
+    - id: SC-11
+      evidence_type: string
+      verification_gate: pre-commit
+      pipeline_step_binding: update-guidelines
+      re_entry_step: null
+      phase_binding: phase-2-scope-removal-guidelines
+      artifact_path: .opencode/.issues/4/
+  constraints:
+    - 'for_every_sc: evidence_type_is_consistent_with_verification_gate'
+    - 'for_every_sc: pipeline_step_binding_is_valid_for_phase'
