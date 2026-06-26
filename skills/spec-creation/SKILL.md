@@ -1,6 +1,6 @@
 ---
 name: spec-creation
-description: "Use when creating a spec or writing a specification. Professional engineers spec first."
+description: "Use when creating a spec or writing a specification. Spec creation is REQUIRED before implementation — professional engineers spec first."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

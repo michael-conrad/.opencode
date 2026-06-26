@@ -1,6 +1,6 @@
 ---
 name: test-driven-development
-description: "Use when writing tests before implementation, or when adopting a test-first development approach. TDD produces testable, correct code."
+description: "Use when writing tests before implementation, or when adopting a test-first development approach. TDD is REQUIRED — produces testable, correct code."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

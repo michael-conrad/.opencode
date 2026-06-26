@@ -1,6 +1,6 @@
 ---
 name: writing-plans
-description: "Use when creating an implementation plan from an approved spec. Plans are the map — agents who skip them get lost."
+description: "Use when creating an implementation plan from an approved spec. Plans are REQUIRED — agents who skip them get lost."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode
