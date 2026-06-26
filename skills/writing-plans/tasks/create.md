@@ -92,14 +92,14 @@ Each item is tagged with dispatch scope and chain dependency.
   - Chain: `step_16`
   - Expected: PASS in audit-fidelity output
 
-- [ ] 18. (**inline**) Z3 check — `solve check` verify audit-fidelity output has PASS per `contracts/create-output-template.yaml:audit-fidelity`
+- [ ] 18. (**inline**) Z3 check — `solve check` verify audit-fidelity output has PASS AND `all_criteria_pass == true` per `contracts/create-output-template.yaml:audit-fidelity`. If `all_criteria_pass` is `false` or missing, treat as FAIL — orchestrator MUST halt and require remediation before proceeding.
   - Chain: `step_17`
 
 - [ ] 19. (**sub-agent**) Audit concern — `task(..., prompt: "execute audit-concern task from writing-plans")`
   - Chain: `step_18`
   - Expected: PASS in audit-concern output
 
-- [ ] 20. (**inline**) Z3 check — `solve check` verify audit-concern output has PASS per `contracts/create-output-template.yaml:audit-concern`
+- [ ] 20. (**inline**) Z3 check — `solve check` verify audit-concern output has PASS AND `all_criteria_pass == true` per `contracts/create-output-template.yaml:audit-concern`. If `all_criteria_pass` is `false` or missing, treat as FAIL — orchestrator MUST halt and require remediation before proceeding.
   - Chain: `step_19`
 
 - [ ] 21. (**sub-agent**) Completion — `task(..., prompt: "execute completion task from writing-plans")`
