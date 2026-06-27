@@ -215,8 +215,9 @@ per_criterion:
     evidence: "<tool-call reference>"
     explanation: "<reasoning>"
     remediation: ""
-    next_step: "proceed"
+    next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
 report_path: "./tmp/{issue-N}/artifacts/audit-guideline.md"
+all_criteria_pass: false
 exec_summary: "Guideline audit: N files, M problems. Consensus: PASS|FAIL."
 ```
 
@@ -226,6 +227,7 @@ exec_summary: "Guideline audit: N files, M problems. Consensus: PASS|FAIL."
 status: DONE
 artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-guideline-audit-PASS-{timestamp}.yaml"
 summary: "N files audited, M problems found. X/Y criteria PASS."
+all_criteria_pass: false
 ```
 
 ## Error Handling
@@ -287,4 +289,22 @@ rules:
       all: ["report_written == true", "timestamp_in_report == false"]
     actions: [ADD_TIMESTAMP]
     source: "guideline-audit.md §Step 6"
+
+  - id: guideline-audit-004
+    title: "next_step MUST be 'remediate' when result is 'FAIL', 'proceed' when result is 'PASS'"
+    conditions:
+      any:
+        - "per_criterion[].result == 'FAIL' AND per_criterion[].next_step != 'remediate'"
+        - "per_criterion[].result == 'PASS' AND per_criterion[].next_step != 'proceed'"
+    actions: [HALT, REQUIRE_CORRECT_NEXT_STEP]
+    source: "guideline-audit.md §Step 7 — conditional next_step enforcement"
+
+  - id: guideline-audit-005
+    title: "all_criteria_pass MUST be true when every criterion result is 'PASS', false otherwise"
+    conditions:
+      any:
+        - "all(criterion.result == 'PASS' for criterion in per_criterion) AND all_criteria_pass != true"
+        - "any(criterion.result == 'FAIL' for criterion in per_criterion) AND all_criteria_pass != false"
+    actions: [HALT, REQUIRE_CORRECT_ALL_CRITERIA_PASS]
+    source: "guideline-audit.md §Step 7 — all_criteria_pass enforcement"
 ```

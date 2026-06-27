@@ -160,7 +160,8 @@ per_criterion:
     evidence: "<tool-call reference>"
     explanation: "<reasoning>"
     remediation: ""
-    next_step: "proceed"
+    next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
+all_criteria_pass: false
 auto_fixes_applied: []
 flagged_for_review: []
 exec_summary: "Plan fidelity: X/Y criteria. N discrepancies found."
@@ -173,6 +174,7 @@ mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires
 status: DONE
 artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-plan-fidelity-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL. Z discrepancies found."
+all_criteria_pass: false
 mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
@@ -248,4 +250,22 @@ rules:
       all: ["clean_room_plan_source == 'orchestrator_inline'"]
     actions: [REJECT, RETURN_BLOCKED]
     source: "plan-fidelity.md §Step 1 — critical-rules-034"
+
+  - id: plan-fidelity-006
+    title: "next_step MUST be 'remediate' when result is 'FAIL', 'proceed' when result is 'PASS'"
+    conditions:
+      any:
+        - "per_criterion[].result == 'FAIL' AND per_criterion[].next_step != 'remediate'"
+        - "per_criterion[].result == 'PASS' AND per_criterion[].next_step != 'proceed'"
+    actions: [HALT, REQUIRE_CORRECT_NEXT_STEP]
+    source: "plan-fidelity.md §Step 7 — conditional next_step enforcement"
+
+  - id: plan-fidelity-007
+    title: "all_criteria_pass MUST be true when every criterion result is 'PASS', false otherwise"
+    conditions:
+      any:
+        - "all(criterion.result == 'PASS' for criterion in per_criterion) AND all_criteria_pass != true"
+        - "any(criterion.result == 'FAIL' for criterion in per_criterion) AND all_criteria_pass != false"
+    actions: [HALT, REQUIRE_CORRECT_ALL_CRITERIA_PASS]
+    source: "plan-fidelity.md §Step 7 — all_criteria_pass enforcement"
 ```

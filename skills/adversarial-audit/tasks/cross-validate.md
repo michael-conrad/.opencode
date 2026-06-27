@@ -167,7 +167,8 @@ result: "PASS"
 evidence: "<tool-call reference>"
 explanation: "<reasoning>"
 remediation: ""
-next_step: "proceed"
+next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
+all_criteria_pass: false
 ---
 ---
 criterion_id: "SC-2"
@@ -394,6 +395,7 @@ overall_consensus: PASS|FAIL
 next_step: "proceed|remediate then re-audit"
 artifact_path: "./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml"
 summary: "N SCs: X agreed, Y disagreed, Z evidence_type_mismatch"
+all_criteria_pass: false
 mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
@@ -594,4 +596,22 @@ rules:
       any: ["error == 'MISSING_INPUT'", "error == 'MISSING_EVIDENCE_DIR'", "error == 'ARTIFACT_UNREADABLE'", "error == 'INSUFFICIENT_ARTIFACTS'"]
     actions: [RETURN_BLOCKED, NO_RECOVERY]
     source: "cross-validate.md §Non-Recovery Gates"
+
+  - id: cross-validate-019
+    title: "next_step MUST be 'remediate' when result is 'FAIL', 'proceed' when result is 'PASS'"
+    conditions:
+      any:
+        - "per_criterion[].result == 'FAIL' AND per_criterion[].next_step != 'remediate'"
+        - "per_criterion[].result == 'PASS' AND per_criterion[].next_step != 'proceed'"
+    actions: [HALT, REQUIRE_CORRECT_NEXT_STEP]
+    source: "cross-validate.md §Step 4 — conditional next_step enforcement"
+
+  - id: cross-validate-020
+    title: "all_criteria_pass MUST be true when every criterion result is 'PASS', false otherwise"
+    conditions:
+      any:
+        - "all(criterion.result == 'PASS' for criterion in per_criterion) AND all_criteria_pass != true"
+        - "any(criterion.result == 'FAIL' for criterion in per_criterion) AND all_criteria_pass != false"
+    actions: [HALT, REQUIRE_CORRECT_ALL_CRITERIA_PASS]
+    source: "cross-validate.md §Step 4 — all_criteria_pass enforcement"
 ```

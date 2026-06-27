@@ -4,6 +4,8 @@
 
 > **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
 
+> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
+
 # Task: closure-verification
 
 ## Purpose
@@ -220,8 +222,9 @@ per_criterion:
     evidence: "<tool-call reference>"
     explanation: "<reasoning>"
     remediation: ""
-    next_step: "proceed"
+    next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
 exec_summary: "Closure verification: X/Y criteria. Consensus: PASS|FAIL."
+all_criteria_pass: false
 ```
 
 ### Step 13: Return Frugal Result Contract
@@ -230,6 +233,8 @@ exec_summary: "Closure verification: X/Y criteria. Consensus: PASS|FAIL."
 status: DONE
 artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
+all_criteria_pass: false
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
 ## Error Handling
@@ -296,4 +301,22 @@ rules:
       all: ["blocking_comments_count > 0"]
     actions: [REPORT_BLOCKERS]
     source: "closure-verification.md §Step 9"
+
+  - id: closure-verification-004
+    title: "next_step MUST be 'remediate' when result is 'FAIL', 'proceed' when result is 'PASS'"
+    conditions:
+      any:
+        - "per_criterion[].result == 'FAIL' AND per_criterion[].next_step != 'remediate'"
+        - "per_criterion[].result == 'PASS' AND per_criterion[].next_step != 'proceed'"
+    actions: [HALT, REQUIRE_CORRECT_NEXT_STEP]
+    source: "closure-verification.md §Step 12 — conditional next_step enforcement"
+
+  - id: closure-verification-005
+    title: "all_criteria_pass MUST be true when every criterion result is 'PASS', false otherwise"
+    conditions:
+      any:
+        - "all(criterion.result == 'PASS' for criterion in per_criterion) AND all_criteria_pass != true"
+        - "any(criterion.result == 'FAIL' for criterion in per_criterion) AND all_criteria_pass != false"
+    actions: [HALT, REQUIRE_CORRECT_ALL_CRITERIA_PASS]
+    source: "closure-verification.md §Step 12 — all_criteria_pass enforcement"
 ```
