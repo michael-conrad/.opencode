@@ -1,6 +1,6 @@
 ---
 name: sre-runbook
-description: "Use when generating operational runbooks for infrastructure incidents or procedures. SRE discipline is REQUIRED — produces procedures that survive the next on-call."
+description: "Use when generating operational runbooks for infrastructure incidents or procedures. SRE discipline is REQUIRED."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

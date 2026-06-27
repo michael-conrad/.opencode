@@ -1,6 +1,6 @@
 ---
 name: sync-guidelines
-description: "Use when synchronizing guidelines, skills, or tools between repositories. Sync is REQUIRED maintenance — not overhead."
+description: "Use when synchronizing guidelines, skills, or tools between repositories. Sync is REQUIRED maintenance."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

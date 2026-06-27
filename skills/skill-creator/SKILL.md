@@ -1,6 +1,6 @@
 ---
 name: skill-creator
-description: "Use when creating a new skill, updating an existing skill, validating skill cards, or managing duplicate content blocks (fragments) across guidelines or skills. Every unvalidated skill is a gap in your quality system — validation is REQUIRED."
+description: "Use when creating a new skill, updating an existing skill, validating skill cards, or managing duplicate content blocks (fragments) across guidelines or skills. Validation is REQUIRED."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode

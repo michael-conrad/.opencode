@@ -1,6 +1,6 @@
 ---
 name: solve
-description: "Use when validating workflow constraints, verifying state against contracts, proving theorems, or checking dependency ordering. Workflow constraints MUST be validated with Z3 — every unverified constraint is a defect."
+description: "Use when validating workflow constraints, verifying state against contracts, proving theorems, or checking dependency ordering. Workflow constraints MUST be validated with Z3."
 type: tool
 license: MIT
 compatibility: opencode
