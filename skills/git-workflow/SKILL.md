@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: "Use when creating a branch, committing, pushing, or creating a PR, rebase/merge conflicts (invoke conflict-resolution), \"check pr\"/\"check prs\"/\"check merged prs\"/\"pr merged\" (PR state verification + cleanup), \"release PR\"/\"promote to main\"/\"dev to main\" (release-promotion). Branch-and-PR discipline is REQUIRED for maintainable projects — always follow the workflow."
+description: "Use when creating a branch, committing, pushing, or creating a PR, rebase/merge conflicts (invoke conflict-resolution), \"check pr\"/\"check prs\"/\"check merged prs\"/\"pr merged\" (PR state verification + cleanup), \"release PR\"/\"promote to main\"/\"dev to main\" (release-promotion). Branch-and-PR discipline is REQUIRED — always follow the workflow."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode
