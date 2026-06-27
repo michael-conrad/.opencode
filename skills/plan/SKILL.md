@@ -1,6 +1,6 @@
 ---
 name: plan
-description: "Use when generating, validating, or managing plans for phase solvability, converting between YAML and PDDL, grounding action schemas, discovering action schemas, or managing state files. Planning is REQUIRED before implementation — every unplanned phase is a risk."
+description: "Use when generating, validating, or managing plans for phase solvability, converting between YAML and PDDL, grounding action schemas, discovering action schemas, or managing state files. Planning is REQUIRED before implementation."
 type: domain
 license: MIT
 compatibility: opencode
