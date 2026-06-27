@@ -1,6 +1,6 @@
 ---
 name: verification-before-completion
-description: "Verification is REQUIRED and not optional. MUST use when claiming a task is complete, marking a step done, or closing an issue. A completion claim without verification is not a completion — it is a placeholder for undiscovered defects."
+description: "Use when claiming a task is complete, marking a step done, or closing an issue. Verification is REQUIRED and not optional — MUST use before any completion claim."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode
