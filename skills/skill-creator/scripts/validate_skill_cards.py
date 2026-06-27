@@ -73,6 +73,8 @@ class Violation(NamedTuple):
     detail: str = ""
     file_path: str = ""
     line_approx: int | None = None
+    severity: str = "ERROR"
+    pass_fail: str = "FAIL"
 
 def discover_skill_cards(root: Path) -> list[Path]:
     cards = sorted(root.glob(".opencode/skills/*/SKILL.md"))
@@ -91,6 +93,7 @@ def parse_frontmatter(content: str) -> tuple[dict[str, str], str, str]:
         if colon > 0:
             key = line[:colon].strip()
             val = line[colon + 1 :].strip()
+            val = val.strip("\"'")
             fields[key] = val
     return fields, fm_text, body
 
@@ -200,6 +203,146 @@ def validate_req1(
                 file_path=file_path,
             )
         )
+    return violations
+
+def validate_sc_lint_001(name: str, fields: dict[str, str], file_path: str) -> list[Violation]:
+    violations: list[Violation] = []
+    desc = fields.get("description", "")
+    if not desc.startswith("Use when"):
+        violations.append(
+            Violation(
+                "SC-LINT", name, "SC-LINT-001",
+                "Description doesn't start with 'Use when'",
+                desc[:60], file_path=file_path,
+                severity="ERROR", pass_fail="FAIL",
+            )
+        )
+    return violations
+
+MANDATORY_KEYWORDS = re.compile(
+    r"\bMUST\b|\bREQUIRED\b|\balways\b|\bnot optional\b|\bmandatory\b",
+    re.IGNORECASE,
+)
+NARRATIVE_PATTERNS = re.compile(
+    r"^(Professional engineers|Amateurs|X is the Y|X produces Y|X turns Y into Z)",
+    re.IGNORECASE,
+)
+PROCEDURE_SECTION_RE = re.compile(
+    r"^(Procedure:|Operating Protocol:|Entry Criteria:|Exit Criteria:)"
+    r"|^- \[ \] \d+\.\s+\*\*Step\b",
+    re.MULTILINE,
+)
+PROCEDURE_CODE_BLOCK_RE = re.compile(
+    r"```(bash|python|yaml)\s*\n",
+    re.MULTILINE,
+)
+DISPATCH_SUB_BULLET_RE = re.compile(r"^\s+-\s+[^-[\s]")
+DISPATCH_SUB_CHECKBOX_RE = re.compile(r"^\s+- \[ \] ")
+
+def validate_sc_lint_002(name: str, fields: dict[str, str], file_path: str) -> list[Violation]:
+    violations: list[Violation] = []
+    desc = fields.get("description", "")
+    if not MANDATORY_KEYWORDS.search(desc):
+        violations.append(
+            Violation(
+                "SC-LINT", name, "SC-LINT-002",
+                "Description lacks mandatory keyword (MUST/REQUIRED/always/not optional/mandatory)",
+                desc[:60], file_path=file_path,
+                severity="WARNING", pass_fail="FAIL",
+            )
+        )
+    return violations
+
+def validate_sc_lint_003(name: str, fields: dict[str, str], file_path: str) -> list[Violation]:
+    violations: list[Violation] = []
+    desc = fields.get("description", "")
+    sentences = [s.strip() for s in desc.replace("—", ".").split(".") if s.strip()]
+    for s in sentences:
+        if NARRATIVE_PATTERNS.match(s):
+            violations.append(
+                Violation(
+                    "SC-LINT", name, "SC-LINT-003",
+                    "Description contains narrative-only sentence",
+                    s[:60], file_path=file_path,
+                    severity="WARNING", pass_fail="FAIL",
+                )
+            )
+            break
+    return violations
+
+def validate_sc_lint_004(name: str, fields: dict[str, str], file_path: str) -> list[Violation]:
+    violations: list[Violation] = []
+    desc = fields.get("description", "")
+    if len(desc) > 300:
+        violations.append(
+            Violation(
+                "SC-LINT", name, "SC-LINT-004",
+                f"Description exceeds 300 characters ({len(desc)})",
+                desc[:60], file_path=file_path,
+                severity="WARNING", pass_fail="FAIL",
+            )
+        )
+    return violations
+
+def validate_sc_lint_005(name: str, body: str, file_path: str) -> list[Violation]:
+    violations: list[Violation] = []
+    if PROCEDURE_SECTION_RE.search(body):
+        violations.append(
+            Violation(
+                "SC-LINT", name, "SC-LINT-005",
+                "SKILL.md body contains prohibited procedure section",
+                file_path=file_path,
+                severity="ERROR", pass_fail="FAIL",
+            )
+        )
+        return violations
+    # Check for code blocks that appear within procedure-like context
+    # (code blocks preceded by a heading that suggests procedure content)
+    lines = body.split("\n")
+    for i, line in enumerate(lines):
+        if line.startswith("## ") and any(kw in line.lower() for kw in ["procedure", "protocol", "operating"]):
+            # Check if next non-empty lines contain a code block
+            for j in range(i + 1, min(i + 10, len(lines))):
+                if PROCEDURE_CODE_BLOCK_RE.match(lines[j]):
+                    violations.append(
+                        Violation(
+                            "SC-LINT", name, "SC-LINT-005",
+                            "SKILL.md body contains code block under procedure heading",
+                            file_path=file_path,
+                            severity="ERROR", pass_fail="FAIL",
+                        )
+                    )
+                    return violations
+    return violations
+
+def validate_sc_lint_006(name: str, body: str, file_path: str) -> list[Violation]:
+    violations: list[Violation] = []
+    in_dispatch_table = False
+    for line in body.split("\n"):
+        stripped = line.strip()
+        if "|" in stripped and "User says" in stripped:
+            in_dispatch_table = True
+            continue
+        if in_dispatch_table:
+            if stripped.startswith("---"):
+                continue
+            if not stripped.startswith("|"):
+                in_dispatch_table = False
+                continue
+            # Check for sub-items in the last column
+            if "|" in stripped:
+                cells = stripped.split("|")
+                if len(cells) >= 4:
+                    last_cell = cells[-2].strip() if len(cells) > 2 else ""
+                    if "`" in last_cell and "- [ ]" in last_cell:
+                        violations.append(
+                            Violation(
+                                "SC-LINT", name, "SC-LINT-006",
+                                "Dispatch table sub-item type violation: actionable step uses sub-bullet",
+                                file_path=file_path,
+                                severity="WARNING", pass_fail="FAIL",
+                            )
+                        )
     return violations
 
 def validate_req2(name: str, content: str, file_path: str) -> list[Violation]:
@@ -315,6 +458,12 @@ def validate_card(card_path: Path, root: Path) -> list[Violation]:
         )
         return violations
     violations.extend(validate_req1(name, fields, fm_text, rel_path))
+    violations.extend(validate_sc_lint_001(name, fields, rel_path))
+    violations.extend(validate_sc_lint_002(name, fields, rel_path))
+    violations.extend(validate_sc_lint_003(name, fields, rel_path))
+    violations.extend(validate_sc_lint_004(name, fields, rel_path))
+    violations.extend(validate_sc_lint_005(name, body, rel_path))
+    violations.extend(validate_sc_lint_006(name, body, rel_path))
     violations.extend(validate_req2(name, content, rel_path))
     violations.extend(validate_req3(name, body, rel_path))
     violations.extend(validate_req4(name, fields, rel_path))
@@ -330,6 +479,8 @@ def violation_to_dict(v: Violation) -> dict:
         "message": v.message,
         "detail": v.detail,
         "line_approx": v.line_approx,
+        "severity": v.severity,
+        "pass_fail": v.pass_fail,
     }
 
 def main() -> int:
