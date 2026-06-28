@@ -1,0 +1,68 @@
+body: "# Spec: Replace Mandatory Three-Branch Model with Single-Path Branch Workflow\
+  \ (Issue #1540)\n\n**Source:** Brainstorming session 2026-06-27  \n**Created:**\
+  \ 2026-06-28  \n**Parent:** None (standalone)\n\n## Problem\n\nThe current skill\
+  \ deck enforces a three-branch model (`feature → dev → main`) where:\n\n1. `dev`\
+  \ is mandatory — always auto-created at pre-work if it doesn't exist (~20 lines\
+  \ of conditional creation logic in `pre-work.md`)\n2. PRs have two separate paths:\
+  \ feature→dev via `pr-creation-workflow`, release-promotion (dev→main) via `git-workflow\
+  \ --task release-promotion` — each with different rules and squash behavior\n3.\
+  \ Dev has special treatment across 15+ files: protection gates, submodule lifecycle\
+  \ management (`submodule-dev-restore`), cleanup logic that switches to dev\n4. Squash\
+  \ is conditional: single-issue squashes to one commit; multi-issue work branches\
+  \ keep multiple commits — creating inconsistent history depending on PR scope\n\
+  5. Commit messages during development are unstructured (WIP, fixup) with no standardization\
+  \ at squash time\n\n## Root Cause\n\nThe three-branch model was designed when `dev`\
+  \ served as a mandatory staging buffer. The current workflow has evolved to where\
+  \ `dev` adds complexity without proportional value. The dual PR path creates maintenance\
+  \ burden and confusion about which path to use. Conditional squash produces unpredictable\
+  \ history.\n\n## Required Actions\n\n### 1. Remove mandatory `dev` bootstrap\n-\
+  \ **File:** `pre-work.md` (~lines 93-105)\n- **Change:** Remove unconditional `dev`\
+  \ creation logic. Developer explicitly creates `dev` if they want a staging branch.\n\
+  - **SC:** SC-1 (behavioral — verify pre-work doesn't create dev)\n\n### 2. Unify\
+  \ PR creation path\n- **File:** `pr-creation-workflow/SKILL.md`\n- **Change:** Update\
+  \ Overview line 15 (remove \"dev only\"), remove pr-workflow-002 enforcement gate\
+  \ (base_branch must be dev), allow any branch as feature PR target\n- **SC:** SC-2\
+  \ (behavioral — verify PR creation accepts any target branch)\n\n### 3. Remove \"\
+  three-branch model\" from git-workflow\n- **File:** `git-workflow/SKILL.md`\n- **Change:**\
+  \ Remove \"three-branch model\" definition (line 13), remove mandatory dev bootstrap\
+  \ rule, update PR routing table to support any target branch\n- **SC:** SC-6 (semantic\
+  \ + string — verify no dev-specific rules remain)\n\n### 4. Make squash mandatory\
+  \ for all branches at PR time\n- **File:** `squash-push.md`\n- **Change:** Collapse\
+  \ work-branch/squash-detection into one mandatory squash-at-PR rule for all branches.\
+  \ Remove conditional path at lines 41, 60.\n- **SC:** SC-3 (behavioral — verify\
+  \ multi-issue PR produces one commit per issue)\n\n### 5. Standardize commit message\
+  \ format at squash time\n- **File:** `squash-push.md`\n- **Change:** Agent generates\
+  \ fresh messages from combined diffs: `#<issue> <title> — <summary>` format. Not\
+  \ preserving WIP/fixup intermediate commits.\n- **SC:** SC-4 (string + semantic\
+  \ — verify commit messages match `#\\d+ .+ — .+` pattern)\n\n### 6. Update PR body\
+  \ template\n- **File:** `create-pr.md`\n- **Change:** PR body includes: intent,\
+  \ overview, VbC results table, adversarial auditor results, spec-card-mapped commits\
+  \ table, AI byline. No separate changelog generation needed.\n- **SC:** SC-5 (structural\
+  \ — verify all 6 sections present)\n\n### 7. Define rebase timing\n- **File:** `pre-work.md`\
+  \ + `create-pr.md`\n- **Change:** Rebase at three fixed points: before branch creation\
+  \ (sync with target), before PR creation (ensure mergable), after push (double-check\
+  \ remote for conflicts)\n- **SC:** SC-8 (behavioral — verify rebase at all three\
+  \ points)\n\n### 8. Remove or unify release-promotion task\n- **File:** `release-promotion.md`\n\
+  - **Change:** Either remove or delegate to `create-pr`. The concept of a release\
+  \ workflow is preserved but the dual-path maintenance burden is eliminated.\n- **SC:**\
+  \ SC-7 (structural — verify file removed or delegated)\n\n## Success Criteria Summary\n\
+  \n| SC | Criterion | Evidence Type |\n|----|-----------|---------------|\n| SC-1\
+  \ | Pre-work no longer auto-creates `dev` | behavioral |\n| SC-2 | PR creation accepts\
+  \ any target branch | behavioral |\n| SC-3 | Squash mandatory for all branches at\
+  \ PR time | behavioral |\n| SC-4 | Commit messages follow `#<issue> <title> — <summary>`\
+  \ | string + semantic |\n| SC-5 | PR body includes all 6 required sections | structural\
+  \ |\n| SC-6 | No dev-specific rules remain in skill deck | semantic + string |\n\
+  | SC-7 | Release-promotion removed or unified | structural |\n| SC-8 | Rebase at\
+  \ three fixed points | behavioral |\n\n## Non-Goals\n\n- Does NOT introduce new\
+  \ submodule synchronization strategies (existing tag-based system remains unchanged)\n\
+  - Does NOT add parallel branch management complexity (dev is optional, not automatic)\n\
+  - Does NOT change CI/CD gating logic (already handled by `pre-pr-checklist`)\n-\
+  \ Does NOT create new naming conventions for branches beyond adapting existing ones\n\
+  - Does NOT delete existing `dev` branches — dev becomes an ordinary branch\n- Does\
+  \ NOT change `main` branch protection rules or merge requirements\n\n## Regression\
+  \ Invariants\n\n1. Existing feature branches continue to work without modification\n\
+  2. Existing PRs are not affected — change applies to new PRs only\n3. Submodule\
+  \ tag-based hash permanence system remains unchanged\n4. All existing git hooks\
+  \ continue to function without modification\n5. `main` remains the default PR target\
+  \ when no target is specified\n"
+updated_at: '2026-06-28T20:43:30+00:00'
