@@ -1,0 +1,47 @@
+domain: description-format-fix
+types:
+  - name: item
+objects:
+  - name: item-1
+    type: item
+  - name: item-2
+    type: item
+  - name: item-3
+    type: item
+  - name: item-4
+    type: item
+fluents:
+  - name: done
+    params:
+      - name: i
+        type: item
+actions:
+  - name: execute-item-1
+    params: []
+    preconditions: []
+    effects:
+      - done(item-1)
+  - name: execute-item-2
+    params: []
+    preconditions:
+      - done(item-1)
+    effects:
+      - done(item-2)
+  - name: execute-item-3
+    params: []
+    preconditions:
+      - done(item-2)
+    effects:
+      - done(item-3)
+  - name: execute-item-4
+    params: []
+    preconditions:
+      - done(item-3)
+    effects:
+      - done(item-4)
+init: []
+goals:
+  - done(item-1)
+  - done(item-2)
+  - done(item-3)
+  - done(item-4)

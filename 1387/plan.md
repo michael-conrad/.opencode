@@ -2,11 +2,9 @@
 
 - **Goal:** Add 6 structural linting rules to `validate_skill_cards.py` in the `skill-creator` skill. Each rule produces `{ rule_id, skill_name, severity, pass/fail, detail }`. Linter reports all failures, not first-failure-only.
 - **Architecture:** Single phase `implement-lint-rules` with 3 sub-phases: pre-phase analysis, per-rule RED+green implementation (6 independent rules), post-phase verification. All changes in `validate_skill_cards.py`.
-- Spec: #1387
+- **Spec:** #1387
 - **Files:** `.opencode/skills/skill-creator/scripts/validate_skill_cards.py`
 
-> **Cost-frame reformation:** The orchestrator's context is the most expensive resource in the pipeline. Every byte held costs `byte × remaining_dispatches²`. Sub-agents do the work — the orchestrator routes. Behavioral enforcement tests MUST run via `opencode-cli run` against real AI models. No substitution with grep, static analysis, or pattern matching. Cost is measured in defect-discovery-latency, not model roundtrips.
->
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
 > **One-step-at-a-time protocol:** Each numbered step is a single unit of work. The orchestrator completes step N, reports completion to chat, then proceeds to step N+1. Steps MUST NOT be combined, batched, or executed in parallel.
@@ -27,21 +25,21 @@
 
 ### Sub-phase 1 — Pre-phase analysis
 
-- [ ] 1. **Coherence gate (**clean-room**).** Verify spec coherence against codebase: read `validate_skill_cards.py` to confirm file exists and understand current structure. **→ SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8**
+- [ ] 1. **Coherence gate (**clean-room**).** Verify spec coherence against codebase: read `validate_skill_cards.py` to confirm file exists and understand current structure. Note that `validate_req1` already checks `description.startswith("Use when")` — SC-LINT-001 must be extracted into its own rule with structured output. **→ SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8**
 - [ ] 2. **Pre-red-baseline (**clean-room**).** Run existing tests for `validate_skill_cards.py` to establish baseline PASS. **→ SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8**
 
 ### Sub-phase 2 — Per-rule implementation (6 independent rules)
 
 #### Item chain — SC-LINT-001 (Description starts with "Use when")
 
-- [ ] 3. **RED (**clean-room**).** Write behavioral enforcement test for SC-LINT-001. Test sends a prompt with a skill card missing "Use when" and asserts the linter detects it. Verify test FAILS. **→ SC-1** *(Z3: P1_I1_G1)*
-- [ ] 4. **Z3 check (**inline**).** `solve check` — verify RED test artifact exists and shows FAIL. Verify P1_I1_G1 boolean is false. **→ SC-1**
+- [ ] 3. **RED (**clean-room**).** Write behavioral enforcement test for SC-LINT-001. Test sends a prompt with a skill card missing "Use when" and asserts the linter detects it. Verify test FAILS. **→ SC-1**
+- [ ] 4. **Z3 check (**inline**).** `solve check` — verify RED test artifact exists and shows FAIL. **→ SC-1**
 - [ ] 5. **RED doublecheck (**clean-room**).** Re-read RED test artifact to confirm it correctly targets SC-LINT-001. **→ SC-1**
 - [ ] 6. **Z3 check (**inline**).** `solve check` — verify doublecheck confirms RED validity. **→ SC-1**
 - [ ] 7. **Post-RED enforcement (**inline**).** Verify no GREEN work was started before RED passed. **→ SC-1**
 - [ ] 8. **Z3 check (**inline**).** `solve check` — verify post-RED enforcement clean. **→ SC-1**
-- [ ] 9. **GREEN (**clean-room**).** Implement SC-LINT-001 in `validate_skill_cards.py`. Rule checks description starts with `"Use when"`. Produces `{ rule_id: "SC-LINT-001", skill_name, severity: "ERROR", pass/fail, detail }`. **→ SC-1, SC-7** *(Z3: P1_I1_G2)*
-- [ ] 10. **Z3 check (**inline**).** `solve check` — verify GREEN implementation artifact exists. Verify P1_I1_G2 boolean is true. **→ SC-1**
+- [ ] 9. **GREEN (**clean-room**).** Implement SC-LINT-001 in `validate_skill_cards.py`. Extract the existing `description.startswith("Use when")` check from `validate_req1` into a standalone linting function. Add `severity` and `pass/fail` fields to the result. Produces `{ rule_id: "SC-LINT-001", skill_name, severity: "ERROR", pass/fail, detail }`. **→ SC-1, SC-7**
+- [ ] 10. **Z3 check (**inline**).** `solve check` — verify GREEN implementation artifact exists. **→ SC-1**
 - [ ] 11. **Post-GREEN enforcement (**inline**).** Verify GREEN implementation matches spec. **→ SC-1**
 - [ ] 12. **Z3 check (**inline**).** `solve check` — verify post-GREEN enforcement clean. **→ SC-1**
 - [ ] 13. **Checkpoint tag create (**inline**).** Create checkpoint tag for SC-LINT-001 completion. **→ SC-1**
@@ -49,14 +47,14 @@
 
 #### Item chain — SC-LINT-002 (Description contains mandatory keyword)
 
-- [ ] 15. **RED (**clean-room**).** Write behavioral enforcement test for SC-LINT-002. Test sends a prompt with a skill card missing mandatory keyword and asserts the linter detects it. Verify test FAILS. **→ SC-2** *(Z3: P1_I2_G1)*
-- [ ] 16. **Z3 check (**inline**).** `solve check` — verify RED test artifact exists and shows FAIL. Verify P1_I2_G1 boolean is false. **→ SC-2**
+- [ ] 15. **RED (**clean-room**).** Write behavioral enforcement test for SC-LINT-002. Test sends a prompt with a skill card missing mandatory keyword and asserts the linter detects it. Verify test FAILS. **→ SC-2**
+- [ ] 16. **Z3 check (**inline**).** `solve check` — verify RED test artifact exists and shows FAIL. **→ SC-2**
 - [ ] 17. **RED doublecheck (**clean-room**).** Re-read RED test artifact to confirm it correctly targets SC-LINT-002. **→ SC-2**
 - [ ] 18. **Z3 check (**inline**).** `solve check` — verify doublecheck confirms RED validity. **→ SC-2**
 - [ ] 19. **Post-RED enforcement (**inline**).** Verify no GREEN work was started before RED passed. **→ SC-2**
 - [ ] 20. **Z3 check (**inline**).** `solve check` — verify post-RED enforcement clean. **→ SC-2**
-- [ ] 21. **GREEN (**clean-room**).** Implement SC-LINT-002 in `validate_skill_cards.py`. Rule checks description contains at least one of: `MUST`, `REQUIRED`, `always`, `not optional`, `mandatory`. Produces `{ rule_id: "SC-LINT-002", skill_name, severity: "WARNING", pass/fail, detail }`. **→ SC-2, SC-7** *(Z3: P1_I2_G2)*
-- [ ] 22. **Z3 check (**inline**).** `solve check` — verify GREEN implementation artifact exists. Verify P1_I2_G2 boolean is true. **→ SC-2**
+- [ ] 21. **GREEN (**clean-room**).** Implement SC-LINT-002 in `validate_skill_cards.py`. Rule checks description contains at least one of: `MUST`, `REQUIRED`, `always`, `not optional`, `mandatory`. Produces `{ rule_id: "SC-LINT-002", skill_name, severity: "WARNING", pass/fail, detail }`. **→ SC-2, SC-7**
+- [ ] 22. **Z3 check (**inline**).** `solve check` — verify GREEN implementation artifact exists. **→ SC-2**
 - [ ] 23. **Post-GREEN enforcement (**inline**).** Verify GREEN implementation matches spec. **→ SC-2**
 - [ ] 24. **Z3 check (**inline**).** `solve check` — verify post-GREEN enforcement clean. **→ SC-2**
 - [ ] 25. **Checkpoint tag create (**inline**).** Create checkpoint tag for SC-LINT-002 completion. **→ SC-2**
@@ -64,14 +62,14 @@
 
 #### Item chain — SC-LINT-003 (No standalone narrative-only sentence)
 
-- [ ] 27. **RED (**clean-room**).** Write behavioral enforcement test for SC-LINT-003. Test sends a prompt with a skill card containing a narrative-only sentence and asserts the linter detects it. Verify test FAILS. **→ SC-3** *(Z3: P1_I3_G1)*
-- [ ] 28. **Z3 check (**inline**).** `solve check` — verify RED test artifact exists and shows FAIL. Verify P1_I3_G1 boolean is false. **→ SC-3**
+- [ ] 27. **RED (**clean-room**).** Write behavioral enforcement test for SC-LINT-003. Test sends a prompt with a skill card containing a narrative-only sentence and asserts the linter detects it. Verify test FAILS. **→ SC-3**
+- [ ] 28. **Z3 check (**inline**).** `solve check` — verify RED test artifact exists and shows FAIL. **→ SC-3**
 - [ ] 29. **RED doublecheck (**clean-room**).** Re-read RED test artifact to confirm it correctly targets SC-LINT-003. **→ SC-3**
 - [ ] 30. **Z3 check (**inline**).** `solve check` — verify doublecheck confirms RED validity. **→ SC-3**
 - [ ] 31. **Post-RED enforcement (**inline**).** Verify no GREEN work was started before RED passed. **→ SC-3**
 - [ ] 32. **Z3 check (**inline**).** `solve check` — verify post-RED enforcement clean. **→ SC-3**
-- [ ] 33. **GREEN (**clean-room**).** Implement SC-LINT-003 in `validate_skill_cards.py`. Rule detects narrative-only patterns: metaphors, slogans, value judgments, benefit statements. Produces `{ rule_id: "SC-LINT-003", skill_name, severity: "WARNING", pass/fail, detail }`. **→ SC-3, SC-7** *(Z3: P1_I3_G2)*
-- [ ] 34. **Z3 check (**inline**).** `solve check` — verify GREEN implementation artifact exists. Verify P1_I3_G2 boolean is true. **→ SC-3**
+- [ ] 33. **GREEN (**clean-room**).** Implement SC-LINT-003 in `validate_skill_cards.py`. Rule detects narrative-only patterns: metaphors, slogans, value judgments, benefit statements. Produces `{ rule_id: "SC-LINT-003", skill_name, severity: "WARNING", pass/fail, detail }`. **→ SC-3, SC-7**
+- [ ] 34. **Z3 check (**inline**).** `solve check` — verify GREEN implementation artifact exists. **→ SC-3**
 - [ ] 35. **Post-GREEN enforcement (**inline**).** Verify GREEN implementation matches spec. **→ SC-3**
 - [ ] 36. **Z3 check (**inline**).** `solve check` — verify post-GREEN enforcement clean. **→ SC-3**
 - [ ] 37. **Checkpoint tag create (**inline**).** Create checkpoint tag for SC-LINT-003 completion. **→ SC-3**
@@ -79,14 +77,14 @@
 
 #### Item chain — SC-LINT-004 (Description length limit)
 
-- [ ] 39. **RED (**clean-room**).** Write behavioral enforcement test for SC-LINT-004. Test sends a prompt with a skill card description over 300 chars and asserts the linter detects it. Verify test FAILS. **→ SC-4** *(Z3: P1_I4_G1)*
-- [ ] 40. **Z3 check (**inline**).** `solve check` — verify RED test artifact exists and shows FAIL. Verify P1_I4_G1 boolean is false. **→ SC-4**
+- [ ] 39. **RED (**clean-room**).** Write behavioral enforcement test for SC-LINT-004. Test sends a prompt with a skill card description over 300 chars and asserts the linter detects it. Verify test FAILS. **→ SC-4**
+- [ ] 40. **Z3 check (**inline**).** `solve check` — verify RED test artifact exists and shows FAIL. **→ SC-4**
 - [ ] 41. **RED doublecheck (**clean-room**).** Re-read RED test artifact to confirm it correctly targets SC-LINT-004. **→ SC-4**
 - [ ] 42. **Z3 check (**inline**).** `solve check` — verify doublecheck confirms RED validity. **→ SC-4**
 - [ ] 43. **Post-RED enforcement (**inline**).** Verify no GREEN work was started before RED passed. **→ SC-4**
 - [ ] 44. **Z3 check (**inline**).** `solve check` — verify post-RED enforcement clean. **→ SC-4**
-- [ ] 45. **GREEN (**clean-room**).** Implement SC-LINT-004 in `validate_skill_cards.py`. Rule checks description does not exceed 300 characters. Produces `{ rule_id: "SC-LINT-004", skill_name, severity: "WARNING", pass/fail, detail }`. **→ SC-4, SC-7** *(Z3: P1_I4_G2)*
-- [ ] 46. **Z3 check (**inline**).** `solve check` — verify GREEN implementation artifact exists. Verify P1_I4_G2 boolean is true. **→ SC-4**
+- [ ] 45. **GREEN (**clean-room**).** Implement SC-LINT-004 in `validate_skill_cards.py`. Rule checks description does not exceed 300 characters. Produces `{ rule_id: "SC-LINT-004", skill_name, severity: "WARNING", pass/fail, detail }`. **→ SC-4, SC-7**
+- [ ] 46. **Z3 check (**inline**).** `solve check` — verify GREEN implementation artifact exists. **→ SC-4**
 - [ ] 47. **Post-GREEN enforcement (**inline**).** Verify GREEN implementation matches spec. **→ SC-4**
 - [ ] 48. **Z3 check (**inline**).** `solve check` — verify post-GREEN enforcement clean. **→ SC-4**
 - [ ] 49. **Checkpoint tag create (**inline**).** Create checkpoint tag for SC-LINT-004 completion. **→ SC-4**
@@ -94,14 +92,14 @@
 
 #### Item chain — SC-LINT-005 (No procedure sections in SKILL.md body)
 
-- [ ] 51. **RED (**clean-room**).** Write behavioral enforcement test for SC-LINT-005. Test sends a prompt with a SKILL.md containing a procedure section and asserts the linter detects it. Verify test FAILS. **→ SC-5** *(Z3: P1_I5_G1)*
-- [ ] 52. **Z3 check (**inline**).** `solve check` — verify RED test artifact exists and shows FAIL. Verify P1_I5_G1 boolean is false. **→ SC-5**
+- [ ] 51. **RED (**clean-room**).** Write behavioral enforcement test for SC-LINT-005. Test sends a prompt with a SKILL.md containing a procedure section and asserts the linter detects it. Verify test FAILS. **→ SC-5**
+- [ ] 52. **Z3 check (**inline**).** `solve check` — verify RED test artifact exists and shows FAIL. **→ SC-5**
 - [ ] 53. **RED doublecheck (**clean-room**).** Re-read RED test artifact to confirm it correctly targets SC-LINT-005. **→ SC-5**
 - [ ] 54. **Z3 check (**inline**).** `solve check` — verify doublecheck confirms RED validity. **→ SC-5**
 - [ ] 55. **Post-RED enforcement (**inline**).** Verify no GREEN work was started before RED passed. **→ SC-5**
 - [ ] 56. **Z3 check (**inline**).** `solve check` — verify post-RED enforcement clean. **→ SC-5**
-- [ ] 57. **GREEN (**clean-room**).** Implement SC-LINT-005 in `validate_skill_cards.py`. Rule detects prohibited patterns: `"Procedure:"`, `"Operating Protocol:"`, `"Entry Criteria:"`, `"Exit Criteria:"`, numbered step lists, code blocks with bash/python/YAML. Produces `{ rule_id: "SC-LINT-005", skill_name, severity: "ERROR", pass/fail, detail }`. **→ SC-5, SC-7** *(Z3: P1_I5_G2)*
-- [ ] 58. **Z3 check (**inline**).** `solve check` — verify GREEN implementation artifact exists. Verify P1_I5_G2 boolean is true. **→ SC-5**
+- [ ] 57. **GREEN (**clean-room**).** Implement SC-LINT-005 in `validate_skill_cards.py`. Rule detects prohibited patterns in SKILL.md body: `"Procedure:"`, `"Operating Protocol:"`, `"Entry Criteria:"`, `"Exit Criteria:"`, numbered step lists, code blocks with bash/python/YAML. Produces `{ rule_id: "SC-LINT-005", skill_name, severity: "ERROR", pass/fail, detail }`. **→ SC-5, SC-7**
+- [ ] 58. **Z3 check (**inline**).** `solve check` — verify GREEN implementation artifact exists. **→ SC-5**
 - [ ] 59. **Post-GREEN enforcement (**inline**).** Verify GREEN implementation matches spec. **→ SC-5**
 - [ ] 60. **Z3 check (**inline**).** `solve check` — verify post-GREEN enforcement clean. **→ SC-5**
 - [ ] 61. **Checkpoint tag create (**inline**).** Create checkpoint tag for SC-LINT-005 completion. **→ SC-5**
@@ -109,14 +107,14 @@
 
 #### Item chain — SC-LINT-006 (Dispatch table sub-item type correctness)
 
-- [ ] 63. **RED (**clean-room**).** Write behavioral enforcement test for SC-LINT-006. Test sends a prompt with a dispatch table containing wrong sub-item types and asserts the linter detects it. Verify test FAILS. **→ SC-6** *(Z3: P1_I6_G1)*
-- [ ] 64. **Z3 check (**inline**).** `solve check` — verify RED test artifact exists and shows FAIL. Verify P1_I6_G1 boolean is false. **→ SC-6**
+- [ ] 63. **RED (**clean-room**).** Write behavioral enforcement test for SC-LINT-006. Test sends a prompt with a dispatch table containing wrong sub-item types and asserts the linter detects it. Verify test FAILS. **→ SC-6**
+- [ ] 64. **Z3 check (**inline**).** `solve check` — verify RED test artifact exists and shows FAIL. **→ SC-6**
 - [ ] 65. **RED doublecheck (**clean-room**).** Re-read RED test artifact to confirm it correctly targets SC-LINT-006. **→ SC-6**
 - [ ] 66. **Z3 check (**inline**).** `solve check` — verify doublecheck confirms RED validity. **→ SC-6**
 - [ ] 67. **Post-RED enforcement (**inline**).** Verify no GREEN work was started before RED passed. **→ SC-6**
 - [ ] 68. **Z3 check (**inline**).** `solve check` — verify post-RED enforcement clean. **→ SC-6**
-- [ ] 69. **GREEN (**clean-room**).** Implement SC-LINT-006 in `validate_skill_cards.py`. Rule checks sub-bullets (`-`) for parameter metadata, sub-checkboxes (`- [ ]`) for actionable sub-steps. Produces `{ rule_id: "SC-LINT-006", skill_name, severity: "WARNING", pass/fail, detail }`. **→ SC-6, SC-7** *(Z3: P1_I6_G2)*
-- [ ] 70. **Z3 check (**inline**).** `solve check` — verify GREEN implementation artifact exists. Verify P1_I6_G2 boolean is true. **→ SC-6**
+- [ ] 69. **GREEN (**clean-room**).** Implement SC-LINT-006 in `validate_skill_cards.py`. Rule checks sub-bullets (`-`) for parameter metadata, sub-checkboxes (`- [ ]`) for actionable sub-steps. Produces `{ rule_id: "SC-LINT-006", skill_name, severity: "WARNING", pass/fail, detail }`. **→ SC-6, SC-7**
+- [ ] 70. **Z3 check (**inline**).** `solve check` — verify GREEN implementation artifact exists. **→ SC-6**
 - [ ] 71. **Post-GREEN enforcement (**inline**).** Verify GREEN implementation matches spec. **→ SC-6**
 - [ ] 72. **Z3 check (**inline**).** `solve check` — verify post-GREEN enforcement clean. **→ SC-6**
 - [ ] 73. **Checkpoint tag create (**inline**).** Create checkpoint tag for SC-LINT-006 completion. **→ SC-6**

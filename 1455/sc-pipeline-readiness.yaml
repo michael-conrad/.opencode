@@ -1,0 +1,24 @@
+spec_issue_number: 1455
+spec_title: "[SPEC-FIX] Fix F: verification-before-completion description format (D1)"
+spec_approved: true
+authorization_scope: for_plan
+halt_at: plan_created
+pr_strategy: none
+pipeline_phase: plan_creation
+sc_count: 5
+sc_ids:
+  - SC-1: Description starts with "Use when"
+  - SC-2: Description retains all dispatch conditions
+  - SC-3: Description retains mandatory language
+  - SC-4: Narrative-only sentence removed
+  - SC-5: Description matches proposed text exactly
+evidence_types:
+  - string
+  - string
+  - string
+  - string
+  - string
+target_file: .opencode/skills/verification-before-completion/SKILL.md
+change_type: single_field_edit
+dependencies: []
+blockers: []

@@ -1,0 +1,48 @@
+phases:
+  - id: P0
+    name: fix-description-format-d1
+    description: Single phase — fix verification-before-completion SKILL.md description to start with "Use when"
+    depends_on: []
+items:
+  - id: item-1
+    name: RED-enforcement-test
+    description: Write behavioral enforcement test that fails (description doesn't start with "Use when")
+    phase: P0
+    depends_on: []
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5]
+  - id: item-2
+    name: GREEN-edit-description
+    description: Edit SKILL.md description field to match proposed text
+    phase: P0
+    depends_on: [item-1]
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5]
+  - id: item-3
+    name: REFACTOR-verify
+    description: Verify all 5 string-type SCs pass
+    phase: P0
+    depends_on: [item-2]
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5]
+  - id: item-4
+    name: COMMIT
+    description: Commit enforcement test + description change together
+    phase: P0
+    depends_on: [item-3]
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5]
+variables:
+  SC_1_DONE: {type: bool, nullable: false}
+  SC_2_DONE: {type: bool, nullable: false}
+  SC_3_DONE: {type: bool, nullable: false}
+  SC_4_DONE: {type: bool, nullable: false}
+  SC_5_DONE: {type: bool, nullable: false}
+  ITEM_1_DONE: {type: bool, nullable: false}
+  ITEM_2_DONE: {type: bool, nullable: false}
+  ITEM_3_DONE: {type: bool, nullable: false}
+  ITEM_4_DONE: {type: bool, nullable: false}
+invariants:
+  - "z3.Implies(ITEM_1_DONE, z3.And(SC_1_DONE, SC_2_DONE, SC_3_DONE, SC_4_DONE, SC_5_DONE))"
+  - "z3.Implies(ITEM_2_DONE, z3.And(ITEM_1_DONE, SC_1_DONE, SC_2_DONE, SC_3_DONE, SC_4_DONE, SC_5_DONE))"
+  - "z3.Implies(ITEM_3_DONE, z3.And(ITEM_2_DONE, SC_1_DONE, SC_2_DONE, SC_3_DONE, SC_4_DONE, SC_5_DONE))"
+  - "z3.Implies(ITEM_4_DONE, z3.And(ITEM_3_DONE, SC_1_DONE, SC_2_DONE, SC_3_DONE, SC_4_DONE, SC_5_DONE))"
+  - "z3.Not(z3.And(ITEM_2_DONE, z3.Not(ITEM_1_DONE)))"
+  - "z3.Not(z3.And(ITEM_3_DONE, z3.Not(ITEM_2_DONE)))"
+  - "z3.Not(z3.And(ITEM_4_DONE, z3.Not(ITEM_3_DONE)))"

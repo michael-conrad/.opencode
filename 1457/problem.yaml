@@ -1,0 +1,91 @@
+domain: d5-narrative-cleanup
+types:
+  - name: item
+objects:
+  - name: item-1
+    type: item
+  - name: item-2
+    type: item
+  - name: item-3
+    type: item
+  - name: item-4
+    type: item
+  - name: item-5
+    type: item
+  - name: item-6
+    type: item
+  - name: item-7
+    type: item
+  - name: item-8
+    type: item
+  - name: item-9
+    type: item
+  - name: item-10
+    type: item
+  - name: item-11
+    type: item
+  - name: item-12
+    type: item
+  - name: item-13
+    type: item
+  - name: item-14
+    type: item
+  - name: item-15
+    type: item
+  - name: item-16
+    type: item
+  - name: item-17
+    type: item
+  - name: item-18
+    type: item
+  - name: item-19
+    type: item
+  - name: item-20
+    type: item
+  - name: item-21
+    type: item
+  - name: item-22
+    type: item
+  - name: item-23
+    type: item
+  - name: item-24
+    type: item
+fluents:
+  - name: done
+    params:
+      - name: i
+        type: item
+actions:
+  - name: execute
+    params:
+      - name: i
+        type: item
+    preconditions: []
+    effects:
+      - done(i)
+init: []
+goals:
+  - done(item-1)
+  - done(item-2)
+  - done(item-3)
+  - done(item-4)
+  - done(item-5)
+  - done(item-6)
+  - done(item-7)
+  - done(item-8)
+  - done(item-9)
+  - done(item-10)
+  - done(item-11)
+  - done(item-12)
+  - done(item-13)
+  - done(item-14)
+  - done(item-15)
+  - done(item-16)
+  - done(item-17)
+  - done(item-18)
+  - done(item-19)
+  - done(item-20)
+  - done(item-21)
+  - done(item-22)
+  - done(item-23)
+  - done(item-24)

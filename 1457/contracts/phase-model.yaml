@@ -1,0 +1,15 @@
+variables:
+  all_items_independent:
+    type: bool
+    nullable: false
+  goal_achievable:
+    type: bool
+    nullable: false
+  phase_structure_complete:
+    type: bool
+    nullable: false
+preconditions: []
+invariants: []
+postconditions: []
+theorem:
+  - "z3.Implies(z3.And(all_items_independent, goal_achievable, phase_structure_complete), z3.BoolVal(True))"

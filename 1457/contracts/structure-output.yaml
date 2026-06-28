@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+variables:
+  phase_definitions_present:
+    type: bool
+    nullable: false
+  dependency_contract_present:
+    type: bool
+    nullable: false
+  phase_count_gt_0:
+    type: bool
+    nullable: false
+preconditions:
+  - "phase_definitions_present"
+postconditions:
+  - "dependency_contract_present"
+  - "phase_count_gt_0"
+invariants: []
+theorem: []

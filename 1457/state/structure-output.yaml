@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+schema_version: "1.0"
+variables:
+  phase_definitions_present: true
+  dependency_contract_present: true
+  phase_count_gt_0: true

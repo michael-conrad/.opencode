@@ -1,0 +1,26 @@
+spec_issue_number: 1457
+spec_title: "[SPEC-FIX] Fix H: Remaining skill description narrative cleanup (D5)"
+spec_approved: true
+authorization_scope: for_implementation
+halt_at: verification_complete
+pr_strategy: stacked
+pipeline_phase: plan_creation
+sc_count: 5
+sc_ids:
+  - SC-1: All 24 skills have narrative-only sentences removed from description
+  - SC-2: All descriptions retain mandatory language (MUST, REQUIRED, MANDATORY, not optional)
+  - SC-3: All descriptions retain all dispatch conditions
+  - SC-4: No new narrative-only content introduced
+  - SC-5: All descriptions start with "Use when"
+evidence_types:
+  - string
+  - string
+  - string
+  - string
+  - string
+target_files:
+  - .opencode/skills/*/SKILL.md (24 files)
+change_type: multi_field_edit
+dependencies:
+  - issue_1455 (stacked branch)
+blockers: []
