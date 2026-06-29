@@ -45,6 +45,11 @@ The three-branch model was designed when `dev` served as a mandatory staging buf
 - **Change:** Agent generates fresh messages from combined diffs: `#<issue> <title> — <summary>` format. Not preserving WIP/fixup intermediate commits.
 - **SC:** SC-4 (string + semantic — verify commit messages match `#\d+ .+ — .+` pattern)
 
+### 5a. Fix Phase 4 RED test infrastructure
+- **File:** `tests/behaviors/` (new files)
+- **Change:** SC-3 RED test must be artifact-only generator per `.opencode/tests/AGENTS.md` (no inline evaluation, no `assert_*`, no `OVERALL_RESULT`). SC-4 RED test must use `#!/bin/bash` and include cross-reference header. Both tests must be placed in `.opencode/tests/behaviors/` (not `./tmp/`). SC-3 behavioral test must use `behavior_run` with proper timeout (600s) and model selection.
+- **SC:** SC-9 (structural — verify RED tests follow artifact-only generator paradigm)
+
 ### 6. Update PR body template
 - **File:** `create-pr.md`
 - **Change:** PR body includes: intent, overview, VbC results table, adversarial auditor results, spec-card-mapped commits table, AI byline. No separate changelog generation needed.
@@ -55,10 +60,25 @@ The three-branch model was designed when `dev` served as a mandatory staging buf
 - **Change:** Rebase at three fixed points: before branch creation (sync with target), before PR creation (ensure mergable), after push (double-check remote for conflicts)
 - **SC:** SC-8 (behavioral — verify rebase at all three points)
 
-### 8. Remove or unify release-promotion task
+### 8. Unify release into single PR path (delete release-promotion.md)
 - **File:** `release-promotion.md`
-- **Change:** Either remove or delegate to `create-pr`. The concept of a release workflow is preserved but the dual-path maintenance burden is eliminated.
-- **SC:** SC-7 (structural — verify file removed or delegated)
+- **Change:** Delete `release-promotion.md`. Release IS a PR — same `create-pr` workflow, different target branch (`main` instead of `<target>`). `create-pr.md` absorbs the release-specific parts as optional post-merge steps gated by a `--release` flag. The submodule SHA locking (Steps 1-3 of current `release-promotion.md`) is already handled by the existing tag-based hash permanence system and is removed — it is not release-specific.
+- **SC:** SC-7 (behavioral — verify agent routes release PR through `pr-creation-workflow`, not `release-promotion`)
+
+### 9. Update routing table in git-workflow/SKILL.md
+- **File:** `git-workflow/SKILL.md`
+- **Change:** Update the Trigger Dispatch Table so "release" / "promote to main" triggers route to `pr-creation` with `{is_release: true}` context, not to `release-promotion`. The dual-path routing (Feature PR → `pr-creation-workflow`, Release PR → `release-promotion`) is replaced with a single path: all PRs route to `pr-creation-workflow`, with `is_release` flag determining target branch (`main` vs `<target>`).
+- **SC:** SC-10 (behavioral — verify routing table dispatches release PR to pr-creation-workflow)
+
+### 10. Update cross-references to release-promotion
+- **File:** `provenance.md`, `promotion-provenance.md`
+- **Change:** Update or remove cross-references to `release-promotion.md` that no longer exist. References to the release workflow concept remain but point to `create-pr.md` with `--release` flag documentation.
+- **SC:** SC-11 (structural — verify no stale cross-references to release-promotion.md)
+
+### 11. Update Non-Goals and Regression Invariants
+- **File:** This spec
+- **Change:** Add non-goal: "Does NOT change release workflow semantics — release remains a PR to main, just routed through the same path as feature PRs." Add regression invariant: "Release PRs continue to target main with post-merge steps (semver tagging, platform release creation, release notes synthesis) gated by --release flag."
+- **SC:** SC-12 (structural — verify non-goals and invariants updated)
 
 ## Success Criteria Summary
 
@@ -70,8 +90,11 @@ The three-branch model was designed when `dev` served as a mandatory staging buf
 | SC-4 | Commit messages follow `#<issue> <title> — <summary>` | string + semantic |
 | SC-5 | PR body includes all 6 required sections | structural |
 | SC-6 | No dev-specific rules remain in skill deck | semantic + string |
-| SC-7 | Release-promotion removed or unified | structural |
+| SC-7 | Release routes through pr-creation-workflow, not release-promotion | behavioral |
 | SC-8 | Rebase at three fixed points | behavioral |
+| SC-10 | Routing table dispatches release PR to pr-creation-workflow | behavioral |
+| SC-11 | No stale cross-references to release-promotion.md | structural |
+| SC-12 | Non-goals and invariants updated for single-path release | structural |
 
 ## Non-Goals
 
@@ -81,6 +104,7 @@ The three-branch model was designed when `dev` served as a mandatory staging buf
 - Does NOT create new naming conventions for branches beyond adapting existing ones
 - Does NOT delete existing `dev` branches — dev becomes an ordinary branch
 - Does NOT change `main` branch protection rules or merge requirements
+- Does NOT change release workflow semantics — release remains a PR to main, just routed through the same path as feature PRs
 
 ## Regression Invariants
 
@@ -89,3 +113,4 @@ The three-branch model was designed when `dev` served as a mandatory staging buf
 3. Submodule tag-based hash permanence system remains unchanged
 4. All existing git hooks continue to function without modification
 5. `main` remains the default PR target when no target is specified
+6. Release PRs continue to target main with post-merge steps (semver tagging, platform release creation, release notes synthesis) gated by `--release` flag
