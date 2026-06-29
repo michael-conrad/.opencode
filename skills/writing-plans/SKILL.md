@@ -28,6 +28,29 @@ Transforms approved specs into actionable implementation plans using a 21-step Z
 | "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" | `create` | `orchestrator` | {spec_issue_number, spec_body} |
 | "retroactive" / "retroactive plan" / "backfill plan" | `retroactive` | `orchestrator` | {spec_issue_number} |
 | completion / workflow end | `completion` | `orchestrator` | {workflow_state} |
+| "research" / "evidence" / "verify claims" | `research` | `sub-agent` | {spec_issue_number, spec_body} |
+| "readiness" / "pipeline ready check" | `readiness` | `sub-agent` | {spec_issue_number, sc_pipeline_readiness} |
+| "structure" / "phase structure" / "combined or separate" | `structure` | `sub-agent` | {spec_body, phase_definitions} |
+| "solve" / "dependency check" / "Z3 verify" | `solve` | `sub-agent` | {sc_pipeline_readiness, dependency_contract} |
+| "write plan" / "generate plan" | `write` | `sub-agent` | {spec_body, sc_pipeline_readiness} |
+| "revisit" / "resolve concerns" | `revisit` | `sub-agent` | {plan_issues_file, spec_body} |
+| "validate" / "check plan" | `validate` | `sub-agent` | {plan_issues_file, spec_body} |
+| "audit fidelity" / "fidelity check" | `audit-fidelity` | `sub-agent (auditor)` | {plan_issues_file, spec_body} |
+| "audit concern" / "concern separation" | `audit-concern` | `sub-agent (auditor)` | {plan_issues_file, spec_body} |
+
+## Programmatic Invocation Table
+
+| Task | Call via task() |
+|------|-----------------|
+| `research` | `task(subagent_type="general", prompt: "execute research task from writing-plans")` |
+| `readiness` | `task(subagent_type="general", prompt: "execute readiness task from writing-plans")` |
+| `structure` | `task(subagent_type="general", prompt: "execute structure task from writing-plans")` |
+| `solve` | `task(subagent_type="general", prompt: "execute solve task from writing-plans")` |
+| `write` | `task(subagent_type="general", prompt: "execute write task from writing-plans")` |
+| `revisit` | `task(subagent_type="general", prompt: "execute revisit task from writing-plans")` |
+| `validate` | `task(subagent_type="general", prompt: "execute validate task from writing-plans")` |
+| `audit-fidelity` | `task(subagent_type="auditor_1", prompt: "execute audit-fidelity task from writing-plans")` |
+| `audit-concern` | `task(subagent_type="auditor_2", prompt: "execute audit-concern task from writing-plans")` |
 
 ## Persona
 
