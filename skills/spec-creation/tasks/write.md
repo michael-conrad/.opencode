@@ -320,6 +320,20 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
+- [ ] 23a. **Step 2a: Resolve Either/Or in Required Actions (SC-1)** — After eliminating ambiguity, scan all Required Actions for either/or patterns ("or", "either", "alternatively") that present two or more possible outcomes. Each Required Action MUST resolve to a single concrete outcome before the spec is finalized. If an either/or pattern is found, the agent MUST:
+    - Identify which outcome is the correct single path
+    - Remove the alternative outcome
+    - Document the decision rationale in the Decision Ledger
+    - Verify no remaining either/or ambiguity exists
+
+- [ ] 23b. **Step 2b: Concretize Delegation Targets (SC-2)** — After resolving either/or patterns, scan all Required Actions for "delegate to", "unified", "merged into", or "replaced by" references. Each such reference MUST specify:
+    - The exact file changes for each capability being migrated
+    - Routing table updates (if the target file has a routing/dispatch table)
+    - Cross-reference updates (if other files reference the removed file)
+    - Capability migration (what happens to each unique capability of the removed file)
+    
+    If any delegation reference lacks these details, the agent MUST add them before the spec is finalized.
+
 - [ ] 24. **Step 3: Define Acceptance Criteria (Principle #6)** — **🚫 ALL-OR-NOTHING GATE: ALL success criteria MUST pass for implementation to be considered complete.**
 
     | Rule | Description |
