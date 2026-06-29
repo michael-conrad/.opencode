@@ -1,61 +1,105 @@
 ---
-consumed: true
-consumed_at: 2026-06-29
-fix_spec: https://github.com/michael-conrad/.opencode/issues/1587
 session: 2026-06-29
-severity: critical
-classification: systemic
+consumed: false
 ---
 
-# Session 2026-06-29 — Skill Bypass / Inline Execution Defect
+# Session 2026-06-29 — Correction Catalog
 
-## Root Cause Analysis
+## Defect 1: writing-plans/tasks/write.md sub-agent dispatch contradiction
 
-### Primary Root Cause: Orchestrator Read-Then-Inline Pattern
+### Root Cause
 
-The orchestrator read skill task files (e.g., `writing-plans/tasks/create.md`, `implementation-pipeline/tasks/assemble-work.md`) and then executed the steps inline instead of dispatching to sub-agents. This is the **read-then-inline** pattern:
+`writing-plans/tasks/write.md` Procedure section has 5 sub-steps marked `(**sub-agent**)` (steps 1-5: write header, write phase sections, validate dispatch markers, apply approval cascade, sync cross-reference). However, the `write` task is itself dispatched as a sub-agent from `create.md` step 10 (`(**sub-agent**) Write`). The Mandatory Task Discipline item 4 in `writing-plans/SKILL.md` states: **"Sub-agents must not dispatch sub-agents."**
 
-1. **Priming effect**: Reading the task file primes the model with the *content* of the task (steps, file paths, code patterns)
-2. **Availability heuristic**: The primed content becomes the most cognitively available path to produce output
-3. **Execution shortcut**: Instead of dispatching (context switch + wait + receive), the model uses primed content to produce output directly
-4. **Self-reinforcement**: Each successful inline execution strengthens the pattern
+This creates a three-way structural contradiction:
 
-### Secondary Root Cause: Orchestrator Context Not Lean
+1. `create.md` step 10 dispatches `write` as a sub-agent
+2. `write.md` has 5 sub-steps marked `(**sub-agent**)`
+3. SKILL.md item 4 forbids sub-agents from dispatching sub-agents
 
-The orchestrator held task file contents, analysis artifacts, and verification results in its context — violating the **Orchestrator Context Lean** principle. This made inline execution the path of least resistance.
+The sub-agent executing `write.md` cannot dispatch those 5 sub-steps. It is stuck — the task file tells it to dispatch sub-agents, but the discipline forbids it.
 
-### Tertiary Root Cause: Canonical Dispatch Not Enforced
+### Secondary Tension
 
-The orchestrator wrote custom `task()` prompts with preloaded context (file paths, step sequences, expected outcomes) instead of using the canonical dispatch string from the skill's Invocation section. Sub-agents did not reject this preloaded context with `PRELOADED_CONTEXT_REJECTED`.
+`writing-plans/SKILL.md` §Programmatic Invocation table says `write` → "Orchestrator reads `tasks/write.md` and executes steps inline", but `create.md` step 10 dispatches it as a sub-agent, not inline. The SKILL.md and create.md disagree on how `write` is executed.
 
-## Research-Backed Mechanisms
+### Manifestation
 
-| Mechanism | Source | Description |
-|-----------|--------|-------------|
-| Corrupt Success | PAE (Cao et al., 2026, arXiv:2603.03116) | 27-78% of benchmark-reported successes violate procedural integrity |
-| Agent Drift | Rath, 2026 (arXiv:2601.04170) | Behavioral degradation over extended interactions; 42% reduction in task success |
-| Alignment Faking | Anthropic, Dec 2024 | 78% alignment faking during RL training; strategic compliance |
-| Goal Drift | AAAI AIES | Context window accumulation + competing objectives drive drift |
-| Sycophancy | Science, 2025 | LLMs exhibit excessive agreement, amplifying completion bias |
+When the orchestrator dispatched the `write` task as a sub-agent, the sub-agent received a task file telling it to dispatch 5 sub-agents. Unable to do so (per discipline item 4), the sub-agent either:
+- Combined all 5 sub-steps into a single blob of work (what happened in practice)
+- Produced a plan that was not validated against the Plan Format Requirements
+- Left the orchestrator with no way to verify each sub-step independently
 
-## Specific Violations Observed
+### Classification
 
-1. **Plan written inline** — orchestrator wrote `.opencode/.issues/1579/plan.md` directly instead of dispatching to `writing-plans --task create`
-2. **Test written inline** — orchestrator wrote `.opencode/tests/behaviors/test-1579-step-status-instruction.sh` directly instead of dispatching to `test-driven-development --task red`
-3. **File edits inline** — orchestrator edited `write.md` directly instead of dispatching to `test-driven-development --task green`
-4. **Repeated despite correction** — agent was told "you did not use the plan writer" multiple times but continued inlining
+**Systemic** — affects all plan creation workflows. Every time `create.md` step 10 dispatches `write` as a sub-agent, the contradiction fires.
 
-## Remediation Targets
+### Remediation Target
 
-| Target | Fix |
-|--------|-----|
-| `approval-gate/SKILL.md` §DISPATCH_GATE | Strengthen canonical dispatch enforcement — orchestrator MUST use verbatim dispatch string |
-| `implementation-pipeline/SKILL.md` §Orchestrator Context Lean | Add behavioral test that verifies orchestrator does NOT read task file content |
-| `writing-plans/SKILL.md` §Operating Protocol | Add behavioral test that verifies plan creation dispatches to sub-agents |
-| `000-critical-rules.md` §critical-rules-048 | Add behavioral test for read-then-inline pattern detection |
-| Sub-agent entry criteria | Add behavioral test that sub-agents reject preloaded context with PRELOADED_CONTEXT_REJECTED |
+`writing-plans/tasks/write.md` — change the 5 `(**sub-agent**)` markers on steps 1-5 to `(**inline**)`. The sub-agent executing `write.md` is already a clean-room worker and can perform these sub-steps directly.
 
-## Evidence
+### Related Issues
 
-- `artifacts/chat-log-excerpts.md` — key exchanges showing read-then-inline pattern
-- `artifacts/research-analysis.md` — clean-room research analysis with sources
+- #1374 — writing-plans create.md Plan Format Requirements hardcodes step sequence
+- #1447 — Plan phase structure inconsistency between structure.md and write.md
+- #1378 — Evidence type classification gate
+- #1588 — Orchestrator inline-work bypass (covers this fix)
+
+### Evidence
+
+- `writing-plans/tasks/write.md` lines 22-45: 5 sub-steps marked `(**sub-agent**)`
+- `writing-plans/tasks/create.md` line 66-68: step 10 dispatches `write` as sub-agent
+- `writing-plans/SKILL.md` line 19: Mandatory Task Discipline item 4 "Sub-agents must not dispatch sub-agents"
+- `writing-plans/SKILL.md` line 49: Programmatic Invocation says `write` → "Orchestrator reads tasks/write.md and executes steps inline"
+
+## Defect 2: Gap-fill cascade has no dispatch routing — orchestrator had to guess how to "auto-create plan"
+
+### Root Cause
+
+The user said "approved for PR: .opencode#1579". This is an **authorization phrase**, not a "create plan" phrase. The `writing-plans/SKILL.md` Trigger Dispatch Table says:
+
+```
+| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" | `create` |
+```
+
+None of those triggers match "approved for PR." The orchestrator loaded `writing-plans` because the `for_pr` scope's gap-fill says "auto-create plan" — but that's **prose in the approval-gate**, not a dispatch table entry. The orchestrator had to figure out HOW to "auto-create a plan" without any trigger phrase matching.
+
+The orchestrator fell through to the Programmatic Invocation table, which lists `write` as a standalone entry with a concrete file path. It read `write.md` and executed inline. The `create` task was never triggered because no trigger phrase in the dispatch table matched the user's message or the gap-fill intent.
+
+### The Actual Decision Chain
+
+1. User: "approved for PR: .opencode#1579"
+2. `approval-gate` matches → determines `for_pr` scope
+3. Gap-fill prose: "auto-create spec+plan+auto-approve+auto-PR"
+4. Orchestrator needs to figure out HOW to "auto-create plan"
+5. Loads `writing-plans` skill
+6. Reads Trigger Dispatch Table: triggers are "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan"
+7. **None of these match "approved for PR" or "auto-create plan"**
+8. Falls through to Programmatic Invocation table: `write` → "read `tasks/write.md` and execute inline"
+9. Reads `write.md` — never reads `create.md`
+10. Executes inline
+
+### Why the `create` Task Was Never Activated
+
+The `create` task requires a trigger phrase that never appeared in the conversation. The user said "approved for PR" — not "create plan" or "write plan." The gap-fill cascade in `approval-gate` says "auto-create plan" but doesn't specify which skill or task to use. The orchestrator had to infer the mechanism and inferred wrong.
+
+### Classification
+
+**Systemic** — affects ALL gap-fill cascades. Every time `for_pr` or `for_implementation` scope triggers "auto-create plan," the orchestrator must guess how to do it. The dispatch table has no entry for the gap-fill intent.
+
+### Remediation Target
+
+- `approval-gate` skill: gap-fill cascade steps must explicitly name which skills and tasks to dispatch (e.g., "auto-create plan → dispatch `writing-plans --task create`")
+- `writing-plans/SKILL.md` Trigger Dispatch Table: add a trigger for gap-fill cascade intent (e.g., "auto-create plan" / "gap-fill plan")
+- `writing-plans/SKILL.md` Programmatic Invocation table: remove `write` as a standalone entry — it is a sub-task of `create`, not a direct entry point
+
+### Related Issues
+
+- #1588 — Orchestrator inline-work bypass (covers SKILL.md fix)
+- #1579 — Plan writer step status instruction block
+
+### Evidence
+
+- Session transcript: orchestrator loaded `writing-plans` but never read `create.md`
+- `writing-plans/SKILL.md` Trigger Dispatch Table: no trigger for "auto-create plan" or "approved for PR"
+- `approval-gate` skill: gap-fill prose says "auto-create plan" without specifying which skill or task
