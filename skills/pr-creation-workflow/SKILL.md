@@ -12,7 +12,7 @@ compatibility: opencode
 
 PR creation is a DISTINCT phase requiring EXPLICIT instruction — NOT automatic after implementation. "Approved"/"go" authorize implementation only, not PR creation (unless `authorization_scope >= for_pr`).
 
-Feature PRs target `dev` only. Release PRs (dev→main) handled by `git-workflow --task release-promotion`.
+Feature PRs target any branch. Release PRs handled by `git-workflow --task pr-creation` with `{is_release: true}` flag.
 
 ## Persona
 
@@ -56,7 +56,7 @@ PR creator. Routes diff review and PR body generation to sub-agents that indepen
 ## Operating Protocol
 
 - [ ] 1. **Explicit instruction required** unless `authorization_scope >= for_pr`.
-- [ ] 2. **Base branch = dev** for feature PRs.
+- [ ] 2. **Base branch = target branch** for feature PRs.
 - [ ] 3. **Squash verified** before PR (single commit for single-issue).
 - [ ] 4. **Changelog generated** before PR.
 - [ ] 5. **Adversarial-audit call:** after pre-pr-checklist, call `adversarial-audit --task spec-summary --pr <N>` with `audit_phase: pr_creation`.
@@ -152,12 +152,7 @@ rules:
     actions: [HALT]
     source: "pr-creation-workflow/SKILL.md"
 
-  - id: pr-workflow-002
-    title: "Base branch must be dev for feature PRs"
-    conditions:
-      all: ["pr_type == 'feature'", "base_branch != 'dev'"]
-    actions: [HALT]
-    source: "pr-creation-workflow/SKILL.md"
+  # pr-workflow-002 removed per #1540 Phase 2 — PR creation accepts any target branch
 
   - id: pr-workflow-003
     title: "Submodule-bump-only PRs are BLOCKED — parent repo enforcement gate"

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Squash implementation commits or verify existing commit structure for work branches, rebase on current dev, and push to remote.
+Squash implementation commits or verify existing commit structure for all branches, rebase on current target, and push to remote.
 
 ## Entry Criteria
 
@@ -11,8 +11,8 @@ Squash implementation commits or verify existing commit structure for work branc
 
 ## Exit Criteria
 
-- Verified commit structure on feature/work branch (one commit per implementation item)
-- Branch rebased on current dev
+- Verified commit structure on feature branch (one commit per implementation item)
+- Branch rebased on current target
 - Branch pushed to remote with force-with-lease
 - Working tree clean
 
@@ -28,47 +28,39 @@ Then stage: `git add CHANGELOG.md`
 
 **Enforcement gate:** Verify `git status --porcelain CHANGELOG.md` shows `M` or `A` before proceeding. If changelog not staged and no skip directive — HALT.
 
-### Step 3: Squash to Single Commit
+### Step 3: Squash to One Commit Per Item (MANDATORY)
 
-**Branch type determines strategy:**
-
-| Branch Type | Squash Strategy |
-| -- | -- |
-| **Feature/Work branch** | One commit per implementation item (N commits is correct) |
-
-#### Feature/Work Branch
-
-For work branches, verify commit structure matches the stacked PR model: one commit per implementation item. No squash is needed — the commit-per-item structure is correct by design.
-
-If the branch has accrued extraneous merge commits or fixup commits during development, interactive rebase to clean up:
+All branches use the same squash strategy: one commit per implementation item.
 
 ```bash
-git rebase -i origin/dev
+git reset --soft origin/<target>
 ```
 
-If only one implementation item exists on the branch and it has been squash-merged during development (multiple small commits for one logical change), consolidate into a single commit:
+Then commit each item separately with the standardized format:
 
 ```bash
-git reset --soft origin/dev
-git commit -m "<descriptive message>" \
+git commit -m "#<issue> <title> — <summary>" \
     --trailer "Co-authored-by: <AgentName> (<ModelId>) <noreply@example.com>" \
     --trailer "Co-authored-by: <dev.name> <dev.email>"
 ```
 
-#### Work Branch
+Generate the commit message from the combined diff of each implementation item. The format is `#<issue> <title> — <summary>` where:
+- `<issue>` is the issue number
+- `<title>` is the issue title
+- `<summary>` is a brief description of what changed
 
-If `./tmp/{issue-N}/work.md` exists, this is a work branch — skip squash. Verify commit structure instead.
+Example: `#123 Add user login — implemented email validation and password hashing`
 
-### Step 3.5: Rebase on Current Dev (MANDATORY)
+### Step 3.5: Rebase on Current Target (MANDATORY)
 
 ```bash
 git fetch origin
-git rebase origin/dev
+git rebase origin/<target>
 ```
 
 **If conflicts occur:** HALT and report conflicts to the developer. List conflicting files.
 
-**This step is MANDATORY even if review-prep just ran a rebase.** Dev may have been updated since.
+**This step is MANDATORY even if review-prep just ran a rebase.** Target may have been updated since.
 
 ### Step 4: Push to Remote
 
@@ -103,7 +95,7 @@ After squash and before push:
 | Working tree clean | `git status --porcelain` | Empty |
 | Staged changes correct | `git diff --staged` | Only intended changes |
 | No unstaged changes | `git diff` | Empty |
-| Commits ahead of dev | `git log origin/dev..HEAD --oneline` | Expected commit(s) |
+| Commits ahead of target | `git log origin/<target>..HEAD --oneline` | Expected commit(s) |
 | Branch tracking | `git branch -vv` | `[origin/<branch>]` |
 | Worktree path correct | `git rev-parse --show-toplevel` | Worktree path |
 
@@ -111,8 +103,8 @@ After squash and before push:
 
 ```bash
 git branch feature/recovery HEAD
-git checkout dev
-git reset --hard origin/dev
+git checkout <target>
+git reset --hard origin/<target>
 git checkout feature/recovery
 git push origin feature/recovery
 ```

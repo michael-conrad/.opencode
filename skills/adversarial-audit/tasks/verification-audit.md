@@ -3,6 +3,8 @@
 <!-- Provenance: AI-generated -->
 
 > **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
+>
+> **Auditors are read-only evaluators.** You inspect behavioral evidence artifacts produced by the orchestrator's `opencode-cli run` invocations. You do NOT run behavioral tests yourself. Reading a behavioral evidence artifact (timeline.yaml, stderr.log, session.yaml) with `read` is valid behavioral evidence inspection — the evidence type is determined by the artifact's provenance (the orchestrator ran `opencode-cli run`), not by the inspection tool you use.
 
 # Task: verification-audit
 

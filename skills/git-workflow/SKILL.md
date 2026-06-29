@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: "Use when creating a branch, committing, pushing, or creating a PR, rebase/merge conflicts (invoke conflict-resolution), \"check pr\"/\"check prs\"/\"check merged prs\"/\"pr merged\" (PR state verification + cleanup), \"release PR\"/\"promote to main\"/\"dev to main\" (release-promotion). Branch-and-PR discipline is REQUIRED — always follow the workflow."
+description: "Use when creating a branch, committing, pushing, or creating a PR, rebase/merge conflicts (invoke conflict-resolution), \"check pr\"/\"check prs\"/\"check merged prs\"/\"pr merged\" (PR state verification + cleanup), \"release PR\"/\"promote to main\"/\"dev to main\" (pr-creation with --release flag). Branch-and-PR discipline is REQUIRED — always follow the workflow."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode
@@ -10,7 +10,7 @@ compatibility: opencode
 
 ## Overview
 
-Git Workflow Enforcer. Three-branch model: feature → dev → main. AI commits blocked on protected branches. Feature branches merge to `dev` via PR. Squash at PR creation only. Submodule-aware.
+Git Workflow Enforcer. Single-path workflow: feature branches target any branch. AI commits blocked on protected branches. Feature branches merge via PR. Squash at PR creation only. Submodule-aware.
 
 ## Mandatory Task Discipline
 
@@ -24,13 +24,13 @@ Git Workflow Enforcer. Three-branch model: feature → dev → main. AI commits 
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "pre-work" / "setup branch" / "sync dev" | `pre-work` | `sub-task` | {branch_name} |
+| "pre-work" / "setup branch" / "sync default branch" | `pre-work` | `sub-task` | {branch_name} |
 | "implementation" / "commit" / "save work" | `implementation` | `sub-task` | {branch_name} |
 | "review-prep" / "prepare review" | `review-prep` | `sub-task` | {branch_name} |
 | "pr-creation" / "create PR" | `pr-creation` | `sub-task` | {branch_name, spec_summary} |
 | "rebase" / "rebase pending" | `rebase-pending` | `sub-task` | {branch_name} |
 | "cleanup" / "post-merge cleanup" | `cleanup` | `sub-task` | {pr_merge_status} |
-| "release" / "promote to main" / "dev to main" | `release-promotion` | `sub-task` | {branch_name} |
+| "release" / "promote to main" / "target to main" | `pr-creation` | `sub-task` | {branch_name, is_release: true} |
 | "check pr" / "check prs" / "check merged prs" / "pr merged" | `check-pr` | `sub-task` | {branch_name} |
 | "provenance" / "provenance check" | `provenance` | `sub-task` | {submodule_path} |
 | "sync submodules" / "update submodules" | `submodule-sync` | `sub-task` | {submodule_paths} |
@@ -38,7 +38,7 @@ Git Workflow Enforcer. Three-branch model: feature → dev → main. AI commits 
 
 ## Persona
 
-Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branches, squash-on-PR-only discipline.
+Git Workflow Enforcer. Focus: single-path workflow, block AI on protected branches, squash-on-PR-only discipline.
 
 ## Tasks
 
@@ -49,7 +49,6 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 | `pr-creation` |
 | `rebase-pending` |
 | `cleanup` |
-| `release-promotion` |
 | `check-pr` |
 | `provenance` |
 | `pair-pre-work` |
@@ -64,8 +63,8 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 
 | Request Type | Target |
 
-| Feature PR (feature/* → dev) | `pr-creation-workflow` skill |
-| Release PR (dev → main) | `git-workflow --task release-promotion` |
+| Feature PR (feature/* → target) | `pr-creation-workflow` skill |
+| Release PR (target → main) | `pr-creation-workflow` skill with `{is_release: true}` |
 
 ## Invocation
 
@@ -79,7 +78,6 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 | `pr-creation` | `task(..., prompt: "execute pr-creation task from git-workflow")` |
 | `rebase-pending` | `task(..., prompt: "execute rebase-pending task from git-workflow")` |
 | `cleanup` | `task(..., prompt: "execute cleanup task from git-workflow")` |
-| `release-promotion` | `task(..., prompt: "execute release-promotion task from git-workflow")` |
 | `check-pr` | `task(..., prompt: "execute check-pr task from git-workflow")` |
 | `provenance` | `task(..., prompt: "execute provenance task from git-workflow")` |
 | `submodule-sync` | `task(..., prompt: "execute submodule-sync task from git-workflow")` |
@@ -100,10 +98,10 @@ Git Workflow Enforcer. Focus: three-branch workflow, block AI on protected branc
 ## Operating Protocol
 
 - [ ] 1. **Worktree first:** set `worktree.path` before file ops (direct-branch mode when `WORKTREE_REQUIRED` not set).
-- [ ] 2. **Protected branches:** never commit to `main`/`dev`.
+- [ ] 2. **Protected branches:** never commit to `main`.
 - [ ] 3. **Squash discipline:** squash ONLY at PR creation, not during feature dev.
 - [ ] 4. **Clean-room content diff:** before branch deletion, verify content exists on target branch.
-- [ ] 5. **Compare URL base:** feature → `compare/dev...<branch>`. Release → `compare/main...dev`.
+- [ ] 5. **Compare URL base:** feature → `compare/<target>...<branch>`. Release → `compare/main...<target>`.
 - [ ] 6. **Submodule repos:** git ops from inside submodule dir. No `--recursive`.
 - [ ] 7. **Pair mode:** `pair-*` branches use WIP-commit switching, not worktrees.
 - [ ] 8. **Adversarial-audit call:** after issue closure, before branch cleanup, call `adversarial-audit --task closure-verification --pr <N>` with `audit_phase: post_merge`.
@@ -226,9 +224,9 @@ rules:
     source: "git-workflow/SKILL.md"
 
   - id: git-workflow-003
-    title: "Compare URL base must be dev for feature branches"
+    title: "Compare URL base must be target for feature branches"
     conditions:
-      all: ["compare_url_generated == true", "base_branch != 'dev'", "is_feature_branch == true"]
+      all: ["compare_url_generated == true", "base_branch != '<target>'", "is_feature_branch == true"]
     actions: [HALT]
     source: "git-workflow/SKILL.md"
 
