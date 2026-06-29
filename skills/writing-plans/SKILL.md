@@ -83,44 +83,42 @@ This skill produces plans by dispatching sub-agents. The orchestrator routes; su
 
 ## Operating Protocol — 21-Step Pipeline
 
-Each item is tagged with dispatch scope, chain dependency, and contract paths.
+**Execution model:** Under the hard limit that sub-agents cannot dispatch sub-agents, this skill's pipeline executes entirely at the orchestrator level. The orchestrator reads each step procedure and executes it directly. No `task()` calls are used within the pipeline.
+
+Each item is tagged with chain dependency and contract paths.
 
 ### Pipeline Steps
 
-- [ ] 1. (**inline**) Verify spec is approved (check `approved-for-*` label) — chain: `none`
-- [ ] 2. (**sub-agent**) Research — `task(..., prompt: "execute research task from writing-plans")` — chain: `step_1`
-- [ ] 3. (**inline**) Z3 check — `solve check` — verify research output contains evidence_artifacts — chain: `step_2`
-- [ ] 4. (**sub-agent**) Readiness — `task(..., prompt: "execute readiness task from writing-plans")` — chain: `step_3`
-- [ ] 5. (**inline**) Z3 check — `solve check` — verify readiness output has status PASS — chain: `step_4`
-- [ ] 6. (**sub-agent**) Structure — `task(..., prompt: "execute structure task from writing-plans")` — chain: `step_5`
-- [ ] 7. (**inline**) Z3 check — `solve check` — verify structure output has phase definitions and dependency contract — chain: `step_6`
-- [ ] 8. (**sub-agent**) Solve — `task(..., prompt: "execute solve task from writing-plans")` — chain: `step_7`
-- [ ] 9. (**inline**) Z3 check — `solve check` — verify solve output has SAT and SOLVED status — chain: `step_8`
-- [ ] 10. (**sub-agent**) Write — `task(..., prompt: "execute write task from writing-plans")` — chain: `step_9`
-- [ ] 11. (**sub-agent**) Clean-room plan generation — `task(..., prompt: "execute write task from writing-plans")` with spec body only, no existing plan context — chain: `step_10`
-- [ ] 12. (**inline**) Z3 check — `solve check` — verify clean-room plan output contains clean_room_plan — chain: `step_11`
-- [ ] 13. (**sub-agent**) Revisit — `task(..., prompt: "execute revisit task from writing-plans")` — chain: `step_12`
-- [ ] 14. (**inline**) Z3 check — `solve check` — verify revisit output has resolution_status — chain: `step_13`
-- [ ] 15. (**sub-agent**) Validate — `task(..., prompt: "execute validate task from writing-plans")` — chain: `step_14`
-- [ ] 16. (**inline**) Z3 check — `solve check` — verify validate output has PASS status — chain: `step_15`
-- [ ] 17. (**sub-agent**) Audit fidelity — `task(..., prompt: "execute audit-fidelity task from writing-plans")` — chain: `step_16`
-- [ ] 18. (**inline**) Z3 check — `solve check` — verify audit-fidelity output has PASS — chain: `step_17`
-- [ ] 19. (**sub-agent**) Audit concern — `task(..., prompt: "execute audit-concern task from writing-plans")` — chain: `step_18`
-- [ ] 20. (**inline**) Z3 check — `solve check` — verify audit-concern output has PASS — chain: `step_19`
-- [ ] 21. (**sub-agent**) Completion — `task(..., prompt: "execute completion task from writing-plans")` — chain: `step_20`
-- [ ] 22. (**inline**) Z3 check — `solve check` — verify completion output has lifecycle event — chain: `step_21`
+- [ ] 1. Verify spec is approved (check `approved-for-*` label) — read tasks/create.md Step 1 — chain: `none`
+- [ ] 2. Research — execute research procedure from tasks/research.md — chain: `step_1`
+- [ ] 3. Z3 check — run `solve check` — verify research output contains evidence_artifacts — chain: `step_2`
+- [ ] 4. Readiness — execute readiness procedure from tasks/readiness.md — chain: `step_3`
+- [ ] 5. Z3 check — run `solve check` — verify readiness output has status PASS — chain: `step_4`
+- [ ] 6. Structure — execute structure procedure from tasks/structure.md — chain: `step_5`
+- [ ] 7. Z3 check — run `solve check` — verify structure output has phase definitions and dependency contract — chain: `step_6`
+- [ ] 8. Solve — execute solve procedure from tasks/solve.md — chain: `step_7`
+- [ ] 9. Z3 check — run `solve check` — verify solve output has SAT and SOLVED status — chain: `step_8`
+- [ ] 10. Write — execute write procedure from tasks/write.md — chain: `step_9`
+- [ ] 11. Clean-room plan generation — execute write procedure with spec body only, no existing plan context — chain: `step_10`
+- [ ] 12. Z3 check — run `solve check` — verify clean-room plan output contains clean_room_plan — chain: `step_11`
+- [ ] 13. Revisit — execute revisit procedure from tasks/revisit.md — chain: `step_12`
+- [ ] 14. Z3 check — run `solve check` — verify revisit output has resolution_status — chain: `step_13`
+- [ ] 15. Validate — execute validate procedure from tasks/validate.md — chain: `step_14`
+- [ ] 16. Z3 check — run `solve check` — verify validate output has PASS status — chain: `step_15`
+- [ ] 17. Audit fidelity — execute audit-fidelity procedure from adversarial-audit task plan-fidelity — chain: `step_16`
+- [ ] 18. Z3 check — run `solve check` — verify audit-fidelity output has PASS — chain: `step_17`
+- [ ] 19. Audit concern — execute audit-concern procedure from adversarial-audit task concern-separation — chain: `step_18`
+- [ ] 20. Z3 check — run `solve check` — verify audit-concern output has PASS — chain: `step_19`
+- [ ] 21. Completion — execute completion procedure from tasks/completion.md — chain: `step_20`
+- [ ] 22. Z3 check — run `solve check` — verify completion output has lifecycle event — chain: `step_21`
 
 ### Retroactive Operating Protocol
 
-When the `retroactive` task is dispatched, the pipeline is the same 21-step sequence but with the research step loading the existing spec body as its evidence source rather than performing live-source verification:
-
-- [ ] 1. (**inline**) Verify spec exists in `.issues/{N}/spec.md` or `*/.issues/{N}/spec.md` — chain: `none`
-- [ ] 2. (**sub-agent**) Research — Load existing spec body as evidence source — chain: `step_1`
-- [ ] 3-21. Same as standard pipeline above — chain: `step_2`
+When the `retroactive` task is dispatched, the pipeline is the same 22-step sequence but with Step 2 (Research) loading the existing spec body as its evidence source rather than performing live-source verification. Steps 3-22 follow the standard pipeline above.
 
 ## Sub-Agent Routing
 
-Orchestrator tasks (`create`, `retroactive`, `completion`) are executed inline by the orchestrator — the orchestrator reads the task file and executes steps directly. Sub-task dispatches within the 21-step pipeline (research, readiness, structure, solve, write, revisit, validate, audit-fidelity, audit-concern, completion) use `task(subagent_type="general")` with `{ spec_issue_number, spec_body, worktree.path, github.owner, github.repo }`, excluding implementation context. Auditor tasks (`audit-fidelity`, `audit-concern`) use subagent_type from `resolve-models` result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
+Orchestrator-level tasks (`create`, `retroactive`) are executed inline by the orchestrator — the orchestrator reads each step procedure and executes it directly. The pipeline uses no `task()` calls. When external skills are needed (adversarial-audit for fidelity/concern audits), invoke them via `skill({name: "..."})` with the appropriate task, not via sub-agent dispatch within the pipeline.
 
 ## Cross-References
 
