@@ -10,7 +10,9 @@ compatibility: opencode
 
 ## Overview
 
-20 engineering principles as single authoritative source for design judgment and enforcement. Also includes code size limits (formerly `code-size-enforcement` skill): Python functions ≈100 words, notebook cells ≈120 words, source files ≈750 words. Grandfather policy exempts existing files; only new/modified files must comply.
+20 engineering principles as single authoritative source for design judgment and enforcement. Code decomposition decisions are based on single-responsibility principle and cohesion, not word/line counts. Grandfather policy exempts existing files; only new/modified files must comply.
+
+> **Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS. Document size metrics (word count, line count, token count) are NOT valid proxies for implementation complexity.**
 
 ## Persona
 
@@ -61,7 +63,7 @@ This skill is the master source. `080-code-standards.md` holds project-specific 
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 
-> **Context cost frame:** The orchestrator's context is the most expensive resource in the pipeline — sub-agents do the work, not the orchestrator. Every byte held by the orchestrator costs `byte × remaining_dispatches²`. See `020-go-prohibitions.md` §1.1.
+> **Context cost frame:** These are internal operational bookkeeping notes describing how context flows through the pipeline — they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
 > This cost frame applies to orchestrator context only — it does NOT mean the agent should minimize message count, pipeline steps, or user-facing output.
 
 The orchestrator MUST NOT preload execution context into `task()` prompts.

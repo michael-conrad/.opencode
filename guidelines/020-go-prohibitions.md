@@ -69,59 +69,31 @@ load_when: sub-agent
 
 ---
 
-## 1.1 Two-Role Context Cost Model
+## 1.1 Orchestrator Context Discipline
 
-### The Cost Model
+### Overview
 
-The orchestrator and sub-agents occupy different cost functions. Understanding this is essential to making correct dispatch decisions.
+The orchestrator and sub-agents have different context management patterns. These are internal operational bookkeeping notes describing how context flows through the pipeline — they are NOT implementation complexity measures.
 
-**Orchestrator Context Cost:**
+> **Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS. Document size metrics (word count, line count, token count, byte-dispatch formulas) are NOT valid proxies for implementation complexity.**
 
-```
-orchestrator_cost = size × remaining_dispatches²
-```
+### Context Flow
 
-- `size` = bytes held by orchestrator (routing metadata, cached analysis, task file contents)
-- `remaining_dispatches` = number of future `task()` calls in the pipeline
-- Squared because: held bytes are seen by every subsequent sub-agent, AND the orchestrator's accumulation is monotonic (never shrinks)
+**Orchestrator context:** Holds routing metadata only — `worktree.path`, `github.owner`, `github.repo`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `pipeline_history` (phase names only). Task file contents, analysis artifacts, and verification results go to sub-agents or disk.
 
-*Industry validation: CipherBuilds reports coordinator = 60-90% of total token spend. Inngest reports 90%+ reduction via sub-agent delegation.*
+**Sub-agent context:** Disposable — sub-agents read task files, source files, run analysis tools, and execute tests freely. Their context is discarded after returning a result contract.
 
-Example: holding a 500-byte inline analysis artifact when 12 dispatches remain:
-- `500 × 12² = 500 × 144 = 72,000 byte-dispatches`
-- Same analysis in a sub-agent: `500 × 1 = 500 byte-dispatches`, then discarded
-
-**Sub-Agent Context Cost:**
-
-```
-sub_agent_cost = size × 1
-```
-
-- Flat, single dispatch. Discarded after return contract.
-- The sub-agent should NOT conserve context — every byte it uses is a byte that did NOT go to the orchestrator.
-
-*Industry validation: Jaymin West describes sub-agents as "disposable context buffers." Inngest: "The parent sees a 750-token summary" from 8-file analysis.*
-
-**Result Contract Cost (enters orchestrator context):**
-
-```
-result_contract_cost = size × (remaining_dispatches - 1)
-```
-
-- The only thing that returns to the orchestrator. Every byte re-bloats the orchestrator for all subsequent dispatches.
-- Result contracts should be frugal: routing-significant data only. Full evidence artifacts go to disk.
-
-*Industry validation: Jaymin West: "orchestrator aggregates final outputs, not intermediate states." Inngest: "compressed to 300 tokens of key findings — cuts orchestration cost by 50%+."*
+**Result contracts:** Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence artifacts go to disk.
 
 ### The Three Mandates
 
-#### 1. Orchestrator Context Lean (what to hold)
+#### 1. Orchestrator Context Lean
 
 The orchestrator holds ONLY routing metadata:
 
 - `worktree.path`, `github.owner`, `github.repo`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `pipeline_history` (phase names only)
 
-Everything else goes to a sub-agent. Specifically:
+Everything else goes to a sub-agent:
 
 | Does NOT belong in orchestrator | Goes to |
 |-------------------------------|---------|
@@ -131,18 +103,14 @@ Everything else goes to a sub-agent. Specifically:
 | Previous sub-agent reasoning traces | Discarded with sub-agent context |
 | Full file contents | Disk only |
 
-*Industry validation: BMad Builder: "Parent context stays tiny (file pointers + high-level plan)."*
-
-#### 2. Sub-Agent Context Generosity (what to consume)
+#### 2. Sub-Agent Context Generosity
 
 The sub-agent is ENCOURAGED to expand into its context:
 - Read task files fully — that's what sub-agent context is for
 - Read source files, run analysis tools, execute tests — burn context freely
 - Write full evidence artifacts to disk
 
-*Industry validation: Inngest: "The sub-agent might read 8 files and make 15 tool calls." Jaymin West: "Each agent maintains its own separate context window."*
-
-#### 3. Result Contract Frugality (gate at the boundary)
+#### 3. Result Contract Frugality
 
 The sub-agent returns only:
 
@@ -154,24 +122,6 @@ The sub-agent returns only:
 | `blocker_reason` | If BLOCKED | Why blocked |
 
 Everything else stays in the sub-agent's context and is discarded.
-
-*Industry validation: CipherBuilds: "Don't pass raw results. Compress them first."*
-
-### Cost-Frame Dark Prose
-
-Using dark-prose-007 (Cost-Frame Reformation) formula:
-
-**Orchestrator Context Lean:**
-
-> The orchestrator's context is the most expensive resource in the pipeline. Every byte held costs `byte × remaining_dispatches²` — and context is monotonic, never shrinking. Loading a task file inline costs 3,000 words × 144 = 432,000 word-dispatches for a 12-step pipeline. Dispatched as a sub-agent, the same content costs 3,000 × 1 = 3,000 and is discarded. Professional orchestrators hold routing metadata only — sub-agents do the work.
-
-**Sub-Agent Context Generosity:**
-
-> The sub-agent's context is a disposable resource. Every byte burned in the sub-agent is a byte the orchestrator does not have to hold. Reading task files in full, analyzing source, running tests — consume freely. Conserving sub-agent context means you are NOT protecting the orchestrator — you are forcing it to hold what you should have consumed. Professional sub-agents burn their context to shield the orchestrator.
-
-**Result Contract Frugality:**
-
-> The only thing that returns from a sub-agent enters the orchestrator's cost function. Every byte in the result contract costs `byte × (remaining_dispatches - 1)`. A verbose 500-word narrative costs the same as a routing-significant 50-word summary — but it re-bloats the orchestrator for everything downstream. Evidence goes to disk. Contracts carry routing decisions only.
 
 ---
 

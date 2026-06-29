@@ -755,10 +755,12 @@ All linters (current and future) MUST run in read-only/report-only mode. No lint
 | Any future linter | Auto-modify mode | Read-only/report-only mode |
 
 ### [critical-rules-063] Orchestrator Context Lean — orchestrator holds routing metadata only
-The orchestrator's context is the most expensive resource in the pipeline. Every byte held costs `byte × remaining_dispatches²` — and context is monotonic, never shrinking. Professional orchestrators hold routing metadata only (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase, pipeline_history). See `020-go-prohibitions.md` §1.1.
+The orchestrator holds routing metadata only (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase, pipeline_history). Task file contents, analysis artifacts, and verification results go to sub-agents or disk. See `020-go-prohibitions.md` §1.1.
+
+> **Note:** These are operational bookkeeping guidelines for context management. They describe how the orchestrator routes work to sub-agents — they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
 
 ### [critical-rules-065] Result Contract Frugality — result contracts limited to routing-significant data
-The only thing that returns from a sub-agent enters the orchestrator's cost function. Every byte in the result contract costs `byte × (remaining_dispatches - 1)`. Result contracts carry only routing-significant data (status, finding_summary, artifact_path, blocker_reason). Full evidence artifacts go to disk. See `020-go-prohibitions.md` §1.1.
+Result contracts carry only routing-significant data (status, finding_summary, artifact_path, blocker_reason). Full evidence artifacts go to disk. See `020-go-prohibitions.md` §1.1.
 
 ### [critical-rules-dispatch-gate-canonical] Canonical Dispatch String Violation — orchestrator uses custom prompt after reading canonical dispatch string
 
@@ -960,8 +962,8 @@ ALL failures are agent-owned. Remediation is the default action. Escalation is o
 All failures are agent-owned. Remediation is the default action. Escalation is only permitted after verified remediation failure — never as a first response, never as a shortcut.
 
 
-### [critical-rules-066] Terminology Standardization — all context cost references must use standardized vocabulary
-All references to "context budget", "context cost", and "context awareness" must use the standardized vocabulary: "orchestrator context", "sub-agent context", and "orchestrator context discipline". See `020-go-prohibitions.md` §1.1 Terminology Standardization. CHANGELOG entries and historical references are exempt.
+### [critical-rules-066] Terminology Standardization — all context references must use standardized vocabulary
+All references to "context budget", "context cost", and "context awareness" must use the standardized vocabulary: "orchestrator context", "sub-agent context", and "orchestrator context discipline". These terms describe operational bookkeeping for context management — they are NOT implementation complexity measures. See `020-go-prohibitions.md` §1.1 Terminology Standardization. CHANGELOG entries and historical references are exempt.
 
 
 ### Channel-Routing Table — Issue Comments vs. Chat Output
