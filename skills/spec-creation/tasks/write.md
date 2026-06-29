@@ -600,7 +600,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     | Constraint | Value |
     | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
-    | Length | 150-300 words, 1 page max |
+    | Length | Concise — 150-300 words, 1 page max (readability guideline, not complexity measure) |
     | Structure | BLUF — conclusion/action first, context second, evidence third |
     | Tone | Assertive, decision-oriented, jargon-free, third-person |
     | Independence | Fully readable without clicking any link |

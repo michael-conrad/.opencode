@@ -8,7 +8,9 @@ load_when: sub-agent
 
 ## 0. Progressive Disclosure — Index-Only Orchestrator Context
 
-**CRITICAL:** Full guideline content lives exclusively in ephemeral sub-agent context windows — loaded fresh on demand and discarded. The orchestrator holds only `.opencode/guidelines/INDEX.md` (trigger-pattern pairs, ≤1,500 words) for routing decisions. Never load full guideline bodies into orchestrator context.
+**CRITICAL:** Full guideline content lives exclusively in ephemeral sub-agent context windows — loaded fresh on demand and discarded. The orchestrator holds only `.opencode/guidelines/INDEX.md` (trigger-pattern pairs) for routing decisions. Never load full guideline bodies into orchestrator context.
+
+> **Note:** These are operational guidelines for context management — they describe how the orchestrator routes work to sub-agents. They are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
 
 ### Loading Protocol
 

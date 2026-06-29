@@ -50,7 +50,7 @@ result: <YAML-structured task output>
 ## Constraints
 
 - Each section appears at most once per work state file (except `screen-gate1-`/`screen-gate2-` which are per-issue).
-- Task results MUST be compact (≤500 words per section).
+- Task results MUST be compact (routing-significant data only).
 - Status transitions: `pending → in_progress → done | failed | skipped`.
 - Failed tasks set `status: failed` with error detail in `result.error`.
 

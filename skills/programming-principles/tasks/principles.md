@@ -415,33 +415,11 @@ ______________________________________________________________________
 
 **Enforcement:** Partially enforced. "If a function exceeds 40 lines, decompose it." (Also in `080-code-standards.md` and `programming-principles` skill `check-limits` task — merged from `code-size-enforcement`)
 
-### Measurement Methods
+### Decomposition Guidance
 
-**Functions:**
-```bash
-# Get function sizes via srclight
-srclight_symbols_in_file(path="src/module.py")
-```
-For word counts, use `wc -w` on specific function ranges.
+Decomposition decisions are driven by single-responsibility principle and cohesion — not line counts. A function that does one thing is correct regardless of length. A function that does multiple things should be split regardless of length.
 
-**Source Files:**
-```bash
-wc -l <filepath>
-```
-
-**Class Method Count:** Use `srclight_symbols_in_file(path="<filepath>")` and filter for class definitions with nested method counts.
-
-### Decomposition Thresholds
-
-| Threshold | Action |
-|-----------|--------|
-| File > 400 lines | Split into multiple files |
-| Function > 30 lines | Extract helper functions |
-| Method > 50 lines | Extract sub-methods or delegate |
-| Class > 7 methods | Extract to delegate class |
-| Class file > 300 lines | Split into focused sub-classes |
-
-When any threshold is exceeded: identify abstraction boundaries, split, verify re-check sizes, commit only after limits satisfied.
+> **Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS. Document size metrics (word count, line count, token count) are NOT valid proxies for implementation complexity.**
 
 **Apply strongly when:**
 

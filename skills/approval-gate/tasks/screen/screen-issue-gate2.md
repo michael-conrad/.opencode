@@ -19,7 +19,7 @@ Second gate of per-issue screening for pre-implementation analysis. Execute Gate
 - Sub-issues expanded into flat item list
 - Cross-issue sub-issue handling resolved
 - File and symbol references extracted
-- Compact result contract produced (≈100-500 words, YAML-structured)
+- Compact result contract produced (YAML-structured, routing-significant data only)
 
 ## Procedure
 
@@ -176,7 +176,7 @@ For each file path or symbol mentioned in the issue:
 
 ### Step 10: Produce Result Contract
 
-The result contract MUST be YAML-structured, compact (≈100-500 words):
+The result contract MUST be YAML-structured, compact (routing-significant data only):
 
 ```yaml
 status: DONE | BLOCKED | OVERFLOW
