@@ -1,0 +1,13 @@
+schema_version: "1.0"
+issue: 1585
+phases:
+  - id: phase-1
+    name: "Fix YAML frontmatter in playwright-cli/SKILL.md"
+    concern: "yaml-frontmatter-fix"
+    depends_on: []
+    success_criteria:
+      - SC-1: description field quoted
+      - SC-2: content-verification tests pass
+      - SC-3: only description line changed
+    affected_files:
+      - .opencode/skills/playwright-cli/SKILL.md

@@ -1,0 +1,4 @@
+status: PASS
+sc_summary: "Single-file documentation change to writing-plans/tasks/write.md — add Step Status instruction block as required section 5, renumber sections 5-9 to 6-10, add validation rule. All SCs are string evidence type. No dependencies, no risks."
+phase_count: 1
+phase_dependencies: {}
