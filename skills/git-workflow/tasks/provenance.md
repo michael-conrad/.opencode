@@ -94,5 +94,5 @@ These tag types correspond to provenance tiers. Release tags (`<parent>/v*`) pro
 ## Context Required
 
 - Related tools: `.opencode/tools/gitbucket-api`
-- Related skills: `git-workflow --task release-promotion`, `conflict-resolution`
-- Related tasks: `review-prep`, `release-promotion`
+- Related skills: `git-workflow --task pr-creation` (with `--release` flag), `conflict-resolution`
+- Related tasks: `review-prep`, `pr-creation` (with `--release` flag)

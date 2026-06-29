@@ -238,22 +238,25 @@ The following rationalization patterns are enumerated as explicit violations:
 
 **Cross-validate does NOT perform remediation verification.** That is the job of a fresh audit cycle with new clean-room auditors. Cross-validate only evaluates what the auditors produced — it does not verify fixes.
 
-#### Evidence Type Gate (MANDATORY — Per SC)
+#### Artifact Engagement Check (MANDATORY — Per SC)
 
-Before computing consensus for each criterion, cross-validate MUST check the declared evidence type against the actual evidence type used by each auditor. This gate prevents auditors from verifying behavioral SCs with structural evidence and reporting PASS.
+Before computing consensus for each criterion, cross-validate MUST verify that each auditor actually inspected the behavioral evidence artifacts. This gate prevents auditors from reporting PASS on behavioral SCs without engaging the behavioral test output.
+
+**Key principle:** Evidence type is determined at **production time**, not consumption time. When the orchestrator passes `artifact_evidence_dir`, it declares "these are behavioral test results" (the orchestrator ran `opencode-cli run`). The auditor's inspection tool (`read`, `grep`) does NOT re-classify the evidence type. Reading a `timeline.yaml` from `opencode-cli run` is behavioral evidence inspection — the same way reading a pytest output log is behavioral evidence inspection.
 
 **For each criterion (from the loaded spec SCs in Step 0):**
 
 - [ ] 1. Read the criterion's declared `evidence_type` from the loaded spec (spec_scs from Step 0 — NOT from inline evaluation_criteria)
-- [ ] 2. For each auditor's verdict on that criterion, check the evidence type used:
+- [ ] 2. For each auditor's verdict on that criterion, check whether the auditor engaged the behavioral evidence artifacts:
    - If `evidence_type` is not declared in the criterion, default to `string`
-   - If the auditor used structural evidence (file existence, grep, read) for a criterion declared as `behavioral`, downgrade that auditor's verdict from PASS to FAIL with `EVIDENCE_TYPE_MISMATCH` classification
-   - If the auditor used structural or string-only evidence for a criterion declared as `semantic`, downgrade that auditor's verdict from PASS to FAIL with `EVIDENCE_TYPE_MISMATCH` classification
-- [ ] 3. If both auditors used wrong evidence types for a behavioral SC: consensus is FAIL with `EVIDENCE_TYPE_MISMATCH`
-- [ ] 4. If one auditor used correct evidence type (PASS) and the other used wrong evidence type (PASS → downgraded to FAIL): consensus is DISAGREE — resolve by re-dispatching the wrong-evidence-type auditor with explicit evidence type classification
-- [ ] 5. The evidence type gate applies BEFORE the consensus computation — it modifies auditor verdicts before they enter the consensus matrix
+   - If the criterion is declared as `behavioral`: check that the auditor's `evidence` field references files from the behavioral test output directory (`artifact_evidence_dir`). Did they read `timeline.yaml`, `stderr.log`, `session.yaml`, or `stdout.log`? Did they reference specific tool calls from the trace?
+   - If the auditor's evidence references ONLY source code files, file existence checks, or grep patterns outside the behavioral test output — and does NOT reference any behavioral test artifact — downgrade that auditor's verdict from PASS to FAIL with `EVIDENCE_TYPE_MISMATCH` classification
+   - If the criterion is declared as `semantic`: check that the auditor used analytical judgment (sub-agent read + reasoning), not just grep/string matching. If they used only string evidence, downgrade to FAIL with `EVIDENCE_TYPE_MISMATCH`
+- [ ] 3. If both auditors failed to engage behavioral evidence for a behavioral SC: consensus is FAIL with `EVIDENCE_TYPE_MISMATCH`
+- [ ] 4. If one auditor engaged behavioral evidence (PASS) and the other did not (PASS → downgraded to FAIL): consensus is DISAGREE — resolve by re-dispatching the non-engaging auditor with explicit instruction to inspect `artifact_evidence_dir`
+- [ ] 5. The artifact engagement check applies BEFORE the consensus computation — it modifies auditor verdicts before they enter the consensus matrix
 
-**EVIDENCE_TYPE_MISMATCH is not a soft-pass condition.** It is a hard FAIL that prevents structural evidence from passing as behavioral evidence — the exact defect exposed by spec #804.
+**EVIDENCE_TYPE_MISMATCH is not a soft-pass condition.** It is a hard FAIL that prevents auditors from bypassing behavioral evidence — but the check is whether they engaged the behavioral artifacts, not which tool they used to read them.
 
 #### DISAGREE Is Terminal — No Reclassification (MANDATORY)
 

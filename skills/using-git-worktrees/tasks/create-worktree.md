@@ -16,14 +16,14 @@ State clearly: "Using the using-git-worktrees skill to set up an isolated worksp
 
 ### 2. Sync with Base Branch
 
-Create worktrees from an up-to-date base branch. The default base is `dev`, but for work execution workflows where a work branch already exists, the base can be the work branch or another feature branch:
+Create worktrees from an up-to-date base branch. The default base is the remote HEAD branch (typically `main`), but for work execution workflows where a work branch already exists, the base can be the work branch or another feature branch:
 
 ```bash
 git checkout $BASE_BRANCH
 git pull origin $BASE_BRANCH
 ```
 
-**BASE_BRANCH defaults to `dev`** for standalone branches. In work execution workflows, `BASE_BRANCH` may be set to a prior feature branch (for dependency merge) or the work branch.
+**BASE_BRANCH defaults to the remote HEAD branch** for standalone branches. In work execution workflows, `BASE_BRANCH` may be set to a prior feature branch (for dependency merge) or the work branch.
 
 ### 3. Detect Project Name
 
@@ -54,12 +54,12 @@ fi
 
 If a collision is detected with a different branch name, HALT and report to the developer.
 
-### 3.6. Capture Dev Base Hash (Parallel Task())
+### 3.6. Capture Base Hash (Parallel Task())
 
-When multiple worktrees will be created for parallel task() (from `pre-implementation-analysis`), capture the dev branch hash BEFORE creating any worktrees:
+When multiple worktrees will be created for parallel task() (from `pre-implementation-analysis`), capture the base branch hash BEFORE creating any worktrees:
 
 ```bash
-DEV_BASE_HASH=$(git rev-parse --short 7 origin/dev)
+BASE_HASH=$(git rev-parse --short 7 origin/$DEFAULT_BRANCH)
 ```
 
 Pass this hash in the task context so all parallel worktrees start from the same base commit.
@@ -70,14 +70,14 @@ Pass this hash in the task context so all parallel worktrees start from the same
 # Determine branch name (spec/<name> or feature/<name>)
 BRANCH_NAME="spec/<short-name>"
 
-# Create worktree with new branch from BASE_BRANCH (defaults to dev)
+# Create worktree with new branch from BASE_BRANCH (defaults to remote HEAD)
 git worktree add .worktrees/$BRANCH_NAME -b $BRANCH_NAME $BASE_BRANCH
 ```
 
 **BASE_BRANCH** determines the starting point for the new branch:
 
-- Default: `dev` (for standalone feature branches)
-- Work execution: may be `dev`, a prior issue's feature branch (dependency chain), or the work branch
+- Default: remote HEAD branch (for standalone feature branches)
+- Work execution: may be the remote HEAD branch, a prior issue's feature branch (dependency chain), or the work branch
 - Agent decides the base branch at creation time based on context
 
 Branch naming conventions:
@@ -125,7 +125,7 @@ uv run pytest test/ -x
 ```
 Worktree ready at .worktrees/spec-<short-name>
 Tests passing (<N> tests, 0 failures)
-Branch: spec/<short-name> (from dev)
+Branch: spec/<short-name> (from $BASE_BRANCH)
 Ready to implement <feature-name>
 All commands use workdir=".worktrees/$BRANCH_NAME" — never cd
 ```
@@ -137,8 +137,8 @@ After worktree creation, export environment variables that ALL downstream skills
 ```bash
 export WORKTREE_PATH=".worktrees/$BRANCH_NAME_SANITIZED"
 export BRANCH_NAME="$BRANCH_NAME"
-export BASE_BRANCH="${BASE_BRANCH:-dev}"
-export DEV_BASE_HASH=$(git rev-parse --short 7 origin/dev)
+export BASE_BRANCH="${BASE_BRANCH:-$DEFAULT_BRANCH}"
+export BASE_HASH=$(git rev-parse --short 7 origin/$DEFAULT_BRANCH)
 ```
 
 **If `worktree.path` is not set or empty after this step: FATAL ERROR → FLAG DEV → HALT.** There is no alternative — worktree is the only method for feature branches.

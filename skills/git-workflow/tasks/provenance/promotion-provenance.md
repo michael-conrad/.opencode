@@ -135,4 +135,4 @@ Always log regardless of tier:
 ## Context Required
 
 - Related tasks: `provenance/platform-detection`, `provenance/dev-push-provenance`
-- Related skill: `git-workflow --task release-promotion`
+- Related skill: `git-workflow --task pr-creation` (with `--release` flag)
