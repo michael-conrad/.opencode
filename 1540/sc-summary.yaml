@@ -1,0 +1,31 @@
+schema_version: "1.0"
+generated_at: "2026-06-29T00:00:00Z"
+sc_coverage:
+  total: 7
+  evidence_types:
+    - behavioral
+    - string
+    - semantic
+    - structural
+  phases:
+    - phase_id: 1
+      phase_name: "Remove mandatory dev bootstrap"
+      sc_ids: ["SC-1"]
+    - phase_id: 2
+      phase_name: "Unify PR creation path"
+      sc_ids: ["SC-2"]
+    - phase_id: 3
+      phase_name: "Remove three-branch model from git-workflow"
+      sc_ids: ["SC-6"]
+    - phase_id: 4
+      phase_name: "Make squash mandatory and standardize commit message format"
+      sc_ids: ["SC-3", "SC-4"]
+    - phase_id: 5
+      phase_name: "Update PR body template"
+      sc_ids: ["SC-5"]
+    - phase_id: 6
+      phase_name: "Define rebase timing"
+      sc_ids: ["SC-8"]
+    - phase_id: 7
+      phase_name: "Remove or unify release-promotion"
+      sc_ids: ["SC-7"]

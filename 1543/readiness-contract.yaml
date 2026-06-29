@@ -1,0 +1,5 @@
+status: PASS
+sc_summary: string
+phase_dependencies:
+  - phase: string
+    depends_on: list(string)

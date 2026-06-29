@@ -1,0 +1,8 @@
+title: '[SPEC-FIX] Remove ''simple specs may skip'' complexity classification escape hatch in spec-creation'
+status: open
+labels:
+- spec-fix
+body: ''
+created_at: '2026-06-29T02:35:18Z'
+updated_at: '2026-06-29T02:35:18Z'
+remote_url: https://github.com/michael-conrad/.opencode/issues/1552

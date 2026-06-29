@@ -1,0 +1,26 @@
+plan_file: .opencode/.issues/1543/plan.md
+phases:
+  - name: "Phase 1 — HIGH Severity Root Cause Remediation"
+    steps: 6
+    scs: ["SC-2", "SC-4"]
+  - name: "Phase 2 — MEDIUM Severity Cost Language Remediation"
+    steps: 6
+    scs: ["SC-2", "SC-4"]
+  - name: "Phase 3 — LOW Severity Bulk Context Cost Frame Remediation"
+    steps: 3
+    scs: ["SC-1", "SC-2", "SC-4"]
+  - name: "Phase 4 — Symbolic Rule Updates"
+    steps: 3
+    scs: ["SC-5"]
+  - name: "Phase 5 — Verification Re-Scan"
+    steps: 3
+    scs: ["SC-6"]
+exit_criteria:
+  - C1: "All 56 findings remediated"
+  - C2: "No unreframed context cost frames"
+  - C3: "No word/line count as effort proxy"
+  - C4: "Fixes reference Phase 1 findings"
+  - C5: "Authoritative principle present"
+  - C6: "Symbolic rules updated"
+  - C7: "Re-scan confirms zero remaining"
+  - C8: "Verification artifact written"
