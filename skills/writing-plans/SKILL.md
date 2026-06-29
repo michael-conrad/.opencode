@@ -10,13 +10,13 @@ compatibility: opencode
 
 ## Overview
 
-Transforms approved specs into actionable implementation plans using a 21-step Z3-enforced pipeline: 10 discrete sub-agent dispatches interleaved with 10 z3-check transitions and 1 inline verification step. Every step is one atomic concern. No placeholders. Sub-agents are leaf nodes — only the orchestrator dispatches via `task()`.
+Transforms approved specs into actionable implementation plans using a 22-step Z3-enforced pipeline executing entirely at orchestrator level. Every step is one atomic concern. No placeholders. No `task()` calls within the pipeline.
 
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 3. All pipeline steps execute at orchestrator level — no `task()` calls within the pipeline
 - [ ] 4. Sub-agents must not dispatch sub-agents
 - [ ] 5. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 - [ ] 6. **No optimizing out mandatory steps** — All implementation-pipeline gate steps are mandatory regardless of perceived simplicity. Optimizing out steps because they appear "not needed" is defective behavior and produces plans that must be discarded as incomplete and error-ridden.
@@ -28,33 +28,33 @@ Transforms approved specs into actionable implementation plans using a 21-step Z
 | "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" | `create` | `orchestrator` | {spec_issue_number, spec_body} |
 | "retroactive" / "retroactive plan" / "backfill plan" | `retroactive` | `orchestrator` | {spec_issue_number} |
 | completion / workflow end | `completion` | `orchestrator` | {workflow_state} |
-| "research" / "evidence" / "verify claims" | `research` | `sub-agent` | {spec_issue_number, spec_body} |
-| "readiness" / "pipeline ready check" | `readiness` | `sub-agent` | {spec_issue_number, sc_pipeline_readiness} |
-| "structure" / "phase structure" / "combined or separate" | `structure` | `sub-agent` | {spec_body, phase_definitions} |
-| "solve" / "dependency check" / "Z3 verify" | `solve` | `sub-agent` | {sc_pipeline_readiness, dependency_contract} |
-| "write plan" / "generate plan" | `write` | `sub-agent` | {spec_body, sc_pipeline_readiness} |
-| "revisit" / "resolve concerns" | `revisit` | `sub-agent` | {plan_issues_file, spec_body} |
-| "validate" / "check plan" | `validate` | `sub-agent` | {plan_issues_file, spec_body} |
-| "audit fidelity" / "fidelity check" | `audit-fidelity` | `sub-agent (auditor)` | {plan_issues_file, spec_body} |
-| "audit concern" / "concern separation" | `audit-concern` | `sub-agent (auditor)` | {plan_issues_file, spec_body} |
+| "research" / "evidence" / "verify claims" | `research` | `orchestrator` | {spec_issue_number, spec_body} |
+| "readiness" / "pipeline ready check" | `readiness` | `orchestrator` | {spec_issue_number, sc_pipeline_readiness} |
+| "structure" / "phase structure" / "combined or separate" | `structure` | `orchestrator` | {spec_body, phase_definitions} |
+| "solve" / "dependency check" / "Z3 verify" | `solve` | `orchestrator` | {sc_pipeline_readiness, dependency_contract} |
+| "write plan" / "generate plan" | `write` | `orchestrator` | {spec_body, sc_pipeline_readiness} |
+| "revisit" / "resolve concerns" | `revisit` | `orchestrator` | {plan_issues_file, spec_body} |
+| "validate" / "check plan" | `validate` | `orchestrator` | {plan_issues_file, spec_body} |
+| "audit fidelity" / "fidelity check" | `audit-fidelity` | `orchestrator` | {plan_issues_file, spec_body} |
+| "audit concern" / "concern separation" | `audit-concern` | `orchestrator` | {plan_issues_file, spec_body} |
 
-## Programmatic Invocation Table
+## Programmatic Invocation
 
-| Task | Call via task() |
-|------|-----------------|
-| `research` | `task(subagent_type="general", prompt: "execute research task from writing-plans")` |
-| `readiness` | `task(subagent_type="general", prompt: "execute readiness task from writing-plans")` |
-| `structure` | `task(subagent_type="general", prompt: "execute structure task from writing-plans")` |
-| `solve` | `task(subagent_type="general", prompt: "execute solve task from writing-plans")` |
-| `write` | `task(subagent_type="general", prompt: "execute write task from writing-plans")` |
-| `revisit` | `task(subagent_type="general", prompt: "execute revisit task from writing-plans")` |
-| `validate` | `task(subagent_type="general", prompt: "execute validate task from writing-plans")` |
-| `audit-fidelity` | `task(subagent_type="auditor_1", prompt: "execute audit-fidelity task from writing-plans")` |
-| `audit-concern` | `task(subagent_type="auditor_2", prompt: "execute audit-concern task from writing-plans")` |
+| Task | Execution |
+|------|-----------|
+| `research` | Orchestrator reads `tasks/research.md` and executes steps inline |
+| `readiness` | Orchestrator reads `tasks/readiness.md` and executes steps inline |
+| `structure` | Orchestrator reads `tasks/structure.md` and executes steps inline |
+| `solve` | Orchestrator reads `tasks/solve.md` and executes steps inline |
+| `write` | Orchestrator reads `tasks/write.md` and executes steps inline |
+| `revisit` | Orchestrator reads `tasks/revisit.md` and executes steps inline |
+| `validate` | Orchestrator reads `tasks/validate.md` and executes steps inline |
+| `audit-fidelity` | Orchestrator reads `tasks/audit-fidelity.md` and executes steps inline |
+| `audit-concern` | Orchestrator reads `tasks/audit-concern.md` and executes steps inline |
 
 ## Persona
 
-This skill produces plans by dispatching sub-agents. The orchestrator routes; sub-agents author. Sub-agents are intelligent agents, not dumb terminals — they read specs and use skills autonomously. The orchestrator MUST NOT prescribe exact file paths, line numbers, step sequences, or expected outcomes. Specify WHAT and WHY — not HOW.
+This skill produces plans by executing a 22-step pipeline at orchestrator level. The orchestrator reads each step procedure from its task file and executes it directly. Each step is a self-contained procedure with entry criteria, exit criteria, and chain dependency. The orchestrator MUST NOT prescribe exact file paths, line numbers, step sequences, or expected outcomes. Specify WHAT and WHY — not HOW.
 
 ## Tasks
 
@@ -71,7 +71,7 @@ This skill produces plans by dispatching sub-agents. The orchestrator routes; su
 
 `skill({name: "writing-plans"})` — orchestrator reads task file and executes steps inline.
 
-**DISPATCH GATE — Inline execution of sub-agent tasks is FORBIDDEN.** Orchestrator-level tasks (`create`, `retroactive`, `completion`) are intentionally inline — the orchestrator reads the task file and executes steps directly. All sub-agent tasks within the 21-step pipeline (research, readiness, structure, solve, write, revisit, validate, audit-fidelity, audit-concern) MUST be dispatched via `task()`. Reading a sub-agent task file and executing its steps inline in the orchestrator context means every quality gate in that task was silently bypassed — the task's entry criteria, exit criteria, verification steps, and audit gates all fire inside the sub-agent's context, not the orchestrator's. Professional orchestrators route sub-agent tasks to sub-agents. Amateurs inline.
+**DISPATCH GATE — All pipeline steps execute at orchestrator level.** Under the hard limit that sub-agents cannot dispatch sub-agents, the 22-step pipeline runs entirely in the orchestrator context. The orchestrator reads each step procedure from its task file and executes it directly. No `task()` calls are used within the pipeline. When external skills are needed (e.g., adversarial-audit for fidelity/concern audits), invoke them via `skill({name: "..."})` with the appropriate task, not via sub-agent dispatch.
 
 | Task | Execution |
 |------|-----------|
