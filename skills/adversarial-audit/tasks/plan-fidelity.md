@@ -103,6 +103,7 @@ Read the existing plan from `spec_local_dir/`:
 | PF-ADMONISHMENT | Compliance admonishment present at top and bottom | Full canonical text blockquote: "rework from scratch and loss of all prior work" — present at both prologue and epilogue |
 | PF-GLOBAL-NUMBERING | Steps numbered globally across all phases | No per-phase restart — step N+1 follows step N across phase boundaries |
 | PF-ONE-STEP | One-step-at-a-time protocol admonishment present at top of plan | FAIL if missing |
+| PF-DELEGATION | Undefined delegation targets | Checks that every "delegate to", "unified", "merged into", or "replaced by" reference in the spec has a corresponding concrete definition in the plan — specific file changes, routing table updates, cross-reference updates, and capability migration. If any delegation reference lacks concrete plan definitions, the criterion FAILs. |
 | PF-SEQUENCE-MATCHES | Gate sequence matches pipeline source — missing gates are automatic FAIL with no remediation path | Gate sequence matches `implementation-pipeline/SKILL.md` dispatch routing table — read dynamically, not hardcoded. Any missing gate is automatic FAIL — the plan MUST be regenerated, not patched. |
 
 <!-- Fragment ID: sc-enforcement-gate -->

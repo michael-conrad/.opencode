@@ -76,6 +76,7 @@ Extract all phases and their steps.
 | CS-4 | Risk levels grouped appropriately | HIGH and LOW not mixed in same phase |
 | CS-5 | Deployment independence achieved | Each phase can be deployed independently |
 | CS-6 | Blast radius bounded | Phase failure impact is contained |
+| CS-ROUTING | Missing routing table changes when task file removed | When a spec removes or delegates a task file that has a routing/dispatch table, checks that the spec also addresses the routing table changes. If the routing table is not updated, the criterion FAILs. |
 
 ### Step 3: Analyze Phase Structure
 
