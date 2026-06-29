@@ -1,0 +1,72 @@
+body: '# Plan: .opencode#1590 — SKILL.md Trigger Dispatch Table pipeline entry gate
+
+
+  ## Phase 1: spec-creation/SKILL.md — Remove sub-step entries
+
+
+  **Concern:** Trigger Dispatch Table exposes sub-steps (`requirements`, `decompose`,
+  `traceability`, `risk`, `diagram`, `write`, `change-control`) as standalone dispatchable
+  entries, allowing orchestrator to bypass the sequential Operating Protocol.
+
+
+  ### Items
+
+
+  | # | Item | SC | File | Change |
+
+  |---|------|----|------|--------|
+
+  | 1 | Remove sub-step entries from Trigger Dispatch Table | SC-1 | `spec-creation/SKILL.md`
+  | Keep only `create` and `completion` entries |
+
+  | 2 | Remove sub-step entries from Tasks section | SC-1 | `spec-creation/SKILL.md`
+  | Keep only `create` and `completion` |
+
+  | 3 | Remove sub-step entries from Invocation section | SC-3 | `spec-creation/SKILL.md`
+  | Keep only `create` and `completion` entries |
+
+
+  ## Phase 2: writing-plans/SKILL.md — Remove sub-step entries
+
+
+  **Concern:** Trigger Dispatch Table exposes sub-steps (`research`, `readiness`,
+  `structure`, `solve`, `write`, `revisit`, `validate`, `audit-fidelity`, `audit-concern`)
+  as standalone entries.
+
+
+  ### Items
+
+
+  | # | Item | SC | File | Change |
+
+  |---|------|----|------|--------|
+
+  | 4 | Remove sub-step entries from Trigger Dispatch Table | SC-2 | `writing-plans/SKILL.md`
+  | Keep only `create`, `retroactive`, `completion` |
+
+  | 5 | Remove sub-step entries from Programmatic Invocation table | SC-4 | `writing-plans/SKILL.md`
+  | Keep only `create`, `retroactive`, `completion` |
+
+
+  ## Phase 3: Behavioral enforcement tests
+
+
+  **Concern:** Behavioral tests must verify the orchestrator follows the Operating
+  Protocol sequentially and does not dispatch sub-steps directly.
+
+
+  ### Items
+
+
+  | # | Item | SC | File | Change |
+
+  |---|------|----|------|--------|
+
+  | 6 | Behavioral test: "write spec" → sequential step execution | SC-5 | `.opencode/tests/behaviors/`
+  | New test script |
+
+  | 7 | Behavioral test: no direct `write` dispatch | SC-6 | `.opencode/tests/behaviors/`
+  | New test script |
+
+  '
+updated_at: '2026-06-29T23:34:56+00:00'
