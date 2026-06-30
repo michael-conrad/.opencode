@@ -1,9 +1,9 @@
 # Implementation Plan — [.opencode#1605](https://github.com/michael-conrad/.opencode/issues/1605) — Position pipeline-readiness-gate in spec-creation SKILL.md
 
-- **Goal:** Add `pipeline-readiness-gate` to the spec-creation SKILL.md Tasks table, insert a numbered step (4.5) in the Operating Protocol, add an Invocation table entry, and update the symbolic rule trigger condition.
-- **Architecture:** Single file, 4 independent edits to `.opencode/skills/spec-creation/SKILL.md`. No other files modified.
+- **Goal:** Add `pipeline-readiness-gate` to the spec-creation SKILL.md Tasks table, insert a numbered step (4.5) in the Operating Protocol between traceability and risk, add an Invocation table entry, and update the symbolic rule trigger condition.
+- **Architecture:** Single-file edit to `.opencode/skills/spec-creation/SKILL.md` — 4 targeted edits, no structural changes, no new files.
 - **Files:**
-  - `.opencode/skills/spec-creation/SKILL.md` — 4 edits (Tasks table, Operating Protocol, Invocation table, symbolic rules block)
+  - `.opencode/skills/spec-creation/SKILL.md` (modify — 4 edits)
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
@@ -30,12 +30,11 @@
 > - Exactly one step MUST be marked 🔄 at any time
 > - The 🔄 marker moves to the next step only after the current step's verification passes
 
-## Phase 1 — 4 edits to spec-creation SKILL.md
+## Phase 1 — Add pipeline-readiness-gate to spec-creation SKILL.md
 
-**Concern:** Add `pipeline-readiness-gate` to Tasks table, Operating Protocol, Invocation table, and symbolic rules block.
+**Concern:** Add `pipeline-readiness-gate` to Tasks table, Operating Protocol, Invocation table, and symbolic rules in `.opencode/skills/spec-creation/SKILL.md`
 
-**Files:**
-- `.opencode/skills/spec-creation/SKILL.md`
+**Files:** `.opencode/skills/spec-creation/SKILL.md`
 
 **SCs:** SC-1, SC-2, SC-3, SC-4, SC-5
 
@@ -43,44 +42,66 @@
 
 **Entry conditions:** Feature branch exists, spec approved
 
-**Exit conditions:** All 4 edits applied, `git diff --stat` shows only SKILL.md changed, all SCs verified
+**Exit conditions:** All 4 edits applied, `git diff --stat` shows only SKILL.md changed, all SCs verified PASS
 
-- [ ] 1. **Pre-RED baseline (**clean-room**).** Verify current state of `.opencode/skills/spec-creation/SKILL.md` — confirm Tasks table has only `create` and `completion`, Operating Protocol has step 4 (traceability) followed by step 5 (risk) with no step between, Invocation table has no `pipeline-readiness-gate` entry, and symbolic rule `spec-creation-pipeline-readiness` fires on `spec_sc_finalized == true`. **→ SC-1, SC-2, SC-3, SC-4**
+- [ ] 1. **SC coherence gate (**clean-room**).** Dispatch `adversarial-audit --task coherence-extraction` to verify SC evidence types and substrate classification for all 5 SCs. **→ All SCs**
 
-- [ ] 2. **RED — Write behavioral enforcement test (**sub-agent**).** Write a behavioral test that sends a prompt to create a spec and verifies the agent dispatches `pipeline-readiness-gate` between traceability and risk. The test MUST FAIL at this point because the change doesn't exist yet. **→ SC-1, SC-2, SC-3, SC-4**
+- [ ] 2. **Pre-RED baseline (**clean-room**).** Read `.opencode/skills/spec-creation/SKILL.md` and verify current state: Tasks table has 2 rows (create, completion), Operating Protocol has steps 1-10 with traceability at step 4 and risk at step 5 with no intervening step, Invocation table has 2 entries, symbolic rule `spec-creation-pipeline-readiness` fires on `spec_sc_finalized == true`. **→ SC-5**
 
-- [ ] 3. **Edit 1 — Add `pipeline-readiness-gate` to Tasks table (**sub-agent**).** Add a row for `pipeline-readiness-gate` to the Tasks table in `.opencode/skills/spec-creation/SKILL.md`, alongside the existing `create` and `completion` rows. **→ SC-1**
+- [ ] 3. **RED phase (**sub-agent**).** Write behavioral enforcement test at `.opencode/tests/behaviors/spec-creation-pipeline-readiness-position.sh` that sends a spec-creation prompt and verifies the agent dispatches `pipeline-readiness-gate` between traceability and risk. Test MUST FAIL at this point (change doesn't exist yet). **→ SC-1, SC-2, SC-3, SC-4**
 
-- [ ] 4. **Edit 2 — Insert step 4.5 in Operating Protocol (**sub-agent**).** Insert a new numbered step between step 4 (traceability) and step 5 (risk) in the Operating Protocol section. The step dispatches via `task(..., prompt: "execute pipeline-readiness-gate task from spec-creation")` with `chain: step_4`. Renumber subsequent steps (5→6, 6→7, 7→8, 8→9, 9→10, 10→11). **→ SC-2**
+- [ ] 4. **Z3 check RED (**inline**).** Run `solve check` against RED-phase output contract. **→ All SCs**
 
-- [ ] 5. **Edit 3 — Add Invocation table entry (**sub-agent**).** Add a `pipeline-readiness-gate` row to the Invocation table with the canonical dispatch string `task(..., prompt: "execute pipeline-readiness-gate task from spec-creation")`. **→ SC-4**
+- [ ] 5. **RED doublecheck (**clean-room**).** Verify RED-side SC evidence — confirm behavioral test exists and fails. **→ SC-1, SC-2, SC-3, SC-4**
 
-- [ ] 6. **Edit 4 — Update symbolic rule trigger condition (**sub-agent**).** Change the `spec-creation-pipeline-readiness` symbolic rule trigger condition from `spec_sc_finalized == true` to fire at the correct pipeline position (between traceability and risk). The new condition should reference the pipeline position after traceability output is available and before risk analysis begins. **→ SC-3**
+- [ ] 6. **Z3 check RED doublecheck (**inline**).** Run `solve check` against RED-doublecheck output contract. **→ All SCs**
 
-- [ ] 7. **GREEN — Verify behavioral test passes (**sub-agent**).** Re-run the behavioral enforcement test from step 2. It MUST PASS now that the edits are applied. **→ SC-1, SC-2, SC-3, SC-4**
+- [ ] 7. **Post-RED enforcement (**clean-room**).** Run `git diff --name-only -- src/ | wc -l` — verify no source files modified during RED phase. **→ All SCs**
 
-- [ ] 8. **Structural verification (**inline**).** Run `git diff --stat` to confirm only `.opencode/skills/spec-creation/SKILL.md` is modified. Run grep assertions for each SC:
-  - SC-1: `grep -c 'pipeline-readiness-gate'` in Tasks table section
+- [ ] 8. **Z3 check post-RED (**inline**).** Run `solve check` against post-RED enforcement output contract. **→ All SCs**
+
+- [ ] 9. **GREEN phase (**sub-agent**).** Apply all 4 edits to `.opencode/skills/spec-creation/SKILL.md`:
+  - Edit 1: Add `pipeline-readiness-gate` to Tasks table (SC-1)
+  - Edit 2: Insert step 4.5 in Operating Protocol between traceability (step 4) and risk (step 5), with `chain: step_4` (SC-2)
+  - Edit 3: Add Invocation table entry for `pipeline-readiness-gate` (SC-4)
+  - Edit 4: Update symbolic rule `spec-creation-pipeline-readiness` trigger condition from `spec_sc_finalized == true` to correct pipeline position (SC-3)
+  **→ SC-1, SC-2, SC-3, SC-4**
+
+- [ ] 10. **Z3 check GREEN (**inline**).** Run `solve check` against GREEN-phase output contract. **→ All SCs**
+
+- [ ] 11. **Post-GREEN enforcement (**clean-room**).** Run `git diff --name-only -- test/ | wc -l` — verify no test files modified during GREEN phase. **→ All SCs**
+
+- [ ] 12. **Z3 check post-GREEN (**inline**).** Run `solve check` against post-GREEN enforcement output contract. **→ All SCs**
+
+- [ ] 13. **Checkpoint tag create (**clean-room**).** Create git checkpoint tag per `000-critical-rules.md` §Checkpoint Rollback Exception. **→ All SCs**
+
+- [ ] 14. **Checkpoint commit (**clean-room**).** Commit all changes with message: `feat(spec-creation): position pipeline-readiness-gate in Tasks table, Operating Protocol, Invocation table, and symbolic rules`. **→ All SCs**
+
+- [ ] 15. **Structural checks (**clean-room**).** Run lint/typecheck/format commands per `.opencode/AGENTS.md` Build/Lint/Test Commands. **→ All SCs**
+
+- [ ] 16. **GREEN doublecheck (**clean-room**).** Verify GREEN-side SC evidence — confirm all 4 edits are present and correct. **→ SC-1, SC-2, SC-3, SC-4**
+
+- [ ] 17. **GREEN VbC (**clean-room**).** Run verification-before-completion to verify all 5 SCs:
+  - SC-1: `grep` for `pipeline-readiness-gate` in Tasks table section
   - SC-2: Verify step ordering: traceability step precedes pipeline-readiness-gate step which precedes risk step
   - SC-3: Verify updated trigger condition in symbolic rules block
   - SC-4: Verify `pipeline-readiness-gate` in Invocation table
-  - SC-5: `git diff --stat` shows only SKILL.md changed **→ SC-1, SC-2, SC-3, SC-4, SC-5**
+  - SC-5: `git diff --stat` shows only SKILL.md changed
+  **→ SC-1, SC-2, SC-3, SC-4, SC-5**
 
-- [ ] 9. **Checkpoint commit (**inline**).** Commit all changes with message: `feat(spec-creation): position pipeline-readiness-gate in Tasks table, Operating Protocol, Invocation table, and symbolic rules`
+- [ ] 18. **Adversarial audit (**orchestrator multi-dispatch**).** Run `resolve-models` to select cross-family auditors. Dispatch `adversarial-audit --task verification-audit` with auditor_1 (remediate on non-clean-pass), then same task with auditor_2 (remediate on non-clean-pass). Collect both artifact paths. **→ All SCs**
 
-- [ ] 10. **Adversarial audit (**clean-room**).** Dispatch adversarial audit of the plan deliverable. **→ All SCs**
+- [ ] 19. **Cross-validate (**clean-room**).** Dispatch `adversarial-audit --task cross-validate` with auditor artifact paths from step 18. **→ All SCs**
 
-- [ ] 11. **Cross-validate (**clean-room**).** Cross-validate audit findings against spec SCs. **→ All SCs**
+- [ ] 20. **Regression check (**clean-room**).** Run `bash .opencode/tests/test-enforcement.sh --changed` to verify no existing enforcement tests regressed. **→ All SCs**
 
-- [ ] 12. **Regression check (**clean-room**).** Run existing enforcement tests to verify no regressions. **→ All SCs**
+- [ ] 21. **Review prep (**clean-room**).** Dispatch `git-workflow --task review-prep` to prepare PR. **→ All SCs**
 
-- [ ] 13. **Review prep (**clean-room**).** Prepare PR with summary of changes. **→ All SCs**
-
-- [ ] 14. **Executive summary (**inline**).** Report completion with plan file path and PR URL. **→ All SCs**
+- [ ] 22. **Executive summary (**clean-room**).** Dispatch `completion-core --task completion` to append lifecycle event and produce chat exec summary. **→ All SCs**
 
 #### Phase 1 VbC
 
-- [ ] 15. **VbC (**clean-room**).** Verify all SCs: SC-1 (Tasks table entry), SC-2 (step ordering), SC-3 (trigger condition), SC-4 (Invocation entry), SC-5 (only SKILL.md changed). **→ SC-1, SC-2, SC-3, SC-4, SC-5**
+- [ ] 23. **VbC (**clean-room**).** Re-run all SC verifications after commit. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
@@ -90,11 +111,15 @@
 
 ## Exit Criteria
 
-- C1. Plan document written to `.opencode/.issues/1605/plan.md`
-- C2. All 4 edits to `.opencode/skills/spec-creation/SKILL.md` applied
-- C3. Behavioral enforcement test written (RED) and verified passing (GREEN)
-- C4. `git diff --stat` shows only SKILL.md changed (SC-5)
-- C5. All spec SCs (SC-1 through SC-5) verified PASS
-- C6. Adversarial audit and cross-validate completed with PASS consensus
-- C7. Regression check passes
-- C8. Review prep completed
+| ID | Criterion |
+|----|-----------|
+| C1 | `pipeline-readiness-gate` listed in spec-creation Tasks table |
+| C2 | Numbered step for pipeline-readiness gate between traceability (step 4) and risk (step 5) in Operating Protocol |
+| C3 | Symbolic rule `spec-creation-pipeline-readiness` trigger condition updated to fire at correct pipeline position |
+| C4 | Invocation table includes task() call entry for pipeline-readiness-gate |
+| C5 | Existing `pipeline-readiness-gate.md` task file is NOT modified — `git diff --stat` shows only SKILL.md changed |
+| C6 | All 22 implementation-pipeline gate steps executed in order |
+| C7 | Behavioral enforcement test written (RED) and verified passing (GREEN) |
+| C8 | Adversarial audit and cross-validate completed with PASS consensus |
+| C9 | Regression check passes |
+| C10 | Review prep completed |
