@@ -27,6 +27,7 @@ Transforms approved specs into actionable implementation plans using a 22-step Z
 |---------------------|------|----------|----------------|
 | "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" | `create` | `orchestrator` | {spec_issue_number, spec_body} |
 | "retroactive" / "retroactive plan" / "backfill plan" | `retroactive` | `orchestrator` | {spec_issue_number} |
+| "update plan" / "plan update" / "auto-update plan" / "revise plan" | `update` | `orchestrator` | {spec_issue_number, plan_issue_number} |
 | completion / workflow end | `completion` | `orchestrator` | {workflow_state} |
 
 ## Programmatic Invocation
@@ -35,6 +36,7 @@ Transforms approved specs into actionable implementation plans using a 22-step Z
 |------|-----------|
 | `create` | Orchestrator reads `tasks/create.md` and executes steps inline |
 | `retroactive` | Orchestrator reads `tasks/retroactive.md` and executes steps inline |
+| `update` | Orchestrator reads `tasks/update.md` and executes steps inline |
 | `completion` | Orchestrator reads `tasks/completion.md` and executes steps inline |
 
 ## Persona
@@ -62,6 +64,7 @@ This skill produces plans by executing a 22-step pipeline at orchestrator level.
 |------|-----------|
 | `create` | Orchestrator reads `tasks/create.md` and executes steps inline |
 | `retroactive` | Orchestrator reads `tasks/retroactive.md` and executes steps inline |
+| `update` | Orchestrator reads `tasks/update.md` and executes steps inline |
 | `completion` | Orchestrator reads `tasks/completion.md` and executes steps inline |
 
 **CLI equivalent (for human TUI use):** `/skill writing-plans --task <task>`
