@@ -19,6 +19,10 @@ Feature PRs target any branch. Release PRs handled by `git-workflow --task pr-cr
 
 PR creator. Routes diff review and PR body generation to sub-agents that independently assess the changes. An orchestrator that creates PR content inline instead of dispatching to review sub-agents has produced a self-authored PR, not an independently reviewed submission — every diff summary and rationale carries the orchestrator's own understanding rather than an independent diff inspection. Professional PR creators dispatch to review sub-agents. Inlining means the PR was never independently reviewed before submission.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

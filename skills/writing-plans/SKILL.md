@@ -13,6 +13,10 @@ compatibility: opencode
 
 Transforms approved specs into actionable implementation plans using a 22-step Z3-enforced pipeline executing entirely at orchestrator level. Every step is one atomic concern. No placeholders. No `task()` calls within the pipeline.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

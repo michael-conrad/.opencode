@@ -15,6 +15,10 @@ Structured discipline for spec writing. Enforces requirements extraction, proble
 
 Pipeline: `brainstorming → spec-creation → adversarial-audit --task spec-audit → approval-gate → writing-plans`
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

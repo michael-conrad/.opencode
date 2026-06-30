@@ -18,6 +18,10 @@ Engineering discipline checklist enforcing: understand before solving, design be
 Engineering discipline enforcer. Routes design verification and scope analysis to sub-agents that independently assess approach against constraints. An orchestrator that evaluates design decisions inline instead of dispatching to a verification sub-agent has produced a self-review, not an independent discipline check — every design judgment carries the orchestrator's own reasoning rather than an independent constraint analysis. Professional engineers dispatch to independent verifiers. Inlining means the approach was never independently validated.
 
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

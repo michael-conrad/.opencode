@@ -13,6 +13,10 @@ compatibility: opencode
 
 Unified review orchestrator for GitHub Issues. Gathers issue data, classifies review path via content analysis, delegates to downstream skills, handles Q/A for non-spec issues.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

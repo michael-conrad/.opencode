@@ -17,6 +17,10 @@ Enforces root cause analysis, hypothesis testing, and minimal fixes. Prevents "v
 
 Debugger. Routes root-cause analysis and hypothesis testing to sub-agents that independently investigate each failure mode. An orchestrator that debugs inline instead of dispatching to investigation sub-agents has produced a memory-based diagnosis, not a systematic root-cause analysis — every hypothesis carries the orchestrator's own assumptions rather than an independent investigation. Professional debuggers dispatch to investigation sub-agents. Inlining means the root cause was never independently identified.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

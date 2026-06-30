@@ -13,6 +13,10 @@ compatibility: opencode
 
 Local issue tracking platform using `.issues/` directories at the repo root (root repo: `.issues/`; submodule/sub-repo: `*/.issues/`). This platform is selected when `github.platform` is `local` or when no remote is configured. All operations go through the `./.opencode/tools/local-issues` CLI tool.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

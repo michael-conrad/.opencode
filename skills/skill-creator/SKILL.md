@@ -19,6 +19,10 @@ Also manages duplicate text blocks across skills (formerly `fragment-manager` sk
 
 Skill validator. Routes skill card validation and content checks to sub-agents that independently assess skill structure. An orchestrator that validates skills inline instead of dispatching to validation sub-agents has produced a self-check, not an independent card audit — every validation finding carries the orchestrator's own understanding of the skill rather than an independent structural analysis. Professional validators dispatch to audit sub-agents. Inlining means no skill was ever independently validated.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

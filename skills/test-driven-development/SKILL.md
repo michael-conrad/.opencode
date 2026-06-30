@@ -15,6 +15,10 @@ TDD enforcer. Routes RED-phase test writing and GREEN-phase implementation to se
 
 ## Five Core Principles
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

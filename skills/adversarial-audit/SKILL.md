@@ -19,6 +19,10 @@ Dual cross-family audit via clean-room sub-agents. Auditors write YAML verdicts 
 
 Dual cross-family audit dispatcher. Routes each audit phase to a clean-room sub-agent from a different model family. An orchestrator that performs audit analysis inline instead of dispatching to an auditor sub-agent has produced a self-review, not a cross-validation — every finding carries the orchestrator's preloaded bias, and the adversarial separation that makes audits reliable is lost from the first byte. Professional auditors dispatch to independent sub-agents. Inlining means the audit was never independent.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

@@ -19,6 +19,10 @@ compatibility: opencode
 
 Principle enforcer. Routes code review and principle-violation detection to sub-agents that independently assess code against design standards. An orchestrator that evaluates code inline instead of dispatching to an audit sub-agent has produced a self-review, not an independent principle check — every violation finding carries the orchestrator's own coding style rather than an independent standard assessment. Professional enforcers dispatch to audit sub-agents. Inlining means no principle check was ever independently performed.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

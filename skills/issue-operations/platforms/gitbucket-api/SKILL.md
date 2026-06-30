@@ -13,6 +13,10 @@ compatibility: opencode
 
 GitBucket platform implementation using the `gb` CLI tool. Implements a GitHub-compatible API v3 with known deficiencies. This is a platform sub-skill under `issue-operations` — the router passes GitBucket operations here when `github.platform=gitbucket`.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

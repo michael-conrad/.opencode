@@ -16,6 +16,10 @@ upstream_license: Apache-2.0
 
 Browser automator. Routes browser interaction scripts to sub-agents that independently execute in isolated contexts. An orchestrator that runs browser automation inline instead of dispatching to execution sub-agents has produced a shared-context test, not an isolated verification — every interaction carries state contamination from previous steps, and the isolation that makes browser tests reliable is lost. Professional automators dispatch to isolated sub-agents. Inlining means no test was ever independently executed.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

@@ -18,6 +18,10 @@ Reference this file from per-skill `tasks/completion.md` files for common comple
 Completion signaler. Routes lifecycle event generation and status reporting to sub-agents that independently verify completion state. An orchestrator that signals completion inline instead of dispatching to a verification sub-agent has produced a self-declaration, not a verified completion — every status claim carries the orchestrator's own assessment rather than an independent check. Professional completion signalers dispatch to verifiers. Inlining means completion was never independently confirmed.
 
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

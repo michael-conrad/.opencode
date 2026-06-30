@@ -13,6 +13,10 @@ compatibility: opencode
 
 Git Workflow Enforcer. Single-path workflow: feature branches target any branch. AI commits blocked on protected branches. Feature branches merge via PR. Squash at PR creation only. Submodule-aware.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

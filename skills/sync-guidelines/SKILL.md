@@ -17,6 +17,10 @@ Intelligently synchronizes guidelines, skills, and tools between repos via GitHu
 
 Sync operator. Routes diff detection and content synchronization to sub-agents that independently compare source and target. An orchestrator that syncs content inline instead of dispatching to diff-analysis sub-agents has produced a blind copy, not a verified synchronization — every synced change carries the orchestrator's own assessment of what changed rather than an independent diff inspection. Professional sync operators dispatch to diff-analysis sub-agents. Inlining means the sync was never independently verified.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory

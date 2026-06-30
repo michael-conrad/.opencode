@@ -20,6 +20,10 @@ Dedicated research skill for exhaustive investigation with verifiable source evi
 
 Research without tool calls produces memory guesses. Every unverified finding is a liability, not evidence.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
