@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+schema_version: "1.0"
+status: PASS
+spec_issue: 1602
+spec_url: https://github.com/michael-conrad/.opencode/issues/1602
+sc_count: 9
+phase_count: 7
+decomposition: multi-phase
+evidence_types_present:
+  - behavioral
+  - string
+  - semantic
+pre_plan_gates:
+  - gate: spec_approved
+    status: PASS
+    evidence: "label approved-for-plan applied"
+  - gate: research_verified
+    status: PASS
+    evidence: "13/13 claims verified against live sources"
+  - gate: sc_summary_exists
+    status: PASS
+    evidence: ".opencode/.issues/1602/sc-summary.yaml"
+  - gate: spec_to_plan_handoff_exists
+    status: PASS
+    evidence: ".opencode/.issues/1602/spec-to-plan-handoff.yaml"
+  - gate: verification_consistency_contract_exists
+    status: PASS
+    evidence: ".opencode/.issues/1602/verification-consistency-contract.yaml"
+  - gate: revision_reentry_contract_exists
+    status: PASS
+    evidence: ".opencode/.issues/1602/revision-re-entry-contract.yaml"

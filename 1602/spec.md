@@ -6,36 +6,37 @@
 
 | Field | Value |
 |-------|-------|
-| **Problem Statement** | 42 SKILL.md files in `.opencode/skills/` use inconsistent description formats. Only 6 of 42 follow the farmage YAML description pattern. The remaining ~36 use ad-hoc prose causing unreliable skill dispatch. |
-| **Root Cause / Motivation** | The farmage pattern was introduced after most skills were created. No migration was performed. Additionally: 37 missing `provenance`, 7 missing `type`, 2 missing `compatibility`, 30+ missing Worktree Mode sections, SC-LINT-004 300-char limit conflicts with farmage 1024-char limit, cross-skill conflicts (research↔researcher, plan↔writing-plans↔plan-creation-pipeline, verification↔verification-before-completion↔verification-enforcement), invalid types (plan:domain, solve:tool, researcher:problem-solving). |
-| **Approach Chosen** | 7-phase sequential pipeline: behavioral tests RED → frontmatter fixes → farmage expansion + exclusion clauses → platform sub-skills → Worktree Mode → SC-LINT-004 → cross-skill conflicts. |
+| **Problem Statement** | 42 SKILL.md files in `.opencode/skills/` use inconsistent description formats. Only 6 of 42 follow the farmage YAML description pattern. The remaining ~36 use ad-hoc prose causing unreliable skill dispatch. Additionally, `researcher` is a duplicate of `research` and should be merged. |
+| **Root Cause / Motivation** | The farmage pattern was introduced after most skills were created. No migration was performed. Additionally: 40 missing `provenance`, 4 missing `type` + 2 invalid types, 2 missing `compatibility`, 30+ missing Worktree Mode sections, SC-LINT-004 300-char limit conflicts with farmage 1024-char limit, cross-skill conflicts (research↔researcher, plan↔writing-plans↔plan-creation-pipeline, verification↔verification-before-completion↔verification-enforcement), invalid types (plan:domain, solve:tool), researcher duplicates research. |
+| **Approach Chosen** | 7-phase sequential pipeline: behavioral tests RED → frontmatter fixes → farmage description expansion → platform sub-skills → Worktree Mode → SC-LINT-004 → cross-skill conflicts + exclusion clauses. |
 | **Alternatives Considered & Why Discarded** | Single-phase bulk edit (too risky, no verification gates). Per-file manual editing (too slow, inconsistent). |
 | **Key Design Decisions** | Farmage pattern in YAML frontmatter `description` field. Exclusion clauses document when NOT to dispatch. SC-LINT-004 limit raised to 1024-char. |
 
 ## Objective
 
-Standardize all 42 SKILL.md files to use the farmage YAML description pattern, fix frontmatter gaps, add Worktree Mode sections, resolve SC-LINT-004 conflicts, and fix cross-skill conflicts.
+Standardize all 41 SKILL.md files (researcher deleted, merged into research) to use the farmage YAML description pattern, fix frontmatter gaps, add Worktree Mode sections, resolve SC-LINT-004 conflicts, and fix cross-skill conflicts.
 
 ## Problem
 
-42 SKILL.md files in `.opencode/skills/` use inconsistent description formats. Only 6 of 42 follow the farmage pattern. The remaining ~36 use ad-hoc prose causing unreliable skill dispatch. Additionally: 37 missing `provenance`, 7 missing `type`, 2 missing `compatibility`, 30+ missing Worktree Mode sections, SC-LINT-004 300-char limit conflicts with farmage 1024-char limit, cross-skill conflicts (research↔researcher, plan↔writing-plans↔plan-creation-pipeline, verification↔verification-before-completion↔verification-enforcement), invalid types (plan:domain, solve:tool, researcher:problem-solving).
+42 SKILL.md files in `.opencode/skills/` use inconsistent description formats. Only 6 of 42 follow the farmage pattern. The remaining ~36 use ad-hoc prose causing unreliable skill dispatch. Additionally: 40 missing `provenance`, 4 missing `type` + 2 invalid types, 2 missing `compatibility`, 30+ missing Worktree Mode sections, SC-LINT-004 300-char limit conflicts with farmage 1024-char limit, cross-skill conflicts (research↔researcher, plan↔writing-plans↔plan-creation-pipeline, verification↔verification-before-completion↔verification-enforcement), invalid types (plan:domain, solve:tool), researcher duplicates research.
 
 ## Scope
 
 ### In Scope
 
-- All 42 SKILL.md files (39 main skills + 3 platform sub-skills)
+- All 41 SKILL.md files (38 main skills + 3 platform sub-skills) — researcher is removed, not updated
 - Frontmatter fixes (provenance, type, compatibility)
 - Farmage description expansion (YAML description pattern)
 - Exclusion clauses in all skill cards
 - Worktree Mode sections where applicable
 - SC-LINT-004 guideline limit resolution (300-char → 1024-char)
 - Cross-skill conflict resolution (3 conflict groups)
-- Invalid type correction (plan, solve, researcher)
+- Invalid type correction (plan, solve)
+- Remove `researcher` skill (merge into `research`)
 
 ### Out of Scope
 
-- Task files (`.opencode/skills/*/tasks/*.md`)
+- Task files (`.opencode/skills/*/tasks/*.md`) — except researcher task files which are deleted as part of the merge
 - Guidelines (except SC-LINT-004)
 - Dispatch engine
 - Non-SKILL.md files
@@ -45,22 +46,25 @@ Standardize all 42 SKILL.md files to use the farmage YAML description pattern, f
 
 | File | Phase | Change |
 |------|-------|--------|
-| `.opencode/skills/*/SKILL.md` (39 files) | 1, 2, 4 | Frontmatter, farmage, Worktree Mode |
+| `.opencode/skills/*/SKILL.md` (38 files, excluding researcher) | 1, 2, 4 | Frontmatter, farmage, Worktree Mode |
 | `.opencode/skills/issue-operations/platforms/*/SKILL.md` (3 files) | 3 | Farmage descriptions |
 | `.opencode/guidelines/` (SC-LINT-004) | 5 | Limit value change |
-| `.opencode/skills/{research,researcher,plan,writing-plans,plan-creation-pipeline,verification,verification-before-completion,verification-enforcement}/SKILL.md` (8 files) | 6 | Cross-skill conflict resolution |
+| `.opencode/skills/researcher/SKILL.md` | 6 | Remove file (merge into research) |
+| `.opencode/skills/research/SKILL.md` | 6 | Update description to absorb researcher's purpose |
+| `.opencode/skills/{plan,writing-plans,plan-creation-pipeline}/SKILL.md` (3 files) | 6 | Add exclusion clauses |
+| `.opencode/skills/{verification,verification-before-completion,verification-enforcement}/SKILL.md` (3 files) | 6 | Add exclusion clauses |
 
 ## Phases
 
 | Phase | Tier | Target | SCs |
 |-------|------|--------|-----|
 | Phase 0 — Behavioral tests RED | 1 (pre) | Write failing behavioral tests before any changes | SC-9 |
-| Phase 1 — Frontmatter fixes | 2 (per-file) | All 42 SKILL.md files | SC-3, SC-6 |
-| Phase 2 — Farmage expansion + exclusion clauses | 2 (per-file) | All 42 SKILL.md files | SC-1, SC-8 |
+| Phase 1 — Frontmatter fixes | 2 (per-file) | All 41 SKILL.md files (researcher excluded — will be deleted) | SC-3, SC-6 |
+| Phase 2 — Farmage description expansion | 2 (per-file) | All 41 SKILL.md files (researcher excluded) | SC-1 |
 | Phase 3 — Platform sub-skills | 2 (per-file) | 3 platform sub-skill files | SC-7 |
 | Phase 4 — Worktree Mode sections | 2 (per-file) | 30+ SKILL.md files | SC-4 |
 | Phase 5 — SC-LINT-004 resolution | 2 (per-file) | 1 guideline file | SC-2 |
-| Phase 6 — Cross-skill conflicts | 2 (per-file) | 8 SKILL.md files in 3 groups | SC-5 |
+| Phase 6 — Cross-skill conflicts + exclusion clauses | 2 (per-file) | Merge researcher→research, add exclusion clauses to 6 remaining files | SC-5, SC-8 |
 | Phase 7 — Global Post-Phase | 3 (post) | Adversarial audit, cross-validate, regression | All |
 
 ## Approach
@@ -71,19 +75,20 @@ Write behavioral enforcement tests in `.opencode/tests/behaviors/` that verify t
 
 ### Phase 1 — Frontmatter Fixes
 
-For all 42 SKILL.md files, add missing frontmatter fields:
-- `provenance: AI-generated` (37 files missing)
-- `type: skill` (7 files missing)
-- `compatibility: opencode-cli` (2 files missing)
-- Correct invalid types: `plan:domain` → `plan:skill`, `solve:tool` → `solve:skill`, `researcher:problem-solving` → `researcher:skill`
+For all 41 SKILL.md files (researcher excluded — will be deleted), add missing frontmatter fields:
+- `provenance: AI-generated` (40 files missing)
+- `type: discipline-enforcing` (4 files missing; plan and solve get `type: utility` as they wrap external tools)
+- `compatibility: opencode` (2 files missing)
+- Correct invalid types: `plan:domain` → `plan:utility`, `solve:tool` → `solve:utility`
 
-### Phase 2 — Farmage Expansion + Exclusion Clauses
+### Phase 2 — Farmage Description Expansion
 
-Replace ad-hoc description prose with farmage YAML description pattern in all 42 SKILL.md files. Each description MUST:
+Replace ad-hoc description prose with farmage YAML description pattern in all 41 SKILL.md files (researcher excluded — will be deleted in Phase 6). Each description MUST:
 - Be in the YAML frontmatter `description` field
 - Use structured prose (not ad-hoc sentences)
-- Include an exclusion clause documenting when NOT to dispatch
 - Stay within the SC-LINT-004 1024-char limit (after Phase 5)
+
+Exclusion clauses (`— distinct from <exclusion>`) are NOT added in this phase. They are added in Phase 6 alongside cross-skill conflict resolution, where the specific exclusion language is determined per conflict group.
 
 ### Phase 3 — Platform Sub-Skills
 
@@ -103,9 +108,18 @@ Raise the SC-LINT-004 300-char limit to 1024-char in the guideline file. Only th
 ### Phase 6 — Cross-Skill Conflicts
 
 Resolve dispatch ambiguity between 3 conflict groups:
-1. **research ↔ researcher**: Clarify dispatch boundaries between these two skills
-2. **plan ↔ writing-plans ↔ plan-creation-pipeline**: Define when each of the three planning skills dispatches
-3. **verification ↔ verification-before-completion ↔ verification-enforcement**: Define when each of the three verification skills dispatches
+
+1. **research ↔ researcher**: Merge `researcher` into `research`. These are functionally identical skills with identical descriptions. `researcher` adds "used by implementation-pipeline for remediation" but that's a usage note, not a distinct skill. Delete `researcher/SKILL.md` and its task files. Update `research/SKILL.md` description to note it is the skill dispatched by `implementation-pipeline` for remediation-scope investigation.
+
+2. **plan ↔ writing-plans ↔ plan-creation-pipeline**: Add exclusion clauses to each:
+   - `plan`: `— distinct from writing-plans (implementation plans from specs) and plan-creation-pipeline (6-step orchestrator)`
+   - `writing-plans`: `— distinct from plan (AI planning with PDDL/Z3) and plan-creation-pipeline (task()-dispatch pipeline)`
+   - `plan-creation-pipeline`: `— distinct from plan (formal AI planning) and writing-plans (orchestrator-level plan creation)`
+
+3. **verification ↔ verification-before-completion ↔ verification-enforcement**: Add exclusion clauses to each:
+   - `verification`: `— distinct from verification-before-completion (completion gate) and verification-enforcement (content generation)`
+   - `verification-before-completion`: `— distinct from verification (general claim verification) and verification-enforcement (content generation)`
+   - `verification-enforcement`: `— distinct from verification (general claim verification) and verification-before-completion (completion gate)`
 
 Each skill MUST have a unique dispatch trigger scope.
 
@@ -122,6 +136,9 @@ Adversarial audit, cross-validate, regression testing, review prep.
 | DEC-3 | SC-LINT-004 limit raised to 1024-char | Accommodates farmage pattern description length | MUST | SC-2 |
 | DEC-4 | Sequential phase ordering | Dependency chain: tests → frontmatter → farmage → sub-skills → Worktree → lint → conflicts | MUST | All |
 | DEC-5 | Behavioral tests RED before any changes | TDD discipline per 091-incremental-build.md | MUST | SC-9 |
+| DEC-6 | researcher merged into research | Identical descriptions and purpose; researcher is a usage variant, not a distinct skill | MUST | SC-5 |
+| DEC-7 | Invalid types: plan→utility, solve→utility | These skills wrap external tools (unified-planning, Z3) — `utility` is the correct type per the taxonomy | MUST | SC-6 |
+| DEC-8 | Frontmatter compatibility value: `opencode` (not `opencode-cli`) | Existing skills use `opencode`; consistency required | MUST | SC-3 |
 
 ## Risk Traceability
 
@@ -160,20 +177,20 @@ Adversarial audit, cross-validate, regression testing, review prep.
 
 ## Cross-Cutting SCs
 
-SC-1, SC-3, SC-8 — Verified once in Phase 2, applies to all subsequent phases.
+SC-1 — Verified once in Phase 2, applies to all subsequent phases. SC-3 — Verified once in Phase 1, applies to all subsequent phases. SC-8 — Verified once in Phase 6, applies to all subsequent phases.
 
 ## Success Criteria
 
 | ID | Criterion | Verification Method | Remediation | Pipeline Step Binding | Artifact Path | Requirement Traceability | Phase Binding | Verification Gate | Integration Mode | Affinity Group | Re-Entry Step | Test File | Phase Mapping |
 |----|-----------|-------------------|-------------|----------------------|--------------|-------------------------|--------------|-----------------|----------------|--------------|-------------|-----------|--------------|
-| SC-1 | All 42 SKILL.md files use farmage YAML description pattern in frontmatter `description` field | `grep -c 'description:' .opencode/skills/*/SKILL.md .opencode/skills/issue-operations/platforms/*/SKILL.md` — verify count equals 42 | Re-apply farmage pattern to files that don't match | Phase 2 | `.opencode/skills/*/SKILL.md` | Farmage YAML description pattern | Phase 2 | pre-commit | sequential | farmage | Phase 2 | N/A | Phase 2 |
+| SC-1 | All 41 SKILL.md files (researcher excluded) use farmage YAML description pattern in frontmatter `description` field | `opencode-cli run "list skills"` → verify stderr shows all 5 farmage components (Use when, Also use when, Invoke for, enforcement, Trigger phrases) per skill | Re-apply farmage pattern to files that don't match | Phase 2 | `.opencode/skills/*/SKILL.md` | Farmage YAML description pattern | Phase 2 | pre-commit | sequential | farmage | Phase 2 | `.opencode/tests/behaviors/farmage-pattern.sh` | Phase 2 |
 | SC-2 | SC-LINT-004 300-char limit raised to 1024-char | `grep 'max_length: 1024' .opencode/guidelines/` — verify limit value | Revert and re-apply targeted edit | Phase 5 | `.opencode/guidelines/` | SC-LINT-004 limit raised | Phase 5 | pre-commit | sequential | lint | Phase 5 | N/A | Phase 5 |
-| SC-3 | All 42 SKILL.md files have complete frontmatter (provenance, type, compatibility) | `grep -l 'provenance:' .opencode/skills/*/SKILL.md | wc -l` — verify count equals 42 | Add missing fields to files that lack them | Phase 1 | `.opencode/skills/*/SKILL.md` | Complete frontmatter | Phase 1 | pre-commit | sequential | frontmatter | Phase 1 | N/A | Phase 1 |
+| SC-3 | All 41 SKILL.md files (researcher excluded) have complete frontmatter (provenance, type, compatibility) | `grep -l 'provenance:' .opencode/skills/*/SKILL.md | wc -l` — verify count equals 41 | Add missing fields to files that lack them | Phase 1 | `.opencode/skills/*/SKILL.md` | Complete frontmatter | Phase 1 | pre-commit | sequential | frontmatter | Phase 1 | N/A | Phase 1 |
 | SC-4 | All applicable SKILL.md files have Worktree Mode sections | `grep -c 'Worktree Mode' .opencode/skills/*/SKILL.md` — verify count matches applicable skills | Add Worktree Mode section to files that lack it | Phase 4 | `.opencode/skills/*/SKILL.md` | Worktree Mode sections | Phase 4 | pre-commit | sequential | worktree | Phase 4 | N/A | Phase 4 |
-| SC-5 | Cross-skill conflicts resolved — each skill has unique dispatch trigger scope | Behavioral test: dispatch each skill with ambiguous prompt, verify correct skill fires | Revisit conflict resolution for affected group | Phase 6 | `.opencode/skills/{research,researcher,plan,writing-plans,plan-creation-pipeline,verification,verification-before-completion,verification-enforcement}/SKILL.md` | Cross-skill conflicts resolved | Phase 6 | post-implementation | sequential | conflicts | Phase 6 | `.opencode/tests/behaviors/cross-skill-conflicts.sh` | Phase 6 |
-| SC-6 | Invalid types corrected (plan:domain→skill, solve:tool→skill, researcher:problem-solving→skill) | `grep 'type: domain\|type: tool\|type: problem-solving' .opencode/skills/*/SKILL.md` — verify zero matches | Correct remaining invalid types | Phase 1 | `.opencode/skills/{plan,solve,researcher}/SKILL.md` | Invalid types corrected | Phase 1 | pre-commit | sequential | frontmatter | Phase 1 | N/A | Phase 1 |
-| SC-7 | Platform sub-skills have farmage descriptions | `grep 'description:' .opencode/skills/issue-operations/platforms/*/SKILL.md` — verify 3 files have farmage pattern | Apply farmage pattern to missing sub-skills | Phase 3 | `.opencode/skills/issue-operations/platforms/*/SKILL.md` | Platform sub-skill farmage | Phase 3 | pre-commit | sequential | farmage | Phase 3 | N/A | Phase 3 |
-| SC-8 | Exclusion clauses present in all skill cards | `grep -c 'exclusion\|not dispatch\|do not use' .opencode/skills/*/SKILL.md` — verify count equals 42 | Add exclusion clause to files that lack it | Phase 2 | `.opencode/skills/*/SKILL.md` | Exclusion clauses present | Phase 2 | pre-commit | sequential | farmage | Phase 2 | N/A | Phase 2 |
+| SC-5 | Cross-skill conflicts resolved — each skill has unique dispatch trigger scope; researcher merged into research | Behavioral test: dispatch each skill with ambiguous prompt, verify correct skill fires | Revisit conflict resolution for affected group | Phase 6 | `.opencode/skills/{research,plan,writing-plans,plan-creation-pipeline,verification,verification-before-completion,verification-enforcement}/SKILL.md` | Cross-skill conflicts resolved | Phase 6 | post-implementation | sequential | conflicts | Phase 6 | `.opencode/tests/behaviors/cross-skill-conflicts.sh` | Phase 6 |
+| SC-6 | Invalid types corrected (plan:domain→utility, solve:tool→utility) | `grep 'type: domain\|type: tool' .opencode/skills/*/SKILL.md` — verify zero matches | Correct remaining invalid types | Phase 1 | `.opencode/skills/{plan,solve}/SKILL.md` | Invalid types corrected | Phase 1 | pre-commit | sequential | frontmatter | Phase 1 | N/A | Phase 1 |
+| SC-7 | Platform sub-skills have farmage descriptions | `opencode-cli run "show platform skills"` → verify stderr shows all 5 farmage components per platform sub-skill | Apply farmage pattern to missing sub-skills | Phase 3 | `.opencode/skills/issue-operations/platforms/*/SKILL.md` | Platform sub-skill farmage | Phase 3 | pre-commit | sequential | farmage | Phase 3 | `.opencode/tests/behaviors/farmage-pattern.sh` | Phase 3 |
+| SC-8 | Exclusion clauses present on all skills that could false-match with other skills | Sub-agent reads all 41 descriptions and judges which skills need `— distinct from` clauses; verify those clauses are present | Add exclusion clause to files that lack it | Phase 6 | `.opencode/skills/*/SKILL.md` | Exclusion clauses present | Phase 6 | pre-commit | sequential | conflicts | Phase 6 | `.opencode/tests/behaviors/exclusion-clauses.sh` | Phase 6 |
 | SC-9 | Behavioral tests in RED state before implementation | Run behavioral tests before any changes — verify FAIL | Re-create behavioral tests that pass when they should fail | Phase 0 | `.opencode/tests/behaviors/` | Behavioral tests RED | Phase 0 | pre-commit | sequential | tests | Phase 0 | `.opencode/tests/behaviors/farmage-pattern.sh` | Phase 0 |
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.

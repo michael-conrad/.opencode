@@ -3,41 +3,47 @@
 # Provenance: AI-generated
 schema_version: "1.0"
 sc_coverage:
-  total: 9
-  single_task: false
-  spec_url: https://github.com/michael-conrad/.opencode/issues/1602
-  evidence_types:
-    - behavioral
-    - string
-  phases:
-    - id: "Phase 0 — Behavioral tests RED"
-      sc_ids: [SC-9]
-      evidence_types: [behavioral]
-    - id: "Phase 1 — Frontmatter fixes"
-      sc_ids: [SC-3, SC-6]
-      evidence_types: [string]
-    - id: "Phase 2 — Farmage expansion + exclusion clauses"
-      sc_ids: [SC-1, SC-8]
-      evidence_types: [string]
-    - id: "Phase 3 — Platform sub-skills"
-      sc_ids: [SC-7]
-      evidence_types: [string]
-    - id: "Phase 4 — Worktree Mode sections"
-      sc_ids: [SC-4]
-      evidence_types: [string]
-    - id: "Phase 5 — SC-LINT-004 resolution"
-      sc_ids: [SC-2]
-      evidence_types: [string]
-    - id: "Phase 6 — Cross-skill conflicts"
-      sc_ids: [SC-5]
-      evidence_types: [behavioral]
-  cross_cutting:
-    sc_ids: [SC-1, SC-3, SC-8]
-    verified_in_phase: "Phase 2"
+    total: 9
+    single_task: false
+    spec_url: https://github.com/michael-conrad/.opencode/issues/1602
+    evidence_types:
+      - behavioral
+      - string
+    phases:
+      - id: "Phase 0 — Behavioral tests RED"
+        sc_ids: [SC-9]
+        evidence_types: [behavioral]
+      - id: "Phase 1 — Frontmatter fixes"
+        sc_ids: [SC-3, SC-6]
+        evidence_types: [string]
+      - id: "Phase 2 — Farmage description expansion"
+        sc_ids: [SC-1]
+        evidence_types: [behavioral]
+      - id: "Phase 3 — Platform sub-skills"
+        sc_ids: [SC-7]
+        evidence_types: [behavioral]
+      - id: "Phase 4 — Worktree Mode sections"
+        sc_ids: [SC-4]
+        evidence_types: [string]
+      - id: "Phase 5 — SC-LINT-004 resolution"
+        sc_ids: [SC-2]
+        evidence_types: [string]
+      - id: "Phase 6 — Cross-skill conflicts + exclusion clauses"
+        sc_ids: [SC-5, SC-8]
+        evidence_types: [behavioral, semantic]
+      - id: "Phase 7 — Global Post-Phase"
+        sc_ids: [SC-1, SC-3, SC-8]
+        evidence_types: [behavioral, semantic]
+    cross_cutting:
+      sc_ids: [SC-1, SC-3, SC-8]
+      verified_in_phase:
+        SC-1: "Phase 2"
+        SC-3: "Phase 1"
+        SC-8: "Phase 6"
   scs:
     - id: SC-1
-      description: "All 42 SKILL.md files use farmage YAML description pattern"
-      evidence_type: string
+      description: "All 41 SKILL.md files use farmage YAML description pattern"
+      evidence_type: behavioral
       verification_gate: pre-commit
       plan_phase: "Phase 2"
     - id: SC-2
@@ -46,7 +52,7 @@ sc_coverage:
       verification_gate: pre-commit
       plan_phase: "Phase 5"
     - id: SC-3
-      description: "All 42 SKILL.md files have complete frontmatter"
+      description: "All 41 SKILL.md files (researcher excluded) have complete frontmatter"
       evidence_type: string
       verification_gate: pre-commit
       plan_phase: "Phase 1"
@@ -56,25 +62,25 @@ sc_coverage:
       verification_gate: pre-commit
       plan_phase: "Phase 4"
     - id: SC-5
-      description: "Cross-skill conflicts resolved — unique dispatch trigger scope"
+      description: "Cross-skill conflicts resolved — researcher merged into research, exclusion clauses on remaining 6 files"
       evidence_type: behavioral
       verification_gate: post-implementation
       plan_phase: "Phase 6"
     - id: SC-6
-      description: "Invalid types corrected"
+      description: "Invalid types corrected (plan:domain→utility, solve:tool→utility)"
       evidence_type: string
       verification_gate: pre-commit
       plan_phase: "Phase 1"
     - id: SC-7
       description: "Platform sub-skills have farmage descriptions"
-      evidence_type: string
+      evidence_type: behavioral
       verification_gate: pre-commit
       plan_phase: "Phase 3"
     - id: SC-8
       description: "Exclusion clauses present in all skill cards"
-      evidence_type: string
+      evidence_type: semantic
       verification_gate: pre-commit
-      plan_phase: "Phase 2"
+      plan_phase: "Phase 6"
     - id: SC-9
       description: "Behavioral tests in RED state before implementation"
       evidence_type: behavioral

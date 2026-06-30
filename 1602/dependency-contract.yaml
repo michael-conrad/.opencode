@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+schema_version: "1.0"
+spec: https://github.com/michael-conrad/.opencode/issues/1602
+phases:
+  - id: "Phase 0"
+    name: "Behavioral tests RED"
+    depends_on: []
+    provides: [test_infrastructure]
+  - id: "Phase 1"
+    name: "Frontmatter fixes"
+    depends_on: [Phase 0]
+    provides: [frontmatter_complete]
+  - id: "Phase 5"
+    name: "SC-LINT-004 resolution"
+    depends_on: [Phase 0]
+    provides: [lint_limit_1024]
+  - id: "Phase 2"
+    name: "Farmage description expansion"
+    depends_on: [Phase 1, Phase 5]
+    provides: [farmage_descriptions]
+  - id: "Phase 3"
+    name: "Platform sub-skills"
+    depends_on: [Phase 2]
+    provides: [platform_farmage]
+  - id: "Phase 4"
+    name: "Worktree Mode sections"
+    depends_on: [Phase 2]
+    provides: [worktree_sections]
+  - id: "Phase 6"
+    name: "Cross-skill conflicts + exclusion clauses"
+    depends_on: [Phase 2, Phase 5]
+    provides: [conflicts_resolved, exclusion_clauses]
+  - id: "Phase 7"
+    name: "Global Post-Phase"
+    depends_on: [Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6]
+    provides: [audit_complete, cross_validate_pass, regression_pass]
+constraints:
+  - "Phase 5 MUST complete before Phase 2 (farmage descriptions exceed 300-char limit)"
+  - "Phase 1 MUST complete before Phase 2 (frontmatter must exist before description expansion)"
+  - "Phase 2 MUST complete before Phase 3 (farmage pattern established before sub-skill application)"
+  - "Phase 2 MUST complete before Phase 4 (descriptions stable before Worktree Mode)"
+  - "Phase 2 + Phase 5 MUST complete before Phase 6 (descriptions + lint limit needed for exclusion clauses)"
+  - "All phases 0-6 MUST complete before Phase 7"
+execution_order: [0, 1, 5, 2, 3, 4, 6, 7]
