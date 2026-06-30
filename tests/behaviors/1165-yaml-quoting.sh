@@ -16,7 +16,7 @@ SCENARIO_NAME="1165-yaml-quoting"
 SCENARIO_PROMPT="list all skills in your system prompt"
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
-echo "Model: ${BEHAVIOR_MODEL:-ollama/deepseek-v4-flash:cloud}"
+echo "Model: $DEFAULT_TEST_MODEL"
 echo "Prompt: \"$SCENARIO_PROMPT\""
 echo ""
 

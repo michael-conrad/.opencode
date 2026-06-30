@@ -28,7 +28,7 @@ SCENARIO_PROMPT="Create a spec issue for adding a CONTRIBUTING.md section that d
 # Determine phase (RED/GREEN) and model for the evidence slug.
 # BEHAVIOR_PHASE tags which part of the cycle produced the artifact.
 PHASE_SLUG="${BEHAVIOR_PHASE:-unknown}"
-MODEL_FOR_SLUG="${BEHAVIOR_MODEL:-ollama/unknown}"
+MODEL_FOR_SLUG="$DEFAULT_TEST_MODEL"
 MODEL_SLUG="${MODEL_FOR_SLUG//\//-}"
 MODEL_SLUG="${MODEL_SLUG//:/-}"
 MODEL_SLUG="${MODEL_SLUG//@/-}"

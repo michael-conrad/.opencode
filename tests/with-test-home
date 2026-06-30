@@ -82,10 +82,6 @@ seed_model_config() {
     done < <(ollama_models)
 
     if [ ${#models[@]} -eq 0 ]; then
-        models=("phi4-mini:3.8b" "llama3.2:3b" "qwen3.5:27b")
-    fi
-
-    if [ ${#models[@]} -eq 0 ]; then
         echo "HARNESS_FAILURE: no models available" >&2
         exit 2
     fi
