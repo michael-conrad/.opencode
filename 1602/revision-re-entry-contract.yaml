@@ -1,0 +1,24 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+schema_version: "1.0"
+spec: https://github.com/michael-conrad/.opencode/issues/1602
+revision_re_entry:
+  revision_scopes:
+    - scope: full
+      cascade_artifacts:
+        - plan.md
+        - sc-summary.yaml
+        - verification-consistency-contract.yaml
+      requires_re_approval: true
+      valid_re_entry_steps:
+        - step: "writing-plans"
+    - scope: partial
+      cascade_artifacts:
+        - plan.md
+      requires_re_approval: false
+      valid_re_entry_steps:
+        - step: "Phase affected by revision"
+      constraints:
+        - "on_partial_revision: cascade_is_limited_to_affected_scs"
+        - "on_full_revision: all_artifacts_must_be_regenerated"

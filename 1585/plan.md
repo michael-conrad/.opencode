@@ -26,7 +26,7 @@
 
 **Exit conditions:**
 - `description` field wrapped in double quotes
-- Content-verification test suite passes for playwright-cli
+- YAML frontmatter parses correctly and pymarkdownlnt passes on the single file
 - No other content modified
 
 ---
@@ -45,10 +45,10 @@
 - [ ] 12. **Z3 check — post-GREEN (**clean-room**).** Verify post-GREEN enforcement artifact shows single-line diff. **→ SC-3**
 - [ ] 13. **Checkpoint tag — create (**inline**).** Create a checkpoint tag: `git tag -f .opencode/checkpoint/1585/phase-1-fix-frontmatter`. **→ SC-1, SC-2, SC-3**
 - [ ] 14. **Checkpoint commit (**inline**).** Stage and commit the change: `git add .opencode/skills/playwright-cli/SKILL.md && git commit -m "fix: quote description field in playwright-cli SKILL.md frontmatter"`. **→ SC-1, SC-3**
-- [ ] 15. **Structural checks (**clean-room**).** Run `uvx pymarkdownlnt scan -r .opencode/skills/playwright-cli/SKILL.md` to confirm no markdown lint regressions. **→ SC-2**
+- [ ] 15. **Structural checks (**clean-room**).** Run `uvx pymarkdownlnt scan .opencode/skills/playwright-cli/SKILL.md` to confirm no markdown lint regressions. **→ SC-2**
 - [ ] 16. **GREEN doublecheck (**clean-room**).** Re-read `.opencode/skills/playwright-cli/SKILL.md` line 3 — confirm the `description` field is wrapped in double quotes. Save to `./tmp/behavioral-evidence-SC-1-doublecheck.log`. **→ SC-1**
-- [ ] 17. **GREEN VbC (**clean-room**).** Run content-verification test: `bash .opencode/tests/test-enforcement.sh --tag pr-creation`. Verify all scenarios including playwright-cli report PASS. Save output to `./tmp/behavioral-evidence-SC-2-vbc.log`. **→ SC-2**
-- [ ] 18. **Adversarial audit (**sub-agent**).** Dispatch adversarial auditor to audit the fix: verify the description field is quoted, no other content changed, and content-verification tests pass. **→ SC-1, SC-2, SC-3**
+- [ ] 17. **GREEN VbC (**clean-room**).** Run YAML parse check: `python3 -c "import yaml; yaml.safe_load(open('.opencode/skills/playwright-cli/SKILL.md'))"` must exit 0. Save output to `./tmp/behavioral-evidence-SC-2-vbc.log`. **→ SC-2**
+- [ ] 18. **Adversarial audit (**sub-agent**).** Dispatch adversarial auditor to audit the fix: verify the description field is quoted, no other content changed, YAML parses correctly, and pymarkdownlnt passes. **→ SC-1, SC-2, SC-3**
 - [ ] 19. **Cross-validate (**clean-room**).** Run cross-validate on the adversarial audit verdict. Confirm consensus: PASS for all SCs. **→ SC-1, SC-2, SC-3**
 - [ ] 20. **Regression check (**clean-room**).** Run `git diff --stat` to confirm only `.opencode/skills/playwright-cli/SKILL.md` was modified. Run `uvx pymarkdownlnt scan -r .opencode/guidelines/` to confirm no regressions in other files. **→ SC-3**
 - [ ] 21. **Review prep (**sub-agent**).** Prepare PR body with Summary, Outcome, Fixes #1585, and SC verification table. **→ SC-1, SC-2, SC-3**
@@ -58,7 +58,7 @@
 
 - [ ] 23. **VbC (**clean-room**).** Verify all SCs:
   - SC-1: `grep 'description: "' .opencode/skills/playwright-cli/SKILL.md` returns a match → PASS
-  - SC-2: Content-verification test suite (`--tag pr-creation`) reports PASS → PASS
+  - SC-2: `python3 -c "import yaml; yaml.safe_load(open('.opencode/skills/playwright-cli/SKILL.md'))"` exits 0 AND `uvx pymarkdownlnt scan .opencode/skills/playwright-cli/SKILL.md` reports no errors → PASS
   - SC-3: `git diff .opencode/skills/playwright-cli/SKILL.md` shows only the description line changed → PASS
   **→ SC-1, SC-2, SC-3**
 

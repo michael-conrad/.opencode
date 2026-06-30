@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+schema_version: "1.0"
+spec: https://github.com/michael-conrad/.opencode/issues/1602
+generated_at: 2026-06-30T12:00:00Z
+sc_coverage_total: 9
+decomposition_classification: multi-phase
+phase_count: 7
+status: complete
+artifacts:
+  - path: .issues/1602/spec.md
+    required: true
+  - path: .issues/1602/sc-summary.yaml
+    required: true
+  - path: .issues/1602/verification-consistency-contract.yaml
+    required: true
+  - path: .issues/1602/revision-re-entry-contract.yaml
+    required: true
+  - path: .issues/1602/spec-to-plan-handoff.yaml
+    required: true
