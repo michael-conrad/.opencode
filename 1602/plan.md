@@ -167,8 +167,8 @@ Spec: #1602
 
 **Exit condition:** `opencode-cli run "list skills"` → stderr shows all 5 farmage components (Use when, Also use when, Invoke for, enforcement, Trigger phrases) per skill
 
-- [ ] 67. **Coherence gate (**clean-room**).** Dispatch adversarial-audit --task coherence-extraction. Verify farmage scope. **→ SC-1**
-- [ ] 68. **Pre-RED baseline (**clean-room**).** Dispatch implementation-pipeline --task pre-red-baseline. Verify current description state. **→ SC-1**
+- [ ] 67. **Pre-RED baseline (**clean-room**).** Dispatch implementation-pipeline --task pre-red-baseline. Verify current description state. **→ SC-1**
+- [ ] 68. **Coherence gate (**clean-room**).** Dispatch adversarial-audit --task coherence-extraction. Verify farmage scope. **→ SC-1**
 - [ ] 69. **RED — farmage components absent (**sub-agent**).** Dispatch test-driven-development --task red. Write behavioral test at `.opencode/tests/behaviors/farmage-components.sh` that sends `opencode-cli run "list skills"` and asserts stderr shows < 5 farmage components per skill (RED state). Verify test FAILS. **→ SC-1**
 - [ ] 70. **Z3 check RED (**inline**).** Run solve check against red-phase output contract. **→ SC-1**
 - [ ] 71. **RED doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Confirm RED-side evidence. **→ SC-1**
