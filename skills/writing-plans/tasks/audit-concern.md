@@ -7,7 +7,7 @@ Load the `adversarial-audit` skill and execute `--task concern-separation` inlin
 ## Entry Criteria
 
 - Audit-fidelity step completed with PASS
-- Plan document exists at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
+- Plan index exists at `{N}/plan.md`; phase files at `{N}/plan-{NN}-*.md` (multi-phase) or `{N}/plan.md` (single-phase)
 
 ## Exit Criteria
 

@@ -15,9 +15,11 @@ Every behavioral test script generates model-run artifacts and exits 0. Evaluati
 3. [Writing a New Behavioral Test](#3-writing-a-new-behavioral-test)
 4. [Running Tests](#4-running-tests)
 5. [Infrastructure Details](#5-infrastructure-details)
+   - [Submodule Commit Precondition](#submodule-commit-precondition)
 6. [Relationship to Content-Verification Tests](#6-relationship-to-content-verification-tests)
 7. [Cleanup](#7-cleanup)
 8. [Triple Co-Application Reference](#8-triple-co-application-reference)
+9. [Prompt Construction Mandate](#9-prompt-construction-mandate)
 
 ---
 
@@ -289,6 +291,21 @@ When `behavior_run` does not receive an explicit workdir, it creates an isolated
 
 This ensures every behavioral test runs against a clean, isolated project state with no contamination from the live repository.
 
+### Submodule Commit Precondition
+
+When testing changes to `.opencode/` skills or guidelines, the behavioral test needs the `.opencode` submodule checked out to the feature branch commit containing those changes. The test harness supports this via the `BEHAVIOR_SUBMODULE_COMMIT` environment variable.
+
+**`BEHAVIOR_SUBMODULE_COMMIT`** — Environment variable set in `helpers.sh` that pins the `.opencode` submodule checkout to a specific SHA. When set, the isolated test repo clones the submodule at that commit rather than remote HEAD. When unset, the submodule is checked out at remote HEAD.
+
+**Push-before-test workflow:** The feature branch commit MUST be pushed to the remote before `behavior_run()` is called. The test repo clones `.opencode` from remote — unpushed commits are invisible to the test harness. The workflow sequence is:
+
+1. Push the `.opencode` feature branch to remote
+2. Get the commit SHA from the pushed branch
+3. Set `BEHAVIOR_SUBMODULE_COMMIT=<sha>` before running the test
+4. Run the behavioral test
+
+**Consequence of unmet precondition:** If the feature branch commit is not pushed, the test repo clones the submodule at the pinned SHA (or remote HEAD if unset), using stale submodule state. The test runs against old code, not the feature branch changes. The failure mode is a test that passes against stale code but fails against the actual feature branch — a false PASS.
+
 ## 6. Relationship to Content-Verification Tests
 
 Two test types verify different concerns:
@@ -325,6 +342,44 @@ This document is AI-agent-facing text — its primary consumers are agents creat
 | `250-dark-prose-reference.md` | Identity — rules use authority frame (dark-prose-004), not confirmshaming. MANDATORY/PROHIBITED patterns use direct mandates. Agency-respecting (dark-prose-006): the document defines WHAT the specification requires and WHY — trusted agents determine HOW by reading the helper infrastructure. |
 | `255-distribution-shifting-reference.md` | Signal — required vs optional fields are explicitly marked (MANDATORY / Available when applicable). The artifact directory structure uses positional distinction (required items at top, optional below) per dist-shift-003 (Re-Priming Anchor). The paradigm statement ("script's job IS generation — orchestrator's job IS evaluation") uses dist-shift-008 (Corrupt-Success Contrast) to polarize the completion distribution away from inline evaluation. |
 | `257-procedural-discipline-reference.md` | Structure — p-dis-001 (Dependency-Order Gate): artifact generation REQUIRES a model run — no artifacts without output. p-dis-004 (Controlled Vocabulary Pair): MANDATORY/PROHIBITED tables define exact vocabulary. p-dis-006 (Verification-Signal Discipline): exit code signals "artifacts produced," not "test passed" — the two are distinct signals. |
+
+## 9. Prompt Construction Mandate
+
+Behavioral test prompts MUST trigger natural agent behavior — they MUST NOT interview the agent about what it *would* do. A prompt that asks the agent to describe, explain, or narrate a procedure tests prose recall, not actual behavior.
+
+### The Interview/Natural-Behavior Spectrum
+
+| Prompt Type | Classification | Example | Verdict |
+|-------------|---------------|---------|---------|
+| Real-domain task | Natural behavior | "Implement feature X from spec #42" | ✅ Valid |
+| Real-domain bug | Natural behavior | "The login button doesn't work" | ✅ Valid |
+| Real-domain question | Natural behavior | "What files does this function touch?" | ✅ Valid |
+| "Describe how you would..." | Prose-recall (interview) | "Describe how you would handle authorization" | ❌ INVALID |
+| "Explain the process for..." | Prose-recall (interview) | "Explain how you create a PR" | ❌ INVALID |
+| "What would you do if..." | Prose-recall (interview) | "What would you do if a test fails?" | ❌ INVALID |
+| "Walk me through..." | Prose-recall (interview) | "Walk me through your approach" | ❌ INVALID |
+
+### Hard-Fail Rule
+
+Any behavioral test that uses a prose-recall prompt (interview-style, "describe how you would", "explain the process", "what would you do", "walk me through") is **FAIL** — the test does not measure actual agent behavior. The test framework MUST reject such prompts at the evaluation stage.
+
+### Valid Prompt Construction
+
+Valid prompts are real-domain tasks that the agent would encounter in normal operation:
+
+- **Implementation prompts:** "Implement SC-3 from spec #42" — triggers actual code writing
+- **Bug report prompts:** "The parser crashes on empty input" — triggers actual debugging
+- **Investigation prompts:** "Find all callers of function X" — triggers actual code search
+- **Configuration prompts:** "Add a new environment variable for the API URL" — triggers actual config editing
+
+The prompt must be something the agent would actually DO, not something it would DESCRIBE.
+
+### Cross-References
+
+- `080-code-standards.md` §Enforcement Test Mandate — behavioral tests are PRIMARY enforcement
+- `091-incremental-build.md` §Behavioral Variant — "Prose-recall prompts are NOT accepted as behavioral tests"
+- `executing-plans/tasks/start.md` — behavioral test prompt construction guidance
+- `spec-creation/tasks/write.md` — behavioral test prompt construction guidance
 
 ---
 

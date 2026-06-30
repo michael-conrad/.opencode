@@ -46,13 +46,13 @@ Check an existing plan for placeholders and completeness.
   - SC: All
   - Expected: spec reference present
 
-- [ ] 09. (**inline**) Sub-issue parent — If plan has sub-issues, they link to the plan (not the spec)
-  - Command: `github_issue_read(method=get_sub_issues, issue_number=plan_number)`
+- [ ] 09. (**inline**) Phase files exist — All phase files present for multi-phase plans
+  - Command: `ls {N}/plan-*.md 2>/dev/null`
   - SC: All
-  - Expected: sub-issues linked to plan, not spec
+  - Expected: phase files exist matching plan index phase table
 
-- [ ] 10. (**inline**) Plan file exists — Plan file exists at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
-  - Command: `ls .issues/{N}/plan.md */.issues/{N}/plan.md 2>/dev/null`
+- [ ] 10. (**inline**) Plan index exists — Plan index exists at `{N}/plan.md`
+  - Command: `ls {N}/plan.md 2>/dev/null`
   - SC: All
   - Expected: file exists
 
@@ -165,7 +165,8 @@ Does NOT enforce a specific section order. A plan without "Risks" is valid if ri
 | "No placeholders present" | Search for placeholder patterns in plan body | \`grep(pattern="TBD | TODO |
 | "Spec reference exists in plan" | Search for `Spec: #N` pattern | `grep(pattern="Spec: #")` on plan body | MISSING-ELEMENT |
 | "Sub-issues link to plan (not spec)" | Verify sub-issue parent | `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=plan_number)` | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
-| "Plan file exists" | Verify plan file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` | `ls .issues/{N}/plan.md */.issues/{N}/plan.md 2>/dev/null` | MISSING-ELEMENT |
+| "Plan index exists" | Verify plan index at `{N}/plan.md` | `ls {N}/plan.md 2>/dev/null` | MISSING-ELEMENT |
+| "Phase files exist" | Verify phase files at `{N}/plan-{NN}-*.md` | `ls {N}/plan-*.md 2>/dev/null` | MISSING-ELEMENT |
 | "Steps are actionable" | Verify each step has concrete action | Manual parse — flag abstract goals | VERIFICATION-GAP |
 
 **Evidence artifact:** Tool call results for automated checks; manual review log for actionable-step verification.

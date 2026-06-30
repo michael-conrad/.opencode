@@ -6,7 +6,7 @@ Load the `verification-enforcement` skill and execute `--task revisit` inline, s
 
 ## Entry Criteria
 
-- Plan document written to `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
+- Plan index written to `{N}/plan.md` with phase table; phase files at `{N}/plan-{NN}-*.md`
 - Plan content contains potential unverified claims
 
 ## Exit Criteria

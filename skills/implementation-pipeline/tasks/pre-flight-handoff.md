@@ -8,7 +8,7 @@ Verify plan structural completeness before pipeline execution begins. Runs as a 
 
 ## Entry Criteria
 
-- Plan exists at `.issues/{issue-N}/plan.md`
+- Plan index exists at `{issue-N}/plan.md`; phase files at `{issue-N}/plan-{NN}-*.md` (multi-phase) or `{issue-N}/plan.md` (single-phase)
 - Spec-to-plan handoff manifest exists at `./tmp/{issue-N}/artifacts/spec-to-plan-handoff-*.yaml` with status PASS
 - `sc-summary.yaml` exists at `.issues/{issue-N}/sc-summary.yaml`
 - Authorization context available (authorization_scope, halt_at)
@@ -23,7 +23,7 @@ Verify plan structural completeness before pipeline execution begins. Runs as a 
 
 ### Step 1: Validate RED Checkpoints
 
-- [ ] 1. Read `.issues/{issue-N}/plan.md`
+- [ ] 1. Read `{issue-N}/plan.md` (index) for phase table
 - [ ] 2. For each TDD task in the plan, verify it has a RED checkpoint with explicit failure condition
 - [ ] 3. Search for patterns: `red_checkpoint`, `failure_condition`, `MISSING-CHECKPOINT`
 - [ ] 4. Flag any TDD task missing a RED checkpoint as `MISSING-CHECKPOINT`
@@ -31,7 +31,7 @@ Verify plan structural completeness before pipeline execution begins. Runs as a 
 ### Step 2: Validate SC-ID Traceability
 
 - [ ] 1. Read `.issues/{issue-N}/sc-summary.yaml`
-- [ ] 2. Read `.issues/{issue-N}/plan.md`
+- [ ] 2. Read `{issue-N}/plan.md` (index) and `{issue-N}/plan-{NN}-*.md` (phase files)
 - [ ] 3. Extract all SC-IDs referenced in the plan — collect as `sc_ids_in_plan`
 - [ ] 4. Extract all SC-IDs from `sc-summary.yaml` — collect as `sc_ids_in_summary`
 - [ ] 5. Compare `sc_ids_in_plan` against `sc_ids_in_summary`

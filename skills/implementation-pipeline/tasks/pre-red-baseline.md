@@ -9,7 +9,7 @@ Initialize pipeline state and verify document source currency before RED phase b
 ## Entry Criteria
 
 - sc-coherence-gate step completed with PASS status
-- Plan exists at `.issues/{issue-N}/plan.md`
+- Plan index exists at `{issue-N}/plan.md`; phase files at `{issue-N}/plan-{NN}-*.md` (multi-phase) or `{issue-N}/plan.md` (single-phase)
 - Spec exists at `.issues/{issue-N}/spec.md`
 - Authorization context available (authorization_scope, halt_at)
 
@@ -34,7 +34,7 @@ Initialize pipeline state and verify document source currency before RED phase b
 
 ### Step 2: Document Source Currency Check
 
-- [ ] 1. Read `.issues/{issue-N}/plan.md`
+- [ ] 1. Read `{issue-N}/plan.md` (index) for phase table, then read `{issue-N}/plan-{NN}-*.md` for current phase
 - [ ] 2. Read `.issues/{issue-N}/spec.md`
 - [ ] 3. Extract all file paths referenced in the plan (source files, test files, config files)
 - [ ] 4. For each referenced file path, verify the file exists in the codebase
@@ -47,7 +47,7 @@ Initialize pipeline state and verify document source currency before RED phase b
 ### Step 3: SC-ID Cross-Reference Traceability
 
 - [ ] 1. Read `.issues/{issue-N}/sc-summary.yaml` (if exists)
-- [ ] 2. Read `.issues/{issue-N}/plan.md`
+- [ ] 2. Read `{issue-N}/plan.md` (index) and `{issue-N}/plan-{NN}-*.md` (phase files)
 - [ ] 3. Extract all SC-IDs referenced in the plan — collect as `sc_ids_in_plan`
 - [ ] 4. Extract all SC-IDs from `sc-summary.yaml` — collect as `sc_ids_in_summary`
 - [ ] 5. Compare `sc_ids_in_plan` against `sc_ids_in_summary`
@@ -94,7 +94,7 @@ summary:
 
 - Preceded by: sc-coherence-gate (implementation-pipeline step 1)
 - Feeds into: red-phase (implementation-pipeline step 3)
-- Related artifacts: `.issues/{issue-N}/plan.md`, `.issues/{issue-N}/spec.md`, `.issues/{issue-N}/sc-summary.yaml`
+- Related artifacts: `{issue-N}/plan.md` (index), `{issue-N}/plan-{NN}-*.md` (phase files), `{issue-N}/spec.md`, `{issue-N}/sc-summary.yaml`
 
 ## Z3 State Integration
 
