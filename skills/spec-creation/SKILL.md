@@ -35,10 +35,11 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 
 ## Tasks
 
-| Task         |
-| ------------ |
-| `create`     |
-| `completion` |
+| Task                      |
+| ------------------------- |
+| `create`                  |
+| `pipeline-readiness-gate` |
+| `completion`              |
 
 ## Invocation
 
@@ -46,10 +47,11 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 
 **DISPATCH GATE — Inline execution is FORBIDDEN.** Every task in this table MUST be dispatched to a clean-room sub-agent via `task()`. Reading a task file and executing its steps inline in the orchestrator context means every quality gate in that task was silently bypassed — the task's entry criteria, exit criteria, verification steps, and audit gates all fire inside the sub-agent's context, not the orchestrator's. An orchestrator that inlines a task has produced a deliverable that was never independently verified. Professional orchestrators route to sub-agents. Amateurs inline.
 
-| Task         | Call via task()                                                      |
-| ------------ | -------------------------------------------------------------------- |
-| `create`     | `task(..., prompt: "execute create task from spec-creation")`        |
-| `completion` | `task(..., prompt: "execute completion task from spec-creation")`    |
+| Task                      | Call via task()                                                                  |
+| ------------------------- | -------------------------------------------------------------------------------- |
+| `create`                  | `task(..., prompt: "execute create task from spec-creation")`                    |
+| `pipeline-readiness-gate` | `task(..., prompt: "execute pipeline-readiness-gate task from spec-creation")`    |
+| `completion`              | `task(..., prompt: "execute completion task from spec-creation")`                |
 
 **CLI equivalent (for human TUI use):** `/skill spec-creation --task <task>`
 
@@ -59,12 +61,13 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 - [ ] 2. [sub-task: requirements] `task(..., prompt: "execute requirements task from spec-creation")` — input: `./tmp/{N}/contracts/requirements-input.yaml`, output: `./tmp/{N}/contracts/requirements-output.yaml`, template: `.opencode/skills/spec-creation/contracts/requirements-input-template.yaml`, chain: `none`
 - [ ] 3. [sub-task: decompose] `task(..., prompt: "execute decompose task from spec-creation")` — input: `./tmp/{N}/contracts/decompose-input.yaml`, output: `./tmp/{N}/contracts/decompose-output.yaml`, template: `.opencode/skills/spec-creation/contracts/requirements-input-template.yaml` (shared), chain: `step_2`
 - [ ] 4. [sub-task: traceability] `task(..., prompt: "execute traceability task from spec-creation")` — input: `./tmp/{N}/contracts/traceability-input.yaml`, output: `./tmp/{N}/contracts/traceability-output.yaml`, template: `.opencode/skills/spec-creation/contracts/requirements-input-template.yaml` (shared), chain: `step_3`
-- [ ] 5. [sub-task: risk] `task(..., prompt: "execute risk task from spec-creation")` — input: `./tmp/{N}/contracts/risk-input.yaml`, output: `./tmp/{N}/contracts/risk-output.yaml`, template: `.opencode/skills/spec-creation/contracts/requirements-input-template.yaml` (shared), chain: `step_4`
-- [ ] 6. [inline] Invoke `solve model` for dependency-ordering constraints contract — chain: `step_5`
-- [ ] 7. [inline] Invoke `solve check` to verify SAT — chain: `step_6`
-- [ ] 8. [inline] Invoke `plan plan` for phase solvability validation — chain: `step_7`
-- [ ] 9. [sub-task: write] `task(..., prompt: "execute write task from spec-creation")` — input: `./tmp/{N}/contracts/write-input.yaml`, output: `./tmp/{N}/contracts/write-output.yaml`, template: `.opencode/skills/spec-creation/contracts/write-input-template.yaml`, chain: `step_5, step_8`
-- [ ] 10. [sub-task: completion] `task(..., prompt: "execute completion task from spec-creation")` — input: `./tmp/{N}/contracts/completion-input.yaml`, output: `./tmp/{N}/contracts/completion-output.yaml`, template: `.opencode/skills/spec-creation/contracts/write-output-template.yaml` (shared), chain: `step_9`
+- [ ] 4.5. [sub-task: pipeline-readiness-gate] `task(..., prompt: "execute pipeline-readiness-gate task from spec-creation")` — input: `./tmp/{N}/contracts/pipeline-readiness-input.yaml`, output: `./tmp/{N}/contracts/pipeline-readiness-output.yaml`, template: `.opencode/skills/spec-creation/contracts/requirements-input-template.yaml` (shared), chain: `step_4`
+- [ ] 6. [sub-task: risk] `task(..., prompt: "execute risk task from spec-creation")` — input: `./tmp/{N}/contracts/risk-input.yaml`, output: `./tmp/{N}/contracts/risk-output.yaml`, template: `.opencode/skills/spec-creation/contracts/requirements-input-template.yaml` (shared), chain: `step_4.5`
+- [ ] 7. [inline] Invoke `solve model` for dependency-ordering constraints contract — chain: `step_6`
+- [ ] 8. [inline] Invoke `solve check` to verify SAT — chain: `step_7`
+- [ ] 9. [inline] Invoke `plan plan` for phase solvability validation — chain: `step_8`
+- [ ] 10. [sub-task: write] `task(..., prompt: "execute write task from spec-creation")` — input: `./tmp/{N}/contracts/write-input.yaml`, output: `./tmp/{N}/contracts/write-output.yaml`, template: `.opencode/skills/spec-creation/contracts/write-input-template.yaml`, chain: `step_6, step_9`
+- [ ] 11. [sub-task: completion] `task(..., prompt: "execute completion task from spec-creation")` — input: `./tmp/{N}/contracts/completion-input.yaml`, output: `./tmp/{N}/contracts/completion-output.yaml`, template: `.opencode/skills/spec-creation/contracts/write-output-template.yaml` (shared), chain: `step_10`
 
 ## Sub-Agent Routing
 
@@ -158,10 +161,11 @@ rules:
     source: "spec-creation/SKILL.md"
 
   - id: spec-creation-pipeline-readiness
-    title: "Pipeline-readiness gate required before spec finalization"
+    title: "Pipeline-readiness gate required between traceability and risk"
     conditions:
       all:
-        - "spec_sc_finalized == true"
+        - "traceability_complete == true"
+        - "risk_started == false"
         - "pipeline_readiness_gate_passed == false"
     actions: [HALT, CALL(spec-creation --task pipeline-readiness-gate)]
     source: "spec-creation/SKILL.md"
