@@ -3,6 +3,7 @@ name: conflict-resolution
 description: "Use when resolving git conflicts during rebase, merge, or cherry-pick operations. Intent analysis MUST be performed before resolution — always required."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

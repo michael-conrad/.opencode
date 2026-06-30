@@ -3,6 +3,7 @@ name: spec-creation
 description: "Use when creating a spec, writing a specification, drafting requirements, authoring a spec document, or specifying a feature. Also use when decomposing a problem into success criteria, extracting requirements, or documenting change control. Invoke for: spec writing, specification creation, requirements documentation, feature specification, problem decomposition, success criteria definition, change control documentation, spec drafting, requirements extraction. Spec creation is REQUIRED before implementation. Trigger phrases: write spec, create spec, draft spec, write specification, create specification, draft specification, spec out, author spec, document requirements, specify feature, write requirements, create requirements doc, decompose problem, define success criteria, extract requirements, document change control."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

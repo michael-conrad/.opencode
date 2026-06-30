@@ -3,6 +3,7 @@ name: pre-analysis
 description: "Use when task()ing any execution sub-agent to independently determine scope. Pre-analysis MUST be performed before dispatch — always required."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

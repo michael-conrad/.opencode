@@ -3,6 +3,7 @@ name: systematic-debugging
 description: "Use when encountering a bug, error, or unexpected behavior, or before making code changes to fix an issue. Systematic debugging is REQUIRED."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

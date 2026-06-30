@@ -3,6 +3,7 @@ name: receiving-code-review
 description: "Use when receiving code review feedback on a PR, or when addressing review comments. All review comments MUST be addressed."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

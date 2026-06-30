@@ -3,6 +3,7 @@ name: finishing-a-development-branch
 description: "Use when implementation is complete and branch needs final checks before PR. Dispatch is MANDATORY — the prepare, checklist, and completion tasks are REQUIRED gates, not optional steps."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

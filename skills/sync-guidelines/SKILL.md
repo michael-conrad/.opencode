@@ -3,6 +3,7 @@ name: sync-guidelines
 description: "Use when synchronizing guidelines, skills, or tools between repositories. Sync is REQUIRED maintenance."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

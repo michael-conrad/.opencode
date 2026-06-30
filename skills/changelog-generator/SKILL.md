@@ -3,6 +3,7 @@ name: changelog-generator
 description: "Use when creating release notes, documenting changes between versions, or preparing a changelog. Changelog generation is REQUIRED before every release — not optional."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

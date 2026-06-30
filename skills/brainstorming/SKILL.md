@@ -3,6 +3,7 @@ name: brainstorming
 description: "Use when creating a spec, planning a feature, or exploring requirements before implementation. Brainstorming is REQUIRED before spec creation — it is not optional. Dispatch MUST route to explore, top-down-analysis, enforcement, or cross-scope tasks per the trigger dispatch table."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

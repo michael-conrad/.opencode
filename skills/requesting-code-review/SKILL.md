@@ -3,6 +3,7 @@ name: requesting-code-review
 description: "Use when preparing a PR for code review, or when reviewer context and documentation are needed. Every review request MUST be treated as a quality gate — not a formality."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

@@ -3,6 +3,7 @@ name: researcher
 description: "Use when discovering information using appropriate modalities, producing findings with source attribution and explicit gap reporting. All findings MUST be verified against live sources."
 type: problem-solving
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

@@ -3,6 +3,7 @@ name: engineering-approach
 description: "Use when implementing a spec, or when design, verification, and scope discipline are needed. Design, verification, and scope discipline are REQUIRED — not optional."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

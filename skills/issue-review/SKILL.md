@@ -3,6 +3,7 @@ name: issue-review
 description: "Use when reviewing a GitHub issue for comments, audits, or Q/A. All comments MUST be read before acting on any issue."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

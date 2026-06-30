@@ -3,6 +3,7 @@ name: correspondence
 description: "Use when drafting stakeholder emails, status updates, or external communications. Audience separation MUST be maintained — always required."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

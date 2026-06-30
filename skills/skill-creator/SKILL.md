@@ -3,6 +3,7 @@ name: skill-creator
 description: "Use when creating a new skill, updating an existing skill, validating skill cards, or managing duplicate content blocks (fragments) across guidelines or skills. Also use when enforcing the farmage description pattern on all skill cards, or auditing skill card structure for compliance. Invoke for: skill creation, skill update, skill validation, fragment management, skill card audit, description pattern enforcement. Validation is REQUIRED. Trigger phrases: create skill, new skill, update skill, validate skill, check skill, review skills, skill card audit, skill card review, fragment management, sync fragment, duplicate content."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

@@ -2,6 +2,7 @@
 name: completion-core
 description: "Use when completing skill task workflows with push, URL generation, lifecycle event append, and executive summary reporting. Completion signals MUST be clear and structured — always required."
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

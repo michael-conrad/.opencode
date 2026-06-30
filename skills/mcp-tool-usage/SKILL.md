@@ -3,6 +3,7 @@ name: mcp-tool-usage
 description: "Use when selecting tools for file operations, code search, or any task that could use multiple tool options. Tool selection MUST follow the five-tier priority hierarchy — always required."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

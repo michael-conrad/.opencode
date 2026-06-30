@@ -3,6 +3,7 @@ name: executing-plans
 description: "Use when executing an approved plan step-by-step or moving through implementation gates sequentially. Every step in the plan MUST be executed — skipping, combining, or reordering steps is not optional."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

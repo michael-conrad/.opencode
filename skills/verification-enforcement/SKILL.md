@@ -3,6 +3,7 @@ name: verification-enforcement
 description: "Use when generating content that makes factual claims — specs, plans, runbooks, docs, or correspondence. Live-source verification before generation is REQUIRED — always mandatory, never optional."
 type: discipline-enforcing
 license: MIT
+provenance: AI-generated
 compatibility: opencode
 ---
 

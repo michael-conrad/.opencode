@@ -2,6 +2,7 @@
 name: adversarial-audit
 description: "Use when running adversarial audits of specs, plans, or code. Also use when verifying spec fidelity, checking plan coherence, detecting drift, or cross-validating verification results. Invoke for: spec audit, plan fidelity, concern separation, coherence extraction, coherence maintenance, guideline audit, drift detection, spec summary, closure verification, test quality audit, verification audit, resolve models, cross-validate. Audits are not optional — dispatch is MANDATORY. Trigger phrases: audit spec, audit plan, check fidelity, verify coherence, detect drift, cross-validate, audit guidelines, verify closure, audit tests, verify verification, resolve auditor models."
 license: MIT
+provenance: AI-generated
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
