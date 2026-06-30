@@ -1,6 +1,6 @@
 ---
 name: implementation-pipeline
-description: "Use when executing an approved plan through the implementation pipeline. MUST dispatch here after plan approval, before any file modification. Dispatch each pipeline step to clean-room sub-agents via task() — the orchestrator routes, sub-agents execute."
+description: "Use when executing an approved plan through the implementation pipeline. Also use when dispatching pipeline stages to clean-room sub-agents, managing pipeline state, or handling remediation routing. Invoke for: pipeline execution, stage dispatch, state management, checkpoint creation, remediation routing, post-green enforcement, post-red enforcement. MUST dispatch here after plan approval, before any file modification. Trigger phrases: execute pipeline, run pipeline, dispatch stage, pipeline state, checkpoint, remediation, green phase, red phase."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

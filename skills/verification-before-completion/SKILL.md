@@ -1,6 +1,6 @@
 ---
 name: verification-before-completion
-description: "Use when claiming a task is complete, marking a step done, or closing an issue. Verification is REQUIRED and not optional — MUST use before any completion claim."
+description: "Use when claiming a task is complete, marking a step done, or closing an issue. Also use when running verification checks against success criteria, producing evidence artifacts, or enforcing live-source verification. Invoke for: completion verification, SC verification, evidence artifact production, live-source verification, completion claim validation. Verification is REQUIRED and not optional — MUST use before any completion claim. Trigger phrases: verify completion, check SC, produce evidence, live-source verify, validate completion."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

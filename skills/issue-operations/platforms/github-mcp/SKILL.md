@@ -1,6 +1,6 @@
 ---
 name: github-mcp
-description: "Use when GitHub MCP platform operations are needed. GitHub MCP platform sub-skill for issue-operations. Provides capability manifest and thin wrappers around github_* MCP tools. API calls without owner/repo verification target the wrong repository. Every misrouted call is wasted effort."
+description: "Use when GitHub MCP platform operations are needed. Also use when routing issue operations to GitHub via MCP tools, or when GitHub-specific API capabilities are required. Invoke for: GitHub issue creation, GitHub issue comment, GitHub issue closure, GitHub label management, GitHub MCP tool operations. API calls without owner/repo verification target the wrong repository. Every misrouted call is wasted effort. Platform-aware routing is REQUIRED — always use the dispatcher. Trigger phrases: GitHub MCP, GitHub issue, GitHub API, GitHub platform, github_* tool."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

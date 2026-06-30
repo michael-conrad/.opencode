@@ -1,6 +1,6 @@
 ---
 name: mcp-tool-usage
-description: "Use when selecting tools for file operations, code search, or any task that could use multiple tool options. Tool selection MUST follow the five-tier priority hierarchy — always required."
+description: "Use when selecting tools for file operations, code search, or any task that could use multiple tool options. Also use when evaluating the five-tier priority hierarchy or choosing between MCP tools and CLI alternatives. Invoke for: tool selection, hierarchy evaluation, MCP tool choice, CLI fallback assessment, tool priority enforcement. Tool selection MUST follow the five-tier priority hierarchy — always required. Trigger phrases: select tool, choose tool, tool hierarchy, MCP tool, tool priority, which tool."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

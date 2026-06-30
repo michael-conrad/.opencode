@@ -1,6 +1,6 @@
 ---
 name: correspondence
-description: "Use when drafting stakeholder emails, status updates, or external communications. Audience separation MUST be maintained — always required."
+description: "Use when drafting stakeholder emails, status updates, or external communications. Also use when analyzing audience context, maintaining audience separation, or generating structured correspondence. Invoke for: stakeholder email drafting, status update creation, external communication drafting, audience analysis, audience separation enforcement. Audience separation MUST be maintained — always required. Trigger phrases: draft email, write stakeholder update, external communication, audience analysis, status report."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

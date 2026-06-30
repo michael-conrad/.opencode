@@ -1,6 +1,6 @@
 ---
 name: changelog-generator
-description: "Use when creating release notes, documenting changes between versions, or preparing a changelog. Changelog generation is REQUIRED before every release — not optional."
+description: "Use when creating release notes, documenting changes between versions, or preparing a changelog. Also use when comparing diffs between releases or generating structured version history. Invoke for: release note creation, changelog generation, version diff analysis, release documentation. Changelog generation is REQUIRED before every release — not optional. Trigger phrases: create changelog, generate release notes, document changes, version history, release diff."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

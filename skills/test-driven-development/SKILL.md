@@ -1,6 +1,6 @@
 ---
 name: test-driven-development
-description: "Use when writing tests before implementation, or when adopting a test-first development approach. TDD is REQUIRED."
+description: "Use when writing tests before implementation, or when adopting a test-first development approach. Also use when running RED/GREEN cycles, writing behavioral enforcement tests, or generating regression test patterns. Invoke for: RED phase test writing, GREEN phase implementation, behavioral test creation, regression pattern generation, TDD cycle execution. TDD is REQUIRED. Trigger phrases: write test, TDD, test-first, RED phase, GREEN phase, behavioral test, regression test."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

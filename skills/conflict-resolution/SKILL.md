@@ -1,6 +1,6 @@
 ---
 name: conflict-resolution
-description: "Use when resolving git conflicts during rebase, merge, or cherry-pick operations. Intent analysis MUST be performed before resolution — always required."
+description: "Use when resolving git conflicts during rebase, merge, or cherry-pick operations. Also use when analyzing conflict intent, classifying conflict tiers, or applying resolution strategies. Invoke for: conflict resolution, intent analysis, conflict classification, resolution strategy application, rebase conflict fix, merge conflict fix, cherry-pick conflict fix. Intent analysis MUST be performed before resolution — always required. Trigger phrases: resolve conflict, merge conflict, rebase conflict, cherry-pick conflict, conflict intent, conflict classification, conflict resolution."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

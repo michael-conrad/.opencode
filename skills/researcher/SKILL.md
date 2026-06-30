@@ -1,6 +1,6 @@
 ---
 name: researcher
-description: "Use when discovering information using appropriate modalities, producing findings with source attribution and explicit gap reporting. All findings MUST be verified against live sources."
+description: "Use when discovering information using appropriate modalities, producing findings with source attribution and explicit gap reporting. Also use when investigating root causes, performing exhaustive research, or producing remediation scope analysis. Invoke for: information discovery, source attribution, gap reporting, root cause investigation, exhaustive research, remediation scope analysis. All findings MUST be verified against live sources. Trigger phrases: research, investigate, discover information, find root cause, exhaustive search, source attribution."
 type: problem-solving
 license: MIT
 provenance: AI-generated

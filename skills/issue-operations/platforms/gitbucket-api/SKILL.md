@@ -1,6 +1,6 @@
 ---
 name: gitbucket-api
-description: "Use when GitBucket platform operations are needed. GitBucket platform sub-skill for issue-operations. Provides capability manifest and gb CLI command reference for GitBucket API operations. GitBucket operations without platform awareness fail silently. Platform-aware routing is what makes multi-platform workflows reliable."
+description: "Use when GitBucket platform operations are needed. Also use when routing issue operations to GitBucket via the gb CLI tool, or when GitBucket-specific API capabilities are required. Invoke for: GitBucket issue creation, GitBucket issue comment, GitBucket issue closure, GitBucket label management, gb CLI operations. GitBucket operations without platform awareness fail silently. Platform-aware routing is what makes multi-platform workflows reliable. Trigger phrases: GitBucket, gb CLI, GitBucket issue, GitBucket API, GitBucket platform."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

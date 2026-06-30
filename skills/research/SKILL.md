@@ -1,6 +1,6 @@
 ---
 name: research
-description: "Use when discovering information using appropriate modalities, producing findings with source attribution and explicit gap reporting. All findings MUST be verified against live sources."
+description: "Use when discovering information using appropriate modalities, producing findings with source attribution and explicit gap reporting. Also use when performing exhaustive investigation, verifying claims against live sources, or producing structured research artifacts. Invoke for: information discovery, source attribution, gap reporting, exhaustive investigation, claim verification, research artifact production. All findings MUST be verified against live sources. Trigger phrases: research, investigate, discover information, verify claim, source attribution, exhaustive search."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

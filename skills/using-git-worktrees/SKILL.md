@@ -1,6 +1,6 @@
 ---
 name: using-git-worktrees
-description: "Use when creating a feature branch or worktree for implementation. Always invoke before git-workflow pre-work. Worktrees are REQUIRED — always use them."
+description: "Use when creating a feature branch or worktree for implementation. Also use when setting up isolated git worktrees for parallel agent work or managing worktree lifecycle. Invoke for: worktree creation, feature branch setup, worktree lifecycle management, worktree cleanup, worktree path resolution. Always invoke before git-workflow pre-work. Worktrees are REQUIRED — always use them. Trigger phrases: create worktree, setup worktree, add worktree, remove worktree, worktree path, isolated branch."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

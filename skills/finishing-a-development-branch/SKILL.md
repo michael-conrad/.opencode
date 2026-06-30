@@ -1,6 +1,6 @@
 ---
 name: finishing-a-development-branch
-description: "Use when implementation is complete and branch needs final checks before PR. Dispatch is MANDATORY — the prepare, checklist, and completion tasks are REQUIRED gates, not optional steps."
+description: "Use when implementation is complete and branch needs final checks before PR. Also use when running the finishing checklist, verifying branch readiness, or preparing for PR submission. Invoke for: branch finishing, readiness checklist, pre-PR verification, branch state inspection, completion confirmation. Dispatch is MANDATORY — the prepare, checklist, and completion tasks are REQUIRED gates, not optional steps. Trigger phrases: finish branch, final checks, pre-PR checklist, branch readiness, ready for PR."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

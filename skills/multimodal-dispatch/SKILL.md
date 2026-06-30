@@ -1,6 +1,6 @@
 ---
 name: multimodal-dispatch
-description: "Use when routing AI agent tasks to appropriate models based on content modality, probing Ollama model capabilities, or dispatching sub-agents with modality-aware model selection. Modality-aware dispatch is REQUIRED — always use the correct model for each modality."
+description: "Use when routing AI agent tasks to appropriate models based on content modality, probing Ollama model capabilities, or dispatching sub-agents with modality-aware model selection. Also use when assessing hardware capabilities or resolving modality hints for model selection. Invoke for: modality routing, model probing, hardware assessment, modality hint resolution, sub-agent dispatch with model selection. Modality-aware dispatch is REQUIRED — always use the correct model for each modality. Trigger phrases: route by modality, probe model, assess hardware, resolve modality, dispatch to model."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
