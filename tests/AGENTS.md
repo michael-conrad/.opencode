@@ -177,17 +177,17 @@ Full-suite uber scripts are FORBIDDEN. Batch runs use scope filtering:
 bash .opencode/tests/test-enforcement.sh --tag <tag>
 
 # Run individual scenarios with env overrides
-BEHAVIOR_MODEL="ollama/other-model:cloud" \
+DEFAULT_TEST_MODEL="ollama/other-model:cloud" \
 BEHAVIOR_PHASE="RED" \
 bash .opencode/tests/behaviors/<scenario>.sh
 ```
 
 ### Model Pool
 
-By default, scripts use `BEHAVIOR_MODEL` (default: `ollama/glm-5.1:cloud`). Override via environment:
+By default, scripts use `DEFAULT_TEST_MODEL` from `tests/default-model.sh` (the single source of truth). Override via environment:
 
 ```bash
-BEHAVIOR_MODEL="ollama/other-model:cloud" bash .opencode/tests/behaviors/<scenario>.sh
+DEFAULT_TEST_MODEL="ollama/other-model:cloud" bash .opencode/tests/behaviors/<scenario>.sh
 ```
 
 The `behavior_run_pool` function runs against all models in `BEHAVIORAL_MODEL_POOL` (auto-populated from `opencode-cli models`).
@@ -216,7 +216,7 @@ Helper variables:
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `BEHAVIOR_TIMEOUT` | 420s | Max model run duration |
-| `BEHAVIOR_MODEL` | `ollama/deepseek-v4-flash:cloud` | Default model |
+| `DEFAULT_TEST_MODEL` | `ollama/ornith:35b-256k` (from `default-model.sh`) | Default model |
 | `BEHAVIOR_PHASE` | `GREEN` | RED or GREEN phase label |
 | `BEHAVIOR_MAX_RETRIES` | 2 | Retry count on transient errors |
 | `BEHAVIOR_RETRY_DELAY` | 30s | Wait between retries |
