@@ -54,10 +54,10 @@ The existing `tasks/pipeline-readiness-gate.md` file is referenced but not modif
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|----------|---------------|-------------------|
-| SC-1 | `pipeline-readiness-gate` listed in spec-creation Tasks table | string | `grep` for `pipeline-readiness-gate` in SKILL.md Tasks table section |
-| SC-2 | Numbered step for pipeline-readiness gate between traceability (step 4) and risk (step 5) in Operating Protocol | string | `grep` for step ordering: traceability step precedes pipeline-readiness-gate step which precedes risk step |
-| SC-3 | Symbolic rule trigger condition updated to fire at correct pipeline position | string | `grep` for updated trigger condition in symbolic rules block |
-| SC-4 | Invocation table includes task() call entry for pipeline-readiness-gate | string | `grep` for `pipeline-readiness-gate` in Invocation table |
+| SC-1 | `pipeline-readiness-gate` listed in spec-creation Tasks table | behavioral | `opencode-cli run` with spec-creation prompt → stderr assertion for `pipeline-readiness-gate` in Tasks table dispatch |
+| SC-2 | Numbered step for pipeline-readiness gate between traceability (step 4) and risk (step 5) in Operating Protocol | behavioral | `opencode-cli run` with spec-creation prompt → stderr assertion for pipeline-readiness-gate dispatched between traceability and risk |
+| SC-3 | Symbolic rule trigger condition updated to fire at correct pipeline position | behavioral | `opencode-cli run` with spec-creation prompt → stderr assertion for pipeline-readiness-gate invoked at correct pipeline position |
+| SC-4 | Invocation table includes task() call entry for pipeline-readiness-gate | behavioral | `opencode-cli run` with spec-creation prompt → stderr assertion for `pipeline-readiness-gate` in Invocation dispatch |
 | SC-5 | Existing `pipeline-readiness-gate.md` task file is NOT modified | structural | `git diff --stat` shows only SKILL.md changed |
 
 ## Risk and Edge Cases

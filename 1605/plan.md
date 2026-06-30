@@ -82,10 +82,10 @@
 - [ ] 16. **GREEN doublecheck (**clean-room**).** Verify GREEN-side SC evidence — confirm all 4 edits are present and correct. **→ SC-1, SC-2, SC-3, SC-4**
 
 - [ ] 17. **GREEN VbC (**clean-room**).** Run verification-before-completion to verify all 5 SCs:
-  - SC-1: `grep` for `pipeline-readiness-gate` in Tasks table section
-  - SC-2: Verify step ordering: traceability step precedes pipeline-readiness-gate step which precedes risk step
-  - SC-3: Verify updated trigger condition in symbolic rules block
-  - SC-4: Verify `pipeline-readiness-gate` in Invocation table
+  - SC-1: `opencode-cli run` with spec-creation prompt → stderr assertion for `pipeline-readiness-gate` in Tasks table dispatch
+  - SC-2: `opencode-cli run` with spec-creation prompt → stderr assertion for pipeline-readiness-gate dispatched between traceability and risk
+  - SC-3: `opencode-cli run` with spec-creation prompt → stderr assertion for pipeline-readiness-gate invoked at correct pipeline position
+  - SC-4: `opencode-cli run` with spec-creation prompt → stderr assertion for `pipeline-readiness-gate` in Invocation dispatch
   - SC-5: `git diff --stat` shows only SKILL.md changed
   **→ SC-1, SC-2, SC-3, SC-4, SC-5**
 

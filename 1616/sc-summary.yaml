@@ -1,0 +1,40 @@
+sc_coverage:
+  total: 5
+  single_task: true
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1616
+  evidence_types:
+    - behavioral
+    - string
+  phases:
+    - id: phase-1
+      sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5]
+      evidence_types: [behavioral, string]
+  cross_cutting:
+    sc_ids: []
+    verified_in_phase: null
+  scs:
+    - id: SC-1
+      description: ".opencode/tests/AGENTS.md has a new §Prompt Construction Mandate section defining valid vs invalid behavioral test prompts, with the interview/natural-behavior spectrum and a hard-fail rule for prose-recall prompts"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-2
+      description: ".opencode/tests/behaviors/template.sh includes a comment block with prompt construction guidance"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-3
+      description: ".opencode/guidelines/080-code-standards.md Enforcement Test Mandate section cross-references the centralized prompt guidelines"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-4
+      description: ".opencode/guidelines/091-incremental-build.md Behavioral Variant section cross-references the centralized prompt guidelines"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-1
+    - id: SC-5
+      description: "Behavioral enforcement test verifies that an interview-style prompt produces a FAIL verdict from the test framework"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-1
