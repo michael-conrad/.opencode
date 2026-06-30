@@ -57,6 +57,12 @@ elif not plan_files:
 - The spec has been revised — existing revocation rules apply; cascade approval is revoked per Step 6 "Spec Revision Revocation Detection"
 - The plan does not faithfully implement the spec — `plan-fidelity-auditor` catches this during implementation review
 
+### Exception: Pipeline-Initiated Non-Substantive Revisions
+
+Per `approval-gate-015`, pipeline-initiated non-substantive spec revisions do NOT trigger cascade revocation. When a pipeline gate (e.g., SC-coherence gate) detects a non-substantive spec defect and the orchestrator revises the spec to fix it, the linked plan approval is preserved. The plan is auto-updated via `writing-plans --task update` and the pipeline continues without requiring re-authorization.
+
+**Non-substantive** means: changes to evidence types, verification methods, artifact paths, or SC wording that do NOT alter the implementation intent, scope, or success criteria semantics. Substantive changes still trigger standard revocation per Step 6.
+
 **⚠️ Body-Preservation Safeguard:** This task only updates labels (no `body=` parameter in `github_issue_write` calls). Status updates use `github_add_issue_comment`. If any future modification were to use `issue-operations -> update-issue (github_issue_write(method=update, body=...)`, it MUST verify that the new body preserves all original content (len(new_body) >= 0.8 * len(original_body)). See `000-critical-rules.md` → "Critical Violation: Issue Body Erasure" for the project-wide rule. <!-- Routes through issue-operations per SPEC #683 -->
 
 ## 5b.4 Edge Cases

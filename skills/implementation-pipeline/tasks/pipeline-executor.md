@@ -169,6 +169,41 @@ solve check --state-path ./tmp/{issue-N}/state/ --contract-path skills/implement
 
 Step results (PASS/FAIL, evidence paths) go into YAML disk artifact — never into solve state. Solve state tracks pipeline **position** only.
 
+## Auto-Revision Routing (Non-Substantive Spec Defects)
+
+When the SC-coherence gate (Step 1) detects a spec defect, the orchestrator classifies the defect as substantive or non-substantive before routing to remediation:
+
+### Non-Substantive Defect Classification
+
+A spec defect is **non-substantive** if it involves only:
+- Evidence type mismatch (e.g., `behavioral` → `string` when the SC is structural)
+- Verification method needs updating
+- Artifact path needs correction
+- SC wording clarification that does NOT alter implementation intent
+
+A spec defect is **substantive** if it involves:
+- New SCs needed (missing from spec)
+- SCs that cannot be implemented as specified
+- Scope or implementation approach changes
+- Contradictory or impossible success criteria
+
+### Non-Substantive Auto-Revision Flow
+
+When the coherence gate finds a non-substantive spec defect:
+
+- [ ] 1. **Orchestrator revises spec** — update the spec issue body with corrected evidence types, verification methods, or artifact paths
+- [ ] 2. **Auto-update plan** — dispatch `writing-plans --task update` with the revised spec issue number
+- [ ] 3. **Continue pipeline** — proceed to Step 2 (pre-red-baseline) without HALT for re-authorization
+- [ ] 4. **No approval revocation** — `approval-gate-015` applies: the linked plan approval is NOT revoked
+
+### Substantive Defect Flow
+
+When the coherence gate finds a substantive spec defect:
+
+- [ ] 1. **HALT** — report the defect to the developer
+- [ ] 2. **No auto-revision** — the orchestrator does NOT revise the spec or plan
+- [ ] 3. **Wait for developer input** — the developer must revise the spec and re-approve
+
 ## Remediation Routing
 
 ### FAIL → Researcher → Remediate Protocol

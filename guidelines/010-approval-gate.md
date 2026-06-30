@@ -152,6 +152,12 @@ Authorization sets persist across scope transitions. If a developer approves `fo
 
 **Spec revision revokes all linked plan approvals.** If a spec is revised after a plan was approved (via cascade or direct), the linked plan approval is automatically revoked. The plan must be updated to match the revised spec and re-approved before any implementation proceeds.
 
+#### Pipeline-Initiated Non-Substantive Revision Exception
+
+Pipeline-initiated non-substantive spec revisions are exempt from the revocation rule. When a pipeline gate (e.g., SC-coherence gate) detects a spec defect and the orchestrator revises the spec to fix it, the linked plan approval is NOT revoked — the plan is auto-updated via `writing-plans --task update` and the pipeline continues without requiring re-authorization.
+
+**Non-substantive** means: changes to evidence types, verification methods, artifact paths, or SC wording that do NOT alter the implementation intent, scope, or success criteria semantics. Substantive changes (new SCs, removed SCs, changed scope, changed implementation approach) still require re-authorization per `approval-gate-006`.
+
 ### Re-implementation Workflow
 
 When `approval-gate-006` fires (spec revision revokes plan approval):
@@ -424,4 +430,19 @@ rules:
       - HALT
       - PROCEED_WITH_GAP_FILL
     source: "010-approval-gate.md §Authorization Scope Model"
+
+  - id: approval-gate-015
+    tier: 2
+    title: "Pipeline-initiated non-substantive spec revisions auto-update plan without re-authorization"
+    conditions:
+      all:
+        - "spec_revised == true"
+        - "revision_source == 'pipeline_gate'"
+        - "revision_classification == 'non_substantive'"
+        - "has_linked_plan == true"
+    actions:
+      - HALT
+      - AUTO_UPDATE_PLAN(writing-plans --task update)
+      - PROCEED
+    source: "010-approval-gate.md §Pipeline-Initiated Non-Substantive Revision Exception"
 ```
