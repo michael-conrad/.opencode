@@ -129,21 +129,21 @@ Spec: #1602
 
 **Entry condition:** Item 1 complete
 
-**Exit condition:** `grep 'max_length: 1024' .opencode/skills/skill-creator/` matches, `grep 'max_length: 300'` matches zero
+**Exit condition:** `grep -n 'len(desc) > 1024' .opencode/skills/skill-creator/scripts/validate_skill_cards.py` matches, `grep -n 'len(desc) > 300'` matches zero
 
 - [ ] 49. **Coherence gate (**clean-room**).** Dispatch adversarial-audit --task coherence-extraction. Verify SC-LINT-004 scope. **→ SC-2**
 - [ ] 50. **Pre-RED baseline (**clean-room**).** Dispatch implementation-pipeline --task pre-red-baseline. Verify current limit value. **→ SC-2**
-- [ ] 51. **RED — verify 300-char limit (**sub-agent**).** Dispatch test-driven-development --task red. Write behavioral test at `.opencode/tests/behaviors/sclint004-limit.sh` that runs `grep 'max_length: 300' .opencode/skills/skill-creator/` and asserts match exists (RED state). Verify test FAILS. **→ SC-2**
+- [ ] 51. **RED — verify 300-char limit (**sub-agent**).** Dispatch test-driven-development --task red. Write behavioral test at `.opencode/tests/behaviors/sclint004-limit.sh` that runs `grep -n 'len(desc) > 300' .opencode/skills/skill-creator/scripts/validate_skill_cards.py` and asserts match exists (RED state). Verify test FAILS. **→ SC-2**
 - [ ] 52. **Z3 check RED (**inline**).** Run solve check against red-phase output contract. **→ SC-2**
 - [ ] 53. **RED doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Confirm RED-side evidence. **→ SC-2**
 - [ ] 54. **Z3 check RED doublecheck (**inline**).** Run solve check against red-doublecheck output contract. **→ SC-2**
 - [ ] 55. **Post-RED enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-red-enforcement. Verify zero source changes. **→ SC-2**
 - [ ] 56. **Z3 check post-RED (**inline**).** Run solve check against post-red-enforcement output contract. **→ SC-2**
-- [ ] 57. **GREEN — raise limit to 1024 (**sub-agent**).** Dispatch test-driven-development --task green. Change `max_length: 300` to `max_length: 1024` in the SC-LINT-004 validation script. **→ SC-2**
+- [ ] 57. **GREEN — raise limit to 1024 (**sub-agent**).** Dispatch test-driven-development --task green. Change `len(desc) > 300` to `len(desc) > 1024` in the SC-LINT-004 validation script. **→ SC-2**
 - [ ] 58. **Z3 check GREEN (**inline**).** Run solve check against green-phase output contract. **→ SC-2**
 - [ ] 59. **Post-GREEN enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-green-enforcement. Verify zero test file changes. **→ SC-2**
 - [ ] 60. **Z3 check post-GREEN (**inline**).** Run solve check against post-green-enforcement output contract. **→ SC-2**
-- [ ] 61. **GREEN doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Verify `grep 'max_length: 1024'` matches and `grep 'max_length: 300'` matches zero. **→ SC-2**
+- [ ] 61. **GREEN doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Verify `grep -n 'len(desc) > 1024' .opencode/skills/skill-creator/scripts/validate_skill_cards.py` matches and `grep -n 'len(desc) > 300'` matches zero. **→ SC-2**
 - [ ] 62. **Z3 check GREEN doublecheck (**inline**).** Run solve check against green-doublecheck output contract. **→ SC-2**
 - [ ] 63. **Checkpoint tag create (**sub-agent**).** Dispatch implementation-pipeline --task checkpoint-tag-create. **→ SC-2**
 - [ ] 64. **Checkpoint commit (**sub-agent**).** Dispatch git-workflow --task commit-prep. Commit SC-LINT-004 change. **→ SC-2**
@@ -151,7 +151,7 @@ Spec: #1602
 
 #### Item 2 VbC
 
-- [ ] 66. **VbC (**clean-room**).** Verify `grep 'max_length: 1024' .opencode/skills/skill-creator/` matches, `grep 'max_length: 300'` matches zero. **→ SC-2**
+- [ ] 66. **VbC (**clean-room**).** Verify `grep -n 'len(desc) > 1024' .opencode/skills/skill-creator/scripts/validate_skill_cards.py` matches, `grep -n 'len(desc) > 300'` matches zero. **→ SC-2**
 
 ## Item 3 — Farmage Description Expansion
 
@@ -350,7 +350,7 @@ The following self-review checks were performed on this plan:
 - [ ] C1. All 41 SKILL.md files have `provenance: AI-generated` in frontmatter
 - [ ] C2. Zero files have `type: domain` or `type: tool` — plan and solve use `type: utility`
 - [ ] C3. All 41 SKILL.md files have `compatibility: opencode` where applicable
-- [ ] C4. SC-LINT-004 limit changed from 300 to 1024 — no other semantics modified
+- [ ] C4. SC-LINT-004 limit changed from `len(desc) > 300` to `len(desc) > 1024` — no other semantics modified
 - [ ] C5. All 41 SKILL.md files (researcher excluded) use farmage YAML description pattern with all 5 components
 - [ ] C6. All 3 platform sub-skill files have farmage descriptions
 - [ ] C7. All applicable SKILL.md files have Worktree Mode sections
