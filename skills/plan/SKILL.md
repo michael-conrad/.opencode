@@ -1,7 +1,7 @@
 ---
 name: plan
 description: "Use when generating, validating, or managing plans for phase solvability, converting between YAML and PDDL, grounding action schemas, discovering action schemas, or managing state files. Also use when validating workflow constraints, verifying state against contracts, proving theorems, or checking dependency ordering. An approved spec stored as a local `spec.md` file is REQUIRED before any plan operation. Invoke for: problem definition, plan generation, plan validation, PDDL conversion, action grounding, action schema discovery, state file management, Z3 constraint solving, dependency verification. Planning is REQUIRED before implementation. Trigger phrases: plan problem, define problem, generate plan, run planner, validate plan, check plan, convert to PDDL, convert from PDDL, ground actions, discover action schemas, manage state, solve constraints, verify dependencies, check ordering."
-type: domain
+type: utility
 license: MIT
 provenance: AI-generated
 compatibility: opencode

@@ -4,6 +4,7 @@ description: "Use when browsing the web, automating browser interactions, naviga
 allowed-tools: Bash(playwright-cli:*) Bash(npx:*) Bash(npm:*)
 license: Apache-2.0
 provenance: AI-generated
+type: discipline-enforcing
 upstream: https://github.com/microsoft/playwright-cli
 upstream_license: Apache-2.0
 ---

@@ -3,6 +3,7 @@ name: approval-gate
 description: "Use when checking or enforcing: authorization scope, approval cascade, pipeline halt boundaries, label application, spec-to-plan cascade, revision revocation, and bug discovery protocol. All conditions are mandatory — no implementation without authorization."
 license: MIT
 provenance: AI-generated
+type: discipline-enforcing
 compatibility: opencode
 ---
 
