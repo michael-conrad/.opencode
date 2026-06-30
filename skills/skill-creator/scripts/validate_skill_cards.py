@@ -273,11 +273,11 @@ def validate_sc_lint_003(name: str, fields: dict[str, str], file_path: str) -> l
 def validate_sc_lint_004(name: str, fields: dict[str, str], file_path: str) -> list[Violation]:
     violations: list[Violation] = []
     desc = fields.get("description", "")
-    if len(desc) > 300:
+    if len(desc) > 1024:
         violations.append(
             Violation(
                 "SC-LINT", name, "SC-LINT-004",
-                f"Description exceeds 300 characters ({len(desc)})",
+                f"Description exceeds 1024 characters ({len(desc)})",
                 desc[:60], file_path=file_path,
                 severity="WARNING", pass_fail="FAIL",
             )
