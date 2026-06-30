@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Write the plan document to `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`, validate dispatch table references, apply approval cascade, and sync cross-references.
+Write the plan document in split format: `{N}/plan.md` (index) + `{N}/plan-{NN}-{slug}.md` (one per phase), validate dispatch table references, apply approval cascade, and sync cross-references.
 
 ## Entry Criteria
 
@@ -11,7 +11,8 @@ Write the plan document to `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`, val
 
 ## Exit Criteria
 
-- Plan document written to `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
+- Plan index written to `{N}/plan.md` with phase table
+- Phase files written to `{N}/plan-{NN}-{slug}.md` (one per phase)
 - Dispatch table validation passed
 - Approval cascade applied
 - Cross-reference synced to spec issue
@@ -19,15 +20,15 @@ Write the plan document to `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`, val
 
 ## Procedure
 
-- [ ] 1. (**sub-agent**) Write plan document header — Goal, Architecture, Tech Stack
-  - Command: write plan header to `.issues/{N}/plan.md`
+- [ ] 1. (**sub-agent**) Write plan index — Goal, Architecture, Phase table, admonishments
+  - Command: write plan index to `{N}/plan.md`
   - SC: All
-  - Expected: header with issue ref, goal, architecture, files list
+  - Expected: index with issue ref, goal, architecture, files list, phase table, exit criteria, all admonishments
 
-- [ ] 2. (**sub-agent**) Write each phase section — Pre-RED Common, Per-Item RED+green Chains, Post-RED/green
-  - Command: write phase sections per Plan Format Requirements
+- [ ] 2. (**sub-agent**) Write each phase file — one `{N}/plan-{NN}-{slug}.md` per phase
+  - Command: write phase files per Plan Format Requirements
   - SC: All
-  - Expected: each phase has Concern, Files, SCs, Dependencies, Entry/Exit conditions
+  - Expected: each phase file has Concern, Files, SCs, Dependencies, Entry/Exit conditions, full step-by-step with globally sequential numbering
 
 - [ ] 3. (**sub-agent**) Validate dispatch markers — every dispatch marker skill name exists under `.opencode/skills/`
   - Command: `ls .opencode/skills/<skill-name>/SKILL.md` for each dispatch marker
@@ -53,58 +54,51 @@ Write the plan document to `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`, val
 
 Every plan document MUST follow this structure. Plans that deviate from this format are invalid and MUST be rejected.
 
-### Required Sections (in order)
+### Split File Convention
+
+Plans use a split file format:
+
+- **`{N}/plan.md`** — Index file (required for multi-phase plans, optional for single-phase)
+  - Title, Goal, Architecture, Files list
+  - Phase table: each phase with name, concern, SCs, dependencies, step range
+  - Exit criteria (C1-C{N})
+  - All admonishments (compliance, one-step-at-a-time, step status, self-remediation)
+  - Self-review evidence section
+
+- **`{N}/plan-{NN}-{slug}.md`** — Phase files (one per phase)
+  - `{NN}` is zero-padded phase number (01, 02, ...)
+  - `{slug}` is short kebab-case descriptor (e.g., `frontmatter`, `farmage`)
+  - Phase metadata (Concern, Files, SCs, Dependencies, Entry/Exit conditions)
+  - Full step-by-step with globally sequential numbering
+  - Dispatch indicators, RED/GREEN chains, Z3 checks, VbC blocks
+  - Phase completion block
+  - Concern transition to next phase
+
+**Single-phase plans** may use `{N}/plan.md` as the sole file (no split needed).
+
+### Required Sections in plan.md (Index)
 
 1. **Title** — `# Implementation Plan — [<issue-ref>](<issue-url>) — <short-description>`
 2. **Goal/Architecture/Files** — Bullet list with `**Goal:**`, `**Architecture:**`, `**Files:**` entries
-3. **Admonishment** — Verbatim compliance requirement blockquote:
-   ```
-   > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
-   ```
-4. **One-step-at-a-time protocol admonishment** — Verbatim blockquote:
-    ```
-    > **One-step-at-a-time protocol:** Each numbered step is a single unit of work. The orchestrator completes step N, reports completion to chat, then proceeds to step N+1. Steps MUST NOT be combined, batched, or executed in parallel.
-    ```
-5. **Step Status instruction** — Verbatim blockquote that tells the executing agent the exact chat output format for progress reporting:
-    ```
-    > **Step Status instruction:** When reporting progress in chat, use the following format with exactly one status marker per step:
-    >
-    > | Marker | Meaning |
-    > |--------|---------|
-    > | ✅ | Step completed |
-    > | 🔄 | Step currently being worked on |
-    > | ⏳ | Step not yet started |
-    >
-    > **Format:**
-    > ```
-    > ✅ Step 1 — Title
-    > 🔄 Step 2 — Title
-    > ⏳ Step 3 — Title
-    > ```
-    >
-    > **Edge case rules:**
-    > - Omit the ✅ column entirely when no steps are completed (all steps are 🔄 or ⏳)
-    > - Omit the ⏳ column entirely when the current step is the last step (no steps remain)
-    > - Exactly one step MUST be marked 🔄 at any time
-    > - The 🔄 marker moves to the next step only after the current step's verification passes
-    ```
-6. **Phase sections** — One `## Phase N — <name>` per phase, each with:
-   - Phase metadata (Concern, Files, SCs, Dependencies, Entry/Exit conditions)
-   - Checkbox steps (`- [ ] N.`) with dispatch indicators
-   - Sub-steps indented under parent steps
-   - RED+green item chains with interleaved ordering, including ALL mandatory implementation-pipeline gate steps from `implementation-pipeline/SKILL.md` §Dispatch Routing Table (sc-coherence-gate, pre-red-baseline, red-phase, z3-check-red, red-doublecheck, z3-check-red-doublecheck, post-red-enforcement, z3-check-post-red, green-phase, z3-check-green, post-green-enforcement, z3-check-post-green, checkpoint-tag-create, checkpoint-commit, structural-checks, green-doublecheck, green-vbc, adversarial-audit, cross-validate, regression-check, review-prep, exec-summary)
-   - SC annotations on each step
-   - Phase completion block
-   - Concern transition to next phase
+3. **Admonishment** — Verbatim compliance requirement blockquote
+4. **One-step-at-a-time protocol admonishment** — Verbatim blockquote
+5. **Step Status instruction** — Verbatim blockquote
+6. **Phase table** — Table with phase number, name, concern, SCs, dependencies, step range
 7. **Bottom admonishment** — Verbatim compliance requirement blockquote
-8. **Self-remediation protocol admonishment** — Verbatim blockquote:
-    ```
-    > **One step at a time protocol:** Each numbered step is a single unit of work. The orchestrator completes exactly one step, reports the result, and proceeds to the next step without asking for permission. "Combining steps" means performing work that spans multiple plan step numbers in a single operation — regardless of how many tool calls, dispatches, or response turns it takes. The self-check is: "does the work I just completed correspond to exactly one plan step number?" If the work touches files or concerns from step N and step N+1, it is combined. The RED→GREEN transition is a zero-tolerance gate: the RED test MUST be verified as FAILING (by reading its artifact output) before any GREEN implementation begins. Skipping this verification invalidates the entire phase and all work in it.
-    >
-    > **Self-remediation protocol:** If the orchestrator combines steps or skips a gate, it MUST self-remediate by reverting only the work belonging to the incorrectly-combined step and re-dispatching from the failed step. Do NOT revert work from correctly-executed prior steps. No halting, no asking for permission, no "should I?" — the answer is always revert the offending step and re-dispatch.
-    ```
+8. **Self-remediation protocol admonishment** — Verbatim blockquote
 9. **Exit Criteria** — Numbered checklist `C1` through `C{N}`
-10. **Global sequential numbering** — Steps are numbered sequentially across the entire plan file. Each phase does NOT restart at 1. The first step of Phase 2 continues from the last step of Phase 1.
+
+### Required Sections in plan-{NN}-{slug}.md (Phase File)
+
+1. **Title** — `# Phase {NN} — {name}`
+2. **Phase metadata** — Concern, Files, SCs, Dependencies, Entry/Exit conditions
+3. **Step-by-step** — Checkbox steps (`- [ ] N.`) with dispatch indicators
+4. **Phase completion block** — VbC verification assertions
+5. **Concern transition** — To next phase
+
+### Global Sequential Numbering
+
+Steps are numbered sequentially across all phase files. Each phase does NOT restart at 1. The first step of Phase 2 continues from the last step of Phase 1. This ensures no ambiguity about what follows what.
 
 ### Three-Tier Plan Structure
 

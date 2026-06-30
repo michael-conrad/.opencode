@@ -4,16 +4,16 @@ Idempotent completion subtask for writing-plans. Ensures mandatory steps ran reg
 
 ## State Check Phase
 
-- [ ] 1. **Plan file created:** Verify plan file exists at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` (separate), or combined spec+plan has `## Implementation Plan` section
+- [ ] 1. **Plan files created:** Verify plan index exists at `{N}/plan.md` and all phase files exist at `{N}/plan-{NN}-*.md` (for multi-phase), or single `{N}/plan.md` (for single-phase)
 - [ ] 2. **Sub-issues created:** For multi-task plans, verify sub-issues created under the plan
 - [ ] 3. **Self-review completed:** Verify self-review checklist was run (coverage, placeholders, type consistency)
 - [ ] 4. **Chat exec summary + URL:** Verify chat output includes exec summary format with plan URL
 
 ## Skill-Specific Completion
 
-- [ ] 1. **Plan file** (if not already created):
-   - Check evidence for plan file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
-   - If missing: report as blocker — plan file must exist before completion
+- [ ] 1. **Plan files** (if not already created):
+   - Check evidence for plan index at `{N}/plan.md` and phase files at `{N}/plan-{NN}-*.md`
+   - If missing: report as blocker — plan files must exist before completion
 
 - [ ] 2. **Sub-issues** (if multi-task and not already created):
    - Check evidence for sub-issue creation under the plan

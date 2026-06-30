@@ -79,8 +79,9 @@ If `clean_room_plan` is MISSING or its source is NOT a labeled sub-agent dispatc
 ### Step 2: Fetch Existing Plan
 
 Read the existing plan from `spec_local_dir/`:
-- `read <spec_local_dir>/plan.md` if the plan file exists in the spec directory
-- Otherwise, the plan is embedded in the spec body — extract from there
+- `read <spec_local_dir>/plan.md` for the plan index (phase table, exit criteria, admonishments)
+- `glob <spec_local_dir>/plan-*.md` for phase files (one per phase, globally sequential steps)
+- If no `plan.md` exists, the plan is embedded in the spec body — extract from there
 
 ### Step 3: Build Evaluation Criteria
 

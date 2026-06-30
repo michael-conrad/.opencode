@@ -49,10 +49,17 @@ This skill produces plans by executing a 22-step pipeline at orchestrator level.
 
 ## Plan Model
 
-**All plans are local artifacts.** Plans are stored at `.issues/{N}/plan.md` (root repo) or `*/.issues/{N}/plan.md` (submodule/sub-repo). Phases are sections in the local plan file.
+**All plans are local artifacts.** Plans use a split file convention:
 
-- **Separate (multi-task):** `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` with stand-alone phase sections, each with concern boundary annotations
-- **Combined (single-task):** `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` referencing spec content inline
+- **Index file:** `{N}/plan.md` — contains Goal, Architecture, Files, Phase table, Exit criteria, all admonishments, and self-review evidence. No implementation steps.
+- **Phase files:** `{N}/plan-{NN}-{short-slug}.md` — one per phase, with full step-by-step instructions, dispatch indicators, RED/GREEN chains, Z3 checks, VbC blocks, phase completion block, and concern transition.
+
+**Numbering rules:**
+- Steps are globally sequential across all phase files
+- Phase 2's first step continues from Phase 1's last step
+- Phase file naming: `plan-{NN}-{short-slug}.md` where NN is zero-padded phase number
+
+**Single-task plans** (one phase) use `{N}/plan.md` as the sole file (no split needed).
 
 ## Invocation
 

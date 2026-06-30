@@ -13,7 +13,7 @@ Update an existing implementation plan to reflect a non-substantive spec revisio
 ## Entry Criteria
 
 - Spec has been revised (non-substantive revision only)
-- Existing plan file exists at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
+- Existing plan index exists at `{N}/plan.md`; phase files at `{N}/plan-{NN}-*.md`
 - Plan was previously approved (has approval markers)
 
 ## Exit Criteria
@@ -30,7 +30,7 @@ Read the revised spec from the issue body via `github_issue_read(method=get, iss
 
 ### Step 2: Read Existing Plan
 
-Read the existing plan file at `.issues/{N}/plan.md` (or `*/.issues/{N}/plan.md`). Locate the SC sections that correspond to the revised spec SCs.
+Read the existing plan index at `{N}/plan.md` and phase files at `{N}/plan-{NN}-*.md`. Locate the SC sections that correspond to the revised spec SCs.
 
 ### Step 3: Diff SCs
 

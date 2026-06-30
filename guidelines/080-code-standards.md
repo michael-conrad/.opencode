@@ -428,6 +428,8 @@ Behavioral enforcement tests verify that the agent actually behaves differently 
 
 **Principle:** Behavioral tests answer "Does the agent actually behave differently?" Content-verification tests answer "Does the rule text exist in the file?" Both are needed, but behavioral is the PRIMARY enforcement gate.
 
+**Prompt construction:** Behavioral test prompts MUST be real-domain tasks that trigger natural agent behavior — never interview-style prose-recall prompts. See `.opencode/tests/AGENTS.md` §9 Prompt Construction Mandate for the full specification.
+
 **Root case:** Bug #1217 demonstrated that the agent had all the correct guideline text about verification but still answered a general knowledge question with zero tool-call verification. Content-verification alone was insufficient — the agent behavior did not match the rule text.
 
 Every critical violation change MUST have at least one behavioral test that verifies the agent follows the new rule. Behavioral tests use the assertion helpers in `.opencode/tests/behaviors/helpers.sh`:

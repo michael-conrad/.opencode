@@ -14,7 +14,7 @@ This is the **mandatory entry point** — the orchestrator MUST dispatch here af
 
 ## Entry Criteria
 
-- [ ] 1. Approved plan exists at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
+- [ ] 1. Approved plan exists at `{N}/plan.md` (index) with phase files at `{N}/plan-{NN}-*.md` (multi-phase) or `{N}/plan.md` (single-phase)
 - [ ] 2. Authorization scope covers `for_implementation` or higher (or `for_pr`/`for_pr_only`)
 - [ ] 3. Authorization context available (`authorization_scope`, `halt_at`, `pr_strategy`)
 - [ ] 4. Feature branch does not yet exist for this issue (or exists from pre-work)
@@ -33,7 +33,7 @@ This is the **mandatory entry point** — the orchestrator MUST dispatch here af
 
 ### Step 1: Read Plan and Work State
 
-- [ ] 1. Read plan from `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` — extract phases, items, SCs, dependencies. **→ SC-5**
+- [ ] 1. Read plan index from `{N}/plan.md` for phase table, then read current phase file from `{N}/plan-{NN}-*.md` — extract phases, items, SCs, dependencies. **→ SC-5**
 - [ ] 2. Read work state file from `./tmp/{N}/work.md` — extract current progress, completed items, blocked items.
 - [ ] 3. Verify pre-flight conditions:
    - Feature branch exists (or create via `git-workflow --task pre-work`)
@@ -44,7 +44,7 @@ This is the **mandatory entry point** — the orchestrator MUST dispatch here af
    step: 1.5
    timestamp: "<ISO8601>"
    issuer: "<AgentName> (<ModelId>)"
-   plan_path: ".issues/{N}/plan.md"
+    plan_path: "{N}/plan.md"
    authorization_scope: "<scope>"
    halt_at: "<halt_at>"
    pr_strategy: "<strategy>"
@@ -129,7 +129,7 @@ This is the **mandatory entry point** — the orchestrator MUST dispatch here af
 ## Context Required
 
 - `issue_number`
-- `plan_path` — path to `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
+- `plan_path` — path to `{N}/plan.md` (index) with phase files at `{N}/plan-{NN}-*.md`
 - `authorization_scope`
 - `halt_at`
 - `pr_strategy`
