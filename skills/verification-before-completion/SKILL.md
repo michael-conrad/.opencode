@@ -1,7 +1,6 @@
 ---
 name: verification-before-completion
-description: "Use when claiming a task is complete, marking a step done, or closing an issue. Verification is REQUIRED and not optional — MUST use before any completion claim."
-type: discipline-enforcing
+description: "Use when claiming a task is complete, marking a step done, or closing an issue. Also use when running verification checks against success criteria, producing evidence artifacts, or enforcing live-source verification. Invoke for: completion verification, SC verification, evidence artifact production, live-source verification, completion claim validation. Verification is REQUIRED and not optional — MUST use before any completion claim — distinct from verification (general claim verification) and verification-enforcement (content generation). Trigger phrases: verify completion, check SC, produce evidence, live-source verify, validate completion."
 license: MIT
 compatibility: opencode
 ---
@@ -15,6 +14,10 @@ Verification IS completion — there is no valid state called "implemented but u
 Remediation of failed verification IS agent-owned — the producing agent owns every defect in its output, and autonomous remediation is the default action before any escalation.
 
 Ensures ALL success criteria are verified with actual evidence before ANY task or phase is marked complete. Structural completeness checked before per-SC verification.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

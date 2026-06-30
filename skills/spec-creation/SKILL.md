@@ -1,7 +1,6 @@
 ---
 name: spec-creation
 description: "Use when creating a spec, writing a specification, drafting requirements, authoring a spec document, or specifying a feature. Also use when decomposing a problem into success criteria, extracting requirements, or documenting change control. Invoke for: spec writing, specification creation, requirements documentation, feature specification, problem decomposition, success criteria definition, change control documentation, spec drafting, requirements extraction. Spec creation is REQUIRED before implementation. Trigger phrases: write spec, create spec, draft spec, write specification, create specification, draft specification, spec out, author spec, document requirements, specify feature, write requirements, create requirements doc, decompose problem, define success criteria, extract requirements, document change control."
-type: discipline-enforcing
 license: MIT
 compatibility: opencode
 ---
@@ -13,6 +12,10 @@ compatibility: opencode
 Structured discipline for spec writing. Enforces requirements extraction, problem decomposition, interface-first thinking, constraints ledgers, risk analysis, traceability, and change control. Invoked after brainstorming exploration.
 
 Pipeline: `brainstorming → spec-creation → adversarial-audit --task spec-audit → approval-gate → writing-plans`
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

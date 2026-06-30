@@ -1,7 +1,6 @@
 ---
 name: using-git-worktrees
-description: "Use when creating a feature branch or worktree for implementation. Always invoke before git-workflow pre-work. Worktrees are REQUIRED — always use them."
-type: discipline-enforcing
+description: "Use when creating a feature branch or worktree for implementation. Also use when setting up isolated git worktrees for parallel agent work or managing worktree lifecycle. Invoke for: worktree creation, feature branch setup, worktree lifecycle management, worktree cleanup, worktree path resolution. Always invoke before git-workflow pre-work. Worktrees are REQUIRED — always use them. Trigger phrases: create worktree, setup worktree, add worktree, remove worktree, worktree path, isolated branch."
 license: MIT
 compatibility: opencode
 ---
@@ -11,6 +10,10 @@ compatibility: opencode
 ## Overview
 
 Git worktrees create isolated workspaces sharing same repository. Opt-in only — default is direct-branch (feature branch in main repo). Created when `WORKTREE_REQUIRED` set or developer requests isolation.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

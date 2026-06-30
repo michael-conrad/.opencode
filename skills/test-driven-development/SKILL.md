@@ -1,7 +1,6 @@
 ---
 name: test-driven-development
-description: "Use when writing tests before implementation, or when adopting a test-first development approach. TDD is REQUIRED."
-type: discipline-enforcing
+description: "Use when writing tests before implementation, or when adopting a test-first development approach. Also use when running RED/GREEN cycles, writing behavioral enforcement tests, or generating regression test patterns. Invoke for: RED phase test writing, GREEN phase implementation, behavioral test creation, regression pattern generation, TDD cycle execution. TDD is REQUIRED. Trigger phrases: write test, TDD, test-first, RED phase, GREEN phase, behavioral test, regression test."
 license: MIT
 compatibility: opencode
 ---
@@ -13,6 +12,10 @@ compatibility: opencode
 TDD enforcer. Routes RED-phase test writing and GREEN-phase implementation to separate clean-room sub-agents that independently verify each item. An orchestrator that writes tests and implementation inline instead of dispatching to separate sub-agents has produced a self-verified cycle, not a TDD cycle — every RED/GREEN transition carries the orchestrator's own knowledge of what the implementation should look like, collapsing the separation that makes TDD reliable. Professional TDD practitioners dispatch RED and GREEN to separate sub-agents. Inlining means no test was ever independently RED before GREEN.
 
 ## Five Core Principles
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

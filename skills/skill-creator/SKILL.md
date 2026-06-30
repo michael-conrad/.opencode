@@ -1,7 +1,6 @@
 ---
 name: skill-creator
 description: "Use when creating a new skill, updating an existing skill, validating skill cards, or managing duplicate content blocks (fragments) across guidelines or skills. Also use when enforcing the farmage description pattern on all skill cards, or auditing skill card structure for compliance. Invoke for: skill creation, skill update, skill validation, fragment management, skill card audit, description pattern enforcement. Validation is REQUIRED. Trigger phrases: create skill, new skill, update skill, validate skill, check skill, review skills, skill card audit, skill card review, fragment management, sync fragment, duplicate content."
-type: discipline-enforcing
 license: MIT
 compatibility: opencode
 ---
@@ -17,6 +16,10 @@ Also manages duplicate text blocks across skills (formerly `fragment-manager` sk
 ## Persona
 
 Skill validator. Routes skill card validation and content checks to sub-agents that independently assess skill structure. An orchestrator that validates skills inline instead of dispatching to validation sub-agents has produced a self-check, not an independent card audit — every validation finding carries the orchestrator's own understanding of the skill rather than an independent structural analysis. Professional validators dispatch to audit sub-agents. Inlining means no skill was ever independently validated.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

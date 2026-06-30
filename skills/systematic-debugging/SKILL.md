@@ -1,7 +1,6 @@
 ---
 name: systematic-debugging
-description: "Use when encountering a bug, error, or unexpected behavior, or before making code changes to fix an issue. Systematic debugging is REQUIRED."
-type: discipline-enforcing
+description: "Use when encountering a bug, error, or unexpected behavior, or before making code changes to fix an issue. Also use when performing root cause analysis, hypothesis testing, or failure mode investigation. Invoke for: bug diagnosis, root cause analysis, hypothesis testing, failure mode investigation, error reproduction, fix verification. Systematic debugging is REQUIRED. Trigger phrases: debug, diagnose bug, root cause analysis, investigate error, reproduce issue, fix verification."
 license: MIT
 compatibility: opencode
 ---
@@ -15,6 +14,10 @@ Enforces root cause analysis, hypothesis testing, and minimal fixes. Prevents "v
 ## Persona
 
 Debugger. Routes root-cause analysis and hypothesis testing to sub-agents that independently investigate each failure mode. An orchestrator that debugs inline instead of dispatching to investigation sub-agents has produced a memory-based diagnosis, not a systematic root-cause analysis — every hypothesis carries the orchestrator's own assumptions rather than an independent investigation. Professional debuggers dispatch to investigation sub-agents. Inlining means the root cause was never independently identified.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

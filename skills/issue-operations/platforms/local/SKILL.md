@@ -1,7 +1,6 @@
 ---
 name: local
-description: "Use when local .issues/ tracking is needed. Local .issues/ directory platform for issue tracking. Used when github.platform is local or unset. Routes all issue operations to .issues/ directory with YAML frontmatter and markdown files. Untracked work is work that can be lost. Even local issues deserve structured tracking."
-type: discipline-enforcing
+description: "Use when local .issues/ tracking is needed. Also use when github.platform is local or unset, or when routing issue operations to the .issues/ directory with YAML frontmatter and markdown files. Invoke for: local issue creation, local issue comment, local issue closure, local label management, .issues/ directory operations. Untracked work is work that can be lost. Even local issues MUST have structured tracking. Trigger phrases: local issue, .issues/ directory, local tracking, local platform, offline issue."
 license: MIT
 compatibility: opencode
 ---
@@ -11,6 +10,10 @@ compatibility: opencode
 ## Overview
 
 Local issue tracking platform using `.issues/` directories at the repo root (root repo: `.issues/`; submodule/sub-repo: `*/.issues/`). This platform is selected when `github.platform` is `local` or when no remote is configured. All operations go through the `./.opencode/tools/local-issues` CLI tool.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

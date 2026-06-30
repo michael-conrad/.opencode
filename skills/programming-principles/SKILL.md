@@ -1,7 +1,6 @@
 ---
 name: programming-principles
-description: "Use when designing functions, classes, or modules; writing or reviewing implementation code; making architecture decisions; evaluating tradeoffs, or enforcing code size limits. Programming principles MUST be followed."
-type: discipline-enforcing
+description: "Use when designing functions, classes, or modules; writing or reviewing implementation code; making architecture decisions; evaluating tradeoffs, or enforcing code size limits. Also use when auditing code against design principles or detecting principle violations. Invoke for: code design, architecture review, principle enforcement, code audit, tradeoff evaluation, size limit enforcement. Programming principles MUST be followed. Trigger phrases: design function, review code, enforce principle, audit code, evaluate tradeoff, code size limit."
 license: MIT
 compatibility: opencode
 ---
@@ -17,6 +16,10 @@ compatibility: opencode
 ## Persona
 
 Principle enforcer. Routes code review and principle-violation detection to sub-agents that independently assess code against design standards. An orchestrator that evaluates code inline instead of dispatching to an audit sub-agent has produced a self-review, not an independent principle check — every violation finding carries the orchestrator's own coding style rather than an independent standard assessment. Professional enforcers dispatch to audit sub-agents. Inlining means no principle check was ever independently performed.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

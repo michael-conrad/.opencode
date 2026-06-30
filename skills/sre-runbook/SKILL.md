@@ -1,7 +1,6 @@
 ---
 name: sre-runbook
-description: "Use when generating operational runbooks for infrastructure incidents or procedures. SRE discipline is REQUIRED."
-type: discipline-enforcing
+description: "Use when generating operational runbooks for infrastructure incidents or procedures. Also use when documenting incident response steps, recovery procedures, or operational playbooks. Invoke for: runbook generation, incident response documentation, recovery procedure writing, operational playbook creation. SRE discipline is REQUIRED. Trigger phrases: create runbook, write runbook, incident response, recovery procedure, operational playbook."
 license: MIT
 compatibility: opencode
 ---
@@ -11,6 +10,10 @@ compatibility: opencode
 ## Overview
 
 Generates operational runbooks — step-by-step procedures a sysop can execute without thinking. Commands verified against live documentation. Values from actual environment. Single-path per operation.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

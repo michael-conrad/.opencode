@@ -1,7 +1,6 @@
 ---
 name: issue-operations
-description: "Use when creating, commenting on, or closing GitHub Issues. Routes to GitHub MCP or GitBucket API based on github.platform. Issue tracking is REQUIRED."
-type: discipline-enforcing
+description: "Use when creating, commenting on, or closing GitHub Issues. Also use when adding labels, managing sub-issues, or routing to platform-specific implementations. Invoke for: issue creation, issue comment, issue closure, label management, sub-issue management, platform routing. Routes to GitHub MCP or GitBucket API based on github.platform. Issue tracking is REQUIRED. Trigger phrases: create issue, comment on issue, close issue, add label, manage sub-issue, link sub-issue."
 license: MIT
 compatibility: opencode
 ---
@@ -11,6 +10,10 @@ compatibility: opencode
 ## Overview
 
 Platform-agnostic Issue Operations router. Detects `github.platform` and routes all issue operations to the appropriate platform sub-skill (github-mcp, gitbucket-api, local).
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

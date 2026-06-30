@@ -1,7 +1,6 @@
 ---
 name: brainstorming
-description: "Use when creating a spec, planning a feature, or exploring requirements before implementation. Brainstorming is REQUIRED before spec creation — it is not optional. Dispatch MUST route to explore, top-down-analysis, enforcement, or cross-scope tasks per the trigger dispatch table."
-type: discipline-enforcing
+description: "Use when creating a spec, planning a feature, or exploring requirements before implementation. Also use when decomposing a problem into success criteria, extracting requirements, or documenting change control. Invoke for: requirements exploration, top-down analysis, enforcement check, cross-scope analysis, spec drafting, feature planning. Brainstorming is REQUIRED before spec creation — it is not optional. Trigger phrases: brainstorm, explore requirements, plan feature, decompose problem, define success criteria, extract requirements."
 license: MIT
 compatibility: opencode
 ---
@@ -11,6 +10,10 @@ compatibility: opencode
 ## Overview
 
 Conversational-first exploration workflow. One question at a time, user-driven. Dimensions used internally — never as structured output sections. Terminal state invokes spec-creation.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

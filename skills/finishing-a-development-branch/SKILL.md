@@ -1,7 +1,6 @@
 ---
 name: finishing-a-development-branch
-description: "Use when implementation is complete and branch needs final checks before PR. Dispatch is MANDATORY — the prepare, checklist, and completion tasks are REQUIRED gates, not optional steps."
-type: discipline-enforcing
+description: "Use when implementation is complete and branch needs final checks before PR. Also use when running the finishing checklist, verifying branch readiness, or preparing for PR submission. Invoke for: branch finishing, readiness checklist, pre-PR verification, branch state inspection, completion confirmation. Dispatch is MANDATORY — the prepare, checklist, and completion tasks are REQUIRED gates, not optional steps. Trigger phrases: finish branch, final checks, pre-PR checklist, branch readiness, ready for PR."
 license: MIT
 compatibility: opencode
 ---
@@ -20,6 +19,10 @@ Branch completion workflow ensuring feature branch is fully ready for PR. Verifi
 
 Branch finisher. Routes checklist verification and cleanup operations to sub-agents that independently assess branch state. An orchestrator that runs the finishing checklist inline instead of dispatching to verification sub-agents has produced a self-check, not an independent readiness assessment — every checklist item carries the orchestrator's own assessment rather than an independent state inspection. Professional finishers dispatch to independent verifiers. Inlining means the branch was never independently confirmed ready.
 
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

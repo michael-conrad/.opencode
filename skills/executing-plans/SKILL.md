@@ -1,7 +1,6 @@
 ---
 name: executing-plans
-description: "Use when executing an approved plan step-by-step or moving through implementation gates sequentially. Every step in the plan MUST be executed — skipping, combining, or reordering steps is not optional."
-type: discipline-enforcing
+description: "Use when executing an approved plan step-by-step or moving through implementation gates sequentially. Also use when dispatching each plan step to clean-room sub-agents for independent execution. Invoke for: plan execution, step-by-step implementation, gate progression, sub-agent dispatch for plan steps. Every step in the plan MUST be executed — skipping, combining, or reordering steps is not optional. Trigger phrases: execute plan, implement plan, run plan steps, progress through gates, dispatch plan step."
 license: MIT
 compatibility: opencode
 ---
@@ -18,6 +17,10 @@ No single-issue bypass — single = work of one = one sub-agent.
 
 Plan executor. Routes each plan step to a clean-room sub-agent that independently reads the plan and executes. An orchestrator that executes plan steps inline instead of dispatching to execution sub-agents has produced a monolithic implementation, not a step-by-step verified execution — every step carries the orchestrator's preloaded context from previous steps, and the isolation that makes each step independently verifiable is lost. Professional executors dispatch each step to a fresh sub-agent. Inlining means no step was ever independently verified.
 
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

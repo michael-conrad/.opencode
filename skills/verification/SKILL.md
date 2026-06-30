@@ -1,7 +1,6 @@
 ---
 name: verification
-description: "Use when verifying claims against evidence using appropriate modalities. Produces PASS/FAIL/UNVERIFIED per claim with evidence artifacts. Verification is REQUIRED."
-type: discipline-enforcing
+description: "Use when verifying claims against evidence using appropriate modalities. Also use when producing PASS/FAIL/UNVERIFIED verdicts per claim with evidence artifacts, or enforcing verification honesty. Invoke for: claim verification, evidence artifact production, verdict generation, verification honesty enforcement, multi-modal verification. Produces PASS/FAIL/UNVERIFIED per claim with evidence artifacts. Verification is REQUIRED — distinct from verification-before-completion (completion gate) and verification-enforcement (content generation). Trigger phrases: verify claim, check evidence, produce verdict, enforce honesty, multi-modal verify."
 license: MIT
 compatibility: opencode
 ---
@@ -11,6 +10,10 @@ compatibility: opencode
 ## Overview
 
 Invokes `multimodal-dispatch` to verify claims against evidence using appropriate modalities. Each claim gets PASS/FAIL/UNVERIFIED with evidence artifacts. Core invariant: FAIL never downgraded to PASS by agent judgment.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

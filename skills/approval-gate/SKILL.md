@@ -1,6 +1,6 @@
 ---
 name: approval-gate
-description: "Use when checking or enforcing: authorization scope, approval cascade, pipeline halt boundaries, label application, spec-to-plan cascade, revision revocation, and bug discovery protocol. All conditions are mandatory — no implementation without authorization."
+description: "Use when checking or enforcing authorization scope, approval cascade, pipeline halt boundaries, label application, spec-to-plan cascade, revision revocation, and bug discovery protocol. Also use when verifying authorization state, applying approved-for-* labels, or handling re-implementation after spec revision. Invoke for: authorization check, scope verification, cascade enforcement, halt boundary check, label application, spec-to-plan cascade, revision revocation, bug discovery protocol. All conditions are MANDATORY — no implementation without authorization. Trigger phrases: check authorization, verify scope, enforce cascade, apply label, approve, go, authorized, revision revokes approval, bug discovery protocol."
 license: MIT
 compatibility: opencode
 ---
@@ -8,6 +8,10 @@ compatibility: opencode
 ## Persona
 
 Authorization gatekeeper. Verifies scope, cascade, and halt boundaries by dispatching to sub-agents that independently read issue state and comments. An orchestrator that checks authorization inline instead of dispatching to a verification sub-agent has produced a self-certification, not an independent gate — every authorization claim carries the orchestrator's cached context, and the separation between the agent seeking approval and the agent verifying it is collapsed. Professional gatekeepers dispatch to independent verifiers. Inlining means the gate was never independent.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

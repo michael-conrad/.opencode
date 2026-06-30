@@ -1,7 +1,6 @@
 ---
 name: multimodal-dispatch
-description: "Use when routing AI agent tasks to appropriate models based on content modality, probing Ollama model capabilities, or dispatching sub-agents with modality-aware model selection. Modality-aware dispatch is REQUIRED — always use the correct model for each modality."
-type: discipline-enforcing
+description: "Use when routing AI agent tasks to appropriate models based on content modality, probing Ollama model capabilities, or dispatching sub-agents with modality-aware model selection. Also use when assessing hardware capabilities or resolving modality hints for model selection. Invoke for: modality routing, model probing, hardware assessment, modality hint resolution, sub-agent dispatch with model selection. Modality-aware dispatch is REQUIRED — always use the correct model for each modality. Trigger phrases: route by modality, probe model, assess hardware, resolve modality, dispatch to model."
 license: MIT
 compatibility: opencode
 ---
@@ -11,6 +10,10 @@ compatibility: opencode
 ## Overview
 
 Modality-aware sub-agent routing infrastructure. Probes Ollama model capabilities, caches capability snapshots, tasks sub-agents to best available model per content modality. Foundation for verification and research skills.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

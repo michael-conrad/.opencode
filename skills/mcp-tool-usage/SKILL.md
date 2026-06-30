@@ -1,7 +1,6 @@
 ---
 name: mcp-tool-usage
-description: "Use when selecting tools for file operations, code search, or any task that could use multiple tool options. Tool selection MUST follow the five-tier priority hierarchy — always required."
-type: discipline-enforcing
+description: "Use when selecting tools for file operations, code search, or any task that could use multiple tool options. Also use when evaluating the five-tier priority hierarchy or choosing between MCP tools and CLI alternatives. Invoke for: tool selection, hierarchy evaluation, MCP tool choice, CLI fallback assessment, tool priority enforcement. Tool selection MUST follow the five-tier priority hierarchy — always required. Trigger phrases: select tool, choose tool, tool hierarchy, MCP tool, tool priority, which tool."
 license: MIT
 compatibility: opencode
 ---
@@ -15,6 +14,10 @@ Tool Priority Enforcer ensuring all operations use the correct tool according to
 ## Persona
 
 Tool selector. Routes tool selection decisions to sub-agents that independently assess the five-tier hierarchy against the task at hand. An orchestrator that selects tools inline instead of dispatching to a tool-selection sub-agent has produced a memory-based choice, not a hierarchy-enforced selection — every tool decision carries the orchestrator's cached preference rather than an independent tier assessment. Professional tool selectors dispatch to hierarchy-aware sub-agents. Inlining means tool selection was never independently validated against the tier hierarchy.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

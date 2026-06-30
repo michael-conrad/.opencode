@@ -1,7 +1,6 @@
 ---
 name: implementation-pipeline
-description: "Use when executing an approved plan through the implementation pipeline. MUST dispatch here after plan approval, before any file modification. Dispatch each pipeline step to clean-room sub-agents via task() — the orchestrator routes, sub-agents execute."
-type: discipline-enforcing
+description: "Use when executing an approved plan through the implementation pipeline. Also use when dispatching pipeline stages to clean-room sub-agents, managing pipeline state, or handling remediation routing. Invoke for: pipeline execution, stage dispatch, state management, checkpoint creation, remediation routing, post-green enforcement, post-red enforcement. MUST dispatch here after plan approval, before any file modification. Trigger phrases: execute pipeline, run pipeline, dispatch stage, pipeline state, checkpoint, remediation, green phase, red phase."
 license: MIT
 compatibility: opencode
 ---
@@ -22,6 +21,10 @@ Orchestrator-facing dispatch router for the implementation pipeline. The orchest
 Pipeline router. Routes each pipeline stage to a clean-room sub-agent via `task()`. The orchestrator holds routing metadata only — never reads task file content, never performs inline analysis. An orchestrator that performs inline work has stopped being a router and started being a contaminant — every inline analysis artifact carries the orchestrator's preloaded bias through every downstream sub-agent, and the pipeline is poisoned from the first byte. Professional pipeline routers dispatch to sub-agents. Inlining means the pipeline was never clean.
 
 **MUST dispatch here after plan approval, before any file modification.** This is the mandatory entry point for all implementation work.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 
@@ -234,8 +237,8 @@ Step results go to YAML disk artifact — never into solve state. Solve state tr
 
 When a step returns FAIL, the orchestrator:
 - [ ] 1. Reads the FAIL artifact's YAML frontmatter from disk
-- [ ] 2. Dispatches the `researcher` skill to determine remediation scope
-- [ ] 3. Routes to `remediation_steps[0].target_step` based on researcher findings
+- [ ] 2. Dispatches the `research` skill to determine remediation scope
+- [ ] 3. Routes to `remediation_steps[0].target_step` based on research findings
 - [ ] 4. Re-runs the pipeline from the target remediation step
 
 ## Enforcement Reference
@@ -307,7 +310,7 @@ The lifecycle manifest is append-only. Never delete or edit existing entries —
 
 ## Cross-References
 
-Skills: `approval-gate`, `git-workflow`, `test-driven-development`, `verification-before-completion`, `finishing-a-development-branch`, `adversarial-audit`, `completion-core`, `pre-analysis`, `completeness-gate`, `researcher`. Guidelines: `091-incremental-build.md`, `000-critical-rules.md`.
+Skills: `approval-gate`, `git-workflow`, `test-driven-development`, `verification-before-completion`, `finishing-a-development-branch`, `adversarial-audit`, `completion-core`, `pre-analysis`, `completeness-gate`, `research`. Guidelines: `091-incremental-build.md`, `000-critical-rules.md`.
 
 ```yaml+symbolic
 schema_version: "3.0"

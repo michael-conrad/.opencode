@@ -1,7 +1,6 @@
 ---
 name: verification-enforcement
-description: "Use when generating content that makes factual claims — specs, plans, runbooks, docs, or correspondence. Live-source verification before generation is REQUIRED — always mandatory, never optional."
-type: discipline-enforcing
+description: "Use when generating content that makes factual claims — specs, plans, runbooks, docs, or correspondence. Also use when collecting evidence artifacts before generation, resolving unverified claims after generation, or enforcing proactive verification. Invoke for: pre-generation verification, evidence artifact collection, post-generation claim resolution, proactive verification enforcement, content verification. Live-source verification before generation is REQUIRED — always mandatory, never optional — distinct from verification (general claim verification) and verification-before-completion (completion gate). Trigger phrases: verify before generation, collect evidence, resolve unverified claims, proactive verification, content verification."
 license: MIT
 compatibility: opencode
 ---
@@ -13,6 +12,10 @@ compatibility: opencode
 Shared verification gate for ALL content-generating skills. Pre-generation: task section-based sub-agents to collect evidence artifacts for every claim. Post-generation: scan for unverified markers, attempt resolution, escalate unresolvable claims. Orchestrator level: reject sub-agent output without evidence artifacts.
 
 Spec content that makes factual claims must include a **Documentation Sources** section documenting live-source verification used for each claim. This section is mandatory for standard and complex specs and is enforced by `adversarial-audit --task spec-audit` criterion SC-11. Simple specs may omit it.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

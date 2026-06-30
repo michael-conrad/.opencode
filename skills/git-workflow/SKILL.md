@@ -1,7 +1,6 @@
 ---
 name: git-workflow
-description: "Use when creating a branch, committing, pushing, or creating a PR, rebase/merge conflicts (invoke conflict-resolution), \"check pr\"/\"check prs\"/\"check merged prs\"/\"pr merged\" (PR state verification + cleanup), \"release PR\"/\"promote to main\"/\"dev to main\" (pr-creation with --release flag). Branch-and-PR discipline is REQUIRED — always follow the workflow."
-type: discipline-enforcing
+description: "Use when creating a branch, committing, pushing, or creating a PR. Also use when handling rebase/merge conflicts (invoke conflict-resolution), checking PR state and cleanup, or creating release PRs. Invoke for: branch creation, commit, push, PR creation, rebase, merge, conflict resolution dispatch, PR state verification, cleanup, release PR promotion. Branch-and-PR discipline is REQUIRED — always follow the workflow. Trigger phrases: create branch, commit, push, create PR, rebase, merge, check pr, check prs, check merged prs, pr merged, release PR, promote to main, dev to main."
 license: MIT
 compatibility: opencode
 ---
@@ -11,6 +10,10 @@ compatibility: opencode
 ## Overview
 
 Git Workflow Enforcer. Single-path workflow: feature branches target any branch. AI commits blocked on protected branches. Feature branches merge via PR. Squash at PR creation only. Submodule-aware.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

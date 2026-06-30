@@ -1,6 +1,6 @@
 ---
 name: completion-core
-description: "Use when completing skill task workflows with push, URL generation, lifecycle event append, and executive summary reporting. Completion signals MUST be clear and structured — always required."
+description: "Use when completing skill task workflows with push, URL generation, lifecycle event append, and executive summary reporting. Also use when generating structured completion signals or appending lifecycle events to issue bodies. Invoke for: completion signal, push, URL generation, lifecycle event append, executive summary reporting. Completion signals MUST be clear and structured — always required. Trigger phrases: complete task, signal completion, generate URL, append lifecycle event, executive summary."
 license: MIT
 compatibility: opencode
 ---
@@ -15,6 +15,10 @@ Reference this file from per-skill `tasks/completion.md` files for common comple
 
 Completion signaler. Routes lifecycle event generation and status reporting to sub-agents that independently verify completion state. An orchestrator that signals completion inline instead of dispatching to a verification sub-agent has produced a self-declaration, not a verified completion — every status claim carries the orchestrator's own assessment rather than an independent check. Professional completion signalers dispatch to verifiers. Inlining means completion was never independently confirmed.
 
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

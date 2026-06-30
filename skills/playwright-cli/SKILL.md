@@ -1,9 +1,9 @@
 ---
 name: playwright-cli
-description: "Use when browsing the web, automating browser interactions, navigating pages, filling forms, capturing snapshots, evaluating JavaScript, mocking network requests, managing storage/cookies/tabs, recording traces or video, running or generating Playwright tests, managing browser sessions, or installing/setting up Playwright. REQUIRED: dispatch via skill() before any browser automation — do not skip this skill."
+description: "Use when browsing the web, automating browser interactions, navigating pages, filling forms, capturing snapshots, evaluating JavaScript, mocking network requests, managing storage/cookies/tabs, recording traces or video, running or generating Playwright tests, managing browser sessions, or installing/setting up Playwright. Also use when capturing page content for verification or testing web application behavior. Invoke for: web browsing, browser automation, form filling, snapshot capture, JavaScript evaluation, network mocking, storage management, trace recording, Playwright test generation, browser session management, Playwright installation. REQUIRED: dispatch via skill() before any browser automation — do not skip this skill. Trigger phrases: browse web, automate browser, fill form, capture snapshot, evaluate JS, mock network, manage cookies, record trace, Playwright test, install Playwright."
 allowed-tools: Bash(playwright-cli:*) Bash(npx:*) Bash(npm:*)
 license: Apache-2.0
-provenance: AI-generated
+compatibility: opencode
 upstream: https://github.com/microsoft/playwright-cli
 upstream_license: Apache-2.0
 ---
@@ -13,6 +13,10 @@ upstream_license: Apache-2.0
 ## Persona
 
 Browser automator. Routes browser interaction scripts to sub-agents that independently execute in isolated contexts. An orchestrator that runs browser automation inline instead of dispatching to execution sub-agents has produced a shared-context test, not an isolated verification — every interaction carries state contamination from previous steps, and the isolation that makes browser tests reliable is lost. Professional automators dispatch to isolated sub-agents. Inlining means no test was ever independently executed.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

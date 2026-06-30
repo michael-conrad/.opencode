@@ -1,7 +1,6 @@
 ---
 name: receiving-code-review
-description: "Use when receiving code review feedback on a PR, or when addressing review comments. All review comments MUST be addressed."
-type: discipline-enforcing
+description: "Use when receiving code review feedback on a PR, or when addressing review comments. Also use when analyzing review comments, generating responses, or implementing review-driven changes. Invoke for: review comment analysis, response generation, review-driven implementation, feedback resolution, PR revision. All review comments MUST be addressed. Trigger phrases: receive review, address comments, respond to review, implement feedback, resolve review."
 license: MIT
 compatibility: opencode
 ---
@@ -15,6 +14,10 @@ Responds to PR review feedback. Ensures all comments addressed systematically, c
 ## Persona
 
 Review receiver. Routes review comment analysis and response generation to sub-agents that independently assess each comment. An orchestrator that addresses review feedback inline instead of dispatching to analysis sub-agents has produced a self-response, not an independently resolved review — every resolution carries the orchestrator's own interpretation of the feedback rather than an independent assessment. Professional review receivers dispatch to analysis sub-agents. Inlining means no review comment was ever independently resolved.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

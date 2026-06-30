@@ -16,8 +16,7 @@ Validates SKILL.md files per spec #1124:
   REQ-1: Frontmatter validation (name, description, type, license, compatibility)
   REQ-2: Placeholder enforcement (no hardcoded identity values)
   REQ-3: Worktree Mode section requirement for skills with bash/git/file ops
-  REQ-4: Provenance field validation
-  REQ-5: Mandatory Task Discipline admonishment presence (5-item checklist)
+  REQ-4: Mandatory Task Discipline admonishment presence (5-item checklist)
 
 Usage:
     uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py           # validate
@@ -32,14 +31,6 @@ import sys
 from pathlib import Path
 from typing import NamedTuple
 
-VALID_TYPES = {
-    "discipline-enforcing",
-    "technique",
-    "pattern",
-    "reference",
-    "orchestrator",
-}
-VALID_PROVENANCE = {"AI-generated", "AI-assisted", "Human-written", "Derived"}
 HARDCODED_AGENT_NAMES = re.compile(
     r"\bOpenCode\b|\bClaude\b|\bCopilot\b|\bGemini\b|\bGPT-4\b"
 )
@@ -170,23 +161,6 @@ def validate_req1(
                     file_path=file_path,
                 )
             )
-    if "type" not in fields:
-        violations.append(
-            Violation(
-                "REQ-1", name, "type", "Missing 'type' field", file_path=file_path
-            )
-        )
-    elif fields["type"] not in VALID_TYPES:
-        violations.append(
-            Violation(
-                "REQ-1",
-                name,
-                "type",
-                f"Invalid type '{fields['type']}'",
-                fields["type"],
-                file_path=file_path,
-            )
-        )
     if "license" not in fields:
         violations.append(
             Violation(
@@ -273,11 +247,11 @@ def validate_sc_lint_003(name: str, fields: dict[str, str], file_path: str) -> l
 def validate_sc_lint_004(name: str, fields: dict[str, str], file_path: str) -> list[Violation]:
     violations: list[Violation] = []
     desc = fields.get("description", "")
-    if len(desc) > 300:
+    if len(desc) > 1024:
         violations.append(
             Violation(
                 "SC-LINT", name, "SC-LINT-004",
-                f"Description exceeds 300 characters ({len(desc)})",
+                f"Description exceeds 1024 characters ({len(desc)})",
                 desc[:60], file_path=file_path,
                 severity="WARNING", pass_fail="FAIL",
             )
@@ -404,31 +378,6 @@ def validate_req5(name: str, body: str, file_path: str) -> list[Violation]:
         )
     return violations
 
-def validate_req4(name: str, fields: dict[str, str], file_path: str) -> list[Violation]:
-    violations: list[Violation] = []
-    if "provenance" not in fields:
-        violations.append(
-            Violation(
-                "REQ-4",
-                name,
-                "provenance",
-                "Missing 'provenance' field",
-                file_path=file_path,
-            )
-        )
-    elif fields["provenance"] not in VALID_PROVENANCE:
-        violations.append(
-            Violation(
-                "REQ-4",
-                name,
-                "provenance",
-                f"provenance must be one of: {', '.join(sorted(VALID_PROVENANCE))}",
-                fields["provenance"],
-                file_path=file_path,
-            )
-        )
-    return violations
-
 def validate_card(card_path: Path, root: Path) -> list[Violation]:
     name = skill_name_from_path(card_path.relative_to(root))
     rel_path = str(card_path.relative_to(root))
@@ -466,7 +415,6 @@ def validate_card(card_path: Path, root: Path) -> list[Violation]:
     violations.extend(validate_sc_lint_006(name, body, rel_path))
     violations.extend(validate_req2(name, content, rel_path))
     violations.extend(validate_req3(name, body, rel_path))
-    violations.extend(validate_req4(name, fields, rel_path))
     violations.extend(validate_req5(name, body, rel_path))
     return violations
 

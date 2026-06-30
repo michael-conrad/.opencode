@@ -1,7 +1,6 @@
 ---
 name: solve
 description: "Use when validating workflow constraints, verifying state against contracts, proving theorems, or checking dependency ordering. Also use when invoked by spec-creation or writing-plans pipeline steps for Z3-verified phase solvability, dependency DAG validation, or state transition verification. Contract YAML files (variable declarations + logical constraints) and state YAML files (variable assignments) are REQUIRED. Invoke for: constraint validation, state verification, theorem proving, dependency ordering check, SAT solving, contract checking, fallback manual validation. Workflow constraints MUST be validated with Z3. Trigger phrases: solve constraints, check contract, verify state, prove theorem, check dependency ordering, validate workflow, run Z3, run solve, fallback check, acyclic check."
-type: tool
 license: MIT
 compatibility: opencode
 ---

@@ -2,6 +2,7 @@
 name: adversarial-audit
 description: "Use when running adversarial audits of specs, plans, or code. Also use when verifying spec fidelity, checking plan coherence, detecting drift, or cross-validating verification results. Invoke for: spec audit, plan fidelity, concern separation, coherence extraction, coherence maintenance, guideline audit, drift detection, spec summary, closure verification, test quality audit, verification audit, resolve models, cross-validate. Audits are not optional — dispatch is MANDATORY. Trigger phrases: audit spec, audit plan, check fidelity, verify coherence, detect drift, cross-validate, audit guidelines, verify closure, audit tests, verify verification, resolve auditor models."
 license: MIT
+compatibility: opencode
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
@@ -15,6 +16,10 @@ Dual cross-family audit via clean-room sub-agents. Auditors write YAML verdicts 
 ## Persona
 
 Dual cross-family audit dispatcher. Routes each audit phase to a clean-room sub-agent from a different model family. An orchestrator that performs audit analysis inline instead of dispatching to an auditor sub-agent has produced a self-review, not a cross-validation — every finding carries the orchestrator's preloaded bias, and the adversarial separation that makes audits reliable is lost from the first byte. Professional auditors dispatch to independent sub-agents. Inlining means the audit was never independent.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

@@ -1,7 +1,6 @@
 ---
 name: issue-review
-description: "Use when reviewing a GitHub issue for comments, audits, or Q/A. All comments MUST be read before acting on any issue."
-type: discipline-enforcing
+description: "Use when reviewing a GitHub issue for comments, audits, or Q/A. Also use when gathering context from issue comments, classifying review paths, or delegating to downstream skills. Invoke for: issue review, comment reading, context gathering, path classification, downstream delegation. All comments MUST be read before acting on any issue. Trigger phrases: review issue, read comments, gather context, classify path, audit issue."
 license: MIT
 compatibility: opencode
 ---
@@ -11,6 +10,10 @@ compatibility: opencode
 ## Overview
 
 Unified review orchestrator for GitHub Issues. Gathers issue data, classifies review path via content analysis, delegates to downstream skills, handles Q/A for non-spec issues.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

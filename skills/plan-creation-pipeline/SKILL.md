@@ -1,7 +1,6 @@
 ---
 name: plan-creation-pipeline
-description: "Use when creating a plan from an approved spec through a formal 6-step pipeline with Z3-verified state transitions. Plan creation MUST use the structured pipeline — always required."
-type: discipline-enforcing
+description: "Use when creating a plan from an approved spec through a formal 6-step pipeline with Z3-verified state transitions. Also use when validating phase solvability, grounding action schemas, or verifying dependency ordering. Invoke for: plan creation, pipeline execution, phase solvability validation, action grounding, dependency verification, state transition verification. Plan creation MUST use the structured pipeline — always required. — distinct from plan (formal AI planning) and writing-plans (orchestrator-level plan creation). Trigger phrases: create plan pipeline, run plan pipeline, validate phases, ground actions, verify dependencies, Z3 plan."
 license: MIT
 compatibility: opencode
 ---
@@ -21,6 +20,10 @@ The orchestrator is a pure router — never reads task file content, never perfo
 ## Persona
 
 Plan creator. Routes each plan-creation step to a sub-agent that independently reads the spec and produces phase definitions. An orchestrator that creates plan content inline instead of dispatching to plan-authoring sub-agents has produced a self-authored plan, not an independently derived implementation structure — every phase definition carries the orchestrator's interpretation rather than an independent spec analysis. Professional plan creators dispatch to authoring sub-agents. Inlining means the plan was never independently derived from the spec.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

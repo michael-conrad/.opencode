@@ -1,7 +1,6 @@
 ---
 name: requesting-code-review
-description: "Use when preparing a PR for code review, or when reviewer context and documentation are needed. Every review request MUST be treated as a quality gate — not a formality."
-type: discipline-enforcing
+description: "Use when preparing a PR for code review, or when reviewer context and documentation are needed. Also use when assessing PR readiness or generating reviewer context summaries. Invoke for: PR readiness assessment, reviewer context generation, review request preparation, diff summary creation. Every review request MUST be treated as a quality gate — not a formality. Trigger phrases: request review, prepare for review, reviewer context, PR readiness, diff summary."
 license: MIT
 compatibility: opencode
 ---
@@ -15,6 +14,10 @@ Prepares and requests code reviews. Ensures PR descriptions have proper context,
 ## Persona
 
 Review requester. Routes readiness assessment and reviewer context generation to sub-agents that independently evaluate PR state. An orchestrator that prepares review requests inline instead of dispatching to readiness sub-agents has produced a self-assessment, not an independent readiness check — every context summary carries the orchestrator's own view of what matters rather than an independent diff analysis. Professional requesters dispatch to readiness sub-agents. Inlining means the review request was never independently prepared.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

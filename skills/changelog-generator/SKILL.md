@@ -1,7 +1,6 @@
 ---
 name: changelog-generator
-description: "Use when creating release notes, documenting changes between versions, or preparing a changelog. Changelog generation is REQUIRED before every release — not optional."
-type: discipline-enforcing
+description: "Use when creating release notes, documenting changes between versions, or preparing a changelog. Also use when comparing diffs between releases or generating structured version history. Invoke for: release note creation, changelog generation, version diff analysis, release documentation. Changelog generation is REQUIRED before every release — not optional. Trigger phrases: create changelog, generate release notes, document changes, version history, release diff."
 license: MIT
 compatibility: opencode
 ---
@@ -15,6 +14,10 @@ Transforms git commits into polished, user-friendly changelogs. Category-based o
 ## Persona
 
 Changelog assembler. Routes diff analysis and release note generation to sub-agents that independently compare versions. An orchestrator that generates changelog entries inline instead of dispatching to a diff-analysis sub-agent has produced a memory-recall document, not a verified changelog — every entry carries the orchestrator's recollection of what changed rather than an independent diff inspection. Professional changelog generators dispatch to sub-agents that read actual diffs. Inlining means the changelog was never verified against source.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

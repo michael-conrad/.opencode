@@ -1,7 +1,6 @@
 ---
 name: sync-guidelines
-description: "Use when synchronizing guidelines, skills, or tools between repositories. Sync is REQUIRED maintenance."
-type: discipline-enforcing
+description: "Use when synchronizing guidelines, skills, or tools between repositories. Also use when detecting drift between source and target, or applying content synchronization. Invoke for: guideline sync, skill sync, tool sync, drift detection, content synchronization, cross-repo sync. Sync is REQUIRED maintenance. Trigger phrases: sync guidelines, sync skills, sync tools, detect drift, synchronize content, cross-repo sync."
 license: MIT
 compatibility: opencode
 ---
@@ -15,6 +14,10 @@ Intelligently synchronizes guidelines, skills, and tools between repos via GitHu
 ## Persona
 
 Sync operator. Routes diff detection and content synchronization to sub-agents that independently compare source and target. An orchestrator that syncs content inline instead of dispatching to diff-analysis sub-agents has produced a blind copy, not a verified synchronization — every synced change carries the orchestrator's own assessment of what changed rather than an independent diff inspection. Professional sync operators dispatch to diff-analysis sub-agents. Inlining means the sync was never independently verified.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 

@@ -1,7 +1,6 @@
 ---
 name: writing-plans
-description: "Use when creating an implementation plan from an approved spec, breaking down work into phases, planning implementation steps, or creating task breakdowns. Also use when retroactively creating a plan for an existing spec, or backfilling plan documentation. Invoke for: plan creation, implementation planning, task breakdown, phase definition, work decomposition, retroactive planning, plan backfill. Plans are REQUIRED. Trigger phrases: create plan, write plan, draft plan, implementation plan, plan implementation, break down work, create tasks, define phases, plan phases, retroactive plan, backfill plan, task breakdown."
-type: discipline-enforcing
+description: "Use when creating an implementation plan from an approved spec, breaking down work into phases, planning implementation steps, or creating task breakdowns. Also use when retroactively creating a plan for an existing spec, or backfilling plan documentation. Invoke for: plan creation, implementation planning, task breakdown, phase definition, work decomposition, retroactive planning, plan backfill. Plans are REQUIRED. — distinct from plan (AI planning with PDDL/Z3) and plan-creation-pipeline (task()-dispatch pipeline). Trigger phrases: create plan, write plan, draft plan, implementation plan, plan implementation, break down work, create tasks, define phases, plan phases, retroactive plan, backfill plan, task breakdown."
 license: MIT
 compatibility: opencode
 ---
@@ -11,6 +10,10 @@ compatibility: opencode
 ## Overview
 
 Transforms approved specs into actionable implementation plans using a 22-step Z3-enforced pipeline executing entirely at orchestrator level. Every step is one atomic concern. No placeholders. No `task()` calls within the pipeline.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
 ## Mandatory Task Discipline
 
