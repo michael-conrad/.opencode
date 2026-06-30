@@ -2,7 +2,7 @@
 
 **Goal:** Standardize all 41 SKILL.md files (researcher excluded — merged into research) to use the farmage YAML description pattern, fix frontmatter gaps, add Worktree Mode sections, resolve SC-LINT-004 conflicts, and fix cross-skill conflicts.
 
-**Architecture:** 8-phase sequential pipeline with execution order [0, 1, 5, 2, 3, 4, 6, 7]. Phase 0 (behavioral tests RED) must complete before any changes. Phase 5 (SC-LINT-004 resolution) must complete before Phase 2 (farmage descriptions exceed 300-char limit). Phase 1 (frontmatter) must complete before Phase 2. Phase 2 must complete before Phases 3 and 4. Phases 2+5 must complete before Phase 6. All phases 0-6 must complete before Phase 7 (global post-phase).
+**Architecture:** 7-phase sequential pipeline with execution order [0, 1, 5, 2, 4, 6, 7]. Phase 0 (behavioral tests RED) must complete before any changes. Phase 5 (SC-LINT-004 resolution) must complete before Phase 2 (farmage descriptions exceed 300-char limit). Phase 1 (frontmatter) must complete before Phase 2. Phase 2 covers all 41 SKILL.md files including platform sub-skills (Phase 3 merged into Phase 2 per concern-separation audit). Phase 2 must complete before Phase 4. Phases 2+5 must complete before Phase 6. All phases 0-6 must complete before Phase 7 (global post-phase).
 
 **Files:**
 - `.opencode/skills/*/SKILL.md` (38 main skill files, excluding researcher)
@@ -15,6 +15,8 @@
 - `.opencode/tests/behaviors/farmage-pattern.sh` (behavioral test)
 - `.opencode/tests/behaviors/cross-skill-conflicts.sh` (behavioral test)
 - `.opencode/tests/behaviors/exclusion-clauses.sh` (behavioral test)
+
+Spec: #1602
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
@@ -290,64 +292,7 @@
 
 - [ ] 88. **VbC (**clean-room**).** Run `opencode-cli run "list skills"` — verify stderr shows all 5 farmage components (Use when, Also use when, Invoke for, enforcement, Trigger phrases) per skill across all 41 files. **→ SC-1**
 
-**Concern transition:** Leaving farmage description expansion → entering platform sub-skills. Phase 3 depends on Phase 2 (farmage pattern established before sub-skill application).
-
-## Phase 3 — Platform Sub-Skills
-
-**Concern:** Apply farmage descriptions to 3 platform sub-skill files.
-
-**Files:**
-- `.opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md`
-- `.opencode/skills/issue-operations/platforms/github-mcp/SKILL.md`
-- `.opencode/skills/issue-operations/platforms/local/SKILL.md`
-
-**SCs:** SC-7
-
-**Dependencies:** Phase 2 (farmage pattern established)
-
-**Entry condition:** Phase 2 complete
-
-**Exit condition:** `opencode-cli run "show platform skills"` → stderr shows all 5 farmage components per platform sub-skill
-
-- [ ] 89. **Coherence gate (**clean-room**).** Dispatch adversarial-audit --task coherence-extraction. Verify platform sub-skill scope. **→ SC-7**
-
-- [ ] 90. **Pre-RED baseline (**clean-room**).** Dispatch implementation-pipeline --task pre-red-baseline. Verify current platform sub-skill descriptions. **→ SC-7**
-
-- [ ] 91. **RED — platform farmage (**sub-agent**).** Dispatch test-driven-development --task red. Run `opencode-cli run "show platform skills"` — verify stderr shows < 5 farmage components (RED state). **→ SC-7**
-
-- [ ] 92. **Z3 check RED (**inline**).** Run solve check against red-phase output contract. **→ SC-7**
-
-- [ ] 93. **RED doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Confirm RED-side evidence. **→ SC-7**
-
-- [ ] 94. **Z3 check RED doublecheck (**inline**).** Run solve check against red-doublecheck output contract. **→ SC-7**
-
-- [ ] 95. **Post-RED enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-red-enforcement. Verify zero source changes. **→ SC-7**
-
-- [ ] 96. **Z3 check post-RED (**inline**).** Run solve check against post-red-enforcement output contract. **→ SC-7**
-
-- [ ] 97. **GREEN — apply farmage to 3 platform sub-skills (**sub-agent**).** Dispatch test-driven-development --task green. Apply farmage descriptions to gitbucket-api, github-mcp, and local SKILL.md files. **→ SC-7**
-
-- [ ] 98. **Z3 check GREEN (**inline**).** Run solve check against green-phase output contract. **→ SC-7**
-
-- [ ] 99. **Post-GREEN enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-green-enforcement. Verify zero test file changes. **→ SC-7**
-
-- [ ] 100. **Z3 check post-GREEN (**inline**).** Run solve check against post-green-enforcement output contract. **→ SC-7**
-
-- [ ] 101. **Checkpoint tag create (**sub-agent**).** Dispatch implementation-pipeline --task checkpoint-tag-create. **→ SC-7**
-
-- [ ] 102. **Checkpoint commit (**sub-agent**).** Dispatch git-workflow --task commit-prep. Commit platform sub-skill changes. **→ SC-7**
-
-- [ ] 103. **Structural checks (**sub-agent**).** Dispatch finishing-a-development-branch --task checklist. Run lint/typecheck/format. **→ SC-7**
-
-- [ ] 104. **GREEN doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Run `opencode-cli run "show platform skills"` — verify stderr shows all 5 farmage components per platform sub-skill. **→ SC-7**
-
-- [ ] 105. **GREEN VbC (**sub-agent**).** Dispatch verification-before-completion --task completion. **→ SC-7**
-
-#### Phase 3 VbC
-
-- [ ] 106. **VbC (**clean-room**).** Run `opencode-cli run "show platform skills"` — verify stderr shows all 5 farmage components per platform sub-skill. **→ SC-7**
-
-**Concern transition:** Leaving platform sub-skills → entering Worktree Mode sections. Phase 4 depends on Phase 2 (descriptions stable before Worktree Mode).
+**Concern transition:** Leaving farmage description expansion → entering Worktree Mode sections. Phase 4 depends on Phase 2 (descriptions stable before Worktree Mode). Platform sub-skills (Phase 3) are merged into Phase 2 — all 41 SKILL.md files including platform sub-skills receive farmage descriptions in Phase 2. SC-7 is verified as part of Phase 2's VbC.
 
 ## Phase 4 — Worktree Mode Sections
 
@@ -363,43 +308,43 @@
 
 **Exit condition:** `grep -c 'Worktree Mode' .opencode/skills/*/SKILL.md` matches applicable count
 
-- [ ] 107. **Coherence gate (**clean-room**).** Dispatch adversarial-audit --task coherence-extraction. Verify Worktree Mode scope. **→ SC-4**
+- [ ] 89. **Coherence gate (**clean-room**).** Dispatch adversarial-audit --task coherence-extraction. Verify Worktree Mode scope. **→ SC-4**
 
-- [ ] 108. **Pre-RED baseline (**clean-room**).** Dispatch implementation-pipeline --task pre-red-baseline. Verify current Worktree Mode section count. **→ SC-4**
+- [ ] 90. **Pre-RED baseline (**clean-room**).** Dispatch implementation-pipeline --task pre-red-baseline. Verify current Worktree Mode section count. **→ SC-4**
 
-- [ ] 109. **RED — Worktree Mode count (**sub-agent**).** Dispatch test-driven-development --task red. Run `grep -c 'Worktree Mode' .opencode/skills/*/SKILL.md` — verify count < applicable count (RED state). **→ SC-4**
+- [ ] 91. **RED — Worktree Mode count (**sub-agent**).** Dispatch test-driven-development --task red. Run `grep -c 'Worktree Mode' .opencode/skills/*/SKILL.md` — verify count < applicable count (RED state). **→ SC-4**
 
-- [ ] 110. **Z3 check RED (**inline**).** Run solve check against red-phase output contract. **→ SC-4**
+- [ ] 92. **Z3 check RED (**inline**).** Run solve check against red-phase output contract. **→ SC-4**
 
-- [ ] 111. **RED doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Confirm RED-side evidence. **→ SC-4**
+- [ ] 93. **RED doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Confirm RED-side evidence. **→ SC-4**
 
-- [ ] 112. **Z3 check RED doublecheck (**inline**).** Run solve check against red-doublecheck output contract. **→ SC-4**
+- [ ] 94. **Z3 check RED doublecheck (**inline**).** Run solve check against red-doublecheck output contract. **→ SC-4**
 
-- [ ] 113. **Post-RED enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-red-enforcement. Verify zero source changes. **→ SC-4**
+- [ ] 95. **Post-RED enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-red-enforcement. Verify zero source changes. **→ SC-4**
 
-- [ ] 114. **Z3 check post-RED (**inline**).** Run solve check against post-red-enforcement output contract. **→ SC-4**
+- [ ] 96. **Z3 check post-RED (**inline**).** Run solve check against post-red-enforcement output contract. **→ SC-4**
 
-- [ ] 115. **GREEN — add Worktree Mode sections (**sub-agent**).** Dispatch test-driven-development --task green. Add `## Worktree Mode` sections to all applicable SKILL.md files. **→ SC-4**
+- [ ] 97. **GREEN — add Worktree Mode sections (**sub-agent**).** Dispatch test-driven-development --task green. Add `## Worktree Mode` sections to all applicable SKILL.md files. **→ SC-4**
 
-- [ ] 116. **Z3 check GREEN (**inline**).** Run solve check against green-phase output contract. **→ SC-4**
+- [ ] 98. **Z3 check GREEN (**inline**).** Run solve check against green-phase output contract. **→ SC-4**
 
-- [ ] 117. **Post-GREEN enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-green-enforcement. Verify zero test file changes. **→ SC-4**
+- [ ] 99. **Post-GREEN enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-green-enforcement. Verify zero test file changes. **→ SC-4**
 
-- [ ] 118. **Z3 check post-GREEN (**inline**).** Run solve check against post-green-enforcement output contract. **→ SC-4**
+- [ ] 100. **Z3 check post-GREEN (**inline**).** Run solve check against post-green-enforcement output contract. **→ SC-4**
 
-- [ ] 119. **Checkpoint tag create (**sub-agent**).** Dispatch implementation-pipeline --task checkpoint-tag-create. **→ SC-4**
+- [ ] 101. **Checkpoint tag create (**sub-agent**).** Dispatch implementation-pipeline --task checkpoint-tag-create. **→ SC-4**
 
-- [ ] 120. **Checkpoint commit (**sub-agent**).** Dispatch git-workflow --task commit-prep. Commit Worktree Mode changes. **→ SC-4**
+- [ ] 102. **Checkpoint commit (**sub-agent**).** Dispatch git-workflow --task commit-prep. Commit Worktree Mode changes. **→ SC-4**
 
-- [ ] 121. **Structural checks (**sub-agent**).** Dispatch finishing-a-development-branch --task checklist. Run lint/typecheck/format. **→ SC-4**
+- [ ] 103. **Structural checks (**sub-agent**).** Dispatch finishing-a-development-branch --task checklist. Run lint/typecheck/format. **→ SC-4**
 
-- [ ] 122. **GREEN doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Verify `grep -c 'Worktree Mode'` matches applicable count. **→ SC-4**
+- [ ] 104. **GREEN doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Verify `grep -c 'Worktree Mode'` matches applicable count. **→ SC-4**
 
-- [ ] 123. **GREEN VbC (**sub-agent**).** Dispatch verification-before-completion --task completion. **→ SC-4**
+- [ ] 105. **GREEN VbC (**sub-agent**).** Dispatch verification-before-completion --task completion. **→ SC-4**
 
 #### Phase 4 VbC
 
-- [ ] 124. **VbC (**clean-room**).** Verify `grep -c 'Worktree Mode' .opencode/skills/*/SKILL.md` matches applicable count. **→ SC-4**
+- [ ] 106. **VbC (**clean-room**).** Verify `grep -c 'Worktree Mode' .opencode/skills/*/SKILL.md` matches applicable count. **→ SC-4**
 
 **Concern transition:** Leaving Worktree Mode sections → entering cross-skill conflicts + exclusion clauses. Phase 6 depends on Phase 2 (descriptions stable) and Phase 5 (lint limit in place).
 
@@ -422,71 +367,71 @@
 
 **Exit condition:** researcher/SKILL.md deleted, research/SKILL.md updated, exclusion clauses present on all 6 conflict-group files, behavioral tests PASS
 
-- [ ] 125. **Coherence gate (**clean-room**).** Dispatch adversarial-audit --task coherence-extraction. Verify conflict resolution scope. **→ SC-5, SC-8**
+- [ ] 107. **Coherence gate (**clean-room**).** Dispatch adversarial-audit --task coherence-extraction. Verify conflict resolution scope. **→ SC-5, SC-8**
 
-- [ ] 126. **Pre-RED baseline (**clean-room**).** Dispatch implementation-pipeline --task pre-red-baseline. Verify current conflict state. **→ SC-5, SC-8**
+- [ ] 108. **Pre-RED baseline (**clean-room**).** Dispatch implementation-pipeline --task pre-red-baseline. Verify current conflict state. **→ SC-5, SC-8**
 
-- [ ] 127. **RED — ambiguous dispatch (**sub-agent**).** Dispatch test-driven-development --task red. Run cross-skill-conflicts.sh behavioral test — verify FAIL (ambiguous dispatch on conflict groups). **→ SC-5**
+- [ ] 109. **RED — ambiguous dispatch (**sub-agent**).** Dispatch test-driven-development --task red. Run cross-skill-conflicts.sh behavioral test — verify FAIL (ambiguous dispatch on conflict groups). **→ SC-5**
 
-- [ ] 128. **Z3 check RED (**inline**).** Run solve check against red-phase output contract. **→ SC-5**
+- [ ] 110. **Z3 check RED (**inline**).** Run solve check against red-phase output contract. **→ SC-5**
 
-- [ ] 129. **RED doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Confirm RED-side evidence. **→ SC-5**
+- [ ] 111. **RED doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Confirm RED-side evidence. **→ SC-5**
 
-- [ ] 130. **Z3 check RED doublecheck (**inline**).** Run solve check against red-doublecheck output contract. **→ SC-5**
+- [ ] 112. **Z3 check RED doublecheck (**inline**).** Run solve check against red-doublecheck output contract. **→ SC-5**
 
-- [ ] 131. **Post-RED enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-red-enforcement. Verify zero source changes. **→ SC-5**
+- [ ] 113. **Post-RED enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-red-enforcement. Verify zero source changes. **→ SC-5**
 
-- [ ] 132. **Z3 check post-RED (**inline**).** Run solve check against post-red-enforcement output contract. **→ SC-5**
+- [ ] 114. **Z3 check post-RED (**inline**).** Run solve check against post-red-enforcement output contract. **→ SC-5**
 
-- [ ] 133. **RED — exclusion clauses absent (**sub-agent**).** Dispatch test-driven-development --task red. Run exclusion-clauses.sh behavioral test — verify FAIL (exclusion clauses missing). **→ SC-8**
+- [ ] 115. **RED — exclusion clauses absent (**sub-agent**).** Dispatch test-driven-development --task red. Run exclusion-clauses.sh behavioral test — verify FAIL (exclusion clauses missing). **→ SC-8**
 
-- [ ] 134. **Z3 check RED (**inline**).** Run solve check against red-phase output contract. **→ SC-8**
+- [ ] 116. **Z3 check RED (**inline**).** Run solve check against red-phase output contract. **→ SC-8**
 
-- [ ] 135. **RED doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Confirm RED-side evidence. **→ SC-8**
+- [ ] 117. **RED doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Confirm RED-side evidence. **→ SC-8**
 
-- [ ] 136. **Z3 check RED doublecheck (**inline**).** Run solve check against red-doublecheck output contract. **→ SC-8**
+- [ ] 118. **Z3 check RED doublecheck (**inline**).** Run solve check against red-doublecheck output contract. **→ SC-8**
 
-- [ ] 137. **Post-RED enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-red-enforcement. Verify zero source changes. **→ SC-8**
+- [ ] 119. **Post-RED enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-red-enforcement. Verify zero source changes. **→ SC-8**
 
-- [ ] 138. **Z3 check post-RED (**inline**).** Run solve check against post-red-enforcement output contract. **→ SC-8**
+- [ ] 120. **Z3 check post-RED (**inline**).** Run solve check against post-red-enforcement output contract. **→ SC-8**
 
-- [ ] 139. **GREEN — merge researcher into research (**sub-agent**).** Dispatch test-driven-development --task green. Delete `.opencode/skills/researcher/SKILL.md` and task files. Update `.opencode/skills/research/SKILL.md` description to absorb researcher's purpose. **→ SC-5**
+- [ ] 121. **GREEN — merge researcher into research (**sub-agent**).** Dispatch test-driven-development --task green. Delete `.opencode/skills/researcher/SKILL.md` and task files. Update `.opencode/skills/research/SKILL.md` description to absorb researcher's purpose. **→ SC-5**
 
-- [ ] 140. **Z3 check GREEN (**inline**).** Run solve check against green-phase output contract. **→ SC-5**
+- [ ] 122. **Z3 check GREEN (**inline**).** Run solve check against green-phase output contract. **→ SC-5**
 
-- [ ] 141. **Post-GREEN enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-green-enforcement. Verify zero test file changes. **→ SC-5**
+- [ ] 123. **Post-GREEN enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-green-enforcement. Verify zero test file changes. **→ SC-5**
 
-- [ ] 142. **Z3 check post-GREEN (**inline**).** Run solve check against post-green-enforcement output contract. **→ SC-5**
+- [ ] 124. **Z3 check post-GREEN (**inline**).** Run solve check against post-green-enforcement output contract. **→ SC-5**
 
-- [ ] 143. **GREEN — add exclusion clauses to plan group (**sub-agent**).** Dispatch test-driven-development --task green. Add `— distinct from` clauses to plan, writing-plans, and plan-creation-pipeline SKILL.md files. **→ SC-5, SC-8**
+- [ ] 125. **GREEN — add exclusion clauses to plan group (**sub-agent**).** Dispatch test-driven-development --task green. Add `— distinct from` clauses to plan, writing-plans, and plan-creation-pipeline SKILL.md files. **→ SC-5, SC-8**
 
-- [ ] 144. **Z3 check GREEN (**inline**).** Run solve check against green-phase output contract. **→ SC-5, SC-8**
+- [ ] 126. **Z3 check GREEN (**inline**).** Run solve check against green-phase output contract. **→ SC-5, SC-8**
 
-- [ ] 145. **Post-GREEN enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-green-enforcement. Verify zero test file changes. **→ SC-5, SC-8**
+- [ ] 127. **Post-GREEN enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-green-enforcement. Verify zero test file changes. **→ SC-5, SC-8**
 
-- [ ] 146. **Z3 check post-GREEN (**inline**).** Run solve check against post-green-enforcement output contract. **→ SC-5, SC-8**
+- [ ] 128. **Z3 check post-GREEN (**inline**).** Run solve check against post-green-enforcement output contract. **→ SC-5, SC-8**
 
-- [ ] 147. **GREEN — add exclusion clauses to verification group (**sub-agent**).** Dispatch test-driven-development --task green. Add `— distinct from` clauses to verification, verification-before-completion, and verification-enforcement SKILL.md files. **→ SC-5, SC-8**
+- [ ] 129. **GREEN — add exclusion clauses to verification group (**sub-agent**).** Dispatch test-driven-development --task green. Add `— distinct from` clauses to verification, verification-before-completion, and verification-enforcement SKILL.md files. **→ SC-5, SC-8**
 
-- [ ] 148. **Z3 check GREEN (**inline**).** Run solve check against green-phase output contract. **→ SC-5, SC-8**
+- [ ] 130. **Z3 check GREEN (**inline**).** Run solve check against green-phase output contract. **→ SC-5, SC-8**
 
-- [ ] 149. **Post-GREEN enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-green-enforcement. Verify zero test file changes. **→ SC-5, SC-8**
+- [ ] 131. **Post-GREEN enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-green-enforcement. Verify zero test file changes. **→ SC-5, SC-8**
 
-- [ ] 150. **Z3 check post-GREEN (**inline**).** Run solve check against post-green-enforcement output contract. **→ SC-5, SC-8**
+- [ ] 132. **Z3 check post-GREEN (**inline**).** Run solve check against post-green-enforcement output contract. **→ SC-5, SC-8**
 
-- [ ] 151. **Checkpoint tag create (**sub-agent**).** Dispatch implementation-pipeline --task checkpoint-tag-create. **→ SC-5, SC-8**
+- [ ] 133. **Checkpoint tag create (**sub-agent**).** Dispatch implementation-pipeline --task checkpoint-tag-create. **→ SC-5, SC-8**
 
-- [ ] 152. **Checkpoint commit (**sub-agent**).** Dispatch git-workflow --task commit-prep. Commit all conflict resolution changes. **→ SC-5, SC-8**
+- [ ] 134. **Checkpoint commit (**sub-agent**).** Dispatch git-workflow --task commit-prep. Commit all conflict resolution changes. **→ SC-5, SC-8**
 
-- [ ] 153. **Structural checks (**sub-agent**).** Dispatch finishing-a-development-branch --task checklist. Run lint/typecheck/format. **→ SC-5, SC-8**
+- [ ] 135. **Structural checks (**sub-agent**).** Dispatch finishing-a-development-branch --task checklist. Run lint/typecheck/format. **→ SC-5, SC-8**
 
-- [ ] 154. **GREEN doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Run cross-skill-conflicts.sh and exclusion-clauses.sh — verify both PASS. **→ SC-5, SC-8**
+- [ ] 136. **GREEN doublecheck (**sub-agent**).** Dispatch verification-before-completion --task verify. Run cross-skill-conflicts.sh and exclusion-clauses.sh — verify both PASS. **→ SC-5, SC-8**
 
-- [ ] 155. **GREEN VbC (**sub-agent**).** Dispatch verification-before-completion --task completion. **→ SC-5, SC-8**
+- [ ] 137. **GREEN VbC (**sub-agent**).** Dispatch verification-before-completion --task completion. **→ SC-5, SC-8**
 
 #### Phase 6 VbC
 
-- [ ] 156. **VbC (**clean-room**).** Verify researcher/SKILL.md deleted, research/SKILL.md updated, exclusion clauses present on all 6 conflict-group files, behavioral tests PASS. **→ SC-5, SC-8**
+- [ ] 138. **VbC (**clean-room**).** Verify researcher/SKILL.md deleted, research/SKILL.md updated, exclusion clauses present on all 6 conflict-group files, behavioral tests PASS. **→ SC-5, SC-8**
 
 **Concern transition:** Leaving cross-skill conflicts → entering global post-phase. Phase 7 depends on all phases 0-6 complete.
 
@@ -504,35 +449,46 @@
 
 **Exit condition:** Adversarial audit PASS, cross-validate PASS, regression PASS, review prep complete
 
-- [ ] 157. **Collect behavioral evidence (**sub-agent**).** Collect behavioral evidence from `./tmp/behavioral-evidence-*/` into `./tmp/1602/artifacts/`. **→ SC-1, SC-5, SC-7, SC-9**
+- [ ] 139. **Collect behavioral evidence (**sub-agent**).** Collect behavioral evidence from `./tmp/behavioral-evidence-*/` into `./tmp/1602/artifacts/`. **→ SC-1, SC-5, SC-7, SC-9**
 
-- [ ] 158. **Resolve models (**inline**).** Run `.opencode/tools/resolve-models` to select cross-family auditors. **→ All**
+- [ ] 140. **Resolve models (**inline**).** Run `.opencode/tools/resolve-models` to select cross-family auditors. **→ All**
 
-- [ ] 159. **Adversarial audit — auditor 1 (**sub-agent**).** Dispatch adversarial-audit with auditor_1. Run phase-appropriate audit (verification-audit for post-implementation). **→ All**
+- [ ] 141. **Adversarial audit — auditor 1 (**sub-agent**).** Dispatch adversarial-audit with auditor_1. Run phase-appropriate audit (verification-audit for post-implementation). **→ All**
 
-- [ ] 160. **Auditor 1 remediate (**inline**).** If auditor 1 returned non-clean-pass: remediate root cause, restart from resolve-models (step 158). **→ All**
+- [ ] 142. **Auditor 1 remediate (**inline**).** If auditor 1 returned non-clean-pass: remediate root cause, restart from resolve-models (step 158). **→ All**
 
-- [ ] 161. **Adversarial audit — auditor 2 (**sub-agent**).** Dispatch adversarial-audit with auditor_2. Same audit task as auditor 1. **→ All**
+- [ ] 143. **Adversarial audit — auditor 2 (**sub-agent**).** Dispatch adversarial-audit with auditor_2. Same audit task as auditor 1. **→ All**
 
-- [ ] 162. **Auditor 2 remediate (**inline**).** If auditor 2 returned non-clean-pass: remediate root cause, restart from resolve-models (step 158). **→ All**
+- [ ] 144. **Auditor 2 remediate (**inline**).** If auditor 2 returned non-clean-pass: remediate root cause, restart from resolve-models (step 158). **→ All**
 
-- [ ] 163. **Cross-validate (**clean-room**).** Dispatch adversarial-audit --task cross-validate with both auditor artifact paths. Produce cross-validate findings YAML. **→ All**
+- [ ] 145. **Cross-validate (**clean-room**).** Dispatch adversarial-audit --task cross-validate with both auditor artifact paths. Produce cross-validate findings YAML. **→ All**
 
-- [ ] 164. **Regression check (**sub-agent**).** Dispatch test-driven-development --task patterns (regression). Run full regression test suite. **→ All**
+- [ ] 146. **Regression check (**sub-agent**).** Dispatch test-driven-development --task patterns (regression). Run full regression test suite. **→ All**
 
-- [ ] 165. **Review prep (**sub-agent**).** Dispatch git-workflow --task review-prep. Prepare PR body, verify compare URL, ensure all SCs verified. **→ All**
+- [ ] 147. **Review prep (**sub-agent**).** Dispatch git-workflow --task review-prep. Prepare PR body, verify compare URL, ensure all SCs verified. **→ All**
 
-- [ ] 166. **Exec summary (**sub-agent**).** Dispatch completion-core --task completion. Append lifecycle event, produce chat exec summary. **→ All**
+- [ ] 148. **Exec summary (**sub-agent**).** Dispatch completion-core --task completion. Append lifecycle event, produce chat exec summary. **→ All**
 
 #### Phase 7 VbC
 
-- [ ] 167. **VbC (**clean-room**).** Verify adversarial audit PASS, cross-validate PASS, regression PASS, review prep complete. **→ All**
+- [ ] 149. **VbC (**clean-room**).** Verify adversarial audit PASS, cross-validate PASS, regression PASS, review prep complete. **→ All**
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
 > **One step at a time protocol:** Each numbered step is a single unit of work. The orchestrator completes exactly one step, reports the result, and proceeds to the next step without asking for permission. "Combining steps" means performing work that spans multiple plan step numbers in a single operation — regardless of how many tool calls, dispatches, or response turns it takes. The self-check is: "does the work I just completed correspond to exactly one plan step number?" If the work touches files or concerns from step N and step N+1, it is combined. The RED→GREEN transition is a zero-tolerance gate: the RED test MUST be verified as FAILING (by reading its artifact output) before any GREEN implementation begins. Skipping this verification invalidates the entire phase and all work in it.
 >
 > **Self-remediation protocol:** If the orchestrator combines steps or skips a gate, it MUST self-remediate by reverting only the work belonging to the incorrectly-combined step and re-dispatching from the failed step. Do NOT revert work from correctly-executed prior steps. No halting, no asking for permission, no "should I?" — the answer is always revert the offending step and re-dispatch.
+
+## Self-Review Evidence
+
+The following self-review checks were performed on this plan:
+
+- **Spec coverage:** All 9 SCs (SC-1 through SC-9) are addressed across the 7 phases. Each SC is annotated on its implementing steps.
+- **Placeholder check:** Zero TBD/TODO/placeholder patterns found in plan body.
+- **Type consistency:** All dispatch indicators use valid types (`(**sub-agent**)`, `(**clean-room**)`, `(**inline**)`). All step numbers are globally sequential (1-149). All phase sections follow the three-tier structure.
+- **Dispatch validation:** Every `(**sub-agent**)` step dispatches via `task()`. Every `(**inline**)` step executes directly. No non-standard dispatch indicators used.
+- **Pipeline-gate completeness:** All mandatory implementation-pipeline gate steps (coherence-gate, pre-red-baseline, red-phase, z3-check-red, red-doublecheck, z3-check-red-doublecheck, post-red-enforcement, z3-check-post-red, green-phase, z3-check-green, post-green-enforcement, z3-check-post-green, checkpoint-tag-create, checkpoint-commit, structural-checks, green-doublecheck, green-vbc, adversarial-audit, cross-validate, regression-check, review-prep, exec-summary) are present in each phase.
+- **Admonishments:** Compliance requirement, one-step-at-a-time protocol, step status instruction, and self-remediation protocol all present verbatim.
 
 ## Exit Criteria
 

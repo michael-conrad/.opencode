@@ -61,7 +61,7 @@ Standardize all 41 SKILL.md files (researcher deleted, merged into research) to 
 | Phase 0 — Behavioral tests RED | 1 (pre) | Write failing behavioral tests before any changes | SC-9 |
 | Phase 1 — Frontmatter fixes | 2 (per-file) | All 41 SKILL.md files (researcher excluded — will be deleted) | SC-3, SC-6 |
 | Phase 2 — Farmage description expansion | 2 (per-file) | All 41 SKILL.md files (researcher excluded) | SC-1 |
-| Phase 3 — Platform sub-skills | 2 (per-file) | 3 platform sub-skill files | SC-7 |
+| Phase 3 — Platform sub-skills (merged into Phase 2) | — | Removed — platform sub-skills are already covered by Phase 2's "all 41 files" scope | SC-7 |
 | Phase 4 — Worktree Mode sections | 2 (per-file) | 30+ SKILL.md files | SC-4 |
 | Phase 5 — SC-LINT-004 resolution | 2 (per-file) | 1 guideline file | SC-2 |
 | Phase 6 — Cross-skill conflicts + exclusion clauses | 2 (per-file) | Merge researcher→research, add exclusion clauses to 6 remaining files | SC-5, SC-8 |
@@ -90,12 +90,9 @@ Replace ad-hoc description prose with farmage YAML description pattern in all 41
 
 Exclusion clauses (`— distinct from <exclusion>`) are NOT added in this phase. They are added in Phase 6 alongside cross-skill conflict resolution, where the specific exclusion language is determined per conflict group.
 
-### Phase 3 — Platform Sub-Skills
+### Phase 3 — Platform Sub-Skills (merged into Phase 2)
 
-Apply farmage descriptions to 3 platform sub-skill files:
-- `.opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md`
-- `.opencode/skills/issue-operations/platforms/github-mcp/SKILL.md`
-- `.opencode/skills/issue-operations/platforms/local/SKILL.md`
+Platform sub-skills are already covered by Phase 2's scope ("all 41 SKILL.md files"). No separate phase needed. SC-7 is verified as part of Phase 2's VbC.
 
 ### Phase 4 — Worktree Mode Sections
 
