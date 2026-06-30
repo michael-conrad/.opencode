@@ -1,6 +1,6 @@
 ---
 name: writing-plans
-description: "Use when creating an implementation plan from an approved spec. Plans are REQUIRED."
+description: "Use when creating an implementation plan from an approved spec, breaking down work into phases, planning implementation steps, or creating task breakdowns. Also use when retroactively creating a plan for an existing spec, or backfilling plan documentation. Invoke for: plan creation, implementation planning, task breakdown, phase definition, work decomposition, retroactive planning, plan backfill. Plans are REQUIRED. Trigger phrases: create plan, write plan, draft plan, implementation plan, plan implementation, break down work, create tasks, define phases, plan phases, retroactive plan, backfill plan, task breakdown."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode
@@ -28,29 +28,14 @@ Transforms approved specs into actionable implementation plans using a 22-step Z
 | "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" | `create` | `orchestrator` | {spec_issue_number, spec_body} |
 | "retroactive" / "retroactive plan" / "backfill plan" | `retroactive` | `orchestrator` | {spec_issue_number} |
 | completion / workflow end | `completion` | `orchestrator` | {workflow_state} |
-| "research" / "evidence" / "verify claims" | `research` | `orchestrator` | {spec_issue_number, spec_body} |
-| "readiness" / "pipeline ready check" | `readiness` | `orchestrator` | {spec_issue_number, sc_pipeline_readiness} |
-| "structure" / "phase structure" / "combined or separate" | `structure` | `orchestrator` | {spec_body, phase_definitions} |
-| "solve" / "dependency check" / "Z3 verify" | `solve` | `orchestrator` | {sc_pipeline_readiness, dependency_contract} |
-| "write plan" / "generate plan" | `write` | `orchestrator` | {spec_body, sc_pipeline_readiness} |
-| "revisit" / "resolve concerns" | `revisit` | `orchestrator` | {plan_issues_file, spec_body} |
-| "validate" / "check plan" | `validate` | `orchestrator` | {plan_issues_file, spec_body} |
-| "audit fidelity" / "fidelity check" | `audit-fidelity` | `orchestrator` | {plan_issues_file, spec_body} |
-| "audit concern" / "concern separation" | `audit-concern` | `orchestrator` | {plan_issues_file, spec_body} |
 
 ## Programmatic Invocation
 
 | Task | Execution |
 |------|-----------|
-| `research` | Orchestrator reads `tasks/research.md` and executes steps inline |
-| `readiness` | Orchestrator reads `tasks/readiness.md` and executes steps inline |
-| `structure` | Orchestrator reads `tasks/structure.md` and executes steps inline |
-| `solve` | Orchestrator reads `tasks/solve.md` and executes steps inline |
-| `write` | Orchestrator reads `tasks/write.md` and executes steps inline |
-| `revisit` | Orchestrator reads `tasks/revisit.md` and executes steps inline |
-| `validate` | Orchestrator reads `tasks/validate.md` and executes steps inline |
-| `audit-fidelity` | Orchestrator reads `tasks/audit-fidelity.md` and executes steps inline |
-| `audit-concern` | Orchestrator reads `tasks/audit-concern.md` and executes steps inline |
+| `create` | Orchestrator reads `tasks/create.md` and executes steps inline |
+| `retroactive` | Orchestrator reads `tasks/retroactive.md` and executes steps inline |
+| `completion` | Orchestrator reads `tasks/completion.md` and executes steps inline |
 
 ## Persona
 

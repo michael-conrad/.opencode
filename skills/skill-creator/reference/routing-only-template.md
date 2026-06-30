@@ -15,7 +15,16 @@ This template defines the canonical structure for a routing-only SKILL.md file. 
 ```markdown
 ---
 name: skill-name
-description: "Use when ..."
+description: "Use when <primary use case>. Also use when <secondary use cases>. Invoke for: <comma-separated task list>. <Mandatory enforcement statement>. Trigger phrases: <comma-separated trigger phrase list>."
+
+**Description format (farmage pattern):**
+- `Use when` — primary use case (1 sentence)
+- `Also use when` — secondary/edge case uses (1 sentence, omit if none)
+- `Invoke for:` — comma-separated list of task names the skill handles
+- Enforcement statement — e.g., "Spec creation is REQUIRED before implementation."
+- `Trigger phrases:` — comma-separated list of natural language phrases an agent might say to invoke this skill
+- Max 1024 characters (opencode limit)
+- Exclusion clauses (`— distinct from <exclusion>`) for skills that could false-match
 license: MIT
 provenance: AI-generated
 ---
