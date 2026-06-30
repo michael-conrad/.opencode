@@ -4,6 +4,7 @@ description: "Use when running adversarial audits of specs, plans, or code. Also
 license: MIT
 provenance: AI-generated
 type: discipline-enforcing
+compatibility: opencode
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
