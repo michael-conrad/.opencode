@@ -85,7 +85,7 @@ git push origin "$CONSUMER_REPO/checkpoint/$ISSUE_NUM/phase-$N$SUBMODULE_SUFFIX"
 
 ## Phase Rollback
 
-When a step returns FAIL and a prior checkpoint exists, apply rollback before researcher dispatch:
+When a step returns FAIL and a prior checkpoint exists, apply rollback before research dispatch:
 
 ```bash
 CONSUMER_REPO=<github.repo>
@@ -102,7 +102,7 @@ Read restored pipeline state from `./tmp/{issue-N}/state/`. Re-dispatch the fail
 
 **First-step failure (no checkpoint):** Run `git checkout .` to clean working tree. Re-dispatch from current state without rollback.
 
-**Integration with Remediation Routing:** Before dispatching the researcher skill on FAIL, the orchestrator checks for a prior checkpoint tag matching `phase-<STEP_N-1>$SUBMODULE_SUFFIX`. If found, apply Phase Rollback first. If not found (step 1 failure), skip to researcher dispatch with clean checkout.
+**Integration with Remediation Routing:** Before dispatching the research skill on FAIL, the orchestrator checks for a prior checkpoint tag matching `phase-<STEP_N-1>$SUBMODULE_SUFFIX`. If found, apply Phase Rollback first. If not found (step 1 failure), skip to research dispatch with clean checkout.
 
 ## Orchestrator Dispatch Model
 
@@ -212,26 +212,26 @@ When a step returns FAIL:
 
 - [ ] 1. **Read FAIL artifact YAML frontmatter** — the orchestrator reads only the YAML frontmatter from the FAIL artifact at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-FAIL-{timestamp}.yaml`:
    - `status`, `next_step`, `escalation_required`, `step_label`
-- [ ] 2. **Dispatch researcher** — the orchestrator dispatches the `researcher` skill with:
+- [ ] 2. **Dispatch research** — the orchestrator dispatches the `research` skill with:
    - FAIL artifact path
     - ALL prior pipeline artifacts (glob `./tmp/{issue-N}/artifacts/pipeline-*`)
     - Spec issue number (#912)
     - Plan issue number (if applicable)
-- [ ] 3. **Researcher determines scope** — the researcher produces a remediation artifact at `./tmp/{issue-N}/artifacts/pipeline-researcher-{topic}-{STATUS}-{timestamp}.md` containing:
+- [ ] 3. **Research determines scope** — the research skill produces a remediation artifact at `./tmp/{issue-N}/artifacts/pipeline-researcher-{topic}-{STATUS}-{timestamp}.md` containing:
    - `remediation_scope`: `full` | `partial` | `spec_plan_and_implementation` | `none`
    - `remediation_steps[]`: list of `{target_step, action}` pairs
    - `escalation_required`: `true` | `false`
-- [ ] 4. **Orchestrator routes** — the orchestrator reads the researcher artifact's YAML frontmatter, extracts `remediation_steps[0].target_step`, and re-dispatches to that pipeline step via the dispatch routing table
+- [ ] 4. **Orchestrator routes** — the orchestrator reads the research artifact's YAML frontmatter, extracts `remediation_steps[0].target_step`, and re-dispatches to that pipeline step via the dispatch routing table
 - [ ] 5. **Re-run pipeline** — the pipeline re-executes from the target remediation step
-- [ ] 6. **No arbitrary attempt caps** — each remediation is fresh research with full context. The researcher consults prior remediation artifacts to avoid repeating failed approaches. Max 3 attempts before escalation is guidance, not a hard gate — genuine progress extends the cap.
-- [ ] 7. **Escalate on `escalation_required: true`** — if the researcher artifact sets `escalation_required: true`, the orchestrator halts and reports the blocker to the developer. No further dispatch occurs.
+- [ ] 6. **No arbitrary attempt caps** — each remediation is fresh research with full context. The research skill consults prior remediation artifacts to avoid repeating failed approaches. Max 3 attempts before escalation is guidance, not a hard gate — genuine progress extends the cap.
+- [ ] 7. **Escalate on `escalation_required: true`** — if the research artifact sets `escalation_required: true`, the orchestrator halts and reports the blocker to the developer. No further dispatch occurs.
 
 ### Session Resume Rule
 
 When resuming a session with existing artifacts:
 - Glob `./tmp/{issue-N}/artifacts/pipeline-*` to find the latest artifact
-- If the latest artifact is FAIL and a companion researcher-remediation-PASS artifact exists, follow the remediation plan in `remediation_steps` — do NOT re-dispatch the researcher
-- If no researcher artifact exists, or the latest FAIL has no companion researcher artifact, run the standard FAIL → Researcher protocol from Step 1 above
+- If the latest artifact is FAIL and a companion research-remediation-PASS artifact exists, follow the remediation plan in `remediation_steps` — do NOT re-dispatch the research skill
+- If no research artifact exists, or the latest FAIL has no companion research artifact, run the standard FAIL → Research protocol from Step 1 above
 
 ## Frugal Result Contracts
 
@@ -255,9 +255,7 @@ Example: `./tmp/928/artifacts/pipeline-red-phase-PASS-20260527T030000Z.yaml`
 
 - `skills/implementation-pipeline/pipeline-state-machine.yaml` — Z3 legal transition definitions
 - `skills/implementation-pipeline/SKILL.md` — dispatch routing table
-- `skills/researcher/SKILL.md` — researcher skill for remediation scope determination
-- `skills/researcher/tasks/investigate.md` — researcher investigation task
-- `skills/researcher/tasks/findings.md` — researcher findings formatting
+- `skills/research/SKILL.md` — research skill for remediation scope determination (absorbed researcher)
 - `skills/completion-core/tasks/completion.md` — exec-summary pipeline step target
 - `skills/adversarial-audit/tasks/coherence-extraction.md` — SC coherence gate with Z3 + evidence type checks
 - `skills/solve/` — Solve skill card (Z3 constraint solving, contracts, state)

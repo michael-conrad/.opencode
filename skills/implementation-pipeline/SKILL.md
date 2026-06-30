@@ -239,8 +239,8 @@ Step results go to YAML disk artifact — never into solve state. Solve state tr
 
 When a step returns FAIL, the orchestrator:
 - [ ] 1. Reads the FAIL artifact's YAML frontmatter from disk
-- [ ] 2. Dispatches the `researcher` skill to determine remediation scope
-- [ ] 3. Routes to `remediation_steps[0].target_step` based on researcher findings
+- [ ] 2. Dispatches the `research` skill to determine remediation scope
+- [ ] 3. Routes to `remediation_steps[0].target_step` based on research findings
 - [ ] 4. Re-runs the pipeline from the target remediation step
 
 ## Enforcement Reference
@@ -312,7 +312,7 @@ The lifecycle manifest is append-only. Never delete or edit existing entries —
 
 ## Cross-References
 
-Skills: `approval-gate`, `git-workflow`, `test-driven-development`, `verification-before-completion`, `finishing-a-development-branch`, `adversarial-audit`, `completion-core`, `pre-analysis`, `completeness-gate`, `researcher`. Guidelines: `091-incremental-build.md`, `000-critical-rules.md`.
+Skills: `approval-gate`, `git-workflow`, `test-driven-development`, `verification-before-completion`, `finishing-a-development-branch`, `adversarial-audit`, `completion-core`, `pre-analysis`, `completeness-gate`, `research`. Guidelines: `091-incremental-build.md`, `000-critical-rules.md`.
 
 ```yaml+symbolic
 schema_version: "3.0"
