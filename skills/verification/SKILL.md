@@ -1,6 +1,6 @@
 ---
 name: verification
-description: "Use when verifying claims against evidence using appropriate modalities. Also use when producing PASS/FAIL/UNVERIFIED verdicts per claim with evidence artifacts, or enforcing verification honesty. Invoke for: claim verification, evidence artifact production, verdict generation, verification honesty enforcement, multi-modal verification. Produces PASS/FAIL/UNVERIFIED per claim with evidence artifacts. Verification is REQUIRED. Trigger phrases: verify claim, check evidence, produce verdict, enforce honesty, multi-modal verify."
+description: "Use when verifying claims against evidence using appropriate modalities. Also use when producing PASS/FAIL/UNVERIFIED verdicts per claim with evidence artifacts, or enforcing verification honesty. Invoke for: claim verification, evidence artifact production, verdict generation, verification honesty enforcement, multi-modal verification. Produces PASS/FAIL/UNVERIFIED per claim with evidence artifacts. Verification is REQUIRED — distinct from verification-before-completion (completion gate) and verification-enforcement (content generation). Trigger phrases: verify claim, check evidence, produce verdict, enforce honesty, multi-modal verify."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated

@@ -1,6 +1,6 @@
 ---
 name: verification-enforcement
-description: "Use when generating content that makes factual claims — specs, plans, runbooks, docs, or correspondence. Also use when collecting evidence artifacts before generation, resolving unverified claims after generation, or enforcing proactive verification. Invoke for: pre-generation verification, evidence artifact collection, post-generation claim resolution, proactive verification enforcement, content verification. Live-source verification before generation is REQUIRED — always mandatory, never optional. Trigger phrases: verify before generation, collect evidence, resolve unverified claims, proactive verification, content verification."
+description: "Use when generating content that makes factual claims — specs, plans, runbooks, docs, or correspondence. Also use when collecting evidence artifacts before generation, resolving unverified claims after generation, or enforcing proactive verification. Invoke for: pre-generation verification, evidence artifact collection, post-generation claim resolution, proactive verification enforcement, content verification. Live-source verification before generation is REQUIRED — always mandatory, never optional — distinct from verification (general claim verification) and verification-before-completion (completion gate). Trigger phrases: verify before generation, collect evidence, resolve unverified claims, proactive verification, content verification."
 type: discipline-enforcing
 license: MIT
 provenance: AI-generated
