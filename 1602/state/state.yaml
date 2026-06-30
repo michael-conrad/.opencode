@@ -1,0 +1,5 @@
+timestamp: '2026-06-30T19:00:45.446185+00:00'
+variables:
+  current_step: red-phase
+  pipeline_state: running
+  previous_step: pre-red-baseline

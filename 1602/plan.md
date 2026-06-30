@@ -123,7 +123,7 @@ Spec: #1602
 
 **Files:** `.opencode/skills/skill-creator/scripts/validate_skill_cards.py` (SC-LINT-004 rule)
 
-**SCs:** SC-2
+**SCs:** SC-2, SC-11
 
 **Dependencies:** None (independent of frontmatter)
 
@@ -140,6 +140,7 @@ Spec: #1602
 - [ ] 55. **Post-RED enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-red-enforcement. Verify zero source changes. **→ SC-2**
 - [ ] 56. **Z3 check post-RED (**inline**).** Run solve check against post-red-enforcement output contract. **→ SC-2**
 - [ ] 57. **GREEN — raise limit to 1024 (**sub-agent**).** Dispatch test-driven-development --task green. Change `len(desc) > 300` to `len(desc) > 1024` in the SC-LINT-004 validation script. **→ SC-2**
+- [ ] 57b. **GREEN — remove type/provenance validation from linter (**sub-agent**).** Remove `type` and `provenance` field validation from `validate_skill_cards.py` — these are not recognized opencode frontmatter fields per https://opencode.ai/docs/skills/. Remove `VALID_TYPES`, `VALID_PROVENANCE`, the `type` check in `validate_req1`, and the entire `validate_req4` function. **→ SC-11**
 - [ ] 58. **Z3 check GREEN (**inline**).** Run solve check against green-phase output contract. **→ SC-2**
 - [ ] 59. **Post-GREEN enforcement (**sub-agent**).** Dispatch implementation-pipeline --task post-green-enforcement. Verify zero test file changes. **→ SC-2**
 - [ ] 60. **Z3 check post-GREEN (**inline**).** Run solve check against post-green-enforcement output contract. **→ SC-2**
@@ -351,6 +352,7 @@ The following self-review checks were performed on this plan:
 - [ ] C2. Zero files have `type: domain` or `type: tool` — plan and solve use `type: utility`
 - [ ] C3. All 41 SKILL.md files have `compatibility: opencode` where applicable
 - [ ] C4. SC-LINT-004 limit changed from `len(desc) > 300` to `len(desc) > 1024` — no other semantics modified
+- [ ] C4b. Linter no longer requires `type` or `provenance` fields — `validate_skill_cards.py` passes on all skill cards
 - [ ] C5. All 41 SKILL.md files (researcher excluded) use farmage YAML description pattern with all 5 components
 - [ ] C6. All 3 platform sub-skill files have farmage descriptions
 - [ ] C7. All applicable SKILL.md files have Worktree Mode sections
