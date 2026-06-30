@@ -30,7 +30,6 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
 | "write spec" / "create spec" / "draft spec" / "write specification" / "create specification" / "draft specification" / "spec out" / "author spec" / "document requirements" / "specify feature" / "write requirements" / "create requirements doc" | `create` | `sub-task` | {spec_context} |
-| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Persona
 
@@ -38,11 +37,9 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 
 ## Tasks
 
-| Task                      |
-| ------------------------- |
-| `create`                  |
-| `pipeline-readiness-gate` |
-| `completion`              |
+| Task       |
+| ---------- |
+| `create`   |
 
 ## Invocation
 
@@ -50,11 +47,9 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 
 **DISPATCH GATE — Inline execution is FORBIDDEN.** Every task in this table MUST be dispatched to a clean-room sub-agent via `task()`. Reading a task file and executing its steps inline in the orchestrator context means every quality gate in that task was silently bypassed — the task's entry criteria, exit criteria, verification steps, and audit gates all fire inside the sub-agent's context, not the orchestrator's. An orchestrator that inlines a task has produced a deliverable that was never independently verified. Professional orchestrators route to sub-agents. Amateurs inline.
 
-| Task                      | Call via task()                                                                  |
-| ------------------------- | -------------------------------------------------------------------------------- |
-| `create`                  | `task(..., prompt: "execute create task from spec-creation")`                    |
-| `pipeline-readiness-gate` | `task(..., prompt: "execute pipeline-readiness-gate task from spec-creation")`    |
-| `completion`              | `task(..., prompt: "execute completion task from spec-creation")`                |
+| Task     | Call via task()                                                       |
+| -------- | --------------------------------------------------------------------- |
+| `create` | `task(..., prompt: "execute create task from spec-creation")`         |
 
 **CLI equivalent (for human TUI use):** `/skill spec-creation --task <task>`
 
