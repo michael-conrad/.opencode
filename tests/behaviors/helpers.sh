@@ -36,8 +36,7 @@
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
 set -euo pipefail
-
-BEHAVIOR_MODEL="${BEHAVIOR_MODEL:-ollama/deepseek-v4-flash:cloud}"
+source "$(dirname "${BASH_SOURCE[0]}")/../default-model.sh"
 BEHAVIOR_PHASE="${BEHAVIOR_PHASE:-GREEN}"
 BEHAVIOR_TEST_HOME="${BEHAVIOR_TEST_HOME:-.opencode/tests/with-test-home}"
 BEHAVIOR_FIXTURE_ISSUES="${BEHAVIOR_FIXTURE_ISSUES:-1}"
@@ -172,7 +171,7 @@ except Exception as e:
 behavior_run() {
     local scenario_name="$1"
     local message="$2"
-    local model="${3:-${BEHAVIOR_MODEL}}"
+    local model="${3:-$DEFAULT_TEST_MODEL}"
     local workdir="${4:-}"
     local agent="${5:-}"
     local log_dir="$BEHAVIOR_LOG_DIR/$scenario_name"

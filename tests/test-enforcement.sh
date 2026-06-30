@@ -20,6 +20,7 @@ while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
     PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+source "$(dirname "${BASH_SOURCE[0]}")/default-model.sh"
 
 SCENARIO_FILTER=()
 TAG_FILTER=()
@@ -66,7 +67,6 @@ LOGDIR="$PROJECT_DIR/tmp/enforcement-test-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$LOGDIR"
 
 TIMEOUT=120
-MODEL="${ENFORCEMENT_TEST_MODEL:-ollama-cloud/glm-5.1}"
 WITH_TEST_HOME="$PROJECT_DIR/.opencode/tests/with-test-home"
 
 # Test scenarios: name -> "prompt message"
@@ -660,7 +660,7 @@ RUN_COUNT=${#SCENARIO_NAMES[@]}
 
 echo "=== Enforcement Integration Test ==="
 echo "Log dir: $LOGDIR"
-echo "Model: $MODEL"
+echo "Model: $DEFAULT_TEST_MODEL"
 echo "Mode: isolated (with-test-home wrapper)"
 echo "Scenarios: $RUN_COUNT / $TOTAL_SCENARIOS"
 echo ""
@@ -863,7 +863,7 @@ RESULTS_FILE="$LOGDIR/results.md"
 echo "# Enforcement Integration Test Results" > "$RESULTS_FILE"
 echo "" >> "$RESULTS_FILE"
 echo "Date: $(date -Iseconds)" >> "$RESULTS_FILE"
-echo "Model: $MODEL" >> "$RESULTS_FILE"
+echo "Model: $DEFAULT_TEST_MODEL" >> "$RESULTS_FILE"
 echo "Mode: isolated (with-test-home)" >> "$RESULTS_FILE"
 echo "Scenarios run: $RUN_COUNT / $TOTAL_SCENARIOS" >> "$RESULTS_FILE"
 echo "" >> "$RESULTS_FILE"
@@ -890,7 +890,7 @@ for scenario_name in "${SCENARIO_NAMES[@]}"; do
     # Run opencode-cli in isolated mode via with-test-home wrapper
     # --print-logs goes to stderr, formatted output to stdout
     timeout $TIMEOUT bash "$WITH_TEST_HOME" opencode-cli run "$MESSAGE" \
-        --model "$MODEL" \
+        --model "$DEFAULT_TEST_MODEL" \
         --print-logs \
         > "$SCENARIO_OUT" 2> "$SCENARIO_LOG" \
         || true

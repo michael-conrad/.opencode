@@ -33,7 +33,7 @@ if [ -f "$SESSION_INIT" ]; then
     echo "$SESSION_OUTPUT" > "$BEHAVIOR_LOG_DIR/$SCENARIO_NAME/session-init-local.txt"
 fi
 
-behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "$BEHAVIOR_MODEL" "$WORKDIR"
+behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "$DEFAULT_TEST_MODEL" "$WORKDIR"
 
 chmod -R u+w "$WORKDIR" 2>/dev/null || true
 rm -rf "$WORKDIR"

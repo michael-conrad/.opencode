@@ -17,6 +17,7 @@ while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
     PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+source "$(dirname "${BASH_SOURCE[0]}")/default-model.sh"
 
 SCENARIO_FILTER=()
 LIST_ONLY=false
@@ -40,7 +41,6 @@ while [[ $# -gt 0 ]]; do
 done
 
 TIMEOUT=120
-MODEL="${ENFORCEMENT_TEST_MODEL:-ollama-cloud/glm-5.1}"
 WITH_TEST_HOME="$PROJECT_DIR/.opencode/tests/with-test-home"
 
 declare -A SCENARIOS
