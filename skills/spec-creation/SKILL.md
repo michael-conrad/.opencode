@@ -26,14 +26,7 @@ Pipeline: `brainstorming → spec-creation → adversarial-audit --task spec-aud
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "requirements" / "extract requirements" | `requirements` | `sub-task` | {spec_context} |
-| "decompose" / "decompose problem" | `decompose` | `sub-task` | {spec_context} |
-| "traceability" / "trace SCs" | `traceability` | `sub-task` | {spec_context} |
-| "pipeline-readiness-gate" / "readiness check" | `pipeline-readiness-gate` | `sub-task` | {spec_context} |
-| "risk" / "risk analysis" | `risk` | `sub-task` | {spec_context} |
-| "diagram" / "mermaid diagram" | `diagram` | `sub-task` | {spec_context} |
-| "write" / "write spec" | `write` | `sub-task` | {spec_context} |
-| "change-control" / "change log" | `change-control` | `sub-task` | {spec_context} |
+| "write spec" / "create spec" | `create` | `sub-task` | {spec_context} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Persona
@@ -42,17 +35,10 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 
 ## Tasks
 
-| Task                      |
-| ------------------------- |
-| `requirements`            |
-| `decompose`               |
-| `traceability`            |
-| `pipeline-readiness-gate` |
-| `risk`                    |
-| `diagram`                 |
-| `write`                   |
-| `change-control`          |
-| `completion`              |
+| Task         |
+| ------------ |
+| `create`     |
+| `completion` |
 
 ## Invocation
 
@@ -60,16 +46,10 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 
 **DISPATCH GATE — Inline execution is FORBIDDEN.** Every task in this table MUST be dispatched to a clean-room sub-agent via `task()`. Reading a task file and executing its steps inline in the orchestrator context means every quality gate in that task was silently bypassed — the task's entry criteria, exit criteria, verification steps, and audit gates all fire inside the sub-agent's context, not the orchestrator's. An orchestrator that inlines a task has produced a deliverable that was never independently verified. Professional orchestrators route to sub-agents. Amateurs inline.
 
-| Task                      | Call via task()                                                                |
-| ------------------------- | ------------------------------------------------------------------------------ |
-| `requirements`            | `task(..., prompt: "execute requirements task from spec-creation")`            |
-| `decompose`               | `task(..., prompt: "execute decompose task from spec-creation")`               |
-| `traceability`            | `task(..., prompt: "execute traceability task from spec-creation")`            |
-| `pipeline-readiness-gate` | `task(..., prompt: "execute pipeline-readiness-gate task from spec-creation")` |
-| `risk`                    | `task(..., prompt: "execute risk task from spec-creation")`                    |
-| `diagram`                 | `task(..., prompt: "execute diagram task from spec-creation")`                 |
-| `write`                   | `task(..., prompt: "execute write task from spec-creation")`                   |
-| `completion`              | `task(..., prompt: "execute completion task from spec-creation")`              |
+| Task         | Call via task()                                                      |
+| ------------ | -------------------------------------------------------------------- |
+| `create`     | `task(..., prompt: "execute create task from spec-creation")`        |
+| `completion` | `task(..., prompt: "execute completion task from spec-creation")`    |
 
 **CLI equivalent (for human TUI use):** `/skill spec-creation --task <task>`
 
