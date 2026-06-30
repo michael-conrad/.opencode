@@ -22,6 +22,25 @@ For each skill that failed mechanical validation, the agent reads the full SKILL
 
 CSO descriptions are the most common mechanical failure. The fix is not to prepend "Use when" to an existing noun phrase like "Skill-creator" or "Git-workflow". Instead, the agent reformulates the description as a proper sentence that captures the skill's triggering conditions: "Use when creating a new skill or updating an existing skill that extends AI capabilities with specialized knowledge, workflows, or tool integrations." The triggering conditions come from reading the skill, not from pattern-matching the old description.
 
+### Farmage Description Pattern (MANDATORY)
+
+All skill card `description` fields MUST follow the farmage/opencode-skills pattern:
+
+```
+description: "Use when <primary use case>. Also use when <secondary use cases>. Invoke for: <comma-separated task list>. <Mandatory enforcement statement>. Trigger phrases: <comma-separated trigger phrase list>."
+```
+
+**Validation checks:**
+1. `Use when` — present and describes primary use case
+2. `Also use when` — present (omit only if no secondary use cases exist)
+3. `Invoke for:` — present with comma-separated task list
+4. Enforcement statement — present (e.g., "Validation is REQUIRED.")
+5. `Trigger phrases:` — present with comma-separated trigger phrase list
+6. Max 1024 characters
+7. Exclusion clauses (`— distinct from <exclusion>`) for skills that could false-match
+
+Skills that fail any of these checks are flagged as farmage-pattern violations and must be corrected.
+
 Worktree mode sections fail REQ-3 when they are missing or generic. The agent writes a section that reflects the skill's specific operations in a worktree context. For example, `git-workflow` discusses branch operations and how branch targets change when working in a worktree, while `mcp-tool-usage` discusses tool path resolution and why file operations must target the worktree path. A generic boilerplate section like "This skill operates in worktrees by using worktree.path" signals that the agent did not read the skill.
 
 Placeholder substitutions handle hardcoded identity values. Attribution lines use the canonical format `Co-authored with AI: <AgentName> (<ModelId>)`. Other prose uses angle-bracket placeholders: `<github.owner>`, `<github.repo>`, `<dev.name>`, and so on. The agent replaces hardcoded values with the appropriate placeholder based on context — attribution lines follow one format, prose references follow another.

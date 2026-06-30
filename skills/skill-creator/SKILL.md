@@ -1,6 +1,6 @@
 ---
 name: skill-creator
-description: "Use when creating a new skill, updating an existing skill, validating skill cards, or managing duplicate content blocks (fragments) across guidelines or skills. Validation is REQUIRED."
+description: "Use when creating a new skill, updating an existing skill, validating skill cards, or managing duplicate content blocks (fragments) across guidelines or skills. Also use when enforcing the farmage description pattern on all skill cards, or auditing skill card structure for compliance. Invoke for: skill creation, skill update, skill validation, fragment management, skill card audit, description pattern enforcement. Validation is REQUIRED. Trigger phrases: create skill, new skill, update skill, validate skill, check skill, review skills, skill card audit, skill card review, fragment management, sync fragment, duplicate content."
 type: discipline-enforcing
 license: MIT
 compatibility: opencode
@@ -34,6 +34,8 @@ Skill validator. Routes skill card validation and content checks to sub-agents t
 | "package" / "package skill" | `package` | `sub-task` | {skill_folder, output_dir} |
 | "validate" / "validate skill" / "check skill" | `validate` | `sub-task` | {skill_folders} |
 | "fragment" / "fragment management" / "sync fragment" | `fragment-management` | `sub-task` | {fragment_name, destination_paths} |
+| "skill card audit" / "review skills" / "audit skill cards" | `validate` | `sub-task` | {skill_folders, audit_mode: "full"} |
+| "description pattern" / "farmage pattern" / "enforce description pattern" | `validate` | `sub-task` | {skill_folders, audit_mode: "farmage"} |
 
 ## Tasks
 
