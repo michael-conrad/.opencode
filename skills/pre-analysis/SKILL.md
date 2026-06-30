@@ -1,9 +1,7 @@
 ---
 name: pre-analysis
 description: "Use when task()ing any execution sub-agent to independently determine scope, affected files, and task partitions. Also use when discovering scope boundaries before any execution sub-agent begins work. Invoke for: scope discovery, affected file analysis, task partition identification, pre-dispatch analysis, independent scope determination. Pre-analysis MUST be performed before dispatch — always required. Trigger phrases: pre-analysis, discover scope, analyze affected files, identify partitions, pre-dispatch analysis."
-type: discipline-enforcing
 license: MIT
-provenance: AI-generated
 compatibility: opencode
 ---
 

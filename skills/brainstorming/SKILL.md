@@ -1,9 +1,7 @@
 ---
 name: brainstorming
 description: "Use when creating a spec, planning a feature, or exploring requirements before implementation. Also use when decomposing a problem into success criteria, extracting requirements, or documenting change control. Invoke for: requirements exploration, top-down analysis, enforcement check, cross-scope analysis, spec drafting, feature planning. Brainstorming is REQUIRED before spec creation — it is not optional. Trigger phrases: brainstorm, explore requirements, plan feature, decompose problem, define success criteria, extract requirements."
-type: discipline-enforcing
 license: MIT
-provenance: AI-generated
 compatibility: opencode
 ---
 

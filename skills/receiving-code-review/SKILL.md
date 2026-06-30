@@ -1,9 +1,7 @@
 ---
 name: receiving-code-review
 description: "Use when receiving code review feedback on a PR, or when addressing review comments. Also use when analyzing review comments, generating responses, or implementing review-driven changes. Invoke for: review comment analysis, response generation, review-driven implementation, feedback resolution, PR revision. All review comments MUST be addressed. Trigger phrases: receive review, address comments, respond to review, implement feedback, resolve review."
-type: discipline-enforcing
 license: MIT
-provenance: AI-generated
 compatibility: opencode
 ---
 

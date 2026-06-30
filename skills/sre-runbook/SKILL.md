@@ -1,9 +1,7 @@
 ---
 name: sre-runbook
 description: "Use when generating operational runbooks for infrastructure incidents or procedures. Also use when documenting incident response steps, recovery procedures, or operational playbooks. Invoke for: runbook generation, incident response documentation, recovery procedure writing, operational playbook creation. SRE discipline is REQUIRED. Trigger phrases: create runbook, write runbook, incident response, recovery procedure, operational playbook."
-type: discipline-enforcing
 license: MIT
-provenance: AI-generated
 compatibility: opencode
 ---
 

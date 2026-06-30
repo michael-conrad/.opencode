@@ -1,9 +1,7 @@
 ---
 name: programming-principles
 description: "Use when designing functions, classes, or modules; writing or reviewing implementation code; making architecture decisions; evaluating tradeoffs, or enforcing code size limits. Also use when auditing code against design principles or detecting principle violations. Invoke for: code design, architecture review, principle enforcement, code audit, tradeoff evaluation, size limit enforcement. Programming principles MUST be followed. Trigger phrases: design function, review code, enforce principle, audit code, evaluate tradeoff, code size limit."
-type: discipline-enforcing
 license: MIT
-provenance: AI-generated
 compatibility: opencode
 ---
 

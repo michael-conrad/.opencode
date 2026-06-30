@@ -1,9 +1,7 @@
 ---
 name: systematic-debugging
 description: "Use when encountering a bug, error, or unexpected behavior, or before making code changes to fix an issue. Also use when performing root cause analysis, hypothesis testing, or failure mode investigation. Invoke for: bug diagnosis, root cause analysis, hypothesis testing, failure mode investigation, error reproduction, fix verification. Systematic debugging is REQUIRED. Trigger phrases: debug, diagnose bug, root cause analysis, investigate error, reproduce issue, fix verification."
-type: discipline-enforcing
 license: MIT
-provenance: AI-generated
 compatibility: opencode
 ---
 

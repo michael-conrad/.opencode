@@ -1,9 +1,7 @@
 ---
 name: pr-creation-workflow
 description: "Use when asking about when to create a PR or whether PR creation is authorized. Also use when verifying PR authorization scope, preparing PR body, or determining PR strategy. Invoke for: PR authorization check, PR readiness verification, PR body preparation, PR strategy determination, PR creation decision. Every PR MUST be an authorized, intentional delivery. Trigger phrases: create PR, PR authorized, ready for PR, PR strategy, when to create PR."
-type: discipline-enforcing
 license: MIT
-provenance: AI-generated
 compatibility: opencode
 ---
 

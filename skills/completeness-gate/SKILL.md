@@ -1,9 +1,7 @@
 ---
 name: completeness-gate
 description: "Use when running a non-adversarial completeness check on a deliverable after RED/GREEN sub-agent returns, before routing to adversarial auditor. Also use when verifying that a deliverable covers all success criteria from the spec. Invoke for: completeness check, deliverable verification, SC coverage check, pre-audit readiness check. Completeness check is MANDATORY before routing to adversarial audit — not optional. Trigger phrases: check completeness, verify deliverable, SC coverage, pre-audit check, readiness check."
-type: discipline-enforcing
 license: MIT
-provenance: AI-generated
 compatibility: opencode
 ---
 
