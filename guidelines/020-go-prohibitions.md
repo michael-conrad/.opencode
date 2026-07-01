@@ -102,6 +102,7 @@ Everything else goes to a sub-agent:
 | Cached verification results | Sub-agent → disk → evidence artifacts |
 | Previous sub-agent reasoning traces | Discarded with sub-agent context |
 | Full file contents | Disk only |
+| Pre-composed content, prose, or text intended for API posting (comments, issue bodies, PR descriptions) | Sub-agent context — sub-agent composes autonomously |
 
 #### 2. Sub-Agent Context Generosity
 
