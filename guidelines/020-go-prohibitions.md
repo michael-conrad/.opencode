@@ -257,6 +257,13 @@ The verb-prefix parsing table in `approval-gate` skill → Authorization Scope M
 - **Never trust training data.** Assume training data is full of errors, omissions, and hallucinations. Discard it entirely. Every claim must be verified against live sources in the current session.
 - **Never trust metadata without a live API call.** Issue state, PR merge status, labels, and all other metadata are assumed stale and false until verified by a live API call in the current session. Cached or remembered metadata is not evidence.
 - **Never halt discussion to research.** Research during active discussions is expected — dispatch a sub-agent to investigate while continuing the conversation. The agent does not need to halt the discussion to look something up.
+- **No skill-routing solicitation after authorization.** After receiving any unambiguous authorization phrase (`approved`, `go`, `approved for X`, etc.), the agent MUST NOT ask "should I invoke skill Y?" or present options for which skill to invoke. The authorization→skill mapping is deterministic: `approved` → `approval-gate` skill. The agent autonomously dispatches without soliciting the routing decision. This prohibition applies to ALL authorization modes — not just `for_pr` scope.
+
+  | Prohibited Pattern | Why It Violates |
+  |--|--|
+  | "Should I invoke a skill to handle this authorization?" | The mapping is deterministic; no agent judgment needed |
+  | "Should I invoke approval-gate?" | Same class as scope solicitation — the answer is always the same |
+  | Using `question` tool with "Invoke skill" vs "Proceed directly" options | No decision branch exists — invoke the mandatory skill |
 
 ### ✅ ALWAYS DO
 
