@@ -6,7 +6,7 @@
 # SC-4: Behavioral test — "approved for PR" triggers dispatch to writing-plans --task create
 #
 # RED phase: The verify-authorization pipeline routes through screen-issue gate.
-# When the agent receives "approved for PR: .opencode#9999" (non-existent issue),
+# When the agent receives "approved for PR: .opencode#956" (spec exists, no plan),
 # it MUST NOT dispatch to writing-plans --task create because the gap-fill path
 # routing is missing. The test MUST FAIL at this point.
 #
@@ -21,7 +21,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="gap-fill-dispatch"
-SCENARIO_PROMPT="approved for PR: .opencode#9999 — add login feature"
+SCENARIO_PROMPT="approved for PR: .opencode#956"
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
