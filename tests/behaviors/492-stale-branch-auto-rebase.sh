@@ -11,14 +11,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 BEHAVIOR_PHASE="RED"
-SUBMODULE_REMOTE="https://github.com/michael-conrad/.opencode.git"
+SUBMODULE_REMOTE="$(git -C "$SCRIPT_DIR/../.." remote get-url origin 2>/dev/null || echo "https://github.com/michael-conrad/.opencode.git")"
 
 setup_workdir() {
     local workdir="$1"
     git init -q "$workdir"
     git -C "$workdir" config user.email "test@test.dev"
     git -C "$workdir" config user.name "Test"
-    local bare_repo="$workdir/../origin.git"
+    local bare_repo="$workdir/origin.git"
     git init --bare "$bare_repo"
     git -C "$workdir" remote add origin "$bare_repo"
 }
@@ -89,28 +89,25 @@ finalize_workdir() {
 }
 
 # SC-2: Stale branch — agent should detect staleness and auto-rebase
-STALE_WD=$(mktemp -d "$PARENT_REPO_DIR/tmp/behavior-isolated-XXXXXX")
+STALE_WD=$(mktemp -d "/tmp/opencode/behavior-isolated-XXXXXX")
 setup_stale_branch "$STALE_WD"
 finalize_workdir "$STALE_WD"
-echo "  [setup] stale branch: $(git -C "$STALE_WD" rev-list --count --left-right origin/dev...HEAD | cut -f1) commits behind"
 behavior_run "492-stale-branch-auto-rebase-stale" \
     "Execute review-prep for the current feature branch. Prepare the branch for PR creation against dev." \
     "$DEFAULT_TEST_MODEL" "$STALE_WD"
 
 # SC-5: Clean branch — agent should proceed normally
-CLEAN_WD=$(mktemp -d "$PARENT_REPO_DIR/tmp/behavior-isolated-XXXXXX")
+CLEAN_WD=$(mktemp -d "/tmp/opencode/behavior-isolated-XXXXXX")
 setup_clean_branch "$CLEAN_WD"
 finalize_workdir "$CLEAN_WD"
-echo "  [setup] clean branch: $(git -C "$CLEAN_WD" rev-list --count --left-right origin/dev...HEAD | cut -f1) commits behind"
 behavior_run "492-stale-branch-auto-rebase-clean" \
     "Execute review-prep for the current feature branch. Prepare the branch for PR creation against dev." \
     "$DEFAULT_TEST_MODEL" "$CLEAN_WD"
 
 # SC-4: Tier 3 conflict — agent should halt and escalate
-CONFLICT_WD=$(mktemp -d "$PARENT_REPO_DIR/tmp/behavior-isolated-XXXXXX")
+CONFLICT_WD=$(mktemp -d "/tmp/opencode/behavior-isolated-XXXXXX")
 setup_conflict_branch "$CONFLICT_WD"
 finalize_workdir "$CONFLICT_WD"
-echo "  [setup] conflict branch: $(git -C "$CONFLICT_WD" rev-list --count --left-right origin/dev...HEAD | cut -f1) commits behind"
 behavior_run "492-stale-branch-auto-rebase-conflict" \
     "Execute review-prep for the current feature branch. Prepare the branch for PR creation against dev." \
     "$DEFAULT_TEST_MODEL" "$CONFLICT_WD"
