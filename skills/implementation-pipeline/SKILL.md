@@ -215,6 +215,17 @@ A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
 
 Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
+**Behavioral enforcement test:** `dispatch-gate-rejection.sh` verifies sub-agents reject preloaded context with `PRELOADED_CONTEXT_REJECTED`.
+
+#### Pipeline Re-Priming Enforcement Block
+
+At every pipeline stage transition (pre-work → assemble-work → verification-before-completion → finishing-checklist → review-prep), the orchestrator re-encounters this enforcement block restating procedural discipline:
+
+- Sub-agents execute — orchestrators route
+- No inline work — all file modifications, analysis, and decisions go through clean-room sub-agents
+- The orchestrator holds routing metadata only — task file contents, analysis artifacts, and verification results go to sub-agents or disk
+- Every stage transition is a re-encounter of this discipline — context degrades between gates, and re-priming prevents drift
+
 #### Orchestrator Entry Criteria
 
 After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:

@@ -132,6 +132,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- The orchestrator MUST NOT read task file content — it only receives result contracts from sub-agents
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
 ## Cross-References
