@@ -71,6 +71,7 @@ Issue Review Orchestrator. Focus: gather context, classify path, delegate to cor
 - [ ] 3. **Bug discovery ≠ authorization:** findings reported as bug issues; no code edits during analysis.
 - [ ] 4. **Fix spec must target root cause, not symptom** per `000-critical-rules.md`.
 - [ ] 5. **Audit findings are internal** — posted to chat, not GitHub comments.
+- [ ] 6. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 

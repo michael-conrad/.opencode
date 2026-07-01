@@ -60,6 +60,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 2. **Route to implementation-pipeline** with full context.
 - [ ] 3. **Track phase progress** against plan sub-issues.
 - [ ] 4. **Unified path:** no single-task exemption.
+- [ ] 5. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Received Context
 

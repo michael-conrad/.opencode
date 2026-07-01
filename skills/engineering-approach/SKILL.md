@@ -65,6 +65,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 3. **Verify before complete:** run tests manually, check edge cases, validate success criteria.
 - [ ] 4. **No scope creep:** implement ONLY what's in the approved spec.
 - [ ] 5. **Pre-implementation verification:** verify API signatures, env vars, config formats against live docs.
+- [ ] 6. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 

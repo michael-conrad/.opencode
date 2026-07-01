@@ -72,6 +72,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 7. **Required frontmatter:** name, description, type, license, provenance, compatibility.
 - [ ] 8. **Session-init variable alignment:** use canonical dotted-name format.
 - [ ] 9. **Fragment discipline:** master copy is single source of truth — never edit copies directly. Registry at `.opencode/.guidelines/registry.yaml`.
+- [ ] 10. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 

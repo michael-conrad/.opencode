@@ -192,6 +192,7 @@ All `list` endpoints return arrays, NOT objects. Use `--json --no-pager` flags f
 - [ ] 8. Use comment-based linking for sub-issues
 - [ ] 9. Use iterative listing for search operations
 - [ ] 10. Follow error recovery procedures in `tasks/error-recovery.md`
+- [ ] 11. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Cross-References
 

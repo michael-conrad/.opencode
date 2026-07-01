@@ -117,6 +117,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - [ ] 2. **Single pass:** The check runs once per handoff — no internal loop, no re-checking
 - [ ] 3. **Read-only:** No remediation, no routing advice, no fix suggestions
 - [ ] 4. **Evidence-based:** All findings require tool-call evidence from live sources
+- [ ] 5. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Routing Decision
 
