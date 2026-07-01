@@ -66,6 +66,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 6. **No agent merge** — human-only operation.
 - [ ] 7. **Work branch guard:** no individual PRs during work execution (single stacked PR).
 - [ ] 8. **Submodule-bump-only PR block (MANDATORY — parent repo context):** Before creating any PR, check whether the diff contains changes outside `.opencode/`. In a parent repo with `.gitmodules`, a PR that only changes `.opencode/` (submodule pointer bump) is BLOCKED by enforcement gate `pr-workflow-003`. The agent MUST NOT create, propose, or assist in creating a submodule-bump-only PR. This is a CRITICAL GUIDELINE VIOLATION — bypassing this gate results in a HALT.
+- [ ] 9. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 

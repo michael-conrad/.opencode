@@ -62,6 +62,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 6. **AI byline mandatory** in all correspondence.
 - [ ] 7. **Content-type propagation:** match source email format (inspect Content-Type header).
 - [ ] 8. **Attribution verification:** no role-proximity inference — only evidence-backed attribution.
+- [ ] 9. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 

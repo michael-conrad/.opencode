@@ -65,6 +65,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 3. **Verify before complete:** run tests manually, check edge cases, validate success criteria.
 - [ ] 4. **No scope creep:** implement ONLY what's in the approved spec.
 - [ ] 5. **Pre-implementation verification:** verify API signatures, env vars, config formats against live docs.
+- [ ] 6. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 

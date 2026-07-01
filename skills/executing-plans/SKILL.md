@@ -60,6 +60,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 2. **Route to implementation-pipeline** with full context.
 - [ ] 3. **Track phase progress** against plan sub-issues.
 - [ ] 4. **Unified path:** no single-task exemption.
+- [ ] 5. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Received Context
 

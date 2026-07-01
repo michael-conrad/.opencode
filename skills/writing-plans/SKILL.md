@@ -84,6 +84,7 @@ This skill produces plans by executing a 22-step pipeline at orchestrator level.
 **Execution model:** Under the hard limit that sub-agents cannot dispatch sub-agents, this skill's pipeline executes entirely at the orchestrator level. The orchestrator reads each step procedure and executes it directly. No `task()` calls are used within the pipeline.
 
 Each item is tagged with chain dependency and contract paths.
+- [ ] 0. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ### Pipeline Steps
 

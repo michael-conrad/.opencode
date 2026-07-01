@@ -125,6 +125,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - [ ] 2. **Minimal context:** Pre-analysis sub-agents receive only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`
 - [ ] 3. **Autonomous discovery:** Independently search the codebase to discover affected files
 - [ ] 4. **Return task plan:** Return a structured plan with task partitions and file scope
+- [ ] 5. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Worktree Mode
 

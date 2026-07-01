@@ -109,6 +109,7 @@ Git Workflow Enforcer. Focus: trunk-based development workflow, block AI on prot
 - [ ] 7. **Pair mode:** `pair-*` branches use WIP-commit switching, not worktrees.
 - [ ] 8. **Adversarial-audit call:** after issue closure, before branch cleanup, call `adversarial-audit --task closure-verification --pr <N>` with `audit_phase: post_merge`.
 - [ ] 9. **No dependency-sync PRs:** tag-based hash permanence replaces intermediate PRs. Submodule SHAs are preserved via parent-repo-prefixed tags. See AGENTS.md §Tag Layers.
+- [ ] 10. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ### Tag Convention (Canonical)
 

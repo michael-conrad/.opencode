@@ -115,6 +115,7 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 - [ ] 4. **Byline mandatory:** AI-authored comments must include `🤖 Co-authored with AI: <AgentName> (<ModelId>)`.
 - [ ] 5. **Issue creation = no auth needed** per `010-approval-gate.md`.
 - [ ] 6. **Adversarial-audit call:** after sub-issue creation, call `adversarial-audit --task concern-separation --issue <N>` with `audit_phase: sub_issue_creation`.
+- [ ] 7. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 

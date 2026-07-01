@@ -66,6 +66,7 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 - [ ] 9. [inline] Invoke `plan plan` for phase solvability validation — chain: `step_8`
 - [ ] 10. [sub-task: write] `task(..., prompt: "execute write task from spec-creation")` — input: `./tmp/{N}/contracts/write-input.yaml`, output: `./tmp/{N}/contracts/write-output.yaml`, template: `.opencode/skills/spec-creation/contracts/write-input-template.yaml`, chain: `step_6, step_9`
 - [ ] 11. [sub-task: completion] `task(..., prompt: "execute completion task from spec-creation")` — input: `./tmp/{N}/contracts/completion-input.yaml`, output: `./tmp/{N}/contracts/completion-output.yaml`, template: `.opencode/skills/spec-creation/contracts/write-output-template.yaml` (shared), chain: `step_10`
+- [ ] 12. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 

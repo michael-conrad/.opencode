@@ -117,6 +117,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - [ ] 2. **Single pass:** The check runs once per handoff — no internal loop, no re-checking
 - [ ] 3. **Read-only:** No remediation, no routing advice, no fix suggestions
 - [ ] 4. **Evidence-based:** All findings require tool-call evidence from live sources
+- [ ] 5. **Correctness over speed.** Every result will be independently audited by two different cloud models. A slow correct answer is strictly better than a fast incorrect one. Fabrication wastes time — the work will be re-dispatched. Static grep is NOT acceptable verification — behavioral compliance requires actual model execution with cross-validated PASS verdict.
 
 ## Routing Decision
 
