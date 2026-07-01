@@ -1,6 +1,6 @@
 ---
 name: adversarial-audit
-description: "Use when running adversarial audits of specs, plans, or code. Also use when verifying spec fidelity, checking plan coherence, detecting drift, or cross-validating verification results. Invoke for: spec audit, plan fidelity, concern separation, coherence extraction, coherence maintenance, guideline audit, drift detection, spec summary, closure verification, test quality audit, verification audit, resolve models, cross-validate. Audits are not optional — dispatch is MANDATORY. Trigger phrases: audit spec, audit plan, check fidelity, verify coherence, detect drift, cross-validate, audit guidelines, verify closure, audit tests, verify verification, resolve auditor models."
+description: "Use when running adversarial audits of specs, plans, code, or generated content. Also use when verifying spec fidelity, checking plan coherence, detecting drift, cross-validating verification results, or auditing factual claims in generated content. Invoke for: spec audit, plan fidelity, concern separation, coherence extraction, coherence maintenance, guideline audit, drift detection, spec summary, closure verification, test quality audit, verification audit, content audit, resolve models, cross-validate. Audits are not optional — dispatch is MANDATORY. Trigger phrases: audit spec, audit plan, check fidelity, verify coherence, detect drift, cross-validate, audit guidelines, verify closure, audit tests, verify verification, content audit, resolve auditor models."
 license: MIT
 compatibility: opencode
 ---
@@ -45,6 +45,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "closure verification" / "post-merge audit" | `closure-verification` | `sub-task` | {pr_number} |
 | "cross-validate" / "consensus" | `cross-validate` | `sub-task` | {auditor_1_verdict, auditor_2_verdict} |
 | "test quality audit" | `test-quality-audit` | `sub-task` | {issue_number} |
+| "content audit" / "audit content claims" | `content-audit` | `sub-task` | {document_section, source_data_paths} |
 | "resolve models" / "select auditors" | `resolve-models` | `sub-task` | {audit_phase} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
@@ -65,6 +66,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `closure-verification` | Verify issue closure criteria |
 | `cross-validate` | Compute dual-auditor consensus from YAML artifacts |
 | `test-quality-audit` | Audit test coverage and quality against spec SCs |
+| `content-audit` | Adversarial audit of factual claims in generated content — dual cross-family verification of quantitative claims, file references, and assertions against local source data |
 | `completion` | Complete audit workflow with output |
 
 ## Invocation
@@ -88,6 +90,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `closure-verification` | `task(..., prompt: "execute closure-verification task from adversarial-audit")` |
 | `cross-validate` | `task(..., prompt: "execute cross-validate task from adversarial-audit")` |
 | `test-quality-audit` | `task(..., prompt: "execute test-quality-audit task from adversarial-audit")` |
+| `content-audit` | `task(..., prompt: "execute content-audit task from adversarial-audit")` |
 | `completion` | `task(..., prompt: "execute completion task from adversarial-audit")` |
 
 ## Blind Dispatch
