@@ -5,12 +5,12 @@
 #
 # SC-4: Behavioral test — "approved for PR" triggers dispatch to writing-plans --task create
 #
-# RED phase: The writing-plans/SKILL.md Trigger Dispatch Table does NOT include
-# "auto-create plan" or "gap-fill plan" as triggers. When the agent receives
-# "approved for PR: .opencode#1579", it MUST NOT dispatch to writing-plans --task create
-# because the dispatch table lacks the trigger phrases. The test MUST FAIL at this point.
+# RED phase: The verify-authorization pipeline routes through screen-issue gate.
+# When the agent receives "approved for PR: .opencode#9999" (non-existent issue),
+# it MUST NOT dispatch to writing-plans --task create because the gap-fill path
+# routing is missing. The test MUST FAIL at this point.
 #
-# GREEN phase: After the dispatch table is updated with the trigger phrases,
+# GREEN phase: After gap-fill path routing is added (skipping screen-issue),
 # the same prompt MUST cause the agent to dispatch to writing-plans --task create.
 #
 # Authority: .opencode#1588 SC-4
@@ -21,7 +21,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="gap-fill-dispatch"
-SCENARIO_PROMPT="approved for PR: .opencode#1579"
+SCENARIO_PROMPT="approved for PR: .opencode#9999"
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
