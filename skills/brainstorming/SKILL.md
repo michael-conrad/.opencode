@@ -67,6 +67,7 @@ Requirements Explorer. Focus: understand what user wants through natural convers
 - [ ] 3. **Pre-spec inspection mandatory** (code inspection checklist) before proposing approach.
 - [ ] 4. **Autonomous structural classification:** classify single vs multi-task without asking.
 - [ ] 5. **Terminal state** invokes `spec-creation`.
+- [ ] 6. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 

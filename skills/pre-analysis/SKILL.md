@@ -125,6 +125,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - [ ] 2. **Minimal context:** Pre-analysis sub-agents receive only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`
 - [ ] 3. **Autonomous discovery:** Independently search the codebase to discover affected files
 - [ ] 4. **Return task plan:** Return a structured plan with task partitions and file scope
+- [ ] 5. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Worktree Mode
 

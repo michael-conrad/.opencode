@@ -69,6 +69,7 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 - [ ] 4. **Exact comparison:** external verifications use exact mode. No "functionally equivalent" soft-passes.
 - [ ] 5. **Live-source only:** evidence from memory/training data is FORBIDDEN. Tool-call artifact required.
 - [ ] 6. **Clean-room routing:** verification sub-agents receive ONLY spec SC list + file paths. No implementation context, no prior results.
+- [ ] 7. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 

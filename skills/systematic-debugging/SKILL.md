@@ -62,6 +62,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 4. **Fix targets root cause, not symptoms.**
 - [ ] 5. **Fix requires authorization** per `approval-gate`.
 - [ ] 6. **No scope creep:** fix only what diagnosis identified.
+- [ ] 7. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 

@@ -67,6 +67,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 4. **Type check:** `uvx pyright` clean.
 - [ ] 5. **Branch pushed:** up to date with remote.
 - [ ] 6. **Plan sub-issue closure verification:** matched against implementation.
+- [ ] 7. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 
