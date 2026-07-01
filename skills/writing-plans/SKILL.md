@@ -28,7 +28,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" | `create` | `orchestrator` | {spec_issue_number, spec_body} |
+| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" / "auto-create plan" / "gap-fill plan" | `create` | `orchestrator` | {spec_issue_number, spec_body} |
 | "retroactive" / "retroactive plan" / "backfill plan" | `retroactive` | `orchestrator` | {spec_issue_number} |
 | "update plan" / "plan update" / "auto-update plan" / "revise plan" | `update` | `orchestrator` | {spec_issue_number, plan_issue_number} |
 | completion / workflow end | `completion` | `orchestrator` | {workflow_state} |
