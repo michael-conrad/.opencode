@@ -40,6 +40,7 @@ A status of `DONE_WITH_CONCERNS` is coerced to FAIL — caveats are defects, not
 
 | Step # | Step Label | Dispatches To | Artifact Produced | YAML Contract Schema |
 |--------|------------|---------------|-------------------|---------------------|
+| 0 | `submodule-verify` | `git-workflow --task pre-work` (submodule state verification — resolve default branch via `git remote show origin \| sed -n 's/.*HEAD branch: //p'`, then `git submodule status` against that branch's tip) | `./tmp/{issue-N}/artifacts/pipeline-submodule-verify-{STATUS}-{timestamp}.yaml` | single-criterion |
 | 1 | `sc-coherence-gate` | `adversarial-audit --task coherence-extraction` (evidence-type uplift + substrate classification) | `./tmp/{issue-N}/artifacts/pipeline-sc-coherence-gate-{STATUS}-{timestamp}.yaml` | `per_criterion[]` from #932 |
 | 2 | `pre-red-baseline` | `implementation-pipeline --task pre-red-baseline` (doc-source-currency + SC-ID cross-ref traceability) | `./tmp/{issue-N}/state/state.yaml` + `./tmp/{issue-N}/artifacts/` YAML | pipeline state file |
 | 3 | `red-phase` | `test-driven-development --task red` | `./tmp/{issue-N}/artifacts/pipeline-red-phase-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
