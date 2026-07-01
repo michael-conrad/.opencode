@@ -45,7 +45,7 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 | Condition | Path |
 |-----------|------|
 | 1 issue + `for_review_prep` scope + 0 sub-issues + explicit auth | fast-path (skip 2, 4.5, 4.6, 5, 5b, 5b.5+5c) |
-| 1 issue + scope ∈ {for_pr, for_implementation, for_plan, for_analysis} + 0 sub-issues | gap-fill-path (0.5, 1, 5b.5+5c, 5d, then 6) |
+| 1 issue + scope ∈ {for_pr, for_implementation, for_plan, for_analysis} + 0 sub-issues | gap-fill-path (0.5, 1, 5b.5+5c, then 6 — skips 4.5, 4.6, 5, 5b, 5d.1-5d.4) |
 | 1 issue + sub-issues OR plan with phases | medium-path (0.5, 1, 4.5, 4.6, 5, 5d, then 6) |
 | Multi-issue authorization set | full-path (all steps + 5d) |
 

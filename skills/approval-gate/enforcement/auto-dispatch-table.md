@@ -46,6 +46,7 @@ Three chain-of-responsibility paths route through verify-authorization sub-tasks
 | Path | Criteria | Skips |
 |------|----------|-------|
 | fast-path | 1 issue, `for_review_prep` scope, 0 sub-issues, explicit auth | needs-approval-label check, item-decomposition, sc-traceability, sub-issue-verification, spec-to-plan-cascade, gap-fill-cascade, screen-issue, pre-implementation-analysis |
+| gap-fill-path | 1 issue + scope ∈ {for_pr, for_implementation, for_plan, for_analysis} + 0 sub-issues | screen-issue, pre-implementation-analysis, sub-issue-verification, spec-to-plan-cascade, item-decomposition, sc-traceability, verify-codebase, verify-blockers, verify-closed-issue-main, verify-already-implemented |
 | medium-path | 1 issue + sub-issues OR plan with phases | screen-issue (single issue), pre-implementation-analysis (no dependency graph needed) |
 | full-path | Multi-issue authorization set | None — all steps executed |
 | analysis-path | `for_analysis` scope (self-assigned, no authorization) | All gates — only read/dispatch operations permitted |
