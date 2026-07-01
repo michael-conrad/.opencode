@@ -41,8 +41,10 @@ Initialize pipeline state and verify document source currency before RED phase b
 - [ ] 5. For each referenced file path, check if the file has been modified since the plan was created
 - [ ] 6. Flag missing files as `MISSING-FILE`
 - [ ] 7. Flag modified files as `SOURCE-DRIFT`
-- [ ] 8. Check the plan's creation timestamp against the spec's last revision timestamp
-- [ ] 9. Flag if spec was revised after plan creation as `SPEC-REVISED-AFTER-PLAN`
+- [ ] 8. Check submodule state: resolve default branch via `git remote show origin | sed -n 's/.*HEAD branch: //p'`, then run `git submodule status` and verify submodules are at that branch's tip
+- [ ] 9. Flag stale submodules as `SUBMODULE-DRIFT`
+- [ ] 10. Check the plan's creation timestamp against the spec's last revision timestamp
+- [ ] 11. Flag if spec was revised after plan creation as `SPEC-REVISED-AFTER-PLAN`
 
 ### Step 3: SC-ID Cross-Reference Traceability
 
@@ -76,15 +78,19 @@ checks:
   - check_id: DOCUMENT_SOURCE_CURRENCY
     result: PASS | FAIL
     detail: "..."
+  - check_id: SUBMODULE_STATE
+    result: PASS | FAIL
+    detail: "..."
   - check_id: SC_ID_TRACEABILITY
     result: PASS | FAIL
     detail: "..."
 summary:
-  total_checks: 3
+  total_checks: 4
   pass: <count>
   fail: <count>
   missing_files: <list>
   source_drift: <list>
+  submodule_drift: <list>
   scope_creep: <list>
   missing_traceability: <list>
   missing_test_steps: <list>

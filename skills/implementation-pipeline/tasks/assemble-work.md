@@ -36,9 +36,10 @@ This is the **mandatory entry point** — the orchestrator MUST dispatch here af
 - [ ] 1. Read plan index from `{N}/plan.md` for phase table, then read current phase file from `{N}/plan-{NN}-*.md` — extract phases, items, SCs, dependencies. **→ SC-5**
 - [ ] 2. Read work state file from `./tmp/{N}/work.md` — extract current progress, completed items, blocked items.
 - [ ] 3. Verify pre-flight conditions:
-   - Feature branch exists (or create via `git-workflow --task pre-work`)
+   - Feature branch exists (MUST have been created via `git-workflow --task pre-work`)
    - Working tree is clean (`git status --porcelain` returns empty)
    - Authorization scope covers the current pipeline phase
+   - Submodule state is current — resolve default branch via `git remote show origin | sed -n 's/.*HEAD branch: //p'`, then verify `git submodule status` shows submodules at that branch's tip
 - [ ] 4. Create Step 1.5 entry proof marker — write `./tmp/{N}/artifacts/entry-proof-{timestamp}.yaml` with:
    ```yaml
    step: 1.5
