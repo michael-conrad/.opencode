@@ -17,7 +17,10 @@ import sys
 
 _path = Path(__file__).resolve().parent
 while _path.name != ".opencode":
-    _path = _path.parent
+    parent = _path.parent
+    if parent == _path:
+        raise RuntimeError("Could not find .opencode/ directory")
+    _path = parent
 sys.path.insert(0, str(_path / "tools"))
 
 from gitbucket_api import GitBucketAPI
