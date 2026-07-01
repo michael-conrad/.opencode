@@ -1316,10 +1316,6 @@ def _search_in_repo(
     repo_issues_dir = repo_path / ISSUES_DIR
     if not repo_issues_dir.is_dir():
         return []
-    try:
-        spec_path = str(repo_issues_dir.relative_to(current_cwd))
-    except ValueError:
-        spec_path = str(repo_issues_dir)
     results: list[tuple[str, str, str, str, str]] = []
     seen: set[int] = set()
     for entry in sorted(repo_issues_dir.iterdir()):
@@ -1327,6 +1323,7 @@ def _search_in_repo(
         if num is None or num in seen:
             continue
         seen.add(num)
+        spec_path = _spec_path_for_issue(num, repo_path)
         data = _read_issue_data_in_repo(num, repo_path)
         if not data:
             continue
@@ -1389,10 +1386,6 @@ def _list_issues_in_repo(
     repo_issues_dir = repo_path / ISSUES_DIR
     if not repo_issues_dir.is_dir():
         return []
-    try:
-        spec_path = str(repo_issues_dir.relative_to(cwd))
-    except ValueError:
-        spec_path = str(repo_issues_dir)
     seen: set[int] = set()
     entries: list[tuple[int, str, str, str, str, str, int]] = []
     for entry in sorted(repo_issues_dir.iterdir()):
@@ -1400,6 +1393,7 @@ def _list_issues_in_repo(
         if num is None or num in seen:
             continue
         seen.add(num)
+        spec_path = _spec_path_for_issue(num, repo_path)
         title, status = _read_issue_title_status(entry)
         entries.append(
             (sort_prio, repo_name, f"{repo_name}#{num}", status, title, spec_path, num)
