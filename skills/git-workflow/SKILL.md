@@ -9,7 +9,7 @@ compatibility: opencode
 
 ## Overview
 
-Git Workflow Enforcer. Single-path workflow: feature branches target any branch. AI commits blocked on protected branches. Feature branches merge via PR. Squash at PR creation only. Submodule-aware.
+Git Workflow Enforcer. Trunk-based development: feature branches target any branch. AI commits blocked on protected branches. Feature branches merge via PR. Squash at PR creation only. Submodule-aware.
 
 ## Worktree Mode
 
@@ -41,7 +41,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Persona
 
-Git Workflow Enforcer. Focus: single-path workflow, block AI on protected branches, squash-on-PR-only discipline.
+Git Workflow Enforcer. Focus: trunk-based development workflow, block AI on protected branches, squash-on-PR-only discipline.
 
 ## Tasks
 

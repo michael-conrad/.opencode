@@ -1,6 +1,6 @@
 #!/bin/bash
 # Content-verification test: SC-6 — No dev-specific rules remain in git-workflow/SKILL.md
-# RED phase: should FAIL because "three-branch" and dev-mandatory patterns still exist
+# RED phase: should FAIL because "trunk-based" and dev-mandatory patterns still exist
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -13,11 +13,11 @@ TARGET_FILE=".opencode/skills/git-workflow/SKILL.md"
 # RED phase: these patterns should be PRESENT (test FAILS because they exist)
 # After GREEN phase, these patterns should be ABSENT
 
-# Check for "three-branch" pattern
-if grep -q "three-branch" "$TARGET_FILE" 2>/dev/null; then
-    echo "RED PASS: 'three-branch' pattern found in $TARGET_FILE (expected — not yet removed)"
+# Check for "trunk-based" pattern
+if grep -q "trunk-based" "$TARGET_FILE" 2>/dev/null; then
+    echo "RED PASS: 'trunk-based' pattern found in $TARGET_FILE (expected — not yet removed)"
 else
-    echo "RED FAIL: 'three-branch' pattern NOT found in $TARGET_FILE"
+    echo "RED FAIL: 'trunk-based' pattern NOT found in $TARGET_FILE"
     OVERALL_RESULT=1
 fi
 

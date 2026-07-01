@@ -23,7 +23,7 @@ This repository provides a comprehensive framework for configuring and extending
 - **Authorization Gates** - Explicit approval required before implementation
 - **Pair Mode** - Collaborative development on `pair-*` branches
 - **Session Enforcement** - TypeScript plugin validates agent identity and triggers
-- **Git Workflow** - Three-branch model: `feature` → `dev` → `main`
+- **Git Workflow** - Trunk-based development: `feature` → `dev` → `main`
 - **Verification Gates** - Evidence-based completion verification
 - **Fragment Registry** - Synchronized content blocks across skills
 

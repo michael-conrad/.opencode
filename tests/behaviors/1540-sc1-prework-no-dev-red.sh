@@ -14,7 +14,7 @@ source "$SCRIPT_DIR/../.opencode/tests/behaviors/helpers.sh"
 
 BEHAVIOR_PHASE="RED"
 SCENARIO_NAME="1540-sc1-prework-no-dev-red"
-SCENARIO_PROMPT="Start pre-work for issue #1540: implement the single-path branch workflow. Create a feature branch and set up the workspace."
+SCENARIO_PROMPT="Start pre-work for issue #1540: implement the trunk-based development workflow. Create a feature branch and set up the workspace."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
