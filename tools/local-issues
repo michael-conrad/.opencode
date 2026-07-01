@@ -390,7 +390,7 @@ def _init_orphan_branch(root: Path) -> str | None:
         return None
 
     r2 = subprocess.run(
-        ["git", "-C", git_dir, "checkout", "--orphan", WORKTREE_BRANCH],
+        ["git", "checkout", "--orphan", WORKTREE_BRANCH],
         capture_output=True,
         text=True,
         timeout=15,
@@ -406,7 +406,7 @@ def _init_orphan_branch(root: Path) -> str | None:
 def _commit_orphan_init(git_dir: str, wt_tmp: str) -> bool:
     """Create the initial empty commit on the orphan branch."""
     r = subprocess.run(
-        ["git", "-C", git_dir, "commit", "--allow-empty", "-m", "Init issues branch"],
+        ["git", "commit", "--allow-empty", "-m", "Init issues branch"],
         capture_output=True,
         text=True,
         timeout=15,
@@ -435,7 +435,7 @@ def _name_orphan_branch(git_dir: str, wt_tmp: str) -> bool:
 def _remove_temp_worktree(git_dir: str, wt_tmp: str) -> bool:
     """Return to previous branch and remove the temporary worktree."""
     r5 = subprocess.run(
-        ["git", "-C", git_dir, "checkout", "-"],
+        ["git", "checkout", "-"],
         capture_output=True,
         text=True,
         timeout=15,
@@ -478,12 +478,15 @@ def _populate_orphan_branch(root: Path, wt_tmp: str) -> bool:
     return True
 
 
-def _create_orphan_branch(root: Path) -> None:
-    """Create an orphan issues-data branch with an initial empty commit."""
+def _create_orphan_branch(root: Path) -> bool:
+    """Create an orphan issues-data branch with an initial empty commit.
+
+    Returns True on success, False on failure.
+    """
     wt_tmp = _init_orphan_branch(root)
     if wt_tmp is None:
-        return
-    _populate_orphan_branch(root, wt_tmp)
+        return False
+    return _populate_orphan_branch(root, wt_tmp)
 
 
 def _migrate_existing_issues(root: Path) -> list[tuple[str, str, str]]:
@@ -590,7 +593,20 @@ def _create_issues_worktree(root: Path) -> bool:
     """Create the issues worktree: migrate, branch, setup, restore, push."""
     saved = _migrate_existing_issues(root)
     if not _issues_branch_exists(repo_path=root):
-        _create_orphan_branch(root)
+        # Clean up stale temp worktree from a prior failed run
+        wt_tmp = str(root / ".issues-worktree-tmp")
+        if os.path.isdir(wt_tmp):
+            subprocess.run(
+                ["git", "-C", str(root), "worktree", "remove", "--force", wt_tmp],
+                capture_output=True, text=True, timeout=15,
+            )
+            subprocess.run(
+                ["git", "-C", str(root), "worktree", "prune"],
+                capture_output=True, text=True, timeout=15,
+            )
+        if not _create_orphan_branch(root):
+            print("error: failed to create orphan issues-data branch", file=sys.stderr)
+            return False
     if not _setup_worktree(root):
         return False
     _restore_migrated_content(root, saved)
