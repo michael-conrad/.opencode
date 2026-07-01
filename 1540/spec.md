@@ -1,12 +1,13 @@
-# Spec: Replace Mandatory Three-Branch Model with Single-Path Branch Workflow (Issue #1540)
+# Spec: Replace Mandatory Three-Branch Model with Trunk-Based Development (Issue #1540)
 
 **Source:** Brainstorming session 2026-06-27  
 **Created:** 2026-06-28  
+**Updated:** 2026-06-30 — Added trunk-based development terminology anchor (SC-13, SC-14, Required Action 12)  
 **Parent:** None (standalone)
 
 ## Problem
 
-The current skill deck enforces a three-branch model (`feature → dev → main`) where:
+The current skill deck enforces a three-branch model (`feature → dev → main`) — a variant of Git Flow — where:
 
 1. `dev` is mandatory — always auto-created at pre-work if it doesn't exist (~20 lines of conditional creation logic in `pre-work.md`)
 2. PRs have two separate paths: feature→dev via `pr-creation-workflow`, release-promotion (dev→main) via `git-workflow --task release-promotion` — each with different rules and squash behavior
@@ -16,7 +17,23 @@ The current skill deck enforces a three-branch model (`feature → dev → main`
 
 ## Root Cause
 
-The three-branch model was designed when `dev` served as a mandatory staging buffer. The current workflow has evolved to where `dev` adds complexity without proportional value. The dual PR path creates maintenance burden and confusion about which path to use. Conditional squash produces unpredictable history.
+The three-branch model (Git Flow variant) was designed when `dev` served as a mandatory staging buffer. The current workflow has evolved to where `dev` adds complexity without proportional value. The dual PR path creates maintenance burden and confusion about which path to use. Conditional squash produces unpredictable history.
+
+## Terminology Anchor
+
+This spec replaces the three-branch Git Flow variant with **trunk-based development (TBD)**. All AI-agent-facing text — skill descriptions, Persona sections, Overview sections, routing tables, enforcement gates, and task file headers — MUST use the term "trunk-based development" (not "single-path workflow", not "single-path branch workflow", not any other ad-hoc description) when referring to the branch model.
+
+| Term | Status | Reason |
+|------|--------|--------|
+| `trunk-based development` | REQUIRED — use this | Industry-standard name for short-lived feature branches merging directly to main |
+| `trunk-based development workflow` | ACCEPTABLE variant | Slightly longer, same semantic anchor |
+| `single-path workflow` | FORBIDDEN — remove | Ad-hoc description, no industry recognition, ambiguous |
+| `single-path branch workflow` | FORBIDDEN — remove | Same as above |
+| `three-branch model` | FORBIDDEN — remove | Describes the old model being replaced |
+| `three-branch workflow` | FORBIDDEN — remove | Same as above |
+| `Git Flow` | ACCEPTABLE for historical contrast only | Use only when explaining what is being replaced |
+
+**Rationale:** AI agents use semantic anchors to route to the correct mental model. "Trunk-based development" triggers the correct set of expectations: short-lived branches, direct-to-main PRs, no staging branch, squash commits, frequent rebase. "Single-path workflow" is a description, not a model — it does not anchor the agent to any known practice.
 
 ## Required Actions
 
@@ -80,6 +97,11 @@ The three-branch model was designed when `dev` served as a mandatory staging buf
 - **Change:** Add non-goal: "Does NOT change release workflow semantics — release remains a PR to main, just routed through the same path as feature PRs." Add regression invariant: "Release PRs continue to target main with post-merge steps (semver tagging, platform release creation, release notes synthesis) gated by --release flag."
 - **SC:** SC-12 (structural — verify non-goals and invariants updated)
 
+### 12. Standardize terminology to "trunk-based development" across all AI-agent-facing text
+- **Files:** `git-workflow/SKILL.md`, `pr-creation-workflow/SKILL.md`, `approval-gate/tasks/verify-qa-mode.md`, `README.md`, `tests/behaviors/1540-sc6-no-dev-rules-red.sh`, `tests/behaviors/1540-sc1-prework-no-dev-red.sh`
+- **Change:** Replace all occurrences of "single-path workflow", "single-path branch workflow", "three-branch model", and "three-branch workflow" with "trunk-based development" or "trunk-based development workflow" per the Terminology Anchor table above. The CHANGELOG.md historical entry is exempt.
+- **SC:** SC-13 (string — verify all FORBIDDEN terms absent from skill/guideline/test files), SC-14 (behavioral — verify agent uses "trunk-based development" when describing the branch model)
+
 ## Success Criteria Summary
 
 | SC | Criterion | Evidence Type |
@@ -95,6 +117,8 @@ The three-branch model was designed when `dev` served as a mandatory staging buf
 | SC-10 | Routing table dispatches release PR to pr-creation-workflow | behavioral |
 | SC-11 | No stale cross-references to release-promotion.md | structural |
 | SC-12 | Non-goals and invariants updated for single-path release | structural |
+| SC-13 | No FORBIDDEN terms ("single-path workflow", "single-path branch workflow", "three-branch model", "three-branch workflow") remain in skill/guideline/test files (CHANGELOG exempt) | string |
+| SC-14 | Agent uses "trunk-based development" when describing the branch model in skill descriptions, Persona sections, and Overview sections | behavioral |
 
 ## Non-Goals
 
@@ -105,6 +129,7 @@ The three-branch model was designed when `dev` served as a mandatory staging buf
 - Does NOT delete existing `dev` branches — dev becomes an ordinary branch
 - Does NOT change `main` branch protection rules or merge requirements
 - Does NOT change release workflow semantics — release remains a PR to main, just routed through the same path as feature PRs
+- Does NOT change CHANGELOG.md historical entries — past references to "three-branch model" are preserved as historical record
 
 ## Regression Invariants
 

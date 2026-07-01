@@ -1,6 +1,6 @@
 # Implementation Plan — [#1540](https://github.com/michael-conrad/.opencode/issues/1540) — Replace mandatory three-branch model with single-path branch workflow
 
-- **Goal:** Remove the mandatory three-branch model (`feature → dev → main`) from the skill deck, replacing it with a single-path branch workflow where `dev` is optional, PRs accept any target branch, squash is mandatory for all branches at PR time, commit messages are standardized, rebase timing is defined at three fixed points, and release-promotion is removed or unified.
+- **Goal:** Remove the mandatory three-branch model (`feature → dev → main`) from the skill deck, replacing it with **trunk-based development (TBD)** where `dev` is optional, PRs accept any target branch, squash is mandatory for all branches at PR time, commit messages are standardized, rebase timing is defined at three fixed points, release-promotion is removed or unified, and all AI-agent-facing text uses "trunk-based development" as the semantic anchor.
 - **Architecture:** Seven sequential phases, each targeting a distinct file with a single concern boundary. Phases 1–5 form a linear dependency chain (1 → 2+3 → 4 → 5). Phases 6 and 7 depend only on Phase 1 and are independent of each other. All target files are under `.opencode/skills/`.
 - **Files:**
   - `.opencode/skills/git-workflow/tasks/pre-work.md` (Phases 1, 6)
@@ -455,6 +455,58 @@
 - [ ] 194. **Review prep — all phases (**sub-agent**).** Dispatch a sub-agent to prepare the final review summary covering all 7 phases. **→ All SCs**
 - [ ] 195. **Executive summary — all phases (**inline**).** Report final completion: all 7 phases complete, all SCs verified PASS. **→ All SCs**
 
+## Phase 8 — Standardize terminology to "trunk-based development"
+
+- **Concern:** All AI-agent-facing text uses "trunk-based development" as the semantic anchor; FORBIDDEN terms removed
+- **Files:** `git-workflow/SKILL.md`, `pr-creation-workflow/SKILL.md`, `approval-gate/tasks/verify-qa-mode.md`, `README.md`, `tests/behaviors/1540-sc6-no-dev-rules-red.sh`, `tests/behaviors/1540-sc1-prework-no-dev-red.sh`
+- **SCs:** SC-13 (string), SC-14 (behavioral)
+- **Dependencies:** Phases 1-7 (terminology update is the final pass after all structural changes are in place)
+- **Entry:** Phases 1-7 complete, all structural changes committed
+- **Exit:** All FORBIDDEN terms removed from target files; agent uses "trunk-based development" when describing the branch model; content-verification test for SC-13 passes; behavioral test for SC-14 passes
+
+- [ ] 196. **SC coherence gate — SC-13 (**clean-room**).** Verify SC-13 is well-formed: string evidence type, testable via grep for FORBIDDEN terms across target files. **→ SC-13**
+- [ ] 197. **SC coherence gate — SC-14 (**clean-room**).** Verify SC-14 is well-formed: behavioral evidence type, testable via `opencode-cli run`, success criterion matches spec (agent uses "trunk-based development" when describing the branch model). **→ SC-14**
+- [ ] 198. **Pre-RED baseline (**inline**).** Read all target files to establish baseline. Record all occurrences of FORBIDDEN terms per the Terminology Anchor table in the spec. **→ SC-13, SC-14**
+- [ ] 199. **RED phase — content-verification test SC-13 (**sub-agent**).** Dispatch a sub-agent to write a content-verification test that greps all target files for FORBIDDEN terms: "single-path workflow", "single-path branch workflow", "three-branch model", "three-branch workflow". Write to `./tmp/behavioral-evidence-SC-13-red.sh`. **→ SC-13**
+- [ ] 200. **Z3 check — RED SC-13 (**sub-agent**).** Dispatch a sub-agent to verify the RED test artifact exists and contains valid grep assertions. **→ SC-13**
+- [ ] 201. **RED doublecheck — SC-13 (**sub-agent**).** Dispatch a sub-agent to run the SC-13 content-verification test and confirm it FAILS (FORBIDDEN terms still present). **→ SC-13**
+- [ ] 202. **Z3 check — RED doublecheck SC-13 (**sub-agent**).** Dispatch a sub-agent to verify the doublecheck produced a FAIL result artifact. **→ SC-13**
+- [ ] 203. **RED phase — behavioral test SC-14 (**sub-agent**).** Dispatch a sub-agent to write a behavioral enforcement test that sends a prompt asking the agent to describe the branch model and asserts the agent uses "trunk-based development". Write to `./tmp/behavioral-evidence-SC-14-red.sh`. **→ SC-14**
+- [ ] 204. **Z3 check — RED SC-14 (**sub-agent**).** Dispatch a sub-agent to verify the RED test artifact exists and contains valid assertion syntax. **→ SC-14**
+- [ ] 205. **RED doublecheck — SC-14 (**sub-agent**).** Dispatch a sub-agent to run the SC-14 behavioral test and confirm it FAILS (agent still uses old terminology). **→ SC-14**
+- [ ] 206. **Z3 check — RED doublecheck SC-14 (**sub-agent**).** Dispatch a sub-agent to verify the doublecheck produced a FAIL result artifact. **→ SC-14**
+- [ ] 207. **Post-RED enforcement (**inline**).** Confirm both RED test artifacts are committed. **→ SC-13, SC-14**
+- [ ] 208. **Z3 check — post-RED (**sub-agent**).** Dispatch a sub-agent to verify both RED tests are committed and working tree is clean. **→ SC-13, SC-14**
+- [ ] 209. **GREEN phase — replace terminology (**sub-agent**).** Dispatch a sub-agent to replace all FORBIDDEN terms in the target files with "trunk-based development" or "trunk-based development workflow" per the Terminology Anchor table:
+  - `.opencode/skills/git-workflow/SKILL.md` line 44: Replace `single-path workflow` with `trunk-based development workflow`
+  - `.opencode/skills/approval-gate/tasks/verify-qa-mode.md` line 236: Replace `The three-branch workflow requires` with `The trunk-based development workflow requires`
+  - `.opencode/README.md` line 26: Replace `Three-branch model: feature → dev → main` with `Trunk-based development: feature → dev → main`
+  - `.opencode/tests/behaviors/1540-sc6-no-dev-rules-red.sh` lines 3, 16-20: Update grep patterns and comments from `"three-branch"` to `"trunk-based"` (the test checks that the term is present in the file — after GREEN, the new term should be present)
+  - `.opencode/tests/behaviors/1540-sc1-prework-no-dev-red.sh` line 17: Replace `single-path branch workflow` with `trunk-based development workflow`
+  - **→ SC-13, SC-14**
+- [ ] 210. **Z3 check — GREEN (**sub-agent**).** Dispatch a sub-agent to verify: (a) all FORBIDDEN terms removed from target files, (b) "trunk-based development" present in all target files where branch model is described. **→ SC-13, SC-14**
+- [ ] 211. **Post-GREEN enforcement (**inline**).** Confirm all changes are staged and working tree is clean. **→ SC-13, SC-14**
+- [ ] 212. **Z3 check — post-GREEN (**sub-agent**).** Dispatch a sub-agent to verify working tree is clean and only intended files modified. **→ SC-13, SC-14**
+- [ ] 213. **Checkpoint tag create (**inline**).** Create checkpoint tag: `git tag -a opencode-config/checkpoint/1540/phase-8-opencode -m "Phase 8 complete: terminology standardized to trunk-based development"`. **→ SC-13, SC-14**
+- [ ] 214. **Checkpoint commit (**inline**).** Commit all Phase 8 changes with message: `Phase 8: Standardize terminology to trunk-based development across all AI-agent-facing text`. **→ SC-13, SC-14**
+- [ ] 215. **Structural checks — SC-13 (**sub-agent**).** Dispatch a sub-agent to verify: (a) no FORBIDDEN terms in `git-workflow/SKILL.md`, (b) no FORBIDDEN terms in `verify-qa-mode.md`, (c) no FORBIDDEN terms in `README.md`, (d) test files updated. **→ SC-13**
+- [ ] 216. **GREEN doublecheck — SC-13 (**sub-agent**).** Dispatch a sub-agent to re-run the SC-13 content-verification test and confirm it PASSES (no FORBIDDEN terms remain). **→ SC-13**
+- [ ] 217. **GREEN doublecheck — SC-14 (**sub-agent**).** Dispatch a sub-agent to re-run the SC-14 behavioral test and confirm it PASSES (agent uses "trunk-based development"). **→ SC-14**
+- [ ] 218. **GREEN VbC — SC-13 (**clean-room**).** Dispatch a clean-room sub-agent to verify SC-13 against the content-verification test output. **→ SC-13**
+- [ ] 219. **GREEN VbC — SC-14 (**clean-room**).** Dispatch a clean-room sub-agent to verify SC-14 against the behavioral test output. **→ SC-14**
+- [ ] 220. **Adversarial audit — Phase 8 (**sub-agent**).** Dispatch adversarial auditor pair to audit Phase 8 changes. **→ SC-13, SC-14**
+- [ ] 221. **Cross-validate — Phase 8 (**sub-agent**).** Dispatch a sub-agent to cross-validate auditor consensus for SC-13 and SC-14. **→ SC-13, SC-14**
+- [ ] 222. **Regression check — Phase 8 (**sub-agent**).** Dispatch a sub-agent to run existing enforcement tests and confirm no regressions. **→ SC-13, SC-14**
+- [ ] 223. **Review prep — Phase 8 (**sub-agent**).** Dispatch a sub-agent to prepare review summary for Phase 8 changes. **→ SC-13, SC-14**
+- [ ] 224. **Executive summary — Phase 8 (**inline**).** Report Phase 8 completion: all AI-agent-facing text standardized to "trunk-based development" terminology. **→ SC-13, SC-14**
+
+#### Phase 8 VbC
+
+- [ ] 225. **VbC — SC-13 (**clean-room**).** Verify SC-13: no FORBIDDEN terms remain in skill/guideline/test files. Content-verification test confirms PASS. **→ SC-13**
+- [ ] 226. **VbC — SC-14 (**clean-room**).** Verify SC-14: agent uses "trunk-based development" when describing the branch model. Behavioral test confirms PASS. **→ SC-14**
+
+**Concern transition:** Leaving terminology standardization → entering final global verification. All 8 phases complete.
+
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
 > **One step at a time protocol:** Each numbered step is a single unit of work. The orchestrator completes exactly one step, reports the result, and proceeds to the next step without asking for permission. "Combining steps" means performing work that spans multiple plan step numbers in a single operation — regardless of how many tool calls, dispatches, or response turns it takes. The self-check is: "does the work I just completed correspond to exactly one plan step number?" If the work touches files or concerns from step N and step N+1, it is combined. The RED→GREEN transition is a zero-tolerance gate: the RED test MUST be verified as FAILING (by reading its artifact output) before any GREEN implementation begins. Skipping this verification invalidates the entire phase and all work in it.
@@ -471,9 +523,10 @@
 - [x] C5. Phase 5 complete: PR body includes all 6 required sections (SC-5 structural PASS)
 - [x] C6. Phase 6 complete: Rebase at three fixed points (SC-8 behavioral PASS)
 - C7. Phase 7 complete: Release-promotion deleted, release unified into single PR path (SC-7 behavioral PASS, SC-10 behavioral PASS, SC-11 structural PASS, SC-12 structural PASS)
-- C8. All behavioral enforcement tests pass for SC-1, SC-2, SC-3, SC-4, SC-7, SC-8, SC-10
-- C9. All content-verification tests pass for SC-5, SC-6, SC-11
-- C10. Lint/format checks pass on all modified files
-- C11. No regressions in existing enforcement tests
-- C12. All changes committed to feature branch `feature/1540-single-path-workflow`
-- C13. PR created targeting `dev` with complete summary of all 7 phases
+- C8. Phase 8 complete: All AI-agent-facing text uses "trunk-based development" terminology (SC-13 string PASS, SC-14 behavioral PASS)
+- C9. All behavioral enforcement tests pass for SC-1, SC-2, SC-3, SC-4, SC-7, SC-8, SC-10, SC-14
+- C10. All content-verification tests pass for SC-5, SC-6, SC-11, SC-13
+- C11. Lint/format checks pass on all modified files
+- C12. No regressions in existing enforcement tests
+- C13. All changes committed to feature branch `feature/1540-single-path-workflow`
+- C14. PR created targeting `dev` with complete summary of all 8 phases
