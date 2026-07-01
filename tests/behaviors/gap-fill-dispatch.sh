@@ -21,7 +21,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="gap-fill-dispatch"
-SCENARIO_PROMPT="approved for PR: .opencode#9999"
+SCENARIO_PROMPT="approved for PR: .opencode#9999 — add login feature"
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 
