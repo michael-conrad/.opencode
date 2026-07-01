@@ -51,7 +51,10 @@ def get_current_branch() -> str | None:
 def get_root_dir() -> str:
     _path = Path(__file__).resolve().parent
     while _path.name != ".opencode":
-        _path = _path.parent
+        parent = _path.parent
+        if parent == _path:
+            raise RuntimeError("Could not find .opencode/ directory")
+        _path = parent
     return str(_path.parent)
 
 def is_pair_mode_branch() -> tuple[bool, str | None]:
