@@ -233,7 +233,7 @@ What would you like me to do?
 ```
 I have authorization for issue #47, but I'm currently on the main branch.
 
-The three-branch workflow requires feature branches for all implementation work.
+The trunk-based development workflow requires feature branches for all implementation work.
 
 Would you like me to create a feature branch for this spec?
 
