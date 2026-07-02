@@ -65,8 +65,8 @@ summary: <text>
 Check if the PR diff is submodule-pointer-only:
 
 ```bash
-CHANGED=$(git diff --stat dev...HEAD | tail -1 | grep -oP '\d+ file' | grep -oP '\d+')
-SUBMODULE_ONLY=$(git diff --stat dev...HEAD | grep -c '\.opencode')
+CHANGED=$(git diff --stat origin/main...HEAD | tail -1 | grep -oP '\d+ file' | grep -oP '\d+')
+SUBMODULE_ONLY=$(git diff --stat origin/main...HEAD | grep -c '\.opencode')
 if [ "$CHANGED" = "1" ] && [ "$SUBMODULE_ONLY" = "1" ]; then
   echo "BLOCKED: Submodule-bump-only PRs are prohibited."
   echo ""
@@ -108,8 +108,8 @@ if [ "$CHANGED" = "1" ] && [ "$SUBMODULE_ONLY" = "1" ]; then
 **This gate enforces the commit-per-issue invariant.** Creating a PR with an incorrect commit count is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Un-Squashed PR.
 
 ```bash
-# Count commits ahead of dev
-git log origin/dev..HEAD --oneline
+# Count commits ahead of main
+git log origin/main..HEAD --oneline
 
 # Detect branch type via work state file
 ls ./tmp/{issue-N}/work.md 2>/dev/null
@@ -127,7 +127,7 @@ ls ./tmp/{issue-N}/work.md 2>/dev/null
 1. HALT — DO NOT proceed to PR creation
 2. Squash per `pr-creation/squash-push.md` Step 3:
    ```bash
-   git reset --soft origin/dev
+    git reset --soft origin/main
    git commit -m "<descriptive message>" \
        --trailer "Co-authored-by: <AgentName> (<ModelId>) <ai-email>" \
        --trailer "Co-authored-by: <dev.name> <dev.email>"

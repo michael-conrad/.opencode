@@ -224,15 +224,15 @@ blocked_reason: <if BLOCKED, explanation of divergence>
    This lists all local branches whose commits are fully reachable from `dev`.
 
 4. **Content verification gate (MANDATORY — see Step 3 for per-file details):**
-   For each merged branch, verify content exists on `origin/dev` before deletion:
+   For each merged branch, verify content exists on `origin/main` before deletion:
    ```bash
    MERGED_BRANCH="<branch>"
-   # Check diff against origin/dev
-   CHANGED_FILES=$(git diff --stat origin/dev..."$MERGED_BRANCH")
+   # Check diff against origin/main
+   CHANGED_FILES=$(git diff --stat origin/main..."$MERGED_BRANCH")
    if [ -z "$CHANGED_FILES" ]; then
-       echo "Branch $MERGED_BRANCH: all content present on origin/dev — safe to delete"
+       echo "Branch $MERGED_BRANCH: all content present on origin/main — safe to delete"
    else
-       echo "Branch $MERGED_BRANCH has content NOT on origin/dev — flagging for review"
+       echo "Branch $MERGED_BRANCH has content NOT on origin/main — flagging for review"
        # Produce content comparison table (same format as Step 3)
        # HALT deletion for this branch
    fi
@@ -333,15 +333,15 @@ In parallel sub-agent mode, other agents may still be working in their worktrees
 
 Before deleting ANY merged branch, verify that all branch content is present on the target branch (dev):
 
-1. **List changed files:** `git diff --stat origin/dev...HEAD` — identify all files changed on the branch vs dev
+1. **List changed files:** `git diff --stat origin/main...HEAD` — identify all files changed on the branch vs main
 2. **For each file in the diff:**
-   a. If file exists on dev AND content matches: status = `IDENTICAL` — safe to delete
-   b. If file exists on dev BUT has newer/different content: `git diff origin/dev...HEAD -- <file>` to compare; if dev version supersedes branch version, status = `SUPERSEDED` — safe to delete with note
-   c. If file does NOT exist on dev: status = `UNIQUE` — MUST NOT delete branch, flag for developer review
+   a. If file exists on main AND content matches: status = `IDENTICAL` — safe to delete
+   b. If file exists on main BUT has newer/different content: `git diff origin/main...HEAD -- <file>` to compare; if main version supersedes branch version, status = `SUPERSEDED` — safe to delete with note
+   c. If file does NOT exist on main: status = `UNIQUE` — MUST NOT delete branch, flag for developer review
 3. **For tool/script files:** check version indicators (interface signatures, flag patterns, function presence) to determine supersession
 4. **Produce content comparison table (MANDATORY evidence artifact):**
 
-| File | Branch Version | Dev Version | Status |
+| File | Branch Version | Main Version | Status |
 |------|---------------|-------------|--------|
 | path/to/file | v4 (old interface) | v5 (new interface) | SUPERSEDED |
 | path/to/unique | present | absent | UNIQUE — needs review |

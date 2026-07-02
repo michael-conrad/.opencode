@@ -4,6 +4,9 @@
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
 # SC-4: Tier 3 conflict — agent should halt and escalate.
+# This test creates a structural conflict (function rename on dev, old-name usage
+# on feature branch) that requires understanding developer intent to resolve.
+# The agent should classify this as Tier 3 (intent) and HALT with escalation.
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -26,26 +29,43 @@ git -C "$WD" config user.email "test@test.dev"
 git -C "$WD" config user.name "Test"
 git -C "$WD" remote add origin "$TEST_REMOTE"
 
-# seed dev branch
-echo "initial" > "$WD/file.txt"
-git -C "$WD" add file.txt
+# seed dev branch with a function-based file structure
+cat > "$WD/lib.py" << 'PYEOF'
+def process_data(input):
+    return input.strip()
+PYEOF
+echo "config: default" > "$WD/config.yaml"
+git -C "$WD" add lib.py config.yaml
 git -C "$WD" commit -q -m "initial"
 git -C "$WD" branch -M dev
 git -C "$WD" push -q -f -u origin dev
 
-# setup conflict branch (same file, different content)
+# setup feature branch: adds a new caller that uses process_data()
 git -C "$WD" fetch -q origin dev
 git -C "$WD" checkout -q dev
 git -C "$WD" reset -q --hard origin/dev
 git -C "$WD" checkout -b feature/conflict-test
-echo "feature version" > "$WD/file.txt"
-git -C "$WD" add file.txt
-git -C "$WD" commit -q -m "feature change"
+cat > "$WD/app.py" << 'PYEOF'
+from lib import process_data
+
+def handle_request(data):
+    return process_data(data)
+PYEOF
+git -C "$WD" add app.py
+git -C "$WD" commit -q -m "add app.py using process_data"
+
+# dev branch moves ahead: renames process_data to transform_data
 git -C "$WD" checkout dev
-echo "dev version" > "$WD/file.txt"
-git -C "$WD" add file.txt
-git -C "$WD" commit -q -m "dev change"
+cat > "$WD/lib.py" << 'PYEOF'
+def transform_data(input):
+    """Transform input data (renamed from process_data for clarity)."""
+    return input.strip()
+PYEOF
+git -C "$WD" add lib.py
+git -C "$WD" commit -q -m "rename process_data to transform_data"
 git -C "$WD" push -q origin dev
+
+# switch back to feature branch (stale — behind dev by 1 commit)
 git -C "$WD" checkout feature/conflict-test
 
 # finalize

@@ -51,8 +51,8 @@ Execute a 6-phase serial chain to scan for merged PRs, verify each merge, close 
 
 ## Phase 5: Parent Branch Cleanup
 
-- [ ] Switch to dev and sync: `git checkout dev && git pull origin dev --ff-only`
-- [ ] For each merged branch, verify content exists on dev via `git diff --stat origin/dev...<branch>` — produce content comparison table
+- [ ] Switch to main and sync: `git checkout main && git pull origin main --ff-only`
+- [ ] For each merged branch, verify content exists on main via `git diff --stat origin/main...<branch>` — produce content comparison table
 - [ ] Delete local merged branch: `git branch -d <branch>`
 - [ ] Delete remote branch: `git push origin --delete <branch>`
 - [ ] Preserve hash-permanence tags — do NOT delete

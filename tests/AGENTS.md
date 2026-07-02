@@ -305,9 +305,9 @@ The wrapper creates an isolated temporary home directory (`tmp/test-home-<timest
 | Is the SQLite DB in the test home? | `ls $TEST_HOME/.local/share/opencode/opencode.db` | MUST exist (created by first `opencode-cli run`) |
 | Is the host DB being used instead? | Check stderr for `db path=/home/.../.local/share/opencode/opencode.db` | MUST NOT appear — should show `db path=$TEST_HOME/...` |
 
-**The `--pure` flag is NOT a fix.** Adding `--pure` to `behavior_run()` masks the root cause (incomplete isolation) by disabling all plugins. The correct fix is proper XDG isolation via `with-test-home` with complete `env -i` passthrough and seeded config.
+**`--pure` is intentional.** The test harness uses `--pure` to skip external plugins (`env-loader.ts`, `session-enforcement.ts`). These plugins are designed for the desktop/TUI environment and are not needed for isolated behavioral test runs. opencode manages its own `node_modules/` under `~/.config/opencode/` — the test harness does not interfere with that.
 
-**The `node_modules/` directory under `~/.config/opencode/` is NOT a managed folder.** It is created automatically by opencode's runtime and should never be copied, seeded, or referenced in test setup. It is irrelevant to test isolation — the issue is always SQLite DB or config contamination from the host environment.
+**The `node_modules/` directory under `~/.config/opencode/` is managed by opencode itself.** The test harness does not copy, seed, or reference it. The `--pure` flag in `behavior_run()` skips external plugins entirely, so `node_modules/` is irrelevant to test isolation.
 
 ### Bash Tool Timeout Mandate — ZERO TOLERANCE
 
