@@ -2,13 +2,23 @@
 # Behavioral test: 492-stale-branch-auto-rebase
 # See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
+#
+# Three scenarios share one test home to avoid repeated bootstrap overhead.
+# Each scenario has its own isolated git workdir (different branch state).
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 BEHAVIOR_PHASE="${BEHAVIOR_PHASE:-GREEN}"
+BEHAVIOR_FIXTURE_ISSUES=0
+BEHAVIOR_STORY_FIXTURES=0
 TEST_REMOTE="git@github.com:michael-conrad/test-submodule-1.git"
+
+# Create test home once — all scenarios share it
+SETUP_OUTPUT=$(bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" --setup "$PARENT_REPO_DIR" 2>/dev/null)
+SHARED_TEST_HOME=$(echo "$SETUP_OUTPUT" | grep '^TEST_HOME=' | cut -d= -f2-)
+export TEST_HOME="$SHARED_TEST_HOME"
 
 setup_workdir() {
     local workdir="$1"
@@ -77,18 +87,12 @@ setup_conflict_branch() {
 
 finalize_workdir() {
     local workdir="$1"
-    # Let behavior_run handle .opencode submodule setup — don't clone here
-    # to avoid submodule pointer drift between our commit and behavior_run's
     mkdir -p "$workdir/.issues"
     printf ".opencode/\ntmp/\n.issues/\nfixtures/\n*.pyc\n__pycache__/\n" > "$workdir/.gitignore"
     git -C "$workdir" add -A
     git -C "$workdir" add -f .gitignore
     git -C "$workdir" commit -q --allow-empty -m "setup complete"
 }
-
-# Disable fixture issues and story fixtures — this test only needs a clean git repo
-BEHAVIOR_FIXTURE_ISSUES=0
-BEHAVIOR_STORY_FIXTURES=0
 
 # SC-2: Stale branch — agent should detect staleness and auto-rebase
 STALE_WD=$(mktemp -d "/tmp/opencode/behavior-isolated-XXXXXX")

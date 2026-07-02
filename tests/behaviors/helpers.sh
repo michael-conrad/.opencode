@@ -278,16 +278,6 @@ behavior_run() {
         echo "  [harness] stale worktree state set up (issue created, .issues/ deleted)"
     fi
 
-    # --setup creates test home once before the retry loop
-    local test_home=""
-    local setup_output
-    setup_output=$(bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" --setup "$workdir")
-    test_home=$(echo "$setup_output" | grep '^TEST_HOME=' | cut -d= -f2-)
-    if [ -z "$test_home" ]; then
-        echo "HARNESS_FAILURE: --setup failed to produce TEST_HOME" >&2
-        return 1
-    fi
-
     while [ "$attempt" -lt "$BEHAVIOR_MAX_RETRIES" ]; do
         attempt=$((attempt + 1))
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"

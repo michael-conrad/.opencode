@@ -183,13 +183,16 @@ if [ $# -eq 0 ]; then
     usage
 fi
 
-TEST_HOME="$TMP_DIR/test-home-$(date +%Y%m%d-%H%M%S)"
-
-mkdir -p "$TEST_HOME/.config"
-mkdir -p "$TEST_HOME/.cache"
-mkdir -p "$TEST_HOME/.runtime"
-mkdir -p "$TEST_HOME/.local/share"
-mkdir -p "$TEST_HOME/.local/state"
+if [ -n "${TEST_HOME:-}" ] && [ -d "$TEST_HOME" ]; then
+    echo "Reusing test home: $TEST_HOME" >&2
+else
+    TEST_HOME="$TMP_DIR/test-home-$(date +%Y%m%d-%H%M%S)"
+    mkdir -p "$TEST_HOME/.config"
+    mkdir -p "$TEST_HOME/.cache"
+    mkdir -p "$TEST_HOME/.runtime"
+    mkdir -p "$TEST_HOME/.local/share"
+    mkdir -p "$TEST_HOME/.local/state"
+fi
 
 if [ -f "$HOME/.bashrc" ]; then
     cp "$HOME/.bashrc" "$TEST_HOME/.bashrc"
