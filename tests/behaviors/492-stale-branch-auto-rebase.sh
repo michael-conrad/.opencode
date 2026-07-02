@@ -24,13 +24,14 @@ seed_dev_branch() {
     git -C "$workdir" add file.txt
     git -C "$workdir" commit -q -m "initial"
     git -C "$workdir" branch -M dev
-    git -C "$workdir" push -q -u origin dev
+    git -C "$workdir" push -q -f -u origin dev
 }
 
 setup_stale_branch() {
     local workdir="$1"
     git -C "$workdir" fetch -q origin dev
-    git -C "$workdir" checkout -q -b dev origin/dev
+    git -C "$workdir" checkout -q dev
+    git -C "$workdir" reset -q --hard origin/dev
     git -C "$workdir" checkout -b feature/stale-test
     echo "feature work" >> "$workdir/file.txt"
     git -C "$workdir" add file.txt
@@ -49,7 +50,8 @@ setup_stale_branch() {
 setup_clean_branch() {
     local workdir="$1"
     git -C "$workdir" fetch -q origin dev
-    git -C "$workdir" checkout -q -b dev origin/dev
+    git -C "$workdir" checkout -q dev
+    git -C "$workdir" reset -q --hard origin/dev
     git -C "$workdir" checkout -b feature/clean-test
     echo "feature work" >> "$workdir/file.txt"
     git -C "$workdir" add file.txt
@@ -59,7 +61,8 @@ setup_clean_branch() {
 setup_conflict_branch() {
     local workdir="$1"
     git -C "$workdir" fetch -q origin dev
-    git -C "$workdir" checkout -q -b dev origin/dev
+    git -C "$workdir" checkout -q dev
+    git -C "$workdir" reset -q --hard origin/dev
     git -C "$workdir" checkout -b feature/conflict-test
     echo "feature version" > "$workdir/file.txt"
     git -C "$workdir" add file.txt
