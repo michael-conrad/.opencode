@@ -164,11 +164,43 @@ A script that runs without errors and produces artifacts is NOT a passing test �
 
 ## 4. Running Tests
 
-### Single Scenario
+### One Scenario Per Run — MANDATORY
+
+**Each behavioral test script MUST contain exactly ONE `behavior_run` call.** Multi-scenario scripts (multiple `behavior_run` calls in one script) are FORBIDDEN.
+
+**Rationale:** Every `behavior_run` invocation creates a fresh XDG-isolated test home with a full SQLite DB migration and plugin bootstrap (~240s). With N scenarios, cumulative bootstrap time is N × 240s, which exceeds the 600s bash tool timeout. The script gets killed mid-bootstrap, producing empty log files and no model output.
+
+**Correct pattern — one scenario per script:**
 
 ```bash
-bash .opencode/tests/behaviors/<scenario>.sh
+# tests/behaviors/492-stale-branch-auto-rebase-stale.sh
+behavior_run "492-stale-branch-auto-rebase-stale" "..." "$DEFAULT_TEST_MODEL" "$WD"
+exit 0
 ```
+
+```bash
+# tests/behaviors/492-stale-branch-auto-rebase-clean.sh
+behavior_run "492-stale-branch-auto-rebase-clean" "..." "$DEFAULT_TEST_MODEL" "$WD"
+exit 0
+```
+
+### Test Home Reuse Across Sequential Dispatches — VERIFIED
+
+When multiple dispatches need to share state (e.g., the same SQLite session), use `with-test-home --setup` to create a test home once, then pass `TEST_HOME` to subsequent `behavior_run` calls:
+
+```bash
+# Create test home once
+SETUP_OUTPUT=$(bash .opencode/tests/with-test-home --setup "$workdir")
+TEST_HOME=$(echo "$SETUP_OUTPUT" | grep '^TEST_HOME=' | cut -d= -f2-)
+
+# Reuse same test home across dispatches
+TEST_HOME="$TEST_HOME" behavior_run "scenario-1" "..." "$MODEL" "$WD"
+TEST_HOME="$TEST_HOME" behavior_run "scenario-2" "..." "$MODEL" "$WD"
+```
+
+**Verified:** First dispatch does full bootstrap (DB migration, plugin loading, ~240s). Second dispatch reuses the same home and completes in ~4s — no migration needed. The test home retains SQLite state across dispatches.
+
+**Important:** The `with-test-home` wrapper's `env -i` with `HOME="$TEST_HOME"` is what makes reuse work — the second dispatch finds the existing SQLite DB at `$TEST_HOME/.local/share/opencode/opencode.db` and skips migration. When `behavior_run` calls `opencode-cli run` through `with-test-home` without `--setup`, it creates a *different* test home (new timestamp), which is why multi-scenario scripts time out.
 
 ### Scope-Filtered Runs
 
@@ -250,6 +282,33 @@ bash .opencode/tests/with-test-home --clean-all
 
 The wrapper creates an isolated temporary home directory (`tmp/test-home-<timestamp>`) with clean XDG state.
 
+### Session Failure Diagnosis — Incomplete Test Environment Isolation
+
+**Symptom:** `opencode-cli run` produces `Error: Session not found` or `Session failed` in stderr, with no model output in stdout. The process may hang indefinitely or exit immediately with the error.
+
+**Root cause:** The agent did not properly isolate the test environment. `opencode-cli run` is using the **host** SQLite database at `~/.local/share/opencode/opencode.db` instead of an isolated test home. This happens when:
+
+1. **`with-test-home` was not used** — `opencode-cli run` was called directly, inheriting the host `HOME` and XDG paths
+2. **`with-test-home` was used but `env -i` stripping was incomplete** — critical env vars leaked through (e.g., `OPENCODE_CONFIG_CONTENT` overriding the seeded config, stripping all providers)
+3. **The seeded config is incomplete** — `seed_model_config()` only populated local models from `ollama list`; cloud models (`ollama/deepseek-v4-flash:cloud`) were missing, causing model dispatch to hang
+4. **The seeded config lacks required provider blocks** — cloud models need the `ollama-cloud` provider with extended timeouts; without it, dispatch hangs indefinitely
+5. **`TEST_HOME` env var was not passed through `env -i`** — test home reuse across sequential dispatches failed, each dispatch created a fresh home with full bootstrap (~240s each), exceeding the 600s bash tool timeout
+
+**Diagnostic checklist — when a test produces "Session not found":**
+
+| Check | How | Expected |
+|-------|-----|----------|
+| Is `with-test-home` used? | Grep the test script for `with-test-home` | MUST be present |
+| Is the seeded config valid? | Check `$TEST_HOME/.config/opencode/opencode.jsonc` | Must have `ollama` AND `ollama-cloud` providers with models |
+| Is `OPENCODE_CONFIG_CONTENT` set? | Grep `with-test-home` for the env var | MUST NOT be set — it overrides the entire config |
+| Is `TEST_HOME` in `pass_through_env`? | Grep `with-test-home` for `TEST_HOME` in the `for var in ...` loop | MUST be present for test home reuse |
+| Is the SQLite DB in the test home? | `ls $TEST_HOME/.local/share/opencode/opencode.db` | MUST exist (created by first `opencode-cli run`) |
+| Is the host DB being used instead? | Check stderr for `db path=/home/.../.local/share/opencode/opencode.db` | MUST NOT appear — should show `db path=$TEST_HOME/...` |
+
+**The `--pure` flag is NOT a fix.** Adding `--pure` to `behavior_run()` masks the root cause (incomplete isolation) by disabling all plugins. The correct fix is proper XDG isolation via `with-test-home` with complete `env -i` passthrough and seeded config.
+
+**The `node_modules/` directory under `~/.config/opencode/` is NOT a managed folder.** It is created automatically by opencode's runtime and should never be copied, seeded, or referenced in test setup. It is irrelevant to test isolation — the issue is always SQLite DB or config contamination from the host environment.
+
 ### Bash Tool Timeout Mandate — ZERO TOLERANCE
 
 **The bash tool's `timeout` parameter is the ONLY kill signal that may be used when running behavioral tests.** Any use of the `timeout` command (or timer-equivalent utilities) inside a bash script invoked by the bash tool is FORBIDDEN.
@@ -319,9 +378,18 @@ Content-verification tests are FASTER (no model invocation) and are used for fas
 
 Both types use scope-filtered runs — never full-suite uber scripts.
 
-## 7. Cleanup
+## 7. Test Home Lifecycle and Cleanup
 
-After testing, clean up test home directories:
+### Test Homes Persist After Runs
+
+Test home directories (`./tmp/test-home-<timestamp>/`) are **preserved after every run** — they are never auto-deleted. This is intentional:
+
+- **Investigatory:** If a test fails or produces unexpected output, the test home contains the full SQLite database, config, and logs for post-mortem analysis
+- **Reuse:** A test home can be reused across sequential dispatches via `TEST_HOME=<path>` to avoid repeated bootstrap overhead
+
+### Cleanup
+
+Test homes accumulate over time. Clean them when no longer needed:
 
 ```bash
 # Remove the most recent test home
@@ -331,7 +399,17 @@ bash .opencode/tests/with-test-home --clean
 bash .opencode/tests/with-test-home --clean-all
 ```
 
-Artifact directories under `./tmp/behavioral-evidence-*/` are preserved for evaluation. Clean them manually when no longer needed.
+### Artifact Directories
+
+Artifact directories under `./tmp/behavioral-evidence-*/` are also preserved for evaluation. Clean them manually when no longer needed.
+
+### Cleanup Before PR
+
+Before creating a PR, run cleanup to remove accumulated test homes:
+
+```bash
+bash .opencode/tests/with-test-home --clean-all
+```
 
 ## 8. Triple Co-Application Reference
 

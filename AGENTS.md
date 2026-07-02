@@ -114,6 +114,16 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 
 **Isolated test environment:** The `with-test-home` wrapper isolates opencode-cli XDG state into a project-relative temporary home (`./opencode/tmp/test-home-<timestamp>`), eliminating SQLite session conflicts with the desktop app. This allows skill enforcement tests to run from within an active opencode session.
 
+**Session failure diagnosis:** If `opencode-cli run` produces `Error: Session not found` or hangs indefinitely, the test environment is NOT properly isolated. The agent is using the host SQLite database at `~/.local/share/opencode/opencode.db` instead of an isolated test home. Common causes:
+
+- `with-test-home` was not used — `opencode-cli run` called directly
+- `env -i` passthrough is incomplete — critical env vars leaked or were stripped
+- Seeded config is incomplete — missing providers (`ollama-cloud`) or models (cloud models)
+- `OPENCODE_CONFIG_CONTENT` env var overrides the entire seeded config, stripping all providers
+- `TEST_HOME` not in `pass_through_env` — test home reuse fails, each dispatch creates a fresh home
+
+The `node_modules/` directory under `~/.config/opencode/` is NOT a managed folder — it is created automatically by opencode's runtime and is irrelevant to test isolation. The issue is always SQLite DB or config contamination from the host environment. See `.opencode/tests/AGENTS.md` §Session Failure Diagnosis for the complete diagnostic checklist.
+
 ---
 
 ## `gb` CLI Tool — GitBucket Operations
@@ -272,6 +282,26 @@ When parent issue has sub-issues, authorization cascades to ALL sub-issues:
 - Assume cached values from previous sessions
 - HALT after each phase of multi-task spec (see Multi-Task Spec Workflow above)
 - Write spec/plan content directly to chat as the final deliverable — ALWAYS invoke brainstorming → spec-creation → issue-operations to persist specs as GitHub Issues
+
+---
+
+## Test Submodule Repositories for Behavioral Tests
+
+Behavioral tests that require a real remote (e.g., testing `git fetch`/`git rebase` against `origin/dev`) MUST use one of the following test submodule repositories instead of the live `.opencode` submodule. These repos are lightweight fixtures with no real agent configuration.
+
+| Repository | URL | Purpose |
+|------------|-----|---------|
+| test-submodule-1 | `https://github.com/michael-conrad/test-submodule-1` | General behavioral test fixture |
+| test-submodule-2 | `https://github.com/michael-conrad/test-submodule-2` | General behavioral test fixture |
+
+**Usage in behavioral test scripts:** Set `SUBMODULE_REMOTE` to the test repo URL and `BEHAVIOR_SUBMODULE_COMMIT` to the desired SHA:
+
+```bash
+SUBMODULE_REMOTE="https://github.com/michael-conrad/test-submodule-1"
+BEHAVIOR_SUBMODULE_COMMIT="<sha>"
+```
+
+These repos are NOT submodules of `opencode-config` — they are standalone fixture repos for isolated test environments. They contain minimal content (README, basic file structure) and are safe to clone in test harnesses.
 
 ---
 
