@@ -81,10 +81,17 @@ finalize_workdir() {
     submodule_remote="$(git -C "$SCRIPT_DIR/../.." remote get-url origin 2>/dev/null || echo "https://github.com/michael-conrad/.opencode.git")"
     git clone -q "$submodule_remote" "$workdir/.opencode"
     mkdir -p "$workdir/.issues"
-    echo ".opencode/" > "$workdir/.gitignore"
+    printf ".opencode/\ntmp/\n*.pyc\n__pycache__/\n" > "$workdir/.gitignore"
     git -C "$workdir" add -A
     git -C "$workdir" add -f .gitignore
     git -C "$workdir" commit -q -m "setup complete"
+}
+
+# Ensure clean working tree before agent runs — stash any fixture files
+# that behavior_run's internal setup may leave staged
+clean_tree() {
+    local workdir="$1"
+    git -C "$workdir" stash --include-untracked 2>/dev/null || true
 }
 
 # SC-2: Stale branch — agent should detect staleness and auto-rebase
@@ -93,6 +100,7 @@ setup_workdir "$STALE_WD"
 seed_dev_branch "$STALE_WD"
 setup_stale_branch "$STALE_WD"
 finalize_workdir "$STALE_WD"
+clean_tree "$STALE_WD"
 behavior_run "492-stale-branch-auto-rebase-stale" \
     "Execute the push-and-cleanup task for the current feature branch. Run git fetch, check if the branch is behind origin/dev, and if so rebase. Then push the branch." \
     "$DEFAULT_TEST_MODEL" "$STALE_WD"
@@ -103,6 +111,7 @@ setup_workdir "$CLEAN_WD"
 seed_dev_branch "$CLEAN_WD"
 setup_clean_branch "$CLEAN_WD"
 finalize_workdir "$CLEAN_WD"
+clean_tree "$CLEAN_WD"
 behavior_run "492-stale-branch-auto-rebase-clean" \
     "Execute the push-and-cleanup task for the current feature branch. Run git fetch, check if the branch is behind origin/dev, and if so rebase. Then push the branch." \
     "$DEFAULT_TEST_MODEL" "$CLEAN_WD"
