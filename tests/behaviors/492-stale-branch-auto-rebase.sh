@@ -81,8 +81,10 @@ finalize_workdir() {
     submodule_remote="$(git -C "$SCRIPT_DIR/../.." remote get-url origin 2>/dev/null || echo "https://github.com/michael-conrad/.opencode.git")"
     git clone -q "$submodule_remote" "$workdir/.opencode"
     mkdir -p "$workdir/.issues"
+    echo ".opencode/" > "$workdir/.gitignore"
     git -C "$workdir" add -A
-    git -C "$workdir" commit -q --allow-empty -m "setup complete"
+    git -C "$workdir" add -f .gitignore
+    git -C "$workdir" commit -q -m "setup complete"
 }
 
 # SC-2: Stale branch — agent should detect staleness and auto-rebase
