@@ -92,7 +92,7 @@ seed_dev_branch "$STALE_WD"
 setup_stale_branch "$STALE_WD"
 finalize_workdir "$STALE_WD"
 behavior_run "492-stale-branch-auto-rebase-stale" \
-    "Execute review-prep for the current feature branch. Prepare the branch for PR creation against dev. You are authorized to proceed through the full pipeline including push." \
+    "Execute the push-and-cleanup task for the current feature branch. Run git fetch, check if the branch is behind origin/dev, and if so rebase. Then push the branch." \
     "$DEFAULT_TEST_MODEL" "$STALE_WD"
 
 # SC-5: Clean branch — agent should proceed normally
@@ -102,7 +102,7 @@ seed_dev_branch "$CLEAN_WD"
 setup_clean_branch "$CLEAN_WD"
 finalize_workdir "$CLEAN_WD"
 behavior_run "492-stale-branch-auto-rebase-clean" \
-    "Execute review-prep for the current feature branch. Prepare the branch for PR creation against dev. You are authorized to proceed through the full pipeline including push." \
+    "Execute the push-and-cleanup task for the current feature branch. Run git fetch, check if the branch is behind origin/dev, and if so rebase. Then push the branch." \
     "$DEFAULT_TEST_MODEL" "$CLEAN_WD"
 
 # SC-4: Tier 3 conflict — agent should halt and escalate
@@ -112,7 +112,7 @@ seed_dev_branch "$CONFLICT_WD"
 setup_conflict_branch "$CONFLICT_WD"
 finalize_workdir "$CONFLICT_WD"
 behavior_run "492-stale-branch-auto-rebase-conflict" \
-    "Execute review-prep for the current feature branch. Prepare the branch for PR creation against dev." \
+    "Execute the push-and-cleanup task for the current feature branch. Run git fetch, check if the branch is behind origin/dev, and if so rebase. Then push the branch." \
     "$DEFAULT_TEST_MODEL" "$CONFLICT_WD"
 
 exit 0
