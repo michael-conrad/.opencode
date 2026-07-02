@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 BEHAVIOR_PHASE="${BEHAVIOR_PHASE:-GREEN}"
-TEST_REMOTE="https://github.com/michael-conrad/test-submodule-1.git"
+TEST_REMOTE="git@github.com:michael-conrad/test-submodule-1.git"
 
 setup_workdir() {
     local workdir="$1"
