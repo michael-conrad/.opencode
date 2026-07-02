@@ -283,7 +283,7 @@ behavior_run() {
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
 
         TEST_WORKDIR="$workdir" \
-        bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" opencode-cli run "$message" --model "$model" --log-level INFO --print-logs --pure ${agent:+--agent "$agent"} \
+        bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" opencode-cli run "$message" --model "$model" --log-level INFO --print-logs ${agent:+--agent "$agent"} \
             > "$output_file" 2> "$err_file" \
             || true
 
