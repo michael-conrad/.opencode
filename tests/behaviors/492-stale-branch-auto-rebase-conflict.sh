@@ -14,7 +14,8 @@ BEHAVIOR_FIXTURE_ISSUES=0
 BEHAVIOR_STORY_FIXTURES=0
 TEST_REMOTE="git@github.com:michael-conrad/test-submodule-1.git"
 
-# Create test home once
+# Create test home once (unset any stale TEST_HOME from prior runs)
+unset TEST_HOME
 SETUP_OUTPUT=$(bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" --setup "$PARENT_REPO_DIR" 2>/dev/null)
 SHARED_TEST_HOME=$(echo "$SETUP_OUTPUT" | grep '^TEST_HOME=' | cut -d= -f2-)
 export TEST_HOME="$SHARED_TEST_HOME"
