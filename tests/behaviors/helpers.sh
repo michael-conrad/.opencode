@@ -248,10 +248,12 @@ behavior_run() {
         fi
     fi
 
-    STORY_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-story-fixtures.sh"
-    if [ -f "$STORY_SETUP" ]; then
-        source "$STORY_SETUP"
-        setup_story_fixtures "$workdir"
+    if [ "${BEHAVIOR_STORY_FIXTURES:-1}" = "1" ]; then
+        STORY_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-story-fixtures.sh"
+        if [ -f "$STORY_SETUP" ]; then
+            source "$STORY_SETUP"
+            setup_story_fixtures "$workdir"
+        fi
     fi
 
     LOCK_FILE="$PARENT_REPO_DIR/tmp/.behavior-run.lock"

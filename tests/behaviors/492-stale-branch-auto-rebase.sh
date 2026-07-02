@@ -77,22 +77,18 @@ setup_conflict_branch() {
 
 finalize_workdir() {
     local workdir="$1"
-    local submodule_remote
-    submodule_remote="$(git -C "$SCRIPT_DIR/../.." remote get-url origin 2>/dev/null || echo "https://github.com/michael-conrad/.opencode.git")"
-    git clone -q "$submodule_remote" "$workdir/.opencode"
+    # Let behavior_run handle .opencode submodule setup — don't clone here
+    # to avoid submodule pointer drift between our commit and behavior_run's
     mkdir -p "$workdir/.issues"
-    printf ".opencode/\ntmp/\n*.pyc\n__pycache__/\n" > "$workdir/.gitignore"
+    printf ".opencode/\ntmp/\n.issues/\nfixtures/\n*.pyc\n__pycache__/\n" > "$workdir/.gitignore"
     git -C "$workdir" add -A
     git -C "$workdir" add -f .gitignore
-    git -C "$workdir" commit -q -m "setup complete"
+    git -C "$workdir" commit -q --allow-empty -m "setup complete"
 }
 
-# Ensure clean working tree before agent runs — stash any fixture files
-# that behavior_run's internal setup may leave staged
-clean_tree() {
-    local workdir="$1"
-    git -C "$workdir" stash --include-untracked 2>/dev/null || true
-}
+# Disable fixture issues and story fixtures — this test only needs a clean git repo
+BEHAVIOR_FIXTURE_ISSUES=0
+BEHAVIOR_STORY_FIXTURES=0
 
 # SC-2: Stale branch — agent should detect staleness and auto-rebase
 STALE_WD=$(mktemp -d "/tmp/opencode/behavior-isolated-XXXXXX")
@@ -100,7 +96,6 @@ setup_workdir "$STALE_WD"
 seed_dev_branch "$STALE_WD"
 setup_stale_branch "$STALE_WD"
 finalize_workdir "$STALE_WD"
-clean_tree "$STALE_WD"
 behavior_run "492-stale-branch-auto-rebase-stale" \
     "Execute the push-and-cleanup task for the current feature branch. Run git fetch, check if the branch is behind origin/dev, and if so rebase. Then push the branch." \
     "$DEFAULT_TEST_MODEL" "$STALE_WD"
@@ -111,7 +106,6 @@ setup_workdir "$CLEAN_WD"
 seed_dev_branch "$CLEAN_WD"
 setup_clean_branch "$CLEAN_WD"
 finalize_workdir "$CLEAN_WD"
-clean_tree "$CLEAN_WD"
 behavior_run "492-stale-branch-auto-rebase-clean" \
     "Execute the push-and-cleanup task for the current feature branch. Run git fetch, check if the branch is behind origin/dev, and if so rebase. Then push the branch." \
     "$DEFAULT_TEST_MODEL" "$CLEAN_WD"
