@@ -75,11 +75,24 @@ seed_model_config() {
 
     local models=()
     local model
+
+    # Local models from ollama list
     while IFS= read -r model; do
         if [ -n "$model" ]; then
             models+=("$model")
         fi
     done < <(ollama_models)
+
+    # Cloud models from opencode-cli models (prefixed with ollama/)
+    if command -v opencode-cli &>/dev/null; then
+        while IFS= read -r model; do
+            if [ -n "$model" ]; then
+                # Strip the ollama/ prefix for the config
+                local stripped="${model#ollama/}"
+                models+=("$stripped")
+            fi
+        done < <(opencode-cli models 2>/dev/null | grep '^ollama/' || true)
+    fi
 
     if [ ${#models[@]} -eq 0 ]; then
         echo "HARNESS_FAILURE: no models available" >&2
