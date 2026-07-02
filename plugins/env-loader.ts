@@ -337,5 +337,6 @@ export default async function envLoaderPlugin(input: PluginInput): Promise<Hooks
 }
 
 
-export { parseEnvFile, isEnvGitignored, writeDiagnostic, DIAGNOSTICS_PATH };
-export type { PluginDiagnostic };
+// NOTE: No named exports. opencode's plugin loader iterates over module exports
+// and named exports alongside a default cause "Plugin export is not a function".
+// All utility functions are internal — they don't need to be exported.
