@@ -19,7 +19,7 @@
  * Co-authored with AI: OpenCode (ollama-cloud/glm-5)
  */
 
-import type { Plugin } from "@opencode-ai/plugin";
+import type { Hooks, PluginInput } from "@opencode-ai/plugin";
 import fs from "fs";
 import path from "path";
 
@@ -213,8 +213,8 @@ function readGitBucketUrlFromEnv(envPath: string): string | null {
   return null;
 }
 
-export const EnvLoaderPlugin: Plugin = async ({ project, client, $, directory, worktree }) => {
-  const projectDir = directory || process.cwd();
+export default async function envLoaderPlugin(input: PluginInput): Promise<Hooks> {
+  const projectDir = input?.directory || process.cwd();
   const envPath = path.join(projectDir, ENV_FILE);
 
   return {
@@ -252,8 +252,8 @@ export const EnvLoaderPlugin: Plugin = async ({ project, client, $, directory, w
       }
 
       // --- WORKTREE_PATH from PluginInput ---
-      const worktreeDir = worktree || "";
-      const mainRepoDir = directory || "";
+      const worktreeDir = input?.worktree || "";
+      const mainRepoDir = input?.directory || "";
       if (worktreeDir && worktreeDir !== mainRepoDir) {
         output.env["WORKTREE_PATH"] = worktreeDir;
       }
@@ -263,7 +263,7 @@ export const EnvLoaderPlugin: Plugin = async ({ project, client, $, directory, w
       async function gitCmd(cmd: string): Promise<{ exitCode: number; text: () => string } | null> {
         try {
           const result = await Promise.race([
-            $.nothrow()`${cmd}`,
+            input.$.nothrow()`${cmd}`,
             new Promise<null>((_, reject) =>
               setTimeout(() => reject(new Error(`git command timed out: ${cmd}`)), GIT_CMD_TIMEOUT_MS)
             ),
