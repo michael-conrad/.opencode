@@ -115,9 +115,17 @@ seed_model_config() {
 {
   "\$schema": "https://opencode.ai/config.json",
   "provider": {
+    "ollama-cloud": {
+      "options": {
+        "timeout": 1800000,
+        "chunkTimeout": 120000
+      }
+    },
     "ollama": {
       "options": {
-        "baseURL": "http://localhost:11434/v1"
+        "baseURL": "http://localhost:11434/v1",
+        "timeout": 1800000,
+        "chunkTimeout": 120000
       },
       "models": {
         $model_entries
