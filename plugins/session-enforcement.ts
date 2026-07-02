@@ -798,9 +798,12 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
       const sessionID = sysInput?.sessionID;
       if (sessionID) {
         try {
-          const sessionResult = await input.client.session.get({
-            path: { id: sessionID },
-          });
+          const sessionResult = await Promise.race([
+            input.client.session.get({ path: { id: sessionID } }),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error("session.get timed out")), 5000)
+            ),
+          ]);
           if (sessionResult.data?.parentID) {
             subAgentSessions.add(sessionID);
           } else {
