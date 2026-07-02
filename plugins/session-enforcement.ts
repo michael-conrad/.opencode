@@ -768,6 +768,11 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
     }
   }
 
+  // Run session-init at plugin startup (once) and cache the result.
+  // Running it inside system.transform causes an infinite re-bootstrap loop
+  // because execSync git operations trigger opencode's internal plugin reload.
+  const cachedSessionInit = runSessionInit(projectDir);
+
   return {
     // --- Sub-agent detection via session.created event cache (SC-1) ---
     // The session.created event fires synchronously before messages.transform
@@ -807,9 +812,8 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         }
       }
 
-      const scriptOutput = runSessionInit(projectDir);
-      if (scriptOutput) {
-        output.system.push(scriptOutput);
+      if (cachedSessionInit) {
+        output.system.push(cachedSessionInit);
       }
 
       // Inject worktree context when session is operating in a worktree
