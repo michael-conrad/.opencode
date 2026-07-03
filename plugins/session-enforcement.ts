@@ -712,33 +712,11 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
   const projectDir = input?.directory || process.cwd();
   const skillsDir = path.join(projectDir, ".opencode", "skills");
 
-  // Pre-load skill descriptions and frontmatter validation at plugin startup
-  const { errors: frontmatterErrors } = loadSkillDescriptions(skillsDir);
-
-  // Ensure git hooks from .opencode/hooks/ are installed into .git/hooks/
-  ensureHooksInstalled(projectDir);
-
-  // Capture git config baseline for mutation watchdog
-  gitConfigBaseline = captureGitConfigBaseline(projectDir);
-  if (gitConfigBaseline) {
-    try {
-      baselineLocalConfig = execSync("git config --local --list", {
-        cwd: projectDir,
-        encoding: "utf8",
-        input: "",
-        timeout: 5000,
-        stdio: ["pipe", "pipe", "pipe"],
-      }).trim();
-    } catch {
-      baselineLocalConfig = "";
-    }
-  }
-
-  // Run session-init at plugin startup (fire-and-forget, don't await).
-  // Running it inside system.transform causes a re-bootstrap loop because
-  // git operations trigger opencode's file watcher. The result is cached
-  // and injected into system.transform output.
-  const sessionInitPromise = runSessionInit(projectDir);
+  // NOTE: All git operations (execSync/exec) are intentionally removed from
+  // this plugin. Running git operations from a plugin hook or startup triggers
+  // opencode's file watcher, causing a re-bootstrap loop. Git config baseline
+  // capture, hooks installation, and session-init are all git operations that
+  // must not run inside a plugin.
 
   return {
     // --- Sub-agent detection via session.created event cache (SC-1) ---
@@ -782,11 +760,11 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         }
       }
 
-      // Inject cached session-init output (resolved from fire-and-forget at startup)
-      const scriptOutput = await sessionInitPromise;
-      if (scriptOutput) {
-        output.system.push(scriptOutput);
-      }
+      // NOTE: session-init is intentionally NOT run from this plugin.
+      // Running git operations (execSync/exec) from a plugin hook or startup
+      // triggers opencode's file watcher, causing a re-bootstrap loop.
+      // Session-init output is injected by opencode's own session-init
+      // mechanism at session start.
 
       // Inject worktree context when session is operating in a worktree
       const worktreeBlock = buildWorktreeBlock(input);
