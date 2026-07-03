@@ -734,6 +734,12 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
     }
   }
 
+  // Run session-init at plugin startup (fire-and-forget, don't await).
+  // Running it inside system.transform causes a re-bootstrap loop because
+  // git operations trigger opencode's file watcher. The result is cached
+  // and injected into system.transform output.
+  const sessionInitPromise = runSessionInit(projectDir);
+
   return {
     // --- Sub-agent detection via session.created event cache (SC-1) ---
     // The session.created event fires synchronously before messages.transform
@@ -776,7 +782,8 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         }
       }
 
-      const scriptOutput = await runSessionInit(projectDir);
+      // Inject cached session-init output (resolved from fire-and-forget at startup)
+      const scriptOutput = await sessionInitPromise;
       if (scriptOutput) {
         output.system.push(scriptOutput);
       }
