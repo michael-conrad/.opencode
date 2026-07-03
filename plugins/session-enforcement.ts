@@ -369,7 +369,7 @@ function runSessionInit(projectDir: string): string {
       cwd: projectDir,
       encoding: "utf8",
       input: "",
-      timeout: 30000,
+      timeout: 10000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim();
 
