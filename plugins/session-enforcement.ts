@@ -768,24 +768,26 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
     }
   }
 
-  // Run session-init at plugin startup (once) and cache the result.
-  // Running it inside system.transform causes an infinite re-bootstrap loop.
-  // Use async exec with timeout to avoid blocking the event loop.
+  // Kick off session-init at startup (don't await — it must not block plugin
+  // loading). Cache the result for system.transform. If it hangs (git lock
+  // contention in test environments), the plugin still loads and functions.
   let cachedSessionInit = "";
-  try {
-    cachedSessionInit = await new Promise<string>((resolve) => {
-      const cp = require("child_process");
-      cp.exec("./.opencode/tools/session-init", {
-        cwd: projectDir,
-        encoding: "utf8",
-        timeout: 10000,
-      }, (err: any, stdout: string) => {
-        resolve(stdout?.trim() || "");
+  (async () => {
+    try {
+      cachedSessionInit = await new Promise<string>((resolve) => {
+        const cp = require("child_process");
+        cp.exec("./.opencode/tools/session-init", {
+          cwd: projectDir,
+          encoding: "utf8",
+          timeout: 10000,
+        }, (err: any, stdout: string) => {
+          resolve(stdout?.trim() || "");
+        });
       });
-    });
-  } catch {
-    // Graceful degradation — session-init is non-critical
-  }
+    } catch {
+      // Graceful degradation — session-init is non-critical
+    }
+  })();
 
   return {
     // --- Sub-agent detection via session.created event cache (SC-1) ---

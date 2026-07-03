@@ -219,6 +219,21 @@ behavior_run() {
         }
     fi
 
+    # Convert .opencode from a full git clone (nested .git/ directory) to a
+    # submodule-style setup (.git FILE pointing to parent's .git/modules/).
+    # A nested .git/ directory triggers opencode's file watcher to treat
+    # .opencode/ as a separate project, causing an internal plugin re-bootstrap
+    # loop. Production uses submodule-style .opencode, so the test must match.
+    local _opencode_git="$workdir/.opencode/.git"
+    if [ -d "$_opencode_git" ] && [ ! -f "$_opencode_git" ]; then
+        local _submodule_git_dir="$workdir/.git/modules/.opencode"
+        mkdir -p "$_submodule_git_dir"
+        # Copy git data into submodule dir, then replace .git/ with .git file
+        tar -C "$_opencode_git" -cf - . | tar -C "$_submodule_git_dir" -xf - 2>/dev/null || true
+        rm -rf "$_opencode_git"
+        printf 'gitdir: ../.git/modules/.opencode\n' > "$_opencode_git"
+    fi
+
     if [ ! -f "$workdir/.gitmodules" ] || ! grep -q '.opencode' "$workdir/.gitmodules" 2>/dev/null; then
         git -C "$workdir" submodule add -q "$submodule_remote_url" .opencode 2>/dev/null || true
     fi
@@ -282,14 +297,8 @@ behavior_run() {
         attempt=$((attempt + 1))
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
 
-        # Use snap binary (v1.17.12+) if available — CLI binary (v1.14.33) has
-        # an internal plugin re-bootstrap loop bug with external plugins.
-        local _oc_bin="opencode-cli"
-        if [ -x "/snap/opencode/current/bin/opencode" ]; then
-            _oc_bin="/snap/opencode/current/bin/opencode"
-        fi
         TEST_WORKDIR="$workdir" \
-        bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "$_oc_bin" run "$message" --model "$model" --log-level INFO --print-logs ${agent:+--agent "$agent"} \
+        bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" opencode-cli run "$message" --model "$model" --log-level INFO --print-logs ${agent:+--agent "$agent"} \
             > "$output_file" 2> "$err_file" \
             || true
 
