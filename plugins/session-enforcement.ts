@@ -769,21 +769,22 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
   }
 
   // Run session-init at plugin startup (once) and cache the result.
-  // Running it inside system.transform causes an infinite re-bootstrap loop
-  // because execSync git operations trigger opencode's internal plugin reload.
-  // Also wrap in a timeout guard — if session-init hangs (e.g. git lock contention
-  // in test environments), the plugin must still complete loading.
+  // Running it inside system.transform causes an infinite re-bootstrap loop.
+  // Use async exec with timeout to avoid blocking the event loop.
   let cachedSessionInit = "";
   try {
-    const result = await Promise.race([
-      (async () => runSessionInit(projectDir))(),
-      new Promise<string>((_, reject) =>
-        setTimeout(() => reject(new Error("session-init startup timed out")), 15000)
-      ),
-    ]);
-    cachedSessionInit = result;
+    cachedSessionInit = await new Promise<string>((resolve) => {
+      const cp = require("child_process");
+      cp.exec("./.opencode/tools/session-init", {
+        cwd: projectDir,
+        encoding: "utf8",
+        timeout: 10000,
+      }, (err: any, stdout: string) => {
+        resolve(stdout?.trim() || "");
+      });
+    });
   } catch {
-    console.error("[session-enforcement] session-init startup skipped (timeout or error)");
+    // Graceful degradation — session-init is non-critical
   }
 
   return {
