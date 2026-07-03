@@ -282,8 +282,14 @@ behavior_run() {
         attempt=$((attempt + 1))
         echo "  [attempt $attempt/$BEHAVIOR_MAX_RETRIES]"
 
+        # Use snap binary (v1.17.12+) if available — CLI binary (v1.14.33) has
+        # an internal plugin re-bootstrap loop bug with external plugins.
+        local _oc_bin="opencode-cli"
+        if [ -x "/snap/opencode/current/bin/opencode" ]; then
+            _oc_bin="/snap/opencode/current/bin/opencode"
+        fi
         TEST_WORKDIR="$workdir" \
-        bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" opencode-cli run "$message" --model "$model" --log-level INFO --print-logs ${agent:+--agent "$agent"} \
+        bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "$_oc_bin" run "$message" --model "$model" --log-level INFO --print-logs ${agent:+--agent "$agent"} \
             > "$output_file" 2> "$err_file" \
             || true
 

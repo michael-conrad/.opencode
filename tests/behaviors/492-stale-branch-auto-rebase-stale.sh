@@ -12,6 +12,7 @@ source "$SCRIPT_DIR/helpers.sh"
 BEHAVIOR_PHASE="${BEHAVIOR_PHASE:-GREEN}"
 BEHAVIOR_FIXTURE_ISSUES=0
 BEHAVIOR_STORY_FIXTURES=0
+BEHAVIOR_SUBMODULE_COMMIT="019bc567014177cda63874e1fbd73dd92f866a46"
 TEST_REMOTE="git@github.com:michael-conrad/test-submodule-1.git"
 
 # Create test home once (unset any stale TEST_HOME from prior runs)
