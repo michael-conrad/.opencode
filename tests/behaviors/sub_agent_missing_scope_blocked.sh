@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: sub_agent_missing_scope_blocked
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test (RED Phase): sub-agent returns BLOCKED when missing authorization_scope
 #
 # SC-10: Sub-agent must return status: BLOCKED when dispatched without authorization_scope.

@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: verification-isolation
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: verification-isolation
 # Verifies that verification is performed by a different sub-agent
 # from the producer, with only the deliverable + SC list received.

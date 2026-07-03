@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = []
 # ///
 
+# fmt: on
 __doc__ = """DESCRIPTION: Guidelines tools dispatcher. Usage: ./.opencode/tools/guidelines <action> [args...]
 Actions: read, load, list, show, search, edit
 Example: ./.opencode/tools/guidelines search <term>
@@ -18,7 +20,10 @@ from pathlib import Path
 
 _path = Path(__file__).resolve().parent
 while _path.name != ".opencode":
-    _path = _path.parent
+    parent = _path.parent
+    if parent == _path:
+        raise RuntimeError("Could not find .opencode/ directory")
+    _path = parent
 PROJECT_ROOT = _path.parent
 
 ACTIONS = {
@@ -71,6 +76,9 @@ def _get_description(script_path: Path) -> str:
 
 def main() -> None:
     args = sys.argv[1:]
+    if len(sys.argv) == 2 and sys.argv[1] == "--description":
+        print("Guidelines tools dispatcher.")
+        return
     if not args or args[0] in ("-h", "--help", "help"):
         print(__doc__)
         print("Available actions:")
@@ -92,3 +100,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

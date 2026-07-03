@@ -85,10 +85,25 @@ check_python_script() {
     check_python_version_pinned "$file"
 }
 
+check_description_flag() {
+    local tool_path="$TOOLS_DIR/$1"
+    local desc
+    desc=$("$tool_path" --description 2>/dev/null) || {
+        echo "FAIL: $tool_path --description exited non-zero"
+        FAIL=$((FAIL + 1))
+        return 0
+    }
+    if [[ -z "$desc" ]]; then
+        echo "FAIL: $tool_path --description produced empty output"
+        FAIL=$((FAIL + 1))
+        return 0
+    fi
+    PASS=$((PASS + 1))
+}
+
 ENTRY_POINTS=(
     guidelines memory md py jupyter help file-exists
     schema-version jupyter-start jupyter-stop symbolic session-init
-    gitbucket-api
 )
 
 for tool in "${ENTRY_POINTS[@]}"; do
@@ -97,6 +112,11 @@ for tool in "${ENTRY_POINTS[@]}"; do
     check_pep723_metadata "$file"
     check_execute "$file"
     check_python_version_pinned "$file"
+done
+
+echo "--- check_description_flag ---"
+for tool in "${ENTRY_POINTS[@]}"; do
+    check_description_flag "$tool"
 done
 
 IMPL_DIR=".opencode/tools/impl"
@@ -117,6 +137,66 @@ find "$SKILL_SCRIPTS_DIR" -name '*.py' -not -path '*/tests/*' | while read -r sk
 done
 
 check_no_old_references
+
+# --- PEP 723 marker and pinning checks (#1295) ---
+
+check_no_pyproject_toml_marker() {
+    local file="$1"
+    if grep -q '# /// pyproject.toml' "$file"; then
+        echo "FAIL: $file uses deprecated # /// pyproject.toml marker"
+        FAIL=$((FAIL + 1))
+    else
+        PASS=$((PASS + 1))
+    fi
+}
+
+check_no_project_section() {
+    local file="$1"
+    if grep -q '# \[project\]' "$file"; then
+        echo "FAIL: $file has [project] section in script metadata"
+        FAIL=$((FAIL + 1))
+    else
+        PASS=$((PASS + 1))
+    fi
+}
+
+check_requires_python_pinned() {
+    local file="$1"
+    if grep -q '^# requires-python = "~=[0-9]\+\.[0-9]\+\.[0-9]\+"' "$file"; then
+        PASS=$((PASS + 1))
+    else
+        echo "FAIL: $file requires-python not pinned with ~=X.Y.0"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+check_dependencies_pinned() {
+    local file="$1"
+    local deps_line
+    deps_line=$(grep '^# dependencies' "$file" || true)
+    if [ -z "$deps_line" ]; then
+        echo "FAIL: $file has no dependencies line"
+        FAIL=$((FAIL + 1))
+        return 0
+    fi
+    local unversioned
+    unversioned=$(echo "$deps_line" | grep -o '"[^"]*"' | grep -v '~=' || true)
+    if [ -n "$unversioned" ]; then
+        echo "FAIL: $file has unversioned or non-~= dependencies: $unversioned"
+        FAIL=$((FAIL + 1))
+    else
+        PASS=$((PASS + 1))
+    fi
+}
+
+# Run PEP 723 marker and pinning checks on all tools
+for tool in "${ENTRY_POINTS[@]}"; do
+    file="$TOOLS_DIR/$tool"
+    check_no_pyproject_toml_marker "$file"
+    check_no_project_section "$file"
+    check_requires_python_pinned "$file"
+    check_dependencies_pinned "$file"
+done
 
 check_plugin_invocations() {
     local plugin_failures=0

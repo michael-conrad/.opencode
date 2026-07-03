@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -6,6 +7,7 @@
 # requires-python = "~=3.12"
 # dependencies = []
 # ///
+# fmt: on
 """GitBucket API Verification Tests.
 
 This script verifies that the documented GitBucket API endpoints match
@@ -189,7 +191,10 @@ def verify_openapi_spec() -> bool:
     print("\n=== Verifying OpenAPI Specification ===")
     _path = Path(__file__).resolve().parent
     while _path.name != ".opencode":
-        _path = _path.parent
+        parent = _path.parent
+        if parent == _path:
+            raise RuntimeError("Could not find .opencode/ directory")
+        _path = parent
     spec_path = (
         _path
         / "skills"
@@ -258,3 +263,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

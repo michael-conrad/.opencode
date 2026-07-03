@@ -15,12 +15,12 @@ If `$BRANCH` starts with `pair-`, pair mode is active.
 
 When pair mode is active (branch name starts with `pair-`):
 
-1. **Check for uncommitted changes:**
+- [ ] 1. **Check for uncommitted changes:**
    ```bash
    git status --porcelain
    ```
 
-2. **If changes exist, create WIP commit:**
+- [ ] 2. **If changes exist, create WIP commit:**
    ```bash
    git add -A
    git commit -m "WIP: $(git branch --show-current) [pair-mode]
@@ -29,12 +29,12 @@ When pair mode is active (branch name starts with `pair-`):
    Co-authored-by: AI: $AGENT_NAME ($MODEL_ID) [pair-mode]"
    ```
 
-3. **If no changes but on protected branch (`dev`/`main`):**
+- [ ] 3. **If no changes but on protected branch (`dev`/`main`):**
    - Prompt developer: "You're on `$BRANCH`. Which issue should we work on?"
    - Create pair branch: `git checkout -b pair-feature/<issue>-<desc>`
    - No worktree needed — working directly in main directory
 
-4. **If switching to existing pair branch:**
+- [ ] 4. **If switching to existing pair branch:**
    ```bash
    git checkout <pair-branch>
    ```

@@ -6,19 +6,19 @@ Non-adversarial completeness check after RED/GREEN sub-agent returns. Verifies t
 
 ## Entry Criteria
 
-- Spec success criteria received in task context
-- Deliverable path(s) received in task context
-- Spec body received for criterion reference
-- Audit readiness criteria received (if applicable)
+- spec_local_dir received in task context (REQUIRED — local issue directories containing spec.md)
+- artifact_evidence_dir received in task context (OPTIONAL — RED/GREEN sub-agent output directories)
 
 ## Authorization Context
 
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
+spec_local_dir: <path> | [<path>, ...]     # REQUIRED — local issue directories
+artifact_evidence_dir: <path> | [<path>, ...]  # OPTIONAL — behavioral evidence directories
 ```
 
 ### Routing Rules
@@ -33,15 +33,16 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 ## Input Contract
 
 ```yaml
+spec_local_dir:
+  - "<path to local issue directory>"
+artifact_evidence_dir:
+  - "<path to behavioral evidence directory>"
 spec_success_criteria:
   - id: "SC-1"
-    description: "<success criterion description>"
-  - id: "SC-2"
     description: "<success criterion description>"
 deliverable:
   paths: ["path/to/deliverable1", "path/to/deliverable2"]
   type: "file|PR|branch"
-spec: "<full spec body text>"
 audit_readiness_criteria:
   - "deliverable exists and is non-empty"
   - "all spec SCs addressed"
@@ -67,21 +68,22 @@ findings:
 
 For each deliverable path in the input contract:
 
-1. Use `glob` or `read` to verify the file/directory exists
-2. If the deliverable is a PR or branch, verify via GitHub API
-3. Record evidence of existence (file listing, API response)
+- [ ] 1. Use `glob` or `read` to verify the file/directory exists
+- [ ] 2. If the deliverable is a PR or branch, verify via GitHub API
+- [ ] 3. Record evidence of existence (file listing, API response)
 
 ### Step 2: Verify Spec SC Coverage
 
 For each success criterion in the input:
 
-1. Read the deliverable content relevant to the criterion
-2. Inspect whether the criterion is addressed:
+- [ ] 1. Read `spec_local_dir` for the spec's success criteria definitions
+- [ ] 2. Read the deliverable content relevant to the criterion
+- [ ] 3. Inspect whether the criterion is addressed:
    - **present**: Deliverable includes content addressing this SC
    - **partial**: Some aspects covered, some missing
    - **missing**: No content found addressing this SC
    - **incorrect**: Content exists but does not match the SC requirement
-3. Record evidence for each finding (code snippet, file path, line range)
+- [ ] 3. Record evidence for each finding (code snippet, file path, line range)
 
 ### Step 3: Classify Completeness
 
@@ -96,6 +98,10 @@ Based on findings from Step 2:
 Return the structured output contract with completeness result and findings.
 
 **Do NOT** include remediation suggestions, routing advice, or fix proposals. The gate is read-only.
+
+## Behavioral Uplift in Non-Adversatorial Check
+
+When running completeness checks, uplift SC evidence types to `behavioral` for changes that affect runtime behavior. The classification question ("Does this change affect runtime behavior?") is substrate-determined. If YES, structural evidence is `EVIDENCE_TYPE_MISMATCH` — per `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
 
 ## Single-Pass Enforcement
 
@@ -117,7 +123,7 @@ This gate does NOT replace the adversarial auditor. It checks completeness — p
       - RETURN(status=BLOCKED, reason="single-pass enforcement")
     conflicts_with: [completeness-gate-001]
     requires: []
-    triggers: [divide-and-conquer]
+    triggers: [implementation-pipeline]
     source: "completeness-gate/tasks/check.md §Single-Pass Enforcement"
 
   - id: completeness-gate-check-002
@@ -131,6 +137,6 @@ This gate does NOT replace the adversarial auditor. It checks completeness — p
       - RETURN(status=BLOCKED, reason="prohibited content in completeness findings")
     conflicts_with: [completeness-gate-002]
     requires: []
-    triggers: [divide-and-conquer]
+    triggers: [implementation-pipeline]
     source: "completeness-gate/tasks/check.md §Non-Adversarial Boundary"
 ```

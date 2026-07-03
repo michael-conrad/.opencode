@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Create feature branch BEFORE any implementation work begins. Verify authorization, sync dev, and set up the working environment. Default mode is direct-branch (feature branch in main repo); worktree mode is opt-in when `WORKTREE_REQUIRED` is set.
+Create feature branch BEFORE any implementation work begins. Verify authorization, sync the default branch, and set up the working environment. Default mode is direct-branch (feature branch in main repo); worktree mode is opt-in when `WORKTREE_REQUIRED` is set.
 
 ## 🚫 ZERO TOLERANCE: Branch Before Edit
 
@@ -13,15 +13,15 @@ Create feature branch BEFORE any implementation work begins. Verify authorizatio
 | Mode | When | Branch Command | Path Behavior |
 |------|------|---------------|---------------|
 | **Direct-branch (default)** | `WORKTREE_REQUIRED` NOT set | `git checkout -b feature/X` or `git switch -c feature/X` | Relative paths work directly |
-| **Worktree (opt-in)** | `WORKTREE_REQUIRED` set or developer request | `git worktree add .worktrees/feature-X -b feature/X dev` | All paths prefixed with `worktree.path` |
+| **Worktree (opt-in)** | `WORKTREE_REQUIRED` set or developer request | `git worktree add .worktrees/feature-X -b feature/X "$DEFAULT_BRANCH"` | All paths prefixed with `worktree.path` |
 
 **In both modes, the agent MUST NOT commit to `main` or `dev`.** This is a Tier 1 (Non-Yielding) mandate.
 
 This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any file, creating any file, or making ANY change to the project:
 
-1. **Verify on a feature branch** (NOT `main` or `dev`) — either direct-branch or worktree
-2. **All work happens on the feature branch** — never on `main` or `dev`
-3. **ONLY THEN**: Proceed with file changes
+- [ ] 1. **Verify on a feature branch** (NOT `main` or `dev`) — either direct-branch or worktree
+- [ ] 2. **All work happens on the feature branch** — never on `main` or `dev`
+- [ ] 3. **ONLY THEN**: Proceed with file changes
 
 **What Counts as a "Change"?**
 
@@ -49,7 +49,7 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 
 ## Operating Protocol
 
-1. **Mandatory call (no decision point):** The agent MUST call this task when:
+- [ ] 1. **Mandatory call (no decision point):** The agent MUST call this task when:
    - User says `approved`, `go`, or similar authorization to begin implementation
     - DO NOT prompt — call the skill directly
 
@@ -59,19 +59,18 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 - Authorization is for the correct issue
 - Sub-issue structure verified (for multi-task specs)
 
-## Three-Branch Workflow Context
+## Branch Workflow Context
 
 **Branch Model:**
 
-- **Feature branches** (`feature/*` or `spec/*`): Branch from `dev`, merge to `dev`
-- **Dev branch** (`dev`): Staging/integration (evergreen, never deleted)
+- **Feature branches** (`feature/*` or `spec/*`): Branch from the default branch, merge to target branch
 - **Main branches** (`main` or `master`): Production-ready code
 
 **AI Commit Restrictions:**
 
 - AI cannot commit to `main`, `master`, or `dev` (blocked by git hooks)
-- AI must create feature branches from `dev` (not `main`)
-- AI must sync with `dev` before creating feature branch
+- AI must create feature branches from the default branch
+- AI must sync with the default branch before creating feature branch
 
 ## Procedure
 
@@ -79,76 +78,37 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 
 **This task receives authorization context from orchestration layer. DO NOT re-check authorization.**
 
-### Step 1.5: Pre-flight — Verify `dev` branch exists on remote
+### Step 2: Sync Default Branch
 
-Before syncing or creating a local `dev` branch, verify the remote has a `dev` branch. If it doesn't, create it from the default branch. If no remote exists, skip gracefully.
+The working tree must be on the default branch and up-to-date so branch creation has the correct base:
 
 ```bash
-if ! git remote 2>/dev/null | grep -q '^origin$'; then
-    echo "No remote 'origin' found. Skipping remote dev branch check (local-only repo)."
-else
-    git fetch origin
-
-    if ! git ls-remote origin dev 2>/dev/null | grep -q 'refs/heads/dev'; then
-        echo "Remote branch 'dev' not found on origin. Creating from default branch..."
-
-        DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
-
-        if [ -z "$DEFAULT_BRANCH" ]; then
-            echo "FATAL: Cannot determine default branch on origin. HALT."
-            exit 1
-        fi
-
-        git push origin "refs/heads/${DEFAULT_BRANCH}:refs/heads/dev"
-
-        if ! git ls-remote origin dev 2>/dev/null | grep -q 'refs/heads/dev'; then
-            echo "FATAL: Failed to create dev branch on origin. HALT."
-            exit 1
-        fi
-
-        echo "Remote branch 'dev' created from '${DEFAULT_BRANCH}'."
-    else
-        echo "Remote branch 'dev' exists on origin."
-    fi
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then
+    DEFAULT_BRANCH="main"
 fi
-```
 
-**Key behaviors:**
-
-- **No remote at all:** Skip this check entirely — local-only repos require no remote branch setup
-- **Remote exists but `dev` missing:** Create `dev` on origin from the default branch determined via `git remote show origin`
-- **Verification failure after push:** HALT and report — do not proceed without a remote `dev` branch when a remote exists
-- **DO NOT add any remotes** — this check only works with pre-existing remotes
-
-### Step 2: Sync Dev Branch
-
-The main working tree must be on `dev` and up-to-date so branch creation has the correct base:
-
-```bash
 git fetch origin
-
-if git rev-parse --verify origin/dev >/dev/null 2>&1; then
-    git checkout dev
-    git pull origin dev
-else
-    git checkout -b dev origin/main
-    if [ $? -ne 0 ]; then
-        echo "FATAL: Failed to create dev branch from origin/main. HALT."
-        exit 1
-    fi
-    git push -u origin dev
-fi
+git checkout "$DEFAULT_BRANCH"
+git pull origin "$DEFAULT_BRANCH"
 ```
 
-**If dev branch creation fails entirely (neither origin/dev nor origin/main exists), the agent MUST HALT immediately and report the fatal error. Proceeding on `main` is a CRITICAL GUIDELINE VIOLATION.**
+### Step 2.1: Rebase Before Branch Creation
+
+Before creating the feature branch, rebase the working tree on the latest target branch to ensure a clean base:
+
+```bash
+git fetch origin "$DEFAULT_BRANCH"
+git rebase origin/"$DEFAULT_BRANCH"
+```
 
 ### Step 2.5: Proactive Repo State Verification
 
 **Before creating any feature branch, verify repo state:**
-1. **Submodule initialization check:** Check if `.gitmodules` exists. If it does, note that submodule sync will be handled by the `submodule-tag-prework` sub-agent task() in Steps 2.7/3.5 — do NOT run submodule commands inline.
+- [ ] 1. **Submodule initialization check:** Run glob scan to detect git repos: `REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')`. If non-root repos found, note that submodule sync will be handled by the `submodule-tag-prework` sub-agent task() in Steps 2.7/3.5 — do NOT run submodule commands inline.
 
-2. **Submodule currency check:** Deferred to the `submodule-tag-prework` sub-agent task() (Steps 2.7/3.5).
-3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be task()ed to `submodule-tag-prework` — do NOT run `git submodule init` or `git submodule foreach` inline.
+- [ ] 2. **Submodule currency check:** Deferred to the `submodule-tag-prework` sub-agent task() (Steps 2.7/3.5).
+- [ ] 3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be task()ed to `submodule-tag-prework` — do NOT run `git submodule init` or `git submodule foreach` inline.
 
 ### Step 2.7: Automatic Prerequisite Operations
 
@@ -159,17 +119,17 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 | Operation | Step | Classification | Condition |
 |-----------|------|----------------|-----------|
 | `git fetch origin` | Step 1.5/2 | Pipeline prerequisite | Remote exists |
-| `git checkout dev && git pull origin dev` | Step 2 | Tier 1 mandate prerequisite | Always when remote exists |
-| Task() `submodule-tag-prework` sub-agent | Step 2.5/3.5 | Tier 1 mandate prerequisite | `.gitmodules` exists |
+| `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"` | Step 2 | Tier 1 mandate prerequisite | Always when remote exists |
+| Task() `submodule-tag-prework` sub-agent | Step 2.5/3.5 | Tier 1 mandate prerequisite | Submodules detected via glob scan |
 | `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 3 | Tier 1 mandate — required by `000-critical-rules.md` §Skipping Git Pre-Check | Always |
 | `git push -u origin feature/N-xyz` | Post-Step 5 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
 
 **Automatic classification conditions (ALL must be true):**
 
-1. Authorization has been verified — `approval-gate --task verify-authorization` passed
-2. The operation is a Tier 1 mandate or a deterministic prerequisite for authorized work
-3. The operation requires no judgment — it is a deterministic, mechanical step
-4. The scope covers the pipeline stage containing the operation (`for_pr`, `for_implementation`, `for_review_prep`)
+- [ ] 1. Authorization has been verified — `approval-gate --task verify-authorization` passed
+- [ ] 2. The operation is a Tier 1 mandate or a deterministic prerequisite for authorized work
+- [ ] 3. The operation requires no judgment — it is a deterministic, mechanical step
+- [ ] 4. The scope covers the pipeline stage containing the operation (`for_pr`, `for_implementation`, `for_review_prep`)
 
 **🚫 FORBIDDEN: Soliciting developer confirmation for automatic prerequisites:**
 
@@ -185,13 +145,13 @@ The agent MUST NOT ask for confirmation, permission, or readiness before perform
 
 **See also:** `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" — whether to sync a submodule, create a branch, or push is NOT a decision requiring user input when authorization covers the pipeline stage.
 
-### Sub-Agent Boundary: `submodule-tag-prework` task()
+### Sub-Agent Boundary: `submodule-tag-prework` — Orchestrator Dispatch
 
-When `.gitmodules` exists, run a `submodule-tag-prework` sub-agent via task() for submodule initialization, sync, and status operations. The sub-agent receives only:
+When submodules are detected via glob scan, the orchestrator dispatches a `submodule-tag-prework` sub-agent for submodule initialization, sync, and status operations. The sub-agent receives only:
 
 **`must_receive`:**
 - `worktree.path` (if in worktree mode; null otherwise)
-- `.gitmodules` file path
+- `submodule_paths` — list of discovered repo paths
 - `github.owner` and `github.repo` (for context, NOT for API calls into the parent repo)
 
 **`must_not_receive`:**
@@ -211,8 +171,8 @@ When `.gitmodules` exists, run a `submodule-tag-prework` sub-agent via task() fo
 Create feature branch directly in the main repo:
 
 ```bash
-git checkout -b <branch-name> dev
-# or: git switch -c <branch-name> dev
+git checkout -b <branch-name> "$DEFAULT_BRANCH"
+# or: git switch -c <branch-name> "$DEFAULT_BRANCH"
 ```
 
 **Relative paths work directly in direct-branch mode.** No worktree path prefixing needed.
@@ -233,10 +193,10 @@ git status --porcelain
 
 Invoke `using-git-worktrees` skill to create an isolated worktree:
 
-1. Invoke `using-git-worktrees` skill
-2. The skill creates the worktree: `git worktree add .worktrees/<sanitized-name> -b <branch-name> dev`
-3. The skill exports `worktree.path`, `branch`, `DEV_BASE_HASH` as environment variables
-4. If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT**
+- [ ] 1. Invoke `using-git-worktrees` skill
+- [ ] 2. The skill creates the worktree: `git worktree add .worktrees/<sanitized-name> -b <branch-name> "$DEFAULT_BRANCH"`
+- [ ] 3. The skill exports `worktree.path`, `branch`, `BASE_HASH` as environment variables
+- [ ] 4. If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT**
 
 **If worktree creation fails or `worktree.fatal=1` is detected:**
 
@@ -245,20 +205,20 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 - Do NOT attempt any implementation until the worktree infrastructure is fixed
 - There is NO fallback to direct-branch when worktree mode is explicitly requested
 
-### Step 3.5: Submodule Initialization and Sync — task() to `submodule-tag-prework`
+### Step 3.5: Submodule Initialization and Sync — Orchestrator Dispatches `submodule-tag-prework`
 
-**If `.gitmodules` does NOT exist:** Skip this step and proceed to Step 3.7.
+**If no submodules detected via glob scan:** Skip this step and proceed to Step 4.
 
-**If `.gitmodules` exists:** task() a `submodule-tag-prework` sub-agent with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
+**If submodules detected:** The orchestrator dispatches a `submodule-tag-prework` sub-agent with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
 
-1. Checks `.gitmodules` existence
-2. Initializes submodules if needed (`git submodule init`)
-3. Checks out each submodule to its `dev` tip (`git submodule foreach "git checkout dev && git pull"`)
-4. Logs submodule status (`git submodule status`)
-5. Tags each submodule at dev tip with `<parent-repo>/<issue-number>` format (`git tag -a`)
-6. Pushes tags to submodule remote (`git push origin <tag>`)
-7. Verifies tags exist on remote (`git ls-remote --tags origin <tag>`)
-8. Reports results in its result contract
+- [ ] 1. Detects the submodule path(s)
+- [ ] 2. Initializes submodules if needed (`git submodule init`)
+- [ ] 3. Checks out each submodule to its `dev` tip (`git submodule foreach "git checkout dev && git pull"`)
+- [ ] 4. Logs submodule status (`git submodule status`)
+- [ ] 5. Tags each submodule at dev tip with `<parent-repo>/<issue-number>` format (`git tag -a`)
+- [ ] 6. Pushes tags to submodule remote (`git push origin <tag>`)
+- [ ] 7. Verifies tags exist on remote (`git ls-remote --tags origin <tag>`)
+- [ ] 8. Reports results in its result contract
 
 **The orchestrator receives a result contract containing:**
 
@@ -266,78 +226,13 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 status: DONE | BLOCKED
 submodules_found: <count>
 submodules_updated: <list of (path, old_sha, new_sha, commit_count)>
-gitmodules_path: <path>
 ```
 
-**If `status: BLOCKED`** (e.g., submodule checkout fails, `.gitmodules` malformed): Re-task() with original scoped context. If second task() also fails, report the double-failure and HALT.
+**If `status: BLOCKED`** (e.g., submodule checkout fails): Re-task() with original scoped context. If second task() also fails, report the double-failure and HALT.
 
 **If on `main` worktree:** The sub-agent uses `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to dev tip. Pass `worktree_type: main` in the task context.
 
 **Do NOT inline the submodule operations.** The orchestrator never runs `git submodule` commands or reads submodule logs directly.
-
-### Step 3.7: Initialize .issues/ Worktree and Issue Directory (MANDATORY)
-
-After branch creation and submodule sync, initialize the `.issues/` worktree and `.issues/<issue_number>/` tracking directory:
-
-1. **Initialize .issues/ worktree (if not already initialized):**
-   ```bash
-   local-issues setup
-   ```
-   This is idempotent — if `.issues/` is already a worktree, it exits cleanly. If a regular `.issues/` directory exists (not a worktree), it renames it to `.issues.bak`, creates the worktree, and migrates content.
-
-   **Exit code handling:**
-   | Exit Code | Meaning | Agent Action |
-   |-----------|---------|--------------|
-   | 0 | Success — worktree ready | Continue to step 2 |
-   | 1 | Fatal error — retry won't help | HALT and report the error from stderr |
-   | 2 | Blocked — stale worktree detected | Remediate: read the stale path from the stderr report, run `git worktree remove <stale_path>`, then retry `local-issues setup` |
-
-   **Exit code 2 remediation flow (STALE worktree):**
-   1. Read the stale path from the stderr report (lines starting with `ERROR: Stale issues-data worktree detected at:`)
-   2. Remove the stale worktree: `git worktree remove <stale_path>`
-   3. Re-run: `local-issues setup` — should succeed
-   4. Verify `.issues/` is now a worktree on `issues-data` at the correct path
-   5. After setup, examine all `.issues/` files on the current branch and ensure they are properly represented on `issues-data`:
-      - Tracked `.issues/` files → copy into the worktree, commit on `issues-data`, then `git rm --cached` from current branch and commit
-      - Untracked `.issues/` directories → copy into the worktree, commit on `issues-data`
-   6. Remove `.issues.bak` if leftover from the setup cycle
-   7. Resume the original calling task
-
-2. **Create issue-specific directory:**
-   ```bash
-   mkdir -p .issues/<issue_number>/
-   ```
-
-3. **Fetch spec from API and mirror to `spec.md`:**
-   - Call `issue-operations -> read-issue (github_issue_read(method="get", owner=<github.owner>, repo=<github.repo>, issue_number=<issue_number>)` <!-- Routes through issue-operations per SPEC #683 -->
-   - If success: write `.issues/<issue_number>/spec.md` with header `# Synced from GitHub Issue #<issue_number> at <ISO8601-timestamp>` followed by the issue body
-   - If API unreachable: skip `spec.md` creation (no fallback since there's nothing to fall back to at initialization)
-   - See `issue-operations/platforms/github-mcp/SKILL.md` → "spec.md Mirror" for the complete mirror procedure
-
-4. **Write initial `state.md`:**
-   ```markdown
-   # State: Issue #<issue_number>
-
-   **Branch:** <branch-name>
-   **Workflow Phase:** pre-work
-   **Created:** <ISO8601-timestamp>
-   **Last Updated:** <ISO8601-timestamp>
-   **Status:** initialized
-
-   ## Current State
-
-   Pre-work initialization complete. Awaiting implementation task().
-
-   ## Blockers
-
-   None.
-   ```
-
-5. **Auto-commit `.issues/<issue_number>/`:**
-   ```bash
-   git add .issues/<issue_number>/spec.md .issues/<issue_number>/state.md
-   git commit -m "docs(issues): <issue_number> - spec: mirrored from GitHub Issue #<issue_number>, state: pre-work initialization"
-   ```
 
 ### Step 4: Verify Branch Environment
 
@@ -376,7 +271,7 @@ status: success
 branch: <branch-name>
 worktree_path: null
 direct_branch: true
-dev_base_hash: <7-char-sha>
+base_hash: <7-char-sha>
 working_tree_clean: true
 ready_for: implementation
 ```
@@ -390,14 +285,14 @@ status: success
 branch: <branch-name>
 worktree_path: .worktrees/<sanitized-branch-name>
 direct_branch: false
-dev_base_hash: <7-char-sha>
+base_hash: <7-char-sha>
 working_tree_clean: true
 ready_for: implementation
 ```
 
-## `investigate/` Scratch Branches
+## `observe/` Scratch Branches
 
-Under `for_analysis` scope, the agent may create `investigate/<topic>` scratch branches for read-only investigation. These are NOT feature branches — they are ephemeral throwaway branches.
+Under `for_analysis` scope, the agent may create `observe/<topic>` scratch branches for read-only investigation. These are NOT feature branches — they are ephemeral throwaway branches.
 
 ### When to Use
 
@@ -409,27 +304,27 @@ Under `for_analysis` scope, the agent may create `investigate/<topic>` scratch b
 ### Naming Convention
 
 ```bash
-git checkout -b investigate/<topic> dev
+git checkout -b observe/<topic> "$DEFAULT_BRANCH"
 ```
 
-Examples: `investigate/parsing-bug`, `investigate/missing-env-var`, `investigate/test-failure-root-cause`
+Examples: `observe/parsing-bug`, `observe/missing-env-var`, `observe/test-failure-root-cause`
 
 ### Scope Gate
 
-- `investigate/*` branches are permitted under `for_analysis` scope (self-assigned or explicit)
-- `investigate/*` branches do NOT require `for_implementation` — they are read-only scratch branches
-- The agent MUST NOT make permanent code changes on `investigate/*` branches
+- `observe/*` branches are permitted under `for_analysis` scope (self-assigned or explicit)
+- `observe/*` branches do NOT require `for_implementation` — they are read-only scratch branches
+- The agent MUST NOT make permanent code changes on `observe/*` branches
 - Writes to `./tmp/` and throwaway scripts ARE permitted
 
 ### MUST Discard Before HALT
 
-**🚫 CRITICAL: `investigate/` branches MUST be discarded before the halt message.**
+**🚫 CRITICAL: `observe/` branches MUST be discarded before the halt message.**
 
 ```bash
-git branch -D investigate/<topic>
+git branch -D observe/<topic>
 ```
 
-This is a hard requirement — leaving `investigate/` branches in the repo pollutes branch space. The enforcement in `enforcement/halt-conditions.md` verifies this.
+This is a hard requirement — leaving `observe/` branches in the repo pollutes branch space. The enforcement in `enforcement/halt-conditions.md` verifies this.
 
 ### `feature/` and `spec/` Branch Scope Gate
 
@@ -437,10 +332,10 @@ Creating `feature/*` or `spec/*` branches requires `for_implementation` scope or
 
 ```bash
 # 🚫 FORBIDDEN under for_analysis
-git checkout -b feature/123-xyz dev  # Requires for_implementation+
+git checkout -b feature/123-xyz "$DEFAULT_BRANCH"  # Requires for_implementation+
 
 # ✅ PERMITTED under for_analysis
-git checkout -b investigate/parsing-bug dev  # Read-only scratch branch
+git checkout -b observe/parsing-bug "$DEFAULT_BRANCH"  # Read-only scratch branch
 ```
 
 If the agent attempts to create a `feature/` or `spec/` branch under `for_analysis`, the operation MUST be rejected and reported as a scope boundary violation.
@@ -450,7 +345,7 @@ If the agent attempts to create a `feature/` or `spec/` branch under `for_analys
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
@@ -461,7 +356,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ## Context Received from Orchestration Layer
 
-**Input context from `divide-and-conquer`:**
+**Input context from `implementation-pipeline`:**
 
 ```yaml
 authorization: confirmed (from approval-gate)
@@ -479,30 +374,30 @@ status: success | failure
 branch: "spec/<feature-name>" | "feature/<feature-name>"
 worktree_path: ".worktrees/<sanitized-branch-name>" | null
 direct_branch: true | false
-dev_base_hash: "<7-char-sha>"
+    base_hash: "<7-char-sha>"
 working_tree_clean: true
 ready_for: "implementation"
 ```
 
-The orchestration layer (`divide-and-conquer`) receives this yield and passes relevant context to the implementation subagent.
+The orchestration layer (`implementation-pipeline`) receives this yield and passes relevant context to the implementation subagent.
 
 ## ⚠️ Edge Case: Already Implemented (No Changes Needed)
 
 **When investigation reveals spec is already implemented:**
 
-1. **Detect before branch creation:**
+- [ ] 1. **Detect before branch creation:**
 
    - After reading files, verify all proposed changes are already present
    - Confirm no modifications needed
    - Document verification in issue comment
 
-2. **Skip branch creation entirely:**
+- [ ] 2. **Skip branch creation entirely:**
 
    - Do NOT create feature branch
    - Do NOT push anything
    - Do NOT create PR
 
-3. **Close issue directly:**
+- [ ] 3. **Close issue directly:**
 
    - Post verification comment explaining what was checked
    - Close issue with `state_reason: "completed"`
@@ -525,7 +420,7 @@ Verified all proposed changes were already implemented. No modifications needed.
 **Outcome:** Spec requirements verified complete without additional changes.
 ```
 
-4. **HALT after closing:**
+- [ ] 4. **HALT after closing:**
    - No further steps needed
    - No worktree cleanup (no worktree was created)
 
@@ -558,10 +453,10 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 
 **There is NO emergency bypass.** If you need to make an urgent fix:
 
-1. Create a feature branch: `git checkout -b hotfix/urgent-fix dev`
-2. Make your changes and commit
-3. Push and create PR with `hotfix` label
-4. Request expedited review
+- [ ] 1. Create a feature branch: `git checkout -b hotfix/urgent-fix "$DEFAULT_BRANCH"`
+- [ ] 2. Make your changes and commit
+- [ ] 3. Push and create PR with `hotfix` label
+- [ ] 4. Request expedited review
 
 ## Live Verification (MANDATORY)
 
@@ -571,12 +466,12 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 
 | Check | Tool Call | Expected Result | On Failure |
 | -- | -- | -- | -- |
-| Remote dev branch (when remote exists) | `git ls-remote origin dev` | Non-empty output | MISSING-ELEMENT → run Step 1.5 to create |
+| Default branch synced (when remote exists) | `git ls-remote origin "$DEFAULT_BRANCH"` | Non-empty output | MISSING-ELEMENT → fetch and sync |
 | Current branch | `git branch --show-current` | Feature branch name (not `main`, `dev`) | STRUCTURE-VIOLATION → HALT |
 | Working tree clean | `git status --porcelain` | Empty output | VERIFICATION-GAP → stash or commit first |
 | Worktree location (worktree mode only) | `git rev-parse --show-toplevel` | Worktree path (not main repo path) | STRUCTURE-VIOLATION → HALT |
 | worktree.path set (worktree mode only) | `echo $WORKTREE_PATH` | Non-empty, matches worktree dir | STRUCTURE-VIOLATION → HALT (fatal) |
-| Dev base hash | `git rev-parse --short dev` | Valid 7-char SHA | MISSING-ELEMENT → sync dev first |
+| Base hash | `git rev-parse --short "$DEFAULT_BRANCH"` | Valid 7-char SHA | MISSING-ELEMENT → sync default branch first |
 
 ### Verification Procedure
 
@@ -593,12 +488,12 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 
 | Failure | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
-| Remote dev branch missing | MISSING-ELEMENT | auto-fix | Run Step 1.5 to create dev on origin |
+| Default branch not synced | MISSING-ELEMENT | auto-fix | Run `git fetch origin "$DEFAULT_BRANCH"` |
 | On `main` or `dev` branch | CONFLICTING | flag-for-review | HALT — must create feature branch first |
 | Dirty working tree | VERIFICATION-GAP | conditional | Stash or commit before implementation |
 | `rev-parse` returns main repo path (worktree mode) | STRUCTURE-VIOLATION | auto-fix | Not in worktree — re-invoke using-git-worktrees |
 | worktree.path empty (worktree mode) | STRUCTURE-VIOLATION | auto-fix | FATAL — cannot safely do file operations |
-| dev hash stale | MISSING-ELEMENT | conditional | Re-run `git pull origin dev` |
+| base hash stale | MISSING-ELEMENT | conditional | Re-run `git pull origin "$DEFAULT_BRANCH"` |
 
 **These verifications are MANDATORY. Skipping them is a CRITICAL GUIDELINE VIOLATION.**
 
@@ -612,11 +507,10 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 **Before starting any work, verify:**
 
 - ✅ Authorization received (explicit `approved`, `go`, or `"#N approved"`)
-- ✅ Remote dev branch exists on origin (or no remote — local-only repo skip)
 - ✅ Feature branch created (not on `main` or `dev`)
 - ✅ (Worktree mode only) `worktree.path` environment variable is set and non-empty
 - ✅ (Worktree mode only) `git rev-parse --show-toplevel` in worktree shows worktree path
 - ✅ `git branch --show-current` shows feature branch
-- ✅ Feature branch created from `dev`
+- ✅ Feature branch created from the default branch
 
 **These checks are MANDATORY. If ANY check fails → STOP and report.**

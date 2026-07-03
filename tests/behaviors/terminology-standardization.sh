@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: terminology-standardization
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Skill Terminology Standardization
 #
 # Verifies that when prompted to use a skill, the agent uses "call skill"

@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: context-hygiene
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: context-hygiene
 # Verifies that sub-agents receive minimal context and the orchestrator
 # does not preload sub-agents with its own reasoning or classification.

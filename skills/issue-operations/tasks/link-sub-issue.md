@@ -29,8 +29,10 @@ Route based on `github.platform`:
 
 **GitHub platform (sub-skill implementation):**
 ```python
-plan = github_issue_read(method="get", issue_number=M)
-phases = extract_phases(plan["body"])
+# Read plan from local file (plans are local artifacts, not GitHub Issues)
+plan_paths = [f".issues/{M}/plan.md", f"*/.issues/{M}/plan.md"]
+plan_body = read_local_plan_file(plan_paths)
+phases = extract_phases(plan_body)
 if len(phases) == 1:
     # Single-task exemption - no sub-issue needed
     return
@@ -38,28 +40,24 @@ if len(phases) == 1:
 
 **GitBucket platform (sub-skill implementation):**
 ```bash
-./.opencode/tools/gitbucket-api get-issue <github.owner> <github.repo> <M>
+gb issue view <M> -R <github.owner>/<github.repo>
 ```
 
 **Local platform (sub-skill implementation):**
-```bash
-./.opencode/tools/local-issues read <M>
-```
+Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: M}`.
 
 ### Step 2: Check Existing Sub-Issues
 
 **GitHub platform (sub-skill implementation):**
 ```python
-sub_issues = github_issue_read(method="get_sub_issues", issue_number=M)
+sub_issues = issue-operations -> read-issue
 ```
 
 **GitBucket platform (sub-skill implementation):**
 Check parent issue comments for structured sub-issue list comments.
 
 **Local platform (sub-skill implementation):**
-```bash
-./.opencode/tools/local-issues sub-issues <M>
-```
+Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: M, type: "links"}`.
 
 ### Step 3: Extract Phase Prose from Plan Body
 
@@ -77,7 +75,7 @@ Route based on `github.platform`:
 
 **GitHub platform (sub-skill implementation):**
 ```python
-sub_issue = github_issue_write(
+sub_issue = issue-operations -> update-issue (
     method="create",
     owner=<github.owner>,
     repo=<github.repo>,
@@ -89,20 +87,18 @@ sub_issue = github_issue_write(
 
 **GitBucket platform (sub-skill implementation):**
 ```bash
-./.opencode/tools/gitbucket-api create-issue <github.owner> <github.repo> "[Task: #<M>] <phase_description>" --body "**Parent Plan:** #<M>\n\n<phase_prose>" --labels task
+gb issue create -t "[Task: #<M>] <phase_description>" -R <github.owner>/<github.repo> --body "**Parent Plan:** #<M>\n\n<phase_prose>" --label task
 ```
 
 **Local platform (sub-skill implementation):**
-```bash
-./.opencode/tools/local-issues create --title "[Task: #<M>] <phase_description>" --body "**Parent Plan:** #<M>\n\n<phase_prose>" --labels task
-```
+Route to `platforms/local/tasks/creation.md` via task(). Pass: `{title: "[Task: #<M>] <phase_description>", body: "**Parent Plan:** #<M>\n\n<phase_prose>", labels: ["task"]}`.
 
 ### Step 4.5: EXTRACT URL FROM API RESPONSE
 
-1. The sub-issue URL MUST be copied verbatim from the `github_issue_write` API response's `html_url` field.
-2. Do NOT retype, reconstruct, or assemble the URL from known values (org, repo, number).
-3. Paste the URL exactly as returned. If the API response is `{ "html_url": "https://github.com/Org/Repo/issues/42" }`, the output URL is `https://github.com/Org/Repo/issues/42` — character for character.
-4. Verification checkpoint: Compare the pasted URL character-by-character against the `html_url` field in the API response before sending.
+- [ ] 1. The sub-issue URL MUST be copied verbatim from the `issue-operations -> update-issue` API response's `html_url` field.
+- [ ] 2. Do NOT retype, reconstruct, or assemble the URL from known values (org, repo, number).
+- [ ] 3. Paste the URL exactly as returned. If the API response is `{ "html_url": "{browser_url}/Org/Repo/issues/42" }`, the output URL is `{browser_url}/Org/Repo/issues/42` — character for character.
+- [ ] 4. Verification checkpoint: Compare the pasted URL character-by-character against the `html_url` field in the API response before sending.
 
 ### Step 5: Link Sub-Issue to Parent
 
@@ -121,13 +117,11 @@ CRITICAL: Use database ID (`.id`), not issue number.
 
 **GitBucket platform (comment-based fallback via sub-skill):**
 ```bash
-./.opencode/tools/gitbucket-api add-comment <github.owner> <github.repo> <M> "**Sub-issue linked:** #<sub_issue_number> — <phase_description>"
+gb issue comment <M> -b "**Sub-issue linked:** #<sub_issue_number> — <phase_description>" -R <github.owner>/<github.repo>
 ```
 
 **Local platform (comment-based fallback via sub-skill):**
-```bash
-./.opencode/tools/local-issues comment <M> --body "**Sub-issue linked:** #<sub_issue_number> — <phase_description>"
-```
+Route to `platforms/local/tasks/comment.md` via task(). Pass: `{issue_number: M, body: "**Sub-issue linked:** #<sub_issue_number> — <phase_description>", action: "post"}`.
 
 The caller records which method was used (formal link vs comment) for later closure operations.
 

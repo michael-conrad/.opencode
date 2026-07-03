@@ -14,7 +14,7 @@ Present the execution plan (informative only, no confirmation), verify the no-qu
 
 - Execution plan presented in chat (informative, not a decision prompt)
 - No-questions checkpoint verified
-- Agent proceeds immediately to `divide-and-conquer --task assemble-work`
+- Agent proceeds immediately to `implementation-pipeline --task assemble-work`
 - No HALT between plan presentation and `assemble-work`
 
 ## Procedure
@@ -84,10 +84,10 @@ Proceeding with execution plan.
 
 After presenting the plan, proceed immediately to `assemble-work`. Do not HALT. Do not ask for confirmation. Do not wait.
 
-Yield control to `divide-and-conquer --task assemble-work`:
+Yield control to `implementation-pipeline --task assemble-work`:
 
 ```text
-/skill divide-and-conquer --task assemble-work
+/skill implementation-pipeline --task assemble-work
 ```
 
 **assemble-work** reads the work state file and handles:

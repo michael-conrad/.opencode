@@ -44,11 +44,11 @@ If NOT a bug, report the misclassification in chat and suggest re-triage. HALT.
 
 Systematically analyze the bug report to identify the root cause:
 
-1. **Read the bug report** — extract error description, reproduction steps, expected vs actual behavior
-2. **Examine referenced code** — use `srclight` or code search to find relevant source
-3. **Trace the call path** — identify the failing component and its callers
-4. **Form hypotheses** — generate at least 2 root cause hypotheses
-5. **Document analysis** — produce a prose root cause summary
+- [ ] 1. **Read the bug report** — extract error description, reproduction steps, expected vs actual behavior
+- [ ] 2. **Examine referenced code** — use `srclight` or code search to find relevant source
+- [ ] 3. **Trace the call path** — identify the failing component and its callers
+- [ ] 4. **Form hypotheses** — generate at least 2 root cause hypotheses
+- [ ] 5. **Document analysis** — produce a prose root cause summary
 
 **Analysis is read-only.** Do NOT make any code changes during this step.
 
@@ -67,8 +67,8 @@ Evaluate the bug's scope:
 
 Create a fix spec using the `issue-operations` skill. The fix spec must include:
 
-1. **Title**: `[SPEC] Fix: <brief bug description>`
-2. **Body** (minimum required sections):
+- [ ] 1. **Title**: `[SPEC] Fix: <brief bug description>`
+- [ ] 2. **Body** (minimum required sections):
    - **Root Cause**: Prose description of the identified root cause. This section is MANDATORY — a fix spec without a "Root Cause" section that identifies the underlying cause is a CRITICAL GUIDELINE VIOLATION (see `000-critical-rules.md` → "Symptom-Only Fix-Specs"). The root cause must explain WHY the bug occurs, not just WHAT the bug is.
    - **Fix Approach**: Minimal targeted fix targeting root cause (not symptoms). If the fix approach only masks the symptom without eliminating the root cause, it is a symptom-only patch and a CRITICAL GUIDELINE VIOLATION. Every fix approach MUST explain how it eliminates the root cause, not just how it hides the symptom.
    - **Success Criteria**: Testable conditions confirming the fix works
@@ -83,10 +83,10 @@ Before creating the fix spec sub-issue, enforcement test assertions MUST be writ
 
 **Procedure:**
 
-1. **Write enforcement test assertions** — For each success criterion in the fix spec, write an enforcement test assertion in `test-enforcement.sh` that verifies the SC's requirement. Use the format: `# SC-N: <brief description>` as a comment above the assertion, followed by a grep/check that will FAIL before the fix is implemented and PASS after
-2. **Verify RED state** — Run the newly written assertions and confirm they are in RED state (failing). The assertions MUST fail because the fix spec content they verify does not exist yet
-3. **Produce tool-call evidence** — Record the RED state verification output as a tool-call artifact
-4. **Include test assertion references in fix spec body** — Add a `Test Assertions` section to the fix spec body listing the SC IDs and their corresponding enforcement test scenario names in `test-enforcement.sh`
+- [ ] 1. **Write enforcement test assertions** — For each success criterion in the fix spec, write an enforcement test assertion in `test-enforcement.sh` that verifies the SC's requirement. Use the format: `# SC-N: <brief description>` as a comment above the assertion, followed by a grep/check that will FAIL before the fix is implemented and PASS after
+- [ ] 2. **Verify RED state** — Run the newly written assertions and confirm they are in RED state (failing). The assertions MUST fail because the fix spec content they verify does not exist yet
+- [ ] 3. **Produce tool-call evidence** — Record the RED state verification output as a tool-call artifact
+- [ ] 4. **Include test assertion references in fix spec body** — Add a `Test Assertions` section to the fix spec body listing the SC IDs and their corresponding enforcement test scenario names in `test-enforcement.sh`
 
 **Evidence artifact format:**
 
@@ -205,19 +205,19 @@ Produce prose exec summary for chat:
 
 **⚠️ NEVER skip analysis for a closed issue without verification.** A closed issue may have:
 
-1. **Open sub-issues** — The parent is closed but child issues remain open (premature parent closure)
-2. **Unresolved cross-references** — The spec → plan chain may still have pending links
-3. **Erroneous closure** — No merged PR, `state_reason` is "not_planned" instead of "completed"
+- [ ] 1. **Open sub-issues** — The parent is closed but child issues remain open (premature parent closure)
+- [ ] 2. **Unresolved cross-references** — The spec → plan chain may still have pending links
+- [ ] 3. **Erroneous closure** — No merged PR, `state_reason` is "not_planned" instead of "completed"
 
 ### Verification Procedure
 
 Before classifying a closed bug report as `already-handled` or `stale`:
 
-1. **Check sub-issues:** `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=N)` — if any sub-issue is open, the parent closure is premature <!-- Routes through issue-operations per SPEC #683 -->
-2. **Check cross-references:** Read issue body for `Spec: #N`, `Plan: #N` references — verify referenced issues are also resolved
-3. **Check closure correctness:** Verify `state_reason == "completed"` AND a merged PR exists (search for PRs referencing the issue)
-4. **If all verified:** Classify as `already-handled` and skip analysis
-5. **If any check fails:** Proceed with analysis (root cause may still need fix spec) or flag for review
+- [ ] 1. **Check sub-issues:** `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=N)` — if any sub-issue is open, the parent closure is premature <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 2. **Check cross-references:** Read issue body for `Spec: #N`, `Plan: #N` references — verify referenced issues are also resolved
+- [ ] 3. **Check closure correctness:** Verify `state_reason == "completed"` AND a merged PR exists (search for PRs referencing the issue)
+- [ ] 4. **If all verified:** Classify as `already-handled` and skip analysis
+- [ ] 5. **If any check fails:** Proceed with analysis (root cause may still need fix spec) or flag for review
 
 **Evidence requirement:** Each check must produce a tool-call artifact. Do NOT assume "closed" = "verified."
 

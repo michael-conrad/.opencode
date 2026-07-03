@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = ["pyyaml>=6.0"]
 # ///
 
+# fmt: on
 __doc__ = """DESCRIPTION: Skill deck formal analysis CLI. Lint, analyze, and export symbolic models from guidelines and skills.
 Usage: ./.opencode/tools/skildeck <action> [options]
 Actions: lint, analyze, gates, export, watch, extract, verify-structure, verify-acceptance, verify-issue, exhaustive, entailment, guards, enforcement, triggers, decomposition, help
@@ -28,7 +30,10 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 _path = Path(__file__).resolve().parent
 while _path.name != ".opencode":
-    _path = _path.parent
+    parent = _path.parent
+    if parent == _path:
+        raise RuntimeError("Could not find .opencode/ directory")
+    _path = parent
 PROJECT_ROOT = _path.parent
 IMPL_DIR = BASE_DIR / "impl" / "skildeck"
 SYM_DIR = BASE_DIR / "impl"
@@ -40,6 +45,7 @@ ACTIONS = {
     "export": "skildeck-export",
     "watch": "skildeck-watch",
     "extract": "skildeck-extract",
+    "validate": "skildeck-validate",
     "verify-structure": "skildeck-verify-structure",
     "verify-acceptance": "skildeck-verify-acceptance",
     "verify-issue": "skildeck-verify-issue",
@@ -81,6 +87,9 @@ def _run_action(script: Path, forwarded_args: list[str], summary: str) -> int:
 
 def main() -> None:
     args = sys.argv[1:]
+    if len(sys.argv) == 2 and sys.argv[1] == "--description":
+        print("Skill deck formal analysis CLI.")
+        return
     if not args or args[0] in ("-h", "--help", "help"):
         print(__doc__)
         print("\nAvailable actions:")
@@ -133,5 +142,7 @@ def main() -> None:
         )
     )
 
+
 if __name__ == "__main__":
     main()
+

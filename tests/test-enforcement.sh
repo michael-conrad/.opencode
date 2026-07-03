@@ -20,6 +20,7 @@ while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
     PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
+source "$(dirname "${BASH_SOURCE[0]}")/default-model.sh"
 
 SCENARIO_FILTER=()
 TAG_FILTER=()
@@ -66,7 +67,6 @@ LOGDIR="$PROJECT_DIR/tmp/enforcement-test-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$LOGDIR"
 
 TIMEOUT=120
-MODEL="${ENFORCEMENT_TEST_MODEL:-ollama-cloud/glm-5.1}"
 WITH_TEST_HOME="$PROJECT_DIR/.opencode/tests/with-test-home"
 
 # Test scenarios: name -> "prompt message"
@@ -83,7 +83,7 @@ SCENARIOS["item-decomposition-step"]="Does .opencode/skills/approval-gate/tasks/
 SCENARIOS["brainstorming-top-down"]="Does .opencode/skills/brainstorming/SKILL.md reference the top-down-analysis task?"
 SCENARIOS["writing-plans-bottom-up"]="Does .opencode/skills/writing-plans/SKILL.md contain per-item bottom-up design sections?"
 SCENARIOS["executing-plans-tdd"]="Does .opencode/skills/executing-plans/SKILL.md reference the per-item TDD cycle?"
-SCENARIOS["divide-conquer-tdd"]="Does .opencode/skills/divide-and-conquer/SKILL.md task context include tdd_phase?"
+SCENARIOS["divide-conquer-tdd"]="Does .opencode/skills/implementation-pipeline/SKILL.md task context include tdd_phase?"
 SCENARIOS["agents-md-incremental"]="Does AGENTS.md list incremental-build in the guidelines table?"
 SCENARIOS["worktree-handoff-step"]="Does .opencode/skills/git-workflow/tasks/review-prep.md contain a Step 2.5 for worktree handoff after push?"
 SCENARIOS["scope-auto-resolve-guideline"]="Does .opencode/guidelines/000-critical-rules.md contain scope classification FORBIDDEN examples in the Pushing Agent Intelligence section?"
@@ -144,7 +144,6 @@ SCENARIOS["checklist-chat-output-format"]="Does .opencode/skills/finishing-a-dev
 SCENARIOS["dispatch-checkpoint-live-verification"]="Does .opencode/skills/approval-gate/SKILL.md contain an evidence requirement that mandates tool-call artifact evidence for each dispatch chain verification gate?"
 SCENARIOS["spec-creation-red-gate"]="Does .opencode/skills/spec-creation/tasks/write.md contain a Step 0.5 RED Gate requiring enforcement test assertions verified in RED state before spec assembly?"
 SCENARIOS["analyze-and-spec-red-gate"]="Does .opencode/skills/issue-review/tasks/analyze-and-spec.md contain a Step 4.1 RED Gate requiring enforcement test assertions verified in RED state before fix spec sub-issue creation?"
-SCENARIOS["ui-engineer-red-gate"]="Does .opencode/skills/ui-engineer/tasks/implement.md contain a Step 0.5 RED Gate requiring enforcement test assertions verified in RED state before UI implementation?"
 SCENARIOS["gap-fill-precedence-principle"]="Does .opencode/skills/approval-gate/tasks/verify-authorization.md contain a Gap-Fill Precedence Principle section stating that when authorization_scope gap-fill actions cover a missing artifact requirement it is a gap-fill trigger not a blocking gate?"
 SCENARIOS["gap-fill-precedence-for-pr"]="Does .opencode/skills/approval-gate/tasks/verify-authorization.md Gap-Fill Precedence Principle section explicitly state that for_pr scope with auto_create_spec means a bug report missing fix spec is a gap-fill trigger not a blocking gate?"
 SCENARIOS["gap-fill-precedence-standard-scope"]="Does .opencode/skills/approval-gate/tasks/verify-authorization.md Gap-Fill Precedence Principle section state that standard scope without auto_create_spec means a bug report missing fix spec remains a blocking gate?"
@@ -177,7 +176,7 @@ SCENARIOS["inline-work-required-entries"]="Does .opencode/guidelines/000-critica
 SCENARIOS["orchestrator-purity-go-prohibitions"]="Does .opencode/guidelines/020-go-prohibitions.md ALWAYS DO section contain a requirement that the orchestrator NEVER performs inline work?"
 SCENARIOS["approval-gate-step0"]="Does .opencode/skills/approval-gate/SKILL.md contain a Step 0 titled 'Orchestrator Purity Gate' that mandates the orchestrator verify it has NOT performed any inline work?"
 SCENARIOS["approval-gate-step54"]="Does .opencode/skills/approval-gate/SKILL.md contain a Step 5.4 titled 'Universal Clean-Room Dispatch Gate' that mandates sub-agent dispatch for every pipeline stage?"
-SCENARIOS["divide-conquer-decomposition-rule"]="Does .opencode/skills/divide-and-conquer/SKILL.md contain a Decomposition Rule section with a table that lists Allowed Single Steps and Forbidden Combined Steps?"
+SCENARIOS["divide-conquer-decomposition-rule"]="Does .opencode/skills/implementation-pipeline/SKILL.md contain a Decomposition Rule section with a table that lists Allowed Single Steps and Forbidden Combined Steps?"
 SCENARIOS["verification-isolation-section"]="Does .opencode/skills/verification-before-completion/SKILL.md contain a Verification Isolation section requiring verification by a DIFFERENT sub-agent from the producer?"
 SCENARIOS["dispatch-audit-tables"]="Does every SKILL.md file in .opencode/skills/ contain a Sub-Agent Tasks section or dispatch audit table with columns for Task, Trigger Condition, Scope of Context, Exclusions, and Inline Work?"
 SCENARIOS["no-inline-work-yes"]="Is Inline Work? = NO in every dispatch audit table across all SKILL.md files in .opencode/skills/?"
@@ -206,6 +205,8 @@ SCENARIOS["for-pr-solicitation-crossref"]="Does .opencode/guidelines/020-go-proh
 SCENARIOS["post-tool-output-checkpoint"]="Does .opencode/guidelines/000-critical-rules.md contain a subsection titled 'Post-Tool Execution Output Checkpoint' that requires visible chat output after every tool call batch before halting?"
 SCENARIOS["completion-scope-clarification"]="Does .opencode/skills/approval-gate/tasks/completion.md contain a 'Completion Task Scope Clarification' section stating that --task completion is NOT for generating the agent's primary visible output?"
 SCENARIOS["post-dispatch-output-gate"]="Does .opencode/skills/approval-gate/SKILL.md contain a 'Step 0.5: Post-Dispatch Output Gate' that requires visible chat output after every sub-agent dispatch?"
+SCENARIOS["issue-closure-outside-cleanup-violation"]="Does .opencode/guidelines/000-critical-rules.md contain a critical violation section titled 'Issue Closure Outside Cleanup Workflow — agent MUST NOT close GitHub Issues through direct API calls'?"
+SCENARIOS["issue-closure-outside-cleanup-yaml"]="Does .opencode/guidelines/000-critical-rules.md yaml+symbolic block contain rule critical-rules-070 titled 'Issue Closure Outside Cleanup Workflow — agent MUST NOT close GitHub Issues through direct API calls'?"
 SCENARIOS["parent-issue-left-open-violation"]="Does .opencode/guidelines/000-critical-rules.md contain a critical violation section titled 'Parent Issue Left Open After All Children Closed'?"
 SCENARIOS["parent-issue-left-open-yaml"]="Does .opencode/guidelines/000-critical-rules.md yaml+symbolic block contain rule critical-rules-039 titled 'Parent issue left open after all children closed'?"
 SCENARIOS["parent-issue-closure-vai-step6"]="Does .opencode/skills/approval-gate/tasks/verify-already-implemented.md contain a Step 6 titled 'Parent Plan Closure Check'?"
@@ -219,6 +220,7 @@ SCENARIOS["skill-word-count"]="Verify all SKILL.md files in .opencode/skills/ ar
 SCENARIOS["skildeck-lint-progressive-disclosure"]="Verify skildeck lint includes progressive-disclosure rules for frontmatter and word counts"
 SCENARIOS["session-enforcement-guideline-index"]="Verify session-enforcement.ts injects guideline INDEX.md reference via progressive-disclosure blocks (moved from removed buildGuidelineIndexBlock stub)"
 SCENARIOS["progressive-disclosure-060-updated"]="Verify 060-tool-usage.md section 0 references progressive disclosure and INDEX.md"
+SCENARIOS["skill-yaml-frontmatter-parse"]="Verify all SKILL.md files in .opencode/skills/ have valid YAML frontmatter that parses correctly with yaml.safe_load"
 SCENARIOS["discard-on-sub-agent-failure"]="Does .opencode/guidelines/000-critical-rules.md contain a 'Discard on Sub-Agent Failure' section requiring ALL failed sub-agent work be discarded before re-dispatch with zero state retained?"
 SCENARIOS["orchestrator-poisoned-pipeline"]="Does .opencode/guidelines/000-critical-rules.md contain an 'Orchestrator Inline Work = Poisoned Pipeline' section requiring full pipeline restart from verify-authorization with ALL state discarded when orchestrator performs inline work?"
 SCENARIOS["tool-recipe-dispatch-prohibited"]="Does .opencode/guidelines/000-critical-rules.md contain a 'Tool-Recipe Dispatch' section prohibiting dispatching sub-agents with exact MCP tool names, parameter lists, or step-by-step execution scripts?"
@@ -230,6 +232,17 @@ SCENARIOS["cost-blind-verification"]="Does .opencode/guidelines/000-critical-rul
 SCENARIOS["functional-test-substitution-prohibited-rule"]="Does .opencode/guidelines/000-critical-rules.md contain a critical-rules-060 section titled 'Functional/Behavioral Test Substitution Prohibition' with forbidden substitutions and required actions?"
 SCENARIOS["universal-redispatch-mandate"]="Does .opencode/guidelines/000-critical-rules.md contain a 'Universal Re-Dispatch Mandate' section requiring re-dispatch of clean-room sub-agents at ALL pipeline stages with no inline fallback on sub-agent failure?"
 SCENARIOS["progressive-iterative-gates"]="Does .opencode/guidelines/000-critical-rules.md contain references to 'commit-anchored gates' or 'progressive iterative' implementation discipline in the Monolithic Implementation or enforcement sections?"
+
+# SC-1: must_receive contract change
+SCENARIOS["sc1-must-receive-no-spec-body"]="Does .opencode/skills/adversarial-audit/SKILL.md Dispatch Context Contract must_receive array REMOVE spec_body and evaluation_criteria and ADD spec_issue_number as the primary reference field?"
+# SC-2: must_not_receive contract change
+SCENARIOS["sc2-must-not-receive-spec-body-forbidden"]="Does .opencode/skills/adversarial-audit/SKILL.md Dispatch Context Contract must_not_receive array ADD spec_body and evaluation_criteria as forbidden fields?"
+# SC-4: task context audit entries updated
+SCENARIOS["sc4-task-context-spec-body-removed"]="Does .opencode/skills/adversarial-audit/SKILL.md Sub-Agent Task Context Audit table REMOVE evidence_payload and evaluation_criteria from cross-validate context scope?"
+# SC-8: CONTEXT_TAINTED extended with SC_CONFLICT
+SCENARIOS["sc8-context-tainted-sc-conflict"]="Does .opencode/agents/auditor-glm-5.1.md CONTEXT_TAINTED violation signals include SC_CONFLICT as a specific violation type?"
+# SC-12: task context audit tables updated
+SCENARIOS["sc12-task-context-tables-reflect-removal"]="Do ALL task context audit tables in .opencode/skills/adversarial-audit/tasks/ reflect removal of inline spec_body and evaluation_criteria from dispatch scope?"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -306,7 +319,6 @@ SCENARIO_TAGS["checklist-chat-output-format"]="content-verification verification
 SCENARIO_TAGS["dispatch-checkpoint-live-verification"]="content-verification approval"
 SCENARIO_TAGS["spec-creation-red-gate"]="content-verification spec-creation"
 SCENARIO_TAGS["analyze-and-spec-red-gate"]="content-verification issue-review"
-SCENARIO_TAGS["ui-engineer-red-gate"]="content-verification ui-engineer"
 SCENARIO_TAGS["gap-fill-precedence-principle"]="content-verification approval"
 SCENARIO_TAGS["gap-fill-precedence-for-pr"]="content-verification approval"
 SCENARIO_TAGS["gap-fill-precedence-standard-scope"]="content-verification approval"
@@ -383,6 +395,22 @@ SCENARIOS["skill-dispatch-critical-rules-048-symbolic"]="Does .opencode/guidelin
 SCENARIOS["skill-dispatch-critical-rules-048-prose"]="Does .opencode/guidelines/000-critical-rules.md contain a prose section titled 'Skill Pre-Read + Inline Execution'?"
 SCENARIOS["skill-dispatch-critical-rules-048-distinction"]="Does .opencode/guidelines/000-critical-rules.md contain a 3-way violation distinction table with critical-rules-048, critical-rules-034, and #329?"
 SCENARIOS["sc6-no-unconditional-general"]="Verify none of the 17 Group A+B-4 skill files in .opencode/skills/ still retain the unconditional 'All tasks run via task(subagent_type=\"general\")' pattern — each must have the auditor clause (auditor_1/auditor_2 — NOT \"general\")"
+SCENARIOS["cross-validate-sc1-monotonic-invariant"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md Step 4 header declare the monotonic invariant: verdicts only decrease in PASSness, FAIL→PASS is universally forbidden?"
+SCENARIOS["cross-validate-sc2-fail-is-terminal"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md Step 4 contain a 'FAIL Is Terminal' subsection enumerating rationalization patterns with hard FAIL consensus?"
+SCENARIOS["cross-validate-sc3-self-check-step-5-7"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md contain a Step 5.7 'Output-Integrity Self-Check' section before Step 6?"
+SCENARIOS["cross-validate-sc4-self-corrections-in-result-contract"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md Step 7 result contract template include a \`self_corrections\` array?"
+SCENARIOS["cross-validate-sc5-no-remediation-verification"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md FAIL Is Terminal subsection state that cross-validate does NOT perform remediation verification?"
+SCENARIOS["cross-validate-sc6-self-check-scans-explanation"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md Step 5.7 self-check scan for hedging qualifiers, critique language, narrative override, and suppressed disagreement?"
+SCENARIOS["cross-validate-sc10-existing-rules-preserved"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md still contain the DISAGREE Is Terminal section (cross-validate-007a-disagree) and Evidence Type Gate (cross-validate-007b) rules?"
+SCENARIOS["cross-validate-sc11-self-corrections-cascade-fail"]="Does .opencode/skills/adversarial-audit/tasks/cross-validate.md Step 7 state that any single self-correction produces overall_consensus = FAIL?"
+SCENARIO_TAGS["cross-validate-sc1-monotonic-invariant"]="content-verification adversarial-audit"
+SCENARIO_TAGS["cross-validate-sc2-fail-is-terminal"]="content-verification adversarial-audit"
+SCENARIO_TAGS["cross-validate-sc3-self-check-step-5-7"]="content-verification adversarial-audit"
+SCENARIO_TAGS["cross-validate-sc4-self-corrections-in-result-contract"]="content-verification adversarial-audit"
+SCENARIO_TAGS["cross-validate-sc5-no-remediation-verification"]="content-verification adversarial-audit"
+SCENARIO_TAGS["cross-validate-sc6-self-check-scans-explanation"]="content-verification adversarial-audit"
+SCENARIO_TAGS["cross-validate-sc10-existing-rules-preserved"]="content-verification adversarial-audit"
+SCENARIO_TAGS["cross-validate-sc11-self-corrections-cascade-fail"]="content-verification adversarial-audit"
 SCENARIO_TAGS["divide-conquer-decomposition-rule"]="content-verification clean-room-dispatch"
 SCENARIO_TAGS["verification-isolation-section"]="content-verification clean-room-dispatch"
 SCENARIO_TAGS["dispatch-audit-tables"]="content-verification clean-room-dispatch"
@@ -413,6 +441,8 @@ SCENARIO_TAGS["halt-blockers-completion-fields"]="content-verification halt-outp
 SCENARIO_TAGS["post-tool-output-checkpoint"]="content-verification silent-termination"
 SCENARIO_TAGS["completion-scope-clarification"]="content-verification silent-termination"
 SCENARIO_TAGS["post-dispatch-output-gate"]="content-verification silent-termination"
+SCENARIO_TAGS["issue-closure-outside-cleanup-violation"]="content-verification git-workflow issue-closure"
+SCENARIO_TAGS["issue-closure-outside-cleanup-yaml"]="content-verification git-workflow issue-closure"
 SCENARIO_TAGS["parent-issue-left-open-violation"]="content-verification git-workflow issue-closure"
 SCENARIO_TAGS["parent-issue-left-open-yaml"]="content-verification git-workflow issue-closure"
 SCENARIO_TAGS["parent-issue-closure-vai-step6"]="content-verification approval issue-closure"
@@ -460,12 +490,20 @@ SCENARIO_TAGS["skill-dispatch-critical-rules-048-symbolic"]="content-verificatio
 SCENARIO_TAGS["skill-dispatch-critical-rules-048-prose"]="content-verification skill-dispatch"
 SCENARIO_TAGS["skill-dispatch-critical-rules-048-distinction"]="content-verification skill-dispatch"
 SCENARIO_TAGS["sc6-no-unconditional-general"]="content-verification skill-routing"
+SCENARIO_TAGS["sc1-must-receive-no-spec-body"]="content-verification adversarial-audit"
+SCENARIO_TAGS["sc2-must-not-receive-spec-body-forbidden"]="content-verification adversarial-audit"
+SCENARIO_TAGS["sc4-task-context-spec-body-removed"]="content-verification adversarial-audit"
+SCENARIO_TAGS["sc8-context-tainted-sc-conflict"]="content-verification adversarial-audit"
+SCENARIO_TAGS["sc12-task-context-tables-reflect-removal"]="content-verification adversarial-audit"
+SCENARIOS["session-init-tools-section"]="Does the output of `./.opencode/tools/session-init` contain a `## Agent Tools` section with tool listing?"
+SCENARIO_TAGS["session-init-tools-section"]="content-verification session-init"
+SCENARIO_TAGS["skill-yaml-frontmatter-parse"]="content-verification yaml progressive-disclosure"
 
 # File-to-scenario mapping for --changed filtering
 # Maps glob patterns to scenario names
 declare -A FILE_SCENARIO_MAP
 FILE_SCENARIO_MAP[".opencode/guidelines/091-incremental-build.md"]="incremental-build-guideline monolithic-implementation-violation item-decomposition-step sc-assertion-tdd-cycle red-state-before-implementation red-phase-enforcement-incremental-build red-phase-enforcement-critical-rules-xref"
-FILE_SCENARIO_MAP[".opencode/guidelines/000-critical-rules.md"]="scope-auto-resolve-guideline monolithic-implementation-violation identity-echo-validation secret-exfiltration-violation url-sourcing-guideline-rules dispatch-artifact-requirements red-phase-enforcement-critical-rules-xref critical-rules-body-erasure direct-branch-default worktree-bypass-conditional for-pr-gap-fill-critical-violation for-pr-gap-fill-forbidden-entries for-pr-gap-fill-required-entries for-pr-gap-fill-pr-creation pr-creation-scope-exception pr-creation-scope-yaml-rule hook-output-advisory-subsection hook-output-advisory-yaml-rule wrong-api-routing-violation wrong-api-routing-yaml-rule dispatch-gate-checkpoint inline-work-dispatch-gate structural-decision-solicitation-vacv structural-decision-solicitation-yaml halt-blockers-format post-tool-output-checkpoint unsquashed-pr-violation unsquashed-pr-yaml-rule parent-issue-left-open-violation parent-issue-left-open-yaml model-aware-critical-violation discard-on-sub-agent-failure orchestrator-poisoned-pipeline tool-recipe-dispatch-prohibited coherence-gate-pre-red execution-time-coherence-detection audit-classified-remediation-section gate-non-waiver-principle cost-blind-verification universal-redispatch-mandate progressive-iterative-gates skill-dispatch-critical-rules-048-symbolic skill-dispatch-critical-rules-048-prose skill-dispatch-critical-rules-048-distinction functional-test-substitution-prohibited-rule"
+FILE_SCENARIO_MAP[".opencode/guidelines/000-critical-rules.md"]="scope-auto-resolve-guideline monolithic-implementation-violation identity-echo-validation secret-exfiltration-violation url-sourcing-guideline-rules dispatch-artifact-requirements red-phase-enforcement-critical-rules-xref critical-rules-body-erasure direct-branch-default worktree-bypass-conditional for-pr-gap-fill-critical-violation for-pr-gap-fill-forbidden-entries for-pr-gap-fill-required-entries for-pr-gap-fill-pr-creation pr-creation-scope-exception pr-creation-scope-yaml-rule hook-output-advisory-subsection hook-output-advisory-yaml-rule wrong-api-routing-violation wrong-api-routing-yaml-rule dispatch-gate-checkpoint inline-work-dispatch-gate structural-decision-solicitation-vacv structural-decision-solicitation-yaml halt-blockers-format post-tool-output-checkpoint unsquashed-pr-violation unsquashed-pr-yaml-rule issue-closure-outside-cleanup-violation issue-closure-outside-cleanup-yaml parent-issue-left-open-violation parent-issue-left-open-yaml model-aware-critical-violation discard-on-sub-agent-failure orchestrator-poisoned-pipeline tool-recipe-dispatch-prohibited coherence-gate-pre-red execution-time-coherence-detection audit-classified-remediation-section gate-non-waiver-principle cost-blind-verification universal-redispatch-mandate progressive-iterative-gates skill-dispatch-critical-rules-048-symbolic skill-dispatch-critical-rules-048-prose skill-dispatch-critical-rules-048-distinction functional-test-substitution-prohibited-rule"
 FILE_SCENARIO_MAP[".opencode/prompts/default.txt"]="skill-dispatch-mandate-heading skill-dispatch-mandate-zero-tolerance skill-dispatch-mandate-canonical-form skill-dispatch-mandate-no-pre-read skill-dispatch-mandate-critical-violation skill-dispatch-mandate-dev-cycle-ref"
 FILE_SCENARIO_MAP[".opencode/scripts/session_context_triggers.py"]="local-only-trigger-function local-only-trigger-directive dev-edit-guard-trigger stash-triage-directive"
 FILE_SCENARIO_MAP[".opencode/guidelines/010-approval-gate.md"]="for-pr-gap-fill-yaml-rule for-pr-gap-fill-scope-model approval-pr-timing-scope"
@@ -474,7 +512,7 @@ FILE_SCENARIO_MAP[".opencode/skills/approval-gate/"]="item-decomposition-step sc
 FILE_SCENARIO_MAP[".opencode/skills/brainstorming/"]="brainstorming-top-down verification-mechanics-brainstorming"
 FILE_SCENARIO_MAP[".opencode/skills/writing-plans/"]="writing-plans-bottom-up validate-executable-verification semantic-intent-writing-plans why-specific-value-tdd red-phase-gate-writing-plans red-phase-gate-writing-plans-skillmd"
 FILE_SCENARIO_MAP[".opencode/skills/executing-plans/"]="executing-plans-tdd red-phase-gate-executing-plans red-phase-gate-skillmd"
-FILE_SCENARIO_MAP[".opencode/skills/divide-and-conquer/"]="divide-conquer-tdd enforcement-module-completion enforcement-module-result-validation enforcement-module-overflow enforcement-module-work-state"
+FILE_SCENARIO_MAP[".opencode/skills/implementation-pipeline/"]="divide-conquer-tdd enforcement-module-completion enforcement-module-result-validation enforcement-module-overflow enforcement-module-work-state"
 FILE_SCENARIO_MAP[".opencode/skills/git-workflow/"]="worktree-handoff-step cleanup-sc-verification-gate cleanup-phase-completion-gate review-prep-format-self-check url-sourcing-rule1-review-prep url-sourcing-rule1-pr url-sourcing-rule2-character-match release-pr-routing release-promotion-trigger git-workflow-routing-section cleanup-body-modification-warning pre-work-direct-branch pre-work-worktree-opt-in submodule-sha-locking rebase-pending-submodule-sync enforcement-gate-commit-count review-prep-squash-verification parent-issue-closure-cleanup-step28"
 FILE_SCENARIO_MAP[".opencode/skills/verification-before-completion/"]="per-sc-evidence-table vbc-per-sc-evidence-skill functional-test-substitution-prohibited-rule"
 FILE_SCENARIO_MAP[".opencode/skills/finishing-a-development-branch/"]="finishing-sc-verification checklist-chat-output-format"
@@ -482,18 +520,22 @@ FILE_SCENARIO_MAP[".opencode/guidelines/060-tool-usage.md"]="ollama-tooling-regi
 FILE_SCENARIO_MAP[".opencode/guidelines/080-code-standards.md"]="sc-to-test-traceability red-phase-ordering sc-traceability-example functional-test-substitution-prohibited-rule"
 FILE_SCENARIO_MAP[".opencode/guidelines/140-planning-spec-creation.md"]="executable-verification-commands vague-verification-antipattern"
 FILE_SCENARIO_MAP[".opencode/skills/spec-creation/"]="semantic-intent-spec-creation narrow-sc-table-exemption spec-creation-red-gate"
+FILE_SCENARIO_MAP[".opencode/skills/adversarial-audit/tasks/cross-validate.md"]="cross-validate-sc1-monotonic-invariant cross-validate-sc2-fail-is-terminal cross-validate-sc3-self-check-step-5-7 cross-validate-sc4-self-corrections-in-result-contract cross-validate-sc5-no-remediation-verification cross-validate-sc6-self-check-scans-explanation cross-validate-sc10-existing-rules-preserved cross-validate-sc11-self-corrections-cascade-fail"
 FILE_SCENARIO_MAP[".opencode/skills/spec-auditor/"]="sc-precision-audit spec-auditor-body-preservation"
 FILE_SCENARIO_MAP[".opencode/skills/sre-runbook/"]="all-body-modification-safeguards"
 FILE_SCENARIO_MAP[".opencode/skills/issue-operations/"]="sub-issue-structure url-sourcing-issue-operations close-body-preservation"
 FILE_SCENARIO_MAP[".opencode/skills/pr-creation-workflow/"]="pr-creation-exclusion pre-pr-checklist-commit-count"
 FILE_SCENARIO_MAP[".opencode/skills/issue-review/"]="analyze-and-spec-red-gate"
-FILE_SCENARIO_MAP[".opencode/skills/ui-engineer/"]="ui-engineer-red-gate"
 FILE_SCENARIO_MAP[".opencode/skills/session-enforcement.ts"]="identity-echo-validation secret-exfiltration-violation read-secrets-in-output dev-edit-guard-plugin dev-edit-guard-pair-mode"
 FILE_SCENARIO_MAP[".opencode/plugins/session-enforcement.ts"]="identity-echo-validation secret-exfiltration-violation dev-edit-guard-plugin dev-edit-guard-pair-mode sub-agent-session-detection sub-agent-injection-gating sub-agent-operational-guards-unconditional"
-FILE_SCENARIO_MAP[".opencode/tools/session-init"]="identity-echo-validation wrong-api-routing-subfolder-mapping"
+FILE_SCENARIO_MAP[".opencode/tools/session-init"]="identity-echo-validation wrong-api-routing-subfolder-mapping session-init-tools-section"
 FILE_SCENARIO_MAP[".opencode/guidelines/117-session-trigger-behavior.md"]="stash-trigger-guideline-reference"
 FILE_SCENARIO_MAP["AGENTS.md"]="agents-md-incremental"
 FILE_SCENARIO_MAP[".opencode/skills/"]="sc6-no-unconditional-general"
+FILE_SCENARIO_MAP[".opencode/skills/adversarial-audit/SKILL.md"]="sc1-must-receive-no-spec-body sc2-must-not-receive-spec-body-forbidden sc4-task-context-spec-body-removed"
+FILE_SCENARIO_MAP[".opencode/agents/auditor-glm-5.1.md"]="sc8-context-tainted-sc-conflict"
+FILE_SCENARIO_MAP[".opencode/skills/adversarial-audit/tasks/"]="sc12-task-context-tables-reflect-removal"
+FILE_SCENARIO_MAP[".opencode/tests/test-enforcement.sh"]="skill-yaml-frontmatter-parse guideline-frontmatter guideline-index-exists guideline-index-word-count skill-word-count skildeck-lint-progressive-disclosure session-enforcement-guideline-index progressive-disclosure-060-updated session-init-tools-section"
 
 # --list: print scenario names and exit
 if [ "$LIST_ONLY" = true ]; then
@@ -618,7 +660,7 @@ RUN_COUNT=${#SCENARIO_NAMES[@]}
 
 echo "=== Enforcement Integration Test ==="
 echo "Log dir: $LOGDIR"
-echo "Model: $MODEL"
+echo "Model: $DEFAULT_TEST_MODEL"
 echo "Mode: isolated (with-test-home wrapper)"
 echo "Scenarios: $RUN_COUNT / $TOTAL_SCENARIOS"
 echo ""
@@ -696,7 +738,6 @@ EXPECTED_SKILLS["checklist-chat-output-format"]=""
 EXPECTED_SKILLS["dispatch-checkpoint-live-verification"]=""
 EXPECTED_SKILLS["spec-creation-red-gate"]=""
 EXPECTED_SKILLS["analyze-and-spec-red-gate"]=""
-EXPECTED_SKILLS["ui-engineer-red-gate"]=""
 EXPECTED_SKILLS["gap-fill-precedence-principle"]=""
 EXPECTED_SKILLS["gap-fill-precedence-for-pr"]=""
 EXPECTED_SKILLS["gap-fill-precedence-standard-scope"]=""
@@ -780,6 +821,8 @@ EXPECTED_SKILLS["unsquashed-pr-yaml-rule"]=""
 EXPECTED_SKILLS["enforcement-gate-commit-count"]=""
 EXPECTED_SKILLS["review-prep-squash-verification"]=""
 EXPECTED_SKILLS["pre-pr-checklist-commit-count"]=""
+EXPECTED_SKILLS["issue-closure-outside-cleanup-violation"]=""
+EXPECTED_SKILLS["issue-closure-outside-cleanup-yaml"]=""
 EXPECTED_SKILLS["parent-issue-left-open-violation"]=""
 EXPECTED_SKILLS["parent-issue-left-open-yaml"]=""
 EXPECTED_SKILLS["parent-issue-closure-vai-step6"]=""
@@ -812,13 +855,15 @@ EXPECTED_SKILLS["skill-dispatch-mandate-dev-cycle-ref"]=""
 EXPECTED_SKILLS["skill-dispatch-critical-rules-048-symbolic"]=""
 EXPECTED_SKILLS["skill-dispatch-critical-rules-048-prose"]=""
 EXPECTED_SKILLS["skill-dispatch-critical-rules-048-distinction"]=""
+EXPECTED_SKILLS["session-init-tools-section"]=""
+EXPECTED_SKILLS["skill-yaml-frontmatter-parse"]=""
 
 RESULTS_FILE="$LOGDIR/results.md"
 
 echo "# Enforcement Integration Test Results" > "$RESULTS_FILE"
 echo "" >> "$RESULTS_FILE"
 echo "Date: $(date -Iseconds)" >> "$RESULTS_FILE"
-echo "Model: $MODEL" >> "$RESULTS_FILE"
+echo "Model: $DEFAULT_TEST_MODEL" >> "$RESULTS_FILE"
 echo "Mode: isolated (with-test-home)" >> "$RESULTS_FILE"
 echo "Scenarios run: $RUN_COUNT / $TOTAL_SCENARIOS" >> "$RESULTS_FILE"
 echo "" >> "$RESULTS_FILE"
@@ -845,7 +890,7 @@ for scenario_name in "${SCENARIO_NAMES[@]}"; do
     # Run opencode-cli in isolated mode via with-test-home wrapper
     # --print-logs goes to stderr, formatted output to stdout
     timeout $TIMEOUT bash "$WITH_TEST_HOME" opencode-cli run "$MESSAGE" \
-        --model "$MODEL" \
+        --model "$DEFAULT_TEST_MODEL" \
         --print-logs \
         > "$SCENARIO_OUT" 2> "$SCENARIO_LOG" \
         || true
@@ -923,7 +968,9 @@ echo "=== Scenarios Run: $RUN_COUNT / $TOTAL_SCENARIOS ==="
 echo "## Key Plugin Events (from bug-report scenario)" >> "$RESULTS_FILE"
 echo "" >> "$RESULTS_FILE"
 echo '```' >> "$RESULTS_FILE"
-grep -E "(loading plugin|service=skill count|session-enforcement|error|Error)" "$LOGDIR/bug-report.log" 2>/dev/null | head -20 >> "$RESULTS_FILE"
+if [ -f "$LOGDIR/bug-report.log" ]; then
+    grep -E "(loading plugin|service=skill count|session-enforcement|error|Error)" "$LOGDIR/bug-report.log" | head -20 >> "$RESULTS_FILE" || true
+fi
 echo '```' >> "$RESULTS_FILE"
 
 echo ""
@@ -1039,6 +1086,59 @@ else
     OVERALL_PASS=false
 fi
 
+# Verify all SKILL.md YAML frontmatter parses correctly
+SKILL_DIR="$PROJECT_DIR/.opencode/skills"
+if [ -d "$SKILL_DIR" ]; then
+    SKILL_FILES=$(find "$SKILL_DIR" -name SKILL.md 2>/dev/null | sort)
+    YAML_FRONTMATTER_FAIL=false
+    YAML_TOTAL=0
+    YAML_PASS=0
+    YAML_FAIL=0
+    for skill_path in $SKILL_FILES; do
+        YAML_TOTAL=$((YAML_TOTAL + 1))
+        SKILL_REL="${skill_path#$PROJECT_DIR/.opencode/skills/}"
+        # Extract frontmatter between --- delimiters and pipe to yaml.safe_load
+        if uv run python3 -c "
+import yaml, sys, re
+content = open('$skill_path').read()
+m = re.match(r'^---\s*\n(.*?)\n---', content, re.DOTALL)
+if not m:
+    sys.exit(2)
+try:
+    parsed = yaml.safe_load(m.group(1))
+    if not isinstance(parsed, dict):
+        sys.exit(3)
+except yaml.YAMLError as e:
+    print(f'YAML ERROR: {e}')
+    sys.exit(1)
+" 2>/dev/null; then
+            echo "  $SKILL_REL YAML frontmatter: PASS"
+            echo "- **$SKILL_REL YAML frontmatter:** PASS" >> "$RESULTS_FILE"
+            YAML_PASS=$((YAML_PASS + 1))
+        elif [ $? -eq 2 ]; then
+            echo "  $SKILL_REL YAML frontmatter: MISSING"
+            echo "- **$SKILL_REL YAML frontmatter:** MISSING" >> "$RESULTS_FILE"
+            YAML_FAIL=$((YAML_FAIL + 1))
+            GUIDELINE_PASS=false
+            OVERALL_PASS=false
+        elif [ $? -eq 3 ]; then
+            echo "  $SKILL_REL YAML frontmatter: NOT_A_DICT"
+            echo "- **$SKILL_REL YAML frontmatter:** NOT_A_DICT" >> "$RESULTS_FILE"
+            YAML_FAIL=$((YAML_FAIL + 1))
+            GUIDELINE_PASS=false
+            OVERALL_PASS=false
+        else
+            echo "  $SKILL_REL YAML frontmatter: PARSE_ERROR"
+            echo "- **$SKILL_REL YAML frontmatter:** PARSE_ERROR" >> "$RESULTS_FILE"
+            YAML_FAIL=$((YAML_FAIL + 1))
+            GUIDELINE_PASS=false
+            OVERALL_PASS=false
+        fi
+    done
+    echo "  skill-yaml-frontmatter-parse: $YAML_PASS/$YAML_TOTAL passed, $YAML_FAIL failed"
+    echo "- **skill-yaml-frontmatter-parse:** $YAML_PASS/$YAML_TOTAL passed" >> "$RESULTS_FILE"
+fi
+
 # Verify writing-plans bottom-up design sections
 WRITING_PLANS_SKILL="$PROJECT_DIR/.opencode/skills/writing-plans/SKILL.md"
 if [ -f "$WRITING_PLANS_SKILL" ]; then
@@ -1080,7 +1180,7 @@ else
 fi
 
 # Verify divide-and-conquer TDD phase in task context
-DC_SKILL="$PROJECT_DIR/.opencode/skills/divide-and-conquer/SKILL.md"
+DC_SKILL="$PROJECT_DIR/.opencode/skills/implementation-pipeline/SKILL.md"
 if [ -f "$DC_SKILL" ]; then
     TDD_DC=$(grep -c "tdd_phase" "$DC_SKILL" 2>/dev/null || echo "0")
     if [ "$TDD_DC" -ge 1 ]; then
@@ -1397,6 +1497,171 @@ else
     OVERALL_PASS=false
 fi
 
+# SC-1: must_receive contract — spec_body and evaluation_criteria removed, spec_issue_number added
+AUDIT_SKILL_FILE="$PROJECT_DIR/.opencode/skills/adversarial-audit/SKILL.md"
+SC1_MUST_RECEIVE=$(grep -c "must_receive.*spec_issue_number\|spec_issue_number.*must_receive" "$AUDIT_SKILL_FILE" 2>/dev/null || echo "0")
+SC1_NO_SPEC_BODY=$(grep -c "must_receive.*spec_body\|spec_body.*must_receive" "$AUDIT_SKILL_FILE" 2>/dev/null || echo "0")
+if [ "$SC1_MUST_RECEIVE" -ge 1 ] && [ "$SC1_NO_SPEC_BODY" -eq 0 ]; then
+    echo "  adversarial-audit SKILL.md must_receive (no spec_body, has spec_issue_number): FOUND"
+    echo "- **adversarial-audit SKILL.md must_receive (SC-1):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  adversarial-audit SKILL.md must_receive: MISSING (spec_issue_number=$SC1_MUST_RECEIVE, spec_body=$SC1_NO_SPEC_BODY)"
+    echo "- **adversarial-audit SKILL.md must_receive (SC-1):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-2: must_not_receive — spec_body and evaluation_criteria added as forbidden
+SC2_NO_SPEC_BODY=$(grep -c "must_not_receive.*spec_body\|spec_body.*must_not_receive" "$AUDIT_SKILL_FILE" 2>/dev/null || echo "0")
+SC2_NO_EVAL=$(grep -c "must_not_receive.*evaluation_criteria\|evaluation_criteria.*must_not_receive" "$AUDIT_SKILL_FILE" 2>/dev/null || echo "0")
+if [ "$SC2_NO_SPEC_BODY" -ge 1 ] && [ "$SC2_NO_EVAL" -ge 1 ]; then
+    echo "  adversarial-audit SKILL.md must_not_receive (spec_body, evaluation_criteria): FOUND"
+    echo "- **adversarial-audit SKILL.md must_not_receive (SC-2):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  adversarial-audit SKILL.md must_not_receive: MISSING (spec_body=$SC2_NO_SPEC_BODY, eval=$SC2_NO_EVAL)"
+    echo "- **adversarial-audit SKILL.md must_not_receive (SC-2):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-4: Task context audit entries — evidence_payload and evaluation_criteria removed from cross-validate scope
+SC4_CROSS_VALIDATE=$(grep -c "cross-validate.*evidence_payload\|evidence_payload.*cross-validate" "$AUDIT_SKILL_FILE" 2>/dev/null || echo "0")
+SC4_EVAL_CRITERIA=$(grep -c "cross-validate.*evaluation_criteria\|evaluation_criteria.*cross-validate" "$AUDIT_SKILL_FILE" 2>/dev/null || echo "0")
+if [ "$SC4_CROSS_VALIDATE" -eq 0 ] && [ "$SC4_EVAL_CRITERIA" -eq 0 ]; then
+    echo "  adversarial-audit SKILL.md task context (cross-validate no evidence_payload/eval): FOUND"
+    echo "- **adversarial-audit SKILL.md task context (SC-4):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  adversarial-audit SKILL.md task context: MISSING (evidence_payload=$SC4_CROSS_VALIDATE, eval=$SC4_EVAL_CRITERIA)"
+    echo "- **adversarial-audit SKILL.md task context (SC-4):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-8: CONTEXT_TAINTED extended with SC_CONFLICT in auditor agent cards
+AUDITOR_AGENT_FILE="$PROJECT_DIR/.opencode/agents/auditor-glm-5.1.md"
+SC8_SC_CONFLICT=$(grep -c "SC_CONFLICT\|sc_conflict" "$AUDITOR_AGENT_FILE" 2>/dev/null || echo "0")
+if [ "$SC8_SC_CONFLICT" -ge 1 ]; then
+    echo "  auditor-glm-5.1.md CONTEXT_TAINTED with SC_CONFLICT: FOUND"
+    echo "- **auditor-glm-5.1.md CONTEXT_TAINTED with SC_CONFLICT (SC-8):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  auditor-glm-5.1.md CONTEXT_TAINTED with SC_CONFLICT: MISSING"
+    echo "- **auditor-glm-5.1.md CONTEXT_TAINTED with SC_CONFLICT (SC-8):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-12: All task context audit tables reflect removal — verify cross-validate task file
+CROSS_VALIDATE_TASK="$PROJECT_DIR/.opencode/skills/adversarial-audit/tasks/cross-validate.md"
+SC12_EVIDENCE_PAYLOAD=$(grep -c "evidence_payload" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+SC12_SPEC_ISSUE=$(grep -c "spec_issue_number\|spec_issue\|github.owner\|github.repo" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+# evidence_payload should be replaced (0 occurrences) and spec_issue_number should exist
+if [ "$SC12_EVIDENCE_PAYLOAD" -eq 0 ] && [ "$SC12_SPEC_ISSUE" -ge 1 ]; then
+    echo "  cross-validate.md task context (no evidence_payload, has issue refs): FOUND"
+    echo "- **cross-validate.md task context reflects removal (SC-12):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md task context: MISSING (evidence_payload=$SC12_EVIDENCE_PAYLOAD, issue_refs=$SC12_SPEC_ISSUE)"
+    echo "- **cross-validate.md task context reflects removal (SC-12):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-1: Monotonic invariant declared in Step 4 header
+CROSS_VALIDATE_SC1_MONOTONIC=$(grep -c "monotonic non-increasing\|verdicts only decrease\|verdicts must never increase" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC1_MONOTONIC" -ge 1 ]; then
+    echo "  cross-validate.md Step 4 monotonic invariant (SC-903-SC-1): FOUND"
+    echo "- **cross-validate.md monotonic invariant (SC-903-SC-1):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md Step 4 monotonic invariant (SC-903-SC-1): MISSING"
+    echo "- **cross-validate.md monotonic invariant (SC-903-SC-1):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-2: FAIL Is Terminal subsection enumerating rationalization patterns
+CROSS_VALIDATE_SC2_FAIL_TERMINAL=$(grep -c "FAIL Is Terminal\|terminal at the cross-validate stage\|Revision already applied\|already fixed" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC2_FAIL_TERMINAL" -ge 2 ]; then
+    echo "  cross-validate.md FAIL Is Terminal (SC-903-SC-2): FOUND"
+    echo "- **cross-validate.md FAIL Is Terminal (SC-903-SC-2):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md FAIL Is Terminal (SC-903-SC-2): MISSING (found $CROSS_VALIDATE_SC2_FAIL_TERMINAL)"
+    echo "- **cross-validate.md FAIL Is Terminal (SC-903-SC-2):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-3: Step 5.7 Output-Integrity Self-Check
+CROSS_VALIDATE_SC3_SELF_CHECK=$(grep -c "Step 5.7\|Output-Integrity Self-Check\|self_corrections.*array" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC3_SELF_CHECK" -ge 1 ]; then
+    echo "  cross-validate.md Step 5.7 self-check (SC-903-SC-3): FOUND"
+    echo "- **cross-validate.md Step 5.7 self-check (SC-903-SC-3):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md Step 5.7 self-check (SC-903-SC-3): MISSING"
+    echo "- **cross-validate.md Step 5.7 self-check (SC-903-SC-3):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-4: self_corrections array in result contract template
+CROSS_VALIDATE_SC4_SELF_CORRECTIONS=$(grep -c "self_corrections" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC4_SELF_CORRECTIONS" -ge 1 ]; then
+    echo "  cross-validate.md self_corrections in result contract (SC-903-SC-4): FOUND"
+    echo "- **cross-validate.md self_corrections in result contract (SC-903-SC-4):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md self_corrections in result contract (SC-903-SC-4): MISSING"
+    echo "- **cross-validate.md self_corrections in result contract (SC-903-SC-4):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-5: DISAGREE Is Terminal reinforced — no remediation verification
+CROSS_VALIDATE_SC5_NO_REMED=$(grep -c "does NOT perform remediation\|not perform remediation\|remediation verification" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC5_NO_REMED" -ge 1 ]; then
+    echo "  cross-validate.md no remediation verification (SC-903-SC-5): FOUND"
+    echo "- **cross-validate.md no remediation verification (SC-903-SC-5):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md no remediation verification (SC-903-SC-5): MISSING"
+    echo "- **cross-validate.md no remediation verification (SC-903-SC-5):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-6: Step 5.7 self-check scans explanation/evidence
+CROSS_VALIDATE_SC6_SCAN=$(grep -c "hedging qualifiers\|critique language.*PASS\|narrative override\|suppressed disagreement" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC6_SCAN" -ge 1 ]; then
+    echo "  cross-validate.md self-check scans explanation/evidence (SC-903-SC-6): FOUND"
+    echo "- **cross-validate.md self-check scans explanation/evidence (SC-903-SC-6):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md self-check scans explanation/evidence (SC-903-SC-6): MISSING"
+    echo "- **cross-validate.md self-check scans explanation/evidence (SC-903-SC-6):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-10: Existing DISAGREE Is Terminal and Evidence Type Gate preserved
+CROSS_VALIDATE_SC10_DISAGREE=$(grep -c "DISAGREE Is Terminal" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+CROSS_VALIDATE_SC10_EVIDENCE_GATE=$(grep -c "Evidence Type Gate\|evidence.*type.*gate\|EVIDENCE_TYPE" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC10_DISAGREE" -ge 1 ] && [ "$CROSS_VALIDATE_SC10_EVIDENCE_GATE" -ge 1 ]; then
+    echo "  cross-validate.md existing DISAGREE+Evidence Gate preserved (SC-903-SC-10): FOUND"
+    echo "- **cross-validate.md existing rules preserved (SC-903-SC-10):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md existing rules preserved (SC-903-SC-10): MISSING (disagree=$CROSS_VALIDATE_SC10_DISAGREE, evidence_gate=$CROSS_VALIDATE_SC10_EVIDENCE_GATE)"
+    echo "- **cross-validate.md existing rules preserved (SC-903-SC-10):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
+# SC-903-SC-11: Self-corrections cascade to overall FAIL
+CROSS_VALIDATE_SC11_CASCADE=$(grep -c "single self-correction.*overall\|self-correct.*FAIL.*cascade\|any.*self.correction.*overall" "$CROSS_VALIDATE_TASK" 2>/dev/null || echo "0")
+if [ "$CROSS_VALIDATE_SC11_CASCADE" -ge 1 ]; then
+    echo "  cross-validate.md self-corrections cascade to FAIL (SC-903-SC-11): FOUND"
+    echo "- **cross-validate.md self-corrections cascade to FAIL (SC-903-SC-11):** FOUND" >> "$RESULTS_FILE"
+else
+    echo "  cross-validate.md self-corrections cascade to FAIL (SC-903-SC-11): MISSING"
+    echo "- **cross-validate.md self-corrections cascade to FAIL (SC-903-SC-11):** MISSING" >> "$RESULTS_FILE"
+    GUIDELINE_PASS=false
+    OVERALL_PASS=false
+fi
+
 # session-enforcement.ts contains redactSecrets function
 SESSION_ENFORCEMENT_FILE="$PROJECT_DIR/.opencode/plugins/session-enforcement.ts"
 REDACT_SECRETS=$(grep -c "redactSecrets\|IDENTITY_VALIDATION" "$SESSION_ENFORCEMENT_FILE" 2>/dev/null || echo "0")
@@ -1590,18 +1855,7 @@ else
     OVERALL_PASS=false
 fi
 
-# ui-engineer RED Gate in implement.md
-UI_IMPL_FILE="$PROJECT_DIR/.opencode/skills/ui-engineer/tasks/implement.md"
-UI_ENGINEER_RED=$(grep -c "Step 0.5.*RED Gate\|RED Gate.*UI.*Enforcement Test\|enforcement test assertions.*RED state.*before.*UI\|test-ui.*mandatory prerequisite\|test-ui.*MANDATORY prerequisite" "$UI_IMPL_FILE" 2>/dev/null || echo "0")
-if [ "$UI_ENGINEER_RED" -ge 1 ]; then
-    echo "  ui-engineer/implement RED Gate: FOUND"
-    echo "- **ui-engineer/implement RED Gate:** FOUND" >> "$RESULTS_FILE"
-else
-    echo "  ui-engineer/implement RED Gate: MISSING"
-    echo "- **ui-engineer/implement RED Gate:** MISSING" >> "$RESULTS_FILE"
-    GUIDELINE_PASS=false
-    OVERALL_PASS=false
-fi
+
 
 echo ""
 echo "" >> "$RESULTS_FILE"

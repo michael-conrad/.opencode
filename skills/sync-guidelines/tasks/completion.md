@@ -4,26 +4,26 @@ Idempotent completion subtask for sync-guidelines. Ensures mandatory steps ran r
 
 ## State Check Phase
 
-1. **Classification completion:** All files classified as core or project-specific
-2. **Sync issue creation:** Sync issues created for core changes (not direct file edits)
-3. **Sync state file:** `.opencode/sync-state.yml` updated after sync operation
-4. **No direct modifications:** No target repository files modified directly
+- [ ] 1. **Classification completion:** All files classified as core or project-specific
+- [ ] 2. **Sync issue creation:** Sync issues created for core changes (not direct file edits)
+- [ ] 3. **Sync state file:** `.opencode/sync-state.yml` updated after sync operation
+- [ ] 4. **No direct modifications:** No target repository files modified directly
 
 ## Skill-Specific Completion
 
-1. **Classification verification** (if not already performed):
+- [ ] 1. **Classification verification** (if not already performed):
    - Check evidence that all relevant files were read and classified
    - If missing: invoke `classify` task as remediation
 
-2. **Sync issue creation verification** (if not already performed):
+- [ ] 2. **Sync issue creation verification** (if not already performed):
    - Check evidence that sync issues exist in target repository for core changes
    - If missing: invoke `sync-push` or `sync-pull` task as remediation
 
-3. **Sync state file verification** (if not already performed):
+- [ ] 3. **Sync state file verification** (if not already performed):
    - Check `.opencode/sync-state.yml` has updated timestamp and file list
    - If stale: update sync state with current operation details
 
-4. **No direct modification guard** (if not already performed):
+- [ ] 4. **No direct modification guard** (if not already performed):
    - Verify no files were directly edited in target repository
    - If direct edits found: create sync issue to propose those changes formally
 
@@ -31,15 +31,15 @@ Idempotent completion subtask for sync-guidelines. Ensures mandatory steps ran r
 
 Reference `.opencode/skills/completion-core/completion-core.md` for reporting:
 
-1. Report executive summary in chat (always runs)
-2. Action URL (issue URL) as the URL (ALWAYS last)
+- [ ] 1. Report executive summary in chat (always runs)
+- [ ] 2. Action URL (issue URL) as the URL (ALWAYS last)
 
 ## Completion Guarantee
 
 **MANDATORY:** Regardless of workflow outcome (success, partial, error), produce a status message containing:
-1. What was completed
-2. What was attempted but not completed
-3. Why the halt occurred
+- [ ] 1. What was completed
+- [ ] 2. What was attempted but not completed
+- [ ] 3. Why the halt occurred
 
 This is the completion guarantee: NO sync-guidelines workflow ends without a status message.
 

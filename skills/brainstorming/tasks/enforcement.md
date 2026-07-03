@@ -4,13 +4,13 @@ Enforcement rules and messages for the brainstorming skill. Ensures brainstormin
 
 ## What Skills MUST Check
 
-1. **Before spec creation:**
+- [ ] 1. **Before spec creation:**
 
    - Has exploration been invoked?
    - Is exploration output present?
    - Has problem understanding been explored?
 
-2. **Enforcement matrix (expanded with protocol-compliance):**
+- [ ] 2. **Enforcement matrix (expanded with protocol-compliance):**
 
    | State | Check | Action |
    | -- | -- | -- |
@@ -21,7 +21,7 @@ Enforcement rules and messages for the brainstorming skill. Ensures brainstormin
     | Exploration invoked, protocol followed | Interactive Q&A with developer confirmation for key items | PROCEED to spec creation |
     | Terminal routing to spec-creation occurred (not just issue-operations)? | Verify spec-creation was invoked after exploration | Chat + tool call evidence | SOFT-PASS |
 
-3. **What does NOT bypass exploration:**
+- [ ] 3. **What does NOT bypass exploration:**
 
    - "skip brainstorming" → NOT allowed
    - "I already know what I want" → Still require brief exploration (problem understanding at minimum)

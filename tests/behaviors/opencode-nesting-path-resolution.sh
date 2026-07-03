@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: opencode-nesting-path-resolution
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral enforcement test: .opencode/.opencode/ path nesting
 # Verifies the agent composes paths correctly when workdir is inside .opencode/
 # (e.g., submodule context) — must use "tmp" not ".opencode/tmp".

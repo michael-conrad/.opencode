@@ -2,6 +2,8 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
+
 # Task: coherence-maintenance
 
 ## Purpose
@@ -10,7 +12,7 @@ Detect drift between baseline coherence state and current guidelines/skills. Ide
 
 ## Entry Criteria
 
-- Baseline file exists at `./tmp/artifacts/baseline-*.json`
+- Baseline file exists at `./tmp/{issue-N}/artifacts/baseline-*.json`
 - `audit_phase: coherence_gate`
 - `github.owner`, `github.repo` available
 
@@ -23,11 +25,22 @@ Detect drift between baseline coherence state and current guidelines/skills. Ide
 
 ## Procedure
 
+## Coherence Maintenance Checklist
+
+- [ ] 1. Load Baseline — find latest baseline JSON, parse rules and behaviors
+- [ ] 2. Extract Current State — re-extract guideline rules and skill behaviors
+- [ ] 3. Compare Against Baseline — rules_added/removed/modified, behaviors drift
+- [ ] 4. Classify Drift — controlled vs uncontrolled per severity
+- [ ] 5. Identify Migration Candidates — procedural workflows suitable for extraction
+- [ ] 6. Build Evaluation Criteria — define CM table with evidence types
+- [ ] 7. Cross-Validate — cross-validate will be called by the orchestrator with pre-resolved verdicts
+- [ ] 8. Build Result Contract — YAML verdict with drift analysis
+
 ### Step 1: Load Baseline
 
 Find latest baseline:
 ```python
-baseline_files = glob("./tmp/artifacts/baseline-*.json")
+baseline_files = glob("./tmp/{issue-N}/artifacts/baseline-*.json")
 latest_baseline = max(baseline_files, key=lambda f: extract_date(f))
 baseline = json.loads(read(latest_baseline))
 ```
@@ -115,45 +128,13 @@ for skill_behavior in current_state["skills"]["behaviors"]:
 | CM-4 | Cross-refs consistent | Guideline ↔ skill mapping valid |
 | CM-5 | Migration candidates identified | Procedural workflows flagged |
 
-### Step 7: Cross-Validate via task()
+### Step 7: Cross-Validate
 
-```python
-task(
-    subagent_type="general",
-    prompt=f"""Use adversarial-audit skill --task cross-validate with:
-
-evidence_payload:
----
-BASELINE:
-{baseline_summary}
-
-CURRENT STATE:
-{current_state_summary}
-
-DRIFT DETECTED:
-{drift_summary}
-
-evaluation_criteria: <criteria_json>
-audit_phase: coherence_gate
-authorization_scope: {authorization_scope}
-halt_at: {halt_at}
-pr_strategy: {pr_strategy}
-pipeline_phase: {pipeline_phase}
-
-# NOTE: cross-validate does NOT dispatch auditors — it receives
-# pre-resolved auditor_verdicts and computes consensus.
-auditor_verdicts: {auditor_verdicts}
-
-worktree.path: {worktree.path}
-github.owner: {github.owner}
-github.repo: {github.repo}
-"""
-)
-```
+Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
 
 ### Step 8: Build Result Contract
 
-```json
+```yaml
 {
   "status": "DONE",
   "audit_type": "coherence-maintenance",
@@ -183,15 +164,6 @@ github.repo: {github.repo}
 | Baseline not found | Return BLOCKED — run `coherence-extraction` first |
 | Drift exceeds threshold | Return FAIL with drift report |
 | Cross-ref unresolved | Flag skill for cross-ref update |
-
-## Dispatch Mandate (CRITICAL — per critical-rules-048)
-
-This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
-1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
-2. Dispatching auditor sub-agents in parallel
-3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_verdicts`
-
-This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
 
 ## Completion Dependency Chain
 

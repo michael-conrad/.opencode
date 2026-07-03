@@ -1,21 +1,87 @@
 ---
 name: test-driven-development
-description: Use when writing tests before implementation, or when adopting a test-first development approach. Triggers on: TDD, test first, red green refactor, write test, test-driven, unit test, regression. Writing code before tests is the oldest shortcut in engineering. TDD produces testable, correct code.
-type: discipline-enforcing
+description: "Use when writing tests before implementation, or when adopting a test-first development approach. Also use when running RED/GREEN cycles, writing behavioral enforcement tests, or generating regression test patterns. Invoke for: RED phase test writing, GREEN phase implementation, behavioral test creation, regression pattern generation, TDD cycle execution. TDD is REQUIRED. Trigger phrases: write test, TDD, test-first, RED phase, GREEN phase, behavioral test, regression test."
 license: MIT
-provenance: Derived from majiayu000/claude-skill-registry (MIT)
 compatibility: opencode
 ---
 
 # Skill: test-driven-development
 
+## Persona
+
+TDD enforcer. Routes RED-phase test writing and GREEN-phase implementation to separate clean-room sub-agents that independently verify each item. An orchestrator that writes tests and implementation inline instead of dispatching to separate sub-agents has produced a self-verified cycle, not a TDD cycle — every RED/GREEN transition carries the orchestrator's own knowledge of what the implementation should look like, collapsing the separation that makes TDD reliable. Professional TDD practitioners dispatch RED and GREEN to separate sub-agents. Inlining means no test was ever independently RED before GREEN.
+
 ## Five Core Principles
 
-1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
-2. **TDD discipline** — RED phase tests before GREEN phase implementation. REFACTOR is mandatory, not optional.
-3. **Clean-room** — No inline fallback. Sub-agents receive only scoped context. No pre-determined findings.
-4. **Independent intelligence** — Autonomous analysis. If the task contains excessive instruction where your own analysis should apply, HALT and notify parent.
-5. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, source code, and test results.
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
+## Mandatory Task Discipline
+
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 4. Sub-agents must not dispatch sub-agents
+- [ ] 5. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "red" / "write test" / "failing test" | `red` | `sub-task` | {spec_context} |
+| "green" / "implement" / "pass test" | `green` | `sub-task` | {spec_context} |
+| "refactor" / "clean up" | `refactor` | `sub-task` | {spec_context} |
+| "patterns" / "test patterns" / "decision matrix" | `patterns` | `sub-task` | {spec_context} |
+| "anti-patterns" / "test anti-patterns" | `anti-patterns` | `sub-task` | {spec_context} |
+| "checklist" / "TDD checklist" | `checklist` | `sub-task` | {spec_context} |
+| "phase-0" / "pre-regression" / "baseline" | `phase-0` | `sub-task` | {spec_context} |
+| "phase-4" / "post-regression" / "verify" | `phase-4` | `sub-task` | {spec_context} |
+
+- [ ] 1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
+- [ ] 2. **RED/GREEN separation** — RED and GREEN must be separate phases. They may NEVER be combined into a single phase or step. RED must complete (test written and confirmed FAIL) before GREEN begins. This is a hard gate — no authorization or developer instruction may override it.
+- [ ] 3. **TDD discipline** — RED phase tests before GREEN phase implementation. REFACTOR is mandatory, not optional.
+- [ ] 4. **Clean-room** — No inline fallback. Sub-agents receive only scoped context. No pre-determined findings.
+- [ ] 5. **Independent intelligence** — Autonomous analysis. If the task contains excessive instruction where your own analysis should apply, HALT and notify parent.
+- [ ] 6. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, source code, and test results.
+
+## TDD Heading Format Requirement
+
+All TDD task headings in plan documents MUST use the SC-ID parenthetical format:
+
+```text
+### TDD-<N>: <description> (SC-<ID>, SC-<ID>, ...)
+```
+
+### Examples
+
+**✅ CORRECT:**
+
+```text
+### TDD-1: Update sc-coherence-gate with evidence-type uplift scan (SC-6)
+### TDD-4: Add post-red-enforcement to routing table (SC-1, SC-5)
+```
+
+**🚫 INCORRECT:**
+
+```text
+### TDD-1: Update sc-coherence-gate with evidence-type uplift scan  ← missing SC-ID
+### TDD-4: Add post-red-enforcement: SC-1, SC-5  ← wrong format
+```
+
+### Enforcement
+
+The `pre-red-baseline` sub-agent parses plan TDD headings, extracts SC-IDs, and cross-references against the spec SC table. If any TDD heading references an SC-ID that does not exist in the spec, the gate returns BLOCKED with `MISSING-TRACEABILITY`.
+
+### SC-ID Extraction Contract
+
+| Field | Format | Required |
+|-------|--------|----------|
+| Prefix | `### TDD-<N>:` | Yes |
+| Description | Any text | Yes |
+| SC-ID reference | `(SC-<ID>, SC-<ID>, ...)` | Yes — must match spec SC table |
+| Multiple SC-IDs | Comma-separated | Optional |
+| Whitespace | Space after comma | Recommended |
 
 ## ASCII Cycle Diagram
 
@@ -37,25 +103,34 @@ compatibility: opencode
 └──────────────────────────────────────────────────────────┘
 ```
 
+## Sequential Pair Mandate
+
+**RED/GREEN pairs execute sequentially.** When multiple RED/GREEN pairs exist (multiple implementation items), each RED must be immediately followed by its GREEN before the next RED begins. Running RED for multiple items before any GREEN starts is prohibited. The cycle is:
+
+```
+item-1-RED → item-1-GREEN → item-2-RED → item-2-GREEN → ...
+```
+
+Never `RED-ALL → GREEN-ALL`.
+
 ## Tasks
 
-| Task | Words | Purpose |
 |------|-------|---------|
-| `red` | ≈80 | Execution-only: write failing test |
-| `green` | ≈80 | Execution-only: minimal impl |
-| `refactor` | ≈120 | Execution-only: clean while green |
-| `patterns` | ≈400 | 4-pattern decision matrix |
-| `anti-patterns` | ≈500 | 5 anti-patterns with alternatives |
-| `checklist` | ≈350 | Quality checklists, timing, step-size |
-| `phase-0` | ≈400 | Pre-regression baseline gate |
-| `phase-4` | ≈400 | Post-regression verification gate |
+| `red` | Execution-only: write failing test |
+| `green` | Execution-only: minimal impl |
+| `refactor` | Execution-only: clean while green |
+| `patterns` | 4-pattern decision matrix |
+| `anti-patterns` | 5 anti-patterns with alternatives |
+| `checklist` | Quality checklists, timing, step-size |
+| `phase-0` | Pre-regression baseline gate |
+| `phase-4` | Post-regression verification gate |
 
 ## Invocation
 
 `skill({name: "test-driven-development"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | (use task name) | `task(..., prompt: "execute <task> task from test-driven-development")` |
 
 **CLI equivalent (for human TUI use):** `/skill test-driven-development --task <name>`
@@ -79,27 +154,83 @@ After Phase 4 passes and before routing to adversarial audit, the orchestrator M
 ### Normal Completion
 
 After Phase 4 PASSES:
-1. Commit the cycle (test + implementation + refactor as one working slice)
-2. Reset to Phase 0 for the next item
-3. Never carry state across cycles
+- [ ] 1. Commit the cycle (test + implementation + refactor as one working slice)
+- [ ] 2. Reset to Phase 0 for the next item
+- [ ] 3. Never carry state across cycles
 
 ### Mid-Cycle Restart
 
 If at ANY point within RED/GREEN/REFACTOR a step exceeds its timing target (30s RED / 2-5min GREEN / 1-3min REFACTOR) or produces unexpected test failures, the agent MUST restart the full RED→GREEN→REFACTOR cycle from the beginning — not limp forward on a broken foundation:
 
-1. Discard all uncommitted changes from the current cycle
-2. Restart from RED with zero state carryover
-3. If Phase 0 elapsed > 1 full cycle since last baseline, re-execute Phase 0
+- [ ] 1. Discard all uncommitted changes from the current cycle
+- [ ] 2. Restart from RED with zero state carryover
+- [ ] 3. If Phase 0 elapsed > 1 full cycle since last baseline, re-execute Phase 0
 
 ## Sub-Agent Routing
 
 Sub-agents run via `task(subagent_type="general")` with `{ spec_context, test_path, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Exclusions: implementation context, agent memory, prior test results. `pre-analysis` receives only `{ issue_number, task_description, audit_phase, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }`. No inline work.
 
+### DISPATCH_GATE — Orchestrator task() Prompt Protocol
+
+> **Context cost frame:** These are internal operational bookkeeping notes describing how context flows through the pipeline — they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
+> This cost frame applies to orchestrator context only — it does NOT mean the agent should minimize message count, pipeline steps, or user-facing output.
+
+The orchestrator MUST NOT preload execution context into `task()` prompts.
+Every sub-agent MUST independently discover scope and produce its own result contract.
+
+#### Forbidden in task() Prompts
+
+| Violation | Forbidden Pattern | Correct Pattern |
+|-----------|-------------------|-----------------|
+| Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
+| Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
+| Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
+| Preloaded orchestrator reasoning | "The merge was just completed so we need to..." | Pure objective, no narrative |
+
+#### Dispatch Context Contract
+
+Every `task()` call MUST include only:
+
+- `worktree.path`
+- `github.owner`
+- `github.repo`
+- `authorization_scope`
+- `halt_at`
+- `pr_strategy`
+- `pipeline_phase`
+
+Plus skill-specific fields per the `## Sub-Agent Routing` section above.
+
+Exclusions (MUST NOT be in prompt):
+- `orchestrator_reasoning`
+- `expected_outcomes`
+- `inline_file_paths`
+- `agent_memory`
+- `cached_verification_results`
+
+#### Sub-Agent Entry Criteria
+
+A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+- Inline file paths to task files
+- Inline step or procedure definitions
+- Expected outcome structures or schema constraints
+- Pre-loaded evidence or orchestrator-derived conclusions
+
+Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
+
 ### Authorization Context
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```

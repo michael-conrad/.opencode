@@ -27,11 +27,11 @@ digraph brainstorming {
 
 ## Operating Protocol
 
-1. **Mandatory inspection first:** Run pre-spec code inspection before project context exploration
-2. **Cross-spec scope search:** Check for overlapping specs/plans before proceeding
-3. **One question at a time:** NEVER ask multiple questions in one message
-4. **Autonomous scope decisions:** Agent determines single vs multi-task, NOT asks user
-5. **Terminal step is spec-creation:** Exploration output feeds into spec-creation, never outputs spec directly
+- [ ] 1. **Mandatory inspection first:** Run pre-spec code inspection before project context exploration
+- [ ] 2. **Cross-spec scope search:** Check for overlapping specs/plans before proceeding
+- [ ] 3. **One question at a time:** NEVER ask multiple questions in one message
+- [ ] 4. **Autonomous scope decisions:** Agent determines single vs multi-task, NOT asks user
+- [ ] 5. **Terminal step is spec-creation:** Exploration output feeds into spec-creation, never outputs spec directly
 
 ## Entry Criteria
 

@@ -11,7 +11,7 @@ load_when: sub-agent
 AI agents MUST follow the **Spec-Driven Development** (Gated Workflow) approach with the **Plan-Bridge Hierarchy**:
 
 1. **Specify Phase**: Define **What & Why**. Kick off with a high-level vision (product brief), then expand it into a detailed specification focusing on user journeys, experiences, and success criteria.
-2. **Plan Phase** (Bridge): Define **How**. Create a plan issue (`[PLAN]` prefix, `plan` label) that references the spec via body linked reference. The plan bridges spec → tasks. **Spec approval authorizes plan creation; plan approval authorizes implementation.**
+2. **Plan Phase** (Bridge): Define **How**. Create a local plan index at `{N}/plan.md` with phase table, plus phase files at `{N}/plan-{NN}-{slug}.md` (one per phase). The plan bridges spec → tasks. **Spec approval authorizes plan creation; plan approval authorizes implementation.**
 3. **Tasks Phase**: Break the plan into **small, reviewable chunks** (sub-issues under the plan, not the spec) that can be implemented and tested in isolation.
 4. **Implement Phase**: **Execute** tasks and **verify** results.
 
@@ -33,10 +33,10 @@ ______________________________________________________________________
 ## Terminology: Spec vs. Plan vs. Guideline Files
 
 - **"Create a new spec"** = Create a GitHub Issue with `[SPEC]` prefix (Mandatory when GitHub MCP available)
-- **"Create a plan"** = Create a GitHub Issue with `[PLAN]` prefix and `plan` label, referencing the spec via body linked reference
+- **"Create a plan"** = Create a local plan index at `{N}/plan.md` with phase table, plus phase files at `{N}/plan-{NN}-{slug}.md` (one per phase), referencing the spec via body linked reference
 - **"Create a guideline file"** = Create/modify files in `.opencode/guidelines/` (Implementation task)
 - **SPEC = GitHub Issue** — Specs are planning/tracking artifacts, not file system artifacts
-- **PLAN = GitHub Issue** — Plans are separate issues that bridge specs to implementation sub-issues; sub-issues are children of the plan, not the spec
+- **PLAN = local files** — Plans are local artifacts: index at `{N}/plan.md` with phase table, plus phase files at `{N}/plan-{NN}-{slug}.md` (one per phase). They bridge specs to implementation sub-issues; sub-issues are children of the plan's spec issue, not the spec itself
 
 ______________________________________________________________________
 

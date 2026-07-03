@@ -115,6 +115,18 @@ Pre-commit hook output guides, not gates. If a pre-commit hook blocks a commit, 
 - The watchdog is NOT triggered by exempt keys (user.name, user.email, push.autoSetupRemote, pull.rebase)
 
 
+### Checkpoint Rollback Exception
+
+`git reset --hard <checkpoint-tag>` is authorized automatically (no developer prompt) when ALL conditions are met:
+
+1. A checkpoint tag exists matching `<parent>/checkpoint/<issue>/phase-<N>-<submodule>` per `git-workflow/SKILL.md` §Tag Convention
+2. The current pipeline step's verification failed (VbC or dual-auditor FAIL)
+3. The reset target is the checkpoint tag (not any other ref)
+4. Pre-rollback diagnostics (`git status`, `git diff --stat`) reported to chat
+5. The reset is followed by work-state-based re-dispatch
+
+**First-step failure (no checkpoint):** Use `git checkout .` to clean working tree and re-dispatch.
+
 ### [critical-rules-006] CRITICAL VIOLATION — Pushing Agent Intelligence Decisions to the User
 Structural decisions auto-resolved by agent. See `brainstorming` explore task.
 
@@ -150,17 +162,80 @@ Rules that prevent **quality defects**: skipped verification, inline work, skill
 ### [critical-rules-007] Worktree Bypass — using stash+checkout instead of worktrees when WORKTREE_REQUIRED
 Using stash+checkout means contaminating your workspace state. Professional engineers isolate work in worktrees — amateurs juggle stashes and risk losing uncommitted context.
 
+#### 🚫 FORBIDDEN
+
+- Using stash+checkout instead of worktrees when `WORKTREE_REQUIRED` is set
+
+#### ✅ REQUIRED
+
+- Always use `git worktree add` when `WORKTREE_REQUIRED` is set
+- Isolate each feature branch in its own worktree to prevent workspace contamination
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Using stash+checkout when WORKTREE_REQUIRED set | Contaminates workspace state; risk of losing uncommitted context via stash juggling |
+
 
 ### [critical-rules-007] Relative File Paths in Worktree Context — using relative paths when worktree.path is set
 Relative paths in worktree mode silently target the wrong repo. Every edit you make goes to the main repo instead of the worktree — your changes land in the wrong place. Professional agents prefix ALL paths with `worktree.path`.
+
+#### 🚫 FORBIDDEN
+
+- Using relative paths when `worktree.path` is set
+
+#### ✅ REQUIRED
+
+- Always prefix file operation paths with `worktree.path` when operating in a worktree
+- Use `workdir` parameter in bash tool calls to target the worktree
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Using relative paths when worktree.path set | Edits silently target the main repo instead of the worktree |
 
 
 ### [critical-rules-030] Sub-Agents Ignoring Worktree Context — sub-agents modifying main repo instead of worktree
 Sub-agents that modify the main repo instead of the worktree are contaminating the wrong workspace. Every file they write goes to the wrong directory. Professional orchestrators always pass `worktree.path` in task context.
 
+#### 🚫 FORBIDDEN
+
+- Sub-agents modifying the main repo when operating in a worktree
+
+#### ✅ REQUIRED
+
+- Always pass `worktree.path` in task context to sub-agents
+- Sub-agents must prefix all file paths with the received `worktree.path`
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Sub-agents modifying main repo instead of worktree | Every file they write goes to the wrong directory |
+
 
 ### [critical-rules-008] Implementing Without Verifying Against Live Documentation
 Implementing from memory means implementing from training data — always stale, always partially wrong. Professional engineers verify API signatures, env vars, and function parameters against live documentation before writing a single line of code.
+
+#### 🚫 FORBIDDEN
+
+- Implementing code based on memory or training data without live verification
+- Claiming API parameter names, method signatures, or config field names from assumption
+
+#### ✅ REQUIRED
+
+- Verify API signatures against official docs or source before calling
+- Check environment variable names against `.env.example` or config documentation
+- Verify function signatures via `srclight_get_signature` or source code inspection
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Implementing from memory | Uses stale training data, produces incorrect API calls |
+| Claiming signatures without verification | Defects discovered at runtime instead of design time |
 
 
 ### [critical-rules-009] Schema/API/Code Verification — claiming knowledge without verification
@@ -189,6 +264,17 @@ A plan is a map, not a destination. Treating plan completion as implementation c
 
 ### [critical-rules-009] Audience Separation — leaking internal artifacts to stakeholders
 Leaking internal audit findings and raw status into stakeholder communications damages trust. Drafting tools and delivery channels are separate concerns — professional communicators maintain audience separation. See `correspondence` skill → "Audience Separation Principle".
+
+
+### [critical-rules-XXX] Posting Spec-Audit Findings as Issue Comments
+
+**⚠️ Posting spec-audit findings as GitHub comments is FORBIDDEN.**
+
+Audit findings from spec-auditor are internal agent guidance — equivalent to linter output. They must be posted to chat only.
+
+- 🚫 FORBIDDEN: Posting audit findings (spec audits, plan fidelity checks, cross-validate results) as GitHub Issue comments
+- 🚫 FORBIDDEN: Treating audit output as stakeholder-facing content
+- ✅ REQUIRED: Audit findings go to chat only. Spec revisions (not audit results) go to issue comments when substantive.
 
 
 ### [critical-rules-012] Acting on Resources Without Reading All Comments
@@ -238,7 +324,7 @@ For URLs to resources that have been **created by an API call** (PR URL, Issue U
 - `issue-operations/tasks/creation.md` — Issue URL extraction from `github_issue_write`
 - `issue-operations/tasks/completion.md` — Issue URL extraction from `github_issue_write`
 - `verification-before-completion/tasks/completion.md` — Issue URL extraction from `github_issue_write`
-- `divide-and-conquer/tasks/assemble-work.md` — PR URL extraction after PR creation
+- `implementation-pipeline/tasks/assemble-work.md` — PR URL extraction after PR creation
 - `finishing-a-development-branch/tasks/checklist.md` — URL extraction checklist verification
 
 - **PR URL:** Extract from `github_create_pull_request` response `html_url` field
@@ -321,7 +407,7 @@ Professional engineers check for superseding open issues before implementing —
 
 
 ### [critical-rules-025] Main Agent Implements Directly
-Professional orchestrators route through sub-agents — amateurs inline work and produce contaminated pipelines. See `divide-and-conquer --task assemble-work`. Orchestrator tasks sub-agents via task() only.
+Professional orchestrators route through sub-agents — amateurs inline work and produce contaminated pipelines. See `implementation-pipeline --task assemble-work`. Orchestrator tasks sub-agents via task() only.
 
 
 ### [critical-rules-016] Bypassing Mandatory Skill Calls During Implementation
@@ -482,6 +568,7 @@ An orchestrator that reads files, edits files, or makes decisions inline has sto
 | -- | -- |
 | Orchestrator reads file inline to "understand context" | Task routing sub-agent instead |
 | Orchestrator edits guideline text inline | Task guideline-update sub-agent |
+| Orchestrator creates issue content inline ("straightforward content, I'll write it myself") | Task issue-operations skill |
 | Sub-agent performs analysis + writing + verification in one task() | Decompose into 3 tasks (analyze, write, verify) |
 | Verifier receives producer's reasoning or drafts | Verifier gets only deliverable + SC list |
 | Orchestrator performs inline work | Pipeline is poisoned — restart from `verify-authorization` with zero state retained |
@@ -490,6 +577,7 @@ An orchestrator that reads files, edits files, or makes decisions inline has sto
 | User said "continue" so mandatory checks are optional | Mandatory gates are structural invariants — "continue" is NOT authorization to skip |
 | Sub-agent skips defect detection in GREEN phase (code-complete without verification) | GREEN sub-agent MUST produce verification evidence before returning |
 | Orchestrator treats "continue" as waiver of a failed gate checkpoint | Failed gate is absolute stop — no task() proceeds past incomplete/failed gate; contamination requires full restart |
+| Orchestrator creates issue content inline (Edit on `.issues/` or direct `github_issue_write`) | Dispatch to `issue-operations --task creation`. **Fallback:** If `skill("issue-operations")` + `task()` is unavailable, use `github_issue_write` directly but MUST log tool name, version, and reason in a comment on the created issue. |
 
 
 ### [critical-rules-035] DISPATCH_GATE Checkpoint skipped
@@ -570,6 +658,10 @@ Deleting a branch without verifying its content against the target branch means 
 Running behavioral tests through grep and static analysis instead of `opencode-cli run` means you are testing the wrong thing — text patterns, not agent behavior. Professional engineers test against real AI models in clean-room isolation. Amateurs grep for keywords and call it verified.
 
 
+### [critical-rules-pipeline-reprime] Pipeline re-priming — enforcement blocks at each skill boundary
+Pipeline stage transitions require re-encountering an enforcement block restating procedural discipline identity. Professional engineers re-prime at every boundary. Amateurs let context degrade between gates.
+
+
 ### [critical-rules-044] Preloading Sub-Agent Context — task()ing with pre-determined file paths/line numbers/outcomes
 Handing a sub-agent pre-determined file paths, line numbers, and expected outcomes means you are not asking the sub-agent to do the work — you are asking it to execute your guesses. Professional engineers gate every execution behind a pre-analysis sub-agent that discovers the scope independently. Amateurs preload their assumptions.
 
@@ -588,7 +680,7 @@ See `approval-gate` skill → Authorization Scope Model.
 
 ### [critical-rules-hard-fail] Hard Failure Discipline — FAIL is a hard gate, never reclassifiable
 
-A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup gate, SC-verification gate, phase-completion gate) is a **hard gate** — it must be remediated, not sidestepped.
+A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup gate, SC-verification gate, phase-completion gate) is a **hard gate** — it must be remediated, not sidestepped. `DONE_WITH_CONCERNS` is coerced to FAIL — caveats are defects, not completions. The bright-line coercion rule in `implementation-pipeline/tasks/pipeline-executor.md` governs this coercion.
 
 **Remediation-first sequence (mandated by #763):**
 1. **Remediate** the root cause — diagnose what produced the FAIL
@@ -603,6 +695,96 @@ A FAIL signal at any pipeline stage (auditor verdict, sub-agent result, cleanup 
 
 Professional engineers remediate then re-verify — amateurs reclassify, soft-pass, or INCONCLUSIVE to avoid doing the work. See `065-verification-honesty.md` → "Hard Failure Discipline".
 
+### [critical-rules-test-integrity] Test Integrity Mandate — No Lobotomizing Tests
+
+Removing or weakening a behavioral (semantic, functional) test assertion to work around a timeout, failure, or infrastructure issue is the most expensive defect you can introduce. A lobotomized test passes by removing the signal it was designed to produce — producing a false PASS that masks a real defect.
+
+**This rule is enforced by `080-code-standards.md` §Test Integrity Mandate. Key provisions:**
+
+- **Rule 1**: Removing or weakening behavioral assertions is a CRITICAL VIOLATION — equivalent to soft-passing a verification mismatch
+- **Rule 2**: Timeout is always diagnosable — never assume model unavailability without tool-call evidence
+- **Rule 3**: Research sub-agents for test infrastructure problems — mandatory after 2+ remediation failures
+- **Rule 4**: FAIL is a hard gate — never proceed past FAIL. Only valid outcomes: PASS, FAIL (remediate and re-run), or INCONCLUSIVE after exhaustive remediation (escalate only)
+
+
+### [critical-rules-sc-lobotomy] CRITICAL VIOLATION — SC Lobotomy Prohibition — removing, weakening, deferring, or blocking success criteria
+
+Removing or weakening a success criterion from a spec to evade implementation is a CRITICAL VIOLATION. An agent MUST NOT:
+- Remove an SC from a spec's SC table to make it "closable"
+- Weaken an SC's evidence type (e.g., `behavioral` to `string`) to make it easier to verify
+- Replace an SC with a weaker version (changing what success means)
+- Mark an SC as "blocked" or "deferred" in the spec body to evade implementation
+- Add a `depends-on` or cross-reference solely to push SC verification out of the current spec
+- Claim an SC is "not achievable" and modify the spec rather than implementing it
+
+Required behavior: If an SC is structurally valid and the agent cannot implement it, report BLOCKED with root cause and HALT. The agent must NOT modify the spec, remove the SC, add a new change to "fix" the SC by changing what it tests, or create a dependent spec to offload the SC. The remediation-first protocol applies: attempt to implement before concluding impossibility.
+
+
+### [critical-rules-BEH-EV] Runtime-Behavioral Evidence Classification Gate — structural evidence for behavioral changes is EVIDENCE_TYPE_MISMATCH
+
+The question "does this change affect runtime behavior?" is substrate-determined — the change either alters runtime behavior or it does not. Intent, author assertion, and hope are irrelevant. When the answer is YES, submitting structural or string evidence is EVIDENCE_TYPE_MISMATCH, not a soft downgrade. The verdict is FAIL. No advisory, no "PASS with structural caveat," no INCONCLUSIVE. The classification gate enforces what the evidence type taxonomy already requires: behavioral changes demand behavioral evidence.
+
+Runtime behavior includes: agent dispatch decisions, enforcement gate outcomes, tool selection, pipeline routing, conditional branching, test execution results, and any observable system output. A change that modifies WHAT a system DOES at runtime — as opposed to what it CONTAINS statically — is a runtime-behavioral change.
+
+The uplift is automatic. Declaring an SC as `structural` or `string` does not exempt it from behavioral evidence requirements when the underlying change affects runtime behavior. Evidence type is determined by what the change DOES, not by what the author declares. A `string` SC that tests a runtime-behavioral change is automatically uplifted to `behavioral` — the declared type is overridden by the substrate classification.
+
+🚫 FORBIDDEN:
+- Submitting structural or string evidence for a runtime-behavioral change and reporting PASS
+- Declaring an SC as `structural` to avoid behavioral testing when the change affects runtime behavior
+- Classifying the evidence type question as intent-determined ("what did the author mean?") instead of substrate-determined ("does this change affect runtime behavior?")
+- Producing an advisory or INCONCLUSIVE verdict when EVIDENCE_TYPE_MISMATCH is detected
+
+✅ REQUIRED:
+- Classify the change question as substrate-determined: "Does this change affect runtime behavior? YES/NO"
+- When YES: automatically uplift declared evidence type to `behavioral` regardless of author declaration
+- When the declared type is `structural` or `string` but the change is runtime-behavioral: report EVIDENCE_TYPE_MISMATCH with a FAIL verdict
+- Apply the same remediation-first protocol as all hard failures: diagnose, remediate, re-verify
+
+Authority sources: `080-code-standards.md` §Evidence Type Taxonomy, `080-code-standards.md` §Test Integrity Mandate, `020-go-prohibitions.md` §1 ALWAYS DO — Cost-blind verification. See `065-verification-honesty.md` §Cost Model for the death-spiral cost rationale underlying this classification gate — automatic uplift from structural→behavioral prevents the death spiral at the earliest possible gate.
+
+
+### [critical-rules-linters-advisory] All linters are advisory only — no auto-modify
+
+All linters (current and future) MUST run in read-only/report-only mode. No linter may auto-modify files. A linter that modifies files is not advisory — it is destructive.
+
+| Linter | Forbidden | Required |
+|--------|-----------|----------|
+| `ruff check` | `ruff check --fix` (auto-fixes) | `ruff check` (report only) |
+| `ruff format` | `ruff format` (auto-formats) | `ruff format --check` (report what would change) |
+| `mdformat` | `mdformat` (without `--check`) | `mdformat --check` (report what would change) |
+| Any future linter | Auto-modify mode | Read-only/report-only mode |
+
+### [critical-rules-063] Orchestrator Context Lean — orchestrator holds routing metadata only
+The orchestrator holds routing metadata only (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase, pipeline_history). Task file contents, analysis artifacts, and verification results go to sub-agents or disk. See `020-go-prohibitions.md` §1.1.
+
+> **Note:** These are operational bookkeeping guidelines for context management. They describe how the orchestrator routes work to sub-agents — they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
+
+### [critical-rules-065] Result Contract Frugality — result contracts limited to routing-significant data
+Result contracts carry only routing-significant data (status, finding_summary, artifact_path, blocker_reason). Full evidence artifacts go to disk. See `020-go-prohibitions.md` §1.1.
+
+### [critical-rules-dispatch-gate-canonical] Canonical Dispatch String Violation — orchestrator uses custom prompt after reading canonical dispatch string
+
+**After loading a skill and reading its Trigger Dispatch Table, the orchestrator MUST use the canonical dispatch string verbatim from the skill's Invocation section. Writing a custom prompt with preloaded context — file paths, step sequences, expected outcomes, or orchestrator reasoning — is a DISPATCH_GATE violation.**
+
+The pattern to enforce:
+1. Load skill → read dispatch table + Invocation section → see canonical string
+2. Use that exact string as the `prompt` parameter
+3. Do NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+4. If canonical dispatch produces empty result: re-task clean-room (max 2 retries)
+
+This rule is the orchestrator-side counterpart to the Sub-Agent Entry Criteria already defined in every SKILL.md's DISPATCH_GATE section. The sub-agent rejects preloaded context with `PRELOADED_CONTEXT_REJECTED` — but the orchestrator must never send it in the first place.
+
+#### 🚫 FORBIDDEN
+
+- Writing a custom `task()` prompt with preloaded file paths, step sequences, expected outcomes, or orchestrator reasoning after reading the canonical dispatch string
+- Treating the dispatch table as "reference material" rather than a binding protocol
+- Inlining orchestrator reasoning into the prompt
+
+#### ✅ REQUIRED
+
+- Use the exact canonical dispatch string verbatim from the skill's Trigger Dispatch Table
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
+- All 37 skill SKILL.md files with DISPATCH_GATE sections contain an Orchestrator Entry Criteria block documenting this rule. 1 platform sub-skill (issue-operations/platforms/local/SKILL.md) also has a DISPATCH_GATE section with Orchestrator Entry Criteria.
 
 ### Tier 3 — Workflow-Standard (FLAG — Convention/Consistency)
 
@@ -613,6 +795,24 @@ Default: `git checkout -b feature/X` in main repo. Worktree opt-in when `WORKTRE
 
 ### [critical-rules-005] Skipping Git Pre-Check — working without feature branch
 Must verify git state and create feature branch before any file modification. Creating `feature/*` or `spec/*` branches additionally requires `for_implementation` or above authorization scope.
+
+#### 🚫 FORBIDDEN
+
+- Working without a feature branch
+- Creating `feature/*` or `spec/*` branches without `for_implementation` or above authorization scope
+
+#### ✅ REQUIRED
+
+- Verify git state before any file modification
+- Create feature branch before starting work
+- Ensure `for_implementation` or above scope before creating `feature/*` or `spec/*` branches
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Working without feature branch | Changes land directly on dev/main, breaking branch discipline |
+| Creating branches without authorization | Feature/spec branches created without proper scope approval |
 
 
 ### [critical-rules-024] Uncommitted/Unpushed Changes After Implementation
@@ -675,6 +875,10 @@ Single issue = work-of-1. See `assemble-work`.
 See `verify-already-implemented` → Auto-Close Procedure.
 
 
+### [critical-rules-070] Issue Closure Outside Cleanup Workflow — agent MUST NOT close GitHub Issues through direct API calls
+The agent MUST NOT call `github_issue_write(method=update, state=closed)` or equivalent on any GitHub Issue outside the `git-workflow --task cleanup` workflow. The cleanup workflow is the sole authorized closure path, and it enforces PR merge verification, body-preservation safeguards, and parent/child ordering before closure. Issues created by the agent in a session MUST survive at least one session boundary before closure. See `git-workflow --task cleanup` for the authorized closure path. See `issue-operations/tasks/close.md` for the structured close workflow (only callable from within cleanup).
+
+
 ### [critical-rules-018] Sub-issue Linkage Verification — phase count mismatch
 See `approval-gate --task verify-authorization` Step 5.
 
@@ -689,7 +893,7 @@ No `question` tool for structural decisions when `halt_at >= pr_created`.
 
 ### [critical-rules-049] Standalone Submodule-Only PR Creation During Cleanup
 
-Creating a PR whose sole purpose is to update a submodule pointer during the cleanup pipeline stage. See `git-workflow cleanup` task Step 1.7 for the complete prohibition and correct behavior (leave dirty pointer on dev).
+Creating a PR whose sole purpose is to update a submodule pointer during the cleanup pipeline stage. See `git-workflow cleanup` task Step 1.7 for the complete prohibition and correct behavior (leave dirty pointer untouched).
 
 
 ### [critical-rules-039] Parent Issue Left Open After All Children Closed
@@ -729,9 +933,22 @@ Single-issue: exactly 1 commit. Work branch: N commits = N items.
 4. There is NO valid path from "test cannot run" to "PASS" or "UNVERIFIED with structural substitute"
 
 
+### [critical-rules-PR-ORG] Stacked PR Is the Only Valid Organization
+
+Creating N branches for N issues under any authorization scope is a critical violation. All issues within an authorization scope share one feature branch with one commit per issue. The only valid PR strategy is `stacked` — one branch, N commits, one PR. The `individual` strategy (N branches, N PRs) does not exist.
+
+An authorization scope that halts before PR creation declares `pr_strategy: none`. An authorization scope that creates PRs declares `pr_strategy: stacked`. There is no third option.
+
+Bright-line companion:
+
+PR organization IS branch organization. Stacked PR IS the only valid organization.
+Every authorization scope declares exactly one strategy: stacked or none.
+Creating N branches for N issues IS a critical violation — Period.
+
+
 ### [critical-rules-accountability-ownership] Accountability/Remediation Ownership Model
 
-ALL failures are agent-owned. Remediation is the default action. Escalation is only permitted after verified remediation failure. The following 7 principles govern agent accountability:
+ALL failures are agent-owned. Remediation is the default action. Escalation is only permitted after verified remediation failure. The following 8 principles govern agent accountability:
 
 1. **Audit fail is a fail** — no exceptions, no reclassification, no soft-passing
 2. **Bad prompt is on the agent** — the agent owns prompt quality; a poorly specified prompt is the agent's defect to remediate
@@ -740,9 +957,31 @@ ALL failures are agent-owned. Remediation is the default action. Escalation is o
 5. **Missing text artifacts is a fail** — the agent produces complete deliverables; absent preamble, missing documentation, or incomplete issue bodies are agent-owned defects
 6. **Skipped functional/behavioral testing is a fail** — no exceptions, no excuses; the agent runs and passes behavioral tests before claiming completion
 7. **Remediate autonomously, never escalate** — escalation is only for dire circumstances (infrastructure failure, model crash, credentials missing); skipping remediation is not a valid choice
+8. **No "pre-existing failure" rationalization** — test infrastructure is part of the ship condition. An agent MUST NOT use "pre-existing failure", "already broken before my change", "baseline failure", or any equivalent rationalization to justify proceeding past a test failure, verification mismatch, or pipeline gate FAIL. The agent owns the pipeline state at entry; any failure present at entry must be remediated before proceeding.
 
 All failures are agent-owned. Remediation is the default action. Escalation is only permitted after verified remediation failure — never as a first response, never as a shortcut.
 
+
+### [critical-rules-066] Terminology Standardization — all context references must use standardized vocabulary
+All references to "context budget", "context cost", and "context awareness" must use the standardized vocabulary: "orchestrator context", "sub-agent context", and "orchestrator context discipline". These terms describe operational bookkeeping for context management — they are NOT implementation complexity measures. See `020-go-prohibitions.md` §1.1 Terminology Standardization. CHANGELOG entries and historical references are exempt.
+
+
+### Channel-Routing Table — Issue Comments vs. Chat Output
+
+**Progress executive summaries go to chat ONLY, not GitHub Issue comments.**
+
+| Action | Channel |
+|--------|---------|
+| Progress executive summaries | Chat only |
+| Review-prep / verification status | Chat only |
+| Substantive spec revision | Chat + Issue comment |
+| PR created | Issue comment |
+| Issue blocked | Issue comment |
+| Bug discovered during implementation | Issue comment |
+| User question response | Issue comment |
+| Issue closure | Issue comment |
+| Agent completes implementation task | Chat only |
+| Spec-audit findings | Internal only |
 
 ---
 
@@ -970,7 +1209,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [approval-gate, divide-and-conquer]
+    triggers: [approval-gate, implementation-pipeline]
     source: "000-critical-rules.md §Bypassing Mandatory Skill Calls"
 
   - id: critical-rules-017
@@ -1117,7 +1356,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer]
+    triggers: [implementation-pipeline]
     source: "000-critical-rules.md §Main Agent Implements Directly"
 
   - id: critical-rules-026
@@ -1206,7 +1445,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer, verification-before-completion, git-workflow]
+    triggers: [implementation-pipeline, verification-before-completion, git-workflow]
     source: "000-critical-rules.md §Skipping Clean-Room task() for Sub-Agents"
 
   - id: critical-rules-031
@@ -1220,7 +1459,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer, verification-before-completion, git-workflow]
+    triggers: [implementation-pipeline, verification-before-completion, git-workflow]
     source: "000-critical-rules.md §Skipping Pre-Flight Checks for Sub-Agents"
 
   - id: critical-rules-032
@@ -1234,7 +1473,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer, verification-before-completion]
+    triggers: [implementation-pipeline, verification-before-completion]
     source: "000-critical-rules.md §Skipping Post-Flight Checks for Sub-Agents"
 
   - id: critical-rules-033
@@ -1248,7 +1487,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer, verification-before-completion]
+    triggers: [implementation-pipeline, verification-before-completion]
     source: "000-critical-rules.md §Claiming Verification Without Tool-Call Evidence in Sub-Agent Results"
 
   - id: critical-rules-034
@@ -1262,8 +1501,24 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [divide-and-conquer, verification-before-completion, git-workflow]
+    triggers: [implementation-pipeline, verification-before-completion, git-workflow]
     source: "000-critical-rules.md §Inline Work"
+
+  - id: critical-rules-inline-issue-content
+    tier: 2
+    title: "Inline issue content creation — orchestrator editing .issues/ files or calling github_issue_write directly instead of dispatching to issue-operations"
+    conditions:
+      all:
+        - "is_orchestrator == true"
+        - "creating_issue_content_inline == true"
+        - "dispatched_to_issue_operations == false"
+    actions:
+      - HALT
+      - DISPATCH_TO(issue-operations --task creation)
+    conflicts_with: [critical-rules-034]
+    requires: []
+    triggers: [issue-operations, implementation-pipeline]
+    source: "000-critical-rules.md §Inline Work — Violation Patterns — Orchestrator creates issue content inline"
 
   - id: critical-rules-035
     tier: 2
@@ -1277,7 +1532,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: [critical-rules-034]
-    triggers: [approval-gate, divide-and-conquer]
+    triggers: [approval-gate, implementation-pipeline]
     source: "000-critical-rules.md §DISPATCH_GATE Checkpoint"
 
   - id: critical-rules-036
@@ -1322,8 +1577,8 @@ rules:
     actions:
       - HALT
     conflicts_with: []
-    requires: [approval-gate-skill-006, divide-and-conquer-007]
-    triggers: [approval-gate, divide-and-conquer]
+    requires: [approval-gate-skill-006, implementation-pipeline-007]
+    triggers: [approval-gate, implementation-pipeline]
     source: "000-critical-rules.md §Implementing Before PR Merge Boundary"
 
   - id: critical-rules-039
@@ -1387,7 +1642,7 @@ rules:
       - TASK(clean-room opencode-cli run with resolved model)
     conflicts_with: []
     requires: []
-    triggers: [verification-before-completion, divide-and-conquer]
+    triggers: [verification-before-completion, implementation-pipeline]
     source: "000-critical-rules.md §Model-Aware Clean-Room task() for Behavioral Testing"
 
   - id: critical-rules-043
@@ -1402,7 +1657,7 @@ rules:
       - RE_TASK(clean-room sub-agent)
     conflicts_with: []
     requires: [critical-rules-034]
-    triggers: [divide-and-conquer, verification-before-completion, git-workflow, approval-gate, issue-operations, executing-plans]
+    triggers: [implementation-pipeline, verification-before-completion, git-workflow, approval-gate, issue-operations, executing-plans]
     source: "000-critical-rules.md §No Inline Fallback on Sub-Agent Failure — Universal Re-Task Mandate"
 
   - id: critical-rules-044
@@ -1420,7 +1675,7 @@ rules:
       - TASK(pre-analysis sub-agent first)
     conflicts_with: []
     requires: [critical-rules-034, critical-rules-030]
-    triggers: [approval-gate, divide-and-conquer, verification-before-completion]
+    triggers: [approval-gate, implementation-pipeline, verification-before-completion]
     source: "000-critical-rules.md §Preloading Sub-Agent Context"
 
   - id: critical-rules-045
@@ -1434,7 +1689,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: [tool-usage-009]
-    triggers: [git-workflow, divide-and-conquer, approval-gate, skill-creator]
+    triggers: [git-workflow, implementation-pipeline, approval-gate, skill-creator]
     source: "000-critical-rules.md §Creating .opencode/.opencode/ Nested Directories"
 
   - id: critical-rules-046
@@ -1480,19 +1735,22 @@ rules:
       - HALT
     conflicts_with: [critical-rules-034]
     requires: []
-    triggers: [divide-and-conquer, git-workflow, approval-gate, verification-before-completion, finishing-a-development-branch, issue-operations, spec-creation, writing-plans, brainstorming, conflict-resolution, pr-creation-workflow, executing-plans, systematic-debugging, engineering-approach, receiving-code-review, requesting-code-review, changelog-generator, correspondence, sre-runbook, ui-design, ui-engineer, test-driven-development, skill-creator, sync-guidelines, adversarial-audit, verification, verification-enforcement, verification-before-completion, multimodal-dispatch, pre-analysis, completion-core]
+    triggers: [implementation-pipeline, git-workflow, approval-gate, verification-before-completion, finishing-a-development-branch, issue-operations, spec-creation, writing-plans, brainstorming, conflict-resolution, pr-creation-workflow, executing-plans, systematic-debugging, engineering-approach, receiving-code-review, requesting-code-review, changelog-generator, correspondence, sre-runbook, test-driven-development, skill-creator, sync-guidelines, adversarial-audit, verification, verification-enforcement, verification-before-completion, multimodal-dispatch, pre-analysis, completion-core]
     source: "default.txt §Skill Dispatch Mandate"
 
   - id: critical-rules-049
-    tier: 3
+    tier: 2
     title: "Standalone submodule-only PR creation during cleanup is a workflow violation"
     conditions:
-      all:
+      any:
         - "pipeline_stage == 'cleanup'"
+        - "pipeline_stage == 'pre_work'"
+        - "pipeline_stage == 'implementation'"
+      all:
         - "pr_created == true"
         - "pr_changes_only_submodule == true"
     actions:
-      - FLAG
+      - HALT
     conflicts_with: [critical-rules-048]
     requires: []
     triggers: [git-workflow]
@@ -1510,7 +1768,7 @@ rules:
       - RETURN_BLOCKED
     conflicts_with: []
     requires: [critical-rules-036]
-    triggers: [divide-and-conquer, approval-gate, verification-before-completion]
+    triggers: [implementation-pipeline, approval-gate, verification-before-completion]
     source: "000-critical-rules.md §critical-rules-050"
 
   - id: git-workflow-branch-deletion-001
@@ -1540,7 +1798,7 @@ rules:
       - REQUIRE_ADVERSARIAL_DISPATCH
     conflicts_with: []
     requires: []
-    triggers: [spec-creation, writing-plans, issue-operations, divide-and-conquer, verification-before-completion, pr-creation-workflow, git-workflow]
+    triggers: [spec-creation, writing-plans, issue-operations, implementation-pipeline, verification-before-completion, pr-creation-workflow, git-workflow]
     source: "adversarial-audit/SKILL.md §adversarial-audit-008"
 
   - id: adversarial-audit-009
@@ -1557,7 +1815,7 @@ rules:
       - REQUIRE_CONSENSUS
     conflicts_with: []
     requires: []
-    triggers: [spec-creation, writing-plans, issue-operations, divide-and-conquer, verification-before-completion, pr-creation-workflow, git-workflow]
+    triggers: [spec-creation, writing-plans, issue-operations, implementation-pipeline, verification-before-completion, pr-creation-workflow, git-workflow]
     source: "adversarial-audit/SKILL.md §adversarial-audit-009"
 
   - id: adversarial-audit-010
@@ -1694,21 +1952,6 @@ rules:
     triggers: [issue-operations]
     source: "000-critical-rules.md §Tier 3 prose section"
 
-  - id: critical-rules-057
-    tier: 3
-    title: "Standalone submodule-only PR creation is a workflow violation"
-    conditions:
-      all:
-        - "pipeline_stage == 'cleanup'"
-        - "pr_created == true"
-        - "pr_changes_only_submodule == true"
-    actions:
-      - FLAG
-    conflicts_with: []
-    requires: []
-    triggers: [git-workflow]
-    source: "000-critical-rules.md §Tier 3 prose section"
-
   - id: critical-rules-058
     tier: 3
     title: "Un-squashed single-issue PR — multiple commits on one issue"
@@ -1769,7 +2012,7 @@ rules:
       - RE_VERIFY
     conflicts_with: [critical-rules-020]
     requires: []
-    triggers: [adversarial-audit, divide-and-conquer, verification-before-completion, git-workflow, approval-gate]
+    triggers: [adversarial-audit, implementation-pipeline, verification-before-completion, git-workflow, approval-gate]
     source: "000-critical-rules.md §critical-rules-accountability-ownership"
 
   - id: critical-rules-platform-routing-bypass
@@ -1802,20 +2045,213 @@ rules:
     triggers: [issue-operations]
     source: "000-critical-rules.md §critical-rules-platform-api-deliberation"
 
+  - id: critical-rules-PR-ORG
+    tier: 2
+    title: "CRITICAL VIOLATION — Creating N branches for N issues under stacked scope"
+    conditions:
+      all:
+        - "authorization_scope_maps_to_stacked == true"
+        - "branch_count > 1"
+    actions:
+      - HALT
+    source: "000-critical-rules.md §Stacked PR Discipline"
+
   - id: critical-rules-hard-fail
     tier: 2
     title: "Hard Failure Discipline — FAIL is a hard gate, never reclassifiable"
     conditions:
-      all:
-        - "pipeline_stage in ['verdict','sub_agent_result','cleanup_gate','sc_verification_gate','phase_completion_gate']"
-        - "gate_result == 'FAIL'"
-        - "action_taken in ['reclassify','inconclusive_verdict','halt_no_remediate']"
+      any:
+        - "pipeline_stage in ['verdict','sub_agent_result','cleanup_gate','sc_verification_gate','phase_completion_gate'] and gate_result == 'FAIL' and action_taken in ['reclassify','inconclusive_verdict','halt_no_remediate']"
+        - "gate_result == 'DONE_WITH_CONCERNS'"
     actions:
       - HALT
       - REMEDIATE
       - RE_VERIFY
     conflicts_with: [critical-rules-020]
     requires: []
-    triggers: [adversarial-audit, divide-and-conquer, verification-before-completion, git-workflow, approval-gate]
+    triggers: [adversarial-audit, implementation-pipeline, verification-before-completion, git-workflow, approval-gate]
     source: "000-critical-rules.md §critical-rules-hard-fail"
+
+  - id: critical-rules-test-integrity
+    tier: 1
+    title: "CRITICAL VIOLATION — Test Integrity Mandate — removing or weakening behavioral assertions is a critical violation"
+    conditions:
+      any:
+        - "behavioral_assertion_removed == true"
+        - "behavioral_evidence_type_downgraded == true"
+        - "assert_semantic_replaced_with_stderr == true"
+        - "assertion_commented_out == true"
+        - "timeout_treated_as_model_unavailability == true"
+        - "inconclusive_without_exhaustive_remediation == true"
+    actions:
+      - HALT
+      - RESTORE_ASSERTION
+      - INCREASE_TIMEOUT
+      - REMEDIATE
+    conflicts_with: [critical-rules-060, critical-rules-020]
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit, test-driven-development]
+    source: "080-code-standards.md §Test Integrity Mandate"
+
+  - id: critical-rules-061
+    tier: 2
+    title: "grep/string assertions on agent output prose are EVIDENCE_TYPE_MISMATCH for behavioral SCs"
+    conditions:
+      all:
+        - "sc_evidence_type == 'behavioral'"
+        - "primary_assertion_type in ['grep', 'string', 'assert_stderr_pattern', 'assert_required_pattern']"
+        - "assertion_target == 'agent_prose_or_reasoning'"
+    actions:
+      - HALT
+      - DOWNGRADE_TO_FAIL
+      - CLASSIFY_AS_EVIDENCE_TYPE_MISMATCH
+    conflicts_with: [critical-rules-060, critical-rules-020]
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit, test-driven-development]
+    source: "080-code-standards.md §Rule 5: Agent Output MUST Be Verified by Clean-Room Semantic Inspection"
+
+  - id: critical-rules-062
+    tier: 2
+    title: "SC conflict detection — caller providing SCs that conflict with the spec is a context contamination violation"
+    conditions:
+      all:
+        - "caller_provided_scs_conflict_with_spec_scs == true"
+        - "auditor_dispatched == true"
+    actions:
+      - HALT
+      - RETURN_BLOCKED(reason=SC_CONFLICT)
+    conflicts_with: []
+    requires: []
+    triggers: [adversarial-audit]
+    source: "000-critical-rules.md §critical-rules-062"
+
+  - id: critical-rules-BEH-EV
+    tier: 2
+    title: "Runtime-Behavioral Evidence Classification Gate — structural evidence for behavioral changes is EVIDENCE_TYPE_MISMATCH"
+    conditions:
+      all:
+        - "change_affects_runtime_behavior == true"
+        - "sc_evidence_type IN ['structural', 'string']"
+        - "reporting_classification != 'EVIDENCE_TYPE_MISMATCH'"
+    actions:
+      - HALT
+      - DOWNGRADE_TO_FAIL
+      - CLASSIFY_AS_EVIDENCE_TYPE_MISMATCH
+    conflicts_with: [critical-rules-060, critical-rules-020]
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit, test-driven-development]
+    source: "000-critical-rules.md §Runtime-Behavioral Evidence Classification Gate"
+
+  - id: critical-rules-pipeline-reprime
+    tier: 2
+    title: "Pipeline re-priming — enforcement blocks at each skill boundary"
+    conditions:
+      all:
+        - "pipeline_stage_transition == true"
+        - "enforcement_block_present == false"
+    actions:
+      - FLAG
+      - ADD_ENFORCEMENT_BLOCK
+    conflicts_with: []
+    requires: []
+    triggers: [git-workflow, approval-gate, implementation-pipeline]
+    source: "000-critical-rules.md §Pipeline re-priming"
+
+  - id: critical-rules-063
+    tier: 2
+    title: "Orchestrator Context Lean — orchestrator holds routing metadata only"
+    conditions:
+      all:
+        - "orchestrator_holds_non_routing_data == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [implementation-pipeline, approval-gate, verification-before-completion]
+    source: "000-critical-rules.md §critical-rules-063"
+
+  - id: critical-rules-065
+    tier: 2
+    title: "Result Contract Frugality — result contracts limited to routing-significant data"
+    conditions:
+      all:
+        - "result_contract_contains_non_routing_data == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [implementation-pipeline, verification-before-completion]
+    source: "000-critical-rules.md §critical-rules-065"
+
+  - id: critical-rules-069
+    tier: 2
+    title: "'Pre-existing failure' rationalization — using baseline failures to bypass verification or gate requirements"
+    conditions:
+      all:
+        - "test_failure_detected == true"
+        - "agent_claim in ['pre_existing_failure', 'already_broken', 'baseline_failure']"
+    actions:
+      - HALT
+      - REQUIRE_REMEDIATION
+    conflicts_with: [critical-rules-hard-fail]
+    requires: []
+    triggers: [verification-before-completion, implementation-pipeline, git-workflow]
+    source: "000-critical-rules.md §critical-rules-069"
+
+  - id: critical-rules-070
+    tier: 2
+    title: "Issue Closure Outside Cleanup Workflow — agent MUST NOT close GitHub Issues through direct API calls"
+    conditions:
+      all:
+        - "issue_closure_attempted == true"
+        - "closure_path != 'git-workflow --task cleanup'"
+    actions:
+      - HALT
+      - REQUIRE_CLEANUP_WORKFLOW
+    conflicts_with: [critical-rules-013]
+    requires: []
+    triggers: [git-workflow, issue-operations]
+    source: "000-critical-rules.md §critical-rules-070"
+
+  - id: critical-rules-066
+    tier: 3
+    title: "Terminology Standardization — all context cost references must use standardized vocabulary"
+    conditions:
+      all:
+        - "non_standard_context_terminology_used == true"
+    actions:
+      - FLAG
+    conflicts_with: []
+    requires: []
+    triggers: [skill-creator, sync-guidelines]
+    source: "000-critical-rules.md §critical-rules-066"
+
+  - id: critical-rules-sc-lobotomy
+    tier: 1
+    title: "CRITICAL VIOLATION — SC Lobotomy Prohibition — removing, weakening, deferring, or blocking success criteria to evade verification"
+    conditions:
+      all:
+        - "sc_modification_attempted == true"
+        - "modification_type in ['remove', 'weaken', 'downgrade_evidence', 'mark_blocked', 'mark_deferred']"
+    actions:
+      - HALT
+      - REQUIRE_BLOCKED_REPORT
+    conflicts_with: [critical-rules-010]
+    requires: []
+    triggers: [verification-before-completion, implementation-pipeline, approval-gate]
+    source: "000-critical-rules.md §critical-rules-sc-lobotomy"
+
+  - id: critical-rules-dispatch-gate-canonical
+    tier: 2
+    title: "Canonical dispatch string violation — orchestrator MUST use canonical dispatch string verbatim after loading skill dispatch table"
+    conditions:
+      all:
+        - "skill_dispatch_table_loaded == true"
+        - "custom_prompt_with_preloaded_context_written == true"
+    actions:
+      - HALT
+    conflicts_with: []
+    requires: []
+    triggers: [implementation-pipeline, approval-gate, git-workflow]
+    source: "000-critical-rules.md §critical-rules-dispatch-gate-canonical"
 ```

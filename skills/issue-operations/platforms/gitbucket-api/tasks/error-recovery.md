@@ -4,10 +4,20 @@
 
 | Error | Cause | Solution |
 |-------|-------|----------|
-| "Bad credentials" | Basic auth attempted | Use `Authorization: token {TOKEN}` header only |
-| "Not Found" | Wrong endpoint URL | Verify path: `/api/v3/repos/{owner}/{repo}/...` |
-| "Unauthorized" | Token missing or invalid | Check `GITBUCKET_TOKEN` environment variable |
-| 422 Unprocessable Entity | Validation error | Check request body format (array for labels, not objects) |
+| "Bad credentials" | Basic auth attempted | Use `GB_TOKEN` environment variable only |
+| "Not Found" | Wrong endpoint URL | Verify path and owner/repo names |
+| "Unauthorized" | Token missing or invalid | Check `GB_TOKEN` environment variable |
+| 422 Unprocessable Entity | Validation error | Check request body format |
+| TOOL_MISSING | `gb` CLI not installed | Install from https://github.com/Masahiro-Obuchi/gitbucket-cli-rs |
+
+## TOOL_MISSING Detection
+
+```bash
+if ! command -v gb &>/dev/null; then
+  echo "TOOL_MISSING: gb CLI not found. Install from https://github.com/Masahiro-Obuchi/gitbucket-cli-rs"
+  return 1
+fi
+```
 
 ## Authentication Errors
 
@@ -15,17 +25,10 @@
 
 **Cause**: Using HTTP Basic authentication instead of token authentication.
 
-**Wrong**:
-```python
-import base64
-credentials = base64.b64encode(f"{username}:{password}".encode()).decode()
-headers = {"Authorization": f"Basic {credentials}"}  # ❌ FAILS
-```
-
 **Correct**:
-```python
-token = os.environ.get("GITBUCKET_TOKEN")
-headers = {"Authorization": f"token {token}"}  # ✅ WORKS
+```bash
+export GB_TOKEN=your-token
+export GB_HOST=https://gitbucket.example.com/gitbucket/
 ```
 
 **Explanation**: GitBucket does not support HTTP Basic authentication for API calls. Token authentication is required for all API operations.
@@ -35,9 +38,10 @@ headers = {"Authorization": f"token {token}"}  # ✅ WORKS
 **Cause**: Token missing, empty, or invalid.
 
 **Solution**:
-1. Check `GITBUCKET_TOKEN` is set: `echo $GITBUCKET_TOKEN`
-2. Verify token has correct scopes
-3. Regenerate token in GitBucket UI if corrupted
+- [ ] 1. Check `GB_TOKEN` is set: `echo $GB_TOKEN`
+- [ ] 2. Verify token has correct scopes
+- [ ] 3. Regenerate token in GitBucket UI if corrupted
+- [ ] 4. Run `gb auth status` to check current auth state
 
 ## Endpoint Errors
 
@@ -46,28 +50,29 @@ headers = {"Authorization": f"token {token}"}  # ✅ WORKS
 **Cause**: Incorrect URL format or missing repository.
 
 **Debug steps**:
-```python
-# Verify URL components
-print(f"URL: {GITBUCKET_URL}api/v3/repos/{owner}/{repo}/issues")
-print(f"Expected format: /api/v3/repos/:owner/:repo/:endpoint")
+```bash
+# Verify repository exists
+gb repo view org/project
+
+# Check owner/repo names (case-sensitive)
 ```
 
 **Common mistakes**:
-- Missing `/gitbucket/` in URL path
 - Wrong owner name (case-sensitive)
 - Wrong repository name (case-sensitive)
+- Missing `-R owner/repo` flag
 
 ### 422 Unprocessable Entity
 
 **Cause**: Request body format incorrect.
 
 **Example - Labels**:
-```python
+```bash
 # WRONG: Object format (GitHub style)
-json={"labels": [{"name": "bug"}, {"name": "enhancement"}]}  # ❌
+# gb handles this internally, but GitBucket API expects array format
 
-# CORRECT: Array format (GitBucket style)
-json=["bug", "enhancement"]  # ✅
+# CORRECT: Use gb --label flag which sends correct format
+gb issue create -t "Test" -R org/project --label bug,enhancement
 ```
 
 ## Session Init Detection
@@ -85,14 +90,15 @@ gitbucket.has_credentials: true
 ## Token Validation
 
 ```bash
-./.opencode/tools/gitbucket-api check-auth
+gb auth status
 # Outputs: authentication status and user info if valid
 ```
 
 ## Fallback Strategy
 
 If GitBucket API fails:
-1. Check authentication (token present and valid)
-2. Verify URL format
-3. Check repository exists and is accessible
-4. Fall back to GitBucket web UI for operations not supported by API
+- [ ] 1. Check authentication (token present and valid) — `gb auth status`
+- [ ] 2. Verify `-R owner/repo` flag is correct
+- [ ] 3. Check repository exists and is accessible — `gb repo view owner/repo`
+- [ ] 4. Fall back to GitBucket web UI for operations not supported by API
+- [ ] 5. Use `gb api` passthrough for operations without dedicated subcommands

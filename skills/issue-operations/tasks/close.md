@@ -26,9 +26,9 @@ Invoke `verify-merge` task to confirm PR is actually merged before closing any i
 
 **CRITICAL: Only close the child corresponding to the merged PR. Parent stays open until ALL children are closed.**
 
-1. If issue has sub-issues: check all sub-issues are closed before closing parent
-2. If issue is a sub-issue: verify parent has no other open sub-issues before closing parent
-3. Plan-bridge hierarchy: close sub-issues under the plan first, then the plan, then the spec
+- [ ] 1. If issue has sub-issues: check all sub-issues are closed before closing parent
+- [ ] 2. If issue is a sub-issue: verify parent has no other open sub-issues before closing parent
+- [ ] 3. Plan-bridge hierarchy: close sub-issues under the plan first, then the plan, then the spec
 
 ### Step 3: Close Issue (Platform Routing)
 
@@ -58,13 +58,12 @@ github_issue_write(
 ```bash
 # PATCH /issues/:number returns 404 on GitBucket
 # Post closure comment instead
-./.opencode/tools/gitbucket-api add-comment <github.owner> <github.repo> <issue-number> "Closing: PR merged and implementation verified."
+gb issue close <issue-number> -R <github.owner>/<github.repo>
+gb issue comment <issue-number> -b "Closing: PR merged and implementation verified." -R <github.owner>/<github.repo>
 ```
 
 **Local platform (sub-skill implementation):**
-```bash
-./.opencode/tools/local-issues close <issue-number> --reason "completed"
-```
+Route to `platforms/local/tasks/close.md` via task(). Pass: `{issue_number: N, reason: "completed"}`.
 
 ### Step 4: Post Closure Comment (if substantive)
 

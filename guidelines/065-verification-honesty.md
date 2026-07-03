@@ -341,13 +341,111 @@ When reporting verification results for external values:
 
 **Verification IS Completion — there is no valid state called "implemented but unverified."** An implementation is not complete until its verification is confirmed PASS. Any artifact marked "done" without verified PASS for all success criteria is incomplete by definition. The pipeline does not advance past unverified work — completion and verification are the same gate, not two sequential gates.
 
-### Cost Frame: Correctness Over Economy
+### Cost Model: Defect-Discovery-Latency (DDL)
 
 **Cost is measured in defect-discovery-latency, not model roundtrips.** Running verification costs minutes of execution time — a bounded delay that surfaces defects before they reach CI. Skipping a verification step to save a tool call costs the full pipeline of rework when the defect surfaces downstream: diagnosis, fix, re-review, re-CI, re-deploy — each of which costs more roundtrips than the skipped verification would have consumed. Correctness is the only success metric — there is no score for tool-call economy.
+
+The cost model governs verification decisions across all pipeline stages. Cost is measured in **defect-discovery-latency (DDL)** — the time between defect introduction and defect discovery. Shorter DDL means cheaper fixes; longer DDL means exponentially compounding cost.
+
+#### Tiered Cost Table by Evidence Type
+
+| Evidence Type | Execution Cost | DDL Cost | DDL Multiplier | Gate Position | Death Spiral / Break |
+|---|---|---|---|---|---|
+| `behavioral` | minutes | minutes | 1× | pre-commit / pre-RED | **BREAK** — defect caught at gate 1, fix cost = 0 downstream |
+| `semantic` | minutes | hours–days | 10×–100× | pre-PR / review | **BREAK or slow spiral** — caught before merge, 100× cheaper than production |
+| `string` | seconds | days–weeks | 100×–1000× | CI / static analysis | **DEATH SPIRAL START** — string PASS → behavioral FAIL in production → NIST 29× escalation |
+| `structural` | ~1s | weeks–months | 1000×+ | none / irrelevant | **DEATH SPIRAL** — structural PASS → defect ships → compounding rework → exponential cost |
+
+**Research grounding:**
+- IBM Systems Sciences Institute: cost of fixing a defect found in production is ~100× that of fixing it at requirements/design time
+- NIST Planning Report 02-3 (2002): software errors cost the US economy ~$59.5B annually; earlier defect detection could cut costs by ~$22B
+- Capers Jones (Software Defect Removal Effectiveness): DRE above 95% requires pre-code verification gates; structural-only verification achieves DRE below 50%
+- Industry replication: IBM's 100× multiplier has been confirmed across multiple studies (Boehm, McConnell, National Research Council)
+
+#### Death Spiral Definition
+
+```
+structural PASS → defect ships unchanged → found in production → rework cycle (diagnose + fix + re-CI + redeploy) → structural PASS again on fix → next defect ships → compounding exponential cost
+
+cost_death_spiral(n) = Σ(1000^(n-i) × base_cost_i) for i = 0..n
+```
+
+A death spiral occurs when structural evidence (file exists, file non-empty) passes verification for a behavioral defect. The defect ships unchanged. When discovered in production, the rework cycle costs 1000× more than the skipped behavioral test would have cost. Each rework cycle re-applies structural verification, which passes again for the next behavioral defect. Cost compounds exponentially with each cycle.
+
+#### Break Definition
+
+```
+behavioral FAIL at gate 1 → root cause diagnosed immediately → fix applied before downstream consumers see defect → zero downstream cost
+
+cost_break = behavioral_test_cost (fixed, bounded)
+```
+
+A break occurs when behavioral verification catches a defect at the earliest possible gate (pre-commit / pre-RED). The test costs minutes of execution time — a bounded delay. The fix costs the same bounded delay. There is no downstream rework, no CI queue delay, no PR re-review, no production incident. The total cost of the defect is the cost of running the behavioral test — and that cost is zero compared to the death spiral alternative.
+
+**Death spiral vs. break is the central cost model of the pipeline.** Every verification decision is a choice between paying the bounded cost of a behavioral test (break) or accepting the exponential cost of downstream discovery (death spiral). There is no third option.
+
+#### Cross-References
+
+- `080-code-standards.md` §Evidence Type Taxonomy — cost and gate-position columns for each evidence type
+- `080-code-standards.md` §Test Integrity Mandate — behavioral tests as the only sufficient evidence for behavioral SCs
+
+### DONE_WITH_CONCERNS Coercion Trigger
+
+`DONE_WITH_CONCERNS` is a coercion trigger at the verification honesty gate. When a sub-agent returns `DONE_WITH_CONCERNS`, the orchestrator MUST coerce it to FAIL per the bright-line coercion rule in `implementation-pipeline/tasks/pipeline-executor.md`. Caveats are defects, not completions — a `DONE` status with a non-empty `caveat_summary` is also coerced to FAIL.
 
 ### Remediation-First Protocol
 
 When a FAIL signal is received at any pipeline stage, the agent MUST remediate before halting. See `000-critical-rules.md` §critical-rules-hard-fail for the complete protocol.
+
+## Anti-Evasion Rules — Cost, Availability, and Necessity Are Not Excuses
+
+Evasion patterns are predictable. When a behavioral test cannot run, agents produce three categories of rationalization instead of the required FAIL verdict. Each category is a Tier 2 prohibition with a mandatory remediation-first protocol.
+
+### Pattern (a): Claiming Model Unavailability Without Tool-Call Evidence
+
+An agent claiming a model is unavailable MUST produce tool-call evidence before the claim is accepted. "The model timed out" is not evidence — `opencode-cli models` output showing the model is not listed, or a timed-out execution log showing the timeout duration, is evidence.
+
+**Remediation-first protocol (minimum 2 steps before FAIL):**
+1. Run `opencode-cli models` to verify model availability
+2. Attempt alternative model selection (select a different available model)
+3. Increase timeout and retry
+4. Only after 2+ remediation attempts: report FAIL with tool-call evidence of each attempt
+
+### Pattern (b): Claiming "Too Slow" as Justification for Skipping Behavioral Testing
+
+Per `020-go-prohibitions.md` §1 ALWAYS DO — Cost-blind verification: resource cost is NEVER a factor in verification decisions. "This would take too long" is not an acceptable reason to skip or substitute behavioral verification. Correctness is the only metric — there is no score for tool-call economy.
+
+**Remediation-first protocol (minimum 2 steps before FAIL):**
+1. Increase timeout configuration (BEHAVIOR_TIMEOUT, BEHAVIOR_SEMANTIC_TIMEOUT)
+2. Run behavioral test with increased timeout
+3. Attempt alternative model with faster inference
+4. Only after 2+ remediation attempts: report FAIL with evidence of each attempt
+
+### Pattern (c): Claiming Behavioral Testing "Not Needed" for Runtime-Behavioral Changes
+
+Per `080-code-standards.md` §Test Integrity Mandate — removing or weakening behavioral assertions is a CRITICAL VIOLATION. When a change affects runtime behavior (agent dispatch decisions, enforcement gate outcomes, tool selection, pipeline routing, conditional branching, test execution results), behavioral testing is not optional — it is the only sufficient evidence type. Declaring an SC as `structural` to avoid behavioral testing when the change affects runtime behavior is an automatic uplift to `behavioral`.
+
+**Remediation-first protocol (minimum 2 steps before FAIL):**
+1. Reclassify evidence type from `structural`/`string` to `behavioral` per the substrate classification
+2. Design and execute a behavioral test that verifies the runtime behavior change
+3. If behavioral test environment unavailable: apply patterns (a) and (b) remediation steps
+4. Only after 2+ remediation attempts: report FAIL with EVIDENCE_TYPE_MISMATCH classification
+
+### 🚫 FORBIDDEN
+
+- Claiming model unavailability without tool-call evidence (`opencode-cli models` output, execution logs)
+- Claiming "too slow" or "too many tool calls" as justification for skipping any verification step
+- Declaring a runtime-behavioral change as `structural` to avoid behavioral testing
+- Producing an INCONCLUSIVE verdict when EVIDENCE_TYPE_MISMATCH is detected — the verdict MUST be FAIL
+- Skipping remediation steps before reporting FAIL — exhaustion before escalation
+
+### ✅ REQUIRED
+
+- Produce tool-call evidence before claiming model unavailability
+- Run behavioral tests regardless of estimated cost or duration
+- Apply automatic evidence type uplift when a change affects runtime behavior
+- Attempt at least 2 remediation steps (alternative model, timeout increase, infrastructure check) before reporting FAIL
+- Report EVIDENCE_TYPE_MISMATCH with FAIL verdict when structural evidence is submitted for a runtime-behavioral change
 
 ```yaml+symbolic
 schema_version: "3.0"
@@ -466,6 +564,52 @@ rules:
       - REQUIRE_CLEAN_PASS
     conflicts_with: [critical-rules-hard-fail]
     requires: []
-    triggers: [verification-before-completion, adversarial-audit, divide-and-conquer, git-workflow]
+    triggers: [verification-before-completion, adversarial-audit, implementation-pipeline, git-workflow]
     source: "065-verification-honesty.md §Hard Failure Discipline"
+
+  - id: verification-honesty-008a
+    tier: 2
+    title: "Anti-evasion: claiming model unavailability without tool-call evidence"
+    conditions:
+      all:
+        - "behavioral_test_needed == true"
+        - "agent_claim == 'model_unavailable'"
+        - "tool_call_evidence_exists == false"
+    actions:
+      - HALT
+      - REQUIRE_TOOL_CALL_EVIDENCE
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit]
+    source: "065-verification-honesty.md §Anti-Evasion Rules"
+
+  - id: verification-honesty-008b
+    tier: 2
+    title: "Anti-evasion: claiming 'too slow' as justification for skipping behavioral testing"
+    conditions:
+      all:
+        - "behavioral_test_needed == true"
+        - "agent_claim == 'too_slow'"
+    actions:
+      - HALT
+      - REQUIRE_EXECUTION
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit]
+    source: "065-verification-honesty.md §Anti-Evasion Rules"
+
+  - id: verification-honesty-008c
+    tier: 2
+    title: "Anti-evasion: claiming behavioral testing 'not needed' for runtime-behavioral change"
+    conditions:
+      all:
+        - "change_affects_runtime_behavior == true"
+        - "agent_claim == 'behavioral_testing_not_needed'"
+    actions:
+      - HALT
+      - REQUIRE_BEHAVIORAL_TEST
+    conflicts_with: []
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit]
+    source: "065-verification-honesty.md §Anti-Evasion Rules"
 ```

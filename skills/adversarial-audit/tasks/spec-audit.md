@@ -2,17 +2,23 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
+
 # Task: spec-audit
 
 ## Purpose
 
 Audit a spec for quality, structure, and completeness using dual-adversarial cross-validation. Each criterion is independently verified by two cross-family auditors with clean-room context.
 
+> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
+
 ## Entry Criteria
 
-- Spec issue number provided OR spec content provided
+- `spec_local_dir` provided (local issue directory containing Markdown spec files) — MUST be a filesystem directory confirmed to exist before dispatch. The orchestrator MUST verify `spec_local_dir` is a valid directory before dispatching any auditor. If the spec is only on GitHub (not locally mirrored), the orchestrator MUST mirror it as .md files in `spec_local_dir/` first. Dispatching without a valid `spec_local_dir` is a CRITICAL VIOLATION.
+- `spec_issue_number` provided
 - `github.owner`, `github.repo` available
 - Audit phase context: `audit_phase: spec_creation`
+- Optional: `artifact_evidence_dir` (behavioral evidence directory, single or list)
 - Optional: `failure_description` from prior implementation attempt (triggers enhanced determinism evaluation)
 
 ## Exit Criteria
@@ -23,16 +29,70 @@ Audit a spec for quality, structure, and completeness using dual-adversarial cro
 
 ## Procedure
 
-### Step 1: Load Spec Content
+## Spec Audit Checklist
 
-Fetch spec via GitHub MCP if issue number provided:
-```bash
-issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<N>) <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 0. Pre-Flight Validation Gate — validate required inputs before proceeding
+- [ ] 1. Load Spec Content — glob spec_local_dir for .md files, read all
+- [ ] 2. Verify Documentation Sources — research each cited URL, API reference, or documentation claim against live sources
+- [ ] 3. Build Evaluation Criteria — define SC table with evidence types
+- [ ] 3a. Evaluate Semantic Auditor Criteria (SC-SEM) — evaluate skill card description quality (skip if not a skill card audit)
+- [ ] 4. Cross-Validate with Pre-Resolved Verdicts — cross-validate will be called by the orchestrator
+- [ ] 5. Process Verdicts — per-criterion PASS/FAIL consensus
+- [ ] 6. Evaluate SC Determinism (SC-DET) — check each SC for determinism
+- [ ] 7. Generate Bidirectional Findings — FAIL/DISAGREE criteria with revision options
+- [ ] 8. Write Verdict Artifact to Disk — YAML output
+- [ ] 9. Return Frugal Result Contract
+
+### Step 0: Pre-Flight Validation Gate
+
+Validate that all required inputs are present before proceeding with the audit:
+
+- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 2. If `spec_local_dir` is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "spec_local_dir"
+remediation: "spec_local_dir is required for spec-audit. The orchestrator must provide a valid local directory containing spec Markdown files."
 ```
 
-Extract spec body and metadata.
+**This gate fires BEFORE any other step.** If any criterion fails, the task returns BLOCKED immediately — no globbing, no reading, no analysis.
 
-### Step 2: Build Evaluation Criteria
+### Step 1: Load Spec Content
+
+`spec_local_dir` is REQUIRED. Auditors mandate this directory and BLOCK if absent. The orchestrator MUST provide a valid local path before dispatching.
+
+Read spec from `spec_local_dir/`:
+
+- [ ] 1. Glob `**/*.md` in `<spec_local_dir>/` via `glob` tool, read all discovered files
+- [ ] 2. Extract spec body and metadata from each
+- [ ] 3. If `spec_local_dir` is a list, glob each entry's `**/*.md`, extract SCs from each, perform interdependency analysis (overlaps, conflicts, independences)
+
+Auditors return BLOCKED with `SPEC_NOT_FOUND` if `spec_local_dir` is absent.
+
+### Step 2: Verify Documentation Sources Against Live Sources
+
+For each URL, API reference, or documentation claim in the spec (including any `Documentation Sources` section), verify against live sources:
+
+- [ ] 1. Fetch each URL using `webfetch` — verify the page exists and contains the referenced content
+- [ ] 2. For API documentation claims: use `srclight_get_signature` or official docs to verify function signatures, parameter names, and behavior
+- [ ] 3. For environment variables: check `.env.example` or config schema
+- [ ] 4. For library/framework patterns: verify against official release docs or changelogs
+
+Record per-reference results:
+
+```yaml
+documentation_verification:
+  - source: "<URL or reference>"
+    verified: true | false
+    method: "webfetch | srclight | read"
+    finding: "Source confirms claim" | "Source not found" | "Content mismatch"
+```
+
+If any source cannot be verified, flag the finding and include in the SC-11 (Documentation Sources) evaluation. Claims verified by tool-call evidence PASS; unverified claims receive a FAIL with the specific discrepancy.
+
+### Step 3: Build Evaluation Criteria
 
 Define audit criteria based on spec-auditor task structure:
 
@@ -51,43 +111,94 @@ Define audit criteria based on spec-auditor task structure:
 | SC-11 | Documentation Sources present and populated | Non-empty Documentation Sources section with live-source verification evidence |
 | SC-12 | Preamble present | "## Intent and Executive Summary" section with all 5 fields (Problem Statement, Root Cause / Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions) present for standard+ specs; omitted is acceptable for minimal specs only. Missing preamble for a standard+ spec is a SPEC-PRODUCER defect, not a reviewer oversight — the spec producer owns the omission regardless of whether downstream gates caught it. |
 | SC-13 | Cost-frame prose + runtime execution in SCs | Each SC carries cost-frame reformation language and requires a real test execution command, not a structural check |
-| SC-STRUCTURAL-FAIL | Structural evidence rejected for behavioral SCs | If an SC describes testable behavior (correctness, output, result, pass/fail, runtime logic) but verification evidence is purely structural (grep/read/file-exists), return FAIL with `STRUCTURAL_EVIDENCE` classification. Structural checks do NOT verify correct behavior — they only verify existence. Exception: non-testable prose changes (docs, runbooks, guidelines) may use semantic intent verification by direct AI agent read — NOT grep/pattern matching. |
+| SC-STRUCTURAL-FAIL | Structural evidence rejected for behavioral SCs | If an SC describes testable behavior (correctness, output, result, pass/fail, runtime logic) but verification evidence is purely structural (grep/read/file-exists), return FAIL with `STRUCTURAL_EVIDENCE` classification. **SC-STRUCTURAL-FAIL uplift:** When auditing spec SCs, if a change affects runtime behavior, classify the SC evidence type as `behavioral` regardless of declared type. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV. Structural checks do NOT verify correct behavior — they only verify existence. Exception: non-testable prose changes (docs, runbooks, guidelines) may use semantic intent verification by direct AI agent read — NOT grep/pattern matching. |
 | SC-EVIDENCE-TYPE | Evidence type matches declared type | For each SC, the auditor MUST check the declared evidence type and verify using the minimum acceptable method: `structural` → file existence; `string` → grep/pattern; `semantic` → sub-agent read + judgment; `behavioral` → test execution with output inspection. If the declared evidence type is `behavioral` and the auditor provides structural evidence only, the verdict MUST be FAIL with `EVIDENCE_TYPE_MISMATCH`. If the declared type is `semantic` and the auditor provides string-only evidence, the verdict MUST be FAIL with `EVIDENCE_TYPE_MISMATCH`. Default to `string` if no evidence type is declared. |
 | SC-DET | SC Determinism | Each SC produces the same PASS/FAIL from any reasonable auditor |
+| SC-DET-AMBIGUITY | Either/or ambiguity in Required Actions | Scans Required Actions for "or", "either", "alternatively" patterns. If any Required Action contains an unresolved either/or choice presenting two or more possible outcomes, the criterion FAILs. |
 | SC-14 | SC Enforcement Gate present and explicit | Spec contains all-or-nothing gate statement with PASS/FAIL/Remediation requirements per gate format |
+| SC-TRACKING-LANG | No tracking/status language in spec | Zero instances of "implemented", "pending", "confirmed", "viable", "completed" used as status markers. Only forward-looking "MUST be" language permitted. |
+| SC-PRESCRIPTIVE-CODE | No prescriptive code content in spec | Spec uses file area references only (agent discovers exact paths). Zero instances of exact file paths with line numbers, exact import strings, or exact assertion code. |
+| SC-PIPELINE-GATES | Pipeline gates use canonical checklist format, not gate tables | Spec requires numbered `- [ ] N.` checklist steps with dispatch mode indicators (`(**clean-room**)` or `(**inline**)`). Gate tables (per-unit or shared cross-reference) → VIOLATION. Expect dispatch indicators in every step title. |
+| SC-CANONICAL-PLAN-FORM | Plan output format uses canonical checklist format | If the spec defines plan output format requirements, validate they use the canonical checklist format: numbered `- [ ] N.` with sub-bullet metadata, dispatch mode indicators, no dispatch tables, no shared cross-references. |
+| SC-ADMONISHMENT | Mandatory Task Discipline admonishment present in SKILL.md | For skill card audits, verify the SKILL.md contains the 5-item Mandatory Task Discipline admonishment after Overview and before Trigger Dispatch Table. For task card audits, verify the 4-item (non-inline) or 3-item (inline) Task Discipline admonishment after Purpose and before Operating Protocol. |
+| SC-SEM-001 | Unambiguous dispatch condition | Does the description unambiguously tell an agent when to invoke this skill? Sub-agent reads the description and the Trigger Dispatch Table, judges whether the description provides clear dispatch conditions. **Severity: ERROR.** Failure: description is ambiguous about when to invoke (e.g., "Use when working with data" is too vague). |
+| SC-SEM-002 | Mandatory invocation signal | Does the description signal that invocation is mandatory (not optional)? Sub-agent reads the description and judges whether an agent would understand that this skill MUST be invoked when conditions match. **Severity: WARNING.** Failure: description reads as optional or discretionary (e.g., "Use when you want to..." implies choice). |
+| SC-SEM-003 | Dispatch table alignment | Does the description match the Trigger Dispatch Table's intent? Sub-agent compares the description against the table's trigger conditions and judges alignment. **Severity: ERROR.** Failure: description describes use cases the table does not cover, or table has triggers the description omits. |
+| SC-SEM-004 | Full coverage of dispatch conditions | Would an agent reading only the description know to invoke this skill in all conditions listed in the dispatch table? Sub-agent reads the description, then reads the table, and judges whether every table trigger is represented in the description. **Severity: WARNING.** Failure: one or more table triggers are not reflected in the description. |
+| SC-SEM-005 | No optional/discretionary language | Does the description contain any language that could be interpreted as making dispatch optional or discretionary? Sub-agent reads the description and identifies phrases that imply choice ("you can", "you may", "optionally", "if desired", "consider using"). **Severity: WARNING.** Failure: description contains optional/discretionary language. |
+| SC-SEM-006 | Dispatch table sub-item type correctness | Do dispatch table sub-items use the correct semantic type — sub-bullets for parameter metadata, sub-checkboxes for actionable sub-steps? Sub-agent reads the Trigger Dispatch Table and classifies each sub-item as parameter metadata (context fields, task file paths, dispatch type) or actionable sub-step (must be performed). Verifies sub-bullets used for metadata, sub-checkboxes used for actions. **Severity: WARNING.** Failure: sub-bullet used for an actionable sub-step, or sub-checkbox used for parameter metadata. |
 
 <!-- Fragment ID: sc-enforcement-gate -->
 
+### Step 3a: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
+
+When the spec being audited is a skill card (SKILL.md file), evaluate the SC-SEM criteria. These criteria assess the semantic quality of the skill's `description` field in YAML frontmatter and its Trigger Dispatch Table.
+
+- [ ] 1. Determine if the spec is a skill card audit — check if the spec references a SKILL.md file or if `spec_local_dir` contains a SKILL.md
+- [ ] 2. If NOT a skill card audit: skip SC-SEM criteria entirely (mark as N/A)
+- [ ] 3. If YES: load the SKILL.md file from `spec_local_dir/`
+- [ ] 4. Extract the `description` field from YAML frontmatter
+- [ ] 5. Extract the Trigger Dispatch Table (markdown table under `## Trigger Dispatch Table`)
+- [ ] 6. For each SC-SEM criterion, evaluate using the method described in the criteria table:
+
+**SC-SEM-001 (Unambiguous dispatch condition):**
+- Read the description and the Trigger Dispatch Table
+- Judge: does the description provide clear, unambiguous conditions for when to invoke?
+- PASS: description clearly states when to invoke (e.g., "Use when creating a branch, committing, pushing, or creating a PR")
+- FAIL: description is vague or ambiguous (e.g., "Use when working with data")
+
+**SC-SEM-002 (Mandatory invocation signal):**
+- Read the description
+- Judge: would an agent understand that invocation is mandatory, not optional?
+- PASS: description uses mandatory language (MUST, REQUIRED, always, not optional, mandatory)
+- FAIL: description reads as optional or discretionary
+
+**SC-SEM-003 (Dispatch table alignment):**
+- Compare the description against the Trigger Dispatch Table's trigger conditions
+- Judge: does the description match the table's intent?
+- PASS: description covers the same use cases as the table
+- FAIL: description describes use cases the table does not cover, or table has triggers the description omits
+
+**SC-SEM-004 (Full coverage of dispatch conditions):**
+- Read the description, then read every trigger condition in the table
+- Judge: is every table trigger represented in the description?
+- PASS: all table triggers are reflected in the description
+- FAIL: one or more table triggers are not reflected
+
+**SC-SEM-005 (No optional/discretionary language):**
+- Read the description and identify phrases that imply choice
+- PASS: no optional/discretionary language found
+- FAIL: description contains "you can", "you may", "optionally", "if desired", "consider using", or similar
+
+**SC-SEM-006 (Dispatch table sub-item type correctness):**
+- Read the Trigger Dispatch Table and classify each sub-item:
+  - Parameter metadata: context fields, task file paths, dispatch type → should use sub-bullets (`- field: value`)
+  - Actionable sub-step: must be performed by the agent → should use sub-checkboxes (`- [ ] action`)
+- PASS: all sub-items use the correct semantic type
+- FAIL: sub-bullet used for an actionable sub-step, or sub-checkbox used for parameter metadata
+
+Record each SC-SEM criterion result in the per_criterion array with the same format as other criteria, adding a `severity` field:
+
+```yaml
+  - criterion_id: "SC-SEM-001"
+    declared_evidence_type: "semantic"
+    severity: "ERROR"
+    result: "PASS|FAIL"
+    evidence: "<tool-call reference>"
+    explanation: "<reasoning>"
+    remediation: "<if FAIL, what to fix>"
+    next_step: "proceed|re-evaluate"
+    tool_calls_made:
+      - read
+```
+
 ### Step 3: Cross-Validate with Pre-Resolved Verdicts
 
-This task does NOT dispatch auditors. The orchestrator dispatches auditors and passes pre-resolved `auditor_verdicts` to this task. Invoke `cross-validate` with verdicts already available:
+This task does NOT dispatch auditors. The orchestrator dispatches auditors and passes pre-resolved `auditor_artifact_paths` to this task. Cross-validate will be called by the orchestrator.
 
-When dispatching auditors, the `evaluation_criteria` array MUST include each SC's `evidence_type` field. Auditors MUST use the declared evidence type to determine their verification method. For `behavioral` SCs, auditors MUST require execution evidence (test output, stderr) — not file existence. This is enforced by the cross-validate evidence type gate (per `cross-validate.md` §Evidence Type Gate).
+When dispatching auditors, the `evaluation_criteria` array MUST include each SC's `evidence_type` field. Auditors MUST use the declared evidence type to determine their verification method. For `behavioral` SCs, auditors MUST require execution evidence (test output, stderr) — not file existence. This is enforced by the cross-validate evidence type gate (per `cross-validate.md` §Evidence Type Gate). Each auditor writes its full YAML verdict to disk and returns a frugal contract. The orchestrator collects artifact paths and passes them to cross-validate.
 
-```python
-task(
-    subagent_type="general",
-    prompt="""Use adversarial-audit skill --task cross-validate with:
-
-evidence_payload: <spec_body>
-evaluation_criteria: <criteria_json>
-audit_phase: spec_creation
-auditor_verdicts: <auditor_verdicts>
-authorization_scope: <authorization_scope>
-halt_at: <halt_at>
-pr_strategy: <pr_strategy>
-pipeline_phase: <pipeline_phase>
-
-worktree.path: <worktree.path>
-github.owner: <github.owner>
-github.repo: <github.repo>
-
-failure_description: <failure_description>  # Optional — provided when routed from remediation loop
-
-Mandatory: cross-validate receives pre-resolved verdicts — it does NOT dispatch auditors.
-"""
-)
-```
+Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
 
 **When `failure_description` is provided:** The spec auditor must evaluate whether the SCs are deterministic and testable specifically in light of the failure evidence. The evaluation should answer: "Would this SC have prevented the observed failure if it were properly deterministic?" or "Is the failure attributable to a non-deterministic SC?" If yes, return SPEC_GAP with revision recommendation. If no (SCs are deterministic but the implementer failed), return confirmation that implementation failure is the root cause.
 
@@ -107,13 +218,13 @@ For each success criterion in the spec, evaluate determinism:
 - Can an executable verification command be written for this SC?
 
 **If any SC would produce INCONCLUSIVE from any reasonable auditor**, flag that SC as `SPEC_GAP` and include a revision recommendation that specifies:
-1. Which fail pattern(s) the SC contains
-2. What a deterministic rewrite would look like
-3. An example executable verification command
+- [ ] 1. Which fail pattern(s) the SC contains
+- [ ] 2. What a deterministic rewrite would look like
+- [ ] 3. An example executable verification command
 
 **Result format:**
 
-```json
+```yaml
 {
   "criterion_id": "SC-DET",
   "description": "SC Determinism",
@@ -144,52 +255,61 @@ For FAIL/DISAGREE criteria:
 
 Present revision options for developer decision.
 
-### Step 6: Build Result Contract
+### Step 6: Write Verdict Artifact to Disk
 
-```json
-{
-  "status": "DONE",
-  "audit_type": "spec-audit",
-  "auditor_1": { "type": "auditor-<model>", "family": "<family>" },
-  "auditor_2": { "type": "auditor-<model>", "family": "<family>" },
-  "cross_validation": [
-    {
-      "criterion_id": "SC-1",
-      "description": "Problem statement present",
-      "evidence_type": "string",
-      "auditor_1_result": "PASS",
-      "auditor_2_result": "PASS",
-      "consensus": "PASS",
-      "evidence": "<tool-call reference>"
-    }
-  ],
-  "overall_consensus": "PASS | FAIL",
-  "disagreements": [],
-  "bidirectional_findings": [],
-  "exec_summary": "Spec audit: {pass_count}/{total} criteria passed. Consensus: {overall}."
-}
+Write the full YAML verdict artifact to `./tmp/{issue-N}/artifacts/pipeline-audit-spec-audit-{STATUS}-{timestamp}.yaml`:
+
+```yaml
+audit_phase: spec_creation
+auditor_type: spec-audit
+family: <family>
+issue_number: <N>
+generated_at: "<timestamp>"
+orchestrator_model: "<model>"
+summary:
+  total_criteria: N
+  pass: N
+  fail: N
+per_criterion:
+  - criterion_id: "SC-1"
+    declared_evidence_type: "string"
+    severity: "ERROR"  # ERROR or WARNING; only present for SC-SEM criteria
+    result: "PASS"
+    evidence: "<tool-call reference>"
+    explanation: "<reasoning>"
+    remediation: ""
+    next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
+    tool_calls_made:
+      - read
+      - grep
+all_criteria_pass: false
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
-## Dispatch Mandate (CRITICAL — per critical-rules-048)
+### Step 7: Return Frugal Result Contract
 
-This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
-1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
-2. Dispatching auditor sub-agents in parallel
-3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_verdicts`
-
-This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
+```yaml
+status: DONE
+artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-spec-audit-PASS-{timestamp}.yaml"
+summary: "N criteria evaluated. X PASS, Y FAIL."
+all_criteria_pass: false
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
+```
 
 ## Completion Dependency Chain
 
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
 
-1. Load spec content → INVALID if skipped
-2. Build evaluation criteria → INVALID if skipped
-3. Cross-validate with verdicts → INVALID if skipped
-4. Process verdicts → INVALID if skipped
-5. Evaluate SC determinism → INVALID if skipped
-6. Generate bidirectional findings → INVALID if skipped
-7. Build result contract → INVALID if skipped
+- [ ] 0. Pre-Flight Validation Gate → INVALID if skipped
+- [ ] 1. Load spec content → INVALID if skipped
+- [ ] 2. Verify documentation sources → INVALID if skipped
+- [ ] 3. Build evaluation criteria → INVALID if skipped
+- [ ] 3a. Evaluate semantic auditor criteria (SC-SEM) → INVALID if skipped for skill card audits; N/A for non-skill-card audits
+- [ ] 4. Cross-validate with verdicts → INVALID if skipped
+- [ ] 5. Process verdicts → INVALID if skipped
+- [ ] 6. Evaluate SC determinism → INVALID if skipped
+- [ ] 7. Generate bidirectional findings → INVALID if skipped
+- [ ] 8. Build result contract → INVALID if skipped
 
 ## Next Pipeline Step (MANDATORY CONTINUATION)
 
@@ -247,4 +367,22 @@ rules:
       all: ["doc_sources_missing_or_empty == true"]
     actions: [FAIL_CRITERION(SC-11)]
     source: "spec-audit.md §Step 2"
+
+  - id: spec-audit-005
+    title: "next_step MUST be 'remediate' when result is 'FAIL', 'proceed' when result is 'PASS'"
+    conditions:
+      any:
+        - "per_criterion[].result == 'FAIL' AND per_criterion[].next_step != 'remediate'"
+        - "per_criterion[].result == 'PASS' AND per_criterion[].next_step != 'proceed'"
+    actions: [HALT, REQUIRE_CORRECT_NEXT_STEP]
+    source: "spec-audit.md §Step 6 — conditional next_step enforcement"
+
+  - id: spec-audit-006
+    title: "all_criteria_pass MUST be true when every criterion result is 'PASS', false otherwise"
+    conditions:
+      any:
+        - "all(criterion.result == 'PASS' for criterion in per_criterion) AND all_criteria_pass != true"
+        - "any(criterion.result == 'FAIL' for criterion in per_criterion) AND all_criteria_pass != false"
+    actions: [HALT, REQUIRE_CORRECT_ALL_CRITERIA_PASS]
+    source: "spec-audit.md §Step 6 — all_criteria_pass enforcement"
 ```

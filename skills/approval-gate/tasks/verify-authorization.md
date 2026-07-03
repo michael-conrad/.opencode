@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Check for explicit authorization and apply the correct `approved-for-*` label before implementation. This task orchestrates the atomized sub-tasks in `verify-authorization/` for fine-grained, low-context verification.
+Check for explicit authorization and record in work state file before proceeding. This task orchestrates the atomized sub-tasks in `verify-authorization/` for fine-grained, low-context verification.
 
 ## Entry Criteria
 
@@ -11,8 +11,9 @@ Check for explicit authorization and apply the correct `approved-for-*` label be
 
 ## Exit Criteria
 
-- Authorization verified as explicit and for correct issue
-- `approved-for-*` label applied per mapping table; deprecated `needs-approval` label removed
+- Authorization verified as explicit and for correct issue — recorded in work state file (`./tmp/{N}/work.md`)
+- Advisory scope-marker written as GitHub label after work state file is updated; deprecated `needs-approval` label removed asynchronously
+- Labels are visibility markers — they do NOT gate execution
 - Git state verified (worktree environment ready)
 - Authorization recorded for scope tracking
 
@@ -25,13 +26,17 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 | 0 | Re-task guard | If sub-agent returns empty, re-task with original scoped context (max 2 retries); on exhaustion, fall through to double-failure protocol |
 | 0.5 | `verify-authorization/scope-auto-resolve` | Parse authorization text, resolve scope/halt_at/pr_strategy/gap_fill |
 | 1 | `verify-authorization/verify-explicit-authorization` | Check for "approved"/"go" + author identity + currency |
-| 2 | Label application (inline) | Apply `approved-for-*` label per mapping table; remove prior `approved-for-*` and `needs-approval` labels |
+| 2 | Label write (advisory-only, asynchronous) | Write authorization-scope label after work state file is written; labels are visibility markers, not gates. Remove prior scope and `needs-approval` labels as advisory cleanup. |
 | 3 | Authorization decision (inline) | Route based on authorization result |
 | 4.5 | `verify-authorization/item-decomposition-check` | Verify item enumeration, dependency ordering, TDD steps |
 | 4.6 | `verify-authorization/sc-traceability-check` | Verify SC-to-test traceability, RED-phase ordering |
 | 5 | `verify-authorization/sub-issue-verification` | Sub-issue phase count, adversarial verification, closed-issue check |
 | 5b | `verify-authorization/spec-to-plan-cascade` | Spec-to-plan approval cascade |
 | 5b.5+5c | `verify-authorization/gap-fill-cascade` | Gap-fill precedence and cascade execution |
+| 5d.1 | `verify-authorization/verify-codebase` | Staleness detection, superseding issue check |
+| 5d.2 | `verify-authorization/verify-blockers` | Blocking dependency check |
+| 5d.3 | `verify-authorization/verify-closed-issue-main` | Main issue prior-closure verification |
+| 5d.4 | `verify-authorization/verify-already-implemented` | Terminal gate: auto-close or proceed |
 | 6 | `verify-authorization/auto-dispatch` | Scope-aware auto-dispatch + output lineage |
 
 
@@ -40,23 +45,23 @@ This task delegates to atomic sub-tasks. Each sub-task reads inputs from the wor
 | Condition | Path |
 |-----------|------|
 | 1 issue + `for_review_prep` scope + 0 sub-issues + explicit auth | fast-path (skip 2, 4.5, 4.6, 5, 5b, 5b.5+5c) |
-| 1 issue + scope ∈ {for_pr, for_implementation, for_plan, for_analysis} + 0 sub-issues | gap-fill-path (0.5, 1, 5b.5+5c, then 6) |
-| 1 issue + sub-issues OR plan with phases | medium-path (0.5, 1, 4.5, 4.6, 5, then 6) |
-| Multi-issue authorization set | full-path (all steps) |
+| 1 issue + scope ∈ {for_pr, for_implementation, for_plan, for_analysis} + 0 sub-issues | gap-fill-path (0.5, 1, 5b.5+5c, then 6 — skips 4.5, 4.6, 5, 5b, 5d.1-5d.4) |
+| 1 issue + sub-issues OR plan with phases | medium-path (0.5, 1, 4.5, 4.6, 5, 5d, then 6) |
+| Multi-issue authorization set | full-path (all steps + 5d) |
 
 ## Sub-Agent Result Guard
 
 When `verify-authorization` is dispatched as a sub-agent and returns empty or whitespace-only:
 
-1. Report: `"Sub-agent for verify-authorization returned empty result, re-dispatching (retry {N}/2)"`
-2. Re-dispatch with original scoped context only (no expanded context, no orchestrator reasoning)
-3. If re-dispatch returns empty and retry count < 2, go to step 1 (increment retry counter)
-4. If re-dispatch returns empty after 2 retries, fall through to double-failure protocol
+- [ ] 1. Report: `"Sub-agent for verify-authorization returned empty result, re-dispatching (retry {N}/2)"`
+- [ ] 2. Re-dispatch with original scoped context only (no expanded context, no orchestrator reasoning)
+- [ ] 3. If re-dispatch returns empty and retry count < 2, go to step 1 (increment retry counter)
+- [ ] 4. If re-dispatch returns empty after 2 retries, fall through to double-failure protocol
 
 **Double-failure protocol (exhaustion handler):** After 2 failed re-dispatch attempts:
-1. Report: `"verify-authorization sub-agent failed after 2 re-dispatch attempts"`
-2. Invoke `--task completion` on the `approval-gate` skill
-3. HALT with status message + byline
+- [ ] 1. Report: `"verify-authorization sub-agent failed after 2 re-dispatch attempts"`
+- [ ] 2. Invoke `--task completion` on the `approval-gate` skill
+- [ ] 3. HALT with status message + byline
 
 ## Enforcement References
 
@@ -82,7 +87,7 @@ cascade_parent: <issue_number | null>
 authorization_scope: for_review_prep | for_spec | for_analysis | for_plan | for_implementation | for_pr | for_pr_only | for_review_only
 scope_source: parsed | default
 halt_at: <pipeline_stage>
-pr_strategy: stacked | individual | none
+pr_strategy: stacked | none
 gap_fill_actions: [<action_list>]
 pipeline_phase: <current_phase_name>
 ```

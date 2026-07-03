@@ -6,13 +6,13 @@ Generate a clean-room implementation plan from a problem statement only, using p
 
 ## Operating Protocol
 
-1. **Invoked by:** `skill({name: "adversarial-audit"})` → `task()` for `plan-fidelity` (not by users directly)
-2. **Bypasses:** Approval gate (clean-room plans don't need approval — they're comparison artifacts)
-3. **Does NOT reference:** Any existing plan, spec phases, or spec steps
+- [ ] 1. **Invoked by:** `skill({name: "adversarial-audit"})` → `task()` for `plan-fidelity` (not by users directly)
+- [ ] 2. **Bypasses:** Approval gate (clean-room plans don't need approval — they're comparison artifacts)
+- [ ] 3. **Does NOT reference:** Any existing plan, spec phases, or spec steps
 
 ## Entry Criteria
 
-- Problem statement input file exists at `./tmp/artifacts/clean-room-<issue>-N.md`
+- Problem statement input file exists at `./tmp/{issue-N}/artifacts/clean-room-N.md`
 - Problem statement contains: Objective, Problem Statement, Context, Constraints, Success Criteria
 - The writing-plans skill is available
 
@@ -28,7 +28,7 @@ Generate a clean-room implementation plan from a problem statement only, using p
 | -- | -- | -- |
 | Input source | Approved spec issue | Problem statement only (from temp file) |
 | References existing plan | May reference spec phases | **NEVER references existing plan** |
-| Creates GitHub issue | Yes (`[PLAN]` prefixed issue) | **No** — returned as markdown only |
+| Creates GitHub issue | No (plan is local `{N}/plan.md` + `{N}/plan-{NN}-*.md` artifact) | **No** — returned as markdown only |
 | Requires approval | Yes (`needs-approval` label) | **No** — comparison artifact |
 | Skip approval gate | No | **Yes** — not an implementation plan |
 | Structure | Agent-chosen prose | Agent-chosen prose (no template) |
@@ -41,7 +41,7 @@ Generate a clean-room implementation plan from a problem statement only, using p
 **Read the clean-room input file:**
 
 ```
-Read: ./tmp/artifacts/clean-room-<issue>-N.md
+Read: ./tmp/{issue-N}/artifacts/clean-room-N.md
 ```
 
 **Extract what's available:**
@@ -139,7 +139,7 @@ affected_files_count: K
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Problem statement exists at path" | Verify file exists and is non-empty | `ls ./tmp/artifacts/clean-room-<issue>-N.md` | MISSING-ELEMENT |
+| "Problem statement exists at path" | Verify file exists and is non-empty | `ls ./tmp/{issue-N}/artifacts/clean-room-N.md` | MISSING-ELEMENT |
 | "Affected file X exists" | Verify file in codebase | `srclight_search_symbols(query="X")` or `glob(pattern="**/X")` | VERIFICATION-GAP |
 | "Function Y has signature Z" | Verify signature against live code | `srclight_get_signature(name="Y")` | VERIFICATION-GAP |
 | "Pattern follows existing code" | Verify the referenced pattern exists | `grep(pattern="pattern_text")` | CONFLICTING |

@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: 578-sc4-sc13-behavioral-plan-fidelity-tainted-rejection
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # SC-4/SC-13 (behavioral): Agent rejects TAINTED plan and recommends sub-agent dispatch
 #
 # Behavioral test for spec #578 Defect 3.

@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Shared schema for step 2 output and step 6 input
+schema_version: "2.0"
+status: {{status}}
+plan_path: {{plan_path}}
+finding_summary: {{finding_summary}}
+artifact_paths: {{artifact_paths}}
+
+# Checklist validation fields (v2.0)
+checklist_step_count: {{checklist_step_count}}
+phase_count: {{phase_count}}
+sc_coverage: {{sc_coverage}}
+gate_sequence_source: {{gate_sequence_source}}
+admonishment_present: {{admonishment_present}}
+dispatch_table_free: {{dispatch_table_free}}
+dispatch_modes_used: {{dispatch_modes_used}}

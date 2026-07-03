@@ -2,11 +2,15 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
+
 # Task: concern-separation
 
 ## Purpose
 
 Audit spec phase structure for concern separation quality using dual-adversarial verification. Checks deployment independence, risk profile, and blast radius per phase.
+
+> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
 
 ## Entry Criteria
 
@@ -23,11 +27,41 @@ Audit spec phase structure for concern separation quality using dual-adversarial
 
 ## Procedure
 
+## Concern Separation Checklist
+
+- [ ] 0. Pre-Flight Validation Gate — validate required inputs before proceeding
+- [ ] 1. Load Spec — glob spec_local_dir for .md files, read all, extract phases
+- [ ] 2. Build Evaluation Criteria — define CS table with evidence types
+- [ ] 3. Analyze Phase Structure — per-phase concern/risk/independence/blast radius
+- [ ] 4. Cross-Validate — cross-validate will be called by the orchestrator with pre-resolved verdicts
+- [ ] 5. Classify Findings — map to finding types
+- [ ] 6. Verify Boundary Claims — live tool-call verification per claim
+- [ ] 7. Write Verdict Artifact to Disk — YAML output
+- [ ] 8. Return Frugal Result Contract
+
+### Step 0: Pre-Flight Validation Gate
+
+Validate that all required inputs are present before proceeding with the audit:
+
+- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 2. If `spec_local_dir` is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "spec_local_dir"
+remediation: "spec_local_dir is required for concern-separation. The orchestrator must provide a valid local directory containing spec Markdown files."
+```
+
+**This gate fires BEFORE any other step.** If any criterion fails, the task returns BLOCKED immediately — no globbing, no reading, no analysis.
+
 ### Step 1: Load Spec
 
-Fetch spec issue and extract phase structure:
+`spec_local_dir` is REQUIRED. Auditors BLOCK if absent.
 ```python
-issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<N>) <!-- Routes through issue-operations per SPEC #683 -->
+spec_files = glob(pattern="**/*.md", path=f"<spec_local_dir>")
+for f in spec_files:
+    read(filePath=f)
 ```
 
 Extract all phases and their steps.
@@ -42,6 +76,7 @@ Extract all phases and their steps.
 | CS-4 | Risk levels grouped appropriately | HIGH and LOW not mixed in same phase |
 | CS-5 | Deployment independence achieved | Each phase can be deployed independently |
 | CS-6 | Blast radius bounded | Phase failure impact is contained |
+| CS-ROUTING | Missing routing table changes when task file removed | When a spec removes or delegates a task file that has a routing/dispatch table, checks that the spec also addresses the routing table changes. If the routing table is not updated, the criterion FAILs. |
 
 ### Step 3: Analyze Phase Structure
 
@@ -65,35 +100,9 @@ Concern inference:
 - Keywords: API, service, handler → Business logic concern
 - Keywords: UI, component, template → Presentation concern
 
-### Step 4: Cross-Validate via task()
+### Step 4: Cross-Validate
 
-```python
-task(
-    subagent_type="general",
-    prompt=f"""Use adversarial-audit skill --task cross-validate with:
-
-evidence_payload:
----
-PHASE ANALYSIS:
-{phase_analyses_json}
-
-evaluation_criteria: <criteria_json>
-audit_phase: {audit_phase}
-authorization_scope: {authorization_scope}
-halt_at: {halt_at}
-pr_strategy: {pr_strategy}
-pipeline_phase: {pipeline_phase}
-
-# NOTE: cross-validate does NOT dispatch auditors — it receives
-# pre-resolved auditor_verdicts and computes consensus.
-auditor_verdicts: {auditor_verdicts}
-
-worktree.path: {worktree.path}
-github.owner: {github.owner}
-github.repo: {github.repo}
-"""
-)
-```
+Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
 
 ### Step 5: Classify Findings
 
@@ -115,26 +124,49 @@ Each boundary claim must be verified:
 | "Phase is deployment-independent" | `srclight_get_callers(symbol_name)` → check cross-phase calls |
 | "Risk classification accurate" | `srclight_get_dependents(symbol_name, transitive=true)` → count affected |
 
-### Step 7: Build Result Contract
+### Step 7: Write Verdict Artifact to Disk
 
-```json
-{
-  "status": "DONE",
-  "audit_type": "concern-separation",
-  "phases_analyzed": <count>,
-  "phase_analyses": [...],
-  "cross_validation": [...],
-  "overall_consensus": "PASS | FAIL",
-  "findings": [
-    {
-      "type": "BOILERPLATE_TITLE",
-      "phase": "Implementation",
-      "recommendation": "Consider splitting into Data Layer, Business Logic, Presentation phases",
-      "classification": "flag-for-review"
-    }
-  ],
-  "exec_summary": "Concern separation: {pass_count}/{total} criteria. {findings} phases need review."
-}
+Write the full YAML verdict artifact to `./tmp/{issue-N}/artifacts/pipeline-audit-concern-separation-{STATUS}-{timestamp}.yaml`:
+
+```yaml
+audit_phase: concern_separation
+auditor_type: concern-separation
+family: <family>
+issue_number: <N>
+generated_at: "<timestamp>"
+orchestrator_model: "<model>"
+phases_analyzed: N
+phase_analyses:
+  - phase_name: "<phase>"
+    concern: "<concern>"
+    risk_profile: "<high|medium|low>"
+    deployment_independence: true
+    blast_radius: "<contained|cross-phase>"
+per_criterion:
+  - criterion_id: "CS-1"
+    result: "PASS"
+    evidence: "<tool-call reference>"
+    explanation: "<reasoning>"
+    remediation: ""
+    next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
+findings:
+  - type: "BOILERPLATE_TITLE"
+    phase: "<phase>"
+    classification: "flag-for-review"
+    recommendation: "<recommendation>"
+exec_summary: "Concern separation: X/Y criteria. N phases need review."
+all_criteria_pass: false
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
+```
+
+### Step 8: Return Frugal Result Contract
+
+```yaml
+status: DONE
+artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-concern-separation-PASS-{timestamp}.yaml"
+summary: "N criteria evaluated. X PASS, Y FAIL."
+all_criteria_pass: false
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
 ## Edge Cases
@@ -145,18 +177,10 @@ Each boundary claim must be verified:
 | Testing | Validates all layers → report as intentional |
 | Single-step | Already atomic → no split needed |
 
-## Dispatch Mandate (CRITICAL — per critical-rules-048)
-
-This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
-1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
-2. Dispatching auditor sub-agents in parallel
-3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_verdicts`
-
-This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
-
 ## Completion Dependency Chain
 
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
+- Step 0 (Pre-Flight Validation Gate) → INVALID if skipped
 - Step 1 (Load Spec) → INVALID if skipped
 - Step 2 (Build Evaluation Criteria) → INVALID if skipped
 - Step 3 (Analyze Phase Structure) → INVALID if skipped
@@ -204,4 +228,22 @@ rules:
       all: ["dependency_found == true", "dependency_documented == false"]
     actions: [REPORT_MISSING_DEPENDENCY]
     source: "concern-separation.md §Step 3"
+
+  - id: concern-separation-004
+    title: "next_step MUST be 'remediate' when result is 'FAIL', 'proceed' when result is 'PASS'"
+    conditions:
+      any:
+        - "per_criterion[].result == 'FAIL' AND per_criterion[].next_step != 'remediate'"
+        - "per_criterion[].result == 'PASS' AND per_criterion[].next_step != 'proceed'"
+    actions: [HALT, REQUIRE_CORRECT_NEXT_STEP]
+    source: "concern-separation.md §Step 7 — conditional next_step enforcement"
+
+  - id: concern-separation-005
+    title: "all_criteria_pass MUST be true when every criterion result is 'PASS', false otherwise"
+    conditions:
+      any:
+        - "all(criterion.result == 'PASS' for criterion in per_criterion) AND all_criteria_pass != true"
+        - "any(criterion.result == 'FAIL' for criterion in per_criterion) AND all_criteria_pass != false"
+    actions: [HALT, REQUIRE_CORRECT_ALL_CRITERIA_PASS]
+    source: "concern-separation.md §Step 7 — all_criteria_pass enforcement"
 ```

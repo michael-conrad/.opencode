@@ -12,13 +12,13 @@ First, detect whether this is a single-issue or work PR:
 
 ```bash
 # Check if work state file exists
-ls tmp/work-*.md 2>/dev/null
+ls ./tmp/{issue-N}/work.md 2>/dev/null
 
 # If exists → work PR format
 # If not exists → single/multi-task PR format
 ```
 
-**PR strategy check (from scope fields):** Read `pr_strategy` from the work state file. When `pr_strategy == stacked`, use work PR format regardless. When `pr_strategy == individual`, separate PRs per issue. When `pr_strategy == none`, HALT — PR creation not authorized.
+**PR strategy check (from scope fields):** Read `pr_strategy` from the work state file. When `pr_strategy == stacked`, use work PR format regardless. When `pr_strategy == none`, HALT — PR creation not authorized.
 
 **Note:** GitHub autoclose (`Fixes #N`/`Closes #N`) does NOT trigger for PRs merging into `dev`. The cleanup task (`git-workflow --task cleanup`) is the sole closure mechanism. PR body keywords are informational labels for human readers.
 
@@ -32,17 +32,17 @@ Fixes #<parent>
 
 ### Multi-Task Spec with Sub-Issues
 
-1. **Fetch sub-issues:**
+- [ ] 1. **Fetch sub-issues:**
    ```python
    sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=<parent>) <!-- Routes through issue-operations per SPEC #683 -->
    ```
 
-2. **Build autoclose list:** parent + all sub-issues
+- [ ] 2. **Build autoclose list:** parent + all sub-issues
    ```python
    autoclose_issues = [<parent>] + [sub["number"] for sub in sub_issues]
    ```
 
-3. **Include ALL issues in PR body:**
+- [ ] 3. **Include ALL issues in PR body:**
    ```markdown
    ## Summary
    <description of what changed>
@@ -56,8 +56,8 @@ Fixes #<parent>
 
 For work PRs (assembled from multiple issues via `assemble-work`):
 
-1. **Read work state file** (`tmp/work-*.md`) to get list of all issues in the work
-2. **Build both sections:**
+- [ ] 1. **Read work state file** (`./tmp/{issue-N}/work.md`) to get list of all issues in the work
+- [ ] 2. **Build both sections:**
    - `## Work Issues` section listing each issue with its description
    - `Fixes #N` annotations for all issues at the bottom
 

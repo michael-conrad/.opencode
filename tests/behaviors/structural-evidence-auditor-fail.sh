@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: structural-evidence-auditor-fail
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: structural-evidence-auditor-fail
 # Verifies that adversarial auditors (spec-audit, plan-fidelity, drift-detection)
 # reject structural-only evidence for behavioral SCs with STRUCTURAL_EVIDENCE

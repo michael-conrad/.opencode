@@ -35,7 +35,7 @@ Gate 1 classifies the issue and executes sub-issue enumeration. If the issue is 
 - Issue classified into one screening category
 - Gate 1 (sub-issue enumeration) executed if applicable
 - Gate 2 (success criteria verification) executed if applicable
-- Compact result contract produced (≈100-500 words, YAML-structured)
+- Compact result contract produced (YAML-structured, routing-significant data only)
 
 ## Enforcement References
 

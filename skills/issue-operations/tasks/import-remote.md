@@ -13,8 +13,8 @@ Retroactively import a pre-existing remote issue into the local `.issues/` direc
 
 ## Exit Criteria
 
-- Full local mirror created at `.issues/open/<remote_number>-<slug>/spec.md`
-- Comments imported to `.issues/open/<remote_number>-<slug>/comments.md`
+- Full local mirror created at `.issues/{remote_number}/remote.md` (remote body) and `spec.md` (local frontmatter)
+- Comments imported to `.issues/{remote_number}/comments.md`
 - Frontmatter written with remote metadata and `promotion_type: retroactive_import`
 - `.counter` advanced if `counter <= remote_number`
 
@@ -38,14 +38,11 @@ github_issue_read(
 **GitBucket platform:**
 
 ```bash
-./.opencode/tools/gitbucket-api get-issue <github.owner> <github.repo> <issue-number>
+gb issue view <issue-number> -R <github.owner>/<github.repo>
 ```
 
 **Local platform:**
-
-```bash
-./.opencode/tools/local-issues read <issue-number>
-```
+Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: N}`.
 
 Extract: title, body, html_url, state, labels, author, created_at, updated_at.
 
@@ -67,34 +64,36 @@ github_issue_read(
 **GitBucket platform:**
 
 ```bash
-./.opencode/tools/gitbucket-api list-comments <github.owner> <github.repo> <issue-number>
+# Note: gb CLI does not have a dedicated list-comments command.
+# Use gb issue view to get issue details including comments.
+gb issue view <issue-number> -R <github.owner>/<github.repo>
 ```
 
 Collect each comment's author, timestamp, and body text.
 
 ### Step 3: Ensure .issues/ Exists
 
-If `.issues/` directory does not exist, call `local-issues setup`:
-
-```bash
-./.opencode/tools/local-issues setup
-```
-
-**Exit code handling:**
-
-| Exit Code | Meaning | Action |
-|-----------|---------|--------|
-| 0 | Success | Continue |
-| 1 | Fatal error | HALT and report stderr |
-| 2 | Stale worktree detected | Read stale path from stderr, run `git worktree remove <stale_path>`, re-run `local-issues setup` |
+If `.issues/` directory does not exist, route to `platforms/local/tasks/creation.md` via task() with setup action. The local-issues tool handles worktree setup transparently.
 
 ### Step 4: Create Local Issue
 
 Create the local issue directory manually (not via `local-issues create`, because we need to set the number to match the remote):
 
-1. Determine slug from title: first 5 words, kebab-cased
-2. Create directory: `.issues/open/<remote_number:03d>-<slug>/`
-3. Write `spec.md` with:
+- [ ] 1. Create directory: `.issues/{remote_number}/`
+- [ ] 1. Write `remote.md` with minimal frontmatter + full remote body:
+
+```yaml
+---
+remote_issue: <remote_number>
+remote_url: "<html_url>"
+last_sync: <import_timestamp>
+source: <github.platform>
+---
+
+<full_remote_issue_body>
+```
+
+- [ ] 4. Write `spec.md` with local frontmatter only — the remote body is NEVER written to spec.md, only to remote.md above:
 
 ```yaml
 ---
@@ -111,13 +110,11 @@ promotion_type: retroactive_import
 last_sync: <import_timestamp>
 author: <remote_author>
 ---
-
-<full_remote_issue_body>
 ```
 
 ### Step 5: Import Comments
 
-Write all fetched comments to `.issues/open/<remote_number>-<slug>/comments.md`:
+Write all fetched comments to `.issues/{remote_number}/comments.md`:
 
 ```markdown
 ---
@@ -145,9 +142,9 @@ If `counter > remote_number`, leave the counter unchanged (local issues already 
 
 Verify the full local mirror:
 
-1. Read spec.md: body matches remote, frontmatter has all required fields
-2. Read comments.md: all comments present, ordered chronologically
-3. Verify counter: `cat .issues/.counter` shows `remote_number + 1` or greater
+- [ ] 1. Read remote.md: body matches remote; Read spec.md: frontmatter has all required fields (verify no remote body content)
+- [ ] 1. Read comments.md: all comments present, ordered chronologically
+- [ ] 1. Verify counter: `cat .issues/.counter` shows `remote_number + 1` or greater
 
 ## Edge Cases
 
@@ -155,7 +152,7 @@ Verify the full local mirror:
 | -- | -- |
 | Issue already imported (matching `remote_issue` found) | HALT — report already imported, provide path |
 | Issue number conflicts with existing local issue | Use next available number, record remote_number in frontmatter |
-| Remote issue is closed | Import as closed: create in `.issues/closed/` with `status: closed` |
+| Remote issue is closed | Import as closed: create at `.issues/{N}/` with `status: closed` |
 | Remote has zero comments | Write empty `comments.md` |
 | Remote body is empty | Write "*(No body content)*" placeholder |
 | Platform API returns error | HALT — report the error, do not create partial import |
@@ -165,7 +162,7 @@ Verify the full local mirror:
 
 - Session values: github.owner, github.repo, github.platform
 - Issue number to import
-- Related tasks: `read-issue`, `read-comments` (both called internally), `local-issues setup` (if .issues/ missing)
+- Related tasks: `read-issue`, `read-comments` (both called internally), `platforms/local/tasks/creation.md` for setup (if .issues/ missing)
 - Platform routing: `../platforms/github-mcp/` or `../platforms/gitbucket-api/` or `../platforms/local/`
 - No direct `github_*` or `gitbucket-api` calls outside `issue-operations/platforms/`
 
@@ -173,10 +170,12 @@ Verify the full local mirror:
 
 | Claim | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |
-| "spec.md exists" | Verify file at `.issues/open/NNN-slug/spec.md` | `local-issues read <number>` | MISSING-ELEMENT |
-| "comments.md exists with all comments" | Verify file and comment count matches remote | `cat .issues/open/NNN-slug/comments.md \| wc -l` | MISSING-ELEMENT |
+| "remote.md exists (body)" | Verify file at `.issues/{N}/remote.md` | `local-issues read <number>` | MISSING-ELEMENT |
+| "spec.md exists (frontmatter only)" | Verify file at `.issues/{N}/spec.md` | `local-issues read <number>` | MISSING-ELEMENT |
+| "comments.md exists with all comments" | Verify file and comment count matches remote | `ls .issues/{N}/comments.md` | MISSING-ELEMENT |
 | "promotion_type in frontmatter" | Verify `promotion_type: retroactive_import` present | `local-issues read <number>` → parse frontmatter | STRUCTURE-VIOLATION |
 | "Counter advanced correctly" | Verify `.counter` value >= remote_number + 1 | `cat .issues/.counter` | VERIFICATION-GAP |
-| "Body matches remote" | Compare local body against remote issue body | `local-issues read <number>` | VERIFICATION-GAP |
+| "Body matches remote (remote.md)" | Compare remote.md body against remote issue body | `local-issues read <number>` | VERIFICATION-GAP |
+| "spec.md has no remote body" | Verify spec.md has no body content below frontmatter | `local-issues read <number>` → check body is empty after frontmatter | VERIFICATION-GAP |
 
-**Evidence artifact:** spec.md readback showing body + frontmatter, comments.md showing imported comments, .counter value.
+**Evidence artifact:** remote.md readback showing body, spec.md readback showing frontmatter only, comments.md showing imported comments, .counter value.

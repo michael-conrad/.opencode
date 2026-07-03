@@ -9,7 +9,7 @@ Verify that ALL structural components required by the spec are present in the im
 ## Entry Criteria
 
 - Implementation claimed complete
-- Spec or plan issue available with structural component requirements
+- Spec or plan issue available with structural component requirements, or `spec_local_dir` provided for local spec access
 - Target skill/guideline files exist
 
 ## Exit Criteria
@@ -22,9 +22,9 @@ Verify that ALL structural components required by the spec are present in the im
 
 This task MUST be task()'d as a sub-agent receiving ONLY:
 
-1. **Spec acceptance criteria list** — the SC table from the spec issue
-2. **File paths to verify** — list of files that were modified during implementation
-3. **Required structural components** — list derived from parent spec's requirements
+- [ ] 1. **spec_local_dir** — REQUIRED path(s) to local issue directories containing spec.md. If absent: BLOCKED with MISSING_INPUT_DIR.
+- [ ] 2. **Target files** — list of files that were modified during implementation
+- [ ] 3. **Required structural components** — list derived from parent spec's requirements
 
 The sub-agent MUST NOT receive:
 - Implementation context (what was done, how it was done)
@@ -35,7 +35,7 @@ The sub-agent MUST NOT receive:
 
 ### Step 1: Parse Required Components
 
-From the spec issue, extract the list of required structural components. Use `vbc_artifact_path` (defaults to `./tmp/artifacts/`) as the canonical base for all artifact paths — not bare `./tmp/`:
+From the spec issue, extract the list of required structural components. Use `vbc_artifact_path` (defaults to `./tmp/{issue-N}/artifacts/`) as the canonical base for all artifact paths — not bare `./tmp/`:
 
 | Component | Where to Check | Failure Class |
 |-----------|---------------|---------------|
@@ -56,9 +56,9 @@ From the spec issue, extract the list of required structural components. Use `vb
 
 For each file path in the task context:
 
-1. Read the file using the `read` tool (NOT from cache or memory)
-2. Extract the yaml+symbolic block
-3. Parse YAML structure
+- [ ] 1. Read the file using the `read` tool (NOT from cache or memory)
+- [ ] 2. Extract the yaml+symbolic block
+- [ ] 3. Parse YAML structure
 
 ### Step 3: Component-by-Component Verification
 
@@ -99,6 +99,8 @@ For each file path in the task context:
 
 **⚠️ DISCLAIMER: Structural completeness verification confirms ONLY that implementation components exist — it does NOT verify behavioral correctness.** A component that passes structural verification (exists in the file, has the right fields, appears in the yaml block) may still fail behavioral verification (the test contains a bug, the function returns wrong values, the rule doesn't produce the expected agent behavior). Structural PASS is a prerequisite for behavioral verification, not a substitute.
 
+**Behavioral uplift exclusion:** Structural verification is valid ONLY for changes that do not affect runtime behavior. If the change affects runtime behavior, structural verification is `EVIDENCE_TYPE_MISMATCH` — uplift to behavioral is mandatory. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
+
 ## Adversarial Verification
 
 Each structural component check MUST be verified by reading the actual file. Claims from memory or cached context are VERIFICATION-GAP findings.
@@ -112,13 +114,15 @@ Each structural component check MUST be verified by reading the actual file. Cla
 ## Task Context Schema
 
 ```yaml
+spec_local_dir: <path> | [<path>, ...]     # REQUIRED — local issue directories
+artifact_evidence_dir: <path> | [<path>, ...]  # OPTIONAL — behavioral evidence directories
 spec_issue: <N>
 target_files: [<path_list>]
 required_components: [<component_list>]
 vbc_artifact_path: <path_to_vbc_artifacts>
 authorization_scope: <scope_value>
 halt_at: <pipeline_stage>
-pr_strategy: stacked | individual | none
+pr_strategy: stacked | none
 pipeline_phase: <current_phase_name>
 ```
 

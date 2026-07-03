@@ -40,13 +40,11 @@ github_issue_read(
 
 **GitBucket platform:**
 ```bash
-./.opencode/tools/gitbucket-api get-issue <github.owner> <github.repo> <issue-number>
+gb issue view <issue-number> -R <github.owner>/<github.repo>
 ```
 
 **Local platform:**
-```bash
-./.opencode/tools/local-issues read <issue-number>
-```
+Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: N}`.
 
 ### Step 3: Return Issue Data
 
@@ -65,7 +63,7 @@ Return the issue data to the calling task. Do NOT interpret or modify the data â
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```

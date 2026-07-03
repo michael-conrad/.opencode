@@ -44,9 +44,7 @@ github_issue_read(
 ```
 
 **Local platform:**
-```bash
-./.opencode/tools/local-issues read-labels <issue-number>
-```
+Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: N}`. Extract labels from returned issue data.
 
 ### Step 3: Return Label Data
 
@@ -65,7 +63,7 @@ Return label data to the calling task. Labels are used for authorization scope v
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```

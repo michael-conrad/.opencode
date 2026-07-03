@@ -15,7 +15,7 @@ Determine execution strategy, capture the dev base hash, build task context for 
 - Execution strategy determined (sequential, parallel, hybrid, exclude, or reduce-scope)
 - Dev base hash captured via `git rev-parse origin/dev`
 - Task context built for each issue (including worktree paths, partially-implemented context, revised status)
-- Work state file written to `./tmp/artifacts/work-<issue>.md`
+- Work state file written to `./tmp/{issue-N}/artifacts/work.md`
 - File contains: authorization context, scope fields, pre-analysis results, gate evidence audit table, execution order, merge-time ordering, completed tracking, and results placeholder
 
 ## Procedure
@@ -25,7 +25,7 @@ Determine execution strategy, capture the dev base hash, build task context for 
 | Strategy | When | How |
 |----------|------|-----|
 | **Sequential** | Must-precede chain exists | Execute in dependency order |
-| **Parallel** | Independent issues | task() via `divide-and-conquer` |
+| **Parallel** | Independent issues | task() via `implementation-pipeline` |
 | **Hybrid** | Mix of both | Serial for must-precede, parallel for independent groups |
 | **Exclude** | Meta/non-code, already-implemented, superseded, moot | Report exclusion with reason |
 | **Reduce scope** | Partially-implemented | Include remaining phases only |
@@ -86,10 +86,10 @@ The `dev_base_hash` ensures all parallel worktrees start from the same base comm
 After the execution plan is presented, write a work state file that persists the plan for sub-agent task():
 
 ```bash
-mkdir -p ./tmp/artifacts
+mkdir -p ./tmp/{issue-N}/artifacts
 ```
 
-**File:** `./tmp/artifacts/work-<issue>.md`
+**File:** `./tmp/{issue-N}/artifacts/work.md`
 
 **Contents:**
 
@@ -101,13 +101,13 @@ mkdir -p ./tmp/artifacts
 **Authorization Context:** User said "approved" on <date>
 **Authorization Scope:** <scope_value> (parsed from authorization text)
 **HALT At:** <pipeline_stage> (derived from scope horizon)
-**PR Strategy:** stacked | individual | none (derived from scope)
+**PR Strategy:** stacked | none (derived from scope)
 
 ## Scope Fields
 
 - **authorization_scope:** <scope_value>
 - **halt_at:** <pipeline_stage>
-- **pr_strategy:** <stacked|individual|none>
+- **pr_strategy:** <stacked|none>
 - **gap_fill:** <list of gap-fill actions executed or pending>
 
 ## Pre-Analysis Results

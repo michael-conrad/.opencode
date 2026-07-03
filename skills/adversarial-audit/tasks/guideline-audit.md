@@ -2,6 +2,8 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
+
 # Task: guideline-audit
 
 ## Purpose
@@ -19,9 +21,37 @@ Audit guideline files for ambiguity, conflicts, and LLM compliance. Identifies p
 - All guideline files scanned
 - Problems identified with LLM compliance check
 - PASS/FAIL consensus for each problem class
-- Findings written to `./tmp/artifacts/audit-guideline-<issue>.md`
+- Findings written to `./tmp/{issue-N}/artifacts/audit-guideline.md`
 
 ## Procedure
+
+## Guideline Audit Checklist
+
+- [ ] 0. Pre-Flight Validation Gate — validate required inputs before proceeding
+- [ ] 1. Identify Target Files — specific files or full glob of guidelines/
+- [ ] 2. Build Evaluation Criteria — define GA table with evidence types
+- [ ] 3. Scan for Problem Classes — per-file ambiguous/conflicting/unenforceable/redundant/missing/overflow
+- [ ] 4. One Problem At a Time — present single findings per interaction
+- [ ] 5. Cross-Validate — cross-validate will be called by the orchestrator with pre-resolved verdicts
+- [ ] 6. Write Audit Report — markdown report to artifacts directory
+- [ ] 7. Write Verdict Artifact to Disk — YAML output
+- [ ] 8. Return Frugal Result Contract
+
+### Step 0: Pre-Flight Validation Gate
+
+Validate that all required inputs are present before proceeding with the audit:
+
+- [ ] 1. Verify target file paths are provided and non-empty
+- [ ] 2. If target file paths are missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "target file paths"
+remediation: "Target file paths are required for guideline-audit. The orchestrator must specify which guideline files to audit."
+```
+
+**This gate fires BEFORE any other step.** If any criterion fails, the task returns BLOCKED immediately — no globbing, no reading, no analysis.
 
 ### Step 1: Identify Target Files
 
@@ -127,42 +157,13 @@ Fix? (fix/skip/stop)
 
 Do NOT batch multiple problems in one message.
 
-### Step 5: Cross-Validate via task()
+### Step 5: Cross-Validate
 
-For each problem class:
-
-```python
-task(
-    subagent_type="general",
-    prompt=f"""Use adversarial-audit skill --task cross-validate with:
-
-evidence_payload:
----
-FILE: {file}
-CONTENT: {content}
-PROBLEM_CLASS: {problem["class"]}
-
-evaluation_criteria: <criteria_json>
-audit_phase: {audit_phase}
-authorization_scope: {authorization_scope}
-halt_at: {halt_at}
-pr_strategy: {pr_strategy}
-pipeline_phase: {pipeline_phase}
-
-# NOTE: cross-validate does NOT dispatch auditors — it receives
-# pre-resolved auditor_verdicts and computes consensus.
-auditor_verdicts: {auditor_verdicts}
-
-worktree.path: {worktree.path}
-github.owner: {github.owner}
-github.repo: {github.repo}
-"""
-)
-```
+Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
 
 ### Step 6: Write Audit Report
 
-Append findings to `./tmp/artifacts/audit-guideline-<issue>.md`:
+Append findings to `./tmp/{issue-N}/artifacts/audit-guideline.md`:
 
 ```markdown
 # Guideline Audit Report - <YYYY-MM-DD>
@@ -188,27 +189,45 @@ Fix: <fix_action>
 ...
 ```
 
-### Step 7: Build Result Contract
+### Step 7: Write Verdict Artifact to Disk
 
-```json
-{
-  "status": "DONE",
-  "audit_type": "guideline-audit",
-  "files_audited": <N>,
-  "problems_found": <M>,
-  "problem_breakdown": {
-    "AMBIGUOUS": <count>,
-    "CONFLICTING": <count>,
-    "UNENFORCEABLE": <count>,
-    "REDUNDANT-CROSS-FILE": <count>,
-    "MISSING": <count>,
-    "CONTEXT-OVERFLOW": <count>
-  },
-  "cross_validation": [...],
-  "overall_consensus": "PASS | FAIL",
-  "report_path": "./tmp/artifacts/audit-guideline-<issue>.md",
-  "exec_summary": "Guideline audit: {files} files, {problems} problems. Consensus: {overall}."
-}
+Write the full YAML verdict artifact to `./tmp/{issue-N}/artifacts/pipeline-audit-guideline-audit-{STATUS}-{timestamp}.yaml`:
+
+```yaml
+audit_phase: guideline_update
+auditor_type: guideline-audit
+family: <family>
+issue_number: <N>
+generated_at: "<timestamp>"
+orchestrator_model: "<model>"
+files_audited: N
+problems_found: M
+problem_breakdown:
+  AMBIGUOUS: 0
+  CONFLICTING: 0
+  UNENFORCEABLE: 0
+  REDUNDANT-CROSS-FILE: 0
+  MISSING: 0
+  CONTEXT-OVERFLOW: 0
+per_criterion:
+  - criterion_id: "GA-1"
+    result: "PASS"
+    evidence: "<tool-call reference>"
+    explanation: "<reasoning>"
+    remediation: ""
+    next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
+report_path: "./tmp/{issue-N}/artifacts/audit-guideline.md"
+all_criteria_pass: false
+exec_summary: "Guideline audit: N files, M problems. Consensus: PASS|FAIL."
+```
+
+### Step 8: Return Frugal Result Contract
+
+```yaml
+status: DONE
+artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-guideline-audit-PASS-{timestamp}.yaml"
+summary: "N files audited, M problems found. X/Y criteria PASS."
+all_criteria_pass: false
 ```
 
 ## Error Handling
@@ -219,18 +238,10 @@ Fix: <fix_action>
 | Unable to parse rule | Skip rule, log warning |
 | Token limit exceeded | Report as CONTEXT-OVERFLOW |
 
-## Dispatch Mandate (CRITICAL — per critical-rules-048)
-
-This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
-1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
-2. Dispatching auditor sub-agents in parallel
-3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_verdicts`
-
-This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
-
 ## Completion Dependency Chain
 
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
+- Step 0 (Pre-Flight Validation Gate) → INVALID if skipped
 - Step 1 (Identify Target Files) → INVALID if skipped
 - Step 2 (Build Evaluation Criteria) → INVALID if skipped
 - Step 3 (Scan for Problem Classes) → INVALID if skipped
@@ -278,4 +289,22 @@ rules:
       all: ["report_written == true", "timestamp_in_report == false"]
     actions: [ADD_TIMESTAMP]
     source: "guideline-audit.md §Step 6"
+
+  - id: guideline-audit-004
+    title: "next_step MUST be 'remediate' when result is 'FAIL', 'proceed' when result is 'PASS'"
+    conditions:
+      any:
+        - "per_criterion[].result == 'FAIL' AND per_criterion[].next_step != 'remediate'"
+        - "per_criterion[].result == 'PASS' AND per_criterion[].next_step != 'proceed'"
+    actions: [HALT, REQUIRE_CORRECT_NEXT_STEP]
+    source: "guideline-audit.md §Step 7 — conditional next_step enforcement"
+
+  - id: guideline-audit-005
+    title: "all_criteria_pass MUST be true when every criterion result is 'PASS', false otherwise"
+    conditions:
+      any:
+        - "all(criterion.result == 'PASS' for criterion in per_criterion) AND all_criteria_pass != true"
+        - "any(criterion.result == 'FAIL' for criterion in per_criterion) AND all_criteria_pass != false"
+    actions: [HALT, REQUIRE_CORRECT_ALL_CRITERIA_PASS]
+    source: "guideline-audit.md §Step 7 — all_criteria_pass enforcement"
 ```

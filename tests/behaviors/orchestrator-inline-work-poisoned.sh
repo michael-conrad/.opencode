@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: orchestrator-inline-work-poisoned
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: orchestrator-inline-work-poisoned
 # Verifies that when the orchestrator performs inline work (reading files,
 # running analysis, making decisions instead of dispatching sub-agents),

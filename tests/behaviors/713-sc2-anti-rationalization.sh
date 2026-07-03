@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: 713-sc2-anti-rationalization
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Test: 713-sc2-anti-rationalization
 # SC-2: Verifies that the agent does NOT rationalize bypassing skill dispatch
 # using any of the prohibited rationalization patterns.

@@ -6,31 +6,31 @@ Push core guideline/skill changes from source repository to target repository vi
 
 ## Operating Protocol
 
-1. Invoked by: `skill({name: "sync-guidelines"})` → `task()` for `sync-push`
-2. When to use: When syncing changes FROM source repo TO target repo
-3. Exit criteria: Sync issue created in target repo with classified files
+- [ ] 1. Invoked by: `skill({name: "sync-guidelines"})` → `task()` for `sync-push`
+- [ ] 2. When to use: When syncing changes FROM source repo TO target repo
+- [ ] 3. Exit criteria: Sync issue created in target repo with classified files
 
 ## Procedure
 
 ### Step 1: Pre-Work Verification
 
-1. Verify on feature branch (not `main`)
-2. Check for uncommitted changes (`git status`)
-3. Stash if needed
+- [ ] 1. Verify on feature branch (not `main`)
+- [ ] 2. Check for uncommitted changes (`git status`)
+- [ ] 3. Stash if needed
 
 ### Step 2: Discover Changed Files
 
-1. Detect changed files since last sync
-2. Read the entire file content of each changed file
-3. Analyze semantically what the file does
-4. Determine classification using `classify` task criteria
+- [ ] 1. Detect changed files since last sync
+- [ ] 2. Read the entire file content of each changed file
+- [ ] 3. Analyze semantically what the file does
+- [ ] 4. Determine classification using `classify` task criteria
 
 ### Step 3: Conflict Detection
 
 Before creating push issue:
-1. Check if file exists in target repo (`github_get_file_contents`)
-2. If both modified, note conflict in issue
-3. Recommend manual merge in issue body
+- [ ] 1. Check if file exists in target repo (`github_get_file_contents`)
+- [ ] 2. If both modified, note conflict in issue
+- [ ] 3. Recommend manual merge in issue body
 
 ### Step 4: Create Sync Issue
 

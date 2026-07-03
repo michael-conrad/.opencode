@@ -2,6 +2,10 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
+
+> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
+
 # Task: closure-verification
 
 ## Purpose
@@ -22,6 +26,32 @@ Verify merge evidence after PR merge. Ensures spec issue properly closed, succes
 - PASS if verified, FAIL if evidence missing
 
 ## Procedure
+
+### Step 0: Pre-Flight Validation Gate
+
+Validate that all required inputs are present before proceeding with the audit:
+
+- [ ] 1. Verify PR number is provided and non-empty
+- [ ] 2. Verify spec issue number is provided and non-empty
+- [ ] 3. If PR number is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "PR number"
+remediation: "PR number is required for closure-verification. The orchestrator must provide the merged PR number."
+```
+
+- [ ] 4. If spec issue number is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "spec issue number"
+remediation: "Spec issue number is required for closure-verification. The orchestrator must provide the spec issue number linked to the PR."
+```
+
+**This gate fires BEFORE any other step.** If any criterion fails, the task returns BLOCKED immediately — no globbing, no reading, no analysis.
 
 ### Step 1: Fetch Merged PR
 
@@ -45,10 +75,17 @@ else:
     return BLOCKED("No linked spec issue found")
 ```
 
-### Step 3: Fetch Spec Issue
+### Step 3: Load Spec
 
+`spec_local_dir` is REQUIRED. Auditors BLOCK if absent.
 ```python
-spec = issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=spec_issue) <!-- Routes through issue-operations per SPEC #683 -->
+spec_files = glob(pattern="**/*.md", path=f"<spec_local_dir>")
+spec = None
+for f in spec_files:
+    content = read(filePath=f)
+    if "state:" in content:
+        spec = content  # first file with state field
+        break
 ```
 
 ### Step 4: Verify Issue Closed
@@ -109,49 +146,9 @@ for criterion in success_criteria:
         })
 ```
 
-### Step 8: Cross-Validate via task()
+### Step 8: Cross-Validate
 
-```python
-task(
-    subagent_type="general",
-    prompt=f"""Use adversarial-audit skill --task cross-validate with:
-
-evidence_payload:
----
-PR:
-Number: {pr["number"]}
-Title: {pr["title"]}
-State: {pr["state"]}
-Merged: {pr["merged_at"]}
-
-SPEC:
-Number: {spec["number"]}
-Title: {spec["title"]}
-State: {spec["state"]}
-
-SUCCESS CRITERIA:
-{success_criteria}
-
-VERIFICATION EVIDENCE:
-{verification_evidence}
-
-evaluation_criteria: <criteria_json>
-audit_phase: post_merge
-authorization_scope: {authorization_scope}
-halt_at: {halt_at}
-pr_strategy: {pr_strategy}
-pipeline_phase: {pipeline_phase}
-
-# NOTE: cross-validate does NOT dispatch auditors — it receives
-# pre-resolved auditor_verdicts and computes consensus.
-auditor_verdicts: {auditor_verdicts}
-
-worktree.path: {worktree.path}
-github.owner: {github.owner}
-github.repo: {github.repo}
-"""
-)
-```
+Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
 
 ### Step 9: Check for Open Blockers
 
@@ -197,33 +194,47 @@ if follow_up_issues:
 | OPEN_BLOCKERS | HIGH | Blocking issues remain |
 | FOLLOW_UP_NOT_OPEN | MEDIUM | Follow-up issue closed |
 
-### Step 12: Build Result Contract
+### Step 12: Write Verdict Artifact to Disk
 
-```json
-{
-  "status": "DONE",
-  "audit_type": "closure-verification",
-  "pr_number": <N>,
-  "spec_issue": <M>,
-  "merge_status": {
-    "pr_merged": true,
-    "spec_closed": true | false,
-    "closing_commit": "<sha>"
-  },
-  "success_criteria_verification": [
-    {
-      "criterion": "<SC-1>",
-      "verified": true | false | null,
-      "evidence": "<tool-call reference>",
-      "manual_required": false | true
-    }
-  ],
-  "follow_up_issues": [...],
-  "blocking_issues": [...],
-  "cross_validation": [...],
-  "overall_consensus": "PASS | FAIL",
-  "exec_summary": "Closure verification: {verified_count}/{total} criteria verified. Consensus: {overall}."
-}
+Write the full YAML verdict artifact to `./tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-{STATUS}-{timestamp}.yaml`:
+
+```yaml
+audit_phase: post_merge
+auditor_type: closure-verification
+family: <family>
+issue_number: <N>
+generated_at: "<timestamp>"
+orchestrator_model: "<model>"
+merge_status:
+  pr_merged: true
+  spec_closed: true
+  closing_commit: "<sha>"
+success_criteria_verification:
+  - criterion: "CV-1"
+    verified: true
+    evidence: "<tool-call reference>"
+    manual_required: false
+follow_up_issues: []
+blocking_issues: []
+per_criterion:
+  - criterion_id: "CV-1"
+    result: "PASS"
+    evidence: "<tool-call reference>"
+    explanation: "<reasoning>"
+    remediation: ""
+    next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
+exec_summary: "Closure verification: X/Y criteria. Consensus: PASS|FAIL."
+all_criteria_pass: false
+```
+
+### Step 13: Return Frugal Result Contract
+
+```yaml
+status: DONE
+artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-closure-verification-PASS-{timestamp}.yaml"
+summary: "N criteria evaluated. X PASS, Y FAIL."
+all_criteria_pass: false
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
 ## Error Handling
@@ -234,18 +245,10 @@ if follow_up_issues:
 | Spec issue not found | Return BLOCKED with spec issue number |
 | Verification fails | Return FAIL with gap details |
 
-## Dispatch Mandate (CRITICAL — per critical-rules-048)
-
-This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
-1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
-2. Dispatching auditor sub-agents in parallel
-3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_verdicts`
-
-This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
-
 ## Completion Dependency Chain
 
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
+- Step 0 (Pre-Flight Validation Gate) → INVALID if skipped
 - Step 1 (Fetch Merged PR) → INVALID if skipped
 - Step 2 (Identify Linked Spec) → INVALID if skipped
 - Step 3 (Fetch Spec Issue) → INVALID if skipped
@@ -298,4 +301,22 @@ rules:
       all: ["blocking_comments_count > 0"]
     actions: [REPORT_BLOCKERS]
     source: "closure-verification.md §Step 9"
+
+  - id: closure-verification-004
+    title: "next_step MUST be 'remediate' when result is 'FAIL', 'proceed' when result is 'PASS'"
+    conditions:
+      any:
+        - "per_criterion[].result == 'FAIL' AND per_criterion[].next_step != 'remediate'"
+        - "per_criterion[].result == 'PASS' AND per_criterion[].next_step != 'proceed'"
+    actions: [HALT, REQUIRE_CORRECT_NEXT_STEP]
+    source: "closure-verification.md §Step 12 — conditional next_step enforcement"
+
+  - id: closure-verification-005
+    title: "all_criteria_pass MUST be true when every criterion result is 'PASS', false otherwise"
+    conditions:
+      any:
+        - "all(criterion.result == 'PASS' for criterion in per_criterion) AND all_criteria_pass != true"
+        - "any(criterion.result == 'FAIL' for criterion in per_criterion) AND all_criteria_pass != false"
+    actions: [HALT, REQUIRE_CORRECT_ALL_CRITERIA_PASS]
+    source: "closure-verification.md §Step 12 — all_criteria_pass enforcement"
 ```

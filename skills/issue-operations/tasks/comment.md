@@ -17,6 +17,17 @@ Post comments to issues/PRs following the substantive comment gate and byline fo
 
 ## Procedure
 
+### Step 0: Caller Guidance — Evaluate Gate Before Committing
+
+**This substantiveness gate MUST be evaluated by callers BEFORE the caller commits to posting.**
+Callers must not assume posting is the default outcome. The gate determines whether posting is warranted:
+
+- [ ] 1. Caller routes comment content through this gate first (before any posting action)
+- [ ] 2. Gate evaluates: Is this substantive? If yes → post. If no → output to chat only
+- [ ] 3. Caller respects the gate's decision — never post content the gate classified as non-substantive
+
+Non-substantive progress (status updates, "phase complete", "implemented X") goes to chat only, never to issue comments.
+
 ### Step 1: Substantiveness Gate
 
 Before posting, evaluate: Does this comment convey information a stakeholder needs to understand what changed or why?
@@ -33,7 +44,7 @@ After substantiveness, classify comment content before determining type. Classif
 
 | Classification | Definition | Route |
 |---|---|---|
-| **stakeholder** | Information a reviewer/stakeholder needs to act on | Write to `remote.md` → `local-issues sync push N` |
+| **stakeholder** | Information a reviewer/stakeholder needs to act on | Write to `remote.md` → route to `platforms/local/tasks/push-body.md` via task() |
 | **internal** | Agent reasoning, design analysis, corrections, process metadata | `.issues/N/comments.md` only |
 
 **Concrete classification rules:**
@@ -60,10 +71,10 @@ After classification, evaluate: **Does this stakeholder-classified comment revis
 
 **Update spec body flow** (when comment revises/corrects/supersedes spec body):
 
-1. Update `.issues/N/spec.md` — merge the revision into the canonical spec body
-2. Update `.issues/N/remote.md` — reflect the revision in the exec summary
-3. Run `local-issues sync push N` — push updated spec body to GitHub
-4. Post explanatory comment: "Spec body updated per #683 Phase 3"
+- [ ] 1. Update `.issues/N/spec.md` — merge the revision into the canonical spec body
+- [ ] 2. Update `.issues/N/remote.md` — reflect the revision in the exec summary
+- [ ] 3. Route to `platforms/local/tasks/push-body.md` via task() — push updated spec body to GitHub. Pass: `{issue_number: N}`
+- [ ] 4. Post explanatory comment: "Spec body updated per #683 Phase 3"
 
 **Why this matters:** Without this check, stakeholder corrections sit in comments while the spec body remains stale. The canonical spec body (`.issues/N/spec.md`) is the authoritative source — revisions must propagate to it, not remain stranded in comments.
 
@@ -171,13 +182,11 @@ github_add_issue_comment(
 
 **GitBucket platform (sub-skill implementation):**
 ```bash
-./.opencode/tools/gitbucket-api add-comment <github.owner> <github.repo> <issue-number> "<formatted_comment>"
+gb issue comment <issue-number> -b "<formatted_comment>" -R <github.owner>/<github.repo>
 ```
 
 **Local platform (sub-skill implementation):**
-```bash
-./.opencode/tools/local-issues comment <issue-number> --body "<formatted_comment>"
-```
+Route to `platforms/local/tasks/comment.md` via task(). Pass: `{issue_number: N, body: "<formatted_comment>", action: "post"}`.
 
 ## Live Verification: Comment Claims (MANDATORY)
 
@@ -203,7 +212,7 @@ github_add_issue_comment(
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```

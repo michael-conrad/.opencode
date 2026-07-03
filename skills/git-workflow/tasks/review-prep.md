@@ -12,9 +12,9 @@ Sequence: Implementation complete → commit → push → **review-prep MUST be 
 
 ## Operating Protocol
 
-1. **After implementation:** Runs AFTER all implementation is complete
-2. **MANDATORY step:** Branch MUST be pushed for developer review
-3. **HALT after push:** Wait for developer to review and authorize PR creation
+- [ ] 1. **After implementation:** Runs AFTER all implementation is complete
+- [ ] 2. **MANDATORY step:** Branch MUST be pushed for developer review
+- [ ] 3. **HALT after push:** Wait for developer to review and authorize PR creation
 
 ## Entry Criteria
 
@@ -47,7 +47,7 @@ fi
 
 **Route to:** `review-prep/push-and-cleanup`
 
-Tasks `submodule-feature-push` sub-agent for submodule changes (if `.gitmodules` exists), then handles temp file cleanup, rebase on current dev, worktree handoff, and branch push verification.
+Tasks `submodule-feature-push` sub-agent for submodule changes (if a submodule `.git` file or directory is discovered), then handles temp file cleanup, rebase on current dev, worktree handoff, and branch push verification.
 
 ### Step 2.5: Squash Verification (MANDATORY GATE)
 
@@ -58,7 +58,7 @@ Tasks `submodule-feature-push` sub-agent for submodule changes (if `.gitmodules`
 git log origin/dev..HEAD --oneline
 
 # Detect branch type
-ls tmp/work-*.md 2>/dev/null
+ls ./tmp/{issue-N}/work.md 2>/dev/null
 ```
 
 | Branch Type | Expected Commits | On Mismatch |
@@ -68,16 +68,16 @@ ls tmp/work-*.md 2>/dev/null
 
 **If single-issue branch has >1 commit:**
 
-1. DO NOT generate compare URL
-2. Squash per `pr-creation/squash-push.md` Step 3
-3. Re-push with `--force-with-lease`
-4. Re-verify commit count — then proceed to URL generation
+- [ ] 1. DO NOT generate compare URL
+- [ ] 2. Squash per `pr-creation/squash-push.md` Step 3
+- [ ] 3. Re-push with `--force-with-lease`
+- [ ] 4. Re-verify commit count — then proceed to URL generation
 
 **If work branch commit count does not match work state items:**
 
-1. DO NOT generate compare URL
-2. Verify all implementation items were committed
-3. Re-verify — then proceed to URL generation
+- [ ] 1. DO NOT generate compare URL
+- [ ] 2. Verify all implementation items were committed
+- [ ] 3. Re-verify — then proceed to URL generation
 
 **AUTHORITY:** `000-critical-rules.md` §Un-Squashed PR, `pr-creation/squash-push.md` Step 3
 

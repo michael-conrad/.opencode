@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: no-red-green-push
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: RED/GREEN sub-agents must not commit or push
 #
 # Rule: RED/GREEN sub-agents only execute tests — never commit, never push.

@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = ["pyyaml>=6.0"]
 # ///
 
+# fmt: on
 """
 DESCRIPTION: Schema v2.0 validation for yaml+symbolic blocks. Supports tasks, decomposition, gates, evidence_artifacts, and sub_agent_dispatch sections.
 Usage: python .opencode/tools/impl/skildeck/schema_v2.py [ Options ]
@@ -30,6 +32,7 @@ REQUIRED_DECOMP_FIELDS = {"type", "skill", "task"}
 REQUIRED_GATE_FIELDS = {"id", "condition"}
 REQUIRED_EVIDENCE_FIELDS = {"name", "type", "verification"}
 REQUIRED_SUB_AGENT_DISPATCH_FIELDS = {"type", "isolation", "bypass_violation"}
+
 
 def find_skills_dir(tool_path: Path) -> Path:
     """
@@ -55,6 +58,7 @@ def find_skills_dir(tool_path: Path) -> Path:
         f"Set SKILDECK_SKILLS_DIR env var to override."
     )
 
+
 def scan_skills(skills_dir: Path) -> list:
     """
     Scan skills directory and extract yaml+symbolic rules from SKILL.md files.
@@ -78,6 +82,7 @@ def scan_skills(skills_dir: Path) -> list:
 
     return all_rules
 
+
 def extract_rules_from_markdown(content: str, skill_name: str) -> list:
     """Extract yaml+symbolic blocks from markdown content."""
     import yaml
@@ -95,6 +100,7 @@ def extract_rules_from_markdown(content: str, skill_name: str) -> list:
             pass
     return rules
 
+
 @dataclass
 class Task:
     id: str
@@ -108,6 +114,7 @@ class Task:
     def to_dict(self) -> dict:
         return asdict(self)
 
+
 @dataclass
 class DecompositionEntry:
     type: str
@@ -119,6 +126,7 @@ class DecompositionEntry:
 
     def to_dict(self) -> dict:
         return asdict(self)
+
 
 @dataclass
 class SubAgentDispatchEntry:
@@ -133,6 +141,7 @@ class SubAgentDispatchEntry:
     def to_dict(self) -> dict:
         return asdict(self)
 
+
 @dataclass
 class Gate:
     id: str
@@ -144,6 +153,7 @@ class Gate:
     def to_dict(self) -> dict:
         return asdict(self)
 
+
 @dataclass
 class EvidenceArtifact:
     name: str
@@ -154,6 +164,7 @@ class EvidenceArtifact:
     def to_dict(self) -> dict:
         return asdict(self)
 
+
 @dataclass
 class ValidationError:
     path: str
@@ -162,6 +173,7 @@ class ValidationError:
 
     def to_dict(self) -> dict:
         return asdict(self)
+
 
 @dataclass
 class SchemaValidationResult:
@@ -180,6 +192,7 @@ class SchemaValidationResult:
     def to_dict(self) -> dict:
         return asdict(self)
 
+
 def _validate_rule(
     raw: dict, errors: list[ValidationError], source: str
 ) -> dict | None:
@@ -194,6 +207,7 @@ def _validate_rule(
         return None
     return raw
 
+
 def _validate_state_machine(
     raw: dict, errors: list[ValidationError], source: str
 ) -> dict | None:
@@ -207,6 +221,7 @@ def _validate_state_machine(
         )
         return None
     return raw
+
 
 def _validate_task(
     raw: dict, errors: list[ValidationError], source: str
@@ -230,6 +245,7 @@ def _validate_task(
         source=source,
     )
 
+
 def _validate_decomposition(
     entry: dict, errors: list[ValidationError], source: str
 ) -> DecompositionEntry | None:
@@ -251,6 +267,7 @@ def _validate_decomposition(
         bypass_violation=entry.get("bypass_violation", ""),
         source=source,
     )
+
 
 def _validate_sub_agent_dispatch(
     entry: dict, errors: list[ValidationError], source: str
@@ -275,6 +292,7 @@ def _validate_sub_agent_dispatch(
         source=source,
     )
 
+
 def _validate_gate(
     raw: dict, errors: list[ValidationError], source: str
 ) -> Gate | None:
@@ -295,6 +313,7 @@ def _validate_gate(
         source=source,
     )
 
+
 def _validate_evidence_artifact(
     raw: dict, errors: list[ValidationError], source: str
 ) -> EvidenceArtifact | None:
@@ -313,6 +332,7 @@ def _validate_evidence_artifact(
         verification=str(raw["verification"]),
         source=source,
     )
+
 
 def validate_schema(data: dict, source: str = "") -> SchemaValidationResult:
     """Validate a parsed yaml+symbolic block against schema v1.0 or v2.0."""

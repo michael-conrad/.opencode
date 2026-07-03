@@ -6,7 +6,7 @@ Validate spec before creating GitHub Issue to prevent conflicts, superseded issu
 
 ## Operating Protocol
 
-1. **Mandatory invocation:** This task MUST run before ANY issue creation.
+- [ ] 1. **Mandatory invocation:** This task MUST run before ANY issue creation.
 
 ## Entry Criteria
 
@@ -28,20 +28,20 @@ Validate spec before creating GitHub Issue to prevent conflicts, superseded issu
 
 #### Phase 1 — Keyword Title Search
 
-1. Extract significant keywords from proposed title (remove stop words, prefixes like `[SPEC]`, `[SPEC-FIX]`, `[Task:]`)
-2. Search for existing issues:
+- [ ] 1. Extract significant keywords from proposed title (remove stop words, prefixes like `[SPEC]`, `[SPEC-FIX]`, `[Task:]`)
+- [ ] 2. Search for existing issues:
    - **GitHub:** Use `issue-operations → search-issues` with keyword query for both open and closed states
-   - **GitBucket:** `./.opencode/tools/gitbucket-api issues --state open` + `--state closed` (filter client-side by keyword match + recency)
-3. Determine recency window for closed issues based on context (issue type, topic stability, org activity)
-4. Collect candidate matches (issues whose titles share ≥2 significant keywords with proposed title)
+   - **GitBucket:** `gb issue list -R <github.owner>/<github.repo> --state open` + `--state closed` (filter client-side by keyword match + recency)
+- [ ] 3. Determine recency window for closed issues based on context (issue type, topic stability, org activity)
+- [ ] 4. Collect candidate matches (issues whose titles share ≥2 significant keywords with proposed title)
 
 #### Phase 2 — Body Content Verification
 
 For each candidate from Phase 1:
 
-1. Read candidate issue body
-2. Compare body content with proposed issue body for topical overlap
-3. Classify the match:
+- [ ] 1. Read candidate issue body
+- [ ] 2. Compare body content with proposed issue body for topical overlap
+- [ ] 3. Classify the match:
 
 | Match Level | Criteria | Action |
 |-------------|----------|--------|
@@ -59,7 +59,7 @@ For ambiguous matches where match level cannot be determined with confidence: HA
 
 ```
 Check: Title dedup gate for "<proposed title>"
-Tool: `issue-operations → search-issues` / gitbucket-api issues / local-issues search
+Tool: `issue-operations → search-issues` / `platforms/gitbucket-api/` / `platforms/local/tasks/search.md`
 Result: [N candidates found, match levels classified]
 Classification: [EXACT-DUPLICATE|NEAR-DUPLICATE|CLOSED-IN-ERROR|RELATED-BUT-DISTINCT|FALSE-POSITIVE]
 Action: [auto-resolved strategy | proceed | HALT]
@@ -111,16 +111,16 @@ Action: [BLOCK|surface|surface|proceed]
 **Key change from previous behavior:** Title/objective overlap alone is insufficient. File, symbol, and concern-level analysis MUST be performed before classifying overlap. The four-tier model (FULL-SUPERSESSION, PARTIAL-OVERLAP, CONFLICT-RISK, INDEPENDENT) replaces the previous binary overlap/superseded classification.
 
 For each open spec issue:
-1. Compare file references, symbol references, and concern boundaries with new spec
-2. If FULL-SUPERSESSION found:
+- [ ] 1. Compare file references, symbol references, and concern boundaries with new spec
+- [ ] 2. If FULL-SUPERSESSION found:
    - HALT
    - Report: "Existing spec #N fully covers this scope" with overlapping file/symbol/concern evidence
    - Do NOT proceed with creation — recommend using the existing spec
-3. If PARTIAL-OVERLAP found:
+- [ ] 3. If PARTIAL-OVERLAP found:
    - WARN
    - Report: "Spec #N partially overlaps — shared files: [list], shared symbols: [list]"
    - Suggest resolution: scope the new spec to avoid overlapping concerns
-4. If CONFLICT-RISK found:
+- [ ] 4. If CONFLICT-RISK found:
    - HALT
    - Report: "Spec #N conflicts on [files/symbols] with different intent"
    - Suggest resolution: coordinate before creating
@@ -128,13 +128,13 @@ For each open spec issue:
 ### Step 2: Check for Staleness
 
 **If existing open specs:**
-1. Check if any were implemented but left open
-2. Check if referenced code locations have changed
-3. Check if problem statement still applies
+- [ ] 1. Check if any were implemented but left open
+- [ ] 2. Check if referenced code locations have changed
+- [ ] 3. Check if problem statement still applies
 
 **If stale:**
-1. HALT
-2. Suggest updating or closing stale spec first
+- [ ] 1. HALT
+- [ ] 2. Suggest updating or closing stale spec first
 
 ### Step 3: Validate Spec Content Coverage
 
@@ -156,27 +156,27 @@ The check is content-coverage, not structural conformity. A spec that covers all
 - A spec with no problem description but a detailed implementation plan fails ❌ (what problem is it solving?)
 
 **If content coverage is missing:**
-1. HALT
-2. Report missing content areas (not missing headers, missing *content*)
-3. Do NOT proceed with creation
+- [ ] 1. HALT
+- [ ] 2. Report missing content areas (not missing headers, missing *content*)
+- [ ] 3. Do NOT proceed with creation
 
 ### Step 3.5: Check for Duplicate Plans
 
 **Before creating any plan issue, check whether an existing plan already references the same spec.** This mirrors the duplicate plan check in `writing-plans/tasks/create.md` Step 1.6 and ensures that even when plan creation is invoked via a different path, the duplication check is performed.
 
-1. Using `issue-operations → search-issues`, search for issues labeled `plan` in the repository:
+- [ ] 1. Using `issue-operations → search-issues`, search for issues labeled `plan` in the repository:
    ```
    issue-operations → search-issues (query="label:plan", state="open")
    ```
-2. Filter results for those whose body contains `Spec: #<spec_number>` referencing the spec that will be planned.
-3. If one or more existing plans are found:
+- [ ] 2. Filter results for those whose body contains `Spec: #<spec_number>` referencing the spec that will be planned.
+- [ ] 3. If one or more existing plans are found:
    - Collect each existing plan's issue number, title, and URL
    - Read each existing plan's body to extract its phase scope
    - Present the overlap to the developer in chat: list each existing plan with its URL and a scope summary
    - Offer the developer a choice:
      - **"proceed with new plan (will add reference to existing plan)"** — continue creation, adding `Supersedes/replaces #N` or `Parallel track to #N` in the new plan body
      - **"halt and review existing plan first"** — HALT and present the existing plan for review
-4. If no existing plans are found for the same spec, proceed without modification.
+- [ ] 4. If no existing plans are found for the same spec, proceed without modification.
 
 ### Step 4: Report Validation Result
 

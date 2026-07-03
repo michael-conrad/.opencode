@@ -4,11 +4,11 @@
 
 ## Purpose
 
-Verify sub-issue structure and STATUS gate for multi-task plans before implementation. Sub-issues are verified under the plan issue, not the spec issue.
+Verify sub-issue structure and phase tracking gate for multi-task plans before implementation. Sub-issues are verified under the plan issue, not the spec issue.
 
 ## Entry Criteria
 
-- Plan exists as GitHub Issue (with `plan` label or `[PLAN]` prefix)
+- Plan exists as local file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
 - Authorization received for specific subtask (e.g., "approved: 1.2")
 - Subtask number provided or extracted from authorization
 - Authorization received for plan (covers sub-issue creation)
@@ -16,7 +16,7 @@ Verify sub-issue structure and STATUS gate for multi-task plans before implement
 ## Exit Criteria
 
 - Sub-issues verified present under plan (multi-task) OR exemption confirmed (work-of-1)
-- STATUS in plan matches requested subtask number
+- Phase tracking state in `./tmp/{N}/work.md` matches requested subtask
 - Auto-create performed if needed
 
 ## Procedure
@@ -39,52 +39,51 @@ sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_
 - Multiple implementation tasks
 - Requires sequential work streams
 
-### Step 3: Verify STATUS Gate (CRITICAL)
+### Step 3: Verify Phase Tracking Gate
 
 **For multi-task plans with sub-issues:**
 
-1. Extract subtask from authorization:
-    - "approved: 1.2" → subtask 1.2 (numeric format, backward-compatible)
-    - "approved: X.Y" → subtask X.Y (numeric format, backward-compatible)
-    - "approved: {concern}" → find phase matching concern name (prose format)
-    - "approved" (no number) → check STATUS for current phase
+Phase tracking state is read from `./tmp/{N}/work.md`. The work state file is populated during pre-work and updated by each pipeline step.
 
-2. Get plan issue STATUS:
-    ```python
-    plan = issue-operations -> read-issue (github_issue_read(method="get", issue_number=plan_issue) <!-- Routes through issue-operations per SPEC #683 -->
-    # Parse STATUS from body
-    # Prose-driven formats (recommended):
-    #   "STATUS: in progress — {concern}, Step {N}"
-    #   "STATUS: completed — {concern}"
-    #   "STATUS: {concern} — {task description}"
-    #   "STATUS: in progress — {concern} (REVISED - NEEDS APPROVAL)"
-    # Numeric formats (backward-compatible):
-    #   "STATUS: X.Y" or "STATUS: completed"
-    # If STATUS not found, default to first concern's first step
+- [ ] 1. Extract subtask from authorization:
+    - "approved: 1.2" → subtask 1.2 (numeric format)
+    - "approved: X.Y" → subtask X.Y (numeric format)
+    - "approved: {concern}" → find phase matching concern name (prose format)
+    - "approved" (no number) → read `./tmp/{N}/work.md` for current phase
+
+- [ ] 2. Read phase tracking state:
+    ```bash
+    # Read current phase from work state file
+    cat "./tmp/{plan_issue}/work.md"
+    # Expected format:
+    # current_phase: <phase_number>
+    # current_concern: <concern_name>
+    # current_step: <step_label>
+    # If file missing → default to first concern, first step
     ```
 
-3. Determine which subtask to implement:
+- [ ] 3. Determine which subtask to implement:
     - If authorized for concern name or X.Y → use that subtask (explicit override)
-    - If "approved" (no number) AND STATUS found → use STATUS value
-    - If "approved" (no number) AND STATUS missing → use first concern, first step
+    - If "approved" (no number) AND work.md has current phase → use that value
+    - If "approved" (no number) AND work.md missing → use first concern, first step
     - POST COMMENT explaining which subtask is being implemented
 
-4. Verify subtask exists:
+- [ ] 4. Verify subtask exists:
    - If subtask X.Y or concern name exists in sub-issues → PROCEED
    - If subtask X.Y or concern name NOT in sub-issues → HALT and report: "Subtask not found. Available subtasks: [list]"
 
-5. Report to user (MANDATORY - no silent halts):
+- [ ] 5. Report to user (MANDATORY - no silent halts):
 ```markdown
 Proceeding to implement subtask for {concern} (or X.Y).
 
 Authorization: "approved" (no phase specified)
-STATUS: {concern}, Step {N} (or "not found, defaulting to first concern")
+Phase tracking: {concern}, Step {N} (or "work.md not found, defaulting to first concern")
 Sub-issue: #NNN
 
 Starting implementation now.
 ```
 
-6. **Why STATUS Gate Matters:**
+- [ ] 6. **Why Phase Tracking Gate Matters:**
    - Prevents parallel execution of subtasks
    - Ensures sequential workflow
    - Avoids git branch conflicts
@@ -129,32 +128,32 @@ Auto-creating sub-issues for an approved multi-task plan does NOT require separa
 | Linking sub-issues to plan | ❌ NO | Part of sub-issue creation workflow |
 | Proceeding to implementation after auto-creation | ❌ NO | Plan authorization continues to implementation |
 
-## STATUS Gate Rules
+## Phase Tracking Gate Rules
 
 | Scenario | Action |
 |----------|--------|
-| STATUS matches authorized subtask (prose or numeric) | ✅ PROCEED - report which subtask and concern |
-| STATUS mismatch | ⛔ HALT - report mismatch clearly |
-| STATUS is "completed" | ⛔ HALT - spec already complete |
-| STATUS not found + "approved" | ✅ PROCEED - default to first concern's first step, report decision |
-| STATUS not found + "approved: X.Y" | ✅ PROCEED - use specified X.Y, report decision |
-| STATUS not found + "approved: {concern}" | ✅ PROCEED - find phase matching concern name, report decision |
-| Single-phase plan (no STATUS) | ✅ PROCEED - no gate needed |
+| work.md phase matches authorized subtask (prose or numeric) | ✅ PROCEED - report which subtask and concern |
+| Phase mismatch | ⛔ HALT - report mismatch clearly |
+| work.md says "completed" | ⛔ HALT - all phases complete |
+| work.md not found + "approved" | ✅ PROCEED - default to first concern's first step, report decision |
+| work.md not found + "approved: X.Y" | ✅ PROCEED - use specified X.Y, report decision |
+| work.md not found + "approved: {concern}" | ✅ PROCEED - find phase matching concern name, report decision |
+| Single-phase plan (no tracking needed) | ✅ PROCEED - no gate needed |
 | Subtask not in sub-issues list | ⛔ HALT - report available subtasks |
 
 ## Mandatory Reporting (No Silent Halts)
 
-**Every STATUS gate check MUST report status to user:**
+**Every phase tracking gate check MUST report status to user:**
 
-1. Which subtask is being implemented
-2. Why that subtask was selected (STATUS value or default)
-3. Link to the sub-issue
+- [ ] 1. Which subtask is being implemented
+- [ ] 2. Why that subtask was selected (work.md value or default)
+- [ ] 3. Link to the sub-issue
 
 **Example report:**
 ```markdown
-**STATUS Gate Verification:**
+**Phase Tracking Gate Verification:**
 - Authorization: "approved" (no phase specified)
-- STATUS field: Not found → Defaulting to first concern's first step
+- work.md: Not found → Defaulting to first concern's first step
 - Sub-issue: #473
 - Proceeding with implementation
 ```
@@ -167,19 +166,19 @@ Auto-creating sub-issues for an approved multi-task plan does NOT require separa
 - Proceeding **to implementation** when `get_sub_issues` returns empty for multi-task specs **without creating sub-issues first**
 - Creating step-level sub-issues (use PHASE level)
 - Assuming markdown checkboxes = task tracking
-- Implementing when STATUS doesn't match authorized subtask
+- Implementing when phase tracking doesn't match authorized subtask
 - Parallel execution of subtasks (enforce single-subtask flow)
 
 ## Common Issues
 
 | Issue | Resolution |
 |-------|------------|
-| STATUS mismatch | POST report: "STATUS mismatch: authorized for {concern}/{X.Y} but STATUS is {actual}. Please update STATUS or authorize correct subtask." |
-| STATUS not found | Default to first concern's first step, POST report: "STATUS not found. Defaulting to first concern. Add 'STATUS: in progress — {concern}, Step 1' to plan issue for tracking." |
+| Phase mismatch | POST report: "Phase mismatch: authorized for {concern}/{X.Y} but work.md shows {actual}. Please update tracking state or authorize correct subtask." |
+| work.md not found | Default to first concern's first step, POST report: "work.md not found. Defaulting to first concern. Add tracking state to work.md for phase tracking." |
 | Sub-issue not linked | Auto-create and link, POST report: "Created N sub-issues for phase tracking." |
-| Single-phase plan with STATUS | Ignore STATUS, proceed, POST report: "Single-phase plan, ignoring STATUS field." |
+| Single-phase plan with tracking state | Ignore tracking, proceed, POST report: "Single-phase plan, ignoring phase tracking." |
 | Subtask not in list | HALT, POST report: "Subtask {X.Y}/{concern} not found. Available subtasks: [list]. Please authorize a valid subtask." |
-| Plan issue missing STATUS field | Default to first concern's first step, proceed, report to chat |
+| Plan issue missing work.md | Default to first concern's first step, proceed, report to chat |
 
 ## Adversarial Verification: Sub-Issue State
 
@@ -203,22 +202,22 @@ For each sub-issue returned:
 
 **Evidence artifact:** `issue-operations -> read-issue (github_issue_read(method=get)` for each sub-issue showing actual state, title, and labels. <!-- Routes through issue-operations per SPEC #683 -->
 
-### Verify Sub-Issue Labels and STATUS
+### Verify Sub-Issue Labels and Phase State
 
 ```
 For each sub-issue:
   labels = issue-operations -> read-labels (github_issue_read(method=get_labels, issue_number=sub_issue_number) <!-- Routes through issue-operations per SPEC #683 -->
-  body = issue-operations -> read-issue (github_issue_read(method=get, issue_number=sub_issue_number) <!-- Routes through issue-operations per SPEC #683 -->
-  
+  work_state = $(cat ./tmp/{plan_issue}/work.md 2>/dev/null || echo "not found")
+
   - If has "needs-approval" label but parent plan has explicit authorization → STRUCTURE-VIOLATION
     (auto-fix: authorization cascades from plan, label should be removed)
-  - If STATUS marker in sub-issue body is mismatched to actual content maturity → STRUCTURE-VIOLATION
-    (auto-fix: update STATUS per ground-truth maturity classification)
-  - If STATUS says COMPLETE but sub-issue is open → CONFLICTING
+  - If work.md phase tracking is mismatched to actual sub-issue progress → STRUCTURE-VIOLATION
+    (auto-fix: update work.md per ground-truth progress)
+  - If work.md says completed but sub-issue is open → CONFLICTING
     (flag-for-review: may indicate tracking mismatch)
 ```
 
-**Evidence artifact:** Label list and body content for each sub-issue.
+**Evidence artifact:** Label list and work.md state for each sub-issue.
 
 ### Verify Sub-Issue Link Integrity
 

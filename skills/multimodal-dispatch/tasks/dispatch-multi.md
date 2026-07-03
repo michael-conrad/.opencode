@@ -20,13 +20,13 @@ A `list[TaskResult]` is returned with one entry per modality. Partial results ar
 
 For each modality in the requested list:
 
-1. Invoke `resolve` with the modality hint and the content payload
-2. Collect the resolved model for that modality
-3. If no model is available, mark the modality as `(unverified)`
+- [ ] 1. Invoke `resolve` with the modality hint and the content payload
+- [ ] 2. Collect the resolved model for that modality
+- [ ] 3. If no model is available, mark the modality as `(unverified)`
 
 ### Step 2: Run Per-Modality Sub-Agents
 
-For each resolved modality, task() a sub-agent using `dispatch`:
+For each resolved modality, the orchestrator dispatches a sub-agent:
 
 - **Text modality**: Sub-agent processes text content, uses text model
 - **Vision modality**: Sub-agent processes image content, uses vision model
@@ -85,11 +85,11 @@ Return the `list[TaskResult]`. The calling skill is responsible for integrating 
 
 Verifying that an OCR transcription matches an original document:
 
-1. User provides `content = { text: "transcribed text", image_paths: ["document.png"] }` and `modalities = ["vision", "text"]`
-2. `dispatch-multi` resolves a vision model for the image, text model for the transcription
-3. Vision sub-agent reads the original image and reports what it sees
-4. Text sub-agent analyzes the transcription for accuracy
-5. Both results are returned; the calling skill compares vision findings against text findings
+- [ ] 1. User provides `content = { text: "transcribed text", image_paths: ["document.png"] }` and `modalities = ["vision", "text"]`
+- [ ] 2. `dispatch-multi` resolves a vision model for the image, text model for the transcription
+- [ ] 3. Vision sub-agent reads the original image and reports what it sees
+- [ ] 4. Text sub-agent analyzes the transcription for accuracy
+- [ ] 5. Both results are returned; the calling skill compares vision findings against text findings
 
 ## Graceful Degradation (REQ-5)
 

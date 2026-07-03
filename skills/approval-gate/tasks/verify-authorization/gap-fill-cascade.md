@@ -56,9 +56,10 @@ def execute_gap_fill(scope, issue_number, issue_labels, issue_title):
             results.append({"action": "auto_create_spec", "status": "skipped", "reason": "spec_exists"})
 
     if "auto_create_plan" in actions:
-        # Check if plan already exists
-        is_plan = "plan" in [l["name"] for l in issue_labels] or issue_title.startswith("[PLAN]")
-        if not is_plan:
+        # Check if plan already exists as local file
+        plan_paths = [f".issues/{issue_number}/plan.md", f"*/.issues/{issue_number}/plan.md"]
+        plan_exists = any(glob.glob(p) for p in plan_paths)
+        if not plan_exists:
             # Invoke writing-plans --task create to create plan
             results.append({"action": "auto_create_plan", "status": "dispatched", "target": "writing-plans"})
         else:

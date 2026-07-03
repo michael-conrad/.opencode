@@ -13,6 +13,7 @@ Break the problem into discrete units with defined interfaces, inputs, outputs, 
 - Problem decomposed into discrete units
 - Interfaces defined for each unit (APIs, data contracts, schemas)
 - Invariants and failure modes documented
+- For multi-phase specs: three-tier phase structure defined — global pre-phase, per-file RED/GREEN phases, global post-phase (SC-30)
 
 ## Procedure
 
@@ -55,6 +56,35 @@ For each unit:
 - How can it fail? (input errors, dependency failures, resource exhaustion)
 - What happens when it fails? (error propagation, fallback behavior, recovery)
 - How is failure detected? (logging, metrics, alerts)
+
+### Step 5: Define Three-Tier Phase Structure (SC-30 — multi-phase specs only)
+
+For multi-phase specs, define a three-tier phase structure that the plan writer uses to organize the implementation plan:
+
+| Tier | Section | Purpose | Example |
+|------|---------|---------|---------|
+| 1 — Global Pre-Phase | Before all per-file phases | Setup, pre-flight, coherence gate, baseline checks | "Phase 1 — Global Pre-Phase" |
+| 2 — Per-File RED/GREEN Phases | One phase per file or concern | Each phase has its own RED/GREEN cycle with z3-check gates | "Phase 2 — Fix create.md", "Phase 3 — Fix write.md" |
+| 3 — Global Post-Phase | After all per-file phases | Adversarial audit, cross-validate, regression, review prep, exec summary | "Phase N — Global Post-Phase" |
+
+**Rules:**
+- Tier 1 runs once at the start — steps are NOT duplicated in per-file phases
+- Tier 2 phases are independent — each targets a specific file or concern with its own RED/GREEN cycle
+- Tier 3 runs once at the end — steps are NOT duplicated in per-file phases
+- The phase count in the spec's Phase section MUST match the number of Tier 2 phases + 2 (one pre, one post)
+- Single-task specs (one phase total) do NOT need three-tier structure — they use a flat phase list
+
+**Document the phase structure in the spec's Phase section:**
+
+```markdown
+## Phases
+
+| Phase | Tier | Target | SCs |
+|-------|------|--------|-----|
+| Phase 1 — Global Pre-Phase | 1 (pre) | Setup, pre-flight, coherence | SC-1, SC-2 |
+| Phase 2 — Fix create.md | 2 (per-file) | `.opencode/skills/writing-plans/tasks/create.md` | SC-3, SC-4 |
+| Phase 3 — Global Post-Phase | 3 (post) | Audit, cross-validate, review | SC-5 |
+```
 
 ## Content Coverage
 

@@ -24,13 +24,13 @@ Collect all issue data needed by downstream tasks. This is a pure data-collectio
 ### Step 1: Read Issue Body
 
 ```
-issue-operations -> read-issue (github_issue_read(method="get", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+issue-operations -> read-issue <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 ### Step 2: Read All Comments
 
 ```
-issue-operations -> read-comments (github_issue_read(method="get_comments", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+issue-operations -> read-comments <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 Record comment count for evidence. Note: per `067-context-completeness.md`, ALL comments MUST be read before any triage decision.
@@ -38,7 +38,7 @@ Record comment count for evidence. Note: per `067-context-completeness.md`, ALL 
 ### Step 3: Read Labels and Authorization Status
 
 ```
-issue-operations -> read-labels (github_issue_read(method="get_labels", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+issue-operations -> read-labels <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 Extract:
@@ -49,7 +49,7 @@ Extract:
 ### Step 4: Detect Sub-issues
 
 ```
-issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=N) <!-- Routes through issue-operations per SPEC #683 -->
+issue-operations -> read-sub-issues <!-- Routes through issue-operations per SPEC #683 -->
 ```
 
 If sub-issues exist, store their issue numbers for recursive gathering.
@@ -66,34 +66,34 @@ For each sub-issue, repeat Steps 1-4:
 
 From all gathered data, extract prose descriptions of:
 
-1. **Issue type classification hints:**
+- [ ] 1. **Issue type classification hints:**
    - Phases/steps present in body (e.g., "Phase 1:", "Phase 2:")
    - Success criteria section present
    - Bug report language patterns ("crash", "error", "broken", "steps to reproduce")
 
-2. **Comment themes:**
+- [ ] 2. **Comment themes:**
    - Questions asked by commenters
    - Revisions or spec changes noted
    - Blockers reported
-   - Audit findings (comments containing finding-class patterns like "finding:", "violation:", "CRITICAL")
+   - Audit findings (check local audit artifacts at `.issues/{N}/audit/*.yaml` for existing verdicts)
    - Authorization comments ("approved", "go")
 
-3. **Last audit timestamp:**
-   - Most recent comment containing audit finding patterns
+- [ ] 3. **Last audit timestamp:**
+   - Most recent `.yaml` file timestamp in `.issues/{N}/audit/`
    - Used by `just-review` path to assess staleness
 
-4. **Authorization status:**
+- [ ] 4. **Authorization status:**
    - Explicit approval comments found (quote them)
    - `needs-approval` label present or absent
 
-5. **Spec structure signals:**
+- [ ] 5. **Spec structure signals:**
    - Has phases? (count them)
    - Has success criteria?
    - Has edge cases?
    - Has affected files table?
    - Has risk assessment?
 
-6. **Fix spec sub-issue check (for bug reports):**
+- [ ] 6. **Fix spec sub-issue check (for bug reports):**
    - Do any sub-issues have titles starting with `[SPEC] Fix:`?
    - Do any sub-issues have the `spec` label?
    - If bug report has existing fix spec sub-issues, note their numbers and status
@@ -123,12 +123,12 @@ Prose summary of all gathered data, organized by the five categories above. Incl
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Issue has N comments" | Re-count via `get_comments` response | `issue-operations -> read-comments (github_issue_read(method=get_comments)` → count items | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
-| "Authorization comment exists" | Verify comment author is developer, not bot/agent | `issue-operations -> read-comments (github_issue_read(method=get_comments)` → check `author_association` | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
-| "Sub-issues exist" | Verify sub-issues are accessible and not 404 | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues)` → check each child exists | MISSING-TRACEABILITY | <!-- Routes through issue-operations per SPEC #683 -->
-| "`needs-approval` label present/absent" | Verify label list matches claimed state | `issue-operations -> read-labels (github_issue_read(method=get_labels)` → check label array | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
-| "Bug report has fix spec" | Verify sub-issue exists with correct prefix | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues)` + `github_issue_read(method=get)` per child | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
-| "Last audit timestamp" | Verify comment containing audit pattern actually exists | `issue-operations -> read-comments (github_issue_read(method=get_comments)` → search for audit patterns | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
+| "Issue has N comments" | Re-count via `get_comments` response | `issue-operations -> read-comments` → count items | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
+| "Authorization comment exists" | Verify comment author is developer, not bot/agent | `issue-operations -> read-comments` → check `author_association` | CONFLICTING | <!-- Routes through issue-operations per SPEC #683 -->
+| "Sub-issues exist" | Verify sub-issues are accessible and not 404 | `issue-operations -> read-sub-issues` → check each child exists | MISSING-TRACEABILITY | <!-- Routes through issue-operations per SPEC #683 -->
+| "`needs-approval` label present/absent" | Verify label list matches claimed state | `issue-operations -> read-labels` → check label array | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
+| "Bug report has fix spec" | Verify sub-issue exists with correct prefix | `issue-operations -> read-sub-issues` + `issue-operations -> read-issue` per child | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
+| "Last audit timestamp" | Verify comment containing audit pattern actually exists | `issue-operations -> read-comments` → search for audit patterns | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
 
 **Evidence artifact:** Tool call results for each claim category.
 

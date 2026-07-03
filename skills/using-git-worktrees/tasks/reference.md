@@ -11,9 +11,9 @@ git check-ignore -q .worktrees 2>/dev/null
 ```
 
 If NOT ignored:
-1. Add `.worktrees/` to `.gitignore`
-2. Commit the change with message: "chore: add .worktrees/ to gitignore for worktree isolation"
-3. Proceed with worktree creation
+- [ ] 1. Add `.worktrees/` to `.gitignore`
+- [ ] 2. Commit the change with message: "chore: add .worktrees/ to gitignore for worktree isolation"
+- [ ] 3. Proceed with worktree creation
 
 ## Quick Reference
 
@@ -31,18 +31,18 @@ If NOT ignored:
 | Mistake | Problem | Fix |
 |---------|---------|-----|
 | Skipping ignore verification | Worktree contents tracked, pollute git status | Always use `git check-ignore` before creating |
-| Creating worktree from `main` | Based on wrong branch | Always `git checkout dev && git pull origin dev` first |
-| Proceeding with failing tests | Can't distinguish new bugs from pre-existing | Report failures, get explicit permission |
+| Creating worktree from `main` | Based on wrong branch | Always `git checkout $DEFAULT_BRANCH && git pull origin $DEFAULT_BRANCH` first |
+| Proceeding with failing tests | Can't distinguish new bugs from pre-existing. See critical-rules-069 — "pre-existing failure" rationalization is a CRITICAL VIOLATION | Report failures, get explicit permission, remediate before proceeding |
 | Not announcing worktree creation | Other agents unaware of parallel workspace | Always announce at start |
 
 ## Fatal Error Protocol
 
 If `worktree.fatal=1` appears in session init output or worktree creation fails:
 
-1. HALT immediately — do NOT proceed with any implementation
-2. Report the fatal error to the developer
-3. Worktrees are the ONLY method for feature branches — stash+checkout is FORBIDDEN
-4. The developer must fix the worktree infrastructure before any work can proceed
+- [ ] 1. HALT immediately — do NOT proceed with any implementation
+- [ ] 2. Report the fatal error to the developer
+- [ ] 3. Worktrees are the ONLY method for feature branches — stash+checkout is FORBIDDEN
+- [ ] 4. The developer must fix the worktree infrastructure before any work can proceed
 
 Worktree setup failure means the repository infrastructure is broken. Proceeding without worktrees risks:
 - Parallel agent conflicts
@@ -57,7 +57,7 @@ Fix the worktree infrastructure, then proceed. Stash+checkout is FORBIDDEN.
 ### Called By
 
 - **brainstorming** (Phase 4) — REQUIRED when design is approved and implementation follows
-- **divide-and-conquer** — REQUIRED before executing any tasks
+- **implementation-pipeline** — REQUIRED before executing any tasks
 - **executing-plans** — REQUIRED before executing any tasks
 - Any skill needing isolated workspace
 
@@ -81,7 +81,7 @@ This cleanup happens as part of the standard `git-workflow --task cleanup` seque
 
 **Never:**
 - Create worktree without verifying it's ignored (project-local)
-- Create worktree from `main` (always branch from `dev`)
+- Create worktree from `main` (always branch from the default branch)
 - Skip baseline test verification
 - Proceed with failing tests without asking
 - Assume directory location when ambiguous
@@ -92,6 +92,6 @@ This cleanup happens as part of the standard `git-workflow --task cleanup` seque
 - Verify directory is ignored for project-local
 - Auto-detect and run `uv sync` for project setup
 - Announce worktree creation at start
-- Create branch from `dev` (not `main`)
+- Create branch from the default branch (not `main`)
 - Verify clean test baseline
 - HALT immediately if `worktree.fatal=1` appears in session init

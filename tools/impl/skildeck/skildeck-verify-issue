@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = ["pyyaml>=6.0"]
 # ///
 
+# fmt: on
 """
 DESCRIPTION: Extract structural requirements + acceptance criteria from GitHub issue body. Agent fetches body via GitHub MCP (github_issue_read) and passes it via --body or --body-file. Tool extracts and classifies; agent verifies substance with live reads.
 Usage: ./.opencode/tools/skildeck verify-issue --issue N --body "issue body text" [--pr-status "MERGED: 2026-01-01"] [--title "Issue title"] [--json]

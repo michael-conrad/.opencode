@@ -19,14 +19,12 @@
         "qwen3.6:35b": {
           "name": "Qwen 3.6 35b"
         },
+        
         "qwen3.5:27b": {
           "name": "Qwen 3.5 27b"
         },
         "qwen3.5:35b": {
           "name": "Qwen 3.5 35b"
-        },
-        "deepseek-v3.2:cloud": {
-          "name": "DeepSeek-V3.2 (Cloud)"
         },
         "deepseek-v4-flash:cloud": {
           "name": "DeepSeek-V4-Flash (Cloud)"
@@ -34,17 +32,17 @@
         "deepseek-v4-pro:cloud": {
           "name": "DeepSeek-V4-Pro (Cloud)"
         },
-        "glm-5:cloud": {
-          "name": "GLM-5 (Cloud)"
+        "devstral-small-2:24b-cloud": {
+          "name": "Devstral Small 2 24B (Cloud)"
         },
-        "glm-5.1:cloud": {
-          "name": "GLM-5.1 (Cloud)"
+        "gemma4:31b-cloud": {
+          "name": "Gemma 4 31B (Cloud)"
+        },
+        "gpt-oss:20b-cloud": {
+          "name": "GPT-OSS 20B (Cloud)"
         },
         "qwen3-embedding:latest": {
           "name": "Qwen 3 Embedding"
-        },
-        "kimi-k2.6:cloud": {
-          "name": "Kimi K2.6 (Cloud)"
         },
         "cogito-2.1:671b-cloud": {
           "name": "Cogito 2.1 671b (Cloud)"
@@ -130,9 +128,9 @@
         "OLLAMA_BASE_URL": "http://localhost:11434"
       }
     },
-    "texted": {
+    "viewport-editor": {
       "type": "local",
-      "command": [".opencode/tools/run-texted-mcp"],
+      "command": ["uvx", "--from", "git+https://github.com/michael-conrad/viewport-editor@v0.3.3", "viewport-editor"],
       "enabled": true
     }
   }

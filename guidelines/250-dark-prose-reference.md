@@ -111,6 +111,7 @@ Multiple dark prose patterns addressing the same behavior with different formula
 | CHANGELOG entries | Social proof / quality signal | Light | 005 |
 | Spec body / task definition (instruction layer) | Agency-respecting identity frame | Strong | 006 |
 | Cost-blind verification guidelines (`020-go-prohibitions.md`) | Cost-Frame Reformation | Strong | 007 |
+| Orchestrator context guidelines (`020-go-prohibitions.md` §1.1) | Cost-Frame Reformation | Strong | 007 |
 
 ## Section 3: Pattern Formulas (Canonical)
 
@@ -169,7 +170,7 @@ Example: "The Purpose section must carry identity-framing prose using the confir
 [Identity anchor]: Correctness is the only success metric — there is no score for [wrong metric].
 ```
 
-This pattern reframes the agent's internal cost model from tool-call-accounting to defect-discovery-latency. It replaces a procedural "don't compute cost that way" prohibition with an identity-grounded "cost IS latency-to-discovery" redefinition. The implementing agent reads the formula and derives location-specific prose autonomously — the specific consequences, magnitudes, and units must match the domain where the pattern is applied.
+This pattern reframes the agent's internal cost model from tool-call-accounting to defect-discovery-latency. It replaces a procedural "don't compute cost that way" prohibition with an identity-grounded "cost IS latency-to-discovery" redefinition. The implementing agent reads the formula and derives location-specific prose autonomously — the specific consequences, magnitudes, and units must match the domain where the pattern is applied. **Canonical cost model:** See `065-verification-honesty.md` §Cost Model for the complete death spiral / break dynamics — this reference card provides the identity-frame formula only; the DDL rationale with tiered table, research grounding, and formulas lives in 065.
 
 ## Section 4: Non-Compliance Handling
 
@@ -256,6 +257,13 @@ Bright-line rules are companions to dark prose patterns, not replacements. The d
 | dark-prose-002 (goal hijacking identity) | Binary compliance — "[state] IS [definition]. [state] IS NOT [anti-definition]. Period." | IS, IS NOT, Period |
 | dark-prose-003 (consequence assertion) | Rejection/termination — "REJECTED — [pattern]. [violation] produces [defect]. [artifact] carries unrecoverable failure." | REJECTED, unrecoverable |
 | dark-prose-006 (agency-respecting) | Trust but verify — "The implementing agent determines the HOW. The verification gate confirms the WHAT. [Evidence type] evidence required." | Trust but verify, evidence required |
+| dark-prose-001 (confirmshaming) with p-dis-001 — dependency-order bright-line companion | Dependency-order binary — "Step N CANNOT execute before step N-1 produces verified PASS. Dependency ordering is structural, not advisory." | IS REQUIRED, structural, verified PASS |
+| dist-shift-007 (External-Signal Verification) | External-signal verification — "Internal reasoning does NOT produce verified outcomes. Only external tool-call evidence produces verified outcomes." | external signal, tool-call evidence, verified |
+| dist-shift-008 (Corrupt-Success Contrast) | Corrupt-success binary — "Claiming completion without verification evidence IS concealing an unverified state. Verified PASS IS the only valid completion state." | IS concealing, IS the only, verified PASS |
+| p-dis-006 (Verification-Signal Discipline) | Verification-signal binary — "Internal reasoning IS NOT verification. Tool-call evidence IS required before completion claims." | IS NOT, IS required, tool-call evidence |
+| Over-enforcement guard | Safety-tax guard — "HALT when condition met IS the correct response. HALT as default IS over-enforcement and degrades reasoning capability." | IS the correct response, IS over-enforcement |
+
+### Dependency-Order Companion dependency-order bright-line (p-dis-001 companion) establishes that pipeline stage N CANNOT execute before stage N-1 produces a verified PASS. This binary eliminates the rationalization surface where an agent might claim "almost done" or "functionally complete" at an intermediate gate. Dependency ordering is structural — each gate produces a deterministic PASS/FAIL that gates the next stage. There is no "proceed with caveats" path through a dependency chain.
 
 ### Non-Paired Patterns
 

@@ -20,6 +20,8 @@ load_when: sub-agent
 
 ## PEP 723 Self-Contained Scripts (MANDATORY)
 
+Reference: [PEP 723 — Inline script metadata](https://peps.python.org/pep-0723/)
+
 All Python entry points in `.opencode/tools/` MUST be self-contained PEP 723 scripts with:
 - Shebang: `#!/usr/bin/env -S uv run --script`
 - PEP 723 `# /// script` metadata block with `requires-python` and `dependencies`
@@ -27,6 +29,17 @@ All Python entry points in `.opencode/tools/` MUST be self-contained PEP 723 scr
 - Execute permission (`chmod +x`)
 
 New tools MUST follow this pattern. Do NOT use `uv run python .opencode/tools/X`.
+
+### Version Pinning (MANDATORY)
+
+Every PEP 723 script MUST pin both `requires-python` and all `dependencies` using the `~=` compatible release operator:
+
+- `requires-python`: MUST use `~=X.Y.0` (three-part version, e.g., `~=3.12.0`). Bare `>=` is prohibited (permits untested future Python versions). Bare `X.Y` is rejected by `uv`.
+- `dependencies`: Each entry MUST use `~=` to constrain to a compatible release window (e.g., `pyyaml~=6.0`). Bare unversioned packages and `>=` are prohibited (permit untested major upgrades).
+
+### Marker Validation
+
+The ONLY standardized PEP 723 marker is `# /// script`. The deprecated `# /// pyproject.toml` marker is INVALID — tools MUST NOT read metadata blocks with non-standardized types. `uv` ignores blocks with the wrong marker, causing dependency installation to silently fail.
 
 ### Polyglot Bash Guard (MANDATORY)
 
@@ -38,20 +51,74 @@ Every PEP 723 script MUST include a polyglot bash guard as the second line, imme
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
-# requires-python = "~=3.12"
-# dependencies = []
+# requires-python = "~=3.12.0"
+# dependencies = ["pyyaml~=6.0"]
 # ///
 ```
 
 The guard prevents catastrophic failure when an agent or user invokes `bash <script>` instead of `uv run --script <script>` — bash sees `"exec" "uv" "run" "--script" "$0" "$@"` and replaces itself with `uv`, forwarding all arguments. Under Python, the guard is a bare string expression and is silently discarded.
 
+### `# fmt: off` / `# fmt: on` Ruff Protection (MANDATORY)
+
+`ruff format` interprets the bash guard line as a Python string expression and will corrupt it by stripping spaces between the quoted tokens, producing `"execuvrun--script$0$@"`. This renders the tool non-functional (cannot execute under bash).
+
+**Every PEP 723 script MUST wrap the bash guard and PEP 723 header in `# fmt: off` / `# fmt: on` guards:**
+
+```python
+#!/usr/bin/env -S uv run --script
+# fmt: off
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
+# /// script
+# requires-python = "~=3.12.0"
+# dependencies = ["pyyaml~=6.0"]
+# ///
+
+# fmt: on
+```
+
+- **`# fmt: off`** MUST be on line 2 (immediately after shebang)
+- **`# fmt: on`** MUST be on the line after `# ///` (closing PEP 723 block), before any imports or code
+- The `# fmt: on` guard MUST NOT be inside the PEP 723 TOML block — it goes AFTER `# ///`, not between `# /// script` and `# ///`
+- Failure to include these guards WILL result in the bash guard being corrupted by `ruff format` during review-prep or any automated formatting pass
+
 **Structure rules:**
 - Line 1: `#!/usr/bin/env -S uv run --script` (only allowed shebang)
-- Line 2: `"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER` (bash guard)
-- Lines 4-8: PEP 723 metadata block (comment line, `# /// script`, metadata, `# ///`)
-- After `# ///`: blank line, then optional `from __future__` or `__doc__ = ` or imports
+- Line 2: `# fmt: off` (ruff protection guard)
+- Line 3: `"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER` (bash guard)
+- Lines 4-5: Comment line, PEP 723 header
+- Lines 6-8: PEP 723 metadata block (`requires-python` with `~=X.Y.0`, `dependencies` with `~=` pins)
+- Line 9: `# ///` (closing PEP 723)
+- Line 10: `# fmt: on` (ruff protection guard off)
+- After: blank line, then optional `from __future__` or `__doc__ = ` or imports
+
+This error was discovered during adversarial audit of issue #980. Both `tools/plan` and `tools/solve` were affected.
 
 Scripts that print `__doc__` at runtime MUST use `__doc__ = """..."""` assignment (not bare `"""..."""`) because the bash guard string captures the first docstring slot.
+
+### --description Flag (MANDATORY)
+
+Every tool in `tools/` MUST implement a `--description` flag that prints a one-line description of the tool's purpose to stdout and exits 0. This allows the `help` tool and other aggregators to discover tool descriptions without parsing source code.
+
+For PEP 723 Python scripts (top of `main()`):
+
+```python
+if len(sys.argv) == 2 and sys.argv[1] == "--description":
+    print("One-line description of the tool's purpose.")
+    return 0
+```
+
+For bash scripts (top of script, before substantive logic):
+
+```bash
+if [[ "${1:-}" == "--description" ]]; then
+    echo "One-line description of the tool's purpose."
+    exit 0
+fi
+```
+
+The description should be a single sentence stating what the tool does from the caller's perspective ("does X") rather than describing its implementation ("uses Y to do X").
 
 ## Isolated Tool Environments
 

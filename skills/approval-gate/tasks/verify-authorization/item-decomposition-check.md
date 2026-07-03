@@ -14,8 +14,9 @@ Before implementation proceeds, verify that the plan includes item-level decompo
 ## Procedure
 
 ```
-plan_issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=plan_number) <!-- Routes through issue-operations per SPEC #683 -->
-plan_body = plan_issue["body"]
+# Read plan from local file (plans are local artifacts, not GitHub Issues)
+plan_paths = [f".issues/{plan_number}/plan.md", f"*/.issues/{plan_number}/plan.md"]
+plan_body = read_local_plan_file(plan_paths)
 
 # Check for item enumeration
 has_items = "Item" in plan_body and ("Dependencies" in plan_body or "Acceptance Criteria" in plan_body)

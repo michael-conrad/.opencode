@@ -1,0 +1,11 @@
+status: string  # PASS | BLOCKED
+plan_file_path: string
+blocker_reason: string
+checklist_step_count: integer  # Total number of checkbox steps across all phases
+phase_count: integer  # Number of phase sections in the plan
+gate_sequence_source: string  # "implementation-pipeline/SKILL.md §Dispatch Routing Table"
+admonishment_present: boolean  # True if both top and bottom admonishments are present
+dispatch_modes_used: list  # ["sub-agent", "clean-room", "inline"] — which modes appear in the plan
+global_pre_steps: list  # Step descriptions for Tier 1 global pre-steps
+per_file_phases: list  # Phase names and their file targets
+global_post_steps: list  # Step descriptions for Tier 1 global post-steps

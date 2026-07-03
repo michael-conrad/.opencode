@@ -2,6 +2,8 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
+
 # Task: spec-summary
 
 ## Purpose
@@ -24,11 +26,42 @@ Verify PR/spec consistency before merge. Ensures PR description matches spec, al
 
 ## Procedure
 
-### Step 1: Fetch PR and Spec
+### Step 0: Pre-Flight Validation Gate
+
+Validate that all required inputs are present before proceeding with the audit:
+
+- [ ] 1. Verify PR number is provided and non-empty
+- [ ] 2. Verify spec issue number is provided and non-empty
+- [ ] 3. If PR number is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "PR number"
+remediation: "PR number is required for spec-summary. The orchestrator must provide the PR number to compare against the spec."
+```
+
+- [ ] 4. If spec issue number is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "spec issue number"
+remediation: "Spec issue number is required for spec-summary. The orchestrator must provide the spec issue number linked to the PR."
+```
+
+**This gate fires BEFORE any other step.** If any criterion fails, the task returns BLOCKED immediately — no globbing, no reading, no analysis.
+
+### Step 1: Fetch PR and Load Spec
+
+`spec_local_dir` is REQUIRED. Auditors BLOCK if absent.
 
 ```python
 pr = github_pull_request_read(method="get", owner=<owner>, repo=<repo>, pullNumber=<N>)
-spec = issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<M>) <!-- Routes through issue-operations per SPEC #683 -->
+spec_files = glob(pattern="**/*.md", path=f"<spec_local_dir>")
+spec_content = ""
+for f in spec_files:
+    spec_content += read(filePath=f) + "\n"
 ```
 
 ### Step 2: Extract Spec Requirements
@@ -77,46 +110,9 @@ comparison = {
 }
 ```
 
-### Step 6: Cross-Validate via task()
+### Step 6: Cross-Validate
 
-```python
-task(
-    subagent_type="general",
-    prompt=f"""Use adversarial-audit skill --task cross-validate with:
-
-evidence_payload:
----
-SPEC:
-Title: {spec["title"]}
-Problem: {requirements["problem_statement"]}
-Success Criteria: {requirements["success_criteria"]}
-Files: {requirements["files_affected"]}
-
-PR:
-Title: {pr["title"]}
-Body: {pr["body"]}
-Files: {pr_content["files"]}
-
-COMPARISON:
-{comparison_summary}
-
-evaluation_criteria: <criteria_json>
-audit_phase: pr_creation
-authorization_scope: {authorization_scope}
-halt_at: {halt_at}
-pr_strategy: {pr_strategy}
-pipeline_phase: {pipeline_phase}
-
-# NOTE: cross-validate does NOT dispatch auditors — it receives
-# pre-resolved auditor_verdicts and computes consensus.
-auditor_verdicts: {auditor_verdicts}
-
-worktree.path: {worktree.path}
-github.owner: {github.owner}
-github.repo: {github.repo}
-"""
-)
-```
+Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
 
 ### Step 7: Verify Closing Keywords
 
@@ -158,7 +154,7 @@ else:
 
 ### Step 10: Build Result Contract
 
-```json
+```yaml
 {
   "status": "DONE",
   "audit_type": "spec-summary",
@@ -195,18 +191,10 @@ else:
 | Spec issue not found | Return BLOCKED with issue number |
 | Spec not linked from PR | Report as LINK_MISSING, continue |
 
-## Dispatch Mandate (CRITICAL — per critical-rules-048)
-
-This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
-1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
-2. Dispatching auditor sub-agents in parallel
-3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_verdicts`
-
-This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
-
 ## Completion Dependency Chain
 
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
+- Step 0 (Pre-Flight Validation Gate) → INVALID if skipped
 - Step 1 (Fetch PR and Spec) → INVALID if skipped
 - Step 2 (Extract Spec Requirements) → INVALID if skipped
 - Step 3 (Extract PR Content) → INVALID if skipped

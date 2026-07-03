@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = ["pyyaml>=6.0"]
 # ///
 
+# fmt: on
 """
 DESCRIPTION: Regression test for spec #91 SC-12. Runs skildeck verify-structure against known-incomplete SKILL.md files from issues #41-#45 to verify ABSENT-FAIL is reported for missing structural components that were added in later commits.
 Usage: uv run .opencode/tests/regressions/regression-91-verify-structure.py
@@ -17,7 +19,10 @@ from pathlib import Path
 
 _path = Path(__file__).resolve().parent
 while _path.name != ".opencode":
-    _path = _path.parent
+    parent = _path.parent
+    if parent == _path:
+        raise RuntimeError("Could not find .opencode/ directory")
+    _path = parent
 OPENCODE_DIR = _path
 PROJECT_ROOT = _path.parent
 
@@ -25,7 +30,7 @@ ISSUES = [41, 42, 43, 45]
 
 ISSUE_SPEC_FILES = {
     41: "skills/git-workflow/SKILL.md",
-    42: "skills/divide-and-conquer/SKILL.md",
+    42: "skills/implementation-pipeline/SKILL.md",
     43: "skills/verification-before-completion/SKILL.md",
     45: "skills/finishing-a-development-branch/SKILL.md",
 }
@@ -120,3 +125,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

@@ -41,7 +41,7 @@ state = pr.get("state", "unknown")
 **GitBucket platform (sub-skill implementation):**
 ```bash
 # Get PR details and parse merged/state fields
-./.opencode/tools/gitbucket-api prs <github.owner> <github.repo> --state all | jq '.[] | select(.number == N)'
+gb pr list -R <github.owner>/<github.repo> --state all | jq '.[] | select(.number == N)'
 ```
 
 ### Step 2: Verify Merge
@@ -56,14 +56,14 @@ state = pr.get("state", "unknown")
 
 When searching for a PR that fixes a specific issue on GitBucket (no search API):
 
-1. List PRs with `direction=desc&sort=created&per_page=30`
-2. Scan each PR body for reference pattern (`Fixes #N`, `#N`)
-3. Stop on first match
-4. Paginate only if no match found on first page
+- [ ] 1. List PRs with `direction=desc&sort=created&per_page=30`
+- [ ] 2. Scan each PR body for reference pattern (`Fixes #N`, `#N`)
+- [ ] 3. Stop on first match
+- [ ] 4. Paginate only if no match found on first page
 
 ```bash
 # List closed PRs and scan bodies for issue reference
-./.opencode/tools/gitbucket-api prs <github.owner> <github.repo> --state closed
+gb pr list -R <github.owner>/<github.repo> --state closed
 # Then check each PR body for the issue reference pattern
 ```
 

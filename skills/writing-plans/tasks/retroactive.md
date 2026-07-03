@@ -2,48 +2,30 @@
 
 ## Purpose
 
-Create a plan for an existing spec that does not yet have one.
+Create a plan for an existing spec that does not yet have one. Uses the same 21-step pipeline as `create` but with the research step loading the existing spec body as its evidence source.
 
-## Procedure
+## Operating Protocol — 21-Step Pipeline
 
-1. **Query existing spec:**
+Each item is tagged with dispatch scope, chain dependency, and contract paths.
 
-    - Get spec from GitHub Issue
-    - Search for linked plans (GitHub Issues with `plan` label and body text matching `Spec: #N`)
-
-2. **If no plan exists:**
-
-    - Create `[PLAN]` GitHub Issue with `plan` + `needs-approval` labels
-    - Include spec reference as prose in body (e.g., `Spec: #N`)
-    - Plan content uses hybrid approach (phases + TDD steps)
-    - Include header, file structure, self-review
-    - Create sub-issues under the plan (not the spec)
-    - HALT and wait for plan approval
-
-3. **If plan exists:**
-
-    - Validate plan (check for placeholders, TDD structure)
-    - If invalid → Report issues
-    - If valid → Proceed to implementation
-
-## Live Verification: Retroactive Plan Evidence (MANDATORY)
-
-**Each factual claim about existing specs and plans MUST be verified via tool call. Assertions without tool-call artifacts are VERIFICATION-GAP findings per `065-verification-honesty.md`.**
-
-| Claim | Verification Action | Tool Call | Problem Class |
-|-------|-------------------|-----------|---------------|
-| "Spec #N exists" | Verify issue exists and has spec label | `issue-operations -> read-issue (github_issue_read(method="get", issue_number=N)` | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
-| "No plan exists for spec #N" | Query for linked plans | `issue-operations -> search-issues (github_search_issues(query="label:plan Spec: #N")` or iterate recent issues | VERIFICATION-GAP | <!-- Routes through issue-operations per SPEC #683 -->
-| "Plan is valid" | Run `validate` task checks | `validate` task inline | VERIFICATION-GAP |
-| "Plan has sub-issues" | Check sub-issue state | `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=plan_number)` | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
-
-**Evidence artifact:** Tool call results confirming spec exists, plan state, and validation outcome.
-
-### Finding Classification
-
-| Finding | Problem Class | Classification | Action |
-|--------|---------------|----------------|--------|
-| Spec not found | MISSING-ELEMENT | flag-for-review | HALT — cannot create plan for missing spec |
-| Plan actually exists (missed) | VERIFICATION-GAP | auto-fix | Use existing plan instead of creating duplicate |
-| Plan invalid | VERIFICATION-GAP | flag-for-review | Report issues, do not proceed to implementation |
-| Spec not approved | CONFLICTING | flag-for-review | HALT — plan requires approved spec |
+- [ ] 1. (**inline**) Verify spec exists in `.issues/{N}/spec.md` or `*/.issues/{N}/spec.md` — chain: `none`
+- [ ] 2. (**sub-agent**) Research — Load existing spec body as evidence source — chain: `step_1`
+- [ ] 3. (**inline**) Z3 check — `solve check` — verify research output contains evidence_artifacts — chain: `step_2`
+- [ ] 4. (**sub-agent**) Readiness — `task(..., prompt: "execute readiness task from writing-plans")` — chain: `step_3`
+- [ ] 5. (**inline**) Z3 check — `solve check` — verify readiness output has status PASS — chain: `step_4`
+- [ ] 6. (**sub-agent**) Structure — `task(..., prompt: "execute structure task from writing-plans")` — chain: `step_5`
+- [ ] 7. (**inline**) Z3 check — `solve check` — verify structure output has phase definitions and dependency contract — chain: `step_6`
+- [ ] 8. (**sub-agent**) Solve — `task(..., prompt: "execute solve task from writing-plans")` — chain: `step_7`
+- [ ] 9. (**inline**) Z3 check — `solve check` — verify solve output has SAT and SOLVED status — chain: `step_8`
+- [ ] 10. (**sub-agent**) Write — `task(..., prompt: "execute write task from writing-plans")` — chain: `step_9`
+- [ ] 11. (**inline**) Z3 check — `solve check` — verify write output has plan file path — chain: `step_10`
+- [ ] 12. (**sub-agent**) Revisit — `task(..., prompt: "execute revisit task from writing-plans")` — chain: `step_11`
+- [ ] 13. (**inline**) Z3 check — `solve check` — verify revisit output has resolution_status — chain: `step_12`
+- [ ] 14. (**sub-agent**) Validate — `task(..., prompt: "execute validate task from writing-plans")` — chain: `step_13`
+- [ ] 15. (**inline**) Z3 check — `solve check` — verify validate output has PASS status — chain: `step_14`
+- [ ] 16. (**sub-agent**) Audit fidelity — `task(..., prompt: "execute audit-fidelity task from writing-plans")` — chain: `step_15`
+- [ ] 17. (**inline**) Z3 check — `solve check` — verify audit-fidelity output has PASS — chain: `step_16`
+- [ ] 18. (**sub-agent**) Audit concern — `task(..., prompt: "execute audit-concern task from writing-plans")` — chain: `step_17`
+- [ ] 19. (**inline**) Z3 check — `solve check` — verify audit-concern output has PASS — chain: `step_18`
+- [ ] 20. (**sub-agent**) Completion — `task(..., prompt: "execute completion task from writing-plans")` — chain: `step_19`
+- [ ] 21. (**inline**) Z3 check — `solve check` — verify completion output has lifecycle event — chain: `step_20`

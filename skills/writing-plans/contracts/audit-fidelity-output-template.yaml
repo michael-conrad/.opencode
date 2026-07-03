@@ -1,0 +1,5 @@
+status: string  # PASS | BLOCKED
+artifact_path: string
+findings: list[dict]
+blocker_reason: string
+all_criteria_pass: bool  # true when ALL criteria PASS, false if any FAIL

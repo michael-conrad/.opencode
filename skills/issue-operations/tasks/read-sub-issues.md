@@ -40,13 +40,13 @@ github_issue_read(
 
 **GitBucket platform:**
 ```bash
-./.opencode/tools/gitbucket-api get-sub-issues <github.owner> <github.repo> <issue-number>
+# Sub-issues are not supported by the GitBucket API.
+# Use comment-based linking instead. See link-sub-issue.md for the fallback pattern.
+echo "Sub-issues not supported by GitBucket API. Use comment-based linking."
 ```
 
 **Local platform:**
-```bash
-./.opencode/tools/local-issues read-sub-issues <issue-number>
-```
+Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: N}`. Extract sub-issue data from returned issue metadata.
 
 ### Step 3: Return Sub-Issue Data
 
@@ -68,7 +68,7 @@ Return sub-issue data to the calling task. Used for:
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```

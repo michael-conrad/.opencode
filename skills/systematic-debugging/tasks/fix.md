@@ -6,18 +6,18 @@ Apply a minimal targeted fix after diagnosis has confirmed the root cause. Requi
 
 ## Operating Protocol
 
-1. Invoked by: `skill({name: "systematic-debugging"})` → `task()` for `fix`
-2. When to use: After `--task diagnose` has identified root cause AND user has explicitly authorized the fix
-3. Exit criteria: Fix applied, verified, no regression introduced
+- [ ] 1. Invoked by: `skill({name: "systematic-debugging"})` → `task()` for `fix`
+- [ ] 2. When to use: After `--task diagnose` has identified root cause AND user has explicitly authorized the fix
+- [ ] 3. Exit criteria: Fix applied, verified, no regression introduced
 
 ## Authorization Check (CRITICAL)
 
 Before applying ANY fix:
 
-1. **Check authorization**: Was this bug explicitly authorized for fixing?
+- [ ] 1. **Check authorization**: Was this bug explicitly authorized for fixing?
    - Does an approved spec issue exist for this fix?
    - Did the user explicitly say "approved" or "go" for this fix?
-2. **If NO authorization**: HALT immediately
+- [ ] 2. **If NO authorization**: HALT immediately
    - Report diagnosis findings
    - Do NOT apply any code changes
    - Wait for explicit authorization

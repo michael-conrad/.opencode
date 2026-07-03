@@ -19,13 +19,15 @@ Second gate of per-issue screening for pre-implementation analysis. Execute Gate
 - Sub-issues expanded into flat item list
 - Cross-issue sub-issue handling resolved
 - File and symbol references extracted
-- Compact result contract produced (≈100-500 words, YAML-structured)
+- Compact result contract produced (YAML-structured, routing-significant data only)
 
 ## Procedure
 
 ### Step 4: Gate 2 — Success Criteria Verification (MANDATORY after Gate 1 passes)
 
 **🚫 CRITICAL — ZERO TOLERANCE: After Gate 1 passes (all sub-issues legitimately closed), the agent MUST verify every success criterion from the issue body against the live codebase. `state:closed` + merged PR does NOT shortcut this gate — closed issues require the SAME evidence as open issues, plus the additional merged PR evidence.**
+
+**Evidence type extraction with uplift:** When screening issues, extract SC evidence types and apply the runtime-behavioral classification question. Changes affecting runtime behavior MUST use `behavioral` evidence type. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
 
 A merged PR proves code was merged. It does NOT prove that success criteria are met, that changes are complete, or that no files were accidentally omitted. The merged PR is a **prerequisite gate** (needed to begin verification), NOT proof of implementation. Verification against the live codebase IS the evidence.
 
@@ -174,10 +176,10 @@ For each file path or symbol mentioned in the issue:
 
 ### Step 10: Produce Result Contract
 
-The result contract MUST be YAML-structured, compact (≈100-500 words):
+The result contract MUST be YAML-structured, compact (routing-significant data only):
 
 ```yaml
-status: DONE | DONE_WITH_CONCERNS | BLOCKED | OVERFLOW
+status: DONE | BLOCKED | OVERFLOW
 task: screen-issue
 issue_number: <N>
 classification: included | excluded | scope-reduced

@@ -2,6 +2,8 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
+> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
+
 # Task: drift-detection
 
 ## Purpose
@@ -24,12 +26,43 @@ Detect drift between spec/code reality and expected state. Identifies cases wher
 
 ## Procedure
 
+## Drift Detection Checklist
+
+- [ ] 0. Pre-Flight Validation Gate — validate required inputs before proceeding
+- [ ] 1. Load Spec Requirements — glob spec_local_dir, extract problem, SCs, phases, files
+- [ ] 2. Identify Target Files — specific files or full scan from spec
+- [ ] 3. Build Evaluation Criteria — define DD table with evidence types
+- [ ] 4. Scan Implementation — per-file existence, signatures, extra code
+- [ ] 5. Check Untracked Files — code files not in spec
+- [ ] 6. Cross-Validate — cross-validate will be called by the orchestrator with pre-resolved verdicts
+- [ ] 7. Classify Drift Severity — map drift to HIGH/MEDIUM/LOW
+- [ ] 8. Generate Bidirectional Findings — SPEC_DRIFT/CODE_DRIFT with revision options
+- [ ] 9. Build Result Contract — YAML verdict with drift summary
+
+### Step 0: Pre-Flight Validation Gate
+
+Validate that all required inputs are present before proceeding with the audit:
+
+- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 2. If `spec_local_dir` is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "spec_local_dir"
+remediation: "spec_local_dir is required for drift-detection. The orchestrator must provide a valid local directory containing spec Markdown files."
+```
+
+**This gate fires BEFORE any other step.** If any criterion fails, the task returns BLOCKED immediately — no globbing, no reading, no analysis.
+
 ### Step 1: Load Spec Requirements
 
-Fetch spec issue and extract requirements:
+`spec_local_dir` is REQUIRED. Auditors BLOCK if absent.
 ```python
-spec = issue-operations -> read-issue (github_issue_read(method="get", owner=<owner>, repo=<repo>, issue_number=<N>) <!-- Routes through issue-operations per SPEC #683 -->
-requirements = extract_requirements(spec["body"])
+spec_content = ""
+for f in glob(pattern="**/*.md", path=f"<spec_local_dir>"):
+    spec_content += read(filePath=f) + "\n"
+requirements = extract_requirements(spec_content)
 ```
 
 Requirements extraction:
@@ -127,41 +160,9 @@ for untracked in untracked_files:
     })
 ```
 
-### Step 6: Cross-Validate via task()
+### Step 6: Cross-Validate
 
-```python
-task(
-    subagent_type="general",
-    prompt=f"""Use adversarial-audit skill --task cross-validate with:
-
-evidence_payload:
----
-SPEC REQUIREMENTS:
-{requirements_summary}
-
-IMPLEMENTATION SCAN:
-{implementation_summary}
-
-DRIFT DETECTED:
-{drift_summary}
-
-evaluation_criteria: <criteria_json>
-audit_phase: implementation_verification
-authorization_scope: {authorization_scope}
-halt_at: {halt_at}
-pr_strategy: {pr_strategy}
-pipeline_phase: {pipeline_phase}
-
-# NOTE: cross-validate does NOT dispatch auditors — it receives
-# pre-resolved auditor_verdicts and computes consensus.
-auditor_verdicts: {auditor_verdicts}
-
-worktree.path: {worktree.path}
-github.owner: {github.owner}
-github.repo: {github.repo}
-"""
-)
-```
+Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
 
 ### Step 7: Classify Drift Severity
 
@@ -187,7 +188,7 @@ Present options for developer decision.
 
 ### Step 9: Build Result Contract
 
-```json
+```yaml
 {
   "status": "DONE",
   "audit_type": "drift-detection",
@@ -225,18 +226,10 @@ Present options for developer decision.
 | No target files identified | Return BLOCKED — need file paths |
 | Code not parseable | Skip function, log warning |
 
-## Dispatch Mandate (CRITICAL — per critical-rules-048)
-
-This task is a **reference document** that defines evaluation criteria and result contracts. The orchestrator is responsible for:
-1. Dispatching a sub-agent for `resolve-models` to obtain auditor pair
-2. Dispatching auditor sub-agents in parallel
-3. Dispatching a sub-agent for `cross-validate` with pre-resolved `auditor_verdicts`
-
-This task MUST NOT be read and executed inline. Reading this file and performing the described steps via raw tool calls is a CRITICAL VIOLATION per critical-rules-048.
-
 ## Completion Dependency Chain
 
 Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
+- Step 0 (Pre-Flight Validation Gate) → INVALID if skipped
 - Step 1 (Load Spec Requirements) → INVALID if skipped
 - Step 2 (Identify Target Files) → INVALID if skipped
 - Step 3 (Build Evaluation Criteria) → INVALID if skipped

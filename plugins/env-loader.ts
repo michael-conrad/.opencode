@@ -263,7 +263,7 @@ export default async function envLoaderPlugin(input: PluginInput): Promise<Hooks
       async function gitCmd(cmd: string): Promise<{ exitCode: number; text: () => string } | null> {
         try {
           const result = await Promise.race([
-            input.$.nothrow()(cmd),
+            input.$.nothrow()`${cmd}`,
             new Promise<null>((_, reject) =>
               setTimeout(() => reject(new Error(`git command timed out: ${cmd}`)), GIT_CMD_TIMEOUT_MS)
             ),

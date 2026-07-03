@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: post-flight-no-cached-claims
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Post-Flight No Cached Claims (SC-18)
 #
 # Verifies that a verification sub-agent does NOT use memory-based

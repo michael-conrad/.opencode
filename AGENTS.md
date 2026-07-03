@@ -12,6 +12,10 @@ The AI agent must determine its identity from the system prompt on EVERY session
 
 **WHY**: Different agents/loaders provide different context. System prompt tells you what you are.
 
+## Pipeline Re-Priming
+
+Every skill boundary requires a re-encounter of the enforcement identity. Professional engineers complete each gate in dependency order before advancing. Amateurs skip gates and compound defects.
+
 ---
 
 ## Universal Skill Dispatch Gate — Professional agents dispatch skills. Amateurs inline.
@@ -85,8 +89,8 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 | Run all tests | `uv run pytest test/` | - |
 | Run one test file | `uv run pytest test/test_filename.py` | - |
 | Run one test | `uv run pytest test/test_filename.py::test_function_name` | - |
-| Lint + auto-fix | `uvx ruff check --fix src/ test/` | Python ONLY |
-| Format | `uvx ruff format src/ test/` | Python ONLY |
+| Lint (advisory) | `uvx ruff check src/ test/` | Python ONLY |
+| Format check (advisory) | `uvx ruff format --check src/ test/` | Python ONLY |
 | Type check | `uvx pyright src/` | Python ONLY |
 | Coverage | `uv run coverage run -m pytest test/ && uv run coverage report` | - |
 | Dead code scan | `uvx vulture src/` | Python ONLY |
@@ -98,12 +102,9 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 | Skill enforcement test (changed files) | `bash .opencode/tests/test-enforcement.sh --changed [--base BRANCH]` | opencode-cli |
 | Skill enforcement test (list scenarios) | `bash .opencode/tests/test-enforcement.sh --list` | opencode-cli |
 | Skill enforcement test (list tags) | `bash .opencode/tests/test-enforcement.sh --list-tags` | opencode-cli |
-| Behavioral enforcement test | `bash .opencode/tests/behaviors/run-all.sh` | opencode-cli |
-| Behavioral enforcement test (list) | `bash .opencode/tests/behaviors/run-all.sh --list` | opencode-cli |
-| Behavioral enforcement test (dry-run) | `bash .opencode/tests/behaviors/run-all.sh --dry-run` | opencode-cli |
+| Behavioral enforcement test | `bash .opencode/tests/behaviors/<scenario>.sh` | opencode-cli |
 | TypeScript check | `PATH=.tools/node/bin:$PATH npx tsc --noEmit` | TypeScript |
 | TypeScript check (alt) | `PATH=.node/bin:$PATH npx tsc --noEmit` | TypeScript |
-| All enforcement tests (content + behavioral) | `bash .opencode/tests/test-enforcement.sh && bash .opencode/tests/behaviors/run-all.sh` | opencode-cli |
 | Isolated opencode-cli run | `bash .opencode/tests/with-test-home opencode-cli run '<message>'` | opencode-cli |
 | Clean test artifacts | `bash .opencode/tests/with-test-home --clean` | opencode-cli |
 
@@ -112,6 +113,45 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 **Ruff version sync:** When bumping the ruff version, update BOTH `pyproject.toml` (`[dependency-groups] dev` and `[tool.ruff] required-version`) AND `.pre-commit-config.yaml` (`rev:` for `ruff-pre-commit`) to keep them in sync. The `ruff-pre-commit` rev maps 1:1 to ruff releases (e.g., `v0.11.0` → ruff `0.11.0`).
 
 **Isolated test environment:** The `with-test-home` wrapper isolates opencode-cli XDG state into a project-relative temporary home (`./opencode/tmp/test-home-<timestamp>`), eliminating SQLite session conflicts with the desktop app. This allows skill enforcement tests to run from within an active opencode session.
+
+---
+
+## `gb` CLI Tool — GitBucket Operations
+
+This repo uses the [`gb` CLI](https://github.com/Masahiro-Obuchi/gitbucket-cli-rs) (v0.6.1) for all GitBucket API operations. The `gb` tool replaces the previous bespoke `gitbucket-api` Python tool.
+
+### Install by Platform
+
+| Platform | Download URL | Install Commands |
+|----------|-------------|------------------|
+| Linux x86_64 | `https://github.com/Masahiro-Obuchi/gitbucket-cli-rs/releases/download/v0.6.1/gb-v0.6.1-x86_64-unknown-linux-gnu.tar.gz` | `curl -L <url> \| tar xz && sudo mv gb /usr/local/bin/` |
+| macOS x86_64 | `https://github.com/Masahiro-Obuchi/gitbucket-cli-rs/releases/download/v0.6.1/gb-v0.6.1-x86_64-apple-darwin.tar.gz` | `curl -L <url> \| tar xz && sudo mv gb /usr/local/bin/` |
+| macOS arm64 | `https://github.com/Masahiro-Obuchi/gitbucket-cli-rs/releases/download/v0.6.1/gb-v0.6.1-aarch64-apple-darwin.tar.gz` | `curl -L <url> \| tar xz && sudo mv gb /usr/local/bin/` |
+| Windows x86_64 | `https://github.com/Masahiro-Obuchi/gitbucket-cli-rs/releases/download/v0.6.1/gb-v0.6.1-x86_64-pc-windows-msvc.zip` | Expand archive and add to PATH |
+
+### Version Pinning
+
+Pin to `v0.6.1`. Verify with `gb --version` before use. The version check is enforced at skill entry — agents MUST NOT proceed if `gb --version` reports `< 0.6.1`.
+
+### TOOL_MISSING Detection
+
+When `gb` is not found, skill task files return `BLOCKED` with `reason: TOOL_MISSING`. The retry pattern:
+
+```bash
+if ! command -v gb &>/dev/null; then
+  echo "TOOL_MISSING: gb CLI not found. Install from https://github.com/Masahiro-Obuchi/gitbucket-cli-rs"
+  return 1
+fi
+```
+
+### Environment Variables
+
+| Variable | Purpose |
+|----------|---------|
+| `GB_TOKEN` | GitBucket personal access token |
+| `GB_HOST` | GitBucket host URL |
+| `GB_USER` | GitBucket username (web fallback) |
+| `GB_PASSWORD` | GitBucket password (web fallback) |
 
 ---
 
@@ -131,25 +171,40 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 
 - **Submodule repos**: `.opencode/` tracks `dev` — never detached HEAD or `main`
 
+## Issues Path Resolution
+
+The `*/.issues/` path for a given issue is determined by the issue's repo. Use the `## Repo Information` section from session-init to resolve:
+
+| Repo Path Prefix | Issues Directory | Example |
+|-----------------|-----------------|---------|
+| `.` (root) | `.issues/{N}/` | `.issues/1175/` |
+| `.opencode` | `.opencode/.issues/{N}/` | `.opencode/.issues/1175/` |
+
+**Resolution rule:** For any issue `#N`, find the repo entry whose `path` matches the issue's repo. The issues directory is `{path}/.issues/{N}/`. When `path` is `.`, the issues directory is `.issues/{N}/`.
+
+When a skill task file references `.issues/{N}/` as a hard-coded path, the agent MUST resolve it to the correct `*/.issues/{N}/` by prepending the repo path prefix from session-init. If the issue belongs to the `.opencode` submodule, the path is `.opencode/.issues/{N}/`. If the issue belongs to the root repo, the path is `.issues/{N}/`.
+
+The `local-issues` tool handles this resolution automatically via qualified names (`.opencode#N` → `.opencode/.issues/`, `opencode-config#N` → `.issues/`). When using the tool, always use qualified names for mutations. When reading files directly, resolve the path manually using the session-init repo information.
+
 ---
 
 ## Session Context
 
 One plugin runs at session start, and one script provides complementary data:
 
-1. **session-init** (`tools/session-init`): Emits session variables silently (owner, repo, platform, hooks). **Canonical source for identity data including Sub-folder Repo Mappings.**
+1. **session-init** (`tools/session-init`): Emits session variables silently (owner, repo, platform, hooks). **Canonical source for identity data including ## Repo Information section.**
 2. **session_context_triggers.py** (`scripts/session_context_triggers.py`): Emits trigger warnings into first user message
 
 Session context output includes:
 
-- **Identity section** (always, in system prompt): `github.owner`, `github.repo`, `github.platform`, credential status
+- **Repo Information section** (always, in system prompt): `owner`, `repo`, `platform`, `url` per repo entry in `## Repo Information` YAML block
 - **Identity-echo directive** (always, in first user message): mandatory identity echo at session start
 - **Trigger alerts** (when detected, in first user message): trigger warnings for special states
 - **Tier 3 probes** (opt-in via `.opencode-issue-probe`): `open_pr_on_branch`, `ci_failure`, `stale_pr`
 
 Credential status values: `verified` (token exists + API ping succeeds), `present` (token exists, liveness unchecked), `missing` (no token found), `stale` (token rejected by API), `unavailable` (platform unknown).
 
-- **Sub-folder repo mappings** (when `.gitmodules` exists): `submodule_path: owner/repo (platform)` — files under submodule paths belong to separate repos; use the mapped `owner/repo` for API calls targeting those paths. Emitted by `session-init` (canonical source).
+- **Repo Information section** (always, in system prompt): `owner`, `repo`, `platform`, `url` per repo entry in `## Repo Information` YAML block. Emitted by `session-init` (canonical source).
 
 ---
 
@@ -217,3 +272,33 @@ When parent issue has sub-issues, authorization cascades to ALL sub-issues:
 - Assume cached values from previous sessions
 - HALT after each phase of multi-task spec (see Multi-Task Spec Workflow above)
 - Write spec/plan content directly to chat as the final deliverable — ALWAYS invoke brainstorming → spec-creation → issue-operations to persist specs as GitHub Issues
+
+---
+
+## viewport-editor MCP Plugin
+
+This repo uses [viewport-editor](https://github.com/michael-conrad/viewport-editor) as its editing MCP server.
+
+**11-tool surface** (see README for full action lists):
+
+| Tool | Purpose |
+|------|---------|
+| **viewport** | Open, navigate, and manage focused editing windows |
+| **edit** | Stage text changes into viewport buffers (replace, insert, delete, swap, move) |
+| **file** | Commit or discard staged changes to disk |
+| **diff** | Show unified diffs of pending edits before saving |
+| **clipboard** | Copy/cut/paste content across viewports with provenance tracking |
+| **search** | Find text with substring or regex matching |
+| **regex** | Test and escape regex patterns |
+| **read_file** | Composite: open + scroll — preferred over built-in `read` for single-call reading |
+| **write_file** | Composite: open + replace-all + save — preferred over built-in `write` for conflict-safe writing |
+| **edit_text** | Composite: open + replace + save — preferred over built-in `edit` for targeted changes with conflict detection |
+| **find_text** | Composite: search — preferred over built-in `grep` for structured results |
+
+**Recommended agent behavior:**
+
+- Use `read_file`, `write_file`, `edit_text`, `find_text` for single-call operations
+- Use `viewport` + `edit` + `file` for multi-step editing with diff review
+- Always call `diff:show` before `file:save` to verify staged changes
+- File paths are relative to project root (MCP resolver defaults to `os.getcwd()`)
+- Conflict detection: server tracks file mtime+size externally; stale-file soft warning on reads, hard block on `file:save` (use `force: true` override if change is intentional)

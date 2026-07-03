@@ -15,7 +15,7 @@ Independently discover the full scope of work needed for a given task. This sub-
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
@@ -34,25 +34,25 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ### Step 1: Load Spec and Plan
 
-1. Read the spec issue via `issue-operations -> read-issue (github_issue_read(method="get", issue_number=<spec>)` <!-- Routes through issue-operations per SPEC #683 -->
-2. Read the plan issue via `issue-operations -> read-issue (github_issue_read(method="get", issue_number=<plan>)` <!-- Routes through issue-operations per SPEC #683 -->
-3. Read any sub-issue via `issue-operations -> read-issue (github_issue_read(method="get", issue_number=<sub_issue>)` <!-- Routes through issue-operations per SPEC #683 -->
-4. Read all comments on the sub-issue: `issue-operations -> read-comments (github_issue_read(method="get_comments", issue_number=<sub_issue>)` <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 1. Read the spec issue via `issue-operations -> read-issue (github_issue_read(method="get", issue_number=<spec>)` <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 2. Read the plan file from local `.issues/{plan}/plan.md` or `*/.issues/{plan}/plan.md` (plans are local artifacts, not GitHub Issues)
+- [ ] 3. Read any sub-issue via `issue-operations -> read-issue (github_issue_read(method="get", issue_number=<sub_issue>)` <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 4. Read all comments on the sub-issue: `issue-operations -> read-comments (github_issue_read(method="get_comments", issue_number=<sub_issue>)` <!-- Routes through issue-operations per SPEC #683 -->
 
 ### Step 2: Load Relevant Skill Task Files
 
-1. Identify which skill's task files are relevant from the plan's file structure table
-2. Read the SKILL.md for routing metadata only (not full content)
-3. Read the specific task file referenced by the plan (for procedure details)
+- [ ] 1. Identify which skill's task files are relevant from the plan's file structure table
+- [ ] 2. Read the SKILL.md for routing metadata only (not full content)
+- [ ] 3. Read the specific task file referenced by the plan (for procedure details)
 
 ### Step 3: Discover Affected Files
 
-1. For each file path mentioned in the plan's file structure table, verify existence via `glob` or `read`
-2. Independently search the codebase for additional affected files:
+- [ ] 1. For each file path mentioned in the plan's file structure table, verify existence via `glob` or `read`
+- [ ] 2. Independently search the codebase for additional affected files:
    - Use `grep` to find patterns referenced in the task (e.g., function names, rule patterns)
    - Use `glob` to enumerate directories containing files with similar naming
    - Check for related test files, supporting scripts, or configuration files
-3. Flag any files outside the plan's scope that may be affected
+- [ ] 3. Flag any files outside the plan's scope that may be affected
 
 ### Step 4: Determine Task Partitions
 
@@ -89,9 +89,9 @@ Before task()ing the execution sub-agent, the orchestrator MUST compute and log 
 
 #### 6.1 Compute Task Payload Hash
 
-1. Serialize the task plan (Step 5 output) as canonical JSON with sorted keys
-2. Compute SHA-256 hash: `printf '%s' "$serialized" | sha256sum | cut -d' ' -f1`
-3. Store the hash as `context_hash` in the work state file alongside the dispatch plan
+- [ ] 1. Serialize the task plan (Step 5 output) as canonical JSON with sorted keys
+- [ ] 2. Compute SHA-256 hash: `printf '%s' "$serialized" | sha256sum | cut -d' ' -f1`
+- [ ] 3. Store the hash as `context_hash` in the work state file alongside the dispatch plan
 
 #### 6.2 Hash Storage Format in Work State File
 
@@ -108,14 +108,14 @@ pre_analysis:
 
 After the execution sub-agent returns:
 
-1. Re-read the original task plan from the work state file
-2. Re-compute the SHA-256 hash from the stored task plan
-3. Compare against the stored `context_hash`:
+- [ ] 1. Re-read the original task plan from the work state file
+- [ ] 2. Re-compute the SHA-256 hash from the stored task plan
+- [ ] 3. Compare against the stored `context_hash`:
    - **Match**: Integrity confirmed — execution sub-agent used the same plan
    - **Mismatch**: Flag as `STRUCTURE-VIOLATION` — task plan was modified between analysis and execution. The orchestrator MUST:
-     1. Report the mismatch with both hash values
-     2. Re-run pre-analysis via `analyze` on the original issue
-     3. HALT — do NOT proceed with mismatched context
+     - [ ] 1. Report the mismatch with both hash values
+     - [ ] 2. Re-run pre-analysis via `analyze` on the original issue
+     - [ ] 3. HALT — do NOT proceed with mismatched context
 
 #### 6.4 Integrity Check Table
 
@@ -142,7 +142,7 @@ The orchestrator runs this check as part of the `assemble-work` post-sub-agent c
       - HALT
     conflicts_with: []
     requires: [pre-analysis-001]
-    triggers: [pre-analysis, divide-and-conquer]
+    triggers: [pre-analysis, implementation-pipeline]
     source: "pre-analysis/tasks/analyze.md §Step 6"
 ```
 

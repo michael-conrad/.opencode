@@ -18,7 +18,7 @@ Structural test quality audit — reader-only checks on test files. Evaluates te
 
 ## Task Context
 
-```json
+```yaml
 {
   "spec_success_criteria": "<SC list from spec>",
   "file_paths_changed": ["<path1>", "<path2>", ...],
@@ -36,6 +36,42 @@ Structural test quality audit — reader-only checks on test files. Evaluates te
 - Remediation recommended as FIX_TEST, FIX_CODE, or SPEC_GAP
 
 ## Procedure
+
+### Step 0: Pre-Flight Validation Gate
+
+Validate that all required inputs are present before proceeding with the audit:
+
+- [ ] 1. Verify VbC artifact path is provided and non-empty
+- [ ] 2. Verify `file_paths_changed` is provided and non-empty
+- [ ] 3. Verify `spec_success_criteria` is provided and non-empty
+- [ ] 4. If VbC artifact path is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "VbC artifact path"
+remediation: "VbC artifact path is required for test-quality-audit. The orchestrator must run verification-before-completion first and provide the artifact path."
+```
+
+- [ ] 5. If `file_paths_changed` is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "file_paths_changed"
+remediation: "Changed file paths are required for test-quality-audit. The orchestrator must pass file_paths_changed from the implementation diff."
+```
+
+- [ ] 6. If `spec_success_criteria` is missing or empty, return BLOCKED:
+
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "spec_success_criteria"
+remediation: "Spec success criteria are required for test-quality-audit. The orchestrator must provide the SC list from the spec."
+```
+
+**This gate fires BEFORE any other step.** If any criterion fails, the task returns BLOCKED immediately — no globbing, no reading, no analysis.
 
 ### Step 1: Load Test Files
 
@@ -85,6 +121,14 @@ Is there evidence that the test was confirmed FAIL before implementation (in git
 - FAIL: No evidence of RED state — test was created alongside or after implementation
 - FAIL (inconclusive): Cannot determine order from available evidence
 
+#### 6. Sequential TDD (TQ-11)
+
+Across multiple test items, is there evidence of RED-before-GREEN ordering (each item's test FAILs before its implementation PASSes)?
+
+- PASS: Multiple items show individual RED/GREEN cycles — each test confirmed FAIL before its implementation was written
+- FAIL: Tests for multiple items were all written before any implementation (RED-ALL → GREEN-ALL pattern)
+- FAIL (inconclusive): Single item only, or insufficient git history to determine ordering
+
 ### Step 3: Produce Verdict
 
 ```yaml
@@ -119,23 +163,44 @@ remediation: FIX_TEST|SPEC_GAP
 recommendation: "<prose>"
 ```
 
-### Step 4: Return Result Contract
+### Step 4: Write Verdict Artifact to Disk
 
-```json
-{
-  "status": "DONE",
-  "audit_type": "test-quality-audit",
-  "overall": "PASS | FAIL | PARTIAL",
-  "criteria": [
-    {
-      "criterion": "assertion_plausibility",
-      "result": "PASS | FAIL | FAIL (inconclusive)",
-      "remediation": "FIX_TEST | FIX_CODE | SPEC_GAP"
-    }
-  ],
-  "exec_summary": "Test quality audit: {pass_count}/{total} criteria passed."
-}
+Write the full YAML verdict artifact to `./tmp/{issue-N}/artifacts/pipeline-audit-test-quality-{STATUS}-{timestamp}.yaml`:
+
+```yaml
+audit_phase: test_quality
+auditor_type: test-quality-audit
+family: <family>
+issue_number: <N>
+generated_at: "<timestamp>"
+orchestrator_model: "<model>"
+overall: PASS|FAIL|PARTIAL
+criteria:
+  - criterion: "assertion_plausibility"
+    result: "PASS|FAIL|FAIL (inconclusive)"
+    evidence: "<tool-call reference>"
+    remediation: "FIX_TEST|FIX_CODE|SPEC_GAP"
+    recommendation: "<prose>"
+exec_summary: "Test quality audit: X/Y criteria passed."
 ```
+
+### Step 5: Return Frugal Result Contract
+
+```yaml
+status: DONE
+artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-test-quality-PASS-{timestamp}.yaml"
+summary: "N criteria evaluated. X PASS, Y FAIL."
+```
+
+## Completion Dependency Chain
+
+Every step in this task is a mandatory dependency. Skipping any step produces an INVALID result:
+- Step 0 (Pre-Flight Validation Gate) → INVALID if skipped
+- Step 1 (Load Test Files) → INVALID if skipped
+- Step 2 (Evaluate Checklist Criteria) → INVALID if skipped
+- Step 3 (Produce Verdict) → INVALID if skipped
+- Step 4 (Write Verdict Artifact to Disk) → INVALID if skipped
+- Step 5 (Return Frugal Result Contract) → INVALID if skipped
 
 ## Error Handling
 

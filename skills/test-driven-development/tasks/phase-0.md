@@ -45,11 +45,11 @@ uv run pytest test/ -v
 
 If any existing tests fail during Phase 0:
 
-1. **HALT** — do not proceed to RED
-2. **Report** the failing tests with their error output
-3. **BLOCKED status** — the cycle cannot start until existing failures are resolved
-4. **Do NOT fix the failures** — report only. Bug fixes follow their own spec→plan→implementation pipeline.
-5. Return contract: `{ status: "BLOCKED", reason: "<test failures>", failures: [...] }`
+- [ ] 1. **HALT** — do not proceed to RED
+- [ ] 2. **Report** the failing tests with their error output
+- [ ] 3. **BLOCKED status** — the cycle cannot start until existing failures are resolved
+- [ ] 4. **Do NOT fix the failures** — report only. Bug fixes follow their own spec→plan→implementation pipeline.
+- [ ] 5. Return contract: `{ status: "BLOCKED", reason: "<test failures>", failures: [...] }`
 
 ### Step 4: Empty Blast Radius = Silent Proceed
 

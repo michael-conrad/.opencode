@@ -6,12 +6,12 @@ Squash and create PR targeting `dev` with `[pair-mode]` trailers.
 
 Pair mode uses the same squash workflow as autonomous mode:
 
-1. **Soft-reset to dev:**
+- [ ] 1. **Soft-reset to dev:**
    ```bash
    git reset --soft origin/dev
    ```
 
-2. **Create single commit with pair-mode trailers:**
+- [ ] 2. **Create single commit with pair-mode trailers:**
    ```bash
    git commit -m "<conventional subject>
 
@@ -23,12 +23,12 @@ Pair mode uses the same squash workflow as autonomous mode:
    Co-authored-by: AI: <AGENT_NAME> (<MODEL_ID>) [pair-mode]"
    ```
 
-3. **Push:**
+- [ ] 3. **Push:**
    ```bash
    git push -u origin <pair-branch>
    ```
 
-4. **Create PR via GitHub MCP:**
+- [ ] 4. **Create PR via GitHub MCP:**
    ```yaml
    method: create_pull_request
    owner: <github.owner>

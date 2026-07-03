@@ -49,6 +49,8 @@ uv run pytest test/ -v
 
 Use when a single test doesn't force the right generalization. Add a second, third example until the implementation naturally generalizes.
 
+**MANDATORY: Each RED must be immediately followed by its GREEN before the next RED begins.** Do not write all test cases first then implement them together — sequential pairing keeps each step small and forces generalization incrementally.
+
 ```
 RED (test case 1 → FAIL)
   ↓
@@ -81,6 +83,8 @@ Skip RED when the solution is trivially correct and the test would pass on first
 - One-liner implementation
 - No design decisions needed
 - Zero ambiguity about correctness
+
+**Even when skipping RED, GREEN is a separate phase.** RED may be omitted (per Obvious Implementation pattern rules), but RED and GREEN may NEVER be combined into a single step. When the implementation is trivially correct, write the test first, confirm it FAILs due to missing implementation, then implement.
 
 ```python
 # No RED needed — trivial

@@ -6,7 +6,7 @@ Verify that sub-agent output includes evidence artifacts before the orchestrator
 
 ## Entry Criteria
 
-An orchestrator skill (such as `divide-and-conquer`) has tasked sub-agents for content generation and needs to validate their output before incorporating it.
+An orchestrator skill (such as `implementation-pipeline`) has tasked sub-agents for content generation and needs to validate their output before incorporating it.
 
 ## Exit Criteria
 
@@ -26,5 +26,5 @@ The enforce task runs at the orchestrator level, not at the content-generator le
 
 ## Context Required
 
-- Invoked by: orchestrator skills (divide-and-conquer, work execution)
+- Invoked by: orchestrator skills (implementation-pipeline, work execution)
 - Related tasks: `verify` (pre-generation gate), `revisit` (post-generation pass)

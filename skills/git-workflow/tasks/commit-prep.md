@@ -18,9 +18,9 @@ Prepare commit message for squash commit during PR creation. This is a read-only
 
 The developer will say "commit" or "create a PR" when they want git operations. Until then, do nothing:
 
-1. **After completing implementation**: Report completion concisely, then STOP and wait silently
-2. **Do NOT ask**: "Commit?", "Ready to commit?", "Should I commit?", "Ready for a PR?", "Create a PR?", "Push and PR?"
-3. **Do NOT automatically create PRs**: PR creation requires the same explicit instruction as commits
+- [ ] 1. **After completing implementation**: Report completion concisely, then STOP and wait silently
+- [ ] 2. **Do NOT ask**: "Commit?", "Ready to commit?", "Should I commit?", "Ready for a PR?", "Create a PR?", "Push and PR?"
+- [ ] 3. **Do NOT automatically create PRs**: PR creation requires the same explicit instruction as commits
 
 ### ✅ ALWAYS DO
 
@@ -32,9 +32,9 @@ The developer will say "commit" or "create a PR" when they want git operations. 
 
 ## Operating Protocol
 
-1. **User-initiated only:** This task runs when user says "commit" or "prepare a commit"
-2. **Read-only analysis:** Discover changes but DO NOT execute commits
-3. **HALT after analysis:** Wait for user to review and approve
+- [ ] 1. **User-initiated only:** This task runs when user says "commit" or "prepare a commit"
+- [ ] 2. **Read-only analysis:** Discover changes but DO NOT execute commits
+- [ ] 3. **HALT after analysis:** Wait for user to review and approve
 
 ## Entry Criteria
 
@@ -70,7 +70,7 @@ Group changes logically:
 
 ### Step 3: Create Commit Script
 
-Write to `./tmp/commit-<branch>.sh`:
+Write to `./tmp/{issue-N}/commit-<branch>.sh`:
 
 ```bash
 #!/bin/bash
@@ -89,7 +89,7 @@ git commit -m "<descriptive message>" \
 
 Report:
 
-- Script path: `./tmp/commit-<branch>.sh`
+- Script path: `./tmp/{issue-N}/commit-<branch>.sh`
 - Proposed commit message
 - Summary of changes being committed
 
@@ -134,16 +134,16 @@ git commit -m "feat: Add user authentication" \
 
 Commits occur during the PR creation workflow, not as a separate step:
 
-1. **Implementation completes** → review-prep task pushes branch
-2. **Developer reviews** → Developer says "create a PR"
-3. **PR creation** → Squash commit is executed as part of PR creation
-4. **No intermediate scripts** → No `./tmp/commit.sh` or manual steps
+- [ ] 1. **Implementation completes** → review-prep task pushes branch
+- [ ] 2. **Developer reviews** → Developer says "create a PR"
+- [ ] 3. **PR creation** → Squash commit is executed as part of PR creation
+- [ ] 4. **No intermediate scripts** → No `./tmp/{issue-N}/commit.sh` or manual steps
 
 ## Reading Historical Content
 
 ### ✅ ALWAYS DO
 
-- To inspect a file at a historical commit: `git show <ref>:<path> > ./tmp/historical_file.ext`
+- To inspect a file at a historical commit: `git show <ref>:<path> > ./tmp/{issue-N}/historical_file.ext`
 - Process the saved file with appropriate `.opencode/tools/` or IDE tool
 
 ### 🚫 NEVER DO

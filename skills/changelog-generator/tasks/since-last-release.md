@@ -6,11 +6,11 @@ Generate changelog entries for all commits since the last changelog update.
 
 ## Operating Protocol
 
-1. **Identify last changelog commit**: Find the most recent commit that modified CHANGELOG.md
-2. **Analyze commits**: Scan all commits since that point
-3. **Categorize changes**: Group into Added/Changed/Fixed/Security/Deprecated
-4. **Write entries**: Update CHANGELOG.md in [Unreleased] section
-5. **Stage changes**: `git add CHANGELOG.md`
+- [ ] 1. **Identify last changelog commit**: Find the most recent commit that modified CHANGELOG.md
+- [ ] 2. **Analyze commits**: Scan all commits since that point
+- [ ] 3. **Categorize changes**: Group into Added/Changed/Fixed/Security/Deprecated
+- [ ] 4. **Write entries**: Update CHANGELOG.md in [Unreleased] section
+- [ ] 5. **Stage changes**: `git add CHANGELOG.md`
 
 ## Procedure
 
@@ -100,12 +100,12 @@ Convert technical commits to customer-friendly descriptions:
 
 **Transformation Rules:**
 
-1. Start with feature name (bold)
-2. Describe WHAT changed (user perspective)
-3. Explain WHY it matters (benefit/impact)
-4. Keep to single paragraph
-5. Use active voice
-6. Avoid technical jargon
+- [ ] 1. Start with feature name (bold)
+- [ ] 2. Describe WHAT changed (user perspective)
+- [ ] 3. Explain WHY it matters (benefit/impact)
+- [ ] 4. Keep to single paragraph
+- [ ] 5. Use active voice
+- [ ] 6. Avoid technical jargon
 
 ### Step 5: Write Incremental Entries to CHANGELOG.md
 
@@ -113,11 +113,11 @@ Convert technical commits to customer-friendly descriptions:
 
 **Procedure:**
 
-1. Read current CHANGELOG.md
-2. Identify the last entry in `[Unreleased]`
-3. Append new `### <branch-name>` sections after existing content
-4. Preserve all existing entries unchanged
-5. Do not dedupe or reorganize existing entries
+- [ ] 1. Read current CHANGELOG.md
+- [ ] 2. Identify the last entry in `[Unreleased]`
+- [ ] 3. Append new `### <branch-name>` sections after existing content
+- [ ] 4. Preserve all existing entries unchanged
+- [ ] 5. Do not dedupe or reorganize existing entries
 
 **Feature-Branch-Header Format:**
 
@@ -197,10 +197,10 @@ All commits in that PR are grouped under this branch header section.
 
 ## Deduction Rules
 
-1. **Skip internal commits**: Tests, CI config, internal refactoring
-2. **Group related changes**: Multiple commits about same feature = one entry
-3. **Preserve user impact**: Focus on user-visible changes
-4. **Be concise**: One sentence per entry maximum
+- [ ] 1. **Skip internal commits**: Tests, CI config, internal refactoring
+- [ ] 2. **Group related changes**: Multiple commits about same feature = one entry
+- [ ] 3. **Preserve user impact**: Focus on user-visible changes
+- [ ] 4. **Be concise**: One sentence per entry maximum
 
 ## Example Output
 
@@ -224,7 +224,7 @@ After analyzing merge commits since `ce6e5f1`:
 
 ### Fixed
 
-- **Sub-agent worktree task()** (from `spec/fix-subagent-worktree-741`) - Add worktree awareness to all sub-agent task() and skill creation.
+- **Sub-agent worktree dispatch** (from `spec/fix-subagent-worktree-741`) - Add worktree awareness to all sub-agent dispatch and skill creation.
 ```
 
 ## Context Required

@@ -48,20 +48,20 @@ github_issue_write(
 
 **GitBucket platform:**
 ```bash
-./.opencode/tools/gitbucket-api update-issue <github.owner> <github.repo> <issue-number> --body "<body>" --labels "<labels>"
+gb issue edit <issue-number> -R <github.owner>/<github.repo> --body "<body>"
+# Note: GitBucket labels can ONLY be set during creation (gb issue create --label).
+# Post-creation label changes do not work.
 ```
 
 **Local platform:**
-```bash
-./.opencode/tools/local-issues update <issue-number> --body "<body>" --labels "<labels>"
-```
+Route to `platforms/local/tasks/update.md` via task(). Pass: `{issue_number: N, body: "<body>", labels: ["<label>"]}`.
 
 ### Step 3: Verify Body Preservation
 
 If the update includes a body change, verify:
-1. `len(new_body) >= 0.8 * len(original_body)` — body erasure safeguard per `000-critical-rules.md`
-2. No content sections were removed without replacement
-3. Original byline is preserved (if present)
+- [ ] 1. `len(new_body) >= 0.8 * len(original_body)` — body erasure safeguard per `000-critical-rules.md`
+- [ ] 2. No content sections were removed without replacement
+- [ ] 3. Original byline is preserved (if present)
 
 ### Step 4: Return Update Result
 
@@ -81,7 +81,7 @@ Return the update confirmation to the calling task.
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```

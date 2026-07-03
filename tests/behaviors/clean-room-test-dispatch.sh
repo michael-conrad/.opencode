@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: clean-room-test-dispatch
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Clean-Room Test Dispatch (SC-11)
 #
 # Verifies that when an agent dispatches verification/test sub-agents,

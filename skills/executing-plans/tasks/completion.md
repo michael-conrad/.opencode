@@ -4,21 +4,21 @@ Idempotent completion subtask for executing-plans. Ensures mandatory steps ran r
 
 ## State Check Phase
 
-1. **assemble-work task():** Verify divide-and-conquer/assemble-work task() was attempted
-2. **Plan issue STATUS:** Verify plan issue STATUS reflects actual outcome (completed, partial, failed)
-3. **Chat exec summary:** Verify chat output follows exec summary format (summary → outcome → URL → byline)
+- [ ] 1. **assemble-work task():** Verify implementation-pipeline task() was attempted
+- [ ] 2. **Work state file:** Verify `./tmp/{N}/work.md` state file reflects actual outcome (completed, partial, failed)
+- [ ] 3. **Chat exec summary:** Verify chat output follows exec summary format (summary → outcome → URL → byline)
 
 ## Skill-Specific Completion
 
-1. **assemble-work task()** (if not already performed):
+- [ ] 1. **assemble-work task()** (if not already performed):
    - Check evidence for assemble-work invocation
-   - If missing: invoke `divide-and-conquer --task assemble-work` as remediation
+   - If missing: invoke `implementation-pipeline --task assemble-work` as remediation
 
-2. **Plan issue STATUS** (if not already updated):
-   - Check plan issue STATUS marker against actual completion state
-   - If mismatched: update STATUS to reflect current state
+- [ ] 2. **Work state file** (if not already updated):
+   - Check `./tmp/{N}/work.md` state file against actual completion state
+   - If mismatched: update state file to reflect current state
 
-3. **Chat executive summary** (if not already produced):
+- [ ] 3. **Chat executive summary** (if not already produced):
    - Verify exec summary was posted to chat
    - If missing: generate and post exec summary now
 
@@ -26,15 +26,15 @@ Idempotent completion subtask for executing-plans. Ensures mandatory steps ran r
 
 Reference `.opencode/skills/completion-core/completion-core.md` for reporting:
 
-1. Report executive summary in chat (always runs)
-2. Action URL (plan issue URL) as the URL (ALWAYS last)
+- [ ] 1. Report executive summary in chat (always runs)
+- [ ] 2. Action URL (plan issue URL) as the URL (ALWAYS last)
 
 ## Completion Guarantee
 
 **MANDATORY:** Regardless of workflow outcome (success, partial, error), produce a status message containing:
-1. What was completed
-2. What was attempted but not completed
-3. Why the halt occurred
+- [ ] 1. What was completed
+- [ ] 2. What was attempted but not completed
+- [ ] 3. Why the halt occurred
 
 This is the completion guarantee: NO executing-plans workflow ends without a status message.
 
@@ -57,7 +57,7 @@ Generate executive summary in chat:
 ## Pipeline Signal
 
 ```
-CONTINUE: divide-and-conquer --task assemble-work
+CONTINUE: implementation-pipeline --task assemble-work
 HALT
 ```
 

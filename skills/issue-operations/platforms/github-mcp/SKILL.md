@@ -1,9 +1,7 @@
 ---
 name: github-mcp
-description: Use when GitHub MCP platform operations are needed. GitHub MCP platform sub-skill for issue-operations. Provides capability manifest and thin wrappers around github_* MCP tools. API calls without owner/repo verification target the wrong repository. Every misrouted call is wasted effort.
-type: discipline-enforcing
+description: "Use when GitHub MCP platform operations are needed. Also use when routing issue operations to GitHub via MCP tools, or when GitHub-specific API capabilities are required. Invoke for: GitHub issue creation, GitHub issue comment, GitHub issue closure, GitHub label management, GitHub MCP tool operations. API calls without owner/repo verification target the wrong repository. Every misrouted call is wasted effort. Platform-aware routing is REQUIRED — always use the dispatcher. Trigger phrases: GitHub MCP, GitHub issue, GitHub API, GitHub platform, github_* tool."
 license: MIT
-provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -12,6 +10,18 @@ compatibility: opencode
 ## Overview
 
 GitHub platform implementation using GitHub MCP tools. Full API coverage with no fallbacks needed.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
+## Mandatory Task Discipline
+
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 4. Sub-agents must not dispatch sub-agents
+- [ ] 5. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Capability Manifest
 
@@ -50,7 +60,7 @@ All operations routed through the `github_*` MCP tool family. No Python client n
 GitHub MCP supports the following `approved-for-*` labels for issue labeling:
 
 | Label | Purpose |
-|---|---|
+
 | `approved-for-spec` | Authorization through spec creation (scope: `for_spec`) |
 | `approved-for-analysis` | Authorization through analysis (scope: `for_analysis`) |
 | `approved-for-plan` | Authorization through plan creation (scope: `for_plan`) |
@@ -68,20 +78,20 @@ None required. GitHub MCP provides complete API coverage.
 
 ## spec.md Mirror (MANDATORY)
 
-Every `github_issue_read(method="get")` call MUST mirror the spec body to `.issues/<issue_number>/spec.md`:
+Every `github_issue_read(method="get")` call MUST mirror the spec body to `.issues/<issue_number>/spec.md` (root repo) or `*/.issues/<issue_number>/spec.md` (submodule/sub-repo):
 
 | Event | Action |
-|-------|--------|
-| `github_issue_read(method="get")` success | Write `.issues/<issue_number>/spec.md` with header `# Synced from GitHub Issue #<N> at <ISO8601-timestamp>` followed by the issue body |
+
+| `github_issue_read(method="get")` success | Write `.issues/<issue_number>/spec.md` (root repo) or `*/.issues/<issue_number>/spec.md` (submodule/sub-repo) with header `# Synced from GitHub Issue #<N> at <ISO8601-timestamp>` followed by the issue body |
 | `github_issue_read(method="get")` repeated | Overwrite `spec.md` with updated timestamp and body |
-| API unreachable (network error, rate limit, auth failure) | Read `.issues/<issue_number>/spec.md` from disk, note staleness in chat: `"spec.md last synced at <timestamp>, may be stale"` |
+| API unreachable (network error, rate limit, auth failure) | Read `.issues/<issue_number>/spec.md` (root repo) or `*/.issues/<issue_number>/spec.md` (submodule/sub-repo) from disk, note staleness in chat: `"spec.md last synced at <timestamp>, may be stale"` |
 | API comes back after outage | Re-fetch and overwrite on next spec read |
 
 ### Mirror Sync Procedure (MANDATORY)
 
 After every `github_issue_read(method="get")` success:
 
-1. Create directory: `mkdir -p .issues/<issue_number>/`
+1. Create directory: `mkdir -p .issues/<issue_number>/` (root repo) or `mkdir -p */.issues/<issue_number>/` (submodule/sub-repo)
 2. Write `spec.md`:
 ```
 # Synced from GitHub Issue #<N> at <ISO8601-timestamp>
@@ -94,7 +104,7 @@ After every `github_issue_read(method="get")` success:
 
 When `github_issue_read(method="get")` fails with a network error, rate limit, or auth failure:
 
-1. Check if `.issues/<issue_number>/spec.md` exists
+1. Check if `.issues/<issue_number>/spec.md` (root repo) or `*/.issues/<issue_number>/spec.md` (submodule/sub-repo) exists
 2. If exists: read from disk, note in chat: `"GitHub API unreachable. Reading spec.md (last synced at <timestamp>, may be stale)."`
 3. If NOT exists and API is unreachable: report `"Cannot read spec #<N> — API unreachable and no local spec.md mirror exists."`
 4. Proceed with stale/absent data noting the risk

@@ -6,15 +6,15 @@ Create provenance tracking issues and PRs in submodule repositories after push o
 
 ## Operating Protocol
 
-1. **Triggered after push or promotion** — submodule push/merge triggers provenance attempt
-2. **Three-tier fallback** — if full API access unavailable, fall back silently to next tier
-3. **Platform detection** — determine submodule's issue system from remote URL before API calls
-4. **Never HALT** — all fallbacks are silent; git workflow continues regardless
+- [ ] 1. **Triggered after push or promotion** — submodule push/merge triggers provenance attempt
+- [ ] 2. **Three-tier fallback** — if full API access unavailable, fall back silently to next tier
+- [ ] 3. **Platform detection** — determine submodule's issue system from remote URL before API calls
+- [ ] 4. **Never HALT** — all fallbacks are silent; git workflow continues regardless
 
 ## Entry Criteria
 
 - A submodule has been pushed or promoted
-- `.gitmodules` exists in the worktree
+- Glob scan detects non-root git repos at project root (`ls -d .git/ */.git/ */.git`)
 - Submodule remote URL is available
 
 ## Exit Criteria
@@ -94,5 +94,5 @@ These tag types correspond to provenance tiers. Release tags (`<parent>/v*`) pro
 ## Context Required
 
 - Related tools: `.opencode/tools/gitbucket-api`
-- Related skills: `git-workflow --task release-promotion`, `conflict-resolution`
-- Related tasks: `review-prep`, `release-promotion`
+- Related skills: `git-workflow --task pr-creation` (with `--release` flag), `conflict-resolution`
+- Related tasks: `review-prep`, `pr-creation` (with `--release` flag)

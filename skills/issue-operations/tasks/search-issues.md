@@ -43,9 +43,7 @@ github_search_issues(
 ```
 
 **Local platform:**
-```bash
-./.opencode/tools/local-issues search --query "<search-query>"
-```
+Route to `platforms/local/tasks/search.md` via task(). Pass: `{query: "<search-query>"}`.
 
 ### Step 3: Return Search Results
 
@@ -68,7 +66,7 @@ Return search results to the calling task. Used for:
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```

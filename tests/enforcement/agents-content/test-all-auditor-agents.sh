@@ -1,13 +1,13 @@
 #!/bin/bash
-# Content-Verification Test: All 7 Auditor Agent Files — Canonical Schema Validation
+# Content-Verification Test: All Auditor Agent Files — Canonical Schema Validation
 #
-# Validates that each of the 7 auditor agent files in .opencode/agents/
+# Validates that each auditor agent file in .opencode/agents/
 # has correct YAML frontmatter per spec #381 canonical schema:
 #   - mode: subagent
 #   - model: <expected model string>
 #   - permission: block with 6 allow + 5 deny keys
 #
-# SC-7 from Spec #381: all 7 agent files have correct permission surface (6 allow, 5 deny)
+# SC-7 from Spec #381: all agent files have correct permission surface (6 allow, 5 deny)
 #
 # Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)
 
@@ -22,15 +22,12 @@ AGENTS_DIR="$SCRIPT_DIR/agents"
 
 declare -A MODELS
 MODELS["auditor-deepseek-flash"]="ollama/deepseek-v4-flash:cloud"
-MODELS["auditor-deepseek-v3"]="ollama/deepseek-v3.2:cloud"
-MODELS["auditor-glm-5.1"]="ollama/glm-5.1:cloud"
-MODELS["auditor-glm-5"]="ollama/glm-5:cloud"
+MODELS["auditor-gemma4"]="ollama/gemma4:31b-cloud"
 MODELS["auditor-mistral-large"]="ollama/mistral-large-3:675b-cloud"
-MODELS["auditor-kimi-k2"]="ollama/kimi-k2.6:cloud"
 MODELS["auditor-qwen3.5"]="ollama/qwen3.5:397b-cloud"
 
-ALLOW_KEYS=("read" "glob" "grep" "skill" "webfetch" "websearch")
-DENY_KEYS=("edit" "bash" "task" "todowrite" "question")
+ALLOW_KEYS=("read" "glob" "grep" "skill" "webfetch" "websearch" "edit" "github_issue_read" "github_search_issues" "github_list_issues" "srclight_*")
+DENY_KEYS=("bash" "task" "todowrite" "question" "doom_loop" "github_*")
 EXPECTED_ALLOW=${#ALLOW_KEYS[@]}
 EXPECTED_DENY=${#DENY_KEYS[@]}
 EXPECTED_COUNT=${#MODELS[@]}
@@ -82,7 +79,7 @@ for agent in "${!MODELS[@]}"; do
 
     FILE_FAILURES=0
 
-    FRONTMATTER=$(sed -n '/^---$/,/^---$/p' "$FILE" | sed '1d' | sed '$d')
+    FRONTMATTER=$(awk '/^---$/{c++; if(c==2) exit; next} c==1' "$FILE")
 
     if [ -z "$FRONTMATTER" ]; then
         echo "FAIL: ${agent}.md has no YAML frontmatter"
@@ -118,7 +115,8 @@ for agent in "${!MODELS[@]}"; do
     fi
 
     for key in "${ALLOW_KEYS[@]}"; do
-        VAL=$(echo "$PERM_BLOCK" | grep "^  ${key}:" | sed "s/^  ${key}:[[:space:]]*//" | tr -d '"' | tr -d "'")
+        escaped_key=$(echo "$key" | sed 's/\*/\\*/g')
+        VAL=$(echo "$PERM_BLOCK" | grep "^  ${escaped_key}:" | sed "s/^  ${escaped_key}:[[:space:]]*//" | tr -d '"' | tr -d "'")
         if [ "$VAL" != "allow" ]; then
             echo "FAIL: ${agent}.md permission.${key}: expected 'allow', got '$VAL'"
             FILE_FAILURES=1
@@ -126,7 +124,8 @@ for agent in "${!MODELS[@]}"; do
     done
 
     for key in "${DENY_KEYS[@]}"; do
-        VAL=$(echo "$PERM_BLOCK" | grep "^  ${key}:" | sed "s/^  ${key}:[[:space:]]*//" | tr -d '"' | tr -d "'")
+        escaped_key=$(echo "$key" | sed 's/\*/\\*/g')
+        VAL=$(echo "$PERM_BLOCK" | grep "^  ${escaped_key}:" | sed "s/^  ${escaped_key}:[[:space:]]*//" | tr -d '"' | tr -d "'")
         if [ "$VAL" != "deny" ]; then
             echo "FAIL: ${agent}.md permission.${key}: expected 'deny', got '$VAL'"
             FILE_FAILURES=1

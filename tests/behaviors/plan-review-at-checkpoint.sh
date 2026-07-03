@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: plan-review-at-checkpoint
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Plan Review at Checkpoint
 #
 # Verifies that the agent pauses and reviews the plan at designated

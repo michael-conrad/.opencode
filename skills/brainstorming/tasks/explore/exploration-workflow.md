@@ -87,7 +87,7 @@ Present conversationally with recommendation and reasoning. Lead with recommende
 ### Step 6: Present Design Incrementally
 
 - Present section by section, asking after each whether it looks right
-- Scale each section: a few sentences if straightforward, 200-300 words if nuanced
+- Scale each section: a few sentences if straightforward, more detail if nuanced (content depth driven by complexity, not word count)
 - Cover: architecture, components, data flow, error handling, testing
 - Be ready to go back and clarify
 

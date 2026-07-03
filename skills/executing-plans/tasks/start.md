@@ -1,20 +1,20 @@
 # Task: start
 
-Task() to divide-and-conquer/assemble-work for implementation.
+Task() to implementation-pipeline for implementation.
 
 ## Purpose
 
-This task() routes plan execution to `divide-and-conquer --task assemble-work`, which handles all implementation through the unified work workflow.
+This task() routes plan execution to `implementation-pipeline --task assemble-work`, which handles all implementation through the unified work workflow.
 
 ## Invocation Procedure
 
-1. **Verify plan approval** — confirm the plan issue has explicit approval in comments
-2. **Verify prerequisites** — feature branch exists, working tree clean, dependencies ready
-3. **Read Plan STATUS to compose initial phase progress** — before task()ing, read the plan issue body to determine which phases (if any) are already marked complete. Compose the initial `phase_progress` for the task context:
+- [ ] 1. **Verify plan approval** — confirm the plan issue has explicit approval in comments
+- [ ] 2. **Verify prerequisites** — feature branch exists, working tree clean, dependencies ready
+- [ ] 3. **Read work state file to compose initial phase progress** — before task()ing, read `./tmp/{N}/work.md` to determine which phases (if any) are already marked complete. Compose the initial `phase_progress` for the task context:
    - If no phases are complete yet: `completed_phases: "No phases completed yet. This is the first phase."`, `concern_boundaries_crossed: ""`, `verification_evidence: ""`
-   - If prior phases are complete: list them by concern name using the concern boundary annotations in the plan body, note any transitions between concerns, and summarize verification outcomes from the plan STATUS markers
-4. **Check halt_at boundary** — if `halt_at == plan_created`, HALT. Do NOT task() to implementation. The authorization scope stops at plan creation.
-5. **Step 5.5: RED Phase Verification Checkpoint — Content and Behavioral (MANDATORY)** — Before task()ing to divide-and-conquer/assemble-work, the agent MUST verify that for each TDD-marked implementation item, a RED test artifact exists. The type of RED test depends on whether the item is a rule change or a code change:
+   - If prior phases are complete: list them by concern name using the concern boundary annotations in the plan body, note any transitions between concerns, and summarize verification outcomes from the work state file
+- [ ] 4. **Check halt_at boundary** — if `halt_at == plan_created`, HALT. Do NOT task() to implementation. The authorization scope stops at plan creation.
+- [ ] 5. **Step 5.5: RED Phase Verification Checkpoint — Content and Behavioral (MANDATORY)** — Before task()ing to implementation-pipeline/assemble-work, the agent MUST verify that for each TDD-marked implementation item, a RED test artifact exists. The type of RED test depends on whether the item is a rule change or a code change:
 
    - **For rule/guideline items** (changes to `.opencode/guidelines/*.md`, `.opencode/skills/*/SKILL.md`, `.opencode/skills/*/tasks/*.md`, critical violation text, agent behavior rules): The RED test artifact MUST be a **behavioral enforcement test** — one that sends the agent a prompt and verifies the agent does NOT follow the new rule yet (test FAILS because the rule change hasn't been made). Content-verification (grep for text presence) is SECONDARY and does NOT satisfy the behavioral RED gate for rule items. See `080-code-standards.md` → Behavioral Enforcement Tests (PRIMARY) and `091-incremental-build.md` → Behavioral Variant for Rule Items. **The prompt MUST be a real-domain scenario (e.g., actual audit prompt, actual implementation request) — NOT a prose-recall prompt (e.g., 'Describe how you would resolve models'). Behavioral evidence is collected from stderr (agent actions), not stdout prose recall. Stderr assertion helpers (`assert_stderr_pattern_present`/`assert_stderr_pattern_absent_all_models`) are the PRIMARY assertion mechanism.**
    - **For code items** (changes to `src/`, `test/`, Python files, notebook cells): The RED test artifact MUST be a **unit or integration test** that verifies the implementation behavior before the change exists. Standard TDD RED phase applies.
@@ -33,10 +33,12 @@ This task() routes plan execution to `divide-and-conquer --task assemble-work`, 
 
 This makes the implementation phase resilient to branch switching, worktree recreation, and developer context-switching.
 
-6. **Task() to divide-and-conquer:**
+- [ ] 6. **Behavioral uplift at TDD start:** When starting TDD for an item, if the change affects runtime behavior, declare the SC evidence type as `behavioral`. The classification question ("Does this change affect runtime behavior?") is substrate-determined. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
+
+- [ ] 7. **Task() to implementation-pipeline:**
 
 ```
-/skill divide-and-conquer --task assemble-work
+/skill implementation-pipeline --task assemble-work
 ```
 
 When task()ing, pass `authorization_scope`, `halt_at`, `pr_strategy`, and `pipeline_phase` alongside `plan_issue`, `spec_issue`, `<github.owner>`, `<github.repo>`, and `<worktree.path>`. The `assemble-work` task uses these fields for scope-aware task() boundary enforcement.
@@ -45,7 +47,7 @@ When task()ing, pass `authorization_scope`, `halt_at`, `pr_strategy`, and `pipel
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
@@ -53,7 +55,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 The phase progress information comes from two sources:
-- The Plan STATUS marker (which phases are marked complete with ☑)
+- The `./tmp/{N}/work.md` state file (which phases are marked complete)
 - Concern boundary annotations in the plan body (prose descriptions of architectural concern transitions)
 
 Phase progress is prose-driven — the orchestrating agent describes progress in natural prose. The requirement is that the information travels, not that it follows a rigid schema.
@@ -71,8 +73,8 @@ The `assemble-work` task handles:
 
 | Legacy Task | Redirect Target |
 |------------|----------------|
-| `step` | `divide-and-conquer --task assemble-work` |
-| `progress` | `divide-and-conquer --task assemble-work` |
+| `step` | `implementation-pipeline --task assemble-work` |
+| `progress` | `implementation-pipeline --task assemble-work` |
 | `verify` | `verification-before-completion --task verify` |
 
 ## Enforcement

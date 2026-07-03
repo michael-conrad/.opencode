@@ -6,9 +6,9 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 
 ## Operating Protocol
 
-1. Invoked by: `skill({name: "finishing-a-development-branch"})` → `task()` for `checklist`
-2. When to use: After `--task prepare` is complete
-3. Exit criteria: All checklist items pass, compare URL verified, HALT and report readiness
+- [ ] 1. Invoked by: `skill({name: "finishing-a-development-branch"})` → `task()` for `checklist`
+- [ ] 2. When to use: After `--task prepare` is complete
+- [ ] 3. Exit criteria: All checklist items pass, compare URL verified, HALT and report readiness
 
 ## Branch Completion Checklist
 
@@ -23,7 +23,7 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 
 ### Code Quality
 - [ ] `ruff check` passes (zero errors)
-- [ ] `ruff format` applied
+- [ ] `ruff format --check` passes (advisory)
 - [ ] `pyright` passes (zero errors)
 - [ ] No dead code detected
 
@@ -72,7 +72,7 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 
 **This format applies to EVERY halt point where implementation is reported complete:**
 - review-prep after implementation
-- Sub-agent result reports from divide-and-conquer task()
+- Sub-agent result reports from implementation-pipeline task()
 - Phase boundary halts (merge gates between phases)
 - Approval-gate post-implementation reports
 
@@ -101,14 +101,14 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 
 ## What Skills MUST Check
 
-1. **Before reporting readiness:**
+- [ ] 1. **Before reporting readiness:**
 
    - Is working tree clean?
    - Do all quality checks pass?
    - Is branch pushed?
    - Is compare URL accessible?
 
-2. **During preparation:**
+- [ ] 2. **During preparation:**
 
    - Are there leftover debug prints?
    - Are there TODO/FIXME comments?

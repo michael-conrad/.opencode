@@ -1,5 +1,5 @@
 #!/bin/bash
-# Pre-push hook: Branch topology + commit count enforcement
+# Pre-push hook: Branch topology enforcement
 # Gates inspect push refspecs from stdin, not the local checkout branch.
 # stdin format per git pre-push protocol:
 #   <local-ref> SP <local-sha> SP <remote-ref> SP <remote-sha> LF
@@ -7,7 +7,6 @@
 set -e
 
 SKIP_BRANCH_PROTECTION="${SKIP_BRANCH_PROTECTION:-}"
-SKIP_COMMIT_COUNT_CHECK="${SKIP_COMMIT_COUNT_CHECK:-}"
 
 # Read stdin refspecs. For each line, evaluate all gates.
 # If any line triggers a block, the hook exits 1.
@@ -16,6 +15,12 @@ ALLOWED=true
 
 while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
     [ -z "$LOCAL_REF" ] && continue
+
+    # Skip all gates for tag pushes — tags are immutable pointers to existing
+    # commits and do not introduce new code. All gates below are branch-only.
+    if [[ "$LOCAL_REF" == refs/tags/* ]]; then
+        continue
+    fi
 
     # Extract branch basename (strip refs/heads/)
     LOCAL_BRANCH="${LOCAL_REF#refs/heads/}"
@@ -97,62 +102,6 @@ while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
                 echo "  git checkout dev && git pull origin dev"
                 echo "  git branch -d $LOCAL_BRANCH"
                 echo "  git push origin --delete $LOCAL_BRANCH"
-                echo ""
-                ALLOWED=false
-            fi
-        fi
-    fi
-
-    # --- Gate 2: Commit count check (commit-per-issue invariant) ---
-    if [ "$IS_DELETE" = false ] && [ -n "$LOCAL_BRANCH" ] && [ "$LOCAL_BRANCH" = "$REMOTE_BRANCH" ]; then
-        if [ "$SKIP_COMMIT_COUNT_CHECK" = "1" ]; then
-            continue
-        fi
-
-        case "$LOCAL_BRANCH" in
-            pair-*|rollback/*)
-                continue
-                ;;
-        esac
-
-        # Work state files live at the repo root's tmp/ directory.
-        # git rev-parse --show-toplevel resolves to the correct root
-        # whether running in parent repo or submodule context.
-        WORK_STATE_DIR="tmp"
-
-        # Work branches have N commits for N work items — skip check
-        WORK_BRANCH=false
-        if ls "$WORK_STATE_DIR"/work-*.md 1>/dev/null 2>&1; then
-            for f in "$WORK_STATE_DIR"/work-*.md; do
-                if grep -q "$LOCAL_BRANCH" "$f" 2>/dev/null; then
-                    WORK_BRANCH=true
-                    break
-                fi
-            done
-        fi
-
-        if [ "$WORK_BRANCH" = false ]; then
-            COMMIT_COUNT=0
-            if git rev-parse --verify origin/dev >/dev/null 2>&1; then
-                COMMIT_COUNT=$(git rev-list --count origin/dev.."$LOCAL_SHA" 2>/dev/null || echo "0")
-            elif git rev-parse --verify dev >/dev/null 2>&1; then
-                COMMIT_COUNT=$(git rev-list --count dev.."$LOCAL_SHA" 2>/dev/null || echo "0")
-            fi
-
-            if [ "$COMMIT_COUNT" -gt 1 ]; then
-                echo ""
-                echo "BLOCKED: Commit-per-issue invariant violated."
-                echo ""
-                echo "Branch '$LOCAL_BRANCH' has $COMMIT_COUNT commits but no work state file."
-                echo "Single-issue branches must have exactly 1 commit."
-                echo ""
-                echo "To fix:"
-                echo "  1. Squash: git reset --soft origin/dev && git commit -m '<message>'"
-                echo ""
-                echo "BLOCKED: Pushing without work state — unattributed commits entering the integration branch."
-                echo "No traceability means defects untraceable to spec. Every unpipelined push is orphaned changes."
-                echo ""
-                echo "Remediate: call skill({name: \"divide-and-conquer\"}) --task assemble-work"
                 echo ""
                 ALLOWED=false
             fi

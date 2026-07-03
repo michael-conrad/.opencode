@@ -1,9 +1,7 @@
 ---
 name: verification-before-completion
-description: Use when claiming a task is complete, marking a step done, or closing an issue. Triggers on: task complete, done, finished, step complete, mark done, verify completion, success criteria. A completion claim without verification is not a completion — it is a placeholder for undiscovered defects.
-type: discipline-enforcing
+description: "Use when claiming a task is complete, marking a step done, or closing an issue. Also use when running verification checks against success criteria, producing evidence artifacts, or enforcing live-source verification. Invoke for: completion verification, SC verification, evidence artifact production, live-source verification, completion claim validation. Verification is REQUIRED and not optional — MUST use before any completion claim — distinct from verification (general claim verification) and verification-enforcement (content generation). Trigger phrases: verify completion, check SC, produce evidence, live-source verify, validate completion."
 license: MIT
-provenance: AI-generated
 compatibility: opencode
 ---
 
@@ -17,25 +15,45 @@ Remediation of failed verification IS agent-owned — the producing agent owns e
 
 Ensures ALL success criteria are verified with actual evidence before ANY task or phase is marked complete. Structural completeness checked before per-SC verification.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
+## Mandatory Task Discipline
+
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 4. Sub-agents must not dispatch sub-agents
+- [ ] 5. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "verify" / "verify SCs" / "check completion" | `verify` | `sub-task` | {spec_sc_list, file_paths} |
+| "collect" / "collect evidence" | `collect` | `sub-task` | {spec_sc_list, file_paths} |
+| "structural-verify" / "structural check" | `structural-verify` | `sub-task` | {spec_structure} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+
 ## Persona
 
 Verification Gatekeeper. Focus: no completion claim without verified evidence. Enforce live-source verification only.
 
 ## Tasks
 
-| Task | Words |
-|------|-------|
-| `verify` | ≈700 |
-| `collect` | ≈500 |
-| `structural-verify` | ≈500 |
-| `completion` | ≈150 |
+
+| `verify` |
+| `collect` |
+| `structural-verify` |
+| `completion` |
 
 ## Invocation
 
 `skill({name: "verification-before-completion"})` — call the skill, then call via task():
 
 | Task | Call via task() |
-|------|----------|
+
 | `verify` | `task(..., prompt: "execute verify task from verification-before-completion")` |
 | `structural-verify` | `task(..., prompt: "execute structural-verify task from verification-before-completion")` |
 | `collect` | `task(..., prompt: "execute collect task from verification-before-completion")` |
@@ -45,12 +63,13 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 
 ## Operating Protocol
 
-1. **Structural completeness first:** verify all specified files/components exist before SC verification.
-2. **Adversarial-audit call:** during verify task, call `adversarial-audit --task drift-detection --issue <N>` with `audit_phase: implementation_verification` to check spec/code reality alignment.
-3. **Per-SC evidence table:** every SC must produce a tool-call artifact with PASS/FAIL.
-4. **Exact comparison:** external verifications use exact mode. No "functionally equivalent" soft-passes.
-5. **Live-source only:** evidence from memory/training data is FORBIDDEN. Tool-call artifact required.
-6. **Clean-room routing:** verification sub-agents receive ONLY spec SC list + file paths. No implementation context, no prior results.
+- [ ] 1. **Structural completeness first:** verify all specified files/components exist before SC verification.
+- [ ] 2. **Adversarial-audit call:** during verify task, call `adversarial-audit --task drift-detection --issue <N>` with `audit_phase: implementation_verification` to check spec/code reality alignment.
+- [ ] 3. **Per-SC evidence table:** every SC must produce a tool-call artifact with PASS/FAIL.
+- [ ] 4. **Exact comparison:** external verifications use exact mode. No "functionally equivalent" soft-passes.
+- [ ] 5. **Live-source only:** evidence from memory/training data is FORBIDDEN. Tool-call artifact required.
+- [ ] 6. **Clean-room routing:** verification sub-agents receive ONLY spec SC list + file paths. No implementation context, no prior results.
+- [ ] 7. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 
@@ -60,7 +79,7 @@ All tasks run via `task(subagent_type="general")` with `{ spec_sc_list, file_pat
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
@@ -68,6 +87,75 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 ### Routing Rules
 - Missing `authorization_scope` in task context → return `status: BLOCKED`
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
+
+### DISPATCH_GATE — Orchestrator task() Prompt Protocol
+
+> **Context cost frame:** These are internal operational bookkeeping notes describing how context flows through the pipeline — they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
+> This cost frame applies to orchestrator context only — it does NOT mean the agent should minimize message count, pipeline steps, or user-facing output.
+
+The orchestrator MUST NOT preload execution context into `task()` prompts.
+Every sub-agent MUST independently discover scope and produce its own result contract.
+
+#### Forbidden in task() Prompts
+
+| Violation | Forbidden Pattern | Correct Pattern |
+|-----------|-------------------|-----------------|
+| Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
+| Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
+| Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
+| Preloaded orchestrator reasoning | "The merge was just completed so we need to..." | Pure objective, no narrative |
+| Missing task file discovery directive | "execute verify task from verification-before-completion" without task file path | "execute verify task from verification-before-completion. Read `verification-before-completion/tasks/verify.md` first" |
+
+## Required: Sub-agent Task File Discovery Directive
+
+Every `task()` prompt that dispatches a named task MUST include a discovery directive in the format:
+
+```
+execute <task> from <skill>. Read `<skill>/tasks/<task>.md` first
+```
+
+This directive tells the sub-agent which task file to load independently — it is NOT preloading the file content. The sub-agent opens and reads the task file in its own clean-room context, discovers the procedure, and executes autonomously. Without this directive, the sub-agent must search for the correct task file, which is wasted context and routing ambiguity.
+
+This is NOT a violation of the preloading prohibition. The task file path is routing metadata (which file to load), not execution context (what the file contains). The sub-agent still reads the file independently and discovers scope on its own.
+
+#### Dispatch Context Contract
+
+Every `task()` call MUST include only:
+
+- `worktree.path`
+- `github.owner`
+- `github.repo`
+- `authorization_scope`
+- `halt_at`
+- `pr_strategy`
+- `pipeline_phase`
+
+Plus skill-specific fields per the `## Sub-Agent Routing` section above.
+
+Exclusions (MUST NOT be in prompt):
+- `orchestrator_reasoning`
+- `expected_outcomes`
+- `inline_file_paths`
+- `agent_memory`
+- `cached_verification_results`
+
+#### Sub-Agent Entry Criteria
+
+A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+- Inline file paths to task files
+- Inline step or procedure definitions
+- Expected outcome structures or schema constraints
+- Pre-loaded evidence or orchestrator-derived conclusions
+
+Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 
 ## Cross-References
 

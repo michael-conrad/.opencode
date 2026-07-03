@@ -8,7 +8,9 @@ load_when: sub-agent
 
 ## 0. Progressive Disclosure — Index-Only Orchestrator Context
 
-**CRITICAL:** Full guideline content lives exclusively in ephemeral sub-agent context windows — loaded fresh on demand and discarded. The orchestrator holds only `.opencode/guidelines/INDEX.md` (trigger-pattern pairs, ≤1,500 words) for routing decisions. Never load full guideline bodies into orchestrator context.
+**CRITICAL:** Full guideline content lives exclusively in ephemeral sub-agent context windows — loaded fresh on demand and discarded. The orchestrator holds only `.opencode/guidelines/INDEX.md` (trigger-pattern pairs) for routing decisions. Never load full guideline bodies into orchestrator context.
+
+> **Note:** These are operational guidelines for context management — they describe how the orchestrator routes work to sub-agents. They are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
 
 ### Loading Protocol
 
@@ -45,24 +47,6 @@ When a platform has a dedicated API client (e.g., `gitbucket-api` CLI tool at `.
 2. Report: executive summary of what was needed, the missing method name, possible resolution
 3. Include byline
 4. Do NOT bypass the client with raw `requests` calls or `python -c` inline scripts
-
-### Platform Routing Mandate (ZERO TOLERANCE)
-
-All `github_*`/`gitbucket-api` issue calls MUST route through the `issue-operations` dispatcher. Making direct platform API calls outside `issue-operations/platforms/` bypasses the routing layer and creates unmaintainable, platform-locked code. This is a **Tier 1 violation** per `000-critical-rules.md` §critical-rules-platform-routing-bypass.
-
-The dispatcher resolves platform selection automatically based on `github.platform`. Agents MUST NOT deliberate about which platform API to use — the dispatcher handles this. Asking "should I use GitHub or GitBucket?" or choosing a platform API manually is a **Tier 2 violation** per `000-critical-rules.md` §critical-rules-platform-api-deliberation.
-
-| Operation | Dispatcher Task | Direct Call (FORBIDDEN) |
-|-----------|----------------|--------------------------|
-| Read single issue | `read-issue` | `github_issue_read(method="get")` outside platforms/ |
-| Read comments | `read-comments` | `github_issue_read(method="get_comments")` outside platforms/ |
-| Read labels | `read-labels` | `github_issue_read(method="get_labels")` outside platforms/ |
-| Read sub-issues | `read-sub-issues` | `github_issue_read(method="get_sub_issues")` outside platforms/ |
-| List issues | `list-issues` | `github_list_issues()` outside platforms/ |
-| Search issues | `search-issues` | `github_search_issues()` outside platforms/ |
-| Update issue | `update-issue` | `github_issue_write(method="update")` outside platforms/ |
-| Create issue | `creation` | `github_issue_write(method="create")` outside platforms/ |
-| Close issue | `close` | `github_issue_write(method="update", state="closed")` outside platforms/ |
 
 ## 1. Guidelines Lookup
 
@@ -145,10 +129,12 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 - Create the directory if needed: `mkdir -p ./tmp`.
 - **Mandatory pre-submit root cleanliness check:** Before calling `submit`, run `./.opencode/tools/file-exists .output.txt` and confirm it is MISSING. If it exists, move it to `./tmp/.output.txt` immediately.
 - **ALWAYS clean up temp files after modification tasks are complete.**
+- **Behavioral evidence artifacts are exempt from mandatory cleanup.** Files matching `./tmp/behavioral-evidence-*.{log,json}` MUST NOT be deleted by the agent during VbC or verification stages. These artifacts are preserved until PR merge cleanup (`git-workflow --task cleanup`), which is the ONLY authorized cleanup point. The `./tmp/` cleanup rule applies to all other temporary files, but behavioral evidence artifacts serve as cross-validation inputs and MUST survive until the PR is merged.
 
 ### 🚫 NEVER DO
 
 - **ZERO TOLERANCE — NEVER use or access any other folder (e.g., `/tmp/`, `.tmp/`, etc.) for any reason.** Only `./tmp/` is permitted.
+- **NEVER delete `./tmp/behavioral-evidence-*` files before PR merge cleanup.** These artifacts are required for adversarial audit cross-validation. Deleting them before the auditor inspects them produces a false "no behavioral evidence found" — indistinguishable from "evidence was never produced."
 
 ## 4. Command Restrictions & Quality
 
@@ -348,36 +334,22 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [git-workflow, divide-and-conquer, approval-gate]
+    triggers: [git-workflow, implementation-pipeline, approval-gate]
     source: "060-tool-usage.md §2 Workdir-Aware Path Composition"
 
-  - id: tool-usage-010
-    tier: 1
-    title: "Platform routing mandate — direct github_*/gitbucket-api issue calls outside platforms/ are forbidden"
-    conditions:
-      all:
-        - "issue_operation_pending == true"
-        - "direct_platform_api_call == true"
-        - "call_location_outside_platforms == true"
-    actions:
-      - HALT
-    conflicts_with: []
-    requires: [critical-rules-platform-routing-bypass]
-    triggers: [issue-operations]
-    source: "060-tool-usage.md §1 Platform Routing Mandate"
-
-  - id: tool-usage-011
+  - id: tool-usage-012
     tier: 2
-    title: "Platform API deliberation prohibited — dispatcher resolves platform automatically"
+    title: "Behavioral evidence artifacts exempt from mandatory cleanup — preserved until PR merge"
     conditions:
-      all:
-        - "issue_operation_pending == true"
-        - "agent_deliberating_platform_choice == true"
+      any:
+        - "file_path matches './tmp/behavioral-evidence-*'"
+        - "cleanup_stage in ['vbc', 'verification', 'audit']"
+        - "file_deletion_pending == true"
+        - "file_path matches 'behavioral-evidence-SC-*'"
     actions:
-      - HALT
-      - ROUTE_THROUGH_DISPATCHER
+      - BLOCK_DELETION
     conflicts_with: []
-    requires: [critical-rules-platform-api-deliberation]
-    triggers: [issue-operations]
-    source: "060-tool-usage.md §1 Platform Routing Mandate"
+    requires: []
+    triggers: [verification-before-completion, adversarial-audit, git-workflow]
+    source: "060-tool-usage.md §3 Temp Files & Cleanliness"
 ```

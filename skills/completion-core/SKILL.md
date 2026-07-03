@@ -1,6 +1,6 @@
 ---
 name: completion-core
-description: "Use when completing skill task workflows with push, URL generation, comment posting, and executive summary reporting. Triggers on: completion, finish, halt, done, branch ready, push changes. A halt without output leaves the developer waiting. Clear completion signals are professional courtesy."
+description: "Use when completing skill task workflows with push, URL generation, lifecycle event append, and executive summary reporting. Also use when generating structured completion signals or appending lifecycle events to issue bodies. Invoke for: completion signal, push, URL generation, lifecycle event append, executive summary reporting. Completion signals MUST be clear and structured — always required. Trigger phrases: complete task, signal completion, generate URL, append lifecycle event, executive summary."
 license: MIT
 compatibility: opencode
 ---
@@ -10,6 +10,29 @@ compatibility: opencode
 Reference this file from per-skill `tasks/completion.md` files for common completion operations.
 
 ## Entry Gate
+
+## Persona
+
+Completion signaler. Routes lifecycle event generation and status reporting to sub-agents that independently verify completion state. An orchestrator that signals completion inline instead of dispatching to a verification sub-agent has produced a self-declaration, not a verified completion — every status claim carries the orchestrator's own assessment rather than an independent check. Professional completion signalers dispatch to verifiers. Inlining means completion was never independently confirmed.
+
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
+## Mandatory Task Discipline
+
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 4. Sub-agents must not dispatch sub-agents
+- [ ] 5. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "push branch" / "generate URL" / "exec summary" | `completion` | `sub-task` | {workflow_state, issue_number} |
 
 **Entry gate: verification-before-completion PASS required before any completion operation.**
 
@@ -40,32 +63,35 @@ Two URL patterns depending on workflow type:
 
 Construct from session-init values with character-match verification:
 
-1. Read `<github.owner>`, `<github.repo>`, `<gitbucket.html_url>` from session init
-2. Construct: `${GITBUCKET_HTML_URL:-https://github.com/}${GIT_OWNER}/${GIT_REPO}/compare/dev...$(git branch --show-current)`
+1. Read `<github.owner>`, `<github.repo>`, `<github.html_url>` (or `<gitbucket.html_url>`) from session init
+2. Construct: `<html_url>/<owner>/<repo>/compare/dev...<branch>` using the platform's base URL from session-init
 3. **Character-match verification:** Confirm `GIT_OWNER` and `GIT_REPO` in the constructed URL match session-init values exactly (character-for-character, no typos, no cached values)
 4. If any mismatch: HALT and report
 
 ```bash
-COMPARE_URL="${GITBUCKET_HTML_URL:-https://github.com/}${GIT_OWNER}/${GIT_REPO}/compare/dev...$(git branch --show-current)"
+COMPARE_URL="${GITBUCKET_HTML_URL:-${GITHUB_HTML_URL}}/${GIT_OWNER}/${GIT_REPO}/compare/dev...$(git branch --show-current)"
 ```
 
 **Action URL** (for creation workflows — issue creation, approval gate):
 
-- **Issue URL:** Extract from `github_issue_write` API response `html_url` field — NEVER construct from template <!-- Routes through issue-operations per SPEC #683 -->
+- **Issue URL:** Extract from `issue-operations -> update-issue` API response `html_url` field — NEVER construct from template <!-- Routes through issue-operations per SPEC #683 -->
 - **PR URL:** Extract from `github_create_pull_request` API response `html_url` field — NEVER construct from template
 
-### 3. Post Status Comment (Substantive Only)
+### 3. Append Lifecycle Event
 
-Before posting, evaluate whether the comment is substantive per the `issue-operations` `comment` task Substantive Comment Gate:
+Append a completion event to the lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml`:
 
-```python
-# ONLY post if the comment conveys stakeholder-meaningful information
-if is_substantive:
-    issue-operations -> comment (github_add_issue_comment(owner=<github.owner>, repo=<github.repo>, issue_number=N, body="...") <!-- Routes through issue-operations per SPEC #683 -->
-else:
-    # Skip posting — progress goes to chat only
-    pass
+```yaml
+  - event: step_completed
+    timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    issuer: <AgentName> (<ModelId>)
+    step: <step_label>
+    status: PASS
+    description: "<brief summary>"
+    severity: info
 ```
+
+The lifecycle manifest is append-only. Never delete or edit existing entries.
 
 ### 4. Report Executive Summary in Chat (Always Runs)
 
@@ -89,5 +115,63 @@ Chat output is idempotent by nature. Always produce:
 | -- | -- | -- |
 | Push branch | Check `git log origin/..HEAD` before pushing | Git workflows only |
 | Generate URL | Check if URL already generated; compare URL for pushes, action URL for creation workflows | All workflows |
-| Post status comment | Substantiveness gate (per `issue-operations` skill `comment` task) | Workflows with issue context |
+| Append lifecycle event | Append-only — always adds new entry | All workflows |
 | Report executive summary + URL | Always run; idempotent by nature | All workflows |
+
+## Sub-Agent Routing
+
+### DISPATCH_GATE — Orchestrator task() Prompt Protocol
+
+> **Context cost frame:** These are internal operational bookkeeping notes describing how context flows through the pipeline — they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
+> This cost frame applies to orchestrator context only — it does NOT mean the agent should minimize message count, pipeline steps, or user-facing output.
+
+The orchestrator MUST NOT preload execution context into `task()` prompts.
+Every sub-agent MUST independently discover scope and produce its own result contract.
+
+#### Forbidden in task() Prompts
+
+| Violation | Forbidden Pattern | Correct Pattern |
+|-----------|-------------------|-----------------|
+| Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
+| Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
+| Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
+| Preloaded orchestrator reasoning | "The merge was just completed so we need to..." | Pure objective, no narrative |
+
+#### Dispatch Context Contract
+
+Every `task()` call MUST include only:
+
+- `worktree.path`
+- `github.owner`
+- `github.repo`
+- `authorization_scope`
+- `halt_at`
+- `pr_strategy`
+- `pipeline_phase`
+
+Plus skill-specific fields per the `## Sub-Agent Routing` section above.
+
+Exclusions (MUST NOT be in prompt):
+- `orchestrator_reasoning`
+- `expected_outcomes`
+- `inline_file_paths`
+- `agent_memory`
+- `cached_verification_results`
+
+#### Sub-Agent Entry Criteria
+
+A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
+- Inline file paths to task files
+- Inline step or procedure definitions
+- Expected outcome structures or schema constraints
+- Pre-loaded evidence or orchestrator-derived conclusions
+
+Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
+
+#### Orchestrator Entry Criteria
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)

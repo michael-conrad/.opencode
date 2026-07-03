@@ -9,7 +9,7 @@ After all verification gates (Steps 1-5) pass, determine the approval context an
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
@@ -19,25 +19,25 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 - Instructed to exceed `halt_at` → return `status: BLOCKED`
 - The `pipeline_phase` field is NEW — it tracks which phase of a multi-phase plan is currently executing
 
-## 6.1 Pre-Implementation Worktree Setup (MANDATORY)
+## 6.1 Pre-Implementation Branch Setup (MANDATORY)
 
 **Before any sub-agent task() or file modification, the agent MUST task `git-workflow --task pre-work` to:**
 
-1. Create the feature branch in a worktree (`.worktrees/`)
-2. Set the `worktree.path` environment variable
+1. Create the feature branch (direct-branch or worktree depending on `WORKTREE_REQUIRED`)
+2. If `WORKTREE_REQUIRED` is set: set the `worktree.path` environment variable
 3. Verify branch state and working tree cleanliness
 
-**This step is MANDATORY and CANNOT be skipped.** If the worktree already exists from a previous session, verify it and proceed. If worktree creation fails, HALT — do not proceed without a valid worktree.
+**This step is MANDATORY and CANNOT be skipped.** Pre-work.md handles the worktree vs direct-branch decision — the agent does NOT decide worktree mode here. If pre-work fails, HALT — do not proceed without a valid branch.
 
-**Evidence requirement:** `git worktree list` must show the feature branch worktree, and `worktree.path` must be set before any `divide-and-conquer` task().
+**Evidence requirement:** `git branch --show-current` must show the feature branch. If `WORKTREE_REQUIRED` is set, `git worktree list` must also show the feature branch worktree and `worktree.path` must be set before any `implementation-pipeline` task().
 
 ## Auto-Dispatch Situation Differentiation
 
 | Approval Context | How to Detect | Auto-Dispatch Target |
 | -- | -- | -- |
 | **Spec approval** | Issue title contains `[SPEC` or has `spec` label | `writing-plans --task create` (or `brainstorming --task explore` if gap-fill) |
-| **Plan approval** | Issue has `plan` label or `[PLAN]` prefix in title | `executing-plans --task start` |
-| **Already implemented** | `verify-already-implemented` returns positive (after closed-issue verification in Step 5.4 confirms legitimate closure) | No dispatch — auto-close instead |
+| **Plan approval** | Local plan file exists at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` | `executing-plans --task start` |
+| **Already implemented** | Step 5d.4 (`verify-already-implemented`) returns positive | No dispatch — auto-close instead (execution path: Step 0 of auto-route procedure) |
 | **Reconciled during verification** | reconcile-issue-graph returned auto-closed or reopened tickets | Include reconciled tickets in chat output; proceed with dispatch |
 | **Closed but NOT verified** | Step 5.4 closed-issue verification finds closure without merged PR evidence | flag-for-review — do NOT autoclose |
 
@@ -53,19 +53,25 @@ When `authorization_scope == "for_analysis"`:
 
 - Dispatch is read-only investigation
 - No `writing-plans` or `executing-plans` routing — only `issue-operations` for issue creation/comments
-- No `divide-and-conquer` routing — only `pre-analysis` if needed for context understanding
-- No feature branch creation; `investigate/<topic>` scratch branches permitted
+- No `implementation-pipeline` routing — only `pre-analysis` if needed for context understanding
+- No feature branch creation; `observe/<topic>` scratch branches permitted
 - Gap-fill cascade is skipped entirely (gap_fill = none)
 - Pre-implementation setup is skipped entirely
 - HALT after `analysis_complete`
 
 ## Auto-Route Procedure
 
+0. Check pre-implementation readiness results from Step 5d:
+   - If verify-already-implemented returned positive → auto-close issue, check parent plan, HALT
+   - If verify-codebase found staleness → HALT, report staleness
+   - If verify-blockers found blockers → HALT, report blockers
+   - If verify-closed-issue-main found VERIFICATION_GAP → flag-for-review, HALT
+   - Otherwise → proceed to spec/plan routing
+
 1. Determine approval context (spec vs plan) by checking:
    - Issue title format: `[SPEC` prefix = spec approval
-   - Issue title format: `[PLAN]` prefix = plan approval
-   - Labels: presence of `spec` or `plan` labels
-   - Plan detection is via `plan` label or `[PLAN]` prefix in title (NOT via sub-issue relationship to spec)
+   - Labels: presence of `spec` label
+   - Plan detection is via local file existence at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` (NOT via GitHub Issue labels or title prefixes)
 2. Determine scope from Step 2.0 result (`authorization_scope`, `halt_at`, `pr_strategy`)
 3. Execute gap-fill from Step 5c if scope >= `for_plan`
 5. **If spec approval:** Invoke `writing-plans --task create` with context:
@@ -88,7 +94,7 @@ If a spec is revised (status contains `REVISED - NEEDS APPROVAL` — in either p
 Prose format: `STATUS: in progress — {concern} (REVISED - NEEDS APPROVAL)`
 Numeric format: `STATUS: 1.1 (REVISED - NEEDS APPROVAL)`
 
-1. Search for `[PLAN]` issues that reference the spec number in their body
+1. Check for local plan files at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` that reference the spec number
 2. Mark found plans for audit (their authorization is revoked by the spec revision)
 3. Report affected plans in chat output
 
@@ -122,19 +128,15 @@ When cascade does NOT apply (conditions not met):
 
 **Evidence artifact:** `issue-operations -> read-comments (github_issue_read(method=get_comments)` showing lineage evidence in #P, and `github_issue_write` / `github_add_issue_comment` responses confirming cascade actions on #C. <!-- Routes through issue-operations per SPEC #683 -->
 
-## Context Budget Check Before task() (MANDATORY for implementation scopes)
+## Orchestrator Context Discipline Check Before task() (MANDATORY for implementation scopes)
 
 **When `authorization_scope` is `for_implementation` or `for_pr`:**
 
-Before routing to `divide-and-conquer --task assemble-work`, verify that sufficient context budget remains to complete at least one implementation item:
+Before routing to `implementation-pipeline --task assemble-work`, verify that the orchestrator context is not bloated with non-routing data:
 
-1. Estimate remaining context: if the agent has consumed >75% of its context window on process steps (verification, screening, worktree setup), the remaining budget may be insufficient for implementation
-2. If context budget is critically low (<25% remaining): report budget exhaustion explicitly in chat output before halting — do NOT silently halt after process overhead
-3. Budget exhaustion does NOT exempt the agent from the implementation-first gate — it is a REPORTING requirement, not a bypass
-
-**Evidence artifact:** If halted due to budget exhaustion, the halt message MUST include: "Context budget exhausted during process steps. Deliverables produced: 0 file modifications. Process steps completed: [list]."
-
-This check prevents the pattern documented in bugs #1232 and #1233 where the agent completes all process overhead but halts before implementation with no deliverables.
+1. **Verify routing-only dispatch:** Confirm the orchestrator holds only routing metadata (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase, pipeline_history). Any cached analysis artifacts, task file contents, or prior sub-agent reasoning traces indicate context bloat.
+2. **If context bloat detected:** Do NOT proceed to dispatch. The orchestrator must task a clean sub-agent from the current pipeline phase — do NOT attempt recovery via state cleanup.
+3. **Evidence artifact:** Before dispatch, the halt message must include: "Orchestrator context discipline verified: routing-only data held, no task file content cached, no prior sub-agent reasoning retained."
 
 ## Work State I/O
 

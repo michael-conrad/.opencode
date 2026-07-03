@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the work state file schema extension for chain-of-responsibility orchestration. Each atomic task in the `verify-authorization/`, `pre-impl/`, and `screen/` chains writes results as a dedicated section in the work state file (`tmp/work-<timestamp>.md`).
+Define the work state file schema extension for chain-of-responsibility orchestration. Each atomic task in the `verify-authorization/`, `pre-impl/`, and `screen/` chains writes results as a dedicated section in the work state file (`./tmp/{issue-N}/work.md`).
 
 ## Header Section
 
@@ -10,7 +10,7 @@ Define the work state file schema extension for chain-of-responsibility orchestr
 ## chain-context
 authorization_scope: <scope_value>
 halt_at: <pipeline_stage>
-pr_strategy: stacked | individual | none
+pr_strategy: stacked | none
 pipeline_phase: <current_phase_name>
 issue_numbers: [<N>]
 created_at: <ISO-8601>
@@ -50,7 +50,7 @@ result: <YAML-structured task output>
 ## Constraints
 
 - Each section appears at most once per work state file (except `screen-gate1-`/`screen-gate2-` which are per-issue).
-- Task results MUST be compact (≤500 words per section).
+- Task results MUST be compact (routing-significant data only).
 - Status transitions: `pending → in_progress → done | failed | skipped`.
 - Failed tasks set `status: failed` with error detail in `result.error`.
 
@@ -65,7 +65,7 @@ for_analysis_allowlist:
   - reads (files, code, issues)
   - writes to ./tmp/
   - issue creation and comments
-  - investigate/<topic> scratch branches (discard before HALT)
+  - observe/<topic> scratch branches (discard before HALT)
   - test and verification execution
 for_analysis_blocklist:
   - writes to src/ or test/
@@ -73,12 +73,12 @@ for_analysis_blocklist:
   - PR creation
   - dev/main commits
   - bug fixes
-  - deleting branches (except investigate/* discard)
+  - deleting branches (except observe/* discard)
 investigate_branches_created: []
 must_discard_before_halt: true
 ```
 
-The `investigate_branches_created` field tracks which `investigate/` branches were created during the session. The orchestrator MUST verify every tracked branch is deleted before yielding or halting.
+The `investigate_branches_created` field tracks which `observe/` branches were created during the session. The orchestrator MUST verify every tracked branch is deleted before yielding or halting.
 
 ## Orchestrator Context Audit
 

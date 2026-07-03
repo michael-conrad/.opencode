@@ -17,6 +17,35 @@
 
 set -euo pipefail
 
+if [[ "${1:-}" == "--description" ]]; then
+    echo "Probe Ollama server capabilities."
+    exit 0
+fi
+
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+    cat <<EOF
+Usage: ollama-probe <subcommand>
+
+Subcommands:
+  list    — List installed models with name, size, quantization (JSON output)
+  ps      — Show running models with RAM/VRAM allocation (JSON output)
+  hw      — Report CPU cores, RAM, GPU specs (JSON output)
+  remote  — Query online Ollama models DB (JSON output)
+
+Options:
+  remote --capability enforcement  — Filter for enforcement-capable models
+
+Environment:
+  OLLAMA_HOST  — Ollama server URL (default: http://localhost:11434)
+
+Examples:
+  MODEL_INFO=\$(.opencode/tools/ollama-probe list)
+  HW_INFO=\$(.opencode/tools/ollama-probe hw)
+  REMOTE_MODELS=\$(.opencode/tools/ollama-probe remote --capability enforcement)
+EOF
+    exit 0
+fi
+
 OLLAMA_HOST="${OLLAMA_HOST:-http://localhost:11434}"
 
 json_escape() {

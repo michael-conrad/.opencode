@@ -54,36 +54,7 @@ verify_merge_output:
 
 The `merged_in_repo` and `submodule_context` fields are REQUIRED inputs to `issue-closure` Step 8.5 for correct submodule routing. If these are missing, issue-closure MUST flag as VERIFICATION-GAP and HALT.
 
-### Step 2: Adversarial-Audit Closure Verification
-
-Invoke `adversarial-audit --task closure-verification` to verify merge evidence:
-
-```python
-task(
-    subagent_type="general",
-    prompt=f"""Use adversarial-audit skill --task closure-verification with:
-
-pr_number: {pullNumber}
-audit_phase: post_merge
-
-worktree.path: {worktree.path}
-github.owner: {github.owner}
-github.repo: {github.repo}
-
-Mandatory gates:
-1. Verify PR merge status via GitHub API
-2. Verify success criteria have evidence
-3. Verify spec issue closed with proper resolution
-4. Return structured result contract
-"""
-)
-```
-
-**Evidence artifacts:**
-- EVIDENCE: closure-verification result consensus = PASS
-- EVIDENCE: All success criteria verified
-
-### Step 3: Rebase Pending PRs
+### Step 2: Rebase Pending PRs
 
 After verifying the PR merge and before switching to dev, rebase all other open PRs onto the updated `dev` branch.
 
@@ -126,7 +97,7 @@ For each SC:
 | `PARTIAL_FAIL` (some SCs failed) | Do NOT close. Add progress comment with per-SC table. Leave open. |
 | `SKIP` (no SCs found) | Proceed — issue has no structured success criteria |
 
-**Evidence requirement (MANDATORY):** The per-SC pass/fail table MUST be posted as a comment on the issue before closure.
+**Evidence requirement:** Route per-SC pass/fail table through `issue-operations -> comment` substantive gate before closure. Gate decides whether posting to issue is warranted.
 
 ```markdown
 **SC Verification Evidence**
@@ -157,7 +128,7 @@ Verify ALL phases/sub-issues have merged PRs before allowing closure of a multi-
 | `ALL_COMPLETE` | Proceed to close the issue |
 | `PARTIAL_COMPLETE` | Do NOT close. Add progress comment listing completed and remaining phases. |
 
-**Safety rule: NEVER close a multi-phase spec or plan until ALL sub-issues are closed with verified merged PRs.**
+**Safety rule: NEVER close a multi-phase spec until ALL sub-issues are closed with verified merged PRs. Plans are local artifacts and are not closed as GitHub Issues.**
 
 ### Finding Classification
 

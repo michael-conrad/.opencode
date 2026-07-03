@@ -61,19 +61,19 @@ for pattern_name, pattern in patterns.items():
 
 | Classification | Detection | Closure Path |
 | -- | -- | -- |
-| Plan | Has `[PLAN]` label or `[PLAN]` title prefix | Plan closure path (Step 3) |
+| Plan | Local plan file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` | Plan closure path (Step 3) |
 | Spec / Spec-Fix | Has `[SPEC]` or `[SPEC-FIX]` label or title prefix | Spec closure path (Step 4) |
 | Other | No plan/spec labels | Direct close |
 
 ### Step 3: Plan Closure Path
 
-1. Parse plan body for spec reference: `Spec:\s*#(\d+)` or `For spec:\s*#(\d+)`
+1. Read plan body from local file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` for spec reference: `Spec:\s*#(\d+)` or `For spec:\s*#(\d+)`
 2. Add referenced spec to closure candidates
-3. Get sub-issues via `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues")` <!-- Routes through issue-operations per SPEC #683 -->
+3. Get sub-issues via `issue-operations -> read-sub-issues` <!-- Routes through issue-operations per SPEC #683 -->
 4. For each sub-issue:
    - If open and deliverables covered by PR files → close with evidence comment
    - If open and deliverables NOT in PR → flag for developer review, do NOT auto-close
-5. Close the plan issue after sub-issues are resolved
+5. Plans are local artifacts — no GitHub Issue closure needed. The plan file remains as a record.
 
 **Deliverable check:** Verify each sub-issue's deliverables (file paths, descriptions) against the merged PR's file list.
 
@@ -85,7 +85,7 @@ Before closing any spec, verify ALL phases in the spec body are marked complete.
 
 **Procedure:**
 
-1. Fetch the spec issue body via `issue-operations -> read-issue (github_issue_read(method="get", issue_number=spec_num)` <!-- Routes through issue-operations per SPEC #683 -->
+1. Fetch the spec issue body via `issue-operations -> read-issue` <!-- Routes through issue-operations per SPEC #683 -->
 2. Parse the body for phase markers:
    - Markdown headings: `## Phase N:`, `### Phase N:`, `#### Phase N:`
    - Checkbox markers: `☐`, `☑`, `✅ Done`, `⬜ Not Done`
@@ -93,7 +93,7 @@ Before closing any spec, verify ALL phases in the spec body are marked complete.
 3. Extract all phases and their completion status
 4. **If ANY phase is incomplete (☐, ⬜ Not Done, or - [ ]):**
    - Do NOT close this issue
-   - Post a comment: `Partially implemented by PR #N. Remaining phases: [list of incomplete phases]. Next phase continuation pending.`
+   - Append a blocker event to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with the incomplete phases listed
    - Skip to next closure candidate
 5. **If ALL phases are complete (☑, ✅ Done, or - [x]) OR no phase markers exist:**
    - Proceed to Step 4b (plan reference check)
@@ -142,7 +142,7 @@ For issues with `[SPEC-FIX]` or `[Bug]` labels/title prefixes, also verify:
 
 After passing phase-completion verification:
 
-1. Search for plans referencing this spec: `issue-operations -> search-issues (github_search_issues(query="Spec: #<N> repo:<owner>/<repo>")` <!-- Routes through issue-operations per SPEC #683 -->
+1. Search for plans referencing this spec: `issue-operations -> search-issues` <!-- Routes through issue-operations per SPEC #683 -->
 2. For each plan found, verify it is closed
 3. If ALL plans for the spec are closed → close the spec
 4. If ANY plan is still open → do NOT close the spec
@@ -168,15 +168,15 @@ def reconcile_issue_graph(merged_pr_number, pr_files):
         if issue_num in visited or depth > 5:
             continue
         visited.add(issue_num)
-        issue = issue-operations -> read-issue (github_issue_read(method="get", issue_number=issue_num) <!-- Routes through issue-operations per SPEC #683 -->
+        issue = issue-operations -> read-issue <!-- Routes through issue-operations per SPEC #683 -->
 
-        sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=issue_num) <!-- Routes through issue-operations per SPEC #683 -->
+        sub_issues = issue-operations -> read-sub-issues <!-- Routes through issue-operations per SPEC #683 -->
         for sub in sub_issues:
-            sub_detail = issue-operations -> read-issue (github_issue_read(method="get", issue_number=sub["number"]) <!-- Routes through issue-operations per SPEC #683 -->
+            sub_detail = issue-operations -> read-issue <!-- Routes through issue-operations per SPEC #683 -->
             if sub_detail["state"] == "open" and issue["state"] == "closed":
                 deliverables_covered = check_deliverables_in_pr(sub_detail, pr_files)
                 if deliverables_covered:
-                    issue-operations -> update-issue (github_issue_write(method="update", issue_number=sub["number"], state="closed", state_reason="completed") <!-- Routes through issue-operations per SPEC #683 -->
+                    issue-operations -> update-issue <!-- Routes through issue-operations per SPEC #683 -->
                     reconciled.append(sub["number"])
                 else:
                     orphaned.append(sub["number"])
@@ -227,7 +227,7 @@ For issues with `[Task: #N]` or `Phase N:` patterns that reference a parent plan
 1. Accept `submodule_paths` routing context (from `cleanup.md` Step 0 — list of `{path, owner, repo, platform}` mappings) for per-submodule API routing
 2. Accept `verify_merge_output` structured context (from `verify-merge.md` Step 1) containing `merged_pr_number`, `merged_in_repo`, and `pr_files` for cross-referencing
 3. For each closure candidate whose affected files (from PR file diff) are under a submodule path, route the closure API call to the submodule's `owner/repo` instead of the parent repo
-4. Use `submodule_paths` context OR session-init sub-folder repo mappings (`issue-operations -> read-issue (github_issue_read` with resolved `owner`/`repo`) — never hardcode owner/repo values <!-- Routes through issue-operations per SPEC #683 -->
+4. Use `submodule_paths` context OR session-init sub-folder repo mappings (`issue-operations -> read-issue — never hardcode owner/repo values <!-- Routes through issue-operations per SPEC #683 -->
 5. Include evidence artifacts table tracking each routed closure call
 6. Be platform-agnostic (works for both GitHub and GitBucket)
 
@@ -255,7 +255,7 @@ for issue_num, classification in closure_candidates.items():
     if sub_info:
         # Route closure to submodule's owner/repo
         if sub_info["platform"] == "github":
-            issue-operations -> creation/update (github_issue_write( <!-- Routes through issue-operations per SPEC #683 -->
+            issue-operations -> creation/update ( <!-- Routes through issue-operations per SPEC #683 -->
                 method="update",
                 owner=sub_info["owner"],
                 repo=sub_info["repo"],
@@ -263,16 +263,11 @@ for issue_num, classification in closure_candidates.items():
                 state="closed",
                 state_reason="completed"
             )
-            issue-operations -> comment (github_add_issue_comment( <!-- Routes through issue-operations per SPEC #683 -->
-                owner=sub_info["owner"],
-                repo=sub_info["repo"],
-                issue_number=issue_num,
-                body=f"Closed via parent PR #{parent_pr_number}."
-            )
+            # No closure comment — the state change is the signal
         elif sub_info["platform"] == "gitbucket":
-            gitbucket_api_post(endpoint=f"/issues/{issue_num}", payload={
-                "state": "closed"
-            })
+            # Use gb CLI for GitBucket closure
+            # gb issue close <N> -R owner/repo
+            pass  # Handled by platform sub-skill dispatch
     else:
         # Standard parent-repo closure (existing logic applies)
         close_in_parent_repo(issue_num, classification)
@@ -288,8 +283,16 @@ for issue_num, classification in closure_candidates.items():
 #### Fallback: Session-Init Repo Mappings
 
 If `submodule_paths` is not provided, resolve sub-folder repo mappings from session-init context:
-- `issue-operations -> read-issue (github_issue_read(method="get", issue_number=N)` with resolved `owner`/`repo` per submodule <!-- Routes through issue-operations per SPEC #683 -->
-- `.gitmodules` entries parsed for `path → owner/repo` mapping
+- `issue-operations -> read-issue` with resolved `owner`/`repo` per submodule <!-- Routes through issue-operations per SPEC #683 -->
+- Glob scan discovered repos used for `path → owner/repo` mapping:
+  ```bash
+  REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')
+  for RP in $REPO_PATHS; do
+      [ "$RP" = "." ] && continue
+      REMOTE_URL=$(git -C "$RP" remote get-url origin 2>/dev/null || echo "")
+      # Parse owner/repo and build fallback submodule_paths
+  done
+  ```
 - Reject any hardcoded owner/repo values — always use live resolution
 
 ## Context Required

@@ -123,12 +123,12 @@ issue_pr_workflow:
     note: "Starts step-by-step implementation with evidence collection"
     
   - trigger: "Executing plan with independent tasks via subagents"
-    skill: "divide-and-conquer"
+    skill: "implementation-pipeline"
     purpose: "Dispatch fresh subagents per task with two-stage review"
     note: "Alternative to executing-plans for plans with independent tasks"
 
   - trigger: "Implementing approved spec with subagent dispatch"
-    skill: "divide-and-conquer"
+    skill: "implementation-pipeline"
     purpose: "Dispatch implementer → spec review → code quality review per task"
     note: "Integrates with approval-gate, git-workflow, verification-before-completion"
     
@@ -188,15 +188,15 @@ issue_pr_workflow:
     task: "checklist"
     purpose: "Run completion checklist before PR"
     
-  # Git workflow tasks (called by divide-and-conquer orchestration)
-  - trigger: "Divide-and-conquer calls pre-work"
+  # Git workflow tasks (called by implementation-pipeline orchestration)
+  - trigger: "Implementation-pipeline calls pre-work"
     skill: "git-workflow"
     task: "pre-work"
     purpose: "Pure git ops: stash, create branch (NO implementation logic)"
     automatic: false
     note: "Called by orchestration layer, not by dispatch table directly"
     
-  - trigger: "Divide-and-conquer calls review-prep"
+  - trigger: "Implementation-pipeline calls review-prep"
     skill: "git-workflow"
     task: "review-prep"
     purpose: "Pure git ops: push branch, generate URL (NO implementation logic)"

@@ -12,11 +12,8 @@
 set -euo pipefail
 
 cat <<'MODELS'
-deepseek-v3.2:cloud
 deepseek-v4-flash:cloud
-glm-5.1:cloud
-glm-5:cloud
-kimi-k2.6:cloud
+gemma4:31b-cloud
 mistral-large-3:675b-cloud
 qwen3.5:397b-cloud
 MODELS

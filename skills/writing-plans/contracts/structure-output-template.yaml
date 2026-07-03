@@ -1,0 +1,5 @@
+status: string  # PASS | BLOCKED
+phase_definitions: list[dict]
+dependency_contract_path: string
+phase_to_skill_mapping_path: string
+blocker_reason: string

@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = ["pyyaml>=6.0"]
 # ///
 
+# fmt: on
 """
 DESCRIPTION: Lint all yaml+symbolic blocks for consistency, completeness, and gate compliance.
 Usage: ./.opencode/tools/skildeck lint [--skill NAME] [--gate NAME] [--scope SCOPE] [--json]
@@ -83,6 +85,155 @@ def _extract_yaml_frontmatter(text: str) -> dict | None:
         return yaml.safe_load("\n".join(lines[1:end_idx]))
     except yaml.YAMLError:
         return None
+
+def lint_skill_frontmatter(base_dir: Path) -> list[LintFinding]:
+    """Validate SKILL.md YAML frontmatter against opencode schema."""
+    import yaml
+    findings: list[LintFinding] = []
+
+    skills_dir = base_dir / "skills"
+    if not skills_dir.exists():
+        return findings
+
+    recognized_fields = {"name", "description", "license", "compatibility", "metadata", "type"}
+    name_re = __import__("re").compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+
+    for skill_dir in sorted(skills_dir.iterdir()):
+        if not skill_dir.is_dir():
+            continue
+        skmd = skill_dir / "SKILL.md"
+        if not skmd.exists():
+            continue
+
+        rel = str(skmd.relative_to(base_dir))
+        text = skmd.read_text()
+        lines = text.split("\n")
+
+        # Extract YAML frontmatter
+        if not lines or lines[0].strip() != "---":
+            findings.append(LintFinding(
+                severity="error", category="skill-frontmatter",
+                source=rel, rule_id="frontmatter-missing",
+                message="SKILL.md missing YAML frontmatter (no opening ---)"
+            ))
+            continue
+
+        end_idx = None
+        for i in range(1, len(lines)):
+            if lines[i].strip() == "---":
+                end_idx = i
+                break
+        if end_idx is None:
+            findings.append(LintFinding(
+                severity="error", category="skill-frontmatter",
+                source=rel, rule_id="frontmatter-unclosed",
+                message="YAML frontmatter has no closing ---"
+            ))
+            continue
+
+        fm_text = "\n".join(lines[1:end_idx])
+        try:
+            fm = yaml.safe_load(fm_text)
+        except yaml.YAMLError as e:
+            findings.append(LintFinding(
+                severity="error", category="skill-frontmatter",
+                source=rel, rule_id="frontmatter-parse",
+                message=f"YAML frontmatter parse error: {e}"
+            ))
+            continue
+
+        if not isinstance(fm, dict):
+            findings.append(LintFinding(
+                severity="error", category="skill-frontmatter",
+                source=rel, rule_id="frontmatter-type",
+                message="YAML frontmatter is not a dict"
+            ))
+            continue
+
+        dirname = skill_dir.name
+
+        # name field
+        if "name" not in fm:
+            findings.append(LintFinding(
+                severity="error", category="skill-frontmatter",
+                source=rel, rule_id="name-missing",
+                message="Required field 'name' is missing"
+            ))
+        else:
+            name_val = str(fm["name"])
+            if name_val != dirname:
+                findings.append(LintFinding(
+                    severity="error", category="skill-frontmatter",
+                    source=rel, rule_id="name-directory-mismatch",
+                    message=f"name '{name_val}' does not match directory name '{dirname}'"
+                ))
+            if not name_re.match(name_val):
+                findings.append(LintFinding(
+                    severity="error", category="skill-frontmatter",
+                    source=rel, rule_id="name-format",
+                    message=f"name '{name_val}' does not match regex ^[a-z0-9]+(-[a-z0-9]+)*$"
+                ))
+            if len(name_val) < 1 or len(name_val) > 64:
+                findings.append(LintFinding(
+                    severity="error", category="skill-frontmatter",
+                    source=rel, rule_id="name-length",
+                    message=f"name '{name_val}' is {len(name_val)} chars (must be 1-64)"
+                ))
+
+        # description field
+        if "description" not in fm:
+            findings.append(LintFinding(
+                severity="error", category="skill-frontmatter",
+                source=rel, rule_id="description-missing",
+                message="Required field 'description' is missing"
+            ))
+        else:
+            desc_val = str(fm["description"])
+            if len(desc_val) < 1 or len(desc_val) > 1024:
+                findings.append(LintFinding(
+                    severity="error", category="skill-frontmatter",
+                    source=rel, rule_id="description-length",
+                    message=f"description is {len(desc_val)} chars (must be 1-1024)"
+                ))
+            # Check description is quoted in raw YAML text
+            desc_line = None
+            for line in fm_text.split("\n"):
+                stripped = line.strip()
+                if stripped.startswith("description:"):
+                    desc_line = stripped
+                    break
+            if desc_line:
+                val_part = desc_line.split(":", 1)[1].strip()
+                if val_part and not (val_part.startswith('"') or val_part.startswith("'")):
+                    findings.append(LintFinding(
+                        severity="error", category="skill-frontmatter",
+                        source=rel, rule_id="description-unquoted",
+                        message="description value is not quoted in YAML frontmatter"
+                    ))
+
+        # license field (optional, SPDX check)
+        if "license" in fm:
+            lic_val = str(fm["license"])
+            # Basic SPDX check: must be uppercase with hyphens
+            spdx_re = __import__("re").compile(r"^[A-Z][A-Za-z0-9\-\.]+$")
+            if not spdx_re.match(lic_val):
+                findings.append(LintFinding(
+                    severity="warning", category="skill-frontmatter",
+                    source=rel, rule_id="license-spdx",
+                    message=f"license '{lic_val}' does not look like a valid SPDX identifier"
+                ))
+
+        # Unknown fields
+        for key in fm:
+            if key not in recognized_fields:
+                findings.append(LintFinding(
+                    severity="error", category="skill-frontmatter",
+                    source=rel, rule_id="unknown-field",
+                    message=f"Unknown frontmatter field '{key}'"
+                ))
+
+    return findings
+
 
 def lint_progressive_disclosure(base_dir: Path) -> list[LintFinding]:
     findings: list[LintFinding] = []
@@ -343,6 +494,7 @@ def main() -> None:
 
     base_dir = scan_dir.parent if scan_dir.name == "skills" else scan_dir
     findings.extend(lint_progressive_disclosure(base_dir))
+    findings.extend(lint_skill_frontmatter(base_dir))
 
     if args.json:
         print(json.dumps([f.to_dict() for f in findings], indent=2))
@@ -363,3 +515,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

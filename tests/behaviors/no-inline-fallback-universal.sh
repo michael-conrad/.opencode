@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: no-inline-fallback-universal
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: no-inline-fallback-universal
 #
 # Tests that when ANY sub-agent at ANY pipeline stage returns empty/error/timeout,

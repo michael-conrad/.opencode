@@ -17,8 +17,8 @@ Enforce the verify-before-declaring-complete discipline per engineering-approach
 
 Before declaring completion, produce a saved test run artifact file:
 ```bash
-mkdir -p ./tmp/artifacts/
-uv run pytest test/ --junitxml=./tmp/artifacts/test-results.xml
+mkdir -p ./tmp/{issue-N}/artifacts/
+uv run pytest test/ --junitxml=./tmp/{issue-N}/artifacts/test-results.xml
 ```
 
 The artifact file is the permanent record that runtime verification occurred. Without it, completion claims are unverifiable post-hoc — a skipped artifact equals an unverifiable completion.
@@ -38,6 +38,7 @@ Identify and verify edge cases from the spec. Confirm each edge case is handled 
 For each success criterion in the approved spec:
 - [ ] Produce a tool-call artifact confirming the criterion is met
 - [ ] Flag any criterion that cannot be verified as FAIL
+- [ ] For changes affecting runtime behavior, uplift the SC evidence type to `behavioral` regardless of declaration — see `guidelines/000-critical-rules.md` §critical-rules-BEH-EV
 
 ### Step 4: Report Findings
 

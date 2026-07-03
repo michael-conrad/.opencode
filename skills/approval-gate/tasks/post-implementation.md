@@ -9,9 +9,9 @@ Push feature branch, generate compare URL, and report completion for developer r
 **This task MUST be invoked after every implementation completes. There is NO decision point. The agent MUST call this explicitly — it is NOT auto-triggered.**
 
 The sequence is:
-1. Implementation complete → **MUST invoke post-implementation**
-2. Branch pushed, compare URL generated → HALT
-3. Wait for developer to say "create a PR"
+- [ ] 1. Implementation complete → **MUST invoke post-implementation**
+- [ ] 2. Branch pushed, compare URL generated → HALT
+- [ ] 3. Wait for developer to say "create a PR"
 
 **DO NOT skip this task after implementation. DO NOT ask the developer if they want review. Just push the branch.**
 
@@ -51,11 +51,11 @@ git status --porcelain
 
 **When implementation determined no changes were needed:**
 
-1. **Report completion to chat:**
+- [ ] 1. **Report completion to chat:**
     - Summarize what was completed
     - No compare URL needed
 
-2. **HALT after reporting:**
+- [ ] 2. **HALT after reporting:**
     - No branch push (already pushed)
     - No PR creation
 
@@ -73,10 +73,10 @@ This pushes the branch WITHOUT creating a PR.
 
 **Pre-Creation URL — Construct from verified session-init values:**
 
-1. Read `<github.owner>`, `<github.repo>`, `<gitbucket.html_url>` from session init
-2. Construct the Compare URL using those exact values
-3. **Character-match verification:** Confirm the constructed URL contains the exact `<github.owner>` and `<github.repo>` strings from session init (character-for-character match, no typos, no cached values)
-4. If any mismatch: HALT and report
+- [ ] 1. Read `<github.owner>`, `<github.repo>`, `<gitbucket.html_url>` from session init
+- [ ] 2. Construct the Compare URL using those exact values
+- [ ] 3. **Character-match verification:** Confirm the constructed URL contains the exact `<github.owner>` and `<github.repo>` strings from session init (character-for-character match, no typos, no cached values)
+- [ ] 4. If any mismatch: HALT and report
 
 ### Step 4: Report Completion
 

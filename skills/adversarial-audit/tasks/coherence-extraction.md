@@ -1,3 +1,5 @@
+> **⚠️ ROLE ANCHOR: You are the DISPATCHED AUDITOR SUB-AGENT.** Your role is to evaluate criteria and produce findings. You do NOT dispatch sub-agents, call `skill()`, or orchestrate pipeline routing. The orchestrator handles all dispatch. Read this file for evaluation criteria and procedure only — ignore any text describing orchestration responsibilities.
+
 # Task: coherence-extraction
 
 ## Purpose
@@ -8,20 +10,22 @@ Generate baseline coherence state from guidelines and skills. Captures current r
 
 - Baseline not yet generated OR refresh requested
 - `github.owner`, `github.repo` available
-- Write access to `./tmp/artifacts/`
+- Write access to `./tmp/{issue-N}/artifacts/`
 
 ## Exit Criteria
 
-- Baseline JSON written to `./tmp/artifacts/baseline-coherence-<issue>.json`
+- Baseline JSON written to `./tmp/{issue-N}/artifacts/baseline-coherence.json`
 - All rules extracted from guidelines
 - All behaviors mapped from skills
 - Cross-references validated
+- Z3 solve check PASS — SC evidence type constraints structurally consistent
+- No evidence type mismatches — all SC prose-to-declared-type classifications verified
 
 ## Procedure
 
 ### Step 1: Initialize Baseline Structure
 
-```json
+```yaml
 {
   "baseline_version": "1.0",
   "generated_at": "<ISO timestamp>",
@@ -126,18 +130,92 @@ baseline["metrics"] = {
 }
 ```
 
-### Step 6: Write Baseline File
+### Step 5b: Run Z3 Solve Check on SC Evidence Type Constraints
 
-Write to `./tmp/artifacts/baseline-coherence-<issue>.json`:
+Run the Z3 solve check against the pipeline state machine to validate structural consistency of SC evidence type constraints:
+
+```bash
+tools/solve check \
+  --state-path ./tmp/{issue-N}/state/ \
+  --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
+```
+
+Then perform a manual structural consistency check on SC evidence type declarations:
 
 ```python
-baseline_path = f"./tmp/artifacts/baseline-coherence-{datetime.now().strftime('%Y%m%d')}.json"
+spec_content = read(spec_artifact_path)
+sc_table = extract_sc_table(spec_content)
+for sc in sc_table:
+    evidence_type = sc.get("evidence_type", "string")
+    # Detect structural contradictions:
+    # e.g., a behavioral SC whose prose requires file-not-found behavior
+    # that structural evidence can never provide
+    contradictions = detect_contradictions(sc, evidence_type)
+    if contradictions:
+        fail_artifact["z3_violations"].append({
+            "sc_id": sc["id"],
+            "evidence_type": evidence_type,
+            "contradictions": contradictions
+        })
+```
+
+On PASS (SAT + no contradictions): proceed to Step 5c.
+
+On FAIL (UNSAT or any contradiction found):
+- [ ] 1. Write FAIL artifact to `./tmp/{issue-N}/artifacts/coherence-z3-fail.json`
+- [ ] 2. Include: solve output, per-SC contradictions, spec source reference
+- [ ] 3. Return: `{"status": "BLOCKED", "reason": "Z3 solve check failed", "details": "<output>"}`
+
+### Step 5c: Evaluate Prose vs Evidence Type Mismatch
+
+Read the spec content that was analyzed. For each SC, compare what the prose describes (runtime behavior, structural presence, etc.) against the declared evidence type. Flag mismatches where prose describes behavioral/runtime outcomes but SC is declared as `structural` or `string`.
+
+```python
+spec_content = read(spec_artifact_path)
+sc_table = extract_sc_table(spec_content)
+for sc in sc_table:
+    declared_type = sc.get("evidence_type", "string")
+    prose_category = classify_prose_content(sc["criterion"], spec_content)
+    mismatch = is_type_mismatch(prose_category, declared_type)
+    if mismatch:
+        fail_artifact["evidence_type_mismatches"].append({
+            "sc_id": sc["id"],
+            "declared_type": declared_type,
+            "prose_describes": prose_category,
+            "description": f"SC {sc['id']} prose describes {prose_category} behavior "
+                           f"but declares evidence type '{declared_type}'"
+        })
+```
+
+Mismatch classification:
+
+| Prose Describes | Declared As | Result |
+|---|---|---|
+| Runtime agent behavior / tool dispatch / decision-making | `structural` | **MISMATCH — behavioral evidence required** |
+| Runtime agent behavior / tool dispatch / decision-making | `string` | **MISMATCH — behavioral evidence required** |
+| File existence / structural presence | `behavioral` | Flag as over-engineered (not a FAIL, but note) |
+| String pattern in content | `structural` or `behavioral` | Flag as potential under-specification |
+| Exact match | Same type | ✅ PASS |
+
+On PASS (no mismatches): proceed to Step 6.
+
+On FAIL (any mismatch):
+- [ ] 1. Write FAIL artifact to `./tmp/{issue-N}/artifacts/coherence-evidence-mismatch.json`
+- [ ] 2. Include: per-SC mismatch details with prose excerpts and evidence type declaration
+- [ ] 3. Return: `{"status": "BLOCKED", "reason": "Evidence type mismatch detected", "details": "<per-SC mismatches>"}`
+
+### Step 6: Write Baseline File
+
+Write to `./tmp/{issue-N}/artifacts/baseline-coherence.json`:
+
+```python
+baseline_path = f"./tmp/{issue-N}/artifacts/baseline-coherence-{datetime.now().strftime('%Y%m%d')}.json"
 write(baseline_path, json.dumps(baseline, indent=2))
 ```
 
 ### Step 7: Build Result Contract
 
-```json
+```yaml
 {
   "status": "DONE",
   "audit_type": "coherence-extraction",
@@ -161,14 +239,18 @@ write(baseline_path, json.dumps(baseline, indent=2))
 | No skills found | Return BLOCKED — baseline requires skills |
 | Write permission denied | Return BLOCKED — cannot write baseline |
 | Malformed rule in file | Skip rule, log warning |
+| Z3 solve check failed | Return BLOCKED, include solve output and per-SC contradiction details |
+| Evidence type mismatch detected | Return BLOCKED, per-SC mismatch details with prose excerpts |
 
 ## Cross-References
 
 - `resolve-models` task — auditor model resolution (adversarial-audit --task resolve-models)
 - `tasks/coherence-maintenance.md` — drift detection
-- `coherence-auditor/tasks/extract-scan.md` — original extraction logic
-- `coherence-auditor/tasks/extract-analyze.md` — original analysis logic
+- `tasks/coherence-extraction.md` — this file (self-reference for pipeline dispatch)
 - `000-critical-rules.md` — baseline requirement
+- `skills/implementation-pipeline/pipeline-state-machine.yaml` — Z3 contract for pipeline step validation
+- `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
+- `skills/solve/` — Solve skill card (Z3 constraint solving, solve check, state)
 
 ```yaml+symbolic
 schema_version: "2.0"

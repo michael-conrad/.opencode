@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = []
 # ///
 
+# fmt: on
 """Trigger section emitter for AI agent session context.
 
 Purged per spec #426: all branch-status-based triggers that caused
@@ -49,7 +51,10 @@ def get_current_branch() -> str | None:
 def get_root_dir() -> str:
     _path = Path(__file__).resolve().parent
     while _path.name != ".opencode":
-        _path = _path.parent
+        parent = _path.parent
+        if parent == _path:
+            raise RuntimeError("Could not find .opencode/ directory")
+        _path = parent
     return str(_path.parent)
 
 def is_pair_mode_branch() -> tuple[bool, str | None]:
@@ -134,7 +139,7 @@ def build_nested_opencode_warning() -> str:
         "This nested folder breaks skill discovery — the AI agent's skill scanner "
         "picks up the inner `.opencode/skills/` path (which is empty or incomplete) "
         "instead of the top-level `.opencode/skills/` directory.\n\n"
-        "**Impact:** Top-level skills (approval-gate, divide-and-conquer, git-workflow, "
+        "**Impact:** Top-level skills (approval-gate, implementation-pipeline, git-workflow, "
         "etc.) are invisible to the agent. Only deeply nested platform sub-skills "
         "(local, github-mcp, gitbucket-api) may appear.\n\n"
         "**Fix Required:** Delete the nested `.opencode/.opencode/` directory immediately. "
@@ -170,3 +175,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

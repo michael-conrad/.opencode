@@ -6,16 +6,108 @@ Check an existing plan for placeholders and completeness.
 
 ## Validation Checks
 
-01. **Placeholder detection** — Zero TBD/TODO tolerance
-02. **Completeness** — Plan addresses the stated problem
-03. **Actionability** — Steps are concrete, not abstract goals
-04. **Testability** — Success criteria include executable verification commands with exact expected values (not just "measurable" — each SC must specify a command that produces a deterministic pass/fail result)
-05. **TDD structure** — Each task has failing test → implement → passing test steps
-06. **File structure** — All files are listed with responsibilities
-07. **Self-review evidence** — Agent has performed spec coverage, placeholder, and type consistency checks
-08. **Spec reference** — Plan body contains a spec reference (search for `Spec: #N` pattern)
-09. **Sub-issue parent** — If plan has sub-issues, they link to the plan (not the spec)
-10. **Plan label** — Plan issue has `plan` label
+- [ ] 01. (**inline**) Placeholder detection — Zero TBD/TODO tolerance
+  - Command: `grep(pattern="TBD|TODO|tbd|todo")` on plan body
+  - SC: All
+  - Expected: zero matches
+
+- [ ] 02. (**inline**) Completeness — Plan addresses the stated problem
+  - Command: read plan body, compare against spec problem statement
+  - SC: All
+  - Expected: plan covers all spec requirements
+
+- [ ] 03. (**inline**) Actionability — Steps are concrete, not abstract goals
+  - Command: manual parse — flag abstract goals
+  - SC: All
+  - Expected: each step has concrete action
+
+- [ ] 04. (**inline**) Testability — Success criteria include executable verification commands with exact expected values
+  - Command: read each SC in plan, verify it has a verification command
+  - SC: All
+  - Expected: each SC specifies command that produces deterministic pass/fail
+
+- [ ] 05. (**inline**) TDD structure — Each task has failing test → implement → passing test steps
+  - Command: verify RED/GREEN chain present for each item
+  - SC: All
+  - Expected: RED → GREEN → doublecheck → commit structure
+
+- [ ] 06. (**inline**) File structure — All files are listed with responsibilities
+  - Command: read plan Files section, verify against spec
+  - SC: All
+  - Expected: all files listed with clear responsibilities
+
+- [ ] 07. (**inline**) Self-review evidence — Agent has performed spec coverage, placeholder, and type consistency checks
+  - Command: check for self-review evidence in plan
+  - SC: All
+  - Expected: self-review evidence present
+
+- [ ] 08. (**inline**) Spec reference — Plan body contains a spec reference
+  - Command: `grep(pattern="Spec: #")` on plan body
+  - SC: All
+  - Expected: spec reference present
+
+- [ ] 09. (**inline**) Phase files exist — All phase files present for multi-phase plans
+  - Command: `ls {N}/plan-*.md 2>/dev/null`
+  - SC: All
+  - Expected: phase files exist matching plan index phase table
+
+- [ ] 10. (**inline**) Plan index exists — Plan index exists at `{N}/plan.md`
+  - Command: `ls {N}/plan.md 2>/dev/null`
+  - SC: All
+  - Expected: file exists
+
+- [ ] 11. (**inline**) Pipeline-gate completeness — All implementation-pipeline gate steps present
+  - Command: read `implementation-pipeline/SKILL.md` §Dispatch Routing Table, compare against plan
+  - SC: SC-13
+  - Expected: all gate steps present in plan's exit criteria or phase structure
+
+- [ ] 12. (**inline**) Global sequential numbering — Step numbering is globally sequential across all phases
+  - Command: parse plan step numbers, verify no per-phase restart
+  - SC: All
+  - Expected: step N+1 follows step N across phase boundaries
+
+- [ ] 13. (**inline**) Checkbox format — All implementation steps use `- [ ] N.` checkbox format
+  - Command: `grep(pattern="- \\[ \\] \\d+\\.")` on plan body
+  - SC: SC-9
+  - Expected: all steps use checkbox format
+
+- [ ] 14. (**inline**) Phase workflow completeness — Every phase contains full implementation workflow step sequence
+  - Command: read `implementation-pipeline/SKILL.md` §Dispatch Routing Table, compare each phase
+  - SC: SC-13
+  - Expected: each phase has complete RED/GREEN chain
+
+- [ ] 15. (**inline**) No duplicate global steps — Global pre/post steps not duplicated across per-file phases
+  - Command: check Phase 1 (global pre) and Phase 7-8 (global post) steps against per-file phases
+  - SC: SC-15
+  - Expected: no global steps duplicated in per-file phases
+
+- [ ] 16. (**inline**) Three-tier structure compliance — Plan uses global pre-phase, per-file RED/GREEN phases, global post-phase
+  - Command: read plan, verify three-tier structure
+  - SC: SC-14
+  - Expected: global pre-phase (once), per-file RED/GREEN phases (one chain each), global post-phase (once)
+
+- [ ] 17. (**inline**) Self-remediation protocol admonishment present — Plan includes the one-step-at-a-time protocol and self-remediation protocol blockquote
+  - Command: `grep(pattern="One step at a time protocol|Self-remediation protocol")` on plan body
+  - SC: SC-6
+  - Expected: both protocol admonishments present
+
+- [ ] 18. (**inline**) Dispatch indicator validation — Verify each step's dispatch indicator matches its content. `(**inline**)` steps must not contain sub-agent dispatch language; `(**sub-agent**)` steps must dispatch a sub-agent via `task()`
+  - Command: parse plan body, extract dispatch indicators, verify semantic match against step content
+  - SC: SC-5
+  - Expected: all dispatch indicators match step content; FAIL on mismatch
+
+## Result Contract Schema
+
+Before returning, load the output contract from `contracts/validate-output-template.yaml` and validate the result against it. The contract defines the expected output structure:
+
+```yaml
+status: string  # PASS | BLOCKED
+per_check_results: list[dict]  # per-check PASS/FAIL with check_id, check_name, status, evidence_type, finding_classification, action
+artifact_path: string  # path to full evidence on disk
+summary: string  # 1-3 sentence summary
+```
+
+Each z3-check step runs `solve check` against the previous step's output contract to validate state transitions.
 
 ## No-Placeholders Rule
 
@@ -73,7 +165,8 @@ Does NOT enforce a specific section order. A plan without "Risks" is valid if ri
 | "No placeholders present" | Search for placeholder patterns in plan body | \`grep(pattern="TBD | TODO |
 | "Spec reference exists in plan" | Search for `Spec: #N` pattern | `grep(pattern="Spec: #")` on plan body | MISSING-ELEMENT |
 | "Sub-issues link to plan (not spec)" | Verify sub-issue parent | `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=plan_number)` | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
-| "Plan has `plan` label" | Verify label on plan issue | `issue-operations -> read-issue (github_issue_read(method="get", issue_number=plan_number)` → check labels | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
+| "Plan index exists" | Verify plan index at `{N}/plan.md` | `ls {N}/plan.md 2>/dev/null` | MISSING-ELEMENT |
+| "Phase files exist" | Verify phase files at `{N}/plan-{NN}-*.md` | `ls {N}/plan-*.md 2>/dev/null` | MISSING-ELEMENT |
 | "Steps are actionable" | Verify each step has concrete action | Manual parse — flag abstract goals | VERIFICATION-GAP |
 
 **Evidence artifact:** Tool call results for automated checks; manual review log for actionable-step verification.

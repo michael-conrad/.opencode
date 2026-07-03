@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: chain-of-responsibility-paths
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Chain-of-Responsibility Path Routing
 #
 # Verifies that the AI agent actually routes through the

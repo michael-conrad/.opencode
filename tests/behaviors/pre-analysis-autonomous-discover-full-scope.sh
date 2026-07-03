@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: pre-analysis-autonomous-discover-full-scope
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: pre-analysis-autonomous-discover-full-scope (SC-7)
 #
 # Verifies that a pre-analysis sub-agent independently discovers the full scope

@@ -21,6 +21,7 @@ For each step in the plan:
 ### 3. Verify Step
 
 - Run step verification method
+- **Behavioral uplift at step verification:** If the change affects runtime behavior, uplift the SC evidence type to `behavioral`. See `guidelines/000-critical-rules.md` §critical-rules-BEH-EV.
 - Check all evidence collected
 - Update step status to ☑
 
@@ -39,7 +40,7 @@ Report step completion to chat:
 **Next:** Step N+1 - [Next concern]
 ```
 
-- Update STATUS in plan issue body
+- Write progress to `./tmp/{N}/work.md` state file
 - HALT and wait for user
 
 ### 5. Proceed to Next

@@ -6,22 +6,22 @@ Agent must not halt at process completion when halt_at >= verification_complete.
 ## Verification
 Verify `halt_at` pipeline stage before halting.
 
-## `investigate/` Branch Discard Enforcement
+## `observe/` Branch Discard Enforcement
 
 ### Pre-Halt Verification
-Before halting under `for_analysis` scope, verify ALL `investigate/` branches have been discarded:
+Before halting under `for_analysis` scope, verify ALL `observe/` branches have been discarded:
 
 ```bash
-git branch | grep "investigate/"
+git branch | grep "observe/"
 ```
 
-If any `investigate/` branches remain:
-1. Delete each: `git branch -D investigate/<topic>`
-2. Re-verify: `git branch | grep "investigate/"` returns empty
+If any `observe/` branches remain:
+1. Delete each: `git branch -D observe/<topic>`
+2. Re-verify: `git branch | grep "observe/"` returns empty
 3. Only then proceed with halt message
 
 ### Violation
-Leaving an `investigate/` branch in the repo after HALT is a CRITICAL GUIDELINE VIOLATION.
+Leaving an `observe/` branch in the repo after HALT is a CRITICAL GUIDELINE VIOLATION.
 
 ## `feature/` and `spec/` Branch Scope Gate
 
@@ -40,7 +40,7 @@ If the agent detects it is on a `feature/` or `spec/` branch without `for_implem
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
@@ -52,4 +52,4 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ## References
 - See approval-gate skill for scope model
-- See git-workflow pre-work for investigate/ branch rules
+- See git-workflow pre-work for observe/ branch rules

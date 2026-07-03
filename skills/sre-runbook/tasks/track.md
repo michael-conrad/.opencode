@@ -6,9 +6,9 @@ Track an incident or change via GitHub Issue with structured labels and prose na
 
 ## Operating Protocol
 
-1. Invoked by: `skill({name: "sre-runbook"})` → `task()` for `track`
-2. When to use: When tracking an incident, outage, or change through its lifecycle
-3. Exit criteria: GitHub Issue created/updated with structured labels and prose narrative
+- [ ] 1. Invoked by: `skill({name: "sre-runbook"})` → `task()` for `track`
+- [ ] 2. When to use: When tracking an incident, outage, or change through its lifecycle
+- [ ] 3. Exit criteria: GitHub Issue created/updated with structured labels and prose narrative
 
 ## Pre-Conditions
 
@@ -115,10 +115,10 @@ Label set:
 **WHY:** Timeline entries create the audit trail. Without them, postmortems lack data. Each entry must include reasoning — not just what happened, but why it matters.
 
 **Update workflow:**
-1. Read current issue body via `issue-operations -> read-issue (github_issue_read` <!-- Routes through issue-operations per SPEC #683 -->
-2. Add new timeline entry with timestamp, event, and reasoning
-3. Update status field if changed
-4. Update issue via `issue-operations → update-issue` <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 1. Read current issue body via `issue-operations -> read-issue (github_issue_read` <!-- Routes through issue-operations per SPEC #683 -->
+- [ ] 2. Add new timeline entry with timestamp, event, and reasoning
+- [ ] 3. Update status field if changed
+- [ ] 4. Update issue via `issue-operations → update-issue` <!-- Routes through issue-operations per SPEC #683 -->
 
 **Each timeline entry MUST include:**
 - Timestamp (or relative marker if exact time unknown)
@@ -140,9 +140,9 @@ Escalation thresholds:
 | P3 | Not resolved within 1 business day | Reassess severity, consider upgrading |
 
 When escalation threshold is reached:
-1. Add `escalation` label to the issue
-2. Add timeline entry noting escalation and reasoning
-3. HALT runbook tracking — escalation requires human decision
+- [ ] 1. Add `escalation` label to the issue
+- [ ] 2. Add timeline entry noting escalation and reasoning
+- [ ] 3. HALT runbook tracking — escalation requires human decision
 
 ### Step 5: Change Tracking (for `change` type only)
 
@@ -167,10 +167,10 @@ change:
 **WHY:** Closing without postmortem documentation means the same incident recurs. Every P1 and P2 incident must have a postmortem. P3 incidents may close with a brief retrospective.
 
 **After generating postmortem (via `generate` task or manually):**
-1. Add postmortem link to tracking issue
-2. Update status to `resolved` or `postmortem`
-3. If postmortem action items exist, create follow-up issues
-4. Close the tracking issue only after postmortem is complete
+- [ ] 1. Add postmortem link to tracking issue
+- [ ] 2. Update status to `resolved` or `postmortem`
+- [ ] 3. If postmortem action items exist, create follow-up issues
+- [ ] 4. Close the tracking issue only after postmortem is complete
 
 **Do NOT close issues before postmortem for P1/P2 incidents.** See `git-workflow --task cleanup` for post-merge closure workflow.
 

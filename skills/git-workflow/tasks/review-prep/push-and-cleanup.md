@@ -18,11 +18,11 @@ Clean temp files, handle submodule push automation, rebase on current dev, and v
 
 ## Procedure
 
-### Step 0: Submodule Feature Push via Sub-Agent task() (CONDITIONAL)
+### Step 0: Submodule Feature Push via Sub-Agent Orchestrator Dispatch (CONDITIONAL)
 
-**If `.gitmodules` does NOT exist:** Skip entirely.
+**If no submodules detected via glob scan:** Skip entirely.
 
-**If `.gitmodules` exists:** task() a `submodule-feature-push` sub-agent to handle submodule push automation instead of executing inline bash.
+**If submodules detected:** The orchestrator dispatches a `submodule-feature-push` sub-agent to handle submodule push automation instead of executing inline bash.
 
 #### Task Context Schema
 
@@ -33,7 +33,7 @@ must_receive:
   - parent_repo_owner: string   # github.owner of parent repo
   - parent_repo_name: string    # github.repo of parent repo
   - parent_branch: string       # feature branch name in parent
-  - submodule_paths: string[]   # list of submodule paths from `.gitmodules`
+  - submodule_paths: string[]   # list of submodule paths from glob scan
   - dev_name: string            # developer name for commit authorship
   - dev_email: string           # developer email for commit authorship
 
@@ -70,13 +70,12 @@ evidence_artifacts:
 
 ### Step 1: Temp File Cleanup (MANDATORY)
 
-```bash
-rm ./tmp/temp_*.py ./tmp/test_*.py 2>/dev/null
-rm ./tmp/*.json ./tmp/*.csv ./tmp/*.html 2>/dev/null
-ls ./tmp/
-```
+Clean scoped issue temp files. Pipeline artifacts under `./tmp/{issue-N}/artifacts/` are NOT cleaned here — they are cleaned by the step-specific pre-cleanup table in implementation-pipeline SKILL.md and at PR merge by the cleanup task.
 
-**Preserve:** `./tmp/*.db`, `./tmp/*.log`, `./tmp/.*`
+```bash
+rm -rf ./tmp/{issue-N}/temp_*.py ./tmp/{issue-N}/test_*.py ./tmp/{issue-N}/design-*.md 2>/dev/null
+rm -rf ./tmp/{issue-N}/.cache 2>/dev/null
+```
 
 ### Step 1.5: Rebase on Current Dev (MANDATORY)
 
@@ -105,14 +104,24 @@ git branch -vv
 git push -u origin <branch-name>
 ```
 
-## Worktree Mode (MANDATORY — NO EXCEPTIONS)
+## Branch Mode (Conditional — Based on WORKTREE_REQUIRED)
 
-All feature branches operate in worktrees. If `worktree.path` is not set: **FATAL ERROR → HALT.**
+**Direct-branch mode (default — when `WORKTREE_REQUIRED` is NOT set):**
+
+- Operate normally from the main repo directory
+- Relative paths work directly
+- No worktree path prefixing needed
+- `git fetch`/`git rebase` run directly
+
+**Worktree mode (opt-in — when `WORKTREE_REQUIRED` is set):**
+
+If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT.** Do not proceed without a valid worktree path.
 
 1. All `bash` calls use `workdir="{{worktree.path}}"`
 2. All `read`/`edit`/`write`/`glob`/`grep` prefix with `{{worktree.path}}/`
 3. Verify branch before push: `git branch --show-current`
-4. `origin/dev` is shared across worktrees — `git fetch`/`git rebase` work from any worktree
+4. `git rev-parse --show-toplevel` MUST return the worktree path
+5. NEVER operate in the main working directory during worktree mode
 
 ### Step 2.5: Worktree Handoff (CONDITIONAL)
 

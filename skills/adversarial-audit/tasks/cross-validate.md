@@ -8,12 +8,80 @@
 
 Accept an evidence payload, evaluation criteria, and pre-resolved auditor verdicts — then cross-reference those verdicts per criterion — producing PASS only when both auditors independently returned PASS. This task does NOT dispatch auditors; the orchestrator task()s auditors before invoking cross-validate and passes the verdicts as entry criteria.
 
+> **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from the implementation run are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) both auditors independently agree.
+
 ## Entry Criteria
 
-- `evidence_payload`: The claim or output to evaluate (free text, spec body, code snippet, or structured assertion)
-- `evaluation_criteria`: Array of criterion objects, each with `{ id, description, expected_result, source_reference, evidence_type }` — `evidence_type` MUST be included per `080-code-standards.md` §Evidence Type Taxonomy
-- `auditor_verdicts`: Pre-resolved array of two verdict objects from the orchestrator, each containing `{ auditor_type, family, raw_verdict, parseable }` — resolved by `resolve-models` and dispatched by the orchestrator BEFORE this task
-- `github.owner`, `github.repo` present in task context
+- `spec_local_dir`: Local directory containing Markdown spec files
+- `artifact_evidence_dir`: Path(s) to directories containing auditor YAML verdict artifacts on disk
+- Lightweight audit-type structural criteria (SC-1/PF-1/CS-1/GA-1 templates) provided as task-file-defined templates WITHOUT embedded spec SC content
+- `auditor_metadata`: Optional array of `{ auditor_type, family, parseable }` for auditor identity context
+
+## Cross-Validate Checklist
+
+- [ ] 1. Load Spec + extract SCs from spec_local_dir
+- [ ] 2. Pre-Inspection Classification Gate — runtime-behavioral uplift check for each SC
+- [ ] 3. Load both auditor verdict artifacts (artifact_evidence_dir)
+- [ ] 4. Per-SC comparison: Auditor-A verdict vs Auditor-B verdict
+- [ ] 5. **Do NOT reclassify FAIL** — a FAIL from either auditor is a FAIL in the cross-validate verdict
+- [ ] 6. PASS only when BOTH auditors returned PASS for the SC
+- [ ] 7. Evidence Type Matrix enforcement — downgrade PASS with EVIDENCE_TYPE_MISMATCH to FAIL
+- [ ] 8. Write unified verdict artifact to disk
+- [ ] 9. Return frugal contract with verdict summary
+
+### Step 0: Load Spec
+
+`spec_local_dir` is REQUIRED. Auditors BLOCK if absent.
+
+```python
+spec_files = glob(pattern="**/*.md", path=f"<spec_local_dir>")
+spec_scs = []
+spec_evidence_types = {}
+for f in spec_files:
+    content = read(filePath=f)
+    extract_success_criteria(content, spec_scs)
+    extract_evidence_types(content, spec_evidence_types)
+```
+
+Use the loaded spec SCs as the sole authoritative baseline for evidence type checks. Do NOT accept inline-provided evaluation_criteria as authoritative for evidence type — the spec's own declarations are the source of truth.
+
+## Pre-Inspection Classification Gate (MANDATORY)
+
+**Before evaluating any evidence, the auditor MUST classify each SC by asking: "Does this change affect runtime behavior? YES/NO."**
+
+### Classification Question
+
+For each success criterion in the audit scope:
+
+- [ ] 1. Read the implementation diff for the files the SC covers
+- [ ] 2. Ask: "Does this change affect runtime behavior?" — this is a substrate-determined question, not intent-determined
+- [ ] 3. If YES → the SC's evidence type is UPLIFTED to `behavioral` regardless of how it was declared
+- [ ] 4. If NO → the declared type stands
+
+### What Affects Runtime Behavior
+
+| Change Type | Affects Runtime Behavior? | Classification |
+|-------------|---------------------------|----------------|
+| Function logic changes | YES | Uplift to behavioral |
+| Control flow changes | YES | Uplift to behavioral |
+| API endpoint changes | YES | Uplift to behavioral |
+| New code paths | YES | Uplift to behavioral |
+| Config-only changes (no runtime effect) | NO | Declared type stands |
+| Documentation-only changes | NO | Declared type stands |
+| Style/formatting changes | NO | Declared type stands |
+| Data schema changes with runtime effects | YES | Uplift to behavioral |
+
+### Uplift Protocol
+
+When an SC is uplifted:
+- [ ] 1. Record the uplift in the audit report: `SC-N: uplifted from [declared_type] to behavioral (change affects runtime behavior: [reason])`
+- [ ] 2. Evaluate ALL evidence against the `behavioral` tier
+- [ ] 3. Structural or string evidence for an uplifted SC is classified as `EVIDENCE_TYPE_MISMATCH` with a FAIL verdict
+- [ ] 4. The uplift is MANDATORY — no opt-out, no "close enough" exception
+
+**🚫 FORBIDDEN:** Accepting structural evidence for an uplifted SC. The uplift is automatic and non-negotiable.
+
+**Authority:** `guidelines/000-critical-rules.md` §critical-rules-BEH-EV, `guidelines/080-code-standards.md` §Evidence Type Taxonomy
 
 ## Exit Criteria
 
@@ -30,36 +98,67 @@ The following states are **terminal BLOCKED states** with no fallback or recover
 
 | Gate | Condition | Error Code | Action |
 |------|-----------|------------|--------|
-| MISSING_INPUT | `evidence_payload` or `evaluation_criteria` missing or empty | `MISSING_INPUT` | Return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }` |
-| MISSING_VERDICTS | `auditor_verdicts` missing, null, or empty array | `MISSING_VERDICTS` | Return `{ status: "BLOCKED", error: "MISSING_VERDICTS" }` |
-| INSUFFICIENT_FAMILIES | `auditor_verdicts` contains fewer than 2 entries OR both auditors share the same family | `INSUFFICIENT_FAMILIES` | Return `{ status: "BLOCKED", error: "INSUFFICIENT_FAMILIES" }` |
+| MISSING_INPUT | `spec_local_dir` missing or empty, or no .md files readable | `MISSING_INPUT` | Return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }` |
+| MISSING_EVIDENCE_DIR | `artifact_evidence_dir` missing, null, or empty | `MISSING_EVIDENCE_DIR` | Return `{ status: "BLOCKED", error: "MISSING_EVIDENCE_DIR" }` |
+| ARTIFACT_UNREADABLE | Auditor YAML artifact file cannot be read or parsed | `ARTIFACT_UNREADABLE` | Return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }` |
+| INSUFFICIENT_ARTIFACTS | Each auditor produces fewer than 1 verdict OR both auditors share the same family | `INSUFFICIENT_ARTIFACTS` | Return `{ status: "BLOCKED", error: "INSUFFICIENT_ARTIFACTS" }` |
 
 These gates are **non-recovery** per adversarial-audit-017. Do NOT attempt to resolve models inline, re-dispatch auditors, or fabricate verdicts. The ONLY valid path is: resolve-models → auditor dispatch → cross-validate with results. NO fallback, NO single-auditor mode, NO alternative paths.
 
 ## Procedure
 
-### Step 0: Context Contamination Detection
+### Step 0: Pre-Flight Validation Gate
 
-Before consensus, check each auditor's verdict for AUDIT_FAIL entries:
-1. One AUDIT_FAIL + one normal → invalidate contaminated verdict, re-dispatch
-2. Both AUDIT_FAIL same source → confirm, BLOCK pipeline
-3. AUDIT_FAIL MUST include explanation with specific contamination signal
+Validate that all required inputs are present before proceeding with cross-validation:
 
-### Step 1: Validate Input
+- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 2. Verify `artifact_evidence_dir` is present and contains at least 2 YAML files — if fewer than 2, return BLOCKED:
 
-Confirm `evidence_payload` and `evaluation_criteria` are present and non-empty. If either is missing: return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }`.
+```yaml
+status: BLOCKED
+error: INSUFFICIENT_ARTIFACTS
+missing: "artifact_evidence_dir"
+remediation: "At least 2 YAML evidence files are required in artifact_evidence_dir. Ensure both auditors have written their verdict artifacts before dispatching cross-validate."
+```
 
-### Step 2: Validate Pre-Resolved Verdicts
+- [ ] 3. If `spec_local_dir` is missing or empty, return BLOCKED:
 
-Confirm `auditor_verdicts` is present, non-null, and contains exactly two entries from different model families. Each entry MUST contain `{ auditor_type, family, raw_verdict, parseable }`.
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "spec_local_dir"
+remediation: "spec_local_dir is required for cross-validate. The orchestrator must provide a valid local directory containing spec Markdown files."
+```
 
-- If `auditor_verdicts` is missing or null: return `{ status: "BLOCKED", error: "MISSING_VERDICTS" }`.
-- If `auditor_verdicts` has fewer than 2 entries: return `{ status: "BLOCKED", error: "INSUFFICIENT_FAMILIES" }`.
-- If both entries share the same `family`: return `{ status: "BLOCKED", error: "INSUFFICIENT_FAMILIES" }`.
+- [ ] 4. If `artifact_evidence_dir` is missing or empty, return BLOCKED:
 
-### Step 3: Parse Auditor Verdicts
+```yaml
+status: BLOCKED
+error: MISSING_REQUIRED_INPUT
+missing: "artifact_evidence_dir"
+remediation: "artifact_evidence_dir is required for cross-validate. The orchestrator must provide a directory containing auditor YAML verdict artifacts."
+```
 
-Each entry in `auditor_verdicts` contains a `raw_verdict` field with YAML block document format (with `---` delimiters). Expected format per verdict:
+### Step 1: Context Contamination Detection
+
+This section is obsolete with binary PASS/FAIL verdicts. Auditors now return only PASS or FAIL — non-binary verdicts indicate a defective auditor card, not a contaminated dispatch. If an auditor returns anything other than PASS or FAIL, flag it as an auditor card defect and BLOCK pipeline.
+
+### Step 2: Validate Input
+
+Confirm `spec_local_dir` is present and non-empty. Glob `**/*.md` in `<spec_local_dir>/`, read all discovered files via `read` tool. If `spec_local_dir` is missing, empty, or no .md files can be read: return `{ status: "BLOCKED", error: "MISSING_INPUT", missing: "<field>" }`.
+
+### Step 3: Validate Evidence Directory
+
+Confirm `artifact_evidence_dir` is present, non-null, and non-empty. The sub-agent reads auditor YAML verdict artifacts from files discovered in the evidence directory via `glob`/`read`. Each discovered YAML file MUST contain `{ criterion_id, result, evidence, explanation, remediation, next_step }`.
+
+- If `artifact_evidence_dir` is missing or null: return `{ status: "BLOCKED", error: "MISSING_EVIDENCE_DIR" }`.
+- If `artifact_evidence_dir` has fewer than 2 YAML files: return `{ status: "BLOCKED", error: "INSUFFICIENT_ARTIFACTS" }`.
+- If artifact file cannot be read: return `{ status: "BLOCKED", error: "ARTIFACT_UNREADABLE" }`.
+- If both files share the same `family`: return `{ status: "BLOCKED", error: "INSUFFICIENT_FAMILIES" }`.
+
+### Step 4: Read and Parse Auditor Verdicts from Disk
+
+For each YAML file discovered via glob/read in `artifact_evidence_dir`, read the verdict file from disk using the `read` tool. Each file contains the full YAML verdict artifact. Expected format per verdict file:
 
 ```
 ---
@@ -68,7 +167,8 @@ result: "PASS"
 evidence: "<tool-call reference>"
 explanation: "<reasoning>"
 remediation: ""
-next_step: "proceed"
+next_step: "proceed"  # Conditional: "remediate" when result is "FAIL", "proceed" when result is "PASS"
+all_criteria_pass: false
 ---
 ---
 criterion_id: "SC-2"
@@ -82,19 +182,28 @@ next_step: "re-evaluate"
 
 Validation rules per verdict:
 - `criterion_id` MUST match a criterion id from `evaluation_criteria`
-- `result` MUST be one of: `PASS`, `FAIL`, `AUDIT_FAIL`, `LIMITED-EVIDENCE`, `FABRICATED`
+- `result` MUST be: `PASS` or `FAIL`. These are the only valid verdicts. Auditors BLOCK on contamination or insufficient evidence — they never produce non-binary verdicts.
 - `evidence` MUST reference a live tool call (URL, file path, or command output) — memory-cached claims are FORBIDDEN
 - `explanation` MUST be present and non-empty
 - `remediation` MUST be present when result is not PASS
 - `next_step` MUST be one of: `proceed`, `re-evaluate`, `escalate`
 
-If an auditor's `raw_verdict` is unparseable YAML, missing the `---` delimiters, or contains no recognizable criterion ids: treat the entire auditor's contribution as `FAIL` for ALL criteria. Do NOT re-task — the protocol requires accepting real output, not retrying until PASS is obtained.
+If an auditor's YAML artifact is unparseable, missing the expected fields, or contains no recognizable criterion ids: treat the entire auditor's contribution as `FAIL` for ALL criteria. Do NOT re-task — the protocol requires accepting real output, not retrying until PASS is obtained.
 
-If an auditor's `raw_verdict` has extra criterion ids not in `evaluation_criteria`: ignore extra verdicts, flag in result contract as `EXTRA_VERDICTS` warning.
+If an auditor's YAML artifact has extra criterion ids not in `evaluation_criteria`: ignore extra verdicts, flag in result contract as `EXTRA_VERDICTS` warning.
 
-If an auditor's `raw_verdict` is missing a criterion id from `evaluation_criteria`: treat that criterion as `FAIL` for that auditor with explanation `"MISSING_VERDICT"`.
+If an auditor's YAML artifact is missing a criterion id from `evaluation_criteria`: treat that criterion as `FAIL` for that auditor with explanation `"MISSING_VERDICT"`.
 
-### Step 4: Cross-Reference Verdicts
+### Step 5: Cross-Reference Verdicts — Monotonic Non-Increasing Invariant
+
+**Cross-validate verdicts are monotonic non-increasing in PASSness.** Verdicts must never increase in PASSness at the cross-validate stage. Cross-validate is a rejection filter, not a remediation gate.
+
+| Direction | Allowed? | Mechanism |
+|---|---|---|
+| FAIL → FAIL | ✅ Stays | If both return FAIL, or one returns FAIL, consensus = FAIL |
+| PASS → FAIL | ✅ De-elevation | Caught by Step 5.7 self-check (narrative override, PASS+critique, hedging, weak evidence) |
+| FAIL → PASS | 🚫 FORBIDDEN | Only a fresh audit cycle with new clean-room auditors can produce a new verdict on a revised deliverable |
+| PASS → PASS | ✅ Stays | Both auditors return clean PASS — confirmed by Step 5.7 self-check |
 
 For each criterion in `evaluation_criteria`:
 
@@ -102,54 +211,91 @@ For each criterion in `evaluation_criteria`:
 |---|---|
 | Both auditors return `PASS` | `consensus = PASS` |
 | Either auditor returns `FAIL` | `consensus = FAIL` |
-| Non-PASS result (AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED) | `consensus = BLOCKED` |
+| Non-PASS result (any non-binary verdict) | `consensus = BLOCKED` — auditors should never produce this |
 | Either auditor's verdict is missing or unparseable | `consensus = FAIL` |
 | Auditors disagree (one PASS, one non-PASS) | `consensus = FAIL` |
 
-Non-PASS (FAIL, AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED) = BLOCKED pipeline. Orchestrator reads `next_step` from verdict and routes accordingly — does NOT interpret or override.
+Non-PASS (only valid non-PASS verdict is FAIL) = BLOCKED pipeline. FAIL is terminal — no reclassification permitted. Any non-binary verdict (AUDIT_FAIL, FABRICATED, LIMITED-EVIDENCE, INCONCLUSIVE) means the auditor is operating outside spec — BLOCK pipeline and flag the auditor card for correction. Orchestrator reads `next_step` from verdict and routes accordingly — does NOT interpret or override.
 
 Track disagreements explicitly in the result contract for transparency: a `PASS`/`FAIL` split is different from a double `FAIL`.
 
-#### Evidence Type Gate (MANDATORY — Per SC)
+#### FAIL Is Terminal — No Reclassification (MANDATORY)
 
-Before computing consensus for each criterion, cross-validate MUST check the declared evidence type against the actual evidence type used by each auditor. This gate prevents auditors from verifying behavioral SCs with structural evidence and reporting PASS.
+FAIL from an auditor is **terminal at the cross-validate stage**. A FAIL cannot become a PASS — not with narrative override, not with evidence of a fix, not with any reasoning. The only valid path from FAIL to PASS is: report FAIL → orchestrator routes to remediation → deliverable is revised → fresh audit cycle dispatched with new clean-room auditors and fresh resolve-models.
 
-**For each criterion in `evaluation_criteria`:**
+The following rationalization patterns are enumerated as explicit violations:
 
-1. Read the criterion's declared `evidence_type` field (from the spec's success criteria table)
-2. For each auditor's verdict on that criterion, check the evidence type used:
+| Rationalization Pattern | Why Forbidden | Verdict |
+|---|---|---|
+| "Revision already applied" / "already fixed" | Process metadata substituted for structural correction evaluation | Consensus = FAIL — surface to orchestrator for re-audit |
+| "Functionally equivalent" / "close enough" | Soft-pass per critical-rules-020 | Consensus = FAIL |
+| "Minor concern / edge case" | Agent judgment substituting for strict agreement | Consensus = FAIL |
+| "Resolved in separate change" / "out of scope" | Shifting evaluation target | Consensus = FAIL |
+| "Partially addressed" / "mostly correct" | Hedging disqualifies clean PASS | Consensus = FAIL |
+| Auditor 1 = FAIL, auditor 2 = PASS, cross-validate "resolves" to PASS | Direct violation of monotonic invariant | Consensus = FAIL |
+| Any single-sentence dismissal of a FAIL finding | Insufficient analysis for a gate this important | Consensus = FAIL |
+| "Let's look at this pragmatically" / "the intent is satisfied" | Pragmatism ≠ verification — binary rules apply | Consensus = FAIL |
+
+**Cross-validate does NOT perform remediation verification.** That is the job of a fresh audit cycle with new clean-room auditors. Cross-validate only evaluates what the auditors produced — it does not verify fixes.
+
+#### Artifact Engagement Check (MANDATORY — Per SC)
+
+Before computing consensus for each criterion, cross-validate MUST verify that each auditor actually inspected the behavioral evidence artifacts. This gate prevents auditors from reporting PASS on behavioral SCs without engaging the behavioral test output.
+
+**Key principle:** Evidence type is determined at **production time**, not consumption time. When the orchestrator passes `artifact_evidence_dir`, it declares "these are behavioral test results" (the orchestrator ran `opencode-cli run`). The auditor's inspection tool (`read`, `grep`) does NOT re-classify the evidence type. Reading a `timeline.yaml` from `opencode-cli run` is behavioral evidence inspection — the same way reading a pytest output log is behavioral evidence inspection.
+
+**For each criterion (from the loaded spec SCs in Step 0):**
+
+- [ ] 1. Read the criterion's declared `evidence_type` from the loaded spec (spec_scs from Step 0 — NOT from inline evaluation_criteria)
+- [ ] 2. For each auditor's verdict on that criterion, check whether the auditor engaged the behavioral evidence artifacts:
    - If `evidence_type` is not declared in the criterion, default to `string`
-   - If the auditor used structural evidence (file existence, grep, read) for a criterion declared as `behavioral`, downgrade that auditor's verdict from PASS to FAIL with `EVIDENCE_TYPE_MISMATCH` classification
-   - If the auditor used structural or string-only evidence for a criterion declared as `semantic`, downgrade that auditor's verdict from PASS to FAIL with `EVIDENCE_TYPE_MISMATCH` classification
-3. If both auditors used wrong evidence types for a behavioral SC: consensus is FAIL with `EVIDENCE_TYPE_MISMATCH`
-4. If one auditor used correct evidence type (PASS) and the other used wrong evidence type (PASS → downgraded to FAIL): consensus is DISAGREE — resolve by re-dispatching the wrong-evidence-type auditor with explicit evidence type classification
-5. The evidence type gate applies BEFORE the consensus computation — it modifies auditor verdicts before they enter the consensus matrix
+   - If the criterion is declared as `behavioral`: check that the auditor's `evidence` field references files from the behavioral test output directory (`artifact_evidence_dir`). Did they read `timeline.yaml`, `stderr.log`, `session.yaml`, or `stdout.log`? Did they reference specific tool calls from the trace?
+   - If the auditor's evidence references ONLY source code files, file existence checks, or grep patterns outside the behavioral test output — and does NOT reference any behavioral test artifact — downgrade that auditor's verdict from PASS to FAIL with `EVIDENCE_TYPE_MISMATCH` classification
+   - If the criterion is declared as `semantic`: check that the auditor used analytical judgment (sub-agent read + reasoning), not just grep/string matching. If they used only string evidence, downgrade to FAIL with `EVIDENCE_TYPE_MISMATCH`
+- [ ] 3. If both auditors failed to engage behavioral evidence for a behavioral SC: consensus is FAIL with `EVIDENCE_TYPE_MISMATCH`
+- [ ] 4. If one auditor engaged behavioral evidence (PASS) and the other did not (PASS → downgraded to FAIL): consensus is DISAGREE — resolve by re-dispatching the non-engaging auditor with explicit instruction to inspect `artifact_evidence_dir`
+- [ ] 5. The artifact engagement check applies BEFORE the consensus computation — it modifies auditor verdicts before they enter the consensus matrix
 
-**EVIDENCE_TYPE_MISMATCH is not a soft-pass condition.** It is a hard FAIL that prevents structural evidence from passing as behavioral evidence — the exact defect exposed by spec #804.
+**EVIDENCE_TYPE_MISMATCH is not a soft-pass condition.** It is a hard FAIL that prevents auditors from bypassing behavioral evidence — but the check is whether they engaged the behavioral artifacts, not which tool they used to read them.
 
 #### DISAGREE Is Terminal — No Reclassification (MANDATORY)
 
 When auditors disagree on a criterion (one PASS, one FAIL), the consensus is FAIL. The cross-validate sub-agent MUST NOT:
 
-1. **Reclassify FAIL as PASS** — reasoning that one auditor's pattern was "more correct" or "over-broad" is soft-passing per `000-critical-rules.md` §critical-rules-020. FAIL is never reclassifiable as PASS.
-2. **Resolve disagreements through reasoning** — the cross-validate sub-agent does not have authority to determine which auditor is correct. DISAGREE means the evidence is contested, and contested evidence is FAIL.
-3. **Annotate PASS on a FAIL criterion** — any annotation, footnote, caveat, or "resolved as PASS" qualifier on a FAIL criterion is a soft-pass violation.
+- [ ] 1. **Reclassify FAIL as PASS** — reasoning that one auditor's pattern was "more correct" or "over-broad" is soft-passing per `000-critical-rules.md` §critical-rules-020. FAIL is never reclassifiable as PASS.
+- [ ] 2. **Resolve disagreements through reasoning** — the cross-validate sub-agent does not have authority to determine which auditor is correct. DISAGREE means the evidence is contested, and contested evidence is FAIL.
+- [ ] 3. **Annotate PASS on a FAIL criterion** — any annotation, footnote, caveat, or "resolved as PASS" qualifier on a FAIL criterion is a soft-pass violation.
 
 Disagreements MUST be surfaced to the developer for resolution. The `disagreements` list in the result contract MUST contain every SC where auditors diverged, with both auditors' evidence. The developer decides whether to remediate the underlying issue or accept the contested SC — the cross-validate sub-agent does not make this decision.
 
 This rule is non-waivable. Per `000-critical-rules.md` §critical-rules-020, verification is binary: exact match or FAIL. "Functionally equivalent" is never a valid consensus outcome.
 
-### Step 5: Compute Aggregate Consensus
+#### Finding Types (MANDATORY)
+
+The cross-validate result contract MUST use the following finding type classifications. All produce FAIL verdicts per `critical-rules-hard-fail`:
+
+| Finding Type | When to Use | Verdict |
+|-------------|-------------|---------|
+| `VERIFICATION-GAP` | Orphan change with no matching SC — implementation exists but no SC covers it | FAIL |
+| `COVERAGE-GAP` | Implementation extends beyond spec scope — code does more than the SC requires | FAIL |
+| `EVIDENCE_TYPE_MISMATCH` | Wrong evidence type for SC tier — structural evidence for behavioral SC | FAIL |
+| `ANTI_EVASION` | Agent evading behavioral testing — claiming model unavailability, "too slow", or test-not-needed for runtime-behavioral changes | FAIL |
+
+**Authority:** `guidelines/000-critical-rules.md` §critical-rules-BEH-EV, §critical-rules-hard-fail, §critical-rules-060
+
+### Step 6: Compute Aggregate Consensus
 
 `overall_consensus = PASS` iff `consensus == PASS` for ALL criteria. Any single `FAIL` in the table cascades to `overall_consensus = FAIL`.
 
-### Step 5.5: Verdict Self-Consistency Gate
+**Severity-based exception for SC-SEM criteria:** SC-SEM criteria carry a `severity` field (`ERROR` or `WARNING`). A FAIL on a WARNING-severity criterion does NOT cascade to `overall_consensus = FAIL` — it is recorded as a warning in the findings but does not block the pipeline. A FAIL on an ERROR-severity criterion DOES cascade to `overall_consensus = FAIL` and blocks the pipeline. Non-SC-SEM criteria (without a `severity` field) are treated as ERROR-severity by default — any FAIL blocks the pipeline.
+
+### Step 6.5: Verdict Self-Consistency Gate
 
 Before dark pattern enforcement, every verdict must pass a self-consistency check:
 
-1. **PASS with finding language**: If `result: "PASS"` while `explanation`, `evidence`, or `remediation` field contains finding/critique language (e.g., "should be", "needs", "missing", "could improve"), the PASS is contradictory — downgrade to FAIL. PASS must be strictly confirmatory with no critique.
-2. **clean_room.verified constraint**: When `violations_detected` is non-empty, `clean_room.verified` MUST be `false`. If violations exist but verified is true, flag as `SELF_CONSISTENCY_FAIL`.
-3. **Evidence-verdict alignment**: If `result: "PASS"` but `evidence` references "minor concerns", "some issues", or other hedging language, downgrade to FAIL. A PASS verdict must have PASS-level evidence (confirmatory only).
+- [ ] 1. **PASS with finding language**: If `result: "PASS"` while `explanation`, `evidence`, or `remediation` field contains finding/critique language (e.g., "should be", "needs", "missing", "could improve"), the PASS is contradictory — downgrade to FAIL. PASS must be strictly confirmatory with no critique.
+- [ ] 2. **clean_room.verified constraint**: When `violations_detected` is non-empty, `clean_room.verified` MUST be `false`. If violations exist but verified is true, flag as `SELF_CONSISTENCY_FAIL`.
+- [ ] 3. **Evidence-verdict alignment**: If `result: "PASS"` but `evidence` references "minor concerns", "some issues", or other hedging language, downgrade to FAIL. A PASS verdict must have PASS-level evidence (confirmatory only).
 
 | Self-Consistency Rule | Trigger | Action |
 |---|---|---|
@@ -157,7 +303,29 @@ Before dark pattern enforcement, every verdict must pass a self-consistency chec
 | violations_detected + verified=true | Non-empty violations with verified=true | flag `SELF_CONSISTENCY_FAIL` |
 | PASS + hedging evidence | Evidence contains concern/minor/issue qualifiers | Downgrade to FAIL |
 
-### Step 6: Dark Pattern Enforcement (MANDATORY — NO BYPASS)
+### Step 6.7: Output-Integrity Self-Check (MANDATORY)
+
+Before dark pattern enforcement (Step 6) and before returning the result contract, cross-validate MUST scan its own output for violations of the monotonic invariant. If ANY of the following are detected, self-correct the affected criterion to FAIL:
+
+| Self-Check | Detection Signal | Action |
+|---|---|---|
+| PASS + critique language | `result: "PASS"` while `explanation` or `remediation` contains finding/fix language ("should be", "needs", "missing", "could improve", "minor", "some issues") | Downgrade to FAIL |
+| FAIL reclassified to PASS | Consensus declared as PASS but one or both auditors returned FAIL | Downgrade to FAIL |
+| Disagreement suppressed | Auditor 1 = FAIL, Auditor 2 = PASS, consensus declared as PASS | Downgrade to FAIL |
+| Hedging qualifiers | Evidence field contains "mostly", "generally", "largely", "essentially" | Downgrade to FAIL |
+| Narrative override | Explanation cites "revision applied", "already fixed", "out of scope", "pragmatically", "intent satisfied" as justification | Downgrade to FAIL |
+
+#### Self-Correction Protocol
+
+When self-check finds violations:
+- [ ] 1. Self-correct those criteria to FAIL
+- [ ] 2. Add `self_corrections` array to the result contract documenting each correction and its detection signal
+- [ ] 3. Recompute aggregate — any self-corrected FAIL cascades to `overall_consensus = FAIL`
+- [ ] 4. Set `next_step = "remediate then re-audit"`
+
+Self-correction means the cross-validate sub-agent caught itself in a protocol violation. This is documented, not hidden.
+
+### Step 7: Dark Pattern Enforcement (MANDATORY — NO BYPASS)
 
 Step 6 IS the completion step of cross-validation — it IS the definition of a valid result contract. An evaluation that skips dark pattern enforcement is INVALID without Step 6 enforcement. WE have determined that dark pattern detection is repository policy — it MANDATES enforcement for every verdict.
 
@@ -173,49 +341,68 @@ Before finalizing the result contract, scan ALL auditor verdicts, explanations, 
 | Sycophancy exploitation | Verdict agrees with the spec/plan author without independent evidence, or mirrors orchestrator-stated expectations | Require independent tool-call evidence per adversarial-audit-006 |
 | Continuity hooks | Verdict includes "next time", "in future iterations", "consider also" or other scope-expanding suggestions beyond the current criterion | Strip scope-expanding language; evaluate only current criterion |
 
-### Step 7: Build Result Contract
+### Step 6.5: Write Findings YAML to Disk
 
-Return structured result:
+Write the full cross-validate findings YAML to `./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml`:
 
-```json
-{
-  "status": "DONE",
-  "overall_consensus": "PASS|FAIL",
-  "next_step": "proceed|remediate then re-audit",
-  "auditor_verdicts": [
-    {
-      "auditor_type": "auditor-glm-5.1",
-      "family": "glm",
-      "parseable": true,
-      "raw_verdict": "[...]"
-    },
-    {
-      "auditor_type": "auditor-mistral-large",
-      "family": "mistral",
-      "parseable": true,
-      "raw_verdict": "[...]"
-    }
-  ],
-  "cross_validation": [
-    {
-      "criterion_id": "SC-1",
-      "description": "<criterion description>",
-      "evidence_type": "structural|string|semantic|behavioral",
-      "auditor_1_result": "PASS",
-      "auditor_2_result": "PASS",
-      "consensus": "PASS",
-      "auditor_1_evidence": "<tool-call reference>",
-      "auditor_2_evidence": "<tool-call reference>",
-      "agreement": true,
-      "dark_pattern_flags": [],
-      "evidence_type_mismatch": false
-    }
-  ],
-  "disagreements": [],
-  "dark_pattern_violations": [],
-  "warnings": []
-}
+```yaml
+phase: cross-validate
+issue_number: <N>
+generated_at: "<timestamp>"
+orchestrator_model: "<model>"
+auditor_1:
+  type: "<auditor_type>"
+  family: "<family>"
+  artifact: "<artifact_path>"
+auditor_2:
+  type: "<auditor_type>"
+  family: "<family>"
+  artifact: "<artifact_path>"
+summary:
+  overall_consensus: PASS|FAIL
+  next_step: "proceed|remediate then re-audit"
+  total_criteria: N
+  agreed: N
+  disagreed: N
+  evidence_type_mismatches: N
+  dark_pattern_violations: N
+findings:
+  - criterion_id: "SC-1"
+    declared_evidence_type: "structural|string|semantic|behavioral"
+    severity: "ERROR|WARNING"  # Only present for SC-SEM criteria; ERROR blocks pipeline, WARNING flags but does not block
+    auditor_1_result: PASS
+    auditor_2_result: PASS
+    consensus: PASS
+    agreement: true
+    evidence_type_mismatch: false
+self_corrections:
+  - criterion_id: "SC-N"
+    detection_signal: "PASS + critique language: explanation contained 'should verify'"
+    original_consensus: PASS
+    corrected_consensus: FAIL
+disagreements: []
+dark_pattern_violations: []
+warnings: []
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
+
+Create `./tmp/{issue-N}/artifacts/` if needed (write tool creates implicitly). Use the `write` tool to persist the full YAML document.
+
+### Step 7: Return Frugal YAML Result Contract
+
+Return ONLY this YAML as the final response — no preamble, no commentary, no markdown fences:
+
+```yaml
+status: DONE
+overall_consensus: PASS|FAIL
+next_step: "proceed|remediate then re-audit"
+artifact_path: "./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml"
+summary: "N SCs: X agreed, Y disagreed, Z evidence_type_mismatch"
+all_criteria_pass: false
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
+```
+
+When self-corrections are present, `overall_consensus` MUST be FAIL. Any single self-correction in any criterion cascades to overall FAIL.
 
 The `next_step` field:
 - `overall_consensus == PASS` → `next_step: "proceed"` (next pipeline continuation)
@@ -223,23 +410,22 @@ The `next_step` field:
 
 ## Context Required
 
-- `evidence_payload`: The claim, output, or assertion to be evaluated
-- `evaluation_criteria`: Array of `{ id, description, expected_result, source_reference }`
-- `auditor_verdicts`: Pre-resolved array of two verdict objects from orchestrator (each with `{ auditor_type, family, raw_verdict, parseable }`)
+- `spec_local_dir`: Local directory containing Markdown spec files
+- `artifact_evidence_dir`: Path(s) to directories containing auditor YAML verdict artifacts
 - `audit_phase`: Current audit phase for task context
-- `github.owner`, `github.repo`: For API calls
 
 ## Red Flags
 
-- Never task() auditors from within cross-validate — the orchestrator dispatches auditors, cross-validate receives verdicts only
+- Never task() auditors from within cross-validate — the orchestrator dispatches auditors, cross-validate discovers artifacts via evidence dir
 - Never leak orchestrator reasoning into verdict parsing — clean-room means evidence + criteria ONLY
 - Never soft-pass a mismatch — `PASS`/`FAIL` split = FAIL per adversarial-audit-004
-- Never fabricate verdicts when auditor output is unparseable — missing data = FAIL per adversarial-audit-005
+- Never fabricate verdicts when auditor YAML artifact is unreadable or unparseable — missing data = FAIL per adversarial-audit-005
 - Never accept memory-cached claims as evidence — every verdict must reference a live tool call
 - Never re-task an auditor after a FAIL verdict — FAIL stays FAIL
 - Never resolve auditors inline — `resolve-models` is called by orchestrator before this task
 - Never bypass dark pattern enforcement — Step 6 checks are MANDATORY per adversarial-audit-013 through adversarial-audit-018
 - Never attempt recovery from BLOCKED status — Non-Recovery Gates are terminal per adversarial-audit-017
+- Never pass YAML verdict content inline through orchestrator context — verdict artifacts stay on disk; only artifact_path reaches orchestrator
 
 ## Cross-References
 
@@ -253,23 +439,11 @@ The `next_step` field:
 
 ## Sub-Agent Routing
 
-Authorization context is passed alongside audit context:
-
-```
-authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
-halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
-pipeline_phase: <current_phase_name>
-authorization_source: "User approved #N on YYYY-MM-DD"
-```
-
 ### Task Rules
-- Missing `authorization_scope` in task context → return `status: BLOCKED`
-- Instructed to exceed `halt_at` → return `status: BLOCKED`
 
 | Scope of Context | Exclusions | Pre-Analysis Contract | Includes Inline Work? |
-|---|---|---|---|
-| `evidence_payload`, `evaluation_criteria`, `auditor_verdicts`, `audit_phase`, `authorization_scope`, `halt_at`, `pr_strategy`, `pipeline_phase`, `github.owner`, `github.repo` | Implementation context, agent memory, orchestrator reasoning, prior verification | N/A — cross-validate receives verdicts, does not dispatch auditors | NO |
+|---|---|---|---|---|
+| `spec_local_dir`, `artifact_evidence_dir`, `audit_phase` | Implementation context, agent memory, orchestrator reasoning, prior verification, spec_body, evaluation_criteria, verdict content | N/A — cross-validate discovers artifacts via evidence dir, does not dispatch auditors | NO |
 
 ```yaml+symbolic
 schema_version: "2.0"
@@ -283,10 +457,10 @@ rules:
     source: "cross-validate.md §Step 1"
 
   - id: cross-validate-002
-    title: "Pre-resolved verdicts must be provided by orchestrator — cross-validate does not dispatch auditors"
+    title: "Evidence directory must be provided — cross-validate discovers artifacts via glob/read"
     conditions:
-      all: ["auditor_verdicts == null OR auditor_verdicts_count < 2"]
-    actions: [RETURN_BLOCKED, REPORT_MISSING_VERDICTS]
+      all: ["artifact_evidence_dir == null OR artifact_evidence_dir_empty == true"]
+    actions: [RETURN_BLOCKED, REPORT_MISSING_EVIDENCE_DIR]
     source: "cross-validate.md §Step 2"
 
   - id: cross-validate-003
@@ -342,9 +516,9 @@ rules:
     source: "cross-validate.md §Step 4 Evidence Type Gate"
 
   - id: cross-validate-007a
-    title: "Non-PASS verdicts (AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED) cascade to BLOCKED"
+    title: "Non-PASS verdicts cascade to BLOCKED"
     conditions:
-      any: ["auditor_result == 'AUDIT_FAIL'", "auditor_result == 'LIMITED-EVIDENCE'", "auditor_result == 'FABRICATED'"]
+      any: ["auditor_result != .PASS."]
     actions: [SET_CONSENSUS_BLOCKED, ROUTE_VIA_NEXT_STEP]
     source: "cross-validate.md §Step 4"
 
@@ -420,9 +594,27 @@ rules:
     source: "cross-validate.md §Step 6"
 
   - id: cross-validate-018
-    title: "Non-recovery gate — MISSING_INPUT, MISSING_VERDICTS, INSUFFICIENT_FAMILIES are terminal with no fallback"
+    title: "Non-recovery gate — MISSING_INPUT, MISSING_EVIDENCE_DIR, ARTIFACT_UNREADABLE, INSUFFICIENT_ARTIFACTS are terminal with no fallback"
     conditions:
-      any: ["error == 'MISSING_INPUT'", "error == 'MISSING_VERDICTS'", "error == 'INSUFFICIENT_FAMILIES'"]
+      any: ["error == 'MISSING_INPUT'", "error == 'MISSING_EVIDENCE_DIR'", "error == 'ARTIFACT_UNREADABLE'", "error == 'INSUFFICIENT_ARTIFACTS'"]
     actions: [RETURN_BLOCKED, NO_RECOVERY]
     source: "cross-validate.md §Non-Recovery Gates"
+
+  - id: cross-validate-019
+    title: "next_step MUST be 'remediate' when result is 'FAIL', 'proceed' when result is 'PASS'"
+    conditions:
+      any:
+        - "per_criterion[].result == 'FAIL' AND per_criterion[].next_step != 'remediate'"
+        - "per_criterion[].result == 'PASS' AND per_criterion[].next_step != 'proceed'"
+    actions: [HALT, REQUIRE_CORRECT_NEXT_STEP]
+    source: "cross-validate.md §Step 4 — conditional next_step enforcement"
+
+  - id: cross-validate-020
+    title: "all_criteria_pass MUST be true when every criterion result is 'PASS', false otherwise"
+    conditions:
+      any:
+        - "all(criterion.result == 'PASS' for criterion in per_criterion) AND all_criteria_pass != true"
+        - "any(criterion.result == 'FAIL' for criterion in per_criterion) AND all_criteria_pass != false"
+    actions: [HALT, REQUIRE_CORRECT_ALL_CRITERIA_PASS]
+    source: "cross-validate.md §Step 4 — all_criteria_pass enforcement"
 ```

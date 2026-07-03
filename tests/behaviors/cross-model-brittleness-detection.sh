@@ -1,4 +1,7 @@
 #!/bin/bash
+# Behavioral test: cross-model-brittleness-detection
+# See .opencode/tests/AGENTS.md for the test harness specification and paradigm.
+# This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: cross-model-brittleness-detection
 #
 # Tests that the orchestrator runs behavioral rules against BOTH local and cloud

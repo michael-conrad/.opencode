@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = []
 # ///
 
+# fmt: on
 __doc__ = """DESCRIPTION: Start Jupyter server on port 18888 (XSRF disabled, no token) for notebook editing.
 
 Usage: ./.opencode/tools/jupyter start [--help]
@@ -27,7 +29,10 @@ from pathlib import Path
 
 _path = Path(__file__).resolve().parent
 while _path.name != ".opencode":
-    _path = _path.parent
+    parent = _path.parent
+    if parent == _path:
+        raise RuntimeError("Could not find .opencode/ directory")
+    _path = parent
 PROJECT_ROOT = _path.parent
 PORT = 18888
 LOG_FILE = PROJECT_ROOT / "tmp" / "jupyter.log"
@@ -90,3 +95,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

@@ -6,8 +6,8 @@ Determine if a spec is single-task (plan optional) or multi-task (requires plan 
 
 ## Operating Protocol
 
-1. **Run after pre-creation validation passes.**
-2. **Run BEFORE issue creation.**
+- [ ] 1. **Run after pre-creation validation passes.**
+- [ ] 2. **Run BEFORE issue creation.**
 
 ## Entry Criteria
 
@@ -27,10 +27,10 @@ Determine if a spec is single-task (plan optional) or multi-task (requires plan 
 
 **Read spec body and identify:**
 
-1. Concern boundaries — what distinct responsibilities does the spec address?
-2. Whether steps mix implementation, verification, and review
-3. Whether changes are localized or cross-cutting
-4. Number of phases (`## Phase N:` sections) — as a signal, not the primary classifier
+- [ ] 1. Concern boundaries — what distinct responsibilities does the spec address?
+- [ ] 2. Whether steps mix implementation, verification, and review
+- [ ] 3. Whether changes are localized or cross-cutting
+- [ ] 4. Number of phases (`## Phase N:` sections) — as a signal, not the primary classifier
 
 ### Step 2: Apply Single-Task Criteria
 
@@ -150,7 +150,7 @@ Next: Pass single_task_determination to post-creation → writing-plans
 ```
 ## Phase 1: Update Skills (Gated)
 - Update approval-gate
-- Update divide-and-conquer
+- Update implementation-pipeline
 ```
 
 **Analysis:**

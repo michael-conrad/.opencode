@@ -32,7 +32,7 @@ All implementation MUST follow: top-down decomposition → bottom-up design → 
 
 **Behavioral variant** (for rule/guideline items): Send a real-domain prompt via `opencode-cli run`, inspect stderr output (not stdout prose) for behavioral evidence of agent actions (skill dispatches, file reads, tool invocations). Assertions use stderr-based helpers (`assert_stderr_pattern_present`/`assert_stderr_pattern_absent_all_models`). Assert agent does NOT follow new rule (RED), then make change and assert agent DOES follow (GREEN).
 
-**Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task() calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence. Prose-recall prompts are NOT accepted as behavioral tests.**
+**Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task() calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence. Prose-recall prompts are NOT accepted as behavioral tests.** See `.opencode/tests/AGENTS.md` §9 Prompt Construction Mandate for the centralized specification of valid vs invalid prompt types.
 
 ## Anti-Patterns (Critical Violations)
 
@@ -42,26 +42,7 @@ All implementation MUST follow: top-down decomposition → bottom-up design → 
 - Merging without tests
 - Phase-scoped over-verification — testing other phases' deliverables
 
-## Complexity Metric: Word Count
-
-Word count (`wc -w`) is the canonical complexity metric for all skill task files, SKILL.md files, and guideline files. Line counts are not used because line length varies by formatting conventions and does not correlate with semantic density.
-
-### Artifact Size Limits
-
-| Artifact Type | Max Words | Measurement |
-| -- | -- | -- |
-| Atomic task file | ≤3,000 | `wc -w` |
-| Routing-tier SKILL.md | ≤4,000 | `wc -w` |
-| Condensed-tier SKILL.md | ≤2,000 | `wc -w` |
-| Guideline file | Per content needs | `wc -w` |
-
-When a task file exceeds 3,000 words on first draft, it MUST be split into smaller atomic tasks, each with a single concern and entry/exit criteria. This is a hard constraint, not a guideline.
-
-### Why Word Count
-
-- **Words, not lines:** Line length varies by formatting conventions. A 40-line table and a 40-line prose paragraph carry wildly different cognitive loads. Word counts measure semantic density.
-- **Words, not tokens:** Token counts vary by tokenizer, model, and encoding. Word counts are stable, reproducible, and model-agnostic.
-- **Measurement method:** `wc -w` is the canonical tool. All enforcement test assertions for artifact size MUST use `wc -w`, never `wc -l`.
+> **Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS. Document size metrics (word count, line count, token count, byte-dispatch formulas) are NOT valid proxies for implementation complexity.**
 
 **Symbolic rules below** — the prose above this line replaces the previous ~200 lines of advisory text.
 
@@ -79,7 +60,7 @@ rules:
       - HALT
     conflicts_with: [critical-rules-017]
     requires: []
-    triggers: [approval-gate, divide-and-conquer]
+    triggers: [approval-gate, implementation-pipeline]
     source: "091-incremental-build.md §Mandate"
 
   - id: incremental-build-002
@@ -105,7 +86,7 @@ rules:
       - HALT
     conflicts_with: []
     requires: []
-    triggers: [executing-plans, divide-and-conquer]
+    triggers: [executing-plans, implementation-pipeline]
     source: "091-incremental-build.md §Per-Item TDD Cycle"
 
   - id: incremental-build-004
@@ -134,17 +115,6 @@ rules:
     triggers: [verification-before-completion]
     source: "091-incremental-build.md §Phase-Scoped Test Assertions"
 
-  - id: incremental-build-006
-    title: "Task files must not exceed 3000 words"
-    conditions:
-      all:
-        - "task_file_word_count > 3000"
-    actions:
-      - SPLIT_FILE
-    conflicts_with: []
-    requires: []
-    triggers: [skill-creator]
-    source: "091-incremental-build.md §Complexity Metric: Word Count"
 
   - id: incremental-build-007
     title: "SC-specific TDD — test assertions must reference SC IDs"

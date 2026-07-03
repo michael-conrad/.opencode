@@ -14,7 +14,7 @@ Handle non-bug, non-spec issues by asking clarifying questions one at a time in 
 
 - Clarifying questions asked one at a time in chat
 - Resolution reached OR user ends Q/A
-- Exec summary posted to issue (durable outcomes only)
+- Exec summary routed through `issue-operations -> comment` substantive gate (durable outcomes only). Gate decides posting.
 - HALT after posting summary
 
 ## Q/A Depth Selection
@@ -60,10 +60,10 @@ Based on depth, prepare questions. **Ask ONE question at a time in chat.** Do NO
 ### Step 3: Ask Questions One at a Time
 
 For each question:
-1. Ask in chat
-2. Wait for user response
-3. Follow up if the answer is unclear
-4. Move to next question when satisfied
+- [ ] 1. Ask in chat
+- [ ] 2. Wait for user response
+- [ ] 3. Follow up if the answer is unclear
+- [ ] 4. Move to next question when satisfied
 
 ### Step 4: On Resolution, Compose Exec Summary
 

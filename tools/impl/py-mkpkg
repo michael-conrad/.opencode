@@ -1,4 +1,5 @@
 #!/usr/bin/env -S uv run --script
+# fmt: off
 "exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
@@ -7,6 +8,7 @@
 # dependencies = []
 # ///
 
+# fmt: on
 __doc__ = """DESCRIPTION: Create a Python package (directory + __init__.py). Creates all intermediate packages too.
 Usage: ./.opencode/tools/py mkpkg <path> [<path2> ...]
 Example: ./.opencode/tools/py mkpkg src/commons/query
@@ -22,7 +24,10 @@ from pathlib import Path
 
 _path = Path(__file__).resolve().parent
 while _path.name != ".opencode":
-    _path = _path.parent
+    parent = _path.parent
+    if parent == _path:
+        raise RuntimeError("Could not find .opencode/ directory")
+    _path = parent
 PROJECT_ROOT = _path.parent
 
 def make_package(rel_path: str) -> None:
@@ -51,3 +56,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

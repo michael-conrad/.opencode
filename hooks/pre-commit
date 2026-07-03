@@ -1,5 +1,5 @@
 #!/bin/bash
-# Pre-commit hook: Three independent gates with per-gate exit codes.
+# Pre-commit hook: Two independent gates with per-gate exit codes.
 # Each gate runs in a subshell so failures don't block subsequent gates.
 # Exits 1 if ANY gate failed.
 
@@ -62,16 +62,15 @@ GATE_EXIT_CODES+=($?)
     echo ""
     echo "ERROR: Submodule-bump-only commit blocked."
     echo ""
-    echo "Branch '$CURRENT_BRANCH' is in a parent repo (.gitmodules found)"
-    echo "but ALL staged changes are inside .opencode/ (submodule)."
+    echo "Changed files are entirely inside .opencode/ (submodule) with no parent-repo"
+    echo "source changes."
     echo ""
-    echo "Submodule pointer bumps belong in the submodule repo itself,"
-    echo "not as standalone commits in the parent repo."
+    echo "Submodule-only bump PRs are against policy and will be rejected upstream."
     echo ""
-    echo "BLOCKED: Submodule changes in parent repo — lost submodule review history."
-    echo "Every parent-repo submodule bump means unreviewed submodule changes."
-    echo ""
-    echo "To fix: Commit changes inside .opencode/ directly (cd .opencode && git commit)"
+    echo "Changes to .opencode/ files belong in the submodule's own feature branch"
+    echo "and PR. Work in the submodule directly (cd .opencode && git checkout -b ...),"
+    echo "commit there, push, and merge via submodule PR. The parent pointer updates"
+    echo "naturally when the submodule merges."
     echo ""
     echo "Remediate: call skill({name: \"git-workflow\"}) --task implementation"
     echo ""
@@ -81,136 +80,58 @@ GATE_EXIT_CODES+=($?)
 )
 GATE_EXIT_CODES+=($?)
 
-# --- Gate 2: Dispatch evidence + authorization scope check ---
+# --- Gate 4: Submodule-pointer-only commit blocker ---
 (
-  SKIP_DISPATCH_CHECK="${SKIP_DISPATCH_CHECK:-}"
-  if [ "$SKIP_DISPATCH_CHECK" = "1" ]; then
+  if [ ! -f ".gitmodules" ]; then
     exit 0
   fi
 
-  case "$CURRENT_BRANCH" in
-    pair-*|rollback/*|hotfix/*)
-      exit 0
-      ;;
-  esac
+  SUBMODULE_PATHS=$(git submodule status | awk '{print $2}')
+  STAGED_FILES_G4=$(git diff --cached --name-only 2>/dev/null)
 
-  IS_IMPL_BRANCH=0
-  case "$CURRENT_BRANCH" in
-    feature/*|spec/*|fix/*|phase/*)
-      IS_IMPL_BRANCH=1
-      ;;
-  esac
-
-  if [ "$IS_IMPL_BRANCH" = "0" ]; then
+  if [ -z "$STAGED_FILES_G4" ] || [ -z "$SUBMODULE_PATHS" ]; then
     exit 0
   fi
 
-  # .issues/-only changes exempt
-  STAGED_FILES=$(git diff --cached --name-only 2>/dev/null)
-  ALL_ISSUES_ONLY=1
-  for f in $STAGED_FILES; do
-    case "$f" in
-      .issues/*) ;;
-      *)
-        ALL_ISSUES_ONLY=0
-        break
-        ;;
-    esac
-  done
-
-  if [ "$ALL_ISSUES_ONLY" = "1" ]; then
-    exit 0
-  fi
-
-  # Merge commits exempt
-  if [ -f ".git/MERGE_MSG" ] || [ -n "$GIT_DIR" ] && [ -f "$GIT_DIR/MERGE_MSG" ]; then
-    exit 0
-  fi
-
-  # Rollback commits exempt
-  COMMIT_MSG_FILE=".git/COMMIT_EDITMSG"
-  if [ -f "$COMMIT_MSG_FILE" ]; then
-    FIRST_LINE=$(head -1 "$COMMIT_MSG_FILE" 2>/dev/null)
-    case "$FIRST_LINE" in
-      rollback*|Merge\ pull\ request*|Merge\ branch*)
-        exit 0
-        ;;
-    esac
-  fi
-
-  WORK_STATE_DIR="tmp"
-
-  # Gate 2a: Work state file exists
-  if [ ! -d "$WORK_STATE_DIR" ]; then
-    echo ""
-    echo "ERROR: Dispatch evidence check FAILED (Gate 2a: no tmp/ directory)."
-    echo ""
-    echo "Branch '$CURRENT_BRANCH' is an implementation branch but no"
-    echo "work state directory exists at tmp/."
-    echo ""
-    echo "BLOCKED: Committing without dispatch evidence — untracked work entering the codebase."
-    echo "No verification gate ran means defects uncaught. Every unpipelined commit is unverified implementation."
-    echo ""
-    echo "Remediate: call skill({name: \"divide-and-conquer\"}) --task assemble-work"
-    echo ""
-    exit 1
-  fi
-
-  WORK_FILE_FOUND=0
-  if ls "$WORK_STATE_DIR"/work-*.md 1>/dev/null 2>&1; then
-    for f in "$WORK_STATE_DIR"/work-*.md; do
-      if grep -qE "(Branch:.*$CURRENT_BRANCH|^# Work State.*$CURRENT_BRANCH)" "$f" 2>/dev/null; then
-        WORK_FILE_FOUND=1
-        break
-      fi
-      if grep -qE '^## chain-context' "$f" 2>/dev/null; then
-        WORK_FILE_FOUND=1
+  ALL_SUBMODULE_POINTERS=1
+  for f in $STAGED_FILES_G4; do
+    IS_SUBMODULE=0
+    for sp in $SUBMODULE_PATHS; do
+      if [ "$f" = "$sp" ]; then
+        IS_SUBMODULE=1
         break
       fi
     done
-  fi
+    if [ "$IS_SUBMODULE" -eq 0 ]; then
+      ALL_SUBMODULE_POINTERS=0
+      break
+    fi
+  done
 
-  if [ "$WORK_FILE_FOUND" = "0" ]; then
+  if [ "$ALL_SUBMODULE_POINTERS" = "1" ]; then
     echo ""
-    echo "ERROR: Dispatch evidence check FAILED (Gate 2a: no work state file for branch)."
+    echo "ERROR: Submodule-pointer-only commit blocked."
     echo ""
-    echo "Branch '$CURRENT_BRANCH' is an implementation branch but no"
-    echo "work state file in tmp/ references this branch."
+    echo "Changed paths:"
+    for f in $STAGED_FILES_G4; do
+      echo "  $f"
+    done
     echo ""
-    echo "Work state files found: $(ls "$WORK_STATE_DIR"/work-*.md 2>/dev/null | wc -l)"
+    echo "Submodule-only bump PRs are against policy and will be rejected upstream."
     echo ""
-    echo "BLOCKED: Committing without dispatch evidence — untracked work entering the codebase."
-    echo "No verification gate ran means defects uncaught. Every unpipelined commit is unverified implementation."
-    echo ""
-    echo "Remediate: call skill({name: \"divide-and-conquer\"}) --task assemble-work"
+    echo "Changes to submodule pointers belong in the submodule's own feature branch"
+    echo "and PR. The parent repo pointer is synced when the submodule PR merges to"
+    echo "dev and the parent updates via a normal feature commit (not a pointer-only"
+    echo "commit)."
     echo ""
     exit 1
-  fi
-
-  # Gate 2b: authorization_scope and halt_at in work state file
-  AUTH_FILE=$(ls "$WORK_STATE_DIR"/work-*.md 2>/dev/null | head -1)
-  if [ -n "$AUTH_FILE" ]; then
-    if ! grep -qE 'authorization_scope:' "$AUTH_FILE" 2>/dev/null || ! grep -qE 'halt_at:' "$AUTH_FILE" 2>/dev/null; then
-      echo ""
-      echo "ERROR: Authorization scope check FAILED (Gate 2b)."
-      echo ""
-      echo "Branch '$CURRENT_BRANCH' has a work state file but it does not"
-      echo "contain both 'authorization_scope:' and 'halt_at:' fields."
-      echo ""
-      echo "BLOCKED: Committing without dispatch evidence — untracked work entering the codebase."
-      echo "No verification gate ran means defects uncaught. Every unpipelined commit is unverified implementation."
-      echo ""
-      echo "Remediate: call skill({name: \"approval-gate\"}) --task verify-authorization"
-      echo ""
-      exit 1
-    fi
   fi
   exit 0
 )
 GATE_EXIT_CODES+=($?)
 
 # Report per-gate status
-GATE_NAMES=("Gate 1 (branch protection)" "Gate 3 (submodule bump)" "Gate 2 (dispatch evidence)")
+GATE_NAMES=("Gate 1 (branch protection)" "Gate 3 (submodule bump)" "Gate 4 (submodule pointer)")
 ANY_FAILED=0
 for i in "${!GATE_EXIT_CODES[@]}"; do
   if [ "${GATE_EXIT_CODES[$i]}" -ne 0 ]; then

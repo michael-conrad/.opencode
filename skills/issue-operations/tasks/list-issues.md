@@ -41,13 +41,12 @@ github_list_issues(
 
 **GitBucket platform:**
 ```bash
-./.opencode/tools/gitbucket-api list-issues <github.owner> <github.repo> --state open --labels "<label>"
+gb issue list -R <github.owner>/<github.repo> --state open
+# Note: gb CLI does not support --labels filter on list. Filter client-side.
 ```
 
 **Local platform:**
-```bash
-./.opencode/tools/local-issues list --status open --label "<label>"
-```
+Route to `platforms/local/tasks/list.md` via task(). Pass: `{status: "open", label: "<label>"}`.
 
 ### Step 3: Return Issue List
 
@@ -70,7 +69,7 @@ Return the issue list to the calling task. Used for:
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```

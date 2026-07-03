@@ -24,7 +24,7 @@ Mandatory checks that must pass before creating ANY PR. No exceptions.
 
 ```bash
 # Check if this is a work branch (assembly by assemble-work)
-ls tmp/work-*.md 2>/dev/null
+ls ./tmp/{issue-N}/work.md 2>/dev/null
 
 # Read scope fields from work state file if present
 # authorization_scope, halt_at, pr_strategy
@@ -51,7 +51,7 @@ git log origin/dev..HEAD --oneline | wc -l
 ```
 authorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>
 halt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>
-pr_strategy: <none|individual|stacked>
+pr_strategy: <none|stacked>
 pipeline_phase: <current_phase_name>
 authorization_source: "User approved #N on YYYY-MM-DD"
 ```
@@ -137,10 +137,10 @@ Skipping this verification is a CRITICAL GUIDELINE VIOLATION per `approval-gate/
 
 When the spec includes behavioral enforcement tests (Phase 4), PR creation is BLOCKED unless cross-model validation evidence exists:
 
-1. Verify evidence artifacts for both local and cloud model runs exist
-2. If only single-model evidence is present: HALT PR creation — `CROSS_MODEL_GAP` detected
-3. If both models ran but only one passed: HALT PR creation — `BRITTLENESS_DETECTED`
-4. If both models passed: PR can proceed
+- [ ] 1. Verify evidence artifacts for both local and cloud model runs exist
+- [ ] 2. If only single-model evidence is present: HALT PR creation — `CROSS_MODEL_GAP` detected
+- [ ] 3. If both models ran but only one passed: HALT PR creation — `BRITTLENESS_DETECTED`
+- [ ] 4. If both models passed: PR can proceed
 
 **🚫 FORBIDDEN:** Creating a PR with behavioral tests validated against only one model. Cross-model validation is the enforcement gate for rule robustness.
 
@@ -158,7 +158,7 @@ When the spec includes behavioral enforcement tests (Phase 4), PR creation is BL
 
 If you accidentally create a PR with multiple commits:
 
-1. **DO NOT ask user to fix it** — Fix it yourself:
+- [ ] 1. **DO NOT ask user to fix it** — Fix it yourself:
     ```bash
     git reset --soft origin/dev
     git commit -m "<descriptive message>" \
@@ -166,7 +166,7 @@ If you accidentally create a PR with multiple commits:
         --trailer "Co-authored-by: <Human-Name> <human-email>"
     git push --force-with-lease origin <branch>
     ```
-2. **Close the bad PR** and create a new one if necessary
-3. **Report the violation** in the GitHub issue comment
+- [ ] 2. **Close the bad PR** and create a new one if necessary
+- [ ] 3. **Report the violation** in the GitHub issue comment
 
 User intervention should NEVER be required to fix squash violations.

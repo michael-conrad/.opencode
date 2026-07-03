@@ -2,9 +2,8 @@
  * Session Enforcement Plugin for OpenCode
  *
  * Injects session context into the LLM system prompt and enforces
- * runtime guards: inline work detection, evidence gate, git config
- * mutation watchdog, --no-verify detection, protected branch edits,
- * secret redaction, session triggers,
+ * runtime guards: evidence gate, git config
+ * mutation watchdog, protected branch edits, secret redaction, session triggers,
  * and plugin diagnostics.
  *
  * Hook: system.transform — pushes English prose context (from session-init
@@ -165,33 +164,11 @@ ${keyList}
 This is a Tier 1 mandate violation unless explicitly authorized by the developer. HALT and verify the mutation was authorized before proceeding. See 000-critical-rules.md for details on Git Configuration and Destructive Command Authorization.`;
 }
 
-function buildNoVerifyBlockedBlock(): string {
-  return `### No-Verify Commit Blocked
+// buildNoVerifyBlockedBlock() REMOVED per SPEC-FIX #823 — see removal comment above.
 
-**Warning:** --no-verify is FORBIDDEN in repos with remotes. git commit --no-verify and git push --no-verify bypass git hooks that enforce repository safety. This is a Tier 1 mandate. Only permitted in local-only repos (zero remotes). Check git remote -v first. See 000-critical-rules.md for details on Git Configuration and Destructive Command Authorization.`;
-}
-
-function buildInlineWorkDetectedBlock(editToolNames: string[], dispatchFound: boolean): string {
-  const editList = editToolNames.map(t => `- \`${t}\``).join("\n");
-  const dispatchNote = dispatchFound
-    ? "A sub-agent dispatch was found, but file edits occurred BEFORE the dispatch in this turn."
-    : "No sub-agent dispatch (task tool) was found in this turn.";
-  return `### Inline Work Detected
-
-**Warning:** The orchestrator performed file operations without sub-agent dispatch evidence.
-
-File-editing tool calls detected in this turn:
-${editList}
-
-${dispatchNote}
-
-The orchestrator MUST be a pure router — all file modifications MUST be dispatched through divide-and-conquer sub-agents. See 000-critical-rules.md Inline Work. Exemptions: pair- branches, .issues/ file edits, simple-work single-file changes. If this is an exempt case, disregard this warning.`;
-}
-
-function buildEvidenceGateBlock(): string {
-  return `### Evidence Gate
-
-**Warning:** Issue closure attempted without verification evidence. A github_issue_write call with state=closed was detected, but no per-SC verification evidence table exists in recent assistant messages. Every issue closure requires a verification evidence table confirming each success criterion was met with a tool-call artifact. See 000-critical-rules.md Verification Dishonesty and verification-before-completion skill. If the closure is exempt (not_planned, duplicate, rollback-reopen), disregard this warning.`;
+function isModeSwitchSynthetic(text: string): boolean {
+  return text.includes('Your operational mode has changed from')
+      || text.includes('# Plan Mode - System Reminder');
 }
 
 interface PluginDiagnostic {
@@ -280,9 +257,6 @@ ${entries}
 Review these diagnostics. For errors, investigate the source script. For warnings, assess whether action is needed.`;
 }
 
-let cachedOutput: string | null = null;
-let cacheTimestamp = 0;
-
 /**
  * Process-scoped set of session IDs that are sub-agent sessions
  * (sessions with a parentID). Populated in system.transform by
@@ -293,6 +267,33 @@ let cacheTimestamp = 0;
  * on each process restart, never written to disk.
  */
 const subAgentSessions = new Set<string>();
+
+/**
+ * Process-scoped set of session IDs that have already received their
+ * first-turn injections. Survives context reload (new process = empty
+ * Set = fires again correctly). Keyed by sessionID from the user
+ * message info in messages.transform.
+ *
+ * SC-1: Replaces userMessages.length === 1 heuristic.
+ * SC-2: session.created event fires before messages.transform,
+ *       so sessionID is available for Set-based detection.
+ */
+const injectedFirstTurnSessions = new Set<string>();
+
+/**
+ * In-memory cache mapping sessionID → parentID, populated by the
+ * session.created event handler. Used as the PRIMARY detection source
+ * in messages.transform because input.client is unavailable in that
+ * hook context. The session.created event fires synchronously before
+ * messages.transform and carries parentID directly in its payload.
+ *
+ * Fallback: subAgentSessions Set (populated via input.client.session.get()
+ * in system.transform) is used when the cache misses.
+ *
+ * SC-1: Cache populated before messages.transform fires.
+ * SC-2: Cache is primary source, API fallback on cache miss.
+ */
+const sessionParentCache = new Map<string, string>();
 
 function resolveGitDir(projectDir: string): string | null {
   try {
@@ -362,11 +363,7 @@ function ensureHooksInstalled(projectDir: string): void {
   }
 }
 
-async function runSessionInit(projectDir: string): Promise<string> {
-  if (cachedOutput && Date.now() - cacheTimestamp < CACHE_TTL_MS) {
-    return cachedOutput;
-  }
-
+function runSessionInit(projectDir: string): string {
   try {
     const stdout = execSync("./.opencode/tools/session-init", {
       cwd: projectDir,
@@ -375,9 +372,6 @@ async function runSessionInit(projectDir: string): Promise<string> {
       timeout: 30000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim();
-
-    cachedOutput = stdout;
-    cacheTimestamp = Date.now();
 
     return stdout;
   } catch (err: any) {
@@ -417,9 +411,6 @@ async function runSessionInit(projectDir: string): Promise<string> {
         exitCode,
       });
     }
-
-    cachedOutput = stdout;
-    cacheTimestamp = Date.now();
 
     return stdout;
   }
@@ -546,10 +537,8 @@ function buildSkillIndex(skillsDir: string): string {
   // Build a compact skill index table (name, description, trigger patterns)
   const skillRows = skills.map(s => {
     const triggers = extractTriggerPatterns(s.description);
-    // Shorten description to first sentence only for index
-    const shortDesc = s.description.split(".")[0].trim() + ".";
     const triggersStr = triggers.length > 0 ? triggers.slice(0, 5).join(", ") : "—";
-    return `| \`${s.name}\` | ${shortDesc} | ${triggersStr} |`;
+    return `| \`${s.name}\` | ${s.description} | ${triggersStr} |`;
   }).join("\n");
 
   if (skillRows.length === 0) return "";
@@ -752,104 +741,6 @@ function redactSecrets(text: string): string {
   return result;
 }
 
-/**
- * Get the current git branch name.
- * Returns null if git is unavailable.
- */
-function getCurrentBranch(projectDir: string): string | null {
-  try {
-    return execSync("git branch --show-current", {
-      cwd: projectDir,
-      encoding: "utf8",
-      input: "",
-      timeout: 5000,
-      stdio: ["pipe", "pipe", "pipe"],
-    }).trim() || null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Check if the current branch is a pair-mode branch (starts with "pair-").
- * Pair-mode branches allow direct edits on the development directory.
- */
-function isPairModeBranch(branch: string): boolean {
-  return branch.startsWith("pair-");
-}
-
-function getWorkingTreeStatus(projectDir: string): string {
-  try {
-    const status = execSync("git status --short", {
-      cwd: projectDir,
-      encoding: "utf8",
-      input: "",
-      timeout: 5000,
-      stdio: ["pipe", "pipe", "pipe"],
-    }).trim();
-    return status || "clean";
-  } catch {
-    return "unavailable";
-  }
-}
-
-function buildPreImplementationGate(cachedOutput: string | null, projectDir: string): string {
-  const branch = (cachedOutput ? (cachedOutput.match(/branch:\s*(\S+)/)?.[1] || null) : null) || getCurrentBranch(projectDir) || "unknown";
-  const treeStatus = getWorkingTreeStatus(projectDir);
-  const worktreePath = (cachedOutput ? (cachedOutput.match(/Worktrees:\s*(\S+)/)?.[1] || "none") : "none");
-  return `### Pre-Implementation Gate
-
-**Current state:** branch=${branch}, tree=${treeStatus}, worktree=${worktreePath}
-
-**MANDATORY pre-implementation sequence (Tier 1 — HALT if not met):**
-1. Invoke \`/skill approval-gate --task verify-authorization\`
-2. Invoke \`/skill git-workflow --task pre-work\`
-3. ALL file modifications go through \`/skill divide-and-conquer --task assemble-work\`
-4. Direct edit/write tool calls in the orchestrator context are a CRITICAL VIOLATION`;
-}
-
-function buildCorePrinciplesBlock(): string {
-  return `### Core Principles (Zero Tolerance)
-
-1. **FAIL=FAIL** — No soft-passing, "functionally equivalent," or justifying FAIL→PASS.
-2. **Auth gate** — Every change requires approved spec/plan. No exception, no matter how trivial.
-3. **Mandatory skills** — \`/skill git-workflow\`, \`/skill divide-and-conquer\`, \`/skill verification-before-completion\`, \`/skill adversarial-audit\`. Not optional.
-4. **TDD Red/Green** — Approval→pre-work→audit spec/plan→RED(test+audit; fail→fix, pass→commit)→GREEN(impl+audit; fail→fix+restart, pass→commit)→final spec/plan audit.
-5. **Feedback ≠ Auth** — Feedback/clarification/technical input → update understanding, discuss, HALT. Never proceed to implementation.
-6. **Dispatch via \`skill()\` + \`task()\` is the PRIMARY execution model** — Load every skill with \`skill()\`, dispatch execution with \`task()\`. The orchestrator routes and dispatches only; it never executes. A dispatcher that reads SKILL.md files and executes steps inline is not a dispatcher — it is an agent working without enforcement gates. Professional orchestrators dispatch; amateurs inline.
-7. **Sub-agents are INTELLIGENT** — No bot-splaining, no tool-recipe dispatch. They read specs and use skills autonomously.
-8. **Verify LIVE** — Never trust training data, memory, or metadata. Always verify via live docs, direct inspection, and verified test results.`;
-}
-
-function buildSubAgentPrinciplesBlock(): string {
-  return `### Core Principles (Sub-Agent)
-
-1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
-2. **TDD discipline** — RED phase tests before GREEN phase implementation.
-3. **Clean-room** — No inline fallback. If task context is contaminated (pre-determined findings, expected outcomes, orchestrator reasoning, tool recipes, line numbers), HALT and notify parent.
-4. **Independent intelligence** — You are an autonomous agent. If the task contains excessive bot-splaining, rote instructions, or leading questions where your own analysis should apply, HALT and notify parent.
-5. **Verify LIVE** — Never trust training data, memory, or metadata. Verify against live docs, direct inspection of source code/configs, and verified test results.
-6. **Sub-agent role** — You are a sub-agent, not the orchestrator. Sub-agents execute single-step work units; orchestrators dispatch. A sub-agent that dispatches sub-agents is producing cascaded delegation instead of focused execution. If your assigned task requires sub-agent dispatch, return a \`NEEDS_ORCHESTRATOR\` status — the orchestrator will re-dispatch with the correct decomposition. Professional sub-agents execute their unit with focus; they do not become orchestrators.`;
-}
-
-function buildTier1EnforcementBlock(): string {
-  return `### Tier 1 Mandate Enforcement Gate
-
-The following mandates are NON-YIELDING — no developer authorization, emergency bypass, or override can waive them. This gate is injected by session-enforcement.ts and prescriptively enforces:
-
-1. **No commits to \`main\` or \`dev\`** — Branch protection is a repository integrity concern. Always create a feature branch first.
-2. **Human-only merge** — Agents must never merge PRs. Merge requires explicit human action.
-3. **No \`/tmp/\` usage — \`./tmp/\` only** — Prevents system-level temp file leakage outside project scope.
-4. **Path rules in worktree context** — When \`WORKTREE_REQUIRED\` is set, prefix ALL file operation paths with \`worktree.path\`. Relative paths silently target the main repo.
-5. **Sub-agents must receive \`worktree.path\`** — Prevents sub-agents from mutating the main repo when the orchestrator is in worktree mode.
-6. **Human-only branch deletion** — Unmerged branches must never be force-deleted by agents. Merged branches DELETE IMMEDIATELY.
-7. **Agents must never self-authorize** — Authorization comes from developers, never from agent reasoning. Confirmation, feedback, and questions are not authorization.
-8. **Git configuration and destructive commands require explicit authorization** — Remote mutations, config changes, force push, \`--no-verify\` (in repos with remotes), and destructive resets require explicit developer approval.
-9. **Correctness over economy** — Fabrication or shortcutting verification to conserve context/tool-calls is prohibited. Sub-agent dispatch and tool calls are near-zero cost. A fast wrong answer is strictly worse than a slow correct one.
-
-Violations of mandates 1-6 and 8 are detected at runtime by this plugin and flagged via enforcement blocks. See \`000-critical-rules.md\` Tier 1 table for full rationale and symbolic rule definitions.`;
-}
-
 export default async function sessionEnforcementPlugin(input: PluginInput): Promise<Hooks> {
   // Determine skills directory and project directory
   const projectDir = input?.directory || process.cwd();
@@ -878,6 +769,20 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
   }
 
   return {
+    // --- Sub-agent detection via session.created event cache (SC-1) ---
+    // The session.created event fires synchronously before messages.transform
+    // and carries parentID directly in its payload. This populates the
+    // sessionParentCache Map so messages.transform can detect sub-agents
+    // without relying on input.client (which is unavailable in that hook).
+    "session.created": async (eventInput) => {
+      const sessionID = eventInput?.payload?.id;
+      const parentID = eventInput?.payload?.parentID;
+      if (sessionID && parentID) {
+        sessionParentCache.set(sessionID, parentID);
+        subAgentSessions.add(sessionID);
+      }
+    },
+
     // Inject session context into system prompt (from session-init + PluginInput augmentations)
     "experimental.chat.system.transform": async (sysInput, output) => {
       // --- Sub-agent session detection (REQ-1/REQ-5) ---
@@ -902,7 +807,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         }
       }
 
-      const scriptOutput = await runSessionInit(projectDir);
+      const scriptOutput = runSessionInit(projectDir);
       if (scriptOutput) {
         output.system.push(scriptOutput);
       }
@@ -955,17 +860,26 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         if (!userMessages.length) return;
 
         const firstUser = userMessages[0];
-        const isFirstTurn = userMessages.length === 1;
+        const firstUserSessionID = firstUser?.info?.sessionID;
+        const isFirstTurn = firstUserSessionID ? !injectedFirstTurnSessions.has(firstUserSessionID) : (userMessages.length === 1);
 
-        // --- Sub-agent detection (REQ-1) ---
+        // --- Sub-agent detection (SC-1, SC-2) ---
         // Determine if this session has a parentID (is a sub-agent session).
-        // Extract sessionID from the first user message's info to look up
-        // in the subAgentSessions Set populated by system.transform.
-        // REQ-5: No disk persistence — subAgentSessions is process-scoped only.
+        // Uses a two-tier detection strategy:
+        //   1. PRIMARY: sessionParentCache (populated by session.created event handler)
+        //   2. FALLBACK: subAgentSessions Set (populated by system.transform API call)
+        // REQ-5: No disk persistence — both caches are process-scoped only.
         // REQ-4: Graceful degradation — if sessionID is unavailable, assume
         // primary session (isSubAgent = false) so full injections are applied.
         const sessionID = firstUser?.info?.sessionID;
-        const isSubAgent = sessionID ? subAgentSessions.has(sessionID) : false;
+        let isSubAgent = false;
+        if (sessionID) {
+          if (sessionParentCache.has(sessionID)) {
+            isSubAgent = true;
+          } else if (subAgentSessions.has(sessionID)) {
+            isSubAgent = true;
+          }
+        }
 
         // --- First-turn-only PRIMARY sessions: Skip all first-turn injections
         //     for sub-agent sessions (isFirstTurn && !isSubAgent required) ---
@@ -976,10 +890,6 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         if (shouldInjectFirstTurn) {
           // --- First-turn-only: Trigger warnings ---
           const triggersOutput = await runSessionContextTriggers(projectDir);
-          // --- Spec #432: Pre-Implementation Gate + Core Principles ---
-          const gateBlock = buildPreImplementationGate(cachedOutput, projectDir);
-          const corePrinciplesBlock = buildCorePrinciplesBlock();
-          const tier1Block = buildTier1EnforcementBlock();
 
           // Per spec #426: extract NESTED_OPENCODE_FATAL from triggers output
           // and inject it as a SEPARATE block (not inside Session Triggers)
@@ -1003,44 +913,48 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
           const triggerBlock = triggerOutputForSessionBlock ? `### Session Triggers\n\n${triggerOutputForSessionBlock}` : "";
 
           const echoParts: string[] = [];
-          if (gateBlock) {
-            echoParts.push(gateBlock);
-          }
-          if (tier1Block) {
-            echoParts.push(tier1Block);
-          }
-          if (corePrinciplesBlock) {
-            echoParts.push(corePrinciplesBlock);
-          }
           if (triggerBlock) {
             echoParts.push(triggerBlock);
           }
           if (echoParts.length > 0 && firstUser.parts?.length) {
-            firstUser.parts.unshift({ type: "text", text: echoParts.join("\n\n") });
+            firstUser.parts.unshift({ id: crypto.randomUUID(), sessionID: firstUser.info.sessionID, messageID: firstUser.info.id, type: "text", text: echoParts.join("\n\n") });
           }
 
           // Per spec #426 SC-10: Inject NESTED_OPENCODE_FATAL as a separate block
           // AFTER all other content in the first user message (not inside Session Triggers)
           if (nestedOpencodeBlock && firstUser.parts?.length) {
-            firstUser.parts.push({ type: "text", text: nestedOpencodeBlock });
+            firstUser.parts.push({ id: crypto.randomUUID(), sessionID: firstUser.info.sessionID, messageID: firstUser.info.id, type: "text", text: nestedOpencodeBlock });
           }
 
           // --- First-turn-only: Plugin diagnostics injection ---
           const diagnostics = collectDiagnostics(projectDir);
           const diagnosticBlock = buildDiagnosticBlock(diagnostics);
           if (diagnosticBlock && firstUser.parts?.length) {
-            firstUser.parts.push({ type: "text", text: diagnosticBlock });
+            firstUser.parts.push({ id: crypto.randomUUID(), sessionID: firstUser.info.sessionID, messageID: firstUser.info.id, type: "text", text: diagnosticBlock });
           }
 
         }
 
-        // --- Spec #432: First-turn-only SUB-AGENT sessions: Core Principles ---
-        // Sub-agents receive a lighter 5-rule principles block as the first text
-        // part injected into their first user message. No identity echo, no triggers.
-        if (isFirstTurn && isSubAgent && firstUser.parts?.length) {
-          const subAgentPrinciplesBlock = buildSubAgentPrinciplesBlock();
-          firstUser.parts.unshift({ type: "text", text: subAgentPrinciplesBlock });
+        // --- Mark session as injected for first-turn detection ---
+        // After all first-turn injections are applied, register the sessionID
+        // so the Set-based isFirstTurn check returns false on subsequent turns.
+        // Survives context reload because each new process starts with an empty Set.
+        if (firstUserSessionID && isFirstTurn) {
+          injectedFirstTurnSessions.add(firstUserSessionID);
         }
+
+      // --- Per-turn: Strip synthetic mode-switch messages ---
+      // Unconditional stripping: if text matches mode-switch boilerplate, set to "".
+      const currentUser = output.messages.findLast(m => m.info?.role === 'user');
+      if (currentUser) {
+        for (const part of currentUser.parts) {
+          if (!part.synthetic || part.type !== 'text') continue;
+          if (isModeSwitchSynthetic(part.text || '')) {
+            part.text = '';
+            part.synthetic = false;
+          }
+        }
+      }
 
       // --- Per-turn: Secret redaction on ALL assistant messages ---
       const assistantMessages = output.messages.filter(m => m.info?.role === "assistant");
@@ -1079,7 +993,7 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
                 const mutationBlock = buildGitConfigMutationBlock(changedKeys);
                 const nextUser = userMessages[userMessages.length - 1];
                 if (nextUser?.parts?.length) {
-                  nextUser.parts.push({ type: "text", text: mutationBlock });
+                  nextUser.parts.push({ id: crypto.randomUUID(), sessionID: nextUser.info.sessionID, messageID: nextUser.info.id, type: "text", text: mutationBlock });
                 }
                 gitConfigBaseline = currentBaseline;
                 baselineLocalConfig = currentLocalConfig;
@@ -1091,138 +1005,20 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         }
       }
 
-      // --- Per-turn: --no-verify detection ---
-      let hasRemotes: boolean;
-      if (gitConfigBaseline) {
-        hasRemotes = gitConfigBaseline.remoteCount > 0;
-      } else {
-        // Baseline capture failed — check remotes inline
-        try {
-          const remoteCheck = execSync("git remote -v", {
-            cwd: projectDir,
-            encoding: "utf8",
-            input: "",
-            timeout: 5000,
-            stdio: ["pipe", "pipe", "pipe"],
-          }).trim();
-          hasRemotes = remoteCheck.length > 0;
-        } catch {
-          hasRemotes = false; // No remotes = local-only → permit --no-verify
-        }
-      }
-      for (const msg of assistantMessages) {
-        if (!msg.parts?.length) continue;
-        for (const part of msg.parts) {
-          if (part.type === "text" && part.text) {
-            const noVerifyMatch = part.text.match(/(?:git\s+commit|git\s+push)\s+.*--no-verify/);
-            if (noVerifyMatch && hasRemotes) {
-              const blockedBlock = buildNoVerifyBlockedBlock();
-              const nextUser = userMessages[userMessages.length - 1];
-              if (nextUser?.parts?.length) {
-                nextUser.parts.push({ type: "text", text: blockedBlock });
-              }
-              break;
-            }
-          }
-        }
-      }
+      // --- Per-turn: --no-verify detection REMOVED ---
+      // Removed per SPEC-FIX #823: The unconditional --no-verify detection gate
+      // contradicts the guidelines (000-critical-rules.md §Hook Output Is Advisory,
+      // Not Absolute and §--no-verify Exception for Local-Only Repos) which state
+      // that --no-verify usage requires judgment and may be warranted for false
+      // positive hook blocks, tag pushes, and developer-authorized overrides.
+      // The 010-approval-gate.md Allowlist already governs when --no-verify is
+      // permissible. This gate was producing Tier 1 violation warnings for
+      // legitimate --no-verify usage (e.g., tag pushes blocked by the pre-push
+      // hook false positive, structural branch pushes like issues-data), causing
+      // repeated workflow failures.
 
-      // --- Per-turn: Inline work detector (Gate 3) ---
-      // Detect when the orchestrator performed file-editing tool calls without
-      // a preceding sub-agent dispatch in the same turn. Exemptions: sub-agent
-      // sessions, pair-* branches, .issues/ only changes.
-      const currentBranchForInline = getCurrentBranch(projectDir);
-      const isPairBranch = currentBranchForInline ? isPairModeBranch(currentBranchForInline) : false;
-      if (!isSubAgent && !isPairBranch) {
-        for (const msg of assistantMessages) {
-          if (!msg.parts?.length) continue;
-          const editToolNames: string[] = [];
-          let dispatchFound = false;
-          let dispatchIndex = -1;
-          let issuesOnlyEdits = true;
+      
 
-          for (const part of msg.parts) {
-            if (part.type === "text" && part.text) {
-              // Detect sub-agent dispatch (task tool)
-              if (part.text.includes("subagent_type") || part.text.includes('"task"') && part.text.includes("dispatch")) {
-                dispatchFound = true;
-                if (dispatchIndex === -1) dispatchIndex = msg.parts.indexOf(part);
-              }
-              // Detect file-editing tool calls
-              const editMatch = part.text.match(/"name"\s*:\s*"(edit|write|create_or_update_file)"/);
-              if (editMatch) {
-                editToolNames.push(editMatch[1]);
-                // Check if the edit targets .issues/ files
-                const filePathMatch = part.text.match(/"filePath"\s*:\s*"([^"]+)"/);
-                if (filePathMatch && !filePathMatch[1].startsWith(".issues/")) {
-                  issuesOnlyEdits = false;
-                }
-              }
-              // Also detect tool call patterns in assistant text (older format)
-              const toolCallMatch = part.text.match(/(edit|write)\(filePath/);
-              if (toolCallMatch) {
-                editToolNames.push(toolCallMatch[1]);
-                const filePathMatch = part.text.match(/filePath["']?\s*[:=]\s*["']([^"']+)/);
-                if (filePathMatch && !filePathMatch[1].startsWith(".issues/")) {
-                  issuesOnlyEdits = false;
-                }
-              }
-            }
-          }
-
-          if (editToolNames.length > 0 && !issuesOnlyEdits) {
-            // If dispatch was found, check if edits came before the dispatch
-            const editsBeforeDispatch = dispatchFound && dispatchIndex > -1
-              ? editToolNames.length > 0 // edits exist, check if any were before dispatch
-              : true;
-
-            if (!dispatchFound || editsBeforeDispatch) {
-              const block = buildInlineWorkDetectedBlock(editToolNames, dispatchFound);
-              const nextUser = userMessages[userMessages.length - 1];
-              if (nextUser?.parts?.length) {
-                nextUser.parts.push({ type: "text", text: block });
-              }
-            }
-          }
-        }
-      }
-
-      // --- Per-turn: Evidence gate (Gate 4) ---
-      // Detect issue closure attempts without verification evidence table.
-      // Exemptions: not_planned, duplicate, rollback-reopen state reasons.
-      for (const msg of assistantMessages) {
-        if (!msg.parts?.length) continue;
-        for (const part of msg.parts) {
-          if (part.type === "text" && part.text) {
-            // Detect github_issue_write with state=closed
-            const closureMatch = part.text.match(/state.*closed|state.*:.*"closed"/i);
-            if (closureMatch) {
-              // Check for exempt state reasons
-              const exemptReason = part.text.match(/state_reason.*(?:not_planned|duplicate)/i);
-              if (!exemptReason) {
-                // Check if a verification evidence table exists in recent messages
-                const allAssistantText = assistantMessages
-                  .map(m => m.parts?.filter(p => p.type === "text" && p.text).map(p => p.text).join(" ") || "")
-                  .join(" ");
-                const hasEvidence = allAssistantText.includes("PASS") &&
-                  (allAssistantText.includes("Success Criteria") || allAssistantText.includes("verification") || allAssistantText.includes("evidence"));
-
-                if (!hasEvidence) {
-                  // Also check for rollback-reopen marker
-                  const rollbackReopen = part.text.match(/\[ROLLBACK-REOPEN\]/i);
-                  if (!rollbackReopen) {
-                    const block = buildEvidenceGateBlock();
-                    const nextUser = userMessages[userMessages.length - 1];
-                    if (nextUser?.parts?.length) {
-                      nextUser.parts.push({ type: "text", text: block });
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
 
 
     },

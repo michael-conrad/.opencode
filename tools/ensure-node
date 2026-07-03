@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [[ "${1:-}" == "--description" ]]; then
+    echo "Ensure Node.js toolchain is available in .opencode/.node/."
+    exit 0
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$SCRIPT_DIR"
 while [ "$(basename "$REPO_ROOT")" != ".opencode" ]; do
-    REPO_ROOT="$(dirname "$REPO_ROOT")"
+    PARENT="$(dirname "$REPO_ROOT")"
+    if [ "$PARENT" = "$REPO_ROOT" ]; then
+        echo "FATAL: Could not find .opencode/ directory" >&2
+        exit 1
+    fi
+    REPO_ROOT="$PARENT"
 done
 REPO_ROOT="$(dirname "$REPO_ROOT")"
 NODE_DIR="${REPO_ROOT}/.opencode/.node"

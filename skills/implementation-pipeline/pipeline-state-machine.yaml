@@ -1,0 +1,72 @@
+# Pipeline State Machine Contract for Z3 Validation
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+# Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+schema_version: "1.0"
+last_updated: "2026-05-31T00:00:00Z"
+
+variables:
+  current_step:
+    type: string
+    domain:
+      - sc-coherence-gate
+      - pre-red-baseline
+      - red-phase
+      - red-doublecheck
+      - green-phase
+      - checkpoint-tag-create
+      - checkpoint-commit
+      - structural-checks
+      - green-doublecheck
+      - green-vbc
+      - adversarial-audit
+      - cross-validate
+      - regression-check
+      - review-prep
+      - exec-summary
+  previous_step:
+    type: string
+    domain:
+      - init
+      - sc-coherence-gate
+      - pre-red-baseline
+      - red-phase
+      - red-doublecheck
+      - green-phase
+      - checkpoint-tag-create
+      - checkpoint-commit
+      - structural-checks
+      - green-doublecheck
+      - green-vbc
+      - adversarial-audit
+      - cross-validate
+      - regression-check
+      - review-prep
+  pipeline_state:
+    type: string
+    domain: [init, running, complete, failed]
+
+preconditions:
+  - "z3.Implies(previous_step == z3.StringVal('init'), current_step == z3.StringVal('pre-red-baseline'))"
+  - "z3.Implies(previous_step == z3.StringVal('pre-red-baseline'), z3.Or(current_step == z3.StringVal('red-phase'), current_step == z3.StringVal('sc-coherence-gate')))"
+  - "z3.Implies(previous_step == z3.StringVal('sc-coherence-gate'), z3.Or(current_step == z3.StringVal('red-phase'), current_step == z3.StringVal('pre-red-baseline')))"
+  - "z3.Implies(previous_step == z3.StringVal('red-phase'), current_step == z3.StringVal('red-doublecheck'))"
+  - "z3.Implies(previous_step == z3.StringVal('red-doublecheck'), z3.Or(current_step == z3.StringVal('green-phase'), current_step == z3.StringVal('red-phase')))"
+  - "z3.Implies(previous_step == z3.StringVal('green-phase'), current_step == z3.StringVal('checkpoint-tag-create'))"
+  - "z3.Implies(previous_step == z3.StringVal('checkpoint-tag-create'), z3.Or(current_step == z3.StringVal('checkpoint-commit'), current_step == z3.StringVal('green-phase')))"
+  - "z3.Implies(previous_step == z3.StringVal('checkpoint-commit'), z3.Or(current_step == z3.StringVal('structural-checks'), current_step == z3.StringVal('green-phase')))"
+  - "z3.Implies(previous_step == z3.StringVal('structural-checks'), z3.Or(current_step == z3.StringVal('green-doublecheck'), current_step == z3.StringVal('green-phase')))"
+  - "z3.Implies(previous_step == z3.StringVal('green-doublecheck'), z3.Or(current_step == z3.StringVal('green-vbc'), current_step == z3.StringVal('green-phase')))"
+  - "z3.Implies(previous_step == z3.StringVal('green-vbc'), z3.Or(current_step == z3.StringVal('adversarial-audit'), current_step == z3.StringVal('green-phase')))"
+  - "z3.Implies(previous_step == z3.StringVal('adversarial-audit'), z3.Or(current_step == z3.StringVal('cross-validate'), current_step == z3.StringVal('green-phase')))"
+  - "z3.Implies(previous_step == z3.StringVal('cross-validate'), z3.Or(current_step == z3.StringVal('regression-check'), current_step == z3.StringVal('green-phase')))"
+  - "z3.Implies(previous_step == z3.StringVal('regression-check'), z3.Or(current_step == z3.StringVal('review-prep'), current_step == z3.StringVal('green-phase')))"
+  - "z3.Implies(previous_step == z3.StringVal('review-prep'), z3.Or(current_step == z3.StringVal('exec-summary'), current_step == z3.StringVal('green-phase')))"
+  - "z3.Or(pipeline_state == z3.StringVal('init'), pipeline_state == z3.StringVal('running'), pipeline_state == z3.StringVal('failed'))"
+
+postconditions:
+  - "z3.Implies(current_step == z3.StringVal('exec-summary'), pipeline_state == z3.StringVal('complete'))"
+  - "z3.Not(previous_step == current_step)"
+  - "z3.Not(z3.And(pipeline_state == z3.StringVal('complete'), z3.Not(current_step == z3.StringVal('exec-summary'))))"
+  - "z3.Implies(z3.Not(previous_step == z3.StringVal('init')), pipeline_state == z3.StringVal('running'))"
