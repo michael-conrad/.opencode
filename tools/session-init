@@ -439,23 +439,7 @@ def _extract_version_from_pyproject() -> str:
     return "0.1.0"
 
 
-def _ensure_dev_branch() -> str:
-    """Ensure dev branch exists. Returns 'exists', 'created from main', 'created from master', or 'failed'."""
-    if run_git_command(["rev-parse", "--verify", "dev"]):
-        return "exists"
-    if run_git_command(["rev-parse", "--verify", "origin/dev"]):
-        run_git_command(["branch", "dev", "origin/dev"])
-        return "created from origin/dev"
 
-    for default_branch in ["main", "master"]:
-        if run_git_command(["rev-parse", "--verify", default_branch]):
-            run_git_command(["branch", "dev", default_branch])
-            return f"created from {default_branch}"
-
-    print(
-        "Failed to create dev branch — no main or master branch found", file=sys.stderr
-    )
-    return "failed"
 
 
 def is_worktree_setup() -> bool:
@@ -563,7 +547,7 @@ def bootstrap_worktree_layout() -> bool:
 
     current = get_current_branch()
 
-    if current and current != "dev":
+    if current and current != "main":
         stash_output = run_git_command(
             ["stash", "push", "-u", "-m", "WIP: before worktree bootstrap"]
         )
@@ -571,13 +555,13 @@ def bootstrap_worktree_layout() -> bool:
     else:
         had_stash = False
 
-    if current and current != "dev":
-        run_git_command(["checkout", "dev"])
+    if current and current != "main":
+        run_git_command(["checkout", "main"])
 
     result = run_git_command(["worktree", "add", main_wt_path, main_branch])
     if result is None:
         print("Failed to create .worktrees/main/ worktree", file=sys.stderr)
-        if current and current != "dev":
+        if current and current != "main":
             run_git_command(["checkout", current])
         return False
 
@@ -596,7 +580,7 @@ def bootstrap_worktree_layout() -> bool:
         elif os.path.isdir(dir_git_path):
             pass
 
-    if current and current != "dev":
+    if current and current != "main":
         run_git_command(["checkout", current])
         if had_stash:
             run_git_command(["stash", "pop"])
@@ -647,9 +631,6 @@ def _check_credential_files_gitignored() -> list[str]:
 def run_guard_checks() -> list[str]:
     """Run guard checks silently. Returns list of problem descriptions."""
     problems: list[str] = []
-    dev_branch_status = _ensure_dev_branch()
-    if "failed" in dev_branch_status:
-        problems.append(f"dev branch: {dev_branch_status}")
     unprotected = _check_credential_files_gitignored()
     problems.extend(unprotected)
     return problems
