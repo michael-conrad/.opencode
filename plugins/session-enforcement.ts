@@ -363,56 +363,22 @@ function ensureHooksInstalled(projectDir: string): void {
   }
 }
 
-function runSessionInit(projectDir: string): string {
+async function runSessionInit(projectDir: string): Promise<string> {
+  // Use async exec with timeout. execSync blocks the event loop and prevents
+  // the Promise.race timeout for session.get() from firing.
   try {
-    const stdout = execSync("./.opencode/tools/session-init", {
-      cwd: projectDir,
-      encoding: "utf8",
-      input: "",
-      timeout: 10000,
-      stdio: ["pipe", "pipe", "pipe"],
-    }).trim();
-
-    return stdout;
-  } catch (err: any) {
-    const stdout = err?.stdout?.toString().trim() ?? "";
-    const stderr = err?.stderr?.toString().trim() ?? "";
-    const exitCode = err?.status ?? 1;
-
-    const isTimeout = err?.killed || err?.signal === "SIGTERM";
-
-    if (!stdout || stdout.length === 0) {
-      const errorMsg = isTimeout
-        ? `session-init timed out after 30s — likely git credential prompt, lock contention, or submodule hang`
-        : (stderr || "Script returned empty output");
-      console.error(`[session-enforcement] session-init: ${errorMsg}`);
-      writeDiagnostic(projectDir, {
-        source: "session-init",
-        level: "error",
-        message: errorMsg,
-        exitCode: isTimeout ? undefined : exitCode,
+    return await new Promise<string>((resolve) => {
+      const cp = require("child_process");
+      cp.exec("./.opencode/tools/session-init", {
+        cwd: projectDir,
+        encoding: "utf8",
+        timeout: 10000,
+      }, (err: any, stdout: string) => {
+        resolve(stdout?.trim() || "");
       });
-      if (stderr && !isTimeout) {
-        writeDiagnostic(projectDir, {
-          source: "session-init",
-          level: "error",
-          message: stderr,
-          exitCode,
-        });
-      }
-      return "";
-    }
-
-    if (stderr) {
-      writeDiagnostic(projectDir, {
-        source: "session-init",
-        level: "warning",
-        message: stderr,
-        exitCode,
-      });
-    }
-
-    return stdout;
+    });
+  } catch {
+    return "";
   }
 }
 
@@ -768,27 +734,6 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
     }
   }
 
-  // Kick off session-init at startup (don't await — it must not block plugin
-  // loading). Cache the result for system.transform. If it hangs (git lock
-  // contention in test environments), the plugin still loads and functions.
-  let cachedSessionInit = "";
-  (async () => {
-    try {
-      cachedSessionInit = await new Promise<string>((resolve) => {
-        const cp = require("child_process");
-        cp.exec("./.opencode/tools/session-init", {
-          cwd: projectDir,
-          encoding: "utf8",
-          timeout: 10000,
-        }, (err: any, stdout: string) => {
-          resolve(stdout?.trim() || "");
-        });
-      });
-    } catch {
-      // Graceful degradation — session-init is non-critical
-    }
-  })();
-
   return {
     // --- Sub-agent detection via session.created event cache (SC-1) ---
     // The session.created event fires synchronously before messages.transform
@@ -831,8 +776,9 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
         }
       }
 
-      if (cachedSessionInit) {
-        output.system.push(cachedSessionInit);
+      const scriptOutput = await runSessionInit(projectDir);
+      if (scriptOutput) {
+        output.system.push(scriptOutput);
       }
 
       // Inject worktree context when session is operating in a worktree
