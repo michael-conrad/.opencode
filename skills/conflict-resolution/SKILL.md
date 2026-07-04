@@ -51,7 +51,7 @@ Automatic from `git-workflow` when conflicts detected. Manual invocation:
 | `classify-and-resolve` | `task(..., prompt: "execute classify-and-resolve task from conflict-resolution")` |
 | `completion` | `task(..., prompt: "execute completion task from conflict-resolution")` |
 
-**CLI equivalent (for human TUI use):** `/skill conflict-resolution --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "conflict-resolution"})` ``
 
 ## Sub-Agent Routing
 

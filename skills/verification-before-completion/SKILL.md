@@ -59,7 +59,7 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 | `collect` | `task(..., prompt: "execute collect task from verification-before-completion")` |
 | `completion` | `task(..., prompt: "execute completion task from verification-before-completion")` |
 
-**CLI equivalent (for human TUI use):** `/skill verification-before-completion --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "verification-before-completion"})` ``
 
 ## Operating Protocol
 

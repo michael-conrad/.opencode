@@ -52,7 +52,7 @@ Modality Router. Focus: probe models, resolve modality hints, task sub-agents to
 | `route` | `task(..., prompt: "execute route task from multimodal-dispatch")` |
 | `completion` | `task(..., prompt: "execute completion task from multimodal-dispatch")` |
 
-**CLI equivalent (for human TUI use):** `/skill multimodal-dispatch --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "multimodal-dispatch"})` ``
 
 ## Capability Snapshot
 

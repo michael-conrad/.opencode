@@ -57,7 +57,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `checklist` | `task(..., prompt: "execute checklist task from finishing-a-development-branch")` |
 | `completion` | `task(..., prompt: "execute completion task from finishing-a-development-branch")` |
 
-**CLI equivalent (for human TUI use):** `/skill finishing-a-development-branch --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "finishing-a-development-branch"})` ``
 
 ## Operating Protocol
 

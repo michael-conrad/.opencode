@@ -133,7 +133,7 @@ Never `RED-ALL → GREEN-ALL`.
 
 | (use task name) | `task(..., prompt: "execute <task> task from test-driven-development")` |
 
-**CLI equivalent (for human TUI use):** `/skill test-driven-development --task <name>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "test-driven-development"})` ``
 
 ## Gate Descriptions
 

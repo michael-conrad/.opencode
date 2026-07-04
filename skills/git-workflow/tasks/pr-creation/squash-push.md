@@ -22,7 +22,7 @@ Squash implementation commits or verify existing commit structure for all branch
 
 Check for `[skip changelog]` in last commit message or PR title. If present, skip.
 
-If not present, execute: `/skill changelog-generator --since-last-release`
+If not present, execute: `` `skill({name: "changelog-generator"})` ``
 
 Then stage: `git add CHANGELOG.md`
 

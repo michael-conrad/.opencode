@@ -51,7 +51,7 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 | -------- | --------------------------------------------------------------------- |
 | `create` | `task(..., prompt: "execute create task from spec-creation")`         |
 
-**CLI equivalent (for human TUI use):** `/skill spec-creation --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "spec-creation"})` ``
 
 ## Operating Protocol
 

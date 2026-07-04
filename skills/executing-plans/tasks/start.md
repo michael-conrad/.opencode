@@ -38,7 +38,7 @@ This makes the implementation phase resilient to branch switching, worktree recr
 - [ ] 7. **Task() to implementation-pipeline:**
 
 ```
-/skill implementation-pipeline --task assemble-work
+`skill({name: "implementation-pipeline"})` then `task(..., prompt: "execute assemble-work task from implementation-pipeline")`
 ```
 
 When task()ing, pass `authorization_scope`, `halt_at`, `pr_strategy`, and `pipeline_phase` alongside `plan_issue`, `spec_issue`, `<github.owner>`, `<github.repo>`, and `<worktree.path>`. The `assemble-work` task uses these fields for scope-aware task() boundary enforcement.

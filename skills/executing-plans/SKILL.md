@@ -52,7 +52,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `execute` | `task(..., prompt: "execute execute task from executing-plans")` |
 | `completion` | `task(..., prompt: "execute completion task from executing-plans")` |
 
-**CLI equivalent (for human TUI use):** `/skill executing-plans --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "executing-plans"})` ``
 
 ## Operating Protocol
 

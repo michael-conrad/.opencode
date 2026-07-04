@@ -107,7 +107,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 | `check` | `task(..., prompt: "execute check task from completeness-gate")` |
 | `completion` | `task(..., prompt: "execute completion task from completeness-gate")` |
 
-**CLI equivalent (for human TUI use):** `/skill completeness-gate --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "completeness-gate"})` ``
 
 **⚠️ COMPLETION GUARANTEE:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting. The completion subtask is idempotent and safe to invoke multiple times.
 

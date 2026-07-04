@@ -86,7 +86,7 @@ Git Workflow Enforcer. Focus: trunk-based development workflow, block AI on prot
 | `submodule-sync` | `task(..., prompt: "execute submodule-sync task from git-workflow")` |
 | `completion` | `task(..., prompt: "execute completion task from git-workflow")` |
 
-**CLI equivalent (for human TUI use):** `/skill git-workflow --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "git-workflow"})` ``
 
 ## Sub-Agent Tasks for Submodule Operations
 

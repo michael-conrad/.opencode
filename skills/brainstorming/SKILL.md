@@ -58,7 +58,7 @@ Requirements Explorer. Focus: understand what user wants through natural convers
 | `cross-scope` | `task(..., prompt: "execute cross-scope task from brainstorming")` |
 | `completion` | `task(..., prompt: "execute completion task from brainstorming")` |
 
-**CLI equivalent (for human TUI use):** `/skill brainstorming --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "brainstorming"})` ``
 
 ## Operating Protocol
 

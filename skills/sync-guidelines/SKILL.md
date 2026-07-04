@@ -58,7 +58,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `issue-format` | `task(..., prompt: "execute issue-format task from sync-guidelines")` |
 | `completion` | `task(..., prompt: "execute completion task from sync-guidelines")` |
 
-**CLI equivalent (for human TUI use):** `/skill sync-guidelines --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "sync-guidelines"})` ``
 
 ## Sub-Agent Routing
 

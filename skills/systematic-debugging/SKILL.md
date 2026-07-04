@@ -52,7 +52,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `fix` | `task(..., prompt: "execute fix task from systematic-debugging")` |
 | `completion` | `task(..., prompt: "execute completion task from systematic-debugging")` |
 
-**CLI equivalent (for human TUI use):** `/skill systematic-debugging --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "systematic-debugging"})` ``
 
 ## Operating Protocol
 

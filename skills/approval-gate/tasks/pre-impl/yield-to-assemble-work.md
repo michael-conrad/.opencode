@@ -87,7 +87,7 @@ After presenting the plan, proceed immediately to `assemble-work`. Do not HALT. 
 Yield control to `implementation-pipeline --task assemble-work`:
 
 ```text
-/skill implementation-pipeline --task assemble-work
+`skill({name: "implementation-pipeline"})` then `task(..., prompt: "execute assemble-work task from implementation-pipeline")`
 ```
 
 **assemble-work** reads the work state file and handles:

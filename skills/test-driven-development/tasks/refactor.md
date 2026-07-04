@@ -6,7 +6,7 @@
 
 ## Invocation
 
-`/skill test-driven-development --task refactor`
+`` `skill({name: "test-driven-development"})` `` then `` `task(..., prompt: "execute refactor task from test-driven-development")` ``
 
 ## Exit Criteria
 

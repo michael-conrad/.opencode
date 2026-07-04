@@ -77,7 +77,7 @@ This skill produces plans by executing a 22-step pipeline at orchestrator level.
 | `update` | Orchestrator reads `tasks/update.md` and executes steps inline |
 | `completion` | Orchestrator reads `tasks/completion.md` and executes steps inline |
 
-**CLI equivalent (for human TUI use):** `/skill writing-plans --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "writing-plans"})` ``
 
 ## Operating Protocol — 21-Step Pipeline
 

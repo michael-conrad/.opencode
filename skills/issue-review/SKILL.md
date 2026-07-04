@@ -62,7 +62,7 @@ Issue Review Orchestrator. Focus: gather context, classify path, delegate to cor
 | `qa` | `task(..., prompt: "execute qa task from issue-review")` |
 | `completion` | `task(..., prompt: "execute completion task from issue-review")` |
 
-**CLI equivalent (for human TUI use):** `/skill issue-review --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "issue-review"})` ``
 
 ## Operating Protocol
 

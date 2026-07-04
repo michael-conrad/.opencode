@@ -52,7 +52,7 @@ Worktree Setup Specialist. Focus: creating safe, isolated git worktrees for para
 | `verify-worktree` | `task(..., prompt: "execute verify-worktree task from using-git-worktrees")` |
 | `completion` | `task(..., prompt: "execute completion task from using-git-worktrees")` |
 
-**CLI equivalent (for human TUI use):** `/skill using-git-worktrees --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "using-git-worktrees"})` ``
 
 ## Worktree Location
 

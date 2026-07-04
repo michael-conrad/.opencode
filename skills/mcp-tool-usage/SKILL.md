@@ -112,7 +112,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 | `selection-guide` | `task(..., prompt: "execute selection-guide task from mcp-tool-usage")` |
 
-**CLI equivalent (for human TUI use):** `/skill mcp-tool-usage --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "mcp-tool-usage"})` ``
 
 ## Five-Tier Tool Priority Hierarchy
 

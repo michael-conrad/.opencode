@@ -49,7 +49,7 @@ Research Agent. Focus: discover information, produce findings with source attrib
 | `research` | `task(..., prompt: "execute research task from research")` |
 | `completion` | `task(..., prompt: "execute completion task from research")` |
 
-**CLI equivalent (for human TUI use):** `/skill research --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "research"})` ``
 
 ## ResearchResult Schema
 

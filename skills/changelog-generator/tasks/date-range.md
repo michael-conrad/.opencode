@@ -45,7 +45,7 @@ Follow the same categorization, transformation, and writing procedures as `since
 ## Example
 
 ```
-/skill changelog-generator --task date-range "2026-03-01..2026-03-31"
+`skill({name: "changelog-generator"})` then `task(..., prompt: "execute date-range task from changelog-generator with range 2026-03-01..2026-03-31")`
 ```
 
 Generates changelog for all commits in March 2026.

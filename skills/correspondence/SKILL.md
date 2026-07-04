@@ -50,7 +50,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `draft` | `task(..., prompt: "execute draft task from correspondence")` |
 | `completion` | `task(..., prompt: "execute completion task from correspondence")` |
 
-**CLI equivalent (for human TUI use):** `/skill correspondence --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "correspondence"})` ``
 
 ## Operating Protocol
 

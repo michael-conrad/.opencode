@@ -54,7 +54,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `sub-issue-collection` | `task(..., prompt: "execute sub-issue-collection task from pr-creation-workflow")` |
 | `completion` | `task(..., prompt: "execute completion task from pr-creation-workflow")` |
 
-**CLI equivalent (for human TUI use):** `/skill pr-creation-workflow --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "pr-creation-workflow"})` ``
 
 ## Operating Protocol
 

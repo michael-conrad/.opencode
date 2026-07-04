@@ -49,7 +49,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `prepare` | `task(..., prompt: "execute prepare task from requesting-code-review")` |
 | `request` | `task(..., prompt: "execute request task from requesting-code-review")` |
 
-**CLI equivalent (for human TUI use):** `/skill requesting-code-review --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "requesting-code-review"})` ``
 
 ## Sub-Agent Routing
 

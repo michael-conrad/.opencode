@@ -13,7 +13,7 @@ compatibility: opencode
 ## Prompt Pattern (Invocation)
 
 ```
-/skill sre-runbook --task generate
+`skill({name: "sre-runbook"})` then `task(..., prompt: "execute generate task from sre-runbook")`
 domain: Proxmox VE cluster
 scenario_type: incident
 severity: P1

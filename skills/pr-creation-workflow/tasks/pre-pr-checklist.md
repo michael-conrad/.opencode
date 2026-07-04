@@ -10,7 +10,7 @@ Mandatory checks that must pass before creating ANY PR. No exceptions.
 
 ```
 ☐ Changelog Generated
-  - Run: /skill changelog-generator --since-last-release
+  - Run: `` `skill({name: "changelog-generator"})` ``
   - Stage: git add CHANGELOG.md
   - Verify: git status --porcelain CHANGELOG.md shows "M CHANGELOG.md"
   - OR: [skip changelog] directive present in commit message or PR title
@@ -85,7 +85,7 @@ Work PRs correctly have N commits where N = number of implementation items.
 **2. Changelog Generated**
 
 ```bash
-/skill changelog-generator --since-last-release
+`skill({name: "changelog-generator"})`
 git add CHANGELOG.md
 git status --porcelain CHANGELOG.md  # Should show staged changes
 ```

@@ -120,7 +120,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 | `fallback` | `task(..., prompt: "execute fallback task from plan skill")` |
 | `state` | `task(..., prompt: "execute state task from plan skill")` |
 
-**CLI equivalent (for human TUI use):** `/skill plan --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "plan"})` ``
 
 ** Completion Guarantee:** If this workflow halts at ANY point — including error, failure, or early termination — you MUST invoke `--task completion` before halting.
 
