@@ -158,7 +158,25 @@ scope_narrowness:
     findings: ["<description of each gap>"]
 ```
 
-### Step 3d: Evaluate Blast Radius (A3)
+### Step 3d: Evaluate Cross-Reference Completeness (A9)
+
+Evaluate the plan for reference integrity:
+
+- [ ] 1. **Plan reference integrity** — Verify all cross-references in the plan are accurate:
+  - For each issue reference (#N), verify the issue exists and is relevant
+  - For each file path reference, verify the file exists
+  - If a reference is broken or irrelevant, flag as `CROSS_REF_GAP` with `broken_reference`
+
+Record results:
+
+```yaml
+cross_reference_completeness:
+  plan_reference_integrity:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3e: Evaluate Blast Radius (A3)
 
 Evaluate the plan's blast radius analysis:
 

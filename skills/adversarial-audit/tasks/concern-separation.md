@@ -100,7 +100,31 @@ Concern inference:
 - Keywords: API, service, handler → Business logic concern
 - Keywords: UI, component, template → Presentation concern
 
-### Step 3a: Evaluate Scope Creep (A6)
+### Step 3a: Evaluate Separation of Concerns (A8)
+
+Evaluate the spec for SC-level concern separation:
+
+- [ ] 1. **SC orthogonality** — Verify each SC can be independently verified:
+  - Does each SC test a distinct behavior without overlapping with other SCs?
+  - If two SCs test the same behavior, flag as `CONCERN_GAP` with `sc_overlap`
+  - If an SC cannot be verified independently (depends on another SC's state), flag as `CONCERN_GAP` with `sc_dependency`
+- [ ] 2. **Cross-concern overlap detection** — Check for shared symbols between phases:
+  - For each phase, use `srclight_search_symbols` to find symbols referenced in that phase
+  - If two phases share symbols, flag as `CONCERN_GAP` with `shared_symbols_between_phases`
+
+Record results:
+
+```yaml
+separation_of_concerns:
+  sc_orthogonality:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  cross_concern_overlap:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3b: Evaluate Scope Creep (A6)
 
 Evaluate the spec for cross-concern scope violations:
 

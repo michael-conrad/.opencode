@@ -349,7 +349,30 @@ scope_narrowness:
     findings: ["<description of each gap>"]
 ```
 
-### Step 3h: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
+### Step 3h: Evaluate Cross-Reference Completeness (A9)
+
+Evaluate the spec for citation completeness and reference sufficiency:
+
+- [ ] 1. **Completeness of citation** — Verify all relevant context is cited:
+  - For each claim that references an external source, check that the citation is complete (URL, issue number, file path)
+  - If a claim references a source without a complete citation, flag as `CROSS_REF_GAP` with `incomplete_citation`
+- [ ] 2. **Reference sufficiency** — Verify cited sources support the claims:
+  - For each cited source, verify the source actually supports the claim being made
+  - If a cited source does not support the claim, flag as `CROSS_REF_GAP` with `insufficient_reference`
+
+Record results:
+
+```yaml
+cross_reference_completeness:
+  citation_completeness:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  reference_sufficiency:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3i: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
 
 When the spec being audited is a skill card (SKILL.md file), evaluate the SC-SEM criteria. These criteria assess the semantic quality of the skill's `description` field in YAML frontmatter and its Trigger Dispatch Table.
 
