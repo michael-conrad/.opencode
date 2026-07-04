@@ -93,4 +93,4 @@ Session-scoped — resets when session ends.
 ## Context Required
 
 - Related tools: `github_*` MCP tools, `.opencode/tools/gitbucket-api`
-- Related tasks: `provenance/dev-push-provenance`, `provenance/promotion-provenance`
+- Related tasks: `provenance/trunk-push-provenance`

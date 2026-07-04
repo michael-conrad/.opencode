@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: "Use when creating a branch, committing, pushing, or creating a PR. Also use when handling rebase/merge conflicts (invoke conflict-resolution), checking PR state and cleanup, or creating release PRs. Invoke for: branch creation, commit, push, PR creation, rebase, merge, conflict resolution dispatch, PR state verification, cleanup, release PR promotion. Branch-and-PR discipline is REQUIRED — always follow the workflow. Trigger phrases: create branch, commit, push, create PR, rebase, merge, check pr, check prs, check merged prs, pr merged, release PR, promote to main, dev to main."
+description: "Use when creating a branch, committing, pushing, or creating a PR. Also use when handling rebase/merge conflicts (invoke conflict-resolution), checking PR state and cleanup, or running provenance tracking. Invoke for: branch creation, commit, push, PR creation, rebase, merge, conflict resolution dispatch, PR state verification, cleanup, provenance tracking, submodule sync. Branch-and-PR discipline is REQUIRED — always follow the workflow. Trigger phrases: create branch, commit, push, create PR, rebase, merge, check pr, check prs, check merged prs, pr merged, provenance, sync submodules."
 license: MIT
 compatibility: opencode
 ---
@@ -33,7 +33,6 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "pr-creation" / "create PR" | `pr-creation` | `sub-task` | {branch_name, spec_summary} |
 | "rebase" / "rebase pending" | `rebase-pending` | `sub-task` | {branch_name} |
 | "cleanup" / "post-merge cleanup" | `cleanup` | `sub-task` | {pr_merge_status} |
-| "release" / "promote to main" / "target to main" | `pr-creation` | `sub-task` | {branch_name, is_release: true} |
 | "check pr" / "check prs" / "check merged prs" / "pr merged" | `check-pr` | `sub-task` | {branch_name} |
 | "provenance" / "provenance check" | `provenance` | `sub-task` | {submodule_path} |
 | "sync submodules" / "update submodules" | `submodule-sync` | `sub-task` | {submodule_paths} |
@@ -62,12 +61,11 @@ Git Workflow Enforcer. Focus: trunk-based development workflow, block AI on prot
 | `submodule-sync` |
 | `completion` |
 
-## Routing: Feature PR vs Release PR
+## Routing: Feature PR
 
 | Request Type | Target |
 
 | Feature PR (feature/* → target) | `pr-creation-workflow` skill |
-| Release PR (target → main) | `pr-creation-workflow` skill with `{is_release: true}` |
 
 ## Invocation
 
