@@ -1,0 +1,39 @@
+schema_version: "1.0"
+generated_at: "20260704172029"
+status: PASS
+checks:
+  - check_id: PR-1
+    result: PASS
+    detail: "All 4 SCs are atomic — each maps to exactly one RED→GREEN→COMMIT cycle. SC-1 (work state file auto-creation), SC-2 (Gate 2a no-block), SC-3 (error message cleanup), SC-4 (frontmatter fields) each assert one independently testable claim."
+  - check_id: PR-2
+    result: PASS
+    solve_contract_path: ".opencode/.issues/1665/sc-dependency-contract.yaml"
+    prove_results:
+      - theorem: "sc_dag_is_valid"
+        result: VALID
+    detail: "SC-2 depends on SC-1 (Gate 2a needs work state file to exist). SC-4 depends on SC-1 (frontmatter fields are in the work state file). SC-3 has no dependencies. Z3 model confirms SAT — no contradictions."
+  - check_id: PR-3
+    result: PASS
+    detail: "All SCs target exactly one file category and one verification domain. SC-1: task file + behavioral. SC-2: hook + behavioral. SC-3: hook + string. SC-4: task file + string. No multi-category or multi-domain violations."
+  - check_id: PR-4
+    result: SKIP
+    detail: "Single-phase spec — no phase dependency graph to validate."
+  - check_id: PR-5
+    result: SKIP
+    detail: "Single-phase spec — three-tier structure not required (single-task exemption)."
+    sub_checks:
+      - check_id: PR-5a
+        result: SKIP
+      - check_id: PR-5b
+        result: SKIP
+      - check_id: PR-5c
+        result: SKIP
+      - check_id: PR-5d
+        result: SKIP
+      - check_id: PR-5e
+        result: SKIP
+sc_summary:
+  total_scs: 4
+  atomic: 4
+  with_dependencies: 2
+  single_concern: 4

@@ -1,0 +1,46 @@
+domain: opencode-1665
+types:
+  - name: tdd_item
+objects:
+  - name: tdd1
+    type: tdd_item
+  - name: tdd2
+    type: tdd_item
+  - name: tdd3
+    type: tdd_item
+fluents:
+  - name: implemented
+    params:
+      - name: item
+        type: tdd_item
+  - name: sc1_done
+  - name: sc2_done
+  - name: sc3_done
+  - name: sc4_done
+actions:
+  - name: implement_tdd1
+    params: []
+    preconditions: []
+    effects:
+      - implemented(tdd1)
+      - sc1_done
+  - name: implement_tdd2
+    params: []
+    preconditions: []
+    effects:
+      - implemented(tdd2)
+      - sc2_done
+      - sc3_done
+  - name: implement_tdd3
+    params: []
+    preconditions:
+      - implemented(tdd1)
+    effects:
+      - implemented(tdd3)
+      - sc4_done
+init: []
+goals:
+  - sc1_done
+  - sc2_done
+  - sc3_done
+  - sc4_done

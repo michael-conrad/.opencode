@@ -1,0 +1,63 @@
+domain: sc-1553-implementation
+types:
+  - name: item
+objects:
+  - name: item-1
+    type: item
+  - name: item-2
+    type: item
+  - name: item-3
+    type: item
+  - name: item-4
+    type: item
+  - name: item-5
+    type: item
+  - name: item-6
+    type: item
+fluents:
+  - name: done
+    params:
+      - name: i
+        type: item
+  - name: can-start
+    params:
+      - name: i
+        type: item
+actions:
+  - name: implement
+    params:
+      - name: i
+        type: item
+    preconditions:
+      - can-start(i)
+    effects:
+      - done(i)
+  - name: enable-item-1
+    params: []
+    preconditions: []
+    effects:
+      - can-start(item-1)
+  - name: enable-item-6
+    params: []
+    preconditions:
+      - done(item-1)
+    effects:
+      - can-start(item-6)
+  - name: enable-items-2-5
+    params: []
+    preconditions:
+      - done(item-1)
+    effects:
+      - can-start(item-2)
+      - can-start(item-3)
+      - can-start(item-4)
+      - can-start(item-5)
+init:
+  - can-start(item-1)
+goals:
+  - done(item-1)
+  - done(item-2)
+  - done(item-3)
+  - done(item-4)
+  - done(item-5)
+  - done(item-6)

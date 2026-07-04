@@ -1,0 +1,38 @@
+schema_version: "1.0"
+generated_at: "20260704172017"
+status: PASS
+checks:
+  - check_id: PR-1
+    result: PASS
+    detail: "All 5 SCs are atomic — each maps to exactly one RED→GREEN→COMMIT cycle targeting one file and one concern."
+  - check_id: PR-2
+    result: PASS
+    solve_contract_path: ".opencode/.issues/1553/sc-dependency-contract.yaml"
+    prove_results:
+      - theorem: "sc_dag_is_valid"
+        result: VALID
+  - check_id: PR-3
+    result: PASS
+    detail: "All 5 SCs target exactly one file category and one verification domain: SC-1 (guideline, string), SC-2 (guideline, string), SC-3 (test, behavioral), SC-4 (test, string), SC-5 (config, string)."
+  - check_id: PR-4
+    result: SKIP
+    detail: "No phases defined — single-task spec. Phase dependency validation not applicable."
+  - check_id: PR-5
+    result: SKIP
+    detail: "Single-task spec (1 phase) — three-tier structure not required."
+    sub_checks:
+      - check_id: PR-5a
+        result: SKIP
+      - check_id: PR-5b
+        result: SKIP
+      - check_id: PR-5c
+        result: SKIP
+      - check_id: PR-5d
+        result: SKIP
+      - check_id: PR-5e
+        result: SKIP
+sc_summary:
+  total_scs: 5
+  atomic: 5
+  with_dependencies: 3
+  single_concern: 5

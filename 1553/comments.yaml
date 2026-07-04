@@ -1,0 +1,6 @@
+comments:
+- type: internal
+  body: Plan creation complete. Self-review checklist verified. Plan is a single-file
+    plan at `.opencode/.issues/1553/plan.md` with 2 phases covering guideline edits
+    (Phase 01) and behavioral test + downstream updates (Phase 02).
+  timestamp: '2026-07-04T17:41:42+00:00'
