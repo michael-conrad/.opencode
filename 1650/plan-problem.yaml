@@ -1,0 +1,43 @@
+domain: spec-1650
+types:
+  - name: phase
+objects:
+  - name: phase-0
+    type: phase
+  - name: phase-1
+    type: phase
+  - name: phase-2
+    type: phase
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+  - name: dependency_satisfied
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: execute
+    params:
+      - name: p
+        type: phase
+    preconditions:
+      - dependency_satisfied(p)
+    effects:
+      - completed(p)
+  - name: satisfy_dependency
+    params:
+      - name: p
+        type: phase
+    preconditions:
+      - completed(p)
+    effects:
+      - dependency_satisfied(phase-1)
+      - dependency_satisfied(phase-2)
+init:
+  - dependency_satisfied(phase-0)
+goals:
+  - completed(phase-0)
+  - completed(phase-1)
+  - completed(phase-2)

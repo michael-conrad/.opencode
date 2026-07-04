@@ -1,0 +1,27 @@
+schema_version: "1.0"
+spec: 1650
+phases:
+  - id: phase-0
+    label: "Global pre-phase — research"
+    concern: research
+    skill: writing-plans
+    task: create
+    scs: [all]
+    sub_agent_type: general
+    dispatch_prompt: "Research spec #1650: identify all /skill references across .opencode/"
+  - id: phase-1
+    label: "Find-and-replace /skill → skill()"
+    concern: find_and_replace
+    skill: writing-plans
+    task: create
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5]
+    sub_agent_type: general
+    dispatch_prompt: "Execute Phase 1 of spec #1650: replace all 58 /skill references with skill() syntax across .opencode/"
+  - id: phase-2
+    label: "Global post-phase — behavioral test + verification + review prep"
+    concern: verification_and_cleanup
+    skill: git-workflow
+    task: checklist
+    scs: [SC-6, SC-1, SC-2, SC-3, SC-4, SC-5]
+    sub_agent_type: general
+    dispatch_prompt: "Execute Phase 2 of spec #1650: write behavioral test, global grep verification, finishing checklist, review prep"

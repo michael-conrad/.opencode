@@ -1,0 +1,26 @@
+schema_version: "1.0"
+generated_at: "20260704031000"
+variables:
+  P0_DONE: {type: bool, nullable: false}
+  P1_DONE: {type: bool, nullable: false}
+  P2_DONE: {type: bool, nullable: false}
+  P1_T1_DONE: {type: bool, nullable: false}
+  P1_T2_DONE: {type: bool, nullable: false}
+  P1_T3_DONE: {type: bool, nullable: false}
+  P1_T4_DONE: {type: bool, nullable: false}
+  P1_T5_DONE: {type: bool, nullable: false}
+  P2_T6_DONE: {type: bool, nullable: false}
+invariants:
+  # Phase completion implies all its items are done
+  - "z3.Implies(P0_DONE == True, True)"
+  - "z3.Implies(P1_DONE == True, z3.And(P1_T1_DONE == True, P1_T2_DONE == True, P1_T3_DONE == True, P1_T4_DONE == True, P1_T5_DONE == True))"
+  - "z3.Implies(P2_DONE == True, P2_T6_DONE == True)"
+  # Serial ordering within Phase 1
+  - "z3.Implies(P1_T2_DONE == True, P1_T1_DONE == True)"
+  - "z3.Implies(P1_T3_DONE == True, P1_T2_DONE == True)"
+  - "z3.Implies(P1_T4_DONE == True, P1_T3_DONE == True)"
+  - "z3.Implies(P1_T5_DONE == True, P1_T4_DONE == True)"
+  # Phase dependency: P1 depends on P0, P2 depends on P1
+  - "z3.Implies(P1_DONE == True, P0_DONE == True)"
+  - "z3.Implies(P2_DONE == True, P1_DONE == True)"
+  # Theorem: all phases can be satisfied without violating ordering
