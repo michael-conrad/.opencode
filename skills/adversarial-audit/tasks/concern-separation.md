@@ -100,6 +100,29 @@ Concern inference:
 - Keywords: API, service, handler → Business logic concern
 - Keywords: UI, component, template → Presentation concern
 
+### Step 3a: Evaluate Scope Creep (A6)
+
+Evaluate the spec for cross-concern scope violations:
+
+- [ ] 1. **Cross-concern scope detection** — Check if any phase's scope overlaps with another phase's concern:
+  - For each phase, compare its file paths and symbols against other phases
+  - If two phases modify the same files or symbols, flag as `SCOPE_CREEP` with `cross_concern_overlap`
+- [ ] 2. **Scope boundary verification** — Verify each phase stays within its declared concern:
+  - Does the phase's implementation steps stay within its concern boundary?
+  - If a phase includes steps outside its concern, flag as `SCOPE_CREEP` with `phase_scope_breach`
+
+Record results:
+
+```yaml
+scope_creep:
+  cross_concern_overlap:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  scope_boundary_verification:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
 ### Step 4: Cross-Validate
 
 Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.

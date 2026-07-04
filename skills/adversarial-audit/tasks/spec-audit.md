@@ -274,7 +274,82 @@ research_adequacy:
     findings: ["<description of each gap>"]
 ```
 
-### Step 3e: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
+### Step 3e: Evaluate Gap Analysis (A5)
+
+Evaluate the spec for coverage gaps and implicit conditions:
+
+- [ ] 1. **Missing coverage** — Identify untested boundary conditions:
+  - For each SC, check if boundary conditions are explicitly tested
+  - If an SC has no boundary condition testing, flag as `GAP_ANALYSIS` with `untested_boundary`
+- [ ] 2. **Implicit conditions** — Identify preconditions not stated:
+  - Scan the spec for assumptions that are not explicitly stated as preconditions
+  - If an implicit precondition is found, flag as `GAP_ANALYSIS` with `implicit_precondition`
+
+Record results:
+
+```yaml
+gap_analysis:
+  missing_coverage:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  implicit_conditions:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3f: Evaluate Scope Creep (A6)
+
+Evaluate the spec for scope boundary violations:
+
+- [ ] 1. **Traceability enforcement** — Verify every Fix Approach element traces to a Root Cause:
+  - Each Fix Approach element must have a `traces_to` field or implicit link
+  - If a Fix element has no Root Cause traceability, flag as `SCOPE_CREEP` with `untraced_fix_element`
+- [ ] 2. **Proportionality** — Verify fix scope aligns with blast radius:
+  - Is the fix scope proportional to the blast radius? (small blast radius → small fix)
+  - If fix scope exceeds blast radius, flag as `SCOPE_CREEP` with `disproportionate_scope`
+
+Record results:
+
+```yaml
+scope_creep:
+  traceability_enforcement:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  proportionality:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3g: Evaluate Scope Narrowness (A7)
+
+Evaluate the spec for insufficient root cause depth:
+
+- [ ] 1. **Root cause depth** — Apply the 5-Whys test:
+  - Does the spec identify the root cause, or just a symptom?
+  - If the spec fixes a symptom rather than the root cause, flag as `SCOPE_NARROWNESS` with `symptom_only_fix`
+- [ ] 2. **Systemic implication** — Check if the problem exists elsewhere:
+  - Is the same pattern/issue present in other parts of the codebase?
+  - If the fix is localized but the problem is systemic, flag as `SCOPE_NARROWNESS` with `systemic_implication_unaddressed`
+- [ ] 3. **Minimum viable scope** — Verify the scope is not over-scoped:
+  - Does the fix include changes beyond what's needed to address the root cause?
+  - If the scope exceeds the minimum viable fix, flag as `SCOPE_NARROWNESS` with `over_scoped`
+
+Record results:
+
+```yaml
+scope_narrowness:
+  root_cause_depth:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  systemic_implication:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  minimum_viable_scope:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3h: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
 
 When the spec being audited is a skill card (SKILL.md file), evaluate the SC-SEM criteria. These criteria assess the semantic quality of the skill's `description` field in YAML frontmatter and its Trigger Dispatch Table.
 
