@@ -1,0 +1,172 @@
+---
+audit_phase: plan-fidelity
+auditor_type: plan-fidelity
+family: adversarial-audit
+issue_number: 1650
+generated_at: "2026-07-03T00:00:00Z"
+orchestrator_model: "ollama/qwen3.5:397b-cloud"
+spec_source: "https://github.com/michael-conrad/.opencode/issues/1650"
+plan_source: ".opencode/.issues/1650/plan.md, plan-01-find-and-replace.md, plan-02-behavioral-test-and-verification.md"
+comparison_result:
+  missing_phases: []
+  extra_phases: []
+  missing_steps: []
+  approach_differences: []
+  discrepancies_found: 3
+per_criterion:
+  - criterion_id: "PF-1"
+    result: "PASS"
+    evidence: "read plan.md lines 29-34, spec issue body"
+    explanation: "Both phases (find-and-replace, behavioral test + verification) appear in existing plan. One-to-one phase coverage confirmed."
+    remediation: ""
+    next_step: "proceed"
+
+  - criterion_id: "PF-2"
+    result: "PASS"
+    evidence: "read plan.md phase table, plan-01.md, plan-02.md"
+    explanation: "Phase order matches dependency order: Phase 1 (replacement) must complete before Phase 2 (verification). No dependency reversal."
+    remediation: ""
+    next_step: "proceed"
+
+  - criterion_id: "PF-3"
+    result: "PASS"
+    evidence: "read plan-01.md steps 1-8, plan-02.md steps 9-15, spec SC table"
+    explanation: "All 6 SCs covered: SC-1 through SC-5 in Phase 1 steps 2-6, SC-6 in Phase 2 steps 9-11. Each SC has corresponding step."
+    remediation: ""
+    next_step: "proceed"
+
+  - criterion_id: "PF-4"
+    result: "PASS"
+    evidence: "read plan-01.md steps 1, 5, 6, 8; plan-02.md steps 9, 11, 12"
+    explanation: "Critical steps present: RED verification scripts (Step 1), GREEN doublechecks (Steps 5, 6, 11), VbC gates (Steps 8, 15). Edge cases covered via grep verification across all file types."
+    remediation: ""
+    next_step: "proceed"
+
+  - criterion_id: "PF-5"
+    result: "PASS"
+    evidence: "read plan.md architecture section, spec approach section"
+    explanation: "Approach consistent: both use find-and-replace strategy with verification checkpoints. Clean-room and existing plans use same strategy."
+    remediation: ""
+    next_step: "proceed"
+
+  - criterion_id: "PF-6"
+    result: "PASS"
+    evidence: "read plan-01.md steps 1-2, plan-02.md steps 9-10"
+    explanation: "TDD checkpoints present with RED/GREEN separation: Step 1 (RED verification scripts), Step 2-4 (GREEN replacements), Step 9 (RED behavioral test), Step 10 (GREEN test execution). Every step has dispatch mode indicator (**clean-room**), (**sub-agent**), or (**inline**)."
+    remediation: ""
+    next_step: "proceed"
+
+  - criterion_id: "PF-7a"
+    result: "FAIL"
+    evidence: "read plan-01.md, plan-02.md"
+    explanation: "Cost-frame prose present (compliance requirement blockquotes, one-step-at-a-time protocol) but runtime execution instructions lack explicit cost-frame reformation language. Steps describe WHAT to do but not WHY in cost terms (DDL, death spiral vs. break). Missing explicit cost justification for behavioral test execution."
+    remediation: "Add cost-frame prose to Phase 2 implementation instructions explaining DDL rationale for behavioral testing."
+    next_step: "remediate"
+
+  - criterion_id: "PF-7"
+    result: "PASS"
+    evidence: "read plan.md exit criteria C1-C6, plan-01.md step references, plan-02.md step references"
+    explanation: "SC gate language preserved: exit criteria C1-C6 map 1:1 to spec SC-1 through SC-6. Each TDD RED checkpoint referenced as sub-gate in step chain."
+    remediation: ""
+    next_step: "proceed"
+
+  - criterion_id: "PF-STRUCTURAL-FAIL"
+    result: "PASS"
+    evidence: "read spec SC-6 evidence type, plan-02.md step 9"
+    explanation: "SC-6 correctly declared as behavioral evidence type. Step 9 behavioral test instruction requires actual test execution (opencode-cli run pattern via assert_stderr_pattern_*), not structural grep. No structural evidence accepted for behavioral SC."
+    remediation: ""
+    next_step: "proceed"
+
+  - criterion_id: "PF-Z3-CONTRACT"
+    result: "PASS"
+    evidence: "read plan.md, spec issue body"
+    explanation: "Z3 contract not required for this spec (no state machine or workflow constraint verification). Spec does not mandate Z3 contract. N/A - not a failure."
+    remediation: ""
+    next_step: "proceed"
+
+  - criterion_id: "PF-PRESCRIPTIVE-CODE"
+    result: "PASS"
+    evidence: "read plan-01.md steps 1-4, plan-02.md step 9"
+    explanation: "RED/GREEN conditions contain no line numbers, exact code, or file paths. RED describes 'grep must FAIL (≥1 match)', GREEN describes 'replace all references'. No prescriptive content."
+    remediation: ""
+    next_step: "proceed"
+
+  - criterion_id: "PF-CHECKLIST-FORMAT"
+    result: "PASS"
+    evidence: "read plan-01.md steps 1-8, plan-02.md steps 9-15"
+    explanation: "All steps use `- [ ] N.` checkbox format with sub-bullets containing metadata, SC references, and commands. Format consistent across both phases."
+    remediation: ""
+    next_step: "proceed"
+
+  - criterion_id: "PF-DISPATCH-MODE"
+    result: "PASS"
+    evidence: "read plan-01.md steps 1-8, plan-02.md steps 9-15"
+    explanation: "Every step title contains dispatch mode indicator: (**clean-room**) for verification steps, (**sub-agent**) for replacement/test-writing steps, (**inline**) for checkpoint commit. Exactly one indicator per step."
+    remediation: ""
+    next_step: "proceed"
+
+  - criterion_id: "PF-SUBSTEP-EXPAND"
+    result: "FAIL"
+    evidence: "read plan-01.md step 4"
+    explanation: "Step 4 collapses multiple file replacements into single step: '.guidelines/README.md, README.md, dispatch-table.yaml, .issues/1372/spec.md: all /skill references → skill() syntax' plus '7 additional locations in TDD red/green/refactor, changelog backfill/date-range, sre-runbook reference docs'. These are at least 3 distinct operations (3 files + 7 locations = 10+ replacements) that should be separate steps."
+    remediation: "Decompose Step 4 into individual steps: one per file category or per file."
+    next_step: "remediate"
+
+  - criterion_id: "PF-ADMONISHMENT"
+    result: "FAIL"
+    evidence: "read plan.md lines 23-26, 36-38"
+    explanation: "Compliance admonishment present at top (lines 23-26: 'This plan is a binding contract...') but missing at bottom/epilogue. The canonical 'rework from scratch and loss of all prior work' blockquote appears only at prologue, not at epilogue after Phase 2."
+    remediation: "Add compliance admonishment blockquote at end of plan.md after Phase 2 exit criteria."
+    next_step: "remediate"
+
+  - criterion_id: "PF-GLOBAL-NUMBERING"
+    result: "PASS"
+    evidence: "read plan.md phase table, plan-01.md, plan-02.md"
+    explanation: "Steps numbered globally across phases: Phase 1 steps 1-8, Phase 2 steps 9-15. No per-phase restart. Step 9 follows step 8 across phase boundary."
+    remediation: ""
+    next_step: "proceed"
+
+  - criterion_id: "PF-ONE-STEP"
+    result: "PASS"
+    evidence: "read plan.md lines 25-26"
+    explanation: "One-step-at-a-time protocol admonishment present at top of plan: 'Execute exactly one step at a time. After each step, verify the output before proceeding. Do not batch steps.'"
+    remediation: ""
+    next_step: "proceed"
+
+  - criterion_id: "PF-DELEGATION"
+    result: "PASS"
+    evidence: "read plan.md, spec issue body"
+    explanation: "No delegation references ('delegate to', 'unified', 'merged into', 'replaced by') in spec. N/A - no undefined delegation targets."
+    remediation: ""
+    next_step: "proceed"
+
+  - criterion_id: "PF-SEQUENCE-MATCHES"
+    result: "PASS"
+    evidence: "read plan.md phase table, implementation-pipeline/SKILL.md dispatch routing table"
+    explanation: "Gate sequence matches pipeline source: RED → GREEN → VbC → audit → review prep. No missing gates."
+    remediation: ""
+    next_step: "proceed"
+
+all_criteria_pass: false
+discrepancies:
+  - finding_type: "MISSING_COST_FRAME_PROSE"
+    criterion_id: "PF-7a"
+    classification: "conditional"
+    description: "Phase 2 implementation instructions lack explicit cost-frame reformation prose explaining DDL rationale for behavioral testing."
+    revision_option: "Add cost-frame blockquote to Phase 2 header explaining why behavioral test execution is mandatory (death spiral vs. break cost model)."
+
+  - finding_type: "COLLAPSED_MULTI_OPERATION_STEP"
+    criterion_id: "PF-SUBSTEP-EXPAND"
+    classification: "auto-fix"
+    description: "Step 4 combines 10+ file replacements into single step. Should be decomposed into individual steps per file or file category."
+    revision_option: "Split Step 4 into Steps 4a-4k (one per file category: .guidelines/README.md, README.md, dispatch-table.yaml, .issues/1372/spec.md, then 7 additional locations as separate steps)."
+
+  - finding_type: "MISSING_EPILOGUE_ADMONISHMENT"
+    criterion_id: "PF-ADMONISHMENT"
+    classification: "auto-fix"
+    description: "Compliance admonishment blockquote present at prologue but missing at epilogue after Phase 2."
+    revision_option: "Add compliance admonishment blockquote at end of plan.md after Phase 2 exit criteria, matching prologue text."
+
+exec_summary: "Plan fidelity: 15/18 criteria PASS, 3 FAIL. 3 discrepancies found: missing cost-frame prose in Phase 2 (PF-7a), collapsed multi-operation step (PF-SUBSTEP-EXPAND), missing epilogue admonishment (PF-ADMONISHMENT)."
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes. Remediate PF-7a (add cost-frame prose), PF-SUBSTEP-EXPAND (decompose Step 4), PF-ADMONISHMENT (add epilogue blockquote), then re-audit."
+---

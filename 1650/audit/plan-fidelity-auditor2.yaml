@@ -1,0 +1,71 @@
+audit_phase: plan_fidelity
+auditor_type: auditor_2
+family: gemma4
+issue_number: 1650
+generated_at: "2026-07-03T00:00:00Z"
+orchestrator_model: "gemma4:31b-cloud"
+comparison_result:
+  missing_phases: []
+  extra_phases: []
+  missing_steps: []
+  approach_differences: []
+per_criterion:
+  - criterion_id: "PF-1"
+    result: "PASS"
+    evidence: "plan.md:33-34"
+    explanation: "Plan defines Phase 1 (Find-and-replace) and Phase 2 (Behavioral test + verification), which fully cover the required implementation and verification logic."
+    remediation: ""
+    next_step: "proceed"
+  - criterion_id: "PF-2"
+    result: "PASS"
+    evidence: "plan.md:33-34"
+    explanation: "Phase 2 depends on Phase 1, matching the natural dependency of verification following implementation."
+    remediation: ""
+    next_step: "proceed"
+  - criterion_id: "PF-3"
+    result: "PASS"
+    evidence: "plan-01-find-and-replace.md:23-49, plan-02-behavioral-test-and-verification.md:17-31"
+    explanation: "Every SC from the spec (SC-1 through SC-6) is explicitly mapped to at least one step in the plan."
+    remediation: ""
+    next_step: "proceed"
+  - criterion_id: "PF-4"
+    result: "PASS"
+    evidence: "plan-02-behavioral-test-and-verification.md:21"
+    explanation: "Plan includes multi-run verification (3 times) to ensure non-flaky PASS for the behavioral test."
+    remediation: ""
+    next_step: "proceed"
+  - criterion_id: "PF-5"
+    result: "PASS"
+    evidence: "plan-01-find-and-replace.md:23-44"
+    explanation: "The implementation strategy uses a structured RED (scripts to prove failure) then GREEN (targeted replacement) approach consistent across all replacement categories."
+    remediation: ""
+    next_step: "proceed"
+  - criterion_id a: "PF-TDD"
+    result: "PASS"
+    evidence: "plan-01-find-and-replace.md:23-31, plan-02-behavioral-test-and-verification.md:17-20"
+    explanation: "RED/GREEN chains are explicitly defined: Step 1 (RED) followed by Steps 2-4 (GREEN). Phase 2 also follows RED (Step 9) then GREEN (Step 10)."
+    remediation: ""
+    next_step: "proceed"
+  - criterion_id: "PF-S-SCOPE"
+    result: "PASS"
+    evidence: "plan.md:5, plan-01-find-and-replace.md:3-13"
+    explanation: "The plan strictly targets the 58 references identified in the spec. No additional features or unrelated changes are planned."
+    remediation: ""
+    next_step: "proceed"
+  - criterion_id: "PF-E-TYPE"
+    result: "PASS"
+    evidence: "plan-01-find-and-replace.md:23-44, plan-02-behavioral-test-and-verification.md:17-21"
+    explanation: "SCs 1-5 are verified via grep/scripts (string evidence), and SC-6 is verified via a behavioral enforcement test (behavioral evidence), matching the spec's evidence type declarations."
+    remediation: ""
+    next_step: "proceed"
+  - criterion_id: "PF-EXIT"
+    result: "PASS"
+    evidence: "plan.md:42-47, plan-02-behavioral-test-and-verification.md:31"
+    explanation: "Exit criteria C1-C6 in plan.md map one-to-one with spec SC-1 through SC-6."
+    remediation: ""
+    next_step: "proceed"
+all_criteria_pass: true
+auto_fixes_applied: []
+flagged_for_review: []
+exec_summary: "Plan fidelity audit: All criteria PASS. The plan faithfully represents the spec, maintains evidence type integrity, and follows TDD discipline."
+mandatory_remediation: "None required."
