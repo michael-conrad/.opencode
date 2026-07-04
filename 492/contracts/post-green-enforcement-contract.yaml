@@ -1,0 +1,8 @@
+# Post-GREEN enforcement contract for spec #492
+# Validates that no test files were modified during GREEN phase
+variables:
+  test_files_modified:
+    type: int
+    description: "Number of test files modified during GREEN phase (must be 0)"
+constraints:
+  - "test_files_modified == 0"

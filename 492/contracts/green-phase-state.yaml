@@ -1,0 +1,8 @@
+# GREEN phase state for spec #492
+# Reflects the current state of push-and-cleanup.md after GREEN phase
+variables:
+  step_exists: true
+  uses_rev_list: true
+  has_auto_rebase: true
+  has_conflict_classification: true
+  has_clean_path: true

@@ -1,0 +1,3 @@
+# Post-GREEN enforcement state for spec #492
+variables:
+  test_files_modified: 0

@@ -1,0 +1,36 @@
+schema_version: "1.0"
+generated_at: "20260704021000"
+variables:
+  P1_DONE: {type: bool, nullable: false}
+  P1_I1_DONE: {type: bool, nullable: false}
+  P1_I2_DONE: {type: bool, nullable: false}
+  P1_I3_DONE: {type: bool, nullable: false}
+  P1_I4_DONE: {type: bool, nullable: false}
+  P1_I5_DONE: {type: bool, nullable: false}
+  P1_I6_DONE: {type: bool, nullable: false}
+  P1_I6a_DONE: {type: bool, nullable: false}
+  POST_DONE: {type: bool, nullable: false}
+  POST_I7_DONE: {type: bool, nullable: false}
+  POST_I8_DONE: {type: bool, nullable: false}
+  POST_I9_DONE: {type: bool, nullable: false}
+  POST_I10_DONE: {type: bool, nullable: false}
+  POST_I10a_DONE: {type: bool, nullable: false}
+invariants:
+  # Phase completion implies all its items are done
+  - "z3.Implies(P1_DONE == True, z3.And(P1_I1_DONE == True, P1_I2_DONE == True, P1_I3_DONE == True, P1_I4_DONE == True, P1_I5_DONE == True, P1_I6_DONE == True, P1_I6a_DONE == True))"
+  - "z3.Implies(POST_DONE == True, z3.And(POST_I7_DONE == True, POST_I8_DONE == True, POST_I9_DONE == True, POST_I10_DONE == True, POST_I10a_DONE == True))"
+  # Serial ordering within Phase 1
+  - "z3.Implies(P1_I2_DONE == True, P1_I1_DONE == True)"
+  - "z3.Implies(P1_I3_DONE == True, P1_I2_DONE == True)"
+  - "z3.Implies(P1_I4_DONE == True, P1_I3_DONE == True)"
+  - "z3.Implies(P1_I5_DONE == True, P1_I4_DONE == True)"
+  - "z3.Implies(P1_I6_DONE == True, P1_I5_DONE == True)"
+  - "z3.Implies(P1_I6a_DONE == True, P1_I6_DONE == True)"
+  # Serial ordering within Post-Phase
+  - "z3.Implies(POST_I8_DONE == True, POST_I7_DONE == True)"
+  - "z3.Implies(POST_I9_DONE == True, POST_I8_DONE == True)"
+  - "z3.Implies(POST_I10_DONE == True, POST_I9_DONE == True)"
+  - "z3.Implies(POST_I10a_DONE == True, POST_I10_DONE == True)"
+  # Phase dependency: Post depends on Phase 1
+  - "z3.Implies(POST_DONE == True, P1_DONE == True)"
+  # Theorem: all phases can be satisfied without violating ordering

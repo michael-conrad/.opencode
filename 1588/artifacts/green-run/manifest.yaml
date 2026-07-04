@@ -1,0 +1,6 @@
+scenario_name: gap-fill-dispatch
+phase: GREEN
+model: ollama/ornith:35b-256k
+timestamp: 2026-07-01T00:02:53Z
+exit_code: 0
+harness_version: 1

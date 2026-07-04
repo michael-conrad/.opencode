@@ -1,0 +1,3 @@
+status: PASS
+sc_summary: "Add staleness check to PR-creation enforcement gate. Single concern: before PR creation, enforcement gate independently verifies branch is up-to-date with target base via git rev-list --count --left-right, auto-rebases if behind, routes conflicts to conflict-resolution skill. Also update pre-pr-checklist with staleness check item."
+phase_dependencies: []

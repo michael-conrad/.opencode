@@ -1,0 +1,30 @@
+# Pipeline Readiness — .opencode#1588
+# Generated: 2026-06-30
+# Authorization: for_pr, halt_at=pr_created, pr_strategy=stacked
+
+status: PASS
+spec_issue: 1588
+spec_title: "[SPEC-FIX] Orchestrator inline-work bypass: structural enforcement via tool-level separation"
+
+sc_summary:
+  - id: SC-1
+    description: writing-plans/SKILL.md Trigger Dispatch Table includes "auto-create plan" / "gap-fill plan" triggers
+    evidence_type: string
+    phase: phase-1
+    pipeline_step: writing-plans-dispatch-table
+    verification_gate: ci
+    artifact_path: .opencode/skills/writing-plans/SKILL.md
+
+  - id: SC-4
+    description: Behavioral test: "approved for PR" → dispatches to writing-plans --task create
+    evidence_type: behavioral
+    phase: phase-1
+    pipeline_step: behavioral-test
+    verification_gate: pre-commit
+    artifact_path: .opencode/tests/behaviors/
+
+phase_dependencies:
+  phase-1: []
+
+re_entry_points:
+  phase-1: writing-plans-dispatch-table

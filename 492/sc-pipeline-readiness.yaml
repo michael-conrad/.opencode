@@ -1,0 +1,9 @@
+status: PASS
+sc_summary: |
+  Spec #492 defines a staleness-check + auto-rebase step for git-workflow's review-prep
+  pipeline. 6 success criteria: SC-1 (string, grep for staleness check in task files),
+  SC-2 (behavioral, auto-rebase on behind>0), SC-3 (behavioral, push after rebase),
+  SC-4 (behavioral, Tier 3 conflict HALT), SC-5 (behavioral, clean branch proceeds),
+  SC-6 (behavioral, enforcement test exists). Single phase — add staleness-check step
+  to review-prep/push-and-cleanup.md before existing Step 1.5 rebase.
+phase_dependencies: []

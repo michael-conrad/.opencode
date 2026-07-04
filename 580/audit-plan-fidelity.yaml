@@ -1,0 +1,99 @@
+---
+audit_type: plan-fidelity
+issue_number: 580
+spec_url: https://github.com/michael-conrad/.opencode/issues/580
+plan_path: /home/muksihs/git/opencode-config/.opencode/.issues/580/plan.md
+audit_phase: plan_creation
+generated_at: "2026-07-02T00:00:00Z"
+
+status: FAIL
+all_criteria_pass: false
+
+findings:
+  - id: F1
+    severity: major
+    sc_id: SC-2
+    finding: "Plan does not include explicit behavioral test assertion for SC-2 (auto-rebase when behind)"
+    evidence: "Behavioral test in plan.md Step 1 only asserts SC-1 and SC-8 via assert_semantic. SC-2 (auto-rebase behavior) is implemented in Step 2 but has no corresponding assert_semantic in the test."
+    remediation: "Add assert_semantic \"SC-2\" \"When branch is behind target, enforcement gate auto-rebases before PR creation\" to the behavioral test assertions"
+
+  - id: F2
+    severity: major
+    sc_id: SC-3
+    finding: "Plan does not include behavioral test assertion for SC-3 (Tier 1/2 conflict auto-resolve)"
+    evidence: "Plan mentions conflict routing to conflict-resolution skill in Step 2 and Architecture section, but behavioral test has no assertion verifying Tier 1/2 auto-resolve behavior."
+    remediation: "Add assert_semantic \"SC-3\" \"Tier 1 and Tier 2 conflicts during rebase are auto-resolved via conflict-resolution skill\" to behavioral test"
+
+  - id: F3
+    severity: major
+    sc_id: SC-4
+    finding: "Plan does not include behavioral test assertion for SC-4 (Tier 3 conflict HALT)"
+    evidence: "Plan mentions Tier 3 conflicts cause HALT in Step 2, but behavioral test has no assertion verifying this behavior."
+    remediation: "Add assert_semantic \"SC-4\" \"Tier 3 intent conflicts cause HALT with clear report to developer\" to behavioral test"
+
+  - id: F4
+    severity: major
+    sc_id: SC-6
+    finding: "Plan does not include behavioral test assertion for SC-6 (applies to ALL PRs, no dev-specific logic)"
+    evidence: "Plan states 'No dev-specific hardcoding' in Self-Review Evidence and VbC block checks grep for 'origin/dev', but behavioral test does not assert SC-6 with assert_semantic. The test should verify the agent handles non-dev targets correctly."
+    remediation: "Add assert_semantic \"SC-6\" \"Staleness check applies to ALL PRs regardless of target branch with no dev-specific hardcoding\" to behavioral test"
+
+  - id: F5
+    severity: minor
+    sc_id: SC-7
+    finding: "Plan has no verification step for SC-7 (no release-promotion references)"
+    evidence: "Plan states 'No release-promotion references — moot per #1540' in Self-Review Evidence, but there is no grep or other verification step to confirm no stale references remain in the modified files."
+    remediation: "Add VbC check: grep -c 'release-promotion' .opencode/skills/git-workflow/tasks/pr-creation/enforcement-gate.md should be 0"
+
+  - id: F6
+    severity: minor
+    sc_id: SC-2/SC-3/SC-4/SC-6
+    finding: "Behavioral test assertions are incomplete — only SC-1 and SC-8 are explicitly asserted"
+    evidence: "The behavioral test in Step 1 only includes assert_semantic for SC-1 and SC-8. SC-2, SC-3, SC-4, and SC-6 are implemented but not verified in the test."
+    remediation: "Expand behavioral test to include assert_semantic for all behavioral SCs (SC-1 through SC-4, SC-6, SC-8)"
+
+summary: "Plan FAIL — 6 findings (4 major, 2 minor). The plan correctly uses rebase-based staleness check, avoids dev-specific hardcoding, and uses assert_semantic as primary evidence. However, the behavioral test only explicitly verifies SC-1 and SC-8, leaving SC-2, SC-3, SC-4, SC-6, and SC-7 without proper test coverage. All 8 SCs are mentioned in the plan but only 2 have complete behavioral test assertions."
+
+sc_coverage:
+  SC-1:
+    covered: true
+    evidence_type_correct: true
+    test_assertion_present: true
+  SC-2:
+    covered: true
+    evidence_type_correct: true
+    test_assertion_present: false
+  SC-3:
+    covered: true
+    evidence_type_correct: true
+    test_assertion_present: false
+  SC-4:
+    covered: true
+    evidence_type_correct: true
+    test_assertion_present: false
+  SC-5:
+    covered: true
+    evidence_type_correct: true
+    test_assertion_present: true
+  SC-6:
+    covered: true
+    evidence_type_correct: true
+    test_assertion_present: false
+  SC-7:
+    covered: true
+    evidence_type_correct: true
+    test_assertion_present: false
+  SC-8:
+    covered: true
+    evidence_type_correct: true
+    test_assertion_present: true
+
+approach_verification:
+  rebase_based_check: true
+  no_merge_check: true
+  no_dev_hardcoding: true
+  no_release_promotion_references: true
+  assert_semantic_primary: true
+  file_paths_correct: true
+
+---

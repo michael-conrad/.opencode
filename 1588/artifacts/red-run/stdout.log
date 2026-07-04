@@ -1,0 +1,3 @@
+This is multi-repo authorization: `.opencode#1579` is in the `.opencode` submodule which has its own GitHub remote. Let me route this correctly — the `.opencode` repo uses `michael-conrad/.opencode` on GitHub (not local), while the main repo uses local tracking.
+
+Authorization parsed as: scope=`for_pr`, halt_at=`pr_created`, pr_strategy=`stacked`. I'll dispatch to sub-agents for both repos in parallel — one handles `.opencode#1579` (GitHub), one handles the main repo (local).

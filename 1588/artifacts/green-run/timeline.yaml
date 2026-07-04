@@ -1,0 +1,201 @@
+# Behavioral Test Timeline
+# Entries: 28
+
+--- Step 1 ---
+type: response
+  preview: "approved for PR: .opencode#1579"
+
+  length: 34
+
+--- Step 2 ---
+type: reasoning
+  summary: The user is authorizing "#1579" (which appears to be a GitHub issue). This maps to `for_pr` scope based on the "for PR" pattern. Let me process this authorization step by step.
+
+This is an `.opencode`...
+  length: 1710
+
+--- Step 3 ---
+type: response
+  preview: 🤖 ornith:35b-256k 🔄 working — processing authorization for `.opencode#1579` under `for_pr` scope.
+  length: 97
+
+--- Step 4 ---
+type: tool_call
+  tool: skill
+  status: completed
+  duration_ms: 14
+  call_id: call_uoa3l85g
+  input:
+    name: approval-gate
+
+--- Step 5 ---
+type: reasoning
+  summary: The user has authorized `.opencode#1579` for PR scope. I need to follow the verification flow:
+
+1. Dispatch `screen-issue` sub-agent to triage issue #1579 in `.opencode` repo
+2. Dispatch `pre-implemen...
+  length: 1021
+
+--- Step 6 ---
+type: response
+  preview: Authorization received: `.opencode#1579` → `for_pr`, stacked strategy, HALT at `pr_created`. Routing through verification flow — dispatching parallel gate checks for `.opencode` submodule.
+  length: 188
+
+--- Step 7 ---
+type: tool_call
+  tool: task
+  status: completed
+  duration_ms: 214067
+  call_id: call_x07xvra5
+  input:
+    subagent_type: general
+    description: Screen issue #1579
+
+--- Step 8 ---
+type: response
+  preview: execute screen-issue from issue-operations. Read `issue-operations/SKILL.md` first, then follow its DISPATCH_GATE section to route the screen-issue task correctly for GitHub platform (since .opencode uses github.com).
+
+Context: Issue #1579 in michael-conrad/.opencode repo (submodule at .opencode/). ...
+  length: 455
+
+--- Step 9 ---
+type: reasoning
+  summary: The user wants me to execute the "screen-issue" task from the `issue-operations` skill. Let me follow the DISPATCH_GATE procedure: load the skill, read its routing dispatch table, then use the canonic...
+  length: 783
+
+--- Step 10 ---
+type: tool_call
+  tool: skill
+  status: completed
+  duration_ms: 10
+  call_id: call_y2fryz70
+  input:
+    name: issue-operations
+
+--- Step 11 ---
+type: reasoning
+  summary: The user wants me to execute the "screen-issue" task from issue-operations. Looking at the skill's trigger dispatch table, I don't see a "screen-issue" or "screen_issue" task listed explicitly. Howeve...
+  length: 962
+
+--- Step 12 ---
+type: response
+  preview: The user wants a "screen-issue" task from **issue-operations**. I've loaded the skill and am checking its trigger dispatch table and available tasks.
+
+Looking at the dispatch table, there is no explicit "screen-issue" task listed among the 20 dispatched tasks. The available dispatchable tasks are: `...
+  length: 1204
+
+--- Step 13 ---
+type: tool_call
+  tool: invalid
+  status: completed
+  duration_ms: 6
+  call_id: call_d2pipclz
+  input:
+    tool: task
+    error: Model tried to call unavailable tool 'task'. Available tools: invalid, bash, read, glob, grep, edit, write, webfetch, skill, srclight_codebase_map, srclight_search_symbols, srclight_get_symbol, srclight_get_signature, srclight_symbols_in_file, srclight_get_callers, srclight_get_callees, srclight_get_type_hierarchy, srclight_get_tests_for, srclight_get_dependents, srclight_get_implementors, srclight_index_status, srclight_list_projects, srclight_reindex, srclight_blame_symbol, srclight_recent_changes, srclight_git_hotspots, srclight_whats_changed, srclight_changes_to, srclight_get_build_targets, srclight_get_platform_variants, srclight_platform_conditionals, srclight_semantic_search, srclight_hybrid_search, srclight_embedding_status, srclight_embedding_health, srclight_server_stats, srclight_restart_server, srclight_setup_guide, viewport-editor_viewport, viewport-editor_edit, viewport-editor_file, viewport-editor_diff, viewport-editor_clipboard, viewport-editor_search, viewport-editor_regex, viewport-editor_read_file, viewport-editor_write_file, viewport-editor_edit_text, viewport-editor_find_text.
+
+--- Step 14 ---
+type: reasoning
+  summary: The user wants me to execute a "screen-issue" task from the issue-operations skill for GitHub platform (the .opencode submodule).
+
+Looking at the triggered context:
+1. The session-init script ran and ...
+  length: 3153
+
+--- Step 15 ---
+type: response
+  preview: I'll execute `screen-issue` from the `issue-operations` skill via the local-issues CLI with qualified name for GitHub routing. Since the issue is in `.opencode/` which resolves to GitHub (`michael-conrad/.opencode`), I'm using the `github/michael-conrad-opencode#1579` format.
+  length: 276
+
+--- Step 16 ---
+type: tool_call
+  tool: bash
+  status: completed
+  duration_ms: 115
+  call_id: call_4kt7dv31
+  input:
+    desc: Read issue #1579 with all comments via local-issues CLI
+    cmd: ./.opencode/tools/local-issues read-all "github://michael-conrad/opencode" 1579
+
+--- Step 17 ---
+type: reasoning
+  summary: I see, the local-issues CLI doesn't have a `read-all` subcommand. For GitHub issues, I need to use `github_issue_read` instead. Let me dispatch a sub-agent task for reading the issue and its comments ...
+  length: 825
+
+--- Step 18 ---
+type: response
+  preview: The user wants me to "screen" issue #1579 — this is the process of reading an issue's body, comments, labels, authorization scope, classifying path (what to do), from the approval-gate skill. Let me dispatch a sub-agent via the correct platform routing for GitHub MCP with qualified name format.
+
+Loo...
+  length: 4061
+
+--- Step 19 ---
+type: tool_call
+  tool: glob
+  status: completed
+  duration_ms: 16
+  call_id: call_1atqc3lp
+  input:
+    pattern: **/*screen*
+    path: /home/muksihs/git/opencode-config/tmp/behavior-isolated-aCg3tS/.opencode/skills
+
+--- Step 20 ---
+type: reasoning
+  summary: I see that `screen-issue` is actually in the **approval-gate** skill, not issue-operations. The user wants me to execute it for GitHub platform routing. Let me load the approval-gate skill and dispatc...
+  length: 469
+
+--- Step 21 ---
+type: response
+  preview: `screen-issue` is actually part of **approval-gate**, not `issue-operations`. Let me load that skill and dispatch correctly for GitHub routing.
+  length: 143
+
+--- Step 22 ---
+type: tool_call
+  tool: skill
+  status: completed
+  duration_ms: 9
+  call_id: call_7wifw49n
+  input:
+    name: approval-gate
+
+--- Step 23 ---
+type: reasoning
+  summary: Now I have both skills loaded. The "screen-issue" task is actually under `approval-gate`, not `issue-operations`. Wait, let me re-read the user's request:
+
+"execute screen-issue from issue-operations....
+  length: 1371
+
+--- Step 24 ---
+type: response
+  preview: `screen-issue` is an **approval-gate** skill task (per Trigger Dispatch Table: "screen issue" / "triage" → `screen-issue`). I'll dispatch a sub-agent to load and execute it for the GitHub platform with qualified name routing for `.opencode/`.
+  length: 242
+
+--- Step 25 ---
+type: tool_call
+  tool: read
+  status: completed
+  duration_ms: 18
+  call_id: call_tjyr3i11
+  input:
+    file: /home/muksihs/git/opencode-config/tmp/behavior-isolated-aCg3tS/.opencode/skills/approval-gate/tasks/screen-issue.md
+    offset: None
+    limit: None
+
+--- Step 26 ---
+type: reasoning
+  summary: The user wants me to execute the screen-issue task from approval-gate. I've found and loaded it with its dispatch configuration. The key details to pass in:
+
+- issue_number: `1579` (qualified as GitHu...
+  length: 648
+
+--- Step 27 ---
+type: response
+  preview: I'll execute the screen-issue task from `approval-gate` by loading and processing it with all required context fields for GitHub platform routing of issue #1579 in michael-conrad/.opencode.
+  length: 189
+
+--- Step 28 ---
+type: reasoning
+  summary: The sub-agent didn't return a useful result - it seems to have failed or returned essentially nothing. I need to re-task it. Let me think about what's happening here.
+
+The issue is `.opencode#1579` - ...
+  length: 20299

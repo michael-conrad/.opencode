@@ -1,0 +1,28 @@
+# RED phase output contract for spec #492
+# Validates that the behavioral test file was created during RED phase
+variables:
+  test_file_exists:
+    type: bool
+    description: "Behavioral test file exists at tests/behaviors/492-stale-branch-auto-rebase.sh"
+  test_is_executable:
+    type: bool
+    description: "Test file is executable (chmod +x)"
+  test_has_header:
+    type: bool
+    description: "Test file has the mandatory cross-reference header"
+  test_has_no_echo:
+    type: bool
+    description: "Test file contains no echo/printf statements"
+  test_has_no_assert:
+    type: bool
+    description: "Test file contains no assert_* function calls (artifact-only generator)"
+  test_exits_zero:
+    type: bool
+    description: "Test file exits 0 unconditionally"
+constraints:
+  - "test_file_exists == True"
+  - "test_is_executable == True"
+  - "test_has_header == True"
+  - "test_has_no_echo == True"
+  - "test_has_no_assert == True"
+  - "test_exits_zero == True"

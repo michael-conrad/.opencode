@@ -1,0 +1,502 @@
+{
+  "source_db": "/home/muksihs/git/opencode-config/tmp/test-home-20260630-193404/.local/share/opencode/opencode.db",
+  "harness_version": 1,
+  "tables": {
+    "__drizzle_migrations": {
+      "columns": [
+        "id",
+        "hash",
+        "created_at",
+        "name",
+        "applied_at"
+      ],
+      "rows": [
+        {
+          "id": 1,
+          "hash": "",
+          "created_at": 1769552633000,
+          "name": "20260127222353_familiar_lady_ursula",
+          "applied_at": "2026-06-30T23:34:05.295Z"
+        },
+        {
+          "id": 2,
+          "hash": "",
+          "created_at": 1770830228000,
+          "name": "20260211171708_add_project_commands",
+          "applied_at": "2026-06-30T23:34:05.295Z"
+        },
+        {
+          "id": 3,
+          "hash": "",
+          "created_at": 1770993676000,
+          "name": "20260213144116_wakeful_the_professor",
+          "applied_at": "2026-06-30T23:34:05.295Z"
+        },
+        {
+          "id": 4,
+          "hash": "",
+          "created_at": 1772056728000,
+          "name": "20260225215848_workspace",
+          "applied_at": "2026-06-30T23:34:05.295Z"
+        },
+        {
+          "id": 5,
+          "hash": "",
+          "created_at": 1772228279000,
+          "name": "20260227213759_add_session_workspace_id",
+          "applied_at": "2026-06-30T23:34:05.296Z"
+        },
+        {
+          "id": 6,
+          "hash": "",
+          "created_at": 1772310750000,
+          "name": "20260228203230_blue_harpoon",
+          "applied_at": "2026-06-30T23:34:05.296Z"
+        },
+        {
+          "id": 7,
+          "hash": "",
+          "created_at": 1772579546000,
+          "name": "20260303231226_add_workspace_fields",
+          "applied_at": "2026-06-30T23:34:05.297Z"
+        },
+        {
+          "id": 8,
+          "hash": "",
+          "created_at": 1773097200000,
+          "name": "20260309230000_move_org_to_state",
+          "applied_at": "2026-06-30T23:34:05.298Z"
+        },
+        {
+          "id": 9,
+          "hash": "",
+          "created_at": 1773290071000,
+          "name": "20260312043431_session_message_cursor",
+          "applied_at": "2026-06-30T23:34:05.298Z"
+        },
+        {
+          "id": 10,
+          "hash": "",
+          "created_at": 1774309702000,
+          "name": "20260323234822_events",
+          "applied_at": "2026-06-30T23:34:05.298Z"
+        },
+        {
+          "id": 11,
+          "hash": "",
+          "created_at": 1775843113000,
+          "name": "20260410174513_workspace-name",
+          "applied_at": "2026-06-30T23:34:05.299Z"
+        },
+        {
+          "id": 12,
+          "hash": "",
+          "created_at": 1776103196000,
+          "name": "20260413175956_chief_energizer",
+          "applied_at": "2026-06-30T23:34:05.299Z"
+        },
+        {
+          "id": 13,
+          "hash": "",
+          "created_at": 1776928100000,
+          "name": "20260423070820_add_icon_url_override",
+          "applied_at": "2026-06-30T23:34:05.299Z"
+        },
+        {
+          "id": 14,
+          "hash": "",
+          "created_at": 1777336920000,
+          "name": "20260428004200_add_session_path",
+          "applied_at": "2026-06-30T23:34:05.300Z"
+        }
+      ]
+    },
+    "account": {
+      "columns": [
+        "id",
+        "email",
+        "url",
+        "access_token",
+        "refresh_token",
+        "token_expiry",
+        "time_created",
+        "time_updated"
+      ],
+      "rows": []
+    },
+    "account_state": {
+      "columns": [
+        "id",
+        "active_account_id",
+        "active_org_id"
+      ],
+      "rows": []
+    },
+    "control_account": {
+      "columns": [
+        "email",
+        "url",
+        "access_token",
+        "refresh_token",
+        "token_expiry",
+        "active",
+        "time_created",
+        "time_updated"
+      ],
+      "rows": []
+    },
+    "event": {
+      "columns": [
+        "id",
+        "aggregate_id",
+        "seq",
+        "type",
+        "data"
+      ],
+      "rows": []
+    },
+    "event_sequence": {
+      "columns": [
+        "aggregate_id",
+        "seq"
+      ],
+      "rows": []
+    },
+    "message": {
+      "columns": [
+        "id",
+        "session_id",
+        "time_created",
+        "time_updated",
+        "data"
+      ],
+      "rows": [
+        {
+          "id": "msg_f1ae20b86001XYxJOSI031ZKU1",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862449542,
+          "time_updated": 1782862669723,
+          "data": "{\"role\":\"user\",\"time\":{\"created\":1782862449542},\"agent\":\"build\",\"model\":{\"providerID\":\"ollama\",\"modelID\":\"ornith:35b-256k\"},\"summary\":{\"diffs\":[]}}"
+        },
+        {
+          "id": "msg_f1ae20bff001o7GfdQkUb11JI4",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862449663,
+          "time_updated": 1782862588626,
+          "data": "{\"parentID\":\"msg_f1ae20b86001XYxJOSI031ZKU1\",\"role\":\"assistant\",\"mode\":\"build\",\"agent\":\"build\",\"path\":{\"cwd\":\"/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW\",\"root\":\"/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW\"},\"cost\":0,\"tokens\":{\"total\":121263,\"input\":121164,\"output\":99,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":0}},\"modelID\":\"ornith:35b-256k\",\"providerID\":\"ollama\",\"time\":{\"created\":1782862449663,\"completed\":1782862588625},\"finish\":\"tool-calls\"}"
+        },
+        {
+          "id": "msg_f1ae42ad50016D3vuN4EVA3ZM9",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862588629,
+          "time_updated": 1782862623368,
+          "data": "{\"parentID\":\"msg_f1ae20b86001XYxJOSI031ZKU1\",\"role\":\"assistant\",\"mode\":\"build\",\"agent\":\"build\",\"path\":{\"cwd\":\"/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW\",\"root\":\"/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW\"},\"cost\":0,\"tokens\":{\"total\":125198,\"input\":124667,\"output\":531,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":0}},\"modelID\":\"ornith:35b-256k\",\"providerID\":\"ollama\",\"time\":{\"created\":1782862588629,\"completed\":1782862623368},\"finish\":\"tool-calls\"}"
+        },
+        {
+          "id": "msg_f1ae4b28a001V9Dvg2by68hrT4",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862623370,
+          "time_updated": 1782862669673,
+          "data": "{\"parentID\":\"msg_f1ae20b86001XYxJOSI031ZKU1\",\"role\":\"assistant\",\"mode\":\"build\",\"agent\":\"build\",\"path\":{\"cwd\":\"/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW\",\"root\":\"/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW\"},\"cost\":0,\"tokens\":{\"input\":0,\"output\":0,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":0}},\"modelID\":\"ornith:35b-256k\",\"providerID\":\"ollama\",\"time\":{\"created\":1782862623370,\"completed\":1782862669672},\"finish\":\"other\"}"
+        }
+      ]
+    },
+    "part": {
+      "columns": [
+        "id",
+        "message_id",
+        "session_id",
+        "time_created",
+        "time_updated",
+        "data"
+      ],
+      "rows": [
+        {
+          "id": "prt_f1ae20b88001LjkaJh5yHdwXb6",
+          "message_id": "msg_f1ae20b86001XYxJOSI031ZKU1",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862449554,
+          "time_updated": 1782862449554,
+          "data": "{\"type\":\"text\",\"text\":\"\\\"approved for PR: .opencode#1579\\\"\\n\"}"
+        },
+        {
+          "id": "prt_f1ae421e60016acUaGu05Orhb8",
+          "message_id": "msg_f1ae20bff001o7GfdQkUb11JI4",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862586343,
+          "time_updated": 1782862586344,
+          "data": "{\"snapshot\":\"98377b11e7ad38fe524b66998582af989ca0574a\",\"type\":\"step-start\"}"
+        },
+        {
+          "id": "prt_f1ae421e9001XdsG1IUgd5o6Nf",
+          "message_id": "msg_f1ae20bff001o7GfdQkUb11JI4",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862586345,
+          "time_updated": 1782862588548,
+          "data": "{\"type\":\"reasoning\",\"text\":\"The user has authorized \\\"for PR\\\" scope on issue #1579 in the .opencode repo. This triggers authorization cascade to all sub-issues, auto-gap-fill (spec \u2192 plan \u2192 approve \u2192 PR), and `pr_strategy: stacked`.\\n\\nLet me load the approval-gate skill first since this is an authorization event.\",\"time\":{\"start\":1782862586345,\"end\":1782862588547}}"
+        },
+        {
+          "id": "prt_f1ae42a85001PzIiDxc5oSZZV6",
+          "message_id": "msg_f1ae20bff001o7GfdQkUb11JI4",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862588549,
+          "time_updated": 1782862588565,
+          "data": "{\"type\":\"tool\",\"tool\":\"skill\",\"callID\":\"call_i0uxj6wa\",\"state\":{\"status\":\"completed\",\"input\":{\"name\":\"approval-gate\"},\"output\":\"<skill_content name=\\\"approval-gate\\\">\\n# Skill: approval-gate\\n\\n## Persona\\n\\nAuthorization gatekeeper. Verifies scope, cascade, and halt boundaries by dispatching to sub-agents that independently read issue state and comments. An orchestrator that checks authorization inline instead of dispatching to a verification sub-agent has produced a self-certification, not an independent gate \u2014 every authorization claim carries the orchestrator's cached context, and the separation between the agent seeking approval and the agent verifying it is collapsed. Professional gatekeepers dispatch to independent verifiers. Inlining means the gate was never independent.\\n\\n## Worktree Mode\\n\\nThis skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.\\n\\n## Mandatory Task Discipline\\n\\n- [ ] 1. Every task and sub-task in this skill is mandatory\\n- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded\\n- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill\\n- [ ] 4. Sub-agents must not dispatch sub-agents\\n- [ ] 5. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.\\n\\nSub-Agent Task Context Audit\\n\\nAll tasks run via `task(subagent_type=\\\"general\\\")`. Standard context: `{ issue_number, worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase }`. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) \u2014 NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md \u00a7DISPATCH_GATE. `screen-issue` receives issue body + authorization context + pipeline_phase. `pre-implementation-analysis` receives all issue numbers + authorization context + pipeline_phase. `pre-analysis` receives only `{ issue_number, task_description, pipeline_phase, authorization_scope, halt_at, pr_strategy, github.owner, github.repo }` with zero file paths. No inline work \u2014 all tasks use sub-agents. If a sub-agent returns empty, re-task with original scoped context only (max 2 retries). Result contracts return `status` (DONE/BLOCKED/OVERFLOW) + task-specific fields per `enforcement/` result contract schemas. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in `implementation-pipeline/tasks/pipeline-executor.md`.\\n\\n### Authorization Context Template\\n```\\nauthorization_scope: <for_analysis|for_spec|for_plan|for_implementation|for_review_prep|for_pr|for_pr_only|for_review_only>\\nhalt_at: <analysis_complete|spec_created|plan_created|verification_complete|review_prep|pr_created>\\npr_strategy: <none|stacked>\\npipeline_phase: <current_phase_name>\\nauthorization_source: \\\"User approved #N on YYYY-MM-DD\\\"\\n```\\n\\n### Routing Rules\\n- Missing `authorization_scope` in task context \u2192 return `status: BLOCKED`\\n- Instructed to exceed `halt_at` \u2192 return `status: BLOCKED`\\n- The `pipeline_phase` field is NEW \u2014 it tracks which phase of a multi-phase plan is currently executing\\n\\n### Column Validation Rules (Pre-Approval Gate Expansion)\\n\\nThe pre-approval gate validates the following columns in the spec's SC table. Each rule produces PASS or BLOCK with reason.\\n\\n| Column | Validation Rule | Block On | Apply To |\\n|--------|----------------|----------|----------|\\n| Pipeline Step Binding | Every SC MUST have a valid pipeline step binding matching a step in `implementation-pipeline` dispatch table | Missing, invalid, or misspelled step name | All specs |\\n| Re-Entry Step | Every SC MUST declare a re-entry step. For single-task specs, may be `null`. For multi-phase, MUST reference a valid step within the bound phase | Missing for multi-phase, or references step outside phase scope | All specs |\\n| Verification Gate | Every SC's Verification Gate MUST be consistent with its Evidence Type per the Evidence Type Taxonomy: `behavioral` \u2192 pre-commit, `semantic` \u2192 pre-PR, `string` \u2192 CI, `structural` \u2192 none | EVIDENCE_TYPE_MISMATCH \u2014 behavioral SC with CI gate, etc. | All specs |\\n| Artifact Path | Every SC with a non-structural evidence type MUST declare an artifact path. Structural SCs MAY omit | Missing when evidence type is behavioral/semantic/string | All specs |\\n| Phase Binding | Every SC MUST declare a phase binding matching a phase in the spec's Phase section. Cross-cutting SCs use `common` | Phase name not found in spec phases, or `common` used for non-cross-cutting SC | Multi-phase specs only |\\n\\n### Pre-Approval Gate Column Validation\\n\\nWhen running the pre-approval gate for standard/complex specs, validate the following columns in the SC table:\\n\\n| Column | Validation Rule | Error on Violation |\\n|--------|----------------|---------------------|\\n| Pipeline Step Binding | MUST specify which pipeline step validates this SC | BLOCK |\\n| Re-Entry Step | MUST specify re-entry point on verification failure | BLOCK |\\n| Verification Gate | MUST be one of: red-green, pre-commit, ci | BLOCK |\\n| Artifact Path | MUST use `./tmp/{issue-N}/` convention | BLOCK |\\n| Phase Binding | MUST annotate phase for multi-phase specs | FLAG (conditional) |\\n\\nFor `for_spec` scope, only minimal-tier requirements enforced (Pipeline Step Binding, Re-Entry Step).\\n\\n### DISPATCH_GATE \u2014 Orchestrator task() Prompt Protocol\\n\\n> **Context cost frame:** These are internal operational bookkeeping notes describing how context flows through the pipeline \u2014 they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.\\n> This cost frame applies to orchestrator context only \u2014 it does NOT mean the agent should minimize message count, pipeline steps, or user-facing output.\\n\\nThe orchestrator MUST NOT preload execution context into `task()` prompts.\\nEvery sub-agent MUST independently discover scope and produce its own result contract.\\n\\n#### Forbidden in task() Prompts\\n\\n| Violation | Forbidden Pattern | Correct Pattern |\\n|-----------|-------------------|-----------------|\\n| Preloaded file paths | \\\"Read cleanup/branch-cleanup.md then execute step 1\\\" | \\\"execute cleanup task from git-workflow\\\" |\\n| Preloaded step sequences | \\\"Step 1: sync dev. Step 2: delete branch.\\\" | \\\"execute cleanup task from git-workflow\\\" |\\n| Preloaded expected outcomes | \\\"Return { cleanup_status, branch_deleted }\\\" | Let sub-agent define its own result contract |\\n| Preloaded orchestrator reasoning | \\\"The merge was just completed so we need to...\\\" | Pure objective, no narrative |\\n| Missing task file discovery directive | \\\"execute verify-authorization from approval-gate\\\" without task file path | \\\"execute verify-authorization from approval-gate. Read `approval-gate/tasks/verify-authorization.md` first\\\" |\\n\\n## Required: Sub-agent Task File Discovery Directive\\n\\nEvery `task()` prompt that dispatches a named task MUST include a discovery directive in the format:\\n\\n```\\nexecute <task> from <skill>. Read `<skill>/tasks/<task>.md` first\\n```\\n\\nThis directive tells the sub-agent which task file to load independently \u2014 it is NOT preloading the file content. The sub-agent opens and reads the task file in its own clean-room context, discovers the procedure, and executes autonomously. Without this directive, the sub-agent must search for the correct task file, which is wasted context and routing ambiguity.\\n\\nThis is NOT a violation of the preloading prohibition. The task file path is routing metadata (which file to load), not execution context (what the file contains). The sub-agent still reads the file independently and discovers scope on its own.\\n\\n#### Dispatch Context Contract\\n\\nEvery `task()` call MUST include only:\\n\\n- `worktree.path`\\n- `github.owner`\\n- `github.repo`\\n- `authorization_scope`\\n- `halt_at`\\n- `pr_strategy`\\n- `pipeline_phase`\\n\\nPlus skill-specific fields per the `## Sub-Agent Routing` section above.\\n\\nExclusions (MUST NOT be in prompt):\\n- `orchestrator_reasoning`\\n- `expected_outcomes`\\n- `inline_file_paths`\\n- `agent_memory`\\n- `cached_verification_results`\\n\\n#### Sub-Agent Entry Criteria\\n\\nA sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:\\n- Inline file paths to task files\\n- Inline step or procedure definitions\\n- Expected outcome structures or schema constraints\\n- Pre-loaded evidence or orchestrator-derived conclusions\\n\\nReturn `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.\\n\\n#### Orchestrator Entry Criteria\\n\\nAfter loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:\\n- Use the exact `task(..., prompt: \\\"...\\\")` string from the table\\n- NOT write a custom prompt with preloaded context\\n- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes\\n- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)\\n\\n## Cross-References\\n\\n\\n## Trigger Dispatch Table\\n\\n| User says / Context | Task | Dispatch | Context passed |\\n|---------------------|------|----------|----------------|\\n| \\\"verify authorization\\\" / \\\"check approval\\\" | `verify-authorization` | `sub-task` | {issue_number, authorization_scope} |\\n| \\\"screen issue\\\" / \\\"triage\\\" | `screen-issue` | `sub-task` | {issue_number} |\\n| \\\"pre-implementation analysis\\\" | `pre-implementation-analysis` | `sub-task` | {issue_numbers} |\\n| \\\"verify blockers\\\" | `verify-blockers` | `sub-task` | {issue_number} |\\n| \\\"verify closed issue\\\" | `verify-closed-issue` | `sub-task` | {issue_number} |\\n| \\\"spec-to-plan cascade\\\" | `spec-to-plan-cascade` | `sub-task` | {spec_issue, plan_issue} |\\n| \\\"item decomposition check\\\" | `item-decomposition-check` | `sub-task` | {plan_issue} |\\n| \\\"auto-dispatch\\\" | `auto-dispatch` | `sub-task` | {authorization_scope} |\\n| \\\"verify already implemented\\\" | `verify-already-implemented` | `sub-task` | {issue_number} |\\n| \\\"approval cascade\\\" / \\\"cascade authorization\\\" | `approval-cascade` | `sub-task` | {parent_issue, sub_issues} |\\n| \\\"pipeline halt boundary\\\" / \\\"check halt_at\\\" | `check-halt-boundary` | `sub-task` | {authorization_scope, halt_at, pipeline_phase} |\\n| \\\"apply label\\\" / \\\"set approval label\\\" | `apply-label` | `sub-task` | {issue_number, authorization_scope} |\\n| \\\"revision revocation\\\" / \\\"spec revised\\\" | `revision-revocation` | `sub-task` | {spec_issue, plan_issue} |\\n| \\\"bug discovery\\\" / \\\"bug found during implementation\\\" | `bug-discovery-protocol` | `sub-task` | {issue_number, bug_description} |\\n| completion / workflow end | `completion` | `sub-task` | {workflow_state} |\\n\\nSkills: `git-workflow`, `pr-creation-workflow`, `issue-review`, `implementation-pipeline`, `writing-plans`, `executing-plans`, `pre-analysis`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`.\\n\\n```yaml+symbolic\\nschema_version: \\\"2.0\\\"\\nlast_updated: \\\"2026-05-01T00:00:00Z\\\"\\nrules:\\n  - id: approval-gate-skill-001\\n    title: \\\"Pre-implementation authorization verification required\\\"\\n    conditions:\\n      all: [\\\"spec_exists == true\\\", \\\"user_authorized == false\\\"]\\n    actions: [HALT]\\n    triggers: [git-workflow]\\n    source: \\\"approval-gate/SKILL.md\\\"\\n\\n  - id: approval-gate-skill-002\\n    title: \\\"Multi-task cascade extends authorization from plan to all sub-issues\\\"\\n    conditions:\\n      all: [\\\"plan_has_sub_issues == true\\\", \\\"user_authorized == true\\\"]\\n    actions: [PROCEED]\\n    triggers: [implementation-pipeline, executing-plans]\\n    source: \\\"approval-gate/SKILL.md\\\"\\n\\n  - id: approval-gate-skill-005\\n    title: \\\"Spec-to-plan approval cascade \u2014 spec approves existing plan\\\"\\n    conditions:\\n      all: [\\\"spec_approved == true\\\", \\\"spec_has_existing_plan == true\\\"]\\n    actions: [APPLY_LABEL(approved-for-*, plan), ADD_COMMENT(cascade docs), PROCEED_TO(plan-approved run)]\\n    triggers: [writing-plans]\\n    source: \\\"approval-gate/SKILL.md\\\"\\n\\n  - id: approval-gate-skill-006\\n    title: \\\"PR merge boundary check \u2014 block if required PR not merged\\\"\\n    conditions:\\n      all: [\\\"plan_has_pr_boundaries == true\\\", \\\"required_pr_not_merged == true\\\"]\\n    actions: [HALT, REPORT(CRITICAL: required PR not merged)]\\n    triggers: [implementation-pipeline, git-workflow]\\n    source: \\\"approval-gate/SKILL.md\\\"\\n\\nBase directory for this skill: file:///home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW/.opencode/skills/approval-gate\\nRelative paths in this skill (e.g., scripts/, reference/) are relative to this base directory.\\nNote: file list is sampled.\\n\\n<skill_files>\\n<file>/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW/.opencode/skills/approval-gate/tasks/verify-blockers.md</file>\\n<file>/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW/.opencode/skills/approval-gate/tasks/pre-implementation-analysis.md</file>\\n<file>/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW/.opencode/skills/approval-gate/tasks/completion.md</file>\\n<file>/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW/.opencode/skills/approval-gate/tasks/verify-authorization/verify-blockers.md</file>\\n<file>/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW/.opencode/skills/approval-gate/tasks/verify-authorization/sub-issue-verification.md</file>\\n<file>/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW/.opencode/skills/approval-gate/tasks/verify-authorization/verify-closed-issue-main.md</file>\\n<file>/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW/.opencode/skills/approval-gate/tasks/verify-authorization/spec-to-plan-cascade.md</file>\\n<file>/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW/.opencode/skills/approval-gate/tasks/verify-authorization/item-decomposition-check.md</file>\\n<file>/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW/.opencode/skills/approval-gate/tasks/verify-authorization/auto-dispatch.md</file>\\n<file>/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW/.opencode/skills/approval-gate/tasks/verify-authorization/verify-already-implemented.md</file>\\n</skill_files>\\n</skill_content>\",\"metadata\":{\"name\":\"approval-gate\",\"dir\":\"/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW/.opencode/skills/approval-gate\",\"truncated\":false},\"title\":\"Loaded skill: approval-gate\",\"time\":{\"start\":1782862588555,\"end\":1782862588565}}}"
+        },
+        {
+          "id": "prt_f1ae42aab0017xmvmkwUbcklMY",
+          "message_id": "msg_f1ae20bff001o7GfdQkUb11JI4",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862588604,
+          "time_updated": 1782862588605,
+          "data": "{\"reason\":\"tool-calls\",\"snapshot\":\"98377b11e7ad38fe524b66998582af989ca0574a\",\"type\":\"step-finish\",\"tokens\":{\"total\":121263,\"input\":121164,\"output\":99,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0}"
+        },
+        {
+          "id": "prt_f1ae4837a001lc08zS1t377L8G",
+          "message_id": "msg_f1ae42ad50016D3vuN4EVA3ZM9",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862611322,
+          "time_updated": 1782862611322,
+          "data": "{\"snapshot\":\"98377b11e7ad38fe524b66998582af989ca0574a\",\"type\":\"step-start\"}"
+        },
+        {
+          "id": "prt_f1ae4837b001hqBxWnxxoCwR3o",
+          "message_id": "msg_f1ae42ad50016D3vuN4EVA3ZM9",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862611323,
+          "time_updated": 1782862616630,
+          "data": "{\"type\":\"reasoning\",\"text\":\"The user said \\\"approved for PR: .opencode#1579\\\". This is a pipeline-scoped authorization phrase. I need to parse it and apply the approval-gate rules.\\n\\nLet me analyze:\\n- `.opencode#1579` \u2014 issue 1579 in the `.opencode` repo (submodule)\\n- \\\"approved for PR\\\" \u2014 scope = `for_pr`, halt_at = `pr_created`, pr_strategy = `stacked`\\n\\nThe `.opencode` repo has its own remote. Owner is `michael-conrad`, repo is `.opencode`, platform is `github.com`.\\n\\nSince this involves GitHub operations on the `.opencode` submodule, I need to use local `.` issues directory for routing but resolve the .opencode's real GH owner/repo.\\n\\n\\nNow I'm working through how to apply approval-gate rules across both repositories\u2014the main repo stays at the root level while the .opencode submodule gets its own approval handling with the appropriate GitHub context (michael-conrad and .opencode as the repo details, platform set to github.com).\",\"time\":{\"start\":1782862611323,\"end\":1782862616629}}"
+        },
+        {
+          "id": "prt_f1ae49837001CBFKHNLQxQZubo",
+          "message_id": "msg_f1ae42ad50016D3vuN4EVA3ZM9",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862616631,
+          "time_updated": 1782862623339,
+          "data": "{\"type\":\"text\",\"text\":\"This is multi-repo authorization: `.opencode#1579` is in the `.opencode` submodule which has its own GitHub remote. Let me route this correctly \u2014 the `.opencode` repo uses `michael-conrad/.opencode` on GitHub (not local), while the main repo uses local tracking.\\n\\nAuthorization parsed as: scope=`for_pr`, halt_at=`pr_created`, pr_strategy=`stacked`. I'll dispatch to sub-agents for both repos in parallel \u2014 one handles `.opencode#1579` (GitHub), one handles the main repo (local).\",\"time\":{\"start\":1782862616631,\"end\":1782862623338}}"
+        },
+        {
+          "id": "prt_f1ae4b243001c4AJrJuiQhNt0t",
+          "message_id": "msg_f1ae42ad50016D3vuN4EVA3ZM9",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862623299,
+          "time_updated": 1782862623305,
+          "data": "{\"type\":\"tool\",\"tool\":\"todowrite\",\"callID\":\"call_2qewygh2\",\"state\":{\"status\":\"completed\",\"input\":{\"todos\":[{\"content\":\"Verify authorization scope and apply labels (.opencode#1579 + main repo)\",\"priority\":\"high\",\"status\":\"in_progress\"},{\"content\":\"Auto-cascade spec\u2192plan approval (if applicable) for .opencode\",\"priority\":\"high\",\"status\":\"pending\"},{\"content\":\"Verify blockers and pipeline state before proceeding\",\"priority\":\"high\",\"status\":\"pending\"},{\"content\":\"Dispatch to implementation-pipeline for PR creation on .opencode\",\"priority\":\"high\",\"status\":\"pending\"},{\"content\":\"Apply approval label and report status\",\"priority\":\"medium\",\"status\":\"pending\"}]},\"output\":\"[\\n  {\\n    \\\"content\\\": \\\"Verify authorization scope and apply labels (.opencode#1579 + main repo)\\\",\\n    \\\"status\\\": \\\"in_progress\\\",\\n    \\\"priority\\\": \\\"high\\\"\\n  },\\n  {\\n    \\\"content\\\": \\\"Auto-cascade spec\u2192plan approval (if applicable) for .opencode\\\",\\n    \\\"status\\\": \\\"pending\\\",\\n    \\\"priority\\\": \\\"high\\\"\\n  },\\n  {\\n    \\\"content\\\": \\\"Verify blockers and pipeline state before proceeding\\\",\\n    \\\"status\\\": \\\"pending\\\",\\n    \\\"priority\\\": \\\"high\\\"\\n  },\\n  {\\n    \\\"content\\\": \\\"Dispatch to implementation-pipeline for PR creation on .opencode\\\",\\n    \\\"status\\\": \\\"pending\\\",\\n    \\\"priority\\\": \\\"high\\\"\\n  },\\n  {\\n    \\\"content\\\": \\\"Apply approval label and report status\\\",\\n    \\\"status\\\": \\\"pending\\\",\\n    \\\"priority\\\": \\\"medium\\\"\\n  }\\n]\",\"metadata\":{\"todos\":[{\"content\":\"Verify authorization scope and apply labels (.opencode#1579 + main repo)\",\"status\":\"in_progress\",\"priority\":\"high\"},{\"content\":\"Auto-cascade spec\u2192plan approval (if applicable) for .opencode\",\"status\":\"pending\",\"priority\":\"high\"},{\"content\":\"Verify blockers and pipeline state before proceeding\",\"status\":\"pending\",\"priority\":\"high\"},{\"content\":\"Dispatch to implementation-pipeline for PR creation on .opencode\",\"status\":\"pending\",\"priority\":\"high\"},{\"content\":\"Apply approval label and report status\",\"status\":\"pending\",\"priority\":\"medium\"}],\"truncated\":false},\"title\":\"5 todos\",\"time\":{\"start\":1782862623303,\"end\":1782862623305}}}"
+        },
+        {
+          "id": "prt_f1ae4b26d001wHtKhQkAQxomKH",
+          "message_id": "msg_f1ae42ad50016D3vuN4EVA3ZM9",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862623352,
+          "time_updated": 1782862623352,
+          "data": "{\"reason\":\"tool-calls\",\"snapshot\":\"98377b11e7ad38fe524b66998582af989ca0574a\",\"type\":\"step-finish\",\"tokens\":{\"total\":125198,\"input\":124667,\"output\":531,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0}"
+        },
+        {
+          "id": "prt_f1ae551be001un5wgawO6JQi20",
+          "message_id": "msg_f1ae4b28a001V9Dvg2by68hrT4",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862664126,
+          "time_updated": 1782862664127,
+          "data": "{\"snapshot\":\"98377b11e7ad38fe524b66998582af989ca0574a\",\"type\":\"step-start\"}"
+        },
+        {
+          "id": "prt_f1ae551c0001EyWWAYvKoS4Fyi",
+          "message_id": "msg_f1ae4b28a001V9Dvg2by68hrT4",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862664128,
+          "time_updated": 1782862669637,
+          "data": "{\"type\":\"reasoning\",\"text\":\"Wait, I need to check the repo information section. The main repo has `github.owner: (none)` and the `.opencode` submodule uses GitHub platform with owner `michael-conrad` and repo `.opencode`. So this is actually a `.opencode` issue on GitHub \u2014 not in the local root repo.\\n\\nLet me dispatch to verify-authorization for the `.opencode#1579` issue first.\",\"time\":{\"start\":1782862664128,\"end\":1782862669636}}"
+        },
+        {
+          "id": "prt_f1ae56747001pqsKZ1GDpTZJok",
+          "message_id": "msg_f1ae4b28a001V9Dvg2by68hrT4",
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "time_created": 1782862669651,
+          "time_updated": 1782862669652,
+          "data": "{\"reason\":\"other\",\"snapshot\":\"98377b11e7ad38fe524b66998582af989ca0574a\",\"type\":\"step-finish\",\"tokens\":{\"input\":0,\"output\":0,\"reasoning\":0,\"cache\":{\"write\":0,\"read\":0}},\"cost\":0}"
+        }
+      ]
+    },
+    "permission": {
+      "columns": [
+        "project_id",
+        "time_created",
+        "time_updated",
+        "data"
+      ],
+      "rows": []
+    },
+    "project": {
+      "columns": [
+        "id",
+        "worktree",
+        "vcs",
+        "name",
+        "icon_url",
+        "icon_color",
+        "time_created",
+        "time_updated",
+        "time_initialized",
+        "sandboxes",
+        "commands",
+        "icon_url_override"
+      ],
+      "rows": [
+        {
+          "id": "c1162222857164a90a2cc481f033466c957af0df",
+          "worktree": "/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW",
+          "vcs": "git",
+          "name": null,
+          "icon_url": null,
+          "icon_color": null,
+          "time_created": 1782862445447,
+          "time_updated": 1782862445447,
+          "time_initialized": null,
+          "sandboxes": "[]",
+          "commands": null,
+          "icon_url_override": null
+        }
+      ]
+    },
+    "session": {
+      "columns": [
+        "id",
+        "project_id",
+        "parent_id",
+        "slug",
+        "directory",
+        "title",
+        "version",
+        "share_url",
+        "summary_additions",
+        "summary_deletions",
+        "summary_files",
+        "summary_diffs",
+        "revert",
+        "permission",
+        "time_created",
+        "time_updated",
+        "time_compacting",
+        "time_archived",
+        "workspace_id",
+        "path"
+      ],
+      "rows": [
+        {
+          "id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "project_id": "c1162222857164a90a2cc481f033466c957af0df",
+          "parent_id": null,
+          "slug": "eager-garden",
+          "directory": "/home/muksihs/git/opencode-config/tmp/behavior-isolated-Dfx2EW",
+          "title": "issue review .opencode #1579 PR approved",
+          "version": "1.14.33",
+          "share_url": null,
+          "summary_additions": 0,
+          "summary_deletions": 0,
+          "summary_files": 0,
+          "summary_diffs": null,
+          "revert": null,
+          "permission": "[{\"permission\":\"question\",\"pattern\":\"*\",\"action\":\"deny\"},{\"permission\":\"plan_enter\",\"pattern\":\"*\",\"action\":\"deny\"},{\"permission\":\"plan_exit\",\"pattern\":\"*\",\"action\":\"deny\"}]",
+          "time_created": 1782862449473,
+          "time_updated": 1782862669703,
+          "time_compacting": null,
+          "time_archived": null,
+          "workspace_id": null,
+          "path": ""
+        }
+      ]
+    },
+    "session_entry": {
+      "columns": [
+        "id",
+        "session_id",
+        "type",
+        "time_created",
+        "time_updated",
+        "data"
+      ],
+      "rows": []
+    },
+    "session_share": {
+      "columns": [
+        "session_id",
+        "id",
+        "secret",
+        "url",
+        "time_created",
+        "time_updated"
+      ],
+      "rows": []
+    },
+    "todo": {
+      "columns": [
+        "session_id",
+        "content",
+        "status",
+        "priority",
+        "position",
+        "time_created",
+        "time_updated"
+      ],
+      "rows": [
+        {
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "content": "Verify authorization scope and apply labels (.opencode#1579 + main repo)",
+          "status": "in_progress",
+          "priority": "high",
+          "position": 0,
+          "time_created": 1782862623302,
+          "time_updated": 1782862623302
+        },
+        {
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "content": "Auto-cascade spec\u2192plan approval (if applicable) for .opencode",
+          "status": "pending",
+          "priority": "high",
+          "position": 1,
+          "time_created": 1782862623302,
+          "time_updated": 1782862623302
+        },
+        {
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "content": "Verify blockers and pipeline state before proceeding",
+          "status": "pending",
+          "priority": "high",
+          "position": 2,
+          "time_created": 1782862623302,
+          "time_updated": 1782862623302
+        },
+        {
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "content": "Dispatch to implementation-pipeline for PR creation on .opencode",
+          "status": "pending",
+          "priority": "high",
+          "position": 3,
+          "time_created": 1782862623302,
+          "time_updated": 1782862623302
+        },
+        {
+          "session_id": "ses_0e51df4beffe7kjv5ns35WYKLm",
+          "content": "Apply approval label and report status",
+          "status": "pending",
+          "priority": "medium",
+          "position": 4,
+          "time_created": 1782862623302,
+          "time_updated": 1782862623302
+        }
+      ]
+    },
+    "workspace": {
+      "columns": [
+        "id",
+        "type",
+        "name",
+        "branch",
+        "directory",
+        "extra",
+        "project_id"
+      ],
+      "rows": []
+    }
+  }
+}

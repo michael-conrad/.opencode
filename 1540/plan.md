@@ -464,7 +464,7 @@
 - **Entry:** Phases 1-7 complete, all structural changes committed
 - **Exit:** All FORBIDDEN terms removed from target files; agent uses "trunk-based development" when describing the branch model; content-verification test for SC-13 passes; behavioral test for SC-14 passes
 
-- [ ] 196. **SC coherence gate — SC-13 (**clean-room**).** Verify SC-13 is well-formed: string evidence type, testable via grep for FORBIDDEN terms across target files. **→ SC-13**
+- [x] 196. **SC coherence gate — SC-13 (**clean-room**).** Verify SC-13 is well-formed: string evidence type, testable via grep for FORBIDDEN terms across target files. **→ SC-13**
 - [ ] 197. **SC coherence gate — SC-14 (**clean-room**).** Verify SC-14 is well-formed: behavioral evidence type, testable via `opencode-cli run`, success criterion matches spec (agent uses "trunk-based development" when describing the branch model). **→ SC-14**
 - [ ] 198. **Pre-RED baseline (**inline**).** Read all target files to establish baseline. Record all occurrences of FORBIDDEN terms per the Terminology Anchor table in the spec. **→ SC-13, SC-14**
 - [ ] 199. **RED phase — content-verification test SC-13 (**sub-agent**).** Dispatch a sub-agent to write a content-verification test that greps all target files for FORBIDDEN terms: "single-path workflow", "single-path branch workflow", "three-branch model", "three-branch workflow". Write to `./tmp/behavioral-evidence-SC-13-red.sh`. **→ SC-13**

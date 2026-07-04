@@ -1,0 +1,13 @@
+# Solve contract for spec #580 — staleness check enforcement gate
+variables:
+  phase_1_solvable:
+    type: bool
+  no_dependencies:
+    type: bool
+  single_concern:
+    type: bool
+preconditions:
+  - "no_dependencies == True"
+  - "single_concern == True"
+invariants:
+  - "z3.Implies(z3.And(no_dependencies, single_concern), phase_1_solvable)"

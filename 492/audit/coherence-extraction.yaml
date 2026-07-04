@@ -1,0 +1,72 @@
+status: DONE
+audit_type: coherence-extraction
+spec_issue: 492
+audit_phase: pre_implementation
+sc_count: 6
+sc_summary:
+  - id: SC-1
+    evidence_type: string
+    coherence: PASS
+    finding: "Target file `push-and-cleanup.md` exists but has no staleness-check step yet. Expected for pre-implementation. Evidence type `string` (grep for staleness patterns) is appropriate for verifying text presence in a task file."
+  - id: SC-2
+    evidence_type: behavioral
+    coherence: PASS
+    finding: "Describes agent auto-rebase behavior on behind>0. Coherent with spec requirements. Evidence type `behavioral` is correct — this is a runtime agent action, not a text pattern. Cannot verify until step is implemented (pre-implementation state expected)."
+  - id: SC-3
+    evidence_type: behavioral
+    coherence: PASS
+    finding: "Describes agent proceeding to push/PR after successful rebase. Coherent with spec requirements. Evidence type `behavioral` is correct."
+  - id: SC-4
+    evidence_type: behavioral
+    coherence: PASS
+    finding: "Describes agent HALT on Tier 3 conflict. Coherent with spec requirements and cross-references `conflict-resolution` skill's three-tier system. Evidence type `behavioral` is correct."
+  - id: SC-5
+    evidence_type: behavioral
+    coherence: PASS
+    finding: "Describes agent proceeding normally on clean branch (behind==0). Coherent with spec requirements. Evidence type `behavioral` is correct."
+  - id: SC-6
+    evidence_type: behavioral
+    coherence: PASS
+    finding: "Requires behavioral enforcement test at `tests/behaviors/492-stale-branch-auto-rebase.sh`. File does not exist yet — expected for pre-implementation (RED phase will create it). Evidence type `behavioral` is correct."
+evidence_type_audit:
+  - sc: SC-1
+    declared: string
+    substrate_classification: string
+    verdict: PASS
+    note: "Text presence in a task file is correctly classified as string evidence. No runtime behavior change — the step is a static procedure addition."
+  - sc: SC-2
+    declared: behavioral
+    substrate_classification: behavioral
+    verdict: PASS
+    note: "Auto-rebase is a runtime agent action. Behavioral evidence is the only sufficient type."
+  - sc: SC-3
+    declared: behavioral
+    substrate_classification: behavioral
+    verdict: PASS
+  - sc: SC-4
+    declared: behavioral
+    substrate_classification: behavioral
+    verdict: PASS
+  - sc: SC-5
+    declared: behavioral
+    substrate_classification: behavioral
+    verdict: PASS
+  - sc: SC-6
+    declared: behavioral
+    substrate_classification: behavioral
+    verdict: PASS
+plan_coherence:
+  verdict: PASS
+  finding: "Plan at `.opencode/.issues/492/plan.md` maps all 6 SCs to implementation steps 1-23. Phase 1 correctly covers all SCs. No orphan SCs, no unmapped steps. Plan faithfully reflects spec requirements."
+  sc_coverage:
+    SC-1: "Steps 9 (GREEN), 10 (Z3), 11 (post-GREEN), 12 (Z3), 15 (structural), 16 (GREEN doublecheck), 17 (GREEN VbC), 21 (review prep)"
+    SC-2: "Steps 3 (RED), 9 (GREEN), 16 (GREEN doublecheck), 17 (GREEN VbC)"
+    SC-3: "Steps 3 (RED), 9 (GREEN), 16 (GREEN doublecheck), 17 (GREEN VbC)"
+    SC-4: "Steps 3 (RED), 9 (GREEN), 16 (GREEN doublecheck), 17 (GREEN VbC)"
+    SC-5: "Steps 3 (RED), 9 (GREEN), 16 (GREEN doublecheck), 17 (GREEN VbC), 21 (review prep)"
+    SC-6: "Steps 1 (coherence gate), 2 (pre-RED), 3 (RED), 4 (Z3), 5 (doublecheck), 6 (Z3), 7 (post-RED), 8 (Z3), 17 (GREEN VbC), 20 (regression)"
+dependency_analysis:
+  verdict: PASS
+  finding: "Spec declares no dependencies. Plan confirms no phase dependencies. Self-contained spec — no cross-issue coupling detected."
+overall_consensus: PASS
+exec_summary: "SC coherence gate for #492: 6/6 SCs coherent. All evidence types match substrate classification (1 string, 5 behavioral). Plan faithfully maps all SCs. No evidence type mismatches, no SC conflicts, no dependency issues. Pre-implementation state is expected — staleness-check step and behavioral test file do not exist yet. Pipeline may proceed to Step 2 (pre-RED baseline)."

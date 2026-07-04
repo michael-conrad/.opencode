@@ -1,0 +1,19 @@
+domain: implementation-planning
+types:
+  - name: phase
+fluents:
+  - name: phase_1_solvable
+  - name: no_dependencies
+  - name: single_concern
+actions:
+  - name: solve_phase_1
+    preconditions:
+      - no_dependencies
+      - single_concern
+    effects:
+      - phase_1_solvable
+init:
+  - no_dependencies
+  - single_concern
+goals:
+  - phase_1_solvable

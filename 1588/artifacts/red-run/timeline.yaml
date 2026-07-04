@@ -1,0 +1,49 @@
+# Behavioral Test Timeline
+# Entries: 7
+
+--- Step 1 ---
+type: response
+  preview: "approved for PR: .opencode#1579"
+
+  length: 34
+
+--- Step 2 ---
+type: reasoning
+  summary: The user has authorized "for PR" scope on issue #1579 in the .opencode repo. This triggers authorization cascade to all sub-issues, auto-gap-fill (spec → plan → approve → PR), and `pr_strategy: stacke...
+  length: 284
+
+--- Step 3 ---
+type: tool_call
+  tool: skill
+  status: completed
+  duration_ms: 16
+  call_id: call_i0uxj6wa
+  input:
+    name: approval-gate
+
+--- Step 4 ---
+type: reasoning
+  summary: The user said "approved for PR: .opencode#1579". This is a pipeline-scoped authorization phrase. I need to parse it and apply the approval-gate rules.
+
+Let me analyze:
+- `.opencode#1579` — issue 1579 ...
+  length: 908
+
+--- Step 5 ---
+type: response
+  preview: This is multi-repo authorization: `.opencode#1579` is in the `.opencode` submodule which has its own GitHub remote. Let me route this correctly — the `.opencode` repo uses `michael-conrad/.opencode` on GitHub (not local), while the main repo uses local tracking.
+
+Authorization parsed as: scope=`for_...
+  length: 480
+
+--- Step 6 ---
+type: tool_call
+  tool: todowrite
+  status: completed
+  duration_ms: 6
+  call_id: call_2qewygh2
+
+--- Step 7 ---
+type: reasoning
+  summary: Wait, I need to check the repo information section. The main repo has `github.owner: (none)` and the `.opencode` submodule uses GitHub platform with owner `michael-conrad` and repo `.opencode`. So thi...
+  length: 352

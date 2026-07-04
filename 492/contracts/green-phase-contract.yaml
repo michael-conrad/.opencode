@@ -1,0 +1,24 @@
+# GREEN phase output contract for spec #492
+# Validates that the staleness-check step was added to push-and-cleanup.md
+variables:
+  step_exists:
+    type: bool
+    description: "Staleness-check step exists in push-and-cleanup.md"
+  uses_rev_list:
+    type: bool
+    description: "Step uses git rev-list --count --left-right for detection"
+  has_auto_rebase:
+    type: bool
+    description: "Step auto-rebases on behind > 0"
+  has_conflict_classification:
+    type: bool
+    description: "Step classifies conflicts per three-tier system"
+  has_clean_path:
+    type: bool
+    description: "Step proceeds normally on behind == 0"
+constraints:
+  - "step_exists == True"
+  - "uses_rev_list == True"
+  - "has_auto_rebase == True"
+  - "has_conflict_classification == True"
+  - "has_clean_path == True"
