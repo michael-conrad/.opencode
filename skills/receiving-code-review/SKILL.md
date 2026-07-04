@@ -52,7 +52,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `respond` | `task(..., prompt: "execute respond task from receiving-code-review")` |
 | `completion` | `task(..., prompt: "execute completion task from receiving-code-review")` |
 
-**CLI equivalent (for human TUI use):** `/skill receiving-code-review --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "receiving-code-review"})` ``
 
 ## Sub-Agent Routing
 

@@ -69,7 +69,7 @@ provenance: AI-generated
 - [ ] **`task-name`** → `task(..., prompt: "execute task-name task from skill-name")`
 - [ ] **`other-task`** → `task(..., prompt: "execute other-task task from skill-name")`
 
-**CLI equivalent (for human TUI use):** `/skill skill-name --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "skill-name"})` ``
 
 ## Sub-Agent Routing
 

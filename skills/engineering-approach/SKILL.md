@@ -56,7 +56,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `verify-before-complete` | `task(..., prompt: "execute verify-before-complete task from engineering-approach")` |
 | `completion` | `task(..., prompt: "execute completion task from engineering-approach")` |
 
-**CLI equivalent (for human TUI use):** `/skill engineering-approach --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "engineering-approach"})` ``
 
 ## Operating Protocol
 

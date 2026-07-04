@@ -52,7 +52,7 @@ SRE-oriented operator writing runbooks for sysops under pressure. Runbooks are o
 | `track` | `task(..., prompt: "execute track task from sre-runbook")` |
 | `completion` | `task(..., prompt: "execute completion task from sre-runbook")` |
 
-**CLI equivalent (for human TUI use):** `/skill sre-runbook --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "sre-runbook"})` ``
 
 ## Operating Protocol
 

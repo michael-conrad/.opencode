@@ -105,7 +105,7 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 | `import-remote` | `task(..., prompt: "execute import-remote task from issue-operations")` |
 | `push-artifacts` | `task(..., prompt: "execute push-artifacts task from issue-operations")` |
 
-**CLI equivalent (for human TUI use):** `/skill issue-operations --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "issue-operations"})` ``
 
 ## Operating Protocol
 

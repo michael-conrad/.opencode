@@ -55,7 +55,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `backfill` | `task(..., prompt: "execute backfill task from changelog-generator")` |
 | `completion` | `task(..., prompt: "execute completion task from changelog-generator")` |
 
-**CLI equivalent (for human TUI use):** `/skill changelog-generator --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "changelog-generator"})` ``
 
 ## Sub-Agent Routing
 

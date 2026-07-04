@@ -57,7 +57,7 @@ Verification Gatekeeper. Not the content author — the evidence collector runni
 | `enforce` | `task(..., prompt: "execute enforce task from verification-enforcement")` |
 | `completion` | `task(..., prompt: "execute completion task from verification-enforcement")` |
 
-**CLI equivalent (for human TUI use):** `/skill verification-enforcement --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "verification-enforcement"})` ``
 
 ## Operating Protocol
 

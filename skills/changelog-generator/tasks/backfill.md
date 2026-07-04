@@ -82,7 +82,7 @@ git tag --sort=-creatordate
 ## Example
 
 ```
-/skill changelog-generator --task backfill
+`skill({name: "changelog-generator"})` then `task(..., prompt: "execute backfill task from changelog-generator")`
 ```
 
 Creates entries for all historical PRs not yet in changelog.

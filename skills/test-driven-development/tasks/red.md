@@ -6,7 +6,7 @@
 
 ## Invocation
 
-`/skill test-driven-development --task red`
+`` `skill({name: "test-driven-development"})` `` then `` `task(..., prompt: "execute red task from test-driven-development")` ``
 
 ## Exit Criteria
 

@@ -65,7 +65,7 @@ Output:
 
 **WHY:** GitHub Issues provide the single source of truth for incident tracking. Structured labels enable filtering; prose narrative provides context for humans.
 
-**Follow `issue-operations` skill discipline** — do NOT bypass issue creation validation. Invoke `/skill issue-operations --task pre-creation` before creating the issue.
+**Follow `issue-operations` skill discipline** — do NOT bypass issue creation validation. Invoke `` `skill({name: "issue-operations"})` `` then `` `task(..., prompt: "execute pre-creation task from issue-operations")` `` before creating the issue.
 
 Issue structure:
 

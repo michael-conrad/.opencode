@@ -54,7 +54,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `check-limits` | `task(..., prompt: "execute check-limits task from programming-principles")` |
 | `decompose` | `task(..., prompt: "execute decompose task from programming-principles")` |
 
-**CLI equivalent (for human TUI use):** `/skill programming-principles --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "programming-principles"})` ``
 
 ## Relationship
 

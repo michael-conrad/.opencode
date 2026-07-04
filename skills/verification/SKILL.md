@@ -53,7 +53,7 @@ Claim Verifier. Focus: verify each claim against evidence, produce PASS/FAIL/UNV
 | `verify` | `task(..., prompt: "execute verify task from verification")` |
 | `completion` | `task(..., prompt: "execute completion task from verification")` |
 
-**CLI equivalent (for human TUI use):** `/skill verification --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "verification"})` ``
 
 ## Sub-Agent Routing
 

@@ -400,8 +400,8 @@ sub_task_invocation:
         task: "pr-creation"
         description: "Load only PR creation task (≈80 lines)"
   - rationale: "Reduces context window pollution by loading only relevant workflow phases"
-  - usage: "/skill <skill-name> --task <task-name> for sub-task invocation"
-  - overview: "/skill <skill-name> (no --task) for skill overview only"
+  - usage: "`skill({name: \"<skill-name>\"})` then `task(..., prompt: \"execute <task-name> task from <skill-name>\")` for sub-task invocation"
+  - overview: "`skill({name: \"<skill-name>\"})` for skill overview only"
 
 integration_points:
   - skill: "approval-gate"

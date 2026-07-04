@@ -249,13 +249,13 @@ Use `fragment-manager` skill for CRUD operations:
 
 ```bash
 # Create fragment from duplicate content
-/skill fragment-manager --task create-fragment
+`skill({name: "fragment-manager"})` then `task(..., prompt: "execute create-fragment task from fragment-manager")`
 
 # Sync fragment to destinations
-/skill fragment-manager --task sync-fragment --fragment-id <id>
+`skill({name: "fragment-manager"})` then `task(..., prompt: "execute sync-fragment task from fragment-manager with fragment-id <id>")`
 
 # Check for drift
-/skill fragment-manager --task check-drift
+`skill({name: "fragment-manager"})` then `task(..., prompt: "execute check-drift task from fragment-manager")`
 ```
 
 ## Submodule Tracking

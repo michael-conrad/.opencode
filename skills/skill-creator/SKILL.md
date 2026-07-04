@@ -59,7 +59,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | `validate` | `task(..., prompt: "execute validate task from skill-creator")` |
 | `fragment-management` | `task(..., prompt: "execute fragment-management task from skill-creator")` |
 
-**CLI equivalent (for human TUI use):** `/skill skill-creator --task <task>`
+**CLI equivalent (for human TUI use):** `` `skill({name: "skill-creator"})` ``
 
 ## Operating Protocol
 

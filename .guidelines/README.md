@@ -109,7 +109,7 @@ Sync status: synchronized
 Use the fragment-manager skill:
 
 ```bash
-/skill fragment-manager --task create-fragment
+`skill({name: "fragment-manager"})` then `task(..., prompt: "execute create-fragment task from fragment-manager")`
 ```
 
 1. Extract duplicate content from skill file
@@ -121,7 +121,7 @@ Use the fragment-manager skill:
 ### Syncing Fragments
 
 ```bash
-/skill fragment-manager --task sync-fragment --fragment-id <id>
+`skill({name: "fragment-manager"})` then `task(..., prompt: "execute sync-fragment task from fragment-manager with fragment-id <id>")`
 ```
 
 1. Load registry entry
@@ -133,7 +133,7 @@ Use the fragment-manager skill:
 ### Checking for Drift
 
 ```bash
-/skill fragment-manager --task check-drift
+`skill({name: "fragment-manager"})` then `task(..., prompt: "execute check-drift task from fragment-manager")`
 ```
 
 1. Calculate master hash

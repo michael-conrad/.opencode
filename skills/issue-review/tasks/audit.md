@@ -46,7 +46,7 @@ Hints INFORM but do NOT override — `adversarial-audit --task spec-audit` retai
 ### Step 3: Invoke adversarial-audit
 
 ```
-/skill adversarial-audit --task spec-audit --issue N
+`skill({name: "adversarial-audit"})` then `task(..., prompt: "execute spec-audit task from adversarial-audit for issue N")`
 ```
 
 Pass triage context as part of the invocation. The agent includes the hint about which subtasks are likely relevant based on the spec's nature.
