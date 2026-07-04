@@ -107,6 +107,28 @@ Read the existing plan from `spec_local_dir/`:
 | PF-DELEGATION | Undefined delegation targets | Checks that every "delegate to", "unified", "merged into", or "replaced by" reference in the spec has a corresponding concrete definition in the plan — specific file changes, routing table updates, cross-reference updates, and capability migration. If any delegation reference lacks concrete plan definitions, the criterion FAILs. |
 | PF-SEQUENCE-MATCHES | Gate sequence matches pipeline source — missing gates are automatic FAIL with no remediation path | Gate sequence matches `implementation-pipeline/SKILL.md` dispatch routing table — read dynamically, not hardcoded. Any missing gate is automatic FAIL — the plan MUST be regenerated, not patched. |
 
+### Step 3a: Evaluate Blast Radius (A3)
+
+Evaluate the plan's blast radius analysis:
+
+- [ ] 1. **Plan scope verification** — Verify the plan's scope matches the spec's scope:
+  - Does the plan cover all files listed in the spec's Files Affected table?
+  - Does the plan add files not in the spec? If so, flag as `BLAST_RADIUS_GAP` with `plan_overscoped`
+- [ ] 2. **Impact trace** — For each file in the plan, use `srclight_get_dependents` to verify blast radius:
+  - If dependents exist that the plan doesn't address, flag as `BLAST_RADIUS_GAP` with `missing_dependent`
+
+Record results:
+
+```yaml
+blast_radius:
+  plan_scope_verification:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  impact_trace:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
 <!-- Fragment ID: sc-enforcement-gate -->
 
 ### Step 4: Cross-Validate with Pre-Resolved Verdicts

@@ -214,7 +214,67 @@ Add SC-CLAIM criteria to evaluation table:
 |--------------|-------------|-----------------|
 | SC-CLAIM | Claim Accuracy | No fabricated claims, negations verified, interface contracts match |
 
-### Step 3c: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
+### Step 3c: Evaluate Blast Radius (A3)
+
+Evaluate the spec's blast radius analysis completeness:
+
+- [ ] 1. **Impact completeness** — Verify all affected files/components are traced:
+  - For each file mentioned in the spec's Files Affected table, use `srclight_get_dependents` to find downstream dependents
+  - If dependents exist that are not listed in the spec, flag as `BLAST_RADIUS_GAP` with `missing_dependent`
+  - If no `srclight_get_dependents` call was made, flag as `BLAST_RADIUS_GAP` with `no_trace_performed`
+- [ ] 2. **Non-code impact** — Check for guideline/skill cross-references and behavioral test implications:
+  - Does the change affect any `.opencode/guidelines/` or `.opencode/skills/` files?
+  - Does the change require behavioral test updates?
+  - If non-code impact exists but is not addressed, flag as `BLAST_RADIUS_GAP` with `non_code_impact_unaddressed`
+
+Record results:
+
+```yaml
+blast_radius:
+  impact_completeness:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  non_code_impact:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3d: Evaluate Research Adequacy (A4)
+
+Evaluate whether the spec's claims are backed by adequate research:
+
+- [ ] 1. **Evidence provenance** — For each key finding in the spec, check for tool-call artifacts:
+  - Does the spec reference any tool-call evidence (srclight, grep, read, webfetch)?
+  - If a finding is asserted without tool-call provenance, flag as `RESEARCH_GAP` with `no_provenance`
+- [ ] 2. **Investigation breadth** — Check if alternatives were ruled out:
+  - Does the spec mention alternatives considered?
+  - If no alternatives are discussed, flag as `RESEARCH_GAP` with `no_alternatives_explored`
+- [ ] 3. **Edge case discovery** — Check for boundary exploration:
+  - Does the spec discuss edge cases or boundary conditions?
+  - If no edge cases are identified, flag as `RESEARCH_GAP` with `no_edge_case_analysis`
+- [ ] 4. **Recency check** — Verify commit history was reviewed:
+  - Check if the spec references recent commits or changes
+  - If the spec makes claims about code state without commit history review, flag as `RESEARCH_GAP` with `no_recency_check`
+
+Record results:
+
+```yaml
+research_adequacy:
+  evidence_provenance:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  investigation_breadth:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  edge_case_discovery:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  recency_check:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3e: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
 
 When the spec being audited is a skill card (SKILL.md file), evaluate the SC-SEM criteria. These criteria assess the semantic quality of the skill's `description` field in YAML frontmatter and its Trigger Dispatch Table.
 

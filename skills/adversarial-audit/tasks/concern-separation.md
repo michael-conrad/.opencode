@@ -124,6 +124,11 @@ Each boundary claim must be verified:
 | "Phase is deployment-independent" | `srclight_get_callers(symbol_name)` → check cross-phase calls |
 | "Risk classification accurate" | `srclight_get_dependents(symbol_name, transitive=true)` → count affected |
 
+**Extended blast radius procedure (CS-6):** For each phase, use `srclight_get_dependents` with `transitive=true` to trace the full impact chain:
+- [ ] 1. For each file modified in the phase, call `srclight_get_dependents(symbol_name, transitive=true)` to find all downstream dependents
+- [ ] 2. If dependents span multiple phases, flag as `BLAST_RADIUS_GAP` with `cross_phase_impact`
+- [ ] 3. If dependents exist outside the spec's scope, flag as `BLAST_RADIUS_GAP` with `unexpected_downstream_impact`
+
 ### Step 7: Write Verdict Artifact to Disk
 
 Write the full YAML verdict artifact to `./tmp/{issue-N}/artifacts/pipeline-audit-concern-separation-{STATUS}-{timestamp}.yaml`:
