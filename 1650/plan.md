@@ -6,7 +6,7 @@ Replace all 58 `/skill` references across `.opencode/` with proper `skill({name:
 
 ## Architecture
 
-Two phases: (1) find-and-replace all 58 `/skill` references across 8 file categories, (2) post-phase with behavioral test, global verification, and review prep. Phase 1 is a single RED/GREEN chain with intermediate grep checkpoints for SC-1 through SC-4. Phase 2 writes the behavioral test (SC-6), re-verifies zero remaining references (SC-5), and prepares the PR.
+Two phases: (1) find-and-replace all 58 `/skill` references across 8 file categories, (2) post-phase with behavioral test, global verification, and review prep. Each phase follows the full implementation-pipeline dispatch routing table (18 steps: submodule-verify through exec-summary).
 
 ## Files
 
@@ -30,8 +30,8 @@ Two phases: (1) find-and-replace all 58 `/skill` references across 8 file catego
 
 | Phase | Name | Concern | SCs | Dependencies | Step Range |
 |-------|------|---------|-----|--------------|------------|
-| 1 | Find-and-replace `/skill` → `skill()` | Replace all 58 `/skill` references with `skill()` syntax | SC-1, SC-2, SC-3, SC-4, SC-5 | Research complete | 1-8 |
-| 2 | Behavioral test + verification + review prep | Write behavioral test, global grep, finishing checklist, PR | SC-6, SC-1–SC-5 (re-verify) | Phase 1 | 9-14 |
+| 1 | Find-and-replace `/skill` → `skill()` | Replace all 58 `/skill` references with `skill()` syntax | SC-1, SC-2, SC-3, SC-4, SC-5 | Research complete | 1-8 (pre-flight) + 0-17 (pipeline-executor) |
+| 2 | Behavioral test + verification + review prep | Write behavioral test, global grep, finishing checklist, PR | SC-6, SC-1–SC-5 (re-verify) | Phase 1 | 1-8 (pre-flight) + 0-17 (pipeline-executor) |
 
 > **Compliance requirement:** This plan is a binding contract. Every step MUST be executed exactly as specified. No step may be skipped, reordered, or combined. If a step cannot be completed, the plan is BLOCKED and must be reported as such. The plan is not a suggestion — it is the implementation specification.
 
