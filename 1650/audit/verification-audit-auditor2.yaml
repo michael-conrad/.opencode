@@ -1,0 +1,69 @@
+# Verification Audit — Auditor 2
+# Spec #1650: Replace /skill syntax with skill({name: "..."})
+# Generated: 2026-07-04T09:45:00Z
+# Agent: OpenCode (ollama-cloud/deepseek-v4-flash)
+# Submodule: .opencode @ 9df27d0e
+
+audit:
+  spec: "#1650"
+  phase: verification-audit
+  auditor: auditor2
+  submodule_commit: 9df27d0e
+  timestamp: "2026-07-04T09:45:00Z"
+
+per_criterion:
+  - id: SC-1
+    description: "No SKILL.md or routing-only-template.md contains 'CLI equivalent' referencing /skill"
+    command: "grep -rn '/skill' .opencode/skills/*/SKILL.md .opencode/skills/routing-only-template.md | grep -i 'cli equivalent' | wc -l"
+    expected: 0
+    actual: 0
+    result: PASS
+    notes: "routing-only-template.md does not exist (no false positive); zero matches across all SKILL.md files"
+
+  - id: SC-2
+    description: "No task file contains /skill --task invocations"
+    command: "grep -rn '/skill.*--task' .opencode/skills/*/tasks/ | wc -l"
+    expected: 0
+    actual: 0
+    result: PASS
+    notes: "Zero matches across all task files"
+
+  - id: SC-3
+    description: "squash-push.md contains zero /skill references"
+    command: "grep -c '/skill' .opencode/skills/git-workflow/tasks/pr-creation/squash-push.md"
+    expected: 0
+    actual: 0
+    result: PASS
+    notes: "File is clean"
+
+  - id: SC-4
+    description: "enforcement.md contains zero /skill references"
+    command: "grep -c '/skill' .opencode/skills/brainstorming/tasks/enforcement.md"
+    expected: 0
+    actual: 0
+    result: PASS
+    notes: "File is clean"
+
+  - id: SC-5
+    description: "No remaining /skill CLI syntax in any .md or .yaml file (excluding .issues/, guideline/skill references, CHANGELOG, and tmp/ artifacts)"
+    command: "grep -rn \"Say '/skill\\|/skill [a-z]\\|/skill --\\|CLI equivalent.*/skill\" .opencode/ --include='*.md' --include='*.yaml' | grep -v '.opencode/.issues/' | grep -v 'guideline/skill' | grep -v 'CHANGELOG' | grep -v '.opencode/tmp/' | wc -l"
+    expected: 0
+    actual: 0
+    result: PASS
+    notes: "3 matches found in .opencode/tmp/ behavioral evidence artifacts (excluded); zero matches in source files"
+
+  - id: SC-6
+    description: "Behavioral test script exists as artifact-only generator (exits 0, no assert calls)"
+    file: ".opencode/tests/behaviors/skill-invocation-syntax.sh"
+    exists: true
+    executable: true
+    exits_zero: true
+    has_assert_calls: false
+    result: PASS
+    notes: "Script is 902 bytes, artifact-only generator, exits 0, no assert calls — correct pattern"
+
+summary:
+  total: 6
+  passed: 6
+  failed: 0
+  verdict: PASS

@@ -1,0 +1,56 @@
+---
+audit_phase: verification-audit
+auditor_type: verification-audit
+family: mistral
+issue_number: 1650
+generated_at: "2026-07-04T12:00:00Z"
+orchestrator_model: "mistral-large-3:675b-cloud"
+summary:
+  total_criteria: 6
+  pass: 2
+  fail: 4
+per_criterion:
+  - criterion_id: "SC-1"
+    declared_evidence_type: "string"
+    result: "FAIL"
+    evidence: "grep /skill in .opencode/skills/spec-creation/SKILL.md: 7 matches found."
+    explanation: "7 /skill references remain in .opencode/skills/spec-creation/SKILL.md. All 32 SKILL.md 'CLI equivalent' lines must use skill({name: \"...\"}) instead of /skill."
+    remediation: "Replace all 7 /skill references in .opencode/skills/spec-creation/SKILL.md with skill({name: \"...\"})."
+    next_step: "remediate"
+  - criterion_id: "SC-2"
+    declared_evidence_type: "string"
+    result: "FAIL"
+    evidence: "grep --task in .opencode/skills/*/tasks/*.md: 0 matches. 7 /skill references in .opencode/skills/spec-creation/SKILL.md are task dispatch examples."
+    explanation: "The 7 /skill references in .opencode/skills/spec-creation/SKILL.md are task dispatch examples and must use skill() + task() patterns."
+    remediation: "Replace all 7 /skill references in .opencode/skills/spec-creation/SKILL.md with skill({name: \"...\"}) + task() patterns."
+    next_step: "remediate"
+  - criterion_id: "SC-3"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "read .opencode/skills/git-workflow/tasks/pr-creation/squash-push.md: uses skill({name: \"changelog-generator\"})."
+    explanation: "The 1 task file example without --task (squash-push.md) uses skill() instead of /skill."
+    remediation: ""
+    next_step: "proceed"
+  - criterion_id: "SC-4"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "read .opencode/skills/brainstorming/tasks/enforcement.md: uses `skill({name: \"brainstorming\"})`."
+    explanation: "The 1 prose mention in brainstorming/tasks/enforcement.md uses skill() instead of /skill."
+    remediation: ""
+    next_step: "proceed"
+  - criterion_id: "SC-5"
+    declared_evidence_type: "string"
+    result: "FAIL"
+    evidence: "grep /skill in .opencode/: 7 matches in .opencode/skills/spec-creation/SKILL.md."
+    explanation: "7 /skill references remain in .opencode/skills/spec-creation/SKILL.md. Zero /skill references must remain in .opencode/."
+    remediation: "Replace all 7 /skill references in .opencode/skills/spec-creation/SKILL.md with skill({name: \"...\"})."
+    next_step: "remediate"
+  - criterion_id: "SC-6"
+    declared_evidence_type: "behavioral"
+    result: "FAIL"
+    evidence: "Behavioral test file exists, but no behavioral evidence (opencode-cli run artifacts) provided."
+    explanation: "Behavioral SC requires behavioral evidence (e.g., opencode-cli run artifacts showing the agent uses skill() syntax). File existence is structural evidence, not behavioral."
+    remediation: "Run the behavioral test and provide opencode-cli run artifacts as evidence."
+    next_step: "remediate"
+all_criteria_pass: false
+mandatory_remediation: "Remediate SC-1, SC-2, SC-5, and SC-6. Replace all /skill references in .opencode/skills/spec-creation/SKILL.md with skill({name: \"...\"}) and provide behavioral evidence for SC-6."

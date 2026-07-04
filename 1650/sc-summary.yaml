@@ -1,0 +1,28 @@
+schema_version: "1.0"
+generated_at: "20260704040500"
+spec: 1650
+scs:
+  - id: SC-1
+    description: "All 32 SKILL.md CLI equivalent lines use skill({name: ...}) instead of /skill"
+    evidence_type: string
+    verification_gate: pre-commit
+  - id: SC-2
+    description: "All 7 task file examples with --task use skill() + task() patterns instead of /skill"
+    evidence_type: string
+    verification_gate: pre-commit
+  - id: SC-3
+    description: "The 1 task file example without --task (squash-push.md) uses skill() instead of /skill"
+    evidence_type: string
+    verification_gate: pre-commit
+  - id: SC-4
+    description: "The 1 prose mention in brainstorming/tasks/enforcement.md uses skill() instead of /skill"
+    evidence_type: string
+    verification_gate: pre-commit
+  - id: SC-5
+    description: "Zero /skill references remain in .opencode/ (all 58 locations resolved)"
+    evidence_type: string
+    verification_gate: pre-commit
+  - id: SC-6
+    description: "Behavioral test verifies agent uses skill() syntax, not /skill, when describing skill invocation"
+    evidence_type: behavioral
+    verification_gate: pre-commit

@@ -1,0 +1,75 @@
+---
+audit_phase: verification-audit
+auditor_type: verification-audit
+family: LEAF
+issue_number: 1650
+generated_at: "2026-07-04T00:00:00Z"
+orchestrator_model: "mistral-large-3:675b-cloud"
+summary:
+  total_criteria: 6
+  pass: 2
+  fail: 2
+  n_a: 2
+per_criterion:
+  - criterion_id: "SC-1"
+    declared_evidence_type: "string"
+    result: "FAIL"
+    evidence: "grep for /skill in .opencode/skills/*/SKILL.md"
+    explanation: "7 instances of /skill remain in .opencode/skills/spec-creation/SKILL.md."
+    remediation: "Replace all /skill references with skill({name: \"...\"}) in .opencode/skills/spec-creation/SKILL.md."
+    next_step: "remediate"
+  - criterion_id: "SC-2"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "grep for /skill in .opencode/skills/*/tasks/*.md"
+    explanation: "No /skill references found in task files."
+    remediation: "None"
+    next_step: "proceed"
+  - criterion_id: "SC-3"
+    declared_evidence_type: "string"
+    result: "N/A"
+    evidence: "File .opencode/skills/git-workflow/tasks/squash-push.md does not exist"
+    explanation: "squash-push.md does not exist."
+    remediation: "None"
+    next_step: "proceed"
+  - criterion_id: "SC-4"
+    declared_evidence_type: "string"
+    result: "N/A"
+    evidence: "File .opencode/skills/approval-gate/tasks/enforcement.md does not exist"
+    explanation: "enforcement.md does not exist."
+    remediation: "None"
+    next_step: "proceed"
+  - criterion_id: "SC-5"
+    declared_evidence_type: "string"
+    result: "FAIL"
+    evidence: "grep for /skill in .opencode/"
+    explanation: "Multiple /skill references remain in .opencode/."
+    remediation: "Replace all /skill references with skill({name: \"...\"}) in .opencode/."
+    next_step: "remediate"
+  - criterion_id: "SC-6"
+    declared_evidence_type: "structural"
+    result: "PASS"
+    evidence: "read .opencode/tests/behaviors/skill-invocation-syntax.sh"
+    explanation: "File exists and is an artifact-only generator."
+    remediation: "None"
+    next_step: "proceed"
+all_criteria_pass: false
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
+clean_room:
+  verified: true
+  violations_detected: []
+methodology_independence:
+  phases_followed:
+    - "Pre-Flight Validation Gate"
+    - "Load Spec Content"
+    - "Load Behavioral Evidence"
+    - "Build Evaluation Criteria"
+    - "Verify Implementation Completeness"
+    - "Verify Evidence Type Compliance"
+    - "Generate Findings"
+    - "Write Verdict Artifact to Disk"
+  criteria_loaded_floor: true
+  criteria_discovered: 0
+  criteria_evaluated: 6
+  discovery_pass_ran: false
+  semantic_depth_applied: true

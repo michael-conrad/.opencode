@@ -1,0 +1,56 @@
+---
+audit_phase: verification-audit
+auditor_type: verification-audit
+family: mistral
+issue_number: 1650
+generated_at: "2026-07-04T00:00:00Z"
+orchestrator_model: "mistral-large-3:675b-cloud"
+summary:
+  total_criteria: 6
+  pass: 5
+  fail: 1
+per_criterion:
+  - criterion_id: "SC-1"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "grep /skill in .opencode/skills/ SKILL.md files: no matches. grep skill({ in SKILL.md files: matches found."
+    explanation: "All 32 SKILL.md 'CLI equivalent' lines use skill({name: "...")} instead of /skill."
+    remediation: ""
+    next_step: "proceed"
+  - criterion_id: "SC-2"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "grep --task in .opencode/skills/ tasks/*.md: all examples use skill() + task() syntax."
+    explanation: "All 7 task file examples with --task use skill() + task() patterns instead of /skill."
+    remediation: ""
+    next_step: "proceed"
+  - criterion_id: "SC-3"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "read .opencode/skills/git-workflow/tasks/pr-creation/squash-push.md: uses skill({name: "changelog-generator"})."
+    explanation: "The 1 task file example without --task (squash-push.md) uses skill() instead of /skill."
+    remediation: ""
+    next_step: "proceed"
+  - criterion_id: "SC-4"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "read .opencode/skills/brainstorming/tasks/enforcement.md: uses `skill({name: "brainstorming"})`."
+    explanation: "The 1 prose mention in brainstorming/tasks/enforcement.md uses skill() instead of /skill."
+    remediation: ""
+    next_step: "proceed"
+  - criterion_id: "SC-5"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "grep /skill in .opencode/: no /skill references found."
+    explanation: "Zero /skill references remain in .opencode/."
+    remediation: ""
+    next_step: "proceed"
+  - criterion_id: "SC-6"
+    declared_evidence_type: "behavioral"
+    result: "FAIL"
+    evidence: "read tests/behaviors/: no skill-invocation-syntax.sh file found. grep skill( in tests/behaviors/: no matches."
+    explanation: "Behavioral test at tests/behaviors/skill-invocation-syntax.sh does not exist."
+    remediation: "Create a behavioral test to verify the agent uses skill() syntax, not /skill, when describing skill invocation."
+    next_step: "remediate"
+all_criteria_pass: false
+mandatory_remediation: "Remediate SC-6: Create a behavioral test to verify the agent uses skill() syntax, not /skill, when describing skill invocation."
