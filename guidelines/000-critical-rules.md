@@ -87,9 +87,9 @@ See session-enforcement.ts config mutation watchdog + `--no-verify` detection. A
 
 **Definition:** A "local-only repo" is one where `git remote -v` returns no output. This status must be re-checked every time the exception is invoked — adding a remote retroactively removes the exception.
 
-#### Hook Output Is Advisory, Not Absolute
+#### Hook Output Is Binding
 
-Pre-commit hook output guides, not gates. If a pre-commit hook blocks a commit, evaluate the reason: a legitimate violation should be fixed; a false positive or over-restrictive check may warrant `--no-verify` after reviewing the output. The agent is NOT an enforcement robot for hook scripts — use judgment.
+Pre-commit hook output is binding. If a hook blocks a commit, fix the violation. `--no-verify` is FORBIDDEN regardless of hook output content.
 
 #### Allowlist (No Authorization Needed)
 
@@ -1375,23 +1375,6 @@ rules:
     triggers: [git-workflow]
     source: "000-critical-rules.md §Git Configuration and Destructive Command Authorization"
 
-  - id: critical-rules-026a
-    tier: 3
-    title: "Hook output is advisory — documented exceptions take precedence"
-    conditions:
-      all:
-        - "git_hook_blocked_operation == true"
-        - "documented_exception_applies == true"
-        - "agent_treated_block_as_final == true"
-    actions:
-      - FLAG
-      - APPLY_EXCEPTION
-      - PROCEED
-    conflicts_with: []
-    requires: []
-    triggers: [git-workflow]
-    source: "000-critical-rules.md §Hook Output Is Advisory, Not Absolute"
-
   - id: critical-rules-027
     tier: 2
     title: "Confirmation ≠ authorization"
@@ -1706,6 +1689,94 @@ rules:
     requires: [verification-honesty-001, verification-honesty-003]
     triggers: [adversarial-audit --task spec-audit, adversarial-audit --task plan-fidelity, adversarial-audit --task concern-separation, adversarial-audit --task coherence-maintenance, adversarial-audit --task guideline-audit]
     source: "000-critical-rules.md §Mechanical-Only Audit Without Semantic and Conflict Exploration"
+
+  - id: critical-rules-046a
+    tier: 2
+    title: "Reasoning soundness violation — auditor accepts broken causal chain"
+    conditions:
+      all:
+        - "audit_performed == true"
+        - "causal_chain_validated == false"
+        - "auditor_returned_PASS == true"
+    actions: [HALT, RE-DISPATCH_WITH_SEMANTIC_DEPTH_INSTRUCTION]
+    source: "000-critical-rules.md §Semantic Audit Depth — A1"
+
+  - id: critical-rules-046b
+    tier: 2
+    title: "Claim accuracy violation — auditor accepts unverified factual claim"
+    conditions:
+      all:
+        - "audit_performed == true"
+        - "factual_claims_verified_against_live_sources == false"
+        - "auditor_returned_PASS == true"
+    actions: [HALT, RE-DISPATCH_WITH_SEMANTIC_DEPTH_INSTRUCTION]
+    source: "000-critical-rules.md §Semantic Audit Depth — A2"
+
+  - id: critical-rules-046c
+    tier: 2
+    title: "Blast radius violation — auditor accepts incomplete Files Affected"
+    conditions:
+      all:
+        - "audit_performed == true"
+        - "blast_radius_trace_performed == false"
+        - "auditor_returned_PASS == true"
+    actions: [HALT, RE-DISPATCH_WITH_SEMANTIC_DEPTH_INSTRUCTION]
+    source: "000-critical-rules.md §Semantic Audit Depth — A3"
+
+  - id: critical-rules-046d
+    tier: 2
+    title: "Research adequacy violation — auditor accepts asserted claims without tool-call provenance"
+    conditions:
+      all:
+        - "audit_performed == true"
+        - "tool_call_provenance_verified == false"
+        - "auditor_returned_PASS == true"
+    actions: [HALT, RE-DISPATCH_WITH_SEMANTIC_DEPTH_INSTRUCTION]
+    source: "000-critical-rules.md §Semantic Audit Depth — A4"
+
+  - id: critical-rules-046e
+    tier: 2
+    title: "Gap analysis violation — auditor accepts spec with untested boundary conditions"
+    conditions:
+      all:
+        - "audit_performed == true"
+        - "boundary_conditions_explored == false"
+        - "auditor_returned_PASS == true"
+    actions: [HALT, RE-DISPATCH_WITH_SEMANTIC_DEPTH_INSTRUCTION]
+    source: "000-critical-rules.md §Semantic Audit Depth — A5"
+
+  - id: critical-rules-046f
+    tier: 2
+    title: "Scope integrity violation — auditor accepts scope creep or symptom-only fix"
+    conditions:
+      all:
+        - "audit_performed == true"
+        - "scope_boundary_verified == false"
+        - "auditor_returned_PASS == true"
+    actions: [HALT, RE-DISPATCH_WITH_SEMANTIC_DEPTH_INSTRUCTION]
+    source: "000-critical-rules.md §Semantic Audit Depth — A6/A7"
+
+  - id: critical-rules-046g
+    tier: 2
+    title: "Concern separation violation — auditor accepts spec with multiple root causes"
+    conditions:
+      all:
+        - "audit_performed == true"
+        - "concern_orthogonality_verified == false"
+        - "auditor_returned_PASS == true"
+    actions: [HALT, RE-DISPATCH_WITH_SEMANTIC_DEPTH_INSTRUCTION]
+    source: "000-critical-rules.md §Semantic Audit Depth — A8"
+
+  - id: critical-rules-046h
+    tier: 2
+    title: "Cross-reference violation — auditor accepts spec with inaccurate references"
+    conditions:
+      all:
+        - "audit_performed == true"
+        - "reference_accuracy_verified == false"
+        - "auditor_returned_PASS == true"
+    actions: [HALT, RE-DISPATCH_WITH_SEMANTIC_DEPTH_INSTRUCTION]
+    source: "000-critical-rules.md §Semantic Audit Depth — A9"
 
   - id: critical-rules-047
     tier: 2

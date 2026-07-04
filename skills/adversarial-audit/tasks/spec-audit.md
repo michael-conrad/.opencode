@@ -130,7 +130,249 @@ Define audit criteria based on spec-auditor task structure:
 
 <!-- Fragment ID: sc-enforcement-gate -->
 
-### Step 3a: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
+### Step 3a: Evaluate Reasoning Soundness (A1)
+
+Evaluate the spec's causal reasoning, SC traceability, and internal consistency:
+
+- [ ] 1. **Causal chain validity** — Verify the M:N mapping between Root Cause and Fix Approach:
+  - Is every Root Cause element addressed by at least one Fix Approach element? (completeness)
+  - Does every Fix Approach element trace to at least one Root Cause element? (sufficiency)
+  - Are causal dependency assumptions explicit? (e.g., "fixing X will resolve Y" — is the causal link justified?)
+  - If the causal chain is broken (Fix Approach doesn't follow from Root Cause), flag as `REASONING_GAP` with `causal_chain_broken`
+- [ ] 2. **SC traceability** — Verify each SC traces to at least one Root Cause element:
+  - Each SC must have a `traces_to` field or implicit link to a Root Cause
+  - Each Root Cause must be tested by at least one SC
+  - If an SC has no traceable Root Cause, flag as `REASONING_GAP` with `orphan_sc`
+  - If a Root Cause has no SC, flag as `REASONING_GAP` with `untested_root_cause`
+- [ ] 3. **Contradiction detection** — Scan for internal contradictions:
+  - Explicit contradictions: two statements that directly conflict (e.g., "X must be true" and "X must be false")
+  - Implicit contradictions: statements that imply conflicting constraints (e.g., "must be fast" and "must use slow algorithm")
+  - Scope contradictions: Fix Approach elements that contradict the spec's stated scope boundaries
+  - If contradictions found, flag as `REASONING_GAP` with `contradiction_detected`
+
+Record results:
+
+```yaml
+reasoning_soundness:
+  causal_chain:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  sc_traceability:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  contradictions:
+    status: "PASS|FAIL"
+    findings: ["<description of each contradiction>"]
+```
+
+Add SC-REASONING criteria to evaluation table:
+
+| Criterion ID | Description | Expected Result |
+|--------------|-------------|-----------------|
+| SC-REASONING | Reasoning Soundness | Causal chain valid, SC traceability complete, no contradictions |
+
+### Step 3b: Evaluate Claim Accuracy (A2)
+
+Extend Step 2 verification with structured claim accuracy checks:
+
+- [ ] 1. **FABRICATED verdict meta-rule** — When a claim in the spec has NO source evidence (no URL, no tool-call artifact, no code reference), apply the FABRICATED verdict:
+  - If the claim is presented as factual but has zero supporting evidence → `FABRICATED` verdict
+  - FABRICATED is a new verdict option alongside PASS/FAIL (generalized from content-audit.md pattern)
+  - Record as: `result: "FABRICATED"` with `explanation: "Claim asserted without source evidence"`
+- [ ] 2. **Negation verification** — When a claim asserts absence ("X does not exist", "no Y found"), verify via exhaustive search (not assumed from absence):
+  - Use `srclight_search_symbols`, `grep`, or `glob` to actively search for the negated claim
+  - If search finds the negated claim, flag as `CLAIM_GAP` with `negation_refuted`
+  - If search confirms absence, record as PASS with `method: exhaustive_search`
+- [ ] 3. **Interface contract verification** — When a spec references function signatures, API endpoints, or class interfaces:
+  - Use `srclight_get_signature` to verify the exact signature
+  - If signature doesn't match, flag as `CLAIM_GAP` with `interface_mismatch`
+  - If signature matches, record as PASS with `method: srclight_get_signature`
+
+Record results:
+
+```yaml
+claim_accuracy:
+  fabricated_claims:
+    - claim: "<exact text>"
+      status: "FABRICATED|PASS"
+      explanation: "<reasoning>"
+  negation_verifications:
+    - claim: "<exact text>"
+      status: "PASS|FAIL"
+      method: "exhaustive_search"
+      finding: "<result>"
+  interface_verifications:
+    - claim: "<exact text>"
+      status: "PASS|FAIL"
+      method: "srclight_get_signature"
+      finding: "<result>"
+```
+
+Add SC-CLAIM criteria to evaluation table:
+
+| Criterion ID | Description | Expected Result |
+|--------------|-------------|-----------------|
+| SC-CLAIM | Claim Accuracy | No fabricated claims, negations verified, interface contracts match |
+
+### Step 3c: Evaluate Blast Radius (A3)
+
+Evaluate the spec's blast radius analysis completeness:
+
+- [ ] 1. **Impact completeness** — Verify all affected files/components are traced:
+  - For each file mentioned in the spec's Files Affected table, use `srclight_get_dependents` to find downstream dependents
+  - If dependents exist that are not listed in the spec, flag as `BLAST_RADIUS_GAP` with `missing_dependent`
+  - If no `srclight_get_dependents` call was made, flag as `BLAST_RADIUS_GAP` with `no_trace_performed`
+- [ ] 2. **Non-code impact** — Check for guideline/skill cross-references and behavioral test implications:
+  - Does the change affect any `.opencode/guidelines/` or `.opencode/skills/` files?
+  - Does the change require behavioral test updates?
+  - If non-code impact exists but is not addressed, flag as `BLAST_RADIUS_GAP` with `non_code_impact_unaddressed`
+
+Record results:
+
+```yaml
+blast_radius:
+  impact_completeness:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  non_code_impact:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3d: Evaluate Research Adequacy (A4)
+
+Evaluate whether the spec's claims are backed by adequate research:
+
+- [ ] 1. **Evidence provenance** — For each key finding in the spec, check for tool-call artifacts:
+  - Does the spec reference any tool-call evidence (srclight, grep, read, webfetch)?
+  - If a finding is asserted without tool-call provenance, flag as `RESEARCH_GAP` with `no_provenance`
+- [ ] 2. **Investigation breadth** — Check if alternatives were ruled out:
+  - Does the spec mention alternatives considered?
+  - If no alternatives are discussed, flag as `RESEARCH_GAP` with `no_alternatives_explored`
+- [ ] 3. **Edge case discovery** — Check for boundary exploration:
+  - Does the spec discuss edge cases or boundary conditions?
+  - If no edge cases are identified, flag as `RESEARCH_GAP` with `no_edge_case_analysis`
+- [ ] 4. **Recency check** — Verify commit history was reviewed:
+  - Check if the spec references recent commits or changes
+  - If the spec makes claims about code state without commit history review, flag as `RESEARCH_GAP` with `no_recency_check`
+
+Record results:
+
+```yaml
+research_adequacy:
+  evidence_provenance:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  investigation_breadth:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  edge_case_discovery:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  recency_check:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3e: Evaluate Gap Analysis (A5)
+
+Evaluate the spec for coverage gaps and implicit conditions:
+
+- [ ] 1. **Missing coverage** — Identify untested boundary conditions:
+  - For each SC, check if boundary conditions are explicitly tested
+  - If an SC has no boundary condition testing, flag as `GAP_ANALYSIS` with `untested_boundary`
+- [ ] 2. **Implicit conditions** — Identify preconditions not stated:
+  - Scan the spec for assumptions that are not explicitly stated as preconditions
+  - If an implicit precondition is found, flag as `GAP_ANALYSIS` with `implicit_precondition`
+
+Record results:
+
+```yaml
+gap_analysis:
+  missing_coverage:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  implicit_conditions:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3f: Evaluate Scope Creep (A6)
+
+Evaluate the spec for scope boundary violations:
+
+- [ ] 1. **Traceability enforcement** — Verify every Fix Approach element traces to a Root Cause:
+  - Each Fix Approach element must have a `traces_to` field or implicit link
+  - If a Fix element has no Root Cause traceability, flag as `SCOPE_CREEP` with `untraced_fix_element`
+- [ ] 2. **Proportionality** — Verify fix scope aligns with blast radius:
+  - Is the fix scope proportional to the blast radius? (small blast radius → small fix)
+  - If fix scope exceeds blast radius, flag as `SCOPE_CREEP` with `disproportionate_scope`
+
+Record results:
+
+```yaml
+scope_creep:
+  traceability_enforcement:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  proportionality:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3g: Evaluate Scope Narrowness (A7)
+
+Evaluate the spec for insufficient root cause depth:
+
+- [ ] 1. **Root cause depth** — Apply the 5-Whys test:
+  - Does the spec identify the root cause, or just a symptom?
+  - If the spec fixes a symptom rather than the root cause, flag as `SCOPE_NARROWNESS` with `symptom_only_fix`
+- [ ] 2. **Systemic implication** — Check if the problem exists elsewhere:
+  - Is the same pattern/issue present in other parts of the codebase?
+  - If the fix is localized but the problem is systemic, flag as `SCOPE_NARROWNESS` with `systemic_implication_unaddressed`
+- [ ] 3. **Minimum viable scope** — Verify the scope is not over-scoped:
+  - Does the fix include changes beyond what's needed to address the root cause?
+  - If the scope exceeds the minimum viable fix, flag as `SCOPE_NARROWNESS` with `over_scoped`
+
+Record results:
+
+```yaml
+scope_narrowness:
+  root_cause_depth:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  systemic_implication:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  minimum_viable_scope:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3h: Evaluate Cross-Reference Completeness (A9)
+
+Evaluate the spec for citation completeness and reference sufficiency:
+
+- [ ] 1. **Completeness of citation** — Verify all relevant context is cited:
+  - For each claim that references an external source, check that the citation is complete (URL, issue number, file path)
+  - If a claim references a source without a complete citation, flag as `CROSS_REF_GAP` with `incomplete_citation`
+- [ ] 2. **Reference sufficiency** — Verify cited sources support the claims:
+  - For each cited source, verify the source actually supports the claim being made
+  - If a cited source does not support the claim, flag as `CROSS_REF_GAP` with `insufficient_reference`
+
+Record results:
+
+```yaml
+cross_reference_completeness:
+  citation_completeness:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  reference_sufficiency:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3i: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
 
 When the spec being audited is a skill card (SKILL.md file), evaluate the SC-SEM criteria. These criteria assess the semantic quality of the skill's `description` field in YAML frontmatter and its Trigger Dispatch Table.
 
@@ -304,7 +546,9 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 1. Load spec content → INVALID if skipped
 - [ ] 2. Verify documentation sources → INVALID if skipped
 - [ ] 3. Build evaluation criteria → INVALID if skipped
-- [ ] 3a. Evaluate semantic auditor criteria (SC-SEM) → INVALID if skipped for skill card audits; N/A for non-skill-card audits
+- [ ] 3a. Evaluate reasoning soundness (A1) → INVALID if skipped
+- [ ] 3b. Evaluate claim accuracy (A2) → INVALID if skipped
+- [ ] 3c. Evaluate semantic auditor criteria (SC-SEM) → INVALID if skipped for skill card audits; N/A for non-skill-card audits
 - [ ] 4. Cross-validate with verdicts → INVALID if skipped
 - [ ] 5. Process verdicts → INVALID if skipped
 - [ ] 6. Evaluate SC determinism → INVALID if skipped

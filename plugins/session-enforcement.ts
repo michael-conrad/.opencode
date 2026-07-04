@@ -1007,10 +1007,9 @@ export default async function sessionEnforcementPlugin(input: PluginInput): Prom
 
       // --- Per-turn: --no-verify detection REMOVED ---
       // Removed per SPEC-FIX #823: The unconditional --no-verify detection gate
-      // contradicts the guidelines (000-critical-rules.md §Hook Output Is Advisory,
-      // Not Absolute and §--no-verify Exception for Local-Only Repos) which state
-      // that --no-verify usage requires judgment and may be warranted for false
-      // positive hook blocks, tag pushes, and developer-authorized overrides.
+      // contradicts the guidelines (000-critical-rules.md §Hook Output Is Binding
+      // and §--no-verify Exception for Local-Only Repos) which state
+      // that --no-verify is FORBIDDEN regardless of hook output content.
       // The 010-approval-gate.md Allowlist already governs when --no-verify is
       // permissible. This gate was producing Tier 1 violation warnings for
       // legitimate --no-verify usage (e.g., tag pushes blocked by the pre-push

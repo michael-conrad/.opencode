@@ -107,6 +107,97 @@ Read the existing plan from `spec_local_dir/`:
 | PF-DELEGATION | Undefined delegation targets | Checks that every "delegate to", "unified", "merged into", or "replaced by" reference in the spec has a corresponding concrete definition in the plan — specific file changes, routing table updates, cross-reference updates, and capability migration. If any delegation reference lacks concrete plan definitions, the criterion FAILs. |
 | PF-SEQUENCE-MATCHES | Gate sequence matches pipeline source — missing gates are automatic FAIL with no remediation path | Gate sequence matches `implementation-pipeline/SKILL.md` dispatch routing table — read dynamically, not hardcoded. Any missing gate is automatic FAIL — the plan MUST be regenerated, not patched. |
 
+### Step 3a: Evaluate Gap Analysis (A5)
+
+Evaluate the plan for coverage gaps:
+
+- [ ] 1. **Plan completeness** — Verify the plan covers all SCs from the spec:
+  - Does every SC have a corresponding step in the plan?
+  - If an SC has no plan step, flag as `GAP_ANALYSIS` with `missing_sc_coverage`
+
+Record results:
+
+```yaml
+gap_analysis:
+  plan_completeness:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3b: Evaluate Scope Creep (A6)
+
+Evaluate the plan for scope boundary violations:
+
+- [ ] 1. **Plan scope boundary verification** — Verify the plan doesn't exceed the spec's scope:
+  - Does the plan include steps that modify files not in the spec's Files Affected table?
+  - If the plan exceeds spec scope, flag as `SCOPE_CREEP` with `plan_exceeds_spec_scope`
+
+Record results:
+
+```yaml
+scope_creep:
+  plan_scope_boundary:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3c: Evaluate Scope Narrowness (A7)
+
+Evaluate the plan for insufficient root cause depth:
+
+- [ ] 1. **Plan root cause depth** — Verify the plan addresses the root cause, not just symptoms:
+  - Does the plan's first phase address the root cause identified in the spec?
+  - If the plan only addresses symptoms, flag as `SCOPE_NARROWNESS` with `plan_symptom_only`
+
+Record results:
+
+```yaml
+scope_narrowness:
+  plan_root_cause_depth:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3d: Evaluate Cross-Reference Completeness (A9)
+
+Evaluate the plan for reference integrity:
+
+- [ ] 1. **Plan reference integrity** — Verify all cross-references in the plan are accurate:
+  - For each issue reference (#N), verify the issue exists and is relevant
+  - For each file path reference, verify the file exists
+  - If a reference is broken or irrelevant, flag as `CROSS_REF_GAP` with `broken_reference`
+
+Record results:
+
+```yaml
+cross_reference_completeness:
+  plan_reference_integrity:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3e: Evaluate Blast Radius (A3)
+
+Evaluate the plan's blast radius analysis:
+
+- [ ] 1. **Plan scope verification** — Verify the plan's scope matches the spec's scope:
+  - Does the plan cover all files listed in the spec's Files Affected table?
+  - Does the plan add files not in the spec? If so, flag as `BLAST_RADIUS_GAP` with `plan_overscoped`
+- [ ] 2. **Impact trace** — For each file in the plan, use `srclight_get_dependents` to verify blast radius:
+  - If dependents exist that the plan doesn't address, flag as `BLAST_RADIUS_GAP` with `missing_dependent`
+
+Record results:
+
+```yaml
+blast_radius:
+  plan_scope_verification:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  impact_trace:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
 <!-- Fragment ID: sc-enforcement-gate -->
 
 ### Step 4: Cross-Validate with Pre-Resolved Verdicts

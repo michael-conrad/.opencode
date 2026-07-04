@@ -100,6 +100,53 @@ Concern inference:
 - Keywords: API, service, handler → Business logic concern
 - Keywords: UI, component, template → Presentation concern
 
+### Step 3a: Evaluate Separation of Concerns (A8)
+
+Evaluate the spec for SC-level concern separation:
+
+- [ ] 1. **SC orthogonality** — Verify each SC can be independently verified:
+  - Does each SC test a distinct behavior without overlapping with other SCs?
+  - If two SCs test the same behavior, flag as `CONCERN_GAP` with `sc_overlap`
+  - If an SC cannot be verified independently (depends on another SC's state), flag as `CONCERN_GAP` with `sc_dependency`
+- [ ] 2. **Cross-concern overlap detection** — Check for shared symbols between phases:
+  - For each phase, use `srclight_search_symbols` to find symbols referenced in that phase
+  - If two phases share symbols, flag as `CONCERN_GAP` with `shared_symbols_between_phases`
+
+Record results:
+
+```yaml
+separation_of_concerns:
+  sc_orthogonality:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  cross_concern_overlap:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
+### Step 3b: Evaluate Scope Creep (A6)
+
+Evaluate the spec for cross-concern scope violations:
+
+- [ ] 1. **Cross-concern scope detection** — Check if any phase's scope overlaps with another phase's concern:
+  - For each phase, compare its file paths and symbols against other phases
+  - If two phases modify the same files or symbols, flag as `SCOPE_CREEP` with `cross_concern_overlap`
+- [ ] 2. **Scope boundary verification** — Verify each phase stays within its declared concern:
+  - Does the phase's implementation steps stay within its concern boundary?
+  - If a phase includes steps outside its concern, flag as `SCOPE_CREEP` with `phase_scope_breach`
+
+Record results:
+
+```yaml
+scope_creep:
+  cross_concern_overlap:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  scope_boundary_verification:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+```
+
 ### Step 4: Cross-Validate
 
 Cross-validate will be called by the orchestrator with pre-resolved auditor_artifact_paths after both auditors complete. Do NOT call cross-validate — your role is to produce your verdict artifact only.
@@ -123,6 +170,11 @@ Each boundary claim must be verified:
 | "Phases share same concern" | `srclight_search_symbols(query, kind)` → check file paths |
 | "Phase is deployment-independent" | `srclight_get_callers(symbol_name)` → check cross-phase calls |
 | "Risk classification accurate" | `srclight_get_dependents(symbol_name, transitive=true)` → count affected |
+
+**Extended blast radius procedure (CS-6):** For each phase, use `srclight_get_dependents` with `transitive=true` to trace the full impact chain:
+- [ ] 1. For each file modified in the phase, call `srclight_get_dependents(symbol_name, transitive=true)` to find all downstream dependents
+- [ ] 2. If dependents span multiple phases, flag as `BLAST_RADIUS_GAP` with `cross_phase_impact`
+- [ ] 3. If dependents exist outside the spec's scope, flag as `BLAST_RADIUS_GAP` with `unexpected_downstream_impact`
 
 ### Step 7: Write Verdict Artifact to Disk
 
