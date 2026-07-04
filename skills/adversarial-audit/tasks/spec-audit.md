@@ -130,7 +130,91 @@ Define audit criteria based on spec-auditor task structure:
 
 <!-- Fragment ID: sc-enforcement-gate -->
 
-### Step 3a: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
+### Step 3a: Evaluate Reasoning Soundness (A1)
+
+Evaluate the spec's causal reasoning, SC traceability, and internal consistency:
+
+- [ ] 1. **Causal chain validity** — Verify the M:N mapping between Root Cause and Fix Approach:
+  - Is every Root Cause element addressed by at least one Fix Approach element? (completeness)
+  - Does every Fix Approach element trace to at least one Root Cause element? (sufficiency)
+  - Are causal dependency assumptions explicit? (e.g., "fixing X will resolve Y" — is the causal link justified?)
+  - If the causal chain is broken (Fix Approach doesn't follow from Root Cause), flag as `REASONING_GAP` with `causal_chain_broken`
+- [ ] 2. **SC traceability** — Verify each SC traces to at least one Root Cause element:
+  - Each SC must have a `traces_to` field or implicit link to a Root Cause
+  - Each Root Cause must be tested by at least one SC
+  - If an SC has no traceable Root Cause, flag as `REASONING_GAP` with `orphan_sc`
+  - If a Root Cause has no SC, flag as `REASONING_GAP` with `untested_root_cause`
+- [ ] 3. **Contradiction detection** — Scan for internal contradictions:
+  - Explicit contradictions: two statements that directly conflict (e.g., "X must be true" and "X must be false")
+  - Implicit contradictions: statements that imply conflicting constraints (e.g., "must be fast" and "must use slow algorithm")
+  - Scope contradictions: Fix Approach elements that contradict the spec's stated scope boundaries
+  - If contradictions found, flag as `REASONING_GAP` with `contradiction_detected`
+
+Record results:
+
+```yaml
+reasoning_soundness:
+  causal_chain:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  sc_traceability:
+    status: "PASS|FAIL"
+    findings: ["<description of each gap>"]
+  contradictions:
+    status: "PASS|FAIL"
+    findings: ["<description of each contradiction>"]
+```
+
+Add SC-REASONING criteria to evaluation table:
+
+| Criterion ID | Description | Expected Result |
+|--------------|-------------|-----------------|
+| SC-REASONING | Reasoning Soundness | Causal chain valid, SC traceability complete, no contradictions |
+
+### Step 3b: Evaluate Claim Accuracy (A2)
+
+Extend Step 2 verification with structured claim accuracy checks:
+
+- [ ] 1. **FABRICATED verdict meta-rule** — When a claim in the spec has NO source evidence (no URL, no tool-call artifact, no code reference), apply the FABRICATED verdict:
+  - If the claim is presented as factual but has zero supporting evidence → `FABRICATED` verdict
+  - FABRICATED is a new verdict option alongside PASS/FAIL (generalized from content-audit.md pattern)
+  - Record as: `result: "FABRICATED"` with `explanation: "Claim asserted without source evidence"`
+- [ ] 2. **Negation verification** — When a claim asserts absence ("X does not exist", "no Y found"), verify via exhaustive search (not assumed from absence):
+  - Use `srclight_search_symbols`, `grep`, or `glob` to actively search for the negated claim
+  - If search finds the negated claim, flag as `CLAIM_GAP` with `negation_refuted`
+  - If search confirms absence, record as PASS with `method: exhaustive_search`
+- [ ] 3. **Interface contract verification** — When a spec references function signatures, API endpoints, or class interfaces:
+  - Use `srclight_get_signature` to verify the exact signature
+  - If signature doesn't match, flag as `CLAIM_GAP` with `interface_mismatch`
+  - If signature matches, record as PASS with `method: srclight_get_signature`
+
+Record results:
+
+```yaml
+claim_accuracy:
+  fabricated_claims:
+    - claim: "<exact text>"
+      status: "FABRICATED|PASS"
+      explanation: "<reasoning>"
+  negation_verifications:
+    - claim: "<exact text>"
+      status: "PASS|FAIL"
+      method: "exhaustive_search"
+      finding: "<result>"
+  interface_verifications:
+    - claim: "<exact text>"
+      status: "PASS|FAIL"
+      method: "srclight_get_signature"
+      finding: "<result>"
+```
+
+Add SC-CLAIM criteria to evaluation table:
+
+| Criterion ID | Description | Expected Result |
+|--------------|-------------|-----------------|
+| SC-CLAIM | Claim Accuracy | No fabricated claims, negations verified, interface contracts match |
+
+### Step 3c: Evaluate Semantic Auditor Criteria (SC-SEM) for Skill Card Audits
 
 When the spec being audited is a skill card (SKILL.md file), evaluate the SC-SEM criteria. These criteria assess the semantic quality of the skill's `description` field in YAML frontmatter and its Trigger Dispatch Table.
 
@@ -304,7 +388,9 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - [ ] 1. Load spec content → INVALID if skipped
 - [ ] 2. Verify documentation sources → INVALID if skipped
 - [ ] 3. Build evaluation criteria → INVALID if skipped
-- [ ] 3a. Evaluate semantic auditor criteria (SC-SEM) → INVALID if skipped for skill card audits; N/A for non-skill-card audits
+- [ ] 3a. Evaluate reasoning soundness (A1) → INVALID if skipped
+- [ ] 3b. Evaluate claim accuracy (A2) → INVALID if skipped
+- [ ] 3c. Evaluate semantic auditor criteria (SC-SEM) → INVALID if skipped for skill card audits; N/A for non-skill-card audits
 - [ ] 4. Cross-validate with verdicts → INVALID if skipped
 - [ ] 5. Process verdicts → INVALID if skipped
 - [ ] 6. Evaluate SC determinism → INVALID if skipped
