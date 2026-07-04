@@ -87,9 +87,9 @@ See session-enforcement.ts config mutation watchdog + `--no-verify` detection. A
 
 **Definition:** A "local-only repo" is one where `git remote -v` returns no output. This status must be re-checked every time the exception is invoked — adding a remote retroactively removes the exception.
 
-#### Hook Output Is Advisory, Not Absolute
+#### Hook Output Is Binding
 
-Pre-commit hook output guides, not gates. If a pre-commit hook blocks a commit, evaluate the reason: a legitimate violation should be fixed; a false positive or over-restrictive check may warrant `--no-verify` after reviewing the output. The agent is NOT an enforcement robot for hook scripts — use judgment.
+Pre-commit hook output is binding. If a hook blocks a commit, fix the violation. `--no-verify` is FORBIDDEN regardless of hook output content.
 
 #### Allowlist (No Authorization Needed)
 
@@ -1374,23 +1374,6 @@ rules:
     requires: []
     triggers: [git-workflow]
     source: "000-critical-rules.md §Git Configuration and Destructive Command Authorization"
-
-  - id: critical-rules-026a
-    tier: 3
-    title: "Hook output is advisory — documented exceptions take precedence"
-    conditions:
-      all:
-        - "git_hook_blocked_operation == true"
-        - "documented_exception_applies == true"
-        - "agent_treated_block_as_final == true"
-    actions:
-      - FLAG
-      - APPLY_EXCEPTION
-      - PROCEED
-    conflicts_with: []
-    requires: []
-    triggers: [git-workflow]
-    source: "000-critical-rules.md §Hook Output Is Advisory, Not Absolute"
 
   - id: critical-rules-027
     tier: 2
