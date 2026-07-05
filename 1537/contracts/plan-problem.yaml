@@ -1,0 +1,58 @@
+domain: submodule-pointer-fix
+types:
+  - name: sc
+  - name: file
+objects:
+  - name: sc_1
+    type: sc
+  - name: sc_2
+    type: sc
+  - name: sc_3
+    type: sc
+  - name: sc_4
+    type: sc
+  - name: sc_5
+    type: sc
+  - name: implementation_md
+    type: file
+  - name: pr_creation_md
+    type: file
+  - name: pre_commit
+    type: file
+  - name: pre_commit_pointer_check_md
+    type: file
+  - name: skill_md
+    type: file
+fluents:
+  - name: implemented
+    params:
+      - name: s
+        type: sc
+  - name: edited
+    params:
+      - name: f
+        type: file
+actions:
+  - name: implement_sc
+    params:
+      - name: s
+        type: sc
+      - name: f
+        type: file
+    preconditions:
+      - not implemented(s)
+    effects:
+      - implemented(s)
+      - edited(f)
+init:
+  - not implemented(sc_1)
+  - not implemented(sc_2)
+  - not implemented(sc_3)
+  - not implemented(sc_4)
+  - not implemented(sc_5)
+goals:
+  - implemented(sc_1)
+  - implemented(sc_2)
+  - implemented(sc_3)
+  - implemented(sc_4)
+  - implemented(sc_5)

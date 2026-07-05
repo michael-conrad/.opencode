@@ -10,26 +10,29 @@ The spec-creation and writing-plans skills have structural defects that prevent 
 
 **Problem 2 — Remote body format:** When the spec writer does run, the remote issue body gets the full `spec.md` content dumped into it instead of the condensed 6-part exec summary format defined in `write.md` Step 7r. The remote body should be the short exec summary; the full spec lives in `.issues/{N}/spec.md`.
 
-Root cause analysis identified 5 defect categories across both skills.
+**Problem 3 — Plan output lacks skill/task routing:** The plan writer produces steps with inline procedure text instead of referencing the canonical `skill({name: "..."})` → `task(..., prompt: "...")` form. Plans must be routing documents that dispatch to implementation skill task cards, not re-implementations of those procedures. The full implementation pipeline (coherence gate, pre-red-baseline, RED/GREEN per item, VbC, adversarial audit, cross-validate, regression check, finishing checklist, review-prep, cleanup) must be enumerated with no skipped or combined steps, each referencing the correct skill/task combination.
+
+Root cause analysis identified 6 defect categories across both skills.
 
 ## Scope
 
 **In scope:**
 - spec-creation SKILL.md trigger phrase expansion and dispatch table fixes
 - spec-creation write.md structural renumbering (content templates → sub-bullets, 7r ordering, duplicate labels, Pre-Step naming)
+- write.md Plan Format Requirements: mandate skill/task routing in plan steps, full implementation pipeline enumeration
 - writing-plans SKILL.md execution model contradiction (SKILL.md says "no task()" but create.md dispatches sub-agents)
 - Missing pipeline steps (adversarial-audit dispatch, orphan task files)
 - Behavioral enforcement tests for all changes
 
 **Out of scope:**
-- #1407 (routing-only SKILL.md restructure) — separate concern, modifies same files
-- #1208 (5-workstream dispatch table overhaul) — separate concern, broader scope
-- #202 (micro-management prohibition) — separate spec-fix
-- #211 (BLOCK directives for missing spec files) — separate spec-fix
+- `skill({name: "issue-operations"})` then `task(..., prompt: "execute ... task from issue-operations")` for #1407 — separate concern
+- `skill({name: "issue-operations"})` then `task(..., prompt: "execute ... task from issue-operations")` for #1208 — separate concern
+- `skill({name: "issue-operations"})` then `task(..., prompt: "execute ... task from issue-operations")` for #202 — separate concern
+- `skill({name: "issue-operations"})` then `task(..., prompt: "execute ... task from issue-operations")` for #211 — separate concern
 
 ## Approach
 
-Five phases, each addressing one defect category. Phases 1-2 are independent; Phases 3-5 depend on 1-2.
+Five phases. Phases 1-2 are independent; Phases 3-5 depend on 2.
 
 ## Phases
 
@@ -46,14 +49,14 @@ Five phases, each addressing one defect category. Phases 1-2 are independent; Ph
 ### Phase 2: Dispatch Table Fixes (spec-creation SKILL.md)
 
 **Affected files:**
-- `.opencode/skills/spec-creation/SKILL.md` — Tasks table, Invocation section
+- `.opencode/skills/spec-creation/SKILL.md` — Tasks table, Invocation section, Trigger Dispatch Table
 
 **Changes:**
 - Expand Tasks table to list all 8 task files on disk (not just `create`)
-- Fix Invocation section: canonical dispatch string references `create` task but no `tasks/create.md` exists. Either rename `tasks/write.md` to `tasks/create.md` or change the dispatch string to `"execute write task from spec-creation"`
-- Expand Trigger Dispatch Table to include all sub-tasks or add a note that the `create` task's own dispatch table handles sub-step routing
+- Update Invocation section: change the canonical dispatch from `task(..., prompt: "execute create task from spec-creation")` to `task(..., prompt: "execute write task from spec-creation")` to match the actual task file `tasks/write.md`. The `skill({name: "spec-creation"})` call remains unchanged.
+- Expand Trigger Dispatch Table to include all sub-tasks that the orchestrator can directly invoke via `task()`: `requirements`, `decompose`, `traceability`, `pipeline-readiness-gate`, `risk`, `write`, `completion`. Each with its own dispatch row, dispatch type (`sub-task`), and canonical `task(..., prompt: "execute <task> task from spec-creation")` string.
 
-### Phase 3: write.md Structural Renumbering
+### Phase 3: write.md Structural Renumbering + Plan Format Requirements
 
 **Affected files:**
 - `.opencode/skills/spec-creation/tasks/write.md`
@@ -64,6 +67,7 @@ Five phases, each addressing one defect category. Phases 1-2 are independent; Ph
 - **C3: Pre-Step / Step 0.x naming** — Rename `Pre-Step`, `Pre-Step 0.8`, `Step 0.5`, `Step 0.5a` to a consistent sequential scheme
 - **C4: Content templates as numbered steps** — Move Decision Ledger, Risk Traceability, Revision Policy, Decomposition Classification, Spec Family Annotation, Non-Goals, Regression Invariants, and Cross-Cutting SC Designation from numbered steps to sub-bullets under the Assemble Spec step
 - **C5: Numbering gap (19a → 20)** — Re-number all step labels to a consistent scheme
+- **C6: Plan Format Requirements — skill/task routing mandate** — Add to the Plan Format Requirements section of write.md that every dispatch step in a plan MUST use the canonical `skill({name: "..."})` → `task(..., prompt: "execute <task> task from <skill>")` form. Plan steps MUST NOT contain inline procedure text — the plan is a routing document, not a re-implementation of skill task cards. The full implementation pipeline must be enumerated with no skipped or combined steps, each referencing the correct skill/task combination for the appropriate implementation skill task card.
 
 ### Phase 4: writing-plans Execution Model Contradiction
 
@@ -80,14 +84,26 @@ Five phases, each addressing one defect category. Phases 1-2 are independent; Ph
 ### Phase 5: Missing Pipeline Steps
 
 **Affected files:**
-- `.opencode/skills/spec-creation/SKILL.md` — Operating Protocol
+- `.opencode/skills/spec-creation/SKILL.md` — Operating Protocol, Trigger Dispatch Table
 - `.opencode/skills/spec-creation/tasks/write.md` — Step 40
+- `.opencode/skills/writing-plans/SKILL.md` — Trigger Dispatch Table
 
 **Changes:**
-- Add `[sub-task: spec-audit]` step to spec-creation Operating Protocol between completion and correctness-over-speed
-- Fix write.md Step 40 to reference `adversarial-audit --task spec-audit` instead of `spec-auditor`
-- Add dispatch path for `change-control.md` or remove orphaned task file
-- Add dispatch path for `handoffs/spec-to-plan.md` or remove orphaned file
+- Add step to spec-creation Operating Protocol: `task(..., prompt: "execute spec-audit task from adversarial-audit")`
+- Fix write.md Step 40 to reference `skill({name: "adversarial-audit"})` then `task(..., prompt: "execute spec-audit task from adversarial-audit")` instead of `spec-auditor`
+- Add dispatch path for `change-control.md` in spec-creation SKILL.md Trigger Dispatch Table and Operating Protocol
+- Add dispatch path for `handoffs/spec-to-plan.md` in writing-plans SKILL.md Trigger Dispatch Table
+
+## local-issues sync Discipline
+
+The `.issues/` directory is gitignored in the main branch (`.gitignore:/.issues/`) so that `git -C */..issues/` worktree operations function correctly. Persistence is handled by the `issues-data` branch via `local-issues sync`.
+
+**`local-issues sync`** auto-commits all local `.issues/` changes to the `issues-data` branch, pulls latest, and pushes. It is the sole persistence mechanism for `.issues/` artifacts.
+
+**Rules:**
+- `local-issues sync` MUST be run before any changes are made in the `.issues/` folder
+- `local-issues sync` MUST be run immediately after the local spec folder's contents are created or updated
+- Any git commit that touches `.issues/` files MUST use the full `-C` path form: `git -C <repo-root> add .issues/{N}/` — never a relative path, never from inside the repo. This is because `.issues/` is gitignored in the main branch and only tracked on `issues-data`.
 
 ## Success Criteria
 
@@ -98,18 +114,22 @@ Five phases, each addressing one defect category. Phases 1-2 are independent; Ph
 | SC-3 | 1 | Behavioral test: agent dispatches `skill({name: "spec-creation"})` when user says "create a spec" | `behavioral` | `opencode-cli run "create a spec for X"` → stderr shows `Skill "spec-creation"` |
 | SC-4 | 1 | Behavioral test: agent dispatches `skill({name: "writing-plans"})` when user says "create a plan" | `behavioral` | `opencode-cli run "create a plan for X"` → stderr shows `Skill "writing-plans"` |
 | SC-5 | 2 | spec-creation Tasks table lists all 8 task files | `string` | `grep -c "|" .opencode/skills/spec-creation/SKILL.md` for task entries |
-| SC-6 | 2 | Invocation section references an existing task file (either `tasks/create.md` exists or dispatch string references `write` task) | `structural` | `ls .opencode/skills/spec-creation/tasks/create.md` or grep for correct dispatch string |
-| SC-7 | 3 | No duplicate Step 1a/1b labels in write.md | `string` | `grep -c "Step 1a" .opencode/skills/spec-creation/tasks/write.md` == 1 |
-| SC-8 | 3 | Step 7r (Remote Issue Body Format) appears before Step 7 (Create Issue) in write.md | `string` | Line number of "Step 7r" < line number of "Step 7: Create Issue" |
-| SC-9 | 3 | No Pre-Step / Step 0.x naming in write.md — all steps use consistent sequential scheme | `string` | `grep -c "Pre-Step\|Step 0\." .opencode/skills/spec-creation/tasks/write.md` == 0 |
-| SC-10 | 3 | Content templates (Decision Ledger, Risk Traceability, etc.) are sub-bullets under Assemble Spec, not numbered steps | `string` | Content template sections are indented under Step 5 (Assemble Spec) |
-| SC-11 | 4 | writing-plans SKILL.md has no "no task() calls" language | `string` | `grep -c "no task()" .opencode/skills/writing-plans/SKILL.md` == 0 |
-| SC-12 | 4 | writing-plans SKILL.md Mandatory Task Discipline states sub-agent dispatch model | `string` | `grep -q "sub-agent" .opencode/skills/writing-plans/SKILL.md` |
-| SC-13 | 4 | Behavioral test: writing-plans create task dispatches sub-agents (not inline) for pipeline steps | `behavioral` | `opencode-cli run` with plan creation prompt → stderr shows task() calls |
-| SC-14 | 5 | spec-creation Operating Protocol includes `adversarial-audit --task spec-audit` step | `string` | `grep -q "adversarial-audit" .opencode/skills/spec-creation/SKILL.md` |
-| SC-15 | 5 | write.md Step 40 references `adversarial-audit --task spec-audit` not `spec-auditor` | `string` | `grep -q "adversarial-audit" .opencode/skills/spec-creation/tasks/write.md` |
-| SC-16 | 5 | No orphan task files — every `.md` in `tasks/` has a dispatch path | `string` | Cross-reference `ls tasks/*.md` against dispatch table entries |
-| SC-17 | 3 | `local-issues sync` is run before any changes are made in the `.issues/` folder, and `local-issues sync` is run immediately after the local `spec.md` is created or updated | `behavioral` | `opencode-cli run` with spec creation prompt → stderr shows `local-issues sync` before `.issues/` writes and after `spec.md` save |
+| SC-6 | 2 | Invocation section canonical dispatch is `task(..., prompt: "execute write task from spec-creation")` (references existing `tasks/write.md`) | `string` | `grep -q "execute write task from spec-creation" .opencode/skills/spec-creation/SKILL.md` |
+| SC-7 | 2 | Trigger Dispatch Table includes rows for all orchestrator-invocable sub-tasks: `requirements`, `decompose`, `traceability`, `pipeline-readiness-gate`, `risk`, `write`, `completion`. Each row includes the canonical `task(..., prompt: "execute <task> task from spec-creation")` string. | `string` | `grep -q "execute requirements task from spec-creation" .opencode/skills/spec-creation/SKILL.md` for each sub-task |
+| SC-8 | 3 | No duplicate Step 1a/1b labels in write.md | `string` | `grep -c "Step 1a" .opencode/skills/spec-creation/tasks/write.md` == 1 |
+| SC-9 | 3 | Step 7r (Remote Issue Body Format) appears before Step 7 (Create Issue) in write.md | `string` | Line number of "Step 7r" < line number of "Step 7: Create Issue" |
+| SC-10 | 3 | No Pre-Step / Step 0.x naming in write.md — all steps use consistent sequential scheme | `string` | `grep -c "Pre-Step\|Step 0\." .opencode/skills/spec-creation/tasks/write.md` == 0 |
+| SC-11 | 3 | Content templates (Decision Ledger, Risk Traceability, etc.) are sub-bullets under Assemble Spec, not numbered steps | `string` | Content template sections are indented under Step 5 (Assemble Spec) |
+| SC-12 | 3 | write.md Plan Format Requirements section mandates that every dispatch step in a plan uses `skill({name: "..."})` → `task(..., prompt: "execute <task> task from <skill>")` form, and that plan steps MUST NOT contain inline procedure text | `string` | `grep -q "skill({name:" .opencode/skills/spec-creation/tasks/write.md` in Plan Format Requirements section |
+| SC-13 | 3 | write.md Plan Format Requirements mandates full implementation pipeline enumeration (coherence gate, pre-red-baseline, RED/GREEN per item, VbC, adversarial audit, cross-validate, regression check, finishing checklist, review-prep, cleanup) with no skipped or combined steps | `string` | `grep -q "coherence gate" .opencode/skills/spec-creation/tasks/write.md` in Plan Format Requirements |
+| SC-14 | 3 | `local-issues sync` is run before any changes are made in the `.issues/` folder, and `local-issues sync` is run immediately after the local spec folder's contents are created or updated | `behavioral` | `opencode-cli run` with spec creation prompt → stderr shows `local-issues sync` before `.issues/` writes and after spec folder content changes |
+| SC-15 | 4 | writing-plans SKILL.md has no "no task() calls" language | `string` | `grep -c "no task()" .opencode/skills/writing-plans/SKILL.md` == 0 |
+| SC-16 | 4 | writing-plans SKILL.md Mandatory Task Discipline states sub-agent dispatch model | `string` | `grep -q "sub-agent" .opencode/skills/writing-plans/SKILL.md` |
+| SC-17 | 4 | Behavioral test: writing-plans create task dispatches sub-agents (not inline) for pipeline steps | `behavioral` | `opencode-cli run` with plan creation prompt → stderr shows task() calls |
+| SC-18 | 5 | spec-creation Operating Protocol includes `task(..., prompt: "execute spec-audit task from adversarial-audit")` step | `string` | `grep -q "execute spec-audit task from adversarial-audit" .opencode/skills/spec-creation/SKILL.md` |
+| SC-19 | 5 | write.md Step 40 references `skill({name: "adversarial-audit"})` then `task(..., prompt: "execute spec-audit task from adversarial-audit")` instead of `spec-auditor` | `string` | `grep -q "execute spec-audit task from adversarial-audit" .opencode/skills/spec-creation/tasks/write.md` |
+| SC-20 | 5 | spec-creation SKILL.md Trigger Dispatch Table includes a row for `change-control` task with canonical dispatch string | `string` | `grep -q "change-control" .opencode/skills/spec-creation/SKILL.md` |
+| SC-21 | 5 | writing-plans SKILL.md Trigger Dispatch Table includes a row for `handoffs/spec-to-plan` task with canonical dispatch string | `string` | `grep -q "spec-to-plan" .opencode/skills/writing-plans/SKILL.md` |
 
 ## Dependencies
 
@@ -122,8 +142,8 @@ Five phases, each addressing one defect category. Phases 1-2 are independent; Ph
 ## Edge Cases
 
 - **Existing specs/plans are not affected** — trigger phrase changes only affect future invocations
-- **#1407 (routing-only SKILL.md) modifies the same files** — coordinate merge order. This spec's Phase 2 (dispatch table expansion) is compatible with #1407's routing-only template. Implement this spec first, then #1407 will restructure the same content
-- **#1208 (5-workstream overhaul) also modifies dispatch tables** — this spec's Phase 2 is a subset of #1208 Workstream B. If #1208 is implemented first, Phase 2 may be partially redundant
+- `skill({name: "issue-operations"})` then `task(..., prompt: "execute ... task from issue-operations")` for #1407 modifies the same files — coordinate merge order. This spec's Phase 2 (dispatch table expansion) is compatible with #1407's routing-only template. Implement this spec first, then #1407 will restructure the same content
+- `skill({name: "issue-operations"})` then `task(..., prompt: "execute ... task from issue-operations")` for #1208 also modifies dispatch tables — this spec's Phase 2 is a subset of #1208 Workstream B. If #1208 is implemented first, Phase 2 may be partially redundant
 
 ## Documentation Sources
 

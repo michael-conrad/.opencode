@@ -1,0 +1,6 @@
+variables:
+  phase_1_done: false
+  all_scs_done: false
+current_phase: 1
+completed_phases: []
+blockers: []
