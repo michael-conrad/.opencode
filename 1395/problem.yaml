@@ -1,0 +1,46 @@
+domain: cleanup
+types:
+  - name: item
+objects:
+  - name: jsonc_deleted
+    type: item
+  - name: skill_jsonc_refs_removed
+    type: item
+  - name: skill_table_removed
+    type: item
+  - name: task_files_updated
+    type: item
+  - name: routing_table_updated
+    type: item
+fluents:
+  - name: done
+    params:
+      - name: x
+        type: item
+actions:
+  - name: delete_jsonc
+    effects:
+      - done(jsonc_deleted)
+  - name: remove_jsonc_refs
+    preconditions:
+      - done(jsonc_deleted)
+    effects:
+      - done(skill_jsonc_refs_removed)
+  - name: remove_table
+    preconditions:
+      - done(skill_jsonc_refs_removed)
+    effects:
+      - done(skill_table_removed)
+  - name: update_task_files
+    preconditions:
+      - done(skill_table_removed)
+    effects:
+      - done(task_files_updated)
+  - name: update_routing_table
+    preconditions:
+      - done(task_files_updated)
+    effects:
+      - done(routing_table_updated)
+init: []
+goals:
+  - done(routing_table_updated)

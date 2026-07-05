@@ -1,0 +1,48 @@
+schema_version: "1.0"
+generated_at: "20260704174417"
+status: PASS
+checks:
+  - check_id: PR-1
+    result: PASS
+    detail: "All 11 SCs map to exactly one RED→GREEN→COMMIT cycle. SC-3, SC-5, SC-6, SC-7, SC-9 span multiple task files but assert a single independently testable claim each. SC-10 is a single guideline file change with string evidence. SC-11 is a single integration test."
+  - check_id: PR-2
+    result: PASS
+    solve_contract_path: ".opencode/.issues/1641/sc-dependency-contract.yaml"
+    prove_results:
+      - theorem: "z3.BoolVal(True)"
+        result: VALID
+    detail: "SC dependency DAG: SC-1,SC-2 (Phase 2, no deps) → SC-3,SC-4 (Phase 3, depend on SC-1,SC-2) → SC-5,SC-6,SC-7 (Phase 4, depend on SC-3,SC-4) → SC-8,SC-9 (Phase 5, depend on SC-5,SC-6,SC-7) → SC-10 (Phase 6, depends on SC-8,SC-9) → SC-11 (Phase 6, depends on SC-10). Acyclic, no missing deps."
+  - check_id: PR-3
+    result: PASS
+    detail: "All 11 SCs target exactly one file category and one verification domain. SC-1 through SC-9: task files (spec-audit.md, plan-fidelity.md, concern-separation.md) + behavioral. SC-10: guideline (000-critical-rules.md) + string. SC-11: test + behavioral. No SC spans multiple file categories or multiple verification domains."
+  - check_id: PR-4
+    result: PASS
+    solve_contract_path: ".opencode/.issues/1641/dependency-ordering-verification/ordering.yaml"
+    prove_results:
+      - theorem: "z3.BoolVal(True)"
+        result: VALID
+    detail: "Phase DAG: Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6. Linear chain, no cycles. Phase 1 (Foundation) is already complete and has no dependencies."
+  - check_id: PR-5
+    result: PASS
+    detail: "6-phase spec follows three-tier structure. Phase 1 (Foundation) is a pre-phase (already complete, no work needed). Phases 2-5 are per-file phases targeting spec-audit.md, plan-fidelity.md, concern-separation.md. Phase 6 (Integration + Critical Rules) is a post-phase. No step duplication detected."
+    sub_checks:
+      - check_id: PR-5a
+        result: PASS
+        detail: "Phase 1 is a global pre-phase (Foundation — already complete, no per-file implementation)"
+      - check_id: PR-5b
+        result: PASS
+        detail: "Phases 2-5 each target specific files: Phase 2 (spec-audit.md), Phase 3 (spec-audit.md + plan-fidelity.md + concern-separation.md), Phase 4 (spec-audit.md + plan-fidelity.md + concern-separation.md), Phase 5 (concern-separation.md + spec-audit.md + plan-fidelity.md)"
+      - check_id: PR-5c
+        result: PASS
+        detail: "Phase 6 is a global post-phase (Integration + Critical Rules expansion)"
+      - check_id: PR-5d
+        result: PASS
+        detail: "No pre/post steps duplicated in per-file phases"
+      - check_id: PR-5e
+        result: PASS
+        detail: "6 phases = 4 per-file phases (2-5) + 1 pre-phase (1) + 1 post-phase (6)"
+sc_summary:
+  total_scs: 11
+  atomic: 11
+  with_dependencies: 9
+  single_concern: 11

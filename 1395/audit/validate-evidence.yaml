@@ -1,0 +1,112 @@
+# Validate Evidence — #1395
+# Generated: 2026-07-04T22:11:00Z
+
+per_check_results:
+  - check_id: 01
+    check_name: Placeholder detection
+    status: PASS
+    evidence_type: string
+    finding_classification: none
+    action: grep returned zero matches for TBD/TODO/tbd/todo
+  - check_id: 02
+    check_name: Completeness
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: Plan covers all spec requirements (delete JSONC, update SKILL.md, update 8 task files, preserve schemas)
+  - check_id: 03
+    check_name: Actionability
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: Each step has concrete action (delete, grep, replace-text, verify)
+  - check_id: 04
+    check_name: Testability
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: Each SC has executable verification command (ls, grep)
+  - check_id: 05
+    check_name: TDD structure
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: Steps 1-12 implement, Step 13 VbC verifies — RED/GREEN chain present
+  - check_id: 06
+    check_name: File structure
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: All files listed with responsibilities in Files section
+  - check_id: 07
+    check_name: Self-review evidence
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: Compliance requirement, one-step-at-a-time protocol, self-remediation protocol present
+  - check_id: 08
+    check_name: Spec reference
+    status: PASS
+    evidence_type: string
+    finding_classification: auto-fix
+    action: Added "Spec: #1395" to plan body (was missing, auto-fixed)
+  - check_id: 09
+    check_name: Phase files exist
+    status: PASS
+    evidence_type: structural
+    finding_classification: none
+    action: Single-task plan — plan.md is sole file, no phase files needed
+  - check_id: 10
+    check_name: Plan index exists
+    status: PASS
+    evidence_type: structural
+    finding_classification: none
+    action: .opencode/.issues/1395/plan.md exists
+  - check_id: 11
+    check_name: Pipeline-gate completeness
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: Implementation steps + VbC gate present; appropriate for structural cleanup
+  - check_id: 12
+    check_name: Global sequential numbering
+    status: PASS
+    evidence_type: string
+    finding_classification: none
+    action: Steps 1-13 globally sequential, no per-phase restart
+  - check_id: 13
+    check_name: Checkbox format
+    status: PASS
+    evidence_type: string
+    finding_classification: none
+    action: All 13 steps use `- [ ] N.` checkbox format
+  - check_id: 14
+    check_name: Phase workflow completeness
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: Single phase with complete RED/GREEN chain
+  - check_id: 15
+    check_name: No duplicate global steps
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: Single phase — no duplication possible
+  - check_id: 16
+    check_name: Three-tier structure compliance
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: Single-task plan — three-tier structure not applicable
+  - check_id: 17
+    check_name: Self-remediation protocol admonishment present
+    status: PASS
+    evidence_type: string
+    finding_classification: none
+    action: Both "One-step-at-a-time protocol" and "Self-remediation protocol" present
+  - check_id: 18
+    check_name: Dispatch indicator validation
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: All steps marked (**sub-agent**) or (**clean-room**) — dispatch indicators match content

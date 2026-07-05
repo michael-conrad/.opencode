@@ -1,0 +1,13 @@
+schema_version: "1.0"
+generated_at: "20260704174417"
+variables:
+  PHASE_2_DONE: {type: bool, nullable: false}
+  PHASE_3_DONE: {type: bool, nullable: false}
+  PHASE_4_DONE: {type: bool, nullable: false}
+  PHASE_5_DONE: {type: bool, nullable: false}
+  PHASE_6_DONE: {type: bool, nullable: false}
+invariants:
+  - "z3.Implies(PHASE_3_DONE == True, PHASE_2_DONE == True)"
+  - "z3.Implies(PHASE_4_DONE == True, PHASE_3_DONE == True)"
+  - "z3.Implies(PHASE_5_DONE == True, PHASE_4_DONE == True)"
+  - "z3.Implies(PHASE_6_DONE == True, PHASE_5_DONE == True)"

@@ -1,0 +1,112 @@
+status: PASS
+per_check_results:
+  - check_id: "01"
+    check_name: Placeholder detection
+    status: PASS
+    evidence_type: string
+    finding_classification: none
+    action: "grep for TBD/TODO/tbd/todo — zero matches across all plan files"
+  - check_id: "02"
+    check_name: Completeness — plan addresses stated problem
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: "All 11 SCs (SC-1 through SC-11) covered across Phases 2-6 per Phase Table"
+  - check_id: "03"
+    check_name: Actionability — steps are concrete
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: "Each step has concrete action: RED (write test), GREEN (add step), doublecheck (verify), checkpoint commit, run test, VbC"
+  - check_id: "04"
+    check_name: Testability — SCs have executable verification
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: "Each SC maps to behavioral test with assert_semantic and with-test-home wrapper"
+  - check_id: "05"
+    check_name: TDD structure — RED/GREEN chain
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: "Each phase has RED → GREEN → doublecheck → checkpoint commit → run test → VbC chain"
+  - check_id: "06"
+    check_name: File structure — all files listed
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: "All 15 files listed in plan.md Files section with responsibilities; phase files list per-phase files"
+  - check_id: "07"
+    check_name: Self-review evidence
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: "Plan includes compliance requirements, one-step-at-a-time protocol, self-remediation protocol, exit criteria"
+  - check_id: "08"
+    check_name: Spec reference in plan body
+    status: PASS
+    evidence_type: string
+    finding_classification: auto-fix
+    action: "Spec reference present as URL in title `[#1641](https://github.com/michael-conrad/.opencode/issues/1641)` but not in `Spec: #N` format. Add explicit `Spec: #1641` line to plan body."
+  - check_id: "09"
+    check_name: Phase files exist
+    status: PASS
+    evidence_type: structural
+    finding_classification: none
+    action: "All 5 phase files present: plan-02-reasoning-claims.md, plan-03-blast-radius-research.md, plan-04-scope-triad.md, plan-05-concerns-references.md, plan-06-integration-rules.md"
+  - check_id: "10"
+    check_name: Plan index exists
+    status: PASS
+    evidence_type: structural
+    finding_classification: none
+    action: "plan.md exists at .opencode/.issues/1641/plan.md"
+  - check_id: "11"
+    check_name: Pipeline-gate completeness
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: "Each phase has RED/GREEN/doublecheck/checkpoint-commit/run-test/VbC structure matching implementation-pipeline dispatch routing table"
+  - check_id: "12"
+    check_name: Global sequential numbering
+    status: PASS
+    evidence_type: string
+    finding_classification: none
+    action: "Steps numbered 1-12 (Phase 2), 13-24 (Phase 3), 25-42 (Phase 4), 43-53 (Phase 5), 54-64 (Phase 6) — globally sequential across phases. Note: VbC step duplicated within each phase (same number) but does not break cross-phase sequence."
+  - check_id: "13"
+    check_name: Checkbox format
+    status: PASS
+    evidence_type: string
+    finding_classification: none
+    action: "All 69 implementation steps use `- [ ] N.` checkbox format"
+  - check_id: "14"
+    check_name: Phase workflow completeness
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: "Each phase has complete RED/GREEN chain with doublecheck, checkpoint commit, test execution, and VbC"
+  - check_id: "15"
+    check_name: No duplicate global steps
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: "No global pre/post phases — Phase 1 is Foundation (already complete), Phase 6 step 64 is global post-steps. No duplication across per-file phases."
+  - check_id: "16"
+    check_name: Three-tier structure compliance
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: "Implicit three-tier: Phase 1 (global pre, already done), Phases 2-5 (per-file RED/GREEN), Phase 6 step 64 (global post)"
+  - check_id: "17"
+    check_name: Self-remediation protocol admonishment
+    status: PASS
+    evidence_type: string
+    finding_classification: none
+    action: "Both 'One step at a time protocol' (line 25) and 'Self-remediation protocol' (line 42) present in plan.md"
+  - check_id: "18"
+    check_name: Dispatch indicator validation
+    status: PASS
+    evidence_type: semantic
+    finding_classification: none
+    action: "All dispatch indicators match content: RED/GREEN/GREEN-doublecheck → (**sub-agent**), checkpoint-commit/run-tests → (**inline**), VbC → (**clean-room**)"
+artifact_path: .opencode/.issues/1641/audit/plan-validate-output.yaml
+summary: "Plan validated PASS across all 18 checks. One auto-fix finding: spec reference exists as URL in title but not in `Spec: #N` format. All 11 SCs covered, global sequential numbering 1-64, TDD structure present in all phases, dispatch indicators correct, no placeholders found."

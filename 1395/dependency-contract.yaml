@@ -1,0 +1,26 @@
+schema_version: "1.0"
+variables:
+  jsonc_deleted:
+    type: bool
+    description: "SC-1: No .jsonc files remain in agents/"
+  skill_jsonc_refs_removed:
+    type: bool
+    description: "SC-2: git-workflow/SKILL.md no longer references .jsonc agent configs"
+  skill_table_removed:
+    type: bool
+    description: "SC-3: git-workflow/SKILL.md no longer has Sub-Agent Tasks for Submodule Operations table"
+  task_files_updated:
+    type: bool
+    description: "SC-4: All submodule operation references in task files use standard task() language"
+  routing_table_updated:
+    type: bool
+    description: "SC-5: Routing table lists submodule ops as standard tasks, not dedicated sub-agents"
+preconditions:
+  - "z3.BoolVal(True)"
+postconditions:
+  - "routing_table_updated == True"
+invariants:
+  - "z3.Implies(jsonc_deleted, skill_jsonc_refs_removed)"
+  - "z3.Implies(skill_jsonc_refs_removed, skill_table_removed)"
+  - "z3.Implies(skill_table_removed, task_files_updated)"
+  - "z3.Implies(task_files_updated, routing_table_updated)"
