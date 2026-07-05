@@ -32,7 +32,7 @@ When the agent's CWD is inside a git submodule (e.g., `.opencode/`, `vendor/`, `
 
 1. **Never hardcode submodule names.** The `path` field from session-init's `## Repo Information` is the submodule path relative to project root. The resolution pattern is `{project_root}/{path}/.issues/{N}/` where `path` comes from the repo entry — never hardcoded.
 2. **`project_root` is set once, never ambiguous.** Emitted at session start. Every sub-agent receives it in dispatch context.
-3. **Covers all file types** — `{project_root}/tmp/`, `{project_root}/.issues/`, `{project_root}/tmp/{N}/work.md`, `{project_root}/.opencode/skills/...`
+3. **Covers all file types** — `{project_root}/tmp/`, `{project_root}/.issues/{N}/` (root), `{project_root}/{path}/.issues/{N}/` (submodule), `{project_root}/tmp/{N}/work.md`, `{project_root}/.opencode/skills/...`
 4. **Works for any submodule** — `.opencode/`, `vendor/`, `lib/`, any depth.
 5. **Eliminates the `*/.issues/` wildcard hack** — 42+ task files use `*/.issues/` as a workaround alongside `.issues/` (two separate patterns). The replacement iterates session-init's `## Repo Information` entries: `{project_root}/{path}/.issues/{N}/` for each repo entry. For root (`path: .`) → `{project_root}/.issues/{N}/` (replaces `.issues/` pattern). For `.opencode` (`path: .opencode`) → `{project_root}/.opencode/.issues/{N}/` (replaces `*/.issues/` pattern).
 
