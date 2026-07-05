@@ -1,0 +1,10 @@
+schema_version: "1.0"
+issue: 1445
+phase: 1
+variables:
+  T1: true
+  T2: true
+  T3: true
+  T4: true
+  T5: true
+  T6: true

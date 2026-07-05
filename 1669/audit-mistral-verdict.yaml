@@ -1,0 +1,78 @@
+---
+audit_phase: spec-audit
+auditor_type: spec-audit
+family: mistral
+issue_number: 1669
+generated_at: "2026-07-04T00:00:00Z"
+orchestrator_model: "mistral-large-3:675b-cloud"
+summary:
+  total_criteria: 7
+  pass: 7
+  fail: 0
+per_criterion:
+  - criterion_id: "SC-1"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "grep -c '#### Forbidden in task() Prompts' .opencode/skills/adversarial-audit/SKILL.md && grep -c '#### Dispatch Context Contract' .opencode/skills/adversarial-audit/SKILL.md && grep -c '#### Sub-Agent Entry Criteria' .opencode/skills/adversarial-audit/SKILL.md && grep -c '#### Orchestrator Entry Criteria' .opencode/skills/adversarial-audit/SKILL.md"
+    explanation: "All 7 canonical DISPATCH_GATE subsections are required. Verification via grep is deterministic."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - grep
+  - criterion_id: "SC-2"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "grep -c '#### Forbidden in task() Prompts' .opencode/skills/playwright-cli/SKILL.md && grep -c '#### Dispatch Context Contract' .opencode/skills/playwright-cli/SKILL.md && grep -c '#### Sub-Agent Entry Criteria' .opencode/skills/playwright-cli/SKILL.md && grep -c '#### Orchestrator Entry Criteria' .opencode/skills/playwright-cli/SKILL.md; git diff .opencode/skills/playwright-cli/SKILL.md"
+    explanation: "All 7 canonical DISPATCH_GATE subsections are required. Changes must be limited to the DISPATCH_GATE section."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - grep
+      - git
+  - criterion_id: "SC-3"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "grep -c '#### Dispatch Context Contract' .opencode/skills/solve/SKILL.md && grep -c '#### Sub-Agent Entry Criteria' .opencode/skills/solve/SKILL.md"
+    explanation: "Missing subsections must be added. Existing Orchestrator Entry Criteria must be preserved."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - grep
+  - criterion_id: "SC-4"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "grep -c 'DISPATCH_GATE' .opencode/skills/skill-creator/reference/routing-only-template.md"
+    explanation: "DISPATCH_GATE section must be added to the template."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - grep
+  - criterion_id: "SC-5"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "grep -c 'DISPATCH_GATE' .opencode/skills/skill-creator/reference/skill-card-spec.md"
+    explanation: "DISPATCH_GATE structure must be documented in the spec."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - grep
+  - criterion_id: "SC-6"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "uv run python .opencode/skills/skill-creator/scripts/validate_skill_cards.py against test SKILL.md with missing DISPATCH_GATE subsection"
+    explanation: "Validation script must flag incomplete DISPATCH_GATE sections with non-zero exit code and stderr containing 'DISPATCH_GATE'."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - bash
+  - criterion_id: "SC-7"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "uv run python .opencode/skills/skill-creator/scripts/validate_skill_cards.py against all cards"
+    explanation: "Validation must not flag previously working cards with complete DISPATCH_GATE sections."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made:
+      - bash
+all_criteria_pass: true
+mandatory_remediation: ""

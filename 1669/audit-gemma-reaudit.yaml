@@ -1,0 +1,139 @@
+audit_phase: spec_audit
+auditor_type: spec-audit
+family: gemma
+issue_number: 1669
+generated_at: "2026-07-04T10:00:00Z"
+orchestrator_model: "gemma4:31b-cloud"
+summary:
+  total_criteria: 18
+  pass: 18
+  fail: 0
+per_criterion:
+  - criterion_id: "SC-1"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "Problem statement is present and detailed."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-2"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "Every SC has a specific grep or execution-based verification method."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-3"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "Phases are clearly structured (Single-task classification)."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-4"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "Steps in the SC table are mapped to specific file paths and tasks."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-5"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "Dependencies are handled via the single-task sequential flow."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-6"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "Concerns are properly separated across the identified affected files."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-7"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "The spec provides direct mapping from problem to success criteria."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-8"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "Edge cases (regression on 33 cards) and error recovery (reverting incorrect edits) are explicitly defined."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-9"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "SC determinism gate is explicitly passed with verification methods described."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-10"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "Markdown formatting (tables, headers, blockquotes) is correct."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-11"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "Documentation Sources section is populated with specific tool-call discovery methods."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-12"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "Preamble '## Intent and Executive Summary' is present with all 5 required fields."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-13"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "Every SC in the table includes a bolded '**Cost frame:**' section detailing the break vs. death spiral dynamics."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-14"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "All-or-nothing gate statement is explicitly present before the SC table."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-TRACKING-LANG"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "No status markers (e.g., 'completed', 'pending') used; only prescriptive 'MUST' language."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-PRESCRIPTIVE-CODE"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "No exact line numbers or prescriptive code snippets provided."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-PIPELINE-GATES"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "The spec relies on the canonical checklist format via the SC table's pipeline binding."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-DET"
+    result: "PASS"
+    evidence: "read: .opencode/.issues/1669/spec.md"
+    explanation: "SC determinism is explicitly validated in the 'Determinism Gate' section."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+all_criteria_pass: true
+mandatory_remediation: "None. All requested fixes (Preamble, Cost-frame, RFC 2119 language) have been verified as correctly implemented."

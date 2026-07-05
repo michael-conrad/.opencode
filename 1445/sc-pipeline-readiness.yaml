@@ -1,0 +1,25 @@
+schema_version: "1.0"
+generated_at: "20260705020436"
+status: PASS
+checks:
+  - check_id: PR-1
+    result: PASS
+    detail: "All 6 SCs are atomic — each maps to exactly one independently testable claim (trunk branch creation, --ff-only usage, HALT on divergence, actionable reporting)"
+  - check_id: PR-2
+    result: PASS
+    detail: "No SC has depends_on declarations — all 6 SCs are independent across the three lifecycle points. Dependency DAG is trivially valid."
+  - check_id: PR-3
+    result: PASS
+    detail: "All 6 SCs target exactly one file category (task files: pre-work.md, branch-cleanup.md, submodule-sync.md, SKILL.md, agent configs) and one verification domain (behavioral). No multi-domain violations."
+  - check_id: PR-4
+    result: PASS
+    detail: "Single-task spec — no phase dependency graph. Trivially acyclic."
+  - check_id: PR-5
+    result: SKIP
+    detail: "Single-task spec (1 phase) — three-tier structure not required."
+    sub_checks: []
+sc_summary:
+  total_scs: 6
+  atomic: 6
+  with_dependencies: 0
+  single_concern: 6

@@ -1,0 +1,23 @@
+schema_version: "1.0"
+issue: 1445
+phase: 1
+description: "Single phase — 6 TDD items. T1-T5 independent, T6 depends on T1-T5"
+variables:
+  T1: {type: bool, description: "Pre-work creates main branch in submodules from default branch if missing"}
+  T2: {type: bool, description: "Pre-work uses --ff-only for submodule trunk pull and HALTs on non-fast-forward"}
+  T3: {type: bool, description: "Cleanup submodule trunk restore creates main branch if missing"}
+  T4: {type: bool, description: "Cleanup submodule trunk restore uses --ff-only and HALTs on non-fast-forward"}
+  T5: {type: bool, description: "Mid-feature submodule sync uses --ff-only and reports divergence"}
+  T6: {type: bool, description: "All divergence/conflict situations report actionable information and HALT for developer consultation"}
+constraints:
+  - "T6 => T1"
+  - "T6 => T2"
+  - "T6 => T3"
+  - "T6 => T4"
+  - "T6 => T5"
+  - "T1 => True"
+  - "T2 => True"
+  - "T3 => True"
+  - "T4 => True"
+  - "T5 => True"
+  - "T6 => True"

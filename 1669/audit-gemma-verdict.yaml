@@ -1,0 +1,168 @@
+audit_phase: spec_creation
+auditor_type: spec-audit
+family: gemma
+issue_number: 1669
+generated_at: "2026-07-04T10:00:00Z"
+orchestrator_model: "gemma4:31b-cloud"
+summary:
+  total_criteria: 22
+  pass: 14
+  fail: 8
+  blocked: 0
+per_criterion:
+  - criterion_id: "SC-1"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "Problem statement is present and non-empty."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-2"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "Each SC has an executable verification method (grep or python script)."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-3"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "Single-task spec; phase boundaries are implicit but clear."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-4"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "Each SC corresponds to a specific file path or a specific test scenario."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-5"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "Single-task spec; no complex inter-phase dependencies."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-6"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "Concerns are separated: structural file changes vs. runtime validation logic."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-8"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "Edge cases and risks are defined in the Risk Traceability table."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-9"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "Verification methods are deterministic (exit codes, grep counts)."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-10"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "Headers, lists, and tables are correctly formatted."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-11"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "Documentation Sources section is present and populated with source categories and purpose."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-12"
+    result: "FAIL"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "Spec is standard complexity (affects 6 files) but missing the '## Intent and Executive Summary' preamble with 5 mandatory fields."
+    remediation: "Add the preamble with: Problem Statement, Root Cause/Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions."
+    next_step: "remediate"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-13"
+    result: "FAIL"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "Success criteria do not carry the required cost-frame reformation language (dark-prose-007 formula)."
+    remediation: "Add cost-frame reformation prose to each SC in the table."
+    next_step: "remediate"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-14"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "ALL-OR-NOTHING GATE statement is explicitly present."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-TRACKING-LANG"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "No status markers like 'implemented' or 'pending' found in prose."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-PRESCRIPTIVE-CODE"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "No exact line numbers, import strings, or assertion code provided."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-PIPELINE-GATES"
+    result: "FAIL"
+    evidence: "read .opencode/.issues/1669/spec.md"
+     la- a- la: "Spec uses a table for SCs but does not provide the mandatory numbered checklist format for pipeline gates with dispatch mode indicators (e.g., (**clean-room**))."
+    remediation: "Convert the SC table to a numbered checklist format with dispatch mode indicators."
+    next_step: "remediate"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-CANONICAL-PLAN-FORM"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "No specific plan output format is defined, which is acceptable."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-ADMONISHMENT"
+    result: "N/A"
+    evidence: "N/A"
+    explanation: "This is not a skill card audit."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: []
+  - criterion_id: "SC-RFC-2119"
+    result: "FAIL"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "RFC 2119 language (MUST/SHOULD/MAY) is missing from the Success Criteria descriptions. They are written as descriptions, not requirements."
+    remediation: "Rewrite SC descriptions using MUST/SHOULD/MAY."
+    next_step: "remediate"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-BARE-REF"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "No bare #N references found."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-PLAN-MANDATE"
+    result: "PASS"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "Plan creation mandate present at line 130."
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-S-S-S"
+    result: "FAIL"
+    evidence: "read .opencode/.issues/1669/spec.md"
+    explanation: "Success criteria are defined in a table, but the spec lacks the mandatory structural markers for a complex spec's detailed sections if intended as such, and fails the checklist gate (SC-PIPELINE-GATES)."
+    remediation: "Structure the spec as a coherent narrative with a final checklist gate."
+    next_step: "remediate"
+    tool_calls_made: ["read"]
+all_criteria_pass: false
+mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."

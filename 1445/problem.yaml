@@ -1,0 +1,65 @@
+domain: submodule-sync-fix
+types:
+  - name: item
+objects:
+  - name: t1
+    type: item
+  - name: t2
+    type: item
+  - name: t3
+    type: item
+  - name: t4
+    type: item
+  - name: t5
+    type: item
+  - name: t6
+    type: item
+fluents:
+  - name: implemented
+    params:
+      - name: x
+        type: item
+actions:
+  - name: implement-t1
+    params: []
+    preconditions: []
+    effects:
+      - implemented(t1)
+  - name: implement-t2
+    params: []
+    preconditions: []
+    effects:
+      - implemented(t2)
+  - name: implement-t3
+    params: []
+    preconditions: []
+    effects:
+      - implemented(t3)
+  - name: implement-t4
+    params: []
+    preconditions: []
+    effects:
+      - implemented(t4)
+  - name: implement-t5
+    params: []
+    preconditions: []
+    effects:
+      - implemented(t5)
+  - name: implement-t6
+    params: []
+    preconditions:
+      - implemented(t1)
+      - implemented(t2)
+      - implemented(t3)
+      - implemented(t4)
+      - implemented(t5)
+    effects:
+      - implemented(t6)
+init: []
+goals:
+  - implemented(t1)
+  - implemented(t2)
+  - implemented(t3)
+  - implemented(t4)
+  - implemented(t5)
+  - implemented(t6)

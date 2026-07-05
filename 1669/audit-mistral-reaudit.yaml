@@ -1,0 +1,117 @@
+audit_phase: spec-audit
+auditor_type: spec-audit
+family: mistral
+issue_number: 1669
+generated_at: "2026-07-04T12:00:00Z"
+orchestrator_model: "mistral-large-3:675b-cloud"
+summary:
+  total_criteria: 13
+  pass: 13
+  fail: 0
+per_criterion:
+  - criterion_id: "SC-1"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "grep -c '#### Forbidden in task() Prompts' .opencode/skills/adversarial-audit/SKILL.md && grep -c '#### Dispatch Context Contract' .opencode/skills/adversarial-audit/SKILL.md && grep -c '#### Sub-Agent Entry Criteria' .opencode/skills/adversarial-audit/SKILL.md && grep -c '#### Orchestrator Entry Criteria' .opencode/skills/adversarial-audit/SKILL.md"
+    explanation: "All 4 required subsections are present in adversarial-audit/SKILL.md"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["grep"]
+  - criterion_id: "SC-2"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "grep -c '#### Forbidden in task() Prompts' .opencode/skills/playwright-cli/SKILL.md && grep -c '#### Dispatch Context Contract' .opencode/skills/playwright-cli/SKILL.md && grep -c '#### Sub-Agent Entry Criteria' .opencode/skills/playwright-cli/SKILL.md && grep -c '#### Orchestrator Entry Criteria' .opencode/skills/playwright-cli/SKILL.md; git diff .opencode/skills/playwright-cli/SKILL.md"
+    explanation: "All 4 required subsections are present in playwright-cli/SKILL.md; changes are confined to the DISPATCH_GATE section"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["grep", "git diff"]
+  - criterion_id: "SC-3"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "grep -c '#### Dispatch Context Contract' .opencode/skills/solve/SKILL.md && grep -c '#### Sub-Agent Entry Criteria' .opencode/skills/solve/SKILL.md"
+    explanation: "Missing subsections added; existing Orchestrator Entry Criteria preserved unchanged"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["grep"]
+  - criterion_id: "SC-4"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "grep -c 'DISPATCH_GATE' .opencode/skills/skill-creator/reference/routing-only-template.md"
+    explanation: "DISPATCH_GATE section present in routing-only-template.md"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["grep"]
+  - criterion_id: "SC-5"
+    declared_evidence_type: "string"
+    result: "PASS"
+    evidence: "grep -c 'DISPATCH_GATE' .opencode/skills/skill-creator/reference/skill-card-spec.md"
+    explanation: "DISPATCH_GATE structure documented in skill-card-spec.md"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["grep"]
+  - criterion_id: "SC-6"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "uv run python .opencode/skills/skill-creator/scripts/validate_skill_cards.py against test card with missing DISPATCH_GATE subsection"
+    explanation: "Validation script correctly flags test card with missing DISPATCH_GATE subsection"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["uv run python"]
+  - criterion_id: "SC-7"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "uv run python .opencode/skills/skill-creator/scripts/validate_skill_cards.py against all cards"
+    explanation: "No new violations on 33 working cards; regression test passes"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["uv run python"]
+  - criterion_id: "SC-11"
+    declared_evidence_type: "semantic"
+    result: "PASS"
+    evidence: "Manual review of spec section"
+    explanation: "Documentation Sources section present and populated with live-source verification evidence"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-12"
+    declared_evidence_type: "semantic"
+    result: "PASS"
+    evidence: "Manual review of spec section"
+    explanation: "Intent and Executive Summary preamble present with all 5 fields"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-13"
+    declared_evidence_type: "semantic"
+    result: "PASS"
+    evidence: "Manual review of SC descriptions"
+    explanation: "Every SC description includes cost-frame reformation language and requires a real test execution command"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-DET"
+    declared_evidence_type: "semantic"
+    result: "PASS"
+    evidence: "Manual review of SC descriptions"
+    explanation: "All SCs are deterministic: grep for subsection headings, behavioral test for validation script, manual review for semantic criteria"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-STRUCTURAL-FAIL"
+    declared_evidence_type: "semantic"
+    result: "PASS"
+    evidence: "Auditor check"
+    explanation: "No behavioral SCs receive structural evidence; all evidence types match declared types"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+  - criterion_id: "SC-EVIDENCE-TYPE"
+    declared_evidence_type: "semantic"
+    result: "PASS"
+    evidence: "Auditor check"
+    explanation: "All SCs use evidence matching their declared type (string, behavioral, or semantic)"
+    remediation: ""
+    next_step: "proceed"
+    tool_calls_made: ["read"]
+all_criteria_pass: true
+mandatory_remediation: ""
