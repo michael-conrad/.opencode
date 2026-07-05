@@ -1,91 +1,78 @@
-# Implementation Plan — [#1395](https://github.com/michael-conrad/.opencode/issues/1395) — Remove dead JSONC sub-agent configs, fold submodule ops into general task dispatch
-
-- **Goal:** Delete four dead JSONC files from `agents/`, remove the dedicated "Sub-Agent Tasks for Submodule Operations" table from `git-workflow/SKILL.md`, and update all task files to use standard `task(subagent_type="general")` dispatch language for submodule operations.
-- **Architecture:** Structural cleanup — file deletion + text replacement. No runtime behavior changes. The `must_receive`/`must_not_receive` context schemas already inline in each task file are preserved unchanged.
+# Implementation Plan — [#1395](https://github.com/michael-conrad/opencode-config/issues/1395) — Remove Dead Submodule JSONC Agent Configs
+- **Goal:** Delete 4 unused `.jsonc` agent configs, remove the Sub-Agent Tasks for Submodule Operations table from `git-workflow/SKILL.md`, update routing and cross-references, and normalize 8 task files to standard `task(subagent_type="general")` dispatch language.
+- **Architecture:** Cleanup-only — no new functionality. Delete files, remove references, replace dedicated sub-agent names with standard dispatch language. All inline `must_receive`/`must_not_receive` schemas preserved unchanged.
 - **Files:**
-  - `agents/submodule-dev-restore.jsonc` — DELETE
-  - `agents/submodule-feature-push.jsonc` — DELETE
-  - `agents/submodule-liveness-check.jsonc` — DELETE
-  - `agents/submodule-tag-prework.jsonc` — DELETE
-  - `skills/git-workflow/SKILL.md` — Remove sub-agent table, update routing section
-  - `skills/git-workflow/tasks/pre-work.md` — Replace dedicated sub-agent language
-  - `skills/git-workflow/tasks/cleanup/branch-cleanup.md` — Same
-  - `skills/git-workflow/tasks/pr-creation/enforcement-gate.md` — Same
-  - `skills/git-workflow/tasks/review-prep/push-and-cleanup.md` — Same
-  - `skills/git-workflow/tasks/check-pr.md` — Same
-  - `skills/git-workflow/tasks/cleanup.md` — Same
-  - `skills/git-workflow/tasks/pr-creation.md` — Same
-  - `skills/git-workflow/tasks/review-prep.md` — Same
+  - Delete: `.opencode/agents/submodule-dev-restore.jsonc`, `.opencode/agents/submodule-feature-push.jsonc`, `.opencode/agents/submodule-liveness-check.jsonc`, `.opencode/agents/submodule-tag-prework.jsonc`
+  - Edit: `.opencode/skills/git-workflow/SKILL.md`
+  - Edit: `.opencode/skills/git-workflow/tasks/pre-work.md`
+  - Edit: `.opencode/skills/git-workflow/tasks/cleanup.md`
+  - Edit: `.opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md`
+  - Edit: `.opencode/skills/git-workflow/tasks/check-pr.md`
+  - Edit: `.opencode/skills/git-workflow/tasks/pr-creation.md`
+  - Edit: `.opencode/skills/git-workflow/tasks/pr-creation/enforcement-gate.md`
+  - Edit: `.opencode/skills/git-workflow/tasks/review-prep.md`
+  - Edit: `.opencode/skills/git-workflow/tasks/review-prep/push-and-cleanup.md`
 
-> **⚠️ COMPLIANCE REQUIREMENT:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+> **⚠️ COMPLIANCE REQUIREMENT:** All edits to task files MUST preserve inline `must_receive`/`must_not_receive` schemas unchanged. Only replace dedicated sub-agent names (e.g., `submodule-tag-prework`, `submodule-feature-push`, `submodule-liveness-check`, `submodule-dev-restore`) with standard `task(subagent_type="general")` language. Do NOT alter schema structure, field names, or exclusion lists.
+> **⚠️ ONE-STEP-AT-A-TIME PROTOCOL:** Each step is one atomic action. Do NOT collapse multiple file edits or deletions into a single step. Do NOT skip steps.
+> **⚠️ STEP STATUS:** Each step MUST be marked `[ ]` (pending) initially. After execution, mark `[x]` (completed). Do NOT pre-mark steps.
 
-> **⚠️ ONE-STEP-AT-A-TIME PROTOCOL:** Execute steps strictly sequentially. Do NOT proceed to step N+1 until step N is fully complete and verified. Do NOT read ahead. Do NOT batch steps. Each step is an atomic unit.
-
-> **⚠️ STEP STATUS:** After completing each step, mark it as `[x]` in the plan file. Do NOT mark steps ahead. Do NOT skip steps.
-
-## Phase 1 — Remove dead JSONC configs and update dispatch language
+## Phase 1 — Remove Dead Configs and References
 
 | Phase | Name | Concern | SCs | Dependencies | Steps |
 |-------|------|---------|-----|--------------|-------|
-| 1 | Remove dead JSONC configs and update dispatch language | Delete 4 dead JSONC files, remove sub-agent table from SKILL.md, update 8 task files to use standard `task(subagent_type="general")` dispatch | SC-1, SC-2, SC-3, SC-4, SC-5 | None | 1–23 |
+| 1 | Remove dead configs and references | Delete JSONC files, remove table and JSONC refs from SKILL.md | SC-1, SC-2, SC-3 | None | 1–6 |
 
-### Item 1 — Delete 4 dead JSONC files (SC-1, structural)
+### Item 1 — Delete 4 JSONC Files and Remove Table from SKILL.md (SC-1, SC-2, SC-3, structural + string)
 
-- [x] 1. **SC-coherence-gate (**clean-room**).** Verify plan coherence against spec #1395: confirm all 5 SCs are addressed, all 13 affected files are covered. **→ SC-1, SC-2, SC-3, SC-4, SC-5** — PASS
-- [x] 2. **Pre-RED baseline (**clean-room**).** Read `agents/` directory listing to establish current state. Record that 4 `.jsonc` files exist. Write baseline to `./tmp/1395/baseline.md`. **→ SC-1** — PASS
-- [x] 3. **RED phase (**clean-room**).** Write structural test: `ls .opencode/agents/*.jsonc` — assert it returns 4 files. Test MUST PASS (files exist). **→ SC-1** — PASS, 4 files confirmed
-- [x] 4. **Z3 check RED (**inline**).** Run `solve check` against RED output contract. **→ SC-1** — PASS
-- [x] 5. **RED doublecheck (**clean-room**).** Verify RED test correctly detects the 4 JSONC files. **→ SC-1** — PASS, 4 files confirmed via `ls`
-- [x] 6. **Z3 check RED doublecheck (**inline**).** Run `solve check` against RED doublecheck output contract. **→ SC-1** — PASS
-- [x] 7. **Post-RED enforcement (**clean-room**).** Verify no source code files were modified during RED phase. **→ SC-1** — PASS, only agents/ files exist
-- [x] 8. **Z3 check post-RED (**inline**).** Run `solve check` against post-RED enforcement output contract. **→ SC-1** — PASS
-- [x] 9. **GREEN phase (**clean-room**).** Delete `agents/submodule-dev-restore.jsonc`, `agents/submodule-feature-push.jsonc`, `agents/submodule-liveness-check.jsonc`, `agents/submodule-tag-prework.jsonc`. **→ SC-1** — PASS, all 4 deleted
-- [x] 10. **Z3 check GREEN (**inline**).** Run `solve check` against GREEN output contract. **→ SC-1** — PASS
-- [x] 11. **Post-GREEN enforcement (**clean-room**).** Verify only the 4 JSONC files were deleted (no test files modified). **→ SC-1** — PASS
-- [x] 12. **Z3 check post-GREEN (**inline**).** Run `solve check` against post-GREEN enforcement output contract. **→ SC-1** — PASS
-- [x] 13. **Checkpoint tag create (**clean-room**).** Create git tag `opencode-config/checkpoint/1395/phase-1-item1-opencode`. **→ SC-1** — PASS
-- [x] 14. **Checkpoint commit (**inline**).** `git add -A && git commit -m "Item 1: delete 4 dead JSONC files from agents/"`. **→ SC-1** — PASS, commit f373d347
-- [x] 15. **Structural checks (**clean-room**).** Run `ls .opencode/agents/*.jsonc` — assert empty. **→ SC-1** — PASS
-- [x] 16. **GREEN doublecheck (**clean-room**).** Verify SC-1: no `.jsonc` files remain in `agents/`. **→ SC-1** — PASS
-- [x] 17. **GREEN VbC (**clean-room**).** Run `verification-before-completion --task verify` for SC-1. **→ SC-1** — PASS
+- [ ] 1. **Delete `.opencode/agents/submodule-tag-prework.jsonc` (**inline**).** Remove the file from disk. **→ SC-1**
+- [ ] 2. **Delete `.opencode/agents/submodule-feature-push.jsonc` (**inline**).** Remove the file from disk. **→ SC-1**
+- [ ] 3. **Delete `.opencode/agents/submodule-liveness-check.jsonc` (**inline**).** Remove the file from disk. **→ SC-1**
+- [ ] 4. **Delete `.opencode/agents/submodule-dev-restore.jsonc` (**inline**).** Remove the file from disk. **→ SC-1**
+- [ ] 5. **Remove JSONC config path references from `git-workflow/SKILL.md` (**inline**).** In the "Sub-Agent Tasks for Submodule Operations" table (lines 89–98), delete the `Config` column values that reference `.opencode/agents/*.jsonc` paths. **→ SC-2**
+- [ ] 6. **Remove the entire "Sub-Agent Tasks for Submodule Operations" table and heading from `git-workflow/SKILL.md` (**inline**).** Delete lines 89–98 (the heading `## Sub-Agent Tasks for Submodule Operations` and the full table). **→ SC-3**
 
-### Item 2 — Remove .jsonc references and sub-agent table from SKILL.md (SC-2, SC-3, SC-5, string)
+> **⚠️ COMPLIANCE REQUIREMENT:** Steps 1–4 are file deletions only. Step 5 removes JSONC path references from the table. Step 6 removes the entire table. Do NOT combine steps 5 and 6 — they are separate atomic actions.
+> **⚠️ SELF-REMEDIATION PROTOCOL:** If a JSONC file is already deleted (step fails with ENOENT), mark the step as completed and proceed. If the table text does not match exactly, re-read the file and adjust the edit to match the current content.
 
-- [x] 18. **SC-coherence-gate (**clean-room**).** Verify Item 2 coherence: confirm SKILL.md still has the sub-agent table and `.jsonc` references. **→ SC-2, SC-3, SC-5** — PASS
-- [x] 19. **Pre-RED baseline (**clean-room**).** Read `skills/git-workflow/SKILL.md` and record current state (sub-agent table at lines 89-97, `.jsonc` references in config column). Write baseline to `./tmp/1395/baseline-skill.md`. **→ SC-2, SC-3** — PASS
-- [x] 20. **RED phase (**clean-room**).** Write string test: `grep -c 'Sub-Agent Tasks for Submodule Operations' skills/git-workflow/SKILL.md` — assert >= 1. Test MUST PASS (table exists). **→ SC-3** — PASS, 2 matches
-- [x] 21. **Z3 check RED (**inline**).** Run `solve check` against RED output contract. **→ SC-3** — PASS
-- [x] 22. **RED doublecheck (**clean-room**).** Verify RED test correctly detects the sub-agent table. **→ SC-3** — PASS
-- [x] 23. **Z3 check RED doublecheck (**inline**).** Run `solve check` against RED doublecheck output contract. **→ SC-3** — PASS
-- [x] 24. **Post-RED enforcement (**clean-room**).** Verify no source code files were modified during RED phase. **→ SC-3** — PASS
-- [x] 25. **Z3 check post-RED (**inline**).** Run `solve check` against post-RED enforcement output contract. **→ SC-3** — PASS
-- [x] 26. **GREEN phase (**clean-room**).** In `skills/git-workflow/SKILL.md`: (a) remove the "Sub-Agent Tasks for Submodule Operations" table, (b) update Sub-Agent Routing section to remove dedicated sub-agent names, (c) update cross-reference from `submodule-tag-prework` task to `pre-work.md` Step 3.5. **→ SC-2, SC-3, SC-5** — PASS
-- [x] 27-34. **Item 2 commit + verify (**clean-room**).** Committed, checkpoint tagged, SC-2/3/5 verified. **→ SC-2, SC-3, SC-5** — PASS
+## Phase 2 — Update SKILL.md Routing and Cross-References
 
-### Item 3 — Update 8 task files to use standard dispatch language (SC-4, string)
+| Phase | Name | Concern | SCs | Dependencies | Steps |
+|-------|------|---------|-----|--------------|-------|
+| 2 | Update SKILL.md routing and cross-references | Replace dedicated sub-agent names with standard dispatch, update cross-refs | SC-5 | Phase 1 | 7–9 |
 
-- [x] 35-51. **Item 3 — Update 8 task files (**clean-room**).** Replace dedicated sub-agent dispatch language with standard `task(subagent_type="general")` in all 8 task files. Preserve inline schemas. **→ SC-4** — PASS, commit 53217417
+### Item 2 — Update Routing Table and Cross-References in SKILL.md (SC-5, string)
 
-### Global post-steps
+- [ ] 7. **Update the "Sub-Agent Routing" section in `git-workflow/SKILL.md` to remove dedicated sub-agent names (**inline**).** In lines 131–135, replace the paragraph that begins "Submodule sub-agents (`submodule-tag-prework`, `submodule-feature-push`, `submodule-liveness-check`, `submodule-dev-restore`) receive scoped context..." with standard language stating that all submodule operations use `task(subagent_type="general")` with the same dispatch context as other tasks. **→ SC-5**
+- [ ] 8. **Update the cross-reference from `submodule-tag-prework` to `pre-work.md Step 3.5` in `git-workflow/SKILL.md` (**inline**).** In line 127 (`Cross-references:` section), replace `` `submodule-tag-prework` task — hash permanence tag creation `` with `` `pre-work.md` Step 3.5 — submodule initialization and tag creation ``. **→ SC-5**
+- [ ] 9. **Update the Trigger Dispatch Table in `git-workflow/SKILL.md` to list submodule operations as standard tasks (**inline**).** In lines 28–39, ensure the `submodule-sync` row uses standard `task(subagent_type="general")` language in the Dispatch column. **→ SC-5**
 
-- [ ] 52. **Resolve models (**inline**).** Run `.opencode/tools/resolve-models` to select cross-family auditors. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
-- [ ] 53. **Adversarial audit — auditor 1 (**clean-room**).** Dispatch `adversarial-audit --task verification-audit` with auditor_1. If non-clean-PASS: remediate and restart from resolve-models. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
-- [ ] 54. **Adversarial audit — auditor 2 (**clean-room**).** Dispatch `adversarial-audit --task verification-audit` with auditor_2. If non-clean-PASS: remediate and restart from resolve-models. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
-- [ ] 55. **Cross-validate (**clean-room**).** Dispatch `adversarial-audit --task cross-validate` with both auditor artifact paths. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
-- [ ] 56. **Regression check (**clean-room**).** Run `bash .opencode/tests/test-enforcement.sh --changed` to verify no regressions. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
-- [ ] 57. **Review-prep (**clean-room**).** Dispatch `git-workflow --task review-prep` for PR readiness. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
-- [ ] 58. **Exec summary (**inline**).** Report completion with summary, outcome, blockers, and byline. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
+> **⚠️ COMPLIANCE REQUIREMENT:** Step 7 must remove all four dedicated sub-agent names from the routing section. Step 8 updates only the cross-reference line — do not modify other cross-references. Step 9 updates only the Dispatch column of the existing table row.
+> **⚠️ SELF-REMEDIATION PROTOCOL:** If the exact text to replace is not found, re-read the file and adjust the edit to match the current content.
 
-> **⚠️ COMPLIANCE REQUIREMENT:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
+## Phase 3 — Update 8 Task Files to Standard Dispatch Language
 
-> **⚠️ SELF-REMEDIATION PROTOCOL:** If a step fails, the orchestrator MUST NOT proceed. Diagnose the failure, remediate, re-verify, and only then advance. If remediation fails twice, report BLOCKED with both failure artifacts and HALT. Do NOT reclassify a FAIL as "close enough." Do NOT proceed past a failed step without remediation.
+| Phase | Name | Concern | SCs | Dependencies | Steps |
+|-------|------|---------|-----|--------------|-------|
+| 3 | Update task files | Replace dedicated sub-agent names with `task(subagent_type="general")` in 8 task files | SC-4 | Phase 1 | 10–17 |
+
+### Item 3 — Update 8 Task Files (SC-4, string)
+
+- [ ] 10. **Update `pre-work.md` to replace `submodule-tag-prework` references with standard dispatch language (**inline**).** In lines 108, 110, 111, 123, 148–165 (Sub-Agent Boundary section), and 208–235 (Step 3.5), replace all references to the `submodule-tag-prework` sub-agent name with `task(subagent_type="general")` language. Preserve all inline `must_receive`/`must_not_receive` schemas unchanged. **→ SC-4**
+- [ ] 11. **Update `cleanup.md` to replace `submodule-dev-restore` reference with standard dispatch language (**inline**).** In line 102, replace `tasks \`submodule-dev-restore\` sub-agent via task()` with `dispatches a sub-agent via task(subagent_type="general")`. **→ SC-4**
+- [ ] 12. **Update `cleanup/branch-cleanup.md` to replace `submodule-dev-restore` references with standard dispatch language (**inline**).** In lines 191–215 (Orchestrator Dispatching section), replace all references to the `submodule-dev-restore` sub-agent name with `task(subagent_type="general")` language. Preserve all inline `must_receive`/`must_not_receive` schemas unchanged. **→ SC-4**
+- [ ] 13. **Update `check-pr.md` to replace `submodule-dev-restore` reference with standard dispatch language (**inline**).** In line 49, replace `Restore submodules to dev tip via \`submodule-dev-restore\` sub-agent task()` with `Restore submodules to dev tip via task(subagent_type="general")`. **→ SC-4**
+- [ ] 14. **Update `pr-creation.md` to replace `submodule-liveness-check` reference with standard dispatch language (**inline**).** In line 32, replace `task() \`submodule-liveness-check\` sub-agent` with `task(subagent_type="general")`. **→ SC-4**
+- [ ] 15. **Update `pr-creation/enforcement-gate.md` to replace `submodule-liveness-check` references with standard dispatch language (**inline**).** In lines 25–55 (Step 0), replace all references to the `submodule-liveness-check` sub-agent name with `task(subagent_type="general")` language. Preserve all inline `must_receive`/`must_not_receive` schemas unchanged. **→ SC-4**
+- [ ] 16. **Update `review-prep.md` to replace `submodule-feature-push` reference with standard dispatch language (**inline**).** In line 50, replace `Tasks \`submodule-feature-push\` sub-agent` with `Dispatches a sub-agent via task(subagent_type="general")`. **→ SC-4**
+- [ ] 17. **Update `review-prep/push-and-cleanup.md` to replace `submodule-feature-push` references with standard dispatch language (**inline**).** In lines 21–69 (Step 0), replace all references to the `submodule-feature-push` sub-agent name with `task(subagent_type="general")` language. Preserve all inline `must_receive`/`must_not_receive` schemas unchanged. **→ SC-4**
+
+> **⚠️ COMPLIANCE REQUIREMENT:** Every edit to a task file MUST preserve inline `must_receive`/`must_not_receive` schemas exactly as they are. Only the sub-agent name and dispatch language change — never the schema structure, field names, or exclusion lists.
+> **⚠️ SELF-REMEDIATION PROTOCOL:** If the exact text to replace is not found in any task file, re-read the file to confirm current content, then adjust the edit to match. Do NOT skip a file because the expected text differs — read and adapt.
 
 ## Exit Criteria
-
-- [ ] C1: All four dead JSONC files deleted from `agents/` (SC-1)
-- [ ] C2: No `.jsonc` references remain in `skills/git-workflow/` (SC-2)
-- [ ] C3: "Sub-Agent Tasks for Submodule Operations" table removed from `git-workflow/SKILL.md` (SC-3)
-- [ ] C4: All 8 task files use standard `task(subagent_type="general")` dispatch language (SC-4)
-- [ ] C5: Submodule operations listed in main routing table, not a separate sub-agent table (SC-5)
-- [ ] C6: Inline `must_receive`/`must_not_receive` schemas preserved unchanged
-- [ ] C7: All pipeline gates passed (coherence, RED, GREEN, VbC, audit, cross-validate, regression)
+- [ ] C1: No `.jsonc` files remain in `.opencode/agents/` (verified via `ls .opencode/agents/*.jsonc`)
+- [ ] C2: `git-workflow/SKILL.md` contains no references to `.opencode/agents/*.jsonc` (verified via `grep`)
+- [ ] C3: `git-workflow/SKILL.md` contains no "Sub-Agent Tasks for Submodule Operations" heading or table (verified via `grep`)
+- [ ] C4: All 8 task files use `task(subagent_type="general")` language for submodule operations (verified via `grep` for absence of dedicated sub-agent names)
+- [ ] C5: `git-workflow/SKILL.md` routing section lists submodule ops as standard tasks (verified via `grep`)
