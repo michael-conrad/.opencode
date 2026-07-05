@@ -8,7 +8,7 @@
 - `.opencode/skills/spec-creation/tasks/change-control.md` — orphan task file
 - `.opencode/skills/writing-plans/tasks/handoffs/spec-to-plan.md` — orphan task file
 
-**SCs:** SC-18, SC-19, SC-20
+**SCs:** SC-18, SC-19, SC-20, SC-21
 
 **Dependencies:** Phase 2 (same file — spec-creation SKILL.md Operating Protocol)
 
@@ -30,11 +30,11 @@
 
 - [ ] 50. **GREEN (**sub-agent**).** `skill({name: "test-driven-development"})` → `task(..., prompt: "execute green task from test-driven-development")` for SC-19. Edit `.opencode/skills/spec-creation/tasks/write.md` Step 40: change `spec-auditor` reference to `skill({name: "adversarial-audit"})` → `task(..., prompt: "execute spec-audit task from adversarial-audit")`.
 
-- [ ] 51. **GREEN (**sub-agent**).** `skill({name: "test-driven-development"})` → `task(..., prompt: "execute green task from test-driven-development")` for SC-20. Resolve orphan task file `change-control.md`: either (a) add a dispatch path in the spec-creation SKILL.md Trigger Dispatch Table and Operating Protocol, or (b) delete the orphaned file if it is dead code. Document the decision.
+- [ ] 51. **GREEN (**sub-agent**).** `skill({name: "test-driven-development"})` → `task(..., prompt: "execute green task from test-driven-development")` for SC-20. Add dispatch path for `change-control.md` in spec-creation SKILL.md Trigger Dispatch Table and Operating Protocol. The task handles spec versioning and revision discipline — it is not dead code.
 
-- [ ] 52. **GREEN (**sub-agent**).** `skill({name: "test-driven-development"})` → `task(..., prompt: "execute green task from test-driven-development")` for SC-20. Resolve orphan task file `handoffs/spec-to-plan.md`: either (a) add a dispatch path in the writing-plans SKILL.md Trigger Dispatch Table, or (b) delete the orphaned file if it is dead code. Document the decision.
+- [ ] 52. **GREEN (**sub-agent**).** `skill({name: "test-driven-development"})` → `task(..., prompt: "execute green task from test-driven-development")` for SC-21. Add dispatch path for `handoffs/spec-to-plan.md` in writing-plans SKILL.md Trigger Dispatch Table. The task validates spec structural completeness before plan creation — it is not dead code.
 
-- [ ] 53. **GREEN doublecheck (**clean-room**).** `skill({name: "verification-before-completion"})` → `task(..., prompt: "execute verify task from verification-before-completion")` for SC-18, SC-19, SC-20. Verify: Operating Protocol has adversarial-audit dispatch, write.md Step 40 references correct skill, no orphan task files.
+- [ ] 53. **GREEN doublecheck (**clean-room**).** `skill({name: "verification-before-completion"})` → `task(..., prompt: "execute verify task from verification-before-completion")` for SC-18, SC-19, SC-20, SC-21. Verify: Operating Protocol has adversarial-audit dispatch, write.md Step 40 references correct skill, spec-creation dispatch table has change-control row, writing-plans dispatch table has spec-to-plan row.
 
 - [ ] 54. **Checkpoint commit (**inline**).** `skill({name: "git-workflow"})` → `task(..., prompt: "execute commit task from git-workflow")` with message: `Phase 5: add missing pipeline steps — adversarial-audit dispatch, fix write.md Step 40, resolve orphan task files`.
 
@@ -56,6 +56,6 @@
 
 #### Phase 5 VbC
 
-- [ ] 62. **VbC (**clean-room**).** `skill({name: "verification-before-completion"})` → `task(..., prompt: "execute completion task from verification-before-completion")` for SC-18, SC-19, SC-20. Verify all three SCs pass. Confirm all behavioral tests PASS, adversarial audit PASS, regression check PASS.
+- [ ] 62. **VbC (**clean-room**).** `skill({name: "verification-before-completion"})` → `task(..., prompt: "execute completion task from verification-before-completion")` for SC-18, SC-19, SC-20, SC-21. Verify all four SCs pass. Confirm all behavioral tests PASS, adversarial audit PASS, regression check PASS.
 
 **Concern transition:** All phases complete. Proceed to plan exit criteria verification.

@@ -1,0 +1,26 @@
+variables:
+  phase_1_done:
+    type: bool
+  all_scs_done:
+    type: bool
+
+preconditions:
+  - "z3.Not(phase_1_done)"
+
+postconditions:
+  - "phase_1_done"
+
+invariants:
+  - "z3.Implies(phase_1_done, all_scs_done)"
+
+phases:
+  - phase: 1
+    name: "Pre-commit pointer check & gate relaxation"
+    concern: "Ensure dirty submodule pointers are included in parent repo commits"
+    depends_on: []
+    scs:
+      - SC-1: "implementation.md has pre-commit-pointer-check step before git add"
+      - SC-2: "pr-creation.md has submodule pointer verification step in squash-push"
+      - SC-3: "Pre-commit Gate 4 allows submodule pointers when non-submodule changes are also staged"
+      - SC-4: "pre-commit-pointer-check.md task file exists with purpose, procedure, and verification table"
+      - SC-5: "SKILL.md lists pre-commit-pointer-check in tasks, dispatch table, and invocation section"

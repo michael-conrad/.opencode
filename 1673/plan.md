@@ -25,7 +25,7 @@
 | 2 | Dispatch Table Fixes | spec-creation SKILL.md dispatch table | SC-5, SC-6, SC-7 | None | 12-22 |
 | 3 | write.md Structural Renumbering + Plan Format | Task file step numbering + plan routing mandate | SC-8, SC-9, SC-10, SC-11, SC-12, SC-13, SC-14 | Phase 2 | 23-37 |
 | 4 | writing-plans Execution Model | SKILL.md vs create.md contradiction | SC-15, SC-16, SC-17 | None | 38-46 |
-| 5 | Missing Pipeline Steps | spec-creation pipeline gaps | SC-18, SC-19, SC-20 | Phase 2 | 47-62 |
+| 5 | Missing Pipeline Steps | spec-creation pipeline gaps | SC-18, SC-19, SC-20, SC-21 | Phase 2 | 47-62 |
 
 > **Compliance Requirement:** All steps and sub-steps in this document MUST be followed in order. Failure to comply with any step — including but not limited to verification gates, test phases, audit checkpoints, and review steps — will result in the feature branch being rejected and discarded, requiring a full rework from scratch and loss of all prior work. There is no valid reason to skip, compress, reorder, or omit any step. If a step appears redundant or unnecessary, follow it anyway — the cost of following an extra step is negligible compared to the cost of rework from a skipped step.
 
