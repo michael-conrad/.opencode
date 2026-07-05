@@ -47,7 +47,7 @@ fi
 
 **Route to:** `review-prep/push-and-cleanup`
 
-Tasks `submodule-feature-push` sub-agent for submodule changes (if a submodule `.git` file or directory is discovered), then handles temp file cleanup, rebase on current dev, worktree handoff, and branch push verification.
+Tasks sub-agent for submodule changes (if a submodule `.git` file or directory is discovered), then handles temp file cleanup, rebase on current dev, worktree handoff, and branch push verification.
 
 ### Step 2.5: Squash Verification (MANDATORY GATE)
 
@@ -104,7 +104,7 @@ Guideline and documentation changes are NOT exempt from PR workflow.
 
 | Sub-Task | Purpose | Handler | Words |
 | -- | -- | -- | -- |
-| `review-prep/push-and-cleanup` | Submodule push via sub-agent, temp cleanup, rebase, branch push, worktree handoff | `submodule-feature-push` sub-agent (Step 0, conditional) | ≈700 |
+| `review-prep/push-and-cleanup` | Submodule push via sub-agent, temp cleanup, rebase, branch push, worktree handoff | sub-agent (Step 0, conditional) | ≈700 |
 | `review-prep/report-url` | URL generation, chat format, HALT protocol | — | ≈600 |
 
 ## Enforcement Checklist

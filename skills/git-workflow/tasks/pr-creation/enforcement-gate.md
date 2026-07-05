@@ -22,7 +22,7 @@ Enforce mandatory pre-conditions before PR creation. Verify explicit PR instruct
 
 **If submodules detected:**
 
-The orchestrator dispatches a `submodule-liveness-check` sub-agent. The sub-agent performs a report-only liveness verification — it compares committed SHAs against remote `dev` HEAD SHAs and returns PASS/FAIL per submodule. **NO auto-remediation. NO SHA bumps. NO commits.**
+The orchestrator dispatches a sub-agent via `task(subagent_type="general")`. The sub-agent performs a report-only liveness verification — it compares committed SHAs against remote `dev` HEAD SHAs and returns PASS/FAIL per submodule. **NO auto-remediation. NO SHA bumps. NO commits.**
 
 #### Task Context
 

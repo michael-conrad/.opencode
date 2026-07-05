@@ -29,7 +29,7 @@ Create pull request after explicit user instruction. Squash commits to single co
 
 **Route to:** `pr-creation/enforcement-gate`
 
-task() `submodule-liveness-check` sub-agent for report-only SHA verification (no auto-remediation). Then verifies explicit PR instruction, branch push status, existing PR state, and merge conflict detection.
+task() sub-agent for report-only SHA verification (no auto-remediation). Then verifies explicit PR instruction, branch push status, existing PR state, and merge conflict detection.
 
 ### Step 2-4: Changelog, Squash, Rebase, Push
 
@@ -47,7 +47,7 @@ Collects sub-issues from parent spec, creates PR with executive summary body, ex
 
 | Sub-Task | Purpose | Words |
 | -- | -- | -- |
-| `pr-creation/enforcement-gate` | Verify pre-conditions, task() submodule-liveness-check, PR instruction, conflict detection | ≈600 |
+| `pr-creation/enforcement-gate` | Verify pre-conditions, task() sub-agent, PR instruction, conflict detection | ≈600 |
 | `pr-creation/squash-push` | Changelog, squash, rebase, push with live verification | ≈600 |
 | `pr-creation/create-pr` | Sub-issue collection, PR creation, URL extraction, body format | ≈550 |
 

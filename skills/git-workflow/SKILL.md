@@ -86,16 +86,6 @@ Git Workflow Enforcer. Focus: trunk-based development workflow, block AI on prot
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "git-workflow"})` ``
 
-## Sub-Agent Tasks for Submodule Operations
-
-| Sub-Agent Task | Trigger | Task Context (MUST receive) | Exclusions (MUST NOT receive) | Config |
-|----------------|---------|----------------------------------|-------------------------------|--------|
-| `submodule-tag-prework` | pre-work Step 3.5 | parent_repo, issue_number, submodule_paths | Implementation context, agent memory, other sub-agent results | `.opencode/agents/submodule-tag-prework.jsonc` |
-| `submodule-feature-push` | review-prep Step 0 | parent_repo, issue_number, submodule_paths, submodule_branches | Implementation context, agent memory, orchestrator reasoning | `.opencode/agents/submodule-feature-push.jsonc` |
-| `submodule-liveness-check` | enforcement-gate Step 0, PR-time | submodule_paths, referenced_hashes, parent_repo, issue_number | Implementation context, agent memory, prior verification results | `.opencode/agents/submodule-liveness-check.jsonc` |
-| `submodule-dev-restore` | cleanup Step 1.9 | submodule_paths | Implementation context, agent memory, other sub-agent results | `.opencode/agents/submodule-dev-restore.jsonc` |
-| `submodule-sync` | user "sync submodules" / mid-feature currency | submodule_paths | Implementation context, agent memory, orchestrator reasoning | `.opencode/agents/submodule-sync.jsonc` |
-
 ## Operating Protocol
 
 - [ ] 1. **Worktree first:** set `worktree.path` before file ops (direct-branch mode when `WORKTREE_REQUIRED` not set).
@@ -124,7 +114,7 @@ All git tags in this project follow a unified naming convention. The suffix rule
 **Cross-references:**
 - Spec #950 — canonical suffix derivation rule
 - Spec #391 — checkpoint tag lifecycle (create during assemble-work, delete during cleanup)
-- `submodule-tag-prework` task — hash permanence tag creation
+- `pre-work.md` Step 3.5 — hash permanence tag creation
 - `pipeline-executor.md` — checkpoint creation and rollback substeps
 - `branch-cleanup.md` Step 3.3 — checkpoint tag deletion
 
@@ -132,7 +122,7 @@ All git tags in this project follow a unified naming convention. The suffix rule
 
 All tasks run via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo }`, excluding implementation context and agent memory. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. `pr-creation` receives spec summary. `cleanup` receives PR merge status. `provenance` receives submodule path. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
-Submodule sub-agents (`submodule-tag-prework`, `submodule-feature-push`, `submodule-liveness-check`, `submodule-dev-restore`) receive scoped context per the Sub-Agent Tasks for Submodule Operations table above. All are clean-room runs — no implementation context, agent memory, or orchestrator reasoning shared. Submodule git operations are NEVER performed inline.
+Submodule operations are standard tasks dispatched via `task(subagent_type="general")` with scoped context. All are clean-room runs — no implementation context, agent memory, or orchestrator reasoning shared. Submodule git operations are NEVER performed inline.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 

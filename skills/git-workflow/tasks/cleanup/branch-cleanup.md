@@ -188,9 +188,9 @@ done
 
 If no submodules exist (`SUBMODULE_PATHS` is empty), skip this step.
 
-#### Orchestrator Dispatching: `submodule-dev-restore` Sub-Agent
+#### Orchestrator Dispatching: Submodule Dev Restore Sub-Agent
 
-For each submodule path, the orchestrator dispatches a clean-room `submodule-dev-restore` sub-agent. The sub-agent handles submodule entry, `git checkout dev`, and `git pull origin dev --ff-only`. The main task does NOT perform these operations inline.
+For each submodule path, the orchestrator dispatches a clean-room sub-agent via `task(subagent_type="general")`. The sub-agent handles submodule entry, `git checkout dev`, and `git pull origin dev --ff-only`. The main task does NOT perform these operations inline.
 
 **must_receive / must_not_receive:**
 
