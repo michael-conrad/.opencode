@@ -31,6 +31,15 @@ Create pull request after explicit user instruction. Squash commits to single co
 
 task() sub-agent for report-only SHA verification (no auto-remediation). Then verifies explicit PR instruction, branch push status, existing PR state, and merge conflict detection.
 
+### Pre-Push Submodule Pointer Verification
+
+Before squash and push, verify dirty submodule pointers are included in staged changes:
+
+- [ ] 1. Run `git submodule status | grep '^ '` to detect dirty submodule pointers
+- [ ] 2. If dirty pointers found: verify they are staged (`git diff --cached --name-only` includes submodule paths)
+- [ ] 3. If not staged: `git add <submodule_path>` before squash
+- [ ] 4. Confirm staged files include both source changes AND submodule pointer updates
+
 ### Step 2-4: Changelog, Squash, Rebase, Push
 
 **Route to:** `pr-creation/squash-push`

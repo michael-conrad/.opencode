@@ -24,6 +24,15 @@ Handle work-in-progress commits during implementation. Multiple commits during i
 
 ## Procedure
 
+### Pre-Commit Submodule Pointer Check
+
+Before staging changes, check for dirty submodule pointers and ensure they are included:
+
+- [ ] 1. Run `git submodule status | grep '^ '` to detect dirty submodule pointers
+- [ ] 2. If dirty pointers found: `git add <submodule_path>` alongside other changes
+- [ ] 3. Verify staged files include both source changes AND submodule pointer updates
+- [ ] 4. If submodule pointers are dirty but not staged: warn and suggest adding them
+
 ### Making Implementation Commits
 
 Commits during implementation are checkpoint commits to prevent data loss. They do NOT need to be polished.

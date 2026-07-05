@@ -36,6 +36,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "check pr" / "check prs" / "check merged prs" / "pr merged" | `check-pr` | `sub-task` | {branch_name} |
 | "provenance" / "provenance check" | `provenance` | `sub-task` | {submodule_path} |
 | "sync submodules" / "update submodules" | `submodule-sync` | `sub-task` | {submodule_paths} |
+| "pre-commit-pointer-check" / "check submodule pointers" | `pre-commit-pointer-check` | `sub-task` | {branch_name} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Persona
@@ -59,6 +60,7 @@ Git Workflow Enforcer. Focus: trunk-based development workflow, block AI on prot
 | `pair-cleanup` |
 | `pair-mode-resume` |
 | `submodule-sync` |
+| `pre-commit-pointer-check` |
 | `completion` |
 
 ## Routing: Feature PR
@@ -82,6 +84,7 @@ Git Workflow Enforcer. Focus: trunk-based development workflow, block AI on prot
 | `check-pr` | `task(..., prompt: "execute check-pr task from git-workflow")` |
 | `provenance` | `task(..., prompt: "execute provenance task from git-workflow")` |
 | `submodule-sync` | `task(..., prompt: "execute submodule-sync task from git-workflow")` |
+| `pre-commit-pointer-check` | `task(..., prompt: "execute pre-commit-pointer-check task from git-workflow")` |
 | `completion` | `task(..., prompt: "execute completion task from git-workflow")` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "git-workflow"})` ``
