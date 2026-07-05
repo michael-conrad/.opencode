@@ -223,16 +223,16 @@ rules:
     source: "git-workflow/SKILL.md"
 
   - id: git-workflow-submodule-001
-    title: "Pre-work MUST tag submodule dev tips with <parent>/<issue> format"
+    title: "Pre-work MUST tag submodule trunk tips with <parent>/<issue> format"
     conditions:
       all: ["pipeline_stage == 'pre_work'", "has_submodules == true", "submodule_tag_created == false"]
     actions: [HALT, REQUIRE_TAG]
     source: "git-workflow/SKILL.md"
 
   - id: git-workflow-submodule-002
-    title: "Submodule changes MUST use feature-branch pushes with tip tags, not dev pushes"
+    title: "Submodule changes MUST use feature-branch pushes with tip tags, not trunk pushes"
     conditions:
-      all: ["submodule_push_attempted == true", "push_target == 'dev'", "is_feature_branch_push == false"]
+      all: ["submodule_push_attempted == true", "push_target == 'trunk'", "is_feature_branch_push == false"]
     actions: [HALT]
     source: "git-workflow/SKILL.md"
 
@@ -244,9 +244,9 @@ rules:
     source: "git-workflow/SKILL.md"
 
   - id: git-workflow-submodule-004
-    title: "Cleanup MUST restore submodules to dev tip, NO dependency-sync PR"
+    title: "Cleanup MUST restore submodules to trunk tip, NO dependency-sync PR"
     conditions:
-      all: ["pipeline_stage == 'cleanup'", "has_submodules == true", "submodule_dev_restored == false"]
+      all: ["pipeline_stage == 'cleanup'", "has_submodules == true", "submodule_trunk_restored == false"]
     actions: [HALT, RESTORE_SUBMODULES]
     source: "git-workflow/SKILL.md"
 
@@ -255,4 +255,25 @@ rules:
     conditions:
       all: ["submodule_operation_pending == true", "routed_to_sub_agent == false"]
     actions: [HALT]
+    source: "git-workflow/SKILL.md"
+
+  - id: git-workflow-submodule-006
+    title: "Submodule sync MUST resolve trunk branch via $DEFAULT_BRANCH, not hardcoded branch name"
+    conditions:
+      all: ["submodule_sync_pending == true", "trunk_branch_resolved_via_default == false"]
+    actions: [HALT, REQUIRE_DEFAULT_BRANCH_RESOLUTION]
+    source: "git-workflow/SKILL.md"
+
+  - id: git-workflow-submodule-007
+    title: "Submodule divergence MUST be handled autonomously before escalation"
+    conditions:
+      all: ["submodule_divergence_detected == true", "autonomous_resolution_attempted == false"]
+    actions: [HALT, REQUIRE_AUTONOMOUS_RESOLUTION]
+    source: "git-workflow/SKILL.md"
+
+  - id: git-workflow-submodule-008
+    title: "No git checkout -b main dev || true fallback in submodule sync operations"
+    conditions:
+      all: ["submodule_sync_pending == true", "main_branch_fallback_present == true"]
+    actions: [HALT, REMOVE_MAIN_BRANCH_FALLBACK]
     source: "git-workflow/SKILL.md"

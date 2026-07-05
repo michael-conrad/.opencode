@@ -213,7 +213,53 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 
 - [ ] 1. Detects the submodule path(s)
 - [ ] 2. Initializes submodules if needed (`git submodule init`)
-- [ ] 3. Checks out each submodule to its `dev` tip (`git submodule foreach "git checkout dev && git pull"`)
+- [ ] 3. Resolves the trunk branch via `DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')` and checks out each submodule to trunk tip (`git submodule foreach "git checkout \"$DEFAULT_BRANCH\" && git pull origin \"$DEFAULT_BRANCH\" --ff-only"`)
+   - **HALT on failure:** If `git pull --ff-only` fails (non-ff or network error), the sub-agent MUST produce a structured divergence report. Do NOT fall back to merge or rebase — `--ff-only` is a hard gate that prevents accidental divergence from trunk.
+   - **Autonomous divergence handling (MANDATORY):** On `--ff-only` failure, the agent autonomously analyzes the divergence and attempts resolution:
+     ```bash
+     SUBMODULE_PATH="<path>"
+     DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+     AHEAD=$(git rev-list --count "origin/$DEFAULT_BRANCH..$DEFAULT_BRANCH" 2>/dev/null || echo "unknown")
+     BEHIND=$(git rev-list --count "$DEFAULT_BRANCH..origin/$DEFAULT_BRANCH" 2>/dev/null || echo "unknown")
+     echo "DIVERGENCE DETECTED: Submodule at $SUBMODULE_PATH"
+     echo "  Ahead by $AHEAD commits (local changes not on origin/$DEFAULT_BRANCH)"
+     echo "  Behind by $BEHIND commits (origin/$DEFAULT_BRANCH changes not in local $DEFAULT_BRANCH)"
+     # Autonomous resolution attempt:
+     if [ "$AHEAD" = "0" ] && [ "$BEHIND" != "0" ] && [ "$BEHIND" != "unknown" ]; then
+       # Only behind — safe to fast-forward
+       git pull origin "$DEFAULT_BRANCH"
+     elif [ "$AHEAD" != "0" ] && [ "$AHEAD" != "unknown" ] && [ "$BEHIND" = "0" ]; then
+       # Only ahead — local changes not pushed, push them
+       git push origin "$DEFAULT_BRANCH"
+     elif [ "$AHEAD" != "0" ] && [ "$BEHIND" != "0" ] && [ "$AHEAD" != "unknown" ] && [ "$BEHIND" != "unknown" ]; then
+       # Both ahead and behind — semantic analysis needed
+       # Attempt rebase first (safe for linear history)
+       if git rebase "origin/$DEFAULT_BRANCH" 2>/dev/null; then
+         echo "Autonomous rebase successful — divergence resolved."
+       else
+         echo "Autonomous rebase failed — semantic conflict detected."
+         echo "HALT: Developer consultation required — divergence cannot be auto-resolved."
+         echo "  Suggested resolution:"
+         echo "    - Review and resolve rebase conflicts manually"
+         echo "    - If local changes should be discarded: git reset --hard origin/$DEFAULT_BRANCH"
+       fi
+     else
+       echo "HALT: Developer consultation required — divergence cannot be auto-resolved."
+       echo "  Suggested resolution:"
+       echo "    - If local changes are intentional: git push origin $DEFAULT_BRANCH"
+       echo "    - If local changes should be discarded: git reset --hard origin/$DEFAULT_BRANCH"
+       echo "    - If local changes should be rebased: git rebase origin/$DEFAULT_BRANCH"
+     fi
+     ```
+   - **Result contract on divergence:**
+     ```yaml
+     status: DONE | BLOCKED
+     reason: SUBMODULE_FF_FAILURE | SUBMODULE_DIVERGENCE_RESOLVED
+     submodule_path: "<path>"
+     ahead: <N>
+     behind: <N>
+     resolution: "autonomous_push | autonomous_rebase | escalated"
+     ```
 - [ ] 4. Logs submodule status (`git submodule status`)
 - [ ] 5. Tags each submodule at dev tip with `<parent-repo>/<issue-number>` format (`git tag -a`)
 - [ ] 6. Pushes tags to submodule remote (`git push origin <tag>`)

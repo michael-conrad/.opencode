@@ -54,14 +54,15 @@ blocked_reason: "Spec issue #N not closed after PR merge"  # if BLOCKED
 
 **🚫 CRITICAL: If closure-verification returns BLOCKED (issue not closed or SCs unverified), do NOT proceed to branch deletion. HALT and report findings for remediation.**
 
-### Step 1: Switch to Dev and Sync (Fast-Forward Only)
+### Step 1: Switch to Trunk and Sync (Fast-Forward Only)
 
 ```bash
-git checkout dev
-git pull origin dev --ff-only
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+git checkout "$DEFAULT_BRANCH"
+git pull origin "$DEFAULT_BRANCH" --ff-only
 ```
 
-**🚫 CRITICAL: The `--ff-only` flag is MANDATORY.** A plain `git pull origin dev` can silently succeed with a merge commit, hiding divergence issues.
+**🚫 CRITICAL: The `--ff-only` flag is MANDATORY.** A plain `git pull origin "$DEFAULT_BRANCH"` can silently succeed with a merge commit, hiding divergence issues.
 
 **If `--ff-only` fails (diverged history):**
 ```bash
@@ -69,35 +70,38 @@ git pull origin dev --ff-only
 # Do NOT proceed with stale codebase
 ```
 
-**Verify local dev matches the merge commit:**
+**Verify local trunk matches the merge commit:**
 ```bash
-git log --oneline -1 origin/dev
-git log --oneline -1 dev
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+git log --oneline -1 "origin/$DEFAULT_BRANCH"
+git log --oneline -1 "$DEFAULT_BRANCH"
 ```
 
 The two commit hashes MUST match. If they differ, re-pull and verify.
 
 **Worktree context:** If running from a worktree, operate on the main working tree:
 ```bash
-git -C /path/to/main/repo checkout dev && git -C /path/to/main/repo pull origin dev --ff-only
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+git -C /path/to/main/repo checkout "$DEFAULT_BRANCH" && git -C /path/to/main/repo pull origin "$DEFAULT_BRANCH" --ff-only
 ```
 
-### Step 1.5: Dev Sync Verification Gate (MANDATORY — ZERO TOLERANCE)
+### Step 1.5: Trunk Sync Verification Gate (MANDATORY — ZERO TOLERANCE)
 
-1. Run: `git checkout dev && git pull origin dev --ff-only`
-2. Capture local hash: `git log --oneline -1 dev`
-3. Capture remote hash: `git log --oneline -1 origin/dev`
-4. Compare hashes — they MUST match exactly
-5. If hashes differ → re-pull and verify again (maximum 3 attempts)
-6. If still different after 3 attempts → HALT and report
+1. Resolve trunk: `DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')`
+2. Run: `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH" --ff-only`
+3. Capture local hash: `git log --oneline -1 "$DEFAULT_BRANCH"`
+4. Capture remote hash: `git log --oneline -1 "origin/$DEFAULT_BRANCH"`
+5. Compare hashes — they MUST match exactly
+6. If hashes differ → re-pull and verify again (maximum 3 attempts)
+7. If still different after 3 attempts → HALT and report
 
 **Evidence artifact (MANDATORY):** Tool-call output showing matching hashes MUST be present before proceeding.
 
 🚫 FORBIDDEN: Proceeding past this gate without matching hash evidence.
 
-### Step 1.7: Park Parent Repo on dev
+### Step 1.7: Park Parent Repo on Trunk
 
-After submodule dev sync (Step 1/1.5), the parent repo must also be parked on `dev` with the latest changes. This step ensures both the submodule and the parent repo are on `dev` and up to date.
+After submodule trunk sync (Step 1/1.5), the parent repo must also be parked on the trunk with the latest changes. This step ensures both the submodule and the parent repo are on the trunk and up to date.
 
 **Detect context:**
 
@@ -107,40 +111,41 @@ PARENT_REPO_PATH="$(git -C "$(git rev-parse --show-toplevel)/.." rev-parse --sho
 
 # If no parent repo (not a submodule), skip this step entirely
 if [ -z "$PARENT_REPO_PATH" ]; then
-    echo "Not a submodule — skipping parent repo dev parking."
-    # Verify current repo is on dev (already done in Step 1.5)
-    echo "Parent repo dev parking: N/A (not a submodule)"
+    echo "Not a submodule — skipping parent repo trunk parking."
+    echo "Parent repo trunk parking: N/A (not a submodule)"
 else
     echo "Parent repo detected at: $PARENT_REPO_PATH"
 fi
 ```
 
-**Park parent repo on dev:**
+**Park parent repo on trunk:**
 
 ```bash
 if [ -n "$PARENT_REPO_PATH" ]; then
-    # Switch parent repo to dev
-    git -C "$PARENT_REPO_PATH" checkout dev
-    git -C "$PARENT_REPO_PATH" pull origin dev --ff-only
+    DEFAULT_BRANCH=$(git -C "$PARENT_REPO_PATH" remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+    # Switch parent repo to trunk
+    git -C "$PARENT_REPO_PATH" checkout "$DEFAULT_BRANCH"
+    git -C "$PARENT_REPO_PATH" pull origin "$DEFAULT_BRANCH" --ff-only
 fi
 ```
 
-**Verify parent repo is on dev:**
+**Verify parent repo is on trunk:**
 
 ```bash
 if [ -n "$PARENT_REPO_PATH" ]; then
+    DEFAULT_BRANCH=$(git -C "$PARENT_REPO_PATH" remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
     PARENT_BRANCH=$(git -C "$PARENT_REPO_PATH" branch --show-current)
-    if [ "$PARENT_BRANCH" != "dev" ]; then
-        echo "ERROR: Parent repo is on '$PARENT_BRANCH', expected 'dev'"
-        echo "HALT: Parent repo dev parking failed"
-        # Do NOT proceed — dev parking is mandatory
+    if [ "$PARENT_BRANCH" != "$DEFAULT_BRANCH" ]; then
+        echo "ERROR: Parent repo is on '$PARENT_BRANCH', expected '$DEFAULT_BRANCH'"
+        echo "HALT: Parent repo trunk parking failed"
+        # Do NOT proceed — trunk parking is mandatory
     fi
 fi
 ```
 
 **Handle dirty submodule pointer(s) (CRITICAL):**
 
-After submodule dev sync, the parent repo's submodule pointer(s) will be dirty — this is **expected and normal**. The parent repo tracks a specific submodule commit, and after `git pull origin dev` in each submodule, the submodule HEAD will differ from what the parent repo recorded on its own `dev` branch.
+After submodule trunk sync, the parent repo's submodule pointer(s) will be dirty — this is **expected and normal**. The parent repo tracks a specific submodule commit, and after `git pull origin "$DEFAULT_BRANCH"` in each submodule, the submodule HEAD will differ from what the parent repo recorded on its own trunk branch.
 
 Detect dirty submodule(s) by checking `git status` for modified submodule entries — do NOT hardcode submodule names. Every submodule with a dirty pointer must be acknowledged but NEVER committed:
 
@@ -167,13 +172,13 @@ fi
 - 🚫 FORBIDDEN: Running `git add <submodule_path>`, `git commit`, or any git operation that commits submodule pointer(s) during cleanup
 - ✅ REQUIRED: Acknowledge the dirty state as expected and continue
 - ✅ REQUIRED: The parent repo `git status` after this step will show modified submodule entry/entries — this is correct and expected
-- ✅ REQUIRED: Submodule pointer updates happen on feature branches during pre-work (Step 3.5), never on `dev` during cleanup
+- ✅ REQUIRED: Submodule pointer updates happen on feature branches during pre-work (Step 3.5), never on trunk during cleanup
 
-**Evidence artifact (MANDATORY):** Tool-call output showing `git -C "$PARENT_REPO_PATH" branch --show-current` returns `dev` MUST be present before proceeding. If no parent repo exists (not a submodule), evidence that the step was evaluated and skipped is sufficient.
+**Evidence artifact (MANDATORY):** Tool-call output showing `git -C "$PARENT_REPO_PATH" branch --show-current` returns the trunk branch MUST be present before proceeding. If no parent repo exists (not a submodule), evidence that the step was evaluated and skipped is sufficient.
 
 ### Step 1.9: Submodule Branch Cleanup Descent
 
-After parent repo dev parking (Step 1.7), descend into each submodule to clean merged branches while preserving the dirty submodule pointer.
+After parent repo trunk parking (Step 1.7), descend into each submodule to clean merged branches while preserving the dirty submodule pointer.
 
 **Detect submodules via filesystem glob scan:**
 
@@ -188,15 +193,15 @@ done
 
 If no submodules exist (`SUBMODULE_PATHS` is empty), skip this step.
 
-#### Orchestrator Dispatching: Submodule Dev Restore Sub-Agent
+#### Orchestrator Dispatching: Submodule Trunk Restore Sub-Agent
 
-For each submodule path, the orchestrator dispatches a clean-room sub-agent via `task(subagent_type="general")`. The sub-agent handles submodule entry, `git checkout dev`, and `git pull origin dev --ff-only`. The main task does NOT perform these operations inline.
+For each submodule path, the orchestrator dispatches a clean-room sub-agent via `task(subagent_type="general")`. The sub-agent resolves the trunk branch via `DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')`, checks out `"$DEFAULT_BRANCH"`, and runs `git pull origin "$DEFAULT_BRANCH" --ff-only`. The main task does NOT perform these operations inline.
 
 **must_receive / must_not_receive:**
 
 | Element | Value |
 |---------|-------|
-| `must_receive` | `submodule_path` (path to the submodule), `parent_repo_path` (absolute path to parent repo), `branch` = `dev` |
+| `must_receive` | `submodule_path` (path to the submodule), `parent_repo_path` (absolute path to parent repo) |
 | `must_not_receive` | Orchestrator reasoning, expected outcomes, cached git state, pre-determined branch names, content verification results, tag data, or any information about branches to delete |
 | `inline_fallback` | FORBIDDEN — re-task() clean-room on failure |
 
@@ -205,34 +210,36 @@ For each submodule path, the orchestrator dispatches a clean-room sub-agent via 
 ```yaml
 status: DONE | BLOCKED
 submodule_path: <path>
-submodule_dev_head: <sha>
-submodule_dev_synced: true | false
+submodule_trunk_head: <sha>
+submodule_trunk_synced: true | false
 evidence:
-  - <tool call: git branch --show-current returns dev>
-  - <tool call: git log --oneline -1 dev matching origin/dev>
+  - <tool call: git branch --show-current returns trunk branch>
+  - <tool call: git log --oneline -1 trunk matching origin/trunk>
 blocked_reason: <if BLOCKED, explanation of divergence>
 ```
 
 **After the orchestrator receives DONE from the sub-agent for a submodule, proceed with cleanup operations:**
 
-2. **Verify submodule is on dev (post-task() check):**
+2. **Verify submodule is on trunk (post-task() check):**
 
 3. **Find merged branches:**
    ```bash
-   git branch --merged dev | grep -v '^\*' | grep -v 'dev$'
+   DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+   git branch --merged "$DEFAULT_BRANCH" | grep -v '^\*' | grep -v "$DEFAULT_BRANCH$"
    ```
-   This lists all local branches whose commits are fully reachable from `dev`.
+   This lists all local branches whose commits are fully reachable from the trunk.
 
 4. **Content verification gate (MANDATORY — see Step 3 for per-file details):**
-   For each merged branch, verify content exists on `origin/dev` before deletion:
+   For each merged branch, verify content exists on `origin/$DEFAULT_BRANCH` before deletion:
    ```bash
+   DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
    MERGED_BRANCH="<branch>"
-   # Check diff against origin/dev
-   CHANGED_FILES=$(git diff --stat origin/dev..."$MERGED_BRANCH")
+   # Check diff against origin/$DEFAULT_BRANCH
+   CHANGED_FILES=$(git diff --stat "origin/$DEFAULT_BRANCH...$MERGED_BRANCH")
    if [ -z "$CHANGED_FILES" ]; then
-       echo "Branch $MERGED_BRANCH: all content present on origin/dev — safe to delete"
+       echo "Branch $MERGED_BRANCH: all content present on origin/$DEFAULT_BRANCH — safe to delete"
    else
-       echo "Branch $MERGED_BRANCH has content NOT on origin/dev — flagging for review"
+       echo "Branch $MERGED_BRANCH has content NOT on origin/$DEFAULT_BRANCH — flagging for review"
        # Produce content comparison table (same format as Step 3)
        # HALT deletion for this branch
    fi
