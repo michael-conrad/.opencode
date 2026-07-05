@@ -157,7 +157,7 @@ Write the result contract to:
 {project_root}/tmp/{issue-N}/artifacts/pipeline-exec-summary-{STATUS}-{timestamp}.yaml
 ```
 
-Following the #932 naming convention per `implementation-pipeline` pipeline-executor dispatch table.
+Following the #932 naming convention per the implementation-pipeline SKILL.md Trigger Dispatch Table.
 
 ## Live Verification: Completion Evidence (MANDATORY)
 
@@ -172,6 +172,6 @@ Following the #932 naming convention per `implementation-pipeline` pipeline-exec
 
 - `git-workflow --task review-prep`
 - `git-workflow --task pr-creation`
-- `implementation-pipeline/tasks/pipeline-executor.md` — Step 14 dispatch table
+- `implementation-pipeline/SKILL.md` — Trigger Dispatch Table
 - `000-critical-rules.md` — URL ALWAYS last requirement
 - `080-code-standards.md` — AI Co-Authored Attribution

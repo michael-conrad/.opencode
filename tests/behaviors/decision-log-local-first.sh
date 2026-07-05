@@ -4,7 +4,7 @@
 # This script is an artifact-only generator — it does NOT evaluate model output.
 # Behavioral Enforcement Test: Decision Log Local-First Storage
 #
-# SC-9: assemble-work.md Step 7 writes decision log entries to .issues/
+# SC-9: implementation-pipeline SKILL.md Trigger Dispatch Table routes decision log entries to .issues/
 # local storage via `local-issues comment`, NOT to GitHub via
 # `github_add_issue_comment`.
 #
@@ -19,7 +19,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="decision-log-local-first"
-SCENARIO_PROMPT="After running divide-and-conquer assemble-work for sub-issue #42 under plan #691, I need to persist a decision_log_entry to the Plan issue. The decision log records that the agent chose to use a file-based cache instead of an in-memory cache because the data exceeds available RAM. Persist this decision log entry using the correct storage mechanism."
+SCENARIO_PROMPT="After running the implementation-pipeline SKILL.md Trigger Dispatch Table for sub-issue #42 under plan #691, I need to persist a decision_log_entry to the Plan issue. The decision log records that the agent chose to use a file-based cache instead of an in-memory cache because the data exceeds available RAM. Persist this decision log entry using the correct storage mechanism."
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 

@@ -15,7 +15,7 @@ suggested_split: <proposed-split-strategy>
 
 ## Re-Dispatch Protocol
 
-When `assemble-work` receives an OVERFLOW result:
+When the implementation-pipeline per the SKILL.md Trigger Dispatch Table receives an OVERFLOW result:
 
 - [ ] 1. Record completed items in work state file
 - [ ] 2. Create new sub-agent task(s) for remaining items using suggested split strategy

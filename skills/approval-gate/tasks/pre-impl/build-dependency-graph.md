@@ -49,7 +49,7 @@ Analyze cross-issue relationships using file/symbol references from screening re
     - Exception: isolated sub-issues with no file overlap → task() to own sub-agent
    - Edge case: parent excluded but sub-issues included → include independently
 
-1. **Merge-time conflict risk:** Issues touching the same file in different sections. Noted in execution plan for `assemble-work` handling. Do NOT block execution.
+1. **Merge-time conflict risk:** Issues touching the same file in different sections. Noted in execution plan for the implementation-pipeline per the SKILL.md Trigger Dispatch Table. Do NOT block execution.
 
 ### Step 3: Classify Each Issue
 

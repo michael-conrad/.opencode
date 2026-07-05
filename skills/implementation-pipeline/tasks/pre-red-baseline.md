@@ -137,6 +137,6 @@ Where `{STATUS}` is uppercase: `PASS`, `FAIL`, `UNVERIFIED`.
 ## Related Files
 
 - `skills/implementation-pipeline/SKILL.md` — dispatch routing table
-- `skills/implementation-pipeline/tasks/pipeline-executor.md` — pipeline step definitions
+- `skills/implementation-pipeline/SKILL.md` — Trigger Dispatch Table (pipeline step definitions)
 - `skills/implementation-pipeline/pipeline-state-machine.yaml` — Z3 legal transition definitions
 - `.opencode/tools/solve` — Z3 constraint solver for state management

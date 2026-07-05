@@ -553,7 +553,7 @@ Content-verification tests (checking rule text existence) are SECONDARY — they
 ```
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | SKILL.md routes only to assemble-work | `string + semantic` | grep + sub-agent read |
+| SC-1 | SKILL.md routes only to Trigger Dispatch Table | `string + semantic` | grep + sub-agent read |
 | SC-14 | Agent dispatches sub-agents, no inline work | `behavioral` | `opencode-cli run` → stderr assertions |
 ```
 

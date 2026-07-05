@@ -56,10 +56,10 @@ Check an existing plan for placeholders and completeness.
   - SC: All
   - Expected: file exists
 
-- [ ] 11. (**inline**) Pipeline-gate completeness — All implementation-pipeline gate steps present
-  - Command: read `implementation-pipeline/SKILL.md` §Dispatch Routing Table, compare against plan
+- [ ] 11. (**inline**) Pipeline-gate completeness — All implementation-pipeline gate steps present with correct skill/task references
+  - Command: read `implementation-pipeline/SKILL.md` §Trigger Dispatch Table, compare against plan. Every step in the dispatch table MUST be present in the plan with the correct skill/task name. Plans that omit mandatory steps or use incorrect skill/task names are defective and MUST be rejected. This is non-waivable — no exception for any reason.
   - SC: SC-13
-  - Expected: all gate steps present in plan's exit criteria or phase structure
+  - Expected: all gate steps present in plan's exit criteria or phase structure with correct skill/task references
 
 - [ ] 12. (**inline**) Global sequential numbering — Step numbering is globally sequential across all phases
   - Command: parse plan step numbers, verify no per-phase restart
@@ -71,10 +71,10 @@ Check an existing plan for placeholders and completeness.
   - SC: SC-9
   - Expected: all steps use checkbox format
 
-- [ ] 14. (**inline**) Phase workflow completeness — Every phase contains full implementation workflow step sequence
-  - Command: read `implementation-pipeline/SKILL.md` §Dispatch Routing Table, compare each phase
+- [ ] 14. (**inline**) Phase workflow completeness — Every phase contains full implementation workflow step sequence with correct skill/task references
+  - Command: read `implementation-pipeline/SKILL.md` §Trigger Dispatch Table, compare each phase. Every step in the dispatch table MUST be present in each phase with the correct skill/task name. Plans that omit mandatory steps or use incorrect skill/task names are defective and MUST be rejected. This is non-waivable — no exception for any reason.
   - SC: SC-13
-  - Expected: each phase has complete RED/GREEN chain
+  - Expected: each phase has complete RED/GREEN chain with correct skill/task references
 
 - [ ] 15. (**inline**) No duplicate global steps — Global pre/post steps not duplicated across per-file phases
   - Command: check Phase 1 (global pre) and Phase 7-8 (global post) steps against per-file phases

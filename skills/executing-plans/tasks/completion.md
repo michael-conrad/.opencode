@@ -4,15 +4,15 @@ Idempotent completion subtask for executing-plans. Ensures mandatory steps ran r
 
 ## State Check Phase
 
-- [ ] 1. **assemble-work task():** Verify implementation-pipeline task() was attempted
+- [ ] 1. **implementation-pipeline dispatch:** Verify implementation-pipeline dispatch was performed per the SKILL.md Trigger Dispatch Table
 - [ ] 2. **Work state file:** Verify `{project_root}/tmp/{N}/work.md` state file reflects actual outcome (completed, partial, failed)
 - [ ] 3. **Chat exec summary:** Verify chat output follows exec summary format (summary → outcome → URL → byline)
 
 ## Skill-Specific Completion
 
-- [ ] 1. **assemble-work task()** (if not already performed):
-   - Check evidence for assemble-work invocation
-   - If missing: invoke `implementation-pipeline --task assemble-work` as remediation
+- [ ] 1. **implementation-pipeline dispatch** (if not already performed):
+   - Check evidence for implementation-pipeline dispatch per the SKILL.md Trigger Dispatch Table
+   - If missing: invoke the implementation-pipeline per the SKILL.md Trigger Dispatch Table as remediation
 
 - [ ] 2. **Work state file** (if not already updated):
    - Check `{project_root}/tmp/{N}/work.md` state file against actual completion state
@@ -57,7 +57,7 @@ Generate executive summary in chat:
 ## Pipeline Signal
 
 ```
-CONTINUE: implementation-pipeline --task assemble-work
+CONTINUE: implementation-pipeline per the SKILL.md Trigger Dispatch Table
 HALT
 ```
 

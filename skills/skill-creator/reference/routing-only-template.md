@@ -43,8 +43,7 @@ provenance: AI-generated
      deliverables that must be discarded
 - [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless
      explicitly marked as inline/orchestrator in this skill
-- [ ] 4. Sub-agents must not dispatch sub-agents
-- [ ] 5. Return only routing-significant data: `status`, `finding_summary`,
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`,
      `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Trigger Dispatch Table

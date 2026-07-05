@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Analyze interdependencies and determine execution order for all approved issues — whether one or many — producing a flat item list for `assemble-work`. Every approval follows this unified path: sub-issue expansion → flat item list → assemble-work → work branch → pr-creation → one PR.
+Analyze interdependencies and determine execution order for all approved issues — whether one or many — producing a flat item list for the implementation-pipeline. Every approval follows this unified path: sub-issue expansion → flat item list → implementation-pipeline → work branch → pr-creation → one PR.
 
 This task is a **routing document** that delegates to 6 atomic tasks in `pre-impl/`.
 
@@ -15,7 +15,7 @@ This task is a **routing document** that delegates to 6 atomic tasks in `pre-imp
 ## Exit Criteria
 
 - Execution plan presented in chat (informative only)
-- Agent proceeds immediately to `assemble-work`
+- Agent proceeds immediately to the implementation-pipeline per the SKILL.md Trigger Dispatch Table
 
 ## Atomic Task Chain
 
@@ -31,7 +31,7 @@ collect-screening-results → reconcile-status → build-dependency-graph
 | `pre-impl/build-dependency-graph` | Flat item list, cross-issue analysis, issue classification, dependency graph construction | Steps 1, 2, 3, 4 |
 | `pre-impl/check-cross-spec-overlap` | Overlap check against open specs/plans outside the batch (four-tier classification) | Step 2 (Cross-Spec Overlap subsection) |
 | `pre-impl/write-work-state` | Execution strategy, dev base hash, task context, work state file persistence | Steps 5, 7, 8, 9 |
-| `pre-impl/yield-to-assemble-work` | Present execution plan, verify no-questions checkpoint, proceed to assemble-work | Steps 6, 10 |
+| `pre-impl/yield-to-assemble-work` | Present execution plan, verify no-questions checkpoint, proceed to implementation-pipeline per the SKILL.md Trigger Dispatch Table | Steps 6, 10 |
 
 **Chain-of-responsibility note:** Each atomic task uses the work state file for inter-task I/O. Tasks read inputs from predecessor sections and write results to their own section per `enforcement/work-state-schema.md`.
 
@@ -44,7 +44,7 @@ collect-screening-results → reconcile-status → build-dependency-graph
 - Never assume all issues are independent without analysis
 - Never execute must-precede issues out of order
 - Never use `question` tool after presenting the execution plan
-- Never HALT between plan presentation and `assemble-work`
+- Never HALT between plan presentation and the implementation-pipeline dispatch per the SKILL.md Trigger Dispatch Table
 - Never escalate status inconsistencies to the developer (use `reconcile-issue-graph`)
 
 ## Cross-References

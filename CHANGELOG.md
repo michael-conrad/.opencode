@@ -86,6 +86,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 
 - **Evidence Gate 4 (Noise Gate)** (#1178) - Removed Gate 4 from `session-enforcement.ts` pre-commit hook. The noise gate that blocked commits with only submodule-pointer changes has been removed. Submodule pointer hygiene is now managed through the tag-based hash permanence system and pre-work cycle, not a pre-commit gate.
+- **assemble-work.md and pipeline-executor.md** (#1674, Card 5) - Deleted `implementation-pipeline/tasks/assemble-work.md` and `implementation-pipeline/tasks/pipeline-executor.md`. Pipeline routing now uses the `implementation-pipeline/SKILL.md` Trigger Dispatch Table as the single source of truth. All cross-references updated in guidelines, test files, and CHANGELOG.
 
 ### Fixed
 

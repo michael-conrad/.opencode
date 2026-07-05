@@ -54,7 +54,7 @@ Fixes #<parent>
 
 ### Work PR
 
-For work PRs (assembled from multiple issues via `assemble-work`):
+For work PRs (assembled from multiple issues via the implementation-pipeline per the SKILL.md Trigger Dispatch Table):
 
 - [ ] 1. **Read work state file** (`{project_root}/tmp/{issue-N}/work.md`) to get list of all issues in the work
 - [ ] 2. **Build both sections:**
@@ -66,7 +66,7 @@ For work PRs (assembled from multiple issues via `assemble-work`):
 
 <1-2 sentences describing the overall impact of the work>
 
-**Outcome:** All approvals now follow one consistent workflow: sub-issue expansion → assemble-work → work branch → single PR.
+**Outcome:** All approvals now follow one consistent workflow: sub-issue expansion → implementation-pipeline per the SKILL.md Trigger Dispatch Table → work branch → single PR.
 
 ## Work Issues
 
@@ -110,7 +110,7 @@ Fixes #103
 
 Unified five approved issues into a single work implementation, eliminating forked execution paths.
 
-**Outcome:** All approvals now follow one consistent workflow: sub-issue expansion → assemble-work → work branch → single PR.
+**Outcome:** All approvals now follow one consistent workflow: sub-issue expansion → implementation-pipeline per the SKILL.md Trigger Dispatch Table → work branch → single PR.
 
 
 ## Work Issues

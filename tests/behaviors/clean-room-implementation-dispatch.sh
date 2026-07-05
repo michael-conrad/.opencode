@@ -16,7 +16,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="clean-room-implementation-dispatch"
-SCENARIO_PROMPT="You have an approved multi-phase plan with 2 phases. Phase 1 adds a new rule to guidelines/000-critical-rules.md. Phase 2 adds the corresponding enforcement test. Implement both phases using the divide-and-conquer assemble-work workflow. Dispatch sub-agents for each phase. Per spec #397 SC-6, the task context must include audit_phase for each pipeline stage."
+SCENARIO_PROMPT="You have an approved multi-phase plan with 2 phases. Phase 1 adds a new rule to guidelines/000-critical-rules.md. Phase 2 adds the corresponding enforcement test. Implement both phases using the implementation-pipeline SKILL.md Trigger Dispatch Table. Dispatch sub-agents for each phase. Per spec #397 SC-6, the task context must include audit_phase for each pipeline stage."
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 

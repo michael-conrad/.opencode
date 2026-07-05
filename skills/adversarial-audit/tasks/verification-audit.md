@@ -229,7 +229,7 @@ After verification-audit completes:
 - `tasks/cross-validate.md` — consensus computation with pre-resolved verdicts
 - `tasks/resolve-models.md` — cross-family selection
 - `080-code-standards.md` §Evidence Type Taxonomy — evidence type declarations and enforcement matrix
-- `implementation-pipeline/tasks/pipeline-executor.md` — dispatch routing table (step 10 dispatches verification-audit)
+- `implementation-pipeline/SKILL.md` — Trigger Dispatch Table (dispatches verification-audit)
 - `000-critical-rules.md` — behavioral evidence mandate
 
 ```yaml+symbolic

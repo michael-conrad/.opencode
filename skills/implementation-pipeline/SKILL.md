@@ -31,8 +31,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
 - [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
-- [ ] 4. Sub-agents must not dispatch sub-agents
-- [ ] 5. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Trigger Dispatch Table
 
@@ -92,7 +91,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 **Note:** The `adversarial-audit` step is a multi-dispatch sequence with remediation loop-back. The audit task dispatched depends on pipeline phase (e.g., `verification-audit` for post-implementation, `spec-audit` for pre-implementation, `plan-fidelity` for plan validation):
 - [ ] 1. Run `.opencode/tools/resolve-models` to select cross-family auditors
 - [ ] 2. Dispatch the appropriate audit task with `subagent_type` from `auditor_1`
-- [ ] 3. If auditor 1 returned non-clean-pass (FAIL): remediate the root cause, then restart from step 1 (re-run resolve-models). Do NOT dispatch auditor 2. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in `pipeline-executor.md`.
+- [ ] 3. If auditor 1 returned non-clean-pass (FAIL): remediate the root cause, then restart from step 1 (re-run resolve-models). Do NOT dispatch auditor 2. `DONE_WITH_CONCERNS` is coerced to FAIL per the bright-line coercion rule in this SKILL.md §Dispatch Routing Table.
 - [ ] 4. Dispatch the same audit task with `subagent_type` from `auditor_2`
 - [ ] 5. If auditor 2 returned non-clean-pass: remediate the root cause, then restart from step 1 (re-run resolve-models).
 - [ ] 6. Both auditors clean PASS. Collect both `artifact_path` values and pass as `auditor_artifact_paths` context to `cross-validate`.
@@ -118,12 +117,11 @@ Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run
 
 | Task | Action |
 |------|--------|
-| `assemble-work` (orchestrator entry) | Orchestrator reads `implementation-pipeline/tasks/assemble-work.md` directly and executes its steps |
-| `pipeline-executor` (step dispatch loop) | Orchestrator reads `implementation-pipeline/tasks/pipeline-executor.md` directly and dispatches each step's sub-agent via task() |
+| Orchestrator entry | Orchestrator reads the plan, creates branches, dispatches sub-agents per the Trigger Dispatch Table. The orchestrator does NOT read any task file — the Trigger Dispatch Table IS the single source of truth for all pipeline steps. |
 
 ### Sub-Agent Tasks (dispatch via task())
 
-All other steps in the Trigger Dispatch Table with `sub-task` dispatch are called via:
+All steps in the Trigger Dispatch Table with `sub-task` dispatch are called via:
 
 `task(..., prompt: "execute <step_label> from implementation-pipeline. Read \`implementation-pipeline/tasks/<step_label>.md\` first")`
 
@@ -147,7 +145,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ## Sub-Agent Routing
 
-**Orchestrator entry point:** `assemble-work` is the mandatory entry point. The orchestrator reads `implementation-pipeline/tasks/assemble-work.md` directly and executes its steps after plan approval. `assemble-work` reads the plan, creates branches, dispatches sub-agents, and routes to `pipeline-executor` for the internal step dispatch sequence. The orchestrator reads `pipeline-executor.md` directly and dispatches each step's sub-agent via task() — `pipeline-executor` is NOT dispatched as a sub-agent.
+**Orchestrator entry point:** The orchestrator reads the plan, creates branches, and dispatches sub-agents per the Trigger Dispatch Table. The Trigger Dispatch Table IS the single source of truth — the orchestrator dispatches each step using the canonical dispatch string from the table. No task files are read by the orchestrator.
 
 All substantive work runs via `task(subagent_type="general")`. The orchestrator is a pure router — no creative work, no file edits, no inline analysis. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include `audit_phase` in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`.
 
@@ -167,7 +165,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 
 | Violation | Forbidden Pattern | Correct Pattern |
 |-----------|-------------------|-----------------|
-| Preloaded file paths | "Read pipeline-executor.md then execute step 1" | "execute red-phase from implementation-pipeline" |
+| Preloaded file paths | "Read the task file then execute step 1" | "execute red-phase from implementation-pipeline" |
 | Preloaded step sequences | "Step 1: red. Step 2: green." | "execute green-phase from implementation-pipeline" |
 | Preloaded expected outcomes | "Return { test_count, pass_count }" | Let sub-agent define its own result contract |
 | Preloaded orchestrator reasoning | "The rename was just completed so we need to..." | Pure objective, no narrative |
@@ -220,7 +218,7 @@ Return `status: BLOCKED` with `reason: PRELOADED_CONTEXT_REJECTED`.
 
 #### Pipeline Re-Priming Enforcement Block
 
-At every pipeline stage transition (pre-work → assemble-work → verification-before-completion → finishing-checklist → review-prep), the orchestrator re-encounters this enforcement block restating procedural discipline:
+At every pipeline stage transition (pre-work → implementation-pipeline → verification-before-completion → finishing-checklist → review-prep), the orchestrator re-encounters this enforcement block restating procedural discipline:
 
 - Sub-agents execute — orchestrators route
 - No inline work — all file modifications, analysis, and decisions go through clean-room sub-agents

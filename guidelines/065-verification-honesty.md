@@ -391,7 +391,7 @@ A break occurs when behavioral verification catches a defect at the earliest pos
 
 ### DONE_WITH_CONCERNS Coercion Trigger
 
-`DONE_WITH_CONCERNS` is a coercion trigger at the verification honesty gate. When a sub-agent returns `DONE_WITH_CONCERNS`, the orchestrator MUST coerce it to FAIL per the bright-line coercion rule in `implementation-pipeline/tasks/pipeline-executor.md`. Caveats are defects, not completions — a `DONE` status with a non-empty `caveat_summary` is also coerced to FAIL.
+`DONE_WITH_CONCERNS` is a coercion trigger at the verification honesty gate. When a sub-agent returns `DONE_WITH_CONCERNS`, the orchestrator MUST coerce it to FAIL per the bright-line coercion rule in `implementation-pipeline/SKILL.md` Trigger Dispatch Table. Caveats are defects, not completions — a `DONE` status with a non-empty `caveat_summary` is also coerced to FAIL.
 
 ### Remediation-First Protocol
 
