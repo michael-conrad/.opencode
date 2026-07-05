@@ -1,12 +1,12 @@
-# Task: provenance/dev-push-provenance
+# Task: provenance/trunk-push-provenance
 
 ## Purpose
 
-After pushing a submodule to its remote dev branch, create provenance tracking (issue + optionally PR) in the submodule repository with three-tier fallback model. Tag-based provenance (per AGENTS.md §Tag Layers) serves as Tier 3 fallback.
+After pushing a submodule to its remote trunk branch, create provenance tracking (issue + optionally PR) in the submodule repository with three-tier fallback model. Tag-based provenance (per AGENTS.md §Tag Layers) serves as Tier 3 fallback.
 
 ## Entry Criteria
 
-- Submodule has been pushed to remote dev
+- Submodule has been pushed to remote trunk
 - Platform detection completed and cached (provenance/platform-detection)
 - Parent repo, branch, and issue number are known
 
@@ -15,7 +15,6 @@ After pushing a submodule to its remote dev branch, create provenance tracking (
 - Provenance tracked in submodule repo (Tier 1, 2, or 3)
 - Cross-reference comment posted on parent issue (Tier 1 or 2 only)
 - Operation logged with timestamp and tier
-- Git workflow continues regardless of outcome
 
 ## Procedure
 
@@ -35,12 +34,12 @@ When `access_level` is `full`:
 - Title: `Sync from <parent-repo>/<parent-branch>: <change-description>`
 - Body includes parent repo, branch, issue, submodule path, and what changed
 
-**Create PR in submodule repo (targeting dev branch):**
+**Create PR in submodule repo (targeting trunk branch):**
 - Title: Same as issue
 - Body: `Fixes #<submodule-issue-number>` + parent references
 
 **If PR creation succeeds:**
-- Record: `{timestamp, submodule, operation: "dev-push", tier: 1, issue_number, pr_number}`
+- Record: `{timestamp, submodule, operation: "trunk-push", tier: 1, issue_number, pr_number}`
 - Cross-reference parent issue
 - DONE
 
@@ -90,13 +89,11 @@ Post comment on parent issue:
 Submodule provenance tracked in <sub-owner>/<sub-repo>#<submodule-issue-number> (Tier <tier>)
 [If PR exists: PR #<pr-number>]
 
-Operation: dev-push | Submodule: <submodule-path>
+Operation: trunk-push | Submodule: <submodule-path>
 
 ---
 <AgentName> (<ModelId>)
 ```
-
-**Non-blocking:** Permission denied, rate limit, or network errors → log warning and continue.
 
 ### Step 10: Log Provenance Result
 
@@ -106,7 +103,7 @@ Always log regardless of tier:
   "timestamp": "<ISO 8601>",
   "submodule": "<owner>/<repo>",
   "submodule_path": "<path-in-parent>",
-  "operation": "dev-push",
+  "operation": "trunk-push",
   "tier": 1,
   "issue_number": 123,
   "pr_number": 45,
@@ -124,10 +121,9 @@ For downgrade scenarios, `failure_reasons` accumulates reasons at each tier.
 | P2 | Silent fallback to Tier 3 when no API access |
 | P3 | Issue body includes parent repo, branch, issue, and change description |
 | P4 | Parent issue receives cross-reference comment (Tier 1/2 only) |
-| P12 | All fallbacks silent — no HALT, no blocking |
 | P13 | Log entry includes timestamp, submodule, operation, tier |
 
 ## Context Required
 
-- Related tasks: `provenance/platform-detection`, `provenance/promotion-provenance`
+- Related tasks: `provenance/platform-detection`
 - Related skills: `gitbucket-api`

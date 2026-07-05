@@ -21,7 +21,7 @@ behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 
 OVERALL_RESULT=0
 
-assert_required_pattern_present "provenance/platform-detection\|provenance/dev-push-provenance\|provenance/promotion-provenance" "provenance subtask references" || OVERALL_RESULT=1
+assert_required_pattern_present "provenance/platform-detection\|provenance/trunk-push-provenance" "provenance subtask references" || OVERALL_RESULT=1
 
 echo ""
 if [ "$OVERALL_RESULT" -eq 0 ]; then
