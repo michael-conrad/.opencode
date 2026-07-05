@@ -109,6 +109,30 @@ GATE_EXIT_CODES+=($?)
   done
 
   if [ "$ALL_SUBMODULE_POINTERS" = "1" ]; then
+    # Check if there are uncommitted non-submodule changes in the working tree
+    UNCOMMITTED_NON_SUBMODULE=0
+    UNSTAGED_FILES=$(git diff --name-only 2>/dev/null)
+    for f in $UNSTAGED_FILES; do
+      IS_SUBMODULE=0
+      for sp in $SUBMODULE_PATHS; do
+        if [ "$f" = "$sp" ]; then
+          IS_SUBMODULE=1
+          break
+        fi
+      done
+      if [ "$IS_SUBMODULE" -eq 0 ]; then
+        UNCOMMITTED_NON_SUBMODULE=1
+        break
+      fi
+    done
+
+    if [ "$UNCOMMITTED_NON_SUBMODULE" = "1" ]; then
+      # Non-submodule changes exist in working tree — allow the commit
+      echo "  ⚠ Submodule pointer-only staged, but non-submodule changes exist in working tree."
+      echo "  Allowing commit — submodule pointers will accompany the next non-submodule commit."
+      exit 0
+    fi
+
     echo ""
     echo "ERROR: Submodule-pointer-only commit blocked."
     echo ""

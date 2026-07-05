@@ -36,6 +36,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "check pr" / "check prs" / "check merged prs" / "pr merged" | `check-pr` | `sub-task` | {branch_name} |
 | "provenance" / "provenance check" | `provenance` | `sub-task` | {submodule_path} |
 | "sync submodules" / "update submodules" | `submodule-sync` | `sub-task` | {submodule_paths} |
+| "pre-commit-pointer-check" / "check submodule pointers" | `pre-commit-pointer-check` | `sub-task` | {branch_name} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Persona
@@ -59,6 +60,7 @@ Git Workflow Enforcer. Focus: trunk-based development workflow, block AI on prot
 | `pair-cleanup` |
 | `pair-mode-resume` |
 | `submodule-sync` |
+| `pre-commit-pointer-check` |
 | `completion` |
 
 ## Routing: Feature PR
@@ -82,19 +84,10 @@ Git Workflow Enforcer. Focus: trunk-based development workflow, block AI on prot
 | `check-pr` | `task(..., prompt: "execute check-pr task from git-workflow")` |
 | `provenance` | `task(..., prompt: "execute provenance task from git-workflow")` |
 | `submodule-sync` | `task(..., prompt: "execute submodule-sync task from git-workflow")` |
+| `pre-commit-pointer-check` | `task(..., prompt: "execute pre-commit-pointer-check task from git-workflow")` |
 | `completion` | `task(..., prompt: "execute completion task from git-workflow")` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "git-workflow"})` ``
-
-## Sub-Agent Tasks for Submodule Operations
-
-| Sub-Agent Task | Trigger | Task Context (MUST receive) | Exclusions (MUST NOT receive) | Config |
-|----------------|---------|----------------------------------|-------------------------------|--------|
-| `submodule-tag-prework` | pre-work Step 3.5 | parent_repo, issue_number, submodule_paths | Implementation context, agent memory, other sub-agent results | `.opencode/agents/submodule-tag-prework.jsonc` |
-| `submodule-feature-push` | review-prep Step 0 | parent_repo, issue_number, submodule_paths, submodule_branches | Implementation context, agent memory, orchestrator reasoning | `.opencode/agents/submodule-feature-push.jsonc` |
-| `submodule-liveness-check` | enforcement-gate Step 0, PR-time | submodule_paths, referenced_hashes, parent_repo, issue_number | Implementation context, agent memory, prior verification results | `.opencode/agents/submodule-liveness-check.jsonc` |
-| `submodule-dev-restore` | cleanup Step 1.9 | submodule_paths | Implementation context, agent memory, other sub-agent results | `.opencode/agents/submodule-dev-restore.jsonc` |
-| `submodule-sync` | user "sync submodules" / mid-feature currency | submodule_paths | Implementation context, agent memory, orchestrator reasoning | `.opencode/agents/submodule-sync.jsonc` |
 
 ## Operating Protocol
 
@@ -124,7 +117,7 @@ All git tags in this project follow a unified naming convention. The suffix rule
 **Cross-references:**
 - Spec #950 — canonical suffix derivation rule
 - Spec #391 — checkpoint tag lifecycle (create during assemble-work, delete during cleanup)
-- `submodule-tag-prework` task — hash permanence tag creation
+- `pre-work.md` Step 3.5 — hash permanence tag creation
 - `pipeline-executor.md` — checkpoint creation and rollback substeps
 - `branch-cleanup.md` Step 3.3 — checkpoint tag deletion
 
@@ -132,7 +125,7 @@ All git tags in this project follow a unified naming convention. The suffix rule
 
 All tasks run via `task(subagent_type="general")` with `{ branch_name, worktree.path, github.owner, github.repo }`, excluding implementation context and agent memory. Auditor tasks use subagent_type from resolve-models result contract (auditor_1/auditor_2) — NOT `general`. Include audit_phase in task context when routing auditors. See adversarial-audit SKILL.md §DISPATCH_GATE. `pr-creation` receives spec summary. `cleanup` receives PR merge status. `provenance` receives submodule path. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
 
-Submodule sub-agents (`submodule-tag-prework`, `submodule-feature-push`, `submodule-liveness-check`, `submodule-dev-restore`) receive scoped context per the Sub-Agent Tasks for Submodule Operations table above. All are clean-room runs — no implementation context, agent memory, or orchestrator reasoning shared. Submodule git operations are NEVER performed inline.
+Submodule operations are standard tasks dispatched via `task(subagent_type="general")` with scoped context. All are clean-room runs — no implementation context, agent memory, or orchestrator reasoning shared. Submodule git operations are NEVER performed inline.
 
 ### DISPATCH_GATE — Orchestrator task() Prompt Protocol
 
@@ -233,16 +226,16 @@ rules:
     source: "git-workflow/SKILL.md"
 
   - id: git-workflow-submodule-001
-    title: "Pre-work MUST tag submodule dev tips with <parent>/<issue> format"
+    title: "Pre-work MUST tag submodule trunk tips with <parent>/<issue> format"
     conditions:
       all: ["pipeline_stage == 'pre_work'", "has_submodules == true", "submodule_tag_created == false"]
     actions: [HALT, REQUIRE_TAG]
     source: "git-workflow/SKILL.md"
 
   - id: git-workflow-submodule-002
-    title: "Submodule changes MUST use feature-branch pushes with tip tags, not dev pushes"
+    title: "Submodule changes MUST use feature-branch pushes with tip tags, not trunk pushes"
     conditions:
-      all: ["submodule_push_attempted == true", "push_target == 'dev'", "is_feature_branch_push == false"]
+      all: ["submodule_push_attempted == true", "push_target == 'trunk'", "is_feature_branch_push == false"]
     actions: [HALT]
     source: "git-workflow/SKILL.md"
 
@@ -254,9 +247,9 @@ rules:
     source: "git-workflow/SKILL.md"
 
   - id: git-workflow-submodule-004
-    title: "Cleanup MUST restore submodules to dev tip, NO dependency-sync PR"
+    title: "Cleanup MUST restore submodules to trunk tip, NO dependency-sync PR"
     conditions:
-      all: ["pipeline_stage == 'cleanup'", "has_submodules == true", "submodule_dev_restored == false"]
+      all: ["pipeline_stage == 'cleanup'", "has_submodules == true", "submodule_trunk_restored == false"]
     actions: [HALT, RESTORE_SUBMODULES]
     source: "git-workflow/SKILL.md"
 
@@ -265,4 +258,25 @@ rules:
     conditions:
       all: ["submodule_operation_pending == true", "routed_to_sub_agent == false"]
     actions: [HALT]
+    source: "git-workflow/SKILL.md"
+
+  - id: git-workflow-submodule-006
+    title: "Submodule sync MUST resolve trunk branch via $DEFAULT_BRANCH, not hardcoded branch name"
+    conditions:
+      all: ["submodule_sync_pending == true", "trunk_branch_resolved_via_default == false"]
+    actions: [HALT, REQUIRE_DEFAULT_BRANCH_RESOLUTION]
+    source: "git-workflow/SKILL.md"
+
+  - id: git-workflow-submodule-007
+    title: "Submodule divergence MUST be handled autonomously before escalation"
+    conditions:
+      all: ["submodule_divergence_detected == true", "autonomous_resolution_attempted == false"]
+    actions: [HALT, REQUIRE_AUTONOMOUS_RESOLUTION]
+    source: "git-workflow/SKILL.md"
+
+  - id: git-workflow-submodule-008
+    title: "No git checkout -b main dev || true fallback in submodule sync operations"
+    conditions:
+      all: ["submodule_sync_pending == true", "main_branch_fallback_present == true"]
+    actions: [HALT, REMOVE_MAIN_BRANCH_FALLBACK]
     source: "git-workflow/SKILL.md"

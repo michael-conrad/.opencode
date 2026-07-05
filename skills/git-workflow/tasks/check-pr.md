@@ -46,7 +46,7 @@ Execute a 6-phase serial chain to scan for merged PRs, verify each merge, close 
 
 - [ ] Detect submodules via filesystem glob scan: `ls -d .git/ */.git/ */.git/`
 - [ ] For each submodule with a feature branch, clean up the merged branch
-- [ ] Restore submodules to dev tip via `submodule-dev-restore` sub-agent task()
+- [ ] Restore submodules to dev tip via sub-agent task()
 - [ ] Do NOT create dependency-sync PRs — leave submodule pointers dirty
 
 ## Phase 5: Parent Branch Cleanup
@@ -67,6 +67,6 @@ Execute a 6-phase serial chain to scan for merged PRs, verify each merge, close 
   - Already on dev → pull latest, stay on dev
   - Already on main → pull latest, stay on main
   - On non-standard branch → pull latest on current branch, do NOT switch
-- [ ] Submodule pointers in the parent repo are dirty by design. They are restored during the next pre-work cycle (submodule-tag-prework). Do NOT commit, reset, or otherwise correct them.
+- [ ] Submodule pointers in the parent repo are dirty by design. They are restored during the next pre-work cycle. Do NOT commit, reset, or otherwise correct them.
 - [ ] Verify clean working tree: `git status --porcelain` must be empty
 - [ ] Report final state summary and HALT

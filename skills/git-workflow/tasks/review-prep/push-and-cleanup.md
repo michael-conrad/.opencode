@@ -22,7 +22,7 @@ Clean temp files, handle submodule push automation, rebase on current dev, and v
 
 **If no submodules detected via glob scan:** Skip entirely.
 
-**If submodules detected:** The orchestrator dispatches a `submodule-feature-push` sub-agent to handle submodule push automation instead of executing inline bash.
+**If submodules detected:** The orchestrator dispatches a sub-agent via `task(subagent_type="general")` to handle submodule push automation instead of executing inline bash.
 
 #### Task Context Schema
 

@@ -105,10 +105,10 @@ git rebase origin/"$DEFAULT_BRANCH"
 ### Step 2.5: Proactive Repo State Verification
 
 **Before creating any feature branch, verify repo state:**
-- [ ] 1. **Submodule initialization check:** Run glob scan to detect git repos: `REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')`. If non-root repos found, note that submodule sync will be handled by the `submodule-tag-prework` sub-agent task() in Steps 2.7/3.5 — do NOT run submodule commands inline.
+- [ ] 1. **Submodule initialization check:** Run glob scan to detect git repos: `REPO_PATHS=$(ls -d .git/ */.git/ */.git 2>/dev/null | sed 's|/\.git$||' | sed 's|/$||')`. If non-root repos found, note that submodule sync will be handled by a standard sub-agent task() in Steps 2.7/3.5 — do NOT run submodule commands inline.
 
-- [ ] 2. **Submodule currency check:** Deferred to the `submodule-tag-prework` sub-agent task() (Steps 2.7/3.5).
-- [ ] 3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be task()ed to `submodule-tag-prework` — do NOT run `git submodule init` or `git submodule foreach` inline.
+- [ ] 2. **Submodule currency check:** Deferred to the sub-agent task() (Steps 2.7/3.5).
+- [ ] 3. **Fresh clone handling:** After `git clone`, the dev parking protocol must be task()ed to a sub-agent — do NOT run `git submodule init` or `git submodule foreach` inline.
 
 ### Step 2.7: Automatic Prerequisite Operations
 
@@ -120,7 +120,7 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 |-----------|------|----------------|-----------|
 | `git fetch origin` | Step 1.5/2 | Pipeline prerequisite | Remote exists |
 | `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"` | Step 2 | Tier 1 mandate prerequisite | Always when remote exists |
-| Task() `submodule-tag-prework` sub-agent | Step 2.5/3.5 | Tier 1 mandate prerequisite | Submodules detected via glob scan |
+| Task() sub-agent for submodule ops | Step 2.5/3.5 | Tier 1 mandate prerequisite | Submodules detected via glob scan |
 | `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 3 | Tier 1 mandate — required by `000-critical-rules.md` §Skipping Git Pre-Check | Always |
 | `git push -u origin feature/N-xyz` | Post-Step 5 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
 
@@ -145,9 +145,9 @@ The agent MUST NOT ask for confirmation, permission, or readiness before perform
 
 **See also:** `000-critical-rules.md` §"Pushing Agent Intelligence Decisions to the User" — whether to sync a submodule, create a branch, or push is NOT a decision requiring user input when authorization covers the pipeline stage.
 
-### Sub-Agent Boundary: `submodule-tag-prework` — Orchestrator Dispatch
+### Sub-Agent Boundary: Submodule Operations — Orchestrator Dispatch
 
-When submodules are detected via glob scan, the orchestrator dispatches a `submodule-tag-prework` sub-agent for submodule initialization, sync, and status operations. The sub-agent receives only:
+When submodules are detected via glob scan, the orchestrator dispatches a sub-agent via `task(subagent_type="general")` for submodule initialization, sync, and status operations. The sub-agent receives only:
 
 **`must_receive`:**
 - `worktree.path` (if in worktree mode; null otherwise)
@@ -205,15 +205,61 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 - Do NOT attempt any implementation until the worktree infrastructure is fixed
 - There is NO fallback to direct-branch when worktree mode is explicitly requested
 
-### Step 3.5: Submodule Initialization and Sync — Orchestrator Dispatches `submodule-tag-prework`
+### Step 3.5: Submodule Initialization and Sync — Orchestrator Dispatches Sub-Agent
 
 **If no submodules detected via glob scan:** Skip this step and proceed to Step 4.
 
-**If submodules detected:** The orchestrator dispatches a `submodule-tag-prework` sub-agent with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
+**If submodules detected:** The orchestrator dispatches a sub-agent via `task(subagent_type="general")` with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
 
 - [ ] 1. Detects the submodule path(s)
 - [ ] 2. Initializes submodules if needed (`git submodule init`)
-- [ ] 3. Checks out each submodule to its `dev` tip (`git submodule foreach "git checkout dev && git pull"`)
+- [ ] 3. Resolves the trunk branch via `DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')` and checks out each submodule to trunk tip (`git submodule foreach "git checkout \"$DEFAULT_BRANCH\" && git pull origin \"$DEFAULT_BRANCH\" --ff-only"`)
+   - **HALT on failure:** If `git pull --ff-only` fails (non-ff or network error), the sub-agent MUST produce a structured divergence report. Do NOT fall back to merge or rebase — `--ff-only` is a hard gate that prevents accidental divergence from trunk.
+   - **Autonomous divergence handling (MANDATORY):** On `--ff-only` failure, the agent autonomously analyzes the divergence and attempts resolution:
+     ```bash
+     SUBMODULE_PATH="<path>"
+     DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+     AHEAD=$(git rev-list --count "origin/$DEFAULT_BRANCH..$DEFAULT_BRANCH" 2>/dev/null || echo "unknown")
+     BEHIND=$(git rev-list --count "$DEFAULT_BRANCH..origin/$DEFAULT_BRANCH" 2>/dev/null || echo "unknown")
+     echo "DIVERGENCE DETECTED: Submodule at $SUBMODULE_PATH"
+     echo "  Ahead by $AHEAD commits (local changes not on origin/$DEFAULT_BRANCH)"
+     echo "  Behind by $BEHIND commits (origin/$DEFAULT_BRANCH changes not in local $DEFAULT_BRANCH)"
+     # Autonomous resolution attempt:
+     if [ "$AHEAD" = "0" ] && [ "$BEHIND" != "0" ] && [ "$BEHIND" != "unknown" ]; then
+       # Only behind — safe to fast-forward
+       git pull origin "$DEFAULT_BRANCH"
+     elif [ "$AHEAD" != "0" ] && [ "$AHEAD" != "unknown" ] && [ "$BEHIND" = "0" ]; then
+       # Only ahead — local changes not pushed, push them
+       git push origin "$DEFAULT_BRANCH"
+     elif [ "$AHEAD" != "0" ] && [ "$BEHIND" != "0" ] && [ "$AHEAD" != "unknown" ] && [ "$BEHIND" != "unknown" ]; then
+       # Both ahead and behind — semantic analysis needed
+       # Attempt rebase first (safe for linear history)
+       if git rebase "origin/$DEFAULT_BRANCH" 2>/dev/null; then
+         echo "Autonomous rebase successful — divergence resolved."
+       else
+         echo "Autonomous rebase failed — semantic conflict detected."
+         echo "HALT: Developer consultation required — divergence cannot be auto-resolved."
+         echo "  Suggested resolution:"
+         echo "    - Review and resolve rebase conflicts manually"
+         echo "    - If local changes should be discarded: git reset --hard origin/$DEFAULT_BRANCH"
+       fi
+     else
+       echo "HALT: Developer consultation required — divergence cannot be auto-resolved."
+       echo "  Suggested resolution:"
+       echo "    - If local changes are intentional: git push origin $DEFAULT_BRANCH"
+       echo "    - If local changes should be discarded: git reset --hard origin/$DEFAULT_BRANCH"
+       echo "    - If local changes should be rebased: git rebase origin/$DEFAULT_BRANCH"
+     fi
+     ```
+   - **Result contract on divergence:**
+     ```yaml
+     status: DONE | BLOCKED
+     reason: SUBMODULE_FF_FAILURE | SUBMODULE_DIVERGENCE_RESOLVED
+     submodule_path: "<path>"
+     ahead: <N>
+     behind: <N>
+     resolution: "autonomous_push | autonomous_rebase | escalated"
+     ```
 - [ ] 4. Logs submodule status (`git submodule status`)
 - [ ] 5. Tags each submodule at dev tip with `<parent-repo>/<issue-number>` format (`git tag -a`)
 - [ ] 6. Pushes tags to submodule remote (`git push origin <tag>`)
