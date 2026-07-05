@@ -44,7 +44,7 @@ The developer will say "commit" or "create a PR" when they want git operations. 
 
 ## Exit Criteria
 
-- Commit script created in `./tmp/`
+- Commit script created in `{project_root}/tmp/`
 - Proposed commit message documented
 - User has reviewed and can execute script
 
@@ -70,7 +70,7 @@ Group changes logically:
 
 ### Step 3: Create Commit Script
 
-Write to `./tmp/{issue-N}/commit-<branch>.sh`:
+Write to `{project_root}/tmp/{issue-N}/commit-<branch>.sh`:
 
 ```bash
 #!/bin/bash
@@ -89,7 +89,7 @@ git commit -m "<descriptive message>" \
 
 Report:
 
-- Script path: `./tmp/{issue-N}/commit-<branch>.sh`
+- Script path: `{project_root}/tmp/{issue-N}/commit-<branch>.sh`
 - Proposed commit message
 - Summary of changes being committed
 
@@ -137,13 +137,13 @@ Commits occur during the PR creation workflow, not as a separate step:
 - [ ] 1. **Implementation completes** → review-prep task pushes branch
 - [ ] 2. **Developer reviews** → Developer says "create a PR"
 - [ ] 3. **PR creation** → Squash commit is executed as part of PR creation
-- [ ] 4. **No intermediate scripts** → No `./tmp/{issue-N}/commit.sh` or manual steps
+- [ ] 4. **No intermediate scripts** → No `{project_root}/tmp/{issue-N}/commit.sh` or manual steps
 
 ## Reading Historical Content
 
 ### ✅ ALWAYS DO
 
-- To inspect a file at a historical commit: `git show <ref>:<path> > ./tmp/{issue-N}/historical_file.ext`
+- To inspect a file at a historical commit: `git show <ref>:<path> > {project_root}/tmp/{issue-N}/historical_file.ext`
 - Process the saved file with appropriate `.opencode/tools/` or IDE tool
 
 ### 🚫 NEVER DO

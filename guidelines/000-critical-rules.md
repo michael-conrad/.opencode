@@ -1075,7 +1075,7 @@ rules:
 
   - id: critical-rules-004
     tier: 1
-    title: "CRITICAL VIOLATION — No /tmp/ usage — ./tmp/ only"
+    title: "CRITICAL VIOLATION — No /tmp/ usage — {project_root}/tmp/ only"
     conditions:
       all:
         - "file_path matches '^/tmp/'"

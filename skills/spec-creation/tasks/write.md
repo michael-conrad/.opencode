@@ -75,7 +75,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     - [ ] **SC coverage summary YAML** — Create `.issues/{issue-N}/sc-summary.yaml` with machine-parseable coverage data including SC IDs, evidence types, phase bindings, and verification gates.
     - [ ] **Verification consistency contract** — Create `.issues/{issue-N}/verification-consistency-contract.yaml` as a solve contract with compliance matrix variables.
-    - [ ] **Lifecycle manifest** — Create `./tmp/{issue-N}/lifecycle.yaml` with initial `spec_created` event. Append-only format; never overwrite.
+    - [ ] **Lifecycle manifest** — Create `{project_root}/tmp/{issue-N}/lifecycle.yaml` with initial `spec_created` event. Append-only format; never overwrite.
     - [ ] **Revision re-entry protocol contract** — Create `.issues/{issue-N}/revision-re-entry-contract.yaml` as a solve contract with cascade variables for each revision scope.
 
     Artifact generation occurs during Step 1 assembly. Self-review (Step 6) validates YAML-vs-prose consistency.
@@ -229,7 +229,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     The pre-approval gate validates every SC's Verification Gate against its Evidence Type. SAT for compliant specs, UNSAT with unsat_core for non-compliant.
 
-- [ ] 18. **Step 1.3: Lifecycle Manifest Initialization (SC-6)** — Initialize the append-only lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with a `spec_created` event:
+- [ ] 18. **Step 1.3: Lifecycle Manifest Initialization (SC-6)** — Initialize the append-only lifecycle manifest at `{project_root}/tmp/{issue-N}/lifecycle.yaml` with a `spec_created` event:
 
     ```yaml
     events:
@@ -425,10 +425,10 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
     ```bash
     ./.opencode/tools/solve model \
       --contract-path .issues/{issue-N}/pre-approval-gate-contract.yaml \
-      --output ./tmp/{issue-N}/artifacts/constraints-contract.yaml
+      --output {project_root}/tmp/{issue-N}/artifacts/constraints-contract.yaml
     ```
 
-    On success: constraints contract written to `./tmp/{issue-N}/artifacts/constraints-contract.yaml`.
+    On success: constraints contract written to `{project_root}/tmp/{issue-N}/artifacts/constraints-contract.yaml`.
     On UNSAT: **HALT** with blocker report — do NOT proceed with manual fallback.
     On utility unavailable: **HALT** with blocker report — do NOT proceed without solve verification.
 
@@ -436,7 +436,7 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     ```bash
     ./.opencode/tools/solve check \
-      --state-path ./tmp/{issue-N}/artifacts/constraints-contract.yaml \
+      --state-path {project_root}/tmp/{issue-N}/artifacts/constraints-contract.yaml \
       --contract-path .issues/{issue-N}/pre-approval-gate-contract.yaml
     ```
 
@@ -452,8 +452,8 @@ Assemble the final spec with acceptance criteria, ambiguity elimination, and del
 
     ```bash
     ./.opencode/tools/plan plan \
-      --problem ./tmp/{issue-N}/artifacts/phase-plan-problem.yaml \
-      --output ./tmp/{issue-N}/artifacts/phase-plan-validated.yaml
+      --problem {project_root}/tmp/{issue-N}/artifacts/phase-plan-problem.yaml \
+      --output {project_root}/tmp/{issue-N}/artifacts/phase-plan-validated.yaml
     ```
 
     On success: planner returns SOLVED_SATISFICING or SOLVED_OPTIMALLY per `plan` skill → `plan.md` task.

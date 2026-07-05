@@ -5,7 +5,7 @@ Idempotent completion subtask for executing-plans. Ensures mandatory steps ran r
 ## State Check Phase
 
 - [ ] 1. **assemble-work task():** Verify implementation-pipeline task() was attempted
-- [ ] 2. **Work state file:** Verify `./tmp/{N}/work.md` state file reflects actual outcome (completed, partial, failed)
+- [ ] 2. **Work state file:** Verify `{project_root}/tmp/{N}/work.md` state file reflects actual outcome (completed, partial, failed)
 - [ ] 3. **Chat exec summary:** Verify chat output follows exec summary format (summary → outcome → URL → byline)
 
 ## Skill-Specific Completion
@@ -15,7 +15,7 @@ Idempotent completion subtask for executing-plans. Ensures mandatory steps ran r
    - If missing: invoke `implementation-pipeline --task assemble-work` as remediation
 
 - [ ] 2. **Work state file** (if not already updated):
-   - Check `./tmp/{N}/work.md` state file against actual completion state
+   - Check `{project_root}/tmp/{N}/work.md` state file against actual completion state
    - If mismatched: update state file to reflect current state
 
 - [ ] 3. **Chat executive summary** (if not already produced):

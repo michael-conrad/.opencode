@@ -360,7 +360,7 @@ Examples: `observe/parsing-bug`, `observe/missing-env-var`, `observe/test-failur
 - `observe/*` branches are permitted under `for_analysis` scope (self-assigned or explicit)
 - `observe/*` branches do NOT require `for_implementation` — they are read-only scratch branches
 - The agent MUST NOT make permanent code changes on `observe/*` branches
-- Writes to `./tmp/` and throwaway scripts ARE permitted
+- Writes to `{project_root}/tmp/` and throwaway scripts ARE permitted
 
 ### MUST Discard Before HALT
 

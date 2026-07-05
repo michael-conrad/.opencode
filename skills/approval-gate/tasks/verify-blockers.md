@@ -12,7 +12,7 @@ Check for blocking issues or dependencies that prevent implementation.
 
 ## Exit Criteria
 
-- Authorization confirmed in work state file (`./tmp/{N}/work.md`)
+- Authorization confirmed in work state file (`{project_root}/tmp/{N}/work.md`)
 - No blocking issues superseding spec
 - No unresolved dependencies
 
@@ -21,7 +21,7 @@ Check for blocking issues or dependencies that prevent implementation.
 ### Step 1: Check Authorization via Work State File
 
 ```python
-work_state = read_work_state(f"./tmp/{N}/work.md")  # reads from ## verify-authorization section
+work_state = read_work_state(f"{project_root}/tmp/{N}/work.md")  # reads from ## verify-authorization section
 auth_info = work_state.get("authorization", {})
 
 if auth_info.get("authorized") == True:
@@ -109,7 +109,7 @@ For each dependency listed in spec:
 ### Verify Authorization State Against Work State File
 
 ```
-work_state = read_work_state(f"./tmp/{N}/work.md")
+work_state = read_work_state(f"{project_root}/tmp/{N}/work.md")
 auth_info = work_state.get("authorization", {})
 
 has_auth = auth_info.get("authorized") == True
@@ -132,7 +132,7 @@ See `enforcement/adversarial-verification.md` for the three-tier classification 
 ## Context Required
 
 - Related tasks: `verify-authorization`, `verify-open-questions`
-- Authorization state: `./tmp/{N}/work.md` is the canonical source. Labels are advisory visibility markers only — they do NOT gate execution.
+- Authorization state: `{project_root}/tmp/{N}/work.md` is the canonical source. Labels are advisory visibility markers only — they do NOT gate execution.
 
 ## Enforcement References
 

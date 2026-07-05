@@ -10,11 +10,11 @@ Generate baseline coherence state from guidelines and skills. Captures current r
 
 - Baseline not yet generated OR refresh requested
 - `github.owner`, `github.repo` available
-- Write access to `./tmp/{issue-N}/artifacts/`
+- Write access to `{project_root}/tmp/{issue-N}/artifacts/`
 
 ## Exit Criteria
 
-- Baseline JSON written to `./tmp/{issue-N}/artifacts/baseline-coherence.json`
+- Baseline JSON written to `{project_root}/tmp/{issue-N}/artifacts/baseline-coherence.json`
 - All rules extracted from guidelines
 - All behaviors mapped from skills
 - Cross-references validated
@@ -136,7 +136,7 @@ Run the Z3 solve check against the pipeline state machine to validate structural
 
 ```bash
 tools/solve check \
-  --state-path ./tmp/{issue-N}/state/ \
+  --state-path {project_root}/tmp/{issue-N}/state/ \
   --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
 ```
 
@@ -162,7 +162,7 @@ for sc in sc_table:
 On PASS (SAT + no contradictions): proceed to Step 5c.
 
 On FAIL (UNSAT or any contradiction found):
-- [ ] 1. Write FAIL artifact to `./tmp/{issue-N}/artifacts/coherence-z3-fail.json`
+- [ ] 1. Write FAIL artifact to `{project_root}/tmp/{issue-N}/artifacts/coherence-z3-fail.json`
 - [ ] 2. Include: solve output, per-SC contradictions, spec source reference
 - [ ] 3. Return: `{"status": "BLOCKED", "reason": "Z3 solve check failed", "details": "<output>"}`
 
@@ -200,16 +200,16 @@ Mismatch classification:
 On PASS (no mismatches): proceed to Step 6.
 
 On FAIL (any mismatch):
-- [ ] 1. Write FAIL artifact to `./tmp/{issue-N}/artifacts/coherence-evidence-mismatch.json`
+- [ ] 1. Write FAIL artifact to `{project_root}/tmp/{issue-N}/artifacts/coherence-evidence-mismatch.json`
 - [ ] 2. Include: per-SC mismatch details with prose excerpts and evidence type declaration
 - [ ] 3. Return: `{"status": "BLOCKED", "reason": "Evidence type mismatch detected", "details": "<per-SC mismatches>"}`
 
 ### Step 6: Write Baseline File
 
-Write to `./tmp/{issue-N}/artifacts/baseline-coherence.json`:
+Write to `{project_root}/tmp/{issue-N}/artifacts/baseline-coherence.json`:
 
 ```python
-baseline_path = f"./tmp/{issue-N}/artifacts/baseline-coherence-{datetime.now().strftime('%Y%m%d')}.json"
+baseline_path = f"{project_root}/tmp/{issue-N}/artifacts/baseline-coherence-{datetime.now().strftime('%Y%m%d')}.json"
 write(baseline_path, json.dumps(baseline, indent=2))
 ```
 

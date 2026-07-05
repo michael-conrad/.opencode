@@ -13,7 +13,7 @@ compatibility: opencode
 
 ## Overview
 
-Pure orchestrator routing table with 6 serial dispatch steps for plan creation. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`. YAML contract artifacts at `./tmp/{issue-N}/artifacts/plan-pipeline-{step_label}-{STATUS}-{timestamp}.yaml`.
+Pure orchestrator routing table with 6 serial dispatch steps for plan creation. The orchestrator holds only routing metadata — each step dispatches to an existing skill's task file via `task()`. Step transitions are validated by Z3 via `solve check` against `pipeline-state-machine.yaml`. YAML contract artifacts at `{project_root}/tmp/{issue-N}/artifacts/plan-pipeline-{step_label}-{STATUS}-{timestamp}.yaml`.
 
 The orchestrator is a pure router — never reads task file content, never performs inline analysis. Sub-agents do the work.
 
@@ -44,12 +44,12 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Step Label | Dispatches To | Artifact Produced |
 |------------|---------------|-------------------|
-| `spec-to-plan-handoff` | `approval-gate --task verify-authorization` | handoff artifact at `./tmp/{issue-N}/artifacts/plan-pipeline-handoff-{STATUS}-{timestamp}.yaml` |
+| `spec-to-plan-handoff` | `approval-gate --task verify-authorization` | handoff artifact at `{project_root}/tmp/{issue-N}/artifacts/plan-pipeline-handoff-{STATUS}-{timestamp}.yaml` |
 | `plan-create` | `writing-plans --task create` | plan index at `{N}/plan.md` + phase files at `{N}/plan-{NN}-*.md` |
-| `solve-model` | `solve model` | dependency-ordering constraints contract at `./tmp/{issue-N}/artifacts/plan-pipeline-solve-model-{STATUS}-{timestamp}.yaml` |
-| `solve-check` | `solve check` | SAT verification at `./tmp/{issue-N}/artifacts/plan-pipeline-solve-check-{STATUS}-{timestamp}.yaml` |
-| `plan-plan` | `plan plan` | phase solvability validation at `./tmp/{issue-N}/artifacts/plan-pipeline-plan-plan-{STATUS}-{timestamp}.yaml` |
-| `plan-completion` | `local-issues sync` | commits plan to `.issues/` worktree (root repo) or `*/.issues/` worktree (submodule/sub-repo). Then produce chat output: detailed and formatted exec summary + URL to blob for spec folder on remote API (if remote API exists) + AI byline. No push, no issue comment, no approval cascade. |
+| `solve-model` | `solve model` | dependency-ordering constraints contract at `{project_root}/tmp/{issue-N}/artifacts/plan-pipeline-solve-model-{STATUS}-{timestamp}.yaml` |
+| `solve-check` | `solve check` | SAT verification at `{project_root}/tmp/{issue-N}/artifacts/plan-pipeline-solve-check-{STATUS}-{timestamp}.yaml` |
+| `plan-plan` | `plan plan` | phase solvability validation at `{project_root}/tmp/{issue-N}/artifacts/plan-pipeline-plan-plan-{STATUS}-{timestamp}.yaml` |
+| `plan-completion` | `local-issues sync` | commits plan to `.issues/` worktree (root repo) or `{project_root}/{path}/.issues/` worktree (submodule/sub-repo). Then produce chat output: detailed and formatted exec summary + URL to blob for spec folder on remote API (if remote API exists) + AI byline. No push, no issue comment, no approval cascade. |
 
 ## Step Labels
 

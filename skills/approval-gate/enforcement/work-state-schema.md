@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the work state file schema extension for chain-of-responsibility orchestration. Each atomic task in the `verify-authorization/`, `pre-impl/`, and `screen/` chains writes results as a dedicated section in the work state file (`./tmp/{issue-N}/work.md`).
+Define the work state file schema extension for chain-of-responsibility orchestration. Each atomic task in the `verify-authorization/`, `pre-impl/`, and `screen/` chains writes results as a dedicated section in the work state file (`{project_root}/tmp/{issue-N}/work.md`).
 
 ## Header Section
 
@@ -63,7 +63,7 @@ When `authorization_scope == "for_analysis"`:
 scope: for_analysis
 for_analysis_allowlist:
   - reads (files, code, issues)
-  - writes to ./tmp/
+  - writes to {project_root}/tmp/
   - issue creation and comments
   - observe/<topic> scratch branches (discard before HALT)
   - test and verification execution

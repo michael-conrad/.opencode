@@ -36,7 +36,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 | Approval Context | How to Detect | Auto-Dispatch Target |
 | -- | -- | -- |
 | **Spec approval** | Issue title contains `[SPEC` or has `spec` label | `writing-plans --task create` (or `brainstorming --task explore` if gap-fill) |
-| **Plan approval** | Local plan file exists at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` | `executing-plans --task start` |
+| **Plan approval** | Local plan file exists at `.issues/{N}/plan.md` or `{project_root}/{path}/.issues/{N}/plan.md` | `executing-plans --task start` |
 | **Already implemented** | Step 5d.4 (`verify-already-implemented`) returns positive | No dispatch — auto-close instead (execution path: Step 0 of auto-route procedure) |
 | **Reconciled during verification** | reconcile-issue-graph returned auto-closed or reopened tickets | Include reconciled tickets in chat output; proceed with dispatch |
 | **Closed but NOT verified** | Step 5.4 closed-issue verification finds closure without merged PR evidence | flag-for-review — do NOT autoclose |
@@ -71,7 +71,7 @@ When `authorization_scope == "for_analysis"`:
 1. Determine approval context (spec vs plan) by checking:
    - Issue title format: `[SPEC` prefix = spec approval
    - Labels: presence of `spec` label
-   - Plan detection is via local file existence at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` (NOT via GitHub Issue labels or title prefixes)
+   - Plan detection is via local file existence at `.issues/{N}/plan.md` or `{project_root}/{path}/.issues/{N}/plan.md` (NOT via GitHub Issue labels or title prefixes)
 2. Determine scope from Step 2.0 result (`authorization_scope`, `halt_at`, `pr_strategy`)
 3. Execute gap-fill from Step 5c if scope >= `for_plan`
 5. **If spec approval:** Invoke `writing-plans --task create` with context:
@@ -94,7 +94,7 @@ If a spec is revised (status contains `REVISED - NEEDS APPROVAL` — in either p
 Prose format: `STATUS: in progress — {concern} (REVISED - NEEDS APPROVAL)`
 Numeric format: `STATUS: 1.1 (REVISED - NEEDS APPROVAL)`
 
-1. Check for local plan files at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` that reference the spec number
+1. Check for local plan files at `.issues/{N}/plan.md` or `{project_root}/{path}/.issues/{N}/plan.md` that reference the spec number
 2. Mark found plans for audit (their authorization is revoked by the spec revision)
 3. Report affected plans in chat output
 

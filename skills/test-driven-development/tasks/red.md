@@ -35,10 +35,10 @@ These are FALSE — they describe the absence of a feature, not the event of a t
 | Test file path | Permanent test storage path |
 | Execution command | Command that produces exit code |
 | Expected on FAIL | Exit code N (non-zero) |
-| Artifact output | `./tmp/{issue-N}/artifacts/{phase}-test-output.log` |
+| Artifact output | `{project_root}/tmp/{issue-N}/artifacts/{phase}-test-output.log` |
 
 Test files go to permanent storage (`.opencode/tests/` or `.issues/{N}/tests/`).
-Test output artifacts (exit code, stdout, stderr) go to `./tmp/{issue-N}/artifacts/` for auditor consumption. Auditors inspect artifacts, they do NOT re-run tests.
+Test output artifacts (exit code, stdout, stderr) go to `{project_root}/tmp/{issue-N}/artifacts/` for auditor consumption. Auditors inspect artifacts, they do NOT re-run tests.
 
 ## Task Context Schema
 

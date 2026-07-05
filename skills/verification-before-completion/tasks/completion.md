@@ -8,7 +8,7 @@ Idempotent completion subtask for verification-before-completion. Ensures mandat
 
 ## Skill-Specific Completion
 
-- [ ] 1. **Record verification result** in `./tmp/{issue-N}/artifacts/` if not already recorded
+- [ ] 1. **Record verification result** in `{project_root}/tmp/{issue-N}/artifacts/` if not already recorded
 
 ## Shared Completion Delegation
 
@@ -64,7 +64,7 @@ This checkpoint catches direct API calls that bypassed the `issue-operations` sk
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Verification completed" | Verify evidence artifacts exist | `glob(pattern="./tmp/{issue-N}/artifacts/verification-*")` | VERIFICATION-GAP |
+| "Verification completed" | Verify evidence artifacts exist | `glob(pattern="{project_root}/tmp/{issue-N}/artifacts/verification-*")` | VERIFICATION-GAP |
 | "All criteria passed" | Verify each criterion has PASS evidence | Read collection output | MISSING-ELEMENT |
 
 **Evidence artifact:** File existence check or collection output confirming verification was performed.

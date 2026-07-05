@@ -112,7 +112,7 @@ if [ "$CHANGED" = "1" ] && [ "$SUBMODULE_ONLY" = "1" ]; then
 git log origin/dev..HEAD --oneline
 
 # Detect branch type via work state file
-ls ./tmp/{issue-N}/work.md 2>/dev/null
+ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
 ```
 
 **Branch type detection and enforcement:**

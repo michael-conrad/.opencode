@@ -669,6 +669,10 @@ def main() -> int:
         print(f"  platform: {entry['platform']}")
         print(f"  url: {entry['url']}")
 
+    # Emit project_root — absolute top-level git root for submodule-aware path resolution
+    project_root = run_git_command(["rev-parse", "--show-toplevel"])
+    print(f"project_root: {project_root}")
+
     # Emit ## Local Issue Artifacts section
     issue_artifacts = collect_issue_artifact_paths(repo_info)
     print("## Local Issue Artifacts")

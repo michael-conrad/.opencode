@@ -40,7 +40,7 @@ Report step completion to chat:
 **Next:** Step N+1 - [Next concern]
 ```
 
-- Write progress to `./tmp/{N}/work.md` state file
+- Write progress to `{project_root}/tmp/{N}/work.md` state file
 - HALT and wait for user
 
 ### 5. Proceed to Next
@@ -61,7 +61,7 @@ Report step completion to chat:
 | API response | Status code and body |
 
 **Evidence storage:**
-- Store artifacts in `./tmp/`
+- Store artifacts in `{project_root}/tmp/`
 - Report evidence to chat
 
 ## Enforcement

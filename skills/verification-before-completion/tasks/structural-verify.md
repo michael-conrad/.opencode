@@ -35,7 +35,7 @@ The sub-agent MUST NOT receive:
 
 ### Step 1: Parse Required Components
 
-From the spec issue, extract the list of required structural components. Use `vbc_artifact_path` (defaults to `./tmp/{issue-N}/artifacts/`) as the canonical base for all artifact paths — not bare `./tmp/`:
+From the spec issue, extract the list of required structural components. Use `vbc_artifact_path` (defaults to `{project_root}/tmp/{issue-N}/artifacts/`) as the canonical base for all artifact paths — not bare `{project_root}/tmp/`:
 
 | Component | Where to Check | Failure Class |
 |-----------|---------------|---------------|

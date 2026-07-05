@@ -15,7 +15,7 @@ Before implementation proceeds, verify that the plan includes item-level decompo
 
 ```
 # Read plan from local file (plans are local artifacts, not GitHub Issues)
-plan_paths = [f".issues/{plan_number}/plan.md", f"*/.issues/{plan_number}/plan.md"]
+plan_paths = [f".issues/{plan_number}/plan.md", f"{project_root}/{path}/.issues/{plan_number}/plan.md"]
 plan_body = read_local_plan_file(plan_paths)
 
 # Check for item enumeration

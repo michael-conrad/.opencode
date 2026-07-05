@@ -7,7 +7,7 @@ For multi-column tables exceeding 8 columns, split into a core table (ID + Crite
 ## Column Header Definitions
 
 - **Pipeline Step Binding**: Mandatory — all tiers. Specifies which pipeline step validates this SC.
-- **Artifact Path**: Mandatory — all tiers. Uses `./tmp/{issue-N}/` convention for artifact storage.
+- **Artifact Path**: Mandatory — all tiers. Uses `{project_root}/tmp/{issue-N}/` convention for artifact storage.
 - **Requirement Traceability**: Mandatory — all tiers. MUST language linking SC to requirements.
 - **Phase Binding**: Multi-phase only. Conditionally annotated with phase identifier.
 - **Verification Gate**: 3 tiers (red-green, pre-commit, ci). Each tier has specific semantics:

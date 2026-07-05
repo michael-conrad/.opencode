@@ -61,13 +61,13 @@ for pattern_name, pattern in patterns.items():
 
 | Classification | Detection | Closure Path |
 | -- | -- | -- |
-| Plan | Local plan file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` | Plan closure path (Step 3) |
+| Plan | Local plan file at `.issues/{N}/plan.md` or `{project_root}/{path}/.issues/{N}/plan.md` | Plan closure path (Step 3) |
 | Spec / Spec-Fix | Has `[SPEC]` or `[SPEC-FIX]` label or title prefix | Spec closure path (Step 4) |
 | Other | No plan/spec labels | Direct close |
 
 ### Step 3: Plan Closure Path
 
-1. Read plan body from local file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` for spec reference: `Spec:\s*#(\d+)` or `For spec:\s*#(\d+)`
+1. Read plan body from local file at `.issues/{N}/plan.md` or `{project_root}/{path}/.issues/{N}/plan.md` for spec reference: `Spec:\s*#(\d+)` or `For spec:\s*#(\d+)`
 2. Add referenced spec to closure candidates
 3. Get sub-issues via `issue-operations -> read-sub-issues` <!-- Routes through issue-operations per SPEC #683 -->
 4. For each sub-issue:
@@ -93,7 +93,7 @@ Before closing any spec, verify ALL phases in the spec body are marked complete.
 3. Extract all phases and their completion status
 4. **If ANY phase is incomplete (☐, ⬜ Not Done, or - [ ]):**
    - Do NOT close this issue
-   - Append a blocker event to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with the incomplete phases listed
+   - Append a blocker event to lifecycle manifest at `{project_root}/tmp/{issue-N}/lifecycle.yaml` with the incomplete phases listed
    - Skip to next closure candidate
 5. **If ALL phases are complete (☑, ✅ Done, or - [x]) OR no phase markers exist:**
    - Proceed to Step 4b (plan reference check)

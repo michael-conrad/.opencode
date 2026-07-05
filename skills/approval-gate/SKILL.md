@@ -60,7 +60,7 @@ When running the pre-approval gate for standard/complex specs, validate the foll
 | Pipeline Step Binding | MUST specify which pipeline step validates this SC | BLOCK |
 | Re-Entry Step | MUST specify re-entry point on verification failure | BLOCK |
 | Verification Gate | MUST be one of: red-green, pre-commit, ci | BLOCK |
-| Artifact Path | MUST use `./tmp/{issue-N}/` convention | BLOCK |
+| Artifact Path | MUST use `{project_root}/tmp/{issue-N}/` convention | BLOCK |
 | Phase Binding | MUST annotate phase for multi-phase specs | FLAG (conditional) |
 
 For `for_spec` scope, only minimal-tier requirements enforced (Pipeline Step Binding, Re-Entry Step).

@@ -15,8 +15,8 @@ Initialize pipeline state and verify document source currency before RED phase b
 
 ## Exit Criteria
 
-- Solve state initialized at `./tmp/{issue-N}/state/state.yaml`
-- Handoff manifest written at `./tmp/{issue-N}/artifacts/pipeline-pre-red-baseline-{STATUS}-{timestamp}.yaml`
+- Solve state initialized at `{project_root}/tmp/{issue-N}/state/state.yaml`
+- Handoff manifest written at `{project_root}/tmp/{issue-N}/artifacts/pipeline-pre-red-baseline-{STATUS}-{timestamp}.yaml`
 - Manifest contains `status: PASS` or `status: BLOCKED` with `blocked_reason`
 - All validation checks completed
 
@@ -24,12 +24,12 @@ Initialize pipeline state and verify document source currency before RED phase b
 
 ### Step 1: Initialize Solve State
 
-- [ ] 1. Create state directory: `mkdir -p ./tmp/{issue-N}/state/`
+- [ ] 1. Create state directory: `mkdir -p {project_root}/tmp/{issue-N}/state/`
 - [ ] 2. Initialize solve state:
   ```bash
-  solve state init ./tmp/{issue-N}/state/
+  solve state init {project_root}/tmp/{issue-N}/state/
   ```
-- [ ] 3. Verify state file created at `./tmp/{issue-N}/state/state.yaml`
+- [ ] 3. Verify state file created at `{project_root}/tmp/{issue-N}/state/state.yaml`
 - [ ] 4. Confirm state contains `current_step: pre-red-baseline` and `pipeline_state: init`
 
 ### Step 2: Document Source Currency Check
@@ -62,7 +62,7 @@ Initialize pipeline state and verify document source currency before RED phase b
 
 Generate timestamp via `.opencode/tools/schema-version`. Store result in `$TIMESTAMP`.
 
-Write `./tmp/{issue-N}/artifacts/pipeline-pre-red-baseline-{STATUS}-$TIMESTAMP.yaml`:
+Write `{project_root}/tmp/{issue-N}/artifacts/pipeline-pre-red-baseline-{STATUS}-$TIMESTAMP.yaml`:
 
 ```yaml
 schema_version: "1.0"
@@ -106,7 +106,7 @@ summary:
 
 ### State Initialization
 ```bash
-solve state init ./tmp/{issue-N}/state/
+solve state init {project_root}/tmp/{issue-N}/state/
 ```
 
 Creates state file with:
@@ -115,21 +115,21 @@ Creates state file with:
 
 ### State Update (after manifest write)
 ```bash
-solve state update ./tmp/{issue-N}/state/ --var-name previous_step --var-value pre-red-baseline --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
-solve state update ./tmp/{issue-N}/state/ --var-name current_step --var-value red-phase --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
-solve state update ./tmp/{issue-N}/state/ --var-name pipeline_state --var-value running --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
+solve state update {project_root}/tmp/{issue-N}/state/ --var-name previous_step --var-value pre-red-baseline --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
+solve state update {project_root}/tmp/{issue-N}/state/ --var-name current_step --var-value red-phase --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
+solve state update {project_root}/tmp/{issue-N}/state/ --var-name pipeline_state --var-value running --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
 ```
 
 ### State Validation
 ```bash
-solve check --state-path ./tmp/{issue-N}/state/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
+solve check --state-path {project_root}/tmp/{issue-N}/state/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
 ```
 
 ## Artifact Format
 
 All artifacts follow the #932 naming convention:
 ```
-./tmp/{issue-N}/artifacts/pipeline-pre-red-baseline-{STATUS}-{timestamp}.yaml
+{project_root}/tmp/{issue-N}/artifacts/pipeline-pre-red-baseline-{STATUS}-{timestamp}.yaml
 ```
 
 Where `{STATUS}` is uppercase: `PASS`, `FAIL`, `UNVERIFIED`.

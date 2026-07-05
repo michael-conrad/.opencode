@@ -8,7 +8,7 @@ Create a plan for an existing spec that does not yet have one. Uses the same 21-
 
 Each item is tagged with dispatch scope, chain dependency, and contract paths.
 
-- [ ] 1. (**inline**) Verify spec exists in `.issues/{N}/spec.md` or `*/.issues/{N}/spec.md` — chain: `none`
+- [ ] 1. (**inline**) Verify spec exists in `.issues/{N}/spec.md` or `{project_root}/{path}/.issues/{N}/spec.md` — chain: `none`
 - [ ] 2. (**sub-agent**) Research — Load existing spec body as evidence source — chain: `step_1`
 - [ ] 3. (**inline**) Z3 check — `solve check` — verify research output contains evidence_artifacts — chain: `step_2`
 - [ ] 4. (**sub-agent**) Readiness — `task(..., prompt: "execute readiness task from writing-plans")` — chain: `step_3`

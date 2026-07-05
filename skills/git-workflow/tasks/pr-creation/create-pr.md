@@ -64,8 +64,8 @@ The Summary section MUST be sourced from the issue ticket body that authorized t
 |--------------|--------|---------------|
 | **Summary** | Issue ticket body (spec/plan issue for this PR) | `issue-operations --task read-issue` on parent issue |
 | **Outcome** | Issue ticket body + implementation knowledge | Synthesized from issue body + changesets |
-| **Per-SC Evidence** | VbC verification report | `read ./tmp/{issue-N}/artifacts/verification-*.md` |
-| **Dual-Auditor Cross-Validation** | Cross-validate result contract | `read ./tmp/{issue-N}/artifacts/audit-cross-validate-*.json` |
+| **Per-SC Evidence** | VbC verification report | `read {project_root}/tmp/{issue-N}/artifacts/verification-*.md` |
+| **Dual-Auditor Cross-Validation** | Cross-validate result contract | `read {project_root}/tmp/{issue-N}/artifacts/audit-cross-validate-*.json` |
 | **Tracking references** | Sub-issues from parent | `issue-operations --task read-sub-issues` on parent issue |
 
 ### Step 4.75: Verification-Evidence-Check Gate
@@ -74,8 +74,8 @@ The verification-evidence check is a gate, not a banner. A PR without evidence i
 
 **Before proceeding to Step 5, check that required verification artifacts exist:**
 
-1. Check `./tmp/{issue-N}/artifacts/verification-*.md` exists and contains PASS for all SCs
-2. Check `./tmp/{issue-N}/artifacts/audit-cross-validate-*.json` exists and reports consensus PASS from both auditors
+1. Check `{project_root}/tmp/{issue-N}/artifacts/verification-*.md` exists and contains PASS for all SCs
+2. Check `{project_root}/tmp/{issue-N}/artifacts/audit-cross-validate-*.json` exists and reports consensus PASS from both auditors
 3. If any artifact is MISSING or reports FAIL: do NOT create a PR
 
 **Blocked State (Missing or Failing Verification Evidence):**
@@ -97,8 +97,8 @@ Example:
 Status: BLOCKED
 Gate: verification-evidence-check
 Blockers:
-  - [MISSING] ./tmp/{issue-N}/artifacts/verification-*.md — VbC evidence not found
-  - [FAIL] ./tmp/{issue-N}/artifacts/audit-cross-validate-*.json — auditor consensus reports FAIL
+  - [MISSING] {project_root}/tmp/{issue-N}/artifacts/verification-*.md — VbC evidence not found
+  - [FAIL] {project_root}/tmp/{issue-N}/artifacts/audit-cross-validate-*.json — auditor consensus reports FAIL
     SC-1: Auditor 1 PASS, Auditor 2 FAIL
     Remediation: Re-audit SC-1 with fresh model pair
 remediation: "Run verification-before-completion --task verify, then adversarial-audit before retrying PR creation"

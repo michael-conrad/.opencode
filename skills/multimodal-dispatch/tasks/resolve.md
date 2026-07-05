@@ -18,7 +18,7 @@ A resolved `ModelCapability` is selected, any hint overrides are logged, and the
 
 ### Step 1: Load Capability Snapshot
 
-Load the cached capability snapshot from `./tmp/capability-snapshot.json`. If the snapshot is stale (older than TTL) or missing, invoke `probe` first to refresh it.
+Load the cached capability snapshot from `{project_root}/tmp/capability-snapshot.json`. If the snapshot is stale (older than TTL) or missing, invoke `probe` first to refresh it.
 
 ### Step 2: Analyze Content Payload
 

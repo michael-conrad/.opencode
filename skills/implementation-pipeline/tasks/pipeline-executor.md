@@ -40,28 +40,28 @@ A status of `DONE_WITH_CONCERNS` is coerced to FAIL — caveats are defects, not
 
 | Step # | Step Label | Dispatches To | Artifact Produced | YAML Contract Schema |
 |--------|------------|---------------|-------------------|---------------------|
-| 0 | `submodule-verify` | `git-workflow --task pre-work` (submodule state verification — resolve default branch via `git remote show origin \| sed -n 's/.*HEAD branch: //p'`, then `git submodule status` against that branch's tip) | `./tmp/{issue-N}/artifacts/pipeline-submodule-verify-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 1 | `sc-coherence-gate` | `adversarial-audit --task coherence-extraction` (evidence-type uplift + substrate classification) | `./tmp/{issue-N}/artifacts/pipeline-sc-coherence-gate-{STATUS}-{timestamp}.yaml` | `per_criterion[]` from #932 |
-| 2 | `pre-red-baseline` | `implementation-pipeline --task pre-red-baseline` (doc-source-currency + SC-ID cross-ref traceability) | `./tmp/{issue-N}/state/state.yaml` + `./tmp/{issue-N}/artifacts/` YAML | pipeline state file |
-| 3 | `red-phase` | `test-driven-development --task red` | `./tmp/{issue-N}/artifacts/pipeline-red-phase-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
-| 4 | `red-doublecheck` | `verification-before-completion --task verify` | `./tmp/{issue-N}/artifacts/pipeline-red-doublecheck-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
-| 5 | `post-red-enforcement` | `implementation-pipeline --task post-red-enforcement` (git diff --name-only -- src/ \| wc -l) | `./tmp/{issue-N}/artifacts/pipeline-post-red-enforcement-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 6 | `green-phase` | `test-driven-development --task green` | `./tmp/{issue-N}/artifacts/pipeline-green-phase-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
-| 7 | `post-green-enforcement` | `implementation-pipeline --task post-green-enforcement` (git diff --name-only -- test/ \| wc -l) | `./tmp/{issue-N}/artifacts/pipeline-post-green-enforcement-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 8 | `checkpoint-tag-create` | `implementation-pipeline --task checkpoint-tag-create` (creates git tag per `000-critical-rules.md` §Checkpoint Rollback Exception) | `./tmp/{issue-N}/artifacts/pipeline-checkpoint-tag-create-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 9 | `checkpoint-commit` | `git-workflow --task commit-prep` | `./tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 10 | `structural-checks` | `finishing-a-development-branch --task checklist` (enforces advisory-only mode: all linters run with `--check`/report-only flags, never auto-modify) | `./tmp/{issue-N}/artifacts/pipeline-structural-checks-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 11 | `green-doublecheck` | `verification-before-completion --task verify` (semantic-intent verification) | `./tmp/{issue-N}/artifacts/pipeline-green-doublecheck-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
-| 12 | `green-vbc` | `verification-before-completion --task completion` | `./tmp/{issue-N}/artifacts/pipeline-green-vbc-{STATUS}-{timestamp}.yaml` | single-criterion |
-| 13 | `adversarial-audit` | `adversarial-audit --task verification-audit` | `./tmp/{issue-N}/artifacts/pipeline-audit-{auditor_type}-{STATUS}-{timestamp}.yaml` | `per_criterion[]` (#932 schema) |
-| 14 | `cross-validate` | `adversarial-audit --task cross-validate` | `./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml` | cross-validate YAML (#932 schema) |
-| 15 | `regression-check` | `test-driven-development --task patterns` (regression) | `./tmp/{issue-N}/artifacts/pipeline-regression-check-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
+| 0 | `submodule-verify` | `git-workflow --task pre-work` (submodule state verification — resolve default branch via `git remote show origin \| sed -n 's/.*HEAD branch: //p'`, then `git submodule status` against that branch's tip) | `{project_root}/tmp/{issue-N}/artifacts/pipeline-submodule-verify-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 1 | `sc-coherence-gate` | `adversarial-audit --task coherence-extraction` (evidence-type uplift + substrate classification) | `{project_root}/tmp/{issue-N}/artifacts/pipeline-sc-coherence-gate-{STATUS}-{timestamp}.yaml` | `per_criterion[]` from #932 |
+| 2 | `pre-red-baseline` | `implementation-pipeline --task pre-red-baseline` (doc-source-currency + SC-ID cross-ref traceability) | `{project_root}/tmp/{issue-N}/state/state.yaml` + `{project_root}/tmp/{issue-N}/artifacts/` YAML | pipeline state file |
+| 3 | `red-phase` | `test-driven-development --task red` | `{project_root}/tmp/{issue-N}/artifacts/pipeline-red-phase-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
+| 4 | `red-doublecheck` | `verification-before-completion --task verify` | `{project_root}/tmp/{issue-N}/artifacts/pipeline-red-doublecheck-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
+| 5 | `post-red-enforcement` | `implementation-pipeline --task post-red-enforcement` (git diff --name-only -- src/ \| wc -l) | `{project_root}/tmp/{issue-N}/artifacts/pipeline-post-red-enforcement-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 6 | `green-phase` | `test-driven-development --task green` | `{project_root}/tmp/{issue-N}/artifacts/pipeline-green-phase-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
+| 7 | `post-green-enforcement` | `implementation-pipeline --task post-green-enforcement` (git diff --name-only -- test/ \| wc -l) | `{project_root}/tmp/{issue-N}/artifacts/pipeline-post-green-enforcement-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 8 | `checkpoint-tag-create` | `implementation-pipeline --task checkpoint-tag-create` (creates git tag per `000-critical-rules.md` §Checkpoint Rollback Exception) | `{project_root}/tmp/{issue-N}/artifacts/pipeline-checkpoint-tag-create-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 9 | `checkpoint-commit` | `git-workflow --task commit-prep` | `{project_root}/tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 10 | `structural-checks` | `finishing-a-development-branch --task checklist` (enforces advisory-only mode: all linters run with `--check`/report-only flags, never auto-modify) | `{project_root}/tmp/{issue-N}/artifacts/pipeline-structural-checks-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 11 | `green-doublecheck` | `verification-before-completion --task verify` (semantic-intent verification) | `{project_root}/tmp/{issue-N}/artifacts/pipeline-green-doublecheck-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
+| 12 | `green-vbc` | `verification-before-completion --task completion` | `{project_root}/tmp/{issue-N}/artifacts/pipeline-green-vbc-{STATUS}-{timestamp}.yaml` | single-criterion |
+| 13 | `adversarial-audit` | `adversarial-audit --task verification-audit` | `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-{auditor_type}-{STATUS}-{timestamp}.yaml` | `per_criterion[]` (#932 schema) |
+| 14 | `cross-validate` | `adversarial-audit --task cross-validate` | `{project_root}/tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml` | cross-validate YAML (#932 schema) |
+| 15 | `regression-check` | `test-driven-development --task patterns` (regression) | `{project_root}/tmp/{issue-N}/artifacts/pipeline-regression-check-{STATUS}-{timestamp}.yaml` | `per_criterion[]` |
 | 16 | `review-prep` | `git-workflow --task review-prep` | review-prep status | single-criterion |
 | 17 | `exec-summary` | `completion-core --task completion` | append lifecycle event + chat exec summary | single-criterion |
 
 ## Post-Step Checkpoint Creation
 
-After each pipeline step returns DONE and the orchestrator logs the YAML artifact at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml`, create a checkpoint tag before advancing to the next step:
+After each pipeline step returns DONE and the orchestrator logs the YAML artifact at `{project_root}/tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml`, create a checkpoint tag before advancing to the next step:
 
 ```bash
 CONSUMER_REPO=<github.repo>
@@ -99,7 +99,7 @@ git reset --hard "$CONSUMER_REPO/checkpoint/$ISSUE_NUM/phase-$LAST_PASS_PHASE$SU
 git submodule update --init
 ```
 
-Read restored pipeline state from `./tmp/{issue-N}/state/`. Re-dispatch the failed step with original dispatch parameters.
+Read restored pipeline state from `{project_root}/tmp/{issue-N}/state/`. Re-dispatch the failed step with original dispatch parameters.
 
 **First-step failure (no checkpoint):** Run `git checkout .` to clean working tree. Re-dispatch from current state without rollback.
 
@@ -110,7 +110,7 @@ Read restored pipeline state from `./tmp/{issue-N}/state/`. Re-dispatch the fail
 For each step:
 
 - [ ] 1. The orchestrator calls `task(subagent_type="general", prompt: "execute <step_label> from implementation-pipeline")`
-- [ ] 2. The sub-agent executes the step, produces a YAML artifact at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml`
+- [ ] 2. The sub-agent executes the step, produces a YAML artifact at `{project_root}/tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml`
 - [ ] 3. The sub-agent returns frugal result contract: `{status, artifact_path, summary}`
 - [ ] 4. The orchestrator reads the YAML from disk only on FAIL (for remediation routing)
 - [ ] 5. After each step, pipeline position is recorded via `solve state update` (3 per-variable calls)
@@ -142,7 +142,7 @@ Simple steps (checkpoint-commit, structural-checks, green-vbc, exec-summary) use
 
 All artifacts follow the #932 naming convention:
 ```
-./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml
+{project_root}/tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml
 ```
 
 Where `{step_label}` values are defined above.
@@ -151,21 +151,21 @@ Where `{step_label}` values are defined above.
 
 ### pre-red-baseline Step
 ```
-solve state init ./tmp/{issue-N}/state/
+solve state init {project_root}/tmp/{issue-N}/state/
 ```
 Creates state file with `current_step: pre-red-baseline`, `pipeline_state: init`.
 
 ### Every Subsequent Step (after artifact write)
 Three sequential per-variable calls:
 ```
-solve state update ./tmp/{issue-N}/state/ --var-name previous_step --var-value <current-step-label> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
-solve state update ./tmp/{issue-N}/state/ --var-name current_step --var-value <next-step-label> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
-solve state update ./tmp/{issue-N}/state/ --var-name pipeline_state --var-value running --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
+solve state update {project_root}/tmp/{issue-N}/state/ --var-name previous_step --var-value <current-step-label> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
+solve state update {project_root}/tmp/{issue-N}/state/ --var-name current_step --var-value <next-step-label> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
+solve state update {project_root}/tmp/{issue-N}/state/ --var-name pipeline_state --var-value running --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
 ```
 
 ### Coherence Gate Validation
 ```
-solve check --state-path ./tmp/{issue-N}/state/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
+solve check --state-path {project_root}/tmp/{issue-N}/state/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
 ```
 
 Step results (PASS/FAIL, evidence paths) go into YAML disk artifact — never into solve state. Solve state tracks pipeline **position** only.
@@ -211,14 +211,14 @@ When the coherence gate finds a substantive spec defect:
 
 When a step returns FAIL:
 
-- [ ] 1. **Read FAIL artifact YAML frontmatter** — the orchestrator reads only the YAML frontmatter from the FAIL artifact at `./tmp/{issue-N}/artifacts/pipeline-{step_label}-FAIL-{timestamp}.yaml`:
+- [ ] 1. **Read FAIL artifact YAML frontmatter** — the orchestrator reads only the YAML frontmatter from the FAIL artifact at `{project_root}/tmp/{issue-N}/artifacts/pipeline-{step_label}-FAIL-{timestamp}.yaml`:
    - `status`, `next_step`, `escalation_required`, `step_label`
 - [ ] 2. **Dispatch research** — the orchestrator dispatches the `research` skill with:
    - FAIL artifact path
-    - ALL prior pipeline artifacts (glob `./tmp/{issue-N}/artifacts/pipeline-*`)
+    - ALL prior pipeline artifacts (glob `{project_root}/tmp/{issue-N}/artifacts/pipeline-*`)
     - Spec issue number (#912)
     - Plan issue number (if applicable)
-- [ ] 3. **Research determines scope** — the research skill produces a remediation artifact at `./tmp/{issue-N}/artifacts/pipeline-researcher-{topic}-{STATUS}-{timestamp}.md` containing:
+- [ ] 3. **Research determines scope** — the research skill produces a remediation artifact at `{project_root}/tmp/{issue-N}/artifacts/pipeline-researcher-{topic}-{STATUS}-{timestamp}.md` containing:
    - `remediation_scope`: `full` | `partial` | `spec_plan_and_implementation` | `none`
    - `remediation_steps[]`: list of `{target_step, action}` pairs
    - `escalation_required`: `true` | `false`
@@ -243,7 +243,7 @@ When a sub-agent returns a defective deliverable (spec defect, plan defect, or o
 ### Session Resume Rule
 
 When resuming a session with existing artifacts:
-- Glob `./tmp/{issue-N}/artifacts/pipeline-*` to find the latest artifact
+- Glob `{project_root}/tmp/{issue-N}/artifacts/pipeline-*` to find the latest artifact
 - If the latest artifact is FAIL and a companion research-remediation-PASS artifact exists, follow the remediation plan in `remediation_steps` — do NOT re-dispatch the research skill
 - If no research artifact exists, or the latest FAIL has no companion research artifact, run the standard FAIL → Research protocol from Step 1 above
 
@@ -253,7 +253,7 @@ Every step returns a YAML contract (never JSON) with only routing-significant da
 
 ```yaml
 status: DONE | BLOCKED | OVERFLOW
-artifact_path: "./tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml"
+artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-{step_label}-{STATUS}-{timestamp}.yaml"
 summary: "<1-3 sentence summary>"
 ```
 
@@ -263,7 +263,7 @@ Full evidence artifacts go to disk — never into result contracts.
 
 Artifact filenames include uppercase STATUS: `PASS`, `FAIL`, `UNVERIFIED`.
 
-Example: `./tmp/928/artifacts/pipeline-red-phase-PASS-20260527T030000Z.yaml`
+Example: `{project_root}/tmp/928/artifacts/pipeline-red-phase-PASS-20260527T030000Z.yaml`
 
 ## Related Files
 

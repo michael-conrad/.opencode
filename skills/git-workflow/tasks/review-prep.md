@@ -58,7 +58,7 @@ Tasks sub-agent for submodule changes (if a submodule `.git` file or directory i
 git log origin/dev..HEAD --oneline
 
 # Detect branch type
-ls ./tmp/{issue-N}/work.md 2>/dev/null
+ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
 ```
 
 | Branch Type | Expected Commits | On Mismatch |

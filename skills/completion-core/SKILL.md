@@ -79,7 +79,7 @@ COMPARE_URL="${GITBUCKET_HTML_URL:-${GITHUB_HTML_URL}}/${GIT_OWNER}/${GIT_REPO}/
 
 ### 3. Append Lifecycle Event
 
-Append a completion event to the lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml`:
+Append a completion event to the lifecycle manifest at `{project_root}/tmp/{issue-N}/lifecycle.yaml`:
 
 ```yaml
   - event: step_completed

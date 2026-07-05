@@ -74,10 +74,10 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 | `read-sub-issues` | Read sub-issues via dispatcher — authorization cascade and closure order verification |
 | `list-issues` | List issues with filters via dispatcher — dedup checks, label search, overlap detection |
 | `search-issues` | Search issues via dispatcher — title dedup, spec/plan overlap detection |
-| `sync-from-remote` | Reconcile remote issues against local `.issues/` (root repo) or `*/.issues/` (submodule/sub-repo) after `local-issues sync` — detect staleness in both directions, auto-import missing remote issues |
+| `sync-from-remote` | Reconcile remote issues against local `.issues/` (root repo) or `{project_root}/{path}/.issues/` (submodule/sub-repo) after `local-issues sync` — detect staleness in both directions, auto-import missing remote issues |
 | `update-issue` | Update issue body/labels/state via dispatcher — body-preservation safeguard enforced |
-| `sync-pull-to-local` | Mirror remote issue body to `.issues/<N>/spec.md` (root repo) or `*/.issues/<N>/spec.md` (submodule/sub-repo) after any `read-issue` — enforces Operating Protocol §3 spec.md mirror mandate |
-| `import-remote` | Retroactively import a pre-existing remote issue into local `.issues/` (root repo) or `*/.issues/` (submodule/sub-repo) — full mirror with body, comments, frontmatter, and `promotion_type: retroactive_import` |
+| `sync-pull-to-local` | Mirror remote issue body to `.issues/<N>/spec.md` (root repo) or `{project_root}/{path}/.issues/<N>/spec.md` (submodule/sub-repo) after any `read-issue` — enforces Operating Protocol §3 spec.md mirror mandate |
+| `import-remote` | Retroactively import a pre-existing remote issue into local `.issues/` (root repo) or `{project_root}/{path}/.issues/` (submodule/sub-repo) — full mirror with body, comments, frontmatter, and `promotion_type: retroactive_import` |
 | `push-artifacts` | Push spec artifacts directory to issues-data — produces artifact directory with URL |
 
 ## Invocation
@@ -111,7 +111,7 @@ Issue Operations Router. Focus: spec-first workflow, validation, labeling, platf
 
 - [ ] 1. **Platform routing:** `github.platform` → appropriate sub-skill (github-mcp / gitbucket-api / local).
 - [ ] 2. **Substantive comment gate:** only meaningful updates posted as issue comments. No status spam.
-- [ ] 3. **spec.md mirror:** every `issue-operations -> read-issue` MUST be followed by `sync-pull-to-local` to mirror the body to `.issues/<N>/spec.md` (root repo) or `*/.issues/<N>/spec.md` (submodule/sub-repo). <!-- Enforced by sync-pull-to-local task per issue #764 -->
+- [ ] 3. **spec.md mirror:** every `issue-operations -> read-issue` MUST be followed by `sync-pull-to-local` to mirror the body to `.issues/<N>/spec.md` (root repo) or `{project_root}/{path}/.issues/<N>/spec.md` (submodule/sub-repo). <!-- Enforced by sync-pull-to-local task per issue #764 -->
 - [ ] 4. **Byline mandatory:** AI-authored comments must include `🤖 Co-authored with AI: <AgentName> (<ModelId>)`.
 - [ ] 5. **Issue creation = no auth needed** per `010-approval-gate.md`.
 - [ ] 6. **Adversarial-audit call:** after sub-issue creation, call `adversarial-audit --task concern-separation --issue <N>` with `audit_phase: sub_issue_creation`.
@@ -220,7 +220,7 @@ rules:
     source: "issue-operations/SKILL.md"
 
   - id: issue-ops-004
-    title: "read-issue MUST mirror body to .issues/ spec.md (root repo) or */.issues/ spec.md (submodule/sub-repo)"
+    title: "read-issue MUST mirror body to .issues/ spec.md (root repo) or {project_root}/{path}/.issues/ spec.md (submodule/sub-repo)"
     conditions:
       all: ["issue_read_completed == true", "sync_pull_to_local_not_called == true"]
     actions: [HALT]

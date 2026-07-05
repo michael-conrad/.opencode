@@ -18,7 +18,7 @@ A `CapabilitySnapshot` JSON is produced containing all available models with the
 
 Check if a cached capability snapshot exists and is within TTL (default: 300 seconds). If a valid cache entry exists and `--refresh` was not specified, return the cached snapshot immediately.
 
-Cache location: `./tmp/capability-snapshot.json`
+Cache location: `{project_root}/tmp/capability-snapshot.json`
 
 **Cache TTL enforcement (REQ-3):**
 
@@ -42,7 +42,7 @@ Cache invalidation conditions:
 When a model pull or remove event is detected (e.g., `ollama pull`, `ollama rm`), or when the caller explicitly requests cache invalidation:
 
 ```bash
-rm -f ./tmp/capability-snapshot.json
+rm -f {project_root}/tmp/capability-snapshot.json
 ```
 
 This forces the next `probe` call to rebuild from scratch. The cache file is the single source of truth — deleting it is sufficient for invalidation. No partial or selective invalidation is needed because the entire snapshot is rebuilt on each probe.
@@ -117,14 +117,14 @@ Assemble the snapshot:
 
 ### Step 5: Cache and Return
 
-Write the snapshot to `./tmp/capability-snapshot.json` and return it.
+Write the snapshot to `{project_root}/tmp/capability-snapshot.json` and return it.
 
 ## Cache Invalidation
 
 On model pull/remove events detected through Ollama API changes, invoke `invalidate_cache()`:
 
 ```bash
-rm -f ./tmp/capability-snapshot.json
+rm -f {project_root}/tmp/capability-snapshot.json
 ```
 
 The next `probe` call will rebuild from scratch.

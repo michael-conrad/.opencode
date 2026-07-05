@@ -34,13 +34,13 @@ This is the **mandatory entry point** — the orchestrator MUST dispatch here af
 ### Step 1: Read Plan and Work State
 
 - [ ] 1. Read plan index from `{N}/plan.md` for phase table, then read current phase file from `{N}/plan-{NN}-*.md` — extract phases, items, SCs, dependencies. **→ SC-5**
-- [ ] 2. Read work state file from `./tmp/{N}/work.md` — extract current progress, completed items, blocked items.
+- [ ] 2. Read work state file from `{project_root}/tmp/{N}/work.md` — extract current progress, completed items, blocked items.
 - [ ] 3. Verify pre-flight conditions:
    - Feature branch exists (MUST have been created via `git-workflow --task pre-work`)
    - Working tree is clean (`git status --porcelain` returns empty)
    - Authorization scope covers the current pipeline phase
    - Submodule state is current — resolve default branch via `git remote show origin | sed -n 's/.*HEAD branch: //p'`, then verify `git submodule status` shows submodules at that branch's tip
-- [ ] 4. Create Step 1.5 entry proof marker — write `./tmp/{N}/artifacts/entry-proof-{timestamp}.yaml` with:
+- [ ] 4. Create Step 1.5 entry proof marker — write `{project_root}/tmp/{N}/artifacts/entry-proof-{timestamp}.yaml` with:
    ```yaml
    step: 1.5
    timestamp: "<ISO8601>"
@@ -122,7 +122,7 @@ This is the **mandatory entry point** — the orchestrator MUST dispatch here af
 - [ ] 1. Return frugal result contract:
    ```yaml
    status: DONE | BLOCKED | OVERFLOW
-   artifact_path: "./tmp/{N}/artifacts/assemble-work-{STATUS}-{timestamp}.yaml"
+   artifact_path: "{project_root}/tmp/{N}/artifacts/assemble-work-{STATUS}-{timestamp}.yaml"
    finding_summary: "<1-3 sentence summary>"
    blocker_reason: "<if BLOCKED>"
    ```

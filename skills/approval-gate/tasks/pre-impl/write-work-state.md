@@ -15,7 +15,7 @@ Determine execution strategy, capture the dev base hash, build task context for 
 - Execution strategy determined (sequential, parallel, hybrid, exclude, or reduce-scope)
 - Dev base hash captured via `git rev-parse origin/dev`
 - Task context built for each issue (including worktree paths, partially-implemented context, revised status)
-- Work state file written to `./tmp/{issue-N}/artifacts/work.md`
+- Work state file written to `{project_root}/tmp/{issue-N}/artifacts/work.md`
 - File contains: authorization context, scope fields, pre-analysis results, gate evidence audit table, execution order, merge-time ordering, completed tracking, and results placeholder
 
 ## Procedure
@@ -86,10 +86,10 @@ The `dev_base_hash` ensures all parallel worktrees start from the same base comm
 After the execution plan is presented, write a work state file that persists the plan for sub-agent task():
 
 ```bash
-mkdir -p ./tmp/{issue-N}/artifacts
+mkdir -p {project_root}/tmp/{issue-N}/artifacts
 ```
 
-**File:** `./tmp/{issue-N}/artifacts/work.md`
+**File:** `{project_root}/tmp/{issue-N}/artifacts/work.md`
 
 **Contents:**
 

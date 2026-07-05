@@ -13,7 +13,7 @@ Structural gate that verifies RED-phase sub-agents did not modify implementation
 
 ## Exit Criteria
 
-- Git diff structural gate result written to `./tmp/{issue-N}/artifacts/pipeline-post-red-enforcement-{STATUS}-{timestamp}.yaml`
+- Git diff structural gate result written to `{project_root}/tmp/{issue-N}/artifacts/pipeline-post-red-enforcement-{STATUS}-{timestamp}.yaml`
 - Gate PASS: no `src/` files modified during RED-phase
 - Gate FAIL: `src/` files were modified — orchestrator re-dispatches RED-phase from clean-room state
 

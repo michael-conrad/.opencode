@@ -21,16 +21,16 @@ Authorization phrases carry implicit scope — the pipeline stage the developer 
 
 When scope resolves to `for_next_phase`, the agent MUST:
 
-1. **Read `./tmp/{N}/work.md`** to identify current phase tracking state
+1. **Read `{project_root}/tmp/{N}/work.md`** to identify current phase tracking state
 2. **Identify completed phases** by checking sub-issue state (`get_sub_issues`) and verifying merged PRs for each
 3. **Resolve to the next sequential uncompleted phase number**
 4. **Set `halt_at`** to `phase_N_complete` where N is the resolved next phase
 5. **Set gap-fill** to `auto-approve` for that specific phase only
 
-Phase resolution does not parse STATUS markers or plan bodies. The `./tmp/{N}/work.md` file (populated during pre-work and updated by each pipeline step) is the canonical source for current phase state. Resolution logic:
+Phase resolution does not parse STATUS markers or plan bodies. The `{project_root}/tmp/{N}/work.md` file (populated during pre-work and updated by each pipeline step) is the canonical source for current phase state. Resolution logic:
 
 ```python
-# Read ./tmp/{N}/work.md for current phase tracking
+# Read {project_root}/tmp/{N}/work.md for current phase tracking
 # Expected format:
 #   current_phase: <phase_number>
 #   current_concern: <concern_name>
@@ -73,7 +73,7 @@ def resolve_phase_n(phase_number, total_phases):
 3. **Qualifier present = parse**: Match phrase against table above; ambiguous phrases default to for_review_prep
 3. **Multiple issues**: `"approved #1200 #1201 #1197 for implementation"` → `for_implementation` scope applies to all listed issues
 4. **Phase qualifier**: `"approved: Phase 1 only"` → single-phase authorization for the named phase only, then HALT
-5. **"Next phase" resolution**: `"approved #N for next phase"` → read `./tmp/{N}/work.md` for current phase, identify completed phases (via merged PRs), set halt_at to the next sequential uncompleted phase
+5. **"Next phase" resolution**: `"approved #N for next phase"` → read `{project_root}/tmp/{N}/work.md` for current phase, identify completed phases (via merged PRs), set halt_at to the next sequential uncompleted phase
 6. **"Phase N" resolution**: `"approved #N for phase N"` → resolve via `resolve_phase_n()` which sets halt_at based on whether the phase is intermediate or final
 
 ## PR Strategy Map

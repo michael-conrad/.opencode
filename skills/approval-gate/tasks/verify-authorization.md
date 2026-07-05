@@ -11,7 +11,7 @@ Check for explicit authorization and record in work state file before proceeding
 
 ## Exit Criteria
 
-- Authorization verified as explicit and for correct issue — recorded in work state file (`./tmp/{N}/work.md`)
+- Authorization verified as explicit and for correct issue — recorded in work state file (`{project_root}/tmp/{N}/work.md`)
 - Advisory scope-marker written as GitHub label after work state file is updated; deprecated `needs-approval` label removed asynchronously
 - Labels are visibility markers — they do NOT gate execution
 - Git state verified (worktree environment ready)
