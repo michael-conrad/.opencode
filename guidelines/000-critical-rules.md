@@ -786,6 +786,48 @@ This rule is the orchestrator-side counterpart to the Sub-Agent Entry Criteria a
 - If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
 - All 37 skill SKILL.md files with DISPATCH_GATE sections contain an Orchestrator Entry Criteria block documenting this rule. 1 platform sub-skill (issue-operations/platforms/local/SKILL.md) also has a DISPATCH_GATE section with Orchestrator Entry Criteria.
 
+### [critical-rules-071] Revision-Not-Replacement — defective sub-agent deliverables MUST be revised, not replaced
+When a sub-agent returns a defective deliverable (spec, plan, or other artifact), the orchestrator MUST revise the existing deliverable via the appropriate pipeline (spec-creation for specs, writing-plans for plans). The orchestrator MUST NOT create a replacement artifact (new issue, new file) unless revision is structurally impossible (e.g., the original issue was deleted).
+
+#### 🚫 FORBIDDEN
+
+- Creating a new issue/file to replace a defective sub-agent deliverable when revision is possible
+- Orphaning the original issue number by creating a replacement
+
+#### ✅ REQUIRED
+
+- Revise the existing deliverable via the appropriate pipeline (spec-creation --task revise, writing-plans --task update)
+- If revision is structurally impossible, document the rationale in an issue comment before creating a replacement
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Creating replacement artifact instead of revising | Orphans original issue, breaks cross-references, wastes issue numbers |
+| Inline-fixing defective deliverable | Bypasses pipeline quality gates, produces defective output |
+
+
+### [critical-rules-072] No-Inline-Fix — orchestrator MUST NOT inline-fix defective sub-agent output
+When a sub-agent returns a defective deliverable, the orchestrator MUST NOT attempt to fix the defective artifact directly via `github_issue_write`, file edit, or any other direct mutation. The orchestrator MUST dispatch a revision task to the appropriate pipeline (spec-creation --task revise for specs, writing-plans --task update for plans).
+
+#### 🚫 FORBIDDEN
+
+- Using `github_issue_write` to directly edit a defective spec/plan body
+- Using file edit tools to directly modify a defective deliverable file
+- Any direct mutation that bypasses the revision pipeline
+
+#### ✅ REQUIRED
+
+- Dispatch a revision task to the appropriate pipeline
+- Let the pipeline sub-agent handle the revision with full context and discipline
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Inline-fixing defective deliverable | Bypasses pipeline quality gates, produces defective output |
+| Direct mutation of issue body | Lacks spec-creation context, produces inconsistent results |
+
 ### Tier 3 — Workflow-Standard (FLAG — Convention/Consistency)
 
 Rules that prevent **inconsistency or tech debt**: naming conventions, numbering, comment style, tool selection. Violations are flagged but do not halt.
@@ -2283,6 +2325,37 @@ rules:
     requires: []
     triggers: [git-workflow, issue-operations]
     source: "000-critical-rules.md §critical-rules-070"
+
+  - id: critical-rules-071
+    tier: 2
+    title: "Revision-Not-Replacement — defective sub-agent deliverables MUST be revised, not replaced"
+    conditions:
+      all:
+        - "sub_agent_deliverable_defective == true"
+        - "replacement_artifact_created == true"
+        - "revision_structurally_possible == true"
+    actions:
+      - HALT
+      - REQUIRE_REVISION
+    conflicts_with: []
+    requires: []
+    triggers: [implementation-pipeline, approval-gate]
+    source: "000-critical-rules.md §critical-rules-071"
+
+  - id: critical-rules-072
+    tier: 2
+    title: "No-Inline-Fix — orchestrator MUST NOT inline-fix defective sub-agent output"
+    conditions:
+      all:
+        - "sub_agent_deliverable_defective == true"
+        - "inline_fix_attempted == true"
+    actions:
+      - HALT
+      - REQUIRE_DISPATCH_TO_REVISION_PIPELINE
+    conflicts_with: []
+    requires: []
+    triggers: [implementation-pipeline, approval-gate]
+    source: "000-critical-rules.md §critical-rules-072"
 
   - id: critical-rules-066
     tier: 3

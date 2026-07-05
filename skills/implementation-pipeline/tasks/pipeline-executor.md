@@ -227,6 +227,19 @@ When a step returns FAIL:
 - [ ] 6. **No arbitrary attempt caps** — each remediation is fresh research with full context. The research skill consults prior remediation artifacts to avoid repeating failed approaches. Max 3 attempts before escalation is guidance, not a hard gate — genuine progress extends the cap.
 - [ ] 7. **Escalate on `escalation_required: true`** — if the research artifact sets `escalation_required: true`, the orchestrator halts and reports the blocker to the developer. No further dispatch occurs.
 
+### Defective Deliverable Routing
+
+When a sub-agent returns a defective deliverable (spec defect, plan defect, or other artifact), the orchestrator MUST route to the revision pipeline — NOT inline-fix or create a replacement:
+
+- [ ] 1. **Classify defect type** — determine if the defect is in a spec, plan, or code artifact
+- [ ] 2. **Route to revision pipeline**:
+   - Spec defect → dispatch `spec-creation --task revise` with the defective issue number
+   - Plan defect → dispatch `writing-plans --task update` with the defective plan issue number
+   - Code defect → dispatch `implementation-pipeline` with the defective step label
+- [ ] 3. **No inline fixes** — the orchestrator MUST NOT edit the defective artifact directly via `github_issue_write`, file edit, or any other direct mutation
+- [ ] 4. **No replacement creation** — the orchestrator MUST NOT create a new issue or file to replace the defective artifact unless revision is structurally impossible (e.g., the original issue was deleted)
+- [ ] 5. **Document structural impossibility** — if replacement is necessary, document the rationale in an issue comment on the replacement artifact
+
 ### Session Resume Rule
 
 When resuming a session with existing artifacts:
