@@ -343,7 +343,7 @@ Before finalizing the result contract, scan ALL auditor verdicts, explanations, 
 
 ### Step 6.5: Write Findings YAML to Disk
 
-Write the full cross-validate findings YAML to `./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml`:
+Write the full cross-validate findings YAML to `{project_root}/tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
 phase: cross-validate
@@ -386,7 +386,7 @@ warnings: []
 mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
 ```
 
-Create `./tmp/{issue-N}/artifacts/` if needed (write tool creates implicitly). Use the `write` tool to persist the full YAML document.
+Create `{project_root}/tmp/{issue-N}/artifacts/` if needed (write tool creates implicitly). Use the `write` tool to persist the full YAML document.
 
 ### Step 7: Return Frugal YAML Result Contract
 
@@ -396,7 +396,7 @@ Return ONLY this YAML as the final response — no preamble, no commentary, no m
 status: DONE
 overall_consensus: PASS|FAIL
 next_step: "proceed|remediate then re-audit"
-artifact_path: "./tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml"
+artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-cross-validate-{STATUS}-{timestamp}.yaml"
 summary: "N SCs: X agreed, Y disagreed, Z evidence_type_mismatch"
 all_criteria_pass: false
 mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."

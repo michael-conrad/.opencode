@@ -2,13 +2,20 @@
 
 ## Purpose
 
-Create pull request after explicit user instruction. Squash commits to single commit, push branch, create PR targeting `dev` branch.
+Create pull request after explicit user instruction. Squash commits to single commit, push branch, create PR targeting `$DEFAULT_BRANCH` branch.
+
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
 
 ## Operating Protocol
 
 - [ ] 1. **User-initiated only:** "create a PR", "make a PR", "push and create PR"
 - [ ] 2. **Squash to single commit:** ALL implementation commits combined into ONE clean commit
-- [ ] 3. **Target `dev` branch:** Feature PRs merge to `dev` (not `main`)
+- [ ] 3. **Target `$DEFAULT_BRANCH` branch:** Feature PRs merge to `$DEFAULT_BRANCH` (not `main`)
 - [ ] 4. **HALT after PR creation:** No prompting for next steps
 
 ## Entry Criteria

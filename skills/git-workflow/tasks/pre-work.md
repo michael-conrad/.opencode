@@ -15,12 +15,12 @@ Create feature branch BEFORE any implementation work begins. Verify authorizatio
 | **Direct-branch (default)** | `WORKTREE_REQUIRED` NOT set | `git checkout -b feature/X` or `git switch -c feature/X` | Relative paths work directly |
 | **Worktree (opt-in)** | `WORKTREE_REQUIRED` set or developer request | `git worktree add .worktrees/feature-X -b feature/X "$DEFAULT_BRANCH"` | All paths prefixed with `worktree.path` |
 
-**In both modes, the agent MUST NOT commit to `main` or `dev`.** This is a Tier 1 (Non-Yielding) mandate.
+**In both modes, the agent MUST NOT commit to `main` or `$DEFAULT_BRANCH`.** This is a Tier 1 (Non-Yielding) mandate.
 
 This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any file, creating any file, or making ANY change to the project:
 
-- [ ] 1. **Verify on a feature branch** (NOT `main` or `dev`) — either direct-branch or worktree
-- [ ] 2. **All work happens on the feature branch** — never on `main` or `dev`
+- [ ] 1. **Verify on a feature branch** (NOT `main` or `$DEFAULT_BRANCH`) — either direct-branch or worktree
+- [ ] 2. **All work happens on the feature branch** — never on `main` or `$DEFAULT_BRANCH`
 - [ ] 3. **ONLY THEN**: Proceed with file changes
 
 **What Counts as a "Change"?**
@@ -43,7 +43,7 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 
 **Violation = Hard Stop**
 
-- If you catch yourself about to edit files while on `main` or `dev`, STOP immediately
+- If you catch yourself about to edit files while on `main` or `$DEFAULT_BRANCH`, STOP immediately
 - Create a feature branch first (direct-branch or worktree based on `WORKTREE_REQUIRED`)
 - Never proceed past this checkpoint without an active feature branch
 
@@ -68,7 +68,7 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 
 **AI Commit Restrictions:**
 
-- AI cannot commit to `main`, `master`, or `dev` (blocked by git hooks)
+- AI cannot commit to `main`, `master`, or `$DEFAULT_BRANCH` (blocked by git hooks)
 - AI must create feature branches from the default branch
 - AI must sync with the default branch before creating feature branch
 
@@ -287,7 +287,7 @@ submodules_updated: <list of (path, old_sha, new_sha, commit_count)>
 ```bash
 # Verify current branch
 git branch --show-current
-# MUST show the feature branch name (not main, not dev)
+# MUST show the feature branch name (not main, not $DEFAULT_BRANCH)
 
 # Verify working tree
 git status --porcelain
@@ -360,7 +360,7 @@ Examples: `observe/parsing-bug`, `observe/missing-env-var`, `observe/test-failur
 - `observe/*` branches are permitted under `for_analysis` scope (self-assigned or explicit)
 - `observe/*` branches do NOT require `for_implementation` — they are read-only scratch branches
 - The agent MUST NOT make permanent code changes on `observe/*` branches
-- Writes to `./tmp/` and throwaway scripts ARE permitted
+- Writes to `{project_root}/tmp/` and throwaway scripts ARE permitted
 
 ### MUST Discard Before HALT
 
@@ -513,7 +513,7 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 | Check | Tool Call | Expected Result | On Failure |
 | -- | -- | -- | -- |
 | Default branch synced (when remote exists) | `git ls-remote origin "$DEFAULT_BRANCH"` | Non-empty output | MISSING-ELEMENT → fetch and sync |
-| Current branch | `git branch --show-current` | Feature branch name (not `main`, `dev`) | STRUCTURE-VIOLATION → HALT |
+| Current branch | `git branch --show-current` | Feature branch name (not `main`, `$DEFAULT_BRANCH`) | STRUCTURE-VIOLATION → HALT |
 | Working tree clean | `git status --porcelain` | Empty output | VERIFICATION-GAP → stash or commit first |
 | Worktree location (worktree mode only) | `git rev-parse --show-toplevel` | Worktree path (not main repo path) | STRUCTURE-VIOLATION → HALT |
 | worktree.path set (worktree mode only) | `echo $WORKTREE_PATH` | Non-empty, matches worktree dir | STRUCTURE-VIOLATION → HALT (fatal) |
@@ -535,7 +535,7 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 | Failure | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
 | Default branch not synced | MISSING-ELEMENT | auto-fix | Run `git fetch origin "$DEFAULT_BRANCH"` |
-| On `main` or `dev` branch | CONFLICTING | flag-for-review | HALT — must create feature branch first |
+| On `main` or `$DEFAULT_BRANCH` branch | CONFLICTING | flag-for-review | HALT — must create feature branch first |
 | Dirty working tree | VERIFICATION-GAP | conditional | Stash or commit before implementation |
 | `rev-parse` returns main repo path (worktree mode) | STRUCTURE-VIOLATION | auto-fix | Not in worktree — re-invoke using-git-worktrees |
 | worktree.path empty (worktree mode) | STRUCTURE-VIOLATION | auto-fix | FATAL — cannot safely do file operations |
@@ -553,7 +553,7 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 **Before starting any work, verify:**
 
 - ✅ Authorization received (explicit `approved`, `go`, or `"#N approved"`)
-- ✅ Feature branch created (not on `main` or `dev`)
+- ✅ Feature branch created (not on `main` or `$DEFAULT_BRANCH`)
 - ✅ (Worktree mode only) `worktree.path` environment variable is set and non-empty
 - ✅ (Worktree mode only) `git rev-parse --show-toplevel` in worktree shows worktree path
 - ✅ `git branch --show-current` shows feature branch

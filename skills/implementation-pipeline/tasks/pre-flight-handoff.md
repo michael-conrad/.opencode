@@ -9,13 +9,13 @@ Verify plan structural completeness before pipeline execution begins. Runs as a 
 ## Entry Criteria
 
 - Plan index exists at `{issue-N}/plan.md`; phase files at `{issue-N}/plan-{NN}-*.md` (multi-phase) or `{issue-N}/plan.md` (single-phase)
-- Spec-to-plan handoff manifest exists at `./tmp/{issue-N}/artifacts/spec-to-plan-handoff-*.yaml` with status PASS
+- Spec-to-plan handoff manifest exists at `{project_root}/tmp/{issue-N}/artifacts/spec-to-plan-handoff-*.yaml` with status PASS
 - `sc-summary.yaml` exists at `.issues/{issue-N}/sc-summary.yaml`
 - Authorization context available (authorization_scope, halt_at)
 
 ## Exit Criteria
 
-- Handoff manifest written at `./tmp/{issue-N}/artifacts/plan-to-pipeline-handoff-*.yaml`
+- Handoff manifest written at `{project_root}/tmp/{issue-N}/artifacts/plan-to-pipeline-handoff-*.yaml`
 - Manifest contains `status: PASS` or `status: BLOCKED` with `blocked_reason`
 - All validation checks completed
 
@@ -54,7 +54,7 @@ Verify plan structural completeness before pipeline execution begins. Runs as a 
 
 ### Step 5: Handoff Consistency Check
 
-- [ ] 1. Read the latest spec-to-plan handoff manifest from `./tmp/{issue-N}/artifacts/spec-to-plan-handoff-*.yaml`
+- [ ] 1. Read the latest spec-to-plan handoff manifest from `{project_root}/tmp/{issue-N}/artifacts/spec-to-plan-handoff-*.yaml`
 - [ ] 2. Read the plan-to-pipeline handoff checks from Steps 1-4
 - [ ] 3. Compare shared variables:
    - `sc_coverage_total` from spec-to-plan manifest vs SC count in plan
@@ -66,7 +66,7 @@ Verify plan structural completeness before pipeline execution begins. Runs as a 
 
 Generate timestamp via `.opencode/tools/schema-version`. Store result in `$TIMESTAMP`.
 
-Write `./tmp/{issue-N}/artifacts/plan-to-pipeline-handoff-$TIMESTAMP.yaml`:
+Write `{project_root}/tmp/{issue-N}/artifacts/plan-to-pipeline-handoff-$TIMESTAMP.yaml`:
 
 ```yaml
 schema_version: "1.0"
@@ -101,4 +101,4 @@ sc_summary:
 
 - Preceded by: spec-to-plan handoff (writing-plans entry criterion)
 - Feeds into: `implementation-pipeline/SKILL.md` pre-flight step
-- Related artifacts: `.issues/{issue-N}/sc-summary.yaml`, `./tmp/{issue-N}/artifacts/spec-to-plan-handoff-*.yaml`
+- Related artifacts: `.issues/{issue-N}/sc-summary.yaml`, `{project_root}/tmp/{issue-N}/artifacts/spec-to-plan-handoff-*.yaml`

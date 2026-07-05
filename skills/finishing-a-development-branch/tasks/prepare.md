@@ -4,6 +4,13 @@
 
 Prepare a feature branch for PR creation by ensuring all changes are committed, quality checks pass, and the branch is pushed to remote.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Operating Protocol
 
 - [ ] 1. Invoked by: `skill({name: "finishing-a-development-branch"})` → `task()` for `prepare`
@@ -33,18 +40,18 @@ If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT.** D
 **Before running quality checks, ensure local dev is current.** If dev has been updated by other merges since this branch was created, running checks on a stale base produces incorrect results.
 
 ```bash
-git fetch origin dev
-git pull origin dev --ff-only
+git fetch origin "$DEFAULT_BRANCH"
+git pull origin "$DEFAULT_BRANCH" --ff-only
 ```
 
-**The `--ff-only` flag is MANDATORY.** A plain `git pull origin dev` can silently succeed with a merge commit, hiding divergence. The `--ff-only` flag ensures dev fast-forwards cleanly.
+**The `--ff-only` flag is MANDATORY.** A plain `git pull origin "$DEFAULT_BRANCH"` can silently succeed with a merge commit, hiding divergence. The `--ff-only` flag ensures dev fast-forwards cleanly.
 
 **If `--ff-only` pull fails (diverged history):**
 
 ```bash
 # HALT and report. Suggest manual resolution:
-echo "ERROR: local dev has diverged from origin/dev"
-echo "Suggest: git pull --rebase origin dev"
+echo "ERROR: local dev has diverged from origin/$DEFAULT_BRANCH"
+echo "Suggest: git pull --rebase origin $DEFAULT_BRANCH"
 echo "Or manual resolution required"
 # HALT — do NOT proceed with stale codebase
 # Do NOT create merge commits on dev
@@ -52,7 +59,7 @@ echo "Or manual resolution required"
 
 **If dev is already up to date:** The ff-only pull is a no-op and proceeds instantly.
 
-**Worktree context:** If running from a worktree (`WORKTREE_REQUIRED` is set), `git pull` must target the main working tree's dev, not the worktree. Use `git -C /path/to/main/repo pull origin dev --ff-only` to ensure operations target the main tree. In direct-branch mode, `git pull origin dev --ff-only` works directly.
+**Worktree context:** If running from a worktree (`WORKTREE_REQUIRED` is set), `git pull` must target the main working tree's dev, not the worktree. Use `git -C /path/to/main/repo pull origin "$DEFAULT_BRANCH" --ff-only` to ensure operations target the main tree. In direct-branch mode, `git pull origin "$DEFAULT_BRANCH" --ff-only` works directly.
 
 ## Prepare Branch Workflow
 
@@ -137,7 +144,7 @@ git branch -vv
 | "Working tree clean" | Verify no uncommitted changes | `git status --porcelain` | VERIFICATION-GAP |
 | "Lint passes" | Run lint command and check result | `uvx ruff check src/ test/` | VERIFICATION-GAP |
 | "Tests pass" | Run test command and check result | `uv run pytest test/` | VERIFICATION-GAP |
-| "All changes relevant to spec" | Verify diff file list matches spec scope | `git diff dev --name-only` → compare with spec | CONFLICTING |
+| "All changes relevant to spec" | Verify diff file list matches spec scope | `git diff "$DEFAULT_BRANCH" --name-only` → compare with spec | CONFLICTING |
 
 **Evidence artifact:** Tool call output for each verification step.
 

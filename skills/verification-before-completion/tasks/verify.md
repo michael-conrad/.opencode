@@ -2,6 +2,13 @@
 
 Verify all success criteria have evidence before allowing completion claims.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Prerequisites
 
 - Task or phase claimed complete
@@ -63,7 +70,7 @@ Sub-agent searches all listed directories for evidence files via `glob`/`read`.
 
 **After verifying that all structural components exist (Step 0), verify that every changed file has at least one matching success criterion. Changed files with zero matching SCs are orphan changes — code paths that execute at runtime with zero behavioral verification.**
 
-- [ ] 1. Get the list of changed files: `git diff --name-only dev`
+- [ ] 1. Get the list of changed files: `git diff --name-only "$DEFAULT_BRANCH"`
 - [ ] 2. Get the spec's SC table and affected files list
 - [ ] 3. For each changed file, check if at least one SC covers it
 - [ ] 4. Any changed file with zero matching SCs is flagged as `VERIFICATION-GAP` with FAIL verdict
@@ -95,7 +102,7 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
 
 **For each new file added by the agent during implementation, verify it contains the required headers per its file type as defined in `080-code-standards.md` §"Header Format by File Type".**
 
-- [ ] 1. Identify all files added (not modified) during this implementation: `git diff --diff-filter=A --name-only dev`
+- [ ] 1. Identify all files added (not modified) during this implementation: `git diff --diff-filter=A --name-only "$DEFAULT_BRANCH"`
 - [ ] 2. For each new file, determine its file type and check for required headers:
    - Python (`.py`): SPDX copyright, SPDX license (MIT), Provenance header, AI byline in docstring
    - SKILL.md: `license` and `provenance` fields in YAML frontmatter
@@ -120,7 +127,7 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
 ### 2. Check for Evidence
 
 - Review issue comments for evidence
-- Check `./tmp/{issue-N}/artifacts/` for verification artifacts
+- Check `{project_root}/tmp/{issue-N}/artifacts/` for verification artifacts
 - Verify evidence matches criteria
 
 ### 2a. Todowrite Cleanup Verification
@@ -183,7 +190,7 @@ Grep/pattern-match verification is FORBIDDEN even for prose content. The agent m
 
 | Change Type | Evidence Requirement | Method |
 |-------------|---------------------|--------|
-| Testable code (logic, behavior, runtime) | Behavioral/functional/regression test execution | `pytest`, `opencode-cli run`, lint, typecheck — all with saved artifacts in `./tmp/{issue-N}/artifacts/` |
+| Testable code (logic, behavior, runtime) | Behavioral/functional/regression test execution | `pytest`, `opencode-cli run`, lint, typecheck — all with saved artifacts in `{project_root}/tmp/{issue-N}/artifacts/` |
 | Non-testable prose (docs, runbooks, guidelines) | Semantic intent verification by direct AI agent read | Read the file, understand the prose, verify semantic intent against spec — NOT grep/pattern matching |
 | | | |
 | Structural-only evidence (grep/read/file-exists) for testable code | **TOTAL FAIL** — entire verification gate returns FAIL | No exceptions. No metadata exemption. |
@@ -456,7 +463,7 @@ Please replace placeholder with actual evidence.
 | -- | -- | -- | -- |
 | "Success criterion met" | Verify criterion against actual code/test output | `read` or `srclight_get_symbol` or test execution | VERIFICATION-GAP |
 | "Test passing" | Run the actual test command | `uv run pytest test/test_file.py` | VERIFICATION-GAP |
-| "Files modified as specified" | Verify file changes match spec | `git diff dev --name-only` → compare with spec | CONFLICTING |
+| "Files modified as specified" | Verify file changes match spec | `git diff "$DEFAULT_BRANCH" --name-only` → compare with spec | CONFLICTING |
 | "No uncommitted changes" | Verify clean working tree | `git status --porcelain` | VERIFICATION-GAP |
 | "Branch pushed to remote" | Verify tracking branch exists | `git branch -vv` → check `[origin/<branch>]` | MISSING-ELEMENT |
 | "Evidence artifact produced" | Verify tool call exists for each criterion | Check tool-call records in context | MISSING-ELEMENT |

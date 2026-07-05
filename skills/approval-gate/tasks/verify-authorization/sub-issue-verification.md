@@ -10,7 +10,7 @@ This gate is the SINGLE AUTHORITATIVE verification point for sub-issue readiness
 
 ```
 # Read plan from local file (plans are local artifacts, not GitHub Issues)
-plan_paths = [f".issues/{N}/plan.md", f"*/.issues/{N}/plan.md"]
+plan_paths = [f".issues/{N}/plan.md", f"{project_root}/{path}/.issues/{N}/plan.md"]
 plan_body = read_local_plan_file(plan_paths)
 
 if plan_body:

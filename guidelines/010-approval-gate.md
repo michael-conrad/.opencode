@@ -218,7 +218,7 @@ The `for_analysis` scope is the default floor scope when no authorization is giv
 #### ✅ Allowlist
 
 - Read files, search code, browse issues
-- Write to `./tmp/` for investigation artifacts and throwaway scripts
+- Write to `{project_root}/tmp/` for investigation artifacts and throwaway scripts
 - Create/update GitHub Issues (specs, plans, bug reports)
 - Add labels and comments to GitHub Issues
 - Run tests and verification commands

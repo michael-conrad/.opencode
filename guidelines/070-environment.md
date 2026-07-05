@@ -260,7 +260,7 @@ This rule applies universally to:
 
 - **The AI agent is never permitted to run code against production data.** This is an absolute prohibition with no exceptions — not even for verification, inspection, or read-only queries. Any step that would execute code against production data requires explicit user instruction before execution.
 - **DIAGNOSTIC REQUESTS ARE READ-ONLY:** When asked to "check error", "investigate bug", "review logs", or similar diagnostics, the agent MUST:
-  1. Look for log files (`.log` files in `./tmp/` or project directories)
+  1. Look for log files (`.log` files in `{project_root}/tmp/` or project directories)
   2. Read source code and error messages statically
   3. Analyze code paths without execution
   4. NEVER run the failing script, reproduce the error, or execute against production
@@ -270,17 +270,17 @@ This rule applies universally to:
   3. STOP — do not run the script against production to verify
   4. Ask user if they want to test/verify (they may provide a test fixture)
 - **NEVER run any script, notebook, or command that connects to, reads from, or writes to a production data path**
-  (e.g. `pubmed_data_3/db/`, any path outside `./tmp/`) without explicit user authorization in the current session.
+  (e.g. `pubmed_data_3/db/`, any path outside `{project_root}/tmp/`) without explicit user authorization in the current session.
 - This includes verification steps: do NOT run `pgserver_start.py`, `pgserver_stop.py`, or any script that starts,
   stops, or force-kills a PostgreSQL server process unless the user explicitly says to do so.
 - Verification of script correctness must use static analysis (lint, grep, code review) or a dedicated test fixture
-  with an isolated `./tmp/` path — never the live production instance.
+  with an isolated `{project_root}/tmp/` path — never the live production instance.
 - **NEVER use production spec files (GitHub Issues) as smoke-test or verification targets.** Spec issues are authoritative tracking artifacts — they are never modified for testing purposes.
 - **This applies to `.opencode/tools/` tool verification too.** When fixing or verifying any tool that mutates plan files,
-  always create a throwaway plan copy in `./tmp/` and run the tool against that copy. Never invoke a mutating tool
+  always create a throwaway plan copy in `{project_root}/tmp/` and run the tool against that copy. Never invoke a mutating tool
   against a live plan file as a "test" or "verification" step.
-  To create a throwaway copy: `cp plans/SPEC-some-plan.md ./tmp/spec_test.md`, then pass
-  `./tmp/spec_test.md` to the tool. Discard after testing. Using `cp` to `./tmp/` for this purpose is the one permitted exception to the
+  To create a throwaway copy: `cp plans/SPEC-some-plan.md {project_root}/tmp/spec_test.md`, then pass
+  `{project_root}/tmp/spec_test.md` to the tool. Discard after testing. Using `cp` to `{project_root}/tmp/` for this purpose is the one permitted exception to the
   raw-shell-command prohibition for plan files.
 - Violating this rule can crash the production system and corrupt live data.
 
@@ -291,21 +291,21 @@ This rule applies universally to:
 - **Never use SQLite for tests.** The project uses PostgreSQL-specific types (JSONB, Vector) that are incompatible with SQLite. All test database fixtures must use a real PostgreSQL instance (via `PgServerManager`).
 - No regression tests unless explicitly requested. A regression test is a test added to prevent a previously fixed bug
   from reappearing; this rule does not prohibit new unit tests or reproduction scripts required by the current task.
-  Temp test artifacts in `./tmp/` only.
+  Temp test artifacts in `{project_root}/tmp/` only.
 - If `SyntaxWarning: invalid escape sequence` appears in output, stop execution and fix the offending code before
   proceeding.
 
 ## Temporary Files
 
-- All temp scripts/data/artifacts in `./tmp/` ONLY. NO OTHER FOLDERS PERMITTED. **Never use `/tmp/` (system temp) or any other folder.** This includes any diagnostic or exploratory Python scripts — files named `temp_*.py`, `test_*.py` (outside `test/`), or similar one-off scripts must be placed in `./tmp/`, never at the project root.
-- **NO BOGUS PATHS**: Using relative paths that exit the current directory (e.g., `../tmp/`) in scripts or notebooks is **absolutely forbidden**. This creates brittle, non-portable code. All file system operations MUST use paths derived from `project_root` or `base_dir` (e.g., `project_root / 'tmp' / 'index.html'`) as provided by the project's standard utilities (e.g., `notebook_utils.py`).
-- **Mandatory for CLI text updates:** Use `./tmp/` to store input files for `.opencode/tools` text update tools to avoid shell escaping and newline issues.
+- All temp scripts/data/artifacts in `{project_root}/tmp/` ONLY. NO OTHER FOLDERS PERMITTED. **Never use `/tmp/` (system temp) or any other folder.** This includes any diagnostic or exploratory Python scripts — files named `temp_*.py`, `test_*.py` (outside `test/`), or similar one-off scripts must be placed in `{project_root}/tmp/`, never at the project root.
+- **NO BOGUS PATHS**: Using relative paths that exit the current directory (e.g., `.{project_root}/tmp/`) in scripts or notebooks is **absolutely forbidden**. This creates brittle, non-portable code. All file system operations MUST use paths derived from `project_root` or `base_dir` (e.g., `project_root / 'tmp' / 'index.html'`) as provided by the project's standard utilities (e.g., `notebook_utils.py`).
+- **Mandatory for CLI text updates:** Use `{project_root}/tmp/` to store input files for `.opencode/tools` text update tools to avoid shell escaping and newline issues.
 - Project root must stay clean — no root-level temp files.
-- **`.output.txt` files must be placed in `./tmp/` (e.g., `./tmp/.output.txt`), never at the project root (`.output.txt` is a violation).**
+- **`.output.txt` files must be placed in `{project_root}/tmp/` (e.g., `{project_root}/tmp/.output.txt`), never at the project root (`.output.txt` is a violation).**
 - **Mandatory pre-submit root cleanliness check:** Before calling `submit`, confirm the project root is clean:
-  (1) Never create `.output.txt`, `temp_*.py`, or any other temp/diagnostic file at the project root — always use `./tmp/` at time of creation.
-  (2) Run `./.opencode/tools/file-exists .output.txt` — if it exists, move it to `./tmp/.output.txt` immediately (`mv .output.txt ./tmp/.output.txt`).
-  (3) Check for any `temp_*.py` files at the project root (`ls temp_*.py 2>/dev/null`) — if any exist, move them to `./tmp/` before submitting.
+  (1) Never create `.output.txt`, `temp_*.py`, or any other temp/diagnostic file at the project root — always use `{project_root}/tmp/` at time of creation.
+  (2) Run `./.opencode/tools/file-exists .output.txt` — if it exists, move it to `{project_root}/tmp/.output.txt` immediately (`mv .output.txt {project_root}/tmp/.output.txt`).
+  (3) Check for any `temp_*.py` files at the project root (`ls temp_*.py 2>/dev/null`) — if any exist, move them to `{project_root}/tmp/` before submitting.
 
 ### ⚠️ MANDATORY: Temp Files Cleanup After Task Completion
 
@@ -313,18 +313,18 @@ This rule applies universally to:
 
 ### ✅ ALWAYS DO — After Task Completion
 
-1. **Remove temp scripts** — `rm ./tmp/temp_*.py` or `rm ./tmp/test_*.py`
-2. **Remove temp data files** — `rm ./tmp/*.json ./tmp/*.csv ./tmp/*.html` (task-specific artifacts)
+1. **Remove temp scripts** — `rm {project_root}/tmp/temp_*.py` or `rm {project_root}/tmp/test_*.py`
+2. **Remove temp data files** — `rm {project_root}/tmp/*.json {project_root}/tmp/*.csv {project_root}/tmp/*.html` (task-specific artifacts)
 3. **Preserve persistent temp files** — Files intentionally kept for caching or future runs:
-   - `./tmp/*.db` (SQLite databases)
-   - `./tmp/*.log` (log files)
-   - `./tmp/.*` (hidden files like `.output.txt`)
-4. **Verify cleanup** — `ls ./tmp/` should only show intentional persistent files
+   - `{project_root}/tmp/*.db` (SQLite databases)
+   - `{project_root}/tmp/*.log` (log files)
+   - `{project_root}/tmp/.*` (hidden files like `.output.txt`)
+4. **Verify cleanup** — `ls {project_root}/tmp/` should only show intentional persistent files
 
 ### 🚫 NEVER DO
 
 - **NEVER leave temp files "for later cleanup"** — cleanup is mandatory, not optional
-- **NEVER leave diagnostic scripts in `./tmp/` after task ends** — delete immediately after use
+- **NEVER leave diagnostic scripts in `{project_root}/tmp/` after task ends** — delete immediately after use
 - **NEVER defer cleanup** — it happens in the same session as task completion
 - **NEVER delete persistent temp files** (`.db`, `.log`, hidden files) without explicit instruction
 
@@ -332,13 +332,13 @@ This rule applies universally to:
 
 ```bash
 # Remove temporary scripts (safe for task artifacts)
-rm ./tmp/temp_*.py ./tmp/test_*.py 2>/dev/null
+rm {project_root}/tmp/temp_*.py {project_root}/tmp/test_*.py 2>/dev/null
 
 # Remove temporary data files (safe for task artifacts)
-rm ./tmp/*.json ./tmp/*.csv ./tmp/*.html 2>/dev/null
+rm {project_root}/tmp/*.json {project_root}/tmp/*.csv {project_root}/tmp/*.html 2>/dev/null
 
 # List remaining files (should only show persistent ones)
-ls ./tmp/
+ls {project_root}/tmp/
 ```
 
 ## Local LLM Agent (Ollama)
@@ -407,7 +407,7 @@ rules:
     source: "070-environment.md §Node.js Prohibition"
 
   - id: environment-004
-    title: "Temp files must use ./tmp/ only"
+    title: "Temp files must use {project_root}/tmp/ only"
     conditions:
       all:
         - "temp_file_path matches '^/tmp/'"

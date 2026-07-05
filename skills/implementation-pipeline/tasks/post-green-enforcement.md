@@ -13,7 +13,7 @@ Structural gate that verifies GREEN-phase sub-agents did not modify test files. 
 
 ## Exit Criteria
 
-- Git diff structural gate result written to `./tmp/{issue-N}/artifacts/pipeline-post-green-enforcement-{STATUS}-{timestamp}.yaml`
+- Git diff structural gate result written to `{project_root}/tmp/{issue-N}/artifacts/pipeline-post-green-enforcement-{STATUS}-{timestamp}.yaml`
 - Gate PASS: no `test/` files modified during GREEN-phase
 - Gate FAIL: `test/` files were modified — orchestrator re-dispatches GREEN-phase from clean-room state
 

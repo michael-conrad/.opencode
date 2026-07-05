@@ -1,6 +1,13 @@
 # Pair-Mode PR Creation Task
 
-Squash and create PR targeting `dev` with `[pair-mode]` trailers.
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
+Squash and create PR targeting `$DEFAULT_BRANCH` with `[pair-mode]` trailers.
 
 ## Squash Workflow
 
@@ -8,7 +15,7 @@ Pair mode uses the same squash workflow as autonomous mode:
 
 - [ ] 1. **Soft-reset to dev:**
    ```bash
-   git reset --soft origin/dev
+   git reset --soft origin/"$DEFAULT_BRANCH"
    ```
 
 - [ ] 2. **Create single commit with pair-mode trailers:**
@@ -35,7 +42,7 @@ Pair mode uses the same squash workflow as autonomous mode:
    repo: <github.repo>
    title: "<conventional subject>"
    head: "<pair-branch>"
-   base: "dev"
+   base: "$DEFAULT_BRANCH"
    body: |
      ## Summary
      <1-3 bullet points>

@@ -4,6 +4,13 @@
 
 Second gate of per-issue screening for pre-implementation analysis. Execute Gate 2 (success criteria verification), cross-reference traversal, gate evidence audit, sub-issue expansion, cross-issue handling, file/symbol extraction, and produce the final result contract. This gate covers Steps 4-10.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Entry Criteria
 
 - Gate 1 (screen-issue-gate1) has completed for the issue
@@ -34,7 +41,7 @@ A merged PR proves code was merged. It does NOT prove that success criteria are 
 **Mandatory gate procedure — every candidate "already-implemented" issue MUST pass through ALL steps:**
 
 1. **EXTRACT CRITERIA:** Read the issue body and extract every success criterion (checkboxes, bullet points with "must"/"shall"/"should", testable assertions)
-2. **VERIFY EACH CRITERION:** For each success criterion, perform a direct verification action against the current state of `dev`:
+2. **VERIFY EACH CRITERION:** For each success criterion, perform a direct verification action against the current state of `$DEFAULT_BRANCH`:
    - Criterion says "file X contains Y" → `read` file X, verify Y exists
    - Criterion says "command Z returns expected output" → run command Z, verify output
    - Criterion says "no lint failures" → run lint command, verify zero failures
@@ -94,7 +101,7 @@ After screening, produce the Gate Evidence Audit for this single issue.
 
 1. **Extract success criteria:** Did you read the issue body and extract every success criterion? If NO → STOP. Return to Step 4 and re-run Gate 2 for this issue.
 
-2. **Verify each criterion:** For each success criterion, did you perform a direct verification action (read, grep, lint, test) against the current `dev` branch? If NO → STOP. Return to Step 4 and re-run Gate 2 verification.
+2. **Verify each criterion:** For each success criterion, did you perform a direct verification action (read, grep, lint, test) against the current `$DEFAULT_BRANCH` branch? If NO → STOP. Return to Step 4 and re-run Gate 2 verification.
 
 3. **Evidence artifacts:** For each criterion, is there a tool-call artifact documenting the verification? If NO → STOP. Return to Step 4 and re-run with evidence collection.
 

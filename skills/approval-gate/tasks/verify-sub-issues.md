@@ -8,7 +8,7 @@ Verify sub-issue structure and phase tracking gate for multi-task plans before i
 
 ## Entry Criteria
 
-- Plan exists as local file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md`
+- Plan exists as local file at `.issues/{N}/plan.md` or `{project_root}/{path}/.issues/{N}/plan.md`
 - Authorization received for specific subtask (e.g., "approved: 1.2")
 - Subtask number provided or extracted from authorization
 - Authorization received for plan (covers sub-issue creation)
@@ -16,7 +16,7 @@ Verify sub-issue structure and phase tracking gate for multi-task plans before i
 ## Exit Criteria
 
 - Sub-issues verified present under plan (multi-task) OR exemption confirmed (work-of-1)
-- Phase tracking state in `./tmp/{N}/work.md` matches requested subtask
+- Phase tracking state in `{project_root}/tmp/{N}/work.md` matches requested subtask
 - Auto-create performed if needed
 
 ## Procedure
@@ -43,18 +43,18 @@ sub_issues = issue-operations -> read-sub-issues (github_issue_read(method="get_
 
 **For multi-task plans with sub-issues:**
 
-Phase tracking state is read from `./tmp/{N}/work.md`. The work state file is populated during pre-work and updated by each pipeline step.
+Phase tracking state is read from `{project_root}/tmp/{N}/work.md`. The work state file is populated during pre-work and updated by each pipeline step.
 
 - [ ] 1. Extract subtask from authorization:
     - "approved: 1.2" → subtask 1.2 (numeric format)
     - "approved: X.Y" → subtask X.Y (numeric format)
     - "approved: {concern}" → find phase matching concern name (prose format)
-    - "approved" (no number) → read `./tmp/{N}/work.md` for current phase
+    - "approved" (no number) → read `{project_root}/tmp/{N}/work.md` for current phase
 
 - [ ] 2. Read phase tracking state:
     ```bash
     # Read current phase from work state file
-    cat "./tmp/{plan_issue}/work.md"
+    cat "{project_root}/tmp/{plan_issue}/work.md"
     # Expected format:
     # current_phase: <phase_number>
     # current_concern: <concern_name>
@@ -207,7 +207,7 @@ For each sub-issue returned:
 ```
 For each sub-issue:
   labels = issue-operations -> read-labels (github_issue_read(method=get_labels, issue_number=sub_issue_number) <!-- Routes through issue-operations per SPEC #683 -->
-  work_state = $(cat ./tmp/{plan_issue}/work.md 2>/dev/null || echo "not found")
+  work_state = $(cat {project_root}/tmp/{plan_issue}/work.md 2>/dev/null || echo "not found")
 
   - If has "needs-approval" label but parent plan has explicit authorization → STRUCTURE-VIOLATION
     (auto-fix: authorization cascades from plan, label should be removed)

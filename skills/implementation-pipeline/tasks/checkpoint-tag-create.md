@@ -29,7 +29,7 @@ Create a checkpoint git tag after a pipeline step completes successfully. The ta
        `git commit -m "checkpoint(#$ISSUE_NUM): step-$N complete"`
        `git tag "$CONSUMER_REPO/checkpoint/$ISSUE_NUM/phase-$N$SUBMODULE_SUFFIX"`
        `git push origin "$CONSUMER_REPO/checkpoint/$ISSUE_NUM/phase-$N$SUBMODULE_SUFFIX" 2>/dev/null || echo "Remote push skipped"`
-- [ ] 5. Write YAML artifact at `./tmp/{issue-N}/artifacts/pipeline-checkpoint-tag-create-{STATUS}-{timestamp}.yaml` with status PASS/FAIL
+- [ ] 5. Write YAML artifact at `{project_root}/tmp/{issue-N}/artifacts/pipeline-checkpoint-tag-create-{STATUS}-{timestamp}.yaml` with status PASS/FAIL
 
 ## Return
 

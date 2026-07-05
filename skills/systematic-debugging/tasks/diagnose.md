@@ -43,7 +43,7 @@ Generate at least 2 hypotheses for the root cause:
 
 - Test each hypothesis in order of confidence
 - Use read-only analysis first (code reading, log analysis)
-- Create isolated test scripts in `./tmp/` if needed
+- Create isolated test scripts in `{project_root}/tmp/` if needed
 - Record results for each hypothesis
 
 ### Step 5: Document Root Cause

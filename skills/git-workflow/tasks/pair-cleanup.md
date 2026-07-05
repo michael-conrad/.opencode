@@ -2,6 +2,13 @@
 
 Clean up pair-mode branches and stashes after PR merge.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Steps
 
 - [ ] 1. **Verify PR was merged:**
@@ -13,8 +20,8 @@ Clean up pair-mode branches and stashes after PR merge.
 
 - [ ] 2. **Switch to dev:**
    ```bash
-   git checkout dev
-   git pull origin dev
+   git checkout "$DEFAULT_BRANCH"
+   git pull origin "$DEFAULT_BRANCH"
    ```
 
 - [ ] 3. **Delete local pair branch:**

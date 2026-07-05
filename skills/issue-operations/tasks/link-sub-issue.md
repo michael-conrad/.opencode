@@ -30,7 +30,7 @@ Route based on `github.platform`:
 **GitHub platform (sub-skill implementation):**
 ```python
 # Read plan from local file (plans are local artifacts, not GitHub Issues)
-plan_paths = [f".issues/{M}/plan.md", f"*/.issues/{M}/plan.md"]
+plan_paths = [f".issues/{M}/plan.md", f"{project_root}/{path}/.issues/{M}/plan.md"]
 plan_body = read_local_plan_file(plan_paths)
 phases = extract_phases(plan_body)
 if len(phases) == 1:

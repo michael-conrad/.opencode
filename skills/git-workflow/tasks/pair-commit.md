@@ -59,12 +59,19 @@ When branch has no issue number or ambiguous:
    git log -1 --format="%B"
    ```
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Protected Branch Check
 
-Before committing, verify NOT on `dev` or `main`:
+Before committing, verify NOT on `$DEFAULT_BRANCH` or `main`:
 ```bash
 BRANCH=$(git branch --show-current)
-if [ "$BRANCH" = "dev" ] || [ "$BRANCH" = "main" ]; then
+if [ "$BRANCH" = "$DEFAULT_BRANCH" ] || [ "$BRANCH" = "main" ]; then
     echo "BLOCKED: Cannot commit on $BRANCH"
     # Prompt developer to create pair branch first
 fi

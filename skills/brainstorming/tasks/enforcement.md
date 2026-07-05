@@ -109,8 +109,8 @@ Before creating a spec, investigation MUST be complete. This is a hard gate, not
 | -- | -- | -- |
 | Read production code | YES | Read-only exploration |
 | Read production data | YES | Read-only analysis |
-| Create test scripts in `./tmp/` | YES | Isolated from production |
-| Run test scripts in `./tmp/` | YES | No production impact |
+| Create test scripts in `{project_root}/tmp/` | YES | Isolated from production |
+| Run test scripts in `{project_root}/tmp/` | YES | No production impact |
 | Run static analysis | YES | Code verification |
 | Modify production code | NO | Requires approved spec |
 | Modify production data | NO | Requires approved spec |

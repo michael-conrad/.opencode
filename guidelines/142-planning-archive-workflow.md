@@ -34,8 +34,8 @@ During investigation, the agent MAY:
 | -- | -- | -- |
 | Read production code | ✅ YES | Read-only exploration |
 | Read production data | ✅ YES | Read-only analysis |
-| Create test scripts in `./tmp/` | ✅ YES | Isolated from production |
-| Run test scripts in `./tmp/` | ✅ YES | No production impact |
+| Create test scripts in `{project_root}/tmp/` | ✅ YES | Isolated from production |
+| Run test scripts in `{project_root}/tmp/` | ✅ YES | No production impact |
 | Create isolated test fixtures | ✅ YES | Dedicated test databases/schemas |
 | Run static analysis (lint, typecheck) | ✅ YES | Code verification |
 | Modify production code | 🚫 NO | Requires approved spec |
@@ -46,7 +46,7 @@ During investigation, the agent MAY:
 
 Test code created during investigation MUST:
 
-- Be placed in `./tmp/` directory only
+- Be placed in `{project_root}/tmp/` directory only
 - Use isolated test fixtures (dedicated test DB, test schemas)
 - NOT modify production code, data, or systems
 - Be deleted after investigation completes (temp artifacts)
@@ -55,7 +55,7 @@ Test code created during investigation MUST:
 
 ```python
 # ✅ ALLOWED: Create test script to validate hypothesis
-# File: ./tmp/test_mesh_lookup.py
+# File: {project_root}/tmp/test_mesh_lookup.py
 
 from commons.mesh.validator import MeshValidator
 
@@ -90,7 +90,7 @@ Creating a spec without completed investigation is a CRITICAL GUIDELINE VIOLATIO
 
 #### ✅ ALLOWED During Investigation
 
-- **ALLOWED**: Creating `./tmp/` test scripts to validate hypotheses
+- **ALLOWED**: Creating `{project_root}/tmp/` test scripts to validate hypotheses
 - **ALLOWED**: Running isolated test fixtures
 - **ALLOWED**: Static analysis (lint, typecheck) on production code
 - **ALLOWED**: Read-only exploration of production code and data

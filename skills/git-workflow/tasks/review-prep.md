@@ -4,6 +4,13 @@
 
 Generate GitHub compare URL for developer review AFTER implementation. Provides visibility into changes BEFORE deciding to create a PR.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## ⚠️ MANDATORY INVOCATION
 
 **This task MUST be invoked after every implementation completes. NO decision point. NO asking the developer if they want review. Just generate the compare URL.**
@@ -55,10 +62,10 @@ Tasks sub-agent for submodule changes (if a submodule `.git` file or directory i
 
 ```bash
 # Count commits ahead of dev
-git log origin/dev..HEAD --oneline
+git log origin/"$DEFAULT_BRANCH"..HEAD --oneline
 
 # Detect branch type
-ls ./tmp/{issue-N}/work.md 2>/dev/null
+ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
 ```
 
 | Branch Type | Expected Commits | On Mismatch |

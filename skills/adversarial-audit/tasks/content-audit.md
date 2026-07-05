@@ -106,7 +106,7 @@ For each claim, produce a finding with evidence reference:
 
 ### Step 5: Write Verdict Artifact to Disk
 
-Write the full YAML verdict artifact to `./tmp/{issue-N}/artifacts/pipeline-audit-content-audit-{STATUS}-{timestamp}.yaml`:
+Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-content-audit-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
 audit_phase: content
@@ -137,7 +137,7 @@ mandatory_remediation: "Remit for mandatory remediation. Any FABRICATED or FAIL 
 
 ```yaml
 status: DONE
-artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-content-audit-PASS-{timestamp}.yaml"
+artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-content-audit-PASS-{timestamp}.yaml"
 summary: "N claims evaluated. X PASS, Y FAIL, Z FABRICATED."
 all_claims_verified: false
 mandatory_remediation: "Remit for mandatory remediation. Any FABRICATED or FAIL claim requires remediation before content ships. Default assumption is FABRICATED unless 100% clean PASS with no caveats, concerns, or notes."

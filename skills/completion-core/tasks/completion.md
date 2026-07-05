@@ -10,6 +10,13 @@ Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
 Push changes, generate issue/PR URLs, append lifecycle event, and produce executive summary output for the orchestrator pipeline.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Authorization Context
 
 ```
@@ -33,7 +40,7 @@ pipeline_phase: <current_phase_name>
 
 - Changes pushed to remote (if `halt_at >= pr_created`)
 - Compare URL generated with correct base branch
-- Lifecycle event appended to `./tmp/{issue-N}/lifecycle.yaml`
+- Lifecycle event appended to `{project_root}/tmp/{issue-N}/lifecycle.yaml`
 - Executive summary output produced
 - Byline verified in all posted content
 
@@ -60,17 +67,17 @@ fi
 Construct from session-init values with character-match verification:
 
 - [ ] 1. Read `<github.owner>`, `<github.repo>`, `<github.html_url>` (or `<gitbucket.html_url>`) from session context
-- [ ] 2. Construct: `<html_url>/<owner>/<repo>/compare/dev...<branch>` using the platform's base URL from session-init
+- [ ] 2. Construct: `<html_url>/<owner>/<repo>/compare/$DEFAULT_BRANCH...<branch>` using the platform's base URL from session-init
 - [ ] 3. **Character-match verification:** Confirm `<github.owner>` and `<github.repo>` in the constructed URL match session-init values exactly (character-for-character, no typos, no cached values)
 - [ ] 4. If any mismatch: HALT and report
 
 ```bash
-COMPARE_URL="${GITBUCKET_HTML_URL:-${GITHUB_HTML_URL}}/${GIT_OWNER}/${GIT_REPO}/compare/dev...$(git branch --show-current)"
+COMPARE_URL="${GITBUCKET_HTML_URL:-${GITHUB_HTML_URL}}/${GIT_OWNER}/${GIT_REPO}/compare/$DEFAULT_BRANCH...$(git branch --show-current)"
 ```
 
 ### Step 3: Append Lifecycle Event
 
-Append a completion event to the lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml`:
+Append a completion event to the lifecycle manifest at `{project_root}/tmp/{issue-N}/lifecycle.yaml`:
 
 ```yaml
   - event: step_completed
@@ -107,7 +114,7 @@ URL is ALWAYS last per `000-critical-rules.md`.
 Record completion position in the pipeline state machine:
 
 ```bash
-solve state update ./tmp/{issue-N}/state/ \
+solve state update {project_root}/tmp/{issue-N}/state/ \
     --var-name pipeline_state \
     --var-value complete \
     --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml
@@ -147,7 +154,7 @@ summary: "<1-3 sentence summary>"
 
 Write the result contract to:
 ```
-./tmp/{issue-N}/artifacts/pipeline-exec-summary-{STATUS}-{timestamp}.yaml
+{project_root}/tmp/{issue-N}/artifacts/pipeline-exec-summary-{STATUS}-{timestamp}.yaml
 ```
 
 Following the #932 naming convention per `implementation-pipeline` pipeline-executor dispatch table.
@@ -158,7 +165,7 @@ Following the #932 naming convention per `implementation-pipeline` pipeline-exec
 |-------|-------------------|-----------|
 | "Changes pushed" | Verify remote tracking branch exists | `git status` / `git log origin/HEAD..HEAD` |
 | "Compare URL valid" | Verify owner and repo character-match | Compare against session-init values |
-| "Comment routed" | Verify lifecycle event appended | `grep -c "event:" ./tmp/{issue-N}/lifecycle.yaml` |
+| "Comment routed" | Verify lifecycle event appended | `grep -c "event:" {project_root}/tmp/{issue-N}/lifecycle.yaml` |
 | "Byline present" | Verify byline is last substantive line | Read posted comment text |
 
 ## Cross-References

@@ -101,7 +101,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 Before the pipeline dispatches to `sc-coherence-gate`, the orchestrator MUST run plan-to-pipeline handoff verification:
 
-- [ ] 1. **Plan-to-pipeline handoff:** Execute `implementation-pipeline --task pre-flight-handoff` — validates RED checkpoints, SC-ID traceability, approval cascade state, verification gate preservation, and manifest writes at `./tmp/{issue-N}/artifacts/plan-to-pipeline-handoff-*.yaml`
+- [ ] 1. **Plan-to-pipeline handoff:** Execute `implementation-pipeline --task pre-flight-handoff` — validates RED checkpoints, SC-ID traceability, approval cascade state, verification gate preservation, and manifest writes at `{project_root}/tmp/{issue-N}/artifacts/plan-to-pipeline-handoff-*.yaml`
 - [ ] 2. **Handoff-consistency check:** Reads both `spec-to-plan-handoff-*.yaml` and `plan-to-pipeline-handoff-*.yaml` manifests and compares shared variables (SC coverage total, decomposition classification, phase count). BLOCKs on mismatch.
 - [ ] 3. **Submodule state check:** Resolve default branch via `git remote show origin | sed -n 's/.*HEAD branch: //p'`, then verify `git submodule status` shows submodules at that branch's tip. If submodules are stale, BLOCK and report `SUBMODULE-DRIFT`.
 - [ ] 4. **Pre-flight PASS required:** The pipeline MUST NOT proceed to `sc-coherence-gate` (step 1) if pre-flight returns BLOCKED. This is a hard gate — no bypass path.
@@ -237,9 +237,9 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ## State Management
 
-- `solve state init ./tmp/{issue-N}/state/` at `pre-red-baseline` step — creates state file with `current_step: pre-red-baseline`, `pipeline_state: init`
-- `solve state update ./tmp/{issue-N}/state/ --var-name <name> --var-value <value> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — 3 calls per step: previous_step, current_step, pipeline_state
-- `solve check --state-path ./tmp/{issue-N}/state/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — validates step transitions
+- `solve state init {project_root}/tmp/{issue-N}/state/` at `pre-red-baseline` step — creates state file with `current_step: pre-red-baseline`, `pipeline_state: init`
+- `solve state update {project_root}/tmp/{issue-N}/state/ --var-name <name> --var-value <value> --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — 3 calls per step: previous_step, current_step, pipeline_state
+- `solve check --state-path {project_root}/tmp/{issue-N}/state/ --contract-path skills/implementation-pipeline/pipeline-state-machine.yaml` — validates step transitions
 
 Step results go to YAML disk artifact — never into solve state. Solve state tracks pipeline **position** only.
 
@@ -265,11 +265,11 @@ When a step returns FAIL, the orchestrator:
 
 ### Rule 1: Permanent Artifacts Never Cleaned
 
-Artifacts under `.issues/{issue-N}/` (root repo) or `*/.issues/{issue-N}/` (submodule/sub-repo) are permanent — they survive pipeline restarts, branch switches, and PR merges. Never delete or clean these files. They serve as the authoritative audit trail for spec lifecycle, SC coverage, verification consistency, and revision re-entry protocols.
+Artifacts under `.issues/{issue-N}/` (root repo) or `{project_root}/{path}/.issues/{issue-N}/` (submodule/sub-repo) are permanent — they survive pipeline restarts, branch switches, and PR merges. Never delete or clean these files. They serve as the authoritative audit trail for spec lifecycle, SC coverage, verification consistency, and revision re-entry protocols.
 
 ### Rule 2: Ephemeral Artifacts Cleaned at PR Merge
 
-Artifacts under `./tmp/{issue-N}/` are ephemeral — they are cleaned at PR merge cleanup (`git-workflow --task cleanup`). These include constraints contracts, decomposition validations, phase exit contracts, and phase-plan-validated files. Before PR merge, all permanent artifacts must be finalized and no unresolved references to ephemeral paths may remain in the lifecycle manifest.
+Artifacts under `{project_root}/tmp/{issue-N}/` are ephemeral — they are cleaned at PR merge cleanup (`git-workflow --task cleanup`). These include constraints contracts, decomposition validations, phase exit contracts, and phase-plan-validated files. Before PR merge, all permanent artifacts must be finalized and no unresolved references to ephemeral paths may remain in the lifecycle manifest.
 
 ### Rule 3: Step-Specific Pre-Cleanup
 
@@ -277,25 +277,25 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 
 | Step Label | Pre-Cleanup Action |
 
-| `pre-red-baseline` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-pre-red-baseline-*` |
-| `post-red-enforcement` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-post-red-enforcement-*` |
-| `red-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-red-phase-*` |
-| `z3-check-red` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-z3-check-red-*` |
-| `green-phase` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-phase-*` |
-| `z3-check-green` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-z3-check-green-*` |
-| `post-green-enforcement` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-post-green-enforcement-*` |
-| `checkpoint-tag-create` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-checkpoint-tag-create-*` |
-| `checkpoint-commit` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-*` |
-| `structural-checks` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-structural-checks-*` |
-| `green-doublecheck` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-doublecheck-*` |
-| `green-vbc` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-green-vbc-*` |
-| `adversarial-audit` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-adversarial-audit-*` |
-| `cross-validate` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-cross-validate-*` |
-| `regression-check` | `rm -f ./tmp/{issue-N}/artifacts/pipeline-regression-check-*` |
+| `pre-red-baseline` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-pre-red-baseline-*` |
+| `post-red-enforcement` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-post-red-enforcement-*` |
+| `red-phase` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-red-phase-*` |
+| `z3-check-red` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-z3-check-red-*` |
+| `green-phase` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-green-phase-*` |
+| `z3-check-green` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-z3-check-green-*` |
+| `post-green-enforcement` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-post-green-enforcement-*` |
+| `checkpoint-tag-create` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-checkpoint-tag-create-*` |
+| `checkpoint-commit` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-checkpoint-commit-*` |
+| `structural-checks` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-structural-checks-*` |
+| `green-doublecheck` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-green-doublecheck-*` |
+| `green-vbc` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-green-vbc-*` |
+| `adversarial-audit` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-adversarial-audit-*` |
+| `cross-validate` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-cross-validate-*` |
+| `regression-check` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-regression-check-*` |
 
 ## Lifecycle Manifest Event Emission
 
-Each pipeline step SHOULD append an event to the lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` on completion. Events are appended, not overwritten:
+Each pipeline step SHOULD append an event to the lifecycle manifest at `{project_root}/tmp/{issue-N}/lifecycle.yaml` on completion. Events are appended, not overwritten:
 
 ```yaml
   - event: step_completed

@@ -4,6 +4,13 @@
 
 Push feature branch, generate compare URL, and report completion for developer review.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## ⚠️ MANDATORY INVOCATION
 
 **This task MUST be invoked after every implementation completes. There is NO decision point. The agent MUST call this explicitly — it is NOT auto-triggered.**
@@ -144,8 +151,8 @@ PR URL: <html_url from github_create_pull_request API response>
 ### Verification Checklist
 
 - **All changes committed:** Run `git status --porcelain`. If not empty → VERIFICATION-GAP (conditional: commit remaining changes). Run `git diff --staged` to confirm clean state.
-- **Branch actually pushed:** Verify tracking branch exists via `git branch -vv`. Verify no unpushed commits via `git diff @{u} HEAD`. Verify commits ahead of dev via `git log origin/dev..HEAD`.
-- **Compare URL correctness:** Verify URL uses correct base branch (dev, not main). Verify URL uses session init values (not hardcoded).
+- **Branch actually pushed:** Verify tracking branch exists via `git branch -vv`. Verify no unpushed commits via `git diff @{u} HEAD`. Verify commits ahead of dev via `git log origin/"$DEFAULT_BRANCH"..HEAD`.
+- **Compare URL correctness:** Verify URL uses correct base branch ($DEFAULT_BRANCH, not main). Verify URL uses session init values (not hardcoded).
 - **Chat output format:** Verify each required element is present: executive summary, outcome, URL (if applicable), byline. See Step 4.5 for the full checklist.
 
 ## Enforcement References

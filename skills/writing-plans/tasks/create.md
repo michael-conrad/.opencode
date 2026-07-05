@@ -7,7 +7,7 @@ Create an implementation plan from an approved spec. The orchestrator reads this
 ## Prerequisites
 
 - [ ] 1. (**inline**) Approved spec (verified by approval-gate)
-- [ ] 2. (**inline**) Spec stored in `.issues/{N}/spec.md` or `*/.issues/{N}/spec.md`
+- [ ] 2. (**inline**) Spec stored in `.issues/{N}/spec.md` or `{project_root}/{path}/.issues/{N}/spec.md`
 - [ ] 3. (**inline**) Spec has explicit approval (`approved` or `go`)
 - [ ] 4. (**inline**) (Optional) `authorization_scope` from verify-authorization — if scope >= `for_plan`, plan auto-approval triggers
 
@@ -111,7 +111,7 @@ Each item is tagged with dispatch scope and chain dependency.
 
 ## Entry Criteria
 
-- Spec is approved and stored in `.issues/{N}/spec.md` or `*/.issues/{N}/spec.md`
+- Spec is approved and stored in `.issues/{N}/spec.md` or `{project_root}/{path}/.issues/{N}/spec.md`
 - `authorization_scope` received from approval-gate (for cascade)
 
 ## Exit Criteria

@@ -98,7 +98,7 @@ When ALL success criteria are verified as already met:
 
 - [ ] 2. **Close the issue** with state `closed` and state_reason `completed`
 
-- [ ] 3. **Append closure event** to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with criterion-by-criterion evidence summary
+- [ ] 3. **Append closure event** to lifecycle manifest at `{project_root}/tmp/{issue-N}/lifecycle.yaml` with criterion-by-criterion evidence summary
 
 - [ ] 4. **Post chat output** with executive summary:
    - What happened: Spec #N approved but all success criteria already met
@@ -123,7 +123,7 @@ After autoclosing the current issue (Step 5), check if the parent plan's sub-iss
 
 - [ ] 3. **If ALL sub-issues are legitimately closed:**
    - Plans are local artifacts — no GitHub Issue closure needed. The plan file remains as a record.
-   - Append parent closure event to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with sub-issue closure evidence.
+   - Append parent closure event to lifecycle manifest at `{project_root}/tmp/{issue-N}/lifecycle.yaml` with sub-issue closure evidence.
    - Report in chat output: "Parent plan #<plan_number> closed — all sub-issues verified complete"
 
 - [ ] 4. **If ANY sub-issue is NOT closed or NOT legitimately completed:**
@@ -154,7 +154,7 @@ When `verify-already-implemented` identifies issues that were already implemente
 
 - [ ] 2. **Close each verified-already-implemented issue** with a lifecycle event referencing the merged PR:
    - Use `issue-operations -> update-issue` <!-- Routes through issue-operations per SPEC #683 -->
-   - Append closure event to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with merged PR reference
+   - Append closure event to lifecycle manifest at `{project_root}/tmp/{issue-N}/lifecycle.yaml` with merged PR reference
 
 - [ ] 3. **Remove `needs-approval` label** if present — Use `issue-operations -> read-labels` to check, then remove via label update if found. <!-- Routes through issue-operations per SPEC #683 -->
 

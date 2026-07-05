@@ -22,14 +22,14 @@ Idempotent completion subtask for issue-operations. Ensures mandatory steps run 
    - Search by title or check recent issue list
 - [ ] 2. **Labels applied:** Check if `needs-approval` label is present (via `issue-operations → read-labels`)
 - [ ] 3. **Sub-issues created:** Check if multi-task spec has sub-issues (via `issue-operations → read-sub-issues` or comment-based tracking)
-- [ ] 4. **Auditor invoked:** Check if spec-auditor has been run on the issue (via session records or `./tmp/` files)
+- [ ] 4. **Auditor invoked:** Check if spec-auditor has been run on the issue (via session records or `{project_root}/tmp/` files)
 
 ## Skill-Specific Completion
 
 - [ ] 1. **Apply `needs-approval` label** (if not already present, routed via `issue-operations → read-labels`):
     - If label not present, add it via `issue-operations → update-issue`
 - [ ] 2. **Invoke spec-auditor** (if not already run):
-    - Check session records or `./tmp/` files for auditor results
+    - Check session records or `{project_root}/tmp/` files for auditor results
     - If missing: invoke spec-auditor
 - [ ] 3. **Create sub-issues** (if multi-task and not already created):
     - Check `get_sub_issues` result
@@ -78,7 +78,7 @@ URL is ALWAYS last per `000-critical-rules.md`.
 | "Issue was created" | Verify issue exists | `issue-operations → read-issue` → verify | MISSING-ELEMENT |
 | "`needs-approval` label applied" | Verify label present | `issue-operations → read-labels` → verify | MISSING-ELEMENT |
 | "Sub-issues created" | Verify sub-issues exist | `issue-operations → read-sub-issues` → verify | MISSING-ELEMENT |
-| "Auditor was invoked" | Check for auditor results | Session records or `./tmp/` files | VERIFICATION-GAP |
+| "Auditor was invoked" | Check for auditor results | Session records or `{project_root}/tmp/` files | VERIFICATION-GAP |
 
 **Evidence artifact:** Tool call results for each completion state check.
 

@@ -4,6 +4,13 @@
 
 Mandatory checks that must pass before creating ANY PR. No exceptions.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Pre-PR Creation Checklist (ALL Platforms)
 
 **Changelog generation is MANDATORY for ALL PRs — GitHub, GitBucket, or any other platform.**
@@ -24,16 +31,16 @@ Mandatory checks that must pass before creating ANY PR. No exceptions.
 
 ```bash
 # Check if this is a work branch (assembly by assemble-work)
-ls ./tmp/{issue-N}/work.md 2>/dev/null
+ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
 
 # Read scope fields from work state file if present
 # authorization_scope, halt_at, pr_strategy
 
 # Check commit count between dev and HEAD
-git log origin/dev..HEAD --oneline
+git log origin/"$DEFAULT_BRANCH"..HEAD --oneline
 
 # Verify commit count matches expectation
-git log origin/dev..HEAD --oneline | wc -l
+git log origin/"$DEFAULT_BRANCH"..HEAD --oneline | wc -l
 ```
 
 **Commit count enforcement (MANDATORY — `000-critical-rules.md` §Un-Squashed PR):**
@@ -62,7 +69,7 @@ authorization_source: "User approved #N on YYYY-MM-DD"
 
 ```bash
 # If MORE THAN ONE commit shown, SQUASH NOW:
-git reset --soft origin/dev
+git reset --soft origin/"$DEFAULT_BRANCH"
 git commit -m "<descriptive message>" \
     --trailer "Co-authored-by: <AgentName> (<ModelId>) <ai-email>" \
     --trailer "Co-authored-by: <Human-Name> <human-email>"
@@ -160,7 +167,7 @@ If you accidentally create a PR with multiple commits:
 
 - [ ] 1. **DO NOT ask user to fix it** — Fix it yourself:
     ```bash
-    git reset --soft origin/dev
+git reset --soft origin/"$DEFAULT_BRANCH"
     git commit -m "<descriptive message>" \
         --trailer "Co-authored-by: <AgentName> (<ModelId>) <ai-email>" \
         --trailer "Co-authored-by: <Human-Name> <human-email>"

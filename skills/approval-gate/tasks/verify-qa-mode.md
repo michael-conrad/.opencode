@@ -4,6 +4,13 @@
 
 Detect when AI agent receives implementation instructions WITHOUT proper authorization, spec/issue, or feature branch — and switch to Q/A mode.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Entry Criteria
 
 - User gives instruction (any text that could be interpreted as implementation request)
@@ -68,7 +75,7 @@ Phrases that offer to make changes without going through the spec workflow:
 ```
 GATE 1: Is there an associated GitHub Issue?
 GATE 2: Is authorization documented (explicit "approved"/"go" comment)?
-GATE 3: Is current branch a feature branch (not main/dev/master)?
+GATE 3: Is current branch a feature branch (not main/$DEFAULT_BRANCH/master)?
 ```
 
 ### Step 2.5: Search for Existing Spec/Plan Candidates (MANDATORY before Q/A mode)
@@ -134,7 +141,7 @@ Would you like me to work with one of these, or create a new spec?
 [If no spec] No existing spec/plan found for [X].
   Would you like me to create a spec first?
 
-[If on main/dev] I'm currently on the [main] branch.
+[If on main/$DEFAULT_BRANCH] I'm currently on the [main] branch.
   I need to create a feature branch first, but I need a spec/issue to associate it with.
 
 [If no authorization] This work hasn't been authorized yet.
@@ -347,7 +354,7 @@ If user claims authorization exists:
 current_branch = git branch --show-current
 git_status = git status
 
-- If claimed to be on feature branch but actually on main/dev → Gate 3 FAILS
+- If claimed to be on feature branch but actually on main/$DEFAULT_BRANCH → Gate 3 FAILS
 - If claimed to be clean but has uncommitted changes → VERIFICATION-GAP
   (uncommitted changes may indicate prior unauthorized work)
 ```

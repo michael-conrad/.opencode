@@ -83,7 +83,7 @@ Every sub-agent MUST independently discover scope and produce its own result con
 | Violation | Forbidden Pattern | Correct Pattern |
 |-----------|-------------------|-----------------|
 | Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
-| Preloaded step sequences | "Step 1: sync dev. Step 2: delete branch." | "execute cleanup task from git-workflow" |
+| Preloaded step sequences | "Step 1: sync $DEFAULT_BRANCH. Step 2: delete branch." | "execute cleanup task from git-workflow" |
 | Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
 | Preloaded orchestrator reasoning | "The merge was just completed so we need to..." | Pure objective, no narrative |
 

@@ -6,7 +6,7 @@ Ensure mandatory completion steps run regardless of workflow outcome. Idempotent
 
 ## Procedure
 
-- [ ] 1. Verify task marker still exists: `ls ./tmp/{issue-N}/task-*.marker`
+- [ ] 1. Verify task marker still exists: `ls {project_root}/tmp/{issue-N}/task-*.marker`
 - [ ] 2. Record completeness gate result in work state file if not already recorded
 - [ ] 3. Return compact completion result
 

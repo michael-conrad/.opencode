@@ -11,7 +11,7 @@ Applies to `pubmed_data_3` and all new persistence code.
 ## Repository Usage (MANDATORY)
 
 - ALL DB operations MUST go through a `Repository` class (e.g., `PubmedArticleRepository`). Direct `session.execute()`, `session.query()`, or any SQLAlchemy Core constructs (`insert()`, `select()`, `update()`, `delete()`) are PROHIBITED outside Repository classes in `src/`, notebooks, and tests. **Raw SQL is FORBIDDEN.** This includes `text()`, SQL strings, or any direct execution. Repositories encapsulate all ORM-to-Domain and Domain-to-ORM logic.
-- `./tmp/` and `scripts/` diagnostic scripts may use direct session access only for one-off exploration that does not
+- `{project_root}/tmp/` and `scripts/` diagnostic scripts may use direct session access only for one-off exploration that does not
   inform production logic.
 
 ## Driver & ORM
@@ -43,10 +43,10 @@ Applies to `pubmed_data_3` and all new persistence code.
 
 ## Database Location
 
-- `pgdata` location: outside the project root (user-managed) or inside the project only in `./tmp/` (e.g.,
-  `./tmp/db/pgdata`).
-- Forbidden: `pubmed_data_*/db/`, `src/`, `notebooks/`, or anywhere inside project outside `./tmp/`.
-- Before passing a `pgdata` path to `PgServerManager`, the agent MUST verify the path is within `./tmp/` or outside the
+- `pgdata` location: outside the project root (user-managed) or inside the project only in `{project_root}/tmp/` (e.g.,
+  `{project_root}/tmp/db/pgdata`).
+- Forbidden: `pubmed_data_*/db/`, `src/`, `notebooks/`, or anywhere inside project outside `{project_root}/tmp/`.
+- Before passing a `pgdata` path to `PgServerManager`, the agent MUST verify the path is within `{project_root}/tmp/` or outside the
   project root. Do not rely solely on `PgServerManager` to enforce this.
 - `PgServerManager` must enforce this rule and fail-fast on forbidden paths.
 
@@ -103,7 +103,7 @@ def initialize_schema(engine: Engine) -> None:
 
 ## Diagnostics
 
-- NEVER modify production files to diagnose data. Use standalone scripts in `./tmp/` or notebooks.
+- NEVER modify production files to diagnose data. Use standalone scripts in `{project_root}/tmp/` or notebooks.
 - DB enum values: see Strict Enum Mapping in `080-code-standards.md`.
 
 ## Backward Compatibility
@@ -172,7 +172,7 @@ rules:
     source: "100-persistence.md §PgServerManager"
 
   - id: persistence-005
-    title: "pgdata location must be ./tmp/ or outside project root"
+    title: "pgdata location must be {project_root}/tmp/ or outside project root"
     conditions:
       all:
         - "pgdata_path_inside_project == true"

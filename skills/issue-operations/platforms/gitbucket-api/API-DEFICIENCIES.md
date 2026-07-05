@@ -146,7 +146,7 @@ These deficiencies are documented in `SKILL.md` under "API Deficiencies Document
 
 **Test Repository:** `<github.owner>/<github.repo>`
 
-**Test Script:** See `./tmp/test_gitbucket_api_operations.py` (temporary, deleted after testing)
+**Test Script:** See `{project_root}/tmp/test_gitbucket_api_operations.py` (temporary, deleted after testing)
 
 **Test Operations:**
 1. Create test issue

@@ -91,20 +91,25 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 
 **For `bash` tool:** Continue using `workdir` parameter (already documented in `using-git-worktrees` skill and `000-critical-rules.md`).
 
-### Workdir-Aware Path Composition — CRITICAL
+### Project-Root-Anchored Path Resolution — CRITICAL
 
-**When `workdir` resolves to a path inside `.opencode/`, the workdir IS the `.opencode/` directory — do NOT prefix paths with `.opencode/`.** Paths resolve relative to the workdir. Prefixing with `.opencode/` creates `.opencode/.opencode/` nesting which shadows real configuration files and breaks AI agent configuration loading.
+**All paths MUST be resolved against `project_root` (emitted by session-init as `git rev-parse --show-toplevel`), not against the current working directory.** When the agent's CWD is inside a git submodule (e.g., `.opencode/`), relative paths like `{project_root}/tmp/` resolve against the submodule root, not the project root. Using `project_root` eliminates this ambiguity.
 
 **CRITICAL:** Creating `.opencode/.opencode/` directories is FORBIDDEN. See `000-critical-rules.md` §Creating .opencode/.opencode/ Nested Directories.
 
-| Workdir | Path to create `tmp/` | Correct | Wrong (FORBIDDEN) |
-| -- | -- | -- | -- |
-| (any) | `tmp/` | `mkdir -p tmp/` | N/A — all ephemeral artifacts go in repo root `tmp/` |
-| (any) | (any) | Resolve relative to workdir | Do NOT compose `.opencode/.opencode/` |
+| Path Pattern | Correct Resolution | Wrong Resolution |
+| -- | -- | -- |
+| `{project_root}/tmp/` | `{project_root}/tmp/` | `.opencode/tmp/` (when CWD is inside submodule) |
+| `./.issues/{N}/` | `{project_root}/.issues/{N}/` | `.opencode/.issues/{N}/` (when CWD is inside submodule) |
+| `{project_root}/{path}/.issues/{N}/` | `{project_root}/{path}/.issues/{N}/` per repo entry | Literal `*` directory via `mkdir` |
+| `{project_root}/tmp/{N}/work.md` | `{project_root}/tmp/{N}/work.md` | `.opencode/tmp/{N}/work.md` (when CWD is inside submodule) |
 
+- 🚫 FORBIDDEN: Using `./tmp/` or `./.issues/` relative paths — always prefix with `{project_root}/`
+- 🚫 FORBIDDEN: Using `*/.issues/` wildcard pattern — it is a glob pattern, not a real path; `mkdir -p */.issues/` creates a literal `*` directory
 - 🚫 FORBIDDEN: Any `mkdir`, `write`, or path-creating operation whose resolved path contains `.opencode/.opencode/`
-- 🚫 FORBIDDEN: Hardcoding `.opencode/` prefix in paths when workdir is already inside `.opencode/`
-- ✅ REQUIRED: Before any path-creating operation, verify the resolved path against workdir — if workdir is inside `.opencode/`, paths are relative to workdir
+- ✅ REQUIRED: Use `{project_root}/tmp/` for all temporary files and artifacts
+- ✅ REQUIRED: Use `{project_root}/.issues/{N}/` for root repo issues, `{project_root}/{path}/.issues/{N}/` for submodule issues (where `path` comes from session-init's `## Repo Information` entry)
+- ✅ REQUIRED: `project_root` is set once at session start and propagated to all sub-agents in dispatch context
 - ✅ REQUIRED: Submodule context detection: when `git rev-parse --show-toplevel` returns a `.opencode` directory, the agent works inside a submodule — paths must NOT compose `.opencode/.opencode/` nesting
 
 ### `.issues/` Worktree Exemption (CRITICAL)
@@ -125,16 +130,16 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 
 ### ✅ ALWAYS DO
 
-- All temporary scripts and output files MUST be written ONLY to `./tmp/` (project root). NO OTHER FOLDERS OR PATHS ARE PERMITTED.
+- All temporary scripts and output files MUST be written ONLY to `{project_root}/tmp/` (project root). NO OTHER FOLDERS OR PATHS ARE PERMITTED.
 - Create the directory if needed: `mkdir -p ./tmp`.
-- **Mandatory pre-submit root cleanliness check:** Before calling `submit`, run `./.opencode/tools/file-exists .output.txt` and confirm it is MISSING. If it exists, move it to `./tmp/.output.txt` immediately.
+- **Mandatory pre-submit root cleanliness check:** Before calling `submit`, run `./.opencode/tools/file-exists .output.txt` and confirm it is MISSING. If it exists, move it to `{project_root}/tmp/.output.txt` immediately.
 - **ALWAYS clean up temp files after modification tasks are complete.**
-- **Behavioral evidence artifacts are exempt from mandatory cleanup.** Files matching `./tmp/behavioral-evidence-*.{log,json}` MUST NOT be deleted by the agent during VbC or verification stages. These artifacts are preserved until PR merge cleanup (`git-workflow --task cleanup`), which is the ONLY authorized cleanup point. The `./tmp/` cleanup rule applies to all other temporary files, but behavioral evidence artifacts serve as cross-validation inputs and MUST survive until the PR is merged.
+- **Behavioral evidence artifacts are exempt from mandatory cleanup.** Files matching `{project_root}/tmp/behavioral-evidence-*.{log,json}` MUST NOT be deleted by the agent during VbC or verification stages. These artifacts are preserved until PR merge cleanup (`git-workflow --task cleanup`), which is the ONLY authorized cleanup point. The `{project_root}/tmp/` cleanup rule applies to all other temporary files, but behavioral evidence artifacts serve as cross-validation inputs and MUST survive until the PR is merged.
 
 ### 🚫 NEVER DO
 
-- **ZERO TOLERANCE — NEVER use or access any other folder (e.g., `/tmp/`, `.tmp/`, etc.) for any reason.** Only `./tmp/` is permitted.
-- **NEVER delete `./tmp/behavioral-evidence-*` files before PR merge cleanup.** These artifacts are required for adversarial audit cross-validation. Deleting them before the auditor inspects them produces a false "no behavioral evidence found" — indistinguishable from "evidence was never produced."
+- **ZERO TOLERANCE — NEVER use or access any other folder (e.g., `/tmp/`, `.tmp/`, etc.) for any reason.** Only `{project_root}/tmp/` is permitted.
+- **NEVER delete `{project_root}/tmp/behavioral-evidence-*` files before PR merge cleanup.** These artifacts are required for adversarial audit cross-validation. Deleting them before the auditor inspects them produces a false "no behavioral evidence found" — indistinguishable from "evidence was never produced."
 
 ## 4. Command Restrictions & Quality
 
@@ -149,7 +154,7 @@ When working in a git worktree (`worktree.path` is set), TIER 1 file operation t
 
 - No `stty` (hangs non-interactive sessions).
 - No destructive checkouts (`git checkout` files).
-- No embedded scripts via heredocs — use standalone script files in `./tmp/`.
+- No embedded scripts via heredocs — use standalone script files in `{project_root}/tmp/`.
 - No repeated or iterative `grep`/`zgrep`/`egrep`/`sed` searches. Use `search_project`.
 - **ZERO TOLERANCE — `sed -i`, `printf` (for editing or creation), `echo` redirection, and heredocs are absolutely forbidden.**
 - **ZERO TOLERANCE — NEVER edit or modify production data or database seed files.** All changes to production data MUST be performed by a human developer.
@@ -264,7 +269,7 @@ rules:
     source: "060-tool-usage.md §2 Worktree Path Resolution"
 
   - id: tool-usage-004
-    title: "Only ./tmp/ permitted for temp files"
+    title: "Only {project_root}/tmp/ permitted for temp files"
     conditions:
       all:
         - "temp_file_path matches '^/tmp/'"
@@ -342,7 +347,7 @@ rules:
     title: "Behavioral evidence artifacts exempt from mandatory cleanup — preserved until PR merge"
     conditions:
       any:
-        - "file_path matches './tmp/behavioral-evidence-*'"
+        - "file_path matches '{project_root}/tmp/behavioral-evidence-*'"
         - "cleanup_stage in ['vbc', 'verification', 'audit']"
         - "file_deletion_pending == true"
         - "file_path matches 'behavioral-evidence-SC-*'"

@@ -78,20 +78,20 @@ None required. GitHub MCP provides complete API coverage.
 
 ## spec.md Mirror (MANDATORY)
 
-Every `github_issue_read(method="get")` call MUST mirror the spec body to `.issues/<issue_number>/spec.md` (root repo) or `*/.issues/<issue_number>/spec.md` (submodule/sub-repo):
+Every `github_issue_read(method="get")` call MUST mirror the spec body to `.issues/<issue_number>/spec.md` (root repo) or `{project_root}/{path}/.issues/<issue_number>/spec.md` (submodule/sub-repo):
 
 | Event | Action |
 
-| `github_issue_read(method="get")` success | Write `.issues/<issue_number>/spec.md` (root repo) or `*/.issues/<issue_number>/spec.md` (submodule/sub-repo) with header `# Synced from GitHub Issue #<N> at <ISO8601-timestamp>` followed by the issue body |
+| `github_issue_read(method="get")` success | Write `.issues/<issue_number>/spec.md` (root repo) or `{project_root}/{path}/.issues/<issue_number>/spec.md` (submodule/sub-repo) with header `# Synced from GitHub Issue #<N> at <ISO8601-timestamp>` followed by the issue body |
 | `github_issue_read(method="get")` repeated | Overwrite `spec.md` with updated timestamp and body |
-| API unreachable (network error, rate limit, auth failure) | Read `.issues/<issue_number>/spec.md` (root repo) or `*/.issues/<issue_number>/spec.md` (submodule/sub-repo) from disk, note staleness in chat: `"spec.md last synced at <timestamp>, may be stale"` |
+| API unreachable (network error, rate limit, auth failure) | Read `.issues/<issue_number>/spec.md` (root repo) or `{project_root}/{path}/.issues/<issue_number>/spec.md` (submodule/sub-repo) from disk, note staleness in chat: `"spec.md last synced at <timestamp>, may be stale"` |
 | API comes back after outage | Re-fetch and overwrite on next spec read |
 
 ### Mirror Sync Procedure (MANDATORY)
 
 After every `github_issue_read(method="get")` success:
 
-1. Create directory: `mkdir -p .issues/<issue_number>/` (root repo) or `mkdir -p */.issues/<issue_number>/` (submodule/sub-repo)
+1. Create directory: `mkdir -p .issues/<issue_number>/` (root repo) or `mkdir -p {project_root}/{path}/.issues/<issue_number>/` (submodule/sub-repo)
 2. Write `spec.md`:
 ```
 # Synced from GitHub Issue #<N> at <ISO8601-timestamp>
@@ -104,7 +104,7 @@ After every `github_issue_read(method="get")` success:
 
 When `github_issue_read(method="get")` fails with a network error, rate limit, or auth failure:
 
-1. Check if `.issues/<issue_number>/spec.md` (root repo) or `*/.issues/<issue_number>/spec.md` (submodule/sub-repo) exists
+1. Check if `.issues/<issue_number>/spec.md` (root repo) or `{project_root}/{path}/.issues/<issue_number>/spec.md` (submodule/sub-repo) exists
 2. If exists: read from disk, note in chat: `"GitHub API unreachable. Reading spec.md (last synced at <timestamp>, may be stale)."`
 3. If NOT exists and API is unreachable: report `"Cannot read spec #<N> — API unreachable and no local spec.md mirror exists."`
 4. Proceed with stale/absent data noting the risk

@@ -9,7 +9,7 @@ Verify every SC from the spec received at least one PASS verdict before issue cl
 ## Entry Criteria
 
 - Pipeline execution complete (all 14 steps finished)
-- Pipeline artifacts exist at `./tmp/{issue-N}/artifacts/pipeline-*.yaml`
+- Pipeline artifacts exist at `{project_root}/tmp/{issue-N}/artifacts/pipeline-*.yaml`
 - `sc-summary.yaml` exists at `.issues/{issue-N}/sc-summary.yaml`
 - Issue closure pending
 
@@ -23,7 +23,7 @@ Verify every SC from the spec received at least one PASS verdict before issue cl
 
 ### Step 1: Collect Pipeline Artifacts
 
-- [ ] 1. Glob `./tmp/{issue-N}/artifacts/pipeline-*.yaml` for all pipeline step artifacts
+- [ ] 1. Glob `{project_root}/tmp/{issue-N}/artifacts/pipeline-*.yaml` for all pipeline step artifacts
 - [ ] 2. Read each artifact and extract SC verdicts (PASS/FAIL per SC)
 - [ ] 3. Collect all SC verdicts into a unified SC status table
 
@@ -53,7 +53,7 @@ Verify every SC from the spec received at least one PASS verdict before issue cl
 
 Generate timestamp via `.opencode/tools/schema-version`. Store result in `$TIMESTAMP`.
 
-Write `./tmp/{issue-N}/artifacts/sc-closeout-$TIMESTAMP.yaml`:
+Write `{project_root}/tmp/{issue-N}/artifacts/sc-closeout-$TIMESTAMP.yaml`:
 
 ```yaml
 schema_version: "1.0"
@@ -79,4 +79,4 @@ summary:
 
 - Preceded by: pipeline exec-summary step
 - Feeds into: issue closure (git-workflow cleanup)
-- Related artifacts: `./tmp/{issue-N}/artifacts/pipeline-*.yaml`, `.issues/{issue-N}/sc-summary.yaml`
+- Related artifacts: `{project_root}/tmp/{issue-N}/artifacts/pipeline-*.yaml`, `.issues/{issue-N}/sc-summary.yaml`

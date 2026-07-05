@@ -1,5 +1,12 @@
 # Pair-Mode Resume Task
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 Detect and report on `pair-*` branch at session start.
 
 ## Detection
@@ -15,7 +22,7 @@ If `$BRANCH` starts with `pair-`:
 
 - [ ] 2. **Show diff summary:**
    ```bash
-   git diff --stat origin/dev..HEAD
+   git diff --stat origin/"$DEFAULT_BRANCH"..HEAD
    ```
 
 - [ ] 3. **Check for uncommitted changes:**

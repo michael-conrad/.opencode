@@ -38,9 +38,9 @@ For each finding from the traversal list, classify into one of six categories:
 
 For each sub-issue finding in the traversal list:
 
-- [ ] 1. **Identify the parent plan** — read the local plan file at `.issues/{N}/plan.md` or `*/.issues/{N}/plan.md` to confirm the plan relationship. Record the parent plan number. Plans are local artifacts, not GitHub Issues.
-- [ ] 2. **Read the parent plan body** — read the local plan file at `.issues/{plan_N}/plan.md` or `*/.issues/{plan_N}/plan.md` and extract the spec reference using the pattern `Spec: #N`.
-- [ ] 3. **Search for other plans referencing the same spec** — glob `.issues/*/plan.md` and `*/.issues/*/plan.md`, grep for `"Spec: #<spec_N>"` in each file. Collect all plan numbers found.
+- [ ] 1. **Identify the parent plan** — read the local plan file at `.issues/{N}/plan.md` or `{project_root}/{path}/.issues/{N}/plan.md` to confirm the plan relationship. Record the parent plan number. Plans are local artifacts, not GitHub Issues.
+- [ ] 2. **Read the parent plan body** — read the local plan file at `.issues/{plan_N}/plan.md` or `{project_root}/{path}/.issues/{plan_N}/plan.md` and extract the spec reference using the pattern `Spec: #N`.
+- [ ] 3. **Search for other plans referencing the same spec** — glob `.issues/*/plan.md` and `{project_root}/{path}/.issues/*/plan.md`, grep for `"Spec: #<spec_N>"` in each file. Collect all plan numbers found.
 - [ ] 4. **Compare plan scopes for overlap** — for each additional plan found, read its local plan file. Extract phase titles and compare with the current plan's phases. Record overlapping phase titles.
 - [ ] 5. **If overlap exists**: Add a finding to the `uncertain` classification with reason `"duplicate plan track — requires dev action to determine which plan owns deliverables"`. Record: spec number, all plan numbers referencing that spec, and the overlapping phase titles.
 
@@ -102,7 +102,7 @@ Add to `requires_dev_action` list in the result contract.
 For each verified auto-close candidate:
 
 - [ ] 1. Call `issue-operations -> update-issue` on the issue. <!-- Routes through issue-operations per SPEC #683 -->
-- [ ] 2. Append closure event to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with evidence references (merged PR number or code verification details).
+- [ ] 2. Append closure event to lifecycle manifest at `{project_root}/tmp/{issue-N}/lifecycle.yaml` with evidence references (merged PR number or code verification details).
 - [ ] 3. Remove `needs-approval` label if present.
 
 ### Step 7: Execute Reopen Actions
@@ -110,7 +110,7 @@ For each verified auto-close candidate:
 For each verified reopen candidate:
 
 - [ ] 1. Call `issue-operations -> update-issue` on the issue. <!-- Routes through issue-operations per SPEC #683 -->
-- [ ] 2. Append reopen event to lifecycle manifest at `./tmp/{issue-N}/lifecycle.yaml` with reason: "no merged PR found and code not present in repo".
+- [ ] 2. Append reopen event to lifecycle manifest at `{project_root}/tmp/{issue-N}/lifecycle.yaml` with reason: "no merged PR found and code not present in repo".
 
 ### Step 8: Output Reconciliation Report
 
@@ -155,7 +155,7 @@ Every action MUST produce a live tool-call artifact:
 | Uncertain | Conflicting tool-call results that prevent confident classification |
 | Evidence gate | `read`/`grep`/`srclight_get_symbol` output for auto-close candidates (mandatory — candidates without artifacts reclassified as `uncertain`) |
 | Comment conflict scan | `issue-operations -> read-comments` output confirming no contradicting comments within 24-hour window | <!-- Routes through issue-operations per SPEC #683 -->
-| Cross-reference check | `glob .issues/*/plan.md */.issues/*/plan.md` + grep for `Spec: #N` showing plans referencing the same spec + local file read confirming scope overlap |
+| Cross-reference check | `glob .issues/*/plan.md {project_root}/{path}/.issues/*/plan.md` + grep for `Spec: #N` showing plans referencing the same spec + local file read confirming scope overlap |
 
 ## Context Required
 

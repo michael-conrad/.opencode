@@ -178,7 +178,7 @@ Each boundary claim must be verified:
 
 ### Step 7: Write Verdict Artifact to Disk
 
-Write the full YAML verdict artifact to `./tmp/{issue-N}/artifacts/pipeline-audit-concern-separation-{STATUS}-{timestamp}.yaml`:
+Write the full YAML verdict artifact to `{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-concern-separation-{STATUS}-{timestamp}.yaml`:
 
 ```yaml
 audit_phase: concern_separation
@@ -215,7 +215,7 @@ mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires
 
 ```yaml
 status: DONE
-artifact_path: "./tmp/{issue-N}/artifacts/pipeline-audit-concern-separation-PASS-{timestamp}.yaml"
+artifact_path: "{project_root}/tmp/{issue-N}/artifacts/pipeline-audit-concern-separation-PASS-{timestamp}.yaml"
 summary: "N criteria evaluated. X PASS, Y FAIL."
 all_criteria_pass: false
 mandatory_remediation: "Remit for mandatory remediation. Non-clean PASS requires full remediation before re-audit. Default assumption is FAIL unless 100% clean PASS with no caveats, concerns, or notes."
