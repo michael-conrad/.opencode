@@ -1,0 +1,13 @@
+spec: https://github.com/michael-conrad/.opencode/issues/1677
+generated_at: 2026-07-05T00:00:00Z
+sc_coverage_total: 8
+decomposition_classification: multi-phase
+phase_count: 4
+status: complete
+artifacts:
+  - path: .opencode/.issues/1677/spec.md
+    required: true
+  - path: .opencode/.issues/1677/sc-summary.yaml
+    required: true
+  - path: .opencode/.issues/1677/spec-to-plan-handoff.yaml
+    required: true

@@ -1,0 +1,66 @@
+sc_coverage:
+  total: 8
+  single_task: false
+  spec_url: https://github.com/michael-conrad/.opencode/issues/1677
+  evidence_types:
+    - behavioral
+    - semantic
+    - string
+    - structural
+  phases:
+    - id: phase-1-session-init
+      sc_ids: [SC-1, SC-2, SC-3]
+      evidence_types: [string, behavioral]
+    - id: phase-2-guideline-update
+      sc_ids: [SC-7]
+      evidence_types: [string]
+    - id: phase-3-task-file-migration
+      sc_ids: [SC-4, SC-5]
+      evidence_types: [string]
+    - id: phase-4-behavioral-tests
+      sc_ids: [SC-6, SC-8]
+      evidence_types: [behavioral]
+  cross_cutting:
+    sc_ids: [SC-3, SC-8]
+    verified_in_phase: phase-1-session-init
+  scs:
+    - id: SC-1
+      description: "project_root emitted by session-init as absolute path from git rev-parse --show-toplevel"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-1-session-init
+    - id: SC-2
+      description: "project_root value is top-level git root, not submodule root"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-1-session-init
+    - id: SC-3
+      description: "project_root propagated in sub-agent dispatch context"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-1-session-init
+    - id: SC-4
+      description: "All task files using ./tmp/ or */.issues/ updated to {project_root}-based paths"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-3-task-file-migration
+    - id: SC-5
+      description: "local-issues tool works correctly with project_root-based paths"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-3-task-file-migration
+    - id: SC-6
+      description: "Behavioral enforcement test verifies agent uses project_root when CWD inside submodule"
+      evidence_type: behavioral
+      verification_gate: behavioral
+      plan_phase: phase-4-behavioral-tests
+    - id: SC-7
+      description: "060-tool-usage.md references project_root instead of workdir-aware composition"
+      evidence_type: string
+      verification_gate: pre-commit
+      plan_phase: phase-2-guideline-update
+    - id: SC-8
+      description: "Behavioral enforcement tests written before implementation; RED state confirmed"
+      evidence_type: behavioral
+      verification_gate: pre-commit
+      plan_phase: phase-4-behavioral-tests
