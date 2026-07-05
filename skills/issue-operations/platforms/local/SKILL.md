@@ -179,7 +179,7 @@ When `github.platform` is NOT `local` (remote available), local issues can be pr
 
 ## Worktree Exemption
 
-`.issues/` (root repo) or `{project_root}/{path}/.issues/` (submodule/sub-repo) files are non-behavioral metadata. Exempt from worktree requirement per `060-tool-usage.md` §Worktree Exemption, but NOT exempt from branching requirement (no direct commits to `dev`/`main`).
+`.issues/` (root repo) or `{project_root}/{path}/.issues/` (submodule/sub-repo) files are non-behavioral metadata. Exempt from worktree requirement per `060-tool-usage.md` §Worktree Exemption, but NOT exempt from branching requirement (no direct commits to `$DEFAULT_BRANCH`/`main`).
 
 ## Sub-Agent Tasks
 

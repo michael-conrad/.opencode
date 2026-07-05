@@ -66,7 +66,7 @@ Each parallel issue includes task context:
 - #621 (`.opencode/guidelines/`)
 
 **Merge-time ordering:**
-- #662 and #621 may conflict at merge — #621 will rebase onto `dev` after #662 merges before creating its PR.
+- #662 and #621 may conflict at merge — #621 will rebase onto `$DEFAULT_BRANCH` after #662 merges before creating its PR.
 
 **Excluded:**
 - #660 — meta/behavioral issue, no code changes required

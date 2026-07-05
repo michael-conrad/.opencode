@@ -4,6 +4,13 @@
 
 Run the completion checklist to verify a branch is fully ready for PR creation.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Operating Protocol
 
 - [ ] 1. Invoked by: `skill({name: "finishing-a-development-branch"})` → `task()` for `checklist`
@@ -64,7 +71,7 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 ### Chat Output Format (MANDATORY — Zero Tolerance)
 - [ ] Executive summary present as **first** chat output element (before any URL)
 - [ ] Outcome line present after summary
-- [ ] URL label is context-appropriate: "Compare URL" (pre-PR, `compare/dev...`) or "PR URL" (post-PR, `pull/N`) — label and URL format MUST match; mismatch is a critical violation
+- [ ] URL label is context-appropriate: "Compare URL" (pre-PR, `compare/$DEFAULT_BRANCH...`) or "PR URL" (post-PR, `pull/N`) — label and URL format MUST match; mismatch is a critical violation
 - [ ] URL present (after summary, before byline)
 - [ ] AI byline in format `🤖 <AgentName> (<ModelId>) <status>` appears **last** (after URL)
 - [ ] No URL before executive summary (CRITICAL VIOLATION if violated)
@@ -91,7 +98,7 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 ### Post-Merge Cleanup Verification
 - [ ] `skill({name: "git-workflow", args: "--task cleanup"})` invoked after PR merge confirmation (CRITICAL — skipping is a guideline violation)
 - [ ] 🚫 FORBIDDEN: Reading cleanup task files into context and task()ing a generic sub-agent with custom step-by-step instructions. This is a critical-rules-048 violation. The ONLY permitted invocation is `skill({name: "git-workflow", args: "--task cleanup"})`.
-- [ ] Local dev branch synced with origin/dev (dev HEAD matches origin/dev HEAD)
+- [ ] Local dev branch synced with origin/$DEFAULT_BRANCH (dev HEAD matches origin/$DEFAULT_BRANCH HEAD)
 - [ ] Merged feature branch deleted (local and remote)
 - [ ] No stale worktrees remaining from the merged branch
 
@@ -131,7 +138,7 @@ Run the completion checklist to verify a branch is fully ready for PR creation.
 | "Lint passing" | Run actual lint command | `uvx ruff check src/ test/` → check exit code | VERIFICATION-GAP |
 | "No debug prints" | Search for debug statements | \`grep(pattern="print\\( | debugger |
 | "No TODO/FIXME" | Search for placeholder comments | \`grep(pattern="TODO | FIXME |
-| "No unrelated changes" | Verify diff scope matches spec | `git diff dev --name-only` → compare with spec files | CONFLICTING |
+| "No unrelated changes" | Verify diff scope matches spec | `git diff "$DEFAULT_BRANCH" --name-only` → compare with spec files | CONFLICTING |
 
 **Evidence artifact:** Tool call results for each checklist verification.
 

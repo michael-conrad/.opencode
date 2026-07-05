@@ -4,6 +4,13 @@
 
 Enforce mandatory pre-conditions before PR creation. Verify explicit PR instruction, review-prep completion, and branch push status.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Entry Criteria
 
 - Implementation is complete
@@ -65,8 +72,8 @@ summary: <text>
 Check if the PR diff is submodule-pointer-only:
 
 ```bash
-CHANGED=$(git diff --stat dev...HEAD | tail -1 | grep -oP '\d+ file' | grep -oP '\d+')
-SUBMODULE_ONLY=$(git diff --stat dev...HEAD | grep -c '\.opencode')
+CHANGED=$(git diff --stat "$DEFAULT_BRANCH"...HEAD | tail -1 | grep -oP '\d+ file' | grep -oP '\d+')
+SUBMODULE_ONLY=$(git diff --stat "$DEFAULT_BRANCH"...HEAD | grep -c '\.opencode')
 if [ "$CHANGED" = "1" ] && [ "$SUBMODULE_ONLY" = "1" ]; then
   echo "BLOCKED: Submodule-bump-only PRs are prohibited."
   echo ""
@@ -109,7 +116,7 @@ if [ "$CHANGED" = "1" ] && [ "$SUBMODULE_ONLY" = "1" ]; then
 
 ```bash
 # Count commits ahead of dev
-git log origin/dev..HEAD --oneline
+git log origin/"$DEFAULT_BRANCH"..HEAD --oneline
 
 # Detect branch type via work state file
 ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
@@ -127,7 +134,7 @@ ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
 1. HALT — DO NOT proceed to PR creation
 2. Squash per `pr-creation/squash-push.md` Step 3:
    ```bash
-   git reset --soft origin/dev
+   git reset --soft origin/"$DEFAULT_BRANCH"
    git commit -m "<descriptive message>" \
        --trailer "Co-authored-by: <AgentName> (<ModelId>) <ai-email>" \
        --trailer "Co-authored-by: <dev.name> <dev.email>"

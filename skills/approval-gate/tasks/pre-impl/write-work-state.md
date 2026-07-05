@@ -4,6 +4,13 @@
 
 Determine execution strategy, capture the dev base hash, build task context for parallel issues, and write the work state file that persists the execution plan for sub-agent task().
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Entry Criteria
 
 - Dependency graph built (from `build-dependency-graph`)
@@ -13,7 +20,7 @@ Determine execution strategy, capture the dev base hash, build task context for 
 ## Exit Criteria
 
 - Execution strategy determined (sequential, parallel, hybrid, exclude, or reduce-scope)
-- Dev base hash captured via `git rev-parse origin/dev`
+- Dev base hash captured via `git rev-parse origin/"$DEFAULT_BRANCH"`
 - Task context built for each issue (including worktree paths, partially-implemented context, revised status)
 - Work state file written to `{project_root}/tmp/{issue-N}/artifacts/work.md`
 - File contains: authorization context, scope fields, pre-analysis results, gate evidence audit table, execution order, merge-time ordering, completed tracking, and results placeholder
@@ -35,7 +42,7 @@ Determine execution strategy, capture the dev base hash, build task context for 
 Before task()ing any parallel worktrees, the orchestrating agent MUST capture the current dev branch hash:
 
 ```bash
-git rev-parse origin/dev
+git rev-parse origin/"$DEFAULT_BRANCH"
 ```
 
 This `dev_base_hash` MUST be included in the task context for each parallel issue. See Step 8 for the complete task context schema.
@@ -63,7 +70,7 @@ The `worktree_path` is derived from the branch name by replacing `/` with `-`:
 - Branch `spec/foo` → Worktree path `.worktrees/spec-foo`
 - Branch `feature/bar` → Worktree path `.worktrees/feature-bar`
 
-The `dev_base_hash` ensures all parallel worktrees start from the same base commit on `dev`.
+The `dev_base_hash` ensures all parallel worktrees start from the same base commit on `$DEFAULT_BRANCH`.
 
 **For partially-implemented issues**, include additional context:
 
@@ -132,7 +139,7 @@ mkdir -p {project_root}/tmp/{issue-N}/artifacts
 
 ## Merge-Time Ordering
 
-- #C will rebase onto `dev` after #A merges before creating its PR.
+- #C will rebase onto `$DEFAULT_BRANCH` after #A merges before creating its PR.
 
 ## Completed
 

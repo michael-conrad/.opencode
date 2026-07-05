@@ -4,6 +4,13 @@
 
 Clean temp files, handle submodule push automation, rebase on current dev, and verify branch is pushed to remote — all prerequisite steps before generating the compare URL.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Entry Criteria
 
 - All implementation work complete
@@ -81,7 +88,7 @@ rm -rf {project_root}/tmp/{issue-N}/.cache 2>/dev/null
 
 ```bash
 git fetch origin
-git rebase origin/dev
+git rebase origin/"$DEFAULT_BRANCH"
 ```
 
 **If conflicts:** Invoke `conflict-resolution` skill to classify and resolve:
@@ -142,10 +149,10 @@ If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT.** D
 | Check | Command | Expected |
 | -- | -- | -- |
 | Working tree clean | `git status --porcelain` | Empty |
-| Commits ahead of dev | `git log dev..HEAD --oneline` | At least one |
+| Commits ahead of dev | `git log "$DEFAULT_BRANCH"..HEAD --oneline` | At least one |
 | Tracking branch exists | `git branch -vv` | `[origin/<branch>]` |
 | All commits pushed | `git diff @{u} HEAD` | Empty |
-| Branch on correct base | `git merge-base HEAD origin/dev` | Dev-based SHA |
+| Branch on correct base | `git merge-base HEAD origin/"$DEFAULT_BRANCH"` | Dev-based SHA |
 
 ## Push-Then-URL Enforcement (MANDATORY — Bug #1231)
 

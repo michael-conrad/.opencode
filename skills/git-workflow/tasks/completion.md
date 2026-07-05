@@ -27,7 +27,7 @@ Idempotent completion subtask for git-workflow. Ensures mandatory steps run rega
 Reference `.opencode/skills/completion-core/completion-core.md` for steps 3-6:
 
 - [ ] 1. Push branch (with idempotency check)
-- [ ] 2. Generate compare URL (dev...branch)
+- [ ] 2. Generate compare URL ($DEFAULT_BRANCH...branch)
 - [ ] 3. Append completion event to lifecycle manifest at `{project_root}/tmp/{issue-N}/lifecycle.yaml`
 - [ ] 4. Report executive summary in chat (always runs)
 

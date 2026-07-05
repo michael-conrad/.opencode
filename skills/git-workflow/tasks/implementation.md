@@ -4,6 +4,13 @@
 
 Handle work-in-progress commits during implementation. Multiple commits during implementation are acceptable for checkpointing.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Operating Protocol
 
 - [ ] 1. **User-driven work:** The agent performs approved implementation tasks
@@ -114,7 +121,7 @@ When `worktree.path` is set, ALL file operation tool calls (`read`, `edit`, `wri
 
 | Check | Tool Call | Expected Result | On Failure |
 | -- | -- | -- | -- |
-| On correct branch | `git branch --show-current` | Feature branch (not `main`/`dev`) | STRUCTURE-VIOLATION → HALT |
+| On correct branch | `git branch --show-current` | Feature branch (not `main`/`$DEFAULT_BRANCH`) | STRUCTURE-VIOLATION → HALT |
 | Worktree location | `git rev-parse --show-toplevel` | Worktree path | STRUCTURE-VIOLATION → HALT |
 | Changes to commit | `git status --porcelain` | Expected modified files listed | MISSING-ELEMENT → no changes found |
 | Staged state matches intent | `git diff --staged` | Intended changes visible | VERIFICATION-GAP → re-stage |
@@ -141,7 +148,7 @@ When `worktree.path` is set, ALL file operation tool calls (`read`, `edit`, `wri
 
 | Failure | Problem Class | Classification | Action |
 | -- | -- | -- | -- |
-| On `main` or `dev` | CONFLICTING | flag-for-review | HALT — must be in worktree on feature branch |
+| On `main` or `$DEFAULT_BRANCH` | CONFLICTING | flag-for-review | HALT — must be in worktree on feature branch |
 | Wrong toplevel path | STRUCTURE-VIOLATION | auto-fix | HALT — not in worktree, re-invoke pre-work |
 | No changes to commit | MISSING-ELEMENT | conditional | Verify changes were saved — may need `git add` |
 | Staged changes don't match intent | VERIFICATION-GAP | conditional | Review diff, adjust staging |

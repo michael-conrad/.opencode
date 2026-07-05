@@ -10,6 +10,13 @@ Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
 Push changes, generate issue/PR URLs, append lifecycle event, and produce executive summary output for the orchestrator pipeline.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Authorization Context
 
 ```
@@ -60,12 +67,12 @@ fi
 Construct from session-init values with character-match verification:
 
 - [ ] 1. Read `<github.owner>`, `<github.repo>`, `<github.html_url>` (or `<gitbucket.html_url>`) from session context
-- [ ] 2. Construct: `<html_url>/<owner>/<repo>/compare/dev...<branch>` using the platform's base URL from session-init
+- [ ] 2. Construct: `<html_url>/<owner>/<repo>/compare/$DEFAULT_BRANCH...<branch>` using the platform's base URL from session-init
 - [ ] 3. **Character-match verification:** Confirm `<github.owner>` and `<github.repo>` in the constructed URL match session-init values exactly (character-for-character, no typos, no cached values)
 - [ ] 4. If any mismatch: HALT and report
 
 ```bash
-COMPARE_URL="${GITBUCKET_HTML_URL:-${GITHUB_HTML_URL}}/${GIT_OWNER}/${GIT_REPO}/compare/dev...$(git branch --show-current)"
+COMPARE_URL="${GITBUCKET_HTML_URL:-${GITHUB_HTML_URL}}/${GIT_OWNER}/${GIT_REPO}/compare/$DEFAULT_BRANCH...$(git branch --show-current)"
 ```
 
 ### Step 3: Append Lifecycle Event

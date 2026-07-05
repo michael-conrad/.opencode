@@ -4,6 +4,13 @@
 
 Verify PR merge via GitHub API and run SC-verification and phase-completion gates before any issue closure or branch deletion.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Entry Criteria
 
 - Human confirms "PR merged" or similar
@@ -64,7 +71,7 @@ Summary:
 1. List all open PRs: `github_list_pull_requests(owner, repo, state="open")`
 2. For each open PR (excluding the just-merged one):
    a. Create temporary worktree for the PR branch
-   b. Attempt `git rebase origin/dev`
+   b. Attempt `git rebase origin/"$DEFAULT_BRANCH"`
    c. If clean rebase: force-push the updated branch
    d. If conflicts: classify per `conflict-resolution` skill tiers
 3. Report summary: which PRs rebased cleanly, which had conflicts
@@ -136,7 +143,7 @@ Verify ALL phases/sub-issues have merged PRs before allowing closure of a multi-
 | -- | -- | -- | -- |
 | `merged_at` is None | CONFLICTING | flag-for-review | HALT — PR not merged, cannot close issues |
 | `merged_by` is None but `merged_at` set | VERIFICATION-GAP | conditional | Investigate — may be bot merge |
-| Branch not in `--merged dev` list | VERIFICATION-GAP | conditional | Sync dev, recheck |
+| Branch not in `--merged "$DEFAULT_BRANCH"` list | VERIFICATION-GAP | conditional | Sync dev, recheck |
 | Sub-issue closed without merged PR | VERIFICATION-GAP | flag-for-review | Investigate closure reason |
 | Sub-issue still open after merge | VERIFICATION-GAP | conditional | Close manually via API |
 

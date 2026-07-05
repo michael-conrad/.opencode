@@ -4,6 +4,13 @@
 
 Prepare commit message for squash commit during PR creation. This is a read-only analysis phase - no commits are executed.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Commit Policy (User-Initiated Only)
 
 ### 🚫 NEVER DO
@@ -77,7 +84,7 @@ Write to `{project_root}/tmp/{issue-N}/commit-<branch>.sh`:
 # Commit script for <branch-name>
 # 🤖 <AgentName> (<ModelId>) ➕ created
 
-git reset --soft origin/dev
+git reset --soft origin/"$DEFAULT_BRANCH"
 git commit -m "<descriptive message>" \
     --trailer "Co-authored-by: <AgentName> (<ModelId>) <ai-email>" \
     --trailer "Co-authored-by: <Human-Name> <human-email>"
@@ -165,7 +172,7 @@ Commits occur during the PR creation workflow, not as a separate step:
 | -- | -- | -- | -- |
 | Staged diff matches intent | `git diff --staged` | Shows exactly what should be committed | CONFLICTING → re-stage |
 | No unintended unstaged changes | `git diff` | Empty or only expected changes | VERIFICATION-GAP → review and stage |
-| On correct branch | `git branch --show-current` | Feature branch (not `main`/`dev`) | STRUCTURE-VIOLATION → HALT |
+| On correct branch | `git branch --show-current` | Feature branch (not `main`/`$DEFAULT_BRANCH`) | STRUCTURE-VIOLATION → HALT |
 | Worktree location | `git rev-parse --show-toplevel` | Worktree path | STRUCTURE-VIOLATION → HALT |
 | Status shows expected files | `git status --porcelain` | Only intended files shown | VERIFICATION-GAP → review |
 
@@ -189,7 +196,7 @@ Commits occur during the PR creation workflow, not as a separate step:
 | -- | -- | -- | -- |
 | Staged files not matching intent | CONFLICTING | flag-for-review | Selective `git add` to correct staging |
 | Unstaged changes present | VERIFICATION-GAP | conditional | Review — may need `git add` or `.gitignore` |
-| On `main` or `dev` | STRUCTURE-VIOLATION | auto-fix | HALT — must be on feature branch in worktree |
+| On `main` or `$DEFAULT_BRANCH` | STRUCTURE-VIOLATION | auto-fix | HALT — must be on feature branch in worktree |
 | Wrong toplevel path | STRUCTURE-VIOLATION | auto-fix | HALT — not in worktree context |
 | Locked/deleted files in status | VERIFICATION-GAP | flag-for-review | Investigate — may need `git rm` or recovery |
 

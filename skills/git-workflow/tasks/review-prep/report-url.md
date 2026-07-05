@@ -55,16 +55,16 @@ Compare URL: <Constructed from session-init values — character-match verified>
 
 | Context | Label | URL Format |
 | -- | -- | -- |
-| Pre-PR (after push, before PR creation) | **Compare URL** | `compare/dev...<branch-name>` |
+| Pre-PR (after push, before PR creation) | **Compare URL** | `compare/$DEFAULT_BRANCH...<branch-name>` |
 | Post-PR (PR has been created) | **PR URL** | `pull/<PR-number>` |
 
-**Label-format mismatch is a critical violation.** "Compare URL" with `pull/N` format or "PR URL" with `compare/dev...` format is ALWAYS wrong.
+**Label-format mismatch is a critical violation.** "Compare URL" with `pull/N` format or "PR URL" with `compare/$DEFAULT_BRANCH...` format is ALWAYS wrong.
 
 ### Format Verification (MANDATORY — check before posting)
 
 - [ ] Executive summary present as first element
 - [ ] `**Outcome:**` follows summary
-- [ ] URL label matches context (pre-PR: "Compare URL" + `compare/dev...`; post-PR: "PR URL" + `pull/N`)
+- [ ] URL label matches context (pre-PR: "Compare URL" + `compare/$DEFAULT_BRANCH...`; post-PR: "PR URL" + `pull/N`)
 - [ ] URL present as last element before byline
 - [ ] AI byline present after URL
 - [ ] No URL before summary

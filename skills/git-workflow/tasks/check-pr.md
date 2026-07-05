@@ -8,6 +8,13 @@
 
 Execute a 6-phase serial chain to scan for merged PRs, verify each merge, close linked issues, clean up branches (submodules before parent), reconcile submodules, and park the repo in a clean final state.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Entry Criteria
 
 - User says "check pr", "check prs", "check merged prs", "check merged pr", or "check pull request(s)"
@@ -32,7 +39,7 @@ Execute a 6-phase serial chain to scan for merged PRs, verify each merge, close 
 ## Phase 2: Verify Each Merge
 
 - [ ] For each merged PR, confirm merge state via the platform-appropriate API (use `github.platform` from session-init: `github` → `github_pull_request_read(method=get)` check `merged_at`, `gitbucket` → `gb pr view` check `merged`, `local` → N/A)
-- [ ] Verify the merge commit exists in local dev history: `git log --oneline dev | grep <merge_sha>`
+- [ ] Verify the merge commit exists in local dev history: `git log --oneline "$DEFAULT_BRANCH" | grep <merge_sha>`
 - [ ] Report PASS/FAIL per PR with evidence artifact
 
 ## Phase 3: Close Linked Issues
@@ -51,8 +58,8 @@ Execute a 6-phase serial chain to scan for merged PRs, verify each merge, close 
 
 ## Phase 5: Parent Branch Cleanup
 
-- [ ] Switch to dev and sync: `git checkout dev && git pull origin dev --ff-only`
-- [ ] For each merged branch, verify content exists on dev via `git diff --stat origin/dev...<branch>` — produce content comparison table
+- [ ] Switch to dev and sync: `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH" --ff-only`
+- [ ] For each merged branch, verify content exists on dev via `git diff --stat origin/"$DEFAULT_BRANCH"...<branch>` — produce content comparison table
 - [ ] Delete local merged branch: `git branch -d <branch>`
 - [ ] Delete remote branch: `git push origin --delete <branch>`
 - [ ] Preserve hash-permanence tags — do NOT delete
@@ -64,7 +71,7 @@ Execute a 6-phase serial chain to scan for merged PRs, verify each merge, close 
 - [ ] Iterate ALL discovered repos depth-first: submodule tips, then parent tip
 - [ ] Branch-aware parking per current branch type:
   - On `feature/*`, `fix/*`, `spec/*` → switch to dev tip
-  - Already on dev → pull latest, stay on dev
+  - Already on $DEFAULT_BRANCH → pull latest, stay on $DEFAULT_BRANCH
   - Already on main → pull latest, stay on main
   - On non-standard branch → pull latest on current branch, do NOT switch
 - [ ] Submodule pointers in the parent repo are dirty by design. They are restored during the next pre-work cycle. Do NOT commit, reset, or otherwise correct them.

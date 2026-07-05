@@ -4,6 +4,13 @@
 
 Delete merged branches after PR merge, clean stale references, and verify repository state is ready for next work session.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 ## Operating Protocol
 
 - [ ] 1. **After PR merge:** Run when human confirms "PR merged" or similar
@@ -131,17 +138,17 @@ Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all su
 
    a. Get local dev HEAD:
       ```bash
-      git -C "$REPO_PATH" rev-parse dev
+      git -C "$REPO_PATH" rev-parse "$DEFAULT_BRANCH"
       ```
 
    b. Get remote dev HEAD:
       ```bash
-      git -C "$REPO_PATH" rev-parse origin/dev
+      git -C "$REPO_PATH" rev-parse origin/"$DEFAULT_BRANCH"
       ```
 
    c. Collect evidence artifact:
       ```bash
-      git -C "$REPO_PATH" log --oneline -1 dev
+      git -C "$REPO_PATH" log --oneline -1 "$DEFAULT_BRANCH"
       ```
 
    d. Compare local vs remote:
@@ -151,7 +158,7 @@ Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all su
 - [ ] 4. **Report results as a comparison table:**
 
    ```
-   | Repo | Local dev HEAD | Remote dev HEAD | Status |
+   | Repo | Local $DEFAULT_BRANCH HEAD | Remote $DEFAULT_BRANCH HEAD | Status |
    |------|---------------|-----------------|--------|
    | opencode-config | abc1234 | abc1234 | ✅ At tip |
    | .opencode | def5678 | def5678 | ✅ At tip |
@@ -163,9 +170,9 @@ Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all su
    - **Any repo diverged:** Report which repo, the local vs remote hashes, and flag for human review:
 
      ```
-     ⚠️ Repo <name> diverged from origin/dev:
-       Local dev:  <hash>
-       Origin/dev: <hash>
+     ⚠️ Repo <name> diverged from origin/$DEFAULT_BRANCH:
+       Local $DEFAULT_BRANCH:  <hash>
+       Origin/$DEFAULT_BRANCH: <hash>
        Action required: Human review — determine whether to push, pull --rebase, or investigate.
      ```
 
@@ -187,7 +194,7 @@ After EVERY merged PR, cleanup is MANDATORY — no exceptions.
 
 ### ✅ ALWAYS DO — IMMEDIATELY After Merge Confirmation
 
-- [ ] 1. Switch to dev and sync: `git checkout dev && git pull origin dev`
+- [ ] 1. Switch to dev and sync: `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"`
 - [ ] 2. Verify dev sync: `git log --oneline -5` must show the merge commit
 - [ ] 3. Delete local feature branch: `git branch -d <branch-name>`
 - [ ] 4. Delete remote branch: `git push origin --delete <branch-name>`
@@ -218,7 +225,7 @@ After EVERY merged PR, cleanup is MANDATORY — no exceptions.
 
 | Check | Purpose | Method |
 | -- | -- | -- |
-| Branch merged | Prevent deleting unmerged work | `git branch --merged dev` |
+| Branch merged | Prevent deleting unmerged work | `git branch --merged "$DEFAULT_BRANCH"` |
 | PR status | Confirm merge (not just closed) | GitHub API |
 | Not current | Prevent deleting active branch | `git branch --show-current` |
 | Not protected | Block main/master deletion | Hardcoded exclusion |
@@ -313,9 +320,9 @@ Each verification point requires a tool call for evidence. Assertions without to
 | Check | Tool Call | Expected Result | On Failure |
 | -- | -- | -- | -- |
 | PR merge status | `github_pull_request_read(method=get, ...)` | `merged_at` is not None | CONFLICTING → HALT |
-| Local dev synced | `git log --oneline -1 dev` equals remote | Hashes match exactly | VERIFICATION-GAP → re-pull |
+| Local dev synced | `git log --oneline -1 "$DEFAULT_BRANCH"` equals remote | Hashes match exactly | VERIFICATION-GAP → re-pull |
 | Sub-issues closed | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues, ...)` | All state=closed | VERIFICATION-GAP → close or investigate | <!-- Routes through issue-operations per SPEC #683 -->
-| All repos at dev tip | `git -C $REPO_PATH rev-parse dev` vs `rev-parse origin/dev` for parent + each submodule | Every repo's local dev HEAD matches origin/dev | VERIFICATION-GAP → report which repo diverged, flag for human review |
+| All repos at dev tip | `git -C $REPO_PATH rev-parse "$DEFAULT_BRANCH"` vs `rev-parse origin/"$DEFAULT_BRANCH"` for parent + each submodule | Every repo's local dev HEAD matches origin/dev | VERIFICATION-GAP → report which repo diverged, flag for human review |
 
 ## Sub-Task Files
 

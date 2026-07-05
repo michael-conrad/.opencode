@@ -4,6 +4,13 @@
 
 Repository management operations using the `gb` CLI tool.
 
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
+
 **Primary Tool: `gb` CLI**
 
 **CRITICAL: The old `gitbucket-api` Python tool has been REMOVED. Use `gb` for all operations.**
@@ -65,7 +72,7 @@ gb api repos/org/project/branches -R org/project
 gb pr list -R org/project --state open
 
 # Step 3: Create new PR (if no existing PR found)
-gb pr create -t "Feature: feature/oauth2" --head feature/oauth2 -B dev -R org/project --body "## Description\n\nImplements OAuth2 authentication."
+gb pr create -t "Feature: feature/oauth2" --head feature/oauth2 -B "$DEFAULT_BRANCH" -R org/project --body "## Description\n\nImplements OAuth2 authentication."
 ```
 
 ### Workflow 2: Find Stale Branches
@@ -73,7 +80,7 @@ gb pr create -t "Feature: feature/oauth2" --head feature/oauth2 -B dev -R org/pr
 ```bash
 # List all branches
 gb api repos/org/project/branches -R org/project
-# Then filter out protected branches (main, master, dev) and identify stale ones
+# Then filter out protected branches (main, master, $DEFAULT_BRANCH) and identify stale ones
 ```
 
 ### Workflow 3: Repository Health Check

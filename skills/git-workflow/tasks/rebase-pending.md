@@ -2,7 +2,14 @@
 
 ## Purpose
 
-After a PR merge is verified, automatically rebase all other pending PRs from the same developer onto the updated `dev` branch. Classify conflicts using the conflict-resolution skill's Tier 1-3 system: Tier 1-2 auto-resolve, Tier 3 (intent) conflicts HALT for developer review.
+After a PR merge is verified, automatically rebase all other pending PRs from the same developer onto the updated `$DEFAULT_BRANCH` branch. Classify conflicts using the conflict-resolution skill's Tier 1-3 system: Tier 1-2 auto-resolve, Tier 3 (intent) conflicts HALT for developer review.
+
+## Default Branch Resolution
+
+```bash
+DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+```
 
 ## Operating Protocol
 
@@ -16,11 +23,11 @@ After a PR merge is verified, automatically rebase all other pending PRs from th
 
 - PR merge verified via GitHub API (Step 2 of cleanup complete)
 - `merged_at` timestamp confirmed on the just-merged PR
-- Local dev branch is up to date (`git pull origin dev`)
+- Local dev branch is up to date (`git pull origin "$DEFAULT_BRANCH"`)
 
 ## Exit Criteria
 
-- All pending PRs rebased onto updated `dev` OR
+- All pending PRs rebased onto updated `$DEFAULT_BRANCH` OR
 - Tier 3 conflicts identified and reported to developer with rebase paused
 - Summary report generated listing: rebased cleanly, auto-resolved, blocked
 - Existing cleanup steps can proceed after rebase-pending completes
@@ -72,8 +79,8 @@ For each pending PR:
 ```
 a. Fetch latest remote: git fetch origin
 b. Checkout the PR branch: git checkout <branch-name>
-c. Rebase onto updated dev: git rebase origin/dev
-d. Submodule re-sync (MANDATORY): git submodule foreach "git checkout dev && git pull"
+c. Rebase onto updated dev: git rebase origin/"$DEFAULT_BRANCH"
+d. Submodule re-sync (MANDATORY): git submodule foreach "git checkout \"$DEFAULT_BRANCH\" && git pull"
    - Do NOT skip this step — rebase may change submodule references
 e. Handle outcome:
    - Clean rebase + submodule sync → proceed to Step 5 (force-push)
@@ -88,8 +95,8 @@ b. Create temporary worktree for the PR branch:
    git worktree add .worktrees/rebase-<branch-name> -b <branch-name> origin/<branch-name>
    (If branch already has a worktree, use existing)
 c. In worktree, rebase onto updated dev:
-   git rebase origin/dev
-d. Submodule re-sync (MANDATORY): git submodule foreach "git checkout dev && git pull"
+   git rebase origin/"$DEFAULT_BRANCH"
+d. Submodule re-sync (MANDATORY): git submodule foreach "git checkout \"$DEFAULT_BRANCH\" && git pull"
 e. Handle outcome:
    - Clean rebase + submodule sync → proceed to Step 5 (force-push)
    - Conflicts → proceed to Step 3 (conflict classification)
@@ -108,7 +115,7 @@ git worktree remove "$WORKTREE_PATH"
 
 **Important:** Always clean up temporary worktrees between PRs. Never leave rebase worktrees dangling.
 
-**Submodule re-sync is MANDATORY after every rebase:** After `git rebase origin/dev`, run `git submodule foreach "git checkout dev && git pull"` to realign submodules with the updated dev state. Skipping this causes drift that breaks builds and tests.
+**Submodule re-sync is MANDATORY after every rebase:** After `git rebase origin/"$DEFAULT_BRANCH"`, run `git submodule foreach "git checkout \"$DEFAULT_BRANCH\" && git pull"` to realign submodules with the updated dev state. Skipping this causes drift that breaks builds and tests.
 
 ### Step 3: Conflict Classification
 
@@ -224,7 +231,7 @@ After all pending PRs are processed (rebased, auto-resolved, or blocked for deve
 
 - [ ] 1. Clean up any temporary rebase worktrees
 - [ ] 2. Report summary to developer
-- [ ] 3. Continue with existing cleanup: Step 3 (switch to dev and sync), Step 4+ (delete branch, close issues, etc.)
+- [ ] 3. Continue with existing cleanup: Step 3 (switch to $DEFAULT_BRANCH and sync), Step 4+ (delete branch, close issues, etc.)
 
 **If any Tier 3 conflicts blocked a rebase:**
 
@@ -247,7 +254,7 @@ Continuing with cleanup for the merged PR...
 **If all PRs rebased successfully:**
 
 ```
-Rebase Summary: All <count> pending PRs rebased onto updated dev.
+Rebase Summary: All <count> pending PRs rebased onto updated $DEFAULT_BRANCH.
 Continuing with cleanup for the merged PR...
 ```
 
@@ -259,10 +266,10 @@ Continuing with cleanup for the merged PR...
 
 | Check | Tool Call | Expected Result | On Failure |
 | -- | -- | -- | -- |
-| On correct branch | `git branch --show-current` | PR branch name (not `main`/`dev`) | STRUCTURE-VIOLATION → HALT |
+| On correct branch | `git branch --show-current` | PR branch name (not `main`/`$DEFAULT_BRANCH`) | STRUCTURE-VIOLATION → HALT |
 | Worktree location (worktree mode only) | `git rev-parse --show-toplevel` | Worktree path (not main repo) | STRUCTURE-VIOLATION → HALT |
 | Working tree clean | `git status --porcelain` | Empty output | VERIFICATION-GAP → stash or commit first |
-| Dev is up to date | `git fetch origin && git log --oneline origin/dev -1` | Recent SHA, post-merge | MISSING-ELEMENT → re-fetch |
+| Dev is up to date | `git fetch origin && git log --oneline origin/"$DEFAULT_BRANCH" -1` | Recent SHA, post-merge | MISSING-ELEMENT → re-fetch |
 
 ### Verification Procedure
 
@@ -273,7 +280,7 @@ Continuing with cleanup for the merged PR...
 2. git rev-parse --show-toplevel → EVIDENCE: <worktree-path-or-main-repo>
 3. git status --porcelain → EVIDENCE: "(empty)" for clean tree
 4. git fetch origin → EVIDENCE: fetch result
-5. git log --oneline origin/dev -1 → EVIDENCE: recent dev SHA
+5. git log --oneline origin/"$DEFAULT_BRANCH" -1 → EVIDENCE: recent dev SHA
 ```
 
 ### Finding Classification
