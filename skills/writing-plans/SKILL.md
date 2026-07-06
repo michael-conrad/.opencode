@@ -1,6 +1,6 @@
 ---
 name: writing-plans
-description: "Use when creating an implementation plan from an approved spec, breaking down work into phases, planning implementation steps, or creating task breakdowns. Also use when retroactively creating a plan for an existing spec, or backfilling plan documentation. Invoke for: plan creation, implementation planning, task breakdown, phase definition, work decomposition, retroactive planning, plan backfill. Plans are REQUIRED. — distinct from plan (AI planning with PDDL/Z3) and plan-creation-pipeline (task()-dispatch pipeline). Trigger phrases: create plan, write plan, draft plan, implementation plan, plan implementation, break down work, create tasks, define phases, plan phases, retroactive plan, backfill plan, task breakdown."
+description: "Use when creating an implementation plan from an approved spec, breaking down work into phases, planning implementation steps, or creating task breakdowns. Also use when retroactively creating a plan for an existing spec, or backfilling plan documentation. Invoke for: plan creation, implementation planning, task breakdown, phase definition, work decomposition, retroactive planning, plan backfill. Plans are REQUIRED. — distinct from plan (AI planning with PDDL/Z3) and plan-creation-pipeline (task()-dispatch pipeline). Trigger phrases: create plan, write plan, draft plan, implementation plan, plan implementation, break down work, create tasks, define phases, plan phases, retroactive plan, backfill plan, task breakdown, create a plan, write a plan, draft a plan, make a plan, make plan, create an implementation plan, write an implementation plan, implementation steps, task list, break down the work, create the tasks, define the phases."
 license: MIT
 compatibility: opencode
 ---
@@ -9,7 +9,7 @@ compatibility: opencode
 
 ## Overview
 
-Transforms approved specs into actionable implementation plans using a 22-step Z3-enforced pipeline executing entirely at orchestrator level. Every step is one atomic concern. No placeholders. No `task()` calls within the pipeline.
+Transforms approved specs into actionable implementation plans using a 22-step Z3-enforced pipeline. Every step is one atomic concern. No placeholders. Pipeline steps dispatch to sub-agents via `task()` for independent execution.
 
 ## Worktree Mode
 
@@ -19,9 +19,16 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. All pipeline steps execute at orchestrator level — no `task()` calls within the pipeline
+- [ ] 3. Pipeline steps dispatch to sub-agents via `task()` for independent execution — no inline execution of pipeline steps
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 - [ ] 5. **All implementation-pipeline steps are mandatory — no exceptions.** Every step in the implementation-pipeline SKILL.md Trigger Dispatch Table MUST be included in generated plans with the correct skill/task reference. Plans that omit mandatory steps or use incorrect skill/task names are defective and MUST be rejected at the plan validation gate. This applies regardless of scope, authorization level, or perceived simplicity. "Continue" does not waive this requirement. There is no exception for any reason.
+- [ ] 6. **Pipeline execution discipline:**
+  - `todowrite` lifecycle MUST be maintained throughout pipeline execution (CREATE with status, UPDATE on transition, CLEAR before HALT)
+  - `pipeline_phase` MUST be tracked and updated after each step
+  - A feature branch MUST be created before any plan artifacts are written
+  - Plan artifacts MUST be committed to the feature branch after creation
+  - `local-issues sync` MUST be run before any `.issues/` writes and after each write
+- [ ] 7. **Sequential step ordering:** Every step with a chain dependency MUST execute sequentially. No parallel dispatch of chain-dependent steps. Each step's output is the next step's input. The "sub-agent dispatch implies independence" rationalization is explicitly prohibited.
 
 ## Trigger Dispatch Table
 
@@ -30,6 +37,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" / "auto-create plan" / "gap-fill plan" | `create` | `orchestrator` | {spec_issue_number, spec_body} |
 | "retroactive" / "retroactive plan" / "backfill plan" | `retroactive` | `orchestrator` | {spec_issue_number} |
 | "update plan" / "plan update" / "auto-update plan" / "revise plan" | `update` | `orchestrator` | {spec_issue_number, plan_issue_number} |
+| "spec-to-plan" / "handoff to plan" | `handoffs/spec-to-plan` | `sub-task` | {spec_issue_number} |
 | completion / workflow end | `completion` | `orchestrator` | {workflow_state} |
 
 ## Programmatic Invocation
@@ -43,7 +51,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 ## Persona
 
-This skill produces plans by executing a 22-step pipeline at orchestrator level. The orchestrator reads each step procedure from its task file and executes it directly. Each step is a self-contained procedure with entry criteria, exit criteria, and chain dependency. The orchestrator MUST NOT prescribe exact file paths, line numbers, step sequences, or expected outcomes. Specify WHAT and WHY — not HOW.
+This skill produces plans by dispatching pipeline steps to sub-agents. The orchestrator routes each step to a clean-room sub-agent via `task()`. Each step is a self-contained procedure with entry criteria, exit criteria, and chain dependency. The orchestrator MUST NOT prescribe exact file paths, line numbers, step sequences, or expected outcomes. Specify WHAT and WHY — not HOW. Professional orchestrators route to sub-agents. Inlining pipeline steps means the plan was never independently produced.
 
 ## Tasks
 
@@ -65,22 +73,22 @@ This skill produces plans by executing a 22-step pipeline at orchestrator level.
 
 ## Invocation
 
-`skill({name: "writing-plans"})` — orchestrator reads task file and executes steps inline.
+`skill({name: "writing-plans"})` — orchestrator dispatches pipeline steps to sub-agents via `task()`.
 
-**DISPATCH GATE — All pipeline steps execute at orchestrator level.** Under the hard limit that sub-agents cannot dispatch sub-agents, the 22-step pipeline runs entirely in the orchestrator context. The orchestrator reads each step procedure from its task file and executes it directly. No `task()` calls are used within the pipeline. When external skills are needed (e.g., adversarial-audit for fidelity/concern audits), invoke them via `skill({name: "..."})` with the appropriate task, not via sub-agent dispatch.
+**DISPATCH GATE — Pipeline steps dispatch to sub-agents.** The orchestrator routes each step to a clean-room sub-agent via `task()`. The orchestrator reads each step procedure from its task file and dispatches it. When external skills are needed (e.g., adversarial-audit for fidelity/concern audits), invoke them via `skill({name: "..."})` with the appropriate task, dispatched to a sub-agent.
 
 | Task | Execution |
 |------|-----------|
-| `create` | Orchestrator reads `tasks/create.md` and executes steps inline |
-| `retroactive` | Orchestrator reads `tasks/retroactive.md` and executes steps inline |
-| `update` | Orchestrator reads `tasks/update.md` and executes steps inline |
-| `completion` | Orchestrator reads `tasks/completion.md` and executes steps inline |
+| `create` | Orchestrator dispatches pipeline steps to sub-agents via `task()` |
+| `retroactive` | Orchestrator dispatches pipeline steps to sub-agents via `task()` |
+| `update` | Orchestrator dispatches pipeline steps to sub-agents via `task()` |
+| `completion` | Orchestrator dispatches pipeline steps to sub-agents via `task()` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "writing-plans"})` ``
 
 ## Operating Protocol — 21-Step Pipeline
 
-**Execution model:** Under the hard limit that sub-agents cannot dispatch sub-agents, this skill's pipeline executes entirely at the orchestrator level. The orchestrator reads each step procedure and executes it directly. No `task()` calls are used within the pipeline.
+**Execution model:** Pipeline steps dispatch to sub-agents via `task()` for independent execution. The orchestrator routes each step to a clean-room sub-agent.
 
 Each item is tagged with chain dependency and contract paths.
 - [ ] 0. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
@@ -116,7 +124,7 @@ When the `retroactive` task is dispatched, the pipeline is the same 22-step sequ
 
 ## Sub-Agent Routing
 
-Orchestrator-level tasks (`create`, `retroactive`) are executed inline by the orchestrator — the orchestrator reads each step procedure and executes it directly. The pipeline uses no `task()` calls. When external skills are needed (adversarial-audit for fidelity/concern audits), invoke them via `skill({name: "..."})` with the appropriate task, not via sub-agent dispatch within the pipeline.
+Pipeline steps dispatch to sub-agents via `task()` for independent execution. The orchestrator routes each step to a clean-room sub-agent. When external skills are needed (adversarial-audit for fidelity/concern audits), invoke them via `skill({name: "..."})` with the appropriate task, dispatched to a sub-agent.
 
 ## Cross-References
 
