@@ -33,6 +33,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "verify" / "verify SCs" / "check completion" | `verify` | `sub-task` | {spec_sc_list, file_paths} |
 | "collect" / "collect evidence" | `collect` | `sub-task` | {spec_sc_list, file_paths} |
 | "structural-verify" / "structural check" | `structural-verify` | `sub-task` | {spec_structure} |
+| "behavioral-test-evaluation" / "evaluate behavioral tests" | `behavioral-test-evaluation` | `sub-task` | {artifact_dir, sc_list} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Persona
@@ -45,6 +46,7 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 | `verify` |
 | `collect` |
 | `structural-verify` |
+| `behavioral-test-evaluation` |
 | `completion` |
 
 ## Invocation
@@ -56,6 +58,7 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 | `verify` | `task(..., prompt: "execute verify task from verification-before-completion")` |
 | `structural-verify` | `task(..., prompt: "execute structural-verify task from verification-before-completion")` |
 | `collect` | `task(..., prompt: "execute collect task from verification-before-completion")` |
+| `behavioral-test-evaluation` | `task(..., prompt: "execute behavioral-test-evaluation task from verification-before-completion")` |
 | `completion` | `task(..., prompt: "execute completion task from verification-before-completion")` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "verification-before-completion"})` ``
@@ -68,7 +71,8 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 - [ ] 4. **Exact comparison:** external verifications use exact mode. No "functionally equivalent" soft-passes.
 - [ ] 5. **Live-source only:** evidence from memory/training data is FORBIDDEN. Tool-call artifact required.
 - [ ] 6. **Clean-room routing:** verification sub-agents receive ONLY spec SC list + file paths. No implementation context, no prior results.
-- [ ] 7. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
+- [ ] 7. **Behavioral test evaluation:** After `behavior_run` produces artifacts, the orchestrator MUST dispatch `behavioral-test-evaluation` to evaluate artifacts via clean-room sub-agents. "Artifact generated" is NOT a valid PASS verdict for behavioral SCs — artifacts MUST be evaluated by clean-room sub-agents before any PASS claim.
+- [ ] 8. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ## Sub-Agent Routing
 

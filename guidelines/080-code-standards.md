@@ -697,6 +697,24 @@ This reinforces `000-critical-rules.md` §critical-rules-hard-fail for the behav
 - **FAIL** — one or more assertions fail; remediate and re-run
 - **INCONCLUSIVE after exhaustive remediation** — escalate; do NOT proceed
 
+### Rule 6: "Artifact Generated" Is NOT a Valid PASS Verdict for Behavioral SCs
+
+**Reporting "artifact generated" as a PASS verdict for a behavioral SC is EVIDENCE_TYPE_MISMATCH — a hard FAIL.**
+
+Behavioral test artifacts (stdout.log, stderr.log, session.yaml) are raw output from `behavior_run`. Their existence proves the test ran, NOT that the agent's behavior matched the SC criterion. Evaluating artifacts requires a clean-room sub-agent that reads the artifacts and judges whether the agent's actions and decisions satisfy the SC.
+
+**Prohibited patterns:**
+- Reporting "✅ Artifact generated" as a PASS verdict for a behavioral SC
+- Reporting "Artifacts exist" as evidence of behavioral compliance
+- Using file existence (structural evidence) as a substitute for clean-room evaluation
+- Skipping clean-room evaluation because "the artifacts look correct"
+
+**Required pattern:**
+1. After `behavior_run` produces artifacts, dispatch `behavioral-test-evaluation` from `verification-before-completion`
+2. The evaluation task dispatches clean-room sub-agents to read artifacts and produce PASS/FAIL per SC
+3. Only after clean-room evaluation returns PASS for all behavioral SCs may the agent report PASS
+4. "Artifact generated" is NEVER a valid PASS verdict — only clean-room evaluation counts
+
 ## Cross-Reference Standards
 
 **Cross-references in specs, issues, and documentation MUST use stable anchors, NOT line numbers.**
@@ -1044,4 +1062,20 @@ rules:
     requires: [critical-rules-020, critical-rules-060]
     triggers: [verification-before-completion, adversarial-audit]
     source: "080-code-standards.md §Evidence Type Taxonomy"
+
+  - id: code-standards-017
+    tier: 2
+    title: "\"Artifact generated\" is NOT a valid PASS verdict for behavioral SCs"
+    conditions:
+      all:
+        - "sc_evidence_type == 'behavioral'"
+        - "verdict_basis == 'artifact_generated'"
+        - "clean_room_evaluation_performed == false"
+    actions:
+      - HALT
+      - REQUIRE_CLEAN_ROOM_EVALUATION
+    conflicts_with: [code-standards-016a]
+    requires: []
+    triggers: [verification-before-completion]
+    source: "080-code-standards.md §Rule 6"
 ```

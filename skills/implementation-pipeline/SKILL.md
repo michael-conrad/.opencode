@@ -58,6 +58,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "adversarial-audit" / "audit step" | `adversarial-audit` | `orchestrator` | {issue_number} |
 | "cross-validate" / "consensus check" | `cross-validate` | `sub-task` | {issue_number} |
 | "regression-check" / "regression tests" | `regression-check` | `sub-task` | {issue_number} |
+| "behavioral-test-remediation" / "remediate behavioral test" | `behavioral-test-remediation` | `sub-task` | {issue_number, test_artifact_path, sc_list} |
 | "review-prep" / "prepare review" | `review-prep` | `sub-task` | {issue_number} |
 | "exec-summary" / "completion" | `exec-summary` | `sub-task` | {issue_number} |
 
@@ -290,6 +291,7 @@ At the start of each pipeline step, clean previous-run artifacts for that step t
 | `adversarial-audit` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-adversarial-audit-*` |
 | `cross-validate` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-cross-validate-*` |
 | `regression-check` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-regression-check-*` |
+| `behavioral-test-remediation` | `rm -f {project_root}/tmp/{issue-N}/artifacts/pipeline-behavioral-test-remediation-*` |
 
 ## Lifecycle Manifest Event Emission
 
