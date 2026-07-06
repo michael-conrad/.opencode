@@ -1,0 +1,92 @@
+schema_version: "2.0"
+status: DONE
+finding_summary: "4-phase structure defined: pre-plan-readiness (writing-plans), verify-plan-pipeline (approval-gate), auto-dispatch fix (approval-gate), entry-point rename (spec-creation). All phases are independent — no cross-phase file conflicts."
+artifact_path: ".opencode/.issues/1703/structure-output.yaml"
+phase_count: 4
+combined_or_separate: separate
+decision_rationale: "4 changes target different skills (writing-plans, approval-gate, spec-creation) and different file sets. No shared files between phases. Separate phases with independent RED/GREEN chains."
+file_mapping:
+  phase_1:
+    concern: "Add pre-plan-readiness task to writing-plans"
+    sub_folders:
+      - ".opencode/skills/writing-plans/tasks/"
+      - ".opencode/skills/writing-plans/"
+  phase_2:
+    concern: "Add verify-plan-pipeline task to approval-gate"
+    sub_folders:
+      - ".opencode/skills/approval-gate/tasks/"
+      - ".opencode/skills/approval-gate/"
+  phase_3:
+    concern: "Fix auto-dispatch for for_pr gap-fill"
+    sub_folders:
+      - ".opencode/skills/approval-gate/tasks/"
+  phase_4:
+    concern: "Rename spec-creation write -> create"
+    sub_folders:
+      - ".opencode/skills/spec-creation/"
+      - ".opencode/skills/spec-creation/tasks/"
+      - ".opencode/guidelines/"
+      - ".opencode/skills/adversarial-audit/tasks/"
+      - ".opencode/skills/approval-gate/tasks/"
+phase_structure:
+  pre_phase:
+    - "Verify feature branch exists"
+    - "Run local-issues sync"
+    - "Verify spec file exists at .opencode/.issues/1703/spec.md"
+  phases:
+    - phase_number: 1
+      slug: "pre-plan-readiness"
+      concern: "Add pre-plan-readiness task to writing-plans"
+      files:
+        - ".opencode/skills/writing-plans/tasks/pre-plan-readiness.md (new)"
+        - ".opencode/skills/writing-plans/SKILL.md (update)"
+    - phase_number: 2
+      slug: "verify-plan-pipeline"
+      concern: "Add verify-plan-pipeline task to approval-gate"
+      files:
+        - ".opencode/skills/approval-gate/tasks/verify-plan-pipeline.md (new)"
+        - ".opencode/skills/approval-gate/SKILL.md (update)"
+    - phase_number: 3
+      slug: "auto-dispatch-fix"
+      concern: "Fix auto-dispatch for for_pr gap-fill to route through writing-plans create"
+      files:
+        - ".opencode/skills/approval-gate/tasks/auto-dispatch.md (update)"
+    - phase_number: 4
+      slug: "entry-point-rename"
+      concern: "Rename spec-creation write -> create across all cross-references"
+      files:
+        - ".opencode/skills/spec-creation/tasks/write.md -> create.md (rename)"
+        - ".opencode/skills/spec-creation/SKILL.md (update)"
+        - ".opencode/skills/spec-creation/tasks/completion.md (update)"
+        - ".opencode/guidelines/140-planning-spec-creation.md (update)"
+        - ".opencode/skills/adversarial-audit/tasks/test-quality-audit.md (update)"
+        - ".opencode/skills/approval-gate/tasks/verify-authorization/sc-traceability-check.md (update)"
+  post_phase:
+    - "Run behavioral enforcement tests"
+    - "Run lint/typecheck"
+    - "Commit all artifacts"
+tdd_tasks:
+  - phase: 1
+    red: "Write behavioral test that verifies pre-plan-readiness gate blocks when spec file missing"
+    green: "Create pre-plan-readiness task file and update SKILL.md"
+  - phase: 2
+    red: "Write behavioral test that verifies verify-plan-pipeline gate checks pipeline completeness"
+    green: "Create verify-plan-pipeline task file and update SKILL.md"
+  - phase: 3
+    red: "Write behavioral test that verifies for_pr gap-fill routes through writing-plans create"
+    green: "Update auto-dispatch.md to route through writing-plans create task"
+  - phase: 4
+    red: "Write behavioral test that verifies spec-creation dispatches via create task"
+    green: "Rename write.md to create.md and update all cross-references"
+dependency_contract:
+  type: "independent"
+  dag:
+    - phase: 1
+      depends_on: []
+    - phase: 2
+      depends_on: []
+    - phase: 3
+      depends_on: [2]
+    - phase: 4
+      depends_on: []
+  rationale: "Phase 3 (auto-dispatch fix) references the verify-plan-pipeline task added in Phase 2, so it has a soft dependency. Phases 1, 2, and 4 are fully independent."

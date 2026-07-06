@@ -1,0 +1,11 @@
+schema_version: "2.0"
+status: PASS
+finding_summary: "All 18 validation checks passed. No placeholders, spec reference present, all phase files exist, global sequential numbering confirmed, checkbox format correct, admonishments present, dispatch indicators match content."
+artifact_path: ".opencode/.issues/1703/validate-output.yaml"
+checklist_step_count: 32
+phase_count: 4
+sc_coverage: "SC-1 through SC-6 covered across 4 phases"
+gate_sequence_source: "implementation-pipeline/SKILL.md Trigger Dispatch Table"
+admonishment_present: true
+dispatch_table_free: true
+dispatch_modes_used: "inline, RED, GREEN"

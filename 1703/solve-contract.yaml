@@ -1,0 +1,16 @@
+schema_version: "1.0"
+variables:
+  phase_1_done:
+    type: bool
+  phase_2_done:
+    type: bool
+  phase_3_done:
+    type: bool
+  phase_4_done:
+    type: bool
+constraints:
+  - "phase_3_done => phase_2_done"
+  - "phase_1_done"
+  - "phase_2_done"
+  - "phase_3_done"
+  - "phase_4_done"

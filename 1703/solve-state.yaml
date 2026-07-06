@@ -1,0 +1,6 @@
+schema_version: "1.0"
+variables:
+  phase_1_done: true
+  phase_2_done: true
+  phase_3_done: true
+  phase_4_done: true
