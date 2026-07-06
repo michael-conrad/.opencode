@@ -163,7 +163,7 @@ ______________________________________________________________________
 
 > **Problem:** Spec templates enforce rigid structure that causes agents to fill in sections mechanically rather than reasoning about what content each spec needs.
 >
-> **Current State:** `143-planning-spec-templates.md` presents complete templates as "use this template" and `spec-creation/tasks/write.md` provides a 12-section mandatory list that agents treat as required regardless of spec complexity.
+> **Current State:** `143-planning-spec-templates.md` presents complete templates as "use this template" and `spec-creation/tasks/create.md` provides a 12-section mandatory list that agents treat as required regardless of spec complexity.
 >
 > **Proposed Change:** Replace rigid templates with intent-driven prose guidelines and varied examples at different complexity levels.
 >

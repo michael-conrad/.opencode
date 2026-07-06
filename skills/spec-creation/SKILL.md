@@ -28,13 +28,13 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "write spec" / "create spec" / "draft spec" / "write specification" / "create specification" / "draft specification" / "spec out" / "author spec" / "document requirements" / "specify feature" / "write requirements" / "create requirements doc" / "create a spec" / "write a spec" / "draft a spec" / "create a specification" / "write a specification" / "draft a specification" / "author a spec" / "make a spec" / "make specification" / "spec it out" | `write` | `sub-task` | {spec_context} |
+| "create spec" / "write spec" / "draft spec" / "create specification" / "write specification" / "draft specification" / "spec out" / "author spec" / "document requirements" / "specify feature" / "write requirements" / "create requirements doc" / "create a spec" / "write a spec" / "draft a spec" / "create a specification" / "write a specification" / "draft a specification" / "author a spec" / "make a spec" / "make specification" / "spec it out" | `create` | `sub-task` | {spec_context} |
 | "extract requirements" / "requirements extraction" | `requirements` | `sub-task` | {spec_context} |
 | "decompose problem" / "problem decomposition" | `decompose` | `sub-task` | {spec_context} |
 | "traceability" / "trace requirements" | `traceability` | `sub-task` | {spec_context} |
 | "pipeline readiness" / "readiness gate" | `pipeline-readiness-gate` | `sub-task` | {spec_context} |
 | "risk analysis" / "risk assessment" | `risk` | `sub-task` | {spec_context} |
-| "write spec" / "assemble spec" | `write` | `sub-task` | {spec_context} |
+| "create spec" / "assemble spec" | `create` | `sub-task` | {spec_context} |
 | "completion" / "spec complete" | `completion` | `sub-task` | {spec_context} |
 | "change control" / "revision" / "spec revision" | `change-control` | `sub-task` | {spec_context} |
 
@@ -51,7 +51,7 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 | `traceability`            |
 | `pipeline-readiness-gate` |
 | `risk`                    |
-| `write`                   |
+| `create`                  |
 | `completion`              |
 | `change-control`          |
 
@@ -68,7 +68,7 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 | `traceability`            | `task(..., prompt: "execute traceability task from spec-creation")`                    |
 | `pipeline-readiness-gate` | `task(..., prompt: "execute pipeline-readiness-gate task from spec-creation")`         |
 | `risk`                    | `task(..., prompt: "execute risk task from spec-creation")`                             |
-| `write`                   | `task(..., prompt: "execute write task from spec-creation")`                            |
+| `create`                  | `task(..., prompt: "execute create task from spec-creation")`                           |
 | `completion`              | `task(..., prompt: "execute completion task from spec-creation")`                      |
 | `change-control`          | `task(..., prompt: "execute change-control task from spec-creation")`                  |
 
@@ -85,7 +85,7 @@ This skill produces specs by dispatching sub-agents. The orchestrator routes; su
 - [ ] 7. [inline] Invoke `solve model` for dependency-ordering constraints contract — chain: `step_6`
 - [ ] 8. [inline] Invoke `solve check` to verify SAT — chain: `step_7`
 - [ ] 9. [inline] Invoke `plan plan` for phase solvability validation — chain: `step_8`
-- [ ] 10. [sub-task: write] `task(..., prompt: "execute write task from spec-creation")` — input: `{project_root}/tmp/{N}/contracts/write-input.yaml`, output: `{project_root}/tmp/{N}/contracts/write-output.yaml`, template: `.opencode/skills/spec-creation/contracts/write-input-template.yaml`, chain: `step_6, step_9`
+- [ ] 10. [sub-task: create] `task(..., prompt: "execute create task from spec-creation")` — input: `{project_root}/tmp/{N}/contracts/write-input.yaml`, output: `{project_root}/tmp/{N}/contracts/write-output.yaml`, template: `.opencode/skills/spec-creation/contracts/write-input-template.yaml`, chain: `step_6, step_9`
 - [ ] 11. [sub-task: completion] `task(..., prompt: "execute completion task from spec-creation")` — input: `{project_root}/tmp/{N}/contracts/completion-input.yaml`, output: `{project_root}/tmp/{N}/contracts/completion-output.yaml`, template: `.opencode/skills/spec-creation/contracts/write-output-template.yaml` (shared), chain: `step_10`
 - [ ] 12. [sub-task: spec-audit] `task(..., prompt: "execute spec-audit task from adversarial-audit")` — chain: `step_10`
 - [ ] 13. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. A slow correct answer is strictly better than a fast incorrect one. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.

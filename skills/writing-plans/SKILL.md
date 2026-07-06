@@ -38,6 +38,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "retroactive" / "retroactive plan" / "backfill plan" | `retroactive` | `sub-task` | {spec_issue_number} |
 | "update plan" / "plan update" / "auto-update plan" / "revise plan" | `update` | `sub-task` | {spec_issue_number, plan_issue_number} |
 | "spec-to-plan" / "handoff to plan" | `handoffs/spec-to-plan` | `sub-task` | {spec_issue_number} |
+| "pre-plan-readiness" / "readiness check" / "verify prerequisites" | `pre-plan-readiness` | `sub-task` | {spec_issue_number} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Programmatic Invocation
@@ -55,7 +56,7 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
 
 ## Tasks
 
-| `create` | `completion` | `retroactive` |
+| `create` | `completion` | `retroactive` | `pre-plan-readiness` |
 
 ## Plan Model
 

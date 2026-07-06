@@ -155,6 +155,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 | "apply label" / "set approval label" | `apply-label` | `sub-task` | {issue_number, authorization_scope} |
 | "revision revocation" / "spec revised" | `revision-revocation` | `sub-task` | {spec_issue, plan_issue} |
 | "bug discovery" / "bug found during implementation" | `bug-discovery-protocol` | `sub-task` | {issue_number, bug_description} |
+| "verify plan pipeline" / "check pipeline completeness" | `verify-plan-pipeline` | `sub-task` | {issue_number} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 Skills: `git-workflow`, `pr-creation-workflow`, `issue-review`, `implementation-pipeline`, `writing-plans`, `executing-plans`, `pre-analysis`. Guidelines: `010-approval-gate.md`, `000-critical-rules.md`, `065-verification-honesty.md`.

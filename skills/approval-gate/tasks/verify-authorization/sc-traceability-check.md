@@ -4,7 +4,7 @@
 
 Before implementation proceeds, verify that the corresponding spec's success criteria have enforcement test assertions (BOTH content-verification AND behavioral where applicable) and that RED-phase ordering was followed. This gate applies at TWO checkpoints:
 
-1. **Spec-creation RED gate** — When the spec was created (via `spec-creation` or `analyze-and-spec`), enforcement test assertions for each SC MUST have been written and verified in RED state BEFORE the spec was approved. This is enforced by the Step 0.5 RED gate in `spec-creation/tasks/write.md` and Step 4.1 in `issue-review/tasks/analyze-and-spec.md`.
+1. **Spec-creation RED gate** — When the spec was created (via `spec-creation` or `analyze-and-spec`), enforcement test assertions for each SC MUST have been written and verified in RED state BEFORE the spec was approved. This is enforced by the Step 0.5 RED gate in `spec-creation/tasks/create.md` and Step 4.1 in `issue-review/tasks/analyze-and-spec.md`.
 2. **Implementation RED gate** — Each enforcement test assertion was written BEFORE the implementation commit for its corresponding item (the test was in RED state — exists and fails — before implementation began).
 
 ## Verification Checks
@@ -27,7 +27,7 @@ success_criteria = parse_success_criteria(spec_body)
 # 0. Verify spec-creation RED gate was followed
 for sc in success_criteria:
     # Spec-creation RED gate: test assertions must exist and have been verified RED
-    # during spec creation (Step 0.5 of spec-creation/tasks/write.md)
+    # during spec creation (Step 0.5 of spec-creation/tasks/create.md)
     has_spec_red_evidence = check_spec_creation_red_gate_evidence(sc["id"])
     if not has_spec_red_evidence:
         # VERIFICATION-GAP: No evidence that SC test assertions were verified RED during spec creation
@@ -71,7 +71,7 @@ Existing SCs that were implemented before this mandate took effect are flagged b
 
 ## Cross-Reference
 
-See `080-code-standards.md` "SC-to-Test Traceability" and "RED-Phase Ordering" sections for the mandate. See `080-code-standards.md` "Behavioral Enforcement Tests (PRIMARY)" for the behavioral test requirement. See `091-incremental-build.md` for the per-item TDD cycle extended to SCs. See `spec-creation/tasks/write.md` Step 0.5 and `issue-review/tasks/analyze-and-spec.md` Step 4.1 for the content-creation RED gates that ensure enforcement test assertions exist before spec approval.
+See `080-code-standards.md` "SC-to-Test Traceability" and "RED-Phase Ordering" sections for the mandate. See `080-code-standards.md` "Behavioral Enforcement Tests (PRIMARY)" for the behavioral test requirement. See `091-incremental-build.md` for the per-item TDD cycle extended to SCs. See `spec-creation/tasks/create.md` Step 0.5 and `issue-review/tasks/analyze-and-spec.md` Step 4.1 for the content-creation RED gates that ensure enforcement test assertions exist before spec approval.
 
 ## Work State I/O
 
