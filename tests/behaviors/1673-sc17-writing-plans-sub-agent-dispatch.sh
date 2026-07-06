@@ -11,7 +11,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="1673-sc17-writing-plans-sub-agent-dispatch"
-SCENARIO_PROMPT="approved. create a plan for implementing search functionality from the approved spec at issue #43"
+SCENARIO_PROMPT="approved for implementation. create a plan for implementing search functionality from the approved spec at issue #43"
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
