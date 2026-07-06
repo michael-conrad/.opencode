@@ -34,11 +34,11 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" / "auto-create plan" / "gap-fill plan" | `create` | `orchestrator` | {spec_issue_number, spec_body} |
-| "retroactive" / "retroactive plan" / "backfill plan" | `retroactive` | `orchestrator` | {spec_issue_number} |
-| "update plan" / "plan update" / "auto-update plan" / "revise plan" | `update` | `orchestrator` | {spec_issue_number, plan_issue_number} |
+| "create plan" / "implementation plan" / "write plan" / "plan" / "draft plan" / "auto-create plan" / "gap-fill plan" | `create` | `sub-task` | {spec_issue_number, spec_body} |
+| "retroactive" / "retroactive plan" / "backfill plan" | `retroactive` | `sub-task` | {spec_issue_number} |
+| "update plan" / "plan update" / "auto-update plan" / "revise plan" | `update` | `sub-task` | {spec_issue_number, plan_issue_number} |
 | "spec-to-plan" / "handoff to plan" | `handoffs/spec-to-plan` | `sub-task` | {spec_issue_number} |
-| completion / workflow end | `completion` | `orchestrator` | {workflow_state} |
+| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Programmatic Invocation
 
@@ -79,10 +79,10 @@ This skill produces plans by dispatching pipeline steps to sub-agents. The orche
 
 | Task | Execution |
 |------|-----------|
-| `create` | Orchestrator dispatches pipeline steps to sub-agents via `task()` |
-| `retroactive` | Orchestrator dispatches pipeline steps to sub-agents via `task()` |
-| `update` | Orchestrator dispatches pipeline steps to sub-agents via `task()` |
-| `completion` | Orchestrator dispatches pipeline steps to sub-agents via `task()` |
+| `create` | Sub-agent via `task(..., prompt: "execute create task from writing-plans")` |
+| `retroactive` | Sub-agent via `task(..., prompt: "execute retroactive task from writing-plans")` |
+| `update` | Sub-agent via `task(..., prompt: "execute update task from writing-plans")` |
+| `completion` | Sub-agent via `task(..., prompt: "execute completion task from writing-plans")` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "writing-plans"})` ``
 
