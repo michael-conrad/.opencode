@@ -227,7 +227,12 @@ When submodules are detected via glob scan, the orchestrator dispatches a sub-ag
 - [ ] 7. Verifies tags exist on remote (`git ls-remote --tags origin <tag>`)
 - [ ] 8. Creates feature branch in each submodule from the tagged commit:
      - For each submodule, check if a feature branch already exists: `git branch --list feature/<issue-number>-*`
-     - If branch exists: skip (prior interrupted session) — log and continue
+     - If branch exists: rebase it onto the tagged commit to pick up the latest trunk changes:
+       ```bash
+       git checkout feature/<issue-number>-<slug>
+       git rebase <parent-repo>/<issue-number>
+       ```
+       This ensures the submodule branch is up-to-date with the tagged SHA that the main repo now references. Do NOT skip — a stale submodule branch recreates the pointer mismatch.
      - If branch does not exist: create feature branch from the tagged commit:
        ```bash
        git checkout -b feature/<issue-number>-<slug> <parent-repo>/<issue-number>
