@@ -4,14 +4,14 @@
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
 # SC-23: Agent runs solve check during pipeline execution (does not skip Z3 steps)
-# Real-domain task: create a plan, which should invoke solve check
+# Real-domain task: run solve check on a contract file
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="1673-sc23-solve-check-invocation"
-SCENARIO_PROMPT="approved for implementation. create a plan for implementing search functionality from the approved spec at issue #43"
+SCENARIO_PROMPT="run solve check on the writing-plans create output contract at .opencode/skills/writing-plans/contracts/create-output-template.yaml"
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
