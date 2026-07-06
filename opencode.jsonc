@@ -128,9 +128,9 @@
         "OLLAMA_BASE_URL": "http://localhost:11434"
       }
     },
-    "viewport-editor": {
+    "editor": {
       "type": "local",
-      "command": ["uvx", "--from", "git+https://github.com/michael-conrad/viewport-editor@v0.3.3", "viewport-editor"],
+      "command": ["uvx", "--from", "git+https://github.com/michael-conrad/viewport-editor@v0.3.4", "viewport-editor"],
       "enabled": true
     }
   }
