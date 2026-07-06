@@ -207,18 +207,6 @@ rules:
     triggers: [approval-gate, implementation-pipeline, git-workflow]
     source: "010-approval-gate.md §Authorization Scope Model"
 
-  - id: approval-gate-012
-    title: "Unified dispatch path — no single-task exemption"
-    conditions:
-      all:
-        - "has_approved_plan == true"
-    actions:
-      - INVOKE(implementation-pipeline)
-    conflicts_with: []
-    requires: [approval-gate-001b]
-    triggers: [implementation-pipeline]
-    source: "010-approval-gate.md §Unified Dispatch Path"
-
   - id: approval-gate-013
     title: "PR strategy is scope-dependent, not count-dependent"
     conditions:

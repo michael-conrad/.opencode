@@ -909,9 +909,6 @@ Close children first, then parent. See `git-workflow --task cleanup`.
 Must close parent plan when all children verified complete.
 
 
-### [critical-rules-018] Unified Pipeline Path — no single-task exemption
-Single issue = work-of-1. See `implementation-pipeline/SKILL.md` Trigger Dispatch Table.
-
 
 ### [critical-rules-039] Process Gaps Are Bugs — completed issues not auto-closed
 See `verify-already-implemented` → Auto-Close Procedure.

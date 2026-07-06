@@ -826,26 +826,6 @@
       "raw_conditions": {}
     },
     {
-      "id": "approval-gate-012",
-      "title": "Unified dispatch path \u2014 no single-task exemption",
-      "conditions_all": [
-        "has_approved_plan == true"
-      ],
-      "conditions_any": [],
-      "actions": [
-        "INVOKE(divide-and-conquer)"
-      ],
-      "conflicts_with": [],
-      "requires": [
-        "approval-gate-001b"
-      ],
-      "triggers": [
-        "divide-and-conquer"
-      ],
-      "source": "010-approval-gate.md \u00a7Unified Dispatch Path",
-      "raw_conditions": {}
-    },
-    {
       "id": "approval-gate-013",
       "title": "PR strategy is scope-dependent, not count-dependent",
       "conditions_all": [],

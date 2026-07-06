@@ -22,14 +22,6 @@ ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
 
 **Note:** GitHub autoclose (`Fixes #N`/`Closes #N`) does NOT trigger for PRs merging into `dev`. The cleanup task (`git-workflow --task cleanup`) is the sole closure mechanism. PR body keywords are informational labels for human readers.
 
-### Single-Task / Unified Dispatch Path
-
-All specs follow the unified pipeline path (work-of-1). Include parent issue in the PR body. Sub-issues are included when they exist under the plan:
-
-```
-Fixes #<parent>
-```
-
 ### Multi-Task Spec with Sub-Issues
 
 - [ ] 1. **Fetch sub-issues:**

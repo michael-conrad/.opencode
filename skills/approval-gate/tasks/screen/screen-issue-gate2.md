@@ -134,7 +134,7 @@ Expand the issue into its sub-issues (flat item list):
 
 1. **Query sub-issues:** `issue-operations -> read-sub-issues (github_issue_read(method="get_sub_issues", issue_number=N)` <!-- Routes through issue-operations per SPEC #683 -->
 2. **If sub-issues exist:** Expand the parent into its sub-issues as individual implementation items. The parent's spec body provides context; each sub-issue defines a phase.
-3. **If no sub-issues (work-of-1):** The issue IS the flat item — no expansion needed.
+3. **If no sub-issues:** The issue IS the flat item — no expansion needed.
 4. **Build the flat item list:** Each sub-issue (or single issue) becomes one flat item. This is the input to the merge phase.
 
 **Expansion rules:**

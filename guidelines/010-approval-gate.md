@@ -121,9 +121,6 @@ Defines where the pipeline halts after a given authorization scope, what gap-fil
 | `for_review_only` | code_review_ready | None | none |
 | `for_analysis` | analysis_complete | None | none |
 
-#### Unified Pipeline Path (Work-of-1)
-
-**Work-of-1 requires unified pipeline task() — NOT per-task authorization.** Authorization for a phase (e.g., "implement") means authorizing ALL sub-issues under that phase within a single sequential pipeline, each tasked via `task(subagent_type="general")`. The agent does NOT treat each sub-issue as requiring separate developer authorization.
 
 #### Scope-Dependent PR Strategy
 
@@ -407,17 +404,6 @@ rules:
     actions:
       - HALT
     source: "010-approval-gate.md §Authorization Scope Model"
-
-  - id: approval-gate-012
-    tier: 2
-    title: "Unified pipeline path — no single-task exemption"
-    conditions:
-      all:
-        - "has_approved_plan == true"
-    actions:
-      - HALT
-      - CALL(implementation-pipeline)
-    source: "010-approval-gate.md §Unified Dispatch Path"
 
   - id: approval-gate-014
     tier: 2

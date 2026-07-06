@@ -14,13 +14,11 @@ plan_paths = [f".issues/{N}/plan.md", f"{project_root}/{path}/.issues/{N}/plan.m
 plan_body = read_local_plan_file(plan_paths)
 
 if plan_body:
-    # All plans use unified dispatch path (work-of-1)
     phases = parse_phases_from_plan_body(plan_body)
 ```
 
 ### 5.2 Verify Sub-Issues Under Plan (All Plans)
 
-**All plans follow the unified dispatch path (work-of-1).** There is no single-task exemption — sub-issue verification applies to every plan regardless of phase count.
 
 For all plans:
 
