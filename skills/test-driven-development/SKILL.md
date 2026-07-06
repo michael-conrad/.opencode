@@ -36,6 +36,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 | "checklist" / "TDD checklist" | `checklist` | `sub-task` | {spec_context} |
 | "phase-0" / "pre-regression" / "baseline" | `phase-0` | `sub-task` | {spec_context} |
 | "phase-4" / "post-regression" / "verify" | `phase-4` | `sub-task` | {spec_context} |
+| "validate-behavioral-prompt" / "validate prompt" / "check prompt" | `validate-behavioral-prompt` | `sub-task` | {prompt_text, sc_list} |
 
 - [ ] 1. **FAIL=FAIL** — No soft-passing. Verify against live sources. Report PASS/FAIL truthfully.
 - [ ] 2. **RED/GREEN separation** — RED and GREEN must be separate phases. They may NEVER be combined into a single phase or step. RED must complete (test written and confirmed FAIL) before GREEN begins. This is a hard gate — no authorization or developer instruction may override it.
@@ -123,6 +124,7 @@ Never `RED-ALL → GREEN-ALL`.
 | `checklist` | Quality checklists, timing, step-size |
 | `phase-0` | Pre-regression baseline gate |
 | `phase-4` | Post-regression verification gate |
+| `validate-behavioral-prompt` | Validate behavioral test prompt triggers target behavior |
 
 ## Invocation
 
