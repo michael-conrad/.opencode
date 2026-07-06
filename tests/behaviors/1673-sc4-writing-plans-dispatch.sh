@@ -11,7 +11,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="1673-sc4-writing-plans-dispatch"
-SCENARIO_PROMPT="create a plan for implementing dark mode toggle from the approved spec"
+SCENARIO_PROMPT="create a plan for implementing dark mode toggle from the approved spec at issue #42"
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
