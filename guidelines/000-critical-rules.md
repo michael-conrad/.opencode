@@ -1014,7 +1014,7 @@ All references to "context budget", "context cost", and "context awareness" must
 | Progress executive summaries | Chat only |
 | Review-prep / verification status | Chat only |
 | Substantive spec revision | Chat + Issue comment |
-| PR created | Issue comment |
+| PR created | Chat only |
 | Issue blocked | Issue comment |
 | Bug discovered during implementation | Issue comment |
 | User question response | Issue comment |
