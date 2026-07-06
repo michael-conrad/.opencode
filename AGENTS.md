@@ -275,9 +275,9 @@ When parent issue has sub-issues, authorization cascades to ALL sub-issues:
 
 ---
 
-## viewport-editor MCP Plugin
+## editor MCP Plugin
 
-This repo uses [viewport-editor](https://github.com/michael-conrad/viewport-editor) as its editing MCP server.
+This repo uses [editor](https://github.com/michael-conrad/viewport-editor) as its editing MCP server.
 
 **11-tool surface** (see README for full action lists):
 
