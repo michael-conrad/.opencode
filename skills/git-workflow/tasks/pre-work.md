@@ -120,9 +120,9 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 |-----------|------|----------------|-----------|
 | `git fetch origin` | Step 1.5/2 | Pipeline prerequisite | Remote exists |
 | `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"` | Step 2 | Tier 1 mandate prerequisite | Always when remote exists |
-| Task() sub-agent for submodule ops | Step 2.5/3.5 | Tier 1 mandate prerequisite | Submodules detected via glob scan |
-| `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 3 | Tier 1 mandate — required by `000-critical-rules.md` §Skipping Git Pre-Check | Always |
-| `git push -u origin feature/N-xyz` | Post-Step 5 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
+| Task() sub-agent for submodule ops | Step 2.5/3 | Tier 1 mandate prerequisite | Submodules detected via glob scan |
+| `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 4 | Tier 1 mandate — required by `000-critical-rules.md` §Skipping Git Pre-Check | Always |
+| `git push -u origin feature/N-xyz` | Post-Step 6 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
 
 **Automatic classification conditions (ALL must be true):**
 
@@ -164,48 +164,9 @@ When submodules are detected via glob scan, the orchestrator dispatches a sub-ag
 
 🚫 **FORBIDDEN:** Pre-loading the sub-agent with expected SHA values, expected commit counts, expected log summaries, or any orchestrator analysis of what changed. The sub-agent independently discovers submodule state.
 
-### Step 3: Create Feature Branch (Mode-Dependent)
+### Step 3: Submodule Work — All Submodule Operations Complete Before Main Repo Work Begins
 
-#### Direct-Branch Mode (DEFAULT — when WORKTREE_REQUIRED is NOT set)
-
-Create feature branch directly in the main repo:
-
-```bash
-git checkout -b <branch-name> "$DEFAULT_BRANCH"
-# or: git switch -c <branch-name> "$DEFAULT_BRANCH"
-```
-
-**Relative paths work directly in direct-branch mode.** No worktree path prefixing needed.
-
-**After branch creation:**
-
-```bash
-# Verify branch
-git branch --show-current
-# MUST show the feature branch name
-
-# Verify working tree
-git status --porcelain
-# Report any uncommitted changes
-```
-
-#### Worktree Mode (OPT-IN — when WORKTREE_REQUIRED is set or developer requests)
-
-Invoke `using-git-worktrees` skill to create an isolated worktree:
-
-- [ ] 1. Invoke `using-git-worktrees` skill
-- [ ] 2. The skill creates the worktree: `git worktree add .worktrees/<sanitized-name> -b <branch-name> "$DEFAULT_BRANCH"`
-- [ ] 3. The skill exports `worktree.path`, `branch`, `BASE_HASH` as environment variables
-- [ ] 4. If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT**
-
-**If worktree creation fails or `worktree.fatal=1` is detected:**
-
-- HALT immediately
-- Report the fatal error to the developer
-- Do NOT attempt any implementation until the worktree infrastructure is fixed
-- There is NO fallback to direct-branch when worktree mode is explicitly requested
-
-### Step 3.5: Submodule Initialization and Sync — Orchestrator Dispatches Sub-Agent
+**All submodule work completes before any main repo work.** The main repo's submodule pointer is a committed SHA — syncing submodules to trunk tip updates the submodule working tree but does NOT update the main repo's gitlink entry. The main repo feature branch must be created AFTER the submodule pointer is updated to the tagged SHA.
 
 **If no submodules detected via glob scan:** Skip this step and proceed to Step 4.
 
@@ -264,7 +225,20 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 - [ ] 5. Tags each submodule at dev tip with `<parent-repo>/<issue-number>` format (`git tag -a`)
 - [ ] 6. Pushes tags to submodule remote (`git push origin <tag>`)
 - [ ] 7. Verifies tags exist on remote (`git ls-remote --tags origin <tag>`)
-- [ ] 8. Reports results in its result contract
+- [ ] 8. Creates feature branch in each submodule from the tagged commit:
+     - For each submodule, check if a feature branch already exists: `git branch --list feature/<issue-number>-*`
+     - If branch exists: rebase it onto the tagged commit to pick up the latest trunk changes:
+       ```bash
+       git checkout feature/<issue-number>-<slug>
+       git rebase <parent-repo>/<issue-number>
+       ```
+       This ensures the submodule branch is up-to-date with the tagged SHA that the main repo now references. Do NOT skip — a stale submodule branch recreates the pointer mismatch.
+     - If branch does not exist: create feature branch from the tagged commit:
+       ```bash
+       git checkout -b feature/<issue-number>-<slug> <parent-repo>/<issue-number>
+       ```
+     - Push the feature branch to the submodule remote: `git push -u origin feature/<issue-number>-<slug>`
+- [ ] 9. Reports results in its result contract
 
 **The orchestrator receives a result contract containing:**
 
@@ -272,6 +246,8 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 status: DONE | BLOCKED
 submodules_found: <count>
 submodules_updated: <list of (path, old_sha, new_sha, commit_count)>
+submodule_branches_created: <list of (path, branch_name, tag_used)>
+submodule_branches_skipped: <list of (path, branch_name, reason)>
 ```
 
 **If `status: BLOCKED`** (e.g., submodule checkout fails): Re-task() with original scoped context. If second task() also fails, report the double-failure and HALT.
@@ -280,7 +256,60 @@ submodules_updated: <list of (path, old_sha, new_sha, commit_count)>
 
 **Do NOT inline the submodule operations.** The orchestrator never runs `git submodule` commands or reads submodule logs directly.
 
-### Step 4: Verify Branch Environment
+### Step 4: Update Main Repo Submodule Pointer and Create Feature Branch
+
+**Main repo work starts AFTER all submodule work is complete.** The submodule pointer must be updated to the tagged SHA before the feature branch is created, so the branch captures the correct pointer.
+
+- [ ] 1. **Update submodule pointer:** For each submodule, stage the updated gitlink entry:
+     ```bash
+     git add <submodule-path>
+     ```
+- [ ] 2. **Create feature branch** (mode-dependent):
+
+#### Direct-Branch Mode (DEFAULT — when WORKTREE_REQUIRED is NOT set)
+
+```bash
+git checkout -b <branch-name> "$DEFAULT_BRANCH"
+# or: git switch -c <branch-name> "$DEFAULT_BRANCH"
+```
+
+**Relative paths work directly in direct-branch mode.** No worktree path prefixing needed.
+
+#### Worktree Mode (OPT-IN — when WORKTREE_REQUIRED is set or developer requests)
+
+Invoke `using-git-worktrees` skill to create an isolated worktree:
+
+- [ ] 1. Invoke `using-git-worktrees` skill
+- [ ] 2. The skill creates the worktree: `git worktree add .worktrees/<sanitized-name> -b <branch-name> "$DEFAULT_BRANCH"`
+- [ ] 3. The skill exports `worktree.path`, `branch`, `BASE_HASH` as environment variables
+- [ ] 4. If `worktree.path` is not set or empty: **FATAL ERROR → FLAG DEV → HALT**
+
+**If worktree creation fails or `worktree.fatal=1` is detected:**
+
+- HALT immediately
+- Report the fatal error to the developer
+- Do NOT attempt any implementation until the worktree infrastructure is fixed
+- There is NO fallback to direct-branch when worktree mode is explicitly requested
+
+- [ ] 3. **Commit the submodule pointer update as the first commit on the feature branch:**
+     ```bash
+     git commit -m "chore: update submodule pointer to <parent-repo>/<issue-number> tag"
+     ```
+     This ensures the feature branch's first commit captures the correct submodule SHA. Subsequent implementation commits build on this foundation.
+
+**After branch creation and pointer commit:**
+
+```bash
+# Verify branch
+git branch --show-current
+# MUST show the feature branch name
+
+# Verify working tree
+git status --porcelain
+# Report any uncommitted changes
+```
+
+### Step 5: Verify Branch Environment
 
 **Before yielding back to orchestration layer, verify:**
 
@@ -306,7 +335,7 @@ echo $WORKTREE_PATH
 
 **If ANY check fails → STOP and report.**
 
-### Step 5: Report Ready
+### Step 6: Report Ready
 
 **Direct-branch mode:**
 
@@ -521,7 +550,7 @@ If found, report collision and HALT — do not reuse another branch's worktree.
 
 ### Verification Procedure
 
-**After Step 4 (Verify Branch Environment), run these verifications and record evidence:**
+**After Step 5 (Verify Branch Environment), run these verifications and record evidence:**
 
 ```
 1. git branch --show-current → EVIDENCE: <branch-name>
